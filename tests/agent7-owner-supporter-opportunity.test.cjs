@@ -105,6 +105,10 @@ test('genuine Store proposal, settlement and Pass are counted without altering p
   assert.equal(output.audit.bySeat[0].acceptedSupporters,1);
   assert.equal(output.audit.bySeat[0].passWithHeld,1);
   assert.equal(output.audit.bySeat[0].passWithStructurallyOpen,0);
+  assert.equal(output.audit.bySeat[0].acceptedPassRoots,1);
+  assert.equal(output.audit.bySeat[0].acceptedPassWithHeld,1);
+  assert.equal(output.audit.bySeat[0].acceptedPassWithStructurallyOpen,0);
+  assert.equal(output.audit.bySeat[0].passTurnAdvanced,0);
   assert.equal(output.audit.acceptedSupporterSamples[0].settled,true);
   assert.strictEqual(Ai.prototype.decodeNextAction,oldDecode);
   assert.strictEqual(Store.prototype.dispatch,oldDispatch);
@@ -119,4 +123,44 @@ test('owner-private receipt is unchanged when concealed opponent hand changes',(
   ];
   assert.deepEqual(ownerSupporterOpportunity(state,0,observation(state),
     SUPPORTER),before);
+});
+
+
+test('repeated speculative Pass proposals count only once after real Store acceptance',()=>{
+  class AddPlayerAction{}
+  class PassTurnAction{}
+  class Store{
+    constructor(state){this.state=state;}
+    dispatch(action){
+      if(action instanceof PassTurnAction){
+        this.state.turn++;
+        this.state.activePlayer=1;
+      }
+      return action.constructor.name;
+    }
+  }
+  class Ai{
+    constructor(client){this.client=client;}
+    decodeNextAction(){return new PassTurnAction();}
+  }
+  const state=makeState([held('Carmine','Carmine TWM')],3);
+  const store=new Store(state),ai=new Ai({id:101});
+  const result=withOwnerSupporterOpportunity(()=>{
+    store.dispatch(new AddPlayerAction());
+    const uncommitted=ai.decodeNextAction(state);
+    const real=ai.decodeNextAction(state);
+    assert.notStrictEqual(real,uncommitted);
+    store.dispatch(real);
+    return 'ok';
+  },{SimpleTacticsAi:Ai,Store,GamePhase:{PLAYER_TURN:3},
+    TrainerType:{SUPPORTER},observe:observation});
+  assert.equal(result.result,'ok');
+  const a=result.audit.bySeat[0];
+  assert.equal(a.passWithHeld,2,'Both bot choices are proposals');
+  assert.equal(a.passWithStructurallyOpen,2);
+  assert.equal(a.acceptedPassRoots,1,'Only the dispatched native root is accepted');
+  assert.equal(a.acceptedPassWithStructurallyOpen,1);
+  assert.equal(a.passTurnAdvanced,1);
+  assert.deepEqual(result.audit.passSamples.map(s=>
+    s.nativePassReceipt.accepted),[false,true]);
 });
