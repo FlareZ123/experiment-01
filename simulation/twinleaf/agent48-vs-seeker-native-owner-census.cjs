@@ -112,6 +112,9 @@ function runAudit(){
   };
 }
 
-if(require.main===module)
-  process.stdout.write(JSON.stringify(runAudit(),null,2)+'\n');
+if(require.main===module){
+  const report=runAudit();
+  process.stdout.write(JSON.stringify(report,null,2)+'\n');
+  if(report.failedArms>0)process.exitCode=1;
+}
 module.exports={SEEDS,MAX_ACTIONS,arm,runAudit};
