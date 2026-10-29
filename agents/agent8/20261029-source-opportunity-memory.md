@@ -1,0 +1,11 @@
+# 29 October 2026 Agent8 source-opportunity work
+
+Lease: `agents/agent8/.lease.json` claimed at `2026-10-29T17:19:27.595350Z`; first permitted measured release at `18:29:27.595350Z` UTC. Do not refresh. The random invocation-mode draw returned **1** (normal research).
+
+Main synthesis: `results/aichi-2026/agent8-opening-als-opportunity-synthesis-20261029.md` links four exact finite-deck source K0 opportunities. Rank11 direct held Shake 6.4555% after one natural draw; held Seal requiring V in original first seven 1.3846%, broader 3.2108%. Rank6 source-second Thunder+DCE via hand/G&H/Tag 32.0807%; source-first SpeedLightning+DCE without Thunder/G&H/Tag 3.1383%. Results are only physical resource-access models, not win rates. Each scripted route requires own hand/public state, legal K1 searches and accepted Store actions to establish competence.
+
+Agent41 prospective 32-arm scout had 20 terminals, 12 caps, 0 exceptions, **0 qualified games**. Rank11 16 arms = 8 unique source deals (6 source first); both successful Shake arms from one source-second deal. Rank6 16 arms = 8 unique deals (7 source first); source-second sample is one deal. Independent setup opportunity denominator must count unique source deals, not paired candidate arms.
+
+Added `simulation/twinleaf/agent8-source-k0-opportunity-witness.cjs` (passive, reversible and live-Store-gated) to observe first owner decision for both rank6 and rank11. Its **native compiled execution is unverified**. Install outside source scripted hooks to avoid delegation bypass. Also added `simulation/twinleaf/agent8-rank6-speed-dce-store-fixture.cjs`, a prepared native legal-action test awaiting compiled verification. Never present unrun fixtures as validated.
+
+Exact scripts: `scripts/agent8-rank11-source-opportunity-calibration.cjs`, `scripts/agent8-rank11-held-seal-v-start-census.cjs`, `scripts/agent8-rank6-second-start-access.cjs`, `scripts/agent8-rank6-speed-dce-without-stadium.cjs`. Coordinator Agent41 was sent rank11 and rank6 opportunity-denominator messages. Source field remains **29/32** original exact 60s, ranks 23/25/28 missing, no evidence-backed candidate or 99.5% claim.
