@@ -41,18 +41,25 @@ function publicCostSymbols(cost,catalog){
 function publicEnergyContext(view,pokemon,catalog){
   const stage=pokemon?.printed?.stage;
   const isBasic=stage===catalog.stages?.BASIC;
+  const profile=catalog.publicPokemonProfileIndex instanceof Map?
+    require('./agent10-original-printing-energy-flags.cjs')
+      .visiblePrintedProfile(catalog.publicPokemonProfileIndex,
+        pokemon.printing):null;
   return {
     isBasic,
-    isEvolution:stage!==undefined&&stage!==null&&!isBasic,
+    isEvolution:profile?.isEvolution??
+      (stage!==undefined&&stage!==null&&!isBasic),
     isDragon:catalog.dragonPokemonPrintings instanceof Set&&
       catalog.dragonPokemonPrintings.has(pokemon.printing),
-    // Conservative. Unknown rule-box status must not accidentally produce
-    // three Reversal units on an ineligible Evolution.
-    hasRuleBox:true,
+    // Unknown printings stay conservative; exactly matched public
+    // no-Rule-Box Stage 1 printings may receive Reversal's extra units.
+    hasRuleBox:profile?.hasRuleBox??true,
     behindOnPrizes:typeof view.ownPublic?.prizeCount==='number'&&
       typeof view.opponentPublic?.prizeCount==='number'&&
       view.ownPublic.prizeCount>view.opponentPublic.prizeCount,
-    isPokemonGXorEX:/(?:-GX|-EX)$/.test(pokemon.name??'')
+    isPokemonGXorEX:profile===null?
+      /(?:-GX|-EX)$/.test(pokemon.name??''):
+      profile.isPokemonGX||profile.isPokemonEX
   };
 }
 
