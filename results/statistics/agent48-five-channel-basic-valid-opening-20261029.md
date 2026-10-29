@@ -29,7 +29,7 @@ This model is **exact for card-location visibility under the stated sampling pro
 ## Results
 
 - Verified source field: **29 distinct original 60s**; combined five-channel inventory: **201 physical copies**. All 29 have at least one selected copy.
-- Equal weighting of the 29 *ranks* yields mean `P7 = 55.4434%` and mean **`P8 = 60.8525%`**. This is an average of 29 conditional card-location probabilities, not a percentage of successfully played or legal actions.
+- Equal weighting of the 29 *ranks* yields mean `P7 = 55.6863%` and mean **`P8 = 60.8525%`**. This is an average of 29 conditional card-location probabilities, not a percentage of successfully played or legal actions.
 - The maximum is rank **13 Regidrago**, 11 selected physical copies / 11 Basics: **80.6627%** by first eight.
 - Ranks **2 Vileplume Control** and **15 Lopunny Vileplume** each have two selected copies / 14 Basics: **24.1158%** by first eight. Their lower visibility does not establish that the two printed copies were strategically needed on the first turn.
 - Rank **6 Iron Thorns** has seven selected copies / four Basics: **61.6116%** by first eight. These five named channels do not include its source-specific Special Energy and denial actions, whose independent missing coverage remains a separate gate.
