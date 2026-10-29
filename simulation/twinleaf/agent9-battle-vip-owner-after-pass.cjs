@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
-const VERSION='agent9-battle-vip-owner-after-pass-v2-priority-contention-audit';
+const VERSION='agent9-battle-vip-owner-after-pass-v3-positive-bench-witness';
 const PRINTING='Battle VIP Pass FST';
 const PROMPT_MESSAGE='CHOOSE_CARD_TO_PUT_ONTO_BENCH';
 
@@ -113,6 +113,7 @@ function withActorBattleVipAfterPass(execute,deps={}){
     eligiblePassRoots:0,proposedItems:0,acceptedItems:0,rejectedItems:0,
     proposedSearches:0,acceptedSearches:0,rejectedSearches:0,
     nativeBenchConfirmed:0,nativeBenchUnconfirmed:0,
+    nativeEmptySearchConfirmed:0,
     unresolvedOwnerSearches:0,
     selectedBasics:0,selectedEmpty:0,
     bySeat:{0:{items:0,searches:0,benchConfirmed:0},
@@ -254,9 +255,14 @@ function withActorBattleVipAfterPass(execute,deps={}){
           event.printings.length&&
           deckBefore-deckAfter===event.printings.length&&
           newlyBenched.length===event.printings.length;
-        if(physicallyConfirmed){
+        if(physicallyConfirmed&&event.printings.length>0){
           audit.nativeBenchConfirmed++;
           audit.bySeat[event.seat].benchConfirmed++;
+        }else if(physicallyConfirmed&&event.printings.length===0){
+          // A min=0 native search may legally select zero. Accept the
+          // original prompt, but never count zero physical movement as a
+          // successful Basic-to-Bench placement.
+          audit.nativeEmptySearchConfirmed++;
         }else audit.nativeBenchUnconfirmed++;
         limited({kind:event.kind,seat:event.seat,turn:event.turn,
           printings:event.printings,accepted:true,
