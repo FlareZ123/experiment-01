@@ -70,7 +70,7 @@ function pairedCensus(control,observed){
 /** @returns {object} Actual pinned Store paired cohort. */
 function execute(){
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
-  const blob=createHash('sha1').update('blob '+bytes.length+'\\0')
+  const blob=createHash('sha1').update('blob '+bytes.length+'\0')
     .update(bytes).digest('hex');
   assert.equal(blob,REGISTRATION_BLOB,
     'Original source/candidate/seed registration modified');
@@ -115,7 +115,7 @@ function execute(){
 
 if(require.main===module){
   const result=execute();
-  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
   assert.equal(result.fullyNonInterfering,true,
     'Read-only observer changed a genuine native Store execution');
 }
