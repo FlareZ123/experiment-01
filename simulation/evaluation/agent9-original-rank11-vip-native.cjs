@@ -94,13 +94,13 @@ function run(){
   // This historically selected first-turn source deal is known to hold VIP.
   // Require the actual owner action and physical Bench effect; do not let a
   // default-off no-op produce a green CI job.
-  assert.ok(treatment.sourceVipRoots.length>=1,
-    'The source-held VIP was never native-accepted');
-  assert.ok(treatment.nativeVipAudit.nativeBenchConfirmed>=1,
-    'The selected owner deck Basic cards were not confirmed on Bench');
-  assert.ok(treatment.firstCandidateReplyAfterVip,
-    'No subsequent normal opposing actor root followed the VIP line');
-  return {
+  const gate={
+    vipSourcePlayObserved:treatment.sourceVipRoots.length>=1,
+    vipSearchAccepted:treatment.nativeVipAudit.acceptedSearches>=1,
+    vipBenchPhysicallyConfirmed:treatment.nativeVipAudit.nativeBenchConfirmed>=1,
+    opponentNextRootObserved:Boolean(treatment.firstCandidateReplyAfterVip)
+  };
+  return {gatePassed:Object.values(gate).every(Boolean),gate,
     schema:'agent9-rank11-battle-vip-original-deal-native-two-arm-v1',
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     historicalFixture:true,seed:fixture.trial.seed,
@@ -117,5 +117,17 @@ function run(){
     caveat:'Retrospective known-VIP-hand physical source deal. One action-mechanism test under a source-unqualified simulator, never a comparative win rate.'
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const output=run();
+  process.stdout.write(JSON.stringify(output,null,2)+'\n');
+  process.stderr.write('AGENT9_VIP_DIAGNOSTIC '+JSON.stringify({
+    gate:output.gate,audit:output.treatment.nativeVipAudit,
+    sourceRoot:output.treatment.sourceVipFirstTurnRoot,
+    firstReply:output.treatment.firstCandidateReplyAfterVip,
+    sourceStarter:output.treatment.actualStarterSeat,
+    controlRoots:output.baseline.rootActionCount,
+    treatmentRoots:output.treatment.rootActionCount
+  })+'\n');
+  if(!output.gatePassed)process.exitCode=1;
+}
 module.exports={executeOwnerVip,run};
