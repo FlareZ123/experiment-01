@@ -52,9 +52,10 @@ function verifyActiveEvolution(sourceSeat) {
   owner.active.cards.push(card('Trubbish FST'));
   const candidate = card('Mewtwo & Mew-GX UNM');
   opponent.active.cards.push(candidate);
-  for (let i = 0; i < 5; i++) {
+  for (const printing of ['Oranguru V ASR', 'Oranguru V ASR',
+    'Crobat V DAA', 'Squawkabilly ex PAL', 'Mega Absol ex MEG']) {
     const slot = new PokemonCardList();
-    slot.cards.push(card('Oranguru V ASR'));
+    slot.cards.push(card(printing));
     owner.bench.push(slot);
   }
   for (const player of state.players) {
