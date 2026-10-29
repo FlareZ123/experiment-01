@@ -145,3 +145,25 @@ test('face-down setup prompt delegates before any actor board projection',()=>{
   assert.equal(r.audit.selected,0);
   assert.equal(r.audit.unsupportedNativeFallbacks,1);
 });
+
+
+test('generic first-Pokemon prompt choice can violate a preceding public Guzma Bench plan',()=>{
+  // Current actor root carries a preferred physical Bench index for the
+  // 'play-held-guzma-mobility' intent, but its PlayCardAction carries no
+  // preference and the neutral ChoosePokemonPrompt policy sees no plan.
+  const intendedBenchIndex=1;
+  const input={
+    actor:{decisionKind:'owner-prompt'},
+    prompt:{kind:'ChoosePokemonPrompt',allowCancel:false,offered:[
+      {index:0,side:'own',zone:'bench',benchIndex:0,
+        printing:'Crobat V DAA',attachedEnergyCount:0},
+      {index:1,side:'own',zone:'bench',benchIndex:1,
+        printing:'Oranguru V ASR',attachedEnergyCount:1}
+    ]}
+  };
+  const choice=chooseActorPokemon(input);
+  assert.deepEqual(choice,{index:0});
+  assert.notEqual(
+    input.prompt.offered[choice.index].benchIndex,intendedBenchIndex
+  );
+});
