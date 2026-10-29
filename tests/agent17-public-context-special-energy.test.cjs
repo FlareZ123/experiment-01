@@ -86,3 +86,30 @@ test('no fabricated Bench Jet switch or opponent concealed dependency',()=>{
   assert.deepEqual(choosePublicContextSpecialEnergy(a,catalog),
     choosePublicContextSpecialEnergy(b,catalog));
 });
+
+
+test('shared default root unchanged, opt-in physically typed attach and next attack',()=>{
+  const {chooseActorRootIntent}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),specialConditions:{ASLEEP:-1,PARALYZED:-2}};
+  const active=slot('Pikachu','Pikachu UPR',[4]);
+  const v=view(active,['Unit Energy LPM UPR'],[null,null,null,null,null]);
+  v.globalTurn=2;
+  v.ownTurnResources={pokemonPlayLocked:false,energyPlayLocked:false,
+    specialEnergyPlayLocked:false,energyPlayedTurn:0};
+  assert.equal(chooseActorRootIntent(v,c).kind,'pass');
+  assert.deepEqual(chooseActorRootIntent(v,c,{
+    publicContextSpecialEnergy:true}),{
+    kind:'attach-special-energy',printing:'Unit Energy LPM UPR',
+    handIndex:0,slot:'active',index:0
+  });
+  v.ownHand=[];
+  v.ownPublic.active.energies.push('Unit Energy LPM UPR');
+  v.ownTurnResources.energyPlayedTurn=2;
+  assert.deepEqual(chooseActorRootIntent(v,c,{
+    publicContextSpecialEnergy:true}),{
+    kind:'attack',attackName:'Payable eventually'
+  });
+  assert.equal(chooseActorRootIntent(v,c).kind,'pass');
+});
