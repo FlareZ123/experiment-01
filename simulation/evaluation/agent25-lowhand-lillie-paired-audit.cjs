@@ -18,7 +18,9 @@ function auditLowHandLilliePair(control,treatment){
     assert.equal(x.actorOnlyCompositionOptIn,true);
   }
   const base=new Map(control.rows.map(row=>[row.trial.id,row]));
-  assert.equal(base.size,4);
+  assert.equal(base.size,4,'Duplicate control trial ids');
+  assert.equal(new Set(treatment.rows.map(row=>row.trial.id)).size,4,
+    'Duplicate treatment trial ids');
   const rows=treatment.rows.map(row=>{
     const original=base.get(row.trial.id);
     assert.ok(original,'Missing comparison arm');
