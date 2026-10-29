@@ -161,6 +161,8 @@ jobs:
         run: npm run compile
       - name: Verify conditional Special Energy actor root on pinned Store
         run: node --test tests/agent17-conditional-special-native.test.cjs
+      - name: Census 118 original source Specials in the pinned CardManager
+        run: node --test tests/agent17-original-special-native-catalog.test.cjs
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
