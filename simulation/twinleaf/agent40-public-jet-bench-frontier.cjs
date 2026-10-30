@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent40-public-jet-bench-switch-v1';
+const VERSION='agent40-public-jet-bench-switch-v2-active-lock-protection';
 const JET='Jet Energy ';
 
 /**
@@ -29,6 +29,12 @@ function choosePublicJetBenchSwitch(view,catalog,deps={}){
       quota?.energyPlayedTurn===view.globalTurn||
       [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
         .some(x=>x.startsWith('Temple of Sinnoh ')))return null;
+  // Active-dependent passive locks may be the entire strategic plan. A
+  // guaranteed forced switch can disable Sentinel, Initialization, and
+  // similar effects, even when the current Active cannot pay an attack.
+  const activeOnly=/(?:as long as|while)\s+this\s+pok[eé]mon\s+is\s+(?:your\s+active\s+pok[eé]mon|in\s+the\s+active\s+spot)/i;
+  if(own.active.abilityDetails?.some(x=>
+    typeof x.text==='string'&&activeOnly.test(x.text)))return null;
   const handIndex=view.ownHand.findIndex(x=>x.startsWith(JET)&&
     catalog.specialEnergies instanceof Set&&catalog.specialEnergies.has(x));
   if(handIndex<0)return null;
