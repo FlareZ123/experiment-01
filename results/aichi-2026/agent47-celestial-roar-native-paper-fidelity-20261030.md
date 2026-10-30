@@ -164,6 +164,32 @@ effect witness for **one staged mixed composition**; these percentages
 are descriptive test-coverage priorities across original deck
 populations, not measured native error rates or win-rate estimates.
 
+## Observed in real naturally dealt original Aichi source matches
+
+Independent of the preceding staged witnesses, a **full 24-cell
+original source-deal native census** of rank20 versus authentic ranks1
+and11, both physical source seats, six fixed seeds, a 160-root cap,
+and a symmetric mandatory attach bot correction found **two real
+source60 physical 59-card losses** among 24 nonabortive native runs.
+All 1,316 fully settled roots were audited. The two affected original
+rank20 source-seat1 games occurred versus rank11 at fixed seeds
+`1847000101` and `1847000103`. Both first settlement failures
+followed Celestial Roar. Read
+[full failure-inclusive natural census and causal action lineage](agent47-rank20-24-natural-settled-physical-loss-20261030.md),
+[successful 24-cell native CI 41134031798](https://github.com/FlareZ123/experiment-01/actions/runs/41134031798)
+and [successful two-case ancestry reproduction CI 41134979066](https://github.com/FlareZ123/experiment-01/actions/runs/41134979066).
+
+The follow-up `rootActionLedger.initiatingRootActionOrdinal`
+unambiguously identifies **source rank20 physical seat1's Celestial
+Roar `AttackAction`** as the initiating native root of both
+lost-card chains. The intermediate native attach prompts are recorded
+in the lineage. This links the published 59-card physical evidence
+to a **real naturally encountered attack sequence**; it is a
+mechanistic effect error, and remains distinct from any independent
+estimate of card win rate or realistic opponent-player skill.
+There are **zero competitively qualified games**, including the seven
+engine-terminal games in that retrospective 24-cell sample.
+
 ## Benchmark consequence
 
 Any matchup involving actual Regidrago Celestial Roar under this pinned
