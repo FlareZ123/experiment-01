@@ -23,14 +23,19 @@ function withSourceVoltCycloneEnergyDonor(work,options){
   const native=p=>require(path.join(root,p));
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {Store}=native('game/store/store');
+  const {AttachEnergyPromptResolver}=native(
+    'simple-bot/prompt-resolver/attach-energy-prompt-resolver');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
   const {PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
+  const beforeResolve=Object.getOwnPropertyDescriptor(
+    AttachEnergyPromptResolver.prototype,'getPromptResult');
   const beforeDecode=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   const beforeDispatch=Object.getOwnPropertyDescriptor(
     Store.prototype,'dispatch');
+  assert.equal(typeof beforeResolve?.value,'function');
   assert.equal(typeof beforeDecode?.value,'function');
   assert.equal(typeof beforeDispatch?.value,'function');
   const selected=new WeakMap();
@@ -44,8 +49,49 @@ function withSourceVoltCycloneEnergyDonor(work,options){
     receipts:[],
     ownerPendingPromptKinds:[],
     nativeEnergyMovementTransitions:[],
+    sourceAttachEnergyPromptsObserved:0,
+    preferredAttachEnergyResultsSelected:0,
+    preferredPhysicallyMoved:0,
+    sourceAttachEnergyPreferredFallbacks:0,
     competitiveQualified:false
   };
+
+  // Volt Cyclone's original pinned implementation uses AttachEnergyPrompt
+  // and the typed AttachEnergyPromptResolver. It does not use MoveEnergyPrompt.
+  // The real attached Energy is a public owner-board physical card.
+  function resolveAttachEnergy(state,prompt){
+    const p=state.players[seat];
+    if(!name||state.activePlayer!==seat||state.turn!==3||!p||
+       prompt?.constructor?.name!=='AttachEnergyPrompt'||
+       prompt.playerId!==p.id||
+       p.active.getPokemonCard()?.name!=='Iron Thorns ex')
+      return beforeResolve.value.call(this,state,prompt);
+    audit.sourceAttachEnergyPromptsObserved++;
+    const dest=p.bench.findIndex(x=>
+      x.getPokemonCard()?.name==='Iron Thorns ex');
+    const physical=p.active.energies.cards.find(x=>
+      x.name===name&&prompt.cardList?.cards.includes(x));
+    if(!physical||dest<0){
+      audit.sourceAttachEnergyPreferredFallbacks++;
+      return beforeResolve.value.call(this,state,prompt);
+    }
+    const to={
+      player:prompt.playerType,slot:SlotType.BENCH,index:dest
+    };
+    const transfers=[{card:physical,to}];
+    if(prompt.validate(transfers,state)!==true){
+      audit.sourceAttachEnergyPreferredFallbacks++;
+      return beforeResolve.value.call(this,state,prompt);
+    }
+    audit.preferredAttachEnergyResultsSelected++;
+    audit.receipts.push({kind:'owner-preferred-AttachEnergyPrompt-result',
+      turn:state.turn,promptId:prompt.id,
+      chosenPhysical:physical.fullName,
+      sourceActiveBefore:p.active.energies.cards.map(c=>c.fullName),
+      targetBenchIndex:dest,
+      exactPromptCardPool:prompt.cardList.cards.map(c=>c.fullName)});
+    return transfers;
+  }
 
   function decode(state){
     const actorSeat=state.players.findIndex(p=>p.id===this.client?.id);
@@ -137,6 +183,15 @@ function withSourceVoltCycloneEnergyDonor(work,options){
             turn:3,triggerAction:action?.constructor?.name,
             pendingBefore:pending,before,after
           });
+          if(name&&action?.constructor?.name==='ResolvePromptAction'&&
+             pending.some(x=>x.kind==='AttachEnergyPrompt'&&x.owner)&&
+             before.active.some(x=>x.startsWith(name))&&
+             !after.active.some(x=>x.startsWith(name))&&
+             after.benches.some((b,i)=>
+               b.energy.some(x=>x.startsWith(name))&&
+               !before.benches[i]?.energy.some(x=>x.startsWith(name)))){
+            audit.preferredPhysicallyMoved++;
+          }
         }
       }
       return result;
@@ -170,6 +225,8 @@ function withSourceVoltCycloneEnergyDonor(work,options){
       throw error;
     }
   }
+  Object.defineProperty(AttachEnergyPromptResolver.prototype,
+    'getPromptResult',{...beforeResolve,value:resolveAttachEnergy});
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
     {...beforeDecode,value:decode});
   Object.defineProperty(Store.prototype,'dispatch',
@@ -181,6 +238,10 @@ function withSourceVoltCycloneEnergyDonor(work,options){
     Object.defineProperty(Store.prototype,'dispatch',beforeDispatch);
     Object.defineProperty(SimpleTacticsAi.prototype,
       'decodeNextAction',beforeDecode);
+    assert.strictEqual(AttachEnergyPromptResolver.prototype.getPromptResult,
+      resolveAttachEnergy);
+    Object.defineProperty(AttachEnergyPromptResolver.prototype,
+      'getPromptResult',beforeResolve);
   }
 }
 module.exports={withSourceVoltCycloneEnergyDonor};
