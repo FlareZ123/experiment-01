@@ -96,7 +96,16 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(benchIndex>=0&&!r.pokemonPlayLocked){
     const index=view.ownHand.findIndex(p=>catalog.basics.has(p)&&
       !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
-    if(index>=0)return {kind:'bench-basic',handIndex:index,benchIndex,printing:view.ownHand[index]};
+    if(index>=0){
+      const first={kind:'bench-basic',handIndex:index,benchIndex,
+        printing:view.ownHand[index]};
+      if(options.lastBenchHeldEvolution===true){
+        const chosen=require('./agent43-held-evolution-bench-admission.cjs')
+          .chooseHeldEvolutionBench(view,catalog,first);
+        if(chosen)return chosen.intent;
+      }
+      return first;
+    }
   }
   if(options.naturalEvolutionRoot===true){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
@@ -492,6 +501,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.ownerArbitrationCensusOptIn;
     delete audit.ownerArbitration;
   }
+  if(deps.lastBenchHeldEvolution===true ||
+     process.env.AGENT43_HELD_EVOLUTION_BENCH_DEV==='true'){
+    audit.lastBenchHeldEvolutionOptIn=true;
+    audit.version+='+'+
+      require('./agent43-held-evolution-bench-admission.cjs').VERSION;
+  }
   if(audit.terminalArbitrationOptIn){
     audit.version+='+'+
       require('./agent41-owner-root-arbitration.cjs').VERSION;
@@ -646,6 +661,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
+      lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
       teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
