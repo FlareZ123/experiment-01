@@ -3,6 +3,11 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
+      printed_first_turn_attack_exception:
+        description: Opt in public-printed and native-supported first-player attack exceptions, development only
+        required: false
+        type: boolean
+        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -136,6 +141,8 @@ jobs:
   canonical-four-arm:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      AGENT37_FIRSTTURN_ATTACK_ROOT_DEV: ${{ inputs.printed_first_turn_attack_exception && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - name: Reject fallback pairchecks without their enabled observer
@@ -171,6 +178,8 @@ jobs:
         run: node --test tests/agent16-girafarig-capture-staged-native.test.cjs
       - name: Verify conditional Special Energy actor root on pinned Store
         run: node --test tests/agent17-conditional-special-native.test.cjs
+      - name: Verify first-player printed native exceptions in both physical seats
+        run: node --test tests/agent37-firstturn-exception.native.test.cjs
       - name: Census 118 original source Specials in the pinned CardManager
         run: node --test tests/agent17-original-special-native-catalog.test.cjs
       - name: Verify native Enhanced and Crushing Hammer prompts and physical Energy discard
