@@ -923,6 +923,7 @@ function runDevelopment({
   rank11ExclusiveOpening=false,
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
+  bilateralSpecialEnergyRoot=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null
 }={}){
@@ -933,6 +934,8 @@ function runDevelopment({
     'Guzma owner recipient bridge requires canonical actor composition');
   assert.ok(!actorPlumeriaAfterPass||actorOnlyComposition,
     'Plumeria after-Pass requires canonical actor composition');
+  assert.ok(!bilateralSpecialEnergyRoot||actorOnlyComposition,
+    'Both-seat Special Energy root requires canonical actor composition');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -1007,23 +1010,21 @@ function runDevelopment({
         garbotoxinWindow:nativePressureWindows&&trial.rank===11
       });
       if(actorOnlyComposition){
-        // Development-only source-seat intervention: the candidate never
-        // receives this alternate Special Energy root. Native Store still
-        // validates each physical decision by the real actor.
-        assert.ok(!(sourceScopedSpecialEnergyRoot&&
-          candidateScopedSpecialEnergyRoot),
-          'A single-source test cannot change both actors');
-        const targetSeat=scopedSpecialEnergyActorSeat(
-          sourceScopedSpecialEnergyRoot?'source':
-            candidateScopedSpecialEnergyRoot?'candidate':'none',
-          trial.candidateSlot);
-        const scopedRoot=(targetSeat===null&&!sourceFloatStoneMobility&&
+        // A two-seat mode applies one native-owned root selector to both
+        // players. One-seat modes remain explicitly asymmetric diagnostics.
+        const energyProfile=require('./agent41-bilateral-special-energy-profile.cjs')
+          .specialEnergyRootProfile({
+            bilateral:bilateralSpecialEnergyRoot,
+            source:sourceScopedSpecialEnergyRoot,
+            candidate:candidateScopedSpecialEnergyRoot
+          },trial.candidateSlot);
+        const scopedRoot=(!energyProfile.enabled&&!sourceFloatStoneMobility&&
           !candidateOnlyKnownDeadRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
-              ...(targetSeat!==null?{
+              ...(energyProfile.enabled?{
                 specialEnergyRoot:true,
-                specialEnergyRootOwnerSeat:targetSeat
+                specialEnergyRootOwnerSeat:energyProfile.ownerSeat
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1055,6 +1056,9 @@ function runDevelopment({
                   {maxGlobalTurn:Number.POSITIVE_INFINITY}}
             }:{})});
         rows.push({...observed.result,
+          ...(bilateralSpecialEnergyRoot?{
+            bilateralSpecialEnergyProfile:energyProfile
+          }:{}),
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
           qualifiesForCompetitiveInference:false});
@@ -1294,7 +1298,9 @@ if(require.main===module){
     sourceScopedSpecialEnergyRoot:
       process.env.AGENT49_SOURCE_SCOPED_SPECIAL_DEV==='true',
     candidateScopedSpecialEnergyRoot:
-      process.env.AGENT4_CANDIDATE_SPECIAL_ROOT_DEV==='true'
+      process.env.AGENT4_CANDIDATE_SPECIAL_ROOT_DEV==='true',
+    bilateralSpecialEnergyRoot:
+      process.env.AGENT41_BILATERAL_SPECIAL_ENERGY_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
