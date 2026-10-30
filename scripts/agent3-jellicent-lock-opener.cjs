@@ -131,3 +131,67 @@ function exactArvenProtectedLock(options={}){
     numerator,denominator,validOpenerDenominator};
 }
 module.exports.exactArvenProtectedLock=exactArvenProtectedLock;
+
+/**
+ * Going-first Carmine redraw route. Hood held before Carmine is attached
+ * before discarding the hand. Every held Boost Shake is discarded by Carmine,
+ * so a further Shake must be drawn from the remaining deck's five new cards.
+ * The resulting Jellicent must still be searchable after Prizes and redraw.
+ * Assumes an opening Active Frillish and no other search/draw or counterplay.
+ *
+ * @param {Options & {carmine?:number}} [options]
+ * @returns {ReturnType<typeof exactDirectLock>}
+ */
+function exactCarmineProtectedLock(options={}){
+  const f=options.frillish??4,b=options.boostShake??4,
+    j=options.jellicent??4,h=options.stealthyHood??4,
+    c=options.carmine??4,basics=options.totalBasics??12;
+  for(const n of [f,b,j,h,c]){
+    if(!Number.isInteger(n)||n<0||n>4)throw new RangeError('Copy counts must be 0..4');
+  }
+  if(!Number.isInteger(basics)||basics<f||basics>60-b-j-h-c)
+    throw new RangeError('Total Basics inconsistent with deck construction');
+  const sizes=[f,b,j,h,c,60-f-b-j-h-c];
+  const sixPrizes=choose(52,6),fiveRedraw=choose(52,5),
+    sixPrizesAfterFiveRedraw=choose(47,6);
+  const resample=fiveRedraw*sixPrizesAfterFiveRedraw;
+  const allPrizeAndRedraw=sixPrizes*resample;
+  const denominator=choose(60,7)*53n*allPrizeAndRedraw;
+  const validOpenerDenominator=(choose(60,7)-choose(60-basics,7))
+    *53n*allPrizeAndRedraw;
+  let numerator=0n;
+  enumerate(sizes,0,7,[],hand=>{
+    if(hand[0]===0)return;
+    const handWays=hand.reduce((acc,n,i)=>acc*choose(sizes[i],n),1n);
+    for(let drawType=0;drawType<sizes.length;drawType++){
+      const drawCount=sizes[drawType]-hand[drawType];
+      if(drawCount===0)continue;
+      const visible=index=>hand[index]+Number(drawType===index);
+      const left=sizes.map((n,i)=>n-visible(i));
+      const heldHood=visible(3)>0,heldShake=visible(1)>0;
+      if(heldHood&&heldShake){
+        const jLeft=left[2];
+        if(jLeft>0){
+          const prizeValid=sixPrizes-choose(52-jLeft,6-jLeft);
+          numerator+=handWays*BigInt(drawCount)*prizeValid*resample;
+        }
+      }else if(visible(4)>0){
+        // Exchangeability: sample redraw five before the six Prize cards.
+        // It gives the same joint distribution for two disjoint card groups.
+        enumerate(left,0,5,[],redrawn=>{
+          if(redrawn[1]===0||(!heldHood&&redrawn[3]===0))return;
+          const jLeft=left[2]-redrawn[2];
+          if(jLeft===0)return;
+          const redrawWays=redrawn.reduce((acc,n,i)=>acc*choose(left[i],n),1n);
+          const prizeValid=sixPrizesAfterFiveRedraw-
+            choose(47-jLeft,6-jLeft);
+          numerator+=handWays*BigInt(drawCount)*redrawWays*prizeValid*sixPrizes;
+        });
+      }
+    }
+  });
+  return {unconditional:Number(numerator)/Number(denominator),
+    conditionalValidBasic:Number(numerator)/Number(validOpenerDenominator),
+    numerator,denominator,validOpenerDenominator};
+}
+module.exports.exactCarmineProtectedLock=exactCarmineProtectedLock;
