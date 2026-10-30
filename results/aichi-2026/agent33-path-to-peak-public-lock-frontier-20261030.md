@@ -38,3 +38,20 @@ or actual lock settlement or finished matched games has been observed.
 The original sixty-card source opponents remain fixed, native source
 card integrity remains an independent release veto, and this option
 is not enabled in any existing sealed A/B study.
+
+## Staged two-seat original Store ability suppression
+
+The separate `tests/agent33-path-to-peak-full-lock-pinned.test.cjs`
+uses actual pinned `Path to the Peak CRE`, a separate physical
+`Dratini OBF` Active for the owner, and opposing printed
+`Genesect V FST`. It probes
+`CheckPokemonPowersEffect` before native
+`PlayCardAction`, after genuine Path placement and after synthetic
+Stadium removal. The expected native observation is
+`Fusion Strike System` visible, then suppressed, then restored.
+Each player occupies both possible physical owner seats in separate tests.
+This is an **exact native rules probe**, not a valid 60-card competitive
+game or deck strength result. It is registered under the *manual* workflow
+input `agent33_path_to_peak_native` and **has not been executed in
+native CI yet**. The actual compiled output must be inspected before
+asserting success.

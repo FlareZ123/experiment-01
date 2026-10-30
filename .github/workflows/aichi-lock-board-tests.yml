@@ -132,6 +132,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent33_path_to_peak_native:
+        description: 'Pinned two-seat real Path PlayCard and Genesect Rule Box Ability suppression'
+        required: false
+        type: boolean
+        default: false
       agent34_gholdengo_native:
         description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
         required: false
@@ -169,6 +174,9 @@ jobs:
         run: npm run compile
       - name: Regress conservative Path to the Peak public opposing Ability lock
         run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
+      - name: Stage actual Path to the Peak suppressing opponent's Genesect Ability both seats
+        if: inputs.agent33_path_to_peak_native
+        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
         run: node --test tests/agent33-sky-field-bench-expansion.test.cjs
       - name: Stage native Sky Field expanding five to eight real Bench slots
