@@ -19,7 +19,7 @@ test('owner-visible Item spending has a typed public effect, without an attack c
     'no-confirmed-public-effect');
 });
 
-test('physical witness samples the actual owner's public Item discard only',()=>{
+test('physical witness samples own public Item discard only',()=>{
   const treasure={fullName:'Mysterious Treasure FLI'};
   const emptySlot={energies:{cards:[]},getPokemonCard:()=>null};
   const owner={
