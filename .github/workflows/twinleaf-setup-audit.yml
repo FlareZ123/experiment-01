@@ -11,6 +11,10 @@ on:
         description: 'Optional rank6 source first-turn Tag Call owner-search native control'
         type: boolean
         default: false
+      agent6_prized_thunder:
+        description: 'Optional retrospective rank6 DCE-K1 Speed alternative native factorial'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -60,6 +64,9 @@ jobs:
         run: node --test tests/setup-compensation-observer.test.cjs tests/headless-initial-setup-compensation-smoke.test.cjs
       - name: Test explicit first-player opening choice policy
         run: node --test tests/agent6-go-first-choice.test.cjs
+      - name: Test rank6 K0 DCE and genuine K1 fallback pure prerequisites
+        if: inputs.agent6_prized_thunder
+        run: node --test tests/agent6-prized-thunder-speed-bypass.test.cjs
       - name: Positive-control actual first-player choice in pinned Store
         if: inputs.agent6_go_first
         run: node simulation/evaluation/agent6-go-first-native-setup.cjs > agent6-go-first-native.json
@@ -102,6 +109,19 @@ jobs:
         with:
           name: agent6-source-first-tagcall-native
           path: agent6-source-first-tagcall-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Retrospective 2x2 rank6 source K0-DCE to K1-Speed bypass
+        if: inputs.agent6_prized_thunder
+        run: |
+          node simulation/evaluation/agent6-prized-thunder-speed-bypass-native.cjs > agent6-prized-thunder-speed-bypass-native.json
+          node -e "const j=require('./agent6-prized-thunder-speed-bypass-native.json');console.log(JSON.stringify({schema:j.schema,attempted:j.attemptedNativeArms,errors:j.nativeErrors,matched:j.exactSourceDealPairs,staged:j.nativeDceStageConfirmations,k1:j.authenticatedK1SpeedFallbackSelections,rows:j.rows.map(r=>({seed:r.seed,seat:r.sourceSeat,matched:r.exactSourcePhysicalOpeningMatched,arms:r.arms.map(a=>({dce:a.stageDceFirstTurn,k1:a.k1PrizedThunderSpeedFallback,status:a.status,error:a.error,stage:a.nativeDceStageConfirmed,pivot:a.k1SpeedFallbackSelected,abort:a.sourceT3AbortReason,settled:a.sourceT3SettledVoltCyclone?.length,events:a.sourcePolicyEvents?.map(e=>e.action||e.abort).filter(Boolean)}))}))},null,2))"
+      - name: Archive K0-DCE to K1-Speed original Store attempts
+        if: always() && inputs.agent6_prized_thunder
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-prized-thunder-speed-bypass-native
+          path: agent6-prized-thunder-speed-bypass-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
