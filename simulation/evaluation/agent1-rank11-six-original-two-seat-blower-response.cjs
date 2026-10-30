@@ -50,12 +50,12 @@ function run(){
         const game=result.result.result;
         const sourceAudit=result.result.audit;
         const blowerAudit=result.policyAudit;
-        const first=game.decisionTrace?.find(row=>row.playerSlot===0&&
-          Array.isArray(row.decisionHandBefore?.ownHandPrintings));
-        assert.ok(first,'No first genuine original source K0 owner hand');
-        assert.equal(sha256(first.decisionHandBefore.ownHandPrintings),
-          entry.sourceFirstOwnerHandSha256,
+        const first=sourceAudit.originalOwnK0AtOffer?.find(row=>row.seat===0);
+        assert.ok(first,'No first genuine original source K0 owner observation');
+        assert.equal(first.handSha256,entry.sourceFirstOwnerHandSha256,
           'Source original K0 owner hand changed in paired reply');
+        assert.deepEqual(first.bench,entry.sourceBenchAtK0,
+          'Source original K0 Bench changed in paired reply');
         assert.equal(game.firstTurnSlot,0);
         assert.equal(game.verifiedByDrawLog,true);
         const turn2FieldBlowerRoots=(game.decisionTrace??[]).filter(row=>
@@ -87,6 +87,7 @@ function run(){
       }catch(error){
         pair.arms.push({opponentBlowerPolicy,status:'blocked',
           error:String(error?.stack??error).slice(0,1500),
+          nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
           qualifiedCompetitiveGame:false});
       }
     }
