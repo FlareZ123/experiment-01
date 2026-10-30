@@ -25,3 +25,7 @@ Existing manual-only `.github/workflows/aichi-benchmark-stats.yml` now runs this
 Agent 41 owns the shared bilateral chooser. Before enabling this gate in that executable, authenticate the real owner seat and first global turn, enumerate exceptions from exact eligible printings (including any card-text updates), and run at least one **original pinned Store** legal first-turn exception and one ordinary first-turn negative. Preserve all rejected roots as censored/legality failures. Maintain the baseline A/B policy comparison and the independent one-Supporter quota test.
 
 **Competitive evidence status:** 29/32 exact Aichi Top 32 original opposing 60s authenticated; zero competitively qualified games; no demonstrated 99.5% fixed-60 deck.
+
+## Verified pure regression outcome
+
+The existing manually dispatched [benchmark run 41004882696](https://github.com/FlareZ123/experiment-01/actions/runs/41004882696) completed successfully at head `41574b9b51f7581d2560916a7181e4b37b35bdae`, which includes the guard implementation and all nine mocked-Store tests. It is a **pure Node test-suite success**; this workflow did not compile Twinleaf or execute a first-turn original Store guard. The later function-documentation-only edit did not change execution behavior. A native original-Store test remains a separate gate.
