@@ -13,6 +13,8 @@ const {openingInventoriesMatch}=
   require('../twinleaf/opening-setup-zones.cjs');
 const {withPerSeatSetupShuffleStreams}=
   require('./agent26-per-seat-setup-shuffle-streams.cjs');
+const {withNativeSetupCompensation}=
+  require('./agent26-native-setup-compensation-capture.cjs');
 const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
 const root=path.resolve(__dirname,'../..');
 const {Store}=require(path.join(root,
@@ -72,12 +74,14 @@ function run(){
       qualifiedCompetitive:false};
     try {
       const wrapped=withPerSeatSetupShuffleStreams(Store,trial.seed,()=>
-        captureSetupOnly(Store,()=>runMatch({
+        withNativeSetupCompensation(Store,()=>
+          captureSetupOnly(Store,()=>runMatch({
           deckA,deckB,seed:trial.seed,maxActions:150,
           strictPromptValidation:true,isolatePolicyRandomness:true,
           label:'agent26-all32-perseat-setup-only-'+trial.id
-        }),{sourceSeat,captureFirstTurnEvidence:true}));
-      const observed=wrapped.result;
+        }),{sourceSeat,captureFirstTurnEvidence:true})));
+      const observed=wrapped.result.result;
+      const compensation=wrapped.result.compensation;
       assert.equal(observed.stoppedAtFirstTurn,true);
       assert.ok(openingInventoriesMatch(observed.setupZones?.seats,
         [deckA,deckB]));
@@ -88,6 +92,10 @@ function run(){
       const candidateShuffles=wrapped.shuffleTape.filter(t=>
         t.seat===candidateSeat);
       assert.ok(sourceShuffles.length>0&&candidateShuffles.length>0);
+      assert.equal(compensation.mulligans[sourceSeat],
+        sourceShuffles.length-1);
+      assert.equal(compensation.mulligans[candidateSeat],
+        candidateShuffles.length-1);
       const src=observed.setupZones.seats[sourceSeat];
       Object.assign(row,{
         status:'setup-verified',
@@ -102,6 +110,12 @@ function run(){
         sourcePrizeCopyCount:src.prizes.flat().length,
         sourceMulliganCount:sourceShuffles.length-1,
         candidateMulliganCount:candidateShuffles.length-1,
+        sourceBonusOffered:compensation.bonusOffered[sourceSeat],
+        sourceBonusSelected:compensation.bonusSelected[sourceSeat],
+        sourceBonusDrawn:compensation.bonusDrawn[sourceSeat],
+        candidateBonusOffered:compensation.bonusOffered[candidateSeat],
+        candidateBonusSelected:compensation.bonusSelected[candidateSeat],
+        candidateBonusDrawn:compensation.bonusDrawn[candidateSeat],
         sourceShuffles,candidateShuffles
       });
     }catch(error){
@@ -129,6 +143,8 @@ function run(){
       sameSourceShuffles:sameSourceShufflePermutation,
       sameSourceMulliganCount:both?
         a.sourceMulliganCount===b.sourceMulliganCount:null,
+      sameSourceBonusDraw:both?
+        a.sourceBonusDrawn===b.sourceBonusDrawn:null,
       sameCandidateMulliganCount:both?
         a.candidateMulliganCount===b.candidateMulliganCount:null,
       sameSourceActiveAndBench:both?
@@ -155,6 +171,8 @@ function run(){
       !p.sameCandidateMulliganCount).length,
     pairsWithDifferentSourceMulligans:complete.filter(p=>
       !p.sameSourceMulliganCount).length,
+    pairsWithDifferentSourceBonusDraws:complete.filter(p=>
+      !p.sameSourceBonusDraw).length,
     pairsWithDifferentSourceBoards:complete.filter(p=>
       !p.sameSourceActiveAndBench).length,
     pairs,rows,fullGames:0,competitiveQualifiedGames:0,
