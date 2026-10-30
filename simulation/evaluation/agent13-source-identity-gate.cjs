@@ -56,7 +56,11 @@ function printingFingerprint(cards){
       'Missing exact published printing');
     return [card.category,card.name,p.set,p.number,p.language,card.count];
   });
-  entries.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b),'en'));
+  // UTF-16 code-unit ordering avoids runtime/ICU-dependent digest changes.
+  entries.sort((a,b)=>{
+    const left=JSON.stringify(a),right=JSON.stringify(b);
+    return left<right?-1:left>right?1:0;
+  });
   assert.equal(new Set(entries.map(x=>JSON.stringify(x.slice(0,5)))).size,
     entries.length,'Duplicate published printing rows');
   return createHash('sha256').update(JSON.stringify(entries)).digest('hex');
