@@ -98,13 +98,17 @@ function trial(placeBackup) {
             .slice(0,prompt.options?.maxCards??1);
         }
       } else if(type==='AttachEnergyPrompt') {
-        // Trinity Nova may attach UP TO three Basic Energy. Declining the
-        // optional acceleration is a legal, owner-directed resolution that
-        // avoids introducing hidden deck knowledge into this KO witness.
-        // The native prompt validates the choice; no Store rules are bypassed.
-        result=[];
+        // The prior zero-card resolution passed the prompt validator but
+        // generated INVALID_TARGET in the pinned reducer. Exercise the actual
+        // optional one-Energy line using the live card instance and an Active
+        // Arceus VSTAR destination, then require native validation.
+        const energy=prompt.cardList?.cards.find(c=>c.name==='Psychic Energy');
+        assert.ok(energy,'Expected real source Basic Energy card');
+        result=[{card:energy,to:{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+        }}];
         assert.equal(prompt.validate(result,state),true,
-          'Optional Trinity Nova Energy allocation should allow zero cards');
+          'Single Basic Energy to opponent Active VSTAR must be valid');
       } else if(type==='WaitPrompt') {
         result=null;
       } else if(type==='ShuffleDeckPrompt') {
