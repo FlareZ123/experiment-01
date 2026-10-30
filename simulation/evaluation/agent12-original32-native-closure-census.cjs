@@ -71,8 +71,7 @@ function original32NativeClosures(archive){
       unbound:n.unresolvedTerminals});
   }
   assert.equal(totals.nativeTurnEnds,
-    totals.acceptedPassRoots+totals.acceptedAttackRoots+
-    totals.terminalCardPlays+totals.ambiguousAbilityRoots+
+    Object.values(totals.byRootFamily).reduce((a,b)=>a+b,0)+
     totals.unboundEnds,
     'Unaccounted native terminal root family; investigate before inference');
   return {version:VERSION,totals,armReceipts,sourceTerminalCardPlays,
