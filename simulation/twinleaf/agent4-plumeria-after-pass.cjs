@@ -7,7 +7,7 @@ const actorObservation=(state,seat)=>
 const {visibleEnergyTargets,PRINTING}=
   require('./agent4-plumeria-opportunity.cjs');
 
-const VERSION='agent4-plumeria-owner-after-pass-native-v1';
+const VERSION='agent38-plumeria-owner-after-pass-native-v2-delegated-receipts';
 const MAX_LOG=48;
 
 /**
@@ -142,7 +142,8 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     chosenPrompts:0,acceptedPrompts:0,rejectedPrompts:0,
     settledEnergyDiscards:0,unresolvedChains:0,
-    genericPromptFallbacks:0,
+    genericPromptFallbacks:0,delegatedPromptDispatches:0,
+    delegatedSettledEnergyDiscards:0,
     bySeat:{0:{accepted:0,settled:0},1:{accepted:0,settled:0}},
     log:[],actorOnlyAddedActions:true,
     anyGameCompetitivelyQualified:false,
@@ -203,11 +204,50 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     audit.proposedPlumeria++;
     return action;
   }
+  /**
+   * After an unsupported owner-hand menu (for example 28 available cards),
+   * another native handler may resolve the obligatory Plumeria prompt.
+   * Observe that actual accepted prompt using the original Store's action and
+   * physical cards. This never manufactures, redirects or reprioritizes it.
+   * @param {object} state Current authenticated native Store state.
+   * @param {object} action Action selected by a previously installed handler.
+   * @returns {object|null} Owner-chain receipt candidate.
+   */
+  function delegatedPromptEvent(state,action){
+    if(!(action instanceof ResolvePromptAction))return null;
+    const pending=state.prompts?.find(p=>p.result===undefined);
+    if(!pending||pending.id!==action.id)return null;
+    const seat=state.players.findIndex(p=>p.id===pending.playerId);
+    if(seat!==0&&seat!==1)return null;
+    if(audit.sourceSeat!==null&&seat!==audit.sourceSeat)return null;
+    const chain=awaiting.get(pending.playerId);
+    if(!chain||chain.seat!==seat||chain.turn!==state.turn)return null;
+    const expected=chain.stage===1?'CHOOSE_POKEMON_TO_DISCARD_CARDS':
+      chain.stage===0||chain.stage===2?'CHOOSE_CARD_TO_DISCARD':null;
+    if(pending.message!==expected||!Array.isArray(action.result)||
+       pending.validate(action.result,state)!==true)return null;
+    const owner=state.players[seat],opponent=state.players[1-seat];
+    if(chain.stage===0&&
+       (action.result.length!==2||
+        action.result.some(c=>!owner.hand.cards.includes(c))))return null;
+    if(chain.stage===1&&
+       (action.result.length!==1||
+        ![opponent.active,...opponent.bench].includes(action.result[0])||
+        !action.result[0].energies.cards.length))return null;
+    if(chain.stage===2&&
+       (action.result.length!==1||
+        !chain.target?.energies.cards.includes(action.result[0])))return null;
+    return {kind:'prompt',seat,stage:chain.stage,ownerId:owner.id,
+      turn:state.turn,promptId:pending.id,
+      physicalCards:action.result,delegated:true};
+  }
+
   function dispatch(action,...rest){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==liveStore){
       liveStore=this;awaiting.clear();audit.nativeStores++;
     }
-    const event=this===liveStore?proposals.get(action):null;
+    const event=this===liveStore?
+      proposals.get(action)??delegatedPromptEvent(this.state,action):null;
     if(!event)return beforeDispatch.value.apply(this,[action,...rest]);
     const owner=this.state.players[event.seat];
     const opponent=this.state.players[1-event.seat];
@@ -223,7 +263,8 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
         record({kind:'plumeria-native-root',seat:event.seat,turn:event.turn,
           accepted:true});
       }else{
-        audit.acceptedPrompts++;
+        if(event.delegated)audit.delegatedPromptDispatches++;
+        else audit.acceptedPrompts++;
         const chain=awaiting.get(owner.id);
         assert.ok(chain&&chain.stage===event.stage,
           'Native prompt returned after its Plumeria chain changed');
@@ -233,17 +274,19 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
           const physicalEnergy=event.physicalCards[0];
           const accepted=
             opponent.discard.cards.includes(physicalEnergy)&&
-            !opponent.active.energies.cards.includes(physicalEnergy)&&
+            !chain.target.energies.cards.includes(physicalEnergy)&&
             visibleEnergyTargets(opponent).reduce(
               (n,x)=>n+x.energies.length,0)<chain.enemyEnergyBefore&&
             chain.discardedHand.length===2&&
             chain.discardedHand.every(c=>owner.discard.cards.includes(c));
           if(accepted){
             audit.settledEnergyDiscards++;audit.bySeat[event.seat].settled++;
+            if(event.delegated)audit.delegatedSettledEnergyDiscards++;
           }
           record({kind:'plumeria-energy-settlement',seat:event.seat,
             turn:event.turn,accepted,printing:physicalEnergy.fullName,
-            sourceHandDiscardCount:chain.discardedHand.length});
+            sourceHandDiscardCount:chain.discardedHand.length,
+            finalPromptOrigin:event.delegated?'native-delegated':'actor-owned'});
           awaiting.delete(owner.id);
         }else chain.stage++;
       }
