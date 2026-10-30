@@ -13,7 +13,8 @@ const VERSION='agent43-held-evolution-lastbench-v1';
 function chooseHeldEvolutionBench(view,catalog,first){
   assert.equal(view.decisionKind,'owner-root');
   if(first?.kind!=='bench-basic'||!Array.isArray(view.ownPublic?.bench)||
-     !Array.isArray(view.ownHand)||!(catalog.evolutions instanceof Map))return null;
+     !Array.isArray(view.ownHand)||!(catalog.evolutions instanceof Map)||
+     !(catalog.basicNames instanceof Map))return null;
   const free=view.ownPublic.bench.flatMap((x,i)=>x===null?[i]:[]);
   const r=view.ownTurnResources;
   if(free.length!==1||first.benchIndex!==free[0]||
@@ -25,7 +26,7 @@ function chooseHeldEvolutionBench(view,catalog,first){
   if(eligible.length<2||!eligible.some(x=>x.handIndex===first.handIndex))return null;
   const held=printing=>view.ownHand.filter(evolution=>{
     const from=catalog.evolutions.get(evolution)?.evolvesFrom;
-    return typeof from==='string'&&printing.startsWith(from+' ');
+    return typeof from==='string'&&catalog.basicNames.get(printing)===from;
   });
   if(held(first.printing).length>0)return null;
   const next=eligible.find(x=>held(x.printing).length>0);
