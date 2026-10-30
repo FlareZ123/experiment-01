@@ -215,6 +215,9 @@ jobs:
           path: agent44-rank8-original-k0-source.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Test authenticated Secret Box owner-K1 category prompt selector
+        if: inputs.agent44_rank8_box_fetch_shake_native
+        run: node --test tests/agent44-secretbox-owner-prompt.test.cjs
       - name: Check synthetic rank8 Box-fetches-Shake native semantics fixture
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --check simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs
