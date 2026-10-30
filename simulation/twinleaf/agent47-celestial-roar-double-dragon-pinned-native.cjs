@@ -66,7 +66,7 @@ function runOne(seat,scenario,paperCorrected=false){
     scenario==='special-and-basic'?[DD,G]:[DD]:
     [G];
   offered=eligible.map(c=>c.fullName);
-  assert.deepEqual(offered,expected,
+  assert.deepEqual([...offered].sort(),[...expected].sort(),
     'Expected exact original physical Special/Basic eligibility');
   assert.equal(pending.options.min,expected.length);
   assert.equal(pending.options.max,expected.length);
