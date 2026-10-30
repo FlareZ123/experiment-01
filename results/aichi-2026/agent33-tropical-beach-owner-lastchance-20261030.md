@@ -58,3 +58,24 @@ native gameplay from source review or synthetic pure tests.
 The resulting end-turn choice has no prospective field simulation,
 opponent reply, paper-clock validation or qualified-game outcomes.
 No decklist is changed. Rank23/25/28 originals remain missing.
+
+## Held Beach: a two-root line with no active Stadium
+
+Follow-up v2 `agent33-tropical-beach-owner-lastchance-v2-held-stadium`:
+the same owner flag can now propose `play-tropical-beach` from hand, but
+**only when there is no Stadium in play**, owner Stadium-card placement is
+allowed and unused, and the projected hand after playing Beach would qualify
+for the same two-card draw and six-remaining-deck guard. The root then
+decodes a genuine `PlayCardAction` onto the board. Its next owner
+observation can see Beach publicly in play and proposes native
+`UseStadiumAction`, which consumes the separate Stadium-effect use quota.
+
+Deliberately leaves any existing own/opponent Stadium untouched to avoid
+destroying Sky Field Bench capacity, discarding Beach into Chaotic Swell,
+or guessing whether a lock is beneficial. Holder and owner are authenticated
+from own hand/public zones. Four additional pure tests cover held->play->use,
+replacement veto, play-permission veto and missing quota; all **12 helper
+tests passed locally**. A newly added pinned native two-seat held-card
+test asserts exact native Stadium placement then draw-to-seven and end-turn.
+This test is registered in existing manual CI, but no compiled CI result
+is claimed in this artifact.

@@ -54,6 +54,47 @@ test('opponent hidden cards and prizes cannot affect owner proposal',()=>{
   assert.deepEqual(chooseTropicalBeachLastChance(a),
     chooseTropicalBeachLastChance(b));
 });
+test('held Beach is placed then used as two distinct owner roots',()=>{
+  const x=view();x.ownPublic.stadium=[];
+  x.ownHand.push('Tropical Beach BWP');
+  x.ownTurnResources.stadiumPlayedTurn=0;
+  x.ownTurnResources.stadiumPlayLocked=false;
+  const play=chooseTropicalBeachLastChance(x);
+  assert.deepEqual(play,{kind:'play-tropical-beach',handIndex:3,
+    printing:'Tropical Beach BWP',
+    reason:'place-uncontested-stadium-before-lastchance-draw'});
+  assert.deepEqual(chooseActorRootIntent(x,catalog,{
+    tropicalBeachLastChance:true}),play);
+  x.ownHand.pop();x.ownPublic.stadium=['Tropical Beach BWP'];
+  x.ownTurnResources.stadiumPlayedTurn=6;
+  assert.equal(chooseTropicalBeachLastChance(x)?.kind,'use-tropical-beach');
+});
+test('held Beach never blindly replaces either player existing Stadium',()=>{
+  const x=view();x.ownHand.push('Tropical Beach BWP');
+  x.ownTurnResources.stadiumPlayedTurn=0;
+  x.ownTurnResources.stadiumPlayLocked=false;
+  x.ownPublic.stadium=['Sky Field ROS'];
+  assert.equal(chooseTropicalBeachLastChance(x),null);
+  x.ownPublic.stadium=[];x.opponentPublic.stadium=['Chaotic Swell CEC'];
+  assert.equal(chooseTropicalBeachLastChance(x),null);
+});
+test('blocked or already-played Stadium cannot be placed from hand',()=>{
+  const x=view();x.ownPublic.stadium=[];
+  x.ownHand.push('Tropical Beach BWP');
+  x.ownTurnResources.stadiumPlayedTurn=6;
+  x.ownTurnResources.stadiumPlayLocked=false;
+  assert.equal(chooseTropicalBeachLastChance(x),null);
+  x.ownTurnResources.stadiumPlayedTurn=0;
+  x.ownTurnResources.stadiumPlayLocked=true;
+  assert.equal(chooseTropicalBeachLastChance(x),null);
+});
+test('unknown Stadium placement clock fails closed on held card',()=>{
+  const x=view();x.ownPublic.stadium=[];
+  x.ownHand.push('Tropical Beach BWP');
+  x.ownTurnResources.stadiumPlayLocked=false;
+  assert.equal(chooseTropicalBeachLastChance(x),null);
+});
+
 test('default root remains Pass; only explicit opt-in gives Beach action',()=>{
   const x=view();
   assert.equal(chooseActorRootIntent(x,catalog).kind,'pass');

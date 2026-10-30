@@ -62,3 +62,31 @@ test('native Store rejects repeated Beach use in same turn',()=>{
   assert.throws(()=>store.dispatch(new UseStadiumAction(owner.id)));
   assert.equal(owner.hand.cards.length,3);
 });
+
+for(const seat of [0,1]){
+  test('held Beach is played from hand then native Stadium use draws, seat '+seat,()=>{
+    const {store,owner}=stage(seat);
+    owner.stadium.cards.length=0;
+    // Use the real registered card from pinned CardManager, not a new object.
+    const manager=initializeCards();
+    const card=manager.getCardByName('Tropical Beach BWP');
+    assert.ok(card);
+    owner.hand.cards.push(card);
+    const initialHand=owner.hand.cards.length;
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const handIndex=owner.hand.cards.indexOf(card);
+    store.dispatch(new PlayCardAction(owner.id,handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+    assert.equal(owner.stadium.cards.includes(card),true,
+      'Native Store placed physical Stadium from acting hand');
+    assert.equal(owner.hand.cards.length,initialHand-1);
+    assert.equal(owner.stadiumPlayedTurn,5);
+    store.dispatch(new UseStadiumAction(owner.id));
+    assert.equal(owner.stadiumUsedTurn,5);
+    assert.equal(owner.hand.cards.length,7);
+    assert.equal(owner.deck.cards.length,7);
+    assert.ok(store.state.activePlayer!==seat||
+      store.state.phase!==GamePhase.PLAYER_TURN);
+  });
+}
