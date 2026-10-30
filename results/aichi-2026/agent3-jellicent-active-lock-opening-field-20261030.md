@@ -69,6 +69,24 @@ Across the complete **29 published opposing lists**, **566 Item slots plus 91 Po
 
 The smallest observed static exposure is rank 2 at 10 slots, where Vileplume already introduces Item-lock dynamics and the ordinary first-turn Jellicent strategy may be strategically redundant. The largest is rank 26 at 39 slots, with a separate critical **first-to-act** condition because the Meloetta Donk source can threaten on its own first attack. Rank 6's 23 blocked slots alone conceal an adversarial Active Ability counter; the inventory statistic cannot be read independently of the opposing board. A representative rank-10 Regidrago has 18 such slots yet retains an attack-based response once powered.
 
+## A second access channel: going-second Arven searches the Item and Tool together
+
+After the first version of this report, a new exact six-type enumeration found a potentially larger protected setup route. **Arven** is a Supporter that searches an Item card and a Pokémon Tool in one play. On the player's first turn **going second**, held Arven can therefore find Boost Shake and Stealthy Hood together, equip Hood on Active Frillish, and then execute Boost Shake while Jellicent ex remains searchable. Pieces already held need no second search. This works only while Supporter and Item actions are legal; a prior opponent-turn Budew Item lock, Stoutland Supporter lock, or an existing Ability-lock counter can disrupt the plan. Ordinary going-first first-turn Arven is prohibited.
+
+The new `exactArvenProtectedLock` export in [the same mathematical evaluator](../../scripts/agent3-jellicent-lock-opener.cjs) models Frillish, Boost Shake, Jellicent, Hood, Arven, and other cards as six disjoint print classes. It enumerates seven-hand compositions and the following ordinary draw, then uses inclusion-exclusion over all six Prizes to ensure **Jellicent remains in deck** and **every needed search target is either in hand or remains in deck**. The model permits the direct Hood+Shake route when Arven is absent. Four Frillish, four Boost Shake, four Jellicent, four Hood and **12 total Basics** are fixed:
+
+| Arven copies | Raw going-second direct-or-Arven protected lock | Among Basic-valid opening sevens |
+| ---: | ---: | ---: |
+| 0 | 6.185571% | 7.642610% |
+| 1 | 10.431290% | 12.888426% |
+| 2 | 14.211765% | 17.559408% |
+| 3 | 17.570078% | 21.708787% |
+| 4 | **20.546080%** | **25.385798%** |
+
+At four Arven, the protected route's restricted valid-opening access rises **17.743188 percentage points** above the no-Arven route, a little over **3.32 times** the direct-only probability. This is a card-access result under the model's exclusions, **not a guarantee of lock or advantage after the opponent has already taken a turn**. Source-deck Item lock, Ability lock and action sequencing remain untested in the live bilateral Store. The independent Python inclusion-exclusion calculation matches all five BigInt results; [the expanded regression](../../tests/agent3-jellicent-lock-opener.test.cjs) passed locally.
+
+The more important next test is therefore a turn-order pair: **first-player** immediate unprotected lock versus **second-player** Arven-protected lock after realistic rank-6 or rank-11 source action. The second line could overcome certain Ability-lock states while sacrificing first-actor tempo. Evaluate a printed Supporter counter and an actual Item/Tool rejection for each after genuine native settlement. Avoid a static opening-only claim of superiority across both seats.
+
 ## Discriminating next actions and research verdict
 
 The shortest constructive next test is a **four-cell original-Store state matrix**: Active Frillish + Boost Shake against neutral opposition; against Active Iron Thorns; against Active Iron Thorns with Hood already on Frillish; and against Tool-equipped Garbodor with/without Hood. Assert genuine native evolution, turn-ending, Oceanic Curse effect on the *opposing player*, accepted or rejected Item/Tool play, and unchanged Supporter/Stadium action permission. Include adversarial Jamming Tower and Guzma responses. This experiment can use Agent 41's existing bilateral runner and actor chooser instead of a competing full-game policy.
