@@ -10,7 +10,10 @@ const {proposeApexPayloadDiscard}=require('./agent47-apex-discard-frontier.cjs')
 
 const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=p=>require(path.join(ROOT,p));
-const PAYLOADS=new Set(['Dragapult ex TWM','Dialga-GX UPR']);
+const PAYLOADS=new Set([
+  'Dragapult ex TWM','Dialga-GX UPR','Mega Dragonite ex ASC',
+  'Noivern ex PAL','Kyurem SFA','Regidrago V SIT'
+]);
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 /** An entire source-registered 60 in deterministic real physical zones. */
