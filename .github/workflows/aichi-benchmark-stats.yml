@@ -177,7 +177,7 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Verify source-only and two-player absolute mulligan setup allowances
         run: |
-          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs tests/aichi-mulligan-public-reveal.test.cjs tests/public-mulligan-reveal-observer.test.cjs tests/aichi-public-mulligan-posterior.test.cjs tests/agent26-public-mulligan-evolution.test.cjs tests/agent26-public-mulligan-fullhistory.test.cjs
+          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs tests/aichi-mulligan-public-reveal.test.cjs tests/public-mulligan-reveal-observer.test.cjs tests/aichi-public-mulligan-posterior.test.cjs tests/agent26-public-mulligan-evolution.test.cjs tests/agent26-public-mulligan-fullhistory.test.cjs tests/agent26-public-mulligan-printing-name-bridge.test.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --check simulation/twinleaf/headless.cjs
       - name: Verify candidate mulligan treatment and source bonus opportunity coupling
