@@ -28,6 +28,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   const GameMessage=deps.GameMessage??native('game/game-message').GameMessage;
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseTreasureRootIntent;
+  const trace=deps.trace??(()=>{});
   const getCatalog=deps.getCatalog??(()=>{
     return require('./agent43-guzma-prompt-continuation.cjs')
       .publicCatalog();
@@ -107,6 +108,15 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     const real=this===liveStore;
     const state=this.state;
     let opportunity=null;
+    if(real&&action?.constructor?.name==='PlayCardAction'){
+      const seat=state.activePlayer,owner=state.players?.[seat];
+      trace({phase:'live-play-action',seat,actionKeys:Object.keys(action),
+        actionId:action.id,actionPlayerId:action.playerId,
+        handIndex:action.handIndex,ownerId:owner?.id,
+        sourcePrinting:Number.isInteger(action.handIndex)?
+          owner?.hand.cards[action.handIndex]?.fullName:null,
+        openPrompts:state.prompts?.filter(p=>p.result===undefined).length});
+    }
     if(real&&action?.constructor?.name==='PlayCardAction'&&
       Number.isInteger(action.handIndex)&&
       !state.prompts?.some(p=>p.result===undefined)){
@@ -138,6 +148,9 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
       const consumed=owner.hand.cards.length===opportunity.handCountBefore-1;
       const hasOwnerPrompt=this.state.prompts?.some(p=>p.result===undefined&&
         p.playerId===opportunity.ownerId);
+      trace({phase:'live-item-acceptance',seat:opportunity.seat,
+        consumed,hasOwnerPrompt,plannedKind:opportunity.planned?.kind??null,
+        plannedDiscard:opportunity.planned?.discardPrinting??null});
       if(consumed&&hasOwnerPrompt&&opportunity.planned){
         plans.set(opportunity.ownerId,{
           seat:opportunity.seat,turn:opportunity.turn,
