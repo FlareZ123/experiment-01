@@ -735,6 +735,25 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.seekerLilliePromptsProposed++;
       return planned;
     }
+    if(seat!==-1&&pending&&audit.eriRevealRootOptIn&&
+       pending.playerId===playerId&&ownerEriPending.has(playerId)){
+      const token=ownerEriPending.get(playerId);
+      assert.equal(token.promptId,pending.id,
+        'Eri reply must originate from the accepted native reveal prompt');
+      const {ResolvePromptAction}=deps.promptActions??
+        require(path.join(base,'game/store/actions/resolve-prompt-action'));
+      const {SuperType,TrainerType,CardTag}=
+        require(path.join(base,'game/store/card/card-types'));
+      const decision=require('./agent50-eri-revealed-item-prompt.cjs')
+        .resolveEriRevealedItemPrompt(state,seat,pending,
+          SuperType,TrainerType,ResolvePromptAction,CardTag);
+      assert.ok(decision,'Eri owner prompt lost its revelation entitlement');
+      typedEriReplies.set(decision.action,{seat,ownerId:playerId,
+        selectedPhysical:decision.action.result,
+        selectedPrintings:decision.selectedPrintings});
+      audit.eriPromptsProposed++;
+      return decision.action;
+    }
     if(seat===-1||pending||state.activePlayer!==seat){
       if(pending&&state.players?.[seat]?.id===pending.playerId){
         audit.unsupportedPromptFallbacks++;
