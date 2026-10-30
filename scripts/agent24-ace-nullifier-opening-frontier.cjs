@@ -40,7 +40,7 @@ function directFirstEight(p){
     assert.ok(Number.isSafeInteger(n)&&n>=0);
   assert.ok(p.totalBasics>=1&&p.totalBasics<=DECK);
   assert.ok(G+B+T+O===DECK);
-  let valid=0n,hit=0n;
+  let valid=0n,hit=0n,setupBasic=0n;
   for(let g=0;g<=Math.min(G,OPENING);g++)
     for(let b=0;b<=Math.min(B,OPENING-g);b++)
       for(let t=0;t<=Math.min(T,OPENING-g-b);t++){
@@ -48,6 +48,7 @@ function directFirstEight(p){
         if(o<0||o>O||g+b===0)continue;
         const count=choose(G,g)*choose(B,b)*choose(T,t)*choose(O,o);
         valid+=count*BigInt(DECK-OPENING);
+        if(g>0)setupBasic+=count*BigInt(DECK-OPENING);
         let good=0;
         if(p.requiresTool===true){
           if(g>0&&t>0)good=DECK-OPENING;
@@ -60,6 +61,9 @@ function directFirstEight(p){
   const factor=gcd(hit,valid);
   const reduced={numerator:(hit/factor).toString(),
     denominator:(valid/factor).toString()};
+  const setupFactor=gcd(setupBasic,valid);
+  const setupFraction={numerator:(setupBasic/setupFactor).toString(),
+    denominator:(valid/setupFactor).toString()};
   return {schema:VERSION,deckCards:DECK,openingCards:OPENING,
     prizeCards:PRIZES,firstOrdinaryDraws:DRAW_AFTER_PRIZES,
     lockCopies:G,totalBasics:p.totalBasics,
@@ -67,7 +71,14 @@ function directFirstEight(p){
     validSevenProbability:Number(valid)/
       (Number(choose(DECK,OPENING))*(DECK-OPENING)),
     conditionedDirectOpportunity:Number(hit)/Number(valid),
-    exactProbability:reduced};
+    exactProbability:reduced,
+    conditionedSetupBasicChance:Number(setupBasic)/Number(valid),
+    exactSetupBasicProbability:setupFraction,
+    // Ordinary game setup permits Basic Bench placement, but playing a
+    // Tool is a turn action. Tool-requiring Genesect cannot have its
+    // ability active BEFORE the opponent's first turn when going second.
+    conditionedSetupLockReadyChance:p.requiresTool===true?0:
+      Number(setupBasic)/Number(valid)};
 }
 
 /** Equal Basic count; compare single-slot Spiritomb to Tool-dependent Genesect. */
