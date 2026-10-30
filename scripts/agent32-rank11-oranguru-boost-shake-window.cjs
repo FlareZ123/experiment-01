@@ -100,7 +100,11 @@ function exactOranguruBoostShakeWindow() {
       } else return;
 
       if (hand.shake === 0) required.push('shake');
-      if (hand.forest === 0) required.push('forest');
+      // Star Alchemy is needed to obtain Shake, or VIP when both
+      // Trubbish and VIP are absent. Held Shake plus direct Trubbish/VIP
+      // needs no Forest Seal Stone; this matches the prior exact model.
+      const needsStar = hand.shake === 0 || route === 'vipStarSearched';
+      if (needsStar && hand.forest === 0) required.push('forest');
       if (hand.float === 0) required.push('float');
       const prizeConfigurations = survivingPrizeSets(hand, required);
       // The eighth card is the first ordinary turn draw. If just one
