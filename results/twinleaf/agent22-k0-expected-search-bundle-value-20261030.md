@@ -38,6 +38,14 @@ For unseen multiset A/B/C, one uniformly Prized card, one unrestricted search sl
 
 These values are exact conditional combinatorial facts *under the stated synthetic model*. They do not certify a card swap, a Supporter play or win probability.
 
+## A published-source multiplicity illustration (explicitly hypothetical hand)
+
+The rank7 Hiroto Fuji Snorlax Stall exact registered 60 contains **three VS Seeker PHF, three Counter Catcher PAR and two Capture Energy RCL**. Assume a hypothetical known seven-card opening hand contains **none** of those three printed target types, and the remaining **53** cards are uniformly allocated between a 47-card deck and **six** unknown Prize cards. Give those three printed types weights **10, 8 and 6**, respectively, with a per-selected-card cost of **1**, and allow a purely unrestricted search for up to three cards.
+
+Independent exact multivariate hypergeometric enumeration over `choose(53,6)=22,957,480` allocations yields conditional expected marginal search score **9830137/468520 = 20.981254…**, and expected selection count **2459729/819910 ≈ 2.999999**. The chance that the deck contains at least one of each of the three target types is **1743729/1765960 ≈ 98.7411%**. These numbers use published multiplicities and a **synthetic hand premise**, not an observed rank7 starting hand.
+
+Despite the high access probability under those artificial weights, the [retrospective authentic rank7 native search follow-through](../aichi-2026/agent22-rank7-steven-followthrough-retrospective-20261030.md) records no accepted post-search source-root **Counter Catcher** or **VS Seeker** play within its small set of capped, weak-bot trials. The conditional probability and replay observations concern **different epistemic settings and populations**; comparing them is a methodological illustration of how nominal search access can fail to predict actual resource use, not a causal performance estimate.
+
 ## Implementation and status
 
 - `simulation/twinleaf/agent22-k0-search-bundle-value.cjs` exports `expectedK0UnrestrictedSearchValue`; BigInt exact combinatorial state counts reuse `redeal-posterior.cjs` `choose`.
