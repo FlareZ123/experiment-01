@@ -6,13 +6,13 @@ const VERSION = 'agent26-frozen32-readonly-setup-divergence-v1';
 const EXPECTED_SCOUT = 'agent41-preregistered-32-arm-canonical-scout-v1';
 
 /**
- * Read only the original, native-observed setup Benching selections.
+ * Read only the original, native-observed starting Active-and-Bench Basic selections.
  * These are postgame evidence; no player-policy component may consume them.
  *
  * @param {object} row An original frozen Store arm from the immutable archive.
  * @returns {{cards:string[],promptOrdinal:number|null,sourceSeat:number}}
  */
-function sourceSetupBenchSelection(row) {
+function sourceSetupBasicSelection(row) {
   assert.ok(row && (row.sourceSeat === 0 || row.sourceSeat === 1));
   const events = row.nativePromptChoices?.events;
   assert.ok(Array.isArray(events), 'Native prompt evidence is required');
@@ -21,7 +21,7 @@ function sourceSetupBenchSelection(row) {
     event.kind === 'ChooseCardsPrompt' &&
     event.sourceZone === 'hand');
   assert.equal(eligible.length, 1,
-    'Expected one observed source setup hand-to-Bench choice prompt');
+    'Expected one observed source starting Active-and-Bench choice prompt');
   const event = eligible[0];
   assert.ok(Array.isArray(event.selectedCards));
   assert.ok(event.selectedCards.every(card => typeof card === 'string'));
@@ -64,18 +64,18 @@ function auditFrozenScoutSetup(archive) {
     assert.equal(c.actualStarterSeat, n.actualStarterSeat);
     assert.equal(sourcePair.sameSourcePhysicalDeal,
       c.sourceDealFingerprint === n.sourceDealFingerprint);
-    const champion = sourceSetupBenchSelection(c);
-    const newMoon = sourceSetupBenchSelection(n);
-    const sameSourceSetupSelection = JSON.stringify(champion.cards) ===
+    const champion = sourceSetupBasicSelection(c);
+    const newMoon = sourceSetupBasicSelection(n);
+    const sameSourceSetupBasicSelection = JSON.stringify(champion.cards) ===
       JSON.stringify(newMoon.cards);
     const sameSourcePhysicalDeal = sourcePair.sameSourcePhysicalDeal;
     outcomes.push({
       pairId: prefix,rank: c.trial.rank,repeat: c.trial.repeat,
       seed:c.trial.seed,physicalCandidateSlot:c.trial.candidateSlot,
       sourceSeat:c.sourceSeat,actualStarterSeat:c.actualStarterSeat,
-      sameSourcePhysicalDeal,sameSourceSetupSelection,
-      championSelectedSetupBench:champion.cards,
-      newMoonSelectedSetupBench:newMoon.cards,
+      sameSourcePhysicalDeal,sameSourceSetupBasicSelection,
+      championSelectedSetupBasics:champion.cards,
+      newMoonSelectedSetupBasics:newMoon.cards,
       championSetupPromptOrdinal:champion.promptOrdinal,
       newMoonSetupPromptOrdinal:newMoon.promptOrdinal,
       bothNativeFinished:c.finished === true && n.finished === true,
@@ -84,20 +84,20 @@ function auditFrozenScoutSetup(archive) {
     });
   }
   assert.equal(outcomes.length, 16);
-  const setupDifferent = outcomes.filter(p => !p.sameSourceSetupSelection);
+  const setupDifferent = outcomes.filter(p => !p.sameSourceSetupBasicSelection);
   const dealDifferent = outcomes.filter(p => !p.sameSourcePhysicalDeal);
   return {
     schema:VERSION,sourceArchive:archive.registrationPath,
     totalPairs:outcomes.length,matchingSourcePhysicalDeals:
       outcomes.length-dealDifferent.length,
     divergentSourcePhysicalDeals:dealDifferent.length,
-    matchingObservedSourceSetupBenchChoices:
+    matchingObservedSourceSetupBasicChoices:
       outcomes.length-setupDifferent.length,
-    divergentObservedSourceSetupBenchChoices:setupDifferent.length,
+    divergentObservedSourceSetupBasicChoices:setupDifferent.length,
     mismatchPairIds:dealDifferent.map(p => p.pairId),
     divergentSetupPairIds:setupDifferent.map(p => p.pairId),
     rows:outcomes,competitiveQualifiedGames:0,
-    caveat:'Setup prompt selections demonstrate physical source Bench-choice differences, not why the source initial hands diverged. Original draw/mulligan causes are not independently identified. This is a postgame readonly audit, not policy input.'
+    caveat:'Setup prompt selections demonstrate physical source starting Active/Bench roster-choice differences, not why the source initial hands diverged. Original draw/mulligan causes are not independently identified. This is a postgame readonly audit, not policy input.'
   };
 }
 
@@ -109,4 +109,4 @@ if (require.main === module) {
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 }
 
-module.exports = {VERSION,sourceSetupBenchSelection,auditFrozenScoutSetup};
+module.exports = {VERSION,sourceSetupBasicSelection,auditFrozenScoutSetup};
