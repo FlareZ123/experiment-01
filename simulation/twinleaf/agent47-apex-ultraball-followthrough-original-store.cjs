@@ -93,6 +93,7 @@ function runOne(seat,mode='alternate'){
   if(mode==='baseline'){
     assert.ok(!x.owner.discard.cards.some(c=>PAYLOADS.has(c.fullName)));
     return {seat,mode,noDragonPayload:true,itemFollowthrough,
+      nativePhysicalDiscardAccepted:true,sourceOriginal60:true,
       qualifiedCompetitiveGames:0};
   }
   assert.ok(x.owner.discard.cards.some(c=>c.fullName==='Dragapult ex TWM'));
@@ -120,7 +121,7 @@ function runOne(seat,mode='alternate'){
   assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
   const opponent=x.state.players[1-seat];
   assert.ok(opponent.active.damage>0,'Apex copy must visibly damage opponent');
-  return {seat,original60Actor:true,
+  return {seat,mode,original60Actor:true,
     physicalSelected:proposal.proposal,
     nativeDiscardPhysicalAccepted:true,
     itemFollowthrough,copyPromptNative:true,
@@ -132,10 +133,11 @@ function runOne(seat,mode='alternate'){
 }
 
 function main(){
-  return {schema:'agent47-source20-apex-ultraball-native-followthrough-v1',
+  return {schema:'agent47-source20-apex-ultraball-native-followthrough-v2',
     pinnedTwinleaf:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     registrations:'Original rank20 cards with deterministic staged physical deal',
-    rows:[runOne(0),runOne(1)],qualifiedCompetitiveGames:0,
+    rows:[runOne(0,'baseline'),runOne(0,'alternate'),
+      runOne(1,'baseline'),runOne(1,'alternate')],qualifiedCompetitiveGames:0,
     caveat:'Original Store Item/discard/search/copy-attack demonstration in a staged state; no naturally observed game, independent opponent response, or outcome inference.'};
 }
 if(require.main===module)
