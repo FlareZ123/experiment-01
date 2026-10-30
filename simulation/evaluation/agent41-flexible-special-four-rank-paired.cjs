@@ -218,7 +218,8 @@ function compare(a,b){
   const firstChanged=before&&after?Array.from({
     length:Math.max(before.length,after.length)
   },(_,i)=>i).find(i=>JSON.stringify(before[i])!==JSON.stringify(after[i])):null;
-  const actorCount=row=>row.ownerRootAudit?.intentCounts?.['attach-special-energy']??null;
+  const actorCount=row=>row.ownerRootAudit?
+    (row.ownerRootAudit.intentCounts?.['attach-special-energy']??0):null;
   const acceptedCount=row=>row.ownerRootAudit?.acceptancesSample?.
     filter(action=>action.kind==='attach-special-energy'&&
       action.accepted===true).length??null;
