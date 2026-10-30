@@ -449,6 +449,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'),
     protectPotentialTwoPrizeAttackOptIn:deps.protectPotentialTwoPrizeAttack??
       (process.env.AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV==='true'),
+    protectPotentialPrintedPrizeAttackOptIn:deps.protectPotentialPrintedPrizeAttack??
+      (process.env.AGENT42_PRINTED_PRIZE_FINISHER_DEV==='true'),
     terminalArbitration:require('./agent41-owner-root-arbitration.cjs')
       .newOwnerArbitrationAudit(),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
@@ -484,6 +486,10 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.terminalArbitrationOptIn){
     audit.version+='+'+
       require('./agent41-owner-root-arbitration.cjs').VERSION;
+    if(audit.protectPotentialPrintedPrizeAttackOptIn){
+      audit.version+='+'+
+        require('./agent42-visible-printed-prize-finisher.cjs').VERSION;
+    }
   }else{
     delete audit.terminalArbitrationOptIn;
     delete audit.terminalArbitration;
@@ -574,7 +580,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     if(catalog===null){
       catalog=getCatalog();
-      if(audit.publicContextSpecialEnergyOptIn&&
+      if((audit.publicContextSpecialEnergyOptIn||
+          audit.protectPotentialPrintedPrizeAttackOptIn)&&
           !(catalog.publicPokemonProfileIndex instanceof Map)){
         catalog.publicPokemonProfileIndex=
           require('./agent10-original-printing-energy-flags.cjs')
@@ -632,6 +639,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
+      protectPotentialPrintedPrizeAttack:audit.protectPotentialPrintedPrizeAttackOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     };
     const firstIntent=chooseActorRootIntent(view,catalog,rootOptions);
