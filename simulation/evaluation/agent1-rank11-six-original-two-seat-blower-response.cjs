@@ -112,6 +112,9 @@ function run(){
 if(require.main===module){
   const result=run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
-  if(result.blocked>0)process.exitCode=1;
+  if(result.blocked>0){
+    process.stderr.write('AGENT1_BILATERAL_BLOCKERS '+JSON.stringify(result.rows.map(r=>({index:r.index,arms:r.arms.filter(x=>x.status==='blocked').map(x=>({opponentBlowerPolicy:x.opponentBlowerPolicy,error:x.error,diagnostic:x.nativeDiagnostic}))})))+'\n');
+    process.exitCode=1;
+  }
 }
 module.exports={VERSION,run};
