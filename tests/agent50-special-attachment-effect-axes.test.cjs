@@ -103,3 +103,30 @@ test('small public effect offer cap reports truncation, never hidden access',()=
   assert.equal(r.offers.length,72);
   assert.equal(r.truncated,true);
 });
+
+test('Telepathic Psychic offers up to two Bench basics only from Psychic target',()=>{
+  const x=view();
+  x.ownHand=['Telepathic Psychic Energy POR'];
+  const c={...catalog,specialEnergies:new Set(
+    ['Telepathic Psychic Energy POR','Telepath [P] Energy M3'])};
+  const offers=collect(x,c).offers;
+  assert.equal(offers.length,2);
+  const act=find(offers,'Telepathic Psychic Energy POR','active');
+  const ben=find(offers,'Telepathic Psychic Energy POR','bench');
+  assert.equal(act.publicEffectOpportunity,false);
+  assert.equal(act.reason,'recipient-not-public-Psychic');
+  assert.equal(ben.publicEffectOpportunity,true);
+  assert.equal(ben.potentialBenchCap,2);
+  assert.equal(ben.deckTargetKnown,false);
+  x.ownPublic.bench=[x.ownPublic.bench[0],null,
+    pokemon('Psychic other',5),pokemon('Psychic extra',5),
+    pokemon('Psychic last',5)];
+  assert.equal(collect(x,c).offers.find(o=>o.slot==='bench')?.
+    potentialBenchCap,1);
+  x.ownPublic.bench=Array(5).fill(pokemon('Psychic filled',5));
+  assert.ok(collect(x,c).offers.every(o=>!o.publicEffectOpportunity));
+  x.ownPublic.bench=[null,null,null,null,null];
+  x.ownHand=['Telepath [P] Energy M3'];
+  assert.equal(collect(x,c).offers[0].onAttachChannel,
+    'on-attach-two-Psychic-basic-bench-search');
+});
