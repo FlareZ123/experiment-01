@@ -137,3 +137,36 @@ test('an opponent card or another owner hand card activates printed conditional 
   assert.deepEqual(printedShuffleDrawCounts(lillieOnly,'lillie'),
     {ownDraw:8,opponentDraw:0});
 });
+
+test('full Iono draw can use cards returned from both players hands',()=>{
+  const v=view(['Iono PAL','Ultra Ball SVI'],{
+    ownPublic:{active:{},deckCount:4,prizeCount:5,resolvingSupporter:[],
+      publicTurnRestrictions:{}},
+    opponentPublic:{handCount:2,deckCount:0,prizeCount:2}
+  });
+  const proposals=enumerateConservativeShuffleSupporterOffers(v);
+  assert.equal(proposals.length,1);
+  assert.equal(proposals[0].family,'iono');
+  assert.deepEqual(proposals[0].drawEstimate,{
+    ownDraw:5,opponentDraw:2,ownHandBefore:2,opponentHandBefore:2});
+});
+
+test('Lillie full six-card draw counts another card shuffled to deck',()=>{
+  const v=view(["Lillie's Determination M1L",'Ultra Ball SVI'],{
+    ownPublic:{active:{},deckCount:5,prizeCount:5,resolvingSupporter:[],
+      publicTurnRestrictions:{}}
+  });
+  assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,1);
+  v.ownPublic.deckCount=4;
+  assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,0);
+});
+
+test('Marnie opponent draw capacity includes cards put on bottom',()=>{
+  const v=view(['Marnie SSH'],{
+    opponentPublic:{handCount:4,deckCount:0,prizeCount:4}
+  });
+  const offers=enumerateConservativeShuffleSupporterOffers(v);
+  assert.equal(offers.length,1);
+  assert.equal(offers[0].family,'marnie');
+  assert.equal(offers[0].drawEstimate.opponentDraw,4);
+});
