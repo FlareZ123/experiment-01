@@ -108,6 +108,19 @@ function tryOriginalThornsAttack(seat,labyrinth){
       assert.ok(pending,'Native attack stopped with no prompt');
       if(pending.constructor.name==='WaitPrompt'){
         store.dispatch(new ResolvePromptAction(pending.id,null));
+      }else if(pending.constructor.name==='AttachEnergyPrompt'){
+        // Volt Cyclone's native reducer actually emits AttachEnergyPrompt
+        // over an already attached Energy card; its accepted assignment
+        // moves that exact physical card from Active to Bench.
+        const energy=owner.active.energies.cards[0];
+        assert.ok(pending.cardList?.cards.includes(energy),
+          'Volt Cyclone prompt must source the owner attached Energy');
+        const assignment=[{
+          card:energy,
+          to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0}
+        }];
+        assert.equal(pending.validate(assignment,state),true);
+        store.dispatch(new ResolvePromptAction(pending.id,assignment));
       }else if(pending.constructor.name==='MoveEnergyPrompt'){
         const movement=[{
           from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
