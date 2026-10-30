@@ -109,6 +109,9 @@ jobs:
           name: agent1-original-rank11-six-source-policy-pairs
           path: agent1-six-original-source-policy-pair.json
           if-no-files-found: warn
+      - name: Audit opposing original rank1 owner-held Field Blower at first locked native root
+        if: inputs.agent1_six_native_opponent_return
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');const rows=r.rows.map(x=>({index:x.index,seed:x.seed,heldFieldBlower:x.opponentFirstOwnerResources?.fieldBlower??null,heldGuzma:x.opponentFirstOwnerResources?.guzma??null,heldVSSeeker:x.opponentFirstOwnerResources?.vsSeeker??null,heldQuickBall:x.opponentFirstOwnerResources?.quickBall??null,proposedFieldBlower:x.opponentRootProposals?.filter(z=>z.fieldBlowerProposed).length??null}));a.equal(rows.length,6);for(const x of rows){a.ok(Number.isInteger(x.heldFieldBlower));a.ok(Number.isInteger(x.proposedFieldBlower));}console.log('AGENT1_OPP_OWNER_FIELD_BLOWER',JSON.stringify(rows))"
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
         uses: actions/upload-artifact@v4
