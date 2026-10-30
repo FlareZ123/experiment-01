@@ -55,3 +55,23 @@ game or deck strength result. It is registered under the *manual* workflow
 input `agent33_path_to_peak_native` and **has not been executed in
 native CI yet**. The actual compiled output must be inspected before
 asserting success.
+
+## VSTAR Ability granted by a visible Pokémon Tool
+
+The pinned `Forest Seal Stone SIT` and `Sky Seal Stone CRZ` grant
+`Star Alchemy` and `Star Order` as **Abilities** to attached Pokémon V.
+A Pokémon V without a printed Ability can therefore still have an
+actionable Ability, and Path can disable it. A naive scanner of only
+the original Pokémon's printed Abilities would mistakenly propose
+self-locks and miss opponent lock opportunities.
+
+The public, exact-printing CardManager catalog now also exposes
+`ruleboxPokemonPrintings`, allowing the selector to recognize a visible
+Rule Box Pokémon with attached Forest/Sky Seal Stone. The actor's
+public `vstarUsed` resource excludes already spent one-per-game
+Tool-granted Powers from the immediate-value calculation. Four
+synthetic regressions cover owner self-lock, opponent granted Ability,
+spent opponent Power, and spent owner Power. This is **state-dependent
+ability access**, with the actual Store power suppression still requiring
+independent compiled native verification. Tool-granted abilities other
+than those two and future setup changes remain unmodeled.

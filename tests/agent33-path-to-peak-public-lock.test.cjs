@@ -8,6 +8,9 @@ const {chooseActorRootIntent}=
 const catalog={basics:new Set(),abilityBasics:new Set(),
   ruleboxAbilityPrintings:new Set(['Genesect V FST',
     'Shadow Rider Calyrex VMAX CRE','Regidrago VSTAR SIT']),
+  ruleboxPokemonPrintings:new Set(['Genesect V FST',
+    'Shadow Rider Calyrex VMAX CRE','Regidrago VSTAR SIT',
+    'Palkia V ASR']),
   basicEnergies:new Set(),specialConditions:{ASLEEP:-1,PARALYZED:-2}};
 function view(){
  return {decisionKind:'owner-root',globalTurn:6,
@@ -67,4 +70,30 @@ test('opponent secret zones cannot change printed target assessment',()=>{
    deck:['Shadow Rider Calyrex VMAX'],hand:['Forest Seal Stone']};
  assert.deepEqual(choosePathToPeakOpposingAbility(x,catalog),
    choosePathToPeakOpposingAbility(y,catalog));
+});
+
+test('Forest Seal Stone on own otherwise abilityless V is a self-lock veto',()=>{
+ const x=view();x.ownPublic.active={
+   printing:'Palkia V ASR',tools:['Forest Seal Stone SIT']};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('opponent Seal Stone VSTAR Power grants public lock opportunity',()=>{
+ const x=view();x.opponentPublic.active={
+   printing:'Palkia V ASR',tools:['Sky Seal Stone CRZ']};
+ x.opponentPublic.publicTurnRestrictions={vstarUsed:false};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
+   'play-path-to-peak');
+});
+test('spent opponent VSTAR Seal Stone is no longer the only Path target',()=>{
+ const x=view();x.opponentPublic.active={
+   printing:'Palkia V ASR',tools:['Forest Seal Stone SIT']};
+ x.opponentPublic.publicTurnRestrictions={vstarUsed:true};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('spent owner VSTAR Seal Stone no longer blocks Path opportunity',()=>{
+ const x=view();x.ownPublic.active={
+   printing:'Palkia V ASR',tools:['Forest Seal Stone SIT']};
+ x.ownPublic.publicTurnRestrictions={vstarUsed:true};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
+   'play-path-to-peak');
 });
