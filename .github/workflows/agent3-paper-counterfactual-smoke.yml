@@ -1,0 +1,32 @@
+name: Agent 3 paper counterfactual smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Regress paper-source setups and exact combinatorial denominators
+        run: |
+          node --test \
+            tests/agent3-jellicent-silent-lab-openers.test.cjs \
+            tests/agent3-jellicent-thorns-mulligan-access.test.cjs \
+            tests/agent3-thorns-silent-lab-stadium-reply.test.cjs \
+            tests/agent3-jellicent-double-shield-access.test.cjs \
+            tests/agent3-jellicent-secret-box-shield-access.test.cjs \
+            tests/agent3-secretbox-cost-pareto.test.cjs \
+            tests/agent3-absol-source-prelock-dark-energy.test.cjs \
+            tests/agent3-meloetta-lone-basic-mulligan-risk.test.cjs \
+            tests/agent3-jellicent-guzma-setup-counter.test.cjs \
+            tests/agent3-rank26-duallock-print-census.test.cjs \
+            tests/agent3-rank26-cologne-pre-donk-access.test.cjs \
+            tests/agent3-rank26-paper-donk-witness.test.cjs
