@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent1_owner_starvip_original_six:
+        description: 'Actor-visible Star-VIP native step executor on same six original rank11 physical deals'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -112,6 +117,22 @@ jobs:
       - name: Audit opposing original rank1 owner-held Field Blower at first locked native root
         if: inputs.agent1_six_native_opponent_return
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');const rows=r.rows.map(x=>({index:x.index,seed:x.seed,heldFieldBlower:x.opponentFirstOwnerResources?.fieldBlower??null,heldGuzma:x.opponentFirstOwnerResources?.guzma??null,heldVSSeeker:x.opponentFirstOwnerResources?.vsSeeker??null,heldQuickBall:x.opponentFirstOwnerResources?.quickBall??null,proposedFieldBlower:x.opponentRootProposals?.filter(z=>z.fieldBlowerProposed).length??null}));a.equal(rows.length,6);for(const x of rows){a.ok(Number.isInteger(x.heldFieldBlower));a.ok(Number.isInteger(x.proposedFieldBlower));}console.log('AGENT1_OPP_OWNER_FIELD_BLOWER',JSON.stringify(rows))"
+      - name: Pure actor-visible first-turn Star-VIP plan lifecycle and selector tests
+        if: inputs.agent1_owner_starvip_original_six
+        run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent32-owner-oranguru-starvip-plan-offer.test.cjs
+      - name: Native source-original six card-conditioned owner Star-VIP autonomous plan
+        if: inputs.agent1_owner_starvip_original_six
+        run: node simulation/evaluation/agent1-rank11-owner-starvip-autonomy-original-six.cjs > agent1-native-owner-starvip-original-six.json
+      - name: Report actor-only genuine native owner planned setup outcomes
+        if: inputs.agent1_owner_starvip_original_six
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-native-owner-starvip-original-six.json');a.equal(r.attempted,6);a.equal(r.originalK0Matched,6);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_OWNER_NATIVE_STARVIP',JSON.stringify({matched:r.originalK0Matched,chosen:r.chosen,nativeAccepted:r.nativeAccepted,ownerPromptAccepted:r.ownerPromptAccepted,equippedSourceReturn:r.equippedGarbodorSourceReturn,blocked:r.blocked,rows:r.rows.map(x=>({index:x.index,seed:x.seed,status:x.status,chosen:x.sourcePlanAudit?.plansChosen??null,accepted:x.sourcePlanAudit?.nativeAccepted??null,completed:x.sourcePlanAudit?.completedEquippedGarbodor??null,aborts:x.sourcePlanAudit?.abortReasons??null}))}))"
+      - name: Archive all actor-visible original six native plan successes and failures
+        if: inputs.agent1_owner_starvip_original_six && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-owner-autonomous-source-starvip-six
+          path: agent1-native-owner-starvip-original-six.json
+          if-no-files-found: warn
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
         uses: actions/upload-artifact@v4
