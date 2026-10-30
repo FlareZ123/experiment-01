@@ -46,3 +46,38 @@ test('decline obvious printed Prize-reduction and remain hidden-state invariant'
   assert.deepEqual(potentialTwoPrizeAttackVeto(a,first),
     potentialTwoPrizeAttackVeto(b,first));
 });
+
+
+test('shared actor arbiter preserves a two-Prize potential attack only when opted in',()=>{
+  const {arbitrateOwnerRootIntent}=
+    require('../simulation/twinleaf/agent41-owner-root-arbitration.cjs');
+  const v=view();
+  v.ownHand=['Double Dragon Energy ROS'];
+  v.ownTurnResources={energyPlayLocked:false,specialEnergyPlayLocked:false,
+    energyPlayedTurn:0};
+  const offers=()=>({alternatives:[{probe:'public-special-energy',
+    kind:'attach-special-energy',handIndex:0,
+    printing:'Double Dragon Energy ROS',slot:'bench',index:0}]});
+  const baseline=arbitrateOwnerRootIntent(v,{},first,
+    {publicContextSpecialEnergy:true},offers);
+  assert.equal(baseline.intent.kind,'attach-special-energy');
+  const guarded=arbitrateOwnerRootIntent(v,{},first,
+    {publicContextSpecialEnergy:true,
+      protectPotentialTwoPrizeAttack:true},offers);
+  assert.strictEqual(guarded.intent,first);
+  assert.equal(guarded.receipt.reason,'potential-two-prize-finishing-attack');
+  assert.equal(guarded.receipt.candidateCount,1);
+  assert.equal(guarded.receipt.nativePlayability,'unverified');
+  const hiddenChanged=structuredClone(v);
+  hiddenChanged.opponentHidden={hand:['changed'],prizes:['unknown']};
+  assert.deepEqual(arbitrateOwnerRootIntent(hiddenChanged,{},first,
+    {publicContextSpecialEnergy:true,
+      protectPotentialTwoPrizeAttack:true},offers),guarded);
+  const singlePrize=view();singlePrize.ownHand=v.ownHand;
+  singlePrize.ownTurnResources=v.ownTurnResources;
+  singlePrize.opponentPublic.active.printing='Klefki SVI';
+  const negative=arbitrateOwnerRootIntent(singlePrize,{},first,
+    {publicContextSpecialEnergy:true,
+      protectPotentialTwoPrizeAttack:true},offers);
+  assert.equal(negative.intent.kind,'attach-special-energy');
+});
