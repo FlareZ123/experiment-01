@@ -333,3 +333,19 @@ test('displaced Basic proposal ignores concealed opposing and future deck cards'
   assert.deepStrictEqual(collectOwnerContention(x.view,x.catalog,x.options,chosen),
     collectOwnerContention(y.view,y.catalog,y.options,chosen));
 });
+
+test('implicit native Active/0 Energy recipient is physically identical to explicit Active/0',()=>{
+  const {samePhysicalProposal}=require(
+    '../simulation/twinleaf/agent16-owner-priority-contention.cjs');
+  const explicit={kind:'attach-special-energy',
+    printing:'Double Colorless Energy SUM',handIndex:1,
+    slot:'active',index:0};
+  const implicit={kind:'attach-special-energy',
+    printing:'Double Colorless Energy SUM',handIndex:2};
+  assert.equal(samePhysicalProposal(explicit,implicit),true);
+  assert.equal(samePhysicalProposal(implicit,explicit),true);
+  assert.equal(samePhysicalProposal(explicit,{
+    ...implicit,slot:'bench',index:0}),false);
+  assert.equal(samePhysicalProposal(explicit,{
+    ...implicit,printing:'Speed Lightning Energy RCL'}),false);
+});
