@@ -23,8 +23,8 @@ function auditMatchedPlumeriaControl(control,treated){
   assert.equal(control.actorPlumeriaAfterPassOptIn,false);
   assert.equal(treated.actorPlumeriaAfterPassOptIn,true);
   const pairs=[];
-  const bySeat={0:{proposed:0,accepted:0,settled:0},
-    1:{proposed:0,accepted:0,settled:0}};
+  const bySeat={0:{accepted:0,settled:0},
+    1:{accepted:0,settled:0}};
   let audited=0,errors=0,matchedDealAndActualStart=0;
   for(let i=0;i<4;i++){
     const before=control.rows[i],after=treated.rows[i];
