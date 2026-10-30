@@ -16,7 +16,8 @@ const PRIORITY=Object.freeze({
   'play-seeker-get-lillie':10,'play-seeker-recovered-lillie':10,
   'play-carmine-first':11,'paid-retreat':12,
   'attack':14,'perfection':15,'attach-special-energy':16,
-  'play-held-guzma-mobility':17,'play-stranded-marnie':18,'pass':19
+  'play-held-guzma-mobility':17,'play-stranded-marnie':18,
+  'play-team-flare-grunt-denial':19,'pass':20
 });
 
 const PROBES=Object.freeze([
@@ -46,13 +47,17 @@ const PROBES=Object.freeze([
       .chooseHeldGuzmaMobility},
   {flag:'strandedMarnieRoot',order:18,name:'stranded-marnie',
     load:()=>require('./agent50-stranded-marnie-frontier.cjs')
-      .chooseStrandedMarnie}
+      .chooseStrandedMarnie},
+  {flag:'teamFlareGruntDenialRoot',order:19,name:'team-flare-grunt',
+    load:()=>require('./agent1-owner-team-flare-grunt-denial.cjs')
+      .chooseTeamFlareGruntDenial}
 ]);
 
 const SUPPORTER_KINDS=new Set([
   'play-lowhand-lillie','play-conservative-shuffle-supporter',
   'play-seeker-recovered-lillie','play-carmine-first',
-  'play-held-guzma-mobility','play-stranded-marnie'
+  'play-held-guzma-mobility','play-stranded-marnie',
+  'play-team-flare-grunt-denial'
 ]);
 const ENERGY_KINDS=new Set([
   'attach-basic-energy','attach-special-energy','attach-dce'
