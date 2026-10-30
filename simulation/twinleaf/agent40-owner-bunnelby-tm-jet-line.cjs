@@ -28,7 +28,8 @@ function sourceCouldEvolveBench(view,catalog,ownRegisteredSixty){
   const remaining=new Map();
   for(const printing of ownRegisteredSixty){
     const evolution=catalog.evolutions.get(printing);
-    if(evolution?.stage!==catalog.stages.STAGE_1||
+    if(![catalog.stages.STAGE_1,catalog.stages.STAGE_2]
+      .includes(evolution?.stage)||
         !bases.has(evolution.evolvesFrom))continue;
     remaining.set(printing,(remaining.get(printing)??0)+1);
   }
