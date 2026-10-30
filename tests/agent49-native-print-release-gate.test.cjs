@@ -124,3 +124,27 @@ test('omitting actual native CardManager lookup prevents competitive release',()
       frozenVersion:true},paperClockQualified:true});
   assert.ok(r.blockers.includes('NATIVE_ID_ROUNDTRIP_UNVERIFIED'));
 });
+
+test('even every supplied structural flag passing cannot manufacture a game win',()=>{
+  const all=Array.from({length:32},(_,i)=>({rank:i+1,player:'P'+(i+1),
+    cards:[{name:'Buneary',count:60,
+      printing:{set:'PFL',number:'83',language:'en'}}]}));
+  const rows=all.map(row=>({rank:row.rank,rows:[{name:'Buneary',count:60,
+    requested:{set:'PFL',number:'83'},status:'exact',
+    exact:[{fullName:'Buneary M2',signals:[]}]}]}));
+  const ready=all.map(row=>({rank:row.rank,player:row.player,
+    status:'ready',cards:Array(60).fill('Buneary M2'),substitutions:[]}));
+  const r=evaluateRelease({manifest:{decks:all},coverage:{decks:rows},
+    plan:{opponents:ready},fixtures:[fixture],requiredFixtureIds:[fixture.id],
+    nativeCardLookup:id=>({name:'Buneary',set:'PFL',setNumber:'83',
+      fullName:id}),
+    candidate:{exactNative60:Array(60).fill('Buneary M2'),
+      unchangedSourcePrintingAttested:true,nativeSubstitutions:[]},
+    policy:{ownerInformationSafe:true,identicalTwoSeatPolicy:true,
+      frozenVersion:true},paperClockQualified:true});
+  assert.deepEqual(r.blockers,[]);
+  assert.equal(r.nativePrintingReleaseGatePassed,true);
+  assert.equal(r.competitiveQualified,false);
+  assert.equal(r.competitiveQualifiedGames,0);
+  assert.equal(r.requiresIndependentGameOutcomeAdjudication,true);
+});
