@@ -44,3 +44,15 @@ test('Arven provides a second-turn-order-specific Item plus Tool search channel'
   near(exactArvenProtectedLock({arven:0}).conditionalValidBasic,
     exactDirectLock({stealthyHood:4,requireHood:true}).conditionalValidBasic);
 });
+
+test('first-player Carmine redraw is a modest protected-lock improvement',()=>{
+  const {exactCarmineProtectedLock}=require('../scripts/agent3-jellicent-lock-opener.cjs');
+  const expected=[0.0618557143504906,0.06865326787484247,
+    0.07473110528237328,0.08015303998806472,0.08497835717878419];
+  for(let n=0;n<=4;n++)near(exactCarmineProtectedLock({carmine:n}).unconditional,
+    expected[n]);
+  near(exactCarmineProtectedLock({carmine:4}).conditionalValidBasic,
+    0.10499537891974396);
+  near(exactCarmineProtectedLock({carmine:0}).unconditional,
+    exactDirectLock({stealthyHood:4,requireHood:true}).unconditional);
+});
