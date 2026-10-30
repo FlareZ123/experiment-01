@@ -437,13 +437,15 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Regress precommitted eight authentic original trials and existing public Energy model
-        run: node --test tests/agent41-publiccontext-original-native-census.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent17-conditional-special-native.test.cjs tests/actor-energy-payability.test.cjs
+        run: node --test tests/agent41-publiccontext-original-native-census.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/actor-energy-payability.test.cjs
       - name: Install pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify Agent17 contextual Energy native Store mechanism on compiled engine
+        run: node --test tests/agent17-conditional-special-native.test.cjs
       - name: Execute all eight original control native Store games
         run: node simulation/evaluation/agent41-publiccontext-original-4pair.cjs control > agent41-public-special-control.json
       - name: Execute same eight frozen games with identical public-context selector on both physical seats
