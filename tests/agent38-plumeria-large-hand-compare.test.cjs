@@ -12,6 +12,7 @@ function fixture(){
     sourceDealFingerprint:'source-deal-'+i,
     actualStarterSeat:0,qualifiesForCompetitiveInference:false,
     rootActionLedgerSha256:'root-'+i,
+    nativePromptChoices:{sha256:'prompt-'+i},
     actorOnlyDecisionCoverage:{ownerPlumeriaAfterPassAudit:{
       largeHandOptIn:false,largeHandNativeSelections:0,
       genericPromptFallbacks:1,acceptedPlumeria:0,
@@ -24,7 +25,7 @@ function fixture(){
     row.actorOnlyDecisionCoverage.ownerPlumeriaAfterPassAudit.largeHandOptIn=true;
   candidate.rows[1].actorOnlyDecisionCoverage.ownerPlumeriaAfterPassAudit
     .largeHandNativeSelections=1;
-  candidate.rows[1].rootActionLedgerSha256='changed';
+  candidate.rows[1].nativePromptChoices.sha256='different-prompt';
   return {baseline,candidate};
 }
 
@@ -35,7 +36,11 @@ test('four historical physical deal hashes checked independently, no inferred wi
   assert.equal(r.matchedFullPhysicalStarts,4);
   assert.equal(r.auditedPairs,4);
   assert.equal(r.largeHandNativeSelections,1);
-  assert.equal(r.pairs[1].rootChanged,true);
+  assert.equal(r.pairs[1].rootChanged,false);
+  assert.equal(r.pairs[1].promptChanged,true);
+  assert.equal(r.pairs[1].sameRootWithChangedPrompt,true);
+  assert.equal(r.sameRootWithChangedPrompt,1);
+  assert.equal(r.pairs[1].combinedObservedDecisionChange,true);
   assert.equal(r.competitiveQualifiedGames,0);
 });
 
