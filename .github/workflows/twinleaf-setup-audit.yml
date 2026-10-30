@@ -23,6 +23,10 @@ on:
         description: 'Optional same-source physical turn-one Speed versus DCE timing native comparison'
         type: boolean
         default: false
+      agent6_matched_supporter:
+        description: 'Optional matched T1 DCE source action comparison'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -156,6 +160,17 @@ jobs:
         with:
           name: agent6-two-turn-energy-order-native
           path: agent6-two-turn-energy-order-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Compare original source T3 matched attack versus denial
+        if: inputs.agent6_matched_supporter
+        run: node simulation/evaluation/agent6-matched-t3-dce-attack-vs-plumeria-native.cjs > agent6-matched-t3-dce-attack-vs-plumeria-native.json
+      - name: Archive original matched source Supporter alternatives
+        if: always() && inputs.agent6_matched_supporter
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-matched-t3-dce-attack-vs-plumeria-native
+          path: agent6-matched-t3-dce-attack-vs-plumeria-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
