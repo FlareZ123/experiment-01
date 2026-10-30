@@ -49,7 +49,52 @@ function runSeat(seat){
       cards:prompt.cards?.cards?.map(c=>c.fullName)??null,
       cardList:prompt.cardList?.cards?.map(c=>c.fullName)??null
     }:null};
-  return {seat,printing:TREASURE,target:TARGET,pre,error,post};
+  const {ResolvePromptAction}=require(
+    '../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
+  let nativeEffect=null;
+  if(error===null&&prompt?.constructor.name==='ChooseCardsPrompt'&&
+     prompt.playerId===x.owner.id){
+    const originalCost=prompt.cards.cards[0];
+    assert.equal(originalCost.fullName,'Psychic Energy SVE');
+    assert.equal(prompt.validate([originalCost],x.state),true);
+    x.store.dispatch(new ResolvePromptAction(prompt.id,[originalCost]));
+    const search=x.state.prompts.find(p=>p.result===undefined);
+    assert.ok(search,'Native Mysterious Treasure must expose owner-deck search prompt');
+    assert.equal(search.constructor.name,'ChooseCardsPrompt');
+    assert.equal(search.playerId,x.owner.id);
+    assert.equal(search.cards,x.owner.deck,
+      'Only the owner-deck prompt may reveal the target after paying discard');
+    const searched=search.cards.cards.find(c=>c.fullName===TARGET);
+    assert.ok(searched,'Staged owner deck contains expected Regidrago search target');
+    assert.equal(search.validate([searched],x.state),true);
+    x.store.dispatch(new ResolvePromptAction(search.id,[searched]));
+    const extraKinds=[];
+    for(let i=0;i<6;i++){
+      const pending=x.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      extraKinds.push(pending.constructor.name);
+      if(pending.constructor.name!=='WaitPrompt')break;
+      x.store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    nativeEffect={
+      costPrompt:{kind:prompt.constructor.name,owner:true,
+        handCardCount:post.ownHand.length,
+        physicallySelected:originalCost.fullName},
+      searchPrompt:{kind:search.constructor.name,owner:true,
+        exactDeckIdentityGrantedOnlyInPrompt:true,
+        physicallySelected:searched.fullName},
+      post:{hand:x.owner.hand.cards.map(card=>card.fullName),
+        discard:x.owner.discard.cards.map(card=>card.fullName),
+        deckCount:x.owner.deck.cards.length,
+        extraKinds,
+        opponentHandCount:x.opponent.hand.cards.length},
+      costDiscarded:x.owner.discard.cards.includes(originalCost),
+      selectedTargetInHand:x.owner.hand.cards.includes(searched),
+      itemDiscarded:x.owner.discard.cards.some(c=>c.fullName===TREASURE),
+      acceptedAndMoved:true
+    };
+  }
+  return {seat,printing:TREASURE,target:TARGET,pre,error,post,nativeEffect};
 }
 function run(){return {
   schema:'agent49-native-original-mysterious-treasure-first-prompt-v1',
