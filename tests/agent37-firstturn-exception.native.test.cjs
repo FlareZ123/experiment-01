@@ -52,7 +52,7 @@ function stage(seat){
     return found;
   };
   owner.active.cards.push(card('Talonflame V VIV'));
-  owner.active.energies.cards.push(card('Fire Energy SVE'));
+  owner.hand.cards.push(card('Fire Energy SVE'));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   for(const player of state.players){
     for(let i=0;i<14;i++)player.deck.cards.push(card('Psychic Energy SVE'));
@@ -73,8 +73,22 @@ for(const seat of [0,1]){
     assert.equal(attack.canUseOnFirstTurn,true);
     const view=actorObservation(state,seat);
     assert.equal(view.ownPublic.active.attacks[0].canUseOnFirstTurn,true);
-    assert.equal(chooseActorRootIntent(view,catalog,{}).kind,'pass');
-    const chosen=chooseActorRootIntent(view,catalog,{
+    const initial=chooseActorRootIntent(view,catalog,{
+      printedFirstTurnAttackRoot:true
+    });
+    assert.equal(initial.kind,'attach-basic-energy',
+      'Unpowered first-player root must legally attach before attacking');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    store.dispatch(new PlayCardAction(owner.id,initial.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(owner.active.energies.cards.length,1);
+    assert.equal(owner.hand.cards.length,0);
+    const postAttach=actorObservation(state,seat);
+    assert.equal(chooseActorRootIntent(postAttach,catalog,{}).kind,'pass',
+      'Default policy must preserve ordinary first-player attack prohibition');
+    const chosen=chooseActorRootIntent(postAttach,catalog,{
       printedFirstTurnAttackRoot:true
     });
     assert.deepEqual(chosen,{kind:'attack',attackName:'Fast Flight'});
