@@ -78,6 +78,9 @@ function run(){
 if(require.main===module){
   const r=run();
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
-  if(r.blocked>0)process.exitCode=1;
+  if(r.blocked>0){
+    process.stderr.write('AGENT1_AUTONOMY_BLOCKERS '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,error:x.error,sourcePlanAudit:x.sourcePlanAudit?{chosen:x.sourcePlanAudit.plansChosen,accepted:x.sourcePlanAudit.nativeAccepted,aborts:x.sourcePlanAudit.abortReasons,events:x.sourcePlanAudit.events.slice(0,14)}:null})))+'\n');
+    process.exitCode=1;
+  }
 }
 module.exports={run};
