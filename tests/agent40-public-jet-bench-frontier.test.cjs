@@ -71,3 +71,27 @@ test('same decision under changes to opponent private hidden information',()=>{
   a.ownerUnknownDeck=['one'];b.ownerUnknownDeck=['two'];
   assert.deepEqual(choose(a),choose(b));
 });
+
+test('actual shared actor root uses Jet only under the default-off option',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view();
+  v.ownPublic.active.printed={stage:0,types:[4]};
+  v.ownPublic.bench[0].printed={stage:0,types:[4]};
+  v.ownPublic.bench[0].attacks[0].cost=[9];
+  v.ownPublic.active.attacks[0].cost=[4];
+  v.ownPublic.prizeCount=6;
+  v.opponentPublic.prizeCount=6;
+  v.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=0;
+  const metadata={...card,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),basicEnergyTypes:{Lightning:4,Fairy:8},
+    colorlessEnergyType:9,stages:{BASIC:0},
+    dragonPokemonPrintings:new Set()};
+  assert.equal(chooseActorRootIntent(v,metadata,{}).kind,'pass');
+  const proposed=chooseActorRootIntent(v,metadata,
+    {jetBenchSwitchRoot:true});
+  assert.equal(proposed.kind,'attach-special-energy');
+  assert.equal(proposed.slot,'bench');
+  assert.equal(proposed.index,0);
+  assert.equal(proposed.plannedAttackName,'strong');
+});
