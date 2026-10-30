@@ -17,6 +17,8 @@ const {withAcceptedTargetWitness}=
   require('../twinleaf/native-accepted-target-store-observer.cjs');
 const {withAcceptedEnergyPromptPublicWitness}=
   require('../twinleaf/accepted-energy-prompt-public-witness.cjs');
+const {withBeachStoreEffectWitness,beachStoreAbortEvidence}=
+  require('../twinleaf/agent33-beach-store-effect-witness.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION='results/aichi-2026/registrations/agent33-tropical-beach-original-three-rank-20261030.json';
@@ -118,15 +120,17 @@ function runOne(trial,prepared,treated){
     captureFinalPublicBoard:true,captureNativeAbortEvidence:true
   };
   let targetAudit=null,energyPromptAudit=null,
-    sameTargetAudit=null,supporterAudit=null;
+    sameTargetAudit=null,supporterAudit=null,beachStoreAudit=null;
   const core=()=>{
     const supp=withNativePaperSupporterDiscipline(()=>{
       const observed=withAcceptedTargetWitness(()=>{
         const witness=withAcceptedEnergyPromptPublicWitness(()=>{
-          const same=withSameTargetAttachEnergySelection(()=>
-            runMatch(request));
-          sameTargetAudit=same.audit;
-          return same.result;
+          const beach=withBeachStoreEffectWitness(()=>
+            withSameTargetAttachEnergySelection(()=>runMatch(request)),
+            {Store});
+          beachStoreAudit=beach.audit;
+          sameTargetAudit=beach.result.audit;
+          return beach.result.result;
         },{Store});
         energyPromptAudit=witness.audit;
         return witness.result;
@@ -162,6 +166,7 @@ function runOne(trial,prepared,treated){
     'initial-full-physical-deal-sha256-v1');
   assert.equal(targetAudit?.observedLiveStore,true);
   assert.equal(energyPromptAudit?.observedLiveStore,true);
+  assert.equal(beachStoreAudit?.observedLiveStore,true);
   const root=actor.audit.detailedComponentAudits?.root;
   assert.ok(root);
   assert.equal(root.actualGamesSeen,1);
@@ -169,6 +174,9 @@ function runOne(trial,prepared,treated){
   assert.equal(actor.audit.qualification.competitiveGames,0);
   const roots=game.rootActionLedger??[];
   const beachLedger=publicBeachLedgerCounts(roots);
+  assert.equal(beachLedger.nativeStadiumUseActions,
+    beachStoreAudit.acceptedStadiumUses,
+    'A claimed complete native ledger must account for every Stadium dispatch');
   return {
     status:game.finished?'native-terminal-unqualified':'native-capped-unqualified',
     trial,treated,candidateSeat,sourceSeat,
@@ -181,6 +189,9 @@ function runOne(trial,prepared,treated){
     nativeWinner:game.finished?game.winner:null,
     nativeEndReason:game.endReason,
     ...beachLedger,
+    nativeBeachEffectSettled:beachStoreAudit.beachDrawAndEndTurnSettled,
+    nativeBeachEffectUnsettled:beachStoreAudit.unsettledBeachUses,
+    beachStoreAudit,
     beachProposalCounts:{
       play:root.typedIntentCounts?.['play-tropical-beach']??0,
       use:root.typedIntentCounts?.['use-tropical-beach']??0
@@ -244,6 +255,8 @@ function compare(control,treatment){
     treatmentBeachUses:treatment.beachProposalCounts?.use??null,
     treatmentBeachNativeConfirmed:
       treatment.beachNativeConfirmed?.use??null,
+    treatmentBeachEffectSettled:
+      treatment.nativeBeachEffectSettled??null,
     controlWinner:control.nativeWinner??null,
     treatmentWinner:treatment.nativeWinner??null,
     competitivelyQualified:false
@@ -258,6 +271,7 @@ function attempt(trial,prepared,treated,runner=runOne){
       .publicNativeAbortError(error);
     return {trial,treated,status:'native-error-unqualified',
       error:abort.error,nativeAbortEvidence:abort.nativeAbortEvidence,
+      beachStoreAbort:beachStoreAbortEvidence(error),
       nativeStoreCauseStack:abort.nativeStoreCauseStack,
       competitiveQualified:false};
   }
@@ -289,6 +303,8 @@ function runStudy(options={}){
       (x.comparison.treatmentBeachUses??0),0),
     treatmentNativeBeachConfirmation:rows.reduce((s,x)=>s+
       (x.comparison.treatmentBeachNativeConfirmed??0),0),
+    treatmentNativeBeachDrawAndEndTurnSettled:rows.reduce((s,x)=>s+
+      (x.comparison.treatmentBeachEffectSettled??0),0),
     nativeErrors:rows.flatMap(x=>[x.control,x.treatment])
       .filter(x=>x.status==='native-error-unqualified').length,
     rows,competitiveQualifiedGames:0,winRateCertified:false

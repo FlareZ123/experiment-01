@@ -52,3 +52,22 @@ while Beach-specific native owner verification comes from the separately
 typed `nativePhysicalConfirmedByIntent['use-tropical-beach']` receipts.
 A synthetic negative regression covers the distinction. None is
 competitively qualified.
+
+## Separate native Store draw/end-turn witness
+
+`simulation/twinleaf/agent33-beach-store-effect-witness.cjs` wraps the
+pinned live Store's `UseStadiumAction` dispatch without changing gameplay
+or exposing hidden hand identities to bot decisions. It captures **public
+card counts only** before and after: Tropical Beach in play, acting player,
+hand/deck size, Stadium-use turn quota, and actual end-turn transition.
+An accepted dispatch counts as a *settled Beach effect* only when the
+acting hand becomes seven, deck decreases by the expected number,
+the use-turn marker advances, and an end-of-turn phase/player/turn
+transition is visible. A Store rejection or a no-op remains an
+unsettled event. Root ledger Stadium-action count must agree with
+accepted Store Stadium uses on a completed trial. Native Store
+dispatch receipt events are hashed and archived for reproducibility,
+still independent of full paper correctness or tournament win rate.
+A synthetically injected Store with both physical seats tests the
+proof predicate and restoration; actual pinned engine acceptance
+awaits manual CI and **no native successes are claimed here**.
