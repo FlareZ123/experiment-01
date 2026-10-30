@@ -29,6 +29,21 @@ Native [manual CI 41130176853](https://github.com/FlareZ123/experiment-01/action
 
 Original first compiled continuation [CI 41129804033](https://github.com/FlareZ123/experiment-01/actions/runs/41129804033) at commit `64478cdfb8e958c994369c4b91b26ae56e9c75d1` independently passed aggregate six-return checks, artifact `13011389756`. The second run additionally reports all public source boards by frozen seed. The [existing manual hidden-order workflow](../../.github/workflows/twinleaf-hidden-order.yml) owns both runs and archived all attempt rows. The full code/run hashes and frozen source-registration data enable reproduction.
 
+## Acting opponent's own held Field Blower: one genuine missed proposal
+
+A third original-source manual [CI 41131305810](https://github.com/FlareZ123/experiment-01/actions/runs/41131305810) **SUCCESS** at tested head `30a4c487fd71d3757c08abd05f8060e2da5943d7`, with complete [artifact 13012967921](https://github.com/FlareZ123/experiment-01/actions/runs/41131305810/artifacts/13012967921), ZIP SHA256 `9a5794984788538706e198f3f6742d81523f329f772d43df13d6f5a795068974`. This runs the same original six script and unmodified opponent; a **read-only actorObservation of seat 1 at its actual first native root** now captures only relevant held named-card counts. These counts were not supplied to the source's scripted or default policy.
+
+| Original source K0 index | Opposing rank1's held Field Blower GRI | Generic bot Field Blower proposals during reply | Source equipped Garbodor at next root |
+| ---: | ---: | ---: | ---: |
+| 2 | 0 | 0 | 1 |
+| 232 | 0 | 0 | 1 |
+| **299** | **1** | **0** | **1** |
+| 376 | 0 | 0 | 1 |
+| 440 | 0 | 0 | 1 |
+| 458 | 0 | 0 | 1 |
+
+Index 299, seed `2387754768`, was a **genuine accessible owner-hand Tool-removal opportunity**: the actual rank1 reference player possessed its one `Field Blower GRI` while the source was publicly using Float Stone on Garbodor. The original native generic bot did not even propose that Item and proceeded without removing the Tool. The Item's native **target legality, Store acceptance and settled Tool removal must still be demonstrated in this specific original match**, since ownership alone does not certify a legal action; an existing independently tested [generalized native Field Blower actor adapter](../../simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs) supports `allowAnyActiveBlower` and provides a candidate test method. This example therefore pinpoints a **potential opponent counterplay omission**, beyond the source turn-one setup selection gap.
+
 ## Interpretation and next integration gate
 
 This closes the narrow missing **opponent-turn/source-return mechanical observation** after Agent32's authentic source first-turn setup. It is evidence that a particular scripted original-source board survived one default native Shadow Rider response in six selected genuine starts. It **does not** establish active Garbotoxin paper-equivalence in every state, optimal counterplay, repeated lock maintenance, realistic human source-policy competence, an autonomous two-seat chooser, a game win, or an across-field performance estimate.
