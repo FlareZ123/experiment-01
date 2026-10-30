@@ -215,5 +215,24 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
       publicContextSpecialEnergy:true
     });
     assert.deepEqual(first,{kind:'attack',attackName:'Volt Cyclone'});
+    // The zero attack-gap gain is NOT zero game value: authentic Speed
+    // Lightning still draws two on attachment to this Lightning Pokémon.
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const beforeDeck=owner.deck.cards.length;
+    const beforeHand=owner.hand.cards.length;
+    assert.equal(beforeHand,1);
+    assert.equal(beforeDeck>=2,true);
+    state.prompts.length=0;
+    const store=state.store;
+    assert.ok(store,'Native Store must remain available for settlement');
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    assert.ok(owner.bench[0].energies.cards.some(e=>
+      e.fullName==='Speed Lightning Energy RCL'));
+    assert.equal(owner.hand.cards.length,2,
+      'Speed Lightning should draw two after consuming the hand Energy');
+    assert.equal(owner.deck.cards.length,beforeDeck-2);
   }
 });
