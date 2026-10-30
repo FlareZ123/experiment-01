@@ -323,6 +323,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseStrandedMarnie(view);
     if(planned)return planned;
   }
+  if(options.teamFlareGruntDenialRoot===true){
+    const denial=require('./agent1-owner-team-flare-grunt-denial.cjs')
+      .chooseTeamFlareGruntDenial(view);
+    if(denial)return denial;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -424,6 +429,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
+    teamFlareGruntDenialRootOptIn:deps.teamFlareGruntDenialRoot??
+      (process.env.AGENT1_TEAM_FLARE_GRUNT_DEV==='true'),
     carmineFirstRootOptIn:deps.carmineFirstRoot??
       (process.env.AGENT48_CARMINE_FIRST_ROOT_DEV==='true'),
     seekerLillieRootOptIn:deps.seekerLillieRoot??
@@ -492,6 +499,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.raichuKoBreakpointBeforeAttackOptIn)
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
+  if(audit.teamFlareGruntDenialRootOptIn)
+    audit.version+='+'+
+      require('./agent1-owner-team-flare-grunt-denial.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -616,6 +626,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
+      teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
@@ -675,6 +686,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-carmine-first':
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
+      case 'play-team-flare-grunt-denial':
       case 'play-conservative-shuffle-supporter':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
