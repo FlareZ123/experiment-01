@@ -122,6 +122,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseQuickBallRootIntent(view);
     if(item)return item;
   }
+  // Development-only owner-registered Bunnelby TM + Jet ALS.
+  // The source 60 is the acting player's known list, never the opponent's.
+  if(options.bunnelbyTmJetRoot===true){
+    const line=require('./agent40-owner-bunnelby-tm-jet-line.cjs')
+      .chooseBunnelbyTmJetRoot(view,catalog,
+        options.ownRegisteredSixty);
+    if(line)return line;
+  }
   if(options.floatStoneMobility===true){
     const mobility=require('./agent1-owner-float-stone-mobility.cjs')
       .chooseOwnerFloatStoneMobility(view,catalog);
@@ -441,6 +449,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
+    bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
+      (process.env.AGENT40_BUNNELBY_TM_JET_DEV==='true'),
     raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
       (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
@@ -556,6 +566,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
+  if(audit.bunnelbyTmJetRootOptIn)
+    audit.version+='+'+
+      require('./agent40-owner-bunnelby-tm-jet-line.cjs').VERSION;
   if(audit.raichuKoBreakpointBeforeAttackOptIn)
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
@@ -682,6 +695,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.specialEnergyRootOwnerSeat,seat),
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
+      bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
+      ownRegisteredSixty:deps.ownRegisteredSixtiesBySeat?.[seat]??null,
       printedGxRoot:audit.printedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
@@ -735,6 +750,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'bench-basic':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.benchIndex});
+        break;
+      case 'equip-bunnelby-tm':
+        action=new PlayCardAction(ownerId,intent.handIndex,{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
+          index:intent.slot==='bench'?intent.index:0});
         break;
       case 'attach-emergency-floatstone':
         action=new PlayCardAction(ownerId,intent.handIndex,{
