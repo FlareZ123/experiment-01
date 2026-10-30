@@ -9,6 +9,8 @@ const {withNativeLillieDrawSettlementAudit}=
   require('./agent24-native-lillie-settlement-audit.cjs');
 const {auditPreAttackSupporterFollowThrough}=
   require('../evaluation/agent2-preattack-supporter-followthrough.cjs');
+const {auditPreAttackFirstDivergence}=
+  require('../evaluation/agent2-preattack-supporter-divergence.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const FRAME='results/aichi-2026/registrations/agent41-prospective-canonical-32-20261029.json';
@@ -70,7 +72,9 @@ function main(){
       rootPolicyOptIn:root?.conservativeShuffleBeforeAttackOptIn??null,
       selectedOwnerIntents,
       nativePublicFollowThrough:
-        auditPreAttackSupporterFollowThrough(treated,selectedOwnerIntents)};
+        auditPreAttackSupporterFollowThrough(treated,selectedOwnerIntents),
+      nativeFirstDivergence:
+        auditPreAttackFirstDivergence(baseline,treated,selectedOwnerIntents)};
   });
   const summary={attempts:18,baselineStatuses:rows.reduce((acc,r)=>{
     acc[r.originalStatus]=(acc[r.originalStatus]??0)+1;return acc;},{}),
@@ -81,6 +85,11 @@ function main(){
     physicallyUnconfirmed:rows.reduce((sum,r)=>sum+(r.nativeUnconfirmed??0),0),
     nativeLillieRoots:treatment.audit.supportRoots,
     nativeLilliePrintedDrawConfirmed:treatment.audit.printedDrawConfirmed,
+    firstDivergenceWasSupporter:rows.reduce((sum,row)=>
+      sum+(row.nativeFirstDivergence?.directDivergences??0),0),
+    sameTurnAttacksAfterDraw:rows.reduce((sum,row)=>
+      sum+(row.nativeFirstDivergence?.records??[]).reduce((acc,item)=>
+        acc+(item.treatmentAttacksAfterSupporter?.length??0),0),0),
     verifiedNativeSupporterFollowThrough:rows.reduce((sum,row)=>
       sum+(row.nativePublicFollowThrough?.verifiedPlayedRootCount??0),0),
     observedNextOwnRootAfterSupporter:rows.reduce((sum,row)=>
