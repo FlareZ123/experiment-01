@@ -34,7 +34,8 @@ function execute(c,byRank){
     isolatePolicyRandomness:true,
     capturePhysicalZoneIntegrity:true,
     enforceSettledPhysicalZoneIntegrity:true,
-    label:'agent24-custody-qualification-original-'+c.sourceSeat+'-'+c.seed
+    // Keep the complete original Agent47 request identity unchanged.
+    label:'agent47-strict-physical-60-'+c.seed+'-'+c.sourceSeat
   };
   let game=null,error=null;
   try{
