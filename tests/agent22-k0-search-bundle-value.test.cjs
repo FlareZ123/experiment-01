@@ -89,3 +89,20 @@ test('belief premise, state counts and weighting contracts are required',()=>{
     ...bad,uniformUnknownAllocation:true,maxCards:4
   }));
 });
+
+test('hypothetical no-target seven-card rank7 hand has near-certain triple access',()=>{
+  // Exact published rank7 counts 3 VS, 3 Counter, 2 Capture.
+  // This synthetic K0 premise assumes the seven known hand cards contain
+  // none of these targets, leaving N=53 unknown, P=6 unknown Prizes.
+  const pool=[...Array(3).fill('VS Seeker PHF'),
+    ...Array(3).fill('Counter Catcher PAR'),
+    ...Array(2).fill('Capture Energy RCL'),
+    ...Array(45).fill('Other')];
+  const r=k0(pool,6,{
+    'VS Seeker PHF':10,'Counter Catcher PAR':8,
+    'Capture Energy RCL':6
+  },{max:3,cost:1});
+  close(r.expectedValue,9830137/468520);
+  close(r.expectedCardsChosen,2459729/819910);
+  assert.equal(r.exactDenominator,'22957480');
+});
