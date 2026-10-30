@@ -69,7 +69,7 @@ function stage(seat,temple=false){
     const stack=new CardList();stack.cards.push(physical(name));return stack;
   });
   for(let i=0;i<5;i++)owner.bench.push(new PokemonCardList());
-  opponent.active.cards.push(physical('Pidgey MEW'));
+  opponent.active.cards.push(physical('Shadow Rider Calyrex V CRE'));
   if(temple)opponent.stadium.cards.push(physical('Temple of Sinnoh ASR'));
   for(let i=0;i<5;i++)opponent.bench.push(new PokemonCardList());
   for(let i=0;i<6;i++){
