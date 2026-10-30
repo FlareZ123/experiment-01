@@ -362,6 +362,7 @@ function executeDevelopment(trial,candidates,{
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
+  nativePublicMulliganRevealsAudit=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -427,6 +428,7 @@ function executeDevelopment(trial,candidates,{
     // read-only. Leave prior full-match policy and archive schema unchanged
     // unless the audit is specifically requested.
     ...(nativeSetupCompensationAudit?{captureSetupCompensation:true}:{}),
+    ...(nativePublicMulliganRevealsAudit?{capturePublicMulliganReveals:true}:{}),
     // Preserve the actual failed Store root, pre-dispatch public board,
     // accepted label ledger, and source physical-deal digest on abort.
     // This post-choice observer cannot affect either player's bot policy.
@@ -789,6 +791,8 @@ function executeDevelopment(trial,candidates,{
       game.initialFullPhysicalDealFingerprint?.schema??null,
     ...(nativeSetupCompensationAudit?{
       initialSetupCompensation:game.initialSetupCompensation??null}:{}),
+    ...(nativePublicMulliganRevealsAudit?{
+      initialPublicMulliganReveals:game.initialPublicMulliganReveals??null}:{}),
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
     // Read-only owner K1 deck-search choices, for all historical arms.
     // Never give the real deck membership to a pre-search K0 policy.
@@ -904,6 +908,7 @@ function runDevelopment({
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
+  nativePublicMulliganRevealsAudit=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -982,7 +987,7 @@ function runDevelopment({
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
-        nativeSetupCompensationAudit,
+        nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,
@@ -1148,6 +1153,7 @@ function runDevelopment({
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
+    nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
@@ -1240,6 +1246,8 @@ if(require.main===module){
       process.env.AGENT2_NATIVE_OWNER_SUPPORTER_OPPORTUNITY_DEV==='true',
     nativeSetupCompensationAudit:
       process.env.AGENT31_NATIVE_SETUP_COMPENSATION_DEV==='true',
+    nativePublicMulliganRevealsAudit:
+      process.env.AGENT31_NATIVE_PUBLIC_MULLIGAN_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
     nativeProposalValidationAudit:
       process.env.AGENT41_NATIVE_PROPOSAL_VALIDATION_DEV==='true',
