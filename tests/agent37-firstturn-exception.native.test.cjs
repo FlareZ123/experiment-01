@@ -160,5 +160,44 @@ for(const seat of [0,1]){
     assert.equal(projected.prompt.source,'own-deck');
     assert.equal(projected.prompt.offered.length,14);
     assert.equal(projected.prompt.canCancel,false);
+
+    // Bridge only the AddPlayerAction authentication handshake; the pending
+    // prompt, chosen cards and ResolvePromptAction still belong to the
+    // original live native Store and are dispatched through it.
+    class AddPlayerAction{}
+    class BridgeStore{
+      constructor(original){this.original=original;this.state=original.state;}
+      dispatch(action){
+        if(action instanceof AddPlayerAction)return this.state;
+        return this.original.dispatch(action);
+      }
+    }
+    class OwnerBot{
+      constructor(id){this.client={id};}
+      decodeNextAction(){return 'GENERIC_FALLBACK';}
+    }
+    const {withActorOwnerSingleSearch}=require(
+      '../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
+    const {audit}=withActorOwnerSingleSearch(()=>{
+      const bridge=new BridgeStore(store);
+      bridge.dispatch(new AddPlayerAction());
+      const next=new OwnerBot(owner.id).decodeNextAction(state);
+      assert.ok(next instanceof ResolvePromptAction,
+        'Owner-authenticated search intent must become native resolution');
+      assert.equal(next.id,prompt.id);
+      bridge.dispatch(next);
+    },{
+      Store:BridgeStore,SimpleTacticsAi:OwnerBot,ResolvePromptAction,
+      GamePhase:native('game/store/state/state').GamePhase,
+      attackPhaseSearch:true
+    });
+    assert.equal(audit.attackPhaseSearchOptIn,true);
+    assert.equal(audit.selected,1);
+    assert.equal(audit.accepted,1);
+    assert.equal(audit.nativePromptPostconditionsConfirmed,1);
+    assert.equal(audit.bySeat[seat],1);
+    assert.equal(owner.hand.cards.length,1,
+      'Genuine pinned search effect must move one card into owner hand');
+    assert.equal(owner.deck.cards.length,13);
   });
 }
