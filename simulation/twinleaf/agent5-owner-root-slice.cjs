@@ -336,7 +336,10 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.activePokemonPrinting===intent.printing&&
       after.targetPokemonPrinting===before.activePokemonPrinting&&
       Array.isArray(before.activeEnergies)&&
-      before.activeEnergies.length===1&&
+      // Existing paid-retreat proposal used one Basic Energy; a public
+      // BUS lock-position move needs the same receipt for two Basic units.
+      // The actual native Store must still settle the retreat itself.
+      before.activeEnergies.length===(intent.retreatCostUnits??1)&&
       Array.isArray(after.targetEnergies)&&
       (after.targetEnergies.length===0||
        (before.publicSkylinerPresent===true&&
