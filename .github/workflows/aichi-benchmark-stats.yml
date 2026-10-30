@@ -170,7 +170,7 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Verify source-only and two-player absolute mulligan setup allowances
         run: |
-          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs
+          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs tests/aichi-mulligan-public-reveal.test.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
       - name: Verify candidate mulligan treatment and source bonus opportunity coupling
         run: node --test tests/aichi-mulligan-treatment-coupling.test.cjs
