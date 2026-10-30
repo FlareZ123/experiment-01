@@ -181,12 +181,31 @@ function firstTurnRank6SpeedStageOpportunity(state,player,seat,playerTurnPhase){
 }
 
 /**
+ * Genuine owner K0 hand-only opening: prepay Double Colorless while first,
+ * so the next turn's one manual attachment can provide Lightning via Speed.
+ * The prize/deck identities are never inspected at this phase.
+ * @param {object} state
+ * @param {object} player
+ * @param {0|1} seat
+ * @param {number} playerTurnPhase
+ * @returns {boolean}
+ */
+function firstTurnRank6DceStageOpportunity(state,player,seat,playerTurnPhase){
+  return state.turn===1 && state.activePlayer===seat &&
+    state.phase===playerTurnPhase &&
+    player.active.getPokemonCard()?.name==='Iron Thorns ex' &&
+    !player.cannotPlayEnergyCards && !player.cannotPlaySpecialEnergyCards &&
+    player.energyPlayedTurn!==state.turn &&
+    player.hand.cards.some(card=>card.name==='Double Colorless Energy');
+}
+
+/**
  * Opt-in broad source-opponent attack tactic, still deliberately simple.
  * Selects using own hand, public stadium and legal search prompts only;
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -201,8 +220,14 @@ function withBroadThornsSourceAttack(work,options={}) {
   const k1AlternativeEnergy=options.k1AlternativeEnergy===true;
   const liveSpeedLightningAlternative=options.liveSpeedLightningAlternative===true;
   const stageSpeedLightningFirstTurn=options.stageSpeedLightningFirstTurn===true;
+  const stageDceFirstTurn=options.stageDceFirstTurn===true;
+  const k1PrizedThunderSpeedFallback=
+    options.k1PrizedThunderSpeedFallback===true;
   assert.ok(!stageSpeedLightningFirstTurn || liveSpeedLightningAlternative,
     'T1 Speed staging requires enabled T3 attached-Lightning continuation');
+  assert.ok(!k1PrizedThunderSpeedFallback ||
+    (liveSpeedLightningAlternative && k1ReplanAfterTagCall),
+    'K1 Speed fallback requires genuine Tag Call replanning and live Lightning');
   const k1TagCallAlternative=options.k1TagCallAlternative??'none';
   assert.ok(['none','append-bellelba','replace-bellelba']
     .includes(k1TagCallAlternative));
@@ -227,6 +252,8 @@ function withBroadThornsSourceAttack(work,options={}) {
   let missingAfterTagCall=[];
   let backupEnergyName=null;
   let speedStagingSelected=false,speedStagingConfirmed=false;
+  let dceStagingSelected=false,dceStagingConfirmed=false;
+  let k1SpeedFallbackSelected=false;
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -256,6 +283,19 @@ function withBroadThornsSourceAttack(work,options={}) {
     const thunder=p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star');
     const attachedLightning=liveSpeedLightningAlternative &&
       hasLiveRank6SpeedLightning(state,p);
+    if(openingPlan?.needLiveLightningViaSpeed && !attachedLightning) {
+      if(!p.hand.cards.some(c=>c.name==='Speed Lightning Energy')){
+        abort(state,'K1 fallback Speed Lightning missing from owner hand');
+        return null;
+      }
+      if(dceHandAttachmentBlocked(p,state)){
+        abort(state,'K1 fallback manual Speed attachment blocked');
+        return null;
+      }
+      phase='attach-k1-speed';
+      return select(state,'Attach K1 Speed Lightning for Prized Thunder bypass',
+        play(p,'Speed Lightning Energy',active));
+    }
     if(!thunder && !attachedLightning) {
       if(!p.hand.cards.some(c=>c.name==='Thunder Mountain Prism Star')) {
         abort(state,'Required Stadium unavailable after search');
@@ -319,12 +359,25 @@ function withBroadThornsSourceAttack(work,options={}) {
       events.push({turn:state.turn,phase:'speed-staged',
         action:'Native attached Speed Lightning observed on Active'});
     }
+    if(dceStagingSelected && !dceStagingConfirmed &&
+       p.active.energies.cards.some(c=>c.name==='Double Colorless Energy')){
+      dceStagingConfirmed=true;
+      events.push({turn:state.turn,phase:'dce-staged',
+        action:'Native attached Double Colorless Energy observed on Active'});
+    }
     if(phase==='idle' && stageSpeedLightningFirstTurn &&
        !speedStagingSelected && !prompt &&
        firstTurnRank6SpeedStageOpportunity(state,p,seat,GamePhase.PLAYER_TURN)){
       speedStagingSelected=true;
       return select(state,'Opt-in T1 attached Speed Lightning',
         play(p,'Speed Lightning Energy',active));
+    }
+    if(phase==='idle' && stageDceFirstTurn &&
+       !dceStagingSelected && !prompt &&
+       firstTurnRank6DceStageOpportunity(state,p,seat,GamePhase.PLAYER_TURN)){
+      dceStagingSelected=true;
+      return select(state,'Opt-in T1 attached Double Colorless Energy',
+        play(p,'Double Colorless Energy',active));
     }
     if(phase==='idle') {
       const eligibleTurn=turn==='first-eligible' ?
@@ -401,6 +454,28 @@ function withBroadThornsSourceAttack(work,options={}) {
           openingPlan,p.deck.cards,p.hand.cards);
         events.push({turn:state.turn,phase:'tag-search',
           k1MissingOpeningTargets:[...missingAfterTagCall]});
+        // This conclusion uses ONLY the genuine owner-searchable deck after
+        // Tag Call has been accepted by the real Store. A staged DCE provides
+        // both Colorless symbols, allowing one T3 Speed attachment to supply
+        // the Lightning symbol without the Prized one-of Stadium.
+        if(k1PrizedThunderSpeedFallback &&
+           missingAfterTagCall.includes('Thunder Mountain Prism Star') &&
+           p.active.energies.cards.some(c=>
+             c.name==='Double Colorless Energy') &&
+           p.deck.cards.some(c=>c.name==='Speed Lightning Energy') &&
+           chooseOpeningDiscards(p.hand.cards,priorities,
+             conditionalTagCallPayment).length===2 &&
+           !dceHandAttachmentBlocked(p,state) &&
+           !p.cannotPlaySupporterCards && p.supporterTurn===0){
+          openingPlan={...openingPlan,needThunder:false,
+            needLiveLightningViaSpeed:true};
+          missingAfterTagCall=missingAfterTagCall.filter(name=>
+            name!=='Thunder Mountain Prism Star');
+          k1SpeedFallbackSelected=true;
+          events.push({turn:state.turn,phase:'tag-search',
+            action:'Owner K1 chooses Speed alternate after Prized Thunder',
+            directlyInspectedPrizes:false});
+        }
       }
       const bellelba=missingAfterTagCall.length&&
         k1TagCallAlternative!=='none'?
@@ -438,9 +513,11 @@ function withBroadThornsSourceAttack(work,options={}) {
       }
     }
     if(phase==='mode' && prompt?.constructor.name==='SelectOptionPrompt') {
-      phase=openingPlan.needDce?'discard':'search';
+      const needSpecial=openingPlan.needDce ||
+        openingPlan.needLiveLightningViaSpeed===true;
+      phase=needSpecial?'discard':'search';
       return select(state,'Choose G&H mode',
-        new ResolvePromptAction(prompt.id,openingPlan.needDce?1:0));
+        new ResolvePromptAction(prompt.id,needSpecial?1:0));
     }
     if(phase==='discard' && prompt?.constructor.name==='ChooseCardsPrompt') {
       const payment=chooseOpeningDiscards(
@@ -465,7 +542,9 @@ function withBroadThornsSourceAttack(work,options={}) {
         chooseK1AlternateSpecialEnergy(p.deck.cards):null;
       const targets=[
         ...(openingPlan.needThunder?['Thunder Mountain Prism Star']:[]),
-        ...(openingPlan.needDce?[backup??'Double Colorless Energy']:[])
+        ...(openingPlan.needDce?[backup??'Double Colorless Energy']:[]),
+        ...(openingPlan.needLiveLightningViaSpeed?
+          ['Speed Lightning Energy']:[])
       ];
       const searched=targets.map(name=>p.deck.cards.find(c=>c.name===name));
       if(searched.some(card=>!card) || !prompt.validate(searched,state)) {
@@ -509,6 +588,14 @@ function withBroadThornsSourceAttack(work,options={}) {
       }
       return continueAfterSearch(state,p)??original.call(this,state);
     }
+    if(phase==='attach-k1-speed' && !prompt &&
+        state.phase===GamePhase.PLAYER_TURN) {
+      if(!hasLiveRank6SpeedLightning(state,p)){
+        abort(state,'Original Store did not settle K1 fallback Speed');
+        return original.call(this,state);
+      }
+      return continueAfterSearch(state,p)??original.call(this,state);
+    }
     if(phase==='attack' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
       if((!p.stadium.cards.some(c=>c.name==='Thunder Mountain Prism Star') &&
@@ -528,14 +615,16 @@ function withBroadThornsSourceAttack(work,options={}) {
   try {
     const result=work();
     return {result,started,completed,events,abortReason,openingPlan,
-      backupEnergyName,speedStagingSelected,speedStagingConfirmed};
+      backupEnergyName,speedStagingSelected,speedStagingConfirmed,
+      dceStagingSelected,dceStagingConfirmed,k1SpeedFallbackSelected};
   } catch(error) {
     // Preserve the local decision witness when the Store rejects an action.
     // This is a diagnostic property on the already-thrown error, not a
     // substitute for a legal result.
     error.rank6PolicyEvidence={started,completed,abortReason,
       openingPlan,backupEnergyName,speedStagingSelected,
-      speedStagingConfirmed,events:events.slice()};
+      speedStagingConfirmed,dceStagingSelected,dceStagingConfirmed,
+      k1SpeedFallbackSelected,events:events.slice()};
     throw error;
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
@@ -545,4 +634,5 @@ function withBroadThornsSourceAttack(work,options={}) {
 module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
   chooseK1AlternateSpecialEnergy,hasLiveRank6SpeedLightning,
-  firstTurnRank6SpeedStageOpportunity,withBroadThornsSourceAttack};
+  firstTurnRank6SpeedStageOpportunity,
+  firstTurnRank6DceStageOpportunity,withBroadThornsSourceAttack};
