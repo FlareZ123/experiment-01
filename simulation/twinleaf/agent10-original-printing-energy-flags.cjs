@@ -24,10 +24,23 @@ function classifyPrintedPokemon(card){
     Boolean(card.evolvesFrom);
   const rules=card.rules??[];
   assert.ok(Array.isArray(rules));
+  const prizeAwards=[];
+  for(const rule of rules){
+    const amounts=[...rule.matchAll(/your opponent takes (\\d+) Prize cards?/gi)];
+    if(/Prize/i.test(rule))assert.ok(amounts.length>0,
+      'Unknown printed Prize rule for '+card.id);
+    for(const amount of amounts)prizeAwards.push(Number(amount[1]));
+  }
+  assert.ok(prizeAwards.every(n=>n===2||n===3),
+    'Unexpected printed KO Prize award for '+card.id);
+  // Recent Mega Evolution ex cards sometimes list their generic ex rule
+  // alongside the more specific Mega three-Prize rule. The latter applies.
+  const prizesOnKnockout=prizeAwards.length===0?
+    1:Math.max(...prizeAwards);
   return {printingId:card.id,name:card.name,isEvolution,
     hasRuleBox:rules.length>0,
     isPokemonGX:subtypes.has('GX'),
-    isPokemonEX:subtypes.has('EX')};
+    isPokemonEX:subtypes.has('EX'),prizesOnKnockout};
 }
 
 /**
@@ -120,7 +133,8 @@ function buildPublicPokemonProfileIndex(root){
   const setEntries=JSON.parse(fs.readFileSync(
     path.resolve(root,'resources/sets/en.json'),'utf8'));
   const result=new Map();
-  const fields=['isEvolution','hasRuleBox','isPokemonGX','isPokemonEX'];
+  const fields=['isEvolution','hasRuleBox','isPokemonGX','isPokemonEX',
+    'prizesOnKnockout'];
   for(const set of setEntries){
     if(!set.ptcgoCode)continue;
     const filename=path.resolve(root,'resources/cards/en',set.id+'.json');
