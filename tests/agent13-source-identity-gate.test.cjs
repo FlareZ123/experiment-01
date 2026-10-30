@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {attestField,parseField,printingFingerprint,attestNativePlan,
-  attestPhysicalArm}=
+  attestPhysicalArm,attestFrozenSourceInputs,FROZEN_AICHI_SOURCE,gitBlobSha}=
   require('../simulation/evaluation/agent13-source-identity-gate.cjs');
 
 const root=path.resolve(__dirname,'..');
@@ -194,7 +194,10 @@ function armFixture(){
   const originalSourceIdentity=attestNativePlan(base,original,csv);
   const candidateNativeOrderedSha256=require('node:crypto')
     .createHash('sha256').update(JSON.stringify(candidate)).digest('hex');
-  return {...base,originalSourceIdentity,
+  const sourceRaw=fs.readFileSync(path.join(root,
+    'results/aichi-2026/full-decklists.json'),'utf8');
+  const originalSourceFiles=attestFrozenSourceInputs(sourceRaw,csv,true);
+  return {...base,originalSourceIdentity,originalSourceFiles,
     candidate:{cards:[...candidate]},candidateNativeOrderedSha256};
 }
 
