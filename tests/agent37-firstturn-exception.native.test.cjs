@@ -13,8 +13,8 @@ const ROOT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const native=name=>require(path.join(ROOT,name));
 
-/** @param {0|1} seat */
-function stage(seat){
+/** @param {0|1} seat @param {string} attackerPrinting @param {string} energyPrinting */
+function stage(seat,attackerPrinting,energyPrinting){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -51,8 +51,8 @@ function stage(seat){
     found.id=id++;
     return found;
   };
-  owner.active.cards.push(card('Talonflame V VIV'));
-  owner.hand.cards.push(card('Fire Energy SVE'));
+  owner.active.cards.push(card(attackerPrinting));
+  owner.hand.cards.push(card(energyPrinting));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   for(const player of state.players){
     for(let i=0;i<14;i++)player.deck.cards.push(card('Psychic Energy SVE'));
@@ -62,14 +62,20 @@ function stage(seat){
       player.prizes.push(prize);
     }
   }
-  return {store,state,owner,catalog,seat};
+  return {store,state,owner,opponent,catalog,seat};
 }
 
-for(const seat of [0,1]){
-  test('native Store accepts first-player Talonflame Fast Flight, physical seat '+seat,()=>{
-    const {store,state,owner,catalog}=stage(seat);
+for(const caseInfo of [
+  {printing:'Talonflame V VIV',energy:'Fire Energy SVE',
+    attack:'Fast Flight',expectedHand:6,expectedDeck:8,expectedDamage:0},
+  {printing:'Latios-EX ROS',energy:'Psychic Energy SVE',
+    attack:'Fast Raid',expectedHand:0,expectedDeck:14,expectedDamage:40}
+])for(const seat of [0,1]){
+  test('native first-player exception '+caseInfo.attack+', physical seat '+seat,()=>{
+    const {store,state,owner,opponent,catalog}=stage(
+      seat,caseInfo.printing,caseInfo.energy);
     const attack=owner.active.getPokemonCard().attacks[0];
-    assert.equal(attack.name,'Fast Flight');
+    assert.equal(attack.name,caseInfo.attack);
     assert.equal(attack.canUseOnFirstTurn,true);
     const view=actorObservation(state,seat);
     assert.equal(view.ownPublic.active.attacks[0].canUseOnFirstTurn,true);
@@ -91,7 +97,7 @@ for(const seat of [0,1]){
     const chosen=chooseActorRootIntent(postAttach,catalog,{
       printedFirstTurnAttackRoot:true
     });
-    assert.deepEqual(chosen,{kind:'attack',attackName:'Fast Flight'});
+    assert.deepEqual(chosen,{kind:'attack',attackName:caseInfo.attack});
     const {AttackAction}=native('game/store/actions/game-actions');
     const {ResolvePromptAction}=
       native('game/store/actions/resolve-prompt-action');
@@ -105,8 +111,9 @@ for(const seat of [0,1]){
       store.dispatch(new ResolvePromptAction(pending.id,null));
     }
     assert.equal(state.turn,2,'Native exception must complete the first turn');
-    assert.equal(owner.deck.cards.length,8);
-    assert.equal(owner.hand.cards.length,6);
+    assert.equal(owner.deck.cards.length,caseInfo.expectedDeck);
+    assert.equal(owner.hand.cards.length,caseInfo.expectedHand);
+    assert.equal(opponent.active.damage,caseInfo.expectedDamage);
     assert.equal(state.players[seat],owner);
   });
 }
