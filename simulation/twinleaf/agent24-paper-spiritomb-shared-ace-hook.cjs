@@ -28,8 +28,9 @@ function withPaperSpiritombSharedAce(execute,deps={}){
   const Spiritomb=deps.Spiritomb??load(
     'sets/06-black-and-white/set-legendary-treasures/spiritomb').Spiritomb;
   const types=deps.playEffects??load('game/store/effects/play-card-effects');
-  const {CardTag,PlayerType}=deps.cardTypes??load(
-    'game/store/card/card-types');
+  const {CardTag}=deps.cardTypes??load('game/store/card/card-types');
+  const {PlayerType}=deps.targetTypes??load(
+    'game/store/actions/play-card-action');
   const {GameError}=deps.gameError??load('game/game-error');
   const {GameMessage}=deps.gameMessage??load('game/game-message');
   const {IS_ABILITY_BLOCKED}=deps.prefabs??load(
