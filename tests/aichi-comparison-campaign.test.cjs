@@ -115,3 +115,6 @@ test('strict manifest parser refuses ambiguous or malformed source status', () =
 
 // Keep the scheduled-trial executor under the same manual campaign CI gate.
 require('./aichi-campaign-runner.test.cjs');
+
+// Keep exact all-win and missing-original qualification bounds in manual CI.
+require('./agent26-field-certification-envelope.test.cjs');
