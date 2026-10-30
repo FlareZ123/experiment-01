@@ -473,6 +473,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   const typedDecisions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
   const ownerSeekerPending=new Map();
+  const typedEriReplies=new WeakMap();
+  const ownerEriPending=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,actualGamesSeen=0;
@@ -543,6 +545,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT48_VS_SEEKER_LILLIE_DEV==='true'),
     seekerLilliePromptsProposed:0,
     seekerLilliePromptsAccepted:0,
+    eriRevealRootOptIn:deps.eriRevealRoot??
+      (process.env.AGENT50_ERI_REVEAL_DEV==='true'),
+    eriPromptsProposed:0,eriPromptsAccepted:0,eriItemsDiscarded:0,
     conservativeShuffleBeforeAttackOptIn:deps.conservativeShuffleBeforeAttack??
       (process.env.AGENT2_SHUFFLE_PREATTACK_DEV==='true'),
     lowHandLillieCensusOptIn:deps.lowHandLillieCensus??
@@ -554,7 +559,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     terminalArbitrationOptIn:(deps.terminalArbitration??
       (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'))||
       deps.beforeAttackDenial===true||
-      process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true',
+      process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true'||
+      deps.eriRevealRoot===true||
+      process.env.AGENT50_ERI_REVEAL_DEV==='true',
     beforeAttackDenialOptIn:deps.beforeAttackDenial===true||
       process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true',
     protectPotentialTwoPrizeAttackOptIn:deps.protectPotentialTwoPrizeAttack??
@@ -586,6 +593,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
   // The opt-in diagnostic must leave the default JSON audit shape intact.
+  if(!audit.eriRevealRootOptIn){
+    delete audit.eriRevealRootOptIn;
+    delete audit.eriPromptsProposed;
+    delete audit.eriPromptsAccepted;
+    delete audit.eriItemsDiscarded;
+  }
   if(audit.ownerArbitrationCensusOptIn){
     audit.version+='+'+
       require('./agent16-owner-priority-contention.cjs').VERSION;
@@ -801,6 +814,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
       teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
+      eriRevealRoot:audit.eriRevealRootOptIn===true,
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
@@ -870,6 +884,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-lowhand-lillie':
       case 'play-stranded-marnie':
       case 'play-team-flare-grunt-denial':
+      case 'play-eri-reveal':
       case 'play-conservative-shuffle-supporter':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
