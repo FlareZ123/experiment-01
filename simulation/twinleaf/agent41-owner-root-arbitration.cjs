@@ -51,6 +51,25 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
     receipt.reason='potential-last-prize-attack';
     return {intent:first,receipt};
   }
+  // Optional conservative extension: do not replace a fixed printed attack
+  // with a Bench attachment when the owner has two Prizes left and the
+  // opponent presents a visible potential two-Prize KO. Any real damage,
+  // Prize modifiers and legality remain for the native Store to resolve.
+  if(options.protectPotentialTwoPrizeAttack===true){
+    const {VERSION:vetoVersion,potentialTwoPrizeAttackVeto}=
+      require('./agent35-potential-two-prize-attack-veto.cjs');
+    const opportunity=potentialTwoPrizeAttackVeto(view,first);
+    if(opportunity.protect){
+      receipt.version=VERSION+'+'+vetoVersion;
+      receipt.reason=opportunity.reason;
+      receipt.potentialTerminalAttack={
+        opponentPrinting:opportunity.opponentPrinting,
+        printedDamage:opportunity.printedDamage,
+        opponentRemainingHp:opportunity.opponentRemainingHp
+      };
+      return {intent:first,receipt};
+    }
+  }
   const good=matching.find(x=>
     Number.isInteger(x.handIndex)&&x.handIndex>=0&&
     view.ownHand?.[x.handIndex]===x.printing&&
