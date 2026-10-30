@@ -9,7 +9,7 @@
   "sourceRosterBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
   "engineGitlink": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
   "frozenSourceBlobs": {
-    "simulation/twinleaf/agent29-actor-hammer-after-pass.cjs": "1dab84683df559a5192595f9a0ed80a30ff88bac",
+    "simulation/twinleaf/agent29-actor-hammer-after-pass.cjs": "b070fcc221c6257309fd198bd1b313a2636b7148",
     "simulation/evaluation/agent7-canonical-actor-composition.cjs": "4806b33ccef0d943ea558091b763e89d92e1caeb",
     "simulation/evaluation/agent41-bilateral-v2-development.cjs": "30512f0ee80548c3838ea6db16fa71f2cd4849b8",
     "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
@@ -121,5 +121,6 @@
       "seed": 1272253909,
       "id": "6:1:B:new-moon-lockbreaker-v1"
     }
-  ]
+  ],
+  "historicalProbeRevision": "An attempted owner non-Pass contention census (module blob 1dab84683df559a5192595f9a0ed80a30ff88bac) caused a redacted native bot-decoder abort on the rank6/New Moon retrospective fixture. It was reverted before this cohort; policy reverts exactly to v1 successful run 40977694421. No fresh trials have run as of this amendment."
 }
