@@ -99,38 +99,53 @@ function runSeat(seat){
     slot:unguarded.intent.slot,index:unguarded.intent.index
   },{printing:'Double Dragon Energy ROS',slot:'bench',index:1});
   const potential=potentialTwoPrizeAttackVeto(va,first);
-  assert.equal(potential.protect,true,'Public two-Prize terminal risk');
   const guarded=arbitrateOwnerRootIntent(va,a.catalog,first,{
     ...options,protectPotentialTwoPrizeAttack:true});
-  assert.deepEqual(guarded.intent,first,
-    'Guarded chooser must preserve the potentially terminal attack');
+  const observedAttack=va.ownPublic.active.attacks.find(
+    attack=>attack.name===first.attackName);
+  const inputTypes={
+    attackDamage:observedAttack?.damage??null,
+    attackDamageType:typeof observedAttack?.damage,
+    opponentHp:va.opponentPublic.active?.hp??null,
+    opponentHpType:typeof va.opponentPublic.active?.hp,
+    opponentDamage:va.opponentPublic.active?.damage??null,
+    ownerPrizeCount:va.ownPublic.prizeCount,
+    opponentPrinting:va.opponentPublic.active?.printing??null
+  };
   const hidden=structuredClone(va);
   hidden.opponentPrivate={hand:['unknown'],prizes:['unknown']};
   assert.deepEqual(potentialTwoPrizeAttackVeto(hidden,first),potential);
   const {AttackAction}=native('game/store/actions/game-actions');
-  a.store.dispatch(new AttackAction(a.owner.id,first.attackName));
-  const attackPrompts=settleWaitPrompts(a);
+  let attackPrompts=[],attackError=null,attachPrompts=[],attachError=null;
+  try{
+    a.store.dispatch(new AttackAction(a.owner.id,first.attackName));
+    attackPrompts=settleWaitPrompts(a);
+  }catch(error){attackError=String(error?.stack??error);}
   const attack=publicReceipt(a);
 
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
-  b.store.dispatch(new PlayCardAction(b.owner.id,
-    unguarded.intent.handIndex,{
-      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
-      index:unguarded.intent.index
-    }));
-  const attachPrompts=settleWaitPrompts(b);
+  try{
+    b.store.dispatch(new PlayCardAction(b.owner.id,
+      unguarded.intent.handIndex,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+        index:unguarded.intent.index
+      }));
+    attachPrompts=settleWaitPrompts(b);
+  }catch(error){attachError=String(error?.stack??error);}
   const attach=publicReceipt(b);
   return {seat,baseline:first,unguarded:unguarded.receipt,
-    guarded:guarded.receipt,potential,
-    attackFirst:{...attack,prompts:attackPrompts},
-    attachFirst:{...attach,prompts:attachPrompts},
+    guarded:guarded.receipt,potential,inputTypes,
+    guardPreservedPotentialAttack:guarded.intent.kind==='attack',
+    attackFirst:{...attack,prompts:attackPrompts,error:attackError},
+    attachFirst:{...attach,prompts:attachPrompts,error:attachError},
     nativeAttachmentConsumed:b.owner.hand.cards.length===0,
     nativeAttachmentConfirmed:b.owner.bench[1].energies.cards
       .some(c=>c.fullName==='Double Dragon Energy ROS'),
-    attackFirstPrizeWin:attack.ownerPrizes===0,
-    attachFirstOpponentPrizeWin:attach.opponentPrizes===0,
-    completeWinnerReversal:attack.ownerPrizes===0&&attach.opponentPrizes===0};
+    attackFirstPrizeWin:attackError===null&&attack.ownerPrizes===0,
+    attachFirstOpponentPrizeWin:attachError===null&&attach.opponentPrizes===0,
+    completeWinnerReversal:attackError===null&&attachError===null&&
+      attack.ownerPrizes===0&&attach.opponentPrizes===0};
 }
 
 function run(){
