@@ -121,7 +121,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Verify actor-visible shuffle draw Supporter chooser and native root hooks
-        run: node --test tests/agent2-conservative-shuffle-supporter.test.cjs tests/agent2-actor-only-shuffle-supporter-after-pass.test.cjs tests/agent2-native-shuffle-emptydeck-gate.test.cjs tests/agent2-sole-shuffle-deckzero-hook.test.cjs
+        run: node --test tests/agent2-conservative-shuffle-supporter.test.cjs tests/agent2-actor-only-shuffle-supporter-after-pass.test.cjs tests/agent2-native-shuffle-emptydeck-gate.test.cjs tests/agent2-sole-shuffle-deckzero-hook.test.cjs tests/agent2-sole-shuffle-deckzero-native-store.test.cjs
       - name: Validate all 29 exact original source shuffle Supporter family counts
         run: node --test tests/agent2-source-shuffle-supporter-census.test.cjs
       - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
