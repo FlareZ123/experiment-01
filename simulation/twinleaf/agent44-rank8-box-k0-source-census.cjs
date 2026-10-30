@@ -48,6 +48,7 @@ function observedSourceK0(state,sourceSeat){
   const tools=owner.bench.map(slot=>slot.tools.map(card=>card.name));
   const view={
     handNames:owner.hand.cards.map(card=>card.name),
+    activeName:owner.active.getPokemonCard()?.name??null,
     benchNames:bench,benchTools:tools,
     itemLocked:owner.cannotPlayItemCards===true,
     toolLocked:owner.cannotPlayToolCards===true
