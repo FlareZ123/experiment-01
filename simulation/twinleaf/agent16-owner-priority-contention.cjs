@@ -107,16 +107,16 @@ function actualSelectedPriority(view,catalog,options,selected){
 }
 
 /**
- * A branch can select a printing already obtained by a later generic probe.
- * The same physical held card and recipient cannot be its own competitor.
+ * A branch can select a printing already obtained by a later generic
+ * probe. Duplicate printings from different private hand positions still
+ * represent the same printed action and target for contention purposes.
  * @param {object} selected Original first-choice intent.
  * @param {object} proposed Later pure selector's output.
  * @returns {boolean}
  */
 function samePhysicalProposal(selected,proposed){
   return selected.kind===proposed.kind&&
-    Number.isSafeInteger(selected.handIndex)&&
-    selected.handIndex===proposed.handIndex&&
+    typeof selected.printing==='string'&&selected.printing.length>0&&
     selected.printing===proposed.printing&&
     selected.slot===proposed.slot&&selected.index===proposed.index;
 }
