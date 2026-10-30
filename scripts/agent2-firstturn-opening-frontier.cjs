@@ -180,9 +180,10 @@ function cardAtPrinting(printing,byCode,cachedCardSets){
 }
 
 /**
+ * @param {boolean} [emit] Whether to print human-readable JSON to stdout
  * @returns {object} Field Basic opening probabilities and toy opener lines
  */
-function main(){
+function main(emit=true){
   const source=JSON.parse(fs.readFileSync(
     path.join(ROOT,'results','aichi-2026','full-decklists.json'),'utf8'));
   const sets=JSON.parse(fs.readFileSync(
@@ -239,7 +240,7 @@ function main(){
     competitiveQualified:false,
     limitations:'Toy deck only; no first-turn search/switch; no chosen lead competence; opponent actions or Bench decisions unmodeled; no native Twinleaf attacks tested.'
   };
-  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  if(emit)process.stdout.write(JSON.stringify(result,null,2)+'\n');
   return result;
 }
 if(require.main===module)main();
