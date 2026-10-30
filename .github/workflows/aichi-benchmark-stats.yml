@@ -144,6 +144,8 @@ jobs:
         run: node --test tests/action-ledger-first-observable-difference.test.cjs
       - name: Audit spent-Supporter unrestricted search choice and reversible policy
         run: node --test tests/spent-supporter-search-policy.test.cjs
+      - name: Regress conditional Regidrago Apex mandatory hand-discard action conflict
+        run: node --test tests/agent47-apex-discard-frontier.test.cjs
       - name: Verify Regidrago source-name panel scheduling
         run: node --test tests/aichi-regidrago-coverage-panel.test.cjs
       - name: Verify printed Dragon attack-panel scheduling
