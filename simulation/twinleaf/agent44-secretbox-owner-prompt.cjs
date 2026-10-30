@@ -68,7 +68,7 @@ function chooseOwnedBoxFetchShake(prompt,owner,state){
     basicSearcherHeld:searcher?.[0]??null,
     additionalDiscardCost:searcher?.[1]??null,
     heldTool:toolHeld?.name??null,
-    searchedTool:needsTool?toolDeck?.name??null
+    searchedTool:needsTool?(toolDeck?.name??null):null
   };
   const feasible=Boolean(shake&&garbo&&canObtainTrubbish&&
     canPositionTrubbish&&availableTool);
