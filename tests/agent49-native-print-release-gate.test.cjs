@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {auditSourcePrintings,auditRequiredFixtures,evaluateRelease} =
+const {auditSourcePrintings,auditNativeIdRoundTrips,auditRequiredFixtures,evaluateRelease} =
   require('../simulation/evaluation/agent49-native-print-release-gate.cjs');
 
 const source = {rank:15, player:'Source', cards:[{name:'Buneary',count:60,
@@ -83,4 +83,44 @@ test('missing 31 published source sixties prevent competitive promotion',()=>{
   assert.equal(r.competitiveQualified,false);
   assert.ok(r.blockers.includes('MISSING_ORIGINAL_SOURCE_LISTS'));
   assert.ok(r.blockers.includes('INCOMPLETE_EXACT_NATIVE_PRINTS'));
+});
+
+test('native ID lookup must round-trip set and collector number, not suffix',()=>{
+  const ranks=Array.from({length:32},(_,i)=>({rank:i+1,printings:[]}));
+  ranks[14].printings=[{name:'Buneary',nativeId:'Buneary M2',
+    nativeIdStatus:'EXACT_PRINT_LOADED',requested:{set:'PFL',number:'83'}}];
+  const sourceAudit={ranks,completeOriginalField:false,
+    completeExactNativeIds:false};
+  const pass=auditNativeIdRoundTrips(sourceAudit,id=>({
+    fullName:id,name:'Buneary',set:'PFL',setNumber:'083'}));
+  assert.equal(pass.confirmed,1);
+  assert.equal(pass.blocked.length,0);
+  assert.equal(pass.allOriginalRanksRoundTripped,false);
+  const collision=auditNativeIdRoundTrips(sourceAudit,id=>({
+    fullName:id,name:'Buneary',set:'M2',setNumber:'83'}));
+  assert.equal(collision.confirmed,0);
+  assert.equal(collision.blocked[0].status,
+    'WRONG_PRINT_OR_COLLIDING_NATIVE_ID');
+});
+
+test('printed Prism glyph alias is checked against actual native name',()=>{
+  const ranks=Array.from({length:32},(_,i)=>({rank:i+1,printings:[]}));
+  ranks[0].printings=[{name:'Thunder Mountain ◇',
+    nativeId:'Thunder Mountain Prism Star LOT',
+    nativeIdStatus:'EXACT_GLYPH_ALIAS_LOADED',
+    requested:{set:'LOT',number:'191'}}];
+  const r=auditNativeIdRoundTrips({ranks,completeOriginalField:false,
+    completeExactNativeIds:false},id=>({fullName:id,
+    name:'Thunder Mountain Prism Star',set:'LOT',setNumber:191}));
+  assert.equal(r.confirmed,1);
+});
+
+test('omitting actual native CardManager lookup prevents competitive release',()=>{
+  const r=evaluateRelease({manifest,coverage:{decks:[exact]},plan,
+    fixtures:[fixture],requiredFixtureIds:['rank15-seat0'],
+    candidate:{exactNative60:Array(60).fill('Buneary PFL'),
+      unchangedSourcePrintingAttested:true,nativeSubstitutions:[]},
+    policy:{ownerInformationSafe:true,identicalTwoSeatPolicy:true,
+      frozenVersion:true},paperClockQualified:true});
+  assert.ok(r.blockers.includes('NATIVE_ID_ROUNDTRIP_UNVERIFIED'));
 });
