@@ -36,8 +36,8 @@ function withPaperCelestialRoarEnergy(execute,deps={}){
  const {GameMessage}=deps.gameMessage??load('game/game-message');
  const {PlayerType,SlotType}=deps.targetTypes??
    load('game/store/actions/play-card-action');
- const {SuperType}=deps.cardTypes??load('game/store/card/card-types');
- const {StateUtils}=deps.stateUtils??load('game/store/state/state-utils');
+ const {SuperType,EnergyType}=deps.cardTypes??load('game/store/card/card-types');
+ const {StateUtils}=deps.stateUtils??load('game/store/state-utils');
  const proto=RegidragoV.prototype;
  const original=Object.getOwnPropertyDescriptor(proto,'reduceEffect');
  assert.equal(typeof original?.value,'function');
@@ -53,8 +53,8 @@ function withPaperCelestialRoarEnergy(execute,deps={}){
   const player=effect.player,temp=new CardList();
   MOVE_CARDS(store,state,player.deck,temp,{count:3,sourceCard:this});
   const found=temp.cards.filter(card=>card instanceof EnergyCard);
-  audit.candidateBasicEnergyCards+=found.filter(card=>card.energyType===1).length;
-  audit.candidateSpecialEnergyCards+=found.filter(card=>card.energyType!==1).length;
+  audit.candidateBasicEnergyCards+=found.filter(card=>card.energyType===EnergyType.BASIC).length;
+  audit.candidateSpecialEnergyCards+=found.filter(card=>card.energyType!==EnergyType.BASIC).length;
   if(found.length===0){
    for(const card of [...temp.cards])
     MOVE_CARDS(store,state,temp,player.discard,{cards:[card],sourceCard:this});
