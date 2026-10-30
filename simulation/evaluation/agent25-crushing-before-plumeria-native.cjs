@@ -20,14 +20,16 @@ const ORIGINAL_FULL_SHA =
  *
  * @template T
  * @param {()=>T} execute Synchronous original native Store experiment.
+ * @param {{Ai?:Function,Store?:Function}} [deps] Injected native test prototypes.
  * @returns {{result:T,audit:{observed:object[]}}}
  */
-function withSourceT3CrushingProbe(execute) {
+function withSourceT3CrushingProbe(execute, deps = {}) {
   assert.equal(typeof execute, 'function');
   const base = path.resolve(ROOT, 'vendor/twinleaf/ptcg-server/output');
-  const Ai = require(path.join(base,
+  const Ai = deps.Ai ?? require(path.join(base,
     'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
-  const Store = require(path.join(base, 'game/store/store')).Store;
+  const Store = deps.Store ?? require(path.join(base,
+    'game/store/store')).Store;
   const oldDecode = Object.getOwnPropertyDescriptor(
     Ai.prototype, 'decodeNextAction');
   const oldDispatch = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
