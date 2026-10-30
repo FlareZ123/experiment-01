@@ -87,6 +87,8 @@ jobs:
         run: npm run compile
       - name: Run original source exact-native-printing census
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
+      - name: Verify real pinned Store Player's Ceremony hook on both physical seats
+        run: node --test tests/agent49-native-players-ceremony-store.test.cjs
       - name: Archive all 32 original native print and resolution statuses
         if: always()
         uses: actions/upload-artifact@v4
