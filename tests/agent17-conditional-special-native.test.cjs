@@ -236,3 +236,24 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
     assert.equal(owner.deck.cards.length,beforeDeck-2);
   }
 });
+
+test('Speed Lightning hand trigger remains operative under Temple of Sinnoh',()=>{
+  for(const seat of [0,1]){
+    const {store,state,owner,card,catalog}=staged('Iron Thorns ex TWM',
+      'Speed Lightning Energy RCL',seat);
+    owner.stadium.cards.push(card('Temple of Sinnoh ASR'));
+    const oldHand=owner.hand.cards.length,oldDeck=owner.deck.cards.length;
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(owner.hand.cards.length,oldHand+1);
+    assert.equal(owner.deck.cards.length,oldDeck-2);
+    const v=actorObservation(state,seat);
+    const strike=v.ownPublic.active.attacks.find(a=>a.name==='Volt Cyclone');
+    assert.ok(strike);
+    assert.equal(publicSpecialAttackPayable(v,catalog,v.ownPublic.active,strike),
+      false,'Temple attached Energy must supply Colorless');
+  }
+});
