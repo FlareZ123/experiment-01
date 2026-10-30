@@ -6,7 +6,7 @@
 
 The common owner root currently can select an immediately payable printed attack while held Speed Lightning Energy would first give its genuine hand-to-Lightning-Pokémon **draw two** effect. The numerical Special Energy chooser scores only reduction in printed attack-cost deficit, which may be zero on a fully powered Iron Thorns ex. An already certified original pinned Store fixture [demonstrated](agent50-shared-stadium-cost-arbitration-20261030.md) that the extra Speed attachment physically draws two cards on both seats despite zero immediate attack-cost gain. This does not establish the attachment is always strategically preferable; the saved Speed, future deckout, reactive abilities, and tournament clock can matter.
 
-The [printed Speed Lightning Energy RCL #173](https://www.pkmncollectors.com/cards/speed-lightning-energy-rebel-clash-173-uncommon) provides one Lightning and draws two cards on hand-to-Lightning attachment. No opponent-private information is needed to identify this conditional *opportunity*.
+The [printed Speed Lightning Energy RCL #173](https://asia.pokemon-card.com/my/card-search/detail/514/) provides one Lightning and draws two cards on hand-to-Lightning attachment. No opponent-private information is needed to identify this conditional *opportunity*.
 
 ## New bounded, opt-in proposal
 
