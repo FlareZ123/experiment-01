@@ -13,59 +13,7 @@ const DD='Double Dragon Energy ROS';
 const G='Grass Energy MEE';
 const F='Fire Energy MEE';
 
-/**
- * Use all sixty original rank20 physical cards without substituting printed
- * cards. Artificially arrange the three deck cards for deterministic native
- * effects. All other original deck cards move to own discard for fixture only.
- *
- * @param {0|1} seat
- * @param {'special-only'|'special-and-basic'} scenario
- */
-function prepare(seat,scenario){
- const x=stage(seat);
- const active=x.owner.active;
- const regidrago=active.cards.find(c=>c.fullName==='Regidrago V SIT');
- const ddes=active.cards.filter(c=>c.fullName===DD);
- assert.ok(regidrago&&ddes.length===2);
- active.cards=[regidrago,ddes[0]];
- active.energies.cards=[ddes[0]];
- const extracted=active.cards.filter(c=>!c);
- assert.equal(extracted.length,0);
- // The staged original 60 included VSTAR and two attached Double Dragons.
- const vstar=x.owner.discard.cards.length===0?
-   null:null;
- // Restore the removed VSTAR and spare attached DDE into a physical zone.
- const sourceDeck=x.owner.deck.cards;
- const firstVstar=sourceDeck.filter(c=>c.fullName==='Regidrago VSTAR SIT').length;
- assert.ok(firstVstar>=0);
- // stage() built Active as V + VSTAR + DDE + DDE. Move removed cards.
- const source60=stageSourceCardVault(x);
- assert.equal(source60.length,2);
- x.owner.discard.cards.push(...source60);
- // Take the original printed temporary-energy sample from the deck.
- const choose=(name)=>{
-  const index=sourceDeck.findIndex(c=>c.fullName===name);
-  assert.ok(index>=0,'No physical source card '+name);
-  return sourceDeck.splice(index,1)[0];
- };
- const top= scenario==='special-only' ?
-   [choose(DD),choose('Quick Ball FST'),choose('Mysterious Treasure FLI')] :
-   [choose(DD),choose(G),choose('Quick Ball FST')];
- x.owner.discard.cards.push(...sourceDeck);
- x.owner.deck.cards=top;
- assertSource60Conserved(x.owner);
- return {...x,scenario,top:top.map(c=>c.fullName)};
-}
-
-/**
- * Stage() creates the physical Active VSTAR and second DDE; this builder
- * keeps references to removed cards before resetting the Active list.
- * @param {object} x
- */
-function stageSourceCardVault(x){
- return x._removedFromActive;
-}
-
+/** Staged same-printed-60 owner, one paid native Celestial Roar. */
 function runOne(seat,scenario){
  const x=stage(seat);
  const active=x.owner.active;
