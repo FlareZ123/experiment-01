@@ -151,7 +151,8 @@ function buildPublicPokemonProfileIndex(root){
       const profile=classifyPrintedPokemon(card);
       // Preserve the underlying PR-SM printing and its original Aichi SMP
       // alias without treating other promo sets as interchangeable.
-      const names=[set.ptcgoCode,...(set.id==='smp'?['SMP']:[])];
+      const names=[set.ptcgoCode,...(set.id==='smp'?['SMP']:[]),
+        ...(set.id==='xyp'?['XYP']:[])];
       for(const code of names){
         const key=card.name.replaceAll('♢','◇')+' '+code;
         if(result.has(key)){
