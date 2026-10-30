@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent31_public_mulligan_native:
+        description: 'Read-only paired native opponent-visible mulligan card-history parity against rank6; setup only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -400,3 +405,22 @@ jobs:
           name: agent48-seeker-original-source-native-census
           path: agent48-seeker-lillie-native.json
           if-no-files-found: warn
+
+  agent31-public-mulligan-native:
+    if: inputs.agent31_public_mulligan_native
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Retain precommitted three-seed both-seat real-Store reveal observer noninterference
+        run: node --test tests/public-mulligan-reveal-observer.pinned.test.cjs
