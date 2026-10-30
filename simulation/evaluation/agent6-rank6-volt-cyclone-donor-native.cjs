@@ -16,13 +16,13 @@ const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
 
 const REGISTRATION=path.resolve(__dirname,
-  '../../results/aichi-2026/registrations/agent6-rank6-volt-cyclone-energy-donor-native-20261030.json');
+  '../../results/aichi-2026/registrations/agent6-rank6-volt-attach-prompt-donor-corrected-20261030.json');
 
 /** Native six-arm original-source physical donor-choice study, not win evidence. */
 function run(){
   const reg=JSON.parse(fs.readFileSync(REGISTRATION,'utf8'));
   assert.equal(reg.schema,
-    'agent6-retrospective-original-rank6-volt-cyclone-energy-donor-factorial-v1');
+    'agent6-original-volt-attach-energy-prompt-corrected-owner-six-arm-v1');
   const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),'utf8'));
   const champion=roster.decks.find(d=>d.rank===reg.originalCandidateRank);
@@ -109,7 +109,7 @@ function run(){
   const hashes=real.map(x=>x.originalSourcePhysicalDealDigest);
   return {
     schema:'agent6-original-rank6-volt-cyclone-energy-donor-six-native-v1',
-    registration:'results/aichi-2026/registrations/agent6-rank6-volt-cyclone-energy-donor-native-20261030.json',
+    registration:'results/aichi-2026/registrations/agent6-rank6-volt-attach-prompt-donor-corrected-20261030.json',
     attemptedNativeArms:arms.length,
     nativeErrors:arms.length-real.length,
     samePhysicalSourceOriginalDeal:hashes.length===arms.length&&
@@ -117,9 +117,9 @@ function run(){
     sourceT3AttacksSettled:arms.reduce((n,x)=>
       n+(x.sourceT3SettledVoltCyclone?.length??0),0),
     realOwnerPromptIntentCount:arms.reduce((n,x)=>
-      n+(x.ownerMovePromptAudit?.selectedPreferredMoves??0),0),
+      n+(x.ownerMovePromptAudit?.preferredAttachEnergyResultsSelected??0),0),
     realOwnerMoveAcceptedCount:arms.reduce((n,x)=>
-      n+(x.ownerMovePromptAudit?.acceptedPreferredMoves??0),0),
+      n+(x.ownerMovePromptAudit?.preferredPhysicallyMoved??0),0),
     competitiveQualifiedGames:0,arms
   };
 }
