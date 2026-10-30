@@ -77,6 +77,7 @@ function survivingPrizeSets(held, needed) {
  */
 function exactOranguruBoostShakeWindow() {
   let favorableWeighted = 0n;
+  let novelK0Weighted = 0n;
   let eightHandConfigurations = 0;
   const byRoute = {trubbishHeld: 0n, vipHeld: 0n, vipStarSearched: 0n};
   const hand = {};
@@ -88,6 +89,13 @@ function exactOranguruBoostShakeWindow() {
       eightHandConfigurations++;
       const oranguru = hand.oranguru;
       if (oranguru === 0) return;
+      const startsWithOranguruFactor = oranguru === 1 ? 7n : 8n;
+      // Information set before the first deck search, after ordinary draw:
+      // Oranguru was a legal initial Active, held Shake, no held T/V.
+      // Whether the Prize cards remove the rest remains unknown at K0.
+      if (hand.trubbish === 0 && hand.vip === 0 && hand.shake > 0) {
+        novelK0Weighted += ways * choose(52, 6) * startsWithOranguruFactor;
+      }
       let route;
       const required = ['garbodor']; // Boost Shake must search Stage 1.
       if (hand.trubbish > 0) route = 'trubbishHeld';
@@ -110,7 +118,6 @@ function exactOranguruBoostShakeWindow() {
       // The eighth card is the first ordinary turn draw. If just one
       // Oranguru is in the first eight, it is initially Active-eligible
       // in 7/8 relative orders; with two, in all 8/8 relative orders.
-      const startsWithOranguruFactor = oranguru === 1 ? 7n : 8n;
       const favorable = ways * prizeConfigurations * startsWithOranguruFactor;
       byRoute[route] += favorable;
       favorableWeighted += favorable;
@@ -138,6 +145,10 @@ function exactOranguruBoostShakeWindow() {
     unconditional: ratio(favorableWeighted, totalWeighted),
     conditionalBasicValid: ratio(favorableWeighted * conditionalMultiplier,
       conditionalDenominator),
+    novelK0TriggerConditionalBasicValid: ratio(novelK0Weighted * conditionalMultiplier,
+      conditionalDenominator),
+    novelK1ResourceSuccessGivenK0: ratio(byRoute.vipStarSearched,
+      novelK0Weighted),
     partitionConditionalBasicValid: Object.fromEntries(
       Object.entries(byRoute).map(([key, value]) =>
         [key, ratio(value * conditionalMultiplier, conditionalDenominator)]))
