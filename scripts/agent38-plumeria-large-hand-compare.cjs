@@ -20,7 +20,8 @@ function compareLargeHandPlumeria(baseline,candidate){
   assert.equal(candidate.competitiveQualifiedGames,0);
   assert.equal(baseline.actorPlumeriaAfterPassOptIn,true);
   assert.equal(candidate.actorPlumeriaAfterPassOptIn,true);
-  let matched=0,exposed=0,selected=0;
+  let matched=0,exposed=0,selected=0,distinctPromptLedgers=0;
+  let sameRootWithChangedPrompt=0;
   const pairs=baseline.rows.map((before,i)=>{
     const after=candidate.rows[i];
     assert.equal(before.trial.id,after.trial.id);
@@ -38,6 +39,16 @@ function compareLargeHandPlumeria(baseline,candidate){
       ownerPlumeriaAfterPassAudit??null;
     const newAudit=after.actorOnlyDecisionCoverage?.
       ownerPlumeriaAfterPassAudit??null;
+    const oldPrompt=before.nativePromptChoices?.sha256??null;
+    const newPrompt=after.nativePromptChoices?.sha256??null;
+    const promptChanged=oldPrompt!==null&&newPrompt!==null&&
+      oldPrompt!==newPrompt;
+    const rootsEqual=before.rootActionLedgerSha256!==undefined&&
+      before.rootActionLedgerSha256===after.rootActionLedgerSha256;
+    if(promptChanged){
+      distinctPromptLedgers++;
+      if(rootsEqual)sameRootWithChangedPrompt++;
+    }
     if(oldAudit&&newAudit){
       assert.equal(oldAudit.largeHandOptIn,false);
       assert.equal(newAudit.largeHandOptIn,true);
@@ -62,6 +73,12 @@ function compareLargeHandPlumeria(baseline,candidate){
       oldRootLedger:before.rootActionLedgerSha256??null,
       newRootLedger:after.rootActionLedgerSha256??null,
       rootChanged:before.rootActionLedgerSha256!==after.rootActionLedgerSha256,
+      oldPromptLedger:oldPrompt,newPromptLedger:newPrompt,
+      promptChanged,
+      sameRootWithChangedPrompt:Boolean(rootsEqual&&promptChanged),
+      combinedObservedDecisionChange:Boolean(
+        before.rootActionLedgerSha256!==after.rootActionLedgerSha256||
+        promptChanged),
       oldCandidateAttacks:before.attackDeclarations?.candidate??null,
       newCandidateAttacks:after.attackDeclarations?.candidate??null,
       oldSourceAttacks:before.attackDeclarations?.source??null,
@@ -73,8 +90,9 @@ function compareLargeHandPlumeria(baseline,candidate){
   return {schema:'agent38-large-hand-vs-generic-plumeria-4arm-v1',
     registeredAttempts:4,matchedFullPhysicalStarts:matched,
     auditedPairs:exposed,largeHandNativeSelections:selected,
+    distinctPromptLedgers,sameRootWithChangedPrompt,
     pairs,competitiveQualifiedGames:0,
-    conclusionScope:'Retrospective common-policy divergence, no competitive strength or win rate inference'};
+    conclusionScope:'Root ledger excludes actual prompt payload; preserve both native prompt and root ledgers. Retrospective policy divergence gives no competitive strength or win rate inference'};
 }
 
 if(require.main===module){
