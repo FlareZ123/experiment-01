@@ -64,6 +64,8 @@ function chooseBunnelbyTmJetRoot(view,catalog,ownRegisteredSixty){
   if(!Array.isArray(ownRegisteredSixty)||ownRegisteredSixty.length!==60)
     return null;
   const own=view.ownPublic,quota=view.ownTurnResources;
+  // First player's initial turn cannot attack, and TM expires at its end.
+  if(view.globalTurn<=1)return null;
   if(!own?.active||!Array.isArray(own.bench)||
       !sourceCouldEvolveBench(view,catalog,ownRegisteredSixty)||
       own.publicTurnRestrictions?.attackLockTurnsRemaining>0)
@@ -89,9 +91,24 @@ function chooseBunnelbyTmJetRoot(view,catalog,ownRegisteredSixty){
     own.publicTurnRestrictions?.specialEnergyPlayLocked!==true;
   const jetIndex=view.ownHand.findIndex(p=>p.startsWith(JET)&&
     catalog.specialEnergies?.has(p));
+  // Do not expend a turn-expiring TM on a Bench that cannot be moved
+  // immediately, or on an Active that cannot pay its Tool attack this turn.
+  // These constraints apply BEFORE Tool equip, not only after the equip.
+  if(bun.slot==='bench'){
+    if(!energyOpen||jetIndex<0||
+       own.active.abilityDetails?.some(x=>typeof x.text==='string'&&
+         /(?:as long as|while)\\s+this\\s+pok[eé]mon\\s+is\\s+(?:your\\s+active\\s+pok[eé]mon|in\\s+the\\s+active\\s+spot)/i
+           .test(x.text))||
+       own.active.attacks?.some(a=>Array.isArray(a.cost)&&
+         publicSpecialAttackPayable(view,catalog,own.active,a))||
+       [...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
+         .some(x=>x.startsWith('Temple of Sinnoh ')))return null;
+  }else if(!ready&&(!energyOpen||jetIndex<0)){
+    return null;
+  }
   // A real Tool attack is available only on the current Active. Its
   // actual announcement and Omega Barrage followup belong to the Store.
-  if(bun.slot==='active'&&tmAttached&&ready&&view.globalTurn>1&&
+  if(bun.slot==='active'&&tmAttached&&ready&&
       !pokemon.specialConditions?.some(x=>
         x===catalog.specialConditions?.ASLEEP||
         x===catalog.specialConditions?.PARALYZED))
@@ -106,7 +123,8 @@ function chooseBunnelbyTmJetRoot(view,catalog,ownRegisteredSixty){
       own.publicTurnRestrictions?.toolPlayLocked!==true)
     return {kind:'equip-bunnelby-tm',handIndex:tmIndex,printing:TM,
       slot:bun.slot,index:bun.index};
-  if(!tmAttached||!energyOpen||jetIndex<0||ready)return null;
+  if(!tmAttached||!energyOpen||jetIndex<0)return null;
+  if(bun.slot==='active'&&ready)return null;
   if(bun.slot==='active')
     return {kind:'attach-special-energy',
       printing:view.ownHand[jetIndex],handIndex:jetIndex,
