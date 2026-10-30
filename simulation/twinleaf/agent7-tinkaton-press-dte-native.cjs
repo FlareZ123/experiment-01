@@ -9,7 +9,7 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const out=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=name=>require(path.join(out,name));
 
-function runArm(seat,useTurbo,withHook=false){
+function runArm(seat,useTurbo,withHook=false,options={}){
   const manager=initializeCards();
   let id=0;
   const card=printing=>{
@@ -30,6 +30,9 @@ function runArm(seat,useTurbo,withHook=false){
   const attacker=new Player();
   attacker.id=101;attacker.name='Tinkaton SVP source attack';
   attacker.active.cards.push(card('Tinkaton ex SVP'));
+  for(let i=0;i<(options.handCount??0);i++){
+    attacker.hand.cards.push(card('Psychic Energy SVE'));
+  }
   const energies=['Psychic Energy SVE',...(useTurbo?
     ['Double Turbo Energy BRS']:
     ['Psychic Energy SVE','Psychic Energy SVE'])];
@@ -40,7 +43,7 @@ function runArm(seat,useTurbo,withHook=false){
   }
   const defender=new Player();
   defender.id=202;defender.name='Unmodified Psychic recipient';
-  defender.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+  defender.active.cards.push(card(options.defenderPrinting??'Shadow Rider Calyrex V CRE'));
   const bench=new PokemonCardList();
   bench.cards.push(card('Tapu Lele-GX GRI'));
   defender.bench.push(bench);
@@ -66,14 +69,26 @@ function runArm(seat,useTurbo,withHook=false){
   const undo=withHook?require('./agent7-tinkaton-dte-hook.cjs').installTinkatonDteHook(manager):()=>{};
   try{
   const before=defender.active.damage;
-  store.dispatch(new AttackAction(attacker.id,'Pulverizing Press'));
+  const prizesBefore=attacker.prizes.filter(x=>x.cards.length>0).length;
+  store.dispatch(new AttackAction(attacker.id,options.attackName??'Pulverizing Press'));
   const prompts=[];
   for(let j=0;j<14;j++){
     const prompt=store.state.prompts.find(p=>p.result===undefined);
     if(!prompt)break;
     const kind=prompt.constructor.name;
-    assert.equal(kind,'WaitPrompt','Unexpected native prompt');
-    store.dispatch(new ResolvePromptAction(prompt.id,null));
+    let result;
+    if(kind==='WaitPrompt')result=null;
+    else if(kind==='ChoosePrizePrompt'){
+      const owner=store.state.players.find(p=>p.id===prompt.getPerspectivePlayerId());
+      assert.ok(owner);
+      result=owner.prizes.filter(x=>x.cards.length>0).slice(0,prompt.options.count);
+    }else if(kind==='ChoosePokemonPrompt'){
+      const owner=store.state.players.find(p=>p.id===prompt.getPerspectivePlayerId());
+      const promoted=owner?.bench.find(x=>x.cards.length>0);
+      assert.ok(promoted);
+      result=[promoted];
+    }else throw new Error('Unexpected genuine prompt '+kind);
+    store.dispatch(new ResolvePromptAction(prompt.id,result));
     prompts.push(kind);
   }
   assert.deepEqual(store.state.prompts.filter(p=>p.result===undefined),[]);
@@ -81,7 +96,9 @@ function runArm(seat,useTurbo,withHook=false){
   const paperDamage=useTurbo?120:140;
   return {seat,useTurbo,sourcePrinting:'Tinkaton ex SVP',
     doubleTurboPrinting:useTurbo?'Double Turbo Energy BRS':null,
-    opponentPrinting:'Shadow Rider Calyrex V CRE',
+    opponentPrinting:options.defenderPrinting??'Shadow Rider Calyrex V CRE',
+    attackName:options.attackName??'Pulverizing Press',
+    prizesTaken:prizesBefore-attacker.prizes.filter(x=>x.cards.length>0).length,
     energyAttachments:energies,damage,paperDamage,
     nativePaperParity:damage===paperDamage,
     genuineStoreAttackDispatch:true,
