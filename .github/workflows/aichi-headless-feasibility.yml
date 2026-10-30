@@ -124,6 +124,8 @@ jobs:
         run: node --test tests/agent2-conservative-shuffle-supporter.test.cjs tests/agent2-actor-only-shuffle-supporter-after-pass.test.cjs tests/agent2-native-shuffle-emptydeck-gate.test.cjs tests/agent2-sole-shuffle-deckzero-hook.test.cjs tests/agent2-sole-shuffle-deckzero-native-store.test.cjs tests/agent2-sole-shuffle-deckzero-native-root.test.cjs
       - name: Validate all 29 exact original source shuffle Supporter family counts
         run: node --test tests/agent2-source-shuffle-supporter-census.test.cjs
+      - name: Validate exact-print original source Basic openings and first-turn niche attacker probabilities
+        run: node --test tests/agent2-firstturn-opening-frontier.test.cjs
       - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
         run: node simulation/twinleaf/agent2-shuffle-supporter-samedeal-native.cjs > agent2-shuffle-supporter-samedeal-native.json
       - name: Archive all accepted and rejected draw Supporter choice receipts
