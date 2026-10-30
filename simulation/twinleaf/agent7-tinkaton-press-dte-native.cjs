@@ -9,7 +9,7 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const out=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=name=>require(path.join(out,name));
 
-function runArm(seat,useTurbo){
+function runArm(seat,useTurbo,withHook=false){
   const manager=initializeCards();
   let id=0;
   const card=printing=>{
@@ -63,6 +63,8 @@ function runArm(seat,useTurbo){
   const store=new Store({onStateChange(){}});
   store.state=state;
 
+  const undo=withHook?require('./agent7-tinkaton-dte-hook.cjs').installTinkatonDteHook(manager):()=>{};
+  try{
   const before=defender.active.damage;
   store.dispatch(new AttackAction(attacker.id,'Pulverizing Press'));
   const prompts=[];
@@ -84,6 +86,7 @@ function runArm(seat,useTurbo){
     nativePaperParity:damage===paperDamage,
     genuineStoreAttackDispatch:true,
     waitPrompts:prompts.length,artificialMidgame:true};
+  }finally{undo();}
 }
 
 function run(){
