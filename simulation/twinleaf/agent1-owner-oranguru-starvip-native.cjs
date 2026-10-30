@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {offerOranguruStarVip,PRINT}=
   require('./agent32-owner-oranguru-starvip-plan-offer.cjs');
@@ -67,7 +68,7 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     bySeat:{0:{opportunities:0,chosen:0,accepted:0,completed:0},
       1:{opportunities:0,chosen:0,accepted:0,completed:0}},
     nonLiveDelegations:0,nonOwnerDelegations:0,
-    events:[],
+    events:[],originalOwnK0AtOffer:[],
     decisionInput:'detached authenticated actorObservation',
     deckSearchScope:'only acting owner pending native ChooseCardsPrompt',
     wholePolicyInformationSetSafe:false,
@@ -175,6 +176,11 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
             step:offer.missingTools.length>0?0:2,
             missingTools:[...offer.missingTools],aborted:false};
           planBySeat.set(seat,ctx);
+          const sourceHandSha256=createHash('sha256')
+            .update(JSON.stringify(view.ownHand)).digest('hex');
+          audit.originalOwnK0AtOffer.push({seat,turn:state.turn,
+            handSha256:sourceHandSha256,
+            bench:view.ownPublic.bench.map(slot=>slot?.printing??null)});
           audit.events.push({seat,turn:state.turn,kind:'chosen',
             firstStep:ctx.step,missingToolCount:ctx.missingTools.length});
         }else{
@@ -264,6 +270,18 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
   try{
     const result=execute();
     return {result,audit};
+  }catch(error){
+    if(error&&typeof error==='object'){
+      error.agent1OwnerPlanDiagnostic={
+        opportunities:audit.opportunities,chosen:audit.plansChosen,
+        accepted:audit.nativeAccepted,promptAccepted:audit.ownerPromptAccepted,
+        abortReasons:audit.abortReasons,
+        stages:[...planBySeat.entries()].map(([seat,ctx])=>({seat,
+          turn:ctx.turn,step:ctx.step,aborted:ctx.aborted})),
+        events:audit.events.slice(0,18)
+      };
+    }
+    throw error;
   }finally{
     assert.equal(Store.prototype.dispatch,dispatch);
     Object.defineProperty(Store.prototype,'dispatch',dispatcher);
