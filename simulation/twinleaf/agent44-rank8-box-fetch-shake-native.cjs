@@ -12,9 +12,10 @@ const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  * original rank8 turn7 state. Research instrumentation only: this is not an
  * authorized player action and the resulting deal is not source-authentic.
  * @param {object} owner Native original-source player.
+ * @param {{fetchToolFromBox?:boolean}} [options]
  * @returns {object} Publicly declared synthetic source multiset witness.
  */
-function exchangeShakeForDeckQuickBall(owner){
+function exchangeShakeForDeckQuickBall(owner,{fetchToolFromBox=false}={}){
   const hand=owner.hand.cards,deck=owner.deck.cards;
   const shakeIndex=hand.findIndex(c=>c.name==='Boost Shake');
   const quickIndex=deck.findIndex(c=>c.name==='Quick Ball');
@@ -23,9 +24,21 @@ function exchangeShakeForDeckQuickBall(owner){
   const before=[...hand,...deck].map(c=>c.fullName).sort();
   const shake=hand[shakeIndex],quick=deck[quickIndex];
   hand[shakeIndex]=quick;deck[quickIndex]=shake;
+  const swaps=[{handOut:shake.fullName,handIn:quick.fullName}];
+  if(fetchToolFromBox){
+    const heldTool=hand.findIndex(c=>c.name==='Float Stone');
+    const deckEnergy=deck.findIndex(c=>c.name==='Darkness Energy'||
+      c.name==='Lightning Energy');
+    assert.ok(heldTool>=0&&deckEnergy>=0,
+      'Cannot create synthetic Tool-search state from original own deck');
+    const toolCard=hand[heldTool],energyCard=deck[deckEnergy];
+    hand[heldTool]=energyCard;deck[deckEnergy]=toolCard;
+    swaps.push({handOut:toolCard.fullName,handIn:energyCard.fullName});
+  }
   assert.deepEqual([...hand,...deck].map(c=>c.fullName).sort(),before);
   return {mode:'explicit-synthetic-hand-deck-swap',
     handOut:shake.fullName,handIn:quick.fullName,
+    fetchToolFromBox,swaps,
     source60MultisetPreserved:true,unmodifiedOriginalDeal:false};
 }
 
@@ -35,8 +48,9 @@ function exchangeShakeForDeckQuickBall(owner){
  * *retrospectively modified physical deal*, suitable for semantics only.
  * @template T
  * @param {()=>T} execute Synchronous genuine Store run.
+ * @param {{fetchToolFromBox?:boolean}} [options]
  */
-function withSyntheticRank8BoxFetchShake(execute){
+function withSyntheticRank8BoxFetchShake(execute,{fetchToolFromBox=false}={}){
   const {SimpleTacticsAi}=require(path.join(BASE,'simple-bot/simple-tactics-ai'));
   const {PlayCardAction,PlayerType,SlotType}=
     require(path.join(BASE,'game/store/actions/play-card-action'));
@@ -92,13 +106,15 @@ function withSyntheticRank8BoxFetchShake(execute){
         'Secret Box','Float Stone'];
       assert.deepEqual(owner.hand.cards.map(c=>c.name).sort(),expected.sort(),
         'Retrospective source-turn hand fingerprint changed');
-      exchange=exchangeShakeForDeckQuickBall(owner);
+      exchange=exchangeShakeForDeckQuickBall(owner,{fetchToolFromBox});
       return next(state,'play Box after declared synthetic source swap',
         play(owner,'Secret Box'));
     }
     if(stage===0)return original.call(this,state);
     const names=stage===1?['Dark Patch','VS Seeker','Iono']:
-      stage===2?['Boost Shake','Temple of Sinnoh']:
+      stage===2?(fetchToolFromBox?
+        ['Boost Shake','Float Stone','Temple of Sinnoh']:
+        ['Boost Shake','Temple of Sinnoh']):
       stage===4?['Temple of Sinnoh']:
       stage===5?['Trubbish']:
       stage===9?['Garbodor']:null;
