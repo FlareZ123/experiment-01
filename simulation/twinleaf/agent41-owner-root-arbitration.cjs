@@ -51,6 +51,25 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
     receipt.reason='potential-last-prize-attack';
     return {intent:first,receipt};
   }
+  // Separate opt-in: resolve the known public printing against the exact
+  // database Rule/Prize profile, including TAG TEAM and Mega three-Prize
+  // awards. This remains a potential finisher, never a native damage proof.
+  if(options.protectPotentialPrintedPrizeAttack===true){
+    const {VERSION:vetoVersion,potentialPrintedPrizeFinisher}=
+      require('./agent42-visible-printed-prize-finisher.cjs');
+    const opportunity=potentialPrintedPrizeFinisher(view,first,catalog);
+    if(opportunity.protect){
+      receipt.version=VERSION+'+'+vetoVersion;
+      receipt.reason=opportunity.reason;
+      receipt.potentialTerminalAttack={
+        opponentPrinting:opportunity.opponentPrinting,
+        printedDamage:opportunity.printedDamage,
+        opponentRemainingHp:opportunity.opponentRemainingHp,
+        printedPrizeAward:opportunity.award
+      };
+      return {intent:first,receipt};
+    }
+  }
   // Optional conservative extension: do not replace a fixed printed attack
   // with a Bench attachment when the owner has two Prizes left and the
   // opponent presents a visible potential two-Prize KO. Any real damage,
