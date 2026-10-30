@@ -76,3 +76,16 @@ test('Special cannot be given fictitious units under Temple of Sinnoh',()=>{
   v.ownPublic.stadium=['Temple of Sinnoh ASR'];
   assert.equal(specialFundsImmediateAttack(v,catalog),null);
 });
+
+test('Speed Lightning native-type restriction is respected in contest',()=>{
+  const v=view();
+  v.ownHand=['Psychic Energy SVE','Speed Lightning Energy RCL'];
+  v.ownPublic.active.energies=['Lightning Energy SVE'];
+  v.ownPublic.active.attacks=[{name:'Double Lightning',damage:100,
+    cost:[L,L],gxAttack:false}];
+  v.ownPublic.active.printed={types:[catalog.basicEnergyTypes.Psychic]};
+  assert.equal(specialFundsImmediateAttack(v,catalog),null);
+  v.ownPublic.active.printed={types:[L]};
+  assert.equal(specialFundsImmediateAttack(v,catalog)?.printing,
+    'Speed Lightning Energy RCL');
+});
