@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {auditFrozenScoutSetup,sourceSetupBenchSelection}=require('../scripts/agent26-scout-setup-prompt-audit.cjs');
+const {auditFrozenScoutSetup,sourceSetupBasicSelection}=require('../scripts/agent26-scout-setup-prompt-audit.cjs');
 
 function arm(id,seat,selected){
  const [rank,repeat,candidateSlot,candidateId]=id.split(':');
@@ -25,12 +25,12 @@ test('frozen source setup witness classifies all 16 pairs and preserves raw',()=
  const fixture=frozenFixture(),before=JSON.stringify(fixture),r=auditFrozenScoutSetup(fixture);
  assert.equal(r.totalPairs,16);assert.equal(r.matchingSourcePhysicalDeals,15);
  assert.equal(r.divergentSourcePhysicalDeals,1);
- assert.equal(r.matchingObservedSourceSetupBenchChoices,15);
- assert.equal(r.divergentObservedSourceSetupBenchChoices,1);
+ assert.equal(r.matchingObservedSourceSetupBasicChoices,15);
+ assert.equal(r.divergentObservedSourceSetupBasicChoices,1);
  assert.deepEqual(r.mismatchPairIds,['6:3:B']);assert.deepEqual(r.divergentSetupPairIds,['6:3:B']);
  const x=r.rows.find(y=>y.pairId==='6:3:B');
- assert.deepEqual(x.championSelectedSetupBench,['Iron Thorns ex TWM']);
- assert.deepEqual(x.newMoonSelectedSetupBench,['Iron Thorns ex TWM','Iron Thorns ex TWM']);
+ assert.deepEqual(x.championSelectedSetupBasics,['Iron Thorns ex TWM']);
+ assert.deepEqual(x.newMoonSelectedSetupBasics,['Iron Thorns ex TWM','Iron Thorns ex TWM']);
  assert.equal(r.competitiveQualifiedGames,0);
  assert.equal(JSON.stringify(fixture),before);
 });
@@ -44,7 +44,7 @@ test('missing and inconsistent native source setup evidence fails closed',()=>{
 });
 test('native actor and seven-card source hand are enforced',()=>{
  const x=arm('6:0:A:champion-reference',1,['Iron Thorns ex TWM']);
- assert.deepEqual(sourceSetupBenchSelection(x),{cards:['Iron Thorns ex TWM'],promptOrdinal:4,sourceSeat:1});
+ assert.deepEqual(sourceSetupBasicSelection(x),{cards:['Iron Thorns ex TWM'],promptOrdinal:4,sourceSeat:1});
  x.nativePromptChoices.events[0].sourceZoneCardCountBefore=8;
- assert.throws(()=>sourceSetupBenchSelection(x),/initial seven/);
+ assert.throws(()=>sourceSetupBasicSelection(x),/initial seven/);
 });
