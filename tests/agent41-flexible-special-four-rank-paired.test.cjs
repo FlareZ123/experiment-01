@@ -79,3 +79,19 @@ test('error is retained as a typed attempt, without manufactured fingerprint or 
   assert.equal(compared.firstDifferentLedgerIndex,null);
   assert.equal(compared.qualifiedCompetitiveOutcome,false);
 });
+
+test('absent physical fingerprint never matches itself',()=>{
+  const a=cell(false),b=cell(true);
+  delete a.initialFullDealSha256;
+  delete b.initialFullDealSha256;
+  delete a.initialSourceDealSha256;
+  delete b.initialSourceDealSha256;
+  assert.equal(compare(a,b).fullDealMatch,false);
+  assert.equal(compare(a,b).sourceDealMatch,false);
+  a.status='native-error-unqualified';
+  b.status='native-error-unqualified';
+  a.initialFullDealSha256='a'.repeat(64);
+  b.initialFullDealSha256='a'.repeat(64);
+  assert.equal(compare(a,b).fullDealMatch,false);
+  assert.equal(compare(a,b).deckAndEngineMatch,false);
+});
