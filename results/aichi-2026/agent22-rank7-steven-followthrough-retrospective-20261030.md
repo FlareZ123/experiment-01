@@ -34,6 +34,12 @@ The five-versus-four counts are **name-overlap observations**, can count a singl
 
 The source actually executed several other non-search-root Trainer actions within these games, including Team Rocket's Handiwork, Lusamine, Lillie's Determination, and Robo Substitute in certain arms. The weak research bots still produced no terminal game, took no Prizes and hit 80 accepted actions in each arm. A realistic stall strategy may require more turns; no official clock, opponent strategic quality or completed win condition was evaluated.
 
+## Prize-condition check for Counter Catcher
+
+The supplied card pool (`resources/cards/en/sv4.json`, Counter Catcher #160) requires the player to have more Prize cards remaining than the opponent before using the Item. All eight games ended at the 80-action cap with six Prize cards remaining on each side. Under ordinary monotone Prize progression, no player became eligible to use Counter Catcher within this horizon. This explains its absence from the accepted source PlayCardAction roots despite repeatedly appearing in the static-weight search choices. It could still be valuable in a longer game where the opponent takes a Prize.
+
+VS Seeker PHF #109 returns a Supporter from the discard pile to hand. Its absence from later plays needs a separate owner-hand and restriction audit; a bare-name root ledger cannot establish that a particular searched copy remained available after the opponent's turn.
+
 ## Method and implications
 
 The reusable observer is `simulation/twinleaf/agent22-steven-followthrough.cjs`; native provenance, source root play names, future source play ordinals and public opponent-root count appear in the complete artifact. Pure tests in `tests/agent22-steven-followthrough.test.cjs` ensure opponent plays are excluded from source-card follow-through, prompt Resolve actions are excluded, no intervening opponent turn is not invented, and exact printing names translate to bare published action names before matching.
