@@ -6,7 +6,7 @@
 
 The existing `agent17-public-context-special-energy.cjs::choosePublicContextSpecialEnergy` deliberately declines a Jet Energy attachment to a Benched Pokémon, because Jet's mandatory switch demands a separate Active-position decision. The existing `actor-energy-payability.cjs` already represents Jet's Colorless unit, and the canonical `agent34` actor dispatch already supports a typed `attach-special-energy` with `slot:'bench'`. This work adds a small missing action proposal and **reuses** the existing payability and action machinery rather than adding a second Energy model or a new simulator.
 
-There are **five Jet Energy copies** across the authenticated rank-2 and rank-15 original field sources, per the [29-source Special Energy census](agent41-paper-field-special-energy-numeric-coverage-20261030.md). A named card's presence proves neither a playable root nor a beneficial line.
+The exact [29-source original 60 manifest](full-decklists.json) contains **five Jet Energy PAL #190 copies across three authentic opponents**: rank **2 (two copies)**, rank **7 (one)**, and rank **15 (two)**. The [Special Energy census](agent41-paper-field-special-energy-numeric-coverage-20261030.md) gives the same total of five but its prose mentions only rank 2 and 15; the rank-7 original adds the remaining copy. A named card's presence proves neither a playable root nor a beneficial line.
 
 ## Executable contribution
 
