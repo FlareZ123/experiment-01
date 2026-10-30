@@ -25,6 +25,18 @@ Conditioning a first seven on at least one Basic as above, the chance that **at 
 
 Actual Energy-denial actions depend on the opponent's attached card state. Enhanced Hammer requires Special Energy, Plumeria needs a viable two-card discard cost and a suitable target, and Crushing Hammer depends on a coin flip. Some opening cards may be spent before a later opportunity. Therefore 82% or 86% **must never be described as the probability of a native legal, beneficial or successful denial.** The source-owned live root observer should distinguish the four printed families, hand-held cards, targets, discard affordability and native action results.
 
+## Three original Iron Thorns source variants share the same two Grunts
+
+The original printed 60-card manifests for paper Expanded ranks **6, 24 and 29** each contain four Basic Iron Thorns ex and **two Team Flare Grunt XY**. Their distinct Plumeria/Hammer inventories give different raw access rates to the named **Team Flare Grunt + Plumeria + Crushing Hammer + Enhanced Hammer** subset:
+
+| Source rank | Team Flare Grunt | Plumeria | Crushing Hammer | Enhanced Hammer | Total subset copies | By first eight | By first nine |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 Kazuma Kashi | 2 | 4 | 4 | 2 | 12 | 82.2968% | 86.3822% |
+| 24 Ryoya Fujii | 2 | 4 | 0 | 2 | 8 | 66.8964% | 71.9892% |
+| 29 Kohei Hamamichi | 2 | 4 | 4 | 1 | 11 | 79.1879% | 83.5904% |
+
+All values use the **same exact Basic-valid-seven sampling formula** and exclude physical opponent target, source Supporter timing, optional mulligan draws, coin flips, discard affordability, card expenditure and gameplay. They therefore compare initial card-location coverage of these four named families, not comparative control strength or practical denial rates. A ranking of paper deck strength based on the larger subset percentage would be unjustified.
+
 ## A paired rank6-versus-rank1 direct-draw exposure illustration
 
 The separately published original rank-1 champion Shadow Rider Calyrex 60 contains **14 Basic Pokémon and 11 Basic Psychic Energy**. Under two independent, uniformly shuffled source decks conditioned *separately* on a Basic-valid first seven, with no mulligan bonus, search, additional draw or card spent:
