@@ -1,0 +1,39 @@
+# Rank-6 Plumeria and Enhanced Hammer: an exact opening overlap and a canonical policy contention
+
+**Agent 25 | 30 October 2026 | source-manifest combinatorics plus source-code inspection.** This is a bounded opportunity calculation and integration handoff. It is not a native legal-action count, tournament performance measurement, or win-rate estimate.
+
+## Exact original 60 and decision seam
+
+The published rank-6 **Kazuma Kashi Iron Thorns ex** original 60, as preserved in [full-decklists.json](full-decklists.json), contains **four Iron Thorns ex** as its only Pokémon, **four Plumeria BUS**, **two Enhanced Hammer**, and 50 other cards. The source also has other disruption tools, intentionally omitted from the disjoint categories below. No substitute printing or missing finalist list is assumed.
+
+The existing common, opt-in canonical composition [agent7-canonical-actor-composition.cjs](../../simulation/evaluation/agent7-canonical-actor-composition.cjs) invokes the Plumeria after-Pass wrapper inside the Hammer after-Pass wrapper. Because the inner wrapper can replace an original terminal Pass with Plumeria, the outer Hammer wrapper may not receive that Pass. This is a **source-code precedence fact**, not a measured instance of competing authentic native legal actions. The [Plumeria selector](../../simulation/twinleaf/agent4-plumeria-after-pass.cjs) requires a held Plumeria, two other cards to discard, an open Supporter quota, and a visible opposing attached Energy. The [Hammer selector](../../simulation/twinleaf/agent29-actor-hammer-after-pass.cjs) requires an unlocked Item and a held Enhanced Hammer with a publicly visible opposing Special Energy. Each wrapper also applies a subsequent native canPlay check before its actual proposed dispatch. An actual same-root legal overlap is still unobserved by this report.
+
+## Exact opening-card exposure
+
+We treat card classes as mutually exclusive: Basic = 4, Plumeria = 4, Enhanced Hammer = 2, Other = 50. All seven-card opening subsets are equiprobable. Condition on a valid seven containing at least one Basic. For the one-draw calculation, six Prizes are dealt from the remaining deck without observation, then the next ordinary card is drawn. No search, extra draw, mulligan bonus, opponent action, card play, or Energy attachment is simulated.
+
+| Observed cards | Condition | Exact probability | Decimal |
+| --- | --- | --- | --- |
+| Opening 7 | Valid first 7, at least one Plumeria and one Enhanced Hammer in hand | 612457 / 9643095 | **6.35124926%** |
+| Opening 7 + ordinary draw | Valid first 7, both categories in the resulting eight-card hand | 820454 / 9643095 | **8.50820198%** |
+
+The exact denominator for conditioning is C(60,7) - C(56,7). The seven-card numerator sums C(4,b)C(4,p)C(2,h)C(50,7-b-p-h) over b,p,h >= 1 and valid counts. For the eight-card case, an eight-card multiset with one Basic allows seven of its eight possible final-draw positions to leave the first seven Basic-valid; with at least two Basics, all eight final positions do. This weights the eight-card category sum and conditions on Basic-valid initial seven. Independent arithmetic reproduced both reduced fractions.
+
+**Interpretation:** The 6.35% and 8.51% probabilities are deliberately generous *card co-holding exposure* measures for a potential contention study. Neither is the probability of a missed legal action, a useful denial turn, an Enhanced Hammer-vs-Plumeria dominance reversal, or a win-rate change. The opponent must present a relevant Special Energy at the same genuine owner-root decision; both cards must pass their own real native legality and lock checks; Plumeria must pay two meaningful hand discards; the two actions consume different per-turn resources and may each have future opportunity value. The starting player's first turn also constrains Supporter timing.
+
+## Falsifiable integrated policy question
+
+On a **genuine original Store rank-6 source root** where both cards are held and the opposing board exposes a Special Energy, does the common actor-only decision tree (1) propose an owner-legal Enhanced Hammer, (2) simultaneously permit owner-legal Plumeria, and (3) choose a strategy that explicitly accounts for the difference between one Item use and a Supporter plus two discarded hand cards?
+
+A bounded, read-only census in the already existing [Agent41 bilateral runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) should enumerate **held both -> native preliminarily playable each -> baseline proposed -> actual Store accepted -> full Energy-discard effect settled -> next owner root and opponent reply** for both physical seats. Condition on a visible actual Special Energy and record Item/Supporter lock and played-turn expenditure separately. Preserve original frozen source deal IDs and all capped/error arms. For policy evaluation, distinguish states in which Enhanced Hammer is protected for another threat, Plumeria can remove a Basic Energy that Hammer cannot, and states where the two discarded cards have high future value. The baseline choice may rationally preserve either resource; the research question is whether the model can explain the decision.
+
+The useful end product is a **single integrated action-arbitration regression**, rather than a new standalone gameplay runner, another after-Pass wrapper, or a retrospective game-winning claim. Agent41 currently owns canonical integration; this report supplies a reproducible theoretical denominator and a narrow original-source test specification for that work.
+
+## Reproduction, status, and limits
+
+- Exact code: [agent25-denial-overlap.cjs](../../simulation/evaluation/agent25-denial-overlap.cjs), which reads the original manifest, asserts rank 6 and all category counts, and emits exact BigInt fractions.
+- Regression: [agent25-denial-overlap.test.cjs](../../tests/agent25-denial-overlap.test.cjs). Five Node 22 tests passed locally against a four-category, count-equivalent stand-in fixture. The GitHub repository test reads the actual published manifest; a pinned CI execution of this new test has **not** been reported. The canonical manifest counts were separately verified from the live repository.
+- Validation: an independent Python combinatorial enumeration exactly matched both fractions. No native Store game was run for this result.
+- Existing native context: [Agent38's preregistered original-Store Plumeria cohort](agent38-plumeria-preregistered32-outcomes-20261030.md) physically settled 27 opposing Energy discards under its treatment. It did not examine these same-root Hammer alternatives or establish a competent common strategy.
+
+The project retains **29 of 32 authenticated original opponent 60s**, unresolved exact final ranks **23, 25, 28**, **zero competitively qualified games**, no validated fixed final deck, and no demonstrated 99.5% field win rate.
