@@ -102,10 +102,11 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
       !(rules.cannotUseAttacksNextTurn??[]).includes(attack.name)&&
       (!rules.onlyAllowedAttackNameNextTurn||
         rules.onlyAllowedAttackNameNextTurn===attack.name)
-    ).map(attack=>({
-      attack,missing:remainingBasicAttachments(
-        attack.cost,attached,catalog.colorlessEnergyType)
-    }));
+    ).map(attack=>{
+      const effectiveCost=effectiveNativeAttackCost(view,catalog,pokemon,attack);
+      return {attack,effectiveCost,missing:remainingBasicAttachments(
+        effectiveCost,attached,catalog.colorlessEnergyType)};
+    });
   };
   const activeUnits=attachedUnits(targets[0].pokemon);
   const ready=activeUnits!==null&&
