@@ -152,6 +152,20 @@ function run({observeOpponentReturn=false}={}){
         const successful=row.witness.sourceUsedVSTAR&&
           row.witness.sourceEquippedGarbodor;
         if(successful&&observeOpponentReturn){
+          const opponentOwnerView=actorObservation(state,1);
+          assert.equal(opponentOwnerView.actorSeat,1);
+          assert.equal(opponentOwnerView.decisionKind,'owner-root');
+          const held=opponentOwnerView.ownHand;
+          row.opponentFirstOwnerResources={
+            handSize:held.length,
+            fieldBlower:held.filter(p=>p==='Field Blower GRI').length,
+            guzma:held.filter(p=>p==='Guzma BUS').length,
+            vsSeeker:held.filter(p=>p==='VS Seeker PHF').length,
+            quickBall:held.filter(p=>p==='Quick Ball FST').length,
+            ownerDeckCount:opponentOwnerView.ownPublic.deckCount,
+            sourceToolGarbodorPublic:true,
+            privateEvidenceScope:'opponent-acting-owner private hand audit only; no source bot decision input'
+          };
           row.opponentFirstRootObserved=true;
           stage=12;
         }else{
@@ -183,8 +197,11 @@ function run({observeOpponentReturn=false}={}){
         if(!pending&&actor===state.players[1]&&
             state.turn===2&&state.activePlayer===1&&
             row.opponentRootProposals.length<80){
+          const proposedCard=proposed?.constructor?.name==='PlayCardAction'?
+            state.players[1].hand.cards[proposed.handIndex]:null;
           row.opponentRootProposals.push({
             turn:state.turn,kind:proposed?.constructor?.name??null,
+            fieldBlowerProposed:proposedCard?.fullName==='Field Blower GRI',
             qualification:'proposal-only; Store acceptance not attested here'
           });
         }
