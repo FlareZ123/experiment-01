@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {choose,openingValid}=require('./aichi-setup-mulligan-race.cjs');
+const {choose,openingProbabilities}=require('./aichi-opening-basics.cjs');
 
 /**
  * Public information disclosed by repeatedly invalid Basic-free opening
@@ -25,7 +25,8 @@ function revealedMulliganSignature(input){
     namedNonBasics<=deckSize-basics);
 
   const nonBasics=deckSize-basics;
-  const invalid=1-openingValid(deckSize,basics,openingSize);
+  const invalid=openingProbabilities(basics,deckSize,openingSize)
+    .initialMulliganProbability;
   const valid=1-invalid;
   const nonBasicHands=choose(nonBasics,openingSize);
   const noNamedGivenFailed=nonBasicHands>0n?
