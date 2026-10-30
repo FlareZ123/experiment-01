@@ -116,7 +116,11 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
         case 6:return chooseDeck([PRINT.trubbish]);
         case 9:return chooseDeck([PRINT.garbodor]);
         case 10:{
-          const i=trubbishIndex(owner);
+          // Boost Shake evolves the Float Stone holder. The untooled
+          // Trubbish selector used before attachment is wrong here.
+          const i=owner.bench.findIndex(slot=>
+            slot.getPokemonCard()?.fullName===PRINT.trubbish&&
+            slot.tools.some(tool=>tool.fullName===PRINT.float));
           if(i<0||pending.constructor?.name!=='ChoosePokemonPrompt')
             return null;
           const target=owner.bench[i];
