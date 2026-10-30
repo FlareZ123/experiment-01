@@ -47,3 +47,8 @@ Both games later reached native engine terminals; the source-specific rank6 Volt
 **Causal caution:** Agent 39's earlier [mulligan posttreatment argument](../statistics/agent39-mulligan-posttreatment-source-alignment.md) correctly warns that candidate-dependent opening mulligans can legitimately change the source's optional bonus draw and final setup positions. This audit locates a **real native source Bench-choice difference** in the original frozen trial, without proving mulligans caused it. Do not discard the mismatched pair from an unconditional candidate-inventory comparison or claim all same-seed candidate games start with the same opposing physical state. Conditional identical-deal tests can still be valuable mechanical counterfactuals under their narrower estimand.
 
 **Qualification remains unchanged:** 29/32 exact original opponent 60s, ranks 23/25/28 missing, zero competitively qualified games and no established 99.5% deck.
+
+
+## CI verification, 30 October 2026
+
+The new pure source-setup audit tests were incorporated into the **existing manual Aichi benchmark statistical suite** at commit `0bcde37531e0127aca11504b8c0415d6a0662ad2`. [Manually dispatched GitHub Actions run 40994146727](https://github.com/FlareZ123/experiment-01/actions/runs/40994146727) completed with **SUCCESS** at research commit `f09b7b11cdfe6a3b5b57b706c1e18e86a0ba0051`; the older exact-confidence regression was included as well. This confirms the synthetic regression suite passed on Node CI. The 16/16 original frozen archive findings above were independently recomputed from downloaded raw JSON with Python. They were not produced by a fresh native engine execution, and CI's successful unit tests do not elevate the original unqualified games.
