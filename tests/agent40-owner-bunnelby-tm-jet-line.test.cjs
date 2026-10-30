@@ -178,3 +178,16 @@ test('Omega Barrage consent persists when source Stage2 remains K0-possible',()=
   owner.active.tools=[];
   assert.equal(shouldConsentBunnelbyBarrage(owner,sourceCards),false);
 });
+
+test('owner-known Stage2 can be TM evolved from an already established Stage1',()=>{
+  const v=view();
+  v.ownPublic.bench[1]=poke('Gloom UNB','Gloom');
+  const withStage2=source.slice();
+  withStage2[0]='Vileplume AOR';
+  const c={...catalog,
+    evolutions:new Map([...catalog.evolutions,
+      ['Vileplume AOR',{stage:2,evolvesFrom:'Gloom'}]])};
+  assert.equal(sourceCouldEvolveBench(v,c,withStage2),true);
+  v.ownHand.push('Vileplume AOR');
+  assert.equal(sourceCouldEvolveBench(v,c,withStage2),false);
+});
