@@ -167,3 +167,31 @@ test('equal linked public root and target ignore different Store dispatch bookke
     status:'different',index:0,firstOrdinal:49,secondOrdinal:49
   });
 });
+
+test('zero target-bearing actions are unobserved even with authenticated roots',()=>{
+  const empty=targetSidecar([]);
+  assert.deepEqual(firstPhysicalTargetDifference(empty,empty),{
+    status:'target-unobserved',reason:'no-target-bearing-root-events'
+  });
+  const authenticated={...empty,rootOrdinalLinked:true};
+  assert.deepEqual(firstPhysicalTargetDifference(authenticated,authenticated),{
+    status:'target-unobserved',reason:'no-target-bearing-root-events'
+  });
+});
+
+test('physical matching ignores transient owner hand positions but not printing',()=>{
+  const left=acceptedEnergy(BENCH,'bench');
+  const right=targetSidecar(left.events.map(row=>({
+    ...row,declared:{...row.declared,handIndex:3}
+  })));
+  assert.notEqual(left.sha256,right.sha256,
+    'The immutable forensic sidecar retains the distinct raw hand positions');
+  assert.deepEqual(firstPhysicalTargetDifference(left,right),{
+    status:'same-observed-targets',observed:1,
+    scope:'Only PlayCardAction and RetreatAction targets'
+  });
+  right.events[0].declared.ownerHandPrinting='Other Energy SVE 99';
+  assert.deepEqual(firstPhysicalTargetDifference(left,right),{
+    status:'different',index:0,firstOrdinal:49,secondOrdinal:49
+  });
+});
