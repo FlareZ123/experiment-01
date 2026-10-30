@@ -6,6 +6,8 @@ const {initializeCards,runMatch}=require('../simulation/twinleaf/headless.cjs');
 const {publicAichiSourceNameIndex,opponentPublicFailedHandNames}=
  require('../simulation/evaluation/agent26-public-mulligan-printing-name-bridge.cjs');
 const manifest=require('../results/aichi-2026/full-decklists.json');
+const {nativePrintingPublicPosterior}=require(
+ '../scripts/agent26-public-mulligan-native-printed-posterior.cjs');
 const {publicFailedHandHistoryPosterior}=require('../scripts/agent26-public-mulligan-fullhistory.cjs');
 test('native opponent-visible invalid seven bridges into exact public names',()=>{
  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
@@ -30,6 +32,10 @@ test('native opponent-visible invalid seven bridges into exact public names',()=
      .startsWith('Iron Thorns ex '));
    assert.deepEqual([...new Set(hands.flat().filter(n=>!original.has(n)))],[]);
    const p=publicFailedHandHistoryPosterior(manifest,hands);
+   const printed=nativePrintingPublicPosterior(
+     manifest,plan,index,receipt.handsByOwner[sourceSeat]);
+   const exactRank6=printed.models.find(x=>x.rank===6).posterior;
+   assert.ok(exactRank6>0,'Actual public printing excluded true source');
    assert.ok(p.models.find(x=>x.rank===6).posterior>0);
    const thorns=p.models.filter(x=>[6,24,29].includes(x.rank));
    const familyMass=thorns.reduce((sum,x)=>sum+x.posterior,0);
@@ -39,6 +45,8 @@ test('native opponent-visible invalid seven bridges into exact public names',()=
      .reduce((sum,x)=>sum+x.posterior,0)/familyMass;
    assert.ok(trueRankGivenActive>0&&fourHammerGivenActive>0);
    rows.push({seed,candidateSeat,sourceRankPosterior:p.models.find(x=>x.rank===6).posterior,
+    exactPrintingSourcePosterior:exactRank6,
+    sourceRankPrintingSupport:printed.possibleSourceRanks.length,
     trueRankGivenPublicActive:trueRankGivenActive,
     fourHammerGivenPublicActive:fourHammerGivenActive,
     sourceMulligans:hands.length,
