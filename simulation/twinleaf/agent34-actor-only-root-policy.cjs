@@ -742,7 +742,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         'Eri reply must originate from the accepted native reveal prompt');
       const {ResolvePromptAction}=deps.promptActions??
         require(path.join(base,'game/store/actions/resolve-prompt-action'));
-      const {SuperType,TrainerType,CardTag}=
+      const {SuperType,TrainerType,CardTag}=deps.eriCardTypes??
         require(path.join(base,'game/store/card/card-types'));
       const decision=require('./agent50-eri-revealed-item-prompt.cjs')
         .resolveEriRevealedItemPrompt(state,seat,pending,
@@ -1010,7 +1010,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         const owner=this.state.players[choice.seat];
         const rival=this.state.players[1-choice.seat];
         const pending=this.state.prompts?.find(p=>p.result===undefined);
-        const {SuperType,TrainerType}=
+        const {SuperType,TrainerType}=deps.eriCardTypes??
           require(path.join(base,'game/store/card/card-types'));
         assert.ok(owner&&rival&&pending&&
           require('./agent50-eri-revealed-item-prompt.cjs')
