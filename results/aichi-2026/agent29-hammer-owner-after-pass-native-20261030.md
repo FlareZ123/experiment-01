@@ -38,6 +38,8 @@ The original archived frozen 32-arm policy had no accepted source Hammer roots. 
 
 ## Exact opening-Hand incidence, with matchup limitations
 
+The broader authenticated source corpus contains **seven of its 29 exact original decklists with Hammers, totaling 18 printed Hammer copies**: rank3 Snorlax Stall (2 Enhanced), rank5 Mew Genesect (1 Enhanced), rank6 Iron Thorns (4 Crushing + 2 Enhanced), rank7 Snorlax Stall (1 Enhanced), rank22 Absol/Garbodor (1 Enhanced), rank24 Iron Thorns (2 Enhanced), and rank29 Iron Thorns (4 Crushing + 1 Enhanced). That count is a printed-inventory coverage measure and excludes all three missing source lists; it does not imply any of the eighteen cards will be useful in a given matchup or reachable in a real game.
+
 The three authenticated Iron Thorns ex-only source decks at ranks **6**, **24** and **29** each contain exactly four Basic Pokémon in a 60-card deck. Their registered Hammer counts are rank6 **4 Crushing + 2 Enhanced**, rank24 **0 Crushing + 2 Enhanced**, rank29 **4 Crushing + 1 Enhanced**. The source first-seven-hand incidence conditioned on a Basic-valid initial seven follows exact hypergeometric sampling, before Prize placement and any optional opponent-mulligan bonus cards.
 
 For `b=4` sole Basics, `h` disjoint specified Hammers and seven draws, the exact probability of holding at least one of those Hammers *conditional on holding any Basic* is:
