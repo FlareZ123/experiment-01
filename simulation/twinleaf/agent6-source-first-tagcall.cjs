@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent6-original-source-first-tag-call-v1';
+const VERSION='agent6-original-source-first-tag-call-v2-k1-thunder-localization';
 
 /**
  * Reversible original Store source-first Tag Call to owner-deck Guzma & Hala.
@@ -43,6 +43,7 @@ function withSourceFirstTagCall(sourceSeat,execute){
     genuineOwnerDeckPromptSelected:false,
     revealedGuzmaHalaAvailable:null,
     ownerSelectedPrintings:[],
+    k1ThunderMountainZones:null,
     realStoreRootAccepted:false,realStorePromptAccepted:false,
     firstOwnTurnTagCallFailure:null,
     hiddenDeckReadBeforeOwnerPrompt:false,
@@ -79,6 +80,26 @@ function withSourceFirstTagCall(sourceSeat,execute){
       }
       // This is the first and only permitted read of the owner's deck
       // contents, since it is now genuinely visible at the Tag Call prompt.
+      // The owner can examine the entire remaining deck only at this
+      // authenticated K1 search. Count the unique source Thunder Mountain
+      // through all other owner-known physical non-Prize zones, without
+      // ever opening or directly inspecting a face-down Prize card.
+      const isThunder=c=>c.name==='Thunder Mountain Prism Star';
+      const count=cards=>cards.filter(isThunder).length;
+      const zones={
+        ownDeck:count(source.deck.cards),
+        ownHand:count(source.hand.cards),
+        ownDiscard:count(source.discard.cards),
+        ownLostZone:count(source.lostzone.cards),
+        ownStadium:count(source.stadium.cards)
+      };
+      audit.k1ThunderMountainZones={
+        ...zones,sourceDeckKnownSingletonCount:1,
+        // Valid only for this authentic source-first original-60
+        // board, and only because card uniqueness is authenticated.
+        inferredPrized: Object.values(zones).every(n=>n===0),
+        directlyInspectedPrizes:false
+      };
       const gh=source.deck.cards.find(c=>c.name==='Guzma & Hala');
       const selected=gh&&pending.validate([gh],state)?[gh]:[];
       if(!pending.validate(selected,state)){
