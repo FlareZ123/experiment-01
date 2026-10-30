@@ -177,6 +177,10 @@ function rootPhysicalSnapshot(state,seat,intent){
       quickBallSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
     }:{}),
+    ...(intent.kind==='play-mysterious-treasure'?{
+      treasureSpent:[...owner.discard.cards,...owner.supporter.cards]
+        .filter(card=>card.fullName===intent.printing).length
+    }:{}),
     ...(['play-stranded-marnie','play-lowhand-lillie',
       'play-conservative-shuffle-supporter','play-carmine-first',
       'play-seeker-recovered-lillie'].includes(intent.kind)?{
@@ -317,6 +321,14 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
     // Native Quick Ball moves into the resolving Trainer zone before the
     // discard/search prompts settle, or into the public discard immediately.
     return after.quickBallSpent>before.quickBallSpent &&
+      after.handCount<before.handCount?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='play-mysterious-treasure'){
+    // This original Item can start a genuine owner-discard prompt. Confirm
+    // its physical public departure without assuming the discard/search
+    // already resolved or using any hidden owner-deck identity.
+    return after.treasureSpent>before.treasureSpent &&
       after.handCount<before.handCount?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
