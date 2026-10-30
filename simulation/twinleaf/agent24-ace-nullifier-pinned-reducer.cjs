@@ -11,6 +11,7 @@ const {Genesect}=load(
 const {Player}=load('game/store/state/player');
 const {State}=load('game/store/state/state');
 const {PlayItemEffect}=load('game/store/effects/play-card-effects');
+const {GameError}=load('game/game-error');
 const {SecretBox}=load(
   'sets/10-scarlet-and-violet/set-twilight-masquerade/secret-box');
 const {CardTag}=load('game/store/card/card-types');
@@ -40,7 +41,7 @@ function reduce(card,player,initial){
     assert.strictEqual(settled,initial);
     return {attempted:true,blocked:false,message:null};
   }catch(error){
-    assert.equal(error.name,'GameError');
+    assert.ok(error instanceof GameError,'Expected native blocked-card GameError');
     return {attempted:true,blocked:true,message:error.message,
       gameErrorCode:error.code??null};
   }
