@@ -1,0 +1,121 @@
+{
+  "schema": "agent29-fresh-hammer-source-opportunity-v1",
+  "registeredUtc": "2026-10-30T00:22:00Z",
+  "owner": "Agent 29",
+  "status": "pre-execution",
+  "purpose": "Unselected independent source rank6 original Store both-seat Hammer OFF/ON development cohort with all attempts retained; probe owner-first non-Pass contention, card availability and physical removal. Never use win labels for competitive inference.",
+  "scope": "Only exact rank6 original 60 vs unchanged champion-reference or New Moon Lockbreaker v1",
+  "cardPool": "paper Expanded original registered 60 with four Crushing Hammer POR and two Enhanced Hammer TWM",
+  "sourceRosterBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "engineGitlink": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenSourceBlobs": {
+    "simulation/twinleaf/agent29-actor-hammer-after-pass.cjs": "1dab84683df559a5192595f9a0ed80a30ff88bac",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "4806b33ccef0d943ea558091b763e89d92e1caeb",
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "30512f0ee80548c3838ea6db16fa71f2cd4849b8",
+    "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "57471ff60a278aa73a21260ee336ba9bbfa1b1b7",
+    "simulation/twinleaf/headless.cjs": "689f245a2e3fca03165a45af317cd5039fe3fbe0"
+  },
+  "seedGeneration": "Four independent uniform uint32 numbers from local Python secrets.randbelow(2**32), drawn 2026-10-30T00:21:21.163739Z before any new-game execution. Shared identical rank/seat/repeat seed within candidate print-list pair; candidate deck permutations can differ.",
+  "seeds": {
+    "0:A": 230254677,
+    "0:B": 4273613518,
+    "1:A": 539622102,
+    "1:B": 1272253909
+  },
+  "frozenOptions": {
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": true,
+    "actorHandDiscard": true,
+    "actorChoosePokemon": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperCologneQuota": false,
+    "sourceFirstRetrospective": false,
+    "registeredTrial": true
+  },
+  "policyTreatments": [
+    "AGENT29_HAMMER_AFTER_PASS_DEV=false",
+    "AGENT29_HAMMER_AFTER_PASS_DEV=true"
+  ],
+  "primaryEndpoints": [
+    "both original 60s and trial IDs unchanged",
+    "source physical deal fingerprint and actual starter seat identical within ON/OFF pair",
+    "actual source-root held-Hammer and native-positive first-owner-turn opportunities",
+    "distinct owner turns with native-positive Hammer at original non-Pass roots",
+    "native accepted Crushing or Enhanced Item roots",
+    "physical opponent Energy discards",
+    "source actual-first/second distribution and failure/exception/cap census"
+  ],
+  "countingRules": "Count raw decision roots and distinct owner turns separately; no identical candidate-pair deal assumption; no exclusion of nonwinning, failed or capped games. Distinct turns keyed by original native Store and actual physical seat.",
+  "attemptsPerTreatment": 8,
+  "totalGames": 16,
+  "maximumRootActions": 260,
+  "qualification": "Original source and experimental both-seat player policies remain strategically unqualified; no official 25-minute match clock; no all-32 field and no competitive win-rate evidence. Source/candidate seat is fixed per trial and start order is determined by actual native draw; no source-first seed filtering.",
+  "trials": [
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 230254677,
+      "id": "6:0:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 230254677,
+      "id": "6:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4273613518,
+      "id": "6:0:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4273613518,
+      "id": "6:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 539622102,
+      "id": "6:1:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 539622102,
+      "id": "6:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1272253909,
+      "id": "6:1:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1272253909,
+      "id": "6:1:B:new-moon-lockbreaker-v1"
+    }
+  ]
+}
