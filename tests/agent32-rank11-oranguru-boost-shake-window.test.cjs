@@ -39,6 +39,28 @@ assert.equal(result.novelK1ResourceSuccessGivenK0.numerator,
   '607205563958181');
 assert.equal(result.novelK1ResourceSuccessGivenK0.denominator,
   '649366551106000');
+assert.equal(result.novelK0KnownNoDeckGarbodorGivenK0.numerator, '7947');
+assert.equal(result.novelK0KnownNoDeckGarbodorGivenK0.denominator, '678650');
+assert.equal(result.novelK0AfterKnownGarbodorFilterConditionalBasicValid.numerator,
+  '2865731');
+assert.equal(result.novelK0AfterKnownGarbodorFilterConditionalBasicValid.denominator,
+  '90433158');
+assert.equal(result.novelK1ResourceSuccessGivenFilteredK0.numerator,
+  '607205563958181');
+assert.equal(result.novelK1ResourceSuccessGivenFilteredK0.denominator,
+  '641762460659320');
+const expectedFailures = {
+  garbodor: ['13462719', '299963300'],
+  trubbish: ['5','442'],
+  vip: ['3','54145'],
+  forest: ['263649','29996330'],
+  float: ['31119','50414000']
+};
+for (const [name, expected] of Object.entries(expectedFailures)) {
+  const actual = result.novelK0MarginalFailureGivenK0[name];
+  assert.deepEqual([actual.numerator,actual.denominator],expected);
+}
+
 // The K0 hand predicate is wholly actor-visible. Only the full K1 outcome
 // is conditioned on the hidden (then unknown) six Prize placements.
 assert.ok(result.novelK1ResourceSuccessGivenK0.decimal < 1);
