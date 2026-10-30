@@ -23,13 +23,17 @@ on:
         description: 'Run all 32 prior preregistered rank6/rank11 native cases with and without Plumeria'
         type: boolean
         default: false
+      agent38_rank6_energy_plumeria_factorial:
+        description: 'Run original rank6 prior-frame 2x2 source Special Energy root and Plumeria with all 64 native arms'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 }}
+    if: ${{ !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -320,5 +324,52 @@ jobs:
             agent41-special-control.json
             agent41-special-bilateral.json
             agent41-special-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent38-rank6-energy-plumeria-factorial:
+    if: ${{ inputs.agent38_rank6_energy_plumeria_factorial }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify frozen original rank6 factorial source audits and all failures
+        run: node --test tests/agent38-rank6-energy-plumeria-factorial-census.test.cjs tests/agent41-prospective-canonical-scout.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-preregistered-32-pair.test.cjs
+      - name: Install original pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native prior-frame sixteen original rank6 base arms
+        run: node simulation/evaluation/agent38-rank6-energy-plumeria-factorial.cjs base > agent38-factorial-base.json
+      - name: Native same-start sixteen Plumeria-only arms
+        run: node simulation/evaluation/agent38-rank6-energy-plumeria-factorial.cjs plumeria > agent38-factorial-plumeria.json
+      - name: Native same-start sixteen source Special Energy root-only arms
+        run: node simulation/evaluation/agent38-rank6-energy-plumeria-factorial.cjs energy > agent38-factorial-energy.json
+      - name: Native same-start sixteen joint source Energy plus Plumeria arms
+        run: node simulation/evaluation/agent38-rank6-energy-plumeria-factorial.cjs energy+plumeria > agent38-factorial-energy-plumeria.json
+      - name: Retain all sixty-four attempts, veto physical mismatches and avoid native winner overclaims
+        run: |
+          node scripts/agent38-rank6-energy-plumeria-factorial-census.cjs agent38-factorial-base.json agent38-factorial-plumeria.json agent38-factorial-energy.json agent38-factorial-energy-plumeria.json > agent38-factorial-complete-census.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent38-factorial-complete-census.json');a.equal(r.registeredNativeArms,64);a.equal(r.fullPhysicalMatches,16);a.equal(r.physicalMismatches,0);a.equal(r.unverifiableStarts,0);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT38_SPECIAL_PLUMERIA_FACTORIAL',JSON.stringify({attempts:r.registeredNativeArms,matched:r.fullPhysicalMatches,energySourceAttackChange:r.sourceSpecialEnergyEffectOnAttackDeclarations,plumeriaWithEnergySettled:r.plumeriaConditionalPhysicalSettlementsWithSpecialEnergy,arms:r.table}));"
+      - name: Save all original native factorial arms and censored outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent38-rank6-special-plumeria-original-16x4
+          path: |
+            agent38-factorial-base.json
+            agent38-factorial-plumeria.json
+            agent38-factorial-energy.json
+            agent38-factorial-energy-plumeria.json
+            agent38-factorial-complete-census.json
           if-no-files-found: warn
           retention-days: 30
