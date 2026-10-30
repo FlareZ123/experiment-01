@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent16-owner-priority-contention-census-v5-contested-special-basic-alternative';
+const VERSION='agent16-owner-priority-contention-census-v6-contested-special-implicit-active-equivalence';
 
 // These ranks mirror the existing first-return order in
 // agent34-actor-only-root-policy.cjs. This is a partial vocabulary,
@@ -123,9 +123,18 @@ function samePhysicalProposal(selected,proposed){
   if(selected.kind==='attack')
     return typeof selected.attackName==='string'&&
       selected.attackName===proposed.attackName;
-  return typeof selected.printing==='string'&&
-    selected.printing.length>0&&selected.printing===proposed.printing&&
-    selected.slot===proposed.slot&&selected.index===proposed.index;
+  if(typeof selected.printing!=='string'||!selected.printing.length||
+     selected.printing!==proposed.printing)return false;
+  if(selected.kind==='attach-basic-energy'||
+     selected.kind==='attach-special-energy'){
+    // The genuine root dispatch defaults omitted recipient metadata to
+    // Active/0. A late numeric Special may omit that metadata while the
+    // early contested branch spells it out. They dispatch the SAME card.
+    const slotA=selected.slot??'active',slotB=proposed.slot??'active';
+    if(slotA!==slotB)return false;
+    return slotA==='active'||selected.index===proposed.index;
+  }
+  return selected.slot===proposed.slot&&selected.index===proposed.index;
 }
 
 /**
