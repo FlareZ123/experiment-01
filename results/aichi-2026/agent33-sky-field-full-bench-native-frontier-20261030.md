@@ -44,3 +44,15 @@ workflow, with the real Store stage behind
 `agent33_sky_field_native`.
 **No new compiled native CI result or tournament win is claimed
 until that exact registered test is executed and inspected.**
+
+
+## Required owner-root action order
+
+The Sky Field proposal runs **immediately after the existing Bench-basic
+opportunity check** and before other optional setup or the printed attack.
+When the five-slot Bench is full, the existing Bench check cannot make a
+move; Sky Field creates three additional null Bench slots. The **next**
+owner root sees those slots and prioritizes the held Basic naturally.
+Placing Sky Field only after all attack choices would never execute the
+intended two-root line on attack-ready turns. This earlier location is
+deliberate and does not alter any existing behavior with the option OFF.

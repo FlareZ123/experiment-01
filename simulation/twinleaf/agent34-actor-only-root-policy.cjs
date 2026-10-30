@@ -107,6 +107,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       return first;
     }
   }
+  // Sky Field must be placed before an attack: the next owner root can
+  // legally Bench the extra held Basic in the newly created sixth slot.
+  // This is a separate default-off action, with no Stadium replacement.
+  if(options.skyFieldBenchExpansion===true){
+    const sky=require('./agent33-sky-field-bench-expansion.cjs')
+      .chooseSkyFieldBenchExpansion(view,catalog);
+    if(sky)return sky;
+  }
   if(options.naturalEvolutionRoot===true){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog);
@@ -391,11 +399,6 @@ function chooseActorRootIntent(view,catalog,options={}){
     const ceremony=require('./agent33-players-ceremony-lastchance.cjs')
       .choosePlayersCeremonyLastChance(view);
     if(ceremony)return ceremony;
-  }
-  if(options.skyFieldBenchExpansion===true){
-    const sky=require('./agent33-sky-field-bench-expansion.cjs')
-      .chooseSkyFieldBenchExpansion(view,catalog);
-    if(sky)return sky;
   }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
