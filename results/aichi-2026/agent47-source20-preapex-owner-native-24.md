@@ -106,6 +106,57 @@ actual expected-value judgment would still need the exact
 printed candidate names, card preservation costs, connector
 lineage, and the following native opponent response.
 
+## Exact source-60 opening co-holding ceiling check, no game claim
+
+The original rank20 sixty contains four `Regidrago V SIT`,
+five singleton Dragon attack-donor printings
+(`Dialga-GX`, `Dragapult ex`, `Mega Dragonite ex`,
+`Noivern ex`, `Kyurem`), four Quick Ball and three
+Mysterious Treasure. Both one-card-discard Items can
+**theoretically** pay a donor card while searching a
+Pokémon, so the intended early donor line has two tasks
+that might be satisfied by one Item. This is contingent
+on the target Pokémon being legal and available, and
+the actual player's board/hand.
+
+An **exact opening-seven co-holding calculation**, without
+any game or card-text inference, asks how often a
+uniform 7-card initial hand contains at least one
+Regidrago V, at least one of those five donors, and
+at least one Quick Ball or Mysterious Treasure.
+The disjoint category counts in the original sixty
+are `(V, donor, connector, other)=(4,5,7,44)`.
+The exact numerator is **34,202,903** of
+`C(60,7)=386,206,920` equally likely hands,
+so the initial seven co-holding probability is
+**8.856108%**. If both Ultra Ball copies count as
+potential connectors (with an additional two-card
+payment requirement), the corresponding
+`(4,5,9,42)` co-holding numerator is
+**40,799,646**, or **10.564193%**.
+
+Both figures were computed by the multivariate
+hypergeometric sum
+`sum_{v>=1,d>=1,i>=1,v+d+i<=7}
+C(4,v)C(5,d)C(I,i)C(60-4-5-I,7-v-d-i)/C(60,7)`,
+where `I=7` or `9`. The chosen Regidrago is
+a Basic in that hand, so this particular event
+guarantees a Basic opening but says nothing
+about turn order, future draws, any Item lock,
+whether a search target is actually in deck,
+whether the donor is expendable, or the value
+of forgoing the alternative discard. These
+are **co-holding frequencies**, neither a
+lower nor upper bound on actual legal
+early-discard decisions or wins.
+
+The real experiment's six native legal prompt
+opportunities remain the more meaningful
+decision-stage denominator. A candidate may
+have every opening ingredient and still choose
+a different line because the connector is
+dominated by another resource goal.
+
 ## Decision consequence
 
 The earlier **zero-intervention** direct-ready result accurately
