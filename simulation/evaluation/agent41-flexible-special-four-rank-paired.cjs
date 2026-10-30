@@ -85,10 +85,13 @@ function prepare(){
  *
  * @param {object} trial
  * @param {object} prepared
- * @param {boolean} treated Enable owner-public flexible Special Energy.
+ * @param {boolean} treated Enable owner-public flexible Special Energy, or
+ *   the immediate Special-over-Basic contest in the registered third profile.
+ * @param {'public-context'|'contest'} [mode] Preregistered factorial.
  * @returns {object}
  */
-function runOne(trial,prepared,treated){
+function runOne(trial,prepared,treated,mode='public-context'){
+  assert.ok(['public-context','contest'].includes(mode));
   const candidate=prepared.plan.candidate.cards;
   const source=prepared.plan.opponents.find(deck=>deck.rank===trial.rank).cards;
   const candidateSeat=trial.candidateSlot==='A'?0:1;
@@ -98,7 +101,7 @@ function runOne(trial,prepared,treated){
   const request={
     ...prepared.originalFlags,
     deckA,deckB,seed:trial.seed,maxActions:260,
-    label:VERSION+'-'+trial.id+'-'+(treated?'treatment':'control'),
+    label:VERSION+'-'+mode+'-'+trial.id+'-'+(treated?'treatment':'control'),
     mandatoryOptionFallback:true,
     enforceSelectOptionLegality:true,
     enforceVisiblePlayLockBothSeats:true,
@@ -130,7 +133,8 @@ function runOne(trial,prepared,treated){
   };
   const actor=withCanonicalActorOnlyPolicy(core,{
     root:work=>withActorOnlyRootPolicy(work,{
-      publicContextSpecialEnergy:treated,
+      publicContextSpecialEnergy:mode==='contest'||treated,
+      publicFlexibleEnergyContest:mode==='contest'&&treated,
       specialEnergyRoot:false,specialEnergyRootOwnerSeat:null,
       beforeAttackDenial:false,terminalArbitration:false,
       teamFlareGruntDenialRoot:false,
@@ -159,11 +163,14 @@ function runOne(trial,prepared,treated){
   const root=actor.audit.detailedComponentAudits?.root;
   assert.ok(root);
   assert.equal(root.actualGamesSeen,1);
-  assert.equal(root.publicContextSpecialEnergyOptIn,treated);
+  assert.equal(root.publicContextSpecialEnergyOptIn,
+    mode==='contest'||treated);
+  assert.equal(root.publicFlexibleEnergyContestOptIn===true,
+    mode==='contest'&&treated);
   assert.equal(actor.audit.qualification.competitiveGames,0);
   return {
     status:game.finished?'native-terminal-unqualified':'native-capped-unqualified',
-    trial,treated,candidateSeat,sourceSeat,
+    trial,treated,mode,candidateSeat,sourceSeat,
     initialSourceDealSha256:game.initialSourceDealFingerprint?.digestSha256??null,
     initialFullDealSha256:game.initialFullPhysicalDealFingerprint?.digestSha256??null,
     candidateSixtySha256:digest(candidate),
@@ -249,16 +256,17 @@ function compare(a,b){
  * @param {object} prepared
  * @param {boolean} treated
  * @param {Function} [runner]
+ * @param {'public-context'|'contest'} [mode]
  * @returns {object}
  */
-function attempt(trial,prepared,treated,runner=runOne){
-  try{return runner(trial,prepared,treated);}
+function attempt(trial,prepared,treated,runner=runOne,mode='public-context'){
+  try{return runner(trial,prepared,treated,mode);}
   catch(error){
     const {error:message,nativeAbortEvidence, nativeStoreCauseStack}=
       require('../twinleaf/native-dispatch-abort-evidence.cjs')
         .publicNativeAbortError(error);
     return {
-      trial,treated,status:'native-error-unqualified',
+      trial,treated,mode,status:'native-error-unqualified',
       error:message,nativeStoreCauseStack,
       nativeAbortEvidence,
       nativeTargetAbort:
@@ -275,18 +283,25 @@ function attempt(trial,prepared,treated,runner=runOne){
 
 /** @param {{rank?:number}} [options] @returns {object} */
 function runStudy(options={}){
+  const mode=options.mode??'public-context';
+  assert.ok(['public-context','contest'].includes(mode));
   const prepared=prepare();
   const selected=options.rank===undefined?prepared.trials:
     prepared.trials.filter(trial=>trial.rank===options.rank);
   assert.ok(selected.length>0,'No preregistered original source');
   const rows=selected.map(trial=>{
-    const control=attempt(trial,prepared,false);
-    const treatment=attempt(trial,prepared,true);
+    const control=attempt(trial,prepared,false,runOne,mode);
+    const treatment=attempt(trial,prepared,true,runOne,mode);
     return {trial,comparison:compare(control,treatment),control,treatment};
   });
   const comparisons=rows.map(row=>row.comparison);
   return {
-    schema:VERSION,registration:REGISTRATION,
+    schema:VERSION+'-'+mode,
+    registration:mode==='contest'?
+      'results/aichi-2026/registrations/'+
+        'agent41-flexible-energy-contest-r4-r10-r12-r17-20261030.json':
+      REGISTRATION,
+    comparisonMode:mode,
     fieldSource:prepared.source.source,
     candidate:'unmodified original rank1 Shadow Rider full 60',
     opponentRanks:[...new Set(selected.map(trial=>trial.rank))],
@@ -310,6 +325,7 @@ function runStudy(options={}){
 if(require.main===module){
   const rank=process.env.AGENT41_FLEXIBLE_SPECIAL_RANK?
     Number(process.env.AGENT41_FLEXIBLE_SPECIAL_RANK):undefined;
-  process.stdout.write(JSON.stringify(runStudy({rank}),null,2)+'\n');
+  const mode=process.env.AGENT41_FLEXIBLE_SPECIAL_STUDY??'public-context';
+  process.stdout.write(JSON.stringify(runStudy({rank,mode}),null,2)+'\n');
 }
 module.exports={VERSION,REGISTRATION,prepare,runOne,attempt,compare,runStudy};
