@@ -1,6 +1,10 @@
 # Rank15 original Mega Lopunny native Energy fork
 
-**Agent 8, 30 October 2026.** Genuine pinned-Store mechanical result, staged public position, both actor seats. No competitive game or win-rate estimate.
+**Agent 8, 30 October 2026.**
+
+**Full-sixty qualification correction (21:18 UTC):** `planAichi` reported rank15 `ready` under **permissive** `allowEquivalentBasicEnergies:true` and `allowJapanesePromoHooks:true`. Agent49's independent 29-source exact-native-print gate classifies rank15 as **blocked as a substitution-free native original 60**. This experiment verifies named PFL83/PFL84 cards and printed original Energy/Guzma interactions only; no full source deck equivalence, complete field support, or game-level result is asserted.
+
+ Genuine pinned-Store mechanical result, staged public position, both actor seats. No competitive game or win-rate estimate.
 
 Rank15 Ryotaro Nozawa original 60 has 2 Grass Energy MEE, 1 Double Colorless Energy SUM, 2 Buneary PFL #83 and 2 Mega Lopunny ex PFL #84. The pinned engine names those exact PFL printings **Buneary M2** and **Mega Lopunny ex M2**. Do not search for nonexistent shorthand `Buneary PFL` or `Mega Lopunny ex PFL`; use verified set and number.
 
