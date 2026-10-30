@@ -71,6 +71,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress exact printed native card/Ability registry without false effect claims
+        run: node --test tests/agent24-ace-nullifier-native-coverage.test.cjs
       - name: Exact prize-aware first-eight Spiritomb versus Tool-dependent Genesect availability
         run: node --test tests/agent24-ace-nullifier-opening-frontier.test.cjs
       - name: Audit Spiritomb ACE SPEC lock potential across exact 29 printed original source sixties
@@ -500,6 +502,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Inspect actual pinned native Spiritomb LTR and Genesect SFA CardManager print and Ability coverage
+        run: node simulation/twinleaf/agent24-ace-nullifier-native-coverage.cjs > agent24-ace-native.json
       - name: Verify two native 59-card releases fail closed and conserved original Store case passes
         run: node simulation/twinleaf/agent24-physical-release-original-store-threecase.cjs > agent24-original-physical-native.json
       - name: Archive actual three-case native custody receipts without game-win claims
@@ -507,6 +511,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent24-threecase-original-physical-native
-          path: agent24-original-physical-native.json
+          path: |
+            agent24-original-physical-native.json
+            agent24-ace-native.json
           if-no-files-found: warn
           retention-days: 15
