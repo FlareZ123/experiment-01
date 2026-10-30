@@ -23,3 +23,26 @@ The current field remains **29/32 original exact 60-card lists** (ranks 23, 25, 
 ## Integration next step
 
 The canonical integration owner can attach a release packet after an actual pinned Store run using `auditSourcePrintings(sourceManifest, reportCoverage(sourceManifest), planAichi(...))` inputs and a frozen required native-fixture list. Preserve all skipped and unexecuted tests as machine-readable negative cells. A future integrated release must independently supply actual owner-root and prompt ledgers, action acceptance, settled effects, later own-root continuation, and opponent response. Do not infer those fields from a green workflow status.
+
+## Actual pinned CardManager 29-source census (completed)
+
+The manual-only `native_print_release_census` arm was added to the **existing** [card-audit workflow](../../.github/workflows/aichi-card-audit.yml). Its [native script](../../simulation/evaluation/agent49-pinned-source-print-census.cjs) compiles the genuinely pinned Twinleaf server source, resolves the original frozen Aichi 60s with separately named native proxy permissions, and archives every source card/print and native resolution state. It performs **no gameplay**.
+
+[First complete native run 41128693983](https://github.com/FlareZ123/experiment-01/actions/runs/41128693983) compiled pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and recorded **29 published original source 60s / 1,740 physical original card copies**, plus absent ranks 23, 25, 28. Among 1,740 original copies, pinned CardManager catalog had **1,602 exact name+set+number matches, 12 uniquely resolved Prism-glyph aliases, and 126 unsupported or ambiguous original print copies**. Under the deliberately strict **exact native ID, no substitution** condition, rank **5** is the only currently complete published opponent 60; the other 28 need explicitly tracked source-print remapping or disambiguation. This is a printing-fidelity result. A native proxy-deck may still be executable after transparent, paper-appropriate substitutions.
+
+[Independent round-trip run 41128979521](https://github.com/FlareZ123/experiment-01/actions/runs/41128979521) invoked `manager.getCardByName(nativeFullName)` on all exact catalog rows. Of **989 distinct original-printing rows**, **949** returned the correct name, set and normalized collector number; **40** lacked an unambiguous exact original native ID. The audit found no wrong-print or missing-ID lookup among those 949. It does **not** certify printed attack or Trainer behavior.
+
+[Classification run 41129391357](https://github.com/FlareZ123/experiment-01/actions/runs/41129391357) separately classified all **126 nonexact original card copies** with **zero other categories**:
+
+| Native-exact-print blocker | Original physical copies | Why separated |
+| --- | ---: | --- |
+| `MEE` basic Energy printed-number/identifier differences | **120** | Printed basic Energy same-name equivalence may be established separately under the Energy rules; currently still flagged as a changed printing |
+| `Player's Ceremony` `SP #127` | **5** | Japanese promo absent in upstream, requires research-owned implementation hook and separate behavioral verification |
+| `Electrike` `PRC #60` | **1** | Catalog has ambiguous same-print variants; the Omega Barrier ancient-trait variant must be discriminated, not silently picked |
+| **Total** | **126** | Full partition of all unsupported/ambiguous catalog copies |
+
+The actual original rank-15 source `Buneary PFL #83` and `Mega Lopunny ex PFL #84` are discoverable in the pinned catalog through native lookup names **`Buneary M2`** and **`Mega Lopunny ex M2`**; the strict name+set+number reverse lookup passed. Thus a native test searching literal `Buneary PFL` can skip due to a namespace alias even though the printed-definition candidate exists. Separate native Store action acceptance and effect-settlement tests remain necessary.
+
+The complete machine-readable rank-by-rank and printing-by-printing [compiled artifact 13012676225](https://github.com/FlareZ123/experiment-01/actions/runs/41129391357/artifacts/13012676225) includes negative rows, modifying identifiers, mechanism-unverified flags and the exact pin. The all-ranks receipt must not be treated as 29 verified native gameplay implementations. The status remains **29/32 authentic original sixties and zero competitively qualified games**.
+
+A subsequent `evaluateRelease` safety change ensures it **never labels a native-printing audit as a competitive-qualified game**. Clearing its printing and fixture prerequisites yields only `nativePrintingReleaseGatePassed`; an independently adjudicated actual game is required to claim any win. The extra pure regression explicitly verifies this even with all synthetic structural flags set.
