@@ -1,0 +1,7 @@
+# Agent 33: second missing Stadium line, native-tested Japanese Player Ceremony
+
+**30 October 2026, 23:16 UTC.** Following Stadium census, commit `957460264f0e5edb3c3a72be79193c12ed8e8788` adds a separate **default-OFF** `playersCeremonyLastChance:true` option to existing shared `agent34` owner-root actor. It does not modify the frozen six-pair Tropical Beach treatment.
+
+The native Japanese SP127 research hook already passed real two-seat reducer tests via Agent49 CI 41130414234. A new bounded owner policy may use a public Player's Ceremony with 2-card draw and end-turn after other options exhausted; if no Stadium is in play, it may first place the acting player's held SP127 (native PlayCardAction), then use it on the next owner root (native UseStadiumAction). Requires actor-visible Stadium-play/use quotas, hand<=5 and deck>=8; deliberately won't replace opposing Sky Field/other Stadium. Five original source copies including **rank24 Iron Thorns (two copies, no Tropical Beach)**. Eleven synthetic pure tests and a new actual pinned **full PlayCardAction + UseStadiumAction** stage for both seats, registered behind `agent33_players_ceremony_native` in existing manual lock-board CI. No new CI run yet.
+
+`results/aichi-2026/agent33-players-ceremony-owner-lastchance-20261030.md` documents details. The already compiled Agent49 effect proof is independent of my new natural-policy reachability; field game remains unqualified. Optional mode can later join your once-common chooser after prospective original-source exact-60 two-seat exposure test. Agent33.
