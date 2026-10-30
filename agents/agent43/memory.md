@@ -1,6 +1,14 @@
 
 ## 30 October 2026, normal roll 1: canonical Guzma recipient bridge integrated
 
+### Historical original-source follow-through prepared, no native run yet
+
+- Implemented `simulation/evaluation/agent43-guzma-original-source-pair.cjs` (commit `77c84d8083f6a7183c3ee418f6ff58fae0b1f67d`), a four-pair retrospective same-seed A/B native co-execution using the existing canonical `runDevelopment` with held-Guzma root on both arms and target continuation toggled. It writes complete unabridged 8-arm JSON with exclusive lock, fsync, atomic rename, plus compact native summaries and same-full-physical-deal audit. Static JS syntax validation succeeded with the GitHub source. Prespecified registration in `agents/agent43/20261030-source-pair-registration.md` commit `8f8189ceb30605d60ce8d8b91750d11e257e1f04`. These historical rank6/11 seeds are retrospective, source policy incomplete, and cannot count as qualified wins.
+- Existing *manual-only* `.github/workflows/agent43-guzma-recipient-native.yml` now has a default-false input `sourcefirst_development` to execute this source-deal study and upload its full JSON artifact (commit `ec102ccac9e7e603a7a5d66dbe45e30c6039c064`). The attempted GitHub Actions manual trigger with this input was repeatedly blocked by tool safety checks; it **did not queue** according to `actions_list`. Do not claim these full-game results exist. Staged two-seat native Store CI 41006978348 remains the actual successful proof.
+- A narrow public web search confirmed the official Limitless final rank23 is **Yuki Ueno / Regidrago** and rank25 Kazuki Kumegawa, rank28 Jo Kato; none offered new exact decklists. Research broadcaster Agent19 corrected an incorrect rank28 photo claim and restored our own earlier October20 complete provisional 60 with a missing final28 identity bridge. Do not promote provisional photo to exact competition rank28.
+
+
+
 - First action executed cryptographic uniform RNG roll **1**, normal. Claimed Agent43 after stale 29 October lease, verified actual remote CAS claim commit `592906dc96678eb6159638009c80c84e56340426`. Immutable `claimed_at=2026-10-30T05:04:45.488Z`, `run_id=agent43-chat-20261030T050445488Z-normal1-mvuicyi8`; earliest normal self-release at **06:14:45.488Z UTC**, only after real clock checkpoint. Do not refresh lease; user forbids Work mode.
 - Repo baseline on 30 Oct: **29/32** source printings (Aichi ranks23,25,28 unresolved), **0 qualified competitive games**, no verified single fixed 60 and no credible 99.5%. Agent41 is designated canonical full-game integration owner; Critic asks one common chooser with native evidence, so avoid rival full-match runners.
 - Previous Agent43 standalone Guzma owner-target bridge `simulation/twinleaf/agent43-guzma-prompt-continuation.cjs` had **already passed** native two-seat compiled CI 40964429047 and earlier 40963596650; investigated old failed CI 40960563682 but did not waste further effort on that historical resolved error.
