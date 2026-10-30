@@ -7,6 +7,8 @@ const {auditPlumeriaHandCosts} =
   require('../simulation/evaluation/agent25-plumeria-native-hand-cost.cjs');
 const {auditPlumeriaNextTurns} =
   require('../simulation/evaluation/agent25-plumeria-next-turn-response.cjs');
+const {auditPlumeriaGetLost} =
+  require('../simulation/evaluation/agent25-plumeria-getlost-resource-exposure.cjs');
 
 const VERSION = 'agent25-physical-denial-full-chain-frozen-artifact-v1';
 const FROZEN_TREATMENT_SHA256 =
@@ -44,6 +46,7 @@ function auditFrozenPhysicalDenial(bytes) {
   const archive = parseFrozenTreatment(bytes);
   const costs = auditPlumeriaHandCosts(archive);
   const nextTurns = auditPlumeriaNextTurns(archive);
+  const getLost = auditPlumeriaGetLost(archive);
   assert.equal(costs.settledPlumeriaChains,27);
   assert.equal(costs.nativePromptCardSelections,54);
   assert.equal(costs.selectedHammerCards,7);
@@ -56,11 +59,19 @@ function auditFrozenPhysicalDenial(bytes) {
   assert.equal(nextTurns.nextOpponentWithSettledAttack,9);
   assert.equal(nextTurns.nextSourcePassOnly,24);
   assert.equal(nextTurns.competitiveQualifiedGames,0);
+  assert.equal(getLost.nextOpponentFullySettledGetLost,5);
+  assert.equal(getLost.chosenOpponentDiscardCardPrintings,10);
+  assert.equal(getLost.printingInstancesMatchingImmediatePlumeriaPayment,8);
+  assert.equal(getLost.fullTwoPaymentPrintingMatches,3);
+  assert.equal(getLost.fullTwoWithExactlyThreeDiscardCards,3);
+  assert.equal(getLost.oneOfTwoPaymentPrintingMatches,2);
+  assert.equal(getLost.nativeGetLostPromptsAllowCancel,5);
+  assert.equal(getLost.competitiveQualifiedGames,0);
   return {version:VERSION,sourceArtifactJsonSha256:FROZEN_TREATMENT_SHA256,
     enginePin:ENGINE_PIN,
     originalArms:archive.registeredAttempts,
     originalRank6Arms:costs.sourceRank6Games,
-    costs, nextTurns,
+    costs, nextTurns, getLost,
     competitiveQualifiedGames:0,
     caveat:'Exact original pinned native game audit, developmental and post-selected; no native Hammer-first branch, no full-field competence or game win inference.'};
 }
