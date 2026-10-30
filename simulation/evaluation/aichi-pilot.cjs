@@ -6,7 +6,7 @@ const { createHash } = require('node:crypto');
 const { runMatch } = require('../twinleaf/headless.cjs');
 const { resolveManifest } = require('../twinleaf/resolve-field.cjs');
 const { evaluatePlan } = require('./field-benchmark.cjs');
-const { attestField } = require('./agent13-source-identity-gate.cjs');
+const { attestField, attestNativePlan } = require('./agent13-source-identity-gate.cjs');
 
 const MANIFEST_PATH = path.resolve(__dirname, '../../results/aichi-2026/full-decklists.json');
 
@@ -69,7 +69,10 @@ function planAichi(candidate = 1, options = {}) {
       });
     }
   }
+  const originalSourceIdentity=attestNativePlan(
+    {opponents,sourceDeckCount:source.decks.length},source,fieldCsv);
   return {
+    originalSourceIdentity,
     source: source.source, engineRevision: imported.engineRevision,
     manifestDigest: digest(source), candidateRank: custom ? null : candidateRank,
     candidateLabel: custom ? candidate.label || 'fixed custom deck' : candidateSource.player,
