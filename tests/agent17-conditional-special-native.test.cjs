@@ -198,7 +198,10 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
     const stadium=card('Thunder Mountain Prism Star LOT');
     const doubleColorless=()=>card('Double Colorless Energy SUM');
     owner.stadium.cards.push(stadium);
-    owner.active.energies.cards.push(doubleColorless());
+    // Use only printed rank6 quantities: three of four Speed Lightning
+    // (two Active and one in hand) and its single DCE on the Bench.
+    owner.active.energies.cards.push(card('Speed Lightning Energy RCL'),
+      card('Speed Lightning Energy RCL'));
     owner.bench[0].cards.push(card('Iron Thorns ex TWM'));
     owner.bench[0].energies.cards.push(doubleColorless());
     const v=actorObservation(state,seat);
