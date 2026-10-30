@@ -1,0 +1,83 @@
+{
+  "schema": "agent6-preregistered-retrospective-prized-thunder-deferred-dce-speed-2x2-v1",
+  "createdAtUtc": "2026-10-30T20:31:00Z",
+  "selection": "Mechanics-specific RETROSPECTIVE reuse of published Agent6 source-first six physical owner-deal cohort; deal 2341469307 known to have Thunder Mountain Prized at native K1 Tag Call, not a fresh or unbiased draw",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "sourcePrinting": "exact published 2026 Aichi rank6 Iron Thorns sixty",
+  "candidatePrinting": "exact published 2026 Aichi rank1 Shadow Rider sixty",
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "forcedFirst": "source-first by genuine GO_FIRST prompt with frozen per-seat choices; opponent first-turn coin itself remains genuine",
+  "exactOriginalSeedsBySourceSeat": [
+    {
+      "sourceSeat": 0,
+      "seeds": [
+        2341469307,
+        531384326
+      ]
+    },
+    {
+      "sourceSeat": 1,
+      "seeds": [
+        2411836147
+      ]
+    }
+  ],
+  "arms": [
+    {
+      "stageDceFirstTurn": false,
+      "k1PrizedThunderSpeedFallback": false
+    },
+    {
+      "stageDceFirstTurn": true,
+      "k1PrizedThunderSpeedFallback": false
+    },
+    {
+      "stageDceFirstTurn": false,
+      "k1PrizedThunderSpeedFallback": true
+    },
+    {
+      "stageDceFirstTurn": true,
+      "k1PrizedThunderSpeedFallback": true
+    }
+  ],
+  "shared": {
+    "stageSpeedLightningFirstTurn": false,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "k1ReplanAfterTagCall": true,
+    "conditionalTagCallPayment": false,
+    "maxActions": 110,
+    "strictPromptValidation": true,
+    "ownerInfoRule": "no Prize/deck contents used to choose: K0 DCE from actual owner hand; K1 alternate Speed only after genuine source Tag Call owner-deck ChooseCardsPrompt",
+    "sourceTurn3BroadAttackTurn": 3,
+    "sourceFirstTurnTagCallScript": false,
+    "commonActorPolicy": true,
+    "sameDecksAllArms": true,
+    "sourceFullDealDigestRequired": true
+  },
+  "primaryMechanic": {
+    "selectedSeed": 2341469307,
+    "priorKnownOwnerT1Hand": [
+      "Tag Call CEC",
+      "Double Colorless Energy SUM",
+      "Capture Energy RCL",
+      "Spiky Energy JTG",
+      "Plumeria BUS x2",
+      "Lusamine CIN"
+    ],
+    "priorKnownOwnerK1": "Thunder Mountain Prism Star inferred Prized via genuine Tag Call owner-deck search, no direct Prize read",
+    "hypothesis": "Source T1 DCE stage then T3 genuine Tag Call -> Guzma & Hala optional 2-card payment -> searchable Speed Lightning Energy -> attach active -> Volt Cyclone despite missing Thunder Mountain",
+    "failureSignatures": [
+      "genuine source DCE T1 root not accepted",
+      "source Tag Call K1 not authenticated",
+      "no 2 discard payment cards",
+      "Speed not searchable or cannot attach under native prompt",
+      "native attack not declared",
+      "native attack effect/Prize not settled",
+      "opponent action breaks staged DCE"
+    ]
+  },
+  "outcomes": "Full attempted arms and original engine errors, same actual source initial deal, native root/owner prompt sequence, DCE and Speed physical attachments, T3 settled attack, Prize change and first opponent follow-up; 0 competitive win-rate qualification",
+  "statistics": "Exploratory paired native mechanics only. No field win-rate estimate or out-of-sample probability."
+}
