@@ -439,4 +439,4 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Retain precommitted three-seed both-seat real-Store reveal observer noninterference
-        run: node --test tests/public-mulligan-reveal-observer.pinned.test.cjs tests/agent26-public-mulligan-native-bridge.pinned.test.cjs
+        run: node --test tests/public-mulligan-reveal-observer.pinned.test.cjs tests/agent26-public-mulligan-native-bridge.pinned.test.cjs tests/agent26-all29-native-public-name-parity.pinned.test.cjs
