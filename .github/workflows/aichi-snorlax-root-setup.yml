@@ -2,6 +2,12 @@ name: Aichi Snorlax authentic setup root probe
 
 on:
   workflow_dispatch:
+    inputs:
+      native_only:
+        description: 'Skip repeated source cohorts when testing focused native threat fixtures'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,10 +40,12 @@ jobs:
       - name: Validate registered source Bench preservation protocol
         run: node --test tests/snorlax-bench-preservation-prospective.test.cjs
       - name: Execute preregistered two-arm source-dealt Bench policy probe
+        if: ${{ !inputs.native_only }}
         run: node simulation/twinleaf/snorlax-bench-preservation-prospective.cjs > aichi-snorlax-bench-prospective.json
       - name: Verify source-visible Energy Bench policy
         run: node --test tests/snorlax-threat-aware-bench.test.cjs tests/snorlax-threat-aware-prospective.test.cjs
       - name: Run fresh preregistered source-policy treatment cohort
+        if: ${{ !inputs.native_only }}
         run: node simulation/twinleaf/snorlax-threat-aware-prospective.cjs > aichi-snorlax-threat-aware-prospective.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
