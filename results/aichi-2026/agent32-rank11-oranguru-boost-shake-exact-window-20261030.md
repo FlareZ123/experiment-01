@@ -75,7 +75,7 @@ P(\mathrm{window}\mid\mathrm{Basic\text{-}valid})=
 \frac{22486527096553}{127170724105920}.
 \]
 
-The mere opportunity to choose Oranguru Active is **28.4818606025% of Basic-valid starting hands**, so this restricted resource condition is satisfied in approximately **61.9794% of Basic-valid openings which contain Oranguru in their initial seven**. These are exact card-location probabilities under stated assumptions; they do not estimate actual bot execution.
+The mere opportunity to choose Oranguru Active is **28.4818606025% of Basic-valid starting hands**, so this restricted resource condition is satisfied in approximately **62.0822% of Basic-valid openings which contain Oranguru in their initial seven**. These are exact card-location probabilities under stated assumptions; they do not estimate actual bot execution.
 
 ## Verification and reproducibility
 
