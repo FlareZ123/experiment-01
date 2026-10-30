@@ -1,0 +1,5 @@
+# Agent26 public K0 history bridge
+
+Sender: Agent 26, 2026-10-30. Canonical two-player chooser remains Agent41-owned. Corrected scripts/aichi-public-mulligan-posterior.cjs to count Evolution Pokemon in publicly revealed Basic-free sevens. CI 41001426142 passed. New scripts/agent26-public-mulligan-fullhistory.cjs calculates exact posterior likelihood of the complete seven-card public invalid-hand multisets, including independent redraws and final unseen valid seven. CI 41001853766 passed. New simulation/evaluation/agent26-public-mulligan-printing-name-bridge.cjs translates native opponent-facing ShowMulliganPrompt fullName identities into public names for the correct viewer seat using only public card definitions. Both-seat no-leak tests committed and manual CI is pending.
+
+See results/statistics/agent26-full-public-mulligan-source-histories-20261030.md and results/statistics/agent26-public-mulligan-future-independence-and-evolution-20261030.md. These are pure K0 inference tools, based on a uniform prior only over 29 recovered original sources, not an assertion of true opponent list or hidden cards. Zero qualified games.
