@@ -25,19 +25,19 @@ function run(){
     'agent6-original-volt-attach-energy-prompt-corrected-owner-six-arm-v1');
   const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),'utf8'));
-  const champion=roster.decks.find(d=>d.rank===reg.originalCandidateRank);
+  const champion=roster.decks.find(d=>d.rank===reg.inputOriginalCandidateRank);
   assert.ok(champion);
   const plan=planAichi({label:'champion-reference',cards:champion.cards},{
     allowEquivalentBasicEnergies:true,allowBasicEnergyMirrorPrintings:true,
     allowJapanesePromoHooks:true
   });
-  const source=plan.opponents.find(x=>x.rank===reg.originalSourceRank);
+  const source=plan.opponents.find(x=>x.rank===reg.inputOriginalSourceRank);
   assert.equal(source?.status,'ready');
-  const {selectedSourceSeat:seat,selectedSeed:seed}=reg;
+  const {sourceSeat:seat,sourcefirstSeed:seed}=reg;
   assert.equal(seat,0);
   const request={
     deckA:source.cards,deckB:plan.candidate.cards,seed,
-    maxActions:reg.common.maxActions,strictPromptValidation:true,
+    maxActions:reg.frozen.maxNativeRoots,strictPromptValidation:true,
     captureDecisionTrace:true,capturePublicAttackTransitions:true,
     captureInitialSourceDealFingerprintSeat:seat,captureStartingBoard:true
   };
