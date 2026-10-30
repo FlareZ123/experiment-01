@@ -47,7 +47,7 @@ for(const seat of [0,1]){
       assert.strictEqual(first.cards,x.owner.hand);
       const fakeBot={client:{id:x.owner.id}};
       const firstAction=SimpleTacticsAi.prototype.decodeNextAction.call(
-        fakeBot,x.state);
+        fakeBot,x.store.state);
       assert.ok(firstAction instanceof ResolvePromptAction);
       assert.equal(firstAction.id,first.id);
       x.store.dispatch(firstAction);
@@ -55,7 +55,7 @@ for(const seat of [0,1]){
       assert.equal(second?.constructor?.name,'ChooseCardsPrompt');
       assert.strictEqual(second.cards,x.owner.deck);
       const secondAction=SimpleTacticsAi.prototype.decodeNextAction.call(
-        fakeBot,x.state);
+        fakeBot,x.store.state);
       assert.ok(secondAction instanceof ResolvePromptAction);
       assert.equal(secondAction.id,second.id);
       x.store.dispatch(secondAction);
