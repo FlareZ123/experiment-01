@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent32_rank11_original_bench_eight:
+        description: 'Retrospective 8 registered rank11 source K0 original Bench observations, no game continuation'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -40,6 +45,18 @@ jobs:
         run: npm run compile
       - name: Unit-test detached owner-only Tool candidate frontier
         run: node --test tests/agent18-actor-tool-candidate-frontier.test.cjs
+      - name: Pure test precommitted eight-source K0 native Bench classifier
+        run: node tests/agent32-rank11-eight-k0-bench-native.test.cjs
+      - name: Optional frozen rank11 original-source first-K0 Bench witness
+        if: inputs.agent32_rank11_original_bench_eight
+        run: node simulation/twinleaf/agent32-rank11-eight-k0-bench-native.cjs > agent32-rank11-original-eight-firstbench.json
+      - name: Preserve complete original eight-K0 Bench witness and blockers
+        if: inputs.agent32_rank11_original_bench_eight && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent32-original-rank11-eight-firstbench
+          path: agent32-rank11-original-eight-firstbench.json
+          if-no-files-found: warn
       - name: Native K0 actor action invariance across concealed worlds in both seats
         run: node simulation/twinleaf/agent18-k0-root-invariance-native.cjs
       - name: Original Aichi full-60 native K0 owner-root permutation noninterference
