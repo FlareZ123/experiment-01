@@ -108,6 +108,9 @@ function nativeContestedEnergy(staged){
   // Store attack is a mechanical legality proof, not actor-selected damage.
   assert.deepEqual(next,{kind:'attack',attackName:'Celestial Roar'});
   const hpBefore=opponent.active.damage;
+  const defendingCard=opponent.active.getPokemonCard();
+  const ownerPrizesBefore=owner.prizes.reduce((sum,prize)=>
+    sum+prize.cards.length,0);
   store.dispatch(new AttackAction(owner.id,'Dragon Laser'));
   const prompts=[];
   for(let i=0;i<12;i++){
@@ -120,12 +123,19 @@ function nativeContestedEnergy(staged){
   }
   assert.equal(store.hasPrompts(),false);
   const actualDamage=opponent.active.damage-hpBefore;
-  // The pinned engine may accept a printed attack dispatch yet do zero
-  // damage in this isolated staged state. Log the discrepancy explicitly.
-  // Never treat accepted dispatch or attack affordability as a KO witness.
+  // A real KO moves the Pokémon to discard and clears Active damage, so
+  // examining damage on an empty new Active spot alone is false evidence of
+  // zero attack damage.
+  const nativeKo=opponent.discard.cards.includes(defendingCard)&&
+    opponent.active.getPokemonCard()!==defendingCard;
+  const prizeCountAfter=owner.prizes.reduce((sum,prize)=>
+    sum+prize.cards.length,0);
+  assert.ok(actualDamage>0||nativeKo,
+    'Printed Dragon Laser must cause native damage or a genuine physical KO');
   return {seat,nativeSpecialAttached:true,nativeDragonLaserDamage:actualDamage,
-    nativeDragonLaserDamageExpectedByPrintedText:130,
-    nativeDragonLaserDamageConfirmed:actualDamage>=130,
+    nativeDragonLaserKoConfirmed:nativeKo,
+    originalDefenderPrinting:defendingCard?.fullName??null,
+    ownerPrizeCardsBefore:ownerPrizesBefore,ownerPrizeCardsAfter:prizeCountAfter,
     afterEnergyRoot:next.kind,
     actorAttackName:next.attackName,explicitNativeAttackName:'Dragon Laser',
     damageBefore:hpBefore,
@@ -139,7 +149,9 @@ test('rank10 original Regidrago V attachment and native Dragon Laser audit on bo
     assert.equal(evidence.nativeSpecialAttached,true);
     assert.equal(evidence.actorAttackName,'Celestial Roar');
     assert.equal(evidence.explicitNativeAttackName,'Dragon Laser');
-    assert.equal(typeof evidence.nativeDragonLaserDamage,'number');
+    assert.equal(evidence.nativeDragonLaserKoConfirmed,true);
+    assert.ok(evidence.ownerPrizeCardsAfter<evidence.ownerPrizeCardsBefore,
+      'Original native KO must also pay out a Prize');
     assert.equal(evidence.nativeSpecialAttached,true);
     process.stdout.write('# FLEXIBLE_CONTEST_NATIVE '+
       JSON.stringify(evidence)+'\n');
