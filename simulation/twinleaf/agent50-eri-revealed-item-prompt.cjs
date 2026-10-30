@@ -22,7 +22,7 @@ const MESSAGE='CHOOSE_CARD_TO_DISCARD';
  * @param {{ITEM:number}} trainerType Public pinned enum.
  * @returns {{promptId:number,seat:number,items:{index:number,printing:string}[]}|null}
  */
-function observeEriRevealedItems(state,seat,prompt,superType,trainerType){
+function observeEriRevealedItems(state,seat,prompt,superType,trainerType,cardTag){
   assert.ok(seat===0||seat===1);
   const players=state?.players;
   if(!Array.isArray(players)||players.length!==2)return null;
@@ -42,7 +42,10 @@ function observeEriRevealedItems(state,seat,prompt,superType,trainerType){
     if(card.superType!==superType.TRAINER||
         card.trainerType!==trainerType.ITEM)continue;
     if(!prompt.validate([card],state))continue;
-    items.push({index:i,printing:card.fullName});
+    const aceSpec=cardTag?.ACE_SPEC===undefined?undefined:
+      card.hasTag?.(cardTag.ACE_SPEC)===true;
+    items.push({index:i,printing:card.fullName,
+      ...(aceSpec===undefined?{}:{aceSpec})});
   }
   return {promptId:prompt.id,seat,items};
 }
@@ -56,7 +59,9 @@ function observeEriRevealedItems(state,seat,prompt,superType,trainerType){
  */
 function chooseEriRevealedItemIndices(observed){
   assert.ok(Array.isArray(observed?.items));
-  return observed.items.slice(0,2).map(item=>item.index);
+  return [...observed.items].sort((a,b)=>
+    Number(b.aceSpec===true)-Number(a.aceSpec===true)||
+    a.index-b.index).slice(0,2).map(item=>item.index);
 }
 
 /**
@@ -72,8 +77,8 @@ function chooseEriRevealedItemIndices(observed){
  * @returns {{action:object,selectedPrintings:string[],selectedIds:number[]}|null}
  */
 function resolveEriRevealedItemPrompt(state,seat,prompt,superType,
-  trainerType,ResolvePromptAction){
-  const offered=observeEriRevealedItems(state,seat,prompt,superType,trainerType);
+  trainerType,ResolvePromptAction,cardTag){
+  const offered=observeEriRevealedItems(state,seat,prompt,superType,trainerType,cardTag);
   if(!offered)return null;
   const indices=chooseEriRevealedItemIndices(offered);
   const selected=indices.map(index=>state.players[1-seat].hand.cards[index]);
