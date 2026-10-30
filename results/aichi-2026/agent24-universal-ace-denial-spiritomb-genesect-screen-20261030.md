@@ -52,6 +52,26 @@ For every row, the total Basic count remains 14. These probabilities **exclude a
 
 A 100% source decklist-level ACE SPEC exposure is an **upper bound on potential relevance**, not a 100% lock success rate. Opponents may use their ACE SPEC before the denial Basic enters play, draw no ACE SPEC until after it is Knocked Out, remove the denial Pokémon, disable its Ability, or instead win without their ACE SPEC. The actor's own game plan must still function while the Basic occupies a Bench or Active slot and any associated Tool is occupied.
 
+## New real pinned Twinleaf finding: Spiritomb's own ACE SPEC is wrongly playable
+
+**Compiler-backed isolated native card-reducer run:** [CI 41146369433](https://github.com/FlareZ123/experiment-01/actions/runs/41146369433), [native original pinned reducer harness](../../simulation/twinleaf/agent24-ace-nullifier-pinned-reducer.cjs). This job's actual compiled-native portion **passed**. Its separate pure test job failed on an initial synthetic mock whose Ability text lacked the literal `ACE SPEC` string. That mock was corrected afterward. The native result below is independently reported from the actual passed native job's narrow `ORIGINAL_ACE_REDUCER_PARITY` log line:
+
+| Exact direct pinned reducer probe | Actual native output | Printed rule |
+| --- | --- | --- |
+| Spiritomb LTR87 in our Active; **our** Secret Box ACE SPEC Item PlayItemEffect | **Allowed** (`spiritOwn:false`) | Should be **blocked** by *Each player* |
+| Same Spiritomb; **opponent's** Secret Box | **Blocked** (`spiritOpp:true`) | Blocked |
+| Genesect SFA40; opponent's Secret Box, **no Tool** | Allowed | Allowed |
+| Same Genesect with genuine attached Forest Seal Stone; opponent's Secret Box | **Blocked** | Blocked |
+| Same Genesect + Tool; **our** Secret Box | Allowed | Allowed |
+
+The stage creates real compiled pinned Pokémon, Trainer and effect classes, original native State/Player/PokémonCardList objects, and calls **their actual `reduceEffect` functions**. It supplies a minimal Store-like `PowerEffect` no-lock response to isolate card-local ownership predicates. This is **direct native reducer evidence**, not a complete playable-deck Store action sequence, global game reducer audit, or enemy move-quality result. Full Store integration remains a separate gate.
+
+A specific paper-fidelity failure is established in Spiritomb's real pinned native reducer: its four ACE play branches only search the **opponent** of the ACE-playing player for this particular Spiritomb, never its controller's own board, despite the correct displayed printed text `Each player can't play any ACE SPEC cards from his or her hand`. This makes an uncorrected Spiritomb strategy artificially asymmetric in engine calculations and risks overvaluing a candidate that includes its own ACE SPEC. It is a **direct discrepancy** between the pinned implementation and the supplied card, not an invented opponent interaction.
+
+The native **Genesect SFA40** card is registered with exact matching print and an opponent-only Tool-dependent reducer. Its **native Ability name** is `Ace Canceller` and native attack name is `Magnet Blast`; the supplied printed English card database says `ACE Nullifier` and `Magnetic Blast`. The exact-print registry audit correctly reports that the name does not match while retaining the functional ACE-text evidence. Name divergence may undermine attack/Ability-name matching across research tooling, even where reducer behavior is locally consistent.
+
+A default-OFF, reversibly installed, research-owned [paper Spiritomb shared ACE hook](../../simulation/twinleaf/agent24-paper-spiritomb-shared-ace-hook.cjs) has been added outside `vendor/twinleaf` to block the missing owner side while retaining the native opposing side. It restores the pinned prototype after the scoped callback and is explicitly **a limited correction**, not complete paper fidelity. The headless engine's generic `AttachEnergyEffect` does not independently reveal whether an ACE SPEC Energy was attached *from hand*, so full parity for hypothetical Special Energy ACE cards remains unproven. This hook is not enabled in the canonical benchmark.
+
 ## Required next experiments before any deck swap
 
 1. **Native CardManager and actual effect coverage.** Run a pinned exact printing/Ability registration check. A registered printed Ability does not establish that the Store actually disallows native opponent ACE SPEC actions. If the engine cannot execute it, write a reversible research adapter for the actual pinned behavior and test both the lock and its removal.
