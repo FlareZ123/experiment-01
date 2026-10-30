@@ -16,6 +16,8 @@ function cohort() {
       rootActionLedgerSha256:'control-'+i, rootActionLedger:[],
       finished:i<2, actionCount:i<2?30:260
     }));
+  baselineRows[3].rootActionLedger=[{actionOrdinal:207,turnBefore:52,
+    playerSlot:0,action:'AttackAction',attack:'Terminal Period'}];
   const control = {attempted:4,competitiveQualifiedGames:0,
     ownerCompressorBenchedOptIn:true,rows:baselineRows};
   const treatment = structuredClone(control);
@@ -52,7 +54,7 @@ function cohort() {
     delegatedCopy:true,settledPromptChain:true,
     settlementCrossesClockReset:false,
     completionRootOrdinal:204,nextSourceSameEpochProven:true,
-    nextSourceRoot:{ordinal:205,action:'AttackAction',attack:'Terminal Period'},
+    nextSourceRoot:{ordinal:205,turn:52,action:'AttackAction',attack:'Terminal Period'},
     prizesBefore:[6,6],prizesAfter:[6,6]
   }]};
   return [control,treatment];
