@@ -95,6 +95,8 @@ jobs:
         run: node simulation/twinleaf/agent49-mysterious-treasure-native-probe.cjs
       - name: Verify Regidrago Dragon donor discard and owner-deck VSTAR retrieval both native seats
         run: node --test tests/agent49-native-regidrago-treasure-line.test.cjs
+      - name: Prove both-seat owner-private Mysterious Treasure typed native cost/search prompt bridge
+        run: node --test tests/agent49-owner-treasure-native-prompt-bridge.test.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
