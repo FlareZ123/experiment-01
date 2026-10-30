@@ -161,3 +161,36 @@ test('all 29 registered original GX and EX printed names preserve profile under 
   assert.ok(recognized>40,
     'Original benchmark canonical GX/EX profile coverage unexpectedly sparse');
 });
+
+
+test('public printed KO Prize award distinguishes TAG TEAM, GX, and single Prize',()=>{
+  const index=buildPublicPokemonProfileIndex(ROOT);
+  for(const name of ['Trevenant & Dusknoir-GX','Gengar & Mimikyu-GX',
+    'Arceus & Dialga & Palkia-GX']){
+    const copies=SOURCE.decks.flatMap(deck=>deck.cards.filter(card=>
+      card.category==='Pokémon'&&card.name===name));
+    assert.ok(copies.length>0,'No exact Aichi source '+name);
+    for(const c of copies){
+      const exact=originalPrintedPokemon(ROOT,c);
+      const publicVisible=visiblePrintedProfile(index,
+        c.name+' '+c.printing.set);
+      assert.ok(publicVisible,'No public profile for '+name);
+      assert.equal(exact.prizesOnKnockout,3);
+      assert.equal(publicVisible.prizesOnKnockout,3);
+    }
+  }
+  assert.equal(visiblePrintedProfile(index,'Dedenne GX UNB')
+    .prizesOnKnockout,2);
+  assert.equal(visiblePrintedProfile(index,'Alolan Raichu UNM')
+    .prizesOnKnockout,1);
+  const mega={id:'synthetic-mega',name:'Mega Test ex',supertype:'Pokémon',
+    subtypes:['MEGA','ex'],rules:[
+      'Pokémon ex rule: When your Pokémon ex is Knocked Out, your opponent takes 2 Prize cards.',
+      'Mega Evolution ex Rule: When your Mega Evolution Pokémon ex is Knocked Out, your opponent takes 3 Prize cards.'
+    ]};
+  assert.equal(classifyPrintedPokemon(mega).prizesOnKnockout,3,
+    'Specific Mega rule must override generic Pokémon ex rule');
+  assert.throws(()=>classifyPrintedPokemon({...mega,
+    rules:['When this Pokémon is Knocked Out, your opponent draws 2 Prize cards.']}),
+    /Unknown printed Prize rule/);
+});
