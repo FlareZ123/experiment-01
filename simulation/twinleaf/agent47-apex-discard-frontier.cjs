@@ -15,7 +15,7 @@ const VERSION = 'agent47-apex-payload-discard-proposal-v1';
 function directlyReadyApex(actor) {
   const own = actor.ownPublic;
   const active = own?.active;
-  if (actor.decisionKind !== 'owner-prompt' ||
+  if (actor.decisionKind !== 'owner-prompt' || actor.globalTurn === 1 ||
       active?.printing !== 'Regidrago VSTAR SIT' ||
       !active.attacks?.some(attack => attack.name === 'Apex Dragon') ||
       own.publicTurnRestrictions?.attackLockTurnsRemaining > 0 ||
