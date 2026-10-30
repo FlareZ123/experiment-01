@@ -91,5 +91,5 @@ test('reject missing, duplicate, mismatched owner-pass and wrong rank records',(
   const missing=structuredClone(baseline);
   missing[2].trial.rank=23;
   assert.throws(()=>auditProspectiveSourceRoots(missing),
-    /false|23/);
+    {name:'AssertionError'});
 });
