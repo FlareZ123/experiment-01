@@ -156,3 +156,32 @@ test('native hash is order-sensitive and unresolved sources remain excluded',()=
   const proof=attestNativePlan(unresolved,original,csv);
   assert.equal(proof.sources.find(x=>x.rank===14).nativeOrderedSha256,null);
 });
+
+test('cross-printing same-name four-copy paper limit rejects five',()=>{
+  const bad=fresh();
+  const rank1=bad.decks.find(d=>d.rank===1);
+  const vm=rank1.cards.find(c=>c.name==='Shadow Rider Calyrex VMAX');
+  const vv=rank1.cards.find(c=>c.name==='Shadow Rider Calyrex V');
+  assert.equal(vm.count,4);
+  assert.equal(vv.count,3);
+  vm.count++;
+  vv.count--;
+  assert.throws(()=>attestField(bad,csv),
+    /Four-copy paper deck limit exceeded at rank 1: Shadow Rider Calyrex VMAX/);
+});
+
+test('Basic Energy exemption allows more than four identical cards',()=>{
+  const original1=original.decks.find(d=>d.rank===1);
+  const energy=original1.cards.find(c=>c.name==='Psychic Energy');
+  assert.ok(energy.count>4);
+  const receipt=attestField(original,csv);
+  assert.equal(receipt.sources.length,29);
+});
+
+test('Basic Energy name in a Trainer category is not exempt',()=>{
+  const bad=fresh();
+  const card=bad.decks[0].cards.find(c=>c.name==='Psychic Energy');
+  card.category='Trainer';
+  assert.throws(()=>attestField(bad,csv),
+    /Basic Energy exemption applied to wrong category/);
+});
