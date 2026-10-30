@@ -63,7 +63,8 @@ const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
-const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('./physical-card-ledger.cjs');
+const {inspectPhysicalCardZones, fixedDeckCountAnomalies,
+  locatedOrPromptCountAnomalies} = require('./physical-card-ledger.cjs');
 const {newlyLoggedAttackDeclarations} =
   require('../evaluation/twinleaf-attack-log-declarations.cjs');
 const {snapshot:poltergeistSnapshot,assess:assessPoltergeist} =
@@ -940,7 +941,10 @@ function runMatch(request) {
         schema: 'live-headless-physical-zone-integrity-v1',
         rootActionsChecked: 0,
         actionsWithAnomaly: 0,
-        firstAnomaly: null
+        firstAnomaly: null,
+        settledRootsChecked: 0,
+        settledRootsWithAnomaly: 0,
+        firstSettledRootAnomaly: null
       }
       : null;
     const copycatTurnStartEvidence = request.captureCopycatTurnStartSeat === undefined ?
@@ -1517,6 +1521,26 @@ function runMatch(request) {
               ownership,
               countAnomalies
             };
+          }
+        }
+        // A source 60 may occupy an unresolved prompt's temporary CardList.
+        // Audit completed roots separately and do not count a resolved prompt
+        // as custody for a physically stranded card.
+        if (!store.state.prompts.some(prompt => prompt.result===undefined)) {
+          physicalZoneIntegrity.settledRootsChecked++;
+          const settledCountAnomalies=locatedOrPromptCountAnomalies(ownership);
+          if (ownership.referenceDuplications.length ||
+              ownership.energyWithoutPhysicalCard.length ||
+              ownership.repeatedEnergyIndexes.length ||
+              settledCountAnomalies.length) {
+            physicalZoneIntegrity.settledRootsWithAnomaly++;
+            if (physicalZoneIntegrity.firstSettledRootAnomaly===null) {
+              physicalZoneIntegrity.firstSettledRootAnomaly={
+                actionOrdinal:actions+1,turn:store.state.turn,
+                actingSeat:state.activePlayer,actionType:actionName,
+                ownership,settledCountAnomalies
+              };
+            }
           }
         }
       }
