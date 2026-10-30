@@ -19,7 +19,7 @@ const expected=new Map([
  * @param {0|1} sourceSeat
  * @returns {object[]}
  */
-function analyzeFollowthrough(selections,rootLedger,sourceSeat){
+function analyzeFollowthrough(selections,rootLedger,sourceSeat,printedCardNames={}){
   const roots=rootLedger.filter(row=>row.pendingPrompt===null);
   const sourcePlays=roots.filter(row=>row.playerSlot===sourceSeat&&
     row.action==='PlayCardAction');
@@ -32,7 +32,8 @@ function analyzeFollowthrough(selections,rootLedger,sourceSeat){
         turn:row.turnBefore,card:row.card})),
       subsequentPrintedPlays:selection.printings.map(printing=>({
         printing,
-        playedLaterByName:after.some(row=>row.card===printing)
+        playedLaterByName:after.some(row=>row.card===
+          (printedCardNames[printing]??printing))
       })),
       opponentRootAfterSearch:opponents.length>0,
       opponentFirstRootAfterSearch:opponents[0]?.actionOrdinal??null};
@@ -56,6 +57,12 @@ function run(){
     '../../results/aichi-2026/full-decklists.json'),{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true});
   const byRank=new Map(field.decks.map(deck=>[deck.rank,deck]));
+  const {CardManager}=require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager'));
+  const manager=CardManager.getInstance();
+  const printedCardNames=Object.fromEntries(
+    [...new Set(byRank.get(7).cardIds)].map(printing=>
+      [printing,manager.getCardByName(printing).name]));
   for(const rank of [1,7])
     assert.ok(byRank.get(rank)?.playableUnderEngine&&
       byRank.get(rank).cardIds.length===60);
@@ -102,6 +109,7 @@ function run(){
           ledgerSha256:crypto.createHash('sha256')
             .update(JSON.stringify(ledger)).digest('hex'),
           ownerSearchAccepted:w.audit.bySeat[sourceSeat],
+          nativePrintedNameMapUsed:true,
           acceptedSourceRootCards:publicRoots.filter(row=>
             row.playerSlot===sourceSeat&&row.action==='PlayCardAction')
             .map(row=>({ordinal:row.actionOrdinal,
@@ -109,7 +117,7 @@ function run(){
           acceptedOpponentRoots:publicRoots.filter(row=>
             row.playerSlot!==sourceSeat).length,
           searchFollowthrough:analyzeFollowthrough(
-            w.audit.boundedSelections,ledger,sourceSeat)
+            w.audit.boundedSelections,ledger,sourceSeat,printedCardNames)
         };
       }catch(e){error=String(e?.stack??e);}
       rows.push({seed,sourceSeat,policy,status,error,summary});
