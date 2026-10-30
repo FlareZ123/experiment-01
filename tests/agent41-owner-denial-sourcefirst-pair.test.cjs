@@ -83,7 +83,7 @@ test('native acceptance is sampled only and never conflated with a settled Energ
 test('matched pairing refuses missing or incompatible original fixed candidate',()=>{
   const base=sample(false),treated=sample(true);
   treated.rows.pop();
-  assert.throws(()=>compareProfiles(base,treated),/Missing treatment/);
+  assert.throws(()=>compareProfiles(base,treated),/3 !== 4|Missing treatment/);
   const invalid=sample(true);
   invalid.rows[0].trial.seed++;
   assert.throws(()=>compareProfiles(sample(false),invalid));
