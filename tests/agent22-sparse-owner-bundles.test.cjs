@@ -103,3 +103,11 @@ test('scoring sees immutable printed strings and must return a finite score',()=
   assert.throws(()=>firstNativeValidBundle(p,3,()=>NaN),
     /Bundle score must be finite/);
 });
+
+test('paper min selection overrides native valid zero for unqualified any-card search',()=>{
+  const p=fixture(['A','B','C'],n=>n.length<=3);
+  assert.deepEqual(firstNativeValidBundle(p,3,n=>-n.length,1),
+    [{printings:['A']}]);
+  assert.deepEqual(firstNativeValidBundle(p,3,n=>-n.length,0),
+    [{printings:[]}]);
+});
