@@ -24,12 +24,22 @@ function publicThornsTechRisk(view,manifest){
   if(active?.name!=='Iron Thorns ex')return null;
   const publicHands=view.publicFailedOpponentSevens;
   assert.ok(Array.isArray(publicHands));
-  const inference=publicFailedHandHistoryPosterior(manifest,publicHands);
+  const unsupported=reason=>Object.freeze({version:VERSION,
+    status:'out-of-model',reason,recommendedAction:null,
+    probabilityOriginalSourceHasFourCrushingHammer:null,
+    noOpponentCurrentHandKnowledge:true,gameWinEvidence:false});
+  let inference;
+  try{inference=publicFailedHandHistoryPosterior(manifest,publicHands);}
+  catch(error){
+    if(error.message==='Impossible public history for recovered sources')
+      return unsupported('public history outside 29-source hypothesis universe');
+    throw error;
+  }
   const family=inference.models.filter(x=>THORNS_RANKS.includes(x.rank));
   assert.equal(family.length,3);
   const familyMass=family.reduce((n,x)=>n+x.posterior,0);
-  assert.ok(familyMass>0,
-    'Public source evidence is incompatible with recovered Thorns family');
+  if(familyMass===0)
+    return unsupported('public history incompatible with recovered Thorns family');
   const sources=family.map(x=>{
     const deck=manifest.decks.find(d=>d.rank===x.rank);
     const hammer=deck.cards.filter(c=>c.name==='Crushing Hammer')
