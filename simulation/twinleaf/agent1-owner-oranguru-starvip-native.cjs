@@ -215,6 +215,15 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     // physical seat. Never allow a different player's private selection.
     if(pending&&pending.playerId!==owner.id)
       return decoder.value.call(this,state);
+    // Store presents native WaitPrompt before the actual owner deck
+    // ChooseCardsPrompt for Back Order, Star Alchemy and Boost Shake.
+    // It must be settled by the baseline bot while preserving this plan's
+    // unchanged next stage; otherwise an actual K1 owner search is skipped.
+    if(pending?.constructor?.name==='WaitPrompt'){
+      audit.events.push({seat,turn:state.turn,kind:'native-wait-delegated',
+        stage:ctx.step});
+      return decoder.value.call(this,state);
+    }
     if(!pending&&(state.activePlayer!==seat||
         state.phase!==GamePhase.PLAYER_TURN)){
       if(state.turn>ctx.turn)abort(ctx,'turn-ended-before-plan-completed');
