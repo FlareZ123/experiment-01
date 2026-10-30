@@ -59,6 +59,33 @@ function main() {
         (printingCounts[card.nativeIdStatus] ?? 0) + card.count;
     }
   }
+  // Separate cosmetic/display basic-Energy aliases from singleton/research
+  // card implementation and ambiguity blockers. Classify actual unresolved
+  // catalog rows rather than assuming every original set has one cause.
+  const nonExactCopyFamilies={};
+  const nonExactPrintRows=[];
+  for (const rank of audit.ranks) {
+    for (const card of rank.printings) {
+      if(card.nativeIdStatus!=='UNSUPPORTED_OR_AMBIGUOUS_PRINT')
+        continue;
+      const set=card.requested.set,number=card.requested.number;
+      const kind=set==='MEE'&&card.name.endsWith(' Energy')?
+        'MEE_BASIC_ENERGY_DISPLAY_PRINT':
+        card.name==="Player's Ceremony"&&set==='SP'&&number==='127'?
+          'RESEARCH_ONLY_JAPANESE_PROMO':
+          card.name==='Electrike'&&set==='PRC'&&number==='60'?
+            'AMBIGUOUS_ANCIENT_TRAIT_PRINT':
+            'OTHER_UNRESOLVED_NATIVE_PRINT';
+      nonExactCopyFamilies[kind]=(nonExactCopyFamilies[kind]??0)+card.count;
+      nonExactPrintRows.push({rank:rank.rank,name:card.name,
+        count:card.count,sourcePrinting:card.requested,kind});
+    }
+  }
+  const nativeIdMismatchKinds={};
+  for (const row of nativeRoundTrips.blocked) {
+    nativeIdMismatchKinds[row.status]=
+      (nativeIdMismatchKinds[row.status]??0)+1;
+  }
   const rank15 = audit.ranks.find(r => r.rank === 15);
   const current = {
     schema: 'agent49-actual-pinned-source-printing-coverage-v1',
@@ -82,6 +109,9 @@ function main() {
     rank15RelevantOriginalPrints:rank15.printings
       .filter(p => p.name === 'Buneary' || p.name === 'Mega Lopunny ex'),
     originalPrintedCopyStatuses:printingCounts,
+    nonExactCopyFamilies,
+    nonExactPrintRows,
+    nativeIdMismatchKinds,
     requiredFixtures:[],
     skippedNativeFixtures:'NOT_EXECUTED_IN_THIS_CENSUS',
     semanticEffectsCertified:false,
@@ -104,6 +134,10 @@ function main() {
     blockedRanks:current.blockedRanks.map(x=>x.rank),
     rank15:current.rank15RelevantOriginalPrints,
     statuses:current.originalPrintedCopyStatuses,
+    missingCopyFamilies:current.nonExactCopyFamilies,
+    unresolvedRows:current.nonExactPrintRows.length,
+    actualWrongOrAbsentLookupRows:current.nativeRoundTrips.blocked.filter(x=>
+      x.status!=='NO_EXACT_NATIVE_CATALOG_ID').length,
     semanticEffectsCertified:false,
     competitiveQualifiedGames:0,
     artifact:path.basename(OUTPUT_PATH)
