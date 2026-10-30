@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent35-visible-potential-two-prize-terminal-veto-v1';
+const VERSION = 'agent35-visible-potential-two-prize-terminal-veto-v2-native-gx-alias';
 
 /**
  * A conservative potential-finisher warning for an actor-root arbiter. This
