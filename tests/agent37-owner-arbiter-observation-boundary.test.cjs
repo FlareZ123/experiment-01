@@ -73,7 +73,7 @@ function fixture(readyBench=false){
 
 /** @param {object} state */
 function choose(state){
-  const view=actorObservation(state,0);
+  const view=actorObservation(state,state.activePlayer);
   return arbitrateOwnerRootIntent(view,CATALOG,ATTACK,OPTIONS);
 }
 
@@ -98,6 +98,14 @@ test('real detached observation and production collector fund Bunnelby before a 
     pokemonName:'Bunnelby'
   });
   assert.equal(result.receipt.nativePlayability,'unverified');
+});
+
+test('identical owner-public worlds on both physical actor seats select the same nonterminal root',()=>{
+  const original=fixture(),swapped=fixture();
+  swapped.players.reverse();
+  swapped.activePlayer=1;
+  assert.deepEqual(choose(original),choose(swapped));
+  assert.equal(choose(swapped).intent.kind,'attach-special-energy');
 });
 
 test('K0 concealed worlds and poisoned hidden zones cannot change composed choice',()=>{
