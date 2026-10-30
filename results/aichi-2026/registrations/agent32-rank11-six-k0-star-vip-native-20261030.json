@@ -1,0 +1,57 @@
+{
+  "schema": "agent32-rank11-retrospective-six-K0-starVIP-native-line-v1",
+  "registrationDate": "2026-10-30",
+  "purpose": "Execute owner-authenticated one-turn Back Order -> Forest Seal Stone -> Star Alchemy -> VIP -> Trubbish -> Float Stone -> held Boost Shake -> equipped Garbodor, and stop before opponent root. Mechanical source-line feasibility only; no game wins.",
+  "parentRegistration": "results/aichi-2026/registrations/agent32-rank11-eight-k0-bench-followup-20261030.json",
+  "parentFrameSha256": "871ac7ac933dce955553cdb04ec269dcf0ffe2e271667b4dce456fdda71108ff",
+  "parentNativeRunId": 40986396771,
+  "parentNativeArtifactId": 12947610712,
+  "parentNativeZipSha256": "7851c45c0d2ce558d647d819390e26662dd111a1e7ff38aca9fa3904a7bd1f9a",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "candidateRank": 1,
+  "candidateSeat": 1,
+  "exactK0Count": 6,
+  "selectedExactK0": [
+    {
+      "index": 2,
+      "seed": 1462371689,
+      "sourceFirstOwnerHandSha256": "02fb8f4431f15056a2d9d8c76015395a06f9f36eec43e6af06d77b0527ee6639",
+      "sourceBenchAtK0": [null,null,null,null,null]
+    },
+    {
+      "index": 232,
+      "seed": 2301458581,
+      "sourceFirstOwnerHandSha256": "02d11f7d000a85c7c4291ee9c3b2e0c1f202272527352c1248daf033fcd4bff1",
+      "sourceBenchAtK0": [null,null,null,null,null]
+    },
+    {
+      "index": 299,
+      "seed": 2387754768,
+      "sourceFirstOwnerHandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+      "sourceBenchAtK0": [null,null,null,null,null]
+    },
+    {
+      "index": 376,
+      "seed": 2549346519,
+      "sourceFirstOwnerHandSha256": "288d14db7b62fead99f086afc57f7e6f03178f231726fe11ac9f15960690fcf7",
+      "sourceBenchAtK0": ["Mega Absol ex M1L",null,null,null,null]
+    },
+    {
+      "index": 440,
+      "seed": 1518908781,
+      "sourceFirstOwnerHandSha256": "15c7f4ad1a98516e979684ad996c3db6e45d62869ba29b1baaf632497aa472b0",
+      "sourceBenchAtK0": ["Mega Absol ex M1L",null,null,null,null]
+    },
+    {
+      "index": 458,
+      "seed": 2375861161,
+      "sourceFirstOwnerHandSha256": "88a4d2b18ac76e33a8999ba18e97463361cd1b1a6ec2b7d47da8dbfe940ffad4",
+      "sourceBenchAtK0": [null,null,null,null,null]
+    }
+  ],
+  "stoppingRule": "Stop at first genuine opponent owner root after successful Boost Shake, or at K1 owner-search failure or live native action/prompt blocker. No terminal or win stats.",
+  "evidenceBoundary": "Selected K0 positives from an older 512 retrospective screen; no unselected-field score, no claimed strong policy or win probability.",
+  "frameSha256": "64ccdc1a46b92bf661541542630e989142746fac7fc426112386f762467df580"
+}
