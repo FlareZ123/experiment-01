@@ -25,9 +25,15 @@ function printedShuffleDrawCounts(view,kind){
   const own=view.ownPublic,opponent=view.opponentPublic;
   if(kind==='lillie')return {
     ownDraw:own.prizeCount===6?8:6,opponentDraw:0};
-  if(kind==='marnie')return {ownDraw:5,opponentDraw:4};
-  if(kind==='iono')return {
-    ownDraw:own.prizeCount,opponentDraw:opponent.prizeCount};
+  // These two Supporters put both players' remaining hands on the bottom.
+  // The played Supporter is no longer in its owner's hand. Their printed
+  // draw clause is conditional on at least one card actually being moved.
+  const anyCardMoved=view.ownHand.length>1||opponent.handCount>0;
+  if(kind==='marnie')return anyCardMoved?
+    {ownDraw:5,opponentDraw:4}:{ownDraw:0,opponentDraw:0};
+  if(kind==='iono')return anyCardMoved?
+    {ownDraw:own.prizeCount,opponentDraw:opponent.prizeCount}:
+    {ownDraw:0,opponentDraw:0};
   return null;
 }
 
