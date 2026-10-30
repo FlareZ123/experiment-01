@@ -33,6 +33,14 @@ test('retrospective original Store both-seat Hammer policy retains original deal
     if(prior===undefined)delete process.env.AGENT29_HAMMER_AFTER_PASS_DEV;
     else process.env.AGENT29_HAMMER_AFTER_PASS_DEV=prior;
   }
+  console.log('AGENT29_RETROSPECTIVE_ROW_STATUS_DEBUG',JSON.stringify({
+    baseline:baseline.rows.map(r=>({id:r.trial?.id,status:r.status,
+      source:r.sourceDealFingerprint??null,
+      error:String(r.error??'').slice(0,700)})),
+    treated:treated.rows.map(r=>({id:r.trial?.id,status:r.status,
+      source:r.sourceDealFingerprint??null,
+      error:String(r.error??'').slice(0,700)}))
+  }));
   assert.equal(baseline.attempted,4);
   assert.equal(treated.attempted,4);
   assert.equal(baseline.competitiveQualifiedGames,0);
