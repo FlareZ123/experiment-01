@@ -1,0 +1,74 @@
+{
+  "schema": "agent6-retrospective-sourcefirst-iron-thorns-speed-dce-order-four-arm-v1",
+  "createdAtUtc": "2026-10-30T20:41:00Z",
+  "selection": "All six previously preregistered original sourcefirst physical seed-and-seat deals reused from Agent6 first-turn Speed six-deal cohort, after those K0 hands and some T3 lines were already observed. Explicit RETROSPECTIVE mechanistic comparison, no prevalence inference.",
+  "objective": "Compare physical T1 Speed -> T3 DCE against T1 DCE -> T3 Speed, exposing (i) printed Speed two-card draw timing and (ii) direct T3 attack without K1 singleton Thunder or Tag Call/Supporter cost.",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "originalBothPrinted60sUnchanged": true,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceFirstSeatSeedPairs": [
+    {
+      "sourceSeat": 0,
+      "seeds": [
+        531384326,
+        2341469307,
+        3030747015
+      ]
+    },
+    {
+      "sourceSeat": 1,
+      "seeds": [
+        516187842,
+        2411836147,
+        492959857
+      ]
+    }
+  ],
+  "arms": [
+    {
+      "label": "baseline",
+      "stageSpeedLightningFirstTurn": false,
+      "stageDceFirstTurn": false,
+      "turn3DirectSpeedAfterDce": false
+    },
+    {
+      "label": "speed-first",
+      "stageSpeedLightningFirstTurn": true,
+      "stageDceFirstTurn": false,
+      "turn3DirectSpeedAfterDce": false
+    },
+    {
+      "label": "dce-stage-only",
+      "stageSpeedLightningFirstTurn": false,
+      "stageDceFirstTurn": true,
+      "turn3DirectSpeedAfterDce": false
+    },
+    {
+      "label": "dce-first-speed-second",
+      "stageSpeedLightningFirstTurn": false,
+      "stageDceFirstTurn": true,
+      "turn3DirectSpeedAfterDce": true
+    }
+  ],
+  "shared": {
+    "sourceFirstGenuineGO_FIRSTPrompt": true,
+    "sourceT3AttackScriptTurn": 3,
+    "strictPromptValidation": true,
+    "maxActions": 110,
+    "canonicalActorBothSeats": true,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "k1ReplanAfterTagCall": true,
+    "k1PrizedThunderSpeedFallback": false,
+    "actorOwnK0AndPublicResourcesOnly": true,
+    "noHiddenOwnDeckPrizesOrOpponentHandDecisionInput": true
+  },
+  "predeclaredPhysicalOutcome": [
+    "All 24 original Store execution attempts preserved incl errors, identity of first physical deal across four same-seed arms, actual starter and opponent T2 roots",
+    "Real T1 Speed/DCE attachment and source deck two-card draw timing where supported",
+    "Real source T3 Speed/DCE attachment and actual printed Volt Cyclone settled damage, Prize changes, next opponent response",
+    "Net comparison of speed-first vs dce-first for same original source seed, no win-rate scoring"
+  ],
+  "qualifiedGames": 0
+}
