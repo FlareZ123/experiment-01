@@ -86,6 +86,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerDonorAudit = null;
   let ownerSupporterOpportunityAudit = null;
   let ownerShuffleSupporterAudit = null;
+  let ownerHammerAfterPassAudit = null;
   let ownerVipAfterPassAudit = null;
   let ownerPlumeriaOpportunityAudit = null;
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
@@ -99,14 +100,23 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
+  const hammerAfterPassOptIn=options.ownerHammerAfterPass===true||
+    process.env.AGENT29_HAMMER_AFTER_PASS_DEV==='true';
+  const runWithHammer=()=>{
+    if(!hammerAfterPassOptIn)return runWithShuffleSupporter();
+    const selected=require('../twinleaf/agent29-actor-hammer-after-pass.cjs')
+      .withOwnerHammerAfterPass(runWithShuffleSupporter);
+    ownerHammerAfterPassAudit=selected.audit;
+    return selected.result;
+  };
   const plumeriaOpportunityOptIn=options.ownerPlumeriaOpportunity===true||
     process.env.AGENT4_PLUMERIA_OPPORTUNITY_DEV==='true';
   const runWithPlumeriaOpportunity=()=>{
-    if(!plumeriaOpportunityOptIn)return runWithShuffleSupporter();
+    if(!plumeriaOpportunityOptIn)return runWithHammer();
     const observer=adapters.plumeriaOpportunity??
       require('../twinleaf/agent4-plumeria-opportunity.cjs')
         .withPlumeriaOwnerOpportunity;
-    const observed=observer(runWithShuffleSupporter);
+    const observed=observer(runWithHammer);
     ownerPlumeriaOpportunityAudit=observed.audit;
     return observed.result;
   };
@@ -176,6 +186,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner donor root must return its actual canonical audit');
   if(supporterOpportunityOptIn)assert.ok(ownerSupporterOpportunityAudit,
     'Enabled owner Supporter audit must have observed the live executor');
+  if(hammerAfterPassOptIn)assert.ok(ownerHammerAfterPassAudit,
+    'Enabled owner Hammer requires genuine native audit');
   if(plumeriaOpportunityOptIn)assert.ok(ownerPlumeriaOpportunityAudit,
     'Enabled Plumeria observer must have executed');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
@@ -211,11 +223,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
-      (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':''),
+      (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
+      (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
+    ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
@@ -231,6 +245,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     componentVersions: {
       root: rootAudit.version ?? null,
       ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
+      ...(hammerAfterPassOptIn?{hammerAfterPass:ownerHammerAfterPassAudit.version??null}:{}),
       ...(genericFallbackAttribution?{
         genericFallback:genericFallbackAudit.version??null}:{}),
       fog: fogAudit.version ?? null,
@@ -290,6 +305,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         vipBenchConfirmed:ownerVipAfterPassAudit.nativeBenchConfirmed,
         vipBySeat:ownerVipAfterPassAudit.bySeat
       }:{}),
+      ...(hammerAfterPassOptIn?{
+        hammerAcceptedRoots:ownerHammerAfterPassAudit.acceptedHammerRoots,
+        hammerEnergyDiscards:ownerHammerAfterPassAudit.acceptedEnergyDiscards,
+        hammerBySeat:ownerHammerAfterPassAudit.bySeat
+      }:{}),
       ...(shuffleSupporterOptIn?{
         shuffleSupporterAcceptedRoots:ownerShuffleSupporterAudit.acceptedRoots,
         shuffleSupporterAcceptedByFamily:ownerShuffleSupporterAudit.acceptedByFamily,
@@ -314,6 +334,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerDonorAudit,
     ownerSupporterOpportunityAudit,
     ownerPlumeriaOpportunityAudit,
+    ownerHammerAfterPassAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
@@ -334,6 +355,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(plumeriaOpportunityOptIn?{
         ownerPlumeriaOpportunity:ownerPlumeriaOpportunityAudit
+      }:{}),
+      ...(hammerAfterPassOptIn?{
+        ownerHammerAfterPass:ownerHammerAfterPassAudit
       }:{}),
       ...(shuffleSupporterOptIn?{
         ownerShuffleSupporter:ownerShuffleSupporterAudit
