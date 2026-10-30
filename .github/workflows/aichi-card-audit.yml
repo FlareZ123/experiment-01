@@ -7,12 +7,17 @@ on:
         description: Commit validated audit results
         type: boolean
         default: false
+      native_print_release_census:
+        description: 'Pinned CardManager all-32 exact-native-printing census, no gameplay'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 jobs:
   card-coverage:
+    if: ${{ !inputs.native_print_release_census }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -58,3 +63,35 @@ jobs:
             git rebase origin/main
           done
           fi
+
+  actual-native-print-census:
+    if: ${{ inputs.native_print_release_census }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned card-manager implementation
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run original source exact-native-printing census
+        run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
+      - name: Archive all 32 original native print and resolution statuses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-original-native-print-coverage
+          path: agent49-pinned-source-native-print-coverage.json
+          if-no-files-found: warn
+          retention-days: 30
