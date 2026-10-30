@@ -63,5 +63,34 @@ function opponentPublicFailedHandNames(history,viewerSeat,publicNameIndex){
   return Object.freeze(names);
 }
 
+
+/**
+ * Specific public naming differences between native Twinleaf and the
+ * exact Aichi source-list manifest. These names refer to identical printed
+ * Prism Star card identities. No source-rank data is used in the mapping.
+ */
+const AICHI_PRISM_NAMES=Object.freeze({
+  'Ditto Prism Star':'Ditto ♢',
+  'Tapu Koko Prism Star':'Tapu Koko ♢',
+  'Thunder Mountain Prism Star':'Thunder Mountain ♢',
+  'Wondrous Labyrinth Prism Star':'Wondrous Labyrinth ♢'
+});
+
+/**
+ * Convert the native public printed names into original Aichi manifest names.
+ * Exact whitelist only; no fuzzy matching or unknown-card substitutions.
+ * @param {{fullName:string,name:string}[]} allPublicCardDefinitions
+ * @returns {Map<string,string>}
+ */
+function publicAichiSourceNameIndex(allPublicCardDefinitions){
+  const catalog=publicPrintingNameIndex(allPublicCardDefinitions);
+  for(const [printing,name] of catalog){
+    if(Object.hasOwn(AICHI_PRISM_NAMES,name)){
+      catalog.set(printing,AICHI_PRISM_NAMES[name]);
+    }
+  }
+  return catalog;
+}
+
 module.exports={VERSION,publicPrintingNameIndex,
-  opponentPublicFailedHandNames};
+  publicAichiSourceNameIndex,opponentPublicFailedHandNames};
