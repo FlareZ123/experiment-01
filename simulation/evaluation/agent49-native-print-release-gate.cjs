@@ -84,6 +84,57 @@ function auditSourcePrintings(manifest, coverage, plan) {
 }
 
 /**
+ * Prove that each exact original card enumerated by CardManager can be
+ * requested again through the native id actually used to construct a deck.
+ * A catalog hit alone may map to a different same-name implementation.
+ *
+ * This is native identifier fidelity, never printed effect equivalence.
+ * @param {object} sourceAudit auditSourcePrintings output.
+ * @param {(nativeId:string)=>object|null} lookup Actual manager.getCardByName.
+ * @returns {object}
+ */
+function auditNativeIdRoundTrips(sourceAudit,lookup) {
+  assert.ok(Array.isArray(sourceAudit?.ranks)&&sourceAudit.ranks.length===32);
+  assert.equal(typeof lookup,'function');
+  const rows=[];
+  for(const rank of sourceAudit.ranks) {
+    for(const item of rank.printings) {
+      if(item.nativeId===null) {
+        rows.push({rank:rank.rank,name:item.name,sourcePrinting:item.requested,
+          nativeId:null,status:'NO_EXACT_NATIVE_CATALOG_ID'});
+        continue;
+      }
+      const result=lookup(item.nativeId)??null;
+      const expectedName=item.nativeIdStatus==='EXACT_GLYPH_ALIAS_LOADED'?
+        item.name.replace(/\\s*[♢◇]\\s*$/u,' Prism Star'):item.name;
+      const normalizeNumber=value=>String(value??'')
+        .trim().replace(/^0+(?=\\d)/,'').toUpperCase();
+      const valid=Boolean(result&&result.fullName===item.nativeId&&
+        result.name===expectedName&&
+        String(result.set).toUpperCase()===
+          String(item.requested.set).toUpperCase()&&
+        normalizeNumber(result.setNumber)===
+          normalizeNumber(item.requested.number));
+      rows.push({rank:rank.rank,name:item.name,sourcePrinting:item.requested,
+        nativeId:item.nativeId,
+        resolvedNativeCard:result?{name:result.name,
+          set:result.set,setNumber:result.setNumber,fullName:result.fullName}:null,
+        status:valid?'EXACT_NATIVE_ID_ROUNDTRIP':
+          result?'WRONG_PRINT_OR_COLLIDING_NATIVE_ID':'NATIVE_ID_LOOKUP_MISSING'});
+    }
+  }
+  const expected=rows.length;
+  const confirmed=rows.filter(row=>row.status===
+    'EXACT_NATIVE_ID_ROUNDTRIP').length;
+  return {version:VERSION,expected,confirmed,blocked:rows.filter(row=>
+    row.status!=='EXACT_NATIVE_ID_ROUNDTRIP'),
+    sourceCatalogRowsComplete:expected>0&&confirmed===expected,
+    allOriginalRanksRoundTripped:sourceAudit.completeOriginalField&&
+      sourceAudit.completeExactNativeIds&&confirmed===expected,
+    caveat:'Native CardManager identifier round-trip only; effect behavior and paper equivalence unverified'};
+}
+
+/**
  * An explicit required-fixture contract. A passing CI job does not imply
  * executed tests; a loaded printed identifier does not prove a settled effect.
  * Witness flags are claimant-supplied and require separate artifact review.
@@ -135,6 +186,8 @@ function evaluateRelease(packet) {
     packet.coverage, packet.plan);
   const fixtures = auditRequiredFixtures(packet.fixtures ?? [],
     packet.requiredFixtureIds ?? []);
+  const nativeRoundTrips = typeof packet.nativeCardLookup === 'function' ?
+    auditNativeIdRoundTrips(field,packet.nativeCardLookup) : null;
   const candidate = packet.candidate ?? {};
   const candidateComplete = Array.isArray(candidate.exactNative60) &&
     candidate.exactNative60.length === 60 &&
@@ -143,6 +196,8 @@ function evaluateRelease(packet) {
   const blockers = [];
   if (!field.completeOriginalField) blockers.push('MISSING_ORIGINAL_SOURCE_LISTS');
   if (!field.completeExactNativeIds) blockers.push('INCOMPLETE_EXACT_NATIVE_PRINTS');
+  if (!nativeRoundTrips?.allOriginalRanksRoundTripped)
+    blockers.push('NATIVE_ID_ROUNDTRIP_UNVERIFIED');
   if (!candidateComplete) blockers.push('CANDIDATE_PRINTING_UNVERIFIED');
   if (!fixtures.passed) blockers.push('REQUIRED_NATIVE_FIXTURES_NOT_QUALIFIED');
   if (packet.policy?.ownerInformationSafe !== true ||
@@ -151,11 +206,11 @@ function evaluateRelease(packet) {
     blockers.push('POLICY_NOT_QUALIFIED');
   if (packet.paperClockQualified !== true)
     blockers.push('PAPER_CLOCK_UNVERIFIED');
-  return {version:VERSION, field, fixtures,
+  return {version:VERSION, field, fixtures, nativeRoundTrips,
     candidateComplete, blockers,
     competitiveQualified: blockers.length === 0,
     caveat:'Flags and artifact references require independent native and paper review; identifier loading and CI success alone confer no game wins.'};
 }
 
 module.exports = {VERSION, auditSourcePrintings,
-  auditRequiredFixtures, evaluateRelease};
+  auditNativeIdRoundTrips, auditRequiredFixtures, evaluateRelease};
