@@ -20,7 +20,7 @@
 | 11, Absol/Garbodor | 0 | 24941728 | 1 | 0 | 1 |
 | 11, Absol/Garbodor | 1 | 1460221882 | 0 | 0 | 1 |
 
-**All 4/4 asymmetric pairs passed** and preserved identical coin-winner seat within each pair and against the v1 symmetric controls. Each native run recorded `stoppedAtFirstTurn=true`, `verifiedByDrawLog=true`, exactly one actor GO_FIRST audit entry, and `firstTurnSlot===preferences[winner]?winner:1-winner` (with the correct conditional grouping `preferences[winner] ? winner : 1-winner`). Opposite mixed profiles reversed the actual first seat. The unmodified source/candidate deck ranks were 1 vs 6 and 1 vs 11, as in the v1 fixture.
+**All 4/4 asymmetric pairs passed** and preserved identical coin-winner seat within each pair and against the v1 symmetric controls. Each native run recorded `stoppedAtFirstTurn=true`, `verifiedByDrawLog=true`, exactly one actor GO_FIRST audit entry, and `firstTurnSlot === (preferences[winner] ? winner : 1-winner)`. Opposite mixed profiles reversed the actual first seat. The unmodified source/candidate deck ranks were 1 vs 6 and 1 vs 11, as in the v1 fixture.
 
 This is an **independent source-rank/seat choice-policy plumbing check**, not a test of player knowledge or strategic advantage. The same two actual numerical seeds across two ranks are not four independent random draws.
 
