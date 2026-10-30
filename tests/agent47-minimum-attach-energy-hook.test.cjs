@@ -30,6 +30,19 @@ test('original rank20 min3 abort: preserve exact first card and fill two',()=>{
  assert.deepEqual(result.value.map(row=>row.card),x.energies);
  assert.equal(x.proposed.length,1);
 });
+test('pinned native FilterType object accepted through physical CardList.filter',()=>{
+ const x=fixture();
+ const filter={superType:'ENERGY',energyType:'BASIC'};
+ x.prompt.filter=filter;
+ x.prompt.cardList.filter=arg=>{
+  assert.strictEqual(arg,filter);
+  return x.energies;
+ };
+ const r=repairMinimumAttachSelection(x.state,x.prompt,x.proposed);
+ assert.equal(r.changed,true);
+ assert.equal(r.value.length,3);
+ assert.equal(x.prompt.validate(r.value),true);
+});
 test('second min2 abort: fill one of two eligible physical cards',()=>{
  const x=fixture(2);x.prompt.filter=c=>c!==x.energies[2];
  const r=repairMinimumAttachSelection(x.state,x.prompt,x.proposed);
