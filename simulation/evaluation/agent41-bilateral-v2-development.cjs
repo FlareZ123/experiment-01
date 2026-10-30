@@ -703,7 +703,7 @@ function executeDevelopment(trial,candidates,{
   // counts are post-policy evidence and are never visible to a bot.
   const sourceFirstOwnedAffordances=
     require('./agent1-source-first-owned-affordances.cjs')
-      .sourceFirstOwnedAffordances(game.decisionTrace,sourceSeat,sourceFirst);
+      .sourceFirstOwnedAffordances(game.decisionTrace,sourceSeat,sourceFirst,rootTrace);
   const passEvidence=candidatePostChoicePassEvidence(
     game.decisionTrace,candidateSeat);
   return {
