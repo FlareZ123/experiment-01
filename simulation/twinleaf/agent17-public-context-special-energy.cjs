@@ -7,7 +7,7 @@ const SYMBOLS=Object.freeze({
   Grass:'G',Fire:'R',Water:'W',Lightning:'L',Psychic:'P',
   Fighting:'F',Darkness:'D',Metal:'M',Fairy:'Y'
 });
-const VERSION='agent17-public-context-special-energy-intent-v1';
+const VERSION='agent17-public-context-special-energy-intent-v2-stadium-cost';
 
 /**
  * Translate the public attack's native cost into the independently tested
@@ -30,8 +30,8 @@ function publicCostSymbols(cost,catalog){
 
 
 /**
- * Effective publicly known attack cost, including the Thunder Mountain
- * Lightning discount. Both attack-readiness and attachment-gain evaluation
+ * Effective publicly known attack cost, including Thunder Mountain's Lightning
+ * discount and Dimension Valley's Colorless discount. Both attack-readiness and attachment-gain evaluation
  * must use the same cost; otherwise a legal already-paid Lightning Bench
  * attack may be counted as needing another Energy.
  * @param {object} view Detached owner observation
@@ -48,6 +48,11 @@ function effectivePublicAttackCost(view,catalog,pokemon,attack){
   if(stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
       pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)){
     const i=cost.indexOf('L');
+    if(i>=0)cost.splice(i,1);
+  }
+  if(stadium.some(p=>p.startsWith('Dimension Valley '))&&
+      pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Psychic)){
+    const i=cost.indexOf('C');
     if(i>=0)cost.splice(i,1);
   }
   return cost;
