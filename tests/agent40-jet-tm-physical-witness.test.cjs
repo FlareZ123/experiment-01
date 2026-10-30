@@ -57,3 +57,29 @@ test('other Bench Special Energy continues to require same-slot attachment',()=>
     slot('Regidrago V SIT',[],[printing]),0),0,intent);
   assert.equal(rootPhysicalWitness(intent,a,b,phase),'confirmed-public-effect');
 });
+
+test('two Basic Energy paid retreat to active BUS has correct public receipt',()=>{
+  const intent={kind:'paid-retreat',printing:'Vileplume BUS',
+    benchIndex:0,retreatCostUnits:2};
+  const before=state(slot('Bunnelby PRC',[],
+    ['Grass Energy MEE','Grass Energy MEE']),
+    slot('Vileplume BUS'),0);
+  before.players[0].retreatedTurn=0;
+  const after=state(slot('Vileplume BUS'),
+    slot('Bunnelby PRC'),0);
+  after.players[0].retreatedTurn=2;
+  const old=rootPhysicalSnapshot(before,0,intent);
+  const now=rootPhysicalSnapshot(after,0,intent);
+  assert.equal(rootPhysicalWitness(intent,old,now,phase),
+    'confirmed-public-effect');
+  const missing=state(slot('Vileplume BUS'),
+    slot('Bunnelby PRC',[],['Grass Energy MEE']),0);
+  missing.players[0].retreatedTurn=2;
+  assert.equal(rootPhysicalWitness(intent,old,
+    rootPhysicalSnapshot(missing,0,intent),phase),
+    'no-confirmed-public-effect',
+    'Retreat must discard both Basic attachments before success');
+  const wrongCost={...intent,retreatCostUnits:1};
+  assert.equal(rootPhysicalWitness(wrongCost,old,now,phase),
+    'no-confirmed-public-effect');
+});
