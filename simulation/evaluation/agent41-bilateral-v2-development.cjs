@@ -927,7 +927,8 @@ function runDevelopment({
   bilateralPublicContextSpecialEnergy=false,
   bilateralEnergyContest=false,
   candidateOnlyKnownDeadRoot=false,
-  registeredTrials=null,registeredFrameName=null
+  registeredTrials=null,registeredFrameName=null,
+  allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
@@ -972,7 +973,8 @@ function runDevelopment({
     const groups=new Map();
     const ids=new Set();
     for(const trial of registeredTrials){
-      assert.ok([6,11].includes(trial.rank));
+      assert.ok((allowAdditionalOriginalSourceRanks?[4,6,10,11]:[6,11])
+        .includes(trial.rank));
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
         .includes(trial.candidateId));
