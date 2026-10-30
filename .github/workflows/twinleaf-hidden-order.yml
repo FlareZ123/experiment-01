@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent1_owner_starvip_two_seat_blower:
+        description: 'Paired native opponent-held Field Blower reply to actor-selected first-turn Garbodor, same 6 original source deals'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -132,6 +137,19 @@ jobs:
         with:
           name: agent1-owner-autonomous-source-starvip-six
           path: agent1-native-owner-starvip-original-six.json
+          if-no-files-found: warn
+      - name: Same original-six physical source starts, actor-selected Star-VIP versus owner-held opponent Field Blower
+        if: inputs.agent1_owner_starvip_two_seat_blower
+        run: node simulation/evaluation/agent1-rank11-six-original-two-seat-blower-response.cjs > agent1-native-source-starvip-opponent-blower-pairs.json
+      - name: Require all original six same-K0 two-seat pairs and print opponent Tool removal
+        if: inputs.agent1_owner_starvip_two_seat_blower
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-native-source-starvip-opponent-blower-pairs.json');a.equal(r.originalPairs,6);a.equal(r.armsAttempted,12);a.equal(r.originallyVerifiedArms,12);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_NATIVE_BILATERAL_BLOWER',JSON.stringify({sourcePlanChosen:r.chosenSourcePlans,acceptedSteps:r.acceptedSourcePlanSteps,opponentBlowerNativeRoots:r.heldBlowerResponseRootCount,opponentToolRemovalEvents:r.confirmedEarlyToolRemovalEvents,rows:r.rows.map(x=>({index:x.index,seed:x.seed,arms:x.arms.map(z=>({treated:z.opponentBlowerPolicy,sourcePlans:z.sourcePlansChosen,sourceAccepted:z.sourceNativeAccepted,sourceEquippedAfter:z.sourceCompletedEquippedAfterReply,blowerRoots:z.nativeTurn2FieldBlowerRootCount,blowerRemoved:z.earlyBlowerToolRemoved,status:z.status}))}))}))"
+      - name: Preserve original-six same-source K0 two-seat Tool counterplay outcomes
+        if: inputs.agent1_owner_starvip_two_seat_blower && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-source-starvip-opponent-blower-original-six-pair
+          path: agent1-native-source-starvip-opponent-blower-pairs.json
           if-no-files-found: warn
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
