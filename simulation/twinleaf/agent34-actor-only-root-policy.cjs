@@ -184,6 +184,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePublicJetBenchSwitch(view,catalog);
     if(jet)return jet;
   }
+  // Default-off original-rank15-derived source lock-position transition.
+  // Prefer a two-Unit retreat into BUS when AOR already occupies Bench;
+  // a held Basic Energy can fund that retreat on the current owner turn.
+  if(options.busLockPositionRoot===true){
+    const lock=require('./agent40-public-bus-position-frontier.cjs')
+      .choosePublicBusPositionTransition(view,catalog);
+    if(lock)return lock;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -451,6 +459,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
       (process.env.AGENT40_BUNNELBY_TM_JET_DEV==='true'),
+    busLockPositionRootOptIn:deps.busLockPositionRoot??
+      (process.env.AGENT40_BUS_POSITION_DEV==='true'),
     raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
       (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
@@ -574,6 +584,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.bunnelbyTmJetRootOptIn)
     audit.version+='+'+
       require('./agent40-owner-bunnelby-tm-jet-line.cjs').VERSION;
+  if(audit.busLockPositionRootOptIn)
+    audit.version+='+'+
+      require('./agent40-public-bus-position-frontier.cjs').VERSION;
   if(audit.raichuKoBreakpointBeforeAttackOptIn)
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
@@ -701,6 +714,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
+      busLockPositionRoot:audit.busLockPositionRootOptIn,
       ownRegisteredSixty:deps.ownRegisteredSixtiesBySeat?.[seat]??null,
       printedGxRoot:audit.printedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
