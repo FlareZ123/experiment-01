@@ -73,6 +73,8 @@ jobs:
         run: node simulation/twinleaf/agent27-source-lastbench-two-basic-native.cjs > agent27-lastbench-native.json
       - name: Native registered source final Bench Wonder Tag search prompt closure
         run: node simulation/twinleaf/agent27-lastbench-wondertag-followthrough.cjs > agent27-lastbench-wondertag-native.json
+      - name: Native source rank6 Initialization blocks the alternative Wonder Tag
+        run: node simulation/twinleaf/agent27-lastbench-thorns-lock-native.cjs > agent27-lastbench-thorns-lock.json
       - name: Verify both-seat Store outcomes retained without strength inference
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-native.json');a.equal(r.rows.length,2);a.ok(r.rows.every(x=>x.nativeAttachmentConfirmed&&x.nativeSameAttackSettled&&x.nativeHoldAttackSettled));a.equal(r.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,version:r.policyVersion,rows:r.rows.map(x=>({seat:x.seat,selected:x.arbitratedRoot.kind,held:x.conservativeHold.reason}))}))"
       - name: Historical action arbiter A/B/A pure registration regression
@@ -126,6 +128,7 @@ jobs:
             agent41-owner-arbitration-native.json
             agent27-lastbench-native.json
             agent27-lastbench-wondertag-native.json
+            agent27-lastbench-thorns-lock.json
             agent41-owner-arbitration-historical-aba.json
             agent41-rank3-arbitration-original-store.json
             agent5-owner-root-result.json
