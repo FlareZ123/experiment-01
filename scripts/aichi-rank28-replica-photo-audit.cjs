@@ -63,7 +63,7 @@ function audit() {
   const cardCounts = new Map();
 
   for (const entry of photo.entries) {
-    assert.match(entry.grid, /^[1-5]\\/[1-8]$/);
+    assert.match(entry.grid, /^[1-5][/][1-8]$/);
     assert.equal(grid.has(entry.grid), false, 'duplicate physical photo position');
     grid.add(entry.grid);
     assert.ok(Number.isSafeInteger(entry.count) && entry.count >= 1 && entry.count <= 4);
@@ -105,7 +105,7 @@ function audit() {
     importantQualification: 'Qualifier rank and Limitless final placement are different ranking concepts',
     competitiveQualifiedGames: 0,
   };
-  process.stdout.write(JSON.stringify(report, null, 2) + '\\n');
+  process.stdout.write(JSON.stringify(report, null, 2) + String.fromCharCode(10));
 }
 
 if (require.main === module) audit();
