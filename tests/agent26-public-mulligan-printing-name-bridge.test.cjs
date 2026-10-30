@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  publicPrintingNameIndex,opponentPublicFailedHandNames
+  publicPrintingNameIndex,publicAichiSourceNameIndex,opponentPublicFailedHandNames
 }=require('../simulation/evaluation/agent26-public-mulligan-printing-name-bridge.cjs');
 
 const catalog=[
@@ -80,4 +80,28 @@ test('pure verified names feed exact 29-source history classifier',()=>{
     0,publicPrintingNameIndex(catalog));
   const result=publicFailedHandHistoryPosterior(manifest,names);
   assert.deepEqual(result.sourceIdentitiesCompatible,[6,24,29]);
+});
+
+test('native Prism Star names map to exact known Aichi original source aliases',()=>{
+  const definitions=[
+    {fullName:'Wondrous Labyrinth Prism Star TEU',
+      name:'Wondrous Labyrinth Prism Star'},
+    {fullName:'Thunder Mountain Prism Star LOT',
+      name:'Thunder Mountain Prism Star'},
+    {fullName:'Ditto Prism Star LOT',name:'Ditto Prism Star'},
+    {fullName:'Tapu Koko Prism Star TEU',name:'Tapu Koko Prism Star'},
+    {fullName:'Other Prism Star FOO',name:'Other Prism Star'}
+  ];
+  const publicOnly=publicPrintingNameIndex(definitions);
+  const sourceCompatible=publicAichiSourceNameIndex(definitions);
+  assert.equal(publicOnly.get(definitions[0].fullName),
+    'Wondrous Labyrinth Prism Star');
+  assert.equal(sourceCompatible.get(definitions[0].fullName),
+    'Wondrous Labyrinth ♢');
+  assert.equal(sourceCompatible.get(definitions[1].fullName),
+    'Thunder Mountain ♢');
+  assert.equal(sourceCompatible.get(definitions[2].fullName),'Ditto ♢');
+  assert.equal(sourceCompatible.get(definitions[3].fullName),'Tapu Koko ♢');
+  assert.equal(sourceCompatible.get(definitions[4].fullName),
+    'Other Prism Star','Unverified card names are never fuzzy-matched');
 });
