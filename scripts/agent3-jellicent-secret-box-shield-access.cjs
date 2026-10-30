@@ -18,11 +18,16 @@
  * payment cards, without assessing their DCI or future strategic cost.
  * No additional Items, Supporters, bonus mulligan draws, lock response,
  * Energy, Bench development, Prizes taken or wins are modeled.
+ * An optional strict payment sensitivity requires >=minCheapDiscards from
+ * a designated cheapDiscards category already held by the first draw, with
+ * every named piece and all other cards treated as strategically protected.
+ * This is a deliberately conservative DCI proxy, not a full hand policy.
  *
  * @typedef {{
  *   frillish?:number,jellicent?:number,boostShake?:number,
  *   stealthyHood?:number,silentLab?:number,arven?:number,
- *   secretBox?:number,totalBasics?:number,goingSecond?:boolean
+ *   secretBox?:number,totalBasics?:number,goingSecond?:boolean,
+ *   cheapDiscards?:number,minCheapDiscards?:number
  * }} Options
  */
 
@@ -76,7 +81,8 @@ function exactSecretBoxShield(options={}){
     b=options.boostShake??4,h=options.stealthyHood??4,
     l=options.silentLab??4,a=options.arven??0,
     s=options.secretBox??1,basics=options.totalBasics??12,
-    second=options.goingSecond===true;
+    second=options.goingSecond===true,
+    cheap=options.cheapDiscards??0,minCheap=options.minCheapDiscards??0;
   if([f,j,b,h,l,a].some(n=>!Number.isInteger(n)||n<0||n>4))
     throw new RangeError('Ordinary card count must be 0..4');
   if(!Number.isInteger(s)||s<0||s>1)
@@ -84,8 +90,12 @@ function exactSecretBoxShield(options={}){
   if(!Number.isInteger(basics)||basics<f||
     basics>60-j-b-h-l-a-s)
     throw new RangeError('totalBasics conflicts with card slots');
-  // Frillish, Boost, Hood, Lab, Jellicent, Arven, Box, other.
-  const sizes=[f,b,h,l,j,a,s,60-f-j-b-h-l-a-s];
+  const otherSize=60-f-j-b-h-l-a-s;
+  if(!Number.isInteger(cheap)||cheap<0||cheap>otherSize||
+    !Number.isInteger(minCheap)||minCheap<0||minCheap>3)
+    throw new RangeError('Cheap discard count must fit unused slots; min 0..3');
+  // Frillish, Boost, Hood, Lab, Jellicent, Arven, Box, cheap, other.
+  const sizes=[f,b,h,l,j,a,s,cheap,otherSize-cheap];
   const denominator=(choose(60,7)-choose(60-basics,7))*53n*choose(52,6);
   const unrestricted=choose(60,7)*53n*choose(52,6);
   let numerator=0n;
@@ -97,7 +107,8 @@ function exactSecretBoxShield(options={}){
       const drawWays=sizes[draw]-hand[draw];
       if(!drawWays)continue;
       const held=hand.map((n,i)=>n+Number(draw===i));
-      const [,hb,hh,hl,hj,ha,hs]=held;
+      const [,hb,hh,hl,hj,ha,hs,hd]=held;
+      const cheapPaymentAllowed=hd>=minCheap;
       // Bitmasks in remaining order: Jellicent, Boost, Hood, Lab, Box.
       const remaining=[j-hj,b-hb,h-hh,l-hl,s-hs];
       const requireJ=1;
@@ -106,8 +117,8 @@ function exactSecretBoxShield(options={}){
       const fullMask=requireJ|requireB|requireH|requireL;
       const possibilities=[];
       if(hb&&hh&&hl)possibilities.push([requireJ,'direct']);
-      if(hs)possibilities.push([fullMask,'heldBox']);
-      if(second&&ha&&remaining[4]>0)
+      if(hs&&cheapPaymentAllowed)possibilities.push([fullMask,'heldBox']);
+      if(second&&ha&&cheapPaymentAllowed&&remaining[4]>0)
         possibilities.push([fullMask|requireBox,'arvenBox']);
       if(second&&ha&&hl)
         possibilities.push([requireJ|requireB|requireH,'arvenDirect']);
