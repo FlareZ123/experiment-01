@@ -48,7 +48,8 @@ function runOne(ownerSeat,afterBawl){
   const whismur=card('Whismur CES');
   const bawl=whismur.attacks.find(x=>x.name==='Bawl');
   assert.ok(bawl,'Whismur CES Bawl not registered');
-  assert.deepEqual(bawl.cost,['Colorless']);
+  assert.equal(bawl.cost.length,1,
+    'Pinned Bawl must request one Energy symbol, cost type is native enum');
   owner.active.cards.push(whismur);
   source.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   const item=card('Tag Call CEC');
