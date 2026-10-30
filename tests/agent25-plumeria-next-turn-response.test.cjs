@@ -98,7 +98,30 @@ test('a real accepted next-turn AttackAction is counted as declaration only',()=
   x.result.rows[0].rootActionLedger.push({
     actionOrdinal:38,playerSlot:1,turnBefore:4,pendingPrompt:null,
     action:'AttackAction',attack:'Get Lost'});
+  x.result.rows[0].candidateAttackSettlement={attacks:[{
+    actionOrdinal:38,turnBefore:4,attackName:'Get Lost',
+    settledPromptChain:true,settlementCrossesClockReset:false,
+    completionRootOrdinal:39
+  }]};
   const r=auditPlumeriaNextTurns(x);
   assert.equal(r.nextOpponentAttackDeclarations,1);
+  assert.equal(r.nextOpponentWithSettledAttack,1);
   assert.deepEqual(r.records[0].opponentAcceptedAttackNames,['Get Lost']);
+});
+
+test('a proposed but unsettled or reset-crossing attack cannot be credited',()=>{
+  const x=fixture();
+  x.result.rows[0].rootActionLedger.push({
+    actionOrdinal:38,playerSlot:1,turnBefore:4,pendingPrompt:null,
+    action:'AttackAction',attack:'Get Lost'});
+  x.result.rows[0].candidateAttackSettlement={attacks:[{
+    actionOrdinal:38,turnBefore:4,attackName:'Get Lost',
+    settledPromptChain:false,settlementCrossesClockReset:false
+  }]};
+  assert.throws(()=>auditPlumeriaNextTurns(x));
+  x.result.rows[0].candidateAttackSettlement.attacks[0]
+    .settledPromptChain=true;
+  x.result.rows[0].candidateAttackSettlement.attacks[0]
+    .settlementCrossesClockReset=true;
+  assert.throws(()=>auditPlumeriaNextTurns(x));
 });
