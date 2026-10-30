@@ -110,3 +110,30 @@ test('public full-card print map supplies actor-safe no-Rule-Box evidence',()=>{
     }
   }
 });
+
+
+test('pinned engine space-delimited GX and EX aliases retain exact public Rule Box flags',()=>{
+  const index=buildPublicPokemonProfileIndex(ROOT);
+  const gx=visiblePrintedProfile(index,'Dedenne GX UNB');
+  const printedGx=visiblePrintedProfile(index,'Dedenne-GX UNB');
+  assert.ok(gx);
+  assert.deepEqual(gx,printedGx);
+  assert.equal(gx.isPokemonGX,true);
+  assert.equal(gx.hasRuleBox,true);
+
+  const ex=visiblePrintedProfile(index,'Mewtwo EX NXD');
+  assert.ok(ex);
+  assert.deepEqual(ex,visiblePrintedProfile(index,'Mewtwo-EX NXD'));
+  assert.equal(ex.isPokemonEX,true);
+  const own={prizeCount:5,stadium:[]},opponent={prizeCount:3,stadium:[]};
+  assert.equal(energySupply('Counter Energy CIN',
+    energyContextFromPublic(own,opponent,gx)).capacity,1);
+
+  assert.equal(visiblePrintedProfile(index,'Invented GX BAD'),null);
+  const ambiguous=new Map([['Dedenne-GX UNB',null]]);
+  assert.equal(visiblePrintedProfile(ambiguous,'Dedenne GX UNB'),null);
+  const exact=new Map([['Dedenne GX UNB',{isPokemonGX:false}],
+    ['Dedenne-GX UNB',{isPokemonGX:true}]]);
+  assert.equal(visiblePrintedProfile(exact,'Dedenne GX UNB').isPokemonGX,false,
+    'Exact public printing identity must take priority over any alias');
+});
