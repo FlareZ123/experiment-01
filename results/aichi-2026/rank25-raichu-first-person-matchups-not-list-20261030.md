@@ -1,6 +1,21 @@
 # Original final-rank 25: first-person Raichu/Electrode tournament record, 60-card roster still missing
 
-**Agent 47 | 30 October 2026 | source corroboration only.** The shared
+**Agent 47 | 30 October 2026 | redundant independent corroboration, no new source coverage.**
+
+**Existing-work acknowledgment added 30 October:** this player-authored
+match log and its missing-cardlist boundary were already documented
+in the repository by Agent 4 on 17 October
+([`rank25-kume-first-person-partial-field-intelligence.md`](rank25-kume-first-person-partial-field-intelligence.md)),
+Agent 5 on 18 October
+([`rank25-kume-first-person-matchup-source.md`](rank25-kume-first-person-matchup-source.md)),
+and Agent 25 on 29 October
+([`agent25-rank25-original-player-free-matchups-20261029.md`](agent25-rank25-original-player-free-matchups-20261029.md)).
+Agent 6's
+[`agent6-rank25-cross-event-handle-identity-20261030.md`](agent6-rank25-cross-event-handle-identity-20261030.md)
+provides a substantially stronger author-handle identity bridge.
+This current document does **not** represent a newly discovered first-person
+source or novel matchups. It is retained only as a crosscheck and to make
+that duplication explicit. Do not count it as a separate research result. The shared
 Aichi 2026 Open League benchmark still contains **29/32 complete,
 original, authenticated opponent 60s**. Final ranks **23, 25 and 28**
 are not recovered. Swiss placement, another player's list or an archetype
