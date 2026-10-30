@@ -957,6 +957,26 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
     }
+    const eriReply=this===nativeStore?typedEriReplies.get(action):undefined;
+    if(eriReply){
+      const owner=this.state.players[eriReply.seat];
+      const opponent=this.state.players[1-eriReply.seat];
+      assert.equal(owner?.id,eriReply.ownerId);
+      const chosen=eriReply.selectedPhysical;
+      assert.ok(chosen.every(card=>opponent.hand.cards.includes(card)),
+        'Eri must choose exact physical cards from the revealed hand');
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      assert.ok(chosen.every(card=>
+        opponent.discard.cards.includes(card)&&
+        !opponent.hand.cards.includes(card)),
+        'Eri native response failed to discard chosen physical Items');
+      assert.ok(owner.discard.cards.some(card=>card.fullName==='Eri TEF'),
+        'Eri must finish in the acting owner discard after resolution');
+      ownerEriPending.delete(eriReply.ownerId);
+      audit.eriPromptsAccepted++;
+      audit.eriItemsDiscarded+=chosen.length;
+      return result;
+    }
     const seekerReply=this===nativeStore?typedSeekerReplies.get(action):undefined;
     if(seekerReply){
       const owner=this.state.players[seekerReply.seat];
