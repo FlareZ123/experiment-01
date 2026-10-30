@@ -18,8 +18,13 @@ function inspect(manager){
   assert.equal(typeof manager?.getCardByName,'function');
   const results=PRINTS.map(target=>{
     const card=manager.getCardByName(target.printed);
-    const abilities=Array.isArray(card?.abilities)?card.abilities:[];
-    const ability=abilities.find(a=>a.name===target.ability);
+    // The pinned native PokemonCard API calls Abilities 'powers'.
+    // The supplied archive instead uses 'abilities'. Do not silently
+    // declare a missing native Ability by looking in the wrong property.
+    const powers=Array.isArray(card?.powers)?card.powers:[];
+    const ability=powers.find(a=>a.name===target.ability);
+    const nativeAcePowers=powers.filter(a=>
+      /ace spec/i.test(a.text??''));
     const exactPrinting=card!=null&&card.name===target.name&&
       String(card.set).toUpperCase()===target.set&&
       String(card.setNumber)===target.number;
@@ -27,7 +32,10 @@ function inspect(manager){
       nativeCardRegistered:card!=null,
       exactNativePrinting:exactPrinting,
       namedNativeAbility:ability!=null,
+      nativePowerNames:powers.map(p=>p.name),
+      nativeAcePowerNames:nativeAcePowers.map(p=>p.name),
       nativeAbilityText:ability?.text??null,
+      nativeAcePowerTexts:nativeAcePowers.map(p=>p.text),
       nativeToolRequirement:target.requiredTool,
       ownAceBlockedByPaperText:target.deniesOwnAce,
       nativeEffectActuallySettled:false,
