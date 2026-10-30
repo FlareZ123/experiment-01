@@ -4,6 +4,13 @@ const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 
 const VERSION='agent13-original-field-source-identity-v1';
+// Independently frozen Git blobs at the 30 Oct 2026 29-source registration.
+// Any new source correction/recovery requires an explicit reviewed rebaseline.
+const FROZEN_AICHI_SOURCE=Object.freeze({
+  version:'aichi-exact-original-source-git-blobs-20261030-v1',
+  manifestBlobSha:'ae773f6201d7aa69d31914dbfee66f3fba692200',
+  fieldBlobSha:'b0d86497b940b73ff5f83c5e8a4ca1f7ebab1be1'
+});
 const CATEGORIES=['Pokémon','Trainer','Energy'];
 // Basic Energy is the only unlimited same-name category in the supplied rules.
 const BASIC_ENERGY_NAMES=new Set([
@@ -11,6 +18,48 @@ const BASIC_ENERGY_NAMES=new Set([
   'Psychic Energy','Fighting Energy','Darkness Energy',
   'Metal Energy','Fairy Energy'
 ]);
+
+/**
+ * Git's exact SHA-1 blob object hash over bytes, preserving source file
+ * formatting and UTF-8 text. This is a file-provenance checksum, not a
+ * security or paper-legality assertion.
+ * @param {string} raw
+ * @returns {string}
+ */
+function gitBlobSha(raw){
+  assert.equal(typeof raw,'string');
+  const content=Buffer.from(raw,'utf8');
+  return createHash('sha1').update('blob '+content.length+'\\0')
+    .update(content).digest('hex');
+}
+
+/**
+ * Connect both raw original source files to the frozen 30 Oct registration.
+ * The freeze can be inspected without enforcing it; competitive dispatch
+ * must explicitly enforce and update it on any reviewed source correction.
+ * @param {string} manifestRaw
+ * @param {string} fieldRaw
+ * @param {boolean} [requireFrozen=false]
+ * @returns {object}
+ */
+function attestFrozenSourceInputs(manifestRaw,fieldRaw,requireFrozen=false){
+  const manifestBlobSha=gitBlobSha(manifestRaw);
+  const fieldBlobSha=gitBlobSha(fieldRaw);
+  const matchedFrozenReference=
+    manifestBlobSha===FROZEN_AICHI_SOURCE.manifestBlobSha&&
+    fieldBlobSha===FROZEN_AICHI_SOURCE.fieldBlobSha;
+  if(requireFrozen)
+    assert.ok(matchedFrozenReference,
+      'Original source raw Git blobs differ from frozen benchmark registration');
+  return {
+    registration:FROZEN_AICHI_SOURCE.version,
+    sourceManifestGitBlobSha:manifestBlobSha,
+    sourceFieldGitBlobSha:fieldBlobSha,
+    matchedFrozenReference,
+    frozenManifestGitBlobSha:FROZEN_AICHI_SOURCE.manifestBlobSha,
+    frozenFieldGitBlobSha:FROZEN_AICHI_SOURCE.fieldBlobSha
+  };
+}
 
 /**
  * Parse the repository's canonical four-column, unquoted Aichi field roster.
@@ -213,6 +262,8 @@ function attestPhysicalArm({plan,rank,candidateSeat,deckA,deckB}){
   assert.ok(candidateSeat===0||candidateSeat===1,
     'Invalid physical candidate seat');
   assert.ok(plan&&plan.originalSourceIdentity);
+  assert.equal(plan.originalSourceFiles?.matchedFrozenReference,true,
+    'Physical arm lacks reviewed frozen original source inputs');
   assert.ok(Array.isArray(deckA)&&Array.isArray(deckB));
   const source=plan.opponents.find(opponent=>opponent.rank===rank);
   const original=plan.originalSourceIdentity.sources.find(row=>row.rank===rank);
@@ -251,5 +302,6 @@ function attestPhysicalArm({plan,rank,candidateSeat,deckA,deckB}){
   };
 }
 
-module.exports={VERSION,parseField,printingFingerprint,attestField,
+module.exports={VERSION,FROZEN_AICHI_SOURCE,gitBlobSha,
+  attestFrozenSourceInputs,parseField,printingFingerprint,attestField,
   attestNativePlan,attestPhysicalArm};
