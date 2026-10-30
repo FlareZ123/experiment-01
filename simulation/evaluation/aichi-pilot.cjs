@@ -6,7 +6,8 @@ const { createHash } = require('node:crypto');
 const { runMatch } = require('../twinleaf/headless.cjs');
 const { resolveManifest } = require('../twinleaf/resolve-field.cjs');
 const { evaluatePlan } = require('./field-benchmark.cjs');
-const { attestField, attestNativePlan } = require('./agent13-source-identity-gate.cjs');
+const { attestField, attestNativePlan, attestFrozenSourceInputs } =
+  require('./agent13-source-identity-gate.cjs');
 
 const MANIFEST_PATH = path.resolve(__dirname, '../../results/aichi-2026/full-decklists.json');
 
@@ -24,10 +25,13 @@ function digest(value) {
  * @returns {object} Field plan accepted by the separate match evaluator.
  */
 function planAichi(candidate = 1, options = {}) {
-  const source = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  const originalSourceJson = fs.readFileSync(MANIFEST_PATH, 'utf8');
+  const source = JSON.parse(originalSourceJson);
   // Prevent rank/player/archetype drift before any native printed-card resolution.
   const fieldCsv = fs.readFileSync(path.resolve(__dirname,
     '../../results/aichi-2026/field.csv'), 'utf8');
+  const originalSourceFiles = attestFrozenSourceInputs(
+    originalSourceJson,fieldCsv,options.requireFrozenSourceBaseline===true);
   attestField(source, fieldCsv);
   const custom = typeof candidate === 'object' && candidate !== null;
   const candidateRank = custom ? 0 : candidate;
@@ -72,7 +76,7 @@ function planAichi(candidate = 1, options = {}) {
   const originalSourceIdentity=attestNativePlan(
     {opponents,sourceDeckCount:source.decks.length},source,fieldCsv);
   return {
-    originalSourceIdentity,
+    originalSourceIdentity,originalSourceFiles,
     candidateNativeOrderedSha256:candidateResolved.cards?
       digest(candidateResolved.cards):null,
     source: source.source, engineRevision: imported.engineRevision,
