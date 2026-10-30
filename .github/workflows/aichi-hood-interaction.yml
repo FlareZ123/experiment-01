@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_box_k0_source_census:
+        description: 'Opt-in 48 preregistered original rank8 both-seat source first-turn read-only K0 hand screens, no game strength'
+        type: boolean
+        default: false
       agent44_rank8_box_fetch_shake_native:
         description: 'Opt-in synthetic original-rank8 hand/deck swap and genuine Secret Box Item->Shake native effect test; no original deal'
         type: boolean
@@ -193,6 +197,24 @@ jobs:
           node --check simulation/twinleaf/rank8-hooded-door-source-reply.cjs
           node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
           node --test tests/rank8-hooded-door-source-reply.test.cjs
+      - name: Test rank8 K0 Secret Box physical discard and read-only owner-root observation
+        if: inputs.agent44_rank8_box_k0_source_census
+        run: node --test tests/agent44-rank8-box-k0-window.test.cjs tests/agent44-rank8-box-k0-source-census.test.cjs
+      - name: Screen 48 original-rank8 source native first-owner-root hands in both seats
+        if: inputs.agent44_rank8_box_k0_source_census
+        run: node simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs > agent44-rank8-original-k0-source.json
+      - name: Summarize registered rank8 owner K0 opportunities without outcome claims
+        if: inputs.agent44_rank8_box_k0_source_census
+        run: >-
+          node -e "const r=require('./agent44-rank8-original-k0-source.json'); console.log(JSON.stringify({schema:r.schema,trials:r.trialCount,observed:r.observedOwnerK0,sourceStarts:r.actualSourceStarts,windows:r.exposed,noOpControls:r.noOpControlsPassed,failed:r.failedTrials,qualified:r.competitiveQualifiedGames}));"
+      - name: Archive rank8 source first-owner-root K0 observation of all physical deals
+        if: always() && inputs.agent44_rank8_box_k0_source_census
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-rank8-original-k0-source-census
+          path: agent44-rank8-original-k0-source.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Check synthetic rank8 Box-fetches-Shake native semantics fixture
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --check simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs
