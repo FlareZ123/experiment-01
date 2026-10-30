@@ -36,6 +36,24 @@ The rank-6 source in physical **seat 0** played its actual `Crushing Hammer POR`
 
 The original archived frozen 32-arm policy had no accepted source Hammer roots. The new treatment therefore verifies a previously missing **source-owned gameplay channel** at authentic native roots, although later game trajectories and any tactical value have not been qualified.
 
+## Exact opening-Hand incidence, with matchup limitations
+
+The three authenticated Iron Thorns ex-only source decks at ranks **6**, **24** and **29** each contain exactly four Basic Pokémon in a 60-card deck. Their registered Hammer counts are rank6 **4 Crushing + 2 Enhanced**, rank24 **0 Crushing + 2 Enhanced**, rank29 **4 Crushing + 1 Enhanced**. The source first-seven-hand incidence conditioned on a Basic-valid initial seven follows exact hypergeometric sampling, before Prize placement and any optional opponent-mulligan bonus cards.
+
+For `b=4` sole Basics, `h` disjoint specified Hammers and seven draws, the exact probability of holding at least one of those Hammers *conditional on holding any Basic* is:
+
+`1 - [C(60-h,7)-C(60-h-b,7)] / [C(60,7)-C(60-b,7)]`,
+
+where `C(a,k)` is the binomial coefficient. Explicit integer-combination evaluation yields:
+
+| Exact source | Any Hammer in Basic-valid first seven | At least one Crushing | At least one Enhanced |
+| --- | ---: | ---: | ---: |
+| Rank6 Iron Thorns (4 Crushing, 2 Enhanced) | **49.95372%** | **36.39695%** | **19.90802%** |
+| Rank24 Iron Thorns (0 Crushing, 2 Enhanced) | **19.90802%** | **0%** | **19.90802%** |
+| Rank29 Iron Thorns (4 Crushing, 1 Enhanced) | **43.51358%** | **36.39695%** | **10.41406%** |
+
+For rank6, the two families occur together in **6.35125%** of Basic-valid initial sevens; the **13.55677%** share that holds any Hammer but lacks Crushing is particularly important against a deck exposing only Basic Energy, because Enhanced Hammer cannot remove Basic Energy. These are exact **held-card incidence** calculations only. They do not give a chance to use Hammer on turn one, a probability of a useful target, the number of valid post-mulligan extra draws, a coin-success probability, or a match-winning value. They instead provide a quantitative reason to test the source's early Item decision vocabulary and to treat the two Hammers as distinct channels against different opponent Energy inventories.
+
 ## Limits and concrete next steps
 The near-term research priority is measurable **opponent-policy competence**. This bridge only plays Hammers when the prior bot would Pass. It does not arbitrate against an immediately playable attack or more valuable Trainer, decide when to preserve denial for a future turn, correctly optimize coin-dependent matchup pressure, or solve Supporter and Bench contention. Agent 4 is independently testing Plumeria; its two-hand discard cost creates different DCI/AMR concerns. Source rank 6 also contains unexercised disruption cards and may win through passive lock without attacking. Future comparisons should use a common, strong both-seat policy and record actual target Energy removal, position effects, resource expenditure, game clock and source replies.
 
