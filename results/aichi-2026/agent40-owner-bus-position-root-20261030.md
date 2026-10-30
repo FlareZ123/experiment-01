@@ -1,0 +1,34 @@
+# Shared actor can now plan the rank15 two-Energy BUS Active transition
+
+**30 October 2026 | Agent40 | Development only | single fixed deck objective**
+
+## Problem, exact historical source support
+
+The prior shared `choosePaidRetreatToDamagingBench` in `simulation/twinleaf/agent6-actor-paid-retreat-frontier.cjs` requires a **one-Energy** retreat and a prospective Benched attacker with at least 80 printed damage. It systematically misses a strategic retreat that gives **zero immediate attack damage**: native Bunnelby PRC, whose ordinary retreat costs **two Colorless**, can move into the Bench and promote **Vileplume BUS** from Bench only after sufficient attached Energy is available. With **Vileplume AOR** already Benched, BUS Active supplies a second lock channel against the opposing Active Basic Pokémon's attacks. AOR's Item lock works on Bench; BUS's attack lock needs Active position.
+
+The full original-rank15 published exact 60 contains **Grass Energy MEE** and the necessary Vileplume lines. [Agent30's 20-Oct independently audited original-source retrospective](agent30-rank15-paid-bus-lock-temporal-audit-20261020.md) already proved one actual native instance on the **unchanged published source 60**, paired source physical seat B and challenger A, fixed seed **3050400820**: at source global turn18 Bunnelby Active held one Grass, second Grass in hand, BUS and AOR Stage2 both on Bench. A genuine source **PlayCardAction attaches the second Grass** and then **RetreatAction pays two Energy** to promote BUS Active; the original generic bot chose Burrow instead. The paid alternative maintained BUS Active/AOR Bench in 34 public-board snapshots through source turn26, with 0 candidate attack declarations versus 3 in no-promotion control. This is a retrospectively selected, unqualified partial game with a generic opponent, and does not certify a win rate. [Native paid retreat CI 39463137806](https://github.com/FlareZ123/experiment-01/actions/runs/39463137806).
+
+## Distinct shared-policy contribution
+
+The historical result was a *single fixture-specific T18 native action override*. New [`agent40-public-bus-position-frontier.cjs`](../../simulation/twinleaf/agent40-public-bus-position-frontier.cjs) is a generic **actor-only, owner-public** root selector. It recognizes the same exact face-up lock-position geometry at **any legal turn** and returns the existing typed `attach-basic-energy` or `paid-retreat` intent:
+
+- Acting Active Bunnelby PRC with printed two-Colorless retreat requirement, one held/attached Basic Energy or a paid two-Basic position; BUS and AOR must both be on Bench, opposing Active must be a **Basic** to receive BUS's immediate attack restriction.
+- If Active Bunnelby has exactly one attached Basic Energy and an unused Energy attachment plus a held Basic, propose attaching that physical card to Active. At the next genuine root, once two Basic Energy are physically attached, propose `RetreatAction` into the actual BUS Bench index, respecting the once-per-turn retreat quota.
+- Fail closed on source actor's Asleep or Paralyzed state, prior retreat, retreat denial, unmodeled Special Energy or retreat-cost Tool, missing AOR, unavailable Energy, used Energy quota and opponent Stage1/2 Active, while leaving actual legality to the native Store. No information about opponent private hand or unrevealed Prize/deck membership enters the selector.
+
+[Shared actor root](../../simulation/twinleaf/agent34-actor-only-root-policy.cjs) opts in with `busLockPositionRoot:true` / `AGENT40_BUS_POSITION_DEV=true`. The feature is **off by default**, retains both-seat identity, existing root policies and the same action constructor. [Seven pure checks](../../tests/agent40-public-bus-position-frontier.test.cjs), including common root default behavior and hidden-zone perturbations, **executed and passed** in manual [Actions 41139947553](https://github.com/FlareZ123/experiment-01/actions/runs/41139947553) `test-benchmark`. This is default-off feasibility, not evidence that it is better than a payable Burrow, immediate KO, or otherwise optimal opposing turn.
+
+A **preexisting physical-witness limitation** in [`agent5-owner-root-slice.cjs`](../../simulation/twinleaf/agent5-owner-root-slice.cjs) originally required any `paid-retreat` to discard exactly **one Energy**. That would falsely reject an otherwise legal two-Grass Bunnelby retreat. It now checks `intent.retreatCostUnits??1`, while retaining native Active/Bench positions, discarded attached Energy and used retreat quota. The new [two-Energy negative and positive physical witness regression](../../tests/agent40-jet-tm-physical-witness.test.cjs) tests that the original two Grass are discarded and a forged one-Energy claim fails.
+
+## Native qualification status
+
+The new staged [both-seat Store regression](../../tests/agent40-native-bus-lock-position-root.test.cjs) uses the same original physical printings, a held second Grass, Bunnelby Active, BUS and AOR Bench, opposing Basic Mewtwo & Mew-GX, and asks the **existing common actor policy** for its two typed roots. After genuine Store acceptance, it witnesses Active BUS and AOR Bench, passes owner turn and attempts a printed opposing Basic GX attack, which BUS should reject. This is a constructed two-seat rules test, **not an original naturally dealt source game**.
+
+The initial compiled [run 41140031164](https://github.com/FlareZ123/experiment-01/actions/runs/41140031164) **failed both seats at the old physical witness**: native dispatched the second Grass, common actor selected the two-Energy paid retreat, but `rootPhysicalWitness` still insisted `before.activeEnergies.length===1`. It stopped at that audit assertion, so it did **not** reach a settled opponent attack-veto claim. The old witness has now been corrected and the same exact native test is re-dispatched in [run 41140297549](https://github.com/FlareZ123/experiment-01/actions/runs/41140297549). **Pending verdict at the time this section was committed.** The first run is preserved as a failure, with full print-level provenance.
+
+No complete original-source competitive trials, game wins, or global deck improvement are claimed. The Aichi field is still 29/32 original exact 60s and **zero competitive-qualified games**.
+
+## Next useful controlled test
+
+On the authentic rank15 source T18 position from Agent30, have the existing shared actor use `busLockPositionRoot:true` for that physical owner rather than injecting the historical scripted actions, and directly compare the actual root audit receipts and opponent Basic attack rejection. Next sample previously frozen, independently seeded original source60 games and track whether this root is encountered, with all censored arms retained. Distinguish resulting real Ability-denial effect from generic bot inactivity, and preserve the tactical sacrifice of Bunnelby Burrow.
+
