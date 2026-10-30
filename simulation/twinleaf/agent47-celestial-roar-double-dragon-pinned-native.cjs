@@ -31,7 +31,7 @@ function runOne(seat,scenario,paperCorrected=false){
  // stage() places the other two Double Dragons and remaining Basics into
  // deterministic Prize cards. Move one held Basic to the artificial top three
  // instead, preserving all source physical cards.
- if(scenario==='special-and-basic'){
+ if(scenario==='special-and-basic'||scenario==='basic-and-two-trainers'){
   const i=x.owner.hand.cards.findIndex(card=>card.fullName===G);
   assert.ok(i>=0);
   x.owner.deck.cards.push(x.owner.hand.cards.splice(i,1)[0]);
@@ -43,7 +43,9 @@ function runOne(seat,scenario,paperCorrected=false){
  };
  const fixedSample=scenario==='special-only'?
   [choose(DD),choose('Quick Ball FST'),choose('Mysterious Treasure FLI')]:
-  [choose(DD),choose(G),choose('Quick Ball FST')];
+  scenario==='basic-and-two-trainers'?
+   [choose(G),choose('Quick Ball FST'),choose('Mysterious Treasure FLI')]:
+   [choose(DD),choose(G),choose('Quick Ball FST')];
  x.owner.discard.cards.push(...x.owner.deck.cards);
  x.owner.deck.cards=fixedSample;
  assertSource60Conserved(x.owner);
@@ -58,11 +60,12 @@ function runOne(seat,scenario,paperCorrected=false){
  if(!paperCorrected)performAttack();
  const pending=x.state.prompts.find(p=>p.result===undefined);
  let offered=null,settled=null;
- if(scenario==='special-and-basic'||paperCorrected){
+ if(scenario!=='special-only'||paperCorrected){
   assert.equal(pending?.constructor?.name,'AttachEnergyPrompt');
   const eligible=pending.cardList.filter(pending.filter);
   const expected=paperCorrected?
-    scenario==='special-and-basic'?[DD,G]:[DD]:
+    scenario==='special-and-basic'?[DD,G]:
+    scenario==='special-only'?[DD]:[G]:
     [G];
   offered=eligible.map(c=>c.fullName);
   assert.deepEqual([...offered].sort(),[...expected].sort(),
@@ -74,16 +77,18 @@ function runOne(seat,scenario,paperCorrected=false){
   assert.equal(pending.validate(assignment,x.state),true);
   x.store.dispatch(new ResolvePromptAction(pending.id,assignment));
   settled=x.owner.active.energies.cards.map(c=>c.fullName);
-  if(scenario==='special-and-basic')assert.ok(settled.includes(G));
+  if(scenario!=='special-only')assert.ok(settled.includes(G));
  }else{
   assert.ok(pending===undefined||pending.constructor.name!=='AttachEnergyPrompt',
     'Pinned no-Basic branch must omit attachment prompt');
  }
  const afterDde=x.owner.discard.cards.filter(c=>c.fullName===DD).length;
  const stillAttached=x.owner.active.energies.cards.map(c=>c.fullName);
- assert.equal(afterDde,beforeDde+(paperCorrected?0:1),
+ assert.equal(afterDde,beforeDde+
+   (paperCorrected||scenario==='basic-and-two-trainers'?0:1),
    'Double Dragon should remain in discard only under pinned original reducer');
- assert.equal(stillAttached.filter(name=>name===DD).length,paperCorrected?2:1,
+ assert.equal(stillAttached.filter(name=>name===DD).length,
+   paperCorrected&&scenario!=='basic-and-two-trainers'?2:1,
    'Corrected Energy effect must attach the original physical Special Energy');
  const physicalLive=[
   ...x.owner.active.cards,...x.owner.bench.flatMap(slot=>slot.cards),
@@ -96,7 +101,7 @@ function runOne(seat,scenario,paperCorrected=false){
  // The original mixed-case reducer mutates temp.cards during forEach,
  // skipping one non-Energy after the Basic Energy is attached. This
  // intentionally records the 59-card state instead of hiding a true leak.
- const expectedLive= !paperCorrected&&scenario==='special-and-basic'?59:60;
+ const expectedLive= !paperCorrected&&scenario!=='special-only'?59:60;
  assert.equal(physicalSourceCardsInZones,expectedLive,
   'Unexpected physical-zone conservation during native Celestial Roar');
  return {seat,scenario,paperCorrected,hookAudit:hook?.audit??null,
@@ -108,6 +113,7 @@ function runOne(seat,scenario,paperCorrected=false){
   nonBasicSpecialEligible:paperCorrected,
   printedText:'If any of those cards are Energy cards, attach them to this Pokémon.',
   paperEquivalence:paperCorrected?'settled-on-this-staged-sample':
+   scenario==='basic-and-two-trainers'?'discrepant-on-native-physical-zone-loss':
    'discrepant-on-this-staged-source-legal-Double-Dragon-sample',
   qualifiedGame:false};
 }
@@ -115,7 +121,8 @@ function main(){
  return {schema:'agent47-celestial-roar-double-dragon-original60-native-v1',
   enginePin:PIN,cases:[
    runOne(0,'special-only'),runOne(1,'special-only'),
-   runOne(0,'special-and-basic'),runOne(1,'special-and-basic')],
+   runOne(0,'special-and-basic'),runOne(1,'special-and-basic'),
+   runOne(0,'basic-and-two-trainers'),runOne(1,'basic-and-two-trainers')],
   competitiveQualifiedGames:0,
   caveat:'Staged source 60 and synthetic top-three draw, no natural deal or opponent policy. Printed Energy includes eligible Special Double Dragon, while pinned reducer only transfers Basic. Mechanistic mismatch, not game performance.'};
 }
