@@ -122,6 +122,10 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rank8_secretbox_item_allocation.py'
       - name: Preserve ranked Secret Box Item allocation access fractions
         run: python3 scripts/rank8_secretbox_item_allocation.py > rank8-secretbox-item-allocation.txt
+      - name: Rank-8 held Shake and Secret Box expanded Basic-search connector union
+        run: python3 -m unittest discover -s tests -p 'test_rank8_secretbox_firstturn_connectivity.py'
+      - name: Preserve expanded rank8 exact Basic-search connector fractions
+        run: python3 scripts/rank8_secretbox_firstturn_connectivity.py > rank8-secretbox-firstturn-connectivity.txt
       - name: Rank-11 Hood and Blower joint-source response exact tests
         run: python3 -m unittest discover -s tests -p 'test_rank11_hood_persistence_exact.py'
       - name: Rank-11 Hood and Blower response frontier output
@@ -183,6 +187,7 @@ jobs:
             rank11-hood-protection-frontier.txt
             rank8-hood-core-early.txt
             rank8-secretbox-item-allocation.txt
+            rank8-secretbox-firstturn-connectivity.txt
             newmoon-secret-box-blower-access.json
             newmoon-secret-box-discard-sensitivity.json
             newmoon-secretbox-payload-energy-window.json
