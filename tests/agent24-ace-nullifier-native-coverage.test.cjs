@@ -5,10 +5,10 @@ const {inspect}=require('../simulation/twinleaf/agent24-ace-nullifier-native-cov
 
 const fake={
   'Spiritomb LTR':{name:'Spiritomb',set:'LTR',setNumber:'87',
-    abilities:[{name:'Sealing Scream',
+    powers:[{name:'Sealing Scream',
       text:'Each player cannot play ACE SPEC cards.'}]},
   'Genesect SFA':{name:'Genesect',set:'SFA',setNumber:'40',
-    abilities:[{name:'ACE Nullifier',
+    powers:[{name:'ACE Nullifier',
       text:'Tool required for opponent-only ACE lock.'}]}
 };
 test('exact normal registered cards never become certified native effects',()=>{
@@ -27,12 +27,24 @@ test('missing and mislabeled native registrations must be explicit',()=>{
     !x.exactNativePrinting&&!x.namedNativeAbility));
   const wrong=inspect({getCardByName:name=>
     name==='Genesect SFA'?{...fake['Genesect SFA'],
-      setNumber:'41',abilities:[]}:
+      setNumber:'41',powers:[]}:
       fake[name]??null});
   assert.equal(wrong.results[1].nativeCardRegistered,true);
   assert.equal(wrong.results[1].exactNativePrinting,false);
   assert.equal(wrong.results[1].namedNativeAbility,false);
   assert.equal(wrong.competitivelyQualifiedGames,0);
+});
+test('a native printed Ability renamed Ace Canceller is flagged explicitly',()=>{
+  const renamed=inspect({getCardByName:name=>name==='Genesect SFA'?
+    {...fake['Genesect SFA'],powers:[{
+      name:'Ace Canceller',text:fake['Genesect SFA'].powers[0].text
+    }]}:fake[name]??null});
+  const g=renamed.results[1];
+  assert.equal(g.exactNativePrinting,true);
+  assert.equal(g.namedNativeAbility,false);
+  assert.deepEqual(g.nativePowerNames,['Ace Canceller']);
+  assert.deepEqual(g.nativeAcePowerNames,['Ace Canceller']);
+  assert.equal(g.nativeEffectActuallySettled,false);
 });
 test('missing native registry interface is not silently passed',()=>{
   assert.throws(()=>inspect(null));
