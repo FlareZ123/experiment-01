@@ -92,6 +92,8 @@ jobs:
         run: python3 scripts/rank11_oranguru_tool_lock_exact.py > rank11-oranguru-tool-lock-exact.txt
       - name: Reconcile disjoint rank-11 Oranguru Star-Alchemy VIP branch with earlier exact model
         run: node tests/agent32-rank11-oranguru-boost-shake-window.test.cjs
+      - name: Check owner-visible two-seat Star-VIP plan and hold blockers
+        run: node tests/agent32-owner-oranguru-starvip-plan-offer.test.cjs
       - name: Validate original rank-11 K0 archive hand-only source-ownership classifier
         run: python3 -m unittest discover -s tests -p 'test_agent32_rank11_k0_archive_audit.py'
       - name: New Moon Secret Box direct and search-response opportunity
