@@ -34,7 +34,7 @@ jobs:
         if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
