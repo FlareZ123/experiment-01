@@ -175,6 +175,8 @@ jobs:
         run: node --test tests/agent37-firstturn-exception.native.test.cjs
       - name: Verify native Omega Barrage Rototiller owner recovery in both seats
         run: node --test tests/agent37-bunnelby-rototiller-recovery.native.test.cjs
+      - name: Inventory Aichi source attack-text decision opportunities
+        run: node scripts/agent37-aichi-attack-text-census.cjs --summary
       - name: Census 118 original source Specials in the pinned CardManager
         run: node --test tests/agent17-original-special-native-catalog.test.cjs
       - name: Verify native Enhanced and Crushing Hammer prompts and physical Energy discard
