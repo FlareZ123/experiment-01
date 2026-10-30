@@ -106,9 +106,9 @@ function auditNativeIdRoundTrips(sourceAudit,lookup) {
       }
       const result=lookup(item.nativeId)??null;
       const expectedName=item.nativeIdStatus==='EXACT_GLYPH_ALIAS_LOADED'?
-        item.name.replace(/\\s*[♢◇]\\s*$/u,' Prism Star'):item.name;
+        item.name.replace(/\s*[♢◇]\s*$/u,' Prism Star'):item.name;
       const normalizeNumber=value=>String(value??'')
-        .trim().replace(/^0+(?=\\d)/,'').toUpperCase();
+        .trim().replace(/^0+(?=\d)/,'').toUpperCase();
       const valid=Boolean(result&&result.fullName===item.nativeId&&
         result.name===expectedName&&
         String(result.set).toUpperCase()===
