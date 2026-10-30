@@ -173,6 +173,9 @@ function withActorOwnerSingleSearch(execute,deps={}){
     require(path.join(base,'game/store/actions/resolve-prompt-action')).ResolvePromptAction;
   const GamePhase=deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
+  const attackPhaseSearchOptIn=deps.attackPhaseSearch===true||
+    (deps.attackPhaseSearch===undefined&&
+      process.env.AGENT37_OWNER_ATTACK_SEARCH_DEV==='true');
   const observe=deps.observe??actorSingleSearchInput;
   const choose=deps.choose??chooseActorSingleSearch;
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
@@ -190,12 +193,18 @@ function withActorOwnerSingleSearch(execute,deps={}){
     boundedSelections:[],competitiveGameQualified:false
   };
 
+  if(attackPhaseSearchOptIn){
+    audit.version+='+agent37-owner-authenticated-attack-phase-search-v1';
+    audit.attackPhaseSearchOptIn=true;
+  }
+
   function decode(state){
     if(state!==liveStore?.state){
       audit.nonLiveSpeculativeFallbacks++;
       return original.value.call(this,state);
     }
-    if(state.phase!==GamePhase.PLAYER_TURN)
+    if(state.phase!==GamePhase.PLAYER_TURN&&
+        !(attackPhaseSearchOptIn&&state.phase===GamePhase.ATTACK))
       return original.value.call(this,state);
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
