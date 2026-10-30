@@ -54,6 +54,11 @@ function specialFundsImmediateAttack(view, catalog) {
 
   for (let handIndex = 0; handIndex < view.ownHand.length; handIndex++) {
     const printing = view.ownHand[handIndex];
+    // Speed Lightning can only remain attached to a Lightning Pokémon.
+    // Avoid a proposal that native Store would immediately discard.
+    if (printing === 'Speed Lightning Energy RCL' &&
+        !active.printed?.types?.includes(catalog.basicEnergyTypes.Lightning))
+      continue;
     const units = unitsFor(printing);
     if (!units) continue;
     const candidate = {handIndex, printing, units};
