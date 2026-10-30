@@ -30,6 +30,12 @@ on:
         type: boolean
         default: false
 
+      per_seat_shuffle_probe:
+        description: 'Hypothetical per-seat setup shuffle streams for original rank6 same-seed source isolation'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -120,5 +126,16 @@ jobs:
         with:
           name: agent26-frozen32-source-setup-census
           path: agent26-frozen32-native-source-setups.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Probe alternative per-seat deck-shuffle streams in frozen rank6 seed
+        if: ${{ inputs.per_seat_shuffle_probe }}
+        run: node simulation/evaluation/agent26-frozen-mismatch-seat-coupled-setup.cjs > agent26-per-seat-setup-streams.json
+      - name: Archive both counterfactual paired setup-only results
+        if: ${{ always() && inputs.per_seat_shuffle_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-per-seat-shuffle-counterfactual
+          path: agent26-per-seat-setup-streams.json
           if-no-files-found: error
           retention-days: 14
