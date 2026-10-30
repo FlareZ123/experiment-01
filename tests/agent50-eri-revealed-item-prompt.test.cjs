@@ -127,3 +127,20 @@ test('public large hand can offer Eri before attack without guessing Items',()=>
   }
   assert.equal(offerEriBeforeAttack(view,{kind:'pass'}),null);
 });
+
+test('revealed original ACE SPEC beats the mechanical first-two Item order',()=>{
+  const {state,prompt}=scene();
+  const ACE={ACE_SPEC:77};
+  const computer=state.players[1].hand.cards.find(card=>
+    card.fullName==='Computer Search BCR');
+  computer.hasTag=tag=>tag===ACE.ACE_SPEC;
+  const observed=observe(state,0,prompt,SUPER,TRAINER,ACE);
+  assert.equal(observed.items[2].aceSpec,true);
+  assert.equal(observed.items[0].aceSpec,false);
+  assert.deepEqual(choose(observed),[3,0]);
+  const resolution=resolve(state,0,prompt,SUPER,TRAINER,
+    ResolvePromptAction,ACE);
+  assert.deepEqual(resolution.selectedPrintings,
+    ['Computer Search BCR','VS Seeker PHF']);
+  assert.ok(prompt.validate(resolution.action.result));
+});
