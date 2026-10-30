@@ -1,0 +1,177 @@
+{
+  "version": "agent7-tinkaton-lillie-reset-v1",
+  "date": "2026-10-30",
+  "research_scope": "Paper Expanded Black & White onward; supplied English print screen passed, independent Japanese event printing checks required",
+  "status": "exploratory immutably specified proposed 60; 0 native games, 0 competitively qualified games",
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "id": "sv2-102",
+      "name": "Tinkatink"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "id": "sv2-103",
+      "name": "Tinkatuff"
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "id": "svp-31",
+      "name": "Tinkaton ex"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "sv2-105",
+      "name": "Tinkaton"
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "id": "sv5-128",
+      "name": "Dunsparce"
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "id": "sv5-129",
+      "name": "Dudunsparce"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "swsh9-41",
+      "name": "Manaphy"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "sv6pt5-38",
+      "name": "Fezandipiti ex"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "swsh11-58",
+      "name": "Rotom V"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "swsh9-40",
+      "name": "Lumineon V"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "sv1-191",
+      "name": "Rare Candy"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "sv5-144",
+      "name": "Buddy-Buddy Poffin"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "swsh1-163",
+      "name": "Evolution Incense"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "sv1-181",
+      "name": "Nest Ball"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "sv1-196",
+      "name": "Ultra Ball"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "sv1-166",
+      "name": "Arven"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "sm12-193",
+      "name": "Guzma & Hala"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "sm3-115",
+      "name": "Guzma"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "me1-119",
+      "name": "Lillie's Determination"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "xy8-137",
+      "name": "Float Stone"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "sm2-125",
+      "name": "Field Blower"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "swsh12-156",
+      "name": "Forest Seal Stone"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "sv4-178",
+      "name": "Technical Machine: Evolution"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "xy6-89",
+      "name": "Sky Field"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "sm10-186",
+      "name": "Stealthy Hood"
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "id": "sm1-136",
+      "name": "Double Colorless Energy"
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "id": "swsh9-151",
+      "name": "Double Turbo Energy"
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "id": "sm1-162",
+      "name": "Psychic Energy"
+    }
+  ],
+  "rationale": "Lillie-after-setup can reset to eight cards with six own Prizes, Guzma adds own-Active mobility and gust, Float Stone adds searchable zero-retreat; all conditional on native legal action choices and opponent replies"
+}
