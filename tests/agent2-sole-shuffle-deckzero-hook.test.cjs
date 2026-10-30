@@ -78,8 +78,10 @@ test('exact owner-only gate does not alter other hands and restores on throw',()
     const hasOwnDeck=fixture(Iono,0,0,1,1);
     assert.equal(hasOwnDeck.card.canPlay(null,hasOwnDeck.state,
       hasOwnDeck.owner),false);
-    assert.equal(hasOwnDeck.card.reduceEffect(null,hasOwnDeck.state,
-      new TrainerEffect(hasOwnDeck.owner,hasOwnDeck.card)),'unpatched');
+    assert.strictEqual(hasOwnDeck.card.reduceEffect(null,hasOwnDeck.state,
+      new TrainerEffect(hasOwnDeck.owner,hasOwnDeck.card)),
+      hasOwnDeck.state,'sole-opponent branch can correct prevented return');
+
     const extraHand=fixture(Iono,1,1,0,1);
     assert.equal(extraHand.card.canPlay(null,extraHand.state,
       extraHand.owner),false);
@@ -96,4 +98,22 @@ test('prevented opponent movement cannot activate conditional draw',()=>{
   },dependencies(Iono,Marnie,moves,draws,true));
   assert.equal(moves.length,1);
   assert.deepEqual(draws,[]);
+});
+
+test('Dew Guard-like prevented opponent return stops sole-owner draw with nonempty deck',()=>{
+  const Iono=cardClass(),Marnie=cardClass();
+  for(const Card of [Iono,Marnie]){
+    const moves=[],draws=[];
+    withSoleShuffleDeckZeroCorrection(()=>{
+      const x=fixture(Card,0,0,1,1);
+      assert.equal(x.card.canPlay(null,x.state,x.owner),false,
+        'injected original method is unmodified outside deck0 correction');
+      const result=x.card.reduceEffect(null,x.state,
+        new TrainerEffect(x.owner,x.card));
+      assert.strictEqual(result,x.state);
+    },dependencies(Iono,Marnie,moves,draws,true));
+    assert.equal(moves.length,1);
+    assert.deepEqual(draws,[],
+      'No player returned a card, so the conditional draw must not happen');
+  }
 });
