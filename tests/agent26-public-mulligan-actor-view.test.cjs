@@ -28,6 +28,9 @@ const printings=['Shown One A','Shown Two B','Shown Three C',
 const names=new Map(printings.map((name)=>[name,name]));
 const packet={
   schema:'native-public-opponent-mulligan-reveal-v1',
+  provenance:'opponent-facing ShowMulliganPrompt only',
+  effectOnActorPolicy:false,
+  createsCompetitiveWinRateEvidence:false,
   excludesPrivateCurrentHandDeckPrize:true,
   revealedHandCounts:[0,1],
   handsByOwner:[[],[printings]]
