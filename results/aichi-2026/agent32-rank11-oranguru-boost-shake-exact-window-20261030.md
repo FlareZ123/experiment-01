@@ -77,6 +77,34 @@ P(\mathrm{window}\mid\mathrm{Basic\text{-}valid})=
 
 The mere opportunity to choose Oranguru Active is **28.4818606025% of Basic-valid starting hands**, so this restricted resource condition is satisfied in approximately **62.0822% of Basic-valid openings which contain Oranguru in their initial seven**. These are exact card-location probabilities under stated assumptions; they do not estimate actual bot execution.
 
+## K0 owner-visible trigger versus K1 resource existence
+
+The new Star-fetched VIP branch has a clean, **coarse pre-deck-search K0** trigger. At the start of the first own turn, Oranguru was selected Active from the initial seven; after the ordinary draw, **Boost Shake is held, while neither Trubbish nor VIP is held**. The owner can recognize this using only its own hand and public Active, without peeking at the shuffled deck or face-down Prizes.
+
+| Exact diagnostic | Result among Basic-valid openings or indicated denominator |
+| --- | ---: |
+| Coarse K0 trigger (Oranguru Active, Shake held, T/V absent) | **3.206441561663%**, exact 15948275/497382369 |
+| K1 full route succeeds after six unknown Prizes, given coarse K0 trigger | **93.507366975399%**, exact 607205563958181/649366551106000 |
+| K0 triggering hands that already contain both Garbodor cards (known unavailable for Boost Shake) | **1.171001252487% of coarse K0**, exact 7947/678650 |
+| K0 trigger after rejecting known double-held Garbodor | **3.168894090816%** of Basic-valid openings, exact 2865731/90433158 |
+| K1 route succeeds given that immediately filtered K0 trigger | **94.615313481309%**, exact 607205563958181/641762460659320 |
+
+Only the *hand predicate* and whether both Garbodor are already held are directly known to the K0 actor. The full K1 resource success percentage describes the true post-Prize configuration and is unavailable to a player until a permitted deck search reveals the remaining cards. It must **never** be supplied to an actor as hidden specific-card information. The probability can inform an expectation, rather than an oracle.
+
+For coarse K0-triggered configurations, exact marginal causes of **inability to complete the specified route** are:
+
+| Required route card inaccessible in post-Prize deck | Conditional risk within coarse K0 trigger |
+| --- | ---: |
+| Garbodor (includes both copies already held) | **4.4881220469%** |
+| Trubbish | **1.1312217195%** |
+| Battle VIP Pass | **0.0055406778%** |
+| Forest Seal Stone when no copy is held | **0.8789375234%** |
+| Float Stone when no copy is held | **0.0617269013%** |
+
+These failures can occur together within a six-Prize configuration, so the marginal percentages **must not be added**. Their exact union is **6.4926330246%**, consistent with the 93.5074% conditional K1 success result. The Garbodor term includes the owner-known case where both are in the opening eight and Boost Shake cannot search an Evolution from the deck. A future policy can reject that immediately and retain the remaining incomplete-information risk.
+
+This K0/K1 split is particularly relevant to the common chooser. It provides a defensible **observable hand-denominator** for selecting original-Store source openings to inspect, while keeping the hidden Prize identities from being converted into clairvoyant decisions. It does **not** guarantee that the owner has priority over the opponent's turn, that Back Order is enabled, or that native Tool/VSTAR/Item/evolution prompts are resolved correctly.
+
 ## Verification and reproducibility
 
 - [Exact CJS evaluator](../../scripts/agent32-rank11-oranguru-boost-shake-window.cjs)
