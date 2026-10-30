@@ -112,6 +112,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  if(options.mysteriousTreasureRoot===true){
+    const item=require('./agent49-mysterious-treasure-frontier.cjs')
+      .chooseTreasureRootIntent(view,catalog);
+    if(item)return item;
+  }
   if(options.quickBallRoot===true){
     const item=require('./agent8-actor-quick-ball-frontier.cjs')
       .chooseQuickBallRootIntent(view);
@@ -433,6 +438,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    mysteriousTreasureRootOptIn:deps.mysteriousTreasureRoot??
+      (process.env.AGENT49_MYSTERIOUS_TREASURE_ROOT_DEV==='true'),
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
@@ -543,6 +550,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.teamFlareGruntDenialRootOptIn)
     audit.version+='+'+
       require('./agent1-owner-team-flare-grunt-denial.cjs').VERSION;
+  if(audit.mysteriousTreasureRootOptIn)
+    audit.version+='+'+
+      require('./agent49-mysterious-treasure-frontier.cjs').VERSION;
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
@@ -665,6 +675,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
       floatStoneMobility:actorSpecialEnergyEnabled(
@@ -741,6 +752,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
+      case 'play-mysterious-treasure':
       case 'play-quick-ball':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
