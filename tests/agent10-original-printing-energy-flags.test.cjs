@@ -209,3 +209,27 @@ test('Aichi SMP 217 maps uniquely to verified SM Black Star Promo SM217',()=>{
   assert.equal(publicProfile.prizesOnKnockout,3);
   console.log('PASS: original SMP source alias preserves printed 3-Prize TAG TEAM');
 });
+
+
+test('Aichi XYP numeric promo source IDs resolve to exact printed XY card IDs',()=>{
+  const checks=[
+    {rank:2,name:'Jirachi',number:'67',id:'xyp-XY67'},
+    {rank:3,name:'Regirock',number:'49',id:'xyp-XY49'},
+    {rank:7,name:'Regirock',number:'49',id:'xyp-XY49'}
+  ];
+  const index=buildPublicPokemonProfileIndex(ROOT);
+  for(const check of checks){
+    const source=SOURCE.decks.find(d=>d.rank===check.rank).cards.find(c=>
+      c.category==='Pokémon'&&c.name===check.name&&
+      c.printing.set==='XYP'&&c.printing.number===check.number);
+    assert.ok(source,'No source promo rank '+check.rank);
+    const profile=originalPrintedPokemon(ROOT,source);
+    assert.equal(profile.printingId,check.id);
+    assert.equal(profile.prizesOnKnockout,1);
+    assert.ok(index.has(check.name+' XYP'),
+      'Public XYP alias should exist, even if name-based profile is ambiguous');
+  }
+  assert.equal(visiblePrintedProfile(index,'Regirock XYP')?.printingId,
+    'xyp-XY49');
+  assert.equal(visiblePrintedProfile(index,'Fake Promo XYP'),null);
+});
