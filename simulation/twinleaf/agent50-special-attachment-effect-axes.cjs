@@ -33,6 +33,12 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
       pokemon?[{slot:'bench',index,pokemon}]:[])
   ];
   const hasBenchRoom=own.bench.some(pokemon=>pokemon===null);
+  // These particular effects trigger after attachment, when Temple's
+  // suppression of Special Energy effects already applies. Costs paid
+  // while an Energy remains in hand are a different timing category.
+  const temple=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])].some(p=>
+    p.startsWith('Temple of Sinnoh '));
   for(let handIndex=0;handIndex<view.ownHand.length;handIndex++){
     const printing=view.ownHand[handIndex];
     if(!catalog.specialEnergies.has(printing))continue;
@@ -69,6 +75,10 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
           own.deckCount===0?'deck-empty':
           'Psychic-recipient-bench-room-deck-membership-unverified';
       }else continue;
+      if(temple){
+        potential=false;
+        reason='Temple-of-Sinnoh-attachment-effect-suppressed';
+      }
       if(result.offers.length===MAX_OFFERS){
         result.truncated=true;return result;
       }
