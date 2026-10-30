@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {hasK0PossibleBenchEvolutionTarget,immediateBurrowDeckout}=
+const {hasK0PossibleBenchEvolutionTarget}=
   require('./bunnelby-evolution-policy.cjs');
 
 const VERSION='agent40-bunnelby-owner-consent-second-tm-v1';
@@ -28,8 +28,7 @@ function shouldConsentBunnelbyBarrage(player,ownSourceCards){
   return player.active?.getPokemonCard()?.fullName==='Bunnelby PRC'&&
     player.active.tools?.some(c=>
       c.fullName==='Technical Machine: Evolution PAR')===true&&
-    (hasK0PossibleBenchEvolutionTarget(player,ownSourceCards)||
-      immediateBurrowDeckout({players:player.__publicPlayers??[]},player));
+    hasK0PossibleBenchEvolutionTarget(player,ownSourceCards);
 }
 
 /**
