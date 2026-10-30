@@ -97,3 +97,26 @@ test('relabeling cheap cards does not change unrestricted physical access',()=>{
     minCheapDiscards:4
   }),RangeError);
 });
+
+test('two-Basic setup intersection quantifies lone-Pokemon vulnerability',()=>{
+  for(const [basics,expected] of [
+    [8,0.12999026894146767],
+    [12,0.15514350869969815],
+    [16,0.1703903248705888],
+    [20,0.18071621505604102],
+    [24,0.18778607807372116]
+  ]){
+    const opts={totalBasics:basics,arven:4,secretBox:1,goingSecond:true};
+    const all=exactSecretBoxShield(opts);
+    const safe=exactSecretBoxShield({...opts,minSetupBasics:2});
+    near(safe.conditionalValidBasic,expected);
+    assert.ok(safe.numerator<all.numerator);
+  }
+  near(exactSecretBoxShield({
+    arven:4,secretBox:1,goingSecond:false,totalBasics:12,
+    minSetupBasics:2
+  }).conditionalValidBasic,0.049954757419788574);
+  assert.throws(()=>exactSecretBoxShield({
+    minSetupBasics:2,cheapDiscards:4
+  }),RangeError);
+});
