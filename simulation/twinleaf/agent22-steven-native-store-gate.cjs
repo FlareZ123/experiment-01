@@ -5,6 +5,7 @@ const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
 const {resolveManifestFile} = require('./resolve-field.cjs');
 const {actorSingleSearchInput} = require('./agent41-actor-owner-single-search.cjs');
+const {withNumericShuffleValidator} = require('./agent22-numeric-shuffle-validation-hook.cjs');
 const {sparseObservedOwnerSearch,withSparseActorOwnerSearch} =
   require('./agent22-sparse-owner-search-adapter.cjs');
 
@@ -55,7 +56,7 @@ function run() {
   const originalDispatch=Store.prototype.dispatch;
   for(const variant of ['first-native-valid','valued-native-valid']){
   for(const seat of [0,1]) {
-    const wrapped=withSparseActorOwnerSearch(()=>{
+    const wrapped=withNumericShuffleValidator(()=>withSparseActorOwnerSearch(()=>{
       const store=new Store({onStateChange(){}});
       store.state.gameSettings.format=Format.EXPANDED;
       const ownerId=101+seat;
@@ -143,12 +144,17 @@ function run() {
           assert.equal(kind,'WaitPrompt',
             'Unexpected native prompt during Steven post-search');
         }
+        if(kind==='ShuffleDeckPrompt')assert.equal(
+          next.validate(result,store.state),true,
+          'Scoped numeric shuffle must validate native full permutation');
         deferredPromptTrace.push({kind,ownerSeat:
           store.state.players.findIndex(player=>player.id===next.playerId),
           nativeValidatorAccepted:kind==='ShuffleDeckPrompt'?
             next.validate(result,store.state):null});
         store.dispatch(new ResolvePromptAction(next.id,result));
       }
+      assert.equal(deferredPromptTrace.filter(d=>d.kind==='ShuffleDeckPrompt').length,1,
+        'One native shuffle must be genuinely validated and dispatched');
       assert.equal(store.state.turn,3,
         'Steven must end its turn after native search, shuffle and wait');
       assert.equal(store.state.activePlayer,1-seat,
@@ -161,6 +167,7 @@ function run() {
         originalProjection:'unavailable-above-30',nativeValid:true,
         nativeSearchSettled:true,chosenPrintings:printings,
         remainingDeck:owner.deck.cards.length,
+        numericShuffleValidationHook:true,
         deferredPromptTrace,fullSupporterEndTurnVerified:true,
         resultingTurn:store.state.turn,
         postActiveSeat:store.state.activePlayer,
@@ -170,7 +177,7 @@ function run() {
         nativeStoreHasPrompts:store.hasPrompts(),
         ownHandCount:owner.hand.cards.length};
     },variant==='valued-native-valid'?
-      {scoreBundle:scoreHypotheticalStallBundle}:{});
+      {scoreBundle:scoreHypotheticalStallBundle}:{}));
     if(variant==='first-native-valid'){
       records.push(wrapped.result);audits.push(wrapped.audit);
     }else{
