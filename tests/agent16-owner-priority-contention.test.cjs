@@ -234,3 +234,18 @@ test('rank6 printed Team Flare Grunt denial is visible behind a chosen attack',(
   assert.deepEqual(collectOwnerContention(source,{},options,{kind:'attack'}),
     collectOwnerContention(hiddenWorld,{},options,{kind:'attack'}));
 });
+
+test('printed duplicate action cannot contend with itself after hand reordering',()=>{
+  const selected={kind:'attach-special-energy',printing:'Reversal Energy PAL',
+    handIndex:0,slot:'active',index:0};
+  const later=offering('specialEnergyRoot',17,'duplicate-late',
+    {...selected,handIndex:2});
+  const v={...view,ownHand:[
+    'Reversal Energy PAL','Guzma BUS','Reversal Energy PAL'
+  ]};
+  const r=collectOwnerContention(v,{},{
+    specialEnergyRoot:true
+  },selected,[later]);
+  assert.equal(r.alternatives.length,0);
+  assert.equal(r.selectedPriority,16);
+});
