@@ -36,7 +36,7 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
       [...standard.prompt.bundles,{printings:Object.freeze([])}]:
       standard.prompt.bundles;
     const ranked=menus.map(bundle=>{
-      const score=scoreBundle(bundle.printings);
+      const score=scoreBundle(bundle.printings,standard.actor);
       assert.ok(Number.isFinite(score),'Bundle score must be finite');
       return {bundle,score};
     }).sort((a,b)=>b.score-a.score||
@@ -61,7 +61,10 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
   const options=pending.options??{};
   if(options.min>1||!Number.isInteger(options.max)||
      options.max<2||options.max>3)return null;
-  const bundles=firstNativeValidBundle(pending,options.max,scoreBundle);
+  const actor=observeActor(state,seat);
+  assert.equal(actor.decisionKind,'owner-prompt');
+  const score=scoreBundle===null?null:names=>scoreBundle(names,actor);
+  const bundles=firstNativeValidBundle(pending,options.max,score);
   if(!bundles)return null;
   const offered=pending.cards.cards.map(card=>({
     printing:card.fullName,
@@ -70,8 +73,6 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
     a.printing>b.printing?1:
       Number(b.selectableAlone)-Number(a.selectableAlone))
     .map((entry,index)=>Object.freeze({index,...entry}));
-  const actor=observeActor(state,seat);
-  assert.equal(actor.decisionKind,'owner-prompt');
   return Object.freeze({
     actor,
     prompt:Object.freeze({
