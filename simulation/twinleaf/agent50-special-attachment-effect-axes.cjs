@@ -143,5 +143,46 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
   return result;
 }
 
+
+/**
+ * Preserve the non-commuting order of a held Temple and a held Energy whose
+ * on-attach effect would otherwise be available on the public board.
+ * This is a read-only, conditional sequencing witness, never a demand to
+ * select the Energy instead of an urgently needed Stadium or an attack.
+ * @param {object} view Detached owner-root decision input
+ * @param {object} catalog Public printing catalog
+ * @returns {{version:string,conflicts:object[],truncated:boolean}}
+ */
+function collectHeldTempleSequencingConflicts(view,catalog){
+  assert.equal(view?.decisionKind,'owner-root');
+  const result={version:VERSION,conflicts:[],truncated:false};
+  const handIndex=view.ownHand?.findIndex(p=>
+    p.startsWith('Temple of Sinnoh '))??-1;
+  const own=view.ownPublic,resources=view.ownTurnResources??{};
+  if(handIndex<0||resources.stadiumPlayLocked===true||
+      resources.stadiumPlayedTurn===view.globalTurn||
+      own?.publicTurnRestrictions?.stadiumPlayLocked===true)return result;
+  const stadium=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  if(stadium.some(p=>p.startsWith('Temple of Sinnoh ')))return result;
+  const offers=collectSpecialAttachmentEffectAxes(view,catalog);
+  result.truncated=offers.truncated;
+  result.conflicts=offers.offers
+    .filter(offer=>offer.publicEffectOpportunity===true)
+    .map(offer=>({
+      templeHandIndex:handIndex,
+      templePrinting:view.ownHand[handIndex],
+      energyHandIndex:offer.handIndex,
+      energyPrinting:offer.printing,
+      recipientSlot:offer.slot,recipientIndex:offer.index,
+      onAttachChannel:offer.onAttachChannel,
+      knownAttackCostGain:offer.maximumKnownAttackCostGain,
+      interaction:'energy-first-effect-available;Temple-first-effect-suppressed',
+      strategicPriority:'undetermined',
+      nativePlayability:'unverified'
+    }));
+  return result;
+}
+
 module.exports={VERSION,MAX_OFFERS,maximumKnownAttackCostGain,
-  collectSpecialAttachmentEffectAxes};
+  collectSpecialAttachmentEffectAxes,collectHeldTempleSequencingConflicts};
