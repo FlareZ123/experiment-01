@@ -72,3 +72,17 @@ test('an unverified archive can never borrow frozen original SHA identity',()=>{
   assert.throws(()=>frozenOriginal32NativeClosures(Buffer.from('{}')));
   console.log('PASS: immutable artifact source authentication is mandatory');
 });
+
+test('future Stadium effect closure is counted in generic terminal family',()=>{
+  const changed=example();
+  const stadium=changed.developmentResult.rows[1].rootActionLedger[3];
+  stadium.action='UseStadiumAction';
+  delete stadium.attack;
+  stadium.card='Tropical Beach';
+  const r=original32NativeClosures(changed);
+  assert.equal(r.totals.nativeTurnEnds,4);
+  assert.equal(r.totals.byRootFamily['stadium-use'],1);
+  assert.equal(r.totals.acceptedAttackRoots,0);
+  assert.equal(r.totals.terminalCardPlays,1);
+  console.log('PASS: activated Stadium terminal is not discarded as an unknown class');
+});
