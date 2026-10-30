@@ -305,8 +305,9 @@ test('Plumeria after-Pass installs after terminal root and changes only opted-in
   const treated=withCanonicalActorOnlyPolicy(()=>decode(),adapters,
     {ownerPlumeriaAfterPass:true});
   assert.deepEqual(treated.result,{kind:'play-plumeria',actorSeat:1});
-  assert.deepEqual(events.slice(0,3),[
-    'install:root','install:plumeria','install:fog'
+  assert.deepEqual(events.filter(x=>x.startsWith('install:')).slice(-6),[
+    'install:root','install:fog','install:select',
+    'install:option','install:attack','install:plumeria'
   ]);
   assert.equal(treated.audit.ownerPlumeriaAfterPassOptIn,true);
   assert.equal(treated.audit.nativeDecisionCounts.plumeriaAfterPassAccepted,1);
