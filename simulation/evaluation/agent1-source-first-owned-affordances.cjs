@@ -34,9 +34,23 @@ function sourceFirstOwnedAffordances(trace,seat,sourceActuallyFirst,nativeRoots=
   // Only a native, owner-seat, exactly next-turn clock transition can attest
   // that case; a held card or proposed action alone must never suffice.
   // A missing Pass decision witness is not rescued by a bare native Pass.
-  const nativeTurnEnd=pass?null:(nativeRoots.find(e=>
-    e.playerSlot===seat&&e.turnBefore===turn&&e.turnAfter===turn+1&&
-    e.action!=='PassTurnAction'&&Number.isSafeInteger(e.actionOrdinal))??null);
+  const nativeFirstIndex=nativeRoots.findIndex(e=>
+    e.actionOrdinal===first?.actionOrdinal&&e.playerSlot===seat&&
+    e.turnBefore===turn&&e.action===first?.action);
+  let nativeTurnEnd=null;
+  if(!pass&&nativeFirstIndex>=0){
+    // Stay inside the *same* native turn epoch. Sudden-death restarts may
+    // reuse global turn 1 or 2 later in the game; never splice their evidence.
+    for(let i=nativeFirstIndex;i<nativeRoots.length;i++){
+      const e=nativeRoots[i];
+      if(e.turnBefore!==turn)break;
+      if(e.playerSlot===seat&&e.turnAfter===turn+1&&
+          e.action!=='PassTurnAction'&&Number.isSafeInteger(e.actionOrdinal)){
+        nativeTurnEnd=e;
+        break;
+      }
+    }
+  }
   const nativeTurnClosure=nativeTurnEnd?{
     ordinal:nativeTurnEnd.actionOrdinal,
     action:nativeTurnEnd.action,
