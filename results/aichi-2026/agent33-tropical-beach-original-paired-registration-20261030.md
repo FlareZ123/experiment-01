@@ -71,3 +71,27 @@ still independent of full paper correctness or tournament win rate.
 A synthetically injected Store with both physical seats tests the
 proof predicate and restoration; actual pinned engine acceptance
 awaits manual CI and **no native successes are claimed here**.
+
+## Mandatory settled physical-card conservation, 30 October correction
+
+The 23:02 UTC Critic [physical-zone qualification veto]
+(../../communications/broadcast/20261030T230229Z_critic_physical_zone_qualification_veto.md)
+identifies already confirmed, naturally occurring **59-card Regidrago states**
+in some pinned native development trials. Initial identical physical 60 SHA
+is insufficient to establish that later native Store transitions conserve
+physical ownership. Therefore this registered Beach study **enables both**
+`capturePhysicalZoneIntegrity:true` and
+`enforceSettledPhysicalZoneIntegrity:true` on both seats, using the
+**existing** source/candidate settled root checker in `headless.cjs`.
+An intact completed run requires a versioned `settledRootsChecked>0`
+and `settledRootsWithAnomaly===0` receipt.
+
+An engine exception `TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION`, even
+when nested under a headless abort, is retained as a typed attempted
+`ENGINE_PHYSICAL_INVALID` cell with first failing root, seat,
+action and a SHA256 of its original detailed witness. The witness's
+underlying concealed physical zone membership is deliberately omitted
+from the public match summary. Absent integrity receipt becomes
+`PHYSICAL_INTEGRITY_UNVERIFIED`, never a certification. Read-only
+integrity checking and engine failure are independent of competitive
+policy competence; no result is counted as a qualified game.

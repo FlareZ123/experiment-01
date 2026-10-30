@@ -28,6 +28,46 @@ const VERSION='agent33-native-original-beach-three-rank-paired-v1';
 const digest=value=>createHash('sha256').update(JSON.stringify(value))
   .digest('hex');
 const sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+
+/**
+ * Preserve a public-safe digest and typed root/seat of a physical conservation
+ * exception. Never let a nested native engine error become a censored match.
+ */
+function settledPhysicalFailure(error){
+  const seen=new Set();
+  for(let e=error,d=0;e&&typeof e==='object'&&d<16&&!seen.has(e);
+    e=e.cause,d++){
+    seen.add(e);
+    if(e.code!=='TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION')continue;
+    const witness=e.physicalConservationWitness??null;
+    return {
+      code:e.code,
+      firstActionOrdinal:witness?.actionOrdinal??null,
+      firstTurn:witness?.turn??null,
+      firstActingSeat:witness?.actingSeat??null,
+      firstActionType:witness?.actionType??null,
+      witnessSha256:witness?digest(witness):null,
+      completeRawPhysicalWitnessOmitted:true
+    };
+  }
+  return null;
+}
+/** Account for real completed Store-root integrity without leaking zones. */
+function settledPhysicalSummary(physical){
+  if(physical?.schema!=='live-headless-physical-zone-integrity-v1')
+    return {status:'PHYSICAL_INTEGRITY_UNVERIFIED',
+      settledRootsChecked:0,settledRootsWithAnomaly:null};
+  const intact=Number.isSafeInteger(physical.settledRootsChecked)&&
+    physical.settledRootsChecked>0&&
+    physical.settledRootsWithAnomaly===0;
+  return {
+    status:intact?'SETTLED_PHYSICAL_60_VERIFIED':'PHYSICAL_INTEGRITY_UNVERIFIED',
+    settledRootsChecked:physical.settledRootsChecked,
+    settledRootsWithAnomaly:physical.settledRootsWithAnomaly,
+    firstViolationSha256:physical.firstSettledRootAnomaly?
+      digest(physical.firstSettledRootAnomaly):null
+  };
+}
 /**
  * The Store root ledger records card *names* (not exact printings).
  * Only a PlayCardAction with the exact public name is Beach placement.
@@ -117,7 +157,9 @@ function runOne(trial,prepared,treated){
     captureInitialSourceDealFingerprintSeat:sourceSeat,
     captureInitialFullPhysicalDeal:true,captureDecisionTrace:true,
     capturePublicAttackTransitions:true,
-    captureFinalPublicBoard:true,captureNativeAbortEvidence:true
+    captureFinalPublicBoard:true,captureNativeAbortEvidence:true,
+    capturePhysicalZoneIntegrity:true,
+    enforceSettledPhysicalZoneIntegrity:true
   };
   let targetAudit=null,energyPromptAudit=null,
     sameTargetAudit=null,supporterAudit=null,beachStoreAudit=null;
@@ -174,6 +216,9 @@ function runOne(trial,prepared,treated){
   assert.equal(actor.audit.qualification.competitiveGames,0);
   const roots=game.rootActionLedger??[];
   const beachLedger=publicBeachLedgerCounts(roots);
+  const physical=settledPhysicalSummary(game.physicalZoneIntegrity);
+  assert.equal(physical.status,'SETTLED_PHYSICAL_60_VERIFIED',
+    'Completed native trials require intact settled source and candidate 60s');
   assert.equal(beachLedger.nativeStadiumUseActions,
     beachStoreAudit.acceptedStadiumUses,
     'A claimed complete native ledger must account for every Stadium dispatch');
@@ -189,6 +234,7 @@ function runOne(trial,prepared,treated){
     nativeWinner:game.finished?game.winner:null,
     nativeEndReason:game.endReason,
     ...beachLedger,
+    physicalIntegrity:physical,
     nativeBeachEffectSettled:beachStoreAudit.beachDrawAndEndTurnSettled,
     nativeBeachEffectUnsettled:beachStoreAudit.unsettledBeachUses,
     beachStoreAudit,
@@ -269,7 +315,10 @@ function attempt(trial,prepared,treated,runner=runOne){
   catch(error){
     const abort=require('../twinleaf/native-dispatch-abort-evidence.cjs')
       .publicNativeAbortError(error);
-    return {trial,treated,status:'native-error-unqualified',
+    const conservation=settledPhysicalFailure(error);
+    return {trial,treated,status:conservation?
+      'ENGINE_PHYSICAL_INVALID':'native-error-unqualified',
+      physicalFailure:conservation,
       error:abort.error,nativeAbortEvidence:abort.nativeAbortEvidence,
       beachStoreAbort:beachStoreAbortEvidence(error),
       nativeStoreCauseStack:abort.nativeStoreCauseStack,
@@ -307,6 +356,8 @@ function runStudy(options={}){
       (x.comparison.treatmentBeachEffectSettled??0),0),
     nativeErrors:rows.flatMap(x=>[x.control,x.treatment])
       .filter(x=>x.status==='native-error-unqualified').length,
+    enginePhysicalInvalid:rows.flatMap(x=>[x.control,x.treatment])
+      .filter(x=>x.status==='ENGINE_PHYSICAL_INVALID').length,
     rows,competitiveQualifiedGames:0,winRateCertified:false
   };
 }
@@ -316,4 +367,5 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(runStudy({rank}),null,2)+'\n');
 }
 module.exports={VERSION,REGISTRATION,prepare,runOne,
-  attempt,compare,runStudy,publicBeachLedgerCounts};
+  attempt,compare,runStudy,publicBeachLedgerCounts,
+  settledPhysicalFailure,settledPhysicalSummary};
