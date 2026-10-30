@@ -154,7 +154,8 @@ function withOwnerHammerAfterPass(execute,deps={}) {
     originalPasses:0,eligiblePasses:0,proposedHammerRoots:0,
     acceptedHammerRoots:0,rejectedHammerRoots:0,
     proposedTargetPrompts:0,acceptedTargetPrompts:0,
-    nativeCoinPromptsDelegated:0,acceptedEnergyDiscards:0,
+    nativeCoinWaitsResolved:0,nativeCoinTails:0,nativeCoinHeads:0,
+    acceptedEnergyDiscards:0,
     unresolvedChains:0,bySeat:{0:{roots:0,discards:0},1:{roots:0,discards:0}},
     examples:[],competitiveQualified:false,
     policyStrategicallyValidated:false};
@@ -174,9 +175,16 @@ function withOwnerHammerAfterPass(execute,deps={}) {
       if(!waiting||waiting.turn!==state.turn||
          pending.playerId!==owner.id)
         return oldDecode.value.call(this,state);
-      if(pending.constructor.name==='CoinFlipPrompt') {
-        audit.nativeCoinPromptsDelegated++;
-        return oldDecode.value.call(this,state);
+      // Pinned CoinFlipEffect samples Math.random internally and creates
+      // a WaitPrompt solely for the animation. It never asks the policy to
+      // choose heads or tails. Respond to that original owner wait with null.
+      if(pending.constructor.name==='WaitPrompt'&&
+         pending.message==='Coin flip animation'){
+        const action=new ResolvePromptAction(pending.id,null);
+        proposed.set(action,{kind:'coin-wait',seat,turn:state.turn,
+          ownerId:owner.id,printing:waiting.printing,
+          promptId:pending.id});
+        return action;
       }
       const cards=chooseHammerPromptCards(state,seat,pending,
         waiting.family,publicSpecialPrintings());
@@ -214,14 +222,8 @@ function withOwnerHammerAfterPass(execute,deps={}) {
       liveStore=this;awaiting.clear();audit.nativeStores++;
     }
     const event=this===liveStore?proposed.get(action):null;
-    const pending=this===liveStore&&action?.constructor?.name===
-      'ResolvePromptAction'?
-      this.state.prompts?.find(p=>p.id===action.id&&p.result===undefined):null;
-    const coinOwner=pending?.constructor?.name==='CoinFlipPrompt'?
-      this.state.players.find(p=>p.id===pending.playerId):null;
-    const coinWaiting=coinOwner?awaiting.get(coinOwner.id):null;
-    if(!event&&!coinWaiting)return oldDispatch.value.apply(this,[action,...args]);
-    const seat=event?.seat??this.state.players.indexOf(coinOwner);
+    if(!event)return oldDispatch.value.apply(this,[action,...args]);
+    const seat=event.seat;
     const owner=this.state.players[seat];
     const opponent=this.state.players[1-seat];
     const before=energyCards(opponent);
@@ -234,7 +236,18 @@ function withOwnerHammerAfterPass(execute,deps={}) {
           turn:event.turn});
         record({kind:'root-accepted',seat,turn:event.turn,
           printing:event.printing});
-      }else if(event?.kind==='target') {
+      }else if(event.kind==='coin-wait') {
+        audit.nativeCoinWaitsResolved++;
+        const next=this.state.prompts.find(p=>p.result===undefined);
+        if(next?.constructor?.name==='ChoosePokemonPrompt'){
+          audit.nativeCoinHeads++;
+        }else{
+          // Tails: the original card's callback finishes after the wait
+          // without any energy-discard prompt.
+          audit.nativeCoinTails++;
+          awaiting.delete(owner.id);
+        }
+      }else if(event.kind==='target') {
         audit.acceptedTargetPrompts++;
         const after=energyCards(opponent);
         const removed=before.filter(c=>!after.includes(c)&&
@@ -246,8 +259,6 @@ function withOwnerHammerAfterPass(execute,deps={}) {
             printing:event.printing,energy:removed[0].fullName});
           awaiting.delete(owner.id);
         }
-      }else if(coinWaiting&&pending?.result===false){
-        awaiting.delete(owner.id);
       }
       return result;
     }catch(error) {
