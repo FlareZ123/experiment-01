@@ -19,6 +19,16 @@ The Pokémon Company's [official 2025 Expanded-format feature](https://www.pokem
 
 The [Pokémon Company's rulebook, Appendix M: Ancient Traits](https://assets.pokemon.com/assets/cms2/pdf/trading-card-game/rulebook/swsh7_rulebook_en.pdf) says that Ancient Traits are a separate class of card text from attacks and Abilities and therefore are not automatically suppressed by effects that prevent those from being used. Thus, merely Ability-locking a Bunnelby does **not** inherently disable its Omega Barrage trait. Treat more specific attack-prevention effects and Tool lock according to their exact text. This historical rulebook corroborates the mechanic rather than certifying every 2026 erratum; the supplied advanced rulebook and current text remain the primary in-repository source.
 
+## Lock geometry and limits of a Stage2 Bench
+
+The supplied complete card archive confirms the exact printed 2026 source card text:
+
+- **Vileplume AOR 3, Irritating Pollen**: prevents **both players** from playing Item cards from hand, with no Active-position requirement. A Stage2 AOR evolved onto the Bench becomes a potential immediate Item-lock source on the same owner turn, subject to other Ability-suppression effects.
+- **Vileplume BUS 6, Disgusting Pollen**: prevents the **opponent's Basic Pokémon** from attacking **only while BUS Vileplume occupies the Active Spot**. A rank15 double Evolution that ends with Bunnelby still Active and BUS on the Bench has **not** yet applied this Basic attack lock.
+- **Bunnelby PRC 121 Ω Barrage**: two attacks in the turn are permitted, but the first Evolution attack is followed by the native second-attack decision and **the turn ends after completion**. There is no intervening ordinary retreat, Tool attachment or Stadium action. This means getting BUS into Active after the double-TM attack requires an additional card effect already resolving or a later turn and cannot be assumed by graph reachability alone.
+
+Thus, even a genuinely settled first-turn double Evolution is **not an immediate complete Item+Basic attack lock** if BUS remains Benched. The native rank2 fixture establishes AOR Vileplume and Pidgeot ex on Bench, not a two-lock BUS/AOR board; an analogous rank15 dual-Vileplume setup still needs to solve Active position and counter-lock (e.g., opponent Ability lock) separately. This is a consequential ALS sequencing distinction; do not count a successful Stage2 search as a lock that requires a different board position.
+
 ## Executable policy proposal
 
 - [`agent40-owner-bunnelby-tm-jet-line.cjs`](../../simulation/twinleaf/agent40-owner-bunnelby-tm-jet-line.cjs) supplies a three-phase owner-visible proposal. An acting player must supply **their own known registered 60 printings**, not the opposing player's private deck. The module detects a publicly existing Bench evolutionary target with a Stage1 or Stage2 printing still *possible* from the source list minus publicly visible copies, and proposes an existing Item Tool attach to Bunnelby, an actual held Jet to active or Bench Bunnelby, and a Tool-granted `Evolution` attack when payable.
