@@ -31,6 +31,18 @@ assert.equal(result.partitionConditionalBasicValid.vipStarSearched.numerator,
   '202401854652727');
 assert.equal(result.partitionConditionalBasicValid.vipStarSearched.denominator,
   '6750645937955920');
+assert.equal(result.novelK0TriggerConditionalBasicValid.numerator,
+  '15948275');
+assert.equal(result.novelK0TriggerConditionalBasicValid.denominator,
+  '497382369');
+assert.equal(result.novelK1ResourceSuccessGivenK0.numerator,
+  '607205563958181');
+assert.equal(result.novelK1ResourceSuccessGivenK0.denominator,
+  '649366551106000');
+// The K0 hand predicate is wholly actor-visible. Only the full K1 outcome
+// is conditioned on the hidden (then unknown) six Prize placements.
+assert.ok(result.novelK1ResourceSuccessGivenK0.decimal < 1);
+assert.ok(result.novelK1ResourceSuccessGivenK0.decimal > 0.9);
 // The old exact direct-Active event deliberately excludes the new Star-fetched
 // VIP route. This independent published fraction must be reproduced exactly.
 const oldNumerator = 11895095504671537n;
