@@ -95,3 +95,15 @@ test('already benched Trubbish can evolve with no open Bench',()=>{
   assert.equal(result.inPlayTrubbish,true);
   assert.equal(result.benchFree,false);
 });
+
+test('already Active Trubbish qualifies as a legal Shake evolution target',()=>{
+  const result=inspectRank8K0BoxShake(view([
+    'Secret Box','Dark Patch','VS Seeker','Iono',
+    'Crispin','Lightning Energy','Darkness Energy'],
+    {activeName:'Trubbish',
+      benchNames:['Budew','Crobat V','Mega Absol ex','Dedenne-GX',
+        'Tapu Lele-GX']}));
+  assert.equal(result.inPlayTrubbish,true);
+  assert.equal(result.benchFree,false);
+  assert.equal(result.boxFetchShake,true);
+});
