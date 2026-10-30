@@ -33,6 +33,11 @@ on:
         type: boolean
         default: false
 
+      agent6_volt_energy_donor:
+        description: 'Original native optional Energy donor prompt'
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
