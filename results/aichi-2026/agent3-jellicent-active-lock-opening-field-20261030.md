@@ -87,6 +87,21 @@ At four Arven, the protected route's restricted valid-opening access rises **17.
 
 The more important next test is therefore a turn-order pair: **first-player** immediate unprotected lock versus **second-player** Arven-protected lock after realistic rank-6 or rank-11 source action. The second line could overcome certain Ability-lock states while sacrificing first-actor tempo. Evaluate a printed Supporter counter and an actual Item/Tool rejection for each after genuine native settlement. Avoid a static opening-only claim of superiority across both seats.
 
+## Slot-efficient variants of the Arven protected package
+
+The same exact six-category evaluator can optimize **functional access to the protected going-second opener** without assuming that four copies of every resource are worth their slots. All rows keep 4 Frillish, 4 Boost Shake, 4 Arven, 12 total Basics, and the stated Jellicent/Hood counts. Remaining slots are filled by other cards; copy changes do not change the conditional valid-hand denominator.
+
+| Jellicent | Stealthy Hood | Fixed protected package slots including Frillish, Shake, Arven | Exact protected T1-going-second opportunity among valid sevens |
+| ---: | ---: | ---: | ---: |
+| 4 | 4 | 20 | **25.385798%** |
+| 3 | 4 | 19 | **25.227926%** |
+| 2 | 4 | 18 | 24.371912% |
+| 4 | 3 | 19 | 24.300780% |
+| 3 | 3 | 18 | **24.149404%** |
+| 2 | 3 | 17 | 23.329314% |
+
+Removing the **fourth Jellicent** from the 20-slot package sacrifices just **0.157872 percentage points** of this restricted opener metric, while releasing a slot for an attacker, an Energy, or another connector. A 3-Jellicent/3-Hood package releases two slots at a **1.236394-point** access cost. These are concrete candidate-resource Pareto comparisons, and they are sensitive to future-game Prize recovery, repeated lock establishment, Hood removal and other resource needs that the one-turn model omits. An actual 60 should consider 3-Jellicent/4-Hood and 3/3 as distinct prototypes before blindly choosing four-of-everything.
+
 ## First-player Supporter exception: Carmine redraw cannot replicate Arven's two-channel search
 
 A separate, fully exact first-player model evaluates **Carmine** (`sv6-145`), whose text allows it to be played on the first player's first turn. Carmine discards the entire remaining hand and draws five. A held Hood may be attached to Active Frillish *before* Carmine; any held Boost Shake is lost with the hand, so the succeeding Boost Shake must come from the new five. If neither Hood nor Shake was available initially, the new five must supply both. The evolving Jellicent must remain in deck after the new draw and all Prizes.
