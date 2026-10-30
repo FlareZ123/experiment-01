@@ -89,6 +89,8 @@ jobs:
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
       - name: Verify real pinned Store Player's Ceremony hook on both physical seats
         run: node --test tests/agent49-native-players-ceremony-store.test.cjs
+      - name: Verify original rank7 PRC60 variant selects Omega Barrier native printed power
+        run: node --test tests/agent49-native-prc60-omega-barrier-identity.test.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
