@@ -50,6 +50,21 @@ As a transparent *toy sensitivity analysis*, assume a 60-card deck has **14 Basi
 
 For every row, the total Basic count remains 14. These probabilities **exclude all search and Supporter lines, opponent mulligan bonus draws, Bench contention, Tool's alternative purpose, Prize discovery, opponent timing, Ability suppression, and any actual game success**. Search Items such as Nest Ball and Level Ball can improve either Basic's access, but that improvement competes for connectors and Bench spaces; Genesect additionally needs a usable attached Tool. A Tool such as Forest Seal Stone may be technically attachable but strategically expensive to redirect away from its intended VSTAR access line. Spiritomb's no-Tool simplicity is offset by losing access to one's own ACE SPEC until Spiritomb leaves play or its Ability is suppressed.
 
+### The setup phase creates a sharper turn-order asymmetry
+
+The eight-card access table above is most relevant when **our player goes first** and can place the Basic and then play a Tool before the opponent's first normal turn. **When we go second**, the opponent gets its first normal turn before we can play a Tool. Spiritomb can already be **face up in play at the start of the game** through an opening-seven Basic Bench or Active selection, while the ordinary setup rules do **not** allow attaching a Pokémon Tool. Thus Genesect's Tool-dependent ACE denial has **zero ordinary setup-phase activation chance**, even if Genesect and the Tool were both among the opening seven. This is a timing constraint, not a statement about future-turn success.
+
+The same exact 14-Basic toy 60 and valid-opening-seven conditioning gives:
+
+| ACE-denial Basic copies | Spiritomb in setup seven and therefore potentially lock-ready before *either* player acts | Genesect ACE lock active during ordinary game setup |
+| ---: | ---: | ---: |
+| 1 | **13.54370%** | **0%** |
+| 2 | **25.71007%** | **0%** |
+| 3 | **36.61785%** | **0%** |
+| 4 | **46.37744%** | **0%** |
+
+The underlying exact fractions are `682689/5040640`, `80997/315040`, `922887/2520320`, and `5313/11456`. These are present in the [extended exact enumerator](../../scripts/agent24-ace-nullifier-opening-frontier.cjs) and [new regression test](../../tests/agent24-ace-nullifier-opening-frontier.test.cjs). They do not account for how often the opponent's particular ACE SPEC is physically drawn or playable, and cannot be translated into wins. Bench slot availability remains an additional condition, though the owner can ordinarily reserve a slot for a chosen Basic while setting up.
+
 A 100% source decklist-level ACE SPEC exposure is an **upper bound on potential relevance**, not a 100% lock success rate. Opponents may use their ACE SPEC before the denial Basic enters play, draw no ACE SPEC until after it is Knocked Out, remove the denial Pokémon, disable its Ability, or instead win without their ACE SPEC. The actor's own game plan must still function while the Basic occupies a Bench or Active slot and any associated Tool is occupied.
 
 ## New real pinned Twinleaf finding: Spiritomb's own ACE SPEC is wrongly playable
