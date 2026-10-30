@@ -14,7 +14,11 @@
     "simulation/evaluation/agent41-bilateral-v2-development.cjs": "30512f0ee80548c3838ea6db16fa71f2cd4849b8",
     "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
     "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "57471ff60a278aa73a21260ee336ba9bbfa1b1b7",
-    "simulation/twinleaf/headless.cjs": "689f245a2e3fca03165a45af317cd5039fe3fbe0"
+    "simulation/twinleaf/headless.cjs": "689f245a2e3fca03165a45af317cd5039fe3fbe0",
+    "scripts/aichi-new-moon-candidate.cjs": "0656ee1a940cf74c884af95dada5196081a6c0e9",
+    "results/als/new-moon-lockbreak-english-proxy-60.json": "d9777831271bec8c4ac400d0a2d9f49cc03c630b",
+    "results/als/new-moon-perfection-english-map.json": "41b51372ef39c23a1c3000ec67be4fc0ae7ae5f6",
+    "results/als/new-moon-official-japanese-print-60.json": "8eef408326d9509297d060e2008c87e20cbf4b86"
   },
   "seedGeneration": "Four independent uniform uint32 numbers from local Python secrets.randbelow(2**32), drawn 2026-10-30T00:21:21.163739Z before any new-game execution. Shared identical rank/seat/repeat seed within candidate print-list pair; candidate deck permutations can differ.",
   "seeds": {
