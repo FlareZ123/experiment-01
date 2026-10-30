@@ -99,7 +99,7 @@ jobs:
       - name: Audit per-rank source Trainer action vocabulary against actual actor choices
         run: node --test tests/agent48-fieldwide-action-family-matrix.test.cjs
       - name: Verify exact rank6 denial overlap and fail-closed archived Plumeria cost joins
-        run: node --test tests/agent25-denial-overlap.test.cjs tests/agent25-plumeria-native-hand-cost.test.cjs tests/agent25-crushing-before-plumeria-native.test.cjs tests/agent25-plumeria-next-turn-response.test.cjs tests/agent25-denial-temporal-resource-model.test.cjs
+        run: node --test tests/agent25-denial-overlap.test.cjs tests/agent25-plumeria-native-hand-cost.test.cjs tests/agent25-crushing-before-plumeria-native.test.cjs tests/agent25-plumeria-next-turn-response.test.cjs tests/agent25-denial-temporal-resource-model.test.cjs tests/agent25-plumeria-getlost-resource-exposure.test.cjs
       - name: Regress protected first-turn Carmine owner action in real actor-root chooser
         run: node --test tests/agent48-conservative-first-carmine.test.cjs
       - name: Regress owner-only VS Seeker to Lillie chain, actual prompt and physical Store witnesses
