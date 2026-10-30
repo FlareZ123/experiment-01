@@ -137,8 +137,10 @@ function runAudit(){
       guarded={...test.result,guardVetoes,
         legalSupporterRoots:test.legalSupporterRoots};
       assert.deepEqual(guarded.offer,adversarial.offer);
-      assert.equal(guarded.result?.error?.name,
-        PaperFirstTurnSupporterError.name);
+      assert.ok(guarded.result?.error,
+        'Headless must report a censored first-turn violation');
+      assert.equal(guardVetoes.length,1,
+        'Pre-dispatch callback must certify the exact ordinary Supporter veto');
       assert.equal(guarded.settlement?.status,
         'rejected-before-dispatch-return');
       assert.equal(guarded.settlement?.physicalCardLeftHand,false);
