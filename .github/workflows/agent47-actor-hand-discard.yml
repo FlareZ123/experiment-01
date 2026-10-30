@@ -52,6 +52,10 @@ jobs:
       - name: Preregistered 24 original-source both-seat rank20 paired Store roots, no competitive inference
         if: ${{ inputs.natural_source20_audit }}
         run: node simulation/twinleaf/agent47-rank20-apex-natural-audit.cjs > agent47-rank20-natural-census.json
+      - name: Print bounded actual Store opportunity and abort census
+        if: ${{ inputs.natural_source20_audit }}
+        run: |
+          node -e "const r=require('./agent47-rank20-natural-census.json');const counts=r.counts;const representativeAborts=r.rows.filter(x=>x.control.status==='native-aborted'||x.treatment.status==='native-aborted').slice(0,4).map(x=>({trial:x.trial.id,control:x.control.error?.slice(0,160),treatment:x.treatment.error?.slice(0,160)}));const offers=r.rows.filter(x=>x.treatment.policy?.apexAlternativeProposals>0).map(x=>({trial:x.trial.id,selected:x.treatment.policy.apexSelected,sourceDealMatched:x.pairedSourceDeal}));console.log('AGENT47_ORIGINAL_SOURCE20_OPPORTUNITY_CENSUS',JSON.stringify({counts,offers,representativeAborts}));"
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.natural_source20_audit }}
         with:
