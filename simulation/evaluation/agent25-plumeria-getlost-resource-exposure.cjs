@@ -79,7 +79,7 @@ function auditPlumeriaGetLost(archive){
       assert.equal(selection.sourceZone,'discard');
       assert.equal(selection.nativePromptMin,2);
       assert.equal(selection.nativePromptMax,2);
-      assert.equal(selection.nativePromptAllowCancel,false);
+      assert.equal(typeof selection.nativePromptAllowCancel,'boolean');
       assert.equal(selection.selectedCards.length,2);
       assert.ok(selection.sourceZoneCardCountBefore>=2);
       assert.equal(paid.selectedOwnerCards.length,2);
@@ -93,6 +93,7 @@ function auditPlumeriaGetLost(archive){
         acceptedGetLostRootOrdinal:root[0].actionOrdinal,
         nativeDiscardPromptOrdinal:prompts[0].actionOrdinal,
         nativeDiscardZoneCardCount:selection.sourceZoneCardCountBefore,
+        nativePromptAllowsCancel:selection.nativePromptAllowCancel,
         nativeGetLostChosenFromDiscard:[...selection.selectedCards],
         matchingPlumeriaPaymentPrintingInstances:overlap,
         exactTwoPaymentPrintingMultisetMatch:overlap===2,
@@ -110,6 +111,8 @@ function auditPlumeriaGetLost(archive){
     nextOpponentFullySettledGetLost:events.length,
     chosenOpponentDiscardCardPrintings:events.length*2,
     printingInstancesMatchingImmediatePlumeriaPayment:matched,
+    nativeGetLostPromptsAllowCancel:events.filter(e=>
+      e.nativePromptAllowsCancel).length,
     fullTwoPaymentPrintingMatches:events.filter(e=>
       e.exactTwoPaymentPrintingMultisetMatch).length,
     fullTwoWithExactlyThreeDiscardCards:events.filter(e=>
@@ -118,7 +121,7 @@ function auditPlumeriaGetLost(archive){
       e.matchingPlumeriaPaymentPrintingInstances===1).length,
     records:events,
     competitiveQualifiedGames:0,
-    caveat:'Printing-level prompt matches plus a settled native Get Lost attack and printed Lost Zone text, without independent per-object final Lost Zone card tracking; correlated developmental games, no win inference.'};
+    caveat:'Printing-level prompt matches plus a settled native Get Lost attack and printed Lost Zone text, without independent per-object final Lost Zone card tracking; the native Get Lost prompt may allow cancellation even though observed choices resolved two cards; correlated developmental games, no win inference.'};
 }
 
 module.exports={VERSION,PRINTED_GET_LOST_EFFECT,
