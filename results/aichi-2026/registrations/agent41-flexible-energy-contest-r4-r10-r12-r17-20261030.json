@@ -1,0 +1,33 @@
+{
+  "schema": "agent41-original-source-flexible-energy-contest-four-rank-two-seat-paired-v1",
+  "registered_at_utc": "2026-10-30T22:46:18Z",
+  "baseline_registration": "results/aichi-2026/registrations/agent41-flexible-special-r4-r10-r12-r17-20261030.json",
+  "source_ranks": [
+    4,
+    10,
+    12,
+    17
+  ],
+  "physical_candidate_slots": [
+    "A",
+    "B"
+  ],
+  "seeds": "Identical predetermined eight RNG seeds frozen in baseline registration; no re-selection or modification",
+  "original_candidate_sixty": "Unchanged rank1 Shadow Rider",
+  "arms_per_pair": 2,
+  "number_original_physical_pairs": 8,
+  "attempts": 16,
+  "common_context_special_energy": true,
+  "only_treatment": "publicFlexibleEnergyContest=true on both physical actors; all other flags, decklists, action cap, native hooks, seeds unchanged",
+  "primary_outcomes": [
+    "owner-root immediate Special over Basic proposals",
+    "actual native Store accepted attachment with printed target",
+    "later owner attack selection and real attack declarations",
+    "full initial physical-deal matching",
+    "first true diverging native root ordinal"
+  ],
+  "stop_conditions": "Each arm is retained even when no game terminal, Store error, unsupported prompt, missing fingerprint or zero selected Special",
+  "no_lookahead": "Registered before first original four-rank public-context-pair report completed; no contest native 60-card outcomes inspected",
+  "paper_claims": "Developmental-only; no independent legal paper-game qualification or measured 99.5 percent win rate",
+  "limitation": "Selector handles exact positive printed attack damage and cannot infer full tactical effects of zero-damage copied attacks such as Apex Dragon."
+}
