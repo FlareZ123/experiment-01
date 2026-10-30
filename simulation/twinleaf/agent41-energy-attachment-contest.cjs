@@ -3,8 +3,10 @@
 const assert = require('node:assert/strict');
 const {specialEnergyUnits,missingEnergyUnits} =
   require('./agent3-special-energy-frontier.cjs');
+const {effectiveNativeAttackCost} =
+  require('./agent17-public-context-special-energy.cjs');
 
-const VERSION = 'agent41-public-immediate-special-attack-contest-v2-speed-eligibility';
+const VERSION = 'agent41-public-immediate-special-attack-contest-v3-stadium-cost';
 
 /**
  * Choose a known Special Energy over a known Basic Energy only when the
@@ -77,8 +79,11 @@ function specialFundsImmediateAttack(view, catalog) {
       restrictions.onlyAllowedAttackNameNextTurn === attack.name));
 
   if (!attacks.length) return null;
-  const missing = (attack, provided) =>
-    missingEnergyUnits(attack.cost, provided, catalog.colorlessEnergyType);
+  const missing = (attack, provided) => {
+    const cost=effectiveNativeAttackCost(view,catalog,active,attack);
+    return cost===null?Number.POSITIVE_INFINITY:
+      missingEnergyUnits(cost,provided,catalog.colorlessEnergyType);
+  };
   // Do not spend a scarce Special Energy to fund a second attack when an
   // existing damaging attack is already payable from public printed costs.
   if (attacks.some(attack => missing(attack, attached) === 0)) return null;
