@@ -159,7 +159,7 @@ jobs:
       - name: Regress owner-visible paid retreat and native physical receipt
         run: node --test tests/agent6-actor-paid-retreat-frontier.test.cjs tests/agent6-paid-retreat-physical-witness.test.cjs
       - name: Verify optional frontier and default root parity
-        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent50-special-attachment-effect-axes.test.cjs tests/agent16-owner-priority-contention.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent8-rank15-mixed-energy-decision-gap.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs tests/agent10-raichu-damage-breakpoint-before-attack.test.cjs tests/agent16-native-contention-paircheck.test.cjs tests/agent37-owner-arbiter-observation-boundary.test.cjs tests/agent37-firstturn-exception.test.cjs tests/agent37-attackphase-owner-search-adapter.test.cjs tests/agent37-attack-evolution-owner-prompt.test.cjs tests/agent37-attack-recovery-owner-prompt.test.cjs
+        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent50-special-attachment-effect-axes.test.cjs tests/agent16-owner-priority-contention.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent41-owner-denial-sourcefirst-pair.test.cjs tests/agent8-rank15-mixed-energy-decision-gap.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs tests/agent10-raichu-damage-breakpoint-before-attack.test.cjs tests/agent16-native-contention-paircheck.test.cjs tests/agent37-owner-arbiter-observation-boundary.test.cjs tests/agent37-firstturn-exception.test.cjs tests/agent37-attackphase-owner-search-adapter.test.cjs tests/agent37-attack-evolution-owner-prompt.test.cjs tests/agent37-attack-recovery-owner-prompt.test.cjs
       - name: Check out exact pinned upstream engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -185,6 +185,12 @@ jobs:
         run: node --test tests/agent29-actor-hammer-pinned-native.test.cjs
       - name: Verify rank6 original Team Flare Grunt two-seat native Energy discard
         run: node --test tests/agent8-team-flare-grunt-pinned-native.test.cjs
+      - name: Evaluate sealed owner denial OFF/ON retrospective original source-first panel
+        if: ${{ inputs.source_first_retrospective }}
+        run: node simulation/evaluation/agent41-owner-denial-sourcefirst-pair.cjs > agent41-denial-sourcefirst-pair.json
+      - name: Check eight attempted original-source owner-denial arms without win claims
+        if: ${{ inputs.source_first_retrospective }}
+        run: node -e "const a=require('node:assert/strict');const p=require('./agent41-denial-sourcefirst-pair.json');a.equal(p.comparison.expectedAttempts,8);a.equal(p.comparison.observedAttempts,8);a.equal(p.comparison.competitiveQualifiedGames,0);a.equal(p.comparison.winRateCertified,false);console.log('OWNER_DENIAL_RETROSPECTIVE_PAIR',JSON.stringify(p.comparison));"
       - name: Stage original rank15 Lopunny Grass versus DCE native attack settlement
         run: node --test tests/agent8-rank15-mixed-energy-pinned-native.test.cjs
       - name: Test rank15 original Guzma movement reverses Mega Lopunny Energy payoff
@@ -578,5 +584,6 @@ jobs:
             agent1-evolution-pass-baseline.json
             agent1-evolution-pass-optin.json
             agent7-native-known-dead-attacks.json
+            agent41-denial-sourcefirst-pair.json
           if-no-files-found: warn
           retention-days: 30
