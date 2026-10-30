@@ -129,6 +129,39 @@ not recorded. The small retrospective two-case replay confirms
 mechanistic lineage, while the original 24 preserved trials remain
 the only full sample denominator.
 
+## Fail-closed native source-60 qualification gate, accepted on real Store cases
+
+The shared headless runner now supports
+`enforceSettledPhysicalZoneIntegrity: true` alongside
+`capturePhysicalZoneIntegrity: true`, defaulting **OFF**. On the
+first settled root containing a physical-ownership count violation,
+the runner throws an explicit
+`TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION` with its first receipt and
+stops advancing the already corrupted game. Unresolved prompt
+temporary cards remain exempt until the prompt is settled. The
+strict option refuses to run without opting into the measurement.
+It preserves the upstream pinned game files and never changes a bot
+choice, Energy attachment, or action in a noncorrupted game.
+
+This is **real native demonstrated enforcement**, not only a unit test:
+fully compiled
+[CI 41135309721](https://github.com/FlareZ123/experiment-01/actions/runs/41135309721)
+succeeded with the independent
+[three-case source-60 test](../../simulation/twinleaf/agent47-strict-physical60-native-3case.cjs).
+Raw [artifact 13015927267](https://github.com/FlareZ123/experiment-01/actions/runs/41135309721/artifacts/13015927267)
+ZIP SHA-256
+`d5972f9e5918103c532d7317660c544e6c46c94accede6ecdbcaca8044a90f63`.
+
+| Original rank20 vs rank11 source case | Strict result |
+| --- | --- |
+| Source seat1, seed `1847000101` | Fail-closed at exactly first bad settled root **52**, canonical counts **[60,59]** |
+| Source seat1, seed `1847000103` | Fail-closed at exactly first bad settled root **98**, canonical counts **[60,59]** |
+| Source seat0, seed `1847000101` | **No false abort**; 46 settled roots checked with zero physical-60 anomalies |
+
+The passing case demonstrates only **this one physical invariant**
+on one particular source deal. It does not qualify policy, card
+effect correctness, prior native winner, or the tournament benchmark.
+
 ## Interpretation and release decision
 
 An independent staged original-60 experiment already demonstrated
