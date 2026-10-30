@@ -129,13 +129,18 @@ function runSeat(seat,attachment,attackName){
 for(const seat of [0,1]){
   test('original rank15 Guzma makes Gale Thrust stronger than DCE attack, seat '+seat,()=>{
     const grass=runSeat(seat,'Grass Energy MEE','Gale Thrust');
-    const dce=runSeat(seat,'Double Colorless Energy SUM','Spiky Hopper');
-    console.log('NATIVE_RANK15_GUZMA_MOVEMENT_ENERGY_REVERSAL',
-      JSON.stringify({seat,grass,dce}));
+    const dceSpiky=runSeat(seat,'Double Colorless Energy SUM','Spiky Hopper');
+    const dceGale=runSeat(seat,'Double Colorless Energy SUM','Gale Thrust');
+    console.log('NATIVE_RANK15_GUZMA_MOVEMENT_ATTACK_CHOICE',
+      JSON.stringify({seat,grass,dceSpiky,dceGale}));
     assert.equal(grass.damage,230);
-    assert.equal(dce.damage,160);
+    assert.equal(dceSpiky.damage,160);
+    // DCE also funds Gale: movement reverses which ATTACK is strongest.
+    // It does not establish that Grass is a stronger attachment than DCE.
+    assert.equal(dceGale.damage,230);
     assert.equal(grass.nativeTurn,5);
-    assert.equal(dce.nativeTurn,5);
+    assert.equal(dceSpiky.nativeTurn,5);
+    assert.equal(dceGale.nativeTurn,5);
     assert.ok(grass.guzmaPrompts.filter(x=>x==='ChoosePokemonPrompt').length>=2);
   });
 }
