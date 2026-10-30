@@ -17,7 +17,9 @@ function actionFamily(initiator){
   if(initiator.action==='PassTurnAction')return 'pass';
   if(initiator.action==='AttackAction')return 'attack';
   if(initiator.action==='PlayCardAction')return 'card-play';
-  // Some native UseAbilityAction paths delegate a real attack (Perfection).\n  // Without the selected attack prompt, the generic root kind is ambiguous.\n  if(initiator.action==='UseAbilityAction')return 'ability-or-delegated-attack';
+  // Some native UseAbilityAction paths delegate a real attack (Perfection).
+  // Without the selected attack prompt, the generic root kind is ambiguous.
+  if(initiator.action==='UseAbilityAction')return 'ability-or-delegated-attack';
   if(initiator.action==='UseStadiumAction')return 'stadium-use';
   return 'other-root';
 }
