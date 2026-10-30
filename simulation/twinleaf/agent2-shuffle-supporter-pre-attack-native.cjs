@@ -7,6 +7,8 @@ const {runDevelopment}=require('../evaluation/agent41-bilateral-v2-development.c
 const {plannedTrials}=require('../evaluation/agent41-prospective-canonical-scout.cjs');
 const {withNativeLillieDrawSettlementAudit}=
   require('./agent24-native-lillie-settlement-audit.cjs');
+const {auditPreAttackSupporterFollowThrough}=
+  require('../evaluation/agent2-preattack-supporter-followthrough.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const FRAME='results/aichi-2026/registrations/agent41-prospective-canonical-32-20261029.json';
@@ -47,6 +49,8 @@ function main(){
     assert.equal(baseline.candidateSeat,treated.candidateSeat);
     const root=treated.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
     const key='play-conservative-shuffle-supporter';
+    const selectedOwnerIntents=(root?.ownerRootIntents??[]).filter(x=>
+      x?.intent?.kind===key||x?.kind===key).slice(0,16);
     return {trial:baseline.trial.id,candidateSeat:baseline.candidateSeat,
       physicalDeal:baseline.sourceDealFingerprint,
       originalStatus:baseline.status??'native-complete',
@@ -64,8 +68,9 @@ function main(){
       nativeAccepted:root?.nativePhysicalConfirmedByIntent?.[key]??null,
       nativeUnconfirmed:root?.nativePhysicalUnconfirmedByIntent?.[key]??null,
       rootPolicyOptIn:root?.conservativeShuffleBeforeAttackOptIn??null,
-      selectedOwnerIntents:(root?.ownerRootIntents??[]).filter(x=>
-        x?.intent?.kind===key||x?.kind===key).slice(0,16)};
+      selectedOwnerIntents,
+      nativePublicFollowThrough:
+        auditPreAttackSupporterFollowThrough(treated,selectedOwnerIntents)};
   });
   const summary={attempts:18,baselineStatuses:rows.reduce((acc,r)=>{
     acc[r.originalStatus]=(acc[r.originalStatus]??0)+1;return acc;},{}),
@@ -76,6 +81,17 @@ function main(){
     physicallyUnconfirmed:rows.reduce((sum,r)=>sum+(r.nativeUnconfirmed??0),0),
     nativeLillieRoots:treatment.audit.supportRoots,
     nativeLilliePrintedDrawConfirmed:treatment.audit.printedDrawConfirmed,
+    verifiedNativeSupporterFollowThrough:rows.reduce((sum,row)=>
+      sum+(row.nativePublicFollowThrough?.verifiedPlayedRootCount??0),0),
+    observedNextOwnRootAfterSupporter:rows.reduce((sum,row)=>
+      sum+(row.nativePublicFollowThrough?.records??[]).filter(x=>
+        x.sameTurnContinuationObserved).length,0),
+    observedOpponentNextTurnRootAfterSupporter:rows.reduce((sum,row)=>
+      sum+(row.nativePublicFollowThrough?.records??[]).filter(x=>
+        x.opponentNewTurnContinuationObserved).length,0),
+    observedCandidateNextTurnAfterSource:rows.reduce((sum,row)=>
+      sum+(row.nativePublicFollowThrough?.records??[]).filter(x=>
+        x.nextOwnerTurnContinuationObserved).length,0),
     sourceDealsPreserved:18,
     qualifiedCompetitiveGames:0};
   const out={
