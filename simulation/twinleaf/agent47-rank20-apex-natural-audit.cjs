@@ -64,7 +64,7 @@ function execute(trial,byRank,apexEnabled){
      actualFirstSeat:game.firstTurnSlot,
      deckHashes:game.deckHashes,
      sourceDealSha256:game.initialSourceDealFingerprint?.digestSha256??null,
-     fullPhysicalDealSha256:game.initialFullPhysicalDeal?.digestSha256??null,
+     fullPhysicalDealSha256:game.initialFullPhysicalDealFingerprint?.digestSha256??null,
      opponentRank:trial.opponentRank,sourceSeat:trial.sourceSeat,
      policy:{
        eligible:audit.eligible,selected:audit.selected,
@@ -97,10 +97,14 @@ function main(){
    const pairedSourceDeal=bothReturned&&
      control.sourceDealSha256!==null&&
      control.sourceDealSha256===treatment.sourceDealSha256;
+   const pairedFullPhysicalDeal=bothReturned&&
+     control.fullPhysicalDealSha256!==null&&
+     control.fullPhysicalDealSha256===treatment.fullPhysicalDealSha256;
    const noProposal=bothReturned&&
      treatment.policy.apexAlternativeProposals===0;
    return {trial,...{control,treatment},
      pairedSourceDeal:bothReturned?pairedSourceDeal:null,
+     pairedFullPhysicalDeal:bothReturned?pairedFullPhysicalDeal:null,
      observedNativeOptInOpportunity:bothReturned?
        treatment.policy.apexAlternativeProposals>0:null,
      noOpportunityControlDigestUnchanged:noProposal?
@@ -123,7 +127,8 @@ function main(){
      r.noOpportunityControlDigestUnchanged===true).length,
    noOpportunityDigestDifferences:rows.filter(r=>
      r.noOpportunityControlDigestUnchanged===false).length,
-   pairedSourceDeals:rows.filter(r=>r.pairedSourceDeal===true).length
+   pairedSourceDeals:rows.filter(r=>r.pairedSourceDeal===true).length,
+   pairedFullPhysicalDeals:rows.filter(r=>r.pairedFullPhysicalDeal===true).length
  };
  return {schema:'agent47-original-source20-bounded-apex-natural-prompt-census-v1',
    sourceRank:20,opponentRanks:[...OPPONENT_RANKS],
