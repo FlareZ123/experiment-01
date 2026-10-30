@@ -39,6 +39,13 @@ test('published rank6 original 60 is the measured input', () => {
   assert.equal(r.counts.basics,4);
   assert.equal(r.seven.numerator,'612457');
   assert.equal(r.sevenPlusOneDraw.numerator,'820454');
+  assert.equal(r.crushingAlternative.counts.groupB,4);
+  assert.deepEqual([r.crushingAlternative.seven.numerator,
+    r.crushingAlternative.seven.denominator],
+    ['378736','3214365']);
+  assert.deepEqual([r.crushingAlternative.sevenPlusOneDraw.numerator,
+    r.crushingAlternative.sevenPlusOneDraw.denominator],
+    ['1440140','9292437']);
 });
 
 /** @param {unknown} error @returns {boolean} */
