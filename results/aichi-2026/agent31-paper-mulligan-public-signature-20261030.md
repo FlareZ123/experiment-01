@@ -49,6 +49,10 @@ These selected families are *visible card-name exposure conditions*. Seeing Plum
 
 If the rank6 target group is Plumeria + Speed Lightning + Crushing Hammer (12 copies), a Basic-free seven contains at least one of those copies with **83.47663%** conditional probability. Across the *random number of repeated failed seven-card hands*, unconditional exposure probability is **55.64945%**. The distinction matters: simply multiplying 83.48% by 60.05% would omit exposure from later failed hands.
 
+## Two-family joint disclosure
+
+For the disjoint four-copy Plumeria and four-copy Speed Lightning Energy families, the chance **both families appear somewhere across all publicly revealed invalid hands** is **27.11324%**. A stronger signal, seeing both families in the *same* invalid hand on at least one attempt, occurs in **19.75242%** of setups. Thus **7.36082 percentage points** reveal both families only across separate mulligan hands. These are inclusion-exclusion and geometric exact results, not measures of actual opponent archetype identification. For any two disjoint families A and B, the across-hands result follows `P(A shown) + P(B shown) - P(A or B shown)`; the same-hand result replaces the conditional per-failed-hand success probability with `1 - P(no A | failed) - P(no B | failed) + P(no A or B | failed)` in the geometric formula.
+
 ## Gameplay and information-policy implications
 
 1. **Opponent K0 history matters before an ordinary turn.** A mulligan can disclose source card families and inform matchup hypotheses, card-preservation/discard decisions, setup sequencing, and future play responses. This extends the human-concepts note that opponent mulligans may reveal an archetype; the exact public exposure rate is now computed from original printings.
