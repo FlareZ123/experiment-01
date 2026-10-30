@@ -154,7 +154,7 @@ function newOwnerArbitrationAudit(){
     bySeat:{0:{ownerRoots:0,changedRoots:0},
       1:{ownerRoots:0,changedRoots:0}},reasons:{},samples:[],
     nativeLegality:'requires separate Store accepted/effect witness',
-    scope:'Owner-visible bounded attack-versus-Bench-Special-Energy development policy'};
+    scope:'Owner-visible opt-in attack-versus-Bench-Special-or-active-Energy-denial policy'};
 }
 
 /**
