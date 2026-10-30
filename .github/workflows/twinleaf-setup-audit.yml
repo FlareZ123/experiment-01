@@ -86,6 +86,11 @@ jobs:
         run: node --test tests/setup-compensation-observer.test.cjs tests/headless-initial-setup-compensation-smoke.test.cjs
       - name: Test explicit first-player opening choice policy
         run: node --test tests/agent6-go-first-choice.test.cjs
+      - name: Certify exact original rank6 conditional opening probabilities
+        run: |
+          node --test tests/agent6-rank6-opener-exact.test.cjs
+          node simulation/evaluation/agent6-rank6-opener-exact.cjs
+
       - name: Test rank6 K0 DCE and genuine K1 fallback pure prerequisites
         if: inputs.agent6_prized_thunder
         run: node --test tests/agent6-prized-thunder-speed-bypass.test.cjs
