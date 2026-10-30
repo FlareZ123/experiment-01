@@ -97,6 +97,24 @@ both seats and prototype restoration. A later native replay must be reported
 separately, with its own CI status and all failures; the original 48 outcomes
 must not be overwritten.
 
+## Separate retrospective native abort recovery (original outcomes unchanged)
+
+The original experiment's two failed pairs were **not removed from its
+denominator**. A separately compiled replay with the exact source 60s,
+seeds, seats and 160-root horizon, and a symmetric narrow bot-only
+mandatory 2/3-Energy assignment correction, returned all **48 native
+executions** (24 intact pairs), retained **zero** Apex payload-discard
+opportunities and preserved all **24** control/treatment observable
+digest matches. The corrected run recovered one new engine-terminal
+pair and one new capped pair. Its eight solver correction proposals may
+include speculative calls and are **not** eight proven accepted actions.
+Full positive, earlier negative and all error evidence are in the
+[separate complete replay report](agent47-rank20-minimum-energy-native-24pair-replay-20261030.md)
+and [native CI 41132176247](https://github.com/FlareZ123/experiment-01/actions/runs/41132176247).
+This closes a specific bot execution abort while leaving **zero
+competitively qualified games**, incomplete card-effect fidelity and
+no Apex-discard policy win claim.
+
 ## Decision consequence
 
 This exact six-seed/two-opponent natural slice supplied **no realized
