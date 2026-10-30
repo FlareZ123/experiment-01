@@ -26,6 +26,8 @@ This is **a constrained heuristic utility model**, deliberately weak: fixed weig
 - **Native-valid optional skip:** if all weights zero and card cost positive, an empty choice wins only if the actual prompt validator permits it.
 - **Owner-hand order independence and opponent-concealed-identity noninterference** in the pure decision function; invalid actor or nonfinite/negative declared costs are rejected.
 
+The [compiled manual CI run 40979041110](https://github.com/FlareZ123/experiment-01/actions/runs/40979041110) **passed** on head `68daace3f00661ecccb7ac5f629982a676c8a54a`, executing these pure scorer regressions alongside the existing owner-search tests and unchanged native staged fixtures. It does not execute any source-dealt game with the new marginal scorer.
+
 The scorer can be passed unchanged as `scoreBundle:(names,actor)=>marginalOwnerSearchValue(names,actor,model)` to the existing `withSparseActorOwnerSearch` opt-in; the adapter has separate tests that deliver a frozen owner observation to this scoring callback. This is a pure selectable-choice result, not a completed native match under this specific scoring rule.
 
 ## Next validation
