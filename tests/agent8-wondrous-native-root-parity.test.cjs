@@ -57,7 +57,6 @@ function scene(seat,labyrinth){
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   for(const printing of ['Lightning Energy SVE','Double Colorless Energy SUM']){
     const energy=card(printing);
-    owner.active.cards.push(energy);
     owner.active.energies.cards.push(energy);
   }
   if(labyrinth){
