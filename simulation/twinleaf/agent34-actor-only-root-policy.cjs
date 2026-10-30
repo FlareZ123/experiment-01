@@ -447,6 +447,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       .newOwnerContentionAudit(),
     terminalArbitrationOptIn:deps.terminalArbitration??
       (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'),
+    protectPotentialTwoPrizeAttackOptIn:deps.protectPotentialTwoPrizeAttack??
+      (process.env.AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV==='true'),
     terminalArbitration:require('./agent41-owner-root-arbitration.cjs')
       .newOwnerArbitrationAudit(),
     strandedMarnieRootOptIn:deps.strandedMarnieRoot??
@@ -629,6 +631,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       teamFlareGruntDenialRoot:audit.teamFlareGruntDenialRootOptIn,
       carmineFirstRoot:audit.carmineFirstRootOptIn,
       seekerLillieRoot:audit.seekerLillieRootOptIn,
+      protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
     };
     const firstIntent=chooseActorRootIntent(view,catalog,rootOptions);
