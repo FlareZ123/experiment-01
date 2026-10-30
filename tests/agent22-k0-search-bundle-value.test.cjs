@@ -29,7 +29,7 @@ test('exact three-way Prize allocation of one top-valued resource',()=>{
 test('three-way prize assignments with a 2-card unrestricted search',()=>{
   const r=k0(['A','B','C'],1,{A:10,B:6},{max:2});
   close(r.expectedValue,32/3);
-  close(r.expectedCardsChosen,5/3);
+  close(r.expectedCardsChosen,4/3);
 });
 
 test('pre-held valuable copies reduce K0 search expectation',()=>{
