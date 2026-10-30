@@ -26,7 +26,7 @@ function classifyPrintedPokemon(card){
   assert.ok(Array.isArray(rules));
   const prizeAwards=[];
   for(const rule of rules){
-    const amounts=[...rule.matchAll(/your opponent takes (\\d+) Prize cards?/gi)];
+    const amounts=[...rule.matchAll(/your opponent takes (\d+) Prize cards?/gi)];
     if(/Prize/i.test(rule))assert.ok(amounts.length>0,
       'Unknown printed Prize rule for '+card.id);
     for(const amount of amounts)prizeAwards.push(Number(amount[1]));
