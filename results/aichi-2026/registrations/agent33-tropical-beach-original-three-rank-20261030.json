@@ -1,0 +1,1450 @@
+{
+  "schema": "agent33-tropical-beach-original-three-rank-two-seat-paired-v1",
+  "registered_utc": "2026-10-30T23:05:00Z",
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidate_rank": 1,
+  "source_ranks": [
+    3,
+    6,
+    29
+  ],
+  "seed_generation": "Python secrets.randbits(32), six independent first draws, frozen before native execution",
+  "max_actions": 260,
+  "seeds": {
+    "3": {
+      "A": 4263372012,
+      "B": 1993934463
+    },
+    "6": {
+      "A": 2348713281,
+      "B": 544734844
+    },
+    "29": {
+      "A": 844567280,
+      "B": 2748052802
+    }
+  },
+  "exact_original_paper_sixties": {
+    "1": [
+      {
+        "category": "Pokémon",
+        "count": 3,
+        "name": "Shadow Rider Calyrex V",
+        "printing": {
+          "set": "CRE",
+          "number": "74",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 4,
+        "name": "Shadow Rider Calyrex VMAX",
+        "printing": {
+          "set": "CRE",
+          "number": "75",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 2,
+        "name": "Lillie's Clefairy ex",
+        "printing": {
+          "set": "JTG",
+          "number": "56",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 2,
+        "name": "Tapu Lele-GX",
+        "printing": {
+          "set": "GRI",
+          "number": "60",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Trevenant & Dusknoir-GX",
+        "printing": {
+          "set": "SMP",
+          "number": "217",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Latias ex",
+        "printing": {
+          "set": "SSP",
+          "number": "76",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Dialga-GX",
+        "printing": {
+          "set": "UPR",
+          "number": "100",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Mimikyu",
+        "printing": {
+          "set": "GRI",
+          "number": "58",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Girafarig",
+        "printing": {
+          "set": "LOT",
+          "number": "94",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Marshadow",
+        "printing": {
+          "set": "UNB",
+          "number": "81",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Radiant Eternatus",
+        "printing": {
+          "set": "CRZ",
+          "number": "105",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Lillie's Determination",
+        "printing": {
+          "set": "MEG",
+          "number": "119",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Carmine",
+        "printing": {
+          "set": "TWM",
+          "number": "145",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Iono",
+        "printing": {
+          "set": "PAL",
+          "number": "185",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Teammates",
+        "printing": {
+          "set": "PRC",
+          "number": "141",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Raihan",
+        "printing": {
+          "set": "EVS",
+          "number": "152",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Acerola",
+        "printing": {
+          "set": "BUS",
+          "number": "112",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Guzma",
+        "printing": {
+          "set": "BUS",
+          "number": "115",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tulip",
+        "printing": {
+          "set": "PAR",
+          "number": "181",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Mysterious Treasure",
+        "printing": {
+          "set": "FLI",
+          "number": "113",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Fog Crystal",
+        "printing": {
+          "set": "CRE",
+          "number": "140",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "VS Seeker",
+        "printing": {
+          "set": "PHF",
+          "number": "109",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Quick Ball",
+        "printing": {
+          "set": "FST",
+          "number": "237",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Hisuian Heavy Ball",
+        "printing": {
+          "set": "ASR",
+          "number": "146",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Battle Compressor",
+        "printing": {
+          "set": "PHF",
+          "number": "92",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Field Blower",
+        "printing": {
+          "set": "GRI",
+          "number": "125",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Night Stretcher",
+        "printing": {
+          "set": "ASC",
+          "number": "196",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Unfair Stamp",
+        "printing": {
+          "set": "TWM",
+          "number": "165",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Float Stone",
+        "printing": {
+          "set": "BKT",
+          "number": "137",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Forest Seal Stone",
+        "printing": {
+          "set": "SIT",
+          "number": "156",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Sky Field",
+        "printing": {
+          "set": "ROS",
+          "number": "89",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Dimension Valley",
+        "printing": {
+          "set": "PHF",
+          "number": "93",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 11,
+        "name": "Psychic Energy",
+        "printing": {
+          "set": "MEE",
+          "number": "13",
+          "language": "en"
+        }
+      }
+    ],
+    "3": [
+      {
+        "category": "Pokémon",
+        "count": 3,
+        "name": "Snorlax",
+        "printing": {
+          "set": "PGO",
+          "number": "55",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 2,
+        "name": "Galarian Stunfisk",
+        "printing": {
+          "set": "SSH",
+          "number": "132",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Regirock",
+        "printing": {
+          "set": "XYP",
+          "number": "49",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Mimikyu",
+        "printing": {
+          "set": "PAL",
+          "number": "97",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Girafarig",
+        "printing": {
+          "set": "LOT",
+          "number": "94",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Bunnelby",
+        "printing": {
+          "set": "PRC",
+          "number": "121",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Articuno-GX",
+        "printing": {
+          "set": "CES",
+          "number": "31",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Pokémon",
+        "count": 1,
+        "name": "Rotom V",
+        "printing": {
+          "set": "LOR",
+          "number": "58",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Plumeria",
+        "printing": {
+          "set": "BUS",
+          "number": "120",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Arven",
+        "printing": {
+          "set": "OBF",
+          "number": "186",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Team Flare Grunt",
+        "printing": {
+          "set": "XY",
+          "number": "129",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Teammates",
+        "printing": {
+          "set": "PRC",
+          "number": "141",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Lusamine",
+        "printing": {
+          "set": "CIN",
+          "number": "96",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Team Rocket's Handiwork",
+        "printing": {
+          "set": "FCO",
+          "number": "112",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Gladion",
+        "printing": {
+          "set": "CIN",
+          "number": "95",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Guzma",
+        "printing": {
+          "set": "BUS",
+          "number": "115",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Faba",
+        "printing": {
+          "set": "LOT",
+          "number": "173",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Penny",
+        "printing": {
+          "set": "SVI",
+          "number": "183",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Eri",
+        "printing": {
+          "set": "TEF",
+          "number": "146",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Lillie's Determination",
+        "printing": {
+          "set": "MEG",
+          "number": "119",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "Nest Ball",
+        "printing": {
+          "set": "SVI",
+          "number": "181",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "VS Seeker",
+        "printing": {
+          "set": "PHF",
+          "number": "109",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Enhanced Hammer",
+        "printing": {
+          "set": "TWM",
+          "number": "148",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Trainers' Mail",
+        "printing": {
+          "set": "ROS",
+          "number": "92",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Counter Catcher",
+        "printing": {
+          "set": "PAR",
+          "number": "160",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Scoop Up Cyclone",
+        "printing": {
+          "set": "TWM",
+          "number": "162",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Quick Ball",
+        "printing": {
+          "set": "FST",
+          "number": "237",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Hisuian Heavy Ball",
+        "printing": {
+          "set": "ASR",
+          "number": "146",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Night Stretcher",
+        "printing": {
+          "set": "ASC",
+          "number": "196",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Float Stone",
+        "printing": {
+          "set": "BKT",
+          "number": "137",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Stealthy Hood",
+        "printing": {
+          "set": "UNB",
+          "number": "186",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tool Jammer",
+        "printing": {
+          "set": "BST",
+          "number": "136",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Forest Seal Stone",
+        "printing": {
+          "set": "SIT",
+          "number": "156",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tropical Beach",
+        "printing": {
+          "set": "BWP",
+          "number": "50",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Player's Ceremony",
+        "printing": {
+          "set": "SP",
+          "number": "127",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Temple of Sinnoh",
+        "printing": {
+          "set": "ASR",
+          "number": "155",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 3,
+        "name": "Capture Energy",
+        "printing": {
+          "set": "RCL",
+          "number": "171",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 2,
+        "name": "Water Energy",
+        "printing": {
+          "set": "MEE",
+          "number": "11",
+          "language": "en"
+        }
+      }
+    ],
+    "6": [
+      {
+        "category": "Pokémon",
+        "count": 4,
+        "name": "Iron Thorns ex",
+        "printing": {
+          "set": "TWM",
+          "number": "77",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Plumeria",
+        "printing": {
+          "set": "BUS",
+          "number": "120",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "Guzma",
+        "printing": {
+          "set": "BUS",
+          "number": "115",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Guzma & Hala",
+        "printing": {
+          "set": "CEC",
+          "number": "193",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Team Flare Grunt",
+        "printing": {
+          "set": "XY",
+          "number": "129",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Lusamine",
+        "printing": {
+          "set": "CIN",
+          "number": "96",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Cynthia & Caitlin",
+        "printing": {
+          "set": "CEC",
+          "number": "189",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Team Skull Grunt",
+        "printing": {
+          "set": "SUM",
+          "number": "133",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Faba",
+        "printing": {
+          "set": "LOT",
+          "number": "173",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Eri",
+        "printing": {
+          "set": "TEF",
+          "number": "146",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Sidney",
+        "printing": {
+          "set": "FST",
+          "number": "241",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Gladion",
+        "printing": {
+          "set": "CIN",
+          "number": "95",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Lillie's Determination",
+        "printing": {
+          "set": "MEG",
+          "number": "119",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Team Rocket's Handiwork",
+        "printing": {
+          "set": "FCO",
+          "number": "112",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Crushing Hammer",
+        "printing": {
+          "set": "POR",
+          "number": "71",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "Trainers' Mail",
+        "printing": {
+          "set": "ROS",
+          "number": "92",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "VS Seeker",
+        "printing": {
+          "set": "PHF",
+          "number": "109",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Tag Call",
+        "printing": {
+          "set": "CEC",
+          "number": "206",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Enhanced Hammer",
+        "printing": {
+          "set": "TWM",
+          "number": "148",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Camping Gear",
+        "printing": {
+          "set": "BST",
+          "number": "122",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Palace Book",
+        "printing": {
+          "set": "SMP",
+          "number": "NAN25",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Captivating Poké Puff",
+        "printing": {
+          "set": "STS",
+          "number": "99",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Echoing Horn",
+        "printing": {
+          "set": "CRE",
+          "number": "136",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Megaton Blower",
+        "printing": {
+          "set": "SSP",
+          "number": "182",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Handheld Fan",
+        "printing": {
+          "set": "TWM",
+          "number": "150",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tool Jammer",
+        "printing": {
+          "set": "BST",
+          "number": "136",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Palace Belt",
+        "printing": {
+          "set": "BWP",
+          "number": "153",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tropical Beach",
+        "printing": {
+          "set": "BWP",
+          "number": "50",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Player's Ceremony",
+        "printing": {
+          "set": "SP",
+          "number": "127",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Thunder Mountain ♢",
+        "printing": {
+          "set": "LOT",
+          "number": "191",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Wondrous Labyrinth ♢",
+        "printing": {
+          "set": "TEU",
+          "number": "158",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 4,
+        "name": "Speed Lightning Energy",
+        "printing": {
+          "set": "RCL",
+          "number": "173",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 2,
+        "name": "Capture Energy",
+        "printing": {
+          "set": "RCL",
+          "number": "171",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 1,
+        "name": "Spiky Energy",
+        "printing": {
+          "set": "JTG",
+          "number": "159",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 1,
+        "name": "Double Colorless Energy",
+        "printing": {
+          "set": "SUM",
+          "number": "136",
+          "language": "en"
+        }
+      }
+    ],
+    "29": [
+      {
+        "category": "Pokémon",
+        "count": 4,
+        "name": "Iron Thorns ex",
+        "printing": {
+          "set": "TWM",
+          "number": "77",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Plumeria",
+        "printing": {
+          "set": "BUS",
+          "number": "120",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "Guzma",
+        "printing": {
+          "set": "BUS",
+          "number": "115",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Team Flare Grunt",
+        "printing": {
+          "set": "XY",
+          "number": "129",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Guzma & Hala",
+        "printing": {
+          "set": "CEC",
+          "number": "193",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Lusamine",
+        "printing": {
+          "set": "CIN",
+          "number": "96",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Faba",
+        "printing": {
+          "set": "LOT",
+          "number": "173",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Cynthia & Caitlin",
+        "printing": {
+          "set": "CEC",
+          "number": "189",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Eri",
+        "printing": {
+          "set": "TEF",
+          "number": "146",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Sidney",
+        "printing": {
+          "set": "FST",
+          "number": "241",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Team Skull Grunt",
+        "printing": {
+          "set": "SUM",
+          "number": "133",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Team Rocket's Handiwork",
+        "printing": {
+          "set": "FCO",
+          "number": "112",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Peonia",
+        "printing": {
+          "set": "CRE",
+          "number": "149",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Lillie's Determination",
+        "printing": {
+          "set": "MEG",
+          "number": "119",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 4,
+        "name": "Crushing Hammer",
+        "printing": {
+          "set": "POR",
+          "number": "71",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 3,
+        "name": "VS Seeker",
+        "printing": {
+          "set": "PHF",
+          "number": "109",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Trainers' Mail",
+        "printing": {
+          "set": "ROS",
+          "number": "92",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Camping Gear",
+        "printing": {
+          "set": "BST",
+          "number": "122",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Tag Call",
+        "printing": {
+          "set": "CEC",
+          "number": "206",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Enhanced Hammer",
+        "printing": {
+          "set": "TWM",
+          "number": "148",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Captivating Poké Puff",
+        "printing": {
+          "set": "STS",
+          "number": "99",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Target Whistle",
+        "printing": {
+          "set": "PHF",
+          "number": "106",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Field Blower",
+        "printing": {
+          "set": "GRI",
+          "number": "125",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Megaton Blower",
+        "printing": {
+          "set": "SSP",
+          "number": "182",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Palace Belt",
+        "printing": {
+          "set": "BWP",
+          "number": "153",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Handheld Fan",
+        "printing": {
+          "set": "TWM",
+          "number": "150",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Tool Jammer",
+        "printing": {
+          "set": "BST",
+          "number": "136",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 2,
+        "name": "Tropical Beach",
+        "printing": {
+          "set": "BWP",
+          "number": "50",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Player's Ceremony",
+        "printing": {
+          "set": "SP",
+          "number": "127",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Thunder Mountain ♢",
+        "printing": {
+          "set": "LOT",
+          "number": "191",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Trainer",
+        "count": 1,
+        "name": "Wondrous Labyrinth ♢",
+        "printing": {
+          "set": "TEU",
+          "number": "158",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 4,
+        "name": "Speed Lightning Energy",
+        "printing": {
+          "set": "RCL",
+          "number": "173",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 2,
+        "name": "Capture Energy",
+        "printing": {
+          "set": "RCL",
+          "number": "171",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 1,
+        "name": "Spiky Energy",
+        "printing": {
+          "set": "JTG",
+          "number": "159",
+          "language": "en"
+        }
+      },
+      {
+        "category": "Energy",
+        "count": 1,
+        "name": "Double Colorless Energy",
+        "printing": {
+          "set": "SUM",
+          "number": "136",
+          "language": "en"
+        }
+      }
+    ]
+  },
+  "control_policy": "Agent41 canonical shared owner policy with Tropical Beach last-chance explicitly OFF",
+  "treatment_policy": "Exactly same shared owner policy with Tropical Beach last-chance explicitly ON",
+  "qualification": "development-only, not paper or tournament clock competitive games"
+}

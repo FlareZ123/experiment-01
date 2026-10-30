@@ -117,6 +117,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent33_tropical_beach_paired:
+        description: 'Twelve preregistered original-rank3/6/29 same-deal Beach control vs optional owner-policy development games'
+        required: false
+        type: boolean
+        default: false
       agent34_gholdengo_native:
         description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
         required: false
@@ -155,6 +160,16 @@ jobs:
       - name: Stage actual both-seat Tropical Beach end-turn native Store action
         if: inputs.agent33_tropical_beach_native
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
+      - name: Preserve entire paired original rank3/6/29 Beach native-development panel
+        if: inputs.agent33_tropical_beach_paired
+        run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
+      - name: Archive both physical seats and failed attempts in fixed Beach development panel
+        if: inputs.agent33_tropical_beach_paired && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-original-three-rank-beach-paired
+          path: agent33-beach-original-paired.json
+          if-no-files-found: warn
       - name: Verify original Store Gholdengo exact thirty-card hand and Prize effects on both seats
         if: inputs.agent34_gholdengo_native
         run: node simulation/twinleaf/agent34-gholdengo-native-prize-mechanic.cjs > agent34-gholdengo-native-prize-effect.json
