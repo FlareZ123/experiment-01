@@ -8,7 +8,7 @@ The original [Agent 2 rank11 conditional K0 study](rank11-conditional-K0-screen.
 
 Downloaded the original ZIP and verified SHA256 **53043fd481aa974e65bcf7a3b1d1cc805c2363b9e8a62a9173c245997b248557** against its publication. The archived JSON records SHA256 is **4f1d37c273de8f12dd0f07ceeec14079250464c4e7c594b56321156991d7f8c7**. This audit reads only the actual source player's own first-decision hand, actual first player and initial Active from the frozen rows. It makes no native actions and does not change the original experimental frame.
 
-Reproducer: [read-only archive auditor](../../scripts/agent32_rank11_k0_archive_audit.py) and [pure tests](../../tests/test_agent32_rank11_k0_archive_audit.py). The auditor refuses nonmatching ZIP SHA256, wrong original rank/seat/engine, incomplete attempt denominator, unverified source-first or missing source-hand data.
+Reproducer: [read-only archive auditor](../../scripts/agent32_rank11_k0_archive_audit.py) and [pure tests](../../tests/test_agent32_rank11_k0_archive_audit.py). The auditor refuses nonmatching ZIP SHA256, wrong original rank/seat/engine, incomplete attempt denominator, unverified source-first or missing source-hand data. Pure owner-boundary tests also **passed** in the existing manual [Aichi opening audit CI 40985816929](https://github.com/FlareZ123/experiment-01/actions/runs/40985816929), at head **c54f2393e968bc88be98693119dcfc45164ef6ad**, after the new test was registered.
 
 ## Exact owner-hand census
 
