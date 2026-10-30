@@ -115,15 +115,15 @@ function chooseActorEnergyRecipient(view,catalog,options={}){
   for(const target of targets){
     const attached=attachedUnits(target.pokemon);
     if(attached===null)continue;
-    for(const {attack,missing} of viable(target.pokemon,attached)){
+    for(const {attack,effectiveCost,missing} of viable(target.pokemon,attached)){
       if(missing===0)continue;
       for(const energy of held){
-        const after=remainingBasicAttachments(attack.cost,
+        const after=remainingBasicAttachments(effectiveCost,
           [...attached,energy.type],catalog.colorlessEnergyType);
         if(after>=missing)continue;
         const priority=target.slot==='active'?(ready?2:0):1;
         possibilities.push({
-          priority,after,cost:attack.cost.length,
+          priority,after,cost:effectiveCost.length,
           recipientIndex:target.index,handIndex:energy.handIndex,
           printing:energy.printing,slot:target.slot,index:target.index,
           attackName:attack.name,gapBefore:missing,gapAfter:after
