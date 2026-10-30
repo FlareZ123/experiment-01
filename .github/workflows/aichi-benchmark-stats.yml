@@ -168,6 +168,10 @@ jobs:
         run: node --test tests/source-physical-deal-fingerprint.test.cjs tests/full-physical-deal-fingerprint.test.cjs
       - name: Check archetype group loss floors against registered Aichi field
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
+      - name: Verify source-only and two-player absolute mulligan setup allowances
+        run: |
+          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
       - name: Verify candidate mulligan treatment and source bonus opportunity coupling
         run: node --test tests/aichi-mulligan-treatment-coupling.test.cjs
       - name: Audit all three source Iron Thorns opening and discard tiers
