@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      natural_source20_audit:
+        description: Small fixed-seed both-seat rank20 native owner discard opportunity audit against original rank1 and rank11
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -19,21 +24,21 @@ jobs:
         with:
           node-version: '22'
       - name: Pure and original-Store adapter injection tests
-        run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs
+        run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
           npm run compile
       - name: Native original rank20 physical Ultra Ball baseline, alternative, and hold for both seats
-        if: ${{ inputs.native_apex_store }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
         run: node simulation/twinleaf/agent47-apex-ultraball-original-store.cjs > agent47-apex-source20-native.json
       - name: Native source rank20 Ultra Ball search to Apex copied-attack settlement, both seats
-        if: ${{ inputs.native_apex_store }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
         run: node simulation/twinleaf/agent47-apex-ultraball-followthrough-original-store.cjs > agent47-apex-source20-followthrough-native.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.native_apex_store }}
@@ -42,5 +47,15 @@ jobs:
           path: |
             agent47-apex-source20-native.json
             agent47-apex-source20-followthrough-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preregistered 24 original-source both-seat rank20 paired Store roots, no competitive inference
+        if: ${{ inputs.natural_source20_audit }}
+        run: node simulation/twinleaf/agent47-rank20-apex-natural-audit.cjs > agent47-rank20-natural-census.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.natural_source20_audit }}
+        with:
+          name: agent47-source20-original-native-natural-census
+          path: agent47-rank20-natural-census.json
           if-no-files-found: warn
           retention-days: 14
