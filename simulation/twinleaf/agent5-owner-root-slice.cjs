@@ -183,7 +183,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     }:{}),
     ...(['play-stranded-marnie','play-lowhand-lillie',
       'play-conservative-shuffle-supporter','play-carmine-first',
-      'play-seeker-recovered-lillie'].includes(intent.kind)?{
+      'play-seeker-recovered-lillie','play-held-guzma-mobility',
+      'play-team-flare-grunt-denial'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -301,7 +302,9 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-lowhand-lillie'||
      intent.kind==='play-conservative-shuffle-supporter'||
      intent.kind==='play-carmine-first'||
-     intent.kind==='play-seeker-recovered-lillie'){
+     intent.kind==='play-seeker-recovered-lillie'||
+     intent.kind==='play-held-guzma-mobility'||
+     intent.kind==='play-team-flare-grunt-denial'){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
     // This attests dispatch/quota only, not the draw or tactical outcome.
