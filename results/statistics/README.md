@@ -15,4 +15,7 @@ The target is one frozen 60-card deck evaluated against all 32 Aichi Open League
 - [New Moon no-direct-Cologne Thorns win floors](newmoon-thorns-no-direct-cologne-necessary-success.md): combining the full-field 99.5% loss budget with the preexisting 28.47% opening direct-Cologne visibility yields a **92.54% minimum average win probability in no-direct-Cologne openings across the three four-Basic Iron Thorns ranks**, under ideal wins whenever direct Cologne is visible and the specified all-bonus setup model. Pure necessary math, no observed wins.
 - [Archetype-group necessary win floors](group-loss-budget.md): the 32-rank 99.5% target permits only 0.16 expected rank-equivalent nonwins. Regidrago's 11 placements collectively require at least 98.545% average winning, Absol Garbodor's four require at least 96%, and smaller groups have corresponding necessary minima. Mathematical constraints, no played data.
 
+
+- [Independent exact JavaScript 99.5% all-win and missing-opponent calculation](agent26-995-field-certification-envelope-20261030.md): reproduces the preexisting 598 aggregate and 1,290-per-rank zero-loss CP thresholds, and the source-coverage 29/32 logical bound, with compiled/manual Node regression. Conditional mathematics only, no qualified games.
+
 **Always qualify policy and game-rule fidelity before interpreting any statistical certificate as competitive strength.**
