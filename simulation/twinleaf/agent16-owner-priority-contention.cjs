@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent16-owner-priority-contention-census-v2-team-flare-grunt';
+const VERSION='agent16-owner-priority-contention-census-v3-branch-order-and-self-filter';
 
 // These ranks mirror the existing first-return order in
 // agent34-actor-only-root-policy.cjs. This is a partial vocabulary,
@@ -36,6 +36,14 @@ const PROBES=Object.freeze([
   {flag:'carmineFirstRoot',order:11,name:'carmine',
     load:()=>require('./agent48-conservative-first-carmine.cjs')
       .chooseConservativeFirstCarmine},
+  {flag:'raichuKoBreakpointBeforeAttack',order:14,name:'raichu-current-attack',
+    load:()=> (view,catalog,options)=>{
+      if(view.ownPublic?.active?.printing!=='Alolan Raichu UNM')return null;
+      const remaining=require('./agent34-actor-only-root-policy.cjs')
+        .chooseActorRootIntent(view,catalog,{
+          ...options,raichuKoBreakpointBeforeAttack:false});
+      return remaining.kind==='attack'?remaining:null;
+    }},
   {flag:'publicContextSpecialEnergy',order:16,name:'public-special-energy',
     load:()=>require('./agent17-public-context-special-energy.cjs')
       .choosePublicContextSpecialEnergy},
@@ -85,10 +93,38 @@ function contentionReason(selectedKind,alternativeKind){
  * @param {Array<object>} [probes] Injection for pure regressions.
  * @returns {object} Bounded partial alternative vocabulary, no hidden zones.
  */
+function actualSelectedPriority(view,catalog,options,selected){
+  const baseline=PRIORITY[selected.kind];
+  if(selected.kind!=='attach-special-energy'||
+     options.raichuKoBreakpointBeforeAttack!==true||
+     options.publicContextSpecialEnergy!==true||
+     view.ownPublic?.active?.printing!=='Alolan Raichu UNM')return baseline;
+  const early=require('./agent10-raichu-damage-breakpoint-before-attack.cjs')
+    .chooseRaichuPrintedKnockoutAttachment(view,catalog);
+  if(early&&['handIndex','printing','slot','index']
+      .every(key=>early[key]===selected[key]))return 13;
+  return baseline;
+}
+
+/**
+ * A branch can select a printing already obtained by a later generic probe.
+ * The same physical held card and recipient cannot be its own competitor.
+ * @param {object} selected Original first-choice intent.
+ * @param {object} proposed Later pure selector's output.
+ * @returns {boolean}
+ */
+function samePhysicalProposal(selected,proposed){
+  return selected.kind===proposed.kind&&
+    Number.isSafeInteger(selected.handIndex)&&
+    selected.handIndex===proposed.handIndex&&
+    selected.printing===proposed.printing&&
+    selected.slot===proposed.slot&&selected.index===proposed.index;
+}
+
 function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
   assert.equal(view.decisionKind,'owner-root');
   assert.ok(selected&&typeof selected.kind==='string');
-  const selectedPriority=PRIORITY[selected.kind];
+  const selectedPriority=actualSelectedPriority(view,catalog,options,selected);
   if(!Number.isInteger(selectedPriority))
     return {selectedKind:selected.kind,unknownPriority:true,alternatives:[]};
   const alternatives=[];
@@ -101,8 +137,8 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
       view.ownTurnResources?.specialEnergyPlayLocked===true||
       view.ownTurnResources?.energyPlayedTurn===view.globalTurn
     ))continue;
-    const proposed=p.load()(view,catalog);
-    if(!proposed)continue;
+    const proposed=p.load()(view,catalog,options);
+    if(!proposed||samePhysicalProposal(selected,proposed))continue;
     // Some selectors share one intent kind. Do not double-count a physical
     // action identified by identical printing, recipient and card index.
     const duplicate=alternatives.some(a=>a.kind===proposed.kind&&
@@ -120,7 +156,8 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
       nativePlayability:'unverified'
     });
   }
-  return {selectedKind:selected.kind,unknownPriority:false,alternatives};
+  return {selectedKind:selected.kind,selectedPriority,
+    unknownPriority:false,alternatives};
 }
 
 /**
@@ -150,5 +187,6 @@ function newOwnerContentionAudit(){
     scope:'Partial enabled-option same-root heuristic offers; no native legality or counterfactual outcome'};
 }
 
-module.exports={VERSION,PRIORITY,collectOwnerContention,
+module.exports={VERSION,PRIORITY,actualSelectedPriority,samePhysicalProposal,
+  collectOwnerContention,
   contentionReason,recordOwnerContention,newOwnerContentionAudit};
