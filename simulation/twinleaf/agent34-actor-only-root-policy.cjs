@@ -177,6 +177,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .specialFundsImmediateAttack(view,catalog);
     if(stronger)return stronger;
   }
+  if(options.publicFlexibleEnergyContest===true&&
+      options.publicContextSpecialEnergy===true){
+    const stronger=require('./agent41-public-flexible-energy-contest.cjs')
+      .choosePublicFlexibleImmediateAttackEnergy(view,catalog);
+    if(stronger)return stronger;
+  }
   // Opt-in owner-visible Jet Bench switch. The native action constructor
   // already handles the generic attach-special-energy Bench target.
   if(options.jetBenchSwitchRoot===true){
@@ -455,6 +461,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
       (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
+    publicFlexibleEnergyContestOptIn:deps.publicFlexibleEnergyContest===true||
+      process.env.AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV==='true',
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -578,6 +586,10 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.publicContextSpecialEnergyOptIn)
     audit.version+='+'+
       require('./agent17-public-context-special-energy.cjs').VERSION;
+  if(audit.publicFlexibleEnergyContestOptIn)
+    audit.version+='+'+
+      require('./agent41-public-flexible-energy-contest.cjs').VERSION;
+  else delete audit.publicFlexibleEnergyContestOptIn;
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -711,6 +723,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       publicContextSpecialEnergy:actorSpecialEnergyEnabled(
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
+      publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
