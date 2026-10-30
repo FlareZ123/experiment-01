@@ -75,3 +75,59 @@ function exactDirectLock(options={}){
 }
 
 module.exports={choose,exactDirectLock};
+
+
+/**
+ * Going-second first-turn protected-lock opening. Arven from hand may fetch
+ * one Boost Shake Item and one Stealthy Hood Tool from the current deck. Any
+ * pieces already in hand need no search. With no held Arven, both pieces must
+ * be held directly. Requires a searchable Jellicent ex for Boost Shake.
+ * Inclusion-exclusion counts exact six-Prize availability.
+ * Ignores opposing first-turn disruption, Supporter lock and other searches.
+ *
+ * @param {Options & {arven?:number}} [options]
+ * @returns {ReturnType<typeof exactDirectLock>}
+ */
+function exactArvenProtectedLock(options={}){
+  const f=options.frillish??4,b=options.boostShake??4,
+    j=options.jellicent??4,h=options.stealthyHood??4,
+    a=options.arven??4,basics=options.totalBasics??12;
+  for(const n of [f,b,j,h,a]){
+    if(!Number.isInteger(n)||n<0||n>4)throw new RangeError('Copy counts must be 0..4');
+  }
+  if(!Number.isInteger(basics)||basics<f||basics>60-b-j-h-a)
+    throw new RangeError('Total Basics inconsistent with deck construction');
+  const sizes=[f,b,j,h,a,60-f-b-j-h-a];
+  const prizes=choose(52,6),drawAndPrize=53n*prizes;
+  const denominator=choose(60,7)*drawAndPrize;
+  const validOpenerDenominator=(choose(60,7)-choose(60-basics,7))*drawAndPrize;
+  let numerator=0n;
+  enumerate(sizes,0,7,[],hand=>{
+    if(hand[0]===0)return;
+    const handWays=hand.reduce((acc,n,i)=>acc*choose(sizes[i],n),1n);
+    for(let drawType=0;drawType<sizes.length;drawType++){
+      const remain=sizes[drawType]-hand[drawType];
+      if(remain===0)continue;
+      const visible=index=>hand[index]+Number(drawType===index);
+      if(visible(4)===0&&(visible(1)===0||visible(3)===0))continue;
+      const left=index=>sizes[index]-visible(index);
+      const required=[left(2)];
+      if(visible(1)===0)required.push(left(1));
+      if(visible(3)===0)required.push(left(3));
+      let validPrizes=0n;
+      for(let mask=0;mask<(1<<required.length);mask++){
+        let taken=0,parity=0;
+        for(let k=0;k<required.length;k++){
+          if(mask&(1<<k)){taken+=required[k];parity++;}
+        }
+        const ways=choose(52-taken,6-taken);
+        validPrizes+=parity%2===0?ways:-ways;
+      }
+      numerator+=handWays*BigInt(remain)*validPrizes;
+    }
+  });
+  return {unconditional:Number(numerator)/Number(denominator),
+    conditionalValidBasic:Number(numerator)/Number(validOpenerDenominator),
+    numerator,denominator,validOpenerDenominator};
+}
+module.exports.exactArvenProtectedLock=exactArvenProtectedLock;
