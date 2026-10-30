@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent1_scripted_source_opponent_owner_blower:
+        description: 'Exact six original rank11 source setup same K0, rank1 native generic versus owner-visible Field Blower response'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -150,6 +155,19 @@ jobs:
         with:
           name: agent1-source-starvip-opponent-blower-original-six-pair
           path: agent1-native-source-starvip-opponent-blower-pairs.json
+          if-no-files-found: warn
+      - name: Original six same-source physical turn-one Garbodor versus native rank1 owner Field Blower
+        if: inputs.agent1_scripted_source_opponent_owner_blower
+        run: node simulation/evaluation/agent1-rank11-source-opponent-original-blower-pair.cjs > agent1-original-source-rank1-fieldblower-pairs.json
+      - name: Attest all original fixed physical six pairs and opponent reply public Tool counts
+        if: inputs.agent1_scripted_source_opponent_owner_blower
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-original-source-rank1-fieldblower-pairs.json');a.equal(r.samePhysicalPairs,6);a.equal(r.sourceReturnPairs,6);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_ORIGINAL_FIELD_BLOWER_PAIRS',JSON.stringify({nativeBlowerProposals:r.nativeBlowerProposals,nativeBlowerPublicToolRemovalChecks:r.nativeBlowerPublicToolRemovalChecks,rows:r.rows.map(x=>({index:x.index,seed:x.seed,unmodified:x.untouchedOpponentSourceGarbodorAtReturn,ownerBlower:x.empoweredOpponentSourceGarbodorAtReturn,untreatedStatus:x.untreatedStatus,treatedStatus:x.treatedStatus}))}))"
+      - name: Preserve original-six same physical-source opponent Tool counterplay and native failures
+        if: inputs.agent1_scripted_source_opponent_owner_blower && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-source-rank1-fieldblower-six-pairs
+          path: agent1-original-source-rank1-fieldblower-pairs.json
           if-no-files-found: warn
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
