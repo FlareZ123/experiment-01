@@ -50,7 +50,8 @@ function fixture(){
     candidateAttackSettlement:{attacks:[{
       actionOrdinal:37,turnBefore:4,attackName:'Get Lost',
       settledPromptChain:true,settlementCrossesClockReset:false,
-      completionRootOrdinal:39
+      completionRootOrdinal:39,
+      publicBoardBefore:[{active:{name:'Iron Thorns ex',energyCards:[]}},{active:{name:'Girafarig',energyCards:['Psychic Energy']}}]
     }]}
   };
   return {result:{rows:[row,...Array.from({length:31},(_,i)=>
@@ -73,6 +74,8 @@ test('native settled Get Lost selects exactly both preceding Plumeria costs',()=
   assert.equal(x.printingInstancesMatchingImmediatePlumeriaPayment,2);
   assert.equal(x.fullTwoPaymentPrintingMatches,1);
   assert.equal(x.nativeGetLostPromptsAllowCancel,1);
+  assert.equal(x.getLostActiveGirafarigWithPaidEnergy,1);
+  assert.equal(x.getLostWithPhysicalNewPsychicBeforeAttack,0);
   assert.equal(x.fullTwoWithExactlyThreeDiscardCards,1);
   assert.equal(x.records[0].nativeDiscardPromptOrdinal,38);
   assert.equal(x.records[0].physicalLostZoneDestinationObjectNotIndependentlyObserved,true);
@@ -108,5 +111,13 @@ test('misattributed Get Lost root or impossible prompt chronology fails',()=>{
 test('unsettled attack cannot generate a Lost-Zone selection claim',()=>{
   const x=fixture();
   x.result.rows[0].candidateAttackSettlement.attacks[0].settledPromptChain=false;
+  assert.throws(()=>auditPlumeriaGetLost(x));
+});
+
+
+test('same-root settled Get Lost without actual funded Active Girafarig fails',()=>{
+  const x=fixture();
+  x.result.rows[0].candidateAttackSettlement.attacks[0]
+    .publicBoardBefore[1].active.energyCards=[];
   assert.throws(()=>auditPlumeriaGetLost(x));
 });
