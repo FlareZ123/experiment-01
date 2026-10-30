@@ -2,6 +2,11 @@ name: Agent 43 pinned Guzma physical recipient regression
 
 on:
   workflow_dispatch:
+    inputs:
+      sourcefirst_development:
+        description: 'Run retrospective 8-arm original source-first Guzma comparison'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,3 +32,15 @@ jobs:
         run: npm run compile
       - name: Prove both-seat native Store Guzma recipient continuation
         run: node --test tests/agent43-canonical-guzma-prompt-composition.test.cjs tests/agent43-guzma-prompt-native.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent2-held-guzma-mobility-frontier.test.cjs tests/agent43-registered-basic-supply-guzma.test.cjs tests/agent43-field-basic-only-cost-census.test.cjs
+      - name: Original source-first Guzma paired development
+        if: ${{ inputs.sourcefirst_development }}
+        env:
+          AGENT43_NATIVE_OUTPUT: ${{ runner.temp }}/agent43-sourcefirst-guzma.json
+        run: node simulation/evaluation/agent43-guzma-original-source-pair.cjs
+      - name: Preserve complete source-first native evidence
+        if: ${{ inputs.sourcefirst_development && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-sourcefirst-guzma-archive
+          path: ${{ runner.temp }}/agent43-sourcefirst-guzma.json
+          if-no-files-found: warn
