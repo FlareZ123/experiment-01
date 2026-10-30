@@ -72,7 +72,11 @@ function paperMeloettaDonkWitness(){
     }
     if(bench.some(p=>p.id===id)||active.id===id)
       throw Error('Duplicate physical Pokemon in play');
-    bench.push({id,name,hp,damage:name==='Darkness'?0:20,energy:[]});
+    const printedTypes={melo:'Psychic',tapu:'Lightning',
+      eggA:'Grass',eggB:'Grass',unown:'Psychic'};
+    if(!printedTypes[id]||printedTypes[id]==='Darkness')
+      throw Error('This witness only benches the original non-Darkness Basics');
+    bench.push({id,name,hp,damage:20,energy:[]});
     maxBench=Math.max(maxBench,bench.length);
     receipt(`Bench ${id}; Risky Ruins places two damage counters`);
   }
