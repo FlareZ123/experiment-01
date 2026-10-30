@@ -66,6 +66,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Fail closed on missing settled physical-card custody in release results
+        run: node --test tests/physical-zone-qualification.test.cjs
       - name: Index unique non-KO Prize attacks and Gholdengo resource reset
         run: node --test tests/agent34-direct-prize-attack-frontier.test.cjs
       - name: Fail closed on first-player ordinary Supporter while allowing printed exceptions
