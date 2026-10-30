@@ -105,3 +105,87 @@ test('bounded samples carry exact monotone root ordinal for native join',()=>{
   assert.throws(()=>recordOwnerArbitration(audit,0,4,result.receipt,-1),
     {name:'AssertionError'});
 });
+
+test('bounded original selector proposes source-neutral Energy denial before attack',()=>{
+  const v=view();
+  v.ownHand=['Team Flare Grunt XY'];
+  v.ownPublic.publicTurnRestrictions={supporterPlayLocked:false};
+  v.ownPublic.resolvingSupporter=[];
+  v.ownTurnResources.supporterPlayLocked=false;
+  v.ownTurnResources.supporterPlayedTurn=0;
+  v.opponentPublic={active:{name:'Garbodor',
+    printing:'Garbodor BKP',energies:['Darkness Energy SVE','Darkness Energy SVE']}};
+  const options={beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true};
+  const result=arbitrateOwnerRootIntent(v,{},FIRST,options);
+  assert.deepEqual(result.intent,{kind:'play-team-flare-grunt-denial',
+    handIndex:0,printing:'Team Flare Grunt XY'});
+  assert.equal(result.receipt.candidateCount,1);
+  assert.equal(result.receipt.nativePlayability,'unverified');
+  assert.equal(result.receipt.reason,
+    'deny-visible-active-energy-before-turn-ending-attack');
+  assert.deepEqual(result.receipt.selectedTarget,{
+    slot:'opponent-active',index:0,
+    pokemonPrinting:'Garbodor BKP',pokemonName:'Garbodor'
+  });
+});
+
+test('Energy denial protects quota, visible Energy threshold and exact owner hand',()=>{
+  const options={beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true};
+  const base=view();
+  base.ownHand=['Team Flare Grunt XY'];
+  base.ownPublic.publicTurnRestrictions={supporterPlayLocked:false};
+  base.ownPublic.resolvingSupporter=[];
+  base.ownTurnResources.supporterPlayLocked=false;
+  base.ownTurnResources.supporterPlayedTurn=0;
+  base.opponentPublic={active:{energies:['Basic','Basic']}};
+  const candidates=[
+    ['supporter-quota-or-lock',v=>v.ownTurnResources.supporterPlayedTurn=1],
+    ['supporter-quota-or-lock',v=>v.ownTurnResources.supporterPlayLocked=true],
+    ['supporter-quota-or-lock',v=>v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true],
+    ['no-multi-energy-opponent-active',v=>v.opponentPublic.active.energies=['Basic']],
+    ['no-multi-energy-opponent-active',v=>v.opponentPublic.active=null],
+    ['no-supported-attack-resource-offer',v=>v.ownHand[0]='Other Supporter']
+  ];
+  for(const [reason,modify] of candidates){
+    const v=structuredClone(base);
+    modify(v);
+    const result=arbitrateOwnerRootIntent(v,{},FIRST,options);
+    assert.strictEqual(result.intent,FIRST);
+    assert.equal(result.receipt.reason,reason);
+  }
+});
+
+test('Energy denial holds an attack with a possible final Prize',()=>{
+  const v=view();
+  v.ownHand=['Team Flare Grunt XY'];
+  v.ownPublic.prizeCount=1;
+  v.ownTurnResources.supporterPlayedTurn=0;
+  v.opponentPublic={active:{energies:['Basic','Basic']}};
+  const result=arbitrateOwnerRootIntent(v,{},FIRST,{
+    beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true});
+  assert.strictEqual(result.intent,FIRST);
+  assert.equal(result.receipt.reason,'potential-last-prize-attack');
+});
+
+test('multiple genuine action channels prefer funded Bench and ignore hidden zones',()=>{
+  const a=view(),b=structuredClone(a);
+  for(const v of [a,b]){
+    v.ownHand=['Double Dragon Energy ROS','Team Flare Grunt XY'];
+    v.ownTurnResources.supporterPlayedTurn=0;
+    v.ownTurnResources.supporterPlayLocked=false;
+    v.opponentPublic={active:{energies:['Psychic Energy SVE','Psychic Energy SVE']}};
+  }
+  b.opponentPrivate={hand:['forbidden hidden identity']};
+  b.unseenOwnedDeckOrder=['unseen shuffle'];
+  const special={...offered};
+  const denial={probe:'team-flare-grunt',kind:'play-team-flare-grunt-denial',
+    printing:'Team Flare Grunt XY',handIndex:1};
+  const collectBoth=()=>({alternatives:[denial,special]});
+  const opts={beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true,
+    publicContextSpecialEnergy:true};
+  const resultA=arbitrateOwnerRootIntent(a,{},FIRST,opts,collectBoth);
+  const resultB=arbitrateOwnerRootIntent(b,{},FIRST,opts,collectBoth);
+  assert.deepEqual(resultA,resultB);
+  assert.equal(resultA.receipt.candidateCount,2);
+  assert.equal(resultA.intent.kind,'attach-special-energy');
+});
