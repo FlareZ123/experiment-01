@@ -198,6 +198,20 @@ jobs:
           name: agent34-native-firstturn-supporter-allowdeny
           path: agent34-native-firstturn-supporter-guard.json
           if-no-files-found: warn
+      - name: Measure native and paper-guard ordinary first-turn Supporter behavior on original source hands
+        if: inputs.agent48_carmine_first_native
+        run: node simulation/twinleaf/agent34-firstturn-ordinary-source-native.cjs > agent34-firstturn-ordinary-source-native.json
+      - name: Report first-owner ordinary Supporter decision and dispatch envelope
+        if: inputs.agent48_carmine_first_native
+        run: >-
+          node -e "const r=require('./agent34-firstturn-ordinary-source-native.json');console.log(JSON.stringify({schema:r.schema,sourceDeals:r.trials,ownerHeld:r.ownerHeldOrdinarySupporterFirstRoot,nativeReturn:r.nativeDirectPlayCardReturns,nativeReject:r.nativeDirectPlayCardRejects,paperVeto:r.researchGuardPreDispatchVetoes,qualified:r.qualifiedCompetitiveGames}));"
+      - name: Archive source-dealt ordinary first-turn Supporter negative and positive control
+        if: inputs.agent48_carmine_first_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-firstturn-ordinary-native-source
+          path: agent34-firstturn-ordinary-source-native.json
+          if-no-files-found: warn
       - name: Prove owner-hand public-board-only Garbotoxin Tool retarget
         if: inputs.agent37_rank11_tool_maintenance
         run: node --test tests/rank11-garbodor-tool-maintenance-policy.test.cjs
