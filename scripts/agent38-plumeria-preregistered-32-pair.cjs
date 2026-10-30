@@ -37,6 +37,7 @@ function censusPlumeria32(base,treated){
     controlledEngineTerminals:0,treatmentEngineTerminals:0,
     treatedWithAudit:0,treatedWithoutAudit:0,
     plumeriaProposed:0,plumeriaAccepted:0,plumeriaSettled:0,
+    abandonedNativeChains:0,
     promptedByGeneric:0,actorPromptChoices:0,
     rootHashDifferent:0,nativePromptHashDifferent:0,
     sameRootButDifferentPrompt:0
@@ -71,6 +72,7 @@ function censusPlumeria32(base,treated){
       totals.plumeriaProposed+=audit.proposedPlumeria;
       totals.plumeriaAccepted+=audit.acceptedPlumeria;
       totals.plumeriaSettled+=audit.settledEnergyDiscards;
+      totals.abandonedNativeChains+=audit.abandonedChains??0;
       totals.promptedByGeneric+=audit.genericPromptFallbacks;
       totals.actorPromptChoices+=audit.acceptedPrompts;
     }else totals.treatedWithoutAudit++;
@@ -101,6 +103,7 @@ function censusPlumeria32(base,treated){
       treatedStatus:y.status??y.endReason??null,
       accepted: audit?.acceptedPlumeria??null,
       settled: audit?.settledEnergyDiscards??null,
+      abandonedChains:audit?.abandonedChains??null,
       genericPromptFallbacks:audit?.genericPromptFallbacks??null,
       rootDifferent,promptDifferent,
       oldRootSha:x.rootActionLedgerSha256??null,
