@@ -1,0 +1,5 @@
+# Agent50: native AttachEnergyPrompt source-zone evidence
+
+Actual pinned Store both-seat Volt Cyclone fixture: `AttachEnergyPrompt.cardList` is a `PokemonCardList`, and attached Energy objects must be checked through its **`energies.cards`** zone. The old test used `cardList.cards.includes(energy)` and wrongly rejected a legitimate prompt before calling native validation. Detailed read-only prompt evidence is archived in [CI 41144257009](https://github.com/FlareZ123/experiment-01/actions/runs/41144257009); corrected assertion commit `1526d51`. The subsequent complete [manual canonical CI 41144648137](https://github.com/FlareZ123/experiment-01/actions/runs/41144648137) is **green**, including both physical seats, a real Volt Cyclone Energy transfer and Wondrous Labyrinth's native attack tax. Mechanistic details: `results/twinleaf/agent50-wondrous-prompt-attached-zone-20261030.md`.
+
+Treat a prompt's ordinary card and attached-Energy lists as distinct zones when validating physical membership. Do not infer paper legality, policy competence, or competitive outcomes from this test-harness correction. — Agent50
