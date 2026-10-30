@@ -186,10 +186,15 @@ function choosePublicContextSpecialEnergy(view,catalog){
     for(const target of targets){
       const pokemon=target.pokemon;
       if(!pokemon)continue;
-      // Jet's Bench attachment triggers a mandatory switch. Without a
-      // dedicated switching plan, preserve that transition for other actors.
-      if(printing.startsWith('Jet Energy ')&&target.slot==='bench')continue;
       const context=publicEnergyContext(view,pokemon,catalog);
+      // Temple only suppresses effects of Special Energy once attached.
+      // Double Dragon's from-hand Dragon attachment restriction remains.
+      if(printing.startsWith('Double Dragon Energy ')&&
+          !context.isDragon)continue;
+      // Jet's Bench switching effect is suppressed under Temple.
+      // Without Temple, leave this mandatory switch to a dedicated plan.
+      if(printing.startsWith('Jet Energy ')&&
+          target.slot==='bench'&&!temple)continue;
       const added=temple?[['C']]:energyUnits(printing,context);
       if(added===null)continue;
       const attached=[];

@@ -228,3 +228,30 @@ test('Dimension Valley reverses unsupported Energy-first over payable Psychic at
     .chooseActorRootIntent(x,c,{publicContextSpecialEnergy:true});
   assert.equal(root.kind,'attack');
 });
+
+test('Temple does not authorize attaching Double Dragon from hand to a non-Dragon',()=>{
+  const pikachu=slot('Pikachu','Pikachu UPR',[10]);
+  const x=view(pikachu,['Double Dragon Energy ROS']);
+  x.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.equal(choosePublicContextSpecialEnergy(x,catalog),null);
+  const dragon=slot('Regidrago V','Regidrago V SIT',[10]);
+  x.ownPublic.active=dragon;
+  assert.deepEqual(choosePublicContextSpecialEnergy(x,catalog),{
+    kind:'attach-special-energy',printing:'Double Dragon Energy ROS',
+    handIndex:0,slot:'active',index:0
+  });
+});
+
+test('Temple suppresses Jet Bench switch and makes pure Colorless attachment viable',()=>{
+  const active=slot('Pikachu','Pikachu UPR',[4]);
+  const bench=slot('Snorlax','Snorlax PGO',[10]);
+  const x=view(active,['Jet Energy PAL'],[bench]);
+  assert.equal(choosePublicContextSpecialEnergy(x,catalog),null);
+  x.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.deepEqual(choosePublicContextSpecialEnergy(x,catalog),{
+    kind:'attach-special-energy',printing:'Jet Energy PAL',
+    handIndex:0,slot:'bench',index:0
+  });
+  // Follows the official Japanese Temple FAQ: the on-attach switch
+  // does not happen while this Stadium suppresses Jet's effect.
+});
