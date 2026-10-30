@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const VERSION='agent33-original-stadium-root-coverage-v1';
+const VERSION='agent33-original-stadium-root-coverage-v2-prospective';
 
 /**
  * Closed, reviewed 29-original-card vocabulary from the supplied all-card
@@ -16,14 +16,21 @@ const STADIUM_NAMES=Object.freeze([
   'Temple of Sinnoh','Thunder Mountain ♢','Tropical Beach',
   'Wondrous Labyrinth ♢'
 ]);
-const EXPLICIT_OWNER_PLACEMENT=Object.freeze({
+const HISTORICAL_EXPLICIT_OWNER_PLACEMENT=Object.freeze({
   'Thunder Mountain ♢':'thornsDirectLine (default false; Iron Thorns only)',
   'Tropical Beach':'tropicalBeachLastChance (default false; last chance only)'
+});
+const EXPLICIT_OWNER_PLACEMENT=Object.freeze({
+  ...HISTORICAL_EXPLICIT_OWNER_PLACEMENT,
+  "Player's Ceremony":'playersCeremonyLastChance (default false)',
+  'Sky Field':'skyFieldBenchExpansion (default false; full five Bench)',
+  'Path to the Peak':'pathToPeakOpposingAbility (default false; opposing Ability)'
 });
 const FIRST29=Object.freeze([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
   17,18,19,20,21,22,24,26,27,29,30,31,32]);
 const nameSet=new Set(STADIUM_NAMES);
 const explicitSet=new Set(Object.keys(EXPLICIT_OWNER_PLACEMENT));
+const historicalSet=new Set(Object.keys(HISTORICAL_EXPLICIT_OWNER_PLACEMENT));
 /** Group actual original registered print counts; no game simulation. */
 function census(decks){
   assert.ok(Array.isArray(decks));
@@ -41,8 +48,11 @@ function census(decks){
     const total=stadium.reduce((s,c)=>s+c.count,0);
     const explicitCopies=stadium
       .filter(c=>explicitSet.has(c.name)).reduce((s,c)=>s+c.count,0);
+    const historicalCopies=stadium
+      .filter(c=>historicalSet.has(c.name)).reduce((s,c)=>s+c.count,0);
     return {rank,archetype:deck.archetype,totalStadiumCopies:total,
       explicitOptInPlacementCopies:explicitCopies,
+      historicalPlacementCopies:historicalCopies,
       noExplicitPlacementCopies:total-explicitCopies,stadium};
   });
   const byName=STADIUM_NAMES.map(name=>{
@@ -56,6 +66,8 @@ function census(decks){
   const totalCopies=rows.reduce((s,row)=>s+row.totalStadiumCopies,0);
   const explicitCopies=rows.reduce((s,row)=>
     s+row.explicitOptInPlacementCopies,0);
+  const historicalCopies=rows.reduce((s,row)=>
+    s+row.historicalPlacementCopies,0);
   return {schema:VERSION,originalRankCount:rows.length,
     originalRanks:FIRST29.slice(),
     totalStadiumCopies:totalCopies,
@@ -63,10 +75,12 @@ function census(decks){
     ranksWithAnyStadium:rows.filter(row=>row.totalStadiumCopies>0).length,
     explicitOptInPlacementCopies:explicitCopies,
     noExplicitPlacementCopies:totalCopies-explicitCopies,
+    historicalOptInPlacementCopies:historicalCopies,
+    historicalNoPlacementCopies:totalCopies-historicalCopies,
     ranksWithoutExplicitPlacement:rows.filter(row=>
       row.explicitOptInPlacementCopies===0).map(row=>row.rank),
     caveat:'This counts root placement vocabulary only; a visible Stadium may '+
-      'still affect either player. The two existing explicit branches are '+
+      'still affect either player. All five prospective explicit branches are '+
       'default-off, conditional, and do not establish native Store success.',
     competitiveGameQualified:false,byName,rows};
 }
@@ -75,4 +89,5 @@ function load(){
   return census(JSON.parse(fs.readFileSync(file,'utf8')).decks);
 }
 if(require.main===module)process.stdout.write(JSON.stringify(load(),null,2)+'\n');
-module.exports={VERSION,STADIUM_NAMES,EXPLICIT_OWNER_PLACEMENT,FIRST29,census,load};
+module.exports={VERSION,STADIUM_NAMES,EXPLICIT_OWNER_PLACEMENT,
+  HISTORICAL_EXPLICIT_OWNER_PLACEMENT,FIRST29,census,load};

@@ -16,18 +16,20 @@ spellings follow the source JSON.
 - All **29/29** known original sixty-card decks contain at least one Stadium.
 - They collectively contain **81 physical Stadium copies** across
   **16 distinct Stadium names**.
-- The inspected shared owner-root
-  `simulation/twinleaf/agent34-actor-only-root-policy.cjs` contains
-  explicit Stadium **placement** intents only for `play-thunder-mountain`
-  under `thornsDirectLine:true`, and the newly added
-  `play-tropical-beach` under `tropicalBeachLastChance:true`.
-  Both options default **off** and are heavily state-gated.
-- Those two printed names account for **at most 7/81 copies**:
-  3 Thunder Mountain and 4 Tropical Beach, across source ranks
-  3, 6, 24 and 29. **74/81 Stadium copies across 14 other names have no
-  explicit owner-root placement line** in this inspected selector;
-  **25/29 original source decks** contain none of the two supported
-  placement names.
+- **Historical snapshot at 23:17 UTC:** the inspected shared owner-root
+  `simulation/twinleaf/agent34-actor-only-root-policy.cjs` offered only
+  `play-thunder-mountain` and the then-new `play-tropical-beach`,
+  both opt-in and conditional. That left **74/81 printed Stadium copies**
+  without named placement lines and **25/29 sources** without either name.
+- **Updated prospective development snapshot at 23:29 UTC:** added separate
+  `play-players-ceremony`, `play-sky-field`, and
+  `play-path-to-peak` owner-root options. All five flags remain
+  **default OFF** and state-constrained. Their names appear in
+  **37/81 printed Stadium copies** across **17/29 sources**. The other
+  **44/81 copies** across 11 names have no explicit placement branch;
+  **12/29 source decks** contain none of the five named printings.
+  A printed copy counts even when its new condition almost never occurs;
+  none of these coverage counts establishes native success or a win.
 
 | Stadium in source 60 | Original copies | Ranks containing it |
 | --- | ---: | --- |
@@ -59,13 +61,30 @@ Stadium filling would be harmful. We should test bounded, state-specific
 Stadium choices and actual native Store acceptance before adding them to
 the canonical common policy.
 
-**Highest-value missing native decision lines by source prevalence:**
-Sky Field (17), Temple (9), Path (8), and Parallel (7) are candidates for
-owner-visible opportunity audits. The existing native-tested
-`Player's Ceremony` draw-2/end-turn hook (5 copies, including rank24,
-which has no Tropical Beach) is a smaller, better-bounded playable
-alternative for a *future separate opt-in* end-turn draw root.
+**Next high-frequency uncovered decision families:** Temple of Sinnoh (9)
+and Parallel City (7) remain absent from this experimental owner placement
+vocabulary. Sky Field (17), Path to the Peak (8), and Player's Ceremony (5)
+have now received **separate, default-off, state-dependent proposal roots**
+with synthetic tests and staged pinned-native tests awaiting CI execution.
+Source copying, path legality, actual root action acceptance and real
+opponent reply remain unverified for all three new experiments.
 
 `tests/agent33-original-stadium-coverage.test.cjs` keeps original
 source-count and missing-rank drift explicit. No native games observed
 by this census and **zero competitively qualified wins**.
+
+## Why prospective name coverage is not active gameplay coverage
+
+No option is enabled by default, and the new cards have different realism
+constraints. Sky Field requires five occupied own Bench slots and another
+held Basic, which is impossible in the **initial seven-card hand** if Sky
+Field is also in hand. It must wait for additional draw or search.
+Path to the Peak requires a visible opposing Rule Box Ability and avoids
+locking the acting player's own printed and Tool-granted Abilities.
+Player's Ceremony is held for last-chance two-card draw only when
+the Stadium slot is uncontested or Ceremony is already active.
+Thus the **30-copy nominal increase** in named source coverage is a
+new capability surface, never a demonstrated in-game line frequency.
+The baseline 74 missing copies is kept explicitly for longitudinal
+comparison, and the new 44 missing-copy count represents this exact
+current development snapshot. Zero competitively qualified games.

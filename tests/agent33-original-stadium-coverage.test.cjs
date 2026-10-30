@@ -12,12 +12,15 @@ test('29 authentic source sixties all contain a Stadium, with 81 copies',()=>{
   assert.equal(STADIUM_NAMES.length,16);
   assert.equal(c.competitiveGameQualified,false);
 });
-test('conditional owner-root placement covers at most seven of 81 copies',()=>{
+test('historical and new default-off development placement snapshots differ',()=>{
   const c=load();
-  assert.equal(c.explicitOptInPlacementCopies,7);
-  assert.equal(c.noExplicitPlacementCopies,74);
+  assert.equal(c.historicalOptInPlacementCopies,7);
+  assert.equal(c.historicalNoPlacementCopies,74);
+  assert.equal(c.explicitOptInPlacementCopies,37);
+  assert.equal(c.noExplicitPlacementCopies,44);
   assert.deepEqual(FIRST29.filter(rank=>
-    !c.ranksWithoutExplicitPlacement.includes(rank)),[3,6,24,29]);
+    !c.ranksWithoutExplicitPlacement.includes(rank)),
+    [1,3,4,5,6,9,12,14,15,18,19,20,21,24,27,29,30]);
 });
 test('actual originals never silently substitute a missing rank 23, 25 or 28',()=>{
   const c=load();
@@ -26,13 +29,14 @@ test('actual originals never silently substitute a missing rank 23, 25 or 28',()
     assert.equal(c.rows.some(row=>row.rank===rank),false);
   }
 });
-test('Temple Path Parallel Sky are all outside current two explicit branches',()=>{
+test('Temple Parallel still uncovered, Path Sky prospectively implemented',()=>{
   const c=load();
   for(const [name,copies] of [['Sky Field',17],['Temple of Sinnoh',9],
     ['Path to the Peak',8],['Parallel City',7]]){
     const row=c.byName.find(x=>x.name===name);
     assert.equal(row.copies,copies);
-    assert.equal(row.explicitRoot,null);
+    assert.equal(row.explicitRoot===null,
+      name==='Temple of Sinnoh'||name==='Parallel City');
   }
 });
 test('census refuses to impute a 60 from malformed original source',()=>{
