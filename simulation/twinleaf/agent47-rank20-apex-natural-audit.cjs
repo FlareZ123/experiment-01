@@ -23,13 +23,18 @@ function registration(){
    assert.ok(deck?.playableUnderEngine,'Missing engine-mapped source rank '+rank);
    assert.equal(deck.cardIds.length,60);
  }
+ return {byRank,trials:trialManifest()};
+}
+
+/** Pure frozen matrix may be tested before pinned Twinleaf is compiled. */
+function trialManifest(){
  const trials=[];
  for(const opponentRank of OPPONENT_RANKS)
    for(const seed of SEEDS)
      for(const sourceSeat of [0,1])
        trials.push({opponentRank,seed,sourceSeat,
          id:'rank20-vs-'+opponentRank+'-seed-'+seed+'-seat-'+sourceSeat});
- return {byRank,trials};
+ return trials;
 }
 
 /** Same source 60s, same seed, same initial physical seat; one bounded prompt-option flag. */
@@ -131,4 +136,4 @@ function main(){
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(main(),null,2)+'\n');
-module.exports={SEEDS,OPPONENT_RANKS,registration,execute,main};
+module.exports={SEEDS,OPPONENT_RANKS,trialManifest,registration,execute,main};
