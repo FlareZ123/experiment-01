@@ -27,7 +27,7 @@ function original32NativeClosures(archive){
     nativeTurnEnds:0,promptClosedTurnEnds:0,
     acceptedPassRoots:0,acceptedAttackRoots:0,
     terminalCardPlays:0,ambiguousAbilityRoots:0,unboundEnds:0,
-    byRootFamily:{}};
+    byRootFamily:{},byTerminalPromptType:{},opponentOwnedTerminalPrompts:0};
   const seen=new Set();
   for(const row of rows){
     assert.equal(typeof row.trial?.id,'string');
@@ -48,6 +48,11 @@ function original32NativeClosures(archive){
     totals.terminalCardPlays+=n.byFamily['card-play']??0;
     totals.ambiguousAbilityRoots+=n.ambiguousAbilityTerminals;
     totals.unboundEnds+=n.unresolvedTerminals;
+    totals.opponentOwnedTerminalPrompts+=n.opponentOwnedTerminalPrompts;
+    for(const [promptType,count] of Object.entries(n.promptTerminalTypes)){
+      totals.byTerminalPromptType[promptType]=
+        (totals.byTerminalPromptType[promptType]??0)+count;
+    }
     for(const [family,count] of Object.entries(n.byFamily)){
       totals.byRootFamily[family]=(totals.byRootFamily[family]??0)+count;
     }
@@ -74,6 +79,9 @@ function original32NativeClosures(archive){
     Object.values(totals.byRootFamily).reduce((a,b)=>a+b,0)+
     totals.unboundEnds,
     'Unaccounted native terminal root family; investigate before inference');
+  assert.equal(totals.nativeTurnEnds,
+    Object.values(totals.byTerminalPromptType).reduce((a,b)=>a+b,0)+
+    totals.unboundEnds,'All turn advances must have classified prompt closure');
   return {version:VERSION,totals,armReceipts,sourceTerminalCardPlays,
     noGameStrengthClaim:true,competitiveQualifiedGames:0};
 }
