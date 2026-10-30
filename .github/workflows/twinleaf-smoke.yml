@@ -75,6 +75,8 @@ jobs:
         run: node simulation/twinleaf/card-coverage.cjs
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
         run: node simulation/twinleaf/resolve-field.cjs
+      - name: Attest all 29 original printed source ranks against genuine pinned native deck IDs
+        run: node simulation/evaluation/agent13-native-plan-attestation-smoke.cjs
       - name: Regress copied-attack selection and declaration root boundaries
         run: node simulation/twinleaf/perfection-attack-ordinal-boundary.cjs
       - name: Reproduce duplicate-name copied attack source-printing mismatch
