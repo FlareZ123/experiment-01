@@ -28,6 +28,11 @@ on:
         type: boolean
         default: false
 
+      agent6_payment_preservation:
+        description: 'Optional native hand-payment comparison'
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
