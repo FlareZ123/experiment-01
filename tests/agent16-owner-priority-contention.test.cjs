@@ -203,3 +203,34 @@ test('bounded rollup reports diagnostic offers, never native acceptance',()=>{
   assert.equal(audit.samples.length,40);
   assert.ok(audit.samples.every(x=>x.nativePlayability==='unverified'));
 });
+
+test('rank6 printed Team Flare Grunt denial is visible behind a chosen attack',()=>{
+  const source={
+    decisionKind:'owner-root',globalTurn:4,
+    ownHand:['Team Flare Grunt XY'],
+    ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false,
+      energyPlayedTurn:0,energyPlayLocked:false,specialEnergyPlayLocked:false},
+    ownPublic:{active:{name:'Iron Thorns ex'},
+      publicTurnRestrictions:{supporterPlayLocked:false},
+      resolvingSupporter:[]},
+    opponentPublic:{active:{energies:['Basic Psychic Energy SVE 5']}}
+  };
+  const options={teamFlareGruntDenialRoot:true};
+  const attack=collectOwnerContention(source,{},options,{kind:'attack'});
+  assert.deepEqual(attack.alternatives.map(x=>[
+    x.kind,x.printing,x.reason,x.nativePlayability
+  ]),[['play-team-flare-grunt-denial','Team Flare Grunt XY',
+    'turn-ending-selection','unverified']]);
+  const supporter=collectOwnerContention(source,{},options,
+    {kind:'play-carmine-first'});
+  assert.equal(supporter.alternatives.length,1);
+  assert.equal(supporter.alternatives[0].reason,'same-turn-supporter-quota');
+  const noEnergy=structuredClone(source);
+  noEnergy.opponentPublic.active.energies=[];
+  assert.equal(collectOwnerContention(noEnergy,{},options,
+    {kind:'attack'}).alternatives.length,0);
+  const hiddenWorld=structuredClone(source);
+  hiddenWorld.opponentPrivate={hand:['unseen'],prizes:['unseen']};
+  assert.deepEqual(collectOwnerContention(source,{},options,{kind:'attack'}),
+    collectOwnerContention(hiddenWorld,{},options,{kind:'attack'}));
+});
