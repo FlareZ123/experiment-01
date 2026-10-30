@@ -278,11 +278,9 @@ function chooseActorRootIntent(view,catalog,options={}){
         // A native Store rejection must still be reported and retained.
         return {kind:'attack',attackName:attack.name};
       }
-      const payableCost=attack.cost.slice();
-      if(thunder){
-        const i=payableCost.indexOf(catalog.basicEnergyTypes.Lightning);
-        if(i>=0)payableCost.splice(i,1);
-      }
+      const payableCost=require('./agent17-public-context-special-energy.cjs')
+        .effectiveNativeAttackCost(view,catalog,active,attack);
+      if(payableCost===null)continue;
       const left=attached.slice(),
         colored=payableCost.filter(t=>t!==catalog.colorlessEnergyType);
       const missingColored=colored.some(type=>{
