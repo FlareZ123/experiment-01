@@ -74,7 +74,11 @@ function inspectPhysicalCardZones(state) {
   const transientPromptCustody = state.players.map(() => 0);
   const transientSeen = new Set();
   for (const prompt of state.prompts || []) {
-    const cards = prompt.cards?.cards;
+    // Only unresolved prompts represent live temporary custody. Resolved
+    // prompts can retain references to abandoned temporary CardLists,
+    // including a real physical-card leak, which must stay anomalous.
+    if (prompt.result !== undefined) continue;
+    const cards = prompt.cards?.cards ?? prompt.cardList?.cards;
     if (!Array.isArray(cards)) continue;
     const ownerId = prompt.player?.id ?? prompt.playerId;
     const seat = state.players.findIndex(player => player.id === ownerId);
