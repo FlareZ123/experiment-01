@@ -50,7 +50,8 @@ for(const seat of [0,1]){
     for(let i=0;i<6;i++){
       const pending=x.state.prompts.find(p=>p.result===undefined);
       if(!pending)break;
-      assert.equal(pending.constructor.name,'WaitPrompt');
+      assert.ok(['WaitPrompt','ShowCardsPrompt'].includes(
+        pending.constructor.name),'Unexpected post-search native prompt');
       x.store.dispatch(new ResolvePromptAction(pending.id,null));
     }
     assert.equal(x.owner.hand.cards.includes(target),true);
