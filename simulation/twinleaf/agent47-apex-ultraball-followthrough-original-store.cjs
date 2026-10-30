@@ -90,6 +90,11 @@ function runOne(seat,mode='alternate'){
   x.store.dispatch(new ResolvePromptAction(mandatory.id,selected));
   assert.ok(selected.every(c=>x.owner.discard.cards.includes(c)));
   const itemFollowthrough=settleAfterPhysicalDiscard(x,ResolvePromptAction);
+  if(mode==='baseline'){
+    assert.ok(!x.owner.discard.cards.some(c=>PAYLOADS.has(c.fullName)));
+    return {seat,mode,noDragonPayload:true,itemFollowthrough,
+      qualifiedCompetitiveGames:0};
+  }
   assert.ok(x.owner.discard.cards.some(c=>c.fullName==='Dragapult ex TWM'));
   assert.equal(x.state.activePlayer,seat);
   assert.equal(x.state.phase,x.GamePhase.PLAYER_TURN);
