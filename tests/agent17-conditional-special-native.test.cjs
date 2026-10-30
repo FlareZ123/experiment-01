@@ -62,7 +62,7 @@ function staged(pokemonPrinting,energyPrinting,seat=0){
       player.prizes.push(prize);
     }
   }
-  return {store,state,owner,catalog,seat};
+  return {store,state,owner,catalog,seat,card};
 }
 
 /** @param {string} pokemon @param {string} energy @param {0|1} [seat] */
@@ -187,3 +187,33 @@ for(const energy of ['Reversal Energy PAL','Counter Energy CIN']){
 // Share the existing pinned-native Energy regression gate with Plumeria denial.
 require('./agent4-plumeria-pinned-native.test.cjs');
 require('./agent4-plumeria-headless-native.test.cjs');
+
+
+test('both-seat authentic printed Thunder cost blocks pointless Bench attachment',()=>{
+  const {choosePublicContextSpecialEnergy}=
+    require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
+  for(const seat of [0,1]){
+    const {state,owner,catalog,card}=staged(
+      'Iron Thorns ex TWM','Speed Lightning Energy RCL',seat);
+    const stadium=card('Thunder Mountain Prism Star LOT');
+    const doubleColorless=()=>card('Double Colorless Energy SUM');
+    owner.stadium.cards.push(stadium);
+    owner.active.energies.cards.push(doubleColorless());
+    owner.bench[0].cards.push(card('Iron Thorns ex TWM'));
+    owner.bench[0].energies.cards.push(doubleColorless());
+    const v=actorObservation(state,seat);
+    const attacker=v.ownPublic.active;
+    const bench=v.ownPublic.bench[0];
+    assert.ok(attacker&&bench);
+    const strike=attacker.attacks.find(a=>a.name==='Volt Cyclone');
+    const benchStrike=bench.attacks.find(a=>a.name==='Volt Cyclone');
+    assert.ok(strike&&benchStrike,'Real rank6 printed attack must exist');
+    assert.equal(publicSpecialAttackPayable(v,catalog,attacker,strike),true);
+    assert.equal(publicSpecialAttackPayable(v,catalog,bench,benchStrike),true);
+    assert.equal(choosePublicContextSpecialEnergy(v,catalog),null);
+    const first=chooseActorRootIntent(v,catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(first,{kind:'attack',attackName:'Volt Cyclone'});
+  }
+});
