@@ -225,8 +225,13 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       }
       return decoder.value.call(this,state);
     }
-    const nativeLegal=typeof this.isValidAction==='function'?
-      this.isValidAction(state,action):true;
+    // Pinned SimpleTacticsAi.isValidAction creates a Simulator that explicitly
+    // rejects any state with an unresolved prompt. The pending branch above
+    // already applies the real prompt.validate, and strict native Store is
+    // authoritative for resolution. Only probe normal owner-turn actions.
+    const nativeLegal=pending?true:
+      (typeof this.isValidAction==='function'?
+        this.isValidAction(state,action):true);
     if(!nativeLegal){
       abort(ctx,'native-unplayable-action-at-stage-'+ctx.step);
       planBySeat.delete(seat);
