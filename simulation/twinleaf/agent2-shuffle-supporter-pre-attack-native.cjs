@@ -7,6 +7,8 @@ const {runDevelopment}=require('../evaluation/agent41-bilateral-v2-development.c
 const {plannedTrials}=require('../evaluation/agent41-prospective-canonical-scout.cjs');
 const {withNativeLillieDrawSettlementAudit}=
   require('./agent24-native-lillie-settlement-audit.cjs');
+const {withNativeLillieOwnerAcquisitionAudit}=
+  require('./agent2-lillie-owner-acquisition-audit.cjs');
 const {auditPreAttackSupporterFollowThrough}=
   require('../evaluation/agent2-preattack-supporter-followthrough.cjs');
 const {auditPreAttackFirstDivergence}=
@@ -32,11 +34,14 @@ function main(){
     registeredTrials:trials,registeredFrameName:FRAME};
   const envBefore=process.env.AGENT2_SHUFFLE_PREATTACK_DEV;
   delete process.env.AGENT2_SHUFFLE_PREATTACK_DEV;
-  let original,treatment;
+  let original,treatment,acquisition;
   try{
     original=runDevelopment(options);
     process.env.AGENT2_SHUFFLE_PREATTACK_DEV='true';
-    treatment=withNativeLillieDrawSettlementAudit(()=>runDevelopment(options));
+    const observed=withNativeLillieOwnerAcquisitionAudit(()=>
+      withNativeLillieDrawSettlementAudit(()=>runDevelopment(options)));
+    treatment=observed.result;
+    acquisition=observed.audit;
   }finally{
     if(envBefore===undefined)delete process.env.AGENT2_SHUFFLE_PREATTACK_DEV;
     else process.env.AGENT2_SHUFFLE_PREATTACK_DEV=envBefore;
@@ -74,7 +79,10 @@ function main(){
       nativePublicFollowThrough:
         auditPreAttackSupporterFollowThrough(treated,selectedOwnerIntents),
       nativeFirstDivergence:
-        auditPreAttackFirstDivergence(baseline,treated,selectedOwnerIntents)};
+        auditPreAttackFirstDivergence(baseline,treated,selectedOwnerIntents),
+      nativeOwnerPostDrawPokemonAcquisition:acquisition.records.filter(event=>
+        selectedOwnerIntents.some(selected=>
+          selected.seat===event.seat&&selected.globalTurn===event.turn))};
   });
   const summary={attempts:18,baselineStatuses:rows.reduce((acc,r)=>{
     acc[r.originalStatus]=(acc[r.originalStatus]??0)+1;return acc;},{}),
@@ -85,6 +93,8 @@ function main(){
     physicallyUnconfirmed:rows.reduce((sum,r)=>sum+(r.nativeUnconfirmed??0),0),
     nativeLillieRoots:treatment.audit.supportRoots,
     nativeLilliePrintedDrawConfirmed:treatment.audit.printedDrawConfirmed,
+    postDrawObservedPokemonPlays:acquisition.firstSubsequentPokemonPlays,
+    postDrawFirstPokemonNewlyAvailable:acquisition.newlyAccessiblePokemonFromPostdrawHand,
     firstDivergenceWasSupporter:rows.reduce((sum,row)=>
       sum+(row.nativeFirstDivergence?.directDivergences??0),0),
     sameTurnAttacksAfterDraw:rows.reduce((sum,row)=>
@@ -109,6 +119,7 @@ function main(){
     sourceDealsVerifiedAgainstUntouchedControls:true,
     rank6SourceFirstAndAllRank11StartStrata:true,
     observerOnlyNativeLillieDrawSettlement:treatment.audit,
+    observerOnlyNativeLillieOwnerPostDrawAcquisition:acquisition,
     summary,rows,
     interpretation:'Retrospective native mechanics only. A preattack shuffle may forfeit a payable attack or other critical resource. No claim of superior strategy, paper-clock games, or win rate.'
   };
