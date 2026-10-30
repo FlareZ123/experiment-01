@@ -82,6 +82,8 @@ jobs:
         run: node --test tests/aichi-source-incidence.test.cjs
       - name: Attest all 32 original rank and archetype identities with exact published printing inventories
         run: node --test tests/agent13-source-identity-gate.test.cjs
+      - name: Fail closed on skipped native printed-card fixtures before competitive release
+        run: node --test tests/agent49-native-print-release-gate.test.cjs
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs
       - name: Verify exact source nonattack terminal triggers and native turn-end lineage
