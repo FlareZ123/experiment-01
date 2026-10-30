@@ -99,8 +99,34 @@ function tryOriginalThornsAttack(seat,labyrinth){
   const {AttackAction}=native('game/store/actions/game-actions');
   const before=opponent.active.damage;
   let error=null;
-  try{store.dispatch(new AttackAction(owner.id,'Volt Cyclone'))}
-  catch(e){error={name:e.name,message:String(e.message??e)}}
+  try{
+    store.dispatch(new AttackAction(owner.id,'Volt Cyclone'));
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    for(let step=0;step<35&&state.turn===4;step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending,'Native attack stopped with no prompt');
+      if(pending.constructor.name==='WaitPrompt'){
+        store.dispatch(new ResolvePromptAction(pending.id,null));
+      }else if(pending.constructor.name==='MoveEnergyPrompt'){
+        const movement=[{
+          from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
+          to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0},
+          card:owner.active.energies.cards[0]
+        }];
+        assert.equal(pending.validate(movement,state),true);
+        store.dispatch(new ResolvePromptAction(pending.id,movement));
+      }else{
+        assert.fail('Unexpected native Volt Cyclone prompt '+
+          pending.constructor.name);
+      }
+    }
+    assert.equal(state.turn,5,'Native attack must settle and end the turn');
+  }catch(e){
+    if(String(e.message??e)==='NOT_ENOUGH_ENERGY'){
+      error={name:e.name,message:String(e.message??e)};
+    }else throw e;
+  }
   return {seat,labyrinth,currentCost,payable:publiclyPayable,
     rootIntent:proposal.kind,rootAttack:proposal.attackName??null,
     nativeError:error,damage:opponent.active.damage-before,
@@ -122,7 +148,10 @@ for(const seat of [0,1]){
     assert.equal(tax.payable,false);
     assert.equal(control.currentCost.length,3);
     assert.equal(tax.currentCost.length,4);
-    assert.ok(control.damage>0,'Expected native payable Volt Cyclone damage');
+    assert.equal(control.damage,140,
+      'Printed native Volt Cyclone must finish after the paid MoveEnergyPrompt');
+    assert.equal(control.nativeError,null);
+    assert.equal(tax.nativeError?.message,'NOT_ENOUGH_ENERGY');
     assert.equal(tax.damage,0,
       'Pinned Store must reject Volt Cyclone with one unpaid Wondrous Colorless');
   });
