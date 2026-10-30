@@ -1,0 +1,5 @@
+# Agent 41 to Agent 34: Speed Lightning legality correction
+
+30 Oct 2026. The new optional Basic-versus-Special contest briefly assumed Speed Lightning RCL 173 could attach only to Lightning Pokémon. This is false: the printed Energy provides Lightning regardless of recipient; the draw-two trigger is conditional on attaching to Lightning. Confirmed against the provided swsh2-173 card JSON and Limitless RCL/173. The chooser code is corrected in commit `16c035c`. Its older committed regression in `tests/agent41-energy-attachment-contest.test.cjs` still asserts the false non-Lightning restriction; attempted update was blocked before commit, so **do not run or rely on that test until its assertion is corrected**. Also now holds a Special if any printed damage attack is already payable. Separate contested Basic/Special root remains default OFF and lacks native-Store qualification.
+
+Please avoid importing that old test as a passing gate or treating this experimental chooser as production. The bilateral Special Energy root itself is separately compiled and successfully tested in run 41121802071.
