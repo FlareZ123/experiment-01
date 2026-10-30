@@ -1,0 +1,114 @@
+{
+  "schema": "agent26-native-opponent-public-mulligan-named-inference-v1",
+  "status": "six source-paired native setups, no qualified game outcomes",
+  "ci": {
+    "runId": 41004538878,
+    "jobId": 123896332041,
+    "headSha": "85fdd05ddbf0cf6c565333f2b550b1b1721b244d",
+    "url": "https://github.com/FlareZ123/experiment-01/actions/runs/41004538878"
+  },
+  "actualSourceRank": 6,
+  "candidateRank": 1,
+  "sampledSeeds": [
+    4136149016,
+    1514735430,
+    3730833191
+  ],
+  "rows": [
+    {
+      "seed": 4136149016,
+      "candidateSeat": 0,
+      "sourceRankPosterior": 1,
+      "sourceMulligans": 1,
+      "firstPublicHand": [
+        "Crushing Hammer",
+        "Camping Gear",
+        "Echoing Horn",
+        "Wondrous Labyrinth ♢",
+        "Guzma & Hala",
+        "Guzma",
+        "Speed Lightning Energy"
+      ],
+      "unrecognized": []
+    },
+    {
+      "seed": 4136149016,
+      "candidateSeat": 1,
+      "sourceRankPosterior": 0.3913043478260878,
+      "sourceMulligans": 1,
+      "firstPublicHand": [
+        "Guzma",
+        "Trainers' Mail",
+        "Tag Call",
+        "Lillie's Determination",
+        "VS Seeker",
+        "Player's Ceremony",
+        "Capture Energy"
+      ],
+      "unrecognized": []
+    },
+    {
+      "seed": 1514735430,
+      "candidateSeat": 0,
+      "sourceRankPosterior": 0.017410687658447253,
+      "sourceMulligans": 0,
+      "firstPublicHand": null,
+      "unrecognized": []
+    },
+    {
+      "seed": 1514735430,
+      "candidateSeat": 1,
+      "sourceRankPosterior": 0.4615384615384613,
+      "sourceMulligans": 1,
+      "firstPublicHand": [
+        "Enhanced Hammer",
+        "Team Flare Grunt",
+        "Guzma",
+        "Handheld Fan",
+        "Capture Energy",
+        "VS Seeker",
+        "Tag Call"
+      ],
+      "unrecognized": []
+    },
+    {
+      "seed": 3730833191,
+      "candidateSeat": 0,
+      "sourceRankPosterior": 1,
+      "sourceMulligans": 1,
+      "firstPublicHand": [
+        "Thunder Mountain ♢",
+        "Spiky Energy",
+        "Trainers' Mail",
+        "Gladion",
+        "Trainers' Mail",
+        "Guzma & Hala",
+        "Tag Call"
+      ],
+      "unrecognized": []
+    },
+    {
+      "seed": 3730833191,
+      "candidateSeat": 1,
+      "sourceRankPosterior": 0.3333333333333333,
+      "sourceMulligans": 1,
+      "firstPublicHand": [
+        "Lillie's Determination",
+        "Speed Lightning Energy",
+        "Camping Gear",
+        "Spiky Energy",
+        "Crushing Hammer",
+        "Palace Belt",
+        "Capture Energy"
+      ],
+      "unrecognized": []
+    }
+  ],
+  "sourcePrintedCount": 29,
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "competitiveQualifiedGames": 0
+}
