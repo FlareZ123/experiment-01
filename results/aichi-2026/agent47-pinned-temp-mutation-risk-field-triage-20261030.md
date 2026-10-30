@@ -52,7 +52,7 @@ envelopes:
 | [Dusk Ball SSP](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/10-scarlet-and-violet/set-surging-sparks/dusk-ball.ts) | Bottom **7** | Same `forEach` whole-temp `MOVE_CARDS` pattern as Great Ball, rather than a one-card removal each callback. No proof of this specific card-loss mechanism. | No |
 | [Lapras ex SCR](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/10-scarlet-and-violet/set-stellar-crown/lapras-ex.ts) | Top **20** | **Complex source concern**: per-residual-card `ShuffleDeckPrompt` is created within the mutable `forEach`, with deferred callbacks and shared temp/deckBottom. Needs an independently instrumented native effect before asserting a lost card or correct order. | No |
 
-The six pre-BW matching files were Electrode TRR (Triumphant),
+The six pre-BW matching files were Electrode HS Triumphant,
 PokéNav EX Ruby & Sapphire, Master Ball EX Deoxys,
 Holon Lass EX Delta Species, Croconaw DP Mysterious Treasures
 and Walrein EX Hidden Legends. They can remain in the *complete*
