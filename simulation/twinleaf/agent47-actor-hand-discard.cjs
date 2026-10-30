@@ -6,7 +6,10 @@ const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
 const VERSION='agent47-actor-hand-discard-v1-bounded';
-const APEX_PAYLOAD_PRINTINGS=new Set(['Dragapult ex TWM','Dialga-GX UPR']);
+const APEX_PAYLOAD_PRINTINGS=new Set([
+  'Dragapult ex TWM','Dialga-GX UPR','Mega Dragonite ex ASC',
+  'Noivern ex PAL','Kyurem SFA','Regidrago V SIT'
+]);
 const MESSAGE='CHOOSE_CARD_TO_DISCARD';
 
 /**
