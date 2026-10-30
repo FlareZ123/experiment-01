@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {attestField,parseField,printingFingerprint}=
+const {attestField,parseField,printingFingerprint,attestNativePlan}=
   require('../simulation/evaluation/agent13-source-identity-gate.cjs');
 
 const root=path.resolve(__dirname,'..');
@@ -88,4 +88,71 @@ test('unquoted field parser rejects ambiguous CSV and missing ranks',()=>{
     '10,Haruku,Yoshioka,Regidrago,yes')),/Ambiguous field.csv row/);
   assert.throws(()=>parseField(csv.split('\n').filter(
     x=>!x.startsWith('32,')).join('\n')),/Incomplete Aichi Top 32 field/);
+});
+
+/** @returns {object} Synthetic resolved result from the real original roster. */
+function fakeNativePlan(){
+  const printings=new Map(original.decks.map(d=>[d.rank,d]));
+  const opponents=[...parseField(csv).values()].map(row=>{
+    const source=printings.get(row.rank);
+    if(!source)return {rank:row.rank,status:'missing-published-list',
+      cards:null};
+    return {rank:row.rank,player:row.player,archetype:row.archetype,
+      status:'ready',substitutions:[],
+      cards:source.cards.flatMap(c=>Array(c.count).fill(
+        c.name+' '+c.printing.set+' '+c.printing.number))};
+  });
+  return {sourceDeckCount:29,opponents};
+}
+
+test('published printing proofs bind to ordered native source sixties',()=>{
+  const receipt=attestNativePlan(fakeNativePlan(),original,csv);
+  assert.equal(receipt.sources.length,29);
+  assert.deepEqual(receipt.missingRanks,[23,25,28]);
+  for(const row of receipt.sources){
+    assert.equal(row.nativeStatus,'ready');
+    assert.equal(row.nativeHasSubstitutions,false);
+    assert.match(row.printingSha256,/^[a-f0-9]{64}$/);
+    assert.match(row.nativeOrderedSha256,/^[a-f0-9]{64}$/);
+  }
+});
+
+test('native seat rank label is a separate fail-closed invariant',()=>{
+  const plan=fakeNativePlan();
+  plan.opponents.find(x=>x.rank===11).archetype='Regidrago';
+  assert.throws(()=>attestNativePlan(plan,original,csv),
+    /Native source archetype mismatch at rank 11/);
+  const duplicate=fakeNativePlan();
+  duplicate.opponents[0].rank=11;
+  assert.throws(()=>attestNativePlan(duplicate,original,csv),
+    /Duplicate resolved source rank/);
+});
+
+test('native 59-card and fake missing-source game packets cannot pass',()=>{
+  const undersized=fakeNativePlan();
+  undersized.opponents.find(x=>x.rank===6).cards.pop();
+  assert.throws(()=>attestNativePlan(undersized,original,csv),
+    /Invalid resolved 60 at rank 6/);
+  const fakeMissing=fakeNativePlan();
+  fakeMissing.opponents.find(x=>x.rank===25).status='ready';
+  assert.throws(()=>attestNativePlan(fakeMissing,original,csv),
+    /missing-published-list/);
+});
+
+test('native hash is order-sensitive and unresolved sources remain excluded',()=>{
+  const originalPlan=fakeNativePlan();
+  const originalProof=attestNativePlan(originalPlan,original,csv);
+  const changed=fakeNativePlan();
+  changed.opponents[0].cards.reverse();
+  const changeProof=attestNativePlan(changed,original,csv);
+  assert.notEqual(originalProof.sources[0].nativeOrderedSha256,
+    changeProof.sources[0].nativeOrderedSha256);
+  assert.equal(originalProof.sources[0].printingSha256,
+    changeProof.sources[0].printingSha256);
+  const unresolved=fakeNativePlan();
+  const source=unresolved.opponents.find(x=>x.rank===14);
+  source.cards=null;
+  source.status='unresolved-printings';
+  const proof=attestNativePlan(unresolved,original,csv);
+  assert.equal(proof.sources.find(x=>x.rank===14).nativeOrderedSha256,null);
 });
