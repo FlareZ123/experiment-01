@@ -54,6 +54,17 @@ function effectiveNativeAttackCost(view,catalog,pokemon,attack){
     const i=cost.indexOf(catalog.colorlessEnergyType);
     if(i>=0)cost.splice(i,1);
   }
+  // Wondrous Labyrinth Prism Star raises every non-Fairy attack cost by
+  // one Colorless. A printed Fairy type is needed for the exemption;
+  // missing public type metadata must not certify a false payable attack.
+  if(stadium.some(p=>p.startsWith('Wondrous Labyrinth '))){
+    const types=pokemon?.printed?.types;
+    if(!Array.isArray(types)||
+       !Number.isSafeInteger(catalog.basicEnergyTypes?.Fairy))
+      return null;
+    if(!types.includes(catalog.basicEnergyTypes.Fairy))
+      cost.push(catalog.colorlessEnergyType);
+  }
   return cost;
 }
 
