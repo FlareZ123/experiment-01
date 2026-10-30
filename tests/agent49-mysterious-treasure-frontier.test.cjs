@@ -85,3 +85,30 @@ test('hidden deck, Prize and opposing hand perturbations cannot affect root',()=
   assert.deepEqual(chooseTreasureRootIntent(a,dragonCatalog),
     chooseTreasureRootIntent(b,dragonCatalog));
 });
+
+test('shared actor chooser wires the narrow Treasure root only under opt-in',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view();
+  v.actorSeat=0;
+  v.phase=3;
+  v.ownPublic.active={
+    name:'Regidrago VSTAR',printed:{types:[]},
+    energies:[],attacks:[],specialConditions:[],publicRestrictions:{}};
+  v.ownPublic.publicTurnRestrictions={itemPlayLocked:false,
+    attackLockTurnsRemaining:0};
+  v.ownTurnResources.energyPlayLocked=true;
+  const catalog={
+    ...dragonCatalog,
+    basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(),basicEnergyTypes:{Lightning:4,Psychic:5},
+    colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  const baseline=chooseActorRootIntent(v,catalog,{});
+  assert.equal(baseline.kind,'pass');
+  const enabled=chooseActorRootIntent(v,catalog,
+    {mysteriousTreasureRoot:true});
+  assert.equal(enabled.kind,'play-mysterious-treasure');
+  assert.equal(enabled.discardPrinting,donor);
+});
