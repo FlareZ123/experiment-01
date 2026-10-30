@@ -71,6 +71,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Audit Spiritomb ACE SPEC lock potential across exact 29 printed original source sixties
+        run: node --test tests/agent24-spiritomb-ace-source-census.test.cjs
       - name: Fail closed on missing settled physical-card custody in release results
         run: node --test tests/physical-zone-qualification.test.cjs
       - name: Index unique non-KO Prize attacks and Gholdengo resource reset
