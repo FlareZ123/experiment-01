@@ -5,6 +5,12 @@ const {createHash}=require('node:crypto');
 
 const VERSION='agent13-original-field-source-identity-v1';
 const CATEGORIES=['Pokémon','Trainer','Energy'];
+// Basic Energy is the only unlimited same-name category in the supplied rules.
+const BASIC_ENERGY_NAMES=new Set([
+  'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
+  'Psychic Energy','Fighting Energy','Darkness Energy',
+  'Metal Energy','Fairy Energy'
+]);
 
 /**
  * Parse the repository's canonical four-column, unquoted Aichi field roster.
@@ -91,6 +97,19 @@ function attestField(manifest,csv){
     assert.ok(Array.isArray(deck.cards));
     assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60,
       'Incorrect original 60 at rank '+deck.rank);
+    const byName=new Map();
+    for(const card of deck.cards)
+      byName.set(card.name,(byName.get(card.name)??0)+card.count);
+    for(const [name,count] of byName){
+      if(BASIC_ENERGY_NAMES.has(name)){
+        assert.ok(deck.cards.filter(card=>card.name===name)
+          .every(card=>card.category==='Energy'),
+          'Basic Energy exemption applied to wrong category');
+      }else{
+        assert.ok(count<=4,
+          'Four-copy paper deck limit exceeded at rank '+deck.rank+': '+name);
+      }
+    }
     for(const category of CATEGORIES){
       const count=deck.cards.filter(x=>x.category===category)
         .reduce((n,c)=>n+c.count,0);
