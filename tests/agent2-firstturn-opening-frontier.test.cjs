@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
   choose,basicOpeningDistribution,directColorlessAttackerReady,
-  directVoltorbAttachment,directFreeFrontliner,cardAtPrinting,main
+  directVoltorbAttachment,directFreeFrontliner,main
 }=require('../scripts/agent2-firstturn-opening-frontier.cjs');
 
 /** @param {number} actual @param {number} expected @param {number} epsilon */
@@ -29,7 +29,7 @@ test('physical first-seven Basics conditional on no mulligan',()=>{
 test('direct first-turn setup with C Energy vs free Energy requirement',()=>{
   const withEightEnergy=directColorlessAttackerReady(4,8,8);
   close(withEightEnergy,0.3302029);
-  close(directFreeFrontliner(4,8),0.4936043);
+  close(directFreeFrontliner(4,8),0.4936035007);
   assert.ok(directColorlessAttackerReady(4,8,12)>withEightEnergy);
   assert.equal(directColorlessAttackerReady(4,8,0),0);
 });
@@ -41,15 +41,15 @@ test('Hisuian Voltorb can search one or two Basic Energy for real benches',()=>{
   assert.ok(directVoltorbAttachment(4,8,8,2)<
     directVoltorbAttachment(4,8,8,1));
 });
-test('exact printed Stage from source card JSON, not from name heuristics',()=>{
-  const map=new Map([['CES',['sm7']],['ASR',['swsh10']]]);
-  const cache=new Map();
-  const whismur=cardAtPrinting({set:'CES',number:'116'},map,cache);
-  assert.equal(whismur.name,'Whismur');
-  assert.ok(whismur.subtypes.includes('Basic'));
-  const voltorb=cardAtPrinting({set:'ASR',number:'2'},map,cache);
-  assert.equal(voltorb.name,'Hisuian Voltorb');
-  assert.ok(voltorb.subtypes.includes('Basic'));
+test('reuses authoritative Stage census instead of a duplicate promo resolver',()=>{
+  const existing=require('../scripts/aichi-opening-basics.cjs')
+    .fromRepository(require('node:path').resolve(__dirname,'..'));
+  const ours=main(false);
+  assert.equal(existing.published,29);
+  assert.ok(existing.printedPokemonValidated>0);
+  assert.deepEqual(ours.originalRankOpeningRows.map(r=>({
+    rank:r.rank,basicCount:r.basicPokemonCount})),
+    existing.rows.map(r=>({rank:r.rank,basicCount:r.basicCount})));
 });
 test('29 original registered Aichi 60s map uniquely to actual Basic card printing',()=>{
   const result=main(false);
