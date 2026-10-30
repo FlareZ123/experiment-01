@@ -28,7 +28,8 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
   const specialEnabled=options.publicContextSpecialEnergy===true;
   const denialEnabled=options.beforeAttackDenialRoot===true&&
     options.teamFlareGruntDenialRoot===true;
-  if(first.kind!=='attack'||(!specialEnabled&&!denialEnabled)){
+  const eriEnabled=options.eriRevealRoot===true;
+  if(first.kind!=='attack'||(!specialEnabled&&!denialEnabled&&!eriEnabled)){
     receipt.reason='outside-bounded-attack-resource-contention';
     return {intent:first,receipt};
   }
@@ -41,9 +42,12 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
   const denials=denialEnabled?offers.filter(x=>
     x.probe==='team-flare-grunt'&&
     x.kind==='play-team-flare-grunt-denial'):[];
-  receipt.candidateCount=matching.length+denials.length;
+  const eri=eriEnabled?require('./agent50-eri-revealed-item-prompt.cjs')
+    .offerEriBeforeAttack(view,first):null;
+  receipt.candidateCount=matching.length+denials.length+(eri?1:0);
   if(receipt.candidateCount===0){
     receipt.reason=denialEnabled?'no-supported-attack-resource-offer':
+      eriEnabled?'no-supported-eri-reveal-offer':
       'no-supported-bench-special-offer';
     return {intent:first,receipt};
   }
@@ -144,6 +148,20 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
       }
       receipt.reason='unmatched-physical-owner-supporter';
     }
+  }
+  if(eri){
+    // Only now compare the optional, uncertain Eri hand-reveal Supporter
+    // against the already considered concrete Bench funding and visible
+    // opposing Active Energy denial. A large opposing hand gives no evidence
+    // of actual Item identities before Eri is accepted and reveals them.
+    receipt.version=VERSION+'+'+
+      require('./agent50-eri-revealed-item-prompt.cjs').VERSION;
+    receipt.selectedKind=eri.kind;
+    receipt.selectedPrinting=eri.printing;
+    receipt.selectedTarget={slot:'opponent-hand',index:0,
+      publiclyKnownCount:eri.opponentPublicHandCount};
+    receipt.reason='possible-item-denial-before-payable-attack';
+    return {intent:eri,receipt};
   }
   return {intent:first,receipt};
 }
