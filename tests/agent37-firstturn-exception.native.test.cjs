@@ -246,7 +246,39 @@ for(const seat of [0,1]){
       '../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
     assert.equal(actorSingleSearchInput(state,seat),null,
       'Ordinary owner-deck-to-hand search cannot cover this in-play evolution target');
-    store.dispatch(new ResolvePromptAction(pending.id,[nextStage]));
+    class AddPlayerAction{}
+    class BridgeStore{
+      constructor(original){this.original=original;this.state=original.state;}
+      dispatch(action){
+        if(action instanceof AddPlayerAction)return this.state;
+        return this.original.dispatch(action);
+      }
+    }
+    class OwnerBot{
+      constructor(id){this.client={id};}
+      decodeNextAction(){return 'GENERIC_FALLBACK';}
+    }
+    const {withActorOwnerSingleSearch}=require(
+      '../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
+    const {audit}=withActorOwnerSingleSearch(()=>{
+      const bridge=new BridgeStore(store);
+      bridge.dispatch(new AddPlayerAction());
+      const chosen=new OwnerBot(owner.id).decodeNextAction(state);
+      assert.ok(chosen instanceof ResolvePromptAction);
+      assert.equal(chosen.id,pending.id);
+      assert.deepEqual(chosen.result,[nextStage],
+        'Only the exact native-valid Stage1 should be selected');
+      bridge.dispatch(chosen);
+    },{
+      Store:BridgeStore,SimpleTacticsAi:OwnerBot,ResolvePromptAction,
+      GamePhase:native('game/store/state/state').GamePhase,
+      attackPhaseSearch:false,attackPhaseEvolution:true
+    });
+    assert.equal(audit.attackPhaseEvolutionOptIn,true);
+    assert.equal(audit.selected,1);
+    assert.equal(audit.accepted,1);
+    assert.equal(audit.nativePromptPostconditionsConfirmed,1);
+    assert.equal(audit.bySeat[seat],1);
     assert.equal(owner.active.getPokemonCard()?.fullName,'Alolan Exeggutor ex SSP');
     assert.equal(owner.active.cards.some(c=>c.fullName==='Exeggcute SSP'),true);
     assert.equal(owner.active.energies.cards.length,1);
