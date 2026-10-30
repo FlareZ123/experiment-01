@@ -69,6 +69,8 @@ jobs:
         run: node simulation/twinleaf/agent5-attack-special-arbitration-native.cjs > agent5-attack-special-arbitration-native.json
       - name: Native original Store two-seat bounded owner-root arbitration positive and hold
         run: node simulation/twinleaf/agent41-owner-arbitration-native.cjs > agent41-owner-arbitration-native.json
+      - name: Native registered rank1 final Bench-slot Basic conflict
+        run: node simulation/twinleaf/agent27-source-lastbench-two-basic-native.cjs > agent27-lastbench-native.json
       - name: Verify both-seat Store outcomes retained without strength inference
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-owner-arbitration-native.json');a.equal(r.rows.length,2);a.ok(r.rows.every(x=>x.nativeAttachmentConfirmed&&x.nativeSameAttackSettled&&x.nativeHoldAttackSettled));a.equal(r.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,version:r.policyVersion,rows:r.rows.map(x=>({seat:x.seat,selected:x.arbitratedRoot.kind,held:x.conservativeHold.reason}))}))"
       - name: Historical action arbiter A/B/A pure registration regression
@@ -120,6 +122,7 @@ jobs:
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
+            agent27-lastbench-native.json
             agent41-owner-arbitration-historical-aba.json
             agent41-rank3-arbitration-original-store.json
             agent5-owner-root-result.json
