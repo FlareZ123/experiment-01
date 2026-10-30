@@ -32,10 +32,15 @@ jobs:
       - name: Native original rank20 physical Ultra Ball baseline, alternative, and hold for both seats
         if: ${{ inputs.native_apex_store }}
         run: node simulation/twinleaf/agent47-apex-ultraball-original-store.cjs > agent47-apex-source20-native.json
+      - name: Native source rank20 Ultra Ball search to Apex copied-attack settlement, both seats
+        if: ${{ inputs.native_apex_store }}
+        run: node simulation/twinleaf/agent47-apex-ultraball-followthrough-original-store.cjs > agent47-apex-source20-followthrough-native.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.native_apex_store }}
         with:
           name: agent47-apex-source20-staged-native
-          path: agent47-apex-source20-native.json
+          path: |
+            agent47-apex-source20-native.json
+            agent47-apex-source20-followthrough-native.json
           if-no-files-found: warn
           retention-days: 14
