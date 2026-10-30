@@ -52,6 +52,13 @@ function run(){
     require('./agent22-numeric-shuffle-validation-hook.cjs');
   const {sparseObservedOwnerSearch,withSparseActorOwnerSearch}=
     require('./agent22-sparse-owner-search-adapter.cjs');
+  const {withLiveOwnerRootStarts}=
+    require('./agent22-live-owner-turn-observer.cjs');
+  const native=name=>require(path.resolve(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output',name));
+  const {Store}=native('game/store/store');
+  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+  const {GamePhase}=native('game/store/state/state');
   initializeCards();
   const field=resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),{
@@ -81,12 +88,16 @@ function run(){
       };
       let status='native-exception',error=null,summary=null;
       try{
-        const w=withNumericShuffleValidator(()=>
-          withSparseActorOwnerSearch(()=>runMatch(request),{
-            observe:(state,seat)=>seat===sourceSeat?
-              sparseObservedOwnerSearch(state,seat,actorObservation,
-                policy==='scored-opt-in'?scoreBundle:null):null
-          }));
+        const observed=withLiveOwnerRootStarts(()=>
+          withNumericShuffleValidator(()=>
+            withSparseActorOwnerSearch(()=>runMatch(request),{
+              observe:(state,seat)=>seat===sourceSeat?
+                sparseObservedOwnerSearch(state,seat,actorObservation,
+                  policy==='scored-opt-in'?scoreBundle:null):null
+            })),
+          {Store,SimpleTacticsAi,GamePhase,sourceSeat});
+        const w=observed.result;
+        assert.equal(observed.audit.authenticatedLiveStore,true);
         const game=w.result,ledger=game.rootActionLedger;
         assert.ok(Array.isArray(ledger));
         assert.equal(game.initialSourceDealFingerprint.digestSha256,
@@ -110,6 +121,22 @@ function run(){
             .update(JSON.stringify(ledger)).digest('hex'),
           ownerSearchAccepted:w.audit.bySeat[sourceSeat],
           nativePrintedNameMapUsed:true,
+          authenticatedLiveOwnerRootSnapshots:observed.audit.snapshots,
+          nextOwnerRootAfterSearch:w.audit.boundedSelections.map(
+            search=>{
+              const next=observed.audit.snapshots.find(
+                x=>x.turn>search.turn);
+              return {searchTurn:search.turn,
+                observedNextOwnerTurn:next?.turn??null,
+                vsSeekerInNextOwnerHand:next?.handPrintings.includes(
+                  'VS Seeker PHF')??null,
+                counterCatcherInNextOwnerHand:next?.handPrintings.includes(
+                  'Counter Catcher PAR')??null,
+                stevenInNextOwnerDiscard:next?.ownDiscardPrintings.includes(
+                  "Steven's Resolve CES")??null,
+                ownPrizes:next?.ownPrizesRemaining??null,
+                opponentPrizes:next?.opponentPrizesRemaining??null};
+            }),
           acceptedSourceRootCards:publicRoots.filter(row=>
             row.playerSlot===sourceSeat&&row.action==='PlayCardAction')
             .map(row=>({ordinal:row.actionOrdinal,
