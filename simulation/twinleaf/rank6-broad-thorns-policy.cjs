@@ -205,7 +205,7 @@ function firstTurnRank6DceStageOpportunity(state,player,seat,playerTurnPhase){
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,turn3DirectSpeedAfterDce?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -223,6 +223,8 @@ function withBroadThornsSourceAttack(work,options={}) {
   const stageDceFirstTurn=options.stageDceFirstTurn===true;
   const k1PrizedThunderSpeedFallback=
     options.k1PrizedThunderSpeedFallback===true;
+  const turn3DirectSpeedAfterDce=
+    options.turn3DirectSpeedAfterDce===true;
   assert.ok(!stageSpeedLightningFirstTurn || liveSpeedLightningAlternative,
     'T1 Speed staging requires enabled T3 attached-Lightning continuation');
   assert.ok(!k1PrizedThunderSpeedFallback ||
@@ -254,6 +256,7 @@ function withBroadThornsSourceAttack(work,options={}) {
   let speedStagingSelected=false,speedStagingConfirmed=false;
   let dceStagingSelected=false,dceStagingConfirmed=false;
   let k1SpeedFallbackSelected=false;
+  let directSpeedSecondTurnSelected=false;
   const events=[];
 
   /** @param {object} state @param {string} action @param {object} result */
@@ -386,6 +389,27 @@ function withBroadThornsSourceAttack(work,options={}) {
          state.phase!==GamePhase.PLAYER_TURN || prompt ||
          p.active.getPokemonCard()?.name!=='Iron Thorns ex') {
         return original.call(this,state);
+      }
+      // A first-turn DCE prepayment leaves the next-turn Lightning symbol
+      // unfunded. If the acting owner ALREADY holds Speed Lightning, directly
+      // attach it now and preserve Tag Call, Guzma & Hala, two discard targets,
+      // and the prized/accessible Stadium for another use. Never inspect
+      // deck or Prize identities to identify this K0 opportunity.
+      if(turn3DirectSpeedAfterDce && turn===3 &&
+         p.active.energies.cards.some(c=>c.name==='Double Colorless Energy') &&
+         !hasLiveRank6SpeedLightning(state,p) &&
+         p.hand.cards.some(c=>c.name==='Speed Lightning Energy') &&
+         !dceHandAttachmentBlocked(p,state) &&
+         !state.players.some(side=>side.stadium.cards.some(c=>
+           c.name==='Temple of Sinnoh'))){
+        directSpeedSecondTurnSelected=true;
+        actorId=p.id;activeTurn=state.turn;started=true;
+        openingPlan={channel:'direct-speed-after-t1-dce',
+          needThunder:false,needDce:false,needLiveLightningViaSpeed:true,
+          discardCount:0};
+        phase='direct-speed-attach';
+        return select(state,'T3 directly attach held Speed after staged DCE',
+          play(p,'Speed Lightning Energy',active));
       }
       // Freeze the opening choice at the first genuine rank6 turn-two
       // decision. Reconsidering after a generic Supporter or manual Energy
@@ -588,6 +612,17 @@ function withBroadThornsSourceAttack(work,options={}) {
       }
       return continueAfterSearch(state,p)??original.call(this,state);
     }
+    if(phase==='direct-speed-attach' && !prompt &&
+        state.phase===GamePhase.PLAYER_TURN){
+      if(!p.active.energies.cards.some(c=>c.name==='Double Colorless Energy') ||
+         !hasLiveRank6SpeedLightning(state,p)){
+        abort(state,'Original Store did not settle direct T3 Speed + preattached DCE');
+        return original.call(this,state);
+      }
+      phase='done';completed=true;
+      return select(state,'Declare direct Speed+DCE Volt Cyclone',
+        new AttackAction(p.id,'Volt Cyclone'));
+    }
     if(phase==='attach-k1-speed' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
       if(!hasLiveRank6SpeedLightning(state,p)){
@@ -616,7 +651,8 @@ function withBroadThornsSourceAttack(work,options={}) {
     const result=work();
     return {result,started,completed,events,abortReason,openingPlan,
       backupEnergyName,speedStagingSelected,speedStagingConfirmed,
-      dceStagingSelected,dceStagingConfirmed,k1SpeedFallbackSelected};
+      dceStagingSelected,dceStagingConfirmed,k1SpeedFallbackSelected,
+      directSpeedSecondTurnSelected};
   } catch(error) {
     // Preserve the local decision witness when the Store rejects an action.
     // This is a diagnostic property on the already-thrown error, not a
@@ -624,7 +660,8 @@ function withBroadThornsSourceAttack(work,options={}) {
     error.rank6PolicyEvidence={started,completed,abortReason,
       openingPlan,backupEnergyName,speedStagingSelected,
       speedStagingConfirmed,dceStagingSelected,dceStagingConfirmed,
-      k1SpeedFallbackSelected,events:events.slice()};
+      k1SpeedFallbackSelected,directSpeedSecondTurnSelected,
+      events:events.slice()};
     throw error;
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
