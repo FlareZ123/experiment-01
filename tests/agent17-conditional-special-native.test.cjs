@@ -237,7 +237,7 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
   }
 });
 
-test('Speed Lightning hand trigger remains operative under Temple of Sinnoh',()=>{
+test('Temple of Sinnoh suppresses Speed Lightning on-attach draw but not attachment',()=>{
   for(const seat of [0,1]){
     const {store,state,owner,card,catalog}=staged('Iron Thorns ex TWM',
       'Speed Lightning Energy RCL',seat);
@@ -248,9 +248,10 @@ test('Speed Lightning hand trigger remains operative under Temple of Sinnoh',()=
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
-    assert.equal(owner.hand.cards.length,oldHand+1);
-    assert.equal(owner.deck.cards.length,oldDeck-2);
+    assert.equal(owner.hand.cards.length,oldHand-1);
+    assert.equal(owner.deck.cards.length,oldDeck);
     const v=actorObservation(state,seat);
+    assert.ok(v.ownPublic.active.energies.includes('Speed Lightning Energy RCL'));
     const strike=v.ownPublic.active.attacks.find(a=>a.name==='Volt Cyclone');
     assert.ok(strike);
     assert.equal(publicSpecialAttackPayable(v,catalog,v.ownPublic.active,strike),
