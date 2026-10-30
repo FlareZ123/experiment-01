@@ -24,7 +24,7 @@ function repairMinimumAttachSelection(state,prompt,proposed){
   return {value:proposed,changed:false,reason:'outside-narrow-contract'};
  }
  const cards=prompt.cardList?.cards;
- if(!Array.isArray(cards)||typeof prompt.filter!=='function'||
+ if(!Array.isArray(cards)||typeof prompt.cardList.filter!=='function'||
     typeof prompt.validate!=='function'||
     typeof prompt.getPerspectivePlayerId!=='function'){
   return {value:proposed,changed:false,reason:'missing-prompt-contract'};
