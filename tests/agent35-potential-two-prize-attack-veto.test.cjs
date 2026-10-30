@@ -81,3 +81,24 @@ test('shared actor arbiter preserves a two-Prize potential attack only when opte
       protectPotentialTwoPrizeAttack:true},offers);
   assert.equal(negative.intent.kind,'attach-special-energy');
 });
+
+
+test('native printed Dedenne GX spacing protects the same potential winning attack',()=>{
+  const v=view();v.opponentPublic.active.printing='Dedenne GX UNB';
+  const candidate=potentialTwoPrizeAttackVeto(v,first);
+  assert.equal(candidate.protect,true);
+  assert.equal(candidate.opponentPrinting,'Dedenne GX UNB');
+  v.ownHand=['Double Dragon Energy ROS'];
+  v.ownTurnResources={energyPlayLocked:false,specialEnergyPlayLocked:false,
+    energyPlayedTurn:0};
+  const {arbitrateOwnerRootIntent}=
+    require('../simulation/twinleaf/agent41-owner-root-arbitration.cjs');
+  const offers=()=>({alternatives:[{probe:'public-special-energy',
+    kind:'attach-special-energy',handIndex:0,printing:'Double Dragon Energy ROS',
+    slot:'bench',index:0}]});
+  const result=arbitrateOwnerRootIntent(v,{},first,{
+    publicContextSpecialEnergy:true,protectPotentialTwoPrizeAttack:true
+  },offers);
+  assert.strictEqual(result.intent,first);
+  assert.equal(result.receipt.reason,'potential-two-prize-finishing-attack');
+});
