@@ -149,3 +149,29 @@ test('Temple suppresses Speed draw, Capture search, Jet switch and Telepath',()=
   x.opponentPublic.stadium=['Temple of Sinnoh ASR'];
   assert.ok(collect(x,c).offers.every(o=>!o.publicEffectOpportunity));
 });
+
+test('separate public attack cost gain from Speed draw-two benefit',()=>{
+  const x=view();
+  x.ownHand=['Speed Lightning Energy RCL'];
+  x.ownPublic.active.attacks=[{name:'Lightning Strike',cost:[4,4],
+    gxAttack:false}];
+  let o=find(collect(x,catalog).offers,'Speed Lightning Energy RCL','active');
+  assert.equal(o.maximumKnownAttackCostGain,1);
+  assert.equal(o.publicEffectOpportunity,true);
+  x.ownPublic.active.energies=['Speed Lightning Energy RCL'];
+  x.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  o=find(collect(x,catalog).offers,'Speed Lightning Energy RCL','active');
+  assert.equal(o.maximumKnownAttackCostGain,0,
+    'Existing Energy plus Thunder already pays the printed two-Lightning attack');
+  assert.equal(o.potentialDrawCap,2,
+    'On-attach draw remains a separate axis with no Temple');
+  x.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  o=find(collect(x,catalog).offers,'Speed Lightning Energy RCL','active');
+  assert.equal(o.maximumKnownAttackCostGain,0,
+    'Temple converts both attached Lightning Energy to Colorless');
+  assert.equal(o.publicEffectOpportunity,false,
+    'Temple suppresses the on-attachment draw');
+  x.ownPublic.active.energies=['Unsupported Energy X'];
+  assert.equal(find(collect(x,catalog).offers,'Speed Lightning Energy RCL',
+    'active').maximumKnownAttackCostGain,null);
+});
