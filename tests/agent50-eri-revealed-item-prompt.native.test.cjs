@@ -19,7 +19,7 @@ const native=name=>require(path.join(output,name));
  * @param {boolean} withItems
  * @returns {object}
  */
-function scene(seat,withItems,funded=false){
+function scene(seat,withItems,funded=false,withAce=false){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -59,6 +59,7 @@ function scene(seat,withItems,funded=false){
       card('Psychic Energy SVE'),card('Ultra Ball SUM'),
       card('Double Colorless Energy SUM'));
     if(funded)opponent.hand.cards.push(card('Psychic Energy SVE'));
+    if(withAce)opponent.hand.cards.push(card('Computer Search BCR'));
   }else{
     opponent.hand.cards.push(card('Psychic Energy SVE'),
       card('Double Colorless Energy SUM'));
@@ -208,5 +209,37 @@ for(const seat of [0,1]){
     console.log('ERI_PREDAMAGE_NATIVE',JSON.stringify({seat,
       opponentItemsDiscarded:selected.selectedPrintings,
       damage:140,supporterSpent:1,competitiveQualifiedGames:0}));
+  });
+}
+
+for(const seat of [0,1]){
+  test('genuine Eri reveal recognizes ACE SPEC then spends it first, seat '+seat,()=>{
+    const {store,state,owner,opponent,SuperType,TrainerType}=
+      scene(seat,true,false,true);
+    const {CardTag}=native('game/store/card/card-types');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    assert.equal(actorObservation(state,seat).opponentPublic.handCount,5);
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const prompt=state.prompts.find(x=>x.result===undefined);
+    assert.ok(prompt,'Native Eri must actually reveal before choosing');
+    const observed=observeEriRevealedItems(state,seat,prompt,
+      SuperType,TrainerType,CardTag);
+    const ace=observed?.items.find(x=>x.printing==='Computer Search BCR');
+    assert.equal(ace?.aceSpec,true,'Public printed ACE SPEC tag lost');
+    const selected=resolveEriRevealedItemPrompt(state,seat,prompt,
+      SuperType,TrainerType,ResolvePromptAction,CardTag);
+    assert.deepEqual(selected.selectedPrintings,
+      ['Computer Search BCR','VS Seeker PHF']);
+    store.dispatch(selected.action);
+    assert.ok(opponent.discard.cards.some(c=>c.fullName==='Computer Search BCR'));
+    assert.ok(opponent.hand.cards.some(c=>c.fullName==='Ultra Ball SUM'),
+      'Third Item should remain in hand, physically unchanged');
+    console.log('ERI_REVEAL_ACE_NATIVE',JSON.stringify({seat,
+      selected:selected.selectedPrintings,competitiveQualifiedGames:0}));
   });
 }
