@@ -63,8 +63,25 @@ naturally dealt game or an opposing policy test.
 - A modified fail-closed script now explicitly expects the **59-card** result
   for the original mixed scenario, and preserves 60-card expectations for
   no-Basic scenarios. [CI 41132531501](https://github.com/FlareZ123/experiment-01/actions/runs/41132531501)
-  was dispatched against pinned Store; its status and output must be
-  appended when known, never inferred from an earlier green build.
+  **succeeded**, with four directly executed native Store cases:
+  both seats for special-only and for Double Dragon + Grass + Quick Ball.
+  The [raw artifact 13014111401](https://github.com/FlareZ123/experiment-01/actions/runs/41132531501/artifacts/13014111401)
+  has ZIP SHA-256 `f630cb386a07311051e5fbe57343ce4518edf56da374a8d5d466f51c16c9fe9a`.
+
+  | Staged source case | Seat 0 | Seat 1 |
+  | --- | --- | --- |
+  | Double Dragon + two non-Energy | DDE discarded, no attach prompt, 60 cards retained | Same |
+  | Double Dragon + Grass + Quick Ball | Grass was native-attachable; DDE excluded/discarded, **59 cards retained** | Same |
+
+  Every native attack used the exact staged original-rank20 physical sixty
+  before resolution, and each sample was created from named source printings.
+  The fixture's `fixedDeckTop3` artifact field is empty because it references
+  the deck array **after** native `MOVE_CARDS` empties that same array.
+  Treat that one display field as an **instrumentation flaw**, rather than
+  an authenticated post-hoc top-three receipt. The scripted physical
+  selections and pre-attack source-count assertions remain reproducible;
+  a future unaliased pre-dispatch sample receipt would improve audit strength.
+  The physical-zone counts and attachment outputs remain separately observed.
 - A research-owned *opt-in* source-rule correction prototype exists at
   [`agent47-celestial-roar-paper-energy-hook.cjs`](../../simulation/twinleaf/agent47-celestial-roar-paper-energy-hook.cjs).
   It includes Special Energy in a mandatory self-Active attachment prompt
