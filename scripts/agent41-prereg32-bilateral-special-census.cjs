@@ -29,7 +29,7 @@ const shape = row => ({
 function rootedSpecialSample(row) {
   const root=row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
   const choices=root?.nativeRootAcceptances ?? [];
-  const sourceSeat=row.sourceSeat;
+  const sourceSeat=row.trial?.candidateSlot === 'A' ? 1 : 0;
   const selected=choices.filter(x=>x.kind==='attach-special-energy');
   const partition=seat => selected.filter(x=>x.seat===seat);
   const count=xs=>({
@@ -80,8 +80,11 @@ function pairPreregisteredSpecial(control,treatment) {
     assert.equal(before.qualifiesForCompetitiveInference,false);
     assert.equal(after.qualifiesForCompetitiveInference,false);
     const b=shape(before),a=shape(after);
-    const sourceSeat=before.sourceSeat;
-    assert.equal(after.sourceSeat,sourceSeat);
+    const sourceSeat=before.trial.candidateSlot === 'A' ? 1 : 0;
+    if (before.sourceSeat !== undefined)
+      assert.equal(before.sourceSeat,sourceSeat);
+    if (after.sourceSeat !== undefined)
+      assert.equal(after.sourceSeat,sourceSeat);
     const fullDealKnown=typeof b.fullPhysicalDeal==='string'&&
       typeof a.fullPhysicalDeal==='string';
     const sameDeal=fullDealKnown&&
