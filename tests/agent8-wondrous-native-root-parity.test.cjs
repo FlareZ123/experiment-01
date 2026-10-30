@@ -97,6 +97,7 @@ function tryOriginalThornsAttack(seat,labyrinth){
     specialEnergyRoot:true,publicContextSpecialEnergy:true
   });
   const {AttackAction}=native('game/store/actions/game-actions');
+  const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
   const before=opponent.active.damage;
   let error=null;
   try{
