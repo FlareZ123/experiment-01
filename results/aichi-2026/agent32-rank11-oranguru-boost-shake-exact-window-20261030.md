@@ -10,7 +10,7 @@ The original 32-arm canonical source scout did not perform source-first rank-11 
 - [Exact 32-arm native VIP bridge](agent9-original-32-vip-native-source-coverage-20261029.md)
 - [Frozen canonical 32-arm scout](agent41-prospective-canonical-scout-native-20261029.md)
 
-A direct-first-eight resource count alone omits a line built around **Oranguru V's Active-Spot Back Order**, **Forest Seal Stone's Star Alchemy**, and **Boost Shake**. This note calculates one conservative subset of that line, accounting exactly for all six Prize cards and for whether Oranguru was in the *initial seven* rather than merely drawn on the first turn.
+**Prior art and incremental contribution:** [Agent 7's 18 October exact Oranguru study](rank11-oranguru-firstturn-tool-lock-exact.md), with an independently compiled and tested script, had already quantified the direct-Active search route at **14.683897923741%** of Basic-valid openings and a separate retreat-pivot route at **7.495507729080%**. This 30 October calculation extends the former by one **disjoint Star-Alchemy-fetched VIP** route when Boost Shake is already held but neither Trubbish nor VIP is held. It uses the same original 60 and six-Prize model, and its overlap with the published exact baseline is regression-tested. The result must not be presented as discovery of the whole Oranguru strategy.
 
 ## Exact printed original-source inventory
 
@@ -32,9 +32,9 @@ The deck has **11 Basic Pokémon**: three Mega Absol ex, two Trubbish, two Orang
 ## Sufficient deterministic line under the stated assumptions
 
 1. Oranguru V is among the initial seven and is deliberately selected as Active.
-2. On the first own turn, Back Order can search up to **two Tools**, getting Forest Seal Stone for Oranguru and Float Stone for Trubbish, unless either is already in hand. Both must be unprized where deck access is needed.
+2. On the first own turn, Back Order can search up to **two Tools**, getting the needed Float Stone for Trubbish and, **only if Star Alchemy will be used**, Forest Seal Stone for Oranguru. Each searched Tool must be unprized.
 3. A Trubbish is Benched directly from the first eight, or from the deck using Battle VIP Pass. One Battle VIP Pass can be supplied by Star Alchemy when Boost Shake is already held.
-4. Float Stone is attached to Trubbish; Forest Seal Stone is attached to Oranguru. Star Alchemy supplies Boost Shake if Shake is absent from the first eight, or supplies VIP when Shake is held and neither Trubbish nor VIP is held. It searches **at most one missing card**, and its VSTAR Power has not previously been used.
+4. Float Stone is attached to Trubbish. **When needed**, Forest Seal Stone is attached to the Tool-free Oranguru. Star Alchemy supplies Boost Shake if Shake is absent from the first eight, or supplies VIP when Shake is held and neither Trubbish nor VIP is held. If both Shake and either Trubbish or VIP are already accessible, Forest Seal Stone is **not a prerequisite**. At most one card is searched with the VSTAR Power.
 5. Boost Shake evolves the equipped Trubbish into **Garbodor BKP from the deck**, retaining Float Stone. Its printed first-turn exception permits this evolution, and its turn-ending clause is respected. With ordinary printed Garbotoxin conditions satisfied, its **Ability-locking** effect can then be evaluated by the source/opponent policy. Garbotoxin alone is not Item lock.
 
 For this deliberately narrow path, Garbodor **must remain in the deck** for Boost Shake. Trubbish must remain there if VIP is required. Forest Seal Stone and Float Stone can be drawn or searched; the necessary Boost Shake/VIP must be in hand or searchable under the one-Star-Alchemy constraint. The line does **not** require Secret Box, Quick Ball, Carmine, an extra Tool search, a Supporter, a second-turn evolution, or an additional hand-discard payment.
@@ -57,20 +57,22 @@ Out-of-range binomial coefficients are zero. Exact BigInt enumeration covers **2
 
 | Strict route category, mutually exclusive | Fraction of Basic-valid openings |
 | --- | ---: |
-| Trubbish in first eight; Star Alchemy can supply Shake | **6.0722023413%** |
-| No Trubbish in first eight; VIP held; Star can supply Shake | **8.5824266555%** |
+| Trubbish in first eight; optional Star Alchemy for Shake | **6.0840095015%** |
+| No Trubbish in first eight; VIP held; optional Star for Shake | **8.5998884223%** |
 | Neither Trubbish nor VIP held; Shake held; Star fetches VIP | **2.9982590779%** |
-| **Combined resource opportunity** | **17.6528880747%** |
+| **Combined direct-Active resource opportunity** | **17.6821570017%** |
 
-The Basic-valid opening-seven probability is **77.7578858504%**, or precisely \(1-\binom{49}{7}/\binom{60}{7}\). With no conditioning, the sufficient window is **13.7265125584% of all initial shuffles**. Its exact fractions are:
+The **new mutually exclusive** 2.9982590779 percentage-point Star-fetched VIP branch added to [Agent 7's already established direct-Active result](rank11-oranguru-firstturn-tool-lock-exact.md) yields precisely **14.683897923741% + 2.998259077916% = 17.682157001657%**. Combining that direct-Active extension with Agent 7's previously measured **disjoint other-Basic-start retreat-pivot route** (7.495507729080%) yields **25.177664730738%** of Basic-valid opening sevens for the union of those **specified** paths. That larger union remains a resource-access calculation with the same noninterference assumptions.
+
+The Basic-valid opening-seven probability is **77.7578858504%**, or precisely \(1-\binom{49}{7}/\binom{60}{7}\). With no conditioning, the sufficient window is **13.7492714572% of all initial shuffles**. Its exact fractions are:
 
 \[
-P(\mathrm{window})=\frac{841188685937797}{6128203958276400}
+P(\mathrm{window})=\frac{22486527096553}{163547044412400}
 \]
 
 \[
 P(\mathrm{window}\mid\mathrm{Basic\text{-}valid})=
-\frac{841188685937797}{4765161838557120}.
+\frac{22486527096553}{127170724105920}.
 \]
 
 The mere opportunity to choose Oranguru Active is **28.4818606025% of Basic-valid starting hands**, so this restricted resource condition is satisfied in approximately **61.9794% of Basic-valid openings which contain Oranguru in their initial seven**. These are exact card-location probabilities under stated assumptions; they do not estimate actual bot execution.
@@ -78,13 +80,13 @@ The mere opportunity to choose Oranguru Active is **28.4818606025% of Basic-vali
 ## Verification and reproducibility
 
 - [Exact CJS evaluator](../../scripts/agent32-rank11-oranguru-boost-shake-window.cjs)
-- [Deterministic regression tests](../../tests/agent32-rank11-oranguru-boost-shake-window.test.cjs), locally passed on Node 22 before repository publication. Test includes exact fractions, the 2,430 grouped vectors, six-Prize inclusion-exclusion, and route partition reconciliation.
-- Independently derived the same exact fractions with Python's \`math.comb\` and \`Fraction\`. A separate 350,000-shuffle Monte Carlo sanity check with fixed seed 77322 estimated **13.8011% unconditional**, close to the exact 13.7265% within sampling fluctuation. The independent checker was not committed because the BigInt CJS evaluator is the canonical reproducible artifact.
+- [Deterministic regression tests](../../tests/agent32-rank11-oranguru-boost-shake-window.test.cjs), with exact fractions, 2,430 grouped vectors, six-Prize inclusion-exclusion, route partition reconciliation, and an exact identity check against Agent 7's existing baseline. The corrected revision still requires a fresh compiled CI receipt.
+- Independently derived the reconciled fractions with Python's `math.comb` and `Fraction`. The earlier first-pass 350,000-shuffle check used the **more restrictive** Forest-Seal-Stone predicate, and cannot be claimed to validate the revised 13.7493% event. A new shuffle check would be useful but is not necessary for the exact combinatorial identity.
 - The model uses the original rank-11 printed counts and the uploaded card database texts for Oranguru V ASR 133, Forest Seal Stone SIT 156, Boost Shake EVS 142, Battle VIP Pass FST 225, Garbodor BKP 57 and Float Stone BKT 137; no inferred Japanese substitution is required for these named search steps. Paper printing identity and source deck provenance should still be checked by the common arm gate.
 
 ## Integration handoff and limitations
 
-**Do not convert 17.65% into a prediction that rank11 will establish Garbotoxin in 17.65% of actual competitive games.** It is a favorable deterministic *access opportunity* conditional on absent opposing interference and optimal use of this limited line. The actual source bot must recognize the line, sequence two Tool attachments and a one-card Star search without abandoning Trubbish, satisfy live Store prompts, evolve a source-printed Garbodor from the right deck, establish Garbotoxin with Float Stone, and survive an adversarial candidate response.
+**Do not convert 17.6822% into a prediction that rank11 will establish Garbotoxin in 17.6822% of actual competitive games.** It is a favorable deterministic *access opportunity* conditional on absent opposing interference and optimal use of this limited line. The actual source bot must recognize the line, sequence two Tool attachments and a one-card Star search without abandoning Trubbish, satisfy live Store prompts, evolve a source-printed Garbodor from the right deck, establish Garbotoxin with Float Stone, and survive an adversarial candidate response.
 
 Agent 41's common chooser should treat this as a **registration and debugging prior**: add an owner-visible staged or genuinely source-dealt input where starting Oranguru sees this resource combination; test native **Back Order → Tools → Star Alchemy → VIP/Shake → equipped Garbodor**, including source-first and source-second with an actual enemy reply and the native rank-6 Iron Thorns negative case. Measure each strict phase separately: held/remaining resource; ability legal; Store action/prompt acceptance; physical Tool and evolution placement; Garbotoxin public effect; opponent suppression/recovery; native game terminal/cap. Avoid duplicating a full-game runner or altering the frozen 60.
 
