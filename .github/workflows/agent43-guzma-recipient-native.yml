@@ -26,4 +26,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Prove both-seat native Store Guzma recipient continuation
-        run: node --test tests/agent43-guzma-prompt-native.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent2-held-guzma-mobility-frontier.test.cjs tests/agent43-registered-basic-supply-guzma.test.cjs tests/agent43-field-basic-only-cost-census.test.cjs
+        run: node --test tests/agent43-canonical-guzma-prompt-composition.test.cjs tests/agent43-guzma-prompt-native.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent2-held-guzma-mobility-frontier.test.cjs tests/agent43-registered-basic-supply-guzma.test.cjs tests/agent43-field-basic-only-cost-census.test.cjs
