@@ -924,6 +924,7 @@ function runDevelopment({
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
+  bilateralEnergyContest=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null
 }={}){
@@ -936,6 +937,8 @@ function runDevelopment({
     'Plumeria after-Pass requires canonical actor composition');
   assert.ok(!bilateralSpecialEnergyRoot||actorOnlyComposition,
     'Both-seat Special Energy root requires canonical actor composition');
+  assert.ok(!bilateralEnergyContest||bilateralSpecialEnergyRoot,
+    'Basic/Special contention requires symmetric both-seat Special root');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -1024,7 +1027,8 @@ function runDevelopment({
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
                 specialEnergyRoot:true,
-                specialEnergyRootOwnerSeat:energyProfile.ownerSeat
+                specialEnergyRootOwnerSeat:energyProfile.ownerSeat,
+                contestedEnergyRoot:bilateralEnergyContest
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1057,7 +1061,8 @@ function runDevelopment({
             }:{})});
         rows.push({...observed.result,
           ...(bilateralSpecialEnergyRoot?{
-            bilateralSpecialEnergyProfile:energyProfile
+            bilateralSpecialEnergyProfile:{...energyProfile,
+              immediateAttackContest:bilateralEnergyContest}
           }:{}),
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
@@ -1300,7 +1305,9 @@ if(require.main===module){
     candidateScopedSpecialEnergyRoot:
       process.env.AGENT4_CANDIDATE_SPECIAL_ROOT_DEV==='true',
     bilateralSpecialEnergyRoot:
-      process.env.AGENT41_BILATERAL_SPECIAL_ENERGY_DEV==='true'
+      process.env.AGENT41_BILATERAL_SPECIAL_ENERGY_DEV==='true',
+    bilateralEnergyContest:
+      process.env.AGENT41_ENERGY_CONTEST_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
