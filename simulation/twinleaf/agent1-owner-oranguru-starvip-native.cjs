@@ -130,7 +130,7 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
         return owner.active.tools.length===0?
           play(PRINT.forest,active):null;
       case 3:
-        return owner.usedVSTAR===false&&owner.active.tools.some(card=>
+        return !owner.usedVSTAR&&owner.active.tools.some(card=>
           card.fullName===PRINT.forest)?
           new UseAbilityAction(owner.id,'Star Alchemy',active):null;
       case 5:return play(PRINT.vip,board);
