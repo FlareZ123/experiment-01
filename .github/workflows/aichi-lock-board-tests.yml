@@ -149,30 +149,14 @@ jobs:
         run: npm run compile
       - name: Regress conservative Path to the Peak public opposing Ability lock
         run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
-  if: inputs.agent33_path_to_peak_native
-        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
         run: node --test tests/agent33-sky-field-bench-expansion.test.cjs
-  if: inputs.agent33_sky_field_native
-        run: node --test tests/agent33-sky-field-bench-expansion-pinned.test.cjs
       - name: Regress Player Ceremony owner-only default-off end-turn Stadium choice
         run: node --test tests/agent33-players-ceremony-lastchance.test.cjs
-  if: inputs.agent33_players_ceremony_native
-        run: node --test tests/agent33-players-ceremony-full-action-pinned.test.cjs
-  if: inputs.agent33_tropical_beach_native
-        run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
       - name: Test native Beach effect observer's public-card-count-only settlement predicates
         run: node --test tests/agent33-beach-store-effect-witness.test.cjs
       - name: Fail closed on fabricated paired Beach starts and failed native attempts
         run: node --test tests/agent33-tropical-beach-original-paired.test.cjs
-  if: inputs.agent33_tropical_beach_paired
-        run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
-  if: inputs.agent33_tropical_beach_paired && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent33-original-three-rank-beach-paired
-          path: agent33-beach-original-paired.json
-          if-no-files-found: warn
       - name: Verify original Store Gholdengo exact thirty-card hand and Prize effects on both seats
         if: inputs.agent34_gholdengo_native
         run: node simulation/twinleaf/agent34-gholdengo-native-prize-mechanic.cjs > agent34-gholdengo-native-prize-effect.json
