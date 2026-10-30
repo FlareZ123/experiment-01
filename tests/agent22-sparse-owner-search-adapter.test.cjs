@@ -128,6 +128,7 @@ test('valued sparse owner choice uses printings, not physical order or opponent 
 });
 
 test('opt-in scored search is selected and physically accepted in two fake seats',()=>{
+  class AddPlayerAction{}
   class ResolvePromptAction{
     constructor(id,result){this.id=id;this.result=result;}
   }
@@ -147,6 +148,7 @@ test('opt-in scored search is selected and physically accepted in two fake seats
   const result=withSparseActorOwnerSearch(()=>{
     const observed=[];
     const store=new Store();
+    store.dispatch(new AddPlayerAction());
     for(const seat of [0,1]){
       const names=Array.from({length:50},(_,i)=>
         'Source-Card-'+String(i).padStart(2,'0'));
