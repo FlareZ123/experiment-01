@@ -20,6 +20,14 @@ test('original rank26 physical card inventory supports every paper witness card'
   ])assert.ok(copies(name)>=minimum,`Source missing ${name}`);
 });
 
+test('candidate original exact WHT44 has 80 HP, not a generic 70-HP starter',()=>{
+  const db=require('../resources/cards/en/rsv10pt5.json');
+  const frillish=db.find(c=>c.id==='rsv10pt5-44');
+  assert.ok(frillish);
+  assert.equal(frillish.name,'Frillish');
+  assert.equal(Number(frillish.hp),80);
+});
+
 test('five Exeggcute self-KOs consume three Damage Pumps and never fill Bench',()=>{
   const x=paperMeloettaDonkWitness();
   assert.equal(x.winner,'source');
