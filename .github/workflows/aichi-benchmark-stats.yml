@@ -71,6 +71,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Exact prize-aware first-eight Spiritomb versus Tool-dependent Genesect availability
+        run: node --test tests/agent24-ace-nullifier-opening-frontier.test.cjs
       - name: Audit Spiritomb ACE SPEC lock potential across exact 29 printed original source sixties
         run: node --test tests/agent24-spiritomb-ace-source-census.test.cjs
       - name: Fail closed on missing settled physical-card custody in release results
