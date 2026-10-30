@@ -2,10 +2,6 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {initializeCards,runMatch}=require('./headless.cjs');
-const {resolveManifestFile}=require('./resolve-field.cjs');
-const {withActorHandDiscard}=require('./agent47-actor-hand-discard.cjs');
-const {observableDigest}=require('./dde-source-clone-seat-panel.cjs');
 
 // Preregistered before seeing any result of this module. All arms retained.
 const SEEDS=Object.freeze([1847000101,1847000102,1847000103,
@@ -16,6 +12,7 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 /** Immutable registered experiment recipe, independent of native outcomes. */
 function registration(){
+ const {resolveManifestFile}=require('./resolve-field.cjs');
  const manifest=resolveManifestFile(path.resolve(__dirname,
    '../../results/aichi-2026/full-decklists.json'),{
      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
@@ -37,6 +34,9 @@ function registration(){
 
 /** Same source 60s, same seed, same initial physical seat; one bounded prompt-option flag. */
 function execute(trial,byRank,apexEnabled){
+ const {runMatch}=require('./headless.cjs');
+ const {withActorHandDiscard}=require('./agent47-actor-hand-discard.cjs');
+ const {observableDigest}=require('./dde-source-clone-seat-panel.cjs');
  const own=byRank.get(20).cardIds;
  const opposing=byRank.get(trial.opponentRank).cardIds;
  const request={
@@ -81,6 +81,7 @@ function execute(trial,byRank,apexEnabled){
 }
 
 function main(){
+ const {initializeCards}=require('./headless.cjs');
  const {byRank,trials}=registration();
  initializeCards();
  const rows=trials.map(trial=>{
