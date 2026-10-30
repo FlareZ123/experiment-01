@@ -4,7 +4,7 @@
 
 ## The still-unanswered question
 
-The source-first Meloetta Donk line was verified as a *conditional* ordered printed-card state trajectory: 5 Exeggcute self-KOs through three Damage Pumps yield exactly one remaining candidate Prize; Dance of the Ancients attaches two Lightning to two **distinct** Benched Pokémon; DCE attached to Melo supplies 3 Colorless for TM Crisis Punch; Escape Rope promotes Melo to attack lone unprotected Frillish 70HP on turn1 via Debut Performance. **No initial-source-hand acquisition schedule or native Store action transcript has been demonstrated.**
+The source-first Meloetta Donk line was verified as a *conditional* ordered printed-card state trajectory: 5 Exeggcute self-KOs through three Damage Pumps yield exactly one remaining candidate Prize; Dance of the Ancients attaches two Lightning to two **distinct** Benched Pokémon; DCE attached to Melo supplies 3 Colorless for TM Crisis Punch; Escape Rope promotes Melo to attack lone unprotected Frillish 80HP on turn1 via Debut Performance. **No initial-source-hand acquisition schedule or native Store action transcript has been demonstrated.**
 
 The earlier 72.483928% DCE+2 Lightning all-unprized calculation only tracked Energy copies. A complete feasibility filter for this witness must also account for donor, Stadium, Item and Pokémon identities, including the need for at least **three of the four Damage Pump** copies and **both Exeggcute** copies. This report computes the exact joint six-Prize event for that complete print-identity requirement.
 
@@ -45,7 +45,7 @@ But this particular witness also specifies that its **starting Active was source
 | Original seven includes Bunnelby **and** all other required groups survive six Prizes | **5.3312645495%** |
 | Same, plus singleton Cologne unprized | **4.6893994868%** |
 
-This is a **hard necessary source-card-location gate for the particular Bunnelby-starting witness** assuming the original seven source has no mulligan. It still makes the extremely generous assumption that all remaining usable source cards can be found and sequenced before the end of the first player-owned turn, and that the candidate has precisely one unprotected 70HP Frillish Active. Actual first-turn success of this exact witness cannot exceed the 5.3313% event in the stated source opening model, and can be **substantially lower** due to search, hand disposal, turn clock, payment, sources Prized elsewhere and opponent Basic selections. The source could instead choose another starting Basic and a different escape/attack line; that does not violate this witness-specific ceiling.
+This is a **hard necessary source-card-location gate for the particular Bunnelby-starting witness** assuming the original seven source has no mulligan. It still makes the extremely generous assumption that all remaining usable source cards can be found and sequenced before the end of the first player-owned turn, and that the candidate has precisely one unprotected 80HP Frillish Active. Actual first-turn success of this exact witness cannot exceed the 5.3313% event in the stated source opening model, and can be **substantially lower** due to search, hand disposal, turn clock, payment, sources Prized elsewhere and opponent Basic selections. The source could instead choose another starting Basic and a different escape/attack line; that does not violate this witness-specific ceiling.
 
 ## Going-first Carmine is a legal exception, with a discard tradeoff
 
