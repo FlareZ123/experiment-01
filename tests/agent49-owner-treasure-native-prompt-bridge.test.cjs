@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom,deckPermutation}=
+  require('../simulation/twinleaf/headless.cjs');
 const {withOwnerTreasurePromptContinuation}=
   require('../simulation/twinleaf/agent49-mysterious-treasure-prompt-continuation.cjs');
 
@@ -59,7 +60,19 @@ for(const seat of [0,1]){
       assert.ok(secondAction instanceof ResolvePromptAction);
       assert.equal(secondAction.id,second.id);
       x.store.dispatch(secondAction);
-      return x.state;
+      for(let i=0;i<8;i++){
+        const prompt=x.store.state.prompts.find(p=>p.result===undefined);
+        if(!prompt)break;
+        assert.ok(['ShowCardsPrompt','ShuffleDeckPrompt','WaitPrompt']
+          .includes(prompt.constructor.name),'Unexpected pending prompt '+
+          prompt.constructor.name);
+        const answer=prompt.constructor.name==='ShuffleDeckPrompt'?
+          deckPermutation(x.owner.deck.cards.length,seededRandom(13000+seat)):
+          null;
+        x.store.dispatch(new ResolvePromptAction(prompt.id,answer));
+      }
+      assert.equal(x.store.hasPrompts(),false);
+      return x.store.state;
     },{initialLiveStore:x.store,trace:event=>trace.push(event)});
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,beforeBot);
     assert.strictEqual(Store.prototype.dispatch,beforeStore);
@@ -70,8 +83,11 @@ for(const seat of [0,1]){
     assert.equal(audit.physicalCostDiscards,1);
     assert.equal(audit.physicalTargetRetrievals,1);
     assert.equal(audit.completedPhysicalChains,1);
+    assert.equal(audit.nativeItemFinalized,1,
+      'Reveal and mandatory seeded shuffle must precede native Item finality');
     assert.equal(audit.bySeat[seat],1);
     assert.equal(x.owner.discard.cards.includes(donor),true);
+    assert.equal(x.owner.discard.cards.includes(item),true);
     assert.equal(x.owner.hand.cards.includes(target),true);
     assert.equal(x.owner.hand.cards.includes(item),false);
     assert.equal(x.opponent.hand.cards.length,0);
