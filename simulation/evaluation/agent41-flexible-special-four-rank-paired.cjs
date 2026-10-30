@@ -22,6 +22,7 @@ const {withAcceptedEnergyPromptPublicWitness}=
 const BASE=path.resolve(__dirname,'../..');
 const REGISTRATION='results/aichi-2026/registrations/'+
   'agent41-flexible-special-r4-r10-r12-r17-20261030.json';
+const MIXED_NONREG_REGISTRATION='results/aichi-2026/registrations/'+'agent41-nonreg-mixed-energy-r9-r15-r19-r26-20261030.json';
 const ORIGINAL=path.join(BASE,
   'results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json');
 const VERSION='agent41-flexible-special-original-four-rank-bilateral-paired-v1';
@@ -36,13 +37,22 @@ const {Store}=require(path.join(native,'game/store/store'));
  * All eight deal specifications are inspected before running any game.
  * @returns {{registration:object,source:object,plan:object,originalFlags:object, trials:object[]}}
  */
-function prepare(){
-  const reg=JSON.parse(fs.readFileSync(path.join(BASE,REGISTRATION),'utf8'));
+function prepare(options={}){
+  const cohort=options.cohort??'original-four';
+  assert.ok(['original-four','nonreg-mixed'].includes(cohort));
+  const registrationPath=cohort==='nonreg-mixed'?MIXED_NONREG_REGISTRATION:REGISTRATION;
+  const reg=JSON.parse(fs.readFileSync(path.join(BASE,registrationPath),'utf8'));
   const archive=JSON.parse(fs.readFileSync(ORIGINAL,'utf8'));
-  assert.equal(reg.schema,
-    'agent41-original-source-flexible-special-four-rank-two-seat-paired-v1');
+  if(cohort==='original-four'){
+    assert.equal(reg.schema,
+      'agent41-original-source-flexible-special-four-rank-two-seat-paired-v1');
+    assert.deepEqual(reg.source_ranks,[4,10,12,17]);
+  }else{
+    assert.equal(reg.schema,
+      'agent41-mixed-energy-original-four-rank-two-seat-factorial-v1');
+    assert.deepEqual(reg.source_ranks,[9,15,19,26]);
+  }
   assert.equal(reg.engine_pin,enginePin);
-  assert.deepEqual(reg.source_ranks,[4,10,12,17]);
   assert.equal(reg.sample_size,16);
   assert.equal(reg.action_cap,260);
   assert.equal(archive.enginePin,enginePin);
@@ -73,7 +83,7 @@ function prepare(){
   }
   assert.equal(trials.length,8);
   assert.equal(new Set(trials.map(trial=>trial.seed)).size,8);
-  return {registration:reg,source:ranked,plan,
+  return {registration:reg,registrationPath,cohort,source:ranked,plan,
     originalFlags:archive.frozenFlags,trials};
 }
 
@@ -101,7 +111,7 @@ function runOne(trial,prepared,treated,mode='public-context'){
   const request={
     ...prepared.originalFlags,
     deckA,deckB,seed:trial.seed,maxActions:260,
-    label:VERSION+'-'+mode+'-'+trial.id+'-'+(treated?'treatment':'control'),
+    label:VERSION+'-'+prepared.cohort+'-'+mode+'-'+trial.id+'-'+(treated?'treatment':'control'),
     mandatoryOptionFallback:true,
     enforceSelectOptionLegality:true,
     enforceVisiblePlayLockBothSeats:true,
@@ -295,7 +305,8 @@ function attempt(trial,prepared,treated,runner=runOne,mode='public-context'){
 function runStudy(options={}){
   const mode=options.mode??'public-context';
   assert.ok(['public-context','contest'].includes(mode));
-  const prepared=prepare();
+  const cohort=options.cohort??'original-four';
+  const prepared=prepare({cohort});
   const selected=options.rank===undefined?prepared.trials:
     prepared.trials.filter(trial=>trial.rank===options.rank);
   assert.ok(selected.length>0,'No preregistered original source');
@@ -307,11 +318,10 @@ function runStudy(options={}){
   const comparisons=rows.map(row=>row.comparison);
   return {
     schema:VERSION+'-'+mode,
-    registration:mode==='contest'?
+    registration:cohort==='nonreg-mixed'?MIXED_NONREG_REGISTRATION:mode==='contest'?
       'results/aichi-2026/registrations/'+
-        'agent41-flexible-energy-contest-r4-r10-r12-r17-20261030.json':
-      REGISTRATION,
-    comparisonMode:mode,
+        'agent41-flexible-energy-contest-r4-r10-r12-r17-20261030.json':REGISTRATION,
+    comparisonMode:mode,cohort,
     fieldSource:prepared.source.source,
     candidate:'unmodified original rank1 Shadow Rider full 60',
     opponentRanks:[...new Set(selected.map(trial=>trial.rank))],
@@ -336,6 +346,7 @@ if(require.main===module){
   const rank=process.env.AGENT41_FLEXIBLE_SPECIAL_RANK?
     Number(process.env.AGENT41_FLEXIBLE_SPECIAL_RANK):undefined;
   const mode=process.env.AGENT41_FLEXIBLE_SPECIAL_STUDY??'public-context';
-  process.stdout.write(JSON.stringify(runStudy({rank,mode}),null,2)+'\n');
+  const cohort=process.env.AGENT41_FLEXIBLE_SPECIAL_COHORT??'original-four';
+  process.stdout.write(JSON.stringify(runStudy({rank,mode,cohort}),null,2)+'\n');
 }
-module.exports={VERSION,REGISTRATION,prepare,runOne,attempt,compare,runStudy};
+module.exports={VERSION,REGISTRATION,MIXED_NONREG_REGISTRATION,prepare,runOne,attempt,compare,runStudy};
