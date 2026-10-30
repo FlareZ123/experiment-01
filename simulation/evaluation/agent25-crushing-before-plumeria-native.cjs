@@ -202,7 +202,7 @@ function runRetrospectiveT3() {
     treatmentSummary: describeTrial(treated),
     baseline, treated,
     competitiveQualifiedGames: 0,
-    caveat: 'Retrospective source-selected two-list native policy mechanics; target may not be reached, native failures remain recorded. Not a randomized prospective field comparison.'};
+    caveat: 'Retrospective source-selected two-list native policy mechanics; the existing after-Pass Hammer adapter may attempt more than one held Hammer on successive root Passes before Plumeria, so this is priority ordering rather than a controlled exactly-one-coin causal intervention. Target may not be reached; native failures remain recorded. Not a randomized prospective field comparison.'};
 }
 
 if (require.main === module)
