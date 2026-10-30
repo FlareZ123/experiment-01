@@ -148,6 +148,15 @@ for(const seat of [0,1]){
       promptKinds.push(kind);
       f.store.dispatch(action);
     }
+    const afterPromptBoard=attacker.bench.map(slot=>
+      slot.getPokemonCard()?.name??null);
+    console.log('AGENT40_NATIVE_TM_PROMPT_DIAGNOSTIC',JSON.stringify({
+      seat,secondAttack,promptKinds,afterPromptBoard,
+      currentActive:attacker.active.getPokemonCard()?.fullName,
+      opponentTurn:state.activePlayer,hasPrompts:f.store.hasPrompts(),
+      ownerEnergy:attacker.active.energies.cards.map(c=>c.fullName),
+      ownerTool:attacker.active.tools.map(c=>c.fullName)
+    }));
     assert.equal(f.store.hasPrompts(),false);
     assert.equal(secondAttack,'Evolution');
     assert.deepEqual(attacker.bench.slice(0,2).map(slot=>
