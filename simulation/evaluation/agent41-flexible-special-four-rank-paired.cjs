@@ -211,15 +211,23 @@ function runOne(trial,prepared,treated,mode='public-context'){
 /** @param {object} a @param {object} b @returns {object} */
 function compare(a,b){
   assert.equal(a.trial.id,b.trial.id);
-  const matching=[a,b].every(row=>row.status.startsWith('native-'));
-  const sameDeal=matching&&a.initialFullDealSha256!==null&&
+  const validSha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+  const matching=[a,b].every(row=>
+    row.status==='native-terminal-unqualified'||
+    row.status==='native-capped-unqualified');
+  const sameDeal=matching&&validSha(a.initialFullDealSha256)&&
+    validSha(b.initialFullDealSha256)&&
     a.initialFullDealSha256===b.initialFullDealSha256;
-  const sameSource=matching&&a.initialSourceDealSha256!==null&&
+  const sameSource=matching&&validSha(a.initialSourceDealSha256)&&
+    validSha(b.initialSourceDealSha256)&&
     a.initialSourceDealSha256===b.initialSourceDealSha256;
-  const sameFirst=matching&&a.actualFirstPlayer===b.actualFirstPlayer;
-  const sameDecks=matching&&a.candidateSixtySha256===b.candidateSixtySha256&&
-    a.sourceSixtySha256===b.sourceSixtySha256&&
-    a.engine===b.engine;
+  const sameFirst=matching&&[0,1].includes(a.actualFirstPlayer)&&
+    a.actualFirstPlayer===b.actualFirstPlayer;
+  const sameDecks=matching&&validSha(a.candidateSixtySha256)&&
+    validSha(b.candidateSixtySha256)&&
+    validSha(a.sourceSixtySha256)&&
+    validSha(b.sourceSixtySha256)&&
+    a.engine==='twinleafgg/'+enginePin&&a.engine===b.engine;
   const before=matching?a.rootActionLedger:null,
         after=matching?b.rootActionLedger:null;
   const firstChanged=before&&after?Array.from({
