@@ -23,6 +23,16 @@ function trubbishIndex(actor){
     slot.getPokemonCard()?.fullName===PRINT.trubbish&&slot.tools.length===0);
 }
 
+/** Select Boost Shake's actually tooled Trubbish, after Float Stone is attached.
+ * @param {object} actor Current native owner.
+ * @returns {number}
+ */
+function shakeTargetIndex(actor){
+  return actor.bench.findIndex(slot=>
+    slot.getPokemonCard()?.fullName===PRINT.trubbish&&
+    slot.tools.some(tool=>tool.fullName===PRINT.float));
+}
+
 /**
  * A candidate first-turn owner plan must be explicitly admitted by a pure,
  * actor-observable external arbitration callback. Source identities, ranks,
@@ -116,11 +126,8 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
         case 6:return chooseDeck([PRINT.trubbish]);
         case 9:return chooseDeck([PRINT.garbodor]);
         case 10:{
-          // Boost Shake evolves the Float Stone holder. The untooled
-          // Trubbish selector used before attachment is wrong here.
-          const i=owner.bench.findIndex(slot=>
-            slot.getPokemonCard()?.fullName===PRINT.trubbish&&
-            slot.tools.some(tool=>tool.fullName===PRINT.float));
+          // Boost Shake must evolve the source's Float Stone holder.
+          const i=shakeTargetIndex(owner);
           if(i<0||pending.constructor?.name!=='ChoosePokemonPrompt')
             return null;
           const target=owner.bench[i];
@@ -316,5 +323,5 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',decoder);
   }
 }
-module.exports={VERSION,handIndex,trubbishIndex,
+module.exports={VERSION,handIndex,trubbishIndex,shakeTargetIndex,
   withOwnerOranguruStarVipPlan};
