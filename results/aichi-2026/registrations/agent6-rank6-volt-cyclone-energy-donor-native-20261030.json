@@ -1,0 +1,68 @@
+{
+  "schema": "agent6-retrospective-original-rank6-volt-cyclone-energy-donor-factorial-v1",
+  "createdAtUtc": "2026-10-30T20:59:30Z",
+  "selected": "Original published rank6 Iron Thorns ex sourcefirst seatA seed531384326 vs original published rank1 Shadow Rider same 60s; earlier compiled native energy order positive (T3 Volt Cyclone KO opposing Marshadow) already observed; **retrospective source state**.",
+  "cardDatabasePrintedAttack": "Iron Thorns ex (sv6-77): Volt Cyclone 140 [Lightning,Colorless,Colorless]; Move an Energy from this Pokémon to 1 of your Benched Pokémon.",
+  "hypothesis": "Native generic MoveEnergyPrompt default selects first physical attached Energy, making attachment order appear to change post-attack Energy distribution. The attack text permits owner choice, so prompting an explicit valid physical Energy can reverse this order independent of T1/T3 attachment chronology.",
+  "originalSourceRank": 6,
+  "originalCandidateRank": 1,
+  "selectedSourceSeat": 0,
+  "selectedSeed": 531384326,
+  "originalSourcePrinted60Unmodified": true,
+  "originalCandidatePrinted60Unmodified": true,
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "common": {
+    "sourceFirstNativeGenuineGoFirstChoice": true,
+    "canonicalActorBothSeats": true,
+    "stageSpeedLightningFirstTurnForSpeedFirst": true,
+    "stageDceFirstTurnForDceFirst": true,
+    "nativeT3FirstEligibleSourceAttack": true,
+    "liveLightningAlternative": true,
+    "realStoreStrictPromptValidation": true,
+    "maxActions": 135,
+    "observerPhysicalSourceMovePromptOwnershipAndNativeMoveSettlement": true,
+    "sourceDecisionOwnActiveEnergyAndOwnBenchOnly": true,
+    "opponentHiddenZonesNeverPassedToPolicy": true
+  },
+  "arms": [
+    {
+      "label": "speed-first-auto",
+      "order": "speed-first",
+      "donor": "native-baseline"
+    },
+    {
+      "label": "speed-first-choose-dce",
+      "order": "speed-first",
+      "donor": "Double Colorless Energy"
+    },
+    {
+      "label": "dce-first-auto",
+      "order": "dce-first",
+      "donor": "native-baseline"
+    },
+    {
+      "label": "dce-first-choose-speed",
+      "order": "dce-first",
+      "donor": "Speed Lightning Energy"
+    },
+    {
+      "label": "speed-first-choose-speed",
+      "order": "speed-first",
+      "donor": "Speed Lightning Energy"
+    },
+    {
+      "label": "dce-first-choose-dce",
+      "order": "dce-first",
+      "donor": "Double Colorless Energy"
+    }
+  ],
+  "primaryOutcome": [
+    "original native attack accepted and settled 140 Marshadow KO with Prize",
+    "genuine owner MoveEnergyPrompt exposure, playerId/authenticated source, valid menu choice",
+    "native accepted specific physical chosen attached Speed versus DCE moved from source Active to own Bench",
+    "remaining actual source Active Energy after original Store attack settlement",
+    "full same original physical deal and candidate T2 action roots per arm",
+    "next opponent T4 native continuation; record failures and caps"
+  ],
+  "qualifiedCompetitiveGames": 0
+}
