@@ -19,7 +19,10 @@ const VERSION='agent7-tinkaton-svp-press-dte-pinned-hook-v1';
 function installTinkatonDteHook(manager){
   const sample=manager.getCardByName('Tinkaton ex SVP');
   assert.ok(sample,'Pinned Tinkaton ex SVP must exist');
-  const prototype=Object.getPrototypeOf(sample);
+  // CardManager.getCardByName returns Object.create(poolCard); its immediate
+  // prototype is one pool instance, not the shared Tinkatonex class prototype.
+  const prototype=Object.getPrototypeOf(Object.getPrototypeOf(sample));
+  assert.equal(prototype.constructor.name,'Tinkatonex');
   const previous=prototype.reduceEffect;
   assert.equal(typeof previous,'function');
   const {WAS_ATTACK_USED,IS_SPECIAL_ENERGY_BLOCKED}=
