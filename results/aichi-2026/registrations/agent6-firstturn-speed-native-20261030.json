@@ -1,0 +1,44 @@
+{
+  "schema": "agent6-preregistered-native-source-speed-six-deal-v1",
+  "registeredAtUtc": "2026-10-30",
+  "originalSourceRank": 6,
+  "candidateRank": 1,
+  "sourceDeck": "Aichi exact rank 6 original 60",
+  "candidateDeck": "Aichi exact rank 1 original 60",
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedSeedsBySourceSeat": [
+    {
+      "sourceSeat": 0,
+      "seeds": [
+        531384326,
+        2341469307,
+        3030747015
+      ]
+    },
+    {
+      "sourceSeat": 1,
+      "seeds": [
+        516187842,
+        2411836147,
+        492959857
+      ]
+    }
+  ],
+  "treatment": {
+    "baseline": {
+      "stageSpeedLightningFirstTurn": false
+    },
+    "test": {
+      "stageSpeedLightningFirstTurn": true
+    },
+    "both": {
+      "sourceGoFirst": true,
+      "candidateGoFirst": false,
+      "liveSpeedLightningAlternative": true,
+      "strictPromptValidation": true,
+      "maxActions": 110
+    }
+  },
+  "evaluation": "Retain all 12 original Store attempts, errors, source first-turn actor card opportunity and native accepted Speed roots, first-turn draw and opponent next owner root. Original held sample seeds are fixed prior to execution; source choice of first player is forced by a known heterogeneous seat preference and produces no random-start validity. No candidate superiority or qualified wins.",
+  "competitiveQualifiedGames": 0
+}
