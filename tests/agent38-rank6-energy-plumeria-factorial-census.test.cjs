@@ -26,7 +26,7 @@ function fixture(){
       actorPlumeriaAfterPassOptIn:name.includes('plumeria'),
       competitiveQualifiedGames:0,
       rows:trials.map((trial,i)=>({
-        trial,sourceSeat:0,sourceActuallyFirst:i%2===0,
+        trial:{...trial},sourceSeat:0,sourceActuallyFirst:i%2===0,
         actualStarterSeat:i%2,
         sourceDealFingerprint:'source:'+i,
         fullPhysicalDealFingerprint:'full:'+i,
