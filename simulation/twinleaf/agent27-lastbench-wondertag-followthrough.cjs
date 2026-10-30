@@ -48,7 +48,7 @@ function followWonderTag(seat){
       assert.equal(sawShuffle,false);sawShuffle=true;
       const n=x.owner.deck.cards.length;
       value=Array.from({length:n},(_,i)=>i);
-      assert.equal(p.validate(value),true,'Native shuffle index selection');
+      assert.equal(p.validate(value,x.state),true,'Native shuffle index selection');
     }else{
       throw new Error('Unexpected Wonder Tag prompt '+kind);
     }
