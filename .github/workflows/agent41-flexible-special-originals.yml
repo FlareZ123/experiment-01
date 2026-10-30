@@ -1,0 +1,42 @@
+name: Registered Aichi original Special Energy both-seat development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-paired-flexible-special:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned, unchanged original Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify sealed source identities, metadata comparisons and failure retention
+        run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs
+      - name: Execute the preregistered 16 actual native Store developmental attempts
+        run: node simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs > agent41-original-flexible-special-16arm.json
+      - name: Assert denominator, preserve censored trials, and print bounded receipts
+        run: |
+          node -e "const a=require('node:assert/strict');const p=require('./agent41-original-flexible-special-16arm.json');a.equal(p.attempts,16);a.equal(p.expectedAttempts,16);a.equal(p.rows.length,8);a.equal(p.competitiveQualifiedGames,0);a.equal(p.winRateCertified,false);console.log('FLEXIBLE_SPECIAL_REGISTERED',JSON.stringify({attempts:p.attempts,pairs:p.pairedPhysicalStarts,errors:p.nativeErrors,selected:p.treatmentSpecialSelections,acceptedSample:p.treatmentSpecialSampleAcceptedLowerBound,sourceAttacks:[p.sourceAttackControl,p.sourceAttackTreatment],pairsByRank:p.rows.map(x=>({id:x.trial.id,control:x.comparison.controlStatus,treatment:x.comparison.treatmentStatus,fullDeal:x.comparison.fullDealMatch,specialSelected:[x.comparison.controlSpecialSelected,x.comparison.treatmentSpecialSelected],nativeWinner:[x.comparison.controlNativeWinner,x.comparison.treatmentNativeWinner]}))}));"
+      - name: Archive every native status, original fingerprint and physical target evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-original-flexible-special-16arm
+          path: agent41-original-flexible-special-16arm.json
+          if-no-files-found: warn
+          retention-days: 20
