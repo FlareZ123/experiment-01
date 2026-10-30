@@ -169,6 +169,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .specialFundsImmediateAttack(view,catalog);
     if(stronger)return stronger;
   }
+  // Opt-in owner-visible Jet Bench switch. The native action constructor
+  // already handles the generic attach-special-energy Bench target.
+  if(options.jetBenchSwitchRoot===true){
+    const jet=require('./agent40-public-jet-bench-frontier.cjs')
+      .choosePublicJetBenchSwitch(view,catalog);
+    if(jet)return jet;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -432,6 +439,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
       (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
+    jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
+      (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
       (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
@@ -544,6 +553,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.publicContextSpecialEnergyOptIn)
     audit.version+='+'+
       require('./agent17-public-context-special-energy.cjs').VERSION;
+  if(audit.jetBenchSwitchRootOptIn)
+    audit.version+='+'+
+      require('./agent40-public-jet-bench-frontier.cjs').VERSION;
   if(audit.raichuKoBreakpointBeforeAttackOptIn)
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
@@ -669,6 +681,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
+      jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
