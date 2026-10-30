@@ -65,7 +65,7 @@ test('pinned original Team Flare Grunt discards an opponent Active Energy in bot
     native('game/store/actions/resolve-prompt-action');
   for(const seat of [0,1]){
     const x=root(seat);
-    assert.equal(x.supporter.canPlay(x.store,x.state),true);
+    assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),true);
     const before=x.opponent.active.energies.cards.length;
     assert.equal(before,1);
     x.store.dispatch(new PlayCardAction(x.owner.id,0,{
@@ -88,11 +88,11 @@ test('pinned Team Flare Grunt target and Supporter quota are genuine native gate
   for(const seat of [0,1]){
     const x=root(seat);
     x.owner.supporterTurn=1;
-    assert.equal(x.supporter.canPlay(x.store,x.state),false);
+    assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),false);
     x.owner.supporterTurn=0;
-    assert.equal(x.supporter.canPlay(x.store,x.state),true);
+    assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),true);
     x.opponent.active.energies.cards=[];
     x.opponent.active.cards=x.opponent.active.cards.filter(c=>c!==x.energy);
-    assert.equal(x.supporter.canPlay(x.store,x.state),false);
+    assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),false);
   }
 });
