@@ -176,6 +176,9 @@ function withActorOwnerSingleSearch(execute,deps={}){
   const attackPhaseSearchOptIn=deps.attackPhaseSearch===true||
     (deps.attackPhaseSearch===undefined&&
       process.env.AGENT37_OWNER_ATTACK_SEARCH_DEV==='true');
+  const attackPhaseEvolutionOptIn=deps.attackPhaseEvolution===true||
+    (deps.attackPhaseEvolution===undefined&&
+      process.env.AGENT37_OWNER_ATTACK_EVOLUTION_DEV==='true');
   const observe=deps.observe??actorSingleSearchInput;
   const choose=deps.choose??chooseActorSingleSearch;
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
@@ -197,6 +200,11 @@ function withActorOwnerSingleSearch(execute,deps={}){
     audit.version+='+agent37-owner-authenticated-attack-phase-search-v1';
     audit.attackPhaseSearchOptIn=true;
   }
+  if(attackPhaseEvolutionOptIn){
+    audit.version+='+'+
+      require('./agent37-attack-evolution-owner-prompt.cjs').VERSION;
+    audit.attackPhaseEvolutionOptIn=true;
+  }
 
   function decode(state){
     if(state!==liveStore?.state){
@@ -204,18 +212,28 @@ function withActorOwnerSingleSearch(execute,deps={}){
       return original.value.call(this,state);
     }
     if(state.phase!==GamePhase.PLAYER_TURN&&
-        !(attackPhaseSearchOptIn&&state.phase===GamePhase.ATTACK))
+        !((attackPhaseSearchOptIn||attackPhaseEvolutionOptIn)&&
+          state.phase===GamePhase.ATTACK))
       return original.value.call(this,state);
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
     const player=state.players?.[seat];
-    const canSearch=seat>=0&&
+    const ownerPrompt=seat>=0&&
       pending?.constructor?.name==='ChooseCardsPrompt'&&
-      pending.playerId===player?.id&&
+      pending.playerId===player?.id;
+    const canSearch=ownerPrompt&&
+      (state.phase===GamePhase.PLAYER_TURN||attackPhaseSearchOptIn)&&
       SEARCH_MESSAGES.has(pending.message)&&
       (pending.cards===player.deck||pending.cards===player.hand||
         pending.cards===player.discard);
-    const input=canSearch?observe(state,seat):null;
+    const canEvolution=ownerPrompt&&attackPhaseEvolutionOptIn&&
+      state.phase===GamePhase.ATTACK&&
+      pending.message==='CHOOSE_CARD_TO_EVOLVE'&&
+      pending.cards===player.deck;
+    const input=canEvolution?
+      require('./agent37-attack-evolution-owner-prompt.cjs')
+        .actorAttackEvolutionInput(state,seat):
+      canSearch?observe(state,seat):null;
     if(!input){
       if(pending?.playerId===this.client?.id &&
           pending.constructor?.name==='ChooseCardsPrompt'){
