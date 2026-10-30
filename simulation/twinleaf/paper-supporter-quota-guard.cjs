@@ -26,18 +26,39 @@ class PaperSupporterQuotaError extends Error {
  * @param {number|string} supporterType TrainerType.SUPPORTER enum value.
  * @param {()=>T} execute Synchronous original game.
  * @param {{allowAdditionalSupporter?:(context:object)=>boolean,
+ *          enforceFirstPlayerSupporter?:boolean,
+ *          allowFirstPlayerSupporter?:(context:object)=>boolean,
  *          onViolation?:(violation:object)=>void,
  *          onLegalSupporter?:(event:object)=>void}} [options]
  * @returns {{result:T,legalSupporterRoots:object[]}}
+ */
+class PaperFirstTurnSupporterError extends Error {
+  /** @param {object} violation Exact native pre-dispatch identity. */
+  constructor(violation) {
+    super('PAPER_FIRST_TURN_SUPPORTER_VIOLATION: first player proposed '+
+      violation.card+' on global turn '+violation.turn);
+    this.name='PaperFirstTurnSupporterError';
+    this.violation=violation;
+  }
+}
+
+/**
+ * Optional first-player first-turn paper gate. When enabled, a printed
+ * exception must be authenticated by allowFirstPlayerSupporter; no card
+ * receives an inferred exception from a name substring or native canPlay.
+ * This supplements the independent ordinary once-per-turn quota veto.
  */
 function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
   assert.equal(typeof execute,'function');
   const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof before?.value,'function');
   const allow=options.allowAdditionalSupporter??(()=>false);
+  const allowFirst=options.allowFirstPlayerSupporter??(()=>false);
+  const enforceFirst=options.enforceFirstPlayerSupporter===true;
   const onViolation=options.onViolation??(()=>{});
   const onLegalSupporter=options.onLegalSupporter??(()=>{});
   assert.equal(typeof allow,'function');
+  assert.equal(typeof allowFirst,'function');
   assert.equal(typeof onViolation,'function');
   assert.equal(typeof onLegalSupporter,'function');
   let root=null,ordinal=0;
@@ -62,6 +83,19 @@ function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
         supporterZoneCountBefore:owner.supporter.cards.length,
         handCardPhysicallyPresent:owner.hand.cards.includes(card)
       };
+      // The first player's first turn is global turn 1 in the pinned Store.
+      // The exception callback must authorize the exact printed card;
+      // engine canPlay alone is insufficient to establish a paper exception.
+      if(enforceFirst&&state.turn===1&&
+          state.activePlayer===state.players.indexOf(owner)&&
+          !allowFirst(context)) {
+        const violation={...details,
+          reason:'first-player-ordinary-supporter',
+          proposedAction:'PlayCardAction',
+          rejectedBeforeNativeDispatch:true};
+        onViolation(violation);
+        throw new PaperFirstTurnSupporterError(violation);
+      }
       if(owner.supporterTurn>=1&&!allow(context)) {
         const violation={...details,proposedAction:'PlayCardAction',
           rejectedBeforeNativeDispatch:true};
@@ -84,4 +118,5 @@ function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
   }
 }
 
-module.exports={PaperSupporterQuotaError,withPaperSupporterQuotaGuard};
+module.exports={PaperSupporterQuotaError,PaperFirstTurnSupporterError,
+  withPaperSupporterQuotaGuard};
