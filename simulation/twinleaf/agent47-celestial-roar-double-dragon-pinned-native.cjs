@@ -11,7 +11,6 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 const DD='Double Dragon Energy ROS';
 const G='Grass Energy MEE';
-const F='Fire Energy MEE';
 
 /** Staged same-printed-60 owner, one paid native Celestial Roar. */
 function runOne(seat,scenario,paperCorrected=false){
@@ -86,8 +85,22 @@ function runOne(seat,scenario,paperCorrected=false){
    'Double Dragon should remain in discard only under pinned original reducer');
  assert.equal(stillAttached.filter(name=>name===DD).length,paperCorrected?2:1,
    'Corrected Energy effect must attach the original physical Special Energy');
- assertSource60Conserved(x.owner);
+ const physicalLive=[
+  ...x.owner.active.cards,...x.owner.bench.flatMap(slot=>slot.cards),
+  ...x.owner.hand.cards,...x.owner.deck.cards,...x.owner.discard.cards,
+  ...x.owner.prizes.flatMap(slot=>slot.cards),...x.owner.lostzone.cards,
+  ...x.owner.stadium.cards,...x.owner.supporter.cards
+ ];
+ const physicalSourceCardsInZones=physicalLive.length;
+ assert.equal(new Set(physicalLive.map(c=>c.id)).size,physicalLive.length);
+ // The original mixed-case reducer mutates temp.cards during forEach,
+ // skipping one non-Energy after the Basic Energy is attached. This
+ // intentionally records the 59-card state instead of hiding a true leak.
+ const expectedLive= !paperCorrected&&scenario==='special-and-basic'?59:60;
+ assert.equal(physicalSourceCardsInZones,expectedLive,
+  'Unexpected physical-zone conservation during native Celestial Roar');
  return {seat,scenario,paperCorrected,hookAudit:hook?.audit??null,
+  physicalSourceCardsInZones,physicalCardLeak:physicalSourceCardsInZones!==60,
   stagedOriginal60:true,fixedDeckTop3:fixedSample.map(c=>c.fullName),
   nativeAttack:'Celestial Roar',nativeTarget:'Active Regidrago V SIT',
   offeredNativeBasicOnly:offered,settledAttached:stillAttached,
