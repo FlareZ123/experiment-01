@@ -29,4 +29,5 @@ jobs:
             tests/agent3-jellicent-guzma-setup-counter.test.cjs \
             tests/agent3-rank26-duallock-print-census.test.cjs \
             tests/agent3-rank26-cologne-pre-donk-access.test.cjs \
-            tests/agent3-rank26-paper-donk-witness.test.cjs
+            tests/agent3-rank26-paper-donk-witness.test.cjs \
+            tests/agent3-rank26-singleton-prize-gates.test.cjs
