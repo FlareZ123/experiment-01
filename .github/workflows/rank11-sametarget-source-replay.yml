@@ -7,12 +7,17 @@ on:
         description: Run canonical bilateral v2 source-first both-seat policy using same-target repair
         type: boolean
         default: false
+      agent38_plumeria_probe:
+        description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   source-replay:
+    if: ${{ !inputs.agent38_plumeria_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -134,3 +139,59 @@ jobs:
             agent41-rank11-source-supporter-paired.json
           if-no-files-found: warn
           retention-days: 14
+
+  agent38-plumeria-paired:
+    if: ${{ inputs.agent38_plumeria_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate canonical Plumeria precedence and paired census
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute four historical source-first original-60 OFF control arms
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent38-plumeria-off.json
+      - name: Execute same four historical source-first original-60 ON intervention arms
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+          AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent38-plumeria-on.json
+      - name: Audit all eight observed or failed native arms without winner inference
+        run: |
+          node scripts/agent38-plumeria-paired-census.cjs agent38-plumeria-off.json agent38-plumeria-on.json > agent38-plumeria-census.json
+          node -e "const x=require('./agent38-plumeria-census.json'); console.log('AGENT38_NATIVE_PLUMERIA',JSON.stringify({attempts:x.registeredAttempts,matched:x.matchedDealAndActualStarter,audits:x.treatedAudits,unobserved:x.treatedMissingAudits,proposed:x.totalProposals,accepted:x.totalAccepted,settled:x.totalSettled,bySeat:x.bySeat,competitiveGames:0}));"
+      - name: Retain complete source-first paired Plumeria evidence and all failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent38-plumeria-canonical-sourcefirst-paired
+          path: |
+            agent38-plumeria-off.json
+            agent38-plumeria-on.json
+            agent38-plumeria-census.json
+          if-no-files-found: warn
+          retention-days: 30
