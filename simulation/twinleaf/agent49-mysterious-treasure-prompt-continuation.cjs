@@ -25,6 +25,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   const Store=deps.Store??native('game/store/store').Store;
   const ResolvePromptAction=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
+  const GameMessage=deps.GameMessage??native('game/game-message').GameMessage;
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseTreasureRootIntent;
   const getCatalog=deps.getCatalog??(()=>{
@@ -45,6 +46,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     physicalCostDiscards:0,physicalTargetRetrievals:0,
     missingPhysicalTargets:0,unplannedPrompts:0,
     failedOrRejectedReplies:0,completedPhysicalChains:0,
+    nativeItemFinalized:0,postSearchDisplayPending:0,
     bySeat:{0:0,1:0},receipts:[],competitiveQualifiedGames:0};
 
   function log(data){
@@ -65,11 +67,13 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     }
     const player=state.players[plan.seat];
     let selection=null,kind=null;
-    if(plan.step==='cost' && prompt.cards===player.hand){
+    if(plan.step==='cost' && prompt.cards===player.hand &&
+       prompt.message===GameMessage.CHOOSE_CARD_TO_DISCARD){
       selection=prompt.cards.cards.find(card=>
         card.fullName===plan.discardPrinting);
       kind='cost';
-    }else if(plan.step==='search' && prompt.cards===player.deck){
+    }else if(plan.step==='search' && prompt.cards===player.deck &&
+       prompt.message===GameMessage.CHOOSE_CARD_TO_HAND){
       // The owner can inspect the actual deck only inside this live prompt.
       // A Regidrago V in play prioritizes VSTAR; otherwise choose the first
       // genuinely eligible Dragon or Psychic Pokémon under native validation.
@@ -162,9 +166,17 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
           audit.completedPhysicalChains++;
           audit.bySeat[reply.seat]++;
         }
+        const open=this.state.prompts?.find(p=>p.result===undefined);
+        if(open?.constructor?.name==='ShowCardsPrompt')
+          audit.postSearchDisplayPending++;
+        if(!open&&owner.discard.cards.some(card=>card.fullName===ITEM))
+          audit.nativeItemFinalized++;
         log({kind:'native-owner-deck-hit',seat:reply.seat,
           printing:reply.choice.fullName,settled,
-          costAlreadyPhysicallyDiscarded:plan.costSettled===true});
+          costAlreadyPhysicallyDiscarded:plan.costSettled===true,
+          pendingAfterRetrieval:open?.constructor?.name??null,
+          nativeItemFinalized:!open&&owner.discard.cards.some(card=>
+            card.fullName===ITEM)});
         plans.delete(reply.ownerId);
       }
     }
