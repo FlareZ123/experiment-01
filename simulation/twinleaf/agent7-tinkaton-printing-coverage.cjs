@@ -18,9 +18,9 @@ const results=deck.cards.map(c=>{
       nativeSet:x.set,fullName:x.fullName,number:x.setNumber
     })),
     nativeOtherNames:sameName.length,
-    nativeExactCandidate:sameNameNumber.length>0};
+    nativeNameNumberCandidate:sameNameNumber.length>0};
 });
-const absent=results.filter(x=>!x.nativeExactCandidate);
+const absent=results.filter(x=>!x.nativeNameNumberCandidate);
 assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
 const report={version:'agent7-tinkaton-native-printing-coverage-v1',
   enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
