@@ -89,6 +89,16 @@ jobs:
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
       - name: Verify real pinned Store Player's Ceremony hook on both physical seats
         run: node --test tests/agent49-native-players-ceremony-store.test.cjs
+      - name: Stage public Wondrous attack-cost contrast on both actual native seats
+        run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
+      - name: Archive staged native Wondrous versus baseline action receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-wondrous-native-root-parity
+          path: agent49-wondrous-native-root-parity.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Archive all 32 original native print and resolution statuses
         if: always()
         uses: actions/upload-artifact@v4
