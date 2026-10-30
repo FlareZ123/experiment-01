@@ -35,7 +35,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify sealed source identities, metadata comparisons and failure retention
-        run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs
+        run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs tests/agent41-mysterious-treasure-root-witness.test.cjs tests/agent41-flexible-special-compact-evidence.test.cjs
       - name: Native rank10 Regidrago V Basic versus Double Dragon two-seat settlement
         if: ${{ inputs.study == 'contest' }}
         run: node --test tests/agent41-public-flexible-contest-native.test.cjs
