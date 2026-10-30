@@ -79,3 +79,24 @@ test('does not match prefix-confusable Basic names or nonmatching evolutions',()
   assert.equal(chooseHeldEvolutionBench(view,{
     ...catalog,evolutions:wrong},first),null);
 });
+
+const {chooseActorRootIntent}=require(
+  '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+
+test('real shared actor-root selector preserves default and changes only the opt-in',()=>{
+  const {view,catalog,first}=fixture();
+  assert.deepEqual(chooseActorRootIntent(view,catalog,{}),first);
+  const changed=chooseActorRootIntent(view,catalog,{lastBenchHeldEvolution:true});
+  assert.deepEqual(changed,{kind:'bench-basic',handIndex:1,
+    benchIndex:4,printing:V});
+  assert.deepEqual(chooseActorRootIntent(view,catalog,{}),first);
+});
+
+test('shared policy opt-in leaves no-conflict root unchanged',()=>{
+  const {view,catalog}=fixture();
+  const single={...view,ownHand:[D]};
+  const expected={kind:'bench-basic',handIndex:0,benchIndex:4,printing:D};
+  assert.deepEqual(chooseActorRootIntent(single,catalog,{}),expected);
+  assert.deepEqual(chooseActorRootIntent(single,catalog,
+    {lastBenchHeldEvolution:true}),expected);
+});
