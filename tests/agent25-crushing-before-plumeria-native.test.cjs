@@ -53,3 +53,76 @@ test('missing native root cannot manufacture a settled Hammer claim',()=>{
   assert.equal(rows[0].plumeriaAccepted,null);
   assert.equal(rows[0].qualified,false);
 });
+
+test('native T3 probe is passive, owner-visible and reversibly installed',()=>{
+  const {withSourceT3CrushingProbe} =
+    require('../simulation/evaluation/agent25-crushing-before-plumeria-native.cjs');
+  class PlayCardAction {constructor(handIndex){this.handIndex=handIndex;}}
+  class AddPlayerAction {}
+  class FakeAi {
+    constructor(){this.client={id:'source'};}
+    decodeNextAction(){return new PlayCardAction(1);}
+  }
+  class FakeStore {
+    constructor(state){this.state=state;}
+    dispatch(action){return action.constructor.name;}
+  }
+  const owner={id:'source',hand:{cards:[
+    {fullName:'Crushing Hammer POR',canPlay(){return true;}},
+    {fullName:'Plumeria BUS'},
+    {fullName:'Enhanced Hammer TWM'}
+  ]}};
+  const opponent={id:'opponent',active:{
+    getPokemonCard(){return {fullName:'Lillie\'s Clefairy ex JTG'};},
+    energies:{cards:[{fullName:'Psychic Energy MEE'}]}
+  },bench:[]};
+  const state={players:[owner,opponent],activePlayer:0,turn:3,prompts:[]};
+  const oldDecode=FakeAi.prototype.decodeNextAction;
+  const oldDispatch=FakeStore.prototype.dispatch;
+  let chosen;
+  const wrapped=withSourceT3CrushingProbe(()=>{
+    const store=new FakeStore(state),actor=new FakeAi();
+    assert.equal(store.dispatch(new AddPlayerAction()),'AddPlayerAction');
+    chosen=actor.decodeNextAction(state);
+    return 'unchanged-result';
+  },{Ai:FakeAi,Store:FakeStore});
+  assert.equal(wrapped.result,'unchanged-result');
+  assert.equal(chosen.handIndex,1);
+  assert.equal(wrapped.audit.observed.length,1);
+  const root=wrapped.audit.observed[0];
+  assert.equal(root.chosenCard,'Plumeria BUS');
+  assert.equal(root.crushingHeldCopies,1);
+  assert.equal(root.enhancedHeldCopies,1);
+  assert.equal(root.nativeCanPlayCrushing,true);
+  assert.deepEqual(root.opponentVisibleEnergy,[{
+    pokemon:'Lillie\'s Clefairy ex JTG',
+    energies:['Psychic Energy MEE']
+  }]);
+  assert.strictEqual(FakeAi.prototype.decodeNextAction,oldDecode);
+  assert.strictEqual(FakeStore.prototype.dispatch,oldDispatch);
+});
+
+test('native probe refuses nonlive/synthetic wrong-player roots',()=>{
+  const {withSourceT3CrushingProbe} =
+    require('../simulation/evaluation/agent25-crushing-before-plumeria-native.cjs');
+  class PlayCardAction {constructor(handIndex){this.handIndex=handIndex;}}
+  class AddPlayerAction {}
+  class FakeAi {
+    constructor(){this.client={id:'source'};}
+    decodeNextAction(){return new PlayCardAction(1);}
+  }
+  class FakeStore {
+    constructor(state){this.state=state;}
+    dispatch(action){return action.constructor.name;}
+  }
+  const state={players:[{id:'source',hand:{cards:[
+    {fullName:'Crushing Hammer POR',canPlay(){throw Error('must not run');}},
+    {fullName:'Plumeria BUS'}
+  ]}},{id:'opponent'}],activePlayer:1,turn:3,prompts:[]};
+  const observed=withSourceT3CrushingProbe(()=>{
+    const store=new FakeStore(state),actor=new FakeAi();
+    store.dispatch(new AddPlayerAction());
+    actor.decodeNextAction(state);
+  },{Ai:FakeAi,Store:FakeStore});
+  assert.deepEqual(observed.audit.observed,[]);
+});
