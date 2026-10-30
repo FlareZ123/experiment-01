@@ -62,10 +62,10 @@ physical Energy when the mandatory prompt demanded more.
 1. Rank 11, seed **1847000101**, rank-20 source seat **1**:
    prompt **38**, native requirement `min=3,max=3`,
    **3** eligible Energy from source zone `other`, one permitted
-   Benched **Regidrago V** recipient, but **1** selected Fire Energy.
+   **Active Regidrago V** recipient, but **1** selected Fire Energy.
 2. Rank 11, seed **1847000105**, source seat **1**:
    prompt **76**, `min=2,max=2`, **2** eligible from 3 source
-   cards, again Benched **Regidrago V**, but only **1** selected
+   cards, again **Active Regidrago V**, but only **1** selected
    Grass Energy.
 
 This is a genuine common-policy prompt-count failure, rather than
@@ -84,8 +84,12 @@ mandates two or three. Rank-20's printed Regidrago V Celestial Roar
 discards the top three cards and attaches any discarded Energy to itself,
 consistent with both failed temporary-card-source geometries; the raw
 census lacks a captured origin-card receipt, so that attribution
-remains **plausible rather than native-confirmed**. It must remain an explicit abort in the original
-frozen record. The repair path is the
+remains **plausible rather than native-confirmed**. The pinned
+[Regidrago V reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/regidrago-v.ts)
+creates exactly such an Active-only, temporary-three-card Energy prompt.
+The pinned [target enums](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/actions/play-card-action.ts)
+confirm native slot `1` denotes the Active Spot. The original aborts remain
+explicit in the original frozen record. The repair path is the
 [bounded opt-in native resolver](../../simulation/twinleaf/agent47-minimum-attach-energy-hook.cjs)
 and [original-deal forensic replay](../../simulation/twinleaf/agent47-rank20-minrepair-replay.cjs).
 The pure tests cover the two mandatory geometries, rejection constraints,
