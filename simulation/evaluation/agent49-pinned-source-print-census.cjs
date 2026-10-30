@@ -4,8 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {randomUUID} = require('node:crypto');
 const {reportCoverage} = require('../twinleaf/card-coverage.cjs');
+const {initializeCards} = require('../twinleaf/headless.cjs');
 const {planAichi} = require('./aichi-pilot.cjs');
-const {auditSourcePrintings,VERSION} =
+const {auditSourcePrintings,auditNativeIdRoundTrips,VERSION} =
   require('./agent49-native-print-release-gate.cjs');
 
 const OUTPUT_PATH = path.resolve(process.cwd(),
@@ -46,6 +47,9 @@ function main() {
     allowJapanesePromoHooks:true
   });
   const audit = auditSourcePrintings(manifest, coverage, plan);
+  const manager = initializeCards();
+  const nativeRoundTrips = auditNativeIdRoundTrips(audit,
+    nativeId => manager.getCardByName(nativeId));
   const blocked = audit.ranks.filter(rank =>
     rank.status === 'NATIVE_PRINT_OR_DECK_RESOLUTION_BLOCKED');
   const printingCounts = {};
@@ -84,6 +88,7 @@ function main() {
     ownerPolicyCertified:false,
     competitiveQualifiedGames:0,
     completeField:false,
+    nativeRoundTrips,
     audit
   };
   writeAtomicLocked(OUTPUT_PATH, JSON.stringify(current, null, 2)+'\n');
@@ -93,6 +98,9 @@ function main() {
     published:current.sourceListings,
     missing:current.missingRanks,
     exactNativeIdRanks:current.exactNativeIdRanks,
+    nativeRoundTripRows:current.nativeRoundTrips.expected,
+    nativeRoundTripsConfirmed:current.nativeRoundTrips.confirmed,
+    nativeIdMismatches:current.nativeRoundTrips.blocked.slice(0,16),
     blockedRanks:current.blockedRanks.map(x=>x.rank),
     rank15:current.rank15RelevantOriginalPrints,
     statuses:current.originalPrintedCopyStatuses,
