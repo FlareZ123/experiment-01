@@ -105,3 +105,35 @@ test('offer order is invariant to forbidden opponent-private and deck-order data
   assert.deepEqual(enumerateConservativeShuffleSupporterOffers(a),
     enumerateConservativeShuffleSupporterOffers(b));
 });
+
+test('Marnie and Iono draw condition fails if neither remaining hand has a card',()=>{
+  const empty=view(['Iono PAL'],{
+    opponentPublic:{handCount:0,deckCount:30,prizeCount:2}
+  });
+  assert.deepEqual(printedShuffleDrawCounts(empty,'iono'),
+    {ownDraw:0,opponentDraw:0});
+  assert.deepEqual(printedShuffleDrawCounts(empty,'marnie'),
+    {ownDraw:0,opponentDraw:0});
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(empty),[]);
+  assert.equal(chooseConservativeShuffleSupporter(empty),null);
+});
+
+test('an opponent card or another owner hand card activates printed conditional draw',()=>{
+  const oppHasCard=view(['Iono PAL'],{
+    opponentPublic:{handCount:1,deckCount:30,prizeCount:2}
+  });
+  assert.deepEqual(printedShuffleDrawCounts(oppHasCard,'iono'),
+    {ownDraw:6,opponentDraw:2});
+  const ownerHasExtra=view(['Iono PAL','Ultra Ball SVI'],{
+    opponentPublic:{handCount:0,deckCount:30,prizeCount:2}
+  });
+  assert.deepEqual(printedShuffleDrawCounts(ownerHasExtra,'iono'),
+    {ownDraw:6,opponentDraw:2});
+  assert.deepEqual(printedShuffleDrawCounts(ownerHasExtra,'marnie'),
+    {ownDraw:5,opponentDraw:4});
+  const lillieOnly=view(["Lillie's Determination M1L"],{
+    opponentPublic:{handCount:0,deckCount:30,prizeCount:2}
+  });
+  assert.deepEqual(printedShuffleDrawCounts(lillieOnly,'lillie'),
+    {ownDraw:8,opponentDraw:0});
+});
