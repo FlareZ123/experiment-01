@@ -4,6 +4,7 @@ const path=require('node:path');
 const {runMatch,initializeCards}=require('./headless.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {actorObservation}=require('./actor-observation-contract.cjs');
+const {withNumericShuffleValidator}=require('./agent22-numeric-shuffle-validation-hook.cjs');
 const {sparseObservedOwnerSearch,withSparseActorOwnerSearch}=
   require('./agent22-sparse-owner-search-adapter.cjs');
 
@@ -37,10 +38,10 @@ function run(){
     for(const policy of ['lexical-control','scored-opt-in']){
       let result=null,error=null,search=null;
       try{
-        const w=withSparseActorOwnerSearch(()=>runMatch(request),{
+        const w=withNumericShuffleValidator(()=>withSparseActorOwnerSearch(()=>runMatch(request),{
           observe:(state,seat)=>seat===sourceSeat?
             sparseObservedOwnerSearch(state,seat,actorObservation,
-              policy==='scored-opt-in'?scoreBundle:null):null});
+              policy==='scored-opt-in'?scoreBundle:null):null}));
         const g=w.result;
         result={deal:g.initialSourceDealFingerprint?.digestSha256??null,
           deckHashes:g.deckHashes,firstTurnSlot:g.firstTurnSlot,
@@ -48,7 +49,8 @@ function run(){
           endReason:g.endReason,prizesRemaining:g.prizesRemaining};
         search={accepted:w.audit.bySeat[sourceSeat],
           postconditions:w.audit.nativePromptPostconditionsConfirmed,
-          selections:w.audit.boundedSelections};
+          selections:w.audit.boundedSelections,
+          numericShuffleValidationHook:true};
       }catch(e){error=String(e?.stack??e);}
       pair.branches.push({policy,result,error,search});
     }
