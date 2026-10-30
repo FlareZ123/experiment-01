@@ -362,7 +362,7 @@ function executeDevelopment(trial,candidates,{
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
-  nativePublicMulliganRevealsAudit=false,
+  nativePublicMulliganRevealsAudit=false,physicalZoneGate=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -401,6 +401,10 @@ function executeDevelopment(trial,candidates,{
     seed:trial.seed,maxActions:registration.maxRootActions,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
+    // Optional both-seat release gate: native Store must retain all physical
+    // sixty cards after every settled root. Leave historical fixtures unchanged.
+    capturePhysicalZoneIntegrity:physicalZoneGate,
+    enforceSettledPhysicalZoneIntegrity:physicalZoneGate,
     // Shared v2 mechanical integration: intercept every actual actor's
     // owner-visible Trainer/Energy hand-play lock at final root dispatch.
     // This changes the retrospective policy version, never the historical v1
@@ -714,6 +718,8 @@ function executeDevelopment(trial,candidates,{
     game.decisionTrace,candidateSeat);
   return {
     trial,qualifiesForCompetitiveInference:false,
+    physicalZoneQualification:require('./physical-zone-qualification.cjs')
+      .classifyPhysicalZoneEvidence({requested:physicalZoneGate,game}),
     rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
     rank11SourceSupporterRescueAudit:sourceSupporterRescueAudit,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
@@ -908,7 +914,7 @@ function runDevelopment({
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
-  nativePublicMulliganRevealsAudit=false,
+  nativePublicMulliganRevealsAudit=false,physicalZoneGate=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -1008,6 +1014,7 @@ function runDevelopment({
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
+        physicalZoneGate,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,
@@ -1107,7 +1114,11 @@ function runDevelopment({
         require('../twinleaf/native-dispatch-abort-evidence.cjs')
           .publicNativeAbortError(error);
       rows.push({
-        trial,status:classifyNativeAbort(veto),
+        trial,status:error?.code===
+          require('./physical-zone-qualification.cjs').INVALID_CODE?
+          'engine-physical-invalid':classifyNativeAbort(veto),
+        physicalZoneQualification:require('./physical-zone-qualification.cjs')
+          .classifyPhysicalZoneEvidence({requested:physicalZoneGate,error}),
         error:archivedError,
         nativeStoreCauseStack,
         ...(error?.nativePublicRootArchive??{}),
@@ -1192,6 +1203,9 @@ function runDevelopment({
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
     nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
+    physicalZoneGateOptIn:physicalZoneGate,
+    physicalZoneQualificationSummary:require('./physical-zone-qualification.cjs')
+      .summarizePhysicalQualification(rows),
     proposalStateAuditOptIn:proposalStateAudit,
     nativeProposalValidationAuditOptIn:nativeProposalValidationAudit,
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
@@ -1256,7 +1270,8 @@ function runDevelopment({
         comparativeStrengthQualified:false
       };
     }),
-    errors:rows.filter(r=>r.status==='engine-error').length,
+    errors:rows.filter(r=>['engine-error','engine-physical-invalid']
+      .includes(r.status)).length,
     paperSupporterQuotaVetoes:rows.filter(r=>
       r.status==='paper-supporter-quota-veto').length,
     competitiveQualifiedGames:0,winRateCertified:false
@@ -1289,6 +1304,7 @@ if(require.main===module){
       process.env.AGENT31_NATIVE_SETUP_COMPENSATION_DEV==='true',
     nativePublicMulliganRevealsAudit:
       process.env.AGENT31_NATIVE_PUBLIC_MULLIGAN_DEV==='true',
+    physicalZoneGate:process.env.AGENT24_PHYSICAL_ZONE_GATE_DEV==='true',
     proposalStateAudit:process.env.AGENT22_PROPOSAL_STATE_AUDIT==='true',
     nativeProposalValidationAudit:
       process.env.AGENT41_NATIVE_PROPOSAL_VALIDATION_DEV==='true',
