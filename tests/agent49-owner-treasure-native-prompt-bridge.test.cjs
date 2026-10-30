@@ -32,9 +32,16 @@ for(const seat of [0,1]){
     x.state.turn=3;
     const beforeBot=SimpleTacticsAi.prototype.decodeNextAction;
     const beforeStore=Store.prototype.dispatch;
+    const trace=[];
     const {audit}=withOwnerTreasurePromptContinuation(()=>{
       x.store.dispatch(new PlayCardAction(x.owner.id,0,{
         player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+      const armed=trace.find(v=>v.phase==='live-item-acceptance');
+      assert.ok(armed,'No native owner Item arming: '+JSON.stringify(trace));
+      assert.equal(armed.plannedKind,'play-mysterious-treasure',
+        JSON.stringify(trace));
+      assert.equal(armed.consumed,true);
+      assert.equal(armed.hasOwnerPrompt,true);
       const first=x.state.prompts.find(p=>p.result===undefined);
       assert.equal(first?.constructor?.name,'ChooseCardsPrompt');
       assert.strictEqual(first.cards,x.owner.hand);
@@ -53,7 +60,7 @@ for(const seat of [0,1]){
       assert.equal(secondAction.id,second.id);
       x.store.dispatch(secondAction);
       return x.state;
-    },{initialLiveStore:x.store});
+    },{initialLiveStore:x.store,trace:event=>trace.push(event)});
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,beforeBot);
     assert.strictEqual(Store.prototype.dispatch,beforeStore);
     assert.equal(audit.observedAcceptedItemRoots,1);
