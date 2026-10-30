@@ -7,6 +7,10 @@ on:
         description: Run canonical bilateral v2 source-first both-seat policy using same-target repair
         type: boolean
         default: false
+      agent41_bilateral_special_probe:
+        description: 'Run four same-original-source-first baseline and both-seat Special Energy root arms'
+        type: boolean
+        default: false
       agent38_plumeria_probe:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
@@ -25,7 +29,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 }}
+    if: ${{ !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -266,5 +270,55 @@ jobs:
             agent38-prior32-control.json
             agent38-prior32-plumeria.json
             agent38-prior32-native-pairs.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent41-bilateral-special:
+    if: ${{ inputs.agent41_bilateral_special_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    env:
+      AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+      AGENT41_PAPER_SUPPORTER_DEV: 'true'
+      AGENT41_MANDATORY_OPTION_DEV: 'true'
+      AGENT41_NATIVE_PRESSURE_DEV: 'true'
+      AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+      AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned engine submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify bilateral profile, default hold and failure-inclusive audit
+        run: node --test tests/agent41-bilateral-special-energy-profile.test.cjs tests/agent41-bilateral-special-energy-native-audit.test.cjs
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Four frozen original-source-first native baseline arms
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-special-control.json
+      - name: Same four native starts under both-seat Special Energy root
+        env:
+          AGENT41_BILATERAL_SPECIAL_ENERGY_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-special-bilateral.json
+      - name: Audit every pair and distinguish native accepted from proposed
+        run: |
+          node scripts/agent41-bilateral-special-energy-native-audit.cjs agent41-special-control.json agent41-special-bilateral.json > agent41-special-audit.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-special-audit.json');a.equal(r.totalNativeArms,8);a.equal(r.competitiveQualifiedGames,0);console.log('BILATERAL_SPECIAL_NATIVE',JSON.stringify({matched:r.matchedStarts,fullPhysical:r.matchedFullPhysicalStarts,sourceSampledAccepted:r.sourceSampledAccepted,candidateSampledAccepted:r.candidateSampledAccepted,rows:r.rows.map(x=>({trial:x.trial,status:x.treatmentStatus,source:x.sampledSourceSpecialRoots,other:x.sampledCandidateSpecialRoots,rootSampleTruncated:x.rootAuditSampleTruncated}))}));"
+      - name: Preserve complete baseline treatment and censor/error evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-bilateral-special-sourcefirst-native
+          path: |
+            agent41-special-control.json
+            agent41-special-bilateral.json
+            agent41-special-audit.json
           if-no-files-found: warn
           retention-days: 30
