@@ -191,3 +191,40 @@ test('paid Lightning Bench under Thunder cannot displace payable attack',()=>{
   assert.strictEqual(decision.intent,first);
   assert.equal(decision.receipt.reason,'no-supported-bench-special-offer');
 });
+
+
+test('Dimension Valley lowers only one Colorless for public Psychic attacks',()=>{
+  const psychic=slot('Mewtwo','Mewtwo EX',[5,10,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const lightning=slot('Pikachu','Pikachu UPR',[5,10,10]);
+  lightning.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const x=view(psychic,[]);
+  x.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),['P','C']);
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,lightning,
+    lightning.attacks[0]),['P','C','C']);
+  assert.deepEqual(psychic.attacks[0].cost,[5,10,10]);
+});
+
+test('Dimension Valley reverses unsupported Energy-first over payable Psychic attack',()=>{
+  const psychic=slot('Mewtwo','Mewtwo EX',[5,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  psychic.energies=['Psychic Energy MEE'];
+  const x=view(psychic,['Speed Lightning Energy RCL'],
+    [null,null,null,null,null]);
+  x.globalTurn=2;
+  x.ownTurnResources={pokemonPlayLocked:false,energyPlayLocked:false,
+    specialEnergyPlayLocked:false,energyPlayedTurn:0};
+  const c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(['Psychic Energy MEE']),
+    specialConditions:{ASLEEP:-1,PARALYZED:-2}};
+  assert.equal(publicSpecialAttackPayable(x,c,psychic,psychic.attacks[0]),false);
+  assert.equal(choosePublicContextSpecialEnergy(x,c)?.kind,'attach-special-energy');
+  x.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.equal(publicSpecialAttackPayable(x,c,psychic,psychic.attacks[0]),true);
+  assert.equal(choosePublicContextSpecialEnergy(x,c),null);
+  const root=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs')
+    .chooseActorRootIntent(x,c,{publicContextSpecialEnergy:true});
+  assert.equal(root.kind,'attack');
+});
