@@ -128,11 +128,6 @@ on:
         required: false
         type: boolean
         default: false
-      hammer_after_pass:
-        description: Opt in both-actor original-Store Item Energy denial after Pass, development only
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -230,7 +225,6 @@ jobs:
         env:
           AGENT16_OWNER_ARBITRATION_CENSUS_DEV: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root && 'true' || 'false' }}
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT29_HAMMER_AFTER_PASS_DEV: ${{ inputs.hammer_after_pass && 'true' || 'false' }}
           AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
           AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
