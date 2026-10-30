@@ -227,6 +227,8 @@ function compare(a,b){
     validSha(b.candidateSixtySha256)&&
     validSha(a.sourceSixtySha256)&&
     validSha(b.sourceSixtySha256)&&
+    a.candidateSixtySha256===b.candidateSixtySha256&&
+    a.sourceSixtySha256===b.sourceSixtySha256&&
     a.engine==='twinleafgg/'+enginePin&&a.engine===b.engine;
   const before=matching?a.rootActionLedger:null,
         after=matching?b.rootActionLedger:null;
