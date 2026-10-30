@@ -137,3 +137,27 @@ test('pinned engine space-delimited GX and EX aliases retain exact public Rule B
   assert.equal(visiblePrintedProfile(exact,'Dedenne GX UNB').isPokemonGX,false,
     'Exact public printing identity must take priority over any alias');
 });
+
+
+test('all 29 registered original GX and EX printed names preserve profile under space aliases',()=>{
+  const index=buildPublicPokemonProfileIndex(ROOT);
+  let checked=0,recognized=0;
+  for(const deck of SOURCE.decks){
+    for(const card of deck.cards.filter(c=>c.category==='Pokémon'&&
+      /-(?:GX|EX)$/.test(c.name))){
+      const exactName=card.name+' '+card.printing.set;
+      const aliasName=card.name.replace(/-(GX|EX)$/,' $1')+' '+
+        card.printing.set;
+      const exact=visiblePrintedProfile(index,exactName);
+      const alias=visiblePrintedProfile(index,aliasName);
+      assert.deepEqual(alias,exact,
+        'Public GX/EX alias differs from exact printing at rank '+deck.rank+
+        ': '+exactName);
+      if(exact!==null)recognized++;
+      checked++;
+    }
+  }
+  assert.ok(checked>40,'Original benchmark GX/EX catalog unexpectedly sparse');
+  assert.ok(recognized>40,
+    'Original benchmark canonical GX/EX profile coverage unexpectedly sparse');
+});
