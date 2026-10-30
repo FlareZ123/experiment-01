@@ -97,3 +97,36 @@ test('spent owner VSTAR Seal Stone no longer blocks Path opportunity',()=>{
  assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
    'play-path-to-peak');
 });
+
+test('native Rule Box catalog uses engine hasRuleBox rather than false heuristic tag',()=>{
+  // A printed historical tag is not sufficient: the pinned Card.hasRuleBox
+  // decides current Rule Box status, and GX/VMAX names are not identifiers.
+  const {buildActorCardCatalog}=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  class PokemonCard {
+    constructor(name,ruleBox,withAbility){
+      this.fullName=name;this.name=name;
+      this.stage='BASIC';this.tags=['Lv.X'];this.powers=withAbility?
+        [{powerType:'ABILITY',name:'Printed Ability'}]:[];
+      this.ruleBox=ruleBox;this.attacks=[];this.cardType=[];
+    }
+    hasRuleBox(){return this.ruleBox;}
+  }
+  class EnergyCard {}
+  const all=[
+    new PokemonCard('Historical Leveller UNL',false,true),
+    new PokemonCard('Exact Rule Box ex CRE',true,true),
+    new PokemonCard('Rule Box Attacker CRE',true,false)
+  ];
+  const c=buildActorCardCatalog(all,{
+    PokemonCard,EnergyCard,Stage:{BASIC:'BASIC',STAGE_1:'1',
+      STAGE_2:'2',VMAX:'VMAX',VSTAR:'VSTAR'},
+    EnergyType:{BASIC:'BASIC',SPECIAL:'SPECIAL'},
+    CardType:{DRAGON:'DRAGON'},PowerType:{ABILITY:'ABILITY'},
+    SpecialCondition:{ASLEEP:-1,PARALYZED:-2}
+  });
+  assert.equal(c.ruleboxPokemonPrintings.has('Historical Leveller UNL'),false);
+  assert.equal(c.ruleboxAbilityPrintings.has('Historical Leveller UNL'),false);
+  assert.equal(c.ruleboxAbilityPrintings.has('Exact Rule Box ex CRE'),true);
+  assert.equal(c.ruleboxPokemonPrintings.has('Rule Box Attacker CRE'),true);
+  assert.equal(c.ruleboxAbilityPrintings.has('Rule Box Attacker CRE'),false);
+});

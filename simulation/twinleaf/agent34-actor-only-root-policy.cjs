@@ -55,16 +55,13 @@ function buildActorCardCatalog(all,types){
         power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
     // Only inspect the publicly printed set of rule-box card identities and
     // Ability definitions. The owner's and opponent's unknown decks stay out.
+    // Defer Rule Box identity to pinned PokémonCard.hasRuleBox(), whose
+    // logic distinguishes current ex from older ex and handles actual
+    // grouped Pokémon V/GX/radiant/Prism tags. Literal tag heuristics drift.
     ruleboxPokemonPrintings:new Set(all.filter(c=>
-      c instanceof PokemonCard&&Array.isArray(c.tags)&&
-      c.tags.some(tag=>['EX','GX','V','VMAX','VSTAR','V-UNION',
-        'ex','Radiant','Prism Star','Lv.X','Break','Mega EX']
-        .includes(tag))).map(c=>c.fullName)),
+      c instanceof PokemonCard&&c.hasRuleBox()).map(c=>c.fullName)),
     ruleboxAbilityPrintings:new Set(all.filter(c=>
-      c instanceof PokemonCard&&Array.isArray(c.tags)&&
-      c.tags.some(tag=>['EX','GX','V','VMAX','VSTAR','V-UNION',
-        'ex','Radiant','Prism Star','Lv.X','Break','Mega EX']
-        .includes(tag))&&
+      c instanceof PokemonCard&&c.hasRuleBox()&&
       c.powers.some(power=>power.powerType===PowerType.ABILITY))
       .map(c=>c.fullName)),
     basicNames:new Map(all.filter(c=>c instanceof PokemonCard&&

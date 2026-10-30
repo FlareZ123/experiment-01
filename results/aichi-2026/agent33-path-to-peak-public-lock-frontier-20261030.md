@@ -75,3 +75,22 @@ spent opponent Power, and spent owner Power. This is **state-dependent
 ability access**, with the actual Store power suppression still requiring
 independent compiled native verification. Tool-granted abilities other
 than those two and future setup changes remain unmodeled.
+
+## Native Rule Box identity instead of a speculative tag whitelist
+
+A direct read of the **pinned** Twinleaf `Card.hasRuleBox()` revealed
+that the first version's manually selected literal `tags` list
+classified some historical metadata as Rule Boxes even when the
+engine's own predicate would disagree. In particular, `Lv.X` is
+not sufficient in `hasRuleBox()`, and the semantics of older `ex`
+depend on generation and regulation metadata. The public card
+catalog now calls `PokemonCard.hasRuleBox()` directly, applying
+the same native criterion in both printed Ability and Tool-granted
+Power branches. This prevents false Path targets and inadvertent
+self-lock proposals caused by inconsistent Rule Box vocabularies.
+A synthetic native-method regression checks that the literal
+`Lv.X` tag cannot override the card's own rulebox decision,
+while true/false Rule Box cards with/without printed Ability are
+separated appropriately. This change remains a **policy catalog
+consistency correction**, not an independent paper-legality or
+competitive-effect proof.
