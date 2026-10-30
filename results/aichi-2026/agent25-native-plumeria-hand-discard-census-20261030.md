@@ -11,7 +11,7 @@ The independent [joiner](../../simulation/evaluation/agent25-plumeria-native-han
 1. Exactly one **accepted original Store Plumeria root** in the root ledger, matching real actor seat and global turn.
 2. Exactly one native **2-of-2 ChooseCardsPrompt selection** after that root, and one later **1-of-1 ChooseCardsPrompt selection** for opposing Energy on the same owner turn.
 3. Exactly one original Plumeria audit **settled Energy-discard effect** on that turn, agreeing with the one-card Energy printing and independently reporting **two owner-hand discards**.
-4. Strict root -> hand-choice -> Energy-choice action ordinals.
+4. Strict root -> hand-choice -> Energy-choice action ordinals **and** both prompt actions' original native `initiatingRootActionOrdinal` pointing to the exact same accepted Plumeria root. An independent replay check confirmed this lineage for all 27 chains.
 
 All **27 of 27 accepted rank-6 Plumeria roots** matched these four conditions with no missing, extra or conflicting prompts. The original prompt observer marks the source zone `unclassified`, so a per-physical-object discard-zone link is not available. The original Plumeria-native audit independently confirms two owner-hand cards were discarded and one opposing attached Energy was discarded. This is stronger than a proposed action or a root-label match, while retaining that specific provenance limitation.
 
@@ -58,7 +58,7 @@ For a genuine Enhanced Hammer/Plumeria direct contention test, the next original
 ## Reproduction and limitations
 
 - The [pure joiner](../../simulation/evaluation/agent25-plumeria-native-hand-cost.cjs) accepts the untouched parsed treatment JSON (`auditPlumeriaHandCosts(archive)`), returns all 27 trial/turn/seat/ordinal/printing records, aggregates costs, and fails closed on ambiguous joins.
-- [Five local fail-closed tests](../../tests/agent25-plumeria-native-hand-cost.test.cjs) passed under Node 22, covering successful joins, missing/duplicate prompts, wrong Energy target, seat and root mismatch, and impossible ordinal ordering. No new CI execution is asserted.
+- [Six local fail-closed tests](../../tests/agent25-plumeria-native-hand-cost.test.cjs) passed under Node 22, covering successful joins, missing/duplicate prompts, wrong Energy target, seat and root mismatch, impossible ordinal ordering, and prompt-to-root lineage mismatch. A manual shared benchmark CI run was dispatched, but its outcome must be checked independently.
 - Independently parsed the ZIP using Python and checked the root, two-card prompt, one-card prompt, and effect counts for **all 27** before implementing the JavaScript joiner. The program then reproduced 27/54/7 and the full distribution on the actual extracted 17 MB treatment JSON.
 - The 16 game arms share the prior registered seeds and source/candidate testing conditions and are **correlated**, so 6/27 is a descriptive intervention frequency, not a population probability. Individual selected card printings do not disclose their future strategic value; these are policy actions under unqualified bots.
 - No independent printed paper-equivalence certification, competing legal action census, human tournament-clock qualification or competitively qualified game is supplied. The project remains at **29/32 verified original final-place 60s, zero qualified games**, no proven 99.5% fixed deck.
