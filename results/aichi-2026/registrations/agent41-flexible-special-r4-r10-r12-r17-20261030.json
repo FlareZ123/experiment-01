@@ -1,0 +1,50 @@
+{
+  "schema": "agent41-original-source-flexible-special-four-rank-two-seat-paired-v1",
+  "registered_at_utc": "2026-10-30T22:40:10Z",
+  "claim": "Fresh development-only same-candidate same-opponent paired owner-root policy test, sealed before observing any outcomes",
+  "field_manifest": "results/aichi-2026/full-decklists.json",
+  "candidate": "rank-1-original-Shadow-Rider-Calyrex-fixed-60",
+  "source_ranks": [
+    4,
+    10,
+    12,
+    17
+  ],
+  "trial_seed_protocol": "Python secrets.randbits(32), one random unsigned integer for each rank and candidate seat before engine run",
+  "seeds": {
+    "4": {
+      "A": 1257272450,
+      "B": 3769638709
+    },
+    "10": {
+      "A": 165735925,
+      "B": 2973191235
+    },
+    "12": {
+      "A": 4061870497,
+      "B": 3014801923
+    },
+    "17": {
+      "A": 1334943593,
+      "B": 3198538914
+    }
+  },
+  "policies": [
+    "control: publicContextSpecialEnergy=false",
+    "treatment: publicContextSpecialEnergy=true"
+  ],
+  "bilateral_identical_owner_root": true,
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "action_cap": 260,
+  "original_source_resolution": "planAichi(1) with existing explicit documented permitted print equivalence and Japanese promo hooks; no fabricated missing lists",
+  "scope": "Four published exact original opponent sixties, both real candidate physical seats, no scripted source-only rescue",
+  "sample_size": 16,
+  "full_deal_match_required": true,
+  "first_player_match_required": true,
+  "fixed_seat_match_required": true,
+  "native_accepted_target_and_public_effect_receipts": "bounded, witness must distinguish proposals from Store dispatches and settled effects",
+  "qualified_games_expected": 0,
+  "success_hypothesis": "Some real original rank4/10/12/17 source owner root with previously overlooked Special Energy is chosen, native accepted, and yields a subsequent genuine root",
+  "null_hypothesis": "No changed originally observed root; zero-exposure can occur despite staged positive",
+  "caveats": "Bot generic fallback, source policy competence, simulation card semantics, and event clock remain unqualified; matches cannot establish paper win rates"
+}
