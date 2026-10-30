@@ -36,12 +36,46 @@ function chooseOwnerPlumeriaAfterPass(view){
  * physical-card validator and duplicate-preserving baseline.
  * @param {object} state Authentic native Store state.
  * @param {0|1} seat Acting seat.
+ * @param {{allowLargeHand?:boolean,observe?:Function}} [options] Native selection scope.
  * @returns {object[]|null}
  */
-function selectPlumeriaHandDiscards(state,seat){
+function selectPlumeriaHandDiscards(state,seat,options={}){
   const {actorHandDiscardInput,chooseActorHandDiscard,resolvePhysicalHandCards}=
     require('./agent47-actor-hand-discard.cjs');
-  const input=actorHandDiscardInput(state,seat);
+  let input=actorHandDiscardInput(state,seat);
+  if(!input&&options.allowLargeHand===true){
+    const pending=state.prompts?.find(p=>p.result===undefined);
+    const owner=state.players?.[seat],physical=pending?.cards?.cards;
+    // The generic actor47 adapter intentionally caps its exact pair menu
+    // at 18 physical cards. Widen ONLY for this held Plumeria chain and
+    // preserve the same exact-printing multiset scoring and native validator.
+    if(pending?.constructor?.name==='ChooseCardsPrompt'&&
+       pending.playerId===owner?.id&&
+       pending.message==='CHOOSE_CARD_TO_DISCARD'&&
+       pending.options?.min===2&&pending.options?.max===2&&
+       pending.options?.allowCancel===false&&
+       Array.isArray(physical)&&physical.length>18&&physical.length<=60&&
+       physical.every(c=>owner.hand.cards.includes(c)&&
+         typeof c.fullName==='string'&&c.fullName.length>0)&&
+       new Set(physical).size===physical.length){
+      const unique=new Map();
+      for(let i=0;i<physical.length;i++){
+        for(let j=i+1;j<physical.length;j++){
+          const pair=[physical[i],physical[j]];
+          if(pending.validate(pair,state)!==true)continue;
+          const names=pair.map(c=>c.fullName).sort();
+          unique.set(JSON.stringify(names),names);
+        }
+      }
+      if(unique.size>0){
+        const actor=(options.observe??actorObservation)(state,seat);
+        assert.equal(actor.decisionKind,'owner-prompt');
+        const menu=[...unique.values()].sort((a,b)=>
+          JSON.stringify(a).localeCompare(JSON.stringify(b)));
+        input={actor,prompt:{id:pending.id,requiredCount:2,menu}};
+      }
+    }
+  }
   if(!input||input.prompt.requiredCount!==2)return null;
   const intent=chooseActorHandDiscard(input);
   const pending=state.prompts.find(p=>p.id===input.prompt.id);
@@ -127,7 +161,11 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
   const GamePhase=deps.GamePhase??require(path.join(base,
     'game/store/state/state')).GamePhase;
   const observe=deps.observe??actorObservation;
-  const selectHand=deps.selectHand??selectPlumeriaHandDiscards;
+  const largeHandOptIn=deps.largeHandOptIn===true||
+    process.env.AGENT38_PLUMERIA_LARGE_HAND_DEV==='true';
+  const selectHand=deps.selectHand??((state,seat)=>
+    selectPlumeriaHandDiscards(state,seat,{
+      allowLargeHand:largeHandOptIn,observe}));
   const selectTarget=deps.selectTarget??selectPlumeriaTarget;
   const selectEnergy=deps.selectEnergy??selectPlumeriaEnergy;
   const beforeDecode=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
@@ -144,6 +182,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     settledEnergyDiscards:0,unresolvedChains:0,
     genericPromptFallbacks:0,delegatedPromptDispatches:0,
     delegatedSettledEnergyDiscards:0,
+    largeHandOptIn,largeHandNativeSelections:0,
     bySeat:{0:{accepted:0,settled:0},1:{accepted:0,settled:0}},
     log:[],actorOnlyAddedActions:true,
     anyGameCompetitivelyQualified:false,
@@ -179,9 +218,11 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
         return beforeDecode.value.call(this,state);
       }
       const action=new ResolvePromptAction(pending.id,cards);
+      const largeHand=largeHandOptIn&&stage===0&&
+        (pending.cards?.cards?.length??0)>18;
       proposals.set(action,{kind:'prompt',seat,stage,
         ownerId:owner.id,turn:state.turn,
-        promptId:pending.id,physicalCards:cards});
+        promptId:pending.id,physicalCards:cards,largeHand});
       audit.chosenPrompts++;
       return action;
     }
@@ -265,6 +306,12 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
       }else{
         if(event.delegated)audit.delegatedPromptDispatches++;
         else audit.acceptedPrompts++;
+        if(event.largeHand){
+          audit.largeHandNativeSelections++;
+          record({kind:'plumeria-large-hand-native-choice',seat:event.seat,
+            turn:event.turn,selectedPrintings:
+              event.physicalCards.map(c=>c.fullName)});
+        }
         const chain=awaiting.get(owner.id);
         assert.ok(chain&&chain.stage===event.stage,
           'Native prompt returned after its Plumeria chain changed');
