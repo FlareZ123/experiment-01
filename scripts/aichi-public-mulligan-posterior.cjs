@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {countBasics}=require('./aichi-field-mulligan-census.cjs');
+const {countBasics,EVOLUTIONS}=require('./aichi-field-mulligan-census.cjs');
 const {revealedMulliganSignature}=
   require('./aichi-mulligan-public-reveal.cjs');
 const {openingProbabilities} = require('./aichi-opening-basics.cjs');
@@ -49,7 +49,8 @@ function publicMulliganPosterior(manifest,event,targetRanks=[6,24,29]){
     const basic=countBasics(deck);
     const q=openingProbabilities(basic,60,7).initialMulliganProbability;
     const chosen= isNamed ? deck.cards.filter(card=>
-      card.category!=='Pokémon'&&card.name===event.name)
+      card.name===event.name&&(card.category!=='Pokémon'||
+        EVOLUTIONS.has(card.printing.set+'-'+card.printing.number)))
       .reduce((sum,card)=>sum+card.count,0) : 0;
     const shown=isNamed ?
       revealedMulliganSignature({basics:basic,namedNonBasics:chosen})
