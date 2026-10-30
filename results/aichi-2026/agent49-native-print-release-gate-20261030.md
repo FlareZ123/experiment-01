@@ -12,7 +12,7 @@ A separate required-fixture gate distinguishes **REQUIRED_TEST_MISSING**, **TEST
 
 **Tests:** eight of eight pure Node tests passed locally, including a simulated rank-15 skipped fixture that remains rejected even if CI completed. Tests use miniature constructed data, not native game states. New test command was appended to the existing **manual-only** `.github/workflows/aichi-benchmark-stats.yml`, with no on-push workflow.
 
-**Manual CI:** [run 41128218282](https://github.com/FlareZ123/experiment-01/actions/runs/41128218282) was dispatched at repository head `e4c970f`; inspect the final result before claiming compiled-platform success.
+**Manual CI:** [run 41128218282](https://github.com/FlareZ123/experiment-01/actions/runs/41128218282) completed **SUCCESS** at checked-out head `e4c970f`. Its `test-benchmark` job step 12, **Fail closed on skipped native printed-card fixtures before competitive release**, explicitly completed **SUCCESS**. This executes the eight pure release-gate tests on GitHub Node 22; no pinned native Store effect was run by this new test step. Other optional workflow jobs were separately skipped and are not claimed as covered.
 
 ## Explicit limitations
 
