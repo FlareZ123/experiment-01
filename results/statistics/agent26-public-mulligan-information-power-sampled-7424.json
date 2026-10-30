@@ -1,0 +1,347 @@
+{
+  "status": "sampled-public-opening-observations-only",
+  "provenance": {
+    "workflowRunId": 41002493576,
+    "jobId": 123889884900,
+    "gitCommitSha": "d003f12ae67d41fada6a9995d103b468d112ea78",
+    "workflow": "aichi-benchmark-stats.yml",
+    "manualInput": "agent26_public_history_information=true",
+    "sourceDeck": "results/aichi-2026/full-decklists.json",
+    "command": "node scripts/agent26-public-mulligan-information-power.cjs"
+  },
+  "result": {
+    "version": "agent26-public-mulligan-name-history-information-simulation-v1",
+    "seed": 20261030,
+    "samplesPerSource": 256,
+    "originalSourceCount": 29,
+    "totalSampledSetups": 7424,
+    "uniformSourcePrior": true,
+    "baseline": "exact number of failed hands only",
+    "treatment": "all seven publicly shown card names in every failed hand",
+    "summary": {
+      "attempts": 7424,
+      "meanTruePosteriorCount": 0.04251356162355842,
+      "meanTruePosteriorNames": 0.20494902656132236,
+      "mapAccuracyCount": 0.051454741379310345,
+      "mapAccuracyNames": 0.21376616379310345,
+      "meanEntropyCountBits": 4.74933935582993,
+      "meanEntropyNamesBits": 3.896052812097396
+    },
+    "strata": {
+      "noFailedSeven": {
+        "attempts": 5854,
+        "meanTruePosteriorCount": 0.03557394999761511,
+        "meanTruePosteriorNames": 0.03557394999761511,
+        "meanEntropyCountBits": 4.8313709107680864,
+        "meanEntropyNamesBits": 4.8313709107680864
+      },
+      "hasFailedSeven": {
+        "attempts": 1570,
+        "meanTruePosteriorCount": 0.06838903070524675,
+        "meanTruePosteriorNames": 0.8364915094937571,
+        "meanEntropyCountBits": 4.44347137964485,
+        "meanEntropyNamesBits": 0.4085673664790325
+      }
+    },
+    "perSource": [
+      {
+        "rank": 1,
+        "attempts": 256,
+        "failedSevenRate": 0.1484375,
+        "meanFailedSevens": 0.1875,
+        "meanTruePosteriorCount": 0.035777240560656426,
+        "meanTruePosteriorNames": 0.18040624900282048,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.1484375
+      },
+      {
+        "rank": 2,
+        "attempts": 256,
+        "failedSevenRate": 0.09375,
+        "meanFailedSevens": 0.10546875,
+        "meanTruePosteriorCount": 0.03652838587455544,
+        "meanTruePosteriorNames": 0.12386553792960679,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.08984375
+      },
+      {
+        "rank": 3,
+        "attempts": 256,
+        "failedSevenRate": 0.265625,
+        "meanFailedSevens": 0.32421875,
+        "meanTruePosteriorCount": 0.03537847435684907,
+        "meanTruePosteriorNames": 0.2894147358719216,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.265625
+      },
+      {
+        "rank": 4,
+        "attempts": 256,
+        "failedSevenRate": 0.1796875,
+        "meanFailedSevens": 0.203125,
+        "meanTruePosteriorCount": 0.0354727300884185,
+        "meanTruePosteriorNames": 0.20269130439349908,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.17578125
+      },
+      {
+        "rank": 5,
+        "attempts": 256,
+        "failedSevenRate": 0.171875,
+        "meanFailedSevens": 0.2109375,
+        "meanTruePosteriorCount": 0.03487744021546164,
+        "meanTruePosteriorNames": 0.1969304353391003,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.16796875
+      },
+      {
+        "rank": 6,
+        "attempts": 256,
+        "failedSevenRate": 0.6015625,
+        "meanFailedSevens": 1.44140625,
+        "meanTruePosteriorCount": 0.09619115397213616,
+        "meanTruePosteriorNames": 0.4697565375827646,
+        "mapAccuracyCount": 0.6015625,
+        "mapAccuracyNames": 0.5234375
+      },
+      {
+        "rank": 7,
+        "attempts": 256,
+        "failedSevenRate": 0.1953125,
+        "meanFailedSevens": 0.2421875,
+        "meanTruePosteriorCount": 0.035114841058637214,
+        "meanTruePosteriorNames": 0.22369593469316262,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.1953125
+      },
+      {
+        "rank": 8,
+        "attempts": 256,
+        "failedSevenRate": 0.2890625,
+        "meanFailedSevens": 0.3828125,
+        "meanTruePosteriorCount": 0.03605505421115399,
+        "meanTruePosteriorNames": 0.24636083209304557,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.203125
+      },
+      {
+        "rank": 9,
+        "attempts": 256,
+        "failedSevenRate": 0.2265625,
+        "meanFailedSevens": 0.30859375,
+        "meanTruePosteriorCount": 0.035028280462416704,
+        "meanTruePosteriorNames": 0.25200555128919133,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.2265625
+      },
+      {
+        "rank": 10,
+        "attempts": 256,
+        "failedSevenRate": 0.12109375,
+        "meanFailedSevens": 0.14453125,
+        "meanTruePosteriorCount": 0.036496233506119746,
+        "meanTruePosteriorNames": 0.0971284428422349,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.0625
+      },
+      {
+        "rank": 11,
+        "attempts": 256,
+        "failedSevenRate": 0.2109375,
+        "meanFailedSevens": 0.26171875,
+        "meanTruePosteriorCount": 0.035059087431258136,
+        "meanTruePosteriorNames": 0.22080455997306342,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.20703125
+      },
+      {
+        "rank": 12,
+        "attempts": 256,
+        "failedSevenRate": 0.140625,
+        "meanFailedSevens": 0.140625,
+        "meanTruePosteriorCount": 0.03650717944821487,
+        "meanTruePosteriorNames": 0.09425250383275044,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.12109375
+      },
+      {
+        "rank": 13,
+        "attempts": 256,
+        "failedSevenRate": 0.25,
+        "meanFailedSevens": 0.328125,
+        "meanTruePosteriorCount": 0.03518617411428805,
+        "meanTruePosteriorNames": 0.2089748498468623,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.21484375
+      },
+      {
+        "rank": 14,
+        "attempts": 256,
+        "failedSevenRate": 0.1484375,
+        "meanFailedSevens": 0.16796875,
+        "meanTruePosteriorCount": 0.03592540951044747,
+        "meanTruePosteriorNames": 0.10475195150750131,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.0703125
+      },
+      {
+        "rank": 15,
+        "attempts": 256,
+        "failedSevenRate": 0.1484375,
+        "meanFailedSevens": 0.16015625,
+        "meanTruePosteriorCount": 0.036022366085447226,
+        "meanTruePosteriorNames": 0.17845312400282037,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.14453125
+      },
+      {
+        "rank": 16,
+        "attempts": 256,
+        "failedSevenRate": 0.25390625,
+        "meanFailedSevens": 0.30859375,
+        "meanTruePosteriorCount": 0.03542773125195176,
+        "meanTruePosteriorNames": 0.25224998829528544,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.25
+      },
+      {
+        "rank": 17,
+        "attempts": 256,
+        "failedSevenRate": 0.16015625,
+        "meanFailedSevens": 0.1875,
+        "meanTruePosteriorCount": 0.0355294766514811,
+        "meanTruePosteriorNames": 0.18676089578598487,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.15625
+      },
+      {
+        "rank": 18,
+        "attempts": 256,
+        "failedSevenRate": 0.109375,
+        "meanFailedSevens": 0.125,
+        "meanTruePosteriorCount": 0.03708170044518932,
+        "meanTruePosteriorNames": 0.12307134266700764,
+        "mapAccuracyCount": 0.890625,
+        "mapAccuracyNames": 0.98828125
+      },
+      {
+        "rank": 19,
+        "attempts": 256,
+        "failedSevenRate": 0.09375,
+        "meanFailedSevens": 0.10546875,
+        "meanTruePosteriorCount": 0.03743910499634778,
+        "meanTruePosteriorNames": 0.12932663820992807,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.09375
+      },
+      {
+        "rank": 20,
+        "attempts": 256,
+        "failedSevenRate": 0.10546875,
+        "meanFailedSevens": 0.12890625,
+        "meanTruePosteriorCount": 0.03629539468029787,
+        "meanTruePosteriorNames": 0.09447872760117905,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.05859375
+      },
+      {
+        "rank": 21,
+        "attempts": 256,
+        "failedSevenRate": 0.1484375,
+        "meanFailedSevens": 0.17578125,
+        "meanTruePosteriorCount": 0.035838891175544604,
+        "meanTruePosteriorNames": 0.09929182817933124,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.078125
+      },
+      {
+        "rank": 22,
+        "attempts": 256,
+        "failedSevenRate": 0.1875,
+        "meanFailedSevens": 0.22265625,
+        "meanTruePosteriorCount": 0.03518333772705505,
+        "meanTruePosteriorNames": 0.16293237808627015,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.15234375
+      },
+      {
+        "rank": 24,
+        "attempts": 256,
+        "failedSevenRate": 0.60546875,
+        "meanFailedSevens": 1.4375,
+        "meanTruePosteriorCount": 0.10086016457294535,
+        "meanTruePosteriorNames": 0.583360048813933,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.6015625
+      },
+      {
+        "rank": 26,
+        "attempts": 256,
+        "failedSevenRate": 0.23046875,
+        "meanFailedSevens": 0.28515625,
+        "meanTruePosteriorCount": 0.03509508135424009,
+        "meanTruePosteriorNames": 0.2576121317211313,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.23046875
+      },
+      {
+        "rank": 27,
+        "attempts": 256,
+        "failedSevenRate": 0.0859375,
+        "meanFailedSevens": 0.09375,
+        "meanTruePosteriorCount": 0.037166157000502846,
+        "meanTruePosteriorNames": 0.07871966285108319,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.03515625
+      },
+      {
+        "rank": 29,
+        "attempts": 256,
+        "failedSevenRate": 0.58984375,
+        "meanFailedSevens": 1.4609375,
+        "meanTruePosteriorCount": 0.10192558880402408,
+        "meanTruePosteriorNames": 0.4813612106039186,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.4453125
+      },
+      {
+        "rank": 30,
+        "attempts": 256,
+        "failedSevenRate": 0.1171875,
+        "meanFailedSevens": 0.12890625,
+        "meanTruePosteriorCount": 0.03698994545012866,
+        "meanTruePosteriorNames": 0.1491509870712887,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.1171875
+      },
+      {
+        "rank": 31,
+        "attempts": 256,
+        "failedSevenRate": 0.08203125,
+        "meanFailedSevens": 0.08984375,
+        "meanTruePosteriorCount": 0.03722041330891593,
+        "meanTruePosteriorNames": 0.11733670132619198,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.08203125
+      },
+      {
+        "rank": 32,
+        "attempts": 256,
+        "failedSevenRate": 0.171875,
+        "meanFailedSevens": 0.22265625,
+        "meanTruePosteriorCount": 0.035220248768509224,
+        "meanTruePosteriorNames": 0.13837667886547078,
+        "mapAccuracyCount": 0,
+        "mapAccuracyNames": 0.09375
+      }
+    ],
+    "missing": [
+      23,
+      25,
+      28
+    ],
+    "caveat": "Synthetic publicly revealed sevens only; fixed seed, non-native setup, known-source uniform prior. No actor decisions, game outcomes or competitive strength.",
+    "fullGames": 0,
+    "competitiveQualifiedGames": 0
+  }
+}
