@@ -25,4 +25,16 @@ Conditioning a first seven on at least one Basic as above, the chance that **at 
 
 Actual Energy-denial actions depend on the opponent's attached card state. Enhanced Hammer requires Special Energy, Plumeria needs a viable two-card discard cost and a suitable target, and Crushing Hammer depends on a coin flip. Some opening cards may be spent before a later opportunity. Therefore 82% or 86% **must never be described as the probability of a native legal, beneficial or successful denial.** The source-owned live root observer should distinguish the four printed families, hand-held cards, targets, discard affordability and native action results.
 
+## A paired rank6-versus-rank1 direct-draw exposure illustration
+
+The separately published original rank-1 champion Shadow Rider Calyrex 60 contains **14 Basic Pokémon and 11 Basic Psychic Energy**. Under two independent, uniformly shuffled source decks conditioned *separately* on a Basic-valid first seven, with no mulligan bonus, search, additional draw or card spent:
+
+- The probability rank6 has at least one of its two Team Flare Grunt among its first **nine** cards (normal second own-turn observation if it went first) is `221959/857164 = 25.8945779337%`.
+- The probability rank1 has at least one of its eleven Basic Psychic Energy among its first **eight** cards (first own turn after going second) is `31953/39380 = 81.1401726765%`.
+- Independence makes their **joint raw-card exposure** exactly `7092255927/33755118320 = 21.0109052493%`.
+
+Seven independent paired **natural card-location trials**, only under these stated artificial conditions, have probability `1-(1-p)^7 = 80.8146398360%` of at least one such joint opening exposure. Seven rows sharing fewer than seven genuinely independent physical deals must never be called seven trials.
+
+This is a planning reference for how rare *simultaneously held basic source pieces* can be in a small scout. The rank1 player must actually attach Energy to their Active, the rank6 player must preserve its Team Flare Grunt until the second turn, and the applicable Supporter quota, public board and true native `canPlay` must permit the line. Actual draw/search engines and opponent-mulligan extra cards can both raise and lower the relevant event probabilities. Thus **21.01% is neither an upper bound on all genuine legal denial opportunities nor a win-rate or native-action rate**.
+
 **No archive owner-hand exposure, native accepted Team Flare Grunt, settled Energy discard, opponent reply or game-win inference is certified by this calculation.** The correct next step is a source-owned native root decision receipt plus a legal action and settled effect, using Agent 41's canonical common policy rather than a separate runner. See [Agent 8's bounded contention/target evidence report](../twinleaf/agent8-target-parity-and-source-denial-contention-20261030.md).
