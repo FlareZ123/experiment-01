@@ -179,6 +179,9 @@ function withActorOwnerSingleSearch(execute,deps={}){
   const attackPhaseEvolutionOptIn=deps.attackPhaseEvolution===true||
     (deps.attackPhaseEvolution===undefined&&
       process.env.AGENT37_OWNER_ATTACK_EVOLUTION_DEV==='true');
+  const attackPhaseRecoveryOptIn=deps.attackPhaseRecovery===true||
+    (deps.attackPhaseRecovery===undefined&&
+      process.env.AGENT37_OWNER_ATTACK_RECOVERY_DEV==='true');
   const observe=deps.observe??actorSingleSearchInput;
   const choose=deps.choose??chooseActorSingleSearch;
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
@@ -205,6 +208,11 @@ function withActorOwnerSingleSearch(execute,deps={}){
       require('./agent37-attack-evolution-owner-prompt.cjs').VERSION;
     audit.attackPhaseEvolutionOptIn=true;
   }
+  if(attackPhaseRecoveryOptIn){
+    audit.version+='+'+
+      require('./agent37-attack-recovery-owner-prompt.cjs').VERSION;
+    audit.attackPhaseRecoveryOptIn=true;
+  }
 
   function decode(state){
     if(state!==liveStore?.state){
@@ -212,8 +220,8 @@ function withActorOwnerSingleSearch(execute,deps={}){
       return original.value.call(this,state);
     }
     if(state.phase!==GamePhase.PLAYER_TURN&&
-        !((attackPhaseSearchOptIn||attackPhaseEvolutionOptIn)&&
-          state.phase===GamePhase.ATTACK))
+        !((attackPhaseSearchOptIn||attackPhaseEvolutionOptIn||
+          attackPhaseRecoveryOptIn)&&state.phase===GamePhase.ATTACK))
       return original.value.call(this,state);
     const seat=state.players?.findIndex(p=>p.id===this.client?.id)??-1;
     const pending=state.prompts?.find(p=>p.result===undefined);
@@ -230,10 +238,18 @@ function withActorOwnerSingleSearch(execute,deps={}){
       state.phase===GamePhase.ATTACK&&
       pending.message==='CHOOSE_CARD_TO_EVOLVE'&&
       pending.cards===player.deck;
+    const canRecovery=ownerPrompt&&attackPhaseRecoveryOptIn&&
+      state.phase===GamePhase.ATTACK&&
+      pending.message==='CHOOSE_CARD_TO_DECK'&&
+      pending.cards===player.discard;
     const input=canEvolution?
       require('./agent37-attack-evolution-owner-prompt.cjs')
         .actorAttackEvolutionInput(state,seat,
           deps.evolutionObserve??actorObservation):
+      canRecovery?
+        require('./agent37-attack-recovery-owner-prompt.cjs')
+          .actorAttackRecoveryInput(state,seat,
+            deps.recoveryObserve??actorObservation):
       canSearch?observe(state,seat):null;
     if(!input){
       if(pending?.playerId===this.client?.id &&
