@@ -11,27 +11,6 @@ class PaperSupporterQuotaError extends Error {
   }
 }
 
-/**
- * Reversible native-root paper legality guard. This checks real PlayCardAction
- * hand instances before dispatch, while preserving every legal original action.
- * The optional allowance must be evidence-backed for a printed exceptional
- * effect; default denies a second ordinary Supporter in the same owner turn.
- *
- * A denied root intentionally throws. Callers must record the attempted root
- * and revise their owner-visible policy instead of silently substituting a
- * favorable alternative action or counting the interrupted game as a loss.
- *
- * @template T
- * @param {Function} Store Actual pinned Store class.
- * @param {number|string} supporterType TrainerType.SUPPORTER enum value.
- * @param {()=>T} execute Synchronous original game.
- * @param {{allowAdditionalSupporter?:(context:object)=>boolean,
- *          enforceFirstPlayerSupporter?:boolean,
- *          allowFirstPlayerSupporter?:(context:object)=>boolean,
- *          onViolation?:(violation:object)=>void,
- *          onLegalSupporter?:(event:object)=>void}} [options]
- * @returns {{result:T,legalSupporterRoots:object[]}}
- */
 class PaperFirstTurnSupporterError extends Error {
   /** @param {object} violation Exact native pre-dispatch identity. */
   constructor(violation) {
@@ -43,10 +22,28 @@ class PaperFirstTurnSupporterError extends Error {
 }
 
 /**
- * Optional first-player first-turn paper gate. When enabled, a printed
- * exception must be authenticated by allowFirstPlayerSupporter; no card
- * receives an inferred exception from a name substring or native canPlay.
- * This supplements the independent ordinary once-per-turn quota veto.
+ * Reversible native-root paper legality guard. This checks real PlayCardAction
+ * hand instances before dispatch, while preserving every legal original action.
+ * The optional allowance must be evidence-backed for a printed exceptional
+ * effect; default denies a second ordinary Supporter in the same owner turn.
+ *
+ * A denied root intentionally throws. Callers must record the attempted root
+ * and revise their owner-visible policy instead of silently substituting a
+ * favorable alternative action or counting the interrupted game as a loss.
+ *
+ * Optional first-player first-turn enforcement requires an explicit
+ * printed-card exception callback, with no inferred exceptions from names.
+ *
+ * @template T
+ * @param {Function} Store Actual pinned Store class.
+ * @param {number|string} supporterType TrainerType.SUPPORTER enum value.
+ * @param {()=>T} execute Synchronous original game.
+ * @param {{allowAdditionalSupporter?:(context:object)=>boolean,
+ *          enforceFirstPlayerSupporter?:boolean,
+ *          allowFirstPlayerSupporter?:(context:object)=>boolean,
+ *          onViolation?:(violation:object)=>void,
+ *          onLegalSupporter?:(event:object)=>void}} [options]
+ * @returns {{result:T,legalSupporterRoots:object[]}}
  */
 function withPaperSupporterQuotaGuard(Store,supporterType,execute,options={}) {
   assert.equal(typeof execute,'function');
