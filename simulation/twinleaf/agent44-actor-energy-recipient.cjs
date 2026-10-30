@@ -5,8 +5,10 @@ const {remainingBasicAttachments}=
   require('./agent10-basic-energy-frontier.cjs');
 const {specialEnergyUnits}=
   require('./agent3-special-energy-frontier.cjs');
+const {effectiveNativeAttackCost}=
+  require('./agent17-public-context-special-energy.cjs');
 
-const VERSION='agent44-owner-visible-known-special-recipient-v3-public-attack-bars';
+const VERSION='agent44-owner-visible-known-special-recipient-v4-public-stadium-cost';
 const TYPES=['Grass','Fire','Water','Lightning','Psychic',
   'Fighting','Darkness','Metal','Fairy'];
 
