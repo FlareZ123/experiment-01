@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  VERSION,COUNT,schedule,observedSourceK0,
+  VERSION,COUNT,EXTENSION_START,EXTENSION_COUNT,schedule,observedSourceK0,
   withRank8AuthenticK0Observer
 }=require('../simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs');
 
@@ -44,6 +44,17 @@ test('schedule seeds and seat alternation are frozen before results',()=>{
   assert.equal(new Set(rows.map(x=>x.seed)).size,COUNT);
   assert.equal(rows[0].seed,schedule()[0].seed);
   assert.ok(rows.every(r=>r.seed>=0&&r.seed<=0xffffffff));
+});
+
+test('frozen extension has 208 disjoint deterministic source deals',()=>{
+  assert.equal(EXTENSION_START,COUNT);
+  assert.equal(EXTENSION_COUNT,208);
+  const original=schedule(0,COUNT);
+  const expanded=schedule(EXTENSION_START,EXTENSION_COUNT);
+  assert.equal(new Set([...original,...expanded].map(x=>x.seed)).size,
+    COUNT+EXTENSION_COUNT);
+  assert.equal(expanded[0].trial,'rank8-original-box-k0:48');
+  assert.equal(expanded[0].seed,schedule(48,1)[0].seed);
 });
 
 test('K0 source snapshot owns only its own hand and face-up board',()=>{
