@@ -10,10 +10,10 @@ function cell(treated){
   return {
     trial:{id:'10:A',rank:10,candidateSlot:'A',seed:165735925},
     treated,status:'native-terminal-unqualified',
-    initialFullDealSha256:'same-opaque-two-player-deal',
-    initialSourceDealSha256:'same-opaque-opponent-deal',
-    candidateSixtySha256:'same-candidate',
-    sourceSixtySha256:'same-opponent',engine:'twinleafgg/pinned',
+    initialFullDealSha256:'a'.repeat(64),
+    initialSourceDealSha256:'b'.repeat(64),
+    candidateSixtySha256:'c'.repeat(64),
+    sourceSixtySha256:'d'.repeat(64),engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     actualFirstPlayer:1,sourceSeat:1,
     rootActionLedger:[{action:'PlayCardAction',card:treated?
       'Double Dragon Energy':'Grass Energy'}],
@@ -62,7 +62,7 @@ test('same-deal evidence fails closed on absent physical hash or first-player ch
   b.actualFirstPlayer=0;
   assert.equal(compare(a,b).firstPlayerMatch,false);
   b.actualFirstPlayer=1;
-  b.candidateSixtySha256='changed-deck';
+  b.candidateSixtySha256='e'.repeat(64);
   assert.equal(compare(a,b).deckAndEngineMatch,false);
 });
 
