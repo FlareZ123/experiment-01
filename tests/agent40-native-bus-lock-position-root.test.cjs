@@ -114,3 +114,55 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+for(const seat of [0,1]){
+  test('genuine Jet to Benched BUS promotes the same active lock, seat '+seat,()=>{
+    const x=staged(seat),manager=initializeCards();
+    const jet=manager.getCardByName('Jet Energy PAL');
+    assert.ok(jet);
+    jet.id=62000+seat;
+    x.owner.hand.cards.length=0;
+    x.owner.hand.cards.push(jet);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {PassTurnAction,AttackAction}=
+      native('game/store/actions/game-actions');
+    const intent=chooseActorRootIntent(actorObservation(x.state,seat),
+      x.catalog,{busLockPositionRoot:true});
+    assert.equal(intent.kind,'attach-special-energy');
+    assert.equal(intent.printing,'Jet Energy PAL');
+    assert.equal(intent.slot,'bench');
+    assert.equal(intent.index,1);
+    const before=rootPhysicalSnapshot(x.state,seat,intent);
+    x.store.dispatch(new PlayCardAction(x.owner.id,intent.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:intent.index
+    }));
+    const after=rootPhysicalSnapshot(x.state,seat,intent);
+    assert.equal(rootPhysicalWitness(intent,before,after,x.GamePhase),
+      'confirmed-public-effect');
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Vileplume BUS');
+    assert.deepEqual(x.owner.active.energies.cards.map(c=>c.fullName),
+      ['Jet Energy PAL']);
+    assert.equal(x.owner.bench[1].getPokemonCard()?.fullName,'Bunnelby PRC');
+    assert.deepEqual(x.owner.bench[1].energies.cards.map(c=>c.fullName),
+      [GRASS], 'Jet switching retains the Bunnelby Grass Energy');
+    assert.equal(x.owner.bench[2].getPokemonCard()?.fullName,
+      'Vileplume AOR');
+    assert.equal(x.owner.retreatedTurn===x.state.turn,false,
+      'Jet switching does not spend the ordinary Retreat action');
+    x.store.dispatch(new PassTurnAction(x.owner.id));
+    assert.equal(x.state.activePlayer,1-seat);
+    let rejected=null;
+    try{x.store.dispatch(new AttackAction(x.opponent.id,
+      'Miraculous Duo-GX'));}
+    catch(error){rejected=String(error?.message??error);}
+    assert.ok(rejected,'BUS must prohibit the opposing Basic GX attack');
+    console.log('AGENT40_NATIVE_BUS_JET',JSON.stringify({
+      seat,stage:'original-source-printed-lock-state',
+      actualJetBenchSwitch:true,sourceActive:'Vileplume BUS',
+      sourceAORBench:true,retainedGrassOnBenchedBunnelby:true,
+      retreatQuotaUsed:false,opponentBasicAttackRejected:rejected,
+      competitiveQualifiedGames:0
+    }));
+  });
+}
