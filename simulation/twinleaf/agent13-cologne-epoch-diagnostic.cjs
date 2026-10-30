@@ -47,7 +47,6 @@ function main(){
   let result;
   try {result=runTwoCologneBoard();}
   finally{
-    assert.strictEqual(Store.prototype.log,Store.prototype.log);
     Store.prototype.log=old;
     restore();
   }
