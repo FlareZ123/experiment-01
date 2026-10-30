@@ -48,9 +48,9 @@ function auditBilateralEnergy(control, treatment) {
       c.actualStarterSeat === t.actualStarterSeat);
     rows.push({trial:c.trial.id,sourceSeat,
       matchedSourceDealAndStart:matched,
-      fullPhysicalMatch:Boolean(c.fullPhysicalDealFingerprint?.digestSha256 &&
-        c.fullPhysicalDealFingerprint.digestSha256 ===
-          t.fullPhysicalDealFingerprint?.digestSha256),
+      fullPhysicalMatch:Boolean(typeof c.fullPhysicalDealFingerprint === 'string' &&
+        c.fullPhysicalDealFingerprint.length === 64 &&
+        c.fullPhysicalDealFingerprint === t.fullPhysicalDealFingerprint),
       controlStatus:c.status ?? 'completed',
       treatmentStatus:t.status ?? 'completed',
       profilePresent:Boolean(profile),rootAuditPresent:Boolean(a),
