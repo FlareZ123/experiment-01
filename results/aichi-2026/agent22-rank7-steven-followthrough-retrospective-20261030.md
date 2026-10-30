@@ -47,3 +47,21 @@ The reusable observer is `simulation/twinleaf/agent22-steven-followthrough.cjs`;
 A common owner-visible chooser should couple the native-validated source search decision to a subsequent owned-root action policy that can play the fetched pieces when legal, while comparing against competing Supporter resources, lock constraints and an explicit hold/no-play line. Historical source-dealt **name-level retrieval-to-play** evidence is stronger than graph reachability alone, but still falls far short of proof of tactical superiority.
 
 **Status:** no competitive-qualified games, 29/32 exact Aichi original lists, missing 23/25/28, no fixed deck proven at the aspirational 99.5% target.
+
+## Authenticated next-owner-turn hand audit (30 October 2026)
+
+The preregistered [live source-owner root hand extension](registrations/agent22-rank7-steven-followthrough-retrospective-20261030.md) uses a reversible Store-identity witness that records the source actor's hand and discard only on genuine source-root bot calls, without reading opponent concealed zones. The first full [compiled CI run 40981446268](https://github.com/FlareZ123/experiment-01/actions/runs/40981446268) **passed**. Artifact [12945670509](https://github.com/FlareZ123/experiment-01/actions/runs/40981446268/artifacts/12945670509), SHA256 `c9d97209c21bd8d9d288717dff356a4cf87489ff5217c0d8ec00ee9279b0ffd8`. All eight source original deals, action caps and turn lengths still replay identically; captured start-of-owner-turn snapshots are authenticated against the one actual live Store instance.
+
+| Scored Steven search | First later source-owned root | VS Seeker in own hand | Steven in own discard | Counter Catcher in hand | Public Prize counts |
+| --- | --- | --- | --- | --- | --- |
+| Seed 324711001, source seat 0, search T3 | T5 | Yes | Yes | Yes | 6 vs 6 |
+| Same seed and seat, search T5 | T7 | Yes | Yes | Yes | 6 vs 6 |
+| Seed 324711001, source seat 1, search T4 | T6 | Yes | Yes | Yes | 6 vs 6 |
+| Seed 324711002, source seat 0, search T5 | T7 | Yes | Yes | Yes | 6 vs 6 |
+
+The **4/4** search-to-next-root receipts prove that VS Seeker remained physically available **by printing name** in the source hand after the opponent had acted, while at least one Steven's Resolve was in the source discard. One source-deal sequence had two consecutive Steven searches and ended with two VS Seeker in hand; earlier hand copies make physical provenance ambiguous. None of the eight capped action traces executed a subsequent accepted VS Seeker root. An engine-legal immediate use, any applicable Item lock and the supporter's discarded-card recovery effect **have not yet been tested as a same-root causal fork**. Thus the evidence supports an under-exercised source continuation channel but stops short of attributing a missed legally available action at every snapshot.
+
+The same four scored receipts show Counter Catcher in hand, yet both sides held six Prizes. Its printed requirement of more remaining own Prizes is false, so an immediate Counter Catcher play is mechanically unavailable. The static utility scorer overvalues the card in these particular states. Those two cards offer a useful positive/negative pair for a future owner-root policy evaluator: the next VS Seeker legality must be checked; Counter Catcher should be withheld until its Prize condition becomes true.
+
+The newer February 2026 [Professor Program rulebook clarification](https://professorprogram.pokemon.com/news/11473085) also requires an unrestricted any-card search such as Steven's Resolve to take **at least one card**. The native prompt validator alone may allow an empty bundle. The owner-search adapter has subsequently been updated with a narrow Steven-specific paper-minimum overlay, and a separate regression run is pending. None of the actual searches above selected zero, so this rule correction does not alter their recorded chosen bundles.
+
