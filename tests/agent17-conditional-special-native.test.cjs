@@ -309,3 +309,38 @@ test('Temple of Sinnoh suppresses Telepath Psychic Bench-search trigger',()=>{
     assert.ok(owner.bench.every(slot=>slot.cards.length===0));
   }
 });
+
+test('rank3 printed Capture before Temple opens native Basic search, Temple first does not',()=>{
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {collectSpecialAttachmentEffectAxes:collect}=
+    require('../simulation/twinleaf/agent50-special-attachment-effect-axes.cjs');
+  for(const seat of [0,1]){
+    const first=staged('Girafarig LOT','Capture Energy RCL',seat);
+    first.owner.deck.cards.push(first.card('Bunnelby PRC'));
+    first.owner.hand.cards.push(first.card('Temple of Sinnoh ASR'));
+    const before=collect(actorObservation(first.state,seat),first.catalog);
+    assert.equal(before.offers.find(o=>
+      o.onAttachChannel==='on-attach-basic-bench-search')?.
+      publicEffectOpportunity,true);
+    first.store.dispatch(new PlayCardAction(first.owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(first.state.prompts.some(p=>p.result===undefined),
+      'rank3 Capture-first effect must open a real Basic-search prompt');
+    const templeFirst=staged('Girafarig LOT','Capture Energy RCL',seat);
+    templeFirst.owner.deck.cards.push(templeFirst.card('Bunnelby PRC'));
+    templeFirst.owner.stadium.cards.push(
+      templeFirst.card('Temple of Sinnoh ASR'));
+    const now=collect(actorObservation(templeFirst.state,seat),
+      templeFirst.catalog);
+    assert.equal(now.offers.find(o=>
+      o.onAttachChannel==='on-attach-basic-bench-search')?.
+      publicEffectOpportunity,false);
+    templeFirst.store.dispatch(new PlayCardAction(templeFirst.owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(templeFirst.state.prompts.filter(p=>
+      p.result===undefined).length,0);
+  }
+});
