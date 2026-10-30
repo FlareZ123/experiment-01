@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_box_fetch_shake_native:
+        description: 'Opt-in synthetic original-rank8 hand/deck swap and genuine Secret Box Item->Shake native effect test; no original deal'
+        type: boolean
+        default: false
       hood_rank8_crispin_native:
         description: 'Source turn7 Secret Box Crispin native Energy choice and attack audit'
         type: boolean
@@ -189,6 +193,20 @@ jobs:
           node --check simulation/twinleaf/rank8-hooded-door-source-reply.cjs
           node --check simulation/twinleaf/hood-garbotoxin-recovery-autonomy.cjs
           node --test tests/rank8-hooded-door-source-reply.test.cjs
+      - name: Check synthetic rank8 Box-fetches-Shake native semantics fixture
+        if: inputs.agent44_rank8_box_fetch_shake_native
+        run: node --check simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs
+      - name: Exercise genuine Store Secret Box Item-to-Shake under declared synthetic rank8 deal
+        if: inputs.agent44_rank8_box_fetch_shake_native
+        run: node simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs > agent44-rank8-box-fetch-shake-native.json
+      - name: Archive synthetic Box-fetches-Shake native witness with explicit noncompetitive status
+        if: always() && inputs.agent44_rank8_box_fetch_shake_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-box-fetches-shake-native-development
+          path: agent44-rank8-box-fetch-shake-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Execute source-dealt rank8 early Garbotoxin source fork
         if: inputs.hood_rank8_boostshake_fork
         run: node simulation/twinleaf/rank8-boostshake-source-run.cjs > rank8-boostshake-fork.json
