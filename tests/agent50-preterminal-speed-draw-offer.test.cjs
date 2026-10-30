@@ -1,0 +1,11 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {offerSpeedDrawBeforeAttack}=require('../simulation/twinleaf/agent50-preterminal-speed-draw-offer.cjs');
+const SPEED='Speed Lightning Energy RCL';
+const catalog={basicEnergyTypes:{Lightning:4,Psychic:5},colorlessEnergyType:10,stages:{BASIC:1},specialEnergies:new Set([SPEED,'Double Colorless Energy SUM'])};
+function view(){return {decisionKind:'owner-root',globalTurn:4,ownHand:[SPEED],ownTurnResources:{energyPlayedTurn:0,energyPlayLocked:false,specialEnergyPlayLocked:false},ownPublic:{deckCount:20,prizeCount:6,stadium:[],publicTurnRestrictions:{},active:{name:'Iron Thorns ex',printing:'Iron Thorns ex TWM',printed:{types:[4],stage:1},energies:['Speed Lightning Energy RCL','Double Colorless Energy SUM'],attacks:[{name:'Volt Cyclone',cost:[4,10,10],damage:140,gxAttack:false}]},bench:[null,null,null,null,null]},opponentPublic:{active:{name:'Bunnelby',printing:'Bunnelby PRC',hp:70,damage:0},stadium:[],prizeCount:6}};}
+const attack={kind:'attack',attackName:'Volt Cyclone'};
+test('preterminal Speed offers an owned Active draw-two attachment',()=>{assert.deepEqual(offerSpeedDrawBeforeAttack(view(),catalog,attack)?.intent,{kind:'attach-special-energy',printing:SPEED,handIndex:0,slot:'active',index:0});});
+test('no offered attack, no Speed, and Temple cause hold',()=>{const x=view();assert.equal(offerSpeedDrawBeforeAttack(x,catalog,{kind:'pass'}),null);x.ownHand=[];assert.equal(offerSpeedDrawBeforeAttack(x,catalog,attack),null);x.ownHand=[SPEED];x.ownPublic.stadium=['Temple of Sinnoh ASR'];assert.equal(offerSpeedDrawBeforeAttack(x,catalog,attack),null);});
+test('prizes, deck, quota and opponent hidden information boundaries',()=>{const x=view();x.ownPublic.prizeCount=3;assert.equal(offerSpeedDrawBeforeAttack(x,catalog,attack),null);x.ownPublic.prizeCount=6;x.ownPublic.deckCount=4;assert.equal(offerSpeedDrawBeforeAttack(x,catalog,attack),null);x.ownPublic.deckCount=20;x.ownTurnResources.energyPlayedTurn=4;assert.equal(offerSpeedDrawBeforeAttack(x,catalog,attack),null);x.ownTurnResources.energyPlayedTurn=0;const y=structuredClone(x);x.opponentSecret={hand:['A']};y.opponentSecret={hand:['B']};assert.deepEqual(offerSpeedDrawBeforeAttack(x,catalog,attack),offerSpeedDrawBeforeAttack(y,catalog,attack));});
