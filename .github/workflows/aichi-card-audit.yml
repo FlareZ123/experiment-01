@@ -11,6 +11,10 @@ on:
         description: 'Pinned CardManager all-32 exact-native-printing census, no gameplay'
         type: boolean
         default: false
+      native_treasure_pair:
+        description: 'Add four bounded original-rank10 versus rank1 Treasure policy feasibility matches'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -89,6 +93,10 @@ jobs:
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
       - name: Calculate original Regidrago seven-card Treasure donor opportunity exactly
         run: node simulation/evaluation/agent49-regidrago-treasure-openers.cjs
+      - name: Bounded four original Regidrago versus Calyrex source feasibility matches
+        if: ${{ inputs.native_treasure_pair }}
+        timeout-minutes: 3
+        run: node simulation/evaluation/agent49-treasure-original-regidrago-match.cjs
       - name: Verify real pinned Store Player's Ceremony hook on both physical seats
         run: node --test tests/agent49-native-players-ceremony-store.test.cjs
       - name: Verify original rank7 PRC60 variant selects Omega Barrier native printed power
