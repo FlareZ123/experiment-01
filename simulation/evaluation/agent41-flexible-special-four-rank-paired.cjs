@@ -18,6 +18,8 @@ const {withAcceptedTargetWitness}=
   require('../twinleaf/native-accepted-target-store-observer.cjs');
 const {withAcceptedEnergyPromptPublicWitness}=
   require('../twinleaf/accepted-energy-prompt-public-witness.cjs');
+const {INVALID_CODE,classifyPhysicalZoneEvidence,summarizePhysicalQualification}=
+  require('./physical-zone-qualification.cjs');
 
 const BASE=path.resolve(__dirname,'../..');
 const REGISTRATION='results/aichi-2026/registrations/'+
@@ -100,8 +102,9 @@ function prepare(options={}){
  * @param {'public-context'|'contest'} [mode] Preregistered factorial.
  * @returns {object}
  */
-function runOne(trial,prepared,treated,mode='public-context'){
+function runOne(trial,prepared,treated,mode='public-context',options={}){
   assert.ok(['public-context','contest'].includes(mode));
+  const physicalZoneGate=options.physicalZoneGate===true;
   const candidate=prepared.plan.candidate.cards;
   const source=prepared.plan.opponents.find(deck=>deck.rank===trial.rank).cards;
   const candidateSeat=trial.candidateSlot==='A'?0:1;
@@ -119,7 +122,10 @@ function runOne(trial,prepared,treated,mode='public-context'){
     captureInitialFullPhysicalDeal:true,
     capturePublicAttackTransitions:true,
     captureFinalPublicBoard:true,
-    captureNativeAbortEvidence:true
+    captureNativeAbortEvidence:true,
+    // Release-only: inspect every fully settled physical Store root.
+    capturePhysicalZoneIntegrity:physicalZoneGate,
+    enforceSettledPhysicalZoneIntegrity:physicalZoneGate
   };
   let nativeTargetAudit=null,nativeEnergyPromptAudit=null;
   let sameTargetAudit=null,paperSupporterAudit=null;
@@ -180,6 +186,8 @@ function runOne(trial,prepared,treated,mode='public-context'){
   assert.equal(actor.audit.qualification.competitiveGames,0);
   return {
     status:game.finished?'native-terminal-unqualified':'native-capped-unqualified',
+    physicalZoneQualification:classifyPhysicalZoneEvidence({
+      requested:physicalZoneGate,game}),
     trial,treated,mode,candidateSeat,sourceSeat,
     initialSourceDealSha256:game.initialSourceDealFingerprint?.digestSha256??null,
     initialFullDealSha256:game.initialFullPhysicalDealFingerprint?.digestSha256??null,
@@ -279,14 +287,18 @@ function compare(a,b){
  * @param {'public-context'|'contest'} [mode]
  * @returns {object}
  */
-function attempt(trial,prepared,treated,runner=runOne,mode='public-context'){
-  try{return runner(trial,prepared,treated,mode);}
+function attempt(trial,prepared,treated,runner=runOne,mode='public-context',options={}){
+  try{return runner(trial,prepared,treated,mode,options);}
   catch(error){
     const {error:message,nativeAbortEvidence, nativeStoreCauseStack}=
       require('../twinleaf/native-dispatch-abort-evidence.cjs')
         .publicNativeAbortError(error);
     return {
-      trial,treated,mode,status:'native-error-unqualified',
+      trial,treated,mode,
+      status:error?.code===INVALID_CODE?
+        'engine-physical-invalid':'native-error-unqualified',
+      physicalZoneQualification:classifyPhysicalZoneEvidence({
+        requested:options.physicalZoneGate===true,error}),
       error:message,nativeStoreCauseStack,
       nativeAbortEvidence,
       nativeTargetAbort:
@@ -306,13 +318,14 @@ function runStudy(options={}){
   const mode=options.mode??'public-context';
   assert.ok(['public-context','contest'].includes(mode));
   const cohort=options.cohort??'original-four';
+  const physicalZoneGate=options.physicalZoneGate===true;
   const prepared=prepare({cohort});
   const selected=options.rank===undefined?prepared.trials:
     prepared.trials.filter(trial=>trial.rank===options.rank);
   assert.ok(selected.length>0,'No preregistered original source');
   const rows=selected.map(trial=>{
-    const control=attempt(trial,prepared,false,runOne,mode);
-    const treatment=attempt(trial,prepared,true,runOne,mode);
+    const control=attempt(trial,prepared,false,runOne,mode,{physicalZoneGate});
+    const treatment=attempt(trial,prepared,true,runOne,mode,{physicalZoneGate});
     return {trial,comparison:compare(control,treatment),control,treatment};
   });
   const comparisons=rows.map(row=>row.comparison);
@@ -322,6 +335,9 @@ function runStudy(options={}){
       'results/aichi-2026/registrations/'+
         'agent41-flexible-energy-contest-r4-r10-r12-r17-20261030.json':REGISTRATION,
     comparisonMode:mode,cohort,
+    physicalZoneGateOptIn:physicalZoneGate,
+    physicalZoneQualificationSummary:summarizePhysicalQualification(
+      rows.flatMap(row=>[row.control,row.treatment])), 
     fieldSource:prepared.source.source,
     candidate:'unmodified original rank1 Shadow Rider full 60',
     opponentRanks:[...new Set(selected.map(trial=>trial.rank))],
@@ -338,7 +354,8 @@ function runStudy(options={}){
     treatmentSpecialSampleAcceptedLowerBound:comparisons.reduce((s,row)=>
       s+(row.treatmentSpecialSampleAccepted??0),0),
     nativeErrors:rows.flatMap(row=>[row.control,row.treatment])
-      .filter(cell=>cell.status==='native-error-unqualified').length,
+      .filter(cell=>['native-error-unqualified','engine-physical-invalid']
+        .includes(cell.status)).length,
     rows,competitiveQualifiedGames:0,winRateCertified:false
   };
 }
@@ -347,6 +364,7 @@ if(require.main===module){
     Number(process.env.AGENT41_FLEXIBLE_SPECIAL_RANK):undefined;
   const mode=process.env.AGENT41_FLEXIBLE_SPECIAL_STUDY??'public-context';
   const cohort=process.env.AGENT41_FLEXIBLE_SPECIAL_COHORT??'original-four';
-  process.stdout.write(JSON.stringify(runStudy({rank,mode,cohort}),null,2)+'\n');
+  process.stdout.write(JSON.stringify(runStudy({rank,mode,cohort,
+    physicalZoneGate:process.env.AGENT24_PHYSICAL_ZONE_GATE_DEV==='true'}),null,2)+'\n');
 }
 module.exports={VERSION,REGISTRATION,MIXED_NONREG_REGISTRATION,prepare,runOne,attempt,compare,runStudy};
