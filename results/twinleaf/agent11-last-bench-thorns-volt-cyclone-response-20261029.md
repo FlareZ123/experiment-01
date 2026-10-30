@@ -14,7 +14,7 @@ Assertions require a matching source-action response, physical surviving final B
 
 - [Native two-seat continuation](../../simulation/twinleaf/agent11-last-bench-volt-cyclone-reply.cjs), imports the established staged Store builder.
 - Same existing [manual Twinleaf smoke workflow](../../.github/workflows/twinleaf-smoke.yml); new step placed immediately after the original last-Bench positive test.
-- [CI 40976878330](https://github.com/FlareZ123/experiment-01/actions/runs/40976878330), dispatched at commit `77ee378a23ae908cc49545e04646c511838be6b7`. Verify step conclusion before claiming any positive result; unrelated preexisting Canceling Cologne smoke failure remains possible.
+- [CI 40976878330](https://github.com/FlareZ123/experiment-01/actions/runs/40976878330), dispatched at commit `77ee378a23ae908cc49545e04646c511838be6b7`. The **new printed Volt Cyclone reply test step passed** after compilation, including both actual owner seats, true native PassTurnAction, source opponent AttackAction and expected 140 damage on Regidrago V in each branch. This is a completed native action-continuation witness, though the full reused smoke workflow can still fail independently at an existing Canceling Cologne regression. Treat step-level passage separately from overall workflow status.
 
 ## Interpretation
 
