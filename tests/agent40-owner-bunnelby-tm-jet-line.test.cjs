@@ -131,3 +131,25 @@ test('Tool quota, existing Tool and active first turn do not create illegal TM r
   v.globalTurn=1;
   assert.equal(chooseBunnelbyTmJetRoot(v,catalog,source),null);
 });
+
+test('shared actor root follows registered TM equip, Jet Bench attach, Tool attack',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view(),c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set()};
+  const options={bunnelbyTmJetRoot:true,ownRegisteredSixty:source};
+  assert.equal(chooseActorRootIntent(v,c,{}).kind,'pass');
+  assert.equal(chooseActorRootIntent(v,c,options).kind,'equip-bunnelby-tm');
+  v.ownPublic.bench[0].tools.push(TM);
+  v.ownHand.pop();
+  const jet=chooseActorRootIntent(v,c,options);
+  assert.equal(jet.kind,'attach-special-energy');
+  assert.equal(jet.slot,'bench');
+  assert.equal(jet.index,0);
+  v.ownPublic.active=bunnelby({tools:[TM],energies:['Jet Energy PAL']});
+  v.ownPublic.bench[0]=poke('Dratini OBF','Dratini');
+  v.ownHand.length=0;
+  const attack=chooseActorRootIntent(v,c,options);
+  assert.equal(attack.kind,'attack');
+  assert.equal(attack.attackName,'Evolution');
+});
