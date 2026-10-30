@@ -15,13 +15,17 @@ on:
         description: 'Also test oversized Plumeria actor hand planning against same-deal generic fallback'
         type: boolean
         default: false
+      agent38_plumeria_preregistered32:
+        description: 'Run all 32 prior preregistered rank6/rank11 native cases with and without Plumeria'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe }}
+    if: ${{ !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -221,5 +225,46 @@ jobs:
             agent38-plumeria-census.json
             agent38-plumeria-large.json
             agent38-plumeria-large-compare.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent38-plumeria-preregistered32:
+    if: ${{ inputs.agent38_plumeria_preregistered32 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate frozen 32-arm selection, paired all-attempt census
+        run: node --test tests/agent41-prospective-canonical-scout.test.cjs tests/agent38-plumeria-preregistered-32-pair.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent4-plumeria-after-pass.test.cjs
+      - name: Install pinned simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run 32 earlier precommitted exact-60 native controls
+        run: node simulation/evaluation/agent38-plumeria-preregistered-32.cjs control > agent38-prior32-control.json
+      - name: Run same 32 earlier precommitted physical-deal native Plumeria interventions
+        run: node simulation/evaluation/agent38-plumeria-preregistered-32.cjs plumeria > agent38-prior32-plumeria.json
+      - name: Evaluate all precommitted pairs without competitive rate claims
+        run: |
+          node scripts/agent38-plumeria-preregistered-32-pair.cjs agent38-prior32-control.json agent38-prior32-plumeria.json > agent38-prior32-native-pairs.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent38-prior32-native-pairs.json');a.equal(r.totals.attempted,32);a.equal(r.competitiveQualifiedGames,0);a.equal(r.totals.actualFullPhysicalMatches+r.totals.physicalMismatches+r.totals.unverifiablePhysicalStarts,32);a.equal(r.totals.physicalMismatches,0);console.log('AGENT38_PRIOR_32_CAUSAL_PLUMERIA',JSON.stringify({totals:r.totals,affected:r.affectedPairs.map(p=>({id:p.trial,accepted:p.accepted,settled:p.settled,rootChanged:p.rootDifferent,promptChanged:p.promptDifferent,sourceFirst:p.actualSourceFirstControl,oldStatus:p.controlStatus,newStatus:p.treatedStatus}))}));"
+      - name: Upload all native prior-registered 32 controls, intervention and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent38-plumeria-previously-preregistered-32arm
+          path: |
+            agent38-prior32-control.json
+            agent38-prior32-plumeria.json
+            agent38-prior32-native-pairs.json
           if-no-files-found: warn
           retention-days: 30
