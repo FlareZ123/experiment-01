@@ -7,6 +7,10 @@ on:
         description: Run canonical bilateral v2 source-first both-seat policy using same-target repair
         type: boolean
         default: false
+      agent41_public_special_rank4rank10_probe:
+        description: 'Native preregistered rank4 Raichu and rank10 Regidrago flexible Energy symmetric policy pilot'
+        type: boolean
+        default: false
       agent41_prereg32_special_probe:
         description: 'All 32 prior precommitted original native matchups, common Special Energy root OFF/ON'
         type: boolean
@@ -37,7 +41,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -416,5 +420,46 @@ jobs:
             agent41-prior32-special-control.json
             agent41-prior32-special-treated.json
             agent41-prior32-special-census.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent41-public-special-rank4-rank10:
+    if: ${{ inputs.agent41_public_special_rank4rank10_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Regress precommitted eight authentic original trials and existing public Energy model
+        run: node --test tests/agent41-publiccontext-original-native-census.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent17-conditional-special-native.test.cjs tests/actor-energy-payability.test.cjs
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all eight original control native Store games
+        run: node simulation/evaluation/agent41-publiccontext-original-4pair.cjs control > agent41-public-special-control.json
+      - name: Execute same eight frozen games with identical public-context selector on both physical seats
+        run: node simulation/evaluation/agent41-publiccontext-original-4pair.cjs public-context > agent41-public-special-treated.json
+      - name: Audit every source/seat, first-deal identity, Store acceptance and failure
+        run: |
+          node scripts/agent41-publiccontext-original-native-census.cjs agent41-public-special-control.json agent41-public-special-treated.json > agent41-public-special-census.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-public-special-census.json');a.equal(r.nativeArms,16);a.equal(r.competitiveQualifiedGames,0);console.log('ORIGINAL_PUBLIC_ENERGY',JSON.stringify({attempts:r.nativeArms,physicalPairs:r.matchedInitialPhysicalDeals,missing:r.missingInitialPhysicalEvidence,first:r.matchedActualFirstPlayers,sourceSpecial:r.sampledSourceConfirmedSpecial,candidateSpecial:r.sampledCandidateConfirmedSpecial,sourceAttackChanges:r.sourceAttackChanges,errors:[r.engineErrorsBefore,r.engineErrorsAfter],caps:[r.actionCappedBefore,r.actionCappedAfter],pairs:r.rows.map(x=>({id:x.id,status:x.after.status,source:x.sourceSpecialConfirmedSample,candidate:x.candidateSpecialConfirmedSample,prints:x.sampledSourceSpecialPrintings}))}));"
+      - name: Preserve all 16 control/treatment raw native games and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-public-special-rank4-rank10-original-native
+          path: |
+            agent41-public-special-control.json
+            agent41-public-special-treated.json
+            agent41-public-special-census.json
           if-no-files-found: warn
           retention-days: 30
