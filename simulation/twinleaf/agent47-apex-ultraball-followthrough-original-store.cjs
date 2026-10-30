@@ -16,6 +16,26 @@ const PAYLOADS=new Set([
   'Noivern ex PAL','Kyurem SFA','Regidrago V SIT'
 ]);
 
+/**
+ * Count each owner's physical source card exactly once after engine moves.
+ * Attached Energy is included in the PokemonCardList.cards canonical zone;
+ * energies.cards is an index and must not be counted again.
+ */
+function assertSource60Conserved(owner){
+  const all=[
+    ...owner.active.cards,
+    ...owner.bench.flatMap(slot=>slot.cards),
+    ...owner.hand.cards,...owner.deck.cards,...owner.discard.cards,
+    ...owner.prizes.flatMap(slot=>slot.cards),
+    ...owner.lostzone.cards,...owner.stadium.cards,
+    ...owner.supporter.cards
+  ];
+  assert.equal(all.length,60,'Original source physical sixty was not conserved');
+  assert.equal(new Set(all.map(card=>card.id)).size,60,
+    'Source physical card IDs must be unique after prompts and attack');
+  return true;
+}
+
 function settleAfterPhysicalDiscard(x,ResolvePromptAction) {
   const actions=[],searched=[];
   const restoreNumeric=installNumericShuffleOrderHook();
@@ -90,9 +110,11 @@ function runOne(seat,mode='alternate'){
   x.store.dispatch(new ResolvePromptAction(mandatory.id,selected));
   assert.ok(selected.every(c=>x.owner.discard.cards.includes(c)));
   const itemFollowthrough=settleAfterPhysicalDiscard(x,ResolvePromptAction);
+  assertSource60Conserved(x.owner);
   if(mode==='baseline'){
     assert.ok(!x.owner.discard.cards.some(c=>PAYLOADS.has(c.fullName)));
     return {seat,mode,noDragonPayload:true,itemFollowthrough,
+      originalSource60Conserved:true,
       nativePhysicalDiscardAccepted:true,sourceOriginal60:true,
       qualifiedCompetitiveGames:0};
   }
@@ -121,7 +143,8 @@ function runOne(seat,mode='alternate'){
   assert.equal(x.state.prompts.some(p=>p.result===undefined),false);
   const opponent=x.state.players[1-seat];
   assert.ok(opponent.active.damage>0,'Apex copy must visibly damage opponent');
-  return {seat,mode,original60Actor:true,
+  assertSource60Conserved(x.owner);
+  return {seat,mode,original60Actor:true,originalSource60Conserved:true,
     physicalSelected:proposal.proposal,
     nativeDiscardPhysicalAccepted:true,
     itemFollowthrough,copyPromptNative:true,
@@ -142,4 +165,4 @@ function main(){
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(main(),null,2)+'\n');
-module.exports={runOne,main,settleAfterPhysicalDiscard};
+module.exports={runOne,main,settleAfterPhysicalDiscard,assertSource60Conserved};
