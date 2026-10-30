@@ -201,5 +201,55 @@ function attestNativePlan(plan,manifest,csv){
     missingRanks:field.missingRanks,sources};
 }
 
+/**
+ * Bind one physical native match request to the original rank, the unchanged
+ * candidate, and the pre-resolution printing/provenance receipt. A valid
+ * receipt must be generated before either deck array can be changed.
+ * This validates a dispatch request, not real match play or card effects.
+ * @param {{plan:object,rank:number,candidateSeat:0|1,deckA:string[],deckB:string[]}} input
+ * @returns {object} Attested physical source/candidate seat and digest packet.
+ */
+function attestPhysicalArm({plan,rank,candidateSeat,deckA,deckB}){
+  assert.ok(candidateSeat===0||candidateSeat===1,
+    'Invalid physical candidate seat');
+  assert.ok(plan&&plan.originalSourceIdentity);
+  assert.ok(Array.isArray(deckA)&&Array.isArray(deckB));
+  const source=plan.opponents.find(opponent=>opponent.rank===rank);
+  const original=plan.originalSourceIdentity.sources.find(row=>row.rank===rank);
+  assert.ok(source&&original,'No fully recovered source rank '+rank);
+  assert.equal(source.status,'ready','Unresolved original source');
+  assert.ok(Array.isArray(source.cards)&&source.cards.length===60);
+  assert.ok(Array.isArray(plan.candidate.cards)&&
+    plan.candidate.cards.length===60,'Unresolved candidate');
+  const digestIds=cards=>createHash('sha256')
+    .update(JSON.stringify(cards)).digest('hex');
+  assert.equal(digestIds(source.cards),original.nativeOrderedSha256,
+    'Original source native ID fingerprint changed after resolution');
+  assert.equal(digestIds(plan.candidate.cards),
+    plan.candidateNativeOrderedSha256,
+    'Fixed candidate native ID fingerprint changed after resolution');
+  const expectedA=candidateSeat===0?plan.candidate.cards:source.cards;
+  const expectedB=candidateSeat===1?plan.candidate.cards:source.cards;
+  assert.deepEqual(deckA,expectedA,
+    'Physical seat A is not the registered native 60');
+  assert.deepEqual(deckB,expectedB,
+    'Physical seat B is not the registered native 60');
+  return {
+    version:VERSION,
+    rank,
+    player:original.player,
+    archetype:original.archetype,
+    originalPrintingSha256:original.printingSha256,
+    originalNativeOrderedSha256:original.nativeOrderedSha256,
+    candidateNativeOrderedSha256:plan.candidateNativeOrderedSha256,
+    sourceSeat:1-candidateSeat,
+    candidateSeat,
+    seatAOrderedSha256:digestIds(deckA),
+    seatBOrderedSha256:digestIds(deckB),
+    nativeSourceSubstituted:original.nativeHasSubstitutions,
+    competitiveGameQualified:false
+  };
+}
+
 module.exports={VERSION,parseField,printingFingerprint,attestField,
-  attestNativePlan};
+  attestNativePlan,attestPhysicalArm};
