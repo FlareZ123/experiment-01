@@ -201,3 +201,55 @@ for(const seat of [0,1]){
     assert.equal(owner.deck.cards.length,13);
   });
 }
+
+for(const seat of [0,1]){
+  test('first-player Exeggcute attacks to evolve directly into genuine Stage 1 on native Store, seat '+seat,()=>{
+    const {store,state,owner,catalog}=stage(
+      seat,'Exeggcute SSP','Psychic Energy SVE');
+    const manager=initializeCards();
+    const nextStage=manager.getCardByName('Alolan Exeggutor ex SSP');
+    assert.ok(nextStage);
+    assert.equal(nextStage.evolvesFrom,'Exeggcute');
+    owner.deck.cards[0]=nextStage;
+    const first=chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      printedFirstTurnAttackRoot:true
+    });
+    assert.equal(first.kind,'attach-basic-energy');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    store.dispatch(new PlayCardAction(owner.id,first.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    const attack=chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      printedFirstTurnAttackRoot:true
+    });
+    assert.deepEqual(attack,{kind:'attack',attackName:'Precocious Evolution'});
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    store.dispatch(new AttackAction(owner.id,attack.attackName));
+    let pending=null;
+    for(let step=0;step<20;step++){
+      pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending);
+      if(pending.constructor.name==='ChooseCardsPrompt')break;
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(pending.constructor.name,'ChooseCardsPrompt');
+    assert.equal(pending.playerId,owner.id);
+    assert.equal(pending.message,'CHOOSE_CARD_TO_EVOLVE');
+    assert.equal(state.phase,native('game/store/state/state').GamePhase.ATTACK);
+    assert.strictEqual(pending.cards,owner.deck);
+    assert.equal(pending.validate([nextStage]),true);
+    const {actorSingleSearchInput}=require(
+      '../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
+    assert.equal(actorSingleSearchInput(state,seat),null,
+      'Ordinary owner-deck-to-hand search cannot cover this in-play evolution target');
+    store.dispatch(new ResolvePromptAction(pending.id,[nextStage]));
+    assert.equal(owner.active.getPokemonCard()?.fullName,'Alolan Exeggutor ex SSP');
+    assert.equal(owner.active.cards.some(c=>c.fullName==='Exeggcute SSP'),true);
+    assert.equal(owner.active.energies.cards.length,1);
+    assert.equal(owner.deck.cards.includes(nextStage),false);
+  });
+}
