@@ -99,7 +99,8 @@ test('two real physical seats, attack-phase evolution opt-in resolves native-typ
   },{
     Store,SimpleTacticsAi,ResolvePromptAction,GamePhase:TYPES,
     attackPhaseEvolution:true,attackPhaseSearch:false,
-    observe:(state,seat)=>{throw Error('Evolution must use its own public target projector');}
+    observe:()=>{throw Error('Evolution must use its own target projector');},
+    evolutionObserve:obs
   });
   assert.deepEqual(result.result,[
     {seat:0,printing:'Alolan Exeggutor ex SSP'},
