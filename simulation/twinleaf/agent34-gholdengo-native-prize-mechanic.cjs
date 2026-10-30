@@ -129,7 +129,10 @@ function runAudit(){
   }
   for(const x of rows){
     assert.equal(x.error.length,0,
-      'Pinned native Celebration should settle without errors');
+      'Pinned native Celebration failed at '+JSON.stringify({
+        seat:x.seat,handCount:x.handCount,remainingPrizes:x.remainingPrizes,
+        ownerBefore:x.ownerBefore,ownerAfter:x.ownerAfter,
+        prompts:x.prompts,error:x.error}));
     const eligible=x.handCount===30;
     const prizes=eligible?Math.min(2,x.remainingPrizes):0;
     assert.equal(x.prizesTakenDelta,prizes);
