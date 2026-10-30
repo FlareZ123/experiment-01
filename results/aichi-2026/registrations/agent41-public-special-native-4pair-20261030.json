@@ -1,0 +1,57 @@
+{
+  "schema": "agent41-public-special-native-precommit-v1",
+  "registeredUtc": "2026-10-30T20:52:19Z",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "ranks": [
+    4,
+    10
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeats": 1,
+  "seeds": {
+    "4": {
+      "A": [
+        453250236
+      ],
+      "B": [
+        3076756674
+      ]
+    },
+    "10": {
+      "A": [
+        4262981257
+      ],
+      "B": [
+        1677629371
+      ]
+    }
+  },
+  "comparedProfiles": [
+    "baseline",
+    "bilateral-public-context"
+  ],
+  "attemptsPerProfile": 8,
+  "totalAttempts": 16,
+  "frozenRunOptions": {
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": true,
+    "actorGenericFallbackAttribution": true,
+    "actorHandDiscard": true,
+    "actorChoosePokemon": true,
+    "actorChargedPromotion": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "allowAdditionalOriginalSourceRanks": true
+  },
+  "qualification": "All engine errors and caps included, zero competitive game inference. Original 60s and four seeds are frozen before native execution."
+}
