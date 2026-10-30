@@ -10,6 +10,8 @@ const {TrainerEffect}=require('../vendor/twinleaf/ptcg-server/output/game/store/
 const {ResolvePromptAction}=require('../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
 const {Iono}=require('../vendor/twinleaf/ptcg-server/output/sets/10-scarlet-and-violet/set-paldea-evolved/iono');
 const {Marnie}=require('../vendor/twinleaf/ptcg-server/output/sets/09-sword-and-shield/set-sword-and-shield/marnie');
+const {Milotic}=require('../vendor/twinleaf/ptcg-server/output/sets/09-sword-and-shield/set-evolving-skies/milotic');
+const {PokemonCardList}=require('../vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list');
 const {withSoleShuffleDeckZeroCorrection}=
   require('../simulation/twinleaf/agent2-sole-shuffle-deckzero-hook.cjs');
 
@@ -56,3 +58,29 @@ for(const [name,CardType] of [['Iono',Iono],['Marnie',Marnie]]){
       'original native class method has been restored');
   });
 }
+
+test('pinned Marnie currently draws owner despite protected opponent-only hand',()=>{
+  const store=new Store({onStateChange(){}});
+  const state=store.state;
+  const owner=new Player(),opponent=new Player();
+  owner.id=101;opponent.id=202;
+  owner.name='A';opponent.name='B';
+  owner.prizes=prizes(3);opponent.prizes=prizes(2);
+  const card=new Marnie();
+  owner.supporter.cards.push(card);
+  owner.deck.cards.push(new Card());
+  opponent.hand.cards.push(new Card());
+  const protectedBench=new PokemonCardList();
+  protectedBench.cards.push(new Milotic());
+  opponent.bench.push(protectedBench);
+  state.players=[owner,opponent];
+  state.activePlayer=0;state.phase=GamePhase.SETUP;state.turn=5;
+  assert.equal(card.canPlay(store,state,owner),true);
+  store.reduceEffect(state,new TrainerEffect(owner,card));
+  assert.equal(opponent.hand.cards.length,1,
+    'Milotic EVS Dew Guard prevents the native hand move');
+  assert.equal(opponent.deck.cards.length,0);
+  assert.equal(owner.hand.cards.length,1,
+    'Observed pinned violation: native onMovePrevented still draws owner');
+  assert.equal(owner.deck.cards.length,0);
+});
