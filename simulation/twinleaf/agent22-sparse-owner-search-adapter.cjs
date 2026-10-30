@@ -22,13 +22,29 @@ const SEARCH_MESSAGES=new Set([
  * @param {(state:object,seat:number)=>object} [observeActor]
  * @returns {object|null} Detached print-only prompt observation.
  */
-function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation){
+function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scoreBundle=null){
   const standard=actorSingleSearchInput(state,seat,observeActor);
   // The canonical complete-menu projection can return an empty bundle menu:
   // it tested no individually-valid singletons, although a multi-card
   // native-valid choice may still exist. Search the sparse path in that case.
   if(standard&&(!Array.isArray(standard.prompt?.bundles)||
-     standard.prompt.bundles.length>0))return standard;
+     standard.prompt.bundles.length>0)){
+    if(scoreBundle===null||!Array.isArray(standard.prompt.bundles))
+      return standard;
+    assert.equal(typeof scoreBundle,'function');
+    const ranked=standard.prompt.bundles.map(bundle=>{
+      const score=scoreBundle(bundle.printings);
+      assert.ok(Number.isFinite(score),'Bundle score must be finite');
+      return {bundle,score};
+    }).sort((a,b)=>b.score-a.score||
+      b.bundle.printings.length-a.bundle.printings.length||
+      (JSON.stringify(a.bundle.printings)<JSON.stringify(b.bundle.printings)?
+        -1:JSON.stringify(a.bundle.printings)>JSON.stringify(b.bundle.printings)?
+          1:0));
+    return Object.freeze({...standard,prompt:Object.freeze({
+      ...standard.prompt,bundles:Object.freeze([ranked[0].bundle])
+    })});
+  }
   assert.ok(seat===0||seat===1);
   const owner=state.players?.[seat];
   const pending=state.prompts?.find(p=>p.result===undefined);
@@ -42,7 +58,7 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation){
   const options=pending.options??{};
   if(options.min>1||!Number.isInteger(options.max)||
      options.max<2||options.max>3)return null;
-  const bundles=firstNativeValidBundle(pending,options.max);
+  const bundles=firstNativeValidBundle(pending,options.max,scoreBundle);
   if(!bundles)return null;
   const offered=pending.cards.cards.map(card=>({
     printing:card.fullName,
@@ -75,12 +91,14 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation){
  * @returns {{result:T,audit:object}}
  */
 function withSparseActorOwnerSearch(execute,deps={}){
-  const original=withActorOwnerSingleSearch(execute,{
-    ...deps,observe:deps.observe??sparseObservedOwnerSearch
-  });
+  const observe=deps.observe??(deps.scoreBundle===undefined?
+    sparseObservedOwnerSearch:(state,seat)=>
+      sparseObservedOwnerSearch(state,seat,actorObservation,deps.scoreBundle));
+  const original=withActorOwnerSingleSearch(execute,{...deps,observe});
   return {...original,audit:{
     ...original.audit,version:VERSION,underlyingVersion:original.audit.version,
     sparseBundleSolver:SOLVER_VERSION,
+    scoredBundleOptIn:typeof deps.scoreBundle==='function',
     competitiveGameQualified:false
   }};
 }
