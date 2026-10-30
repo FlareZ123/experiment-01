@@ -109,6 +109,7 @@ test('bounded samples carry exact monotone root ordinal for native join',()=>{
 test('bounded original selector proposes source-neutral Energy denial before attack',()=>{
   const v=view();
   v.ownHand=['Team Flare Grunt XY'];
+  v.ownPublic.active={name:'Snorlax',printing:'Snorlax PGO'};
   v.ownPublic.publicTurnRestrictions={supporterPlayLocked:false};
   v.ownPublic.resolvingSupporter=[];
   v.ownTurnResources.supporterPlayLocked=false;
@@ -133,17 +134,18 @@ test('Energy denial protects quota, visible Energy threshold and exact owner han
   const options={beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true};
   const base=view();
   base.ownHand=['Team Flare Grunt XY'];
+  base.ownPublic.active={name:'Snorlax',printing:'Snorlax PGO'};
   base.ownPublic.publicTurnRestrictions={supporterPlayLocked:false};
   base.ownPublic.resolvingSupporter=[];
   base.ownTurnResources.supporterPlayLocked=false;
   base.ownTurnResources.supporterPlayedTurn=0;
   base.opponentPublic={active:{energies:['Basic','Basic']}};
   const candidates=[
-    ['supporter-quota-or-lock',v=>v.ownTurnResources.supporterPlayedTurn=1],
-    ['supporter-quota-or-lock',v=>v.ownTurnResources.supporterPlayLocked=true],
-    ['supporter-quota-or-lock',v=>v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true],
+    ['no-supported-attack-resource-offer',v=>v.ownTurnResources.supporterPlayedTurn=1],
+    ['no-supported-attack-resource-offer',v=>v.ownTurnResources.supporterPlayLocked=true],
+    ['no-supported-attack-resource-offer',v=>v.ownPublic.publicTurnRestrictions.supporterPlayLocked=true],
     ['no-multi-energy-opponent-active',v=>v.opponentPublic.active.energies=['Basic']],
-    ['no-multi-energy-opponent-active',v=>v.opponentPublic.active=null],
+    ['no-supported-attack-resource-offer',v=>v.opponentPublic.active=null],
     ['no-supported-attack-resource-offer',v=>v.ownHand[0]='Other Supporter']
   ];
   for(const [reason,modify] of candidates){
@@ -158,6 +160,7 @@ test('Energy denial protects quota, visible Energy threshold and exact owner han
 test('Energy denial holds an attack with a possible final Prize',()=>{
   const v=view();
   v.ownHand=['Team Flare Grunt XY'];
+  v.ownPublic.active={name:'Snorlax',printing:'Snorlax PGO'};
   v.ownPublic.prizeCount=1;
   v.ownTurnResources.supporterPlayedTurn=0;
   v.opponentPublic={active:{energies:['Basic','Basic']}};
