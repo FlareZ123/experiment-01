@@ -28,6 +28,31 @@ function publicCostSymbols(cost,catalog){
   return result.every(type=>typeof type==='string')?result:null;
 }
 
+
+/**
+ * Effective publicly known attack cost, including the Thunder Mountain
+ * Lightning discount. Both attack-readiness and attachment-gain evaluation
+ * must use the same cost; otherwise a legal already-paid Lightning Bench
+ * attack may be counted as needing another Energy.
+ * @param {object} view Detached owner observation
+ * @param {object} catalog Public printing/type catalog
+ * @param {object} pokemon Face-up public Pokémon
+ * @param {object} attack Public printed attack
+ * @returns {string[]|null} New array of cost symbols or unsupported
+ */
+function effectivePublicAttackCost(view,catalog,pokemon,attack){
+  const cost=publicCostSymbols(attack.cost,catalog);
+  if(cost===null)return null;
+  const stadium=[...(view.ownPublic?.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  if(stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
+      pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)){
+    const i=cost.indexOf('L');
+    if(i>=0)cost.splice(i,1);
+  }
+  return cost;
+}
+
 /**
  * Conservative public attached-Energy context: Reversal's extra units are
  * never assumed without a separately verified no-Rule-Box fact. GX/EX
@@ -90,16 +115,10 @@ function futureOneUnitDeficit(cost,units){
  * @returns {boolean}
  */
 function publicSpecialAttackPayable(view,catalog,pokemon,attack){
-  const cost=publicCostSymbols(attack.cost,catalog);
+  const cost=effectivePublicAttackCost(view,catalog,pokemon,attack);
   if(cost===null)return false;
   const stadium=[...(view.ownPublic.stadium??[]),
     ...(view.opponentPublic?.stadium??[])];
-  const thunder=stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
-    pokemon.printed?.types?.includes(catalog.basicEnergyTypes.Lightning);
-  if(thunder){
-    const i=cost.indexOf('L');
-    if(i>=0)cost.splice(i,1);
-  }
   const temple=stadium.some(p=>p.startsWith('Temple of Sinnoh '));
   const context=publicEnergyContext(view,pokemon,catalog);
   const attached=[];
@@ -154,7 +173,7 @@ function choosePublicContextSpecialEnergy(view,catalog){
       if(!allKnown)continue;
       for(const attack of pokemon.attacks??[]){
         if(attack.gxAttack===true||attack.name?.endsWith('-GX'))continue;
-        const cost=publicCostSymbols(attack.cost,catalog);
+        const cost=effectivePublicAttackCost(view,catalog,pokemon,attack);
         if(cost===null||cost.length===0)continue;
         const before=futureOneUnitDeficit(cost,attached);
         const after=futureOneUnitDeficit(cost,[...attached,...added]);
@@ -177,6 +196,6 @@ function choosePublicContextSpecialEnergy(view,catalog){
   return {kind,printing,handIndex,slot,index};
 }
 
-module.exports={VERSION,publicCostSymbols,publicEnergyContext,
+module.exports={VERSION,publicCostSymbols,effectivePublicAttackCost,publicEnergyContext,
   futureOneUnitDeficit,choosePublicContextSpecialEnergy,
   publicSpecialAttackPayable};
