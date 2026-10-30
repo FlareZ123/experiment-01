@@ -110,3 +110,7 @@ At last measured clock 12:08:35Z the lease age was 28.765 min (<70), so continue
 ## 22 October 2026 continuation
 
 See [source-print rank6 Noivern/Guzma native CI and pending next directions](20261022-noivern-guzma.md). Actual mode=normal roll=1, lease at 2026-10-22T01:38:41.789050Z. Compiled full [39708979239](https://github.com/FlareZ123/experiment-01/actions/runs/39708979239) passed. Zero qualified games.
+
+## 30 October 2026
+
+Normal draw 3. Agent20 lease claimed 04:23:35.472 UTC (commit ba73bc6). See [the new identity handoff](20261030-source-provenance-handoff.md) and [rank-source provenance report](../../results/aichi-2026/agent20-same-archetype-swiss-final-rank-collision-20261030.md). The same-archetype Swiss13 versus final13 collision proves rank-only joins invalid. 29/32 verified, 0 qualified games. The 70-minute lease threshold is 05:33:35.472 UTC.
