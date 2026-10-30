@@ -29,7 +29,7 @@ const BASIC_ENERGY_NAMES=new Set([
 function gitBlobSha(raw){
   assert.equal(typeof raw,'string');
   const content=Buffer.from(raw,'utf8');
-  return createHash('sha1').update('blob '+content.length+'\\0')
+  return createHash('sha1').update('blob '+content.length+'\0')
     .update(content).digest('hex');
 }
 
