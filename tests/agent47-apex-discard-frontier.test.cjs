@@ -3,7 +3,8 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const {directlyReadyApex,proposeApexPayloadDiscard} =
   require('../simulation/twinleaf/agent47-apex-discard-frontier.cjs');
-const payloads = new Set(['Dragapult ex TWM','Dialga-GX UPR']);
+const payloads = new Set(['Dragapult ex TWM','Dialga-GX UPR',
+  'Mega Dragonite ex ASC','Noivern ex PAL','Kyurem SFA','Regidrago V SIT']);
 const make = () => {
  const ownHand=['Dragapult ex TWM','Megaton Blower SSP',
    'Grass Energy MEE','Grass Energy MEE'];
@@ -14,7 +15,7 @@ const make = () => {
    if(!menu.some(x=>JSON.stringify(x)===JSON.stringify(row)))menu.push(row);
   }
  menu.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b),'en'));
- return {actor:{decisionKind:'owner-prompt',ownHand,
+ return {actor:{decisionKind:'owner-prompt',globalTurn:4,ownHand,
    ownPublic:{active:{printing:'Regidrago VSTAR SIT',
      attacks:[{name:'Apex Dragon'}],
      energies:['Double Dragon Energy ROS','Double Dragon Energy ROS'],
@@ -50,6 +51,38 @@ test('already discarded payload, other Active and no prompted payload all hold',
  assert.equal(proposeApexPayloadDiscard(inactive,payloads).changed,false);
  const noMenu=make();noMenu.prompt.menu=[['Grass Energy MEE','Grass Energy MEE']];
  assert.equal(proposeApexPayloadDiscard(noMenu,payloads).changed,false);
+});
+
+test('first-player turn one cannot use the otherwise payable Apex attack',()=>{
+ const v=make();v.actor.globalTurn=1;
+ assert.equal(directlyReadyApex(v.actor),false);
+ assert.equal(proposeApexPayloadDiscard(v,payloads).changed,false);
+});
+
+test('rank20 source six attacked Dragon printings all have copyable printed attacks',()=>{
+ const {decks}=require('../results/aichi-2026/full-decklists.json');
+ const source=decks.find(x=>x.rank===20);
+ const roster=[
+  ['Dragapult ex','TWM','130','../resources/cards/en/sv6.json'],
+  ['Dialga-GX','UPR','100','../resources/cards/en/sm5.json'],
+  ['Mega Dragonite ex','ASC','152','../resources/cards/en/me2pt5.json'],
+  ['Noivern ex','PAL','153','../resources/cards/en/sv2.json'],
+  ['Kyurem','SFA','47','../resources/cards/en/sv6pt5.json'],
+  ['Regidrago V','SIT','135','../resources/cards/en/swsh12.json']
+ ];
+ assert.equal(roster.length,payloads.size);
+ for(const [name,set,number,file] of roster) {
+   const sourceCard=source.cards.find(c=>c.name===name&&c.printing.set===set);
+   assert.ok(sourceCard);
+   assert.equal(sourceCard.printing.number,number);
+   const printed=require(file).find(c=>c.number===number&&c.name===name);
+   assert.ok(printed);
+   assert.ok(printed.types.includes('Dragon'));
+   assert.ok(printed.attacks.length>0);
+   assert.ok(payloads.has(name+' '+set));
+ }
+ const v=make();v.actor.ownPublic.discard=['Mega Dragonite ex ASC'];
+ assert.equal(proposeApexPayloadDiscard(v,payloads).changed,false);
 });
 
 test('public basic 2-Grass + 1-Fire proof survives Temple; hidden cards have no role',()=>{
