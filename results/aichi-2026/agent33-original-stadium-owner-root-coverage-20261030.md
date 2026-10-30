@@ -88,3 +88,30 @@ new capability surface, never a demonstrated in-game line frequency.
 The baseline 74 missing copies is kept explicitly for longitudinal
 comparison, and the new 44 missing-copy count represents this exact
 current development snapshot. Zero competitively qualified games.
+
+
+## Printed two-Stadium contention among experimental branches
+
+The raw source field has simultaneous access channels for several
+**different** named Stadiums in the same fixed 60. A named root's
+reachability therefore cannot be added uncritically as if all choices
+are executable in the same turn:
+
+| Original source rank | Competing printed Stadiums | Copies in that 60 |
+| --- | --- | --- |
+| 5 Mew Genesect | Sky Field vs Path to the Peak | 2 + 2 |
+| 3 Snorlax Stall | Tropical Beach vs Player's Ceremony | 1 + 1 |
+| 6 Iron Thorns | Tropical Beach vs Player's Ceremony | 1 + 1 |
+| 29 Iron Thorns | Tropical Beach vs Player's Ceremony | 2 + 1 |
+| 6, 24, 29 Iron Thorns | Player's Ceremony vs Thunder Mountain | 1+1, 2+1, 1+1 |
+
+This is a **printed access overlap**, not simultaneous hand presence
+or a proven best choice. The present development chooser makes
+different hardcoded choices when more than one optional flag is
+enabled, so it needs a prospective contention/arbitration policy
+before cross-option combined win-rate experiments. In particular,
+Path to the Peak can self-disable a source Mew Genesect player's
+own Genesect V Fusion Strike System: preserving an early draw engine
+may be preferable to a late tactical Path lock. All current original
+two-seat registries should continue enabling only the specifically
+precommitted owner policy difference.

@@ -45,3 +45,15 @@ test('census refuses to impute a 60 from malformed original source',()=>{
   bad.find(d=>d.rank===6).cards[0].count++;
   assert.throws(()=>census(bad),/exactly 60/);
 });
+
+
+test('source Stadium contention is explicit across sealed original 60s',()=>{
+ const c=load();
+ const overlap=(a,b)=>c.rows.filter(r=>
+   r.stadium.some(x=>x.name===a)&&
+   r.stadium.some(x=>x.name===b)).map(r=>r.rank);
+ assert.deepEqual(overlap('Sky Field','Path to the Peak'),[5]);
+ assert.deepEqual(overlap('Tropical Beach',"Player's Ceremony"),[3,6,29]);
+ assert.deepEqual(overlap("Player's Ceremony",'Thunder Mountain ♢'),
+   [6,24,29]);
+});
