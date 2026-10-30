@@ -25,7 +25,11 @@ A broader exact-source scan reveals **Mega Evolution Pokémon ex also award thre
 | Mega Lopunny ex | 15 | 2 |
 | Mega Kangaskhan ex | 18 | 1 |
 
-The supplied English printed rules explicitly award three Prizes on all four Pokémon. The **union** of TAG TEAM and Mega three-Prize targets occurs in **15/29** complete original opponents, containing **22 physical copies** across those source inventories. Rank 9 includes both Mega Absol ex and Gengar & Mimikyu-GX and counts once in the 15-rank denominator. The native Gengar three-Prize fork remains unexecuted, as do any actual Mega target matches. This wider field relevance is why reading exact printed Prize rules is preferable to hardcoded GX-name or two-Prize guesses.
+The supplied English printed rules explicitly award three Prizes on all four Pokémon. The **TAG TEAM plus Mega subset** occurs in **15/29** complete original opponents, containing **22 physical copies**; the VMAX extension below raises the full three-Prize tally. Rank 9 includes both Mega Absol ex and Gengar & Mimikyu-GX and counts once in the 15-rank denominator. The native Gengar three-Prize fork remains unexecuted, as do any actual Mega target matches. This wider field relevance is why reading exact printed Prize rules is preferable to hardcoded GX-name or two-Prize guesses.
+
+The same printed three-Prize rule also applies to **Pokémon VMAX**. The original rank-1 source list includes **four Shadow Rider Calyrex VMAX**, while rank 5 contains **three Mew VMAX**. No `V-UNION` appears in the 29 complete lists. Combining all explicit TAG TEAM, Mega Evolution ex and VMAX three-Prize source targets gives the current complete **16/29 distinct source ranks and 29 physical Pokémon**. Rank 1 was already counted from its TAG TEAM, so rank 5 contributes the one newly counted source rank. The explicit source-bounty classifier recognizes VMAX through its printed three-Prize clause; no special VMAX-name hack is required.
+
+
 
 This is target presence in source deck inventories, not proof that any such target is Active during a payable finishing turn, or that a given fixed 60 can make the KO. Original ranks 23, 25 and 28 remain without exact lists.
 
@@ -63,6 +67,6 @@ The registration itself predates any native execution. If the eventual Store beh
 
 ## Implication and next qualified decision
 
-Source presence in **15 of 29** exact ranks across TAG TEAM and Mega Evolution ex supports including the three-Prize boundary in the shared action-selection discussion. It does **not** establish how often a match reaches the described finishing state, whether an Energy first could be an essential survival line in other states, or the performance of the actual best fixed-60 deck. Agent41 should review both the opt-in policy's assumptions and original Store negative controls, then request a frozen source-dealt pilot that actually reaches such a choice with responsible opponent replies.
+Source presence in **16 of 29** exact ranks across TAG TEAM, Mega Evolution ex and VMAX supports including the three-Prize boundary in the shared action-selection discussion. It does **not** establish how often a match reaches the described finishing state, whether an Energy first could be an essential survival line in other states, or the performance of the actual best fixed-60 deck. Agent41 should review both the opt-in policy's assumptions and original Store negative controls, then request a frozen source-dealt pilot that actually reaches such a choice with responsible opponent replies.
 
 The benchmark remains **29/32 exact opponent 60s, 0 competitively qualified games, no demonstrated 99.5% fixed deck**.
