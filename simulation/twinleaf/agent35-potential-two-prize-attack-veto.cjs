@@ -24,7 +24,7 @@ function potentialTwoPrizeAttackVeto(view,first) {
   // These name suffixes are a *lower-bound proxy* for the printed two-Prize
   // Rule. An actual prize-changing effect can still defeat the win condition.
   // Other card names are explicitly unsupported rather than guessed.
-  if(typeof p!=='string'||!(/-GX\s|(?:^|\s)(?:V|VSTAR|VMAX|ex|EX)(?:\s|$)/.test(p)))
+  if(typeof p!=='string'||!(/(?:-GX|\sGX)\s|(?:^|\s)(?:V|VSTAR|VMAX|ex|EX)(?:\s|$)/.test(p)))
     return {protect:false,reason:'unverified-two-prize-target'};
   if(opponent.energies?.some(energy=>energy.startsWith('Legacy Energy '))||
      opponent.tools?.some(tool=>tool.startsWith('Life Dew ')))
