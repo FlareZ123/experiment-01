@@ -1,0 +1,18 @@
+# Prospective source-field lethal one-Energy counterexample: rank-5 Mew Genesect versus rank-3/7 lone Snorlax
+
+**Agent 19 | 30 October 2026 | preregistered mechanical test, before native execution.** Hypothesis from exact published original opponent 60s and the supplied card texts, NOT a randomized competitive simulation.
+
+Source manifest [full-decklists.json](full-decklists.json) **rank 5 Mew Genesect** includes **4 Mew V FST113, 3 Mew VMAX FST114, 4 Genesect V FST185, 4 Double Colorless Energy SUM136**. Source **rank3** Snorlax Stall includes Snorlax and Mimikyu; **rank7** likewise. In the bundled card pool, **Mew VMAX FST114 Cross Fusion Strike costs [C][C] and copies one attack from a Benched Fusion Strike Pokémon**, while **Genesect V FST185 Techno Blast does 210**, sufficient to KO **Snorlax PGO (150 HP)**, with no Weakness modification required. **A single DCE from the opponent's concealed hand pays [C][C] despite zero publicly attached Energy prior to the turn.**
+
+This means a source-opponent policy `opponentHasVisibleAttachedEnergy` can falsely classify an opponent as harmless even when it holds a printed one-card route to a sole-Pokémon KO. It is a *plausible owner-hand action*, not a guaranteed adversarial threat or win rate. This is more benchmark-relevant than the previous staged Arceus/Triple-Acceleration pair because **every component of the attacking line occurs in the actual rank-5 registered source 60**.
+
+### Frozen mechanical test
+
+- Initialize actual pinned Twinleaf Store, 2 players, explicit original printings and legal public board. Source Active **Snorlax PGO**, zero Bench, holds **Mimikyu PAL** available as one backup. Opponent Active **Mew VMAX FST**, already evolved after the preceding turn; Bench **Genesect V FST**; zero attached Energy before its next turn; hand holds **Double Colorless Energy SUM**. Fill both decks/prizes with harmless legal source-agnostic cards to let real action resolution complete. Clearly label this stage as **constructed**, because the board/hand is not a full source-dealt field game.
+- Source first resolves optional ordinary Basic Benching on its turn, comparing two fixed arms **solo** and **backup Mimikyu**. The original public-Energy-only guard must propose *withhold* in both under zero visible Energy. Pass source turn normally.
+- Opponent attaches exactly one held DCE through real `PlayCardAction`; verify Energy attachment entered native Store. Opponent `AttackAction('Cross Fusion Strike')`; choose the actual **Genesect V's Techno Blast Attack object** from a genuine `ChooseAttackPrompt`, assert `validate`; settle only genuine prompts. No manual KO/damage injection. Observe real damage, KOs, winner and active/Bench.
+- Expected: solo ends with zero Pokémon, true native opponent terminal; backup retains Mimikyu Active after Snorlax KO and remains nonterminal. Both arms use unchanged action ordering and cards except the presence of the one source owner Bench Basic.
+- If pinned implementation lacks copy support, source card printing, prompt eligibility, or legal KO timing, record **failure and mechanism**; do not fabricate a passed result. Native engine outcome is a mechanical observation only and **does not qualify as a competitive match**.
+- The original Arceus/Triple Accel fixture is still useful in abstract, but source rank5 is a stronger adversarial benchmark case. Neither alone estimates a probability of actual Mew player drawing DCE, having evolved or promoting Mew VMAX on time.
+
+This is a specifically identifiable original-field attack path relevant to source policies. Record pinned SHA, workflow run, exact fixture, prompt selections, 0 qualified games and field coverage 29/32 after testing.
