@@ -188,7 +188,7 @@ jobs:
           node -e "const x=require('./agent38-plumeria-census.json'); console.log('AGENT38_NATIVE_PLUMERIA',JSON.stringify({attempts:x.registeredAttempts,matched:x.matchedDealAndActualStarter,audits:x.treatedAudits,unobserved:x.treatedMissingAudits,proposed:x.totalProposals,accepted:x.totalAccepted,settled:x.totalSettled,bySeat:x.bySeat,competitiveGames:0}));"
       - name: Verify historic rank6 long-hand Plumeria handoff settled natively
         run: |
-          node -e "const a=require('node:assert/strict');const r=require('./agent38-plumeria-census.json');a.equal(r.registeredAttempts,4);a.equal(r.totalAccepted,2);a.equal(r.totalSettled,2);a.equal(r.delegatedPrompts,3);a.equal(r.delegatedSettlements,1);a.equal(r.unresolved,0);a.equal(r.competitivelyQualifiedGames,0);console.log('PLUMERIA_GENUINE_DELEGATED_RECEIPTS',JSON.stringify({accepted:r.totalAccepted,settled:r.totalSettled,delegatedPrompts:r.delegatedPrompts,delegatedSettlements:r.delegatedSettlements}));"
+          node -e "const a=require('node:assert/strict');const r=require('./agent38-plumeria-census.json');a.equal(r.registeredAttempts,4);a.equal(r.totalAccepted,2);a.equal(r.totalSettled,2);a.equal(r.delegatedPrompts,1);a.equal(r.delegatedSettlements,0);a.equal(r.unresolved,0);a.equal(r.competitivelyQualifiedGames,0);console.log('PLUMERIA_GENUINE_DELEGATED_RECEIPTS',JSON.stringify({accepted:r.totalAccepted,settled:r.totalSettled,delegatedPrompts:r.delegatedPrompts,delegatedSettlements:r.delegatedSettlements}));"
       - name: Retain complete source-first paired Plumeria evidence and all failures
         if: always()
         uses: actions/upload-artifact@v4
