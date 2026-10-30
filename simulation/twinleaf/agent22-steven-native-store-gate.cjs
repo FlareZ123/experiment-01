@@ -12,6 +12,17 @@ const base = path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native = file => require(path.join(base,file));
 const PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
+// An explicitly hypothetical stall-resource preference, not a validated
+// opponent policy. This can be selected from genuine owner-deck printings.
+const HYPOTHETICAL_VALUES=Object.freeze({
+  'VS Seeker PHF':10,'Counter Catcher PAR':8,'Capture Energy RCL':6
+});
+function scoreHypotheticalStallBundle(names){
+  const distinct=new Set(names);
+  return [...distinct].reduce((n,name)=>n+
+    (HYPOTHETICAL_VALUES[name]??0),0)-100*(names.length-distinct.size);
+}
+
 /**
  * Reproducible native Store/printed-card integration fixture. The opening and
  * exact opponent board are deliberately staged; no real-deal frequency or
@@ -39,9 +50,10 @@ function run() {
     native('game/store/actions/resolve-prompt-action');
   const {SimpleTacticsAi} = native('simple-bot/simple-tactics-ai');
 
-  const records=[],audits=[];
+  const records=[],audits=[],scoredRecords=[],scoredAudits=[];
   const originalBot=SimpleTacticsAi.prototype.decodeNextAction;
   const originalDispatch=Store.prototype.dispatch;
+  for(const variant of ['first-native-valid','valued-native-valid']){
   for(const seat of [0,1]) {
     const wrapped=withSparseActorOwnerSearch(()=>{
       const store=new Store({onStateChange(){}});
@@ -157,9 +169,14 @@ function run() {
           prompt.result===undefined).map(prompt=>prompt.constructor.name),
         nativeStoreHasPrompts:store.hasPrompts(),
         ownHandCount:owner.hand.cards.length};
-    });
-    records.push(wrapped.result);
-    audits.push(wrapped.audit);
+    },variant==='valued-native-valid'?
+      {scoreBundle:scoreHypotheticalStallBundle}:{});
+    if(variant==='first-native-valid'){
+      records.push(wrapped.result);audits.push(wrapped.audit);
+    }else{
+      scoredRecords.push(wrapped.result);scoredAudits.push(wrapped.audit);
+    }
+  }
   }
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,originalBot);
   assert.strictEqual(Store.prototype.dispatch,originalDispatch);
@@ -168,9 +185,28 @@ function run() {
     n+a.nativePromptPostconditionsConfirmed,0),2);
   assert.equal(records.length,2);
   assert.deepEqual(records[0].chosenPrintings,records[1].chosenPrintings);
+  assert.equal(scoredRecords.length,2);
+  assert.deepEqual(scoredRecords[0].chosenPrintings,
+    scoredRecords[1].chosenPrintings);
+  assert.deepEqual(scoredRecords[0].chosenPrintings,
+    ['Capture Energy RCL','Counter Catcher PAR','VS Seeker PHF']);
+  assert.notDeepEqual(scoredRecords[0].chosenPrintings,
+    records[0].chosenPrintings);
+  assert.ok(scoredRecords.every(row=>
+    row.nativeSearchSettled&&row.fullSupporterEndTurnVerified&&
+    row.remainingDeck===43));
+  assert.equal(scoredAudits.reduce((n,a)=>n+a.accepted,0),2);
+  assert.equal(scoredAudits.reduce((n,a)=>
+    n+a.nativePromptPostconditionsConfirmed,0),2);
   return {schema:'agent22-steven-authentic-card-staged-native-store-v1',
     pin:PIN,printedSourceRank:7,staged:true,actorObservationOriginal:true,
     ownerPhysicalSeats:[0,1],records,audits,
+    scoredComparison:{hypothesis:'diverse stall-resource selection',
+      weights:HYPOTHETICAL_VALUES,
+      scoredRecords,scoredAudits,
+      sameStagedOwnerSearch:true,
+      nativeSettledScoredSearches:2,
+      strategicSuperiorityUnverified:true},
     competitiveQualifiedGames:0};
 }
 
