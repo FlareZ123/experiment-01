@@ -1,6 +1,5 @@
 {
   "schema": "agent41-mixed-energy-original-four-rank-two-seat-factorial-v1",
-  "registered_at_utc": "2026-10-30T23:00:00Z",
   "basis": "Draw four uniformly without replacement from all eight original Aichi 2026 non-Regidrago ranks whose published exact 60 has both Basic and Special Energy cards, before any new-cohort games",
   "eligible_ranks": [
     2,
@@ -50,5 +49,7 @@
   "matching_first_player_required": true,
   "preselected_without_outcome": "Selected solely on published Energy-category composition; no previous exact rank9/15/19/26 policy-vs-policy physical deals inspected for this toggle",
   "no_replacement": "All selected cases kept, including source unsupported and native errors, without replacing ranks",
-  "no_real_wins_claim": "All attempts unqualified; Stage/Native claims do not establish 99.5% paper win"
+  "no_real_wins_claim": "All attempts unqualified; Stage/Native claims do not establish 99.5% paper win",
+  "registration_commit": "2186f082c495416d8463c923223b3b9474421b1a",
+  "registration_sequence": "Original commit precedes first nonreg-mixed workflow dispatch; consult immutable commit timestamp rather than an approximate authored clock"
 }
