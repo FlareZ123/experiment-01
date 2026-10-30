@@ -387,3 +387,52 @@ test('same public Speed-before-attack option draws two natively in both seats',(
     }));
   }
 });
+
+test('preterminal Speed draw can be followed by genuine Volt Cyclone damage',()=>{
+  const {offerSpeedDrawBeforeAttack}=
+    require('../simulation/twinleaf/agent50-preterminal-speed-draw-offer.cjs');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {AttackAction}=native('game/store/actions/game-actions');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  for(const seat of [0,1]){
+    const {store,state,owner,card,catalog}=staged(
+      'Iron Thorns ex TWM','Speed Lightning Energy RCL',seat);
+    const enemy=state.players[1-seat];
+    enemy.active.cards.splice(0,1,card('Shadow Rider Calyrex V CRE'));
+    owner.stadium.cards.push(card('Thunder Mountain Prism Star LOT'));
+    owner.active.energies.cards.push(card('Speed Lightning Energy RCL'),
+      card('Double Colorless Energy SUM'));
+    const before=actorObservation(state,seat);
+    const first=chooseActorRootIntent(before,catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(first,{kind:'attack',attackName:'Volt Cyclone'});
+    const offer=offerSpeedDrawBeforeAttack(before,catalog,first);
+    assert.ok(offer,'Active Speed draw must be a bounded owner option');
+    store.dispatch(new PlayCardAction(owner.id,offer.intent.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(owner.hand.cards.length,2);
+    const later=chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(later,first);
+    const damageBefore=enemy.active.damage;
+    store.dispatch(new AttackAction(owner.id,later.attackName));
+    for(let step=0;step<25&&state.turn===3;step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending,'Native Volt Cyclone stalled without a prompt');
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(state.turn,4,'Actual attack must close owner turn');
+    assert.equal(enemy.active.damage-damageBefore,140,
+      'Native Store must settle actual Lightning attack damage');
+    assert.equal(owner.prizes.length,6,'Non-KO attack has no fabricated Prize');
+    console.log('SPEED_DRAW_VOLT_NATIVE',JSON.stringify({seat,
+      speedDraw:2,attack:'Volt Cyclone',settledDamage:140,
+      nextTurn:state.turn,competitiveQualifiedGames:0}));
+  }
+});
