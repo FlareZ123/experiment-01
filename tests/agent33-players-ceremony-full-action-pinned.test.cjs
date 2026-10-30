@@ -20,14 +20,14 @@ function stage(seat){
  const manager=initializeCards(),id=registerPlayersCeremony();
  const ceremony=manager.getCardByName(id);
  assert.ok(ceremony&&ceremony.researchPatched===true);
- const dratini=manager.getCardByName('Dratini OBF');
- assert.ok(dratini);
+ assert.ok(manager.getCardByName('Dratini OBF'));
  const store=new Store({onStateChange(){}});
  const state=store.state;
  const players=[new Player(),new Player()];
  players[0].id=101;players[1].id=202;
  for(const player of players){
-  player.active.cards.push(dratini);
+  // CardManager clones the printed card on lookup: two real physical copies.
+  player.active.cards.push(manager.getCardByName('Dratini OBF'));
   player.deck.cards.push(...Array.from({length:12},()=>new Card()));
   player.prizes=Array.from({length:6},()=>{
     const prize=new CardList();prize.cards.push(new Card());return prize;
