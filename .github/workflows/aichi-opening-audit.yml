@@ -88,6 +88,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rank11_oranguru_tool_lock_exact.py'
       - name: Rank-11 Oranguru Tool/Stone opening exact audit
         run: python3 scripts/rank11_oranguru_tool_lock_exact.py > rank11-oranguru-tool-lock-exact.txt
+      - name: Reconcile disjoint rank-11 Oranguru Star-Alchemy VIP branch with earlier exact model
+        run: node tests/agent32-rank11-oranguru-boost-shake-window.test.cjs
       - name: New Moon Secret Box direct and search-response opportunity
         run: node --test tests/new-moon-secret-box-blower-access.test.cjs
       - name: Preserve New Moon Secret Box and Field Blower exact response
