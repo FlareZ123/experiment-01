@@ -12,11 +12,12 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(output,name));
 
 /** Stage full preserved exact printed sources with an artificial final Bench slot. */
-function stage(seat){
+function stage(seat,opponentRank=10){
   assert.ok(seat===0||seat===1);
+  assert.ok(opponentRank===6||opponentRank===10);
   const permissions={allowEquivalentBasicEnergies:true,
     allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true};
-  const ownPlan=planAichi(1,permissions),oppPlan=planAichi(10,permissions);
+  const ownPlan=planAichi(1,permissions),oppPlan=planAichi(opponentRank,permissions);
   assert.equal(ownPlan.candidate.cards.length,60);
   assert.equal(oppPlan.candidate.cards.length,60);
   const manager=initializeCards();
@@ -60,7 +61,8 @@ function stage(seat){
     ['Shadow Rider Calyrex V CRE','Shadow Rider Calyrex V CRE',
       "Lillie's Clefairy ex JTG",'Latias ex SSP'],
     ['Girafarig LOT','Tapu Lele-GX GRI']);
-  const opponent=construct(oppPlan.candidate.cards,'Regidrago V SIT',[],[]);
+  const opponent=construct(oppPlan.candidate.cards,
+    opponentRank===6?'Iron Thorns ex TWM':'Regidrago V SIT',[],[]);
   owner.id=101;opponent.id=202;
   const store=new Store({onStateChange(){}}),state=store.state;
   state.players=seat===0?[owner,opponent]:[opponent,owner];
@@ -74,7 +76,8 @@ function stage(seat){
     PowerType:native('game/store/card/pokemon-types').PowerType};
   const catalog=buildActorCardCatalog(manager.getAllCards(),t);
   return {seat,owner,opponent,store,state,catalog,GamePhase,PlayCardAction,
-    PlayerType,SlotType,sourceDigests:[ownPlan.candidateDigest,oppPlan.candidateDigest]};
+    PlayerType,SlotType,opponentRank,
+    sourceDigests:[ownPlan.candidateDigest,oppPlan.candidateDigest]};
 }
 /** One real native Bench decision, from matching source-frozen physical roots. */
 function fork(seat){
