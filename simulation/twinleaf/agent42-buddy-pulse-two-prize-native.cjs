@@ -17,9 +17,10 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  * Stage an identical publicly observable two-Prize race on either physical
  * seat. This is a synthetic original-Store mechanism test, not a dealt match.
  * @param {0|1} seat
+ * @param {2|3} ownerPrizeCount
  * @returns {object}
  */
-function stageRace(seat){
+function stageRace(seat,ownerPrizeCount=2){
   const x=stage(seat),manager=initializeCards();
   let nextId=9000;
   const card=printing=>{
@@ -43,9 +44,9 @@ function stageRace(seat){
   x.owner.bench[1].damage=210;
   x.opponent.bench[0].cards.push(card('Minun PAR'));
   x.opponent.bench[1].cards.push(card('Plusle PAR'));
-  x.owner.prizes.splice(2);
+  x.owner.prizes.splice(ownerPrizeCount);
   x.opponent.prizes.splice(2);
-  assert.equal(x.owner.prizes.length,2);
+  assert.equal(x.owner.prizes.length,ownerPrizeCount);
   assert.equal(x.opponent.prizes.length,2);
   return x;
 }
