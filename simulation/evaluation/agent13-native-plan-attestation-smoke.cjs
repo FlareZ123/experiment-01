@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {planAichi}=require('./aichi-pilot.cjs');
+const {attestPhysicalArm}=require('./agent13-source-identity-gate.cjs');
 
 /**
  * Exercise the genuine pinned Twinleaf printing resolver and Aichi plan once
@@ -37,6 +38,23 @@ function main(){
       assert.equal(opponent.cards,null);
     }
   }
+  const armProofs=[];
+  for(const rank of [6,11]){
+    const source=plan.opponents.find(x=>x.rank===rank);
+    assert.equal(source.status,'ready',
+      'Historical canonical opponent unresolved at rank '+rank);
+    for(const candidateSeat of [0,1]){
+      const deckA=candidateSeat===0?plan.candidate.cards:source.cards;
+      const deckB=candidateSeat===1?plan.candidate.cards:source.cards;
+      const proof=attestPhysicalArm({plan,rank,candidateSeat,deckA,deckB});
+      assert.equal(proof.sourceSeat,1-candidateSeat);
+      armProofs.push({rank,sourceSeat:proof.sourceSeat,
+        candidateSeat:proof.candidateSeat,
+        originalPrintingSha256:proof.originalPrintingSha256,
+        sourceNativeOrderedSha256:proof.originalNativeOrderedSha256,
+        candidateNativeOrderedSha256:proof.candidateNativeOrderedSha256});
+    }
+  }
   const summary={
     schema:'agent13-actual-pinned-native-original-source-identity-v1',
     engineRevision:plan.engineRevision,
@@ -49,6 +67,7 @@ function main(){
       .map(s=>s.rank),
     substitutionRanks:receipt.sources.filter(s=>s.nativeHasSubstitutions)
       .map(s=>s.rank),
+    physicalArmProofs:armProofs,
     rank11:{rank:rank11.rank,player:rank11.player,
       archetype:rank11.archetype,
       printedSha256:rank11.printingSha256,
