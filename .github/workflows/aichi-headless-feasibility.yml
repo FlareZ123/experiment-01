@@ -128,6 +128,18 @@ jobs:
         run: node --test tests/agent2-firstturn-opening-frontier.test.cjs
       - name: Enumerate actual BW-onward first-turn attack exceptions and bonus printings
         run: node --test tests/agent2-firstturn-attack-vocabulary.test.cjs
+      - name: Validate native exact first-turn card registry coverage without pretending card-effect support
+        run: node --test tests/agent2-native-firstturn-catalog.test.cjs
+      - name: Save the pinned exact-print first-turn native registration report
+        run: node simulation/twinleaf/agent2-native-firstturn-catalog.cjs > agent2-native-firstturn-catalog.json
+      - name: Archive first-turn native registration and explicit unsupported gaps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-native-firstturn-printed-catalog
+          path: agent2-native-firstturn-catalog.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
         run: node simulation/twinleaf/agent2-shuffle-supporter-samedeal-native.cjs > agent2-shuffle-supporter-samedeal-native.json
       - name: Archive all accepted and rejected draw Supporter choice receipts
