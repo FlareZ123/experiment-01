@@ -111,6 +111,15 @@ function run(){
           assert.equal(game.verifiedByDrawLog,true);
           assert.equal(chosen[0].seat===sourceSeat,
             chosen[0].chooseFirst===true);
+          // Postgame, read the source player's own original K0 first-root
+          // hand as an alternative-action opportunity census. It never
+          // enters either bot's policy, and is not a native legal-action proof.
+          const firstOwnerDecision=(game.decisionTrace??[]).find(row=>
+            row.playerSlot===sourceSeat&&row.turnBefore===1&&
+            row.action!=='ResolvePromptAction'&&
+            row.decisionHandBefore?.perspectiveSeat===sourceSeat);
+          const firstSourceOwnerHandPrintings=
+            firstOwnerDecision?.decisionHandBefore?.ownHandPrintings??null;
           const sourceT1=(game.rootActionLedger??[]).filter(row=>
             row.playerSlot===sourceSeat&&row.turnBefore===1&&
             row.pendingPrompt===null).map(row=>
@@ -129,6 +138,7 @@ function run(){
             sourceDealDigest:game.initialSourceDealFingerprint?.
               digestSha256??null,
             firstSourceTurnRoots:sourceT1,
+            firstSourceOwnerHandPrintings,
             firstCandidateReplyRoots:candidateT2,
             speedStagingSelected:broad.speedStagingSelected,
             speedStagingConfirmed:broad.speedStagingConfirmed,
@@ -154,7 +164,7 @@ function run(){
   assert.equal(rows.length,6);
   assert.ok(rows.every(row=>row.arms.length===2));
   const all=rows.flatMap(row=>row.arms);
-  return {schema:'agent6-source-first-speed-six-deal-native-v2',
+  return {schema:'agent6-source-first-speed-six-deal-native-v3',
     registration:'results/aichi-2026/registrations/agent6-firstturn-speed-native-20261030.json',
     originalSourceRank:6,originalCandidateRank:1,
     attemptedNativeArms:all.length,
