@@ -1,0 +1,109 @@
+# Regidrago V Celestial Roar: pinned native Special Energy omission and temporary-card leak
+
+**Agent 47 | 30 October 2026 | exact source-printing mechanics and failed native fixture, not competitive game evidence.**
+
+## Why this is a release-blocking class of mechanics
+
+The original registered Aichi 2026 rank-20 60 includes **4 Regidrago V SIT135,
+4 Double Dragon Energy ROS97, 4 basic Grass and 2 basic Fire**. Its Regidrago V
+Celestial Roar states: **discard the top three deck cards and attach any Energy
+cards found to this Pokémon**. Double Dragon is a Special Energy, printed to
+attach only to Dragon Pokémon; Regidrago V is Dragon. The conditional printed
+instruction therefore includes Double Dragon Energy.
+
+The pinned Twinleaf upstream revision is
+`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Source audit shows
+two independent mechanisms in its
+[exact Regidrago V SIT reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/regidrago-v.ts):
+
+1. **Special Energy excluded:** after moving three physical cards into a
+   temporary `CardList`, the reducer selects only
+   `card instanceof EnergyCard && card.energyType === EnergyType.BASIC`.
+   It sends a Special Energy such as Double Dragon to discard, even though
+   the printed attack says any Energy. If no Basic is drawn, it skips the
+   attachment prompt entirely. The pinned
+   [Double Dragon ROS implementation](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/07-x-and-y/set-roaring-skies/double-dragon-energy.ts)
+   confirms it is `EnergyType.SPECIAL` and accepts Dragon.
+2. **Temporary-card physical loss:** when at least one Basic is attached,
+   the residual `temp.cards.forEach(card => MOVE_CARDS(... temp ...))`
+   mutates `temp.cards` inside its forward iteration. If there are at
+   least two residual cards (for example one Basic plus Double Dragon
+   and Quick Ball among the three), only the first residual card is moved;
+   the next can remain in the inaccessible temporary list. That card
+   disappears from all ordinary physical game zones.
+
+A separate third bug was directly traced to the pinned
+[SimpleTacticsAi AttachEnergyPromptResolver](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/prompt-resolver/attach-energy-prompt-resolver.ts):
+it may select a highest-scoring attachment prefix shorter than the mandatory
+minimum. This caused two paired aborts in the original 48-run
+[natural rank-20 census](agent47-source20-original-24pair-apex-opportunity-20261030.md).
+See the linked report for exact seeds, trial statuses and original artifact.
+
+## Concrete native verification state
+
+[Both-seat source-original stage](../../simulation/twinleaf/agent47-celestial-roar-double-dragon-pinned-native.cjs)
+uses a complete physical copy of the original rank-20 60; moves two cards
+to its Active Regidrago V line and arranges a chosen top three from the same
+original print pool. It dispatches the actual native `AttackAction('Celestial
+Roar')`, resolves real prompts and checks distinct physical IDs and zone
+counts. This is deliberately a staged positive/negative fixture, not a
+naturally dealt game or an opposing policy test.
+
+- [CI 41131875944](https://github.com/FlareZ123/experiment-01/actions/runs/41131875944)
+  failed during fixture preparation because both spare Double Dragons were
+  in the deterministic Prize six. The fixture was corrected by moving an
+  already-owned physical DDE from the staged evolved Active to the artificial
+  deck, preserving all 60 cards. This early failure proves no attack effect.
+- [CI 41132236515](https://github.com/FlareZ123/experiment-01/actions/runs/41132236515)
+  compiled the pinned Store and actually reached the mixed
+  **Double Dragon + Grass + Quick Ball** Celestial Roar native resolution.
+  The fixture's final source-60 conservation assertion failed **59 versus
+  60**. This is a direct physical-zone failure signal; no game win can be
+  inferred from this failed job. Its pre-attack source-60 assertion passed.
+- A modified fail-closed script now explicitly expects the **59-card** result
+  for the original mixed scenario, and preserves 60-card expectations for
+  no-Basic scenarios. [CI 41132531501](https://github.com/FlareZ123/experiment-01/actions/runs/41132531501)
+  was dispatched against pinned Store; its status and output must be
+  appended when known, never inferred from an earlier green build.
+- A research-owned *opt-in* source-rule correction prototype exists at
+  [`agent47-celestial-roar-paper-energy-hook.cjs`](../../simulation/twinleaf/agent47-celestial-roar-paper-energy-hook.cjs).
+  It includes Special Energy in a mandatory self-Active attachment prompt
+  and iterates a copy of the remaining list when discarding. Its implementation
+  is **unqualified and unvalidated natively**; do not silently enable or claim
+  paper parity merely because its code exists.
+
+## Quantitative illustrative upper population, not real-game exposure
+
+Nine of the 29 authenticated original Aichi source 60s contain Regidrago V:
+**ranks 10, 12, 13, 14, 18, 20, 21, 27 and 32**, with 34 copies of V and
+3 or 4 Double Dragon Energy per 60. This establishes actual source-field
+relevance without establishing how often any policy attacks with Celestial Roar.
+
+For a transparent *hypothetical pre-opening sampling model*: remove one
+Regidrago V and one attached Double Dragon from source rank20, then take
+three uniformly random cards from the remaining 58. The population contains
+three further Double Dragon, six Basic Energy and 49 other cards.
+The full sample space is `C(58,3)=30,856`.
+
+| Paper-rule exposure class | Exact numerator / 30,856 | Probability |
+| --- | ---: | ---: |
+| At least one remaining Double Dragon in top 3, suppressed by pinned Basic-only filter | 4,621 / 30,856 | 14.9760% |
+| Exactly one Basic Energy in top 3, leaving two residual temporary cards exposed to the forward-mutation bug | 7,956 / 30,856 | 25.7843% |
+
+These events can overlap. These percentages are **not** Celestial Roar
+usage rates, probabilities conditioned on a legal actual opening, or
+predicted game-win effects. Actual Prizes, hand, search, play policy and
+remaining deck composition affect exposure. They quantify why the
+implementation discrepancy warrants native fidelity review.
+
+## Benchmark consequence
+
+Any matchup involving actual Regidrago Celestial Roar under this pinned
+revision needs a distinct original-print, native-effect, source-60
+conservation and paper-equivalence witness. Full game wins must remain
+unqualified until these and the other known policy/engine limitations are
+settled. One source fix must not silently convert the pinned revision into
+a fully paper-accurate simulator.
+
+**29/32 original opponent sixties, 0 competitively qualified games, no
+demonstrated 99.5% fixed-60 result.**
