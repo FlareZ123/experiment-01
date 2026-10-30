@@ -42,7 +42,7 @@ function auditNativeFirstTurnPrintedCoverage(catalogOwner,root=ROOT){
         x.name===family.attack)??null;
       return {
         id,printName:officialPrinting,codeResolved:code!==null,
-        nativeCardRegistered:nativeCard!==null,
+        nativeCardRegistered:nativeCard!=null,
         nativeAttackRegistered:nativeAttack!==null,
         nativeCanUseOnFirstTurn:nativeAttack?.canUseOnFirstTurn===true,
         printedTextPresentInNative:
