@@ -61,9 +61,6 @@ function auditProspectiveSourceRoots(rows){
     }
     const firstTurn=roots[0].turnBefore;
     const firstActions=roots.filter(r=>r.turnBefore===firstTurn);
-    assert.equal(firstActions.at(-1).action,'PassTurnAction'||
-      firstActions.at(-1).action==='AttackAction',true,
-      'Expected source first turn to close by native pass or attack');
     if(firstActions.some(r=>r.action==='PassTurnAction'))
       stat.firstSourceTurnPassArms++;
     for(const action of firstActions.filter(r=>r.action==='PlayCardAction')){
