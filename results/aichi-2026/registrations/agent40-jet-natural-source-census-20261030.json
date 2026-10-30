@@ -1,0 +1,100 @@
+{
+  "schema": "agent40-jet-original-source-root-census-registration-v1",
+  "registeredAt": "2026-10-30T22:08:00Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "exactSourceManifest": "results/aichi-2026/full-decklists.json",
+  "candidateComparisonRank": 1,
+  "sourceRanks": [
+    2,
+    7,
+    15
+  ],
+  "initialSeedDrawMethod": "Python secrets.randbits(32), one draw per distinct physical arm",
+  "maxActions": 200,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "allowEquivalentBasicEnergies": true,
+  "allowJapanesePromoHooks": true,
+  "observeBothPlayers": true,
+  "observationsOnly": true,
+  "originalDecisionsUnchanged": true,
+  "defaultOffJetChoice": true,
+  "sourceMapping": "seat0:source=deckA,candidate=deckB; seat1:candidate=deckA,source=deckB",
+  "registeredAttempts": 12,
+  "competitivelyQualifiedGames": 0,
+  "trials": [
+    {
+      "rank": 2,
+      "sourceSeat": 0,
+      "repeat": 0,
+      "seed": 4226817590
+    },
+    {
+      "rank": 2,
+      "sourceSeat": 0,
+      "repeat": 1,
+      "seed": 1335193694
+    },
+    {
+      "rank": 2,
+      "sourceSeat": 1,
+      "repeat": 0,
+      "seed": 1729141175
+    },
+    {
+      "rank": 2,
+      "sourceSeat": 1,
+      "repeat": 1,
+      "seed": 2633569271
+    },
+    {
+      "rank": 7,
+      "sourceSeat": 0,
+      "repeat": 0,
+      "seed": 2294494927
+    },
+    {
+      "rank": 7,
+      "sourceSeat": 0,
+      "repeat": 1,
+      "seed": 3304381023
+    },
+    {
+      "rank": 7,
+      "sourceSeat": 1,
+      "repeat": 0,
+      "seed": 3242808683
+    },
+    {
+      "rank": 7,
+      "sourceSeat": 1,
+      "repeat": 1,
+      "seed": 3788868417
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 0,
+      "repeat": 0,
+      "seed": 4036230940
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 0,
+      "repeat": 1,
+      "seed": 2597800061
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 1,
+      "repeat": 0,
+      "seed": 266114886
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 1,
+      "repeat": 1,
+      "seed": 3143126232
+    }
+  ],
+  "caveat": "Source held Jet or proposed owner-visible Jet roots are observed only, never forced. This is a weak-bot feasibility census under a frozen small exploratory sample, not source-native win evidence. Never infer 99.5% or extrapolate zero observed opportunities as impossibility."
+}
