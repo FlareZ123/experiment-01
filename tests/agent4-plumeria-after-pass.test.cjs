@@ -269,3 +269,23 @@ test('native returned prompt cannot count a fake or unconfirmed Energy discard',
   assert.equal(audit.log.at(-1).accepted,false);
   assert.equal(audit.unresolvedChains,0);
 });
+
+test('unresolved native Plumeria chain is counted when a new turn replaces its prompts',()=>{
+  const {state,store,ai,deps}=fixture();
+  const {audit}=withOwnerPlumeriaAfterPass(()=>{
+    store.dispatch(new AddPlayerAction());
+    state.baselineAction=new PassTurnAction();
+    store.dispatch(ai.decodeNextAction(state));
+    assert.equal(state.prompts.length,1);
+    state.prompts=[];
+    state.turn++;
+    state.baselineAction=new PassTurnAction();
+    assert.ok(ai.decodeNextAction(state) instanceof PassTurnAction);
+  },deps);
+  assert.equal(audit.acceptedPlumeria,1);
+  assert.equal(audit.settledEnergyDiscards,0);
+  assert.equal(audit.unresolvedChains,0);
+  assert.equal(audit.abandonedChains,1);
+  assert.equal(audit.log.at(-1).kind,'plumeria-chain-abandoned');
+  assert.equal(audit.log.at(-1).abandonedAtStage,0);
+});
