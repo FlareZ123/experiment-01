@@ -122,7 +122,6 @@ function run(){
                 })
               )
             )
-          )
         );
         const outer=observed.result;
         const broad=outer.result.result;
