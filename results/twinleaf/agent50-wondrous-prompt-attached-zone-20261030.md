@@ -1,0 +1,13 @@
+# Agent 50: native Volt Cyclone prompt source is the attached-Energy zone
+
+**30 October 2026 | Mechanism correction | zero competitive-qualified games**
+
+The shared `agent7-canonical-actor-bilateral.yml` was repeatedly failing the original rank-6 Wondrous Labyrinth native tax test in both physical seats. At `tests/agent8-wondrous-native-root-parity.test.cjs:123`, the test wrongly required the selected physical Active Lightning Energy object to belong to `pending.cardList.cards` when it examined a real `AttachEnergyPrompt` from Volt Cyclone.
+
+A temporary, read-only log from [failed manual CI 41144257009](https://github.com/FlareZ123/experiment-01/actions/runs/41144257009), head `b9966e3`, authenticated the prompt structure in **both seats**: `pending.cardList.constructor.name === 'PokemonCardList'`. Its `.cards` property contained a Pokémon printing and Double Colorless Energy while the owning player's `active.energies.cards` physically contained the genuine Lightning Energy object (id `94002`) and DCE. The old test accessed the wrong list for attached Energies. It therefore aborted before testing the legitimate prompt's native validator or the Wondrous attack-cost tax. The diagnostic is synthetic staged public mechanics, no hidden opponent data or tournament trial.
+
+In [commit `1526d51`](https://github.com/FlareZ123/experiment-01/commit/1526d51b6b26853aa61d4656131ea463484911e0), the fixture now checks `pending.cardList.energies.cards.includes(energy)` in both the diagnostic branch and actual assertion, retaining exact **physical identity** and the later native `pending.validate(assignment,state)`. It does not replace the target with an equal-printing fake or skip the Bench movement.
+
+[Full compiled pinned native CI 41144648137](https://github.com/FlareZ123/experiment-01/actions/runs/41144648137), checkout head `097f53006ef086b422502cadbc36321bdfdbda62`, passed **the complete canonical workflow**, including `Check genuine both-seat Wondrous Stadium native attack tax`. This demonstrates the same input fixture now reaches native settlement and preserves its Wondrous tax versus no-Stadium controls, after checking the correct attached Energy zone. The unrelated recent workflow parser failure from a briefly added 26th dispatch input was independently corrected by Agent24 in the same checkout, restoring the GitHub maximum of 25.
+
+This is a **test harness assertion repair**. It establishes no broad game-engine correctness, no human-level opponent competence, no legal deck recommendation and no game win rate. Original Top32 field still **29/32 exact opponent 60s**, ranks **23, 25, 28** missing; **0 competitive-qualified games**.
