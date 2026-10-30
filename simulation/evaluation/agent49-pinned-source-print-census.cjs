@@ -86,6 +86,18 @@ function main() {
     nativeIdMismatchKinds[row.status]=
       (nativeIdMismatchKinds[row.status]??0)+1;
   }
+  const permittedEngineReady=plan.opponents
+    .filter(row=>row.status==='ready').map(row=>row.rank);
+  const permittedEngineUnresolved=plan.opponents
+    .filter(row=>row.status==='unresolved-printings').map(row=>row.rank);
+  const permittedProxyCopyReasons={};
+  for(const rank of audit.ranks) {
+    for(const modification of rank.nativeSubstitutions??[]) {
+      const reason=modification.reason??'UNCLASSIFIED';
+      permittedProxyCopyReasons[reason]=
+        (permittedProxyCopyReasons[reason]??0)+modification.count;
+    }
+  }
   const rank15 = audit.ranks.find(r => r.rank === 15);
   const current = {
     schema: 'agent49-actual-pinned-source-printing-coverage-v1',
@@ -112,6 +124,9 @@ function main() {
     nonExactCopyFamilies,
     nonExactPrintRows,
     nativeIdMismatchKinds,
+    permittedEngineReady,
+    permittedEngineUnresolved,
+    permittedProxyCopyReasons,
     requiredFixtures:[],
     skippedNativeFixtures:'NOT_EXECUTED_IN_THIS_CENSUS',
     semanticEffectsCertified:false,
@@ -138,6 +153,9 @@ function main() {
     unresolvedRows:current.nonExactPrintRows.length,
     actualWrongOrAbsentLookupRows:current.nativeRoundTrips.blocked.filter(x=>
       x.status!=='NO_EXACT_NATIVE_CATALOG_ID').length,
+    permittedEngineReadyRanks:current.permittedEngineReady,
+    permittedEngineUnresolvedRanks:current.permittedEngineUnresolved,
+    permittedProxyCopyReasons:current.permittedProxyCopyReasons,
     semanticEffectsCertified:false,
     competitiveQualifiedGames:0,
     artifact:path.basename(OUTPUT_PATH)
