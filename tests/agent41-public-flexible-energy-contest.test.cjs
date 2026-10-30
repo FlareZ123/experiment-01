@@ -33,7 +33,7 @@ function view(){
         name:'Regidrago V',printing:'Regidrago V SIT',
         printed:{stage:1,types:[3]},energies:['Fire Energy SVE'],
         publicRestrictions:{},specialConditions:[],
-        attacks:[{name:'Dragon Laser',damage:130,cost:[G,R,C],gxAttack:false}]
+        attacks:[{name:'Dragon Laser',damage:130,cost:[G,G,R],gxAttack:false}]
       },
       bench:[null,null,null,null,null],
       prizeCount:6,stadium:[],publicTurnRestrictions:{attackLockTurnsRemaining:0}
