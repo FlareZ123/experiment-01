@@ -190,3 +190,23 @@ test('bounded owner menu scorer may explicitly choose native-valid empty search'
     assert.equal(scored.prompt.canCancel,false);
   }
 });
+
+test('valued owner prompt scorer receives only frozen actor snapshot',()=>{
+  for(const seat of [0,1]){
+    const names=Array.from({length:50},(_,i)=>
+      'Card-'+String(i).padStart(2,'0'));
+    const owner=physicalPrompt(names,seat);
+    let calls=0;
+    const view=sparseObservedOwnerSearch(owner.state,seat,
+      ()=>fakeActor(seat),(printings,actor)=>{
+        calls++;
+        assert.ok(Object.isFrozen(actor));
+        assert.equal(actor.decisionKind,'owner-prompt');
+        assert.equal(actor.actorSeat,seat);
+        assert.equal(JSON.stringify(actor).includes('SECRET_OPPONENT_HAND'),false);
+        return printings.includes('Card-49')?10:0;
+      });
+    assert.ok(calls>0);
+    assert.ok(view.prompt.bundles[0].printings.includes('Card-49'));
+  }
+});
