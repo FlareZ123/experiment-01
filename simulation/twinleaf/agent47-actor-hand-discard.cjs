@@ -6,6 +6,7 @@ const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
 const VERSION='agent47-actor-hand-discard-v1-bounded';
+const APEX_PAYLOAD_PRINTINGS=new Set(['Dragapult ex TWM','Dialga-GX UPR']);
 const MESSAGE='CHOOSE_CARD_TO_DISCARD';
 
 /**
@@ -127,9 +128,10 @@ function resolvePhysicalHandCards(prompt,names){
  * @template T
  * @param {()=>T} execute Real Store workload
  * @param {object} [deps] Test-injected native classes and pure functions
+ * @param {{apexPayloadDiscard?:boolean}} [options] Development-only, default OFF.
  * @returns {{result:T,audit:object}}
  */
-function withActorHandDiscard(execute,deps={}){
+function withActorHandDiscard(execute,deps={},options={}){
   assert.equal(typeof execute,'function');
   const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const SimpleTacticsAi=deps.SimpleTacticsAi??
@@ -141,6 +143,8 @@ function withActorHandDiscard(execute,deps={}){
   const observe=deps.observe??actorHandDiscardInput;
   const choose=deps.choose??chooseActorHandDiscard;
   const validate=deps.validate??assertValidPromptAction;
+  const apexPayloadDiscard=options.apexPayloadDiscard===true||
+    process.env.AGENT47_APEX_PAYLOAD_DISCARD_DEV==='true';
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   const originalDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
@@ -150,7 +154,9 @@ function withActorHandDiscard(execute,deps={}){
   const audit={version:VERSION,eligible:0,selected:0,accepted:0,rejected:0,
     nativePromptPostconditionsConfirmed:0,nativeFallbacks:0,
     nonLiveSpeculativeFallbacks:0,bySeat:{0:0,1:0},
-    selections:[],competitiveGameQualified:false};
+    selections:[],apexPayloadDiscardOptIn:apexPayloadDiscard,
+    apexAlternativeProposals:0,apexSelected:0,apexReasons:{},
+    competitiveGameQualified:false};
   function decode(state){
     if(state!==liveStore?.state){
       audit.nonLiveSpeculativeFallbacks++;
@@ -168,7 +174,15 @@ function withActorHandDiscard(execute,deps={}){
       return original.value.call(this,state);
     }
     audit.eligible++;
-    const intent=choose(input);
+    const baseline=choose(input);
+    const apex=apexPayloadDiscard?
+      require('./agent47-apex-discard-frontier.cjs')
+        .proposeApexPayloadDiscard(input,APEX_PAYLOAD_PRINTINGS):null;
+    if(apex){
+      audit.apexReasons[apex.reason]=(audit.apexReasons[apex.reason]??0)+1;
+      if(apex.changed)audit.apexAlternativeProposals++;
+    }
+    const intent=apex?.changed?{printings:apex.proposal}:baseline;
     const pending=state.prompts.find(p=>p.id===input.prompt.id);
     const selected=resolvePhysicalHandCards(pending,intent.printings);
     assert.ok(selected,'Actor-selected discard is not a legal physical multiset');
@@ -178,6 +192,7 @@ function withActorHandDiscard(execute,deps={}){
       printings:[...intent.printings],requiredCount:input.prompt.requiredCount};
     intents.set(action,record);
     audit.selected++;
+    if(apex?.changed)audit.apexSelected++;
     return action;
   }
   function dispatch(action,...args){
