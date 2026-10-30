@@ -24,6 +24,12 @@ on:
         type: boolean
         default: false
 
+      frozen32_setup_census:
+        description: 'Reproduce all 32 original Agent41 native Store initial source deals with candidate mulligan and shuffle-offset evidence'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -102,5 +108,17 @@ jobs:
         with:
           name: agent26-frozen-rank6-setup-followup
           path: agent26-frozen-rank6-setup-followup.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Reproduce all 32 registered frozen source setups and shuffle RNG offsets
+        if: ${{ inputs.frozen32_setup_census }}
+        run: node simulation/evaluation/agent26-frozen32-all-setup-replay.cjs > agent26-frozen32-native-source-setups.json
+      - name: Archive every registered native source setup even if comparison fails
+        if: ${{ always() && inputs.frozen32_setup_census }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-frozen32-source-setup-census
+          path: agent26-frozen32-native-source-setups.json
           if-no-files-found: error
           retention-days: 14
