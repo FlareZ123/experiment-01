@@ -8,11 +8,6 @@ on:
         required: false
         type: boolean
         default: false
-      owner_plumeria_after_pass:
-        description: 'Default-off four-arm matched both-seat Plumeria native after-Pass proof'
-        required: false
-        type: boolean
-        default: false
       energy_frontier:
         description: Opt in one-unit Basic Energy planning on both actor roots
         required: false
@@ -486,41 +481,6 @@ jobs:
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
           AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-sourcefirst.json
-      - name: Agent38 matched canonical Plumeria after-Pass retrospective native source-first
-        # Preserve independent source-first evidence despite an earlier strict
-        # original-panel audit failure. Do not run after cancellation.
-        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.owner_plumeria_after_pass }}
-        env:
-          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT7_OWNER_SUPPORTER_AUDIT_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
-          AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV: ${{ inputs.native_fallback_paircheck && 'true' || 'false' }}
-          AGENT47_ACTOR_HAND_DISCARD_DEV: ${{ inputs.actor_hand_discard && 'true' || 'false' }}
-          AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ inputs.actor_choose_pokemon && 'true' || 'false' }}
-          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.actor_quick_ball_root && 'true' || 'false' }}
-          AGENT7_NATIVE_GENERIC_FALLBACK_DEV: ${{ inputs.native_generic_fallback && 'true' || 'false' }}
-          AGENT41_ACTOR_SINGLE_SEARCH_DEV: ${{ inputs.owner_single_search && 'true' || 'false' }}
-          AGENT10_BASIC_ENERGY_FRONTIER_DEV: ${{ inputs.energy_frontier && 'true' || 'false' }}
-          AGENT44_ACTOR_ENERGY_RECIPIENT_DEV: ${{ inputs.actor_energy_recipient && 'true' || 'false' }}
-          AGENT6_PAID_RETREAT_ROOT_DEV: ${{ inputs.actor_paid_retreat && 'true' || 'false' }}
-          AGENT49_POTENTIAL_KO_ROOT_DEV: ${{ inputs.potential_ko_root && 'true' || 'false' }}
-          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.special_energy_root && 'true' || 'false' }}
-          AGENT30_PERFECTION_ROOT_DEV: ${{ inputs.actor_perfection_root && 'true' || 'false' }}
-          AGENT5_COMPR_OPPORTUNITY_AUDIT: ${{ inputs.owner_discard_energy_audit && 'true' || 'false' }}
-          AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV: ${{ inputs.paper_terminal_attack_ko && 'true' || 'false' }}
-          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.natural_evolution_root && 'true' || 'false' }}
-          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.known_dead_attack_root && 'true' || 'false' }}
-          AGENT41_PAPER_SUPPORTER_DEV: 'true'
-          AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
-          AGENT41_MANDATORY_OPTION_DEV: 'true'
-          AGENT41_NATIVE_PRESSURE_DEV: 'true'
-          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
-          AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV: 'true'
-        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent38-canonical-sourcefirst-plumeria.json
-      - name: Summarize exact Plumeria matched controls retaining all errors and caps
-        if: ${{ !cancelled() && inputs.source_first_retrospective && inputs.owner_plumeria_after_pass }}
-        run: |
-          node scripts/agent38-plumeria-paired-census.cjs agent7-canonical-sourcefirst.json agent38-canonical-sourcefirst-plumeria.json > agent38-plumeria-matched-census.json
-          node -e "const r=require('./agent38-plumeria-matched-census.json'); console.log('PLUMERIA_MATCHED_NATIVE',JSON.stringify({attempted:r.registeredAttempts,matched:r.matchedDealAndActualStarter,sourceAudit:r.treatedAudits,missing:r.treatedMissingAudits,proposed:r.totalProposals,accepted:r.totalAccepted,settled:r.totalSettled,bySeat:r.bySeat,qualified:r.competitivelyQualifiedGames}));"
       - name: Audit all source-first attempts and preserve failed arms
         # Preserve independent source-first evidence despite an earlier strict
         # original-panel audit failure. Do not run after cancellation.
@@ -601,8 +561,6 @@ jobs:
             agent8-quick-ball-off.json
             agent8-quick-ball-paircheck.json
             agent7-canonical-sourcefirst.json
-            agent38-canonical-sourcefirst-plumeria.json
-            agent38-plumeria-matched-census.json
             agent7-canonical-actor-fourarm-control.json
             agent7-canonical-sourcefirst-control.json
             agent7-rank6-source-k1.json
