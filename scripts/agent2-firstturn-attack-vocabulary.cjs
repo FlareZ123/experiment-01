@@ -5,6 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 
 const ROOT=path.resolve(__dirname,'..');
+const {canonicalNumber}=require('./aichi-opening-basics.cjs');
 const VERSION='agent2-paper-expanded-firstturn-attack-vocabulary-v1';
 const BW_FORWARD_SET=/^(?:bw|xy|sm|swsh|sv|me)/;
 
@@ -50,7 +51,8 @@ function scanFirstTurnAttacks(root=ROOT){
         const orientation=classifyFirstTurnText(printedText);
         if(!orientation)continue;
         found.push({
-          cardId:card.id,card:card.name,stage:card.subtypes??[],
+          cardId:card.id,cardNumber:card.number,
+          setId:filename.slice(0,-5),card:card.name,stage:card.subtypes??[],
           attack:attack.name,cost:attack.cost??[],
           damage:attack.damage??'',orientation,
           text:printedText
@@ -80,6 +82,34 @@ function scanFirstTurnAttacks(root=ROOT){
   for(const row of groups){
     byOrientation[row.orientation]=(byOrientation[row.orientation]??0)+1;
   }
+  // Join exact Pokemon printing ID/number, never species names. This avoids
+  // falsely counting rank26's PLF4 Exeggcute as the separate SSP first-turn
+  // evolution printing merely because both are named Exeggcute.
+  const setMeta=JSON.parse(fs.readFileSync(
+    path.join(root,'resources','sets','en.json'),'utf8'));
+  const source=JSON.parse(fs.readFileSync(
+    path.join(root,'results','aichi-2026','full-decklists.json'),'utf8'));
+  const idToCode=new Map(setMeta.filter(x=>x.ptcgoCode)
+    .map(x=>[x.id,x.ptcgoCode]));
+  idToCode.set('smp','SMP');
+  idToCode.set('xyp','XYP');
+  const firstTurnExactPrintings=new Set(found.map(row=>[
+    row.card,idToCode.get(row.setId)||null,
+    canonicalNumber(String(row.cardNumber))
+  ].join('|')));
+  const originalFieldExactOverlap=[];
+  for(const deck of source.decks){
+    const cards=deck.cards.filter(x=>x.category==='Pokémon');
+    for(const row of cards){
+      const printId=[row.name,row.printing.set,
+        canonicalNumber(String(row.printing.number))].join('|');
+      if(firstTurnExactPrintings.has(printId)){
+        originalFieldExactOverlap.push({rank:deck.rank,card:row.name,
+          sourcePrinting:row.printing,count:row.count});
+      }
+    }
+  }
+  assert.equal(source.decks.length,29);
   return {
     schema:VERSION,
     source:'user-supplied BW-onward English card archive represented in resources/',
@@ -89,6 +119,10 @@ function scanFirstTurnAttacks(root=ROOT){
     distinctPrintedAttackFamilies:groups.length,
     distinctFamiliesByOrientation:byOrientation,
     firstTurnAttackFamilies:groups,
+    authenticatedOriginalAichiSixties:29,
+    matchingOriginalSourcePrintedFirstTurnAttackCopies:
+      originalFieldExactOverlap.reduce((n,x)=>n+x.count,0),
+    originalSourceFirstTurnPrintings:originalFieldExactOverlap,
     fieldMatched:false,
     paperLegalCertified:false,
     simulated:false,
