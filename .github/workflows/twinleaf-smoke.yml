@@ -51,6 +51,8 @@ jobs:
         run: node --test tests/new-moon-opening-horror-house-store-preflight.test.cjs
       - name: Probe source Regidrago printed-copy discard and Double Dragon Energy
         run: node simulation/twinleaf/regidrago-dragon-energy-probe.cjs
+      - name: Diagnose native Canceling Cologne sudden-death epoch without altering its hook
+        run: node simulation/twinleaf/agent13-cologne-epoch-diagnostic.cjs
       - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
         run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
       - name: Verify Forest Seal Stone Power bypasses Ability lock
