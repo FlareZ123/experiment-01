@@ -22,6 +22,7 @@ function fixture(){
     catalog:{
       basics:new Set([D,V]),
       abilityBasics:new Set([D]),
+      basicNames:new Map([[D,'Dedenne GX'],[V,'Regidrago V']]),
       evolutions:new Map([[S,{stage:4,evolvesFrom:'Regidrago V'}]])
     },
     first:{kind:'bench-basic',handIndex:0,benchIndex:4,printing:D}
