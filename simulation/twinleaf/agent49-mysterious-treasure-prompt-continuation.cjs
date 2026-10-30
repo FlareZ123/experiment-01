@@ -121,7 +121,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
       Number.isInteger(action.handIndex)&&
       !state.prompts?.some(p=>p.result===undefined)){
       const seat=state.activePlayer,owner=state.players?.[seat];
-      if(owner?.id===action.id &&
+      if((owner?.id===action.playerId||owner?.id===action.id)&&
          owner.hand.cards[action.handIndex]?.fullName===ITEM){
         const view=observe(state,seat);
         catalog??=getCatalog();
