@@ -42,7 +42,7 @@ function fixture(){
         selectedCards:['Psychic Energy MEE']},
       {ordinal:38,turn:4,actorSeat:1,kind:'ChooseCardsPrompt',
         nativePromptMin:2,nativePromptMax:2,
-        nativePromptAllowCancel:false,sourceZone:'discard',
+        nativePromptAllowCancel:true,sourceZone:'discard',
         sourceZoneCardCountBefore:3,
         selectedCards:['Speed Lightning Energy RCL','Crushing Hammer POR']}
     ]},
@@ -72,6 +72,7 @@ test('native settled Get Lost selects exactly both preceding Plumeria costs',()=
   assert.equal(x.chosenOpponentDiscardCardPrintings,2);
   assert.equal(x.printingInstancesMatchingImmediatePlumeriaPayment,2);
   assert.equal(x.fullTwoPaymentPrintingMatches,1);
+  assert.equal(x.nativeGetLostPromptsAllowCancel,1);
   assert.equal(x.fullTwoWithExactlyThreeDiscardCards,1);
   assert.equal(x.records[0].nativeDiscardPromptOrdinal,38);
   assert.equal(x.records[0].physicalLostZoneDestinationObjectNotIndependentlyObserved,true);
