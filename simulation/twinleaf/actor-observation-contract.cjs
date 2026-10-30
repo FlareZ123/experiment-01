@@ -61,7 +61,7 @@ function visiblePokemon(slot){
       gxAttack:attack.gxAttack===true,
       // Public printing-specific attack permission, used only under explicit
       // first-player opening-turn exception tests; native Store is final.
-      canUseOnFirstTurn:attack.canUseOnFirstTurn===true,
+      ...(attack.canUseOnFirstTurn===true?{canUseOnFirstTurn:true}:{}),
       barrage:attack.barrage===true
     })),
     abilities:pokemon.powers.map(power=>power.name),
