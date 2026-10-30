@@ -73,6 +73,8 @@ function planAichi(candidate = 1, options = {}) {
     {opponents,sourceDeckCount:source.decks.length},source,fieldCsv);
   return {
     originalSourceIdentity,
+    candidateNativeOrderedSha256:candidateResolved.cards?
+      digest(candidateResolved.cards):null,
     source: source.source, engineRevision: imported.engineRevision,
     manifestDigest: digest(source), candidateRank: custom ? null : candidateRank,
     candidateLabel: custom ? candidate.label || 'fixed custom deck' : candidateSource.player,
