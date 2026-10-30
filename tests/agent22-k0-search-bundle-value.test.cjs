@@ -53,11 +53,12 @@ test('a known owner-deck printing is deterministic regardless of unknown Prizes'
   assert.equal(r.exactDenominator,'2');
 });
 
-test('positive search costs can make optional empty search optimal',()=>{
+test('unrestricted any-card search must take one even at negative utility',()=>{
   const r=k0(['A','B','C'],1,{A:2,B:1},
     {cost:3,max:2});
-  close(r.expectedValue,0);
-  close(r.expectedCardsChosen,0);
+  // When A is Prized, B is best (-2). Otherwise A is best (-1).
+  close(r.expectedValue,-4/3);
+  close(r.expectedCardsChosen,1);
   close(r.probabilityPositiveValue,0);
 });
 
@@ -105,4 +106,16 @@ test('hypothetical no-target seven-card rank7 hand has near-certain triple acces
   close(r.expectedValue,9830137/468520);
   close(r.expectedCardsChosen,2459729/819910);
   assert.equal(r.exactDenominator,'22957480');
+});
+
+test('paper unrestricted search can take a zero-weight filler as one-card minimum',()=>{
+  const r=k0(['A','B','B'],1,{A:1},{cost:2,max:3});
+  // A is Prized in one third; otherwise A (-1) beats B (-2).
+  close(r.expectedValue,-4/3);
+  close(r.expectedCardsChosen,1);
+  close(r.probabilityPositiveValue,0);
+});
+
+test('unrestricted search with an empty deck is not a legal option',()=>{
+  assert.throws(()=>k0([],0,{A:10}),/eligible deck card/);
 });
