@@ -66,6 +66,8 @@ function auditFrozenPhysicalDenial(bytes) {
   assert.equal(getLost.fullTwoWithExactlyThreeDiscardCards,3);
   assert.equal(getLost.oneOfTwoPaymentPrintingMatches,2);
   assert.equal(getLost.nativeGetLostPromptsAllowCancel,5);
+  assert.equal(getLost.getLostActiveGirafarigWithPaidEnergy,5);
+  assert.equal(getLost.getLostWithPhysicalNewPsychicBeforeAttack,3);
   assert.equal(getLost.competitiveQualifiedGames,0);
   return {version:VERSION,sourceArtifactJsonSha256:FROZEN_TREATMENT_SHA256,
     enginePin:ENGINE_PIN,
