@@ -191,3 +191,35 @@ test('owner-known Stage2 can be TM evolved from an already established Stage1',(
   v.ownHand.push('Vileplume AOR');
   assert.equal(sourceCouldEvolveBench(v,c,withStage2),false);
 });
+
+test('never expends an end-turn TM before a blocked Bench Jet switch',()=>{
+  const v=view();
+  v.ownPublic.active.abilityDetails=[{
+    name:'Sentinel',
+    text:'As long as this Pokémon is your Active Pokémon, your opponent cannot play Supporter cards.'
+  }];
+  assert.equal(chooseBunnelbyTmJetRoot(v,catalog,source),null,
+    'Do not equip TM on Bunnelby when replacing Sentinel is prohibited');
+  v.ownPublic.active.abilityDetails=[];
+  v.ownTurnResources.energyPlayedTurn=2;
+  assert.equal(chooseBunnelbyTmJetRoot(v,catalog,source),null,
+    'TM expires this turn if Jet cannot attach due quota');
+  v.ownTurnResources.energyPlayedTurn=0;
+  v.ownHand=['Technical Machine: Evolution PAR'];
+  assert.equal(chooseBunnelbyTmJetRoot(v,catalog,source),null,
+    'No held Jet means no Bench promotion this turn');
+  v.ownHand=['Jet Energy PAL',TM];
+  v.globalTurn=1;
+  assert.equal(chooseBunnelbyTmJetRoot(v,catalog,source),null,
+    'First player cannot attack and TM is discarded at end of turn');
+});
+test('already paid Bench Bunnelby may still need Jet for promotion',()=>{
+  const v=view();
+  v.ownPublic.bench[0].tools=[TM];
+  v.ownPublic.bench[0].energies=['Grass Energy MEE'];
+  v.ownHand=['Jet Energy PAL'];
+  const intent=chooseBunnelbyTmJetRoot(v,catalog,source);
+  assert.equal(intent.kind,'attach-special-energy');
+  assert.equal(intent.slot,'bench');
+  assert.equal(intent.index,0);
+});
