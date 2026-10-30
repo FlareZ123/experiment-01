@@ -106,6 +106,10 @@ test('fabricated extra row, duplicate seat and altered print SHA are rejected',(
 test('an invalid full-60 printed inventory is not a precommitted source',()=>{
   const {plan,archive}=fixture();
   plan.fixtures[0].sourcePrints[2].count=57;
+  // Refresh only the synthetic plan binding so this test reaches the
+  // independently required exact-60 preflight rather than the prior hash veto.
+  plan.registrationId=digestReleasePlan(plan);
+  archive.registrationId=plan.registrationId;
   assert.throws(()=>auditNativePrintRelease(plan,archive),
     /sixty cards/);
 });
