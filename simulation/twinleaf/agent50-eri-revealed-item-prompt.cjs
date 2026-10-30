@@ -85,5 +85,38 @@ function resolveEriRevealedItemPrompt(state,seat,prompt,superType,
   };
 }
 
+/**
+ * A deliberately uncertain, bounded competing Supporter option before
+ * an already payable attack. Large opponent-hand count is publicly known,
+ * but Item presence is deliberately UNKNOWN until the real Eri reveal.
+ * It is a candidate for centralized arbitration and is not a forced move.
+ *
+ * @param {object} view Frozen actor owner-root observation.
+ * @param {{kind:string,attackName?:string}} first Existing attack decision.
+ * @returns {{kind:string,handIndex:number,printing:string,
+ *   evidence:string,opponentPublicHandCount:number}|null}
+ */
+function offerEriBeforeAttack(view,first){
+  assert.equal(view?.decisionKind,'owner-root');
+  const own=view.ownPublic,r=view.ownTurnResources;
+  if(first?.kind!=='attack'||typeof first.attackName!=='string'||
+      !own?.active?.attacks?.some(a=>a.name===first.attackName)||
+      view.globalTurn<=1||!Number.isSafeInteger(own.prizeCount)||
+      own.prizeCount<4||
+      !Number.isSafeInteger(view.opponentPublic?.handCount)||
+      view.opponentPublic.handCount<5||
+      r?.supporterPlayedTurn!==0||
+      r?.supporterPlayLocked===true||
+      own.publicTurnRestrictions?.supporterPlayLocked===true||
+      own.resolvingSupporter?.length>0)
+    return null;
+  const handIndex=view.ownHand?.indexOf(ERI)??-1;
+  if(handIndex<0)return null;
+  return {kind:'play-eri-reveal',handIndex,printing:ERI,
+    evidence:'possible-item-denial-before-payable-attack',
+    opponentPublicHandCount:view.opponentPublic.handCount};
+}
+
 module.exports={VERSION,ERI,MESSAGE,observeEriRevealedItems,
-  chooseEriRevealedItemIndices,resolveEriRevealedItemPrompt};
+  chooseEriRevealedItemIndices,resolveEriRevealedItemPrompt,
+  offerEriBeforeAttack};
