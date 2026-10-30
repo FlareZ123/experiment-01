@@ -185,6 +185,8 @@ jobs:
         run: node --test tests/agent29-actor-hammer-pinned-native.test.cjs
       - name: Verify rank6 original Team Flare Grunt two-seat native Energy discard
         run: node --test tests/agent8-team-flare-grunt-pinned-native.test.cjs
+      - name: Stage original rank15 Lopunny Grass versus DCE native attack settlement
+        run: node --test tests/agent8-rank15-mixed-energy-pinned-native.test.cjs
       - name: Agent29 same-deal Hammer OFF/ON real-Store source-first development pair
         if: ${{ inputs.source_first_retrospective }}
         run: node --test tests/agent29-hammer-headless-native.test.cjs
