@@ -392,6 +392,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePlayersCeremonyLastChance(view);
     if(ceremony)return ceremony;
   }
+  if(options.skyFieldBenchExpansion===true){
+    const sky=require('./agent33-sky-field-bench-expansion.cjs')
+      .chooseSkyFieldBenchExpansion(view,catalog);
+    if(sky)return sky;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -476,6 +481,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       process.env.AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV==='true',
     tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
+    skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -609,6 +615,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.playersCeremonyLastChanceOptIn)
     audit.version+='+'+
       require('./agent33-players-ceremony-lastchance.cjs').VERSION;
+  if(audit.skyFieldBenchExpansionOptIn)
+    audit.version+='+'+
+      require('./agent33-sky-field-bench-expansion.cjs').VERSION;
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -745,6 +754,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
       tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
+      skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
@@ -847,6 +857,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-tropical-beach':
       case 'play-players-ceremony':
+      case 'play-sky-field':
       case 'play-thunder-mountain':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
