@@ -126,6 +126,8 @@ jobs:
         run: node --test tests/agent2-source-shuffle-supporter-census.test.cjs
       - name: Validate exact-print original source Basic openings and first-turn niche attacker probabilities
         run: node --test tests/agent2-firstturn-opening-frontier.test.cjs
+      - name: Enumerate actual BW-onward first-turn attack exceptions and bonus printings
+        run: node --test tests/agent2-firstturn-attack-vocabulary.test.cjs
       - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
         run: node simulation/twinleaf/agent2-shuffle-supporter-samedeal-native.cjs > agent2-shuffle-supporter-samedeal-native.json
       - name: Archive all accepted and rejected draw Supporter choice receipts
