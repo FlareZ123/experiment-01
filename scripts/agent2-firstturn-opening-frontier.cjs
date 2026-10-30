@@ -146,6 +146,73 @@ function directFreeFrontliner(frontliners,otherBasics){
     (choose(60,7)-choose(60-frontliners-otherBasics,7));
 }
 
+/**
+ * Stronger Cresselia CRE Crescent Glow feasibility: Cresselia must be an
+ * actual opening-seven Basic; the first eight must include a Psychic Energy
+ * to pay [P], and a DIFFERENT targeted Basic (e.g. Shadow Rider Calyrex V)
+ * to receive three Psychic Energy from the post-Prize live deck.
+ *
+ * This exact hypergeometric result considers zero hand search and no support
+ * draw beyond the player's turn-one ordinary draw, conditional on a legal
+ * initial seven-card hand. The three accelerated cards come exclusively from
+ * the deck, so prizes are marginalized *after* the eighth observed card.
+ * `otherBasics` excludes the specifically desired target copies.
+ * The printed attack could instead attach to Cresselia itself; this model
+ * deliberately counts only the more strategic distinct-target ALS.
+ *
+ * @param {number} cresselia Four-copy-cap Basic attacker count
+ * @param {number} targetBasic Other target Basic print count
+ * @param {number} otherBasics All additional Basic cards in 60
+ * @param {number} psychicEnergy Usable Basic Psychic Energy cards in 60
+ * @returns {number} Exact conditionally valid opening probability
+ */
+function directCresseliaThreePsychicToTarget(
+    cresselia,targetBasic,otherBasics,psychicEnergy){
+  assert.ok([cresselia,targetBasic,otherBasics,psychicEnergy].every(x=>
+    Number.isSafeInteger(x)&&x>=0));
+  assert.ok(cresselia>=1&&targetBasic>=1&&
+    cresselia+targetBasic+otherBasics+psychicEnergy<=60);
+  const filler=60-cresselia-targetBasic-otherBasics-psychicEnergy;
+  const legal=choose(60,7)-
+    choose(60-cresselia-targetBasic-otherBasics,7);
+  assert.ok(legal>0);
+  const prizeDenominator=choose(52,6);
+  let success=0;
+  for(let w=1;w<=Math.min(cresselia,7);w++){
+    for(let t=0;t<=Math.min(targetBasic,7-w);t++){
+      for(let b=0;b<=Math.min(otherBasics,7-w-t);b++){
+        for(let e=0;e<=Math.min(psychicEnergy,7-w-t-b);e++){
+          const f=7-w-t-b-e;
+          const ways=choose(cresselia,w)*choose(targetBasic,t)*
+            choose(otherBasics,b)*choose(psychicEnergy,e)*choose(filler,f);
+          if(!ways)continue;
+          const options=[
+            {kind:'cresselia',remaining:cresselia-w},
+            {kind:'target',remaining:targetBasic-t},
+            {kind:'other',remaining:otherBasics-b},
+            {kind:'energy',remaining:psychicEnergy-e},
+            {kind:'filler',remaining:filler-f}
+          ];
+          for(const draw of options){
+            if(draw.remaining===0)continue;
+            if(t+(draw.kind==='target'?1:0)<1||
+               e+(draw.kind==='energy'?1:0)<1)continue;
+            const liveEnergy=psychicEnergy-e-
+              (draw.kind==='energy'?1:0);
+            let prizesCompatible=0;
+            for(let p=0;p<=Math.min(6,liveEnergy-3);p++){
+              prizesCompatible+=choose(liveEnergy,p)*
+                choose(52-liveEnergy,6-p)/prizeDenominator;
+            }
+            success+=ways*(draw.remaining/53)*prizesCompatible;
+          }
+        }
+      }
+    }
+  }
+  return success/legal;
+}
+
 // The existing exact-printing Basic census is reused as authoritative here.
 // It handles English promo-number aliases and multiple set gallery namespaces.
 const {fromRepository}=require('./aichi-opening-basics.cjs');
@@ -188,6 +255,12 @@ function main(emit=true){
       directVoltorbTwoBenchedEnergiesWhenSecond:
         directVoltorbAttachment(4,8,8,2)
     },
+    cresseliaCREThreePsychicToShadowRiderVIllustration:{
+      note:'Replacing non-Shadow-Rider-V Basics with Cresselia; 3 Shadow Rider V, 11 Basic Psychic, total Basic count fixed at 14; direct no-search second turn only',
+      activeFourCopies:directCresseliaThreePsychicToTarget(4,3,7,11),
+      activeTwoCopies:directCresseliaThreePsychicToTarget(2,3,9,11),
+      activeOneCopy:directCresseliaThreePsychicToTarget(1,3,10,11)
+    },
     defaultPolicyChanged:false,
     simulationWins:0,
     competitiveQualified:false,
@@ -199,5 +272,6 @@ function main(emit=true){
 if(require.main===module)main();
 module.exports={
   VERSION,choose,basicOpeningDistribution,directColorlessAttackerReady,
-  directVoltorbAttachment,directFreeFrontliner,main
+  directVoltorbAttachment,directFreeFrontliner,
+  directCresseliaThreePsychicToTarget,main
 };
