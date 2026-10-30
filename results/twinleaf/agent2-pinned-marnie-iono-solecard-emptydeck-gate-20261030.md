@@ -27,6 +27,19 @@ The [official Japanese basic-rule explanation](https://www.pokemon-card.com/howt
 
 The English Marnie text has the same “either player” hand-return trigger, although an equivalent official Marnie-specific Q&A for this precise state has not been located. Keep the Marnie gap as a card-text-based inference until independently confirmed. The current conservative full-draw frontiers do not propose this zero-owner-draw scenario; any future native hook or root-vs-hold arbiter must first stage an actual legal Store continuation and paper-check unexpected on-move-prevention effects.
 
+## Marnie and Milotic Dew Guard: independently established exception
+
+The [official Japanese Marnie Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9E%E3%83%AA%E3%82%A3&regulation_faq_main_item1=all) supplies additional precise checks of the same conditional mechanism:
+
+- When the only owner card is Marnie and the opponent has no hand cards, Marnie is unplayable.
+- With **both decks empty**, the owner holding Marnie *plus another card*, and the opponent holding at least one card, Marnie is playable.
+- If the owner holds only Marnie, the opponent holds at least one card, **one player's deck contains at least one card**, and the opponent has **Milotic EVS 38** with unblocked **Dew Guard**, Marnie can be played. The Supporter gets discarded and the effect ends because the opponent's protected hand cannot move.
+- If both players have multiple hand cards and opposing Dew Guard applies, the Supporter can still affect its owner while the opponent's hand is protected.
+
+The [official English Milotic text](https://asia.pokemon-card.com/sg/card-search/detail/1612/) confirms that Dew Guard prevents effects of an opponent's Supporter done to its controller or its controller's hand. The pinned `ptcg-server/src/sets/09-sword-and-shield/set-evolving-skies/milotic.ts` detects a `MoveCardsEffect` from the protected player's hand with a Supporter source and prevents that move if its Ability remains unblocked. Consequently a hand-count-only `printedShuffleDrawCounts` heuristic may **overestimate opponent effects in a Dew Guard state**, even if the nominal “either player returned cards” clause looks satisfied before applying prevention. The new opt-in bridge deliberately leaves `onMovePrevented` without an owner draw when the opponent was its sole possible return; this still needs a genuine native Store test.
+
+The hook does not independently prove that a Supporter could be played when the opponent's hand is protected and *both* original decks are empty. This precise combined situation is absent from the retrieved published Marnie rulings. Keep it outside demonstrated paper legality until verified.
+
 ## Encoded narrow regression
 
 `tests/agent2-native-shuffle-emptydeck-gate.test.cjs` imports the genuine compiled Iono/Marnie classes and calls their own `canPlay` methods against minimal Player/State-shaped objects. The expected pinned results are: `(own deck 0, sole Supporter hand, opposing hand 1) => false`, `(own deck 1, opposing hand 1) => true`, `(own deck 0, one extra own hand card, opposing hand 1) => true`, and `(own deck 1, opposing hand 0, sole Supporter hand) => false`. These tests document present upstream behavior; they do not proclaim the false result paper-correct.
