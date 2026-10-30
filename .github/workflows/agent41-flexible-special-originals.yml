@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify sealed source identities, metadata comparisons and failure retention
-        run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs
+        run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs
       - name: Execute the preregistered 16 actual native Store developmental attempts
         run: node simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs > agent41-original-flexible-special-16arm.json
       - name: Assert denominator, preserve censored trials, and print bounded receipts
