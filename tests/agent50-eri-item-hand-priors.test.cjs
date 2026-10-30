@@ -46,7 +46,8 @@ test('exact Eri, Ultra Ball, and Computer Search Trainer subtype distinct',()=>{
   const rows=[
     ['Eri','TEF','146','Supporter'],
     ['Ultra Ball','SUM','135','Item'],
-    ['Computer Search','BCR','137','Item']
+    ['Computer Search','BCR','137','Item'],
+    ['Forest Seal Stone','SIT','156','Pokémon Tool']
   ];
   for(const [name,set,number,subtype] of rows){
     const row={category:'Trainer',name,
