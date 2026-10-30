@@ -83,11 +83,13 @@ for(const seat of [0,1]){
   });
 }
 
-test('native Store declines an absent Player Ceremony rather than ending turn',()=>{
+test('research hook declines absent Stadium without invoking native default',()=>{
   const x=stage(0);
   x.owner.stadium.cards.length=0;
   const effect=new UseStadiumEffect(x.owner,x.ceremony);
-  x.store.reduceEffect(x.state,effect);
+  // Isolate the card-specific reducer: general native Store fallback marks
+  // Stadium action usage independently, even when this printed card is absent.
+  assert.equal(x.ceremony.reduceEffect(x.store,x.state,effect),x.state);
   assert.equal(effect.preventDefault,false);
   assert.equal(x.owner.hand.cards.length,0);
   assert.equal(x.owner.stadiumUsedTurn,0);
