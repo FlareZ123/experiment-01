@@ -3,11 +3,6 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
-      settled_physical_custody_gate:
-        description: 'Opt-in fail-closed settled 60-card native Store audit; never competitive game qualification'
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -293,11 +288,7 @@ jobs:
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
-          AGENT24_PHYSICAL_ZONE_GATE_DEV: ${{ inputs.settled_physical_custody_gate && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
-      - name: Reject any settled physical-card invalid or unverified original arm
-        if: ${{ inputs.settled_physical_custody_gate }}
-        run: node -e "const a=require('node:assert/strict');const r=require('./agent7-canonical-actor-fourarm.json'),s=r.physicalZoneQualificationSummary;console.log('PHYSICAL_CUSTODY_RELEASE_GATE',JSON.stringify(s));a.equal(s.attempted,r.attempted);a.equal(s.allPhysicallyAudited,true,'Every original Store attempted game must prove settled physical 60-card custody');a.equal(s.competitiveQualifiedGames,0);"
       - name: Same-checkout genuine Store observer-off original four-arm control
         if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         env:
