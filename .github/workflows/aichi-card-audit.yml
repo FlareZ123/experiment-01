@@ -91,6 +91,8 @@ jobs:
         run: node --test tests/agent49-native-players-ceremony-store.test.cjs
       - name: Verify original rank7 PRC60 variant selects Omega Barrier native printed power
         run: node --test tests/agent49-native-prc60-omega-barrier-identity.test.cjs
+      - name: Probe real owner-first Mysterious Treasure Item prompt both seats
+        run: node simulation/twinleaf/agent49-mysterious-treasure-native-probe.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
