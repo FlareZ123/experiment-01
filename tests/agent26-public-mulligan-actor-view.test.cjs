@@ -76,3 +76,28 @@ test('root ownership and public packet authenticity failures are fail closed',()
   assert.throws(()=>actorObservationWithPublicMulligans(
     state,0,packet,absent),/no verified public name/);
 });
+
+test('concrete identity reads from hidden physical zones stay impossible',()=>{
+  const s=fixture();
+  const poison=n=>new Proxy({length:n},{get(obj,property){
+    if(property==='length')return obj.length;
+    throw new Error('Forbidden hidden card identity read '+String(property));
+  }});
+  s.players[0].deck.cards=poison(26);
+  s.players[0].prizes[0].cards=poison(1);
+  s.players[1].hand.cards=poison(4);
+  s.players[1].deck.cards=poison(25);
+  s.players[1].prizes[0].cards=poison(1);
+  const v=actorObservationWithPublicMulligans(s,0,packet,names);
+  assert.deepEqual(v.publicFailedOpponentSevens,[printings]);
+  assert.equal(v.opponentPublic.handCount,4);
+  assert.equal(v.opponentPublic.deckCount,25);
+  assert.equal(v.opponentPublic.prizeCount,1);
+});
+
+test('provenance mismatch cannot turn arbitrary private lists into public history',()=>{
+  const state=fixture();
+  const wrong={...packet,provenance:'opponent hand identity'};
+  assert.throws(()=>actorObservationWithPublicMulligans(
+    state,0,wrong,names),/opponent-facing ShowMulliganPrompt only/);
+});
