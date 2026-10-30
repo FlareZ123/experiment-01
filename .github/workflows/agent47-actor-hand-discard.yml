@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      celestial_special_native:
+        description: Staged original source20 Celestial Roar Double Dragon Special Energy paper mismatch both seats
+        required: false
+        type: boolean
+        default: false
       minimum_attach_replay:
         description: Post-hoc same-registered-source 24-pair replay of mandatory two/three Energy prompt repair
         required: false
@@ -31,10 +36,10 @@ jobs:
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
@@ -52,6 +57,16 @@ jobs:
           path: |
             agent47-apex-source20-native.json
             agent47-apex-source20-followthrough-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Source-print Regidrago V Special Energy Celestial Roar discrepancy, both seats
+        if: ${{ inputs.celestial_special_native }}
+        run: node simulation/twinleaf/agent47-celestial-roar-double-dragon-pinned-native.cjs > agent47-celestial-roar-native.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.celestial_special_native }}
+        with:
+          name: agent47-celestial-roar-special-native
+          path: agent47-celestial-roar-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Retrospective native 24-pair two-seat minimum Energy assignment replay
