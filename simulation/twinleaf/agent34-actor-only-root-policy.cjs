@@ -494,8 +494,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT16_OWNER_ARBITRATION_CENSUS_DEV==='true'),
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
-    terminalArbitrationOptIn:deps.terminalArbitration??
-      (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'),
+    terminalArbitrationOptIn:deps.terminalArbitration===true||
+      process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'||
+      deps.beforeAttackDenial===true||
+      process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true',
+    beforeAttackDenialOptIn:deps.beforeAttackDenial===true||
+      process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true',
     protectPotentialTwoPrizeAttackOptIn:deps.protectPotentialTwoPrizeAttack??
       (process.env.AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV==='true'),
     protectPotentialPrintedPrizeAttackOptIn:deps.protectPotentialPrintedPrizeAttack??
@@ -549,6 +553,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.terminalArbitrationOptIn;
     delete audit.terminalArbitration;
   }
+  if(!audit.beforeAttackDenialOptIn)delete audit.beforeAttackDenialOptIn;
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
@@ -718,7 +723,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       seekerLillieRoot:audit.seekerLillieRootOptIn,
       protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
       protectPotentialPrintedPrizeAttack:audit.protectPotentialPrintedPrizeAttackOptIn,
-      conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn
+      conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
+      beforeAttackDenialRoot:audit.beforeAttackDenialOptIn
     };
     const firstIntent=chooseActorRootIntent(view,catalog,rootOptions);
     const arbitration=audit.terminalArbitrationOptIn?
