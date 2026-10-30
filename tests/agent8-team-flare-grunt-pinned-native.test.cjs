@@ -55,7 +55,7 @@ function root(seat){
       player.prizes.push(prize);
     }
   }
-  return {store,state,owner,opponent,energy,supporter,seat};
+  return {store,state,owner,opponent,energy,supporter,seat,card,manager};
 }
 
 test('pinned original Team Flare Grunt discards an opponent Active Energy in both seats',()=>{
@@ -144,5 +144,77 @@ test('record actual first-turn Store acceptance independently of printed canPlay
       assert.equal(supporterConsumed,true);
       assert.equal(energyDiscarded,true);
     }
+  }
+});
+
+test('native both-seat attack-versus-denial arbiter settles Supporter and retains subsequent root',()=>{
+  const {actorObservation}=
+    require('../simulation/twinleaf/actor-observation-contract.cjs');
+  const {buildActorCardCatalog,chooseActorRootIntent}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const {arbitrateOwnerRootIntent}=
+    require('../simulation/twinleaf/agent41-owner-root-arbitration.cjs');
+  const {PokemonCard}=native('game/store/card/pokemon-card');
+  const {EnergyCard}=native('game/store/card/energy-card');
+  const {PowerType}=native('game/store/card/pokemon-types');
+  const {Stage,EnergyType,CardType,SpecialCondition}=
+    native('game/store/card/card-types');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  for(const seat of [0,1]){
+    const x=root(seat);
+    const catalog=buildActorCardCatalog(x.manager.getAllCards(),{
+      PokemonCard,EnergyCard,Stage,EnergyType,CardType,
+      PowerType,SpecialCondition
+    });
+    // Engine-native original printings, staged on a real Store. This is
+    // explicitly outside the probability distribution of legal openers.
+    for(const printing of ['Lightning Energy SVE',
+      'Psychic Energy SVE','Psychic Energy SVE']){
+      const energy=x.card(printing);
+      x.owner.active.cards.push(energy);
+      x.owner.active.energies.cards.push(energy);
+    }
+    const second=x.card('Psychic Energy SVE');
+    x.opponent.active.cards.push(second);
+    x.opponent.active.energies.cards.push(second);
+    assert.equal(x.opponent.active.energies.cards.length,2);
+    const original=actorObservation(x.state,seat);
+    const first=chooseActorRootIntent(original,catalog);
+    assert.equal(first.kind,'attack');
+    assert.equal(first.attackName,'Volt Cyclone');
+    const picked=arbitrateOwnerRootIntent(original,catalog,first,{
+      beforeAttackDenialRoot:true,teamFlareGruntDenialRoot:true
+    });
+    assert.equal(picked.receipt.candidateCount,1);
+    assert.deepEqual(picked.intent,{
+      kind:'play-team-flare-grunt-denial',handIndex:0,
+      printing:'Team Flare Grunt XY'
+    });
+    assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),true);
+    const ownTurn=x.state.turn;
+    x.store.dispatch(new PlayCardAction(x.owner.id,picked.intent.handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const pending=x.state.prompts.find(prompt=>prompt.result===undefined);
+    assert.ok(pending,'Denied Energy must create the original native target prompt');
+    assert.equal(pending.constructor.name,'ChooseCardsPrompt');
+    assert.equal(pending.validate([x.energy]),true);
+    x.store.dispatch(new ResolvePromptAction(pending.id,[x.energy]));
+    assert.equal(x.opponent.active.energies.cards.length,1);
+    assert.equal(x.opponent.discard.cards.includes(x.energy),true);
+    assert.equal(x.owner.hand.cards.includes(x.supporter),false);
+    assert.equal(x.state.prompts.some(prompt=>prompt.result===undefined),false);
+    assert.equal(x.state.turn,ownTurn);
+    const later=actorObservation(x.state,seat);
+    const next=chooseActorRootIntent(later,catalog);
+    assert.equal(next.kind,'attack');
+    assert.equal(next.attackName,'Volt Cyclone');
+    process.stdout.write('# TEAM_FLARE_ARBITER_NATIVE '+
+      JSON.stringify({seat,selected:picked.intent.kind,
+        opponentEnergyBefore:2,opponentEnergyAfter:1,
+        laterOwnerIntent:next.kind,ownerTurn:x.state.turn})+'\n');
   }
 });
