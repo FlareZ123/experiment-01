@@ -64,7 +64,8 @@ function visibleK1Resources(prompt,player){
  * No full-game outcome and no opponent-private data.
  * @returns {object}
  */
-function run(){
+function run({observeOpponentReturn=false}={}){
+  assert.equal(typeof observeOpponentReturn,'boolean');
   verifyFrame();
   const {resolvedPrintedDecks}=
     require('../evaluation/rank11-conditional-k0-screen-run.cjs');
@@ -88,7 +89,9 @@ function run(){
     const original=SimpleTacticsAi.prototype.decodeNextAction;
     const STOP=Symbol('agent32-end-of-registered-mechanical-source-turn');
     const row={index:selected.index,seed:selected.seed,
-      status:'not-yet-observed',actions:[],K1SourceSearchOccurred:false};
+      status:'not-yet-observed',actions:[],K1SourceSearchOccurred:false,
+      ...(observeOpponentReturn?{opponentRootProposals:[],
+        opponentFirstRootObserved:false,sourceReturnObserved:false}: {})};
     let stage=-1,needs=[];
     /** @param {object} state @param {string} status @param {string} reason */
     function stop(state,status,reason){
@@ -148,10 +151,44 @@ function run(){
         };
         const successful=row.witness.sourceUsedVSTAR&&
           row.witness.sourceEquippedGarbodor;
-        stop(state,successful?'native-equipped-garbotoxin-source-first-root':
-          'native-nextturn-witness-not-established',
-          successful?'First opponent root after real Boost Shake':
-            'Native next turn lacks expected public Tool-Garbodor/VSTAR board');
+        if(successful&&observeOpponentReturn){
+          row.opponentFirstRootObserved=true;
+          stage=12;
+        }else{
+          stop(state,successful?'native-equipped-garbotoxin-source-first-root':
+            'native-nextturn-witness-not-established',
+            successful?'First opponent root after real Boost Shake':
+              'Native next turn lacks expected public Tool-Garbodor/VSTAR board');
+        }
+      }
+      if(stage===12){
+        // Continue through the actual opposing bot's turn, without choosing
+        // any opposing cards. Store-driven turn progression is required to
+        // reach a genuine source-owner decision on the following turn.
+        if(!pending&&actor===owner&&state.activePlayer===0&&state.turn>=3){
+          row.sourceReturnObserved=true;
+          const equipped=owner.bench.filter(slot=>
+            slot.getPokemonCard()?.name==='Garbodor'&&
+            slot.tools.some(tool=>tool.name==='Float Stone'));
+          row.afterOpponentPublic={
+            turn:state.turn,sourceEquippedGarbodorCount:equipped.length,
+            sourceUsedVSTAR:owner.usedVSTAR===true,
+            sourceActivePrinting:owner.active.getPokemonCard()?.fullName??null,
+            sourceRemainingPrizes:owner.prizes.reduce((n,p)=>n+p.cards.length,0)
+          };
+          stop(state,'native-opponent-turn-returned-to-source-root',
+            'Opponent completed a real Store turn; source root available');
+        }
+        const proposed=original.call(this,state);
+        if(!pending&&actor===state.players[1]&&
+            state.turn===2&&state.activePlayer===1&&
+            row.opponentRootProposals.length<80){
+          row.opponentRootProposals.push({
+            turn:state.turn,kind:proposed?.constructor?.name??null,
+            qualification:'proposal-only; Store acceptance not attested here'
+          });
+        }
+        return proposed;
       }
       if(actor!==owner)return original.call(this,state);
       if(stage===-1){
@@ -273,7 +310,7 @@ function run(){
     };
     try{
       try{
-        runMatch({
+        const game=runMatch({
           ...decks,seed:selected.seed,
           label:'rank11-conditional-K0-screen-v1:'+selected.index,
           maxActions:200,strictPromptValidation:true,
@@ -282,8 +319,17 @@ function run(){
           isolatePolicyRandomness:true
         });
         if(row.status==='not-yet-observed'){
-          row.status='blocked-native-no-boundary';
-          row.stopReason='Native run returned before specified stop';
+          row.status=observeOpponentReturn&&row.opponentFirstRootObserved?
+            (game.finished===true?'engine-terminal-before-next-source-root':
+              'censored-before-next-source-root'):
+            'blocked-native-no-boundary';
+          row.stopReason=observeOpponentReturn&&row.opponentFirstRootObserved?
+            'Native run returned before a next source-owner decision':
+            'Native run returned before specified stop';
+          if(observeOpponentReturn&&row.opponentFirstRootObserved){
+            row.nativeEngineFinished=game.finished===true;
+            row.nativeEngineWinner=game.finished===true?game.winner:null;
+          }
         }
       }catch(error){
         if(error!==STOP){
@@ -301,7 +347,9 @@ function run(){
     rows.push(row);
   }
   return {
-    schema:'agent32-rank11-six-star-fetched-VIP-native-K1-v1',
+    schema:observeOpponentReturn?
+      'agent1-rank11-six-native-opponent-return-v1':
+      'agent32-rank11-six-star-fetched-VIP-native-K1-v1',
     registrationSha256:frame.frameSha256,
     parentFrameSha256:frame.parentFrameSha256,
     engineRevision:frame.engineRevision,
@@ -313,12 +361,21 @@ function run(){
     K1Unavailable:rows.filter(r=>
       r.status==='k1-required-resource-unavailable').length,
     blocked:rows.filter(r=>r.status.startsWith('blocked')).length,
+    ...(observeOpponentReturn?{
+      opponentFirstRoots:rows.filter(r=>r.opponentFirstRootObserved).length,
+      sourceReturnRoots:rows.filter(r=>r.sourceReturnObserved).length,
+      nonreturningTerminals:rows.filter(r=>
+        r.status==='engine-terminal-before-next-source-root').length,
+      nonreturningCensors:rows.filter(r=>
+        r.status==='censored-before-next-source-root').length
+    }:{}),
     rows,competitiveQualifiedGames:0,
     warning:'Retrospectively K0-selected native mechanics check, not all-field strength, not a win rate; no card target is read before its owner deck search.'
   };
 }
 if(require.main===module){
-  const output=run();
+  const output=run({observeOpponentReturn:
+    process.argv.includes('--opponent-return')});
   process.stdout.write(JSON.stringify(output,null,2)+'\n');
   if(output.blocked>0)process.exitCode=1;
 }
