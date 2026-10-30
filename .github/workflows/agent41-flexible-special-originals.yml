@@ -2,6 +2,15 @@ name: Registered Aichi original Special Energy both-seat development
 
 on:
   workflow_dispatch:
+    inputs:
+      study:
+        description: 'Baseline public-context Special or registered exact-color contest, unqualified'
+        type: choice
+        required: true
+        default: public-context
+        options:
+          - public-context
+          - contest
 
 permissions:
   contents: read
@@ -27,11 +36,16 @@ jobs:
         run: npm run compile
       - name: Verify sealed source identities, metadata comparisons and failure retention
         run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs
+      - name: Native rank10 Regidrago V Basic versus Double Dragon two-seat settlement
+        if: ${{ inputs.study == 'contest' }}
+        run: node --test tests/agent41-public-flexible-contest-native.test.cjs
       - name: Execute the preregistered 16 actual native Store developmental attempts
+        env:
+          AGENT41_FLEXIBLE_SPECIAL_STUDY: ${{ inputs.study }}
         run: node simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs > agent41-original-flexible-special-16arm.json
       - name: Assert denominator, preserve censored trials, and print bounded receipts
         run: |
-          node -e "const a=require('node:assert/strict');const p=require('./agent41-original-flexible-special-16arm.json');a.equal(p.attempts,16);a.equal(p.expectedAttempts,16);a.equal(p.rows.length,8);a.equal(p.competitiveQualifiedGames,0);a.equal(p.winRateCertified,false);console.log('FLEXIBLE_SPECIAL_REGISTERED',JSON.stringify({attempts:p.attempts,pairs:p.pairedPhysicalStarts,errors:p.nativeErrors,selected:p.treatmentSpecialSelections,acceptedSample:p.treatmentSpecialSampleAcceptedLowerBound,sourceAttacks:[p.sourceAttackControl,p.sourceAttackTreatment],pairsByRank:p.rows.map(x=>({id:x.trial.id,control:x.comparison.controlStatus,treatment:x.comparison.treatmentStatus,fullDeal:x.comparison.fullDealMatch,specialSelected:[x.comparison.controlSpecialSelected,x.comparison.treatmentSpecialSelected],nativeWinner:[x.comparison.controlNativeWinner,x.comparison.treatmentNativeWinner]}))}));"
+          node -e "const a=require('node:assert/strict');const p=require('./agent41-original-flexible-special-16arm.json');a.equal(p.attempts,16);a.equal(p.expectedAttempts,16);a.equal(p.rows.length,8);a.equal(p.competitiveQualifiedGames,0);a.equal(p.winRateCertified,false);console.log('FLEXIBLE_SPECIAL_REGISTERED',JSON.stringify({mode:p.comparisonMode,attempts:p.attempts,pairs:p.pairedPhysicalStarts,errors:p.nativeErrors,selected:p.treatmentSpecialSelections,acceptedSample:p.treatmentSpecialSampleAcceptedLowerBound,sourceAttacks:[p.sourceAttackControl,p.sourceAttackTreatment],pairsByRank:p.rows.map(x=>({id:x.trial.id,control:x.comparison.controlStatus,treatment:x.comparison.treatmentStatus,fullDeal:x.comparison.fullDealMatch,specialSelected:[x.comparison.controlSpecialSelected,x.comparison.treatmentSpecialSelected],nativeWinner:[x.comparison.controlNativeWinner,x.comparison.treatmentNativeWinner]}))}));"
       - name: Archive every native status, original fingerprint and physical target evidence
         if: always()
         uses: actions/upload-artifact@v4
