@@ -42,11 +42,31 @@ function run(){
       }
       assert.equal(arms[0].winner,arms[1].winner);
       assert.notEqual(arms[0].first,arms[1].first);
-      rows.push({rank,sourceSeat:seat,seed,arms});
+      // The real paired-policy use case allows source and candidate to
+      // have different precommitted, actor-local first-player preferences.
+      const mixed=[];
+      for(const preferences of [[true,false],[false,true]]){
+        const o=withGoFirstChoice(preferences,
+          ()=>captureSetupOnly(Store,()=>runMatch(decks),{
+            sourceSeat:seat,captureFirstTurnEvidence:true}));
+        assert.equal(o.result.stoppedAtFirstTurn,true);
+        assert.equal(o.result.firstTurnEvidence?.verifiedByDrawLog,true);
+        assert.equal(o.audit.choices.length,1);
+        const winner=o.audit.choices[0].seat;
+        const chooseFirst=preferences[winner];
+        assert.equal(o.audit.choices[0].chooseFirst,chooseFirst);
+        assert.equal(winner,arms[0].winner);
+        const first=o.result.firstTurnEvidence.firstTurnSlot;
+        assert.equal(first,chooseFirst?winner:1-winner);
+        mixed.push({preferences,winner,first});
+      }
+      assert.notEqual(mixed[0].first,mixed[1].first);
+      rows.push({rank,sourceSeat:seat,seed,arms,mixed});
     }
   }
-  return {schema:'agent6-native-go-first-polarity-v1',rows,
-    verifiedPairs:rows.length,qualifiedCompetitiveGames:0};
+  return {schema:'agent6-native-go-first-polarity-v2',rows,
+    verifiedPairs:rows.length,verifiedMixedPairs:rows.length,
+    qualifiedCompetitiveGames:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={run};
