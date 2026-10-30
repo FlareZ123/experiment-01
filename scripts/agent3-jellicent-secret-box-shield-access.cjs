@@ -22,12 +22,16 @@
  * a designated cheapDiscards category already held by the first draw, with
  * every named piece and all other cards treated as strategically protected.
  * This is a deliberately conservative DCI proxy, not a full hand policy.
+ * minSetupBasics=2 additionally requires at least two Basics in original
+ * opening seven so a second may be Benched before an opponent donk. It is
+ * defined only for the unrestricted cheapDiscards=0 resource model.
  *
  * @typedef {{
  *   frillish?:number,jellicent?:number,boostShake?:number,
  *   stealthyHood?:number,silentLab?:number,arven?:number,
  *   secretBox?:number,totalBasics?:number,goingSecond?:boolean,
- *   cheapDiscards?:number,minCheapDiscards?:number
+ *   cheapDiscards?:number,minCheapDiscards?:number,
+ *   minSetupBasics?:number
  * }} Options
  */
 
@@ -82,7 +86,8 @@ function exactSecretBoxShield(options={}){
     l=options.silentLab??4,a=options.arven??0,
     s=options.secretBox??1,basics=options.totalBasics??12,
     second=options.goingSecond===true,
-    cheap=options.cheapDiscards??0,minCheap=options.minCheapDiscards??0;
+    cheap=options.cheapDiscards??0,minCheap=options.minCheapDiscards??0,
+    minSetupBasics=options.minSetupBasics??1;
   if([f,j,b,h,l,a].some(n=>!Number.isInteger(n)||n<0||n>4))
     throw new RangeError('Ordinary card count must be 0..4');
   if(!Number.isInteger(s)||s<0||s>1)
@@ -94,6 +99,8 @@ function exactSecretBoxShield(options={}){
   if(!Number.isInteger(cheap)||cheap<0||cheap>otherSize||
     !Number.isInteger(minCheap)||minCheap<0||minCheap>3)
     throw new RangeError('Cheap discard count must fit unused slots; min 0..3');
+  if(![1,2].includes(minSetupBasics)||(minSetupBasics===2&&cheap>0))
+    throw new RangeError('Two-Basic setup requires an unlabeled other-card pool');
   // Frillish, Boost, Hood, Lab, Jellicent, Arven, Box, cheap, other.
   const sizes=[f,b,h,l,j,a,s,cheap,otherSize-cheap];
   const denominator=(choose(60,7)-choose(60-basics,7))*53n*choose(52,6);
@@ -102,7 +109,13 @@ function exactSecretBoxShield(options={}){
   const individually={direct:0n,heldBox:0n,arvenBox:0n,arvenDirect:0n};
   enumerate(sizes,0,7,[],hand=>{
     if(!hand[0])return;
-    const handWays=hand.reduce((w,n,i)=>w*choose(sizes[i],n),1n);
+    let handWays=hand.reduce((w,n,i)=>w*choose(sizes[i],n),1n);
+    if(minSetupBasics===2&&hand[0]===1){
+      const otherHeld=hand[8],otherBasics=basics-f;
+      const allOtherHand=choose(otherSize,otherHeld);
+      handWays-=handWays/allOtherHand*choose(otherSize-otherBasics,otherHeld);
+    }
+    if(handWays===0n)return;
     for(let draw=0;draw<sizes.length;draw++){
       const drawWays=sizes[draw]-hand[draw];
       if(!drawWays)continue;
