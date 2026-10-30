@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {compare,attempt}=
+const {compare,attempt,publicBeachLedgerCounts}=
   require('../simulation/evaluation/agent33-tropical-beach-original-paired.cjs');
 const X='a'.repeat(64),Y='b'.repeat(64),Z='c'.repeat(64);
 const trial={id:'6:A',rank:6,candidateSlot:'A',seed:2348713281};
@@ -45,4 +45,13 @@ test('one native exception retains an attempted error row in denominator',()=>{
  assert.equal(a.status,'native-error-unqualified');
  assert.equal(a.competitiveQualified,false);
  assert.ok('nativeAbortEvidence' in a);
+});
+
+test('generic PlayCardAction must never count as placing Tropical Beach',()=>{
+  assert.deepEqual(publicBeachLedgerCounts([
+    {action:'PlayCardAction',card:'Quick Ball'},
+    {action:'PlayCardAction',card:'Temple of Sinnoh'},
+    {action:'PlayCardAction',card:'Tropical Beach'},
+    {action:'UseStadiumAction'}
+  ]),{nativeStadiumUseActions:1,nativeBeachCardPlacements:1});
 });

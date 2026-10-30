@@ -40,3 +40,15 @@ does not imply stronger human play, a particular competitive win rate,
 paper-exactness for the 126 nonexact source printing copies, or tournament
 clock legality. It establishes only that this one omitted line reaches native
 Store under specified original printed sources and transparent policy flags.
+
+## Action-ledger naming precision
+
+The headless native Store root ledger records `playedCard` as the card's
+**name**, not its printing. The runner counts only entries where
+`action==='PlayCardAction' && card==='Tropical Beach'` as actual Beach
+placement; other ordinary cards played must never be mislabeled as Stadiums.
+Every native `UseStadiumAction` is reported generically as a Stadium use,
+while Beach-specific native owner verification comes from the separately
+typed `nativePhysicalConfirmedByIntent['use-tropical-beach']` receipts.
+A synthetic negative regression covers the distinction. None is
+competitively qualified.

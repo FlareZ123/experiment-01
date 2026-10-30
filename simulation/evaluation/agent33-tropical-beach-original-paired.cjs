@@ -26,6 +26,20 @@ const VERSION='agent33-native-original-beach-three-rank-paired-v1';
 const digest=value=>createHash('sha256').update(JSON.stringify(value))
   .digest('hex');
 const sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+/**
+ * The Store root ledger records card *names* (not exact printings).
+ * Only a PlayCardAction with the exact public name is Beach placement.
+ * Any other generic PlayCardAction is irrelevant to this observation.
+ */
+function publicBeachLedgerCounts(roots){
+  assert.ok(Array.isArray(roots));
+  return {
+    nativeStadiumUseActions:roots.filter(row=>
+      row.action==='UseStadiumAction').length,
+    nativeBeachCardPlacements:roots.filter(row=>
+      row.action==='PlayCardAction'&&row.card==='Tropical Beach').length
+  };
+}
 
 /** Read immutable original human-print inventories before any native trial. */
 function prepare(){
@@ -154,7 +168,7 @@ function runOne(trial,prepared,treated){
   assert.equal(root.tropicalBeachLastChanceOptIn,treated);
   assert.equal(actor.audit.qualification.competitiveGames,0);
   const roots=game.rootActionLedger??[];
-  const count=(arr,k)=>arr.filter(x=>x.action===k).length;
+  const beachLedger=publicBeachLedgerCounts(roots);
   return {
     status:game.finished?'native-terminal-unqualified':'native-capped-unqualified',
     trial,treated,candidateSeat,sourceSeat,
@@ -166,8 +180,7 @@ function runOne(trial,prepared,treated){
     actions:game.actions,turns:game.turns,
     nativeWinner:game.finished?game.winner:null,
     nativeEndReason:game.endReason,
-    nativeBeachUseActions:count(roots,'UseStadiumAction'),
-    nativeStadiumPlacementActions:count(roots,'PlayCardAction'),
+    ...beachLedger,
     beachProposalCounts:{
       play:root.typedIntentCounts?.['play-tropical-beach']??0,
       use:root.typedIntentCounts?.['use-tropical-beach']??0
@@ -286,4 +299,5 @@ if(require.main===module){
     Number(process.env.AGENT33_BEACH_RANK):undefined;
   process.stdout.write(JSON.stringify(runStudy({rank}),null,2)+'\n');
 }
-module.exports={VERSION,REGISTRATION,prepare,runOne,attempt,compare,runStudy};
+module.exports={VERSION,REGISTRATION,prepare,runOne,
+  attempt,compare,runStudy,publicBeachLedgerCounts};
