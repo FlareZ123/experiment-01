@@ -301,6 +301,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureGladionRootPrizeChoices] Observe actual owner-revealed Prize identities only after a live Gladion choice; never supplied to policy.
  * @property {boolean} [captureGladionRootChoiceContext] With Prize-choice capture, include own-hand/public-board context at the genuine selected response.
  * @property {boolean} [captureStartingBoard] Read-only physical Active/Bench at the first nonprompt player-turn opportunity.
+ * @property {boolean} [capturePublicMulliganReveals] Read-only exact public invalid opening hands from the opponent-facing native ShowMulliganPrompt.
  * @property {boolean} [captureRootConfirmationTrace] Observe only actual Store-dispatched confirmation choices and public damage.
  * @property {boolean} [capturePublicAttackTransitions] Record public board before and immediately after real Store logged attack dispatches, without hidden cards.
  * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
@@ -897,6 +898,13 @@ function runMatch(request) {
           SelectPrompt:engine('game/store/prompts/select-prompt').SelectPrompt,
           GameMessage
         }) : null;
+    const publicMulliganRevealObserver = request.capturePublicMulliganReveals===true ?
+      require('../evaluation/public-mulligan-reveal-observer.cjs')
+        .createPublicMulliganRevealObserver({
+          GamePhase,GameMessage,
+          ShowMulliganPrompt:engine('game/store/prompts/show-mulligan-prompt')
+            .ShowMulliganPrompt
+        }) : null;
     const actionCounts = {};
     const actionsBySeat = [{}, {}];
     const cardsPlayedBySeat = [{}, {}];
@@ -949,6 +957,8 @@ function runMatch(request) {
       const epochBeforeAction = knowledgeEvents ? optionsBySeat.map(options =>
         options.bunnelbyDeckKnowledgeEpoch.snapshot()) : null;
       const pending = state.prompts.find(prompt => prompt.result === undefined);
+      if (publicMulliganRevealObserver)
+        publicMulliganRevealObserver.observe(state,pending);
       // Opt-in post-setup digest, captured before any first-turn bot decision.
       // Its private card inventory is never provided to a policy.
       if (sourceDealObserver) sourceDealObserver.observe(state);
@@ -1668,6 +1678,9 @@ function runMatch(request) {
       } : {}),
       ...(setupCompensationObserver ? {
         initialSetupCompensation:setupCompensationObserver.result()
+      } : {}),
+      ...(publicMulliganRevealObserver ? {
+        initialPublicMulliganReveals:publicMulliganRevealObserver.result()
       } : {}),
       ...(snorlaxSoloOpeningEvents ? {
         snorlaxSoloOpeningEvents,
