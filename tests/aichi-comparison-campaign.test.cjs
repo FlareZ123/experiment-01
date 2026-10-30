@@ -118,3 +118,6 @@ require('./aichi-campaign-runner.test.cjs');
 
 // Keep exact all-win and missing-original qualification bounds in manual CI.
 require('./agent26-field-certification-envelope.test.cjs');
+
+// Readonly original-Store setup evidence must remain complete and source-owned.
+require('./agent26-scout-setup-prompt-audit.test.cjs');
