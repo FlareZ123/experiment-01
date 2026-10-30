@@ -167,6 +167,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Regress conservative Path to the Peak public opposing Ability lock
+        run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
         run: node --test tests/agent33-sky-field-bench-expansion.test.cjs
       - name: Stage native Sky Field expanding five to eight real Bench slots

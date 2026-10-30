@@ -53,6 +53,15 @@ function buildActorCardCatalog(all,types){
     abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC&&c.powers.some(power=>
         power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
+    // Only inspect the publicly printed set of rule-box card identities and
+    // Ability definitions. The owner's and opponent's unknown decks stay out.
+    ruleboxAbilityPrintings:new Set(all.filter(c=>
+      c instanceof PokemonCard&&Array.isArray(c.tags)&&
+      c.tags.some(tag=>new Set(['EX','GX','V','VMAX','VSTAR','V-UNION',
+        'ex','Radiant','Prism Star','Lv.X','Break','Mega EX'])
+        .has(tag))&&
+      c.powers.some(power=>power.powerType===PowerType.ABILITY))
+      .map(c=>c.fullName)),
     basicNames:new Map(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC).map(c=>[c.fullName,c.name])),
     evolutions:new Map(all.filter(c=>c instanceof PokemonCard&&
@@ -114,6 +123,11 @@ function chooseActorRootIntent(view,catalog,options={}){
     const sky=require('./agent33-sky-field-bench-expansion.cjs')
       .chooseSkyFieldBenchExpansion(view,catalog);
     if(sky)return sky;
+  }
+  if(options.pathToPeakOpposingAbility===true){
+    const path=require('./agent33-path-to-peak-public-lock.cjs')
+      .choosePathToPeakOpposingAbility(view,catalog);
+    if(path)return path;
   }
   if(options.naturalEvolutionRoot===true){
     const evolution=require('./agent1-actor-evolution-frontier.cjs')
@@ -485,6 +499,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
+    pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -621,6 +636,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.skyFieldBenchExpansionOptIn)
     audit.version+='+'+
       require('./agent33-sky-field-bench-expansion.cjs').VERSION;
+  if(audit.pathToPeakOpposingAbilityOptIn)
+    audit.version+='+'+
+      require('./agent33-path-to-peak-public-lock.cjs').VERSION;
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -758,6 +776,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
+      pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
@@ -861,6 +880,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-tropical-beach':
       case 'play-players-ceremony':
       case 'play-sky-field':
+      case 'play-path-to-peak':
       case 'play-thunder-mountain':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
