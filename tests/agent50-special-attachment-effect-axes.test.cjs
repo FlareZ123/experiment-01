@@ -2,7 +2,8 @@
 
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {VERSION,collectSpecialAttachmentEffectAxes:collect}=
+const {VERSION,collectSpecialAttachmentEffectAxes:collect,
+  collectHeldTempleSequencingConflicts:orderConflict}=
   require('../simulation/twinleaf/agent50-special-attachment-effect-axes.cjs');
 
 const catalog={
@@ -174,4 +175,24 @@ test('separate public attack cost gain from Speed draw-two benefit',()=>{
   x.ownPublic.active.energies=['Unsupported Energy X'];
   assert.equal(find(collect(x,catalog).offers,'Speed Lightning Energy RCL',
     'active').maximumKnownAttackCostGain,null);
+});
+
+test('held Temple conflicts with feasible Capture sequencing but is not a priority rule',()=>{
+  const x=view();
+  x.ownHand=['Capture Energy RCL','Temple of Sinnoh ASR'];
+  x.ownPublic.active=pokemon('Girafarig LOT',5);
+  const c=orderConflict(x,catalog);
+  assert.equal(c.conflicts.length,2,
+    'Both Active and the occupied Bench can receive Capture');
+  assert.ok(c.conflicts.every(o=>o.templeHandIndex===1));
+  assert.ok(c.conflicts.every(o=>o.energyHandIndex===0));
+  assert.ok(c.conflicts.every(o=>o.strategicPriority==='undetermined'));
+  x.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.equal(orderConflict(x,catalog).conflicts.length,0);
+  x.ownPublic.stadium=[];
+  x.ownTurnResources.stadiumPlayLocked=true;
+  assert.equal(orderConflict(x,catalog).conflicts.length,0);
+  x.ownTurnResources.stadiumPlayLocked=false;
+  x.ownPublic.bench=Array(5).fill(pokemon('Occupied',5));
+  assert.equal(orderConflict(x,catalog).conflicts.length,0);
 });
