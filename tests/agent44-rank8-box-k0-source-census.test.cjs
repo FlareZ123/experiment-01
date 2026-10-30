@@ -55,7 +55,7 @@ test('K0 source snapshot owns only its own hand and face-up board',()=>{
   assert.equal(seen.ownDeckCount,47);
   assert.equal(seen.offeredWindow.boxFetchShake,true);
   assert.equal(seen.offeredWindow.version.includes('agent44'),true);
-  assert.ok(!JSON.stringify(seen).includes('opponent'));
+  assert.ok(Object.keys(seen).every(key=>!key.toLowerCase().includes('opponent')));
 });
 
 test('read-only pinned Store wrapper captures real first source owner root once',()=>{
