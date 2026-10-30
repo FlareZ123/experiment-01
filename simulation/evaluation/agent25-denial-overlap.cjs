@@ -92,9 +92,16 @@ function rank6Overlap(file = path.resolve(__dirname,
     groupB:count('Enhanced Hammer'), opening:7};
   assert.equal(input.groupA, 4);
   assert.equal(input.groupB, 2);
+  const crushing = {...input,groupB:count('Crushing Hammer')};
+  assert.equal(crushing.groupB, 4);
   return {version:VERSION, rank:6, player:deck.player, counts:input,
     seven:conditionalCoheldProbability({...input,oneDraw:false}),
     sevenPlusOneDraw:conditionalCoheldProbability({...input,oneDraw:true}),
+    crushingAlternative:{
+      counts:crushing,
+      seven:conditionalCoheldProbability({...crushing,oneDraw:false}),
+      sevenPlusOneDraw:conditionalCoheldProbability({...crushing,oneDraw:true})
+    },
     limitation:'Only co-held physical cards given Basic-valid seven; no opponent Energy, native legality, discard affordance, or tactical win inference'};
 }
 
