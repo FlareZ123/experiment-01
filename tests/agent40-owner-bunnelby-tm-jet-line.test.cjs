@@ -153,3 +153,28 @@ test('shared actor root follows registered TM equip, Jet Bench attach, Tool atta
   assert.equal(attack.kind,'attack');
   assert.equal(attack.attackName,'Evolution');
 });
+
+test('Omega Barrage consent persists when source Stage2 remains K0-possible',()=>{
+  const {shouldConsentBunnelbyBarrage}=require(
+    '../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
+  const stage={fullName:'Vileplume AOR',stage:2,evolvesFrom:'Gloom'};
+  const sourceCards=[stage,...Array.from({length:59},()=>({
+    fullName:'Grass Energy MEE'
+  }))];
+  const dummy=(name,fullName)=>({
+    getPokemonCard(){return {name,fullName};},
+    cards:[{name,fullName}]
+  });
+  const owner={
+    active:{...dummy('Bunnelby','Bunnelby PRC'),
+      tools:[{fullName:TM}]},
+    bench:[dummy('Gloom','Gloom UNB')],
+    hand:{cards:[]},discard:{cards:[]},lostzone:{cards:[]}
+  };
+  assert.equal(shouldConsentBunnelbyBarrage(owner,sourceCards),true);
+  owner.discard.cards.push(stage);
+  assert.equal(shouldConsentBunnelbyBarrage(owner,sourceCards),false);
+  owner.discard.cards.length=0;
+  owner.active.tools=[];
+  assert.equal(shouldConsentBunnelbyBarrage(owner,sourceCards),false);
+});
