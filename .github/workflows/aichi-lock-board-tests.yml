@@ -112,6 +112,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_gholdengo_native:
+        description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
+        required: false
+        type: boolean
+        default: false
       agent48_carmine_first_native:
         description: '24 fixed first-player source-deal Store Carmine rule controls, no competitive games'
         required: false
@@ -142,6 +147,20 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify original Store Gholdengo exact thirty-card hand and Prize effects on both seats
+        if: inputs.agent34_gholdengo_native
+        run: node simulation/twinleaf/agent34-gholdengo-native-prize-mechanic.cjs > agent34-gholdengo-native-prize-effect.json
+      - name: Summarize Gholdengo printed direct Prize and hand-reset native validation
+        if: inputs.agent34_gholdengo_native
+        run: >-
+          node -e "const r=require('./agent34-gholdengo-native-prize-effect.json');console.log(JSON.stringify({schema:r.schema,seats:r.seats,cases:r.cases,eligible:r.eligibleCases,prizes:r.directPrizeTransfers,qualified:r.qualifiedCompetitiveGames}));"
+      - name: Archive all staged Gholdengo native effect receipts
+        if: inputs.agent34_gholdengo_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-gholdengo-native-30c-prizes
+          path: agent34-gholdengo-native-prize-effect.json
+          if-no-files-found: warn
       - name: Measure optional actual actor Carmine decisions in 24 matched original source deals
         if: inputs.agent48_carmine_policy_census
         run: node simulation/twinleaf/agent48-carmine-owner-policy-census.cjs > agent48-carmine-actor-census.json
