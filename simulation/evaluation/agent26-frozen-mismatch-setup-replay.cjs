@@ -95,7 +95,16 @@ function run() {
   for(const candidateId of CANDIDATES){
     const deckA=source.cards;
     const deckB=plans.get(candidateId).candidate.cards;
-    const mulligan=oneSetup(deckA,deckB,SEED);
+    const mulligan=oneSetup(deckA,deckB,SEED,{traceShuffleOffsets:true});
+    const defaultMulligan=oneSetup(deckA,deckB,SEED);
+    const {shuffleRngTape,totalGameRandomDraws,...sameNativeBookkeeping}=
+      mulligan;
+    assert.deepEqual(sameNativeBookkeeping,defaultMulligan,
+      'Optional shuffle observation must preserve all original setup outputs');
+    const sourceShuffles=shuffleRngTape.filter(row=>row.seat===0);
+    const candidateShuffles=shuffleRngTape.filter(row=>row.seat===1);
+    assert.equal(sourceShuffles.length,mulligan.mulligans[0]+1);
+    assert.equal(candidateShuffles.length,mulligan.mulligans[1]+1);
     const observation=captureSetupOnly(Store,()=>runMatch({
       deckA,deckB,seed:SEED,maxActions:150,
       strictPromptValidation:true,isolatePolicyRandomness:true,
@@ -127,6 +136,11 @@ function run() {
       independentSetupBonusSelected:mulligan.bonusSelected,
       independentSetupBonusDrawn:mulligan.bonusDrawn,
       independentSetupFirstSeat:mulligan.firstSeat,
+      sourceFinalShuffleRng:sourceShuffles[sourceShuffles.length-1],
+      candidateFinalShuffleRng:candidateShuffles[candidateShuffles.length-1],
+      allSetupShuffleRngOffsets:shuffleRngTape,
+      totalGameRandomDraws,
+      tracedSetupExactlyMatchesDefault:true,
       // Separate setup-only resolutions don't reuse the full-game policy.
       fullCanonicalPolicyReplayed:false,
       actualMatchCompleted:false,qualifiedCompetitiveGame:false
@@ -145,6 +159,10 @@ function run() {
       a.sourceStartingPokemonCount),
     competitorMulliganCounts:attempts.map(a=>
       a.independentSetupMulligans),
+    sourceFinalShuffleRngOffsets:attempts.map(a=>
+      a.sourceFinalShuffleRng.firstRngDraw),
+    distinctSourceFinalShufflePermutations:new Set(attempts.map(a=>
+      a.sourceFinalShuffleRng.permutationSha256)).size,
     completedFullGames:0,competitiveQualifiedGames:0,
     caveat:'The two generic Store setup-only reproductions and independent oneSetup mulligan audits retain fixed engine decks, source position and seed. These do not run the entire frozen native actor policy; do not equate different source hashes with a replay failure or claim candidate strength.'
   };
