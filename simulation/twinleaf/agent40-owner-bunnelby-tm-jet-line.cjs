@@ -97,7 +97,7 @@ function chooseBunnelbyTmJetRoot(view,catalog,ownRegisteredSixty){
   if(bun.slot==='bench'){
     if(!energyOpen||jetIndex<0||
        own.active.abilityDetails?.some(x=>typeof x.text==='string'&&
-         /(?:as long as|while)\\s+this\\s+pok[eé]mon\\s+is\\s+(?:your\\s+active\\s+pok[eé]mon|in\\s+the\\s+active\\s+spot)/i
+         /(?:as long as|while)\s+this\s+pok[eé]mon\s+is\s+(?:your\s+active\s+pok[eé]mon|in\s+the\s+active\s+spot)/i
            .test(x.text))||
        own.active.attacks?.some(a=>Array.isArray(a.cost)&&
          publicSpecialAttackPayable(view,catalog,own.active,a))||
