@@ -108,6 +108,17 @@ function proveNativePivot(before, after) {
       e.attack === attack.nextSourceRoot.attack));
     assert.deepEqual(attack.prizesBefore, [6, 6]);
     assert.deepEqual(attack.prizesAfter, [6, 6]);
+    // Source selected only Terminal Period at same T52 in OFF and ON.
+    // No marginal denial benefit follows from identical source decisions.
+    const sourceActions = row => row.rootActionLedger
+      .filter(e => e.playerSlot !== seat &&
+        e.turnBefore === attack.nextSourceRoot.turn &&
+        e.action !== 'ResolvePromptAction')
+      .map(e => e.action + ':' + (e.attack ?? e.card ?? ''));
+    const sourceTreatment = sourceActions(a);
+    const sourceControl = sourceActions(b);
+    assert.deepEqual(sourceTreatment, ['AttackAction:Terminal Period']);
+    assert.deepEqual(sourceControl, sourceTreatment);
 
     const offCopies = b.rootActionLedger.filter(e =>
       e.playerSlot === seat && e.action === 'UseAbilityAction' &&
@@ -130,6 +141,7 @@ function proveNativePivot(before, after) {
       settledAtOrdinal: attack.completionRootOrdinal,
       sourceReplyRootOrdinal: attack.nextSourceRoot.ordinal,
       sourceReplyAttack: attack.nextSourceRoot.attack,
+      sourceTurnNonpromptActionsSameAsControl: true,
       prizesBefore: attack.prizesBefore,
       prizesAfter: attack.prizesAfter,
       finished: a.finished,
