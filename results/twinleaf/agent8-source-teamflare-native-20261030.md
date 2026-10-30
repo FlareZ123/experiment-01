@@ -18,6 +18,17 @@ Both physical player seats were independently tested. The exact original matchup
 
 This is **action-level native evidence**, not a reproduced complete rank-6 game decision or paper legality certification under every lock. The fixture uses an isolated artificial board, an ordinary Basic Energy target and a source-printed card, without claiming the original source 60 was shuffled. The desired follow-on includes natural owner-hand availability, actual source-owned target and turn quota, accepted Grunt, real settled opponent Energy loss and opponent continuation on the same immutable source physical deal.
 
+## A first-turn paper-legality guard that native `canPlay` does not supply
+
+[Full-pass canonical CI 40993888457](https://github.com/FlareZ123/experiment-01/actions/runs/40993888457) included a new native printed Grunt predicate check at `state.turn=1`, with the same artificially attached opposing Active Energy and unspent Supporter quota. In **both physical seats**, `TeamFlareGruntXY.canPlay(store,state,owner)` returned **`true`**, as the CI logs explicitly reported:
+
+```text
+TEAM_FLARE_FIRST_TURN_NATIVE_CANPLAY {"seat":0,"turn":1,"nativeCanPlay":true}
+TEAM_FLARE_FIRST_TURN_NATIVE_CANPLAY {"seat":1,"turn":1,"nativeCanPlay":true}
+```
+
+Under the paper first-player ordinary Supporter restriction, **Team Flare Grunt has no first-turn-first-player permission**. This native per-card predicate is therefore **insufficient by itself** to certify a paper-legal Grunt action. The artificially preattached opponent Energy is not an ordinary initial-state scenario. The test does not establish whether the Store reducer independently rejects an actual first-turn `PlayCardAction`. The source actor's existing `chooseTeamFlareGruntDenial` correctly screens `globalTurn<=1`, while the post-Pass observer counts such roots as paper-timing-ineligible. Any later generalized native `canPlay` sampler must retain this separate paper screen and never promote a turn1 positive predicate into an unqualified legal opportunity.
+
 ## Post-Pass owner-visible evidence instrument
 
 [simulation/evaluation/agent8-source-postpass-teamflare.cjs](../../simulation/evaluation/agent8-source-postpass-teamflare.cjs) exports pure `sourcePostPassTeamFlare(decisionTrace, nativeRoots, sourceSeat)`. It reads only **postdecision** genuine source-owned Pass records. For every accepted Pass, it requires the exact Store root ordinal and physical seat, the acting player's own-hand printings, and opposing public Active `energyCards`. It counts observed versus incomplete Passes, held Grunt, exposed opponent Active Energy, joint co-occurrence, first-player-first-turn restriction and previously observed same-turn printed Supporter plays. Bounded samples contain only source-owned Grunt count, opponent's public Energy *count*, time/ordinal and visible prerequisite flags. They exclude other hand names and all opponent concealed zones. Tests exercise physical source seats 0 and 1, synthetic joint positive/negative, unknown witness handling and no hidden-state access.
