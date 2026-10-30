@@ -38,6 +38,10 @@ on:
         description: 'Opt-in 48 preregistered original rank8 both-seat source first-turn read-only K0 hand screens, no game strength'
         type: boolean
         default: false
+      agent44_rank8_box_k0_extension:
+        description: 'Opt-in disjoint 208-seed original rank8 K0 extension after the first 48 cohort returned zero strict windows'
+        type: boolean
+        default: false
       agent44_rank8_box_fetch_shake_native:
         description: 'Opt-in synthetic original-rank8 hand/deck swap and genuine Secret Box Item->Shake native effect test; no original deal'
         type: boolean
@@ -200,13 +204,15 @@ jobs:
       - name: Test rank8 K0 Secret Box physical discard and read-only owner-root observation
         if: inputs.agent44_rank8_box_k0_source_census
         run: node --test tests/agent44-rank8-box-k0-window.test.cjs tests/agent44-rank8-box-k0-source-census.test.cjs
-      - name: Screen 48 original-rank8 source native first-owner-root hands in both seats
+      - name: Screen 48 baseline or disjoint 208-extension original rank8 source K0 hands
         if: inputs.agent44_rank8_box_k0_source_census
+        env:
+          AGENT44_RANK8_K0_EXTENSION: ${{ inputs.agent44_rank8_box_k0_extension }}
         run: node simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs > agent44-rank8-original-k0-source.json
       - name: Summarize registered rank8 owner K0 opportunities without outcome claims
         if: inputs.agent44_rank8_box_k0_source_census
         run: >-
-          node -e "const r=require('./agent44-rank8-original-k0-source.json'); console.log(JSON.stringify({schema:r.schema,trials:r.trialCount,observed:r.observedOwnerK0,sourceStarts:r.actualSourceStarts,windows:r.exposed,noOpControls:r.noOpControlsPassed,failed:r.failedTrials,qualified:r.competitiveQualifiedGames}));"
+          node -e "const r=require('./agent44-rank8-original-k0-source.json'); console.log(JSON.stringify({schema:r.schema,startIndex:r.startIndex,trials:r.trialCount,observed:r.observedOwnerK0,sourceStarts:r.actualSourceStarts,cardFunnel:r.observedCardFunnel,windows:r.exposed,noOpControls:r.noOpControlsPassed,failed:r.failedTrials,qualified:r.competitiveQualifiedGames}));"
       - name: Archive rank8 source first-owner-root K0 observation of all physical deals
         if: always() && inputs.agent44_rank8_box_k0_source_census
         uses: actions/upload-artifact@v4
