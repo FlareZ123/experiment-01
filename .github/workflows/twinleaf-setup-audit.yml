@@ -19,6 +19,10 @@ on:
         description: 'Optional same-source-turn attack-versus-energy-denial native contest'
         type: boolean
         default: false
+      agent6_energy_order:
+        description: 'Optional same-source physical turn-one Speed versus DCE timing native comparison'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -139,6 +143,19 @@ jobs:
         with:
           name: agent6-native-prized-thunder-vs-plumeria
           path: agent6-native-prized-thunder-vs-plumeria.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Same original source Speed-first versus DCE-first native four-arm energy order
+        if: inputs.agent6_energy_order
+        run: |
+          node simulation/evaluation/agent6-two-turn-energy-order-native.cjs > agent6-two-turn-energy-order-native.json
+          node -e "const x=require('./agent6-two-turn-energy-order-native.json');console.log(JSON.stringify({schema:x.schema,attempted:x.attemptedNativeArms,errors:x.nativeErrors,matched:x.physicalMatchedFourArmGroups,direct:x.directSpeedSecondTurnSelected,settled:x.nativeSourceT3VoltCycloneSettlements,rows:x.rows.map(r=>({seat:r.sourceSeat,seed:r.seed,matched:r.matchedOriginalSourceDeal,arms:r.arms.map(a=>({mode:a.mode,status:a.status,error:a.error,direct:a.sourceT3DirectSpeedSelected,settled:a.sourceT3SettledVoltCyclone?.length,energy:a.nativeEnergyTimeline,abort:a.sourceT3AbortReason}))}))},null,2))"
+      - name: Archive physical native Speed-first versus DCE-first Energy-order comparisons
+        if: always() && inputs.agent6_energy_order
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-two-turn-energy-order-native
+          path: agent6-two-turn-energy-order-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
