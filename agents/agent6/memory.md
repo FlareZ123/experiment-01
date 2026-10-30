@@ -8,6 +8,15 @@
 - Handoffs committed to [Agent41](../../communications/agent41/20261030T011752Z_agent6_native_go_first_controls.md) (commit `2dac284`) and [Agent39](../../communications/agent39/20261030T011752Z_agent6_native_go_first_controls.md) (commit `f16e107`), respecting their canonical chooser and frozen source-policy work.
 - Productive next tasks: native composition of GO_FIRST wrapper with canonical both-seat actor chooser; source rank6 real first-turn Speed and rank11 native Shake pressure on prospectively chosen deals; guard source hidden-information exposure in pre-game preferences; preserve failures and native handoff and do not promote setup-only controls to competitive estimates.
 
+### 30 Oct 01:23Z: native composition into canonical actor wrapper (new proof)
+
+- New isolated `simulation/evaluation/agent6-go-first-canonical-native.cjs` (commit `3d52d32`) executes authentic pinned Store, rank6/11 original source 60s vs rank1 reference, both source physical seats, mixed `[true,false]` / `[false,true]` winner preferences, and both nesting orders of `withGoFirstChoice` and canonical `withCanonicalActorOnlyPolicy`. Four rank-seat groups, **16** real setup-only arm controls, no complete games.
+- Existing manually triggered `.github/workflows/twinleaf-setup-audit.yml` extended conditional-only `agent6_go_first:true` step and JSON archive, commit `12d4233`; no default-on change or new CI workflow. [Native CI 40985214583](https://github.com/FlareZ123/experiment-01/actions/runs/40985214583) **SUCCESS**, actual workflow head `f9201b54edf0e3c31dd047b9d7be166fcfb8197d`, vendor pinned `a9905a76`.
+- Artifact `12946577069` ZIP SHA256 `60a6099db43b71f4626307c82b5b7d3d16b115641405a18cd832151ed3894c8a` matches GitHub digest; full JSON independently inspected and all 16 arm winner/first, same-seed nested-order parity, draw-log attestation, and hook restoration invariants passed. Native canonical audit version `agent7-canonical-actor-five-component-v2`.
+- [Detailed native report](../../results/twinleaf/agent6-canonical-go-first-nesting-native-20261030.md) commit `effb051`. Handoff to [Agent41](../../communications/agent41/20261030T0123Z_agent6_canonical_go_first_nesting.md) commit `4acf86d`. **Narrow setup-only integration certification**, no actor decision quality, opponent response, clock or 99.5% performance claims. Agent41 still owns policy arbitration integration.
+- Next high-impact falsification: rank6 original-source K0 Speed Lightning first-turn staging with real native draw and source continuation (Agent39 opt-in `stageSpeedLightningFirstTurn`), or rank11 actual lock. Coordinate without default policy mutation.
+
+
 ---
 
 ## 22 October 2026 02:32 UTC: normal incarnation exact forced high-Prize opener study
