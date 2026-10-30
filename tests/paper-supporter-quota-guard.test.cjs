@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {PaperSupporterQuotaError,withPaperSupporterQuotaGuard}=
+const {PaperSupporterQuotaError,PaperFirstTurnSupporterError,
+  withPaperSupporterQuotaGuard}=
   require('../simulation/twinleaf/paper-supporter-quota-guard.cjs');
 
 const SUPPORTER=7;
@@ -105,4 +106,90 @@ test('other Store instances cannot contaminate the authenticated root',()=>{
   });
   assert.equal(a.legalSupporterRoots.length,0);
   assert.equal(a.result.alternate.state.players[1].supporterTurn,2);
+});
+
+test('optional first-player opening veto rejects ordinary Supporter before Store',()=>{
+  const original=Store.prototype.dispatch;
+  let store,violation;
+  assert.throws(()=>withPaperSupporterQuotaGuard(Store,SUPPORTER,()=>{
+    store=new Store();
+    store.state.turn=1;
+    store.state.activePlayer=1;
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(202,0));
+  },{
+    enforceFirstPlayerSupporter:true,
+    onViolation:x=>{violation=x;}
+  }),error=>{
+    assert.ok(error instanceof PaperFirstTurnSupporterError);
+    assert.deepEqual(error.violation,violation);
+    return true;
+  });
+  assert.strictEqual(Store.prototype.dispatch,original);
+  assert.equal(store.nativeCalls,1);
+  assert.equal(store.state.players[1].supporterTurn,0);
+  assert.equal(store.state.players[1].hand.cards[0].fullName,
+    'Cynthia & Caitlin CEC');
+  assert.equal(violation.turn,1);
+  assert.equal(violation.seat,1);
+  assert.equal(violation.reason,'first-player-ordinary-supporter');
+  assert.equal(violation.rejectedBeforeNativeDispatch,true);
+});
+
+test('printed first-turn exception requires explicit owner-card authorization',()=>{
+  const original=Store.prototype.dispatch;
+  const observed=[];
+  const a=withPaperSupporterQuotaGuard(Store,SUPPORTER,()=>{
+    const store=new Store();
+    store.state.turn=1;
+    store.state.activePlayer=1;
+    store.state.players[1].hand.cards[0]={
+      fullName:'Carmine TWM',trainerType:SUPPORTER
+    };
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(202,0));
+    return store;
+  },{
+    enforceFirstPlayerSupporter:true,
+    allowFirstPlayerSupporter:({owner,card,state})=>{
+      observed.push({ownerId:owner.id,card:card.fullName,turn:state.turn});
+      return owner.id===202&&card.fullName==='Carmine TWM'&&state.turn===1;
+    }
+  });
+  assert.strictEqual(Store.prototype.dispatch,original);
+  assert.deepEqual(observed,[{ownerId:202,card:'Carmine TWM',turn:1}]);
+  assert.equal(a.result.nativeCalls,2);
+  assert.equal(a.result.state.players[1].supporterTurn,1);
+  assert.equal(a.legalSupporterRoots.length,1);
+});
+
+test('even first-turn exceptions remain subject to independent Supporter quota',()=>{
+  let store;
+  assert.throws(()=>withPaperSupporterQuotaGuard(Store,SUPPORTER,()=>{
+    store=new Store();
+    store.state.turn=1;
+    store.state.activePlayer=1;
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(202,0));
+    store.dispatch(new PlayCardAction(202,0));
+  },{
+    enforceFirstPlayerSupporter:true,
+    allowFirstPlayerSupporter:()=>true
+  }),PaperSupporterQuotaError);
+  assert.equal(store.nativeCalls,2);
+  assert.equal(store.state.players[1].supporterTurn,1);
+  assert.equal(store.state.players[1].hand.cards[0].fullName,'Sidney FST 241');
+});
+
+test('first-turn option preserves normal first Supporter on later turns',()=>{
+  const a=withPaperSupporterQuotaGuard(Store,SUPPORTER,()=>{
+    const store=new Store();
+    store.state.turn=2;
+    store.state.activePlayer=1;
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(202,0));
+    return store;
+  },{enforceFirstPlayerSupporter:true});
+  assert.equal(a.legalSupporterRoots.length,1);
+  assert.equal(a.result.state.players[1].supporterTurn,1);
 });
