@@ -33,6 +33,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent12_campinggear_rank6_native:
+        description: 'Retrospective exact rank6 printed Camping Gear owner-Pass native trial, development only'
+        required: false
+        type: boolean
+        default: false
       owner_terminal_arbitration_rank3:
         description: Fixed two-seed rank3 original 60 vs rank1 both-seat A/B/A original Store development only
         required: false
@@ -52,7 +57,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -60,6 +65,9 @@ jobs:
           npm run compile
       - name: Native staged Iron Thorns Stadium root in both seats
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
+      - name: Retrospective original rank6 first-turn Camping Gear Pass owner native fork
+        if: ${{ inputs.agent12_campinggear_rank6_native }}
+        run: node simulation/twinleaf/agent12-campinggear-rank6-native.cjs > agent12-campinggear-rank6-native.json
       - name: Native staged rank-7 Steven three-card owner search both seats
         run: node simulation/twinleaf/agent22-steven-native-store-gate.cjs > agent22-steven-native-store-result.json
       - name: Preregistered exact rank7 source-dealt Steven prompt-choice pair
@@ -152,6 +160,7 @@ jobs:
             agent22-steven-native-store-result.json
             agent22-rank7-dealt-steven-pair.json
             agent22-steven-followthrough.json
+            agent12-campinggear-rank6-native.json
             agent5-thorns-baseline-sourcefirst.json
             agent5-thorns-treatment-sourcefirst.json
             agent5-thorns-directline-contrast.json
