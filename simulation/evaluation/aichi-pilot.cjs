@@ -6,6 +6,7 @@ const { createHash } = require('node:crypto');
 const { runMatch } = require('../twinleaf/headless.cjs');
 const { resolveManifest } = require('../twinleaf/resolve-field.cjs');
 const { evaluatePlan } = require('./field-benchmark.cjs');
+const { attestField } = require('./agent13-source-identity-gate.cjs');
 
 const MANIFEST_PATH = path.resolve(__dirname, '../../results/aichi-2026/full-decklists.json');
 
@@ -24,6 +25,10 @@ function digest(value) {
  */
 function planAichi(candidate = 1, options = {}) {
   const source = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+  // Prevent rank/player/archetype drift before any native printed-card resolution.
+  const fieldCsv = fs.readFileSync(path.resolve(__dirname,
+    '../../results/aichi-2026/field.csv'), 'utf8');
+  attestField(source, fieldCsv);
   const custom = typeof candidate === 'object' && candidate !== null;
   const candidateRank = custom ? 0 : candidate;
   const candidateSource = custom ? { ...candidate, rank: candidateRank } :
