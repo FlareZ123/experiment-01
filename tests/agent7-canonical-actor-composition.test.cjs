@@ -274,3 +274,47 @@ test('optional read-only Plumeria observer preserves canonical composition and n
 require('./agent4-plumeria-opportunity.test.cjs');
 
 require('./agent4-plumeria-after-pass.test.cjs');
+
+test('Plumeria after-Pass installs after terminal root and changes only opted-in owner Pass',()=>{
+  const events=[];
+  let decode=()=>({kind:'generic'});
+  const wrap=(name,make,audit={})=>execute=>{
+    const previous=decode;
+    decode=make(previous);
+    events.push('install:'+name);
+    try{return {result:execute(),audit:{version:name,...audit}};}
+    finally{decode=previous;events.push('restore:'+name);}
+  };
+  const root=wrap('root',()=>()=>({kind:'pass'}),
+    {selectedRootDecisions:1,acceptedActorRoots:1});
+  const plumeria=wrap('plumeria',previous=>()=>{
+    const baseline=previous();
+    return baseline.kind==='pass'?{kind:'play-plumeria',actorSeat:1}:baseline;
+  },{proposedPlumeria:1,acceptedPlumeria:1,settledEnergyDiscards:1,
+    bySeat:{0:{accepted:0,settled:0},1:{accepted:1,settled:1}}});
+  const delegate=name=>fakeAdapter(name,{},events);
+  const adapters={root,plumeriaAfterPass:plumeria,
+    fog:delegate('fog'),select:delegate('select'),
+    option:delegate('option'),attack:delegate('attack')};
+  const control=withCanonicalActorOnlyPolicy(()=>decode(),adapters);
+  assert.equal(control.result.kind,'pass');
+  assert.equal(control.audit.ownerPlumeriaAfterPassOptIn,false);
+  assert.equal(control.audit.ownerPlumeriaAfterPassAudit,null);
+  assert.equal(events.includes('install:plumeria'),false);
+  events.length=0;
+  const treated=withCanonicalActorOnlyPolicy(()=>decode(),adapters,
+    {ownerPlumeriaAfterPass:true});
+  assert.deepEqual(treated.result,{kind:'play-plumeria',actorSeat:1});
+  assert.deepEqual(events.slice(0,3),[
+    'install:root','install:plumeria','install:fog'
+  ]);
+  assert.equal(treated.audit.ownerPlumeriaAfterPassOptIn,true);
+  assert.equal(treated.audit.nativeDecisionCounts.plumeriaAfterPassAccepted,1);
+  assert.equal(treated.audit.nativeDecisionCounts.plumeriaAfterPassSettled,1);
+  assert.equal(treated.audit.nativeDecisionCounts.plumeriaAfterPassBySeat[1].settled,1);
+  assert.equal(treated.audit.componentVersions.plumeriaAfterPass,'plumeria');
+  assert.equal(treated.audit.detailedComponentAudits.ownerPlumeriaAfterPass.version,
+    'plumeria');
+  assert.equal(treated.audit.qualification.competitiveGames,0);
+  assert.equal(treated.audit.qualification.sourcePolicyCompetenceEstablished,false);
+});
