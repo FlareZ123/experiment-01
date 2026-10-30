@@ -25,7 +25,7 @@ function auditMatchedPlumeriaControl(control,treated){
   const pairs=[];
   const bySeat={0:{accepted:0,settled:0},
     1:{accepted:0,settled:0}};
-  let audited=0,errors=0,matchedDealAndActualStart=0;
+  let audited=0,errors=0,matchedDealAndActualStarter=0;
   for(let i=0;i<4;i++){
     const before=control.rows[i],after=treated.rows[i];
     assert.equal(before.trial?.id,after.trial?.id);
@@ -59,7 +59,7 @@ function auditMatchedPlumeriaControl(control,treated){
       before.sourceDealFingerprint===after.sourceDealFingerprint&&
       before.verifiedFirstTurn===true&&after.verifiedFirstTurn===true&&
       before.actualStarterSeat===after.actualStarterSeat);
-    if(matched)matchedDealAndActualStart++;
+    if(matched)matchedDealAndActualStarter++;
     pairs.push({
       id:before.trial.id,rank:before.trial.rank,
       candidateSlot:before.trial.candidateSlot,
