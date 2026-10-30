@@ -184,6 +184,20 @@ jobs:
           name: agent48-native-firstturn-carmine-source
           path: agent48-carmine-first-native.json
           if-no-files-found: warn
+      - name: Verify printed Carmine native exception and first-player ordinary-veto boundary
+        if: inputs.agent48_carmine_first_native
+        run: node simulation/twinleaf/agent34-native-firstturn-supporter-guard.cjs > agent34-native-firstturn-supporter-guard.json
+      - name: Report original-source first-turn guard positive and blocked branches
+        if: inputs.agent48_carmine_first_native
+        run: >-
+          node -e "const r=require('./agent34-native-firstturn-supporter-guard.json');console.log(JSON.stringify({schema:r.schema,sourceDeals:r.sourceSeedCount,eligible:r.eligibleNaturallyHeldCarmine,allowed:r.allowedNativeStoreCarmine,denied:r.preventedBeforeNativeDispatch,qualified:r.qualifiedCompetitiveGames}));"
+      - name: Archive all first-turn native guard controls
+        if: inputs.agent48_carmine_first_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-native-firstturn-supporter-allowdeny
+          path: agent34-native-firstturn-supporter-guard.json
+          if-no-files-found: warn
       - name: Prove owner-hand public-board-only Garbotoxin Tool retarget
         if: inputs.agent37_rank11_tool_maintenance
         run: node --test tests/rank11-garbodor-tool-maintenance-policy.test.cjs
