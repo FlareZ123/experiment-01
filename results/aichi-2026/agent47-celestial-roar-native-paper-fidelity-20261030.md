@@ -113,6 +113,31 @@ predicted game-win effects. Actual Prizes, hand, search, play policy and
 remaining deck composition affect exposure. They quantify why the
 implementation discrepancy warrants native fidelity review.
 
+A slightly more conditional *opening-hand sensitivity check*, calculated
+combinatorially from the exact original rank-20 60, samples the initial seven
+uniformly and requires at least one Regidrago V and one Double Dragon in it.
+That opening event has probability **14.5406%**. Assume the player chooses
+Regidrago V as Active, attaches one of the held Double Dragons, chooses to
+attack with Celestial Roar going second, and performs no intervening search
+or deck-order manipulation. Marginalizing across the opening hand's
+other five cards and random Prize/draw positions, the subsequent three
+deck cards contain at least one additional DDE with probability
+**15.5751%**, and exactly one Basic Energy (the original source reducer's
+two-residual-card physical-loss configuration) with probability
+**25.6855%**. This is a conditional card-arrangement model with
+a deliberately forced action and ignores opponent effects. It is
+**neither an estimated policy frequency nor competitive performance**.
+
+The exact computation sums opening-hand multivariate hypergeometric
+counts, weighted by `C(v,hV)C(d,hD)C(b,hB)C(o,7-hV-hD-hB)`
+for original population counts `(v,d,b,o)=(4,4,6,46)`,
+`hV>=1`, `hD>=1`. The remaining-deck marginal is three
+uniform cards from the 53 not in the initial hand. Thus the missed
+DDE numerator given each hand uses
+`C(53,3)-C(53-(4-hD),3)`, while the exactly-one-Basic numerator
+uses `(6-hB)*C(53-(6-hB),2)`; both are divided by
+`C(53,3)` and averaged by the normalized hand weights.
+
 ## Benchmark consequence
 
 Any matchup involving actual Regidrago Celestial Roar under this pinned
