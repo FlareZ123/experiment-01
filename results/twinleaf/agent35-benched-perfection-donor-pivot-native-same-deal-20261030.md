@@ -35,6 +35,10 @@ The baseline rank-11 New Moon candidate declared repeated **Future Sight** attac
 
 The fail-closed [native donor settlement proof](../../scripts/agent35-native-donor-settlement-proof.cjs) was executed against the two *complete* original archived JSONs extracted from artifact 12355836357. It accepted the three unchanged paired arms and proved the fourth's Store-accepted retreat, visible Active transition, native Perfection UseAbilityAction, physical Gengar & Mimikyu-GX attack choice, completed attack prompt chain, and same-epoch source attack. Its output retained the historical 260-action censor and zero qualified games. The dedicated [CJS tests](../../tests/agent35-native-donor-settlement-proof.test.cjs) passed locally (2 tests, including eight deliberately broken receipts that must throw). No claim of compiled CI on these new 30 October proof files is made.
 
+### Opponent response counterfactual
+
+The native source opponent's **next T52 root** was `AttackAction Terminal Period` in **both** arms: control root **207** after the repeated Future Sight line, treatment root **205** after the Horror House-GX settlement. The independent proof now compares the entire same-turn source nonprompt action family and confirms equality (`['AttackAction:Terminal Period']`). The source therefore did not demonstrate a changed decision, prevented Trainer, or other incremental lock effect from Horror House-GX in this paired deal. It remains a confirmed late-game copy-attack execution; the expenditure of the once-per-game GX attack may be a meaningful opportunity cost.
+
 ## Evidence limits and next experiments
 
 - The archived 21 October comparison receipt omitted some physical-detail fields because its runner did not populate all projected properties at that historical revision. Later source code may expose additional properties. **Use the original per-row `rootActionLedger`, `actorOnlyDecisionCoverage`, and `candidateAttackSettlement` in the frozen raw archive**, with the new independent proof, for this specific historical claim.
