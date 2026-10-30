@@ -57,20 +57,28 @@ function enumerateConservativeShuffleSupporterOffers(view){
   if(own?.resolvingSupporter?.length>0)return [];
   const hand=view.ownHand;
   if(!Array.isArray(hand)||hand.length<1||hand.length>3)return [];
-  if(!own?.active||!(own.deckCount>=5))return [];
+  if(!own?.active||!Number.isSafeInteger(own.deckCount)||
+      own.deckCount<0)return [];
   const opponent=view.opponentPublic;
-  if(!opponent||!Number.isSafeInteger(opponent.handCount))return [];
+  if(!opponent||!Number.isSafeInteger(opponent.handCount)||
+      !Number.isSafeInteger(opponent.deckCount)||
+      opponent.handCount<0||opponent.deckCount<0)return [];
   const candidates=[];
+  // These Supporters return remaining hand cards before drawing. Count
+  // physical cards after the Supporter itself leaves the owner's hand;
+  // opponent-hand identities remain concealed and are never needed.
+  const ownDeckAfterReturn=own.deckCount+hand.length-1;
+  const opponentDeckAfterReturn=opponent.deckCount+opponent.handCount;
   for(let handIndex=0;handIndex<hand.length;handIndex++){
     const printing=hand[handIndex];
     for(const family of FAMILY){
       if(!printing.startsWith(family.prefix))continue;
       if(hand.length>family.maxOwnHand)continue;
       const counts=printedShuffleDrawCounts(view,family.kind);
-      if(!counts||counts.ownDraw<=0||counts.ownDraw>own.deckCount)
+      if(!counts||counts.ownDraw<=0||counts.ownDraw>ownDeckAfterReturn)
         continue;
       if(family.kind!=='lillie'&&
-        (counts.opponentDraw>opponent.deckCount||
+        (counts.opponentDraw>opponentDeckAfterReturn||
          opponent.prizeCount<=0))continue;
       if(family.kind==='iono'&&counts.ownDraw<4)continue;
       // Marnie and Iono can increase the opponent's hand. Penalize that
