@@ -16,7 +16,7 @@ test('audit all currently playable native original sixties against exact public 
  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
   allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true});
  const known=publicAichiSourceNameIndex(initializeCards().getAllCards());
- const records=[],seen=new Set();
+ const records=[],seen=new Set(),variants=new Map();
  for(const source of manifest.decks){
   const prepared=source.rank===1?plan.candidate:
    plan.opponents.find(x=>x.rank===source.rank);
@@ -31,6 +31,11 @@ test('audit all currently playable native original sixties against exact public 
    assert.ok(known.has(fullName),'Unknown public printing '+fullName);
    return known.get(fullName);
   });
+  for(let i=0;i<physical.length;i++){
+   const name=names[i];
+   if(!variants.has(name))variants.set(name,new Set());
+   variants.get(name).add(physical[i]);
+  }
   const observed=inventory(names);
   const expected=inventory(source.cards.flatMap(c=>Array(c.count).fill(c.name)));
   const differences=[...new Set([...observed.keys(),...expected.keys()])]
@@ -45,4 +50,6 @@ test('audit all currently playable native original sixties against exact public 
   JSON.stringify({checked:seen.size,total:records.length,records}));
  assert.equal(records.length,29);
  assert.ok(seen.size>0);
+ console.log('AGENT26_NATIVE_SOURCE_MULTIPRINTS',JSON.stringify(
+  [...variants].filter(([,v])=>v.size>1).map(([name,v])=>({name,prints:[...v]}))));
 });
