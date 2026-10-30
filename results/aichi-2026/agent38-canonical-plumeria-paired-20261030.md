@@ -72,3 +72,32 @@ The first v2 compiled replay [Actions 41119143641](https://github.com/FlareZ123/
 A targeted owner-only experimental selector is now available inside `selectPlumeriaHandDiscards`, gated by `AGENT38_PLUMERIA_LARGE_HAND_DEV=true`, **disabled by default**. It enumerates exact legal two-card print multiset options for the actual own-hand `ChooseCardsPrompt` with 19 to 60 physically owned cards, reuses Agent47's actor-only duplicate-preservation policy, and resolves the chosen printings back to original physical cards through the native validator. It rejects foreign card identities, wrong prompt types and invalid selection quotas. The interface exposes no opponent concealed cards to the pure chooser.
 
 The new `agent38_plumeria_largehand_probe` manual workflow input adds a **third** same-seed native branch, preserving control, after-Pass baseline, and extended discard selection as distinct policy variants. Its paired reporter `scripts/agent38-plumeria-large-hand-compare.cjs` requires exact full initial deal fingerprints and reports physical root divergence, printed cards discarded, generic fallback counts, attack declarations, errors and action caps. Until compiled evidence is reviewed, this is a hypothesis about improved discard quality, **not a demonstrated matchup advantage**.
+
+
+## Exact three-branch large-hand native result (retrospective)
+
+The [compiled pinned Twinleaf Actions run 41119901499](https://github.com/FlareZ123/experiment-01/actions/runs/41119901499) **passed**, including four full-deal matched source-first original-60 cases for each of three policy branches: original root-only baseline, canonical Plumeria with generic large-hand fallback, and canonical Plumeria with the opt-in expanded actor-only Plumeria discard menu. [All original JSON and matched summary, artifact 13007173455](https://github.com/FlareZ123/experiment-01/actions/runs/41119901499/artifacts/13007173455) (ZIP SHA256 `c446d423e8108222ab52b91eb2e3012aec8097d8a306400b8d7475e9715871c8`). All four pairs had **identical complete initial physical-deal fingerprints**, source-deal fingerprints, trial identities, and actual starter seats.
+
+The one exercised larger menu was the rank6 source's authentic original **28-card hand** at turn53. Pure actor-selected, native-validated discards were:
+
+| Version | Hand discard cards | Native generic prompt fallback | Original opponent Energy discarded |
+| --- | --- | ---: | --- |
+| After-Pass baseline | Spiky Energy JTG + Speed Lightning Energy RCL | 1 prompt | Psychic Energy MEE |
+| Large-hand actor variant | Guzma BUS + Speed Lightning Energy RCL | 0 prompts | Psychic Energy MEE |
+
+This establishes that the extended owner-only hand menu is executable and changes an actual original source discard decision while preserving the rare singleton Spiky Energy. It also consumes a Guzma, which can be tactically valuable in future turns. Consequently **the card-discard swap's strategic value is unresolved**. In this same truncated run, both policy variants ended at the 260-action cap, with source attack declarations 0, candidate attack declarations 29, and identical 6/4 Prize totals. The other three cases had no large-hand Plumeria selection. All benchmark match win-rate evidence remains unqualified.
+
+### Instrumentation finding: identical root hash can conceal a changed prompt action
+
+For the affected rank6 New Moon case, the root-action ledger SHA256 stayed **exactly the same** in the generic and actor-selected runs:
+
+`bca07fc73fde09174b9f27c9654eef7c810f26e84733518c70b5e680553baba1`
+
+Yet the genuine selected native `ChooseCardsPrompt` physical printings changed. The existing `nativePromptChoices.sha256` differed:
+
+- Original generic selection: `61fb098029e9618f81baf672b1a753da3273ae7ce4cdb1b83f625ad308baccf8`
+- Expanded actor selection: `6a9ae1e03083dd8b8e7512da4b4d8ad1714e465b235dc5a2dbc11328bea578bf`
+
+The root action stream encodes `ResolvePromptAction` and its prompt type but omits the selected payload. **Root ledger parity proves only that the coarse root-action stream matches; it cannot establish that the two policies took identical decisions.** This is broadly relevant to any native actor comparison using root-only fingerprints as an action-invariance test.
+
+Updated `scripts/agent38-plumeria-large-hand-compare.cjs` and its tests report `promptChanged`, `sameRootWithChangedPrompt`, both independent hashes, and `combinedObservedDecisionChange` per physical-deal matched trial. They preserve that even combined tracked-root plus tracked-prompt evidence does not establish complete engine-state equality or strategic competence. Subsequent studies should preserve all native prompt-choice payloads or their independently verified digest alongside root decisions and full physical starts.
