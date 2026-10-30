@@ -138,6 +138,32 @@ DDE numerator given each hand uses
 uses `(6-hB)*C(53-(6-hB),2)`; both are divided by
 `C(53,3)` and averaged by the normalized hand weights.
 
+## Nine-source conditional exposure panel (reproducible exact card populations)
+
+The nine authenticated source 60s containing Regidrago V also have
+different Energy counts. For each original list independently, impose
+a *forced* Active Regidrago V with one original Double Dragon Energy
+attached and no other cards seen or removed. Draw its next three cards
+uniformly from the remaining 58, with no intervening actions and no
+conditioning on a natural successful opening. This is a card-population
+calculation that makes **no assumption about actual attack selection**.
+
+| Source final ranks | Source 60 profiles | Probability any DDE in sample (omitted by pinned reducer) | Probability exactly one Basic in sample (two non-Basic residuals susceptible to skipped card) |
+| --- | --- | ---: | ---: |
+| 10, 12, 14, 20, 27, 32 | 4 DDE + 6 Basic | 14.9760% | 25.7843% |
+| 13, 21 | 3 DDE + 7 Basic | 10.1633% | 28.9247% |
+| 18 | 4 DDE + 4 Basic | 14.9760% | 18.5507% |
+
+The DDE exposure is
+`1 - C(58-(D-1),3)/C(58,3)`, the Basic-count exposure is
+`B*C(58-B,2)/C(58,3)`, using the exact original source counts
+`D` and `B`. A card being exposed to the broken effect does not
+prove the SimpleTacticsAi chose Celestial Roar or that a full game
+would be affected. The reported 59-card native loss is an actual
+effect witness for **one staged mixed composition**; these percentages
+are descriptive test-coverage priorities across original deck
+populations, not measured native error rates or win-rate estimates.
+
 ## Benchmark consequence
 
 Any matchup involving actual Regidrago Celestial Roar under this pinned
