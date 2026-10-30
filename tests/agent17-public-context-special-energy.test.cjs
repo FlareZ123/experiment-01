@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {choosePublicContextSpecialEnergy,publicCostSymbols,
+  effectivePublicAttackCost,publicSpecialAttackPayable,
   futureOneUnitDeficit,publicEnergyContext}=
   require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
 
@@ -140,4 +141,53 @@ test('verified public Alolan Raichu profile unlocks real Reversal potential',()=
     'Reversal Energy PAL');
   x.opponentPublic.prizeCount=6;
   assert.equal(choosePublicContextSpecialEnergy(x,profiled),null);
+});
+
+
+test('Thunder Mountain applies one public Lightning discount consistently',()=>{
+  const lightning=slot('Pikachu','Pikachu UPR',[4,4,10]);
+  lightning.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const psychic=slot('Mew','Mew UNB',[4,4,10]);
+  psychic.printed.types=[catalog.basicEnergyTypes.Psychic];
+  const x=view(lightning,[]);
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,lightning,
+    lightning.attacks[0]),['L','L','C']);
+  x.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,lightning,
+    lightning.attacks[0]),['L','C']);
+  assert.deepEqual(effectivePublicAttackCost(x,catalog,psychic,
+    psychic.attacks[0]),['L','L','C']);
+  // Cost reduction must never mutate the public printed attack cost.
+  assert.deepEqual(lightning.attacks[0].cost,[4,4,10]);
+});
+
+test('paid Lightning Bench under Thunder cannot displace payable attack',()=>{
+  const active=slot('Shadow Rider Calyrex V','Shadow Rider Calyrex V CRE',[10]);
+  active.printed.types=[catalog.basicEnergyTypes.Psychic];
+  active.energies=['Psychic Energy MEE'];
+  const bench=slot('Pikachu','Pikachu UPR',[4]);
+  bench.printed.types=[catalog.basicEnergyTypes.Lightning];
+  const x=view(active,['Speed Lightning Energy RCL'],
+    [bench,null,null,null,null]);
+  x.globalTurn=2;
+  x.ownTurnResources={pokemonPlayLocked:false,energyPlayLocked:false,
+    specialEnergyPlayLocked:false,energyPlayedTurn:0};
+  const c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(['Psychic Energy MEE']),
+    specialConditions:{ASLEEP:-1,PARALYZED:-2}};
+  const initial=choosePublicContextSpecialEnergy(x,c);
+  assert.deepEqual(initial,{
+    kind:'attach-special-energy',printing:'Speed Lightning Energy RCL',
+    handIndex:0,slot:'bench',index:0
+  });
+  x.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.equal(publicSpecialAttackPayable(x,c,bench,bench.attacks[0]),true);
+  assert.equal(choosePublicContextSpecialEnergy(x,c),null);
+  const first=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs')
+    .chooseActorRootIntent(x,c,{publicContextSpecialEnergy:true});
+  assert.deepEqual(first,{kind:'attack',attackName:'Payable eventually'});
+  const decision=require('../simulation/twinleaf/agent41-owner-root-arbitration.cjs')
+    .arbitrateOwnerRootIntent(x,c,first,{publicContextSpecialEnergy:true});
+  assert.strictEqual(decision.intent,first);
+  assert.equal(decision.receipt.reason,'no-supported-bench-special-offer');
 });
