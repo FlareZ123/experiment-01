@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      frozen_mismatch_setup:
+        description: 'Original rank6 6:3:B source Bench discrepancy, two-60 same-seed setup and mulligan followup'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -86,4 +91,16 @@ jobs:
           name: aichi-full-source-deal-setup-audit
           path: aichi-full-source-deal-audit.json
           if-no-files-found: warn
+          retention-days: 14
+
+      - name: Reproduce frozen rank6 6:3:B source setup under separate generic Store policy
+        if: ${{ inputs.frozen_mismatch_setup }}
+        run: node simulation/evaluation/agent26-frozen-mismatch-setup-replay.cjs > agent26-frozen-rank6-setup-followup.json
+      - name: Archive both original frozen source setup replay attempts
+        if: ${{ always() && inputs.frozen_mismatch_setup }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-frozen-rank6-setup-followup
+          path: agent26-frozen-rank6-setup-followup.json
+          if-no-files-found: error
           retention-days: 14
