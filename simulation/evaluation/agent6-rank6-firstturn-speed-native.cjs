@@ -5,6 +5,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {runMatch}=require('../twinleaf/headless.cjs');
+const {candidateAttackSettlement}=
+  require('./agent37-candidate-attack-settlement.cjs');
 const {withGoFirstChoice}=require('../twinleaf/agent6-go-first-choice.cjs');
 const {withCanonicalActorOnlyPolicy}=
   require('./agent7-canonical-actor-composition.cjs');
@@ -84,6 +86,7 @@ function run(){
         deckB:sourceSeat===1?source.cards:plan.candidate.cards,
         seed,maxActions:110,strictPromptValidation:true,
         captureDecisionTrace:true,
+        capturePublicAttackTransitions:true,
         captureInitialSourceDealFingerprintSeat:sourceSeat,
         captureStartingBoard:true};
       const preferences=sourceSeat===0?[true,false]:[false,true];
@@ -112,6 +115,9 @@ function run(){
             row.playerSlot===sourceSeat&&row.turnBefore===1&&
             row.pendingPrompt===null).map(row=>
             ({action:row.action,card:row.card??null}));
+          const sourceSettlement=candidateAttackSettlement(game,sourceSeat);
+          const sourceT3Settlements=sourceSettlement.attacks.filter(row=>
+            row.turnBefore===3 && row.attackName==='Volt Cyclone');
           const candidateT2=(game.rootActionLedger??[]).filter(row=>
             row.playerSlot===1-sourceSeat&&row.turnBefore===2&&
             row.pendingPrompt===null).map(row=>
@@ -128,6 +134,9 @@ function run(){
             speedStagingConfirmed:broad.speedStagingConfirmed,
             speedNativeSettlements:watched.receipts,
             sourceTurn3LineCompleted:broad.completed,
+            sourceNativeAttackDeclarations:sourceSettlement.declarations,
+            sourceNativeSettledAttacks:sourceSettlement.settled,
+            sourceTurn3Settlements:sourceT3Settlements,
             gameFinished:game.finished??null,
             actionCount:game.rootActionCount??null,
             candidateReplyObserved:candidateT2.length>0});
@@ -145,7 +154,7 @@ function run(){
   assert.equal(rows.length,6);
   assert.ok(rows.every(row=>row.arms.length===2));
   const all=rows.flatMap(row=>row.arms);
-  return {schema:'agent6-source-first-speed-six-deal-native-v1',
+  return {schema:'agent6-source-first-speed-six-deal-native-v2',
     registration:'results/aichi-2026/registrations/agent6-firstturn-speed-native-20261030.json',
     originalSourceRank:6,originalCandidateRank:1,
     attemptedNativeArms:all.length,
