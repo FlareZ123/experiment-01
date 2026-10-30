@@ -134,13 +134,19 @@ function runSeat(seat){
 }
 
 function run(){
-  const rows=[runSeat(0),runSeat(1)];
+  const rows=[0,1].map(seat=>{
+    try{return runSeat(seat);}
+    catch(error){return {seat,error:String(error?.stack??error),
+      completeWinnerReversal:false};}
+  });
   return {schema:'agent42-two-prize-buddy-pulse-staged-native-v1',
     enginePin:PIN,
     registration:'results/aichi-2026/registrations/agent42-two-prize-buddy-pulse-20261030.md',
-    rows,allNativeWinnerReversed:rows.every(r=>r.completeWinnerReversal),
+    rows,attemptedSeats:2,
+    nativeErrors:rows.filter(r=>r.error!==undefined).length,
+    allNativeWinnerReversed:rows.every(r=>r.completeWinnerReversal),
     competitiveQualifiedGames:0,
-    caveat:'Synthetic original-Store both-seat action ordering; no natural deal, competent opponent, or paper-clock qualification.'};
+    caveat:'Synthetic original-Store both-seat action ordering; all errors retained, no natural deal, competent opponent, or paper-clock qualification.'};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={stageRace,runSeat,run};
