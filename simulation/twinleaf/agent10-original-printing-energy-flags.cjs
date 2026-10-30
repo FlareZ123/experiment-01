@@ -73,7 +73,8 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
   // The published Aichi list uses SMP 217, while the English card pool
   // identifies the same SM Black Star Promo as smp-SM217 (set code PR-SM).
   // This is a verified set/collector alias, never a same-name substitution.
-  const setIds=code==='SMP'?['smp']:(cache.setCodeToIds.get(code)??[]);
+  const setIds=code==='SMP'?['smp']:
+    code==='XYP'?['xyp']:(cache.setCodeToIds.get(code)??[]);
   assert.ok(setIds.length>0,'No exact English source set for '+code);
   if(!cache.cardsBySet)cache.cardsBySet=new Map();
   const candidates=[];
@@ -85,8 +86,10 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
       cache.cardsBySet.set(setId,
         new Map(entries.map(card=>[card.id,card])));
     }
-    const id=setId+'-'+(code==='SMP'&&/^\d+$/.test(number)?
-      'SM'+number:number);
+    const collector=code==='SMP'&&/^\d+$/.test(number)?
+      'SM'+number:code==='XYP'&&/^\d+$/.test(number)?
+      'XY'+number:number;
+    const id=setId+'-'+collector;
     const card=cache.cardsBySet.get(setId).get(id);
     if(card&&normalize(card.name)===normalize(sourceCard.name))
       candidates.push(card);
