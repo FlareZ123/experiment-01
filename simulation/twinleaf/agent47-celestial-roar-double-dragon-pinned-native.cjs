@@ -24,7 +24,19 @@ function runOne(seat,scenario){
  assert.equal(removed.length,2);
  active.cards=[keepPoke,keepDde];
  active.energies.cards=[keepDde];
- x.owner.discard.cards.push(...removed);
+ const spareDde=removed.find(card=>card.fullName===DD);
+ const removedVstar=removed.find(card=>card.fullName==='Regidrago VSTAR SIT');
+ assert.ok(spareDde&&removedVstar);
+ x.owner.discard.cards.push(removedVstar);
+ x.owner.deck.cards.push(spareDde);
+ // stage() places the other two Double Dragons and remaining Basics into
+ // deterministic Prize cards. Move one held Basic to the artificial top three
+ // instead, preserving all source physical cards.
+ if(scenario==='special-and-basic'){
+  const i=x.owner.hand.cards.findIndex(card=>card.fullName===G);
+  assert.ok(i>=0);
+  x.owner.deck.cards.push(x.owner.hand.cards.splice(i,1)[0]);
+ }
  const choose=(name)=>{
   const i=x.owner.deck.cards.findIndex(c=>c.fullName===name);
   assert.ok(i>=0,'Original source printing unavailable: '+name);
