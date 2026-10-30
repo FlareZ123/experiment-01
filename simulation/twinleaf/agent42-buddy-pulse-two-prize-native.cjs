@@ -172,4 +172,4 @@ function run(){
     caveat:'Synthetic original-Store both-seat action ordering; all errors retained, no natural deal, competent opponent, or paper-clock qualification.'};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={stageRace,runSeat,run};
+module.exports={stageRace,publicReceipt,settleWaitPrompts,runSeat,run};
