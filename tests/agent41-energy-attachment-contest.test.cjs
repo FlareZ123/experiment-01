@@ -77,15 +77,22 @@ test('Special cannot be given fictitious units under Temple of Sinnoh',()=>{
   assert.equal(specialFundsImmediateAttack(v,catalog),null);
 });
 
-test('Speed Lightning native-type restriction is respected in contest',()=>{
+test('Speed Lightning supplies Lightning even to non-Lightning recipients',()=>{
   const v=view();
   v.ownHand=['Psychic Energy SVE','Speed Lightning Energy RCL'];
   v.ownPublic.active.energies=['Lightning Energy SVE'];
   v.ownPublic.active.attacks=[{name:'Double Lightning',damage:100,
     cost:[L,L],gxAttack:false}];
   v.ownPublic.active.printed={types:[catalog.basicEnergyTypes.Psychic]};
-  assert.equal(specialFundsImmediateAttack(v,catalog),null);
+  assert.equal(specialFundsImmediateAttack(v,catalog)?.printing,
+    'Speed Lightning Energy RCL');
   v.ownPublic.active.printed={types:[L]};
   assert.equal(specialFundsImmediateAttack(v,catalog)?.printing,
     'Speed Lightning Energy RCL');
+});
+
+test('already-payable printed damaging attack does not burn held Special',()=>{
+  const v=view();
+  v.ownPublic.active.attacks.push({name:'Spark',damage:20,cost:[L],gxAttack:false});
+  assert.equal(specialFundsImmediateAttack(v,catalog),null);
 });
