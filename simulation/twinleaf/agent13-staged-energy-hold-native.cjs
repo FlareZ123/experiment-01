@@ -26,7 +26,7 @@ const native=name=>require(path.join(output,name));
 function fundedStage(seat){
   const x=stage(seat);
   const manager=initializeCards();
-  assert.equal(x.owner.bench[1].getPokemonCard().fullName,PRINT);
+  assert.equal(x.owner.bench[1].cards[0].fullName,PRINT);
   for(let i=0;i<2;i++){
     const energy=manager.getCardByName(ENERGY);
     assert.ok(energy,'Missing native Double Dragon Energy');
