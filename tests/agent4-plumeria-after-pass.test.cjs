@@ -29,7 +29,8 @@ const pokemon=(name,energy=null)=>{
   if(energy){obj.cards.push(energy);obj.energies.cards.push(energy);}
   return obj;
 };
-function fixture({seat=0,energy=true,first=false,quota=0}={}){
+function fixture({seat=0,energy=true,first=false,quota=0,
+  settlementFails=false}={}){
   const special={fullName:'Double Colorless Energy FCO'};
   const owner={
     id:111,hand:{cards:[
@@ -88,7 +89,11 @@ function fixture({seat=0,energy=true,first=false,quota=0}={}){
           const i=opponent.active.energies.cards.indexOf(energy);
           opponent.active.energies.cards.splice(i,1);
           opponent.active.cards.splice(opponent.active.cards.indexOf(energy),1);
-          opponent.discard.cards.push(energy);state.prompts=[];
+          if(settlementFails){
+            opponent.active.energies.cards.push(energy);
+            opponent.active.cards.push(energy);
+          }else opponent.discard.cards.push(energy);
+          state.prompts=[];
         }
         return this.state;
       }
@@ -185,4 +190,82 @@ test('speculative State is delegated without touching Plumeria native Store',()=
   },deps);
   assert.equal(audit.baselinePassRoots,0);
   assert.equal(audit.proposedPlumeria,0);
+});
+
+test('large-hand generic fallback prompts are physically tracked in Plumeria chain',()=>{
+  const {state,store,ai,owner,opponent,special,deps}=fixture();
+  for(let i=0;i<27;i++)
+    owner.hand.cards.push({fullName:'Other card '+i});
+  // Actor-owned discard selector has an 18-card cap. The next handler
+  // physically resolves all three original native Store prompts instead.
+  const fallback={...deps,selectHand:()=>null,selectTarget:()=>null,
+    selectEnergy:()=>null};
+  const {audit}=withOwnerPlumeriaAfterPass(()=>{
+    store.dispatch(new AddPlayerAction());
+    state.baselineAction=new PassTurnAction();
+    store.dispatch(ai.decodeNextAction(state));
+    for(const id of [100,101,102]){
+      const physical=id===100?owner.hand.cards.slice(0,2):
+        id===101?[opponent.active]:[opponent.active.energies.cards[0]];
+      state.baselineAction=new ResolvePromptAction(id,physical);
+      assert.strictEqual(ai.decodeNextAction(state),state.baselineAction);
+      store.dispatch(state.baselineAction);
+    }
+  },fallback);
+  assert.equal(audit.proposedPlumeria,1);
+  assert.equal(audit.acceptedPlumeria,1);
+  assert.equal(audit.genericPromptFallbacks,3);
+  assert.equal(audit.delegatedPromptDispatches,3);
+  assert.equal(audit.chosenPrompts,0);
+  assert.equal(audit.acceptedPrompts,0);
+  assert.equal(audit.settledEnergyDiscards,1);
+  assert.equal(audit.delegatedSettledEnergyDiscards,1);
+  assert.equal(audit.unresolvedChains,0);
+  assert.equal(audit.log.at(-1).finalPromptOrigin,'native-delegated');
+  assert.ok(opponent.discard.cards.includes(special));
+});
+
+test('mixed actor/native delegated Plumeria selection still yields one genuine receipt',()=>{
+  const {state,store,ai,owner,opponent,deps}=fixture();
+  const mixed={...deps,selectTarget:()=>null};
+  const {audit}=withOwnerPlumeriaAfterPass(()=>{
+    store.dispatch(new AddPlayerAction());
+    state.baselineAction=new PassTurnAction();
+    store.dispatch(ai.decodeNextAction(state));
+    store.dispatch(ai.decodeNextAction(state));
+    state.baselineAction=new ResolvePromptAction(101,[opponent.active]);
+    assert.strictEqual(ai.decodeNextAction(state),state.baselineAction);
+    store.dispatch(state.baselineAction);
+    store.dispatch(ai.decodeNextAction(state));
+  },mixed);
+  assert.equal(audit.acceptedPlumeria,1);
+  assert.equal(audit.acceptedPrompts,2);
+  assert.equal(audit.delegatedPromptDispatches,1);
+  assert.equal(audit.delegatedSettledEnergyDiscards,0);
+  assert.equal(audit.settledEnergyDiscards,1);
+  assert.equal(audit.unresolvedChains,0);
+});
+
+test('native returned prompt cannot count a fake or unconfirmed Energy discard',()=>{
+  const {state,store,ai,owner,opponent,deps}=fixture({
+    settlementFails:true});
+  const fallback={...deps,selectHand:()=>null,selectTarget:()=>null,
+    selectEnergy:()=>null};
+  const {audit}=withOwnerPlumeriaAfterPass(()=>{
+    store.dispatch(new AddPlayerAction());
+    state.baselineAction=new PassTurnAction();
+    store.dispatch(ai.decodeNextAction(state));
+    for(const id of [100,101,102]){
+      const physical=id===100?owner.hand.cards.slice(0,2):
+        id===101?[opponent.active]:[opponent.active.energies.cards[0]];
+      state.baselineAction=new ResolvePromptAction(id,physical);
+      store.dispatch(ai.decodeNextAction(state));
+    }
+  },fallback);
+  assert.equal(audit.acceptedPlumeria,1);
+  assert.equal(audit.delegatedPromptDispatches,3);
+  assert.equal(audit.settledEnergyDiscards,0);
+  assert.equal(audit.delegatedSettledEnergyDiscards,0);
+  assert.equal(audit.log.at(-1).accepted,false);
+  assert.equal(audit.unresolvedChains,0);
 });
