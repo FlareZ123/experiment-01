@@ -913,7 +913,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorChargedPromotion=false,sourceFloatStoneMobility=false,
+  actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
@@ -928,6 +928,8 @@ function runDevelopment({
   assertManifest();
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
+  assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
+    'Guzma owner recipient bridge requires canonical actor composition');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -1041,6 +1043,7 @@ function runDevelopment({
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
+            guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
                 setup:earlyBenchedCompressorPayload?
@@ -1165,6 +1168,8 @@ function runDevelopment({
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
+    actorGuzmaPromptContinuationOptIn:
+      actorOnlyComposition&&actorGuzmaPromptContinuation,
     actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
@@ -1270,6 +1275,8 @@ if(require.main===module){
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
+    actorGuzmaPromptContinuation:
+      process.env.AGENT43_GUZMA_PROMPT_CONTINUATION_DEV==='true',
     actorChargedPromotion:process.env.AGENT1_CHARGED_PROMOTION_DEV==='true',
     sourceFloatStoneMobility:
       process.env.AGENT1_SOURCE_FLOAT_MOBILITY_DEV==='true',
