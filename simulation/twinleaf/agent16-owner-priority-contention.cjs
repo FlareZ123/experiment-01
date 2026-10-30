@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent16-owner-priority-contention-census-v4-printed-intent-equivalence';
+const VERSION='agent16-owner-priority-contention-census-v5-contested-special-basic-alternative';
 
 // These ranks mirror the existing first-return order in
 // agent34-actor-only-root-policy.cjs. This is a partial vocabulary,
@@ -94,6 +94,10 @@ function contentionReason(selectedKind,alternativeKind){
  * @returns {object} Bounded partial alternative vocabulary, no hidden zones.
  */
 function actualSelectedPriority(view,catalog,options,selected){
+  // The Special-vs-Basic contender executes BEFORE the ordinary Basic
+  // attachment. Its intent still has the generic attach-special-energy kind,
+  // so assigning it the late Special priority would erase the displaced Basic.
+  if(matchedContestedSpecial(view,catalog,options,selected))return 6;
   const baseline=PRIORITY[selected.kind];
   if(selected.kind!=='attach-special-energy'||
      options.raichuKoBreakpointBeforeAttack!==true||
@@ -124,6 +128,45 @@ function samePhysicalProposal(selected,proposed){
     selected.slot===proposed.slot&&selected.index===proposed.index;
 }
 
+/**
+ * Confirm the early Special has the exact physical printing/recipient proposed
+ * by the owner-visible immediate-attack comparator. Unrelated late Special
+ * attachments must retain their original order.
+ */
+function matchedContestedSpecial(view,catalog,options,selected){
+  if(selected.kind!=='attach-special-energy'||
+     options.contestedEnergyRoot!==true||
+     options.specialEnergyRoot!==true)return false;
+  const early=require('./agent41-energy-attachment-contest.cjs')
+    .specialFundsImmediateAttack(view,catalog);
+  return early!==null&&samePhysicalProposal(selected,early);
+}
+
+/**
+ * The actual generic Basic root's fallback physical recipient is Active.
+ * Respect its optional alternative recipient/hold and Basic-type heuristic.
+ * This is only a hypothetical competing proposal, never a dispatched action.
+ */
+function displacedBasicEnergy(view,catalog,options){
+  if(view.ownTurnResources?.energyPlayLocked===true||
+     view.ownTurnResources?.energyPlayedTurn===view.globalTurn)return null;
+  if(options.energyRecipientFrontier===true){
+    const recipient=require('./agent44-actor-energy-recipient.cjs')
+      .chooseActorEnergyRecipient(view,catalog,{
+        mobilityAware:options.mobilityAwareRecipient===true
+      });
+    return recipient?{kind:'attach-basic-energy',...recipient}:null;
+  }
+  const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
+  if(first<0)return null;
+  const planned=options.energyFrontier===true?
+    require('./agent10-basic-energy-frontier.cjs')
+      .chooseBasicEnergyFrontier(view,catalog):null;
+  const index=planned?.handIndex??first;
+  return {kind:'attach-basic-energy',handIndex:index,
+    printing:view.ownHand[index],slot:'active',index:0};
+}
+
 function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
   assert.equal(view.decisionKind,'owner-root');
   assert.ok(selected&&typeof selected.kind==='string');
@@ -131,6 +174,16 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
   if(!Number.isInteger(selectedPriority))
     return {selectedKind:selected.kind,unknownPriority:true,alternatives:[]};
   const alternatives=[];
+  if(matchedContestedSpecial(view,catalog,options,selected)){
+    const basic=displacedBasicEnergy(view,catalog,options);
+    if(basic)alternatives.push({
+      probe:'displaced-basic-energy',kind:basic.kind,
+      attackName:null,printing:basic.printing,
+      handIndex:basic.handIndex,slot:basic.slot??null,
+      index:basic.index??null,
+      reason:'same-turn-energy-attachment',nativePlayability:'unverified'
+    });
+  }
   for(const p of probes){
     if(options[p.flag]!==true||p.order<=selectedPriority)continue;
     if((p.flag==='specialEnergyRoot'||
