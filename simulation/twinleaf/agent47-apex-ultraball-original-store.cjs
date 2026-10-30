@@ -14,7 +14,7 @@ const PAYLOADS=new Set(['Dragapult ex TWM','Dialga-GX UPR']);
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 /** An entire source-registered 60 in deterministic real physical zones. */
-function stage(seat){
+function stage(seat,temple=false){
   assert.ok(seat===0||seat===1);
   const field=resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),{
@@ -67,6 +67,7 @@ function stage(seat){
   });
   for(let i=0;i<5;i++)owner.bench.push(new PokemonCardList());
   opponent.active.cards.push(physical('Pidgey MEW'));
+  if(temple)opponent.stadium.cards.push(physical('Temple of Sinnoh ASR'));
   for(let i=0;i<5;i++)opponent.bench.push(new PokemonCardList());
   for(let i=0;i<6;i++){
     const stack=new CardList();stack.cards.push(physical('Psychic Energy SVE'));
@@ -89,7 +90,7 @@ function stage(seat){
  * Search and turn-ending actions are out of scope. Does not alter the bot.
  */
 function runOne(seat,mode,temple=false){
-  const x=stage(seat);
+  const x=stage(seat,temple);
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
@@ -117,10 +118,8 @@ function runOne(seat,mode,temple=false){
   assert.deepEqual(observed.actor.ownPublic.active.energies,
     ['Double Dragon Energy ROS','Double Dragon Energy ROS']);
   const original=chooseActorHandDiscard(observed).printings;
-  const proposal=proposeApexPayloadDiscard(
-    temple?{...observed,actor:{
-      ...observed.actor,opponentPublic:{...observed.actor.opponentPublic,
-        stadium:['Temple of Sinnoh ASR']}}}:observed,PAYLOADS);
+  if(temple)assert.ok(observed.actor.opponentPublic.stadium.includes('Temple of Sinnoh ASR'));
+  const proposal=proposeApexPayloadDiscard(observed,PAYLOADS);
   assert.deepEqual(proposal.baseline,original);
   const names=mode==='alternate'?proposal.proposal:original;
   if(!temple)assert.equal(proposal.changed,true);
