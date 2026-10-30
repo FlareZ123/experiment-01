@@ -123,7 +123,7 @@ test('native seat rank label is a separate fail-closed invariant',()=>{
   assert.throws(()=>attestNativePlan(plan,original,csv),
     /Native source archetype mismatch at rank 11/);
   const duplicate=fakeNativePlan();
-  duplicate.opponents[0].rank=11;
+  duplicate.opponents[31].rank=11;
   assert.throws(()=>attestNativePlan(duplicate,original,csv),
     /Duplicate resolved source rank/);
 });
