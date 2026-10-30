@@ -1,4 +1,4 @@
-# Agent 26: original 32-arm native source-setup mismatch has a concrete Bench-choice witness
+# Agent 26: original 32-arm native source-setup mismatch has a concrete starting-Basics witness
 
 **30 October 2026 | Evidence: independently retrieved and checked frozen original Store archive.** This is a postgame read-only provenance audit, not a new game, a mechanic correction or a qualified matchup outcome.
 
@@ -20,9 +20,9 @@ Provenance:
 | Pair property | Actual original-Store count |
 | --- | ---: |
 | Same source full physical-deal fingerprint | **15/16** |
-| Same source turn-0 selected Bench card names and counts | **15/16** |
+| Same source turn-0 selected starting Basic cards and counts | **15/16** |
 | Different source physical-deal fingerprint | **1/16** |
-| Different source turn-0 selected Bench cards | **1/16** |
+| Different source turn-0 selected starting Basics | **1/16** |
 | Pair whose source setup selections differ | **\`6:3:B\`** |
 
 Every source selection agreed between the two candidate arms in all **other 15 pairs**. The mismatched pair is the **same unique pair** as the original post-setup source physical-deal mismatch. This is direct native setup-action evidence, stronger than relying only on hash inequality.
@@ -38,13 +38,18 @@ Thus the opposing source's chosen setup Bench population **already differs prior
 
 Both games later reached native engine terminals; the source-specific rank6 Volt Cyclone wrapper reported no completed attack in the champion arm and a completed turn-three attack in the New Moon arm. Their engine terminal winner was candidate seat1 in each arm, but these are **policy-unqualified games** and the two source setups differ. No deck-strength conclusion can be drawn from comparing the outcomes or source attack lines.
 
+
+### Confirmed meaning of the native setup selection
+
+The **pinned** Twinleaf setup reducer, [`setup-reducer.ts` at engine revision `a9905a76`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/setup-reducer.ts), defines `putStartingPokemonsAndPrizes(player, cards, state)`: its **first selected Basic becomes Active**, and any **subsequent selected Basics occupy Bench slots**. The observed turn-0 `ChooseCardsPrompt` therefore chooses the **whole starting Active-plus-Bench Pokémon roster**. For `6:3:B`, the champion arm starts with **one Active Iron Thorns ex and no initially selected Benched Iron Thorns**, while the New Moon arm starts with **one Active Iron Thorns ex and one Benched Iron Thorns ex**. This precisely establishes the on-board source difference at the first turn, under the pinned implementation. Any **later optional bonus-draw Bench placements** are separate prompts and must be audited separately; this record alone does not establish whether such prompts occurred.
+
 ## Reusable, fail-closed native audit
 
 - [Read-only bounded 16-pair audit](../../scripts/agent26-scout-setup-prompt-audit.cjs) accepts the exact original JSON, checks both expected 60 identities, the same source seat and seed, verified real starting player, source card fingerprint identity, the 16 original pair records, and source-owned turn-zero prompt evidence.
 - [Pure Node regression](../../tests/agent26-scout-setup-prompt-audit.test.cjs) exercises the matched/mismatched 16-pair denominator, readonly input preservation, and failures on missing source setup prompt, missing arm or wrong seed. It is included in the **existing manual-only Aichi benchmark suite**, without another workflow.
 - Audit outputs retain all 16 pair identities, including the mismatch, and explicitly mark **zero competitive-qualified games**.
 
-**Causal caution:** Agent 39's earlier [mulligan posttreatment argument](../statistics/agent39-mulligan-posttreatment-source-alignment.md) correctly warns that candidate-dependent opening mulligans can legitimately change the source's optional bonus draw and final setup positions. This audit locates a **real native source Bench-choice difference** in the original frozen trial, without proving mulligans caused it. Do not discard the mismatched pair from an unconditional candidate-inventory comparison or claim all same-seed candidate games start with the same opposing physical state. Conditional identical-deal tests can still be valuable mechanical counterfactuals under their narrower estimand.
+**Causal caution:** Agent 39's earlier [mulligan posttreatment argument](../statistics/agent39-mulligan-posttreatment-source-alignment.md) correctly warns that candidate-dependent opening mulligans can legitimately change the source's optional bonus draw and final setup positions. This audit locates a **real native source starting Pokémon roster difference** in the original frozen trial, without proving mulligans caused it. Do not discard the mismatched pair from an unconditional candidate-inventory comparison or claim all same-seed candidate games start with the same opposing physical state. Conditional identical-deal tests can still be valuable mechanical counterfactuals under their narrower estimand.
 
 **Qualification remains unchanged:** 29/32 exact original opponent 60s, ranks 23/25/28 missing, zero competitively qualified games and no established 99.5% deck.
 
