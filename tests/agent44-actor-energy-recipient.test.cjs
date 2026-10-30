@@ -240,6 +240,46 @@ test('mobility funding counts ordinary Supporter uses, not global turns',()=>{
   }).slot,'active','Public Supporter lock blocks mobility');
 });
 
+
+test('Dimension Valley preserves Basic attachment when Psychic attack is paid',()=>{
+  const v=view();
+  v.ownPublic.bench=[null,null,null,null,null];
+  v.ownPublic.active.energies=['Psychic Energy MEE'];
+  v.ownPublic.active.attacks=[
+    {name:'Psychic Strike',cost:[P,C],gxAttack:false}];
+  const first=chooseActorEnergyRecipient(v,catalog);
+  assert.equal(first.slot,'active');
+  assert.equal(first.gapBefore,1);
+  assert.equal(first.gapAfter,0);
+  v.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.equal(chooseActorEnergyRecipient(v,catalog),null);
+  const intent=chooseActorRootIntent(v,catalog,{
+    energyRecipientFrontier:true,publicContextSpecialEnergy:true
+  });
+  assert.deepEqual(intent,{kind:'attack',attackName:'Psychic Strike'});
+});
+
+test('Thunder Mountain prevents false Bench Lightning deficit but retains a second one',()=>{
+  const v=view();
+  v.ownHand=['Lightning Energy MEE'];
+  const lightning=4;
+  const c={...catalog,basicEnergies:new Set([...catalog.basicEnergies,
+    'Lightning Energy MEE']),
+    basicEnergyTypes:{...catalog.basicEnergyTypes,Lightning:lightning}};
+  const target=pokemon('Pikachu',[],[
+    {name:'Thunderbolt',cost:[lightning],gxAttack:false}]);
+  target.printed.types=[lightning];
+  v.ownPublic.bench=[target,null,null,null,null];
+  assert.equal(chooseActorEnergyRecipient(v,c)?.slot,'bench');
+  v.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.equal(chooseActorEnergyRecipient(v,c),null);
+  target.attacks[0].cost=[lightning,lightning];
+  const pick=chooseActorEnergyRecipient(v,c);
+  assert.equal(pick?.slot,'bench');
+  assert.equal(pick.gapBefore,1);
+  assert.equal(pick.gapAfter,0);
+});
+
 // Keep the existing canonical actor recipient test command exercising the
 // dependent, separately versioned held-Guzma public restriction regression.
 require('./agent2-held-guzma-mobility-frontier.test.cjs');
