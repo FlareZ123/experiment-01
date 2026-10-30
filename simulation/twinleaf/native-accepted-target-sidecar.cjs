@@ -137,6 +137,10 @@ function firstPhysicalTargetDifference(left,right){
       right.rootOrdinalLinked!==true))
     return {status:'target-unobserved',reason:'unlinked-Store-root-ordinals'};
   const a=left.events,b=right.events;
+  // Zero witnessed target-bearing actions establish no physical parity.
+  // This remains true if the empty root ledger was authenticated.
+  if(a.length===0&&b.length===0)
+    return {status:'target-unobserved',reason:'no-target-bearing-root-events'};
   const nativeLinked=left.rootOrdinalLinked===true;
   if(nativeLinked!==(right.rootOrdinalLinked===true))
     return {status:'target-unobserved',reason:'incompatible-root-linkage-status'};
@@ -161,7 +165,16 @@ function firstPhysicalTargetDifference(left,right){
     const physical=row=>({
       rootActionOrdinal:nativeLinked?row.rootActionOrdinal:null,
       turnBefore:row.turnBefore,playerSlot:row.playerSlot,
-      action:row.action,declared:row.declared,
+      action:row.action,
+      // The owner's hand index is a transient private array position,
+      // not the identity of the publicly played printing or its target.
+      // Keep it in the archived receipt/SHA, but exclude it from the
+      // physical-action comparison. Retreat Bench indices remain material.
+      declared:row.declared.kind==='play-card'?
+        {kind:row.declared.kind,status:row.declared.status,
+          ownerHandPrinting:row.declared.ownerHandPrinting,
+          target:row.declared.target}:
+        row.declared,
       storeAccepted:row.storeAccepted,
       publicBoardChanges:row.publicBoardChanges,
       visibility:row.visibility
