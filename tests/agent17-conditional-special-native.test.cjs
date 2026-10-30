@@ -288,3 +288,24 @@ test('Temple of Sinnoh prevents Capture search and Jet switch in both seats',()=
     assert.equal(jet.state.prompts.filter(p=>p.result===undefined).length,0);
   }
 });
+
+test('Temple of Sinnoh suppresses Telepath Psychic Bench-search trigger',()=>{
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  for(const seat of [0,1]){
+    const fixture=staged('Mewtwo & Mew-GX UNM',
+      'Telepath [P] Energy M3',seat);
+    const {store,state,owner,card}=fixture;
+    owner.stadium.cards.push(card('Temple of Sinnoh ASR'));
+    owner.deck.cards.push(card('Mewtwo & Mew-GX UNM'));
+    const beforeDeck=owner.deck.cards.length;
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(owner.active.energies.cards.some(c=>
+      c.fullName==='Telepath [P] Energy M3'));
+    assert.equal(owner.deck.cards.length,beforeDeck);
+    assert.equal(state.prompts.filter(p=>p.result===undefined).length,0);
+    assert.ok(owner.bench.every(slot=>slot.cards.length===0));
+  }
+});
