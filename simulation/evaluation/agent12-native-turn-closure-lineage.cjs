@@ -17,7 +17,7 @@ function actionFamily(initiator){
   if(initiator.action==='PassTurnAction')return 'pass';
   if(initiator.action==='AttackAction')return 'attack';
   if(initiator.action==='PlayCardAction')return 'card-play';
-  if(initiator.action==='UseAbilityAction')return 'ability-use';
+  // Some native UseAbilityAction paths delegate a real attack (Perfection).\n  // Without the selected attack prompt, the generic root kind is ambiguous.\n  if(initiator.action==='UseAbilityAction')return 'ability-or-delegated-attack';
   if(initiator.action==='UseStadiumAction')return 'stadium-use';
   return 'other-root';
 }
@@ -85,8 +85,10 @@ function attestNativeTurnClosureLineage(roots){
     unbound.length,boundNativeTurnEnds:closures.length,
     unresolvedTerminals:unbound.length,
     promptClosedTerminals:closures.filter(x=>x.prompted).length,
-    nonattackTerminalRoots:closures.filter(x=>!['pass','attack']
-      .includes(x.actionFamily)).length,
+    certainNonattackTerminalRoots:closures.filter(x=>['card-play',
+      'stadium-use'].includes(x.actionFamily)).length,
+    ambiguousAbilityTerminals:closures.filter(x=>
+      x.actionFamily==='ability-or-delegated-attack').length,
     byFamily:{}};
   for(const c of closures){
     counts.byFamily[c.actionFamily]=(counts.byFamily[c.actionFamily]??0)+1;
