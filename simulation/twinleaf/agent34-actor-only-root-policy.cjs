@@ -1006,6 +1006,21 @@ function withActorOnlyRootPolicy(run,deps={}){
       rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
     try{
       const result=beforeDispatch.value.apply(this,[action,...args]);
+      if(choice.kind==='play-eri-reveal'){
+        const owner=this.state.players[choice.seat];
+        const rival=this.state.players[1-choice.seat];
+        const pending=this.state.prompts?.find(p=>p.result===undefined);
+        const {SuperType,TrainerType}=
+          require(path.join(base,'game/store/card/card-types'));
+        assert.ok(owner&&rival&&pending&&
+          require('./agent50-eri-revealed-item-prompt.cjs')
+            .observeEriRevealedItems(this.state,choice.seat,pending,
+              SuperType,TrainerType)!==null,
+          'Native Eri root failed to create authenticated opponent-hand reveal');
+        assert.ok(!ownerEriPending.has(owner.id));
+        ownerEriPending.set(owner.id,{seat:choice.seat,
+          promptId:pending.id,globalTurn:choice.globalTurn});
+      }
       if(choice.kind==='play-seeker-get-lillie'){
         const owner=this.state.players[choice.seat];
         const pending=this.state.prompts?.find(p=>p.result===undefined);
