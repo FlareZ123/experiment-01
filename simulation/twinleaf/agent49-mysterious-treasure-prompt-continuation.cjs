@@ -25,7 +25,6 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   const Store=deps.Store??native('game/store/store').Store;
   const ResolvePromptAction=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
-  const GameMessage=deps.GameMessage??native('game/game-message').GameMessage;
   const observe=deps.observe??actorObservation;
   const choose=deps.choose??chooseTreasureRootIntent;
   const trace=deps.trace??(()=>{});
@@ -68,13 +67,13 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     }
     const player=state.players[plan.seat];
     let selection=null,kind=null;
-    if(plan.step==='cost' && prompt.cards===player.hand &&
-       prompt.message===GameMessage.CHOOSE_CARD_TO_DISCARD){
+    // The native prompt's physical owner zone and validator are authoritative.
+    // Printed message labels can differ between card implementations.
+    if(plan.step==='cost' && prompt.cards===player.hand){
       selection=prompt.cards.cards.find(card=>
         card.fullName===plan.discardPrinting);
       kind='cost';
-    }else if(plan.step==='search' && prompt.cards===player.deck &&
-       prompt.message===GameMessage.CHOOSE_CARD_TO_HAND){
+    }else if(plan.step==='search' && prompt.cards===player.deck){
       // The owner can inspect the actual deck only inside this live prompt.
       // A Regidrago V in play prioritizes VSTAR; otherwise choose the first
       // genuinely eligible Dragon or Psychic Pokémon under native validation.
