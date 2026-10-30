@@ -194,3 +194,18 @@ test('public printed KO Prize award distinguishes TAG TEAM, GX, and single Prize
     rules:['When this Pokémon is Knocked Out, your opponent draws 2 Prize cards.']}),
     /Unknown printed Prize rule/);
 });
+
+test('Aichi SMP 217 maps uniquely to verified SM Black Star Promo SM217',()=>{
+  const original=SOURCE.decks.find(x=>x.rank===1).cards.find(x=>
+    x.name==='Trevenant & Dusknoir-GX');
+  assert.equal(original.printing.set,'SMP');
+  assert.equal(original.printing.number,'217');
+  const actual=originalPrintedPokemon(ROOT,original);
+  assert.equal(actual.printingId,'smp-SM217');
+  assert.equal(actual.prizesOnKnockout,3);
+  const publicProfile=visiblePrintedProfile(
+    buildPublicPokemonProfileIndex(ROOT),'Trevenant & Dusknoir-GX SMP');
+  assert.equal(publicProfile?.printingId,'smp-SM217');
+  assert.equal(publicProfile.prizesOnKnockout,3);
+  console.log('PASS: original SMP source alias preserves printed 3-Prize TAG TEAM');
+});
