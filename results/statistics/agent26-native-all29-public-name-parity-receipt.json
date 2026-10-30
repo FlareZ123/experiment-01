@@ -1,0 +1,199 @@
+{
+  "schema": "agent26-all29-native-source-public-name-parity-v1",
+  "status": "29 resolved original sources parity only",
+  "ci": {
+    "runId": 41004771994,
+    "jobId": 123897065436,
+    "headSha": "89c3d8605d82ed4c7b2e83548d1b64aef4a2ec12",
+    "url": "https://github.com/FlareZ123/experiment-01/actions/runs/41004771994"
+  },
+  "proof": {
+    "checked": 29,
+    "total": 29,
+    "records": [
+      {
+        "rank": 1,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 2,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 3,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 4,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 5,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 6,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 7,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 8,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 9,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 10,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 11,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 12,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 13,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 14,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 15,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 16,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 17,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 18,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 19,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 20,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 21,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 22,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 24,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 26,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 27,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 29,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 30,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 31,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      },
+      {
+        "rank": 32,
+        "status": "ready",
+        "differenceCount": 0,
+        "differences": []
+      }
+    ]
+  },
+  "benchmark": {
+    "originalKnown": 29,
+    "originalMissing": [
+      23,
+      25,
+      28
+    ],
+    "competitivelyQualifiedGames": 0
+  }
+}
