@@ -210,3 +210,18 @@ test('valued owner prompt scorer receives only frozen actor snapshot',()=>{
     assert.ok(view.prompt.bundles[0].printings.includes('Card-49'));
   }
 });
+
+test('paper Steven native-zero option is rejected in bounded and sparse menus',()=>{
+  for(const size of [3,50])for(const seat of [0,1]){
+    const names=Array.from({length:size},(_,i)=>'C'+i.toString().padStart(2,'0'));
+    const x=physicalPrompt(names,seat);
+    x.owner.supporter={cards:[{fullName:"Steven's Resolve CES"}]};
+    const objects=x.owner.deck.cards;
+    x.prompt.validate=chosen=>Array.isArray(chosen)&&
+      chosen.length<=3&&chosen.every(c=>objects.includes(c));
+    const v=sparseObservedOwnerSearch(x.state,seat,
+      ()=>fakeActor(seat),names=>-names.length);
+    assert.deepEqual(v.prompt.bundles[0].printings,[names[0]]);
+    assert.equal(v.prompt.canSkip,false);
+  }
+});
