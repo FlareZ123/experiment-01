@@ -1,7 +1,6 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
 const path=require('node:path');
 
 const ROOT=path.resolve(__dirname,'..');
@@ -147,71 +146,25 @@ function directFreeFrontliner(frontliners,otherBasics){
     (choose(60,7)-choose(60-frontliners-otherBasics,7));
 }
 
-/**
- * Resolve a source printing's actual Stage from local source-card JSON.
- * Do not use a card name as a proxy for its Stage. Fail closed on unknown
- * printed cards, rather than silently inventing 29 exact Basic counts.
- *
- * @param {object} printing Exact Limitless English printing identity
- * @param {Map<string,string[]>} byCode ptcgoCode -> candidate set IDs
- * @param {Map<string,object[]>} cachedCardSets Parsed card set cache
- * @returns {object} One database card matching source set and card number
- */
-function cardAtPrinting(printing,byCode,cachedCardSets){
-  const code=printing.set;
-  const setIds=byCode.get(code)||[];
-  const matches=[];
-  for(const id of setIds){
-    let cards=cachedCardSets.get(id);
-    if(!cards){
-      cards=JSON.parse(fs.readFileSync(
-        path.join(ROOT,'resources','cards','en',id+'.json'),'utf8'));
-      cachedCardSets.set(id,cards);
-    }
-    for(const card of cards){
-      if(String(card.number).toUpperCase()===
-          String(printing.number).toUpperCase())matches.push(card);
-    }
-  }
-  assert.equal(matches.length,1,
-    'Expected a uniquely resolved printed card: '+
-      code+' '+String(printing.number)+'; found '+matches.length);
-  return matches[0];
-}
+// The existing exact-printing Basic census is reused as authoritative here.
+// It handles English promo-number aliases and multiple set gallery namespaces.
+const {fromRepository}=require('./aichi-opening-basics.cjs');
 
 /**
  * @param {boolean} [emit] Whether to print human-readable JSON to stdout
  * @returns {object} Field Basic opening probabilities and toy opener lines
  */
 function main(emit=true){
-  const source=JSON.parse(fs.readFileSync(
-    path.join(ROOT,'results','aichi-2026','full-decklists.json'),'utf8'));
-  const sets=JSON.parse(fs.readFileSync(
-    path.join(ROOT,'resources','sets','en.json'),'utf8'));
-  const byCode=new Map();
-  for(const s of sets){
-    if(!s.ptcgoCode)continue;
-    if(!byCode.has(s.ptcgoCode))byCode.set(s.ptcgoCode,[]);
-    byCode.get(s.ptcgoCode).push(s.id);
-  }
-  byCode.set('XYP',['xyp']);
-  byCode.set('SMP',['smp']);
-  const cardsBySet=new Map();
-  const rows=source.decks.map(deck=>{
-    const total=deck.cards.reduce((sum,c)=>sum+c.count,0);
-    assert.equal(total,60,'source list must have 60 cards, rank '+deck.rank);
-    const pokemon=deck.cards.filter(c=>c.category==='Pokémon');
-    const basic=pokemon.filter(c=>
-      cardAtPrinting(c.printing,byCode,cardsBySet)
-        .subtypes.includes('Basic'));
-    const nBasic=basic.reduce((s,c)=>s+c.count,0);
-    const distribution=basicOpeningDistribution(nBasic);
-    return {rank:deck.rank,archetype:deck.archetype,
-      pokemonCount:pokemon.reduce((s,c)=>s+c.count,0),
-      basicPokemonCount:nBasic,
-      stageOrVMAXCount:pokemon.reduce((s,c)=>s+c.count,0)-nBasic,
-      ...distribution};
-  });
+  const source=fromRepository(ROOT);
+  const rows=source.rows.map(row=>({
+    rank:row.rank,archetype:row.archetype,
+    pokemonCount:row.pokemonCount,
+    basicPokemonCount:row.basicCount,
+    stageOrVMAXCount:row.evolutionCount,
+    pValid:1-row.initialMulliganProbability,
+    pAtLeastTwoGivenValid:1-row.solitaryBasicGivenValidProbability,
+    pExactlyOneGivenValid:row.solitaryBasicGivenValidProbability
+  }));
   assert.equal(rows.length,29);
   const nonzeroRanks=rows.map(r=>r.rank).sort((a,b)=>a-b);
   const missing=[];
@@ -246,5 +199,5 @@ function main(emit=true){
 if(require.main===module)main();
 module.exports={
   VERSION,choose,basicOpeningDistribution,directColorlessAttackerReady,
-  directVoltorbAttachment,directFreeFrontliner,cardAtPrinting,main
+  directVoltorbAttachment,directFreeFrontliner,main
 };
