@@ -160,6 +160,8 @@ jobs:
       - name: Stage actual both-seat Tropical Beach end-turn native Store action
         if: inputs.agent33_tropical_beach_native
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
+      - name: Fail closed on fabricated paired Beach starts and failed native attempts
+        run: node --test tests/agent33-tropical-beach-original-paired.test.cjs
       - name: Preserve entire paired original rank3/6/29 Beach native-development panel
         if: inputs.agent33_tropical_beach_paired
         run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
