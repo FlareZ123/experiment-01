@@ -189,6 +189,8 @@ jobs:
         run: node --test tests/agent8-rank15-mixed-energy-pinned-native.test.cjs
       - name: Crosscheck rank15 source versus native printing resolver
         run: node --test tests/agent8-rank15-native-print-parity.test.cjs
+      - name: Check genuine both-seat Wondrous Stadium native attack tax
+        run: node --test tests/agent8-wondrous-native-root-parity.test.cjs
       - name: Agent29 same-deal Hammer OFF/ON real-Store source-first development pair
         if: ${{ inputs.source_first_retrospective }}
         run: node --test tests/agent29-hammer-headless-native.test.cjs
