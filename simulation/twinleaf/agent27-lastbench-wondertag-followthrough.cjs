@@ -76,11 +76,18 @@ function followWonderTag(seat){
     gameWinRateQualified:false};
 }
 function run(){
-  return {schema:'agent27-lastbench-wondertag-native-prompt-closed-v1',
+  const {withNumericShuffleValidator}=
+    require('./agent22-numeric-shuffle-validation-hook.cjs');
+  // The pinned native shuffle validator rejects numeric permutations on
+  // decks >10 cards; reuse the existing reversible, tested research fix.
+  return withNumericShuffleValidator(()=>({
+    schema:'agent27-lastbench-wondertag-native-prompt-closed-v1',
     pin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     seats:[followWonderTag(0),followWonderTag(1)],
+    numericShuffleValidatorHook:true,
     qualifiedCompetitiveGames:0,
-    caveat:'Controlled exact-source source-60 board. Printed Wonder Tag path only, no natural frequency, no strategic superiority or native opponent response.'};
+    caveat:'Controlled exact-source source-60 board. Printed Wonder Tag path only, no natural frequency, no strategic superiority or native opponent response.'
+  }));
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={followWonderTag,run};
