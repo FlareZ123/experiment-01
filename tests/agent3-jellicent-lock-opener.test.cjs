@@ -31,3 +31,16 @@ test('conditional valid Basic sample and impossible cases',()=>{
   assert.equal(exactDirectLock({requireHood:true}).unconditional,0);
   assert.throws(()=>exactDirectLock({totalBasics:3}));
 });
+
+test('Arven provides a second-turn-order-specific Item plus Tool search channel',()=>{
+  const {exactArvenProtectedLock}=require('../scripts/agent3-jellicent-lock-opener.cjs');
+  const expected=[0.0618557143504906,0.10431290163500184,
+    0.14211764882827793,0.17570078476023002,0.20546079765483508];
+  for(let n=0;n<=4;n++){
+    near(exactArvenProtectedLock({arven:n}).unconditional,expected[n]);
+  }
+  near(exactArvenProtectedLock({arven:4}).conditionalValidBasic,
+    0.2538579824217648);
+  near(exactArvenProtectedLock({arven:0}).conditionalValidBasic,
+    exactDirectLock({stealthyHood:4,requireHood:true}).conditionalValidBasic);
+});
