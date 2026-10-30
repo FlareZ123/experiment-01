@@ -1,0 +1,54 @@
+{
+  "schema": "agent41-mixed-energy-original-four-rank-two-seat-factorial-v1",
+  "registered_at_utc": "2026-10-30T23:00:00Z",
+  "basis": "Draw four uniformly without replacement from all eight original Aichi 2026 non-Regidrago ranks whose published exact 60 has both Basic and Special Energy cards, before any new-cohort games",
+  "eligible_ranks": [
+    2,
+    3,
+    9,
+    15,
+    19,
+    26,
+    30,
+    31
+  ],
+  "source_ranks": [
+    9,
+    15,
+    19,
+    26
+  ],
+  "sampling_method": "Python secrets.SystemRandom.sample eligible four, sorted; independent secrets.randbits(32) per original physical seed",
+  "seeds": {
+    "9": {
+      "A": 563737321,
+      "B": 1297926512
+    },
+    "15": {
+      "A": 1070037648,
+      "B": 2475754946
+    },
+    "19": {
+      "A": 3544781014,
+      "B": 2329150651
+    },
+    "26": {
+      "A": 2328273816,
+      "B": 3976002492
+    }
+  },
+  "base_registration": "results/aichi-2026/registrations/agent41-flexible-special-r4-r10-r12-r17-20261030.json",
+  "candidate": "unchanged rank1 original Shadow Rider full 60",
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "action_cap": 260,
+  "sample_size": 16,
+  "arms": [
+    "control publicContextSpecialEnergy=true publicFlexibleEnergyContest=false on both physical seats",
+    "treatment publicContextSpecialEnergy=true publicFlexibleEnergyContest=true on both physical seats"
+  ],
+  "full_two_player_physical_fingerprint_required": true,
+  "matching_first_player_required": true,
+  "preselected_without_outcome": "Selected solely on published Energy-category composition; no previous exact rank9/15/19/26 policy-vs-policy physical deals inspected for this toggle",
+  "no_replacement": "All selected cases kept, including source unsupported and native errors, without replacing ranks",
+  "no_real_wins_claim": "All attempts unqualified; Stage/Native claims do not establish 99.5% paper win"
+}
