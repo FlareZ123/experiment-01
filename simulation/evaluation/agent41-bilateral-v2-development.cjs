@@ -913,6 +913,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
+  actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -930,6 +931,8 @@ function runDevelopment({
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
     'Guzma owner recipient bridge requires canonical actor composition');
+  assert.ok(!actorPlumeriaAfterPass||actorOnlyComposition,
+    'Plumeria after-Pass requires canonical actor composition');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -1043,6 +1046,7 @@ function runDevelopment({
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
+            ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
@@ -1167,6 +1171,7 @@ function runDevelopment({
     actorOnlyCompositionOptIn:actorOnlyComposition,
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
+    actorPlumeriaAfterPassOptIn:actorOnlyComposition&&actorPlumeriaAfterPass,
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorGuzmaPromptContinuationOptIn:
       actorOnlyComposition&&actorGuzmaPromptContinuation,
@@ -1275,6 +1280,8 @@ if(require.main===module){
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
     actorHandDiscard:process.env.AGENT47_ACTOR_HAND_DISCARD_DEV==='true',
     actorChoosePokemon:process.env.AGENT8_ACTOR_CHOOSE_POKEMON_DEV==='true',
+    actorPlumeriaAfterPass:
+      process.env.AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV==='true',
     actorGuzmaPromptContinuation:
       process.env.AGENT43_GUZMA_PROMPT_CONTINUATION_DEV==='true',
     actorChargedPromotion:process.env.AGENT1_CHARGED_PROMOTION_DEV==='true',
