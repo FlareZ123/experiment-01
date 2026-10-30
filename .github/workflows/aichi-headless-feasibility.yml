@@ -135,7 +135,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Validate actor-only preattack shuffle Supporter printed intent and public receipt
-        run: node --test tests/agent2-actor-conservative-shuffle-pre-attack.test.cjs tests/agent2-preattack-supporter-followthrough.test.cjs
+        run: node --test tests/agent2-actor-conservative-shuffle-pre-attack.test.cjs tests/agent2-preattack-supporter-followthrough.test.cjs tests/agent2-preattack-supporter-divergence.test.cjs
       - name: Compare 18 historical both-seat preattack shuffle Supporter decisions
         run: node simulation/twinleaf/agent2-shuffle-supporter-pre-attack-native.cjs > agent2-shuffle-supporter-preattack-native.json
       - name: Archive owner-root preattack Supporter and native prompt outcomes
