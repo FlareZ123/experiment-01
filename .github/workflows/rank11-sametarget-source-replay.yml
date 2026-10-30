@@ -11,13 +11,17 @@ on:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
         default: false
+      agent38_plumeria_largehand_probe:
+        description: 'Also test oversized Plumeria actor hand planning against same-deal generic fallback'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent38_plumeria_probe }}
+    if: ${{ !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -141,7 +145,7 @@ jobs:
           retention-days: 14
 
   agent38-plumeria-paired:
-    if: ${{ inputs.agent38_plumeria_probe }}
+    if: ${{ inputs.agent38_plumeria_probe || inputs.agent38_plumeria_largehand_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -154,7 +158,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate canonical Plumeria precedence and paired census
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-large-hand.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -189,6 +193,23 @@ jobs:
       - name: Verify historic rank6 long-hand Plumeria handoff settled natively
         run: |
           node -e "const a=require('node:assert/strict');const r=require('./agent38-plumeria-census.json');a.equal(r.registeredAttempts,4);a.equal(r.totalAccepted,2);a.equal(r.totalSettled,2);a.equal(r.delegatedPrompts,1);a.equal(r.delegatedSettlements,0);a.equal(r.unresolved,0);a.equal(r.competitivelyQualifiedGames,0);console.log('PLUMERIA_GENUINE_DELEGATED_RECEIPTS',JSON.stringify({accepted:r.totalAccepted,settled:r.totalSettled,delegatedPrompts:r.delegatedPrompts,delegatedSettlements:r.delegatedSettlements}));"
+      - name: Run same-source original-60 larger owner-hand menu experiment
+        if: ${{ inputs.agent38_plumeria_largehand_probe }}
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT41_SOURCEFIRST_RETRO_DEV: 'true'
+          AGENT12_SAME_TARGET_ATTACH_DEV: 'true'
+          AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV: 'true'
+          AGENT38_PLUMERIA_LARGE_HAND_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent38-plumeria-large.json
+      - name: Preserve all large-hand action/receipt changes with same full physical deal
+        if: ${{ inputs.agent38_plumeria_largehand_probe }}
+        run: |
+          node scripts/agent38-plumeria-large-hand-compare.cjs agent38-plumeria-on.json agent38-plumeria-large.json > agent38-plumeria-large-compare.json
+          node -e "const a=require('node:assert/strict');const x=require('./agent38-plumeria-large-compare.json');a.equal(x.registeredAttempts,4);a.equal(x.matchedFullPhysicalStarts,4);a.equal(x.competitiveQualifiedGames,0);a.ok(x.largeHandNativeSelections>=1);console.log('PLUMERIA_LARGE_HAND_REAL_NATIVE',JSON.stringify({attempts:x.registeredAttempts,matched:x.matchedFullPhysicalStarts,actorSelections:x.largeHandNativeSelections,pairs:x.pairs.map(p=>({id:p.id,changed:p.rootChanged,selected:p.newSelectedPrintings,oldFallbacks:p.oldGenericPromptFallbacks,newFallbacks:p.newGenericPromptFallbacks,oldAttacks:p.oldCandidateAttacks,newAttacks:p.newCandidateAttacks,status:p.newStatus}))}));"
       - name: Retain complete source-first paired Plumeria evidence and all failures
         if: always()
         uses: actions/upload-artifact@v4
@@ -198,5 +219,7 @@ jobs:
             agent38-plumeria-off.json
             agent38-plumeria-on.json
             agent38-plumeria-census.json
+            agent38-plumeria-large.json
+            agent38-plumeria-large-compare.json
           if-no-files-found: warn
           retention-days: 30
