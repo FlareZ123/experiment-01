@@ -122,6 +122,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent33_players_ceremony_native:
+        description: 'Pinned both-seat SP127 held Stadium PlayCard then UseStadiumAction effect settlement'
+        required: false
+        type: boolean
+        default: false
       agent34_gholdengo_native:
         description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
         required: false
@@ -157,6 +162,11 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Regress Player Ceremony owner-only default-off end-turn Stadium choice
+        run: node --test tests/agent33-players-ceremony-lastchance.test.cjs
+      - name: Stage original SP127 Player Ceremony full Store play and use on both physical seats
+        if: inputs.agent33_players_ceremony_native
+        run: node --test tests/agent33-players-ceremony-full-action-pinned.test.cjs
       - name: Stage actual both-seat Tropical Beach end-turn native Store action
         if: inputs.agent33_tropical_beach_native
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs

@@ -387,6 +387,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseTropicalBeachLastChance(view);
     if(beach)return beach;
   }
+  if(options.playersCeremonyLastChance===true){
+    const ceremony=require('./agent33-players-ceremony-lastchance.cjs')
+      .choosePlayersCeremonyLastChance(view);
+    if(ceremony)return ceremony;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -470,6 +475,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     publicFlexibleEnergyContestOptIn:deps.publicFlexibleEnergyContest===true||
       process.env.AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV==='true',
     tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
+    playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -600,6 +606,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.tropicalBeachLastChanceOptIn)
     audit.version+='+'+
       require('./agent33-tropical-beach-lastchance.cjs').VERSION;
+  if(audit.playersCeremonyLastChanceOptIn)
+    audit.version+='+'+
+      require('./agent33-players-ceremony-lastchance.cjs').VERSION;
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -735,6 +744,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.specialEnergyRootOwnerSeat,seat),
       publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
       tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
+      playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
@@ -836,6 +846,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
       case 'play-tropical-beach':
+      case 'play-players-ceremony':
       case 'play-thunder-mountain':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
@@ -855,7 +866,9 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attack':action=new AttackAction(ownerId,intent.attackName);break;
-      case 'use-tropical-beach':action=new UseStadiumAction(ownerId);break;
+      case 'use-tropical-beach':
+      case 'use-players-ceremony':
+        action=new UseStadiumAction(ownerId);break;
       case 'pass':action=new PassTurnAction(ownerId);break;
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }
