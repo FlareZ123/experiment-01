@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      physical_zone_natural:
+        description: Diagnostic original rank20 24 source-deal settled physical-zone audit, no competitive inference
+        required: false
+        type: boolean
+        default: false
       celestial_special_native:
         description: Staged original source20 Celestial Roar Double Dragon Special Energy paper mismatch both seats
         required: false
@@ -33,13 +38,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validate natural source physical audit module syntax
+        run: node --check simulation/twinleaf/agent47-source20-physical-ledger-24-native.cjs
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs tests/physical-card-ledger.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
@@ -57,6 +64,19 @@ jobs:
           path: |
             agent47-apex-source20-native.json
             agent47-apex-source20-followthrough-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Native natural 24-game original-source physical-zone settled-root audit
+        if: ${{ inputs.physical_zone_natural }}
+        run: node simulation/twinleaf/agent47-source20-physical-ledger-24-native.cjs > agent47-source20-physical-ledger.json
+      - name: Print physical-zone fail-closed execution and settled-root census
+        if: ${{ inputs.physical_zone_natural }}
+        run: node -e "const r=require('./agent47-source20-physical-ledger.json');console.log('AGENT47_PHYSICAL_60_SETTLED_ROOTS',JSON.stringify({counts:r.counts,anomalous:r.rows.filter(x=>x.result.physicalZoneIntegrity?.settledRootsWithAnomaly>0).map(x=>({trial:x.trial.id,first:x.result.physicalZoneIntegrity.firstSettledRootAnomaly}))}));"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.physical_zone_natural }}
+        with:
+          name: agent47-source20-natural-physical-60
+          path: agent47-source20-physical-ledger.json
           if-no-files-found: warn
           retention-days: 14
       - name: Source-print Regidrago V Special Energy Celestial Roar discrepancy, both seats
