@@ -308,6 +308,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
+ * @property {boolean} [enforceSettledPhysicalZoneIntegrity] With capturePhysicalZoneIntegrity, fail closed on source 60 loss at a completed native root; qualification safeguard only.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
  * @property {boolean} [enforceVisiblePlayLockBothSeats] Opt-in generic final-action owner-visible Trainer and Energy play-lock guard for both actual actors; mutually exclusive with a single guarded seat.
@@ -936,6 +937,10 @@ function runMatch(request) {
     const rootConfirmationTrace = request.captureRootConfirmationTrace === true ? [] : null;
     const electrodeOpportunityObserver = request.captureElectrodeOpportunity === true ?
       require('./electrode-opportunity-observer.cjs').createElectrodeOpportunityObserver() : null;
+    if(request.enforceSettledPhysicalZoneIntegrity===true &&
+       request.capturePhysicalZoneIntegrity!==true){
+      throw new Error('enforceSettledPhysicalZoneIntegrity requires capturePhysicalZoneIntegrity');
+    }
     const physicalZoneIntegrity = request.capturePhysicalZoneIntegrity === true
       ? {
         schema: 'live-headless-physical-zone-integrity-v1',
@@ -1540,6 +1545,13 @@ function runMatch(request) {
                 actingSeat:state.activePlayer,actionType:actionName,
                 ownership,settledCountAnomalies
               };
+            }
+            if(request.enforceSettledPhysicalZoneIntegrity===true){
+              const failure=new Error('Twinleaf settled original physical 60-card invariant violated');
+              failure.code='TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION';
+              failure.physicalConservationWitness=
+                physicalZoneIntegrity.firstSettledRootAnomaly;
+              throw failure;
             }
           }
         }
