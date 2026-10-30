@@ -114,6 +114,8 @@ jobs:
         run: node --test tests/agent17-energy-model-bridge-coverage.test.cjs
       - name: Test reversible owner-public conditional Energy actor root
         run: node --test tests/agent17-public-context-special-energy.test.cjs
+      - name: Check default-off owner Jet Bench switch proposal and shared symbolic Energy matcher
+        run: node --test tests/agent40-public-jet-bench-frontier.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
