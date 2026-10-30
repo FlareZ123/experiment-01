@@ -25,6 +25,18 @@ Conditioning a first seven on at least one Basic as above, the chance that **at 
 
 Actual Energy-denial actions depend on the opponent's attached card state. Enhanced Hammer requires Special Energy, Plumeria needs a viable two-card discard cost and a suitable target, and Crushing Hammer depends on a coin flip. Some opening cards may be spent before a later opportunity. Therefore 82% or 86% **must never be described as the probability of a native legal, beneficial or successful denial.** The source-owned live root observer should distinguish the four printed families, hand-held cards, targets, discard affordability and native action results.
 
+## Initial six-Prize risk for a two-copy control Supporter
+
+All three original Iron Thorns decks have exactly two Team Flare Grunt. The uniformly randomized initial six Prize cards contain `k` copies of this card with the exact hypergeometric probabilities `C(2,k)*C(58,6-k)/C(60,6)`:
+
+| Prized copies | Probability |
+| --- | ---: |
+| 0 | `477/590 = 80.8474576271%` |
+| 1 | `54/295 = 18.3050847458%` |
+| 2 | `1/118 = 0.8474576271%` |
+
+These are marginal **Prize-location probabilities** from an unconditioned 60-card shuffle, distinct from the Basic-valid hand events above. The ability to infer actual Prizes depends on the first deck search (K0 versus K1), while recovery options, what else becomes Prized and when a Prize is taken determine actual access. The 0.8475% two-Grunt collapse cannot serve as a probability of losing a control game or missing every Energy-disruption option.
+
 ## Three original Iron Thorns source variants share the same two Grunts
 
 The original printed 60-card manifests for paper Expanded ranks **6, 24 and 29** each contain four Basic Iron Thorns ex and **two Team Flare Grunt XY**. Their distinct Plumeria/Hammer inventories give different raw access rates to the named **Team Flare Grunt + Plumeria + Crushing Hammer + Enhanced Hammer** subset:
