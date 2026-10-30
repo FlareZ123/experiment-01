@@ -194,6 +194,17 @@ jobs:
           path: agent6-payment.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Native owner physical Volt Cyclone donor alternatives
+        if: inputs.agent6_volt_energy_donor
+        run: node simulation/evaluation/agent6-rank6-volt-cyclone-donor-native.cjs > agent6-volt-donor-native.json
+      - name: Archive native owner Volt Cyclone donor receipts
+        if: always() && inputs.agent6_volt_energy_donor
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-volt-donor-original-native
+          path: agent6-volt-donor-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
         run: node simulation/twinleaf/setup-audit.cjs
 
