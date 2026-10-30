@@ -1,7 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {inspectPhysicalCardZones, fixedDeckCountAnomalies} = require('../simulation/twinleaf/physical-card-ledger.cjs');
+const {inspectPhysicalCardZones, fixedDeckCountAnomalies,
+  locatedOrPromptCountAnomalies} = require('../simulation/twinleaf/physical-card-ledger.cjs');
 
 const card = id => ({id});
 const list = (...cards) => ({cards});
@@ -68,4 +69,38 @@ test('fixed deck count detects missing and duplicated cards', () => {
   assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [60, 59]}), [{seat: 1, observed: 59, expected: 60}]);
   assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [61, 60]}), [{seat: 0, observed: 61, expected: 60}]);
   assert.deepEqual(fixedDeckCountAnomalies({canonicalCounts: [60, 60]}), []);
+});
+
+test('unresolved native AttachEnergyPrompt cardList custody is counted once', () => {
+  const a=player(),b=player();
+  a.id=101;b.id=202;
+  const active=card(1),held=card(2),temporary=card(3);
+  a.active.cards.push(active);
+  a.deck.cards.push(held);
+  const state={players:[a,b],prompts:[{
+    playerId:101,cardList:list(temporary),result:undefined
+  }]};
+  const ledger=inspectPhysicalCardZones(state);
+  assert.deepEqual(ledger.canonicalCounts,[2,0]);
+  assert.deepEqual(ledger.transientPromptCustody,[1,0]);
+  assert.deepEqual(locatedOrPromptCountAnomalies(ledger,3),[
+    {seat:1,observed:0,expected:3}
+  ]);
+});
+
+test('resolved AttachEnergyPrompt leftover is a leaked physical card, not live custody', () => {
+  const a=player(),b=player();
+  a.id=101;b.id=202;
+  a.active.cards.push(card(1));
+  a.deck.cards.push(card(2));
+  const stranded=card(3);
+  const state={players:[a,b],prompts:[{
+    playerId:101,cardList:list(stranded),result:[]
+  }]};
+  const ledger=inspectPhysicalCardZones(state);
+  assert.deepEqual(ledger.transientPromptCustody,[0,0]);
+  assert.deepEqual(locatedOrPromptCountAnomalies(ledger,3),[
+    {seat:0,observed:2,expected:3},
+    {seat:1,observed:0,expected:3}
+  ]);
 });
