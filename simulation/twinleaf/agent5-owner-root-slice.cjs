@@ -128,6 +128,10 @@ function nativeActionForIntent(intent,player,deps){
 function rootPhysicalSnapshot(state,seat,intent){
   const owner=state.players[seat];
   const target=intent.kind==='evolve-pokemon'?(intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
+  const toolRecipient=intent.kind==='equip-bunnelby-tm'?
+    (intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
+  const jetRecipient=intent.kind==='attach-special-energy'&&
+    intent.slot==='bench'?owner.bench[intent.index]:null;
   const energyRecipient=intent.kind==='paid-retreat'?
     owner.bench[intent.benchIndex]:
     (intent.kind==='attach-basic-energy'||
@@ -141,6 +145,18 @@ function rootPhysicalSnapshot(state,seat,intent){
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
     activeToolPrintings:owner.active.tools?.map(c=>c.fullName)??[],
+    ...(toolRecipient?{
+      toolRecipientPokemonPrinting:
+        toolRecipient.getPokemonCard()?.fullName??null,
+      toolRecipientToolPrintings:
+        toolRecipient.tools?.map(c=>c.fullName)??[]
+    }:{}),
+    ...(jetRecipient?{
+      jetBenchTargetPokemonPrinting:
+        jetRecipient.getPokemonCard()?.fullName??null,
+      jetActivePokemonPrinting:
+        owner.active.getPokemonCard()?.fullName??null
+    }:{}),
     ...(['paid-retreat','retreat-emergency-floatstone'].includes(intent.kind)?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
@@ -194,6 +210,17 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.handCount===before.handCount-1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
+  if(intent.kind==='equip-bunnelby-tm'){
+    const beforeTools=before.toolRecipientToolPrintings;
+    const afterTools=after.toolRecipientToolPrintings;
+    const count=cards=>cards.filter(x=>x===intent.printing).length;
+    return before.toolRecipientPokemonPrinting!==null&&
+      before.toolRecipientPokemonPrinting===after.toolRecipientPokemonPrinting&&
+      Array.isArray(beforeTools)&&Array.isArray(afterTools)&&
+      count(beforeTools)===0&&count(afterTools)===1&&
+      after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
   if(intent.kind==='attach-emergency-floatstone'){
     // The intent's printing names the desired Benched replacement, not the
     // Tool. Verify the exact held Float Stone reached the Active's Tool zone.
@@ -232,6 +259,22 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       ownAfter.length===ownBefore.length+1&&
       count(ownAfter)===count(ownBefore)+1&&
       after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='attach-special-energy'&&
+     intent.slot==='bench'&&intent.printing.startsWith('Jet Energy ')){
+    // Jet's mandatory swap moves the intended Bench recipient into Active.
+    // Post-swap the original Bench index contains the old Active; a normal
+    // same-slot Energy witness would falsely reject the genuine attachment.
+    const count=cards=>cards.filter(x=>x===intent.printing).length;
+    return before.jetBenchTargetPokemonPrinting!==null&&
+      before.jetActivePokemonPrinting!==null&&
+      before.jetBenchTargetPokemonPrinting!==before.jetActivePokemonPrinting&&
+      after.jetActivePokemonPrinting===before.jetBenchTargetPokemonPrinting&&
+      after.jetBenchTargetPokemonPrinting===before.jetActivePokemonPrinting&&
+      Array.isArray(before.targetEnergies)&&
+      Array.isArray(after.activeEnergies)&&
+      count(after.activeEnergies)===count(before.targetEnergies)+1?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='attach-special-energy'||intent.kind==='attach-dce'){
