@@ -95,6 +95,8 @@ jobs:
         run: node --test tests/agent33-native-print-release-gate.test.cjs
       - name: Check default-off owner-visible Tropical Beach last-chance decision and deck conservation
         run: node --test tests/agent33-tropical-beach-lastchance.test.cjs
+      - name: Verify all 29 original Stadium source counts and competing action opportunities
+        run: node --test tests/agent33-original-stadium-coverage.test.cjs
       - name: Require public Stadium-adjusted attack costs before selecting owner attack roots
         run: node --test tests/agent49-wondrous-root-payability.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs
       - name: Verify Regidrago Mysterious Treasure owner-only discard-cost proposal
