@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {VERSION,handIndex,trubbishIndex,withOwnerOranguruStarVipPlan}=
+const {VERSION,handIndex,trubbishIndex,shakeTargetIndex,
+  withOwnerOranguruStarVipPlan}=
   require('../simulation/twinleaf/agent1-owner-oranguru-starvip-native.cjs');
 
 function fakes(){
@@ -38,6 +39,8 @@ test('exact source print selectors read only owner hand and public Bench',()=>{
   assert.equal(handIndex(owner,'Forest Seal Stone SIT'),0);
   assert.equal(handIndex(owner,'Float Stone BKT'),-1);
   assert.equal(trubbishIndex(owner),0);
+  assert.equal(shakeTargetIndex(owner),1,
+    'Boost Shake must select the Float-Stone holder, not the bare Trubbish');
   assert.equal(VERSION,'agent1-owner-observable-starvip-native-continuation-v1');
 });
 
