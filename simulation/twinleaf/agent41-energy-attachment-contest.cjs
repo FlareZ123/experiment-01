@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {specialEnergyUnits,missingEnergyUnits} =
   require('./agent3-special-energy-frontier.cjs');
 
-const VERSION = 'agent41-public-immediate-special-attack-contest-v1';
+const VERSION = 'agent41-public-immediate-special-attack-contest-v2-speed-eligibility';
 
 /**
  * Choose a known Special Energy over a known Basic Energy only when the
@@ -54,11 +54,8 @@ function specialFundsImmediateAttack(view, catalog) {
 
   for (let handIndex = 0; handIndex < view.ownHand.length; handIndex++) {
     const printing = view.ownHand[handIndex];
-    // Speed Lightning can only remain attached to a Lightning Pokémon.
-    // Avoid a proposal that native Store would immediately discard.
-    if (printing === 'Speed Lightning Energy RCL' &&
-        !active.printed?.types?.includes(catalog.basicEnergyTypes.Lightning))
-      continue;
+    // Speed Lightning provides Lightning on any Pokémon; its draw-2
+    // bonus alone requires a Lightning recipient (RCL 173).
     const units = unitsFor(printing);
     if (!units) continue;
     const candidate = {handIndex, printing, units};
@@ -82,6 +79,9 @@ function specialFundsImmediateAttack(view, catalog) {
   if (!attacks.length) return null;
   const missing = (attack, provided) =>
     missingEnergyUnits(attack.cost, provided, catalog.colorlessEnergyType);
+  // Do not spend a scarce Special Energy to fund a second attack when an
+  // existing damaging attack is already payable from public printed costs.
+  if (attacks.some(attack => missing(attack, attached) === 0)) return null;
   // The existing first-choice Basic can already fund an attack: preserve it.
   if (attacks.some(attack => basicOptions.some(candidate =>
     missing(attack, [...attached,...candidate.units]) === 0))) return null;
