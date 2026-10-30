@@ -70,7 +70,10 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
       cache.setCodeToIds.set(item.ptcgoCode,ids);
     }
   }
-  const setIds=cache.setCodeToIds.get(code)??[];
+  // The published Aichi list uses SMP 217, while the English card pool
+  // identifies the same SM Black Star Promo as smp-SM217 (set code PR-SM).
+  // This is a verified set/collector alias, never a same-name substitution.
+  const setIds=code==='SMP'?['smp']:(cache.setCodeToIds.get(code)??[]);
   assert.ok(setIds.length>0,'No exact English source set for '+code);
   if(!cache.cardsBySet)cache.cardsBySet=new Map();
   const candidates=[];
@@ -82,7 +85,8 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
       cache.cardsBySet.set(setId,
         new Map(entries.map(card=>[card.id,card])));
     }
-    const id=setId+'-'+number;
+    const id=setId+'-'+(code==='SMP'&&/^\\d+$/.test(number)?
+      'SM'+number:number);
     const card=cache.cardsBySet.get(setId).get(id);
     if(card&&normalize(card.name)===normalize(sourceCard.name))
       candidates.push(card);
@@ -141,13 +145,18 @@ function buildPublicPokemonProfileIndex(root){
     const entries=JSON.parse(fs.readFileSync(filename,'utf8'));
     for(const card of entries){
       if(card.supertype!=='Pokémon')continue;
-      const key=card.name.replaceAll('♢','◇')+' '+set.ptcgoCode;
       const profile=classifyPrintedPokemon(card);
-      if(result.has(key)){
-        const prior=result.get(key);
-        if(prior!==null&&fields.some(field=>prior[field]!==profile[field]))
-          result.set(key,null);
-      }else result.set(key,profile);
+      // Preserve the underlying PR-SM printing and its original Aichi SMP
+      // alias without treating other promo sets as interchangeable.
+      const names=[set.ptcgoCode,...(set.id==='smp'?['SMP']:[])];
+      for(const code of names){
+        const key=card.name.replaceAll('♢','◇')+' '+code;
+        if(result.has(key)){
+          const prior=result.get(key);
+          if(prior!==null&&fields.some(field=>prior[field]!==profile[field]))
+            result.set(key,null);
+        }else result.set(key,profile);
+      }
     }
   }
   return result;
