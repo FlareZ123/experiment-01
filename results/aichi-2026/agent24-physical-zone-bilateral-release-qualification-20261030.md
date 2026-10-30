@@ -1,0 +1,41 @@
+# Settled physical-card custody: fail-closed qualification in the two bilateral drivers
+
+**Agent 24 | 30 October 2026 | normal-mode research**  
+**Evidence class:** source-validated engineering integration, pure regression and existing native positive/negative controls. **No competitive game qualification.**
+
+## Problem and precise scope
+
+The shared native headless runner already had a default-off physical-card conservation observer and a stricter abort-on-first-settled-anomaly switch. As of the 23:02 UTC [Critic intervention](../../communications/broadcast/20261030T230229Z_critic_physical_zone_qualification_veto.md), neither current [canonical bilateral development driver](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) nor [flexible Special Energy four-rank paired driver](../../simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs) requested either switch. A candidate or source Store terminal could therefore be archived with authentic starting 60s and a stable initial deal digest even after the native engine had lost an original physical card. This violates the benchmark's evidence requirements.
+
+Agent 47's [24 genuine original rank20 source games](agent47-rank20-24-natural-settled-physical-loss-20261030.md), [compiled CI 41134031798](https://github.com/FlareZ123/experiment-01/actions/runs/41134031798), document **two genuinely settled 59-card failures among 24** attempted original Store games. Each involved an actual Regidrago V Celestial Roar ancestry, recorded at one-based native root **52** or **98** with source physical seat 1, while the other player's physical cards still totaled 60. Both cases had zero unresolved temporary prompt custody. These are **two independent affected games**; the 55 later corrupted-root snapshots are not 55 failures.
+
+The already existing original-Store [strict positive/negative triplet](../../simulation/twinleaf/agent47-strict-physical60-native-3case.cjs), [compiled CI 41135309721](https://github.com/FlareZ123/experiment-01/actions/runs/41135309721), established that the headless guard aborts on exactly roots **52** and **98**, while the alternate physical source seat-0 case survives **46** checked settled roots without a false abort. This prior independent native evidence validates the underlying guard for those specifically observed cases. This invocation **did not rerun** those three expensive fixtures.
+
+## Implemented integration
+
+1. Added reusable, research-owned [`simulation/evaluation/physical-zone-qualification.cjs`](../../simulation/evaluation/physical-zone-qualification.cjs) with `classifyPhysicalZoneEvidence({requested,game,error})` and `summarizePhysicalQualification(rows)`. Four mutually exclusive result statuses are emitted:
+   - `SETTLED_PHYSICAL_INTEGRITY_PASSED`: a schema-valid native audit with at least one settled root and zero settled anomalies. This certifies **only that particular physical custody predicate**.
+   - `ENGINE_PHYSICAL_INVALID`: a positive native `TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION` with first offending root/witness, or a completed native audit exposing a settled violation.
+   - `NATIVE_GAME_ABORT`: another native error. Its physical integrity remains unqualified.
+   - `PHYSICAL_INTEGRITY_UNVERIFIED`: instrumentation absent, malformed audit, zero settled roots, or inconsistent receipt.
+2. Opt-in `physicalZoneGate:true` now passes **both** `capturePhysicalZoneIntegrity:true` and `enforceSettledPhysicalZoneIntegrity:true` to the actual `runMatch` request in [canonical Agent41 development driver](../../simulation/evaluation/agent41-bilateral-v2-development.cjs). Every returned original attempt row carries `physicalZoneQualification`; a strict native invalid abort carries `status:'engine-physical-invalid'` and remains in its `rows` denominator. `physicalZoneQualificationSummary` reports every attempted row, whether completed or failed. The CLI opt-in is `AGENT24_PHYSICAL_ZONE_GATE_DEV=true`.
+3. Added exactly the same default-off native option, row classification, error classification and full attempted-denominator summary to the existing [flexible Special Energy original-four/mixed-four paired driver](../../simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs). It supports `runStudy({physicalZoneGate:true})` or the same opt-in environment variable. The original comparison source ranks, candidate 60s, first-player choices and action policies remain unchanged.
+4. Added **seven** [pure negative/positive regression tests](../../tests/physical-zone-qualification.test.cjs) to the existing manually dispatched [`aichi-benchmark-stats.yml`](../../.github/workflows/aichi-benchmark-stats.yml); no new workflow and no push trigger were added.
+
+The implementation is a read-only audit plus a strict stop before a corrupted native game continues. It does **not** fix Celestial Roar or any game mechanics; the native guard is still opt-in to preserve archived uninstrumented development behavior.
+
+## Executed regression and failure reconciliation
+
+[Manual CI 41144265400](https://github.com/FlareZ123/experiment-01/actions/runs/41144265400) ran our new tests successfully but its overall first run failed on an **unrelated pre-existing synthetic print-release regression**: the test intentionally reduced a source printing to 59 cards but forgot to recompute the test registration hash, so a correct earlier SHA check rejected it before the expected exact-60 assertion. This was a test-input ordering error, not evidence that the native physical count rule had failed.
+
+At [commit `4658f25`](https://github.com/FlareZ123/experiment-01/commit/4658f25bbe5547319c52785c498ff719b73ce4ea), the test was corrected to recompute the *synthetic* `digestReleasePlan` and copy its registration ID into its own archive after mutating the fake source count. Production preflight SHA validation was not weakened. [Manual CI **41144389622**](https://github.com/FlareZ123/experiment-01/actions/runs/41144389622) at exactly that commit completed **successfully**, including the newly added pure release-veto tests and corrected print-release test.
+
+Tests cover: missing instrumentation, a normal completed custody audit with unresolved-prompt intermediate anomalies, a 59-card settled witness, strict native abort classification, unrelated abort, invalid/missing counters, and a three-row failure-inclusive aggregation. The two current bilateral driver integrations received static JavaScript syntax validation and committed-content reread, **not** a new four-rank native ON/OFF match campaign under the new flags. Agent47's compiled native strict triplet remains the actual-engine guard-positive and guard-negative source.
+
+## Evidence boundary and next use
+
+The shared target is one fixed printed legal 60 against the entire original Aichi Top32 field. **29/32 exact original opponent 60s** have been authenticated, with final ranks **23, 25 and 28** unresolved. There are **zero competitively qualified games and no demonstrated 99.5% win rate.**
+
+For the next independently registered fixed-candidate comparison, enable this switch for **both** actual physical seats and preserve the resulting per-arm `physicalZoneQualification` and cohort-wide counts. All attempted arms, including strict physical-invalid aborts, must remain in the denominator; such an abort cannot become a censored match or a win. A clean settled physical-card audit remains insufficient for qualification without exact printing fidelity, owner-information-safe decisions, source opposition that can play relevant Trainers, full native effect settlement, genuine opponent replies, and the event's timer rules.
+
+This work was communicated to the live Agent41 integration steward via [Agent24 handoff](../../communications/agent41/20261030T232428Z_agent24_physical_release_gate_in_canonical.md). The result is a **necessary release validity predicate**, not a newly qualified matchup sample.
