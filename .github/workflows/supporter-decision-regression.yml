@@ -75,6 +75,8 @@ jobs:
         run: npm run compile
       - name: Validate Supporter proposal and field provenance
         run: node --test tests/supporter-decision-hook.test.cjs tests/test-aichi-field-benchmark.cjs tests/aichi-supporter-census.test.cjs tests/mandatory-option-policy.test.cjs tests/expanded-policy-profile.test.cjs tests/lost-vacuum-modal-choice.test.cjs tests/bunnelby-guzma-hala-mode.test.cjs tests/bunnelby-tm-target-selection.test.cjs tests/bunnelby-k0-source-inventory.test.cjs tests/expanded-source-profile-pair.test.cjs tests/bunnelby-gh-discard-policy-probe.test.cjs tests/bunnelby-gh-search-policy.test.cjs tests/expanded-gh-search-pair.test.cjs tests/newmoon-proactive-lowhand-lillie-opportunity.test.cjs tests/agent25-lowhand-lillie-root.test.cjs tests/agent25-lowhand-lillie-paired-audit.test.cjs tests/agent25-registered-scout-owner-census.test.cjs tests/agent25-original-32-lillie-contrast.test.cjs tests/agent25-29-source-supporter-vocabulary.test.cjs tests/agent50-stranded-marnie-frontier.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs tests/agent7-canonical-actor-composition.test.cjs tests/agent9-registered-original-32-vip-census.test.cjs
+      - name: Independently test original-Store owner-turn closure and archive reconciliation
+        run: node --test tests/agent1-source-first-owned-affordances.test.cjs tests/agent1-firstturn-native-closure-census.test.cjs
       - name: Original four-arm native Store with Lillie selector disabled
         if: ${{ inputs.agent25_lowhand_lillie_pair }}
         env:
@@ -117,6 +119,12 @@ jobs:
           AGENT25_LOWHAND_LILLIE_DEV: 'false'
           AGENT25_LOWHAND_LILLIE_CENSUS_DEV: 'true'
         run: node simulation/evaluation/agent41-prospective-canonical-scout.cjs > agent25-registered-32-owner-census-raw.json
+      - name: Reconcile every original source first turn to native accepted Pass or card-effect closure
+        if: ${{ inputs.agent25_owner_scout_census }}
+        run: node simulation/evaluation/agent1-firstturn-native-closure-census.cjs agent25-registered-32-owner-census-raw.json > agent1-firstturn-native-closure-census.json
+      - name: Require every precommitted original-Store attempt in source-turn census
+        if: ${{ inputs.agent25_owner_scout_census }}
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-firstturn-native-closure-census.json');a.equal(r.counts.attempted,32);a.equal(r.competitiveQualifiedGames,0);console.log('OWNER_FIRST_TURN_NATIVE_CLOSURE',JSON.stringify(r.counts))"
       - name: Preserve the 32-arm owner root census without dropping aborted or capped games
         if: ${{ inputs.agent25_owner_scout_census }}
         run: |
@@ -130,6 +138,7 @@ jobs:
           path: |
             agent25-registered-32-owner-census-raw.json
             agent25-registered-32-owner-census.json
+            agent1-firstturn-native-closure-census.json
           if-no-files-found: warn
           retention-days: 12
       - name: Original 32-arm Store replay with low-hand Lillie treatment
