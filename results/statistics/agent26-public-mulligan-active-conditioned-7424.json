@@ -1,0 +1,264 @@
+{
+  "status": "synthetic-public-opening-active-conditioned-only",
+  "provenance": {
+    "workflowRunId": 41003008211,
+    "jobId": 123891496622,
+    "gitCommitSha": "2067ec9f0181664d71fd4e0efc88fc30d71d9be9",
+    "workflow": "aichi-benchmark-stats.yml",
+    "manualInput": "agent26_public_board_conditioned=true",
+    "command": "node scripts/agent26-public-mulligan-active-conditioned.cjs",
+    "source": "results/aichi-2026/full-decklists.json"
+  },
+  "result": {
+    "version": "agent26-public-mulligan-active-conditioned-v1",
+    "seed": 20261030,
+    "samplesPerSource": 256,
+    "knownSources": 29,
+    "sampledSetups": 7424,
+    "activeSelection": "first Basic in random valid seven, explicitly not skilled policy",
+    "baseline": "observed failed-hand count plus face-up Active",
+    "treatment": "all publicly shown failed-hand names plus face-up Active",
+    "summary": {
+      "attempts": 7424,
+      "meanTruePosteriorCountActive": 0.3233255589899991,
+      "meanTruePosteriorNamesActive": 0.43284099566162604,
+      "meanEntropyCountActiveBits": 2.2903339196410113,
+      "meanEntropyNamesActiveBits": 1.9234454760864195,
+      "mapAccuracyCountActive": 0.3565463362068966,
+      "mapAccuracyNamesActive": 0.4618803879310345
+    },
+    "strata": {
+      "noFailedSeven": {
+        "attempts": 5854,
+        "meanTruePosteriorCountActive": 0.3204822829262209,
+        "meanTruePosteriorNamesActive": 0.3204822829262209,
+        "meanEntropyCountActiveBits": 2.342098355745997,
+        "meanEntropyNamesActiveBits": 2.342098355745997,
+        "mapAccuracyCountActive": 0.3513836692859583,
+        "mapAccuracyNamesActive": 0.3513836692859583
+      },
+      "hasFailedSeven": {
+        "attempts": 1570,
+        "meanTruePosteriorCountActive": 0.3339271755997811,
+        "meanTruePosteriorNamesActive": 0.8517887054406463,
+        "meanEntropyCountActiveBits": 2.097321812024078,
+        "meanEntropyNamesActiveBits": 0.3624302165149768,
+        "mapAccuracyCountActive": 0.37579617834394907,
+        "mapAccuracyNamesActive": 0.8738853503184714
+      }
+    },
+    "perSource": [
+      {
+        "rank": 1,
+        "attempts": 256,
+        "mulliganFraction": 0.1484375,
+        "meanTrueCountActive": 0.46017758083012217,
+        "meanTrueNamesActive": 0.557149579400181
+      },
+      {
+        "rank": 2,
+        "attempts": 256,
+        "mulliganFraction": 0.09375,
+        "meanTrueCountActive": 0.578517985016157,
+        "meanTrueNamesActive": 0.6156082680227039
+      },
+      {
+        "rank": 3,
+        "attempts": 256,
+        "mulliganFraction": 0.265625,
+        "meanTrueCountActive": 0.6117055771841521,
+        "meanTrueNamesActive": 0.6973011212765874
+      },
+      {
+        "rank": 4,
+        "attempts": 256,
+        "mulliganFraction": 0.1796875,
+        "meanTrueCountActive": 0.2567175377295646,
+        "meanTrueNamesActive": 0.3890185993388757
+      },
+      {
+        "rank": 5,
+        "attempts": 256,
+        "mulliganFraction": 0.171875,
+        "meanTrueCountActive": 0.8141598932158923,
+        "meanTrueNamesActive": 0.8413423543152361
+      },
+      {
+        "rank": 6,
+        "attempts": 256,
+        "mulliganFraction": 0.6015625,
+        "meanTrueCountActive": 0.3333333333333328,
+        "meanTrueNamesActive": 0.5956319667188534
+      },
+      {
+        "rank": 7,
+        "attempts": 256,
+        "mulliganFraction": 0.1953125,
+        "meanTrueCountActive": 0.5737583041165009,
+        "meanTrueNamesActive": 0.6486109829530264
+      },
+      {
+        "rank": 8,
+        "attempts": 256,
+        "mulliganFraction": 0.2890625,
+        "meanTrueCountActive": 0.1739077098979254,
+        "meanTrueNamesActive": 0.34285123024171293
+      },
+      {
+        "rank": 9,
+        "attempts": 256,
+        "mulliganFraction": 0.2265625,
+        "meanTrueCountActive": 0.32592885035269276,
+        "meanTrueNamesActive": 0.4670317337781335
+      },
+      {
+        "rank": 10,
+        "attempts": 256,
+        "mulliganFraction": 0.12109375,
+        "meanTrueCountActive": 0.10087372697846121,
+        "meanTrueNamesActive": 0.1612766134007369
+      },
+      {
+        "rank": 11,
+        "attempts": 256,
+        "mulliganFraction": 0.2109375,
+        "meanTrueCountActive": 0.3695738792043229,
+        "meanTrueNamesActive": 0.48364755203980675
+      },
+      {
+        "rank": 12,
+        "attempts": 256,
+        "mulliganFraction": 0.140625,
+        "meanTrueCountActive": 0.11357417738485107,
+        "meanTrueNamesActive": 0.16741738185342847
+      },
+      {
+        "rank": 13,
+        "attempts": 256,
+        "mulliganFraction": 0.25,
+        "meanTrueCountActive": 0.12029451993563955,
+        "meanTrueNamesActive": 0.26656241509006945
+      },
+      {
+        "rank": 14,
+        "attempts": 256,
+        "mulliganFraction": 0.1484375,
+        "meanTrueCountActive": 0.17472254109450908,
+        "meanTrueNamesActive": 0.22878238029978534
+      },
+      {
+        "rank": 15,
+        "attempts": 256,
+        "mulliganFraction": 0.1484375,
+        "meanTrueCountActive": 0.5480192822978374,
+        "meanTrueNamesActive": 0.6131838356207199
+      },
+      {
+        "rank": 16,
+        "attempts": 256,
+        "mulliganFraction": 0.25390625,
+        "meanTrueCountActive": 0.1493771249900609,
+        "meanTrueNamesActive": 0.3371715691691599
+      },
+      {
+        "rank": 17,
+        "attempts": 256,
+        "mulliganFraction": 0.16015625,
+        "meanTrueCountActive": 0.28880345361538806,
+        "meanTrueNamesActive": 0.39977397480115967
+      },
+      {
+        "rank": 18,
+        "attempts": 256,
+        "mulliganFraction": 0.109375,
+        "meanTrueCountActive": 0.14937249208982661,
+        "meanTrueNamesActive": 0.22665755499547904
+      },
+      {
+        "rank": 19,
+        "attempts": 256,
+        "mulliganFraction": 0.09375,
+        "meanTrueCountActive": 0.5443996633141778,
+        "meanTrueNamesActive": 0.5979744213520044
+      },
+      {
+        "rank": 20,
+        "attempts": 256,
+        "mulliganFraction": 0.10546875,
+        "meanTrueCountActive": 0.0906740190751817,
+        "meanTrueNamesActive": 0.1450451800212952
+      },
+      {
+        "rank": 21,
+        "attempts": 256,
+        "mulliganFraction": 0.1484375,
+        "meanTrueCountActive": 0.09471589529202719,
+        "meanTrueNamesActive": 0.16051474029064797
+      },
+      {
+        "rank": 22,
+        "attempts": 256,
+        "mulliganFraction": 0.1875,
+        "meanTrueCountActive": 0.25031269328608685,
+        "meanTrueNamesActive": 0.33447693026802283
+      },
+      {
+        "rank": 24,
+        "attempts": 256,
+        "mulliganFraction": 0.60546875,
+        "meanTrueCountActive": 0.3333333333333328,
+        "meanTrueNamesActive": 0.708001405115355
+      },
+      {
+        "rank": 26,
+        "attempts": 256,
+        "mulliganFraction": 0.23046875,
+        "meanTrueCountActive": 0.44829875686517123,
+        "meanTrueNamesActive": 0.5497673779792025
+      },
+      {
+        "rank": 27,
+        "attempts": 256,
+        "mulliganFraction": 0.0859375,
+        "meanTrueCountActive": 0.10914133375242378,
+        "meanTrueNamesActive": 0.1505997883767586
+      },
+      {
+        "rank": 29,
+        "attempts": 256,
+        "mulliganFraction": 0.58984375,
+        "meanTrueCountActive": 0.3333333333333328,
+        "meanTrueNamesActive": 0.6117365625914815
+      },
+      {
+        "rank": 30,
+        "attempts": 256,
+        "mulliganFraction": 0.1171875,
+        "meanTrueCountActive": 0.26813801036361556,
+        "meanTrueNamesActive": 0.36855433827183887
+      },
+      {
+        "rank": 31,
+        "attempts": 256,
+        "mulliganFraction": 0.08203125,
+        "meanTrueCountActive": 0.6354186882990674,
+        "meanTrueNamesActive": 0.6644959552363664
+      },
+      {
+        "rank": 32,
+        "attempts": 256,
+        "mulliganFraction": 0.171875,
+        "meanTrueCountActive": 0.12585751452840768,
+        "meanTrueNamesActive": 0.22220306136858833
+      }
+    ],
+    "omittedRanks": [
+      23,
+      25,
+      28
+    ],
+    "fullGames": 0,
+    "competitiveQualifiedGames": 0,
+    "caveat": "The real player may intentionally choose another Active or Bench. This is rank recognition under an explicit toy selection policy and uniform 29-source prior, not an actual game-win measurement."
+  }
+}
