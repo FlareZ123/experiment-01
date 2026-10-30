@@ -110,3 +110,54 @@ test('common actor defaults remain unchanged; opt-in picks T18 two-step source p
   assert.equal(second.benchIndex,1);
   assert.equal(second.retreatCostUnits,2);
 });
+
+test('direct held Jet promotes BUS while preserving a single Grass',()=>{
+  const v=state();
+  v.ownHand=['Grass Energy MEE','Jet Energy PAL'];
+  const c={...catalog,specialEnergies:new Set(['Jet Energy PAL'])};
+  const selected=choosePublicBusPositionTransition(v,c);
+  assert.deepEqual(selected,{
+    kind:'attach-special-energy',handIndex:1,printing:'Jet Energy PAL',
+    slot:'bench',index:1,
+    reason:'jet-promote-active-bus-with-aor-item-lock'});
+  // Once two Basics already pay ordinary retreat, retain the held Jet.
+  v.ownPublic.active.energies.push('Grass Energy MEE');
+  assert.equal(choosePublicBusPositionTransition(v,c).kind,'paid-retreat');
+});
+test('Jet promotion bypasses ordinary retreat restriction and Sleep',()=>{
+  const v=state();
+  v.ownHand=['Jet Energy PAL'];
+  const c={...catalog,specialEnergies:new Set(['Jet Energy PAL'])};
+  v.ownPublic.active.specialConditions=[c.specialConditions.ASLEEP];
+  v.ownTurnResources.retreatedTurn=18;
+  v.ownPublic.active.publicRestrictions.cannotRetreatWhileActive=true;
+  assert.equal(choosePublicBusPositionTransition(v,c).kind,
+    'attach-special-energy',
+    'A Jet effect switches a Benched target even when retreat is prohibited');
+});
+test('Temple of Sinnoh prevents Jet forced-switch proposal',()=>{
+  const v=state();
+  const c={...catalog,specialEnergies:new Set(['Jet Energy PAL'])};
+  v.ownHand=['Jet Energy PAL'];
+  v.opponentPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.equal(choosePublicBusPositionTransition(v,c),null);
+  v.opponentPublic.stadium=[];
+  v.ownTurnResources.specialEnergyPlayLocked=true;
+  assert.equal(choosePublicBusPositionTransition(v,c),null);
+  v.ownTurnResources.specialEnergyPlayLocked=false;
+  v.ownTurnResources.energyPlayedTurn=18;
+  assert.equal(choosePublicBusPositionTransition(v,c),null);
+});
+test('shared actor typed opt-in attaches Jet to the BUS actual Bench index',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=state();
+  v.ownHand=['Jet Energy PAL'];
+  const c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    specialEnergies:new Set(['Jet Energy PAL']),colorlessEnergyType:9};
+  const selected=chooseActorRootIntent(v,c,{busLockPositionRoot:true});
+  assert.equal(selected.kind,'attach-special-energy');
+  assert.equal(selected.printing,'Jet Energy PAL');
+  assert.equal(selected.slot,'bench');
+  assert.equal(selected.index,1);
+});
