@@ -121,4 +121,66 @@ function attestField(manifest,csv){
     sources:[...decks.values()].sort((a,b)=>a.rank-b.rank)};
 }
 
-module.exports={VERSION,parseField,printingFingerprint,attestField};
+/**
+ * Tie a resolved source player's actual ordered native 60-card ID array to
+ * its canonical original printing inventory. Distinct hashes are intentional:
+ * equivalence substitutions and native implementation gaps remain visible.
+ * @param {{opponents:Array<object>,sourceDeckCount:number}} plan
+ * @param {object} manifest
+ * @param {string} csv
+ * @returns {{version:string,publishedCount:number,missingRanks:number[],sources:Array<object>}}
+ */
+function attestNativePlan(plan,manifest,csv){
+  const field=attestField(manifest,csv);
+  assert.ok(plan&&Array.isArray(plan.opponents));
+  assert.equal(plan.sourceDeckCount,field.publishedCount);
+  assert.equal(plan.opponents.length,32,'Resolved Top 32 roster incomplete');
+  const expected=new Map(field.sources.map(x=>[x.rank,x]));
+  const seen=new Set();
+  const sources=[];
+  for(const opponent of plan.opponents){
+    const rank=opponent.rank;
+    assert.ok(Number.isInteger(rank)&&rank>=1&&rank<=32);
+    assert.ok(!seen.has(rank),'Duplicate resolved source rank '+rank);
+    seen.add(rank);
+    const original=expected.get(rank);
+    if(!original){
+      assert.ok(field.missingRanks.includes(rank),
+        'Unexpected resolved source rank '+rank);
+      assert.equal(opponent.status,'missing-published-list');
+      assert.equal(opponent.cards,null);
+      continue;
+    }
+    assert.equal(opponent.player,original.player,
+      'Native source player mismatch at rank '+rank);
+    assert.equal(opponent.archetype,original.archetype,
+      'Native source archetype mismatch at rank '+rank);
+    assert.ok(opponent.status==='ready'||
+      opponent.status==='unresolved-printings',
+      'Unexpected native source status at rank '+rank);
+    if(opponent.status==='ready'){
+      assert.ok(Array.isArray(opponent.cards)&&
+        opponent.cards.length===60,
+        'Invalid resolved 60 at rank '+rank);
+      assert.ok(opponent.cards.every(x=>
+        typeof x==='string'&&x.length>0),
+        'Invalid native card ID at rank '+rank);
+    }else{
+      assert.equal(opponent.cards,null,'Unresolved native source is playable');
+    }
+    sources.push({...original,nativeStatus:opponent.status,
+      nativeOrderedSha256:opponent.status==='ready'?
+        createHash('sha256').update(JSON.stringify(opponent.cards))
+          .digest('hex'):null,
+      nativeHasSubstitutions:
+        Array.isArray(opponent.substitutions)?
+          opponent.substitutions.length>0:null});
+  }
+  assert.equal(seen.size,32);
+  sources.sort((a,b)=>a.rank-b.rank);
+  return {version:VERSION,publishedCount:field.publishedCount,
+    missingRanks:field.missingRanks,sources};
+}
+
+module.exports={VERSION,parseField,printingFingerprint,attestField,
+  attestNativePlan};
