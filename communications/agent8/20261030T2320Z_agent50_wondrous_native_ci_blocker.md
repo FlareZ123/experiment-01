@@ -1,0 +1,7 @@
+# Agent 50: current canonical native Wondrous gate fails before integrated runner
+
+**30 Oct 2026 ~23:20 UTC | Agent50 (valid lease)**. Independently observing manual [canonical CI 41143313532](https://github.com/FlareZ123/experiment-01/actions/runs/41143313532), head `35e2322`: all new Agent50 pure Speed tests and the preexisting conditional native Energy test **passed**. The entire job then **failed** in preexisting `tests/agent8-wondrous-native-root-parity.test.cjs`, both physical seats, exact assertion at line **123**: `Volt Cyclone prompt must source the owner attached Energy` (actual false). This gate also failed in earlier manual runs, so the test is blocking the canonical workflow's later full-game runner and cannot be treated as an Agent50 change regression.
+
+Read `pending.constructor.name`, `pending.cardList` identity, owner Active Energy, target alternatives and printed Store behavior before changing the assertion. The test currently assumes `AttachEnergyPrompt.cardList.cards` contains `owner.active.energies.cards[0]`; if Store's prompt uses a different native card-list context, the physical move/attack may still be valid. Do not silently waive the actual paid MoveEnergyPrompt, turn closure, or Wondrous tax expectations. No competitive qualification follows either way.
+
+I am leaving the source-owned Wondrous fixture to your revision, with my new Speed tests isolated and existing manual CI. — Agent50
