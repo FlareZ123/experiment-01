@@ -24,10 +24,11 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  *
  * @template T
  * @param {()=>T} execute Synchronous genuine pinned-Store workload.
- * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function,pokemon?:Function}} [adapters]
+ * @param {{root?:Function,fog?:Function,select?:Function,option?:Function,attack?:Function,ownerSearch?:Function,pokemon?:Function,guzma?:Function}} [adapters]
  *   Test injection only. Real components have their own pinned-Store tests.
  * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,
- *   actorChoosePokemon?:boolean,ownerVipAfterPass?:boolean,
+ *   actorChoosePokemon?:boolean,guzmaOwnerPromptContinuation?:boolean,
+ *   ownerVipAfterPass?:boolean,
  *   ownerPlumeriaOpportunity?:boolean,
  *   ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
  * Default preserves v2.
@@ -83,6 +84,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withActorHandDiscard) : null;
   let handDiscardAudit = null;
   let pokemonAudit = null;
+  let guzmaPromptAudit = null;
   let ownerDonorAudit = null;
   let ownerSupporterOpportunityAudit = null;
   let ownerShuffleSupporterAudit = null;
@@ -152,9 +154,22 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     handDiscardAudit=selected.audit;
     return selected.result;
   };
+  const runGuzma = () => {
+    if(options.guzmaOwnerPromptContinuation!==true)return runActor();
+    const bridge=adapters.guzma??
+      require('../twinleaf/agent43-guzma-prompt-continuation.cjs')
+        .withGuzmaOwnerPromptContinuation;
+    const selected=bridge(runActor);
+    assert.ok(selected.audit && typeof selected.audit==='object',
+      'Owner Guzma continuation must report a native audit');
+    guzmaPromptAudit=selected.audit;
+    return selected.result;
+  };
+  // The owner-recipient bridge installs inside generic ChoosePokemon, so
+  // native Guzma root acceptance can be carried into the own-Bench prompt.
   const runPokemon = () => {
-    if(!pokemon)return runActor();
-    const selected=pokemon(runActor);
+    if(!pokemon)return runGuzma();
+    const selected=pokemon(runGuzma);
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Actor ChoosePokemon requires an executed adapter audit');
     pokemonAudit=selected.audit;
@@ -180,6 +195,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
   if(actorChoosePokemon)assert.ok(pokemonAudit,
     'Actor ChoosePokemon option requires an executed adapter');
+  if(options.guzmaOwnerPromptContinuation===true)assert.ok(guzmaPromptAudit,
+    'Enabled owner Guzma continuation must report native evidence');
   if(handDiscard)assert.ok(handDiscardAudit,
     'Actor hand-discard option requires an executed adapter');
   if(options.ownerDonorSetup)assert.ok(ownerDonorAudit,
@@ -224,7 +241,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
-      (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':''),
+      (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
+      (options.guzmaOwnerPromptContinuation===true?'+'+
+        require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
@@ -233,8 +252,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     actorChoosePokemonOptIn:actorChoosePokemon,
+    guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
+      ...(options.guzmaOwnerPromptContinuation===true?['GuzmaOwnBenchPrompt']:[]),
       ...(actorChoosePokemon?['ChoosePokemonPrompt']:[]),
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
@@ -254,6 +275,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       selectOption: optionAudit.version ?? null,
       chooseAttack: attackAudit.version ?? null,
       ...(actorChoosePokemon?{choosePokemon:pokemonAudit.version??null}:{}),
+      ...(guzmaPromptAudit?{guzmaOwnBench:guzmaPromptAudit.version??null}:{}),
       ...(handDiscard?{handDiscard:handDiscardAudit.version??null}:{}),
       ...(ownerDonorAudit?{ownerDonor:ownerDonorAudit.version??null}:{})
     },
@@ -284,6 +306,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         choosePokemonAccepted:pokemonAudit.accepted??null,
         choosePokemonSettled:pokemonAudit.postconditionsConfirmed??null,
         choosePokemonBySeat:pokemonAudit.bySeat??null
+      }:{}),
+      ...(guzmaPromptAudit?{
+        guzmaRootsAccepted:guzmaPromptAudit.acceptedGuzmaRoots??null,
+        guzmaOwnTargetAccepted:guzmaPromptAudit.ownTargetAcceptances??null,
+        guzmaOwnTargetConfirmed:guzmaPromptAudit.ownTargetPhysicalConfirmations??null,
+        guzmaOwnTargetMismatched:guzmaPromptAudit.ownTargetPhysicalMismatches??null,
+        guzmaBySeat:guzmaPromptAudit.bySeat??null
       }:{}),
       lastChanceGenericPromptFallbacks: finalGenericPromptFallbacks,
       ...(supporterOpportunityOptIn?{
@@ -332,6 +361,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{})
     },
     ownerDonorAudit,
+    guzmaPromptAudit,
     ownerSupporterOpportunityAudit,
     ownerPlumeriaOpportunityAudit,
     ownerHammerAfterPassAudit,
@@ -340,6 +370,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     overlappingDelegationObservations: {
       chooseAttack: attackAudit.nativeFallbacks ?? null,
       ...(actorChoosePokemon?{choosePokemon:pokemonAudit.unsupportedNativeFallbacks??null}:{}),
+      ...(guzmaPromptAudit?{guzmaOwnPrompt:guzmaPromptAudit.nonLiveFallbacks??null}:{}),
       selectOption: optionAudit.unsupportedPromptDelegations ?? null,
       select: selectAudit.unsupportedPromptFallbacks ?? null,
       fog: fogAudit.unsupportedPrompts ?? null,
@@ -372,6 +403,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       selectOption: optionAudit,
       chooseAttack: attackAudit,
       ...(actorChoosePokemon?{choosePokemon:pokemonAudit}:{}),
+      ...(guzmaPromptAudit?{guzmaOwnBench:guzmaPromptAudit}:{}),
       ...(handDiscard?{handDiscard:handDiscardAudit}:{})
     },
     qualification: {
