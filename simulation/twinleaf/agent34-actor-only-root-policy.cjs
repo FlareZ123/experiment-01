@@ -158,6 +158,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePerfectionTransition(view,catalog);
     if(planned)return planned;
   }
+  if(options.contestedEnergyRoot===true&&
+      options.specialEnergyRoot===true){
+    const stronger=require('./agent41-energy-attachment-contest.cjs')
+      .specialFundsImmediateAttack(view,catalog);
+    if(stronger)return stronger;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -426,6 +432,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
       (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
+    contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     quickBallRootOptIn:deps.quickBallRoot??
@@ -525,6 +532,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
+  if(audit.contestedEnergyRootOptIn){
+    audit.version+='+'+
+      require('./agent41-energy-attachment-contest.cjs').VERSION;
+  }else delete audit.contestedEnergyRootOptIn;
   if(audit.publicContextSpecialEnergyOptIn)
     audit.version+='+'+
       require('./agent17-public-context-special-energy.cjs').VERSION;
@@ -638,6 +649,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     const rootOptions={
       energyFrontier:audit.energyFrontierOptIn,
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
+      contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       perfectionRoot:audit.perfectionRootOptIn,
