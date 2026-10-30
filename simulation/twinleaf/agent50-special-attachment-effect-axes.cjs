@@ -1,9 +1,48 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {energyUnits}=require('./actor-energy-payability.cjs');
+const {publicEnergyContext,effectivePublicAttackCost,futureOneUnitDeficit}=
+  require('./agent17-public-context-special-energy.cjs');
 
 const VERSION='agent50-public-special-attachment-effect-axes-v1';
 const MAX_OFFERS=72;
+
+/**
+ * One-axis upper bound on immediate printed attack-cost progress from a
+ * proposed held Energy. Null means cost payability could not be evaluated
+ * due to unsupported attached units or absent recognized printed attacks.
+ * A zero proves only zero immediate cost progress, not zero strategic value.
+ * @param {object} view Actor's detached observation
+ * @param {object} catalog Public exact-printing Energy catalog
+ * @param {object} pokemon Target face-up Pokémon
+ * @param {string} printing Held Special Energy proposed for attachment
+ * @param {boolean} temple Public Temple of Sinnoh presently in play
+ * @returns {number|null}
+ */
+function maximumKnownAttackCostGain(view,catalog,pokemon,printing,temple){
+  const context=publicEnergyContext(view,pokemon,catalog);
+  const added=temple?[['C']]:energyUnits(printing,context);
+  if(added===null)return null;
+  const attached=[];
+  for(const known of pokemon.energies??[]){
+    const units=temple&&catalog.specialEnergies.has(known)?
+      [['C']]:energyUnits(known,context);
+    if(units===null)return null;
+    attached.push(...units);
+  }
+  let maximum=null;
+  for(const attack of pokemon.attacks??[]){
+    if(attack.gxAttack===true||attack.name?.endsWith('-GX'))continue;
+    const cost=effectivePublicAttackCost(view,catalog,pokemon,attack);
+    if(cost===null)continue;
+    const before=futureOneUnitDeficit(cost,attached);
+    const after=futureOneUnitDeficit(cost,[...attached,...added]);
+    const gain=before-after;
+    maximum=maximum===null?gain:Math.max(maximum,gain);
+  }
+  return maximum;
+}
 
 /**
  * Classify immediate printed Special Energy effect channels visible before
@@ -87,6 +126,8 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
         handIndex,printing,slot:target.slot,index:target.index,
         recipientPrinting:pokemon.printing??null,
         onAttachChannel:channel,
+        maximumKnownAttackCostGain:maximumKnownAttackCostGain(
+          view,catalog,pokemon,printing,temple),
         publicEffectOpportunity:potential,
         reason,
         potentialDrawCap:channel==='on-attach-draw-two'&&potential?
@@ -102,4 +143,5 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
   return result;
 }
 
-module.exports={VERSION,MAX_OFFERS,collectSpecialAttachmentEffectAxes};
+module.exports={VERSION,MAX_OFFERS,maximumKnownAttackCostGain,
+  collectSpecialAttachmentEffectAxes};
