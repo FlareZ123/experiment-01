@@ -83,6 +83,33 @@ allows a separate 46-root intact control. These are specific
 demonstrated outcomes, not an estimate that every Regidrago game
 is invalid.
 
+## Upstream-sync implication: the sampled newer revision retains both defects
+
+The public GitHub code-search index also returned upstream revision
+`e8184d0a0581fe7bad4c2aee2323f23d79c8fc9c`.
+I directly fetched **both** its relevant file and the local
+pinned `a9905a76...` revision. The
+Regidrago V SIT reducer has the **same Git blob SHA**
+`9b033a788046f7cf542f5c7e9bb2daf93ed7be89` in both
+revisions, including the Basic-only Energy filter and
+mutable `temp.cards.forEach` call.
+
+Similarly, the
+[SimpleTacticsAi mandatory Energy assignment resolver](https://github.com/twinleafgg/twinleafgg/blob/e8184d0a0581fe7bad4c2aee2323f23d79c8fc9c/ptcg-server/src/simple-bot/prompt-resolver/attach-energy-prompt-resolver.ts)
+has identical Git blob SHA
+`0fde8dc57621fbf37f12dccb1a6bcae23126f4dc`
+between these two selected revisions. Its minimum-attachment
+candidate enumeration bug is therefore also unchanged in that
+sampled newer revision.
+
+This is an **exact source-content comparison**, with no assumption
+about the current default branch's actual HEAD, the content
+of other intervening revisions or untested game paths. Merely
+advancing the submodule from the current pin to the indexed
+`e8184d0a...` revision would **not** fix either of these
+two specific source files. The project's deliberate,
+test-gated submodule update policy remains appropriate.
+
 ## Implementation/decision guidance
 
 1. **Prioritize the proven high-field Regidrago effect:** the source
