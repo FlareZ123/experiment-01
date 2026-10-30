@@ -138,10 +138,17 @@ function withOwnerHammerAfterPass(execute,deps={}) {
   assert.equal(typeof oldDecode?.value,'function');
   assert.equal(typeof oldDispatch?.value,'function');
   let liveStore=null;
-  const all=deps.catalog??CardManager.getInstance().getAllCards();
-  const specialPrintings=new Set(all.filter(c=>
-    c.superType===SuperType.ENERGY&&c.energyType===EnergyType.SPECIAL)
-    .map(c=>c.fullName));
+  // CardManager can be initialized inside execute(), after hooks install.
+  // Resolve the public catalog only at the first authenticated decision.
+  let specialPrintings=null;
+  const publicSpecialPrintings=()=>{
+    if(specialPrintings!==null)return specialPrintings;
+    const all=deps.catalog??CardManager.getInstance().getAllCards();
+    specialPrintings=new Set(all.filter(c=>
+      c.superType===SuperType.ENERGY&&c.energyType===EnergyType.SPECIAL)
+      .map(c=>c.fullName));
+    return specialPrintings;
+  };
   const proposed=new WeakMap(),awaiting=new Map();
   const audit={version:VERSION,bothSeats:true,nativeStores:0,
     originalPasses:0,eligiblePasses:0,proposedHammerRoots:0,
@@ -172,7 +179,7 @@ function withOwnerHammerAfterPass(execute,deps={}) {
         return oldDecode.value.call(this,state);
       }
       const cards=chooseHammerPromptCards(state,seat,pending,
-        waiting.family,specialPrintings);
+        waiting.family,publicSpecialPrintings());
       if(!cards||pending.validate(cards,state)!==true)
         return oldDecode.value.call(this,state);
       const action=new ResolvePromptAction(pending.id,cards);
@@ -188,7 +195,7 @@ function withOwnerHammerAfterPass(execute,deps={}) {
     if(original?.constructor?.name!=='PassTurnAction')return original;
     audit.originalPasses++;
     const intent=chooseOwnerHammerAfterPass(
-      observe(state,seat),specialPrintings);
+      observe(state,seat),publicSpecialPrintings());
     if(!intent)return original;
     const physical=owner.hand.cards[intent.handIndex];
     if(physical?.fullName!==intent.printing||
