@@ -232,7 +232,8 @@ function withActorOwnerSingleSearch(execute,deps={}){
       pending.cards===player.deck;
     const input=canEvolution?
       require('./agent37-attack-evolution-owner-prompt.cjs')
-        .actorAttackEvolutionInput(state,seat):
+        .actorAttackEvolutionInput(state,seat,
+          deps.evolutionObserve??actorObservation):
       canSearch?observe(state,seat):null;
     if(!input){
       if(pending?.playerId===this.client?.id &&
