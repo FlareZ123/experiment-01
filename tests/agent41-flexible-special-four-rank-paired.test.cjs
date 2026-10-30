@@ -95,3 +95,19 @@ test('absent physical fingerprint never matches itself',()=>{
   assert.equal(compare(a,b).fullDealMatch,false);
   assert.equal(compare(a,b).deckAndEngineMatch,false);
 });
+
+test('second frozen random non-Regidrago original source identities have mixed Energy',()=>{
+  const p=prepare({cohort:'nonreg-mixed'});
+  assert.deepEqual(p.trials.map(t=>t.rank),[9,9,15,15,19,19,26,26]);
+  assert.deepEqual(p.registration.eligible_ranks,[2,3,9,15,19,26,30,31]);
+  assert.equal(new Set(p.trials.map(t=>t.seed)).size,8);
+  assert.equal(p.registration.sample_size,16);
+  for(const rank of [9,15,19,26]){
+    const source=p.source.decks.find(d=>d.rank===rank);
+    assert.equal(source.cards.reduce((n,c)=>n+c.count,0),60);
+    const e=source.cards.filter(c=>c.name.endsWith(' Energy')||
+      c.name.includes(' Energy '));
+    assert.ok(e.some(c=>/^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy$/.test(c.name)));
+    assert.ok(e.some(c=>!/^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy$/.test(c.name)));
+  }
+});
