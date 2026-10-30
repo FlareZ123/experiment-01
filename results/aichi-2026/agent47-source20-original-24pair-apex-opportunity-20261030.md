@@ -69,7 +69,22 @@ physical Energy when the mandatory prompt demanded more.
    Grass Energy.
 
 This is a genuine common-policy prompt-count failure, rather than
-missing Apex policy benefit. It must remain an explicit abort in the original
+missing Apex policy benefit.
+
+**Verified pinned upstream source-level mechanism:** at Twinleaf revision
+`a9905a76...`,
+[`AttachEnergyPromptResolver.getPromptResult`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/simple-bot/prompt-resolver/attach-energy-prompt-resolver.ts)
+builds the first 1, 2, ..., `max` attachment prefixes, scores every prefix,
+sorts by score, and returns the highest-scored prefix. It does **not**
+filter candidates whose length is below `prompt.options.min`.
+[`AttachEnergyPrompt.validate`](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/prompts/attach-energy-prompt.ts)
+explicitly rejects these under-minimum prefixes. This code discrepancy
+explains how the native bot can propose one when the source effect
+mandates two or three. Rank-20's printed Regidrago V Celestial Roar
+discards the top three cards and attaches any discarded Energy to itself,
+consistent with both failed temporary-card-source geometries; the raw
+census lacks a captured origin-card receipt, so that attribution
+remains **plausible rather than native-confirmed**. It must remain an explicit abort in the original
 frozen record. The repair path is the
 [bounded opt-in native resolver](../../simulation/twinleaf/agent47-minimum-attach-energy-hook.cjs)
 and [original-deal forensic replay](../../simulation/twinleaf/agent47-rank20-minrepair-replay.cjs).
