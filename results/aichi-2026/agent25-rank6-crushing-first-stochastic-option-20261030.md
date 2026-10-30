@@ -27,7 +27,7 @@ At `6:3:B:champion-reference`, native T3 source seat0 played **Plumeria**, choos
 
 Suppose Crushing Hammer is native-legal at that exact root, the visible opposing Energy remains attached until these actions resolve, the coin is fair, and there are no intervening effects or restrictions. Consider the owner's alternative **Crushing Hammer first, Plumeria only if tails**:
 
-- **Heads (probability 1/2):** spend the one Crushing Hammer Item, remove the opposing Basic Psychic Energy, and preserve Plumeria, Enhanced Hammer and the Supporter use for future turns. One physical card is consumed.
+- **Heads (probability 1/2):** spend the one Crushing Hammer Item, remove the opposing Basic Psychic Energy, and preserve Plumeria, Enhanced Hammer and the current turn's unused Supporter opportunity. One physical card is consumed.
 - **Tails (probability 1/2):** Crushing Hammer is spent without removing Energy. The owner can then play the still-held Plumeria, choosing Enhanced Hammer and another card `X` from the large remaining hand, and remove the same Basic Psychic Energy. Four physical cards are consumed, with the extra `X` possibly strategically important.
 - **Original line:** spend Plumeria, Crushing Hammer and Enhanced Hammer to remove the Basic Psychic Energy with certainty, consuming three physical cards and the Supporter quota.
 
