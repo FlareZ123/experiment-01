@@ -59,7 +59,7 @@ function withSyntheticRank8BoxFetchShake(execute,{fetchToolFromBox=false}={}){
   const {GamePhase}=require(path.join(BASE,'game/store/state/state'));
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
-  let stage=0,exchange=null,turn8=null;
+  let stage=0,exchange=null,turn8=null,ownerK1PromptProof=null;
   const steps=[];
   /** @param {object} owner @param {string} name @param {object} target */
   function play(owner,name,target=board){
@@ -121,6 +121,15 @@ function withSyntheticRank8BoxFetchShake(execute,{fetchToolFromBox=false}={}){
     if(names){
       if(pending?.constructor.name!=='ChooseCardsPrompt')
         return original.call(this,state);
+      if(stage===2&&fetchToolFromBox){
+        const planned=require('./agent44-secretbox-owner-prompt.cjs')
+          .chooseOwnedBoxFetchShake(pending,owner,state);
+        const {selectedCards,...publicProof}=planned;
+        ownerK1PromptProof=publicProof;
+        assert.equal(planned.eligible,true,
+          'Authenticated Box K1 helper failed on genuine native owner prompt');
+        assert.deepEqual(planned.selectedNames,['Boost Shake','Float Stone']);
+      }
       return next(state,'choose '+names.join(' + ')+' in original owner prompt',
         choose(pending,names,state));
     }
@@ -155,7 +164,7 @@ function withSyntheticRank8BoxFetchShake(execute,{fetchToolFromBox=false}={}){
     if(stage===10)throw Error('Boost Shake did not produce a native target prompt');
     return original.call(this,state);
   };
-  try{return {result:execute(),stage,exchange,steps,turn8};}
+  try{return {result:execute(),stage,exchange,steps,turn8,ownerK1PromptProof};}
   finally{SimpleTacticsAi.prototype.decodeNextAction=original;}
 }
 
@@ -198,6 +207,8 @@ function main(){
   assert.equal(toolReplay.exchange.swaps.length,2);
   assert.equal(toolReplay.stage,11,
     'Box-fetched Tool and Shake must complete the printed evolution');
+  assert.equal(toolReplay.ownerK1PromptProof?.eligible,true,
+    'Actual native owner-K1 Secret Box selector did not admit Shake + Tool');
   assert.ok(toolReplay.turn8?.sourceBench.some(p=>
     p.name==='Garbodor'&&p.tools.includes('Float Stone')),
     'Box-fetched Float Stone was not attached to actual evolved Garbodor');
@@ -220,6 +231,7 @@ function main(){
     boxFetchesToolBranch:{
       declaredSyntheticDeal:toolReplay.exchange,
       nativeOwnerSearchNames:['Boost Shake','Float Stone','Temple of Sinnoh'],
+      ownerK1PromptProof:toolReplay.ownerK1PromptProof,
       scriptedNativeSteps:toolReplay.steps,
       candidateReplyTurnObserved:toolReplay.turn8.turn,
       equippedGarbodorAtReply:true,
