@@ -73,6 +73,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent2_whismur_bawl_native_lock_probe:
+        description: Probe staged first-turn-second Whismur Trainer lock against rank2 real Tag Call print
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -140,6 +145,9 @@ jobs:
           path: agent2-native-firstturn-catalog.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Probe genuine second-player Bawl and original rank2 Tag Call under native all-Trainer denial
+        if: ${{ inputs.agent2_whismur_bawl_native_lock_probe }}
+        run: node --test tests/agent2-whismur-trainer-lock.native.test.cjs
       - name: Run bounded historic both-seat shuffle draw root and native Lillie effect probe
         run: node simulation/twinleaf/agent2-shuffle-supporter-samedeal-native.cjs > agent2-shuffle-supporter-samedeal-native.json
       - name: Archive all accepted and rejected draw Supporter choice receipts
