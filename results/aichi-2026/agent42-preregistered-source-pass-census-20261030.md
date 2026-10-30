@@ -20,11 +20,11 @@ Independent read-only census joins **each physically source-seated root action**
 
 These are raw native action counts from bounded simulated development games, *not* competitive game outcomes or estimates. Multiple turns and source-root passes can belong to the same game, and candidate inventory changes can alter game length; treating 477 passes as 477 independent competitive observations would be invalid.
 
-### Why the rank-6 source was weak
+### Rank-6 source: passive lock and untested active-line access
 
-- **16/16** rank-6 arms had a first source-turn `PassTurnAction` and **zero source PlayCard roots that first source turn**. **14/16** had the source going first, when particular first-turn Trainer restrictions apply. Therefore an initial pass alone is not proof of an error.
+- **16/16** rank-6 arms had a first source-turn `PassTurnAction` and **zero source PlayCard roots that first source turn**. **14/16** had the source going first, when particular first-turn Trainer restrictions apply. The existing [first-turn Speed Lightning staging audit](agent21-rank6-firstturn-speed-staging-audit-20261029.md) reports that an available policy branch was disabled in this historical scout, so the census provides no proof that the initial pass was best.
 - Across **all** source turns, only **five** source `Volt Cyclone` declarations occurred, matched by exactly **five** copies of each direct-line connector `Tag Call`, `Guzma & Hala`, `Thunder Mountain Prism Star` and `Double Colorless Energy`. All five attack declarations came from a line in the existing source audit; the other 11 source arms have no such completed sequence.
-- After a successful attack, source policy can still repeatedly pass on later turns. The 324 source passes in the combined sample vastly exceed the five attacks; the original runner's 260-root cap creates a long, unstable tail. This is a pressure/continuation policy gap. Neither the source's deck contents nor any one action's legality can be deduced solely from an absent PlayCard.
+- Crucially, rank 6's real Iron Thorns strategy is often **passive Ability suppression, opponent resource denial, trapping and decking out**. An independently archived [same-seed passive-replay audit](agent50-rank6-passive-same-seed-native-20261029.md) recorded candidate printed Abilities actually suppressed in **8/14 source-first arms**, including six source zero-attack arms. Hence **324 Pass roots alone are not evidence of a policy mistake or a weak source**. They define a denominator for later state-specific positive and negative controls. The 260-root caps still limit evaluation, and absent attacks cannot be equated with forfeited legal or beneficial opportunities.
 
 ### Why the rank-11 source's alternative resource actions merit inspection
 
