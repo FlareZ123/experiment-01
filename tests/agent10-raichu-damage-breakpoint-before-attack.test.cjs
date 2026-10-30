@@ -6,6 +6,7 @@ const {chooseRaichuPrintedKnockoutAttachment,lightningUnitCount,
  require('../simulation/twinleaf/agent10-raichu-damage-breakpoint-before-attack.cjs');
 const {chooseActorRootIntent}=
  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {collectOwnerContention}=require('../simulation/twinleaf/agent16-owner-priority-contention.cjs');
 const catalog={
  basics:new Set(),abilityBasics:new Set(),basicEnergies:new Set(),
  specialEnergies:new Set(['Reversal Energy PAL','Counter Energy CIN','Unit Energy LPM UPR']),
@@ -130,4 +131,26 @@ test('nonnegative printed packet bounds',()=>{
  assert.equal(maximumRawKnockouts([100,100,100],12),3);
  assert.equal(maximumRawKnockouts([],4),0);
  assert.throws(()=>maximumRawKnockouts([50],-1));
+});
+
+
+test('same-root chooser marks early Raichu Energy at order 13, before its payable attack',()=>{
+  const x=fixture();
+  const options={
+    publicContextSpecialEnergy:true,
+    raichuKoBreakpointBeforeAttack:true
+  };
+  const selected=chooseActorRootIntent(x,catalog,options);
+  assert.equal(selected.kind,'attach-special-energy');
+  const census=collectOwnerContention(x,catalog,options,selected);
+  assert.equal(census.selectedPriority,13);
+  assert.deepEqual(census.alternatives.map(a=>[a.kind,a.reason]),[
+    ['attack','later-root-may-recover']
+  ]);
+  assert.ok(census.alternatives.every(a=>a.nativePlayability==='unverified'));
+  const noEarly={...options,raichuKoBreakpointBeforeAttack:false};
+  const ordinary=chooseActorRootIntent(x,catalog,noEarly);
+  assert.equal(ordinary.kind,'attack');
+  assert.equal(collectOwnerContention(x,catalog,noEarly,ordinary)
+    .selectedPriority,14);
 });
