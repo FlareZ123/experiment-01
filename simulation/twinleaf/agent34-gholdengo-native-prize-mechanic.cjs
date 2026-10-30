@@ -67,7 +67,12 @@ function settleAttackPrompts(x){
     if(!pending)return sequence;
     const name=pending.constructor.name;
     sequence.push(name);
-    const result=name==='ChoosePrizePrompt'?[0,1]:
+    // Direct Store.dispatch receives the decoded native CardList objects.
+    // Numeric [0,1] is only the outer client protocol for ChoosePrizePrompt.
+    const result=name==='ChoosePrizePrompt'?
+      x.owner.prizes.filter(prize=>prize.cards.length>0).slice(0,2):
+      name==='ShuffleDeckPrompt'?
+        x.owner.deck.cards.map((_,index)=>index):
       name==='WaitPrompt'?null:undefined;
     assert.notEqual(result,undefined,
       'Unknown native prompt requires owner-specific policy: '+name);
