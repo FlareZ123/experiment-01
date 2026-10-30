@@ -178,6 +178,17 @@ jobs:
           path: agent6-matched-t3-dce-attack-vs-plumeria-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Source native hand-payment four-way replay
+        if: inputs.agent6_payment_preservation
+        run: node simulation/evaluation/agent6-prized-thunder-payment-preservation-native.cjs > agent6-payment.json
+      - name: Archive native hand-payment comparison
+        if: always() && inputs.agent6_payment_preservation
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-payment-original-native
+          path: agent6-payment.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
         run: node simulation/twinleaf/setup-audit.cjs
 
