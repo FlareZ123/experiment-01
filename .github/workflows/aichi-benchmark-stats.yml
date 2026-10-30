@@ -66,6 +66,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Fail closed on first-player ordinary Supporter while allowing printed exceptions
+        run: node --test tests/paper-supporter-quota-guard.test.cjs
       - name: Preserve potential final two-Prize attack in optional owner arbitration
         run: node --test tests/agent35-potential-two-prize-attack-veto.test.cjs
       - name: Preserve source-deal and public root evidence on native Store abort
