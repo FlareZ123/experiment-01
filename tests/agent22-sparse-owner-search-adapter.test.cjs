@@ -107,3 +107,67 @@ test('both real seats resolve native typed sparse prompt and restore prototypes'
   assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,originalBot);
   assert.strictEqual(Store.prototype.dispatch,originalDispatch);
 });
+
+test('valued sparse owner choice uses printings, not physical order or opponent hand',()=>{
+  const names=Array.from({length:50},(_,i)=>
+    'Native-Card-'+String(i).padStart(2,'0'));
+  const score=printingNames=>printingNames.reduce((sum,p)=>sum+
+    (p==='Native-Card-49'?20:p==='Native-Card-48'?10:0),0);
+  for(const seat of [0,1]){
+    const first=physicalPrompt(names,seat);
+    const reversed=physicalPrompt([...names].reverse(),seat);
+    const observe=()=>fakeActor(seat);
+    const a=sparseObservedOwnerSearch(first.state,seat,observe,score);
+    const b=sparseObservedOwnerSearch(reversed.state,seat,observe,score);
+    assert.deepEqual(a,b);
+    assert.deepEqual(a.prompt.bundles[0].printings,
+      ['Native-Card-00','Native-Card-48','Native-Card-49']);
+    assert.equal(JSON.stringify(a).includes('SECRET_OPPONENT_HAND'),false);
+    assert.equal(JSON.stringify(a).includes('CONCEALED_OPPONENT_CARD'),false);
+  }
+});
+
+test('opt-in scored search is selected and physically accepted in two fake seats',()=>{
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  class Store{
+    dispatch(action){
+      if(action instanceof ResolvePromptAction){
+        const pending=this.state.prompts[0];
+        assert.ok(pending.validate(action.result));
+        pending.result=action.result;
+      }
+    }
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){return null;}
+  }
+  const result=withSparseActorOwnerSearch(()=>{
+    const observed=[];
+    const store=new Store();
+    for(const seat of [0,1]){
+      const names=Array.from({length:50},(_,i)=>
+        'Source-Card-'+String(i).padStart(2,'0'));
+      const {state,owner}=physicalPrompt(names,seat);
+      store.state=state;
+      const action=new SimpleTacticsAi(owner.id).decodeNextAction(state);
+      assert.ok(action instanceof ResolvePromptAction);
+      const printings=action.result.map(c=>c.fullName);
+      assert.deepEqual(printings,
+        ['Source-Card-00','Source-Card-48','Source-Card-49']);
+      store.dispatch(action);
+      observed.push(printings);
+    }
+    return observed;
+  },{
+    SimpleTacticsAi,Store,ResolvePromptAction,
+    GamePhase:{PLAYER_TURN:5},
+    observe:(state,seat)=>sparseObservedOwnerSearch(state,seat,
+      ()=>fakeActor(seat),names=>names.reduce((sum,p)=>sum+
+        (p==='Source-Card-49'?20:p==='Source-Card-48'?10:0),0))
+  });
+  assert.equal(result.audit.accepted,2);
+  assert.equal(result.audit.nativePromptPostconditionsConfirmed,2);
+});
