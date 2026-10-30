@@ -19,11 +19,21 @@ const native=name=>require(path.join(output,name));
  */
 function rank15NativeScene(seat){
   const manager=initializeCards();
-  const required=['Buneary PFL','Mega Lopunny ex PFL',
-    'Grass Energy MEE','Double Colorless Energy SUM',
-    'Shadow Rider Calyrex V CRE'];
+  // Source reports PFL #83/#84, but pinned native identifiers are M2.
+  // Resolve exact printed set and collector number, never name suffix alone.
+  const original=(name,number)=>{
+    const matches=manager.getAllCards().filter(c=>
+      c.name===name&&c.set==='PFL'&&String(c.setNumber)===number);
+    assert.equal(matches.length,1,'Ambiguous original PFL card '+name+' #'+number);
+    return matches[0].fullName;
+  };
+  const basic=original('Buneary','83');
+  const mega=original('Mega Lopunny ex','84');
+  const required=[basic,mega,'Grass Energy MEE',
+    'Double Colorless Energy SUM','Shadow Rider Calyrex V CRE'];
   const unsupported=required.filter(name=>!manager.getCardByName(name));
-  if(unsupported.length)return {unsupported};
+  assert.deepEqual(unsupported,[],
+    'Exact rank15 source printing must resolve in pinned CardManager');
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
   const {CardList}=native('game/store/state/card-list');
@@ -57,7 +67,7 @@ function rank15NativeScene(seat){
     result.id=id++;
     return result;
   };
-  owner.active.cards.push(card('Buneary PFL'),card('Mega Lopunny ex PFL'));
+  owner.active.cards.push(card(basic),card(mega));
   owner.hand.cards.push(card('Grass Energy MEE'),
     card('Double Colorless Energy SUM'));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
