@@ -27,6 +27,10 @@ The existing exact original lists **rank 4 Shu Hosoda** and **rank 17 Yuya Yaman
 
 In particular, the fact that two *known* lists happen to contain Klefki and the author says the archetype was chosen to deploy Klefki is **insufficient evidence that rank 25 contained exactly one Klefki, used the same search chains, or carried any specific 60**.
 
+### Printed-card prerequisite confirmed independently
+
+The supplied English paper Expanded card database contains **Klefki SVI 96**, Basic Psychic, with **Mischievous Lock**: while Klefki occupies the **Active Spot**, Basic Pokémon on *both sides* lose Abilities other than Mischievous Lock. Consequently the proposed Regidrago anti-Ability line has a hard **Active-position occupancy** requirement and imposes an own-side Basic Ability tradeoff, including potential conflict with other Active-dependent lock or attacking lines. A policy that merely Benches Klefki does not realize the claimed lock. The database's Expanded legality label is a convenient source check, not independent proof of the tournament's Japanese format bans/errata. This is source card text and a rule-relevant inference, not actual game-state settlement.
+
 ## Policy qualification proposals
 
 The next useful test should target the existing common two-player runner and frozen **rank-4 and rank-17 exact printings**, using owner-visible decisions only and preservation of original source first/second-player identities. A first-source-turn denominator should distinguish (a) an owner actually holding a Klefki, (b) an available Bench/Active placement and legal transition, (c) competing setup Abilities requiring that Klefki remain Benched, and (d) native accepted suppression or a genuine opponent response. A second contrast can evaluate whether the existing owner action tree recognizes appropriate Rope/Cologne mobility and GX postponement choices against a visible first-turn Regidrago/Wobbuffet/Budew threat, including genuine concessions when no legal line exists. Each actual action requires original-Store acceptance and a settled public consequence. Pure access or a held card count is inadequate.
