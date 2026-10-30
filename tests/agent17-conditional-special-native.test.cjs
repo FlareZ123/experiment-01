@@ -344,3 +344,46 @@ test('rank3 printed Capture before Temple opens native Basic search, Temple firs
       p.result===undefined).length,0);
   }
 });
+
+test('same public Speed-before-attack option draws two natively in both seats',()=>{
+  const {offerSpeedDrawBeforeAttack}=
+    require('../simulation/twinleaf/agent50-preterminal-speed-draw-offer.cjs');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  for(const seat of [0,1]){
+    const {store,state,owner,card,catalog}=staged(
+      'Iron Thorns ex TWM','Speed Lightning Energy RCL',seat);
+    owner.stadium.cards.push(card('Thunder Mountain Prism Star LOT'));
+    owner.active.energies.cards.push(
+      card('Speed Lightning Energy RCL'),
+      card('Double Colorless Energy SUM'));
+    const view=actorObservation(state,seat);
+    const first=chooseActorRootIntent(view,catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(first,{kind:'attack',attackName:'Volt Cyclone'});
+    const offer=offerSpeedDrawBeforeAttack(view,catalog,first);
+    assert.equal(offer?.intent?.kind,'attach-special-energy');
+    assert.equal(offer?.intent?.slot,'active');
+    assert.equal(offer?.intent?.handIndex,0);
+    const before=owner.deck.cards.length;
+    store.dispatch(new PlayCardAction(owner.id,offer.intent.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.equal(owner.deck.cards.length,before-2);
+    assert.equal(owner.hand.cards.length,2);
+    assert.equal(owner.active.energies.cards.length,3);
+    assert.equal(state.prompts.some(p=>p.result===undefined),false);
+    const after=actorObservation(state,seat);
+    const later=chooseActorRootIntent(after,catalog,{
+      publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(later,first,
+      'Paid nonterminal root must preserve the later own attack choice');
+    console.log('SPEED_PREATTACK_NATIVE_OFFER',JSON.stringify({
+      seat,accepted:true,sourcePrinting:'Speed Lightning Energy RCL',
+      deckDelta:-2,handAfter:owner.hand.cards.length,
+      nextActorRoot:later,competitiveQualifiedGames:0
+    }));
+  }
+});
