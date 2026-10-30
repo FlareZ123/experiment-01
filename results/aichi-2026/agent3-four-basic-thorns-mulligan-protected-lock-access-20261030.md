@@ -19,7 +19,6 @@ Reproduce with [exact integer combinatorics](../../scripts/agent3-jellicent-thor
 
 ## Exact findings
 
-<details><summary>Computed conditional probabilities</summary></details>
 
 | Optional source-mulligan bonus draws accepted | Direct Active Frillish + Lab + Boost + Jellicent deck opportunity |
 | ---: | ---: |
