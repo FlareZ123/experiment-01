@@ -51,10 +51,13 @@ test('different public Active never receives Thorns-specific source risk',()=>{
 });
 
 test('unverified source evidence fails closed',()=>{
- assert.throws(()=>publicThornsTechRisk(view([[
+ const r=publicThornsTechRisk(view([[
   'Unknown non-Aichi card','Unknown non-Aichi card',
   'Unknown non-Aichi card','Unknown non-Aichi card',
   'Unknown non-Aichi card','Unknown non-Aichi card',
   'Unknown non-Aichi card'
- ]]),manifest),/Impossible public history/);
+ ]]),manifest);
+ assert.equal(r.status,'out-of-model');
+ assert.equal(r.probabilityOriginalSourceHasFourCrushingHammer,null);
+ assert.equal(r.recommendedAction,null);
 });
