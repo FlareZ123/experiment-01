@@ -63,3 +63,37 @@ test('no essential resource blocks entire package',()=>{
   assert.throws(()=>exactSecretBoxShield({frillish:5}),RangeError);
   assert.throws(()=>exactSecretBoxShield({totalBasics:3}),RangeError);
 });
+
+test('strict three-cheap-discard requirement sharply reduces Box AMR',()=>{
+  const options={secretBox:1,arven:4,goingSecond:true,minCheapDiscards:3};
+  near(exactSecretBoxShield({
+    ...options,cheapDiscards:0
+  }).conditionalValidBasic,0.09466101256173264);
+  near(exactSecretBoxShield({
+    ...options,cheapDiscards:8
+  }).conditionalValidBasic,0.10074068985860203);
+  near(exactSecretBoxShield({
+    ...options,cheapDiscards:12
+  }).conditionalValidBasic,0.11408137421028888);
+  near(exactSecretBoxShield({
+    ...options,cheapDiscards:20
+  }).conditionalValidBasic,0.15881538819215436);
+  near(exactSecretBoxShield({
+    ...options,cheapDiscards:35
+  }).conditionalValidBasic,0.23324580340292435);
+});
+
+test('relabeling cheap cards does not change unrestricted physical access',()=>{
+  for(const cheap of [0,8,20,35]){
+    near(exactSecretBoxShield({
+      arven:4,goingSecond:true,cheapDiscards:cheap,
+      minCheapDiscards:0
+    }).conditionalValidBasic,0.2445093545497889);
+  }
+  assert.throws(()=>exactSecretBoxShield({
+    arven:4,cheapDiscards:36,minCheapDiscards:3
+  }),RangeError);
+  assert.throws(()=>exactSecretBoxShield({
+    minCheapDiscards:4
+  }),RangeError);
+});
