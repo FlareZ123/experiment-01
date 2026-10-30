@@ -25,7 +25,7 @@ function printedKey(card){
  * Build an authentic print-number lookup from locally supplied card JSON
  * and the set table, bounded to the Aichi event's international date.
  * The list is a lookup resource, not itself Japanese legality certification.
- * @returns {{exact:Set<string>,names:Set<string>,spiritomb:object}}
+ * @returns {{exact:Set<string>,names:Set<string>,spiritomb:object,genesect:object}}
  */
 function cardReference(){
   const directory=path.join(ROOT,'resources/cards/en');
@@ -52,12 +52,24 @@ function cardReference(){
     card.name==='Spiritomb'&&card.number==='87');
   assert.deepEqual(spiritomb?.subtypes,['Basic']);
   assert.equal(spiritomb?.hp,'80');
+  const genesectCards=JSON.parse(fs.readFileSync(path.join(directory,
+    'sv6pt5.json'),'utf8'));
+  const genesect=genesectCards.find(card=>card.name==='Genesect'&&
+    card.number==='40');
+  const nullifier=genesect?.abilities?.find(a=>a.name==='ACE Nullifier');
+  assert.deepEqual(genesect?.subtypes,['Basic']);
+  assert.equal(genesect?.hp,'110');
+  assert.equal(nullifier?.text,
+    "If this Pokémon has a Pokémon Tool attached, your opponent can't play any ACE SPEC cards from their hand.");
   const sealing=spiritomb?.abilities?.find(a=>a.name==='Sealing Scream');
   assert.equal(sealing?.text,
     "Each player can't play any ACE SPEC cards from his or her hand.");
   return {exact,names,spiritomb:{id:spiritomb.id,name:spiritomb.name,
     ability:sealing.name,text:sealing.text,hp:Number(spiritomb.hp),
-    type:spiritomb.types?.[0],subtypes:spiritomb.subtypes}};
+    type:spiritomb.types?.[0],subtypes:spiritomb.subtypes},
+    genesect:{id:genesect.id,name:genesect.name,ability:nullifier.name,
+      text:nullifier.text,hp:Number(genesect.hp),type:genesect.types?.[0],
+      subtypes:genesect.subtypes}};
 }
 
 /**
@@ -65,7 +77,7 @@ function cardReference(){
  * impersonate the claimed ACE SPEC print if its set/number differs.
  *
  * @param {object} roster 2026 29-deck source archive.
- * @param {{exact:Set<string>,names:Set<string>,spiritomb:object}} reference
+ * @param {{exact:Set<string>,names:Set<string>,spiritomb:object,genesect:object}} reference
  * @returns {object}
  */
 function analyze(roster,reference){
@@ -101,7 +113,7 @@ function analyze(roster,reference){
   return {schema:VERSION,eventDate:EVENT_DATE,
     source:'results/aichi-2026/full-decklists.json',
     reference:'resources/cards/en and resources/sets/en',
-    spiritomb:reference.spiritomb,
+    spiritomb:reference.spiritomb,genesect:reference.genesect,
     analyzedOriginalDecks:rowDetails.length,
     registeredPlacements:32,
     unresolvedRanks:roster.missing_full_lists.map(x=>x.rank),
