@@ -12,6 +12,8 @@ const {Player}=load('game/store/state/player');
 const {State}=load('game/store/state/state');
 const {PlayItemEffect}=load('game/store/effects/play-card-effects');
 const {GameError}=load('game/game-error');
+const {withPaperSpiritombSharedAce}=require(
+  './agent24-paper-spiritomb-shared-ace-hook.cjs');
 const {SecretBox}=load(
   'sets/10-scarlet-and-violet/set-twilight-masquerade/secret-box');
 const {CardTag}=load('game/store/card/card-types');
@@ -57,6 +59,17 @@ function main(){
   assert.equal(spiritOwn.blocked,false,
     'Pinned Spiritomb does not implement printed self ACE lock');
   assert.equal(spiritOpp.blocked,true);
+  const corrected=withPaperSpiritombSharedAce(()=>({
+    own:reduce(spirit,spiritBoard.owners[0],spiritBoard.state),
+    opposing:reduce(spirit,spiritBoard.owners[1],spiritBoard.state)
+  }));
+  assert.equal(corrected.result.own.blocked,true,
+    'Scoped paper corrective hook must deny controller ACE');
+  assert.equal(corrected.result.opposing.blocked,true);
+  assert.equal(corrected.audit.ownerAceDenied,1);
+  assert.equal(corrected.audit.ownerAceAttempts,1);
+  assert.equal(reduce(spirit,spiritBoard.owners[0],spiritBoard.state)
+    .blocked,false,'original native reducer restored after callback');
   const gene=new Genesect(),geneBoard=board(gene);
   const geneNoTool=reduce(gene,geneBoard.owners[1],geneBoard.state);
   // A genuine attached native Tool can be placed into the active list
@@ -81,6 +94,9 @@ function main(){
     nativeSpiritombOwnAce:spiritOwn,
     nativeSpiritombOpponentAce:spiritOpp,
     spiritombPaperParity:false,
+    reversiblePaperSpiritombOwnerAceCorrection:{
+      self:corrected.result.own,opponent:corrected.result.opposing,
+      audit:corrected.audit,nativeOriginalRestored:true},
     printedGenesectAbility:'ACE Nullifier',
     printedGenesectAttack:'Magnetic Blast',
     nativeGenesectAbilities:nativeGenesectAbility,
