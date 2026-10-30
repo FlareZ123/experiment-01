@@ -44,3 +44,23 @@ test('without later opponent turn or printed card play, preserve negative eviden
   assert.equal(r[0].opponentFirstRootAfterSearch,null);
   assert.equal(r[0].subsequentPrintedPlays[0].playedLaterByName,false);
 });
+
+test('native public root bare card name matches authenticated full printing ID',()=>{
+  const selection=[{turn:3,printings:['Capture Energy RCL',
+    'Counter Catcher PAR','VS Seeker PHF']}];
+  const ledger=[
+    {actionOrdinal:20,turnBefore:4,playerSlot:1,
+      action:'PlayCardAction',card:'VS Seeker',pendingPrompt:null},
+    {actionOrdinal:30,turnBefore:5,playerSlot:0,
+      action:'PlayCardAction',card:'Capture Energy',pendingPrompt:null}
+  ];
+  const mapping={'Capture Energy RCL':'Capture Energy',
+    'Counter Catcher PAR':'Counter Catcher',
+    'VS Seeker PHF':'VS Seeker'};
+  const out=analyzeFollowthrough(selection,ledger,0,mapping);
+  assert.deepEqual(out[0].subsequentPrintedPlays,[
+    {printing:'Capture Energy RCL',playedLaterByName:true},
+    {printing:'Counter Catcher PAR',playedLaterByName:false},
+    {printing:'VS Seeker PHF',playedLaterByName:false}
+  ]);
+});
