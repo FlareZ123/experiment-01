@@ -52,12 +52,15 @@ function stageRace(seat){
 
 /** @param {object} x */
 function publicReceipt(x){
+  const remainingPrizes=slots=>slots.reduce(
+    (total,slot)=>total+slot.cards.length,0);
   return {
-    ownerPrizes:x.owner.prizes.length,
-    opponentPrizes:x.opponent.prizes.length,
+    ownerPrizes:remainingPrizes(x.owner.prizes),
+    opponentPrizes:remainingPrizes(x.opponent.prizes),
     ownerBenchDragonDamage:x.owner.bench[1].damage,
     ownerBenchDragonInPlay:!!x.owner.bench[1].getPokemonCard(),
     ownerBenchDragonEnergy:x.owner.bench[1].energies.cards.map(c=>c.fullName),
+    ownerDiscard:x.owner.discard.cards.map(c=>c.fullName),
     opponentActiveDamage:x.opponent.active.damage,
     opponentActiveInPlay:!!x.opponent.active.getPokemonCard(),
     phase:x.state.phase,turn:x.state.turn,
@@ -140,12 +143,16 @@ function runSeat(seat){
     attackFirst:{...attack,prompts:attackPrompts,error:attackError},
     attachFirst:{...attach,prompts:attachPrompts,error:attachError},
     nativeAttachmentConsumed:b.owner.hand.cards.length===0,
-    nativeAttachmentConfirmed:b.owner.bench[1].energies.cards
-      .some(c=>c.fullName==='Double Dragon Energy ROS'),
-    attackFirstPrizeWin:attackError===null&&attack.ownerPrizes===0,
-    attachFirstOpponentPrizeWin:attachError===null&&attach.opponentPrizes===0,
+    nativeAttachmentConfirmed:attach.ownerDiscard
+      .includes('Double Dragon Energy ROS')&&
+      attach.ownerDiscard.includes('Regidrago V SIT'),
+    attackFirstPrizeWin:attackError===null&&attack.ownerPrizes===0&&
+      attack.winner===seat,
+    attachFirstOpponentPrizeWin:attachError===null&&attach.opponentPrizes===0&&
+      attach.winner===1-seat,
     completeWinnerReversal:attackError===null&&attachError===null&&
-      attack.ownerPrizes===0&&attach.opponentPrizes===0};
+      attack.ownerPrizes===0&&attach.opponentPrizes===0&&
+      attack.winner===seat&&attach.winner===1-seat};
 }
 
 function run(){
