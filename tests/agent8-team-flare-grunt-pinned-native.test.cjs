@@ -9,8 +9,8 @@ const base=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(base,name));
 
 /**
- * Two-seat direct native Store fixture with the original rank-6 XY printing,
- * an opponent's public Active Energy and an unspent Supporter quota. This
+ * Two-seat direct native Store fixture with the original rank-6 XY printing and Iron Thorns ex Active,
+ * the original rank-1 Shadow Rider V and Basic Psychic Energy and an unspent Supporter quota. This
  * tests one genuine printed card in isolation. It is not a game outcome.
  * @param {0|1} seat Real active seat.
  * @returns {object}
@@ -39,9 +39,9 @@ function root(seat){
   state.turn=4;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
-  owner.active.cards.push(card('Bunnelby PRC'));
-  opponent.active.cards.push(card('Bunnelby PRC'));
-  const energy=card('Psychic Energy SVE');
+  owner.active.cards.push(card('Iron Thorns ex TWM'));
+  opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+  const energy=card('Psychic Energy MEE');
   opponent.active.cards.push(energy);
   opponent.active.energies.cards.push(energy);
   const supporter=card('Team Flare Grunt XY');
