@@ -4,8 +4,6 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {planAichi}=require('./aichi-pilot.cjs');
-const {runMatch}=require('../twinleaf/headless.cjs');
 const {withLiveJetRootCensus,VERSION:OBSERVER_VERSION}=
   require('../twinleaf/agent40-live-jet-root-census.cjs');
 
@@ -55,6 +53,10 @@ function registration(){
  */
 function run(){
   const plan=registration();
+  // Deferred native imports let the frozen registration and observer
+  // contract be tested without compiling the optional Twinleaf submodule.
+  const {planAichi}=require('./aichi-pilot.cjs');
+  const {runMatch}=require('../twinleaf/headless.cjs');
   const resolved=planAichi(plan.candidateComparisonRank,{
     allowEquivalentBasicEnergies:plan.allowEquivalentBasicEnergies,
     allowBasicEnergyMirrorPrintings:plan.allowEquivalentBasicEnergies,
