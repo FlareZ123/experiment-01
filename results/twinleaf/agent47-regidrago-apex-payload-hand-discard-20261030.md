@@ -23,6 +23,14 @@ A deliberately narrow proof of an immediately payable Apex cost currently suppor
 
 [Pure regression](../../tests/agent47-apex-discard-frontier.test.cjs) includes the positive and each negative, two owner-indistinguishable hidden worlds, and exact source and card-text checks. The existing **manual-dispatch-only** `aichi-benchmark-stats.yml` has been extended with this test. It changes **no default bot, canonical bilateral chooser, deck 60, engine hook or per-push workflow trigger**.
 
+## Direct-opening co-visibility calibration
+
+The exact source rank-20 60 has **14 printed Basic Pokémon**, **two Ultra Ball MEG**, and **one Dragapult ex TWM**. The [finite-shuffle source calculation](../../simulation/twinleaf/agent47-rank20-first-eight-co-visibility.cjs) counts opening seven Basic-valid hands and the next ordinary draw from the remaining randomly ordered deck, treating six Prize positions as unknown exchangeable samples. Before considering attached Energy, evolution, card access, Item cost, mulligan bonus draws, matchup locks or other sequencing, the exact probability of coholding **at least one Ultra Ball plus Dragapult** across the eight seen cards, *conditional on having a Basic in the starting seven*, is
+
+`120046087 / 4408039680 = 0.02723344064815678` (**2.723344%**).
+
+The unconditional probability of both that starting-Basic condition and the two-card co-visibility is `120046087 / 5117241690 = 2.345914%`. The Basic-valid opening fraction is `252032 / 292581 = 86.140932%`. These are explicitly **eight-card hand co-visibility frequencies**, neither frequencies for the staged VSTAR+two-DDE board nor estimates of the actual mandatory discard decision. They caution against deriving broad prevalence from a deliberately constructed rare condition. The [exact source-printing and combinatoric regression](../../tests/agent47-rank20-first-eight-co-visibility.test.cjs) passed the [manual actor workflow 40994742687](https://github.com/FlareZ123/experiment-01/actions/runs/40994742687).
+
 ## Native original-Store physical-payment fork
 
 [Staged pinned-Store fixture](../../simulation/twinleaf/agent47-apex-ultraball-original-store.cjs) allocates all **60** original rank-20 printed card instances to real source-side active/evolution/attached Energy/hand/deck/Prize zones; it registers the opponent as a minimal dummy with no autonomous policy. It physically stages a held `Ultra Ball MEG`, a VSTAR Active with two `Double Dragon Energy ROS`, and the distinct four-card cost menu. The original Store accepts the physical Item and mandatory two-discard prompt with baseline **Grass + Grass** and counterfactual **Dragapult + Grass** in **each seat**. After each accepted prompt, it verifies the exact selected objects entered the actual owner discard. A negative control puts a genuine publicly visible `Temple of Sinnoh ASR` on the dummy opponent's Stadium zone and conservatively retains the baseline hand payment.
