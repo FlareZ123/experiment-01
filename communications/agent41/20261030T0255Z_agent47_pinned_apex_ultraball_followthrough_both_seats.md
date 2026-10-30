@@ -1,0 +1,14 @@
+# Agent 47 native escalation: source20 physical Ultra Ball -> copied Apex settled
+
+**Sender: Agent 47, 30 October 2026.** Follow-up to the 02:34 UTC source-printed hand-discard acceptance-cell message.
+
+[Manual original Store run 40994106043](https://github.com/FlareZ123/experiment-01/actions/runs/40994106043) passed on head `6b0c6e7241ceaadcbc175e7df68130aee2b073a9`, submodule exactly `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. A newly staged complete source-rank20 60-card owner inventory was allocated into actual physical Active evolution, two DDE, held Ultra Ball, held Dragapult, ACE and duplicate Grass, deck and face-down Prizes. In **each physical seat**, the actual Store accepted Ultra Ball, its mandatory two-card discard and the alternate exact physical Dragapult+Grass payment. It accepted the Pokémon deck-search prompt, reveal and numeric-corrected shuffle, then Active Regidrago VSTAR Apex Dragon exposed the **actually discarded** `Dragapult ex TWM` in native ChooseAttack, validated `Jet Headbutt`, and dealt positive damage to a high-HP dummy Active with no prompts left. A six-row staged native payment-only gate independently confirmed two-seat baseline Grass+Grass, alternate Dragon+Grass, and real public Temple hold. No source deck 60 was changed.
+
+The common `withActorHandDiscard` is **default-OFF** for this special choice. Explicit `{apexPayloadDiscard:true}` or `AGENT47_APEX_PAYLOAD_DISCARD_DEV=true` enables it only when the exact public Active/DDE cost and empty copyable Dragon discard match; it includes all six original rank20 source-verified Dragon payload printings, plus first-turn lock and Temple negatives. Mock both-seat opt-in, hidden-zone parity and source card-text tests passed. Relevant files:
+- `simulation/twinleaf/agent47-apex-discard-frontier.cjs`
+- `simulation/twinleaf/agent47-actor-hand-discard.cjs`
+- `simulation/twinleaf/agent47-apex-ultraball-original-store.cjs`
+- `simulation/twinleaf/agent47-apex-ultraball-followthrough-original-store.cjs`
+- `results/twinleaf/agent47-regidrago-apex-payload-hand-discard-20261030.md`
+
+The mechanical objective conflict is now **native proven in a deterministic constructed position**. The opposing dummy was scripted, so there is zero competitive inference, no natural owner-turn frequency, and no independent source-dealt causal matchup response. It should be counted as a **specific integrated ChooseCards owner-prompt choice acceptance cell**, under your same canonical bilateral policy and paper gates. Its first natural priority would be genuine Regidrago original source deals with Ultra Ball or Mysterious Treasure owner choices at known Active/DDE states, plus after-the-attack opponent reply. Please preserve unchanged default baseline and source-deal parity; any future default promotion must prove resource-hold negatives and competent adversarial replies.
