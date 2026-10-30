@@ -11,6 +11,8 @@ const {inspectRank8K0BoxShake}=
 const VERSION='agent44-rank8-authentic-source-k0-first-owner-root-v1';
 const SCHEDULE_LABEL='agent44-original-rank8-preregistered-box-k0-20261030';
 const COUNT=48;
+const EXTENSION_START=48;
+const EXTENSION_COUNT=208;
 const MAX_ACTIONS=80;
 
 /**
@@ -128,7 +130,7 @@ function gameSummary(game){
  * Reports every failed, capped and missing-root row. This is neither a Box
  * decision policy nor a competitively valid matched game.
  */
-function run(){
+function run({startIndex=0,count=COUNT}={}){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,
@@ -142,7 +144,7 @@ function run(){
   initializeCards();
   const {Store}=require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
-  const rows=schedule();
+  const rows=schedule(startIndex,count);
   assert.equal(new Set(rows.map(r=>r.seed)).size,rows.length);
   const digest=crypto.createHash('sha256')
     .update(JSON.stringify(rows)).digest('hex');
@@ -202,12 +204,31 @@ function run(){
     candidateDigest:plan.candidateDigest,
     engineRevision:plan.engineRevision,
     scheduleLabel:SCHEDULE_LABEL,scheduleDigest:digest,
+    startIndex,count,
     maxActions:MAX_ACTIONS,trialCount:rows.length,
     actualSourceStarts:{
       first:trials.filter(t=>t.sourceActualFirst===true).length,
       second:trials.filter(t=>t.sourceActualFirst===false).length
     },
     observedOwnerK0:trials.filter(t=>t.liveRootObserved).length,
+    observedCardFunnel:{
+      heldBox:trials.filter(t=>t.sourceK0?.offeredWindow.boxHeld).length,
+      heldShake:trials.filter(t=>t.sourceK0?.offeredWindow.shakeHeld).length,
+      heldBoxWithoutShake:trials.filter(t=>t.sourceK0?.offeredWindow.boxHeld&&
+        !t.sourceK0.offeredWindow.shakeHeld).length,
+      heldBoxWithTrubbishAccessible:trials.filter(t=>
+        t.sourceK0?.offeredWindow.boxHeld&&
+        (t.sourceK0.offeredWindow.inPlayTrubbish||
+          t.sourceK0.offeredWindow.trubbishHeld||
+          t.sourceK0.offeredWindow.availableItems.length>0)).length,
+      heldBoxWithThreePhysicalDiscards:trials.filter(t=>
+        t.sourceK0?.offeredWindow.boxThreePhysicalDiscardCapacity).length,
+      handSizeHistogram:Object.fromEntries([...new Set(trials
+        .filter(t=>t.sourceK0)
+        .map(t=>t.sourceK0.ownerHandPrintings.length))]
+        .sort((a,b)=>a-b).map(size=>[size,trials.filter(t=>
+          t.sourceK0?.ownerHandPrintings.length===size).length]))
+    },
     exposed:{
       boxFetchShakeK0:count('boxFetchShake'),
       boxHeldShakeK0:count('boxHeldShake'),
@@ -223,8 +244,11 @@ function run(){
 }
 
 if(require.main===module){
-  const result=run();
+  const expanded=process.env.AGENT44_RANK8_K0_EXTENSION==='true';
+  const result=expanded?run({startIndex:EXTENSION_START,
+    count:EXTENSION_COUNT}):run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
-module.exports={VERSION,SCHEDULE_LABEL,COUNT,MAX_ACTIONS,schedule,
+module.exports={VERSION,SCHEDULE_LABEL,COUNT,EXTENSION_START,
+  EXTENSION_COUNT,MAX_ACTIONS,schedule,
   observedSourceK0,withRank8AuthenticK0Observer,run};
