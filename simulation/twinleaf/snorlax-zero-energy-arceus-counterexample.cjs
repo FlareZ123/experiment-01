@@ -97,6 +97,14 @@ function trial(placeBackup) {
           result=prompt.cards.cards.filter(c=>c.name==='Psychic Energy')
             .slice(0,prompt.options?.maxCards??1);
         }
+      } else if(type==='AttachEnergyPrompt') {
+        // Trinity Nova may attach UP TO three Basic Energy. Declining the
+        // optional acceleration is a legal, owner-directed resolution that
+        // avoids introducing hidden deck knowledge into this KO witness.
+        // The native prompt validates the choice; no Store rules are bypassed.
+        result=[];
+        assert.equal(prompt.validate(result,state),true,
+          'Optional Trinity Nova Energy allocation should allow zero cards');
       } else if(type==='WaitPrompt') {
         result=null;
       } else if(type==='ShuffleDeckPrompt') {
