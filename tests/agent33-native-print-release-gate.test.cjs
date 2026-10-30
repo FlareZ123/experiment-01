@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {auditNativePrintRelease}=require('../simulation/evaluation/agent33-native-print-release-gate.cjs');
+const {auditNativePrintRelease,digestPrintedSixty,digestReleasePlan}=
+  require('../simulation/evaluation/agent33-native-print-release-gate.cjs');
 const H='a'.repeat(64),J='b'.repeat(64),K='c'.repeat(64);
 
 /** Synthetic full-60 source and candidate prints, not an Aichi decklist. */
@@ -13,7 +14,10 @@ function fixture(){
       {printing:'Source filler PFL',count:58}],
     candidatePrints:[{printing:'Candidate filler CRE',count:60}],
     requiredEffects:[{id:'rank15-attack-settled',actor:'source'}]};
-  const row=seat=>({id:f.id,seat,sourceDeckSha256:H,candidateDeckSha256:J,
+  f.sourceDeckSha256=digestPrintedSixty(f.sourcePrints);
+  f.candidateDeckSha256=digestPrintedSixty(f.candidatePrints);
+  const row=seat=>({id:f.id,seat,sourceDeckSha256:f.sourceDeckSha256,
+    candidateDeckSha256:f.candidateDeckSha256,
     ciSucceeded:true,testStatus:'executed',rootLedgerSha256:K,
     nativeRegistry:[...f.sourcePrints,...f.candidatePrints].map(x=>({
       printing:x.printing,status:'exact-registered'})),
@@ -22,12 +26,13 @@ function fixture(){
       nativeEffectSettled:true,rootOrdinal:5,completionOrdinal:6,
       opponentContinuationOrdinal:7,rootLedgerSha256:K,
       effectReceiptSha256:H}]});
-  return {plan:{schema:'aichi-exact-native-print-release-plan-v1',
-      registrationId:K,enginePin:'d'.repeat(40),
-      researchRevision:'e'.repeat(40),fixtures:[f]},
-    archive:{schema:'aichi-exact-native-print-release-archive-v1',
-      registrationId:K,enginePin:'d'.repeat(40),
-      researchRevision:'e'.repeat(40),rows:[row(0),row(1)]}};
+  const plan={schema:'aichi-exact-native-print-release-plan-v1',
+    enginePin:'d'.repeat(40),researchRevision:'e'.repeat(40),fixtures:[f]};
+  plan.registrationId=digestReleasePlan(plan);
+  const archive={schema:'aichi-exact-native-print-release-archive-v1',
+    registrationId:plan.registrationId,enginePin:plan.enginePin,
+    researchRevision:plan.researchRevision,rows:[row(0),row(1)]};
+  return {plan,archive};
 }
 
 test('both seats with full synthetic prints and settled Store lineage are preflight only',()=>{
@@ -134,15 +139,45 @@ test('pinned engine and research revision mismatches reject archive',()=>{
 
 test('a 32-rank label with differing candidate physical 60 is not one fixed deck',()=>{
   const {plan,archive}=fixture();
-  plan.fixtures=Array.from({length:32},(_,i)=>({
-    ...plan.fixtures[0],id:'fixture'+i,rank:i+1,
-    candidateDeckSha256:i===31?H:J
-  }));
+  plan.fixtures=Array.from({length:32},(_,i)=>{
+    const base=plan.fixtures[0];
+    const candidatePrints=i===31?
+      [{printing:'Different candidate filler CRE',count:60}]:base.candidatePrints;
+    return {...base,id:'fixture'+i,rank:i+1,candidatePrints,
+      candidateDeckSha256:digestPrintedSixty(candidatePrints)};
+  });
+  plan.registrationId=digestReleasePlan(plan);
+  archive.registrationId=plan.registrationId;
   archive.rows=plan.fixtures.flatMap(f=>[0,1].map(seat=>({
-    ...archive.rows[seat],id:f.id,candidateDeckSha256:f.candidateDeckSha256
+    ...archive.rows[seat],id:f.id,candidateDeckSha256:f.candidateDeckSha256,
+    nativeRegistry:archive.rows[seat].nativeRegistry.map(card=>(
+      card.printing==='Candidate filler CRE'&&f.rank===32?
+        {...card,printing:'Different candidate filler CRE'}:card))
   })));
   const r=auditNativePrintRelease(plan,archive);
   assert.equal(r.nativeEffectWitnessPreflight,
     'PARTIAL-PANEL-NATIVE-WITNESS-REVIEWABLE');
   assert.equal(r.fullAichi32FixedCandidatePanel,false);
+});
+
+test('registration digest is cryptographically bound to effect role and print plan',()=>{
+  const {plan,archive}=fixture();
+  plan.fixtures[0].requiredEffects[0].actor='candidate';
+  assert.throws(()=>auditNativePrintRelease(plan,archive),
+    /bind frozen fixtures/);
+});
+
+test('equal-copy substituted print identity is not the registered physical 60',()=>{
+  const {plan,archive}=fixture();
+  plan.fixtures[0].sourcePrints[0].printing='Different Buneary M2';
+  plan.registrationId=digestReleasePlan(plan);
+  archive.registrationId=plan.registrationId;
+  assert.throws(()=>auditNativePrintRelease(plan,archive),
+    /printing SHA must match/);
+});
+
+test('normalized printed 60 digest ignores harmless inventory row order',()=>{
+  const {plan}=fixture();
+  const deck=plan.fixtures[0].sourcePrints;
+  assert.equal(digestPrintedSixty(deck),digestPrintedSixty([...deck].reverse()));
 });

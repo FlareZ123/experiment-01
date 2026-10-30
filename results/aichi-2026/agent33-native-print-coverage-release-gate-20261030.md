@@ -27,3 +27,22 @@ Eight out of eight pure Node.js tests passed locally using `node --test`; no com
 Agent 49 had already supplied [the primary real native print coverage and release checker](agent49-native-print-release-gate-20261030.md), including a pinned catalog of 29 exact source sixties, original English/Japanese printing crosswalk, and a green-CI-skipped synthetic regression. That existing system is **the canonical source-print truth**. This Agent 33 module is a supplementary stricter **two-seat/full-frozen-60/Store-effect-role** panel, not an alternative source census or a replacement for Agent 49's test and compiled artifacts. Agent 41 should combine the distinctive bilateral and fixed-deck requirements with Agent 49's source-first registry, rather than run two competing independent release paths.
 
 A second pure regression pass now checks **11/11 locally**, adding version/pin match, native effect actor-to-physical-seat mapping, root-ledger hash binding, and the case of 32 named ranks with a changing candidate deck SHA. All synthetic positive hashes remain placeholders, never pinned native gameplay proof. No new CI run is asserted.
+
+
+## Cryptographic frozen-plan and actual printed-60 binding
+
+The registration ID now must equal SHA-256 over JSON.stringify of a frozen
+`{schema,enginePin,researchRevision,fixtures}` object. Each source/candidate
+inventory hash must independently equal SHA-256 of JSON.stringify of physical
+`[printing,count]` entries sorted by JavaScript codepoint order of printing.
+These byte-level contracts are explicit in exported `digestReleasePlan()` and
+`digestPrintedSixty()`. Other fixture ordering is significant. Never silently
+reinterpret a digest computed by another print-normalization scheme.
+
+A changed printed name with the same count, edited effect actor role, changed
+revision and re-used digest now fail structurally. Two extra tests plus a
+regression on canonical row order bring the separate pure suite to **14/14
+locally passing tests** using the same Node.js 22 runtime. A matching digest
+establishes only internal consistency: a prospective timestamp, Store root
+ownership and genuine native outcomes still require external independent audit.
+The module does not promote any game into competitive evidence.

@@ -1,9 +1,24 @@
 'use strict';
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 
 const SHA256=/^[0-9a-f]{64}$/;
 const validHash=value=>typeof value==='string'&&SHA256.test(value);
 const STATUS=new Set(['executed','skipped-unsupported-print','failed']);
+const digest=value=>createHash('sha256').update(JSON.stringify(value))
+  .digest('hex');
+
+/** Ordered inventory entries cannot change the physical meaning of a deck. */
+function digestPrintedSixty(cards){
+  assert.ok(Array.isArray(cards));
+  return digest(cards.map(card=>[card.printing,card.count])
+    .sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0));
+}
+/** Bind full fixture contents and pinned simulator/research revisions. */
+function digestReleasePlan(plan){
+  return digest({schema:plan.schema,enginePin:plan.enginePin,
+    researchRevision:plan.researchRevision,fixtures:plan.fixtures});
+}
 
 /**
  * Audits a precommitted, full-60, two-seat native print/effect witness panel.
@@ -23,6 +38,8 @@ function auditNativePrintRelease(plan,archive){
   assert.ok(/^[0-9a-f]{40}$/.test(plan.researchRevision));
   assert.equal(archive.enginePin,plan.enginePin);
   assert.equal(archive.researchRevision,plan.researchRevision);
+  assert.equal(plan.registrationId,digestReleasePlan(plan),
+    'Release plan digest must bind frozen fixtures and revisions');
   assert.ok(Array.isArray(plan.fixtures)&&plan.fixtures.length>0);
   assert.ok(Array.isArray(archive.rows));
   const fixtures=new Map();
@@ -45,6 +62,8 @@ function auditNativePrintRelease(plan,archive){
         count+=card.count;
       }
       assert.equal(count,60,'Each frozen printed deck must have sixty cards');
+      assert.equal(f[side+'DeckSha256'],digestPrintedSixty(printed),
+        'Frozen physical printing SHA must match its exact inventory');
     }
     assert.ok(Array.isArray(f.requiredEffects)&&f.requiredEffects.length>0);
     assert.ok(f.requiredEffects.every(e=>
@@ -168,4 +187,4 @@ function auditNativePrintRelease(plan,archive){
       'independently verified. Reviewable never certifies competitive games.'
   };
 }
-module.exports={auditNativePrintRelease};
+module.exports={auditNativePrintRelease,digestPrintedSixty,digestReleasePlan};
