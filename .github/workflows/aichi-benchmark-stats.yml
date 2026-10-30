@@ -59,6 +59,8 @@ jobs:
         run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs
       - name: Audit deck-name incidence without merging printing mechanics
         run: node --test tests/aichi-source-incidence.test.cjs
+      - name: Attest all 32 original rank and archetype identities with exact published printing inventories
+        run: node --test tests/agent13-source-identity-gate.test.cjs
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs
       - name: Verify field-wide five dormant Trainer channels at Basic-valid openings
