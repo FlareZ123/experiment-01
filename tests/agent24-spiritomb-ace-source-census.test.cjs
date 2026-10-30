@@ -16,6 +16,11 @@ test('exact LTR87 card text and event-bounded eligible printed ACE names',()=>{
     text:"Each player can't play any ACE SPEC cards from his or her hand.",
     hp:80,type:'Darkness',subtypes:['Basic']
   });
+  assert.deepEqual(ref.genesect,{
+    id:'sv6pt5-40',name:'Genesect',ability:'ACE Nullifier',
+    text:"If this Pokémon has a Pokémon Tool attached, your opponent can't play any ACE SPEC cards from their hand.",
+    hp:110,type:'Metal',subtypes:['Basic']
+  });
   assert.equal(EVENT_DATE,'2026/05/10');
   assert.equal(ref.exact.has('TWM::163::Secret Box'),true);
   assert.equal(ref.exact.has('TWM::165::Unfair Stamp'),true);
