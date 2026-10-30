@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      three_prize_tagteam_native:
+        description: Preregistered synthetic TAG TEAM three-Prize native both-seat test
+        required: false
+        type: boolean
+        default: false
       rank7_steven_followthrough:
         description: Retrospective read-only root use after previously observed exact source Steven searches
         required: false
@@ -47,7 +52,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -73,6 +78,12 @@ jobs:
         run: node simulation/twinleaf/agent42-buddy-pulse-two-prize-native.cjs > agent42-buddy-pulse-two-prize-native.json
       - name: Validate complete two-seat native winner reversal and reactive KO
         run: node -e "const a=require('node:assert/strict');const r=require('./agent42-buddy-pulse-two-prize-native.json');a.equal(r.nativeErrors,0);a.equal(r.allNativeWinnerReversed,true);a.ok(r.rows.every(x=>x.guardPreservedPotentialAttack&&x.nativeAttachmentConsumed&&x.nativeAttachmentConfirmed&&x.attackFirstPrizeWin&&x.attachFirstOpponentPrizeWin));console.log(JSON.stringify({schema:r.schema,enginePin:r.enginePin,rows:r.rows.map(x=>({seat:x.seat,attackWinner:x.attackFirst.winner,attachWinner:x.attachFirst.winner,guard:x.guarded.reason,ownerAfterAttack:x.attackFirst.ownerPrizes,opponentAfterAttach:x.attachFirst.opponentPrizes}))},null,2))"
+      - name: Native original Store TAG TEAM three-Prize both-seat counterfactual
+        if: ${{ inputs.three_prize_tagteam_native }}
+        run: node simulation/twinleaf/agent42-tagteam-three-prize-native.cjs > agent42-tagteam-three-prize-native.json
+      - name: Assert all original-Store three-Prize winner and opposite-seat reversals
+        if: ${{ inputs.three_prize_tagteam_native }}
+        run: node -e "const a=require('node:assert/strict');const x=require('./agent42-tagteam-three-prize-native.json');a.equal(x.nativeErrors,0);a.equal(x.bothSeatWinnerReversal,true);a.ok(x.rows.every(r=>r.attackFirstWins&&r.attachmentFirstLoses));console.log(JSON.stringify({schema:x.schema,pin:x.pin,rows:x.rows.map(r=>({seat:r.seat,attackWinner:r.attackingFirst.winner,attachmentWinner:r.attachingFirst.winner,oldVeto:r.oldPotential.reason}))},null,2))"
       - name: Native registered rank1 final Bench-slot Basic conflict
         run: node simulation/twinleaf/agent27-source-lastbench-two-basic-native.cjs > agent27-lastbench-native.json
       - name: Native registered source final Bench Wonder Tag search prompt closure
@@ -131,6 +142,7 @@ jobs:
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
             agent42-buddy-pulse-two-prize-native.json
+            agent42-tagteam-three-prize-native.json
             agent27-lastbench-native.json
             agent27-lastbench-wondertag-native.json
             agent27-lastbench-thorns-lock.json
