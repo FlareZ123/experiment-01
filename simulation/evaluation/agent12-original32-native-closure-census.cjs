@@ -26,7 +26,8 @@ function original32NativeClosures(archive){
   const totals={attempts:rows.length,acceptedRoots:0,
     nativeTurnEnds:0,promptClosedTurnEnds:0,
     acceptedPassRoots:0,acceptedAttackRoots:0,
-    terminalCardPlays:0,ambiguousAbilityRoots:0,unboundEnds:0};
+    terminalCardPlays:0,ambiguousAbilityRoots:0,unboundEnds:0,
+    byRootFamily:{}};
   const seen=new Set();
   for(const row of rows){
     assert.equal(typeof row.trial?.id,'string');
@@ -47,6 +48,9 @@ function original32NativeClosures(archive){
     totals.terminalCardPlays+=n.byFamily['card-play']??0;
     totals.ambiguousAbilityRoots+=n.ambiguousAbilityTerminals;
     totals.unboundEnds+=n.unresolvedTerminals;
+    for(const [family,count] of Object.entries(n.byFamily)){
+      totals.byRootFamily[family]=(totals.byRootFamily[family]??0)+count;
+    }
     for(const closure of receipt.closures.filter(c=>c.actionFamily==='card-play')){
       sourceTerminalCardPlays.push({
         trialId:row.trial.id,rank:row.trial.rank,
@@ -92,7 +96,8 @@ if(require.main===module){
   const file=process.argv[2];
   assert.ok(file,'Supply the extracted original preregistered 32-arm JSON path');
   const results=frozenOriginal32NativeClosures(fs.readFileSync(file));
-  process.stdout.write(JSON.stringify(results,null,2)+'\n');
+  process.stdout.write(JSON.stringify(results,null,2)+'
+');
 }
 
 module.exports={VERSION,FROZEN_JSON_SHA256,
