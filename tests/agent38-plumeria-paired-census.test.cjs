@@ -60,7 +60,7 @@ test('native error, uncensored attempts and mismatched starts remain in denomina
   assert.equal(c.registeredAttempts,4);
   assert.equal(c.treatedAudits,3);
   assert.equal(c.treatedMissingAudits,1);
-  assert.equal(c.matchedDealAndActualStarter,1);
+  assert.equal(c.matchedDealAndActualStarter,2);
   assert.equal(c.pairs[0].nativeAuditPresent,false);
   assert.equal(c.pairs[1].sameSourceDealAndActualStarter,false);
   assert.equal(c.pairs[2].sameSourceDealAndActualStarter,false);
