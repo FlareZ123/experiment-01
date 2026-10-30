@@ -69,6 +69,8 @@ jobs:
         run: node simulation/twinleaf/agent5-attack-special-arbitration-native.cjs > agent5-attack-special-arbitration-native.json
       - name: Native original Store two-seat bounded owner-root arbitration positive and hold
         run: node simulation/twinleaf/agent41-owner-arbitration-native.cjs > agent41-owner-arbitration-native.json
+      - name: Native two-Prize Buddy Pulse action-order falsification on both seats
+        run: node simulation/twinleaf/agent42-buddy-pulse-two-prize-native.cjs > agent42-buddy-pulse-two-prize-native.json
       - name: Native registered rank1 final Bench-slot Basic conflict
         run: node simulation/twinleaf/agent27-source-lastbench-two-basic-native.cjs > agent27-lastbench-native.json
       - name: Native registered source final Bench Wonder Tag search prompt closure
@@ -126,6 +128,7 @@ jobs:
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
+            agent42-buddy-pulse-two-prize-native.json
             agent27-lastbench-native.json
             agent27-lastbench-wondertag-native.json
             agent27-lastbench-thorns-lock.json
