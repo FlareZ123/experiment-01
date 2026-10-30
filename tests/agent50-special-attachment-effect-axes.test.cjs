@@ -130,3 +130,22 @@ test('Telepathic Psychic offers up to two Bench basics only from Psychic target'
   assert.equal(collect(x,c).offers[0].onAttachChannel,
     'on-attach-two-Psychic-basic-bench-search');
 });
+
+test('Temple suppresses Speed draw, Capture search, Jet switch and Telepath',()=>{
+  const x=view();
+  x.ownPublic.stadium=['Temple of Sinnoh ASR'];
+  x.ownHand.push('Telepathic Psychic Energy POR');
+  const c={...catalog,specialEnergies:new Set([...catalog.specialEnergies,
+    'Telepathic Psychic Energy POR'])};
+  const offers=collect(x,c).offers;
+  assert.equal(offers.length,8);
+  assert.ok(offers.every(o=>o.publicEffectOpportunity===false));
+  assert.ok(offers.every(o=>
+    o.reason==='Temple-of-Sinnoh-attachment-effect-suppressed'));
+  assert.ok(offers.every(o=>o.potentialDrawCap===null));
+  assert.ok(offers.every(o=>o.potentialBenchCap===null));
+  // The same Stadium can occupy the opponent's public Stadium zone.
+  x.ownPublic.stadium=[];
+  x.opponentPublic.stadium=['Temple of Sinnoh ASR'];
+  assert.ok(collect(x,c).offers.every(o=>!o.publicEffectOpportunity));
+});
