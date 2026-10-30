@@ -87,6 +87,26 @@ At four Arven, the protected route's restricted valid-opening access rises **17.
 
 The more important next test is therefore a turn-order pair: **first-player** immediate unprotected lock versus **second-player** Arven-protected lock after realistic rank-6 or rank-11 source action. The second line could overcome certain Ability-lock states while sacrificing first-actor tempo. Evaluate a printed Supporter counter and an actual Item/Tool rejection for each after genuine native settlement. Avoid a static opening-only claim of superiority across both seats.
 
+## First-player Supporter exception: Carmine redraw cannot replicate Arven's two-channel search
+
+A separate, fully exact first-player model evaluates **Carmine** (`sv6-145`), whose text allows it to be played on the first player's first turn. Carmine discards the entire remaining hand and draws five. A held Hood may be attached to Active Frillish *before* Carmine; any held Boost Shake is lost with the hand, so the succeeding Boost Shake must come from the new five. If neither Hood nor Shake was available initially, the new five must supply both. The evolving Jellicent must remain in deck after the new draw and all Prizes.
+
+The new `exactCarmineProtectedLock` in [the shared BigInt evaluator](../../scripts/agent3-jellicent-lock-opener.cjs) counts those branches over the opening seven, one ordinary draw, six Prizes and Carmine's five-card redraw. It samples the five redraw cards before the six Prizes in the enumeration, an exchangeable ordering of two disjoint random subsets that leaves the joint outcome counts unchanged. The independent Python exhaustive enumeration produced the same five values.
+
+Four Frillish, four Boost Shake, four Jellicent, four Hood and **12 total Basics** are fixed. No further draw/search is credited:
+
+| Carmine copies | Raw direct-or-Carmine protected-lock event | Among Basic-valid opening sevens |
+| ---: | ---: | ---: |
+| 0 | 6.185571% | 7.642610% |
+| 1 | 6.865327% | 8.482484% |
+| 2 | 7.473111% | 9.233434% |
+| 3 | 8.015304% | 9.903344% |
+| 4 | **8.497836%** | **10.499538%** |
+
+Four Carmine add only **2.856928 percentage points** of direct protected-lock opportunity among valid Basic openings versus the no-Carmine first-player branch. They consume four fixed slots and discard secondary resources in successful and unsuccessful lines. For the candidate-second Arven route, four Arven instead add **17.743188 percentage points**, while conceding the opponent's first turn. Carmine remains relevant for other kinds of first-turn draw/dump plans, so these results are restricted to this protected Jellicent target.
+
+This explains why assuming a generic first-turn draw Supporter can substitute for a multi-channel search Supporter is misleading. Search for an Item *and* Tool preserves the existing hand and finds the exact pair; Carmine destroys held Boost Shake and may strand or discard Jellicent as a Boost Shake target. Neither combinatorial result establishes match strength or qualifies the live opponent response.
+
 ## Structural counterexample: Iron Thorns has a pre-Boost Tool and a post-lock Supporter escape
 
 A targeted reading of the actual rank **6, 24 and 29** original Iron Thorns sixties reveals a tighter adversarial obstacle than generic Ability lock. **Every one of the three** plays exactly four Iron Thorns ex as its only Basic Pokémon, **one Tool Jammer**, **one Faba**, and **two or three Guzma**. They are three separately printed original lists, so this is a direct source-roster observation with no imitation source decks.
@@ -99,7 +119,7 @@ This creates a connector-contention problem for the second-player Arven line: a 
 
 **Other unblocked opponent classes.** The [source escape census](../../scripts/agent3-jellicent-field-exposure.cjs) found **48 Guzma copies in 25/29 source lists**, **8 Faba copies in 7/29**, and **8 Path to the Peak copies in 7/29**. Guzma can move Active Jellicent off its required position when the necessary Benches exist. Path to the Peak is a Stadium, usable through Oceanic Curse and capable of suppressing Jellicent's Rule Box Ability regardless of its Hood (Hood protects against opponent Abilities, not Stadium effects). No published source sixty contains Jamming Tower; it remains a theoretical/other-metagame counter. Opposing Field Blower is itself blocked as an Item while Oceanic Curse remains active, so treating every printed removal effect as an immediate escape would be incorrect.
 
-**Decision refinement:** Native tests should expose **source Tool Jammer attachment before the candidate's Arven**, **candidate Field Blower plus Boost Shade/Shake contention**, **source Faba after candidate-first protected lock**, and **source Guzma or Path response**. Assert the actual position, Tool attachment and Item/Supporter quota state at each actor root. The special value of protected Jellicent is constrained by the exact printed opposing 60s and turn order; static 657-card exposure alone cannot rank a new fixed deck.
+**Decision refinement:** Native tests should expose **source Tool Jammer attachment before the candidate's Arven**, **candidate Field Blower plus Boost Shake contention**, **source Faba after candidate-first protected lock**, and **source Guzma or Path response**. Assert the actual position, Tool attachment and Item/Supporter quota state at each actor root. The special value of protected Jellicent is constrained by the exact printed opposing 60s and turn order; static 657-card exposure alone cannot rank a new fixed deck.
 
 ## Discriminating next actions and research verdict
 
