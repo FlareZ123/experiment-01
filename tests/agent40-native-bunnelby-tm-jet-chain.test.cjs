@@ -8,6 +8,8 @@ const {initializeCards,seededRandom,deckPermutation}=
   require('../simulation/twinleaf/headless.cjs');
 const {actorObservation}=
   require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {rootPhysicalSnapshot,rootPhysicalWitness}=
+  require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
 const {buildActorCardCatalog,chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {withToolAttackAwareness}=
@@ -93,10 +95,15 @@ for(const seat of [0,1]){
     assert.equal(first.slot,'bench');
     assert.equal(first.index,x.bunnelbyIndex);
     assert.equal(attacker.hand.cards[first.handIndex].fullName,TM);
+    const {GamePhase}=native('game/store/state/state');
+    const beforeTool=rootPhysicalSnapshot(state,seat,first);
     f.store.dispatch(new PlayCardAction(attacker.id,first.handIndex,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
       index:first.index
     }));
+    const afterTool=rootPhysicalSnapshot(state,seat,first);
+    assert.equal(rootPhysicalWitness(first,beforeTool,afterTool,GamePhase),
+      'confirmed-public-effect','Native actual Tool equip must have a matching receipt');
     assert.equal(attacker.bench[x.bunnelbyIndex].tools[0]?.fullName,TM);
     assert.equal(attacker.hand.cards.includes(attacker.bench[x.bunnelbyIndex].tools[0]),false);
 
@@ -105,10 +112,14 @@ for(const seat of [0,1]){
     assert.equal(second.slot,'bench');
     assert.equal(second.index,x.bunnelbyIndex);
     assert.equal(attacker.hand.cards[second.handIndex]?.fullName,JET);
+    const beforeJet=rootPhysicalSnapshot(state,seat,second);
     f.store.dispatch(new PlayCardAction(attacker.id,second.handIndex,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
       index:second.index
     }));
+    const afterJet=rootPhysicalSnapshot(state,seat,second);
+    assert.equal(rootPhysicalWitness(second,beforeJet,afterJet,GamePhase),
+      'confirmed-public-effect','Jet must be witnessed on post-switch Active');
     assert.equal(attacker.active.getPokemonCard()?.fullName,'Bunnelby PRC');
     assert.equal(attacker.active.tools[0]?.fullName,TM);
     assert.equal(attacker.active.energies.cards[0]?.fullName,JET);
