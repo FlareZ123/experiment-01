@@ -382,6 +382,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseTeamFlareGruntDenial(view);
     if(denial)return denial;
   }
+  if(options.tropicalBeachLastChance===true){
+    const beach=require('./agent33-tropical-beach-lastchance.cjs')
+      .chooseTropicalBeachLastChance(view);
+    if(beach)return beach;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -415,7 +420,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const {PlayCardAction,PlayerType,SlotType}=deps.cardActions??
     require(path.join(base,'game/store/actions/play-card-action'));
-  const {AttackAction,PassTurnAction,RetreatAction,UseAbilityAction}=deps.gameActions??
+  const {AttackAction,PassTurnAction,RetreatAction,UseAbilityAction,
+    UseStadiumAction}=deps.gameActions??
     require(path.join(base,'game/store/actions/game-actions'));
   const getCatalog=deps.getCatalog??(()=>{
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
@@ -463,6 +469,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV==='true'),
     publicFlexibleEnergyContestOptIn:deps.publicFlexibleEnergyContest===true||
       process.env.AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV==='true',
+    tropicalBeachLastChanceOptIn:deps.tropicalBeachLastChance===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -590,6 +597,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent41-public-flexible-energy-contest.cjs').VERSION;
   else delete audit.publicFlexibleEnergyContestOptIn;
+  if(audit.tropicalBeachLastChanceOptIn)
+    audit.version+='+'+
+      require('./agent33-tropical-beach-lastchance.cjs').VERSION;
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -724,6 +734,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
       publicFlexibleEnergyContest:audit.publicFlexibleEnergyContestOptIn===true,
+      tropicalBeachLastChance:audit.tropicalBeachLastChanceOptIn===true,
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
@@ -843,6 +854,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
         break;
       case 'attack':action=new AttackAction(ownerId,intent.attackName);break;
+      case 'use-tropical-beach':action=new UseStadiumAction(ownerId);break;
       case 'pass':action=new PassTurnAction(ownerId);break;
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }

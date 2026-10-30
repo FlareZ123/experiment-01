@@ -112,6 +112,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent33_tropical_beach_native:
+        description: 'Staged both-seat native Tropical Beach action draw and end-turn only, unqualified'
+        required: false
+        type: boolean
+        default: false
       agent34_gholdengo_native:
         description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
         required: false
@@ -147,6 +152,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Stage actual both-seat Tropical Beach end-turn native Store action
+        if: inputs.agent33_tropical_beach_native
+        run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
       - name: Verify original Store Gholdengo exact thirty-card hand and Prize effects on both seats
         if: inputs.agent34_gholdengo_native
         run: node simulation/twinleaf/agent34-gholdengo-native-prize-mechanic.cjs > agent34-gholdengo-native-prize-effect.json

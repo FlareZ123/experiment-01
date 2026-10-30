@@ -171,6 +171,9 @@ function actorObservation(state,seat,options={}){
       retreatedTurn:owner.retreatedTurn,
       energyPlayedTurn:owner.energyPlayedTurn,
       stadiumPlayedTurn:owner.stadiumPlayedTurn,
+      // Public once-per-turn Stadium Ability usage, distinct from placing a
+      // Stadium from hand. Required for legal Beach effect preflight.
+      stadiumUsedTurn:owner.stadiumUsedTurn,
       vstarUsed:owner.usedVSTAR===true,
       pokemonPlayLocked:owner.cannotPlayPokemonCards===true,
       abilityPokemonPlayLocked:owner.cannotPlayPokemonWithAbilities===true,
