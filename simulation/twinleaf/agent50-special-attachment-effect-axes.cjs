@@ -58,6 +58,16 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
         potential=target.slot==='bench';
         reason=potential?'attached-to-Bench':
           'attached-to-Active-no-switch';
+      }else if(printing.startsWith('Telepathic Psychic Energy ')||
+          printing.startsWith('Telepath [P] Energy ')){
+        channel='on-attach-two-Psychic-basic-bench-search';
+        potential=pokemon.printed?.types?.includes(
+          catalog.basicEnergyTypes?.Psychic)&&hasBenchRoom&&own.deckCount>0;
+        reason=!pokemon.printed?.types?.includes(
+          catalog.basicEnergyTypes?.Psychic)?
+          'recipient-not-public-Psychic':!hasBenchRoom?'bench-full':
+          own.deckCount===0?'deck-empty':
+          'Psychic-recipient-bench-room-deck-membership-unverified';
       }else continue;
       if(result.offers.length===MAX_OFFERS){
         result.truncated=true;return result;
@@ -71,7 +81,9 @@ function collectSpecialAttachmentEffectAxes(view,catalog){
         reason,
         potentialDrawCap:channel==='on-attach-draw-two'&&potential?
           Math.min(2,own.deckCount):null,
-        deckTargetKnown:channel==='on-attach-basic-bench-search'?false:null,
+        deckTargetKnown:channel.includes('bench-search')?false:null,
+        potentialBenchCap:channel==='on-attach-two-Psychic-basic-bench-search'&&
+          potential?Math.min(2,own.bench.filter(x=>x===null).length):null,
         nativePlayability:'unverified',
         nativeEffectSettlement:'unverified'
       });
