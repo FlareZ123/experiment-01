@@ -51,6 +51,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Preserve potential final two-Prize attack in optional owner arbitration
+        run: node --test tests/agent35-potential-two-prize-attack-veto.test.cjs
       - name: Preserve source-deal and public root evidence on native Store abort
         run: node --test tests/native-dispatch-abort-evidence.test.cjs
       - name: Regress rank19 direct ADP Altered Creation resources
