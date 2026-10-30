@@ -91,3 +91,21 @@ test('empty accepted-ledger input is explicit zero evidence',()=>{
   assert.equal(r.competitiveGameQualified,false);
   console.log('PASS: empty ledger is no native turn evidence');
 });
+
+test('opponent-owned ChoosePokemon promotion can close attacking owners turn',()=>{
+  const receipts=attestNativeTurnClosureLineage([
+    root(0,0,1,'StartGameAction',-1),
+    root(1,1,1,'AttackAction',0,{attack:'Venomous Fang'}),
+    root(2,1,1,'ResolvePromptAction',1,{pendingPrompt:'ChoosePokemonPrompt',
+      initiatingRootActionOrdinal:1}),
+    root(3,1,2,'ResolvePromptAction',1,{pendingPrompt:'ChoosePokemonPrompt',
+      initiatingRootActionOrdinal:1})
+  ]);
+  assert.equal(receipts.counts.promptClosedTerminals,1);
+  assert.equal(receipts.counts.opponentOwnedTerminalPrompts,1);
+  assert.equal(receipts.counts.promptTerminalTypes.ChoosePokemonPrompt,1);
+  assert.equal(receipts.closures[0].actorSeat,0);
+  assert.equal(receipts.closures[0].terminalPromptSeat,1);
+  assert.equal(receipts.closures[0].actionFamily,'attack');
+  console.log('PASS: defender promotion does not turn original attack into defender-owned');
+});
