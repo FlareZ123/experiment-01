@@ -223,7 +223,6 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
     const beforeHand=owner.hand.cards.length;
     assert.equal(beforeHand,1);
     assert.equal(beforeDeck>=2,true);
-    state.prompts.length=0;
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
     }));
