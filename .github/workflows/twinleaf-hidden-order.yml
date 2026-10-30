@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent1_six_native_opponent_return:
+        description: 'Original six rank11 scripted source openings followed by native opposing bot turn, no wins'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -73,6 +78,19 @@ jobs:
         with:
           name: agent32-source-rank11-six-starvip-k1
           path: agent32-six-source-starvip-k1.json
+          if-no-files-found: warn
+      - name: Execute same original six Star-fetched VIP setups through genuine opponent turn
+        if: inputs.agent1_six_native_opponent_return
+        run: node simulation/twinleaf/agent32-rank11-six-star-vip-k1-native.cjs --opponent-return > agent1-six-rank11-opponent-return.json
+      - name: Require complete original-six actor boundary census
+        if: inputs.agent1_six_native_opponent_return
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');a.equal(r.scheduled,6);a.equal(r.attempted,6);a.equal(r.handAndBenchParity,6);a.equal(r.opponentFirstRoots,6);a.equal(r.sourceReturnRoots+r.nonreturningTerminals+r.nonreturningCensors+r.blocked,6);a.equal(r.competitiveQualifiedGames,0);console.log('RANK11_OPPONENT_RETURN',JSON.stringify({opponentFirstRoots:r.opponentFirstRoots,sourceReturnRoots:r.sourceReturnRoots,nonreturningTerminals:r.nonreturningTerminals,nonreturningCensors:r.nonreturningCensors,blocked:r.blocked}))"
+      - name: Preserve six native opponent turns including returns, censors and errors
+        if: inputs.agent1_six_native_opponent_return && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-rank11-six-opponent-return
+          path: agent1-six-rank11-opponent-return.json
           if-no-files-found: warn
       - name: Native K0 actor action invariance across concealed worlds in both seats
         run: node simulation/twinleaf/agent18-k0-root-invariance-native.cjs
