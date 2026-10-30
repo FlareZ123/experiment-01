@@ -1,0 +1,70 @@
+{
+  "schema": "agent6-original-volt-attach-energy-prompt-corrected-owner-six-arm-v1",
+  "createdAtUtc": "2026-10-30T21:05:00Z",
+  "correctionTo": "results/aichi-2026/registrations/agent6-rank6-volt-cyclone-energy-donor-native-20261030.json",
+  "reason": "Six sourcefirst original Store arms and read-only Store trace had zero MoveEnergyPrompt opportunities because the original Iron Thorns ex Volt Cyclone effect emitted a genuine source-owned AttachEnergyPrompt id23 instead. That prompt's ResolvePromptAction physically moved the first attached Energy in default policy. Original registration's choice class was mismatched; this amended prospective intervention follows diagnosis, preserving prior failures and complete initial result.",
+  "inputOriginalSourceRank": 6,
+  "inputOriginalCandidateRank": 1,
+  "sourceSeat": 0,
+  "sourcefirstSeed": 531384326,
+  "sourceOriginalPrinted60Unchanged": true,
+  "candidateOriginalPrinted60Unchanged": true,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "printedAttack": "Iron Thorns ex sv6-77 Volt Cyclone: 140 damage, Move an Energy from this Pokémon to 1 of your Benched Pokémon",
+  "originalNativePreviousPrompt": "AttachEnergyPrompt",
+  "sourceGenuinePromptOwner": true,
+  "arms": [
+    {
+      "label": "speed-first-auto",
+      "order": "speed-first",
+      "donor": "native-baseline"
+    },
+    {
+      "label": "speed-first-choose-dce",
+      "order": "speed-first",
+      "donor": "Double Colorless Energy"
+    },
+    {
+      "label": "dce-first-auto",
+      "order": "dce-first",
+      "donor": "native-baseline"
+    },
+    {
+      "label": "dce-first-choose-speed",
+      "order": "dce-first",
+      "donor": "Speed Lightning Energy"
+    },
+    {
+      "label": "speed-first-choose-speed",
+      "order": "speed-first",
+      "donor": "Speed Lightning Energy"
+    },
+    {
+      "label": "dce-first-choose-dce",
+      "order": "dce-first",
+      "donor": "Double Colorless Energy"
+    }
+  ],
+  "frozen": {
+    "genuineSourceFirstGoFirstPrompt": true,
+    "sameOriginalSourceAndOpponentDecks": true,
+    "sameOriginalPhysicalSourceK0Deal": true,
+    "sourceAttackTurn": 3,
+    "sourceFirstStageSpecifiedSpeedOrDce": true,
+    "canonicalBothSeatActorPolicy": true,
+    "strictNativePromptValidation": true,
+    "maxNativeRoots": 135,
+    "sourcePhysicalActiveEnergyAndBenchOnlySelection": true,
+    "noOpponentPrivateZonesOrSourcePrizesAccessedByPolicy": true
+  },
+  "primaryEffects": [
+    "real source-owned AttachEnergyPrompt seen and choices made by pinned resolver",
+    "native physically accepted original opponent Marshadow KO and source 6→5 Prize",
+    "native source chosen exact physical Speed or DCE to original Bench Iron Thorns",
+    "other Energy remains on Active, return original Store chosen donor in baseline",
+    "same initial source physical deal and opponent T2 full root acceptance across all arms",
+    "original opponent next T4 root",
+    "record every failure, cap, native intermediate physical prompt and first post-move board"
+  ],
+  "competitivelyQualifiedGames": 0
+}
