@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent1_six_native_source_policy_pair:
+        description: 'Six preregistered rank11 physical source K0 deals, scripted route versus unmodified native bots'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -88,6 +93,22 @@ jobs:
       - name: Summarize original six public-source boards after the opposing native turn
         if: inputs.agent1_six_native_opponent_return
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');const rows=r.rows.map(x=>({index:x.index,seed:x.seed,status:x.status,opponentRootCount:x.opponentRootProposals?.length??0,equippedGarbodorAfter:x.afterOpponentPublic?.sourceEquippedGarbodorCount??null,sourcePrizesAfter:x.afterOpponentPublic?.sourceRemainingPrizes??null}));a.equal(rows.length,6);for(const x of rows){a.equal(x.status,'native-opponent-turn-returned-to-source-root');a.ok(x.opponentRootCount>0);a.ok(Number.isInteger(x.equippedGarbodorAfter));}console.log('RANK11_SOURCE_PUBLIC_RETURN_ROWS',JSON.stringify(rows))"
+      - name: Pure fail-closed original K0 native source policy comparator tests
+        if: inputs.agent1_six_native_source_policy_pair
+        run: node --test tests/agent1-rank11-six-source-policy-pair.test.cjs
+      - name: Six paired original source K0 native Store replies with unmodified-bot control
+        if: inputs.agent1_six_native_source_policy_pair
+        run: node simulation/twinleaf/agent1-rank11-six-source-policy-pair.cjs > agent1-six-original-source-policy-pair.json
+      - name: Validate exact original six native physical K0 pairs and report owner public boards
+        if: inputs.agent1_six_native_source_policy_pair
+        run: node -e "const a=require('node:assert/strict');const d=require('./agent1-six-original-source-policy-pair.json');const r=d.report;a.equal(r.sameOriginalSeedAndK0Pairs,6);a.equal(d.control.originalK0Replayed,6);a.equal(d.treatment.handAndBenchParity,6);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_SIX_SOURCE_PAIR',JSON.stringify({treatmentReturn:r.treatmentSourceReturns,controlReturn:r.controlSourceReturns,treatmentEquippedAfter:r.treatmentEquippedAfter,controlEquippedAfter:r.controlEquippedAfter,rows:r.rows.map(x=>({index:x.index,seed:x.seed,treatment:x.treatmentStatus,control:x.controlStatus,firstGarbodorControl:x.controlEquippedAtOpponentFirst,afterGarbodorControl:x.controlEquippedAfterReply,afterGarbodorTreatment:x.treatmentEquippedAfterReply}))}))"
+      - name: Preserve all six original K0 policy pairs and native errors
+        if: inputs.agent1_six_native_source_policy_pair && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-rank11-six-source-policy-pairs
+          path: agent1-six-original-source-policy-pair.json
+          if-no-files-found: warn
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
         uses: actions/upload-artifact@v4
