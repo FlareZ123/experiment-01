@@ -17,7 +17,11 @@ function fixture() {
       ],acceptedPlumeria:1,settledEnergyDiscards:1
     }},
     rootActionLedger:[
-      {card:'Plumeria',turnBefore:3,playerSlot:0,actionOrdinal:10}
+      {card:'Plumeria',turnBefore:3,playerSlot:0,actionOrdinal:10},
+      {action:'ResolvePromptAction',pendingPrompt:'ChooseCardsPrompt',
+        initiatingRootActionOrdinal:10,actionOrdinal:11},
+      {action:'ResolvePromptAction',pendingPrompt:'ChooseCardsPrompt',
+        initiatingRootActionOrdinal:10,actionOrdinal:13}
     ],
     nativePromptChoices:{events:[
       {ordinal:11,turn:3,actorSeat:0,kind:'ChooseCardsPrompt',
@@ -76,4 +80,10 @@ test('same native steps stay correctly tied by turn and action ordinal',()=>{
   const wrongTime=fixture();
   wrongTime.result.rows[0].nativePromptChoices.events[0].ordinal=9;
   assert.throws(()=>auditPlumeriaHandCosts(wrongTime));
+});
+
+test('prompt lineage must point to the exact native PlayCardAction root',()=>{
+  const bad=fixture();
+  bad.result.rows[0].rootActionLedger[1].initiatingRootActionOrdinal=99;
+  assert.throws(()=>auditPlumeriaHandCosts(bad));
 });
