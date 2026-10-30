@@ -87,6 +87,8 @@ jobs:
         run: npm run compile
       - name: Run original source exact-native-printing census
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
+      - name: Calculate original Regidrago seven-card Treasure donor opportunity exactly
+        run: node simulation/evaluation/agent49-regidrago-treasure-openers.cjs
       - name: Verify real pinned Store Player's Ceremony hook on both physical seats
         run: node --test tests/agent49-native-players-ceremony-store.test.cjs
       - name: Verify original rank7 PRC60 variant selects Omega Barrier native printed power
