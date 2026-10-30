@@ -96,3 +96,17 @@ test('pinned Team Flare Grunt target and Supporter quota are genuine native gate
     assert.equal(x.supporter.canPlay(x.store,x.state,x.owner),false);
   }
 });
+
+test('record native printed Grunt first-player first-turn canPlay separately from paper screen',()=>{
+  for(const seat of [0,1]){
+    const x=root(seat);
+    x.state.turn=1;
+    const nativeCanPlay=x.supporter.canPlay(x.store,x.state,x.owner);
+    assert.equal(typeof nativeCanPlay,'boolean');
+    // This result alone is not a paper-legal PlayCardAction acceptance.
+    // The source actor's first-player ordinary Supporter timing rule is
+    // separately covered by the pure root-policy test.
+    process.stdout.write('# TEAM_FLARE_FIRST_TURN_NATIVE_CANPLAY '+
+      JSON.stringify({seat,turn:1,nativeCanPlay})+'\n');
+  }
+});
