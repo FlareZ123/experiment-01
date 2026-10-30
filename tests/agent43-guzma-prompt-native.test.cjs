@@ -4,6 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {withCanonicalActorOnlyPolicy}=
+  require('../simulation/evaluation/agent7-canonical-actor-composition.cjs');
 const {
   withGuzmaOwnerPromptContinuation
 }=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
@@ -69,8 +71,11 @@ function staged(seat){
   return {store,state,owner,opponent,seat};
 }
 
-/** Native Store, native prompts, and a real physical choice in either seat. */
-function check(seat){
+/** Native Store, native prompts, and a real physical choice in either seat.
+ * @param {0|1} seat
+ * @param {Function} [wrap] Optional complete canonical composition.
+ */
+function check(seat,wrap=withGuzmaOwnerPromptContinuation){
   const {store,state,owner,opponent}=staged(seat);
   const beforeOwn=owner.active.getPokemonCard()?.id;
   const intended=owner.bench[1].getPokemonCard()?.id;
@@ -82,7 +87,7 @@ function check(seat){
   const publicCatalog=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs').publicCatalog();
   const planned=require('../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs').chooseHeldGuzmaMobility(observation,publicCatalog);
   console.log('AG43_PREFLIGHT',JSON.stringify({seat,plan:planned}));
-  const result=withGuzmaOwnerPromptContinuation(()=>{
+  const result=wrap(()=>{
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
@@ -131,14 +136,16 @@ function check(seat){
   assert.equal(result.result.actualActivePhysicalId,intended);
   assert.equal(result.result.actualActive,'Oranguru V ASR');
   assert.equal(result.result.handCount,0);
-  assert.equal(result.audit.acceptedGuzmaRoots,1);
-  assert.equal(result.audit.guzmaHandConsumptionConfirmed,1);
-  assert.equal(result.audit.matchedMobilityPlans,1);
-  assert.equal(result.audit.ownTargetAcceptances,1);
-  assert.equal(result.audit.ownTargetPhysicalConfirmations,1);
-  assert.equal(result.audit.ownTargetPhysicalMismatches,0);
-  assert.equal(result.audit.competitiveGameQualified,false);
-  return result;
+  const nativeAudit=result.audit.guzmaPromptAudit??result.audit;
+  assert.equal(nativeAudit.acceptedGuzmaRoots,1);
+  assert.equal(nativeAudit.guzmaHandConsumptionConfirmed,1);
+  assert.equal(nativeAudit.matchedMobilityPlans,1);
+  assert.equal(nativeAudit.ownTargetAcceptances,1);
+  assert.equal(nativeAudit.ownTargetPhysicalConfirmations,1);
+  assert.equal(nativeAudit.ownTargetPhysicalMismatches,0);
+  assert.equal(nativeAudit.competitiveGameQualified,false);
+  return {...result,audit:nativeAudit,
+    canonicalAudit:result.audit.guzmaPromptAudit?result.audit:null};
 }
 
 test('native pinned Store seat A Guzma physically promotes the planned second Bench attacker',()=>{
@@ -151,4 +158,32 @@ test('native pinned Store seat B Guzma physically promotes the same planned reci
   const result=check(1);
   assert.equal(result.audit.bySeat[0],0);
   assert.equal(result.audit.bySeat[1],1);
+});
+
+/** The existing canonical composition installs the real native Guzma bridge
+ * beneath its prompt delegates. No competing full-game policy is created.
+ * @param {()=>unknown} execute
+ * @param {object} options Pinned Store injection from this test's real fixture.
+ * @returns {{result:unknown,audit:object}}
+ */
+function composedNativeGuzma(execute,options){
+  const transparent=run=>({result:run(),audit:{version:'test-pass-through'}});
+  return withCanonicalActorOnlyPolicy(execute,{
+    root:transparent,fog:transparent,select:transparent,
+    option:transparent,attack:transparent,pokemon:transparent,
+    guzma:run=>withGuzmaOwnerPromptContinuation(run,options)
+  },{actorChoosePokemon:true,guzmaOwnerPromptContinuation:true});
+}
+
+test('canonical opt-in both-seat handoff reaches genuine Store Guzma prompt and physical Active',()=>{
+  for(const seat of [0,1]){
+    const result=check(seat,composedNativeGuzma);
+    assert.ok(result.canonicalAudit,'This is the composed native path');
+    assert.equal(result.canonicalAudit.guzmaOwnerPromptContinuationOptIn,true);
+    assert.equal(result.canonicalAudit.nativeDecisionCounts.guzmaRootsAccepted,1);
+    assert.equal(result.canonicalAudit.nativeDecisionCounts.guzmaOwnTargetConfirmed,1);
+    assert.equal(result.canonicalAudit.nativeDecisionCounts.guzmaOwnTargetMismatched,0);
+    assert.equal(result.canonicalAudit.nativeDecisionCounts.guzmaBySeat[seat],1);
+    assert.equal(result.canonicalAudit.qualification.competitiveGames,0);
+  }
 });
