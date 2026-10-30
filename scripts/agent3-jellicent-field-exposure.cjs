@@ -73,3 +73,21 @@ if(require.main===module){
 }
 
 module.exports={JAPANESE_NAME_TYPES,loadTrainerTypes,countPrintedLockExposure};
+
+/**
+ * Source-print availability of non-Item ways to break or reposition an Active
+ * Jellicent lock. These are structural card counts, never live legal decisions.
+ *
+ * @param {{decks:Array<{rank:number,cards:Array<{name:string,count:number}>}>}} manifest
+ * @returns {{rank:number,guzma:number,faba:number,pathToThePeak:number}[]}
+ */
+function countPotentialUnblockedCounters(manifest){
+  return manifest.decks.map(deck=>{
+    /** @param {string} name @returns {number} */
+    const copies=name=>deck.cards.filter(card=>card.name===name)
+      .reduce((sum,card)=>sum+card.count,0);
+    return {rank:deck.rank,guzma:copies('Guzma'),faba:copies('Faba'),
+      pathToThePeak:copies('Path to the Peak')};
+  }).sort((a,b)=>a.rank-b.rank);
+}
+module.exports.countPotentialUnblockedCounters=countPotentialUnblockedCounters;
