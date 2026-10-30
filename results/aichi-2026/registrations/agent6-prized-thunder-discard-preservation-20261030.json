@@ -1,0 +1,87 @@
+{
+  "schema": "agent6-retrospective-original-prized-thunder-guzma-hala-four-discard-payment-arms-v1",
+  "createdAtUtc": "2026-10-30T20:50:00Z",
+  "objective": "Control-deck opportunity cost of legitimate T3 G&H two-card discard when getting Speed Lightning after Prized Thunder; compare native settled 140 damage and later source Plumeria denial across varied original in-hand exact-printing choices. No win-rate inference.",
+  "selectedOriginalPhysicalSourcefirstDeal": {
+    "sourceRank": 6,
+    "candidateRank": 1,
+    "sourceSeat": 0,
+    "seed": 2341469307,
+    "knownT1Hand": [
+      "Tag Call CEC",
+      "Double Colorless Energy SUM",
+      "Capture Energy RCL",
+      "Spiky Energy JTG",
+      "Plumeria BUS",
+      "Plumeria BUS",
+      "Lusamine CIN"
+    ],
+    "priorK1": "Thunder Mountain is inferred Prized via genuine owner Tag Call search, own deck contains Speed Lightning"
+  },
+  "selectionBias": "RETROSPECTIVE known source hand, source K1 outcome and prior positive attack/Plumeria tests. New explicit four payment priorities precommitted before variant execution; no representative sampling.",
+  "sourceAndCandidatePrinted60sOriginal": true,
+  "sourceFirstByGenuineGO_FIRSTPrompt": true,
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "shared": {
+    "stageDceFirstTurn": true,
+    "k1PrizedThunderSpeedFallback": true,
+    "sourceT3ScriptTurn": 3,
+    "turn3DirectSpeedAfterDce": false,
+    "liveSpeedLightningAlternative": true,
+    "stageSpeedLightningFirstTurn": false,
+    "k1ReplanAfterTagCall": true,
+    "strictPromptValidation": true,
+    "maxActions": 160,
+    "sourceOnlyPlumeriaAfterPass": true,
+    "canonicalActorBothSeats": true,
+    "readOnlyPhysicalSupporterPaymentObserver": true
+  },
+  "arms": [
+    {
+      "label": "discard-both-plumeria",
+      "paymentPriorities": [
+        "Plumeria",
+        "Lusamine",
+        "Capture Energy",
+        "Spiky Energy"
+      ]
+    },
+    {
+      "label": "save-one-plumeria",
+      "paymentPriorities": [
+        "Lusamine",
+        "Plumeria",
+        "Capture Energy",
+        "Spiky Energy"
+      ]
+    },
+    {
+      "label": "save-both-plumeria-pay-energy",
+      "paymentPriorities": [
+        "Capture Energy",
+        "Spiky Energy",
+        "Plumeria",
+        "Lusamine"
+      ]
+    },
+    {
+      "label": "save-both-plumeria-pay-lusamine-capture",
+      "paymentPriorities": [
+        "Lusamine",
+        "Capture Energy",
+        "Plumeria",
+        "Spiky Energy"
+      ]
+    }
+  ],
+  "requestedNativeResponses": [
+    "complete same original physical deal digest and actual source starter",
+    "original T1 DCE accepted and K1 missing Thunder while Stage plan present",
+    "native G&H physically selected two exact printing hand cards for each arm",
+    "native Speed attachment and Volt Cyclone damage/Prize settlement",
+    "real Plumeria after Pass count and physical opposing Energy discard, turn-indexed, within shared cap",
+    "original source preserved hand-resource printings when possible",
+    "opponent first turn after source T3, no claim any later win is representative"
+  ],
+  "competitiveQualification": false
+}
