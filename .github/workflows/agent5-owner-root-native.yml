@@ -116,7 +116,7 @@ jobs:
         if: ${{ inputs.owner_terminal_arbitration_rank3 }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-rank3-arbitration-original-store.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,summary:r.summary,pairs:r.pairs.map(p=>({seat:p.candidateSeat,seed:p.seed,first:p.sourceFirst,initial:p.status,repeat:p.repeatStatus,changed:p.treatmentChangedRoots,steps:[p.baselineActions,p.treatmentActions],statuses:p.results}))},null,2))"
       - name: Native bilateral historical and source-first development
-        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 }}
+        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 && ! inputs.agent12_campinggear_rank6_native }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
       - name: Fixed source-first development baseline without Thorns direct-line
         if: ${{ inputs.rank6_directline_paired }}
