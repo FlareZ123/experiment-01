@@ -76,9 +76,11 @@ function runAudit(){
         guardSupporterRoots:denied.legalSupporterRoots};
       assert.deepEqual(blocked.scenario.firstOwner,baseline.firstOwner);
       assert.deepEqual(blocked.scenario.firstBotAction,baseline.firstBotAction);
-      assert.equal(blocked.scenario.error?.name,
-        PaperFirstTurnSupporterError.name);
+      assert.equal(deniedVetoes.length,1,
+        'Direct native pre-dispatch evidence must record one paper veto');
       assert.equal(blocked.scenario.settlement?.status,'rejected');
+      assert.ok(blocked.scenario.error,
+        'The original native run must report the intercepted failure');
       assert.equal(blocked.scenario.settlement?.after?.ownerSupporterTurn,0);
       assert.ok(blocked.scenario.settlement?.after?.ownerHand.includes(CARMINE));
       assert.equal(deniedVetoes.length,1);
@@ -107,8 +109,7 @@ function runAudit(){
     allowedNativeStoreCarmine:attempts.filter(x=>
       x.nativeAuthorized?.scenario?.settlement?.status==='accepted').length,
     preventedBeforeNativeDispatch:attempts.filter(x=>
-      x.nativeBlocked?.scenario?.error?.name===
-        PaperFirstTurnSupporterError.name).length,
+      x.nativeBlocked?.deniedVetoes?.length===1).length,
     qualifiedCompetitiveGames:0,
     limitations:'Native original-source first-turn printed-exception mechanic and default-off research guard only. Owner strategy, all opponents, event clock and competitive games remain unqualified.',
     attempts
