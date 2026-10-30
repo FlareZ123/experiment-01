@@ -96,10 +96,22 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
     process.env.AGENT2_SHUFFLE_SUPPORTER_DEV==='true';
+  // The last-installed handler must see root Pass AND all three Plumeria
+  // prompts before lower-priority prompt handlers can consume them.
+  const plumeriaAfterPassOptIn=options.ownerPlumeriaAfterPass===true;
+  const runWithPlumeriaAfterPass=()=>{
+    if(!plumeriaAfterPassOptIn)return execute();
+    const adapter=adapters.plumeriaAfterPass??
+      require('../twinleaf/agent4-plumeria-after-pass.cjs')
+        .withOwnerPlumeriaAfterPass;
+    const selected=adapter(execute);
+    ownerPlumeriaAfterPassAudit=selected.audit;
+    return selected.result;
+  };
   const runWithShuffleSupporter=()=>{
-    if(!shuffleSupporterOptIn)return execute();
+    if(!shuffleSupporterOptIn)return runWithPlumeriaAfterPass();
     const selected=require('../twinleaf/agent2-actor-only-shuffle-supporter-after-pass.cjs')
-      .withActorOnlyShuffleSupporterAfterPass(execute);
+      .withActorOnlyShuffleSupporterAfterPass(runWithPlumeriaAfterPass);
     ownerShuffleSupporterAudit=selected.audit;
     return selected.result;
   };
@@ -188,20 +200,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerVipAfterPassAudit=observed.audit;
     return observed;
   };
-  // Install Plumeria only inside root's execution: the outer root decoder
-  // creates the terminal Pass. The new wrapper must be installed later to
-  // observe that real Pass rather than an earlier generic fallback.
-  const plumeriaAfterPassOptIn=options.ownerPlumeriaAfterPass===true;
-  const runPlumeria=()=>{
-    if(!plumeriaAfterPassOptIn)return runVip();
-    const adapter=adapters.plumeriaAfterPass??
-      require('../twinleaf/agent4-plumeria-after-pass.cjs')
-        .withOwnerPlumeriaAfterPass;
-    const selected=adapter(runVip);
-    ownerPlumeriaAfterPassAudit=selected.audit;
-    return selected.result;
-  };
-  const runRoot = () => root(runPlumeria);
+  // Root remains the terminal fallback decoder. Plumeria is nested deepest
+  // so its callback is invoked first on Pass and on owner-controlled prompts.
+  const runRoot = () => root(runVip);
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
