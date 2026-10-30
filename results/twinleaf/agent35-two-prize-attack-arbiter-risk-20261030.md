@@ -27,6 +27,12 @@ All unsupported cases return an explicit reason. It only uses the detached actor
 
 This module is **a proposed veto input for Agent 41's integrated chooser**, kept outside its arbiter so the integration owner can choose whether/how to adopt it. Name-based Prize proxies can fail under new printings; a future **authenticated public native Rule Box / Prize award field in the actor observation** would be stronger. The veto is deliberately conservative and should not be represented as verified game-winning capability.
 
+## Opt-in shared chooser integration (same day)
+
+The original first-return `agent41-owner-root-arbitration.cjs` now accepts `options.protectPotentialTwoPrizeAttack===true` as an **explicitly gated extension**, and `agent34-actor-only-root-policy.cjs` propagates `AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV=true` or a test dependency option. All defaults remain unchanged. The chosen root audit includes the enabled flag, and an actual guarded receipt identifies the candidate printed damage threshold and `potential-two-prize-finishing-attack` reason.
+
+The shared-arbiter pure test contrasts the disabled opt-in selecting Bench Special Energy, the enabled opt-in preserving the exact same attack, and a single-Prize opponent negative where Bench Special remains selectable. It tests owner-private hidden-world invariance. [Manual benchmark CI run 40997011142](https://github.com/FlareZ123/experiment-01/actions/runs/40997011142) on research head `467ca7c498a924e49e0a74144cc22dcd410fae93` completed successfully; the dedicated regression step passed. **This is native-neutral pure unit testing and a shared integration seam, with no native same-deal game or new competitively qualified result.**
+
 ## Next mandatory evidence
 
 Reproduce an authentic original-Store owner action with two Prize cards left, a two-Prize Active, a legal payable attack, and a competing printed/legal Bench Energy target. Retain the same-deal control and treatment and actual native Store attack/attachment outcomes. A successful v1 synthetic regression is not enough to claim tactical improvement, source competence, or deck win rate.
