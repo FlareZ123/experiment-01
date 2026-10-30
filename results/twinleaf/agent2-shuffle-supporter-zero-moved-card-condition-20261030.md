@@ -23,6 +23,15 @@ At an owner-root later than the first global turn, let `ownHand=['Iono PAL']`, o
 - This builds on the separate new `enumerateConservativeShuffleSupporterOffers(view)` API that exposes all low-hand Supporter candidates for joint root arbitration while preserving the old first preferred choice.
 - The actor-only policy remains **default OFF**, contains strong heuristic low-hand filters, and still requires native legal-play, actual effect settlement, resource contention and opponent-response proof. A pure rule-consistency fix must not be counted as a game win.
 
-The local independently reconstructed Node 22 pure tests passed (five tests). Existing manually-dispatched repository compiled CI is queued/running; mark its exact final run outcome in a later checkpoint. No new CI workflow or simulator has been created.
+The initial enumeration/hidden-state regression compiled successfully in [manual CI 40988621979](https://github.com/FlareZ123/experiment-01/actions/runs/40988621979), at head `c0b82bf8714dd85a68ecd69b58aec9651278ad89`. A second compiled manual run 40989392631 was submitted for the conditional-draw and postreturn-capacity changes; its final outcome remains to be checked. No new CI workflow or simulator has been created.
+
+
+## Follow-up: hand-return deck-capacity repair
+
+The earlier conservative selector required five cards **in the pre-effect deck**, and demanded that both players already have enough deck cards to cover the full future draw. That can reject a legal card-access line: the printed effects first move the surviving hand cards to the deck. In the actor-only view the full-draw capacities at effect time are `own.deckCount + ownHand.length - 1` and `opponent.deckCount + opponent.handCount`, with the played Supporter excluded. Thus an Iono line with owner 5 Prizes, deck 4 and a second card in hand, against opponent 2 Prizes, deck 0 and two hand cards, has *five/two available* after hand return. The prior heuristic incorrectly rejected it.
+
+Commit `8b97d8e03da1aea303041d7946db2b4f0a670c72` corrects the full-draw conservative capacity check using only owner-known and opponent-public counts. Commit `34e3f233e1d9e2e9e438550a895137cb7abd7f3c` adds three pure cases covering Iono, Marnie and Lillie. The native Store is still authoritative: paper/full-draw reachability here is syntactic, and zero-card decks, shuffle-prevention effects, draw-prevention effects and other specific modifiers require additional mechanics validation.
+
+A direct pinned headless code audit found `simulation/twinleaf/headless.cjs` already scopes `Math.random` to a seeded engine-event generator for the entire synchronous match (lines 437 to 441, restored in the finalizer), with separately seeded speculative policy streams when requested. Accordingly the pinned Iono card's internal use of `Math.random()` does **not** establish unseeded game-event nondeterminism in these headless runs. The relative RNG-consumption sequence may still differ between policies.
 
 **Field status:** 29/32 exact original Aichi Top32 opposing 60s known (23, 25, 28 missing); zero competitive-qualified games; no demonstrated fixed 60 with 99.5% win rate.
