@@ -187,6 +187,8 @@ jobs:
         run: node --test tests/agent8-team-flare-grunt-pinned-native.test.cjs
       - name: Stage original rank15 Lopunny Grass versus DCE native attack settlement
         run: node --test tests/agent8-rank15-mixed-energy-pinned-native.test.cjs
+      - name: Test rank15 original Guzma movement reverses Mega Lopunny Energy payoff
+        run: node --test tests/agent8-rank15-guzma-energy-reversal-pinned-native.test.cjs
       - name: Crosscheck rank15 source versus native printing resolver
         run: node --test tests/agent8-rank15-native-print-parity.test.cjs
       - name: Check genuine both-seat Wondrous Stadium native attack tax
