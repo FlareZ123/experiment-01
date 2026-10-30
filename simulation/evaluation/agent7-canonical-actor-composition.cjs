@@ -28,7 +28,7 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  *   Test injection only. Real components have their own pinned-Store tests.
  * @param {{ownerSingleSearch?:boolean,genericFallbackAttribution?:boolean,
  *   actorChoosePokemon?:boolean,guzmaOwnerPromptContinuation?:boolean,
- *   ownerVipAfterPass?:boolean,
+ *   ownerVipAfterPass?:boolean,ownerPlumeriaAfterPass?:boolean,
  *   ownerPlumeriaOpportunity?:boolean,
  *   ownerDonorSetup?:{seat:0|1,setup?:object}}} [options]
  * Default preserves v2.
@@ -91,6 +91,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerHammerAfterPassAudit = null;
   let ownerVipAfterPassAudit = null;
   let ownerPlumeriaOpportunityAudit = null;
+  let ownerPlumeriaAfterPassAudit = null;
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
@@ -187,9 +188,20 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerVipAfterPassAudit=observed.audit;
     return observed;
   };
-  // Install after the root policy so the VIP bridge can inspect its Pass
-  // and optionally resolve the genuine owner-deck prompt before generic.
-  const runRoot = () => root(runVip);
+  // Install Plumeria only inside root's execution: the outer root decoder
+  // creates the terminal Pass. The new wrapper must be installed later to
+  // observe that real Pass rather than an earlier generic fallback.
+  const plumeriaAfterPassOptIn=options.ownerPlumeriaAfterPass===true;
+  const runPlumeria=()=>{
+    if(!plumeriaAfterPassOptIn)return runVip();
+    const adapter=adapters.plumeriaAfterPass??
+      require('../twinleaf/agent4-plumeria-after-pass.cjs')
+        .withOwnerPlumeriaAfterPass;
+    const selected=adapter(runVip);
+    ownerPlumeriaAfterPassAudit=selected.audit;
+    return selected.result;
+  };
+  const runRoot = () => root(runPlumeria);
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
@@ -207,6 +219,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner Hammer requires genuine native audit');
   if(plumeriaOpportunityOptIn)assert.ok(ownerPlumeriaOpportunityAudit,
     'Enabled Plumeria observer must have executed');
+  if(plumeriaAfterPassOptIn)assert.ok(ownerPlumeriaAfterPassAudit,
+    'Enabled Plumeria after-Pass adapter must have executed');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
     'Enabled actor-only shuffle Supporter must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
@@ -241,6 +255,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
+      (plumeriaAfterPassOptIn?'+'+ownerPlumeriaAfterPassAudit.version:'')+
       (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
       (options.guzmaOwnerPromptContinuation===true?'+'+
         require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:''),
@@ -248,6 +263,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
+    ownerPlumeriaAfterPassOptIn:plumeriaAfterPassOptIn,
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
@@ -261,11 +277,14 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       'FogCrystalRootAndOwnerDeckSearch',
       ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
       ...(handDiscard?['ActorHandDiscardPrompt']:[]),
+      ...(plumeriaAfterPassOptIn?['PlumeriaAfterRootPass']:[]),
       'ActorOnlyRoot'
     ],
     componentVersions: {
       root: rootAudit.version ?? null,
       ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
+      ...(plumeriaAfterPassOptIn?{
+        plumeriaAfterPass:ownerPlumeriaAfterPassAudit.version??null}:{}),
       ...(hammerAfterPassOptIn?{hammerAfterPass:ownerHammerAfterPassAudit.version??null}:{}),
       ...(genericFallbackAttribution?{
         genericFallback:genericFallbackAudit.version??null}:{}),
@@ -328,6 +347,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         plumeriaSettledEnergyDiscards:
           ownerPlumeriaOpportunityAudit.settledEnergyDiscards
       }:{}),
+      ...(plumeriaAfterPassOptIn?{
+        plumeriaAfterPassProposed:ownerPlumeriaAfterPassAudit.proposedPlumeria,
+        plumeriaAfterPassAccepted:ownerPlumeriaAfterPassAudit.acceptedPlumeria,
+        plumeriaAfterPassSettled:ownerPlumeriaAfterPassAudit.settledEnergyDiscards,
+        plumeriaAfterPassBySeat:ownerPlumeriaAfterPassAudit.bySeat
+      }:{}),
       ...(vipAfterPassOptIn?{
         vipItemAccepted:ownerVipAfterPassAudit.acceptedItems,
         vipSearchAccepted:ownerVipAfterPassAudit.acceptedSearches,
@@ -364,6 +389,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     guzmaPromptAudit,
     ownerSupporterOpportunityAudit,
     ownerPlumeriaOpportunityAudit,
+    ownerPlumeriaAfterPassAudit,
     ownerHammerAfterPassAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
@@ -386,6 +412,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(plumeriaOpportunityOptIn?{
         ownerPlumeriaOpportunity:ownerPlumeriaOpportunityAudit
+      }:{}),
+      ...(plumeriaAfterPassOptIn?{
+        ownerPlumeriaAfterPass:ownerPlumeriaAfterPassAudit
       }:{}),
       ...(hammerAfterPassOptIn?{
         ownerHammerAfterPass:ownerHammerAfterPassAudit
