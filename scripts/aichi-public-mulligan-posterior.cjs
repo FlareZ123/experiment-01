@@ -28,7 +28,8 @@ function publicMulliganPosterior(manifest,event,targetRanks=[6,24,29]){
     [23,25,28]);
   assert.ok(Array.isArray(targetRanks)&&targetRanks.length>0);
   assert.ok(targetRanks.every(x=>Number.isSafeInteger(x)));
-  assert.equal(new Set(targetRanks).size,targetRanks.length);
+  assert.equal(new Set(targetRanks).size,targetRanks.length,
+    'Duplicate target rank in public-evidence classification group');
   assert.ok(event&&typeof event==='object');
   const isNamed=event.kind==='namedRevealed' ||
     event.kind==='namedNotRevealed';
