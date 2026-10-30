@@ -26,6 +26,7 @@ function auditMatchedPlumeriaControl(control,treated){
   const bySeat={0:{accepted:0,settled:0},
     1:{accepted:0,settled:0}};
   let audited=0,errors=0,matchedDealAndActualStarter=0;
+  let delegatedPrompts=0,delegatedSettlements=0,unresolved=0;
   for(let i=0;i<4;i++){
     const before=control.rows[i],after=treated.rows[i];
     assert.equal(before.trial?.id,after.trial?.id);
@@ -54,6 +55,18 @@ function auditMatchedPlumeriaControl(control,treated){
         a.bySeat[0].settled+a.bySeat[1].settled);
       assert.ok(a.proposedPlumeria>=a.acceptedPlumeria);
       assert.ok(a.acceptedPlumeria>=a.settledEnergyDiscards);
+      if(a.delegatedPromptDispatches!==undefined){
+        assert.ok(Number.isSafeInteger(a.delegatedPromptDispatches)&&
+          a.delegatedPromptDispatches>=0);
+        assert.ok(Number.isSafeInteger(a.delegatedSettledEnergyDiscards)&&
+          a.delegatedSettledEnergyDiscards>=0);
+        assert.ok(a.delegatedSettledEnergyDiscards<=a.settledEnergyDiscards);
+        assert.ok(a.delegatedSettledEnergyDiscards<=
+          a.delegatedPromptDispatches);
+        delegatedPrompts+=a.delegatedPromptDispatches;
+        delegatedSettlements+=a.delegatedSettledEnergyDiscards;
+      }
+      unresolved+=a.unresolvedChains??0;
     }else errors++;
     const matched=Boolean(before.sourceDealFingerprint&&
       before.sourceDealFingerprint===after.sourceDealFingerprint&&
@@ -74,6 +87,11 @@ function auditMatchedPlumeriaControl(control,treated){
       acceptedCount:a?.acceptedPlumeria??null,
       settledCount:a?.settledEnergyDiscards??null,
       unresolvedChains:a?.unresolvedChains??null,
+      genericPromptFallbacks:a?.genericPromptFallbacks??null,
+      delegatedPromptDispatches:a?.delegatedPromptDispatches??null,
+      delegatedSettledEnergyDiscards:
+        a?.delegatedSettledEnergyDiscards??null,
+      auditLogs:a?.log??null,
       controlRootSha256:before.rootActionLedgerSha256??null,
       treatedRootSha256:after.rootActionLedgerSha256??null,
       physicalRootChanged:Boolean(matched&&
@@ -89,6 +107,7 @@ function auditMatchedPlumeriaControl(control,treated){
     totalProposals:pairs.reduce((n,row)=>n+(row.proposalCount??0),0),
     totalAccepted:pairs.reduce((n,row)=>n+(row.acceptedCount??0),0),
     totalSettled:pairs.reduce((n,row)=>n+(row.settledCount??0),0),
+    delegatedPrompts,delegatedSettlements,unresolved,
     bySeat,pairs,competitivelyQualifiedGames:0,
     strategyQualified:false,
     limits:'Retrospective source-first deals, weak shared policy, unsupported full clock and 3 missing opponent 60s. Native accepted actions and selected trial winner changes are not comparative competitive strength.'
