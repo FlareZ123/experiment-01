@@ -19,6 +19,9 @@ const a=['Plumeria PRC 001','Plumeria PRC 002',
 const b=Array(7).fill('Professor Juniper DEX 98');
 const history={
   schema:'native-public-opponent-mulligan-reveal-v1',
+  provenance:'opponent-facing ShowMulliganPrompt only',
+  effectOnActorPolicy:false,
+  createsCompetitiveWinRateEvidence:false,
   excludesPrivateCurrentHandDeckPrize:true,
   revealedHandCounts:[1,1],
   handsByOwner:[[b],[a]]
