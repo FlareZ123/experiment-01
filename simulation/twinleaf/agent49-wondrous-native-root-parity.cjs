@@ -80,5 +80,14 @@ function run(){
     competitiveQualifiedGames:0,
     caveat:'Synthetic native Store actions with staged three Lightning Energies; cannot establish tournament playability or complete opponent response.'};
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const result=run();
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
+  process.stderr.write('AGENT49_NATIVE_STADIUM_CONTRAST '+
+    JSON.stringify(result.playerResults.map(row=>({
+      seat:row.seat,baseline:row.baseline,taxedRoot:row.taxedRoot,
+      nominalNativeAction:row.actions[0],
+      wondrousNativeAction:row.actions[1]
+    })))+'\n');
+}
 module.exports={stageOne,runSeat,run};
