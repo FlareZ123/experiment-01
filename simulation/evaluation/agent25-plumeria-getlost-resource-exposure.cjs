@@ -51,6 +51,22 @@ function auditPlumeriaGetLost(archive){
       const paid=payments.get(next.trialId+'@'+next.plumeriaTurn);
       assert.ok(original&&paid);
       const sourceSeat=paid.sourceSeat,opponentSeat=1-sourceSeat;
+      const attackSettlements=original.candidateAttackSettlement.attacks
+        .filter(a=>a.actionOrdinal===attack.rootOrdinal &&
+          a.turnBefore===paid.turn+1 && a.attackName==='Get Lost' &&
+          a.settledPromptChain===true &&
+          a.settlementCrossesClockReset===false);
+      assert.equal(attackSettlements.length,1);
+      const attacker=attackSettlements[0].publicBoardBefore
+        ?.[opponentSeat]?.active;
+      assert.equal(attacker?.name,'Girafarig',
+        'Native Get Lost action must arise from actual Active Girafarig');
+      assert.ok(Array.isArray(attacker?.energyCards) &&
+        attacker.energyCards.length>=1,
+        'Actual opponent Active Girafarig must have paid Get Lost cost');
+      const attachedBeforeAttack=next.opponentPsychicReattachments
+        .filter(e=>e.rootOrdinal<attack.rootOrdinal &&
+          e.attachedTo==='Girafarig');
       const root=original.rootActionLedger.filter(a=>
         a.actionOrdinal===attack.rootOrdinal &&
         a.action==='AttackAction' &&
@@ -94,6 +110,10 @@ function auditPlumeriaGetLost(archive){
         nativeDiscardPromptOrdinal:prompts[0].actionOrdinal,
         nativeDiscardZoneCardCount:selection.sourceZoneCardCountBefore,
         nativePromptAllowsCancel:selection.nativePromptAllowCancel,
+        activeAttackerPokemonAtSettlement:attacker.name,
+        activeAttackerEnergyCountAtSettlement:attacker.energyCards.length,
+        nativePhysicalPsychicAttachmentToGirafarigBeforeGetLost:
+          attachedBeforeAttack.length>0,
         nativeGetLostChosenFromDiscard:[...selection.selectedCards],
         matchingPlumeriaPaymentPrintingInstances:overlap,
         exactTwoPaymentPrintingMultisetMatch:overlap===2,
@@ -113,6 +133,11 @@ function auditPlumeriaGetLost(archive){
     printingInstancesMatchingImmediatePlumeriaPayment:matched,
     nativeGetLostPromptsAllowCancel:events.filter(e=>
       e.nativePromptAllowsCancel).length,
+    getLostActiveGirafarigWithPaidEnergy:events.filter(e=>
+      e.activeAttackerPokemonAtSettlement==='Girafarig' &&
+      e.activeAttackerEnergyCountAtSettlement>=1).length,
+    getLostWithPhysicalNewPsychicBeforeAttack:events.filter(e=>
+      e.nativePhysicalPsychicAttachmentToGirafarigBeforeGetLost).length,
     fullTwoPaymentPrintingMatches:events.filter(e=>
       e.exactTwoPaymentPrintingMultisetMatch).length,
     fullTwoWithExactlyThreeDiscardCards:events.filter(e=>
