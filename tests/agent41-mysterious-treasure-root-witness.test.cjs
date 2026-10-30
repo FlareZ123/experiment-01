@@ -38,3 +38,26 @@ test('physical witness samples own public Item discard only',()=>{
   assert.equal(rootPhysicalWitness(INTENT,{...a,treasureSpent:0,handCount:2},a,{}),
     'confirmed-public-effect');
 });
+
+test('Guzma and Team Flare Grunt are Supporter public quota receipts, never attacks',()=>{
+  for(const [kind,printing] of [
+    ['play-held-guzma-mobility','Guzma BUS'],
+    ['play-team-flare-grunt-denial','Team Flare Grunt XY']
+  ]){
+    const intent={kind,printing,handIndex:0};
+    const before={supporterSpent:0,supporterTurn:0};
+    const after={supporterSpent:1,supporterTurn:1};
+    assert.equal(rootPhysicalWitness(intent,before,after,{}),
+      'confirmed-public-effect');
+    assert.equal(rootPhysicalWitness(intent,before,
+      {...after,supporterTurn:0},{}),'no-confirmed-public-effect');
+    const base={energies:{cards:[]},getPokemonCard:()=>null};
+    const player={hand:{cards:[]},active:base,bench:[],
+      stadium:{cards:[]},discard:{cards:[]},
+      supporter:{cards:[{fullName:printing}]},supporterTurn:1};
+    const snap=rootPhysicalSnapshot({players:[player,{}],turn:3,phase:3},
+      0,intent);
+    assert.equal(snap.supporterSpent,1);
+    assert.equal(snap.supporterTurn,1);
+  }
+});
