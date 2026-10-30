@@ -51,3 +51,55 @@ test('duplicate printed cards can satisfy two-copy native search',()=>{
   assert.deepEqual(firstNativeValidBundle(p,2),
     [{printings:['A','A']}]);
 });
+
+test('scored owner search recovers valued targets beyond first lexicographic bundle',()=>{
+  const cards=['A','B','C','D','Z'];
+  const score=printings=>printings.reduce((sum,n)=>sum+
+    (n==='Z'?12:n==='D'?7:0),0);
+  const a=firstNativeValidBundle(fixture(cards,n=>n.length===3),3,score);
+  const b=firstNativeValidBundle(
+    fixture([...cards].reverse(),n=>n.length===3),3,score);
+  assert.deepEqual(a,[{printings:['A','D','Z']}]);
+  assert.deepEqual(a,b);
+  assert.deepEqual(firstNativeValidBundle(
+    fixture(cards,n=>n.length===3),3),
+  [{printings:['A','B','C']}]);
+});
+
+test('scored native search respects complete combination constraints',()=>{
+  const p=fixture(['A','A','Energy','Tool','Z'],n=>
+    n.length===2&&n.includes('Energy')&&n.includes('Tool'));
+  const score=names=>names.includes('Z')?50:names.length;
+  assert.deepEqual(firstNativeValidBundle(p,3,score),
+    [{printings:['Energy','Tool']}]);
+});
+
+test('scored optional search can return zero when all choices are costly',()=>{
+  const p=fixture(['A','B','C'],n=>n.length<=3);
+  const score=names=>-names.length;
+  assert.deepEqual(firstNativeValidBundle(p,3,score),
+    [{printings:[]}]);
+  assert.deepEqual(firstNativeValidBundle(p,3),
+    [{printings:['A','B','C']}]);
+});
+
+test('scored mandatory choice still chooses best legal nonempty candidate',()=>{
+  const p=fixture(['A','B','C'],n=>n.length>=1);
+  assert.deepEqual(firstNativeValidBundle(p,3,n=>-n.length),
+    [{printings:['A']}]);
+});
+
+test('scoring sees immutable printed strings and must return a finite score',()=>{
+  const p=fixture(['A','B','C'],n=>n.length===2);
+  let seen=0;
+  const out=firstNativeValidBundle(p,3,n=>{
+    assert.equal(Object.isFrozen(n),true);
+    assert.ok(n.every(s=>typeof s==='string'));
+    seen++;
+    return n.includes('C')?10:0;
+  });
+  assert.ok(seen>=3);
+  assert.deepEqual(out,[{printings:['A','C']}]);
+  assert.throws(()=>firstNativeValidBundle(p,3,()=>NaN),
+    /Bundle score must be finite/);
+});
