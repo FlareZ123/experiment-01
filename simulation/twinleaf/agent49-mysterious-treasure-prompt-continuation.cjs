@@ -40,6 +40,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   assert.equal(typeof originalDispatch?.value,'function');
   let liveStore=deps.initialLiveStore??null,catalog=null;
   const plans=new Map(),plannedReplies=new WeakMap();
+  const awaitingItemFinality=new Map();
   const audit={version:VERSION,ownerOnly:true,
     observedAcceptedItemRoots:0,plannedSourceSafeRoots:0,
     costPromptAccepted:0,searchPromptAccepted:0,
@@ -102,7 +103,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   }
   function dispatch(action,...rest){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==liveStore){
-      liveStore=this;plans.clear();
+      liveStore=this;plans.clear();awaitingItemFinality.clear();
     }
     const real=this===liveStore;
     const state=this.state;
@@ -126,6 +127,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
         catalog??=getCatalog();
         const planned=choose(view,catalog);
         opportunity={seat,ownerId:owner.id,turn:state.turn,
+          itemRef:owner.hand.cards[action.handIndex],
           handCountBefore:owner.hand.cards.length,
           planned:planned?.handIndex===action.handIndex?planned:null};
       }
@@ -153,6 +155,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
       if(consumed&&hasOwnerPrompt&&opportunity.planned){
         plans.set(opportunity.ownerId,{
           seat:opportunity.seat,turn:opportunity.turn,
+          itemRef:opportunity.itemRef,
           discardPrinting:opportunity.planned.discardPrinting,
           reason:opportunity.planned.reason,step:'cost'});
         audit.plannedSourceSafeRoots++;
@@ -181,15 +184,29 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
         const open=this.state.prompts?.find(p=>p.result===undefined);
         if(open?.constructor?.name==='ShowCardsPrompt')
           audit.postSearchDisplayPending++;
-        if(!open&&owner.discard.cards.some(card=>card.fullName===ITEM))
+        if(!open&&owner.discard.cards.includes(plan.itemRef))
           audit.nativeItemFinalized++;
+        else if(open&&settled&&plan.costSettled)
+          awaitingItemFinality.set(reply.ownerId,{...plan});
         log({kind:'native-owner-deck-hit',seat:reply.seat,
           printing:reply.choice.fullName,settled,
           costAlreadyPhysicallyDiscarded:plan.costSettled===true,
           pendingAfterRetrieval:open?.constructor?.name??null,
-          nativeItemFinalized:!open&&owner.discard.cards.some(card=>
-            card.fullName===ITEM)});
+          nativeItemFinalized:!open&&owner.discard.cards.includes(
+            plan.itemRef)});
         plans.delete(reply.ownerId);
+      }
+    }
+    // Final owner Item discard may occur after a reveal and a mandatory deck
+    // reorder. Certify physical finality only after those prompts are clear.
+    for(const [id,pending] of awaitingItemFinality){
+      const owner=this.state.players[pending.seat];
+      const stillPrompted=this.state.prompts?.some(p=>p.result===undefined);
+      if(!stillPrompted&&owner?.discard.cards.includes(pending.itemRef)){
+        audit.nativeItemFinalized++;
+        log({kind:'native-item-finalized',seat:pending.seat,
+          originalTurn:pending.turn,physicalItem:pending.itemRef.fullName});
+        awaitingItemFinality.delete(id);
       }
     }
     return result;
