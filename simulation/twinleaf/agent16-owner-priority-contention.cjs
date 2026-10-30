@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent16-owner-priority-contention-census-v1';
+const VERSION='agent16-owner-priority-contention-census-v2-team-flare-grunt';
 
 // These ranks mirror the existing first-return order in
 // agent34-actor-only-root-policy.cjs. This is a partial vocabulary,
