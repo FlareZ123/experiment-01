@@ -13,7 +13,7 @@ const TOOLS=new Set(['Float Stone','Muscle Band']);
  * public Bench, without consulting the unseen deck or face-down Prizes.
  * It reports necessary K0 resource coexistence, never a legal lock or turn.
  *
- * @param {{handNames:string[],benchNames:(string|null)[],benchTools:string[][],itemLocked:boolean,toolLocked:boolean}} view
+ * @param {{handNames:string[],benchNames:(string|null)[],benchTools:string[][],activeName?:string|null,itemLocked:boolean,toolLocked:boolean}} view
  * @returns {object}
  */
 function inspectRank8K0BoxShake(view){
@@ -28,7 +28,8 @@ function inspectRank8K0BoxShake(view){
   };
   const box=select('Secret Box');
   const shakeHeld=names.includes('Boost Shake');
-  const inPlayTrubbish=view.benchNames.includes('Trubbish');
+  const inPlayTrubbish=view.activeName==='Trubbish'||
+    view.benchNames.includes('Trubbish');
   const benchFree=view.benchNames.includes(null);
   const canPlaceTrubbish=inPlayTrubbish||benchFree;
   const toolHeld=names.some(name=>TOOLS.has(name));
