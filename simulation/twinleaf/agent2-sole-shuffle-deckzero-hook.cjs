@@ -3,13 +3,15 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent2-sole-shuffle-deckzero-paper-compat-v1-default-off';
+const VERSION='agent2-sole-shuffle-opponent-only-paper-compat-v2-default-off';
 
 /**
- * A sole-held Iono/Marnie can affect an opponent's nonempty hand even if
- * its owner's deck was exhausted earlier in the turn. Pinned Twinleaf's
- * first canPlay/reduceEffect gate incorrectly demands owner deck cards.
- * This deliberately narrow opt-in does not change other card playability.
+ * A sole-held Iono/Marnie can affect the opponent's nonempty hand even when
+ * the owner deck is empty. Pinned canPlay can incorrectly veto that case.
+ * When opponent hand return is prevented (e.g. Dew Guard), the printed draw
+ * clause also fails: pinned onMovePrevented wrongly gives the owner cards.
+ * This opt-in applies the opponent-only reducer consistently and preserves
+ * the original canPlay result except for the exact owner-deck-zero case.
  *
  * @template T
  * @param {()=>T} execute Synchronous real-Store experiment.
@@ -42,12 +44,15 @@ function withSoleShuffleDeckZeroCorrection(execute,deps={}){
     assert.equal(typeof reduce?.value,'function');
     return {proto,can,reduce};
   });
-  function caseApplies(card,state,owner){
+  function soleOpponentHandReturn(card,state,owner){
     if(!owner||owner.supporterTurn!==0||
-       !Array.isArray(owner.hand?.cards)||owner.deck?.cards?.length!==0)
-      return false;
+       !Array.isArray(owner.hand?.cards))return false;
     if(owner.hand.cards.some(c=>c!==card))return false;
     return getOpponent(state,owner).hand.cards.length>0;
+  }
+  function caseApplies(card,state,owner){
+    return owner?.deck?.cards?.length===0 &&
+      soleOpponentHandReturn(card,state,owner);
   }
   const patched=[];
   try{
@@ -61,7 +66,7 @@ function withSoleShuffleDeckZeroCorrection(execute,deps={}){
         value:function(store,state,effect){
           if(!(effect instanceof TrainerEffect)||
              effect.trainerCard!==this||
-             !caseApplies(this,state,effect.player))
+             !soleOpponentHandReturn(this,state,effect.player))
             return reduce.value.call(this,store,state,effect);
           const owner=effect.player,opponent=getOpponent(state,owner);
           const cards=[...opponent.hand.cards];
