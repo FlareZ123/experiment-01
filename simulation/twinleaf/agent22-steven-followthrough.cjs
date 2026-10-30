@@ -2,14 +2,6 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const {runMatch,initializeCards}=require('./headless.cjs');
-const {resolveManifestFile}=require('./resolve-field.cjs');
-const {actorObservation}=require('./actor-observation-contract.cjs');
-const {SEEDS,scoreBundle}=require('./agent22-rank7-dealt-steven-pair.cjs');
-const {withNumericShuffleValidator}=
-  require('./agent22-numeric-shuffle-validation-hook.cjs');
-const {sparseObservedOwnerSearch,withSparseActorOwnerSearch}=
-  require('./agent22-sparse-owner-search-adapter.cjs');
 
 const expected=new Map([
   ['324711001:0',{deal:'f56f2980911c2c321d343406ff94be6f7acc389f83e4c851bf0448c8879fb8b0',turns:[7,8],searches:2}],
@@ -49,6 +41,16 @@ function analyzeFollowthrough(selections,rootLedger,sourceSeat){
 
 /** @returns {object} Full retained denominator of retrospective trials. */
 function run(){
+  // Native imports are deferred so pure source-root lineage tests run
+  // without building or loading the pinned vendor submodule.
+  const {runMatch,initializeCards}=require('./headless.cjs');
+  const {resolveManifestFile}=require('./resolve-field.cjs');
+  const {actorObservation}=require('./actor-observation-contract.cjs');
+  const {SEEDS,scoreBundle}=require('./agent22-rank7-dealt-steven-pair.cjs');
+  const {withNumericShuffleValidator}=
+    require('./agent22-numeric-shuffle-validation-hook.cjs');
+  const {sparseObservedOwnerSearch,withSparseActorOwnerSearch}=
+    require('./agent22-sparse-owner-search-adapter.cjs');
   initializeCards();
   const field=resolveManifestFile(path.resolve(__dirname,
     '../../results/aichi-2026/full-decklists.json'),{
