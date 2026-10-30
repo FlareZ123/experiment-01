@@ -95,8 +95,7 @@ if(require.main===module){
   const file=process.argv[2];
   assert.ok(file,'Supply the extracted original preregistered 32-arm JSON path');
   const results=frozenOriginal32NativeClosures(fs.readFileSync(file));
-  process.stdout.write(JSON.stringify(results,null,2)+'
-');
+  process.stdout.write(JSON.stringify(results,null,2)+'\n');
 }
 
 module.exports={VERSION,FROZEN_JSON_SHA256,
