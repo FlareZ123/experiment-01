@@ -95,3 +95,19 @@ test('actual shared actor root uses Jet only under the default-off option',()=>{
   assert.equal(proposed.index,0);
   assert.equal(proposed.plannedAttackName,'strong');
 });
+
+test('preserves active Sentinel and Initialization passive lock geometry',()=>{
+  const v=view();
+  v.ownPublic.active.abilityDetails=[{
+    name:'Sentinel',
+    text:"As long as this Pokémon is your Active Pokémon, your opponent can't play any Supporter cards from his or her hand."
+  }];
+  assert.equal(choose(v),null,
+    'Jet switching would drop an Active-only Supporter lock');
+  v.ownPublic.active.abilityDetails=[{
+    name:'Initialization',
+    text:"As long as this Pokémon is in the Active Spot, your opponent's Pokémon in play have no Abilities."
+  }];
+  assert.equal(choose(v),null,
+    'Jet switching would drop an Active-only Ability lock');
+});
