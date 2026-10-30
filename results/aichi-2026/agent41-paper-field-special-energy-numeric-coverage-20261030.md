@@ -36,7 +36,7 @@ Outside the narrow numeric selector:
 | Powerful Colorless Energy | **1** |
 | **Total** | **74** |
 
-**Affected exact original final ranks:** **2, 4, 7, 9, 10, 12, 13, 14, 15, 17, 18, 19, 20, 21, 27, 32**. Nine Regidrago/Raging-Bolt original variants use 38 Double Dragon Energy copies. The two Raichu-Electrode original sources (4/17) account for all 24 Reversal, Counter, and Unit Energy LPM copies. Rank2 Vileplume has Jet/Memory; rank15 Lopunny-Vileplume Jet/Powerful; rank9 Absol-Electrode Prism; other conditionally supported prints appear among the exact source sixties.
+**Affected exact original final ranks:** **2, 4, 7, 9, 10, 12, 13, 14, 15, 17, 18, 19, 20, 21, 27, 32**. Nine Regidrago originals and one Raging Bolt original (ten decks total) use 38 Double Dragon Energy copies. The two Raichu-Electrode original sources (4/17) account for all 24 Reversal, Counter, and Unit Energy LPM copies. Rank2 Vileplume has Jet/Memory; rank15 Lopunny-Vileplume Jet/Powerful; rank9 Absol-Electrode Prism; other conditionally supported prints appear among the exact source sixties.
 
 ## Interpretation and qualification boundary
 
