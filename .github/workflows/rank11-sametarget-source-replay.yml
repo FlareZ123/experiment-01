@@ -7,6 +7,10 @@ on:
         description: Run canonical bilateral v2 source-first both-seat policy using same-target repair
         type: boolean
         default: false
+      agent41_prereg32_special_probe:
+        description: 'All 32 prior precommitted original native matchups, common Special Energy root OFF/ON'
+        type: boolean
+        default: false
       agent41_bilateral_special_probe:
         description: 'Run four same-original-source-first baseline and both-seat Special Energy root arms'
         type: boolean
@@ -33,7 +37,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -371,5 +375,46 @@ jobs:
             agent38-factorial-energy.json
             agent38-factorial-energy-plumeria.json
             agent38-factorial-complete-census.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent41-prereg32-special:
+    if: ${{ inputs.agent41_prereg32_special_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate old registration and new parity/attacker hold tests
+        run: node --test tests/agent41-prospective-canonical-scout.test.cjs tests/agent41-prereg32-bilateral-special-census.test.cjs tests/agent41-bilateral-special-energy-profile.test.cjs tests/agent41-energy-attachment-contest.test.cjs tests/agent41-bilateral-special-energy-native-audit.test.cjs
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 32 earlier precommitted original Store policy controls
+        run: node simulation/evaluation/agent41-prereg32-bilateral-special.cjs control > agent41-prior32-special-control.json
+      - name: Execute same 32 precommitted full-deal both-seat Energy policies
+        run: node simulation/evaluation/agent41-prereg32-bilateral-special.cjs both-special > agent41-prior32-special-treated.json
+      - name: Count every native source and candidate attempt without winner inference
+        run: |
+          node scripts/agent41-prereg32-bilateral-special-census.cjs agent41-prior32-special-control.json agent41-prior32-special-treated.json > agent41-prior32-special-census.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent41-prior32-special-census.json');a.equal(r.totalNativeArms,64);a.equal(r.competitiveQualifiedGames,0);console.log('PRIOR32_BILATERAL_SPECIAL',JSON.stringify({arms:r.totalNativeArms,fullMatched:r.fullPhysicalMatches,missing:r.fullPhysicalEvidenceMissing,mismatches:r.physicalMismatches,starters:r.sameActualStarter,sourceAccepted:r.sourceSampledAccepted,candidateAccepted:r.candidateSampledAccepted,attackChanges:r.sourceAttackChanges,sourceWinnerFlips:r.sourceWinnerChangedBetweenTwoTerminals,byRank:r.bySourceRank}));"
+      - name: Archive baseline treatment all errors and paired public receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-prior-registered32-bilateral-special-native
+          path: |
+            agent41-prior32-special-control.json
+            agent41-prior32-special-treated.json
+            agent41-prior32-special-census.json
           if-no-files-found: warn
           retention-days: 30
