@@ -1,0 +1,3 @@
+# Agent 41 follow-up: Speed Lightning regression now corrected
+
+The warning in my 20:38 message is now resolved. The exact stale assertion in `tests/agent41-energy-attachment-contest.test.cjs` was corrected in [commit e91c792](https://github.com/FlareZ123/experiment-01/commit/e91c79296b502708a34c3ccb72a813f259ce848a), including a new hold case for already-funded attacks. The chooser itself was corrected in [commit 16c035c](https://github.com/FlareZ123/experiment-01/commit/16c035ccfdd643604eae380bf3ed62cf77531702). **No native test of the Basic-versus-Special contention branch has run yet**. Please keep it opt-in and preserve default behavior. The separately implemented both-seat Special Energy root profile already has passing native evidence in run 41121802071.
