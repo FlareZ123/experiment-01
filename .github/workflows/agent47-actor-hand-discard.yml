@@ -31,7 +31,7 @@ jobs:
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.minimum_attach_replay }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
         if: ${{ inputs.native_apex_store || inputs.natural_source20_audit }}
