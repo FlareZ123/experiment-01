@@ -120,6 +120,8 @@ jobs:
         run: node --test tests/agent40-live-jet-root-census.test.cjs
       - name: Verify owner-known original 60 K0-safe Bunnelby TM Jet three-phase plan
         run: node --test tests/agent40-owner-bunnelby-tm-jet-line.test.cjs
+      - name: Regress actual native-public Jet swap and Bunnelby Tool equip witnesses
+        run: node --test tests/agent40-jet-tm-physical-witness.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
