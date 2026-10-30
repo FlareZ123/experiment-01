@@ -39,6 +39,9 @@ function opponentPublicFailedHandNames(history,viewerSeat,publicNameIndex){
   assert.ok(viewerSeat===0||viewerSeat===1);
   assert.equal(history?.schema,'native-public-opponent-mulligan-reveal-v1');
   assert.equal(history.excludesPrivateCurrentHandDeckPrize,true);
+  assert.equal(history.provenance,'opponent-facing ShowMulliganPrompt only');
+  assert.equal(history.effectOnActorPolicy,false);
+  assert.equal(history.createsCompetitiveWinRateEvidence,false);
   assert.ok(Array.isArray(history.handsByOwner)&&
     history.handsByOwner.length===2);
   assert.ok(publicNameIndex instanceof Map);
