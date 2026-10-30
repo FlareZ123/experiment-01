@@ -3,7 +3,7 @@
 /**
  * Paper-rule state-transition witness for an original rank26 Meloetta Donk
  * first-player, first-turn attack against a candidate with only an Active
- * 70HP Frillish. Source has accessible specified card identities and may
+ * 80HP Frillish. Source has accessible specified card identities and may
  * make all chosen actions before it attacks. The fixture DOES NOT model
  * finding cards from a uniformly shuffled 60, nor any owner-native Store
  * acceptance, action-selection policy, clock, opponent-mulligan effects, or
@@ -175,9 +175,9 @@ function paperMeloettaDonkWitness(){
     throw Error('Cannot legally announce Crisis Punch with these resources');
 
   // Meloetta ex Debut Performance is live and grants first-player attack.
-  // Candidate Active Frillish has 70HP and no printed damage protection.
+  // Candidate Active Frillish has 80HP and no printed damage protection.
   const damage=280;
-  const candidateActiveHp=70;
+  const candidateActiveHp=80;
   if(damage<candidateActiveHp)
     throw Error('Source did not KO candidate Active');
   sourcePrizes--;
