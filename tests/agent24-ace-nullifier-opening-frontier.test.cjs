@@ -31,6 +31,28 @@ test('all four one-to-four-copy access chances agree with independent exact enum
   }
 });
 
+test('ordinary setup before opponent first turn favors Tool-free Spiritomb',()=>{
+  const expected=[
+    ['682689','5040640'],
+    ['80997','315040'],
+    ['922887','2520320'],
+    ['5313','11456']
+  ];
+  for(let i=0;i<4;i++){
+    const g=i+1;
+    const s=directFirstEight({lockCopies:g,totalBasics:14});
+    const t=directFirstEight({lockCopies:g,totalBasics:14,
+      toolCopies:4,requiresTool:true});
+    assert.deepEqual(Object.values(s.exactSetupBasicProbability),
+      expected[i]);
+    assert.deepEqual(t.exactSetupBasicProbability,
+      s.exactSetupBasicProbability);
+    assert.equal(s.conditionedSetupLockReadyChance,
+      s.conditionedSetupBasicChance);
+    assert.equal(t.conditionedSetupLockReadyChance,0);
+  }
+});
+
 test('no lock copies or missing Tool cannot satisfy the respective event',()=>{
   assert.equal(directFirstEight({
     lockCopies:0,totalBasics:14}).conditionedDirectOpportunity,0);
