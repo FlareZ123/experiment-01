@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {observeEriRevealedItems:observe,chooseEriRevealedItemIndices:choose,
-  resolveEriRevealedItemPrompt:resolve,ERI}=
+  resolveEriRevealedItemPrompt:resolve,offerEriBeforeAttack,ERI}=
   require('../simulation/twinleaf/agent50-eri-revealed-item-prompt.cjs');
 
 const SUPER={TRAINER:2,ENERGY:3},TRAINER={ITEM:1,SUPPORTER:2};
@@ -93,4 +93,37 @@ test('revealed observation contains only Item printing and source index',()=>{
   after.players[1].privateDeck=['DIFFERENT'];
   const prompt2=new ChooseCardsPrompt(after);
   assert.deepEqual(observed,observe(after,0,prompt2,SUPER,TRAINER));
+});
+
+test('public large hand can offer Eri before attack without guessing Items',()=>{
+  const view={
+    decisionKind:'owner-root',globalTurn:4,ownHand:[ERI],
+    ownTurnResources:{supporterPlayedTurn:0,supporterPlayLocked:false},
+    ownPublic:{active:{attacks:[{name:'Volt Cyclone'}]},prizeCount:6,
+      resolvingSupporter:[],publicTurnRestrictions:{supporterPlayLocked:false}},
+    opponentPublic:{handCount:7}
+  };
+  const first={kind:'attack',attackName:'Volt Cyclone'};
+  assert.deepEqual(offerEriBeforeAttack(view,first),{
+    kind:'play-eri-reveal',handIndex:0,printing:ERI,
+    evidence:'possible-item-denial-before-payable-attack',
+    opponentPublicHandCount:7
+  });
+  const other=structuredClone(view);
+  other.opponentSecret={hand:['Eri','Super Rod']};
+  assert.deepEqual(offerEriBeforeAttack(other,first),
+    offerEriBeforeAttack(view,first));
+  for(const change of [
+    v=>{v.ownHand=[];},
+    v=>{v.ownPublic.prizeCount=3;},
+    v=>{v.opponentPublic.handCount=4;},
+    v=>{v.ownTurnResources.supporterPlayedTurn=1;},
+    v=>{v.ownTurnResources.supporterPlayLocked=true;},
+    v=>{v.globalTurn=1;}
+  ]){
+    const x=structuredClone(view);
+    change(x);
+    assert.equal(offerEriBeforeAttack(x,first),null);
+  }
+  assert.equal(offerEriBeforeAttack(view,{kind:'pass'}),null);
 });
