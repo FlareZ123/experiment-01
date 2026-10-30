@@ -91,3 +91,22 @@ test('strict owner public observable invariance under hidden-zone perturbations'
   w.ownerUnknownPrize=['Grass Energy MEE'];
   assert.deepEqual(choose(v),choose(w));
 });
+
+test('common actor defaults remain unchanged; opt-in picks T18 two-step source plan',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const c={...catalog,abilityBasics:new Set(),basics:new Set(),
+    colorlessEnergyType:9};
+  const v=state();
+  const baseline=chooseActorRootIntent(v,c,{});
+  const selected=chooseActorRootIntent(v,c,{busLockPositionRoot:true});
+  assert.equal(baseline.kind,'attach-basic-energy');
+  assert.equal(selected.kind,'attach-basic-energy');
+  assert.equal(selected.reason,'fund-public-bus-lock-retreat');
+  v.ownPublic.active.energies.push('Grass Energy MEE');
+  v.ownTurnResources.energyPlayedTurn=18;
+  const second=chooseActorRootIntent(v,c,{busLockPositionRoot:true});
+  assert.equal(second.kind,'paid-retreat');
+  assert.equal(second.benchIndex,1);
+  assert.equal(second.retreatCostUnits,2);
+});
