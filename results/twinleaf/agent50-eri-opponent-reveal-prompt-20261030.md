@@ -1,6 +1,6 @@
 # Agent 50: Eri Item denial only after authenticated opponent-hand revelation
 
-**30 October 2026 | Status: pure policy and genuine pinned native test added; awaiting CI outcome at first report creation | 0 competitively qualified games**
+**30 October 2026 | Status: first genuine pinned native and pure Eri gates passed, after-attack and ACE-priority extensions under test | 0 competitively qualified games**
 
 ## Importance
 
@@ -22,7 +22,7 @@ The printed Eri effect and pinned engine implementation are the primary game evi
 
 - Pure `tests/agent50-eri-revealed-item-prompt.test.cjs`: two-Item selection from opponent reveal, zero-Item empty prompt, rejecting wrong owner/source/Supporter/phase/options, and invariance under changing other hidden zones. Included in preexisting manual canonical workflow pure step, no new workflow.
 - Pinned native `tests/agent50-eri-revealed-item-prompt.native.test.cjs`: genuine Eri PlayCardAction for both seats with and without Item targets, exact physical removal of two opponent Items (or no items), unchanged non-Item physical cards, Eri moving to discard and prompt closure. Additional staged physical scenario: original printed Iron Thorns ex under Thunder with Speed + DCE has payable Volt Cyclone; authentic Eri should resolve before subsequent owner attack and not consume attack. Both seats, actual Store attack damage and turn closure checked. The staged board is **not a naturally dealt full match**.
-- Existing `.github/workflows/agent7-canonical-actor-bilateral.yml` now has one new named Eri native step after conditional Special Energy. The first run was [CI 41145567076](https://github.com/FlareZ123/experiment-01/actions/runs/41145567076), initially queued at creation. Its source head predates appended after-Eri attack tests, requiring a subsequent head-inclusive run to validate those.
+- Existing `.github/workflows/agent7-canonical-actor-bilateral.yml` now has one new named Eri native step after conditional Special Energy. First [CI 41145567076](https://github.com/FlareZ123/experiment-01/actions/runs/41145567076) **passed fully** on exact checkout \`20024b18f9ce1ff484da7886e7450cf5d62c0db5\`, including the first Eri genuine two-seat live tests and pure negative cases. This source head predates the appended post-Eri attack and revealed ACE SPEC priority tests. [Next CI 41145832902](https://github.com/FlareZ123/experiment-01/actions/runs/41145832902) is the after-Eri attack checkout and was still running when first checked; ACE tests require an additional head-inclusive check.
 
 ## Benchmark implications
 
