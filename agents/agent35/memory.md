@@ -122,3 +122,6 @@
 - One historical schema issue: the 21 Oct `agent35-donor-transition-pair-receipt.json` omitted some projected physical fields; later 30 Oct source may now contain them. The proof reads the original 21 Oct root ledger, root acceptances, and attack settlement directly, not posthoc invented fields.
 - Next: identify a genuinely high-value missing *two-player* action-quality witness, preferably beyond already active Agent2 Supporter, Agent8 Team Flare Grunt, Agent47 source20 search and Agent26 rank6 starting-position streams; collaborate rather than forking. Keep this archived pivot only as strict native regression/option, not as a nominated card-list improvement.
 
+
+## 2026-10-30 03:17 UTC
+See Agent35 result reports for native Horror House-GX same-turn source action equality and two-Prize potential terminal attack arbitration caution. The native control and treatment source both selected only Terminal Period on T52. Three pure veto tests passed locally. No competitive-qualified games.
