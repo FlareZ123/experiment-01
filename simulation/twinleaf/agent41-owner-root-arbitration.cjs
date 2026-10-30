@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent41-owner-turnend-arbitration-v1-bench-special-only';
+const VERSION='agent41-owner-turnend-arbitration-v2-bench-special-or-active-denial';
 const MAX_SAMPLES=40;
 
 /**
@@ -25,35 +25,34 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
     selectedKind:first.kind,reason:'preserve-first-choice',
     candidateCount:0,selectedPrinting:null,selectedTarget:null,
     nativePlayability:'unverified'};
-  if(first.kind!=='attack'||options.publicContextSpecialEnergy!==true){
-    receipt.reason='outside-bounded-attack-special-contention';
+  const specialEnabled=options.publicContextSpecialEnergy===true;
+  const denialEnabled=options.beforeAttackDenialRoot===true&&
+    options.teamFlareGruntDenialRoot===true;
+  if(first.kind!=='attack'||(!specialEnabled&&!denialEnabled)){
+    receipt.reason='outside-bounded-attack-resource-contention';
     return {intent:first,receipt};
   }
   const collector=collect??require('./agent16-owner-priority-contention.cjs')
     .collectOwnerContention;
   const offers=collector(view,catalog,options,first).alternatives??[];
-  const matching=offers.filter(x=>x.probe==='public-special-energy'&&
-    x.kind==='attach-special-energy'&&x.slot==='bench');
-  receipt.candidateCount=matching.length;
-  if(matching.length===0){
-    receipt.reason='no-supported-bench-special-offer';
+  const matching=specialEnabled?offers.filter(x=>
+    x.probe==='public-special-energy'&&
+    x.kind==='attach-special-energy'&&x.slot==='bench'):[];
+  const denials=denialEnabled?offers.filter(x=>
+    x.probe==='team-flare-grunt'&&
+    x.kind==='play-team-flare-grunt-denial'):[];
+  receipt.candidateCount=matching.length+denials.length;
+  if(receipt.candidateCount===0){
+    receipt.reason=denialEnabled?'no-supported-attack-resource-offer':
+      'no-supported-bench-special-offer';
     return {intent:first,receipt};
   }
-  const r=view.ownTurnResources;
-  if(r?.energyPlayLocked===true||r?.specialEnergyPlayLocked===true||
-      r?.energyPlayedTurn===view.globalTurn){
-    receipt.reason='energy-quota-or-lock';
-    return {intent:first,receipt};
-  }
-  // A lone remaining Prize is a conservative tactical hold: the choice to
-  // forgo a potential finishing attack requires a stronger damage/Prize model.
+  // Never spend a bounded resource instead of a possible final-Prize attack.
+  // This is a tactical hold even when a nonterminal action looks plausible.
   if(view.ownPublic?.prizeCount===1){
     receipt.reason='potential-last-prize-attack';
     return {intent:first,receipt};
   }
-  // Separate opt-in: resolve the known public printing against the exact
-  // database Rule/Prize profile, including TAG TEAM and Mega three-Prize
-  // awards. This remains a potential finisher, never a native damage proof.
   if(options.protectPotentialPrintedPrizeAttack===true){
     const {VERSION:vetoVersion,potentialPrintedPrizeFinisher}=
       require('./agent42-visible-printed-prize-finisher.cjs');
@@ -70,10 +69,6 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
       return {intent:first,receipt};
     }
   }
-  // Optional conservative extension: do not replace a fixed printed attack
-  // with a Bench attachment when the owner has two Prizes left and the
-  // opponent presents a visible potential two-Prize KO. Any real damage,
-  // Prize modifiers and legality remain for the native Store to resolve.
   if(options.protectPotentialTwoPrizeAttack===true){
     const {VERSION:vetoVersion,potentialTwoPrizeAttackVeto}=
       require('./agent35-potential-two-prize-attack-veto.cjs');
@@ -89,28 +84,68 @@ function arbitrateOwnerRootIntent(view,catalog,first,options={},collect){
       return {intent:first,receipt};
     }
   }
-  const good=matching.find(x=>
-    Number.isInteger(x.handIndex)&&x.handIndex>=0&&
-    view.ownHand?.[x.handIndex]===x.printing&&
-    Number.isInteger(x.index)&&x.index>=0&&
-    view.ownPublic?.bench?.[x.index]&&
-    Array.isArray(view.ownPublic.bench[x.index].attacks)&&
-    view.ownPublic.bench[x.index].attacks.length>0);
-  if(!good){
-    receipt.reason='unmatched-physical-owner-target';
-    return {intent:first,receipt};
+  const r=view.ownTurnResources;
+  if(matching.length>0){
+    if(r?.energyPlayLocked===true||r?.specialEnergyPlayLocked===true||
+        r?.energyPlayedTurn===view.globalTurn){
+      receipt.reason='energy-quota-or-lock';
+    }else{
+      const good=matching.find(x=>
+        Number.isInteger(x.handIndex)&&x.handIndex>=0&&
+        view.ownHand?.[x.handIndex]===x.printing&&
+        Number.isInteger(x.index)&&x.index>=0&&
+        view.ownPublic?.bench?.[x.index]&&
+        Array.isArray(view.ownPublic.bench[x.index].attacks)&&
+        view.ownPublic.bench[x.index].attacks.length>0);
+      if(good){
+        const intent={kind:'attach-special-energy',
+          printing:good.printing,handIndex:good.handIndex,
+          slot:'bench',index:good.index};
+        receipt.selectedKind=intent.kind;
+        receipt.selectedPrinting=intent.printing;
+        const target=view.ownPublic.bench[intent.index];
+        receipt.selectedTarget={slot:intent.slot,index:intent.index,
+          pokemonPrinting:typeof target.printing==='string'?target.printing:null,
+          pokemonName:typeof target.name==='string'?target.name:null};
+        receipt.reason='fund-public-bench-attack-before-turn-ending-root';
+        return {intent,receipt};
+      }
+      receipt.reason='unmatched-physical-owner-target';
+    }
   }
-  const intent={kind:'attach-special-energy',
-    printing:good.printing,handIndex:good.handIndex,
-    slot:'bench',index:good.index};
-  receipt.selectedKind=intent.kind;
-  receipt.selectedPrinting=intent.printing;
-  const target=view.ownPublic.bench[intent.index];
-  receipt.selectedTarget={slot:intent.slot,index:intent.index,
-    pokemonPrinting:typeof target.printing==='string'?target.printing:null,
-    pokemonName:typeof target.name==='string'?target.name:null};
-  receipt.reason='fund-public-bench-attack-before-turn-ending-root';
-  return {intent,receipt};
+  if(denials.length>0){
+    // Team Flare Grunt's verified printed effect targets the opponent's
+    // Active Energy. Require a visible multi-Energy investment before
+    // interrupting an available attack. This is a conservative heuristic,
+    // never a settled strategic win or a native legality certificate.
+    const target=view.opponentPublic?.active;
+    if(!Array.isArray(target?.energies)||target.energies.length<2){
+      receipt.reason='no-multi-energy-opponent-active';
+    }else if(r?.supporterPlayedTurn!==0||
+        r?.supporterPlayLocked===true||
+        view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
+        (view.ownPublic?.resolvingSupporter?.length??0)>0){
+      receipt.reason='supporter-quota-or-lock';
+    }else{
+      const good=denials.find(x=>
+        Number.isInteger(x.handIndex)&&x.handIndex>=0&&
+        view.ownHand?.[x.handIndex]===x.printing&&
+        x.printing==='Team Flare Grunt XY');
+      if(good){
+        const intent={kind:'play-team-flare-grunt-denial',
+          printing:good.printing,handIndex:good.handIndex};
+        receipt.selectedKind=intent.kind;
+        receipt.selectedPrinting=intent.printing;
+        receipt.selectedTarget={slot:'opponent-active',index:0,
+          pokemonPrinting:target.printing??null,
+          pokemonName:target.name??null};
+        receipt.reason='deny-visible-active-energy-before-turn-ending-attack';
+        return {intent,receipt};
+      }
+      receipt.reason='unmatched-physical-owner-supporter';
+    }
+  }
+  return {intent:first,receipt};
 }
 
 /** @returns {object} Bounded, postgame redacted chooser diagnostics. */
