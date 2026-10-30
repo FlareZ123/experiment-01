@@ -56,3 +56,7 @@ The existing read-only Store mulligan-compensation observer was independently co
 ## Actual first-turn pairing
 
 Independent pairwise inspection of the original-registration alternative shuffle artifact 12951923973 confirms **16/16 candidate pairs retained identical native draw-log-verified physical first-turn seats**. Of 32 native setup arms, physical seat0 started 22 times and seat1 started 10 times, representing 11 versus 5 matched seed pairs. All attempts were retained; this realized imbalance was not selected or corrected. The single rank11 source bonus difference had the same actual source-first turn in both variants.
+
+## Independent postgame predicates
+
+A separate Python audit of raw artifact 12951923973 recomputed all 16 paired comparisons without using the Node report summaries. It confirmed 32 unique trial IDs, identical per-pair seeds/source seats and draw-log actual starters, matching source shuffle permutations and source mulligan counts, and that every native bonus selection equaled actual hand growth without exceeding the offer. In all 16 pairs, equality of source bonus cards **actually drawn** coincided exactly with equality of complete source physical-deal SHA256. This is a bounded ex post native-sample check, not a general proof of source equality or a competitive outcome.
