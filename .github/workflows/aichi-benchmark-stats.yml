@@ -122,6 +122,8 @@ jobs:
         run: node --test tests/agent40-owner-bunnelby-tm-jet-line.test.cjs
       - name: Regress actual native-public Jet swap and Bunnelby Tool equip witnesses
         run: node --test tests/agent40-jet-tm-physical-witness.test.cjs
+      - name: Exact rank2 and rank15 Bunnelby direct opening access combinatorics
+        run: node --test tests/agent40-bunnelby-direct-opening-count.test.cjs
       - name: Audit printed source 60 mobility inventory and recovery channels
         run: node --test tests/agent7-source-mobility-roster.test.cjs
       - name: Compare exact source card Abilities across mixed printings
