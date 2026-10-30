@@ -30,32 +30,46 @@ function publicCostSymbols(cost,catalog){
 
 
 /**
- * Effective publicly known attack cost, including Thunder Mountain's Lightning
- * discount and Dimension Valley's Colorless discount. Both attack-readiness and attachment-gain evaluation
- * must use the same cost; otherwise a legal already-paid Lightning Bench
- * attack may be counted as needing another Energy.
- * @param {object} view Detached owner observation
- * @param {object} catalog Public printing/type catalog
- * @param {object} pokemon Face-up public Pokémon
- * @param {object} attack Public printed attack
- * @returns {string[]|null} New array of cost symbols or unsupported
+ * Return the numeric printed cost after only recognized public Stadium
+ * reductions. The resulting array is independent of the card's stored
+ * immutable printed cost. Unknown modifiers remain outside this model.
+ * @param {object} view Detached acting-player observation
+ * @param {object} catalog Public native type catalog
+ * @param {object} pokemon Public active or Bench slot
+ * @param {object} attack Its public printed attack
+ * @returns {number[]|null}
  */
-function effectivePublicAttackCost(view,catalog,pokemon,attack){
-  const cost=publicCostSymbols(attack.cost,catalog);
-  if(cost===null)return null;
+function effectiveNativeAttackCost(view,catalog,pokemon,attack){
+  if(!Array.isArray(attack?.cost))return null;
+  const cost=attack.cost.slice();
   const stadium=[...(view.ownPublic?.stadium??[]),
     ...(view.opponentPublic?.stadium??[])];
   if(stadium.some(p=>p.startsWith('Thunder Mountain Prism Star '))&&
       pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Lightning)){
-    const i=cost.indexOf('L');
+    const i=cost.indexOf(catalog.basicEnergyTypes.Lightning);
     if(i>=0)cost.splice(i,1);
   }
   if(stadium.some(p=>p.startsWith('Dimension Valley '))&&
       pokemon?.printed?.types?.includes(catalog.basicEnergyTypes.Psychic)){
-    const i=cost.indexOf('C');
+    const i=cost.indexOf(catalog.colorlessEnergyType);
     if(i>=0)cost.splice(i,1);
   }
   return cost;
+}
+
+/**
+ * Translate the same public effective native cost to flexible energy symbols
+ * used by special Energy payability. Shared numeric/symbolic reductions
+ * prevent inconsistent first-choice action and attachment-gain proposals.
+ * @param {object} view Detached acting-player observation
+ * @param {object} catalog Public native type catalog
+ * @param {object} pokemon Public active or Bench slot
+ * @param {object} attack Its public printed attack
+ * @returns {string[]|null}
+ */
+function effectivePublicAttackCost(view,catalog,pokemon,attack){
+  return publicCostSymbols(effectiveNativeAttackCost(
+    view,catalog,pokemon,attack),catalog);
 }
 
 /**
@@ -201,6 +215,6 @@ function choosePublicContextSpecialEnergy(view,catalog){
   return {kind,printing,handIndex,slot,index};
 }
 
-module.exports={VERSION,publicCostSymbols,effectivePublicAttackCost,publicEnergyContext,
+module.exports={VERSION,publicCostSymbols,effectiveNativeAttackCost,effectivePublicAttackCost,publicEnergyContext,
   futureOneUnitDeficit,choosePublicContextSpecialEnergy,
   publicSpecialAttackPayable};
