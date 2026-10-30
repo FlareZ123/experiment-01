@@ -17,35 +17,55 @@ const VERSION='agent22-sparse-owner-bundles-v1';
  * @param {1|2|3} max
  * @returns {ReadonlyArray<{printings:ReadonlyArray<string>}>|null}
  */
-function firstNativeValidBundle(prompt,max){
+function firstNativeValidBundle(prompt,max,scoreBundle=null){
   assert.ok(Number.isInteger(max)&&max>=1&&max<=3);
+  assert.ok(scoreBundle===null||typeof scoreBundle==='function');
   const cards=prompt.cards.cards;
   assert.ok(Array.isArray(cards));
-  // Caller must authenticate an owner deck/discard search on the live Store.
+  // Caller authenticates a live, owned deck/discard prompt. Native validation
+  // alone decides eligibility; scores see sorted printing names only.
   const ordered=cards.slice().sort((a,b)=>
     a.fullName<b.fullName?-1:a.fullName>b.fullName?1:0);
-  // A full 60-card pool has at most 36,050 size-three combinations,
-  // 1,770 size-two combinations and 60 singleton trials.
-  for(let size=Math.min(max,ordered.length);size>=1;size--){
+  let best=null,bestScore=-Infinity;
+  const consider=selected=>{
+    if(!prompt.validate(selected))return false;
+    const names=selected.map(card=>card.fullName);
+    if(scoreBundle===null){
+      best=names;
+      return true;
+    }
+    const score=scoreBundle(Object.freeze([...names]));
+    assert.ok(Number.isFinite(score),'Bundle score must be finite');
+    // Equal-valued bundles retain a predictable longest/lexical order.
+    const newer=score>bestScore||score===bestScore&&(
+      best===null||names.length>best.length||(
+        names.length===best.length&&
+        JSON.stringify(names)<JSON.stringify(best)));
+    if(newer){best=names;bestScore=score;}
+    return false;
+  };
+  // The unscored route retains the original first native-valid max-size
+  // lexicographic bundle. In scored mode, an empty optional search is a
+  // legitimate alternative when the native prompt permits it.
+  for(let size=Math.min(max,ordered.length);size>=(scoreBundle?0:1);
+      size--){
+    if(size===0){consider([]);continue;}
     const selected=[];
     const find=next=>{
-      if(selected.length===size)
-        return prompt.validate(selected)?selected.map(c=>c.fullName):null;
+      if(selected.length===size)return consider(selected);
       const needed=size-selected.length;
       for(let i=next;i<=ordered.length-needed;i++){
         selected.push(ordered[i]);
-        const names=find(i+1);
-        if(names)return names;
+        if(find(i+1))return true;
         selected.pop();
       }
-      return null;
+      return false;
     };
-    const names=find(0);
-    if(names)return Object.freeze([
-      Object.freeze({printings:Object.freeze(names)})
-    ]);
+    if(find(0))break;
   }
-  return null;
+  return best===null?null:Object.freeze([
+    Object.freeze({printings:Object.freeze(best)})
+  ]);
 }
 
 module.exports={VERSION,firstNativeValidBundle};
