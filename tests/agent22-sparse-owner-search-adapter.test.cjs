@@ -173,3 +173,20 @@ test('opt-in scored search is selected and physically accepted in two fake seats
   assert.equal(result.audit.accepted,2);
   assert.equal(result.audit.nativePromptPostconditionsConfirmed,2);
 });
+
+test('bounded owner menu scorer may explicitly choose native-valid empty search',()=>{
+  for(const seat of [0,1]){
+    const owned=physicalPrompt(['A','B','C'],seat);
+    const legal=owned.owner.deck.cards;
+    owned.prompt.validate=cards=>Array.isArray(cards)&&
+      cards.length<=3&&cards.every(c=>legal.includes(c));
+    const observe=()=>fakeActor(seat);
+    const baseline=sparseObservedOwnerSearch(owned.state,seat,observe);
+    const scored=sparseObservedOwnerSearch(owned.state,seat,observe,
+      names=>-names.length);
+    assert.deepEqual(baseline.prompt.bundles[0].printings,['A','B','C']);
+    assert.deepEqual(scored.prompt.bundles[0].printings,[]);
+    assert.equal(scored.prompt.canSkip,true);
+    assert.equal(scored.prompt.canCancel,false);
+  }
+});
