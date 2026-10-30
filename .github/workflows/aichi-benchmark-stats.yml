@@ -504,6 +504,8 @@ jobs:
         run: npm run compile
       - name: Inspect actual pinned native Spiritomb LTR and Genesect SFA CardManager print and Ability coverage
         run: node simulation/twinleaf/agent24-ace-nullifier-native-coverage.cjs > agent24-ace-native.json
+      - name: Print compact honest ACE SPEC lock native registry status
+        run: node -e "const r=require('./agent24-ace-native.json');console.log('ORIGINAL_NATIVE_ACE_REGISTRY',JSON.stringify(r.results.map(x=>({printing:x.reference,registered:x.nativeCardRegistered,exact:x.exactNativePrinting,ability:x.namedNativeAbility,text:x.nativeAbilityText,effectSettled:x.nativeEffectActuallySettled}))));"
       - name: Verify two native 59-card releases fail closed and conserved original Store case passes
         run: node simulation/twinleaf/agent24-physical-release-original-store-threecase.cjs > agent24-original-physical-native.json
       - name: Archive actual three-case native custody receipts without game-win claims
