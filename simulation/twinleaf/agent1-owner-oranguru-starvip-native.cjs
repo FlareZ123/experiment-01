@@ -250,18 +250,11 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       }
       return decoder.value.call(this,state);
     }
-    // Pinned SimpleTacticsAi.isValidAction creates a Simulator that explicitly
-    // rejects any state with an unresolved prompt. The pending branch above
-    // already applies the real prompt.validate, and strict native Store is
-    // authoritative for resolution. Only probe normal owner-turn actions.
-    const nativeLegal=pending?true:
-      (typeof this.isValidAction==='function'?
-        this.isValidAction(state,action):true);
-    if(!nativeLegal){
-      abort(ctx,'native-unplayable-action-at-stage-'+ctx.step);
-      planBySeat.delete(seat);
-      return decoder.value.call(this,state);
-    }
+    // The authentic Store.dispatch is the move legality authority; the
+    // SimpleTacticsAi simulator probe can reject legal multi-step roots and
+    // cannot evaluate unresolved prompts. The K1 branch already validated
+    // owner-only search/target prompts. Record stage advancement only after
+    // the real Store accepts the proposed action below.
     chosen.set(action,{seat,step:ctx.step,ctx,prompt:Boolean(pending)});
     return action;
   }
