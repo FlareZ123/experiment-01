@@ -208,8 +208,11 @@ function evaluateRelease(packet) {
     blockers.push('PAPER_CLOCK_UNVERIFIED');
   return {version:VERSION, field, fixtures, nativeRoundTrips,
     candidateComplete, blockers,
-    competitiveQualified: blockers.length === 0,
-    caveat:'Flags and artifact references require independent native and paper review; identifier loading and CI success alone confer no game wins.'};
+    nativePrintingReleaseGatePassed: blockers.length === 0,
+    competitiveQualified: false,
+    competitiveQualifiedGames: 0,
+    requiresIndependentGameOutcomeAdjudication: true,
+    caveat:'Clearing native-print and fixture vetos is a necessary precondition, not game-strength or competitive-match qualification. Flags and evidence references need independent native and paper review.'};
 }
 
 module.exports = {VERSION, auditSourcePrintings,
