@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      preapex_natural:
+        description: Original24 actor-owner-only prospective payload option census, no gameplay policy change
+        required: false
+        type: boolean
+        default: false
       physical_loss_lineage:
         description: Retrospective 2 exact naturally lost-card cases with native action lineage
         required: false
@@ -47,13 +52,15 @@ jobs:
         run: node --check simulation/twinleaf/agent47-source20-physical-ledger-24-native.cjs
       - name: Check natural two-case root lineage runner syntax
         run: node --check simulation/twinleaf/agent47-natural-physical-loss-lineage-two.cjs
+      - name: Check future Apex native opportunity census syntax
+        run: node --check simulation/twinleaf/agent47-preapex-owner-opportunity-24-native.cjs
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs tests/physical-card-ledger.test.cjs tests/agent47-preapex-payload-opportunity.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
@@ -71,6 +78,19 @@ jobs:
           path: |
             agent47-apex-source20-native.json
             agent47-apex-source20-followthrough-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Natural 24-game actor-only prospective Dragon payload legal menu options
+        if: ${{ inputs.preapex_natural }}
+        run: node simulation/twinleaf/agent47-preapex-owner-opportunity-24-native.cjs > agent47-preapex-native.json
+      - name: Print exact source owner early Dragon payload menu opportunities
+        if: ${{ inputs.preapex_natural }}
+        run: node -e "const r=require('./agent47-preapex-native.json');console.log('AGENT47_PREAPEX_OWNER_OPTIONS',JSON.stringify({counts:r.counts,opportunities:r.opportunities}));"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.preapex_natural }}
+        with:
+          name: agent47-source20-preapex-actor-options
+          path: agent47-preapex-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Retrospective original-source 2-case native 59-card root lineage
