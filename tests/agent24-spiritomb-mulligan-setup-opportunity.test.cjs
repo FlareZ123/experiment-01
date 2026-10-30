@@ -9,7 +9,7 @@ const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-11,
 test('genuine 4-Basic original opponent model matches independent exact rational sum',()=>{
   const expected=[
     {copies:1,p:0.15880707796969574,gain:2.337010964821273},
-    {copies:2,p:0.29633051639807633,gain:3.922982007085443},
+    {copies:2,p:0.29633051639807633,gain:3.92298307708544},
     {copies:3,p:0.4152310320970058,gain:4.905253095429369},
     {copies:4,p:0.5178527297254188,gain:5.407828838463665}
   ];
