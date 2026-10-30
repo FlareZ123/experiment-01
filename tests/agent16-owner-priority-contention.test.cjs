@@ -249,3 +249,87 @@ test('printed duplicate action cannot contend with itself after hand reordering'
   assert.equal(r.alternatives.length,0);
   assert.equal(r.selectedPriority,16);
 });
+
+
+/**
+ * Same owner-visible hand as the immediate-attack Special comparator test.
+ * The early Special branch executes before generic Basic Energy placement.
+ * The original v4 contention observer classified it as a late Special and
+ * lost the displaced Basic option entirely.
+ */
+function contestedEnergySource(){
+  const L=1,C=9;
+  return {
+    view:{
+      decisionKind:'owner-root',globalTurn:3,
+      ownHand:['Lightning Energy SVE','Double Colorless Energy SUM'],
+      ownTurnResources:{pokemonPlayLocked:false,energyPlayLocked:false,
+        specialEnergyPlayLocked:false,energyPlayedTurn:0},
+      ownPublic:{
+        bench:[null,null,null,null,null],stadium:[],
+        publicTurnRestrictions:{attackLockTurnsRemaining:0},
+        active:{
+          name:'Iron Thorns ex',printing:'Iron Thorns ex TWM',
+          energies:['Lightning Energy SVE'],
+          publicRestrictions:{cannotAttackNextTurn:false},
+          specialConditions:[],
+          attacks:[{name:'Volt Cyclone',damage:140,cost:[L,C,C],
+            gxAttack:false}]
+        }
+      },opponentPublic:{stadium:[]}
+    },
+    catalog:{
+      basics:new Set(),abilityBasics:new Set(),
+      basicEnergies:new Set(['Lightning Energy SVE']),
+      specialEnergies:new Set(['Double Colorless Energy SUM']),
+      basicEnergyTypes:{Lightning:L},colorlessEnergyType:C,
+      specialConditions:{ASLEEP:6,PARALYZED:7}
+    },
+    options:{contestedEnergyRoot:true,specialEnergyRoot:true}
+  };
+}
+
+test('early Special records the otherwise displaced Basic at same genuine owner root',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const {view:v,catalog,options}=contestedEnergySource();
+  const selected=chooseActorRootIntent(v,catalog,options);
+  assert.deepEqual(selected,{kind:'attach-special-energy',
+    handIndex:1,printing:'Double Colorless Energy SUM',
+    slot:'active',index:0});
+  const receipt=collectOwnerContention(v,catalog,options,selected);
+  assert.equal(receipt.selectedPriority,6);
+  assert.equal(receipt.unknownPriority,false);
+  assert.deepEqual(receipt.alternatives.map(a=>[
+    a.probe,a.kind,a.printing,a.slot,a.index,a.reason,a.nativePlayability
+  ]),[['displaced-basic-energy','attach-basic-energy',
+    'Lightning Energy SVE','active',0,'same-turn-energy-attachment',
+    'unverified']]);
+});
+
+test('displaced Basic appears only for exact verified early Special intent',()=>{
+  const {view:v,catalog,options}=contestedEnergySource();
+  const late={kind:'attach-special-energy',handIndex:1,
+    printing:'Speed Lightning Energy RCL',slot:'active',index:0};
+  const notMatched=collectOwnerContention(v,catalog,options,late);
+  assert.equal(notMatched.selectedPriority,16);
+  assert.deepEqual(notMatched.alternatives,[]);
+  const flagsOff=collectOwnerContention(v,catalog,
+    {...options,contestedEnergyRoot:false},{
+      kind:'attach-special-energy',handIndex:1,
+      printing:'Double Colorless Energy SUM',slot:'active',index:0});
+  assert.equal(flagsOff.selectedPriority,16);
+  assert.deepEqual(flagsOff.alternatives,[]);
+});
+
+test('displaced Basic proposal ignores concealed opposing and future deck cards',()=>{
+  const x=contestedEnergySource(),y=contestedEnergySource();
+  x.view.opponentPrivate={hand:['one'],prizes:['first']};
+  y.view.opponentPrivate={hand:['different'],prizes:['other']};
+  x.view.unknownDeckOrder=['A'];
+  y.view.unknownDeckOrder=['B'];
+  const chosen={kind:'attach-special-energy',handIndex:1,
+    printing:'Double Colorless Energy SUM',slot:'active',index:0};
+  assert.deepStrictEqual(collectOwnerContention(x.view,x.catalog,x.options,chosen),
+    collectOwnerContention(y.view,y.catalog,y.options,chosen));
+});
