@@ -32,7 +32,10 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
     if(scoreBundle===null||!Array.isArray(standard.prompt.bundles))
       return standard;
     assert.equal(typeof scoreBundle,'function');
-    const ranked=standard.prompt.bundles.map(bundle=>{
+    const menus=standard.prompt.canSkip?
+      [...standard.prompt.bundles,{printings:Object.freeze([])}]:
+      standard.prompt.bundles;
+    const ranked=menus.map(bundle=>{
       const score=scoreBundle(bundle.printings);
       assert.ok(Number.isFinite(score),'Bundle score must be finite');
       return {bundle,score};
