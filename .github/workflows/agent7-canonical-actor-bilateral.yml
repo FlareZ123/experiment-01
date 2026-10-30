@@ -157,7 +157,7 @@ jobs:
       - name: Regress owner-visible paid retreat and native physical receipt
         run: node --test tests/agent6-actor-paid-retreat-frontier.test.cjs tests/agent6-paid-retreat-physical-witness.test.cjs
       - name: Verify optional frontier and default root parity
-        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs tests/agent16-owner-priority-contention.test.cjs tests/agent10-raichu-damage-breakpoint-before-attack.test.cjs tests/agent16-native-contention-paircheck.test.cjs tests/agent37-owner-arbiter-observation-boundary.test.cjs tests/agent37-firstturn-exception.test.cjs tests/agent37-attackphase-owner-search-adapter.test.cjs tests/agent37-attack-evolution-owner-prompt.test.cjs
+        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/agent3-special-energy-root.test.cjs tests/agent16-owner-priority-contention.test.cjs tests/agent10-raichu-damage-breakpoint-before-attack.test.cjs tests/agent16-native-contention-paircheck.test.cjs tests/agent37-owner-arbiter-observation-boundary.test.cjs tests/agent37-firstturn-exception.test.cjs tests/agent37-attackphase-owner-search-adapter.test.cjs tests/agent37-attack-evolution-owner-prompt.test.cjs tests/agent37-attack-recovery-owner-prompt.test.cjs
       - name: Check out exact pinned upstream engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -173,6 +173,8 @@ jobs:
         run: node --test tests/agent17-conditional-special-native.test.cjs
       - name: Verify first-player printed native exceptions in both physical seats
         run: node --test tests/agent37-firstturn-exception.native.test.cjs
+      - name: Verify native Omega Barrage Rototiller owner recovery in both seats
+        run: node --test tests/agent37-bunnelby-rototiller-recovery.native.test.cjs
       - name: Census 118 original source Specials in the pinned CardManager
         run: node --test tests/agent17-original-special-native-catalog.test.cjs
       - name: Verify native Enhanced and Crushing Hammer prompts and physical Energy discard
