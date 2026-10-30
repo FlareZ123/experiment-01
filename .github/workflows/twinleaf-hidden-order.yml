@@ -85,6 +85,9 @@ jobs:
       - name: Require complete original-six actor boundary census
         if: inputs.agent1_six_native_opponent_return
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');a.equal(r.scheduled,6);a.equal(r.attempted,6);a.equal(r.handAndBenchParity,6);a.equal(r.opponentFirstRoots,6);a.equal(r.sourceReturnRoots+r.nonreturningTerminals+r.nonreturningCensors+r.blocked,6);a.equal(r.competitiveQualifiedGames,0);console.log('RANK11_OPPONENT_RETURN',JSON.stringify({opponentFirstRoots:r.opponentFirstRoots,sourceReturnRoots:r.sourceReturnRoots,nonreturningTerminals:r.nonreturningTerminals,nonreturningCensors:r.nonreturningCensors,blocked:r.blocked}))"
+      - name: Summarize original six public-source boards after the opposing native turn
+        if: inputs.agent1_six_native_opponent_return
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-six-rank11-opponent-return.json');const rows=r.rows.map(x=>({index:x.index,seed:x.seed,status:x.status,opponentRootCount:x.opponentRootProposals?.length??0,equippedGarbodorAfter:x.afterOpponentPublic?.sourceEquippedGarbodorCount??null,sourcePrizesAfter:x.afterOpponentPublic?.sourceRemainingPrizes??null}));a.equal(rows.length,6);for(const x of rows){a.equal(x.status,'native-opponent-turn-returned-to-source-root');a.ok(x.opponentRootCount>0);a.ok(Number.isInteger(x.equippedGarbodorAfter));}console.log('RANK11_SOURCE_PUBLIC_RETURN_ROWS',JSON.stringify(rows))"
       - name: Preserve six native opponent turns including returns, censors and errors
         if: inputs.agent1_six_native_opponent_return && always()
         uses: actions/upload-artifact@v4
