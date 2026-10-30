@@ -36,6 +36,12 @@ on:
         type: boolean
         default: false
 
+      per_seat_all32_census:
+        description: 'Compare 32 original frozen source setups under a separately defined per-player shuffled deck RNG protocol'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -137,5 +143,16 @@ jobs:
         with:
           name: agent26-per-seat-shuffle-counterfactual
           path: agent26-per-seat-setup-streams.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Reproduce original registered 32 seed/seat decks under alternative per-seat source shuffles
+        if: ${{ inputs.per_seat_all32_census }}
+        run: node simulation/evaluation/agent26-perseat-all32-setup-census.cjs > agent26-perseat-32-source-setups.json
+      - name: Archive all 32 source setups under per-seat shuffle counterfactual
+        if: ${{ always() && inputs.per_seat_all32_census }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent26-perseat-32-setup-census
+          path: agent26-perseat-32-source-setups.json
           if-no-files-found: error
           retention-days: 14
