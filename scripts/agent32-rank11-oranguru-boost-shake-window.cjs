@@ -78,6 +78,10 @@ function survivingPrizeSets(held, needed) {
 function exactOranguruBoostShakeWindow() {
   let favorableWeighted = 0n;
   let novelK0Weighted = 0n;
+  let novelK0KnownGarbodorUnavailableWeighted = 0n;
+  const novelK0MarginalFailWeighted = {
+    garbodor: 0n, trubbish: 0n, vip: 0n, forest: 0n, float: 0n
+  };
   let eightHandConfigurations = 0;
   const byRoute = {trubbishHeld: 0n, vipHeld: 0n, vipStarSearched: 0n};
   const hand = {};
@@ -94,7 +98,19 @@ function exactOranguruBoostShakeWindow() {
       // Oranguru was a legal initial Active, held Shake, no held T/V.
       // Whether the Prize cards remove the rest remains unknown at K0.
       if (hand.trubbish === 0 && hand.vip === 0 && hand.shake > 0) {
-        novelK0Weighted += ways * choose(52, 6) * startsWithOranguruFactor;
+        const handWeight = ways * startsWithOranguruFactor;
+        novelK0Weighted += handWeight * choose(52, 6);
+        if (hand.garbodor === INVENTORY.garbodor) {
+          novelK0KnownGarbodorUnavailableWeighted += handWeight * choose(52, 6);
+        }
+        // Marginal failure categories can overlap in the same Prize set.
+        // In particular, Garbodor can be inaccessible when both are held,
+        // even when no copy is Prized.
+        for (const key of Object.keys(novelK0MarginalFailWeighted)) {
+          if ((key === 'forest' || key === 'float') && hand[key] > 0) continue;
+          const bad = choose(52, 6) - survivingPrizeSets(hand, [key]);
+          novelK0MarginalFailWeighted[key] += handWeight * bad;
+        }
       }
       let route;
       const required = ['garbodor']; // Boost Shake must search Stage 1.
@@ -149,6 +165,17 @@ function exactOranguruBoostShakeWindow() {
       conditionalDenominator),
     novelK1ResourceSuccessGivenK0: ratio(byRoute.vipStarSearched,
       novelK0Weighted),
+    novelK0KnownNoDeckGarbodorGivenK0: ratio(
+      novelK0KnownGarbodorUnavailableWeighted, novelK0Weighted),
+    novelK0AfterKnownGarbodorFilterConditionalBasicValid: ratio(
+      (novelK0Weighted - novelK0KnownGarbodorUnavailableWeighted) *
+        conditionalMultiplier, conditionalDenominator),
+    novelK1ResourceSuccessGivenFilteredK0: ratio(
+      byRoute.vipStarSearched,
+      novelK0Weighted - novelK0KnownGarbodorUnavailableWeighted),
+    novelK0MarginalFailureGivenK0: Object.fromEntries(
+      Object.entries(novelK0MarginalFailWeighted).map(([key, value]) =>
+        [key, ratio(value, novelK0Weighted)])),
     partitionConditionalBasicValid: Object.fromEntries(
       Object.entries(byRoute).map(([key, value]) =>
         [key, ratio(value * conditionalMultiplier, conditionalDenominator)]))
