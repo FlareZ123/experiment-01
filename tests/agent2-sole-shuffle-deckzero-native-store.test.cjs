@@ -84,3 +84,35 @@ test('pinned Marnie currently draws owner despite protected opponent-only hand',
     'Observed pinned violation: native onMovePrevented still draws owner');
   assert.equal(owner.deck.cards.length,0);
 });
+
+for(const [name,CardType] of [['Iono',Iono],['Marnie',Marnie]]){
+  test(name+' corrected opponent-only Dew Guard leaves owner draw untouched',()=>{
+    const store=new Store({onStateChange(){}});
+    const state=store.state;
+    const owner=new Player(),opponent=new Player();
+    owner.id=101;opponent.id=202;
+    owner.name='A';opponent.name='B';
+    owner.prizes=prizes(3);opponent.prizes=prizes(2);
+    const supporter=new CardType();
+    owner.supporter.cards.push(supporter);
+    owner.deck.cards.push(new Card());
+    opponent.hand.cards.push(new Card());
+    const protectedBench=new PokemonCardList();
+    protectedBench.cards.push(new Milotic());
+    opponent.bench.push(protectedBench);
+    state.players=[owner,opponent];
+    state.activePlayer=0;state.phase=GamePhase.SETUP;state.turn=5;
+    assert.equal(supporter.canPlay(store,state,owner),true);
+    withSoleShuffleDeckZeroCorrection(()=>{
+      store.reduceEffect(state,new TrainerEffect(owner,supporter));
+    });
+    assert.equal(opponent.hand.cards.length,1,
+      'Opponent remains protected by Dew Guard');
+    assert.equal(opponent.deck.cards.length,0);
+    assert.equal(owner.hand.cards.length,0,
+      'Neither player returned cards; printed draw must be suppressed');
+    assert.equal(owner.deck.cards.length,1);
+    assert.equal(supporter.canPlay(store,state,owner),true,
+      'The reversible opt-in restored the pinned class');
+  });
+}
