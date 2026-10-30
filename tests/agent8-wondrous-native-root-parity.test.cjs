@@ -120,7 +120,7 @@ function tryOriginalThornsAttack(seat,labyrinth){
         // over an already attached Energy card; its accepted assignment
         // moves that exact physical card from Active to Bench.
         const energy=owner.active.energies.cards[0];
-        if(!pending.cardList?.cards.includes(energy)){
+        if(!pending.cardList?.energies?.cards.includes(energy)){
           console.log('AGENT50_NATIVE_ATTACH_PROMPT_DIAG',JSON.stringify({
             seat,labyrinth,keys:Object.keys(pending),
             cardListType:pending.cardList?.constructor.name??null,
@@ -133,7 +133,7 @@ function tryOriginalThornsAttack(seat,labyrinth){
             ownerBenchEnergy:owner.bench.map(b=>b.energies.cards.map(c=>c.fullName))
           }));
         }
-        assert.ok(pending.cardList?.cards.includes(energy),
+        assert.ok(pending.cardList?.energies?.cards.includes(energy),
           'Volt Cyclone prompt must source the owner attached Energy');
         const assignment=[{
           card:energy,
