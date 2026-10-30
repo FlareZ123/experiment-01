@@ -82,6 +82,15 @@ function run(){
             row.playerSlot===sourceSeat&&row.turnBefore===1&&
             row.action!=='ResolvePromptAction'&&
             row.decisionHandBefore?.perspectiveSeat===sourceSeat);
+          const sourceT3Roots=(game.rootActionLedger??[]).filter(row=>
+            row.playerSlot===sourceSeat&&row.turnBefore===3).map(row=>({
+              ordinal:row.actionOrdinal,action:row.action,
+              card:row.card??null,attack:row.attack??null,
+              prompt:row.pendingPrompt??null}));
+          const sourceT3FirstOwner=(game.decisionTrace??[]).find(row=>
+            row.playerSlot===sourceSeat&&row.turnBefore===3&&
+            row.action!=='ResolvePromptAction'&&
+            row.decisionHandBefore?.perspectiveSeat===sourceSeat);
           const settlement=candidateAttackSettlement(game,sourceSeat);
           const t3=settlement.attacks.filter(row=>
             row.turnBefore===3&&row.attackName==='Volt Cyclone');
@@ -96,7 +105,14 @@ function run(){
             sourceT1RootActions:sourceT1,
             firstCandidateReplyRoots:candidateT2,
             sourceFirstTagCallAudit:tagAudit,
+            sourceT3PolicyStarted:broad.started,
             sourceT3PolicyCompleted:broad.completed,
+            sourceT3AbortReason:broad.abortReason,
+            sourceT3OpeningPlan:broad.openingPlan,
+            sourceT3PolicyEvents:broad.events,
+            sourceT3FirstOwnerHandPrintings:sourceT3FirstOwner?.
+              decisionHandBefore?.ownHandPrintings??null,
+            sourceT3Roots,
             sourceT3NativeSettlements:t3,
             sourceAllAttackDeclarations:settlement.declarations,
             sourceAllSettledAttacks:settlement.settled,
@@ -118,7 +134,7 @@ function run(){
   assert.equal(rows.length,6);
   const all=rows.flatMap(row=>row.arms);
   assert.equal(all.length,12);
-  return {schema:'agent6-source-first-tagcall-retrospective-native-v1',
+  return {schema:'agent6-source-first-tagcall-retrospective-native-v2',
     registration:'results/aichi-2026/registrations/agent6-retrospective-tagcall-six-deal-20261030.json',
     attemptedNativeArms:all.length,
     errors:all.filter(a=>a.status==='native-error').length,
