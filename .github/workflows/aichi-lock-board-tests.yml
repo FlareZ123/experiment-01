@@ -112,31 +112,6 @@ on:
         required: false
         type: boolean
         default: false
-      agent33_tropical_beach_native:
-        description: 'Staged both-seat native Tropical Beach action draw and end-turn only, unqualified'
-        required: false
-        type: boolean
-        default: false
-      agent33_tropical_beach_paired:
-        description: 'Twelve preregistered original-rank3/6/29 same-deal Beach control vs optional owner-policy development games'
-        required: false
-        type: boolean
-        default: false
-      agent33_players_ceremony_native:
-        description: 'Pinned both-seat SP127 held Stadium PlayCard then UseStadiumAction effect settlement'
-        required: false
-        type: boolean
-        default: false
-      agent33_sky_field_native:
-        description: 'Pinned both-seat original Sky Field PlayCard and sixth Basic Bench expansion'
-        required: false
-        type: boolean
-        default: false
-      agent33_path_to_peak_native:
-        description: 'Pinned two-seat real Path PlayCard and Genesect Rule Box Ability suppression'
-        required: false
-        type: boolean
-        default: false
       agent34_gholdengo_native:
         description: 'Two-seat compiled original Store Gholdengo 30C direct Prize card and hand reset, synthetic staged'
         required: false
@@ -174,31 +149,25 @@ jobs:
         run: npm run compile
       - name: Regress conservative Path to the Peak public opposing Ability lock
         run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
-      - name: Stage actual Path to the Peak suppressing opponent's Genesect Ability both seats
-        if: inputs.agent33_path_to_peak_native
+  if: inputs.agent33_path_to_peak_native
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
         run: node --test tests/agent33-sky-field-bench-expansion.test.cjs
-      - name: Stage native Sky Field expanding five to eight real Bench slots
-        if: inputs.agent33_sky_field_native
+  if: inputs.agent33_sky_field_native
         run: node --test tests/agent33-sky-field-bench-expansion-pinned.test.cjs
       - name: Regress Player Ceremony owner-only default-off end-turn Stadium choice
         run: node --test tests/agent33-players-ceremony-lastchance.test.cjs
-      - name: Stage original SP127 Player Ceremony full Store play and use on both physical seats
-        if: inputs.agent33_players_ceremony_native
+  if: inputs.agent33_players_ceremony_native
         run: node --test tests/agent33-players-ceremony-full-action-pinned.test.cjs
-      - name: Stage actual both-seat Tropical Beach end-turn native Store action
-        if: inputs.agent33_tropical_beach_native
+  if: inputs.agent33_tropical_beach_native
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
       - name: Test native Beach effect observer's public-card-count-only settlement predicates
         run: node --test tests/agent33-beach-store-effect-witness.test.cjs
       - name: Fail closed on fabricated paired Beach starts and failed native attempts
         run: node --test tests/agent33-tropical-beach-original-paired.test.cjs
-      - name: Preserve entire paired original rank3/6/29 Beach native-development panel
-        if: inputs.agent33_tropical_beach_paired
+  if: inputs.agent33_tropical_beach_paired
         run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
-      - name: Archive both physical seats and failed attempts in fixed Beach development panel
-        if: inputs.agent33_tropical_beach_paired && always()
+  if: inputs.agent33_tropical_beach_paired && always()
         uses: actions/upload-artifact@v4
         with:
           name: agent33-original-three-rank-beach-paired

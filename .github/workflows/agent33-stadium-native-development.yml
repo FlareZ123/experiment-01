@@ -1,0 +1,58 @@
+name: Agent33 Stadium owner-root pinned native developmental checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      study:
+        description: 'Choose one precommitted native rules or physical-deal development study'
+        required: true
+        type: choice
+        default: tropical-beach-stage
+        options:
+          - tropical-beach-stage
+          - tropical-beach-original-paired
+          - players-ceremony-stage
+          - sky-field-stage
+          - path-to-the-peak-stage
+
+permissions:
+  contents: read
+
+jobs:
+  native-stadium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native both-seat Tropical Beach held-card and draw-to-seven
+        if: inputs.study == 'tropical-beach-stage'
+        run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
+      - name: Native original ranks 3 6 29 same-physical-deal Beach comparison
+        if: inputs.study == 'tropical-beach-original-paired'
+        run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
+      - name: Archive all original same-deal Beach paired trial attempts
+        if: inputs.study == 'tropical-beach-original-paired' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-original-three-rank-beach-paired
+          path: agent33-beach-original-paired.json
+          if-no-files-found: warn
+      - name: Native both-seat Japanese SP127 Player Ceremony from held card
+        if: inputs.study == 'players-ceremony-stage'
+        run: node --test tests/agent33-players-ceremony-full-action-pinned.test.cjs
+      - name: Native both-seat Sky Field and sixth Basic Bench promotion
+        if: inputs.study == 'sky-field-stage'
+        run: node --test tests/agent33-sky-field-bench-expansion-pinned.test.cjs
+      - name: Native both-seat Path to Peak suppression of Genesect Ability
+        if: inputs.study == 'path-to-the-peak-stage'
+        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
