@@ -38,7 +38,9 @@ test('retrospective original Store both-seat Hammer policy retains original deal
   assert.equal(baseline.competitiveQualifiedGames,0);
   assert.equal(treated.competitiveQualifiedGames,0);
   const totals={attempted:4,accepted:0,discarded:0,
-    rejected:0,headsNotMeasured:true,byRank:{},capped:0};
+    rejected:0,headsNotMeasured:true,byRank:{},capped:0,
+    firstOwnerTurnRoots:0,rootHammerOpportunities:0,
+    nonPassHammerOpportunities:0,distinctHammerOpportunityTurns:0};
   for(let i=0;i<4;i++){
     const before=baseline.rows[i],after=treated.rows[i];
     assert.equal(before.trial.id,after.trial.id);
@@ -53,6 +55,16 @@ test('retrospective original Store both-seat Hammer policy retains original deal
     assert.equal(a.proposedHammerRoots,
       a.acceptedHammerRoots+a.rejectedHammerRoots);
     assert.ok(a.acceptedEnergyDiscards<=a.acceptedHammerRoots);
+    assert.ok(a.firstOwnerTurnRoots>=a.distinctHammerOpportunityTurns);
+    assert.ok(a.rootHammerOpportunities>=a.distinctHammerOpportunityTurns);
+    assert.ok(a.rootHammerOpportunities>=a.nonPassHammerOpportunities);
+    assert.ok(a.distinctHammerOpportunityTurns>=
+      a.distinctNonPassFirstOpportunityTurns);
+    assert.ok(a.firstOwnerTurnsHoldingHammer<=a.firstOwnerTurnRoots);
+    totals.firstOwnerTurnRoots+=a.firstOwnerTurnRoots;
+    totals.rootHammerOpportunities+=a.rootHammerOpportunities;
+    totals.nonPassHammerOpportunities+=a.nonPassHammerOpportunities;
+    totals.distinctHammerOpportunityTurns+=a.distinctHammerOpportunityTurns;
     totals.accepted+=a.acceptedHammerRoots;
     totals.discarded+=a.acceptedEnergyDiscards;
     totals.rejected+=a.rejectedHammerRoots;
@@ -60,12 +72,28 @@ test('retrospective original Store both-seat Hammer policy retains original deal
     const rank=String(after.trial.rank);
     const row=totals.byRank[rank]??{
       originalPasses:0,eligiblePasses:0,accepted:0,
-      energyDiscards:0,bySeat:{0:0,1:0},sampleActions:[]
+      energyDiscards:0,bySeat:{0:0,1:0},sampleActions:[],
+      firstOwnerTurnRoots:0,holdingHammerAtFirstOwnerRoot:0,
+      rootOpportunities:0,nonPassOpportunities:0,
+      distinctHammerOpportunityTurns:0,
+      distinctNonPassFirstOpportunityTurns:0,
+      competingActionClasses:{},sampleOpportunities:[]
     };
     row.originalPasses+=a.originalPasses;
     row.eligiblePasses+=a.eligiblePasses;
     row.accepted+=a.acceptedHammerRoots;
     row.energyDiscards+=a.acceptedEnergyDiscards;
+    row.firstOwnerTurnRoots+=a.firstOwnerTurnRoots;
+    row.holdingHammerAtFirstOwnerRoot+=a.firstOwnerTurnsHoldingHammer;
+    row.rootOpportunities+=a.rootHammerOpportunities;
+    row.nonPassOpportunities+=a.nonPassHammerOpportunities;
+    row.distinctHammerOpportunityTurns+=a.distinctHammerOpportunityTurns;
+    row.distinctNonPassFirstOpportunityTurns+=
+      a.distinctNonPassFirstOpportunityTurns;
+    for(const [kind,count] of Object.entries(a.competingActionClasses))
+      row.competingActionClasses[kind]=
+        (row.competingActionClasses[kind]??0)+count;
+    row.sampleOpportunities.push(...a.hammerOpportunityExamples.slice(0,6));
     for(const seat of [0,1])
       row.bySeat[seat]+=a.bySeat[seat].roots;
     row.sampleActions.push(...a.examples.slice(0,6));
