@@ -98,8 +98,14 @@ function run(){
     'Source-level bypass prediction changed: investigate real native mechanics');
   assert.deepEqual(arms.map(x=>x.paperDamage),[140,120,140,120]);
   assert.equal(arms.filter(x=>!x.nativePaperParity).length,2);
+  const patched=[];
+  for(const seat of [0,1]){
+    patched.push(runArm(seat,true,true));
+  }
+  assert.deepEqual(patched.map(x=>x.damage),[120,120]);
+  assert.ok(patched.every(x=>x.nativePaperParity));
   return {schema:'agent7-tinkaton-press-dte-pinned-source-fidelity-v1',
-    enginePin:PIN,arms,qualifiedCompetitiveGames:0,
+    enginePin:PIN,arms,patched,qualifiedCompetitiveGames:0,
     note:'Artificial Store staging isolates a printing-level damage modifier, not a legal physical deal or competitive matchup.'};
 }
 
