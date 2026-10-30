@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
   choose,basicOpeningDistribution,directColorlessAttackerReady,
-  directVoltorbAttachment,directFreeFrontliner,main
+  directVoltorbAttachment,directFreeFrontliner,
+  directCresseliaThreePsychicToTarget,main
 }=require('../scripts/agent2-firstturn-opening-frontier.cjs');
 
 /** @param {number} actual @param {number} expected @param {number} epsilon */
@@ -40,6 +41,18 @@ test('Hisuian Voltorb can search one or two Basic Energy for real benches',()=>{
   assert.equal(directVoltorbAttachment(4,8,0,1),0);
   assert.ok(directVoltorbAttachment(4,8,8,2)<
     directVoltorbAttachment(4,8,8,1));
+});
+test('exact Cresselia CRE Psychic three-energy target requires actual V Bench and unprized deck',()=>{
+  close(directCresseliaThreePsychicToTarget(1,3,10,11),0.03074509391);
+  close(directCresseliaThreePsychicToTarget(2,3,9,11),0.05894961898);
+  close(directCresseliaThreePsychicToTarget(4,3,7,11),0.10839751221);
+  assert.ok(directCresseliaThreePsychicToTarget(4,3,7,11)>
+    directCresseliaThreePsychicToTarget(2,3,9,11));
+  assert.equal(directCresseliaThreePsychicToTarget(4,3,7,0),0);
+  assert.equal(directCresseliaThreePsychicToTarget(4,3,7,2),0);
+  const full=main(false).cresseliaCREThreePsychicToShadowRiderVIllustration;
+  close(full.activeOneCopy,0.03074509391);
+  close(full.activeFourCopies,0.10839751221);
 });
 test('reuses authoritative Stage census instead of a duplicate promo resolver',()=>{
   const existing=require('../scripts/aichi-opening-basics.cjs')
