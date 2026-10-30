@@ -6,7 +6,7 @@ const VERSION='agent22-k0-unrestricted-search-marginal-hypergeometric-v1';
 
 /**
  * Exact multivariate-hypergeometric expectation of a small unrestricted,
- * optionally empty, own-deck search with additive diminishing card rewards.
+ * at-least-one-card, own-deck search with additive diminishing card rewards.
  * This is a belief calculation only, never a physical-Store card selector.
  * Its caller must establish an honestly observed K0 inventory and the
  * explicit uniform unknown Prize allocation premise.
@@ -35,6 +35,8 @@ function expectedK0UnrestrictedSearchValue(input){
   assert.ok(Number.isFinite(input.perCardCost)&&input.perCardCost>=0);
   assert.ok(Number.isInteger(input.maxCards)&&input.maxCards>=1&&
     input.maxCards<=3);
+  assert.ok(deckCount+observedDeckPrintings.length>=1,
+    'An unrestricted any-card search must have an eligible deck card');
 
   const groups=Object.entries(input.weights).filter(([,w])=>w>0);
   assert.ok(groups.length<=6,'At most six valued printings supported');
@@ -73,8 +75,14 @@ function expectedK0UnrestrictedSearchValue(input){
         if(value>0)increments.push(value);
       }
     }
+    const unweightedAvailable=unvalued-
+      (prizeCount-assigned);
+    if(unweightedAvailable>0)increments.push(-input.perCardCost);
     increments.sort((a,b)=>b-a);
-    const use=increments.slice(0,input.maxCards);
+    // 2026 paper rule: unrestricted any-card search takes at least one.
+    // Take additional copies only when their marginal utility is positive.
+    const use=[increments[0],...increments.slice(1,input.maxCards)
+      .filter(v=>v>0)];
     const utility=use.reduce((n,v)=>n+v,0);
     const probability=Number(multiplicity)/Number(denominator);
     score+=probability*utility;
