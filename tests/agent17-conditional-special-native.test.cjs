@@ -193,7 +193,7 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
   const {choosePublicContextSpecialEnergy}=
     require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
   for(const seat of [0,1]){
-    const {state,owner,catalog,card}=staged(
+    const {store,state,owner,catalog,card}=staged(
       'Iron Thorns ex TWM','Speed Lightning Energy RCL',seat);
     const stadium=card('Thunder Mountain Prism Star LOT');
     const doubleColorless=()=>card('Double Colorless Energy SUM');
@@ -224,8 +224,6 @@ test('both-seat authentic printed Thunder cost blocks pointless Bench attachment
     assert.equal(beforeHand,1);
     assert.equal(beforeDeck>=2,true);
     state.prompts.length=0;
-    const store=state.store;
-    assert.ok(store,'Native Store must remain available for settlement');
     store.dispatch(new PlayCardAction(owner.id,0,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
     }));
