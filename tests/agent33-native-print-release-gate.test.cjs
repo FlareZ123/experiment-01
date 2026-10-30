@@ -12,19 +12,22 @@ function fixture(){
       {printing:'Mega Lopunny ex PFL',count:1},
       {printing:'Source filler PFL',count:58}],
     candidatePrints:[{printing:'Candidate filler CRE',count:60}],
-    requiredEffectIds:['rank15-attack-settled']};
+    requiredEffects:[{id:'rank15-attack-settled',actor:'source'}]};
   const row=seat=>({id:f.id,seat,sourceDeckSha256:H,candidateDeckSha256:J,
-    ciSucceeded:true,testStatus:'executed',
+    ciSucceeded:true,testStatus:'executed',rootLedgerSha256:K,
     nativeRegistry:[...f.sourcePrints,...f.candidatePrints].map(x=>({
       printing:x.printing,status:'exact-registered'})),
-    effects:[{id:'rank15-attack-settled',nativeStoreAccepted:true,
+    effects:[{id:'rank15-attack-settled',actorSeat:1-seat,
+      opponentContinuationActorSeat:seat,nativeStoreAccepted:true,
       nativeEffectSettled:true,rootOrdinal:5,completionOrdinal:6,
       opponentContinuationOrdinal:7,rootLedgerSha256:K,
       effectReceiptSha256:H}]});
   return {plan:{schema:'aichi-exact-native-print-release-plan-v1',
-      registrationId:K,fixtures:[f]},
+      registrationId:K,enginePin:'d'.repeat(40),
+      researchRevision:'e'.repeat(40),fixtures:[f]},
     archive:{schema:'aichi-exact-native-print-release-archive-v1',
-      registrationId:K,rows:[row(0),row(1)]}};
+      registrationId:K,enginePin:'d'.repeat(40),
+      researchRevision:'e'.repeat(40),rows:[row(0),row(1)]}};
 }
 
 test('both seats with full synthetic prints and settled Store lineage are preflight only',()=>{
@@ -111,4 +114,35 @@ test('a failed native test and unverified physical print never inherit green CI'
   assert.ok(r.rows[1].vetoes.includes('ci-failed'));
   assert.ok(r.rows[1].vetoes.includes('native-test-failed'));
   assert.equal(r.nativeEffectWitnessPreflight,'HOLD-UNSUPPORTED-OR-INCOMPLETE');
+});
+
+test('wrong physical effect actor or unrelated root ledger is held',()=>{
+  const {plan,archive}=fixture();
+  archive.rows[0].effects[0].actorSeat=0;
+  archive.rows[1].effects[0].rootLedgerSha256=H;
+  const r=auditNativePrintRelease(plan,archive);
+  assert.ok(r.rows.every(x=>x.vetoes.includes(
+    'native-effect-unsettled:rank15-attack-settled')));
+  assert.equal(r.nativeEffectWitnessPreflight,'HOLD-UNSUPPORTED-OR-INCOMPLETE');
+});
+
+test('pinned engine and research revision mismatches reject archive',()=>{
+  const {plan,archive}=fixture();
+  archive.enginePin='f'.repeat(40);
+  assert.throws(()=>auditNativePrintRelease(plan,archive));
+});
+
+test('a 32-rank label with differing candidate physical 60 is not one fixed deck',()=>{
+  const {plan,archive}=fixture();
+  plan.fixtures=Array.from({length:32},(_,i)=>({
+    ...plan.fixtures[0],id:'fixture'+i,rank:i+1,
+    candidateDeckSha256:i===31?H:J
+  }));
+  archive.rows=plan.fixtures.flatMap(f=>[0,1].map(seat=>({
+    ...archive.rows[seat],id:f.id,candidateDeckSha256:f.candidateDeckSha256
+  })));
+  const r=auditNativePrintRelease(plan,archive);
+  assert.equal(r.nativeEffectWitnessPreflight,
+    'PARTIAL-PANEL-NATIVE-WITNESS-REVIEWABLE');
+  assert.equal(r.fullAichi32FixedCandidatePanel,false);
 });

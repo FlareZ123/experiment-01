@@ -19,6 +19,10 @@ function auditNativePrintRelease(plan,archive){
   assert.equal(archive?.schema,'aichi-exact-native-print-release-archive-v1');
   assert.ok(validHash(plan.registrationId));
   assert.equal(archive.registrationId,plan.registrationId);
+  assert.ok(/^[0-9a-f]{40}$/.test(plan.enginePin));
+  assert.ok(/^[0-9a-f]{40}$/.test(plan.researchRevision));
+  assert.equal(archive.enginePin,plan.enginePin);
+  assert.equal(archive.researchRevision,plan.researchRevision);
   assert.ok(Array.isArray(plan.fixtures)&&plan.fixtures.length>0);
   assert.ok(Array.isArray(archive.rows));
   const fixtures=new Map();
@@ -42,11 +46,12 @@ function auditNativePrintRelease(plan,archive){
       }
       assert.equal(count,60,'Each frozen printed deck must have sixty cards');
     }
-    assert.ok(Array.isArray(f.requiredEffectIds)&&
-      f.requiredEffectIds.length>0&&
-      f.requiredEffectIds.every(id=>typeof id==='string'&&id.length>0));
-    assert.equal(new Set(f.requiredEffectIds).size,f.requiredEffectIds.length,
-      'Duplicate required effect ID');
+    assert.ok(Array.isArray(f.requiredEffects)&&f.requiredEffects.length>0);
+    assert.ok(f.requiredEffects.every(e=>
+      typeof e.id==='string'&&e.id.length>0&&
+      (e.actor==='source'||e.actor==='candidate')));
+    assert.equal(new Set(f.requiredEffects.map(e=>e.id)).size,
+      f.requiredEffects.length,'Duplicate required effect ID');
     fixtures.set(f.id,f);
   }
   const observations=new Map();
@@ -60,6 +65,8 @@ function auditNativePrintRelease(plan,archive){
     assert.equal(row.candidateDeckSha256,frozen.candidateDeckSha256);
     assert.ok(STATUS.has(row.testStatus),'Unknown native execution status');
     assert.equal(typeof row.ciSucceeded,'boolean');
+    assert.ok(validHash(row.rootLedgerSha256),
+      'An exact native Store ledger digest is required for each seat');
     observations.set(key,row);
   }
   const diagnostics=[];
@@ -105,20 +112,25 @@ function auditNativePrintRelease(plan,archive){
       const byEffect=new Map();
       for(const effect of effects){
         assert.ok(!byEffect.has(effect.id),'Duplicate effect receipt');
-        assert.ok(f.requiredEffectIds.includes(effect.id),
+        assert.ok(f.requiredEffects.some(req=>req.id===effect.id),
           'Effect receipt outside preregistered panel');
         byEffect.set(effect.id,effect);
       }
-      for(const id of f.requiredEffectIds){
+      for(const requirement of f.requiredEffects){
+        const id=requirement.id;
         const e=byEffect.get(id);
+        const expectedActor=requirement.actor==='candidate'?seat:1-seat;
         const settled=e?.nativeStoreAccepted===true&&
           e?.nativeEffectSettled===true&&
+          e?.actorSeat===expectedActor&&
+          e?.opponentContinuationActorSeat===1-expectedActor&&
           Number.isSafeInteger(e?.rootOrdinal)&&e.rootOrdinal>=0&&
           Number.isSafeInteger(e?.completionOrdinal)&&
           e.completionOrdinal>=e.rootOrdinal&&
           Number.isSafeInteger(e?.opponentContinuationOrdinal)&&
           e.opponentContinuationOrdinal>e.completionOrdinal&&
-          validHash(e?.rootLedgerSha256)&&validHash(e?.effectReceiptSha256);
+          e?.rootLedgerSha256===row.rootLedgerSha256&&
+          validHash(e?.effectReceiptSha256);
         if(!settled)vetoes.push('native-effect-unsettled:'+id);
       }
       // The same required native effect can be witnessed on either physical
