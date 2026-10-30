@@ -89,7 +89,7 @@ function run(){
     const STOP=Symbol('agent32-end-of-registered-mechanical-source-turn');
     const row={index:selected.index,seed:selected.seed,
       status:'not-yet-observed',actions:[],K1SourceSearchOccurred:false};
-    let stage=-1,needs=[],progress=null;
+    let stage=-1,needs=[];
     /** @param {object} state @param {string} status @param {string} reason */
     function stop(state,status,reason){
       row.status=status;
@@ -130,7 +130,7 @@ function run(){
     function indexOfTrubbish(owner){
       return owner.bench.findIndex(s=>s.getPokemonCard()?.name==='Trubbish');
     }
-    SimpleTacticsAi.prototype.decodeNextAction=function followup(state){
+    const hooked=SimpleTacticsAi.prototype.decodeNextAction=function followup(state){
       const owner=state.players[0];
       const actor=state.players.find(p=>p.id===this.client?.id);
       const pending=state.prompts.find(p=>p.result===undefined);
@@ -178,8 +178,11 @@ function run(){
         row.initialToolNeeds=needs;
         stage=0;
       }
-      if(stage===11)stop(state,'blocked-native-end-turn',
-        'Boost Shake did not reach opponent root before another source root');
+      if(stage===11){
+        if(pending)return original.call(this,state);
+        stop(state,'blocked-native-end-turn',
+          'Boost Shake did not reach opponent root before another source root');
+      }
       let action=null;
       if(pending){
         switch(stage){
@@ -270,7 +273,7 @@ function run(){
     };
     try{
       try{
-        progress=runMatch({
+        runMatch({
           ...decks,seed:selected.seed,
           label:'rank11-conditional-K0-screen-v1:'+selected.index,
           maxActions:200,strictPromptValidation:true,
@@ -289,8 +292,7 @@ function run(){
         }
       }
     }finally{
-      assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,
-        SimpleTacticsAi.prototype.decodeNextAction);
+      assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,hooked);
       SimpleTacticsAi.prototype.decodeNextAction=original;
     }
     row.selectedActions=row.actions.length;
@@ -308,8 +310,9 @@ function run(){
     firstLegalK1Searches:rows.filter(r=>r.K1SourceSearchOccurred).length,
     completedNativeEquippedGarbodor:rows.filter(r=>
       r.status==='native-equipped-garbotoxin-source-first-root').length,
-    blocked:rows.filter(r=>r.status.startsWith('blocked')||
-      r.status.startsWith('k1-required')).length,
+    K1Unavailable:rows.filter(r=>
+      r.status==='k1-required-resource-unavailable').length,
+    blocked:rows.filter(r=>r.status.startsWith('blocked')).length,
     rows,competitiveQualifiedGames:0,
     warning:'Retrospectively K0-selected native mechanics check, not all-field strength, not a win rate; no card target is read before its owner deck search.'
   };
