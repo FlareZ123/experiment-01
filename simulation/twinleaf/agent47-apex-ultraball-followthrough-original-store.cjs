@@ -60,7 +60,8 @@ function settleAfterPhysicalDiscard(x,ResolvePromptAction) {
 }
 
 /** One source-registered 60, physical Item cost, deck search, and copied attack. */
-function runOne(seat){
+function runOne(seat,mode='alternate'){
+  assert.ok(mode==='alternate'||mode==='baseline');
   const x=stage(seat);
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
@@ -83,7 +84,8 @@ function runOne(seat){
   assert.deepEqual(proposal.baseline,
     chooseActorHandDiscard(observed).printings);
   const mandatory=x.state.prompts.find(p=>p.id===observed.prompt.id);
-  const selected=resolvePhysicalHandCards(mandatory,proposal.proposal);
+  const submitted=mode==='baseline'?proposal.baseline:proposal.proposal;
+  const selected=resolvePhysicalHandCards(mandatory,submitted);
   assert.ok(selected&&mandatory.validate(selected,x.state));
   x.store.dispatch(new ResolvePromptAction(mandatory.id,selected));
   assert.ok(selected.every(c=>x.owner.discard.cards.includes(c)));
