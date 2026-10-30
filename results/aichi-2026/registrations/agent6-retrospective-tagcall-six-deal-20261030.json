@@ -1,0 +1,42 @@
+{
+  "schema": "agent6-retrospective-source-first-tagcall-six-deal-v1",
+  "createdAtUtc": "2026-10-30",
+  "selectionMethod": "REUSED preregistered six source-first Speed native seeds after observing their actual K0 owner hands; retrospectively selected for mechanics, never held-out independent",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "sourceDeck": "exact published Aichi rank6 original 60",
+  "candidateDeck": "exact rank1 champion reference original 60",
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedSource": "results/aichi-2026/registrations/agent6-firstturn-speed-native-20261030.json",
+  "seedsBySourceSeat": [
+    {
+      "sourceSeat": 0,
+      "seeds": [
+        531384326,
+        2341469307,
+        3030747015
+      ]
+    },
+    {
+      "sourceSeat": 1,
+      "seeds": [
+        516187842,
+        2411836147,
+        492959857
+      ]
+    }
+  ],
+  "treatment": {
+    "baseline": "T1 Tag Call pass-through, rank6 T3 broad source script",
+    "test": "T1 actor-own Tag Call from hand, genuine deck prompt picks one Guzma & Hala if available, otherwise choose 0, then rank6 T3 broad source script",
+    "frozen": {
+      "sourceWantsFirst": true,
+      "candidateWantsFirst": false,
+      "maxActions": 110,
+      "strictPromptValidation": true,
+      "stagedSpeed": false
+    }
+  },
+  "evaluation": "retain all errors and same original physical deals, compare native Tag Call root, authentic owner-deck prompt, Guzma & Hala owner-hand ingress, T3 accepted and settled attack/prize effect, immediate opposing owner root; zero competitive inferences",
+  "competitiveQualifiedGames": 0
+}
