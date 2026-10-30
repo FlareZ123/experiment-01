@@ -34,6 +34,11 @@ on:
         type: boolean
         default: false
 
+      agent1_native_closure_historical_parity:
+        description: Require exact 32/32 native root and full physical deal parity against frozen 2026-10-29 scout artifact
+        required: false
+        type: boolean
+        default: false
       agent25_lowhand_lillie_pair:
         description: Four-arm both-seat original Store Lillie pre-attack policy paired comparison
         required: false
@@ -60,6 +65,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Require registered original 32-arm Store run for native observer parity
+        if: ${{ inputs.agent1_native_closure_historical_parity && !inputs.agent25_owner_scout_census }}
+        run: node -e "throw new Error('agent1 parity requires agent25_owner_scout_census=true for a same-checkout full 32-arm original run')"
       - name: Initialize pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
@@ -125,6 +133,21 @@ jobs:
       - name: Require every precommitted original-Store attempt in source-turn census
         if: ${{ inputs.agent25_owner_scout_census }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-firstturn-native-closure-census.json');a.equal(r.counts.attempted,32);a.equal(r.competitiveQualifiedGames,0);console.log('OWNER_FIRST_TURN_NATIVE_CLOSURE',JSON.stringify(r.counts))"
+      - name: Download immutable Agent41 29 October original 32-arm native Store baseline
+        if: ${{ inputs.agent1_native_closure_historical_parity && inputs.agent25_owner_scout_census }}
+        uses: actions/download-artifact@v4
+        with:
+          name: rank11-exclusive-prospective-v1-sametarget-corrected-unqualified
+          repository: FlareZ123/experiment-01
+          run-id: 40918541683
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: agent1-frozen-agent41-baseline
+      - name: Require unchanged original Store roots, full deals, decks and results for all 32
+        if: ${{ inputs.agent1_native_closure_historical_parity && inputs.agent25_owner_scout_census }}
+        run: node simulation/evaluation/agent1-preregistered-native-root-parity.cjs agent1-frozen-agent41-baseline/agent41-prospective-canonical-32.json agent25-registered-32-owner-census-raw.json > agent1-original-32-native-parity.json
+      - name: Summarize original-native root parity, strictly excluding competitive results
+        if: ${{ inputs.agent1_native_closure_historical_parity && inputs.agent25_owner_scout_census }}
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-original-32-native-parity.json');a.equal(r.compared,32);a.equal(r.changedNativeRootHashes,0);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_NATIVE_32_PARITY',JSON.stringify({registered:r.registrationBlob,compared:r.compared,baselineSha:r.baselineJsonSha256,replayedSha:r.observedJsonSha256}))"
       - name: Preserve the 32-arm owner root census without dropping aborted or capped games
         if: ${{ inputs.agent25_owner_scout_census }}
         run: |
@@ -139,6 +162,7 @@ jobs:
             agent25-registered-32-owner-census-raw.json
             agent25-registered-32-owner-census.json
             agent1-firstturn-native-closure-census.json
+            agent1-original-32-native-parity.json
           if-no-files-found: warn
           retention-days: 12
       - name: Original 32-arm Store replay with low-hand Lillie treatment
