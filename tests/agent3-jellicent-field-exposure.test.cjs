@@ -35,3 +35,23 @@ test('full original Aichi 29-source printed census is 657, with all names classi
   assert.equal(rows.reduce((n,row)=>n+row.tools,0),91);
   assert.equal(rows.reduce((n,row)=>n+row.blocked,0),657);
 });
+
+test('printed Supporter and Stadium escape counts remain separate from Item lock',()=>{
+  const fs=require('node:fs');
+  const {countPotentialUnblockedCounters}=
+    require('../scripts/agent3-jellicent-field-exposure.cjs');
+  const manifest=JSON.parse(fs.readFileSync(
+    path.join(__dirname,'..','results','aichi-2026','full-decklists.json'),'utf8'));
+  const rows=countPotentialUnblockedCounters(manifest);
+  assert.equal(rows.length,29);
+  assert.equal(rows.filter(r=>r.guzma>0).length,25);
+  assert.equal(rows.reduce((n,r)=>n+r.guzma,0),48);
+  assert.equal(rows.filter(r=>r.faba>0).length,7);
+  assert.equal(rows.reduce((n,r)=>n+r.faba,0),8);
+  assert.equal(rows.filter(r=>r.pathToThePeak>0).length,7);
+  assert.equal(rows.reduce((n,r)=>n+r.pathToThePeak,0),8);
+  for(const rank of [6,24,29]){
+    assert.equal(rows.find(r=>r.rank===rank).faba,1);
+    assert.ok(rows.find(r=>r.rank===rank).guzma>=2);
+  }
+});
