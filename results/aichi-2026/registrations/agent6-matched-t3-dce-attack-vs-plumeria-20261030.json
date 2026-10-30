@@ -1,0 +1,65 @@
+{
+  "schema": "agent6-preregistered-retrospective-matched-t1-dce-t3-attack-vs-plumeria-v1",
+  "createdAtUtc": "2026-10-30T20:45:30Z",
+  "objective": "Holding original T1 DCE stage identical, compare genuine native T3 Guzma&Hala two-card payment + Speed Lightning 140 damage against held Plumeria two-card payment + opponent attached Energy removal, proving same T2 opponent actions and capturing exact physical hand-card payment printings.",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "sourcePrintedOriginal60Unmodified": true,
+  "candidatePrintedOriginal60Unmodified": true,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "retrospectiveSelection": "Sourcefirst original known physical seatA seed2341469307 with Thunder Prized, source T1 actual DCE+Tag Call+2 Plumeria, opponent T2 held Psychic Latias. Earlier original paper native comparisons already observed both alternatives separately. Additional two previously observed seeds for negative controls; no fresh randomness/population estimate.",
+  "sourceFirstSeedSeat": [
+    {
+      "seat": 0,
+      "seed": 2341469307
+    },
+    {
+      "seat": 0,
+      "seed": 531384326
+    },
+    {
+      "seat": 1,
+      "seed": 2411836147
+    }
+  ],
+  "arms": [
+    {
+      "label": "staged-dce-plumeria-denial",
+      "stageDceFirstTurn": true,
+      "k1PrizedThunderSpeedFallback": false,
+      "actorPlumeriaAfterPass": true
+    },
+    {
+      "label": "staged-dce-k1-speed-attack",
+      "stageDceFirstTurn": true,
+      "k1PrizedThunderSpeedFallback": true,
+      "actorPlumeriaAfterPass": true
+    }
+  ],
+  "shared": {
+    "stageSpeedLightningFirstTurn": false,
+    "turn3DirectSpeedAfterDce": false,
+    "sourceTurn3ScriptTurn": 3,
+    "sourceFirstByGenuineGoFirstChoice": true,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "k1ReplanAfterTagCall": true,
+    "strictPromptValidation": true,
+    "maxActions": 110,
+    "canonicalActorBothSeats": true,
+    "sourcePlumeriaScoped": true,
+    "readOnlyPhysicalPaymentObserver": true,
+    "hiddenOpponentPrivateHandAndSourcePrizesNeverGivenPolicy": true
+  },
+  "requiredNativeReceipts": [
+    "matched original source first physical deal",
+    "matched full native original candidate T2 accepted roots",
+    "source T1 actual attached DCE both arms",
+    "source T3 Tag Call and K1 missing Thunder at actual owner prompt",
+    "source T3 native accepted G&H or Plumeria, owner-hand two-card physical discard names",
+    "source T3 actual opposing Energy removal or printed damage and Prize change",
+    "source next opposing owner turn first root",
+    "all native errors/caps retained"
+  ],
+  "qualifiedGames": 0
+}
