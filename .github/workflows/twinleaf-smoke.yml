@@ -31,6 +31,8 @@ jobs:
         run: node simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs
       - name: Settle printed Iron Thorns Volt Cyclone reply after two-seat last-Bench forks
         run: node simulation/twinleaf/agent11-last-bench-volt-cyclone-reply.cjs
+      - name: Census authentic rank10 versus rank6 source-dealt owner Bench contention roots
+        run: node simulation/evaluation/agent11-lastbench-source-root-census.cjs
       - name: Enforce native Energy recipient legality under printed type filters
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
