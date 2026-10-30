@@ -85,7 +85,7 @@ function originalPrintedPokemon(root,sourceCard,cache={}){
       cache.cardsBySet.set(setId,
         new Map(entries.map(card=>[card.id,card])));
     }
-    const id=setId+'-'+(code==='SMP'&&/^\\d+$/.test(number)?
+    const id=setId+'-'+(code==='SMP'&&/^\d+$/.test(number)?
       'SM'+number:number);
     const card=cache.cardsBySet.get(setId).get(id);
     if(card&&normalize(card.name)===normalize(sourceCard.name))
