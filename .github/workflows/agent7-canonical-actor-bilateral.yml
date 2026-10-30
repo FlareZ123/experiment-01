@@ -3,11 +3,6 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
-      printed_first_turn_attack_exception:
-        description: Opt in public-printed and native-supported first-player attack exceptions, development only
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -141,8 +136,6 @@ jobs:
   canonical-four-arm:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      AGENT37_FIRSTTURN_ATTACK_ROOT_DEV: ${{ inputs.printed_first_turn_attack_exception && 'true' || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - name: Reject fallback pairchecks without their enabled observer
