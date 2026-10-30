@@ -1,0 +1,52 @@
+{
+  "schema": "agent38-rank6-original-frozen-plumeria-special-energy-2x2-v1",
+  "registeredUtc": "2026-10-30T20:17:00Z",
+  "objective": "Does adding authentic after-Pass Plumeria continue to change native opposing Energy and attack pressure when an independent source-only Special Energy root improves original rank6 Iron Thorns attacker access?",
+  "parentPriorRandomFrame": "results/aichi-2026/registrations/agent41-prospective-canonical-32-20261029.json",
+  "parentFrameGitBlobSha1": "8c54d8497f9927b04d501237462f64a42173d33d",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "trialSelection": "All sixteen parent registered trials where original source rank is exactly 6, retaining rank6 both candidate original printed 60s, physical candidate slots A/B, four independent original seeds per slot, actual original starting player. No pre/post selection or replacement.",
+  "exactAttemptsPerArm": 16,
+  "arms": [
+    {
+      "id": "base",
+      "sourceScopedSpecialEnergyRoot": false,
+      "actorPlumeriaAfterPass": false
+    },
+    {
+      "id": "plumeria",
+      "sourceScopedSpecialEnergyRoot": false,
+      "actorPlumeriaAfterPass": true
+    },
+    {
+      "id": "energy",
+      "sourceScopedSpecialEnergyRoot": true,
+      "actorPlumeriaAfterPass": false
+    },
+    {
+      "id": "energy+plumeria",
+      "sourceScopedSpecialEnergyRoot": true,
+      "actorPlumeriaAfterPass": true
+    }
+  ],
+  "unmodifiedBaseRunOptions": "plan.frozenRunOptions from parent prior registered frame",
+  "independentVariables": [
+    "sourceScopedSpecialEnergyRoot",
+    "actorPlumeriaAfterPass"
+  ],
+  "matchedPairing": "Same registered trial ID, seed, both exact printed 60 identifiers, original native physical starting deal hashes and actual first player across all four arms",
+  "outputs": [
+    "all 64 native Store attempts, errors, caps, actual Energy attachment roots, printed source attack roots, native Plumeria physical receipts, source/candidate attacks, root and prompt choice digests, 260-action censoring"
+  ],
+  "primaryMechanisticEndpoint": "Does native original rank6 source perform more attacks under the original Special Energy root option?",
+  "secondMechanisticEndpoint": "In the Energy root enabled stratum, accepted and settled original held Plumeria events, changes in candidate next actions, and difference in action cap distribution",
+  "explicitDisqualifications": [
+    "paper clock uncalibrated",
+    "source and candidate bot policy weak",
+    "three exact opponents still missing",
+    "Engine KO effects may diverge from paper rules",
+    "source rank6 list alone, no field-wide win rate",
+    "action cap is censoring, not draw",
+    "preregistration of factorial after earlier same-trial Plumeria data: confirmatory only for newly crossed interaction and source Energy stratum"
+  ]
+}
