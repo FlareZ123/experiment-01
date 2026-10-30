@@ -106,7 +106,7 @@ function fourBasicSourceMixture(options = {}) {
   return {
     probability,
     sourceValidOpeningProbability: p,
-    tailProbabilityUpperBound: weight / p * (1 - p),
+    tailProbabilityUpperBound: weight / p,
     expectedSourceMulligans: (1 - p) / p
   };
 }
