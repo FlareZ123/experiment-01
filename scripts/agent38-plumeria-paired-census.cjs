@@ -26,7 +26,7 @@ function auditMatchedPlumeriaControl(control,treated){
   const bySeat={0:{accepted:0,settled:0},
     1:{accepted:0,settled:0}};
   let audited=0,errors=0,matchedDealAndActualStarter=0;
-  let delegatedPrompts=0,delegatedSettlements=0,unresolved=0;
+  let delegatedPrompts=0,delegatedSettlements=0,unresolved=0,abandoned=0;
   for(let i=0;i<4;i++){
     const before=control.rows[i],after=treated.rows[i];
     assert.equal(before.trial?.id,after.trial?.id);
@@ -67,6 +67,7 @@ function auditMatchedPlumeriaControl(control,treated){
         delegatedSettlements+=a.delegatedSettledEnergyDiscards;
       }
       unresolved+=a.unresolvedChains??0;
+      abandoned+=a.abandonedChains??0;
     }else errors++;
     const matched=Boolean(before.sourceDealFingerprint&&
       before.sourceDealFingerprint===after.sourceDealFingerprint&&
@@ -87,6 +88,7 @@ function auditMatchedPlumeriaControl(control,treated){
       acceptedCount:a?.acceptedPlumeria??null,
       settledCount:a?.settledEnergyDiscards??null,
       unresolvedChains:a?.unresolvedChains??null,
+      abandonedChains:a?.abandonedChains??null,
       genericPromptFallbacks:a?.genericPromptFallbacks??null,
       delegatedPromptDispatches:a?.delegatedPromptDispatches??null,
       delegatedSettledEnergyDiscards:
@@ -107,7 +109,7 @@ function auditMatchedPlumeriaControl(control,treated){
     totalProposals:pairs.reduce((n,row)=>n+(row.proposalCount??0),0),
     totalAccepted:pairs.reduce((n,row)=>n+(row.acceptedCount??0),0),
     totalSettled:pairs.reduce((n,row)=>n+(row.settledCount??0),0),
-    delegatedPrompts,delegatedSettlements,unresolved,
+    delegatedPrompts,delegatedSettlements,unresolved,abandoned,
     bySeat,pairs,competitivelyQualifiedGames:0,
     strategyQualified:false,
     limits:'Retrospective source-first deals, weak shared policy, unsupported full clock and 3 missing opponent 60s. Native accepted actions and selected trial winner changes are not comparative competitive strength.'
