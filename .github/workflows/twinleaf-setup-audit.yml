@@ -7,6 +7,10 @@ on:
         description: 'Optional native starting-player choice polarity control'
         type: boolean
         default: false
+      agent6_tagcall:
+        description: 'Optional rank6 source first-turn Tag Call owner-search native control'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -87,6 +91,17 @@ jobs:
         with:
           name: agent6-rank6-firstturn-speed-native
           path: agent6-rank6-firstturn-speed-native.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Retrospective source-first Tag Call native six-deal branch
+        if: inputs.agent6_tagcall
+        run: node simulation/evaluation/agent6-source-first-tagcall-native.cjs > agent6-source-first-tagcall-native.json
+      - name: Archive source-first Tag Call original Store attempts
+        if: always() && inputs.agent6_tagcall
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-source-first-tagcall-native
+          path: agent6-source-first-tagcall-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Check setup mulligan statistics against exact probabilities
