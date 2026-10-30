@@ -9,7 +9,7 @@ function pair(profile = true) {
   for (let i = 0; i < 4; i++) {
     const trial={id:String(i),seed:i+1,candidateSlot:i%2?'B':'A'};
     const base={trial,sourceDealFingerprint:'sha'+i,verifiedFirstTurn:true,
-      actualStarterSeat:i%2,fullPhysicalDealFingerprint:{digestSha256:'full'+i},
+      actualStarterSeat:i%2,fullPhysicalDealFingerprint:String(i).padStart(64,'0'),
       rootActionLedgerSha256:'control'+i,qualifiesForCompetitiveInference:false};
     c.push(base);
     t.push({...base,rootActionLedgerSha256:'treated'+i,
