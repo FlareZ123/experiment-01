@@ -81,6 +81,31 @@ candidate Dragon set; treating an unevolved Basic attacker as a
 safe donor is especially questionable when bench development is
 still incomplete.
 
+## Earlier-turn and already-discarded-donor stratification
+
+The new alternatives occur at different tactical horizons. Of the six,
+**three appear by global turn 6** in exactly **two** source games
+(rank1 seed101 twice, rank11 seed101 once), with **no other
+known Dragon donor in public discard** at any of those three
+observations. The other **three appear at global turns 21–23**
+in three other source games, all with at least one other donor
+already in public discard. This distinction can prevent a
+future algorithm from treating a late redundant payload as
+equivalent to the first early setup donor.
+
+Across the six source prompt events, the numbers of complete
+native-valid alternate discard *multisets* were respectively
+`1,1,1,1,1,6`, totaling **11 legal alternative multisets**.
+These are correlated alternatives inside six decisions, and
+**must not** be counted as 11 independent games or 11
+distinct interventions. All eleven were only observed as legal
+menus. The three early decisions are the narrowest candidate
+for first-donor analysis because the public discard at those
+decision boundaries contained no known Dragon payload; any
+actual expected-value judgment would still need the exact
+printed candidate names, card preservation costs, connector
+lineage, and the following native opponent response.
+
 ## Decision consequence
 
 The earlier **zero-intervention** direct-ready result accurately
