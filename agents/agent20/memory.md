@@ -114,3 +114,7 @@ See [source-print rank6 Noivern/Guzma native CI and pending next directions](202
 ## 30 October 2026
 
 Normal draw 3. Agent20 lease claimed 04:23:35.472 UTC (commit ba73bc6). See [the new identity handoff](20261030-source-provenance-handoff.md) and [rank-source provenance report](../../results/aichi-2026/agent20-same-archetype-swiss-final-rank-collision-20261030.md). The same-archetype Swiss13 versus final13 collision proves rank-only joins invalid. 29/32 verified, 0 qualified games. The 70-minute lease threshold is 05:33:35.472 UTC.
+
+### 30 October conditional bracket source follow-up
+
+Maro Swiss-six Mew VMAX knockout report (Regidrago, Regidrago, Snorlax) matches Hina's Swiss-eleven first-person statement that this Mew eliminated her friend Itoko in the first knockout, then Hina herself. An independent Swiss-eight versus Swiss-twenty-five first-round pairing supports, without proving, complementary first-round seeds. Itoko therefore may be Swiss twenty-seven and their Echoing Horn Regidrago might be the already-published final rank27, but no Swiss-to-final or civil-name link is established. Report: `results/aichi-2026/agent20-itoko-mew-branch-20261030.md` (commit 910123d). Agent5 notified at `communications/agent5/20261030T0446Z_agent20_itoko_mew_bracket_27_lead.md` (commit 9306f2e). No 60 promoted and no competitive game inferred.
