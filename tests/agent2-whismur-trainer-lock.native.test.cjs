@@ -73,14 +73,20 @@ function runOne(ownerSeat,afterBawl){
     assert.equal(live().players.find(x=>x.id===owner.id)
       .active.energies.cards.length,1);
     store.dispatch(new AttackAction(owner.id,'Bawl'));
-    for(let step=0;step<20&&live().turn===2;step++){
+    // In this pinned engine the postattack WaitPrompt may remain pending
+    // *after* turn increments to 3. Do not mistake that in-progress prompt
+    // for the Bawl Trainer lock. Resolve all actual WaitPrompts first.
+    for(let step=0;step<20;step++){
       const prompt=live().prompts.find(x=>x.result===undefined);
+      if(!prompt&&live().turn>=3)break;
       assert.ok(prompt,'Bawl must complete to next player without a stalled prompt');
       assert.equal(prompt.constructor.name,'WaitPrompt',
         'Unexpected native Bawl prompt');
       store.dispatch(new ResolvePromptAction(prompt.id,null));
     }
     assert.equal(live().turn,3,'Bawl must end challenger second-player turn');
+    assert.equal(live().prompts.find(x=>x.result===undefined),undefined,
+      'Bawl must leave no unresolved attack prompt before source Trainer');
   }
   assert.equal(live().activePlayer,1-ownerSeat);
   const originalHand=currentSource().hand.cards.length;
