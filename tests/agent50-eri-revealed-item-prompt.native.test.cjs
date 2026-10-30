@@ -191,6 +191,8 @@ for(const seat of [0,1]){
     assert.deepEqual(selected.selectedPrintings,
       ['VS Seeker PHF','Ultra Ball SUM']);
     store.dispatch(selected.action);
+    assert.equal(owner.supporterTurn,1,
+      'Eri must spend exactly one ordinary Supporter before attack');
     const after=actorObservation(state,seat);
     const next=chooseActorRootIntent(after,catalog,{
       publicContextSpecialEnergy:true});
@@ -205,7 +207,8 @@ for(const seat of [0,1]){
     }
     assert.equal(state.turn,5);
     assert.equal(opponent.active.damage-damageBefore,140);
-    assert.equal(owner.supporterTurn,1);
+    assert.equal(owner.supporterTurn,0,
+      'Normal next-turn reset must follow the finished attack');
     console.log('ERI_PREDAMAGE_NATIVE',JSON.stringify({seat,
       opponentItemsDiscarded:selected.selectedPrintings,
       damage:140,supporterSpent:1,competitiveQualifiedGames:0}));
