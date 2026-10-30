@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank7_steven_followthrough:
+        description: Retrospective read-only root use after previously observed exact source Steven searches
+        required: false
+        type: boolean
+        default: false
       rank7_dealt_steven_pair:
         description: Preregistered eight original Store source rank7 Steven choices, developer only
         required: false
@@ -42,7 +47,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -55,6 +60,9 @@ jobs:
       - name: Preregistered exact rank7 source-dealt Steven prompt-choice pair
         if: ${{ inputs.rank7_dealt_steven_pair }}
         run: node simulation/twinleaf/agent22-rank7-dealt-steven-pair.cjs > agent22-rank7-dealt-steven-pair.json
+      - name: Read-only registered source Steven search-to-play root followthrough
+        if: ${{ inputs.rank7_steven_followthrough }}
+        run: node simulation/twinleaf/agent22-steven-followthrough.cjs > agent22-steven-followthrough.json
       - name: Native staged Bench Special Energy root in both seats
         run: node simulation/twinleaf/agent5-special-energy-bench-native-gate.cjs > agent5-special-energy-bench-native-result.json
       - name: Native matched first-return attack versus Bench Special fork in both seats
@@ -117,6 +125,7 @@ jobs:
             agent5-owner-root-result.json
             agent22-steven-native-store-result.json
             agent22-rank7-dealt-steven-pair.json
+            agent22-steven-followthrough.json
             agent5-thorns-baseline-sourcefirst.json
             agent5-thorns-treatment-sourcefirst.json
             agent5-thorns-directline-contrast.json
