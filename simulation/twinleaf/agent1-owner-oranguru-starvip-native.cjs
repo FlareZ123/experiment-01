@@ -58,6 +58,7 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
   let liveStore=deps.liveStore??null;
   const chosen=new WeakMap();
   const planBySeat=new Map();
+  const attemptedTurnBySeat=new Map();
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const active={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
   const audit={
@@ -164,13 +165,15 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     const pending=state.prompts.find(p=>p.result===undefined);
     let ctx=planBySeat.get(seat)??null;
     if(!ctx&&state.activePlayer===seat&&
-        state.phase===GamePhase.PLAYER_TURN&&!pending){
+        state.phase===GamePhase.PLAYER_TURN&&!pending&&
+        attemptedTurnBySeat.get(seat)!==state.turn){
       const view=actorObservation(state,seat);
       const offer=offerOranguruStarVip(view);
       if(offer.eligible){
         audit.opportunities++;audit.bySeat[seat].opportunities++;
         const approved=chooseOffer(view,offer)===true;
         if(approved){
+          attemptedTurnBySeat.set(seat,state.turn);
           audit.plansChosen++;audit.bySeat[seat].chosen++;
           ctx={seat,ownerId:owner.id,turn:state.turn,
             step:offer.missingTools.length>0?0:2,
@@ -220,6 +223,19 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     const action=next(state,owner,ctx);
     if(!action){
       if(!pending||pending.playerId===owner.id){
+        audit.events.push({seat,turn:state.turn,kind:'missing-next-diagnostic',
+          stage:ctx.step,pendingType:pending?.constructor?.name??null,
+          pendingOwnedByActor:pending?.playerId===owner.id,
+          pendingIsOwnerDeck:pending?.cards===owner.deck,
+          pendingSourceCount:pending?.cards?.cards?.length??null,
+          expectedPrintings:ctx.step===1?[...ctx.missingTools]:
+            ctx.step===4?[PRINT.vip]:ctx.step===6?[PRINT.trubbish]:
+            ctx.step===9?[PRINT.garbodor]:[],
+          knownK1Available:pending?.cards===owner.deck?
+            pending.cards.cards.filter(card=>
+              [PRINT.forest,PRINT.float,PRINT.vip,PRINT.trubbish,
+                PRINT.garbodor].includes(card.fullName))
+              .map(card=>card.fullName):null});
         abort(ctx,'missing-legitimate-next-action-at-stage-'+ctx.step);
         planBySeat.delete(seat);
       }
