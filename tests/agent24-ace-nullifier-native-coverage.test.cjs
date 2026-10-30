@@ -9,7 +9,7 @@ const fake={
       text:'Each player cannot play ACE SPEC cards.'}]},
   'Genesect SFA':{name:'Genesect',set:'SFA',setNumber:'40',
     powers:[{name:'ACE Nullifier',
-      text:'Tool required for opponent-only ACE lock.'}]}
+      text:'Tool required to deny opponent-only ACE SPEC cards.'}]}
 };
 test('exact normal registered cards never become certified native effects',()=>{
   const r=inspect({getCardByName:name=>fake[name]??null});
