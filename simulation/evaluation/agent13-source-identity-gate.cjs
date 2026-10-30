@@ -1,0 +1,120 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
+
+const VERSION='agent13-original-field-source-identity-v1';
+const CATEGORIES=['Pokémon','Trainer','Energy'];
+
+/**
+ * Parse the repository's canonical four-column, unquoted Aichi field roster.
+ * Reject ambiguous rows rather than guessing rank or player identity.
+ * @param {string} csv
+ * @returns {Map<number,{rank:number,player:string,archetype:string,published:boolean}>}
+ */
+function parseField(csv){
+  assert.equal(typeof csv,'string');
+  const lines=csv.trim().split(/\r?\n/);
+  assert.equal(lines.shift(),'rank,player,archetype,full_list_published');
+  const rows=new Map();
+  for(const line of lines){
+    const cells=line.split(',');
+    assert.equal(cells.length,4,'Ambiguous field.csv row: '+line);
+    const [rankText,player,archetype,status]=cells;
+    const rank=Number(rankText);
+    assert.ok(Number.isInteger(rank)&&rank>=1&&rank<=32,
+      'Invalid Aichi rank: '+rankText);
+    assert.ok(player.length>0&&archetype.length>0,'Missing source identity');
+    assert.ok(status==='yes'||status==='no','Invalid publication flag');
+    assert.ok(!rows.has(rank),'Duplicate field rank '+rank);
+    rows.set(rank,{rank,player,archetype,published:status==='yes'});
+  }
+  assert.equal(rows.size,32,'Incomplete Aichi Top 32 field');
+  for(let rank=1;rank<=32;rank++)
+    assert.ok(rows.has(rank),'Missing Aichi rank '+rank);
+  return rows;
+}
+
+/**
+ * Hash the exact published printing inventory, independent of list row order.
+ * This digest does not certify Japanese paper legality or native card parity.
+ * @param {Array<object>} cards
+ * @returns {string}
+ */
+function printingFingerprint(cards){
+  assert.ok(Array.isArray(cards));
+  const entries=cards.map(card=>{
+    assert.ok(CATEGORIES.includes(card.category),'Unknown card category');
+    assert.ok(Number.isInteger(card.count)&&card.count>=1,
+      'Invalid source card quantity');
+    assert.ok(typeof card.name==='string'&&card.name.length>0,
+      'Missing source card name');
+    const p=card.printing;
+    assert.ok(p&&typeof p.set==='string'&&p.set.length>0&&
+      typeof p.number==='string'&&p.number.length>0&&
+      typeof p.language==='string'&&p.language.length>0,
+      'Missing exact published printing');
+    return [card.category,card.name,p.set,p.number,p.language,card.count];
+  });
+  entries.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b),'en'));
+  assert.equal(new Set(entries.map(x=>JSON.stringify(x.slice(0,5)))).size,
+    entries.length,'Duplicate published printing rows');
+  return createHash('sha256').update(JSON.stringify(entries)).digest('hex');
+}
+
+/**
+ * Cross-check every exact source against the canonical rank/player/archetype
+ * roster. Missing lists remain explicitly missing, never inferred.
+ * @param {object} manifest The original full-decklists.json.
+ * @param {string} csv Canonical field.csv contents.
+ * @returns {{version:string,publishedCount:number,missingRanks:number[],sources:Array<object>}}
+ */
+function attestField(manifest,csv){
+  assert.ok(manifest&&Array.isArray(manifest.decks));
+  const rows=parseField(csv);
+  assert.equal(manifest.total_placements,32);
+  assert.equal(manifest.published_deck_count,manifest.decks.length);
+  const decks=new Map();
+  for(const deck of manifest.decks){
+    assert.ok(Number.isInteger(deck.rank)&&rows.has(deck.rank),
+      'Invalid original source rank');
+    assert.ok(!decks.has(deck.rank),'Duplicate original source rank');
+    const row=rows.get(deck.rank);
+    assert.ok(row.published,'Deck supplied for unpublished rank '+deck.rank);
+    assert.equal(deck.player,row.player,'Wrong player at rank '+deck.rank);
+    assert.equal(deck.archetype,row.archetype,
+      'Wrong archetype at rank '+deck.rank);
+    assert.ok(Array.isArray(deck.cards));
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60,
+      'Incorrect original 60 at rank '+deck.rank);
+    for(const category of CATEGORIES){
+      const count=deck.cards.filter(x=>x.category===category)
+        .reduce((n,c)=>n+c.count,0);
+      assert.equal(deck.category_counts?.[category],count,
+        'Incorrect category count at rank '+deck.rank);
+    }
+    const fingerprint=printingFingerprint(deck.cards);
+    decks.set(deck.rank,{rank:deck.rank,player:deck.player,
+      archetype:deck.archetype,printingSha256:fingerprint,
+      cardRows:deck.cards.length});
+  }
+  const missingRanks=[...rows.values()].filter(row=>!row.published)
+    .map(row=>row.rank).sort((a,b)=>a-b);
+  const suppliedMissing=manifest.missing_full_lists;
+  assert.ok(Array.isArray(suppliedMissing),'No missing list provenance');
+  assert.deepEqual(suppliedMissing.map(x=>x.rank).sort((a,b)=>a-b),
+    missingRanks,'Unpublished rank set mismatch');
+  for(const row of rows.values()){
+    assert.equal(decks.has(row.rank),row.published,
+      'Publication and exact deck mismatch at rank '+row.rank);
+    if(!row.published){
+      const absent=suppliedMissing.find(x=>x.rank===row.rank);
+      assert.equal(absent.player,row.player);
+      assert.equal(absent.archetype,row.archetype);
+    }
+  }
+  return {version:VERSION,publishedCount:decks.size,missingRanks,
+    sources:[...decks.values()].sort((a,b)=>a.rank-b.rank)};
+}
+
+module.exports={VERSION,parseField,printingFingerprint,attestField};
