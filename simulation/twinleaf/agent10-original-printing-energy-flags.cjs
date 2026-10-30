@@ -151,7 +151,14 @@ function buildPublicPokemonProfileIndex(root){
 function visiblePrintedProfile(index,printing){
   assert.ok(index instanceof Map);
   assert.equal(typeof printing,'string');
-  return index.get(printing.replaceAll('♢','◇'))??null;
+  const normalized=printing.replaceAll('♢','◇');
+  if(index.has(normalized))return index.get(normalized);
+  // Pinned Twinleaf exposes some GX/EX names with a space where the
+  // immutable printed-card database uses a hyphen. Resolve only aliases
+  // whose exact canonical printing already exists in the public index.
+  const alias=/^(.+) (GX|EX) ([A-Za-z0-9]+)$/.exec(normalized);
+  return alias===null?null:
+    index.get(alias[1]+'-'+alias[2]+' '+alias[3])??null;
 }
 
 module.exports={VERSION,classifyPrintedPokemon,originalPrintedPokemon,
