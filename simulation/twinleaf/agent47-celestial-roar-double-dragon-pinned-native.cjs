@@ -14,7 +14,7 @@ const G='Grass Energy MEE';
 const F='Fire Energy MEE';
 
 /** Staged same-printed-60 owner, one paid native Celestial Roar. */
-function runOne(seat,scenario){
+function runOne(seat,scenario,paperCorrected=false){
  const x=stage(seat);
  const active=x.owner.active;
  const keepPoke=active.cards.find(c=>c.fullName==='Regidrago V SIT');
@@ -51,40 +51,51 @@ function runOne(seat,scenario){
  const beforeDde=x.owner.discard.cards.filter(c=>c.fullName===DD).length;
  const {AttackAction}=load('game/store/actions/game-actions');
  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
- x.store.dispatch(new AttackAction(x.owner.id,'Celestial Roar'));
+ const performAttack=()=>x.store.dispatch(
+  new AttackAction(x.owner.id,'Celestial Roar'));
+ const hook=paperCorrected?
+  require('./agent47-celestial-roar-paper-energy-hook.cjs')
+   .withPaperCelestialRoarEnergy(performAttack):null;
+ if(!paperCorrected)performAttack();
  const pending=x.state.prompts.find(p=>p.result===undefined);
  let offered=null,settled=null;
- if(scenario==='special-and-basic'){
+ if(scenario==='special-and-basic'||paperCorrected){
   assert.equal(pending?.constructor?.name,'AttachEnergyPrompt');
-  assert.equal(pending.options.min,1);
-  assert.equal(pending.options.max,1);
   const eligible=pending.cardList.filter(pending.filter);
+  const expected=paperCorrected?
+    scenario==='special-and-basic'?[DD,G]:[DD]:
+    [G];
   offered=eligible.map(c=>c.fullName);
-  assert.deepEqual(offered,[G],'Pinned Celestial Roar must exhibit Basic-only filtering');
-  const card=eligible[0],target={player:2,slot:1,index:0};
-  const assignment=[{card,to:target}];
+  assert.deepEqual(offered,expected,
+    'Expected exact original physical Special/Basic eligibility');
+  assert.equal(pending.options.min,expected.length);
+  assert.equal(pending.options.max,expected.length);
+  const target={player:2,slot:1,index:0};
+  const assignment=eligible.map(card=>({card,to:target}));
   assert.equal(pending.validate(assignment,x.state),true);
   x.store.dispatch(new ResolvePromptAction(pending.id,assignment));
   settled=x.owner.active.energies.cards.map(c=>c.fullName);
-  assert.ok(settled.includes(G));
+  if(scenario==='special-and-basic')assert.ok(settled.includes(G));
  }else{
   assert.ok(pending===undefined||pending.constructor.name!=='AttachEnergyPrompt',
     'Pinned no-Basic branch must omit attachment prompt');
  }
  const afterDde=x.owner.discard.cards.filter(c=>c.fullName===DD).length;
  const stillAttached=x.owner.active.energies.cards.map(c=>c.fullName);
- assert.equal(afterDde,beforeDde+1,
-   'Original Double Dragon Special Energy is discarded instead of attached');
- assert.equal(stillAttached.filter(name=>name===DD).length,1,
-   'Only the originally attached Double Dragon remains on attacker');
+ assert.equal(afterDde,beforeDde+(paperCorrected?0:1),
+   'Double Dragon should remain in discard only under pinned original reducer');
+ assert.equal(stillAttached.filter(name=>name===DD).length,paperCorrected?2:1,
+   'Corrected Energy effect must attach the original physical Special Energy');
  assertSource60Conserved(x.owner);
- return {seat,scenario,stagedOriginal60:true,fixedDeckTop3:fixedSample.map(c=>c.fullName),
+ return {seat,scenario,paperCorrected,hookAudit:hook?.audit??null,
+  stagedOriginal60:true,fixedDeckTop3:fixedSample.map(c=>c.fullName),
   nativeAttack:'Celestial Roar',nativeTarget:'Active Regidrago V SIT',
   offeredNativeBasicOnly:offered,settledAttached:stillAttached,
   specialDiscarded:afterDde>beforeDde,
-  nonBasicSpecialEligible:false,
+  nonBasicSpecialEligible:paperCorrected,
   printedText:'If any of those cards are Energy cards, attach them to this Pokémon.',
-  paperEquivalence:'discrepant-on-this-staged-source-legal-Double-Dragon-sample',
+  paperEquivalence:paperCorrected?'settled-on-this-staged-sample':
+   'discrepant-on-this-staged-source-legal-Double-Dragon-sample',
   qualifiedGame:false};
 }
 function main(){
