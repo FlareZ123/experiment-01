@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 
-const VERSION = 'agent29-both-seat-hammer-after-pass-v1';
+const VERSION = 'agent29-both-seat-hammer-after-pass-v2-opportunity-arbitration-census';
 const ENHANCED = 'Enhanced Hammer ';
 const CRUSHING = 'Crushing Hammer ';
 
@@ -106,8 +106,8 @@ function chooseHammerPromptCards(state,seat,pending,family,specialPrintings) {
 /**
  * Reversible both-seat original-Store experiment. Only changes a genuine
  * root Pass to an owner-held Hammer when visible opponent Energy and the
- * native card preliminary canPlay check agree. Native CoinFlipPrompt stays
- * under the existing unbiased bot/Store policy. All new non-coin prompts are
+ * native card preliminary canPlay check agree. The pinned Store samples
+ * coins internally and exposes only a WaitPrompt to the actor. All prompts are
  * validated before dispatch. Never reads either player's hidden deck,
  * Prize identities or the opponent's hand.
  *
@@ -150,8 +150,14 @@ function withOwnerHammerAfterPass(execute,deps={}) {
     return specialPrintings;
   };
   const proposed=new WeakMap(),awaiting=new Map();
+  const firstEligibleTurn=new Set(),seenOwnerTurn=new Set();
   const audit={version:VERSION,bothSeats:true,nativeStores:0,
     originalPasses:0,eligiblePasses:0,proposedHammerRoots:0,
+    firstOwnerTurnRoots:0,firstOwnerTurnsHoldingHammer:0,
+    rootHammerOpportunities:0,nonPassHammerOpportunities:0,
+    distinctHammerOpportunityTurns:0,
+    distinctNonPassFirstOpportunityTurns:0,
+    competingActionClasses:{},hammerOpportunityExamples:[],
     acceptedHammerRoots:0,rejectedHammerRoots:0,
     proposedTargetPrompts:0,acceptedTargetPrompts:0,
     nativeCoinWaitsResolved:0,nativeCoinTails:0,nativeCoinHeads:0,
@@ -200,14 +206,52 @@ function withOwnerHammerAfterPass(execute,deps={}) {
     }
     if(state.activePlayer!==seat)return oldDecode.value.call(this,state);
     const original=oldDecode.value.call(this,state);
-    if(original?.constructor?.name!=='PassTurnAction')return original;
+    const originalClass=original?.constructor?.name??'NoAction';
+    const firstKey=audit.nativeStores+':'+seat+':'+state.turn;
+    const firstDecisionOfTurn=!seenOwnerTurn.has(firstKey);
+    if(firstDecisionOfTurn){
+      seenOwnerTurn.add(firstKey);
+      audit.firstOwnerTurnRoots++;
+      if(owner.hand.cards.some(card=>
+        card.fullName.startsWith(ENHANCED)||
+        card.fullName.startsWith(CRUSHING)))
+        audit.firstOwnerTurnsHoldingHammer++;
+    }
+    let intent=null;
+    // Observe genuine original actor choices, including a competing action
+    // that the after-Pass bridge intentionally does not override. Report both
+    // repeated decision roots and distinct physical owner turns.
+    if(owner.hand.cards.some(card=>
+      card.fullName.startsWith(ENHANCED)||
+      card.fullName.startsWith(CRUSHING))){
+      intent=chooseOwnerHammerAfterPass(
+        observe(state,seat),publicSpecialPrintings());
+      const physical=intent?owner.hand.cards[intent.handIndex]:null;
+      if(physical?.fullName===intent?.printing&&
+         physical.canPlay(liveStore,state,owner)===true){
+        audit.rootHammerOpportunities++;
+        if(originalClass!=='PassTurnAction'){
+          audit.nonPassHammerOpportunities++;
+          audit.competingActionClasses[originalClass]=
+            (audit.competingActionClasses[originalClass]??0)+1;
+        }
+        if(!firstEligibleTurn.has(firstKey)){
+          firstEligibleTurn.add(firstKey);
+          audit.distinctHammerOpportunityTurns++;
+          if(originalClass!=='PassTurnAction')
+            audit.distinctNonPassFirstOpportunityTurns++;
+          if(audit.hammerOpportunityExamples.length<50)
+            audit.hammerOpportunityExamples.push({
+              seat,turn:state.turn,originalClass,
+              printing:intent.printing,family:intent.family,
+              firstDecisionOfTurn
+            });
+        }
+      }else intent=null;
+    }
+    if(originalClass!=='PassTurnAction')return original;
     audit.originalPasses++;
-    const intent=chooseOwnerHammerAfterPass(
-      observe(state,seat),publicSpecialPrintings());
     if(!intent)return original;
-    const physical=owner.hand.cards[intent.handIndex];
-    if(physical?.fullName!==intent.printing||
-       physical.canPlay(liveStore,state,owner)!==true)return original;
     audit.eligiblePasses++;
     const action=new PlayCardAction(owner.id,intent.handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
