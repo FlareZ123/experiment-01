@@ -83,6 +83,52 @@ lineage and the prompt's actual `playerId` should be authenticated
 from a focused separate real-Store root ledger before claiming an
 exact source-card mechanism for each natural incident.
 
+## Direct action ancestry for both naturally lost-card cases
+
+After the unbiased full 24-cell diagnostic, the two source failures were
+**selected retrospectively** for a separate, exact-original-source
+native action-ledger replay. The compiled
+[CI 41134979066](https://github.com/FlareZ123/experiment-01/actions/runs/41134979066)
+**succeeded**; its complete
+[artifact 13016116409](https://github.com/FlareZ123/experiment-01/actions/runs/41134979066/artifacts/13016116409)
+has ZIP SHA-256
+`65d4160e356750b6dc23bffb9e7a805072df3ed51d25dbc31cab72d3691f3aa0`.
+The
+[exact two-case source](../../simulation/twinleaf/agent47-natural-physical-loss-lineage-two.cjs)
+reused the original seeds, seat, source60 and bot correction and
+asserted the same first failed settled-root ordinal as the 24-game
+sample. The two observations reproduced identically.
+
+Crucially, native `rootActionLedger.initiatingRootActionOrdinal`
+traces **both** first 59-card losses to Regidrago V's actual
+**Celestial Roar `AttackAction` in source seat1**, including the
+intermediate Energy prompt, rather than to a new independent opponent
+action.
+
+| Case | Source attack root (0-indexed) | Native Energy prompt root | First fully settled bad root (0-indexed) | Source count |
+| --- | --- | --- | --- | --- |
+| Seed `1847000101`, source seat1 | Root **47**, turn10, `AttackAction: Celestial Roar` | Root **48**, `AttachEnergyPrompt` | Root **51**, `ResolvePromptAction: WaitPrompt`, child of root47 | **59** |
+| Seed `1847000103`, source seat1 | Root **93**, turn16, `AttackAction: Celestial Roar` | Root **94**, `AttachEnergyPrompt` | Root **97**, `ResolvePromptAction: WaitPrompt`, child of root93 | **59** |
+
+The ledger indexes from **zero**; the physical-integrity recorder's
+first-anomaly action ordinals **52 and 98** index from **one**.
+The displayed current active-player seat of each later `WaitPrompt`
+action was seat0, but each `initiatingRootActionOrdinal` is the
+source-seat1 Celestial Roar. This resolves the earlier ambiguity
+without using private Prize/deck information to choose an action.
+The waiting prompt chain explains why the first *fully settled*
+underflow is recorded several child prompt resolutions after the
+Energy assignment; it does not create a new physical card.
+
+The action ancestry, the verified physical 59-of-60 receipt, and
+the independently read pinned `temp.cards.forEach` mutation bug
+together provide **strong evidence of a real Celestial Roar effect
+implementation failure in these two naturally dealt games**.
+Precise stranded-card name and individual source transition were
+not recorded. The small retrospective two-case replay confirms
+mechanistic lineage, while the original 24 preserved trials remain
+the only full sample denominator.
+
 ## Interpretation and release decision
 
 An independent staged original-60 experiment already demonstrated
@@ -92,11 +138,11 @@ plus its Basic-only filter that incorrectly excludes Double Dragon
 Special Energy. See
 [mechanistic source and both-seat native evidence](agent47-celestial-roar-native-paper-fidelity-20261030.md)
 and [CI 41132531501](https://github.com/FlareZ123/experiment-01/actions/runs/41132531501).
-The two independently observed natural game states are highly
-consistent with that mechanism because each follows a Celestial Roar
-and ends an Energy-related prompt. They do **not** by themselves
-identify the exact lost card, rule out another card effect on that
-boundary, or prove any alternative card-selection policy wins more.
+The two naturally dealt source losses now have **authenticated native
+root ancestry to Celestial Roar `AttackAction`** through their exact
+`AttachEnergyPrompt` and subsequent waiting-prompt child sequence.
+They still do **not** identify the exact stranded printing, establish
+complete paper equivalence, or prove any alternative policy wins more.
 
 **Do not certify or count the seven engine terminals as competitive
 wins.** The same native engine still omits eligible Special Energy in
