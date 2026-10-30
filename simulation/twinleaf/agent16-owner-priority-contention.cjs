@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent16-owner-priority-contention-census-v3-branch-order-and-self-filter';
+const VERSION='agent16-owner-priority-contention-census-v4-printed-intent-equivalence';
 
 // These ranks mirror the existing first-return order in
 // agent34-actor-only-root-policy.cjs. This is a partial vocabulary,
@@ -115,9 +115,12 @@ function actualSelectedPriority(view,catalog,options,selected){
  * @returns {boolean}
  */
 function samePhysicalProposal(selected,proposed){
-  return selected.kind===proposed.kind&&
-    typeof selected.printing==='string'&&selected.printing.length>0&&
-    selected.printing===proposed.printing&&
+  if(selected.kind!==proposed.kind)return false;
+  if(selected.kind==='attack')
+    return typeof selected.attackName==='string'&&
+      selected.attackName===proposed.attackName;
+  return typeof selected.printing==='string'&&
+    selected.printing.length>0&&selected.printing===proposed.printing&&
     selected.slot===proposed.slot&&selected.index===proposed.index;
 }
 
@@ -141,12 +144,11 @@ function collectOwnerContention(view,catalog,options,selected,probes=PROBES){
     if(!proposed||samePhysicalProposal(selected,proposed))continue;
     // Some selectors share one intent kind. Do not double-count a physical
     // action identified by identical printing, recipient and card index.
-    const duplicate=alternatives.some(a=>a.kind===proposed.kind&&
-      a.printing===proposed.printing&&a.handIndex===proposed.handIndex&&
-      a.slot===proposed.slot&&a.index===proposed.index);
+    const duplicate=alternatives.some(a=>samePhysicalProposal(a,proposed));
     if(duplicate)continue;
     alternatives.push({
       probe:p.name,kind:proposed.kind,
+      attackName:proposed.attackName??null,
       // Hand index is actor-private evidence, NEVER a card from unknown
       // deck order, Prize identities, or the opponent's concealed zones.
       printing:proposed.printing??null,
