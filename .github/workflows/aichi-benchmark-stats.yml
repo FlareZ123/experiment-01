@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent26_public_history_information:
+        description: 'Synthetic uniform-prior source identification from full publicly revealed mulligan hands, no games'
+        required: false
+        type: boolean
+        default: false
       agent31_public_mulligan_native:
         description: 'Read-only paired native opponent-visible mulligan card-history parity against rank6; setup only'
         required: false
@@ -177,9 +182,12 @@ jobs:
         run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Verify source-only and two-player absolute mulligan setup allowances
         run: |
-          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs tests/aichi-mulligan-public-reveal.test.cjs tests/public-mulligan-reveal-observer.test.cjs tests/aichi-public-mulligan-posterior.test.cjs tests/agent26-public-mulligan-evolution.test.cjs tests/agent26-public-mulligan-fullhistory.test.cjs tests/agent26-public-mulligan-printing-name-bridge.test.cjs
+          node --test tests/aichi-setup-mulligan-race.test.cjs tests/aichi-field-mulligan-census.test.cjs tests/aichi-mulligan-public-reveal.test.cjs tests/public-mulligan-reveal-observer.test.cjs tests/aichi-public-mulligan-posterior.test.cjs tests/agent26-public-mulligan-evolution.test.cjs tests/agent26-public-mulligan-fullhistory.test.cjs tests/agent26-public-mulligan-printing-name-bridge.test.cjs tests/agent26-public-mulligan-information-power.test.cjs
           node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
           node --check simulation/twinleaf/headless.cjs
+      - name: Synthetic source-balanced full public mulligan history information census
+        if: ${{ inputs.agent26_public_history_information }}
+        run: node scripts/agent26-public-mulligan-information-power.cjs
       - name: Verify candidate mulligan treatment and source bonus opportunity coupling
         run: node --test tests/aichi-mulligan-treatment-coupling.test.cjs
       - name: Audit all three source Iron Thorns opening and discard tiers
