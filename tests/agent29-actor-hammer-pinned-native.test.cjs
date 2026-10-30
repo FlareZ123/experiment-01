@@ -79,15 +79,27 @@ function resolveHammer(fixture,family,heads=true) {
   const pending=()=>state.prompts.find(p=>p.result===undefined);
   const hammer=owner.hand.cards[0];
   assert.equal(hammer.canPlay(store,state,owner),true);
-  store.dispatch(new PlayCardAction(owner.id,0,{
-    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
-  }));
+  // The pinned Store samples the coin itself inside the Item root action,
+  // then exposes only a WaitPrompt animation. Controlled RNG is test-only.
+  const originalRandom=Math.random;
+  if(family==='crushing')Math.random=()=>heads?0.1:0.9;
+  try{
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+  }finally{
+    Math.random=originalRandom;
+  }
   if(family==='crushing'){
-    const coin=pending();
-    assert.equal(coin?.constructor?.name,'CoinFlipPrompt');
-    assert.equal(coin.validate(heads),true);
-    store.dispatch(new ResolvePromptAction(coin.id,heads));
-    if(!heads)return;
+    const animation=pending();
+    assert.equal(animation?.constructor?.name,'WaitPrompt');
+    assert.equal(animation.message,'Coin flip animation');
+    assert.equal(animation.validate(null,state),true);
+    store.dispatch(new ResolvePromptAction(animation.id,null));
+    if(!heads){
+      assert.equal(pending(),undefined);
+      return;
+    }
   }
   const targetPrompt=pending();
   assert.equal(targetPrompt?.constructor?.name,'ChoosePokemonPrompt');
