@@ -37,7 +37,7 @@ The fail-closed [native donor settlement proof](../../scripts/agent35-native-don
 
 ### Opponent response counterfactual
 
-The native source opponent's **next T52 root** was `AttackAction Terminal Period` in **both** arms: control root **207** after the repeated Future Sight line, treatment root **205** after the Horror House-GX settlement. The independent proof now compares the entire same-turn source nonprompt action family and confirms equality (`['AttackAction:Terminal Period']`). The source therefore did not demonstrate a changed decision, prevented Trainer, or other incremental lock effect from Horror House-GX in this paired deal. It remains a confirmed late-game copy-attack execution; the expenditure of the once-per-game GX attack may be a meaningful opportunity cost.
+The native source opponent's **next T52 root** was `AttackAction Terminal Period` in **both** arms: control root **207** after the repeated Future Sight line, treatment root **205** after the Horror House-GX settlement. The independent proof now compares the entire same-turn source nonprompt action family and confirms equality (`['AttackAction:Terminal Period']`). The printed Horror House-GX effect prevents the opponent from playing **any cards from their hand** on their next turn (\`Gengar & Mimikyu-GX TEU\`, corresponding to the English Team Up printing \`sm9-53\`). The source therefore did not demonstrate a changed decision, a blocked hand play, or other incremental lock benefit from that effect in this paired deal. It remains a confirmed late-game copy-attack execution; the expenditure of the once-per-game GX attack may be a meaningful opportunity cost.
 
 ## Evidence limits and next experiments
 
