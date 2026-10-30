@@ -189,11 +189,26 @@ function main(){
   assert.deepEqual(modified.actionTrace.slice(0,86),
     baseline.actionTrace.slice(0,86),
     'Original matched physical prefix changed before synthetic intervention');
+  const boxFetchesTool=withStoreDispatchTranscript(Store,()=>
+    withSyntheticRank8BoxFetchShake(()=>runMatch(request),
+      {fetchToolFromBox:true}),opts);
+  const toolReplay=boxFetchesTool.result;
+  assert.ok(toolReplay.exchange?.source60MultisetPreserved);
+  assert.equal(toolReplay.exchange.fetchToolFromBox,true);
+  assert.equal(toolReplay.exchange.swaps.length,2);
+  assert.equal(toolReplay.stage,11,
+    'Box-fetched Tool and Shake must complete the printed evolution');
+  assert.ok(toolReplay.turn8?.sourceBench.some(p=>
+    p.name==='Garbodor'&&p.tools.includes('Float Stone')),
+    'Box-fetched Float Stone was not attached to actual evolved Garbodor');
+  assert.deepEqual(boxFetchesTool.actionTrace.slice(0,86),
+    baseline.actionTrace.slice(0,86),
+    'Two-swap synthetic branch changed original pre-intervention prefix');
   const restored=withStoreDispatchTranscript(Store,()=>runMatch(request),opts);
   assert.deepEqual(restored.actionTrace,baseline.actionTrace,
     'Synthetic hook leaked into a subsequent unmodified replay');
   return {
-    schema:'agent44-retrospective-synthetic-box-fetch-shake-native-v1',
+    schema:'agent44-retrospective-synthetic-box-fetch-shake-native-v2-both-tool-search',
     seed:request.seed,sourcePrefixStoreActions:86,
     declaredSyntheticDeal:replay.exchange,
     scriptedNativeSteps:replay.steps,
@@ -202,6 +217,15 @@ function main(){
     originalStorePrefixIdentical:true,
     nativePolicyRestored:true,
     modifiedNativeActions:replay.result.actions,
+    boxFetchesToolBranch:{
+      declaredSyntheticDeal:toolReplay.exchange,
+      nativeOwnerSearchNames:['Boost Shake','Float Stone','Temple of Sinnoh'],
+      scriptedNativeSteps:toolReplay.steps,
+      candidateReplyTurnObserved:toolReplay.turn8.turn,
+      equippedGarbodorAtReply:true,
+      originalStorePrefixIdentical:true,
+      modifiedNativeActions:toolReplay.result.actions
+    },
     originalPhysicalDealPreserved:false,
     competitiveQualifiedGames:0,
     caveat:'Researcher swapped hand/deck card outside Store; semantically testable physical card effects only, with no natural trigger or competitive inference.'
