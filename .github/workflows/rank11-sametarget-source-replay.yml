@@ -154,13 +154,15 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate canonical Plumeria precedence and paired census
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned Twinleaf engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify both native Plumeria physical seats on pinned Store
+        run: node --test tests/agent4-plumeria-pinned-native.test.cjs
       - name: Execute four historical source-first original-60 OFF control arms
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
@@ -184,6 +186,9 @@ jobs:
         run: |
           node scripts/agent38-plumeria-paired-census.cjs agent38-plumeria-off.json agent38-plumeria-on.json > agent38-plumeria-census.json
           node -e "const x=require('./agent38-plumeria-census.json'); console.log('AGENT38_NATIVE_PLUMERIA',JSON.stringify({attempts:x.registeredAttempts,matched:x.matchedDealAndActualStarter,audits:x.treatedAudits,unobserved:x.treatedMissingAudits,proposed:x.totalProposals,accepted:x.totalAccepted,settled:x.totalSettled,bySeat:x.bySeat,competitiveGames:0}));"
+      - name: Verify historic rank6 long-hand Plumeria handoff settled natively
+        run: |
+          node -e "const a=require('node:assert/strict');const r=require('./agent38-plumeria-census.json');a.equal(r.registeredAttempts,4);a.equal(r.totalAccepted,2);a.equal(r.totalSettled,2);a.equal(r.delegatedPrompts,3);a.equal(r.delegatedSettlements,1);a.equal(r.unresolved,0);a.equal(r.competitivelyQualifiedGames,0);console.log('PLUMERIA_GENUINE_DELEGATED_RECEIPTS',JSON.stringify({accepted:r.totalAccepted,settled:r.totalSettled,delegatedPrompts:r.delegatedPrompts,delegatedSettlements:r.delegatedSettlements}));"
       - name: Retain complete source-first paired Plumeria evidence and all failures
         if: always()
         uses: actions/upload-artifact@v4
