@@ -3,15 +3,16 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
 const {initializeCards,runMatch}=require('../simulation/twinleaf/headless.cjs');
-const {publicPrintingNameIndex,opponentPublicFailedHandNames}=
+const {publicAichiSourceNameIndex,opponentPublicFailedHandNames}=
  require('../simulation/evaluation/agent26-public-mulligan-printing-name-bridge.cjs');
 const manifest=require('../results/aichi-2026/full-decklists.json');
+const {publicFailedHandHistoryPosterior}=require('../scripts/agent26-public-mulligan-fullhistory.cjs');
 test('native opponent-visible invalid seven bridges into exact public names',()=>{
  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
  allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true});
  const source=plan.opponents.find(x=>x.rank===6);
  assert.equal(source.status,'ready');
- const index=publicPrintingNameIndex(initializeCards().getAllCards());
+ const index=publicAichiSourceNameIndex(initializeCards().getAllCards());
  const original=new Set(manifest.decks.find(x=>x.rank===6).cards.map(x=>x.name));
  const rows=[];
  for(const seed of [4136149016,1514735430,3730833191]){
@@ -27,7 +28,11 @@ test('native opponent-visible invalid seven bridges into exact public names',()=
      result.initialSetupCompensation.mulligans[sourceSeat]);
    assert.ok(result.initialBoardAtFirstTurn.players[sourceSeat].active
      .startsWith('Iron Thorns ex '));
-   rows.push({seed,candidateSeat,sourceMulligans:hands.length,
+   assert.deepEqual([...new Set(hands.flat().filter(n=>!original.has(n)))],[]);
+   const p=publicFailedHandHistoryPosterior(manifest,hands);
+   assert.ok(p.models.find(x=>x.rank===6).posterior>0);
+   rows.push({seed,candidateSeat,sourceRankPosterior:p.models.find(x=>x.rank===6).posterior,
+    sourceMulligans:hands.length,
     firstPublicHand:hands[0]??null,
     unrecognized:[...new Set(hands.flat().filter(n=>!original.has(n)))]});
   }
