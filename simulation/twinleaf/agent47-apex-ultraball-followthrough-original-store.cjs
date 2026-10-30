@@ -24,7 +24,7 @@ function settleAfterPhysicalDiscard(x,ResolvePromptAction) {
       const pending=x.state.prompts.find(p=>p.result===undefined);
       if(!pending)break;
       const kind=pending.constructor.name;
-      if(kind==='WaitPrompt'){
+      if(kind==='WaitPrompt'||kind==='ShowCardsPrompt'){
         x.store.dispatch(new ResolvePromptAction(pending.id,null));
         actions.push(kind);
         continue;
