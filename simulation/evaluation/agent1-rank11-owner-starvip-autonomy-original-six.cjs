@@ -81,7 +81,7 @@ function run(){
 if(require.main===module){
   const r=run();
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
-  process.stderr.write('AGENT1_AUTONOMY_STAGE_DETAIL '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,events:x.sourcePlanAudit?.events?.slice(0,12)??[],diag:x.nativeDiagnostic??null})))+'\n');
+  process.stderr.write('AGENT1_AUTONOMY_STAGE_DETAIL '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,events:x.sourcePlanAudit?.events?.slice(0,40)??[],aborts:x.sourcePlanAudit?.abortReasons??null,accepted:x.sourcePlanAudit?.nativeAccepted??null,complete:x.sourcePlanAudit?.completedEquippedGarbodor??null,diag:x.nativeDiagnostic??null})))+'\n');
   if(r.blocked>0){
     process.stderr.write('AGENT1_AUTONOMY_BLOCKERS '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,error:x.error,sourcePlanAudit:x.sourcePlanAudit?{chosen:x.sourcePlanAudit.plansChosen,accepted:x.sourcePlanAudit.nativeAccepted,aborts:x.sourcePlanAudit.abortReasons,events:x.sourcePlanAudit.events.slice(0,14)}:null,nativeDiagnostic:x.nativeDiagnostic??null})))+'\n');
     process.exitCode=1;
