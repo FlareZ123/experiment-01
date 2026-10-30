@@ -34,6 +34,8 @@ jobs:
         run: node --test tests/agent27-rank26-mulligan-ticket-access.test.cjs
       - name: Rank1 source final-Bench owner Basic-choice contention regression
         run: node --test tests/agent27-owner-lastbench-basic-conflict.test.cjs
+      - name: Optional owner-held evolution last-Bench choice and privacy tests
+        run: node --test tests/agent43-held-evolution-bench-admission.test.cjs
       - name: Bilateral bonus offers and 29-source-rank sensitivity
         run: node --test tests/aichi_bilateral_bonus.test.cjs
       - name: Independent full-shuffle bonus-draw validation
