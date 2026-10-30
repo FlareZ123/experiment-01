@@ -33,6 +33,20 @@ The English Marnie text has the same “either player” hand-return trigger, al
 
 Test commit: `c8f7d85cb8fa49c2f081d891c16547cd282ef3c4`; existing manual workflow addition: `bb20427a9439a1d08e49879a5a0838ed7e38b770`. No new workflow was created. CI for this exact test was queued and remains pending at report creation.
 
+
+## Research-owned opt-in bridge (not part of the qualified play policy)
+
+`simulation/twinleaf/agent2-sole-shuffle-deckzero-hook.cjs` adds a synchronous, reversible and default-OFF `withSoleShuffleDeckZeroCorrection(execute, deps)` wrapper. It preserves the pinned Iono/Marnie class methods outside exactly this state:
+
+- the owner has used no Supporter this turn;
+- its deck currently contains zero cards;
+- its surviving hand has zero cards besides the Iono/Marnie being played;
+- the opponent has at least one card in hand.
+
+Only under this condition does the wrapper allow the named Supporter and delegate its opponent-only hand-return effect to the pinned `MOVE_HAND_TO_DECK_THEN_DRAW` prefab, with the printed draw counts and native `this.shuffleCards`. All other situations delegate to the original class. It restores both prototypes even after an exception. The deferred owner draw is deliberately skipped when the opponent's sole eligible hand return was prevented; printed conditional draw requires a card to have moved. This is a narrow test-bound interpretation, and its behaviour under hand-protection Abilities still requires whole-game verification.
+
+Pure test `tests/agent2-sole-shuffle-deckzero-hook.test.cjs` covers both physical seats, Iono/Marnie printed draw quantities, untouched normal cases, cleanup and the prevented-move branch. Pinned compiled card callback smoke was added to `tests/agent2-native-shuffle-emptydeck-gate.test.cjs`. Synthetic original Store sequencing uses `tests/agent2-sole-shuffle-deckzero-native-store.test.cjs` with actual `Store`, `Player`, `TrainerEffect`, `WaitPrompt` and `ResolvePromptAction`; it does **not** simulate a normal 60-card match. The existing manual CI workflow runs these tests, with compiled outcome pending at this writing. The bridge has not been added to normal match defaults, nor credited as a win-rate improvement.
+
 ## Relation to the integrated chooser
 
 The separate actor-only `enumerateConservativeShuffleSupporterOffers` uses owner-visible hand and public opponent counts, and currently refuses a zero-draw full-access situation. It makes **no native canPlay or paper legality guarantee**. Avoid treating either the pinned method's false value or the simplified actor-only score as a complete paper-playability decision in late control-game states. The canonical two-player policy should preserve unsupported cases explicitly and report native rejections separately.
