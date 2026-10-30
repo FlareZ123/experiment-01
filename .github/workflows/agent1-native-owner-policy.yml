@@ -1,0 +1,77 @@
+name: Agent1 original-source native owner policy experiments
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: 'Run one bounded source-original K0 policy experiment, with no competitive-win qualification'
+        type: choice
+        required: true
+        options:
+          - owner-starvip
+          - original-source-opponent-blower
+          - owner-starvip-opponent-blower
+
+permissions:
+  contents: read
+
+jobs:
+  actor-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact pinned upstream submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure owner-plan selectors, lifecycle and fail-closed original-six pairing
+        run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs
+      - name: Original six K0 owner-visible Star-VIP native plan
+        if: inputs.experiment == 'owner-starvip'
+        run: node simulation/evaluation/agent1-rank11-owner-starvip-autonomy-original-six.cjs > agent1-owner-starvip-native.json
+      - name: Require all six real owner K0 starts and log complete setup progress
+        if: inputs.experiment == 'owner-starvip'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-owner-starvip-native.json');a.equal(r.originalK0Matched,6);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_OWNER_STARVIP_NATIVE',JSON.stringify({chosen:r.chosen,accepted:r.nativeAccepted,promptAccept:r.ownerPromptAccepted,survived:r.equippedGarbodorSourceReturn,rows:r.rows.map(x=>({index:x.index,seed:x.seed,plans:x.sourcePlanAudit?.plansChosen??null,accepted:x.sourcePlanAudit?.nativeAccepted??null,completed:x.sourcePlanAudit?.completedEquippedGarbodor??null,aborts:x.sourcePlanAudit?.abortReasons??null}))}))"
+      - name: Same-source six real opponent owner-visible Field Blower counterfactual
+        if: inputs.experiment == 'original-source-opponent-blower'
+        run: node simulation/evaluation/agent1-rank11-source-opponent-original-blower-pair.cjs > agent1-source-opponent-blower-native.json
+      - name: Strict six original K0 physical pairs and counterplay witness
+        if: inputs.experiment == 'original-source-opponent-blower'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-source-opponent-blower-native.json');a.equal(r.samePhysicalPairs,6);a.equal(r.sourceReturnPairs,6);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_SOURCE_BLOWER_NATIVE',JSON.stringify({selected:r.nativeBlowerProposals,removed:r.nativeBlowerPublicToolRemovalChecks,rows:r.rows.map(x=>({index:x.index,seed:x.seed,generic:x.untouchedOpponentSourceGarbodorAtReturn,responding:x.empoweredOpponentSourceGarbodorAtReturn,baseline:x.untreatedStatus,treated:x.treatedStatus}))}))"
+      - name: Same-source K0 twelve-arm actor-selected Star-VIP and owner Field Blower
+        if: inputs.experiment == 'owner-starvip-opponent-blower'
+        run: node simulation/evaluation/agent1-rank11-six-original-two-seat-blower-response.cjs > agent1-two-seat-owner-starvip-blower-native.json
+      - name: Attest both actor-visible opportunities and physical original deal parity
+        if: inputs.experiment == 'owner-starvip-opponent-blower'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-two-seat-owner-starvip-blower-native.json');a.equal(r.originalPairs,6);a.equal(r.armsAttempted,12);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_OWNER_BOTH_SEATS_NATIVE',JSON.stringify({verified:r.originallyVerifiedArms,sourcePlans:r.chosenSourcePlans,sourceSteps:r.acceptedSourcePlanSteps,opponentBlowerRoots:r.heldBlowerResponseRootCount,removals:r.confirmedEarlyToolRemovalEvents,rows:r.rows.map(x=>({index:x.index,seed:x.seed,arms:x.arms.map(y=>({response:y.opponentBlowerPolicy,status:y.status,sourceEquippedAfter:y.sourceCompletedEquippedAfterReply,blower:y.nativeTurn2FieldBlowerRootCount}))}))}))"
+      - name: Archive ALL owner Star-VIP results and errors
+        if: always() && inputs.experiment == 'owner-starvip'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-lean-owner-starvip-native
+          path: agent1-owner-starvip-native.json
+          if-no-files-found: warn
+      - name: Archive ALL source Field Blower control outcomes and errors
+        if: always() && inputs.experiment == 'original-source-opponent-blower'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-lean-source-opponent-blower-native
+          path: agent1-source-opponent-blower-native.json
+          if-no-files-found: warn
+      - name: Archive ALL bilateral actor-plan counterplay outcomes and errors
+        if: always() && inputs.experiment == 'owner-starvip-opponent-blower'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-lean-two-seat-owner-native
+          path: agent1-two-seat-owner-starvip-blower-native.json
+          if-no-files-found: warn
