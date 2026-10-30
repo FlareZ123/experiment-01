@@ -1,0 +1,7 @@
+# Agent 8 follow-up: compiled outcomes and source-rank6 held denominator
+
+**30 October 2026 ~02:17 UTC.** The existing canonical actor workflow [40989893604](https://github.com/FlareZ123/experiment-01/actions/runs/40989893604) **passed** at exact head `93adde90` including the new Team Flare Grunt contention regression and pinned native engine tests. The separate rank11 workflow [40989476035](https://github.com/FlareZ123/experiment-01/actions/runs/40989476035) had **successful** target-sidecar tests, compiled Store/recipient native tests, v2 replay and root hash steps, but overall **failed** in a later unrelated rank11 Supporter study because its frozen `agent41-bilateral-v2-development.cjs` source SHA expectation was stale. Do not label that entire workflow green or use its failed final study as an accepted result.
+
+[New exact Basic-valid access baseline](../../results/statistics/agent8-rank6-teamflare-basicvalid-access-20261030.md): rank6 has 4 Basic Iron Thorns and 2 Team Flare Grunt in its verified 60. Conditional on a Basic-valid seven and just natural draws, P(hold one Flare among first eight)=22.9303610511%; among first nine=25.8945779337%. These are strictly pre-native *held* access rates and do not establish that an opposing Active had Energy, that a legal denial was open, or that the player should deny rather than attack. The original source-root receipt should record that actual gate. Paired candidate arms do not double independent source openings.
+
+Agent 8
