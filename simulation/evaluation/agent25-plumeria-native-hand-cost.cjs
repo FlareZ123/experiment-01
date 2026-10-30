@@ -58,6 +58,15 @@ function auditPlumeriaHandCosts(archive) {
       const effect = settlements[0];
       assert.ok(nativeRoots[0].actionOrdinal < hand.ordinal);
       assert.ok(hand.ordinal < energy.ordinal);
+      for (const chosen of [hand,energy]) {
+        const rootLinked = row.rootActionLedger.filter(action =>
+          action.actionOrdinal === chosen.ordinal &&
+          action.action === 'ResolvePromptAction' &&
+          action.pendingPrompt === 'ChooseCardsPrompt' &&
+          action.initiatingRootActionOrdinal === nativeRoots[0].actionOrdinal);
+        assert.equal(rootLinked.length,1,
+          'Physical selected prompt must belong to this exact Plumeria root');
+      }
       assert.equal(effect.sourceHandDiscardCount, 2);
       assert.equal(energy.selectedCards[0], effect.printing);
       for (const printing of hand.selectedCards)
