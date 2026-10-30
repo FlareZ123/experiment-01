@@ -1,0 +1,74 @@
+{
+  "schema": "agent6-retrospective-physical-original-prized-thunder-attack-vs-energy-denial-2x2-v1",
+  "createdAtUtc": "2026-10-30T20:38:10Z",
+  "purpose": "Same-seed native evidence of a real opponent resource choice between T3 scripted paid Speed Lightning damage and after-Pass Plumeria Energy removal, preserving all failures and captures. Mechanic contest, no win claim.",
+  "selection": "RETROSPECTIVE sourcefirst original rank6 physical deal seed2341469307 with known Prized one-of Thunder and source held DCE and Plumeria×2; two additional unchanged prior original sourcefirst seeds for negative controls. No fresh randomized inference.",
+  "originalSourceRank": 6,
+  "originalCandidateRank": 1,
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedOriginalSourceFirstDeals": [
+    {
+      "seat": 0,
+      "seed": 2341469307,
+      "priorKnown": "T1 DCE Tag Call two Plumeria; K1 Thunder Prized; original candidate T2 Psychic on Latias"
+    },
+    {
+      "seat": 0,
+      "seed": 531384326,
+      "priorKnown": "T1 DCE and two Speed; no Held Tag Call"
+    },
+    {
+      "seat": 1,
+      "seed": 2411836147,
+      "priorKnown": "T1 DCE Tag Call, Thunder available"
+    }
+  ],
+  "arms": [
+    {
+      "bypass": false,
+      "plumeriaAfterPass": false
+    },
+    {
+      "bypass": true,
+      "plumeriaAfterPass": false
+    },
+    {
+      "bypass": false,
+      "plumeriaAfterPass": true
+    },
+    {
+      "bypass": true,
+      "plumeriaAfterPass": true
+    }
+  ],
+  "frozen": {
+    "sourceFirstByGenuineGoFirstChoice": true,
+    "baselineK1ReplanAfterTagCall": true,
+    "sourceT3ScriptTurn": 3,
+    "stageSpeedLightningFirstTurn": false,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "dceStageAndK1SpeedPivotWhenBypass": true,
+    "maxActions": 110,
+    "strictPromptValidation": true,
+    "canonicalOwnerActorBothSeats": true,
+    "plumeriaPolicySourceSeatOnly": true,
+    "plumeriaAdapter": "simulation/twinleaf/agent4-plumeria-after-pass.cjs",
+    "sourceDeck": "original published Aichi rank6 unmodified 60",
+    "candidateDeck": "original published Aichi rank1 unmodified 60"
+  },
+  "primaryResponses": [
+    "source T3 original Store accepted and settled Volt Cyclone Active damage and Prize changes",
+    "source T3 original Store accepted Plumeria root and own-hand 2 discard + opponent Energy removal",
+    "opponent T2 original accepted roots",
+    "opponent T4 action after source T3",
+    "identity of source and candidate initial physical deals equal across all four arms"
+  ],
+  "explicitNonclaims": [
+    "retrospective selected states do not estimate likelihood",
+    "policy adapter source-only, other candidate owner generic unqualified",
+    "no calibrated paper clock or tournament win result",
+    "Plumeria high DCI and ability-lock / matchup opportunity costs not fully modeled"
+  ],
+  "competitivelyQualifiedGames": 0
+}
