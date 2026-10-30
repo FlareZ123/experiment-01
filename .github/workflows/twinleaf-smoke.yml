@@ -28,7 +28,9 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Audit original-Store Tinkaton ex Press versus Double Turbo in both seats
-        run: node simulation/twinleaf/agent7-tinkaton-press-dte-native.cjs
+        run: |
+          node simulation/twinleaf/agent7-tinkaton-press-dte-native.cjs
+          node simulation/twinleaf/agent7-tinkaton-safeguard-native.cjs
       - name: Attest all 29 original printed source ranks against genuine pinned native deck IDs
         run: node simulation/evaluation/agent13-native-plan-attestation-smoke.cjs
       - name: Test both-seat native legal-but-unproductive Special Energy hold
