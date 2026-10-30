@@ -133,11 +133,16 @@ for(const seat of [0,1]){
       const prompt=state.prompts.find(p=>p.result===undefined);
       if(!prompt)break;
       const kind=prompt.constructor.name;
-      const action=kind==='ShuffleDeckPrompt'?
-        new ResolvePromptAction(prompt.id,
-          deckPermutation(attacker.deck.cards.length,
-            seededRandom(20261030+seat+i))):
-        bot.decodeNextAction(state);
+      // WaitPrompt is a mandatory non-strategic animation acknowledgement.
+      // The upstream bot may return undefined without completing the action;
+      // follow native prompt semantics directly and keep all choices on bot.
+      const action=kind==='WaitPrompt'?
+        new ResolvePromptAction(prompt.id,null):
+        kind==='ShuffleDeckPrompt'?
+          new ResolvePromptAction(prompt.id,
+            deckPermutation(attacker.deck.cards.length,
+              seededRandom(20261030+seat+i))):
+          bot.decodeNextAction(state);
       assert.ok(action,'Native bot left unresolved '+kind);
       if(kind==='ChooseAttackPrompt')secondAttack=action.result?.name;
       promptKinds.push(kind);
