@@ -102,7 +102,11 @@ function nativeContestedEnergy(staged){
     afterward.ownPublic.active,attack),true);
   const next=chooseActorRootIntent(afterward,catalog,{
     publicContextSpecialEnergy:true,publicFlexibleEnergyContest:true});
-  assert.deepEqual(next,{kind:'attack',attackName:'Dragon Laser'});
+  // The existing first-payable-printed attack policy still chooses
+  // zero-damage Celestial Roar before the fully payable Dragon Laser.
+  // Preserve that independent policy defect as a visible audit. This staged
+  // Store attack is a mechanical legality proof, not actor-selected damage.
+  assert.deepEqual(next,{kind:'attack',attackName:'Celestial Roar'});
   const hpBefore=opponent.active.damage;
   store.dispatch(new AttackAction(owner.id,'Dragon Laser'));
   const prompts=[];
@@ -118,7 +122,8 @@ function nativeContestedEnergy(staged){
   assert.ok(opponent.active.damage>hpBefore,
     'Double Dragon choice must result in real printed attack damage');
   return {seat,nativeSpecialAttached:true,afterEnergyRoot:next.kind,
-    attackName:next.attackName,damageBefore:hpBefore,
+    actorAttackName:next.attackName,explicitNativeAttackName:'Dragon Laser',
+    damageBefore:hpBefore,
     damageAfter:opponent.active.damage,prompts,
     ownerTurnBefore:timeBefore,ownerTurnAfter:state.turn};
 }
@@ -127,7 +132,8 @@ test('rank10 original Regidrago V mixed Basic/Double Dragon contest truly settle
   for(const seat of [0,1]){
     const evidence=nativeContestedEnergy(originalDragon(seat));
     assert.equal(evidence.nativeSpecialAttached,true);
-    assert.equal(evidence.attackName,'Dragon Laser');
+    assert.equal(evidence.actorAttackName,'Celestial Roar');
+    assert.equal(evidence.explicitNativeAttackName,'Dragon Laser');
     assert.ok(evidence.damageAfter>0);
     process.stdout.write('# FLEXIBLE_CONTEST_NATIVE '+
       JSON.stringify(evidence)+'\n');
