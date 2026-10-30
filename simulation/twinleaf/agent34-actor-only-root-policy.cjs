@@ -494,8 +494,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT16_OWNER_ARBITRATION_CENSUS_DEV==='true'),
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
-    terminalArbitrationOptIn:deps.terminalArbitration===true||
-      process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'||
+    terminalArbitrationOptIn:(deps.terminalArbitration??
+      (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'))||
       deps.beforeAttackDenial===true||
       process.env.AGENT41_OWNER_DENIAL_ARBITRATION_DEV==='true',
     beforeAttackDenialOptIn:deps.beforeAttackDenial===true||
