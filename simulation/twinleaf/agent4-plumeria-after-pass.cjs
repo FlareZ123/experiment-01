@@ -180,6 +180,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     chosenPrompts:0,acceptedPrompts:0,rejectedPrompts:0,
     settledEnergyDiscards:0,unresolvedChains:0,
+    abandonedChains:0,
     genericPromptFallbacks:0,delegatedPromptDispatches:0,
     delegatedSettledEnergyDiscards:0,
     largeHandOptIn,largeHandNativeSelections:0,
@@ -201,7 +202,12 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     const owner=state.players[seat],pending=state.prompts.find(
       p=>p.result===undefined);
     const chain=awaiting.get(owner.id);
-    if(chain&&chain.turn!==state.turn)awaiting.delete(owner.id);
+    if(chain&&chain.turn!==state.turn){
+      audit.abandonedChains++;
+      record({kind:'plumeria-chain-abandoned',seat,priorTurn:chain.turn,
+        resumedTurn:state.turn,abandonedAtStage:chain.stage});
+      awaiting.delete(owner.id);
+    }
     if(pending){
       if(!chain||chain.turn!==state.turn||
           pending.playerId!==owner.id)
