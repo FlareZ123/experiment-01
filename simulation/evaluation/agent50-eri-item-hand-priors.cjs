@@ -57,9 +57,11 @@ function buildCardSubtypeIndex(root=ROOT){
     if(!fs.existsSync(cardFile)||!code)continue;
     for(const c of JSON.parse(fs.readFileSync(cardFile,'utf8'))){
       if(c.supertype!=='Trainer')continue;
-      const subtype=Array.isArray(c.subtypes)?
-        c.subtypes.filter(x=>['Item','Supporter','Stadium','Pokémon Tool']
-          .includes(x)): [];
+      // Older Tool metadata can contain BOTH Item and Pokémon Tool.
+      // The paper rulebook explicitly treats such printings as Tools.
+      const subtypes=Array.isArray(c.subtypes)?c.subtypes:[];
+      const subtype=subtypes.includes('Pokémon Tool')?['Pokémon Tool']:
+        subtypes.filter(x=>['Item','Supporter','Stadium'].includes(x));
       if(subtype.length!==1)continue;
       const exactKey=code+'|'+String(c.number).replace(/^0+(?=\d)/,'')+
         '|'+c.name;
