@@ -38,12 +38,14 @@ function run(){
           });
       const game=selected.result;
       const audit=selected.audit;
-      const first=game.decisionTrace?.find(row=>row.playerSlot===0&&
-        Array.isArray(row.decisionHandBefore?.ownHandPrintings));
-      assert.ok(first,'Missing first original source owner hand observation');
-      const firstHandSha=sha256(first.decisionHandBefore.ownHandPrintings);
+      const first=audit.originalOwnK0AtOffer?.find(row=>row.seat===0);
+      assert.ok(first,'Missing first genuine original source offer K0 root');
+      assert.equal(first.turn,1);
+      const firstHandSha=first.handSha256;
       assert.equal(firstHandSha,entry.sourceFirstOwnerHandSha256,
         'Original initial source owner physical K0 hand changed');
+      assert.deepEqual(first.bench,entry.sourceBenchAtK0,
+        'Original source K0 Bench must match preregistration');
       assert.equal(game.firstTurnSlot,0);
       assert.equal(game.verifiedByDrawLog,true);
       rows.push({index:entry.index,seed:entry.seed,
@@ -57,6 +59,7 @@ function run(){
     }catch(error){
       rows.push({index:entry.index,seed:entry.seed,status:'blocked',
         error:String(error?.stack??error).slice(0,1500),
+        nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
         qualifiedCompetitiveGame:false});
     }
   }
@@ -79,7 +82,7 @@ if(require.main===module){
   const r=run();
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
   if(r.blocked>0){
-    process.stderr.write('AGENT1_AUTONOMY_BLOCKERS '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,error:x.error,sourcePlanAudit:x.sourcePlanAudit?{chosen:x.sourcePlanAudit.plansChosen,accepted:x.sourcePlanAudit.nativeAccepted,aborts:x.sourcePlanAudit.abortReasons,events:x.sourcePlanAudit.events.slice(0,14)}:null})))+'\n');
+    process.stderr.write('AGENT1_AUTONOMY_BLOCKERS '+JSON.stringify(r.rows.map(x=>({index:x.index,status:x.status,error:x.error,sourcePlanAudit:x.sourcePlanAudit?{chosen:x.sourcePlanAudit.plansChosen,accepted:x.sourcePlanAudit.nativeAccepted,aborts:x.sourcePlanAudit.abortReasons,events:x.sourcePlanAudit.events.slice(0,14)}:null,nativeDiagnostic:x.nativeDiagnostic??null})))+'\n');
     process.exitCode=1;
   }
 }
