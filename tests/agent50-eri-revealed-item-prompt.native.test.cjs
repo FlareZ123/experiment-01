@@ -246,3 +246,41 @@ for(const seat of [0,1]){
       selected:selected.selectedPrintings,competitiveQualifiedGames:0}));
   });
 }
+
+
+for(const seat of [0,1]){
+  test('Eri native Item filter preserves older Item-header Tool in either seat '+seat,()=>{
+    const {store,state,owner,opponent,manager,SuperType,TrainerType}=
+      scene(seat,true);
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const protectedTool=manager.getCardByName('Forest Seal Stone SIT');
+    assert.ok(protectedTool,'Original Forest Seal Stone SIT missing');
+    protectedTool.id=999999;
+    opponent.hand.cards.push(protectedTool);
+    const {TrainerType:ActualTrainerType}=
+      native('game/store/card/card-types');
+    assert.notEqual(protectedTool.trainerType,ActualTrainerType.ITEM,
+      'Older Sword/Shield Tool must not count as an Item for Eri');
+    store.dispatch(new PlayCardAction(owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const pending=state.prompts.find(p=>p.result===undefined);
+    const shown=observeEriRevealedItems(state,seat,pending,
+      SuperType,TrainerType);
+    assert.ok(shown);
+    assert.deepEqual(shown.items.map(x=>x.printing),
+      ['VS Seeker PHF','Ultra Ball SUM']);
+    const selected=resolveEriRevealedItemPrompt(state,seat,pending,
+      SuperType,TrainerType,ResolvePromptAction);
+    store.dispatch(selected.action);
+    assert.ok(opponent.hand.cards.includes(protectedTool),
+      'Original physical Tool must remain in opponent hand after Eri');
+    assert.ok(!opponent.discard.cards.includes(protectedTool));
+    console.log('ERI_OLD_ITEM_HEADER_TOOL',JSON.stringify({seat,
+      retainedTool:protectedTool.fullName,discarded:selected.selectedPrintings,
+      competitiveQualifiedGames:0}));
+  });
+}
