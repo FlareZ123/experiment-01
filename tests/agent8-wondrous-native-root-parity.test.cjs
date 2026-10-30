@@ -55,10 +55,8 @@ function scene(seat,labyrinth){
   state.rules=state.gameSettings.rules;
   owner.active.cards.push(card('Iron Thorns ex TWM'));
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
-  for(const printing of ['Lightning Energy SVE','Double Colorless Energy SUM']){
-    const energy=card(printing);
-    owner.active.energies.cards.push(energy);
-  }
+  owner.active.energies.cards.push(card('Lightning Energy SVE'));
+  owner.hand.cards.push(card('Double Colorless Energy SUM'));
   if(labyrinth){
     const stadium=manager.getCardByName(wonders[0].fullName);
     assert.ok(stadium);
@@ -73,6 +71,15 @@ function scene(seat,labyrinth){
       player.prizes.push(prize);
     }
   }
+  // Prior-turn Lightning is preattached. DCE enters through a genuine
+  // Store action, ensuring native Energy attachment bookkeeping is applied.
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  store.dispatch(new PlayCardAction(owner.id,0,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+  }));
+  assert.deepEqual(owner.active.energies.cards.map(c=>c.fullName),
+    ['Lightning Energy SVE','Double Colorless Energy SUM']);
   return {store,state,owner,opponent,catalog,stadium:wonders[0].fullName};
 }
 
