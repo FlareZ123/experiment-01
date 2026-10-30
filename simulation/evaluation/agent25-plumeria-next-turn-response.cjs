@@ -66,6 +66,20 @@ function auditPlumeriaNextTurns(archive) {
         afterEnergyCount:changes[0].after.energies.length});
     }
     const attacks = nextOpponent.filter(root => root.action === 'AttackAction');
+    const settledAttacks = attacks.map(root => {
+      const records = row.candidateAttackSettlement?.attacks?.filter(attack =>
+        attack.actionOrdinal === root.actionOrdinal &&
+        attack.turnBefore === root.turnBefore &&
+        attack.attackName === root.attack) ?? [];
+      assert.equal(records.length, 1,
+        'Native accepted opponent attack must match exactly one settlement');
+      assert.equal(records[0].settledPromptChain, true,
+        'An attack declaration without settled native prompt chain');
+      assert.equal(records[0].settlementCrossesClockReset, false,
+        'Native attack settlement crosses an invalid epoch boundary');
+      return {attackName:root.attack,rootOrdinal:root.actionOrdinal,
+        completionRootOrdinal:records[0].completionRootOrdinal};
+    });
     const nextSourceOnlyPass = nextSource.length === 1 &&
       nextSource[0].action === 'PassTurnAction';
     events.push({trialId:record.trialId,plumeriaTurn:record.turn,
@@ -74,6 +88,7 @@ function auditPlumeriaNextTurns(archive) {
       opponentTurn:record.turn+1,
       nextOpponentRootCount:nextOpponent.length,
       opponentAcceptedAttackNames:attacks.map(root => root.attack),
+      opponentSettledAttacks:settledAttacks,
       opponentPsychicReattachments:reattached,
       nextSourceTurn:record.turn+2,
       nextSourceRootCount:nextSource.length,
@@ -96,6 +111,8 @@ function auditPlumeriaNextTurns(archive) {
       n+e.opponentPsychicReattachments.length,0),
     nextOpponentAttackDeclarations:events.filter(e=>
       e.opponentAcceptedAttackNames.length>0).length,
+    nextOpponentWithSettledAttack:events.filter(e=>
+      e.opponentSettledAttacks.length>0).length,
     nextSourcePassOnly:events.filter(e=>e.nextSourceOnlyPass).length,
     records:events,
     competitiveQualifiedGames:0,
