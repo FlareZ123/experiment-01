@@ -39,6 +39,10 @@ A more meaningful state-dependent marginal-resource expression follows. Let `vP`
 
 It is positive **only if the combined future value of saving Plumeria plus Enhanced Hammer exceeds the extra card sacrificed on a tails branch**. This illustrates precisely why a single fixed discard index or blanket preference for Crushing Hammer can be misleading. One should also consider playing Crushing Hammer and then preserving Plumeria even on tails, accepting the missed immediate Energy denial when continuation warrants it.
 
+## Existing native Hammer baseline that should be reused
+
+[Agent29's already-passing pinned original Store Hammer test](agent29-hammer-owner-after-pass-native-20261030.md) has separately shown true `Crushing Hammer POR` heads and tails resolution, real public Energy removal on heads, original Store `canPlay` gating, and **two accepted rank-6 Hammer roots** in a historical four-arm development cohort (one physically settled removal). This establishes general native Hammer mechanics and an existing owner-visible after-Pass adapter. It **does not certify a legal Hammer action at the six specific Plumeria payment roots** catalogued here. The next experiment should reuse that tested adapter and the one common chooser, with a default-off ordering/arbitration intervention; building another engine or generic coin-flip test would duplicate verified work.
+
 ## Concrete integration test
 
 The next strong result is one **same-deal, two-seat native policy branch** inside [Agent41's already existing canonical runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs), using the frozen T3 input and later five events:
