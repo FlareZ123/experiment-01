@@ -6,12 +6,14 @@ const ROOTS=new Set(['PlayCardAction','PassTurnAction','UseAbilityAction','Attac
  * @param {object[]} trace Original native Store decisionTrace.
  * @param {0|1} seat Source physical player seat.
  * @param {boolean} sourceActuallyFirst Verified first-player identity.
+ * @param {object[]} [nativeRoots] Accepted original Store root ledger, if available.
  * @returns {object} Actor-own-hand resource counts, no raw hand printings.
  */
-function sourceFirstOwnedAffordances(trace,seat,sourceActuallyFirst){
+function sourceFirstOwnedAffordances(trace,seat,sourceActuallyFirst,nativeRoots=[]){
   assert.ok(seat===0||seat===1);
   assert.equal(typeof sourceActuallyFirst,'boolean');
   assert.ok(Array.isArray(trace));
+  assert.ok(Array.isArray(nativeRoots));
   const turn=sourceActuallyFirst?1:2;
   const roots=trace.filter(e=>e.playerSlot===seat&&e.turnBefore===turn&&
     ROOTS.has(e.action)&&Number.isSafeInteger(e.actionOrdinal));
@@ -27,9 +29,25 @@ function sourceFirstOwnedAffordances(trace,seat,sourceActuallyFirst){
     return {handSize:s.ownHandPrintings.length,resources};
   }
   const firstOwnHand=summarize(first), terminalPassOwnHand=summarize(pass);
-  return {schema:'agent1-source-first-owned-affordances-v1',
+  // Some actual Store card effects (e.g. Boost Shake) end the turn in a
+  // subsequent accepted prompt resolution, so no separate Pass is possible.
+  // Only a native, owner-seat, exactly next-turn clock transition can attest
+  // that case; a held card or proposed action alone must never suffice.
+  // A missing Pass decision witness is not rescued by a bare native Pass.
+  const nativeTurnEnd=pass?null:(nativeRoots.find(e=>
+    e.playerSlot===seat&&e.turnBefore===turn&&e.turnAfter===turn+1&&
+    e.action!=='PassTurnAction'&&Number.isSafeInteger(e.actionOrdinal))??null);
+  const nativeTurnClosure=nativeTurnEnd?{
+    ordinal:nativeTurnEnd.actionOrdinal,
+    action:nativeTurnEnd.action,
+    initiatingRootActionOrdinal:nativeTurnEnd.initiatingRootActionOrdinal??null
+  }:null;
+  const terminalKind=terminalPassOwnHand?'pass':
+    nativeTurnClosure?'native-nonpass-turn-end':null;
+  return {schema:'agent1-source-first-owned-affordances-v2',
     sourceSeat:seat,sourceActuallyFirst,sourceFirstOwnTurn:turn,
-    status:firstOwnHand&&terminalPassOwnHand?'observed':'incomplete',
+    status:firstOwnHand&&terminalKind?'observed':'incomplete',
+    terminalKind,nativeTurnClosure,
     firstRootOrdinal:first?.actionOrdinal??null,
     firstRootAction:first?.action??null,firstOwnHand,
     terminalPassRootOrdinal:pass?.actionOrdinal??null,
