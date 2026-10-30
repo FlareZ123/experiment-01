@@ -258,3 +258,33 @@ test('Temple of Sinnoh suppresses Speed Lightning on-attach draw but not attachm
       false,'Temple attached Energy must supply Colorless');
   }
 });
+
+test('Temple of Sinnoh prevents Capture search and Jet switch in both seats',()=>{
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  for(const seat of [0,1]){
+    const cap=staged('Iron Thorns ex TWM','Capture Energy RCL',seat);
+    cap.owner.stadium.cards.push(cap.card('Temple of Sinnoh ASR'));
+    cap.owner.deck.cards.push(cap.card('Bunnelby PRC'));
+    const initialDeck=cap.owner.deck.cards.length;
+    cap.store.dispatch(new PlayCardAction(cap.owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(cap.owner.active.energies.cards.some(c=>
+      c.fullName==='Capture Energy RCL'));
+    assert.equal(cap.owner.deck.cards.length,initialDeck);
+    assert.ok(cap.owner.bench.every(slot=>slot.cards.length===0));
+    assert.equal(cap.state.prompts.filter(p=>p.result===undefined).length,0);
+    const jet=staged('Iron Thorns ex TWM','Jet Energy PAL',seat);
+    jet.owner.stadium.cards.push(jet.card('Temple of Sinnoh ASR'));
+    jet.owner.bench[0].cards.push(jet.card('Bunnelby PRC'));
+    jet.store.dispatch(new PlayCardAction(jet.owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+    }));
+    assert.equal(jet.owner.active.getPokemonCard().name,'Iron Thorns ex');
+    assert.equal(jet.owner.bench[0].getPokemonCard().name,'Bunnelby');
+    assert.ok(jet.owner.bench[0].energies.cards.some(c=>
+      c.fullName==='Jet Energy PAL'));
+    assert.equal(jet.state.prompts.filter(p=>p.result===undefined).length,0);
+  }
+});
