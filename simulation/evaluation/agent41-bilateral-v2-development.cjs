@@ -924,6 +924,7 @@ function runDevelopment({
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
+  bilateralPublicContextSpecialEnergy=false,
   bilateralEnergyContest=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null
@@ -939,6 +940,12 @@ function runDevelopment({
     'Both-seat Special Energy root requires canonical actor composition');
   assert.ok(!bilateralEnergyContest||bilateralSpecialEnergyRoot,
     'Basic/Special contention requires symmetric both-seat Special root');
+  assert.ok(!bilateralPublicContextSpecialEnergy||actorOnlyComposition,
+    'Public-context Special Energy requires canonical actor composition');
+  assert.ok(!(bilateralPublicContextSpecialEnergy&&
+      (bilateralSpecialEnergyRoot||sourceScopedSpecialEnergyRoot||
+      candidateScopedSpecialEnergyRoot)),
+    'Compare public-context and narrow Special root as distinct policies');
   assert.ok(!sourceFloatStoneMobility||actorOnlyComposition,
     'Source Float Stone rescue requires actor-only composition');
   const {planAichi}=require('./aichi-pilot.cjs');
@@ -1021,7 +1028,8 @@ function runDevelopment({
             source:sourceScopedSpecialEnergyRoot,
             candidate:candidateScopedSpecialEnergyRoot
           },trial.candidateSlot);
-        const scopedRoot=(!energyProfile.enabled&&!sourceFloatStoneMobility&&
+        const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
+          !sourceFloatStoneMobility&&
           !candidateOnlyKnownDeadRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1029,6 +1037,10 @@ function runDevelopment({
                 specialEnergyRoot:true,
                 specialEnergyRootOwnerSeat:energyProfile.ownerSeat,
                 contestedEnergyRoot:bilateralEnergyContest
+              }:{}),
+              ...(bilateralPublicContextSpecialEnergy?{
+                publicContextSpecialEnergy:true,
+                specialEnergyRootOwnerSeat:null
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1063,6 +1075,14 @@ function runDevelopment({
           ...(bilateralSpecialEnergyRoot?{
             bilateralSpecialEnergyProfile:{...energyProfile,
               immediateAttackContest:bilateralEnergyContest}
+          }:{}),
+          ...(bilateralPublicContextSpecialEnergy?{
+            bilateralPublicContextSpecialProfile:{
+              version:'agent17-owner-flexible-energy-model-v1-canonical-both-seats',
+              mode:'both',ownerSeat:null,sharedPolicy:true,
+              specialEnergyModel:'actor-energy-payability',
+              rootSelector:'agent17-public-context-special-energy'
+            }
           }:{}),
           actorOnlyPolicyVersion:observed.audit.version,
           actorOnlyDecisionCoverage:observed.audit,
@@ -1306,6 +1326,8 @@ if(require.main===module){
       process.env.AGENT4_CANDIDATE_SPECIAL_ROOT_DEV==='true',
     bilateralSpecialEnergyRoot:
       process.env.AGENT41_BILATERAL_SPECIAL_ENERGY_DEV==='true',
+    bilateralPublicContextSpecialEnergy:
+      process.env.AGENT41_BILATERAL_PUBLIC_SPECIAL_DEV==='true',
     bilateralEnergyContest:
       process.env.AGENT41_ENERGY_CONTEST_DEV==='true'
   });
