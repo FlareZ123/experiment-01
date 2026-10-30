@@ -97,6 +97,9 @@ function run(){
         sourceActive:src.active,
         sourceBench:src.bench.filter(xs=>xs.length>0)
           .map(xs=>xs[0]),
+        sourceHandCount:src.hand.length,
+        sourceDeckRemaining:src.deckRemaining,
+        sourcePrizeCopyCount:src.prizes.flat().length,
         sourceMulliganCount:sourceShuffles.length-1,
         candidateMulliganCount:candidateShuffles.length-1,
         sourceShuffles,candidateShuffles
