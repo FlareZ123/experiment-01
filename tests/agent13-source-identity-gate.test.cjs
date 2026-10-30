@@ -4,7 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {attestField,parseField,printingFingerprint,attestNativePlan}=
+const {attestField,parseField,printingFingerprint,attestNativePlan,
+  attestPhysicalArm}=
   require('../simulation/evaluation/agent13-source-identity-gate.cjs');
 
 const root=path.resolve(__dirname,'..');
@@ -184,4 +185,67 @@ test('Basic Energy name in a Trainer category is not exempt',()=>{
   card.category='Trainer';
   assert.throws(()=>attestField(bad,csv),
     /Basic Energy exemption applied to wrong category/);
+});
+
+/** @returns {object} Pinned-shape fixed 60 source and candidate plan fixture. */
+function armFixture(){
+  const base=fakeNativePlan();
+  const candidate=base.opponents.find(row=>row.rank===1).cards;
+  const originalSourceIdentity=attestNativePlan(base,original,csv);
+  const candidateNativeOrderedSha256=require('node:crypto')
+    .createHash('sha256').update(JSON.stringify(candidate)).digest('hex');
+  return {...base,originalSourceIdentity,
+    candidate:{cards:[...candidate]},candidateNativeOrderedSha256};
+}
+
+test('physical seat identity authenticates both real 60-card orientations',()=>{
+  const plan=armFixture();
+  const source=plan.opponents.find(x=>x.rank===11).cards;
+  const candidate=plan.candidate.cards;
+  const a=attestPhysicalArm({plan,rank:11,candidateSeat:0,
+    deckA:candidate,deckB:source});
+  const b=attestPhysicalArm({plan,rank:11,candidateSeat:1,
+    deckA:source,deckB:candidate});
+  assert.equal(a.player,'Wataru Yano');
+  assert.equal(a.archetype,'Absol Garbodor');
+  assert.equal(a.sourceSeat,1);
+  assert.equal(b.sourceSeat,0);
+  assert.equal(a.originalPrintingSha256,b.originalPrintingSha256);
+  assert.equal(a.originalNativeOrderedSha256,b.originalNativeOrderedSha256);
+  assert.equal(a.competitiveGameQualified,false);
+});
+
+test('source substitution and physical seat reversal fail closed',()=>{
+  const plan=armFixture();
+  const source=[...plan.opponents.find(x=>x.rank===11).cards];
+  const candidate=[...plan.candidate.cards];
+  assert.throws(()=>attestPhysicalArm({plan,rank:11,candidateSeat:0,
+    deckA:source,deckB:candidate}),
+  /Physical seat A is not the registered native 60/);
+  source[0]='Different Printed Source Card';
+  assert.throws(()=>attestPhysicalArm({plan,rank:11,candidateSeat:1,
+    deckA:source,deckB:candidate}),
+  /Physical seat A is not the registered native 60/);
+});
+
+test('mutated registered source or candidate invalidates immutable receipt',()=>{
+  const sourcePlan=armFixture();
+  sourcePlan.opponents.find(x=>x.rank===11).cards[0]='Different Card';
+  assert.throws(()=>attestPhysicalArm({plan:sourcePlan,rank:11,
+    candidateSeat:0,deckA:sourcePlan.candidate.cards,
+    deckB:sourcePlan.opponents.find(x=>x.rank===11).cards}),
+    /Original source native ID fingerprint changed/);
+  const candidatePlan=armFixture();
+  candidatePlan.candidate.cards[0]='Different Candidate Card';
+  assert.throws(()=>attestPhysicalArm({plan:candidatePlan,rank:11,
+    candidateSeat:0,deckA:candidatePlan.candidate.cards,
+    deckB:candidatePlan.opponents.find(x=>x.rank===11).cards}),
+    /Fixed candidate native ID fingerprint changed/);
+});
+
+test('unpublished opponent cannot be passed as a physical source',()=>{
+  const plan=armFixture();
+  assert.throws(()=>attestPhysicalArm({plan,rank:25,candidateSeat:0,
+    deckA:plan.candidate.cards,deckB:plan.candidate.cards}),
+    /No fully recovered source rank 25/);
 });
