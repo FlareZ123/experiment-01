@@ -1,0 +1,72 @@
+{
+  "schema": "agent32-rank11-retrospective-original-source-K0-bench-followup-v1",
+  "registrationDate": "2026-10-30",
+  "purpose": "One frozen retrospective first-root Bench census of eight original owner-hand shortlist seeds, without full-game continuation or win score",
+  "inputProvenance": {
+    "originalRunId": 39097916869,
+    "originalArtifactId": 12125432682,
+    "originalZipSha256": "53043fd481aa974e65bcf7a3b1d1cc805c2363b9e8a62a9173c245997b248557",
+    "originalRecordsSha256": "4f1d37c273de8f12dd0f07ceeec14079250464c4e7c594b56321156991d7f8c7"
+  },
+  "originalK0Registration": "results/aichi-2026/registrations/rank11-conditional-firstturn-k0-v1-20261018.json",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "candidateRank": 1,
+  "candidateSeat": 1,
+  "sourceDeckDigest": "967308cd60e92348d8069a348174d816efcaa06f3825a3cf45b64886facb1273",
+  "candidateDeckDigest": "85d816b20b514bcf2936fbeca79d9577f745bc7e1e7e151c3234fd6c9ea81f52",
+  "expectedSeedCount": 8,
+  "preselectedSeeds": [
+    {
+      "index": 2,
+      "seed": 1462371689,
+      "sourceFirstOwnerHandSha256": "02fb8f4431f15056a2d9d8c76015395a06f9f36eec43e6af06d77b0527ee6639"
+    },
+    {
+      "index": 137,
+      "seed": 3855389153,
+      "sourceFirstOwnerHandSha256": "077c423373d8bcf94c3a0515e8c875366ede0ef40661f4d0159db11ab076ee3c"
+    },
+    {
+      "index": 232,
+      "seed": 2301458581,
+      "sourceFirstOwnerHandSha256": "02d11f7d000a85c7c4291ee9c3b2e0c1f202272527352c1248daf033fcd4bff1"
+    },
+    {
+      "index": 233,
+      "seed": 3471823849,
+      "sourceFirstOwnerHandSha256": "4b0c9705d0f391493ee4b9e84cb30872f344b7f380621c7359d42f2175c67906"
+    },
+    {
+      "index": 299,
+      "seed": 2387754768,
+      "sourceFirstOwnerHandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf"
+    },
+    {
+      "index": 376,
+      "seed": 2549346519,
+      "sourceFirstOwnerHandSha256": "288d14db7b62fead99f086afc57f7e6f03178f231726fe11ac9f15960690fcf7"
+    },
+    {
+      "index": 440,
+      "seed": 1518908781,
+      "sourceFirstOwnerHandSha256": "15c7f4ad1a98516e979684ad996c3db6e45d62869ba29b1baaf632497aa472b0"
+    },
+    {
+      "index": 458,
+      "seed": 2375861161,
+      "sourceFirstOwnerHandSha256": "88a4d2b18ac76e33a8999ba18e97463361cd1b1a6ec2b7d47da8dbfe940ffad4"
+    }
+  ],
+  "nativeObsSchema": "source first decision, owner Active and public Bench, source own hand printings; no deck/Prize identity, no gameplay continuation",
+  "replaySettings": {
+    "strictPromptValidation": true,
+    "forestSealSearchCorrection": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "isolatePolicyRandomness": true,
+    "maxSetupActions": 200
+  },
+  "confidenceBoundary": "retrospectively filtered eight candidate hands, not a prospective random 32-field evaluation; preserved initial Bench missing from original artifact; no winners or qualified games",
+  "frameSha256": "871ac7ac933dce955553cdb04ec269dcf0ffe2e271667b4dce456fdda71108ff"
+}
