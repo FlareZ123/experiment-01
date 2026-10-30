@@ -208,7 +208,8 @@ function chooseActorRootIntent(view,catalog,options={}){
     restrictions?.cannotAttackNextTurn===true||
     active?.specialConditions?.some(x=>x===catalog.specialConditions.ASLEEP||
       x===catalog.specialConditions.PARALYZED);
-  if(active&&!locked&&view.globalTurn!==1){
+  if(active&&!locked&&(view.globalTurn!==1||
+      options.printedFirstTurnAttackRoot===true)){
     const payable=[];
     const attached=[];
     const temple=options.specialEnergyRoot===true&&
@@ -230,6 +231,10 @@ function chooseActorRootIntent(view,catalog,options={}){
         .some(p=>p.startsWith('Thunder Mountain Prism Star '));
     for(const attack of active.attacks){
       if(!Array.isArray(attack.cost))continue;
+      if(view.globalTurn===1&&(
+        options.printedFirstTurnAttackRoot!==true||
+        !require('./agent37-firstturn-exception.cjs')
+          .hasFirstPlayerPrintedAttackException(attack)))continue;
       // Printed GX attacks share the global one-GX-per-game resource. They are
       // disabled by default until explicitly tested as actor-owned roots.
       // Rule-specific eligibility still belongs to the genuine native Store.
@@ -416,6 +421,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
+    printedFirstTurnAttackRootOptIn:deps.printedFirstTurnAttackRoot??
+      (process.env.AGENT37_FIRSTTURN_ATTACK_ROOT_DEV==='true'),
     potentialKoRootOptIn:deps.potentialKoRoot??
       (process.env.AGENT49_POTENTIAL_KO_ROOT_DEV==='true'),
     knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
@@ -530,6 +537,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent35-public-donor-funding-pivot-v1';
   if(audit.powerglassRootOptIn)
     audit.version+='+agent41-owner-visible-powerglass-root-v1';
+  if(audit.printedFirstTurnAttackRootOptIn)
+    audit.version+='+'+
+      require('./agent37-firstturn-exception.cjs').VERSION;
   if(audit.lowHandLillieRootOptIn)
     audit.version+='+'+
       require('./agent25-lowhand-lillie-frontier.cjs').VERSION;
@@ -623,6 +633,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.specialEnergyRootOwnerSeat,seat),
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       printedGxRoot:audit.printedGxRootOptIn,
+      printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
