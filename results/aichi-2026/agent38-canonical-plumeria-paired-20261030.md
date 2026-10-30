@@ -57,3 +57,18 @@ Current verified opponent field is 29 of 32 exact Aichi 60s, with original ranks
 - `tests/agent7-canonical-actor-composition.test.cjs`, `tests/agent4-plumeria-after-pass.test.cjs`
 - `scripts/agent38-plumeria-paired-census.cjs`, `tests/agent38-plumeria-paired-census.test.cjs`
 - `.github/workflows/rank11-sametarget-source-replay.yml`, gated manual `agent38_plumeria_probe`.
+
+
+## Repeated native receipt verification and bounded counterexample
+
+**Final default-policy receipt replay passed:** [Actions run 41119563237](https://github.com/FlareZ123/experiment-01/actions/runs/41119563237), source revision `040ffcf036008f54857581e5fc3585bae6299218`, [artifact 13008765093](https://github.com/FlareZ123/experiment-01/actions/runs/41119563237/artifacts/13008765093), ZIP SHA256 `5943150a6129b70068da762af26d1b1553fb4300d051d33313f94e67bf5166ac`. Exact four control/treatment source and full-physical opening fingerprints matched, two legitimate Plumeria native roots accepted, and **two separate physical original opposing Energy cards settled**. Both confirmed cases occurred at source physical seat 0. Root and prompt-choice SHA256s were unchanged from the initial v1 run; the new counts correct only the observational receipt coverage.
+
+At turn 53, **exactly one** 28-card hand prompt was delegated to generic because of the 18-card actor menu ceiling; the actor-specific handler then successfully resolved the remaining Pokémon-target and attached-Energy prompts. The receipt trace reports `genericPromptFallbacks=1`, `delegatedPromptDispatches=1`, `acceptedPrompts=5`, `settledEnergyDiscards=2`, `delegatedSettledEnergyDiscards=0`, and `unresolvedChains=0`. The three-stage synthetic generic fallback test independently confirms the observer tracks cases where all three are actually delegated.
+
+The first v2 compiled replay [Actions 41119143641](https://github.com/FlareZ123/experiment-01/actions/runs/41119143641) intentionally remains preserved with [artifact 13008430555](https://github.com/FlareZ123/experiment-01/actions/runs/41119143641/artifacts/13008430555). Its strong CI assertion incorrectly required three generic prompt fallbacks. The native simulator had in fact completed both physical discards with one generic and two actor-resolved prompts; the assertion was corrected and the subsequently identical run passed. The CI failure therefore exposed an audit expectation error, and was not a gameplay failure.
+
+## Separate optional large-hand policy candidate
+
+A targeted owner-only experimental selector is now available inside `selectPlumeriaHandDiscards`, gated by `AGENT38_PLUMERIA_LARGE_HAND_DEV=true`, **disabled by default**. It enumerates exact legal two-card print multiset options for the actual own-hand `ChooseCardsPrompt` with 19 to 60 physically owned cards, reuses Agent47's actor-only duplicate-preservation policy, and resolves the chosen printings back to original physical cards through the native validator. It rejects foreign card identities, wrong prompt types and invalid selection quotas. The interface exposes no opponent concealed cards to the pure chooser.
+
+The new `agent38_plumeria_largehand_probe` manual workflow input adds a **third** same-seed native branch, preserving control, after-Pass baseline, and extended discard selection as distinct policy variants. Its paired reporter `scripts/agent38-plumeria-large-hand-compare.cjs` requires exact full initial deal fingerprints and reports physical root divergence, printed cards discarded, generic fallback counts, attack declarations, errors and action caps. Until compiled evidence is reviewed, this is a hypothesis about improved discard quality, **not a demonstrated matchup advantage**.
