@@ -43,6 +43,8 @@ test('all attempted arms retained; original prompt closed Item is attributed',()
   assert.equal(r.totals.acceptedAttackRoots,1);
   assert.equal(r.totals.terminalCardPlays,1);
   assert.equal(r.totals.unboundEnds,0);
+  assert.equal(r.totals.byTerminalPromptType.unknown,4);
+  assert.equal(r.totals.opponentOwnedTerminalPrompts,0);
   assert.equal(r.sourceTerminalCardPlays[0].cardName,'Boost Shake');
   assert.equal(r.sourceTerminalCardPlays[0].isSourceActor,true);
   assert.equal(r.competitiveQualifiedGames,0);
