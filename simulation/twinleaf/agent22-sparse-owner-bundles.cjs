@@ -15,11 +15,15 @@ const VERSION='agent22-sparse-owner-bundles-v1';
  *
  * @param {{cards:{cards:{fullName:string}[]},validate:(cards:object[])=>boolean}} prompt
  * @param {1|2|3} max
+ * @param {(names:readonly string[])=>number|null} [scoreBundle]
+ * @param {number} [minSelection] Paper-aware minimum, native validation still required.
  * @returns {ReadonlyArray<{printings:ReadonlyArray<string>}>|null}
  */
-function firstNativeValidBundle(prompt,max,scoreBundle=null){
+function firstNativeValidBundle(prompt,max,scoreBundle=null,minSelection=0){
   assert.ok(Number.isInteger(max)&&max>=1&&max<=3);
   assert.ok(scoreBundle===null||typeof scoreBundle==='function');
+  assert.ok(Number.isInteger(minSelection)&&minSelection>=0&&
+    minSelection<=max);
   const cards=prompt.cards.cards;
   assert.ok(Array.isArray(cards));
   // Caller authenticates a live, owned deck/discard prompt. Native validation
@@ -47,7 +51,8 @@ function firstNativeValidBundle(prompt,max,scoreBundle=null){
   // The unscored route retains the original first native-valid max-size
   // lexicographic bundle. In scored mode, an empty optional search is a
   // legitimate alternative when the native prompt permits it.
-  for(let size=Math.min(max,ordered.length);size>=(scoreBundle?0:1);
+  for(let size=Math.min(max,ordered.length);size>=
+      Math.max(scoreBundle?0:1,minSelection);
       size--){
     if(size===0){consider([]);continue;}
     const selected=[];
