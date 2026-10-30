@@ -31,7 +31,16 @@ test('native opponent-visible invalid seven bridges into exact public names',()=
    assert.deepEqual([...new Set(hands.flat().filter(n=>!original.has(n)))],[]);
    const p=publicFailedHandHistoryPosterior(manifest,hands);
    assert.ok(p.models.find(x=>x.rank===6).posterior>0);
+   const thorns=p.models.filter(x=>[6,24,29].includes(x.rank));
+   const familyMass=thorns.reduce((sum,x)=>sum+x.posterior,0);
+   assert.ok(familyMass>0,'Public Thorns Active incompatible with field');
+   const trueRankGivenActive=thorns.find(x=>x.rank===6).posterior/familyMass;
+   const fourHammerGivenActive=thorns.filter(x=>[6,29].includes(x.rank))
+     .reduce((sum,x)=>sum+x.posterior,0)/familyMass;
+   assert.ok(trueRankGivenActive>0&&fourHammerGivenActive>0);
    rows.push({seed,candidateSeat,sourceRankPosterior:p.models.find(x=>x.rank===6).posterior,
+    trueRankGivenPublicActive:trueRankGivenActive,
+    fourHammerGivenPublicActive:fourHammerGivenActive,
     sourceMulligans:hands.length,
     firstPublicHand:hands[0]??null,
     unrecognized:[...new Set(hands.flat().filter(n=>!original.has(n)))]});
