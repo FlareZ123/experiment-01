@@ -64,8 +64,10 @@ function attestNativeTurnClosureLineage(roots){
       (!prompted||origin<i));
     const shared={
       terminalOrdinal:i,turnBefore:row.turnBefore,turnAfter:row.turnAfter,
-      terminalAction:row.action,prompted,terminalPromptSeat:prompted?
-        row.playerSlot:null,initiatingRootOrdinal:originValid?origin:null
+      terminalAction:row.action,prompted,
+      terminalPromptType:prompted?row.pendingPrompt??null:null,
+      terminalPromptSeat:prompted?row.playerSlot:null,
+      initiatingRootOrdinal:originValid?origin:null
     };
     if(!originValid){
       unbound.push({...shared,
@@ -80,6 +82,8 @@ function attestNativeTurnClosureLineage(roots){
       initiatingAttackName:typeof init.attack==='string'?init.attack:null,
       actionFamily:actionFamily(init),
       promptCompletionDescendedFromRoot:prompted,
+      oppositePlayerCompletedTerminalPrompt:prompted&&
+        row.playerSlot===1-init.playerSlot,
       paperRuleEffectVerified:false,
       opponentReplyVerified:false});
   }
@@ -87,6 +91,15 @@ function attestNativeTurnClosureLineage(roots){
     unbound.length,boundNativeTurnEnds:closures.length,
     unresolvedTerminals:unbound.length,
     promptClosedTerminals:closures.filter(x=>x.prompted).length,
+    promptTerminalTypes:closures.reduce((counts,closure)=>{
+      if(closure.prompted){
+        const type=closure.terminalPromptType??'unknown';
+        counts[type]=(counts[type]??0)+1;
+      }
+      return counts;
+    },{}),
+    opponentOwnedTerminalPrompts:closures.filter(x=>
+      x.oppositePlayerCompletedTerminalPrompt).length,
     certainNonattackTerminalRoots:closures.filter(x=>['card-play',
       'stadium-use'].includes(x.actionFamily)).length,
     ambiguousAbilityTerminals:closures.filter(x=>
