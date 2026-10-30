@@ -84,6 +84,8 @@ jobs:
         run: node --test tests/agent13-source-identity-gate.test.cjs
       - name: Fail closed on skipped native printed-card fixtures before competitive release
         run: node --test tests/agent49-native-print-release-gate.test.cjs
+      - name: Require public Stadium-adjusted attack costs before selecting owner attack roots
+        run: node --test tests/agent49-wondrous-root-payability.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs
       - name: Verify exact source nonattack terminal triggers and native turn-end lineage
