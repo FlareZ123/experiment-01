@@ -19,7 +19,7 @@ const native=name=>require(path.join(output,name));
  * @param {boolean} withItems
  * @returns {object}
  */
-function scene(seat,withItems){
+function scene(seat,withItems,funded=false){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -46,13 +46,19 @@ function scene(seat,withItems){
     c.id=nextId++;
     return c;
   };
-  owner.active.cards.push(card('Bunnelby PRC'));
+  owner.active.cards.push(card(funded?'Iron Thorns ex TWM':'Bunnelby PRC'));
+  if(funded){
+    owner.active.energies.cards.push(card('Speed Lightning Energy RCL'),
+      card('Double Colorless Energy SUM'));
+    owner.stadium.cards.push(card('Thunder Mountain Prism Star LOT'));
+  }
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   owner.hand.cards.push(card(ERI));
   if(withItems){
     opponent.hand.cards.push(card('VS Seeker PHF'),
       card('Psychic Energy SVE'),card('Ultra Ball SUM'),
       card('Double Colorless Energy SUM'));
+    if(funded)opponent.hand.cards.push(card('Psychic Energy SVE'));
   }else{
     opponent.hand.cards.push(card('Psychic Energy SVE'),
       card('Double Colorless Energy SUM'));
@@ -66,7 +72,7 @@ function scene(seat,withItems){
       player.prizes.push(prize);
     }
   }
-  return {store,state,owner,opponent,seat,SuperType,TrainerType};
+  return {store,state,owner,opponent,seat,SuperType,TrainerType,manager};
 }
 
 /**
@@ -132,5 +138,75 @@ for(const seat of [0,1]){
     const outcome=settle(seat,false);
     assert.deepEqual(outcome.discarded,[]);
     console.log('ERI_REVEALED_NATIVE_EMPTY',JSON.stringify(outcome));
+  });
+}
+
+for(const seat of [0,1]){
+  test('native owner Eri option can finish an already payable attack, seat '+seat,()=>{
+    const {offerEriBeforeAttack,observeEriRevealedItems,
+      resolveEriRevealedItemPrompt}=
+      require('../simulation/twinleaf/agent50-eri-revealed-item-prompt.cjs');
+    const {store,state,owner,opponent,manager,SuperType,TrainerType}=
+      scene(seat,true,true);
+    const {buildActorCardCatalog,chooseActorRootIntent}=
+      require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+    const {PokemonCard}=native('game/store/card/pokemon-card');
+    const {EnergyCard}=native('game/store/card/energy-card');
+    const {Stage,EnergyType,CardType,SpecialCondition}=
+      native('game/store/card/card-types');
+    const {PowerType}=native('game/store/card/pokemon-types');
+    const catalog=buildActorCardCatalog(manager.getAllCards(),{
+      PokemonCard,EnergyCard,Stage,EnergyType,CardType,PowerType,
+      SpecialCondition
+    });
+    const before=actorObservation(state,seat);
+    assert.equal(before.opponentPublic.handCount,5);
+    const attack={kind:'attack',attackName:'Volt Cyclone'};
+    const {publicSpecialAttackPayable}=
+      require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
+    const printed=before.ownPublic.active.attacks.find(a=>
+      a.name===attack.attackName);
+    assert.ok(printed);
+    assert.equal(publicSpecialAttackPayable(before,catalog,
+      before.ownPublic.active,printed),true);
+    const proposal=offerEriBeforeAttack(before,attack);
+    assert.deepEqual(proposal,{kind:'play-eri-reveal',handIndex:0,
+      printing:ERI,evidence:'possible-item-denial-before-payable-attack',
+      opponentPublicHandCount:5});
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {AttackAction}=native('game/store/actions/game-actions');
+    store.dispatch(new PlayCardAction(owner.id,proposal.handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const prompt=state.prompts.find(p=>p.result===undefined);
+    assert.ok(prompt);
+    assert.equal(observeEriRevealedItems(state,seat,prompt,
+      SuperType,TrainerType).items.length,2);
+    const selected=resolveEriRevealedItemPrompt(state,seat,prompt,
+      SuperType,TrainerType,ResolvePromptAction);
+    assert.deepEqual(selected.selectedPrintings,
+      ['VS Seeker PHF','Ultra Ball SUM']);
+    store.dispatch(selected.action);
+    const after=actorObservation(state,seat);
+    const next=chooseActorRootIntent(after,catalog,{
+      publicContextSpecialEnergy:true});
+    assert.deepEqual(next,attack,'Eri denial should leave attack payable');
+    const damageBefore=opponent.active.damage;
+    store.dispatch(new AttackAction(owner.id,attack.attackName));
+    for(let step=0;step<25&&state.turn===4;step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending,'Native Volt Cyclone stopped without a prompt');
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(state.turn,5);
+    assert.equal(opponent.active.damage-damageBefore,140);
+    assert.equal(owner.supporterTurn,1);
+    console.log('ERI_PREDAMAGE_NATIVE',JSON.stringify({seat,
+      opponentItemsDiscarded:selected.selectedPrintings,
+      damage:140,supporterSpent:1,competitiveQualifiedGames:0}));
   });
 }
