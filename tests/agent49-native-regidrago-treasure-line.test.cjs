@@ -5,7 +5,8 @@ const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {chooseTreasureRootIntent}=
   require('../simulation/twinleaf/agent49-mysterious-treasure-frontier.cjs');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom,deckPermutation}=
+  require('../simulation/twinleaf/headless.cjs');
 const {PlayCardAction,PlayerType,SlotType}=require(
   '../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
 const {ResolvePromptAction}=require(
@@ -53,7 +54,10 @@ for(const seat of [0,1]){
       assert.ok(['WaitPrompt','ShowCardsPrompt','ShuffleDeckPrompt'].includes(
         pending.constructor.name),
         'Unexpected post-search native prompt '+pending.constructor.name);
-      x.store.dispatch(new ResolvePromptAction(pending.id,null));
+      const response=pending.constructor.name==='ShuffleDeckPrompt'?
+        deckPermutation(x.owner.deck.cards.length,seededRandom(1000+seat)):
+        null;
+      x.store.dispatch(new ResolvePromptAction(pending.id,response));
     }
     assert.equal(x.owner.hand.cards.includes(target),true);
     assert.equal(x.owner.discard.cards.includes(item),true);
