@@ -43,11 +43,28 @@ test('original card archive yields exact 50 printings in 29 distinct attack fami
     x.orientation==='unclassified-firstturn-language'));
   assert.equal(data.competitiveGameQualified,false);
   assert.equal(data.paperLegalCertified,false);
+  assert.equal(data.authenticatedOriginalAichiSixties,29);
+  assert.equal(data.matchingOriginalSourcePrintedFirstTurnAttackCopies,0);
+  assert.deepEqual(data.originalSourceFirstTurnPrintings,[]);
   for(const row of data.firstTurnAttackFamilies){
     assert.ok(row.printings.length>0);
     assert.ok(row.cost.length>=0);
     assert.ok(row.printings.every(x=>typeof x==='string'));
   }
+});
+test('same Pokemon name is not proof of identical printed first-turn attack',()=>{
+  const roster=JSON.parse(require('node:fs').readFileSync(
+    require('node:path').resolve(__dirname,
+      '../results/aichi-2026/full-decklists.json'),'utf8'));
+  const source=roster.decks.find(x=>x.rank===26);
+  const exeggcute=source.cards.find(x=>x.name==='Exeggcute');
+  assert.equal(exeggcute.printing.set,'PLF');
+  assert.equal(exeggcute.printing.number,'4');
+  const vocabulary=scanFirstTurnAttacks(
+    require('node:path').resolve(__dirname,'..')).firstTurnAttackFamilies;
+  const exception=vocabulary.find(x=>x.card==='Exeggcute');
+  assert.ok(exception);
+  assert.ok(exception.printings.every(id=>!id.startsWith('bw9-')));
 });
 test('specific candidate effects remain tied to their exact printed first-turn text',()=>{
   const rows=scanFirstTurnAttacks(path.resolve(__dirname,'..'))
