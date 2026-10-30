@@ -20,6 +20,16 @@ The pinned native Store **accepted** `PlayCardAction` with physically named Capt
 
 The identical-physical-deal control at owner root #36 instead selected **Attack Collapse** immediately, and did not attach Capture Energy to its Bench until **turn 26**, after two further source attack turns. This establishes a concrete original-deck difference in **when a resource and a Pokémon-search effect become available**, with the original selected attack retained in the treatment turn.
 
+### Printed-card implications checked against the supplied card pool
+
+The supplied complete card database confirms the exact originals:
+
+- **Bunnelby PRC 121** (`cards/en/xy5.json`) has the `Ω Barrage` Ancient Trait and two one-Colorless attacks: Burrow mills the opponent's top card, while Rototiller recycles a card from the discard pile. A single Capture Energy on Bunnelby provides the printed Colorless needed for either attack; the potential to attack twice is part of the printed trait. This does **not** establish that the Source later promoted Bunnelby or successfully used either effect.
+- **Capture Energy RCL 171** (`cards/en/swsh2.json`) provides one Colorless while attached and, on a hand attachment, searches the user's deck for a Basic Pokémon to Bench and then shuffles. The actual native prompt chain and Bench population increase are consistent with that complete printed effect.
+- **Snorlax PGO 55** (`cards/en/pgo.json`) has Block (opponent Active cannot retreat while Snorlax is Active) and its four-Colorless Collapse attack deals 150 printed damage while making Snorlax Asleep. The actual source decision preserved that same named attack after attaching Capture to Bunnelby.
+
+This identifies the fork as **concurrent stall infrastructure and attack sequencing**. It involves an independent future one-Energy Bunnelby recycling/milling route and an additional Basic Bench search. The data certify the Store effects and printing, while the value of that future line against a stronger opponent remains a hypothesis.
+
 **Crucial limitations:** A Store-accepted attack declaration plus prompted turn transition is stronger than a proposed attack but a separate public settled damage/Prize snapshot should still be inspected. The opponent's next action was Pass, which is weak adversarial evidence; the fixed candidate reference and root source bot have unqualified Supporter/Stadium/control planning. The same engine winner is **source seat 0** in both arms. Do not count this selected sequence as a competitive win-rate increase.
 
 ## All-attempt census
