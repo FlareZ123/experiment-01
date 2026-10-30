@@ -77,11 +77,86 @@ test('successful Boost Shake turn-ending effect has observed first hand but no s
     row(1,2,14,'PlayCardAction',['Boost Shake EVS'],
       'Boost Shake')
   ];
-  const a=sourceFirstOwnedAffordances(trace,1,false);
-  assert.equal(a.status,'incomplete');
+  const accepted=[
+    {actionOrdinal:12,playerSlot:1,turnBefore:2,turnAfter:2,
+      action:'PlayCardAction',card:'Trubbish'},
+    {actionOrdinal:13,playerSlot:1,turnBefore:2,turnAfter:2,
+      action:'PlayCardAction',card:'Float Stone'},
+    {actionOrdinal:14,playerSlot:1,turnBefore:2,turnAfter:2,
+      action:'PlayCardAction',card:'Boost Shake'},
+    {actionOrdinal:15,playerSlot:1,turnBefore:2,turnAfter:2,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:14},
+    {actionOrdinal:16,playerSlot:1,turnBefore:2,turnAfter:3,
+      action:'ResolvePromptAction',initiatingRootActionOrdinal:14}
+  ];
+  const a=sourceFirstOwnedAffordances(trace,1,false,accepted);
+  assert.equal(a.status,'observed');
+  assert.equal(a.schema,'agent1-source-first-owned-affordances-v2');
+  assert.equal(a.terminalKind,'native-nonpass-turn-end');
+  assert.deepEqual(a.nativeTurnClosure,{
+    ordinal:16,action:'ResolvePromptAction',initiatingRootActionOrdinal:14
+  });
   assert.equal(a.firstRootAction,'PlayCardAction');
   assert.equal(a.firstOwnHand.resources['Boost Shake'],1);
   assert.equal(a.firstOwnHand.resources['Trubbish'],1);
   assert.equal(a.terminalPassOwnHand,null);
   assert.equal(a.sourceFirstOwnTurn,2);
+});
+
+test('without accepted roots, Boost Shake appearance cannot certify turn closure',()=>{
+  const trace=[row(0,2,3,'PlayCardAction',['Boost Shake EVS'],'Boost Shake')];
+  const a=sourceFirstOwnedAffordances(trace,0,false);
+  assert.equal(a.status,'incomplete');
+  assert.equal(a.terminalKind,null);
+  assert.equal(a.nativeTurnClosure,null);
+});
+
+test('native source terminal rejects another seat, wrong turn, and bare Pass',()=>{
+  const trace=[row(0,1,3,'PlayCardAction',['Quick Ball FST'],'Quick Ball')];
+  const invalid=[
+    {actionOrdinal:3,playerSlot:0,turnBefore:1,turnAfter:1,action:'PlayCardAction'},
+    {actionOrdinal:4,playerSlot:1,turnBefore:1,turnAfter:2,action:'ResolvePromptAction'},
+    {actionOrdinal:5,playerSlot:0,turnBefore:2,turnAfter:3,action:'AttackAction'},
+    {actionOrdinal:6,playerSlot:0,turnBefore:1,turnAfter:2,action:'PassTurnAction'}
+  ];
+  const a=sourceFirstOwnedAffordances(trace,0,true,invalid);
+  assert.equal(a.status,'incomplete');
+  assert.equal(a.nativeTurnClosure,null);
+});
+
+test('native next-turn witness cannot be spliced across an epoch reset',()=>{
+  const trace=[row(0,1,3,'PlayCardAction',['Boost Shake EVS'],'Boost Shake')];
+  const native=[
+    {actionOrdinal:3,playerSlot:0,turnBefore:1,turnAfter:1,action:'PlayCardAction'},
+    {actionOrdinal:4,playerSlot:0,turnBefore:1,turnAfter:1,action:'ResolvePromptAction'},
+    {actionOrdinal:5,playerSlot:1,turnBefore:2,turnAfter:0,action:'ResolvePromptAction'},
+    {actionOrdinal:6,playerSlot:0,turnBefore:1,turnAfter:2,action:'ResolvePromptAction'}
+  ];
+  const a=sourceFirstOwnedAffordances(trace,0,true,native);
+  assert.equal(a.status,'incomplete');
+});
+
+test('native clock without an owner-private first decision remains unobserved',()=>{
+  const a=sourceFirstOwnedAffordances([],1,false,[
+    {actionOrdinal:9,playerSlot:1,turnBefore:2,turnAfter:3,
+      action:'AttackAction'}
+  ]);
+  assert.equal(a.status,'incomplete');
+  assert.equal(a.firstOwnHand,null);
+});
+
+test('ordinary Pass retains the actual pre-Pass hand rather than native inference',()=>{
+  const trace=[row(0,1,2,'PassTurnAction',['Battle VIP Pass FST'])];
+  const a=sourceFirstOwnedAffordances(trace,0,true,[
+    {actionOrdinal:2,playerSlot:0,turnBefore:1,turnAfter:2,
+      action:'PassTurnAction'}
+  ]);
+  assert.equal(a.status,'observed');
+  assert.equal(a.terminalKind,'pass');
+  assert.equal(a.terminalPassOwnHand.resources['Battle VIP Pass'],1);
+  assert.equal(a.nativeTurnClosure,null);
+});
+
+test('native argument must be a root array',()=>{
+  assert.throws(()=>sourceFirstOwnedAffordances([],0,true,null));
 });
