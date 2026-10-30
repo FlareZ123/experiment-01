@@ -110,3 +110,39 @@ test('record native printed Grunt first-player first-turn canPlay separately fro
       JSON.stringify({seat,turn:1,nativeCanPlay})+'\n');
   }
 });
+
+test('record actual first-turn Store acceptance independently of printed canPlay',()=>{
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  for(const seat of [0,1]){
+    const x=root(seat);
+    x.state.turn=1;
+    let error=null;
+    try{
+      x.store.dispatch(new PlayCardAction(x.owner.id,0,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      const pending=x.state.prompts.find(p=>p.result===undefined);
+      if(pending){
+        assert.equal(pending.constructor?.name,'ChooseCardsPrompt');
+        assert.equal(pending.validate([x.energy]),true);
+        x.store.dispatch(new ResolvePromptAction(pending.id,[x.energy]));
+      }
+    }catch(e){error=String(e?.message??e);}
+    const supporterConsumed=!x.owner.hand.cards.includes(x.supporter);
+    const energyDiscarded=x.opponent.discard.cards.includes(x.energy);
+    // This is a deliberately contrived T1 public board. Log the real
+    // reducer outcome without treating it as actual tournament exposure.
+    process.stdout.write('# TEAM_FLARE_FIRST_TURN_STORE '+
+      JSON.stringify({seat,turn:1,storeRejected:error!==null,
+        error,supporterConsumed,energyDiscarded})+'\n');
+    assert.equal(typeof supporterConsumed,'boolean');
+    assert.equal(typeof energyDiscarded,'boolean');
+    if(error===null){
+      assert.equal(supporterConsumed,true);
+      assert.equal(energyDiscarded,true);
+    }
+  }
+});
