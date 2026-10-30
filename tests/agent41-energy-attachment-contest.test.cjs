@@ -96,3 +96,52 @@ test('already-payable printed damaging attack does not burn held Special',()=>{
   v.ownPublic.active.attacks.push({name:'Spark',damage:20,cost:[L],gxAttack:false});
   assert.equal(specialFundsImmediateAttack(v,catalog),null);
 });
+
+
+test('rank6 Wondrous Labyrinth tax blocks false immediate DCE-funded Volt Cyclone',()=>{
+  const v=view();
+  v.ownPublic.active.printed={types:[L]};
+  assert.equal(specialFundsImmediateAttack(v,catalog)?.printing,
+    'Double Colorless Energy SUM');
+  // Non-Fairy Volt Cyclone now costs L+C+C+C; attached L plus DCE
+  // supplies just three total units. Neither held option pays it.
+  v.ownPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  assert.equal(specialFundsImmediateAttack(v,catalog),null);
+  // Without public types, the Fairy exemption cannot be certified.
+  delete v.ownPublic.active.printed;
+  assert.equal(specialFundsImmediateAttack(v,catalog),null);
+});
+
+test('Thunder Mountain Lightning reduction can make DCE uniquely immediate',()=>{
+  const v=view();
+  v.ownPublic.active.energies=[];
+  v.ownPublic.active.printed={types:[L]};
+  assert.equal(specialFundsImmediateAttack(v,catalog),null);
+  v.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.equal(specialFundsImmediateAttack(v,catalog)?.printing,
+    'Double Colorless Energy SUM');
+});
+
+test('Wondrous Labyrinth does not tax the publicly confirmed Fairy attack',()=>{
+  const v=view();
+  const F=8;
+  const c={...catalog,
+    basicEnergyTypes:{...catalog.basicEnergyTypes,Fairy:F}};
+  v.ownPublic.active.printed={types:[F]};
+  v.ownPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  assert.equal(specialFundsImmediateAttack(v,c)?.printing,
+    'Double Colorless Energy SUM');
+});
+
+test('effective Stadium cost respects opponent public Stadium and secret invariance',()=>{
+  const a=view(),b=view();
+  a.ownPublic.active.printed={types:[L]};
+  b.ownPublic.active.printed={types:[L]};
+  a.opponentPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  b.opponentPublic.stadium=['Wondrous Labyrinth Prism Star TEU'];
+  b.opponentPrivate={hand:['different'],prizes:['other']};
+  b.ownUnknownDeckOrder=['unknown'];
+  assert.deepStrictEqual(specialFundsImmediateAttack(a,catalog),
+    specialFundsImmediateAttack(b,catalog));
+  assert.equal(specialFundsImmediateAttack(a,catalog),null);
+});
