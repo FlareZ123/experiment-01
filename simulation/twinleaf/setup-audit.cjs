@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const { initializeCards, seededRandom, deckPermutation } = require('./headless.cjs');
 const { resolveManifestFile } = require('./resolve-field.cjs');
 
@@ -14,9 +15,10 @@ const root = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output')
  * @param {string[]} deck0
  * @param {string[]} deck1
  * @param {number} seed
+ * @param {{traceShuffleOffsets?:boolean}} [options] Opt-in research-only RNG provenance.
  * @returns {{mulligans:number[], bonusOffered:number[],setupActions:number,firstSeat:number}}
  */
-function oneSetup(deck0, deck1, seed) {
+function oneSetup(deck0, deck1, seed, options={}) {
   const { Store } = require(path.join(root, 'game/store/store'));
   const { AddPlayerAction } = require(path.join(root, 'game/store/actions/add-player-action'));
   const { ResolvePromptAction } = require(path.join(root, 'game/store/actions/resolve-prompt-action'));
@@ -36,7 +38,12 @@ function oneSetup(deck0, deck1, seed) {
   settings.rules.firstTurnUseSupporter = false;
   settings.rules.firstTurnDrawCard = true;
 
-  const rand = seededRandom(seed);
+  const traceShuffleOffsets=options.traceShuffleOffsets===true;
+  const baseRandom=seededRandom(seed);
+  let randomDraws=0;
+  const rand=traceShuffleOffsets ?
+    ()=>{ randomDraws++; return baseRandom(); } : baseRandom;
+  const shuffleTape=[];
   const original = Math.random;
   Math.random = rand;
   try {
@@ -88,7 +95,18 @@ function oneSetup(deck0, deck1, seed) {
         if (seat < 0) throw new Error('Unowned setup shuffle.');
         const length = state.players[seat].deck.cards.length;
         shuffles[seat] += 1;
-        action = new ResolvePromptAction(prompt.id, deckPermutation(length, rand));
+        const startRandomDraw=traceShuffleOffsets?randomDraws:null;
+        const permutation=deckPermutation(length,rand);
+        if(traceShuffleOffsets){
+          shuffleTape.push({
+            seat,shuffleNumber:shuffles[seat],deckSize:length,
+            firstRngDraw:startRandomDraw,
+            afterLastRngDraw:randomDraws,
+            permutationSha256:createHash('sha256')
+              .update(JSON.stringify(permutation)).digest('hex')
+          });
+        }
+        action = new ResolvePromptAction(prompt.id,permutation);
       } else if (prompt instanceof CoinFlipPrompt) {
         action = new ResolvePromptAction(prompt.id, rand() < 0.5);
       } else {
@@ -156,7 +174,11 @@ function oneSetup(deck0, deck1, seed) {
       mulligans, bonusOffered, bonusPromptCount, bonusPromptOffers,
       bonusSelected, bonusDrawn,
       setupActions: actions,
-      firstSeat: store.state.activePlayer
+      firstSeat: store.state.activePlayer,
+      ...(traceShuffleOffsets ? {
+        shuffleRngTape:shuffleTape,
+        totalGameRandomDraws:randomDraws
+      } : {})
     };
   } finally {
     Math.random = original;
