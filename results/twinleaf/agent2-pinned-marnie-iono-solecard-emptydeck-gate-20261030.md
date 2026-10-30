@@ -15,6 +15,18 @@ Consider a player mid-turn after a sequence that has emptied their deck, holding
 
 This is a **potential paper-versus-engine legality discrepancy** requiring confirmation against the relevant paper playability ruling, any shuffle/return-prevention effects and a genuine native Store state before a compatibility hook is justified. A card’s printed permission for a surviving opponent hand to move supports the concern but is not a substitute for that confirmation.
 
+## Independent official-rule cross-check
+
+The [official Japanese Pokémon Card Game Iono Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%8A%E3%83%B3%E3%82%B8%E3%83%A3%E3%83%A2&regulation_faq_main_item1=all) explicitly confirms all of the following:
+
+1. Iono as the owner's **only hand card** is playable when the opponent has one or more cards in hand; the owner needs no card of their own to return.
+2. Iono as the owner's **only hand card** is not playable when the opponent's hand is also empty.
+3. Iono is playable with **both players' decks empty** when the owner has Iono plus at least one more card and the opponent has a card.
+
+The [official Japanese basic-rule explanation](https://www.pokemon-card.com/howtoplay/) further states that a deck becoming empty during a turn does not end the game immediately; failure to draw at the *beginning of one's turn* is the loss condition. These directly rebut a general claim that the owner's empty deck alone forbids Iono. They do not contain an exact published Q&A joining the *sole-card owner hand* and *zero owner deck* in the same question, so this combined edge case remains a highly supported deduction rather than a quoted exact ruling. The pinned Iono/Marnie owner-only `canPlay` guard is inconsistent with these principles for the opponent-hand-positive case.
+
+The English Marnie text has the same “either player” hand-return trigger, although an equivalent official Marnie-specific Q&A for this precise state has not been located. Keep the Marnie gap as a card-text-based inference until independently confirmed. The current conservative full-draw frontiers do not propose this zero-owner-draw scenario; any future native hook or root-vs-hold arbiter must first stage an actual legal Store continuation and paper-check unexpected on-move-prevention effects.
+
 ## Encoded narrow regression
 
 `tests/agent2-native-shuffle-emptydeck-gate.test.cjs` imports the genuine compiled Iono/Marnie classes and calls their own `canPlay` methods against minimal Player/State-shaped objects. The expected pinned results are: `(own deck 0, sole Supporter hand, opposing hand 1) => false`, `(own deck 1, opposing hand 1) => true`, `(own deck 0, one extra own hand card, opposing hand 1) => true`, and `(own deck 1, opposing hand 0, sole Supporter hand) => false`. These tests document present upstream behavior; they do not proclaim the false result paper-correct.
