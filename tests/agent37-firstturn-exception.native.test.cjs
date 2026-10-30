@@ -117,3 +117,48 @@ for(const caseInfo of [
     assert.equal(state.players[seat],owner);
   });
 }
+
+for(const seat of [0,1]){
+  test('genuine first-player Sableye Quick Hunt produces owner-only attack-phase deck search, seat '+seat,()=>{
+    const {store,state,owner,catalog}=stage(
+      seat,'Sableye LOT','Psychic Energy SVE');
+    const view=actorObservation(state,seat);
+    const first=chooseActorRootIntent(view,catalog,
+      {printedFirstTurnAttackRoot:true});
+    assert.equal(first.kind,'attach-basic-energy');
+    const {PlayCardAction,PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    store.dispatch(new PlayCardAction(owner.id,first.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    const paid=chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      printedFirstTurnAttackRoot:true
+    });
+    assert.deepEqual(paid,{kind:'attack',attackName:'Quick Hunt'});
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    store.dispatch(new AttackAction(owner.id,paid.attackName));
+    let prompt=null;
+    for(let step=0;step<20;step++){
+      prompt=state.prompts.find(p=>p.result===undefined);
+      assert.ok(prompt,'Native Quick Hunt search must leave a live prompt');
+      if(prompt.constructor.name==='ChooseCardsPrompt')break;
+      assert.equal(prompt.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+    assert.equal(prompt.constructor.name,'ChooseCardsPrompt');
+    assert.equal(prompt.playerId,owner.id);
+    assert.strictEqual(prompt.cards,owner.deck);
+    assert.equal(prompt.message,'CHOOSE_CARD_TO_HAND');
+    assert.equal(state.phase,native('game/store/state/state').GamePhase.ATTACK);
+    const {actorSingleSearchInput}=require(
+      '../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
+    const projected=actorSingleSearchInput(state,seat);
+    assert.ok(projected,'Production deck-search projection is well-defined even in attack phase');
+    assert.equal(projected.actor.decisionKind,'owner-prompt');
+    assert.equal(projected.prompt.source,'own-deck');
+    assert.equal(projected.prompt.offered.length,14);
+    assert.equal(projected.prompt.canCancel,false);
+  });
+}
