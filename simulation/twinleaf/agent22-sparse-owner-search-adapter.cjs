@@ -13,6 +13,27 @@ const SEARCH_MESSAGES=new Set([
 ]);
 
 /**
+ * A card-text-specific paper-minimum overlay. In the 2026 published rules,
+ * an unrestricted search for any card must take at least one. The pinned
+ * native validator alone may permit an empty answer. This exact Steven
+ * signal is deliberately narrow; other unrestricted effects need their
+ * own provenance before this rule can be generalized safely.
+ * @param {object} state Genuine Store state.
+ * @param {0|1} seat Source owner seat.
+ * @returns {boolean}
+ */
+function isPaperStevenSearch(state,seat){
+  const owner=state.players?.[seat];
+  const pending=state.prompts?.find(p=>p.result===undefined);
+  return Boolean(pending?.constructor?.name==='ChooseCardsPrompt'&&
+    pending.playerId===owner?.id&&pending.cards===owner?.deck&&
+    pending.message==='CHOOSE_CARD_TO_HAND'&&pending.options?.max===3&&
+    owner.supporter?.cards?.some(card=>
+      card.name==="Steven's Resolve"||
+      card.fullName?.startsWith("Steven's Resolve ")));
+}
+
+/**
  * Strict opt-in fallback for a large, genuine owner deck/discard search.
  * Use the canonical owner search unmodified whenever it succeeds.
  * Only the native validator is allowed to inspect physical card instances.
@@ -23,16 +44,21 @@ const SEARCH_MESSAGES=new Set([
  * @returns {object|null} Detached print-only prompt observation.
  */
 function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scoreBundle=null){
+  const paperMinimum=isPaperStevenSearch(state,seat)?1:0;
   const standard=actorSingleSearchInput(state,seat,observeActor);
   // The canonical complete-menu projection can return an empty bundle menu:
   // it tested no individually-valid singletons, although a multi-card
   // native-valid choice may still exist. Search the sparse path in that case.
   if(standard&&(!Array.isArray(standard.prompt?.bundles)||
      standard.prompt.bundles.length>0)){
-    if(scoreBundle===null||!Array.isArray(standard.prompt.bundles))
-      return standard;
+    if(scoreBundle===null||!Array.isArray(standard.prompt.bundles)){
+      if(!paperMinimum)return standard;
+      return Object.freeze({...standard,prompt:Object.freeze({
+        ...standard.prompt,canSkip:false
+      })});
+    }
     assert.equal(typeof scoreBundle,'function');
-    const menus=standard.prompt.canSkip?
+    const menus=standard.prompt.canSkip&&!paperMinimum?
       [...standard.prompt.bundles,{printings:Object.freeze([])}]:
       standard.prompt.bundles;
     const ranked=menus.map(bundle=>{
@@ -45,7 +71,8 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
         -1:JSON.stringify(a.bundle.printings)>JSON.stringify(b.bundle.printings)?
           1:0));
     return Object.freeze({...standard,prompt:Object.freeze({
-      ...standard.prompt,bundles:Object.freeze([ranked[0].bundle])
+      ...standard.prompt,canSkip:paperMinimum?false:standard.prompt.canSkip,
+      bundles:Object.freeze([ranked[0].bundle])
     })});
   }
   assert.ok(seat===0||seat===1);
@@ -64,7 +91,8 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
   const actor=observeActor(state,seat);
   assert.equal(actor.decisionKind,'owner-prompt');
   const score=scoreBundle===null?null:names=>scoreBundle(names,actor);
-  const bundles=firstNativeValidBundle(pending,options.max,score);
+  const bundles=firstNativeValidBundle(pending,options.max,score,
+    paperMinimum);
   if(!bundles)return null;
   const offered=pending.cards.cards.map(card=>({
     printing:card.fullName,
@@ -78,7 +106,7 @@ function sparseObservedOwnerSearch(state,seat,observeActor=actorObservation,scor
     prompt:Object.freeze({
       id:pending.id,message:pending.message,source,
       offered:Object.freeze(offered),bundles,
-      canSkip:pending.validate([])===true,
+      canSkip:!paperMinimum&&pending.validate([])===true,
       canCancel:pending.validate(null)===true
     })
   });
