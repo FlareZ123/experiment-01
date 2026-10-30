@@ -75,3 +75,50 @@ test('changing opponents concealed cards cannot change public finisher warning',
   assert.deepEqual(potentialPrintedPrizeFinisher(a,first,catalog),
     potentialPrintedPrizeFinisher(b,first,catalog));
 });
+
+
+test('shared arbiter opt-in preserves a printed TAG TEAM three-Prize finisher',()=>{
+  const {arbitrateOwnerRootIntent}=
+    require('../simulation/twinleaf/agent41-owner-root-arbitration.cjs');
+  const v=view();
+  v.globalTurn=4;
+  v.ownHand=['Double Dragon Energy ROS'];
+  v.ownPublic.bench=[{name:'Regidrago V',
+    printing:'Regidrago V SIT',
+    attacks:[{name:'Raging Claws',cost:[1,1,1]}]}];
+  v.ownTurnResources={energyPlayedTurn:0,energyPlayLocked:false,
+    specialEnergyPlayLocked:false};
+  const offers=()=>({alternatives:[{
+    probe:'public-special-energy',kind:'attach-special-energy',
+    printing:'Double Dragon Energy ROS',handIndex:0,slot:'bench',index:0
+  }]});
+  const baseline=arbitrateOwnerRootIntent(v,catalog,first,{
+    publicContextSpecialEnergy:true},offers);
+  assert.equal(baseline.intent.kind,'attach-special-energy');
+  const previouslyGuarded=arbitrateOwnerRootIntent(v,catalog,first,{
+    publicContextSpecialEnergy:true,protectPotentialTwoPrizeAttack:true},offers);
+  assert.equal(previouslyGuarded.intent.kind,'attach-special-energy',
+    'Older 2-Prize-only guard misses 3-Prize TAG TEAM terminal');
+  const protectedDecision=arbitrateOwnerRootIntent(v,catalog,first,{
+    publicContextSpecialEnergy:true,protectPotentialPrintedPrizeAttack:true},offers);
+  assert.strictEqual(protectedDecision.intent,first);
+  assert.equal(protectedDecision.receipt.reason,
+    'potential-printed-prize-finishing-attack');
+  assert.equal(protectedDecision.receipt.potentialTerminalAttack.printedPrizeAward,3);
+  assert.equal(protectedDecision.receipt.candidateCount,1);
+  assert.equal(protectedDecision.receipt.nativePlayability,'unverified');
+  const hiddenChanged=structuredClone(v);
+  hiddenChanged.opponentHidden={hand:['different'],prizes:['different']};
+  assert.deepEqual(arbitrateOwnerRootIntent(hiddenChanged,catalog,first,{
+    publicContextSpecialEnergy:true,protectPotentialPrintedPrizeAttack:true},offers),
+  protectedDecision);
+  const notWinning=view();
+  notWinning.globalTurn=4;
+  notWinning.ownPublic.prizeCount=4;
+  notWinning.ownPublic.bench=v.ownPublic.bench;
+  notWinning.ownHand=v.ownHand;
+  notWinning.ownTurnResources=v.ownTurnResources;
+  const negative=arbitrateOwnerRootIntent(notWinning,catalog,first,{
+    publicContextSpecialEnergy:true,protectPotentialPrintedPrizeAttack:true},offers);
+  assert.equal(negative.intent.kind,'attach-special-energy');
+});
