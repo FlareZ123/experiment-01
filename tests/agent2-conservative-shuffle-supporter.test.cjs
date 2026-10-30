@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {chooseConservativeShuffleSupporter,
+  enumerateConservativeShuffleSupporterOffers,
   printedShuffleDrawCounts}=require(
     '../simulation/twinleaf/agent2-conservative-shuffle-supporter.cjs');
 
@@ -72,4 +73,35 @@ test('ties prefer own-only Lillie and detaches from input',()=>{
   const chosen=chooseConservativeShuffleSupporter(v);
   assert.equal(chosen.family,'lillie');
   assert.equal(JSON.stringify(v),before);
+});
+
+test('explicit owner-only offers include competing eligible Supporters',()=>{
+  const v=view(["Lillie's Determination M1L",'Marnie SSH']);
+  const before=JSON.stringify(v);
+  const offers=enumerateConservativeShuffleSupporterOffers(v);
+  assert.equal(offers.length,2);
+  assert.deepEqual(offers.map(x=>x.handIndex),[0,1]);
+  assert.deepEqual(offers.map(x=>x.family),['lillie','marnie']);
+  assert.deepEqual(chooseConservativeShuffleSupporter(v),offers[0]);
+  assert.equal(JSON.stringify(v),before);
+});
+
+test('all offers obey owner Supporter quota and low-hand threshold',()=>{
+  const v=view(['Iono PAL']);
+  assert.equal(enumerateConservativeShuffleSupporterOffers(v).length,1);
+  v.ownTurnResources.supporterPlayedTurn=1;
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(v),[]);
+  assert.equal(chooseConservativeShuffleSupporter(v),null);
+  v.ownTurnResources.supporterPlayedTurn=0;
+  v.ownHand.push('Ultra Ball SVI','VS Seeker PHF','Forest Seal Stone SIT');
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(v),[]);
+});
+
+test('offer order is invariant to forbidden opponent-private and deck-order data',()=>{
+  const a=view(['Marnie SSH']);
+  const b=structuredClone(a);
+  b.opponentPrivate={hand:['secret printing'],prizes:['secret']};
+  b.unseenOwnedDeckOrder=['secret future draw'];
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(a),
+    enumerateConservativeShuffleSupporterOffers(b));
 });
