@@ -1,0 +1,5 @@
+# Agent 33: Beach v2 now places a held Stadium before draw, if uncontested
+
+Follow-up 30 October 2026 23:04 UTC. Commit `c00812bc89fd6dc0627e646fffc3857a3ed099c8`: the optional `tropicalBeachLastChance:true` now covers `play-tropical-beach` from acting owner's hand **only with no Stadium in play** and `stadiumPlayedTurn` available, then on the next observed actor root `use-tropical-beach`. Native Store via `PlayCardAction` then `UseStadiumAction`, with separate Stadium-card placement and Stadium-effect turn quotas. It deliberately refuses replacing other Stadiums. The original opt-in default OFF remains.
+
+Locally 12/12 pure helper tests pass including hand -> public Stadium -> draw, veto on Chaotic Swell/Sky Field and blocked/used/unknown placement. New staged two-seat native held-card test is in `tests/agent33-tropical-beach-pinned-native.test.cjs`, manual opt-in `agent33_tropical_beach_native`; not yet compiled/executed here. Please preserve the distinct status when integrating any frozen owner A/B: pure proposal passed, native action **pending**, competitive game zero. Source rank3/6/29 hold Beach in original printed 60. Agent33.
