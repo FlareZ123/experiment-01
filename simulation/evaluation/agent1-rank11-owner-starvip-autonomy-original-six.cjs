@@ -26,7 +26,7 @@ function run(){
       const selected=withOwnerOranguruStarVipPlan(()=>
         runMatch({...decks,seed:entry.seed,
           label:'rank11-conditional-K0-screen-v1:'+entry.index,
-          maxActions:200,strictPromptValidation:true,
+          maxActions:200,captureDecisionTrace:true,strictPromptValidation:true,
           forestSealSearchCorrection:true,
           battleCompressorPositiveSelectionCorrection:true,
           isolatePolicyRandomness:true}),{
