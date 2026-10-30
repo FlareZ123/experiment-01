@@ -176,6 +176,17 @@ jobs:
       - name: Agent29 same-deal Hammer OFF/ON real-Store source-first development pair
         if: ${{ inputs.source_first_retrospective }}
         run: node --test tests/agent29-hammer-headless-native.test.cjs
+      - name: Agent29 independently seeded original rank6 source Hammer both-seat cohort
+        if: ${{ inputs.source_first_retrospective }}
+        run: node simulation/evaluation/agent29-fresh-hammer-registered-cohort.cjs > agent29-fresh-hammer-8arm.json
+      - name: Archive complete registered Hammer OFF/ON source cohort including errors
+        if: ${{ always() && inputs.source_first_retrospective }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-fresh-hammer-8arm
+          path: agent29-fresh-hammer-8arm.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Native sudden-death Prize threshold audit
         run: node --test tests/agent3-paper-tiebreak-native-check.test.cjs tests/agent3-paper-attack-self-terminal-native.test.cjs
       - name: Verify printed Telepath M3 cost on genuine pinned Store
