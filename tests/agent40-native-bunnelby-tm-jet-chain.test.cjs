@@ -14,6 +14,8 @@ const {withToolAttackAwareness}=
   require('../simulation/twinleaf/tool-attack-policy.cjs');
 const {withBunnelbyEvolutionLine}=
   require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
+const {withBunnelbyBarrageConsent}=
+  require('../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
 const {resolveManifestFile}=
   require('../simulation/twinleaf/resolve-field.cjs');
 
@@ -121,12 +123,14 @@ for(const seat of [0,1]){
     const defs=native('simple-bot/simple-bot-definitions');
     const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
     const bot=new SimpleTacticsAi({id:attacker.id},
-      withBunnelbyEvolutionLine(withToolAttackAwareness({
-        tactics:defs.allSimpleTactics,
-        promptResolvers:defs.allPromptResolvers,
-        scores:defs.defaultStateScores,
-        arbiter:defs.defaultArbiterOptions
-      }),{sourceCards:x.sourceCards,targetAwareEvolution:true}),null);
+      withBunnelbyBarrageConsent(withBunnelbyEvolutionLine(
+        withToolAttackAwareness({
+          tactics:defs.allSimpleTactics,
+          promptResolvers:defs.allPromptResolvers,
+          scores:defs.defaultStateScores,
+          arbiter:defs.defaultArbiterOptions
+        }),{sourceCards:x.sourceCards,targetAwareEvolution:true}),
+        x.sourceCards),null);
     const promptKinds=[];
     let secondAttack=null;
     for(let i=0;i<60;i++){
