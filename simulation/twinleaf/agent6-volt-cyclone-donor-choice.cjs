@@ -42,6 +42,8 @@ function withSourceVoltCycloneEnergyDonor(work,options){
     acceptedPreferredMoves:0,
     rejectedPreferredMoves:0,
     receipts:[],
+    ownerPendingPromptKinds:[],
+    nativeEnergyMovementTransitions:[],
     competitiveQualified:false
   };
 
@@ -49,6 +51,21 @@ function withSourceVoltCycloneEnergyDonor(work,options){
     const actorSeat=state.players.findIndex(p=>p.id===this.client?.id);
     const p=state.players[seat];
     const pending=state.prompts.find(x=>x.result===undefined);
+    if(actorSeat===seat&&state.activePlayer===seat&&
+       state.turn===3&&p?.active.getPokemonCard()?.name==='Iron Thorns ex'){
+      const pendingKinds=state.prompts.filter(x=>
+        x.result===undefined).map(x=>({
+          kind:x.constructor.name,id:x.id,owner:x.playerId===p.id
+        }));
+      if(pendingKinds.length){
+        const text=JSON.stringify(pendingKinds);
+        if(!audit.ownerPendingPromptKinds.some(x=>
+          JSON.stringify(x.pending)===text)){
+          audit.ownerPendingPromptKinds.push({turn:state.turn,
+            pending:pendingKinds});
+        }
+      }
+    }
     if(actorSeat!==seat||state.activePlayer!==seat||
        state.turn!==3||!p||
        pending?.constructor?.name!=='MoveEnergyPrompt'||
@@ -94,7 +111,36 @@ function withSourceVoltCycloneEnergyDonor(work,options){
   }
   function dispatch(action,...rest){
     const event=selected.get(action);
-    if(!event)return beforeDispatch.value.apply(this,[action,...rest]);
+    if(!event){
+      const state=this.state;
+      const source=state?.players?.[seat];
+      const observe=state?.turn===3&&state.activePlayer===seat&&
+        source?.active.getPokemonCard()?.name==='Iron Thorns ex';
+      const stateDigest=()=>({
+        active:source.active.energies.cards.map(c=>c.fullName),
+        benches:source.bench.map((b,i)=>({
+          i,pokemon:b.getPokemonCard()?.name??null,
+          energy:b.energies.cards.map(c=>c.fullName)
+        })).filter(b=>b.pokemon)
+      });
+      const before=observe?stateDigest():null;
+      const pending=observe?state.prompts.filter(x=>
+        x.result===undefined).map(x=>({
+          kind:x.constructor.name,
+          owner:x.playerId===source.id
+        })):[];
+      const result=beforeDispatch.value.apply(this,[action,...rest]);
+      if(observe){
+        const after=stateDigest();
+        if(JSON.stringify(before)!==JSON.stringify(after)){
+          audit.nativeEnergyMovementTransitions.push({
+            turn:3,triggerAction:action?.constructor?.name,
+            pendingBefore:pending,before,after
+          });
+        }
+      }
+      return result;
+    }
     const p=this.state.players[event.sourceSeat];
     const originalBenchEnergy=p.bench[event.destination].energies.cards.slice();
     try{
