@@ -72,7 +72,7 @@ function expectedK0UnrestrictedSearchValue(input){
       const available=g.known+g.unknown-prized[i];
       for(let j=0;j<Math.min(input.maxCards,available);j++){
         const value=g.weight/(1+g.held+j)-input.perCardCost;
-        if(value>0)increments.push(value);
+        increments.push(value);
       }
     }
     const unweightedAvailable=unvalued-
