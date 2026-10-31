@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent4-plumeria-native-owner-opportunity-v1';
+const VERSION = 'agent4-plumeria-native-owner-opportunity-v2-physical-supporter-contest';
 const PRINTING = 'Plumeria BUS';
 const MAX_EXAMPLES = 128;
 
@@ -145,6 +145,9 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     version:VERSION,sourceSeat,passive:true,bothSeats:sourceSeat===null,
     nativeStores:0,actualOwnerRoots:0,firstOwnerTurns:0,
     firstTurnHeld:0,firstTurnNativePlayable:0,
+    firstTurnBothSupportersHeld:0,firstTurnBothNativePlayable:0,
+    contestedOwnerRoots:0,contestedBothNativePlayableRoots:0,
+    contestedOwnerSamples:[],
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     acceptedPassWithPlayable:0,acceptedPassWithHeld:0,
     promptTransitions:0,settledEnergyDiscards:0,
@@ -162,11 +165,31 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
       return oldDecode.value.call(this,state);
     const info=plumeriaOwnerOpportunity(liveStore,state,seat);
     audit.actualOwnerRoots++;
+    const contest=info.plumeriaFlareContest;
+    const bothHeld=contest.plumeriaHeld>0&&contest.flareHeld>0;
+    if(bothHeld){
+      audit.contestedOwnerRoots++;
+      if(contest.paperScreenedBothPlayable)
+        audit.contestedBothNativePlayableRoots++;
+      if(audit.contestedOwnerSamples.length<MAX_EXAMPLES)
+        audit.contestedOwnerSamples.push({game,seat,turn:state.turn,
+          paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
+          plumeriaPairsConsumingFlare:
+            contest.plumeriaPaymentPairsConsumingFlare,
+          plumeriaPairsPreservingFlare:
+            contest.plumeriaPaymentPairsPreservingFlare,
+          activeEnergyTargets:contest.publicActiveEnergyTargets,
+          benchEnergyTargets:contest.publicBenchEnergyTargets,
+          paperScreenedBothPlayable:contest.paperScreenedBothPlayable});
+    }
     const key=game+':'+state.turn+':'+seat;
     if(!observedTurns.has(key)){
       observedTurns.add(key);audit.firstOwnerTurns++;
       if(info.heldCopies)audit.firstTurnHeld++;
       if(info.paperScreenedCopies)audit.firstTurnNativePlayable++;
+      if(bothHeld)audit.firstTurnBothSupportersHeld++;
+      if(contest.paperScreenedBothPlayable)
+        audit.firstTurnBothNativePlayable++;
     }
     const proposal=oldDecode.value.call(this,state);
     if(info.heldCopies&&audit.nativePositiveSamples.length<MAX_EXAMPLES)
