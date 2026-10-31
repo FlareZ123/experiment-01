@@ -75,6 +75,8 @@ jobs:
         run: npm run compile
       - name: Unit-test detached owner-only Tool candidate frontier
         run: node --test tests/agent18-actor-tool-candidate-frontier.test.cjs
+      - name: Test observe-only same-root printed Tool offers
+        run: node --test tests/agent18-same-root-tool-offer.test.cjs
       - name: Pure test precommitted eight-source K0 native Bench classifier
         run: node tests/agent32-rank11-eight-k0-bench-native.test.cjs
       - name: Optional frozen rank11 original-source first-K0 Bench witness
