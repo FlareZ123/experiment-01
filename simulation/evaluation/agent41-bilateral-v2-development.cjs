@@ -1403,7 +1403,8 @@ if(require.main===module){
     sameRootPublicEventReceipt:
       process.env.AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV==='true',
     sameRootPassAttackProbeGlobalTurn:
-      process.env.AGENT7_PASS_ATTACK_PROBE_TURN?
+      process.env.AGENT7_PASS_ATTACK_PROBE_TURN&&
+        process.env.AGENT7_PASS_ATTACK_PROBE_TURN!=='none'?
         Number(process.env.AGENT7_PASS_ATTACK_PROBE_TURN):null,
     sameRootPublicNoBenchTerminal:
       process.env.AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV==='true'
