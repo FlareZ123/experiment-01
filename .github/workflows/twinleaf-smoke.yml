@@ -89,7 +89,7 @@ jobs:
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
         run: node simulation/twinleaf/resolve-field.cjs
       - name: Regress authenticated rank1 Copycat stale-turn and rank15 movement history
-        run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs
+        run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs tests/agent8-pidgeot-ability-used-observation-alias-native.test.cjs
       - name: Regress copied-attack selection and declaration root boundaries
         run: node simulation/twinleaf/perfection-attack-ordinal-boundary.cjs
       - name: Reproduce duplicate-name copied attack source-printing mismatch
