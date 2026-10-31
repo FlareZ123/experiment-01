@@ -231,6 +231,10 @@ jobs:
       - name: Scout original rank8 genuine first source turn without policy interference
         if: inputs.agent44_rank8_firstturn_source_scout
         run: node simulation/twinleaf/agent44-rank8-firstturn-source-scout.cjs > agent44-rank8-firstturn-scout.json
+      - name: Summarize source first-turn original hand and deck targets for mechanics test
+        if: inputs.agent44_rank8_firstturn_source_scout
+        run: >-
+          node -e "const r=require('./agent44-rank8-firstturn-scout.json'); console.log(JSON.stringify({schema:r.schema,turn:r.scout.observedSourceTurn,hand:r.scout.hand,active:r.scout.active,bench:r.scout.bench,deckTargets:r.scout.deckCounts,prizeCount:r.scout.ownPrizeSize,unchanged:r.decisionTraceUnchanged,qualified:r.competitiveQualifiedGames}));"
       - name: Archive first-turn research-only source scout with explicit non-policy status
         if: always() && inputs.agent44_rank8_firstturn_source_scout
         uses: actions/upload-artifact@v4
