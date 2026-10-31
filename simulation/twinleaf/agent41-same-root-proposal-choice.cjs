@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v13-ko-event-supporter-options';
+const VERSION='agent41-same-root-proposal-choice-v14-independent-opportunity-denominator';
 const MAX_SAMPLES=48;
 
 /**
@@ -293,7 +293,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
     changed:options.sameRootChoiceApply===true&&
       !duplicateProposal(baseline,intent),
     opportunityCount:ranked.length,
-    supportedAlternativeCount:ranked.length-1,
+    // Terminal hold is always synthesized; it is not an independently found
+    // feasible contender and must never inflate the opportunity denominator.
+    supportedAlternativeCount:ranked.filter(o=>
+      o.source!=='first-return'&&o.source!=='terminal-hold').length,
     skippedSelectors:omitted,unsupportedSelectors:unsupported,
     selectorErrors:errors,
     offers:ranked.map(o=>({
