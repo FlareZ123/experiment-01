@@ -19,6 +19,9 @@ test('published original source manifest preserves source printing in exposure c
   const result=census();
   assert.equal(result.exactPublishedSixties,29);
   assert.ok(result.scannedPokemonPrintings>100);
+  assert.equal(result.unresolved.length,0,
+    'Unresolved original source Pokemon printings: '+
+      JSON.stringify(result.unresolved.slice(0,40)));
   assert.deepEqual(result.matches.filter(x=>x.pokemon==='Iron Thorns ex')
     .map(x=>x.rank),[6,24,29]);
   const empoleon=result.matches.filter(x=>x.pokemon==='Empoleon V');
