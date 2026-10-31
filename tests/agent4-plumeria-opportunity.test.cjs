@@ -267,3 +267,38 @@ test('Plumeria/Flare original native contour respects paper turn1 and absent pay
   info=plumeriaOwnerOpportunity(store,state,0);
   assert.equal(info.plumeriaFlareContest.totalPhysicalPlumeriaPaymentPairs,0);
 });
+
+
+test('first native-positive Plumeria/Flare witness survives exhausted global contest sample cap',()=>{
+  for(const seat of [0,1]){
+    const state=makeState(4,true,seat),store=new FakeStore(state);
+    const owner=state.players[seat],ai=new FakeAi(owner.id);
+    owner.hand.cards[2]={
+      fullName:'Team Flare Grunt XY',
+      canPlay:(_store,_state,p)=>p.supporterTurn===0
+    };
+    state.queuedAction=new PassTurnAction();
+    const {audit}=withPlumeriaOwnerOpportunity(()=>{
+      store.dispatch(new AddPlayerAction());
+      owner.supporterTurn=1;
+      for(let i=0;i<130;i++)
+        assert.strictEqual(ai.decodeNextAction(state),state.queuedAction);
+      owner.supporterTurn=0;
+      assert.strictEqual(ai.decodeNextAction(state),state.queuedAction);
+    },deps);
+    assert.equal(audit.contestedOwnerRoots,131);
+    assert.equal(audit.contestedOwnerSamples.length,128);
+    assert.equal(audit.contestedOwnerSamples.some(
+      sample=>sample.paperScreenedBothPlayable),false,
+      'Original global first-128 sample misses all native-positive roots');
+    assert.equal(audit.bySeat[seat].bothNativePlayableRoots,1);
+    const s=audit.bySeat[seat];
+    assert.equal(s.positiveContestSamples.length,1);
+    assert.equal(s.earliestNativePositiveContest.ownerRootOrdinal,131);
+    assert.strictEqual(s.earliestNativePositiveContest,
+      s.positiveContestSamples[0]);
+    assert.equal(s.positiveContestSamples[0].originalAction,'PassTurnAction');
+    assert.equal(s.positiveContestSamples[0].paperScreenedBothPlayable,true);
+    assert.equal(audit.contestedBothNativePlayableRoots,1);
+  }
+});
