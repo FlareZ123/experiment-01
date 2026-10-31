@@ -88,7 +88,7 @@ function decisionOpportunityReceipt(records, options = {}) {
       chosen:false,
       accepted:false,settled:false,laterOwnerRoot:false,
       opponentReply:false,acceptedChangedChoice:false};
-    let positiveWitness=null;
+    let positiveWitness=null,rootProbedChoices=0,rootOfferChoices=0;
     for(const offer of offers){
       assert.ok(typeof offer.kind==='string'&&offer.kind.length>0);
       const on=key=>offer[key]===true;
@@ -97,7 +97,8 @@ function decisionOpportunityReceipt(records, options = {}) {
         'chosen','storeAccepted','effectSettled','laterOwnerRoot',
         'opponentReplied','changedFromBaseline'])
         assert.ok(known(field),'Invalid '+field+' evidence status');
-      if(on('nativeCanPlay'))assert.ok(on('structurallyOffered'),
+      if(typeof offer.nativeCanPlay==='boolean')
+        assert.ok(on('structurallyOffered'),
         'Native canPlay positive requires a structural offer');
       if(on('storeAccepted'))assert.ok(on('chosen'),
         'Accepted choice must be proposed/selected');
@@ -109,6 +110,7 @@ function decisionOpportunityReceipt(records, options = {}) {
       if(typeof offer.nativeCanPlay==='boolean'){
         flags.nativeProbed=true;
         total.nativeProbedChoices++;
+        rootProbedChoices++;
       }
       if(on('nativeCanPlay')){
         flags.nativePlayable=true;
@@ -119,6 +121,7 @@ function decisionOpportunityReceipt(records, options = {}) {
           digest};
       }
       total.offerChoices+=Number(on('structurallyOffered'));
+      rootOfferChoices+=Number(on('structurallyOffered'));
       flags.chosen ||=on('chosen');
       flags.accepted ||=on('storeAccepted');
       flags.settled ||=on('effectSettled');
@@ -138,6 +141,7 @@ function decisionOpportunityReceipt(records, options = {}) {
     if(!arm){
       arm={trialId,sourceDealFingerprint,rootCount:0,
         nativePositiveRoots:0,nativeProbedRoots:0,structuralOfferRoots:0,
+        nativeProbedChoices:0,structuralOfferedChoices:0,
         positiveWitness:null,
         sourceExamples:[],nativePositiveExamples:[],
         repeatedObservedConfigurations:0,observedDigests:new Set()};
@@ -147,6 +151,8 @@ function decisionOpportunityReceipt(records, options = {}) {
     arm.rootCount++;
     arm.nativeProbedRoots+=Number(flags.nativeProbed);
     arm.structuralOfferRoots+=Number(flags.offered);
+    arm.nativeProbedChoices+=rootProbedChoices;
+    arm.structuralOfferedChoices+=rootOfferChoices;
     if(arm.observedDigests.has(digest))
       arm.repeatedObservedConfigurations++;
     arm.observedDigests.add(digest);
@@ -178,6 +184,8 @@ function decisionOpportunityReceipt(records, options = {}) {
       nativePositiveRoots:arm.nativePositiveRoots,
       nativeProbedRoots:arm.nativeProbedRoots,
       structuralOfferRoots:arm.structuralOfferRoots,
+      nativeProbedChoices:arm.nativeProbedChoices,
+      structuralOfferedChoices:arm.structuralOfferedChoices,
       uniqueObservedConfigurations:arm.observedDigests.size,
       repeatedObservedConfigurations:arm.repeatedObservedConfigurations,
       sourceExamples:arm.sourceExamples,
@@ -189,7 +197,7 @@ function decisionOpportunityReceipt(records, options = {}) {
       positiveWitnessCoverage:arm.nativePositiveRoots===0?
         arm.structuralOfferRoots===0?'NO_STRUCTURAL_OFFERS':
         arm.nativeProbedRoots===0?'NATIVE_PLAYABILITY_UNPROBED':
-        arm.nativeProbedRoots<arm.structuralOfferRoots?
+        arm.nativeProbedChoices<arm.structuralOfferedChoices?
           'PARTIAL_NATIVE_PROBE_NO_POSITIVE':
           'PROBED_NO_NATIVE_POSITIVE':arm.positiveWitness?
         'EARLIEST_NATIVE_POSITIVE_PRESERVED':'POSITIVE_WITNESS_MISSING'
