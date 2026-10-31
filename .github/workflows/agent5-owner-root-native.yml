@@ -85,7 +85,7 @@ jobs:
       - name: Native non-finishing attack versus immediate Buddy Pulse self-loss
         run: node simulation/twinleaf/agent5-buddy-pulse-nonfinishing-native.cjs > agent5-buddy-pulse-nonfinishing-native.json
       - name: Check non-finishing attack counterexample in both physical seats
-        run: node -e "const a=require('node:assert/strict');const x=require('./agent5-buddy-pulse-nonfinishing-native.json');a.equal(x.nativeErrors,0);a.equal(x.attemptedSeats,2);a.equal(x.allNativeReversals,true);console.log(JSON.stringify({schema:x.schema,rows:x.rows.map(r=>({seat:r.seat,attackWinner:r.attackFirst.winner,attachWinner:r.attachFirst.winner,reason:r.exposure.reason}))}))"
+        run: node -e "const a=require('node:assert/strict');const x=require('./agent5-buddy-pulse-nonfinishing-native.json');console.log(JSON.stringify({schema:x.schema,errors:x.rows.filter(r=>r.error).map(r=>({seat:r.seat,error:r.error.slice(0,1500)})),summary:x.rows.map(r=>({seat:r.seat,attackWinner:r.attackFirst?.winner,attachWinner:r.attachFirst?.winner,reason:r.exposure?.reason}))},null,2));a.equal(x.nativeErrors,0);a.equal(x.attemptedSeats,2);a.equal(x.allNativeReversals,true)"
       - name: Native two-Prize Buddy Pulse action-order falsification on both seats
         run: node simulation/twinleaf/agent42-buddy-pulse-two-prize-native.cjs > agent42-buddy-pulse-two-prize-native.json
       - name: Validate complete two-seat native winner reversal and reactive KO
