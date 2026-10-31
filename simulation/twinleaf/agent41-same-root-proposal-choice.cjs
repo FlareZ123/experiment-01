@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v20-grouped-plumeria-observation';
+const VERSION='agent41-same-root-proposal-choice-v21-grouped-denial-root-denominators';
 const MAX_SAMPLES=48;
 
 /**
@@ -461,6 +461,17 @@ function newSameRootAudit(){
     selectionReasons:{},samples:[],
     changedSamples:[],selectorErrorSamples:[],
     offerKindCounts:{},offerSourceCounts:{},
+    groupedDenialRootCounts:{
+      plumeriaRoots:0,plumeriaPhysicalOffers:0,
+      plumeriaAndFlareCoheldRoots:0,
+      plumeriaAndFlareBothOfferedRoots:0,
+      plumeriaAndPayableAttackRoots:0,
+      plumeriaWithBenchTargetRoots:0,
+      paymentPairsConsumingFlare:0,
+      bySeat:{0:{plumeriaRoots:0,coheldFlareRoots:0},
+        1:{plumeriaRoots:0,coheldFlareRoots:0}},
+      coheldFlareRootSamples:[],benchTargetRootSamples:[]
+    },
     truncatedChangedSamples:0,truncatedErrorSamples:0,
     qualification:{ownerOnlyProposals:true,completeVocabulary:false,
       allProposalsNativeLegal:false,publicHistorySufficient:false,
@@ -478,6 +489,54 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   if(receipt.selectorErrors.length)audit.selectorErrorRoots++;
   audit.selectionReasons[receipt.reason]=
     (audit.selectionReasons[receipt.reason]??0)+1;
+  // An independent *root* is the denominator. Repeated physical Plumeria
+  // copies and the many payment pairs within each copy are separate counts.
+  // A visible Flare card is established by the actual owner payment list,
+  // even if Flare itself fails to produce a structurally supported offer.
+  const denial=audit.groupedDenialRootCounts;
+  const plumeria=receipt.offers.filter(o=>
+    o.source==='grouped-plumeria-payments');
+  if(plumeria.length>0){
+    denial.plumeriaRoots++;
+    denial.plumeriaPhysicalOffers+=plumeria.length;
+    denial.bySeat[seat].plumeriaRoots++;
+    const consumesFlare=plumeria.some(o=>
+      (o.paymentPairsConsumingFlare??0)>0);
+    const pairedFlare=receipt.offers.some(o=>
+      o.source==='team-flare-grunt');
+    const attack=receipt.offers.some(o=>
+      o.kind==='attack');
+    const bench=plumeria.some(o=>
+      (o.benchDenialTargetCount??0)>0);
+    denial.paymentPairsConsumingFlare+=plumeria.reduce((n,o)=>
+      n+(o.paymentPairsConsumingFlare??0),0);
+    if(consumesFlare){
+      denial.plumeriaAndFlareCoheldRoots++;
+      denial.bySeat[seat].coheldFlareRoots++;
+      if(denial.coheldFlareRootSamples.length<16)
+        denial.coheldFlareRootSamples.push({
+          seat,globalTurn:turn,rootOrdinal:ordinal,
+          baselineKind:receipt.baselineKind,
+          plumeriaPhysicalOffers:plumeria.length,
+          paymentPairsConsumingFlare:plumeria.reduce((n,o)=>
+            n+(o.paymentPairsConsumingFlare??0),0),
+          bothIndependentlyOffered:pairedFlare,
+          publicBenchTargetPresent:bench
+        });
+    }
+    if(pairedFlare)denial.plumeriaAndFlareBothOfferedRoots++;
+    if(attack)denial.plumeriaAndPayableAttackRoots++;
+    if(bench){
+      denial.plumeriaWithBenchTargetRoots++;
+      if(denial.benchTargetRootSamples.length<16)
+        denial.benchTargetRootSamples.push({
+          seat,globalTurn:turn,rootOrdinal:ordinal,
+          plumeriaPhysicalOffers:plumeria.length,
+          totalBenchEnergyTargets:Math.max(...plumeria.map(o=>
+            o.benchDenialTargetCount??0))
+        });
+    }
+  }
   for(const offer of receipt.offers){
     if(offer.source==='first-return'||offer.source==='terminal-hold')continue;
     audit.offerKindCounts[offer.kind]=(audit.offerKindCounts[offer.kind]??0)+1;
