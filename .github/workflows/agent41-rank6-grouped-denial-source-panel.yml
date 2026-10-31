@@ -1,0 +1,41 @@
+name: Agent41 rank6 original source grouped denial 24-seed census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank6-denial-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate frozen physical source-deal registration and failure accounting
+        run: node --test tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs
+      - name: Checkout exactly pinned original Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 48 preregistered source 60 game-development arms without selection
+        run: node simulation/evaluation/agent41-rank6-grouped-denial-source-panel.cjs > agent41-rank6-denial-source-raw.json
+      - name: Preserve compact true-root and distinct-seed counts
+        run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank6-denial-source-raw.json','utf8'));fs.writeFileSync('agent41-rank6-denial-source-summary.json',JSON.stringify(x.summary,null,2)+'\\n');console.log(JSON.stringify({scheduled:x.summary.scheduled,uniqueSourceSeedGroups:x.summary.uniqueSourceSeedGroups,resultsWithNativeActorAudit:x.summary.resultsWithNativeActorAudit,ownerRoots:x.summary.ownerRoots,plumeriaOwnerRoots:x.summary.plumeriaOwnerRoots,coheldFlareOwnerRoots:x.summary.coheldFlareOwnerRoots,bothSupporterOffersRoots:x.summary.bothSupporterOffersRoots,distinctSeedGroupsWithCoheldFlare:x.summary.distinctSeedGroupsWithCoheldFlare,competitiveQualifiedGames:x.summary.competitiveQualifiedGames}));"
+      - name: Archive every attempted source seed including native failure and censor
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-rank6-grouped-denial-48-native-arm-census
+          path: |
+            agent41-rank6-denial-source-raw.json
+            agent41-rank6-denial-source-summary.json
+          if-no-files-found: warn
+          retention-days: 14
