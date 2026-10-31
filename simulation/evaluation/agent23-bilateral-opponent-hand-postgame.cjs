@@ -46,7 +46,8 @@ function classifyConditionalProbe(control,replay,events){
     classification='no-distinct-hidden-hand-deck-pair';
   else if(event.actionSensitiveToOpponentHiddenHand===true)
     classification='conditional-opponent-hand-action-reversal';
-  else if(event.tacticScoreComparison?.equalScoreTraces===false)
+  else if(event.tacticScoreComparison?.equalScoreTraces===false||
+    (Number.isSafeInteger(event.scoreOnlyChanges)&&event.scoreOnlyChanges>0))
     classification='conditional-opponent-hand-score-change-only';
   else classification='no-change-under-chosen-counterfactual';
 
@@ -62,18 +63,22 @@ function classifyConditionalProbe(control,replay,events){
     diagnostic:event?{
       liveOwnerAction:event.originalSourceAction??null,
       detachedOwnerAction:event.physicalOrder??null,
-      counterfactualOwnerAction:event.counterfactualOrder??null,
+      counterfactualOwnerAction:event.counterfactualOrder??
+        event.firstActionReversal?.counterfactualAction??null,
       baselineActionMatchedActual:event.baselineActionMatchedActual??false,
       comparedAfterRealGameFinished:event.comparedAfterRealGameFinished??false,
       sourceHiddenPoolConserved:event.sourceHiddenPoolConserved??false,
-      hiddenSwapKinds:event.chosenExchangeKinds??null,
+      hiddenSwapKinds:event.chosenExchangeKinds??
+        event.firstActionReversal?.exchangeKind??
+        event.firstScoreOnlyChange?.exchangeKind??null,
       handIdentityUnobservedHistoryVerified:false,
       boundedWorldScanVersion:event.schema??null,
       eligibleSingleExchanges:event.totalEligibleSingleExchanges??null,
       testedSingleExchanges:event.testedSingleExchanges??null,
       exhaustiveSingleExchangeCoverage:event.exhaustiveSingleExchangeCoverage??null,
       firstActionReversal:event.firstActionReversal??null,
-      scoreDelta:event.tacticScoreComparison??null,
+      scoreDelta:event.tacticScoreComparison??
+        event.firstScoreOnlyChange?.scoreComparison??null,
       auditError:event.auditError??null
     }:null,
     qualifiedCompetitiveGames:0,
