@@ -115,6 +115,9 @@ function runTwo(prior,trials,mode){
     };
   }
   let selectedForkAudit=null;
+  const receiptKey='AGENT4_NATIVE_PAYMENT_RECEIPT_DEV';
+  const oldReceipt=process.env[receiptKey];
+  process.env[receiptKey]='true';
   try{
     const result=runDevelopment({...prior.frozenRunOptions,
       registeredTrials:trials,registeredFrameName:FRAME,
@@ -134,7 +137,46 @@ function runTwo(prior,trials,mode){
     });
   }finally{
     adapter.withOwnerPlumeriaAfterPass=original;
+    if(oldReceipt===undefined)delete process.env[receiptKey];
+    else process.env[receiptKey]=oldReceipt;
   }
+}
+
+/**
+ * Original Store-accepted physical two-card payment and settled Energy
+ * effect at an exact source-owned Plumeria turn.
+ * @param {object|null} row
+ * @param {0|1} seat
+ * @param {number|null} turn
+ * @returns {object}
+ */
+function sourcePlumeriaTurnReceipt(row,seat,turn){
+  const audit=row?.actorOnlyDecisionCoverage?.detailedComponentAudits
+    ?.ownerPlumeriaAfterPass??null;
+  if(!audit||!Number.isSafeInteger(turn))
+    return {status:'NO_NATIVE_AUDIT_OR_TURN',payment:null,
+      settlement:null,fullySettled:false};
+  const payments=(audit.physicallyAcceptedOwnerPayments??[]).filter(
+    x=>x.seat===seat&&x.turn===turn&&x.acceptedByOriginalStore===true);
+  const effects=(audit.log??[]).filter(
+    x=>x.kind==='plumeria-energy-settlement'&&
+      x.seat===seat&&x.turn===turn);
+  const payment=payments.length===1?payments[0]:null;
+  const settlement=effects.length===1?effects[0]:null;
+  const legalPayment=Array.isArray(payment?.payment)&&
+    payment.payment.length===2&&
+    payment.payment.every(x=>Number.isSafeInteger(x.handIndex)&&
+      x.handIndex>=0&&typeof x.printing==='string'&&x.printing.length>0)&&
+    payment.payment[0].handIndex!==payment.payment[1].handIndex;
+  const fullySettled=Boolean(legalPayment&&
+    settlement?.accepted===true&&
+    settlement.sourceHandDiscardCount===2&&
+    typeof settlement.printing==='string'&&
+    settlement.printing.length>0);
+  return {status:fullySettled?'NATIVE_PAYMENT_AND_EFFECT_SETTLED':
+    payment===null?'NO_PHYSICAL_PAYMENT_RECEIPT':
+    settlement===null?'NO_ENERGY_EFFECT_RECEIPT':'NATIVE_SETTLEMENT_INCOMPLETE',
+    payment,settlement,fullySettled};
 }
 
 /**
@@ -176,6 +218,10 @@ function contrast(a,b){
   };
   const nextSourceControl=laterSource(before,firstOriginal,a.sourceSeat);
   const nextSourceTreatment=laterSource(after,firstAlternate,b.sourceSeat);
+  const controlPlumeriaAtDivergence=sourcePlumeriaTurnReceipt(
+    a.row,a.sourceSeat,firstOriginal?.turnBefore??null);
+  const treatedPlumeriaAtNextSource=sourcePlumeriaTurnReceipt(
+    b.row,b.sourceSeat,nextSourceTreatment?.turnBefore??null);
   const nextOpponentAfterSource=(ledger,source,seat)=>
     source?ledger.find(x=>x.playerSlot===1-seat&&
       x.turnBefore>source.turnBefore&&
@@ -189,6 +235,12 @@ function contrast(a,b){
     originalRootSha:a.row?.rootActionLedgerSha256??null,
     alternativeRootSha:b.row?.rootActionLedgerSha256??null,
     nextSourceControl,nextSourceTreatment,
+    controlPlumeriaAtDivergence,treatedPlumeriaAtNextSource,
+    secondOpposingEnergyDenialConfirmed:causal&&
+      nextSourceTreatment?.action==='PlayCardAction'&&
+      nextSourceTreatment?.card==='Plumeria'&&
+      treatedPlumeriaAtNextSource.fullySettled&&
+      controlPlumeriaAtDivergence.fullySettled,
     nextOpponentAfterSourceControl:
       nextOpponentAfterSource(before,nextSourceControl,a.sourceSeat),
     nextOpponentAfterSourceTreatment:
@@ -240,6 +292,11 @@ function runProspectiveRank6Flare(){
     authenticSamePhysicalStarts:pairs.filter(x=>x.samePhysicalStart).length,
     causalNativeAlternates:pairs.filter(x=>
       x.firstDifferenceIndex>=0&&x.firstCausalContrast).length,
+    verifiedTwoTurnNativeEnergyDenial:pairs.filter(x=>
+      x.secondOpposingEnergyDenialConfirmed===true).length,
+    positiveForksMissingSecondNativeDenialReceipt:pairs.filter(x=>
+      x.firstDifferenceIndex>=0&&x.firstCausalContrast&&
+      x.secondOpposingEnergyDenialConfirmed!==true).length,
     nativeSelectedFirstFlare:pairs.filter(x=>
       x.prospectiveFlareAudit?.selectedFlareForks===1).length,
     noOriginalNativeOpportunity:pairs.filter(x=>
@@ -259,7 +316,8 @@ function runProspectiveRank6Flare(){
     pairs};
 }
 
-module.exports={VERSION,FRAME,FRAME_BLOB,registeredFrame,groupRegisteredTrials,contrast,
+module.exports={VERSION,FRAME,FRAME_BLOB,registeredFrame,groupRegisteredTrials,
+  sourcePlumeriaTurnReceipt,contrast,
   runProspectiveRank6Flare};
 if(require.main===module)
   process.stdout.write(JSON.stringify(runProspectiveRank6Flare(),null,2)+'\n');
