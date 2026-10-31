@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const VERSION = 'agent9-crobat-vip-exact-opening-v1';
-const RANKS = [8, 11, 26];
+const RANKS = [4, 5, 8, 11, 16, 19, 22, 26, 30];
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n, k) {
@@ -18,48 +18,52 @@ function choose(n, k) {
 }
 
 /**
- * Exact opening-hand count model. The Crobat and each VIP are distinct cards;
- * one of the other Basics must permit Crobat to remain in hand at setup.
- * @param {{basicCount:number,vipCount:number,total?:number,opening?:number}} args
+ * Exact source opening count. At least one Crobat must remain in hand after
+ * selecting an Active Basic, which may be another Crobat when two are held.
+ * @param {{basicCount:number,vipCount:number,crobatCount?:number,total?:number,opening?:number}} args
  * @returns {object} Exact rational numerators and denominators as BigInt.
  */
 function openingCohold(args) {
-  const { basicCount: B, vipCount: V, total = 60, opening = 7 } = args;
-  assert.ok([B, V, total, opening].every(Number.isSafeInteger));
-  assert.ok(B >= 2 && V >= 1 && B + V <= total && opening < total);
+  const { basicCount: B, vipCount: V, crobatCount: K = 1,
+    total = 60, opening = 7 } = args;
+  assert.ok([B, V, K, total, opening].every(Number.isSafeInteger));
+  assert.ok(K >= 1 && B >= K && V >= 1 && B + V <= total && opening < total);
   const other = total - B - V;
   const denominator = choose(total, opening) - choose(total - B, opening);
-  const seven = choose(total - 1, opening - 1) -
-    choose(total - 1 - V, opening - 1) -
-    choose(total - B, opening - 1) +
-    choose(total - B - V, opening - 1);
   const next = total - opening;
+  let first = 0n;
   let nextScaled = 0n;
-  let crowdedSeven = 0n;
+  let crowdedFirst = 0n;
   let crowdedNextScaled = 0n;
-  for (let c = 0; c <= 1; c++) {
+  for (let c = 0; c <= K; c++) {
     for (let v = 0; v <= V; v++) {
-      for (let o = 0; o < B; o++) {
+      for (let o = 0; o <= B - K; o++) {
         if (c + o < 1) continue;
-        const weight = choose(1, c) * choose(V, v) *
-          choose(B - 1, o) * choose(other, opening - c - v - o);
-        if (c === 1 && v >= 1 && o >= 1 && o <= 3) crowdedSeven += weight;
+        const weight = choose(K, c) * choose(V, v) *
+          choose(B - K, o) * choose(other, opening - c - v - o);
+        const retainedCrobat = c - (o === 0 ? 1 : 0);
+        const successFirst = retainedCrobat >= 1 && v >= 1;
+        if (successFirst) first += weight;
         let successScaled = 0n;
-        if (o >= 1) {
-          if (c === 1 && v >= 1) successScaled = BigInt(next);
-          else if (c === 1 && v === 0) successScaled = BigInt(V);
-          else if (c === 0 && v >= 1) successScaled = 1n;
-        }
+        if (successFirst) successScaled = BigInt(next);
+        else if (retainedCrobat >= 1 && v === 0) successScaled = BigInt(V);
+        else if (retainedCrobat === 0 && v >= 1)
+          successScaled = BigInt(K - c);
         nextScaled += weight * successScaled;
-        if (o <= 3) crowdedNextScaled += weight * successScaled;
+        // Sensitivity: Bench every opening Basic except the Active and one
+        // Crobat reserved in hand, leaving room for two VIP Basics and Crobat.
+        if (successFirst && c + o <= 4) crowdedFirst += weight;
+        if (successScaled > 0n &&
+            c + o <= (retainedCrobat >= 1 ? 4 : 3))
+          crowdedNextScaled += weight * successScaled;
       }
     }
   }
   return {
     validSeven: denominator,
-    goingFirst: { numerator: seven, denominator },
+    goingFirst: { numerator: first, denominator },
     goingSecond: { numerator: nextScaled, denominator: denominator * BigInt(next) },
-    benchEveryOtherBasicFirst: { numerator: crowdedSeven, denominator },
+    benchEveryOtherBasicFirst: { numerator: crowdedFirst, denominator },
     benchEveryOtherBasicSecond: { numerator: crowdedNextScaled,
       denominator: denominator * BigInt(next) }
   };
@@ -97,7 +101,7 @@ function sourceCounts(source, sets, cardsForSet) {
     .reduce((sum, row) => sum + row.count, 0);
   const vip = count('Battle VIP Pass');
   const crobat = count('Crobat V');
-  assert.equal(crobat, 1, `Expected exactly one Crobat at rank ${source.rank}`);
+  assert.ok(crobat >= 1 && crobat <= basics);
   return { rank: source.rank, archetype: source.archetype,
     basicCount: basics, vipCount: vip, crobatCount: crobat };
 }
@@ -124,7 +128,7 @@ function run(root = path.resolve(__dirname, '..')) {
     const deck = source.decks.find(row => row.rank === rank);
     assert.ok(deck, `Missing source rank ${rank}`);
     const inventory = sourceCounts(deck, sets, cardsForSet);
-    const probability = openingCohold(inventory);
+    const probability = openingCohold({...inventory,crobatCount:inventory.crobatCount});
     return { ...inventory, goingFirstPercent: percent(probability.goingFirst),
       goingSecondPercent: percent(probability.goingSecond),
       firstBenchPercent: percent(probability.benchEveryOtherBasicFirst),
