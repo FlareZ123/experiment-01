@@ -8,6 +8,8 @@ const {buildActorCardCatalog,chooseActorRootIntent} =
   require('./agent34-actor-only-root-policy.cjs');
 const {actorToolPrintingCatalog,enumerateActorToolCandidates}=
   require('./agent18-actor-tool-candidate-frontier.cjs');
+const {collectAndChooseOwnerRoot,VERSION:SAME_ROOT_VERSION}=
+  require('./agent41-same-root-proposal-choice.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(root,p));
 const SEED=4246551499;
@@ -112,7 +114,10 @@ function observeSourceK0(execute){
         const choice=chooseActorRootIntent(before,catalog,{
           publicContextSpecialEnergy:true
         });
-        let altered,alteredChoice;
+        const sameRootOptions={sameRootProbeAll:true};
+        const sameRoot=collectAndChooseOwnerRoot(
+          before,catalog,choice,sameRootOptions);
+        let altered,alteredChoice,alteredSameRoot;
         owner.deck.cards[0]=prized;
         prize.cards[0]=first;
         try{
@@ -120,6 +125,8 @@ function observeSourceK0(execute){
           alteredChoice=chooseActorRootIntent(altered,catalog,{
             publicContextSpecialEnergy:true
           });
+          alteredSameRoot=collectAndChooseOwnerRoot(
+            altered,catalog,alteredChoice,sameRootOptions);
         }finally{
           owner.deck.cards[0]=first;
           prize.cards[0]=prized;
@@ -128,7 +135,16 @@ function observeSourceK0(execute){
         assert.strictEqual(prize.cards[0],prized);
         assert.deepStrictEqual(altered,before);
         assert.deepStrictEqual(alteredChoice,choice);
+        assert.deepStrictEqual(alteredSameRoot,sameRoot,
+          'Independent same-root offers changed under owner-invisible K0 swap');
+        assert.deepStrictEqual(sameRoot.intent,choice,
+          'All-proposer K0 audit must never substitute a native action');
+        assert.equal(sameRoot.receipt.independentAllProposers,true);
+        assert.equal(sameRoot.receipt.changed,false);
         row.status='K0-native-source-owner-invariant';
+        row.sameRootCollectorVersion=SAME_ROOT_VERSION;
+        row.sameRootAllProposersK0Invariant=true;
+        row.sameRootReceipt=sameRoot.receipt;
         row.originalDeckTop=first.fullName;
         row.originalPrizePrinting=prized.fullName;
         row.chosenOwnerOnlyIntent=choice;
@@ -220,7 +236,8 @@ function run(){
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v5',
+  return {schema:'agent18-aichi-source-K0-native-root-v6-all-proposer-K0',
+    sameRootCollectorVersion:SAME_ROOT_VERSION,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
     caveat:'First owner roots in real 60-card source games, temporary hidden permutation restored before original bot decision; no opponent policy qualification or win-rate evidence.'};
