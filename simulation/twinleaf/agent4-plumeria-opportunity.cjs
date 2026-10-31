@@ -156,7 +156,8 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
         bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0},
       1:{ownerRoots:0,firstOwnerTurns:0,
         bothHeldRoots:0,bothNativePlayableRoots:0,
-        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0}
+        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0,
+        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0}
     },
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     acceptedPassWithPlayable:0,acceptedPassWithHeld:0,
