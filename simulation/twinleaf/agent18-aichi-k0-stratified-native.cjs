@@ -74,6 +74,16 @@ function runRanks(ranks,registration,schema){
           candidate.slot===nativeTarget.slot&&
           candidate.index===nativeTarget.index),
           'Owner-only Tool candidates must include actual Store-positive source target');
+        const matchingSameRootTools=sourceOpponentRoot.sameRootReceipt.offers
+          .filter(offer=>offer.source==='owner-tool'&&
+            offer.printing===expected&&
+            offer.handIndex===sourceOpponentRoot.nativeBotProposedHandIndex&&
+            offer.slot===nativeTarget.slot&&
+            offer.index===nativeTarget.index);
+        assert.equal(matchingSameRootTools.length,1,
+          'Shared same-root owner Tool proposer must expose actual native-positive original Tool target');
+        assert.equal(matchingSameRootTools[0].nativeDispatchImplemented,false,
+          'A proposed original Tool target remains observation-only');
       }
       Object.assign(entry,{
         status:'native-source-K0-both-owner-roots-passed',
