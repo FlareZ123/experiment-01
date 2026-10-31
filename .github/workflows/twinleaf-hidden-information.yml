@@ -55,6 +55,10 @@ on:
         description: Conditional opponent hidden-hand exchange after authentic owner same-world tape parity
         type: boolean
         default: false
+      agent23_native_bounded_opponent_hand_tape:
+        description: With agent23_native_opponent_hand_tape, scan bounded owner-equivalent concealed worlds
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -258,8 +262,8 @@ jobs:
         run: npm run compile
       - name: Verify retrospective source-deal and detached observer controls
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs tests/agent50-native-control-gate.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
-      - name: Verify authentic native tape opponent hand contrast with six fail-closed controls
-        run: node --test tests/native-tape-opponent-hidden-hand-contrast.test.cjs
+      - name: Verify native tape opponent concealed-world contrasts and bounded controls
+        run: node --test tests/native-tape-opponent-hidden-hand-contrast.test.cjs tests/agent23-native-tape-bounded-opponent-hand.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
         env:
           AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_first_finite_tape }}
@@ -269,6 +273,7 @@ jobs:
           AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER: ${{ inputs.agent50_native_tape_hidden_deck_order }}
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
+          AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Reject aborted or unauthenticated native historical controls
         run: node simulation/evaluation/agent50-native-control-gate.cjs agent50-live-deck-order-fourarm.json
@@ -284,6 +289,11 @@ jobs:
           actionFlip:r.diagnostic?.actionSensitiveToHiddenDeckOrder,
           opponentHandFlip:r.diagnostic?.nativeOpponentHiddenHandContrast?.selectedActionChanged??null,
           opponentHandContrastExecutable:r.conditionalOpponentHandContrastExecutable??false,
+          boundedEligible:r.diagnostic?.nativeOpponentHiddenHandContrast?.eligibleSingleExchanges??null,
+          boundedAttempted:r.diagnostic?.nativeOpponentHiddenHandContrast?.attemptedSingleExchanges??null,
+          boundedSuccessful:r.diagnostic?.nativeOpponentHiddenHandContrast?.successfulSingleExchanges??null,
+          boundedFailed:r.diagnostic?.nativeOpponentHiddenHandContrast?.failedSingleExchanges??null,
+          boundedActionReversals:r.diagnostic?.nativeOpponentHiddenHandContrast?.actionReversals??null,
           auditError:r.diagnostic?.auditError||r.error||null,
           chosenTurn:r.diagnostic?.chosenRootTurn||null,
           scorerAttempts:r.diagnostic?.actualScorerAttempts||null,
