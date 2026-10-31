@@ -1,0 +1,48 @@
+name: Agent7 preregistered zero-own-Bench Volt Cyclone rank6 panel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank6-thorns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact printing and source-independent owner public guards
+        run: node --test tests/agent7-thorns-empty-bench-voltcylone.test.cjs tests/agent7-positive-print-attack-pass-probe.test.cjs
+      - name: Checkout pinned original Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install original server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute original Store exact eight-seed both-candidate control arms
+        env:
+          AGENT7_PANEL_MODE: 'control'
+        run: node simulation/evaluation/agent7-thorns-empty-bench-panel.cjs > agent7-thorns-original.json
+      - name: Execute exact same physical deals with printed zero-own-Bench attack choice
+        env:
+          AGENT7_PANEL_MODE: 'selected'
+        run: node simulation/evaluation/agent7-thorns-empty-bench-panel.cjs > agent7-thorns-selected.json
+      - name: Demand native physical first-divergence and preserve all attempts
+        run: node scripts/agent7-thorns-empty-bench-panel-pair.cjs agent7-thorns-original.json agent7-thorns-selected.json > agent7-thorns-pair.json
+      - name: Archive all paired trials, censors and candidate response evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-thorns-printed-attack-no-bench-native-panel
+          path: |
+            agent7-thorns-original.json
+            agent7-thorns-selected.json
+            agent7-thorns-pair.json
+          if-no-files-found: warn
+          retention-days: 14
