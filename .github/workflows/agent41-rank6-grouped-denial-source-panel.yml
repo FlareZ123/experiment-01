@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      focused_native_rank21_tool:
+        description: 'Run original rank21 Tool target source Store comparison, retrospective, unqualified'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -22,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate frozen physical source-deal registration and failure accounting
-        run: node --test tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs
+        run: node --test tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs
       - name: Checkout exactly pinned original Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native server
@@ -32,14 +37,20 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all 48 preregistered source 60 game-development arms without selection
-        if: ${{ !inputs.focused_native_eligibility }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool }}
         run: node simulation/evaluation/agent41-rank6-grouped-denial-source-panel.cjs > agent41-rank6-denial-source-raw.json
       - name: Preserve compact true-root and distinct-seed counts
-        if: ${{ !inputs.focused_native_eligibility }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool }}
         run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank6-denial-source-raw.json','utf8'));fs.writeFileSync('agent41-rank6-denial-source-summary.json',JSON.stringify(x.summary,null,2)+'\\n');console.log(JSON.stringify({scheduled:x.summary.scheduled,uniqueSourceSeedGroups:x.summary.uniqueSourceSeedGroups,resultsWithNativeActorAudit:x.summary.resultsWithNativeActorAudit,ownerRoots:x.summary.ownerRoots,plumeriaOwnerRoots:x.summary.plumeriaOwnerRoots,coheldFlareOwnerRoots:x.summary.coheldFlareOwnerRoots,bothSupporterOffersRoots:x.summary.bothSupporterOffersRoots,distinctSeedGroupsWithCoheldFlare:x.summary.distinctSeedGroupsWithCoheldFlare,competitiveQualifiedGames:x.summary.competitiveQualifiedGames}));"
       - name: Exact early source-owned coheld native canPlay, original Store read-only
         if: ${{ inputs.focused_native_eligibility }}
         run: node simulation/evaluation/agent41-native-source-rank6-coheld-canplay.cjs > agent41-focused-source-native-canplay.json
+      - name: Run exact original rank21 native Tool action recipient comparison
+        if: ${{ inputs.focused_native_rank21_tool }}
+        run: node simulation/evaluation/agent41-rank21-native-tool-target-pair.cjs > agent41-rank21-tool-target-raw.json
+      - name: Retain truthful original-source paired Tool settlement status
+        if: ${{ inputs.focused_native_rank21_tool }}
+        run: node -e "const x=require('./agent41-rank21-tool-target-raw.json');console.log(JSON.stringify({sourceRank:x.summary.sourceRank,seed:x.summary.sourceSeed,measuredArms:x.summary.measuredArms,byCandidate:x.summary.byCandidate,nativeToolAcceptedTotal:x.summary.nativeToolAcceptedTotal,competitiveQualifiedGames:x.summary.competitiveQualifiedGames},null,2))"
       - name: Archive every attempted source seed including native failure and censor
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,5 +60,6 @@ jobs:
             agent41-rank6-denial-source-raw.json
             agent41-rank6-denial-source-summary.json
             agent41-focused-source-native-canplay.json
+            agent41-rank21-tool-target-raw.json
           if-no-files-found: warn
           retention-days: 14
