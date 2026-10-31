@@ -78,6 +78,30 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   const selected=selectBoundedHiddenExchanges(
     other.hand.cards,other.deck.cards,options.limit??16);
 
+  function detachedWorld(){
+    const world=cloneState(source);
+    assert.notStrictEqual(world,source,'Clone returned the live Store object');
+    assert.notStrictEqual(world.players,source.players,
+      'Clone reused the live player array');
+    assert.equal(world.players.length,source.players.length);
+    for(let i=0;i<source.players.length;i++){
+      const actual=source.players[i],copy=world.players[i];
+      assert.notStrictEqual(copy,actual,'Clone reused a live player object');
+      for(const zone of ['hand','deck']){
+        assert.notStrictEqual(copy[zone],actual[zone],
+          'Clone reused a live concealed-zone object');
+        assert.notStrictEqual(copy[zone].cards,actual[zone].cards,
+          'Clone reused a live concealed card array');
+        assert.equal(copy[zone].cards.length,actual[zone].cards.length);
+        for(let j=0;j<actual[zone].cards.length;j++){
+          assert.notStrictEqual(copy[zone].cards[j],actual[zone].cards[j],
+            'Clone reused a live concealed physical card object');
+        }
+      }
+    }
+    return world;
+  }
+
   function evaluate(detached){
     const oldRandom=Math.random;
     Math.random=makeRandom();
@@ -90,7 +114,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     }
   }
 
-  const baseline=evaluate(cloneState(source));
+  const baseline=evaluate(detachedWorld());
   const cases=[];
   for(const proposal of selected.exchanges){
     const world=cloneState(source);
@@ -118,7 +142,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   }
   // A/B/.../A guards against module-global simulator state, RNG drift, or a
   // bot that changes merely because previous detached evaluations occurred.
-  const repeat=evaluate(cloneState(source));
+  const repeat=evaluate(detachedWorld());
   assert.deepEqual(repeat.action,baseline.action,
     'Repeated original hidden world changed the chosen action');
   assert.deepEqual(repeat.scores,baseline.scores,
