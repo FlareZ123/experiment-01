@@ -1,9 +1,10 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {samePhysicalProposal}=require('./agent16-owner-priority-contention.cjs');
+const {samePhysicalProposal,contentionReason}=
+  require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v1-partial-owner-view';
+const VERSION='agent41-same-root-proposal-choice-v2-resource-contention';
 const MAX_SAMPLES=48;
 
 /**
@@ -198,6 +199,15 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       slot:o.intent.slot??(o.intent.kind==='bench-basic'?'bench':null),
       index:o.intent.index??o.intent.benchIndex??null,
       score:o.score,reason:o.reason,
+      baselineContention:o.source==='first-return'?'control':
+        contentionReason(baseline.kind,o.intent.kind),
+      intendedResourceChannels:{
+        energyAttachment:ENERGY_KINDS.has(o.intent.kind),
+        supporterQuota:SUPPORTER_KINDS.has(o.intent.kind),
+        benchAdmission:o.intent.kind==='bench-basic',
+        searchItem:SEARCH_KINDS.has(o.intent.kind),
+        endsTurn:o.intent.kind==='attack'||o.intent.kind==='pass'
+      },
       nativePlayability:'unverified'
     })),
     attackIfBaselineNotAttack:baseline.kind==='attack'?
