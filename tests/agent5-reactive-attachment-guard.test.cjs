@@ -71,3 +71,19 @@ test('no mutation of existing first choice or arbiter receipt',()=>{
   assert.notStrictEqual(result.receipt,s.receipt);
   assert.strictEqual(result.intent,f);
 });
+
+test('guard accepts a global public three-Prize rule rather than a suffix guess',()=>{
+  const v=view();
+  v.ownPublic.bench[1]={name:'Trevenant & Dusknoir-GX',
+    printing:'Trevenant & Dusknoir-GX SMP',hp:270,damage:250};
+  v.opponentPublic.prizeCount=3;
+  const alt=selected();
+  alt.intent={kind:'attach-basic-energy',printing:'Psychic Energy MEE',
+    handIndex:0,slot:'bench',index:1};
+  assert.equal(holdPotentialReactiveTerminalLoss(v,first,alt).safety.held,false);
+  const catalog={publicPokemonProfileIndex:new Map([
+    ['Trevenant & Dusknoir-GX SMP',{prizesOnKnockout:3}]])};
+  const result=holdPotentialReactiveTerminalLoss(v,first,alt,catalog);
+  assert.equal(result.safety.held,true);
+  assert.strictEqual(result.intent,first);
+});
