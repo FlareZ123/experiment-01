@@ -104,7 +104,10 @@ function chooseActorRootIntent(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
   const benchIndex=own.bench.findIndex(slot=>slot===null);
-  if(benchIndex>=0&&!r.pokemonPlayLocked){
+  const soloThornsHold=options.thornsSoloEnergyRetention===true&&
+    require('./agent14-thorns-solo-energy-retention.cjs')
+      .holdSoloThornsBench(view,catalog);
+  if(benchIndex>=0&&!r.pokemonPlayLocked&&!soloThornsHold){
     const index=view.ownHand.findIndex(p=>catalog.basics.has(p)&&
       !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
     if(index>=0){
@@ -494,6 +497,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
+    thornsSoloEnergyRetentionOptIn:deps.thornsSoloEnergyRetention===true,
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
@@ -631,6 +635,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
+  if(audit.thornsSoloEnergyRetentionOptIn)
+    audit.version+='+'+
+      require('./agent14-thorns-solo-energy-retention.cjs').VERSION;
+  else delete audit.thornsSoloEnergyRetentionOptIn;
   if(audit.contestedEnergyRootOptIn){
     audit.version+='+'+
       require('./agent41-energy-attachment-contest.cjs').VERSION;
@@ -801,6 +809,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
+      thornsSoloEnergyRetention:audit.thornsSoloEnergyRetentionOptIn===true,
       specialEnergyRoot:actorSpecialEnergyEnabled(
         audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
       publicContextSpecialEnergy:actorSpecialEnergyEnabled(
