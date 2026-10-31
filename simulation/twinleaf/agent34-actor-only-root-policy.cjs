@@ -870,6 +870,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
       beforeAttackDenialRoot:audit.beforeAttackDenialOptIn,
       payablePrintedAttackOffer:audit.sameRootProposalChoiceOptIn===true,
+      preterminalSpeedDrawOffer:audit.sameRootProposalChoiceOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
     };
