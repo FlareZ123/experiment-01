@@ -576,6 +576,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
+    registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
     sameRootPublicNoBenchTerminalOptIn:deps.publicNoBenchTerminalAttack===true,
     sameRootPositiveAttackOverPassOptIn:deps.positiveAttackOverPass===true,
@@ -924,6 +925,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
+      registeredToolEnergyCeiling:audit.registeredToolEnergyCeilingOptIn===true,
       passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
       publicNoBenchTerminalAttack:audit.sameRootPublicNoBenchTerminalOptIn===true,
       positivePrintedAttackPassPreference:audit.sameRootPositiveAttackOverPassOptIn===true,
