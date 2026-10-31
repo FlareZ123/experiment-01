@@ -563,6 +563,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       .newOwnerContentionAudit(),
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
+    sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
       .newSameRootAudit(),
     terminalArbitrationOptIn:(deps.terminalArbitration??
@@ -616,11 +617,14 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.ownerArbitration;
   }
   if(audit.sameRootProposalChoiceOptIn){
+    assert.ok(!audit.sameRootProbeAllOptIn||!audit.sameRootChoiceApplyOptIn,
+      'All same-root proposers may only run in observer mode');
     audit.version+='+'+
       require('./agent41-same-root-proposal-choice.cjs').VERSION;
   }else{
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
+    delete audit.sameRootProbeAllOptIn;
     delete audit.sameRootProposalChoice;
   }
   if(deps.lastBenchHeldEvolution===true ||
@@ -866,6 +870,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
       beforeAttackDenialRoot:audit.beforeAttackDenialOptIn,
       payablePrintedAttackOffer:audit.sameRootProposalChoiceOptIn===true,
+      sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
     };
     // Option contract is obtained before selecting the owner root. The same
