@@ -1,0 +1,144 @@
+{
+  "schema": "agent7-registered-positive-print-attack-over-pass-rank6-v1",
+  "registeredAt": "2026-10-31T02:35:59.309944Z",
+  "hypothesis": "On a player's owner root where first-return is Pass, prefer an independently offered publicly payable fixed positive printed-damage attack, without a fixed turn, and measure accepted Store outcomes; no claim this is strategically safe.",
+  "selection": "Fresh independent Python secrets.randbits(32) seed draws, all 8 frozen before any game evaluation",
+  "experimentalPolicy": "Symmetric independent printed attack proposal vs first-return Pass with score 30. Action selection occurs for all eligible turns and both physical seats. The policy is a falsification probe only.",
+  "sourceRank": 6,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seedCount": 8,
+  "trials": [
+    {
+      "id": "6:1400:A:champion-reference",
+      "rank": 6,
+      "repeat": 1400,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1401533252
+    },
+    {
+      "id": "6:1400:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1400,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1401533252
+    },
+    {
+      "id": "6:1401:B:champion-reference",
+      "rank": 6,
+      "repeat": 1401,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2791125459
+    },
+    {
+      "id": "6:1401:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1401,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2791125459
+    },
+    {
+      "id": "6:1402:A:champion-reference",
+      "rank": 6,
+      "repeat": 1402,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3531959573
+    },
+    {
+      "id": "6:1402:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1402,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3531959573
+    },
+    {
+      "id": "6:1403:B:champion-reference",
+      "rank": 6,
+      "repeat": 1403,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 750412220
+    },
+    {
+      "id": "6:1403:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1403,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 750412220
+    },
+    {
+      "id": "6:1404:A:champion-reference",
+      "rank": 6,
+      "repeat": 1404,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1974705307
+    },
+    {
+      "id": "6:1404:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1404,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1974705307
+    },
+    {
+      "id": "6:1405:B:champion-reference",
+      "rank": 6,
+      "repeat": 1405,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3266290348
+    },
+    {
+      "id": "6:1405:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1405,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3266290348
+    },
+    {
+      "id": "6:1406:A:champion-reference",
+      "rank": 6,
+      "repeat": 1406,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1347715175
+    },
+    {
+      "id": "6:1406:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1406,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1347715175
+    },
+    {
+      "id": "6:1407:B:champion-reference",
+      "rank": 6,
+      "repeat": 1407,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1289852102
+    },
+    {
+      "id": "6:1407:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1407,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1289852102
+    }
+  ],
+  "qualification": "development only, rank6 source and partial paper-rules fidelity; no prospective competitive win denominator"
+}
