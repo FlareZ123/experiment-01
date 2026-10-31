@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v5-attack-vs-nonterminal-offers';
+const VERSION='agent41-same-root-proposal-choice-v6-bounded-printed-attack-census';
 const MAX_SAMPLES=48;
 
 /**
@@ -273,7 +273,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       nativePlayability:'unverified'
     })),
     attackIfBaselineNotAttack:baseline.kind==='attack'?
-      'baseline-only':'not-enumerated',
+      'baseline-only':options.payablePrintedAttackOffer===true?
+      (offers.some(o=>o.source==='payable-printed-attack')?
+        'printed-positive-offer':'no-supported-printed-positive-offer'):
+      'not-enumerated',
     publicHistoryCoverage:'unverified',
     nativeAcceptance:'unverified',
     fullyQualified:false
