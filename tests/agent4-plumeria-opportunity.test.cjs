@@ -200,3 +200,58 @@ test('a native failure still restores both hooks and preserves fail-close audit'
   assert.deepEqual(Object.getOwnPropertyDescriptor(FakeAi.prototype,'decodeNextAction'),original);
   assert.deepEqual(Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch'),storeOriginal);
 });
+
+
+test('both-seat live owner contour counts physical Plumeria payment alternatives against held Team Flare without altering Pass',()=>{
+  for(const seat of [0,1]){
+    const state=makeState(4,true,seat);
+    const owner=state.players[seat],store=new FakeStore(state);
+    owner.hand.cards[2]={
+      fullName:'Team Flare Grunt XY',
+      canPlay:(_store,_state,_owner)=>_owner.supporterTurn===0
+    };
+    const ai=new FakeAi(owner.id);
+    const original=state.queuedAction=new PassTurnAction();
+    const {result,audit}=withPlumeriaOwnerOpportunity(()=>{
+      store.dispatch(new AddPlayerAction());
+      const chosen=ai.decodeNextAction(state);
+      assert.strictEqual(chosen,original);
+      store.dispatch(chosen);
+      return 'unchanged';
+    },deps);
+    assert.equal(result,'unchanged');
+    assert.equal(audit.actualOwnerRoots,1);
+    assert.equal(audit.contestedOwnerRoots,1);
+    assert.equal(audit.contestedBothNativePlayableRoots,1);
+    assert.equal(audit.firstTurnBothSupportersHeld,1);
+    assert.equal(audit.firstTurnBothNativePlayable,1);
+    assert.equal(audit.acceptedPlumeria,0);
+    assert.equal(audit.contestedOwnerSamples.length,1);
+    const receipt=audit.contestedOwnerSamples[0];
+    assert.equal(receipt.seat,seat);
+    assert.equal(receipt.paymentPairs,3);
+    assert.equal(receipt.plumeriaPairsConsumingFlare,2);
+    assert.equal(receipt.plumeriaPairsPreservingFlare,1);
+    assert.equal(receipt.activeEnergyTargets,1);
+    assert.equal(receipt.benchEnergyTargets,0);
+    assert.equal(receipt.paperScreenedBothPlayable,true);
+  }
+});
+
+test('Plumeria/Flare original native contour respects paper turn1 and absent payment',()=>{
+  const state=makeState(3,true,0);
+  const owner=state.players[0],store=new FakeStore(state);
+  owner.hand.cards[1]={fullName:'Team Flare Grunt XY',canPlay:()=>true};
+  let info=plumeriaOwnerOpportunity(store,state,0);
+  assert.equal(info.plumeriaFlareContest.totalPhysicalPlumeriaPaymentPairs,1);
+  assert.equal(info.plumeriaFlareContest.plumeriaPaymentPairsConsumingFlare,1);
+  assert.equal(info.plumeriaFlareContest.plumeriaPaymentPairsPreservingFlare,0);
+  assert.equal(info.plumeriaFlareContest.paperScreenedBothPlayable,true);
+  state.turn=1;
+  info=plumeriaOwnerOpportunity(store,state,0);
+  assert.equal(info.plumeriaFlareContest.paperScreenedBothPlayable,false);
+  state.turn=3;
+  owner.hand.cards.pop();
+  info=plumeriaOwnerOpportunity(store,state,0);
+  assert.equal(info.plumeriaFlareContest.totalPhysicalPlumeriaPaymentPairs,0);
+});
