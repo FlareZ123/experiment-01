@@ -42,10 +42,71 @@ function sourceRootAudit(row){
   return row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root??null;
 }
 
+/**
+ * Join the two genuinely distinct action clocks through the same native typed
+ * action identity. This requires the opt-in full actor receipt plus headless
+ * action ledger; the historical 64-entry sampled nativeRootAcceptances is
+ * explicitly insufficient. Aborts, absent output and missing ordinals fail
+ * closed rather than being interpreted as untested alternatives or losses.
+ */
+function nativeActorJoinCoverage(row){
+  const root=sourceRootAudit(row);
+  const receipts=root?.nativeRootJoinReceipts;
+  const ledger=row.rootActionLedger;
+  if(!Array.isArray(receipts)||!Array.isArray(ledger))
+    return {status:'JOIN_EVIDENCE_NOT_PRESENT',complete:false,
+      selected:root?.selectedRootDecisions??null,joined:0};
+  const selected=root.selectedRootDecisions;
+  const dispatched=root.acceptedActorRoots+root.rejectedActorRoots;
+  const accepted=receipts.filter(x=>x.accepted===true);
+  const policySeen=new Set(),storeSeen=new Set();
+  let invalid=0;
+  for(const item of receipts){
+    if(!Number.isSafeInteger(item.policyDecisionOrdinal)||
+       item.policyDecisionOrdinal<1||item.policyDecisionOrdinal>selected||
+       policySeen.has(item.policyDecisionOrdinal)){
+      invalid++;continue;
+    }
+    policySeen.add(item.policyDecisionOrdinal);
+    if(!Number.isSafeInteger(item.nativeStoreActionOrdinal)||
+       item.nativeStoreActionOrdinal<0){
+      invalid++;continue;
+    }
+    const storeId=item.nativeStoreActionOrdinal;
+    if(storeSeen.has(storeId)){invalid++;continue;}
+    storeSeen.add(storeId);
+    const matching=ledger.filter(x=>x.actionOrdinal===storeId&&
+      x.actorPolicyDecisionOrdinal===item.policyDecisionOrdinal&&
+      x.playerSlot===item.seat);
+    if(item.accepted===true&&matching.length!==1)invalid++;
+    if(item.accepted===false&&matching.length!==0)invalid++;
+  }
+  const taggedLedger=ledger.filter(x=>
+    Number.isSafeInteger(x.actorPolicyDecisionOrdinal));
+  if(taggedLedger.length!==accepted.length)invalid++;
+  const complete=invalid===0&&Number.isSafeInteger(selected)&&
+    Number.isSafeInteger(dispatched)&&receipts.length===dispatched&&
+    selected===dispatched;
+  return {
+    status:complete?'COMPLETE_ACTION_IDENTITY_JOIN':
+      'INCOMPLETE_OR_INVALID_ACTION_IDENTITY_JOIN',
+    complete,selected,dispatched,retainedReceipts:receipts.length,
+    accepted:accepted.length,ledgerTaggedActions:taggedLedger.length,
+    mismatches:invalid,physicalToolConfirmations:receipts.filter(x=>
+      x.accepted===true&&x.kind==='attach-tool-candidate'&&
+      x.nativePhysicalEffect==='confirmed-public-effect').length,
+    sourceToolConfirmations:receipts.filter(x=>
+      x.seat===1&&x.accepted===true&&
+      x.kind==='attach-tool-candidate'&&
+      x.nativePhysicalEffect==='confirmed-public-effect').length
+  };
+}
+
 /** Summarize every physical arm without deleting its underlying raw record. */
 function compactArm(row,condition){
   const root=sourceRootAudit(row);
   const chosen=root?.sameRootProposalChoice??null;
+  const nativeActionJoin=nativeActorJoinCoverage(row);
   const actions=Array.isArray(row.rootActionLedger)?row.rootActionLedger:[];
   const initialSourceActions=actions.filter(a=>a.playerSlot===1).slice(0,12);
   const originalMuscleBand=actions.filter(a=>a.playerSlot===1&&
@@ -62,6 +123,7 @@ function compactArm(row,condition){
     a.action!=='ResolvePromptAction')??null:null;
   return {
     trial:row.trial?.id??null,condition,sourceSeat:1,candidateSeat:0,
+    nativeActionJoin,
     status:row.status??(row.finished===true?'engine-terminal':
       row.finished===false?'censored':'unknown'),
     sourceDeckFingerprint:row.sourceDeckFingerprint??null,
@@ -177,4 +239,4 @@ if(require.main===module)
   process.stdout.write(JSON.stringify(runNativeComparison(),null,2)+'\n');
 
 module.exports={VERSION,readRegistration,sourceRootAudit,compactArm,
-  summarize,runNativeComparison};
+  nativeActorJoinCoverage,summarize,runNativeComparison};
