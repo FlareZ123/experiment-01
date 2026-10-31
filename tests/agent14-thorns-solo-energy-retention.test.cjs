@@ -53,7 +53,7 @@ function fixture(){
 
 test('actual actor root retains DCE when voluntarily preserving no Bench',()=>{
   const view=fixture();
-  assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v1');
+  assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v2-hand-funded');
   assert.equal(holdSoloThornsBench(view,catalog),true);
   assert.equal(chooseActorRootIntent(view,catalog,{
     thornsDirectLine:true
@@ -61,6 +61,50 @@ test('actual actor root retains DCE when voluntarily preserving no Bench',()=>{
   assert.deepEqual(chooseActorRootIntent(view,catalog,{
     thornsDirectLine:true,thornsSoloEnergyRetention:true
   }),{kind:'attack',attackName:'Volt Cyclone'});
+});
+
+test('held Thunder and DCE allow a complete source-turn solo attack before auto-Bench',()=>{
+  const view=fixture();
+  view.ownPublic.active.energies=[];
+  view.ownPublic.stadium=[];
+  view.ownHand=[THORNS,DCE,'Thunder Mountain Prism Star LOT'];
+  view.ownTurnResources.specialEnergyPlayLocked=false;
+  assert.equal(holdSoloThornsBench(view,catalog),true);
+  assert.equal(chooseActorRootIntent(view,catalog,{thornsDirectLine:true}).kind,
+    'bench-basic','baseline still benches the spare Thorns before setup');
+  const options={thornsDirectLine:true,thornsSoloEnergyRetention:true};
+  assert.deepEqual(chooseActorRootIntent(view,catalog,options),{
+    kind:'play-thunder-mountain',handIndex:2,
+    printing:'Thunder Mountain Prism Star LOT'
+  });
+  view.ownHand.pop();
+  view.ownPublic.stadium=['Thunder Mountain Prism Star LOT'];
+  assert.deepEqual(chooseActorRootIntent(view,catalog,options),{
+    kind:'attach-dce',handIndex:1,printing:DCE
+  });
+  view.ownHand.splice(1,1);
+  view.ownPublic.active.energies=[DCE];
+  view.ownTurnResources.energyPlayedTurn=view.globalTurn;
+  assert.deepEqual(chooseActorRootIntent(view,catalog,options),{
+    kind:'attack',attackName:'Volt Cyclone'
+  });
+  assert.ok(view.ownPublic.bench.every(x=>x===null));
+});
+
+test('only genuinely currently attachable held Special Energy enables hand-funded hold',()=>{
+  const view=fixture();
+  view.ownPublic.active.energies=[];
+  view.ownPublic.stadium=[];
+  view.ownHand=[THORNS,DCE,'Thunder Mountain Prism Star LOT'];
+  view.ownTurnResources.specialEnergyPlayLocked=false;
+  view.ownTurnResources.energyPlayedTurn=2;
+  assert.equal(holdSoloThornsBench(view,catalog),false);
+  view.ownTurnResources.energyPlayedTurn=0;
+  view.ownTurnResources.stadiumPlayedTurn=2;
+  assert.equal(holdSoloThornsBench(view,catalog),false);
+  view.ownTurnResources.stadiumPlayedTurn=0;
+  view.ownTurnResources.stadiumPlayLocked=true;
+  assert.equal(holdSoloThornsBench(view,catalog),false);
 });
 
 test('no Thunder, no attacking Energy, or existing Bench leaves default admission unchanged',()=>{
