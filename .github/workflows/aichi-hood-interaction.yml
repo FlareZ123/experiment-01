@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_original_firstturn_boxshake:
+        description: 'Execute native first-own-turn Box to Shake on exact original rank8 source seed selected after K0 witness (research development only)'
+        type: boolean
+        default: false
       agent44_rank8_firstturn_source_scout:
         description: 'Read-only original rank8 first-turn genuine Store source-state scout for later separate synthetic mechanics test'
         type: boolean
@@ -228,6 +232,20 @@ jobs:
       - name: Test authenticated Secret Box owner-K1 category prompt selector
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --test tests/agent44-secretbox-owner-prompt.test.cjs
+      - name: Validate original rank8 first-own-turn Box Shake scripted owner action semantics
+        if: inputs.agent44_rank8_original_firstturn_boxshake
+        run: node --check simulation/twinleaf/agent44-rank8-original-firstturn-boxshake.cjs
+      - name: Exercise genuine first-own-turn Shake evolution on unchanged original rank8 physical deal
+        if: inputs.agent44_rank8_original_firstturn_boxshake
+        run: node simulation/twinleaf/agent44-rank8-original-firstturn-boxshake.cjs > agent44-rank8-original-firstturn-boxshake.json
+      - name: Archive original source first-own-turn native outcome and any failed witness
+        if: always() && inputs.agent44_rank8_original_firstturn_boxshake
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-rank8-original-firstturn-boxshake
+          path: agent44-rank8-original-firstturn-boxshake.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Scout original rank8 genuine first source turn without policy interference
         if: inputs.agent44_rank8_firstturn_source_scout
         run: node simulation/twinleaf/agent44-rank8-firstturn-source-scout.cjs > agent44-rank8-firstturn-scout.json
