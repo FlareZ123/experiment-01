@@ -53,6 +53,8 @@ function compactArm(row,condition){
     (a.card==='Muscle Band'||String(a.card).startsWith('Muscle Band ')));
   const nativeToolActions=(root?.nativeRootAcceptances??[]).filter(a=>
     a.seat===1&&a.kind==='attach-tool-candidate');
+  const firstSourceActorRoot=(root?.nativeRootAcceptances??[])
+    .find(a=>a.seat===1)??null;
   const firstActualSourceRoot=actions.find(a=>
     a.playerSlot===1&&a.action!=='ResolvePromptAction')??null;
   const followingOpponentRoot=firstActualSourceRoot?actions.find(a=>
@@ -76,6 +78,13 @@ function compactArm(row,condition){
     firstChangedDecision:chosen?.changedSamples?.[0]??null,
     nativeToolSelectedDispatches:nativeToolActions,
     nativeToolAcceptedCount:nativeToolActions.filter(a=>a.accepted===true).length,
+    nativeToolPhysicalConfirmedCount:nativeToolActions.filter(a=>
+      a.accepted===true&&
+      a.nativePhysicalEffect==='confirmed-public-effect').length,
+    sourceFirstActorPublicRootDigest:
+      firstSourceActorRoot?.before?.publicZonesSha256??null,
+    sourceFirstActorHandCount:
+      firstSourceActorRoot?.before?.handCounts?.[1]??null,
     immediateOpponentContinuation:followingOpponentRoot,
     opponentRootObserved:followingOpponentRoot!==null,
     error:row.error??null,
@@ -116,6 +125,15 @@ function summarize(results,plan){
         x.sourceDealFingerprint===cohort[0].sourceDealFingerprint),
       conditions:cohort.map(x=>x.condition),
       toolAccepted:cohort.map(x=>x.nativeToolAcceptedCount),
+      toolPhysicallyConfirmed:cohort.map(x=>x.nativeToolPhysicalConfirmedCount),
+      sameFirstActorSourcePublicRoot:(()=>{
+        const both=cohort.filter(x=>x.condition!=='native-bot');
+        const hashes=both.map(x=>x.sourceFirstActorPublicRootDigest);
+        const hands=both.map(x=>x.sourceFirstActorHandCount);
+        return hashes.length===2&&hashes.every(x=>
+          typeof x==='string'&&x.length===64&&x===hashes[0])&&
+          hands.every(x=>Number.isSafeInteger(x)&&x===hands[0]);
+      })(),
       realOpponentContinuations:cohort.map(x=>x.opponentRootObserved)
     }];
   }));
@@ -126,6 +144,8 @@ function summarize(results,plan){
     sourceRoleSeat:1,independentPhysicalSeeds:1,pairedCandidateArms:2,
     measuredArms:arms.length,byCandidate,arms,
     nativeToolAcceptedTotal:arms.reduce((n,r)=>n+r.nativeToolAcceptedCount,0),
+    nativeToolPhysicalConfirmedTotal:arms.reduce((n,r)=>
+      n+r.nativeToolPhysicalConfirmedCount,0),
     competitiveQualifiedGames:0,
     caveat:'Post-observed seed and two repeated candidate comparisons, not independent field samples. Unqualified bot, effects and paper clock. A physical tool offer, selected intent and native Store accepted action have different evidence strengths.'
   };
