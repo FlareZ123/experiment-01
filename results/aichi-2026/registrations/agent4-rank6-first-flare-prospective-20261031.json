@@ -1,0 +1,63 @@
+{
+  "schema": "agent4-original-rank6-first-eligible-flare-vs-plumeria-frozen-frame-v1",
+  "registeredUtc": "2026-10-31T18:58:00.260Z",
+  "purpose": "Fresh, before implementing generalized first-eligible Flare fork, rank6 original source game-level policy efficacy pilot. Same original source/candidate 60s and physical deals in control/treatment, count all failed and capped outcomes.",
+  "provenance": "Prior agent41 2026-10-29 registration supplies exact originally authenticated source/candidate 60s and all common policy correction flags. This is a NEW CSPRNG frame; no result-driven seed selection.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "originalAgent41FrameGitBlob": "8c54d8497f9927b04d501237462f64a42173d33d",
+  "priorNewMoon60GitBlob": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+  "sourceRanks": [
+    6
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeats": 4,
+  "randomization": "Eight unique 32-bit unsigned seeds drawn with Python secrets.SystemRandom().sample(range(2**32),8) on 31 October before modifying existing exact-turn fork.",
+  "seeds": {
+    "6": {
+      "A": [
+        2235343544,
+        3087212458,
+        2948093052,
+        324574212
+      ],
+      "B": [
+        1027619256,
+        1398036456,
+        921720305,
+        2202468671
+      ]
+    }
+  },
+  "scheduledOriginalGameArms": 16,
+  "scheduledCausalArms": 32,
+  "originalSourceFirstDealsExpected": 8,
+  "actionCap": 260,
+  "originalSourceSeatRule": "sourceSeat = candidateSlot==='A' ? 1 : 0; exact original source rank6 unchanged",
+  "control": "Original canonical actor composition with Plumeria after Pass; Team Flare alternative not selected.",
+  "treatment": "On FIRST live source-owned original native Plumeria-after-Pass proposal, with held Team Flare Grunt XY, both original printed canPlay true and opponent public Active >=2 attached Energy cards, substitute original Team Flare Grunt PlayCardAction once. Preserve Plumeria for later turns; settle all native prompt choices. No candidate-identity or seed-dependent choice.",
+  "matchDesign": "Same frozen source and candidate 60s, same seed, candidate seat and actual full physical initial deal in control/treatment. Compare first real native Store accepted root divergence, any later source Plumeria and opponent reply. Four seeds each candidate seat, two candidate decks per source first-deal.",
+  "preRegisteredOutputs": [
+    "all scheduled arms and first-deal full physical fingerprints",
+    "first replacement opportunity and native canPlay eligibility",
+    "native accepted Flare and original Plumeria prompt receipts",
+    "first accepted action difference and next opposing owner turn",
+    "source future Plumeria reuse and opponent Energy discard/attack counts",
+    "native errors and 260-action caps",
+    "same physical deal, prefix and source/candidate deck identity",
+    "distinct original source first-deal clusters"
+  ],
+  "provisionalHypothesis": "Replacing Plumeria with Flare at an otherwise-Plumeria source Pass rescue will preserve Plumeria for a later Supporter turn and can increase total opposing Energy denial across two turns; strategic superiority and tournament win rate unproved.",
+  "limits": "Rank6-only source developmental experiment, generic bot and unqualified opponent policy, no paper clock or competitive game inference, no posthoc seed substitution.",
+  "expectedQualification": {
+    "competitiveQualifiedGames": 0,
+    "winRateCertified": false
+  }
+}
