@@ -13,6 +13,12 @@ Two genuinely different conditional plans become available, with identical later
 
 Each staged sequence respects the **one-donor per Pump** restriction, never takes a sixth opposing Prize, spends one Dowsing, consumes a two-card hand payment, stays within five Bench slots, and leaves one opposing Prize before a conditional 280 Crisis Punch against a sole unprotected 80HP Frillish. The source's Tapu Koko is sent to Lost Zone before the finishing attack. The two hand payments are explicitly **assumed accessible**, illustrated by distinct Trainers' Mail A and B. This assumption is strategically costly and may be false in an authentic dealt hand. The paper state model is deliberately simplified; none of these steps is a new native Store action transcript.
 
+## The additional real-hand burden
+
+The original 21-step donor witness needs **14 distinct physical source cards** to be in the original starting Active or accessible through hand play by the attack turn, excluding the two Basic Lightning that Battle Compressor searches from the deck. The particular two-egg/two-Pump Dowsing variant needs **16**, counting the Dowsing singleton and its **two separately held Trainers' Mail payment cards**; the one-egg/four-Pump variant needs **17**. With only seven starting cards and one ordinary first-turn draw, even perfect placement of every one of those eight slots still requires at least **8** or **9** additional card acquisitions, respectively, before the alternate line can complete. The original strict witness minimum was six extra.
+
+This is a **line-specific lower bound**, given the named hand-payment choices and perfect opening arrangement, and is further complicated by search costs and draw timing. It does not establish that any such turn-one sequence is actually findable. Dowsing increases a permissive Prize survival event while simultaneously consuming an ACE SPEC, an action window, and two other physical hand cards, potentially making practical AMR much worse.
+
 ## Exact disjoint six-Prize calculation
 
 Hold the singleton source Bunnelby outside Prizes by requiring it in the original seven. Random six-Prize subsets then come from the other 59 copies, denominator **C(59,6)=45,057,474**. Use the existing exact-integer grouped-card DP in [agent3-rank26-donk-prize-witness-upper.cjs](../../scripts/agent3-rank26-donk-prize-witness-upper.cjs), requiring all other original 21-step physical groups to survive their minimums. Partition favorable six-Prize subsets into genuinely **disjoint** cases:
