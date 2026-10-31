@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {registeredFrame,contrast}=
+const {registeredFrame,groupRegisteredTrials,contrast}=
   require('../scripts/agent4-prospective-first-flare-rank6.cjs');
 
 test('31 October prospectively frozen eight real source seeds and paired lists',()=>{
@@ -10,6 +10,7 @@ test('31 October prospectively frozen eight real source seeds and paired lists',
   assert.equal(frame.scheduledOriginalGameArms,16);
   assert.equal(frame.scheduledCausalArms,32);
   assert.equal(trials.length,16);
+  assert.equal(groupRegisteredTrials(trials).length,8);
   const seeds=new Set(trials.map(x=>x.seed));
   assert.equal(seeds.size,8);
   assert.deepEqual(new Set(trials.map(x=>x.rank)),new Set([6]));
