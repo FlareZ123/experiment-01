@@ -22,10 +22,18 @@ The [new per-arm receipt regression](../../tests/agent4-original32-contest-evide
 
 The existing **manual-only** Iron Thorns smoke workflow [run 41231072304](https://github.com/FlareZ123/experiment-01/actions/runs/41231072304) passed all checks and both regression groups at checkout `9ba9e51b124e1b125d9818af2e4c4ee42eeb45f4`. No push-triggered CI or new workflow was added.
 
-A full native 32-arm original Store remeasurement was dispatched under the same frozen 29 October game frame and pinned Twinleaf revision (run [41231104244](https://github.com/FlareZ123/experiment-01/actions/runs/41231104244)); its outcome is tracked separately pending observed completion, and must be checked before claiming the refreshed original-game witness evidence.
+The **full native original 32-arm remeasurement passed** in [Actions run 41231104244](https://github.com/FlareZ123/experiment-01/actions/runs/41231104244) at checkout `9ba9e51b124e1b125d9818af2e4c4ee42eeb45f4`, with the same frozen 29 October experiment and pinned engine. The source32 artifact [`13053852454`](https://github.com/FlareZ123/experiment-01/actions/runs/41231104244/artifacts/13053852454), downloaded and independently SHA256-verified as `da894a0fa21c409f9ddb5d36b8171e44abb200b38fab2a1a2e0caba43be51efb`, contains all original 32 rows. It preserves exactly the prior 340 rank-6 and 485 rank-11 audited source owner roots, 169/148 rank-6 coheld/native-positive roots, 0 rank-11 positives. Ten source arms show `positiveWitnessStatus:captured`; the other 22 show `no-native-positive-root`, and **zero** have a counted native-positive root with a missing first witness.
 
 ## Research boundary
 
 The old **169 coheld, 148 native-positive rank-6 root counts**, 0 rank-11 positives, and nine distinct rank-6 source-opening fingerprints remain *prior original control evidence*. The correction changes reporting fidelity, with no policy-selection intervention, candidate 60 change or newly qualified game. The benchmark is still **29/32** authenticated exact opposing 60s (ranks 23,25,28 unresolved), **zero competitively qualified games**, and no supported 99.5% fixed-60 win-rate result.
 
 The next release step is to align every captured native-positive witness to the original accepted-action ledger and prove at least one consequential, physically settled *alternative* policy choice with the opponent's next real response, under per-root physical-card conservation and adequate source policy.
+
+
+### Two independent-checker counterexamples recovered from the native archive
+
+- `6:3:A:champion-reference`: actual original source seat **1**, 30 coheld root windows and 22 native-positive windows. Earliest independent positive witness: **global turn18, owner's observed root ordinal25**, original chosen action **PassTurnAction**. The attached opponent Active had one publicly visible Energy; the held Plumeria payment had 234 physical pairs, 36 consuming a held Team Flare, 198 preserving it. Both `sourceExamplesMayBeTruncated` and `positiveExamplesMayBeTruncated` now read **true**.
+- `6:3:A:new-moon-lockbreaker-v1`: source seat **1**, 32 coheld and 19 native-positive roots. Earliest witness: **global turn26, owner's observed root ordinal33**, original chosen action **PlayCardAction Iron Thorns ex TWM**. The opposing Active again held one Energy; Plumeria had 360 payment pairs, 45 consuming Flare, 315 preserving it. Both truncation flags read **true**.
+
+The root ordinals are the monitor's original actor-observation decoder ordinals, **not** certified matching global Store-root ledger ordinals; no unchosen Supporter was dispatched in this observational run. A separate subsequent regression adds the original chosen action's genuine Store dispatch-acceptance receipt, but that post-run code is not part of this archived initial v3 native file. All 148 observed native-positive root windows remain correlated and unqualified.
