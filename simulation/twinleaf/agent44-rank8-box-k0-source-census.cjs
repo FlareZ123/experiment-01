@@ -195,7 +195,7 @@ function run({startIndex=0,count=COUNT}={}){
         }});
     }
   }
-  const count=field=>trials.filter(row=>
+  const countFlag=field=>trials.filter(row=>
     row.sourceK0?.offeredWindow?.[field]===true).length;
   return {
     schema:VERSION,
@@ -230,10 +230,10 @@ function run({startIndex=0,count=COUNT}={}){
           t.sourceK0?.ownerHandPrintings.length===size).length]))
     },
     exposed:{
-      boxFetchShakeK0:count('boxFetchShake'),
-      boxHeldShakeK0:count('boxHeldShake'),
-      directShakeK0:count('directShake'),
-      anyK0Window:count('anyK0Window')
+      boxFetchShakeK0:countFlag('boxFetchShake'),
+      boxHeldShakeK0:countFlag('boxHeldShake'),
+      directShakeK0:countFlag('directShake'),
+      anyK0Window:countFlag('anyK0Window')
     },
     failedTrials:trials.filter(t=>t.error).length,
     noOpControlsPassed:trials.filter(t=>t.noOpFullDecisionTraceParity).length,
