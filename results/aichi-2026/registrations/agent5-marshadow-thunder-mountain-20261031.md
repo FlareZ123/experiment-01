@@ -20,3 +20,14 @@ This is a staged mechanics counterfactual, **not** evidence of access, matchup p
 ## Pre-result printed Prism Star correction
 
 **31 October 2026 ~04:17 UTC, before examining the native result.** The supplied `sm8-191` English Thunder Mountain Prism Star card explicitly states that if a Prism Star card would be discarded, **put it in the Lost Zone instead**. The original preregistration's word "discard" denotes use of Marshadow's Stadium-removal effect, **not the destination zone**. For a paper-faithful positive require **Thunder Mountain LOT in the original owner of the Stadium's public Lost Zone**, absent from Stadium and ordinary discard; Marshadow UNB itself moves to its owner's discard. Keep a wrong-zone native outcome as a fidelity failure instead of counting the Stadium as successfully removed. The amendment is logged before inspecting any engine result.
+
+## Companion source Stadium matrix preregistration
+
+**31 October 2026 ~04:22 UTC, before implementing or running the companion native matrix.** The exact original source corpus also contains **Path to the Peak CRE 148** (ranks 5,9,12,15,20,21,27; 8 physical copies) and **Silent Lab PRC 140** (ranks 9,13,15,32; 5 physical copies).
+
+In an otherwise unchanged owner Bench Marshadow UNB state, with ordinary opponent Active Pidgey (to isolate a Stadium's own Basic Ability effect), predict:
+- Against **Path to the Peak**, Resetting Hole *can* be used and removes the Stadium, because that Stadium suppresses Rule Box Pokémon Abilities and Marshadow UNB has no Rule Box.
+- Against **Silent Lab**, Resetting Hole *cannot* remove Silent Lab while that Stadium is active, because Silent Lab turns off Basic Pokémon Abilities, including Marshadow's. A native rejection, no effect, or unresolved legality contradiction must be recorded distinctly from the Path success; no hand-selected fallback or Stadium substitution is allowed in this test.
+- In a final no-Stadium negative, the Ability cannot legally discard a nonexistent Stadium.
+
+Use matching true Store staged roots, two physical seats, actual `UseAbilityAction`, unmodified rule text, and only nondiscretionary prompt settlement. Record exact opponent Stadium destination, owner Marshadow destination, native errors, and whether the root remains ongoing. If the engine omits an Ability lock, call it a **fidelity gap** and keep the raw outcome. These tests still do not establish rank1-vs-rank9 play outcomes or field win rates. The event register and card text, not a generic name-level Standard assumption, determine the scenario.
