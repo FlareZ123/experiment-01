@@ -935,6 +935,7 @@ function runDevelopment({
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   sameRootPassAttackProbeGlobalTurn=null,
+  sameRootPublicNoBenchTerminal=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -962,6 +963,8 @@ function runDevelopment({
     'All-proposer census is observation-only');
   assert.ok(!sameRootPublicEventReceipt||sameRootProposalChoice,
     'Public events require owner same-root observation');
+  assert.ok(!sameRootPublicNoBenchTerminal||sameRootProposalChoice,
+    'Public terminal Knock Out screen requires owner same-root observation');
   assert.ok(sameRootPassAttackProbeGlobalTurn==null||
     (sameRootProposalChoice&&
       Number.isSafeInteger(sameRootPassAttackProbeGlobalTurn)&&
@@ -1073,7 +1076,8 @@ function runDevelopment({
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,
-                sameRootPassAttackProbeGlobalTurn
+                sameRootPassAttackProbeGlobalTurn,
+                publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1243,6 +1247,8 @@ function runDevelopment({
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootPassAttackProbeGlobalTurn:sameRootProposalChoice?
       sameRootPassAttackProbeGlobalTurn:null,
+    sameRootPublicNoBenchTerminalOptIn:sameRootProposalChoice&&
+      sameRootPublicNoBenchTerminal,
     sameRootPublicEventReceiptOptIn:
       sameRootProposalChoice&&sameRootPublicEventReceipt,
     // Root diagnostics live beneath the composed actor's component audits.
@@ -1398,7 +1404,9 @@ if(require.main===module){
       process.env.AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV==='true',
     sameRootPassAttackProbeGlobalTurn:
       process.env.AGENT7_PASS_ATTACK_PROBE_TURN?
-        Number(process.env.AGENT7_PASS_ATTACK_PROBE_TURN):null
+        Number(process.env.AGENT7_PASS_ATTACK_PROBE_TURN):null,
+    sameRootPublicNoBenchTerminal:
+      process.env.AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
