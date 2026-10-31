@@ -23,6 +23,10 @@ on:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
         default: false
+      agent4_prospective_first_flare_rank6:
+        description: 'New preregistered 16-pair rank6 source first-valid Team Flare versus Plumeria causal pilot'
+        type: boolean
+        default: false
       agent4_original_native_denial_fork_probe:
         description: 'Bounded original rank6 turn15 native Plumeria versus Flare causal fork on prior-frozen physical deal'
         type: boolean
@@ -49,7 +53,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_original_native_denial_fork_probe && !inputs.agent4_source32_contest_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_original_native_denial_fork_probe && !inputs.agent4_source32_contest_probe && !inputs.agent4_prospective_first_flare_rank6 && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -535,3 +539,43 @@ jobs:
             agent4-native-denial-physical-gate.json
           if-no-files-found: warn
           retention-days: 21
+
+  agent4-prospective-rank6-first-flare:
+    if: ${{ inputs.agent4_prospective_first_flare_rank6 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact upstream pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Check preregistered frozen frame and pure paired-source evidence gates
+        run: |
+          node --check scripts/agent4-prospective-first-flare-rank6.cjs
+          node --check simulation/twinleaf/agent4-live-source-flare-vs-plumeria-fork.cjs
+          node --test tests/agent4-prospective-first-flare-rank6.test.cjs
+      - name: Install pinned original native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Validate prior printed Plumeria and Team Flare native effects
+        run: node --test tests/agent4-plumeria-pinned-native.test.cjs tests/agent8-team-flare-grunt-pinned-native.test.cjs
+      - name: Replay all 16 new registered source physical pairs under two fixed policies
+        run: node scripts/agent4-prospective-first-flare-rank6.cjs > agent4-prospective-rank6-first-flare.json
+      - name: Report every native-accepted source opportunity and every error or action cap
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent4-prospective-rank6-first-flare.json');a.equal(x.pairs.length,16);a.equal(x.summary.attempts,32);a.equal(x.summary.competitiveQualifiedGames,0);console.log('AGENT4_FRESH_RANK6_FIRST_FLARE',JSON.stringify(x.summary));console.log('AGENT4_FRESH_RANK6_PAIRS',JSON.stringify(x.pairs.map(p=>({id:p.id,seat:p.sourceSeat,same:p.samePhysicalStart,accepted:p.prospectiveFlareAudit?.acceptedFlareForks,energy:p.prospectiveFlareAudit?.settledFlareEnergyRemovals,first:p.firstDifferenceIndex,causal:p.firstCausalContrast,ctrl:p.controlStatus,flr:p.treatmentStatus,controlError:Boolean(p.errors.control),treatedError:Boolean(p.errors.treatment)}))));"
+      - name: Preserve every new preregistered source original game including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-preregistered-rank6-source-first-flare-vs-plumeria
+          path: agent4-prospective-rank6-first-flare.json
+          if-no-files-found: warn
+          retention-days: 30
