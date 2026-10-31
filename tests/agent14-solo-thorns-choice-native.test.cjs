@@ -115,12 +115,41 @@ test('native public Shred threat chooses backup Bench on both physical seats',()
     assert.equal(x.owner.active.energies.cards.length,0);
     assert.deepEqual(x.owner.bench[0].energies.cards.map(c=>c.fullName),
       ['Double Colorless Energy SUM']);
+    // Opponent has already paid for Shred in the public current board.
+    // Resolve the genuine next-turn reply, including the only legal backup
+    // promotion after the originally damaged Active gets Knocked Out.
+    assert.equal(x.state.activePlayer,1-seat);
+    x.store.dispatch(new AttackAction(x.opponent.id,'Shred'));
+    const replyPrompts=[];
+    for(let k=0;k<20;k++){
+      const prompt=x.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      replyPrompts.push(prompt.constructor.name);
+      const result=prompt.constructor.name==='WaitPrompt'?null:
+        prompt.constructor.name==='ChoosePokemonPrompt'?
+          [x.owner.bench[0]]:undefined;
+      assert.notEqual(result,undefined,
+        'Unexpected native KO continuation '+prompt.constructor.name);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,result));
+    }
+    assert.equal(x.store.hasPrompts(),false);
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,
+      'Iron Thorns ex TWM','Backup Thorns must physically become the new Active');
+    assert.deepEqual(x.owner.active.energies.cards.map(c=>c.fullName),
+      ['Double Colorless Energy SUM']);
+    assert.equal(x.state.activePlayer,seat,
+      'Native retaliatory Shred must return turn to protected owner');
+    assert.equal(x.state.phase,2);
+    const followup=chooseActorRootIntent(
+      actorObservation(x.state,seat),x.catalog,{thornsDirectLine:true});
+    assert.deepEqual(followup,{kind:'attack',attackName:'Volt Cyclone'});
     process.stdout.write('# AGENT14_NATIVE_DEFENSIVE_BASELINE '+
       JSON.stringify({seat,chosen:'bench-basic',
         publicLethalReply:'Dialga-GX Shred',nativeBenchAccepted:true,
         energyOnBenchedBackup:true,attackDamage:140,
         afterTurn:x.state.turn,afterActiveSeat:x.state.activePlayer,
-        afterPhase:x.state.phase,prompted,
+        afterPhase:x.state.phase,prompted,replyPrompts,
+        nativePromotedBackupWithDce:true,ownerNextRoot:'Volt Cyclone',
         competitiveQualified:false})+'\\n');
   }
 });
