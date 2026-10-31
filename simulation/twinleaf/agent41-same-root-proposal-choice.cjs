@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v21-grouped-denial-root-denominators';
+const VERSION='agent41-same-root-proposal-choice-v22-typed-native-tool-bridge-optin';
 const MAX_SAMPLES=48;
 
 /**
@@ -17,11 +17,12 @@ const MAX_SAMPLES=48;
 const PROPOSERS=Object.freeze([
   // Owner-visible Tool attachment upper-bound, read-only by construction.
   // Individual printed restrictions are not natively checked at this stage.
-  {name:'owner-tool',flag:'sameRootProbeAll',
-    propose:(view,catalog)=>catalog.toolPrintings instanceof Set?
+  {name:'owner-tool',flag:'nativeToolAttachRoot',
+    propose:(view,catalog,options)=>catalog.toolPrintings instanceof Set?
       require('./agent18-actor-tool-candidate-frontier.cjs')
         .enumerateActorToolCandidates(view,catalog.toolPrintings)
-        .map(intent=>({...intent,nativeDispatchImplemented:false})):[]},
+        .map(intent=>({...intent,
+          nativeDispatchImplemented:options.nativeToolAttachRoot===true})):[]},
   // Group physical discard payments by the held Plumeria rather than
   // multiplying each payment pair by every opposing public Energy target.
   // This is an observation-only challenger to Team Flare Grunt's zero-card
@@ -318,6 +319,24 @@ function scoreOffer(view,baseline,offer,options){
      offer.source==='immediate-special'&&
      offer.intent.kind==='attach-special-energy')
     return {score:20,reason:'fund-visible-immediate-attack'};
+  // Restricted opt-in Tool continuation. Physical Tool/recipient encoding is
+  // provided by Agent18's validated native action builder; the original
+  // pinned Store still validates acceptance and effect resolution. Restrict
+  // automatic scoring to a readably relevant known recipient following Pass.
+  // This is a developmental action-value hypothesis, not general Tool play.
+  if(options.nativeToolAttachRoot===true&&
+     baseline.kind==='pass'&&offer.source==='owner-tool'&&
+     offer.intent.kind==='attach-tool-candidate'){
+    const target=offer.intent.slot==='bench'?
+      view.ownPublic?.bench?.[offer.intent.index]:
+      view.ownPublic?.active;
+    if(offer.intent.printing==='Stealthy Hood UNB'&&
+       target?.name==='Vileplume')
+      return {score:5,reason:'experimental-vileplume-stealthy-hood-after-pass'};
+    if(offer.intent.printing==='Muscle Band XY'&&
+       target?.attacks?.some(a=>Number.isSafeInteger(a.damage)&&a.damage>0))
+      return {score:4,reason:'experimental-muscle-band-printed-attack-after-pass'};
+  }
   // A tempting denial must not displace a potentially terminal attack.
   // Three remaining Prizes may still be taken by a printed three-Prize KO.
   // Without a visible opponent backup, any Active KO could end the game.
