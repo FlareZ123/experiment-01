@@ -90,6 +90,10 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
     attemptedExchangePaths:0,successfulExchangePaths:0,
     failedExchangePaths:0,
     exhaustiveExchangePathCoverage:selected.exhaustive,
+    eligibleDistinctOpponentHandCompositions:swapSize===1?
+      selected.eligibleDistinctHandCompositions:null,
+    testedDistinctOpponentHandCompositions:swapSize===1?
+      selected.testedDistinctHandCompositions:null,
     eligibleSingleExchanges:swapSize===1?selected.available:null,
     attemptedSingleExchanges:swapSize===1?0:null,
     successfulSingleExchanges:swapSize===1?0:null,
