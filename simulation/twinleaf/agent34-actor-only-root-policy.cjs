@@ -7,6 +7,38 @@ const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
 const VERSION='agent34-actor-only-root-slice-v6-native-coheld-denial-observer';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
+/**
+ * Shared policy-to-headless provenance channel, keyed by the identical typed
+ * native action object. It never mutates a Store action or copies hidden
+ * cards. The headless loop binds its own action ordinal before dispatch.
+ */
+const actorNativeActionMetadata=new WeakMap();
+
+/** @param {object} action @returns {object|null} */
+function actorNativeActionReceipt(action){
+  return action&&typeof action==='object'?
+    actorNativeActionMetadata.get(action)??null:null;
+}
+
+/**
+ * The headless loop supplies the real Store-clock ordinal, which is distinct
+ * from the actor chooser's policy clock. A replaced or generic bot action has
+ * no tag and cannot be confused with an actor proposal.
+ * @param {object} action
+ * @param {number} storeOrdinal
+ * @param {0|1} seat
+ * @returns {object|null}
+ */
+function bindActorNativeStoreOrdinal(action,storeOrdinal,seat){
+  const tagged=actorNativeActionReceipt(action);
+  if(!tagged)return null;
+  assert.ok(Number.isSafeInteger(storeOrdinal)&&storeOrdinal>=0);
+  assert.equal(seat,tagged.seat);
+  const bound=Object.freeze({...tagged,nativeStoreActionOrdinal:storeOrdinal});
+  actorNativeActionMetadata.set(action,bound);
+  return bound;
+}
+
 
 /**
  * Read only publicly exposed native Store zones before or after dispatch.
@@ -576,6 +608,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
+    losslessNativeRootJoinOptIn:deps.losslessNativeRootJoin===true,
     registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
     sameRootPublicNoBenchTerminalOptIn:deps.publicNoBenchTerminalAttack===true,
@@ -610,6 +643,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     },
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
+    ...(deps.losslessNativeRootJoin===true?{
+      nativeRootJoinReceipts:[],nativeRootJoinTruncated:false}:{}),
     publicTransitionWitnesses:0,publicTransitionChanges:0,
     nativePhysicalConfirmed:0,nativePhysicalUnconfirmed:0,
     nativePhysicalConfirmedByIntent:{},nativePhysicalUnconfirmedByIntent:{},
@@ -1076,8 +1111,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }
     audit.selectedRootDecisions++;
+    if(audit.losslessNativeRootJoinOptIn)actorNativeActionMetadata.set(action,
+      Object.freeze({seat,policyDecisionOrdinal:audit.selectedRootDecisions}));
     typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind,
-      ...((audit.terminalArbitrationOptIn||audit.sameRootProposalChoiceOptIn)?{
+      ...((audit.losslessNativeRootJoinOptIn||
+          audit.terminalArbitrationOptIn||audit.sameRootProposalChoiceOptIn)?{
         policyDecisionOrdinal:audit.selectedRootDecisions}:{}),
       intent:{...intent,benchSlot:intent.benchIndex}});
     audit.typedIntentCounts[intent.kind]=(audit.typedIntentCounts[intent.kind]??0)+1;
@@ -1190,6 +1228,17 @@ function withActorOnlyRootPolicy(run,deps={}){
           before.activePlayer!==after.activePlayer||
           before.phase!==after.phase);
       audit.acceptedActorRoots++;
+      if(audit.losslessNativeRootJoinOptIn){
+        const bound=actorNativeActionReceipt(action);
+        audit.nativeRootJoinReceipts.push({
+          seat:choice.seat,globalTurn:choice.globalTurn,
+          policyDecisionOrdinal:choice.policyDecisionOrdinal,
+          nativeStoreActionOrdinal:bound?.nativeStoreActionOrdinal??null,
+          kind:choice.kind,accepted:true,nativePhysicalEffect:physical,
+          publicTransitionWitnessed:witnessed,publicZonesChanged,
+          turnOrPhaseChanged
+        });
+      }
       if(witnessed)audit.publicTransitionWitnesses++;
       if(publicZonesChanged||turnOrPhaseChanged)audit.publicTransitionChanges++;
       if(audit.nativeRootAcceptances.length<64)
@@ -1200,6 +1249,17 @@ function withActorOnlyRootPolicy(run,deps={}){
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
+      if(audit.losslessNativeRootJoinOptIn){
+        const bound=actorNativeActionReceipt(action);
+        audit.nativeRootJoinReceipts.push({
+          seat:choice.seat,globalTurn:choice.globalTurn,
+          policyDecisionOrdinal:choice.policyDecisionOrdinal,
+          nativeStoreActionOrdinal:bound?.nativeStoreActionOrdinal??null,
+          kind:choice.kind,accepted:false,
+          errorDigest:createHash('sha256').update(String(error))
+            .digest('hex')
+        });
+      }
       if(audit.nativeRootAcceptances.length<64)
         audit.nativeRootAcceptances.push({...choice,accepted:false,error:String(error)});
       throw error;
@@ -1216,4 +1276,5 @@ function withActorOnlyRootPolicy(run,deps={}){
   }
 }
 module.exports={VERSION,buildActorCardCatalog,chooseActorRootIntent,
-  actorSpecialEnergyEnabled,publicDispatchState,withActorOnlyRootPolicy};
+  actorSpecialEnergyEnabled,publicDispatchState,withActorOnlyRootPolicy,
+  actorNativeActionReceipt,bindActorNativeStoreOrdinal};
