@@ -76,6 +76,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress independent same-root offers without synthetic-hold denominator inflation
+        run: node --test tests/agent7-same-root-independent-opportunity.test.cjs
       - name: Regress exact printed native card/Ability registry without false effect claims
         run: node --test tests/agent24-ace-nullifier-native-coverage.test.cjs
       - name: Verify 29-source Basic-printed mulligan bonus lift for pre-turn Spiritomb denial
