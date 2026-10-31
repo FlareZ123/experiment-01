@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {registeredFrame,groupRegisteredTrials,contrast}=
+const {registeredFrame,groupRegisteredTrials,sourcePlumeriaTurnReceipt,contrast}=
   require('../scripts/agent4-prospective-first-flare-rank6.cjs');
 
 test('31 October prospectively frozen eight real source seeds and paired lists',()=>{
@@ -87,4 +87,31 @@ test('changed initial source physical deal rejects seemingly matching chosen Sup
   const c=contrast(control,treatment);
   assert.equal(c.samePhysicalStart,false);
   assert.equal(c.firstCausalContrast,false);
+});
+
+
+test('original Store physical payment plus Energy settlement certifies second denial',()=>{
+  const native={physicallyAcceptedOwnerPayments:[{seat:0,turn:6,
+    acceptedByOriginalStore:true,payment:[
+      {handIndex:2,printing:'Crushing Hammer POR'},
+      {handIndex:5,printing:'Lusamine CIN'}]}],
+    log:[{kind:'plumeria-energy-settlement',seat:0,turn:6,
+      accepted:true,printing:'Psychic Energy MEE',
+      sourceHandDiscardCount:2}]};
+  const wrapped={actorOnlyDecisionCoverage:{detailedComponentAudits:{
+    ownerPlumeriaAfterPass:native}}};
+  const good=sourcePlumeriaTurnReceipt(wrapped,0,6);
+  assert.equal(good.fullySettled,true);
+  assert.equal(good.payment.payment.length,2);
+  assert.equal(sourcePlumeriaTurnReceipt(wrapped,1,6).fullySettled,false);
+  assert.equal(sourcePlumeriaTurnReceipt(wrapped,0,7).fullySettled,false);
+  const bad={actorOnlyDecisionCoverage:{detailedComponentAudits:{
+    ownerPlumeriaAfterPass:{...native,log:[]}}}};
+  assert.equal(sourcePlumeriaTurnReceipt(bad,0,6).fullySettled,false);
+});
+
+test('later printed Plumeria action alone cannot establish physical second denial',()=>{
+  const pair=makePair();
+  const r=contrast(pair.control,pair.treatment);
+  assert.equal(r.secondOpposingEnergyDenialConfirmed,false);
 });
