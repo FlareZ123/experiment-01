@@ -27,7 +27,16 @@ function sensitiveBot(){
       {type:'USE_ABILITY_ACTION',name:'Perfection'}:{type:'PASS_TURN'}};
 }
 
-const dependencies={fingerprint:state=>structuredClone(state)};
+const dependencies={
+  fingerprint:state=>structuredClone(state),
+  actorView:(state,seat)=>({
+    turn:state.turn,activePlayer:state.activePlayer,
+    hand:state.players[seat].hand.cards.map(x=>x.fullName),
+    ownDeckCount:state.players[seat].deck.cards.length,
+    opponentHandCount:state.players[1-seat].hand.cards.length,
+    opponentDeckCount:state.players[1-seat].deck.cards.length
+  })
+};
 
 test('bounded cross-kind enumeration covers an invisible second decisive exchange',()=>{
   const game=state(),before=structuredClone(game);
@@ -105,6 +114,18 @@ test('bracketed original world fails closed on drifting shared bot state',()=>{
     driftingBot,structuredClone,()=>()=>0.5,
     {...dependencies,limit:1}),/Repeated original hidden world/);
   assert.deepEqual(game,before);
+});
+
+test('counterfactual is rejected if actor-observable public count differs',()=>{
+  const source=state();
+  const newView=(s,seat)=>({
+    ...dependencies.actorView(s,seat),
+    opponentHiddenIdentity:s.players[1-seat].hand.cards[0]?.fullName
+  });
+  assert.throws(()=>scanBoundedOpponentHiddenWorlds(
+    source,101,sensitiveBot,structuredClone,()=>()=>0.5,
+    {...dependencies,actorView:newView,limit:1}),
+  /Concealed swap changed the owner-visible observation/);
 });
 
 test('reject shallow live aliases before exchanging physical hidden cards',()=>{
