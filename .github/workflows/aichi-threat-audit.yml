@@ -33,5 +33,7 @@ jobs:
         run: node --test tests/agent25-dhelmise-t1-physical-opportunity.test.cjs
       - name: Verify original-source discard Ability locks and two Dhelmise donor variants
         run: node --test tests/agent25-dhelmise-hns-discard-lock.test.cjs
+      - name: Verify opt-in HNS discard lock helper with independent reduced-case tests
+        run: node --test tests/agent25-hns-discard-ability-lock-hook.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
