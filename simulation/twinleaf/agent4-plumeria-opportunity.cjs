@@ -184,7 +184,8 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
         audit.bySeat[seat].bothNativePlayableRoots++;
       }
       if(audit.contestedOwnerSamples.length<MAX_EXAMPLES)
-        audit.contestedOwnerSamples.push({game,seat,turn:state.turn,
+        audit.contestedOwnerSamples.push({game,ownerRootOrdinal:audit.actualOwnerRoots,
+          seat,turn:state.turn,
           paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
           plumeriaPairsConsumingFlare:
             contest.plumeriaPaymentPairsConsumingFlare,
