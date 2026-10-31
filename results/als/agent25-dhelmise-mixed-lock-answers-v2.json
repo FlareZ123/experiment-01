@@ -2,7 +2,7 @@
   "version": "agent25-dhelmise-mixed-lock-answers-v2",
   "date": "2026-10-31",
   "researchScope": "Paper Expanded Black & White onward, English release as of 2026-10-31; historical May 2026 Aichi field frozen as opponents",
-  "status": "exploratory fixed 60: carries two Field Blower plus Jamming Tower to contest tool-activated Garbotoxin; zero original native games; unqualified benchmark",
+  "status": "exploratory exact 60 with 2 Field Blower and 1 Faba providing distinct Item/Supporter tool-removal routes; zero competitive games",
   "counts": {
     "pokemon": 20,
     "trainer": 30,
@@ -139,8 +139,8 @@
     {
       "category": "Trainer",
       "count": 1,
-      "id": "sv6-153",
-      "name": "Jamming Tower"
+      "id": "sm8-173",
+      "name": "Faba"
     },
     {
       "category": "Trainer",
@@ -161,5 +161,5 @@
       "name": "Basic Psychic Energy"
     }
   ],
-  "strategy": "Development challenger retaining 4 Banette/2 Shuppet/2 Sinistcha HNS discard donors, four Dhelmise one-Prize attackers, Psychic Telepathic Energy, and Lillie's Clefairy ex Dragon Weakness. 2 Field Blower and 1 Jamming Tower address Tool-required Garbotoxin (if original paper legal, available and not Item/Stadium locked); no full game acceptance, Prize clock, lock-complete AI or win evidence."
+  "strategy": "4 Banette/2 Shuppet/2 Sinistcha HNS donors, four Dhelmise, Telepathic Psychic Energy and Lillie's Clefairy ex. 2 Field Blower can discard Tools, and Faba can Lost Zone an opposing Tool or Special Energy as a Supporter. Jamming Tower deliberately excluded: it switches off Tool effects but cannot disable Garbotoxin, whose condition checks whether any Tool remains attached. All actual root choices, paper legality, payout and game strength remain unverified."
 }
