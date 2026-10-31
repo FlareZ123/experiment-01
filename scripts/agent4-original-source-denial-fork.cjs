@@ -45,12 +45,21 @@ function runFixedDenialFork(mode){
       return selected;
     };
   }
+  const captureKey='AGENT4_NATIVE_PAYMENT_RECEIPT_DEV';
+  const priorCapture=process.env[captureKey];
+  process.env[captureKey]='true';
+  const physicalGate=process.env.AGENT4_PHYSICAL_ZONE_GATE_DEV==='true';
   let report;
   try{
     report=runDevelopment({...plan.frozenRunOptions,
+      physicalZoneGate:physicalGate,
       registeredTrials:selected,registeredFrameName:FRAME,
       actorPlumeriaAfterPass:true});
-  }finally{module.withOwnerPlumeriaAfterPass=original;}
+  }finally{
+    module.withOwnerPlumeriaAfterPass=original;
+    if(priorCapture===undefined)delete process.env[captureKey];
+    else process.env[captureKey]=priorCapture;
+  }
   assert.equal(report.attempted,2);
   assert.equal(report.rows.length,2);
   assert.equal(report.enginePin,plan.enginePin);
@@ -58,6 +67,7 @@ function runFixedDenialFork(mode){
   assert.equal(report.competitiveQualifiedGames,0);
   for(const row of report.rows){
     assert.equal(row.qualifiesForCompetitiveInference,false);
+    if(physicalGate)continue;
     assert.equal(row.verifiedFirstTurn,true);
     assert.equal(row.sourceSeat,1);
     assert.equal(row.sourceDeckFingerprint,
@@ -68,7 +78,9 @@ function runFixedDenialFork(mode){
   return {version:VERSION,mode,frame:FRAME,frameGitBlob:gitBlob,
     sourceSeat:1,sourceTurn:15,sourceTrial:SOURCE,
     selectedPreviousNativePlumeriaRequiresNativeFlareCanPlay:true,
-    settledPhysicalConservationUnverified:true,
+    nativeOriginalOwnerPaymentPrintingsCaptured:true,
+    failClosedPhysicalZoneGateOptIn:physicalGate,
+    settledPhysicalConservationUnverified:!physicalGate,
     policyAndOpponentContinuationDevelopmentOnly:true,
     competitiveQualifiedGames:0,report};
 }
