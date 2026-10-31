@@ -22,13 +22,18 @@ const PRINTING='Team Flare Grunt XY';
  *
  * @template T
  * @param {()=>T} execute Original Store continuation.
- * @param {{seat:0|1,turn:number}} target Exact frozen source owner.
+ * @param {{seat:0|1,turn:number|null,minimumActiveEnergy?:number}} target
+ *   Exact source owner; null turn selects the first eligible native root.
  * @returns {{result:T,audit:object}}
  */
 function withOriginalSourceFlareFork(execute,target) {
   assert.equal(typeof execute,'function');
   assert.ok(target.seat===0||target.seat===1);
-  assert.ok(Number.isSafeInteger(target.turn)&&target.turn>=2);
+  assert.ok(target.turn===null||
+    (Number.isSafeInteger(target.turn)&&target.turn>=2));
+  const minimumActiveEnergy=target.minimumActiveEnergy??1;
+  assert.ok(Number.isSafeInteger(minimumActiveEnergy)&&
+    minimumActiveEnergy>=1&&minimumActiveEnergy<=10);
   const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
   const {SimpleTacticsAi}=require(path.join(base,
     'simple-bot/simple-tactics-ai'));
@@ -46,6 +51,7 @@ function withOriginalSourceFlareFork(execute,target) {
   let liveStore=null,chain=null;
   const proposals=new WeakMap();
   const audit={version:VERSION,seat:target.seat,turn:target.turn,
+    minimumActiveEnergy,firstEligibleTurn:null,
     actualStores:0,sameRootNativeContests:0,
     originalPlumeriaProposalsAtTarget:0,selectedFlareForks:0,
     acceptedFlareForks:0,acceptedEnergyPrompts:0,
@@ -60,7 +66,7 @@ function withOriginalSourceFlareFork(execute,target) {
       return chosen;
     const seat=state.players.findIndex(p=>p.id===this.client?.id);
     if(seat!==target.seat||state.activePlayer!==seat||
-       state.turn!==target.turn)return chosen;
+       (target.turn!==null&&state.turn!==target.turn))return chosen;
     const owner=state.players[seat],pending=state.prompts?.find(p=>p.result===undefined);
     if(pending){
       if(!chain||chain.seat!==seat||
@@ -85,8 +91,10 @@ function withOriginalSourceFlareFork(execute,target) {
        original.canPlay(liveStore,state,owner)!==true||
        flare.canPlay(liveStore,state,owner)!==true)return chosen;
     const active=state.players[1-seat].active;
-    if(!active.energies.cards.length)return chosen;
+    if(active.energies.cards.length<minimumActiveEnergy)return chosen;
     audit.sameRootNativeContests++;
+    if(audit.firstEligibleTurn===null)
+      audit.firstEligibleTurn=state.turn;
     // A single exact source root is the only causal intervention.
     if(audit.selectedFlareForks>0)return chosen;
     const action=new PlayCardAction(owner.id,alternate.handIndex,{
