@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v4-optional-energy-frontier-printed-gx';
+const VERSION='agent34-actor-only-root-slice-v5-optional-typed-tool-dispatch';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
@@ -570,6 +570,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       .newOwnerContentionAudit(),
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
+    nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
+      (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
     sameRootPublicNoBenchTerminalOptIn:deps.publicNoBenchTerminalAttack===true,
     sameRootPositiveAttackOverPassOptIn:deps.positiveAttackOverPass===true,
@@ -638,6 +640,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   }else{
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
+    delete audit.nativeToolAttachRootOptIn;
     delete audit.sameRootPassAttackProbeGlobalTurn;
     delete audit.sameRootPublicNoBenchTerminalOptIn;
     delete audit.sameRootPositiveAttackOverPassOptIn;
@@ -893,6 +896,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
+      nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
       publicNoBenchTerminalAttack:audit.sameRootPublicNoBenchTerminalOptIn===true,
       positivePrintedAttackPassPreference:audit.sameRootPositiveAttackOverPassOptIn===true,
@@ -975,6 +979,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'attach-emergency-floatstone':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+        break;
+      case 'attach-tool-candidate':
+        action=require('./agent18-native-tool-play-action.cjs')
+          .buildNativeOwnerToolCandidateAction(
+            view,catalog,intent,ownerId,
+            {PlayCardAction,PlayerType,SlotType});
         break;
       case 'equip-powerglass':
         action=new PlayCardAction(ownerId,intent.handIndex,{
