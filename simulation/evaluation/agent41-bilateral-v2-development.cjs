@@ -933,7 +933,7 @@ function runDevelopment({
   bilateralPublicContextSpecialEnergy=false,
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
-  sameRootProbeAll=false,
+  sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -959,6 +959,8 @@ function runDevelopment({
     'All-proposer census requires an enabled same-root observer');
   assert.ok(!sameRootProbeAll||!sameRootChoiceApply,
     'All-proposer census is observation-only');
+  assert.ok(!sameRootPublicEventReceipt||sameRootProposalChoice,
+    'Public events require owner same-root observation');
   assert.ok(!(bilateralPublicContextSpecialEnergy&&
       (bilateralSpecialEnergyRoot||sourceScopedSpecialEnergyRoot||
       candidateScopedSpecialEnergyRoot)),
@@ -1063,7 +1065,8 @@ function runDevelopment({
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
-                sameRootChoiceApply,sameRootProbeAll
+                sameRootChoiceApply,sameRootProbeAll,
+                sameRootPublicEventReceipt
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1231,6 +1234,8 @@ function runDevelopment({
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
+    sameRootPublicEventReceiptOptIn:
+      sameRootProposalChoice&&sameRootPublicEventReceipt,
     sameRootProposalAuditedArms:rows.filter(row=>
       row.actorOnlyDecisionCoverage?.sameRootProposalChoice).length,
     sameRootChangedRoots:rows.reduce((n,row)=>n+
@@ -1374,7 +1379,9 @@ if(require.main===module){
     sameRootChoiceApply:
       process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true',
     sameRootProbeAll:
-      process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true'
+      process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true',
+    sameRootPublicEventReceipt:
+      process.env.AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
