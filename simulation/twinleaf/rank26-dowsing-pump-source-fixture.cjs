@@ -72,16 +72,30 @@ function playDowsing(f){
     assert.equal(pending.playerId,own.id,'Dowsing prompts owned by source');
     let cards;
     let intended;
-    if(pending.cards===own.hand){
-      cards=own.hand.cards.filter(card=>card.name==="Trainers' Mail").slice(0,2);
+    const pool=Array.isArray(pending.cards)?pending.cards:
+      (pending.cards?.cards??[]);
+    const eligible=card=>pool.some(candidate=>candidate.id===card.id);
+    const mailPayment=own.hand.cards.filter(card=>
+      card.name==="Trainers' Mail"&&eligible(card));
+    if(mailPayment.length>=2){
+      cards=mailPayment.slice(0,2);
       intended='discard-two-own-hand-cards';
-      assert.equal(cards.length,2);
-    }else if(pending.cards===own.discard){
-      cards=[own.discard.cards.find(card=>card.id===pumpBefore.id)];
+    }else if(eligible(pumpBefore) &&
+      own.discard.cards.some(card=>card.id===pumpBefore.id)){
+      cards=[pumpBefore];
       intended='recover-physical-discarded-Pump';
-      assert.equal(cards[0]?.name,'Damage Pump');
     }else{
-      throw Error('Unrecognized native Dowsing prompt '+pending.constructor.name);
+      throw Error('Unrecognized native Dowsing prompt: '+JSON.stringify({
+        type:pending.constructor.name,
+        poolClass:pending.cards?.constructor?.name,
+        poolSize:pool.length,
+        poolNames:pool.slice(0,8).map(c=>c.name),
+        promptKeys:Object.keys(pending),
+        ownerMailCount:own.hand.cards.filter(c=>
+          c.name==="Trainers' Mail").length,
+        discardPumpCount:own.discard.cards.filter(c=>
+          c.name==='Damage Pump').length
+      }));
     }
     assert.equal(pending.validate(cards,f.state),true,
       'Dowsing real Store rejected requested '+intended);
