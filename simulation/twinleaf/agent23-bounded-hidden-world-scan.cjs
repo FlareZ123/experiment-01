@@ -117,7 +117,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   const baseline=evaluate(detachedWorld());
   const cases=[];
   for(const proposal of selected.exchanges){
-    const world=cloneState(source);
+    const world=detachedWorld();
     const opponent=world.players.find(p=>p.id!==actorId);
     assert.deepEqual(hiddenZoneFingerprint(opponent),originalPool,
       'Detached world must start with the original physical hidden inventory');
