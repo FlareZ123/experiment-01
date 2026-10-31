@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {runPreregisteredPlumeria,FRAME}=
   require('../simulation/evaluation/agent38-plumeria-preregistered-32.cjs');
 
-const VERSION='agent4-original32-owner-plumeria-flare-pass-choice-census-v2';
+const VERSION='agent4-original32-owner-plumeria-flare-pass-choice-census-v3';
 
 /**
  * All 32 PREVIOUSLY registered original Store games, without changing the
@@ -54,7 +54,11 @@ function runSourceOriginal32ContestCensus(){
         sourceDealFingerprint:row.sourceDealFingerprint??null,
         status:row.status??null,ownerAuditStatus:'missing-or-error',
         anyNativeContest:false,contestRoots:0,sourceOwnerRoots:null,
-        sourceFirstOwnerTurns:null,sourceExamples:[]};
+        sourceFirstOwnerTurns:null,sourceExamples:[],positiveExamples:[],
+        firstNativePositiveSourceWitness:null,
+        sourceExamplesMayBeTruncated:null,
+        positiveExamplesMayBeTruncated:null,
+        positiveWitnessStatus:'source-audit-missing'};
     }
     assert.ok(audit.passive&&audit.competitiveQualified===false);
     assert.match(audit.version,/^agent4-plumeria-native-owner-opportunity-v2/);
@@ -75,9 +79,18 @@ function runSourceOriginal32ContestCensus(){
       stats.sourceGamesWithBothNativePlayablePass++;
     const examples=audit.contestedOwnerSamples.filter(
       sample=>sample.seat===sourceSeat).slice(0,8);
-    const positiveExamples=audit.contestedOwnerSamples.filter(
-      sample=>sample.seat===sourceSeat&&
-        sample.paperScreenedBothPlayable).slice(0,8);
+    // Independent native-positive root capture cannot be starved by the
+    // previous global first-128 contested sample window.
+    const positiveExamples=(s.positiveContestSamples??[]).slice(0,8);
+    const firstNativePositiveSourceWitness=
+      s.earliestNativePositiveContest??null;
+    const sourceExamplesMayBeTruncated=s.bothHeldRoots>examples.length;
+    const positiveExamplesMayBeTruncated=
+      s.bothNativePlayableRoots>positiveExamples.length;
+    const positiveWitnessStatus=s.bothNativePlayableRoots===0?
+      'no-native-positive-root':
+      (firstNativePositiveSourceWitness&&positiveExamples.length>0?
+        'captured':'POSITIVE_WITNESS_MISSING');
     const passExamples=audit.bothPlayablePassSamples.filter(
       sample=>sample.seat===sourceSeat).slice(0,8);
     return {
@@ -95,7 +108,9 @@ function runSourceOriginal32ContestCensus(){
       bothNativePlayableSourceFirstTurnPassRoots:
         s.firstTurnBothPlayablePassRoots,
       auditSamplesMayBeTruncated:
-        audit.contestedOwnerRoots>audit.contestedOwnerSamples.length,
+        sourceExamplesMayBeTruncated||positiveExamplesMayBeTruncated,
+      sourceExamplesMayBeTruncated,positiveExamplesMayBeTruncated,
+      positiveWitnessStatus,firstNativePositiveSourceWitness,
       sourceExamples:examples,
       positiveExamples,passExamples
     };
@@ -111,7 +126,7 @@ function runSourceOriginal32ContestCensus(){
     sameRootNativeDispatchCounterfactual:false,
     fullPhysicalCardConservationUnverified:true,
     gameWinRateQualified:false,competitiveQualifiedGames:0,
-    sampleLimits:'At most 8 contested, 8 positive, 8 positive Pass samples per arm; original underlying audit caps 128 samples per kind.',
+    sampleLimits:'Source examples: first 128 global contested, then 8 per arm. Positive examples: separate first 8 per seat, independent of global contested cap. Pass examples: first 128 global then 8 per arm. Each arm includes independent earliest native-positive witness and truncation flags.',
     byRank,rows};
 }
 
