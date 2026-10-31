@@ -84,6 +84,12 @@ function runRanks(ranks,registration,schema){
           'Shared same-root owner Tool proposer must expose actual native-positive original Tool target');
         assert.equal(matchingSameRootTools[0].nativeDispatchImplemented,false,
           'A proposed original Tool target remains observation-only');
+        assert.equal(sourceOpponentRoot.nativeStoreToolActionEncodingEquivalent,true,
+          'Detached owner-native Tool action constructor must match actual Store-positive bot action');
+        assert.deepStrictEqual(sourceOpponentRoot.nativeStoreToolActionEncodingTarget,{
+          slot:nativeTarget.slot,index:nativeTarget.index,
+          printing:expected,handIndex:sourceOpponentRoot.nativeBotProposedHandIndex
+        });
       }
       Object.assign(entry,{
         status:'native-source-K0-both-owner-roots-passed',
@@ -103,6 +109,10 @@ function runRanks(ranks,registration,schema){
             row.nativeStoreFirstActionCardLeftHand,
           nativeStoreFirstActionAttachedToolTarget:
             row.nativeStoreFirstActionAttachedToolTarget,
+          nativeStoreToolActionEncodingEquivalent:
+            row.nativeStoreToolActionEncodingEquivalent,
+          nativeStoreToolActionEncodingTarget:
+            row.nativeStoreToolActionEncodingTarget,
           ownerToolCandidates:row.ownerToolCandidates,
           nativeStoreFirstActionPublicBefore:
             row.nativeStoreFirstActionPublicBefore,
