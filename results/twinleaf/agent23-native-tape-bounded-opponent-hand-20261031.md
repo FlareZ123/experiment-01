@@ -51,6 +51,37 @@ exhaustions and **0** selected-action reversals across these 64 worlds.
 None of the four source-root tests exhausted the set of eligible single
 exchanges; **544 eligible one-exchange states were not run**.
 
+## Follow-up: unique concealed-hand composition coverage
+
+After the above run, a revised deterministic selector prioritized **different
+(outgoing printing, incoming printing)** composition changes before
+physically different index assignments of the same printing pair. Different
+physical swaps can produce an identical opponent concealed-hand printing
+multiset while changing other concealed deck positions. The updated
+counts distinguish those two kinds of coverage.
+
+[Manual native CI 41159438016](https://github.com/FlareZ123/experiment-01/actions/runs/41159438016)
+completed successfully with all 18/18 targeted pure native regressions
+and four unchanged authentic source-game playbacks. The archive
+`agent50-live-deck-order-historical-fourarm` (artifact `13025949016`)
+retains the exact per-root count and comparison receipts:
+
+| Original development root | Eligible physical single paths | Distinct resulting opponent hand print multisets | Tested distinct hand print multisets | Action reversals |
+| --- | ---: | ---: | ---: | ---: |
+| Rank 6, champion A | 170 | 109 | 16 | 0 |
+| Rank 6, New Moon A | 170 | 109 | 16 | 0 |
+| Rank 11, champion B | 109 | 64 | 16 | 0 |
+| Rank 11, New Moon B | 159 | 69 | 16 | 0 |
+| **Total across four historical roots** | **608** | **351** | **64** | **0** |
+
+All 64 alternate worlds passed the same exact native RNG-tape replay,
+original action, owner-observation, physical inventory and source-State
+conservation gates, with zero rejections. The remaining 287 distinct
+one-card hand compositions were not tested. Other possibilities include
+changes to the hidden deck ordering that retain the same opponent hand
+printings and simultaneous multi-card changes. This is still a
+retrospective conditional diagnostic and gives no information-set
+certification or competitive game evidence.
 ## Interpretation
 
 This is a demonstrated **negative conditional action-sensitivity result**
