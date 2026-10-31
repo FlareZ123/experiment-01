@@ -167,3 +167,20 @@ test('unprobed actions cannot masquerade as native canPlay negatives',()=>{
   assert.equal(complete.arms[0].positiveWitnessCoverage,
     'PROBED_NO_NATIVE_POSITIVE');
 });
+
+test('native probe completeness is choice-level within one physical root',()=>{
+  const a={kind:'attack',structurallyOffered:true,nativeCanPlay:false};
+  const b={kind:'play-held-guzma-mobility',structurallyOffered:true};
+  const receipt=decisionOpportunityReceipt([row('a1',1,owner(),[a,b])]);
+  assert.equal(receipt.rootsWithOffers,1);
+  assert.equal(receipt.nativeProbedWindows,1);
+  assert.equal(receipt.arms[0].nativeProbedRoots,1);
+  assert.equal(receipt.arms[0].structuralOfferRoots,1);
+  assert.equal(receipt.arms[0].structuralOfferedChoices,2);
+  assert.equal(receipt.arms[0].nativeProbedChoices,1);
+  assert.equal(receipt.arms[0].positiveWitnessCoverage,
+    'PARTIAL_NATIVE_PROBE_NO_POSITIVE');
+  assert.throws(()=>decisionOpportunityReceipt([
+    row('a1',1,owner(),[{kind:'pass',nativeCanPlay:false}])
+  ]),/Native canPlay positive requires a structural offer/);
+});
