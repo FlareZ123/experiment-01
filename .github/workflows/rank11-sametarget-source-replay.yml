@@ -178,7 +178,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate canonical Plumeria precedence and paired census
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-large-hand.test.cjs tests/agent38-plumeria-large-hand-compare.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-large-hand.test.cjs tests/agent38-plumeria-large-hand-compare.test.cjs tests/agent4-plumeria-payment-menu.test.cjs tests/agent4-supporter-energy-denial-contest.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
