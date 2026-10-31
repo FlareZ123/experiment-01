@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v12-preterminal-speed-observer';
+const VERSION='agent41-same-root-proposal-choice-v13-ko-event-supporter-options';
 const MAX_SAMPLES=48;
 
 /**
@@ -79,6 +79,19 @@ const PROPOSERS=Object.freeze([
       return evidence?{...evidence.intent,reason:evidence.reason,
         potentialDrawCap:evidence.potentialDrawCap,
         plannedAttackName:evidence.attackName}:null;
+    }},
+  {name:'prior-ko-conditional-supporters',flag:'sameRootPublicEventReceipt',
+    propose:(view,catalog)=>{
+      if(!view.publicEventReceipt)return null;
+      const rows=require('./agent8-ko-supporter-options.cjs')
+        .previousTurnResponseOptions(view,view.publicEventReceipt,
+          name=>catalog.basicEnergies?.has(name)===true);
+      return rows.map(row=>({
+        ...row,kind:row.printing==='Raihan EVS'?
+          'play-raihan-ko-response':'play-teammates-ko-response',
+        reason:'public-prior-opponent-turn-KO',
+        nativeDispatchImplemented:false
+      }));
     }}
 ]);
 
@@ -89,7 +102,8 @@ const SUPPORTER_KINDS=new Set([
   'play-lowhand-lillie','play-conservative-shuffle-supporter',
   'play-team-flare-grunt-denial','play-stranded-marnie',
   'play-held-guzma-mobility','play-seeker-recovered-lillie',
-  'play-carmine-first'
+  'play-carmine-first','play-raihan-ko-response',
+  'play-teammates-ko-response'
 ]);
 const SEARCH_KINDS=new Set([
   'play-quick-ball','play-mysterious-treasure',
@@ -194,6 +208,8 @@ function duplicateProposal(a,b){
  * recorded but not promoted without a stronger policy model.
  */
 function scoreOffer(view,baseline,offer){
+  if(offer.intent.nativeDispatchImplemented===false)
+    return {score:-1000,reason:'native-dispatch-not-wired-observe-only'};
   if(offer.source==='first-return')return {score:0,reason:'control-baseline'};
   if(offer.intent.kind==='pass')return {
     score:-100,reason:'preserve-nonterminal-opportunity'};
@@ -288,6 +304,9 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       printedDamage:o.intent.printedDamage??null,
       plannedAttackName:o.intent.plannedAttackName??null,
       potentialDrawCap:o.intent.potentialDrawCap??null,
+      searchMaximum:o.intent.searchMaximum??null,
+      attachBasicFromDiscard:o.intent.attachBasicFromDiscard===true,
+      nativeDispatchImplemented:o.intent.nativeDispatchImplemented!==false,
       slot:o.intent.slot??(o.intent.kind==='bench-basic'?'bench':null),
       index:o.intent.index??o.intent.benchIndex??null,
       score:o.score,reason:o.reason,
