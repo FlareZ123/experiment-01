@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v10-physical-attachment-alternatives';
+const VERSION='agent41-same-root-proposal-choice-v11-paper-opening-supporter-filter';
 const MAX_SAMPLES=48;
 
 /**
@@ -137,6 +137,10 @@ function structurallySupported(view,proposal){
     ))return false;
   }
   if(SUPPORTER_KINDS.has(proposal.kind)){
+    // Paper opening turn: an ordinary Supporter cannot be played by the
+    // first player. Carmine explicitly permits this exceptional first turn.
+    // The full native card validator still has final authority.
+    if(view.globalTurn===1&&proposal.kind!=='play-carmine-first')return false;
     const r=view.ownTurnResources;
     if(r?.supporterPlayedTurn!==0||r?.supporterPlayLocked===true||
        view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
