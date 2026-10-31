@@ -41,6 +41,19 @@ function compareOriginalDenialFork(control,fork){
       ?.ownerPlumeriaAfterPass?.agent4PhysicalFlareFork??null;
     assert.ok(proof,'No opt-in original Store physical fork audit');
     assert.equal(proof.competitiveQualified,false);
+    const payment=a.actorOnlyDecisionCoverage?.detailedComponentAudits
+      ?.ownerPlumeriaAfterPass?.physicallyAcceptedOwnerPayments?.find(p=>
+        p.seat===1&&p.turn===15);
+    assert.ok(payment&&payment.acceptedByOriginalStore,
+      'Original Plumeria must physically settle its two-card payment');
+    assert.equal(payment.payment.length,2);
+    assert.equal(new Set(payment.payment.map(p=>p.handIndex)).size,2);
+    const originalObservedHand=proof.costedOwnerObservation?.ownerHand??[];
+    for(const paid of payment.payment){
+      assert.ok(paid.handIndex>=0);
+      assert.equal(originalObservedHand[paid.handIndex],paid.printing);
+    }
+
     if(n>=0){
       assert.equal(old.turnBefore,15);
       assert.equal(newer.turnBefore,15);
@@ -66,6 +79,9 @@ function compareOriginalDenialFork(control,fork){
       actionPrefixPreserved:n<0?previous.length:n,
       originalAction:old,flareAction:newer,
       nativeFork:proof,
+      originalPlumeriaPhysicalPayment:payment.payment,
+      originalPaymentConsumedHeldFlare:payment.payment.some(p=>
+        p.printing==='Team Flare Grunt XY'),
       nextOpposingOwnerRoot:nextOpponent,
       unchangedPhysicalStart:a.fullPhysicalDealFingerprint,
       sourceDeckIdentity:a.sourceDeckFingerprint,
