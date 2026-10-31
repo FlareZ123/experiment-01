@@ -43,12 +43,19 @@ for(const seat of [0,1]){
     assert.equal(x.owner.hand.cards.length,3);
     assert.equal(x.owner.marker.hasMarker('UNDERWORLD_DOOR_MARKER',vmax0),true);
     assert.equal(x.owner.marker.hasMarker('UNDERWORLD_DOOR_MARKER',vmax1),false);
-    let error=null;
-    try{x.store.dispatch(new UseAbilityAction(x.owner.id,'Underworld Door',target(1)));}
-    catch(e){error=e.message;}
-    assert.equal(error,'POWER_ALREADY_USED');
+    x.store.dispatch(new UseAbilityAction(x.owner.id,'Underworld Door',target(1)));
+    const second=x.state.prompts.find(q=>q.result===undefined);
+    assert.equal(second?.constructor.name,'AttachEnergyPrompt');
+    const another=x.owner.hand.cards.find(c=>c.name==='Psychic Energy');
+    const answer=[{card:another,to:target(1)}];
+    assert.equal(second.validate(answer),true);
+    x.store.dispatch(new ResolvePromptAction(second.id,answer));
+    assert.equal(x.owner.bench[1].energies.cards.length,1);
+    assert.equal(x.owner.hand.cards.length,4);
+    assert.equal(x.owner.marker.hasMarker('UNDERWORLD_DOOR_MARKER',vmax1),true);
     console.log('AGENT8_PINNED_MULTI_DOOR',JSON.stringify({seat,
-      firstAttached:true,firstDrewTwo:true,secondError:error,
-      competitiveQualifiedGames:0}));
+      firstAttached:true,firstDrewTwo:true,
+      secondAttached:true,secondDrewTwo:true,
+      distinctSourceMarkers:true,competitiveQualifiedGames:0}));
   });
 }
