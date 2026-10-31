@@ -421,3 +421,29 @@ test('single-actor Special Energy treatment maps candidate and source oppositely
   assert.throws(()=>scopedSpecialEnergyActorSeat('candidate','C'),
     {name:'AssertionError'});
 });
+
+test('generic original source ranks have no fabricated rank6/11 source-line packet',()=>{
+  const root=[{actionOrdinal:1,turnBefore:2,playerSlot:1,
+    action:'PlayCardAction',card:'Muscle Band'}];
+  const out=firstPostSourceDecision(root,21,null,0);
+  assert.deepEqual(out,{
+    root:null,status:'source-line-not-applicable-to-rank',sourceTurn:null
+  });
+  assert.equal(sourceLineReplyPacket({rootActionLedger:root},21,null,1),null);
+});
+
+test('canonical bilateral Tool apply fails closed without shared active selector',()=>{
+  const {runDevelopment}=require(
+    '../simulation/evaluation/agent41-bilateral-v2-development.cjs');
+  const invalid=[
+    {nativeToolAttachRoot:true},
+    {actorOnlyComposition:true,nativeToolAttachRoot:true},
+    {actorOnlyComposition:true,sameRootProposalChoice:true,
+      nativeToolAttachRoot:true},
+    {actorOnlyComposition:true,sameRootProposalChoice:true,
+      sameRootChoiceApply:true,sameRootProbeAll:true,nativeToolAttachRoot:true}
+  ];
+  for(const flags of invalid){
+    assert.throws(()=>runDevelopment(flags),/Native Tool selection requires/);
+  }
+});
