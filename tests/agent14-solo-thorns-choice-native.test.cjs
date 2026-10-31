@@ -12,8 +12,8 @@ const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p */
 const native=p=>require(path.join(output,p));
 
-/** @param {0|1} seat @returns {object} Native original-printing Store. */
-function staged(seat){
+/** @param {0|1} seat @param {boolean} [lethalReply] @returns {object} Native original-printing Store. */
+function staged(seat,lethalReply=false){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -36,6 +36,14 @@ function staged(seat){
   owner.hand.cards.push(card('Iron Thorns ex TWM'));
   owner.stadium.cards.push(card('Thunder Mountain Prism Star LOT'));
   opponent.active.cards.push(card('Dialga-GX UPR'));
+  if(lethalReply){
+    owner.active.damage=170;
+    for(let i=0;i<3;i++){
+      const metal=card('Metal Energy SVE');
+      opponent.active.cards.push(metal);
+      opponent.active.energies.cards.push(metal);
+    }
+  }
   for(const p of [owner,opponent]){
     for(let i=0;i<5;i++)p.bench.push(new PokemonCardList());
     for(let i=0;i<10;i++)p.deck.cards.push(card('Psychic Energy SVE'));
@@ -61,9 +69,35 @@ function staged(seat){
     thornsSoloEnergyRetention:true,thornsDirectLine:true});
   assert.deepEqual(receipt?.alternatives.map(x=>x.intent.kind),
     ['bench-basic','attack']);
-  assert.deepEqual(receipt.chosen,{kind:'attack',attackName:'Volt Cyclone'});
+  assert.deepEqual(receipt.chosen,
+    fixture.owner.active.damage>=170?
+      {kind:'bench-basic',handIndex:0,benchIndex:0,
+        printing:'Iron Thorns ex TWM'}:
+      {kind:'attack',attackName:'Volt Cyclone'});
   return {store,state,owner,opponent,seat,receipt};
 }
+
+test('native public Shred threat chooses backup Bench on both physical seats',()=>{
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  for(const seat of [0,1]){
+    const x=staged(seat,true);
+    assert.equal(x.receipt.chosenIndex,0);
+    assert.equal(x.receipt.rejectedIndex,1);
+    assert.equal(x.receipt.visibleLethalReply.attackName,'Shred');
+    assert.equal(x.receipt.visibleLethalReply.printedDamage,80);
+    assert.equal(x.receipt.visibleLethalReply.ownRemainingHp,60);
+    x.store.dispatch(new PlayCardAction(x.owner.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0}));
+    assert.equal(x.owner.hand.cards.length,0);
+    assert.equal(x.owner.bench[0].getPokemonCard().fullName,
+      'Iron Thorns ex TWM');
+    process.stdout.write('# AGENT14_NATIVE_DEFENSIVE_BASELINE '+
+      JSON.stringify({seat,chosen:'bench-basic',
+        publicLethalReply:'Dialga-GX Shred',nativeBenchAccepted:true,
+        competitiveQualified:false})+'\\n');
+  }
+});
 
 test('same native owner view gives genuinely accepted Bench or solo attack in both seats',()=>{
   const {PlayCardAction,PlayerType,SlotType}=
