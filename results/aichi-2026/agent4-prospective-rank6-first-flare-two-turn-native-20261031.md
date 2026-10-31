@@ -56,3 +56,8 @@ The counterfactual also changes one real original opponent later action from `Sh
 - Next, preserve full physical source/target Plumeria prompt receipts and exact next-owner response **under the same frozen seeds and unchanged policies**; validate that repeated native matches reproduce original first-root hashes. Candidate 60 optimization can then use a credible policy-choice mechanism rather than relying on 260-root capped engine outcomes.
 
 **Bottom line:** 5/16 precommitted, real same-deal source Supporter interventions; all five native Team Flare effects settled; all five source owners played Plumeria one turn later; no terminal-game gain or competitive qualification established.
+
+
+### Source-deal clustering audit
+
+The five positive games represent **four distinct original rank6 first-source-deal fingerprints**. In particular `6:0:B:champion-reference` and `6:0:B:new-moon-lockbreaker-v1` use the **same** source opening fingerprint prefix `7c33ba86504a3448` under the same frozen repeat-0 B seed, but they face different opponent 60s. The other positive source fingerprint prefixes are `38ce335cc03a4481`, `f5f9678d9056bdfe`, and `9c8c18e0047a74ac`. Across all 16 original game arms the source first-deal fingerprint count is **nine**, because switching the opposing 60 can alter native setup/mulligan dynamics even when the common integer seed is paired. The evidence denominator is **16 original games, eight registered seed groups, and four distinct positive original source openings**, never five independent source openings.
