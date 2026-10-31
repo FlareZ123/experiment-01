@@ -143,3 +143,95 @@ test('all-proposer observation never changes the chosen root',()=>{
   assert.throws(()=>collectAndChooseOwnerRoot(rootView(),{},firstBasic(),
     {sameRootProbeAll:true,sameRootChoiceApply:true},offered));
 });
+
+test('grouped Plumeria observer preserves physical payments and public Bench target',()=>{
+  const plumeria=require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs')
+    .PROPOSERS.filter(p=>p.name==='grouped-plumeria-payments');
+  assert.equal(plumeria.length,1);
+  const view=rootView({
+    ownHand:['Plumeria BUS','Team Flare Grunt XY',
+      'Psychic Energy SVE 5','Grass Energy SVE 1'],
+    opponentPublic:{
+      active:{printing:'Opponent Active TWM 77',
+        energies:['Psychic Energy SVE 5','Psychic Energy SVE 5']},
+      bench:[{printing:'Opponent Bench BUS 19',
+        energies:['Darkness Energy SVE 7']}]
+    }
+  });
+  const out=collectAndChooseOwnerRoot(view,{},{
+    kind:'pass'
+  },{sameRootProbeAll:true},plumeria);
+  assert.equal(out.receipt.supportedAlternativeCount,1);
+  assert.equal(out.receipt.selectedSource,'first-return');
+  const offer=out.receipt.offers.find(o=>
+    o.source==='grouped-plumeria-payments');
+  assert.equal(offer.nativeDispatchImplemented,false);
+  assert.equal(offer.physicalPaymentPairCount,3);
+  assert.equal(offer.publicDenialTargetCount,3);
+  assert.equal(offer.benchDenialTargetCount,1);
+  assert.equal(offer.paymentPairsConsumingFlare,2);
+  assert.equal(offer.score,-1000);
+  const audit=newSameRootAudit();
+  recordSameRootAudit(audit,1,4,7,out.receipt);
+  assert.equal(audit.offerRoots,1);
+  assert.equal(audit.offerKindCounts['play-plumeria-payment-menu'],1);
+});
+
+test('two physical Plumeria copies remain distinct grouped owner offers',()=>{
+  const plumeria=require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs')
+    .PROPOSERS.filter(p=>p.name==='grouped-plumeria-payments');
+  const view=rootView({
+    ownHand:['Plumeria BUS','Plumeria BUS','Psychic Energy SVE 5',
+      'Team Flare Grunt XY'],
+    opponentPublic:{
+      active:{printing:'Opponent Active TWM 77',
+        energies:['Psychic Energy SVE 5']},bench:[]
+    }
+  });
+  const out=collectAndChooseOwnerRoot(view,{},{
+    kind:'pass'
+  },{sameRootProbeAll:true},plumeria);
+  assert.equal(out.receipt.supportedAlternativeCount,2);
+  assert.deepEqual(out.receipt.offers.filter(o=>
+    o.source==='grouped-plumeria-payments').map(o=>o.handIndex).sort(),
+  [0,1]);
+});
+
+test('grouped Plumeria cannot become selectable or evade hand and quota guards',()=>{
+  const module=require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
+  const proposer=module.PROPOSERS.find(p=>
+    p.name==='grouped-plumeria-payments');
+  const view=rootView({
+    ownHand:['Plumeria BUS','Team Flare Grunt XY',
+      'Psychic Energy SVE 5'],
+    opponentPublic:{
+      active:{printing:'Opponent Active TWM 77',
+        energies:['Psychic Energy SVE 5']},bench:[]
+    }
+  });
+  const [offer]=proposer.propose(view,{});
+  assert.equal(structurallySupported(view,offer),true);
+  assert.equal(structurallySupported(view,{
+    ...offer,paymentPairs:[{handIndices:[0,1],
+      printings:['Plumeria BUS','Team Flare Grunt XY']}]
+  }),false);
+  assert.equal(structurallySupported(view,{
+    ...offer,paymentTargets:[{slot:'bench',index:4,
+      pokemonPrinting:'Imaginary',energyIndex:0,
+      energyPrinting:'Psychic Energy SVE 5'}]
+  }),false);
+  const spent=rootView({...view,
+    ownTurnResources:{...view.ownTurnResources,supporterPlayedTurn:4}});
+  assert.equal(structurallySupported(spent,offer),false);
+  const selected=collectAndChooseOwnerRoot(view,{},{
+    kind:'pass'
+  },{sameRootChoiceApply:true,sameRootProbeAll:false},[
+    {...proposer,flag:'test-plumeria'}
+  ]);
+  assert.equal(selected.receipt.supportedAlternativeCount,0);
+  const observed=collectAndChooseOwnerRoot(view,{},{
+    kind:'pass'
+  },{sameRootProbeAll:true},[proposer]);
+  assert.equal(observed.receipt.supportedAlternativeCount,1);
+  assert.equal(observed.intent.kind,'pass');
+});
