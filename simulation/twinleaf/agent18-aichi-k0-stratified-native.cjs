@@ -52,6 +52,9 @@ function runRanks(ranks,registration,schema){
       assert.ok(observed.rows.every(row=>
         row.status==='K0-native-source-owner-invariant'&&
         row.physicalObjectsRestored===true&&
+        row.sameRootAllProposersK0Invariant===true&&
+        row.sameRootReceipt?.independentAllProposers===true&&
+        row.sameRootReceipt?.changed===false&&
         row.nativeStoreFirstActionDispatched===true&&
         row.nativeStoreFirstActionAccepted===true),
         'Both original source roots must have accepted native Store actions');
@@ -77,6 +80,10 @@ function runRanks(ranks,registration,schema){
         ownerRoots:observed.rows.map(row=>({
           physicalSeat:row.seat,globalTurn:row.turn,
           chosenIntent:row.chosenOwnerOnlyIntent,
+          sameRootCollectorVersion:row.sameRootCollectorVersion,
+          sameRootAllProposersK0Invariant:
+            row.sameRootAllProposersK0Invariant,
+          sameRootReceipt:row.sameRootReceipt,
           nativeBotProposedActionClass:row.nativeBotProposedActionClass,
           nativeBotProposedHandIndex:row.nativeBotProposedHandIndex,
           nativeBotProposedHandPrinting:row.nativeBotProposedHandPrinting,
@@ -110,7 +117,12 @@ function runRanks(ranks,registration,schema){
     fixedChampionOriginalRank:1,rankSet:[...ranks],
     passed:rows.filter(row=>row.status.includes('passed')).length,
     blocked:rows.filter(row=>row.status==='blocked').length,
-    rows,competitiveQualifiedGames:0,
+    rows,sourceRootSameRootCollectorVersion:
+      require('./agent41-same-root-proposal-choice.cjs').VERSION,
+    sameRootAuditedOwnerRoots:rows.reduce((sum,row)=>sum+
+      (row.ownerRoots?.filter(root=>
+        root.sameRootAllProposersK0Invariant===true).length??0),0),
+    competitiveQualifiedGames:0,
     caveat:'48-action source-openers only, owner-only selection observer and weak original bot, no finished matchup or win-rate estimate.'};
 }
 /** @returns {object} Original six-rank study, frozen and reproducible. */
