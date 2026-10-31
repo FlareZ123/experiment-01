@@ -118,7 +118,9 @@ function observeNativePolicyTacticSequence(bot,work,observation){
         else delete tactic.useTactic;
       });
     }
-    return work();
+    return observation.traceSimulationZones===true?
+      require('./agent23-native-speculative-zone-trace.cjs')
+        .observeNativeSpeculativeZoneTrace(bot,work,observation):work();
   }finally{
     observation.rngCalls=count;
     for(const restore of restorations.reverse())restore();
