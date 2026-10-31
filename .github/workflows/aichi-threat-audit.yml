@@ -29,5 +29,7 @@ jobs:
         run: node --test tests/agent25-thorns-triple-denial-access.test.cjs
       - name: Regress original source-root bounded-example and paired-deal fidelity
         run: node --test tests/agent25-source32-contest-example-fidelity.test.cjs
+      - name: Verify post-Aichi Dhelmise exact one-Prize development 60 and direct Prize-aware route
+        run: node --test tests/agent25-dhelmise-t1-physical-opportunity.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
