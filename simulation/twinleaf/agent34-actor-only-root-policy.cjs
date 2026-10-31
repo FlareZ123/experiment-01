@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v5-optional-typed-tool-dispatch';
+const VERSION='agent34-actor-only-root-slice-v6-native-coheld-denial-observer';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 
 /**
@@ -569,6 +569,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
+    nativeCoheldDenialCanPlayOptIn:deps.nativeCoheldDenialCanPlay===true,
+    nativeCoheldDenialCanPlayRoots:0,
+    nativeCoheldDenialBothPlayableRoots:0,
+    nativeCoheldDenialCanPlayWitnesses:[],
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
@@ -665,6 +669,17 @@ function withActorOnlyRootPolicy(run,deps={}){
   }else{
     delete audit.terminalArbitrationOptIn;
     delete audit.terminalArbitration;
+  }
+  if(audit.nativeCoheldDenialCanPlayOptIn){
+    assert.ok(audit.sameRootProposalChoiceOptIn,
+      'Native coheld Supporter inspection requires detached same-root census');
+    audit.version+='+'+
+      require('./agent41-native-coheld-denial-canplay.cjs').VERSION;
+  }else{
+    delete audit.nativeCoheldDenialCanPlayOptIn;
+    delete audit.nativeCoheldDenialCanPlayRoots;
+    delete audit.nativeCoheldDenialBothPlayableRoots;
+    delete audit.nativeCoheldDenialCanPlayWitnesses;
   }
   if(!audit.beforeAttackDenialOptIn)delete audit.beforeAttackDenialOptIn;
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
@@ -823,6 +838,18 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
     }
     const view=observe(state,seat);
+    if(audit.nativeCoheldDenialCanPlayOptIn){
+      const witness=require('./agent41-native-coheld-denial-canplay.cjs')
+        .inspectNativeCoheldDenialCanPlay(
+          view,state,nativeStore,seat,audit.selectedRootDecisions+1);
+      if(witness){
+        audit.nativeCoheldDenialCanPlayRoots++;
+        if(witness.bothHaveNativePlayablePhysicalCopy)
+          audit.nativeCoheldDenialBothPlayableRoots++;
+        if(audit.nativeCoheldDenialCanPlayWitnesses.length<48)
+          audit.nativeCoheldDenialCanPlayWitnesses.push(witness);
+      }
+    }
     if(audit.lowHandLillieCensusOptIn){
       const {LILLIE}=require('./agent12-actor-only-lillie-after-pass.cjs');
       const reason=require('./agent25-lowhand-lillie-frontier.cjs')
