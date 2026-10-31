@@ -40,6 +40,18 @@ def strings(tree):
             yield from strings(child)
 
 
+def implicit_if_expressions(tree):
+    """GitHub Actions allows unwrapped expressions specifically under if keys."""
+    if isinstance(tree, dict):
+        for key, value in tree.items():
+            if key == "if" and isinstance(value, str):
+                yield value
+            yield from implicit_if_expressions(value)
+    elif isinstance(tree, list):
+        for child in tree:
+            yield from implicit_if_expressions(child)
+
+
 def validate_workflow(source):
     try:
         doc = yaml.load(source, Loader=StrictLoader)
@@ -78,10 +90,12 @@ def validate_workflow(source):
         declared.update(inputs)
 
     referenced = set()
+    expressions = list(implicit_if_expressions(doc))
     for value in strings(doc):
-        for expression in EXPRESSIONS.findall(value):
-            for match in INPUTS.finditer(expression):
-                referenced.add(match.group(1) or match.group(2))
+        expressions.extend(EXPRESSIONS.findall(value))
+    for expression in expressions:
+        for match in INPUTS.finditer(expression):
+            referenced.add(match.group(1) or match.group(2))
     for name in sorted(referenced - declared):
         errors.append(f"undeclared expression input: {name}")
     return errors
