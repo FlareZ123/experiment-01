@@ -48,7 +48,8 @@ function compareOwnerEnergyDenialSupporters(view) {
     pair.handIndices.some(index=>flareIndices.includes(index)));
   const preservingFlare=physicalPaymentPairs.filter(pair=>
     pair.handIndices.every(index=>!flareIndices.includes(index)));
-  const sharedTargets=plumeria.targets.filter(target=>
+  const sharedTargets=flare.length===0 ? [] :
+    plumeria.targets.filter(target=>
     target.slot==='active'&&activeTargets.some(active=>
       active.energyIndex===target.energyIndex&&
       active.energyPrinting===target.energyPrinting));
