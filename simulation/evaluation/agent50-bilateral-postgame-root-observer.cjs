@@ -166,6 +166,9 @@ function withPostgameRootOrderProbe(
   assert.ok(target.nativeTapeBoundedOpponentHiddenHand!==true||
     target.nativeTapeHiddenOpponentHandContrast===true,
     'Bounded opponent contrast requires native opponent-hand tape mode');
+  assert.ok(target.nativeTapeBoundedDoubleExchange!==true||
+    target.nativeTapeBoundedOpponentHiddenHand===true,
+    'Two-card swaps require bounded native opponent-hand mode');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -448,8 +451,10 @@ function withPostgameRootOrderProbe(
         if(parity.sameWorldDecisionParityQualified){
           const compareNativeOpponentHiddenHand=
             target.nativeTapeBoundedOpponentHiddenHand===true?
-              require('../twinleaf/agent23-native-tape-bounded-opponent-hand.cjs')
-                .compareNativeOpponentHiddenHandBounded:
+              args=>require('../twinleaf/agent23-native-tape-bounded-opponent-hand.cjs')
+                .compareNativeOpponentHiddenHandBounded(args,{
+                  swapSize:target.nativeTapeBoundedDoubleExchange===true?2:1
+                }):
               require('../twinleaf/native-tape-opponent-hidden-hand-contrast.cjs')
                 .compareNativeOpponentHiddenHand;
           const actorView=dependencies.actorView??
