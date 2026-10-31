@@ -51,3 +51,16 @@ Reproduce **exact trial `6:10:A:champion-reference`** under the unchanged full s
 The common selector still lacks a complete integrated Plumeria three-prompt native bridge and cannot legitimately promote its grouped offer. Keep it observe-only until an authentic matched root fork and native receipts demonstrate a safe selectable implementation.
 
 **Global status:** exactly 29 original Top-32 opposing 60s authenticated (ranks 23,25,28 unresolved), zero competitive-qualified games, zero demonstrated 99.5%-winning fixed 60.
+
+
+## Exposure concentration and independence audit
+
+An additional exact calculation from the archived **summary JSON** groups the bounded first coheld examples separately by native game arm, seed group, physical source seat, and actual game result:
+
+- **36/48 arms** ever exposed a coheld Plumeria+Flare root; **12/48** had no such root. Of the 36 positive arms, **26 were capped** and **10 reached engine terminal**. The parent cohort contained 19 engine terminals and 29 capped arms; exposure therefore covaries with time available to retain an accumulating hand.
+- The earliest coheld global turn across the 36 positive arms ranged from **turn 2 to turn 74**. The full sorted first-turn distribution has median **37 turns** (18th and 19th observations are both 37); its late concentration makes an 87.5% interpretation of the 21/24 seed-group exposure rate particularly misleading for a meaningful early-game option.
+- At or before global turn 10, **3 of 48 game arms** (3 seed groups) exposed a recorded positive. At or before turn 20, **7 game arms**, across **6 seed groups**. At or before turn 30, **15 game arms**, across **9 seed groups**.
+- Of 36 positive arms, source physical seat **1 contributed 19** and seat **0 contributed 17**. Champion-reference candidate generated 18 positive arms and New Moon 18, across their different physically dealt and strategically evolving games.
+- Exactly **3 seed groups** (repeat 3, 7, 12) had no coheld root in either candidate arm. An equal integer seed did **not** produce identical source physical-deal fingerprints across the two different candidate 60s in **any** of the 24 pairs. The coupling is via preregistered randomness, with actual source hands potentially differing due opponent setup, mulligans, policy consumption and game evolution. Replaying a coheld state requires reproducing the **exact chosen candidate arm**, not just the seed number.
+
+These are counts of developments run under the original fixed native observer and a bounded 260-action horizon. They are descriptive source exposure and censor diagnostics, with no independently validated game-win observations.
