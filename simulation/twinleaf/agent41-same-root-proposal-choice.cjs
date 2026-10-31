@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v8-conservative-denial-finish-guard';
+const VERSION='agent41-same-root-proposal-choice-v9-observation-only-all-proposers';
 const MAX_SAMPLES=48;
 
 /**
@@ -209,12 +209,18 @@ function scoreOffer(view,baseline,offer){
 function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PROPOSERS){
   assert.equal(view.decisionKind,'owner-root');
   assert.ok(baseline&&typeof baseline.kind==='string');
+  assert.ok(options.sameRootProbeAll!==true||
+    options.sameRootChoiceApply!==true,
+    'Independent all-proposer census is observation-only; selection would bypass verified policy gates');
   const offers=[{source:'first-return',intent:baseline}];
   const unsupported=[];
   const omitted=[];
   const errors=[];
   for(const p of proposers){
-    if(options[p.flag]!==true){omitted.push(p.name);continue;}
+    if(options.sameRootProbeAll!==true&&options[p.flag]!==true){
+      omitted.push(p.name);
+      continue;
+    }
     let proposed;
     try{proposed=p.propose(view,catalog,options);}
     catch(error){
@@ -243,9 +249,12 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
   const reason=options.sameRootChoiceApply===true?
     winner.reason:'observation-only';
   const receipt={
-    version:VERSION,mode:options.sameRootChoiceApply===true?
+    version:VERSION,mode:options.sameRootProbeAll===true?
+      'all-proposers-observe':options.sameRootChoiceApply===true?
       'select':'observe',
     baselineKind:baseline.kind,selectedKind:intent.kind,
+    probedProposerCount:proposers.length-omitted.length,
+    independentAllProposers:options.sameRootProbeAll===true,
     selectedSource,reason,
     changed:options.sameRootChoiceApply===true&&
       !duplicateProposal(baseline,intent),
