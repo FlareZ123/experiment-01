@@ -9,6 +9,8 @@ const {chooseActorRootIntent}=require('./agent34-actor-only-root-policy.cjs');
 const {arbitrateOwnerRootIntent}=require('./agent41-owner-root-arbitration.cjs');
 const {evaluatePublicAttachmentReaction}=
   require('./agent5-public-attachment-reaction.cjs');
+const {holdPotentialReactiveTerminalLoss}=
+  require('./agent5-reactive-attachment-guard.cjs');
 const {settleWaitPrompts,publicReceipt}=
   require('./agent42-buddy-pulse-two-prize-native.cjs');
 const native=p=>require(nodePath.resolve(__dirname,
@@ -40,7 +42,8 @@ function stageNonFinisher(seat){
 
 /** @param {0|1} seat @returns {object} */
 function runSeat(seat){
-  const attackFirst=stageNonFinisher(seat),attachFirst=stageNonFinisher(seat);
+  const attackFirst=stageNonFinisher(seat),attachFirst=stageNonFinisher(seat),
+    guardedBranch=stageNonFinisher(seat);
   const v=actorObservation(attackFirst.state,seat);
   assert.deepEqual(v,actorObservation(attachFirst.state,seat),
     'Paired owner public and private observations must match');
@@ -56,6 +59,10 @@ function runSeat(seat){
   assert.equal(candidate.intent.index,1);
   const exposure=evaluatePublicAttachmentReaction(v,candidate.intent);
   assert.equal(exposure.terminalLossPossible,true);
+  const guarded=holdPotentialReactiveTerminalLoss(v,first,candidate);
+  assert.equal(guarded.safety.held,true);
+  assert.equal(guarded.intent.kind,'attack');
+  assert.deepEqual(v,actorObservation(guardedBranch.state,seat));
   // Ordinary attack cannot possibly take six own Prizes from lone Pidgey.
   assert.equal(v.ownPublic.prizeCount,6);
   assert.equal(v.opponentPublic.active.name,'Pidgey');
@@ -66,6 +73,10 @@ function runSeat(seat){
     'Pinned Store uses -1 as the no-winner sentinel');
   assert.equal(postAttack.ownerPrizes,6);
   assert.equal(postAttack.opponentPrizes,2);
+  const resolvedGuarded=nativeAttack(guardedBranch);
+  const postGuarded=publicReceipt(guardedBranch);
+  assert.equal(postGuarded.winner,-1);
+  assert.equal(resolvedGuarded.damageAfter,resolvedAttack.damageAfter);
 
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
@@ -80,9 +91,12 @@ function runSeat(seat){
   assert.ok(postAttach.ownerDiscard.includes('Regidrago V SIT'));
   assert.ok(postAttach.ownerDiscard.includes('Double Dragon Energy ROS'));
   return {seat,first,candidate:candidate.receipt,exposure,
+    guard:{...guarded.receipt,held:guarded.safety.held},
     attackFirst:{...postAttack,nativeAttack:resolvedAttack},
+    guardedAttack:{...postGuarded,nativeAttack:resolvedGuarded},
     attachFirst:{...postAttach,prompts},
     ordinaryAttackDoesNotEndGame:true,
+    guardPreservesNonterminalAttack:true,
     attachmentImmediatelyLosesGame:true};
 }
 
@@ -97,7 +111,7 @@ function run(){
     enginePin:PIN,attemptedSeats:2,
     nativeErrors:rows.filter(r=>r.error!==undefined).length,
     allNativeReversals:rows.every(r=>r.ordinaryAttackDoesNotEndGame&&
-      r.attachmentImmediatelyLosesGame),rows,
+      r.attachmentImmediatelyLosesGame&&r.guardPreservesNonterminalAttack),rows,
     competitiveQualifiedGames:0,
     caveat:'Synthetic true Store two-seat counterexample; no naturally dealt original Top32 game.'};
 }
