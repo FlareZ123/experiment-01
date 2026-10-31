@@ -263,13 +263,48 @@ function duplicateProposal(a,b){
 }
 
 /**
+ * A narrow Tool-recipient cost ceiling, using only this actor's voluntarily
+ * supplied own registered 60 and face-up attack/type metadata. A false result
+ * certifies that no ordinary printed Energy attachment from that 60 can pay
+ * any currently positive printed attack cost, even if all its Energy were
+ * available simultaneously. Other game effects and future cost changes remain
+ * outside this limited evidence, so this is a developmental veto only.
+ *
+ * @returns {boolean|null} True = an Energy route exists, false = none,
+ *   null = unsupported source Energy or printed attack information.
+ */
+function registeredToolAttackCeiling(view,catalog,pokemon,sixty){
+  if(!Array.isArray(sixty)||!pokemon||
+     !Array.isArray(pokemon.attacks)||pokemon.attacks.length===0)
+    return null;
+  const {effectivePublicAttackCost,publicCostSymbols,publicEnergyContext}=
+    require('./agent17-public-context-special-energy.cjs');
+  const {registeredSixtyAttackEnergyCeiling}=
+    require('./actor-energy-payability.cjs');
+  const context=publicEnergyContext(view,pokemon,catalog);
+  let anyUnknown=false,anyPositive=false;
+  for(const attack of pokemon.attacks){
+    if(!Number.isSafeInteger(attack.damage)||attack.damage<=0)continue;
+    anyPositive=true;
+    const nativeCost=effectivePublicAttackCost(view,catalog,pokemon,attack);
+    const cost=nativeCost===null?null:publicCostSymbols(nativeCost,catalog);
+    if(cost===null){anyUnknown=true;continue;}
+    const evidence=registeredSixtyAttackEnergyCeiling(cost,sixty,context);
+    if(evidence.possible===true)return true;
+    if(evidence.possible===null)anyUnknown=true;
+  }
+  if(!anyPositive||anyUnknown)return null;
+  return false;
+}
+
+/**
  * Explicit, deliberately conservative scores. A positive override exists
  * only for an immediate printed attack funded by a better Special Energy
  * before a generic Basic attachment, or for visible multi-Energy denial
  * before a non-final-prize attack. All other legal-looking offers are
  * recorded but not promoted without a stronger policy model.
  */
-function scoreOffer(view,baseline,offer,options){
+function scoreOffer(view,catalog,baseline,offer,options){
   if(offer.intent.nativeDispatchImplemented===false)
     return {score:-1000,reason:'native-dispatch-not-wired-observe-only'};
   if(offer.source==='first-return')return {score:0,reason:'control-baseline'};
@@ -334,8 +369,19 @@ function scoreOffer(view,baseline,offer,options){
        target?.name==='Vileplume')
       return {score:5,reason:'experimental-vileplume-stealthy-hood-after-pass'};
     if(offer.intent.printing==='Muscle Band XY'&&
-       target?.attacks?.some(a=>Number.isSafeInteger(a.damage)&&a.damage>0))
+       target?.attacks?.some(a=>Number.isSafeInteger(a.damage)&&a.damage>0)){
+      // The frozen rank21 original-Store comparison leaves this OFF. A
+      // separate opt-in can reject impossible own-60 colored-Energy routes,
+      // without reading the opposing hand, deck or Prize identities.
+      if(options.registeredToolEnergyCeiling===true){
+        const potential=registeredToolAttackCeiling(
+          view,catalog,target,options.ownRegisteredSixty);
+        if(potential===false)return {
+          score:-11,reason:'owner-printed-energy-unfundable-tool-target'
+        };
+      }
       return {score:4,reason:'experimental-muscle-band-printed-attack-after-pass'};
+    }
   }
   // A tempting denial must not displace a potentially terminal attack.
   // Three remaining Prizes may still be taken by a printed three-Prize KO.
@@ -398,7 +444,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
   if(!offers.some(o=>o.intent.kind==='pass'))offers.push({
     source:'terminal-hold',intent:{kind:'pass',
       reason:'explicit-same-root-hold'}});
-  const ranked=offers.map(o=>({...o,...scoreOffer(view,baseline,o,options)}))
+  const ranked=offers.map(o=>({...o,...scoreOffer(view,catalog,baseline,o,options)}))
     .sort((a,b)=>b.score-a.score);
   const winner=ranked[0];
   const intent=options.sameRootChoiceApply===true?winner.intent:baseline;
