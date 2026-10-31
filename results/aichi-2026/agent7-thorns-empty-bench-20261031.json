@@ -1,0 +1,143 @@
+{
+  "schema": "agent7-registered-thorns-empty-bench-attack-20261031",
+  "registeredAt": "2026-10-31T02:44:58.072536Z",
+  "hypothesis": "At an actor-owned root, an available Iron Thorns ex Volt Cyclone with no friendly Benched Pokemon can use its printed damage without moving Energy to its Bench. Study selected attack versus first-return Pass.",
+  "sourceRank": 6,
+  "seedCount": 8,
+  "pairedTrialCountPerArm": 16,
+  "independentRandomSeedMethod": "Python secrets.randbits(32), preregistered before any native execution",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trials": [
+    {
+      "id": "6:1500:A:champion-reference",
+      "rank": 6,
+      "repeat": 1500,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3271773613
+    },
+    {
+      "id": "6:1500:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1500,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3271773613
+    },
+    {
+      "id": "6:1501:B:champion-reference",
+      "rank": 6,
+      "repeat": 1501,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1804999425
+    },
+    {
+      "id": "6:1501:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1501,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1804999425
+    },
+    {
+      "id": "6:1502:A:champion-reference",
+      "rank": 6,
+      "repeat": 1502,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 906839750
+    },
+    {
+      "id": "6:1502:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1502,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 906839750
+    },
+    {
+      "id": "6:1503:B:champion-reference",
+      "rank": 6,
+      "repeat": 1503,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3467166487
+    },
+    {
+      "id": "6:1503:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1503,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3467166487
+    },
+    {
+      "id": "6:1504:A:champion-reference",
+      "rank": 6,
+      "repeat": 1504,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 599832135
+    },
+    {
+      "id": "6:1504:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1504,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 599832135
+    },
+    {
+      "id": "6:1505:B:champion-reference",
+      "rank": 6,
+      "repeat": 1505,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 10180637
+    },
+    {
+      "id": "6:1505:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1505,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 10180637
+    },
+    {
+      "id": "6:1506:A:champion-reference",
+      "rank": 6,
+      "repeat": 1506,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3123367434
+    },
+    {
+      "id": "6:1506:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1506,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3123367434
+    },
+    {
+      "id": "6:1507:B:champion-reference",
+      "rank": 6,
+      "repeat": 1507,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 728698872
+    },
+    {
+      "id": "6:1507:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1507,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 728698872
+    }
+  ]
+}
