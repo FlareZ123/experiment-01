@@ -50,6 +50,7 @@ function installUnderworldDoorPsychicRecipientHook(){
     /** @param {Array<{to:object,card:object}>|null} transfers */
     function recipientsPsychic(transfers){
       if(transfers===null)return true;
+      if(Array.isArray(transfers)&&transfers.length===0)return true;
       if(!Array.isArray(transfers)||transfers.length!==1)return false;
       return transfers.every(({to,card})=>{
         if(!(card instanceof EnergyCard)||
