@@ -86,7 +86,8 @@ function runSeat(seat){
   const prompts=settleWaitPrompts(attachFirst);
   const postAttach=publicReceipt(attachFirst);
   assert.equal(postAttach.opponentPrizes,0);
-  assert.equal(postAttach.winner,attachFirst.opponent.id);
+  assert.equal(postAttach.winner,1-seat,
+    'Pinned Store winner is a physical player seat, not a Player id');
   assert.equal(postAttach.ownerBenchDragonInPlay,false);
   assert.ok(postAttach.ownerDiscard.includes('Regidrago V SIT'));
   assert.ok(postAttach.ownerDiscard.includes('Double Dragon Energy ROS'));
