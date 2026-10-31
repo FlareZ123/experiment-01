@@ -70,7 +70,7 @@ function staged(seat,lethalReply=false){
   assert.deepEqual(receipt?.alternatives.map(x=>x.intent.kind),
     ['bench-basic','attack']);
   assert.deepEqual(receipt.chosen,
-    fixture.owner.active.damage>=170?
+    owner.active.damage>=170?
       {kind:'bench-basic',handIndex:0,benchIndex:0,
         printing:'Iron Thorns ex TWM'}:
       {kind:'attack',attackName:'Volt Cyclone'});
