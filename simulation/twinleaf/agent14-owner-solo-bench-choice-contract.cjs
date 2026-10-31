@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION='agent14-owner-solo-bench-choice-contract-v1';
+const VERSION='agent14-owner-solo-bench-choice-contract-v2';
 
 /**
  * Build a two-option, same-observation contract before selecting a root.
@@ -63,7 +63,12 @@ function collectSoloBenchChoice(view,catalog,proposeRoot,options={}){
     alternatives:optionsReceipt,
     rejectedIndex:0,chosenIndex:1,chosen:{...proposed},
     choiceRule:'development-only preserve solo Energy; no proved game-value dominance',
-    reason:immediatelyPayable?'already-payable-solo-attack':
+    reason:immediatelyPayable?
+      ([...(view.ownPublic.stadium??[]),
+        ...(view.opponentPublic?.stadium??[])].some(p=>
+          p.startsWith('Thunder Mountain Prism Star '))?
+        'already-payable-solo-attack':
+        'visible-held-thunder-enables-attached-dce'):
       'complete-visible-hand-thunder-dce-line',
     competitiveQualified:false
   };
