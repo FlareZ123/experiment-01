@@ -29,8 +29,9 @@ function physical(player){
 function stage(f){
   const own=f.own;
   exchange(own,'Dowsing Machine',own.hand,4);
-  exchange(own,"Trainers' Mail",own.hand,5);
-  exchange(own,"Trainers' Mail",own.hand,6);
+  const mails=own.deck.cards.filter(card=>card.name==="Trainers' Mail").slice(0,2);
+  assert.equal(mails.length,2,'Need two real distinct Mail payment copies in deck');
+  for(const card of mails)own.deck.moveCardTo(card,own.hand);
   const extra=own.deck.cards.find(card=>card.name==='Damage Pump');
   assert.ok(extra,'Expected another source original Pump in deck');
   own.deck.moveCardTo(extra,own.hand);
