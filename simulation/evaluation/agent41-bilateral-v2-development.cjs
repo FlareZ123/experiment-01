@@ -1236,10 +1236,15 @@ function runDevelopment({
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootPublicEventReceiptOptIn:
       sameRootProposalChoice&&sameRootPublicEventReceipt,
+    // Root diagnostics live beneath the composed actor's component audits.
+    // The prior shallow path silently reported zero audited arms even when
+    // both physical seats generated genuine Store owner-root observations.
     sameRootProposalAuditedArms:rows.filter(row=>
-      row.actorOnlyDecisionCoverage?.sameRootProposalChoice).length,
+      row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root
+        ?.sameRootProposalChoice).length,
     sameRootChangedRoots:rows.reduce((n,row)=>n+
-      (row.actorOnlyDecisionCoverage?.sameRootProposalChoice?.changedRoots??0),0),
+      (row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root
+        ?.sameRootProposalChoice?.changedRoots??0),0),
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPlumeriaAfterPassOptIn:actorOnlyComposition&&actorPlumeriaAfterPass,
