@@ -1,0 +1,64 @@
+name: Agent7 same-root original Store read-only parity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  same-root-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate dispatch and existing workflow contracts
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML==6.0.3
+          python -m unittest discover -s tests -p test_workflow_dispatch_preflight.py
+          python scripts/workflow_dispatch_preflight.py
+      - name: Test independent owner-root offer accounting
+        run: node --test tests/agent7-same-root-independent-opportunity.test.cjs
+      - name: Check out pinned original Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Original Store four-arm baseline without proposer observer
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-same-root-off.json
+      - name: Original Store four-arm all-proposer read-only observation
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
+          AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
+          AGENT41_SAME_ROOT_ALL_PROBES_DEV: 'true'
+          AGENT41_SAME_ROOT_SELECT_DEV: 'false'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-same-root-on.json
+      - name: Demand physical-deal, action, prompt and target identity
+        run: node scripts/agent7-same-root-native-parity.cjs agent7-same-root-off.json agent7-same-root-on.json > agent7-same-root-pair.json
+      - name: Preserve controls, observed game evidence and every failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-same-root-native-readonly
+          path: |
+            agent7-same-root-off.json
+            agent7-same-root-on.json
+            agent7-same-root-pair.json
+          if-no-files-found: warn
+          retention-days: 10
