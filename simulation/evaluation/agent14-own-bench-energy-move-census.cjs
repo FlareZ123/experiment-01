@@ -4,6 +4,16 @@ const path=require('node:path');
 
 const root=path.resolve(__dirname,'../..');
 const read=relative=>JSON.parse(fs.readFileSync(path.join(root,relative),'utf8'));
+/** Normalize only source/TCG card-display glyph aliases, preserving numbers. */
+const normalizedPokemonName=name=>name.replace(/[♢◇]/g,'◇');
+/** @param {object} printing */
+function encodedPrintNumber(printing){
+  const value=String(printing.number);
+  if(printing.set==='SMP'&&!value.startsWith('SM'))return 'SM'+value;
+  if(printing.set==='XYP'&&!value.startsWith('XY'))return 'XY'+value;
+  return value;
+}
+
 const trigger=/\bMove\b[^.]{0,80}\bEnergy\b[^.]{0,80}\bfrom this Pokémon to\b[^.]{0,90}\b(?:your|Benched)\b/i;
 
 /**
@@ -45,7 +55,9 @@ function census(){
       const choices=[];
       for(const setId of codeToSets.get(print.set)||[]){
         for(const card of getCards(setId)){
-          if(card.number===String(print.number)&&card.name===owned.name)
+          if(card.number===encodedPrintNumber(print)&&
+            normalizedPokemonName(card.name)===
+              normalizedPokemonName(owned.name))
             choices.push({setId,card});
         }
       }
