@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const VERSION = 'agent9-crobat-vip-exact-opening-v1';
-const RANKS = [4, 5, 8, 11, 16, 19, 22, 26, 30];
+const RANKS = [8, 11, 26];
+const FIELD_RANKS = [4, 5, 8, 11, 16, 19, 22, 26, 30];
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n, k) {
@@ -115,7 +116,7 @@ function handAfterBoth(startHand, order) {
 }
 
 /** Full original-card database audit and exact results. */
-function run(root = path.resolve(__dirname, '..')) {
+function run(root = path.resolve(__dirname, '..'), ranks = RANKS) {
   const source = require(path.join(root, 'results/aichi-2026/full-decklists.json'));
   const sets = require(path.join(root, 'resources/sets/en.json'));
   const cached = new Map();
@@ -124,7 +125,7 @@ function run(root = path.resolve(__dirname, '..')) {
       path.join(root, 'resources/cards/en', `${id}.json`), 'utf8')));
     return cached.get(id);
   };
-  const rows = RANKS.map(rank => {
+  const rows = ranks.map(rank => {
     const deck = source.decks.find(row => row.rank === rank);
     assert.ok(deck, `Missing source rank ${rank}`);
     const inventory = sourceCounts(deck, sets, cardsForSet);
@@ -137,6 +138,6 @@ function run(root = path.resolve(__dirname, '..')) {
   return { version: VERSION, rows, competitiveQualifiedGames: 0 };
 }
 
-if (require.main === module) process.stdout.write(JSON.stringify(run(), null, 2) + '\n');
-module.exports = { VERSION, RANKS, choose, openingCohold, percent,
+if (require.main === module) process.stdout.write(JSON.stringify(run(path.resolve(__dirname, '..'),FIELD_RANKS), null, 2) + '\n');
+module.exports = { VERSION, RANKS, FIELD_RANKS, choose, openingCohold, percent,
   sourceCounts, handAfterBoth, run };
