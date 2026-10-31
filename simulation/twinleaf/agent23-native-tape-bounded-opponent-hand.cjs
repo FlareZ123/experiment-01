@@ -8,11 +8,21 @@ const {selectBoundedHiddenExchanges}=
   require('./agent23-bounded-hidden-world-scan.cjs');
 const {selectBoundedDoubleExchanges}=
   require('./agent23-bounded-double-exchanges.cjs');
+const {selectBoundedHandPrizeExchanges}=
+  require('./agent23-bounded-hidden-prize-exchanges.cjs');
 const {hiddenZoneFingerprint}=
   require('./opponent-hidden-live-root-probe.cjs');
 
 const VERSION='agent23-native-tape-bounded-opponent-hand-v1';
 const DOUBLE_VERSION='agent23-native-tape-bounded-double-exchange-v1';
+const PRIZE_VERSION='agent23-native-tape-bounded-hand-prize-v1';
+
+/** @param {object} player Opposing native Player with physical Prize piles. */
+function hiddenHandPrizeFingerprint(player){
+  assert.ok(Array.isArray(player.prizes));
+  return [...player.hand.cards,...player.prizes.flatMap(p=>p.cards)]
+    .map(card=>card.fullName+'#'+String(card.id??'unknown')).sort();
+}
 
 /**
  * Require native original-world action, RNG tape and immutable physical-root
@@ -66,26 +76,36 @@ function validateNativeRoot(args){
  * cloneState:(root:object)=>object,replayDecision:(world:object)=>unknown,
  * actionSignature:(action:unknown)=>unknown,fingerprint:(state:object)=>unknown,
  * actorView:(state:object,seat:0|1)=>unknown}} args
- * @param {{limit?:number,swapSize?:1|2}} [options]
+ * @param {{limit?:number,swapSize?:1|2,targetZone?:'deck'|'prizes'}} [options]
  * @returns {object}
  */
-function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
+function compareNativeOpponentHiddenHandBounded(args,
+  {limit=16,swapSize=1,targetZone='deck'}={}){
   assert.ok(swapSize===1||swapSize===2);
+  assert.ok(targetZone==='deck'||targetZone==='prizes');
+  assert.ok(targetZone!=='prizes'||swapSize===1,
+    'Prize exchange currently supports one hand-Prize card pair only');
   const {initial,ownerView}=validateNativeRoot(args);
   const {parity,root,seat,tape,cloneState,replayDecision,
     actionSignature,fingerprint,actorView}=args;
   const opponent=root.players[1-seat];
-  const originalPool=hiddenZoneFingerprint(opponent);
-  const selected=(swapSize===2?selectBoundedDoubleExchanges:
-    selectBoundedHiddenExchanges)(opponent.hand.cards,opponent.deck.cards,limit);
+  const originalPool=targetZone==='prizes'?
+    hiddenHandPrizeFingerprint(opponent):hiddenZoneFingerprint(opponent);
+  const selected=targetZone==='prizes'?
+    selectBoundedHandPrizeExchanges(opponent.hand.cards,opponent.prizes,limit):
+    (swapSize===2?selectBoundedDoubleExchanges:
+      selectBoundedHiddenExchanges)(opponent.hand.cards,opponent.deck.cards,limit);
   const report={
-    schema:swapSize===2?DOUBLE_VERSION:VERSION,
-    swapSize,actorSeat:seat,tapeDraws:tape.length,
+    schema:targetZone==='prizes'?PRIZE_VERSION:
+      swapSize===2?DOUBLE_VERSION:VERSION,
+    swapSize,targetZone,actorSeat:seat,tapeDraws:tape.length,
     tapeSha256:digest(tape),sourceRootAtEntry:initial,
     sourceRootUnchanged:false,actorObservationMatched:false,
     opponentHiddenInventoryConserved:false,
     opponentHandCount:opponent.hand.cards.length,
     opponentDeckCount:opponent.deck.cards.length,
+    opponentPrizeCount:opponent.prizes?.reduce(
+      (sum,p)=>sum+p.cards.length,0)??null,
     eligibleExchangePaths:selected.available,
     attemptedExchangePaths:0,successfulExchangePaths:0,
     failedExchangePaths:0,
@@ -95,10 +115,16 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
     testedDistinctOpponentHandCompositions:swapSize===1?
       selected.testedDistinctHandCompositions:null,
     eligibleSingleExchanges:swapSize===1?selected.available:null,
+    eligibleHandPrizeExchanges:targetZone==='prizes'?selected.available:null,
+    attemptedHandPrizeExchanges:targetZone==='prizes'?0:null,
+    successfulHandPrizeExchanges:targetZone==='prizes'?0:null,
+    failedHandPrizeExchanges:targetZone==='prizes'?0:null,
     attemptedSingleExchanges:swapSize===1?0:null,
     successfulSingleExchanges:swapSize===1?0:null,
     failedSingleExchanges:swapSize===1?0:null,
     exhaustiveSingleExchangeCoverage:swapSize===1?selected.exhaustive:null,
+    exhaustiveHandPrizeExchangeCoverage:targetZone==='prizes'?
+      selected.exhaustive:null,
     eligibleDisjointDoubleExchangePaths:swapSize===2?selected.available:null,
     attemptedDisjointDoubleExchangePaths:swapSize===2?0:null,
     successfulDisjointDoubleExchangePaths:swapSize===2?0:null,
@@ -136,7 +162,25 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
           'Detached world reused a physical concealed card');
       }
     }
-    assert.deepStrictEqual(hiddenZoneFingerprint(detachedOther),originalPool,
+    if(targetZone==='prizes'){
+      assert.notStrictEqual(detachedOther.prizes,opponent.prizes,
+        'Detached world reused original Prize slots array');
+      assert.equal(detachedOther.prizes.length,opponent.prizes.length);
+      for(let i=0;i<opponent.prizes.length;i++){
+        const original=opponent.prizes[i],copy=detachedOther.prizes[i];
+        assert.notStrictEqual(copy,original,
+          'Detached world reused an original Prize CardList');
+        assert.notStrictEqual(copy.cards,original.cards,
+          'Detached world reused original Prize cards array');
+        for(let j=0;j<original.cards.length;j++){
+          assert.notStrictEqual(copy.cards[j],original.cards[j],
+            'Detached world reused an original physical Prize card');
+        }
+      }
+    }
+    const fingerprint=targetZone==='prizes'?
+      hiddenHandPrizeFingerprint(detachedOther):hiddenZoneFingerprint(detachedOther);
+    assert.deepStrictEqual(fingerprint,originalPool,
       'Detached world did not preserve opponent concealed inventory');
   }
 
@@ -152,6 +196,7 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
       report.attemptedExchangePaths++;
       if(swapSize===1)report.attemptedSingleExchanges++;
       else report.attemptedDisjointDoubleExchangePaths++;
+      if(targetZone==='prizes')report.attemptedHandPrizeExchanges++;
       try{
         const world=cloneState(root);
         assertSourceEquivalent(world);
@@ -159,15 +204,25 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
         const swaps=swapSize===2?exchange.swaps:[exchange];
         assert.equal(swaps.length,swapSize);
         assert.equal(new Set(swaps.map(x=>x.handIndex)).size,swapSize);
-        assert.equal(new Set(swaps.map(x=>x.deckIndex)).size,swapSize);
-        for(const swap of swaps){
-          const hi=swap.handIndex,di=swap.deckIndex;
-          const handCard=other.hand.cards[hi],deckCard=other.deck.cards[di];
-          assert.notStrictEqual(handCard,deckCard);
-          other.hand.cards[hi]=deckCard;
-          other.deck.cards[di]=handCard;
+        if(targetZone==='deck'){
+          assert.equal(new Set(swaps.map(x=>x.deckIndex)).size,swapSize);
+          for(const swap of swaps){
+            const hi=swap.handIndex,di=swap.deckIndex;
+            const handCard=other.hand.cards[hi],deckCard=other.deck.cards[di];
+            assert.notStrictEqual(handCard,deckCard);
+            other.hand.cards[hi]=deckCard;
+            other.deck.cards[di]=handCard;
+          }
+        }else{
+          const swap=swaps[0],pile=other.prizes[swap.prizeIndex];
+          assert.ok(pile&&pile.cards.length===1);
+          const handCard=other.hand.cards[swap.handIndex];
+          other.hand.cards[swap.handIndex]=pile.cards[0];
+          pile.cards[0]=handCard;
         }
-        assert.deepStrictEqual(hiddenZoneFingerprint(other),originalPool,
+        const fingerprint=targetZone==='prizes'?
+          hiddenHandPrizeFingerprint(other):hiddenZoneFingerprint(other);
+        assert.deepStrictEqual(fingerprint,originalPool,
           'Alternate concealed world changed card-instance multiset');
         record.opponentHiddenInventoryConserved=true;
         assert.deepStrictEqual(actorView(world,seat),ownerView,
@@ -181,6 +236,7 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
         report.successfulExchangePaths++;
         if(swapSize===1)report.successfulSingleExchanges++;
         else report.successfulDisjointDoubleExchangePaths++;
+        if(targetZone==='prizes')report.successfulHandPrizeExchanges++;
         if(record.actionChanged){
           report.actionReversals++;
           if(!report.firstActionReversal){
@@ -194,6 +250,7 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
         report.failedExchangePaths++;
         if(swapSize===1)report.failedSingleExchanges++;
         else report.failedDisjointDoubleExchangePaths++;
+        if(targetZone==='prizes')report.failedHandPrizeExchanges++;
       }
       report.cases.push(record);
     }
@@ -232,5 +289,5 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16,swapSize=1}={}){
   return report;
 }
 
-module.exports={VERSION,validateNativeRoot,
+module.exports={VERSION,validateNativeRoot,hiddenHandPrizeFingerprint,
   compareNativeOpponentHiddenHandBounded};
