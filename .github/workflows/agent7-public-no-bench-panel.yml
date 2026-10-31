@@ -1,0 +1,48 @@
+name: Agent7 preregistered rank6 last-Pokemon KO panel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank6-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public terminal KO semantics and original default safety
+        run: node --test tests/agent7-public-no-bench-terminal.test.cjs tests/agent7-bounded-pass-attack-probe.test.cjs
+      - name: Check out exact pinned upstream Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 16 sealed rank6 original Store control games
+        env:
+          AGENT7_PANEL_MODE: 'control'
+        run: node simulation/evaluation/agent7-public-no-bench-panel.cjs > agent7-rank6-control.json
+      - name: Execute all 16 sealed rank6 original Store selected games
+        env:
+          AGENT7_PANEL_MODE: 'selected'
+        run: node simulation/evaluation/agent7-public-no-bench-panel.cjs > agent7-rank6-selected.json
+      - name: Account for all predeclared seeds and actual native branches
+        run: node scripts/agent7-public-no-bench-panel-pair.cjs agent7-rank6-control.json agent7-rank6-selected.json > agent7-rank6-paired.json
+      - name: Archive complete controls and selected trials including errors and censored games
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-preregistered-rank6-terminal-panel
+          path: |
+            agent7-rank6-control.json
+            agent7-rank6-selected.json
+            agent7-rank6-paired.json
+          if-no-files-found: warn
+          retention-days: 14
