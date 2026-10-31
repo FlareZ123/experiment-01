@@ -1,0 +1,33 @@
+# Agent 4: 32 previously frozen original Store games expose live Plumeria-vs-Team-Flare roots
+
+**31 October 2026 | normal Agent 4 | source-root read-only audit, 29-Oct precommitted frame**
+
+## Experimental population and provenance
+
+The [original 32-arm precommitted frame](registrations/agent41-prospective-canonical-32-20261029.json) was published on 29 October, before this observer. Its 32 already-specified original Store arms cover published **rank-6 Iron Thorns** and **rank-11 lock** sources, champion-reference and New Moon candidate lists, physical candidate seats A and B, and fixed repeats. It is a subset of the Aichi benchmark, **not the full Top32**.
+
+The source-conserved audit ran through the new [unchanged-control census driver](../../scripts/agent4-original32-plumeria-flare-census.cjs), with \`AGENT4_PLUMERIA_OPPORTUNITY_DEV=true\`, using the [read-only owner-root native contour](../../simulation/twinleaf/agent4-plumeria-opportunity.cjs). It observed actor's exact physical owner hand and public opposing Energy attachments, interrogated original pinned card \`canPlay\` methods for the two held Supporters, and screened normal first-turn Supporter restrictions. The underlying first-return action policy **was unchanged**. Native action results are observational, not a selected alternative. The contour does not look at opposing hand, hidden deck cards or Prize identities.
+
+Existing manually dispatched [GitHub Actions run 41162278234](https://github.com/FlareZ123/experiment-01/actions/runs/41162278234), checkout SHA \`e381febb726f5bb7015884ac35d28994757645c7\`, compiled Twinleaf revision \`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05\`. Its step *Census all 32 frozen original Store physical owner-root Supporter contests* **completed success**, as did *Print only bounded original two-seat Source Supporter opportunity counts*. The [exact source JSON ZIP artifact](https://github.com/FlareZ123/experiment-01/actions/runs/41162278234/artifacts/13027347843) has upload SHA256 \`aae30846f39ba87eb9da646255ac1c9c514f9b253aaa5f6fee7098aa3f1036ac\` and retains all **32 individual rows**, including zero exposures, both actual source seats and native contingency samples. The step printed the independently checked aggregate below. This workflow also compiled the pinned two-seat local Plumeria/Flare prompt tests and passed the original-60 four-arm observer noninterference regression.
+
+## Exact real original owner-root exposure
+
+| Native original source | Original games | Audited source owner roots | Both held at same root | Both original native \`canPlay\` positive, paper-screened | Distinct owner turns with both positive |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Rank 6 Iron Thorns | 16 | **340** | **169** | **148** | **140** |
+| Rank 11 lock | 16 | **485** | **0** | **0** | **0** |
+| **Total** | **32** | **825** | **169** | **148** | **140** |
+
+Rank 6 has 324 distinct audited first-owner turns in the 16 games, 160 with both held and **140** with both playable. **Ten of 16 rank-6 original development arms** encountered at least one both-positive source root. The other **six** did not. Every original arm, including the 16 rank-11 zeros and the rank-6 zeros, was retained; **no native observer was missing**. Eighty-eight? No: **21** rank-6 coheld roots had at least one Supporter fail the current native/paper screen (169 minus 148). The numbers are complete root counters even though the example ledger is bounded.
+
+A particularly actionable original trial: \`6:1:A:champion-reference\` (source original **seat 1**), **global turn 15**, owner-root audit ordinal **21**. Both printed Supporters are in the owner's actual held hand and both pass the original native \`canPlay\` screen. Opponent Active publicly has **four attached Energy instances**. There are **66** physical two-card Plumeria payment pairs at that precise root: **11** consume a held Team Flare Grunt and **55** preserve it. The original observer did not select either alternative or establish the canonical chosen root, outcome, opponent reply, or strategic value. Exact root receipt exists in the immutable artifact.
+
+The 148 roots are **highly correlated repeated decisions within 10 original rank-6 development games** and cannot be treated as 148 independent matches. Repeated roots during the same turn similarly explain why the first-turn counter is lower. The first concrete positive example above is on global turn 15, a **late-game control opportunity**; the six-negative-source-arm count and 10-positive-source-arm count belong only to these registered 16 original rank-6 experiments, not the tournament population.
+
+## Decision and release boundaries
+
+The result replaces a hypothetical conjunction with a **measured source-owned native same-root opportunity**: on the unchanged original development policy, real rank-6 source hands often can play **either** of these competing ordinary Supporters on the same observed root. Even when both have original native \`canPlay\` positive, their two hand-discard costs, alternative legal actions, prize mapping, next-turn resource needs, chosen Energy target, existing locks and future opponent response remain unscored. Earlier [staged pinned native same-root cost/target tests](agent4-plumeria-teamflare-same-root-native-20261031.md) independently proved how the two actions physically diverge; this full-deck audit did **not execute a fork** at its recorded original real root.
+
+Source physical-card *deck identity and first full deal* are recorded by the existing runner, but **per-settled-root physical 60-card conservation is not certified** in this audit. Nor is the decision policy paper-complete or time-calibrated. Source and candidate development results remain unqualified. **0 competitively qualified games, 29/32 exact source 60s, no demonstrated fixed-60 99.5% win rate.**
+
+**Next causal test:** replay original trial \`6:1:A:champion-reference\` until the authentically matching source-owned global turn 15, root ordinal 21, and preserve the complete initial source and opposing physical-deal digests. Compare original Store-accepted Plumeria and Team Flare actions under the same owner hand/public board, settle actual original payment/target prompts, then continue at least the next source and opponent turn and audit physical card conservation and rejected/unplayed alternatives. An unmatched trigger or altered original action prefix is a **negative or invalid fixture**, not an opportunity to invent a positive branch. The [common same-root steward Agent 41](../../simulation/twinleaf/agent41-same-root-proposal-choice.cjs) should integrate this only with genuine owner-authenticated dispatch and opportunity-cost arbitration.
