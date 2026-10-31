@@ -934,6 +934,7 @@ function runDevelopment({
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
+  nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
   sameRootPositiveAttackOverPass=false,
@@ -965,6 +966,8 @@ function runDevelopment({
     'All-proposer census is observation-only');
   assert.ok(!sameRootPublicEventReceipt||sameRootProposalChoice,
     'Public events require owner same-root observation');
+  assert.ok(!nativeCoheldDenialCanPlay||sameRootProposalChoice,
+    'Original Store coheld native eligibility needs same-root owner inspection');
   assert.ok(!sameRootPublicNoBenchTerminal||sameRootProposalChoice,
     'Public terminal Knock Out screen requires owner same-root observation');
   assert.ok(!sameRootPositiveAttackOverPass||sameRootProposalChoice,
@@ -1082,6 +1085,7 @@ function runDevelopment({
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,
+                nativeCoheldDenialCanPlay,
                 sameRootPassAttackProbeGlobalTurn,
                 publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal,
                 positiveAttackOverPass:sameRootPositiveAttackOverPass,
