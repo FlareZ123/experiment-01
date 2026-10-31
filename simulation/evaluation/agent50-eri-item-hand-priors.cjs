@@ -7,6 +7,9 @@ const path=require('node:path');
 const VERSION='agent50-eri-original-field-item-fivehand-prior-v1';
 const ROOT=path.resolve(__dirname,'../..');
 const PROMO_CODES={BWP:'bwp',SMP:'smp',XYP:'xyp'};
+/** English archive suffixes/glyphs differ from conventional tournament names. */
+const sourceName=name=>name.replace(/ Team Flare Gear$/,'')
+  .replaceAll('◇','♢');
 
 /** @param {number} n @param {number} k @returns {number} */
 function choose(n,k){
@@ -51,10 +54,11 @@ function buildCardSubtypeIndex(root=ROOT){
     'resources/sets/en.json'),'utf8'));
   const byExact=new Map(),byName=new Map();
   for(const set of sets){
-    const code=set.ptcgoCode??Object.keys(PROMO_CODES).find(k=>
-      PROMO_CODES[k]===set.id);
+    const codes=[set.ptcgoCode,
+      ...Object.keys(PROMO_CODES).filter(k=>PROMO_CODES[k]===set.id)]
+      .filter(Boolean);
     const cardFile=path.join(root,'resources/cards/en',set.id+'.json');
-    if(!fs.existsSync(cardFile)||!code)continue;
+    if(!fs.existsSync(cardFile)||codes.length===0)continue;
     for(const c of JSON.parse(fs.readFileSync(cardFile,'utf8'))){
       if(c.supertype!=='Trainer')continue;
       // Older Tool metadata can contain BOTH Item and Pokémon Tool.
@@ -63,12 +67,16 @@ function buildCardSubtypeIndex(root=ROOT){
       const subtype=subtypes.includes('Pokémon Tool')?['Pokémon Tool']:
         subtypes.filter(x=>['Item','Supporter','Stadium'].includes(x));
       if(subtype.length!==1)continue;
-      const exactKey=code+'|'+String(c.number).replace(/^0+(?=\d)/,'')+
-        '|'+c.name;
-      if(!byExact.has(exactKey))byExact.set(exactKey,[]);
-      byExact.get(exactKey).push({subtype:subtype[0],setId:set.id});
-      if(!byName.has(c.name))byName.set(c.name,new Set());
-      byName.get(c.name).add(subtype[0]);
+      const printedName=sourceName(c.name);
+      for(const code of codes){
+        const exactKey=code+'|'+String(c.number).replace(/^0+(?=\d)/,'')+
+          '|'+printedName;
+        if(!byExact.has(exactKey))byExact.set(exactKey,[]);
+        byExact.get(exactKey).push({subtype:subtype[0],setId:set.id,
+          printedEnglishName:c.name});
+      }
+      if(!byName.has(printedName))byName.set(printedName,new Set());
+      byName.get(printedName).add(subtype[0]);
     }
   }
   return {byExact,byName};
@@ -77,7 +85,7 @@ function buildCardSubtypeIndex(root=ROOT){
 /** @param {object} row @param {object} index @returns {object} */
 function trainerSubtype(row,index){
   assert.equal(row.category,'Trainer');
-  const name=row.name,code=row.printing?.set;
+  const name=sourceName(row.name),code=row.printing?.set;
   const number=String(row.printing?.number??'')
     .replace(/^0+(?=\d)/,'');
   const exact=index.byExact.get(code+'|'+number+'|'+name)??[];
