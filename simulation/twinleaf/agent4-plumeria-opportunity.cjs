@@ -141,7 +141,8 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
   assert.equal(typeof oldDecode?.value,'function');
   assert.equal(typeof oldDispatch?.value,'function');
   let liveStore=null,game=0,activeChain=null;
-  const observedTurns=new Set(),proposals=new WeakMap(),passProposals=new WeakMap();
+  const observedTurns=new Set(),proposals=new WeakMap(),passProposals=new WeakMap(),
+    positiveProposals=new WeakMap();
   const audit={
     version:VERSION,sourceSeat,passive:true,bothSeats:sourceSeat===null,
     nativeStores:0,actualOwnerRoots:0,firstOwnerTurns:0,
@@ -243,10 +244,16 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
         activeEnergyTargets:contest.publicActiveEnergyTargets,
         benchEnergyTargets:contest.publicBenchEnergyTargets,
         paperScreenedBothPlayable:true,
+        baselineOriginalDispatchAccepted:null,
+        baselineOriginalDispatchError:null,
         originalAction:proposedAction,
         originalCard:proposedAction==='PlayCardAction'?
           (state.players[seat].hand.cards[proposal.handIndex]?.fullName??null):null
       };
+      // Link the observation to the original action's actual Store dispatch,
+      // without attempting either unchosen Supporter alternate.
+      if(proposal&&typeof proposal==='object')
+        positiveProposals.set(proposal,positive);
       const seatAudit=audit.bySeat[seat];
       if(seatAudit.earliestNativePositiveContest===null)
         seatAudit.earliestNativePositiveContest=positive;
@@ -298,6 +305,7 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     const authentic=this===liveStore;
     const play=authentic?proposals.get(action):null;
     const pass=authentic?passProposals.get(action):null;
+    const baselinePositive=authentic?positiveProposals.get(action):null;
     const prompt=authentic&&activeChain&&
        action?.constructor?.name==='ResolvePromptAction'?
        this.state.prompts?.find(p=>p.id===action.id&&p.result===undefined):null;
@@ -306,6 +314,7 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
         .reduce((n,x)=>n+x.energies.length,0):null;
     try{
       const result=oldDispatch.value.apply(this,[action,...args]);
+      if(baselinePositive)baselinePositive.baselineOriginalDispatchAccepted=true;
       if(play){
         play.nativeAccepted=true;audit.acceptedPlumeria++;
         play.ownerDiscardBefore=this.state.players[play.seat].discard.cards.length;
@@ -344,6 +353,11 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
       }
       return result;
     }catch(error){
+      if(baselinePositive){
+        baselinePositive.baselineOriginalDispatchAccepted=false;
+        baselinePositive.baselineOriginalDispatchError=
+          String(error?.message??error);
+      }
       if(play){
         audit.rejectedPlumeria++;
         if(audit.errorSamples.length<MAX_EXAMPLES)
