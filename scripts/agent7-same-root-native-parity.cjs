@@ -20,6 +20,9 @@ const OPTION_FIELDS=[
 function gameplayWithoutSameRootInstrumentation(report){
   const copy=structuredClone(report);
   for(const key of OPTION_FIELDS)delete copy[key];
+  // The root-observer version is included in the composed actor version;
+  // this provenance field legitimately differs while game behavior must not.
+  delete copy.actorOnlyCompositionVersion;
   for(const row of copy.rows??[]){
     delete row.actorOnlyDecisionCoverage;
     delete row.actorOnlyPolicyVersion;
