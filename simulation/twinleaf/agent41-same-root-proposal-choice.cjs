@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v4-discard-cost-identity';
+const VERSION='agent41-same-root-proposal-choice-v5-attack-vs-nonterminal-offers';
 const MAX_SAMPLES=48;
 
 /**
@@ -65,7 +65,10 @@ const PROPOSERS=Object.freeze([
       .chooseHeldGuzmaMobility(view,catalog)},
   {name:'stranded-marnie',flag:'strandedMarnieRoot',
     propose:view=>require('./agent50-stranded-marnie-frontier.cjs')
-      .chooseStrandedMarnie(view)}
+      .chooseStrandedMarnie(view)},
+  {name:'payable-printed-attack',flag:'payablePrintedAttackOffer',
+    propose:(view,catalog)=>require('./agent41-public-payable-attack-offer.cjs')
+      .choosePayablePrintedAttackOffer(view,catalog)}
 ]);
 
 const ENERGY_KINDS=new Set([
@@ -94,7 +97,8 @@ const STADIUM_KINDS=new Set(['play-sky-field','play-path-to-peak']);
  */
 function structurallySupported(view,proposal){
   if(!proposal||typeof proposal.kind!=='string')return false;
-  if(proposal.kind==='attack')return typeof proposal.attackName==='string';
+  if(proposal.kind==='attack')return typeof proposal.attackName==='string'&&
+    view.ownPublic?.active?.attacks?.some(a=>a.name===proposal.attackName)===true;
   if(proposal.kind==='pass')return true;
   if(!Number.isSafeInteger(proposal.handIndex)||proposal.handIndex<0||
      view.ownHand?.[proposal.handIndex]!==proposal.printing)return false;
@@ -250,6 +254,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       printing:o.intent.printing??null,
       handIndex:o.intent.handIndex??null,
       attackName:o.intent.attackName??null,
+      printedDamage:o.intent.printedDamage??null,
       slot:o.intent.slot??(o.intent.kind==='bench-basic'?'bench':null),
       index:o.intent.index??o.intent.benchIndex??null,
       score:o.score,reason:o.reason,
