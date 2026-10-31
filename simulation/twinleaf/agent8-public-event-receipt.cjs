@@ -40,6 +40,22 @@ function publicEventReceipt(state,seat){
       abilities.push({name:'Quick Search',
         usedThisTurn:used('QUICK_SEARCH_MARKER')});
     }
+    if(pokemon.fullName==='Dedenne-GX UNB'){
+      abilities.push({name:'Dedechange',usedThisTurn:used('DEDECHANGE_MARKER')});
+    }
+    if(pokemon.fullName==='Crobat V DAA'){
+      abilities.push({name:'Dark Asset',usedThisTurn:used('DARK_ASSET_MARKER')});
+    }
+    if(pokemon.fullName==='Squawkabilly ex PAL'){
+      abilities.push({name:'Squawk and Seize',
+        usedThisTurn:typeof owner.usedSquawkAndSeizeThisTurn==='boolean'?
+          owner.usedSquawkAndSeizeThisTurn:null});
+    }
+    if(pokemon.name==='Fezandipiti ex'){
+      abilities.push({name:'Flip the Script',
+        usedThisTurn:typeof owner.usedTableTurner==='boolean'?
+          owner.usedTableTurner:null});
+    }
     return {
       printing:pokemon.fullName,
       movedFromBenchToActiveThisTurn:moved,
