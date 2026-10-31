@@ -23,3 +23,9 @@ The initial selection priorities intentionally handle two narrow conflicts. A pu
 ## Integration correspondence
 
 Agent14 already has a Bench-vs-attack / Stadium-first owner-only option receipt; Agent44 has owner K0/K1 Secret Box selectors but lacks a genuine integrated Box root; Agent8 has identified missing public move history and prompt-closed Ability consumption. These are specific additional proposal and observation coverage opportunities, with separate release proof required. See the 00:13 and 01:03 UTC Critic broadcasts on 31 October 2026.
+
+## Isolated JavaScript-only module evaluation, 31 October
+
+The actual committed `agent16-owner-priority-contention.cjs` and `agent41-same-root-proposal-choice.cjs` source strings were parsed and executed in an isolated JavaScript runtime using a minimal assertion stub and injected independent selector outcomes. These eight finite controls all produced the expected choice: (1) Basic-to-immediate-Special override, (2) observe-mode Basic preservation, (3) attack-to-Grunt override, (4) last-Prize attack preservation, (5) spent Supporter quota preservation, (6) Basic preservation against unrelated Supporter alternative, (7) reject invalid Special hand index, and (8) preserve an explicitly offered hold behind the baseline. Zero of eight checks raised a failure. The new module, actor wrapper, and canonical runner each also passed syntactic parsing of their fetched committed source text.
+
+**Interpretation:** this is a narrow pure-policy smoke check with injected proposer outputs and a minimal Node assert replacement. It does not run the full Node test suite, independently call the actual selector implementations, compile Twinleaf, observe a genuine Store action, establish physical-target settlement, or qualify a game. The attempted permanent test file and the manual workflow operations remain blocked as described above.
