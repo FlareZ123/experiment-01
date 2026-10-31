@@ -5,6 +5,8 @@ const path=require('node:path');
 const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const native=x=>require(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output',x));
+const {installPassClearsLastAttackHook}=
+  require('../simulation/twinleaf/last-attack-pass-hook.cjs');
 
 function settle(x){
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
@@ -17,8 +19,10 @@ function settle(x){
   assert.fail('Native prompt did not settle');
 }
 
-/** @param {0|1} seat @param {boolean} interveningPass */
-function copycat(seat,interveningPass){
+/** @param {0|1} seat @param {boolean} interveningPass @param {boolean} corrected */
+function copycat(seat,interveningPass,corrected=false){
+  const restore=corrected?installPassClearsLastAttackHook():null;
+  try{
   const x=stage(seat),manager=initializeCards();
   let id=94000+seat*100;
   const make=name=>{
@@ -46,22 +50,30 @@ function copycat(seat,interveningPass){
     settle(x);
     assert.equal(x.state.activePlayer,1-seat);
   }
+  const afterPassStored=x.state.playerLastAttack[x.owner.id]?.attack.name??null;
   const before=x.owner.active.damage;
   x.store.dispatch(new AttackAction(x.opponent.id,'Copycat'));
   settle(x);
-  return {seat,interveningPass,damage:x.owner.active.damage-before,
-    storedOpponentAttack:actualLast,turn:x.state.turn};
+  return {seat,interveningPass,corrected,
+    damage:x.owner.active.damage-before,
+    storedOpponentAttack:actualLast,afterPassStored,
+    turn:x.state.turn};
+  }finally{restore?.();}
 }
 
 for(const seat of [0,1]){
   test('native rank1 Mimikyu Copycat may reuse stale opponent attack, seat '+seat,()=>{
     const immediate=copycat(seat,false);
     const afterPass=copycat(seat,true);
+    const repaired=copycat(seat,true,true);
     assert.equal(immediate.damage,10);
     assert.equal(afterPass.damage,10,
       'Diagnostic currently expects stale native attack to persist');
+    assert.equal(afterPass.afterPassStored,'Gnaw');
+    assert.equal(repaired.afterPassStored,null);
+    assert.equal(repaired.damage,0);
     console.log('AGENT8_STALE_COPYCAT_NATIVE',
-      JSON.stringify({seat,immediate,afterPass,
+      JSON.stringify({seat,immediate,afterPass,repaired,
         paperLastTurnAllowed:false,competitiveQualifiedGames:0}));
   });
 }
