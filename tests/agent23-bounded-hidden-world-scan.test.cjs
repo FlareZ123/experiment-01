@@ -68,6 +68,17 @@ test('bounded census visibly censors unexamined hidden single exchanges',()=>{
   assert.equal(result.completeOwnerObservationHistoryCertified,false);
 });
 
+test('bounded scan spreads exposure across owner-unseen physical hand indices',()=>{
+  const hand=Array.from({length:4},(_,i)=>energy(10+i,'Hand Energy '+i));
+  const deck=Array.from({length:9},(_,i)=>trainer(30+i,'Deck Trainer '+i));
+  const selected=selectBoundedHiddenExchanges(hand,deck,4);
+  assert.equal(selected.available,36);
+  assert.equal(selected.exchanges.length,4);
+  assert.equal(new Set(selected.exchanges.map(x=>x.handIndex)).size,4);
+  assert.equal(new Set(selected.exchanges.map(x=>x.deckIndex)).size,4);
+  assert.equal(selected.exhaustive,false);
+});
+
 test('same printing yields no eligible physical-identity-only exchange',()=>{
   const game=state();
   game.players[1].deck.cards=[energy(4,'Opponent Darkness')];
