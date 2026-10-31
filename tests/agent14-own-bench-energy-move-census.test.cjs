@@ -22,6 +22,9 @@ test('published original source manifest preserves source printing in exposure c
   assert.equal(result.unresolved.length,0,
     'Unresolved original source Pokemon printings: '+
       JSON.stringify(result.unresolved.slice(0,40)));
+  assert.equal(result.matches.length,4,
+    'Extra printed source attacks with own-Bench Energy movement: '+
+      JSON.stringify(result.matches));
   assert.deepEqual(result.matches.filter(x=>x.pokemon==='Iron Thorns ex')
     .map(x=>x.rank),[6,24,29]);
   const empoleon=result.matches.filter(x=>x.pokemon==='Empoleon V');
