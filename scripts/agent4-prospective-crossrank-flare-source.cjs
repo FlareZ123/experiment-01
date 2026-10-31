@@ -15,6 +15,7 @@ const FRAME='results/aichi-2026/registrations/agent4-crossrank-four-source-flare
 const FRAME_BLOB='b8d9259cf7c71fe04efab4baac9f570791326bb8';
 const PRIOR='results/aichi-2026/registrations/agent41-prospective-canonical-32-20261029.json';
 const VERSION='agent4-registered-four-original-source-dual-supporter-flare-v1';
+const physicalZoneGate=process.env.AGENT4_CROSSRANK_PHYSICAL_GATE_DEV==='true';
 
 /** @param {Buffer} bytes @returns {string} Git blob SHA-1 including header. */
 function gitBlob(bytes){
@@ -114,7 +115,7 @@ function runNativeGroup(prior,group,mode){
     const run=runDevelopment({...prior.frozenRunOptions,
       registeredTrials:group,registeredFrameName:FRAME,
       allowAdditionalOriginalSourceRanks:true,
-      actorPlumeriaAfterPass:true});
+      actorPlumeriaAfterPass:true,physicalZoneGate});
     assert.equal(run.attempted,2);
     assert.equal(run.rows.length,2);
     assert.equal(run.enginePin,prior.enginePin);
@@ -161,6 +162,8 @@ function runCrossrankFlare(){
       const control=controls.get(trial.id),treatment=treated.get(trial.id);
       assert.ok(control&&treatment,'Every preregistered game must be retained');
       pairs.push({...contrast(control,treatment),rank:trial.rank,
+        controlPhysicalZone:control.row?.physicalZoneQualification??null,
+        treatmentPhysicalZone:treatment.row?.physicalZoneQualification??null,
         sourceDeckArchetype:frame.sourcePrintings[trial.rank].archetype,
         errors:{control:control.driverError,treatment:treatment.driverError}});
     }
@@ -182,6 +185,13 @@ function runCrossrankFlare(){
     controlTerminals:rows.filter(r=>r.controlStatus==='engine-terminal').length,
     treatmentTerminals:rows.filter(r=>
       r.treatmentStatus==='engine-terminal').length,
+    controlPhysicalPassed:rows.filter(r=>
+      r.controlPhysicalZone?.status==='SETTLED_PHYSICAL_INTEGRITY_PASSED').length,
+    treatmentPhysicalPassed:rows.filter(r=>
+      r.treatmentPhysicalZone?.status==='SETTLED_PHYSICAL_INTEGRITY_PASSED').length,
+    physicalInvalidArms:rows.reduce((n,r)=>n+
+      Number(r.controlPhysicalZone?.status==='ENGINE_PHYSICAL_INVALID')+
+      Number(r.treatmentPhysicalZone?.status==='ENGINE_PHYSICAL_INVALID'),0),
     distinctPositiveSourceDeals:new Set(rows.filter(r=>
       r.prospectiveFlareAudit?.selectedFlareForks===1)
       .map(r=>r.originalSourceDealFingerprint)).size
@@ -195,6 +205,7 @@ function runCrossrankFlare(){
   return {version:VERSION,framePath:FRAME,frameBlob:FRAME_BLOB,
     sourceRosterBlob:frame.sourceRosterGitBlob,
     preregisteredBeforeIntervention:true,enginePin:frame.enginePin,
+    reportingOnlySettledPhysicalZoneGateOptIn:physicalZoneGate,
     originalSourceRanks:frame.sourceRanks,
     control:'original Plumeria after Pass',
     treatment:'first native coheld Flare with >=1 opponent Active Energy',
