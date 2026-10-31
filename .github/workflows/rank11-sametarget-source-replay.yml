@@ -178,7 +178,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate canonical Plumeria precedence and paired census
-        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-large-hand.test.cjs tests/agent38-plumeria-large-hand-compare.test.cjs tests/agent4-plumeria-payment-menu.test.cjs tests/agent4-supporter-energy-denial-contest.test.cjs
+        run: node --test tests/agent7-canonical-actor-composition.test.cjs tests/agent38-plumeria-paired-census.test.cjs tests/agent4-plumeria-after-pass.test.cjs tests/agent38-plumeria-large-hand.test.cjs tests/agent38-plumeria-large-hand-compare.test.cjs tests/agent4-plumeria-payment-menu.test.cjs tests/agent4-supporter-energy-denial-contest.test.cjs tests/agent4-plumeria-opportunity.test.cjs
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -187,6 +187,8 @@ jobs:
         run: npm run compile
       - name: Verify both native Plumeria physical seats on pinned Store
         run: node --test tests/agent4-plumeria-pinned-native.test.cjs
+      - name: Audit unchanged source-first Plumeria observer on two-seat original 60s
+        run: node --test tests/agent4-plumeria-headless-native.test.cjs
       - name: Execute four historical source-first original-60 OFF control arms
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
