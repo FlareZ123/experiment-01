@@ -60,9 +60,21 @@ function inspectRank8K0BoxShake(view){
   const searchCanPay=searchDiscardCost===0||
     remainingAfterPreservation-3>=searchDiscardCost;
   const missingTrubbish=!inPlayTrubbish&&!trubbishHeld;
-  const boxFetchShake=box&&!shakeHeld&&canPlaceTrubbish&&
-    (!missingTrubbish||reservedBasicSearch!==null)&&
-    boxCanPay&&searchCanPay&&!view.itemLocked&&!view.toolLocked;
+  const boxFetchShakeBeforeSearcherPayment=box&&!shakeHeld&&
+    canPlaceTrubbish&&(!missingTrubbish||reservedBasicSearch!==null)&&
+    boxCanPay&&!view.itemLocked&&!view.toolLocked;
+  const boxFetchShake=boxFetchShakeBeforeSearcherPayment&&searchCanPay;
+  // Secret Box can simultaneously obtain a Stadium and Supporter. The
+  // newly fetched cards cannot fund Box's own upfront three-card discard,
+  // but could fund a subsequent Quick/Ultra Ball discard after Box resolves.
+  // K0 cannot verify those still-unseen extra categories, so keep them as a
+  // separately flagged, conditional search subsidy rather than a confirmed
+  // executable opportunity.
+  const postBoxSearcherDiscardShortfall=Math.max(0,
+    searchDiscardCost-Math.max(0,remainingAfterPreservation-3));
+  const boxFetchShakePotentialAuxiliaryPayment=
+    boxFetchShakeBeforeSearcherPayment&&!searchCanPay&&
+    postBoxSearcherDiscardShortfall<=2;
   const boxHeldShake=box&&shakeHeld&&canPlaceTrubbish&&boxCanPay&&
     !view.itemLocked&&!view.toolLocked;
   const directShake=shakeHeld&&canPlaceTrubbish&&
@@ -78,8 +90,14 @@ function inspectRank8K0BoxShake(view){
     boxThreePhysicalDiscardCapacity:boxCanPay,
     additionalSearchDiscardCost:searchDiscardCost,
     additionalSearchDiscardCapacity:searchCanPay,
+    postBoxSearcherDiscardShortfall,
+    boxFetchShakeBeforeSearcherPayment,
+    boxFetchShakePotentialAuxiliaryPayment,
     boxFetchShake,boxHeldShake,directShake,
     anyK0Window:boxFetchShake||boxHeldShake||directShake,
+    anyK0OrConditionalAuxiliaryWindow:
+      boxFetchShakePotentialAuxiliaryPayment||
+      boxFetchShake||boxHeldShake||directShake,
     qualification:'K0 hand-and-visible-Board necessary-resource screen only; all deck/Prize targets, native prompts, opponent effects, strategy and actual first-turn success unverified'
   };
 }
