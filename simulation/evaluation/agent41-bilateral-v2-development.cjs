@@ -934,6 +934,7 @@ function runDevelopment({
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
+  nativeToolAttachRoot=false,
   nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
@@ -960,6 +961,10 @@ function runDevelopment({
     'Same-root proposal choice requires canonical actor composition');
   assert.ok(!sameRootChoiceApply||sameRootProposalChoice,
     'Same-root selection requires an enabled same-root proposal set');
+  assert.ok(!nativeToolAttachRoot||
+    (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
+      !sameRootProbeAll),
+    'Native Tool selection requires both-seat same-root applied selector');
   assert.ok(!sameRootProbeAll||sameRootProposalChoice,
     'All-proposer census requires an enabled same-root observer');
   assert.ok(!sameRootProbeAll||!sameRootChoiceApply,
@@ -1084,7 +1089,7 @@ function runDevelopment({
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
-                sameRootPublicEventReceipt,
+                sameRootPublicEventReceipt,nativeToolAttachRoot,
                 nativeCoheldDenialCanPlay,
                 sameRootPassAttackProbeGlobalTurn,
                 publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal,
@@ -1256,6 +1261,8 @@ function runDevelopment({
     actorOnlyCompositionOptIn:actorOnlyComposition,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
+    nativeToolAttachRootOptIn:sameRootProposalChoice&&
+      sameRootChoiceApply&&nativeToolAttachRoot,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootPassAttackProbeGlobalTurn:sameRootProposalChoice?
       sameRootPassAttackProbeGlobalTurn:null,
@@ -1414,6 +1421,8 @@ if(require.main===module){
       process.env.AGENT41_SAME_ROOT_PROPOSALS_DEV==='true',
     sameRootChoiceApply:
       process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true',
+    nativeToolAttachRoot:
+      process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true',
     sameRootProbeAll:
       process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true',
     sameRootPublicEventReceipt:
