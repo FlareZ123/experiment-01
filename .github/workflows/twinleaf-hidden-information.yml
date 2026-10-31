@@ -63,6 +63,10 @@ on:
         description: With both agent23 flags, use two disjoint concealed exchanges per world
         type: boolean
         default: false
+      agent23_native_hand_prize_tape:
+        description: With both opponent-hand flags, compare opponent concealed hand versus face-down Prizes
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -286,6 +290,7 @@ jobs:
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV: ${{ inputs.agent23_native_bounded_double_swap }}
+          AGENT23_NATIVE_OPPONENT_PRIZE_TAPE: ${{ inputs.agent23_native_hand_prize_tape }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Reject aborted or unauthenticated native historical controls
         run: node simulation/evaluation/agent50-native-control-gate.cjs agent50-live-deck-order-fourarm.json
@@ -307,6 +312,10 @@ jobs:
           boundedFailed:r.diagnostic?.nativeOpponentHiddenHandContrast?.failedSingleExchanges??null,
           boundedActionReversals:r.diagnostic?.nativeOpponentHiddenHandContrast?.actionReversals??null,
           swapSize:r.diagnostic?.nativeOpponentHiddenHandContrast?.swapSize??null,
+          sourceZone:r.diagnostic?.nativeOpponentHiddenHandContrast?.targetZone??null,
+          opponentPrizeCount:r.diagnostic?.nativeOpponentHiddenHandContrast?.opponentPrizeCount??null,
+          eligibleHandPrizePaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.eligibleHandPrizeExchanges??null,
+          testedHandPrizePaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.successfulHandPrizeExchanges??null,
           eligiblePaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.eligibleExchangePaths??null,
           attemptedPaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.attemptedExchangePaths??null,
           successfulPaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.successfulExchangePaths??null,
