@@ -373,7 +373,7 @@ function executeDevelopment(trial,candidates,{
   rank6K1AlternativeEnergy=false,
   rank11SourceSupporterPassRescue=false,
   rank11ExclusiveOpening=false,
-  registeredTrial=false
+  losslessNativeRootJoin=false,registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
     'Initialization passive window belongs only to rank 6');
@@ -431,6 +431,7 @@ function executeDevelopment(trial,candidates,{
     // Existing opaque two-seat setup fingerprint authenticates the complete
     // physical deal. It is postdecision evidence and never reaches policy.
     captureInitialFullPhysicalDeal:true,
+    ...(losslessNativeRootJoin?{captureNativePolicyActionJoin:true}:{}),
     // Native Store's setup/shuffle and optional-mulligan observer is strictly
     // read-only. Leave prior full-match policy and archive schema unchanged
     // unless the audit is specifically requested.
@@ -944,7 +945,7 @@ function runDevelopment({
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
-  nativeToolAttachRoot=false,
+  nativeToolAttachRoot=false,losslessNativeRootJoin=false,
   nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
@@ -971,6 +972,9 @@ function runDevelopment({
     'Same-root proposal choice requires canonical actor composition');
   assert.ok(!sameRootChoiceApply||sameRootProposalChoice,
     'Same-root selection requires an enabled same-root proposal set');
+  assert.ok(!losslessNativeRootJoin||
+    (actorOnlyComposition&&sameRootProposalChoice),
+    'Lossless native policy ordinal join requires both-seat same-root roots');
   assert.ok(!nativeToolAttachRoot||
     (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
       !sameRootProbeAll),
@@ -1062,7 +1066,7 @@ function runDevelopment({
         physicalZoneGate,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
-        nativeAcceptedTargets,
+        nativeAcceptedTargets,losslessNativeRootJoin,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,
         rank11SourceSupporterPassRescue,
@@ -1100,6 +1104,7 @@ function runDevelopment({
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,nativeToolAttachRoot,
+                losslessNativeRootJoin,
                 nativeCoheldDenialCanPlay,
                 sameRootPassAttackProbeGlobalTurn,
                 publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal,
@@ -1273,6 +1278,7 @@ function runDevelopment({
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
       sameRootChoiceApply&&nativeToolAttachRoot,
+    losslessNativeRootJoinOptIn:losslessNativeRootJoin,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootPassAttackProbeGlobalTurn:sameRootProposalChoice?
       sameRootPassAttackProbeGlobalTurn:null,
