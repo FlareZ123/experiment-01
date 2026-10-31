@@ -151,7 +151,7 @@ test('genuine wrapper receives same-view alternative receipts before its typed c
 
 test('actual actor root retains DCE when voluntarily preserving no Bench',()=>{
   const view=fixture();
-  assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v2-hand-funded');
+  assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v3-stadium-path');
   assert.equal(holdSoloThornsBench(view,catalog),true);
   assert.equal(chooseActorRootIntent(view,catalog,{
     thornsDirectLine:true
@@ -188,6 +188,26 @@ test('held Thunder and DCE allow a complete source-turn solo attack before auto-
     kind:'attack',attackName:'Volt Cyclone'
   });
   assert.ok(view.ownPublic.bench.every(x=>x===null));
+});
+
+test('held Thunder can rescue an already-attached DCE before optional Bench',()=>{
+  const view=fixture();
+  view.ownPublic.stadium=[];
+  view.ownHand=[THORNS,'Thunder Mountain Prism Star LOT'];
+  view.ownTurnResources.stadiumPlayedTurn=0;
+  assert.equal(holdSoloThornsBench(view,catalog),true);
+  const receipt=require('../simulation/twinleaf/agent14-owner-solo-bench-choice-contract.cjs')
+    .collectSoloBenchChoice(view,catalog,chooseActorRootIntent,{
+      thornsDirectLine:true,thornsSoloEnergyRetention:true
+    });
+  assert.equal(receipt.reason,'visible-held-thunder-enables-attached-dce');
+  assert.equal(receipt.alternatives[0].intent.kind,'bench-basic');
+  assert.deepEqual(receipt.alternatives[1].intent,{
+    kind:'play-thunder-mountain',handIndex:1,
+    printing:'Thunder Mountain Prism Star LOT'
+  });
+  view.ownTurnResources.stadiumPlayedTurn=2;
+  assert.equal(holdSoloThornsBench(view,catalog),false);
 });
 
 test('only genuinely currently attachable held Special Energy enables hand-funded hold',()=>{
