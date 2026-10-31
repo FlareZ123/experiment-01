@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_unown_starter_fixture:
+        description: 'Staged two distinct Unown source Active and Bench donor'
+        type: boolean
+        required: false
+        default: false
       rank26_dowsing_pump_fixture:
         description: 'Staged two physical Pump and native Dowsing fifth-KO Store test'
         type: boolean
@@ -204,6 +209,16 @@ jobs:
         with:
           name: rank26-integrated-firstturn-prospective-source-unqualified
           path: rank26-prospective-integrated-source.json
+          if-no-files-found: error
+      - name: Real source-60 Unown Active and distinct Benched donor five self-KOs
+        if: ${{ inputs.rank26_unown_starter_fixture }}
+        run: node simulation/twinleaf/rank26-unown-starter-source-fixture.cjs > rank26-native-unown-starter-staged.json
+      - name: Archive staged source Unown starter and donor conservation
+        if: ${{ inputs.rank26_unown_starter_fixture }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-native-unown-starter-staged-unqualified
+          path: rank26-native-unown-starter-staged.json
           if-no-files-found: error
       - name: Native source-conserved Dowsing recovers a spent Pump then fifth self-KO
         if: ${{ inputs.rank26_dowsing_pump_fixture }}
