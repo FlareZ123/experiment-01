@@ -96,6 +96,20 @@ test('bracketed original world fails closed on drifting shared bot state',()=>{
   assert.deepEqual(game,before);
 });
 
+test('reject shallow live aliases before exchanging physical hidden cards',()=>{
+  const game=state(),before=structuredClone(game);
+  assert.throws(()=>scanBoundedOpponentHiddenWorlds(game,101,
+    sensitiveBot,()=>game,()=>()=>0.5,dependencies),
+  /Clone returned the live Store object/);
+  assert.deepEqual(game,before);
+  assert.throws(()=>scanBoundedOpponentHiddenWorlds(game,101,
+    sensitiveBot,source=>({
+      ...source,players:source.players.map(p=>({...p}))
+    }),()=>()=>0.5,dependencies),
+  /Clone reused a live concealed-zone object/);
+  assert.deepEqual(game,before);
+});
+
 test('invalid or excessive counterfactual budgets fail fast',()=>{
   assert.throws(()=>selectBoundedHiddenExchanges([],[],0));
   assert.throws(()=>selectBoundedHiddenExchanges([],[],65));
