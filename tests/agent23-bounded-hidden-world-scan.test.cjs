@@ -118,6 +118,24 @@ test('native optional policy callback is installed before each fresh bot',()=>{
   assert.equal(constructions,4);
 });
 
+test('small budget covers distinct hidden-hand printing compositions first',()=>{
+  const hand=[energy(1,'Repeated Energy'),energy(2,'Repeated Energy')];
+  const deck=[trainer(3,'Repeated Trainer'),trainer(4,'Repeated Trainer'),
+    trainer(5,'Different Trainer')];
+  const out=selectBoundedHiddenExchanges(hand,deck,2);
+  assert.equal(out.available,6);
+  assert.equal(out.eligibleDistinctHandCompositions,2);
+  assert.equal(out.testedDistinctHandCompositions,2);
+  assert.equal(out.exchanges.length,2);
+  const incoming=new Set(out.exchanges.map(x=>deck[x.deckIndex].fullName));
+  assert.deepEqual(incoming,new Set(['Repeated Trainer','Different Trainer']));
+  assert.equal(out.exhaustive,false);
+  const larger=selectBoundedHiddenExchanges(hand,deck,6);
+  assert.equal(larger.exchanges.length,6);
+  assert.equal(larger.testedDistinctHandCompositions,2);
+  assert.equal(larger.exhaustive,true);
+});
+
 test('bounded scan spreads exposure across owner-unseen physical hand indices',()=>{
   const hand=Array.from({length:4},(_,i)=>energy(10+i,'Hand Energy '+i));
   const deck=Array.from({length:9},(_,i)=>trainer(30+i,'Deck Trainer '+i));
