@@ -294,3 +294,81 @@ test('grouped denial census counts absence of Flare without manufacturing a cont
   assert.equal(d.plumeriaWithBenchTargetRoots,0);
   assert.deepEqual(d.coheldFlareRootSamples,[]);
 });
+
+test('native Tool root opt-in chooses active Muscle Band after Pass and stays disabled by default',()=>{
+  const view=rootView({
+    ownHand:['Muscle Band XY'],
+    ownPublic:{
+      active:{name:'Raichu',printing:'Raichu XY',
+        attacks:[{name:'Electric Shock',damage:60}],tools:[],energies:[]},
+      bench:[null],
+      publicTurnRestrictions:{toolPlayLocked:false},
+      prizeCount:6
+    }
+  });
+  const catalog={toolPrintings:new Set(['Muscle Band XY'])};
+  const before=collectAndChooseOwnerRoot(view,catalog,
+    {kind:'pass'},{sameRootChoiceApply:true});
+  assert.equal(before.receipt.supportedAlternativeCount,0);
+  assert.equal(before.intent.kind,'pass');
+  const applied=collectAndChooseOwnerRoot(view,catalog,
+    {kind:'pass'},{sameRootChoiceApply:true,nativeToolAttachRoot:true});
+  assert.equal(applied.intent.kind,'attach-tool-candidate');
+  assert.equal(applied.intent.handIndex,0);
+  assert.equal(applied.intent.slot,'active');
+  assert.equal(applied.intent.index,0);
+  assert.equal(applied.receipt.changed,true);
+  assert.equal(applied.receipt.selectedSource,'owner-tool');
+  assert.equal(applied.receipt.offers.find(o=>o.source==='owner-tool')
+    .nativeDispatchImplemented,true);
+  const allProbe=collectAndChooseOwnerRoot(view,catalog,
+    {kind:'pass'},{sameRootProbeAll:true});
+  assert.equal(allProbe.intent.kind,'pass');
+  assert.equal(allProbe.receipt.offers.find(o=>o.source==='owner-tool')
+    .nativeDispatchImplemented,false);
+});
+
+test('Tool root opt-in targets Vileplume Bench Hood without occupying unrelated Active',()=>{
+  const view=rootView({
+    ownHand:['Stealthy Hood UNB'],
+    ownPublic:{
+      active:{name:'Bunnelby',printing:'Bunnelby PRC',
+        attacks:[{name:'Barrage',damage:20}],tools:[],energies:[]},
+      bench:[{name:'Vileplume',printing:'Vileplume AOR',
+        attacks:[{name:'Solar Beam',damage:70}],tools:[],energies:[]}],
+      publicTurnRestrictions:{toolPlayLocked:false},
+      prizeCount:6
+    }
+  });
+  const catalog={toolPrintings:new Set(['Stealthy Hood UNB'])};
+  const applied=collectAndChooseOwnerRoot(view,catalog,
+    {kind:'pass'},{sameRootChoiceApply:true,nativeToolAttachRoot:true});
+  assert.equal(applied.intent.kind,'attach-tool-candidate');
+  assert.equal(applied.intent.slot,'bench');
+  assert.equal(applied.intent.index,0);
+  assert.equal(applied.receipt.selectedSource,'owner-tool');
+  const locked=rootView({...view,
+    ownTurnResources:{...view.ownTurnResources,toolPlayLocked:true}});
+  const refused=collectAndChooseOwnerRoot(locked,catalog,
+    {kind:'pass'},{sameRootChoiceApply:true,nativeToolAttachRoot:true});
+  assert.equal(refused.intent.kind,'pass');
+  assert.equal(refused.receipt.supportedAlternativeCount,0);
+});
+
+test('Tool root bridge never overrides an already selected attack or risks unscored Tools',()=>{
+  const view=rootView({
+    ownHand:['Stealthy Hood UNB'],
+    ownPublic:{
+      active:{name:'Vileplume',printing:'Vileplume AOR',
+        attacks:[{name:'Solar Beam',damage:70}],tools:[],energies:[]},
+      bench:[],publicTurnRestrictions:{toolPlayLocked:false},prizeCount:6
+    }
+  });
+  const catalog={toolPrintings:new Set(['Stealthy Hood UNB'])};
+  const original={kind:'attack',attackName:'Solar Beam'};
+  const out=collectAndChooseOwnerRoot(view,catalog,original,
+    {sameRootChoiceApply:true,nativeToolAttachRoot:true});
+  assert.equal(out.intent.kind,'attack');
+  assert.equal(out.receipt.supportedAlternativeCount,1);
+  assert.equal(out.receipt.selectedSource,'first-return');
+});
