@@ -101,11 +101,15 @@ function calculate(totals){
   const full=choose(60,7);
   assert.equal(valid,full-choose(60-totals[0]-totals[5],7),
     'Mulligan conditioning count mismatch');
+  /** @param {bigint} a @param {bigint} b @returns {bigint} */
+  const gcd=(a,b)=>b===0n?a:gcd(b,a%b);
   /** @param {bigint} numerator @param {bigint} denominator */
-  const out=(numerator,denominator)=>({
-    numerator:numerator.toString(),denominator:denominator.toString(),
-    probability:Number(numerator)/Number(denominator)
-  });
+  const out=(numerator,denominator)=>{
+    const g=gcd(numerator,denominator);
+    return {numerator:(numerator/g).toString(),
+      denominator:(denominator/g).toString(),
+      probability:Number(numerator)/Number(denominator)};
+  };
   return {
     schema:'agent5-source-rank1-opening-counter-access-v1',
     source:SOURCE.replace(path.resolve(__dirname,'..')+path.sep,''),
