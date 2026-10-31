@@ -24,6 +24,57 @@ function visibleEnergyTargets(player) {
 }
 
 /**
+ * A physical-cost summary of two Supporters at the same *actual* owner root.
+ * All names, hand indices, and target Energy counts belong to the acting
+ * owner or to public board state. The genuine Store's \`canPlay\` is observed,
+ * while the paper first-turn Supporter rule is screened separately.
+ *
+ * @param {object} store Native Store.
+ * @param {object} state Native State.
+ * @param {0|1} seat Actual owner.
+ * @param {Array<{handIndex:number,nativeCanPlay:boolean}>} plumeria
+ */
+function plumeriaFlareCostContour(store,state,seat,plumeria){
+  const owner=state.players[seat],opp=state.players[1-seat];
+  const hand=owner.hand.cards;
+  const flare=hand.flatMap((card,index)=>
+    card?.fullName==='Team Flare Grunt XY'?[{card,index}]:[]);
+  const chooseTwo=n=>n>=2?n*(n-1)/2:0;
+  const availableAfterPlumeria=hand.length-1;
+  const pairCount=plumeria.length*chooseTwo(availableAfterPlumeria);
+  const pairsPreservingFlare=plumeria.length*
+    chooseTwo(availableAfterPlumeria-flare.length);
+  const paperScreen=state.turn!==1&&owner.supporterTurn===0;
+  const flareOffers=flare.map(({card,index})=>{
+    let nativeCanPlay=null,nativeError=null;
+    try{nativeCanPlay=card.canPlay(store,state,owner)===true;}
+    catch(error){nativeError=String(error?.message??error);}
+    return {handIndex:index,nativeCanPlay,nativeError};
+  });
+  const targets=visibleEnergyTargets(opp);
+  const activeEnergyTargets=targets.filter(t=>t.slot==='active')
+    .reduce((n,t)=>n+t.energies.length,0);
+  const benchEnergyTargets=targets.filter(t=>t.slot==='bench')
+    .reduce((n,t)=>n+t.energies.length,0);
+  return {
+    plumeriaHeld:plumeria.length,flareHeld:flare.length,
+    plumeriaHandIndices:plumeria.map(p=>p.handIndex),
+    flareHandIndices:flareOffers.map(o=>o.handIndex),
+    totalPhysicalPlumeriaPaymentPairs:pairCount,
+    plumeriaPaymentPairsConsumingFlare:pairCount-pairsPreservingFlare,
+    plumeriaPaymentPairsPreservingFlare:pairsPreservingFlare,
+    publicActiveEnergyTargets:activeEnergyTargets,
+    publicBenchEnergyTargets:benchEnergyTargets,
+    nativePlayablePlumeria:plumeria.filter(p=>p.nativeCanPlay).length,
+    nativePlayableFlare:flareOffers.filter(p=>p.nativeCanPlay).length,
+    paperScreenedBothPlayable:paperScreen&&
+      plumeria.some(p=>p.nativeCanPlay)&&
+      flareOffers.some(p=>p.nativeCanPlay),
+    flareOffers,nativeOutcomeUnverified:true
+  };
+}
+
+/**
  * Native-pinned, printed Plumeria viability at a genuine owner root.
  * This identifies actual legal *mechanical* offers, not good discard choices.
  * @param {object} store Authenticated Store.
@@ -59,6 +110,7 @@ function plumeriaOwnerOpportunity(store,state,seat) {
     paperScreenedCopies:state.turn===1?0:
       offered.filter(x=>x.nativeCanPlay===true).length,
     offered,
+    plumeriaFlareContest:plumeriaFlareCostContour(store,state,seat,offered),
     tacticalDiscardValueUnverified:true
   };
 }
@@ -216,4 +268,4 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
 }
 
 module.exports={VERSION,PRINTING,visibleEnergyTargets,
-  plumeriaOwnerOpportunity,withPlumeriaOwnerOpportunity};
+  plumeriaFlareCostContour,plumeriaOwnerOpportunity,withPlumeriaOwnerOpportunity};
