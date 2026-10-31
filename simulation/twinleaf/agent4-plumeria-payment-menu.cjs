@@ -9,7 +9,9 @@ const PRINTING = 'Plumeria BUS';
  * Enumerate Plumeria's owner-held physical payment pairs and publicly
  * identifiable opposing Energy targets at a single detached owner root.
  *
- * This is a necessary structural opportunity census, not native legality,
+ * This enumerates only Plumeria's Energy-denial lines. It does not model
+ * using Plumeria solely to discard one's own cards when no opposing Energy
+ * is attached. It is a necessary structural opportunity census, not native legality,
  * a playable action, a favorable DCI rating, or an outcome prediction.
  * Payments and targets are separate choice axes, preventing an unbounded
  * Cartesian product of hand pairs with opposing attached Energy cards.
@@ -43,7 +45,7 @@ function collectOwnerPlumeriaPaymentMenu(view) {
       slot,index,pokemonPrinting:pokemon.printing,
       energyIndex,energyPrinting
     })));
-  if (targets.length === 0) return empty('opponent-has-no-public-attached-energy');
+  if (targets.length === 0) return empty('no-public-energy-denial-target');
 
   const plumeriaIndices = hand.flatMap((printing,index) =>
     printing === PRINTING ? [index] : []);
