@@ -23,6 +23,10 @@ on:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
         default: false
+      agent4_source32_contest_probe:
+        description: 'Read-only physical-cost Plumeria and Team Flare opportunities on 32 frozen original 60 games'
+        type: boolean
+        default: false
       agent38_plumeria_largehand_probe:
         description: 'Also test oversized Plumeria actor hand planning against same-deal generic fallback'
         type: boolean
@@ -41,7 +45,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_source32_contest_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -165,7 +169,7 @@ jobs:
           retention-days: 14
 
   agent38-plumeria-paired:
-    if: ${{ inputs.agent38_plumeria_probe || inputs.agent38_plumeria_largehand_probe }}
+    if: ${{ inputs.agent38_plumeria_probe || inputs.agent38_plumeria_largehand_probe || inputs.agent4_source32_contest_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     steps:
@@ -189,6 +193,20 @@ jobs:
         run: node --test tests/agent4-plumeria-pinned-native.test.cjs
       - name: Audit unchanged source-first Plumeria observer on two-seat original 60s
         run: node --test tests/agent4-plumeria-headless-native.test.cjs
+      - name: Census all 32 frozen original Store physical owner-root Supporter contests
+        if: ${{ inputs.agent4_source32_contest_probe }}
+        run: node scripts/agent4-original32-plumeria-flare-census.cjs > agent4-source32-contest.json
+      - name: Print only bounded original two-seat Source Supporter opportunity counts
+        if: ${{ inputs.agent4_source32_contest_probe }}
+        run: node -e "const a=require('node:assert/strict');const d=require('./agent4-source32-contest.json');a.equal(d.rows.length,32);a.equal(d.competitiveQualifiedGames,0);console.log('AGENT4_SOURCE32_NATIVE_CONTEST',JSON.stringify(d.byRank));"
+      - name: Archive source32 original root evidence and all failures
+        if: ${{ always() && inputs.agent4_source32_contest_probe }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original32-plumeria-flare-owner-native
+          path: agent4-source32-contest.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Execute four historical source-first original-60 OFF control arms
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
