@@ -92,9 +92,35 @@ test('native public Shred threat chooses backup Bench on both physical seats',()
     assert.equal(x.owner.hand.cards.length,0);
     assert.equal(x.owner.bench[0].getPokemonCard().fullName,
       'Iron Thorns ex TWM');
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    x.store.dispatch(new AttackAction(x.owner.id,'Volt Cyclone'));
+    const prompted=[];
+    for(let k=0;k<15;k++){
+      const prompt=x.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      prompted.push(prompt.constructor.name);
+      const result=prompt.constructor.name==='WaitPrompt'?null:
+        prompt.constructor.name==='AttachEnergyPrompt'?[{
+          to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0},
+          card:x.owner.active.energies.cards[0]
+        }]:undefined;
+      assert.notEqual(result,undefined,'Unexpected defensive prompt '+
+        prompt.constructor.name);
+      x.store.dispatch(new ResolvePromptAction(prompt.id,result));
+    }
+    assert.equal(x.store.hasPrompts(),false);
+    assert.equal(x.opponent.active.damage,140);
+    assert.equal(x.owner.active.energies.cards.length,0);
+    assert.deepEqual(x.owner.bench[0].energies.cards.map(c=>c.fullName),
+      ['Double Colorless Energy SUM']);
     process.stdout.write('# AGENT14_NATIVE_DEFENSIVE_BASELINE '+
       JSON.stringify({seat,chosen:'bench-basic',
         publicLethalReply:'Dialga-GX Shred',nativeBenchAccepted:true,
+        energyOnBenchedBackup:true,attackDamage:140,
+        afterTurn:x.state.turn,afterActiveSeat:x.state.activePlayer,
+        afterPhase:x.state.phase,prompted,
         competitiveQualified:false})+'\\n');
   }
 });
