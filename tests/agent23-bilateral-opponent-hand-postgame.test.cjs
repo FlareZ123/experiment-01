@@ -65,6 +65,31 @@ test('unmatched actual owner decision fails closed even with a changed hypotheti
   assert.equal(out.conditionalActionReversal,false);
 });
 
+test('bounded multiworld scanner preserves score-only contrasts and coverage',()=>{
+  const out=classifyConditionalProbe(row(),row(),[event({
+    schema:'agent23-detached-bounded-hidden-world-single-exchange-v1',
+    actionSensitiveToOpponentHiddenHand:false,
+    scoreOnlyChanges:2,
+    totalEligibleSingleExchanges:7,testedSingleExchanges:4,
+    exhaustiveSingleExchangeCoverage:false,
+    tacticScoreComparison:null,
+    counterfactualOrder:null,
+    chosenExchangeKinds:null,
+    firstActionReversal:null,
+    firstScoreOnlyChange:{
+      exchangeKind:'trainer-vs-energy',
+      scoreComparison:{equalScoreTraces:false}
+    }
+  })]);
+  assert.equal(out.classification,'conditional-opponent-hand-score-change-only');
+  assert.equal(out.conditionalActionReversal,false);
+  assert.equal(out.diagnostic.testedSingleExchanges,4);
+  assert.equal(out.diagnostic.eligibleSingleExchanges,7);
+  assert.equal(out.diagnostic.exhaustiveSingleExchangeCoverage,false);
+  assert.equal(out.diagnostic.hiddenSwapKinds,'trainer-vs-energy');
+  assert.equal(out.qualifiedCompetitiveGames,0);
+});
+
 test('source errors and observer errors remain census rows',()=>{
   const fails=auditHistoricalTrial(trial,new Map(),function Stub(){},
     structuredClone,()=>{throw Error('source failed')},()=>{},()=>()=>0);
