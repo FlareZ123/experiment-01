@@ -42,9 +42,25 @@ function selectBoundedHiddenExchanges(hand,deck,limit=16){
     chosen.add(i);
     exchanges.push(pairs[i]);
   }
-  for(let i=0;i<pairs.length&&exchanges.length<limit;i++){
-    if(chosen.has(i))continue;
-    exchanges.push(pairs[i]);
+  const seenHands=new Set(exchanges.map(x=>x.handIndex));
+  const seenDecks=new Set(exchanges.map(x=>x.deckIndex));
+  while(exchanges.length<limit&&exchanges.length<pairs.length){
+    let winner=-1,best=-1;
+    for(let i=0;i<pairs.length;i++){
+      if(chosen.has(i))continue;
+      const pair=pairs[i];
+      // Maximize distinct physical source positions in the small budget.
+      // Stable order of 'pairs' supplies a deterministic tie-breaker.
+      const coverage=(seenHands.has(pair.handIndex)?0:2)+
+        (seenDecks.has(pair.deckIndex)?0:1);
+      if(coverage>best){best=coverage;winner=i;}
+    }
+    assert.ok(winner>=0);
+    const pair=pairs[winner];
+    chosen.add(winner);
+    seenHands.add(pair.handIndex);
+    seenDecks.add(pair.deckIndex);
+    exchanges.push(pair);
   }
   return {available:pairs.length,exchanges,
     exhaustive:exchanges.length===pairs.length};
