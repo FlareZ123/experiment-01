@@ -2,9 +2,15 @@ name: Aichi opening-hand audit
 
 on:
   workflow_dispatch:
+    inputs:
+      agent44_source_witness_run:
+        description: 'Optional existing original-rank8 K0 Store artifact run ID for compact witness inspection'
+        type: string
+        required: false
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   audit:
@@ -15,6 +21,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Retrieve prior native source K0 witnesses without rerunning expensive games
+        if: inputs.agent44_source_witness_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: agent44-rank8-original-k0-source-census
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.agent44_source_witness_run }}
+      - name: Print source positive seed witnesses and three actual owner-only hands
+        if: inputs.agent44_source_witness_run != ''
+        run: >-
+          node -e "const r=require('./agent44-rank8-original-k0-source.json');const xs=r.trials.filter(t=>t.sourceK0?.offeredWindow.anyK0Window);console.log(JSON.stringify({sourceSchema:r.schema,sourceStart:r.startIndex,total:r.trialCount,windows:r.exposed,positiveSeeds:xs.map(t=>({seed:t.seed,trial:t.trial,sourceSeat:t.sourceSeat,BoxFetch:t.sourceK0.offeredWindow.boxFetchShake,BoxShake:t.sourceK0.offeredWindow.boxHeldShake,direct:t.sourceK0.offeredWindow.directShake})),firstThreeOwners:xs.slice(0,3).map(t=>({seed:t.seed,hand:t.sourceK0.ownerHandPrintings,active:t.sourceK0.visibleActive,bench:t.sourceK0.visibleBench,flags:t.sourceK0.offeredWindow}))}));"
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
       - name: Verify exact printed Basic stage and unconditional opener distribution
