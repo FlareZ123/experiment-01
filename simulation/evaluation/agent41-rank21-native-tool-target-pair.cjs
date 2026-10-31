@@ -144,7 +144,13 @@ function compactArm(row,condition){
               'TARGET_DECLARED_PHYSICAL_ATTACHMENT_UNCONFIRMED'
         };
       });
-  const nativeToolActions=(root?.nativeRootAcceptances??[]).filter(a=>
+  // Prefer the unbounded typed action/Store-clock join. A historic first-64
+  // audit is only a sampled observation and cannot establish an absence.
+  const unboundedNativeReceipts=root?.nativeRootJoinReceipts;
+  const toolEvidenceSource=Array.isArray(unboundedNativeReceipts)?
+    'full-action-identity-receipts':root?'legacy-bounded-sample':'no-actor-policy';
+  const nativeToolActions=(Array.isArray(unboundedNativeReceipts)?
+    unboundedNativeReceipts:(root?.nativeRootAcceptances??[])).filter(a=>
     a.seat===1&&a.kind==='attach-tool-candidate');
   const firstSourceActorRoot=(root?.nativeRootAcceptances??[])
     .find(a=>a.seat===1)??null;
@@ -173,10 +179,19 @@ function compactArm(row,condition){
     changedRoots:chosen?.changedRoots??null,
     firstChangedDecision:chosen?.changedSamples?.[0]??null,
     nativeToolSelectedDispatches:nativeToolActions,
-    nativeToolAcceptedCount:nativeToolActions.filter(a=>a.accepted===true).length,
-    nativeToolPhysicalConfirmedCount:nativeToolActions.filter(a=>
+    nativeToolEvidenceSource:toolEvidenceSource,
+    nativeToolAcceptedObservedCount:nativeToolActions.filter(a=>
+      a.accepted===true).length,
+    nativeToolPhysicalConfirmedObservedCount:nativeToolActions.filter(a=>
       a.accepted===true&&
       a.nativePhysicalEffect==='confirmed-public-effect').length,
+    // Explicit null when a count cannot be certified complete. In
+    // particular, do not turn an empty capped first-64 sample into zero.
+    nativeToolAcceptedCount:nativeActionJoin.complete?
+      nativeToolActions.filter(a=>a.accepted===true).length:null,
+    nativeToolPhysicalConfirmedCount:nativeActionJoin.complete?
+      nativeToolActions.filter(a=>a.accepted===true&&
+        a.nativePhysicalEffect==='confirmed-public-effect').length:null,
     sourceFirstActorPublicRootDigest:
       firstSourceActorRoot?.before?.publicZonesSha256??null,
     sourceFirstActorHandCount:
@@ -222,6 +237,9 @@ function summarize(results,plan){
       conditions:cohort.map(x=>x.condition),
       toolAccepted:cohort.map(x=>x.nativeToolAcceptedCount),
       toolPhysicallyConfirmed:cohort.map(x=>x.nativeToolPhysicalConfirmedCount),
+      nativeActionJoins:cohort.map(x=>x.nativeActionJoin.status),
+      actorArmsComplete:cohort.filter(x=>x.condition!=='native-bot')
+        .every(x=>x.nativeActionJoin.complete===true),
       sameFirstActorSourcePublicRoot:(()=>{
         const both=cohort.filter(x=>x.condition!=='native-bot');
         const hashes=both.map(x=>x.sourceFirstActorPublicRootDigest);
@@ -239,9 +257,16 @@ function summarize(results,plan){
     predeclaredConditions:plan.conditions,sourceRank:21,sourceSeed:plan.sourceSeed,
     sourceRoleSeat:1,independentPhysicalSeeds:1,pairedCandidateArms:2,
     measuredArms:arms.length,byCandidate,arms,
-    nativeToolAcceptedTotal:arms.reduce((n,r)=>n+r.nativeToolAcceptedCount,0),
-    nativeToolPhysicalConfirmedTotal:arms.reduce((n,r)=>
-      n+r.nativeToolPhysicalConfirmedCount,0),
+    nativeToolAcceptedObservedTotal:arms.reduce((n,r)=>
+      n+r.nativeToolAcceptedObservedCount,0),
+    nativeToolPhysicalConfirmedObservedTotal:arms.reduce((n,r)=>
+      n+r.nativeToolPhysicalConfirmedObservedCount,0),
+    nativeToolAcceptedTotal:arms.filter(x=>x.condition!=='native-bot')
+      .every(x=>x.nativeActionJoin.complete===true)?
+      arms.reduce((n,r)=>n+(r.nativeToolAcceptedCount??0),0):null,
+    nativeToolPhysicalConfirmedTotal:arms.filter(x=>
+      x.condition!=='native-bot').every(x=>x.nativeActionJoin.complete===true)?
+      arms.reduce((n,r)=>n+(r.nativeToolPhysicalConfirmedCount??0),0):null,
     competitiveQualifiedGames:0,
     caveat:'Post-observed seed and two repeated candidate comparisons, not independent field samples. Unqualified bot, effects and paper clock. A physical tool offer, selected intent and native Store accepted action have different evidence strengths.'
   };
