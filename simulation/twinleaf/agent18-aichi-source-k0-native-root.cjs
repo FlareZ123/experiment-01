@@ -29,7 +29,7 @@ function observeSourceK0(execute){
   const types=native('game/store/card/card-types');
   const {PowerType}=native('game/store/card/pokemon-types');
   const catalog=buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
-    ...types,PokemonCard,EnergyCard,PowerType
+    ...types,PokemonCard,EnergyCard,TrainerCard,PowerType
   });
   const toolCatalog=actorToolPrintingCatalog(
     CardManager.getInstance().getAllCards(),{
