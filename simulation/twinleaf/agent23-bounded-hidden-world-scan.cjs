@@ -86,17 +86,20 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   assert.equal(typeof newBot,'function');
   assert.equal(typeof cloneState,'function');
   assert.equal(typeof makeRandom,'function');
-  const fingerprint=options.fingerprint??stateGraphFingerprint;
+  // The existing native postgame wrapper passes null as its optional sixth
+  // argument when it does not request a per-world policy wrapper.
+  const settings=options??{};
+  const fingerprint=settings.fingerprint??stateGraphFingerprint;
   const sourceBefore=fingerprint(source);
   const actor=source.players.find(p=>p.id===actorId);
   const other=source.players.find(p=>p.id!==actorId);
   assert.ok(actor&&other&&source.players.length===2);
   const originalPool=hiddenZoneFingerprint(other);
   const selected=selectBoundedHiddenExchanges(
-    other.hand.cards,other.deck.cards,options.limit??16);
+    other.hand.cards,other.deck.cards,settings.limit??16);
   const seat=source.players.findIndex(p=>p.id===actorId);
   assert.ok(seat===0||seat===1);
-  const actorView=options.actorView??
+  const actorView=settings.actorView??
     require('./actor-observation-contract.cjs').actorObservation;
   const originalObservation=actorView(source,seat);
 
