@@ -6,6 +6,7 @@ const path = require('node:path');
 const VERSION = 'agent4-plumeria-native-owner-opportunity-v2-physical-supporter-contest';
 const PRINTING = 'Plumeria BUS';
 const MAX_EXAMPLES = 128;
+const MAX_POSITIVE_PER_SEAT = 8;
 
 /**
  * Read public attached physical Energy cards by occupied board location.
@@ -149,15 +150,18 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     contestedOwnerRoots:0,contestedBothNativePlayableRoots:0,
     bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0,
     contestedOwnerSamples:[],bothPlayablePassSamples:[],
+    contestPositiveSampling:'independent-per-seat-first-eight',
     bySeat:{
       0:{ownerRoots:0,firstOwnerTurns:0,
         bothHeldRoots:0,bothNativePlayableRoots:0,
         bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0,
-        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0},
+        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0,
+        earliestNativePositiveContest:null,positiveContestSamples:[]},
       1:{ownerRoots:0,firstOwnerTurns:0,
         bothHeldRoots:0,bothNativePlayableRoots:0,
         bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0,
-        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0}
+        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0,
+        earliestNativePositiveContest:null,positiveContestSamples:[]}
     },
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     acceptedPassWithPlayable:0,acceptedPassWithHeld:0,
@@ -224,6 +228,30 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
       if(proposedAction==='PlayCardAction')
         contestSample.originalCard=state.players[seat].hand.cards[
           proposal.handIndex]?.fullName??null;
+    }
+    // The global first-128 contested sample may hide a later positive root.
+    // Capture each seat's earliest genuine canPlay-positive contest separately.
+    if(bothHeld&&contest.paperScreenedBothPlayable){
+      const positive={
+        game,ownerRootOrdinal:audit.actualOwnerRoots,
+        seat,turn:state.turn,sourceSeat,
+        paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
+        plumeriaPairsConsumingFlare:
+          contest.plumeriaPaymentPairsConsumingFlare,
+        plumeriaPairsPreservingFlare:
+          contest.plumeriaPaymentPairsPreservingFlare,
+        activeEnergyTargets:contest.publicActiveEnergyTargets,
+        benchEnergyTargets:contest.publicBenchEnergyTargets,
+        paperScreenedBothPlayable:true,
+        originalAction:proposedAction,
+        originalCard:proposedAction==='PlayCardAction'?
+          (state.players[seat].hand.cards[proposal.handIndex]?.fullName??null):null
+      };
+      const seatAudit=audit.bySeat[seat];
+      if(seatAudit.earliestNativePositiveContest===null)
+        seatAudit.earliestNativePositiveContest=positive;
+      if(seatAudit.positiveContestSamples.length<MAX_POSITIVE_PER_SEAT)
+        seatAudit.positiveContestSamples.push(positive);
     }
     if(contest.paperScreenedBothPlayable&&
        proposedAction==='PassTurnAction'){
