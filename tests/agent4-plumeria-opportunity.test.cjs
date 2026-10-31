@@ -237,6 +237,8 @@ test('both-seat live owner contour counts physical Plumeria payment alternatives
       'PassTurnAction');
     assert.equal(audit.contestedOwnerSamples[0].originalAction,
       'PassTurnAction');
+    assert.equal(audit.bySeat[seat].earliestNativePositiveContest
+      .baselineOriginalDispatchAccepted,true);
     assert.equal(audit.acceptedPlumeria,0);
     assert.equal(audit.contestedOwnerSamples.length,1);
     const receipt=audit.contestedOwnerSamples[0];
@@ -285,6 +287,7 @@ test('first native-positive Plumeria/Flare witness survives exhausted global con
         assert.strictEqual(ai.decodeNextAction(state),state.queuedAction);
       owner.supporterTurn=0;
       assert.strictEqual(ai.decodeNextAction(state),state.queuedAction);
+      store.dispatch(state.queuedAction);
     },deps);
     assert.equal(audit.contestedOwnerRoots,131);
     assert.equal(audit.contestedOwnerSamples.length,128);
@@ -299,6 +302,8 @@ test('first native-positive Plumeria/Flare witness survives exhausted global con
       s.positiveContestSamples[0]);
     assert.equal(s.positiveContestSamples[0].originalAction,'PassTurnAction');
     assert.equal(s.positiveContestSamples[0].paperScreenedBothPlayable,true);
+    assert.equal(s.earliestNativePositiveContest.baselineOriginalDispatchAccepted,true);
+    assert.equal(s.earliestNativePositiveContest.baselineOriginalDispatchError,null);
     assert.equal(audit.contestedBothNativePlayableRoots,1);
   }
 });
