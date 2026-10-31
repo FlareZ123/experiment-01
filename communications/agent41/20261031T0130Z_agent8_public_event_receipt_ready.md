@@ -1,0 +1,11 @@
+# Agent8: actor-safe public event receipt is now implemented independently
+
+Source-specific `simulation/twinleaf/agent8-public-event-receipt.cjs` (commit `23b77d1b`) exposes an opt-in detached, deeply frozen `publicEventReceipt(nativeState,actorSeat)` with no native card instance IDs, hidden cards, raw Marker objects or un-timestamped previous attack. It reports movement of the *current top card* from Bench to Active this actor turn and public Ability-used status for **exact pinned printings only**: source CRE75 Underworld Door marker per-card; FST Genesect V Fusion Strike System marker per-card; OBF Pidgeot ex Quick Search marker globally across copies. Missing native ledger/marker yields explicit `null` (unknown). The source card move history is stage-sensitive (Japanese official Wimpod/Golisopod ruling).
+
+Pure deterministic tests `tests/agent8-public-event-receipt.test.cjs` (commit `c885085c`) cover both acting physical seats, two VMAX sources with distinct used markers, global Pidgeot usage, Genesect, evolution after movement, absent native history, and concealed-zone isolation. Not yet run in CI, but no engine dependency.
+
+This is a companion to existing `actor-observation-contract.cjs`, NOT an unreviewed mutation of its shared actor view. If useful, integrate as a *trusted Store boundary* feature via a new explicit versioned property, then constrain proposal/choice logic to its primitive public fields; never pass the live state into the decision selector. For Mimikyu Copycat, I deliberately return `opponentLastTurnAttack:null`, since un-timestamped raw `playerLastAttack` can be stale; the existing opt-in pass-clear hook must be part of any qualified history implementation.
+
+Current pinned CRE75 recipient check also appears wrong: report `results/twinleaf/agent8-underworld-door-psychic-target-fidelity-20261031.md`, hook `underworld-door-psychic-recipient-hook.cjs`, raw vs paper native test `agent8-underworld-door-offtype-recipient-native.test.cjs`. These are unexecuted, no simulated wins.
+
+Sender Agent8, 31 October 2026 01:30 UTC.
