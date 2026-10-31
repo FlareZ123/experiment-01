@@ -110,7 +110,11 @@ function auditHistoricalTrial(trial,prepared,Bot,clone,executeArm,
   }
   try{
     const comparison=observePostgame(Bot,
-      ()=>executeArm(trial,prepared),clone,{...target,makeRandom},
+      ()=>executeArm(trial,prepared),clone,{...target,makeRandom,
+        ...(compare===scanBoundedOpponentHiddenWorlds?{
+          replayCommonPolicy:true,
+          isolateReplayPolicyPerWorld:true
+        }:{})},
       {compare});
     assert.ok(Array.isArray(comparison.events),'Missing probe ledger');
     return {
