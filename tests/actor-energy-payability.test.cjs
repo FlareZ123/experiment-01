@@ -2,7 +2,8 @@
 
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {canPaySymbols,energyUnits,printedEnergyPayability}=
+const {canPaySymbols,energyUnits,printedEnergyPayability,
+  registeredSixtyAttackEnergyCeiling}=
   require('../simulation/twinleaf/actor-energy-payability.cjs');
 const basic={isBasic:true,isEvolution:false,isDragon:false,
   hasRuleBox:false,behindOnPrizes:false};
@@ -121,4 +122,68 @@ test('original source Colorless and typed attached Special numerics',()=>{
   assert.equal(readiness(['P'],['Telepathic Psychic Energy POR']).payable,true);
   assert.equal(readiness(['P','C'],['Telepathic Psychic Energy POR']).payable,
     false);
+});
+
+test('rank21 Regidrago cannot fund Dedenne-GX Lightning from own printed Energy',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../results/aichi-2026/full-decklists.json'),'utf8'));
+  const rank21=roster.decks.find(d=>d.rank===21);
+  assert.ok(rank21);
+  assert.equal(rank21.cards.filter(x=>x.category==='Energy')
+    .reduce((n,x)=>n+x.count,0),10);
+  const dedenne=registeredSixtyAttackEnergyCeiling(
+    ['L','C'],rank21.cards,{
+      ...basic,hasRuleBox:true,isPokemonGXorEX:true,isDragon:false
+    });
+  assert.equal(dedenne.possible,false);
+  assert.equal(dedenne.unknownEnergyPrintings.length,0);
+  assert.equal(dedenne.excludedEnergyCopies,3);
+  const koraidon=registeredSixtyAttackEnergyCeiling(
+    ['C','C'],rank21.cards,{
+      ...basic,hasRuleBox:true,isPokemonGXorEX:false,isDragon:true
+    });
+  assert.equal(koraidon.possible,true);
+  assert.equal(koraidon.excludedEnergyCopies,0);
+});
+
+test('full exact Aichi 29-source Dedenne Energy ceiling has explicit denominator',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const roster=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../results/aichi-2026/full-decklists.json'),'utf8'));
+  const sources=roster.decks.filter(d=>Array.isArray(d.cards));
+  assert.equal(sources.length,29);
+  const carrying=sources.filter(d=>d.cards.some(c=>
+    c.name==='Dedenne-GX'&&c.printing?.set==='UNB'));
+  assert.equal(carrying.length,18);
+  const missing=carrying.filter(d=>
+    registeredSixtyAttackEnergyCeiling(['L','C'],d.cards,{
+      ...basic,hasRuleBox:true,isPokemonGXorEX:true,isDragon:false
+    }).possible===false);
+  assert.deepEqual(missing.map(d=>d.rank).sort((a,b)=>a-b),
+    [5,10,12,13,14,16,18,20,21,27,30,32]);
+  const uncertain=carrying.filter(d=>
+    registeredSixtyAttackEnergyCeiling(['L','C'],d.cards,{
+      ...basic,hasRuleBox:true,isPokemonGXorEX:true,isDragon:false
+    }).possible===null);
+  assert.deepEqual(uncertain,[]);
+});
+
+test('unknown source Energy is uncertainty, Dragon-only DDE is ineligible on Lightning',()=>{
+  const cards=[
+    {category:'Energy',name:'Double Dragon Energy',
+      count:4,printing:{set:'ROS'}},
+    {category:'Energy',name:'Unmodeled Experimental Energy',
+      count:1,printing:{set:'XYZ'}}
+  ];
+  const unknown=registeredSixtyAttackEnergyCeiling(['L','C'],cards,
+    {...basic,hasRuleBox:true,isDragon:false});
+  assert.equal(unknown.possible,null);
+  assert.deepEqual(unknown.unknownEnergyPrintings,
+    ['Unmodeled Experimental Energy XYZ']);
+  assert.equal(unknown.excludedEnergyCopies,4);
+  assert.equal(registeredSixtyAttackEnergyCeiling(['L','C'],cards.slice(0,1),
+    {...basic,hasRuleBox:true,isDragon:false}).possible,false);
 });
