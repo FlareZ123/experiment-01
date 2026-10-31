@@ -1,0 +1,62 @@
+name: Agent7 bounded same-root real Store Pass to Attack fork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-pass-attack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact public-turn development score and default-off safety
+        run: node --test tests/agent7-bounded-pass-attack-probe.test.cjs
+      - name: Check out pinned upstream Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Frozen four-arm same-root observer control
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
+          AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
+          AGENT41_SAME_ROOT_SELECT_DEV: 'false'
+          AGENT7_PASS_ATTACK_PROBE_TURN: '4'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-pass-attack-original.json
+      - name: Frozen four-arm selected payable attack on public turn four
+        env:
+          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+          AGENT41_PAPER_SUPPORTER_DEV: 'true'
+          AGENT41_MANDATORY_OPTION_DEV: 'true'
+          AGENT41_NATIVE_PRESSURE_DEV: 'true'
+          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
+          AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
+          AGENT41_SAME_ROOT_SELECT_DEV: 'true'
+          AGENT7_PASS_ATTACK_PROBE_TURN: '4'
+        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-pass-attack-selected.json
+      - name: Demand first actual Store divergence be a turn-four owner printed attack
+        run: node scripts/agent7-same-root-pass-attack-pair.cjs agent7-pass-attack-original.json agent7-pass-attack-selected.json > agent7-pass-attack-native-pair.json
+      - name: Archive every original and selected Store attempt including errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-bounded-pass-attack-native-pair
+          path: |
+            agent7-pass-attack-original.json
+            agent7-pass-attack-selected.json
+            agent7-pass-attack-native-pair.json
+          if-no-files-found: warn
+          retention-days: 14
