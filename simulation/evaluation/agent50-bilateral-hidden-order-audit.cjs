@@ -145,7 +145,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean,nativeTapeBoundedOpponentHiddenHand?:boolean,nativeTapeBoundedDoubleExchange?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean,nativeTapeBoundedOpponentHiddenHand?:boolean,nativeTapeBoundedDoubleExchange?:boolean,nativeTapeHandPrizeContrast?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -165,7 +165,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeBoundedOpponentHiddenHand===true?
       {nativeTapeBoundedOpponentHiddenHand:true}:{}),
     ...(scope.nativeTapeBoundedDoubleExchange===true?
-      {nativeTapeBoundedDoubleExchange:true}:{})};
+      {nativeTapeBoundedDoubleExchange:true}:{}),
+    ...(scope.nativeTapeHandPrizeContrast===true?
+      {nativeTapeHandPrizeContrast:true}:{})};
   let control;
   try {
     control=execute();
@@ -327,7 +329,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false,
   nativeTapeHiddenOpponentHandContrast=false,
   nativeTapeBoundedOpponentHiddenHand=false,
-  nativeTapeBoundedDoubleExchange=false}={}) {
+  nativeTapeBoundedDoubleExchange=false,
+  nativeTapeHandPrizeContrast=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
@@ -343,6 +346,10 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeHiddenOpponentHandContrast,'boolean');
   assert.equal(typeof nativeTapeBoundedOpponentHiddenHand,'boolean');
   assert.equal(typeof nativeTapeBoundedDoubleExchange,'boolean');
+  assert.equal(typeof nativeTapeHandPrizeContrast,'boolean');
+  assert.ok(!nativeTapeHandPrizeContrast||
+    (nativeTapeBoundedOpponentHiddenHand&&!nativeTapeBoundedDoubleExchange),
+    'Hand-Prize contrast requires bounded one-swap mode');
   assert.ok(!nativeTapeBoundedDoubleExchange||nativeTapeBoundedOpponentHiddenHand,
     'Double exchange requires bounded native opponent-hand mode');
   assert.ok(!nativeTapeBoundedOpponentHiddenHand||
@@ -400,10 +407,13 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
-      nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange}
+      nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange,
+      nativeTapeHandPrizeContrast}
   ));
   return {
-    schema:nativeTapeBoundedDoubleExchange?
+    schema:nativeTapeHandPrizeContrast?
+      'agent23-crossrank-native-tape-opponent-hand-prize-v4':
+      nativeTapeBoundedDoubleExchange?
       'agent23-crossrank-native-tape-opponent-hand-double-v3':
       nativeTapeFirstFiniteScore?
       'agent50-crossrank-native-first-finite-scored-tape-v1':
@@ -424,7 +434,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
       firstFiniteScoredRoot?
       'agent50-crossrank-historical-first-finite-owner-score-v3':
       'agent50-crossrank-historical-live-hidden-order-v1',
-    protocol:nativeTapeBoundedDoubleExchange?
+    protocol:nativeTapeHandPrizeContrast?
+      'same-frozen-game control/replay and native-tape opponent concealed-hand/Prize swaps':
+      nativeTapeBoundedDoubleExchange?
       'same-frozen-game control/replay and disjoint two-card native-tape hand/deck swaps':
       nativeTapeBoundedOpponentHiddenHand?
       'same-frozen-game control/replay and bounded native RNG-tape hidden-hand exchanges':
@@ -465,7 +477,9 @@ if(require.main===module) {
     nativeTapeBoundedOpponentHiddenHand:
       process.env.AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE==='true',
     nativeTapeBoundedDoubleExchange:
-      process.env.AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV==='true'
+      process.env.AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV==='true',
+    nativeTapeHandPrizeContrast:
+      process.env.AGENT23_NATIVE_OPPONENT_PRIZE_TAPE==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
