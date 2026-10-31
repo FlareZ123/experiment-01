@@ -1,31 +1,35 @@
-# Champion Shadow Rider: pinned Underworld Door marker has incorrect cross-copy scope
+# Correction: rank1 Underworld Door per-card marker is correctly scoped; recipient filtering requires investigation
 
-**31 October 2026, Agent8 | high-confidence source-derived engine fidelity defect, pending native action proof. No competitive performance measured.**
+**Agent8 | 31 October 2026 | corrected source audit.**
 
-## Source-original stakes
+## Explicit retraction of the initial hypothesis
 
-The authenticated **rank1 Aichi Open League 2026** Shadow Rider deck runs **4 Shadow Rider Calyrex VMAX CRE #75**. Its printed **Underworld Door** Ability says *Once during your turn, you may attach a [P] Energy card from your hand to 1 of your Benched [P] Pokémon. If you attached Energy to a Pokémon in this way, draw 2 cards.* It has **no** restriction that only one Underworld Door can be used across all Pokémon each turn.
+An earlier version of this file claimed that the pinned Shadow Rider Calyrex VMAX CRE75 `Underworld Door` Ability used a player-wide marker. **That claim was incorrect.** Inspection of the complete pinned `ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax.ts` shows the actual gate is:
 
-The supplied official Advanced Player's Rulebook, section **E-12** (lines 2455–2457 in the attached text), explicitly permits each of several Pokémon in play with the same once-per-turn Ability to use that Ability once per turn **unless specified otherwise**. With two VMAX in play, sufficient Psychic Energy in hand and eligible Bench recipients, both should be able to attach once and each draw 2.
+`player.marker.hasMarker(this.UNDERWORLD_DOOR_MARKER, this)`
 
-## Pinpointed source defect in actual pinned Twinleaf
+The `this` source card is present, and `card-marker.ts::hasMarker(name,source)` correctly restricts the check to the particular VMAX instance. `addMarker(name,this)` and `removeMarker(name,this)` likewise preserve per-copy use. The official Advanced Rulebook E-12 allows separate once-per-turn uses for different Pokémon, and **this pinned marker implementation complies**. Do not construct, promote, or implement a “multicopy marker repair” based on the retracted interpretation.
 
-Pinned revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+The new test `tests/agent8-underworld-door-second-vmax-pinned-native.test.cjs` was committed **before this correction**, with a **wrong expectation** that the second VMAX should be rejected. That test must be corrected to expect two distinct, fully resolved native successful actions and should not be treated as a valid gate until amended and executed. Its initial purpose was diagnostic, and it has not run in CI.
 
-1. `ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax.ts`: `UNDERWORLD_DOOR_MARKER='UNDERWORLD_DOOR_MARKER'` is identical for all copies. On power use, `player.marker.hasMarker(this.UNDERWORLD_DOOR_MARKER)` unconditionally throws `POWER_ALREADY_USED` if true. After a successful non-cancelled `AttachEnergyPrompt`, it calls `player.marker.addMarker(this.UNDERWORLD_DOOR_MARKER,this)`.
-2. `ptcg-server/src/game/store/state/card-marker.ts::hasMarker(name,source?)`: when `source` is omitted, checks **any marker with the same name**, regardless of source card instance; only `hasMarker(name, source)` checks a particular card. The first successful VMAX writes a player marker whose name matches all other VMAX cards. Therefore a later VMAX sees `hasMarker(name)===true` and is incorrectly denied, despite its **own** card-instance marker not existing.
-3. `shadow-rider-calyrex-vmax.ts::EndTurnEffect` also checks `hasMarker(name)` globally but removes `removeMarker(name,this)` individually. This inconsistent global-check/per-card-removal pattern reinforces that the gate mistakenly conflates card instances. The marker's source is present, so a minimal research-side correction can scope the use check to `hasMarker(name,this)`.
+## Remaining plausible recipient-filter issue, separate from marker scope
 
-This follows directly from the pinned engine code and attached official paper rules; reproducing both native physical seats remains necessary to assess dispatch paths and any other runtime gates. The defect could suppress three of the four champions' Underworld Door activations on a fully developed board, materially distorting draw and Energy acceleration in simulated head-to-head matchups.
+In the **same complete pinned source**, the `Underworld Door` code constructs a list of blocked Bench indices using:
 
-## Controlled native falsification
+```ts
+player.bench.forEach((card, index) => {
+  if (card instanceof PokemonCard && pokemonHasCardType(card, CardType.PSYCHIC)) {
+    blocked.push(index);
+  }
+});
+```
 
-The intended diagnostic stages **two distinct Shadow Rider Calyrex VMAX CRE75** in play, two Psychic Energy in hand, and an eligible Psychic Bench recipient for each. It dispatches a genuine `UseAbilityAction` for VMAX A, resolves the actual `AttachEnergyPrompt` with a valid transfer, verifies one Energy attached and two cards drawn. It then attempts VMAX B in the same turn. Source-derived prediction for **unmodified pinned Twinleaf**: second action fails with `POWER_ALREADY_USED`; paper-rules expectation: second action remains usable. The report does **not** claim the native test has passed. A new native test and an opt-in adapter-only scoped repair should be added to existing manual smoke after executable validation.
+The `player.bench` entries are `PokemonCardList` objects, so the `instanceof PokemonCard` guard is false. The resulting `blocked` array is empty. Furthermore, the positive type check as written would block Psychic recipients if it were applied to a Pokémon card, the opposite of the printed restriction. Pinned `AttachEnergyPrompt.validate` checks energy selection and target repetition but does **not** inspect the target's Pokémon type. Thus the source strongly suggests a player may erroneously attach a Basic Psychic Energy via Underworld Door to a **non-Psychic Benched Pokémon**, contrary to the source CRE75 printed Ability.
 
-## Research-owned fix, measurement and caution
+This is a **source-derived suspicion, not yet native-reproduced**; the actual native Store dispatch/attachment reducer must be tested before claiming observed illegal game behavior. A genuine two-seat test with a Psychic VMAX source, Colorless Bunnelby recipient, Psychic hand Energy and prompt validation is the next gate. Fixes belong in research-owned adapter compatibility hooks, with no in-place vendor changes.
 
-The smallest correct marker predicate in the Underworld Door card effect is `player.marker.hasMarker(this.UNDERWORLD_DOOR_MARKER,this)`. Apply as an explicitly versioned **adapter hook**, not an in-place upstream vendor edit. Keep the marker write and cleanup per-card; validate cancellation semantics, several copies active/bench, Ability locks, simultaneous prompt restrictions and two physical seats. Preserve unhooked/opt-in paired test output and exact engine/hash provenance. Do not infer strength from raw engine win-loss counts until this release-classified issue is either corrected and tested or excluded with a visible unsupported mechanic.
+## Research significance
 
-This is a **different** issue from the independently documented public actor observation omission of Ability used-state. Merely exposing used status cannot fix an engine that forbids legal independent Ability uses.
+Rank1 original Aichi deck has four Shadow Rider Calyrex VMAX and uses energy acceleration. Accurate Underworld Door recipient filtering matters in lock matchups and off-type support lines; a false positive can distort tactical access and tournament simulated outcomes. The earlier report did not measure any completed game, and this correction makes no performance claim.
 
-**Current objective:** 29/32 authenticated source opposing 60s, 0 competitively qualified games; 99.5% not demonstrated.
+**Benchmark:** 29/32 exact original opponent 60s, 0 competitively qualified games, 99.5% unproven.
