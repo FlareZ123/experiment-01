@@ -117,4 +117,49 @@ function printedEnergyPayability(cost,printings,context){
   };
 }
 
-module.exports={TYPES,energyUnits,canPaySymbols,printedEnergyPayability};
+/**
+ * Optimistic typed-Energy ceiling for a Pokemon whose owner knows their
+ * registered 60. All printed Energy cards are treated as simultaneously
+ * accessible. This does not establish timing, attack legality or game value.
+ *
+ * @param {string[]} cost Printed attack cost as type symbols including C.
+ * @param {{category:string,count:number,name:string,printing:{set:string}}[]} sixty
+ * @param {object} context Public recipient type, Stage and prize conditions.
+ * @returns {{possible:boolean|null,knownEnergyUnits:number,
+ *   excludedEnergyCopies:number,unknownEnergyPrintings:string[],scope:string}}
+ */
+function registeredSixtyAttackEnergyCeiling(cost,sixty,context){
+  assert.ok(Array.isArray(cost)&&Array.isArray(sixty));
+  assert.ok(cost.every(symbol=>TYPES.includes(symbol)));
+  assert.ok(context&&typeof context==='object');
+  const units=[],unknownEnergyPrintings=[];
+  let excludedEnergyCopies=0;
+  for(const card of sixty){
+    if(card.category!=='Energy')continue;
+    assert.ok(Number.isSafeInteger(card.count)&&card.count>0);
+    assert.equal(typeof card.name,'string');
+    assert.equal(typeof card.printing?.set,'string');
+    const printing=card.name+' '+card.printing.set;
+    if(printing.startsWith('Double Dragon Energy ')&&
+       context.isDragon===false){
+      excludedEnergyCopies+=card.count;
+      continue;
+    }
+    const encoded=energyUnits(printing,context);
+    if(encoded===null){
+      unknownEnergyPrintings.push(printing);
+      continue;
+    }
+    for(let i=0;i<card.count;i++)units.push(...encoded);
+  }
+  const potential=canPaySymbols(cost,units);
+  return {
+    possible:potential?true:unknownEnergyPrintings.length>0?null:false,
+    knownEnergyUnits:units.length,excludedEnergyCopies,
+    unknownEnergyPrintings,
+    scope:'All owner Energy assumed simultaneously accessible; no card-effect, cost-modifier, Prize, turn or tempo model'
+  };
+}
+
+module.exports={TYPES,energyUnits,canPaySymbols,printedEnergyPayability,
+  registeredSixtyAttackEnergyCeiling};
