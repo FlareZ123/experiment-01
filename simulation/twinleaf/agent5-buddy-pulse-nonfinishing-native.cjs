@@ -62,8 +62,8 @@ function runSeat(seat){
 
   const resolvedAttack=nativeAttack(attackFirst);
   const postAttack=publicReceipt(attackFirst);
-  assert.equal(postAttack.winner,null,
-    'Non-finishing attack must leave game open');
+  assert.equal(postAttack.winner,-1,
+    'Pinned Store uses -1 as the no-winner sentinel');
   assert.equal(postAttack.ownerPrizes,6);
   assert.equal(postAttack.opponentPrizes,2);
 
