@@ -87,12 +87,14 @@ test('same native owner view gives genuinely accepted Bench or solo attack in bo
       if(!pending)break;
       baselinePrompts.push(pending.constructor.name);
       const response=pending.constructor.name==='WaitPrompt'?null:
-        pending.constructor.name==='ChoosePokemonPrompt'?
-          [baseline.owner.bench[0]]:undefined;
+        pending.constructor.name==='AttachEnergyPrompt'?[{
+          to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0},
+          card:baseline.owner.active.energies.cards[0]
+        }]:undefined;
       assert.notEqual(response,undefined,
-        'Baseline native Energy move introduced an unsupported prompt');
-      if(pending.constructor.name==='ChoosePokemonPrompt')
-        assert.equal(pending.validate(response,baseline.state),true);
+        'Unsupported native baseline prompt '+pending.constructor.name);
+      if(pending.constructor.name==='AttachEnergyPrompt')
+        assert.equal(pending.validate(response),true);
       baseline.store.dispatch(new ResolvePromptAction(pending.id,response));
     }
     assert.equal(baseline.store.hasPrompts(),false);
