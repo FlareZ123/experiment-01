@@ -497,7 +497,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
-    thornsSoloEnergyRetentionOptIn:deps.thornsSoloEnergyRetention===true,
+    thornsSoloEnergyRetentionOptIn:deps.thornsSoloEnergyRetention??
+      (process.env.AGENT14_THORNS_SOLO_HOLD_DEV==='true'),
     specialEnergyRootOptIn:deps.specialEnergyRoot??
       (process.env.AGENT3_SPECIAL_ENERGY_ROOT_DEV==='true'),
     publicContextSpecialEnergyOptIn:deps.publicContextSpecialEnergy??
