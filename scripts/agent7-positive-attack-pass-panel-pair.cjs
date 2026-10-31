@@ -16,7 +16,11 @@ const VERSION='agent7-preregistered-positive-print-attack-pass-original-store-pa
  * @param {object} selected Same Store code with selected paid Attack > Pass
  * @returns {object}
  */
-function comparePositiveAttackPanel(control,selected){
+function comparePositiveAttackPanel(control,selected,options={}){
+  const cohort=options.cohort??
+    'agent7-registered-positive-print-attack-over-pass-rank6-v1';
+  const flag=options.policyFlag??'sameRootPositiveAttackOverPassOptIn';
+  const version=options.version??VERSION;
   for(const rep of [control,selected]){
     assert.equal(rep.attempted,16);
     assert.equal(rep.rows?.length,16);
@@ -24,14 +28,13 @@ function comparePositiveAttackPanel(control,selected){
     assert.equal(rep.winRateCertified,false);
     assert.equal(rep.actorOnlyCompositionOptIn,true);
     assert.equal(rep.sameRootProposalChoiceOptIn,true);
-    assert.equal(rep.sameRootPositiveAttackOverPassOptIn,true);
+    assert.equal(rep[flag],true);
     assert.equal(rep.sameRootPassAttackProbeGlobalTurn,null);
     assert.equal(rep.sameRootPublicNoBenchTerminalOptIn,false);
     assert.equal(rep.sameRootProbeAllOptIn,false);
     assert.equal(rep.nativeAcceptedTargetsOptIn,true);
   }
-  assert.equal(control.preregisteredCohort,
-    'agent7-registered-positive-print-attack-over-pass-rank6-v1');
+  assert.equal(control.preregisteredCohort,cohort);
   assert.equal(selected.preregisteredCohort,control.preregisteredCohort);
   assert.equal(selected.preregisteredAt,control.preregisteredAt);
   assert.equal(control.preregisteredMode,'control');
@@ -152,7 +155,7 @@ function comparePositiveAttackPanel(control,selected){
   assert.equal(stats.pairedWithPhysicalRootLedger,
     stats.changed+stats.unchanged);
   return {
-    version:VERSION,pinnedEngine:control.enginePin,
+    version,pinnedEngine:control.enginePin,
     preregisteredAt:control.preregisteredAt,
     preregisteredCohort:control.preregisteredCohort,
     controlChangedRootCount:control.sameRootChangedRoots,
