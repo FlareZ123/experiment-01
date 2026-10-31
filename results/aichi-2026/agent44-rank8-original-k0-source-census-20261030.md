@@ -49,3 +49,33 @@ At the time of this report, the disjoint 208-source-deal CI extension had been d
 ## Wider benchmark and integration
 
 Current field remains **29/32** authenticated original opposing 60s (final 23,25,28 unverified), **zero competitively qualified games**, no demonstrated fixed deck achieving 99.5%. Common both-seat actor integration still needs an owner-only Box root plus native category-capped K1 search chooser, rather than a source-specific scripted replay. A standalone [default-off owner K1 selector](../../simulation/twinleaf/agent44-secretbox-owner-prompt.cjs) has been contributed for this transition; native prompt acceptance still requires direct tests in the actual Store.
+
+## Completed disjoint 208-source-deal extension (31 October 2026, 00:12 UTC)
+
+The intentionally separately frozen **indices 48–255** extension completed [pinned original Store workflow 41147842138](https://github.com/FlareZ123/experiment-01/actions/runs/41147842138) **SUCCESS**, pinned checkout `6e18840fe0c0dbb10f6e6e610dcd955c63e8d3cd`. The native-screen and compact-summary steps passed. All **208/208** first-source-root observations were recorded. No trials failed; four additional unmodified native control decision traces matched. Archived complete trial records as [original Source K0 artifact 13021962225](https://github.com/FlareZ123/experiment-01/actions/runs/41147842138/artifacts/13021962225), zip SHA-256 `7683bcdaa6ad4b582608f94eb53acd7e397122c1fb23b80a7d954531e06460be`. Its full artifact includes **every** registered positive and negative source state, real source-seat, hand printings and observed first-owner-root Board.
+
+| Original, unchanged source observation or necessary resource condition | Initial 48 | Disjoint 208 | Combined 256 |
+| --- | ---: | ---: | ---: |
+| Authentic source first-owner-root captures | 48 | **208** | **256** |
+| Source first in actual native turn order | 18 | 107 | 125 |
+| Source second in actual native turn order | 30 | 101 | 131 |
+| Source held Secret Box, ignoring other line requirements | Not separately logged | **24** | Not separately logged |
+| Source held Boost Shake, ignoring other requirements | Not separately logged | **24** | Not separately logged |
+| Source held Box without Shake | Not separately logged | **23** | Not separately logged |
+| Box-fetch-Shake strict K0 condition | 0 | **14** | **14** |
+| Box+Shake held strict K0 condition | 0 | **1** | **1** |
+| Direct held-Shake strict K0 condition | 0 | **6** | **6** |
+| **Any strict K0 resource condition (union)** | **0** | **21/208** | **21/256** |
+| Unchanged decision-trace controls | 4/4 | 4/4 | 8/8 |
+| Failed trials | 0 | 0 | 0 |
+| Competitively qualified games | 0 | 0 | 0 |
+
+The three native strict K0 categories are disjoint in the observed 208-state cohort. The disjoint 208 extension observed **10.09615%** strict K0 source resource windows and the concatenated 256 audited states observed **8.203125%**. A descriptive Wilson 95% interval for the combined **21/256** opportunity fraction is approximately **5.43%–12.21%** if these fixed seeded native deals are interpreted as an independent random sample from the modeled game-start distribution. That statistical interval concerns *this hand-only classifier*, and neither assumes nor establishes an actual Garbotoxin-lock conversion fraction. The initially negative 48-row cohort was relatively small and happened to show no strict windows; the separately labeled extension resolves that pilot's lack of observed exposure without retroactively changing its frozen scope.
+
+Among the 208 extension's first-owner-root observations, the raw source-hand access funnel was **24 held Box**, **24 held Shake**, **23 held Box without Shake**, **15 held Box and a public/held Trubbish or Basic-search Item**, and **24 held Box satisfying the classifier's upfront three-physical-discard test**. Source hand-size histogram was 4 cards: 4, 5 cards: 17, 6 cards: 58, 7 cards: 120, 8 cards: 9. These are directly observed pinned Store counts and should be interpreted conditional on the source simple-bot's own initial setup decisions and our chosen Hood opponent, rather than substituted into the earlier initial-eight-and-Prizes exact model.
+
+**Key falsifiable progression:** authentic observed *K0 opportunity* is now confirmed in the source unchanged registered 60; the **next unresolved state transition** is actually paying Box's upfront three cards, selecting Shake/Tool from a genuinely available owner deck after Prizes, playing the Basic search Item if needed, attaching the Tool, performing first-turn Shake evolution, and observing the opponent reply under a competent both-seat policy. None of the 21 K0 windows is yet a proven card-play success or a competitive win. A natural-source first-turn native success requires source-specific receipt(s) and same-deal control before any claim is promoted.
+
+### Methodology update after this cohort
+
+Following the 208 run's original preregistration, the pure K0 classifier was expanded in a later revision to **separately flag conditional post-Box discard subsidies**: Searcher discard costs that might be paid by Supporter/Stadium cards fetched from Box. The original strict K0 fields remain unchanged. The new conditional flag was **not present in the 208-run checkout**, so its 21 strict observations are directly comparable to the pilot's existing strict flags; it must not be retroactively counted as measured on those 208 rows. A short repeat on the *same original 48 indices* may test this extra analytic label, but it is a **post hoc classifier diagnostic** and cannot be passed off as new independent deals. See [temporal discard-liquidity model](../statistics/agent44-temporal-discard-liquidity-20261031.md).
