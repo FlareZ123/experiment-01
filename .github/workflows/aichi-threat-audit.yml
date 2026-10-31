@@ -25,5 +25,7 @@ jobs:
         run: node --test tests/aichi-printing-lock-surface.test.cjs
       - name: Verify source-print threats across five omitted archetypes
         run: node --test tests/aichi-unrepresented-mechanics.test.cjs
+      - name: Check exact Iron Thorns three-family denial-card access
+        run: node --test tests/agent25-thorns-triple-denial-access.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
