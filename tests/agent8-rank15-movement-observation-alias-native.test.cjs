@@ -36,7 +36,9 @@ function fork(seat,moved){
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
   x.owner.active.cards.push(card(b[0].fullName),card(p[0].fullName));
-  x.owner.active.energies.cards.push(card('Grass Energy MEE'));
+  const grass=card('Grass Energy MEE');
+  x.owner.active.cards.push(grass);
+  x.owner.active.energies.cards.push(grass);
   x.owner.hand.cards.length=0;
   x.owner.bench[1].cards.length=0;
   x.owner.bench[1].cards.push(card('Bunnelby PRC'));
