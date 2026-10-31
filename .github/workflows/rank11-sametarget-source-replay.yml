@@ -23,6 +23,10 @@ on:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
         default: false
+      agent4_crossrank_four_source_flare:
+        description: 'Precommitted four further exact original coheld Plumeria and Flare source lists, 32 matched native games'
+        type: boolean
+        default: false
       agent4_prospective_first_flare_rank6:
         description: 'New preregistered 16-pair rank6 source first-valid Team Flare versus Plumeria causal pilot'
         type: boolean
@@ -53,7 +57,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_original_native_denial_fork_probe && !inputs.agent4_source32_contest_probe && !inputs.agent4_prospective_first_flare_rank6 && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_original_native_denial_fork_probe && !inputs.agent4_source32_contest_probe && !inputs.agent4_prospective_first_flare_rank6 && !inputs.agent4_crossrank_four_source_flare && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -577,5 +581,44 @@ jobs:
         with:
           name: agent4-preregistered-rank6-source-first-flare-vs-plumeria
           path: agent4-prospective-rank6-first-flare.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent4-original-four-source-first-flare:
+    if: ${{ inputs.agent4_crossrank_four_source_flare }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact pinned original Twinleaf Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Fail closed if four-source registered frame or source list changed
+        run: |
+          node --check scripts/agent4-prospective-crossrank-flare-source.cjs
+          node --test tests/agent4-prospective-crossrank-flare-source.test.cjs tests/agent4-prospective-first-flare-rank6.test.cjs
+      - name: Install native pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned game Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Existing printed Plumeria and Flare native contract regressions
+        run: node --test tests/agent4-plumeria-pinned-native.test.cjs tests/agent8-team-flare-grunt-pinned-native.test.cjs
+      - name: Run all four source ranks and retain original errors as results
+        run: node scripts/agent4-prospective-crossrank-flare-source.cjs > agent4-crossrank-four-source-flare.json
+      - name: Print preregistered all-arm cross-source native denominator
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent4-crossrank-four-source-flare.json');a.equal(x.pairs.length,32);a.equal(x.summary.nativeAttempts,64);a.equal(x.summary.competitiveQualifiedGames,0);console.log('AGENT4_CROSSRANK_FOUR_SOURCE',JSON.stringify(x.summary));console.log('AGENT4_CROSSRANK_POSITIVE',JSON.stringify(x.pairs.filter(p=>p.prospectiveFlareAudit?.selectedFlareForks).map(p=>({id:p.id,rank:p.rank,seat:p.sourceSeat,first:p.firstDifferenceIndex,settled:p.prospectiveFlareAudit?.settledFlareEnergyRemovals,twoTurn:p.secondOpposingEnergyDenialConfirmed,control:p.controlStatus,treated:p.treatmentStatus,errors:p.errors}))));"
+      - name: Keep every original source trial, including no-opportunity and native errors
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-preregistered-four-dual-supporter-source-decks
+          path: agent4-crossrank-four-source-flare.json
           if-no-files-found: warn
           retention-days: 30
