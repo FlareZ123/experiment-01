@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v17-preregistered-positive-attack-pass-probe';
+const VERSION='agent41-same-root-proposal-choice-v18-thorns-empty-bench-native-probe';
 const MAX_SAMPLES=48;
 
 /**
@@ -222,6 +222,15 @@ function scoreOffer(view,baseline,offer,options){
      require('./agent7-public-no-bench-terminal-attack.cjs')
        .publicNoBenchPotentialKnockout(view,offer.intent))
     return {score:50,reason:'public-unopposed-active-knockout-potential'};
+  // Separate preregistered exact printed-card hypothesis: without an own
+  // Bench, Volt Cyclone's Energy-to-Bench transfer has no legal destination.
+  // The original Store still adjudicates attack and opponent retaliation.
+  if(options.thornsEmptyBenchVoltPreference===true&&
+     baseline.kind==='pass'&&
+     offer.source==='payable-printed-attack'&&
+     require('./agent7-iron-thorns-zero-bench-attack.cjs')
+       .noOwnBenchPrintedVoltCyclone(view,offer.intent))
+    return {score:27,reason:'printed-no-bench-volt-cyclone-over-pass'};
   // Preregistered rank-6 development experiment, not a release policy:
   // each real owner root proposing Pass and a positive printed, publicly
   // payable attack may choose the Attack regardless of turn or physical seat.
