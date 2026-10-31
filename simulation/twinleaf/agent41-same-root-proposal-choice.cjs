@@ -277,7 +277,7 @@ function registeredToolAttackCeiling(view,catalog,pokemon,sixty){
   if(!Array.isArray(sixty)||!pokemon||
      !Array.isArray(pokemon.attacks)||pokemon.attacks.length===0)
     return null;
-  const {effectivePublicAttackCost,publicCostSymbols,publicEnergyContext}=
+  const {effectivePublicAttackCost,publicEnergyContext}=
     require('./agent17-public-context-special-energy.cjs');
   const {registeredSixtyAttackEnergyCeiling}=
     require('./actor-energy-payability.cjs');
@@ -286,8 +286,7 @@ function registeredToolAttackCeiling(view,catalog,pokemon,sixty){
   for(const attack of pokemon.attacks){
     if(!Number.isSafeInteger(attack.damage)||attack.damage<=0)continue;
     anyPositive=true;
-    const nativeCost=effectivePublicAttackCost(view,catalog,pokemon,attack);
-    const cost=nativeCost===null?null:publicCostSymbols(nativeCost,catalog);
+    const cost=effectivePublicAttackCost(view,catalog,pokemon,attack);
     if(cost===null){anyUnknown=true;continue;}
     const evidence=registeredSixtyAttackEnergyCeiling(cost,sixty,context);
     if(evidence.possible===true)return true;
