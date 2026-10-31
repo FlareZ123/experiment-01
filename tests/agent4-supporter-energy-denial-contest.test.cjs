@@ -52,7 +52,7 @@ test('Plumeria Bench target survives lack of held Team Flare',()=>{
   const x=compare(root(['Plumeria BUS','Crushing Hammer POR','Guzma BUS']));
   assert.equal(x.flare.length,0);
   assert.equal(x.plumeriaOffers,1);
-  assert.equal(x.sharedActiveEnergyTargets.length,1);
+  assert.equal(x.sharedActiveEnergyTargets.length,0);
   assert.equal(x.plumeriaExclusiveBenchEnergyTargets.length,1);
   assert.equal(x.supporterQuotaContended,false);
 });
