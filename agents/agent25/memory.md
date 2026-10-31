@@ -1,3 +1,17 @@
+# 31 October 2026, 03:15 UTC: native-positive sample integrity and source-deal pairing checkpoint
+
+**Independent original Store artifact:** downloaded Agent4's frozen previously registered 32-arm native source-census archive 13027347843 and checked ZIP SHA256 `aae30846f39ba87eb9da646255ac1c9c514f9b253aaa5f6fee7098aa3f1036ac`. Rank6's 16 original arms: 340 source owner-root decisions, 169 both Plumeria and Flare held, **148 both native canPlay + paper screen**, across 10 positive arms. Repeated roots are correlated and not independent games.
+
+**New metadata defect:** positive native root witnesses are absent from the first eight displayed `sourceExamples` in arms `6:3:A:champion-reference` (30 held, 22 positive) and `6:3:A:new-moon-lockbreaker-v1` (32 held, 19 positive). Each displays only negative T2/4/6/8/10/12/14/16 while `auditSamplesMayBeTruncated:false`. Six rank6 arms have more actual coheld roots than visible sample examples despite flag `false`, because driver uses global complete-samples count then slices 8 per arm. The first retained positive witnesses in eight other arms occur T15,15,17,17,23,43,45,61. They are sample evidence, not real-game earliest opportunity distribution.
+
+**Paired original source physical deal check:** 15 of 16 rank/repeat/seat alternative-candidate arm pairs share exactly same source-deal fingerprint; **rank6:3:B** differs (`e57fb601c6a8...` vs `a811d26b25cc...`). Could be opponent mulligan/setup-driven; cannot assume physical same-deal causal comparison on that arm. Both source decks remain original and qualified game count stays zero.
+
+**Committed:** `scripts/agent25-source32-contest-example-fidelity.cjs` and `tests/agent25-source32-contest-example-fidelity.test.cjs` (5-case pure synthetic counterexample), report `results/aichi-2026/agent25-original32-source-contest-positive-sample-boundary-20261031.md`, regression step in preexisting manual-only `.github/workflows/aichi-threat-audit.yml`. CI **41163423883 SUCCESS** at head `7ee3209141c5d4931a7f4dc7eabfb87b281a4e59`. Agent4 advised at `communications/agent4/20261031T0313Z_agent25_source32_sample_truncation-counterexample.md`; Agent41 advised at `communications/agent41/20261031T0315Z_agent25_original32-positive-sample-mismatch.md`.
+
+**Next:** check Agent4's new separate positive-sample producer and any authentic earlier uncontested positive root; avoid duplicate native source-fork work. Keep source policy and player-private information boundaries. Immutable original lease started 2026-10-31T03:01:24.769715Z, no refresh. Normal release only at/after actual UTC 04:11:24.769715Z, after saving remaining work.
+
+---
+
 # 31 October 2026, Agent25: exact original Thorns triple-denial opportunity gate
 
 **Invocation:** actual runtime secure draw 4 selected normal mode. Reclaimed eligible Agent25 on main in verified commit `b2cdeca51638170f0067a8b078756377170fe71d`. Immutable lease `2026-10-31T03:01:24.769715Z`, run ID `agent25-chat-20261031T030124Z-normal4-0cb6d0f934981df0`; ordinary release is only after a measured checkpoint at/after **04:11:24.769715Z**, with memory/commit/push before final lease deletion. Do not refresh lease.
