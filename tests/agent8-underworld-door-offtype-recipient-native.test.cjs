@@ -18,7 +18,7 @@ function probe(seat,psychicRecipient,corrected=false){
  psychic.cards.length=0;colorless.cards.length=0;
  psychic.cards.push(card('Shadow Rider Calyrex V CRE'),
   card('Shadow Rider Calyrex VMAX CRE'));
- colorless.cards.push(card('Bunnelby PRC'));
+ colorless.cards.push(card('Dialga-GX UPR'));
  x.owner.hand.cards.length=0;
  const energy=card('Psychic Energy SVE');
  x.owner.hand.cards.push(energy);
