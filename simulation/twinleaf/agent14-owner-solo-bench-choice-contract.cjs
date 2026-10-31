@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION='agent14-owner-solo-bench-choice-contract-v2';
+const VERSION='agent14-owner-solo-bench-choice-contract-v3-risk-comparison';
 
 /**
  * Build a two-option, same-observation contract before selecting a root.
@@ -33,6 +33,9 @@ function collectSoloBenchChoice(view,catalog,proposeRoot,options={}){
     return null;
   const active=view.ownPublic.active;
   const immediatelyPayable=active.energies.length===1;
+  const visibleReply=require('./agent14-visible-lethal-reply.cjs')
+    .visibleLethalReply(view,catalog);
+  const chosenIndex=visibleReply?0:1;
   const proposalCost={
     ...(!immediatelyPayable?{
       requiredNextLine:'attach DCE and play Thunder Mountain before Volt Cyclone',
@@ -61,9 +64,13 @@ function collectSoloBenchChoice(view,catalog,proposeRoot,options={}){
     version:VERSION,status:'TWO-SUPPORTED-PROPOSALS',
     observation:'same detached owner-root view, no concealed opponent zones',
     alternatives:optionsReceipt,
-    rejectedIndex:0,chosenIndex:1,chosen:{...proposed},
-    choiceRule:'development-only preserve solo Energy; no proved game-value dominance',
-    reason:immediatelyPayable?
+    rejectedIndex:1-chosenIndex,chosenIndex,
+    chosen:{...(chosenIndex===0?baseline:proposed)},
+    visibleLethalReply:visibleReply,
+    choiceRule:visibleReply?
+      'preserve backup against visible payable fixed-damage retaliation':
+      'development-only preserve solo Energy; no proved game-value dominance',
+    reason:visibleReply?'visible-opponent-payable-lethal-reply':immediatelyPayable?
       ([...(view.ownPublic.stadium??[]),
         ...(view.opponentPublic?.stadium??[])].some(p=>
           p.startsWith('Thunder Mountain Prism Star '))?
