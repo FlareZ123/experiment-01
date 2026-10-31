@@ -47,3 +47,21 @@ This note addresses how to *evaluate* the extreme target once gameplay is qualif
 The equal-rank objective `mu >= 0.995` is exactly `sum(1 - p_i) <= 32*(1-.995) = 0.16`. The sum is **a total allowed expected loss burden across all 32 matchups**, irrespective of correlation between game outcomes. Even if every other matchup were won with certainty, one opponent must have `p >= 0.84`. If there are two equally imperfect opponents and the other thirty are perfect, each must achieve `p >= 0.92`. Four equally difficult opponents need at least `0.96` each, eight need `0.98` each, and sixteen need `0.99` each. These are **necessary optimistic ceilings**, not attainable win-rate projections.
 
 Under fair identical policy and start-order symmetry, a candidate list that is an *exact mirror* of one original opposing 60 has `p_mirror = 0.5`; even winning all other 31 source ranks would cap the uniform field average at `(31+0.5)/32 = 98.4375%`. Thus an exact already-registered mirror list cannot reach the 99.5% target under symmetric play. Small differences between candidate and opponent invalidate the exact mirror equality and need actual play evidence. This derivation explains the strategic danger of reporting an aggregate while ignoring one catastrophic matchup.
+
+## Selection among multiple frozen candidate lists
+
+The earlier 640/640 success example applies to **one** fixed candidate and a holdout that was not used to select, revise, or train that candidate. The public decision index currently names four unchanged alternatives (champion reference, Hood Shield, Temple, New Moon). If instead a researcher evaluates **all four on the same holdout** and selects the one with the most favorable result afterward, the single-candidate `0.05` threshold is invalidated by that selection.
+
+An elementary union-bound familywise correction for `M` fixed, prelisted candidates sets per-candidate error probability to `0.05/M`. Under the same independent balanced 32-rank/two-seat protocol, the zero-loss requirement is
+`n >= ceil( ln(0.05/M)/ln(0.995) )`, then rounded up to a multiple of **64**, since all 64 opponent/starting-seat strata must receive equal counts.
+
+| Independently frozen candidates compared on the same holdout | Unrounded minimum total games per candidate | Balanced minimum total games **per candidate** | Zero-loss games per each of 64 strata |
+| ---: | ---: | ---: | ---: |
+| 1 | 598 | 640 | 10 |
+| 4 | 875 | **896** | 14 |
+| 50 | 1,379 | **1,408** | 22 |
+| 100 | 1,517 | **1,536** | 24 |
+
+These are **conditional 95% familywise confidence thresholds if every reported candidate trial succeeds**, not observed games or sufficient evidence of simulator competence. They assume candidates were fixed before the test and the holdout games were independently generated under competent and paper-faithful policies. An adaptive search that repeatedly modifies decks in response to holdout results is not equivalent to evaluating a fixed finite `M`; using a *fresh final holdout after selecting one winner using separate development data* restores the single-candidate protocol.
+
+The [actual Aichi May 2026 Swiss and Top32 outcome rules](../aichi-2026/agent5-official-aichi-may26-clock-and-terminals-20261031.md) must also be fixed as part of the evaluated outcome definition. Its timed double-loss Swiss outcome counts as **failure to win** for the candidate, and the separate Top32 cutoff/tiebreaker protocol cannot be mixed into the same empirical denominator without an explicitly defined phase distribution. All present source simulations lack authenticated human-time witnesses, so none of these statistical requirements are currently close to being met.
