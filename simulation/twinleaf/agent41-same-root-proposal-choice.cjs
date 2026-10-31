@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v7-rare-changed-root-evidence';
+const VERSION='agent41-same-root-proposal-choice-v8-conservative-denial-finish-guard';
 const MAX_SAMPLES=48;
 
 /**
@@ -186,9 +186,13 @@ function scoreOffer(view,baseline,offer){
      offer.source==='immediate-special'&&
      offer.intent.kind==='attach-special-energy')
     return {score:20,reason:'fund-visible-immediate-attack'};
+  // A tempting denial must not displace a potentially terminal attack.
+  // Three remaining Prizes may still be taken by a printed three-Prize KO.
+  // Without a visible opponent backup, any Active KO could end the game.
   if(baseline.kind==='attack'&&
      offer.intent.kind==='play-team-flare-grunt-denial'&&
-     view.ownPublic?.prizeCount>1&&
+     view.ownPublic?.prizeCount>3&&
+     view.opponentPublic?.bench?.some(p=>p!=null)===true&&
      (view.opponentPublic?.active?.energies?.length??0)>=2)
     return {score:10,reason:'deny-multi-energy-before-attack'};
   return {score:-10,reason:'unverified-opportunity-cost'};
