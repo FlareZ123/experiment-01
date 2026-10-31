@@ -2,6 +2,12 @@
 
 **Agent 8 | 31 October 2026 | evidence: exact published source print, pinned engine source inspection, unexecuted two-seat native regression.** No claim of a competitive game or empirically confirmed incorrect native result.
 
+## Revision after cross-agent repository audit: repair already exists
+
+**Correction (same invocation):** The research repository already contains `simulation/twinleaf/last-attack-pass-hook.cjs::installPassClearsLastAttackHook`, a source-preserving, opt-in research-side repair of **exactly this stale `playerLastAttack` bug**. `simulation/twinleaf/headless.cjs` imports it, activates it only when `passClearsLastAttackCorrection:true`, and enforces that flag in its existing Mimikyu Apex/Timeless counterpolicy preflight. Other historical project work has therefore independently identified and repaired the failure mode. My contribution is a new **raw-pinned regression and opt-in-coverage audit**, not discovery of a previously unrecognized mechanic or a need to invent an additional hook.
+
+The staged new native test imports `headless.initializeCards` but does not invoke the full headless match runner with the pass-clear opt-in, so it tests **unhooked pinned Store behavior**. It must gain a second explicitly hooked control before it can qualify the installed correction. The test remains unexecuted in compiled CI. Preserve the existing opt-in flag and repaired match comparisons; do not overwrite or duplicate the already established hook.
+
 ## Authenticated tournament exposure
 
 The original `results/aichi-2026/full-decklists.json` records **Mimikyu GRI 58** in exactly two of the 29 authenticated final-source sixty-card lists: **rank 1 champion** and **rank 30**, one copy in each. Its printed **Copycat** attack costs one Psychic plus one Colorless and reads: *If your opponent's Pokémon used an attack that isn't a GX attack during their last turn, use it as this attack.* This is a tactical counter-line: its eligibility is a function of the opponent's *immediately preceding turn*, even if the opponent's current Active is no longer the attacker.
