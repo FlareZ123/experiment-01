@@ -8,6 +8,8 @@ const {compareNativeOpponentHiddenHand}=
   require('../simulation/twinleaf/native-tape-opponent-hidden-hand-contrast.cjs');
 const {compareNativeOpponentHiddenHandBounded}=
   require('../simulation/twinleaf/agent23-native-tape-bounded-opponent-hand.cjs');
+const {selectBoundedDoubleExchanges}=
+  require('../simulation/twinleaf/agent23-bounded-double-exchanges.cjs');
 
 const energy=(id,name)=>({id,fullName:name,energyType:'BASIC'});
 const trainer=(id,name)=>({id,fullName:name,trainerType:'ITEM'});
@@ -185,4 +187,66 @@ test('independent hidden-world replays must preserve original policy decision',(
   assert.equal(out.contrastExecutable,false);
   assert.equal(out.selectedActionChanged,false);
   assert.match(out.error,/action drifted/);
+});
+
+
+test('two swaps cross a concealed Trainer threshold invisible to every one-swap test',()=>{
+  const world=state();
+  world.players[1].hand.cards=[
+    energy(2,'Opponent Darkness'),energy(5,'Opponent Lightning')
+  ];
+  const threshold=state=>{
+    Math.random();
+    const trainers=state.players[1].hand.cards.filter(
+      x=>x.trainerType!==undefined).length;
+    return {type:trainers>=2?'hidden-two-trainer-route':'owner-pass'};
+  };
+  const args=makeArgs(world,threshold),before=fingerprint(world);
+  const singles=compareNativeOpponentHiddenHandBounded(args,{limit:16});
+  assert.equal(singles.eligibleSingleExchanges,4);
+  assert.equal(singles.exhaustiveSingleExchangeCoverage,true);
+  assert.equal(singles.actionReversals,0);
+  assert.equal(singles.selectedActionChanged,false);
+
+  const doubles=compareNativeOpponentHiddenHandBounded(args,
+    {limit:16,swapSize:2});
+  assert.equal(doubles.swapSize,2);
+  assert.equal(doubles.eligibleDisjointDoubleExchangePaths,2);
+  assert.equal(doubles.attemptedDisjointDoubleExchangePaths,2);
+  assert.equal(doubles.successfulDisjointDoubleExchangePaths,2);
+  assert.equal(doubles.failedDisjointDoubleExchangePaths,0);
+  assert.equal(doubles.exhaustiveDisjointDoubleExchangePathCoverage,true);
+  assert.equal(doubles.eligibleSingleExchanges,null);
+  assert.equal(doubles.actionReversals,2);
+  assert.equal(doubles.selectedActionChanged,true);
+  assert.equal(doubles.baselineReplayStable,true);
+  assert.equal(doubles.sourceRootUnchanged,true);
+  assert.equal(doubles.actorObservationMatched,true);
+  assert.equal(doubles.opponentHiddenInventoryConserved,true);
+  assert.equal(doubles.competitiveGameQualified,false);
+  assert.equal(fingerprint(world),before);
+});
+
+test('two-exchange path denominator counts disjoint paths, not unique printings',()=>{
+  const hand=[energy(1,'Repeat E'),energy(2,'Repeat E')];
+  const deck=[trainer(3,'Repeat T'),trainer(4,'Repeat T')];
+  const out=selectBoundedDoubleExchanges(hand,deck,1);
+  assert.equal(out.available,2);
+  assert.equal(out.exchanges.length,1);
+  assert.equal(out.exhaustive,false);
+  const swaps=out.exchanges[0].swaps;
+  assert.equal(new Set(swaps.map(x=>x.handIndex)).size,2);
+  assert.equal(new Set(swaps.map(x=>x.deckIndex)).size,2);
+});
+
+test('double-exchange false opportunity and invalid swap size veto',()=>{
+  const root=state(),args=makeArgs(root);
+  const none=compareNativeOpponentHiddenHandBounded(args,
+    {limit:16,swapSize:2});
+  assert.equal(none.eligibleDisjointDoubleExchangePaths,0);
+  assert.equal(none.attemptedDisjointDoubleExchangePaths,0);
+  assert.equal(none.contrastExecutable,false);
+  assert.equal(none.baselineReplayStable,true);
+  assert.throws(()=>compareNativeOpponentHiddenHandBounded(args,
+    {swapSize:3}));
 });
