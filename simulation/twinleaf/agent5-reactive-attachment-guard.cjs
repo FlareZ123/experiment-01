@@ -3,7 +3,7 @@
 const {evaluatePublicAttachmentReaction}=
   require('./agent5-public-attachment-reaction.cjs');
 
-const VERSION='agent5-possible-terminal-reactive-attachment-hold-v1';
+const VERSION='agent5-possible-terminal-reactive-attachment-hold-v2-profiled';
 
 /**
  * Preserve an already selected attack when a later nonterminal Energy
@@ -17,10 +17,11 @@ const VERSION='agent5-possible-terminal-reactive-attachment-hold-v1';
  *   and both public boards.
  * @param {{kind:string}} first First-return native-neutral intent.
  * @param {{intent:object,receipt:object}} selected Bounded arbitration result.
+ * @param {object} [catalog] Global public printed-profile metadata.
  * @returns {{intent:object,receipt:object,safety:object}}
  */
-function holdPotentialReactiveTerminalLoss(view,first,selected){
-  const exposure=evaluatePublicAttachmentReaction(view,selected.intent);
+function holdPotentialReactiveTerminalLoss(view,first,selected,catalog={}){
+  const exposure=evaluatePublicAttachmentReaction(view,selected.intent,catalog);
   if(first.kind!=='attack'||!exposure.terminalLossPossible){
     return {...selected,safety:{version:VERSION,held:false,exposure}};
   }
