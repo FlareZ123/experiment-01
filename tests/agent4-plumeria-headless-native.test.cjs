@@ -34,7 +34,10 @@ test('Plumeria owner observer preserves four genuine source-first policy games',
   assert.equal(observed.competitiveQualifiedGames,0);
   assert.deepEqual(gameplayProjection(observed),gameplayProjection(baseline));
   const totals={roots:0,heldSourceOwner:0,nativePositiveSourceOwner:0,
-    acceptedPassNativePositive:0,played:0,settled:0,byRank:{}};
+    acceptedPassNativePositive:0,played:0,settled:0,byRank:{},
+    contestedOwnerRoots:0,contestedBothNativePlayableRoots:0,
+    sourceContestedOwnerRoots:0,sourceBothNativePlayableRoots:0,
+    sourceFirstContestedTurns:0,sourceFirstBothNativePlayableTurns:0};
   for(let i=0;i<observed.rows.length;i++){
     const row=observed.rows[i],control=baseline.rows[i];
     assert.equal(row.trial.id,control.trial.id);
@@ -54,7 +57,9 @@ test('Plumeria owner observer preserves four genuine source-first policy games',
     const rank=row.trial.rank;
     const byRank=totals.byRank[rank]??{
       roots:0,heldSourceOwner:0,nativePositiveSourceOwner:0,
-      sourceOwnerPositivePass:0
+      sourceOwnerPositivePass:0,
+      sourceContestedOwnerRoots:0,sourceBothNativePlayableRoots:0,
+      sourceFirstContestedTurns:0,sourceFirstBothNativePlayableTurns:0
     };
     byRank.roots+=a.actualOwnerRoots;
     byRank.heldSourceOwner+=examples.filter(x=>x.heldCopies>0).length;
@@ -63,6 +68,19 @@ test('Plumeria owner observer preserves four genuine source-first policy games',
     byRank.sourceOwnerPositivePass+=a.acceptedPassSamples.filter(
       x=>x.seat===sourceSeat).length;
     totals.byRank[rank]=byRank;
+    assert.equal(a.bySeat[0].ownerRoots+a.bySeat[1].ownerRoots,
+      a.actualOwnerRoots);
+    const s=a.bySeat[sourceSeat];
+    byRank.sourceContestedOwnerRoots+=s.bothHeldRoots;
+    byRank.sourceBothNativePlayableRoots+=s.bothNativePlayableRoots;
+    byRank.sourceFirstContestedTurns+=s.bothHeldFirstTurns;
+    byRank.sourceFirstBothNativePlayableTurns+=s.bothNativePlayableFirstTurns;
+    totals.contestedOwnerRoots+=a.contestedOwnerRoots;
+    totals.contestedBothNativePlayableRoots+=a.contestedBothNativePlayableRoots;
+    totals.sourceContestedOwnerRoots+=s.bothHeldRoots;
+    totals.sourceBothNativePlayableRoots+=s.bothNativePlayableRoots;
+    totals.sourceFirstContestedTurns+=s.bothHeldFirstTurns;
+    totals.sourceFirstBothNativePlayableTurns+=s.bothNativePlayableFirstTurns;
     totals.roots+=a.actualOwnerRoots;
     totals.heldSourceOwner+=examples.filter(x=>x.heldCopies>0).length;
     totals.nativePositiveSourceOwner+=examples.filter(
