@@ -29,6 +29,19 @@ function nativeTacticSequenceComparison(source,replay) {
       mismatch={stepIndex:i,source:a,replay:b};break;
     }
   }
+  const simulationsObserved=Array.isArray(source.simulations)&&
+    Array.isArray(replay.simulations);
+  const sourceSimulations=simulationsObserved?source.simulations:[];
+  const replaySimulations=simulationsObserved?replay.simulations:[];
+  let firstSimulationDivergence=null;
+  if(simulationsObserved){
+    for(let i=0;i<Math.max(sourceSimulations.length,replaySimulations.length);i++){
+      const a=sourceSimulations[i]??null,b=replaySimulations[i]??null;
+      if(!isDeepStrictEqual(a,b)){
+        firstSimulationDivergence={index:i,source:a,replay:b};break;
+      }
+    }
+  }
   const evaluationsObserved=Array.isArray(source.evaluations)&&
     Array.isArray(replay.evaluations);
   const original=evaluationsObserved?source.evaluations:[];
@@ -46,6 +59,11 @@ function nativeTacticSequenceComparison(source,replay) {
     sourceCalls:first.length,replayCalls:second.length,
     sourceRngCalls:source.rngCalls??null,
     replayRngCalls:replay.rngCalls??null,
+    sourceSpeculativeCalls:simulationsObserved?source.simulationCalls??null:null,
+    replaySpeculativeCalls:simulationsObserved?replay.simulationCalls??null:null,
+    simulationsObserved,
+    firstSimulationDivergence,
+    sameSimulations:simulationsObserved?firstSimulationDivergence===null:null,
     sameSteps:mismatch===null,
     firstDivergence:mismatch,
     comparedFields:fields,
