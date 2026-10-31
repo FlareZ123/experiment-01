@@ -229,6 +229,14 @@ test('both-seat live owner contour counts physical Plumeria payment alternatives
     assert.equal(audit.bySeat[seat].bothNativePlayableRoots,1);
     assert.equal(audit.bySeat[seat].bothHeldFirstTurns,1);
     assert.equal(audit.bySeat[seat].bothNativePlayableFirstTurns,1);
+    assert.equal(audit.bothPlayablePassRoots,1);
+    assert.equal(audit.firstTurnBothPlayablePassRoots,1);
+    assert.equal(audit.bySeat[seat].bothPlayablePassRoots,1);
+    assert.equal(audit.bySeat[seat].firstTurnBothPlayablePassRoots,1);
+    assert.equal(audit.bothPlayablePassSamples[0].originalAction,
+      'PassTurnAction');
+    assert.equal(audit.contestedOwnerSamples[0].originalAction,
+      'PassTurnAction');
     assert.equal(audit.acceptedPlumeria,0);
     assert.equal(audit.contestedOwnerSamples.length,1);
     const receipt=audit.contestedOwnerSamples[0];
