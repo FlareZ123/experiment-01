@@ -26,6 +26,7 @@ function rootView(){
     opponentPublic:{
       active:{printing:'Trevenant & Dusknoir-GX SMP 217',
         hp:270,damage:140,tools:[],abilities:[],
+        energies:['Psychic Energy SVE 5'],
         printed:{resistance:[]}},
       bench:[null,null,null,null,null]
     }
@@ -105,4 +106,28 @@ test('all-proposer read-only still preserves default Pass with terminal option',
   assert.equal(res.receipt.mode,'all-proposers-observe');
   assert.equal(res.receipt.offers[0].score,50);
   assert.equal(res.receipt.selectedSource,'first-return');
+});
+
+
+test('Double Turbo Energy penalty blocks printed pseudo-KO at a 130 HP breakpoint',()=>{
+  const state=rootView();
+  state.ownPublic.active.energies=['Double Turbo Energy BRS 151'];
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),false);
+  state.opponentPublic.active.damage=160;
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),true);
+  state.ownPublic.active.energies=[
+    'Double Turbo Energy BRS 151','Double Turbo Energy ASR 216'];
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),false);
+});
+
+test('unknown defender Special Energy mitigation vetoes terminal certainty',()=>{
+  const state=rootView();
+  state.opponentPublic.active.energies=['Shield Energy PRC 143'];
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),false);
+  state.opponentPublic.active.energies=['Double Colorless Energy EVO 90'];
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),false);
+  state.opponentPublic.active.energies=[];
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),true);
+  delete state.opponentPublic.active.energies;
+  assert.equal(publicNoBenchPotentialKnockout(state,printedAttack),false);
 });
