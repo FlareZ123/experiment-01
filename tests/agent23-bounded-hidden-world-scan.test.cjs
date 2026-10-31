@@ -66,6 +66,23 @@ test('bounded cross-kind enumeration covers an invisible second decisive exchang
   assert.deepEqual(game,before);
 });
 
+test('owner-only decision negative control survives every one-swap world',()=>{
+  const game=state(),before=structuredClone(game);
+  const actorSafeBot=()=>({tactics:[],decodeNextAction:s=>{
+    const own=s.players[0];
+    return own.hand.cards.length===1?
+      {type:'PASS_TURN'}:{type:'USE_ABILITY_ACTION',name:'Perfection'};
+  }});
+  const out=scanBoundedOpponentHiddenWorlds(game,101,actorSafeBot,
+    structuredClone,()=>()=>0.5,{...dependencies,limit:16});
+  assert.equal(out.testedSingleExchanges,2);
+  assert.equal(out.exhaustiveSingleExchangeCoverage,true);
+  assert.equal(out.actionReversals,0);
+  assert.equal(out.scoreOnlyChanges,0);
+  assert.equal(out.currentOwnerObservationEquivalent,true);
+  assert.deepEqual(game,before);
+});
+
 test('bounded census visibly censors unexamined hidden single exchanges',()=>{
   const result=scanBoundedOpponentHiddenWorlds(state(),101,
     sensitiveBot,structuredClone,()=>()=>0.5,
