@@ -32,3 +32,21 @@ test('frozen four exact original source 60s and both native candidate decks',()=
   assert.equal(frame.enginePin,prior.enginePin);
   assert.equal(frame.qualification.competitiveQualifiedGames,0);
 });
+
+
+test('public source root observes Active and Bench energy separately',()=>{
+  const {publicOpponentEnergySupply}=
+    require('../simulation/twinleaf/agent4-live-source-flare-vs-plumeria-fork.cjs');
+  const input={decisionKind:'owner-root',opponentPublic:{
+    active:{printing:'Shadow Rider Calyrex V CRE',
+      energies:['Psychic Energy MEE']},
+    bench:[{printing:'Mewtwo & Mew-GX UNM',
+      energies:['Psychic Energy MEE','Psychic Energy MEE']},
+      {printing:'Marshadow UNB',energies:[]},null]}};
+  const v=publicOpponentEnergySupply(input);
+  assert.equal(v.activeCount,1);
+  assert.equal(v.benchEnergyCount,2);
+  assert.equal(v.total,3);
+  assert.equal(v.bench[0].energies.length,2);
+  assert.equal(v.bench[2].printing,null);
+});
