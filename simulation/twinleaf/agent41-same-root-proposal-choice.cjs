@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v14-independent-opportunity-denominator';
+const VERSION='agent41-same-root-proposal-choice-v15-bounded-pass-attack-native-probe';
 const MAX_SAMPLES=48;
 
 /**
@@ -207,12 +207,23 @@ function duplicateProposal(a,b){
  * before a non-final-prize attack. All other legal-looking offers are
  * recorded but not promoted without a stronger policy model.
  */
-function scoreOffer(view,baseline,offer){
+function scoreOffer(view,baseline,offer,options){
   if(offer.intent.nativeDispatchImplemented===false)
     return {score:-1000,reason:'native-dispatch-not-wired-observe-only'};
   if(offer.source==='first-return')return {score:0,reason:'control-baseline'};
   if(offer.intent.kind==='pass')return {
     score:-100,reason:'preserve-nonterminal-opportunity'};
+  // Opt-in development fork: one public turn only, symmetric for either seat.
+  // This promotes a previously independently offered payable printed attack
+  // over an otherwise terminal Pass so actual Store acceptance and the
+  // opponent's next reply can be measured. It asserts no strategic quality.
+  if(options.passAttackProbeGlobalTurn===view.globalTurn&&
+     baseline.kind==='pass'&&
+     offer.source==='payable-printed-attack'&&
+     offer.intent.kind==='attack'&&
+     Number.isFinite(offer.intent.printedDamage)&&
+     offer.intent.printedDamage>0)
+    return {score:30,reason:'bounded-development-attack-over-pass'};
   if(baseline.kind==='attach-basic-energy'&&
      offer.source==='immediate-special'&&
      offer.intent.kind==='attach-special-energy')
@@ -243,6 +254,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
   assert.ok(options.sameRootProbeAll!==true||
     options.sameRootChoiceApply!==true,
     'Independent all-proposer census is observation-only; selection would bypass verified policy gates');
+  assert.ok(options.passAttackProbeGlobalTurn==null||
+    (Number.isSafeInteger(options.passAttackProbeGlobalTurn)&&
+      options.passAttackProbeGlobalTurn>=1),
+    'Bounded pass/attack fork requires a valid public global turn');
   const offers=[{source:'first-return',intent:baseline}];
   const unsupported=[];
   const omitted=[];
@@ -274,7 +289,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
   if(!offers.some(o=>o.intent.kind==='pass'))offers.push({
     source:'terminal-hold',intent:{kind:'pass',
       reason:'explicit-same-root-hold'}});
-  const ranked=offers.map(o=>({...o,...scoreOffer(view,baseline,o)}))
+  const ranked=offers.map(o=>({...o,...scoreOffer(view,baseline,o,options)}))
     .sort((a,b)=>b.score-a.score);
   const winner=ranked[0];
   const intent=options.sameRootChoiceApply===true?winner.intent:baseline;
