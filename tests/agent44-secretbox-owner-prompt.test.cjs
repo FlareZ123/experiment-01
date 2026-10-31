@@ -48,7 +48,7 @@ test('already-held Tool needs only Item Shake in native selection',()=>{
     deckNames:['Boost Shake','Garbodor','Trubbish','Crispin'],
     handNames:['Float Stone','Battle VIP Pass']
   });
-  const x=chooseOwnedBoxFetchShake(prompt,owner,{});
+  const x=chooseOwnedBoxFetchShake(prompt,owner,{turn:1});
   assert.equal(x.eligible,true);
   assert.deepEqual(x.selectedNames,['Boost Shake']);
   assert.equal(x.sources.searchedTool,null);
@@ -142,4 +142,33 @@ test('wrong categorical prompt signature fails closed',()=>{
   prompt.options={max:1};
   assert.throws(()=>chooseOwnedBoxFetchShake(prompt,owner,{}),
     /Unsupported owner search signature/);
+});
+
+test('first-turn VIP works only in ordinary opening turns, later VIP is dead',()=>{
+  const {owner,prompt}=fixture({
+    deckNames:['Boost Shake','Garbodor','Trubbish','Float Stone'],
+    handNames:['Battle VIP Pass']
+  });
+  const early=chooseOwnedBoxFetchShake(prompt,owner,{turn:2});
+  assert.equal(early.eligible,true);
+  assert.equal(early.sources.basicSearcherHeld,'Battle VIP Pass');
+  const late=chooseOwnedBoxFetchShake(prompt,owner,{turn:7});
+  assert.equal(late.eligible,false);
+  assert.equal(late.sources.basicSearcherHeld,null);
+  const unknown=chooseOwnedBoxFetchShake(prompt,owner,{});
+  assert.equal(unknown.eligible,false);
+});
+
+test('do not count held Trubbish or Float Stone as Ultra Ball discard fodder',()=>{
+  const {owner,prompt}=fixture({
+    deckNames:['Boost Shake','Garbodor','Trubbish'],
+    handNames:['Ultra Ball','Float Stone','Iono']
+  });
+  const ineligible=chooseOwnedBoxFetchShake(prompt,owner,{turn:1});
+  assert.equal(ineligible.eligible,false);
+  assert.equal(ineligible.sources.basicSearcherHeld,null);
+  owner.hand.cards.push(card('Dark Patch',9));
+  const nowViable=chooseOwnedBoxFetchShake(prompt,owner,{turn:1});
+  assert.equal(nowViable.eligible,true);
+  assert.equal(nowViable.sources.basicSearcherHeld,'Ultra Ball');
 });
