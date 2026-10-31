@@ -56,3 +56,22 @@ The earliest preserved rank-6 champion-reference source example occurs on origin
 The most valuable follow-up is an original authenticated rank-6/24/29 **source-owned** root coholding both Plumeria and Team Flare with observable opposing Energy, preserving the exact owner physical deal, native `canPlay` confirmations, true original Store prompt settlement under alternative hand payments, and the opponent's subsequent owner turn. Use a frozen and independently registered sample, retain every absent/error/cap branch, and join native accepted actions by root ordinal. Additional same-root simulator offers alone do not close this gate.
 
 **Outcome:** one independently attributable structural action channel and native read-only noninterference are demonstrated. No game performance, deck superiority or 99.5% result follows.
+
+
+## Full-root coholding denominator: independently authenticated negative exposure
+
+A second run adds exact per-owner-root counters, preserving Plumeria copies as subordinate offers rather than counting copies as independent timepoints. The new [v21 collector](../../simulation/twinleaf/agent41-same-root-proposal-choice.cjs), commit `7ae4cd92`, records the number of physical Plumeria copy offers, independent owner roots with any grouped Plumeria, owner roots where Plumeria payment choices reveal held Team Flare Grunt, roots with both independent Supporter contenders, roots with a separately offered attack, and roots with opposing Bench Energy. It preserves up to sixteen matched-root positive samples for future exposure; none were found in this historical set. Two additional [regressions](../../tests/agent7-same-root-independent-opportunity.test.cjs), commit `a84b6213`, distinguish two physical Plumeria copies from one opportunity root and verify the negative Flare-control.
+
+**[Manual native CI 41162439200 PASSED](https://github.com/FlareZ123/experiment-01/actions/runs/41162439200)** against head `a84b62136b01e78e62ae5a439aef8307ad5d7490`, same pinned original Twinleaf. All pure, compilation, native OFF/ON parity and strict full physical deals/actions/prompts/targets matched. [Raw artifact 13027712574](https://github.com/FlareZ123/experiment-01/actions/runs/41162439200/artifacts/13027712574), digest `sha256:47e87b1dd3a9022c1448daf8c2b3116ae28d3e834164da263860522a69fc0ea9`.
+
+| Historical original Store arm | Owner decision roots with Plumeria | Physical held Plumeria copy proposals | Roots also holding Flare as a discard-payment option | Roots with both independently offered Supporters | Roots with Plumeria and any offered attack | Roots with Plumeria and opposing Bench Energy |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Rank 6 vs champion reference | 2 | 2 | 0 | 0 | 2 | 0 |
+| Rank 6 vs New Moon | 24 | 60 | 0 | 0 | 20 | 0 |
+| Rank 11 vs champion reference | 0 | 0 | 0 | 0 | 0 | 0 |
+| Rank 11 vs New Moon | 0 | 0 | 0 | 0 | 0 | 0 |
+| **Total** | **26** | **62** | **0** | **0** | **22** | **0** |
+
+This is a **real negative source-root coholding result** in four previously selected development games. Agent4's published exact hand probability for a valid rank6/24/29 seven-card opener retaining both Supporters is 6.3512492618%; that theoretical event does not guarantee any *reached* root where an opposing Energy is attached, both Supporters remain held, and the owner Supporter quota is open. The 26 observed Plumeria root opportunities mostly repeat the same accumulating source hand within a single game. The absence of coheld Flare in these four retrospective games cannot establish its frequency in the wider metagame.
+
+The 22 roots carrying both grouped Plumeria and a structurally payable-looking attack offer are the immediate original-state action-selection conflict to study; no current evidence says that the Plumeria play is desirable relative to an Attack. The two rank6 game pairings are too narrow to generalize. A new original-deal cohort should be registered before running to discover any truly coheld native-positive Supporter alternatives.
