@@ -68,11 +68,16 @@ interface in commit **ea10625**.
 head **ea10625**, completed **success** on 31 October. Its logged summary
 reports **4/4** unchanged full-game replays, **4/4** original-root action
 matches, and **0/4** conditional action reversals in the bounded single-card
-worlds. Each rank-6/rank-11 row was classified as no change under the
-chosen counterfactuals. Exact eligible/attempted counts, score-only outcomes
-and individual cases are retained in the archived JSON and have not yet
-been aggregated in this report. This negative result is limited to the tested
-worlds.
+worlds. The recovered retained JSON confirms the exact census: **16 attempted
+single exchanges per arm, 64/608 total eligible physical one-swap worlds**.
+For the four arms respectively, eligible counts were **170, 170, 109, 159**;
+all four tested 16 each and none achieved exhaustive one-swap coverage.
+No root-level conditional action reversals were recorded. Each arm was
+classified as no change under its selected counterfactuals, with no archived
+comparator error. The artifact is
+[run 41158045643, retained four-arm JSON](https://github.com/FlareZ123/experiment-01/actions/runs/41158045643).
+This negative result is limited to the 64 tested worlds, with 544 other
+eligible one-swap worlds and all higher-order partitions untested.
 
 Subsequent hardening added an exact actor-observation-equivalence preflight,
 an owner-only negative control, and an independently reinstalled common
