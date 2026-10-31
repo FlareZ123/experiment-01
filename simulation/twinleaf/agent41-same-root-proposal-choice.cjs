@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v15-bounded-pass-attack-native-probe';
+const VERSION='agent41-same-root-proposal-choice-v16-public-lone-active-ko-probe';
 const MAX_SAMPLES=48;
 
 /**
@@ -213,6 +213,15 @@ function scoreOffer(view,baseline,offer,options){
   if(offer.source==='first-return')return {score:0,reason:'control-baseline'};
   if(offer.intent.kind==='pass')return {
     score:-100,reason:'preserve-nonterminal-opportunity'};
+  // The opponent's final Active Pokémon can be a discrete immediate win.
+  // Use only public board information and a previously independently funded
+  // attack offer; the estimate remains unverified until native settlement.
+  if(options.publicNoBenchTerminalAttack===true&&
+     baseline.kind==='pass'&&
+     offer.source==='payable-printed-attack'&&
+     require('./agent7-public-no-bench-terminal-attack.cjs')
+       .publicNoBenchPotentialKnockout(view,offer.intent))
+    return {score:50,reason:'public-unopposed-active-knockout-potential'};
   // Opt-in development fork: one public turn only, symmetric for either seat.
   // This promotes a previously independently offered payable printed attack
   // over an otherwise terminal Pass so actual Store acceptance and the
