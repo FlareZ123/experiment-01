@@ -1,0 +1,159 @@
+{
+  "version": "agent25-dhelmise-mixed-lock-donors-v1",
+  "date": "2026-10-31",
+  "researchScope": "Paper Expanded Black & White onward, English release as of 2026-10-31; historical May 2026 Aichi field frozen as opponents",
+  "status": "exploratory fixed 60: at least four printed Hide n Sneak donors under either Wobbuffet or Silent Lab with six effective, but Garbotoxin remains unsolved; no competitively qualified games",
+  "counts": {
+    "pokemon": 20,
+    "trainer": 30,
+    "energy": 10,
+    "total": 60
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "id": "me5-39",
+      "name": "Dhelmise"
+    },
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "id": "me5-34",
+      "name": "Banette"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "id": "me5-6",
+      "name": "Sinistcha"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "id": "me5-33",
+      "name": "Shuppet"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "id": "sv9-56",
+      "name": "Lillie's Clefairy ex"
+    },
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "id": "xy7-30",
+      "name": "Unown"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "sv6pt5-38",
+      "name": "Fezandipiti ex"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "id": "sv4pt5-37",
+      "name": "Mimikyu"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "sv1-166",
+      "name": "Arven"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "xy4-92",
+      "name": "Battle Compressor Team Flare Gear"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "sv8-164",
+      "name": "Brilliant Blender"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "id": "sm6-113",
+      "name": "Mysterious Treasure"
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "id": "swsh1-179",
+      "name": "Quick Ball"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "xy4-109",
+      "name": "VS Seeker"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "swsh7-154",
+      "name": "Rescue Carrier"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "sv6pt5-61",
+      "name": "Night Stretcher"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "me1-119",
+      "name": "Lillie's Determination"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "sm3-115",
+      "name": "Guzma"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "xy11-104",
+      "name": "Pokémon Ranger"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "xyp-XY177",
+      "name": "Karen"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "id": "xy8-137",
+      "name": "Float Stone"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "id": "pgo-68",
+      "name": "PokéStop"
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "id": "me3-88",
+      "name": "Telepathic Psychic Energy"
+    },
+    {
+      "category": "Energy",
+      "count": 6,
+      "id": "sve-5",
+      "name": "Basic Psychic Energy"
+    }
+  ],
+  "strategy": "4 Psychic Stage1 Banette + 2 Psychic Basic Shuppet + 2 Grass Stage1 Sinistcha as eight discard payloads: 6 retain named HNS Ability under Active Wobbuffet, 6 under Silent Lab, zero under active Garbotoxin. Requires real native opponent and damage response evaluation. Dhelmise can attack for 170 with Psychic and Clefairy ex can set Dragon Weakness; no win evidence."
+}
