@@ -74,8 +74,8 @@ test('corrected Dhelmise changes only real named Ability donors',()=>{
   const first=f.attack(card,owner);
   const state={blocked:new Set(owner.discard.cards.slice(0,2))};
   const saved=card.reduceEffect;
-  const nativeFirst=card.reduceEffect(null,state,first);
-  assert.equal(nativeFirst.damage,170);
+  card.reduceEffect(null,state,first);
+  assert.equal(first.damage,170);
   const {result,audit}=withCorrectedHnsDiscardAbilityCount(()=>{
     const attacked=f.attack(card,owner);
     const stateAfter=card.reduceEffect(null,state,attacked);
