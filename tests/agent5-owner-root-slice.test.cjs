@@ -239,3 +239,65 @@ test('native numeric Special Conditions prohibit payable attacks',()=>{
   v.ownPublic.active.specialConditions=[];
   assert.equal(selectOwnerRootIntent(v,meta,options).kind,'attack');
 });
+
+test('native Tool chooser exact active and bench recipient witness',()=>{
+  const tool='Muscle Band XY';
+  const before={
+    handCount:4,toolRecipientPokemonPrinting:'Dedenne-GX UNB',
+    toolRecipientToolPrintings:[]
+  };
+  const after={...before,handCount:3,
+    toolRecipientToolPrintings:[tool]};
+  const active={kind:'attach-tool-candidate',printing:tool,
+    slot:'active',index:0};
+  const bench={...active,slot:'bench',index:0};
+  const gamePhase={FINISHED:99};
+  assert.equal(rootPhysicalWitness(active,before,after,gamePhase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(bench,before,after,gamePhase),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(active,before,{
+    ...after,toolRecipientPokemonPrinting:'Koraidon ex TEF'
+  },gamePhase),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(active,before,{
+    ...after,toolRecipientToolPrintings:['Stealthy Hood UNB']
+  },gamePhase),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(active,before,{
+    ...after,handCount:4
+  },gamePhase),'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(active,before,before,gamePhase),
+    'no-confirmed-public-effect');
+});
+
+test('native Tool recipient snapshots use only owner physical slots',()=>{
+  const tool='Muscle Band XY';
+  const pokemon=(printing,tools=[])=>({
+    getPokemonCard:()=>({fullName:printing}),
+    energies:{cards:[]},
+    tools:tools.map(fullName=>({fullName}))
+  });
+  const rival=new Proxy({},{get(){throw Error('Opponent hidden read');}});
+  const owner={
+    hand:{cards:[{fullName:tool},{fullName:P}]},
+    active:pokemon('Dedenne-GX UNB'),
+    bench:[pokemon('Koraidon ex TEF')],
+    supporter:{cards:[]},discard:{cards:[]}
+  };
+  const state={players:[owner,rival],turn:2,phase:5};
+  const active={kind:'attach-tool-candidate',
+    printing:tool,slot:'active',index:0};
+  const bench={...active,slot:'bench',index:0};
+  const beforeActive=rootPhysicalSnapshot(state,0,active);
+  assert.deepEqual(beforeActive.toolRecipientToolPrintings,[]);
+  assert.equal(beforeActive.toolRecipientPokemonPrinting,'Dedenne-GX UNB');
+  const beforeBench=rootPhysicalSnapshot(state,0,bench);
+  assert.equal(beforeBench.toolRecipientPokemonPrinting,'Koraidon ex TEF');
+  owner.hand.cards.shift();
+  owner.bench[0].tools.push({fullName:tool});
+  const afterBench=rootPhysicalSnapshot(state,0,bench);
+  assert.equal(rootPhysicalWitness(bench,beforeBench,afterBench,{FINISHED:99}),
+    'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(active,beforeActive,
+    rootPhysicalSnapshot(state,0,active),{FINISHED:99}),
+  'no-confirmed-public-effect');
+});
