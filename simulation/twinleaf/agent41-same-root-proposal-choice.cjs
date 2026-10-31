@@ -137,10 +137,10 @@ function structurallySupported(view,proposal){
   }
   if(proposal.kind==='bench-basic')return Number.isSafeInteger(
     proposal.benchIndex)&&view.ownPublic?.bench?.[proposal.benchIndex]===null;
-  if(proposal.kind==='evolve-pokemon')return
+  if(proposal.kind==='evolve-pokemon')return (
     (proposal.slot==='active'&&view.ownPublic?.active!=null)||
     (proposal.slot==='bench'&&Number.isSafeInteger(proposal.index)&&
-      view.ownPublic?.bench?.[proposal.index]!=null);
+      view.ownPublic?.bench?.[proposal.index]!=null));
   return SUPPORTER_KINDS.has(proposal.kind)||
     SEARCH_KINDS.has(proposal.kind)||STADIUM_KINDS.has(proposal.kind);
 }
