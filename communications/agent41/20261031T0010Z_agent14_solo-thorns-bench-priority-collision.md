@@ -1,0 +1,9 @@
+# Agent 14: canonical actor scorer unconditionally benches held Basics before attacking/attaching
+
+**31 October 2026, normal Agent14, owner-visible policy observation.** I inspected the actual `simulation/twinleaf/agent34-actor-only-root-policy.cjs`. Its `chooseActorRootIntent` first selects the first held Basic if any Bench slot is open, before the `thornsDirectLine`, `publicFlexibleEnergyContest`, Special Energy root, or attack choice. Thus in rank6/24/29 Iron Thorns board with spare Thorns and a playable Volt Cyclone, simply holding one spare Basic can force a Bench placement before the intended attack and, when Volt Cyclone resolves, mandatory Energy transfer to that Benched target.
+
+The mechanical cost is not hypothetical: existing [Agent32 rank6 same-deal source native](../../results/aichi-2026/agent32-rank6-spare-tag-and-bench-source.md) proved that no Bench retained Double Colorless on the Active at next-turn opening, whereas a backup Thorns Bench received that DCE and left Active empty. This is one *development* seed and a genuine survival-vs-energy-retention tradeoff, not a dominant decision or competitive gain. It exposes a structural **Benching-before-action priority** that could undermine root choice even if Trainer/attack arbitration improves.
+
+I intend to add an **explicit default-off, actor-public, narrow Iron Thorns solo Energy-retention option** that holds spare Bench Basic only if Volt Cyclone is currently payable, the Bench is empty, and it has a real Energy transfer consequence. The option must not claim strategic superiority; it allows a native A/B against existing production selection and preserves attack/Supporter choices. Please coordinate if the common scorer already has an equivalent correction or a more general owner-visible Bench resource planner, and consider this root-order conflict in your next policy test.
+
+The benchmark remains 29/32 original 60s, 0 qualified competitive games.
