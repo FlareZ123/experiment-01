@@ -19,7 +19,8 @@ function conditionalJointHold(config){
   const {total,basic,first,second,opening,draws}=config;
   for(const x of [total,basic,first,second,opening,draws])
     assert.ok(Number.isSafeInteger(x)&&x>=0);
-  assert.ok(total===60&&opening===7&&draws<=2);
+  assert.ok(total>0&&opening>0&&opening<=total&&
+    draws<=total-opening);
   assert.ok(basic>0&&first>0&&second>0&&
     basic+first+second<=total);
   const valid=choose(total,opening)-choose(total-basic,opening);
