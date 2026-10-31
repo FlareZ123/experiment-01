@@ -241,6 +241,40 @@ test('no Thunder, no attacking Energy, or existing Bench leaves default admissio
   assert.equal(holdSoloThornsBench(view,catalog),false);
 });
 
+test('same-root arbiter keeps backup versus visible payable lethal opponent response',()=>{
+  const {collectSoloBenchChoice}=require(
+    '../simulation/twinleaf/agent14-owner-solo-bench-choice-contract.cjs');
+  const live=fixture();
+  catalog.basicEnergyTypes.Metal=7;
+  live.ownPublic.active.hp=230;
+  live.ownPublic.active.damage=170;
+  live.opponentPublic.active={
+    name:'Dialga-GX',printing:'Dialga-GX UPR',hp:180,damage:0,
+    energies:['Metal Energy SVE','Metal Energy SVE','Metal Energy SVE'],
+    attacks:[{name:'Shred',cost:[7,COLORLESS,COLORLESS],damage:80}],
+    printed:{stage:0,types:[7],weakness:[{type:8,value:'x2'}]},
+    publicRestrictions:{},specialConditions:[]
+  };
+  const options={thornsDirectLine:true,thornsSoloEnergyRetention:true};
+  const initial=collectSoloBenchChoice(live,catalog,chooseActorRootIntent,options);
+  assert.equal(initial.chosenIndex,0);
+  assert.equal(initial.rejectedIndex,1);
+  assert.equal(initial.chosen.kind,'bench-basic');
+  assert.equal(initial.reason,'visible-opponent-payable-lethal-reply');
+  assert.equal(initial.visibleLethalReply.attackName,'Shred');
+  assert.equal(initial.visibleLethalReply.ownRemainingHp,60);
+  assert.equal(initial.visibleLethalReply.printedDamage,80);
+  live.opponentPublic.active.energies=[];
+  assert.equal(collectSoloBenchChoice(live,catalog,
+    chooseActorRootIntent,options).chosenIndex,1);
+  live.opponentPublic.active.energies=Array(3).fill('Metal Energy SVE');
+  live.opponentPublic.active.damage=100;
+  assert.equal(collectSoloBenchChoice(live,catalog,
+    chooseActorRootIntent,options).chosenIndex,1,
+  'A defender that Volt Cyclone already KOs cannot retaliate');
+  delete catalog.basicEnergyTypes.Metal;
+});
+
 test('owner lock, status and native turn gate block solo inference',()=>{
   const view=fixture();
   view.globalTurn=1;
