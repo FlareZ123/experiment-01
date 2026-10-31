@@ -163,6 +163,9 @@ function withPostgameRootOrderProbe(
   assert.ok(target.nativeTapeHiddenOpponentHandContrast!==true||
     target.nativeTapeSameWorld===true,
     'Opponent hidden-hand contrast requires genuine native same-world tape');
+  assert.ok(target.nativeTapeBoundedOpponentHiddenHand!==true||
+    target.nativeTapeHiddenOpponentHandContrast===true,
+    'Bounded opponent contrast requires native opponent-hand tape mode');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -443,8 +446,12 @@ function withPostgameRootOrderProbe(
       let hiddenOpponentHandContrast=null;
       if(target.nativeTapeHiddenOpponentHandContrast===true){
         if(parity.sameWorldDecisionParityQualified){
-          const {compareNativeOpponentHiddenHand}=
-            require('../twinleaf/native-tape-opponent-hidden-hand-contrast.cjs');
+          const compareNativeOpponentHiddenHand=
+            target.nativeTapeBoundedOpponentHiddenHand===true?
+              require('../twinleaf/agent23-native-tape-bounded-opponent-hand.cjs')
+                .compareNativeOpponentHiddenHandBounded:
+              require('../twinleaf/native-tape-opponent-hidden-hand-contrast.cjs')
+                .compareNativeOpponentHiddenHand;
           const actorView=dependencies.actorView??
             require('../twinleaf/actor-observation-contract.cjs')
               .actorObservation;
