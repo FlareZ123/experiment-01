@@ -235,3 +235,62 @@ test('grouped Plumeria cannot become selectable or evade hand and quota guards',
   assert.equal(observed.receipt.supportedAlternativeCount,1);
   assert.equal(observed.intent.kind,'pass');
 });
+
+test('same-root grouped denial census measures unique roots, physical copies and Flare contention',()=>{
+  const mod=require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
+  const plumeria=mod.PROPOSERS.find(p=>
+    p.name==='grouped-plumeria-payments');
+  const flare=mod.PROPOSERS.find(p=>
+    p.name==='team-flare-grunt');
+  const view=rootView({
+    ownHand:['Plumeria BUS','Plumeria BUS','Team Flare Grunt XY',
+      'Psychic Energy SVE 5'],
+    opponentPublic:{
+      active:{printing:'Opponent Active TWM 77',
+        energies:['Psychic Energy SVE 5']},
+      bench:[{printing:'Opponent Bench TWM 12',
+        energies:['Darkness Energy SVE 7']}]
+    }
+  });
+  const observed=collectAndChooseOwnerRoot(view,{},{kind:'pass'},
+    {sameRootProbeAll:true},[plumeria,flare]);
+  const audit=newSameRootAudit();
+  recordSameRootAudit(audit,1,4,21,observed.receipt);
+  const d=audit.groupedDenialRootCounts;
+  assert.equal(d.plumeriaRoots,1);
+  assert.equal(d.plumeriaPhysicalOffers,2);
+  assert.equal(d.plumeriaAndFlareCoheldRoots,1);
+  assert.equal(d.plumeriaAndFlareBothOfferedRoots,1);
+  assert.equal(d.plumeriaWithBenchTargetRoots,1);
+  assert.equal(d.plumeriaAndPayableAttackRoots,0);
+  assert.equal(d.bySeat[1].plumeriaRoots,1);
+  assert.equal(d.bySeat[1].coheldFlareRoots,1);
+  assert.equal(d.coheldFlareRootSamples[0].rootOrdinal,21);
+  assert.equal(d.benchTargetRootSamples[0].rootOrdinal,21);
+  assert.equal(d.paymentPairsConsumingFlare,4);
+});
+
+test('grouped denial census counts absence of Flare without manufacturing a contest',()=>{
+  const mod=require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
+  const plumeria=mod.PROPOSERS.find(p=>
+    p.name==='grouped-plumeria-payments');
+  const view=rootView({
+    ownHand:['Plumeria BUS','Psychic Energy SVE 5',
+      'Grass Energy SVE 1'],
+    opponentPublic:{
+      active:{printing:'Opponent Active TWM 77',
+        energies:['Psychic Energy SVE 5']},bench:[]
+    }
+  });
+  const audit=newSameRootAudit();
+  const observed=collectAndChooseOwnerRoot(view,{},{kind:'pass'},
+    {sameRootProbeAll:true},[plumeria]);
+  recordSameRootAudit(audit,0,4,2,observed.receipt);
+  const d=audit.groupedDenialRootCounts;
+  assert.equal(d.plumeriaRoots,1);
+  assert.equal(d.plumeriaPhysicalOffers,1);
+  assert.equal(d.plumeriaAndFlareCoheldRoots,0);
+  assert.equal(d.plumeriaAndFlareBothOfferedRoots,0);
+  assert.equal(d.plumeriaWithBenchTargetRoots,0);
+  assert.deepEqual(d.coheldFlareRootSamples,[]);
+});
