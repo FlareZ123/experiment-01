@@ -40,6 +40,14 @@ Thus the two disjoint **Bunnelby / Unown start** classes contribute **6.51118949
 
 This large increase over the previous narrow singleton-Bunnelby result is a **coverage correction**: a basic starting Unown was unnecessarily excluded by that first conditional model. It is not evidence that a source donk is near 26.56% likely. Acquisition, DCI of the Dowsing discard payments, opening Bench decisions, Risky Ruins timing, Tapu's two-target setup, mandatory opponent Prize choices, abilities and locks, and game clock can make almost all qualifying physical arrangements unplayable.
 
+## Source-60-conserved native staged verification
+
+After the exact combinatorial finding, [rank26-unown-starter-source-fixture.cjs](../../simulation/twinleaf/rank26-unown-starter-source-fixture.cjs) constructed **two original rank26 Unown physical cards in separate source positions**, one original Active and another on the Bench. Original Meloetta and Tapu remain on the Bench, with two Exeggcute; source 60 printed physical IDs, six Prize cards and pinned engine source-rank6 opposing original 60 are preserved. The fixture deliberately stages Risky Ruins and the Bench-entry 20 damage on donor Pokémon, and arranges three real source Damage Pumps in hand. It invokes the reversible paper single-donor Damage Pump hook and real engine Pump, Propagation, rebench, mandatory opposing Prize-pick actions.
+
+**Manual native CI [41161045075](https://github.com/FlareZ123/experiment-01/actions/runs/41161045075) passed on both physical player seats.** [Machine-readable artifact 13027410997](https://github.com/FlareZ123/experiment-01/actions/runs/41161045075/artifacts/13027410997) records real Store actions and physical ID conservation. Both staged cases executed exactly five self-Knock Outs, moved the opponent's Prizes **6 → 4 → 2 → 1**, retained original Active Unown throughout and left the distinct Benched donor Unown with 10 damage after paying the fifth Pump.
+
+This **validates the native Unown Active + distinct donor substitution** for a prepared board. It does not show a normally shuffled turn-one hand constructing that board, actual historical opponent actions, the subsequent Koko Dance/DCE/Escape Rope/Crisis Punch finishing attack, or competitive game performance. The latter are separate test targets.
+
 ## Reproduction and adversarial check
 
 - [Exact BigInt two-zone DP](../../scripts/agent3-rank26-alternative-basic-starter.cjs) and [four deterministic Node tests](../../tests/agent3-rank26-alternative-basic-starter.test.cjs), **4/4 passing locally under Node 22.16.0**, and subsequently fully passing in [manual-only source-JSON CI 41160567810](https://github.com/FlareZ123/experiment-01/actions/runs/41160567810) at head `215889c5bda3556177e28191bef8525bfea0c31b`. This proves the reproducible combinatorics under the full authenticated manifest and pre-existing tests; it does not validate a native Unown-started game.
