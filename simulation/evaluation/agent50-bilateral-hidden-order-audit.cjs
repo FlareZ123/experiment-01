@@ -127,7 +127,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean,nativeTapeBoundedOpponentHiddenHand?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean,nativeTapeBoundedOpponentHiddenHand?:boolean,nativeTapeBoundedDoubleExchange?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -145,7 +145,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeHiddenOpponentHandContrast===true?
       {nativeTapeHiddenOpponentHandContrast:true}:{}),
     ...(scope.nativeTapeBoundedOpponentHiddenHand===true?
-      {nativeTapeBoundedOpponentHiddenHand:true}:{})};
+      {nativeTapeBoundedOpponentHiddenHand:true}:{}),
+    ...(scope.nativeTapeBoundedDoubleExchange===true?
+      {nativeTapeBoundedDoubleExchange:true}:{})};
   let control;
   try {
     control=execute();
@@ -306,7 +308,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
   nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false,
   nativeTapeHiddenOpponentHandContrast=false,
-  nativeTapeBoundedOpponentHiddenHand=false}={}) {
+  nativeTapeBoundedOpponentHiddenHand=false,
+  nativeTapeBoundedDoubleExchange=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
@@ -321,6 +324,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     'Hidden owner order contrast requires genuine same-world tape mode');
   assert.equal(typeof nativeTapeHiddenOpponentHandContrast,'boolean');
   assert.equal(typeof nativeTapeBoundedOpponentHiddenHand,'boolean');
+  assert.equal(typeof nativeTapeBoundedDoubleExchange,'boolean');
+  assert.ok(!nativeTapeBoundedDoubleExchange||nativeTapeBoundedOpponentHiddenHand,
+    'Double exchange requires bounded native opponent-hand mode');
   assert.ok(!nativeTapeBoundedOpponentHiddenHand||
     nativeTapeHiddenOpponentHandContrast,
     'Bounded hidden-hand scan requires native opponent-hand tape');
@@ -376,10 +382,12 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
-      nativeTapeBoundedOpponentHiddenHand}
+      nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange}
   ));
   return {
-    schema:nativeTapeFirstFiniteScore?
+    schema:nativeTapeBoundedDoubleExchange?
+      'agent23-crossrank-native-tape-opponent-hand-double-v3':
+      nativeTapeFirstFiniteScore?
       'agent50-crossrank-native-first-finite-scored-tape-v1':
       nativeTapeBoundedOpponentHiddenHand?
       'agent23-crossrank-native-tape-opponent-hand-bounded-v2':
@@ -398,7 +406,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
       firstFiniteScoredRoot?
       'agent50-crossrank-historical-first-finite-owner-score-v3':
       'agent50-crossrank-historical-live-hidden-order-v1',
-    protocol:nativeTapeBoundedOpponentHiddenHand?
+    protocol:nativeTapeBoundedDoubleExchange?
+      'same-frozen-game control/replay and disjoint two-card native-tape hand/deck swaps':
+      nativeTapeBoundedOpponentHiddenHand?
       'same-frozen-game control/replay and bounded native RNG-tape hidden-hand exchanges':
       'same-frozen-game control/replay, one candidate root hidden order flip',
     targetRankAndActualSeat:firstFiniteScoredRoot?
@@ -435,7 +445,9 @@ if(require.main===module) {
     nativeTapeHiddenOpponentHandContrast:
       process.env.AGENT23_NATIVE_OPPONENT_HAND_TAPE==='true',
     nativeTapeBoundedOpponentHiddenHand:
-      process.env.AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE==='true'
+      process.env.AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE==='true',
+    nativeTapeBoundedDoubleExchange:
+      process.env.AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
