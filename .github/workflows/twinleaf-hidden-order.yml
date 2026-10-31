@@ -200,6 +200,21 @@ jobs:
           name: agent18-original-aichi-k0-remaining23-survey
           path: agent18-source-k0-remaining23.json
           retention-days: 30
+      - name: Test source-K0 same-root 29-rank census accounting
+        if: ${{ inputs.source_k0_survey && inputs.remaining_source_k0_survey }}
+        run: node --test tests/agent18-aichi-k0-same-root-census.test.cjs
+      - name: Summarize all original-source first-root same-root offers
+        if: ${{ inputs.source_k0_survey && inputs.remaining_source_k0_survey }}
+        run: |
+          node scripts/agent18-aichi-k0-same-root-census.cjs agent18-source-k0-survey.json agent18-source-k0-remaining23.json > agent18-source-k0-same-root-29-census.json
+          node -e "const r=require('./agent18-source-k0-same-root-29-census.json');console.log('AGENT18_K0_SAME_ROOT_29',JSON.stringify({observed:r.observedOwnerRoots,offerRoots:r.independentOfferRoots,offers:r.supportedIndependentOffers,noOffer:r.noIndependentOfferRoots,errors:r.selectorErrorCount,blocked:r.blockedRanks.map(x=>x.rank),kinds:r.independentOfferKinds,sources:r.independentOfferSources}))"
+      - name: Preserve original-29 same-root offer census
+        if: ${{ always() && inputs.source_k0_survey && inputs.remaining_source_k0_survey }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-aichi-original29-k0-same-root-census
+          path: agent18-source-k0-same-root-29-census.json
+          if-no-files-found: warn
       - name: Compare information-identical deck states
         run: node simulation/twinleaf/hidden-deck-order-audit.cjs
       - name: Compare field-used Trainers Mail hidden-order decisions
