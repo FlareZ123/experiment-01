@@ -636,10 +636,13 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
-  if(audit.thornsSoloEnergyRetentionOptIn)
+  if(audit.thornsSoloEnergyRetentionOptIn){
     audit.version+='+'+
-      require('./agent14-thorns-solo-energy-retention.cjs').VERSION;
-  else delete audit.thornsSoloEnergyRetentionOptIn;
+      require('./agent14-thorns-solo-energy-retention.cjs').VERSION+'+'+
+      require('./agent14-owner-solo-bench-choice-contract.cjs').VERSION;
+    audit.sameRootSoloBenchChoices=[];
+    audit.sameRootSoloBenchChoiceCount=0;
+  }else delete audit.thornsSoloEnergyRetentionOptIn;
   if(audit.contestedEnergyRootOptIn){
     audit.version+='+'+
       require('./agent41-energy-attachment-contest.cjs').VERSION;
@@ -851,7 +854,23 @@ function withActorOnlyRootPolicy(run,deps={}){
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
       beforeAttackDenialRoot:audit.beforeAttackDenialOptIn
     };
-    const firstIntent=chooseActorRootIntent(view,catalog,rootOptions);
+    // Option contract is obtained before selecting the owner root. The same
+    // detached view supplies both Bench and attack/setup proposals; no native
+    // Store action is attempted during proposal collection.
+    const soloChoice=audit.thornsSoloEnergyRetentionOptIn?
+      require('./agent14-owner-solo-bench-choice-contract.cjs')
+        .collectSoloBenchChoice(view,catalog,chooseActorRootIntent,rootOptions):null;
+    if(soloChoice){
+      audit.sameRootSoloBenchChoiceCount++;
+      if(audit.sameRootSoloBenchChoices.length<40)
+        audit.sameRootSoloBenchChoices.push({
+          globalTurn:view.globalTurn,seat,
+          rootDecisionOrdinal:audit.selectedRootDecisions+1,
+          ...soloChoice
+        });
+    }
+    const firstIntent=soloChoice?.chosen??
+      chooseActorRootIntent(view,catalog,rootOptions);
     const arbitration=audit.terminalArbitrationOptIn?
       require('./agent41-owner-root-arbitration.cjs')
         .arbitrateOwnerRootIntent(view,catalog,firstIntent,rootOptions):null;
