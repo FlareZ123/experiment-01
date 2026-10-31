@@ -40,6 +40,10 @@ With 12 original Basic Pokémon, the chance that the Basic-valid original seven 
 
 This union is a **permissive necessary physical-card-location event for precisely these three lines**. It says nothing about reaching all cards by a real first-turn search/draw chain; paying Dowsing's two-card cost; placing the Stadium before Benching; the opponent's Active; live Ability/Item lock; native card support; physical match conservation; policy competence; or the game win rate. It also cannot upper-bound other different source strategies. Starting a different Active or another donor/acceleration route may bypass these particular requirements. The new single-egg route is more fragile to Dowsing availability, while the two-egg/two-Pump route may be attractive only in a rare Prize configuration.
 
+## Additional native Store certification for the single-Egg variant
+
+The source-conserved fixture was subsequently extended to **one Exeggcute Prized, four physically distinct original Damage Pumps in hand, and one Dowsing recovery for a fifth use**, tested in **both physical seats** in [manual CI 41160737783](https://github.com/FlareZ123/experiment-01/actions/runs/41160737783), **success**. The same run retained and passed the original two-Egg/two-Pump cases on both seats. Machine-readable four-case [artifact 13027245917](https://github.com/FlareZ123/experiment-01/actions/runs/41160737783/artifacts/13027245917) retains actual Store action receipts, source physical ID conservation and mandatory opposing Prize decisions. The one-Egg route's Prize progression is **6 → 5 → 4 → 3 → 2 → 1**; the two-Egg route is **6 → 4 → 2 → 1**. This closes the narrow native Dowsing/Pump reuse uncertainty for both prepared routes. **Neither variant has a naturally shuffled source opening, first-turn full attack, opponent play policy, or competitive game qualification**.
+
 ## Reproduction, qualification and next discriminating test
 
 - [Source calculation and conditional card-effect timelines](../../scripts/agent3-rank26-dowsing-pump-branches.cjs).
