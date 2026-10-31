@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION='agent7-public-lone-active-knockout-heuristic-v1';
+const VERSION='agent7-public-lone-active-knockout-heuristic-v2-special-energy-penalty';
 
 /**
  * A conservative, fully actor-visible potential terminal route. If the
@@ -28,6 +28,10 @@ function publicNoBenchPotentialKnockout(view,attack){
      target.damage>=target.hp||
      !Array.isArray(opponent.bench)||
      opponent.bench.some(p=>p!==null)||
+     !Array.isArray(target.energies)||
+     !target.energies.every(energy=>typeof energy==='string'&&
+       /^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.test(energy))||
+     !Array.isArray(own.energies)||
      !Array.isArray(target.tools)||target.tools.length>0||
      !Array.isArray(target.abilities)||target.abilities.length>0||
      !Array.isArray(own.printed?.types)||
@@ -39,7 +43,14 @@ function publicNoBenchPotentialKnockout(view,attack){
     if(!Number.isFinite(entry.value))return false;
     resistance=Math.max(resistance,Math.abs(entry.value));
   }
-  return attack.printedDamage-resistance>=target.hp-target.damage;
+  // Double Turbo Energy's printed self-attack modifier is -20 per card.
+  // Positive Weakness and other unmodeled boosts are deliberately excluded.
+  const doubleTurboCount=own.energies.filter(energy=>
+    typeof energy==='string'&&
+      (energy==='Double Turbo Energy'||
+       energy.startsWith('Double Turbo Energy '))).length;
+  return attack.printedDamage-20*doubleTurboCount-resistance>=
+    target.hp-target.damage;
 }
 
 module.exports={VERSION,publicNoBenchPotentialKnockout};
