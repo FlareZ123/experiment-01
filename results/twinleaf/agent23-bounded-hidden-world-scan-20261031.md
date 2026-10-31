@@ -55,12 +55,32 @@ not certify the complete chooser.
 
 First opt-in manual compiled job:
 [Actions run 41157577980](https://github.com/FlareZ123/experiment-01/actions/runs/41157577980),
-starting from commit **5923c9e90f660cf300b49afd868b5b6d3ac7b300** on
-31 October. Its original pure regression stage passed; the four native
-historical replays were still running when this note was first written.
-Further hardening (alias fail-closed, score-only census, position
-stratification) was committed **after that job's pinned head** and needs
-separate validation.
+head **5923c9e**, compiled and passed all 14 enabled pure regressions, and
+preserved all four actual original-game control/replay projections. However,
+**0/4 reconstructed original root actions matched**, so all four rows were
+classified as baseline mismatches. That job returned **zero interpretable
+conditional worlds** despite being green. The cause was an unhandled nullable
+sixth argument at the comparator seam (the existing wrapper supplies null
+when a per-world policy callback is absent). The scanner normalized this
+interface in commit **ea10625**.
+
+[Follow-up compiled run 41158045643](https://github.com/FlareZ123/experiment-01/actions/runs/41158045643),
+head **ea10625**, completed **success** on 31 October. Its logged summary
+reports **4/4** unchanged full-game replays, **4/4** original-root action
+matches, and **0/4** conditional action reversals in the bounded single-card
+worlds. Each rank-6/rank-11 row was classified as no change under the
+chosen counterfactuals. Exact eligible/attempted counts, score-only outcomes
+and individual cases are retained in the archived JSON and have not yet
+been aggregated in this report. This negative result is limited to the tested
+worlds.
+
+Subsequent hardening added an exact actor-observation-equivalence preflight,
+an owner-only negative control, and an independently reinstalled common
+policy per world. These additions postdate the follow-up compiled run and
+require their own validation. A stronger complementary
+[native RNG-tape bounded scanner](../../simulation/twinleaf/agent23-native-tape-bounded-opponent-hand.cjs)
+was then created to preserve the separately authenticated original-decision
+parity gate.
 
 The intended trial denominator remains **four** already selected
 historical rank-6/rank-11 source-dealt roots. Those roots are a diagnostic
