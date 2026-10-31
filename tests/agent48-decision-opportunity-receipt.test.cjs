@@ -140,3 +140,30 @@ test('selected un-dispatched root and duplicate policy ordinal fail release',()=
       {accepted:true,policyDecisionOrdinal:1},
       {accepted:true,policyDecisionOrdinal:1}]}),/Duplicate native/);
 });
+
+test('unprobed actions cannot masquerade as native canPlay negatives',()=>{
+  const offered={kind:'play-team-flare-grunt-denial',
+    structurallyOffered:true,ownerHeld:true};
+  const noOffers=decisionOpportunityReceipt([row('a1',1)]).arms[0];
+  assert.equal(noOffers.positiveWitnessCoverage,'NO_STRUCTURAL_OFFERS');
+  const unprobed=decisionOpportunityReceipt([
+    row('a1',1,owner(),[offered])
+  ]);
+  assert.equal(unprobed.nativeProbedChoices,0);
+  assert.equal(unprobed.arms[0].positiveWitnessCoverage,
+    'NATIVE_PLAYABILITY_UNPROBED');
+  const partial=decisionOpportunityReceipt([
+    row('a1',1,owner(),[{...offered,nativeCanPlay:false}]),
+    row('a1',2,owner(),[offered])
+  ]);
+  assert.equal(partial.nativeProbedChoices,1);
+  assert.equal(partial.nativeProbedWindows,1);
+  assert.equal(partial.arms[0].positiveWitnessCoverage,
+    'PARTIAL_NATIVE_PROBE_NO_POSITIVE');
+  const complete=decisionOpportunityReceipt([
+    row('a1',1,owner(),[{...offered,nativeCanPlay:false}]),
+    row('a1',2,owner(),[{...offered,nativeCanPlay:false}])
+  ]);
+  assert.equal(complete.arms[0].positiveWitnessCoverage,
+    'PROBED_NO_NATIVE_POSITIVE');
+});
