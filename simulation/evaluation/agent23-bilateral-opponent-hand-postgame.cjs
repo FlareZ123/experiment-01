@@ -8,6 +8,8 @@ const {candidateDevelopmentTarget,comparisonProjection}=
   require('./agent50-bilateral-hidden-order-audit.cjs');
 const {compareOpponentHiddenSwap}=
   require('../twinleaf/opponent-hidden-live-root-probe.cjs');
+const {scanBoundedOpponentHiddenWorlds,VERSION:BOUNDED_SCAN_VERSION}=
+  require('../twinleaf/agent23-bounded-hidden-world-scan.cjs');
 
 const root=path.resolve(__dirname,'../..');
 
@@ -66,6 +68,11 @@ function classifyConditionalProbe(control,replay,events){
       sourceHiddenPoolConserved:event.sourceHiddenPoolConserved??false,
       hiddenSwapKinds:event.chosenExchangeKinds??null,
       handIdentityUnobservedHistoryVerified:false,
+      boundedWorldScanVersion:event.schema??null,
+      eligibleSingleExchanges:event.totalEligibleSingleExchanges??null,
+      testedSingleExchanges:event.testedSingleExchanges??null,
+      exhaustiveSingleExchangeCoverage:event.exhaustiveSingleExchangeCoverage??null,
+      firstActionReversal:event.firstActionReversal??null,
       scoreDelta:event.tacticScoreComparison??null,
       auditError:event.auditError??null
     }:null,
@@ -88,7 +95,7 @@ function classifyConditionalProbe(control,replay,events){
  * @param {()=>()=>number} makeRandom
  */
 function auditHistoricalTrial(trial,prepared,Bot,clone,executeArm,
-  observePostgame,makeRandom){
+  observePostgame,makeRandom,compare=compareOpponentHiddenSwap){
   const target=candidateDevelopmentTarget(trial);
   let control;
   try{control=executeArm(trial,prepared);}
@@ -99,7 +106,7 @@ function auditHistoricalTrial(trial,prepared,Bot,clone,executeArm,
   try{
     const comparison=observePostgame(Bot,
       ()=>executeArm(trial,prepared),clone,{...target,makeRandom},
-      {compare:compareOpponentHiddenSwap});
+      {compare});
     assert.ok(Array.isArray(comparison.events),'Missing probe ledger');
     return {
       trialId:trial.id,rank:trial.rank,candidateId:trial.candidateId,
@@ -163,13 +170,19 @@ function runHistorical(){
     })}
   ]));
   const trials=developmentTrials();
+  const boundedWorldScan=process.env.AGENT23_BOUNDED_HIDDEN_SCAN_DEV==='true';
+  const compare=boundedWorldScan?scanBoundedOpponentHiddenWorlds:
+    compareOpponentHiddenSwap;
   const rows=trials.map(trial=>auditHistoricalTrial(
     trial,prepared,SimpleTacticsAi,clone,executeDevelopment,
     withPostgameRootOrderProbe,
-    ()=>seededRandom((trial.seed^0x23e1b4c5)>>>0)
+    ()=>seededRandom((trial.seed^0x23e1b4c5)>>>0),compare
   ));
   return {
-    schema:'agent23-full-bot-live-opponent-hand-conditional-postgame-v1',
+    schema:boundedWorldScan?
+      'agent23-full-bot-live-opponent-hand-conditional-postgame-multiworld-v2':
+      'agent23-full-bot-live-opponent-hand-conditional-postgame-v1',
+    boundedWorldScan,scanVersion:boundedWorldScan?BOUNDED_SCAN_VERSION:null,
     runner:'simulation/evaluation/agent41-bilateral-v2-development.cjs',
     engine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     experimentScope:'Frozen historical 4 arms, read-only actual owner root; detached conditional private hand/deck exchange after each authentic game',
@@ -181,6 +194,13 @@ function runHistorical(){
     conditionalActionReversals:rows.filter(row=>
       row.conditionalActionReversal).length,
     noRevealedHandHistoryProof:true,
+    boundedScanCoverage:boundedWorldScan?rows.map(row=>({
+      trialId:row.trialId,
+      eligible:row.diagnostic?.eligibleSingleExchanges??null,
+      tested:row.diagnostic?.testedSingleExchanges??null,
+      complete:row.diagnostic?.exhaustiveSingleExchangeCoverage??false,
+      classification:row.classification
+    })):null,
     competitiveQualifiedGames:0,
     gameWinRateCertified:false,
     caveat:'A replay-validated counterfactual is still not a complete '+
