@@ -34,6 +34,8 @@ jobs:
           node simulation/twinleaf/agent7-tinkaton-printing-coverage.cjs
       - name: Attest all 29 original printed source ranks against genuine pinned native deck IDs
         run: node simulation/evaluation/agent13-native-plan-attestation-smoke.cjs
+      - name: Regress exact 29-original Ability-use printing census
+        run: node --test tests/agent8-public-ability-use-source-census.test.cjs
       - name: Test both-seat native legal-but-unproductive Special Energy hold
         run: node simulation/twinleaf/agent13-staged-energy-hold-native.cjs
       - name: Verify guarded source-print last-Bench Dedenne versus Regidrago native forks in both seats
