@@ -179,6 +179,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     nativeStores:0,baselinePassRoots:0,viablePassRoots:0,
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     chosenPrompts:0,acceptedPrompts:0,rejectedPrompts:0,
+    physicallyAcceptedOwnerPayments:[],
     settledEnergyDiscards:0,unresolvedChains:0,
     abandonedChains:0,
     genericPromptFallbacks:0,delegatedPromptDispatches:0,
@@ -300,6 +301,10 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     const opponent=this.state.players[1-event.seat];
     const enemyBefore=visibleEnergyTargets(opponent).reduce(
       (n,x)=>n+x.energies.length,0);
+    const paymentBeforeNative=(event.kind==='prompt'&&event.stage===0)?
+      event.physicalCards.map(card=>({
+        handIndex:owner.hand.cards.indexOf(card),printing:card.fullName
+      })):null;
     try{
       const result=beforeDispatch.value.apply(this,[action,...rest]);
       if(event.kind==='root'){
@@ -321,7 +326,16 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
         const chain=awaiting.get(owner.id);
         assert.ok(chain&&chain.stage===event.stage,
           'Native prompt returned after its Plumeria chain changed');
-        if(event.stage===0)chain.discardedHand=event.physicalCards;
+        if(event.stage===0){
+          chain.discardedHand=event.physicalCards;
+          if(process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV==='true'&&
+              audit.physicallyAcceptedOwnerPayments.length<MAX_LOG)
+            audit.physicallyAcceptedOwnerPayments.push({
+              seat:event.seat,turn:event.turn,
+              payment:paymentBeforeNative,
+              acceptedByOriginalStore:true
+            });
+        }
         if(event.stage===1)chain.target=event.physicalCards[0];
         if(event.stage===2){
           const physicalEnergy=event.physicalCards[0];
