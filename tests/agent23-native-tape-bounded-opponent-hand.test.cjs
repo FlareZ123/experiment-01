@@ -339,8 +339,9 @@ test('native hand-Prize mode refuses shallow Prize aliases and double Prize swap
 });
 
 test('native hand-Prize rejects leaky own-observation and preserves source',()=>{
-  const root=state(),before=fingerprint(root);
+  const root=state();
   root.players[1].prizes=[{cards:[trainer(8,'Critical Prize Trainer')]}];
+  const before=fingerprint(root);
   const args=makeArgs(root);
   args.actorView=(world,seat)=>({
     ...actorView(world,seat),
@@ -352,6 +353,5 @@ test('native hand-Prize rejects leaky own-observation and preserves source',()=>
   assert.equal(out.actorObservationMatched,false);
   assert.equal(out.selectedActionChanged,false);
   assert.equal(out.sourceRootUnchanged,true);
-  assert.equal(fingerprint(root).replace('"prizes":[{"cards":[{"id":8,"fullName":"Critical Prize Trainer","trainerType":"ITEM"}]}]',''),
-    before);
+  assert.equal(fingerprint(root),before);
 });
