@@ -1,0 +1,146 @@
+{
+  "schema": "agent7-registered-public-lone-active-ko-rank6-seed-panel-v1",
+  "registeredAt": "2026-10-31T02:27:52.970304Z",
+  "selection": "8 independent Python secrets.randbits(32) draws executed before any native panel",
+  "hypothesis": "A public last-Active potential-KO chooser can promote one otherwise missed terminal attack while leaving no-trigger games untouched",
+  "sourceRank": 6,
+  "sourceDeck": "Aichi Open League 2026 rank6 exact original 60",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSeatAllocation": "A/B alternating across 8 independently drawn seeds; 4 seeds per physical candidate seat; both candidate 60s per seed",
+  "historicalFixtureOverlap": "No seed selected based on prior game outcomes; observed historical turn4 witness is a separate retrospective development fixture",
+  "successMetric": "native action-prefix identity before first intentional choice, actual Store attack settlement, public next-opponent behavior, all 16 attempts preserved",
+  "qualification": "Unqualified prospective development panel, not 32-field competitive win-rate evidence",
+  "trials": [
+    {
+      "id": "6:1300:A:champion-reference",
+      "rank": 6,
+      "repeat": 1300,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3082623659
+    },
+    {
+      "id": "6:1300:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1300,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3082623659
+    },
+    {
+      "id": "6:1301:B:champion-reference",
+      "rank": 6,
+      "repeat": 1301,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 136119449
+    },
+    {
+      "id": "6:1301:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1301,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 136119449
+    },
+    {
+      "id": "6:1302:A:champion-reference",
+      "rank": 6,
+      "repeat": 1302,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 129679993
+    },
+    {
+      "id": "6:1302:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1302,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 129679993
+    },
+    {
+      "id": "6:1303:B:champion-reference",
+      "rank": 6,
+      "repeat": 1303,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4199360371
+    },
+    {
+      "id": "6:1303:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1303,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4199360371
+    },
+    {
+      "id": "6:1304:A:champion-reference",
+      "rank": 6,
+      "repeat": 1304,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 777135878
+    },
+    {
+      "id": "6:1304:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1304,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 777135878
+    },
+    {
+      "id": "6:1305:B:champion-reference",
+      "rank": 6,
+      "repeat": 1305,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 985810075
+    },
+    {
+      "id": "6:1305:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1305,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 985810075
+    },
+    {
+      "id": "6:1306:A:champion-reference",
+      "rank": 6,
+      "repeat": 1306,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2329677425
+    },
+    {
+      "id": "6:1306:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1306,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2329677425
+    },
+    {
+      "id": "6:1307:B:champion-reference",
+      "rank": 6,
+      "repeat": 1307,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3018723278
+    },
+    {
+      "id": "6:1307:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 1307,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3018723278
+    }
+  ]
+}
