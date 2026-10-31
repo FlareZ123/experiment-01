@@ -932,6 +932,7 @@ function runDevelopment({
   bilateralSpecialEnergyRoot=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralEnergyContest=false,
+  sameRootProposalChoice=false,sameRootChoiceApply=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -949,6 +950,10 @@ function runDevelopment({
     'Basic/Special contention requires symmetric both-seat Special root');
   assert.ok(!bilateralPublicContextSpecialEnergy||actorOnlyComposition,
     'Public-context Special Energy requires canonical actor composition');
+  assert.ok(!sameRootProposalChoice||actorOnlyComposition,
+    'Same-root proposal choice requires canonical actor composition');
+  assert.ok(!sameRootChoiceApply||sameRootProposalChoice,
+    'Same-root selection requires an enabled same-root proposal set');
   assert.ok(!(bilateralPublicContextSpecialEnergy&&
       (bilateralSpecialEnergyRoot||sourceScopedSpecialEnergyRoot||
       candidateScopedSpecialEnergyRoot)),
@@ -1038,7 +1043,7 @@ function runDevelopment({
             candidate:candidateScopedSpecialEnergyRoot
           },trial.candidateSlot);
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
-          !sourceFloatStoneMobility&&
+          !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !candidateOnlyKnownDeadRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1050,6 +1055,10 @@ function runDevelopment({
               ...(bilateralPublicContextSpecialEnergy?{
                 publicContextSpecialEnergy:true,
                 specialEnergyRootOwnerSeat:null
+              }:{}),
+              ...(sameRootProposalChoice?{
+                sameRootProposalChoice:true,
+                sameRootChoiceApply
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1214,6 +1223,12 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    sameRootProposalChoiceOptIn:sameRootProposalChoice,
+    sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
+    sameRootProposalAuditedArms:rows.filter(row=>
+      row.actorOnlyDecisionCoverage?.sameRootProposalChoice).length,
+    sameRootChangedRoots:rows.reduce((n,row)=>n+
+      (row.actorOnlyDecisionCoverage?.sameRootProposalChoice?.changedRoots??0),0),
     actorOnlyOwnerSingleSearchOptIn:actorOnlyComposition&&actorOnlySingleSearch,
     actorHandDiscardOptIn:actorOnlyComposition&&actorHandDiscard,
     actorPlumeriaAfterPassOptIn:actorOnlyComposition&&actorPlumeriaAfterPass,
@@ -1347,7 +1362,11 @@ if(require.main===module){
     bilateralPublicContextSpecialEnergy:
       process.env.AGENT41_BILATERAL_PUBLIC_SPECIAL_DEV==='true',
     bilateralEnergyContest:
-      process.env.AGENT41_ENERGY_CONTEST_DEV==='true'
+      process.env.AGENT41_ENERGY_CONTEST_DEV==='true',
+    sameRootProposalChoice:
+      process.env.AGENT41_SAME_ROOT_PROPOSALS_DEV==='true',
+    sameRootChoiceApply:
+      process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
