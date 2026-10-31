@@ -4,7 +4,7 @@
 
 ## Provenance and printed line
 
-The original [rank-22 60](full-decklists.json) records **1 Wally ROS 94**, **2 Trubbish**, **2 Garbodor BKP 57**, and **4 Float Stone**. All 12 other Basic-relevant cards were checked by printed card metadata; **10 other Basic Pokémon** remain after the 2 Trubbish. Its other 41 cards are unrelated to the direct four-part access event. These counts sum to 60.
+The original [rank-22 60](full-decklists.json) records **1 Wally ROS 94**, **2 Trubbish**, **2 Garbodor BKP 57**, and **4 Float Stone**. The original rank-22 list has **12 Basic Pokémon total** by printed card metadata, leaving **10 other Basics** after the 2 Trubbish. Its other 41 cards are unrelated to the direct four-part access event. These counts sum to 60.
 
 [Wally's exact text](https://limitlesstcg.com/cards/ros/94), also mirrored on [Pokémon Japan's original Mitsuru card page](https://www.pokemon-card.com/card-search/details.php/card/30931), searches the deck for an Evolution and puts it onto one of your eligible Pokémon, expressly permitting an evolution on your first personal turn or on a Pokémon just played. Therefore a **going-second** original-rank22 player can, in principle, execute:
 
