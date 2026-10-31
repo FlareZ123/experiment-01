@@ -44,6 +44,7 @@ function attemptHole(x){
     benchMarshadow:x.owner.bench[0].cards.map(c=>c.fullName),
     ownerDiscard:x.owner.discard.cards.map(c=>c.fullName),
     opponentDiscard:x.opponent.discard.cards.map(c=>c.fullName),
+    opponentLostZone:x.opponent.lostzone.cards.map(c=>c.fullName),
     activeSeat:x.state.activePlayer,turn:x.state.turn
   };
   let error=null,prompts=[];
@@ -58,13 +59,15 @@ function attemptHole(x){
     benchMarshadow:x.owner.bench[0].cards.map(c=>c.fullName),
     ownerDiscard:x.owner.discard.cards.map(c=>c.fullName),
     opponentDiscard:x.opponent.discard.cards.map(c=>c.fullName),
+    opponentLostZone:x.opponent.lostzone.cards.map(c=>c.fullName),
     activeSeat:x.state.activePlayer,turn:x.state.turn,
     pendingPrompts:x.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name)
   };
   return {before,after,prompts,error,
     confirmedPublicDiscard:!after.stadium.includes(STADIUM)&&
-      after.opponentDiscard.includes(STADIUM)&&
+      after.opponentLostZone.includes(STADIUM)&&
+      !after.opponentDiscard.includes(STADIUM)&&
       after.ownerDiscard.includes(MARSHADOW)&&
       !x.owner.bench[0].getPokemonCard(),
     sameOwnerTurn:after.activeSeat===x.seat&&after.turn===2,
