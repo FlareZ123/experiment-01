@@ -85,7 +85,14 @@ function observeSourceK0(execute){
             candidate.handIndex===receipt.nativeBotProposedHandIndex&&
             candidate.slot===attached.slot&&candidate.index===attached.index);
           assert.equal(matching.length,1,
-            'Exactly one actor-owned Tool offer must match the actual native Tool action');
+            'Exactly one actor-owned Tool offer must match the actual native Tool action: '+
+            JSON.stringify({seat:receipt.seat,turn:receipt.turn,
+              nativeTarget:attached,originalHandIndex:
+                receipt.nativeBotProposedHandIndex,
+              originalHand:receipt.ownerKnownHand,
+              publicActive:receipt.ownActivePublicPrinting,
+              publicBench:receipt.ownBenchPublicPrintings,
+              toolCandidates:receipt.ownerToolCandidates}));
           const independent=buildNativeOwnerToolCandidateAction(
             beforeToolView,catalog,matching[0],beforeOwner.id,nativeActionTypes);
           assert.deepStrictEqual(independent,action,
