@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {observedRootDigest,decisionOpportunityReceipt}=
+const {observedRootDigest,decisionOpportunityReceipt,actorNativeReceiptCoverage}=
   require('../simulation/evaluation/agent48-decision-opportunity-receipt.cjs');
 const owner=(hand=['Psychic Energy SVE'])=>({
   actorSeat:0,globalTurn:2,decisionKind:'owner-root',
@@ -105,4 +105,38 @@ test('invalid ledger causality and duplicate roots fail closed',()=>{
   assert.throws(()=>decisionOpportunityReceipt([
     row('a1',1,owner(),[{kind:'attack',storeAccepted:true}])
   ]),/Accepted choice/);
+});
+
+test('native 64-cap audit reports missing original dispatch witnesses',()=>{
+  const rows=Array.from({length:64},(_,i)=>({
+    accepted:true,policyDecisionOrdinal:i+1}));
+  const result=actorNativeReceiptCoverage({selectedRootDecisions:80,
+    acceptedActorRoots:80,rejectedActorRoots:0,nativeRootAcceptances:rows});
+  assert.equal(result.status,'NATIVE_ROOT_WITNESSES_TRUNCATED');
+  assert.equal(result.missingNativeReceipts,16);
+  assert.equal(result.nativeActionOrdinalBound,false);
+  assert.equal(result.competitiveQualifiedGames,0);
+});
+
+test('complete ordinal receipts do not purport to join Store action clock',()=>{
+  const result=actorNativeReceiptCoverage({selectedRootDecisions:2,
+    acceptedActorRoots:1,rejectedActorRoots:1,nativeRootAcceptances:[
+      {accepted:true,policyDecisionOrdinal:1},
+      {accepted:false,policyDecisionOrdinal:2}]});
+  assert.equal(result.status,'COMPLETE_POLICY_CLOCK_ONLY');
+  assert.equal(result.missingNativeReceipts,0);
+  assert.equal(result.nativeActionOrdinalBound,false);
+});
+
+test('selected un-dispatched root and duplicate policy ordinal fail release',()=>{
+  const incomplete=actorNativeReceiptCoverage({selectedRootDecisions:3,
+    acceptedActorRoots:2,rejectedActorRoots:0,nativeRootAcceptances:[
+      {accepted:true,policyDecisionOrdinal:1},
+      {accepted:true,policyDecisionOrdinal:2}]});
+  assert.equal(incomplete.status,'ACTOR_SELECTION_WITHOUT_DISPATCH');
+  assert.equal(incomplete.selectedWithoutDispatch,1);
+  assert.throws(()=>actorNativeReceiptCoverage({selectedRootDecisions:2,
+    acceptedActorRoots:2,rejectedActorRoots:0,nativeRootAcceptances:[
+      {accepted:true,policyDecisionOrdinal:1},
+      {accepted:true,policyDecisionOrdinal:1}]}),/Duplicate native/);
 });
