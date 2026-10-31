@@ -69,3 +69,23 @@ test('all exact published source-rank threat groups are separate',()=>{
   assert.equal(z.toolGarbotoxinPotential.length,4);
 });
 
+
+
+test('Garbotoxin attachment condition survives Tool-effect negation',()=>{
+  const garbo=printCard('xy9-57').abilities[0].text;
+  assert.match(garbo,/If this Pokémon has a Pokémon Tool card attached/);
+  const tower=printCard('sv6-153').rules[0];
+  assert.match(tower,/Pokémon Tools attached.*have no effect/);
+  assert.doesNotMatch(tower,/discard|detach|remove/i);
+  const blower=printCard('sm2-125').rules[0];
+  const faba=printCard('sm8-173').rules[0];
+  assert.match(blower,/Pokémon Tool cards.*discard them/);
+  assert.match(faba,/Pokémon Tool.*put it in the Lost Zone/);
+  const patched=require('../results/als/agent25-dhelmise-mixed-lock-answers-v2.json');
+  assert.equal(patched.cards.reduce((s,c)=>s+c.count,0),60);
+  assert.equal(patched.cards.find(c=>c.name==='Field Blower').count,2);
+  assert.equal(patched.cards.find(c=>c.name==='Faba').count,1);
+  assert.ok(!patched.cards.some(c=>c.name==='Jamming Tower'));
+  assert.equal(donorRows(patched).reduce((n,r)=>n+r.count,0),8);
+  assert.equal(study().variants[1].basicCount,14);
+});
