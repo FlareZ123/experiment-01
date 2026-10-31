@@ -6,6 +6,42 @@ const {runPreregisteredPlumeria,FRAME}=
 const VERSION='agent4-original32-owner-plumeria-flare-pass-choice-census-v3';
 
 /**
+ * Preserve the earliest positive witness independently of capped global
+ * contested examples, and disclose incompleteness separately for every arm.
+ * This pure receipt can be tested without replaying 32 pinned Store games.
+ * @param {object} audit Native passive observer result for one game.
+ * @param {0|1} sourceSeat Physical original source seat.
+ * @returns {object} Complete per-arm sample sufficiency metadata.
+ */
+function summarizeSourceContestSampleEvidence(audit,sourceSeat){
+  assert.ok(sourceSeat===0||sourceSeat===1);
+  const s=audit?.bySeat?.[sourceSeat];
+  assert.ok(s&&Number.isSafeInteger(s.bothHeldRoots)&&
+    Number.isSafeInteger(s.bothNativePlayableRoots));
+  const sourceExamples=(audit.contestedOwnerSamples??[]).filter(
+    sample=>sample.seat===sourceSeat).slice(0,8);
+  const positiveExamples=(s.positiveContestSamples??[]).slice(0,8);
+  const passExamples=(audit.bothPlayablePassSamples??[]).filter(
+    sample=>sample.seat===sourceSeat).slice(0,8);
+  const firstNativePositiveSourceWitness=
+    s.earliestNativePositiveContest??null;
+  const sourceExamplesMayBeTruncated=s.bothHeldRoots>sourceExamples.length;
+  const positiveExamplesMayBeTruncated=
+    s.bothNativePlayableRoots>positiveExamples.length;
+  const positiveWitnessStatus=s.bothNativePlayableRoots===0?
+    'no-native-positive-root':
+    (firstNativePositiveSourceWitness&&positiveExamples.length>0?
+      'captured':'POSITIVE_WITNESS_MISSING');
+  return {
+    sourceExamples,positiveExamples,passExamples,
+    firstNativePositiveSourceWitness,sourceExamplesMayBeTruncated,
+    positiveExamplesMayBeTruncated,positiveWitnessStatus,
+    auditSamplesMayBeTruncated:
+      sourceExamplesMayBeTruncated||positiveExamplesMayBeTruncated
+  };
+}
+
+/**
  * All 32 PREVIOUSLY registered original Store games, without changing the
  * native action policy. The only new intervention is the exact-both-seat,
  * owner-private read-only Plumeria/Team Flare opportunity monitor.
@@ -77,22 +113,8 @@ function runSourceOriginal32ContestCensus(){
       s.firstTurnBothPlayablePassRoots;
     if(s.bothPlayablePassRoots>0)
       stats.sourceGamesWithBothNativePlayablePass++;
-    const examples=audit.contestedOwnerSamples.filter(
-      sample=>sample.seat===sourceSeat).slice(0,8);
-    // Independent native-positive root capture cannot be starved by the
-    // previous global first-128 contested sample window.
-    const positiveExamples=(s.positiveContestSamples??[]).slice(0,8);
-    const firstNativePositiveSourceWitness=
-      s.earliestNativePositiveContest??null;
-    const sourceExamplesMayBeTruncated=s.bothHeldRoots>examples.length;
-    const positiveExamplesMayBeTruncated=
-      s.bothNativePlayableRoots>positiveExamples.length;
-    const positiveWitnessStatus=s.bothNativePlayableRoots===0?
-      'no-native-positive-root':
-      (firstNativePositiveSourceWitness&&positiveExamples.length>0?
-        'captured':'POSITIVE_WITNESS_MISSING');
-    const passExamples=audit.bothPlayablePassSamples.filter(
-      sample=>sample.seat===sourceSeat).slice(0,8);
+    const sourceEvidence=summarizeSourceContestSampleEvidence(
+      audit,sourceSeat);
     return {
       id:row.trial.id,rank,sourceSeat,
       sourceDeckFingerprint:row.sourceDeckFingerprint??null,
@@ -107,12 +129,7 @@ function runSourceOriginal32ContestCensus(){
       bothNativePlayableSourcePassRoots:s.bothPlayablePassRoots,
       bothNativePlayableSourceFirstTurnPassRoots:
         s.firstTurnBothPlayablePassRoots,
-      auditSamplesMayBeTruncated:
-        sourceExamplesMayBeTruncated||positiveExamplesMayBeTruncated,
-      sourceExamplesMayBeTruncated,positiveExamplesMayBeTruncated,
-      positiveWitnessStatus,firstNativePositiveSourceWitness,
-      sourceExamples:examples,
-      positiveExamples,passExamples
+      ...sourceEvidence
     };
   });
   assert.deepEqual(Object.keys(byRank).map(Number).sort((a,b)=>a-b),
@@ -130,6 +147,7 @@ function runSourceOriginal32ContestCensus(){
     byRank,rows};
 }
 
-module.exports={VERSION,runSourceOriginal32ContestCensus};
+module.exports={VERSION,summarizeSourceContestSampleEvidence,
+  runSourceOriginal32ContestCensus};
 if(require.main===module)
   process.stdout.write(JSON.stringify(runSourceOriginal32ContestCensus(),null,2)+'\n');
