@@ -11,7 +11,9 @@ const ownView=(turn=12)=>({
   decisionKind:'owner-root',globalTurn:turn,
   ownHand:[],
   ownPublic:{
-    active:{printing:'Iron Thorns ex TWM 77',energies:['Double Colorless Energy XY 130']},
+    active:{printing:'Iron Thorns ex TWM 77',
+      energies:['Double Colorless Energy XY 130'],
+      attacks:[{name:'Volt Cyclone',damage:140,cost:[4,9,9]}]},
     bench:[{printing:'Iron Thorns ex TWM 77'}]
   },
   opponentPublic:{active:{printing:'Regidrago VSTAR SIT 136',
