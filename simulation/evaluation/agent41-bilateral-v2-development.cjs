@@ -946,7 +946,7 @@ function runDevelopment({
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   nativeToolAttachRoot=false,losslessNativeRootJoin=false,
-  nativeCoheldDenialCanPlay=false,
+  registeredToolEnergyCeiling=false,nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
   sameRootPositiveAttackOverPass=false,
@@ -975,6 +975,9 @@ function runDevelopment({
   assert.ok(!losslessNativeRootJoin||
     (actorOnlyComposition&&sameRootProposalChoice),
     'Lossless native policy ordinal join requires both-seat same-root roots');
+  assert.ok(!registeredToolEnergyCeiling||
+    (nativeToolAttachRoot&&sameRootChoiceApply&&actorOnlyComposition),
+    'Own-60 Tool Energy ceiling needs applied both-seat native Tool selection');
   assert.ok(!nativeToolAttachRoot||
     (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
       !sameRootProbeAll),
@@ -1055,6 +1058,24 @@ function runDevelopment({
   const scheduled=registeredTrials??(sourceFirstRetrospective?
     sourceFirstPressureTrials():developmentTrials());
   for(const trial of scheduled){
+    // Own-registered-60 information is available to the owning actor but
+    // never to the opponent actor. Preserve original printed manifest entries
+    // separately from the resolver's flattened native card IDs.
+    const sourcePrintedSixty=registeredToolEnergyCeiling?
+      roster.decks.find(x=>x.rank===trial.rank)?.cards:null;
+    const candidatePrintedSixty=registeredToolEnergyCeiling?
+      (trial.candidateId==='champion-reference'?reference.cards:
+        loadNewMoonCandidate().cards):null;
+    if(registeredToolEnergyCeiling){
+      assert.ok(Array.isArray(sourcePrintedSixty)&&
+        Array.isArray(candidatePrintedSixty));
+      assert.equal(sourcePrintedSixty.reduce((n,x)=>n+x.count,0),60);
+      assert.equal(candidatePrintedSixty.reduce((n,x)=>n+x.count,0),60);
+    }
+    const ownerRegisteredSixtiesBySeat=registeredToolEnergyCeiling?
+      (trial.candidateSlot==='A'?{
+        0:candidatePrintedSixty,1:sourcePrintedSixty
+      }:{0:sourcePrintedSixty,1:candidatePrintedSixty}):null;
     try {
       const execute=()=>executeDevelopment(trial,prepared,{
         compressorPayload,opportunityAudit,lateCompressorPayload,
@@ -1105,6 +1126,10 @@ function runDevelopment({
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,nativeToolAttachRoot,
                 losslessNativeRootJoin,
+                ...(registeredToolEnergyCeiling?{
+                  registeredToolEnergyCeiling:true,ownRegisteredSixtiesBySeat:
+                    ownerRegisteredSixtiesBySeat
+                }:{}),
                 nativeCoheldDenialCanPlay,
                 sameRootPassAttackProbeGlobalTurn,
                 publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal,
@@ -1278,6 +1303,7 @@ function runDevelopment({
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
       sameRootChoiceApply&&nativeToolAttachRoot,
+    registeredToolEnergyCeilingOptIn:registeredToolEnergyCeiling,
     losslessNativeRootJoinOptIn:losslessNativeRootJoin,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootPassAttackProbeGlobalTurn:sameRootProposalChoice?
@@ -1439,6 +1465,8 @@ if(require.main===module){
       process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true',
     nativeToolAttachRoot:
       process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true',
+    registeredToolEnergyCeiling:
+      process.env.AGENT41_REGISTERED_TOOL_ENERGY_DEV==='true',
     sameRootProbeAll:
       process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true',
     sameRootPublicEventReceipt:
