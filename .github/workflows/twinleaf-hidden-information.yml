@@ -59,6 +59,10 @@ on:
         description: With agent23_native_opponent_hand_tape, scan bounded owner-equivalent concealed worlds
         type: boolean
         default: false
+      agent23_native_bounded_double_swap:
+        description: With both agent23 flags, use two disjoint concealed exchanges per world
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -274,6 +278,7 @@ jobs:
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
+          AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV: ${{ inputs.agent23_native_bounded_double_swap }}
         run: node simulation/evaluation/agent50-bilateral-hidden-order-audit.cjs > agent50-live-deck-order-fourarm.json
       - name: Reject aborted or unauthenticated native historical controls
         run: node simulation/evaluation/agent50-native-control-gate.cjs agent50-live-deck-order-fourarm.json
@@ -294,6 +299,11 @@ jobs:
           boundedSuccessful:r.diagnostic?.nativeOpponentHiddenHandContrast?.successfulSingleExchanges??null,
           boundedFailed:r.diagnostic?.nativeOpponentHiddenHandContrast?.failedSingleExchanges??null,
           boundedActionReversals:r.diagnostic?.nativeOpponentHiddenHandContrast?.actionReversals??null,
+          swapSize:r.diagnostic?.nativeOpponentHiddenHandContrast?.swapSize??null,
+          eligiblePaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.eligibleExchangePaths??null,
+          attemptedPaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.attemptedExchangePaths??null,
+          successfulPaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.successfulExchangePaths??null,
+          failedPaths:r.diagnostic?.nativeOpponentHiddenHandContrast?.failedExchangePaths??null,
           auditError:r.diagnostic?.auditError||r.error||null,
           chosenTurn:r.diagnostic?.chosenRootTurn||null,
           scorerAttempts:r.diagnostic?.actualScorerAttempts||null,
