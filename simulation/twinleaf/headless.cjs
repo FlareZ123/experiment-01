@@ -326,6 +326,9 @@ function policyRandomStreams(seed) {
  * @returns {object} Deterministic bounded match summary with trace counts and deck hashes.
  */
 function runMatch(request) {
+  if(request.captureNativePolicyActionJoin===true&&
+      request.captureDecisionTrace!==true)
+    throw new Error('Native policy/Store ordinal join needs full root ledger');
   if(request.enforceSelectOptionLegality===true &&
       request.strictPromptValidation!==true){
     throw new Error('Option legality gate requires strictPromptValidation:true');
@@ -1365,6 +1368,12 @@ function runMatch(request) {
         });
         if (recentNativePublicRoots.length>16) recentNativePublicRoots.shift();
       }
+      // Bind actor chooser ordinal to this actual headless Store-clock
+      // position by native action OBJECT identity. Prompts and speculative
+      // Store clones cannot acquire an actor-root identity by coincidence.
+      const actorPolicyActionTag=request.captureNativePolicyActionJoin===true?
+        require('./agent34-actor-only-root-policy.cjs')
+          .bindActorNativeStoreOrdinal(action,actions,seat):null;
       try {
         store.dispatch(action);
         if (setupCompensationObserver) {
@@ -1638,6 +1647,9 @@ function runMatch(request) {
           turnBefore, turnAfter: store.state.turn,
           playerSlot: seat, action: actionName,
           pendingPrompt: pending?.constructor.name ?? null,
+          ...(actorPolicyActionTag?{
+            actorPolicyDecisionOrdinal:actorPolicyActionTag.policyDecisionOrdinal
+          }:{}),
           initiatingRootActionOrdinal:
             actionLineage?.initiatingAction?.actionOrdinal ?? null,
           ...(playedCard ? {card: playedCard} : {}),
