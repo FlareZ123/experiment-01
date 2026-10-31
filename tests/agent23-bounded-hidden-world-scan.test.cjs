@@ -77,6 +77,30 @@ test('bounded census visibly censors unexamined hidden single exchanges',()=>{
   assert.equal(result.completeOwnerObservationHistoryCertified,false);
 });
 
+test('native optional policy callback is installed before each fresh bot',()=>{
+  const game=state();
+  let installations=0,active=false,constructions=0;
+  const withPolicy=work=>{
+    assert.equal(active,false,'Nested alternate-world policy state');
+    installations++;
+    active=true;
+    try{return work();}
+    finally{active=false;}
+  };
+  const newBot=()=>{
+    assert.equal(active,true,'Bot was constructed outside its policy hooks');
+    constructions++;
+    return sensitiveBot();
+  };
+  const out=scanBoundedOpponentHiddenWorlds(game,101,newBot,
+    structuredClone,()=>()=>0.5,withPolicy);
+  assert.equal(out.perWorldPolicyIsolation,true);
+  assert.equal(out.actionReversals,1);
+  assert.equal(out.testedSingleExchanges,2);
+  assert.equal(installations,4);
+  assert.equal(constructions,4);
+});
+
 test('bounded scan spreads exposure across owner-unseen physical hand indices',()=>{
   const hand=Array.from({length:4},(_,i)=>energy(10+i,'Hand Energy '+i));
   const deck=Array.from({length:9},(_,i)=>trainer(30+i,'Deck Trainer '+i));
