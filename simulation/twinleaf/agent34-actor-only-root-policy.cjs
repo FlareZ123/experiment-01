@@ -561,6 +561,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT16_OWNER_ARBITRATION_CENSUS_DEV==='true'),
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
+    sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
+    sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
+    sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
+      .newSameRootAudit(),
     terminalArbitrationOptIn:(deps.terminalArbitration??
       (process.env.AGENT41_OWNER_TERMINAL_ARBITRATION_DEV==='true'))||
       deps.beforeAttackDenial===true||
@@ -610,6 +614,14 @@ function withActorOnlyRootPolicy(run,deps={}){
   }else{
     delete audit.ownerArbitrationCensusOptIn;
     delete audit.ownerArbitration;
+  }
+  if(audit.sameRootProposalChoiceOptIn){
+    audit.version+='+'+
+      require('./agent41-same-root-proposal-choice.cjs').VERSION;
+  }else{
+    delete audit.sameRootProposalChoiceOptIn;
+    delete audit.sameRootChoiceApplyOptIn;
+    delete audit.sameRootProposalChoice;
   }
   if(deps.lastBenchHeldEvolution===true ||
      process.env.AGENT43_HELD_EVOLUTION_BENCH_DEV==='true'){
@@ -852,7 +864,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       protectPotentialTwoPrizeAttack:audit.protectPotentialTwoPrizeAttackOptIn,
       protectPotentialPrintedPrizeAttack:audit.protectPotentialPrintedPrizeAttackOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
-      beforeAttackDenialRoot:audit.beforeAttackDenialOptIn
+      beforeAttackDenialRoot:audit.beforeAttackDenialOptIn,
+      sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
     };
     // Option contract is obtained before selecting the owner root. The same
     // detached view supplies both Bench and attack/setup proposals; no native
@@ -871,7 +884,20 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     const firstIntent=soloChoice?.chosen??
       chooseActorRootIntent(view,catalog,rootOptions);
-    const arbitration=audit.terminalArbitrationOptIn?
+    // Partial owner-view alternative collection is explicitly opt-in. The
+    // first-return action is a control offer, never previously dispatched.
+    // The new chooser and historical terminal arbiter are mutually exclusive
+    // until their option sets and native receipts can be reconciled.
+    const sameRoot=audit.sameRootProposalChoiceOptIn?
+      require('./agent41-same-root-proposal-choice.cjs')
+        .collectAndChooseOwnerRoot(view,catalog,firstIntent,rootOptions):null;
+    if(sameRoot){
+      require('./agent41-same-root-proposal-choice.cjs')
+        .recordSameRootAudit(audit.sameRootProposalChoice,seat,
+          view.globalTurn,audit.selectedRootDecisions+1,sameRoot.receipt);
+    }
+    const arbitration=audit.terminalArbitrationOptIn&&
+      !audit.sameRootProposalChoiceOptIn?
       require('./agent41-owner-root-arbitration.cjs')
         .arbitrateOwnerRootIntent(view,catalog,firstIntent,rootOptions):null;
     if(arbitration){
@@ -880,7 +906,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           seat,view.globalTurn,arbitration.receipt,
           audit.selectedRootDecisions+1);
     }
-    const intent=arbitration?.intent??firstIntent;
+    const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
     if(audit.ownerArbitrationCensusOptIn){
       const diagnostics=require('./agent16-owner-priority-contention.cjs');
       const receipt=diagnostics.collectOwnerContention(
@@ -973,7 +999,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     }
     audit.selectedRootDecisions++;
     typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind,
-      ...(audit.terminalArbitrationOptIn?{
+      ...((audit.terminalArbitrationOptIn||audit.sameRootProposalChoiceOptIn)?{
         policyDecisionOrdinal:audit.selectedRootDecisions}:{}),
       intent:{...intent,benchSlot:intent.benchIndex}});
     audit.typedIntentCounts[intent.kind]=(audit.typedIntentCounts[intent.kind]??0)+1;
