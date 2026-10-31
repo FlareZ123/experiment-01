@@ -1,0 +1,48 @@
+name: Agent7 preregistered general printed Attack over Pass rank6 panel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank6-attack-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify default-off and independent both-seat all-turn Attack offers
+        run: node --test tests/agent7-positive-print-attack-pass-probe.test.cjs tests/agent7-public-no-bench-terminal.test.cjs
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 16 preregistered original Store first-return control arms
+        env:
+          AGENT7_PANEL_MODE: 'control'
+        run: node simulation/evaluation/agent7-positive-attack-pass-panel.cjs > agent7-general-attack-control.json
+      - name: Execute all 16 preregistered original Store positive printed Attack selected arms
+        env:
+          AGENT7_PANEL_MODE: 'selected'
+        run: node simulation/evaluation/agent7-positive-attack-pass-panel.cjs > agent7-general-attack-selected.json
+      - name: Compare first native Store action change and opponent continuation for all 16
+        run: node scripts/agent7-positive-attack-pass-panel-pair.cjs agent7-general-attack-control.json agent7-general-attack-selected.json > agent7-general-attack-pair.json
+      - name: Preserve every predeclared seed, censor, root action and selected prompt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-preregistered-positive-attack-rank6-panel
+          path: |
+            agent7-general-attack-control.json
+            agent7-general-attack-selected.json
+            agent7-general-attack-pair.json
+          if-no-files-found: warn
+          retention-days: 14
