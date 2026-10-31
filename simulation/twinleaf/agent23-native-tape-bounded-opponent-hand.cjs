@@ -124,7 +124,8 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16}={}){
       const record={
         exchangeKind:exchange.kindPair,
         actionChanged:null,executable:false,
-        consumed:null,error:null
+        consumed:null,actorObservationMatched:false,
+        opponentHiddenInventoryConserved:false,error:null
       };
       report.attemptedSingleExchanges++;
       try{
@@ -138,8 +139,10 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16}={}){
         other.deck.cards[di]=handCard;
         assert.deepStrictEqual(hiddenZoneFingerprint(other),originalPool,
           'Alternate concealed world changed card-instance multiset');
+        record.opponentHiddenInventoryConserved=true;
         assert.deepStrictEqual(actorView(world,seat),ownerView,
           'Alternate hidden world changed the owner-visible observation');
+        record.actorObservationMatched=true;
         const playback=replayPolicyRandomTape(tape,()=>replayDecision(world));
         record.consumed=playback.consumed;
         const decision=actionSignature(playback.result);
@@ -170,8 +173,10 @@ function compareNativeOpponentHiddenHandBounded(args,{limit=16}={}){
     if(!report.baselineReplayStable){
       report.error='Original-world action drifted after counterfactuals';
     }
-    report.actorObservationMatched=report.cases.every(x=>x.executable);
-    report.opponentHiddenInventoryConserved=report.cases.every(x=>x.executable);
+    report.actorObservationMatched=report.cases.every(x=>
+      x.actorObservationMatched===true);
+    report.opponentHiddenInventoryConserved=report.cases.every(x=>
+      x.opponentHiddenInventoryConserved===true);
   }catch(error){
     report.error=String(error?.message??error);
   }finally{
