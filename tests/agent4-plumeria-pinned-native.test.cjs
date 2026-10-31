@@ -123,3 +123,60 @@ test('genuine pinned Store Plumeria resolves physical two-hand discard and one o
 // the external wrapper; do not obstruct unrelated pinned native regressions.
 if(process.env.AGENT4_PLUMERIA_AFTERPASS_NATIVE_DEV==='true')
   require('./agent4-plumeria-native-intervention.test.cjs');
+
+
+test('live pinned Store actor observation preserves original Plumeria payment-menu choices on both seats',()=>{
+  const {actorObservation} =
+    require('../simulation/twinleaf/actor-observation-contract.cjs');
+  const {collectOwnerPlumeriaPaymentMenu} =
+    require('../simulation/twinleaf/agent4-plumeria-payment-menu.cjs');
+  const {PlayCardAction,PlayerType,SlotType} =
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction} =
+    native('game/store/actions/resolve-prompt-action');
+  for(const seat of [0,1]){
+    const f=nativePlumeriaRoot(seat);
+    const view=actorObservation(f.state,seat);
+    const originalHand=view.ownHand.slice();
+    const originalOppEnergy=view.opponentPublic.active.energies.slice();
+    const menu=collectOwnerPlumeriaPaymentMenu(view);
+    assert.equal(menu.reason,'paper-structural-necessary-opportunity');
+    assert.equal(menu.offers.length,1);
+    assert.equal(menu.totalPaymentPairs,1);
+    assert.deepEqual(menu.offers[0].paymentPairs[0].handIndices,[1,2]);
+    assert.deepEqual(menu.offers[0].paymentPairs[0].printings,
+      ['Psychic Energy SVE','Psychic Energy SVE']);
+    assert.equal(menu.targets.length,1);
+    assert.deepEqual([menu.targets[0].slot,menu.targets[0].index,
+      menu.targets[0].energyIndex,menu.targets[0].energyPrinting],
+      ['active',0,0,'Psychic Energy SVE']);
+    assert.equal(plumeriaOwnerOpportunity(f.store,f.state,seat)
+      .nativePlayableCopies,1,'Genuine native canPlay positive');
+    assert.deepEqual(view.ownHand,originalHand);
+    assert.deepEqual(view.opponentPublic.active.energies,originalOppEnergy);
+    f.store.dispatch(new PlayCardAction(f.owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const pending=()=>f.state.prompts.find(p=>p.result===undefined);
+    let prompt=pending();
+    assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
+    const payment=f.owner.hand.cards.slice(0,2);
+    assert.deepEqual(payment.map(c=>c.fullName),
+      menu.offers[0].paymentPairs[0].printings);
+    assert.equal(prompt.validate(payment),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,payment));
+    prompt=pending();
+    assert.equal(prompt?.constructor.name,'ChoosePokemonPrompt');
+    assert.equal(prompt.validate([f.opponent.active],f.state),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,[f.opponent.active]));
+    prompt=pending();
+    assert.equal(prompt?.constructor.name,'ChooseCardsPrompt');
+    const target=f.opponent.active.energies.cards[0];
+    assert.equal(target.fullName,menu.targets[0].energyPrinting);
+    assert.equal(prompt.validate([target]),true);
+    f.store.dispatch(new ResolvePromptAction(prompt.id,[target]));
+    assert.equal(f.opponent.discard.cards.includes(target),true);
+    assert.equal(payment.every(c=>f.owner.discard.cards.includes(c)),true);
+    assert.equal(pending(),undefined);
+  }
+});
