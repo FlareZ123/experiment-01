@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank26_dowsing_pump_fixture:
+        description: 'Staged two physical Pump and native Dowsing fifth-KO Store test'
+        type: boolean
+        required: false
+        default: false
       rank26_dowsing_hold_probe:
         description: 'Check one authentic firstturn ACE SPEC consumption guard in four historical rank26 deals'
         type: boolean
@@ -199,6 +204,16 @@ jobs:
         with:
           name: rank26-integrated-firstturn-prospective-source-unqualified
           path: rank26-prospective-integrated-source.json
+          if-no-files-found: error
+      - name: Native source-conserved Dowsing recovers a spent Pump then fifth self-KO
+        if: ${{ inputs.rank26_dowsing_pump_fixture }}
+        run: node simulation/twinleaf/rank26-dowsing-pump-source-fixture.cjs > rank26-native-dowsing-pump-staged.json
+      - name: Archive staged Dowsing physical payment and Prize receipts
+        if: ${{ inputs.rank26_dowsing_pump_fixture }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank26-native-dowsing-two-pump-staged-unqualified
+          path: rank26-native-dowsing-pump-staged.json
           if-no-files-found: error
       - name: Test source-first Dowsing tactic guard boundary
         run: node --test tests/rank26-dowsing-hold.test.cjs
