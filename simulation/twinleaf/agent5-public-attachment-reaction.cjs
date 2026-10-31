@@ -1,6 +1,9 @@
 'use strict';
 
-const VERSION='agent5-public-buddy-pulse-attachment-risk-v1';
+const {visiblePrintedProfile}=
+  require('./agent10-original-printing-energy-flags.cjs');
+
+const VERSION='agent5-public-buddy-pulse-attachment-risk-v2-profiled-prizes';
 const DAMAGE_COUNTERS=2;
 const DAMAGE_PER_COUNTER=10;
 const ATTACHMENT_KINDS=new Set(['attach-special-energy','attach-basic-energy']);
@@ -13,10 +16,11 @@ const ATTACHMENT_KINDS=new Set(['attach-special-energy','attach-basic-energy']);
  *
  * @param {object} view Current actor's own hand and both public boards.
  * @param {object} intent Candidate own-hand Energy attachment.
+ * @param {object} [catalog] Optional global public printing profile index.
  * @returns {{potentialKnockout:boolean,reason:string,printing:string|null,
  *   remainingHp:number|null,triggerDamage:number,terminalLossPossible:boolean}}
  */
-function evaluatePublicAttachmentReaction(view,intent){
+function evaluatePublicAttachmentReaction(view,intent,catalog={}){
   const base={potentialKnockout:false,reason:'outside-recognized-trigger',
     printing:null,remainingHp:null,triggerDamage:0,
     terminalLossPossible:false};
@@ -40,7 +44,13 @@ function evaluatePublicAttachmentReaction(view,intent){
   const potentialKnockout=remainingHp<=triggerDamage;
   // This exact two-Prize printing is checked against the supplied card DB.
   // Do not infer an arbitrary Rule Box's Prize reward from a name suffix.
-  const knownAward=target.printing==='Regidrago V SIT'?2:null;
+  const index=catalog.publicPokemonProfileIndex;
+  const profile=index instanceof Map&&typeof target.printing==='string'?
+    visiblePrintedProfile(index,target.printing):null;
+  const knownAward=Number.isInteger(profile?.prizesOnKnockout)&&
+    profile.prizesOnKnockout>=1&&profile.prizesOnKnockout<=3?
+      profile.prizesOnKnockout:
+      (target.printing==='Regidrago V SIT'?2:null);
   const terminalLossPossible=potentialKnockout&&knownAward!==null&&
     Number.isSafeInteger(view?.opponentPublic?.prizeCount)&&
     view.opponentPublic.prizeCount<=knownAward;
