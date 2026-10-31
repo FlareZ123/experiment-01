@@ -95,3 +95,30 @@ test('rejects a receipt for a non-acting seat',()=>{
   const p=player(slot(null),[],[],[]);
   assert.throws(()=>publicEventReceipt({players:[p,p],activePlayer:0},1));
 });
+
+test('global once-use Abilities do not pretend per-card availability',()=>{
+  const fez=card('Fezandipiti ex ASC',500);
+  fez.name='Fezandipiti ex';
+  const dedenne=card('Dedenne-GX UNB',501);
+  const crobat=card('Crobat V DAA',502);
+  const squawk=card('Squawkabilly ex PAL',503);
+  const owner=player(slot(fez),[
+    slot(dedenne),slot(crobat),slot(squawk)
+  ],[],[
+    {name:'DEDECHANGE_MARKER',source:card('Dedenne-GX UNB',601)},
+    {name:'DARK_ASSET_MARKER',source:card('Crobat V DAA',602)}
+  ]);
+  owner.usedTableTurner=true;
+  owner.usedSquawkAndSeizeThisTurn=false;
+  const opponent=player(slot(card('Pidgey MEW',900)),[],[],[]);
+  const r=publicEventReceipt({players:[owner,opponent],
+    activePlayer:0,turn:8},0);
+  assert.deepEqual(r.ownerActive.knownAbilityUse,
+    [{name:'Flip the Script',usedThisTurn:true}]);
+  assert.deepEqual(r.ownerBench[0].knownAbilityUse,
+    [{name:'Dedechange',usedThisTurn:true}]);
+  assert.deepEqual(r.ownerBench[1].knownAbilityUse,
+    [{name:'Dark Asset',usedThisTurn:true}]);
+  assert.deepEqual(r.ownerBench[2].knownAbilityUse,
+    [{name:'Squawk and Seize',usedThisTurn:false}]);
+});
