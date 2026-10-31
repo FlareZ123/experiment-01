@@ -83,7 +83,7 @@ jobs:
       - name: Test observe-only same-root printed Tool offers
         run: node --test tests/agent18-same-root-tool-offer.test.cjs tests/agent18-native-tool-play-action.test.cjs tests/agent18-aichi-k0-root-uniqueness.test.cjs
       - name: Test deterministic original 29 cross-seat K0 campaign schedule
-        run: node --test tests/agent18-original29-crossseat-native-k0.test.cjs
+        run: node --test tests/agent18-original29-crossseat-native-k0.test.cjs tests/agent18-crossseat-source-root-summary.test.cjs
       - name: Pure test precommitted eight-source K0 native Bench classifier
         run: node tests/agent32-rank11-eight-k0-bench-native.test.cjs
       - name: Optional frozen rank11 original-source first-K0 Bench witness
@@ -230,6 +230,18 @@ jobs:
       - name: Summarize diversified original-source native first roots
         if: inputs.agent18_crossseat_seed_diversity
         run: node -e "const r=require('./agent18-original29-crossseat-k0.json');console.log('AGENT18_CROSSSEAT_29',JSON.stringify({planned:r.preregisteredArms,passed:r.passedArms,blocked:r.blockedArms.length,firstRoots:r.arms.reduce((n,x)=>n+(x.ownerRoots?.length||0),0)}))"
+      - name: Analyze diversified original-source native owner-root uniqueness
+        if: inputs.agent18_crossseat_seed_diversity
+        run: |
+          node scripts/agent18-crossseat-source-root-summary.cjs agent18-original29-crossseat-k0.json > agent18-original29-crossseat-diversity-summary.json
+          node -e "const r=require('./agent18-original29-crossseat-diversity-summary.json');console.log('AGENT18_CROSSSEAT_DIVERSITY',JSON.stringify({roles:r.bySemanticRole,blocked:r.blockedArms.length,roots:r.observedFirstOwnerRoots}))"
+      - name: Preserve original-source cross-seat unique-root analysis
+        if: ${{ always() && inputs.agent18_crossseat_seed_diversity }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-aichi-original29-crossseat-root-diversity
+          path: agent18-original29-crossseat-diversity-summary.json
+          if-no-files-found: warn
       - name: Archive diversified original 29 cross-seat source K0 receipts
         if: ${{ always() && inputs.agent18_crossseat_seed_diversity }}
         uses: actions/upload-artifact@v4
