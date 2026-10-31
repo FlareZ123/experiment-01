@@ -564,6 +564,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
+    sameRootPublicEventReceiptOptIn:deps.sameRootPublicEventReceipt===true,
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
       .newSameRootAudit(),
     terminalArbitrationOptIn:(deps.terminalArbitration??
@@ -619,12 +620,15 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.sameRootProposalChoiceOptIn){
     assert.ok(!audit.sameRootProbeAllOptIn||!audit.sameRootChoiceApplyOptIn,
       'All same-root proposers may only run in observer mode');
+    assert.ok(!audit.sameRootPublicEventReceiptOptIn||audit.sameRootProposalChoiceOptIn,
+      'Public event history is only admitted under root proposal observation');
     audit.version+='+'+
       require('./agent41-same-root-proposal-choice.cjs').VERSION;
   }else{
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.sameRootProbeAllOptIn;
+    delete audit.sameRootPublicEventReceiptOptIn;
     delete audit.sameRootProposalChoice;
   }
   if(deps.lastBenchHeldEvolution===true ||
@@ -871,6 +875,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       beforeAttackDenialRoot:audit.beforeAttackDenialOptIn,
       payablePrintedAttackOffer:audit.sameRootProposalChoiceOptIn===true,
       preterminalSpeedDrawOffer:audit.sameRootProposalChoiceOptIn===true,
+      sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
     };
@@ -895,9 +900,17 @@ function withActorOnlyRootPolicy(run,deps={}){
     // first-return action is a control offer, never previously dispatched.
     // The new chooser and historical terminal arbiter are mutually exclusive
     // until their option sets and native receipts can be reconciled.
+    // The owner-visible public event clock is separately admitted at the
+    // trusted Store boundary. Never pass State or native card IDs to a
+    // selector. The historical baseline continues using the original view.
+    const rootProposalView=audit.sameRootPublicEventReceiptOptIn?
+      Object.freeze({...view,publicEventReceipt:
+        require('./agent8-public-event-receipt.cjs')
+          .publicEventReceipt(state,seat)}):view;
     const sameRoot=audit.sameRootProposalChoiceOptIn?
       require('./agent41-same-root-proposal-choice.cjs')
-        .collectAndChooseOwnerRoot(view,catalog,firstIntent,rootOptions):null;
+        .collectAndChooseOwnerRoot(rootProposalView,catalog,firstIntent,
+          rootOptions):null;
     if(sameRoot){
       require('./agent41-same-root-proposal-choice.cjs')
         .recordSameRootAudit(audit.sameRootProposalChoice,seat,
