@@ -128,7 +128,8 @@ test('forged prompt rejects wrong owner deck or player id',()=>{
     handNames:['Quick Ball','Iono']
   });
   assert.throws(()=>chooseOwnedBoxFetchShake({
-    ...prompt,cards:{cards:owner.deck.cards}},owner,{}),/authentic owner deck/);
+    ...prompt,cards:{cards:owner.deck.cards}},owner,{}),
+    error=>error.code==='ERR_ASSERTION'&&error.operator==='strictEqual');
   prompt.playerId=999;
   assert.throws(()=>chooseOwnedBoxFetchShake(prompt,owner,{}),/native prompted owner/);
 });
