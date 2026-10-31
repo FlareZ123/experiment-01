@@ -267,7 +267,7 @@ jobs:
       - name: Verify retrospective source-deal and detached observer controls
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs tests/agent50-native-control-gate.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
       - name: Verify native tape opponent concealed-world contrasts and bounded controls
-        run: node --test tests/native-tape-opponent-hidden-hand-contrast.test.cjs tests/agent23-native-tape-bounded-opponent-hand.test.cjs tests/agent23-native-speculative-zone-trace.test.cjs tests/agent23-unseen-trainer-hypergeometric.test.cjs
+        run: node --test tests/native-tape-opponent-hidden-hand-contrast.test.cjs tests/agent23-native-tape-bounded-opponent-hand.test.cjs tests/agent23-bounded-hidden-world-scan.test.cjs tests/agent23-native-speculative-zone-trace.test.cjs tests/agent23-unseen-trainer-hypergeometric.test.cjs
       - name: Replay authentic historical common-policy decisions and detached order contrasts
         env:
           AGENT50_FIRST_FINITE_ROOT: ${{ inputs.agent50_first_finite_root || inputs.agent50_common_policy_replay || inputs.agent50_isolated_policy_worlds || inputs.agent50_native_first_finite_tape }}
