@@ -54,8 +54,8 @@ function compareNativeSameRootObservation(control,observed){
     gameplayWithoutSameRootInstrumentation(observed),
     gameplayWithoutSameRootInstrumentation(control),
     'Read-only same-root probing changed actual Store actions, physical targets, prompts, engine outcomes or error evidence');
-  const bySeat={0:{ownerRoots:0,independentOfferRoots:0},
-    1:{ownerRoots:0,independentOfferRoots:0}};
+  const bySeat={0:{ownerRoots:0,sampledIndependentOfferRoots:0},
+    1:{ownerRoots:0,sampledIndependentOfferRoots:0}};
   const kindCounts={},selectorErrors=[];
   const arms=[];
   for(let i=0;i<control.rows.length;i++){
@@ -77,7 +77,7 @@ function compareNativeSameRootObservation(control,observed){
     assert.ok(audit.offerRoots<=audit.ownerRoots);
     for(const seat of [0,1]){
       bySeat[seat].ownerRoots+=audit.bySeat[seat].ownerRoots;
-      bySeat[seat].independentOfferRoots+=
+      bySeat[seat].sampledIndependentOfferRoots+=
         audit.samples.filter(sample=>sample.seat===seat&&
           sample.supportedAlternativeCount>0).length;
     }
