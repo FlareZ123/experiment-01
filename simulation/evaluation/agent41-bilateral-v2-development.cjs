@@ -937,6 +937,7 @@ function runDevelopment({
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
   sameRootPositiveAttackOverPass=false,
+  sameRootThornsEmptyBench=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -968,6 +969,8 @@ function runDevelopment({
     'Public terminal Knock Out screen requires owner same-root observation');
   assert.ok(!sameRootPositiveAttackOverPass||sameRootProposalChoice,
     'Positive Attack over Pass needs explicit same-root observer');
+  assert.ok(!sameRootThornsEmptyBench||sameRootProposalChoice,
+    'Exact printed no-Bench attack needs same-root owner observation');
   assert.ok(sameRootPassAttackProbeGlobalTurn==null||
     (sameRootProposalChoice&&
       Number.isSafeInteger(sameRootPassAttackProbeGlobalTurn)&&
@@ -1081,7 +1084,8 @@ function runDevelopment({
                 sameRootPublicEventReceipt,
                 sameRootPassAttackProbeGlobalTurn,
                 publicNoBenchTerminalAttack:sameRootPublicNoBenchTerminal,
-                positiveAttackOverPass:sameRootPositiveAttackOverPass
+                positiveAttackOverPass:sameRootPositiveAttackOverPass,
+                thornsEmptyBenchVoltPreference:sameRootThornsEmptyBench
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1255,6 +1259,8 @@ function runDevelopment({
       sameRootPublicNoBenchTerminal,
     sameRootPositiveAttackOverPassOptIn:sameRootProposalChoice&&
       sameRootPositiveAttackOverPass,
+    sameRootThornsEmptyBenchOptIn:sameRootProposalChoice&&
+      sameRootThornsEmptyBench,
     sameRootPublicEventReceiptOptIn:
       sameRootProposalChoice&&sameRootPublicEventReceipt,
     // Root diagnostics live beneath the composed actor's component audits.
@@ -1415,7 +1421,9 @@ if(require.main===module){
     sameRootPublicNoBenchTerminal:
       process.env.AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV==='true',
     sameRootPositiveAttackOverPass:
-      process.env.AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV==='true'
+      process.env.AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV==='true',
+    sameRootThornsEmptyBench:
+      process.env.AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
