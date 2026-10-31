@@ -130,12 +130,20 @@ function run(root = path.resolve(__dirname, '..'), ranks = RANKS) {
     assert.ok(deck, `Missing source rank ${rank}`);
     const inventory = sourceCounts(deck, sets, cardsForSet);
     const probability = openingCohold({...inventory,crobatCount:inventory.crobatCount});
-    return { ...inventory, goingFirstPercent: percent(probability.goingFirst),
-      goingSecondPercent: percent(probability.goingSecond),
-      firstBenchPercent: percent(probability.benchEveryOtherBasicFirst),
-      secondBenchPercent: percent(probability.benchEveryOtherBasicSecond) };
+    const setupSevenPercent=percent(probability.goingFirst);
+    const firstTurnBothSeatsPercent=percent(probability.goingSecond);
+    return { ...inventory,setupSevenPercent,firstTurnBothSeatsPercent,
+      // Deprecated legacy names preserve the frozen initial regression.
+      // Every player draws at the start of their first normal turn.
+      goingFirstPercent:setupSevenPercent,
+      goingSecondPercent:firstTurnBothSeatsPercent,
+      firstBenchPercent:percent(probability.benchEveryOtherBasicFirst),
+      secondBenchPercent:percent(probability.benchEveryOtherBasicSecond) };
   });
-  return { version: VERSION, rows, competitiveQualifiedGames: 0 };
+  return { version: VERSION,
+    timeLabelCorrection:'P7 is pre-turn setup; P8 is first actionable root in both seats',
+    legacyFirstSecondColumnLabelsDeprecated:true,
+    rows, competitiveQualifiedGames: 0 };
 }
 
 if (require.main === module) process.stdout.write(JSON.stringify(run(path.resolve(__dirname, '..'),FIELD_RANKS), null, 2) + '\n');
