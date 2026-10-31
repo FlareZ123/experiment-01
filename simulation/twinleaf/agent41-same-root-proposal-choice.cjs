@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v9-observation-only-all-proposers';
+const VERSION='agent41-same-root-proposal-choice-v10-physical-attachment-alternatives';
 const MAX_SAMPLES=48;
 
 /**
@@ -68,7 +68,10 @@ const PROPOSERS=Object.freeze([
       .chooseStrandedMarnie(view)},
   {name:'payable-printed-attack',flag:'payablePrintedAttackOffer',
     propose:(view,catalog)=>require('./agent41-public-payable-attack-offer.cjs')
-      .choosePayablePrintedAttackOffer(view,catalog)}
+      .choosePayablePrintedAttackOffer(view,catalog)},
+  {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
+    propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
+      .ownerBasicAttachmentMenu(view,catalog)}
 ]);
 
 const ENERGY_KINDS=new Set([
@@ -230,12 +233,15 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       continue;
     }
     if(!proposed)continue;
-    if(!structurallySupported(view,proposed)){
-      unsupported.push({selector:p.name,kind:proposed.kind??null});
-      continue;
+    const proposals=Array.isArray(proposed)?proposed:[proposed];
+    for(const item of proposals){
+      if(!structurallySupported(view,item)){
+        unsupported.push({selector:p.name,kind:item?.kind??null});
+        continue;
+      }
+      if(offers.some(o=>duplicateProposal(o.intent,item)))continue;
+      offers.push({source:p.name,intent:item});
     }
-    if(offers.some(o=>duplicateProposal(o.intent,proposed)))continue;
-    offers.push({source:p.name,intent:proposed});
   }
   if(!offers.some(o=>o.intent.kind==='pass'))offers.push({
     source:'terminal-hold',intent:{kind:'pass',
