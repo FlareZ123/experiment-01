@@ -933,6 +933,7 @@ function runDevelopment({
   bilateralPublicContextSpecialEnergy=false,
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
+  sameRootProbeAll=false,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -954,6 +955,10 @@ function runDevelopment({
     'Same-root proposal choice requires canonical actor composition');
   assert.ok(!sameRootChoiceApply||sameRootProposalChoice,
     'Same-root selection requires an enabled same-root proposal set');
+  assert.ok(!sameRootProbeAll||sameRootProposalChoice,
+    'All-proposer census requires an enabled same-root observer');
+  assert.ok(!sameRootProbeAll||!sameRootChoiceApply,
+    'All-proposer census is observation-only');
   assert.ok(!(bilateralPublicContextSpecialEnergy&&
       (bilateralSpecialEnergyRoot||sourceScopedSpecialEnergyRoot||
       candidateScopedSpecialEnergyRoot)),
@@ -1058,7 +1063,7 @@ function runDevelopment({
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
-                sameRootChoiceApply
+                sameRootChoiceApply,sameRootProbeAll
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1225,6 +1230,7 @@ function runDevelopment({
     actorOnlyCompositionOptIn:actorOnlyComposition,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
+    sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
     sameRootProposalAuditedArms:rows.filter(row=>
       row.actorOnlyDecisionCoverage?.sameRootProposalChoice).length,
     sameRootChangedRoots:rows.reduce((n,row)=>n+
@@ -1366,7 +1372,9 @@ if(require.main===module){
     sameRootProposalChoice:
       process.env.AGENT41_SAME_ROOT_PROPOSALS_DEV==='true',
     sameRootChoiceApply:
-      process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true'
+      process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true',
+    sameRootProbeAll:
+      process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true'
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
