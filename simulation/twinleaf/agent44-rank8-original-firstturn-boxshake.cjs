@@ -109,7 +109,22 @@ function withOriginalRank8FirstTurnBoxShake(execute){
       return next(state,'real Box owner K1 selects unprized Boost Shake',
         new ResolvePromptAction(pending.id,selectedCards));
     }
+    if(stage===6&&pending?.constructor.name==='ChooseCardsPrompt')
+      return next(state,'native Shake finds original unprized Garbodor',
+        choose(pending,['Garbodor'],state));
+    if(stage===7&&pending?.constructor.name==='ChoosePokemonPrompt'){
+      const slot=owner.bench.find(s=>
+        s.getPokemonCard()?.name==='Trubbish'&&
+        s.tools.some(tool=>tool.name==='Float Stone'));
+      assert.ok(slot,'No originally placed tooled Trubbish');
+      assert.equal(pending.validate([slot],state),true,
+        'Native first-turn Shake rejected same-turn Trubbish evolution');
+      return next(state,'native Shake evolves original tooled Trubbish',
+        new ResolvePromptAction(pending.id,[slot]));
+    }
     if(pending)return previous.call(this,state);
+    if(stage===6||stage===7)
+      throw Error('Original first-turn Shake evolution prompt did not settle');
     if(stage===3){
       const index=owner.bench.findIndex(slot=>!slot.getPokemonCard());
       assert.ok(index>=0,'Source original Bench already full');
@@ -128,7 +143,6 @@ function withOriginalRank8FirstTurnBoxShake(execute){
     if(stage===5)
       return next(state,'play original-source Box-fetched Boost Shake',
         play(owner,'Boost Shake'));
-    if(stage===6)throw Error('No native owner Garbodor search after Shake');
     return previous.call(this,state);
   };
   try {
@@ -137,21 +151,6 @@ function withOriginalRank8FirstTurnBoxShake(execute){
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=previous;
   }
-}
-
-/**
- * The second half of Shake has two actual native prompts after playing it:
- * a deck Evolution selection and a target Pokémon in play. This function
- * deliberately injects only those original paper-legal selections.
- *
- * @template T
- * @param {()=>T} execute
- * @returns {object}
- */
-function withOriginalRank8FirstTurnCompletion(execute){
-  // Completion is implemented in the main policy hook; this wrapper is
-  // retained as a named boundary for native first-turn review.
-  return execute();
 }
 
 function main(){
@@ -181,6 +180,12 @@ function main(){
   assert.deepEqual(attempted.result.result.deckHashes,baseline.result.deckHashes,
     'Original source deck multiset or initial physical deal diverged');
   const replay=attempted.result;
+  assert.equal(replay.stage,8,
+    'The actual first-own-turn Shake must finish the full native evolution');
+  assert.equal(replay.nativeK1?.eligible,true);
+  assert.ok(replay.opponentReply?.sourceBench.some(entry=>
+    entry.name==='Garbodor'&&entry.tools.includes('Float Stone')),
+    'No original-source first-turn equipped Garbodor at opponent reply');
   const restored=runMatch(request);
   assert.deepEqual(restored.decisionTrace,baseline.result.decisionTrace,
     'Native firstturn owner-policy hook contaminated later original replay');
@@ -201,11 +206,11 @@ function main(){
     originalK0ControlParity:true,
     originalDeckHashParity:true,
     restoredControlDecisionParity:true,
-    nativeAcceptedCompleteEvolution:false,
+    nativeAcceptedCompleteEvolution:true,
     competitiveQualifiedGames:0,
     caveat:'One retrospectively selected original-source seed from archived 208-deal K0 witnesses, with scripted original-owner action choices. A native-positive test proves this specific original deal line exists, not its natural policy trigger frequency, full matchup win strength, or 99.5% performance.'
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(main(),null,2)+'\n');
 module.exports={SEED,ORIGINAL_OWNER_HAND,
-  withOriginalRank8FirstTurnBoxShake,withOriginalRank8FirstTurnCompletion,main};
+  withOriginalRank8FirstTurnBoxShake,main};
