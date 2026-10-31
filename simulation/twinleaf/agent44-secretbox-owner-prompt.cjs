@@ -46,12 +46,23 @@ function chooseOwnedBoxFetchShake(prompt,owner,state){
   const trubbishDeck=first(deck,['Trubbish']);
   const openBench=owner.bench.some(slot=>
     !slot.getPokemonCard?.());
+  // Battle VIP Pass is legal only during its owner's first turn. The
+  // opening global turns 1 and 2 each belong to a player's first turn;
+  // an unknown counter fails closed rather than treating a later VIP as a
+  // guaranteed Basic search. Genuine Store will still settle final legality.
+  const isOpeningTurn=Number.isSafeInteger(state.turn)&&
+    state.turn>=0&&state.turn<=2;
+  const protectedHeldCards=new Set([trubbishHeld,toolHeld].filter(Boolean));
   const searchers=[...SEARCHER_DISCARD_COST].filter(([name])=>
+    (name!=='Battle VIP Pass'||isOpeningTurn)&&
     hand.some(card=>card.name===name))
     .sort((a,b)=>a[1]-b[1]);
   const searcher=searchers.find(([name,cost])=>{
-    // Preserve this Item; the other remaining cards pay any later discard.
-    const leftovers=hand.filter(card=>card.name!==name).length;
+    // Preserve the searched Item and critical held Tool/Trubbish instead
+    // of counting them as disposable search costs. This check is physical
+    // only; DCI of other cards still needs the acting owner's policy.
+    const leftovers=hand.filter(card=>card.name!==name&&
+      !protectedHeldCards.has(card)).length;
     return leftovers>=cost;
   });
   const canObtainTrubbish=Boolean(
@@ -65,6 +76,7 @@ function chooseOwnedBoxFetchShake(prompt,owner,state){
     trubbishInPlay,trubbishHeld:Boolean(trubbishHeld),
     trubbishInDeck:Boolean(trubbishDeck),
     benchFree:openBench,
+    firstTurnBasicSearchAvailable:isOpeningTurn,
     basicSearcherHeld:searcher?.[0]??null,
     additionalDiscardCost:searcher?.[1]??null,
     heldTool:toolHeld?.name??null,
