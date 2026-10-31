@@ -77,7 +77,8 @@ function selectBoundedHiddenExchanges(hand,deck,limit=16){
  * @param {()=>object} newBot Fresh bot with unchanged original policy options.
  * @param {(state:object)=>object} cloneState Fully detached clone.
  * @param {()=>()=>number} makeRandom New equivalent policy RNG per evaluation.
- * @param {{fingerprint?:(s:object)=>unknown,limit?:number}} [options]
+ * @param {{fingerprint?:(s:object)=>unknown,limit?:number,
+ *   actorView?:(state:object,seat:0|1)=>object}} [options]
  * @returns {object} Bounded, explicitly incomplete sensitivity evidence.
  */
 function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
@@ -93,6 +94,11 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   const originalPool=hiddenZoneFingerprint(other);
   const selected=selectBoundedHiddenExchanges(
     other.hand.cards,other.deck.cards,options.limit??16);
+  const seat=source.players.findIndex(p=>p.id===actorId);
+  assert.ok(seat===0||seat===1);
+  const actorView=options.actorView??
+    require('./actor-observation-contract.cjs').actorObservation;
+  const originalObservation=actorView(source,seat);
 
   function detachedWorld(){
     const world=cloneState(source);
@@ -130,7 +136,10 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     }
   }
 
-  const baseline=evaluate(detachedWorld());
+  const physical=detachedWorld();
+  assert.deepEqual(actorView(physical,seat),originalObservation,
+    'Detached baseline changed owner-visible observation');
+  const baseline=evaluate(physical);
   const cases=[];
   for(const proposal of selected.exchanges){
     const world=detachedWorld();
@@ -145,6 +154,8 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
       'Exchange must conserve every concealed physical card instance');
     assert.equal(opponent.hand.cards.length,other.hand.cards.length);
     assert.equal(opponent.deck.cards.length,other.deck.cards.length);
+    assert.deepEqual(actorView(world,seat),originalObservation,
+      'Concealed swap changed the owner-visible observation');
     const alternative=evaluate(world);
     const scoreComparison=compareTacticScores(
       baseline.scores,alternative.scores);
@@ -158,7 +169,10 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   }
   // A/B/.../A guards against module-global simulator state, RNG drift, or a
   // bot that changes merely because previous detached evaluations occurred.
-  const repeat=evaluate(detachedWorld());
+  const originalRepeat=detachedWorld();
+  assert.deepEqual(actorView(originalRepeat,seat),originalObservation,
+    'Bracketed baseline changed owner-visible observation');
+  const repeat=evaluate(originalRepeat);
   assert.deepEqual(repeat.action,baseline.action,
     'Repeated original hidden world changed the chosen action');
   assert.deepEqual(repeat.scores,baseline.scores,
@@ -181,6 +195,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     completeOwnerObservationHistoryCertified:false,
     opponentHandIdentityUnobservedVerified:false,
     sourceHiddenPoolConserved:true,
+    currentOwnerObservationEquivalent:true,
     liveStatePreserved:true,
     baselineReplayStable:true,
     physicalOrder:baseline.action,
