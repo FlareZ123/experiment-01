@@ -1,0 +1,47 @@
+{
+  "schema": "agent41-rank21-native-tool-target-retrospective-v1",
+  "origin": "Agent18 published first native original source owner root and predicted Tool recipient before this experiment",
+  "originalSourceRank": 21,
+  "sourceSeed": 4246551499,
+  "sourcePhysicalSeat": 1,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trials": [
+    {
+      "id": "21:0:A:champion-reference",
+      "rank": 21,
+      "repeat": 0,
+      "seed": 4246551499,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "21:0:A:new-moon-lockbreaker-v1",
+      "rank": 21,
+      "repeat": 0,
+      "seed": 4246551499,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    }
+  ],
+  "conditions": [
+    "native-bot",
+    "common-hold",
+    "common-tool"
+  ],
+  "expectedNativeSourceTool": "Muscle Band XY",
+  "expectedNativeOriginalRecipient": "bench:0:Koraidon ex",
+  "expectedCommonProposedRecipient": "active:0:Dedenne-GX",
+  "postSelectionStatus": "retrospectively targeted mechanic, excluded from win-rate estimation",
+  "requiredEvidence": [
+    "identical per-candidate full physical setup across conditions",
+    "owner-root baseline and selected intent",
+    "native Store accepted physical Tool target",
+    "later owner root and opposing continuation",
+    "retained null/error/censored outcomes"
+  ],
+  "competitiveQualifiedGames": 0
+}
