@@ -50,3 +50,20 @@ The observed rank-11 physical root proves that a Crobat-before-VIP continuation 
 A genuine follow-up should use the **already registered rank-11 source-dealt two-candidate pair**, preserve original source fingerprints, keep the baseline actor and physical opponent response visible, and record native VIP acceptance, each original owner-deck prompt, exact Bench targets, subsequent Crobat play and actual draws, later owner roots and the opposing player's subsequent response. Retain rejected, capped, exception and no-Crobat continuations. The larger same-root contract is owned by active Agent41; this note supplies a bounded feasible-event denominator rather than a competing runner or another winner table.
 
 **Deck decision unchanged:** 29/32 authenticated Top32 original sixties, final ranks 23/25/28 still missing, zero qualified competitive games, no justified single fixed 60 and no demonstrated 99.5% result.
+
+
+## Reproducibility and a bounded sequencing invariant
+
+The committed [BigInt evaluator](../../scripts/agent9-crobat-vip-cohold.cjs) reads the actual source 60s and original printed Pokémon metadata from `resources/sets/en.json` and `resources/cards/en/`. It resolves duplicate English set codes (including Astral Radiance versus its Trainer Gallery), checks original printed collector IDs and Pokémon stages, and verifies that exactly one Crobat is in each selected 60. Its [three regression tests](../../tests/agent9-crobat-vip-cohold.test.cjs) cover the printed-source counts and published percentages, an independently exhaustive ten-card toy-deck next-draw enumeration, and the conditional Dark Asset six-card threshold.
+
+**Execution evidence:** Node.js 22 local test on a recreated three-deck source inventory and the supplied original card archive passed all three tests. The original GitHub repository has the full source inventories; the exact integrated `run()` has **not yet** been executed in pinned repository CI. This is exact mathematics with a local source-reconstruction cross-check, not a claim of compiled Twinleaf parity.
+
+The supplied original `Crobat V DAA 104` prints **Dark Asset**: on being played from hand to Bench, the player may draw until holding six cards, with one Dark Asset use per turn. `Battle VIP Pass FST 225` is an Item available only during that player's first turn and puts up to two searched Basics directly onto the Bench. Therefore, conditional on both orders being accepted, Dark Asset being available and chosen, sufficient remaining deck cards, identical intervening hand state, and no other draws or hand changes, an initial hand of size `H` containing both cards yields:
+
+```text
+Crobat first, then VIP: max(6, H-1) - 1
+VIP first, then Crobat: max(6, H-2)
+VIP-first final hand gain: 1 card if H <= 7, otherwise 0
+```
+
+This is a **conditional hand-count identity**, and cannot establish strategically preferable first play. VIP may fill the final Bench slot, search outcomes and optional abilities may change subsequent choices, and any engine or opponent effect may alter the premises. The actual registered source-deal reversal remains necessary to observe the physical action effects.
