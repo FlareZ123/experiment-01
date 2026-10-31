@@ -3,11 +3,6 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
-      same_root_readonly_paircheck:
-        description: 'Same-checkout pinned Store all-proposer OFF/ON noninterference across four original arms, no wins'
-        required: false
-        type: boolean
-        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -297,23 +292,7 @@ jobs:
           AGENT48_PAPER_COLOGNE_DEV: ${{ inputs.paper_cologne_quota && 'true' || 'false' }}
           AGENT41_MANDATORY_OPTION_DEV: 'true'
           AGENT41_NATIVE_PRESSURE_DEV: 'true'
-          AGENT12_NATIVE_TARGET_SIDECAR_DEV: ${{ inputs.same_root_readonly_paircheck && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-canonical-actor-fourarm.json
-      - name: Same-checkout read-only all-proposer four-arm original Store observation
-        if: ${{ inputs.same_root_readonly_paircheck }}
-        env:
-          AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
-          AGENT41_PAPER_SUPPORTER_DEV: 'true'
-          AGENT41_MANDATORY_OPTION_DEV: 'true'
-          AGENT41_NATIVE_PRESSURE_DEV: 'true'
-          AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
-          AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
-          AGENT41_SAME_ROOT_ALL_PROBES_DEV: 'true'
-          AGENT41_SAME_ROOT_SELECT_DEV: 'false'
-        run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-same-root-all-probes-observe.json
-      - name: Prove original physical deals, settled roots and native target receipts unchanged
-        if: ${{ inputs.same_root_readonly_paircheck }}
-        run: node scripts/agent7-same-root-native-parity.cjs agent7-canonical-actor-fourarm.json agent7-same-root-all-probes-observe.json > agent7-same-root-native-parity.json
       - name: Same-checkout genuine Store observer-off original four-arm control
         if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         env:
@@ -594,8 +573,6 @@ jobs:
           name: agent7-canonical-actor-fourarm-development
           path: |
             agent7-canonical-actor-fourarm.json
-            agent7-same-root-all-probes-observe.json
-            agent7-same-root-native-parity.json
             agent16-arbitration-original-off.json
             agent16-arbitration-native-pair.json
             agent32-anyturn-compressor-control.json
