@@ -46,7 +46,7 @@ The subtraction excludes initial hands without a Basic. Sampling the next k posi
 ## Reproducibility
 
 - [BigInt exact calculator](../../scripts/agent25-thorns-triple-denial-access.cjs) reads the authenticated original 60s and checks physical count/printing contracts. It explicitly rejects missing final rank 25, altered source counts and invalid combinatorial inputs.
-- [Tests](../../tests/agent25-thorns-triple-denial-access.test.cjs) cover exact fractions, each original printing contract, absent rank 24 Hammer, and an independently enumerated small labelled deck for k=0/1/2. **Five local Node tests passed** against a temporary fixture containing the exact four validated category counts and an aggregated 'other' category; this did not run the committed test against the full canonical manifest or compile Twinleaf. A manual repo CI run has not yet been performed.
+- [Tests](../../tests/agent25-thorns-triple-denial-access.test.cjs) cover exact fractions, each original printing contract, absent rank 24 Hammer, and an independently enumerated small labelled deck for k=0/1/2. **Five local Node tests passed** against a temporary fixture containing the exact four validated category counts and an aggregated 'other' category. The **authentic full-manifest test and the existing field audit suite then passed** in manually dispatched [CI 41162844711](https://github.com/FlareZ123/experiment-01/actions/runs/41162844711), on head `86ff44efd9a4cdb01c50dcedf4f9e9c84b4869e5`. The manual field audit is pure Node and does not compile Twinleaf.
 
 ## Policy implication and boundaries
 
