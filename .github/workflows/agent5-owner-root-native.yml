@@ -65,6 +65,10 @@ jobs:
           npm run compile
       - name: Native staged Iron Thorns Stadium root in both seats
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
+      - name: Native Marshadow UNB Resetting Hole counterstage against source Thorns Stadium
+        run: node simulation/twinleaf/agent5-marshadow-thunder-mountain-native.cjs > agent5-marshadow-thunder-mountain-native.json
+      - name: Report both-seat native source-relevant Marshadow behavior without hiding unsupported effects
+        run: node -e "const a=require('node:assert/strict');const x=require('./agent5-marshadow-thunder-mountain-native.json');a.equal(x.attemptedSeats,2);a.equal(x.rows.length,2);console.log(JSON.stringify({schema:x.schema,pin:x.pin,positiveCount:x.positiveCount,rows:x.rows.map(r=>({seat:r.seat,error:r.error,controlError:r.control?.error,abilityError:r.abilityFirst?.error,stadiumRemoved:r.abilityFirst?.confirmedPublicDiscard,attackAfter:r.abilityFirst?.attackAfter!=null,negativeError:r.noStadium?.error}))},null,2))"
       - name: Retrospective original rank6 first-turn Camping Gear Pass owner native fork
         if: ${{ inputs.agent12_campinggear_rank6_native }}
         run: node simulation/twinleaf/agent12-campinggear-rank6-native.cjs > agent12-campinggear-rank6-native.json
@@ -150,6 +154,7 @@ jobs:
           name: actor-only-root-native-retrospective-rank11
           path: |
             agent5-thunder-mountain-native-gate.json
+            agent5-marshadow-thunder-mountain-native.json
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
