@@ -57,6 +57,12 @@ function publicEventReceipt(state,seat){
     ownerBench:Object.freeze(owner.bench.map(slot=>clone(view(slot)))),
     // Last-opponent-turn copied attack history is intentionally unknown:
     // pinned playerLastAttack has no turn stamp and can outlive a Pass.
+    priorOpponentTurnKO:{
+      any:typeof owner.pokemonKnockedOutDuringOpponentsLastTurn==='boolean'?
+        owner.pokemonKnockedOutDuringOpponentsLastTurn:null,
+      byAttack:typeof owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn==='boolean'?
+        owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn:null
+    },
     opponentLastTurnAttack:null
   });
 }
