@@ -180,4 +180,45 @@ function decisionOpportunityReceipt(records, options = {}) {
     }))};
 }
 
-module.exports={VERSION,observedRootDigest,decisionOpportunityReceipt};
+/**
+ * Qualify only the completeness of the actor hook's native dispatch receipts.
+ * The policy decision ordinal still is not a Store action ordinal; joining it
+ * to action history requires a separate same-dispatch native witness.
+ * @param {object} audit Actual withActorOnlyRootPolicy audit.
+ * @returns {object}
+ */
+function actorNativeReceiptCoverage(audit) {
+  const counts=['selectedRootDecisions','acceptedActorRoots','rejectedActorRoots'];
+  for(const field of counts)assert.ok(Number.isSafeInteger(audit?.[field])&&
+    audit[field]>=0,'Invalid native root audit counter '+field);
+  assert.ok(Array.isArray(audit.nativeRootAcceptances));
+  const dispatched=audit.acceptedActorRoots+audit.rejectedActorRoots;
+  const retained=audit.nativeRootAcceptances.length;
+  assert.ok(dispatched<=audit.selectedRootDecisions,
+    'More dispatches than selected actor root decisions');
+  assert.ok(retained<=dispatched,'More retained receipts than dispatches');
+  const ordinals=new Set();
+  for(const receipt of audit.nativeRootAcceptances){
+    assert.ok(receipt.accepted===true||receipt.accepted===false,
+      'Unclassified native root dispatch result');
+    assert.ok(Number.isSafeInteger(receipt.policyDecisionOrdinal)&&
+      receipt.policyDecisionOrdinal>=1&&
+      receipt.policyDecisionOrdinal<=audit.selectedRootDecisions,
+      'Missing/invalid actor policy decision ordinal');
+    assert.ok(!ordinals.has(receipt.policyDecisionOrdinal),
+      'Duplicate native policy decision ordinal');
+    ordinals.add(receipt.policyDecisionOrdinal);
+  }
+  const missing=dispatched-retained;
+  const selectedWithoutDispatch=audit.selectedRootDecisions-dispatched;
+  const status=missing>0?'NATIVE_ROOT_WITNESSES_TRUNCATED':
+    selectedWithoutDispatch>0?'ACTOR_SELECTION_WITHOUT_DISPATCH':
+    'COMPLETE_POLICY_CLOCK_ONLY';
+  return {status,selectedActorRoots:audit.selectedRootDecisions,
+    dispatchedActorRoots:dispatched,retainedNativeReceipts:retained,
+    missingNativeReceipts:missing,selectedWithoutDispatch,
+    nativeActionOrdinalBound:false,competitiveQualifiedGames:0};
+}
+
+module.exports={VERSION,observedRootDigest,decisionOpportunityReceipt,
+  actorNativeReceiptCoverage};
