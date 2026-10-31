@@ -25,7 +25,7 @@ The setup model draws a uniformly random initial seven. If it has no Basic, mull
 ## Exact initial seven-card conditional availability
 
 The probability of a valid initial seven before mulligans is
-`1 - C(46,7)/C(60,7) = 86.1409319%`. Among **valid** opening sevens, the following are exact physical-access *upper bounds*, under increasingly optimistic permissions:
+`1 - C(46,7)/C(60,7) = 86.1409319%`. Among **valid** opening sevens, the following are exact **restricted physical-resource screens**, under increasingly optimistic permissions. They are not upper bounds on all possible plays in a complete first turn because later draws, searching for additional connectors, and repositioning can create routes excluded here:
 
 | Opening resource condition | Exact probability, given valid starting seven |
 | --- | ---: |
@@ -45,7 +45,7 @@ P(Marshadow is sole Basic, no Stadium | valid initial seven)
   = 1.8325156161%.
 ```
 
-Subtracting that subset from the three raw access screens gives *opening board-position-feasible* screens under the same generous Item assumptions:
+Subtracting that subset from the three raw screens gives *directly deployable-from-setup without repositioning* resource screens under the same generous Item assumptions:
 
 | Opening resource condition | Original access screen | Bench-position-adjusted screen |
 | --- | ---: | ---: |
@@ -53,7 +53,7 @@ Subtracting that subset from the three raw access screens gives *opening board-p
 | Add Fog Crystal / prized-Heavy-Ball routes | 62.451185% | **60.618669%** |
 | Add discard-cost search Items | 78.682390% | **76.849874%** |
 
-The subtraction identifies only one provable opening-board failure, so the adjusted values remain **upper bounds on immediate action playability**. A player might establish another Basic later, move Marshadow from Active to Bench, or draw another Stadium; those future lines are outside the seven-card opening screen.
+The subtraction identifies a proven **initial-placement** failure for a direct Bench-only use. It is **not** a failure of every possible first-turn sequence: the owner might search for another Basic, attach retreat Energy or Tool, switch/retreat the Active Marshadow onto the Bench, and use Resetting Hole later **in the same turn**. The adjusted figures are therefore exact only for the narrower *no-repositioning opening-resource* question. They are neither general upper nor lower bounds on full-turn successful Stadium removal. Item lock and discard payment can invalidate counted states; additional card actions and the mandatory turn draw can make excluded states playable.
 
 ### A distinct Prize-only tail
 
@@ -63,7 +63,7 @@ For all five physically distinct cards (**Marshadow, Heavy Ball, Sky Field ×2, 
 
 ## Strategic consequences and failure modes
 
-The source rank1 has three independent counter families, but a physical source card being outside Prizes is insufficient to establish that the line occurs in time. An opponent's Item lock collapses Fog Crystal, Heavy Ball, Treasure and Quick Ball branches; only the direct opening resources survive this narrow availability screen, at most **38.142252%** with the Bench-position correction. Iron Thorns' own Initialization suppresses Rule Box Pokémon Abilities while leaving non-Rule-Box Marshadow's Resetting Hole intact, but a separate Basic Ability lock such as Silent Lab changes that premise.
+The source rank1 has three independent counter families, but a physical source card being outside Prizes is insufficient to establish that the line occurs in time. An opponent's Item lock collapses Fog Crystal, Heavy Ball, Treasure and Quick Ball branches; only the direct held-resource categories survive this narrow **pre-action** screen, **38.142252%** if one also requires a Bench-ready Marshadow without any intra-turn repositioning. This is not an upper bound on all Item-locked turns, since the player can later draw a replacement Stadium or change board position through another legal route. Iron Thorns' own Initialization suppresses Rule Box Pokémon Abilities while leaving non-Rule-Box Marshadow's Resetting Hole intact, but a separate Basic Ability lock such as Silent Lab changes that premise.
 
 Furthermore, a Stadium replacement may be strategically inferior to preserving Sky Field for an eight-Pokémon Bench line, or using Dimension Valley for Psychic attack efficiency. The singleton Marshadow can cost a vital Bench position before use and its self-discard may be welcome only if the opponent Stadium threat truly merits it. These choices need state-aware owner-root arbitration and **native settled Store receipts**, not maximum theoretical access counts.
 
