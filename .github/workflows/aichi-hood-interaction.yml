@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_firstturn_source_scout:
+        description: 'Read-only original rank8 first-turn genuine Store source-state scout for later separate synthetic mechanics test'
+        type: boolean
+        default: false
       agent44_rank8_box_k0_source_census:
         description: 'Opt-in 48 preregistered original rank8 both-seat source first-turn read-only K0 hand screens, no game strength'
         type: boolean
@@ -225,8 +229,16 @@ jobs:
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --test tests/agent44-secretbox-owner-prompt.test.cjs
       - name: Scout original rank8 genuine first source turn without policy interference
-        if: inputs.agent44_rank8_box_fetch_shake_native
+        if: inputs.agent44_rank8_firstturn_source_scout
         run: node simulation/twinleaf/agent44-rank8-firstturn-source-scout.cjs > agent44-rank8-firstturn-scout.json
+      - name: Archive first-turn research-only source scout with explicit non-policy status
+        if: always() && inputs.agent44_rank8_firstturn_source_scout
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-rank8-original-firstturn-scout
+          path: agent44-rank8-firstturn-scout.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Check synthetic rank8 Box-fetches-Shake native semantics fixture
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --check simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs
@@ -238,9 +250,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent44-box-fetches-shake-native-development
-          path: |
-            agent44-rank8-box-fetch-shake-native.json
-            agent44-rank8-firstturn-scout.json
+          path: agent44-rank8-box-fetch-shake-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Execute source-dealt rank8 early Garbotoxin source fork
