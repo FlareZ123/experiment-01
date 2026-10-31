@@ -1,7 +1,8 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy}=
+const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy,
+  actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const catalog={
   basics:new Set(['Shadow Rider Calyrex V CRE','Trubbish FST']),
@@ -330,4 +331,70 @@ test('public Ability-Basic hand lock skips Ability Pokémon and permits other Ba
     kind:'bench-basic',handIndex:0,benchIndex:0,
     printing:'Shadow Rider Calyrex V CRE'
   });
+});
+
+test('lossless actor policy ordinal ties to physical headless Store clock',()=>{
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){
+      this.id=id;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class AttackAction{constructor(id,name){this.id=id;this.name=name;}}
+  class PassTurnAction{constructor(id){this.id=id;}}
+  class Store{
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:empty(),bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},
+        lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={players:[player(10),player(20)],
+        activePlayer:0,prompts:[],turn:2,phase:2};
+    }
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Generic hidden-state root must not run');}
+  }
+  const priorBot=SimpleTacticsAi.prototype.decodeNextAction;
+  const priorStore=Store.prototype.dispatch;
+  const view=base();
+  view.ownHand=['Psychic Energy MEE'];
+  view.ownPublic.bench=[{},null,null,null,null];
+  const played=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    const action=new SimpleTacticsAi(10).decodeNextAction(store.state);
+    const tagged=actorNativeActionReceipt(action);
+    assert.equal(tagged.seat,0);
+    assert.equal(tagged.policyDecisionOrdinal,1);
+    assert.equal(tagged.nativeStoreActionOrdinal,undefined);
+    const tied=bindActorNativeStoreOrdinal(action,17,0);
+    assert.equal(tied.nativeStoreActionOrdinal,17);
+    store.dispatch(action);
+    return action;
+  },{
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    observe:()=>view,getCatalog:()=>catalog,losslessNativeRootJoin:true,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction}
+  });
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,priorBot);
+  assert.strictEqual(Store.prototype.dispatch,priorStore);
+  assert.equal(played.audit.selectedRootDecisions,1);
+  assert.equal(played.audit.acceptedActorRoots,1);
+  assert.equal(played.audit.nativeRootJoinTruncated,false);
+  assert.deepEqual(played.audit.nativeRootJoinReceipts.map(r=>({
+    seat:r.seat,actor:r.policyDecisionOrdinal,store:r.nativeStoreActionOrdinal,
+    accepted:r.accepted,kind:r.kind
+  })),[{seat:0,actor:1,store:17,accepted:true,
+    kind:'attach-basic-energy'}]);
+  const unrelated=new PlayCardAction(10,0,{});
+  assert.equal(actorNativeActionReceipt(unrelated),null);
+  assert.equal(bindActorNativeStoreOrdinal(unrelated,17,0),null);
+  assert.throws(()=>bindActorNativeStoreOrdinal(played.result,18,1));
 });
