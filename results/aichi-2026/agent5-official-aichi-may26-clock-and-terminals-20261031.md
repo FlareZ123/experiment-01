@@ -33,6 +33,8 @@ To expose the missing behavior without altering the pinned upstream engine or de
 - [`simulation/evaluation/agent5-aichi-open-time-adjudication.cjs`](../../simulation/evaluation/agent5-aichi-open-time-adjudication.cjs), a pure, CommonJS, source-labeled reference with `CLOCK_MINUTES`, `endCallPlan`, `classifyAfterTime`, and `overtimePrizeWinner`.
 - [`tests/agent5-aichi-open-time-adjudication.test.cjs`](../../tests/agent5-aichi-open-time-adjudication.test.cjs) checks both physical starting-seat orders, Swiss double loss even at 1 versus 5 Prizes, Top32 early Prize-lead resolution, final's 35-minute limit, tied 2-vs-2 overtime, 3-vs-4 overtime threshold, true natural terminal, and unmeasured-clock failure.
 
+**Verified CI:** All these standalone clock-adjudication tests and the unchanged pinned native regression suite passed [manual workflow 41169113147](https://github.com/FlareZ123/experiment-01/actions/runs/41169113147), head `5e70f2cd2ce64754383b7c4be2af296ba14a6243`, [artifact 13030023841](https://github.com/FlareZ123/experiment-01/actions/runs/41169113147/artifacts/13030023841), SHA-256 `7078d8d2f6dd2c34db60dacbaf03e5ad6c34917fb9198ca8749ed13aa8c7f7ba`. This verifies rule *classification of supplied scenarios*, and deliberately does **not** verify paper-paced game time.
+
 **Example terminal table**, assuming a *credible* observed time call, all required turns settled, and no prior natural win:
 
 | Phase, cutoff public Prizes (physical seat 0, seat 1) | Correct outcome |
