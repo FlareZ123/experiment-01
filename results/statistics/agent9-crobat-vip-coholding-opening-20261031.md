@@ -6,7 +6,7 @@
 
 The existing [registered original native 32-arm VIP evidence](../aichi-2026/agent9-original-32-vip-native-source-coverage-20261029.md) has two rank-11 source game arms that share **one independent original physical source deal**. That deal (seed `1254634394`, original source physical seat 0, source-deal fingerprint `b0a7b753221ecfb60cdf182f2801799f4c43f097ef29f035d54ddb191c72b495`) natively accepted a **Crobat V DAA** root before later accepting **Battle VIP Pass FST** on the first source turn. The follow-on VIP search genuinely Benched Trubbish FST and Latias ex SSP. The [previously registered reversal](../aichi-2026/registrations/agent9-source-crobat-vip-native-priority-fork-20261029.json) asks whether VIP-before-Crobat would also be accepted and improve the resulting resource conversion. That counterfactual has **not** run and there is no established same-state native legality for the unchosen order.
 
-The authenticated exact-source [original 29-deck corpus](../aichi-2026/full-decklists.json) contains three identifiable Crobat-plus-VIP sources. The Basic counts below include Crobat itself and were checked against the listed Pokémon printing stages. Rank 11: 11 Basics, 4 VIP, 1 Crobat; rank 8: 10 Basics, 2 VIP, 1 Crobat; rank 26: 12 Basics, 3 VIP, 1 Crobat.
+The authenticated exact-source [original 29-deck corpus](../aichi-2026/full-decklists.json) contains **nine Crobat-plus-VIP original sources**. The initial three-source table below isolates the one-Crobat ranks 8, 11 and 26, which include the observed native rank-11 ordering fork. The model was subsequently generalized to all nine, including the two-Crobat originals at ranks 4 and 16. Basic counts include Crobat and are based on exact printed Pokémon stages.
 
 ## Precisely defined physical event
 
@@ -67,3 +67,39 @@ VIP-first final hand gain: 1 card if H <= 7, otherwise 0
 ```
 
 This is a **conditional hand-count identity**, and cannot establish strategically preferable first play. VIP may fill the final Bench slot, search outcomes and optional abilities may change subsequent choices, and any engine or opponent effect may alter the premises. The actual registered source-deal reversal remains necessary to observe the physical action effects.
+
+
+## Extended census: all nine original Crobat-plus-VIP source sixties
+
+A complete census of the original printed 29-source roster identified **nine** source 60s holding at least one copy of each card. Ranks 4 and 16 each play **two Crobat V**, which expands the valid retained-hand event: a player can start one Crobat Active and keep the other in hand even when there is no different Basic in the opening seven. The initial three-source one-Crobat table remains an exact subset, with all of its prior numbers unchanged.
+
+For `K` Crobat copies, `B-K` other Basics and `V` VIP copies, use the same valid-opening denominator `D=C(60,7)-C(60-B,7)`. Partition a valid seven by `c` Crobat, `v` VIP and `o` other Basics, with exact weight
+
+```text
+W(c,v,o) = C(K,c) C(V,v) C(B-K,o) C(60-B-V,7-c-v-o).
+R = c - [o=0]  (Crobat copies still retainable after choosing the Active).
+P7 = sum_{c+o>=1, R>=1, v>=1} W / D.
+P8 = sum_{c+o>=1} W * q(c,v,o) / D,
+q = 1                 if R>=1 and v>=1;
+    V/53              if R>=1 and v=0;
+    (K-c)/53          if R=0 and v>=1;
+    0                 otherwise.
+```
+
+The second case of `q` means drawing a VIP after retaining Crobat; the third means drawing an additional Crobat on the first turn while already holding VIP. With two Crobat copies, an opening containing only one Crobat as its Basic must put that Crobat Active, and another Crobat needs to be drawn for the retained-hand event to become available.
+
+| Original final rank and archetype | Basics B | VIP V | Crobat K | P7 going first | P8 going second |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4 Raichu/Electrode | 13 | 1 | 2 | **1.8643447261%** | **2.5332069856%** |
+| 5 Mew/Genesect | 11 | 3 | 1 | **2.6546362978%** | **3.5729501175%** |
+| 8 Absol/Garbodor | 10 | 2 | 1 | **1.7986828280%** | **2.4480479315%** |
+| 11 Absol/Garbodor | 11 | 4 | 1 | **3.4062028581%** | **4.5439041286%** |
+| 16 Absol/Garbodor | 11 | 2 | 2 | **3.4243892876%** | **4.6341651311%** |
+| 19 Raging Bolt | 16 | 2 | 1 | **1.9994909142%** | **2.6910326402%** |
+| 22 Absol/Garbodor | 12 | 2 | 1 | **1.8761818976%** | **2.5431981287%** |
+| 26 Meloetta Donk | 12 | 3 | 1 | **2.7073530815%** | **3.6366474503%** |
+| 30 Lillie's Clefairy | 16 | 3 | 1 | **2.8820831695%** | **3.8437372887%** |
+
+This extended result was calculated with arbitrary-precision integer counts and checked against the actual printed-stage metadata in the attached English archive, including the code collision between the Astral Radiance main set and Trainer Gallery. A four-test local validation passed: exact nine reconstructed source printing inventories, first-draw toy enumeration, independent two-Crobat toy enumeration, and the Dark Asset hand-threshold identity. The committed [evaluator](../../scripts/agent9-crobat-vip-cohold.cjs) retains the original three-source default used by the existing three repository tests; its `FIELD_RANKS` covers all nine when executed as the module's main program. The remote test-file extension and manual CI workflow operation were **blocked by repository safety checks** and were left untouched. Accordingly the expanded nine-source path has a local calculation and source-metadata check, with **no claimed GitHub CI run**.
+
+**Interpretation:** these are pre-search hand coholding frequencies, not the incidence of every Crobat/VIP owner action collision. Search, mulligans, physical starting decisions and other Abilities can materially change real exposure. The exact same-state native order test remains open.
