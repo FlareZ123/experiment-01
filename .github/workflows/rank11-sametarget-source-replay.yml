@@ -519,6 +519,10 @@ jobs:
         run: |
           node scripts/agent4-original-native-denial-pair-audit.cjs agent4-native-plumeria.json agent4-native-flare.json > agent4-native-denial-pair.json
           node -e "const r=require('./agent4-native-denial-pair.json');console.log('AGENT4_SOURCE_NATIVE_DENIAL_PAIR',JSON.stringify(r.rows.map(x=>({id:x.id,first:x.firstDifferenceIndex,original:x.originalAction?.card,flare:x.flareAction?.card,fork:x.nativeFork?.settledFlareEnergyRemovals,opp:x.nextOpposingOwnerRoot?.action,status:x.newOutcome?.status,qualified:0}))));"
+      - name: Audit both authentic source denial branches under strict settled-card custody
+        run: node scripts/agent4-original-denial-physical-gate.cjs > agent4-native-denial-physical-gate.json
+      - name: Print bounded physical-custody status independently from action success
+        run: node -e "const x=require('./agent4-native-denial-physical-gate.json');console.log('AGENT4_NATIVE_DENIAL_PHYSICAL_CUSTODY',JSON.stringify(x.modes.map(y=>({mode:y.mode,summary:y.summary,rows:y.rows?.map(r=>({id:r.id,status:r.status,physical:r.physicalZoneQualification?.status??null})),error:y.error?.slice(0,180)}))));"
       - name: Retain native original physical starts and both complete action ledgers, including failure
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -528,5 +532,6 @@ jobs:
             agent4-native-plumeria.json
             agent4-native-flare.json
             agent4-native-denial-pair.json
+            agent4-native-denial-physical-gate.json
           if-no-files-found: warn
           retention-days: 21
