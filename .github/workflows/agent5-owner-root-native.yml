@@ -58,6 +58,10 @@ jobs:
           node-version: '22'
       - name: Pure actor-root intent tests
         run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent5-reactive-attachment-guard.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs
+      - name: Exact source-rank1 conditioned opening counter access combinatorics
+        run: node scripts/agent5-marshadow-opening-access.cjs > agent5-marshadow-opening-access.json
+      - name: Check exact nonmulligan and Stadium-counter access fractions
+        run: node -e "const a=require('node:assert/strict');const x=require('./agent5-marshadow-opening-access.json');const p=x.conditionalOnLegalOpening;a.equal(x.categories.marshadow,1);a.equal(x.categories.otherBasic,13);a.equal(p.directMarshadowOrStadium.numerator,'66494477');a.equal(p.directMarshadowOrStadium.denominator,'166341120');a.equal(p.zeroDiscardFogOrPrizedHeavyBall.numerator,'11011492057');a.equal(p.zeroDiscardFogOrPrizedHeavyBall.denominator,'17632158720');a.equal(p.discardSearchFeasibleUpperBound.numerator,'13873403837');a.equal(p.discardSearchFeasibleUpperBound.denominator,'17632158720');console.log(JSON.stringify({source:x.rank,opening:p}))"
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -153,6 +157,7 @@ jobs:
         with:
           name: actor-only-root-native-retrospective-rank11
           path: |
+            agent5-marshadow-opening-access.json
             agent5-thunder-mountain-native-gate.json
             agent5-marshadow-thunder-mountain-native.json
             agent5-special-energy-bench-native-result.json
