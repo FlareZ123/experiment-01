@@ -69,6 +69,7 @@ test('held Thunder and DCE allow a complete source-turn solo attack before auto-
   view.ownPublic.stadium=[];
   view.ownHand=[THORNS,DCE,'Thunder Mountain Prism Star LOT'];
   view.ownTurnResources.specialEnergyPlayLocked=false;
+  view.ownTurnResources.energyPlayedTurn=0;
   assert.equal(holdSoloThornsBench(view,catalog),true);
   assert.equal(chooseActorRootIntent(view,catalog,{thornsDirectLine:true}).kind,
     'bench-basic','baseline still benches the spare Thorns before setup');
