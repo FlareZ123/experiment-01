@@ -12,6 +12,25 @@ const VERSION='agent4-source-native-plumeria-flare-first-contest-v1';
 const PRINTING='Team Flare Grunt XY';
 
 /**
+ * This is a fully public actor observation, with no opponent-hand, deck or
+ * Prize information. Bench Energy remains a possible Plumeria target after
+ * an Active-only Team Flare effect, so it must be recorded separately.
+ * @param {object} actor An owner-root detached observation.
+ * @returns {{activeCount:number,benchEnergyCount:number,total:number,bench:object[]}}
+ */
+function publicOpponentEnergySupply(actor){
+  assert.equal(actor.decisionKind,'owner-root');
+  const activeCount=actor.opponentPublic?.active?.energies?.length??0;
+  const bench=(actor.opponentPublic?.bench??[]).map((pokemon,index)=>({
+    benchIndex:index,printing:pokemon?.printing??null,
+    energies:[...(pokemon?.energies??[])]
+  }));
+  const benchEnergyCount=bench.reduce((sum,p)=>sum+p.energies.length,0);
+  return {activeCount,benchEnergyCount,
+    total:activeCount+benchEnergyCount,bench};
+}
+
+/**
  * Replace one Plumeria-after-Pass *already selected* root with an actual
  * original Team Flare Grunt action when both native cards have positive
  * canPlay at the same frozen owner/public root. No replacement on any
@@ -106,6 +125,7 @@ function withOriginalSourceFlareFork(execute,target) {
       flareHandIndex:alternate.handIndex,ownerHand:[...view.ownHand],
       opponentActive:view.opponentPublic.active.printing,
       attachedOpponentEnergy:[...view.opponentPublic.active.energies],
+      publicOpponentEnergySupply:publicOpponentEnergySupply(view),
       sourceOwnerOnly:true
     };
     proposals.set(action,{type:'flare-root',seat,turn:state.turn,
@@ -173,4 +193,4 @@ function withOriginalSourceFlareFork(execute,target) {
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',oldDecode);
   }
 }
-module.exports={VERSION,withOriginalSourceFlareFork};
+module.exports={VERSION,publicOpponentEnergySupply,withOriginalSourceFlareFork};
