@@ -78,7 +78,7 @@ function selectBoundedHiddenExchanges(hand,deck,limit=16){
  * @param {(state:object)=>object} cloneState Fully detached clone.
  * @param {()=>()=>number} makeRandom New equivalent policy RNG per evaluation.
  * @param {{fingerprint?:(s:object)=>unknown,limit?:number,
- *   actorView?:(state:object,seat:0|1)=>object}} [options]
+ *   actorView?:(state:object,seat:0|1)=>object}|((work:Function)=>object)|null} [options]
  * @returns {object} Bounded, explicitly incomplete sensitivity evidence.
  */
 function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
@@ -86,9 +86,11 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   assert.equal(typeof newBot,'function');
   assert.equal(typeof cloneState,'function');
   assert.equal(typeof makeRandom,'function');
-  // The existing native postgame wrapper passes null as its optional sixth
-  // argument when it does not request a per-world policy wrapper.
-  const settings=options??{};
+  // The native postgame wrapper passes an optional per-world policy hook,
+  // or null when no such hook is requested. Install policy hooks separately
+  // before constructing the fresh bot in EACH alternate world.
+  const settings=options&&typeof options==='object'?options:{};
+  const withWorldPolicy=typeof options==='function'?options:work=>work();
   const fingerprint=settings.fingerprint??stateGraphFingerprint;
   const sourceBefore=fingerprint(source);
   const actor=source.players.find(p=>p.id===actorId);
@@ -131,9 +133,11 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     const oldRandom=Math.random;
     Math.random=makeRandom();
     try{
-      const bot=newBot();
-      const output=captureTacticScores(bot,()=>bot.decodeNextAction(detached));
-      return {action:actionSignature(output.result),scores:output.trace};
+      return withWorldPolicy(()=>{
+        const bot=newBot();
+        const output=captureTacticScores(bot,()=>bot.decodeNextAction(detached));
+        return {action:actionSignature(output.result),scores:output.trace};
+      });
     }finally{
       Math.random=oldRandom;
     }
@@ -201,6 +205,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     currentOwnerObservationEquivalent:true,
     liveStatePreserved:true,
     baselineReplayStable:true,
+    perWorldPolicyIsolation:typeof options==='function',
     physicalOrder:baseline.action,
     actionSensitiveToOpponentHiddenHand:actionCases.length>0,
     actionReversals:actionCases.length,
