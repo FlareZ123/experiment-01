@@ -27,8 +27,10 @@ function copycat(seat,interveningPass){
   };
   x.opponent.active.cards.length=0;
   x.opponent.active.cards.push(make('Mimikyu GRI'));
-  x.opponent.active.energies.cards.push(make('Psychic Energy SVE'),
-    make('Psychic Energy SVE'));
+  const psychicA=make('Psychic Energy SVE');
+  const psychicB=make('Psychic Energy SVE');
+  x.opponent.active.cards.push(psychicA,psychicB);
+  x.opponent.active.energies.cards.push(psychicA,psychicB);
   const {AttackAction,PassTurnAction}=
     native('game/store/actions/game-actions');
   x.store.dispatch(new AttackAction(x.owner.id,'Gnaw'));
