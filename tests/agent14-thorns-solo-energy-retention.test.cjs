@@ -98,6 +98,57 @@ test('same-root contract records held-Stadium conflict and no-conflict baseline'
   }),null,'Stadium quota prevents fictional solo setup');
 });
 
+test('genuine wrapper receives same-view alternative receipts before its typed choice',()=>{
+  const {withActorOnlyRootPolicy}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const view=fixture();
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){Object.assign(this,{id,handIndex,target});}
+  }
+  class AttackAction{
+    constructor(id,name){Object.assign(this,{id,name});}
+  }
+  class PassTurnAction{constructor(id){this.id=id;}}
+  class Store{
+    constructor(){this.state={turn:2,phase:2,activePlayer:0,prompts:[],
+      players:[{id:10},{id:20}]};}
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Unexpected generic bot root');}
+  }
+  const priorBot=SimpleTacticsAi.prototype.decodeNextAction;
+  const priorStore=Store.prototype.dispatch;
+  const outcome=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    return new SimpleTacticsAi(10).decodeNextAction(store.state);
+  },{
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    observe:()=>view,getCatalog:()=>catalog,
+    cardActions:{PlayCardAction,PlayerType:{BOTTOM_PLAYER:0},
+      SlotType:{ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction},
+    thornsDirectLine:true,thornsSoloEnergyRetention:true
+  });
+  assert.ok(outcome.result instanceof AttackAction);
+  assert.equal(outcome.result.name,'Volt Cyclone');
+  assert.equal(outcome.audit.sameRootSoloBenchChoiceCount,1);
+  const receipt=outcome.audit.sameRootSoloBenchChoices[0];
+  assert.equal(receipt.seat,0);
+  assert.equal(receipt.globalTurn,2);
+  assert.equal(receipt.rootDecisionOrdinal,1);
+  assert.deepEqual(receipt.alternatives.map(row=>row.intent.kind),
+    ['bench-basic','attack']);
+  assert.equal(outcome.audit.selectedRootDecisions,1);
+  assert.equal(outcome.audit.typedIntentCounts.attack,1);
+  assert.equal(outcome.audit.competitiveGameQualified,false);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,priorBot);
+  assert.strictEqual(Store.prototype.dispatch,priorStore);
+});
+
 test('actual actor root retains DCE when voluntarily preserving no Bench',()=>{
   const view=fixture();
   assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v2-hand-funded');
