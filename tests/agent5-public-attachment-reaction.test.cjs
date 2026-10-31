@@ -57,3 +57,41 @@ test('existing arbiter actually offers this dangerous attachment',()=>{
   assert.equal(evaluatePublicAttachmentReaction(v,choice.intent)
     .terminalLossPossible,true);
 });
+
+test('public printed-profile award supports exact one- and three-Prize KO hazards',()=>{
+  const attach={kind:'attach-basic-energy',printing:'Psychic Energy MEE',
+    handIndex:0,slot:'bench',index:1};
+  for(const [printing,hp,damage,award] of [
+    ['Snorlax PGO',150,130,1],
+    ['Trevenant & Dusknoir-GX SMP',270,250,3]
+  ]){
+    const v=view();
+    v.ownPublic.bench[1]={name:printing.split(' ').slice(0,-1).join(' '),
+      printing,hp,damage};
+    v.opponentPublic.prizeCount=award;
+    const profile=new Map([[printing,{prizesOnKnockout:award}]]);
+    const r=evaluatePublicAttachmentReaction(v,attach,{
+      publicPokemonProfileIndex:profile});
+    assert.equal(r.terminalLossPossible,true,
+      'Exact printed award was not used for '+printing);
+    assert.equal(r.triggerDamage,20);
+    assert.equal(evaluatePublicAttachmentReaction(v,attach)
+      .terminalLossPossible,false,
+      'Unknown source-profile award must stay unknown');
+    v.opponentPublic.prizeCount=award+1;
+    assert.equal(evaluatePublicAttachmentReaction(v,attach,{
+      publicPokemonProfileIndex:profile}).terminalLossPossible,false,
+      'A KO must not be mistaken for immediate opponent terminal');
+  }
+});
+
+test('ambiguous public profile never guesses a prize award',()=>{
+  const v=view();
+  v.ownPublic.bench[1]={name:'Trevenant & Dusknoir-GX',
+    printing:'Trevenant & Dusknoir-GX SMP',hp:270,damage:250};
+  v.opponentPublic.prizeCount=3;
+  const ambiguous=new Map([['Trevenant & Dusknoir-GX SMP',null]]);
+  assert.equal(evaluatePublicAttachmentReaction(v,{
+    kind:'attach-basic-energy',slot:'bench',index:1},{
+      publicPokemonProfileIndex:ambiguous}).terminalLossPossible,false);
+});
