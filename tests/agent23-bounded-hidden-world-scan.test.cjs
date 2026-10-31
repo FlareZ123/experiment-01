@@ -104,6 +104,7 @@ test('native optional policy callback is installed before each fresh bot',()=>{
     try{return work();}
     finally{active=false;}
   };
+  withPolicy.actorView=dependencies.actorView;
   const newBot=()=>{
     assert.equal(active,true,'Bot was constructed outside its policy hooks');
     constructions++;
