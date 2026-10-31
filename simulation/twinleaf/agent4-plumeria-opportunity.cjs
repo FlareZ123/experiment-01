@@ -147,11 +147,13 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     firstTurnHeld:0,firstTurnNativePlayable:0,
     firstTurnBothSupportersHeld:0,firstTurnBothNativePlayable:0,
     contestedOwnerRoots:0,contestedBothNativePlayableRoots:0,
-    contestedOwnerSamples:[],
+    bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0,
+    contestedOwnerSamples:[],bothPlayablePassSamples:[],
     bySeat:{
       0:{ownerRoots:0,firstOwnerTurns:0,
         bothHeldRoots:0,bothNativePlayableRoots:0,
-        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0},
+        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0,
+        bothPlayablePassRoots:0,firstTurnBothPlayablePassRoots:0},
       1:{ownerRoots:0,firstOwnerTurns:0,
         bothHeldRoots:0,bothNativePlayableRoots:0,
         bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0}
@@ -176,6 +178,7 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     audit.bySeat[seat].ownerRoots++;
     const contest=info.plumeriaFlareContest;
     const bothHeld=contest.plumeriaHeld>0&&contest.flareHeld>0;
+    let contestSample=null;
     if(bothHeld){
       audit.contestedOwnerRoots++;
       audit.bySeat[seat].bothHeldRoots++;
@@ -183,8 +186,8 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
         audit.contestedBothNativePlayableRoots++;
         audit.bySeat[seat].bothNativePlayableRoots++;
       }
-      if(audit.contestedOwnerSamples.length<MAX_EXAMPLES)
-        audit.contestedOwnerSamples.push({game,ownerRootOrdinal:audit.actualOwnerRoots,
+      if(audit.contestedOwnerSamples.length<MAX_EXAMPLES){
+        contestSample={game,ownerRootOrdinal:audit.actualOwnerRoots,
           seat,turn:state.turn,
           paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
           plumeriaPairsConsumingFlare:
@@ -193,10 +196,13 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
             contest.plumeriaPaymentPairsPreservingFlare,
           activeEnergyTargets:contest.publicActiveEnergyTargets,
           benchEnergyTargets:contest.publicBenchEnergyTargets,
-          paperScreenedBothPlayable:contest.paperScreenedBothPlayable});
+          paperScreenedBothPlayable:contest.paperScreenedBothPlayable};
+        audit.contestedOwnerSamples.push(contestSample);
+      }
     }
     const key=game+':'+state.turn+':'+seat;
-    if(!observedTurns.has(key)){
+    const firstOwnerRootThisTurn=!observedTurns.has(key);
+    if(firstOwnerRootThisTurn){
       observedTurns.add(key);audit.firstOwnerTurns++;
       audit.bySeat[seat].firstOwnerTurns++;
       if(info.heldCopies)audit.firstTurnHeld++;
@@ -211,6 +217,32 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
       }
     }
     const proposal=oldDecode.value.call(this,state);
+    const proposedAction=proposal?.constructor?.name??null;
+    if(contestSample){
+      contestSample.originalAction=proposedAction;
+      if(proposedAction==='PlayCardAction')
+        contestSample.originalCard=state.players[seat].hand.cards[
+          proposal.handIndex]?.fullName??null;
+    }
+    if(contest.paperScreenedBothPlayable&&
+       proposedAction==='PassTurnAction'){
+      audit.bothPlayablePassRoots++;
+      audit.bySeat[seat].bothPlayablePassRoots++;
+      if(firstOwnerRootThisTurn){
+        audit.firstTurnBothPlayablePassRoots++;
+        audit.bySeat[seat].firstTurnBothPlayablePassRoots++;
+      }
+      if(audit.bothPlayablePassSamples.length<MAX_EXAMPLES)
+        audit.bothPlayablePassSamples.push({
+          game,ownerRootOrdinal:audit.actualOwnerRoots,
+          seat,turn:state.turn,sourceSeat,originalAction:proposedAction,
+          activeEnergyTargets:contest.publicActiveEnergyTargets,
+          benchEnergyTargets:contest.publicBenchEnergyTargets,
+          paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
+          consumingFlare:contest.plumeriaPaymentPairsConsumingFlare,
+          preservingFlare:contest.plumeriaPaymentPairsPreservingFlare
+        });
+    }
     if(info.heldCopies&&audit.nativePositiveSamples.length<MAX_EXAMPLES)
       audit.nativePositiveSamples.push({...info,
         proposedAction:proposal?.constructor?.name??null});
