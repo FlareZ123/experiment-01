@@ -33,7 +33,7 @@ P(rescue | valid initial seven)
  = 0.7194733328716315%.
 ```
 
-That is **39.2615117% of the forced-Active/no-Stadium subset**. The line uses only one search Item and either one ordinary Energy attachment or a single Tool. It requires neither a Supporter nor a second search/discard payment. It is a *strictly sufficient* resource set among valid opening sevens, before the mandatory first-turn draw, opponent-mulligan bonus cards, and broader search options. Additional lines may succeed without this exact resource combination, so **39.26% is no upper bound on the full rescue rate**.
+That is **39.2615117% of the forced-Active/no-Stadium subset**. It splits into two disjoint resource cases: **Fog + held Float Stone**, counting any Energy coexistence in this Tool-priority branch, contributes `[C(43,6)-C(39,6)-C(42,6)+C(38,6)]/valid = 0.1048225478 percentage points`; **Fog + Basic Psychic Energy with no held Float Stone** contributes `[C(42,6)-C(38,6)-C(31,6)+C(27,6)]/valid = 0.6146507851 percentage points`. These add to the total **0.7194733329 percentage points**. The first line preserves the normal Energy attachment at the cost of the singleton Tool; the second consumes the normal Energy attachment, though it retains the Tool for later turns. The line uses only one search Item and either one ordinary Energy attachment or a single Tool. It requires neither a Supporter nor a second search/discard payment. It is a *strictly sufficient* resource set among valid opening sevens, before the mandatory first-turn draw, opponent-mulligan bonus cards, and broader search options. Additional lines may succeed without this exact resource combination, so **39.26% is no upper bound on the full rescue rate**.
 
 ### Paper legality and guarantee limits
 
