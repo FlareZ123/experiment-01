@@ -112,6 +112,38 @@ function compactArm(row,condition){
   const originalMuscleBand=actions.filter(a=>a.playerSlot===1&&
     a.action==='PlayCardAction'&&
     (a.card==='Muscle Band'||String(a.card).startsWith('Muscle Band ')));
+  // Original unmodified bot actions have no actor policy receipt. Their
+  // native Store target sidecar is independent of our new root chooser.
+  const sidecar=row.nativeAcceptedTargetSidecar??null;
+  const sourceMuscleBandNativeTargetReceipts=
+    (Array.isArray(sidecar?.events)?sidecar.events:[])
+      .filter(event=>event.playerSlot===1&&
+        event.action==='PlayCardAction'&&
+        String(event.declared?.ownerHandPrinting??'')
+          .startsWith('Muscle Band XY'))
+      .map(event=>{
+        const changes=event.publicBoardChanges;
+        const attach=Array.isArray(changes)?changes.filter(change=>
+          change.seat===1&&
+          (change.after?.tools??[]).some(card=>
+            card==='Muscle Band XY'||card.startsWith('Muscle Band XY '))&&
+          !(change.before?.tools??[]).some(card=>
+            card==='Muscle Band XY'||card.startsWith('Muscle Band XY '))):[];
+        return {
+          rootActionOrdinal:sidecar.rootOrdinalLinked===true?
+            event.rootActionOrdinal:null,
+          declaredTarget:event.declared.target,
+          ownerHandPrinting:event.declared.ownerHandPrinting,
+          physicalRecipient:attach.length===1?{
+            position:attach[0].position,index:attach[0].index,
+            pokemonPrinting:attach[0].after?.pokemon??null
+          }:null,
+          status:attach.length===1&&sidecar.rootOrdinalLinked===true?
+            'NATIVE_STORE_PHYSICAL_RECIPIENT_AND_ROOT':
+            attach.length===1?'NATIVE_STORE_PHYSICAL_RECIPIENT_UNLINKED':
+              'TARGET_DECLARED_PHYSICAL_ATTACHMENT_UNCONFIRMED'
+        };
+      });
   const nativeToolActions=(root?.nativeRootAcceptances??[]).filter(a=>
     a.seat===1&&a.kind==='attach-tool-candidate');
   const firstSourceActorRoot=(root?.nativeRootAcceptances??[])
@@ -135,6 +167,8 @@ function compactArm(row,condition){
     originalSourceRoot:firstActualSourceRoot,
     originalSourceActionsBeforeTurnChange:initialSourceActions,
     originalMuscleBandDispatches:originalMuscleBand,
+    nativeTargetSidecarLinked:sidecar?.rootOrdinalLinked===true,
+    sourceMuscleBandNativeTargetReceipts,
     ownerProposalRoots:chosen?.ownerRoots??null,
     changedRoots:chosen?.changedRoots??null,
     firstChangedDecision:chosen?.changedSamples?.[0]??null,
