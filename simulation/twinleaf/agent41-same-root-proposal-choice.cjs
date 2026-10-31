@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v6-bounded-printed-attack-census';
+const VERSION='agent41-same-root-proposal-choice-v7-rare-changed-root-evidence';
 const MAX_SAMPLES=48;
 
 /**
@@ -291,6 +291,9 @@ function newSameRootAudit(){
       0:{ownerRoots:0,changedRoots:0},
       1:{ownerRoots:0,changedRoots:0}},
     selectionReasons:{},samples:[],
+    changedSamples:[],selectorErrorSamples:[],
+    offerKindCounts:{},offerSourceCounts:{},
+    truncatedChangedSamples:0,truncatedErrorSamples:0,
     qualification:{ownerOnlyProposals:true,completeVocabulary:false,
       allProposalsNativeLegal:false,publicHistorySufficient:false,
       competitiveGameQualified:false}};
@@ -307,10 +310,25 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   if(receipt.selectorErrors.length)audit.selectorErrorRoots++;
   audit.selectionReasons[receipt.reason]=
     (audit.selectionReasons[receipt.reason]??0)+1;
+  for(const offer of receipt.offers){
+    if(offer.source==='first-return'||offer.source==='terminal-hold')continue;
+    audit.offerKindCounts[offer.kind]=(audit.offerKindCounts[offer.kind]??0)+1;
+    audit.offerSourceCounts[offer.source]=(audit.offerSourceCounts[offer.source]??0)+1;
+  }
+  const witness={seat,globalTurn:turn,rootOrdinal:ordinal,...receipt};
+  if(receipt.changed){
+    if(audit.changedSamples.length<MAX_SAMPLES)audit.changedSamples.push(witness);
+    else audit.truncatedChangedSamples++;
+  }
+  if(receipt.selectorErrors.length){
+    if(audit.selectorErrorSamples.length<16)
+      audit.selectorErrorSamples.push(witness);
+    else audit.truncatedErrorSamples++;
+  }
   if(audit.samples.length<MAX_SAMPLES&&
      (receipt.changed||receipt.supportedAlternativeCount>0||
        receipt.selectorErrors.length>0)){
-    audit.samples.push({seat,globalTurn:turn,rootOrdinal:ordinal,...receipt});
+    audit.samples.push(witness);
   }
 }
 
