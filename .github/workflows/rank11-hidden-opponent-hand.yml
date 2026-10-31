@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent23_bounded_hidden_worlds:
+        description: 'When live bilateral is enabled, compare bounded detached original-root hidden worlds (still unqualified)'
+        required: false
+        type: boolean
+        default: false
       agent11_ghetsis_scoring:
         description: 'Pinned rank11 60 v Ghetsis Supporter native-versus-blinded hidden-hand score parity'
         required: false
@@ -62,7 +67,7 @@ jobs:
       - name: Print complete-bot action choices under both hidden partitions
         run: node simulation/twinleaf/rank11-full-bot-hidden-hand-pair.cjs
       - name: Pure postgame hidden-opponent comparator controls
-        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
+        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bounded-hidden-world-scan.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
 
   agent23-live-bilateral:
     if: ${{ inputs.agent23_live_bilateral }}
@@ -84,10 +89,11 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify fail-closed source-root and postgame decision controls
-        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
+        run: node --test tests/opponent-hidden-live-root-probe.test.cjs tests/agent23-bounded-hidden-world-scan.test.cjs tests/agent23-bilateral-opponent-hand-postgame.test.cjs
       - name: Replay canonical four historical arms and archive all attempts
         env:
           AGENT23_RESULT_OUTPUT: agent23-opponent-hidden-postgame.json
+          AGENT23_BOUNDED_HIDDEN_SCAN_DEV: ${{ inputs.agent23_bounded_hidden_worlds }}
         run: node simulation/evaluation/agent23-bilateral-opponent-hand-postgame.cjs
       - name: Read complete historical comparison census
         run: >-
