@@ -148,6 +148,14 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     firstTurnBothSupportersHeld:0,firstTurnBothNativePlayable:0,
     contestedOwnerRoots:0,contestedBothNativePlayableRoots:0,
     contestedOwnerSamples:[],
+    bySeat:{
+      0:{ownerRoots:0,firstOwnerTurns:0,
+        bothHeldRoots:0,bothNativePlayableRoots:0,
+        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0},
+      1:{ownerRoots:0,firstOwnerTurns:0,
+        bothHeldRoots:0,bothNativePlayableRoots:0,
+        bothHeldFirstTurns:0,bothNativePlayableFirstTurns:0}
+    },
     proposedPlumeria:0,acceptedPlumeria:0,rejectedPlumeria:0,
     acceptedPassWithPlayable:0,acceptedPassWithHeld:0,
     promptTransitions:0,settledEnergyDiscards:0,
@@ -165,12 +173,16 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
       return oldDecode.value.call(this,state);
     const info=plumeriaOwnerOpportunity(liveStore,state,seat);
     audit.actualOwnerRoots++;
+    audit.bySeat[seat].ownerRoots++;
     const contest=info.plumeriaFlareContest;
     const bothHeld=contest.plumeriaHeld>0&&contest.flareHeld>0;
     if(bothHeld){
       audit.contestedOwnerRoots++;
-      if(contest.paperScreenedBothPlayable)
+      audit.bySeat[seat].bothHeldRoots++;
+      if(contest.paperScreenedBothPlayable){
         audit.contestedBothNativePlayableRoots++;
+        audit.bySeat[seat].bothNativePlayableRoots++;
+      }
       if(audit.contestedOwnerSamples.length<MAX_EXAMPLES)
         audit.contestedOwnerSamples.push({game,seat,turn:state.turn,
           paymentPairs:contest.totalPhysicalPlumeriaPaymentPairs,
@@ -185,11 +197,17 @@ function withPlumeriaOwnerOpportunity(execute,deps={}) {
     const key=game+':'+state.turn+':'+seat;
     if(!observedTurns.has(key)){
       observedTurns.add(key);audit.firstOwnerTurns++;
+      audit.bySeat[seat].firstOwnerTurns++;
       if(info.heldCopies)audit.firstTurnHeld++;
       if(info.paperScreenedCopies)audit.firstTurnNativePlayable++;
-      if(bothHeld)audit.firstTurnBothSupportersHeld++;
-      if(contest.paperScreenedBothPlayable)
+      if(bothHeld){
+        audit.firstTurnBothSupportersHeld++;
+        audit.bySeat[seat].bothHeldFirstTurns++;
+      }
+      if(contest.paperScreenedBothPlayable){
         audit.firstTurnBothNativePlayable++;
+        audit.bySeat[seat].bothNativePlayableFirstTurns++;
+      }
     }
     const proposal=oldDecode.value.call(this,state);
     if(info.heldCopies&&audit.nativePositiveSamples.length<MAX_EXAMPLES)
