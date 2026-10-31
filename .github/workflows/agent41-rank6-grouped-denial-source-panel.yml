@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate frozen physical source-deal registration and failure accounting
-        run: node --test tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs
+        run: node --test tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent5-owner-root-slice.test.cjs
       - name: Checkout exactly pinned original Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native server
