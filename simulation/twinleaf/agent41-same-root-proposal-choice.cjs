@@ -23,6 +23,13 @@ const PROPOSERS=Object.freeze([
         .enumerateActorToolCandidates(view,catalog.toolPrintings)
         .map(intent=>({...intent,
           nativeDispatchImplemented:options.nativeToolAttachRoot===true})):[]},
+  // Rank22 original 60 carries one Wally. Wally can evolve a newly played
+  // Trubbish on the owner's first personal turn when going second, but that
+  // evolution still requires a native search choice and a Float Stone on the
+  // resulting Garbodor for Garbotoxin. This is a read-only ALS opportunity:
+  // never convert conditional printed access into an executable native action.
+  {name:'wally-floatstone-garbotoxin-window',flag:'sameRootProbeAll',
+    propose:view=>ownerWallyGarbotoxinWindow(view)},
   // Group physical discard payments by the held Plumeria rather than
   // multiplying each payment pair by every opposing public Energy target.
   // This is an observation-only challenger to Team Flare Grunt's zero-card
@@ -122,7 +129,8 @@ const SUPPORTER_KINDS=new Set([
   'play-team-flare-grunt-denial','play-stranded-marnie',
   'play-held-guzma-mobility','play-seeker-recovered-lillie',
   'play-plumeria-payment-menu',
-  'play-carmine-first','play-raihan-ko-response',
+  'play-carmine-first','play-wally-garbotoxin-window',
+  'play-raihan-ko-response',
   'play-teammates-ko-response'
 ]);
 const SEARCH_KINDS=new Set([
@@ -260,6 +268,49 @@ function duplicateProposal(a,b){
   if(SUPPORTER_KINDS.has(a.kind)||SEARCH_KINDS.has(a.kind))
     return a.target===b.target;
   return false;
+}
+
+/**
+ * Independent first-personal-turn original source Wally/Float/Trubbish
+ * opportunity. The card-specific evolution search is not modeled here.
+ * Only detached owner hand and public in-play Pokemon are inspected.
+ *
+ * @param {object} view Native owner actor observation, not hidden State.
+ * @returns {object|null} Read-only same-root ALS offer.
+ */
+function ownerWallyGarbotoxinWindow(view){
+  if(view?.decisionKind!=='owner-root'||view.globalTurn!==2||
+     !Array.isArray(view.ownHand))return null;
+  const handIndex=view.ownHand.indexOf('Wally ROS');
+  if(handIndex<0)return null;
+  const r=view.ownTurnResources;
+  if(r?.supporterPlayedTurn!==0||r?.supporterPlayLocked===true||
+     view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
+     (view.ownPublic?.resolvingSupporter?.length??0)>0)return null;
+  const targets=[
+    {slot:'active',index:0,pokemon:view.ownPublic?.active},
+    ...(view.ownPublic?.bench??[]).map((pokemon,index)=>({
+      slot:'bench',index,pokemon
+    }))
+  ];
+  const trubbish=targets.find(t=>t.pokemon?.name==='Trubbish');
+  if(!trubbish)return null;
+  const floatHeld=view.ownHand.some(name=>
+    name==='Float Stone BKT'||name.startsWith('Float Stone BKT '));
+  const alreadyFloat=trubbish.pokemon?.tools?.some(name=>
+    name==='Float Stone BKT'||name.startsWith('Float Stone BKT '))===true;
+  if(!floatHeld&&!alreadyFloat)return null;
+  return {
+    kind:'play-wally-garbotoxin-window',handIndex,printing:'Wally ROS',
+    targetSlot:trubbish.slot,targetIndex:trubbish.index,
+    visibleTrubbishPrinting:trubbish.pokemon.printing??null,
+    heldFloatStone:floatHeld,alreadyToolEquipped:alreadyFloat,
+    nativeDispatchImplemented:false,
+    energyNeeded:0,
+    openRequirement:'Garbodor BKP must remain available in own deck; unknown at K0',
+    conditionalLine:'Wally -> evolve Trubbish to Garbodor BKP -> Float Stone -> Garbotoxin',
+    scope:'Direct held-Wally opportunity only; excludes separate Tapu Lele Wonder Tag line'
+  };
 }
 
 /**
