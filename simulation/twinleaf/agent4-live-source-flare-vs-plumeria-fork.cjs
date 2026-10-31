@@ -77,6 +77,7 @@ function withOriginalSourceFlareFork(execute,target) {
     settledFlareEnergyRemovals:0,rejectedFlareForks:0,
     untouchedOtherRoots:true,baselinePolicyContinues:true,
     costedOwnerObservation:null,physicalSettlement:null,
+    firstSubsequentSourceRoot:null,
     errorSamples:[],competitiveQualified:false};
 
   function decode(state) {
@@ -97,6 +98,28 @@ function withOriginalSourceFlareFork(execute,target) {
       proposals.set(action,{type:'energy-prompt',seat,turn:state.turn,
         targetEnergy:cards[0]});
       return action;
+    }
+    // The first later actual source-owner root is a natural observation of
+    // whether the previously preserved Plumeria can still be spent. Read
+    // only the actor's own hand and the opponent's public board; do not
+    // affect the baseline decision or create hypothetical native actions.
+    if(audit.selectedFlareForks===1&&audit.firstSubsequentSourceRoot===null&&
+       Number.isSafeInteger(audit.physicalSettlement?.turn)&&
+       state.turn>audit.physicalSettlement.turn){
+      const observation=actorObservation(state,seat);
+      const idx=observation.ownHand.indexOf('Plumeria BUS');
+      const card=idx>=0?owner.hand.cards[idx]:null;
+      audit.firstSubsequentSourceRoot={
+        turn:state.turn,seat,
+        originalChosenAction:chosen?.constructor?.name??null,
+        originalChosenPrinting:chosen?.constructor?.name==='PlayCardAction'?
+          owner.hand.cards[chosen.handIndex]?.fullName??null:null,
+        heldPlumeria:idx>=0,
+        nativePlumeriaCanPlay:card?
+          card.canPlay(liveStore,state,owner)===true:false,
+        publicOpponentEnergySupply:publicOpponentEnergySupply(observation),
+        realSourceOwnerRoot:true
+      };
     }
     if(chosen?.constructor?.name!=='PlayCardAction')return chosen;
     const original=owner.hand.cards[chosen.handIndex];
