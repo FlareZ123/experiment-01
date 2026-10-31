@@ -77,6 +77,29 @@ test('same native owner view gives genuinely accepted Bench or solo attack in bo
     assert.equal(baseline.owner.hand.cards.length,0);
     assert.equal(baseline.owner.bench[0].getPokemonCard()?.fullName,
       'Iron Thorns ex TWM');
+    // Settle the baseline's mandatory Volt Cyclone recipient on the genuine
+    // pinned Store as a separate identical setup, not an invented payoff.
+    const baselineStartDamage=baseline.opponent.active.damage;
+    baseline.store.dispatch(new AttackAction(baseline.owner.id,'Volt Cyclone'));
+    const baselinePrompts=[];
+    for(let i=0;i<15;i++){
+      const pending=baseline.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      baselinePrompts.push(pending.constructor.name);
+      const response=pending.constructor.name==='WaitPrompt'?null:
+        pending.constructor.name==='ChoosePokemonPrompt'?
+          [baseline.owner.bench[0]]:undefined;
+      assert.notEqual(response,undefined,
+        'Baseline native Energy move introduced an unsupported prompt');
+      if(pending.constructor.name==='ChoosePokemonPrompt')
+        assert.equal(pending.validate(response,baseline.state),true);
+      baseline.store.dispatch(new ResolvePromptAction(pending.id,response));
+    }
+    assert.equal(baseline.store.hasPrompts(),false);
+    assert.equal(baseline.opponent.active.damage-baselineStartDamage,140);
+    assert.equal(baseline.owner.active.energies.cards.length,0);
+    assert.deepEqual(baseline.owner.bench[0].energies.cards.map(c=>c.fullName),
+      ['Double Colorless Energy SUM']);
     const treatment=staged(seat),{store,state,owner,opponent,receipt}=treatment;
     const before=opponent.active.damage;
     store.dispatch(new AttackAction(owner.id,receipt.chosen.attackName));
@@ -95,8 +118,10 @@ test('same native owner view gives genuinely accepted Bench or solo attack in bo
     assert.equal(owner.bench.filter(p=>p.getPokemonCard()).length,0);
     assert.equal(owner.hand.cards[0].fullName,'Iron Thorns ex TWM');
     process.stdout.write('# AGENT14_NATIVE_CHOICE '+JSON.stringify({
-      seat,control:'native-bench-accepted',treatment:'native-attack-settled',
-      damage:140,energyRetained:true,publicBenchCount:0,prompts,
+      seat,control:'native-bench-and-attack-energy-moved',
+      treatment:'native-solo-attack-energy-retained',
+      damage:140,controlDceOnBench:true,energyRetained:true,
+      publicBenchCount:0,prompts,baselinePrompts,
       competitiveQualified:false})+'\n');
   }
 });
