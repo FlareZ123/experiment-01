@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v2-resource-contention';
+const VERSION='agent41-same-root-proposal-choice-v3-expanded-enabled-offers';
 const MAX_SAMPLES=48;
 
 /**
@@ -33,6 +33,27 @@ const PROPOSERS=Object.freeze([
   {name:'quick-ball',flag:'quickBallRoot',
     propose:view=>require('./agent8-actor-quick-ball-frontier.cjs')
       .chooseQuickBallRootIntent(view)},
+  {name:'mysterious-treasure',flag:'mysteriousTreasureRoot',
+    propose:(view,catalog)=>require('./agent49-mysterious-treasure-frontier.cjs')
+      .chooseTreasureRootIntent(view,catalog)},
+  {name:'sky-field',flag:'skyFieldBenchExpansion',
+    propose:(view,catalog)=>require('./agent33-sky-field-bench-expansion.cjs')
+      .chooseSkyFieldBenchExpansion(view,catalog)},
+  {name:'path-to-peak',flag:'pathToPeakOpposingAbility',
+    propose:(view,catalog)=>require('./agent33-path-to-peak-public-lock.cjs')
+      .choosePathToPeakOpposingAbility(view,catalog)},
+  {name:'vs-seeker-lillie',flag:'seekerLillieRoot',
+    propose:view=>require('./agent48-owner-vs-seeker-lillie.cjs')
+      .chooseSeekerLillieRoot(view)},
+  {name:'carmine-first',flag:'carmineFirstRoot',
+    propose:view=>require('./agent48-conservative-first-carmine.cjs')
+      .chooseConservativeFirstCarmine(view)},
+  {name:'numeric-special',flag:'specialEnergyRoot',
+    propose:(view,catalog)=>require('./agent3-special-energy-frontier.cjs')
+      .chooseSpecialEnergyIntent(view,catalog)},
+  {name:'jet-bench',flag:'jetBenchSwitchRoot',
+    propose:(view,catalog)=>require('./agent40-public-jet-bench-frontier.cjs')
+      .choosePublicJetBenchSwitch(view,catalog)},
   {name:'natural-evolution',flag:'naturalEvolutionRoot',
     propose:(view,catalog)=>require('./agent1-actor-evolution-frontier.cjs')
       .chooseNaturalEvolutionIntent(view,catalog)},
@@ -53,11 +74,14 @@ const ENERGY_KINDS=new Set([
 const SUPPORTER_KINDS=new Set([
   'play-lowhand-lillie','play-conservative-shuffle-supporter',
   'play-team-flare-grunt-denial','play-stranded-marnie',
-  'play-held-guzma-mobility'
+  'play-held-guzma-mobility','play-seeker-recovered-lillie',
+  'play-carmine-first'
 ]);
 const SEARCH_KINDS=new Set([
-  'play-quick-ball','play-mysterious-treasure'
+  'play-quick-ball','play-mysterious-treasure',
+  'play-seeker-get-lillie'
 ]);
+const STADIUM_KINDS=new Set(['play-sky-field','play-path-to-peak']);
 
 /**
  * A candidate must match the same owner's physical printed hand index and
@@ -86,6 +110,25 @@ function structurallySupported(view,proposal){
     return (proposal.slot===undefined||proposal.slot==='active')&&
       view.ownPublic?.active!=null;
   }
+  if(STADIUM_KINDS.has(proposal.kind)){
+    const r=view.ownTurnResources;
+    if(r?.stadiumPlayLocked===true||
+       view.ownPublic?.publicTurnRestrictions?.stadiumPlayLocked===true||
+       r?.stadiumPlayedTurn===view.globalTurn)return false;
+    return view.ownPublic?.active!=null;
+  }
+  if(SEARCH_KINDS.has(proposal.kind)){
+    if(view.ownTurnResources?.itemPlayLocked===true||
+       view.ownPublic?.publicTurnRestrictions?.itemPlayLocked===true)return false;
+    // A printed hand discard, if proposed, must be a different physical card
+    // from the Item itself. Unknown future search outcomes remain unverified.
+    if(proposal.discardPrinting!==undefined&&(
+      !Number.isSafeInteger(proposal.discardSourceIndex)||
+      proposal.discardSourceIndex<0||
+      proposal.discardSourceIndex===proposal.handIndex||
+      view.ownHand[proposal.discardSourceIndex]!==proposal.discardPrinting
+    ))return false;
+  }
   if(SUPPORTER_KINDS.has(proposal.kind)){
     const r=view.ownTurnResources;
     if(r?.supporterPlayedTurn!==0||r?.supporterPlayLocked===true||
@@ -94,9 +137,12 @@ function structurallySupported(view,proposal){
   }
   if(proposal.kind==='bench-basic')return Number.isSafeInteger(
     proposal.benchIndex)&&view.ownPublic?.bench?.[proposal.benchIndex]===null;
+  if(proposal.kind==='evolve-pokemon')return
+    (proposal.slot==='active'&&view.ownPublic?.active!=null)||
+    (proposal.slot==='bench'&&Number.isSafeInteger(proposal.index)&&
+      view.ownPublic?.bench?.[proposal.index]!=null);
   return SUPPORTER_KINDS.has(proposal.kind)||
-    SEARCH_KINDS.has(proposal.kind)||
-    proposal.kind==='evolve-pokemon';
+    SEARCH_KINDS.has(proposal.kind)||STADIUM_KINDS.has(proposal.kind);
 }
 
 /**
@@ -199,6 +245,8 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       slot:o.intent.slot??(o.intent.kind==='bench-basic'?'bench':null),
       index:o.intent.index??o.intent.benchIndex??null,
       score:o.score,reason:o.reason,
+      proposedDiscardPrinting:o.intent.discardPrinting??null,
+      proposedDiscardIndex:o.intent.discardSourceIndex??null,
       baselineContention:o.source==='first-return'?'control':
         contentionReason(baseline.kind,o.intent.kind),
       intendedResourceChannels:{
@@ -206,6 +254,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
         supporterQuota:SUPPORTER_KINDS.has(o.intent.kind),
         benchAdmission:o.intent.kind==='bench-basic',
         searchItem:SEARCH_KINDS.has(o.intent.kind),
+        stadiumPlay:STADIUM_KINDS.has(o.intent.kind),
         endsTurn:o.intent.kind==='attack'||o.intent.kind==='pass'
       },
       nativePlayability:'unverified'
