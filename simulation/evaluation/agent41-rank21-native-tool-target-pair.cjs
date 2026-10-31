@@ -164,6 +164,7 @@ function runNativeComparison(){
       paperSupporterQuota:true,nativeAcceptedTargets:true,
       sameRootProposalChoice:observed,sameRootChoiceApply:selected,
       sameRootProbeAll:false,nativeToolAttachRoot:selected,
+      losslessNativeRootJoin:observed,
       allowAdditionalOriginalSourceRanks:true,
       registeredTrials:plan.trials,
       registeredFrameName:VERSION+'-'+condition
