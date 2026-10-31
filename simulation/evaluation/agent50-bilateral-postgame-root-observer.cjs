@@ -199,7 +199,8 @@ function withPostgameRootOrderProbe(
         let attemptCount=0,finiteScoreCount=0,pending=null;
         const nativeTrace=[];
         const nativeTacticObservation={steps:[],rngCalls:0,
-          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true};
+          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true,
+          traceSimulationZones:target.nativeTapeFirstFiniteScore===true};
         const decisionStartFingerprint=(target.nativeScoreTrace===true||target.nativeTapeFirstFiniteScore===true)?
           stateGraphFingerprint(state):null;
         const restorations=[];
@@ -402,7 +403,8 @@ function withPostgameRootOrderProbe(
         require('./agent41-bilateral-common-policy.cjs')
           .withBilateralCommonCandidatePolicy;
       const replayTacticObservation={steps:[],rngCalls:0,
-          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true};
+          traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true,
+          traceSimulationZones:target.nativeTapeFirstFiniteScore===true};
       const policyReplay=world=>applyPolicy(target.seat,()=>{
         const bot=new BotClass({id:actorId},
           cloneBotOptions(captured.options),null);
