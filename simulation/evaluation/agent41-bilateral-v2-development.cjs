@@ -81,8 +81,11 @@ const sha256=value=>createHash('sha256').update(JSON.stringify(value)).digest('h
  * @returns {{root:object|null,status:string,sourceTurn:number|null}}
  */
 function firstPostSourceDecision(rootTrace,rank,sourceAudit,candidateSeat){
-  assert.ok(rank===6||rank===11);
+  assert.ok(Number.isSafeInteger(rank)&&rank>0);
   assert.ok(candidateSeat===0||candidateSeat===1);
+  if(rank!==6&&rank!==11)return {
+    root:null,status:'source-line-not-applicable-to-rank',sourceTurn:null
+  };
   let sourceTurn=null;
   if(rank===11){
     if(sourceAudit?.completed===true &&
@@ -594,7 +597,7 @@ function executeDevelopment(trial,candidates,{
       (rank11ExclusiveOpening?played.policyAudit.direct:played.policyAudit);
     game=played.result.result;
     commonAudit=played.result.policyAudit;
-  }else{
+  }else if(trial.rank===6){
     const allowedDiscards=discardOrder.slice(0,-5);
     const played=withBroadThornsSourceAttack(()=>
       withBroadThornsSourceAttack(common,
@@ -612,6 +615,13 @@ function executeDevelopment(trial,candidates,{
     };
     commonAudit=played.result.result.policyAudit;
     game=played.result.result.result;
+  }else{
+    // Other original source ranks receive the same symmetric native root
+    // policy without a rank-6 Thorns or rank-11 Garbodor source override.
+    const played=common();
+    sourceAudit=null;
+    commonAudit=played.policyAudit;
+    game=played.result;
   }
   assert.equal(commonAudit.version,POLICY_VERSION);
   assert.equal(game.seed,trial.seed);
@@ -1014,7 +1024,7 @@ function runDevelopment({
     const groups=new Map();
     const ids=new Set();
     for(const trial of registeredTrials){
-      assert.ok((allowAdditionalOriginalSourceRanks?[4,6,10,11]:[6,11])
+      assert.ok((allowAdditionalOriginalSourceRanks?[4,6,10,11,21]:[6,11])
         .includes(trial.rank));
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
