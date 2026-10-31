@@ -50,6 +50,12 @@ function buildActorCardCatalog(all,types){
       .knownPerfectionDonorCatalog(all),
     basics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC).map(c=>c.fullName)),
+    // Printed Tool identity is public card-catalog metadata. A Tool in an
+    // owner's hand is private to that owner; do not read its deck or Prizes.
+    // Synthetic catalog callers that omit TrainerCard cannot offer Tools.
+    toolPrintings:types.TrainerCard&&types.TrainerType?
+      require('./agent18-actor-tool-candidate-frontier.cjs')
+        .actorToolPrintingCatalog(all,types):new Set(),
     abilityBasics:new Set(all.filter(c=>c instanceof PokemonCard&&
       c.stage===Stage.BASIC&&c.powers.some(power=>
         power.powerType===PowerType.ABILITY)).map(c=>c.fullName)),
@@ -459,11 +465,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     const {CardManager}=require(path.join(base,'game/cards/card-manager'));
     const {PokemonCard}=require(path.join(base,'game/store/card/pokemon-card'));
     const {EnergyCard}=require(path.join(base,'game/store/card/energy-card'));
-    const {Stage,EnergyType,CardType,SpecialCondition}=
+    const {TrainerCard}=require(path.join(base,'game/store/card/trainer-card'));
+    const {Stage,EnergyType,CardType,TrainerType,SpecialCondition}=
       require(path.join(base,'game/store/card/card-types'));
     const {PowerType}=require(path.join(base,'game/store/card/pokemon-types'));
     return buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
-      PokemonCard,EnergyCard,Stage,EnergyType,CardType,
+      PokemonCard,EnergyCard,TrainerCard,Stage,EnergyType,CardType,TrainerType,
       PowerType,SpecialCondition
     });
   });
