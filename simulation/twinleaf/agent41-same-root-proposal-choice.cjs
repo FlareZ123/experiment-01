@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v19-thorns-probe-plus-observe-only-tools';
+const VERSION='agent41-same-root-proposal-choice-v20-grouped-plumeria-observation';
 const MAX_SAMPLES=48;
 
 /**
@@ -22,6 +22,17 @@ const PROPOSERS=Object.freeze([
       require('./agent18-actor-tool-candidate-frontier.cjs')
         .enumerateActorToolCandidates(view,catalog.toolPrintings)
         .map(intent=>({...intent,nativeDispatchImplemented:false})):[]},
+  // Group physical discard payments by the held Plumeria rather than
+  // multiplying each payment pair by every opposing public Energy target.
+  // This is an observation-only challenger to Team Flare Grunt's zero-card
+  // payment. The native Plumeria prompt dispatcher is deliberately absent.
+  {name:'grouped-plumeria-payments',flag:'sameRootProbeAll',
+    propose:view=>{
+      const menu=require('./agent4-plumeria-payment-menu.cjs')
+        .collectOwnerPlumeriaPaymentMenu(view);
+      return menu.offers.map(offer=>({...offer,paymentTargets:menu.targets,
+        nativeDispatchImplemented:false}));
+    }},
   {name:'immediate-special',flag:'publicContextSpecialEnergy',
     propose:(view,catalog)=>require('./agent41-public-flexible-energy-contest.cjs')
       .choosePublicFlexibleImmediateAttackEnergy(view,catalog)},
@@ -109,6 +120,7 @@ const SUPPORTER_KINDS=new Set([
   'play-lowhand-lillie','play-conservative-shuffle-supporter',
   'play-team-flare-grunt-denial','play-stranded-marnie',
   'play-held-guzma-mobility','play-seeker-recovered-lillie',
+  'play-plumeria-payment-menu',
   'play-carmine-first','play-raihan-ko-response',
   'play-teammates-ko-response'
 ]);
@@ -175,6 +187,35 @@ function structurallySupported(view,proposal){
        view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
        (view.ownPublic?.resolvingSupporter?.length??0)>0)return false;
   }
+  if(proposal.kind==='play-plumeria-payment-menu'){
+    // Two physical payment cards are mandatory and their identity matters.
+    // Public targets must still be on the opposing board. Neither condition
+    // claims native canPlay, strategic discardability, or prompt acceptance.
+    if(!Array.isArray(proposal.paymentPairs)||
+       proposal.paymentPairs.length===0||
+       !Array.isArray(proposal.paymentTargets)||
+       proposal.paymentTargets.length===0)return false;
+    const validPair=pair=>Array.isArray(pair.handIndices)&&
+      pair.handIndices.length===2&&
+      Array.isArray(pair.printings)&&pair.printings.length===2&&
+      pair.handIndices.every((index,i)=>
+        Number.isSafeInteger(index)&&index>=0&&
+        index!==proposal.handIndex&&
+        view.ownHand[index]===pair.printings[i])&&
+      pair.handIndices[0]!==pair.handIndices[1];
+    const validTarget=target=>{
+      const pokemon=target.slot==='active'?
+        view.opponentPublic?.active:target.slot==='bench'&&
+        Number.isSafeInteger(target.index)&&target.index>=0?
+        view.opponentPublic?.bench?.[target.index]:null;
+      return pokemon?.printing===target.pokemonPrinting&&
+        Number.isSafeInteger(target.energyIndex)&&
+        target.energyIndex>=0&&
+        pokemon.energies?.[target.energyIndex]===target.energyPrinting;
+    };
+    return proposal.paymentPairs.every(validPair)&&
+      proposal.paymentTargets.every(validTarget);
+  }
   if(proposal.kind==='attach-tool-candidate'){
     if(view.ownTurnResources?.toolPlayLocked===true||
        view.ownPublic?.publicTurnRestrictions?.toolPlayLocked===true)return false;
@@ -208,6 +249,10 @@ function duplicateProposal(a,b){
       a.discardSourceIndex===b.discardSourceIndex&&
       a.target===b.target;
   }
+  // Separate physical Plumeria copies have distinct payment options.
+  if(a.kind==='play-plumeria-payment-menu'&&
+     b.kind==='play-plumeria-payment-menu')
+    return a.printing===b.printing&&a.handIndex===b.handIndex;
   if(samePhysicalProposal(a,b))return true;
   if(a.kind!==b.kind||a.printing!==b.printing)return false;
   if(a.kind==='pass')return true;
@@ -367,6 +412,14 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       printedDamage:o.intent.printedDamage??null,
       plannedAttackName:o.intent.plannedAttackName??null,
       potentialDrawCap:o.intent.potentialDrawCap??null,
+      // Evidence for the competing Supporter payment branch, intentionally
+      // summarised rather than emitting every payment-target product.
+      physicalPaymentPairCount:o.intent.paymentPairs?.length??null,
+      publicDenialTargetCount:o.intent.paymentTargets?.length??null,
+      benchDenialTargetCount:o.intent.paymentTargets?.filter(
+        target=>target.slot==='bench').length??null,
+      paymentPairsConsumingFlare:o.intent.paymentPairs?.filter(pair=>
+        pair.printings.includes('Team Flare Grunt XY')).length??null,
       searchMaximum:o.intent.searchMaximum??null,
       attachBasicFromDiscard:o.intent.attachBasicFromDiscard===true,
       nativeDispatchImplemented:o.intent.nativeDispatchImplemented!==false,
