@@ -10,6 +10,8 @@ const {actorToolPrintingCatalog,enumerateActorToolCandidates}=
   require('./agent18-actor-tool-candidate-frontier.cjs');
 const {collectAndChooseOwnerRoot,VERSION:SAME_ROOT_VERSION}=
   require('./agent41-same-root-proposal-choice.cjs');
+const {buildNativeOwnerToolCandidateAction}=
+  require('./agent18-native-tool-play-action.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(root,p));
 const SEED=4246551499;
@@ -26,6 +28,9 @@ function observeSourceK0(execute){
   const {PokemonCard}=native('game/store/card/pokemon-card');
   const {EnergyCard}=native('game/store/card/energy-card');
   const {TrainerCard}=native('game/store/card/trainer-card');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const nativeActionTypes={PlayCardAction,PlayerType,SlotType};
   const types=native('game/store/card/card-types');
   const {PowerType}=native('game/store/card/pokemon-types');
   const catalog=buildActorCardCatalog(CardManager.getInstance().getAllCards(),{
@@ -46,6 +51,7 @@ function observeSourceK0(execute){
     const receipt=this===live&&action&&typeof action==='object'?
       pendingFirstRoots.get(action):null;
     const beforeOwner=receipt?this.state.players[receipt.seat]:null;
+    const beforeToolView=receipt?actorObservation(this.state,receipt.seat):null;
     const beforeHandCard=receipt&&
       Number.isInteger(receipt.nativeBotProposedHandIndex)?
       beforeOwner.hand.cards[receipt.nativeBotProposedHandIndex]:null;
@@ -72,6 +78,25 @@ function observeSourceK0(execute){
           slot:attached.slot,index:attached.index,
           printing:beforeHandCard.fullName
         }:null;
+        receipt.nativeStoreToolActionEncodingEquivalent=null;
+        if(attached&&receipt.ownerToolCandidates){
+          const matching=receipt.ownerToolCandidates.filter(candidate=>
+            candidate.printing===attached.printing&&
+            candidate.handIndex===receipt.nativeBotProposedHandIndex&&
+            candidate.slot===attached.slot&&candidate.index===attached.index);
+          assert.equal(matching.length,1,
+            'Exactly one actor-owned Tool offer must match the actual native Tool action');
+          const independent=buildNativeOwnerToolCandidateAction(
+            beforeToolView,catalog,matching[0],beforeOwner.id,nativeActionTypes);
+          assert.deepStrictEqual(independent,action,
+            'A freshly encoded owner-only Tool candidate must equal the original native bot Action');
+          receipt.nativeStoreToolActionEncodingEquivalent=true;
+          receipt.nativeStoreToolActionEncodingTarget={
+            slot:matching[0].slot,index:matching[0].index,
+            printing:matching[0].printing,
+            handIndex:matching[0].handIndex
+          };
+        }
         receipt.nativeStoreFirstActionPublicBefore=beforeBoard;
         receipt.nativeStoreFirstActionPublicAfter={
           ownerHandCount:afterOwner.hand.cards.length,
@@ -236,7 +261,7 @@ function run(){
       sourceNativeRoots:observed.rows,
       sameOutcomeWithObserver:true,outcome:outcome(unobserved)});
   }
-  return {schema:'agent18-aichi-source-K0-native-root-v6-all-proposer-K0',
+  return {schema:'agent18-aichi-source-K0-native-root-v7-typed-tool-native-parity',
     sameRootCollectorVersion:SAME_ROOT_VERSION,
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     arms,originalFullSixties:true,competitiveQualifiedGames:0,
