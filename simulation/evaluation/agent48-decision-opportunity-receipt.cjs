@@ -55,7 +55,8 @@ function decisionOpportunityReceipt(records, options = {}) {
   const total={ownerRoots:0,rootsWithOffers:0,nativePlayableWindows:0,
     chosenWindows:0,acceptedWindows:0,settledWindows:0,
     laterOwnerRootWindows:0,opponentReplyWindows:0,
-    acceptedChangedChoices:0,offerChoices:0,nativePlayableChoices:0};
+    acceptedChangedChoices:0,offerChoices:0,nativePlayableChoices:0,
+    nativeProbedChoices:0,nativeProbedWindows:0};
   const ordered=[...records].sort((a,b)=>
     String(a.trialId).localeCompare(String(b.trialId))||
     a.rootOrdinal-b.rootOrdinal||a.seat-b.seat);
@@ -83,7 +84,8 @@ function decisionOpportunityReceipt(records, options = {}) {
     const digest=observedRootDigest(view);configs.add(digest);
     const offers=record.offers??[];
     assert.ok(Array.isArray(offers));
-    const flags={offered:false,nativePlayable:false,chosen:false,
+    const flags={offered:false,nativePlayable:false,nativeProbed:false,
+      chosen:false,
       accepted:false,settled:false,laterOwnerRoot:false,
       opponentReply:false,acceptedChangedChoice:false};
     let positiveWitness=null;
@@ -104,6 +106,10 @@ function decisionOpportunityReceipt(records, options = {}) {
       if(on('changedFromBaseline')&&on('storeAccepted'))
         flags.acceptedChangedChoice=true;
       if(on('structurallyOffered'))flags.offered=true;
+      if(typeof offer.nativeCanPlay==='boolean'){
+        flags.nativeProbed=true;
+        total.nativeProbedChoices++;
+      }
       if(on('nativeCanPlay')){
         flags.nativePlayable=true;
         total.nativePlayableChoices++;
@@ -121,7 +127,8 @@ function decisionOpportunityReceipt(records, options = {}) {
     }
     total.ownerRoots++;
     for(const [flag,metric] of Object.entries({offered:'rootsWithOffers',
-      nativePlayable:'nativePlayableWindows',chosen:'chosenWindows',
+      nativePlayable:'nativePlayableWindows',nativeProbed:'nativeProbedWindows',
+      chosen:'chosenWindows',
       accepted:'acceptedWindows',settled:'settledWindows',
       laterOwnerRoot:'laterOwnerRootWindows',
       opponentReply:'opponentReplyWindows',
@@ -130,13 +137,16 @@ function decisionOpportunityReceipt(records, options = {}) {
     let arm=arms.get(trialId);
     if(!arm){
       arm={trialId,sourceDealFingerprint,rootCount:0,
-        nativePositiveRoots:0,positiveWitness:null,
+        nativePositiveRoots:0,nativeProbedRoots:0,structuralOfferRoots:0,
+        positiveWitness:null,
         sourceExamples:[],nativePositiveExamples:[],
         repeatedObservedConfigurations:0,observedDigests:new Set()};
       arms.set(trialId,arm);
     }else assert.equal(arm.sourceDealFingerprint,sourceDealFingerprint,
       'One trial cannot change original source deal fingerprint');
     arm.rootCount++;
+    arm.nativeProbedRoots+=Number(flags.nativeProbed);
+    arm.structuralOfferRoots+=Number(flags.offered);
     if(arm.observedDigests.has(digest))
       arm.repeatedObservedConfigurations++;
     arm.observedDigests.add(digest);
@@ -166,6 +176,8 @@ function decisionOpportunityReceipt(records, options = {}) {
       trialId:arm.trialId,sourceDealFingerprint:arm.sourceDealFingerprint,
       rootCount:arm.rootCount,
       nativePositiveRoots:arm.nativePositiveRoots,
+      nativeProbedRoots:arm.nativeProbedRoots,
+      structuralOfferRoots:arm.structuralOfferRoots,
       uniqueObservedConfigurations:arm.observedDigests.size,
       repeatedObservedConfigurations:arm.repeatedObservedConfigurations,
       sourceExamples:arm.sourceExamples,
@@ -175,7 +187,11 @@ function decisionOpportunityReceipt(records, options = {}) {
       positiveExamplesMayBeTruncated:
         arm.nativePositiveRoots>arm.nativePositiveExamples.length,
       positiveWitnessCoverage:arm.nativePositiveRoots===0?
-        'NO_NATIVE_POSITIVE_OBSERVED':arm.positiveWitness?
+        arm.structuralOfferRoots===0?'NO_STRUCTURAL_OFFERS':
+        arm.nativeProbedRoots===0?'NATIVE_PLAYABILITY_UNPROBED':
+        arm.nativeProbedRoots<arm.structuralOfferRoots?
+          'PARTIAL_NATIVE_PROBE_NO_POSITIVE':
+          'PROBED_NO_NATIVE_POSITIVE':arm.positiveWitness?
         'EARLIEST_NATIVE_POSITIVE_PRESERVED':'POSITIVE_WITNESS_MISSING'
     }))};
 }
