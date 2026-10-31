@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v18-thorns-empty-bench-native-probe';
+const VERSION='agent41-same-root-proposal-choice-v19-thorns-probe-plus-observe-only-tools';
 const MAX_SAMPLES=48;
 
 /**
@@ -15,6 +15,13 @@ const MAX_SAMPLES=48;
  * unverified until genuine Store evidence is joined to the root ordinal.
  */
 const PROPOSERS=Object.freeze([
+  // Owner-visible Tool attachment upper-bound, read-only by construction.
+  // Individual printed restrictions are not natively checked at this stage.
+  {name:'owner-tool',flag:'sameRootProbeAll',
+    propose:(view,catalog)=>catalog.toolPrintings instanceof Set?
+      require('./agent18-actor-tool-candidate-frontier.cjs')
+        .enumerateActorToolCandidates(view,catalog.toolPrintings)
+        .map(intent=>({...intent,nativeDispatchImplemented:false})):[]},
   {name:'immediate-special',flag:'publicContextSpecialEnergy',
     propose:(view,catalog)=>require('./agent41-public-flexible-energy-contest.cjs')
       .choosePublicFlexibleImmediateAttackEnergy(view,catalog)},
@@ -167,6 +174,15 @@ function structurallySupported(view,proposal){
     if(r?.supporterPlayedTurn!==0||r?.supporterPlayLocked===true||
        view.ownPublic?.publicTurnRestrictions?.supporterPlayLocked===true||
        (view.ownPublic?.resolvingSupporter?.length??0)>0)return false;
+  }
+  if(proposal.kind==='attach-tool-candidate'){
+    if(view.ownTurnResources?.toolPlayLocked===true||
+       view.ownPublic?.publicTurnRestrictions?.toolPlayLocked===true)return false;
+    const target=proposal.slot==='active'?
+      view.ownPublic?.active:proposal.slot==='bench'&&
+      Number.isSafeInteger(proposal.index)&&proposal.index>=0?
+      view.ownPublic?.bench?.[proposal.index]:null;
+    return target!=null&&Array.isArray(target.tools)&&target.tools.length===0;
   }
   if(proposal.kind==='bench-basic')return Number.isSafeInteger(
     proposal.benchIndex)&&view.ownPublic?.bench?.[proposal.benchIndex]===null;
