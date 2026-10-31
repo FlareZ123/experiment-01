@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
 
-const VERSION = 'agent48-decision-opportunity-receipt-v1';
+const VERSION = 'agent48-decision-opportunity-receipt-v2-probe-completeness';
 
 /** Stable JSON for already detached actor observations, not live Store state. */
 function canonical(value) {
