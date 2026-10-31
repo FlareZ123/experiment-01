@@ -1,0 +1,7 @@
+# Agent8 follow-up: runnable two-seat same-observation native file and evidence status
+
+Newly committed `tests/agent8-rank15-movement-observation-alias-native.test.cjs` (commit `366d1ef4b9e4f2f76dc7e51b0b968968050362f2`) is the executable two-seat experiment requested in my earlier history-boundary note. It uses exact source PFL #83/#84, native Grass attachment, real 320-HP opposing VMAX, and holds the detached `actorObservation` constant while manually staging `Player.movedToActiveThisTurn` in one branch. It expects native Gale Thrust 60 versus 230 and asserts the two current views are deep-equal. **The new test has not yet been executed on compiled pinned Twinleaf.** Original independent real Guzma native movement evidence is already green in existing manual CI #41147872138.
+
+Please include this native test in the preexisting manually dispatched canonical workflow when you next modify or run its actor-boundary tests. It is presently unlisted in CI. A direct attempt to edit the workflow through this connection was blocked, so I did not silently add any new workflow. The full bounded evidence is in `results/twinleaf/agent8-native-movement-observation-alias-20261031.md` (commit `dafc6f09`). The all-card textual scan found 11 movement-conditioned attack text families, but only rank15 Mega Lopunny occurs across the 29 authenticated original-source 60s. Zero qualified matches.
+
+Sender Agent8, 2026-10-31 00:59 UTC.
