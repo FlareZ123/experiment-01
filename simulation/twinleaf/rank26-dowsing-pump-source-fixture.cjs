@@ -26,16 +26,31 @@ function physical(player){
 }
 
 /** Preserve source original physical ids; stage scarce item and its payment. */
-function stage(f){
+function stage(f,oneEgg=false){
   const own=f.own;
+  if(oneEgg){
+    const second=own.bench[4].cards.pop();
+    assert.equal(second?.name,'Exeggcute');
+    const displaced=own.prizes[0].cards[0];
+    assert.ok(displaced);
+    own.prizes[0].cards[0]=second;
+    own.deck.cards.push(displaced);
+    assert.equal(own.bench.filter(slot=>
+      slot.getPokemonCard()?.name==='Exeggcute').length,1);
+    assert.equal(own.prizes.flatMap(p=>p.cards).filter(card=>
+      card.name==='Exeggcute').length,1);
+  }
   exchange(own,'Dowsing Machine',own.hand,4);
   const mails=own.deck.cards.filter(card=>card.name==="Trainers' Mail").slice(0,2);
   assert.equal(mails.length,2,'Need two real distinct Mail payment copies in deck');
   for(const card of mails)own.deck.moveCardTo(card,own.hand);
-  const extra=own.deck.cards.find(card=>card.name==='Damage Pump');
-  assert.ok(extra,'Expected another source original Pump in deck');
-  own.deck.moveCardTo(extra,own.hand);
-  assert.equal(own.hand.cards.filter(c=>c.name==='Damage Pump').length,2);
+  const extras=own.deck.cards.filter(card=>card.name==='Damage Pump')
+    .slice(0,oneEgg?3:1);
+  assert.equal(extras.length,oneEgg?3:1,
+    'Expected all requested original source Pumps in deck');
+  for(const card of extras)own.deck.moveCardTo(card,own.hand);
+  assert.equal(own.hand.cards.filter(c=>c.name==='Damage Pump').length,
+    oneEgg?4:2);
   assert.equal(own.hand.cards.filter(c=>c.name==='Dowsing Machine').length,1);
   assert.equal(own.hand.cards.filter(c=>c.name==="Trainers' Mail").length,2);
   const ids=physical(own).map(card=>card.id);
@@ -116,9 +131,9 @@ function playDowsing(f){
 }
 
 /** Prepared original60 2+2+1 fifth self-KO with an actual Dowsing retrieval. */
-function runSeat(seat){
+function runSeat(seat,oneEgg=false){
   const f=fixture(seat);
-  const startingIds=stage(f);
+  const startingIds=stage(f,oneEgg);
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   const {GamePhase}=engine('game/store/state/state');
@@ -160,25 +175,28 @@ function runSeat(seat){
           f.store.dispatch(action);
         }
         assert.ok(dowsingReceipts,'No real source Dowsing action');
-        assert.deepEqual(prizeProgress,[4,2,1]);
+        assert.deepEqual(prizeProgress,oneEgg?[5,4,3,2,1]:[4,2,1]);
         assert.equal(f.opponent.getPrizeLeft(),1);
         assert.equal(f.state.phase,GamePhase.PLAYER_TURN);
         const endIds=physical(f.own).map(card=>card.id).sort((a,b)=>a-b);
         assert.deepEqual(endIds,startingIds,'Rank26 all 60 physical IDs conserved');
-        assert.equal(f.own.discard.cards.filter(c=>c.name==='Damage Pump').length,2);
-        return {sourceSeat:seat,prizeProgress,dowsingReceipts,nativeRoots,
+        assert.equal(f.own.discard.cards.filter(c=>c.name==='Damage Pump').length,
+          oneEgg?4:2);
+        return {sourceSeat:seat,branch:oneEgg?'one-egg-four-original-Pumps':'two-eggs-two-original-Pumps',
+          prizeProgress,dowsingReceipts,nativeRoots,
           printedSource60Conserved:true,realStoreDowsingRecoveredPump:true,
           reachedFifthSelfKO:true};
       }));
+    assert.equal(audit.policyAudit.actions.length,oneEgg?10:6);
     return {...audit.result.result,
       pumpAudit:audit.policyAudit,
       propagationAudit:audit.result.policyAudit};
   }finally{restore();}
 }
 function run(){
-  return {schema:'rank26-native-dowsing-two-Pump-2plus2plus1-staged-v1',
+  return {schema:'rank26-native-dowsing-two-branches-both-seats-staged-v2',
     pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    cases:[runSeat(0),runSeat(1)],
+    cases:[runSeat(0),runSeat(1),runSeat(0,true),runSeat(1,true)],
     originalRandomDeal:false,sourceCardInstancesConserved:true,
     firstTurnHandSearchAndAttackQualified:false,
     competitorPolicyQualified:false,competitiveGameQualified:false};
