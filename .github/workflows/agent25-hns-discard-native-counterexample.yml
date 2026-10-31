@@ -1,0 +1,41 @@
+name: Agent25 pinned Dhelmise discard Ability lock counterexample
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent25-hns-discard-native-paper-fidelity
+  cancel-in-progress: false
+
+jobs:
+  genuine-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pure reversible HNS hook under named Abilities and exceptions
+        run: node --test tests/agent25-hns-discard-ability-lock-hook.test.cjs
+      - name: Checkout exactly pinned original Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Compare original and reversible paper HNS attack resolution on both physical seats
+        run: node simulation/twinleaf/agent25-hns-discard-native-counterexample.cjs > agent25-hns-original-store-counterexample.json
+      - name: Archive native action and after-attack prompts, all arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-hns-pinned-discard-lock-native
+          path: agent25-hns-original-store-counterexample.json
+          if-no-files-found: warn
+          retention-days: 14
