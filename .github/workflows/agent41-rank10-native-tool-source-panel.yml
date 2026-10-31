@@ -1,0 +1,41 @@
+name: Agent41 rank10 original source native Tool selected versus control
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-rank10-tool:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Frozen plan and shared native Tool pure test regression
+        run: node --test tests/agent7-same-root-independent-opportunity.test.cjs tests/agent18-native-tool-play-action.test.cjs tests/agent18-actor-tool-candidate-frontier.test.cjs
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install original native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all four frozen true-source original rank10 Tool counterfactual arms
+        run: node simulation/evaluation/agent41-rank10-native-tool-source-panel.cjs > agent41-rank10-tool-native-raw.json
+      - name: Extract all outcome, source deal, and selected physical Tool receipts
+        run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank10-tool-native-raw.json','utf8'));const o={version:x.version,paired:x.paired,control:x.control.rows,selected:x.selected.rows,competitiveQualifiedGames:x.competitiveQualifiedGames};fs.writeFileSync('agent41-rank10-tool-native-summary.json',JSON.stringify(o,null,2)+'\\n');console.log(JSON.stringify(x.paired));"
+      - name: Retain every attempted original source and native action, including errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-native-tool-rank10-original-source-pair
+          path: |
+            agent41-rank10-tool-native-raw.json
+            agent41-rank10-tool-native-summary.json
+          if-no-files-found: warn
+          retention-days: 14
