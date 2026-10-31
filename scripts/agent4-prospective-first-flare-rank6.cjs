@@ -62,48 +62,76 @@ function registeredFrame(){
 }
 
 /**
- * The actor-only original Plumeria-after-Pass adapter remains the control.
- * Treatment interposes a first-positive native Team Flare action only in
- * source seat; the original Store resolves all real effects and prompts.
- * @param {object} prior Previously frozen common run flags.
- * @param {object} trial Preregistered paired physical deal.
- * @param {'plumeria'|'flare-first'} mode
- * @returns {object} One complete or censored original Store output.
+ * Original native Store requires the exact two candidate-arm pairing at
+ * every registered seed. This mirrors the same-deal matched experiment and
+ * prevents silently running a single unregistered candidate in isolation.
+ * @param {object[]} trials Exactly two candidate decks sharing one seed.
+ * @returns {object[]}
  */
-function runOne(prior,trial,mode){
+function groupRegisteredTrials(trials){
+  const groups=new Map();
+  for(const trial of trials){
+    const key=[trial.rank,trial.repeat,trial.candidateSlot].join(':');
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(trial);
+  }
+  for(const group of groups.values()){
+    assert.equal(group.length,2);
+    assert.equal(group[0].seed,group[1].seed);
+    assert.equal(group[0].candidateSlot,group[1].candidateSlot);
+    assert.deepEqual(group.map(x=>x.candidateId).sort(),
+      ['champion-reference','new-moon-lockbreaker-v1']);
+  }
+  assert.equal(groups.size,8);
+  return [...groups.values()];
+}
+
+/**
+ * Run two native games through the previously registered common-player
+ * driver, preserving its mandatory two-candidate same-seed paired input.
+ * Both modes share exactly the same roster, first deals and seed.
+ * @param {object} prior Frozen original common policy flags.
+ * @param {object[]} trials Same-seed original source pair.
+ * @param {'plumeria'|'flare-first'} mode
+ * @returns {object[]} Each native outcome with own original fork receipts.
+ */
+function runTwo(prior,trials,mode){
   assert.ok(mode==='plumeria'||mode==='flare-first');
-  const sourceSeat=trial.candidateSlot==='A'?1:0;
+  assert.equal(trials.length,2);
+  const sourceSeat=trials[0].candidateSlot==='A'?1:0;
   const adapter=require('../simulation/twinleaf/agent4-plumeria-after-pass.cjs');
   const original=adapter.withOwnerPlumeriaAfterPass;
-  let forkAudit=null;
   if(mode==='flare-first'){
     adapter.withOwnerPlumeriaAfterPass=execute=>{
-      const chosen=original(()=>{
+      const selected=original(()=>{
         const fork=withOriginalSourceFlareFork(execute,{
           seat:sourceSeat,turn:null,minimumActiveEnergy:2
         });
-        forkAudit=fork.audit;
+        selectedForkAudit=fork.audit;
         return fork.result;
       });
-      chosen.audit.agent4ProspectiveFirstFlare=forkAudit;
-      return chosen;
+      selected.audit.agent4ProspectiveFirstFlare=selectedForkAudit;
+      return selected;
     };
   }
+  let selectedForkAudit=null;
   try{
     const result=runDevelopment({...prior.frozenRunOptions,
-      registeredTrials:[trial],registeredFrameName:FRAME,
+      registeredTrials:trials,registeredFrameName:FRAME,
       actorPlumeriaAfterPass:true});
-    assert.equal(result.attempted,1);
-    assert.equal(result.rows.length,1);
+    assert.equal(result.attempted,2);
+    assert.equal(result.rows.length,2);
     assert.equal(result.enginePin,prior.enginePin);
     assert.equal(result.competitiveQualifiedGames,0);
-    const row=result.rows[0];
-    assert.equal(row.trial.id,trial.id);
-    assert.equal(row.qualifiesForCompetitiveInference,false);
-    return {mode,id:trial.id,row,sourceSeat,
-      forkAudit:forkAudit??row.actorOnlyDecisionCoverage?.detailedComponentAudits
-        ?.ownerPlumeriaAfterPass?.agent4ProspectiveFirstFlare??null,
-      driverError:null};
+    assert.deepEqual(result.rows.map(row=>row.trial.id).sort(),
+      trials.map(x=>x.id).sort());
+    return result.rows.map(row=>{
+      assert.equal(row.qualifiesForCompetitiveInference,false);
+      return {mode,id:row.trial.id,row,sourceSeat,
+        forkAudit:row.actorOnlyDecisionCoverage?.detailedComponentAudits
+          ?.ownerPlumeriaAfterPass?.agent4ProspectiveFirstFlare??null,
+        driverError:null};
+    });
   }finally{
     adapter.withOwnerPlumeriaAfterPass=original;
   }
@@ -178,24 +206,32 @@ function contrast(a,b){
 function runProspectiveRank6Flare(){
   const {frame,old,trials}=registeredFrame();
   const pairs=[];
-  for(const trial of trials){
-    let control,treatment;
+  for(const group of groupRegisteredTrials(trials)){
+    const modes={};
     for(const mode of ['plumeria','flare-first']){
-      let x;
-      try{x=runOne(old,trial,mode);}
-      catch(error){
-        x={id:trial.id,mode,sourceSeat:trial.candidateSlot==='A'?1:0,
+      try{
+        modes[mode]=runTwo(old,group,mode);
+      }catch(error){
+        modes[mode]=group.map(trial=>({
+          id:trial.id,mode,sourceSeat:trial.candidateSlot==='A'?1:0,
           row:null,forkAudit:null,
-          driverError:String(error?.stack??error)};
+          driverError:String(error?.stack??error)
+        }));
       }
-      if(mode==='plumeria')control=x;else treatment=x;
     }
-    const paired=contrast(control,treatment);
-    pairs.push({...paired,errors:{
-      control:control.driverError,
-      treatment:treatment.driverError
-    }});
+    const controls=new Map(modes.plumeria.map(x=>[x.id,x]));
+    const treated=new Map(modes['flare-first'].map(x=>[x.id,x]));
+    for(const trial of group){
+      const control=controls.get(trial.id);
+      const treatment=treated.get(trial.id);
+      assert.ok(control&&treatment,'Missing paired original game record');
+      pairs.push({...contrast(control,treatment),errors:{
+        control:control.driverError,
+        treatment:treatment.driverError
+      }});
+    }
   }
+  assert.equal(pairs.length,16);
   const summary={scheduledPhysicalPairs:16,attempts:32,
     originalSourceSeats:{0:8,1:8},
     failedAttempts:pairs.reduce((n,x)=>
@@ -223,7 +259,7 @@ function runProspectiveRank6Flare(){
     pairs};
 }
 
-module.exports={VERSION,FRAME,FRAME_BLOB,registeredFrame,contrast,
+module.exports={VERSION,FRAME,FRAME_BLOB,registeredFrame,groupRegisteredTrials,contrast,
   runProspectiveRank6Flare};
 if(require.main===module)
   process.stdout.write(JSON.stringify(runProspectiveRank6Flare(),null,2)+'\n');
