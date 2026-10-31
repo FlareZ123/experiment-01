@@ -17,9 +17,13 @@ const FLARE='Team Flare Grunt XY';
  * @param {object} store Genuine pinned native Store.
  * @param {0|1} seat Actual owner seat.
  * @param {number} ordinal Shared owner-root decision ordinal.
+ * @param {Function} [observe] Native observation provider testing seam.
  * @returns {object|null} Null if this root has no coheld contest.
  */
-function inspectNativeCoheldDenialCanPlay(view,state,store,seat,ordinal){
+function inspectNativeCoheldDenialCanPlay(
+  view,state,store,seat,ordinal,
+  observe=require('./actor-observation-contract.cjs').actorObservation
+){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(seat===0||seat===1);
   assert.ok(Number.isSafeInteger(ordinal)&&ordinal>0);
@@ -43,14 +47,12 @@ function inspectNativeCoheldDenialCanPlay(view,state,store,seat,ordinal){
     for(let index=0;index<hand.length;index++){
       const card=hand[index];
       if(card.fullName!==printing)continue;
-      const before=require('./actor-observation-contract.cjs')
-        .actorObservation(state,seat);
+      const before=observe(state,seat);
       const quota=owner.supporterTurn;
       let nativePlayable=null,error=null;
       try{nativePlayable=card.canPlay(store,state,owner)===true;}
       catch(e){error=String(e?.message??e);}
-      const after=require('./actor-observation-contract.cjs')
-        .actorObservation(state,seat);
+      const after=observe(state,seat);
       assert.deepStrictEqual(after,before,
         'Native canPlay inspection changed public owner/root observation');
       assert.equal(owner.supporterTurn,quota,
