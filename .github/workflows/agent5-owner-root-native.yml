@@ -57,7 +57,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
@@ -82,6 +82,10 @@ jobs:
         run: node simulation/twinleaf/agent5-attack-special-arbitration-native.cjs > agent5-attack-special-arbitration-native.json
       - name: Native original Store two-seat bounded owner-root arbitration positive and hold
         run: node simulation/twinleaf/agent41-owner-arbitration-native.cjs > agent41-owner-arbitration-native.json
+      - name: Native non-finishing attack versus immediate Buddy Pulse self-loss
+        run: node simulation/twinleaf/agent5-buddy-pulse-nonfinishing-native.cjs > agent5-buddy-pulse-nonfinishing-native.json
+      - name: Check non-finishing attack counterexample in both physical seats
+        run: node -e "const a=require('node:assert/strict');const x=require('./agent5-buddy-pulse-nonfinishing-native.json');a.equal(x.nativeErrors,0);a.equal(x.attemptedSeats,2);a.equal(x.allNativeReversals,true);console.log(JSON.stringify({schema:x.schema,rows:x.rows.map(r=>({seat:r.seat,attackWinner:r.attackFirst.winner,attachWinner:r.attachFirst.winner,reason:r.exposure.reason}))}))"
       - name: Native two-Prize Buddy Pulse action-order falsification on both seats
         run: node simulation/twinleaf/agent42-buddy-pulse-two-prize-native.cjs > agent42-buddy-pulse-two-prize-native.json
       - name: Validate complete two-seat native winner reversal and reactive KO
@@ -149,6 +153,7 @@ jobs:
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
+            agent5-buddy-pulse-nonfinishing-native.json
             agent42-buddy-pulse-two-prize-native.json
             agent42-tagteam-three-prize-native.json
             agent27-lastbench-native.json
