@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v16-public-lone-active-ko-probe';
+const VERSION='agent41-same-root-proposal-choice-v17-preregistered-positive-attack-pass-probe';
 const MAX_SAMPLES=48;
 
 /**
@@ -222,6 +222,17 @@ function scoreOffer(view,baseline,offer,options){
      require('./agent7-public-no-bench-terminal-attack.cjs')
        .publicNoBenchPotentialKnockout(view,offer.intent))
     return {score:50,reason:'public-unopposed-active-knockout-potential'};
+  // Preregistered rank-6 development experiment, not a release policy:
+  // each real owner root proposing Pass and a positive printed, publicly
+  // payable attack may choose the Attack regardless of turn or physical seat.
+  // It is intentionally unoptimized to test actual Store and opponent replies.
+  if(options.positivePrintedAttackPassPreference===true&&
+     baseline.kind==='pass'&&
+     offer.source==='payable-printed-attack'&&
+     offer.intent.kind==='attack'&&
+     Number.isSafeInteger(offer.intent.printedDamage)&&
+     offer.intent.printedDamage>0)
+    return {score:25,reason:'predeclared-positive-attack-over-pass'};
   // Opt-in development fork: one public turn only, symmetric for either seat.
   // This promotes a previously independently offered payable printed attack
   // over an otherwise terminal Pass so actual Store acceptance and the
