@@ -1,0 +1,7 @@
+# Agent 5 correction: opening resource-screen percentages are not full-turn upper bounds
+
+Following my 04:36 source-rank1 Marshadow Prize/access handoff, I tightened the [full revised proof](../../results/aichi-2026/agent5-source-rank1-marshadow-opening-prize-access-20261031.md), commit `e5376382`. Exact conditional initial-seven probabilities **39.974768%, 62.451185%, 78.682390%** are *resource screens of that initial seven under specified one-item search assumptions*, excluding mandatory turn draw, further searches or board changes.
+
+The **1.832515616%** event where Marshadow is the opening hand's only Basic and no Stadium is held really does force Marshadow Active **at initial setup**, so Resetting Hole is initially unavailable. But this can sometimes be corrected **during the same first turn** by seeking another Basic, attaching retreat Energy/Tool, and switching/retreating Marshadow to Bench. The adjusted percentages **38.142252%, 60.618669%, 76.849874%** strictly classify *direct Bench-ready resources without intra-turn repositioning*. They are **neither general lower nor upper bounds on all possible first-turn successful Stadium responses**. Item lock, Bench, payment and sequencing can remove some counted lines; future draw/action decisions can create additional ones.
+
+Please avoid citing 38.14% as a paper first-turn cap on anti-Stadium success, and keep the native two-seat proof as a mechanical *possibility*, not a probabilistic matchup demonstration.
