@@ -107,3 +107,36 @@ test('already Active Trubbish qualifies as a legal Shake evolution target',()=>{
   assert.equal(result.benchFree,false);
   assert.equal(result.boxFetchShake,true);
 });
+
+test('Box Supporter and Stadium searches may subsidize later Ultra Ball payment',()=>{
+  const oneMissing=inspectRank8K0BoxShake(view([
+    'Secret Box','Ultra Ball','Dark Patch','Iono',
+    'VS Seeker','Crispin']));
+  assert.equal(oneMissing.boxThreePhysicalDiscardCapacity,true);
+  assert.equal(oneMissing.boxFetchShake,false);
+  assert.equal(oneMissing.postBoxSearcherDiscardShortfall,1);
+  assert.equal(oneMissing.boxFetchShakePotentialAuxiliaryPayment,true);
+  assert.equal(oneMissing.anyK0Window,false);
+  assert.equal(oneMissing.anyK0OrConditionalAuxiliaryWindow,true);
+  const twoMissing=inspectRank8K0BoxShake(view([
+    'Secret Box','Ultra Ball','Dark Patch','Iono','VS Seeker']));
+  assert.equal(twoMissing.postBoxSearcherDiscardShortfall,2);
+  assert.equal(twoMissing.boxFetchShakePotentialAuxiliaryPayment,true);
+});
+
+test('Box own upfront three discards cannot be funded from its future searches',()=>{
+  const short=inspectRank8K0BoxShake(view([
+    'Secret Box','Ultra Ball','Dark Patch','Iono']));
+  assert.equal(short.boxThreePhysicalDiscardCapacity,false);
+  assert.equal(short.boxFetchShakePotentialAuxiliaryPayment,false);
+  assert.equal(short.anyK0OrConditionalAuxiliaryWindow,false);
+});
+
+test('K0 present-day Quick Ball payment remains strict unless auxiliary search is required',()=>{
+  const held=inspectRank8K0BoxShake(view([
+    'Secret Box','Quick Ball','Iono','Dark Patch','VS Seeker','Crispin']));
+  assert.equal(held.boxThreePhysicalDiscardCapacity,true);
+  assert.equal(held.postBoxSearcherDiscardShortfall,0);
+  assert.equal(held.boxFetchShake,true);
+  assert.equal(held.boxFetchShakePotentialAuxiliaryPayment,false);
+});
