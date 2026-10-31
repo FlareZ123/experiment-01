@@ -563,6 +563,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       .newOwnerContentionAudit(),
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
+    sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
     sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
     sameRootPublicEventReceiptOptIn:deps.sameRootPublicEventReceipt===true,
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
@@ -627,6 +628,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   }else{
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
+    delete audit.sameRootPassAttackProbeGlobalTurn;
     delete audit.sameRootProbeAllOptIn;
     delete audit.sameRootPublicEventReceiptOptIn;
     delete audit.sameRootProposalChoice;
@@ -877,7 +879,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       preterminalSpeedDrawOffer:audit.sameRootProposalChoiceOptIn===true,
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
-      sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
+      sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
+      passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn
     };
     // Option contract is obtained before selecting the owner root. The same
     // detached view supplies both Bench and attack/setup proposals; no native
