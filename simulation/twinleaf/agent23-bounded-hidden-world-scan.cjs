@@ -13,8 +13,9 @@ const {captureTacticScores,compareTacticScores}=
 const VERSION='agent23-detached-bounded-hidden-world-single-exchange-v1';
 
 /**
- * Deterministically cover contrasting hidden card kinds first, then remaining
- * unequal-printing exchanges. Selection uses concealed identities ONLY in a
+ * Deterministically cover contrasting hidden card kinds and distinct changes
+ * in opponent concealed hand-printing composition before redundant physical
+ * swaps. Selection uses concealed identities ONLY in a
  * detached diagnostic after actual play; never use it to choose live actions.
  * @param {object[]} hand Opponent concealed hand cards.
  * @param {object[]} deck Opponent concealed deck cards.
@@ -22,7 +23,11 @@ const VERSION='agent23-detached-bounded-hidden-world-single-exchange-v1';
  * @returns {{available:number,exchanges:object[],exhaustive:boolean}}
  */
 function selectBoundedHiddenExchanges(hand,deck,limit=16){
+  assert.ok(Array.isArray(hand)&&Array.isArray(deck));
   assert.ok(Number.isSafeInteger(limit)&&limit>=1&&limit<=64);
+  const printingPair=pair=>JSON.stringify([
+    hand[pair.handIndex].fullName,deck[pair.deckIndex].fullName
+  ]);
   const pairs=[];
   for(let hi=0;hi<hand.length;hi++){
     for(let di=0;di<deck.length;di++){
@@ -44,6 +49,28 @@ function selectBoundedHiddenExchanges(hand,deck,limit=16){
   }
   const seenHands=new Set(exchanges.map(x=>x.handIndex));
   const seenDecks=new Set(exchanges.map(x=>x.deckIndex));
+  const seenPrintChanges=new Set(exchanges.map(printingPair));
+  // A first occurrence of an (outgoing printing, incoming printing) pair
+  // yields a new concealed hand multiset; an index-only repetition does not.
+  while(exchanges.length<limit&&exchanges.length<pairs.length){
+    let winner=-1,best=-1;
+    for(let i=0;i<pairs.length;i++){
+      if(chosen.has(i)||seenPrintChanges.has(printingPair(pairs[i])))continue;
+      const pair=pairs[i];
+      const coverage=(seenHands.has(pair.handIndex)?0:2)+
+        (seenDecks.has(pair.deckIndex)?0:1);
+      if(coverage>best){best=coverage;winner=i;}
+    }
+    if(winner<0)break;
+    const pair=pairs[winner];
+    chosen.add(winner);
+    seenHands.add(pair.handIndex);
+    seenDecks.add(pair.deckIndex);
+    seenPrintChanges.add(printingPair(pair));
+    exchanges.push(pair);
+  }
+  // Once composition contrasts are exhausted, physically distinct positions
+  // can still reveal dependence on opponent concealed deck ORDER.
   while(exchanges.length<limit&&exchanges.length<pairs.length){
     let winner=-1,best=-1;
     for(let i=0;i<pairs.length;i++){
@@ -60,9 +87,12 @@ function selectBoundedHiddenExchanges(hand,deck,limit=16){
     chosen.add(winner);
     seenHands.add(pair.handIndex);
     seenDecks.add(pair.deckIndex);
+    seenPrintChanges.add(printingPair(pair));
     exchanges.push(pair);
   }
   return {available:pairs.length,exchanges,
+    eligibleDistinctHandCompositions:new Set(pairs.map(printingPair)).size,
+    testedDistinctHandCompositions:seenPrintChanges.size,
     exhaustive:exchanges.length===pairs.length};
 }
 
@@ -196,6 +226,8 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
     schema:VERSION,opportunity:selected.available>0,
     totalEligibleSingleExchanges:selected.available,
     testedSingleExchanges:cases.length,
+    eligibleDistinctHandCompositions:selected.eligibleDistinctHandCompositions,
+    testedDistinctHandCompositions:selected.testedDistinctHandCompositions,
     exhaustiveSingleExchangeCoverage:selected.exhaustive,
     // Completeness even of every one-exchange world does not establish
     // invariance over simultaneous multi-card exchanges or reveal history.
