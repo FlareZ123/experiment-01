@@ -1,0 +1,40 @@
+{
+  "schema": "agent41-rank10-native-tool-source-selected-vs-control-20261031-v1",
+  "registeredAt": "2026-10-31T03:23:16Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 10,
+  "sourceNativePositiveControl": "original rank10 Muscle Band XY to Bench3",
+  "sourceSeed": 4246551499,
+  "sourceFullSixtyUnchanged": true,
+  "candidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "modes": [
+    "control",
+    "selected"
+  ],
+  "candidateSlot": "A",
+  "experimentalOption": "AGENT41_NATIVE_TOOL_ATTACH_DEV",
+  "selectedAllProposers": false,
+  "selectedRootOnly": true,
+  "expectedCompetitiveQualification": false,
+  "trials": [
+    {
+      "rank": 10,
+      "repeat": 0,
+      "seed": 4246551499,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "10:0:A:champion-reference"
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "seed": 4246551499,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "10:0:A:new-moon-lockbreaker-v1"
+    }
+  ]
+}
