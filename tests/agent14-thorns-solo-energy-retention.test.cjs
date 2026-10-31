@@ -51,6 +51,53 @@ function fixture(){
   };
 }
 
+test('same-root option contract exposes both physical owner choices before selection',()=>{
+  const {collectSoloBenchChoice}=require(
+    '../simulation/twinleaf/agent14-owner-solo-bench-choice-contract.cjs');
+  const view=fixture();
+  const receipt=collectSoloBenchChoice(view,catalog,chooseActorRootIntent,{
+    thornsSoloEnergyRetention:true,thornsDirectLine:true
+  });
+  assert.equal(receipt.status,'TWO-SUPPORTED-PROPOSALS');
+  assert.equal(receipt.alternatives.length,2);
+  assert.deepEqual(receipt.alternatives[0].intent,{
+    kind:'bench-basic',handIndex:0,benchIndex:0,printing:THORNS
+  });
+  assert.deepEqual(receipt.alternatives[1].intent,{
+    kind:'attack',attackName:'Volt Cyclone'
+  });
+  assert.equal(receipt.alternatives[0].consumes.benchSlots,1);
+  assert.equal(receipt.alternatives[1].consumes.survivingOnlyActiveKnockoutRisk,
+    'unquantified');
+  assert.equal(receipt.reason,'already-payable-solo-attack');
+  assert.equal(receipt.competitiveQualified,false);
+  assert.equal(collectSoloBenchChoice(view,catalog,chooseActorRootIntent,{
+    thornsSoloEnergyRetention:false,thornsDirectLine:true
+  }),null);
+  assert.equal(view.ownHand.length,1,'proposal probing must not consume owner hand');
+});
+
+test('same-root contract records held-Stadium conflict and no-conflict baseline',()=>{
+  const {collectSoloBenchChoice}=require(
+    '../simulation/twinleaf/agent14-owner-solo-bench-choice-contract.cjs');
+  const view=fixture();
+  view.ownPublic.stadium=[];
+  view.ownPublic.active.energies=[];
+  view.ownHand=[THORNS,DCE,'Thunder Mountain Prism Star LOT'];
+  view.ownTurnResources.energyPlayedTurn=0;
+  view.ownTurnResources.specialEnergyPlayLocked=false;
+  const receipt=collectSoloBenchChoice(view,catalog,chooseActorRootIntent,{
+    thornsSoloEnergyRetention:true,thornsDirectLine:true
+  });
+  assert.equal(receipt.reason,'complete-visible-hand-thunder-dce-line');
+  assert.equal(receipt.alternatives[0].intent.kind,'bench-basic');
+  assert.equal(receipt.alternatives[1].intent.kind,'play-thunder-mountain');
+  view.ownTurnResources.stadiumPlayedTurn=view.globalTurn;
+  assert.equal(collectSoloBenchChoice(view,catalog,chooseActorRootIntent,{
+    thornsSoloEnergyRetention:true,thornsDirectLine:true
+  }),null,'Stadium quota prevents fictional solo setup');
+});
+
 test('actual actor root retains DCE when voluntarily preserving no Bench',()=>{
   const view=fixture();
   assert.equal(VERSION,'agent14-solo-thorns-energy-retention-v2-hand-funded');
