@@ -26,7 +26,8 @@ function installUnderworldDoorPsychicRecipientHook(){
     'game/store/prompts/attach-energy-prompt'));
   const {CheckPokemonTypeEffect}=require(path.join(root,
     'game/store/effects/check-effects'));
-  const {CardType}=require(path.join(root,'game/store/card/card-types'));
+  const {CardType,EnergyType}=require(path.join(root,'game/store/card/card-types'));
+  const {EnergyCard}=require(path.join(root,'game/store/card/energy-card'));
   const {PlayerType,SlotType}=require(path.join(root,
     'game/store/actions/play-card-action'));
   const {GameError}=require(path.join(root,'game/game-error'));
@@ -38,19 +39,27 @@ function installUnderworldDoorPsychicRecipientHook(){
     if(!WAS_POWER_USED(effect,0,this))
       return original.call(this,store,state,effect);
     const owner=effect.player;
-    /** @param {Array<{to:object}>|null} transfers */
+    const isPsychicSlot=slot=>{
+      if(!slot?.getPokemonCard())return false;
+      const check=new CheckPokemonTypeEffect(slot);
+      store.reduceEffect(state,check);
+      return check.cardTypes.includes(CardType.PSYCHIC);
+    };
+    if(!owner.bench.some(isPsychicSlot))
+      throw new GameError(GameMessage.CANNOT_USE_POWER);
+    /** @param {Array<{to:object,card:object}>|null} transfers */
     function recipientsPsychic(transfers){
       if(transfers===null)return true;
-      if(!Array.isArray(transfers)||transfers.length===0)return false;
-      return transfers.every(({to})=>{
+      if(!Array.isArray(transfers)||transfers.length!==1)return false;
+      return transfers.every(({to,card})=>{
+        if(!(card instanceof EnergyCard)||
+           !owner.hand.cards.includes(card)||
+           card.energyType!==EnergyType.BASIC||
+           !card.provides.includes(CardType.PSYCHIC))return false;
         if(to?.player!==PlayerType.BOTTOM_PLAYER||
             to.slot!==SlotType.BENCH||
             !Number.isInteger(to.index))return false;
-        const slot=owner.bench[to.index];
-        if(!slot?.getPokemonCard())return false;
-        const check=new CheckPokemonTypeEffect(slot);
-        store.reduceEffect(state,check);
-        return check.cardTypes.includes(CardType.PSYCHIC);
+        return isPsychicSlot(owner.bench[to.index]);
       });
     }
     const before=store.prompt;
