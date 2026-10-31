@@ -127,7 +127,7 @@ function comparisonProjection(row) {
  * @param {Function} Bot Pinned SimpleTacticsAi, injected for pure tests.
  * @param {(state:object)=>object} clone Full detached clone.
  * @param {()=>()=>number} makeRandom Independent policy RNG factory.
- * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean}} [scope]
+ * @param {{firstFiniteScoredRoot?:boolean,replayCommonPolicy?:boolean,isolateReplayPolicyPerWorld?:boolean,nativeScoreTrace?:boolean,nativeTapeSameWorld?:boolean,nativeTapeFirstFiniteScore?:boolean,nativeTapeHiddenOpponentHandContrast?:boolean,nativeTapeBoundedOpponentHiddenHand?:boolean}} [scope]
  * @returns {object} Unqualified, failure-inclusive diagnostic.
  */
 function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) {
@@ -143,7 +143,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeHiddenOrderContrast===true?
       {nativeTapeHiddenOrderContrast:true}:{}),
     ...(scope.nativeTapeHiddenOpponentHandContrast===true?
-      {nativeTapeHiddenOpponentHandContrast:true}:{})};
+      {nativeTapeHiddenOpponentHandContrast:true}:{}),
+    ...(scope.nativeTapeBoundedOpponentHiddenHand===true?
+      {nativeTapeBoundedOpponentHiddenHand:true}:{})};
   let control;
   try {
     control=execute();
@@ -303,7 +305,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
   nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false,
-  nativeTapeHiddenOpponentHandContrast=false}={}) {
+  nativeTapeHiddenOpponentHandContrast=false,
+  nativeTapeBoundedOpponentHiddenHand=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
@@ -317,6 +320,10 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.ok(!nativeTapeHiddenOrderContrast||nativeTapeSameWorld,
     'Hidden owner order contrast requires genuine same-world tape mode');
   assert.equal(typeof nativeTapeHiddenOpponentHandContrast,'boolean');
+  assert.equal(typeof nativeTapeBoundedOpponentHiddenHand,'boolean');
+  assert.ok(!nativeTapeBoundedOpponentHiddenHand||
+    nativeTapeHiddenOpponentHandContrast,
+    'Bounded hidden-hand scan requires native opponent-hand tape');
   assert.ok(!nativeTapeHiddenOpponentHandContrast||nativeTapeSameWorld,
     'Opponent hand contrast requires genuine same-world tape mode');
   assert.ok(!nativeTapeSameWorld||!firstFiniteScoredRoot||
@@ -368,11 +375,14 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
-      nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast}
+      nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
+      nativeTapeBoundedOpponentHiddenHand}
   ));
   return {
     schema:nativeTapeFirstFiniteScore?
       'agent50-crossrank-native-first-finite-scored-tape-v1':
+      nativeTapeBoundedOpponentHiddenHand?
+      'agent23-crossrank-native-tape-opponent-hand-bounded-v2':
       nativeTapeHiddenOpponentHandContrast?
       'agent23-crossrank-native-tape-opponent-hand-exploration-v1':
       nativeTapeHiddenOrderContrast?
@@ -388,7 +398,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
       firstFiniteScoredRoot?
       'agent50-crossrank-historical-first-finite-owner-score-v3':
       'agent50-crossrank-historical-live-hidden-order-v1',
-    protocol:'same-frozen-game control/replay, one candidate root hidden order flip',
+    protocol:nativeTapeBoundedOpponentHiddenHand?
+      'same-frozen-game control/replay and bounded native RNG-tape hidden-hand exchanges':
+      'same-frozen-game control/replay, one candidate root hidden order flip',
     targetRankAndActualSeat:firstFiniteScoredRoot?
       'First candidate root at/after global turn 3 returning a finite tactic score for each arm':
       '6:0:A candidate seat A turn 3; 11:2:B candidate seat B turn 3',
@@ -421,7 +433,9 @@ if(require.main===module) {
     nativeTapeHiddenOrderContrast:
       process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true',
     nativeTapeHiddenOpponentHandContrast:
-      process.env.AGENT23_NATIVE_OPPONENT_HAND_TAPE==='true'
+      process.env.AGENT23_NATIVE_OPPONENT_HAND_TAPE==='true',
+    nativeTapeBoundedOpponentHiddenHand:
+      process.env.AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
