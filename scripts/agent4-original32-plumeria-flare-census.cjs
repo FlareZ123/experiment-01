@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {runPreregisteredPlumeria,FRAME}=
   require('../simulation/evaluation/agent38-plumeria-preregistered-32.cjs');
 
-const VERSION='agent4-original32-owner-plumeria-flare-costed-census-v1';
+const VERSION='agent4-original32-owner-plumeria-flare-pass-choice-census-v2';
 
 /**
  * All 32 PREVIOUSLY registered original Store games, without changing the
@@ -35,7 +35,10 @@ function runSourceOriginal32ContestCensus(){
       sourceOwnerRoots:0,sourceFirstOwnerTurns:0,
       bothHeldSourceRoots:0,bothNativePlayableSourceRoots:0,
       bothHeldSourceFirstTurns:0,
-      bothNativePlayableSourceFirstTurns:0
+      bothNativePlayableSourceFirstTurns:0,
+      bothNativePlayableSourcePassRoots:0,
+      bothNativePlayableSourceFirstTurnPassRoots:0,
+      sourceGamesWithBothNativePlayablePass:0
     };
     byRank[rank]=stats;
     stats.originalGames++;
@@ -65,7 +68,17 @@ function runSourceOriginal32ContestCensus(){
     stats.bothNativePlayableSourceRoots+=s.bothNativePlayableRoots;
     stats.bothHeldSourceFirstTurns+=s.bothHeldFirstTurns;
     stats.bothNativePlayableSourceFirstTurns+=s.bothNativePlayableFirstTurns;
+    stats.bothNativePlayableSourcePassRoots+=s.bothPlayablePassRoots;
+    stats.bothNativePlayableSourceFirstTurnPassRoots+=
+      s.firstTurnBothPlayablePassRoots;
+    if(s.bothPlayablePassRoots>0)
+      stats.sourceGamesWithBothNativePlayablePass++;
     const examples=audit.contestedOwnerSamples.filter(
+      sample=>sample.seat===sourceSeat).slice(0,8);
+    const positiveExamples=audit.contestedOwnerSamples.filter(
+      sample=>sample.seat===sourceSeat&&
+        sample.paperScreenedBothPlayable).slice(0,8);
+    const passExamples=audit.bothPlayablePassSamples.filter(
       sample=>sample.seat===sourceSeat).slice(0,8);
     return {
       id:row.trial.id,rank,sourceSeat,
@@ -78,9 +91,13 @@ function runSourceOriginal32ContestCensus(){
       bothNativePlayableSourceRoots:s.bothNativePlayableRoots,
       bothHeldSourceFirstTurns:s.bothHeldFirstTurns,
       bothNativePlayableSourceFirstTurns:s.bothNativePlayableFirstTurns,
+      bothNativePlayableSourcePassRoots:s.bothPlayablePassRoots,
+      bothNativePlayableSourceFirstTurnPassRoots:
+        s.firstTurnBothPlayablePassRoots,
       auditSamplesMayBeTruncated:
         audit.contestedOwnerRoots>audit.contestedOwnerSamples.length,
-      sourceExamples:examples
+      sourceExamples:examples,
+      positiveExamples,passExamples
     };
   });
   assert.deepEqual(Object.keys(byRank).map(Number).sort((a,b)=>a-b),
@@ -94,7 +111,7 @@ function runSourceOriginal32ContestCensus(){
     sameRootNativeDispatchCounterfactual:false,
     fullPhysicalCardConservationUnverified:true,
     gameWinRateQualified:false,competitiveQualifiedGames:0,
-    sampleLimits:'At most 8 contested examples per arm, original audit also caps 128 samples.',
+    sampleLimits:'At most 8 contested, 8 positive, 8 positive Pass samples per arm; original underlying audit caps 128 samples per kind.',
     byRank,rows};
 }
 
