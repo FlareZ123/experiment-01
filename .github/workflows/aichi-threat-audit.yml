@@ -31,5 +31,7 @@ jobs:
         run: node --test tests/agent25-source32-contest-example-fidelity.test.cjs
       - name: Verify post-Aichi Dhelmise exact one-Prize development 60 and direct Prize-aware route
         run: node --test tests/agent25-dhelmise-t1-physical-opportunity.test.cjs
+      - name: Verify original-source discard Ability locks and two Dhelmise donor variants
+        run: node --test tests/agent25-dhelmise-hns-discard-lock.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
