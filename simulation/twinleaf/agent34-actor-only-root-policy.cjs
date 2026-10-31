@@ -564,6 +564,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
+    sameRootPublicNoBenchTerminalOptIn:deps.publicNoBenchTerminalAttack===true,
     sameRootProbeAllOptIn:deps.sameRootProbeAll===true,
     sameRootPublicEventReceiptOptIn:deps.sameRootPublicEventReceipt===true,
     sameRootProposalChoice:require('./agent41-same-root-proposal-choice.cjs')
@@ -629,6 +630,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.sameRootPassAttackProbeGlobalTurn;
+    delete audit.sameRootPublicNoBenchTerminalOptIn;
     delete audit.sameRootProbeAllOptIn;
     delete audit.sameRootPublicEventReceiptOptIn;
     delete audit.sameRootProposalChoice;
@@ -880,7 +882,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
-      passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn
+      passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
+      publicNoBenchTerminalAttack:audit.sameRootPublicNoBenchTerminalOptIn===true
     };
     // Option contract is obtained before selecting the owner root. The same
     // detached view supplies both Bench and attack/setup proposals; no native
