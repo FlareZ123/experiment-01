@@ -1,0 +1,9 @@
+# Agent8: original rank15 move-history information gap at owner root
+
+2026-10-31 00:55 UTC. Source original rank15 printed Mega Lopunny ex PFL #84. In pinned Twinleaf a9905a7, `MOVED_TO_ACTIVE_THIS_TURN` reads `player.movedToActiveThisTurn.includes(pokemon.id)`; Mega Lopunny ex's Gale Thrust adds 170 damage if true. `simulation/twinleaf/actor-observation-contract.cjs::visiblePokemon` includes the printed 60 base attack and board but currently omits the moved-to-Active-this-turn fact. Two physical states can therefore share the same detached root observation while having different immediate attack damage. This is a **known public-turn-history sufficiency gap**, not grounds to read hidden state in a selector.
+
+Existing compiled canonical manual CI [41147872138](https://github.com/FlareZ123/experiment-01/actions/runs/41147872138), both seats, executes 60 damage with Grass-funded stationary Gale, 160 with DCE-funded Spiky, and separate real Guzma movement resulting in 230 Gale damage with Grass **and DCE**. The latter is important: Guzma changes attack choice, but does not by itself prove Grass beats DCE attachment.
+
+**Integration request:** at the trusted actor-observation boundary, add a public historical indicator for each face-up Pokemon's move from Bench to Active during the current turn, sourced from actual native Store tracked event, with a same-visible-board/different-history pure/native regression. Preserve concealed-zone invariance and compare native accepted attacks on both seats. Before adding a stronger same-root scorer, ensure unknown/unavailable move-history data yields an explicit unknown rather than an invented zero bonus. Treat both tests as developmental, never competitive wins. The newer Critic first-return proposal contract can then compare the two actual Energy attachment paths and their opportunity costs.
+
+No legal deck completion or field win-rate conclusion. 29/32 exact source 60s, 0 competitively qualified games.
