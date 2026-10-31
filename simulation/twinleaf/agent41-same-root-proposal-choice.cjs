@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v11-paper-opening-supporter-filter';
+const VERSION='agent41-same-root-proposal-choice-v12-preterminal-speed-observer';
 const MAX_SAMPLES=48;
 
 /**
@@ -71,7 +71,15 @@ const PROPOSERS=Object.freeze([
       .choosePayablePrintedAttackOffer(view,catalog)},
   {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
     propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
-      .ownerBasicAttachmentMenu(view,catalog)}
+      .ownerBasicAttachmentMenu(view,catalog)},
+  {name:'preterminal-speed-draw',flag:'preterminalSpeedDrawOffer',
+    propose:(view,catalog,_options,baseline)=>{
+      const evidence=require('./agent50-preterminal-speed-draw-offer.cjs')
+        .offerSpeedDrawBeforeAttack(view,catalog,baseline);
+      return evidence?{...evidence.intent,reason:evidence.reason,
+        potentialDrawCap:evidence.potentialDrawCap,
+        plannedAttackName:evidence.attackName}:null;
+    }}
 ]);
 
 const ENERGY_KINDS=new Set([
@@ -229,7 +237,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       continue;
     }
     let proposed;
-    try{proposed=p.propose(view,catalog,options);}
+    try{proposed=p.propose(view,catalog,options,baseline);}
     catch(error){
       // A newly reached selector must never silently end a native match.
       // Preserve the selected baseline and diagnostic for follow-up repair.
@@ -278,6 +286,8 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       handIndex:o.intent.handIndex??null,
       attackName:o.intent.attackName??null,
       printedDamage:o.intent.printedDamage??null,
+      plannedAttackName:o.intent.plannedAttackName??null,
+      potentialDrawCap:o.intent.potentialDrawCap??null,
       slot:o.intent.slot??(o.intent.kind==='bench-basic'?'bench':null),
       index:o.intent.index??o.intent.benchIndex??null,
       score:o.score,reason:o.reason,
