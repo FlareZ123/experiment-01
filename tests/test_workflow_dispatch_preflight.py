@@ -33,6 +33,13 @@ jobs:
         source = "on:\n  workflow_dispatch:\n    inputs:\n      study: {}\njobs:\n  a:\n    if: \${{ inputs.stduy == 'x' }}\n"
         self.assertEqual(validate_workflow(source), ["undeclared expression input: stduy"])
 
+    def test_bare_if_implicit_expression_input_checks(self):
+        invalid = "on:\n  workflow_dispatch:\n    inputs:\n      rank: {}\njobs:\n  a:\n    if: inputs.rnak == '4'\n"
+        self.assertEqual(validate_workflow(invalid),
+                         ["undeclared expression input: rnak"])
+        valid = invalid.replace("rnak", "rank")
+        self.assertEqual(validate_workflow(valid), [])
+
     def test_workflow_call_input_allowed(self):
         source = "on:\n  workflow_call:\n    inputs:\n      rank: {}\njobs:\n  a:\n    if: \${{ inputs.rank != '' }}\n"
         self.assertEqual(validate_workflow(source), [])
