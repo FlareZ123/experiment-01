@@ -1,0 +1,18 @@
+# Agent 5 preregistration: champion Marshadow versus source Iron Thorns Stadium
+
+**31 October 2026, prior to native result; synthetic bounded original-Store experiment.** Source provenance is the authenticated full-decklist corpus `results/aichi-2026/full-decklists.json`: final rank 1 uses **one Marshadow UNB 81**; final ranks 6, 24 and 29 each use **four Iron Thorns ex TWM 77 and one Thunder Mountain Prism Star LOT 191**. No hidden player cards are assumed.
+
+## Paper printed hypothesis and reason to test
+
+Marshadow UNB (Resetting Hole) is an ordinary Basic with no Rule Box. From the Bench, its Ability lets its controller discard a Stadium and, if it does, discard Marshadow and attached cards. Iron Thorns ex (Initialization) suppresses Abilities of Rule Box Pokémon belonging to its opponent while it is Active. Since Marshadow has no Rule Box, **Resetting Hole should remain usable even with opposing Active Iron Thorns ex**. If source Thunder Mountain is discarded, its ongoing attack-cost reduction disappears at once. The main physical cost is the Bench occupant and its future lost use; its ability is not a blanket solution to the opponent's subsequent response.
+
+## Fixed native three-branch test, both physical seats
+
+Use pinned original Twinleaf Store commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Stage owner turn2 with Active Venonat MEW, payable Psychic-powered Gnaw, own Bench index0 Marshadow UNB; opponent Active Iron Thorns ex TWM; Thunder Mountain Prism Star LOT as the one live Stadium, and nonempty decks/prizes. The three branches must start from independently reconstructed, matching owner-visible observations:
+1. Control: Gnaw now, leaving Marshadow and Stadium in place.
+2. Treatment: dispatch actual Store `UseAbilityAction('Resetting Hole')` from Benched Marshadow, fully resolve native prompts and inspect its actual effects; if the original game remains open, attack Gnaw afterward.
+3. Negative: same board without the Stadium, attempt the Ability and determine whether the genuine Store permits or rejects a no-change use.
+
+Accept the mechanical positive only if genuine Store (a) accepts Resetting Hole while opposing Iron Thorns Initialization is active, (b) removes the public Stadium, (c) discards the actual Marshadow card, and (d) permits a next root (or attack) on that turn. Any unsupported card/prompt/Ability or wrong order is a named engine-fidelity limitation, never a repaired success. Run owner physical seats0 and1 and capture authentic field snapshots, owner-visible preconditions, and failure traces.
+
+This is a staged mechanics counterfactual, **not** evidence of access, matchup prevalence, timing, actual full-deck candidate strength, or win rate. Field remains 29/32 authenticated full original 60s, zero qualified games.
