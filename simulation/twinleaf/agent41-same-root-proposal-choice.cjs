@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v3-expanded-enabled-offers';
+const VERSION='agent41-same-root-proposal-choice-v4-discard-cost-identity';
 const MAX_SAMPLES=48;
 
 /**
@@ -151,6 +151,14 @@ function structurallySupported(view,proposal){
  * separately in the offer and the genuine Store acceptance ledger.
  */
 function duplicateProposal(a,b){
+  // Two searches with the same printed Item may pay different discard costs.
+  // Their tactical value differs even when the eventual target is unknown.
+  if(a.kind===b.kind&&SEARCH_KINDS.has(a.kind)&&
+     a.printing===b.printing){
+    return a.discardPrinting===b.discardPrinting&&
+      a.discardSourceIndex===b.discardSourceIndex&&
+      a.target===b.target;
+  }
   if(samePhysicalProposal(a,b))return true;
   if(a.kind!==b.kind||a.printing!==b.printing)return false;
   if(a.kind==='pass')return true;
