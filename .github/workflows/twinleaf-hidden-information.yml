@@ -264,6 +264,13 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Classify pinned native arbiter source and replay random callsites
+        if: ${{ inputs.agent50_native_first_finite_tape }}
+        run: >-
+          node -e "const fs=require('node:fs');
+          const x=fs.readFileSync('vendor/twinleaf/ptcg-server/output/game/bots/bot-arbiter.js','utf8').split(/\r?\n/);
+          for(const n of [37,75])console.log('NATIVE_ARBITER_CALLSITE',n,
+          x.slice(n-4,n+3).map((s,i)=>(n-3+i)+': '+s).join(' | '));"
       - name: Verify retrospective source-deal and detached observer controls
         run: node --test tests/agent50-bilateral-hidden-order-audit.test.cjs tests/agent50-bilateral-postgame-root-observer.test.cjs tests/rank10-hidden-order-live-probe.test.cjs tests/native-clone-structure-diff.test.cjs tests/native-tape-hidden-order-contrast.test.cjs tests/agent50-native-first-finite-tape.test.cjs tests/native-policy-tactic-sequence.test.cjs tests/agent50-native-control-gate.test.cjs tests/agent50-zero-hand-poltergeist-choice.test.cjs
       - name: Verify native tape opponent concealed-world contrasts and bounded controls
