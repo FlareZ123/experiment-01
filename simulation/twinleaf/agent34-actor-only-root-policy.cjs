@@ -865,6 +865,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       protectPotentialPrintedPrizeAttack:audit.protectPotentialPrintedPrizeAttackOptIn,
       conservativeShuffleBeforeAttack:audit.conservativeShuffleBeforeAttackOptIn,
       beforeAttackDenialRoot:audit.beforeAttackDenialOptIn,
+      payablePrintedAttackOffer:audit.sameRootProposalChoiceOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true
     };
     // Option contract is obtained before selecting the owner root. The same
