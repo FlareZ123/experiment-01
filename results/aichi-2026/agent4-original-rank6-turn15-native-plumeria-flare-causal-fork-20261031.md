@@ -43,3 +43,14 @@ At the next opposing turn, **the same printed attack happened under both branche
 - **0 competitively qualified games**. This is action-level causal evidence toward a better owner-information-safe selector. It is **not** a validated 99.5% or even a statistically supported improvement to match win rate.
 
 Next discriminating action: record the **two actual selected physical Plumeria payment printings** at this source turn15 root (from the native prompt and owner-hand source, not a cost heuristic), then test source and opponent replies with the physical-zone fail-closed native gate enabled. If the gate rejects the source before turn15, preserve the rejection rather than presenting the original engine winner as competitive. The common chooser can then evaluate a **one-turn denial effect versus specific two-card payment and later denial availability**, using real source roots without sacrificing owner privacy.
+
+
+## Further archived evidence: T17 Plumeria follows T15 Team Flare
+
+Inspecting the independently archived native [CI 41163666782](https://github.com/FlareZ123/experiment-01/actions/runs/41163666782), artifact 13027849497 (verified ZIP SHA256 `369e1f4a1ff0b14191191f1b02683dac0b2c6244d4333e5fd8b4eef7e22aa948`), reveals a two-turn continuation the initial one-root comparison did not measure.
+
+For **both exact frozen opponent decks**, the original policy accepted Plumeria on source turn15, paying **Crushing Hammer POR and Lusamine CIN** to discard an opposing **Psychic Energy MEE**, and then passed on turn17. In the alternative, the source played **Team Flare Grunt XY** on turn15 to discard an opposing Psychic Energy without two other hand-card payments. On turn17, the same source then played **Plumeria BUS**, paid **Crushing Hammer POR and Lusamine CIN** at their changed physical hand indices, and discarded **another** opposing Psychic Energy MEE. All are native PlayCardAction and completed original Store prompt/effect receipts.
+
+The champion-reference opponent attached Psychic and passed at turn18 in either branch. The New Moon opponent attacked using **Motivate** at turn18 after original T15 Plumeria, but **passed** at turn18 after T15 Flare followed by T17 Plumeria. This is a real observed two-turn action difference, though it cannot isolate the Energy loss from other downstream policy/draw effects or prove superior competitive play. Champion original/alternative engine winners were unchanged; both New Moon games remained capped at 260 root actions.
+
+This case establishes the future option-value of *preserving Plumeria for the next Supporter turn* in a concrete native line. Comparing immediate same-target discard costs alone misses this temporal opportunity. Neither branch is paper-complete or competitively qualified, and the same source first-deal does not constitute independent replication.
