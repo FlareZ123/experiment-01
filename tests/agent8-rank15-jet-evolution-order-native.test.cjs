@@ -26,26 +26,34 @@ function run(seat,evolveBeforeMove){
     const c=m.getCardByName(name);
     assert.ok(c,name);c.id=nextId++;return c;
   };
+  const exact=(name,set,number)=>{
+    const found=m.getAllCards().filter(p=>p.name===name&&p.set===set&&
+      String(p.setNumber)===number);
+    assert.equal(found.length,1,'Original source printing '+name+' '+set+' '+number);
+    return found[0].fullName;
+  };
+  const mega=exact('Mega Lopunny ex','PFL','84');
+  const buneary=exact('Buneary','PFL','83');
   x.owner.active.cards.length=0;
   x.owner.active.energies.cards.length=0;
   x.owner.active.cards.push(card('Bunnelby PRC'));
   const bench=x.owner.bench[1];
   bench.cards.length=0;
   bench.energies.cards.length=0;
-  bench.cards.push(card('Buneary PFL'));
+  bench.cards.push(card(buneary));
   bench.pokemonPlayedTurn=0;
   x.opponent.active.cards.length=0;
   x.opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'),
     card('Shadow Rider Calyrex VMAX CRE'));
   x.owner.hand.cards.length=0;
-  x.owner.hand.cards.push(card('Mega Lopunny ex PFL'),
+  x.owner.hand.cards.push(card(mega),
     card('Jet Energy PAL'));
   x.state.turn=4;
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {AttackAction}=native('game/store/actions/game-actions');
   const evolve=()=>{
-    const i=x.owner.hand.cards.findIndex(c=>c.fullName==='Mega Lopunny ex PFL');
+    const i=x.owner.hand.cards.findIndex(c=>c.fullName===mega);
     assert.ok(i>=0);
     const at=evolveBeforeMove?SlotType.BENCH:SlotType.ACTIVE;
     const index=evolveBeforeMove?1:0;
