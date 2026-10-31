@@ -49,6 +49,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
+        run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
         run: node simulation/twinleaf/rank6-manual-attachment-native-fixture.cjs
       - name: Characterize rejected locked Energy action's state mutation
