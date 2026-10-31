@@ -224,6 +224,9 @@ jobs:
       - name: Test authenticated Secret Box owner-K1 category prompt selector
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --test tests/agent44-secretbox-owner-prompt.test.cjs
+      - name: Scout original rank8 genuine first source turn without policy interference
+        if: inputs.agent44_rank8_box_fetch_shake_native
+        run: node simulation/twinleaf/agent44-rank8-firstturn-source-scout.cjs > agent44-rank8-firstturn-scout.json
       - name: Check synthetic rank8 Box-fetches-Shake native semantics fixture
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --check simulation/twinleaf/agent44-rank8-box-fetch-shake-native.cjs
@@ -235,7 +238,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent44-box-fetches-shake-native-development
-          path: agent44-rank8-box-fetch-shake-native.json
+          path: |
+            agent44-rank8-box-fetch-shake-native.json
+            agent44-rank8-firstturn-scout.json
           if-no-files-found: warn
           retention-days: 14
       - name: Execute source-dealt rank8 early Garbotoxin source fork
