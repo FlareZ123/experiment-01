@@ -23,7 +23,8 @@ function zoneLengths(state){
       hand:player.hand?.cards?.length??null,
       deck:player.deck?.cards?.length??null,
       discard:player.discard?.cards?.length??null,
-      prizes:player.prizes?.cards?.length??null,
+      prizes:Array.isArray(player.prizes)?player.prizes.filter(
+        pile=>pile?.cards?.length>0).length:null,
       bench:player.bench?.length??null
     }))
   };
@@ -74,6 +75,10 @@ function observeNativeSpeculativeZoneTrace(bot,work,observation,{limit=64}={}){
               actionType:action?.constructor?.name??null,
               handIndex:Number.isSafeInteger(action?.handIndex)?
                 action.handIndex:null,
+              arbiterOptions:{
+                shuffleMode:this.options?.arbiter?.shuffleMode??null,
+                flipMode:this.options?.arbiter?.flipMode??null
+              },
               input:before,result:zoneLengths(returned),threw,
               returnedState:returned!==undefined&&returned!==null
             });
