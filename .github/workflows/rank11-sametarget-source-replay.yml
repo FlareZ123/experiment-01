@@ -23,6 +23,10 @@ on:
         description: 'Run four original source-first canonical Plumeria OFF/ON matched native arms'
         type: boolean
         default: false
+      agent4_original_native_denial_fork_probe:
+        description: 'Bounded original rank6 turn15 native Plumeria versus Flare causal fork on prior-frozen physical deal'
+        type: boolean
+        default: false
       agent4_source32_contest_probe:
         description: 'Read-only physical-cost Plumeria and Team Flare opportunities on 32 frozen original 60 games'
         type: boolean
@@ -45,7 +49,7 @@ permissions:
 
 jobs:
   source-replay:
-    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_source32_contest_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
+    if: ${{ !inputs.agent41_public_special_rank4rank10_probe && !inputs.agent41_prereg32_special_probe && !inputs.agent41_bilateral_special_probe && !inputs.agent38_plumeria_probe && !inputs.agent4_original_native_denial_fork_probe && !inputs.agent4_source32_contest_probe && !inputs.agent38_plumeria_largehand_probe && !inputs.agent38_plumeria_preregistered32 && !inputs.agent38_rank6_energy_plumeria_factorial }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -485,3 +489,44 @@ jobs:
             agent41-public-special-census.json
           if-no-files-found: warn
           retention-days: 30
+
+  agent4-original-source-native-denial-fork:
+    if: ${{ inputs.agent4_original_native_denial_fork_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out original pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native original two-seat Plumeria and Team Flare printed-effect contract
+        run: node --test tests/agent4-plumeria-pinned-native.test.cjs tests/agent8-team-flare-grunt-pinned-native.test.cjs tests/agent4-plumeria-opportunity.test.cjs
+      - name: Run original frozen source rank6 Plumeria and Team Flare counterfactual arms
+        run: |
+          node scripts/agent4-original-source-denial-fork.cjs plumeria > agent4-native-plumeria.json
+          node scripts/agent4-original-source-denial-fork.cjs flare > agent4-native-flare.json
+      - name: Require same physical starts and original native accepted causal source turn15 divergence
+        run: |
+          node scripts/agent4-original-native-denial-pair-audit.cjs agent4-native-plumeria.json agent4-native-flare.json > agent4-native-denial-pair.json
+          node -e "const r=require('./agent4-native-denial-pair.json');console.log('AGENT4_SOURCE_NATIVE_DENIAL_PAIR',JSON.stringify(r.rows.map(x=>({id:x.id,first:x.firstDifferenceIndex,original:x.originalAction?.card,flare:x.flareAction?.card,fork:x.nativeFork?.settledFlareEnergyRemovals,opp:x.nextOpposingOwnerRoot?.action,status:x.newOutcome?.status,qualified:0}))));"
+      - name: Retain native original physical starts and both complete action ledgers, including failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-source-rank6-native-denial-causal-fork
+          path: |
+            agent4-native-plumeria.json
+            agent4-native-flare.json
+            agent4-native-denial-pair.json
+          if-no-files-found: warn
+          retention-days: 21
