@@ -1,0 +1,115 @@
+{
+  "schema": "agent4-four-new-source-dual-supporter-flare-plumeria-prospective-v1",
+  "registeredUtc": "2026-10-31T19:12:17.868Z",
+  "purpose": "Generalize genuine first-eligible source-owned Team Flare versus Plumeria substitution across all four other authenticated 60-card Aichi Top32 decks holding both Supporters: rank3 Snorlax Stall, rank7 Snorlax Stall, rank24 Iron Thorns, rank29 Iron Thorns.",
+  "provenance": "Precommitted before expanding runner source-rank admissibility or executing any rank3/7/24/29 native match; uses original roster as of 2026-10-31, previous fixed rank6 outcome is hypothesis-generating only.",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "priorCommonFrameGitBlob": "8c54d8497f9927b04d501237462f64a42173d33d",
+  "originalRank6PilotGitBlob": "40438ece0493e655de2b9afa0be00a8e5cda6de2",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRanks": [
+    3,
+    7,
+    24,
+    29
+  ],
+  "sourcePrintings": {
+    "3": {
+      "archetype": "Snorlax Stall",
+      "basicPokemon": 11,
+      "plumeria": 4,
+      "flare": 2
+    },
+    "7": {
+      "archetype": "Snorlax Stall",
+      "basicPokemon": 12,
+      "plumeria": 1,
+      "flare": 1
+    },
+    "24": {
+      "archetype": "Iron Thorns",
+      "basicPokemon": 4,
+      "plumeria": 4,
+      "flare": 2
+    },
+    "29": {
+      "archetype": "Iron Thorns",
+      "basicPokemon": 4,
+      "plumeria": 4,
+      "flare": 2
+    }
+  },
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeats": 2,
+  "seeds": {
+    "3": {
+      "A": [
+        3122214655,
+        1662079184
+      ],
+      "B": [
+        2948384857,
+        634598058
+      ]
+    },
+    "7": {
+      "A": [
+        2957093654,
+        3315936977
+      ],
+      "B": [
+        3016525061,
+        1932677750
+      ]
+    },
+    "24": {
+      "A": [
+        1971623088,
+        1930837622
+      ],
+      "B": [
+        1312654340,
+        2046298425
+      ]
+    },
+    "29": {
+      "A": [
+        1184139661,
+        2448257907
+      ],
+      "B": [
+        4169821766,
+        2987034681
+      ]
+    }
+  },
+  "seedMethod": "Sixteen unique unsigned 32-bit values sampled using Python secrets.SystemRandom().sample(range(2**32),16) on 2026-10-31T19:12:00.913437Z, before protocol implementation.",
+  "registeredSourceSeedGroups": 16,
+  "originalGamePairContrasts": 32,
+  "totalNativeStoreAttempts": 64,
+  "actionCap": 260,
+  "firstEligibleMinOpponentActiveEnergy": 1,
+  "control": "Original symmetric canonical source/candidate policy plus existing source- and candidate-owned original Plumeria-after-Pass recovery; no Team Flare substitution.",
+  "treatment": "On first genuine source-owned native Plumeria-after-Pass with a simultaneously native-playable held Team Flare Grunt and at least 1 attached publicly visible Energy on opposing Active, substitute original Team Flare Grunt once. Use original native Store prompts, preserve Plumeria and return to original frozen policy. This differs from prior rank6 pilot's >=2 threshold and is a separate registered question.",
+  "matchedDesign": "Per rank, 2 source/deck seeds each physical candidate seat and both candidate 60s, fixed 32 game pairs, same seed/seat/full physical initial deal in both policy arms. Retain seed group coupling, caps, errors, no-eligible-case counts and all attempted games.",
+  "preregisteredQuestions": [
+    "Which source archetypes yield genuine native-positive Team Flare versus Plumeria conflicts under the canonical bot?",
+    "At which original source turn are the first source-owned chosen native Flare forks possible?",
+    "Does the changed first native root genuinely settle opposing Active Energy?",
+    "Does preserving Plumeria enable another source-owned played Supporter on the following turn, and does that Supporter completely settle?",
+    "Do the next real opposing actions differ, and are eventual engine terminal changes directionally consistent?",
+    "Which arms cap/error or have no native opportunity?"
+  ],
+  "qualification": {
+    "competitiveQualifiedGames": 0,
+    "winRateCertified": false,
+    "reason": "Developmental weak bot, 260-root cap, paper clock absent, incomplete 32-opponent roster and unqualified full deck decision policy."
+  }
+}
