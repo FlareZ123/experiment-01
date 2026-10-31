@@ -231,6 +231,10 @@ function run({startIndex=0,count=COUNT}={}){
     },
     exposed:{
       boxFetchShakeK0:countFlag('boxFetchShake'),
+      boxFetchShakeNeedsPostBoxAuxiliaryPayment:
+        countFlag('boxFetchShakePotentialAuxiliaryPayment'),
+      anyStrictOrConditionalPostBoxAuxiliary:
+        countFlag('anyK0OrConditionalAuxiliaryWindow'),
       boxHeldShakeK0:countFlag('boxHeldShake'),
       directShakeK0:countFlag('directShake'),
       anyK0Window:countFlag('anyK0Window')
