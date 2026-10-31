@@ -34,6 +34,8 @@ for(const seat of [0,1])test('receipt respects actual acting seat '+seat,()=>{
       {name:'QUICK_SEARCH_MARKER',source:pidgeot},
       {name:'FUSION_STRIKE_SYSTEM_MARKER',source:genesect}
     ]);
+  owner.pokemonKnockedOutDuringOpponentsLastTurn=true;
+  owner.pokemonKnockedOutByAttackDuringOpponentsLastTurn=false;
   const opponent=player(slot(card('UNKNOWN_OPPONENT_ACTIVE',1)),[],[],[]);
   opponent.hand={cards:[{fullName:'SECRET_OPPONENT_HAND'}]};
   const state={players:seat===0?[owner,opponent]:[opponent,owner],
@@ -54,6 +56,8 @@ for(const seat of [0,1])test('receipt respects actual acting seat '+seat,()=>{
   assert.deepEqual(r.ownerBench[2].knownAbilityUse,
     [{name:'Fusion Strike System',usedThisTurn:true}]);
   assert.equal(r.opponentLastTurnAttack,null);
+  assert.deepEqual(r.priorOpponentTurnKO,{any:true,byAttack:false});
+  assert.ok(Object.isFrozen(r.priorOpponentTurnKO));
   const json=JSON.stringify(r);
   for(const text of ['SECRET_OWNER_HAND','SECRET_OWNER_DECK',
     'SECRET_OWNER_PRIZE','SECRET_OPPONENT_HAND','STALE_ATTACK_SECRET']){
@@ -82,6 +86,7 @@ test('missing native movement or marker state is unknown',()=>{
   const result=publicEventReceipt({players:[owner,opponent],
     activePlayer:0,turn:6},0);
   assert.equal(result.ownerActive.movedFromBenchToActiveThisTurn,null);
+  assert.deepEqual(result.priorOpponentTurnKO,{any:null,byAttack:null});
   assert.deepEqual(result.ownerActive.knownAbilityUse,
     [{name:'Quick Search',usedThisTurn:null}]);
 });
