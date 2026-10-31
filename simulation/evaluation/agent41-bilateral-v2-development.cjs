@@ -934,6 +934,7 @@ function runDevelopment({
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
+  sameRootPassAttackProbeGlobalTurn=null,
   candidateOnlyKnownDeadRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
@@ -961,6 +962,11 @@ function runDevelopment({
     'All-proposer census is observation-only');
   assert.ok(!sameRootPublicEventReceipt||sameRootProposalChoice,
     'Public events require owner same-root observation');
+  assert.ok(sameRootPassAttackProbeGlobalTurn==null||
+    (sameRootProposalChoice&&
+      Number.isSafeInteger(sameRootPassAttackProbeGlobalTurn)&&
+      sameRootPassAttackProbeGlobalTurn>=1),
+    'Bounded pass/attack fork requires a positive public turn and owner observer');
   assert.ok(!(bilateralPublicContextSpecialEnergy&&
       (bilateralSpecialEnergyRoot||sourceScopedSpecialEnergyRoot||
       candidateScopedSpecialEnergyRoot)),
@@ -1066,7 +1072,8 @@ function runDevelopment({
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
-                sameRootPublicEventReceipt
+                sameRootPublicEventReceipt,
+                sameRootPassAttackProbeGlobalTurn
               }:{}),
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
@@ -1234,6 +1241,8 @@ function runDevelopment({
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
+    sameRootPassAttackProbeGlobalTurn:sameRootProposalChoice?
+      sameRootPassAttackProbeGlobalTurn:null,
     sameRootPublicEventReceiptOptIn:
       sameRootProposalChoice&&sameRootPublicEventReceipt,
     // Root diagnostics live beneath the composed actor's component audits.
@@ -1386,7 +1395,10 @@ if(require.main===module){
     sameRootProbeAll:
       process.env.AGENT41_SAME_ROOT_ALL_PROBES_DEV==='true',
     sameRootPublicEventReceipt:
-      process.env.AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV==='true'
+      process.env.AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV==='true',
+    sameRootPassAttackProbeGlobalTurn:
+      process.env.AGENT7_PASS_ATTACK_PROBE_TURN?
+        Number(process.env.AGENT7_PASS_ATTACK_PROBE_TURN):null
   });
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
 }
