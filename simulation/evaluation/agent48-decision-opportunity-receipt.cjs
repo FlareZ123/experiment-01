@@ -49,13 +49,17 @@ function decisionOpportunityReceipt(records, options = {}) {
   assert.ok(Array.isArray(records));
   const limit=options.sampleLimit??8;
   assert.ok(Number.isSafeInteger(limit)&&limit>=0);
-  const allRoots=new Set(),deals=new Set(),trials=new Set(),pairs=new Set();
+  const allRoots=new Set(),deals=new Set(),trials=new Set();
+  const pairDeals=new Map(),pairTrialIds=new Map();
   const configs=new Set(),arms=new Map();
   const total={ownerRoots:0,rootsWithOffers:0,nativePlayableWindows:0,
     chosenWindows:0,acceptedWindows:0,settledWindows:0,
     laterOwnerRootWindows:0,opponentReplyWindows:0,
     acceptedChangedChoices:0,offerChoices:0,nativePlayableChoices:0};
-  for(const record of records){
+  const ordered=[...records].sort((a,b)=>
+    String(a.trialId).localeCompare(String(b.trialId))||
+    a.rootOrdinal-b.rootOrdinal||a.seat-b.seat);
+  for(const record of ordered){
     const {trialId,sourceDealFingerprint,seat,rootOrdinal,view}=record;
     assert.ok(typeof trialId==='string'&&trialId.length>0);
     assert.ok(typeof sourceDealFingerprint==='string'&&
@@ -68,7 +72,13 @@ function decisionOpportunityReceipt(records, options = {}) {
     if(record.pairedComparisonId!==undefined){
       assert.ok(typeof record.pairedComparisonId==='string'&&
         record.pairedComparisonId.length>0);
-      pairs.add(record.pairedComparisonId);
+      const key=record.pairedComparisonId;
+      const old=pairDeals.get(key);
+      if(old!==undefined)assert.equal(old,sourceDealFingerprint,
+        'A paired comparison cannot span different source deals');
+      pairDeals.set(key,sourceDealFingerprint);
+      if(!pairTrialIds.has(key))pairTrialIds.set(key,new Set());
+      pairTrialIds.get(key).add(trialId);
     }
     const digest=observedRootDigest(view);configs.add(digest);
     const offers=record.offers??[];
@@ -146,7 +156,10 @@ function decisionOpportunityReceipt(records, options = {}) {
       'UNVERIFIED',nativeOutcomeBinding:'REQUIRES_STORE_LEDGER',
       competitiveQualifiedGames:0},
     independentSourceDeals:deals.size,physicalTrials:trials.size,
-    pairedComparisons:pairs.size,
+    pairedComparisons:[...pairTrialIds.values()].filter(
+      ids=>ids.size>=2).length,
+    unpairedComparisonRegistrations:[...pairTrialIds.values()].filter(
+      ids=>ids.size<2).length,
     uniqueObservedConfigurations:configs.size,
     ...total,
     arms:[...arms.values()].map(arm=>({
