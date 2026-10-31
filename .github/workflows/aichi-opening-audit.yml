@@ -32,7 +32,7 @@ jobs:
       - name: Print source positive seed witnesses and three actual owner-only hands
         if: inputs.agent44_source_witness_run != ''
         run: >-
-          node -e "const r=require('./agent44-rank8-original-k0-source.json');const xs=r.trials.filter(t=>t.sourceK0?.offeredWindow.anyK0Window);console.log(JSON.stringify({sourceSchema:r.schema,sourceStart:r.startIndex,total:r.trialCount,windows:r.exposed,positiveSeeds:xs.map(t=>({seed:t.seed,trial:t.trial,sourceSeat:t.sourceSeat,BoxFetch:t.sourceK0.offeredWindow.boxFetchShake,BoxShake:t.sourceK0.offeredWindow.boxHeldShake,direct:t.sourceK0.offeredWindow.directShake})),firstThreeOwners:xs.slice(0,3).map(t=>({seed:t.seed,hand:t.sourceK0.ownerHandPrintings,active:t.sourceK0.visibleActive,bench:t.sourceK0.visibleBench,flags:t.sourceK0.offeredWindow}))}));"
+          node -e "const r=require('./agent44-rank8-original-k0-source.json');const xs=r.trials.filter(t=>t.sourceK0?.offeredWindow.anyK0Window);console.log(JSON.stringify({sourceSchema:r.schema,sourceStart:r.startIndex,total:r.trialCount,windows:r.exposed,positiveSeeds:xs.map(t=>({seed:t.seed,trial:t.trial,sourceSeat:t.sourceSeat,sourceActualFirst:t.sourceActualFirst,firstOwnerTurn:t.sourceK0.turn,BoxFetch:t.sourceK0.offeredWindow.boxFetchShake,BoxShake:t.sourceK0.offeredWindow.boxHeldShake,direct:t.sourceK0.offeredWindow.directShake})),firstThreeOwners:xs.slice(0,3).map(t=>({seed:t.seed,hand:t.sourceK0.ownerHandPrintings,active:t.sourceK0.visibleActive,bench:t.sourceK0.visibleBench,flags:t.sourceK0.offeredWindow}))}));"
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
       - name: Verify exact printed Basic stage and unconditional opener distribution
