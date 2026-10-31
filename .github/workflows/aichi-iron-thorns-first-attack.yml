@@ -26,6 +26,8 @@ jobs:
           node-version: '22'
       - name: Check shared source policy syntax
         run: node --check simulation/twinleaf/rank6-broad-thorns-policy.cjs
+      - name: Check exact original 60 contested Supporter coholding probability
+        run: node --test tests/agent4-contested-supporter-firstdraw.test.cjs
       - name: Run source K0 opening and rejected-action safety regressions
         run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
   native-attachment-probe:
