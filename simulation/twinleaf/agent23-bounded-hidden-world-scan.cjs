@@ -119,7 +119,7 @@ function scanBoundedOpponentHiddenWorlds(source,actorId,newBot,cloneState,
   // The native postgame wrapper passes an optional per-world policy hook,
   // or null when no such hook is requested. Install policy hooks separately
   // before constructing the fresh bot in EACH alternate world.
-  const settings=options&&typeof options==='object'?options:{};
+  const settings=options??{};
   const withWorldPolicy=typeof options==='function'?options:work=>work();
   const fingerprint=settings.fingerprint??stateGraphFingerprint;
   const sourceBefore=fingerprint(source);
