@@ -66,7 +66,7 @@ test('real paper Supporter quota and lock boundaries suppress the offer',()=>{
 test('unattached opponent yields zero target options',()=>{
   const v=view();v.opponentPublic.active.energies=[];
   v.opponentPublic.bench[1].energies=[];
-  assert.equal(menu(v).reason,'opponent-has-no-public-attached-energy');
+  assert.equal(menu(v).reason,'no-public-energy-denial-target');
 });
 
 test('opponent hidden identities never alter independent payment menu',()=>{
