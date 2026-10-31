@@ -83,7 +83,7 @@ jobs:
       - name: Test observe-only same-root printed Tool offers
         run: node --test tests/agent18-same-root-tool-offer.test.cjs tests/agent18-native-tool-play-action.test.cjs tests/agent18-aichi-k0-root-uniqueness.test.cjs
       - name: Test deterministic original 29 cross-seat K0 campaign schedule
-        run: node --test tests/agent18-original29-crossseat-native-k0.test.cjs tests/agent18-crossseat-source-root-summary.test.cjs
+        run: node --test tests/agent18-original29-crossseat-native-k0.test.cjs tests/agent18-crossseat-source-root-summary.test.cjs tests/agent18-printed-discard-payment-classes.test.cjs
       - name: Pure test precommitted eight-source K0 native Bench classifier
         run: node tests/agent32-rank11-eight-k0-bench-native.test.cjs
       - name: Optional frozen rank11 original-source first-K0 Bench witness
