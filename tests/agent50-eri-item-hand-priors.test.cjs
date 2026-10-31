@@ -47,14 +47,19 @@ test('exact Eri, Ultra Ball, and Computer Search Trainer subtype distinct',()=>{
     ['Eri','TEF','146','Supporter'],
     ['Ultra Ball','SUM','135','Item'],
     ['Computer Search','BCR','137','Item'],
-    ['Forest Seal Stone','SIT','156','Pokémon Tool']
+    ['Forest Seal Stone','SIT','156','Pokémon Tool'],
+    ['Battle Compressor','PHF','92','Item'],
+    ['Robo Substitute','PHF','102','Item'],
+    ['Target Whistle','PHF','106','Item'],
+    ['Thunder Mountain ♢','LOT','191','Stadium'],
+    ['Wondrous Labyrinth ♢','TEU','158','Stadium']
   ];
   for(const [name,set,number,subtype] of rows){
     const row={category:'Trainer',name,
       printing:{set,number}};
     const observed=trainerSubtype(row,index);
     assert.equal(observed.subtype,subtype,name);
-    assert.ok(['exact','name-uniform-fallback'].includes(observed.basis));
+    assert.equal(observed.basis,'exact',name+' should resolve printed set and number');
   }
 });
 
