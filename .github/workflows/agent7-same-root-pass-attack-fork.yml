@@ -2,6 +2,15 @@ name: Agent7 bounded same-root real Store Pass to Attack fork
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Prerecorded public-turn fork or general visible last-Pokemon KO'
+        required: true
+        type: choice
+        default: 'turn4'
+        options:
+          - 'turn4'
+          - 'public-no-bench'
 
 permissions:
   contents: read
@@ -16,7 +25,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify exact public-turn development score and default-off safety
-        run: node --test tests/agent7-bounded-pass-attack-probe.test.cjs
+        run: node --test tests/agent7-bounded-pass-attack-probe.test.cjs tests/agent7-public-no-bench-terminal.test.cjs
       - name: Check out pinned upstream Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned dependencies
@@ -34,7 +43,8 @@ jobs:
           AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
           AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
           AGENT41_SAME_ROOT_SELECT_DEV: 'false'
-          AGENT7_PASS_ATTACK_PROBE_TURN: '4'
+          AGENT7_PASS_ATTACK_PROBE_TURN: ${{ inputs.mode == 'public-no-bench' && 'none' || '4' }}
+          AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV: ${{ inputs.mode == 'public-no-bench' && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-pass-attack-original.json
       - name: Frozen four-arm selected payable attack on public turn four
         env:
@@ -45,15 +55,20 @@ jobs:
           AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
           AGENT41_SAME_ROOT_PROPOSALS_DEV: 'true'
           AGENT41_SAME_ROOT_SELECT_DEV: 'true'
-          AGENT7_PASS_ATTACK_PROBE_TURN: '4'
+          AGENT7_PASS_ATTACK_PROBE_TURN: ${{ inputs.mode == 'public-no-bench' && 'none' || '4' }}
+          AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV: ${{ inputs.mode == 'public-no-bench' && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-pass-attack-selected.json
-      - name: Demand first actual Store divergence be a turn-four owner printed attack
+      - name: Verify selected turn-four printed attack causal branch
+        if: ${{ inputs.mode == 'turn4' }}
         run: node scripts/agent7-same-root-pass-attack-pair.cjs agent7-pass-attack-original.json agent7-pass-attack-selected.json > agent7-pass-attack-native-pair.json
+      - name: Verify unopposed last-Pokemon KO and unchanged alternative-matchup arms
+        if: ${{ inputs.mode == 'public-no-bench' }}
+        run: node scripts/agent7-public-no-bench-native-pair.cjs agent7-pass-attack-original.json agent7-pass-attack-selected.json > agent7-pass-attack-native-pair.json
       - name: Archive every original and selected Store attempt including errors
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent7-bounded-pass-attack-native-pair
+          name: agent7-bounded-pass-attack-native-pair-${{ inputs.mode }}
           path: |
             agent7-pass-attack-original.json
             agent7-pass-attack-selected.json
