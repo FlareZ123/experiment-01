@@ -10,6 +10,8 @@ const {compareNativeOpponentHiddenHandBounded}=
   require('../simulation/twinleaf/agent23-native-tape-bounded-opponent-hand.cjs');
 const {selectBoundedDoubleExchanges}=
   require('../simulation/twinleaf/agent23-bounded-double-exchanges.cjs');
+const {selectBoundedHandPrizeExchanges}=
+  require('../simulation/twinleaf/agent23-bounded-hidden-prize-exchanges.cjs');
 
 const energy=(id,name)=>({id,fullName:name,energyType:'BASIC'});
 const trainer=(id,name)=>({id,fullName:name,trainerType:'ITEM'});
@@ -249,4 +251,107 @@ test('double-exchange false opportunity and invalid swap size veto',()=>{
   assert.equal(none.baselineReplayStable,true);
   assert.throws(()=>compareNativeOpponentHiddenHandBounded(args,
     {swapSize:3}));
+});
+
+
+test('native exact-tape opponent hidden hand-Prize swap finds a second-position action reversal',()=>{
+  const root=state();
+  root.players[1].prizes=[
+    {cards:[trainer(7,'Unrelated Prize Trainer')]},
+    {cards:[trainer(8,'Critical Prize Trainer')]}
+  ];
+  const chosen=world=>{
+    Math.random();
+    const found=world.players[1].hand.cards.some(x=>
+      x.fullName==='Critical Prize Trainer');
+    return {type:found?'unseen-prize-path':'owner-pass'};
+  };
+  const args=makeArgs(root,chosen),before=fingerprint(root);
+  args.actorView=(world,seat)=>({
+    ...actorView(world,seat),
+    opposingUnrevealedPrizeCount:world.players[1-seat].prizes
+      .reduce((sum,p)=>sum+p.cards.length,0)
+  });
+  const result=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes',limit:2});
+  assert.equal(result.schema,'agent23-native-tape-bounded-hand-prize-v1');
+  assert.equal(result.targetZone,'prizes');
+  assert.equal(result.eligibleHandPrizeExchanges,2);
+  assert.equal(result.attemptedHandPrizeExchanges,2);
+  assert.equal(result.successfulHandPrizeExchanges,2);
+  assert.equal(result.failedHandPrizeExchanges,0);
+  assert.equal(result.exhaustiveHandPrizeExchangeCoverage,true);
+  assert.equal(result.eligibleDistinctOpponentHandCompositions,2);
+  assert.equal(result.testedDistinctOpponentHandCompositions,2);
+  assert.equal(result.actionReversals,1);
+  assert.equal(result.selectedActionChanged,true);
+  assert.equal(result.baselineReplayStable,true);
+  assert.equal(result.actorObservationMatched,true);
+  assert.equal(result.opponentHiddenInventoryConserved,true);
+  assert.equal(result.sourceRootUnchanged,true);
+  assert.equal(result.competitiveGameQualified,false);
+  assert.equal(fingerprint(root),before);
+});
+
+test('hand Prize selector preserves face-down one-card piles and reports zero opportunities',()=>{
+  const hand=[energy(2,'Opponent Darkness')];
+  const prizes=[{cards:[]},{cards:[energy(8,'Opponent Darkness')]},
+    {cards:[trainer(11,'Critical Trainer')]},
+    {cards:[trainer(12,'Extra Trainer'),energy(13,'Not One Prize')]}];
+  const selected=selectBoundedHandPrizeExchanges(hand,prizes,3);
+  assert.equal(selected.available,1);
+  assert.equal(selected.exchanges.length,1);
+  assert.equal(selected.exchanges[0].prizeIndex,2);
+  assert.equal(selected.eligibleDistinctHandCompositions,1);
+  assert.equal(selected.exhaustive,true);
+  const root=state();
+  root.players[1].prizes=[{cards:[energy(14,'Opponent Darkness')]}];
+  const out=compareNativeOpponentHiddenHandBounded(makeArgs(root),
+    {targetZone:'prizes'});
+  assert.equal(out.eligibleHandPrizeExchanges,0);
+  assert.equal(out.attemptedHandPrizeExchanges,0);
+  assert.equal(out.contrastExecutable,false);
+  assert.equal(out.baselineReplayStable,true);
+});
+
+test('native hand-Prize mode refuses shallow Prize aliases and double Prize swaps',()=>{
+  const root=state();
+  root.players[1].prizes=[{cards:[trainer(8,'Critical Prize Trainer')]}];
+  const args=makeArgs(root),before=fingerprint(root);
+  assert.throws(()=>compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes',swapSize:2}),/Prize exchange/);
+  args.cloneState=world=>({
+    ...structuredClone(world),
+    players:world.players.map((player,index)=>{
+      const copy=structuredClone(player);
+      if(index===1)copy.prizes=player.prizes;
+      return copy;
+    })
+  });
+  const result=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes'});
+  assert.equal(result.failedHandPrizeExchanges,1);
+  assert.equal(result.successfulHandPrizeExchanges,0);
+  assert.equal(result.contrastExecutable,false);
+  assert.match(result.cases[0].error,/Detached world reused original Prize slots array/);
+  assert.equal(result.sourceRootUnchanged,true);
+  assert.equal(fingerprint(root),before);
+});
+
+test('native hand-Prize rejects leaky own-observation and preserves source',()=>{
+  const root=state(),before=fingerprint(root);
+  root.players[1].prizes=[{cards:[trainer(8,'Critical Prize Trainer')]}];
+  const args=makeArgs(root);
+  args.actorView=(world,seat)=>({
+    ...actorView(world,seat),
+    hiddenPrizeIdentity:world.players[1-seat].prizes[0].cards[0].fullName
+  });
+  const out=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes'});
+  assert.equal(out.failedHandPrizeExchanges,1);
+  assert.equal(out.actorObservationMatched,false);
+  assert.equal(out.selectedActionChanged,false);
+  assert.equal(out.sourceRootUnchanged,true);
+  assert.equal(fingerprint(root).replace('"prizes":[{"cards":[{"id":8,"fullName":"Critical Prize Trainer","trainerType":"ITEM"}]}]',''),
+    before);
 });
