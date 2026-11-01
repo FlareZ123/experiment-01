@@ -5,6 +5,7 @@ const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const {stage}=require('../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {publicEventReceipt}=require('../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(root,p));
 
@@ -51,6 +52,7 @@ function fork(seat,moved){
   if(moved)x.owner.movedToActiveThisTurn.push(pokemon.id);
   assert.equal(x.owner.movedToActiveThisTurn.includes(pokemon.id),moved);
   const view=actorObservation(x.state,seat);
+  const receipt=publicEventReceipt(x.state,seat);
   assert.equal(view.decisionKind,'owner-root');
   const damageBefore=x.opponent.active.damage;
   const {AttackAction}=native('game/store/actions/game-actions');
@@ -64,7 +66,7 @@ function fork(seat,moved){
     x.store.dispatch(new ResolvePromptAction(prompt.id,null));
   }
   assert.equal(x.state.turn,5);
-  return {view,damage:x.opponent.active.damage-damageBefore,moved};
+  return {view,receipt,damage:x.opponent.active.damage-damageBefore,moved};
 }
 
 for(const seat of [0,1]){
@@ -73,6 +75,8 @@ for(const seat of [0,1]){
     const moved=fork(seat,true);
     assert.deepEqual(still.view,moved.view,
       'Current detached actor view omits publicly observable same-turn movement');
+    assert.equal(still.receipt.ownerActive.movedFromBenchToActiveThisTurn,false);
+    assert.equal(moved.receipt.ownerActive.movedFromBenchToActiveThisTurn,true);
     assert.equal(still.damage,60);
     assert.equal(moved.damage,230);
     assert.equal(still.moved,false);
