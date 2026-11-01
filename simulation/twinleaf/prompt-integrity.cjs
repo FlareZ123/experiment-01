@@ -1,5 +1,7 @@
 'use strict';
 const {validAttachEnergyTargets}=require('./attach-energy-targets.cjs');
+const {paperPutDamageRejectReason}=
+  require('./put-damage-zero-cap-paper-hook.cjs');
 const {isPrintedCynthiaCaitlinRecovery}=
   require('./cynthia-caitlin-required-recovery.cjs');
 
@@ -285,9 +287,21 @@ function assertValidPromptAction(state, action, options={}) {
     valid = validAttachEnergyTargets(action.result,
       eligiblePokemonTargets(state, prompt), prompt.options);
   }
+  // Store.reducePrompt never invokes prompt.validate. Even the pinned
+  // PutDamagePrompt.validate ignores its zero-cap target exclusions and the
+  // per-packet damageMultiple. Reuse the independent printed-rule guard
+  // before dispatch whenever strict prompt validation is already enabled.
+  let paperDamageReason=null;
+  if(valid && name==='PutDamagePrompt'){
+    paperDamageReason=paperPutDamageRejectReason(
+      prompt,action.result,state);
+    valid=paperDamageReason===null;
+  }
   if (!valid) {
     const detail = name === 'AttachEnergyPrompt' ?
-      ' ' + attachEnergyFailureEvidence(prompt, action, state) : '';
+      ' ' + attachEnergyFailureEvidence(prompt, action, state)
+      : name==='PutDamagePrompt' && paperDamageReason!==null ?
+        ' Printed damage constraint: '+paperDamageReason : '';
     throw new Error('Twinleaf bot supplied an invalid result to ' +
       prompt.constructor.name + ' (prompt ' + prompt.id + ').' + detail);
   }
