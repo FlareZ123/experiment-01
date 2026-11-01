@@ -58,6 +58,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent50_fresh_rank11_bilateral:
+        description: 'Precommitted fresh 8 rank11 source-deal groups, symmetric known-dead 32 original Store attempts, development only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -567,3 +572,38 @@ jobs:
             agent24-ace-reducer.json
           if-no-files-found: warn
           retention-days: 15
+
+  agent50-fresh-rank11-bothseat-native:
+    if: inputs.agent50_fresh_rank11_bilateral
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out unchanged pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify precommitted seed draws, binary source blobs, coin projection and outcome vetoes
+        run: node --test tests/agent50-prospective-rank11-bilateral-known-dead-native.test.cjs tests/agent50-rank11-bilateral-known-dead-native-pair.test.cjs
+      - name: Run ALL 32 original rank11 native baseline and both-seat correction attempts
+        run: node simulation/evaluation/agent50-prospective-rank11-bilateral-known-dead-native.cjs > agent50-fresh-rank11-bothseat-32attempts.json
+      - name: Print compact native full-source-field honesty summary
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent50-fresh-rank11-bothseat-32attempts.json');a.equal(x.nativeGameAttempts,32);a.equal(x.competitiveQualifiedGames,0);console.log('AGENT50_FRESH_RANK11',JSON.stringify({matches:x.samePhysicalInputPairs,unmatched:x.mismatchedPhysicalInputPairs,firstStarts:x.originalSetupFirstSeatEvidence,outcomes:x.outcomes,competitive:x.competitiveQualifiedGames}));"
+      - name: Retain EVERY precommitted rank11 actual Store attempt including caps and engine errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-precommitted-rank11-bothseat-32attempts
+          path: agent50-fresh-rank11-bothseat-32attempts.json
+          if-no-files-found: warn
+          retention-days: 30
