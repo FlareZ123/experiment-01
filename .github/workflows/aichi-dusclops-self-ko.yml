@@ -44,7 +44,7 @@ jobs:
         run: node simulation/evaluation/agent28-rank19-original-source-active-retrospective.cjs > agent28-rank19-source-active-native.json
       - name: Summarize original Raging Bolt Active and declared Bellowing root opportunities
         if: inputs.rank19_source_replay
-        run: node -e "const r=require('./agent28-rank19-source-active-native.json');console.log('RANK19_SOURCE_ACTIVE_NATIVE',JSON.stringify({version:r.version,activeRoots:r.sourceActiveRagingRootTotal,bellowing:r.sourceBellowingAttackTotal,rows:r.rows.map(x=>({trial:x.trialId,seat:x.sourceSeat,status:x.status,roots:x.sourceOwners.sourceOwnerRootCount,active:x.sourceOwners.sourceRagingActiveRoots,first:x.sourceOwners.ragingActiveEnergySamples.slice(0,3)}))}))"
+        run: node -e "const r=require('./agent28-rank19-source-active-native.json');console.log('RANK19_SOURCE_ACTIVE_NATIVE',JSON.stringify({version:r.version,activeRoots:r.sourceActiveRagingRootTotal,bellowing:r.sourceBellowingAttackTotal,rows:r.rows.map(x=>({trial:x.trialId,seat:x.sourceSeat,status:x.status,roots:x.sourceOwners.sourceOwnerRootCount,active:x.sourceOwners.sourceRagingActiveRoots,bench:x.sourceOwners.sourceRagingBenchRoots,fundedBench:x.sourceOwners.sourceRagingBenchedWithEnergyRoots,activePrints:x.sourceOwners.sourceActivePrintingCounts,benchSamples:x.sourceOwners.sourceRagingBenchSamples.slice(0,3)}))}))"
       - name: Archive the four replayed original source read-only native root receipts
         if: always() && inputs.rank19_source_replay
         uses: actions/upload-artifact@v4
