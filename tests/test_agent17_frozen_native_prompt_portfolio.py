@@ -5,7 +5,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from agent17_frozen_native_prompt_portfolio import audit_native, public_energy_transfer_shape, source_thorns_volt_cyclone_base_cost_shape
+from agent17_frozen_native_prompt_portfolio import audit_native, public_energy_transfer_shape, source_thorns_volt_cyclone_base_cost_shape, rank11_full_bench_trubbish_call_family_shape
 
 
 def fixture():
@@ -247,6 +247,47 @@ class FrozenPromptPortfolioTests(unittest.TestCase):
         result = audit_native(without_bench)
         self.assertEqual(result["rank6_volt_cyclone_bench_prompt_branch"],
                          {"no-bench-no-move-prompt": 1})
+
+
+    def test_rank11_trubbish_full_bench_marginal_attack_decision(self):
+        printed = [
+            {"name": "Call for Family", "cost": [7]},
+            {"name": "Super Poison Breath", "cost": [7, 9]}
+        ]
+        attack = {"attackName": "Call for Family", "publicBoardBefore": [
+            {"stadium": [], "active": {"name": "Girafarig"}},
+            {"stadium": [], "active": {
+                "name": "Trubbish", "printedAttacks": printed,
+                "energyCards": ["Darkness Energy", "Darkness Energy"],
+                "toolCards": ["Muscle Band"]},
+             "bench": [{"name": "Iron Thorns ex"} for _ in range(5)]}
+        ]}
+        self.assertEqual(rank11_full_bench_trubbish_call_family_shape(
+            attack, 1), "full-bench-super-poison-base-payable")
+        changed = copy.deepcopy(attack)
+        changed["publicBoardBefore"][1]["active"][
+            "energyCards"] = ["Darkness Energy"]
+        self.assertEqual(rank11_full_bench_trubbish_call_family_shape(
+            changed, 1), "full-bench-super-poison-base-short")
+        changed = copy.deepcopy(attack)
+        changed["publicBoardBefore"][1]["bench"].pop()
+        self.assertEqual(rank11_full_bench_trubbish_call_family_shape(
+            changed, 1), "bench-room-call-for-family")
+        changed = copy.deepcopy(attack)
+        changed["publicBoardBefore"][0]["stadium"] = ["Temple of Sinnoh"]
+        self.assertEqual(rank11_full_bench_trubbish_call_family_shape(
+            changed, 1), "full-bench-alternative-modifiers-unverified")
+
+        trial = fixture()
+        row = trial["rows"][0]
+        row["trial"]["rank"] = 11
+        row["candidateSeat"] = 0
+        row["sourceAttackSettlement"] = {"attacks": [attack]}
+        result = audit_native(trial)
+        self.assertEqual(result["rank11_source_call_for_family_policy"],
+                         {"full-bench-super-poison-base-payable": 1})
+        self.assertEqual(result["rank11_full_bench_payable_opponent_active"],
+                         {"Girafarig": 1})
 
 
 if __name__ == "__main__":
