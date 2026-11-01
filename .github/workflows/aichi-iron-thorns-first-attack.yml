@@ -64,6 +64,8 @@ jobs:
         run: node --test tests/agent4-rank31-roxie-koffing-spoons-native.test.cjs
       - name: Test original rank14 Ultra Ball mandatory discard zero-reply in both physical seats
         run: node --test tests/agent4-rank14-ultraball-zero-payment-native.test.cjs
+      - name: Test original rank31 Painful Spoons zero-to-three same-source counter paper budget on both seats
+        run: node --test tests/agent4-rank31-spoons-overbudget-native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
