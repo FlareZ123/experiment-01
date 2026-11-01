@@ -148,4 +148,5 @@ function chooseHeldGuzmaMobility(view,catalog){
   }:null;
 }
 
-module.exports={VERSION,isGuzma,attackFunding,chooseHeldGuzmaMobility};
+module.exports={VERSION,isGuzma,eligibleDamagingAttack,
+  attackFunding,chooseHeldGuzmaMobility};
