@@ -24,6 +24,8 @@ jobs:
         run: npm run compile
       - name: Regress strict damage prompt cap and packet integrity
         run: node --test tests/prompt-integrity.test.cjs
+      - name: Regress partial damage budget against original pinned prompt semantics
+        run: node --test tests/agent46-putdamage-partial-budget.test.cjs
       - name: Check Electro Rain capped allocation pure regression
         run: node tests/raichu-prize-allocation-planner.test.cjs
       - name: Verify invalid fractional Raichu packet would inflate native KO Prizes
