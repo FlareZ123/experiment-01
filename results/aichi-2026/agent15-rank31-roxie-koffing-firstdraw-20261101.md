@@ -44,6 +44,21 @@ The last event is **51.1499% of the modeled retained Roxie/Koffing coholds**. It
 
 A naive after-draw Roxie/Koffing coholding count **without Active subtraction** is **16.09630006%**. The difference of **3.38910906 percentage points** consists of deals in which Roxie's only held Koffing was consumed as the starting Active. This is a concrete reason to distinguish a hand-access graph from a play-realistic prompt-payment opportunity.
 
+## Additional source-text sensitivity: lowercase Pokémon ex
+
+There is a meaningful card-category distinction in the original source. Roxie explicitly excludes **Pokémon-GX and Pokémon-EX**; the two original rank31 lowercase **Pokémon ex** (Bloodmoon Ursaluna ex TWM141 and Latias ex SSP76) have a different name/mechanic from the older hyphenated uppercase Pokémon-EX. The [official current English TCG rules, Appendix 2](https://www.pokemon.com/static-assets/content-assets/cms2/pdf/trading-card-game/rulebook/par_rulebook_en.pdf) explicitly distinguish ex from -EX card names. The [official Japanese Roxie printing](https://www.pokemon-card.com/card-search/details.php/card/37043/regu/all) excludes GX/EX by name. This supports a second **printing-literal eligibility scenario** in which both lowercase ex are eligible discard payments. No claim of an independent judge decision on the exact cross-era interaction is required for the sensitivity.
+
+The updated executable reports both initial conservative (18 eligible) and printing-literal (20 eligible) scenarios without changing any of the first-draw deals. Reclassifying two lowercase ex from 4 noneligible Basics to 2 noneligible Basics produces:
+
+| Card-access event | Conservative 18 | Printing-literal 20 |
+|---|---:|---:|
+| Roxie plus at least one eligible payment after draw | 38.21784612% | **38.71326955%** |
+| Roxie plus at least two eligible payments after draw | 24.78147142% | **26.01880863%** |
+| Roxie plus Koffing and a second eligible payment | 10.21704414% | **10.43255817%** |
+| Roxie plus retained Koffing | 12.70719100% | **12.70719100%** |
+
+The payment-count difference is an explicit sensitivity to a paper card identity rule; the Koffing cohold does not change because all scenarios have the same 15 opening Basics and select non-Koffing Active ahead of Koffing. For native prompt checking, ensure the published original GX printings remain forbidden while the lowercase ex verdict is traced to a specific printed rule decision. An implementation that treats every Rule Box as GX/EX would need independent justification.
+
 ## Validation and limitations
 
 - [Exact, source-checked executable](../../scripts/agent15-rank31-roxie-firstdraw.cjs) with [four Node pure tests](../../tests/agent15-rank31-roxie-firstdraw.test.cjs). BigInt category enumeration, exact 60 count, fixed CEC source printings, Basic/eligible partition, denominator and order calculation. Local Node v22.16.0 four tests passed. No new GitHub workflow was created and no compiled native CI is asserted.
