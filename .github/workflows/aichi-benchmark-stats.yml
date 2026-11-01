@@ -131,7 +131,7 @@ jobs:
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs
       - name: Verify exact source nonattack terminal triggers and native turn-end lineage
-        run: node --test tests/agent12-owner-sequence-compatibility.test.cjs tests/agent12-aichi-nonattack-turn-end-census.test.cjs tests/agent12-native-turn-closure-lineage.test.cjs tests/agent12-original32-native-closure-census.test.cjs
+        run: node --test tests/agent12-owner-sequence-compatibility.test.cjs tests/agent12-aichi-nonattack-turn-end-census.test.cjs tests/agent12-native-turn-closure-lineage.test.cjs tests/agent12-original32-native-closure-census.test.cjs tests/agent12-frozen-native-prompt-family-census.test.cjs
       - name: Verify field-wide five dormant Trainer channels at Basic-valid openings
         run: node --test tests/agent48-five-channel-opening-presence.test.cjs
       - name: Audit per-rank source Trainer action vocabulary against actual actor choices
