@@ -31,8 +31,12 @@ function printIndex(){
         cache.set(id,JSON.parse(fs.readFileSync(
           path.join(resources,'cards/en',id+'.json'),'utf8')));
       for(const printed of cache.get(id)){
-        if(String(printed.number)===String(card.printing.number)&&
-          normalizeName(printed.name)===sought)
+        const no=String(card.printing.number);
+        const promoPrefix={SMP:'SM',XYP:'XY',BWP:'BW',SWSP:'SWSH',SVP:'SVP'};
+        const matchesNumber=String(printed.number)===no||
+          (promoPrefix[card.printing.set]&&
+          String(printed.number)===promoPrefix[card.printing.set]+no);
+        if(matchesNumber&&normalizeName(printed.name)===sought)
           matches.push(printed);
       }
     }
