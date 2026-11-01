@@ -316,7 +316,19 @@ test('actual fixed-damage native Guzma gust resolves Prize and exposes Eviolite 
         gustPhysical:opponent.active.getPokemonCard()?.id,
         ownPhysical:owner.active.getPokemonCard()?.id
       };
-    },{initialLiveStore:store,nominalGust:true});
+    },{
+      initialLiveStore:store,nominalGust:true,
+      ...(toolMitigation?{chooseGust:(view,plan,offered,catalog)=>{
+        const scorer=require('../simulation/twinleaf/agent43-guzma-nominal-gust-frontier.cjs')
+          .chooseNominalGuzmaGust;
+        assert.equal(scorer(view,plan,offered,catalog),null,
+          'Eviolite-aware real policy must abstain from nominal false KO');
+        // Deliberately force the old native-valid target as a counterfactual
+        // to measure actual printed damage under the visible Tool.
+        return {benchIndex:1,firstBenchIndex:0,maxPrintedDamage:100,
+          reason:'forced-Eviolite-counterfactual-only'};
+      }}:{})
+    });
     assert.equal(wrapped.result.gustPhysical,secondId);
     assert.equal(wrapped.result.ownPhysical,ownId);
     assert.equal(wrapped.audit.matchedMobilityPlans,1);
