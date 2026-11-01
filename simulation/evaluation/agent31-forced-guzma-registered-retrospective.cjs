@@ -6,7 +6,12 @@ const {preflight}=require('./agent43-guzma-nominal-fresh-rank11-pair.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {replayFingerprint}=require('./agent43-guzma-held-root-retrospective.cjs');
 
-const VERSION='agent31-forced-guzma-registered-16-arm-retrospective-v1';
+const PRIZE_TRADE=process.argv.includes('--prize-trade');
+const ENV_FLAG=PRIZE_TRADE?
+  'AGENT31_GUZMA_PRIZE_TRADE_DEV':'AGENT31_GUZMA_FORCED_KO_DEV';
+const VERSION=PRIZE_TRADE?
+  'agent31-prize-trade-guzma-registered-16-arm-retrospective-v1':
+  'agent31-forced-guzma-registered-16-arm-retrospective-v1';
 const ORIGINAL_BASELINE_DIGEST=
   '4c2981a904eb939ba32301038514ef269d7c8a07d883b5c90bae903dfbc82216';
 const KIND='play-guzma-forced-nominal-ko';
@@ -22,15 +27,15 @@ const KIND='play-guzma-forced-nominal-ko';
  */
 function runArm(common,treatment){
   const old2=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
-  const old31=process.env.AGENT31_GUZMA_FORCED_KO_DEV;
+  const old31=process.env[ENV_FLAG];
   process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV='true';
-  process.env.AGENT31_GUZMA_FORCED_KO_DEV=treatment?'true':'false';
+  process.env[ENV_FLAG]=treatment?'true':'false';
   try{return runDevelopment(common);}
   finally{
     if(old2===undefined)delete process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
     else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=old2;
-    if(old31===undefined)delete process.env.AGENT31_GUZMA_FORCED_KO_DEV;
-    else process.env.AGENT31_GUZMA_FORCED_KO_DEV=old31;
+    if(old31===undefined)delete process.env[ENV_FLAG];
+    else process.env[ENV_FLAG]=old31;
   }
 }
 
@@ -132,6 +137,8 @@ function run(){
     sameRegisteredEightSeedGroups:true,
     sameActualPhysicalDeals:pairs.length,
     retrospectiveAfterFeatureDesign:true,
+    treatmentFamily:PRIZE_TRADE?'nonfinal-prize-trade-nominal-gust':
+      'forced-single-bench-nominal-gust',
     experimentArms:32,
     matchedPairs:pairs.length,
     originalBaselineDigest:ORIGINAL_BASELINE_DIGEST,
@@ -157,9 +164,12 @@ if(require.main===module){
       prospective:false}));
   }else{
     const result=run();
-    if(process.env.AGENT31_FORCED_GUZMA_OUTPUT)
-      save(process.env.AGENT31_FORCED_GUZMA_OUTPUT,result);
-    console.log('AGENT31_FORCED_GUZMA_REGISTERED_RETROSPECTIVE '+
+    const destination=PRIZE_TRADE?
+      process.env.AGENT31_PRIZE_TRADE_OUTPUT:
+      process.env.AGENT31_FORCED_GUZMA_OUTPUT;
+    if(destination)save(destination,result);
+    console.log((PRIZE_TRADE?'AGENT31_PRIZE_TRADE_GUZMA_RETROSPECTIVE ':
+      'AGENT31_FORCED_GUZMA_REGISTERED_RETROSPECTIVE ')+
       JSON.stringify({matchedPairs:result.matchedPairs,
         trueBaselineReplay:result.exactBaselineReplay,
         changedActionLedgers:result.changedActionLedgers,
