@@ -121,8 +121,8 @@ function probeShadowPain(forbidden){
 }
 
 function run(){
-  const {PutDamagePrompt}=engine('game/store/prompts/put-damage-prompt');
-  const original=PutDamagePrompt.prototype.validate;
+  const {Store}=engine('game/store/store');
+  const original=Store.prototype.dispatch;
   const {withPutDamageZeroCapPaperHook}=
     require('./put-damage-zero-cap-paper-hook.cjs');
   const legal=probeShadowPain(false);
@@ -135,22 +135,23 @@ function run(){
     probeShadowPain(false));
   const guardedForbidden=withPutDamageZeroCapPaperHook(()=>
     probeShadowPain(true));
-  assert.equal(PutDamagePrompt.prototype.validate,original,
-    'The reversible guard must restore the pinned validator exactly');
+  assert.equal(Store.prototype.dispatch,original,
+    'The reversible guard must restore native Store.dispatch exactly');
   assert.deepEqual(guardedLegal.publicDamage,legal.publicDamage,
     'The corrected hook cannot alter valid GX Shadow Pain damage');
   assert.equal(guardedLegal.dispatchError,null);
-  assert.equal(guardedForbidden.validatorAccepted,false,
-    'Paper guard must veto the explicitly zero-cap non-GX target');
-  assert.ok(guardedForbidden.dispatchError,
-    'Live Store must reject the paper-forbidden prompt reply');
+  assert.equal(guardedForbidden.validatorAccepted,true,
+    'Pinned prompt.validate still ignores zero-cap: Store boundary must guard');
+  assert.match(guardedForbidden.dispatchError,
+    /PAPER_PUT_DAMAGE_REJECTED:PRINTED_TARGET_ZERO_CAP/,
+    'The native Store-dispatch boundary must reject forbidden target');
   assert.equal(guardedForbidden.publicDamage.ineligibleBench,0,
     'Rejected paper-forbidden reply must leave the non-GX unhurt');
   const out={
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     kind:'real-Gengar-evolution-prompt-native-zero-cap-paper-guard',
     legal,forbidden,guardedLegal,guardedForbidden,
-    originalValidatorRestored:true,
+    originalStoreDispatchRestored:true,
     conclusion:'native-paper-zero-cap-fault-corrected-under-opt-in-guard',
     qualification:'synthetic original-card printings, native Store effects, no Top32 game'
   };
