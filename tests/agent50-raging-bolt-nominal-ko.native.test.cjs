@@ -80,5 +80,32 @@ for(const seat of [0,1]){
     }));
     assert.ok(pending,'Native Bellowing must offer a resolution prompt');
     assert.equal(pending.playerId,owner.id);
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    // Continue through native Wait prompts only. These do not choose cards,
+    // target an opponent zone or decide Energy payment.
+    const trace=[];
+    for(let step=0;step<24;step++){
+      const next=state.prompts.find(p=>p.result===undefined);
+      if(!next)break;
+      const kind=next.constructor.name;
+      trace.push({kind,ownerSeat:state.players.findIndex(p=>
+        p.id===next.playerId),offeredCount:next.cards?.length??null,
+        optionKeys:Object.keys(next.options??{})});
+      if(kind!=='WaitPrompt')break;
+      store.dispatch(new ResolvePromptAction(next.id,null));
+    }
+    const next=state.prompts.find(p=>p.result===undefined)??null;
+    console.log('AGENT50_RANK19_AFTER_NATIVE_WAITS',JSON.stringify({
+      seat,trace,nextPrompt:next?.constructor.name??null,
+      nextPromptOwnerSeat:next?state.players.findIndex(p=>
+        p.id===next.playerId):null,
+      damageAfter:opponent.active.damage,
+      activeBasicCount:owner.active.energies.cards.length,
+      benchBasicCount:owner.bench[0].energies.cards.length,
+      competitiveQualifiedGames:0
+    }));
+    assert.ok(trace.length>0);
+
   });
 }
