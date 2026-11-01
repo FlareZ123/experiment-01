@@ -2,7 +2,7 @@
 
 **1 November 2026 | default-off actor-only policy development, zero competitive-qualified games.**
 
-## Original opponent and exact attack
+**Correction, 1 November:** The earlier no-payment native scenario used an incomplete physical Energy fixture; pinned upstream counts Basic Energy from aggregate Pokémon cards and the original test populated only the Energy index. A correctly constructed independent original Store test settled nonzero Basic payment and attack damage in both seats. [Evidence and source mechanism](agent50-rank19-fixture-correction.md). Treat the old three-Wait no-payment trace as a malformed-fixture example.\n\n## Original opponent and exact attack
 
 The independently published original Aichi Open League 2026 final rank-19 source (Mark Takahashi, Raging Bolt) has two **Raging Bolt ex TEF 123**, nine ordinary Basic Energy (three each Lightning, Fighting, Darkness), and four Double Dragon Energy ROS. These are the authentic original-source roster copies in [the 29-source archive](full-decklists.json), not a newly optimized list.
 
