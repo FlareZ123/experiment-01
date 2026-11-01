@@ -99,7 +99,8 @@ function compareOriginalRank11Pairs(controlRows,treatmentRows){
   for(const [id,a] of baseline){
     const b=treated.get(id);
     assert.ok(b,'Missing treatment row for '+id);
-    const unmatchedInputs=FIXED_INPUT_FIELDS.filter(key=>a[key]!==b[key]);
+    const unmatchedInputs=FIXED_INPUT_FIELDS.filter(key=>a[key]!==b[key]||
+      a[key]===null||b[key]===null||a[key]===undefined||b[key]===undefined);
     const len=Math.min(a.roots.length,b.roots.length);
     let firstRootDifference=null;
     for(let i=0;i<len;i++){
@@ -180,8 +181,8 @@ function run(){
       originalRegistration:REGISTRATION,
       originalRegistrationGitBlobSha:blob,
       sourceOptionDelta:{bilateralKnownDeadAttackRoot:true},
-      nativeAttemptsComplete:baseline.attemptedComplete===true&&
-        treatment.attemptedComplete===true,
+      nativeAttemptsComplete:baseline.attempted===trials.length&&
+        treatment.attempted===trials.length,
       raw:{baseline,treatment}};
   }finally{
     for(const [key,value] of Object.entries(saved)){
