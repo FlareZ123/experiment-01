@@ -62,3 +62,51 @@ test('owner Active JTG Clefairy stays first priority over a second Bench copy',(
   energies:['Psychic Energy SVE'],attacks:[{name:'Full Moon Rondo'}]};
  assert.equal(proposeRondoPsychicBenchStaging(v,catalog),null);
 });
+
+test('optional Active Latias Eon Blade preserves own first-return Psychic attachment',()=>{
+ const v=view();
+ v.ownPublic.active={
+   printing:'Latias ex SSP',energies:['Psychic Energy MEE'],
+   attacks:[{name:'Eon Blade',cost:['Psychic','Psychic','Colorless'],damage:200}]
+ };
+ const baseline={kind:'attach-basic-energy',handIndex:0,printing:'Psychic Energy SVE',slot:'active'};
+ const old=proposeRondoPsychicBenchStaging(v,catalog,{baseline});
+ assert.equal(old?.slot,'bench');
+ assert.equal(proposeRondoPsychicBenchStaging(v,catalog,{
+   protectActiveLatiasEonBlade:true,baseline}),null);
+ const proposal=PROPOSERS.find(x=>x.name==='rondo-psychic-bench');
+ const chosen=collectAndChooseOwnerRoot(v,catalog,baseline,{
+   rondoPsychicBenchStage:true,sameRootChoiceApply:true,
+   rondoPsychicBenchStagingPreference:true,
+   rondoProtectActiveLatiasEonBlade:true
+ },[proposal]);
+ assert.equal(chosen.intent.slot,'active');
+ assert.equal(chosen.receipt.changed,false);
+});
+
+test('guard does not suppress source-pass or already-Bench baseline',()=>{
+ const v=view();
+ v.ownPublic.active={printing:'Latias ex SSP',energies:[],
+   attacks:[{name:'Eon Blade'}]};
+ for(const baseline of [{kind:'pass'},{
+   kind:'attach-basic-energy',slot:'bench',index:1,handIndex:0
+ }]){
+   const p=proposeRondoPsychicBenchStaging(v,catalog,{
+     protectActiveLatiasEonBlade:true,baseline
+   });
+   assert.equal(p?.slot,'bench');
+ }
+});
+
+test('guard requires exact visible Latias printing and Eon Blade',()=>{
+ const v=view();
+ v.ownPublic.active={printing:'Latias ex SSP',energies:[],
+   attacks:[{name:'Other Attack'}]};
+ const baseline={kind:'attach-basic-energy',slot:'active',handIndex:0};
+ assert.equal(proposeRondoPsychicBenchStaging(v,catalog,{
+   protectActiveLatiasEonBlade:true,baseline})?.slot,'bench');
+ v.ownPublic.active.printing='Mimikyu GRI';
+ v.ownPublic.active.attacks=[{name:'Eon Blade'}];
+ assert.equal(proposeRondoPsychicBenchStaging(v,catalog,{
+   protectActiveLatiasEonBlade:true,baseline})?.slot,'bench');
+});
