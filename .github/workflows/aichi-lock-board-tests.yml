@@ -3,11 +3,18 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
-      agent33_path_to_peak_native:
-        description: 'Agent33 staged pinned Store two-seat Path to the Peak Rule Box Ability suppression only'
+      agent33_stadium_mode:
+        description: 'Agent33 native Stadium studies, one bounded mode at a time'
         required: false
-        type: boolean
-        default: false
+        type: choice
+        options:
+          - none
+          - path
+          - beach-native
+          - beach-paired
+          - ceremony
+          - sky
+        default: none
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
         required: false
@@ -152,8 +159,37 @@ jobs:
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
-        if: inputs.agent33_path_to_peak_native
+        if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
+      - name: Native original Store Tropical Beach seven-card draw and immediate turn end
+        if: inputs.agent33_stadium_mode == 'beach-native'
+        run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
+      - name: Run six preregistered two-seat original-source Tropical Beach A/B pairs
+        if: inputs.agent33_stadium_mode == 'beach-paired'
+        run: node simulation/evaluation/agent33-tropical-beach-original-paired.cjs > agent33-beach-original-paired.json
+      - name: Report paired Beach native exposure and all failed attempts
+        if: inputs.agent33_stadium_mode == 'beach-paired'
+        run: >-
+          node -e "const r=require('./agent33-beach-original-paired.json');
+          console.log(JSON.stringify({schema:r.schema,expected:r.expectedAttempts,
+          observed:r.observedAttempts,paired:r.pairedPhysicalStarts,
+          uses:r.treatmentsBeachUses,confirmed:r.treatmentNativeBeachConfirmation,
+          settled:r.treatmentNativeBeachDrawAndEndTurnSettled,
+          errors:r.nativeErrors,physicalInvalid:r.enginePhysicalInvalid,
+          qualified:r.competitiveQualifiedGames}));"
+      - name: Preserve every preregistered original Beach pair including errors
+        if: inputs.agent33_stadium_mode == 'beach-paired' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-original-beach-paired-20261030
+          path: agent33-beach-original-paired.json
+          if-no-files-found: warn
+      - name: Native original Store Player Ceremony held-play-use on both seats
+        if: inputs.agent33_stadium_mode == 'ceremony'
+        run: node --test tests/agent33-players-ceremony-full-action-pinned.test.cjs
+      - name: Native original Store Sky Field full Bench expansion on both seats
+        if: inputs.agent33_stadium_mode == 'sky'
+        run: node --test tests/agent33-sky-field-bench-expansion-pinned.test.cjs
       - name: Regress conservative Path to the Peak public opposing Ability lock
         run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
