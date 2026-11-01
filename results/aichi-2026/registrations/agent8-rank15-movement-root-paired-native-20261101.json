@@ -1,0 +1,190 @@
+{
+  "schema": "agent8-rank15-original-sixty-boolean-public-movement-receipt-paired-development-v1",
+  "registeredUtc": "2026-11-01T15:58:57.856275Z",
+  "phase": "registered-before-first-native-rank15-game-run",
+  "purpose": "One source-registered rank15 exact printed60 comparison across two fixed candidate60s, both physical candidate seats, and eight unscreened CSPRNG seed groups; compare identical physical initial deals with and without trusted owner-public-event receipt while enabling the same evolution and same-root attacking baseline in both arms. No expectation of game qualification.",
+  "randomness": "Eight independent uniformly drawn secrets.randbits(32) seeds. No stratification, coin filtering, prior game outcomes, opening-card screening or posthoc replacement; preserve every attempt.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidateChampionPrinted60BlobSha": "1e5b09f77d65a445bb9812ef972e2340886d4758",
+  "candidateNewMoonPrinted60BlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+  "sourceRank": 15,
+  "sourceIdentity": "Ryotaro Nozawa, Lopunny Vileplume, authenticated exact original source 60",
+  "seeds": {
+    "A": [
+      1658736708,
+      964534281,
+      2617754130,
+      1771076384
+    ],
+    "B": [
+      550503645,
+      1664089330,
+      2162090110,
+      4165549731
+    ]
+  },
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "attemptsPerPolicy": 16,
+  "plannedNativeAttempts": 32,
+  "fixedBothArmOptions": {
+    "actorOnlyComposition": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "bilateralPublicContextSpecialEnergy": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootPositiveAttackOverPass": true,
+    "actorNaturalEvolutionRoot": true,
+    "losslessNativeRootJoin": true
+  },
+  "oneBooleanTreatmentOnly": "sameRootPublicEventReceipt=true; false in control",
+  "importantLimit": "The receipt currently also enables read-only prior-KO conditional Supporter offers, but the exact original rank15 printed 60 has neither Teammates nor Raihan; neither candidate fixed60 is asserted to exclude them without inspecting their decks. Therefore attribute causality only if every changed root can be tied to the exact movement-aware attack offer and not the conditional Supporter branch.",
+  "predeclaredPrimaryReport": "Per attempt: physical integrity, starter coin/first draw, native error/terminal/action cap, both seats' actor-root audit, counts of original rank15 eligible Mega Lopunny source owner roots, emitted/selected native attack offer, downstream response and any treatment-control first divergent action. Report zero exposure without hiding rows.",
+  "stopAndEvidence": "Preserve all 32 attempts, no seed replacement; engine terminals never count as competitively qualified wins; planned 16 control +16 treatment native arms, no paper-clock or professional opponent policy validation.",
+  "trials": [
+    {
+      "id": "15:0:A:champion-reference",
+      "rank": 15,
+      "repeat": 0,
+      "seed": 1658736708,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:0:A:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 0,
+      "seed": 1658736708,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:1:A:champion-reference",
+      "rank": 15,
+      "repeat": 1,
+      "seed": 964534281,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:1:A:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 1,
+      "seed": 964534281,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:2:A:champion-reference",
+      "rank": 15,
+      "repeat": 2,
+      "seed": 2617754130,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:2:A:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 2,
+      "seed": 2617754130,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:3:A:champion-reference",
+      "rank": 15,
+      "repeat": 3,
+      "seed": 1771076384,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:3:A:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 3,
+      "seed": 1771076384,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:0:B:champion-reference",
+      "rank": 15,
+      "repeat": 0,
+      "seed": 550503645,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:0:B:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 0,
+      "seed": 550503645,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:1:B:champion-reference",
+      "rank": 15,
+      "repeat": 1,
+      "seed": 1664089330,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:1:B:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 1,
+      "seed": 1664089330,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:2:B:champion-reference",
+      "rank": 15,
+      "repeat": 2,
+      "seed": 2162090110,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:2:B:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 2,
+      "seed": 2162090110,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "15:3:B:champion-reference",
+      "rank": 15,
+      "repeat": 3,
+      "seed": 4165549731,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "15:3:B:new-moon-lockbreaker-v1",
+      "rank": 15,
+      "repeat": 3,
+      "seed": 4165549731,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    }
+  ],
+  "competitiveGameQualified": false
+}
