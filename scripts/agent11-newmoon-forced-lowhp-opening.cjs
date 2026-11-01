@@ -8,6 +8,11 @@ const {combination,validOpening,EXPECTED_RANKS} =
 
 const VERSION = 'agent11-newmoon-forced-lowhp-opening-v1';
 const NEWMOON_HASH = 'a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4';
+const DIRECT_BASIC_ACCESS_ITEMS = new Map([
+  ['swsh8-225',{name:'Battle VIP Pass',count:4}],
+  ['swsh6-140',{name:'Fog Crystal',count:4}]
+]);
+
 const LOW_HP_PRINTINGS = new Map([
   ['xy7-30', {name:'Unown', count:3, hp:60}],
   ['swsh4-69', {name:'Duskull', count:2, hp:60}]
@@ -40,6 +45,13 @@ function verifyPrintedInventories(manifest,sourceOpenings) {
     assert.equal(entry.name_en,exact.name);
     assert.equal(entry.count,exact.count);
   }
+  for (const [id,expected] of DIRECT_BASIC_ACCESS_ITEMS) {
+    const found=manifest.entries.filter(e=>e.english_proxy_card_id===id);
+    assert.equal(found.length,1);
+    assert.equal(found[0].type,'Trainer');
+    assert.equal(found[0].name_en,expected.name);
+    assert.equal(found[0].count,expected.count);
+  }
   assert.equal(sourceOpenings.fully_resolved,29);
   assert.deepEqual(sourceOpenings.decks.map(d=>d.rank)
     .sort((a,b)=>a-b),EXPECTED_RANKS);
@@ -49,7 +61,8 @@ function verifyPrintedInventories(manifest,sourceOpenings) {
   assert.equal(champion.basic_count_known,14);
   assert.equal(champion.basic_hp_at_most_60_known,0);
   return {newMoonBasics:17,newMoonLowHpBasics:5,
-    championBasics:14,championLowHpBasics:0};
+    championBasics:14,championLowHpBasics:0,
+    directBasicAccessItems:8};
 }
 
 /**
@@ -100,6 +113,35 @@ function sourceConditionalExposure(candidateBasics,lowHpBasics,
   return probability;
 }
 
+/**
+ * A strictly narrower physical-card event: the only seen Basic has <=60 HP
+ * and the seen hand also lacks all eight directly Basic-searching Items
+ * (4 Battle VIP Pass and 4 Fog Crystal).
+ *
+ * This is a hand-location screen only. Other Items/Supporters, unknown source
+ * lock effects and decision priorities are intentionally left unmodeled.
+ * @param {number} sourceBasics Original opponent Basic count.
+ * @param {number} ordinaryDraws 0..4 hypothetical natural additional draws.
+ * @returns {number}
+ */
+function withoutDirectBasicSearcher(sourceBasics,ordinaryDraws=0){
+  assert.ok(Number.isInteger(ordinaryDraws)&&ordinaryDraws>=0&&
+    ordinaryDraws<=4);
+  const candidateBasics=17, lowHpBasics=5, directSearchCopies=8;
+  const pC=validOpening(candidateBasics), pS=validOpening(sourceBasics);
+  const qS=1-pS, d=1-(1-pC)*qS;
+  const initial=lowHpBasics*C(60-candidateBasics-directSearchCopies,6)/
+    (C(60,7)-C(60-candidateBasics,7));
+  const remainingNonbasicNonsearch=60-candidateBasics-directSearchCopies-6;
+  let result=0;
+  for(let bonus=0;bonus+ordinaryDraws<=remainingNonbasicNonsearch;bonus++){
+    const w=bonus===0?pS/d:pC*pS*qS**bonus/d;
+    const extra=bonus+ordinaryDraws;
+    result+=w*initial*C(remainingNonbasicNonsearch,extra)/C(53,extra);
+  }
+  return result;
+}
+
 /** @param {object} manifest @param {object} sourceOpenings @returns {object} */
 function analyze(manifest,sourceOpenings){
   const verified=verifyPrintedInventories(manifest,sourceOpenings);
@@ -114,6 +156,13 @@ function analyze(manifest,sourceOpenings){
     openingSevenOnly:{
       reference:forcedLowHpInSeven(14,0),
       newMoon:forcedLowHpInSeven(17,5)
+    },
+    directBasicSearcherAbsent:{
+      preciseScope:'No physical Battle VIP Pass or Fog Crystal; other access routes and Item locks excluded',
+      firstSeven:5*C(35,6)/(C(60,7)-C(43,7)),
+      meanOver29Sources:sourceOpenings.decks.reduce((sum,d)=>sum+
+        withoutDirectBasicSearcher(d.basic_count_known),0)/29,
+      sourceRank6:withoutDirectBasicSearcher(4)
     },
     allMaximumBonusDraws:{
       reference:0,
@@ -137,5 +186,6 @@ function fromRepo(){
     'results/als/new-moon-lockbreak-english-proxy-60.json'),'utf8'));
   return analyze(manifest,sourceOpenings);
 }
-module.exports={VERSION,LOW_HP_PRINTINGS,verifyPrintedInventories,
-  forcedLowHpInSeven,sourceConditionalExposure,analyze,fromRepo};
+module.exports={VERSION,LOW_HP_PRINTINGS,DIRECT_BASIC_ACCESS_ITEMS,
+  verifyPrintedInventories,forcedLowHpInSeven,sourceConditionalExposure,
+  withoutDirectBasicSearcher,analyze,fromRepo};
