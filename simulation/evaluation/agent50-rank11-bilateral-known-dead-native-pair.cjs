@@ -102,7 +102,7 @@ function compareOriginalRank11Pairs(controlRows,treatmentRows,options={}){
   assert.equal(treatmentRows.length,expected);
   const baseline=new Map(controlRows.map(x=>[x.trial.id,compactGame(x)]));
   const treated=new Map(treatmentRows.map(x=>[x.trial.id,compactGame(x)]));
-  assert.equal(baseline.size,4);assert.equal(treated.size,4);
+  assert.equal(baseline.size,expected);assert.equal(treated.size,expected);
   const pairs=[];
   for(const [id,a] of baseline){
     const b=treated.get(id);
