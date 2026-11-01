@@ -203,3 +203,29 @@ test('reversible exact-print paper bypass restores both-seat Weakness semantics'
     assert.ok(row.interceptedNativeDamagePhases>=1);
   }
 });
+
+test('original native Psychic Resistance also deviates from Energy Drive; opt-in corrects',()=>{
+  const results=[];
+  for(const seat of [0,1]){
+    for(const doubleColorless of [false,true]){
+      const options={defender:'Metagross-GX GRI',doubleColorless};
+      const nativeReceipt=settle(stage(seat,1,options));
+      const fixture=stage(seat,1,options);
+      const {result:fixed,audit}=withEnergyDrivePaperBypass(
+        ()=>settle(fixture),{Store,rootStore:fixture.store});
+      results.push({seat,doubleColorless,
+        printedTarget:'Metagross-GX GRI',
+        paperExpectedDamage:60,nativeDamage:nativeReceipt.deltaDamage,
+        correctedDamage:fixed.deltaDamage,
+        auditedPhases:audit.events.map(x=>x.effectClass)});
+    }
+  }
+  console.log('AGENT34_TAPU_LELE_PAPER_RESISTANCE',JSON.stringify(results));
+  for(const row of results){
+    assert.equal(row.nativeDamage,40,
+      'Pinned original Store should exhibit the uncorrected Psychic -20 Resistance');
+    assert.equal(row.correctedDamage,60,
+      'Printed Energy Drive ignores Psychic Resistance');
+    assert.ok(row.auditedPhases.includes('ApplyResistanceEffect'));
+  }
+});
