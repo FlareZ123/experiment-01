@@ -1,6 +1,6 @@
 # Agent 46: residual Electro Rain packets can require several capped targets
 
-**1 November 2026. Evidence class:** deterministic source-level defect and synthetic pure-policy regression. The new existing-workflow compiled check was dispatched; its run status is recorded separately and must be inspected. No original-source completed game or competitive win-rate inference.
+**1 November 2026. Evidence class:** deterministic source-level defect and synthetic pure-policy regression. Manual compiled [CI 41277314683](https://github.com/FlareZ123/experiment-01/actions/runs/41277314683) **succeeded**, including the explicitly listed `Check Electro Rain capped allocation pure regression` step and existing native Raichu regression steps. This confirms that the synthetic test executes and does not break this bounded compiled suite; it does not make the artificial per-target caps native-reachable. No original-source completed game or competitive win-rate inference.
 
 ## Reproducible failure
 
