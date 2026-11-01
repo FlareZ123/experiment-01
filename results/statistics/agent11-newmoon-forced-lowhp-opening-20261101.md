@@ -33,6 +33,18 @@ For an original opponent with (B_S) Basics, also include the legal two-player *s
 
 This complements the separately documented [29-source two-player mulligan resource model](../../scripts/agent11-field-simultaneous-mulligan-compensation.cjs): New Moon's 17 Basics reduce the bonus draws it offers opposing decks, but the candidate also contains five fragile Basics that its own valid starting seven can force Active.
 
+## A tighter physical-screen after eight direct Basic-search Items
+
+The same fixed 60 also contains **4 Battle VIP Pass FST225** and **4 Fog Crystal CRE140**. Their printed effects can find additional Basic Pokémon during the appropriate first-turn/item-usable window. The complete supplied card database confirms **16 Psychic Basic copies** in the candidate, enough that at least one remains in the deck even with six random Prizes, so Fog Crystal has a named Basic target at the start of this scenario. These Item lines can still be blocked by opposing Item locks or fail for other reasons, and the calculation does not give them a policy-verified success credit.
+
+Among valid New Moon initial sevens, the more restrictive event of (1) **exactly one Basic with HP≤60**, and (2) **zero physical Battle VIP Pass and Fog Crystal cards**, is
+
+`5*C(35,6)/[C(60,7)-C(43,7)] = 2.29271023%`.
+
+Under the full two-player mulligan bonus distribution, require every extra physical card to contain neither another Basic nor either directly Basic-searching Item. Of the 53 unseen cards after this precise seven, **29** meet that restriction. The exact probability after all maximum opponent-mulligan bonuses, averaged equally over the 29 known original opponents, is **2.04224735%**, compared with **7.93405063%** when direct searcher cards were not screened. Against the original four-Basic Iron Thorns sources it is **1.39177924%**.
+
+This tighter event quantifies **what is missing from the immediately visible, directly Basic-searching hand**, and must not be interpreted as a guaranteed unrescuable starter or a loss probability. Other Trainer/Ability lines could still rescue a hand with neither Item; an opponent's Item lock could make a held Item unusable. Both numbers describe different exact inventory events, and neither justifies an immediate candidate substitution.
+
 ## Why this is only a structural risk
 
 - A 60-HP opening Basic is **not** equivalent to an early Knock Out, donk, or game loss. Opponent attack access, setup speed, first-player seat, Bench options, Abilities, relevant HP modification, and later actions all matter.
