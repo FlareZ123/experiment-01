@@ -322,6 +322,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRaichuPrintedKnockoutAttachment(view,catalog);
     if(proposed)return proposed;
   }
+  // Experimental nonfinal Prize trade: still only an owner-public nominal KO.
+  if(options.prizeTradeGuzma===true){
+    const gust=require('./agent31-final-prize-guzma-frontier.cjs')
+      .choosePrizeTradeGuzma(view,catalog);
+    if(gust)return gust;
+  }
   // Final-Prize Guzma tactical line permits multiple Bench targets. It is
   // opt-in and keeps its exact planned native recipient indices.
   if(options.finalPrizeGuzma===true){
@@ -603,6 +609,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
     finalPrizeGuzmaOptIn:deps.finalPrizeGuzma===true||
       process.env.AGENT31_GUZMA_FINAL_PRIZE_DEV==='true',
+    prizeTradeGuzmaOptIn:deps.prizeTradeGuzma===true||
+      process.env.AGENT31_GUZMA_PRIZE_TRADE_DEV==='true',
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     teamFlareGruntDenialRootOptIn:deps.teamFlareGruntDenialRoot??
@@ -858,7 +866,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.forcedGuzmaNominalKoOptIn)
     audit.version+='+'+
       require('./agent31-forced-guzma-ko-frontier.cjs').VERSION;
-  if(audit.finalPrizeGuzmaOptIn)
+  if(audit.finalPrizeGuzmaOptIn||audit.prizeTradeGuzmaOptIn)
     audit.version+='+'+
       require('./agent31-final-prize-guzma-frontier.cjs').VERSION;
   if(audit.mobilityAwareRecipientOptIn)
@@ -1020,6 +1028,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
+      prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
