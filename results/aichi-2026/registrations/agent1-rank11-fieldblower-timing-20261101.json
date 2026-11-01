@@ -1,0 +1,47 @@
+{
+  "schema": "agent1-original-rank11-source-versus-rank1-recipient-fieldblower-timing-exploratory-v1",
+  "registrationDate": "2026-11-01",
+  "registrationMode": "prior-to-timing-policy-change-and-native-trials",
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "candidateRank": 1,
+  "candidateSeat": 1,
+  "originalSourceFrame": "results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json",
+  "selectedK0Index": 299,
+  "sourcePhysicalSeed": 2387754768,
+  "sourceK0HandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "sourceK0Bench": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "arms": [
+    {
+      "id": "immediate",
+      "firstAllowedGlobalTurn": 2,
+      "automaticFieldBlower": true
+    },
+    {
+      "id": "deferred",
+      "firstAllowedGlobalTurn": 4,
+      "automaticFieldBlower": true
+    },
+    {
+      "id": "generic",
+      "firstAllowedGlobalTurn": 999,
+      "automaticFieldBlower": false
+    }
+  ],
+  "fixed": "Identical original rank11/rank1 printed 60s, single existing frozen physical deal, owner first-turn source Oranguru/StarVIP setup offer accepted, generic original source decision starting turn3, opponent unchanged except timing of native conditional owner-hand/public-Garbotoxin Field Blower; no inserted card or forced draw.",
+  "primaryContrasts": [
+    "Recipient held Field Blower remaining at its global turn4 first native root; immediate vs deferred vs generic",
+    "Actual accepted recipient Field Blower root on global turn2 vs turn4 and resolved Tool-removal after-effect",
+    "Recipient's actually accepted subsequent turn actions after Tool suppression, with exposed owner hand and public state only as post-game evidence",
+    "Source Garbodor Float Stone equipment at opponent turn4 and source turn5 first owner root, if reached",
+    "Any run exceptions, rejected prompts, action caps, missing return turns"
+  ],
+  "interpretationLimit": "One retrospectively chosen positive K0 world; decision-policy comparison only; zero competitive-qualified games; no source-rank generalization, no winning claim."
+}
