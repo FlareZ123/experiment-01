@@ -17,7 +17,12 @@ const EXACT_ROOT_PRINTING_ALIASES=Object.freeze({
   'Telepathic Psychic Energy':'Telepath [P] Energy M3',
   // Four authenticated rank5 Store abort receipts matched the same seat,
   // turn and action, differing only in this legacy printed name's hyphen.
-  'Dedenne-GX':'Dedenne GX UNB'
+  'Dedenne-GX':'Dedenne GX UNB',
+  // Original rank19 36-arm source-readiness CI 41341992444 has four
+  // fail-closed mismatches; action, seat and turn agreed in each case.
+  // Keep only these two native physical source printings.
+  'Ho-Oh-EX':'Ho-Oh EX DRX',
+  'Arceus & Dialga & Palkia-GX':'Arceus & Dialga & Palkia GX CEC'
 });
 
 /** @param {string} rootName @param {string} printing @returns {boolean} */
