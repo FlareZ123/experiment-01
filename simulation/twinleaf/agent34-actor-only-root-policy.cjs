@@ -322,6 +322,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRaichuPrintedKnockoutAttachment(view,catalog);
     if(proposed)return proposed;
   }
+  // Final-Prize Guzma tactical line permits multiple Bench targets. It is
+  // opt-in and keeps its exact planned native recipient indices.
+  if(options.finalPrizeGuzma===true){
+    const gust=require('./agent31-final-prize-guzma-frontier.cjs')
+      .chooseFinalPrizeGuzma(view,catalog);
+    if(gust)return gust;
+  }
   // Opt-in owner-visible Guzma line where both native switch targets are
   // forced and an already funded Bench attack nominally takes a Prize.
   // This proposal precedes the ordinary attack-first root decision.
@@ -594,6 +601,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     forcedGuzmaNominalKoOptIn:deps.forcedGuzmaNominalKo===true||
       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
+    finalPrizeGuzmaOptIn:deps.finalPrizeGuzma===true||
+      process.env.AGENT31_GUZMA_FINAL_PRIZE_DEV==='true',
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     teamFlareGruntDenialRootOptIn:deps.teamFlareGruntDenialRoot??
@@ -846,6 +855,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.forcedGuzmaNominalKoOptIn)
     audit.version+='+'+
       require('./agent31-forced-guzma-ko-frontier.cjs').VERSION;
+  if(audit.finalPrizeGuzmaOptIn)
+    audit.version+='+'+
+      require('./agent31-final-prize-guzma-frontier.cjs').VERSION;
   if(audit.mobilityAwareRecipientOptIn)
     audit.version+='+agent2-owner-held-mobility-recipient-v1';
   if(audit.perfectionTransitionRootOptIn)
@@ -1004,6 +1016,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
+      finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
