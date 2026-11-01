@@ -95,7 +95,42 @@ function runRank31RoxieSpoons(guarded){
   };
   return guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
 }
+/**
+ * Inspect a real native Roxie ChooseCardsPrompt with exactly the same two
+ * physical owner cards in different hand orders. A printed Koffing is valid
+ * in both paper orders. Observe native option/index drift and actual Store
+ * pre-dispatch acceptance independently of broader combo completion.
+ * @param {boolean} roxieFirst
+ * @returns {object}
+ */
+function probeRoxieChoiceIndexShift(roxieFirst){
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const f=stagedPainfulSpoons();
+  const roxie=f.card('Roxie CEC'),koffing=f.card('Koffing CEC');
+  f.source.hand.cards.push(...(roxieFirst?[roxie,koffing]:[koffing,roxie]));
+  f.store.dispatch(new PlayCardAction(f.source.id,roxieFirst?0:1,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  const prompt=f.state.prompts.find(p=>p.result===undefined&&
+    p.constructor.name==='ChooseCardsPrompt');
+  assert.ok(prompt,'Original Roxie must prompt owner to discard a Pokémon');
+  const validatorAccepted=prompt.validate([koffing],f.state);
+  const blocked=[...prompt.options.blocked];
+  const hand=f.source.hand.cards.map(c=>c.fullName);
+  let nativeStoreError=null;
+  try{f.store.dispatch(new ResolvePromptAction(prompt.id,[koffing]));}
+  catch(e){nativeStoreError=String(e?.message??e);}
+  return {roxieFirst,validatorAccepted,blocked,hand,
+    nativeStoreError,promptSettled:prompt.result!==undefined,
+    nativePrompts:f.state.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name),
+    scope:'Actual native owner Roxie CEC ChooseCards with real Koffing CEC, two physical hand orders'};
+}
+
 if(require.main===module)console.log(JSON.stringify([
   runRank31RoxieSpoons(false),runRank31RoxieSpoons(true)
 ],null,2));
-module.exports={runRank31RoxieSpoons};
+module.exports={runRank31RoxieSpoons,probeRoxieChoiceIndexShift};
