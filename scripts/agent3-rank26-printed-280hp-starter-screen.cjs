@@ -21,7 +21,9 @@ function printIndex(){
   }
   const cache=new Map();
   return card=>{
-    const ids=byCode.get(card.printing?.set)||[];
+    const promo={SMP:'smp',XYP:'xyp',BWP:'bwp',SWSP:'swshp',SVP:'svp'};
+    const ids=byCode.get(card.printing?.set)||
+      (promo[card.printing?.set]?[promo[card.printing.set]]:[]);
     const sought=normalizeName(card.name);
     const matches=[];
     for(const id of ids){
