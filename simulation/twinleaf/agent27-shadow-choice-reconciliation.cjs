@@ -106,4 +106,27 @@ function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
     }
   };
 }
-module.exports={VERSION,physicalKey,reconcileShadowAndChoice};
+/**
+ * Optional complete same-kind final Bench opportunity in the independent
+ * shadow and executable-offer censuses. Native dispatch remains prohibited
+ * for this injected offer, even if it is the first in the owner's hand.
+ *
+ * @param {object} view
+ * @param {object} catalog
+ * @param {object} baseline
+ * @param {object} [options]
+ * @returns {object} Same-root receipts with one additional observer family.
+ */
+function reconcileIncludingLastBench(view,catalog,baseline,options={}){
+  const {PROPOSERS,collectAndChooseOwnerRoot}=
+    require('./agent41-same-root-proposal-choice.cjs');
+  const {lastBenchShadowProposer}=
+    require('./agent27-owner-lastbench-basic-conflict.cjs');
+  const proposerFamilies=[...PROPOSERS,lastBenchShadowProposer()];
+  const chooser=(v,c,b,o)=>collectAndChooseOwnerRoot(
+    v,c,b,o,proposerFamilies);
+  return reconcileShadowAndChoice(view,catalog,baseline,
+    {...options,agent27LastBenchShadow:true},chooser);
+}
+module.exports={VERSION,physicalKey,reconcileShadowAndChoice,
+  reconcileIncludingLastBench};
