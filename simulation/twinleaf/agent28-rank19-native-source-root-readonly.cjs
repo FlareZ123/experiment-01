@@ -1,0 +1,134 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const VERSION='agent28-original-rank19-native-public-active-roots-readonly-v1';
+const RAGING='Raging Bolt ex TEF';
+const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+
+/** @param {object} player Complete physical card zones, used only to identify the frozen source deck after native setup. */
+function countSourceRagingCopies(player){
+  const lists=[player.active,player.deck,player.hand,player.discard,
+    player.lostzone,player.stadium,player.supporter,
+    ...(player.bench??[]),...(player.prizes??[])];
+  return lists.reduce((n,list)=>n+(list?.cards??[]).filter(card=>
+    card.fullName===RAGING).length,0);
+}
+
+/** @param {object} player Public native Pokémon board only. */
+function publicOwnerBoard(player){
+  const active=player.active.getPokemonCard();
+  const bench=player.bench.map(slot=>{
+    const pokemon=slot.getPokemonCard();
+    return pokemon?{
+      printing:pokemon.fullName,
+      attachedEnergy:(slot.energies?.cards??[]).map(c=>c.fullName)
+    }:null;
+  });
+  return {
+    activePrinting:active?.fullName??null,
+    activeEnergy:(player.active.energies?.cards??[]).map(c=>c.fullName),
+    bench
+  };
+}
+
+/**
+ * Post-identity read-only original Store dispatch observer. Collects source
+ * owner root position before each actual native action; never substitutes a
+ * decision or consults any hidden zone during decision-making. The frozen
+ * exact original-source 60 is recognized by two physical Raging Bolt TEF cards
+ * after both original AddPlayerActions. Source identification is retrospective
+ * audit code and is not presented to any player policy.
+ *
+ * @template T
+ * @param {()=>T} run Synchronous original native full-game replay.
+ * @param {{Store?:Function,GamePhase?:object}} [deps]
+ * @returns {{result:T,audit:object}}
+ */
+function withRank19NativePublicActiveReadOnly(run,deps={}){
+  assert.equal(typeof run,'function');
+  const Store=deps.Store??
+    require(path.join(OUT,'game/store/store')).Store;
+  const GamePhase=deps.GamePhase??
+    require(path.join(OUT,'game/store/state/state')).GamePhase;
+  const descriptor=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof descriptor?.value,'function');
+  const sessions=new WeakMap(),records=[];
+  let prepared=0;
+  const original=descriptor.value;
+
+  function observedDispatch(action,...rest){
+    const actionType=action?.constructor?.name??'UnknownAction';
+    if(actionType==='AddPlayerAction'&&!sessions.has(this)){
+      sessions.set(this,{gameIndex:++prepared,sourceSeat:null,
+        records:[],sourceIdentityCounts:null});
+    }
+    const session=sessions.get(this);
+    const state=this.state;
+    if(session?.sourceSeat!==null&&
+       state?.phase===GamePhase.PLAYER_TURN&&
+       state.activePlayer===session.sourceSeat&&
+       !state.prompts?.some(p=>p.result===undefined)&&
+       actionType!=='ResolvePromptAction'){
+      const board=publicOwnerBoard(state.players[session.sourceSeat]);
+      const basicEnergyCards=[
+        ...board.activeEnergy,...board.bench.flatMap(p=>p?.attachedEnergy??[])
+      ].filter(p=>/^(Lightning|Fighting|Darkness|Grass|Fire|Water|Psychic|Metal|Fairy) Energy /.test(p)).length;
+      session.records.push({
+        actionOrdinalWithinSourceGame:session.records.length,
+        turn:state.turn,
+        actionType,
+        actionAttack:actionType==='AttackAction'?action.name:null,
+        ...board,
+        attachedBasicEnergyCards:basicEnergyCards
+      });
+    }
+    const result=original.call(this,action,...rest);
+    const next=this.state;
+    if(session&&session.sourceIdentityCounts===null&&
+       next?.players?.length===2&&actionType==='AddPlayerAction'){
+      const counts=next.players.map(countSourceRagingCopies);
+      if(counts.includes(2)&&counts.includes(0)){
+        session.sourceSeat=counts.indexOf(2);
+        session.sourceIdentityCounts=counts;
+        records.push(session);
+      }
+    }
+    return result;
+  }
+
+  Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:observedDispatch});
+  try{
+    const result=run();
+    const audit=records.map(s=>{
+      const active=s.records.filter(r=>r.activePrinting===RAGING);
+      return {gameIndex:s.gameIndex,sourceSeat:s.sourceSeat,
+        sourcePhysicalRagingCounts:s.sourceIdentityCounts,
+        sourceOwnerRootCount:s.records.length,
+        sourceRagingActiveRoots:active.length,
+        sourceRagingActiveUniqueTurns:[...new Set(active.map(x=>x.turn))],
+        bellowingDeclared:s.records.filter(x=>
+          x.actionType==='AttackAction'&&
+          x.actionAttack==='Bellowing Thunder').length,
+        sourceActivePrintingCounts:s.records.reduce((out,r)=>{
+          const key=r.activePrinting??'(none)';
+          out[key]=(out[key]??0)+1;return out;
+        },{}),
+        ragingActiveEnergySamples:active.slice(0,25).map(r=>({
+          turn:r.turn,action:r.actionType,
+          activeEnergy:r.activeEnergy,
+          attachedBasicEnergyCards:r.attachedBasicEnergyCards,
+          bench:r.bench.filter(Boolean)
+        }))
+      };
+    });
+    return {result,audit,version:VERSION,
+      qualification:'retrospective, read-only, source-identified native root census'};
+  }finally{
+    assert.strictEqual(Store.prototype.dispatch,observedDispatch);
+    Object.defineProperty(Store.prototype,'dispatch',descriptor);
+  }
+}
+
+module.exports={VERSION,RAGING,countSourceRagingCopies,
+  publicOwnerBoard,withRank19NativePublicActiveReadOnly};
