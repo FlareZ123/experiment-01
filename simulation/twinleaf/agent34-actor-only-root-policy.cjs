@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v6-native-coheld-denial-observer';
+const VERSION='agent34-actor-only-root-slice-v7-native-same-root-plumeria-intent';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -608,6 +608,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
+    nativePlumeriaChoiceOptIn:deps.nativePlumeriaChoice===true,
     losslessNativeRootJoinOptIn:deps.losslessNativeRootJoin===true,
     registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
@@ -681,6 +682,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.nativeToolAttachRootOptIn;
+    delete audit.nativePlumeriaChoiceOptIn;
     delete audit.sameRootPassAttackProbeGlobalTurn;
     delete audit.sameRootPublicNoBenchTerminalOptIn;
     delete audit.sameRootPositiveAttackOverPassOptIn;
@@ -960,6 +962,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
+      nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
       registeredToolEnergyCeiling:audit.registeredToolEnergyCeilingOptIn===true,
       passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
       publicNoBenchTerminalAttack:audit.sameRootPublicNoBenchTerminalOptIn===true,
@@ -1061,6 +1064,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           slot:intent.slot==='bench'?SlotType.BENCH:SlotType.ACTIVE,
           index:intent.slot==='bench'?intent.index:0});
         break;
+      case 'play-plumeria-payment-menu':
       case 'play-held-guzma-mobility':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
@@ -1111,8 +1115,14 @@ function withActorOnlyRootPolicy(run,deps={}){
       default:throw new Error('Unknown actor-only intent: '+intent.kind);
     }
     audit.selectedRootDecisions++;
-    if(audit.losslessNativeRootJoinOptIn)actorNativeActionMetadata.set(action,
-      Object.freeze({seat,policyDecisionOrdinal:audit.selectedRootDecisions}));
+    if(audit.losslessNativeRootJoinOptIn||
+       (audit.nativePlumeriaChoiceOptIn&&
+        intent.kind==='play-plumeria-payment-menu'))
+      actorNativeActionMetadata.set(action,Object.freeze({
+        seat,policyDecisionOrdinal:audit.selectedRootDecisions,
+        kind:intent.kind,handIndex:intent.handIndex??null,
+        printing:intent.printing??null
+      }));
     typedDecisions.set(action,{globalTurn:view.globalTurn,seat,kind:intent.kind,
       ...((audit.losslessNativeRootJoinOptIn||
           audit.terminalArbitrationOptIn||audit.sameRootProposalChoiceOptIn)?{
