@@ -6,8 +6,8 @@ const {verdictVoltCyclone}=require('./agent39-paper-prompt-portfolio.cjs');
 const {campingGearPaperVerdict}=
   require('./agent12-campinggear-prompt-paper-hook.cjs');
 /**
- * Check only independently observable native PutDamage zero-target and
- * whole-packet negative restrictions. Do not first call prompt.validate:
+ * Check independently observable native PutDamage zero-target, whole-packet
+ * and optional total-budget negative restrictions. Do not first call prompt.validate:
  * the vendor validator can reject otherwise valid paper replies, and an
  * unrelated validation false must not become a paper-invalid verdict.
  *
@@ -18,9 +18,12 @@ const {campingGearPaperVerdict}=
 function independentPutDamageNegative(prompt,answer){
   if(!Array.isArray(answer))return null;
   const multiple=prompt.options?.damageMultiple;
+  let total=0;
   for(const row of answer){
     if(!Number.isSafeInteger(row?.damage)||row.damage<0)
       return 'INVALID_DAMAGE_AMOUNT';
+    total+=row.damage;
+    if(!Number.isSafeInteger(total))return 'INVALID_DAMAGE_TOTAL';
     if(row.damage===0)continue;
     if(Number.isSafeInteger(multiple)&&multiple>0&&
       row.damage%multiple!==0)
@@ -34,6 +37,11 @@ function independentPutDamageNegative(prompt,answer){
       entry.target.index===target?.index);
     if(cap?.damage===0)return 'PRINTED_TARGET_ZERO_CAP';
   }
+  // Native optional PutDamagePrompt.validate does not impose this budget;
+  // actual Froslass UNM AttackAction can otherwise accept an eighth counter.
+  if(prompt.options?.allowPlacePartialDamage===true&&
+     Number.isSafeInteger(prompt.damage)&&total>prompt.damage)
+    return 'EXCEEDS_PRINTED_PARTIAL_DAMAGE_BUDGET';
   return null;
 }
 
@@ -42,7 +50,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v5-distinct-physical-cards';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v6-partial-damage-budget';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -220,7 +228,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'ChooseCardsPrompt independent physical-card uniqueness and source-membership negative only',
       'Camping Gear BST mandatory own-deck exactly-one search',
       'Iron Thorns ex TWM printed Volt Cyclone transfer, positively reducer-marked',
-      'PutDamagePrompt declared zero-target and whole-packet rejection only',
+      'PutDamagePrompt declared zero-target, whole-packet and optional budget negatives only',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
@@ -319,10 +327,11 @@ function withPaperPromptContractPortfolio(run,deps={}){
         'native-validator-rejected-independent-print-valid-selection':
         result.reason;
     }else if(family==='PutDamagePrompt'){
-      contract='declared-zero-target-and-whole-packet-negative-only';
+      contract='declared-zero-target-whole-packet-and-optional-budget-negative-only';
       const rejected=independentPutDamageNegative(prompt,action.result);
       if(['PRINTED_TARGET_ZERO_CAP','INVALID_PRINTED_DAMAGE_PACKET',
-        'INVALID_DAMAGE_AMOUNT'].includes(rejected)){
+        'INVALID_DAMAGE_AMOUNT','INVALID_DAMAGE_TOTAL',
+        'EXCEEDS_PRINTED_PARTIAL_DAMAGE_BUDGET'].includes(rejected)){
         status='PAPER_PROMPT_INVALID';
       }
       reason=rejected??'only-negative-predicates-audited';
