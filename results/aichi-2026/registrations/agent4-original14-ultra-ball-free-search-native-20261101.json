@@ -1,0 +1,26 @@
+{
+  "schema": "agent4-original14-ultra-ball-zero-payment-native-v1",
+  "dateUTC": "2026-11-01",
+  "actualPublishedOriginalRank14": {
+    "player": "Manaya Asano",
+    "printedCard": "Ultra Ball MEG 131",
+    "count": 1,
+    "searchTarget": "Regidrago V SIT 135",
+    "searchCount": 4
+  },
+  "originalFieldCoverage": "Ultra Ball MEG 131 appears in 14 of the 29 authenticated original Aichi Top32 60-card decks, covering ranks 4,5,8,9,12,14,16,18,20,21,22,27,30,32, per results/aichi-2026/full-decklists.json",
+  "vendorPinned": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "preregisteredTest": "Construct prepared actual Store in both physical seats, real original rank14 MEG131 Ultra Ball, physical owner hand containing exactly two payable cards, one original rank14 Regidrago V SIT135 in physical deck; native PlayCardAction yields a real ChooseCardsPrompt with printed mandatory exactly-two discard and native validate([]) false. Submit [] to actual Store without any prompt or payment guard, record if root rejects and state effects. If next actual deck-Pokemon search prompt becomes available, choose original physical Regidrago V, resolve native ShowCards and ShuffleDeck prompts as applicable, and record whether a free Pokémon reaches hand. This could be rejected, ignored, or accepted; preserve observations and errors.",
+  "potentialResults": [
+    "Prompt's validator rejects [] and Store also refuses it, no payment bypass",
+    "Store accepts [] but stops further source search",
+    "Store accepts [] and lets player physically search/deck-to-hand a Pokémon at zero payment",
+    "Other native exception or state inconsistency"
+  ],
+  "boundaries": [
+    "No original randomly dealt rank14 60",
+    "No matchup opponent policy or full game winner",
+    "No claim that a bot deliberately selects the illegal payment",
+    "Do not alter vendor; existing manual workflow only"
+  ]
+}
