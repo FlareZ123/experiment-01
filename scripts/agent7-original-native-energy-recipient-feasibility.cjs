@@ -25,11 +25,12 @@ function originalFundingIndex(manifest,censusRows){
   const byRank=new Map();
   for(const deck of manifest.decks){
     assert.equal(deck.cards.reduce((sum,c)=>sum+c.count,0),60);
-    const pokemon=new Map(),energy=new Set();
+    const pokemon=new Map(),energy=new Set(),energyNames=new Set();
     for(const card of deck.cards){
       const printing=card.name+' '+card.printing.set;
       if(card.category==='Energy'){
         energy.add(printing);
+        energyNames.add(card.name);
         continue;
       }
       if(card.category!=='Pokémon')continue;
@@ -43,7 +44,7 @@ function originalFundingIndex(manifest,censusRows){
         status:audit.status,attacks:audit.attacks});
       pokemon.set(printing,entries);
     }
-    byRank.set(deck.rank,{pokemon,energy,rank:deck.rank});
+    byRank.set(deck.rank,{pokemon,energy,energyNames,rank:deck.rank});
   }
   return byRank;
 }
@@ -89,7 +90,12 @@ function auditNativeOriginalEnergyRecipients(rows,manifest,censusRows){
       // An Energy-named Trainer Item is not an Energy attachment. Without
       // source-60 evidence of the card category, do not count it as one.
       if(!sourceEnergyVerified){
-        if(event.publicBoardChanges?.some(change=>
+        // Only a source-roster Energy *name* with a different printing alias
+        // is uncertain. An Item named Energy Retrieval is a different type
+        // and must not enter the attachment census.
+        const sourceNamed=[...source.energyNames].some(name=>
+          printing.startsWith(name+' '));
+        if(sourceNamed&&event.publicBoardChanges?.some(change=>
           change.seat===seat&&
           (change.after?.energies?.length??0)>
           (change.before?.energies?.length??0)))
