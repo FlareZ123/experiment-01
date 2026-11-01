@@ -74,3 +74,21 @@ function settle(x,count){
  assert.equal(x.store.hasPrompts(),false);
  return x.opponent.active.damage;
 }
+for(const seat of [0,1]){
+ for(const count of [1,2]){
+  test('pinned CES48 GX source seat '+seat+' discards '+count+' physical Energy',()=>{
+   const x=stage(seat),damage=settle(x,count);
+   const expected=count===1?80:230;
+   assert.equal(damage,expected);
+   assert.equal(x.owner.usedGX,true);
+   assert.equal(x.owner.discard.cards.includes(x.first),true);
+   assert.equal(x.owner.discard.cards.includes(x.second),count===2);
+   assert.equal(x.owner.getPrizeLeft(),6);
+   assert.equal(x.state.phase!==GamePhase.FINISHED,true);
+   console.log('AGENT50_CES48_NATIVE',JSON.stringify({
+    seat,count,printedRaw:30+50*count,observedRaw:damage,
+    competitiveQualifiedGames:0
+   }));
+  });
+ }
+}
