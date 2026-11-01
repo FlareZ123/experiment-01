@@ -22,6 +22,8 @@ test('printed source partition and Roxie/Koffing source identity',()=>{
     ['Other cards',34],
   ].map(([name,count,set,number])=>({name,count,printing:{set,number}}));
   assert.deepEqual(classify({cards}),SOURCE);
+  assert.deepEqual(classify({cards},{includeModernEx:true}),
+    {...SOURCE,eligibleBasic:10,otherBasic:2});
   cards[0].printing.number='77';
   assert.throws(()=>classify({cards}));
 });
@@ -41,4 +43,14 @@ test('held-Koffing access is increasing with source copies in isolated perturbat
   const one=analyze({...SOURCE,koffing:1,other:36});
   const four=analyze({...SOURCE,koffing:4,other:33});
   assert.ok(one.afterDrawRetainedKoffingRoxie.percent<four.afterDrawRetainedKoffingRoxie.percent);
+});
+
+test('newer lowercase Pokemon ex printing sensitivity is bounded separately',()=>{
+  const conservative=analyze(SOURCE);
+  const includingEx=analyze({...SOURCE,eligibleBasic:10,otherBasic:2});
+  check(includingEx.afterDrawPaymentAtLeastOne,38.71326955);
+  check(includingEx.afterDrawPaymentAtLeastTwo,26.01880863);
+  check(includingEx.afterDrawKoffingAndSecondPayment,10.43255817);
+  assert.equal(includingEx.afterDrawRetainedKoffingRoxie.percent,
+    conservative.afterDrawRetainedKoffingRoxie.percent);
 });
