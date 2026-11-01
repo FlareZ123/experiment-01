@@ -73,6 +73,10 @@ jobs:
           python -m pip install --disable-pip-version-check --quiet PyYAML==6.0.3
           python -m unittest discover -s tests -p test_workflow_dispatch_preflight.py
           python scripts/workflow_dispatch_preflight.py
+      - name: Regress Agent17 frozen original Store prompt-family and exact-print category screens
+        run: |
+          python -m unittest discover -s tests -p test_agent17_frozen_native_prompt_portfolio.py
+          python -m unittest discover -s tests -p test_agent17_frozen_prompt_printed_target_screen.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
