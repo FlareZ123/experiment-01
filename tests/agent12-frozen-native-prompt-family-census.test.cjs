@@ -26,8 +26,11 @@ test('separates setup ChooseCards from in-turn source-relevant family',()=>{
   assert.equal(c.byRank[0].setupByFamily.ChooseCardsPrompt,1);
   assert.equal(c.byRank[0].inTurnByFamily.ChooseCardsPrompt,1);
   assert.deepEqual(c.byRank[0].firstInTurnChooseCardsPrompt,{
-    trial:'x',turn:1,ordinal:2,seat:1
+    trial:'x',turn:1,ordinal:2,seat:1,
+    initiatingRootOrdinal:null,initiatingAction:null,initiatingName:null
   });
+  assert.equal(c.inTurnChooseCardsWithInitiatingRoot,0);
+  assert.equal(c.inTurnChooseCardsWithNamedInitiator,0);
 });
 
 test('retains every submitted root and every capped game',()=>{
@@ -56,5 +59,24 @@ test('accepts other prompt-family roots without inventing card source',()=>{
   ]);
   assert.equal(c.inTurnChooseCardsPromptCount,0);
   assert.equal(c.byRank[0].inTurnByFamily.PutDamagePrompt,1);
+  assert.equal(c.sourcePrintedCardForEachPromptKnown,false);
+});
+
+test('retains source root action attribution without pretending exact printing',()=>{
+  const rows=[
+    {action:'PlayCardAction',actionOrdinal:1,turnBefore:1,
+      card:'Fog Crystal',initiatingRootActionOrdinal:1},
+    {...prompt(2,1,'ChooseCardsPrompt'),initiatingRootActionOrdinal:1},
+    {action:'AttackAction',actionOrdinal:3,turnBefore:2,
+      attack:'Get Lost',initiatingRootActionOrdinal:3},
+    {...prompt(4,2,'ChooseCardsPrompt'),initiatingRootActionOrdinal:3}
+  ];
+  const c=censusNativePromptFamilies([arm(11,'native-names',rows)]);
+  assert.equal(c.inTurnChooseCardsWithInitiatingRoot,2);
+  assert.equal(c.inTurnChooseCardsWithNamedInitiator,2);
+  assert.equal(c.byRank[0].inTurnChooseCardsByInitiatingAction[
+    'PlayCardAction / Fog Crystal'],1);
+  assert.equal(c.byRank[0].inTurnChooseCardsByInitiatingAction[
+    'AttackAction / Get Lost'],1);
   assert.equal(c.sourcePrintedCardForEachPromptKnown,false);
 });
