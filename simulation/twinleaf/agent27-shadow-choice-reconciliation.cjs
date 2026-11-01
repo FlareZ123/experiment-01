@@ -17,9 +17,9 @@ function physicalKey(row){
 }
 
 /**
- * Run existing independent-observer and guarded selector on the SAME
+ * Run guarded selection, independent shadow, and guarded selection on the SAME
  * immutable owner observation. No native State or Store is supplied.
- * This certifies only physical offer membership, not native canPlay or
+ * This certifies shadow noninterference and offer membership, not native canPlay or
  * whether the selected action settles or earns a Prize.
  *
  * @param {object} view Detached acting-player observation.
@@ -27,7 +27,7 @@ function physicalKey(row){
  * @param {object} baseline Existing first-return intent.
  * @param {object} options One frozen option map for both passes.
  * @param {Function} [chooser] Existing collectAndChooseOwnerRoot, or test seam.
- * @returns {object} Two full receipts and a fail-closed membership audit.
+ * @returns {object} Two full receipts and a fail-closed membership/noninterference audit.
  */
 function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
   assert.equal(view?.decisionKind,'owner-root');
@@ -42,6 +42,19 @@ function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
   const optionsBefore=structuredClone(options);
   const digest=createHash('sha256').update(JSON.stringify(viewBefore)).digest('hex');
 
+  // Measure selection before the broad shadow pass to detect module-global
+  // state or cache contamination that deep-equal owner checks cannot see.
+  const preSelection=evaluate(view,catalog,baseline,{
+    ...options,sameRootProbeAll:false,sameRootChoiceApply:true});
+  assert.deepStrictEqual(view,viewBefore,
+    'Pre-shadow selector mutated detached owner view');
+  assert.deepStrictEqual(catalog,catalogBefore,
+    'Pre-shadow selector mutated catalog');
+  assert.deepStrictEqual(baseline,baselineBefore,
+    'Pre-shadow selector mutated baseline');
+  assert.deepStrictEqual(options,optionsBefore,
+    'Pre-shadow selector mutated options');
+  assert.equal(preSelection?.receipt?.mode,'select');
   const shadow=evaluate(view,catalog,baseline,{
     ...options,sameRootProbeAll:true,sameRootChoiceApply:false});
   assert.deepStrictEqual(view,viewBefore,'Shadow observer mutated detached owner view');
@@ -62,6 +75,8 @@ function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
   assert.equal(selected?.receipt?.mode,'select');
   assert.ok(selected.intent&&typeof selected.intent.kind==='string');
   assert.ok(Array.isArray(selected.receipt.offers));
+  assert.deepStrictEqual(selected,preSelection,
+    'All-proposer shadow changed a later same-root executable decision');
   const selectedKey=physicalKey(selected.intent);
   const selectedVisible=selected.receipt.offers.some(row=>
     row.source===selected.receipt.selectedSource&&
@@ -79,6 +94,7 @@ function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
     selectedIntent:selected.intent,
     verification:{
       sameDetachedOwnerView:true,
+      prePostShadowExecutableDecisionIdentical:true,
       selectedPhysicalOfferInShadow:true,
       selectedPhysicalOfferInExecutableMode:true,
       selectedPayloadFullyRepresented:!incompletePaymentDetail,
