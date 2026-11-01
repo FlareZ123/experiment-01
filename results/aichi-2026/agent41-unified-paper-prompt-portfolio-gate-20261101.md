@@ -176,3 +176,45 @@ negative veto, not positive paper certification of every passing prompt.
 
 The field remains **29/32 original exact 60s and 0 competitively
 qualified games**.
+
+
+## 22:07 UTC: original Ultra Ball two-payment bypass affects 14 original sixties
+
+Agent4 independently preregistered and passed
+[compiled native CI 41354915711](https://github.com/FlareZ123/experiment-01/actions/runs/41354915711)
+for actual original **rank14 Ultra Ball MEG131** with both physical
+Store seats. The native `PlayCardAction` creates an explicit
+`ChooseCardsPrompt` requiring **exactly two discarded cards**, and
+`prompt.validate([])` correctly returns **false**. Nonetheless
+original `Store.dispatch(ResolvePromptAction([]))` accepts the
+**zero-payment** response, opens the real search, retrieves a genuine
+Regidrago V SIT into hand, and resolves the native ShowCards and
+ShuffleDeck prompts. The two Basic Energy cards eligible to pay remain
+untouched in hand. The engine has completed a **paper-forbidden free
+Pokémon search**, without an exception. See the exact
+[original rank14 print report](agent4-original-rank14-ultraball-free-search-native-20261101.md).
+
+The exact 29-opponent field lists contain **14 separate original
+60s with this printed Ultra Ball MEG131**: ranks
+**4, 5, 8, 9, 12, 14, 16, 18, 20, 21, 22, 27, 30, 32**.
+This is card-copy exposure *potential*; source players were not
+observed deliberately submitting empty payments in real random games.
+It is broader release relevance than the single rank31 Roxie original
+printing bug.
+
+A generic native `prompt.validate` call is insufficient as the sole
+paper oracle because another demonstrated original rank31 Roxie
+hand-order branch falsely rejects a **paper-valid Koffing**, while
+separately accepting **paper-illegal GX payment**. The common
+release boundary needs independent source-stamped **mandatory-count
+and owner-physical card membership** checks plus source-specific
+exclusion logic; source read-only audits should expose rejected,
+accepted and native-advanced prompt states. Never globally replace
+printed legality with a single native `validate` Boolean without
+testing the actual Store dispatch. A real two-seat common-bot release
+test should include positive legal two-payment Ultra Ball, illegal
+zero/one-payment negative, a source-original follow-up Pokémon search
+and unchanged opponent response.
+
+**This is a prepared native Store counterexample, not a source-dealt
+match or win. Field remains 29/32 originals, zero qualified games.**
