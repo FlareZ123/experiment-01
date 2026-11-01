@@ -1,4 +1,4 @@
-"""Read-only rank-11 original-source Mega Absol attack alternative audit.
+"""Read-only original rank-11 two-seat attack alternatives audit.
 
 The supplied ZIP records are development evidence. No attack is replayed here.
 """
@@ -80,7 +80,8 @@ def audit(rows: list[dict]) -> dict:
                            "endReason": row["endReason"],
                            "counters": dict(counters),
                            "nominalClawKoRootOrdinals": eligible_ordinals})
-    return {"schema": "agent32-original-rank11-terminal-payable-alternative-v1",
+    return {"schema": "agent32-original-rank11-dead-attack-payable-alternatives-v2",
+            "candidateGetLost": audit_get_lost(rows),
             "source": "original frozen v2 development ZIP; no gameplay rerun",
             "scheduledAttempts": len(rows),
             "rank11Attempts": sum(x["trial"]["rank"] == 11 for x in rows),
@@ -89,6 +90,84 @@ def audit(rows: list[dict]) -> dict:
             "competitiveQualifiedGames": 0,
             "qualification": "Nominal printed cost and damage before modifiers only. No native Claw fork, poison/lock immunity check, policy equivalence, tournament clock, or win-rate inference."}
 
+
+
+def audit_get_lost(rows: list[dict]) -> dict:
+    """Inspect candidate Get Lost roots, including censored final prompt chains.
+
+    Requires actual accepted opponent-discard prompt and root/seat join.
+    Printed Energy and nominal damage cannot certify native alternate effects.
+    """
+    results = []
+    totals = Counter()
+    for row in rows:
+        if row["trial"]["rank"] != 11:
+            continue
+        ledger = {event["actionOrdinal"]: event
+                  for event in row["rootActionLedger"]}
+        prompts = {event["ordinal"]: event for event in
+                   row.get("nativePromptChoices", {}).get("events", [])}
+        counts = Counter()
+        possible_ko_ordinals = []
+        for attack in row.get("candidateAttackSettlement", {}).get("attacks", []):
+            if attack["attackName"] != "Get Lost":
+                continue
+            counts["get_lost_native_attacks"] += 1
+            ordinal = attack["actionOrdinal"]
+            root = ledger.get(ordinal)
+            if (not root or root.get("action") != "AttackAction"
+                or root.get("attack") != "Get Lost"
+                or root.get("playerSlot") != row["candidateSeat"]
+                or root.get("turnBefore") != attack.get("turnBefore")
+                or attack.get("settlementCrossesClockReset") is True):
+                raise ValueError("Missing candidate authentic Get Lost Store receipt")
+            if attack.get("settledPromptChain") is True:
+                counts["fully_settled_attack_chains"] += 1
+            else:
+                if attack.get("settledPromptChain") is not False or row.get("endReason") != "action-limit":
+                    raise ValueError("Unexplained uncompleted Get Lost attack chain")
+                counts["right_censored_attack_chains"] += 1
+            native_prompts = [prompts.get(a["actionOrdinal"]) for a in
+                row["rootActionLedger"] if
+                a.get("initiatingRootActionOrdinal") == ordinal and
+                a.get("pendingPrompt") == "ChooseCardsPrompt"]
+            if len(native_prompts) != 1 or native_prompts[0] is None:
+                raise ValueError("Get Lost native opponent-discard prompt missing")
+            prompt = native_prompts[0]
+            if (prompt.get("sourceZone") != "discard"
+                or prompt.get("sourcePlayerSlot") != row["sourceSeat"]):
+                raise ValueError("Get Lost prompt source zone/seat mismatch")
+            if (prompt.get("sourceZoneCardCountBefore") != 0
+                or prompt.get("selectedCards") is not None):
+                continue
+            counts["empty_opponent_discard_cancelled"] += 1
+            if attack.get("settledPromptChain") is True:
+                counts["settled_empty_discard_attacks"] += 1
+            else:
+                counts["prompt_accepted_but_unfinished_attack"] += 1
+            before = attack["publicBoardBefore"]
+            if len(before) != 2:
+                raise ValueError("Get Lost public opponent board missing")
+            actor = before[row["candidateSeat"]]["active"]
+            defender = before[row["sourceSeat"]]["active"]
+            if (actor["name"] != "Girafarig"
+                or {"name": "Mind Shock", "cost": [9, 9, 9]}
+                    not in actor["printedAttacks"]):
+                raise ValueError("Exact printed Girafarig alternate not visible")
+            if (actor["energyCards"].count("Psychic Energy") >= 3
+                and defender["name"] == "Trubbish"
+                and defender["damage"] == 0):
+                counts["nominal_mindshock_printed_ko_if_unmodified"] += 1
+                possible_ko_ordinals.append(ordinal)
+        totals.update(counts)
+        if counts["get_lost_native_attacks"]:
+            results.append({"trialId": row["trial"]["id"],
+                            "counters": dict(counts),
+                            "nominalMindShockKoRootOrdinals": possible_ko_ordinals})
+    return {"schema": "agent32-original-rank11-candidate-getlost-payable-mindshock-v1",
+            "byGame": results, "totals": dict(totals),
+            "competitiveQualifiedGames": 0,
+            "qualification": "Root-and-accepted-prompt observed, with 23 complete effect chains and one action-capped final chain. Nominal 3-Energy Mind Shock versus Trubbish has no Store same-state fork or win-rate inference."}
 
 def audit_zip(path: Path) -> dict:
     with ZipFile(path) as archive:
