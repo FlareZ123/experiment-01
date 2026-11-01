@@ -1,0 +1,30 @@
+{
+  "schema": "agent1-rank11-v-rank1-conditional-postblower-radiant-K1-native-v1",
+  "registrationDate": "2026-11-01",
+  "registrationTiming": "Frozen original physical seed and candidate decision contrast before K1 inventory inspection finishes and before candidate actor intervention is implemented.",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "recipientRank": 1,
+  "recipientSeat": 1,
+  "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceFrame": "results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json",
+  "frozenSourceIndex": 299,
+  "seed": 2387754768,
+  "sourceFirstOwnerHandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "arms": [
+    "unmodified-recipient-after-Field-Blower",
+    "conditional-genuine-owner-K1-Radiant-from-Quick-Ball-after-Field-Blower"
+  ],
+  "fixedPolicies": "Source first-turn real owner K0 Oranguru/StarVIP setup accepted, recipient turn2 true own-held Field Blower when legal, original printed 60s and common default bot otherwise",
+  "treatment": "On actual recipient native deck-search prompt immediately following that recipient's own legally played Quick Ball, choose physically available Radiant Eternatus CRZ only if the real validator accepts it. Then offer native Basic Pokémon Bench play only if actor currently owns it, has public Bench capacity, lock removed, and genuine native legality accepts. Subsequent Climactic Gate prompts require actual owner decisions or explicit unverified delegation; do not invent a VMAX setup.",
+  "requiredObservations": [
+    "exact original source K0 hand and Bench hash",
+    "confirmed owner Field Blower removal on turn2",
+    "native recipient Quick Ball PlayCardAction and genuine owner ChooseCardsPrompt attribution",
+    "Radiant card actually present in owner deck at selection, or verified absence",
+    "Store accepted selected Radiant or failed exact native prompt, preserved negative",
+    "if reached, native Radiant Bench placement and Climactic Gate activation or refusal",
+    "public VMAX board state and turn2 end vs baseline, all failures and caps"
+  ],
+  "boundaries": "One post-selected original source-positive physical deal; an owner K1 opportunity test and tactical-payload counterfactual, zero qualified games and no field extrapolation."
+}
