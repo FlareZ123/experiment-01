@@ -1,6 +1,6 @@
 {
-  "version": "agent42-strict-switch-inventory-v1",
-  "status": "integration-blocker-inventory-only-not-competitive",
+  "version": "agent42-strict-switch-inventory-v1.1-known-six-source",
+  "status": "six-source-partial-transitive-inventory-only-not-competitive",
   "scope": "existing canonical native development runner and nested actor policy",
   "checkedSources": [
     {
@@ -10,9 +10,25 @@
     {
       "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
       "gitBlobSha": "62c7910970f98341b0186101d90d43d943640c30"
+    },
+    {
+      "path": "simulation/evaluation/agent7-canonical-actor-composition.cjs",
+      "gitBlobSha": "4d07270e17e41b3167c01748ceda6d36a070d617"
+    },
+    {
+      "path": "simulation/twinleaf/agent4-plumeria-after-pass.cjs",
+      "gitBlobSha": "98da1cfe547594d3b201adee52c14a0eadef5a58"
+    },
+    {
+      "path": "simulation/twinleaf/agent41-actor-owner-single-search.cjs",
+      "gitBlobSha": "d92b05bfea1fdf79f1589635196912d70b2cf7e6"
+    },
+    {
+      "path": "simulation/twinleaf/agent47-actor-hand-discard.cjs",
+      "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 90,
+  "keyCount": 103,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
@@ -27,16 +43,19 @@
     "AGENT1_TEAM_FLARE_GRUNT_DEV",
     "AGENT1_THORNS_DIRECT_ROOT_DEV",
     "AGENT22_PROPOSAL_STATE_AUDIT",
+    "AGENT22_SPARSE_OWNER_BUNDLE_DEV",
     "AGENT23_NATIVE_INPUT_TAPE_ORDINAL",
     "AGENT23_NATIVE_INPUT_WITNESS_DEV",
     "AGENT24_PHYSICAL_ZONE_GATE_DEV",
     "AGENT25_LOWHAND_LILLIE_CENSUS_DEV",
     "AGENT25_LOWHAND_LILLIE_DEV",
     "AGENT25_PRINTED_GX_ROOT_DEV",
+    "AGENT29_HAMMER_AFTER_PASS_DEV",
     "AGENT2_HELD_GUZMA_MOBILITY_DEV",
     "AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV",
     "AGENT2_NATIVE_OWNER_SUPPORTER_OPPORTUNITY_DEV",
     "AGENT2_SHUFFLE_PREATTACK_DEV",
+    "AGENT2_SHUFFLE_SUPPORTER_DEV",
     "AGENT30_PERFECTION_ROOT_DEV",
     "AGENT31_NATIVE_PUBLIC_MULLIGAN_DEV",
     "AGENT31_NATIVE_SETUP_COMPENSATION_DEV",
@@ -45,8 +64,12 @@
     "AGENT35_PERFECTION_TRANSITION_ROOT_DEV",
     "AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV",
     "AGENT37_FIRSTTURN_ATTACK_ROOT_DEV",
+    "AGENT37_OWNER_ATTACK_EVOLUTION_DEV",
+    "AGENT37_OWNER_ATTACK_RECOVERY_DEV",
+    "AGENT37_OWNER_ATTACK_SEARCH_DEV",
     "AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV",
     "AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV",
+    "AGENT38_PLUMERIA_LARGE_HAND_DEV",
     "AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV",
     "AGENT3_SPECIAL_ENERGY_ROOT_DEV",
     "AGENT40_BUNNELBY_TM_JET_DEV",
@@ -81,6 +104,7 @@
     "AGENT43_HELD_EVOLUTION_BENCH_DEV",
     "AGENT44_ACTOR_ENERGY_RECIPIENT_DEV",
     "AGENT47_ACTOR_HAND_DISCARD_DEV",
+    "AGENT47_APEX_PAYLOAD_DISCARD_DEV",
     "AGENT48_CARMINE_FIRST_ROOT_DEV",
     "AGENT48_PAPER_COLOGNE_DEV",
     "AGENT48_VS_SEEKER_LILLIE_DEV",
@@ -89,6 +113,8 @@
     "AGENT49_RANK6_K1_ALT_ENERGY_DEV",
     "AGENT49_SOURCE_SCOPED_SPECIAL_DEV",
     "AGENT4_CANDIDATE_SPECIAL_ROOT_DEV",
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV",
+    "AGENT4_PLUMERIA_OPPORTUNITY_DEV",
     "AGENT50_ERI_REVEAL_DEV",
     "AGENT50_STRANDED_MARNIE_DEV",
     "AGENT5_COMMON_COMPRESSOR_DEV",
@@ -98,12 +124,15 @@
     "AGENT7_CANONICAL_ACTOR_POLICY_DEV",
     "AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV",
     "AGENT7_NATIVE_GENERIC_FALLBACK_DEV",
+    "AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV",
+    "AGENT7_OWNER_SUPPORTER_AUDIT_DEV",
     "AGENT7_PASS_ATTACK_PROBE_TURN",
     "AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV",
     "AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV",
     "AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV",
     "AGENT8_ACTOR_CHOOSE_POKEMON_DEV",
-    "AGENT8_ACTOR_QUICK_BALL_DEV"
+    "AGENT8_ACTOR_QUICK_BALL_DEV",
+    "AGENT9_BATTLE_VIP_AFTER_PASS_DEV"
   ],
   "proposedGateValues": {
     "AGENT24_PHYSICAL_ZONE_GATE_DEV": "true"
@@ -114,5 +143,5 @@
     "informationSafe": false,
     "officialAichiClockCertified": false
   },
-  "notes": "Inventory for a prospective explicit Agent41-frozen bilateral benchmark profile. Does not select a candidate or claim a release. Updating a source script or adding a process.env switch must prompt re-audit. Revision after Agent41's registered-trial-only read-only native coin receipt. Still a two-file incomplete policy-option inventory; full source closure required."
+  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin."
 }
