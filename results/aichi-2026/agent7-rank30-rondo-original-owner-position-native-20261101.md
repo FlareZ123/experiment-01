@@ -39,3 +39,19 @@ Reproduce through `simulation/twinleaf/agent7-public-rondo-attack-offer.cjs`, `s
 **Zero of these 144 observed Clefairy copy-roots had any attached Energy; zero source roots had a publicly funded Benched Rondo attack.** Multiple Benched copies and repeated turn roots explain 144 copy-root counts versus 95 source decision states. These are correlated developmental exposures across two original source deal fingerprints, not 144 independent trials. The source has three Clefairy ex, so more than one may occupy its Bench at a root.
 
 The earlier Active-position diagnosis remains factually true, but **funding is an upstream bottleneck** in all four observed source trajectories. Therefore, a mobility-only Rondo intervention on these exact deals would be an unfunded attacker promotion, not a demonstrated route to more damage. The next question is whether owner-hand Wondrous Patch, publicly discarded Basic Psychic Energy, and viable ordinary attachments form an executable, resource-respecting Psychic setup line. A prompt-level native acceptance proof is required. Source's occasional held mobility and unused ordinary retreat do not themselves establish legal or desirable actions.
+
+## Third original read-only replay: item access and actual Energy recipient (20:25 UTC)
+
+[Compiled native run 41346336065](https://github.com/FlareZ123/experiment-01/actions/runs/41346336065) passed the same source-deal strict parity. [Unmodified full JSON artifact 13098939752](https://github.com/FlareZ123/experiment-01/actions/runs/41346336065/artifacts/13098939752) has ZIP SHA256 `1cce4d8ad0c521f91f8e024c9423ad9df334703f9d988467480837d7a4761929`. Its source public hand/discard/Psychic resource census finds:
+
+| Source rank30 paired native arm | Roots holding Wondrous Patch | Roots with discarded Basic Psychic | Roots holding Battle Compressor | Roots holding Basic Psychic | Native-accepted source Basic Psychic attachment destinations |
+| --- | ---: | ---: | ---: | ---: | --- |
+| A champion | 0 | 3 | 26 | 3 | 2 to Active Latias ex |
+| A New Moon | 0 | 0 | 19 | 1 | 1 to Active Dedenne-GX |
+| B champion | 0 | 0 | 5 | 2 | 2 to Active Mimikyu |
+| B New Moon | 0 | 0 | 14 | 4 | 3 to Active Mimikyu |
+| **Totals** | **0** | **3** | **64** | **10** | **8 accepted Basic Psychic attachments, all to a non-Clefairy Active** |
+
+These are repeated owner-root observations from the same two physical source deals and four trajectories. The count of hand-available Basic Psychic across roots must not be interpreted as ten distinct copies. The **eight accepted basic attachments** are actual distinct accepted Store actions found in `nativeAcceptedTargetSidecar.events`, each matched to a public post-dispatch target and the source physical seat. The native `rootActionLedger` shows **zero source PlayCardAction declarations for either Battle Compressor or Wondrous Patch** in these four trials. It is insufficient to infer they were never in the source's physical deck; the four Wondrous Patch are in the authenticated original source 60.
+
+The causal bottleneck thus includes **first-return action priority and missing Item activation**, alongside a preference to attach Basic Psychic to the current Active. A pre-registered experimental owner-visible alternate Energy recipient is now a more pointed diagnostic than trying to promote unfunded Clefairy. It may still be tactically inferior in individual states; no win-rate claim follows.
