@@ -95,3 +95,30 @@ test('policy never mutates detached actor observation or offered attacks',()=>{
   assert.equal(chooseRagingBoltNominalKo(v,[burst,thunder],catalog).
     attackName,'Bellowing Thunder');
 });
+
+test('existing actor root changes one attack only when public threshold is met',()=>{
+  const {chooseActorRootIntent}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view();
+  v.globalTurn=3;
+  v.ownPublic.active.energies=['Lightning Energy MEE','Fighting Energy MEE'];
+  v.ownPublic.active.attacks=[
+    {...burst,cost:[9],damage:0},
+    {...thunder,cost:[4,6],damage:70,damageCalculation:2}
+  ];
+  v.ownPublic.active.specialConditions=[];
+  v.ownPublic.active.publicRestrictions={};
+  v.ownPublic.publicTurnRestrictions={attackLockTurnsRemaining:0};
+  v.ownTurnResources={energyPlayedTurn:3,energyPlayLocked:false,
+    pokemonPlayLocked:false};
+  const rootCatalog={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergyTypes:{Lightning:4,Fighting:6},
+    colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}};
+  assert.equal(chooseActorRootIntent(v,rootCatalog).attackName,'Burst Roar');
+  assert.equal(chooseActorRootIntent(v,rootCatalog,
+    {ragingBoltNominalKoRoot:true}).attackName,'Bellowing Thunder');
+  v.opponentPublic.active.hp=210;
+  assert.equal(chooseActorRootIntent(v,rootCatalog,
+    {ragingBoltNominalKoRoot:true}).attackName,'Burst Roar');
+});
