@@ -19,6 +19,10 @@ function auditNativeArm(row){
   const rootActions=root.nativeRootJoinReceipts??[];
   return {
     status:row.status??(row.finished?'engine-terminal':'censored'),
+    error:row.error??null,
+    nativeStoreCauseStack:typeof row.nativeStoreCauseStack==='string'?
+      row.nativeStoreCauseStack.slice(0,2400):null,
+    nativeAbortEvidence:row.nativeAbortEvidence??null,
     finished:row.finished===true,winner:row.finished===true?
       row.winner??null:null,
     sourceDealFingerprint:row.sourceDealFingerprint??null,
