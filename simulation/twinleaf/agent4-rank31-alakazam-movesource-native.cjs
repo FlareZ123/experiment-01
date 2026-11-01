@@ -135,6 +135,81 @@ function probeTwoSourcePainfulSpoons(options={}){
   };
   return options.guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
 }
+/**
+ * Exact conditional Prize consequence of the native paper-forbidden two-source
+ * Painful Spoons answer. Three opponent V in play: two have one counter each,
+ * the chosen destination V is already 190/210 damaged. A legal single source
+ * from either eligible source could add only 10, while the paper-forbidden pair
+ * adds 20 and can Knock Out this V for two Prize cards. No source-dealt game.
+ * @param {boolean} guarded Whether to enforce the opt-in printed source rule.
+ * @returns {object}
+ */
+function probeTwoSourcePrizeInflation(guarded){
+  const {UseAbilityAction}=native('game/store/actions/game-actions');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const {PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const f=stagedPainfulSpoons();
+  const victim=f.opponent.bench[1].getPokemonCard();
+  f.opponent.bench[1].damage=190;
+  const prizesBefore=f.source.getPrizeLeft();
+  const execute=()=>{
+    f.store.dispatch(new UseAbilityAction(f.source.id,'Painful Spoons',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    const waiting=f.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='WaitPrompt');
+    assert.ok(waiting,'Ability must use actual native animation prompt');
+    f.store.dispatch(new ResolvePromptAction(waiting.id,null));
+    const prompt=f.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='MoveDamagePrompt');
+    assert.ok(prompt,'Must reach native original MoveDamagePrompt');
+    const reply=[
+      {from:{player:PlayerType.TOP_PLAYER,slot:SlotType.ACTIVE,index:0},
+        to:{player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:1}},
+      {from:{player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:0},
+        to:{player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:1}}
+    ];
+    let rejected=null;
+    try{f.store.dispatch(new ResolvePromptAction(prompt.id,reply));}
+    catch(e){rejected=String(e?.message??e);}
+    const promptStillPending=prompt.result===undefined;
+    const nativeValidated=prompt.validate(reply,f.state);
+    const settled=[];
+    if(!guarded){
+      for(let k=0;k<12;k++){
+        const p=f.state.prompts.find(q=>q.result===undefined);
+        if(!p)break;
+        let answer;
+        if(p.constructor.name==='WaitPrompt')answer=null;
+        else if(p.constructor.name==='ChoosePrizePrompt'){
+          answer=f.source.prizes.filter(x=>x.cards.length)
+            .slice(0,p.options.count);
+        }else throw new Error('Unexpected native KO prompt '+p.constructor.name);
+        assert.equal(p.validate(answer,f.state),true,
+          'Physical response must pass native KO prompt validator');
+        settled.push(p.constructor.name);
+        f.store.dispatch(new ResolvePromptAction(p.id,answer));
+      }
+    }
+    return {
+      guarded,nativeValidatorAccepted:nativeValidated,
+      nativeDispatchRejection:rejected,promptStillPending,
+      pricesBefore:prizesBefore,prizesAfter:f.source.getPrizeLeft(),
+      prizesTaken:prizesBefore-f.source.getPrizeLeft(),
+      victimInDiscard:f.opponent.discard.cards.includes(victim),
+      sourceDamageRemaining:{
+        active:f.opponent.active.damage,
+        bench0:f.opponent.bench[0].damage
+      },
+      nativePrizeContinuationPrompts:settled,
+      scope:'Actual pinned conditional native Store, no source-dealt games'
+    };
+  };
+  return guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
+}
+
 if(require.main===module)
   console.log(JSON.stringify(probeTwoSourcePainfulSpoons(),null,2));
-module.exports={stagedPainfulSpoons,probeTwoSourcePainfulSpoons};
+module.exports={stagedPainfulSpoons,probeTwoSourcePainfulSpoons,probeTwoSourcePrizeInflation};
