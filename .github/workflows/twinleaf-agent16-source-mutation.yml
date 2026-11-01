@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      native_store_purity_probe:
+        description: 'Pinned native State and complete Store two-seat read-only card.canPlay regression'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -18,6 +23,9 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Reject incompatible mutually exclusive focused probes
+        if: ${{ inputs.rank6_guzma_probe && inputs.native_store_purity_probe }}
+        run: node -e "throw Error('Choose one Agent16 focused native probe per run')"
       - name: Get pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
@@ -31,8 +39,11 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Read-only two-seat original pinned Store card.canPlay identity and queue guard
+        if: ${{ inputs.native_store_purity_probe }}
+        run: node --test tests/agent16-native-canplay-graph-guard.pinned.test.cjs
       - name: Observe original and post-super v2 live Card histories
-        if: ${{ !inputs.rank6_guzma_probe }}
+        if: ${{ !inputs.rank6_guzma_probe && !inputs.native_store_purity_probe }}
         run: node simulation/twinleaf/agent16-natural-source-mutation-contrast.cjs
       - name: Execute authentic rank6 held-Guzma defensive gust fork
         if: ${{ inputs.rank6_guzma_probe }}
