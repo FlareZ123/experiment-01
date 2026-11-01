@@ -236,6 +236,7 @@ jobs:
           AGENT41_SOURCEFIRST_RETRO_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',sourcefirst-retro,') && 'true' || 'false' }}
           AGENT5_COMPR_LATE14_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',late-compressor,') && 'true' || 'false' }}
           AGENT41_NATIVE_HIDDEN_READ_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',hidden-read,') && 'true' || 'false' }}
+          AGENT39_PAPER_PROMPT_PORTFOLIO_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-portfolio,') && 'true' || 'false' }}
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',actor-policy,') && 'true' || 'false' }}
           AGENT8_ACTOR_CHOOSE_POKEMON_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',choose-pokemon,') && 'true' || 'false' }}
           AGENT1_CHARGED_PROMOTION_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',charged-promotion,') && 'true' || 'false' }}
