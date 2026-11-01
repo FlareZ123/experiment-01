@@ -1,0 +1,47 @@
+name: Agent7 fresh rank30 Active Clefairy recipient guard native
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  active-clefairy-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
+      AGENT41_PAPER_SUPPORTER_DEV: 'true'
+      AGENT41_MANDATORY_OPTION_DEV: 'true'
+      AGENT41_NATIVE_PRESSURE_DEV: 'true'
+      AGENT12_NATIVE_TARGET_SIDECAR_DEV: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate manual dispatch and frozen preregistration
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML==6.0.3
+          python scripts/workflow_dispatch_preflight.py
+          node --test tests/agent7-rondo-psychic-bench-stage.test.cjs
+          node -e "require('./simulation/evaluation/agent7-rank30-active-clefairy-guard-prospective.cjs').registered()"
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install original Store dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 16 new original-deal source seat pairs with Active Clefairy guard
+        run: node simulation/evaluation/agent7-rank30-active-clefairy-guard-prospective.cjs > agent7-rank30-guard-prospective.json
+      - name: Archive complete native controls and every rejected or censored arm
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-rank30-active-clefairy-guard-prospective
+          path: agent7-rank30-guard-prospective.json
+          if-no-files-found: warn
+          retention-days: 10
