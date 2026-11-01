@@ -33,6 +33,8 @@ jobs:
         run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs tests/agent8-pidgeot-ability-used-observation-alias-native.test.cjs
       - name: Settle rank15 public-movement-informed same-root attack offer on both seats
         run: node --test tests/agent8-rank15-public-movement-payable-attack-native.test.cjs
+      - name: Qualify rank15 exact PFL Mega Lopunny natural evolution at both native owner roots
+        run: node --test tests/agent8-rank15-natural-evolution-native.test.cjs
       - name: Characterize printed Gengar Shadow Pain native prompt target caps
         run: node simulation/twinleaf/agent46-gengar-shadow-pain-native-cap.cjs
       - name: Audit original-Store Tinkaton ex Press versus Double Turbo in both seats
