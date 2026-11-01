@@ -1,0 +1,31 @@
+name: Agent7 funded Clefairy Skyliner Rondo native fixture
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-native-mechanics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate workflow dispatch isolation
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML==6.0.3
+          python scripts/workflow_dispatch_preflight.py
+      - name: Pin and compile native Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Assert staged funded Clefairy retreat and actual Rondo settlement
+        run: node --test tests/agent7-funded-clefairy-skyliner-native.test.cjs
