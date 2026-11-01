@@ -15,6 +15,7 @@ function decodePayment(state,prompt,owner,choices,types){
   assert.ok(index>=0,'Energy absent from aggregate physical card list');
   return {from:{player:types.PlayerType.BOTTOM_PLAYER,slot:choice.slot==='active'?types.SlotType.ACTIVE:types.SlotType.BENCH,index:choice.index},index};
  });
+ assert.equal(new Set(selected.map(x=>x.from.slot+':'+x.from.index+':'+x.index)).size,selected.length);
  const transfers=prompt.decode(selected,state);
  assert.equal(prompt.validate(transfers),true);
  return transfers;
