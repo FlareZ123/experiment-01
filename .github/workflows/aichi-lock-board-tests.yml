@@ -18,6 +18,7 @@ on:
           - state-guard
           - celestial-native
           - celestial-panel
+          - celestial-nine
         default: none
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
@@ -204,6 +205,16 @@ jobs:
         with:
           name: agent33-celestial-original-rank20-full24-20261101
           path: agent33-celestial-original24.json
+          if-no-files-found: warn
+      - name: Native all nine original Regidrago sources with same fixed paper Celestial hook
+        if: inputs.agent33_stadium_mode == 'celestial-nine'
+        run: node simulation/twinleaf/agent33-celestial-nine-source-native-census.cjs > agent33-celestial-nine-source.json
+      - name: Preserve all nine-source native original printing attempt rows
+        if: inputs.agent33_stadium_mode == 'celestial-nine' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-celestial-nine-original-sources-20261101
+          path: agent33-celestial-nine-source.json
           if-no-files-found: warn
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
