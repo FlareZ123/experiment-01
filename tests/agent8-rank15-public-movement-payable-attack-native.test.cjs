@@ -8,6 +8,10 @@ const {actorObservation}=require('../simulation/twinleaf/actor-observation-contr
 const {publicEventReceipt}=require('../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const {choosePayablePrintedAttackOffer}=
   require('../simulation/twinleaf/agent41-public-payable-attack-offer.cjs');
+const {chooseActorRootIntent}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+const {collectAndChooseOwnerRoot}=
+  require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
 
 const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -61,12 +65,30 @@ function stagedRank15(seat,moved){
   const proposal=choosePayablePrintedAttackOffer(informed,x.catalog);
   assert.ok(historical);
   assert.ok(proposal);
+  const baseline=chooseActorRootIntent(base,x.catalog,{
+    publicContextSpecialEnergy:true
+  });
+  assert.equal(baseline.kind,'attack');
+  assert.equal(baseline.attackName,'Gale Thrust');
+  const selected=collectAndChooseOwnerRoot(informed,x.catalog,baseline,{
+    payablePrintedAttackOffer:true,sameRootChoiceApply:true,
+    sameRootPublicEventReceipt:true
+  });
+  assert.equal(selected.intent.kind,'attack');
+  assert.equal(selected.receipt.selectorErrors.length,0);
+  assert.equal(selected.intent.attackName,proposal.attackName);
+  // Verify the applied selector, not merely a read-only offer.
+  const control=collectAndChooseOwnerRoot(base,x.catalog,baseline,{
+    payablePrintedAttackOffer:true,sameRootChoiceApply:true,
+    sameRootPublicEventReceipt:false
+  });
+  assert.equal(control.intent.attackName,'Gale Thrust');
   // An independent real Store attack checks whether the offered attack and
   // its attached Energy can actually produce this state-dependent damage.
   const {AttackAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const before=x.opponent.active.damage;
-  x.store.dispatch(new AttackAction(x.owner.id,proposal.attackName));
+  x.store.dispatch(new AttackAction(x.owner.id,selected.intent.attackName));
   for(let i=0;i<24;i++){
     const pending=x.store.state.prompts.find(p=>p.result===undefined);
     if(!pending)break;
@@ -74,7 +96,7 @@ function stagedRank15(seat,moved){
     x.store.dispatch(new ResolvePromptAction(pending.id,null));
   }
   assert.equal(x.store.hasPrompts(),false);
-  return {seat,moved,base,event,historical,proposal,
+  return {seat,moved,base,event,historical,proposal,selected,control,
     settledDamage:x.opponent.active.damage-before,
     finalTurn:x.store.state.turn};
 }
