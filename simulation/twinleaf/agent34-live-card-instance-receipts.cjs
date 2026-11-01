@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 const VERSION='agent34-original-store-playcard-instance-v1';
 
 /** Capture genuine native PlayCardAction hand-card instances before dispatch.
@@ -50,6 +51,8 @@ function withLiveCardInstanceReceipts(execute,deps={}){
       ordinal,seat,handIndex:index,
       printing:card.fullName??null,cardName:card.name??null,
       executableConstructor:card.constructor?.name??null,
+      executableConstructorSourceSha256:typeof card.constructor==='function'?
+        createHash('sha256').update(String(card.constructor)).digest('hex'):null,
       executablePrototypeToken:prototypeToken,
       ownPrototypeReducer:Object.prototype.hasOwnProperty.call(
         proto,'reduceEffect'),
