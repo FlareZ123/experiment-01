@@ -1,0 +1,35 @@
+name: Agent8 rank15 postobserved source turn44 native action fork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank15-observed-turn44:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Initialize exact pinned vendor
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Compare four authentic native attempts selected after prior 32-arm observation
+        run: node simulation/evaluation/agent8-rank15-observed-source-turn44-fork.cjs
+      - name: Preserve source action prefix, divergence, next actions and outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-rank15-postobserved-turn44-native-fork
+          path: agent8-rank15-observed-turn44-root-fork.json
+          if-no-files-found: warn
+          retention-days: 30
