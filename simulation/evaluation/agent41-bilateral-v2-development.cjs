@@ -650,7 +650,13 @@ function executeDevelopment(trial,candidates,{
     // remain explicitly observable as zero, never inferred as a certified
     // destination. Engine errors preserve separately typed abort sidecars.
     assert.equal(nativeAcceptedTargetAudit?.observedLiveStore,true);
-    assert.equal(nativeAcceptedTargetAudit?.rootOrdinalLinked,true);
+    if(nativeAcceptedTargetAudit?.rootOrdinalLinked!==true){
+      // Preserve the actual Store-side observer record on the existing
+      // fail-closed linkage veto; otherwise all context is lost in the catch.
+      const mismatch=new Error('Actual native target/root ordinal linkage failed');
+      mismatch.nativeAcceptedTargetEvidence=nativeAcceptedTargetAudit;
+      throw mismatch;
+    }
     assert.equal(nativeAcceptedEnergyPromptAudit?.observedLiveStore,true);
     assert.equal(nativeAcceptedEnergyPromptAudit?.schema,
       'accepted-attach-energy-prompt-public-delta-v1');
