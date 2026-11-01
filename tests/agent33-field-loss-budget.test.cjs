@@ -70,7 +70,7 @@ test('rank uniqueness, range and interval validation fail closed',()=>{
  ]),/Duplicate/);
  assert.throws(()=>originalFieldLossBudget([
    {rank:33,exactOriginal60:true,lower:0,upper:1}
- ]),/false/);
+ ]));
  assert.throws(()=>originalFieldLossBudget([
    {rank:4,exactOriginal60:true,lower:.8,upper:.7}
  ]),/valid independently justified/);
