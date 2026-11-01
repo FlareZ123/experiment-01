@@ -322,5 +322,31 @@ test('actual printed fixed-damage nominal gust policy selects native opponent KO
     assert.equal(wrapped.audit.gustTargetPhysicalConfirmations,1);
     assert.equal(wrapped.audit.ownTargetPhysicalConfirmations,1);
     assert.equal(wrapped.audit.competitiveGameQualified,false);
+    const beforePrizes=owner.prizes.reduce((n,p)=>n+p.cards.length,0);
+    const {AttackAction}=native('game/store/actions/game-actions');
+    // Execute the actual follow-through printed attack in the same native
+    // Store. No injected knockout, hypothetical opponent hand, or damage
+    // estimate is permitted to count as native resolution.
+    store.dispatch(new AttackAction(owner.id,'Moon Press'));
+    for(let step=0;step<24;step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      if(pending.constructor.name==='WaitPrompt'){
+        store.dispatch(new ResolvePromptAction(pending.id,null));
+      }else if(pending.constructor.name==='ChoosePokemonPrompt'){
+        const offered=nativeSinglePokemonChoices(state,pending);
+        assert.ok(offered.length>0);
+        store.dispatch(new ResolvePromptAction(pending.id,[offered[0].physical]));
+      }else{
+        assert.fail('Unexpected live Moon Press follow-through prompt '+
+          pending.constructor.name);
+      }
+    }
+    assert.equal(state.prompts.some(p=>p.result===undefined),false);
+    assert.ok(opponent.discard.cards.some(c=>c.id===secondId),
+      'Actually gusted 90-HP Lunatone must be native Knocked Out');
+    const afterPrizes=owner.prizes.reduce((n,p)=>n+p.cards.length,0);
+    assert.equal(afterPrizes,beforePrizes-1,
+      'Real native Moon Press knockout must take exactly one Prize');
   }
 });
