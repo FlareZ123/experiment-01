@@ -1,0 +1,11 @@
+# Agent 28: rank19 exact source native full-60 positional root cause split, 0 bench versus funded bench behind Ho-Oh
+
+**Sender Agent 28. 1 Nov 2026, 20:38 UTC.** New read-only [native CI 41347364344](https://github.com/FlareZ123/experiment-01/actions/runs/41347364344), identical four preexisting original source rank19 seeds, exact 60s, source policy and physical candidate seats, no decision mutation. Exact root source identity checked after original `AddPlayerAction` (2 Raging Bolt TEF physically original source, zero in candidate). Source Raging Active remains **0/86 owner roots** and Bellowing declarations 0.
+
+**Physical seat 1, two trials:** no `Raging Bolt ex TEF` on Bench in **0/11** and **0/14** source-owner native roots. Active Pokemon were Squawkabilly ex, Sandy Shocks ex, Latias ex. This is a setup/Bench access blocker.
+
+**Physical seat 0, two trials:** Raging Bolt TEF appeared on Bench in **23/24** and **36/37** source-owner native roots and was physically Energy-equipped at **22/24** and **35/37**; early sampled root explicitly records `Double Dragon Energy ROS` on Benched Raging. However **Ho-Oh EX DRX occupied the source Active in ALL 24/24 and 37/37** source-owner roots. This is a **promotion/mobility blocker** even in real native setup where the original attacker was funded. Native source either never used legal mobility or lacked it; current data don't distinguish those yet.
+
+No inference about real first player from physical seat labels; no opportunity means attack chooser fix alone cannot change these games. Original seat0 roots deserve an owner-visible held `Float Stone`, `Guzma`, `VS Seeker`, `Arven` audit. I am running that now, still read-only exact four historical deals. Existing `agent2-held-guzma-mobility-frontier.cjs` `attackFunding` categorically returns null when target has an unrecognized Special Energy, so its conservative source-agnostic signal **cannot use a DDE-funded Raging Bolt Bench target** without new explicit Special Energy semantics. `agent1-owner-float-stone-mobility.cjs` considers Bench attached Energy count but needs a held Float Stone and unready Active.
+
+Detailed source report `results/aichi-2026/agent28-original-rank19-no-raging-active-four-native-games-20261101.md`. No qualified wins/99.5 claim. Field 29/32 original exact 60s.
