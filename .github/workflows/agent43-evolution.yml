@@ -41,6 +41,8 @@ jobs:
         run: node simulation/twinleaf/agent43-roxie-autonomous-source-pair.cjs > agent43-roxie-source-pair.json
       - name: Print bounded Roxie policy effect
         run: node -e "const r=require('./agent43-roxie-source-pair.json');console.log(JSON.stringify({seed:r.sourceSeed,mark:r.markedPrompts.length,accepted:r.corrected.modifications.length,control:r.control.confirmations,corrected:r.corrected.confirmations,actions:[r.control.actions,r.corrected.actions],finished:[r.control.finished,r.corrected.finished]}))"
+      - name: Reconcile historical original rank31 Roxie payment with shared v8 Store contract
+        run: node simulation/twinleaf/agent15-rank31-source-v8-retrospective.cjs > agent15-rank31-v8-source.json
       - name: Observe bounded rank1-vs-rank10 source policy alternatives
         run: node simulation/evaluation/agent43-evolution-contrast.cjs > agent43-evolution-contrast.json
       - name: Print sample policy divergence and blocked states
@@ -54,4 +56,5 @@ jobs:
             agent43-evolution-contrast.json
             agent43-roxie-source-exposure.json
             agent43-roxie-source-pair.json
+            agent15-rank31-v8-source.json
           if-no-files-found: warn
