@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=
   require('./agent17-public-context-special-energy.cjs');
 
-const VERSION='agent41-public-positive-attack-same-root-offer-v1';
+const VERSION='agent41-public-positive-attack-same-root-offer-v2-movement-receipt';
 
 /**
  * Independent owner-root public attack proposal. It observes a currently
@@ -12,6 +12,9 @@ const VERSION='agent41-public-positive-attack-same-root-offer-v1';
  *
  * Never inspect a concealed zone. This is an offer only, not a certificate
  * of native action playability, final damage, knockout, or game value.
+ * When the trusted actor view carries a public movement receipt for the exact
+ * PFL #84 Mega Lopunny, compare its two known printed damage packets before
+ * offering an attack. This opt-in ranking excludes defensive effects.
  *
  * @param {object} view Authenticated detached owner actor observation.
  * @param {object} catalog Exact public printing and type metadata.
@@ -31,6 +34,18 @@ function choosePayablePrintedAttackOffer(view,catalog){
        s===catalog.specialConditions?.ASLEEP||
        s===catalog.specialConditions?.PARALYZED))
     return null;
+  // Only the exact source PFL printing has the known Gale Thrust movement
+  // bonus in this bounded policy. An absent/unknown public event receipt must
+  // retain the historical first-payable offer, so frozen development profiles
+  // and unsupported cards never gain fabricated effective-damage knowledge.
+  const receipt=view.publicEventReceipt;
+  const movement=active.printing==='Mega Lopunny ex PFL'&&
+    receipt?.actorSeat===view.actorSeat&&
+    receipt?.turn===view.globalTurn&&
+    receipt?.ownerActive?.printing===active.printing&&
+    typeof receipt.ownerActive.movedFromBenchToActiveThisTurn==='boolean'?
+      receipt.ownerActive.movedFromBenchToActiveThisTurn:null;
+  const eligible=[];
   for(const attack of active.attacks){
     if(typeof attack.name!=='string'||!attack.name||
        !Number.isSafeInteger(attack.damage)||attack.damage<=0||
@@ -46,10 +61,27 @@ function choosePayablePrintedAttackOffer(view,catalog){
          restrictions.onlyAllowedAttackNameNextTurn!==attack.name)
       continue;
     if(!publicSpecialAttackPayable(view,catalog,active,attack))continue;
-    return {kind:'attack',attackName:attack.name,
+    const estimatedDamage=movement===null?null:
+      attack.name==='Gale Thrust'&&attack.damage===60?
+        attack.damage+(movement?170:0):
+      attack.name==='Spiky Hopper'&&attack.damage===160?
+        attack.damage:null;
+    eligible.push({kind:'attack',attackName:attack.name,
       printedDamage:attack.damage,
-      reason:'printed-positive-damage-payable-public-board'};
+      ...(estimatedDamage===null?{}:{estimatedDamage,
+        damageEstimateScope:'exact-PFL84-public-movement-only'}),
+      reason:estimatedDamage===null?
+        'printed-positive-damage-payable-public-board':
+        'printed-positive-damage-with-public-movement-receipt'});
   }
-  return null;
+  if(movement!==null){
+    // A subset of payable attacks can be recognized precisely. Do not
+    // prefer an unknown-damage attack over a known one, and never claim that
+    // a raw attack estimate includes opponent defense or attack effects.
+    const ranked=eligible.filter(o=>o.estimatedDamage!==undefined)
+      .sort((a,b)=>b.estimatedDamage-a.estimatedDamage);
+    if(ranked.length>0)return ranked[0];
+  }
+  return eligible[0]??null;
 }
 module.exports={VERSION,choosePayablePrintedAttackOffer};
