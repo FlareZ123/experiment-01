@@ -77,6 +77,61 @@ function preflight(root=ROOT){
   };
 }
 
+/**
+ * Report the actual native run schema: successful rows have \`finished\`
+ * and \`winner\` fields, whereas native errors carry an explicit \`status\`.
+ * Keep aborts/caps in the denominator and never promote these to paper wins.
+ * @param {object[]} rows
+ */
+function summarizeEight(rows){
+  assert.ok(Array.isArray(rows));
+  const statuses={},starts={sourceFirst:0,candidateFirst:0,unknown:0};
+  const nativeWinners={candidate:0,source:0,tie:0,unknown:0};
+  let physicalPass=0,initialDealFingerprints=0,nativeCoinReceipts=0;
+  const trials=[];
+  for(const row of rows){
+    const status=row.status??(row.finished===true?
+      'engine-terminal':row.finished===false?'native-unfinished':
+      'native-disposition-unverified');
+    statuses[status]=(statuses[status]??0)+1;
+    const first=row.sourceActuallyFirst===true?'sourceFirst':
+      row.sourceActuallyFirst===false?'candidateFirst':'unknown';
+    starts[first]++;
+    if(row.finished===true){
+      const winner=row.winner===3?'tie':
+        row.winner===row.candidateSeat?'candidate':
+        row.winner===row.sourceSeat?'source':'unknown';
+      nativeWinners[winner]++;
+    }
+    if(row.physicalZoneQualification?.status==='PHYSICAL_INTEGRITY_VERIFIED')
+      physicalPass++;
+    if(typeof row.fullPhysicalDealFingerprint==='string'&&
+      row.fullPhysicalDealFingerprint.length===64)initialDealFingerprints++;
+    if(row.nativeSetupCoinChoiceReceipt?.status===
+      'consistent-accepted-native-setup-and-first-draw')nativeCoinReceipts++;
+    trials.push({
+      id:row.trial?.id??null,rank:row.trial?.rank??null,
+      candidateId:row.trial?.candidateId??null,candidateSeat:row.candidateSeat??null,
+      nativeStatus:status,finished:row.finished??null,
+      winner:row.finished===true?row.winner:null,
+      sourceActuallyFirst:row.sourceActuallyFirst??null,
+      sourceAttacks:row.attackDeclarations?.source??null,
+      candidateAttacks:row.attackDeclarations?.candidate??null,
+      physicalZoneStatus:row.physicalZoneQualification?.status??null,
+      nativeCoinStatus:row.nativeSetupCoinChoiceReceipt?.status??null,
+      rootActions:row.rootActionCount??null,
+      error:row.error?.slice?.(0,180)??null
+    });
+  }
+  return {
+    statuses,starts,nativeWinners,physicalPass,
+    initialDealFingerprints,nativeCoinReceipts,
+    summaryTrials:trials,
+    independentlyQualifiedGameCount:0,
+    caveat:'Engine terminal counts and native winner labels are developmental only. Native status is not an official paper tournament-clock verdict.'
+  };
+}
+
 /** Actual pinned two-seat games; failures/caps kept as separate rows. */
 function run(){
   const inspected=preflight();
@@ -98,11 +153,7 @@ function run(){
       registeredFrameName:VERSION
     });
     const rows=observed.rows??[];
-    const statuses={};
-    for(const row of rows){
-      const name=row.status??'missing-native-status';
-      statuses[name]=(statuses[name]??0)+1;
-    }
+    const readout=summarizeEight(rows);
     const {auditSourceClosure}=require('./agent36-source-closure-audit.cjs');
     const closure=auditSourceClosure(ROOT,[
       'simulation/evaluation/agent41-bilateral-v2-development.cjs'
@@ -115,7 +166,7 @@ function run(){
       enginePin:profile.pinnedVendorRevision,
       attempted:observed.attempted,expectedAttempts:8,
       complete:observed.attempted===8&&rows.length===8,
-      statuses,rows,
+      ...readout,rows,
       paired:observed.paired??null,
       competitiveQualifiedGames:0,winRateCertified:false,
       caveat:'Development discovery only. No independent paper-prompt verdict, Aichi clock, source-policy competency, or tournament win-rate certification. Identical seed does not make a distinct candidate 60 produce an identical physical deal.'
@@ -134,4 +185,4 @@ if(require.main===module){
   if(!process.argv.includes('--inspect-only')&&!output.complete)process.exitCode=1;
 }
 
-module.exports={VERSION,scheduledArms,preflight,run};
+module.exports={VERSION,scheduledArms,preflight,summarizeEight,run};
