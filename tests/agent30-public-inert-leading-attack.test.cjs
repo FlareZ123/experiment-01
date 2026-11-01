@@ -85,6 +85,19 @@ test('Unpayable alternative is never proposed',()=>{
   assert.equal(choose(observation(),[{name:'Call for Family',damage:0}]),null);
 });
 
+test('Buneary PFL cannot switch without a Benched Pokemon',()=>{
+  const v=observation({ownPublic:{
+    active:{printing:'Buneary PFL'},bench:Array(5).fill(null)}});
+  assert.equal(choose(v,affordable('Run Around','Kick',20))?.attackName,
+    'Kick');
+});
+
+test('Buneary PFL with a Bench occupant retains switching line',()=>{
+  const v=observation({ownPublic:{
+    active:{printing:'Buneary PFL'},bench:[null,null,{},null,null]}});
+  assert.equal(choose(v,affordable('Run Around','Kick',20)),null);
+});
+
 test('Nonnumeric, variable, and changed damage fail closed',()=>{
   for(const damage of [10,'20','20+',null,0]){
     assert.equal(choose(observation(),affordable('Call for Family','Tackle',damage)),null);
