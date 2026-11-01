@@ -104,3 +104,16 @@ jobs:
           path: agent25-rank10-celestial-roar-physical60-pair.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Reuse Agent47 fully paper-corrected Celestial Roar on original rank10 both candidate policies
+        run: node simulation/evaluation/agent25-agent47-celestial-roar-natural-rank10-source-pair.cjs > agent25-agent47-celestial-roar-natural-rank10-source-pair.json
+      - name: Print original rank10 with existing Agent47 full-paper Celestial Roar hook
+        run: |
+          node -e "const r=require('./agent25-agent47-celestial-roar-natural-rank10-source-pair.json');console.log(JSON.stringify({pin:r.pin,records:r.records.map(x=>({policy:x.policy,status:x.status,code:x.code||null,roots:x.nativeActions||null,physical:x.physicalZoneIntegrity?{checked:x.physicalZoneIntegrity.settledRootsChecked,anomalies:x.physicalZoneIntegrity.settledRootsWithAnomaly}:null,celestial:x.agent47PaperCelestialRoarAudit?{replaced:x.agent47PaperCelestialRoarAudit.replacedAttackResolutions,selected:x.agent47PaperCelestialRoarAudit.nativeSelectedTransfers,settled:x.agent47PaperCelestialRoarAudit.nativeEffectSettlements}:null,actualSourceAttacks:x.sourceCelestialRoarActualRoots||null}))},null,2));"
+      - name: Archive Agent47 existing paper hook applied to naturally dealt rank10 original 60
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-agent47-celestial-roar-natural-rank10-source-pair
+          path: agent25-agent47-celestial-roar-natural-rank10-source-pair.json
+          if-no-files-found: warn
+          retention-days: 14
