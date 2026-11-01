@@ -36,3 +36,30 @@ test('rank14 genuine Ultra Ball choose-cards mandatory 2-payment and native Stor
     assert.equal(result.originalValidatorAccepted,false);
   }
 });
+
+test('same printed rank14 native Ultra Ball pairs a valid two-card payment against the forbidden free search in both seats',()=>{
+  for(const seat of [0,1]){
+    const free=probeUltraBallZeroPayment(seat,'zero');
+    const paid=probeUltraBallZeroPayment(seat,'two');
+    console.log('AGENT4_RANK14_ULTRABALL_PAIRED '+JSON.stringify({free,paid}));
+    assert.equal(free.originalValidatorAccepted,false);
+    assert.equal(free.chosenValidatorAccepted,false);
+    assert.match(free.strictError,/invalid result to ChooseCardsPrompt/);
+    assert.equal(free.zeroPaymentError,null);
+    assert.equal(free.regidragoAddedToHand,true);
+    assert.equal(free.grassDiscarded,false);
+    assert.equal(free.fireDiscarded,false);
+    assert.deepEqual(free.ownerHandAfter,
+      ['Grass Energy MEE','Fire Energy MEE','Regidrago V SIT']);
+    assert.deepEqual(free.promptsPending,[]);
+    assert.equal(paid.chosenValidatorAccepted,true);
+    assert.equal(paid.strictError,null);
+    assert.equal(paid.zeroPaymentError,null);
+    assert.equal(paid.regidragoAddedToHand,true);
+    assert.equal(paid.grassDiscarded,true);
+    assert.equal(paid.fireDiscarded,true);
+    assert.deepEqual(paid.ownerHandAfter,['Regidrago V SIT']);
+    assert.deepEqual(paid.promptsPending,[]);
+    assert.equal(free.continuation.length,paid.continuation.length);
+  }
+});
