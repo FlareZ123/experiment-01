@@ -50,4 +50,26 @@ function offerPublicRondo(view,catalog){
     reason:'owner-visible-payable-printed-rondo-dynamic-damage'};
 }
 
-module.exports={VERSION,offerPublicRondo};
+/**
+ * Coarse, owner-visible access-state census. A source rank's zero attack
+ * offers is otherwise ambiguous between no Clefairy, wrong Active position,
+ * and an unfunded Active attacker. These are root observations, not games.
+ * @param {object} view Detached owner-root observation.
+ * @param {object} catalog Public card catalog.
+ * @returns {string} An intentionally disjoint readiness category.
+ */
+function publicRondoReadiness(view,catalog){
+  const own=view?.ownPublic;
+  if(view?.decisionKind!=='owner-root'||!own||
+     !Array.isArray(own.bench))return 'unobserved';
+  if(own.active?.printing==="Lillie's Clefairy ex JTG"){
+    if(offerPublicRondo(view,catalog))return 'active-payable';
+    if(!Array.isArray(own.active.energies)||
+       own.active.energies.length<2)return 'active-fewer-than-two-energy-cards';
+    return 'active-payability-or-rule-blocked';
+  }
+  return own.bench.some(p=>p?.printing==="Lillie's Clefairy ex JTG")?
+    'benched-not-active':'not-in-play';
+}
+
+module.exports={VERSION,offerPublicRondo,publicRondoReadiness};
