@@ -43,6 +43,14 @@ The experimental source-policy adapter increments `completedEquippedGarbodor` on
 
 The source runner and existing manually-dispatched workflow have now been updated to use `sourceCompletedEquippedAtSourcePlanEnd`, require exactly one completed plan, all 11 Store actions, five owner prompts and zero aborts in **each** paired arm, and release-gate the single native Tool removal. This audit repair does not change the source or opponent policies, decks, seeds or native actions. Treat strict post-repair CI verification as an additional event rather than silently attributing its code to the first run.
 
+## Strict corrected same-deal native release, independently recompiled
+
+The stricter unchanged-decks replay [manual CI 41345185604](https://github.com/FlareZ123/experiment-01/actions/runs/41345185604) **SUCCESS** at code revision `2978eb78ea9681e77d56b735daa8385b2f9f7a70`. [Full 12-arm corrected JSON artifact 13099595287](https://github.com/FlareZ123/experiment-01/actions/runs/41345185604/artifacts/13099595287), archived digest `sha256:fa32547a88efef1845d7311f66b53f7ecb6b506c53083229f77969ccc7065465`.
+
+The edited workflow now **fails** unless the twelve same-source original K0 arms verify, twelve source policies select the line, all **132** first-turn source native actions settle, **one** genuine opponent `Field Blower` PlayCardAction occurs and **one** subsequently checked public Garbodor Tool-removal event occurs. In addition, each live paired original Store arm independently asserts one owner-chosen source plan, exactly eleven native Store-accepted plan steps, exactly five native owner prompt selections, exactly one equipped Garbodor witness **at source plan completion**, and no plan aborts. All passed, with the same physical rank11 K0 indexes 2/232/299/376/440/458 and the single recipient Tool removal in index299.
+
+This second archived replay independently confirms the first run's same-deal comparison under the stricter and temporally correct audit labels. Both runs retain complete attempts. There is still **no post-opponent source-board survival metric** established by the plan-end field, no full paper legality certification, and no qualified game.
+
 ## Interpretation and transfer
 
 The result falsifies reliance on generic-bot 6/6 first-turn Tool-lock survival as competitive evidence. A stronger opponent's held, native-playable Tool answer really triggers within the same game in which the source independently selected its own setup. The outcome is already a *policy interaction*, although neither component is a globally optimal chooser.
