@@ -202,3 +202,62 @@ test('the post-root prompt plan cannot observe opponent private-hand identities'
   assert.deepEqual(run.result,['Funded Attacker','Funded Attacker']);
   assert.equal(run.audit.ownTargetPhysicalConfirmations,2);
 });
+
+test('opt-in nominal Guzma gust chooses second physical opponent Bench KO candidate on both seats',()=>{
+  const catalog={
+    basicEnergies:new Set(['Darkness Energy SVE']),
+    basicEnergyTypes:{Darkness:7},
+    colorlessEnergyType:0,
+    specialConditions:{ASLEEP:2,PARALYZED:4}
+  };
+  const observeGust=(state,seat)=>({
+    decisionKind:state.prompts.length?'owner-prompt':'owner-root',
+    actorSeat:seat,globalTurn:state.turn,
+    ownHand:state.players[seat].hand.cards.map(c=>c.fullName),
+    ownPublic:{bench:[null,{
+      energies:['Darkness Energy SVE'],specialConditions:[],
+      publicRestrictions:{},attacks:[{
+        name:'Printed Fixed Hit',cost:[7],damage:100,
+        damageCalculation:null,text:'',gxAttack:false
+      }]
+    }]},
+    opponentPublic:{bench:[{hp:240,damage:0},{hp:80,damage:0},null]}
+  });
+  const observed=withGuzmaOwnerPromptContinuation(()=>{
+    const rows=[];
+    for(const seat of [0,1]){
+      const state=scenario(seat);
+      const owner=state.players[seat],opponent=state.players[1-seat];
+      opponent.bench[1]=slot('Vulnerable Pokémon',900+seat);
+      const store=new Store(state);
+      store.dispatch(new AddPlayerAction());
+      const bot=new SimpleTacticsAi(owner.id);
+      store.dispatch(bot.decodeNextAction(state));
+      assert.equal(state.prompts[0].playerType,1);
+      store.dispatch(bot.decodeNextAction(state));
+      assert.equal(opponent.active.getPokemonCard().fullName,'Vulnerable Pokémon');
+      assert.equal(state.prompts[0].playerType,2);
+      store.dispatch(bot.decodeNextAction(state));
+      rows.push({
+        incoming:owner.active.getPokemonCard().fullName,
+        gusted:opponent.active.getPokemonCard().fullName
+      });
+    }
+    return rows;
+  },{...deps,nominalGust:true,observe:observeGust,
+    getCatalog:()=>catalog,choosePlan:()=>({
+      kind:'play-held-guzma-mobility',benchIndex:1,
+      anticipatedMissing:0,handIndex:0
+    })});
+  assert.deepEqual(observed.result,[
+    {incoming:'Funded Attacker',gusted:'Vulnerable Pokémon'},
+    {incoming:'Funded Attacker',gusted:'Vulnerable Pokémon'}
+  ]);
+  assert.equal(observed.audit.gustTargetProposals,2);
+  assert.equal(observed.audit.gustTargetAcceptances,2);
+  assert.equal(observed.audit.gustTargetPhysicalConfirmations,2);
+  assert.equal(observed.audit.gustTargetPhysicalMismatches,0);
+  assert.equal(observed.audit.ownTargetPhysicalConfirmations,2);
+  assert.equal(observed.audit.opponentTargetDelegations,0);
+  assert.equal(observed.audit.nominalGustOptIn,true);
+});
