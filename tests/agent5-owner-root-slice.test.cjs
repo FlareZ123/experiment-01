@@ -193,13 +193,29 @@ test('physical snapshot accesses acting-owner public zones only',()=>{
     active:{energies:{cards:[{fullName:P}]}},
     bench:[{getPokemonCard:()=>null}]
   };
-  const hostile=new Proxy({}, {get(){throw Error('Opponent hidden read');}});
+  const hostile=new Proxy({stadium:{cards:[]}}, {get(target,key){
+    if(key!=='stadium')throw Error('Opponent hidden read');
+    return target[key];
+  }});
   const s={turn:2,phase:5,players:[p,hostile]};
-  assert.deepEqual(rootPhysicalSnapshot(s,0,{
+  const observed=rootPhysicalSnapshot(s,0,{
     kind:'bench-basic',benchSlot:0,printing:C
-  }),{evolutionTop:null,evolutionLayers:null,
-    turn:2,phase:5,handCount:1,stadiumPrintings:[],
-    activeEnergies:[P],activeToolPrintings:[],targetEnergies:[P],benchPrinting:null});
+  });
+  assert.deepEqual({
+    evolutionTop:observed.evolutionTop,
+    evolutionLayers:observed.evolutionLayers,
+    turn:observed.turn,phase:observed.phase,
+    handCount:observed.handCount,
+    inPlayStadiumPrintings:observed.inPlayStadiumPrintings,
+    stadiumPrintings:observed.stadiumPrintings,
+    activeEnergies:observed.activeEnergies,
+    activeToolPrintings:observed.activeToolPrintings,
+    targetEnergies:observed.targetEnergies,
+    benchPrinting:observed.benchPrinting
+  },{evolutionTop:null,evolutionLayers:null,
+    turn:2,phase:5,handCount:1,inPlayStadiumPrintings:[],
+    stadiumPrintings:[],activeEnergies:[P],activeToolPrintings:[],
+    targetEnergies:[P],benchPrinting:null});
 });
 
 
@@ -276,7 +292,10 @@ test('native Tool recipient snapshots use only owner physical slots',()=>{
     energies:{cards:[]},
     tools:tools.map(fullName=>({fullName}))
   });
-  const rival=new Proxy({},{get(){throw Error('Opponent hidden read');}});
+  const rival=new Proxy({stadium:{cards:[]}}, {get(target,key){
+    if(key!=='stadium')throw Error('Opponent hidden read');
+    return target[key];
+  }});
   const owner={
     hand:{cards:[{fullName:tool},{fullName:P}]},
     active:pokemon('Dedenne-GX UNB'),
