@@ -25,6 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check source rank6 owner K1 math
+        run: |
+          node --test tests/agent6-rank6-k1-speed-prerequisite-exact.test.cjs
+          node scripts/agent6-rank6-k1-speed-prerequisite-exact.cjs
       - name: Retrieve prior native source K0 witnesses without rerunning expensive games
         if: inputs.agent44_source_witness_run != ''
         uses: actions/download-artifact@v4
