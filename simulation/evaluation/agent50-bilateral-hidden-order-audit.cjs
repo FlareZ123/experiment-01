@@ -347,9 +347,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeBoundedOpponentHiddenHand,'boolean');
   assert.equal(typeof nativeTapeBoundedDoubleExchange,'boolean');
   assert.equal(typeof nativeTapeHandPrizeContrast,'boolean');
-  assert.ok(!nativeTapeHandPrizeContrast||
-    (nativeTapeBoundedOpponentHiddenHand&&!nativeTapeBoundedDoubleExchange),
-    'Hand-Prize contrast requires bounded one-swap mode');
+  assert.ok(!nativeTapeHandPrizeContrast||nativeTapeBoundedOpponentHiddenHand,
+    'Hand-Prize contrast requires bounded native tape mode');
   assert.ok(!nativeTapeBoundedDoubleExchange||nativeTapeBoundedOpponentHiddenHand,
     'Double exchange requires bounded native opponent-hand mode');
   assert.ok(!nativeTapeBoundedOpponentHiddenHand||
@@ -411,7 +410,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
       nativeTapeHandPrizeContrast}
   ));
   return {
-    schema:nativeTapeHandPrizeContrast?
+    schema:nativeTapeHandPrizeContrast&&nativeTapeBoundedDoubleExchange?
+      'agent23-crossrank-native-tape-opponent-hand-prize-double-v5':
+      nativeTapeHandPrizeContrast?
       'agent23-crossrank-native-tape-opponent-hand-prize-v4':
       nativeTapeBoundedDoubleExchange?
       'agent23-crossrank-native-tape-opponent-hand-double-v3':
