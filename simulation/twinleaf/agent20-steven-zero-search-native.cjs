@@ -109,7 +109,8 @@ function probeStevenSearch(seat, pickedCards) {
     subsequentPrompts,
     uncompletedPromptFamilies: state.prompts.filter(p => p.result === undefined)
       .map(p => p.constructor.name),
-    protectedOtherPlayer: rival.hand.cards.length === 0
+    opponentHandAfter: rival.hand.cards.map(c => c.fullName),
+    opponentDeckAfter: rival.deck.cards.length
   };
 }
 
