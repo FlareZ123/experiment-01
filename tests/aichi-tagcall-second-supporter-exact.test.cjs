@@ -25,22 +25,25 @@ test('all five source sixties are exact original-printing categories',()=>{
     .reduce((a,b)=>a+b,0),60);
 });
 
+// These exact values condition on the actual first draw: a secondary TAG
+// TEAM Supporter drawn into the hand is no longer searchable in the deck.
+// The prior expectations wrongly tested its pre-draw deck placement.
 test('physical opening denominator and exact subsets retain rank6 prior',()=>{
   const row=stats.rows.find(r=>r.rank===6);
   assert.equal(row.exactCounts.valid,'166478632771651200');
   close(row.percentages.tagHeld,22.930361051094074);
   close(row.percentages.tagNoHala,18.26681946736998);
   close(row.percentages.ghDeckThunderUnprized,16.199896487593353);
-  close(row.percentages.fullExtraSearchable,12.967005151716124);
+  close(row.percentages.fullExtraSearchable,12.717114783047034);
   close(row.conditionalBothTargetAndThunderGivenTagNoHalaPercent,
-    70.98666067663879);
+    69.61865915280774);
 });
 
 test('rank2 extra singleton, rank24 two extras, rank15 zero',()=>{
   const r=rank=>stats.rows.find(x=>x.rank===rank);
-  close(r(2).percentages.fullExtraSearchable,20.593975793561896);
-  close(r(24).percentages.fullExtraSearchable,15.60110095365);
-  close(r(29).percentages.fullExtraSearchable,12.967005151716124);
+  close(r(2).percentages.fullExtraSearchable,20.168832142366508);
+  close(r(24).percentages.fullExtraSearchable,15.5008038118127);
+  close(r(29).percentages.fullExtraSearchable,12.717114783047034);
   assert.equal(r(15).exactCounts.fullExtraSearchable,'0');
   close(r(15).percentages.tagNoHala,29.633510025481442);
 });
