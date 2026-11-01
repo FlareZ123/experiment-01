@@ -64,6 +64,11 @@ function probeFroslassPartialBudget(assigned,guarded,seat){
         nativeAccepted=pending.validate(answer,f.state);
       }else if(pending.constructor.name==='WaitPrompt'){
         answer=null;
+      }else if(pending.constructor.name==='ChoosePrizePrompt'){
+        // An illegal eighth self-damage counter Knocks Out 80-HP Froslass.
+        // Prize selection is a downstream consequence, not a prompt failure.
+        // Retain the real pending Prize prompt while measuring prior damage.
+        break;
       }else{
         throw new Error('Unexpected Froslass native prompt '+
           pending.constructor.name);
@@ -92,6 +97,8 @@ function run(){
     const illegal=probeFroslassPartialBudget(80,false,seat);
     const protectedLegal=probeFroslassPartialBudget(70,true,seat);
     const protectedIllegal=probeFroslassPartialBudget(80,true,seat);
+    console.log('AGENT46_FROSLASS_NATIVE_CASES',
+      JSON.stringify({seat,legal,illegal,protectedLegal,protectedIllegal}));
     assert.equal(legal.nativeAccepted,true);
     assert.equal(illegal.nativeAccepted,true,
       'Pinned optional validator accepts a forbidden 80/70 allocation');
