@@ -98,7 +98,16 @@ function auditFrozenPromptCoverage(archive){
     sourceVoltCycloneWithBenchMatchedMove:0,
     sourceVoltCycloneWithoutBenchNoPrompt:0,
     sourceVoltCycloneUnclassified:0,
-    sourceVoltCycloneConditionalEffectCoverageComplete:false
+    sourceVoltCycloneConditionalEffectCoverageComplete:false,
+    sourceVoltCycloneObservedNextTurn:0,
+    sourceVoltCycloneUnobservedNextTurn:0,
+    sourceVoltCycloneSoloObservedNextTurn:0,
+    sourceVoltCycloneSoloImmediateRepeatAttack:0,
+    sourceVoltCycloneBenchedObservedNextTurn:0,
+    sourceVoltCycloneBenchedImmediateRepeatAttack:0,
+    sourceVoltCycloneBenchedObservedNextTurnPass:0,
+    sourceVoltCycloneSoloObservedNextTurnEnergyAttach:0,
+    sourceVoltCycloneBenchedObservedNextTurnEnergyAttach:0
   };
   const ids=new Set();
   for(const row of archive.rows){
@@ -242,6 +251,33 @@ function auditFrozenPromptCoverage(archive){
         if(prompts.length===1&&settledPromptOrdinals.has(prompts[0].actionOrdinal))
           status.sourceVoltCycloneWithBenchMatchedMove++;
         else status.sourceVoltCycloneUnclassified++;
+      }
+      // Original rank-6 source normal alternating turns: only a real
+      // AttackAction/PassTurnAction on its next owner turn closes the
+      // follow-up; action-limit/terminal games right-censor the observation.
+      const nextOwnerTurn=rootActions.filter(action=>
+        action.playerSlot===row.sourceSeat&&
+        action.turnBefore===attack.turnBefore+2);
+      const nextEnd=nextOwnerTurn.find(action=>
+        action.action==='AttackAction'||action.action==='PassTurnAction');
+      if(!nextEnd){
+        status.sourceVoltCycloneUnobservedNextTurn++;
+        continue;
+      }
+      status.sourceVoltCycloneObservedNextTurn++;
+      const nextAttack=nextEnd.action==='AttackAction';
+      const energyAttached=nextOwnerTurn.some(action=>
+        action.action==='PlayCardAction'&&
+        / Energy$/.test(action.card??''));
+      if(ownBoard?.bench?.length===0){
+        status.sourceVoltCycloneSoloObservedNextTurn++;
+        if(nextAttack)status.sourceVoltCycloneSoloImmediateRepeatAttack++;
+        if(energyAttached)status.sourceVoltCycloneSoloObservedNextTurnEnergyAttach++;
+      }else if(ownBoard?.bench?.length>0){
+        status.sourceVoltCycloneBenchedObservedNextTurn++;
+        if(nextAttack)status.sourceVoltCycloneBenchedImmediateRepeatAttack++;
+        else status.sourceVoltCycloneBenchedObservedNextTurnPass++;
+        if(energyAttached)status.sourceVoltCycloneBenchedObservedNextTurnEnergyAttach++;
       }
     }
   }
