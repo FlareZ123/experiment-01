@@ -1,3 +1,11 @@
+# 1 November 2026 final pre-release synthesis
+
+- Verified GitHub main links and successful 41357772292 compiled CI. Exact primary report `results/aichi-2026/agent50-original-source-dynamic-attack-census-20261101.md` was additionally cross-linked to Agent24's independent source action-vocabulary matrix and original printing name gap frequencies. This pairs the two separate outstanding simulator questions: which strategically meaningful actions are considered, and whether their chosen effects settle according to paper rules.
+- Remain cautious: native Bellowing Thunder zero Basic discard is potentially legal optional zero under attack wording; the unverified nonzero selection/actual payoff, rather than automatic illegality of the zero result, is the research blocker. Source rank19 original remains exact TEF123. Source-field 52 dynamic entries are inventory only; 286 direct name matches are startup baseline before optional hooks.
+- Original lease is 2026-11-01T21:40:39.353022Z. If actual clock >=22:50:39.353022Z, release via deleting own `.lease.json` after all prior useful commits confirmed. Lease deletion must be FINAL remote mutation. Do not refresh.
+
+---
+
 # 1 November 2026 22:47 UTC checkpoint: final original field triage publication
 
 - Full compiled [CI 41357772292](https://github.com/FlareZ123/experiment-01/actions/runs/41357772292) completed successfully, with exact TEF123 and both-seat Burst/Bellowing differential; direct-vs-enumerated source census is stable. See `results/aichi-2026/agent50-original-source-dynamic-attack-census-20261101.md` and `results/aichi-2026/agent50-rank19-raging-bolt-public-basic-energy-20261101.md`.
