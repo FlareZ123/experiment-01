@@ -30,8 +30,8 @@ function buildClassificationIndex(directory) {
       const key = card.supertype + ':' + normalizeName(card.name);
       const entry = {
         supertype: card.supertype,
-        basic: card.supertype === 'Pokémon' && card.subtypes.includes('Basic'),
-        supporter: card.supertype === 'Trainer' && card.subtypes.includes('Supporter')
+        basic: card.supertype === 'Pokémon' && (card.subtypes ?? []).includes('Basic'),
+        supporter: card.supertype === 'Trainer' && (card.subtypes ?? []).includes('Supporter')
       };
       const previous = index.get(key);
       if (previous) {
