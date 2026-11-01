@@ -45,6 +45,23 @@ Under the full two-player mulligan bonus distribution, require every extra physi
 
 This tighter event quantifies **what is missing from the immediately visible, directly Basic-searching hand**, and must not be interpreted as a guaranteed unrescuable starter or a loss probability. Other Trainer/Ability lines could still rescue a hand with neither Item; an opponent's Item lock could make a held Item unusable. Both numbers describe different exact inventory events, and neither justifies an immediate candidate substitution.
 
+## Cost-sensitive physical access frontier
+
+The candidate also has **2 Mysterious Treasure FLI113**, whose search requires discarding one other card, and **1 Secret Box TWM163**, whose broad Item search requires discarding three other cards. When Item play is allowed, a held Treasure may search a Basic Psychic Pokémon, and Secret Box may obtain a Battle VIP Pass or Fog Crystal. Both are theoretically reachable Bench-rescue lines, subject to their costs and the alternative uses of those exact cards. The physical-card screen below counts a card as visible access without claiming that spending it is a rational or native-validated move.
+
+| Named physical search routes counted | Counted copies in candidate / hypothetical 60 | Sole HP≤60 Basic, none of these routes after all maximum bonus cards; 29-source average |
+| --- | ---: | ---: |
+| Battle VIP Pass + Fog Crystal | **8** | **2.04225%** |
+| Plus Mysterious Treasure | **10** | **1.38247%** |
+| Plus Secret Box | **11** | **1.12669%** |
+| Plus four *hypothetical* discard-requiring search slots, with four other slots removed | **15 hypothetical** | **0.46129%** |
+
+Each row uses the exact same (B=17,L=5) and authentic 29 source Basic counts. For (T) distinct non-Basic physically searching cards included in the count, the initial-seven event is
+
+`5*C(43-T,6)/[C(60,7)-C(43,7)]`.
+
+After a valid initial seven with no such search Items, the extra-card no-access condition has hypergeometric factor `C(37-T,k)/C(53,k)` for (k) bonus cards. The sensitivity ranges are compositional what-if card-location calculations; the 15-copy row describes a **different 60** requiring four substitutions and was never a legal candidate list submitted for competitive evaluation. It is **not** evidence that those four additional slots would increase actual wins. In particular, Mysterious Treasure and Secret Box consume discards, compete for one-use search benefits, may be inaccessible under Item lock, and can be more valuable for their intended attack engine lines. Model the exact opportunity costs before using the two lower-risk rows to choose a decklist.
+
 ## Why this is only a structural risk
 
 - A 60-HP opening Basic is **not** equivalent to an early Knock Out, donk, or game loss. Opponent attack access, setup speed, first-player seat, Bench options, Abilities, relevant HP modification, and later actions all matter.
