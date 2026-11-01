@@ -55,8 +55,11 @@ function runFrozenV2PaperPortfolio(opts={}){
       status:expected!==null&&audit?.nativeAccepted===expected?
         'COUNT_MATCH':'UNMATCHED_OR_MISSING'};
   });
+  const liveStoreCoverage=witnessed.audit.liveStoreRequired===true&&
+    witnessed.audit.liveSourceTrialCount===profile.scheduledNativeArms&&
+    witnessed.audit.preLivePromptAttempts===0;
   const allCountsMatched=rows.length===profile.scheduledNativeArms&&
-    counts.every(x=>x.status==='COUNT_MATCH')&&
+    counts.every(x=>x.status==='COUNT_MATCH')&&liveStoreCoverage&&
     observedTrials.length===profile.scheduledNativeArms&&
     new Set(observedTrials).size===profile.scheduledNativeArms;
   return {
@@ -67,7 +70,10 @@ function runFrozenV2PaperPortfolio(opts={}){
     installedOutsideFrozenV2AttestedSourceClosure:true,
     fullSourceClosureQualified:false,
     observedRunMatchTrialOrder:observedTrials,
-    nativeTrialPromptCountBinding:{allCountsMatched,counts},
+    nativeTrialPromptCountBinding:{allCountsMatched,liveStoreCoverage,
+      auxiliaryPromptAttempts:witnessed.audit.auxiliaryPromptAttempts??null,
+      preLivePromptAttempts:witnessed.audit.preLivePromptAttempts??null,
+      counts},
     paperPromptPortfolio:witnessed.audit,
     native,
     competitiveQualifiedGames:0,winRateCertified:false,
