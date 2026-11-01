@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-printed-source-and-native-root-guard-v4';
+const VERSION='agent12-nightwatch-postgame-physical-pair-attestation-v5';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -73,7 +73,7 @@ function nightWatchLikeShape(state,actor,prompt){
  *
  * @template T
  * @param {()=>T} run Real game.
- * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean,requireNativeRootState?:boolean}} options
+ * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean,requireNativeRootState?:boolean,capturePostGamePhysicalNames?:boolean}} options
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatchOpponentSelection(run,options){
@@ -108,6 +108,7 @@ function withUniformNightWatchOpponentSelection(run,options){
   if(nativeRootGate)assert.equal(typeof dispatchOriginal?.value,'function');
   const nativeRootStates=new WeakSet();
   const marked=new WeakSet();
+  const postGamePhysicalRefs=[];
   const audit={version:VERSION,structuralCandidates:0,
     selectedCount:0,events:[],nativeAcceptedNotEstablishedByHook:true,
     printedNightWatchSourceNotEstablishedByShape:true,
@@ -122,6 +123,8 @@ function withUniformNightWatchOpponentSelection(run,options){
     requireNativeRootState:nativeRootGate,
     nativeRootSetupDispatchesObserved:0,
     skippedDetachedStorePrintedPrompts:0,
+    postgamePhysicalNamesEnabled:options.capturePostGamePhysicalNames===true,
+    postgamePhysicalNamesExposedToPolicy:false,
     nativeRootBindingScope:nativeRootGate?
       'Store state identity captured at actual AddPlayerAction dispatch':
       'not-enabled'};
@@ -153,12 +156,17 @@ function withUniformNightWatchOpponentSelection(run,options){
     const chosen=indices.map(i=>prompt.cards.cards[i]);
     assert.equal(prompt.validate(chosen),true,
       'Uniform native opponent-hand selection rejected by pinned prompt');
-    if(audit.events.length<24)audit.events.push({
-      promptId:prompt.id,turn:state.turn,nonce,
-      actorId:player.id,opponentHandCount:n,
-      positions:indices,selectedCount:count,
-      attackerCardIdentitiesInspected:false
-    });
+    if(audit.events.length<24){
+      const event={
+        promptId:prompt.id,turn:state.turn,nonce,
+        actorId:player.id,opponentHandCount:n,
+        positions:indices,selectedCount:count,
+        attackerCardIdentitiesInspected:false
+      };
+      audit.events.push(event);
+      if(options.capturePostGamePhysicalNames===true)
+        postGamePhysicalRefs.push({event,cards:chosen.slice()});
+    }
     audit.selectedCount+=count;
     return new ResolvePromptAction(prompt.id,chosen);
   }
@@ -192,7 +200,18 @@ function withUniformNightWatchOpponentSelection(run,options){
     ...dispatchOriginal,value:trackNativeRoot
   });
   try{
-    return {result:run(),audit};
+    const result=run();
+    // Card identity is materialized strictly after all games/decisions finish.
+    // Sampling and policy paths above use only opaque physical positions.
+    for(const witness of postGamePhysicalRefs){
+      witness.event.postGameSelectedPrintings=witness.cards.map(card=>{
+        const printed=card?.fullName??card?.name;
+        assert.ok(typeof printed==='string'&&printed.length>0,
+          'Postgame physical identity witness needs an actual printing');
+        return printed;
+      });
+    }
+    return {result,audit};
   }catch(error){
     if(error&&typeof error==='object')
       error.agent12NightWatchRandomAudit=audit;
