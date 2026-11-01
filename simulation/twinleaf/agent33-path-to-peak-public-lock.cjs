@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent33-path-to-peak-physical-used-fusion-v3';
+const VERSION='agent33-path-safe-sky-and-physical-fusion-v4';
 const {VERSION:FUSION_USAGE_VERSION}=
   require('./agent33-public-fusion-usage.cjs');
 
@@ -86,7 +86,7 @@ function prospectiveHeldPrintedAbility(printing,playerPublic,catalog){
  * not certify the value of losing their abilities on future turns.
  * @param {object} view Detached actor-root observation.
  * @param {object} catalog Public exact-printing card metadata.
- * @param {{ownFusionUsage?:object}} [options] Verified owner-public witness.
+ * @param {{ownFusionUsage?:object,allowSafeSkyFieldReplacement?:boolean}} [options] Verified owner-public witness and opt-in Stadium line.
  * @returns {object|null}
  */
 function choosePathToPeakOpposingAbility(view,catalog,options={}){
@@ -100,7 +100,15 @@ function choosePathToPeakOpposingAbility(view,catalog,options={}){
   // per-card flag. A spent Seal Stone no longer grants a usable Power.
   const stadium=[...(own.stadium??[]),
     ...(view.opponentPublic?.stadium??[])];
-  if(stadium.length>0||r.stadiumPlayLocked!==false||
+  // Printed Sky Field ROS89 only forces Bench discards on removal when a
+  // player has more than five Benched Pokemon. A separate opt-in may replace
+  // a lone Sky Field with Path only when neither board would be collapsed.
+  const safeSkyReplacement=options.allowSafeSkyFieldReplacement===true&&
+    stadium.length===1&&stadium[0].startsWith('Sky Field ')&&
+    (own.bench??[]).filter(Boolean).length<=5&&
+    (view.opponentPublic?.bench??[]).filter(Boolean).length<=5;
+  if((stadium.length>0&&!safeSkyReplacement)||
+    r.stadiumPlayLocked!==false||
     !Number.isSafeInteger(r.stadiumPlayedTurn)||
     r.stadiumPlayedTurn>=view.globalTurn)return null;
   const usedFusionSlots=verifiedUsedFusionSlots(view,options.ownFusionUsage);
@@ -130,7 +138,10 @@ function choosePathToPeakOpposingAbility(view,catalog,options={}){
     handIndex:index,printing:view.ownHand[index],
     reason:usedFusionSlots.size>0?
       'public-opposing-ability-after-spent-owner-fusion-this-turn':
-      'public-opposing-rulebox-ability-and-no-owner-self-lock',
+      safeSkyReplacement?
+        'safe-sky-field-replacement-opposing-rulebox-ability':
+        'public-opposing-rulebox-ability-and-no-owner-self-lock',
+    ...(safeSkyReplacement?{replacesSkyFieldWithoutBenchCollapse:true}:{}),
     ...(usedFusionSlots.size>0?{
       spentOwnerFusionSlotIndices:[...usedFusionSlots].sort((a,b)=>a-b),
       futureTurnOwnGenesectSelfLockRisk:true
