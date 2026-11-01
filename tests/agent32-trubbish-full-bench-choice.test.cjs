@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const {chooseKnownDeadLeadingAttack,VERSION}=
   require('../simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs');
 const field=require('../results/aichi-2026/full-decklists.json');
+const {chooseActorRootIntent}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const family={name:'Call for Family',damage:0,cost:[7]};
 const poison={name:'Super Poison Breath',damage:20,cost:[7,9]};
@@ -66,4 +68,40 @@ test('opponent private hand and unknown future deck do not enter preference',()=
   b.opponentPublic.discard=['Mystery card'];
   assert.deepEqual(chooseKnownDeadLeadingAttack(a,[family,poison]),
     chooseKnownDeadLeadingAttack(b,[family,poison]));
+});
+
+test('existing shared actor root selects the second attack only when enabled',()=>{
+  const v=view();
+  v.globalTurn=3;
+  v.ownHand=[];
+  v.ownPublic.active={
+    ...v.ownPublic.active,
+    energies:['Darkness Energy MEE','Darkness Energy MEE'],
+    attacks:[family,poison],specialConditions:[],
+    publicRestrictions:{}
+  };
+  v.ownPublic.stadium=[];
+  v.ownPublic.publicTurnRestrictions={attackLockTurnsRemaining:0};
+  v.opponentPublic.stadium=[];
+  v.ownTurnResources={
+    pokemonPlayLocked:false,energyPlayLocked:false,
+    energyPlayedTurn:3
+  };
+  const catalog={
+    basics:new Set(),abilityBasics:new Set(),
+    basicEnergies:new Set(['Darkness Energy MEE']),
+    basicEnergyTypes:{Darkness:7,Psychic:5,Lightning:4,Fairy:8},
+    colorlessEnergyType:9,
+    specialConditions:{ASLEEP:2,PARALYZED:0}
+  };
+  assert.deepEqual(chooseActorRootIntent(v,catalog),{
+    kind:'attack',attackName:'Call for Family'
+  });
+  assert.deepEqual(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }),{kind:'attack',attackName:'Super Poison Breath'});
+  v.ownPublic.bench[4]=null;
+  assert.equal(chooseActorRootIntent(v,catalog,{
+    knownDeadAttackRoot:true
+  }).attackName,'Call for Family');
 });
