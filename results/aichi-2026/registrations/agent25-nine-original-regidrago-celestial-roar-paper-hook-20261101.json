@@ -1,0 +1,51 @@
+{
+  "version": "agent25-nine-source-regidrago-celestial-roar-paper-fidelity-v1",
+  "registered": "2026-11-01T04:48Z",
+  "question": "Does preexisting Agent47 fully paper-correct Celestial Roar repair exact-source original paper Expanded physical60 failures across all NINE authenticated Aichi 2026 original Regidrago V source decks, rather than one rank10 case?",
+  "sourceDataset": "results/aichi-2026/full-decklists.json",
+  "sourceRanks": [
+    10,
+    12,
+    13,
+    14,
+    18,
+    20,
+    21,
+    27,
+    32
+  ],
+  "sourcePrintedRegidragoVCountExpectedAtLeast": 3,
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "candidatePhysicalSeat": 1,
+  "sourcePhysicalSeat": 0,
+  "oneSeedPerRank": {
+    "10": 1304508082,
+    "12": 1304523920,
+    "13": 1304531839,
+    "14": 1304539758,
+    "18": 1304571434,
+    "20": 1304587272,
+    "21": 1304595191,
+    "27": 1304642705,
+    "32": 1304682300
+  },
+  "maxNativeRootActions": 120,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperHook": "simulation/twinleaf/agent47-celestial-roar-paper-energy-hook.cjs",
+  "hnsAbilityHook": "simulation/twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs",
+  "arms": [
+    "pinnedOriginalStore",
+    "Agent47PaperCelestialRoar"
+  ],
+  "settings": "Same early-matched printed source and candidate native 60, guards enabled, SimpleTacticsAi default untouched both player seats, isolate policy randomness; capture real native root action decisions, initial deal SHA, earliest physical60 anomaly and hook own audit. Always preserve failures and cap classifications.",
+  "proofProtocol": "For each rank capture original game and paper hook game under identical seed/source-printed 60, do not interpret raw winner/Prize as competitive or paired physical-state evidence unless exact initial deal hashes match. Count number of native Celestial Roar attack declarations, how many paper hook corrected Special/Basic draws, and how many physical-conservation failures. Recognize action-cap and exception denominator.",
+  "limits": [
+    "Exactly one selected seed per source rank",
+    "Original source decks only 29/32, ranks23/25/28 unknown",
+    "Bot action policy unqualified",
+    "No paper-clock model",
+    "Post-event candidate 60",
+    "Differences after any corrected attack may reflect changed native physics and subsequent policy decisions"
+  ],
+  "competitivelyQualifiedGames": 0
+}
