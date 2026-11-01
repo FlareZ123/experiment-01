@@ -34,20 +34,27 @@ function classifyGuzmaRoot(view,catalog){
       if(nominalKo(target,attacker,attack))nominalKoPairs++;
     }
   }
+  const directActiveNominalKo=own?.active&&opp?.active?
+    fundedPlainAttacks(own.active,catalog).some(attack=>
+      nominalKo(opp.active,own.active,attack)!==null):false;
   const quotaOpen=r?.supporterPlayedTurn===0 &&
     r?.supporterPlayLocked!==true &&
     own?.publicTurnRestrictions?.supporterPlayLocked!==true &&
+    own?.publicTurnRestrictions?.attackLockTurnsRemaining<=0 &&
+    (own?.resolvingSupporter?.length??0)===0 &&
     view.globalTurn>1;
+  const actionable=quotaOpen&&!directActiveNominalKo;
   return {
     heldGuzma,ownerSeat:view.actorSeat,turn:view.globalTurn,
     ownerBenchCount:ownBench.length,opponentBenchCount:opponentBench.length,
     fundedPlainBenchAttackCount:paidAttacks.length,
     nominalKoPairCount:nominalKoPairs,
     supporterQuotaOpen:quotaOpen,
+    directActiveNominalKo:directActiveNominalKo===true,
     prizeCount:own?.prizeCount??null,
-    finalPrizeOpportunity:heldGuzma&&quotaOpen&&
+    finalPrizeOpportunity:heldGuzma&&actionable&&
       own?.prizeCount===1&&nominalKoPairs>0,
-    nonfinalPrizeOpportunity:heldGuzma&&quotaOpen&&
+    nonfinalPrizeOpportunity:heldGuzma&&actionable&&
       Number.isSafeInteger(own?.prizeCount)&&own.prizeCount>=2&&
       nominalKoPairs>0,
     opponentHiddenDeckAndHandUnexamined:true
