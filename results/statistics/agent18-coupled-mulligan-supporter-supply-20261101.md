@@ -48,6 +48,28 @@ After six random Prizes, the deck has 47 cards. For an opponent offering `M=m` o
 - A **separate full-shuffle 200,000-trial setup simulation** (seed `180120261101`) explicitly re-dealt both hands when both players lacked a Basic, re-dealt only the failing player when one was valid, dealt real six-card hidden Prizes, and drew optional bonus cards and the ordinary card from the source's randomly shuffled remaining deck. Rank 11 (11 Basics, eight Supporters) versus four-Basic opponent: **68.4255%** holding without bonus, **73.9095%** with maximal safe bonus and **53.9545%** offered at least one extra card. These independent empirical proportions are consistent with the exact predictions 68.53139%, 73.92485%, and 53.89162% at 200,000 random trials. The simulation was a mathematical sampling check, not a Pokémon match.
 - The newly committed source and tests have **not yet been exercised in GitHub Actions**; a bounded manual native CI dispatch was blocked by the host and was not retried or rerouted.
 
+
+## Supplement: bonus draws affect *distinct-name* Supporter contention
+
+The [exact first-eight different-name analysis](agent18-original29-supporter-contention-distributions-20261101.md) gives 20.871716% for rank11's three Supporter names (3 Carmine, 3 Marnie, 2 Guzma) with bonus offers declined. The same two-player mulligan model can analytically extend that to maximum-safe bonus acceptance, using inclusion-exclusion and the existing family-held evaluator without new deck assumptions.
+
+Let `H_b,o(e)` be the coupled-model probability of holding **any** cards from an arbitrary `e`-copy non-Basic family, after maximal safe bonus acceptance facing opponent Basic count `o`; let disjoint Supporter names have counts `c_i`, total `S`, and `m` names. Then
+
+```text
+P(>=2 different Supporter names after bonus draws) =
+   sum_i H_b,o(S - c_i) - (m - 1)*H_b,o(S).
+```
+
+This is exact inclusion-exclusion on physical holding, because the no-bonus probabilities and bonus-draw mixture both preserve the probability of excluding any named group. Evaluated independently in Python using `fractions.Fraction` for the entire mulligan distribution:
+
+| Unchanged original 60 | No bonuses | Maximum-safe bonuses vs 4-Basic opponent | Maximum-safe bonuses vs rank1 14-Basic opponent |
+| --- | ---: | ---: | ---: |
+| Rank11 Absol/Garbodor | **20.87%** | **27.36%** | **21.49%** |
+| Rank6 Iron Thorns | **78.65%** | **82.91%** | **79.08%** |
+| Rank24 Iron Thorns | **86.43%** | **89.49%** | **86.76%** |
+
+For rank11 specifically, hypothetical acceptance of opponent four-Basic mulligan bonuses raises the *different-name* co-holding probability by about **6.49 percentage points** before any root action. This creates additional **possible alternative named Supporters**, while their actual simultaneous play remains limited to one and can be disallowed by timing, targets or locks. No native policy decision, opponent response, match outcome or 99.5% inference follows from this supply calculation.
+
 ## Decision-policy implications
 
 A shared two-seat opponent policy should retain actual accepted bonus-draw counts and first-own-turn held Supporter printings; an opening supply estimate is insufficient as a legal action percentage. For a paper-rules owner-actor decision, distinguish first-player Carmine's printed exception, any other card-specific timing exception, evolving boards, native card/prompt legality, Supporter quota, and preserved cards' opportunity costs. Compare actual original-source first-turn traces across independently precommitted physical deals to these access priors before assigning blame to card scarcity.
