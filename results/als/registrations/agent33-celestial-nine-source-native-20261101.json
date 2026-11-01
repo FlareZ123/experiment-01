@@ -1,0 +1,50 @@
+{
+  "schema": "agent33-celestial-nine-original-source-paper-hook-registration-v1",
+  "registeredAtUTC": "2026-11-01T05:01:30Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRanks": [
+    10,
+    12,
+    13,
+    14,
+    18,
+    20,
+    21,
+    27,
+    32
+  ],
+  "opponentRanks": [
+    1,
+    11
+  ],
+  "physicalSourceSeats": [
+    0,
+    1
+  ],
+  "maxRootActions": 120,
+  "originalDeckField": "results/aichi-2026/full-decklists.json",
+  "seedForSourceAndOpponent": {
+    "10:1": 1051713200,
+    "10:11": 1822662396,
+    "12:1": 2089447264,
+    "12:11": 1350411555,
+    "13:1": 1490942499,
+    "13:11": 1329361393,
+    "14:1": 1544087258,
+    "14:11": 1693890253,
+    "18:1": 2005629444,
+    "18:11": 1702707603,
+    "20:1": 1214856780,
+    "20:11": 1305846341,
+    "21:1": 1836525824,
+    "21:11": 1780248938,
+    "27:1": 1774667398,
+    "27:11": 1863636288,
+    "32:1": 1813659857,
+    "32:11": 1755274883
+  },
+  "rowsExpected": 36,
+  "procedure": "One fixed pseudorandom seed for each source-opponent combination, both physical source seats under the same seed. No outcome-based seed selection. Original source 60s, pinned Twinleaf, symmetric basic-attach bot repair, original owner bot, all-Energy Celestial hook enabled, strict physical conservation, 120 native actions per arm. Retain original-unmappable and native errors, complete action caps and settled conservation.",
+  "qualification": "mechanics-development-only",
+  "competitiveQualifiedGames": 0
+}
