@@ -337,6 +337,16 @@ test('actual printed fixed-damage nominal gust policy selects native opponent KO
         const offered=nativeSinglePokemonChoices(state,pending);
         assert.ok(offered.length>0);
         store.dispatch(new ResolvePromptAction(pending.id,[offered[0].physical]));
+      }else if(pending.constructor.name==='ChoosePrizePrompt'){
+        const perspective=state.players.find(p=>
+          p.id===pending.getPerspectivePlayerId());
+        assert.ok(perspective);
+        const prizeSide=pending.options.useOpponentPrizes?
+          state.players.find(p=>p!==perspective):perspective;
+        const slots=prizeSide.prizes.filter(p=>p.cards.length>0)
+          .slice(0,pending.options.count);
+        assert.equal(pending.validate(slots,state),true);
+        store.dispatch(new ResolvePromptAction(pending.id,slots));
       }else{
         assert.fail('Unexpected live Moon Press follow-through prompt '+
           pending.constructor.name);
