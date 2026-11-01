@@ -37,6 +37,40 @@ test('native rank31 genuine Painful Spoons 0 to 3 same-source counter replies an
       assert.equal(paperResult.nativeOptions.max,2);
       assert.equal(paperResult.guarded,true);
       assert.equal(nativeResult.guarded,false);
+      assert.equal(nativeResult.nativeValidatorAccepted,count===1||count===2);
+      assert.equal(paperResult.nativeValidatorAccepted,
+        nativeResult.nativeValidatorAccepted);
+      assert.equal(nativeResult.storeError,null);
+      assert.equal(nativeResult.promptPending,false);
+      assert.deepEqual(nativeResult.remainingPrompts,[]);
+      if(count===0||count===3){
+        assert.match(paperResult.storeError,
+          /PAPER_PAINFUL_SPOONS_REJECTED:INVALID_PRINTED_MOVE_SOURCE/);
+        assert.equal(paperResult.promptPending,true);
+        assert.equal(paperResult.sourceDamage,30);
+        assert.equal(paperResult.targetDamage,180);
+        assert.equal(paperResult.victimInDiscard,false);
+        assert.equal(paperResult.prizesTaken,0);
+      }else{
+        assert.equal(paperResult.storeError,null);
+        assert.equal(paperResult.promptPending,false);
+        assert.equal(nativeResult.sourceDamage,30-10*count);
+        assert.equal(paperResult.sourceDamage,nativeResult.sourceDamage);
+        assert.equal(nativeResult.targetDamage,180+10*count);
+        assert.equal(paperResult.targetDamage,nativeResult.targetDamage);
+        assert.equal(nativeResult.victimInDiscard,false);
+        assert.equal(paperResult.victimInDiscard,false);
+        assert.equal(nativeResult.prizesTaken,0);
+        assert.equal(paperResult.prizesTaken,0);
+      }
+      if(count===3){
+        assert.equal(nativeResult.sourceDamage,0);
+        assert.equal(nativeResult.targetStillInPlay,false);
+        assert.equal(nativeResult.victimInDiscard,true);
+        assert.equal(nativeResult.prizesTaken,2);
+        assert.deepEqual(nativeResult.followUpSettlements,
+          [{type:'ChoosePrizePrompt',validatorAccepted:true,error:null}]);
+      }
     }
   }
 });
