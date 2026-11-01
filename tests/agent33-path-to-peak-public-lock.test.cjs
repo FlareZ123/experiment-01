@@ -303,3 +303,15 @@ test('future held Genesect still protects own live copy after spent board Abilit
    ownFusionUsage:usedFusionProof(x)
  }),null);
 });
+
+test('shared actor root applies spent physical Genesect proof only when explicitly enabled',()=>{
+ const x=view();x.actorSeat=0;
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ const proof=usedFusionProof(x);
+ assert.equal(chooseActorRootIntent(x,catalog,{
+   pathToPeakOpposingAbility:true
+ }).kind,'pass');
+ assert.equal(chooseActorRootIntent(x,catalog,{
+   pathToPeakOpposingAbility:true,ownFusionUsage:proof
+ }).kind,'play-path-to-peak');
+});
