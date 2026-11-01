@@ -101,6 +101,15 @@ function run(){
         'Opponent turn4 public state after source turn3 was not observed');
       const sourceGarbodorToolPrintingsAtOpponentTurn4=
         [...opponentTurn4Public.garbodorToolPrintings];
+      const sourceTurn3OwnDeckSelections=(game.decisionTrace??[])
+        .filter(x=>x.playerSlot===0&&x.turnBefore===3&&
+          x.cardSelection?.sourceZone==='deck'&&
+          x.cardSelection?.sourcePlayerSlot===0)
+        .map(x=>({ordinal:x.actionOrdinal,
+          message:x.cardSelection.message,
+          printings:x.cardSelection.selectedCards,
+          nativeMin:x.cardSelection.nativePromptMin,
+          nativeMax:x.cardSelection.nativePromptMax}));
       const sourceTurn3Plays=(game.decisionTrace??[]).filter(x=>
         x.playerSlot===0&&x.turnBefore===3&&
         (x.action==='PlayCardAction'||x.action==='UseAbilityAction'))
@@ -117,6 +126,7 @@ function run(){
         recipientActionsAfterBlowerInTurn2,
         sourceGarbodorToolPrintingsAtOpponentTurn4,
         sourceTurn3Plays,
+        sourceTurn3OwnDeckSelections,
         gameFinished:game.finished===true,
         gameRootCount:game.rootActionLedger?.length??null,
         qualifiedCompetitiveGame:false});
@@ -158,6 +168,7 @@ if(require.main===module){
     rows:result.rows.map(x=>({repair:x.sourceReturnRepair,
       status:x.status,firstReturn:x.sourceFirstReturn,
       audit:x.sourceRepair,sourceTurn3:x.sourceTurn3Plays,
+      sourceTurn3OwnerDeckChoices:x.sourceTurn3OwnDeckSelections,
       sourceGarbodorToolsAtOpponentTurn4:
         x.sourceGarbodorToolPrintingsAtOpponentTurn4,
       recipientHeldAbilityBasics:x.recipientHeldAbilityBasicCounts,
