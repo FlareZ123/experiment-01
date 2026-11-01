@@ -1,0 +1,56 @@
+{
+  "schema": "agent6-original-store-cross-turn-k1-tagcall-thunder-speed-native-v1",
+  "dateUTC": "2026-11-01",
+  "retrospective": true,
+  "scientificScope": "permitted owner K1 information persistence within and across turns; no metagame outcome or population inference",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "sourceAlwaysFirst": true,
+  "sourceSeatSeedPairs": [
+    {
+      "sourceSeat": 0,
+      "seed": 2341469307
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 516187842
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2411836147
+    }
+  ],
+  "frozenArms": [
+    {
+      "label": "ephemeral-k1-original",
+      "carryOwnerK1AcrossTurns": false
+    },
+    {
+      "label": "persist-owner-k1-optin",
+      "carryOwnerK1AcrossTurns": true
+    }
+  ],
+  "ownerMechanics": "native T1 Tag Call->G&H authentic owner-deck search, T1 DCE stage if held, T3 G&H goal with source-K1-known inaccessible Thunder and K1-known Speed alternative, two card G&H hand-discard payment",
+  "safety": "persist only owner deck facts learned inside authenticated original Store owner-deck prompt; subsequent root decision uses owner-id scoped information and never reads deck or prizes anew",
+  "plan": {
+    "sourceTurnThree": 3,
+    "goFirstPreferences": "sourceFirst",
+    "maxActions": 160,
+    "strictPromptValidation": true,
+    "stageDceFirstTurn": true,
+    "k1PrizedThunderSpeedFallback": true,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "k1ReplanAfterTagCall": true
+  },
+  "prespecifiedOutcomes": [
+    "all attempts and failures retained",
+    "source physical deals equal within pair",
+    "opponent T2 accepted root actions equal within pair",
+    "rank6 seatA seed234 T3 native K1 Speed alternative attempted and real Store accepted",
+    "same target damage+prize settlement if observed, no unsupported win claim",
+    "both other rank6 source B deals remain mechanically noninterfering when relevant accessible Stadium"
+  ],
+  "totalArms": 6,
+  "qualification": "retrospective selected test without decision policy strength or paper-clock qualification"
+}
