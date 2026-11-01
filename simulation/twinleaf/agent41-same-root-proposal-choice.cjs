@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v25-public-rondo-opportunity';
+const VERSION='agent41-same-root-proposal-choice-v26-rondo-owner-root-readiness';
 const MAX_SAMPLES=48;
 
 /**
@@ -618,6 +618,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       (offers.some(o=>o.source==='payable-printed-attack')?
         'printed-positive-offer':'no-supported-printed-positive-offer'):
       'not-enumerated',
+    publicRondoReadiness:(options.sameRootProbeAll===true||
+      options.rondoPublicOpportunity===true)?
+      require('./agent7-public-rondo-attack-offer.cjs')
+        .publicRondoReadiness(view,catalog):null,
     publicHistoryCoverage:'unverified',
     nativeAcceptance:'unverified',
     fullyQualified:false
@@ -628,7 +632,8 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
 /** @returns {object} Bounded two-seat live root census. */
 function newSameRootAudit(){
   return {version:VERSION,ownerRoots:0,changedRoots:0,
-    offerRoots:0,selectorErrorRoots:0,bySeat:{
+    offerRoots:0,selectorErrorRoots:0,
+    rondoReadinessBySeat:{0:{},1:{}},bySeat:{
       0:{ownerRoots:0,changedRoots:0},
       1:{ownerRoots:0,changedRoots:0}},
     selectionReasons:{},samples:[],
@@ -657,6 +662,11 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   assert.ok(seat===0||seat===1);
   assert.ok(Number.isSafeInteger(ordinal)&&ordinal>=1);
   audit.ownerRoots++;audit.bySeat[seat].ownerRoots++;
+  if(typeof receipt.publicRondoReadiness==='string'){
+    const categories=audit.rondoReadinessBySeat[seat];
+    const category=receipt.publicRondoReadiness;
+    categories[category]=(categories[category]??0)+1;
+  }
   if(receipt.changed){audit.changedRoots++;audit.bySeat[seat].changedRoots++;}
   if(receipt.supportedAlternativeCount>0)audit.offerRoots++;
   if(receipt.selectorErrors.length)audit.selectorErrorRoots++;
