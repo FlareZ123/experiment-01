@@ -95,7 +95,7 @@ function plannedTrials(registration,seededRandom){
     for(let repeat=0;repeat<rows.length;repeat++){
       const {seed,projectedFirstCoinHeads:heads}=rows[repeat];
       for(const candidateId of registration.candidateIds){
-        trials.push({id:['11','agent50fresh'+repeat,seat,candidateId].join(':'),
+        trials.push({id:['11',repeat,seat,candidateId].join(':'),
           rank:11,repeat,candidateSlot:seat,candidateId,seed,
           projectedNativeFirstSeat:heads?1:0});
       }
