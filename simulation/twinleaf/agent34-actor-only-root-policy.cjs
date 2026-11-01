@@ -608,6 +608,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     knownDeadAttackRootOptIn:deps.knownDeadAttackRoot??
       (process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true'),
     knownDeadAttackRootOwnerSeat:deps.knownDeadAttackRootOwnerSeat??null,
+    ragingBoltNominalKoRootOptIn:deps.ragingBoltNominalKoRoot===true,
     powerglassRootOptIn:deps.powerglassRoot??
       (process.env.AGENT41_ACTOR_POWERGLASS_ROOT_DEV==='true'),
     floatStoneMobilityOptIn:deps.floatStoneMobility===true,
@@ -865,6 +866,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.ragingBoltNominalKoRootOptIn)
+    audit.version+='+'+
+      require('./agent50-raging-bolt-nominal-ko.cjs').VERSION;
   if(audit.knownDeadAttackRootOwnerSeat!==null)
     audit.version+='+candidate-only-seat-'+audit.knownDeadAttackRootOwnerSeat;
   if(audit.perfectionRootOptIn)
@@ -1025,6 +1029,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       printedGxRoot:audit.printedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
+      ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
