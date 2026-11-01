@@ -93,3 +93,13 @@ test('unknown three 60s preserve positive low-HP risk',()=>{
   approx(r.noElevenNamedSearchers.lower,0.01046493218004071);
   approx(r.noElevenNamedSearchers.upper,0.01141060880546296);
 });
+
+test('hypothetical slot changes lower one physical bottleneck without certifying wins',()=>{
+  const x=mockInputs();
+  const r=model.analyze(x.manifest,x.audit).hypotheticalReplacementSlotFrontier;
+  assert.deepEqual(r.scenarios.map(x=>[x.basics,x.lowHpBasics,x.searchers]),
+    [[17,5,11],[17,2,11],[21,5,11],[17,5,15]]);
+  for(const [i,value] of [0.011266884502394959,0.00450675380095798,
+    0.00438152208769247,0.00461294238822190].entries())
+    approx(r.scenarios[i].meanNoNamedSearcherExposure,value);
+});
