@@ -58,6 +58,18 @@ for(const seat of [0,1]){
   test('original rank19 native Raging Bolt attack offer in seat '+seat,()=>{
     const {store,state,owner,opponent,catalog}=stage(seat);
     const observed=actorObservation(state,seat);
+    if(seat===0){
+      const printed=owner.active.getPokemonCard();
+      console.log('AGENT50_RANK19_PINNED_CARD_METHOD',JSON.stringify({
+        printing:printed.fullName,
+        constructorName:printed.constructor.name,
+        methodNames:Object.getOwnPropertyNames(Object.getPrototypeOf(printed)),
+        reduceEffectDefined:typeof printed.reduceEffect==='function',
+        printedAttacks:observed.ownPublic.active.attacks.map(x=>({
+          name:x.name,damage:x.damage,calculation:x.damageCalculation
+        }))
+      }));
+    }
     assert.equal(observed.ownPublic.active.printing,'Raging Bolt ex TEF');
     assert.equal(observed.opponentPublic.active.damage,90);
     const baseline=chooseActorRootIntent(observed,catalog);
