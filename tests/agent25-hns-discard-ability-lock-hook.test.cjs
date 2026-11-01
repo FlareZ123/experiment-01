@@ -87,6 +87,12 @@ test('corrected Dhelmise changes only real named Ability donors',()=>{
   assert.equal(audit.effectiveDonors,3);
   assert.equal(audit.suppressedDonors,2);
   assert.equal(audit.changedThresholdOutcomes,1);
+  assert.deepEqual(audit.perCheckCounts,[{
+    ordinal:1,rawNamedDonors:5,effectiveDonors:3,
+    suppressedDonors:2,fourDonorThreshold:false,
+    sixDonorThreshold:false,thirteenDonorThreshold:false
+  }]);
+  assert.equal(audit.thresholdFourChecks,0);
   assert.equal(audit.originalHelperRestored,true);
   assert.equal(audit.allPrototypesRestored,true);
   assert.strictEqual(card.reduceEffect,saved);
@@ -112,6 +118,12 @@ test('corrected count under a blocked power works for all three attacks',()=>{
   assert.equal(audit.countChecks,3);
   assert.equal(audit.suppressedDonors,24);
   assert.equal(audit.changedThresholdOutcomes,3);
+  assert.equal(audit.perCheckCounts.length,3);
+  assert.deepEqual(audit.perCheckCounts.map(x=>x.effectiveDonors),[5,5,5]);
+  assert.equal(audit.thresholdFourChecks,3);
+  assert.equal(audit.thresholdSixChecks,0);
+  assert.equal(audit.thresholdThirteenChecks,0);
+  assert.equal(audit.perCheckCountsTruncated,false);
 });
 
 test('unrelated reducer effects bypass count override',()=>{
