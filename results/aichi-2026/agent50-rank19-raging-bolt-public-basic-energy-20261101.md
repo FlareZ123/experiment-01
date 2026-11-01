@@ -36,3 +36,9 @@ The source-only heuristic deliberately makes **no** promise about an actual knoc
 This exposes a generalizable policy-design issue: a single printed first-attack preference can suppress a plausible high-impact variable-damage line. The two-sided rank-11 known-dead attack experiment has already demonstrated that attack-choice quality can reverse native engine winner labels; it gives a reason to test new fields, **not** a basis for transferring its numerical outcomes to rank 19.
 
 Next validation is a genuine same-prompt, owner-private-safe Basic-Energy discard receipt and native damage settlement, followed by preregistered unchanged-deck, two-seat rank-19 source-deal trials if the prompt boundary is sound. Neither a conditional staged board nor a future unqualified native terminal measures tournament win strength. The collective gate stays **29/32 authenticated exact source 60s, 0 competitively qualified games, no demonstrated 99.5% target**.
+
+## Compiled native wait continuation, 1 November 2026
+
+[CI 41354602931](https://github.com/FlareZ123/experiment-01/actions/runs/41354602931) succeeded. Both physical seats offered Bellowing Thunder, then emitted three successive WaitPrompt continuations, with ownership twice on the attacking seat and once on the other seat. No additional prompt remained. The defending Iron Thorns ex still had exactly 90 damage. Both Basic Energy attached to the attacking Raging Bolt and the one Basic Energy on Benched Sandy Shocks remained unchanged.
+
+These are authentic staged native receipts. The printed 70-per-discard attack had three Basic Energy available but no Basic was selected. No paper-valid KO or damage settlement can be inferred. Whether the native card handler is missing, automatically selects zero, or requires a different execution context remains unverified. A follow-up reducer-metadata probe and prospective original-source study are needed. All deck-strength qualification remains at zero.
