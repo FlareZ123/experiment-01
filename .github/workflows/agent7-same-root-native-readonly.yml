@@ -32,6 +32,8 @@ jobs:
       - name: Compile pinned Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native detached owner-root dual-pass shadow/choice preflight
+        run: node --test tests/agent27-shadow-choice-native-same-root.test.cjs
       - name: Original Store four-arm baseline without proposer observer
         env:
           AGENT7_CANONICAL_ACTOR_POLICY_DEV: 'true'
