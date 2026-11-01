@@ -78,3 +78,29 @@ jobs:
           path: agent25-rank10-physical-custody-fork.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Prove native Regidrago V Celestial Roar physical 60-card leak on both seats
+        run: node simulation/twinleaf/agent25-regidrago-v-celestial-roar-native-card-custody.cjs > agent25-regidrago-celestial-roar-native-controls.json
+      - name: Print native original-versus-fixed Celestial Roar control counts
+        run: |
+          node -e "const r=require('./agent25-regidrago-celestial-roar-native-controls.json');console.log(JSON.stringify({passed:r.passed,results:r.results.map(x=>({seat:x.attackingSeat,mode:x.mode,repaired:x.repaired,accounted:x.accounted,attached:x.attachedBasicEnergy,discarded:x.discardedNonEnergyNames,correction:x.correctedAudit?{prompts:x.correctedAudit.attachmentPrompts,remaining:x.correctedAudit.remainingDiscarded}:null}))},null,2));"
+      - name: Archive native 12-arm Regidrago V precise source-card custody counterexample
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-regidrago-celestial-roar-native-controls
+          path: agent25-regidrago-celestial-roar-native-controls.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Test paper-corrected Celestial Roar source rank10 unchanged original 60s
+        run: node simulation/evaluation/agent25-rank10-regidrago-celestial-roar-source-physical60-pair.cjs > agent25-rank10-celestial-roar-physical60-pair.json
+      - name: Print original rank10 physical gate and correction source outcomes
+        run: |
+          node -e "const r=require('./agent25-rank10-celestial-roar-physical60-pair.json'); console.log(JSON.stringify({seed:r.seed,records:r.records.map(x=>({mode:x.mode,status:x.status,code:x.code||null,actions:x.nativeActions||null,turns:x.turns||null,integrity:x.physicalZoneIntegrity?{settled:x.physicalZoneIntegrity.settledRootsChecked,invalid:x.physicalZoneIntegrity.settledRootsWithAnomaly}:null,corrected:x.correctionAudit?{attacks:x.correctionAudit.attacks,prompts:x.correctionAudit.attachmentPrompts,discarded:x.correctionAudit.remainingDiscarded,leftovers:x.correctionAudit.tempRemainderLengths}:null}))},null,2));"
+      - name: Archive rank10 exact original source60 and optional Celestial Roar hook fork
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-rank10-regidrago-celestial-roar-original60-pair
+          path: agent25-rank10-celestial-roar-physical60-pair.json
+          if-no-files-found: warn
+          retention-days: 14
