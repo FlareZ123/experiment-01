@@ -22,9 +22,18 @@ The existing default-off `simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs
 
 **Compiled manual CI [41352037441](https://github.com/FlareZ123/experiment-01/actions/runs/41352037441) succeeded** after the regression was added to the existing `.github/workflows/aichi-raichu-electro-rain.yml`.
 
-## Stronger native witness
+## Stronger native witness: completed both-seat Store proof
 
-`simulation/twinleaf/agent46-froslass-partial-budget-native.cjs` stages an actual pinned Froslass AttackAction with Snorunt, Water Energy, six Prize cards per seat and genuine prompt/attack reducers, tested from both physical seats. It compares 70/80 self-damage under untouched Store versus the same replies under the reversible paper guard. Its native workflow result must be checked independently of the passing pure CI. **Until native CI is confirmed, this script is a hypothesis test and supplies no established 160-damage or Prize witness.**
+`simulation/twinleaf/agent46-froslass-partial-budget-native.cjs` stages an actual pinned Froslass AttackAction with Snorunt, Water Energy, six Prize cards per seat and genuine prompt/attack reducers. In each physical seat the full native attack and prompt-resolution test asserted:
+
+- Printed-legal 70 self-damage is accepted and produces 140 opponent attack damage, under untouched Store and corrected Store.
+- Untouched pinned Store accepts forbidden 80 self-damage and produces **160 opponent attack damage**, 20 above the printed maximum. Its 80-HP Froslass Knocks itself Out and produces a genuine subsequent `ChoosePrizePrompt`; that prompt is observed but deliberately left pending for this bounded damage test.
+- With the reversible guard, 80 is rejected *before damage*, the `PutDamagePrompt` remains pending and both damage values remain zero. The legal 70 remains accepted.
+- The same checks passed with the attacker on physical seat 0 and physical seat 1.
+
+**[Manual pinned CI 41352642800](https://github.com/FlareZ123/experiment-01/actions/runs/41352642800) completed successfully**, including the native Froslass both-seat regression and every existing Raichu and prompt-guard step. The first attempted native run [41352325208](https://github.com/FlareZ123/experiment-01/actions/runs/41352325208) failed its script assertion because the invalid 80-self-damage branch naturally opened a downstream Prize selection prompt. The revised test correctly treats that prompt as evidence of self-KO rather than an unexpected attack-resolution error.
+
+This establishes a real native staged-board paper-rules violation and a default-off research-owned correction. It remains distinct from a fully sampled original-source opponent game or any measured improvement in fixed-deck tournament wins.
 
 ## Benchmark boundary and next decisions
 
