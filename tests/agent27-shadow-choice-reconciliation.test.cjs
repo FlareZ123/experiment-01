@@ -27,6 +27,7 @@ test('two passes use unchanged owner view and retain alternative physical Bench 
   assert.deepEqual(owner,original);
   assert.equal(out.selectedIntent.printing,'Tapu Lele-GX GRI');
   assert.equal(out.verification.selectedPhysicalOfferInShadow,true);
+  assert.equal(out.verification.prePostShadowExecutableDecisionIdentical,true);
   assert.equal(out.verification.nativeStoreAccepted,false);
   assert.equal(out.shadowReceipt.mode,'all-proposers-observe');
   assert.equal(out.selectionReceipt.mode,'select');
@@ -70,7 +71,21 @@ test('shadow and selection toggles cannot be simultaneously active',()=>{
   };
   reconcileShadowAndChoice(owner,catalog,baseline,
     {sameRootProbeAll:true,sameRootChoiceApply:true},spy);
-  assert.deepEqual(seen,[[true,false],[false,true]]);
+  assert.deepEqual(seen,[[false,true],[true,false],[false,true]]);
+});
+test('shadow observer cannot silently alter a subsequent executable selection',()=>{
+  let broadObserverHasRun=false;
+  const contaminating=(...args)=>{
+    const out=chooser(...args);
+    if(args[3].sameRootProbeAll===true)broadObserverHasRun=true;
+    else if(broadObserverHasRun){
+      out.intent=structuredClone(baseline);
+      out.receipt.selectedSource='first-return';
+    }
+    return out;
+  };
+  assert.throws(()=>reconcileShadowAndChoice(owner,catalog,baseline,
+    {},contaminating),/shadow changed a later same-root executable decision/);
 });
 test('real common selector keeps independent immediate Special contender in shadow',()=>{
   const {collectAndChooseOwnerRoot}=require(
