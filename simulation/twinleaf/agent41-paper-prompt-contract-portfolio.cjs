@@ -52,7 +52,8 @@ const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
  * @template T
  * @param {()=>T} run Synchronous complete game, cohort, or native fixture.
  * @param {{Store?:Function,IronThornsex?:Function,types?:object,
- *  currentTrialId?:()=>string|null,exampleLimit?:number}} [deps]
+ *  currentTrialId?:()=>string|null,exampleLimit?:number,
+ *  requireLiveStore?:boolean}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withPaperPromptContractPortfolio(run,deps={}){
@@ -74,6 +75,10 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const limit=deps.exampleLimit??24;
   assert.ok(Number.isSafeInteger(limit)&&limit>=0&&limit<=100);
   const marked=new WeakSet();
+  const liveByTrial=new Map();
+  const liveOnly=deps.requireLiveStore===true;
+  const trialKey=()=>deps.currentTrialId?.()??'__single__';
+  const isLive=store=>!liveOnly||liveByTrial.get(trialKey())===store;
   const storeIndices=new WeakMap();
   const byTrial=Object.create(null);
   const audit={
@@ -84,6 +89,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
     vetoedBeforeDispatch:0,markedVoltCyclonePrompts:0,
+    liveStoreRequired:liveOnly,liveSourceTrialCount:0,
+    auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     statusCounts:Object.fromEntries(STATUSES.map(s=>[s,0])),
     byFamily:{},byTrial,storeCount:0,stores:[],firstByStatus:{},
     examples:[],examplesTruncated:false,
@@ -101,7 +108,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     return audit.stores[index];
   }
   function reduced(store,state,effect){
-    const eligible=effect?.constructor?.name==='AfterAttackEffect'&&
+    const eligible=isLive(store)&&
+      effect?.constructor?.name==='AfterAttackEffect'&&
       effect.attack===this.attacks?.[0];
     const before=eligible?new Set(state.prompts):null;
     const result=reducerBefore.value.call(this,store,state,effect);
@@ -118,8 +126,21 @@ function withPaperPromptContractPortfolio(run,deps={}){
     return result;
   }
   function dispatched(action,...args){
+    const type=action?.constructor?.name;
+    if(liveOnly&&type==='AddPlayerAction'&&
+      !liveByTrial.has(trialKey())){
+      liveByTrial.set(trialKey(),this);
+      audit.liveSourceTrialCount++;
+    }
+    if(liveOnly&&!isLive(this)){
+      if(type==='ResolvePromptAction'){
+        if(liveByTrial.has(trialKey()))audit.auxiliaryPromptAttempts++;
+        else audit.preLivePromptAttempts++;
+      }
+      return dispatchBefore.value.call(this,action,...args);
+    }
     const store=storeRow(this);
-    if(action?.constructor?.name!=='ResolvePromptAction')
+    if(type!=='ResolvePromptAction')
       return dispatchBefore.value.call(this,action,...args);
     const prompt=this.state.prompts?.find(p=>p.id===action.id&&
       p.result===undefined);
