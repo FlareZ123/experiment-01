@@ -1074,7 +1074,7 @@ function runDevelopment({
     const groups=new Map();
     const ids=new Set();
     for(const trial of registeredTrials){
-      assert.ok((allowAdditionalOriginalSourceRanks?[1,3,4,6,7,10,11,15,21,24,29]:[6,11])
+      assert.ok((allowAdditionalOriginalSourceRanks?[1,3,4,5,6,7,10,11,15,21,24,29]:[6,11])
         .includes(trial.rank));
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
