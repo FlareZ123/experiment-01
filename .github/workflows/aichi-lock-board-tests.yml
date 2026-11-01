@@ -225,6 +225,9 @@ jobs:
       - name: Audit public physical-copy Fusion Strike System use without hidden cards
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-public-fusion-usage.test.cjs tests/agent33-public-fusion-usage-pinned.test.cjs
+      - name: Exact-original 32-rank 99.5 loss-budget mathematical regression
+        if: inputs.agent33_stadium_mode == 'path'
+        run: node --test tests/agent33-field-loss-budget.test.cjs
       - name: Native original Store Tropical Beach seven-card draw and immediate turn end
         if: inputs.agent33_stadium_mode == 'beach-native' || inputs.agent33_stadium_mode == 'all-native' || inputs.agent33_stadium_mode == 'beach-paired'
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
