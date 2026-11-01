@@ -37,9 +37,9 @@ test('two printed Prism Star symbols normalize to the same catalog name', () => 
 
 test('source census counts only certified Basic and Supporter cards', () => {
   const cards = [
-    {category: 'Pokémon', name: 'Iron Thorns ex', count: 4},
-    {category: 'Trainer', name: 'Marnie', count: 21},
-    {category: 'Energy', name: 'Lightning Energy', count: 35}
+    {category: 'Pokémon', name: 'Iron Thorns ex', count: 4, printing: {set: 'TWM', number: '77'}},
+    {category: 'Trainer', name: 'Marnie', count: 21, printing: {set: 'SSH', number: '169'}},
+    {category: 'Energy', name: 'Lightning Energy', count: 35, printing: {set: 'SVE', number: '4'}}
   ];
   const roster = {published_deck_count: 29, decks: Array.from({length: 29},
     (_, i) => ({rank: i + 1, archetype: 'synthetic-test', cards}))};
