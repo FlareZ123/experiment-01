@@ -54,3 +54,20 @@ For instance, `agent4-plumeria-after-pass.cjs` lines 164–166 assign `largeHand
 The previously established 90 direct-entry keys plus seven first-level and six second-level omissions produce **103 distinct known keys at these inspected revisions**. This is still **a lower bound**, because deeper literal imports, all dynamic requires, bracket or destructured environment access, and vendor dependencies have not been ruled out. The inspection did not execute a policy or demonstrate a changed competitive game. An earlier attempted 34-file bulk read hit a per-call tool limit; subsequent 20-file batches succeeded and completed the named second-level modules.
 
 **Engineering handoff:** use `simulation/evaluation/agent36-source-closure-audit.cjs` and its small pure tests to recurse through literal imports, hash exact file bytes, and expose unresolved dynamic imports and previously omitted values. The tool does not modify live evaluation and is not a frozen benchmark profile. The central manifest should be source/option complete before claiming identical effective policy across comparisons.
+
+## Explicit dynamic-import blocker for complete executable hashing (05:36 UTC)
+
+The lexical scanner separately counted `require(` calls and those whose argument is a single literal string at the current source blob hashes. This is a source-code census, not proof of dynamic execution frequency:
+
+| Module | All lexical require sites | Literal string requires | Nonliteral/dynamic sites |
+| --- | ---: | ---: | ---: |
+| Canonical `agent41-bilateral-v2-development.cjs` (`39356cce...`) | 54 | 50 | **4** |
+| `agent34-actor-only-root-policy.cjs` (`62c79109...`) | 106 | 91 | **15** |
+| `agent7-canonical-actor-composition.cjs` (`4d07270e...`) | 22 | 22 | **0** |
+| Pinned research-side `headless.cjs` (`dad3de50...`) | 104 | 103 | **1** |
+
+These counts can overcount source comments or documentation strings because they are lexical. They do establish that a single-string-literal relative `require()` walk cannot claim full executable source completeness. The important dynamic sites include `path.join(base, 'game/store/...')` paths that resolve against the pinned Twinleaf output, so the release needs a separately recorded **vendor git revision/build identity** rather than scanning arbitrary vendor modules as research-owned code.
+
+The committed `agent36-source-closure-audit.cjs` outputs `limitations.dynamicRequireSites`, `limitations.computedEnvSites`, `limitations.unclassifiedEnvSites` and `limitations.missingRelativeImports`. A release gate must explicitly inspect and resolve these limitations or carry a documented exclusion with provenance; suppressing them would undermine the frozen-policy claim. Its `sha256` fields are hashes of raw source bytes, distinct from GitHub's SHA-1 Git-blob identifiers already used by Agent42's inventory.
+
+A further pure test in `tests/agent36-untracked-canonical-env-switch.test.cjs` composes the existing actor wrapper with injected inert adapters while toggling its untracked inherited `AGENT9_BATTLE_VIP_AFTER_PASS_DEV`. It has been committed but **has not yet run in compiled or remote CI**. Five independent source-closure synthetic tests have passed in the local Node runtime. An attempt to add the tests to a shared manual-only workflow was blocked; no workflow change or successful CI claim was made.
