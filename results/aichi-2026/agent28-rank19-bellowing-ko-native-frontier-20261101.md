@@ -32,9 +32,15 @@ On **both physical seats** in separate undamaged 210-HP defender boards, announc
 
 Other tests verify the proposal rejects unsuitable printings, unsupported payable lists and insufficient raw damage; it counts a Basic card on the Bench and rejects treating a Special Energy as Basic; and genuine native `Bellowing Thunder` allows choosing **zero** Basic Energy cards, producing **zero** damage with attached Energy preserved.
 
-**Clean compiled manual CI** [41345850088](https://github.com/FlareZ123/experiment-01/actions/runs/41345850088), Git head `e18cecce3461138054052d31d614064c5a073ac6`, pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: **8/8 new regressions passed, alongside 8/8 earlier original rank31 Duskull paper-zone tests; entire existing manual job green.**
+**Initial clean compiled manual CI** [41345850088](https://github.com/FlareZ123/experiment-01/actions/runs/41345850088), Git head `e18cecce3461138054052d31d614064c5a073ac6`, pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: **8/8 first-phase regressions passed, alongside 8/8 earlier original rank31 Duskull paper-zone tests; entire existing manual job green.**
 
 A separate earlier attempt under [broad source-print census run 41345615801](https://github.com/FlareZ123/experiment-01/actions/runs/41345615801) was blocked **before reaching these tests** by an unrelated pre-existing Agent40 BUS-position test failure (4/4). The test step was moved to an already passing manual native attack-effect workflow without changing or bypassing those existing BUS test failures.
+
+## New independent original-printed Double Dragon / Bench case (20:25 UTC)
+
+The [expanded native test file](../../tests/agent28-rank19-bellowing-knockout-native.test.cjs) now also stages **the original Raging Bolt ex TEF with one `Double Dragon Energy ROS` attached to the Active and one `Lightning Energy SVE` physically attached to a Benched Raging Bolt ex TEF**. The pinned native Store accepted `AttackAction(Bellowing Thunder)` using Double Dragon's two Energy units for the Lightning/Fighting cost on **both physical seats**. A genuine `DiscardEnergyPrompt` targeted the **Benched Basic Energy CARD**, its decoded physical transfer moved that card to discard, and the attack dealt **70 damage** to the original defender. The Active's **Double Dragon Energy card remained attached** throughout. This covers exactly the distinction between *Energy provided for attack cost* and *Basic Energy cards physically eligible to discard for attack damage*, important because original rank19 registers four Double Dragon.
+
+**New compiled clean manual CI**: [41346562741](https://github.com/FlareZ123/experiment-01/actions/runs/41346562741), Git head `5d0b82d868cdd08b76a7ed338d70b4fd35a3e06e`, **10/10 new rank19 native/pure tests, 8/8 rank31 paper tests, full existing workflow green**. The two new both-seat checks are original physical attack-effect fixtures, still no naturally shuffled original source match, forecast or competitive qualification.
 
 ## What remains before any candidate ranking
 
