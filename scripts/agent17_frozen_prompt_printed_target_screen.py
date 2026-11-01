@@ -22,9 +22,12 @@ PROTOCOL = "agent17-printed-search-target-screen-v1"
 
 def build_printing_index(card_zip):
     sets = json.loads(card_zip.read("sets/en.json"))
-    code_to_id = {set_data["ptcgoCode"]: set_data["id"]
-                  for set_data in sets if set_data.get("ptcgoCode")}
-    return code_to_id, {}
+    code_to_ids = {}
+    for set_data in sets:
+        if set_data.get("ptcgoCode"):
+            code_to_ids.setdefault(set_data["ptcgoCode"], []).append(
+                set_data["id"])
+    return code_to_ids, {}
 
 
 def resolve_printing(printing, card_zip, code_to_id, cache):
@@ -38,15 +41,18 @@ def resolve_printing(printing, card_zip, code_to_id, cache):
         if not printing.endswith(suffix):
             continue
         name = printing[:-len(suffix)]
-        if code not in cache:
-            cache[code] = json.loads(card_zip.read(
-                "cards/en/" + code_to_id[code] + ".json"))
-        candidates = [card for card in cache[code]
-                      if card["name"] == name]
+        candidates = []
+        for set_id in code_to_id[code]:
+            if set_id not in cache:
+                cache[set_id] = json.loads(card_zip.read(
+                    "cards/en/" + set_id + ".json"))
+            candidates.extend(card for card in cache[set_id]
+                              if card["name"] == name)
         if not candidates and name.endswith(" Prism Star"):
             alias = name[:-len(" Prism Star")] + " ◇"
-            candidates = [card for card in cache[code]
-                          if card["name"] == alias]
+            for set_id in code_to_id[code]:
+                candidates.extend(card for card in cache[set_id]
+                                  if card["name"] == alias)
         if not candidates:
             return None, "unmatched-name"
         signatures = {
