@@ -48,6 +48,9 @@ test('both candidates use same missing-rank proxies for margin bounds',()=>{
   assert.ok(Math.abs(actual.lower-exhaustive[0])<1e-12);
   assert.ok(Math.abs(actual.upper-exhaustive[1])<1e-12);
   assert.equal(actual.proxyAssignments,162);
+  const knownSum=ranks.reduce((s,rank)=>s+a[rank]-b[rank],0);
+  assert.ok(Math.abs(actual.unboundedOriginalLower-(knownSum-3)/32)<1e-12);
+  assert.ok(Math.abs(actual.unboundedOriginalUpper-(knownSum+3)/32)<1e-12);
 });
 
 test('incomplete and nonfinite purported matchup score vectors fail closed',()=>{
