@@ -61,6 +61,14 @@ An updated [same-original-deal runner](../../simulation/twinleaf/agent12-nightwa
 
 The compiled CI also passed the pinned source-vs-print [Night Watch static regression](../../tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs) and the pure independently seeded sampling tests. The earlier v1 artifact remains archived as a distinct first-stage result, rather than silently overwritten. **Neither v1 nor v2 supports a competitive win-rate or official tournament timing claim**, and late turn numbers remain a major limitation.
 
+## A second checksum for native physical prompt choices
+
+The original full root-action SHA was identical while four hidden physical hand selections changed in the `11:0:B:new-moon-lockbreaker-v1` native A/B. To make this failure observable to downstream release tooling, [`simulation/evaluation/agent12-native-prompt-choice-digest.cjs`](../../simulation/evaluation/agent12-native-prompt-choice-digest.cjs) now computes a **separate SHA-256 over all captured postgame prompt-card selections** in `nativePromptChoices.events`, canonicalized by exact accepted root ordinal, prompt family, source zone, physical source seat, and selected card printing names. The digest explicitly reports number of named and unnamed selections and rejects duplicate ordinals. It never reads private zones from an action policy, and its printed names are postgame evidence only.
+
+Its [pure regression suite](../../tests/agent12-native-prompt-choice-digest.test.cjs) verifies (a) the exact same action ordinals with different physical cards produce **different** choice checksums, (b) sidecar event ordering alone does not change the hash, and (c) null or incomplete selected printing names retain an explicit **unverified** count. [Existing manual statistics CI 41330569276](https://github.com/FlareZ123/experiment-01/actions/runs/41330569276) passed the suite. The Native Night Watch A/B runner was updated to require this separate checksum to differ on actual intercepted Night Watch cases while unaffected champion-reference arms preserve it. This stronger real-Store A/B control was separately dispatched in [CI 41330564850](https://github.com/FlareZ123/experiment-01/actions/runs/41330564850), still running at the time of this documentation revision.
+
+This is a fidelity/evidence tool. A change in the physical-choice checksum establishes a difference in captured card identities, but cannot by itself certify correct printed effects or prove random sampling was uniform.
+
 ## Research decision and required gate
 
 - **Print-specific paper predicate:** `Night Watch` must select `min(2,physical opponent hand size)` cards by engine-controlled random sampling independent of their identities and independent of the attacker's policy. `ChooseCardsPrompt.validate` can check cardinality but cannot establish random selection.
