@@ -83,6 +83,74 @@ test('speculative prompt calls cannot perturb a later real Night Watch physical 
     repeated.audit.events[1].nonce);
 });
 
+
+class AttackEffect{
+  constructor(player,attack){this.player=player;this.attack=attack;}
+}
+class FakeTrevenantDusknoirGX{
+  constructor(){this.attacks=[{name:'Night Watch'},{name:'Pale Moon-GX'}];}
+  reduceEffect(store,working,effect){
+    if(effect.attack===this.attacks[0]){
+      const actor=effect.player;
+      working.prompts.push(new ChooseCardsPrompt(actor,
+        working.players.find(p=>p.id!==actor.id)));
+    }
+    return working;
+  }
+}
+
+test('printed-source guard excludes lookalike hand selection and permits exact reducer origin',()=>{
+  const ai=new Ai();
+  const source=new FakeTrevenantDusknoirGX();
+  const otherActor={id:2,hand:{cards:[
+    {id:10}, {id:11}, {id:12}, {id:13}
+  ]}};
+  const actor={id:1},working={turn:11,players:[actor,otherActor],prompts:[]};
+  const fake=new ChooseCardsPrompt(actor,otherActor);
+  fake.id=400;
+  const beforeAi=Ai.prototype.resolvePrompt;
+  const beforeSource=FakeTrevenantDusknoirGX.prototype.reduceEffect;
+  const out=withUniformNightWatchOpponentSelection(()=>{
+    const excluded=ai.resolvePrompt(actor,working,fake);
+    source.reduceEffect({},working,new AttackEffect(actor,source.attacks[1]));
+    assert.equal(working.prompts.length,0);
+    source.reduceEffect({},working,new AttackEffect(actor,source.attacks[0]));
+    assert.equal(working.prompts.length,1);
+    working.prompts[0].id=401;
+    const included=ai.resolvePrompt(actor,working,working.prompts[0]);
+    return {excluded,included};
+  },{committedSeed:'fixed',requirePrintedOrigin:true,deps:{
+    SimpleTacticsAi:Ai,ResolvePromptAction,
+    TrevenantDusknoirGX:FakeTrevenantDusknoirGX
+  }});
+  assert.equal(out.result.excluded.kind,'original');
+  assert.ok(out.result.included instanceof ResolvePromptAction);
+  assert.equal(out.audit.skippedUnmarkedStructuralPrompts,1);
+  assert.equal(out.audit.printedSourceReducerInvocations,1);
+  assert.equal(out.audit.printedNightWatchPromptMarks,1);
+  assert.equal(out.audit.structuralCandidates,1);
+  assert.equal(out.audit.requirePrintedOrigin,true);
+  assert.equal(Ai.prototype.resolvePrompt,beforeAi);
+  assert.equal(FakeTrevenantDusknoirGX.prototype.reduceEffect,beforeSource);
+});
+
+test('printed-source reducer and bot resolver both restore after exception',()=>{
+  const ai=new Ai(),beforeAi=Ai.prototype.resolvePrompt;
+  const beforeSource=FakeTrevenantDusknoirGX.prototype.reduceEffect;
+  assert.throws(()=>withUniformNightWatchOpponentSelection(()=>{
+    const source=new FakeTrevenantDusknoirGX();
+    const state={turn:3,players:[player,other],prompts:[]};
+    source.reduceEffect({},state,new AttackEffect(player,source.attacks[0]));
+    ai.resolvePrompt(player,state,state.prompts[0]);
+    throw Error('expected printed failure');
+  },{committedSeed:'fixed',requirePrintedOrigin:true,deps:{
+    SimpleTacticsAi:Ai,ResolvePromptAction,
+    TrevenantDusknoirGX:FakeTrevenantDusknoirGX
+  }}),/expected printed failure/);
+  assert.equal(Ai.prototype.resolvePrompt,beforeAi);
+  assert.equal(FakeTrevenantDusknoirGX.prototype.reduceEffect,beforeSource);
+});
+
 test('zero-sized and complete-population physical draws work',()=>{
   assert.deepEqual(sampleUniformPositions(0,0,'seed','p'),[]);
   const all=sampleUniformPositions(3,3,'seed','p');
