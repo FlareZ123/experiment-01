@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v27-rondo-per-seat-readiness';
+const VERSION='agent41-same-root-proposal-choice-v28-rondo-bench-energy-context';
 const MAX_SAMPLES=48;
 
 /**
@@ -618,6 +618,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       (offers.some(o=>o.source==='payable-printed-attack')?
         'printed-positive-offer':'no-supported-printed-positive-offer'):
       'not-enumerated',
+    publicRondoBenchFunding:(options.sameRootProbeAll===true||
+      options.rondoPublicOpportunity===true)?
+      require('./agent7-public-rondo-attack-offer.cjs')
+        .publicRondoBenchFunding(view,catalog):null,
     publicRondoReadiness:(options.sameRootProbeAll===true||
       options.rondoPublicOpportunity===true)?
       require('./agent7-public-rondo-attack-offer.cjs')
@@ -633,7 +637,11 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
 function newSameRootAudit(){
   return {version:VERSION,ownerRoots:0,changedRoots:0,
     offerRoots:0,selectorErrorRoots:0,
-    rondoReadinessBySeat:{0:{},1:{}},rondoOffersBySeat:{0:0,1:0},bySeat:{
+    rondoReadinessBySeat:{0:{},1:{}},rondoOffersBySeat:{0:0,1:0},
+    rondoBenchedBySeat:{0:{roots:0,fundedRoots:0,heldMobilityRoots:0,
+      unusedRetreatRoots:0,byActivePrinting:{},energyCardCopies:{}},
+      1:{roots:0,fundedRoots:0,heldMobilityRoots:0,
+      unusedRetreatRoots:0,byActivePrinting:{},energyCardCopies:{}}},bySeat:{
       0:{ownerRoots:0,changedRoots:0},
       1:{ownerRoots:0,changedRoots:0}},
     selectionReasons:{},samples:[],
@@ -664,6 +672,20 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   audit.ownerRoots++;audit.bySeat[seat].ownerRoots++;
   audit.rondoOffersBySeat[seat]+=
     receipt.offers.filter(o=>o.source==='public-rondo').length;
+  const funding=receipt.publicRondoBenchFunding;
+  if(funding){
+    const row=audit.rondoBenchedBySeat[seat];
+    row.roots++;
+    if(funding.fundedBenchedCopies>0)row.fundedRoots++;
+    if(funding.heldMobilityCount>0)row.heldMobilityRoots++;
+    if(funding.retreatUnused===true)row.unusedRetreatRoots++;
+    const active=funding.activePrinting??'empty';
+    row.byActivePrinting[active]=(row.byActivePrinting[active]??0)+1;
+    for(const n of funding.benchedEnergyCounts){
+      const key=n===null?'unknown':n===0?'zero':n===1?'one':'two-or-more';
+      row.energyCardCopies[key]=(row.energyCardCopies[key]??0)+1;
+    }
+  }
   if(typeof receipt.publicRondoReadiness==='string'){
     const categories=audit.rondoReadinessBySeat[seat];
     const category=receipt.publicRondoReadiness;
