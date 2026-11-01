@@ -1092,8 +1092,14 @@ function runDevelopment({
     const groups=new Map();
     const ids=new Set();
     for(const trial of registeredTrials){
-      assert.ok((allowAdditionalOriginalSourceRanks?[1,3,4,5,6,7,9,10,11,15,21,24,29]:[6,11])
-        .includes(trial.rank));
+      // Expanded discovery admits only authenticated original printed sixties.
+      // The default historical rank-6/rank-11 frame remains unchanged.
+      const admissibleSourceRanks=allowAdditionalOriginalSourceRanks?
+        roster.decks.filter(deck=>Array.isArray(deck.cards)&&
+          deck.cards.reduce((n,card)=>n+card.count,0)===60)
+          .map(deck=>deck.rank):[6,11];
+      assert.ok(admissibleSourceRanks.includes(trial.rank),
+        'Registered source rank requires an authenticated original 60');
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
         .includes(trial.candidateId));
