@@ -48,9 +48,9 @@ test('held-Koffing access is increasing with source copies in isolated perturbat
 test('newer lowercase Pokemon ex printing sensitivity is bounded separately',()=>{
   const conservative=analyze(SOURCE);
   const includingEx=analyze({...SOURCE,eligibleBasic:10,otherBasic:2});
-  check(includingEx.afterDrawPaymentAtLeastOne,38.71326955);
-  check(includingEx.afterDrawPaymentAtLeastTwo,26.01880863);
-  check(includingEx.afterDrawKoffingAndSecondPayment,10.43255817);
+  check(includingEx.afterDrawPaymentAtLeastOne,38.71326955278834);
+  check(includingEx.afterDrawPaymentAtLeastTwo,26.01880863483182);
+  check(includingEx.afterDrawKoffingAndSecondPayment,10.432558172312676);
   assert.equal(includingEx.afterDrawRetainedKoffingRoxie.percent,
     conservative.afterDrawRetainedKoffingRoxie.percent);
 });
