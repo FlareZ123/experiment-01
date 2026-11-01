@@ -59,3 +59,15 @@ test('29 authentic ranks and two immutable candidate source baselines',()=>{
   tampered.audit.decks[0].basic_hp_at_most_60_known=1;
   assert.throws(()=>model.analyze(tampered.manifest,tampered.audit));
 });
+
+test('eight immediate Basic-search Items narrow uncovered solo starters',()=>{
+  const {manifest,audit}=mockInputs();
+  const gap=model.analyze(manifest,audit).directBasicSearcherAbsent;
+  approx(gap.firstSeven,0.022927102284171396);
+  approx(gap.meanOver29Sources,0.02042247352512743);
+  approx(gap.sourceRank6,0.013917792366635089);
+  assert.ok(gap.meanOver29Sources<0.07934050625640332);
+  const invalid=mockInputs();
+  invalid.manifest.entries.find(e=>e.name_en==='Fog Crystal').count=3;
+  assert.throws(()=>model.analyze(invalid.manifest,invalid.audit));
+});
