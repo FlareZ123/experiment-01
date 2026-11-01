@@ -26,6 +26,18 @@ The **34 unresolved printing matches** comprise **32 Psychic Energy MEE** select
 
 **Distinct target checks are not independent match samples:** 98 selections are correlated within 32 real developmental games. Prompt counts and category checks cannot certify competitive player action quality or a game's winner. The 24 no-payload Get Lost events from the broader inventory are empty-discard cancellation-compatible and are not included in these nonempty deck-search target checks.
 
+### Original source Guzma & Hala: connected modal hand-cost and search receipts
+
+The four observed original-source \`Guzma & Hala CEC\` \`PlayCardAction\` roots in this frozen archive each have the **same parent-root identity through the entire native sequence**:
+
+1. The exact printed Supporter was played from the source hand.
+2. Its \`SelectOptionPrompt\` selected native option **1**, explicitly labelled as the optional **discard two hand cards and search for Tool + Special Energy** mode.
+3. A same-parent \`ChooseCardsPrompt\` on the source hand selected **exactly two** cards, with native \`min=max=2\`.
+4. A same-parent deck search selected **two cards** in two games or **three cards** in two games, with native \`min=0,max=3\`; the selected known categories include Stadium, Special Energy and Pokémon Tool, plus the ZIP-unresolved \`Tropical Beach BWP 50\` in two of the four roots.
+5. A native \`ShuffleDeckPrompt\` followed, under that same initiating played-card root.
+
+This is **4/4 explicit Store-accepted modal cost-selection and continued search/shuffle chains**, but they are drawn from only **two distinct original-source physical-deal fingerprints** paired across the two different fixed candidate 60s. The four prompts establish selection of eight hand-card instances (two per play); this archived observer does **not separately prove two distinct physical cards actually reached discard**, nor does it independently certify every deck-selected printing or the full Supporter effect. Label this \`OWNER_OPTIONAL_TWO_HAND_SELECTION_RECEIPT\`, not full \`PAPER_PROMPT_VERIFIED\`.
+
 ## Separate pregame Basic-Pokémon category screen
 
 The same physical archive contains **71 startup \`ChooseCardsPrompt\` roots** with no initiating played-card/attack root, selecting **129 Pokémon card instances** from player opening hands before normal turns. After joining the recorded acting seat to the source seat in each trial:
