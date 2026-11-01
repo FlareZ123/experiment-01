@@ -69,6 +69,9 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
   const chosen=new WeakMap();
   const planBySeat=new Map();
   const attemptedTurnBySeat=new Map();
+  // Read-only witness at the first genuine source-owner root after the
+  // opponent has had a turn to disrupt the completed source setup.
+  const awaitingNativeReturnBySeat=new Map();
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const active={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
   const audit={
@@ -79,7 +82,7 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     bySeat:{0:{opportunities:0,chosen:0,accepted:0,completed:0},
       1:{opportunities:0,chosen:0,accepted:0,completed:0}},
     nonLiveDelegations:0,nonOwnerDelegations:0,
-    events:[],originalOwnK0AtOffer:[],
+    events:[],originalOwnK0AtOffer:[],postOpponentOwnerReturns:[],
     decisionInput:'detached authenticated actorObservation',
     deckSearchScope:'only acting owner pending native ChooseCardsPrompt',
     wholePolicyInformationSetSafe:false,
@@ -174,6 +177,23 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     }
     const owner=state.players[seat];
     const pending=state.prompts.find(p=>p.result===undefined);
+    const awaiting=awaitingNativeReturnBySeat.get(seat);
+    if(awaiting&&state.turn>awaiting.planTurn&&
+        state.activePlayer===seat&&
+        state.phase===GamePhase.PLAYER_TURN&&!pending){
+      const garbodorSlots=[owner.active,...owner.bench].filter(slot=>
+        slot.getPokemonCard()?.fullName===PRINT.garbodor);
+      const snapshot={seat,planTurn:awaiting.planTurn,
+        firstReturnTurn:state.turn,
+        garbodorCount:garbodorSlots.length,
+        anyToolEquippedGarbodorCount:garbodorSlots.filter(slot=>
+          slot.tools.length>0).length,
+        floatStoneEquippedGarbodorCount:garbodorSlots.filter(slot=>
+          slot.tools.some(card=>card.fullName===PRINT.float)).length};
+      audit.postOpponentOwnerReturns.push(snapshot);
+      audit.events.push({kind:'post-opponent-owner-root',...snapshot});
+      awaitingNativeReturnBySeat.delete(seat);
+    }
     let ctx=planBySeat.get(seat)??null;
     if(!ctx&&state.activePlayer===seat&&
         state.phase===GamePhase.PLAYER_TURN&&!pending&&
@@ -214,6 +234,7 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       if(equipped&&owner.usedVSTAR===true){
         audit.completedEquippedGarbodor++;
         audit.bySeat[seat].completed++;
+        awaitingNativeReturnBySeat.set(seat,{planTurn:ctx.turn});
       }else{
         abort(ctx,'end-turn-board-witness-not-established');
       }
