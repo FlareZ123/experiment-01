@@ -15,27 +15,26 @@ const {attestLoadedResearchModules}=
 
 const VERSION='agent41-frozen-bilateral-development-v1';
 const ROOT=path.resolve(__dirname,'../..');
-const REGISTRATION=profile.registration;
 const ENTRY='simulation/evaluation/agent41-bilateral-v2-development.cjs';
 
 /** @param {object} env */
-function assertNoUnreviewedAmbientAgentEnvironment(env){
+function assertNoUnreviewedAmbientAgentEnvironment(env,selected=profile){
   assert.ok(env&&typeof env==='object');
   const ambient=Object.keys(env).filter(key=>
     /^AGENT[0-9]+_/.test(key)&&env[key]!==undefined);
-  assert.deepEqual(ambient,profile.permittedAmbientAgentEnvironment,
+  assert.deepEqual(ambient,selected.permittedAmbientAgentEnvironment,
     'Ambient AGENT policy override would change the frozen development profile');
   return ambient;
 }
 
 /** @param {string} root */
-function exactSourceFingerprint(root){
+function exactSourceFingerprint(root,selected=profile){
   const inventory=assertInventoryUnchanged(root);
-  const registrationBytes=fs.readFileSync(path.join(root,REGISTRATION));
-  const rosterBytes=fs.readFileSync(path.join(root,profile.originalRoster));
-  assert.equal(gitBlobHash(registrationBytes),profile.registrationGitBlobSha,
+  const registrationBytes=fs.readFileSync(path.join(root,selected.registration));
+  const rosterBytes=fs.readFileSync(path.join(root,selected.originalRoster));
+  assert.equal(gitBlobHash(registrationBytes),selected.registrationGitBlobSha,
     'Preregistered seed source changed');
-  assert.equal(gitBlobHash(rosterBytes),profile.originalRosterGitBlobSha,
+  assert.equal(gitBlobHash(rosterBytes),selected.originalRosterGitBlobSha,
     'Original printed source-60 roster changed');
   const closure=auditSourceClosure(root,[ENTRY]);
   return {
@@ -43,6 +42,7 @@ function exactSourceFingerprint(root){
     registrationGitBlobSha:gitBlobHash(registrationBytes),
     originalRosterGitBlobSha:gitBlobHash(rosterBytes),
     profileGitBlobSha:gitBlobHash(fs.readFileSync(path.join(root,
+      selected.profileManifestPath??
       'simulation/evaluation/agent41-frozen-bilateral-development-v1.json'))),
     sourceClosureSha256:closure.digest,
     recursiveFileCount:closure.files.length,
@@ -57,10 +57,10 @@ function exactSourceFingerprint(root){
 }
 
 /** @returns {object[]} One registered exact seed per both-candidate physical pair. */
-function registeredTrials(){
-  assert.equal(registration.enginePin,profile.pinnedVendorRevision);
-  assert.equal(registration.independentPhysicalPairs,profile.seedGroups);
-  assert.equal(registration.attemptedNativeArms,profile.scheduledNativeArms);
+function registeredTrials(selected=profile){
+  assert.equal(registration.enginePin,selected.pinnedVendorRevision);
+  assert.equal(registration.independentPhysicalPairs,selected.seedGroups);
+  assert.equal(registration.attemptedNativeArms,selected.scheduledNativeArms);
   const trials=[];
   const groups=new Set();
   for(const row of registration.flatPredictions){
@@ -78,17 +78,17 @@ function registeredTrials(){
       });
     }
   }
-  assert.equal(groups.size,profile.seedGroups);
-  assert.equal(trials.length,profile.scheduledNativeArms);
+  assert.equal(groups.size,selected.seedGroups);
+  assert.equal(trials.length,selected.scheduledNativeArms);
   return trials;
 }
 
 /** @param {string} root */
-function assertPinnedNativeStore(root){
+function assertPinnedNativeStore(root,selected=profile){
   const installed=execFileSync('git',['-C',
-    path.join(root,profile.vendorSubmodulePath),'rev-parse','HEAD'],
+    path.join(root,selected.vendorSubmodulePath),'rev-parse','HEAD'],
     {encoding:'utf8'}).trim();
-  assert.equal(installed,profile.pinnedVendorRevision,
+  assert.equal(installed,selected.pinnedVendorRevision,
     'Running a different native Store revision');
   return installed;
 }
@@ -101,7 +101,7 @@ function assertPinnedNativeStore(root){
  * @param {object[]} rows Complete native attempted rows, including aborts.
  * @returns {object}
  */
-function summarizeAcceptedSetupCoins(rows){
+function summarizeAcceptedSetupCoins(rows,selected=profile){
   assert.ok(Array.isArray(rows));
   const expected=new Map(registration.flatPredictions.map(row=>
     [[row.rank,row.repeat,row.candidateSlot].join(':'),row]));
@@ -134,9 +134,9 @@ function summarizeAcceptedSetupCoins(rows){
   for(const receipt of receipts)
     byStatus[receipt.observedStatus]=(byStatus[receipt.observedStatus]??0)+1;
   return {
-    expectedRegisteredArms:profile.scheduledNativeArms,
+    expectedRegisteredArms:selected.scheduledNativeArms,
     attempted:rows.length,
-    allValidated:rows.length===profile.scheduledNativeArms&&
+    allValidated:rows.length===selected.scheduledNativeArms&&
       receipts.every(x=>x.observedStatus==='matching-native-start'),
     matching:byStatus['matching-native-start']??0,
     byStatus,receipts,
@@ -150,27 +150,28 @@ function summarizeAcceptedSetupCoins(rows){
  * @param {object} [overrides]
  */
 function runFrozenDevelopment(overrides={}){
+  const selected=overrides.profile??profile;
   const root=overrides.root??ROOT;
   const env=overrides.env??process.env;
-  assertNoUnreviewedAmbientAgentEnvironment(env);
-  const provenance=exactSourceFingerprint(root);
-  assert.ok(typeof profile.sourceClosureSha256==='string'&&
-    profile.sourceClosureSha256.length===64,
+  assertNoUnreviewedAmbientAgentEnvironment(env,selected);
+  const provenance=exactSourceFingerprint(root,selected);
+  assert.ok(typeof selected.sourceClosureSha256==='string'&&
+    selected.sourceClosureSha256.length===64,
     'Transitive source digest must be pinned before executing registered games');
-  assert.equal(provenance.sourceClosureSha256,profile.sourceClosureSha256,
+  assert.equal(provenance.sourceClosureSha256,selected.sourceClosureSha256,
     'Transitive actor/source code differs from frozen development profile');
-  assertPinnedNativeStore(root);
-  const trials=registeredTrials();
+  assertPinnedNativeStore(root,selected);
+  const trials=registeredTrials(selected);
   const prior={};
-  for(const [key,value] of Object.entries(profile.injectedResearchEnvironment)){
+  for(const [key,value] of Object.entries(selected.injectedResearchEnvironment)){
     prior[key]=process.env[key];
     process.env[key]=value;
   }
   try{
     const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
     const result=runDevelopment({
-      ...profile.policyOptions,registeredTrials:trials,
-      registeredFrameName:VERSION+'-agent16-balanced-native-seeds'
+      ...selected.policyOptions,registeredTrials:trials,
+      registeredFrameName:selected.schema+'-agent16-balanced-native-seeds'
     });
     const rows=Array.isArray(result.rows)?result.rows:[];
     const statuses={};
@@ -178,17 +179,18 @@ function runFrozenDevelopment(overrides={}){
       const key=row.status??(row.finished===true?'engine-terminal':'censored');
       statuses[key]=(statuses[key]??0)+1;
     }
-    const nativeStarts=summarizeAcceptedSetupCoins(rows);
+    const nativeStarts=summarizeAcceptedSetupCoins(rows,selected);
     // Offline provenance analysis only, after every native game has completed.
     const runtimeResearchAttestation=attestLoadedResearchModules(root,
       auditSourceClosure(root,[ENTRY]));
     return {
-      version:VERSION,profile,provenance,
-      nativePin:profile.pinnedVendorRevision,
+      version:selected.schema,profile:selected,provenance,
+      researchHeadCommit:process.env.GITHUB_SHA??null,
+      nativePin:selected.pinnedVendorRevision,
       attempted:result.attempted,
-      expectedAttempts:profile.scheduledNativeArms,
-      attemptedComplete:result.attempted===profile.scheduledNativeArms&&
-        rows.length===profile.scheduledNativeArms,
+      expectedAttempts:selected.scheduledNativeArms,
+      attemptedComplete:result.attempted===selected.scheduledNativeArms&&
+        rows.length===selected.scheduledNativeArms,
       statuses,rows,
       sourceComparison:result.paired??null,
       nativeSetupCoinAndFirstDrawEvidence:nativeStarts,
