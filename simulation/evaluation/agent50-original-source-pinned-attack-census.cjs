@@ -31,8 +31,11 @@ function census(manager,source){
       const printing=entry.printing;
       const requested=entry.name+' '+printing.set;
       const options=registry.get(requested)??[];
-      const matched=options.find(card=>
+      const registryMatched=options.find(card=>
         String(card.setNumber)===String(printing.number))??options[0]??null;
+      const live=typeof manager.getCardByName==='function'?
+        manager.getCardByName(requested):null;
+      const matched=live??registryMatched;
       const attacks=matched?.attacks??[];
       const special=attacks.some(attack=>attack.damageCalculation==='x'||
         attack.damageCalculation==='+'||attack.damageCalculation==='-');
