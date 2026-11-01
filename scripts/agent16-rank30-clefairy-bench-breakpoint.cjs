@@ -4,13 +4,20 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const load=p=>require(path.join(root,p));
 /** Exact printed-attack bench breakpoint, ignoring external damage modifiers. */
-function minimumBenches(attacker,target,maxBenches=16){
+function minimumBenches(attacker,target,maxBenches=16,{fairyZoneActive=false}={}){
   const rondo=attacker.attacks.find(x=>x.name==='Full Moon Rondo');
   assert.ok(rondo);
   assert.deepEqual(rondo.cost,['Psychic','Colorless']);
   assert.match(rondo.text,/each Benched Pokémon \(both yours and your opponent's\)/);
   assert.equal(rondo.damage,'20+');
-  const weakness=target.weaknesses?.find(x=>x.type==='Psychic');
+  const ability=attacker.abilities?.find(x=>x.name==='Fairy Zone');
+  if(fairyZoneActive){
+    assert.match(ability.text,/opponent's Dragon Pokémon in play is now Psychic/);
+  }
+  const changedDragonWeakness=fairyZoneActive&&target.types.includes('Dragon');
+  const weakness=changedDragonWeakness?
+    {type:'Psychic',value:'×2'}:
+    target.weaknesses?.find(x=>x.type==='Psychic');
   const factor=weakness?.value==='×2'?2:1;
   assert.equal(target.resistances?.some(x=>x.type==='Psychic')??false,false);
   const hp=Number(target.hp);
@@ -42,6 +49,8 @@ function analyze(){
   const mew=card('sm11','sm11-71');
   const vmax=card('swsh6','swsh6-75');
   const v=card('swsh6','swsh6-74');
+  const drago=card('swsh12','swsh12-136');
+  const dragoV=card('swsh12','swsh12-135');
   assert.equal(attacker.name,"Lillie's Clefairy ex");
   assert.ok(mew.rules.some(x=>x.startsWith('TAG TEAM rule:')));
   assert.equal(mew.hp,'270');
@@ -52,6 +61,9 @@ function analyze(){
     candidateNewMoonMewtwoMew:2,
     attack:'Full Moon Rondo',energyCost:['Psychic','Colorless'],
     normalTwoBenchMaximum:10,skyFieldTwoBenchMaximum:16,
+    publishedRegidragoSources:field.decks.filter(x=>x.archetype==='Regidrago').length,
+    perfectionCannotCopyClefairyEx:!mew.abilities.some(x=>
+      x.name==='Perfection'&&/Pokémon ex/.test(x.text)),
     targetBreakpoints:[
       {target:'new-moon Mewtwo & Mew-GX',hp:270,psychicWeakness:'x2',
         totalBenchesForOHKO:minimumBenches(attacker,mew),prizesPerKO:3},
@@ -60,7 +72,15 @@ function analyze(){
         totalBenchesForOHKO:minimumBenches(attacker,v),prizesPerKO:2},
       {target:'rank1 Shadow Rider Calyrex VMAX',hp:320,
         psychicWeakness:'none',
-        totalBenchesForOHKO:minimumBenches(attacker,vmax),prizesPerKO:3}
+        totalBenchesForOHKO:minimumBenches(attacker,vmax),prizesPerKO:3},
+      {target:'Regidrago VSTAR with Fairy Zone active',hp:280,
+        psychicWeakness:'x2 if Fairy Zone active',
+        totalBenchesForOHKO:minimumBenches(attacker,drago,16,
+          {fairyZoneActive:true}),prizesPerKO:2},
+      {target:'Regidrago V with Fairy Zone active',hp:220,
+        psychicWeakness:'x2 if Fairy Zone active',
+        totalBenchesForOHKO:minimumBenches(attacker,dragoV,16,
+          {fairyZoneActive:true}),prizesPerKO:2}
     ],competitiveQualifiedGames:0,
     caveat:'Printed attack and Weakness arithmetic only; assumes payable attack, target Active, no other damage modifiers, and stated public combined Bench occupancy.'
   };
