@@ -1,0 +1,29 @@
+name: Agent50 pinned CES48 GX damage and owner Basic-payment controls
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent50-ces48-gx-source-native
+  cancel-in-progress: false
+jobs:
+  native-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout pinned native Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Pure actor-only Bellowing payment and physical transfer tests
+        run: node --test tests/agent50-bellowing-public-payment.test.cjs tests/agent50-bellowing-payment-transfer.test.cjs
+      - name: Native original CES48 two-seat positive Energy payment and GX damage
+        run: node --test tests/agent50-electrode-crashburn-native.test.cjs
