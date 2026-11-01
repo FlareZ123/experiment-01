@@ -74,7 +74,18 @@ function probeTwoSourcePainfulSpoons(){
   }));
   const prompt=f.state.prompts.find(p=>p.result===undefined&&
     p.constructor.name==='MoveDamagePrompt');
-  assert.ok(prompt,'Need actual pinned Painful Spoons MoveDamagePrompt');
+  assert.ok(prompt,'Need actual pinned Painful Spoons MoveDamagePrompt: '+
+    JSON.stringify({
+      phase:f.state.phase,turn:f.state.turn,activePlayer:f.state.activePlayer,
+      prompts:f.state.prompts.map(p=>({
+        name:p.constructor.name,resultType:typeof p.result,
+        ownerId:p.playerId
+      })),
+      sourcePowers:f.source.active.getPokemonCard()?.powers?.map(p=>p.name),
+      damaged:[f.opponent.active.damage,...f.opponent.bench.slice(0,2)
+        .map(s=>s.damage)],
+      sourceMarkers:f.source.marker?.markers?.length??null
+    }));
   const active={player:PlayerType.TOP_PLAYER,slot:SlotType.ACTIVE,index:0};
   const bench0={player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:0};
   const bench1={player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:1};
