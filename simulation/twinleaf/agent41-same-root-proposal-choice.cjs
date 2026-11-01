@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v22-typed-native-tool-bridge-optin';
+const VERSION='agent41-same-root-proposal-choice-v23-typed-optin-plumeria-bridge';
 const MAX_SAMPLES=48;
 
 /**
@@ -34,12 +34,12 @@ const PROPOSERS=Object.freeze([
   // multiplying each payment pair by every opposing public Energy target.
   // This is an observation-only challenger to Team Flare Grunt's zero-card
   // payment. The native Plumeria prompt dispatcher is deliberately absent.
-  {name:'grouped-plumeria-payments',flag:'sameRootProbeAll',
+  {name:'grouped-plumeria-payments',flag:'nativePlumeriaChoice',
     propose:view=>{
       const menu=require('./agent4-plumeria-payment-menu.cjs')
         .collectOwnerPlumeriaPaymentMenu(view);
       return menu.offers.map(offer=>({...offer,paymentTargets:menu.targets,
-        nativeDispatchImplemented:false}));
+        nativeDispatchImplemented:options.nativePlumeriaChoice===true}));
     }},
   {name:'immediate-special',flag:'publicContextSpecialEnergy',
     propose:(view,catalog)=>require('./agent41-public-flexible-energy-contest.cjs')
@@ -400,6 +400,16 @@ function scoreOffer(view,catalog,baseline,offer,options){
      Number.isFinite(offer.intent.printedDamage)&&
      offer.intent.printedDamage>0)
     return {score:30,reason:'bounded-development-attack-over-pass'};
+  // Mechanically exploratory owner choice: a native-accepted Plumeria
+  // may remove one of multiple publicly attached opposing Active Energies,
+  // with a mandatory two-card hand payment. The original Store and prompt
+  // handler must still prove this alternative; no strategic payoff claimed.
+  if(options.nativePlumeriaChoice===true&&baseline.kind==='pass'&&
+     offer.source==='grouped-plumeria-payments'&&
+     offer.intent.kind==='play-plumeria-payment-menu'&&
+     offer.intent.nativeDispatchImplemented===true&&
+     (view.opponentPublic?.active?.energies?.length??0)>=2)
+    return {score:3,reason:'experimental-native-plumeria-over-pass'};
   if(baseline.kind==='attach-basic-energy'&&
      offer.source==='immediate-special'&&
      offer.intent.kind==='attach-special-energy')
