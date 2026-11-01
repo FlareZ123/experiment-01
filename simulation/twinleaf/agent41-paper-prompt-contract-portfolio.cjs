@@ -5,8 +5,38 @@ const path=require('node:path');
 const {verdictVoltCyclone}=require('./agent39-paper-prompt-portfolio.cjs');
 const {campingGearPaperVerdict}=
   require('./agent12-campinggear-prompt-paper-hook.cjs');
-const {paperPutDamageRejectReason}=
-  require('./put-damage-zero-cap-paper-hook.cjs');
+/**
+ * Check only independently observable native PutDamage zero-target and
+ * whole-packet negative restrictions. Do not first call prompt.validate:
+ * the vendor validator can reject otherwise valid paper replies, and an
+ * unrelated validation false must not become a paper-invalid verdict.
+ *
+ * @param {object} prompt Pending native PutDamagePrompt.
+ * @param {unknown} answer Native physical answer.
+ * @returns {string|null} Independently covered negative predicate or null.
+ */
+function independentPutDamageNegative(prompt,answer){
+  if(!Array.isArray(answer))return null;
+  const multiple=prompt.options?.damageMultiple;
+  for(const row of answer){
+    if(!Number.isSafeInteger(row?.damage)||row.damage<0)
+      return 'INVALID_DAMAGE_AMOUNT';
+    if(row.damage===0)continue;
+    if(Number.isSafeInteger(multiple)&&multiple>0&&
+      row.damage%multiple!==0)
+      return 'INVALID_PRINTED_DAMAGE_PACKET';
+    const target=row.target;
+    const allowed=Array.isArray(prompt.maxAllowedDamage)?
+      prompt.maxAllowedDamage:[];
+    const cap=allowed.find(entry=>
+      entry.target.player===target?.player&&
+      entry.target.slot===target?.slot&&
+      entry.target.index===target?.index);
+    if(cap?.damage===0)return 'PRINTED_TARGET_ZERO_CAP';
+  }
+  return null;
+}
+
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
@@ -115,8 +145,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
         'printed-own-deck-exactly-one-or-native-validator-failed';
     }else if(family==='PutDamagePrompt'){
       contract='declared-zero-target-and-whole-packet-negative-only';
-      const rejected=paperPutDamageRejectReason(
-        prompt,action.result,this.state);
+      const rejected=independentPutDamageNegative(prompt,action.result);
       if(['PRINTED_TARGET_ZERO_CAP','INVALID_PRINTED_DAMAGE_PACKET',
         'INVALID_DAMAGE_AMOUNT'].includes(rejected)){
         status='PAPER_PROMPT_INVALID';
@@ -184,4 +213,5 @@ function withPaperPromptContractPortfolio(run,deps={}){
     Object.defineProperty(IronThornsex.prototype,'reduceEffect',reducerBefore);
   }
 }
-module.exports={VERSION,withPaperPromptContractPortfolio};
+module.exports={VERSION,independentPutDamageNegative,
+  withPaperPromptContractPortfolio};
