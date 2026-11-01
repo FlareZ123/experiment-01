@@ -76,6 +76,11 @@ function auditActionChains(archive){
         Array.isArray(c.witnesses)?c.witnesses:[],root,
         archive.liveStoreId,kinds):
         {status:'unverified',why:'no-matching-chain'};
+      // Every accepted Store root exists, and its state transition must
+      // be demonstrated. These two phases cannot be "not encountered".
+      if((name==='ROOT_PAPER'||name==='EFFECT_PAPER')&&
+        phases[name].status==='not-encountered')
+        phases[name]={status:'unverified',why:'mandatory-phase-nonencounter'};
       counts[name][phases[name].status]++;
     }
     const states=Object.values(phases).map(x=>x.status);
