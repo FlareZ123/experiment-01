@@ -972,7 +972,8 @@ function runDevelopment({
   actorNaturalEvolutionRoot=false,actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,
-  actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
+  actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
+  actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
@@ -1015,6 +1016,8 @@ function runDevelopment({
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
     'Guzma owner recipient bridge requires canonical actor composition');
+  assert.ok(!actorGuzmaNominalGust||actorGuzmaPromptContinuation,
+    'Nominal opponent gust requires the original Guzma native prompt bridge');
   assert.ok(!actorPlumeriaAfterPass||actorOnlyComposition,
     'Plumeria after-Pass requires canonical actor composition');
   assert.ok(!bilateralSpecialEnergyRoot||actorOnlyComposition,
@@ -1241,6 +1244,7 @@ function runDevelopment({
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
+            guzmaNominalGust:actorGuzmaNominalGust,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
                 setup:earlyBenchedCompressorPayload?
@@ -1458,6 +1462,8 @@ function runDevelopment({
     actorChoosePokemonOptIn:actorOnlyComposition&&actorChoosePokemon,
     actorGuzmaPromptContinuationOptIn:
       actorOnlyComposition&&actorGuzmaPromptContinuation,
+    actorGuzmaNominalGustOptIn:
+      actorOnlyComposition&&actorGuzmaPromptContinuation&&actorGuzmaNominalGust,
     actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
@@ -1571,6 +1577,8 @@ if(require.main===module){
       process.env.AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV==='true',
     actorGuzmaPromptContinuation:
       process.env.AGENT43_GUZMA_PROMPT_CONTINUATION_DEV==='true',
+    actorGuzmaNominalGust:
+      process.env.AGENT43_GUZMA_NOMINAL_GUST_DEV==='true',
     actorChargedPromotion:process.env.AGENT1_CHARGED_PROMOTION_DEV==='true',
     sourceFloatStoneMobility:
       process.env.AGENT1_SOURCE_FLOAT_MOBILITY_DEV==='true',
