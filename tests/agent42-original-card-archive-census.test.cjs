@@ -18,6 +18,7 @@ test('29 authentic full 60s have the immutable exact-print coverage census', () 
   assert.deepEqual(actual.statuses, {
     ARCHIVE_EXACT: { rows: 911, copies: 1549 },
     ARCHIVE_NUMBER_MATCH_NAME_ALIAS: { rows: 34, copies: 57 },
+    ARCHIVE_NAME_CONFLICT: { rows: 0, copies: 0 },
     ARCHIVE_UNLISTED: { rows: 44, copies: 134 }
   });
   assert.deepEqual([...new Set(actual.unresolved
@@ -47,9 +48,35 @@ test('a registered collector-number mismatch never becomes a named alias', () =>
   const available = [{ id: 'test', ptcgoCode: 'ABC' }];
   const read = () => [{ id: 'test-12', name: 'Original Card', number: '12' }];
   const got = auditOriginalPrints(mini, available, read);
-  assert.equal(got.statuses.ARCHIVE_NUMBER_MATCH_NAME_ALIAS.copies, 60);
+  assert.equal(got.statuses.ARCHIVE_NAME_CONFLICT.copies, 60);
   assert.equal(got.statuses.ARCHIVE_EXACT.rows, 0);
   mini.decks[0].cards[0].printing.number = '13';
   const missing = auditOriginalPrints(mini, available, read);
   assert.equal(missing.statuses.ARCHIVE_UNLISTED.copies, 60);
+});
+
+
+test('only explicitly reviewed PHF and prism display aliases are trusted', () => {
+  const mini = {
+    decks: [{
+      rank: 6, cards: [
+        { name: 'Battle Compressor', count: 40,
+          printing: { set: 'PHF', number: '92' }},
+        { name: 'Thunder Mountain ♢', count: 20,
+          printing: { set: 'LOT', number: '191' }}
+      ]
+    }]
+  };
+  const index = [
+    { id: 'xy4', ptcgoCode: 'PHF' },
+    { id: 'sm8', ptcgoCode: 'LOT' }
+  ];
+  const lookup = {
+    xy4: [{id: 'xy4-92', name: 'Battle Compressor Team Flare Gear',
+      number: '92'}],
+    sm8: [{id: 'sm8-191', name: 'Thunder Mountain ◇', number: '191'}]
+  };
+  const report = auditOriginalPrints(mini, index, id => lookup[id]);
+  assert.equal(report.statuses.ARCHIVE_NUMBER_MATCH_NAME_ALIAS.copies, 60);
+  assert.equal(report.statuses.ARCHIVE_NAME_CONFLICT.rows, 0);
 });
