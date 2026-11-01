@@ -63,7 +63,7 @@ test('the numeric printing ID never resolves an ambiguous wrong variant',()=>{
 });
 
 test('actual game lookup dominates a misleading enumerated source class',()=>{
-  const available=native();
+  const available=native().map(card=>card.fullName==='Raging Bolt ex TEF'?new Specialized(card.fullName,card.setNumber,card.attacks):card);
   const fake={
     getAllCards:()=>available,
     getCardByName:name=>name==='Raging Bolt ex TEF'?
