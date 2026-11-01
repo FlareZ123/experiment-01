@@ -184,6 +184,16 @@ jobs:
           name: agent33-celestial-roar-original-sixty-staged-20261101
           path: agent33-celestial-native-fixtures.json
           if-no-files-found: warn
+      - name: Native exact original rank20 two natural Celestial conservation failures corrected
+        if: inputs.agent33_stadium_mode == 'celestial-native'
+        run: node simulation/twinleaf/agent33-celestial-original3-native-paired.cjs > agent33-celestial-natural-original3.json
+      - name: Retain all natural corrected original rank20 source rows and native errors
+        if: inputs.agent33_stadium_mode == 'celestial-native' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-celestial-original-rank20-threecases-20261101
+          path: agent33-celestial-natural-original3.json
+          if-no-files-found: warn
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
