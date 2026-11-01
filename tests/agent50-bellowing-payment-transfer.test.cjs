@@ -5,7 +5,7 @@ const {decodePayment}=require('../simulation/twinleaf/agent50-bellowing-payment-
 const types={EnergyType:{BASIC:1},PlayerType:{BOTTOM_PLAYER:2},SlotType:{ACTIVE:3,BENCH:4}};
 class DiscardEnergyPrompt{
  constructor(id){this.playerId=id;}
- decode(indices,state){return indices.map(x=>({from:x.from,card:state.players[0].active.cards[x.index]}));}
+ decode(indices,state){return indices.map(x=>({from:x.from,card:state.players.find(p=>p.id===this.playerId).active.cards[x.index]}));}
  validate(x){return x.length===1&&x[0].card.energyType===1;}
 }
 test('physical Basic selection uses aggregate identity and original index',()=>{
