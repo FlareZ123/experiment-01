@@ -2,6 +2,10 @@
 
 **1 November 2026 | native-receipt audit against the supplied full card-list ZIP | zero qualified competitive games.** This is a narrower follow-up to [the complete 4,331-prompt census](agent17-frozen-v2-prompt-denominator-20261101.md), using **actual selected card names** only inside a private local verifier and emitting category counts without selected-card identities per trial. The source archive has ranks 6/11 and unchanged candidate sixties, with 32 attempts, 19 engine terminals and 13 action caps.
 
+## Exact archive promotional-print correction (supersedes initial 64/34 and 124/5 counts)
+
+**Re-screened directly against both unchanged original ZIP archives after a fail-closed exact name/collector bridge:** 98 genuine deck-search selected cards comprise **66 ZIP-exact target-category matches, zero detected category mismatches and 32 unresolved Psychic Energy MEE printing instances**. The original table below is the *pre-alias historical baseline*; the two `Tropical Beach BWP 50` selections there resolve to the source ZIP's unique `bwp-BW50` Stadium. The 129 actual setup selected cards comprise **127 ZIP-exact Basic Pokémon, zero detected known non-Basics and two still unresolved `Mega Absol ex M1L` instances**. The three formerly unresolved `Trevenant & Dusknoir-GX SMP` instances resolve to the archive's unique `smp-SM217` Basic. Exact aliases require complete display name and collector number; generic missing BWP, SMP or MEE printings stay unknown. No native action or outcome changed, and every complete paper-game verdict remains unverified. Original 32-arm ZIP and full-card ZIP SHA fingerprints in the next section are unchanged.
+
 ## Immutable inputs and independent printed-card lookup
 
 - The original [frozen v2 CI 41279242584](https://github.com/FlareZ123/experiment-01/actions/runs/41279242584), [artifact 13072623187](https://github.com/FlareZ123/experiment-01/actions/runs/41279242584/artifacts/13072623187), exact downloaded ZIP SHA-256 \`cb23422028015e88d8d701d5d6ffe46de137bdcf22abfe4e5e80abe20a33bd4b\`.
