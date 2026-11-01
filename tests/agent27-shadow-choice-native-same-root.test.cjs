@@ -5,6 +5,8 @@ const {stage}=require('../simulation/twinleaf/agent27-source-lastbench-two-basic
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {lastBenchBasicConflict}=
   require('../simulation/twinleaf/agent27-owner-lastbench-basic-conflict.cjs');
+const {rootPhysicalSnapshot,rootPhysicalWitness}=
+  require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
 const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {reconcileShadowAndChoice,reconcileIncludingLastBench}=
@@ -72,5 +74,50 @@ for(const seat of [0,1]){
       selectedPhysicalOfferInShadow:true,
       stagedArtificialBoard:true,originalRegisteredSixtiesPreserved:true,
       storeActionsDispatched:0,competitiveQualifiedGames:0}));
+  });
+}
+
+/**
+ * Native controlled print-and-lock contrast. Both sources conserve their
+ * original 60s. The two rank fixtures are deliberately staged, not actual
+ * source-dealt trajectories; a pending Ability prompt is not a game result.
+ */
+for(const seat of [0,1]){
+  test('native rank6 Initialization suppresses an actual played Tapu Lele Wonder Tag seat '+seat,()=>{
+    const outcomes=[];
+    for(const opponentRank of [6,10]){
+      const fixture=stage(seat,opponentRank);
+      const view=actorObservation(fixture.state,seat);
+      assert.equal(view.ownHand[1],'Tapu Lele-GX GRI');
+      assert.equal(view.opponentPublic.active.printing,
+        opponentRank===6?'Iron Thorns ex TWM':'Regidrago V SIT');
+      const intent={kind:'bench-basic',handIndex:1,benchIndex:4,
+        printing:'Tapu Lele-GX GRI'};
+      const before=rootPhysicalSnapshot(fixture.state,seat,intent);
+      fixture.store.dispatch(new fixture.PlayCardAction(
+        fixture.owner.id,1,{
+          player:fixture.PlayerType.BOTTOM_PLAYER,
+          slot:fixture.SlotType.BENCH,index:4
+        }));
+      const after=rootPhysicalSnapshot(fixture.state,seat,intent);
+      assert.equal(rootPhysicalWitness(intent,before,after,fixture.GamePhase),
+        'confirmed-public-effect');
+      assert.equal(fixture.owner.bench[4].getPokemonCard()?.fullName,
+        'Tapu Lele-GX GRI');
+      const prompts=fixture.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name);
+      if(opponentRank===6){
+        assert.equal(prompts.includes('ConfirmPrompt'),false,
+          'Iron Thorns Initialization should suppress Wonder Tag');
+      }else{
+        assert.equal(prompts.includes('ConfirmPrompt'),true,
+          'Without active Ability lock Wonder Tag should create its native prompt');
+      }
+      outcomes.push({opponentRank,seat,playedLeleOnFinalBench:true,
+        pendingWonderTagConfirm:prompts.includes('ConfirmPrompt'),
+        nativeCardAccepted:true,staged:true});
+    }
+    console.log(JSON.stringify({contrast:'native-wonder-tag-under-initialization',
+      seat,outcomes,qualifiedCompetitiveGames:0}));
   });
 }
