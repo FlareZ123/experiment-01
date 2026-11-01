@@ -129,6 +129,7 @@ function physical(ownerHand,discard,quota){
   return {players:[{
     hand:{cards:ownerHand.map(fullName=>({fullName}))},
     discard:{cards:discard.map(fullName=>({fullName}))},
+    deck:{cards:[]},
     supporter:{cards:[]},active:zeroPokemon,
     bench:[zeroPokemon,zeroPokemon,zeroPokemon,zeroPokemon,zeroPokemon],
     supporterTurn:quota,stadium:{cards:[]}
