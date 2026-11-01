@@ -74,7 +74,7 @@ function staged(seat,lethalReply=false){
       {kind:'bench-basic',handIndex:0,benchIndex:0,
         printing:'Iron Thorns ex TWM'}:
       {kind:'attack',attackName:'Volt Cyclone'});
-  return {store,state,owner,opponent,seat,receipt};
+  return {store,state,owner,opponent,seat,receipt,catalog};
 }
 
 test('native public Shred threat chooses backup Bench on both physical seats',()=>{
@@ -127,7 +127,13 @@ test('native public Shred threat chooses backup Bench on both physical seats',()
       replyPrompts.push(prompt.constructor.name);
       const result=prompt.constructor.name==='WaitPrompt'?null:
         prompt.constructor.name==='ChoosePokemonPrompt'?
-          [x.owner.bench[0]]:undefined;
+          [x.owner.bench[0]]:
+        prompt.constructor.name==='ChoosePrizePrompt'?
+          x.opponent.prizes.filter(prize=>prize.cards.length>0)
+            .slice(0,prompt.options.count):undefined;
+      if(prompt.constructor.name==='ChoosePrizePrompt')
+        assert.equal(prompt.validate(result,x.state),true,
+          'Native Shred KO must take legal printed opponent Prizes');
       assert.notEqual(result,undefined,
         'Unexpected native KO continuation '+prompt.constructor.name);
       x.store.dispatch(new ResolvePromptAction(prompt.id,result));
