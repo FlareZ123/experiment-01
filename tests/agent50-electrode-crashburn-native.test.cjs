@@ -3,6 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {withElectrodeCrashBurnPaper}=require('../simulation/twinleaf/agent50-electrode-gx-paper-hook.cjs');
 const native=name=>require(path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output',name));
 const {Store}=native('game/store/store');
 const {Player}=native('game/store/state/player');
