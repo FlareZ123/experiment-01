@@ -27,6 +27,7 @@ test('native canPlay true without mutation certifies exact Store graph for both 
     assert.equal(receipt.nativePlayable,true);
     assert.equal(receipt.nativeError,null);
     assert.equal(receipt.graphReadonlyVerified,true);
+    assert.equal(receipt.stateReferenceIdentityVerified,true);
     assert.ok(receipt.graphSchema.startsWith('live-store-own-data'));
     assert.ok(receipt.limitations.some(s=>s.includes('function lexical')));
   }
@@ -79,4 +80,44 @@ test('a card from the opposing hand cannot be probed as acting owner',()=>{
   assert.throws(()=>probeNativeCanPlayGraphReadonly(
     f.opponent.hand.cards[0],f.store,f.state,f.owner),
   /typeof card.canPlay|physically present card/);
+});
+
+test('equal-value replacement of a hidden physical card is rejected by State identity',()=>{
+  const f=fixture(0,(_store,state)=>{
+    const concealed=state.players[1].hand.cards[0];
+    state.players[1].hand.cards[0]={...concealed};
+    return true;
+  });
+  const {storeDataGraphFingerprint}=
+    require('../simulation/twinleaf/store-data-graph-fingerprint.cjs');
+  const before=storeDataGraphFingerprint(f.store).digest;
+  // Confirm an isomorphic clone alone evades a fresh-identity structure hash.
+  const old=f.opponent.hand.cards[0];
+  f.opponent.hand.cards[0]={...old};
+  assert.equal(storeDataGraphFingerprint(f.store).digest,before);
+  f.opponent.hand.cards[0]=old;
+  assert.throws(()=>probeNativeCanPlayGraphReadonly(
+    f.card,f.store,f.state,f.owner),
+  /replaced State objects with equal-valued copies/);
+});
+
+test('Store-only mutable prompt queue cannot hide outside State fingerprint',()=>{
+  const f=fixture(1,store=>{
+    store.promptItems.push({pending:'Native item prompt changed'});
+    return true;
+  });
+  assert.throws(()=>probeNativeCanPlayGraphReadonly(
+    f.card,f.store,f.state,f.owner),
+  /mutated Store own-data graph/);
+});
+
+test('Store-only trainer metadata mutation is detected without changing State',()=>{
+  const f=fixture(0,store=>{
+    store.trainerPromptSources.push({uid:99});
+    return false;
+  });
+  f.store.trainerPromptSources=[];
+  assert.throws(()=>probeNativeCanPlayGraphReadonly(
+    f.card,f.store,f.state,f.owner),
+  /mutated Store own-data graph/);
 });
