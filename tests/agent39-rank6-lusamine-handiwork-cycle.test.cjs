@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {SOURCE_RANK6,supporterCycle,coinWays,millTail,
-  depletionByNextOpponentDraw}=
+  depletionByNextOpponentDraw,prizeAccessibility}=
   require('../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs');
 
 test('original rank6 has two Lusamine, one Handiwork, three VS Seeker',()=>{
@@ -66,4 +66,16 @@ test('invalid horizons fail before allocation',()=>{
   assert.throws(()=>coinWays(129),RangeError);
   assert.throws(()=>millTail(2,-1),RangeError);
   assert.throws(()=>depletionByNextOpponentDraw(0,10),RangeError);
+});
+
+test('single Gladion can rescue at most one prized loop component',()=>{
+  const r=prizeAccessibility();
+  assert.equal(r.total,50063860n);
+  assert.equal(r.direct,36288252n);
+  assert.equal(r.oneGladionRecoverable,11459448n);
+  assert.equal(r.blockedWithoutPrizeTaking,2316160n);
+  assert.equal(r.direct+r.oneGladionRecoverable+
+    r.blockedWithoutPrizeTaking,r.total);
+  assert.ok(r.maximumAccessibleFraction>0.95);
+  assert.ok(r.maximumAccessibleFraction<0.96);
 });
