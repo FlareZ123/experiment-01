@@ -19,6 +19,7 @@ test('all 12 original cryptographic draws reproduce 8 accepted precommitted coin
   const trials=plannedTrials(registration,seededRandom);
   assert.equal(trials.length,16);
   assert.equal(new Set(trials.map(x=>x.id)).size,16);
+  assert.ok(trials.every(t=>t.id===[t.rank,t.repeat,t.candidateSlot,t.candidateId].join(':')));
   assert.equal(new Set(trials.map(x=>x.seed)).size,8);
   for(const seat of ['A','B']){
     const t=trials.filter(x=>x.candidateSlot===seat);
