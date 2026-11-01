@@ -88,7 +88,12 @@ function summaryOf(row){
   }
   return {
     id:row.trial?.id??null,seed:row.trial?.seed??null,
-    status:row.status??null,error:row.error??null,
+    status:row.status??(row.finished===true?'engine-terminal':
+      row.finished===false?'native-unfinished':'unclassified'),
+    finished:row.finished??null,
+    winner:row.finished===true?(row.winner??null):null,
+    endReason:row.endReason??null,
+    error:row.error??null,
     sourceDealFingerprint:row.sourceDealFingerprint??null,
     actualStarterSeat:row.actualStarterSeat??null,
     firstTurnVerified:row.verifiedFirstTurn??null,
@@ -165,7 +170,8 @@ function run(){
   assert.equal(treatment.attempted,16);
   const pairs=compareRows(control,treatment);
   const counts=rows=>rows.reduce((acc,row)=>{
-    const s=row.status??'unclassified';
+    const s=row.status??(row.finished===true?'engine-terminal':
+      row.finished===false?'native-unfinished':'unclassified');
     acc[s]=(acc[s]??0)+1;
     return acc;
   },{});
@@ -192,6 +198,22 @@ function run(){
       p.bothNativeSetupCertified===true).length,
     missingSetupOrDifferentStarts:pairs.filter(p=>
       p.bothNativeSetupCertified!==true||p.sameActualStarter!==true).length,
+    countedRank15AttackOfferSamples:{
+      control:pairs.reduce((n,p)=>n+p.control.rank15PayableAttackSamples.length,0),
+      treatment:pairs.reduce((n,p)=>n+p.treatment.rank15PayableAttackSamples.length,0)
+    },
+    changedOwnerRootCounts:{
+      control:pairs.reduce((n,p)=>n+(p.control.selectedChangedRoots??0),0),
+      treatment:pairs.reduce((n,p)=>n+(p.treatment.selectedChangedRoots??0),0)
+    },
+    errorRows:{
+      control:control.rows.filter(r=>r.status==='engine-error').map(r=>({
+        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null
+      })),
+      treatment:treatment.rows.filter(r=>r.status==='engine-error').map(r=>({
+        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null
+      }))
+    },
     pairs,pairDigestSha256:digest(pairs),
     pairedCompetitiveQualification:false,
     competitivelyQualifiedGames:0,
@@ -253,6 +275,28 @@ if(require.main===module){
       treatmentStatuses:result.summary.treatmentStatuses,
       matchedInitialSourceDeals:
         result.summary.matchedNonemptySourceDealFingerprints,
+      pairedInitialSourceDealMismatches:
+        result.summary.nonmatchingSourceDealFingerprints,
+      pairedInitialSourceDealMissing:
+        result.summary.unresolvedSourceDealFingerprints,
+      nativeSetupConsistentPairs:
+        result.summary.nativeSetupConsistentPairs,
+      rank15AttackOfferSampleCounts:
+        result.summary.countedRank15AttackOfferSamples,
+      changedOwnerRootCounts:
+        result.summary.changedOwnerRootCounts,
+      errorRows:result.summary.errorRows,
+      pairRows:result.summary.pairs.map(p=>({
+        id:p.id,sameSource:p.samePhysicalSourceDeal,sameStarter:p.sameActualStarter,
+        control:{status:p.control.status,finished:p.control.finished,
+          winner:p.control.winner,root:p.control.nativeRootActions,
+          offered:p.control.rank15PayableAttackSamples,
+          changed:p.control.selectedChangedRoots},
+        treatment:{status:p.treatment.status,finished:p.treatment.finished,
+          winner:p.treatment.winner,root:p.treatment.nativeRootActions,
+          offered:p.treatment.rank15PayableAttackSamples,
+          changed:p.treatment.selectedChangedRoots}
+      })),
       competitiveQualifiedGames:0
     })+'\n');
   }
