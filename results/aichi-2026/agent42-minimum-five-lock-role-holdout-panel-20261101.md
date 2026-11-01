@@ -39,3 +39,24 @@ All computations use exact integer combinations; the 95% targets assume **indepe
 
 These events establish **initial hand card presence**, not an automatically chosen Active starter, an attack or Ability activated, or a qualified opponent response. Searches, draw effects, Prize placement after the initial seven, opposing mulligans, the player's chosen Active and later turns are intentionally excluded. Rank11 Garbodor is an Evolution and its presence needs a separate legal-evolution/Boost Shake sequence, so an opening Basic count cannot certify its lock. The exact numeric targets guide practical source-dealt exposure design; staged mechanics fixtures remain separate.
 
+
+
+## Actual Active choice: mandatory versus optional lock start
+
+The presence probabilities above are only upper bounds on whether a source policy can **choose that Basic as the first Active**. With the same source roster, the more restrictive opening event that *the desired lock Basic is the only Basic in the original seven* has exact conditional probability
+
+`P(forced named lock Active | Basic-valid 7) = [L * C(60-B,6)] / [C(60,7)-C(60-B,7)]`
+
+when the designated `L` lock Basics are distinct from the other `B-L` Basics, and the event is exactly one designated Basic (no other Basic). Because Active selection happens before optional opposing mulligan bonus draws, this already determines the forced initial Active choice even if the source later receives additional Basic cards to Bench. It does not prove that the lock becomes or stays active at the moment its Ability matters.
+
+| Original source | Designated Basic | May choose lock if initially held | **Forced Active lock** (sole Basic) |
+| --- | --- | ---: | ---: |
+| rank 2 | one Budew ASC16 | 13.543697% | **2.815545%** |
+| rank 4 | one Klefki SVI96 | 13.936073% | **3.321083%** |
+| rank 10 | one Wobbuffet PHF36 | 13.220031% | **2.389791%** |
+| rank 10 | Wobbuffet or either Budew | 35.742760% | **7.169373%** |
+| rank 6 | four Iron Thorns ex as the only Basics | 100% | **100% Active Iron Thorns ex** |
+
+The final rank6 row is a special case: every eligible starter is Iron Thorns ex, so forced identity is 100% even when multiple copies are present. The general one-Basic formula would measure having exactly one Iron Thorns card (84.17535%), which is a different event. For the singleton examples, an owner who always chooses the relevant lock Basic when it is available would reach the upper presence rate; actual optimal play can be lower when using that Active position would be counterproductive, and paper turn sequencing or an ability exception can prevent the lock from activating.
+
+The distinction is operational: **only 2.39%** of Basic-valid rank10 original sevens *force* Wobbuffet PHF36 Active, despite 13.22% containing it. The former is a precise must-handle self-lock risk, the latter an optional Active strategy requiring a policy choice. These are narrow initial-seven combinatorics, not opponent pressure rates or gameplay win rates.
