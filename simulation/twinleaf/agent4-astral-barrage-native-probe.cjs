@@ -78,7 +78,10 @@ function runAstralBarrageNative(cfg){
   const f=stagedAstralBarrage(cfg.benchCount);
   const observe=()=>{
     f.store.dispatch(new AttackAction(f.a.id,'Astral Barrage'));
-    const prompt=f.state.prompts.find(p=>p.result===undefined);
+    // Native Store also holds an unrelated opposing-player WaitPrompt.
+    // Select only the attack's actual owner ChoosePokemonPrompt.
+    const prompt=f.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='ChoosePokemonPrompt');
     const available=[f.b.active,...f.b.bench.filter(s=>s.cards.length>0)];
     const proof=prompt?{
       type:prompt.constructor.name,
