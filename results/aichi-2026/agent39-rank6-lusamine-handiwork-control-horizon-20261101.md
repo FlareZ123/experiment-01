@@ -64,6 +64,27 @@ The last row has two independently countable failure categories: **2.42548217%**
 
 This exact calculation was independently checked against the combinatorial partition and added as `prizeAccessibility()` with an eighth Node regression. In particular, the six-Prize denominator is **50,063,860**, distinct from the often-quoted seven-card opener denominator `C(60,7)=386,206,920`.
 
+## Own-deck draw-budget sensitivity
+
+Both players have compulsory beginning-of-turn draws. The Lusamine recursion replenishes the owner's *hand* with Supporters and does not itself put cards into the owner's deck. One Lillie's Determination could later change the deck size by shuffling its current hand into the deck, but that would use a Supporter permission and break the uninterrupted recursion schedule.
+
+In a narrow mathematical counterfactual, begin immediately before an owner draw with `Ds` owner-deck cards and `Do` opposing-deck cards. Each player takes one ordinary draw per turn; the only additional deck movement is Handiwork. The owner can take `Ds` draw steps, perform at most `floor(Ds/2)` Handiworks, and permit `Ds - 1` opponent natural draws before the last owner turn. Conditional on the game remaining active and all cards being played as specified, the probability of the opponent having zero deck cards before its next draw attempt is:
+
+`P[2 Binomial(2 floor(Ds/2), 1/2) >= max(0, Do - Ds + 1)]`.
+
+For `Do=20`, selected exact outcomes are:
+
+| Owner cards before cycle | Handiworks in draw budget | Conditional opposing deck depletion before next draw |
+| ---: | ---: | ---: |
+| 6 | 3 | 0% |
+| 8 | 4 | 3.515625% |
+| 9 | 4 | 14.453125% |
+| 10 | 5 | 37.695313% |
+| 12 | 6 | 80.615234% |
+| 14 | 7 | 97.131348% |
+
+The calculations are **neither game probabilities nor observed opponent decisions**. They exclude actual opponent deck changes, optional additional draws, hand reshuffling, other Supporters and the official match clock. The Node model now includes `unopposedDeckoutRace()` with an independent turn-by-turn exhaustive test over all coin outcomes for owner-deck sizes 1–8 and opponent-deck sizes 0–24, increasing its local regression suite to **10 passing tests**. An original-source policy needs both owner-deck and public opposing-deck stock, actual printed refill options, the opponent's responses and the wall-clock ledger at the decision.
+
 ## A direct qualification gap and useful experiment
 
 The source AI should be explicitly tested for these **owner-visible board/action phases**:
@@ -77,6 +98,6 @@ A source opponent evaluator that chooses Volt Cyclone opportunistically but neve
 
 ## Reproducibility
 
-[Pure source-conditional construction and exact BigInt coin polynomial](../../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs), [eight Node 22 tests including independent 4,096-sequence enumeration](../../tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs). The tests were exercised locally using equivalent source code on 1 November. No compiled pinned Store CI has been executed for this experiment. Source inventory: `full-decklists.json` rank 6; exact English printings cross-checked against the user's provided card archive. Manual gameplay rules: [Advanced Player's Rulebook](../../resources/) one Supporter per turn and draw-step terminal condition.
+[Pure source-conditional construction and exact BigInt coin polynomial](../../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs), [ten Node 22 tests including independent 4,096-sequence enumeration](../../tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs). The tests were exercised locally using equivalent source code on 1 November. No compiled pinned Store CI has been executed for this experiment. Source inventory: `full-decklists.json` rank 6; exact English printings cross-checked against the user's provided card archive. Manual gameplay rules: [Advanced Player's Rulebook](../../resources/) one Supporter per turn and draw-step terminal condition.
 
 **Release classification:** no new authenticated original 60s, no qualified game, no validated fixed 60. The benchmark remains **29/32 exact original 60s, zero competitive-qualified games and no demonstrated 99.5% win rate**.
