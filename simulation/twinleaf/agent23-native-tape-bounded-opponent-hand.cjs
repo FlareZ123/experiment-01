@@ -10,12 +10,15 @@ const {selectBoundedDoubleExchanges}=
   require('./agent23-bounded-double-exchanges.cjs');
 const {selectBoundedHandPrizeExchanges}=
   require('./agent23-bounded-hidden-prize-exchanges.cjs');
+const {selectBoundedDoubleHandPrizeExchanges}=
+  require('./agent23-bounded-double-prize-exchanges.cjs');
 const {hiddenZoneFingerprint}=
   require('./opponent-hidden-live-root-probe.cjs');
 
 const VERSION='agent23-native-tape-bounded-opponent-hand-v1';
 const DOUBLE_VERSION='agent23-native-tape-bounded-double-exchange-v1';
 const PRIZE_VERSION='agent23-native-tape-bounded-hand-prize-v1';
+const DOUBLE_PRIZE_VERSION='agent23-native-tape-bounded-double-hand-prize-v1';
 
 /** @param {object} player Opposing native Player with physical Prize piles. */
 function hiddenHandPrizeFingerprint(player){
@@ -83,8 +86,6 @@ function compareNativeOpponentHiddenHandBounded(args,
   {limit=16,swapSize=1,targetZone='deck'}={}){
   assert.ok(swapSize===1||swapSize===2);
   assert.ok(targetZone==='deck'||targetZone==='prizes');
-  assert.ok(targetZone!=='prizes'||swapSize===1,
-    'Prize exchange currently supports one hand-Prize card pair only');
   const {initial,ownerView}=validateNativeRoot(args);
   const {parity,root,seat,tape,cloneState,replayDecision,
     actionSignature,fingerprint,actorView}=args;
@@ -92,7 +93,8 @@ function compareNativeOpponentHiddenHandBounded(args,
   const originalPool=targetZone==='prizes'?
     hiddenHandPrizeFingerprint(opponent):hiddenZoneFingerprint(opponent);
   const selected=targetZone==='prizes'?
-    selectBoundedHandPrizeExchanges(opponent.hand.cards,opponent.prizes,limit):
+    (swapSize===2?selectBoundedDoubleHandPrizeExchanges:
+      selectBoundedHandPrizeExchanges)(opponent.hand.cards,opponent.prizes,limit):
     (swapSize===2?selectBoundedDoubleExchanges:
       selectBoundedHiddenExchanges)(opponent.hand.cards,opponent.deck.cards,limit);
   const successfulCompositions=new Set();
@@ -108,7 +110,8 @@ function compareNativeOpponentHiddenHandBounded(args,
     ]);
   }
   const report={
-    schema:targetZone==='prizes'?PRIZE_VERSION:
+    schema:targetZone==='prizes'?
+      (swapSize===2?DOUBLE_PRIZE_VERSION:PRIZE_VERSION):
       swapSize===2?DOUBLE_VERSION:VERSION,
     swapSize,targetZone,actorSeat:seat,tapeDraws:tape.length,
     tapeSha256:digest(tape),sourceRootAtEntry:initial,
@@ -228,11 +231,14 @@ function compareNativeOpponentHiddenHandBounded(args,
             other.deck.cards[di]=handCard;
           }
         }else{
-          const swap=swaps[0],pile=other.prizes[swap.prizeIndex];
-          assert.ok(pile&&pile.cards.length===1);
-          const handCard=other.hand.cards[swap.handIndex];
-          other.hand.cards[swap.handIndex]=pile.cards[0];
-          pile.cards[0]=handCard;
+          assert.equal(new Set(swaps.map(x=>x.prizeIndex)).size,swapSize);
+          for(const swap of swaps){
+            const pile=other.prizes[swap.prizeIndex];
+            assert.ok(pile&&pile.cards.length===1);
+            const handCard=other.hand.cards[swap.handIndex];
+            other.hand.cards[swap.handIndex]=pile.cards[0];
+            pile.cards[0]=handCard;
+          }
         }
         const concealedInventory=targetZone==='prizes'?
           hiddenHandPrizeFingerprint(other):hiddenZoneFingerprint(other);
