@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  normalizeName, missProbability, openingEnvelope, census
+  normalizeName, missProbability, openingEnvelope, census, run
 } = require('../scripts/agent35-original-supporter-opening-census.cjs');
 
 function near(actual, expected) {
@@ -56,4 +56,19 @@ test('source census counts only certified Basic and Supporter cards', () => {
   });
   index.set('Trainer:Marnie', {basic: false, supporter: true, ambiguous: true});
   assert.throws(() => census(roster, index), /Missing or ambiguous printed classification/);
+});
+
+test('all 29 authentic source 60s classify with exact promo and PHF aliases', () => {
+  const data = run();
+  assert.equal(data.exactOriginals, 29);
+  assert.deepEqual(data.missingRanks, [23, 25, 28]);
+  assert.equal(data.rows.reduce((sum, row) => sum + row.supporter, 0), 297);
+  assert.equal(data.rows.filter(row => row.guzma > 0).length, 25);
+  near(data.meanValid, 0.6654817485365387);
+  const rank11 = data.rows.find(row => row.rank === 11);
+  assert.deepEqual([rank11.basic, rank11.supporter, rank11.guzma], [11, 8, 2]);
+  near(rank11.supporterGivenBasic, 0.6293697246534287);
+  const rank24 = data.rows.find(row => row.rank === 24);
+  assert.deepEqual([rank24.basic, rank24.supporter], [4, 24]);
+  near(rank24.supporterGivenBasic, 0.9677111964571541);
 });
