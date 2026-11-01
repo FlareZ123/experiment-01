@@ -84,7 +84,7 @@ function scanOriginalRandomHand(field,sets,getSetCards){
       }
       for(const effect of randomOpponentHandEffects(resolved.card)){
         rows.push({rank:d.rank,archetype:d.archetype,
-          printing:resolved.identity,name:entry.name,
+          printing:resolved.identity,cardName:entry.name,
           copies:entry.count,...effect});
       }
     }
