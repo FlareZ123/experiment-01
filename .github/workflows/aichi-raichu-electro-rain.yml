@@ -28,6 +28,10 @@ jobs:
         run: node --test tests/agent46-putdamage-partial-budget.test.cjs
       - name: Regress unified paper portfolio optional damage budget and native-validator independence
         run: node --test tests/agent46-unified-partial-damage-portfolio.test.cjs tests/agent41-paper-prompt-contract-portfolio.test.cjs
+      - name: Regress source-marked original rank31 Painful Spoons common paper portfolio
+        run: node --test tests/agent46-rank31-spoons-common-portfolio.test.cjs
+      - name: Verify native original rank31 Painful Spoons common-paper veto both seats
+        run: node simulation/twinleaf/agent46-rank31-spoons-unified-native.cjs
       - name: Verify native Froslass optional self-damage budget both seats
         run: node simulation/twinleaf/agent46-froslass-partial-budget-native.cjs
       - name: Check Electro Rain capped allocation pure regression
