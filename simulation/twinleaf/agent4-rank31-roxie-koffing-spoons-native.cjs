@@ -4,6 +4,7 @@ const path=require('node:path');
 const {stagedPainfulSpoons}=require('./agent4-rank31-alakazam-movesource-native.cjs');
 const {withPaperPainfulSpoonsSingleSource}=require('./agent4-painful-spoons-single-source-hook.cjs');
 const {withRoxieTrainerDiscardType}=require('./agent4-roxie-original-effect-type-hook.cjs');
+const {withPaperRoxiePayment}=require('./agent4-roxie-paper-payment-hook.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} filename @returns {any} */
 const native=filename=>require(path.join(output,filename));
@@ -11,8 +12,9 @@ const native=filename=>require(path.join(output,filename));
 /**
  * @param {boolean} guarded
  * @param {0|1} [seat=0] Physical actor seat in the real Store.
+ * @param {boolean} [guardRoxie=false] Enforce Roxie payment pre-dispatch.
  */
-function runRank31RoxieSpoons(guarded,seat=0){
+function runRank31RoxieSpoons(guarded,seat=0,guardRoxie=false){
   const {PlayCardAction,PlayerType,SlotType}=native('game/store/actions/play-card-action');
   const {UseAbilityAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
@@ -89,7 +91,7 @@ function runRank31RoxieSpoons(guarded,seat=0){
         evidence.push({phase:'Prize',type});
       }
     }
-    return {guarded,seat,afterBomb,allowed,rejected,
+    return {guarded,seat,guardRoxie,afterBomb,allowed,rejected,
       promptPending:prompt.result===undefined,
       physicalKoffingDiscarded:f.source.discard.cards.includes(koffing),
       roxieDiscarded:f.source.discard.cards.includes(roxie),
@@ -99,8 +101,10 @@ function runRank31RoxieSpoons(guarded,seat=0){
       evidence,
       scope:'actual original rank31 printed line on a prepared Store board; not a source-dealt game'};
   };
-  return withRoxieTrainerDiscardType(()=>
-    guarded?withPaperPainfulSpoonsSingleSource(execute):execute());
+  return withRoxieTrainerDiscardType(()=>{
+    const run=()=>guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
+    return guardRoxie?withPaperRoxiePayment(run):run();
+  });
 }
 /**
  * Inspect a real native Roxie ChooseCardsPrompt with exactly the same two
@@ -143,9 +147,10 @@ function probeRoxieChoiceIndexShift(roxieFirst){
  * as its proposed payment. Printed Roxie excludes Pokémon-GX explicitly.
  * Observe the original Store response; do not infer acceptance in advance.
  * @param {0|1} [seat=0]
+ * @param {boolean} [guarded=false]
  * @returns {object}
  */
-function probeRoxieForbiddenGXPayment(seat=0){
+function probeRoxieForbiddenGXPayment(seat=0,guarded=false){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -165,13 +170,16 @@ function probeRoxieForbiddenGXPayment(seat=0){
   const cardsBefore=f.source.deck.cards.length;
   let storeError=null;
   try{
-    withRoxieTrainerDiscardType(()=>
-      f.store.dispatch(new ResolvePromptAction(prompt.id,[gx])));
+    withRoxieTrainerDiscardType(()=>{
+      const settle=()=>f.store.dispatch(new ResolvePromptAction(prompt.id,[gx]));
+      return guarded?withPaperRoxiePayment(settle):settle();
+    });
   }catch(e){storeError=String(e?.message??e);}
   return {
-    seat,selectedPrinting:gx.fullName,
+    seat,guarded,selectedPrinting:gx.fullName,
     printedRoxieDisallowsPokemonGX:true,
     validatorAccepted,blocked,
+    sourceCardName:prompt.sourceCard?.fullName??null,
     storeError,
     promptSettled:prompt.result!==undefined,
     gxPhysicallyDiscarded:f.source.discard.cards.includes(gx),
