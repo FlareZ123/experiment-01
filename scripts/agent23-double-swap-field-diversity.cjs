@@ -84,7 +84,9 @@ function openingSplit(source){
     const kind=entry.category==='Trainer'?'trainer':
       entry.category==='Energy'?'energy':'pokemon';
     for(let copy=0;copy<entry.count;copy++){
-      cards.push({fullName,kind});
+      cards.push({fullName,kind,
+        ...(kind==='trainer'?{trainerType:1}:
+          kind==='energy'?{energyType:1}:{stage:0})});
     }
   }
   assert.equal(cards.length,60,'Original source 60 is required');
