@@ -946,6 +946,7 @@ function runDevelopment({
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   nativeToolAttachRoot=false,nativePlumeriaChoice=false,
+  teamFlareGruntDenialRoot=false,
   nativeZeroCostDenialChoice=false,
   losslessNativeRootJoin=false,
   registeredToolEnergyCeiling=false,nativeCoheldDenialCanPlay=false,
@@ -1136,6 +1137,7 @@ function runDevelopment({
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,nativeToolAttachRoot,
                 nativePlumeriaChoice,nativeZeroCostDenialChoice,
+                teamFlareGruntDenialRoot,
                 losslessNativeRootJoin,
                 ...(registeredToolEnergyCeiling?{
                   registeredToolEnergyCeiling:true,ownRegisteredSixtiesBySeat:
@@ -1485,6 +1487,8 @@ if(require.main===module){
       process.env.AGENT41_NATIVE_PLUMERIA_CHOICE_DEV==='true',
     nativeZeroCostDenialChoice:
       process.env.AGENT41_NATIVE_FREE_FLARE_CHOICE_DEV==='true',
+    teamFlareGruntDenialRoot:
+      process.env.AGENT1_TEAM_FLARE_GRUNT_DEV==='true',
     registeredToolEnergyCeiling:
       process.env.AGENT41_REGISTERED_TOOL_ENERGY_DEV==='true',
     sameRootProbeAll:
