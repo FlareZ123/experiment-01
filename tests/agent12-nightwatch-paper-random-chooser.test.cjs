@@ -151,6 +151,46 @@ test('printed-source reducer and bot resolver both restore after exception',()=>
   assert.equal(FakeTrevenantDusknoirGX.prototype.reduceEffect,beforeSource);
 });
 
+class AddPlayerAction{}
+class FakeStore{
+  constructor(state){this.state=state;}
+  dispatch(action){return {accepted:true,action};}
+}
+
+test('root-Store gate excludes marked speculative clones but samples printed live root',()=>{
+  const ai=new Ai(),source=new FakeTrevenantDusknoirGX();
+  const beforeAi=Ai.prototype.resolvePrompt;
+  const beforeSource=FakeTrevenantDusknoirGX.prototype.reduceEffect;
+  const beforeDispatch=FakeStore.prototype.dispatch;
+  const live={turn:12,players:[player,other],prompts:[]};
+  const detached={turn:12,players:[player,other],prompts:[]};
+  const originalStore=new FakeStore(live);
+  const result=withUniformNightWatchOpponentSelection(()=>{
+    source.reduceEffect({},detached,
+      new AttackEffect(player,source.attacks[0]));
+    const shadow=ai.resolvePrompt(player,detached,detached.prompts[0]);
+    assert.equal(shadow.kind,'original');
+    originalStore.dispatch(new AddPlayerAction());
+    source.reduceEffect({},live,new AttackEffect(player,source.attacks[0]));
+    const real=ai.resolvePrompt(player,live,live.prompts[0]);
+    assert.ok(real instanceof ResolvePromptAction);
+    return real;
+  },{committedSeed:'fixed',requirePrintedOrigin:true,
+    requireNativeRootState:true,deps:{
+      SimpleTacticsAi:Ai,ResolvePromptAction,
+      TrevenantDusknoirGX:FakeTrevenantDusknoirGX,
+      Store:FakeStore,AddPlayerAction
+    }});
+  assert.equal(result.audit.printedSourceReducerInvocations,2);
+  assert.equal(result.audit.printedNightWatchPromptMarks,2);
+  assert.equal(result.audit.skippedDetachedStorePrintedPrompts,1);
+  assert.equal(result.audit.nativeRootSetupDispatchesObserved,1);
+  assert.equal(result.audit.structuralCandidates,1);
+  assert.equal(Ai.prototype.resolvePrompt,beforeAi);
+  assert.equal(FakeTrevenantDusknoirGX.prototype.reduceEffect,beforeSource);
+  assert.equal(FakeStore.prototype.dispatch,beforeDispatch);
+});
+
 test('zero-sized and complete-population physical draws work',()=>{
   assert.deepEqual(sampleUniformPositions(0,0,'seed','p'),[]);
   const all=sampleUniformPositions(3,3,'seed','p');
