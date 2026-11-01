@@ -1,0 +1,18 @@
+{
+  "version": "agent25-rank13-original-regidrago-source-physical-59-forensic-v1",
+  "date": "2026-11-01",
+  "retrospectiveSelection": true,
+  "sourceDeckRank": 13,
+  "firstPriorAudit": 41274507281,
+  "originalPinnedNativeError": "TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION at witnessed ordinal31 global turn4, source seat0 physical59",
+  "source60": "results/aichi-2026/full-decklists.json",
+  "candidate60": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "sourceSeat": 0,
+  "candidateSeat": 1,
+  "seed": 1304531839,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxActions": 120,
+  "changeFromPriorOriginalArm": "Disable settled-physical60 fail-fast solely to capture the actual root lineage and source attack/prompt chain. Preserve read-only audit and all original cards, decisions, native unmodified Celestial Roar and same seed. Invalid after first anomaly. Do not compare win or Prize outcomes.",
+  "claimToTest": "Was the rank13 first source59 after a Regidrago V Celestial Roar native three-card temporary-list prompt? Identify direct starting attack action root, prompt resolution order, and first confirmed source-card disappearance; if another mechanic, report as counterexample rather than attributing to Celestial.",
+  "qualifiedGames": 0
+}
