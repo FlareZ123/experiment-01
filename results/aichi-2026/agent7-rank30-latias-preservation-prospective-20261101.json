@@ -1,0 +1,129 @@
+{
+  "registration": "agent7-rank30-latias-eonblade-preservation-fresh-source-v1",
+  "registeredAtUTC": "2026-11-01T21:20:47.653718Z",
+  "registeredBeforeNativeRun": true,
+  "rank": 30,
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceGroups": 8,
+  "pairedGames": 16,
+  "priorSourceSeedsExcluded": [
+    3407938073,
+    233633536,
+    1509408075,
+    1696349563,
+    3637285017,
+    1353153974,
+    3505963197,
+    1157416090,
+    2558814955,
+    1255534097,
+    1437031889,
+    2305130028,
+    2878464917,
+    3909393694,
+    97767724,
+    859473431,
+    2723809904,
+    3375132501
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "controls": "source-seat-only original v2 Active Clefairy preserved; stage remaining Psychic to Benched Clefairy",
+  "treatment": "same v2 policy, plus experimental source-seat-only Active Latias ex SSP Eon Blade candidate protection from any Psychic recipient diversion",
+  "primary": "same-deal native accepted source Basic Psychic targets and actual Eon Blade and Rondo attacks",
+  "secondary": [
+    "untimed engine source/candidate winner or censor retained in all 16 exact original source matched pairs",
+    "public owner root first-difference and native accepted physical target sidecar",
+    "opponent follow-through and turn resources where witnessed"
+  ],
+  "paperQualification": "zero until paper choice, opponent policy, time, source list and full field qualification",
+  "groups": [
+    {
+      "rank": 30,
+      "repeat": 2300,
+      "seed": 3696963353,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2301,
+      "seed": 2516858352,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2302,
+      "seed": 3947273539,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2303,
+      "seed": 3271583212,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2304,
+      "seed": 2824360705,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2305,
+      "seed": 3802762029,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2306,
+      "seed": 2016432360,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2307,
+      "seed": 72743183,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    }
+  ]
+}
