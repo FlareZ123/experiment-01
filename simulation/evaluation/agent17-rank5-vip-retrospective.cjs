@@ -23,7 +23,9 @@ const PRIOR_DEALS=Object.freeze({
  * existing owner-only VIP-after-Pass hook symmetrically in both actual seats.
  * New results cannot be counted as prospective validation.
  */
-function run({naturalEvolution=false}={}){
+function run({naturalEvolution=false,sourceFloatStoneMobility=false}={}){
+  assert.ok(!sourceFloatStoneMobility||naturalEvolution,
+    'This incremental source-only mobility intervention requires natural evolution');
   const inspected=preflight(ROOT);
   const {assertNoUnreviewedAmbientAgentEnvironment,assertPinnedNativeStore}=
     require('./agent41-frozen-bilateral-development-v1.cjs');
@@ -41,8 +43,9 @@ function run({naturalEvolution=false}={}){
     const observed=runDevelopment({
       ...profile.policyOptions,
       allowAdditionalOriginalSourceRanks:true,
+      sourceFloatStoneMobility,
       registeredTrials:scheduledArms(),
-      registeredFrameName:VERSION+(naturalEvolution?'-natural-evolution':'')+'-same-historical-deals-development'
+      registeredFrameName:VERSION+(naturalEvolution?'-natural-evolution':'')+(sourceFloatStoneMobility?'-source-floatstone':'')+'-same-historical-deals-development'
     });
     const rows=observed.rows??[];
     const pairedDealAudit=rows.map(row=>{
@@ -68,8 +71,9 @@ function run({naturalEvolution=false}={}){
     const closure=auditSourceClosure(ROOT,[
       'simulation/evaluation/agent41-bilateral-v2-development.cjs']);
     return {
-      version:VERSION+(naturalEvolution?'+symmetric-natural-evolution-v1':''),
+      version:VERSION+(naturalEvolution?'+symmetric-natural-evolution-v1':'')+(sourceFloatStoneMobility?'+source-only-floatstone-v1':''),
       naturalEvolutionOptIn:naturalEvolution,
+      sourceFloatStoneMobilityOptIn:sourceFloatStoneMobility,
       selection:'retrospective-option-enabled-after-observing-original-rank5-noattack',
       inspected,priorArchivedArtifactId:PRIOR_ARTIFACT,
       priorArchivedArtifactZipSha256:PRIOR_SHA256,
@@ -77,7 +81,8 @@ function run({naturalEvolution=false}={}){
       intervention:{runtimeFlags:{
         AGENT9_BATTLE_VIP_AFTER_PASS_DEV:'true',
         ...(naturalEvolution?{AGENT1_NATURAL_EVOLUTION_ROOT_DEV:'true'}:{})},
-        actorSides:'both',mechanic:naturalEvolution?
+        actorSides:sourceFloatStoneMobility?'both VIP+evolution, source mobility only':'both',
+        mechanic:sourceFloatStoneMobility?'VIP, natural evolution, then owner-visible original-rank5 Float Stone retreat':naturalEvolution?
           'VIP plus actor-only natural VMAX evolution':
           'actor-only native after-Pass Battle VIP and owner-authorized search'},
       sourceClosureSha256:closure.digest,
@@ -97,7 +102,8 @@ function run({naturalEvolution=false}={}){
 }
 
 if(require.main===module){
-  const output=run({naturalEvolution:process.argv.includes('--natural-evolution')});
+  const output=run({naturalEvolution:process.argv.includes('--natural-evolution'),
+    sourceFloatStoneMobility:process.argv.includes('--source-floatstone')});
   process.stdout.write(JSON.stringify(output,null,2)+'\n');
   if(!output.complete)process.exitCode=1;
 }
