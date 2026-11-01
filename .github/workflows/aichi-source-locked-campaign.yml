@@ -228,9 +228,12 @@ jobs:
       - name: Reproduce pinned Store Iron Thorns ex paper prompt bypass on both seats
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-portfolio,') }}
         run: node simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs
+      - name: Test pinned Store duplicate physical-card search selection and pre-dispatch veto
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-portfolio,') }}
+        run: node simulation/twinleaf/agent39-duplicate-card-native.cjs
       - name: Verify common v2 candidate policy and historical-only development identities
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
-        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent39-paper-prompt-portfolio.test.cjs tests/agent39-paper-prompt-root-reconciliation.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs tests/agent41-bilateral-mandatory-option-wiring.test.cjs tests/agent41-bilateral-native-pressure-wiring.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent1-charged-promotion-choice.test.cjs
+        run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent39-paper-prompt-portfolio.test.cjs tests/agent39-paper-prompt-root-reconciliation.test.cjs tests/agent39-paper-distinct-selection.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs tests/agent41-bilateral-mandatory-option-wiring.test.cjs tests/agent41-bilateral-native-pressure-wiring.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent1-charged-promotion-choice.test.cjs
       - name: Exact same-head original four-arm Store prompt guard noninterference A/B
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
         run: node scripts/agent39-paper-prompt-native-noninterference-pair.cjs
