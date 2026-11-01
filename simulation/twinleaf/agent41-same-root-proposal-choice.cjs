@@ -137,7 +137,8 @@ const ENERGY_KINDS=new Set([
 const SUPPORTER_KINDS=new Set([
   'play-lowhand-lillie','play-conservative-shuffle-supporter',
   'play-team-flare-grunt-denial','play-stranded-marnie',
-  'play-held-guzma-mobility','play-seeker-recovered-lillie',
+  'play-held-guzma-mobility','play-guzma-forced-nominal-ko',
+  'play-seeker-recovered-lillie',
   'play-plumeria-payment-menu',
   'play-carmine-first','play-wally-garbotoxin-window',
   'play-raihan-ko-response',
