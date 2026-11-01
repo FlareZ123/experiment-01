@@ -10,6 +10,8 @@ const {runDevelopment}=
 
 const root=path.resolve(__dirname,'../..');
 const registration=require('../../results/aichi-2026/registrations/agent29-fresh-hammer-8arm-20261030.json');
+const {classifyGameDisposition,censusGameDispositions}=
+  require('./agent29-fresh-hammer-disposition.cjs');
 
 /**
  * Git blob hash, identical to GitHub's content SHA. Prevents a moving
@@ -70,15 +72,19 @@ function runCondition(enabled){
 
 /** @param {object} row Native row, including failures. */
 function retainedRow(row){
+  const gameDisposition=classifyGameDisposition(
+    row,registration.maximumRootActions);
   return {
     trial:row.trial,
+    // Preserve historical Store transport status for archived consumers.
     status:row.status??'settled',
+    gameDisposition,
     sourceDealFingerprint:row.sourceDealFingerprint??null,
     actualStarterSeat:row.actualStarterSeat??null,
     verifiedFirstTurn:row.verifiedFirstTurn??null,
     sourceActuallyFirst:row.sourceActuallyFirst??null,
     finished:row.finished??null,
-    capped:row.capped??null,
+    capped:gameDisposition==='action-cap',
     sourceFirstTurn:row.sourceFirstTurn??null,
     actionCount:row.actionCount??null,
     // Engine labels are archival only, explicitly not competitive wins.
@@ -136,8 +142,9 @@ function run(){
       candidateOwnEnergyDiscards:a?.bySeat?.[1-sourceSeat]?.discards??null
     });
   }
-  const statuses=comparisons.flatMap(row=>[
-    row.baseline.status,row.treatment.status]);
+  const attemptCensus=censusGameDispositions(
+    comparisons.flatMap(row=>[row.baseline,row.treatment]),
+    registration.maximumRootActions);
   const accepted=comparisons.reduce(
     (n,row)=>n+(row.sourceOwnHammerAccepted??0),0);
   const discarded=comparisons.reduce(
@@ -159,8 +166,8 @@ function run(){
     sourcePhysicalEnergyDiscards:discarded,
     sourceHammerRejected:comparisons.reduce((n,row)=>
       n+(row.treatment.hammerAudit?.rejectedHammerRoots??0),0),
-    nativeAbortOrCapCases:statuses.filter(x=>x!=='settled').length,
-    attemptedGames:16,qualifiedCompetitiveGames:0,
+    ...attemptCensus,
+    qualifiedCompetitiveGames:0,
     gameStrengthEstimated:false
   };
   return {registration,summary,comparisons};
