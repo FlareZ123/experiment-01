@@ -72,6 +72,14 @@ function probeTwoSourcePainfulSpoons(){
   f.store.dispatch(new UseAbilityAction(f.source.id,'Painful Spoons',{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
+  // Genuine pinned Ability use first emits a separate animation WaitPrompt.
+  // Resolve it as an actual owner action before the real MoveDamagePrompt.
+  for(let i=0;i<4;i++){
+    const waiting=f.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='WaitPrompt');
+    if(!waiting)break;
+    f.store.dispatch(new ResolvePromptAction(waiting.id,null));
+  }
   const prompt=f.state.prompts.find(p=>p.result===undefined&&
     p.constructor.name==='MoveDamagePrompt');
   assert.ok(prompt,'Need actual pinned Painful Spoons MoveDamagePrompt: '+
