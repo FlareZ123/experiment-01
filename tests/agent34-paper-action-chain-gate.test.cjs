@@ -7,7 +7,8 @@ const hash='a'.repeat(64);
 const root={ordinal:3,seat:1,storeId:'real-1',
   action:'PlayCardAction',printing:'Roxie CEC 205'};
 function witness(id,kind,changes={}){
-  return {id,kind,storeId:'real-1',ordinal:3,seat:1,
+  return {id,kind,chainId:'real-1:root:3',action:'PlayCardAction',
+    storeId:'real-1',ordinal:3,seat:1,
     printing:'Roxie CEC 205',sourceSha256:hash,...changes};
 }
 function chain(){
@@ -113,4 +114,15 @@ test('zero-root archives and missing IDs never gain structural pass',()=>{
   assert.equal(auditActionChains(archive([],[])).structurallyComplete,false);
   const c=chain();delete c.chainId;
   assert.equal(auditActionChains(archive([c])).structurallyComplete,false);
+});
+
+test('different action or purported native chain cannot verify same phase',()=>{
+  const c=chain();
+  c.witnesses[0].chainId='forged-other-chain';
+  assert.equal(auditActionChains(archive([c])).rows[0].phases.ROOT_PAPER.status,
+    'unverified');
+  c.witnesses[0].chainId='real-1:root:3';
+  c.witnesses[0].action='PassTurnAction';
+  assert.equal(auditActionChains(archive([c])).rows[0].phases.ROOT_PAPER.status,
+    'unverified');
 });
