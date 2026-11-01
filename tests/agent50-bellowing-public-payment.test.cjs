@@ -18,3 +18,9 @@ test('source confirmation prevents cross-attack payment',()=>{
  v.ownPublic.active.printing='Regidrago V SIT';
  assert.equal(chooseBellowingPayment(v,basic),null);
 });
+test('special Energy cannot substitute for Basic attack discards',()=>{
+ const v=view(70,0);
+ v.ownPublic.active.energies=['Double Dragon Energy ROS'];
+ v.ownPublic.bench=[];
+ assert.equal(chooseBellowingPayment(v,basic),null);
+});
