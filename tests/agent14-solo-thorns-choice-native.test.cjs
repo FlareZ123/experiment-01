@@ -148,14 +148,23 @@ test('native public Shred threat chooses backup Bench on both physical seats',()
     assert.equal(x.state.phase,2);
     const followup=chooseActorRootIntent(
       actorObservation(x.state,seat),x.catalog,{thornsDirectLine:true});
-    assert.deepEqual(followup,{kind:'attack',attackName:'Volt Cyclone'});
+    assert.deepEqual(followup,{
+      kind:'attach-basic-energy',handIndex:0,printing:'Psychic Energy SVE'
+    },'Normal draw supplies a free hand attachment before the attack');
+    x.store.dispatch(new PlayCardAction(x.owner.id,followup.handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}));
+    const nextIntent=chooseActorRootIntent(
+      actorObservation(x.state,seat),x.catalog,{thornsDirectLine:true});
+    assert.deepEqual(nextIntent,{kind:'attack',attackName:'Volt Cyclone'},
+      'After genuine legal normal attachment, protected backup can attack');
     process.stdout.write('# AGENT14_NATIVE_DEFENSIVE_BASELINE '+
       JSON.stringify({seat,chosen:'bench-basic',
         publicLethalReply:'Dialga-GX Shred',nativeBenchAccepted:true,
         energyOnBenchedBackup:true,attackDamage:140,
         afterTurn:x.state.turn,afterActiveSeat:x.state.activePlayer,
         afterPhase:x.state.phase,prompted,replyPrompts,
-        nativePromotedBackupWithDce:true,ownerNextRoot:'Volt Cyclone',
+        nativePromotedBackupWithDce:true,ownerNextRoot:followup.kind,
+        afterAttachmentRoot:nextIntent.attackName,
         competitiveQualified:false})+'\\n');
   }
 });
