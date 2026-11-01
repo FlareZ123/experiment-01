@@ -51,6 +51,27 @@ The edited workflow now **fails** unless the twelve same-source original K0 arms
 
 This second archived replay independently confirms the first run's same-deal comparison under the stricter and temporally correct audit labels. Both runs retain complete attempts. There is still **no post-opponent source-board survival metric** established by the plan-end field, no full paper legality certification, and no qualified game.
 
+## Confirmed original source first return after opponent, new native decision witness
+
+The next default-off research-owned observation records the **first live source-owner turn-3 decision root after opponent reply**. It reads the source's own public Garbodor Bench and attached Pokémon Tools at that exact Store root. It never reads the opponent's hidden information, never interferes with native decisions, and makes no assumption that the first-turn setup witness represents post-opponent lock survival.
+
+[Manual CI 41345733111](https://github.com/FlareZ123/experiment-01/actions/runs/41345733111) **SUCCESS** at research commit `ca66f0c1163043bc864d89cdd08e9083484e7d5b`. [Complete source-return artifact 13099101693](https://github.com/FlareZ123/experiment-01/actions/runs/41345733111/artifacts/13099101693), archived digest `sha256:b6c0e5574c99d1c843f6d1291103b950e56b0ff76fd9cf0ea7b77ccf996ac1b2`.
+
+All **12/12** original K0 paired arms again settled the 11-action plan and reached a **genuine first subsequent source-owner turn-3 root**, with one Garbodor still present in every source-owned board. The real post-reply counts, **any Tool-equipped Garbodor at the source's first return**, are:
+
+| Frozen source K0 index | Control opponent | Owner-Field-Blower opponent |
+| ---: | ---: | ---: |
+| 2 | 1 | 1 |
+| 232 | 1 | 1 |
+| **299** | **1** | **0** |
+| 376 | 1 | 1 |
+| 440 | 1 | 1 |
+| 458 | 1 | 1 |
+
+Exactly **11** native return boards were Tool-equipped and **one** source-return board was not, localized to the expected original seed 2387754768 after the recipient's genuine Field Blower root and positive Tool removal. This strengthens the preceding native card-effect receipt: the source is still without its Tool when it next gets a legal turn. It does **not** establish what the source can legally do *during* that new turn.
+
+The original rank11 physical 60 carries **three Float Stone BKT**, two Forest Seal Stone SIT and one Muscle Band XY, so there may be other Tool attachments accessible to restore Garbotoxin. Prize, discard, hand, K1 search and any competing actions require independent observation. The source's next-turn recovery is therefore an explicit open decision-policy question, **not** a conclusion that the lock is permanently dismantled.
+
 ## Interpretation and transfer
 
 The result falsifies reliance on generic-bot 6/6 first-turn Tool-lock survival as competitive evidence. A stronger opponent's held, native-playable Tool answer really triggers within the same game in which the source independently selected its own setup. The outcome is already a *policy interaction*, although neither component is a globally optimal chooser.
