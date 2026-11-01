@@ -24,3 +24,13 @@ test('prelock searchable Hood access exceeds no-search direct opening',()=>{
   }
   assert.equal(prelockItemPolicyModel({hoodCopies:0,arvenCopies:0}).favorable,'0');
 });
+
+test('four-slot Hood Arven access frontier is nearly flat',()=>{
+  const variants=[[4,0],[3,1],[2,2],[1,3]]
+    .map(([hoodCopies,arvenCopies])=>
+      prelockItemPolicyModel({hoodCopies,arvenCopies}).jointProbability);
+  for(let i=1;i<variants.length;i++)assert.ok(variants[i]<variants[i-1]);
+  assert.ok(Math.abs(variants[0]-0.04100106428030631)<1e-12);
+  assert.ok(Math.abs(variants[1]-0.04099029044738527)<1e-12);
+  assert.ok(variants[0]-variants[2]<0.00025);
+});
