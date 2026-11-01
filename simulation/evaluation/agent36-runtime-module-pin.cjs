@@ -41,6 +41,8 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
   const pinned = new Map();
   for (const [name, hash] of Object.entries(expectedByPath)) {
     const normalized = name.split(path.sep).join('/');
+    assert.equal(path.posix.normalize(normalized), normalized,
+      'Frozen manifest paths must be canonical relative paths');
     assert.ok(withinRoot(normalized) && EXTENSIONS.has(path.extname(normalized)) &&
       !normalized.startsWith('vendor/') &&
       !normalized.startsWith('node_modules/'),
@@ -96,7 +98,20 @@ function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) 
     const resolved = Module._resolveFilename(request, parent, isMain);
     if (typeof resolved === 'string' &&
       !Module.builtinModules.includes(resolved) &&
-      !resolved.startsWith('node:')) check(resolved, 'require');
+      !resolved.startsWith('node:')) {
+      const source = parent?.filename && path.relative(root,
+        path.resolve(parent.filename)).split(path.sep).join('/');
+      if (withinRoot(source) &&
+        !source.startsWith('vendor/') &&
+        !source.startsWith('node_modules/') &&
+        (request.startsWith('.') || path.isAbsolute(request))) {
+        const resolvedName = path.relative(root,
+          path.resolve(resolved)).split(path.sep).join('/');
+        assert.ok(withinRoot(resolvedName),
+          'Relative research import escapes repository: ' + request);
+      }
+      check(resolved, 'require');
+    }
     return previous.value.apply(this, arguments);
   }
 
