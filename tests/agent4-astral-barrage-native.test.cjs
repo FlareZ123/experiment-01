@@ -113,3 +113,19 @@ test('the reversible research hook restores the pinned card reducer even on an e
   assert.strictEqual(ShadowRiderCalyrexV.prototype.reduceEffect,original);
   assert.strictEqual(Store.prototype.dispatch,dispatch);
 });
+
+test('the identical original CRE74 paper target defects and corrections hold for both physical player seats',()=>{
+  for(const seat of [0,1]){
+    const soloOriginal=runAstralBarrageNative({benchCount:0,corrected:false,seat});
+    const soloFixed=runAstralBarrageNative({benchCount:0,corrected:true,seat});
+    assert.equal(soloOriginal.nativePrompt,null);
+    assert.deepEqual(soloOriginal.targetDamage,[0]);
+    assert.deepEqual(soloFixed.targetDamage,[50]);
+    const pairOriginal=runAstralBarrageNative({benchCount:1,corrected:false,seat});
+    const pairFixed=runAstralBarrageNative({benchCount:1,corrected:true,seat});
+    assert.equal(pairOriginal.nativePrompt?.max,1);
+    assert.deepEqual(pairOriginal.targetDamage,[50,0]);
+    assert.equal(pairFixed.nativePrompt?.max,2);
+    assert.deepEqual(pairFixed.targetDamage,[50,50]);
+  }
+});
