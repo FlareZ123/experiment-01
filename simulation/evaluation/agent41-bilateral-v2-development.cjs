@@ -965,7 +965,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorNaturalEvolutionRoot=false,
+  actorNaturalEvolutionRoot=false,actorVipBeforeAttack=false,
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
@@ -1000,6 +1000,8 @@ function runDevelopment({
     'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
   assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
     'Native symmetric natural evolution requires actor-only roots');
+  assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
+    'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
@@ -1221,6 +1223,7 @@ function runDevelopment({
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
+            ownerVipBeforeAttack:actorVipBeforeAttack,
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
