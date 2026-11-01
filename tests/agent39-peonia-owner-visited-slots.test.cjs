@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions}=
+const {chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions,
+  paperValidPeoniaPrizeSelection}=
   require('../simulation/twinleaf/agent39-peonia-owner-visited-slots.cjs');
 
 test('two accepted three-slot visits cover all six unchanged Prizes',()=>{
@@ -60,4 +61,56 @@ test('reject duplicate and impossible indices before using stale history',()=>{
     ...base,visitedIndices:[6]}),/unique indices/);
   assert.throws(()=>chooseOwnerPeoniaSlots({
     ...base,safeReplacementCount:-1}),/safe owner hand/);
+});
+
+test('paper-specific Peonia accepts 1/2/3 from physical owner Prize slots',()=>{
+  const slots=Array.from({length:6},()=>({cards:[{}]}));
+  const sourceCard={fullName:'Peonia CRE'};
+  const owner={id:41,supporter:{cards:[sourceCard]},prizes:slots};
+  const prompt={playerId:41,result:undefined,options:{count:3}};
+  Object.defineProperty(prompt,'constructor',{value:{name:'ChoosePrizePrompt'}});
+  for(const n of [1,2,3])
+    assert.equal(paperValidPeoniaPrizeSelection({
+      owner,prompt,sourceCard,selectedSlots:slots.slice(0,n),
+      safeReplacementCount:n}),true);
+  assert.equal(paperValidPeoniaPrizeSelection({
+    owner,prompt,sourceCard,selectedSlots:[],
+    safeReplacementCount:3}),false);
+  assert.equal(paperValidPeoniaPrizeSelection({
+    owner,prompt,sourceCard,selectedSlots:slots.slice(0,4),
+    safeReplacementCount:4}),false);
+});
+
+test('Peonia preflight rejects foreign slots, duplicate or expired state',()=>{
+  const slots=Array.from({length:6},()=>({cards:[{}]}));
+  const sourceCard={fullName:'Peonia CRE'};
+  const owner={id:41,supporter:{cards:[sourceCard]},prizes:slots};
+  const prompt={playerId:41,result:undefined,options:{count:3}};
+  Object.defineProperty(prompt,'constructor',{value:{name:'ChoosePrizePrompt'}});
+  const testSelect=selectedSlots=>paperValidPeoniaPrizeSelection({
+    owner,prompt,sourceCard,selectedSlots,safeReplacementCount:3});
+  assert.equal(testSelect([slots[0],slots[0]]),false);
+  assert.equal(testSelect([{cards:[{}]}]),false);
+  assert.equal(testSelect([slots[0]]),true);
+  owner.supporter.cards=[];
+  assert.equal(testSelect([slots[0]]),false);
+  owner.supporter.cards=[sourceCard];prompt.result=true;
+  assert.equal(testSelect([slots[0]]),false);
+  prompt.result=undefined;prompt.playerId=42;
+  assert.equal(testSelect([slots[0]]),false);
+});
+
+test('Peonia preflight requires safe hand payments and occupied slots',()=>{
+  const slot={cards:[{}]};
+  const sourceCard={fullName:'Peonia CRE'};
+  const owner={id:12,supporter:{cards:[sourceCard]},prizes:[slot]};
+  const prompt={playerId:12,result:undefined,options:{count:1}};
+  Object.defineProperty(prompt,'constructor',{value:{name:'ChoosePrizePrompt'}});
+  const proof={owner,prompt,sourceCard,selectedSlots:[slot],
+    safeReplacementCount:0};
+  assert.equal(paperValidPeoniaPrizeSelection(proof),false);
+  proof.safeReplacementCount=1;
+  assert.equal(paperValidPeoniaPrizeSelection(proof),true);
+  slot.cards.length=0;
+  assert.equal(paperValidPeoniaPrizeSelection(proof),false);
 });
