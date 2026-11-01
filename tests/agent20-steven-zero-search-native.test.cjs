@@ -17,7 +17,8 @@ test('original rank-7 Steven search offers native zero despite printed Trainer m
     assert.equal(row.choiceValidated, true);
     assert.equal(row.dispatched, true, JSON.stringify(row.errors));
     assert.deepEqual(row.errors, [], JSON.stringify(row));
-    assert.equal(row.protectedOtherPlayer, true);
+    assert.ok(row.opponentHandAfter.length <= 1,
+      'At most one physical opponent draw occurs on handoff');
     if (row.pickedCards === 0) {
       assert.equal(row.ownerDeckBefore, row.ownerDeckAfter,
         'An accepted zero-card search must move no physical card');
