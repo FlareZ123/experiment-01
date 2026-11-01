@@ -23,3 +23,9 @@ function withElectrodeCrashBurnPaper(run,deps={}){
    audit.markedPrompts++;
    assert.equal(p.options.allowCancel,false);
    p.options.min=0;
+   return prior.call(store,s,p,transfers=>{
+    assert.ok(Array.isArray(transfers));
+    assert.equal(p.validate(transfers),true);
+    const n=transfers.length;
+    const before=effect.damage;
+    const result=then(transfers);
