@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-owner-prompt-source-guard-v3';
+const VERSION='agent12-nightwatch-printed-source-and-native-root-guard-v4';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -73,7 +73,7 @@ function nightWatchLikeShape(state,actor,prompt){
  *
  * @template T
  * @param {()=>T} run Real game.
- * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean}} options
+ * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean,requireNativeRootState?:boolean}} options
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatchOpponentSelection(run,options){
@@ -90,12 +90,23 @@ function withUniformNightWatchOpponentSelection(run,options){
   const original=Object.getOwnPropertyDescriptor(Ai.prototype,'resolvePrompt');
   assert.equal(typeof original?.value,'function');
   const sourceGate=options.requirePrintedOrigin===true;
+  const nativeRootGate=options.requireNativeRootState===true;
+  assert.ok(!nativeRootGate||sourceGate,
+    'Native root Store-only sampling requires printed-source marking');
   const Source=sourceGate?(deps.TrevenantDusknoirGX??
     engine('sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx')
       .TrevenantDusknoirGX):null;
   const sourceOriginal=sourceGate?
     Object.getOwnPropertyDescriptor(Source.prototype,'reduceEffect'):null;
   if(sourceGate)assert.equal(typeof sourceOriginal?.value,'function');
+  const Store=nativeRootGate?(deps.Store??
+    engine('game/store/store').Store):null;
+  const AddPlayerAction=nativeRootGate?(deps.AddPlayerAction??
+    engine('game/store/actions/add-player-action').AddPlayerAction):null;
+  const dispatchOriginal=nativeRootGate?
+    Object.getOwnPropertyDescriptor(Store.prototype,'dispatch'):null;
+  if(nativeRootGate)assert.equal(typeof dispatchOriginal?.value,'function');
+  const nativeRootStates=new WeakSet();
   const marked=new WeakSet();
   const audit={version:VERSION,structuralCandidates:0,
     selectedCount:0,events:[],nativeAcceptedNotEstablishedByHook:true,
@@ -107,12 +118,22 @@ function withUniformNightWatchOpponentSelection(run,options){
     printedSourceReducerInvocations:0,
     printedNightWatchPromptMarks:0,
     skippedUnmarkedStructuralPrompts:0,
-    genuineLiveStoreIsolationUnproven:true};
+    genuineLiveStoreIsolationUnproven:true,
+    requireNativeRootState:nativeRootGate,
+    nativeRootSetupDispatchesObserved:0,
+    skippedDetachedStorePrintedPrompts:0,
+    nativeRootBindingScope:nativeRootGate?
+      'Store state identity captured at actual AddPlayerAction dispatch':
+      'not-enabled'};
   function resolvePrompt(player,state,prompt){
     if(!nightWatchLikeShape(state,player,prompt))
       return original.value.apply(this,[player,state,prompt]);
     if(sourceGate&&!marked.has(prompt)){
       audit.skippedUnmarkedStructuralPrompts++;
+      return original.value.apply(this,[player,state,prompt]);
+    }
+    if(nativeRootGate&&!nativeRootStates.has(state)){
+      audit.skippedDetachedStorePrintedPrompts++;
       return original.value.apply(this,[player,state,prompt]);
     }
     const n=prompt.cards.cards.length;
@@ -156,9 +177,19 @@ function withUniformNightWatchOpponentSelection(run,options){
     }
     return result;
   }
+  function trackNativeRoot(action,...rest){
+    if(action instanceof AddPlayerAction){
+      nativeRootStates.add(this.state);
+      audit.nativeRootSetupDispatchesObserved++;
+    }
+    return dispatchOriginal.value.call(this,action,...rest);
+  }
   Object.defineProperty(Ai.prototype,'resolvePrompt',{...original,value:resolvePrompt});
   if(sourceGate)Object.defineProperty(Source.prototype,'reduceEffect',{
     ...sourceOriginal,value:reduceSource
+  });
+  if(nativeRootGate)Object.defineProperty(Store.prototype,'dispatch',{
+    ...dispatchOriginal,value:trackNativeRoot
   });
   try{
     return {result:run(),audit};
@@ -172,6 +203,10 @@ function withUniformNightWatchOpponentSelection(run,options){
     if(sourceGate){
       assert.equal(Source.prototype.reduceEffect,reduceSource);
       Object.defineProperty(Source.prototype,'reduceEffect',sourceOriginal);
+    }
+    if(nativeRootGate){
+      assert.equal(Store.prototype.dispatch,trackNativeRoot);
+      Object.defineProperty(Store.prototype,'dispatch',dispatchOriginal);
     }
   }
 }
