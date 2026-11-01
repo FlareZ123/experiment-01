@@ -38,10 +38,10 @@ function anytimeFieldMeanEnvelope(config){
   const alpha=config?.alpha??0.05;
   const target=config?.target??0.995;
   if(!Number.isSafeInteger(candidateOrdinal)||candidateOrdinal<1||
-     !Array.isArray(cells)||![32,128].includes(cells.length)||
+     !Array.isArray(cells)||![32,64,128].includes(cells.length)||
      !Number.isFinite(alpha)||alpha<=0||alpha>=1||
      !Number.isFinite(target)||target<=0||target>=1){
-    throw new TypeError('Expected candidateOrdinal>=1, 32 or 128 cells, 0<alpha,target<1');
+    throw new TypeError('Expected candidateOrdinal>=1, 32/64/128 cells, 0<alpha,target<1');
   }
   const C=cells.length;
   let attempts=0,censored=0;
