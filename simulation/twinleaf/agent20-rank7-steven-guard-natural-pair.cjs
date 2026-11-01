@@ -24,6 +24,12 @@ function run(){
   }
   assert.strictEqual(Store.prototype.dispatch,initialDispatch,
     'Narrow paper minimum correction must restore the original dispatch');
+  const guardAudit={...restore.audit};
+  assert.ok(guardAudit.sourceStampedOwnDeckPrompts>0,
+    'Genuine source-dealt Steven prompts must actually cross the guard');
+  assert.equal(guardAudit.emptyVetoed,0);
+  assert.equal(guardAudit.nonemptyAccepted,
+    guardAudit.sourceStampedOwnDeckPrompts);
   assert.equal(baseline.attempted,8);
   assert.equal(guarded.attempted,8);
   assert.deepEqual(guarded.seeds,baseline.seeds);
@@ -38,7 +44,8 @@ function run(){
   },0);
   assert.equal(pairs.filter(b=>b.error!==null).length,0,
     'Every original source arm must remain exception-free');
-  assert.equal(pairs.filter(b=>b.result?.endReason==='max-actions').length<=8,true);
+  assert.equal(pairs.every(b=>b.result?.actions===80),true,
+    'Frozen Agent 22 original deals must retain their 80-action cap');
 
   return {
     schema:'agent20-rank7-real-deal-steven-minimum-nonperturbation-v1',
@@ -52,6 +59,7 @@ function run(){
     baselineVsGuardedRowsIdentical:true,
     totalAcceptedSourceSearches,
     StoreDispatchRestored:true,
+    guardAudit,
     competitiveQualifiedGames:0,
     limitation:'Reuses Agent 22 source-deal seeds, not independent replication or game-win evidence'
   };
