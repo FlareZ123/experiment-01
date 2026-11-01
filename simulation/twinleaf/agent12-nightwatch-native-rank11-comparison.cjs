@@ -13,7 +13,7 @@ const {digestNativePromptChoices}=
 const {reconcileNightWatchNonceRoots}=
   require('../evaluation/agent12-nightwatch-native-nonce-reconcile.cjs');
 
-const VERSION='agent12-native-rank11-nightwatch-independent-rng-development-v2';
+const VERSION='agent12-native-rank11-nightwatch-source-reducer-origin-development-v3';
 const selectionRegistration=require(
   '../../results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json');
 const GROUPS=[
@@ -92,7 +92,8 @@ function run(){
         'Native physical deal seed must match the precommitted registration');
       assert.match(committed.independentSelectionSeedHex,/^[0-9a-f]{64}$/);
       const audit=withUniformNightWatchOpponentSelection(runNative,{
-        committedSeed:committed.independentSelectionSeedHex
+        committedSeed:committed.independentSelectionSeedHex,
+        requirePrintedOrigin:true
       });
       assert.equal(baseline.rows.length,2);
       assert.equal(audit.result.rows.length,2);
@@ -109,6 +110,10 @@ function run(){
       }
       const namedNativeNightWatch=treated.reduce((n,r)=>
         n+r.nativeNightWatchPromptCount,0);
+      assert.equal(audit.audit.printedNightWatchPromptMarks,namedNativeNightWatch,
+        'Actual printed source reducer emitted a different count than genuine named Night Watch roots');
+      assert.equal(audit.audit.skippedUnmarkedStructuralPrompts,0,
+        'Source-origin gate skipped a structurally similar but unrelated native prompt');
       assert.equal(audit.audit.structuralCandidates,namedNativeNightWatch,
         'Narrow structural random sampler affected a non-Night Watch prompt');
       for(let i=0;i<base.length;i++){
