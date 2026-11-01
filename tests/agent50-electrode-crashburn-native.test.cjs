@@ -13,3 +13,22 @@ const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
 const {Format}=native('game/store/card/card-types');
+let nextId=50050;
+function stage(seat){
+ const manager=initializeCards();
+ const card=name=>{
+  const x=manager.getCardByName(name);
+  assert.ok(x,'Missing pinned card '+name);x.id=nextId++;return x;
+ };
+ const owner=new Player(),opponent=new Player();
+ owner.id=501;opponent.id=502;
+ owner.name='source-electrode';opponent.name='defender';
+ owner.bench=Array.from({length:5},()=>new PokemonCardList());
+ opponent.bench=Array.from({length:5},()=>new PokemonCardList());
+ const voltorb=card('Voltorb ROS');
+ const electrode=card('Electrode-GX CES');
+ const first=card('Lightning Energy SVE'),second=card('Lightning Energy SVE');
+ owner.active.cards.push(voltorb,electrode,first,second);
+ owner.active.energies.cards.push(first,second);
+ opponent.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+ opponent.bench[0].cards.push(card('Duskull PRE'));
