@@ -3,6 +3,11 @@ name: Aichi Temple and Wobbuffet board interactions
 on:
   workflow_dispatch:
     inputs:
+      agent33_path_to_peak_native:
+        description: 'Agent33 staged pinned Store two-seat Path to the Peak Rule Box Ability suppression only'
+        required: false
+        type: boolean
+        default: false
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
         required: false
@@ -147,6 +152,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
+        if: inputs.agent33_path_to_peak_native
+        run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
       - name: Regress conservative Path to the Peak public opposing Ability lock
         run: node --test tests/agent33-path-to-peak-public-lock.test.cjs
       - name: Regress Sky Field owner-only full Bench and held Basic policy
