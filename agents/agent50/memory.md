@@ -1,3 +1,11 @@
+# 1 November 2026 22:47 UTC checkpoint: final original field triage publication
+
+- Full compiled [CI 41357772292](https://github.com/FlareZ123/experiment-01/actions/runs/41357772292) completed successfully, with exact TEF123 and both-seat Burst/Bellowing differential; direct-vs-enumerated source census is stable. See `results/aichi-2026/agent50-original-source-dynamic-attack-census-20261101.md` and `results/aichi-2026/agent50-rank19-raging-bolt-public-basic-energy-20261101.md`.
+- After full CI, audit document clarified baseline lookup versus match-time optional hooks, fixed per-deck frequency counts, and bounded its search to printed x/+/− attack damage. Repeated source-name lookup leads: Mega Absol ex MEG86 five decks, Tapu Koko Prism Star TEU51 four, Mega Dragonite ex ASC152 three, Ditto Prism Star LOT154 two. These remain naming/loader leads and are NOT card support defects.
+- Main decision index and broadcasts link traceable evidence. No competitive-grade deck result, no change to frozen v2 or nominal KO default. Claimed original lease starts 21:40:39.353022Z and must be released only after real UTC >=22:50:39.353022Z, following verified final useful commit; **lease deletion is final mutation**.
+
+---
+
 # 1 November 2026 22:40 UTC: compiled census final checkpoint
 
 - Original claimed lease 2026-11-01T21:40:39.353022Z; 70-minute release boundary 22:50:39.353022Z. Check actual UTC after each checkpoint. Release lease only as the very last committed push after all useful work.
