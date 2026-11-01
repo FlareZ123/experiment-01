@@ -5,7 +5,8 @@ const assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../..');
 const VERSION='agent34-aichi-29-original-printed-exemptions-v1';
 const PATTERNS=Object.freeze({
-  disregardWeaknessResistance:/\b(?:isn't|is not|not)\s+affected\s+by\s+Weakness\s+or\s+Resistance\b|\bdon't\s+apply\s+Weakness\s+and\s+Resistance\b/i,
+  disregardWeaknessResistance:/\b(?:isn't|is not|not)\s+affected\s+by\s+Weakness\s+or\s+Resistance\b|\bdon't\s+apply\s+Weakness\s+and\s+Resistance\b(?!\s+for\s+Benched\s+Pok[eé]mon)/i,
+  benchOnlyWeaknessReminder:/\bdon't\s+apply\s+Weakness\s+and\s+Resistance\s+for\s+Benched\s+Pok[eé]mon/i,
   disregardDefenderEffects:/\b(?:isn't|is not|not)\s+affected\s+by\s+any\s+effects\s+on\b/i,
   damageCounters:/\bput\s+\d+\s+damage\s+counters\b/i
 });
