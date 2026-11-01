@@ -108,7 +108,7 @@ test('budget guard composes with original whole-packet and zero-cap guards',()=>
     [{target:active,damage:-10}],s.state),
     'INVALID_DAMAGE_AMOUNT');
   assert.equal(paperPutDamageRejectReason(s.prompt,
-    [{target:active,damage:Number.MAX_SAFE_INTEGER},
+    [{target:active,damage:Number.MAX_SAFE_INTEGER-1},
       {target:active,damage:10}],s.state),
     'INVALID_DAMAGE_TOTAL');
 });
