@@ -234,7 +234,15 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
         anyToolEquippedGarbodorCount:garbodorSlots.filter(slot=>
           slot.tools.length>0).length,
         floatStoneEquippedGarbodorCount:garbodorSlots.filter(slot=>
-          slot.tools.some(card=>card.fullName===PRINT.float)).length};
+          slot.tools.some(card=>card.fullName===PRINT.float)).length,
+        opponentPublicRadiantEternatusCount:[
+          state.players[1-seat].active,...state.players[1-seat].bench]
+          .filter(slot=>slot.getPokemonCard()?.fullName===
+            'Radiant Eternatus CRZ').length,
+        opponentPublicShadowRiderVMaxCount:[
+          state.players[1-seat].active,...state.players[1-seat].bench]
+          .filter(slot=>slot.getPokemonCard()?.fullName===
+            'Shadow Rider Calyrex VMAX CRE').length};
       audit.postOpponentOwnerReturns.push(snapshot);
       audit.events.push({kind:'post-opponent-owner-root',...snapshot});
       awaitingNativeReturnBySeat.delete(seat);
