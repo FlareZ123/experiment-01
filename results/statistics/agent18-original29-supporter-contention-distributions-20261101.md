@@ -94,6 +94,6 @@ The next native audit should select a fresh original source game by preregistere
 
 - [BigInt exact 0..8 multiplicity and distinct-name calculator](../../scripts/agent18-original29-supporter-count-contention.cjs), using original printed sixty plus existing stage/classification.
 - [Unit test](../../tests/agent18-original29-supporter-count-contention.test.cjs): exact independent nine-card toy split (50/147 zero Supporters, 80/147 one, 17/147 two), distinct-name versus single-name, original rank11 / rank6 / rank24 BigInt fractions, family probability consistency.
-- The independent Python `fractions.Fraction` calculation generated the full 29 rows from the existing authenticated source roster and matched the corresponding rank-group results. GitHub scripts and tests are committed; no GitHub Actions compiled run for the newly committed distribution script has been confirmed.
+- A separate JavaScript arithmetic calculation generated all 29 rows directly from the authenticated live GitHub source roster; an independent Python `fractions.Fraction` calculation verified selected rank-group exact fractions and the count-versus-distinct-name separation. GitHub scripts and tests are committed; no GitHub Actions compiled run for the newly committed distribution script has been confirmed.
 
 **Evidence:** mathematics and original printed-card inventory, no match simulations, 29/32 original sixties, **zero competitively qualified games**, unverified 99.5% fixed deck.
