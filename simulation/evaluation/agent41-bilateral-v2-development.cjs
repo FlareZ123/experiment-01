@@ -368,7 +368,7 @@ function executeDevelopment(trial,candidates,{
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
-  nativeRejectedActionEvidence=false,
+  nativeRejectedActionEvidence=false,actorNativeAorItemLock=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -964,7 +964,7 @@ function runDevelopment({
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
-  nativeRejectedActionEvidence=false,
+  nativeRejectedActionEvidence=false,actorNativeAorItemLock=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -1000,6 +1000,8 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!actorNativeAorItemLock||actorOnlyComposition,
+    'Effective AOR Item play veto requires authenticated actor-only root composition');
   assert.ok(!bilateralKnownDeadAttackRoot||
     (actorOnlyComposition&&!candidateOnlyKnownDeadRoot),
     'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
@@ -1149,7 +1151,7 @@ function runDevelopment({
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         nativeSetupCoinChoiceReceipt,physicalZoneGate,
-        nativeRejectedActionEvidence,
+        nativeRejectedActionEvidence,actorNativeAorItemLock,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,losslessNativeRootJoin,
@@ -1231,6 +1233,7 @@ function runDevelopment({
           {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
             genericFallbackAttribution:actorGenericFallbackAttribution,
+            nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
@@ -1416,6 +1419,7 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
