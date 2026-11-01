@@ -122,6 +122,7 @@ def audit_native(data, archive_sha256="synthetic"):
     energy_shape = Counter()
     energy_dispatch_ordinal_offsets = Counter()
     source_attack_base_cost = Counter()
+    source_attack_bench_branch = Counter()
     gaps = Counter()
     source_rows = []
 
@@ -230,10 +231,24 @@ def audit_native(data, archive_sha256="synthetic"):
             else:
                 energy_shape[public_energy_transfer_shape(evidence)] += 1
         if row["trial"]["rank"] == 6:
+            attached_by_parent = Counter(
+                event["initiatingRootActionOrdinal"]
+                for event in ledger
+                if event["action"] == "ResolvePromptAction"
+                and event["pendingPrompt"] == "AttachEnergyPrompt")
             for attack in row["sourceAttackSettlement"]["attacks"]:
                 source_attack_base_cost[
                     source_thorns_volt_cyclone_base_cost_shape(
                         attack, row["sourceSeat"])] += 1
+                attacking_board = attack["publicBoardBefore"][row["sourceSeat"]]
+                benched_count = len(attacking_board["bench"])
+                transfer_prompts = attached_by_parent[attack["actionOrdinal"]]
+                if benched_count == 0 and transfer_prompts == 0:
+                    source_attack_bench_branch["no-bench-no-move-prompt"] += 1
+                elif benched_count > 0 and transfer_prompts == 1:
+                    source_attack_bench_branch["own-bench-one-move-prompt"] += 1
+                else:
+                    source_attack_bench_branch["unexpected-bench-prompt-shape"] += 1
         source_rows.append({
             "trial": trial_id,
             "root_actions": len(ledger),
@@ -271,6 +286,7 @@ def audit_native(data, archive_sha256="synthetic"):
         "attach_energy": dict(energy),
         "volt_cyclone_public_energy_transfers": dict(energy_shape),
         "rank6_source_printed_volt_cyclone_base_cost": dict(source_attack_base_cost),
+        "rank6_volt_cyclone_bench_prompt_branch": dict(source_attack_bench_branch),
         "energy_sidecar_minus_root_ordinal": {
             str(key): count for key, count in sorted(
                 energy_dispatch_ordinal_offsets.items())
