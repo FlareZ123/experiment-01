@@ -163,6 +163,16 @@ jobs:
         run: node --test tests/agent33-native-state-fingerprint-guard.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Native original-source rank6 coheld canPlay State nonmutation probe
+        if: inputs.agent33_stadium_mode == 'state-guard'
+        run: node simulation/evaluation/agent41-native-source-rank6-coheld-canplay.cjs > agent33-native-state-coheld-focused.json
+      - name: Preserve native original-source State nonmutation probe even on failing eligibility
+        if: inputs.agent33_stadium_mode == 'state-guard' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-native-state-rank6-coheld-20261101
+          path: agent33-native-state-coheld-focused.json
+          if-no-files-found: warn
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
