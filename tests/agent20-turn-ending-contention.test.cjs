@@ -47,6 +47,24 @@ test('hypergeometric overlap is exact for seven original source cards',()=>{
   assert.ok(Math.abs(
     r.rank6Comparison.probabilityNeitherGivenLegalBasic -
     0.7145187566854833)<1e-12);
+  assert.equal(r.rank6Comparison.tropicalBeachCopies,1);
+  assert.ok(Math.abs(
+    r.rank6Comparison.probabilityCampingAndBeachGivenLegalBasic -
+    0.017739552239192914)<1e-12);
+  assert.ok(Math.abs(
+    r.rank6Comparison.probabilityPalaceAndBeachGivenLegalBasic -
+    0.009200923043898251)<1e-12);
+  assert.ok(Math.abs(
+    r.rank6Comparison.probabilityAllThreeGivenLegalBasic -
+    0.001288162669765257)<1e-12);
+  assert.equal(r.rank29Comparison.rank,29);
+  assert.equal(r.rank29Comparison.basicCards,4);
+  assert.equal(r.rank29Comparison.campingGearCopies,2);
+  assert.equal(r.rank29Comparison.tropicalBeachCopies,2);
+  assert.ok(Math.abs(
+    r.rank29Comparison.probabilityCampingAndBeachGivenLegalBasic -
+    0.03419094180862057)<1e-12);
+  assert.equal(r.rank29Comparison.stadiumRequiresUseAction,true);
   assert.equal(r.rank6Comparison.basicCards,4);
   assert.equal(r.rank6Comparison.campingGearCopies,2);
   assert.equal(r.rank6Comparison.palaceBookCopies,1);
