@@ -2,13 +2,15 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-distinct-physical-card-negative-paper-prompt-v1';
+const VERSION='agent39-physical-card-source-membership-negative-paper-prompt-v2';
 const REASON='DUPLICATE_PHYSICAL_CARD_SELECTION';
+const FOREIGN='SELECTED_CARD_OUTSIDE_PHYSICAL_PROMPT_SOURCE';
 
 /**
  * Return a negative paper-selection defect only when the submitted result
- * repeats the same exact physical Card object. Name-equal, distinct physical
- * cards remain legal. It does not independently certify other printed effect
+ * repeats the same exact physical Card object, or supplies a Card outside
+ * the actual physical source CardList. Name-equal, distinct source cards
+ * remain legal. It does not independently certify other printed effect
  * conditions, prompt source/ownership, count, or native eligibility.
  *
  * @param {object|null} prompt Existing native prompt.
@@ -18,8 +20,11 @@ const REASON='DUPLICATE_PHYSICAL_CARD_SELECTION';
 function duplicatePhysicalChoiceReason(prompt,answer){
   if(prompt?.constructor?.name!=='ChooseCardsPrompt'||
     !Array.isArray(answer))return null;
+  const allowed=prompt.cards?.cards;
+  if(!Array.isArray(allowed))return null;
   for(const card of answer){
-    if(!card||typeof card!=='object')return null;
+    if(!card||typeof card!=='object'||!allowed.includes(card))
+      return FOREIGN;
   }
   return new Set(answer).size<answer.length?REASON:null;
 }
@@ -81,5 +86,5 @@ function withDistinctPhysicalCardSelectionVeto(execute,deps={}){
   }
 }
 
-module.exports={VERSION,REASON,duplicatePhysicalChoiceReason,
+module.exports={VERSION,REASON,FOREIGN,duplicatePhysicalChoiceReason,
   withDistinctPhysicalCardSelectionVeto};
