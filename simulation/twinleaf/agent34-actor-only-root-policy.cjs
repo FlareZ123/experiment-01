@@ -322,6 +322,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRaichuPrintedKnockoutAttachment(view,catalog);
     if(proposed)return proposed;
   }
+  // Opt-in owner-visible Guzma line where both native switch targets are
+  // forced and an already funded Bench attack nominally takes a Prize.
+  // This proposal precedes the ordinary attack-first root decision.
+  if(options.forcedGuzmaNominalKo===true){
+    const gust=require('./agent31-forced-guzma-ko-frontier.cjs')
+      .chooseForcedGuzmaNominalKo(view,catalog);
+    if(gust)return gust;
+  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -584,6 +592,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
+    forcedGuzmaNominalKoOptIn:deps.forcedGuzmaNominalKo===true||
+      process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
     lowHandLillieRootOptIn:deps.lowHandLillieRoot??
       (process.env.AGENT25_LOWHAND_LILLIE_DEV==='true'),
     teamFlareGruntDenialRootOptIn:deps.teamFlareGruntDenialRoot??
@@ -833,6 +843,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.heldGuzmaMobilityOptIn)
     audit.version+='+'+
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
+  if(audit.forcedGuzmaNominalKoOptIn)
+    audit.version+='+'+
+      require('./agent31-forced-guzma-ko-frontier.cjs').VERSION;
   if(audit.mobilityAwareRecipientOptIn)
     audit.version+='+agent2-owner-held-mobility-recipient-v1';
   if(audit.perfectionTransitionRootOptIn)
@@ -990,6 +1003,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
+      forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       lastBenchHeldEvolution:audit.lastBenchHeldEvolutionOptIn===true,
       strandedMarnieRoot:audit.strandedMarnieRootOptIn,
       lowHandLillieRoot:audit.lowHandLillieRootOptIn,
@@ -1118,6 +1132,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         break;
       case 'play-plumeria-payment-menu':
       case 'play-held-guzma-mobility':
+      case 'play-guzma-forced-nominal-ko':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
