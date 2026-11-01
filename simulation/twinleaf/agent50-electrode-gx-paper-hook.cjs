@@ -29,3 +29,10 @@ function withElectrodeCrashBurnPaper(run,deps={}){
     const n=transfers.length;
     const before=effect.damage;
     const result=then(transfers);
+    const excess=50*n*(n-1);
+    effect.damage-=excess;
+    if(n===0)effect.player.usedGX=true;
+    audit.settled.push({count:n,before,after:effect.damage,removedExcess:excess});
+    return result;
+   });
+  };
