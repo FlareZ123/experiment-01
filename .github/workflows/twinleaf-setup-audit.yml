@@ -138,6 +138,17 @@ jobs:
           path: agent6-source-first-tagcall-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Reuse source-first Tag Call deals with owner-K0 both-seat native root and K1 selection
+        if: inputs.agent6_tagcall
+        run: node simulation/evaluation/agent6-owner-tagcall-bothseat-native.cjs > agent6-owner-tagcall-bothseat-native.json
+      - name: Archive owner-only two-seat Tag Call true Store root and prompt receipts
+        if: always() && inputs.agent6_tagcall
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-owner-tagcall-bothseat-native
+          path: agent6-owner-tagcall-bothseat-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retrospective 2x2 rank6 source K0-DCE to K1-Speed bypass
         if: inputs.agent6_prized_thunder
         run: |
