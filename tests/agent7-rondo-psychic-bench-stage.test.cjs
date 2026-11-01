@@ -41,3 +41,17 @@ test('baseline recipient is preserved unless both explicit switches enabled',()=
  assert.equal(r.intent.slot,'bench');
  assert.equal(r.receipt.changed,true);
 });
+
+test('physical recipient receipt matches the exact native JTG printing',()=>{
+ const {inspectSource}=require('../simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs');
+ const result=inspectSource({finished:true,winner:1,
+   nativeAcceptedTargetSidecar:{events:[{
+     playerSlot:1,action:'PlayCardAction',storeAccepted:true,
+     declared:{ownerHandPrinting:'Psychic Energy MEE'},
+     publicBoardChanges:[{seat:1,position:'bench',index:0,
+       after:{pokemon:"Lillie's Clefairy ex JTG",
+         energies:['Psychic Energy MEE']}}]
+   }]},rootActionLedger:[]},1);
+ assert.equal(result.attachedBasicPsychicSource,1);
+ assert.equal(result.attachedBasicPsychicToClefairy,1);
+});
