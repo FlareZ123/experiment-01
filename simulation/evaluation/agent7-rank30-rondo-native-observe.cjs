@@ -49,11 +49,11 @@ function runRank30RondoReadOnly(){
 }
 if(require.main===module){
  const report=runRank30RondoReadOnly();
- process.stdout.write(JSON.stringify(report)+'\\n');
+ process.stdout.write(JSON.stringify(report)+'\n');
  process.stderr.write('RANK30_RONDO_PUBLIC_NATIVE_READONLY '+
   JSON.stringify({version:report.version,parity:report.parity.samePhysicalDeals,
    totalPublicRondoOffers:report.totalPublicRondoOffers,
    totalOwnerRootReadiness:report.totalOwnerRootReadiness,
-   byTrial:report.byTrial,competitiveQualifiedGames:0})+'\\n');
+   byTrial:report.byTrial,competitiveQualifiedGames:0})+'\n');
 }
 module.exports={VERSION,runRank30RondoReadOnly};
