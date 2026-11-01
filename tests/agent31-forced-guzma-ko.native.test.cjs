@@ -144,3 +144,63 @@ test('both physical owner seats: new forced Guzma plan resolves native KO and Pr
     }));
   }
 });
+
+test('both seats: default-off bridge explicitly opts into forced Guzma native prompt custody',()=>{
+  const {withGuzmaOwnerPromptContinuation}=require(
+    '../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
+  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+  const definitions=native('simple-bot/simple-bot-definitions');
+  const botOptions={
+    tactics:definitions.allSimpleTactics,
+    promptResolvers:definitions.allPromptResolvers,
+    scores:definitions.defaultStateScores,
+    arbiter:definitions.defaultArbiterOptions
+  };
+  for(const seat of [0,1]){
+    const x=staged(seat);
+    // A funded Active is deliberately not the existing mobility policy's
+    // case: it can attack for 100, but not Knock Out the 210-HP defender.
+    // The newly proposed forced gust can take the 90-HP Bench target.
+    let id=534000+seat*500;
+    const manager=initializeCards();
+    for(let n=0;n<3;n++){
+      const energy=manager.getCardByName('Psychic Energy MEE');
+      assert.ok(energy);
+      energy.id=id++;
+      x.owner.active.energies.cards.push(energy);
+    }
+    const observation=actorObservation(x.state,seat);
+    assert.equal(chooseForcedGuzmaNominalKo(
+      observation,publicCatalog())?.kind,'play-guzma-forced-nominal-ko');
+    const bot=new SimpleTacticsAi({id:x.owner.id},botOptions,null);
+    const originalBot=SimpleTacticsAi.prototype.decodeNextAction;
+    const originalDispatch=Store.prototype.dispatch;
+    const observed=withGuzmaOwnerPromptContinuation(()=>{
+      x.store.dispatch(new PlayCardAction(x.owner.id,0,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      for(let n=0;n<2;n++){
+        const pending=x.state.prompts.find(p=>p.result===undefined);
+        assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+        const reply=bot.decodeNextAction(x.state);
+        assert.ok(reply instanceof ResolvePromptAction);
+        assert.equal(reply.id,pending.id);
+        x.store.dispatch(reply);
+      }
+      return {
+        ownActive:x.owner.active.getPokemonCard()?.id,
+        opposingActive:x.opponent.active.getPokemonCard()?.id
+      };
+    },{initialLiveStore:x.store,forcedGuzmaNominalKo:true});
+    assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,originalBot);
+    assert.strictEqual(Store.prototype.dispatch,originalDispatch);
+    assert.equal(observed.result.ownActive,x.sourceAttackerId);
+    assert.equal(observed.result.opposingActive,x.sourceTargetId);
+    assert.equal(observed.audit.acceptedGuzmaRoots,1);
+    assert.equal(observed.audit.matchedForcedNominalKoPlans,1);
+    assert.equal(observed.audit.guzmaHandConsumptionConfirmed,1);
+    assert.equal(observed.audit.ownTargetPhysicalConfirmations,1);
+    assert.equal(observed.audit.ownTargetPhysicalMismatches,0);
+    assert.equal(observed.audit.competitiveGameQualified,false);
+  }
+});
