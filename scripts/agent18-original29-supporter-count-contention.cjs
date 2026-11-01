@@ -103,18 +103,22 @@ function distinctSupporterContention(N,basic,copies,h=7){
  */
 function firstEightFieldContention(roster,trainerTypes,basicPrintings){
   const published=original29HeldFirst8(roster,trainerTypes,basicPrintings);
-  const rows=published.rows.map(row=>({
-    rank:row.rank,archetype:row.archetype,
-    basics:row.basicCopies,supporters:row.allSupporterCopies,
-    distribution:conditionalSupporterCount(
-      60,row.basicCopies,row.allSupporterCopies),
-    distinctSupporterNames:row.printedSupporters.length,
-    twoOrMoreDifferentSupporterNames:distinctSupporterContention(
-      60,row.basicCopies,row.printedSupporters.map(x=>x.count)),
-    // The narrow three-name shuffle option is a different selection axis.
-    fiveFamilyDistribution:conditionalSupporterCount(
-      60,row.basicCopies,row.fiveFamilyCopies)
-  }));
+  const rows=published.rows.map(row=>{
+    const names=new Map();
+    for(const {name,count} of row.printedSupporters)
+      names.set(name,(names.get(name)??0)+count);
+    const nameCopies=[...names.values()];
+    return {rank:row.rank,archetype:row.archetype,
+      basics:row.basicCopies,supporters:row.allSupporterCopies,
+      distribution:conditionalSupporterCount(
+        60,row.basicCopies,row.allSupporterCopies),
+      distinctSupporterNames:names.size,
+      twoOrMoreDifferentSupporterNames:distinctSupporterContention(
+        60,row.basicCopies,nameCopies),
+      // The narrow five-name family is a different policy selection axis.
+      fiveFamilyDistribution:conditionalSupporterCount(
+        60,row.basicCopies,row.fiveFamilyCopies)};
+  });
   return {schema:VERSION,knownOriginal60s:rows.length,
     missingRanks:published.missingRanks,rows,
     competitiveQualifiedGames:0,
