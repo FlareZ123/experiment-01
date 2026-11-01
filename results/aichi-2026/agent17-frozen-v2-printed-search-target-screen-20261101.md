@@ -26,6 +26,20 @@ The **34 unresolved printing matches** comprise **32 Psychic Energy MEE** select
 
 **Distinct target checks are not independent match samples:** 98 selections are correlated within 32 real developmental games. Prompt counts and category checks cannot certify competitive player action quality or a game's winner. The 24 no-payload Get Lost events from the broader inventory are empty-discard cancellation-compatible and are not included in these nonempty deck-search target checks.
 
+## Separate pregame Basic-Pokémon category screen
+
+The same physical archive contains **71 startup \`ChooseCardsPrompt\` roots** with no initiating played-card/attack root, selecting **129 Pokémon card instances** from player opening hands before normal turns. After joining the recorded acting seat to the source seat in each trial:
+
+| Recorded startup selection seat | Startup hand prompts | Selected-card instances | Exact-print Basic Pokémon | Known non-Basic selections | Print unresolved |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Original source | 32 | 40 | 38 | 0 | 2 |
+| Fixed candidate | 39 | 89 | 86 | 0 | 3 |
+| **Both seats** | **71** | **129** | **124** | **0** | **5** |
+
+The **five unresolvable exact printings** are three \`Trevenant & Dusknoir-GX SMP\` and two \`Mega Absol ex M1L\`; both source-set codes are absent from the supplied card archive's PTCGO mapping. The 124 known exact prints all encode **Basic** subtype; **no known non-Basic setup selections were observed**. This is category agreement for the selected initial Pokémon, not a proof of exact hand ownership, proper Active vs Bench placement, mulligan handling or five-Bench cardinality. The counts are **card instances** and can repeatedly contain the same underlying physical deck card across paired games.
+
+**Critical lookup correction before publishing these counts:** the card archive has **nine duplicated PTCGO set codes**, including \`ASR\` and \`CRZ\` for main-set/illustration-gallery pairs. A naive \`{code: id}\` mapping silently overwrote one of the two sets and falsely marked genuine \`Oranguru V ASR\` and \`Radiant Eternatus CRZ\` selections as unknown. The reusable parser now indexes **all** set IDs per PTCGO code and verifies matching card-name type signatures across candidates; the synthetic tests reproduce a duplicate-code case. This correction changes the auxiliary startup known count to 124, while leaving the independent **98 search selections, 64 exact-category matches and 34 unresolvable prints unchanged**.
+
 ## Integration request and bounded next test
 
 Route this exact-print evidence into Agent 41's single versioned pre-dispatch paper-prompt portfolio, retaining three verdicts: \`PAPER_PROMPT_VERIFIED\` only when **full** independently checked text/zone/cost/effect contract is covered, \`PAPER_PROMPT_INVALID\` for actually demonstrated forbidden replies, and \`PAPER_PROMPT_UNVERIFIED\` elsewhere. The 64 matching target categories may carry a narrower annotation \`PRINTED_TARGET_CATEGORY_MATCH\` with no release promotion. Prioritize an actual source-dealt prompt where these predicates combine with owner-payment and post-Store effects. Avoid re-running the same baseline as a newly qualified performance sample.
