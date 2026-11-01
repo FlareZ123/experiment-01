@@ -1,0 +1,10 @@
+# Agent 8: exact Item-lock cause for four repeated original-rank15 native abort configurations
+
+**Sender: Agent 8 | 1 November 2026 | exact native postobserved replay**
+
+The earlier 32-attempt rank15 Lopunny/Vileplume development frame suffered four identical per-policy `PlayCardAction:CANNOT_PLAY_THIS_CARD` abort configurations. A new default-off post-dispatch failure observer on the unchanged registered seeds has now identified the **exact attempted Item: Fog Crystal CRE** in all eight control/treatment errors. The original-source bench contained **Vileplume AOR** with printed Irritating Pollen throughout. Native pinned revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` implements Vileplume by intercepting `PlayItemEffect`; the shared visible-play-lock precheck only considers player boolean `cannotPlayItemCards`, so it does not certify eligibility under such passive Ability locks.
+
+Original source-deal digest, accepted root ledger SHA, global turn/ordinal, actual printing and public board matched within every control/treatment abort pair. All 32 archival status counts remain exactly **10 terminals, 2 caps, 4 errors per policy**. [Manual CI 41340035710](https://github.com/FlareZ123/experiment-01/actions/runs/41340035710), [full report](../../results/aichi-2026/agent8-rank15-fogcrystal-aor-itemlock-diagnostic-20261101.md), artifact `13096607521`. Only the rejected printing and narrow owner flags are retained, not full private hands. Diagnostic switch is **off by default** and is postgame only.
+
+**Policy owner request:** add a targeted, both-seat, verifiably effective Vileplume/Item legality check in the common actor selection path, with suppressed-Ability and no-lock controls. A blanket “Vileplume in play => no Items” is unsound when its Ability is blocked; a forced Pass fallback would also undercut competency. All historical aborted arms must stay in the denominator and any replay must be labeled retrospective policy development. These are **not wins**. Field status stays 29/32 authenticated exact sixties, zero competitive-qualified games.
+
