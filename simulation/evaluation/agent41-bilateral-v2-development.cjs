@@ -368,6 +368,7 @@ function executeDevelopment(trial,candidates,{
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
+  nativeRejectedActionEvidence=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -445,6 +446,8 @@ function executeDevelopment(trial,candidates,{
     // accepted label ledger, and source physical-deal digest on abort.
     // This post-choice observer cannot affect either player's bot policy.
     captureNativeAbortEvidence:true,
+    // Offline post-failure owner-card identity; never supplied to either bot.
+    captureRejectedActionEvidence:nativeRejectedActionEvidence,
     paperTerminalAttackKoCorrection:paperTerminalAttackKo
   };
   let ownerCompressorAudit=null;
@@ -961,6 +964,7 @@ function runDevelopment({
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
+  nativeRejectedActionEvidence=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -1140,6 +1144,7 @@ function runDevelopment({
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         nativeSetupCoinChoiceReceipt,physicalZoneGate,
+        nativeRejectedActionEvidence,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,losslessNativeRootJoin,
@@ -1283,6 +1288,25 @@ function runDevelopment({
         nativeStoreCauseStack,
         ...(error?.nativePublicRootArchive??{}),
         nativeAbortEvidence:nativeAbort,
+        // Archive the attempted card only. The diagnostic observer's entire
+        // owner hand is intentionally excluded from this postgame receipt.
+        ...(nativeRejectedActionEvidence?{
+          nativeRejectedPlayCard:(()=>{
+            const rejected=error?.rejectedActionEvidence??
+              error?.cause?.rejectedActionEvidence??null;
+            return rejected?{
+              schema:'agent8-rejected-playcard-postgame-v1',
+              actionOrdinal:rejected.actionOrdinal,
+              turn:rejected.turn,
+              actingSeat:rejected.actingSeat,
+              playedCardPrinting:rejected.playedCardPrinting,
+              chosenTarget:rejected.chosenTarget,
+              ownerPlayLockFlags:rejected.ownerPlayLockFlags,
+              rejectionMessage:rejected.rejectionMessage,
+              postgameOnly:true,competitiveGameQualified:false
+            }:null;
+          })()
+        }:{}),
         ...(error?.nativeEpochBoundaryEvidence?{
           nativeEpochBoundaryEvidence:error.nativeEpochBoundaryEvidence
         }:{}),
@@ -1371,6 +1395,7 @@ function runDevelopment({
     nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
     nativeSetupCoinChoiceReceiptOptIn:nativeSetupCoinChoiceReceipt,
     physicalZoneGateOptIn:physicalZoneGate,
+    nativeRejectedActionEvidenceOptIn:nativeRejectedActionEvidence,
     physicalZoneQualificationSummary:require('./physical-zone-qualification.cjs')
       .summarizePhysicalQualification(rows),
     proposalStateAuditOptIn:proposalStateAudit,
