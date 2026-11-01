@@ -25,7 +25,7 @@ function sourceSecondTurn() {
  const attacker=card('Mewtwo & Mew-GX UNM');
  me.active.cards.push(attacker);
  for(let i=0;i<3;i++){
-  const e=card('Psychic Energy MEE');me.active.cards.push(e);me.active.energies.cards.push(e);
+  const e=card('Psychic Energy MEE');me.active.energies.cards.push(e);
  }
  const dusk=card('Duskull VIV'),dusclops=card('Dusclops SFA');
  const stack=new PokemonCardList();stack.cards.push(dusk,dusclops);me.bench.push(stack);
@@ -52,6 +52,7 @@ function sourceSecondTurn() {
   for(let k=0;k<48;k++){
    const p=pending();if(!p)return;
    if(p.constructor.name==='WaitPrompt'){resolve(p,null);continue;}
+   if(p.constructor.name==='ShowCardsPrompt'){resolve(p,true);continue;}
    if(p.constructor.name==='ChoosePokemonPrompt'){
     assert.equal(p.playerId,me.id);
     resolve(p,[opp.active]);continue;
