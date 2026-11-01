@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {chooseGirafarigAttackWhenDiscardEmpty}=
   require('./agent1-girafarig-dead-attack-frontier.cjs');
 
-const VERSION='agent1-actor-known-dead-leading-attack-v1';
+const VERSION='agent1-actor-known-dead-leading-attack-v2-trubbish-fullbench';
 
 /**
  * When the opponent's *public* state proves that the first printed payable
@@ -37,6 +37,23 @@ function chooseKnownDeadLeadingAttack(view,payable){
     if(alternative)return {
       attackName:alternative.name,
       reason:'Terminal Period requires exactly six public damage counters'
+    };
+  }
+
+  // Original Aichi rank-11 Trubbish FST: with every Bench slot occupied,
+  // Call for Family cannot put a Basic Pokemon into play. The separately
+  // payable Super Poison Breath has printed damage and a Poison effect.
+  // This is a public, exact-printing, default-off choice preference; the
+  // genuine Store still determines legality and effect settlement.
+  const bench=view.ownPublic?.bench;
+  if(active.printing==='Trubbish FST'&&
+     first.name==='Call for Family'&&
+     Array.isArray(bench)&&bench.length>=5&&bench.every(Boolean)){
+    const alternative=payable.find(a=>
+      a.name==='Super Poison Breath'&&a.damage===20);
+    if(alternative)return {
+      attackName:alternative.name,
+      reason:'Call for Family cannot place a Basic onto a full Bench'
     };
   }
 
