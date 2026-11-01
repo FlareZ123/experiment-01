@@ -41,6 +41,10 @@ There are **16 nominal original rank × seed × physical candidate-side pairs** 
 
 Among all 16 nominal pairs, **zero pairs finished as opposite-sided candidate/source engine winners**, so there is **no direct decisive both-terminal deck reversal**. At rank6: three both-source-terminal pairs, three both-censored pairs, two source terminal for New Moon versus champion capped. At rank11: three both-source-terminal pairs, one both-candidate-terminal pair (different source deals), one both-censored pair (different source deals), one champion capped versus New Moon source terminal, and two cases where one candidate terminal opposes the other's action cap. These are descriptive correlated observations, not an estimate of either deck's strength.
 
+### New independently reproduced original-field prompt blockers
+
+Agent12's [rank6 Camping Gear original-Store fixture](agent12-source-rank6-campinggear-paper-prompt-20261101.md) shows the native Store can accept a zero- or two-card reply to a printed unrestricted one-card search without its guard. This separate fixture does not establish a corresponding defect in any v2 archived Camping Gear action. The [rank11 Night Watch study](agent12-night-watch-random-selection-paper-gap-20261101.md) shows the generic actor can choose opponent concealed-hand cards despite the printed attack requiring random selections. The v2 archive includes **nine** such Night Watch prompts across two long-game arms. Neither defect is established to reverse an archived winner, but both make any competitive interpretation of the present engine-terminal totals especially unsafe.
+
 ## Deck decision
 
 The v2 native policy's repair makes the original rank6 source more consequential, and both fixed candidate lists fail to produce a candidate terminal within their eight respective development arms. The overall v2 **19/32 engine-terminal** increase is driven by developmental game completion and source wins, not a demonstrated candidate upgrade. Any deck selection that interprets increased terminal count as candidate improvement would invert the actual winner mapping.
