@@ -73,13 +73,8 @@ on:
         required: false
         type: boolean
         default: false
-      agent32_rank11_seed2_candidate_known_dead:
-        description: 'Four matched genuine Store source seed2:A rank11 candidate Get Lost controls vs known-dead attack choices; development only'
-        required: false
-        type: boolean
-        default: false
       native_known_dead_attack_gate:
-        description: Run injected pinned Store attack and Prize pairing (development-only)
+        description: Run injected pinned Store attack, original rank11 same-seed candidate pair and Prize diagnostics (development-only)
         required: false
         type: boolean
         default: false
@@ -176,7 +171,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Agent32 native original rank11 seed2:A candidate known-dead attack same-source pair
-        if: ${{ inputs.agent32_rank11_seed2_candidate_known_dead }}
+        if: ${{ inputs.native_known_dead_attack_gate }}
         run: |
           node --test tests/agent32-rank11-seed2-candidate-dead-attack-pair.test.cjs
           node simulation/evaluation/agent32-rank11-seed2-candidate-dead-attack-pair.cjs > agent32-rank11-seed2-known-dead-fourarm.json
