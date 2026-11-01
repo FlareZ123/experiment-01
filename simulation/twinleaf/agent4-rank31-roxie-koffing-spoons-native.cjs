@@ -19,12 +19,12 @@ function runRank31RoxieSpoons(guarded){
   const victim=f.opponent.bench[1].getPokemonCard();
   const roxie=f.card('Roxie CEC');
   const koffing=f.card('Koffing CEC');
-  f.source.hand.cards.push(roxie,koffing);
+  f.source.hand.cards.push(koffing,roxie);
   const evidence=[];
   const pending=()=>f.state.prompts.find(p=>p.result===undefined);
   const execute=()=>{
     const before=f.source.getPrizeLeft();
-    f.store.dispatch(new PlayCardAction(f.source.id,0,
+    f.store.dispatch(new PlayCardAction(f.source.id,1,
       {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
     for(let k=0;k<16;k++){
       const prompt=pending();
