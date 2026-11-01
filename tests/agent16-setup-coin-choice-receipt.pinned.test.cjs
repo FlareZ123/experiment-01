@@ -40,3 +40,31 @@ for(const [seed,heads] of [[1460221882,true],[861838028,false]]){
     }
   });
 }
+
+test('original rank6 printed 60 vs fixed champion captures true source-first setup coin',()=>{
+  const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+  const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
+  initializeCards();
+  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
+    allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true});
+  const source=plan.opponents.find(row=>row.rank===6);
+  assert.equal(source.status,'ready');
+  assert.equal(source.cards.length,60);
+  assert.equal(plan.candidate.cards.length,60);
+  const base={deckA:plan.candidate.cards,deckB:source.cards,
+    seed:20261019,maxActions:60,isolatePolicyRandomness:true,
+    captureDecisionTrace:true};
+  const control=runMatch(base);
+  const audited=runMatch({...base,captureSetupCoinChoiceReceipt:true});
+  assert.equal(audited.setupCoinChoiceReceipt.status,
+    'consistent-accepted-native-setup-and-first-draw');
+  assert.equal(audited.setupCoinChoiceReceipt.coin.coinWinnerSeat,0);
+  assert.equal(audited.setupCoinChoiceReceipt.choice.choseFirst,false);
+  assert.equal(audited.firstTurnSlot,1);
+  for(const key of ['actions','turns','finished','winner','firstTurnSlot',
+    'deckHashes','rootActionLedger','attackDeclarationTrace',
+    'cardsPlayedBySeat']){
+    assert.deepEqual(audited[key],control[key],
+      'Authentic rank6 source policy perturbed by passive coin receipt: '+key);
+  }
+});
