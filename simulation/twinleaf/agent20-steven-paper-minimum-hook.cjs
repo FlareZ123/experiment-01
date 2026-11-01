@@ -47,7 +47,9 @@ function installStevenPaperMinimumHook() {
           audit.emptyVetoed++;
           throw new Error('PAPER_STEVEN_CES_SEARCH_REQUIRES_ONE_CARD');
         }
+        const outcome=original.call(this, action, ...args);
         audit.nonemptyAccepted++;
+        return outcome;
       }
     }
     return original.call(this, action, ...args);
