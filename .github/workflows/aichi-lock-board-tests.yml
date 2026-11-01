@@ -102,16 +102,15 @@ on:
         required: false
         type: boolean
         default: false
-      rank31_fog_energy_source_pair:
-        description: 'Opt-in two source-dealt rank31 Fog Energy-choice alternative branches'
+      rank31_fog_mode:
+        description: 'Historical rank31 Fog Energy source experiments (choose one)'
         required: false
-        type: boolean
-        default: false
-      rank31_fog_breadth_source_pair:
-        description: 'Prospectively fixed two-deal rank31 generic/strict/broader Fog search comparison'
-        required: false
-        type: boolean
-        default: false
+        type: choice
+        options:
+          - none
+          - energy
+          - breadth
+        default: none
       agent48_carmine_policy_census:
         description: '24 fixed source owner-root Carmine default versus optional activation audits, no qualified wins'
         required: false
@@ -530,20 +529,20 @@ jobs:
           path: rank31-chimecho-source.json
           if-no-files-found: warn
       - name: Run precommitted rank31 Fog Energy source-deal policy contrast
-        if: inputs.rank31_fog_energy_source_pair
+        if: inputs.rank31_fog_mode == 'energy'
         run: node simulation/twinleaf/rank31-fog-energy-source-pair.cjs > rank31-fog-energy-source.json
       - name: Retain both rank31 original deals and paired counterfactuals
-        if: inputs.rank31_fog_energy_source_pair && always()
+        if: inputs.rank31_fog_mode == 'energy' && always()
         uses: actions/upload-artifact@v4
         with:
           name: rank31-fog-energy-source-pair
           path: rank31-fog-energy-source.json
           if-no-files-found: warn
       - name: Compare strict and broadened Fog search on two fixed source deals
-        if: inputs.rank31_fog_breadth_source_pair
+        if: inputs.rank31_fog_mode == 'breadth'
         run: node simulation/twinleaf/rank31-fog-breadth-source-contrast.cjs > rank31-fog-breadth-source.json
       - name: Retain all source deal exposures and nonexposures
-        if: inputs.rank31_fog_breadth_source_pair && always()
+        if: inputs.rank31_fog_mode == 'breadth' && always()
         uses: actions/upload-artifact@v4
         with:
           name: rank31-fog-breadth-source-pair
