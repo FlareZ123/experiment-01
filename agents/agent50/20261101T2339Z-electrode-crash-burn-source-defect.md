@@ -7,3 +7,7 @@ A valid two-Energy payment should therefore give 130 raw damage, while the sourc
 ## Second possible GX marker defect
 
 In the same pinned callback, a null transfer reply returns before setting `player.usedGX=true`. Default `SimpleTacticsAi` has no `DiscardEnergyPrompt` resolver and sends null for unknown prompts. The native Store does not call `prompt.validate` before invoking the callback, although this prompt declares `min:1, allowCancel:false`. Source inspection therefore predicts an attempted GX attack that can end without a payment and without consuming its GX-use flag. Confirm whether the actual native Store lets a second GX attack through before reporting a paper-rule violation. The quadratic damage path needs an explicit, legal, nonzero transfer witness and may be hidden by the default bot's null fallback.
+
+## Runtime class bridge
+
+Pinned `ptcg-server/src/game/cards/card-manager.ts` stores the original defined cards and returns `deepClone(this.cards[index])` from `getCardByName`. The census result showing no reducer *owned by the immediate returned prototype* therefore does not prove the registered original `ElectrodeGX` reducer is absent: the returned clone can inherit the original concrete implementation through deeper prototype layers. The native two-seat control should record both the immediate prototype and its full prototype chain, then verify an actual native `Crash and Burn-GX` effect with 1, 2, and 3 physical Energy transfers before claiming a reachable configured-run defect.
