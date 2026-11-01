@@ -142,7 +142,12 @@ function rootPhysicalSnapshot(state,seat,intent){
     evolutionTop:target?.getPokemonCard()?.fullName??null,
     evolutionLayers:target?.getPokemons().length??null,
     turn:state.turn,phase:state.phase,
+    activePlayer:state.activePlayer,
     handCount:owner.hand.cards.length,
+    deckCount:owner.deck.cards.length,
+    stadiumUsedTurn:owner.stadiumUsedTurn,
+    inPlayStadiumPrintings:state.players.flatMap(p=>
+      p.stadium?.cards?.map(c=>c.fullName)??[]),
     stadiumPrintings:owner.stadium?.cards?.map(c=>c.fullName)??[],
     activeEnergies:owner.active.energies.cards.map(c=>c.fullName),
     activeToolPrintings:owner.active.tools?.map(c=>c.fullName)??[],
@@ -352,6 +357,27 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       count(after.stadiumPrintings)===1&&
       count(before.stadiumPrintings)===0&&
       after.handCount===before.handCount-1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='use-tropical-beach'||
+     intent.kind==='use-players-ceremony'){
+    // Stadium use is a distinct native root from physical placement.
+    // Confirm real public draw conservation and genuine end-turn transition,
+    // including a Stadium physically owned by the opponent.
+    const name=intent.kind==='use-tropical-beach'?
+      'Tropical Beach ':"Player's Ceremony ";
+    const stadium=before.inPlayStadiumPrintings??[];
+    const drawn=intent.kind==='use-tropical-beach'?
+      7-before.handCount:2;
+    return stadium.some(p=>p.startsWith(name))&&
+      Number.isSafeInteger(drawn)&&drawn>0&&
+      before.deckCount>=drawn&&
+      after.handCount===before.handCount+drawn&&
+      after.deckCount===before.deckCount-drawn&&
+      after.stadiumUsedTurn===before.turn&&
+      (after.turn!==before.turn||
+        after.phase!==before.phase||
+        after.activePlayer!==before.activePlayer)?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='paid-retreat'){
