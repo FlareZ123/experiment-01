@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent12_nightwatch_random_native:
+        description: 'Original rank11 paired seed Night Watch printed random hidden-hand native audit, development only'
+        required: false
+        type: boolean
+        default: false
       owner_terminal_arbitration_rank3:
         description: Fixed two-seed rank3 original 60 vs rank1 both-seat A/B/A original Store development only
         required: false
@@ -57,7 +62,7 @@ jobs:
         with:
           node-version: '22'
       - name: Pure actor-root intent tests
-        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent5-reactive-attachment-guard.test.cjs tests/agent5-aichi-open-time-adjudication.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs
+        run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent5-reactive-attachment-guard.test.cjs tests/agent5-aichi-open-time-adjudication.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs tests/agent12-nightwatch-paper-random-chooser.test.cjs
       - name: Exact source-rank1 conditioned opening counter access combinatorics
         run: node scripts/agent5-marshadow-opening-access.cjs > agent5-marshadow-opening-access.json
       - name: Check exact nonmulligan and Stadium-counter access fractions
@@ -76,6 +81,9 @@ jobs:
       - name: Retrospective original rank6 first-turn Camping Gear Pass owner native fork
         if: ${{ inputs.agent12_campinggear_rank6_native }}
         run: node simulation/twinleaf/agent12-campinggear-rank6-native.cjs > agent12-campinggear-rank6-native.json
+      - name: Paired original rank11 Night Watch native uniform hidden-hand selection
+        if: ${{ inputs.agent12_nightwatch_random_native }}
+        run: node simulation/twinleaf/agent12-nightwatch-native-rank11-comparison.cjs > agent12-nightwatch-rank11-native.json
       - name: Native staged rank-7 Steven three-card owner search both seats
         run: node simulation/twinleaf/agent22-steven-native-store-gate.cjs > agent22-steven-native-store-result.json
       - name: Preregistered exact rank7 source-dealt Steven prompt-choice pair
@@ -128,7 +136,7 @@ jobs:
         if: ${{ inputs.owner_terminal_arbitration_rank3 }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-rank3-arbitration-original-store.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,summary:r.summary,pairs:r.pairs.map(p=>({seat:p.candidateSeat,seed:p.seed,first:p.sourceFirst,initial:p.status,repeat:p.repeatStatus,changed:p.treatmentChangedRoots,steps:[p.baselineActions,p.treatmentActions],statuses:p.results}))},null,2))"
       - name: Native bilateral historical and source-first development
-        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 && ! inputs.agent12_campinggear_rank6_native }}
+        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 && ! inputs.agent12_campinggear_rank6_native && ! inputs.agent12_nightwatch_random_native }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
       - name: Fixed source-first development baseline without Thorns direct-line
         if: ${{ inputs.rank6_directline_paired }}
@@ -176,6 +184,7 @@ jobs:
             agent22-rank7-dealt-steven-pair.json
             agent22-steven-followthrough.json
             agent12-campinggear-rank6-native.json
+            agent12-nightwatch-rank11-native.json
             agent5-thorns-baseline-sourcefirst.json
             agent5-thorns-treatment-sourcefirst.json
             agent5-thorns-directline-contrast.json
