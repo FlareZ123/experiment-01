@@ -36,6 +36,7 @@ test('read-only original Store printing receipts preserve a native seeded game',
     assert.equal(typeof row.printing,'string');
     assert.ok(row.printing.length>0);
     assert.equal(typeof row.executableConstructor,'string');
+    assert.match(row.executableConstructorSourceSha256,/^[0-9a-f]{64}$/);
     assert.ok(Number.isSafeInteger(row.executablePrototypeToken));
     assert.equal(row.paperEffectVerified,false);
   }
