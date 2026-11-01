@@ -87,7 +87,10 @@ function auditFrozenPromptCoverage(archive){
     recordedPromptFamilies:{},rootLedgerLengthMatchingRows:0,
     recordedChooseCardsFamilyMatchesChoiceObserver:false,
     recordedSelectOptionFamilyMatchesChoiceObserver:false,
-    recordedAttachEnergyFamilyMatchesAcceptedSidecar:false
+    recordedAttachEnergyFamilyMatchesAcceptedSidecar:false,
+    choiceEventsJoinedToSameRoot:0,
+    energyPublicReceiptsJoinedByUniqueTurnAndSeat:0,
+    settledSourceVoltCycloneRootJoins:0
   };
   const ids=new Set();
   for(const row of archive.rows){
@@ -105,6 +108,8 @@ function auditFrozenPromptCoverage(archive){
     if(rootActions.length===row.rootActionCount)
       status.rootLedgerLengthMatchingRows++;
     status.recordedRootActions+=rootActions.length;
+    const rootByOrdinal=new Map(rootActions.map(action=>
+      [action.actionOrdinal,action]));
     for(const action of rootActions){
       if(action.action!=='ResolvePromptAction')continue;
       status.recordedResolvePromptActions++;
@@ -119,6 +124,12 @@ function auditFrozenPromptCoverage(archive){
     assert.ok(Array.isArray(events)&&Array.isArray(energyEvents),
       'missing frozen native prompt evidence sidecar');
     for(const event of events){
+      const rooted=rootByOrdinal.get(event.ordinal);
+      if(rooted?.action==='ResolvePromptAction'&&
+         rooted.pendingPrompt===event.kind&&
+         rooted.playerSlot===event.actorSeat&&
+         rooted.turnBefore===event.turn)
+        status.choiceEventsJoinedToSameRoot++;
       status.choiceEvents++;
       rankStatus.choiceEvents++;
       if(event.kind==='SelectOptionPrompt'){
@@ -143,7 +154,41 @@ function auditFrozenPromptCoverage(archive){
         status.cancelledWithNativePermission++;
       }else status.malformedChoiceRecords++;
     }
+    const energyRoots=rootActions.filter(action=>
+      action.action==='ResolvePromptAction'&&
+      action.pendingPrompt==='AttachEnergyPrompt');
+    const key=event=>[event.turnBefore,event.playerSlot].join(':');
+    const groupedEnergyRoots=new Map();
+    for(const action of energyRoots){
+      const k=key(action);
+      groupedEnergyRoots.set(k,[...(groupedEnergyRoots.get(k)??[]),action]);
+    }
+    const groupedEnergyReceipts=new Map();
     for(const event of energyEvents){
+      const k=key(event);
+      groupedEnergyReceipts.set(k,[...(groupedEnergyReceipts.get(k)??[]),event]);
+    }
+    const settledAttacks=new Map((row.sourceAttackSettlement?.attacks??[]).map(
+      attack=>[attack.actionOrdinal,attack]));
+    for(const event of energyEvents){
+      const k=key(event);
+      const roots=groupedEnergyRoots.get(k)??[];
+      const receipts=groupedEnergyReceipts.get(k)??[];
+      const matched=roots.length===1&&receipts.length===1?roots[0]:null;
+      if(matched){
+        status.energyPublicReceiptsJoinedByUniqueTurnAndSeat++;
+        const initiator=rootByOrdinal.get(matched.initiatingRootActionOrdinal);
+        const settled=settledAttacks.get(matched.initiatingRootActionOrdinal);
+        if(initiator?.action==='AttackAction'&&
+           initiator.attack==='Volt Cyclone'&&
+           initiator.playerSlot===row.sourceSeat&&
+           settled?.attackName==='Volt Cyclone'&&
+           settled.settledPromptChain===true&&
+           settled.completionRootOrdinal>=matched.actionOrdinal&&
+           classifyVoltCyclonePublicMove(event,row.sourceSeat)===
+             'PUBLIC_VOLT_CYCLONE_ONE_ENERGY_MATCH')
+          status.settledSourceVoltCycloneRootJoins++;
+      }
       if(event.nativeDispatchAccepted!==true){
         status.otherAcceptedAttachOutcomes.NON_ACCEPTED_SIDECAR_RECORD=
           (status.otherAcceptedAttachOutcomes.NON_ACCEPTED_SIDECAR_RECORD??0)+1;
