@@ -24,6 +24,8 @@ jobs:
         run: npm run compile
       - name: Check Electro Rain capped allocation pure regression
         run: node tests/raichu-prize-allocation-planner.test.cjs
+      - name: Characterize native printed 30-damage Electro Rain packet atomicity
+        run: node simulation/twinleaf/agent46-raichu-packet-split-native.cjs
       - name: Verify Electro Rain versus Benched Pokemon V with Telescopic Sight
         run: node simulation/twinleaf/raichu-electro-rain-tool-regression.cjs
       - name: Verify Electro Rain damage prevention and effects-only immunity
