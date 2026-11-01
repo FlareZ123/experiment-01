@@ -16,6 +16,7 @@ const {Card}=native('game/store/card/card');
 const {CardList}=native('game/store/state/card-list');
 const {GamePhase}=native('game/store/state/state');
 const {PlayCardAction,PlayerType,SlotType}=native('game/store/actions/play-card-action');
+const {UseAbilityAction}=native('game/store/actions/game-actions');
 const {CheckPokemonPowersEffect}=native('game/store/effects/check-effects');
 const PRINTED={
   ruleboxAbilityPrintings:new Set([
@@ -57,9 +58,14 @@ function staged(seat,kind){
     assert.equal(kind,'spent-fusion');
     const usedSource=get('Genesect V FST');
     bench.cards.push(usedSource);
-    // An already announced Fusion Strike System use, represented with
-    // the actual pinned Player's physical Card-identity marker.
-    owner.marker.addMarker(MARKER,usedSource);
+    const anotherFusion=get('Mew V FST');
+    const secondBench=new PokemonCardList();
+    secondBench.cards.push(anotherFusion);
+    owner.bench.push(secondBench);
+    owner.deck.cards.splice(0,owner.deck.cards.length,
+      ...Array.from({length:12},()=>get('Psychic Energy MEE')));
+    // The test dispatches a genuine printed Fusion Strike System source
+    // action before evaluating Path at the later root.
   }
   owner.bench.push(bench);
   opp.active.cards.length=0;opp.active.cards.push(get('Genesect V FST'));
@@ -81,6 +87,14 @@ for(const seat of [0,1]){
   test('native temporal Path proposal '+kind+' seat '+seat,()=>{
     const {store,owner,opp}=staged(seat,kind);
     assert.ok(powers(store,opp).includes('Fusion Strike System'));
+    if(kind==='spent-fusion'){
+      assert.equal(owner.hand.cards.length,1);
+      store.dispatch(new UseAbilityAction(owner.id,'Fusion Strike System',{
+        player:PlayerType.ANY,slot:SlotType.BENCH,index:0
+      }));
+      assert.equal(owner.hand.cards.length,2,
+        'Actual native Fusion Strike System must draw to two Fusion Strike Pokemon');
+    }
     const view=actorObservation(store.state,seat);
     const usage=kind==='spent-fusion'?
       publicFusionUsageAtRoot(store.state,seat):null;
