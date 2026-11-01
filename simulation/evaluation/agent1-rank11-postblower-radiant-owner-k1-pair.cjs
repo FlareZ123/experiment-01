@@ -21,7 +21,13 @@ function run(){
   assert.equal(entry.seed,registration.seed);
   assert.equal(entry.sourceFirstOwnerHandSha256,registration.sourceFirstOwnerHandSha256);
   const rows=[];
-  for(const preferRadiantAfterBlowerSearch of [false,true]){
+  for(const {preferRadiantAfterBlowerSearch,activateRadiantClimacticGate}
+      of [{preferRadiantAfterBlowerSearch:false,
+            activateRadiantClimacticGate:false},
+          {preferRadiantAfterBlowerSearch:true,
+            activateRadiantClimacticGate:false},
+          {preferRadiantAfterBlowerSearch:true,
+            activateRadiantClimacticGate:true}]){
     try{
       const reply=withNewMoonBlowerAutonomy(1,()=>(
         withOwnerOranguruStarVipPlan(()=>runMatch({
@@ -41,7 +47,7 @@ function run(){
         })
       ),{
         automaticFieldBlower:true,allowAnyActiveBlower:true,
-        preferRadiantAfterBlowerSearch
+        preferRadiantAfterBlowerSearch,activateRadiantClimacticGate
       });
       const game=reply.result.result;
       const source=reply.result.audit;
@@ -108,6 +114,7 @@ function run(){
       assert.equal(firstRecipientK1?.shadowRiderVMaxInOwnDeck,2);
       assert.equal(atSourceT3?.garbodorCount,1);
       rows.push({preferRadiantAfterBlowerSearch,
+        activateRadiantClimacticGate,
         status:'native-original-K0-and-recipient-owner-K1-confirmed',
         sourceOriginalK0HandSha256:first.handSha256,
         sourceReturnPublicBoard:atSourceT3,
@@ -116,6 +123,8 @@ function run(){
         nativeQuickBallRoots:quickBall.length,
         nativeRecipientOwnDeckChoices:nativeOpponentDeckChoices,
         recipientRadiantSelectionCommitted:recipient.radiantSearchSelected,
+        recipientRadiantConfirmChosen:recipient.radiantConfirmChosen,
+        recipientRadiantVmaxSelectedCount:recipient.radiantVmaxSelectedCount,
         nativeRadiantBenchPlayRoots:ownerRadiantPlays.length,
         nativeClimacticGateAbilityRoots:ownerClimacticGates.length,
         recipientNativeRootsAfterRadiant,
@@ -127,7 +136,8 @@ function run(){
         gameFinished:game.finished===true,
         competitiveQualifiedGame:false});
     }catch(error){
-      rows.push({preferRadiantAfterBlowerSearch,status:'blocked',
+      rows.push({preferRadiantAfterBlowerSearch,
+        activateRadiantClimacticGate,status:'blocked',
         error:String(error?.stack??error).slice(0,1700),
         nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
         competitiveQualifiedGame:false});
@@ -146,6 +156,9 @@ if(require.main===module){
   process.stdout.write(JSON.stringify(r,null,2)+'\n');
   process.stderr.write('AGENT1_RADIANT_POSTBLOWER_K1 '+JSON.stringify(
     r.rows.map(x=>({prefer:x.preferRadiantAfterBlowerSearch,
+      activate:x.activateRadiantClimacticGate,
+      confirmed:x.recipientRadiantConfirmChosen,
+      nativeVMAXSelected:x.recipientRadiantVmaxSelectedCount,
       status:x.status,k1:x.postBlowerRadiantOwnerK1Predicate,
       choice:x.nativeRecipientOwnDeckChoices,
       radiantSelected:x.recipientRadiantSelectionCommitted,
@@ -156,6 +169,6 @@ if(require.main===module){
       recipientPublicRadiant:x.publicOpponentRadiantAtSourceT3,
       recipientPublicVMAX:x.publicOpponentVMaxAtSourceT3,
       error:x.error??null})))+'\n');
-  if(r.nativeVerified!==2)process.exitCode=1;
+  if(r.nativeVerified!==3)process.exitCode=1;
 }
 module.exports={run};
