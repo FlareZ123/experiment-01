@@ -144,7 +144,11 @@ function rootPhysicalSnapshot(state,seat,intent){
     turn:state.turn,phase:state.phase,
     activePlayer:state.activePlayer,
     handCount:owner.hand.cards.length,
-    deckCount:owner.deck?.cards?.length??null,
+    // Native physical effect proof for draw Stadiums alone needs deck size.
+    // A paid Retreat or unrelated owner root must not open a hidden deck.
+    deckCount:intent.kind==='use-tropical-beach'||
+      intent.kind==='use-players-ceremony'?
+      owner.deck?.cards?.length??null:null,
     stadiumUsedTurn:owner.stadiumUsedTurn,
     inPlayStadiumPrintings:state.players.flatMap(p=>
       p.stadium?.cards?.map(c=>c.fullName)??[]),
