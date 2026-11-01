@@ -54,7 +54,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Audit actual Store card-instance provenance and failure-inclusive paper action phases
-        run: node --test tests/agent34-paper-action-chain-gate.test.cjs tests/agent34-live-card-instance-receipts.test.cjs tests/agent34-live-card-instance-receipts.native.test.cjs
+        run: node --test tests/agent34-paper-action-chain-gate.test.cjs tests/agent34-live-card-instance-receipts.test.cjs tests/agent34-live-card-instance-receipts.native.test.cjs tests/agent34-original-store-printing-join.test.cjs
       - name: Execute all twenty-four prespecified source-dealt three-arm seeds
         if: ${{ !inputs.k1_probe_only }}
         run: node simulation/twinleaf/rank24-thorns-three-arm-prospective.cjs > rank24-three-arm-source.json
