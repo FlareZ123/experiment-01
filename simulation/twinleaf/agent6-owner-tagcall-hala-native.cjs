@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {actorObservation}=require('./actor-observation-contract.cjs');
+const {captureOwnerK1,assessRequiredDeckPrinting}=
+  require('./owner-k1-prize-knowledge.cjs');
 const {actorSingleSearchInput,physicalBundleForPrintings}=
   require('./agent41-actor-owner-single-search.cjs');
 const {
@@ -107,13 +109,26 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
          !k1ObservedPrompts.has(pending)){
         k1ObservedPrompts.add(pending);
         const count=name=>owner.deck.cards.filter(c=>c.name===name).length;
+        const canonical=deps.includeCanonicalOwnerK1Snapshot===true?
+          captureOwnerK1(state,seat,ownRegisteredSixtiesBySeat[seat]):null;
+        const canonicalOwnerK1=canonical?Object.freeze({
+          prizeInferenceCertified:canonical.prizeInferenceCertified,
+          unaccountedTotal:canonical.unaccountedTotal,
+          ownerPrizeCount:canonical.observedOwnPrizeCount,
+          thunderKnownPrized:assessRequiredDeckPrinting(canonical,
+            'Thunder Mountain Prism Star LOT'),
+          knownPrized:canonical.knownPrized,
+          knownDeckThunderCopies:canonical.knownPrintings
+            .find(x=>x.printing==='Thunder Mountain Prism Star LOT')?.copies??0
+        }):null;
         deps.onAuthenticatedOwnerDeckInspect(Object.freeze({
           source:'accepted-original-store-owner-deck-prompt',
           ownerId:owner.id,actorSeat:seat,
           globalTurn:token.globalTurn,ownerPromptId:pending.id,
           prizeCount:owner.prizes.reduce((n,slot)=>n+slot.cards.length,0),
           thunderMountainDeckCopies:count('Thunder Mountain Prism Star'),
-          speedLightningDeckCopies:count('Speed Lightning Energy')
+          speedLightningDeckCopies:count('Speed Lightning Energy'),
+          canonicalOwnerK1
         }));
       }
       const offered=actorSingleSearchInput(state,seat);
