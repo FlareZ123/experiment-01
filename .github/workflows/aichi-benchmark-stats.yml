@@ -308,6 +308,10 @@ jobs:
         run: node --test tests/aichi-rank6-firstturn-energy-triplet.test.cjs
       - name: Verify rank6 Tag Call first-draw and joint Prize accessibility
         run: node --test tests/aichi-rank6-tagcall-firstdraw-access.test.cjs
+      - name: Exact physical rank6 previous-turn owner K1 Speed prerequisite with independent mini deals
+        run: |
+          node --test tests/agent6-rank6-k1-speed-prerequisite-exact.test.cjs
+          node scripts/agent6-rank6-k1-speed-prerequisite-exact.cjs
       - name: Check Tag Call owner-visible K0 proposal and authenticated native-prompt K1 selection
         run: node --test tests/agent6-owner-tagcall-hala-offer.test.cjs
       - name: Compare five printed Aichi Tag Call plus Guzma Hala sources with exact first-draw enumeration
