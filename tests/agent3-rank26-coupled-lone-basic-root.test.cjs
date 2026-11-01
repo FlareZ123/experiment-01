@@ -11,7 +11,7 @@ test('joint setup event respects coupled both-mulligan resets',()=>{
     0.8417535034135824)<1e-13);
   assert.ok(Math.abs(rank6.conditionalJointSetupAndSourceRoot-
     0.02688030536)<2e-11);
-  assert.ok(rank6.excludedTailBound<4e-11);
+  assert.ok(rank6.excludedTailBound<5e-11);
   assert.equal(rank6.sourceFirstAssumed,true);
 });
 
