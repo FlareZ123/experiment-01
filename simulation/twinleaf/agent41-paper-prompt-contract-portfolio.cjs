@@ -40,7 +40,7 @@ function independentPutDamageNegative(prompt,answer){
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v3-independent-membership';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v4-physical-prompt-choice-geometry';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -68,6 +68,112 @@ function independentCampingGearContract(state,action,old){
       nativeValid:old.nativeValid};
   return {paperValid:true,reason:'printed-one-physical-own-deck-card',
     nativeValid:old.nativeValid};
+}
+
+/**
+ * Redacted proof of native-declared physical selection geometry only.
+ * This is never a printed-card effect certificate, and cannot identify a
+ * concealed card or reveal a private selection's slot index or order.
+ *
+ * @param {object} state Pre-dispatch physical state.
+ * @param {object|null} prompt Pending physical prompt.
+ * @param {unknown} answer Submitted native reply, inspected post-policy.
+ * @param {object} types Native PlayerType / SlotType enum.
+ * @returns {object|null} Redacted selection geometry or unsupported family.
+ */
+function physicalPromptChoiceMetadata(state,prompt,answer,types){
+  const family=prompt?.constructor?.name;
+  if(!['ChoosePokemonPrompt','ChoosePrizePrompt','SelectPrompt',
+    'OrderCardsPrompt'].includes(family))return null;
+  const count=Array.isArray(answer)?answer.length:null;
+  const out={family,selectedCount:count,nativeDeclaredGeometry:null,
+    reason:'native-prompt-metadata-insufficient',
+    containsPhysicalCardIdentities:false,
+    printedPaperEffectQualified:false};
+  if(answer===null&&prompt.options?.allowCancel===true){
+    out.nativeDeclaredGeometry=true;
+    out.reason='native-declared-cancel-allowed';
+    return out;
+  }
+  const isArray=Array.isArray(answer)&&
+    Object.keys(answer).length===answer.length;
+  const range=(min,max)=>isArray&&
+    (min===undefined||count>=min)&&
+    (max===undefined||count<=max);
+  const ownerSeat=state.players?.findIndex(p=>
+    p.id===(typeof prompt.getPerspectivePlayerId==='function'?
+      prompt.getPerspectivePlayerId():prompt.playerId));
+  const owner=ownerSeat>=0?state.players[ownerSeat]:null;
+  if(family==='ChoosePokemonPrompt'){
+    if(!owner||!Array.isArray(prompt.slots)||
+      !types?.SlotType||!types?.PlayerType)return out;
+    const occupied=list=>typeof list?.getPokemonCard==='function'?
+      Boolean(list.getPokemonCard()):
+      Array.isArray(list?.cards)&&list.cards.length>0;
+    const physical=list=>{
+      for(let seat=0;seat<state.players.length;seat++){
+        const p=state.players[seat];
+        if(p.active===list)
+          return {seat,slot:types.SlotType.ACTIVE};
+        const i=p.bench?.indexOf(list)??-1;
+        if(i>=0)return {seat,slot:types.SlotType.BENCH};
+      }
+      return null;
+    };
+    const seen=new Set();
+    const valid=range(prompt.options?.min,prompt.options?.max)&&
+      answer.every(list=>{
+        const at=physical(list);
+        if(!at||seen.has(list)||!occupied(list))return false;
+        seen.add(list);
+        const side=at.seat===ownerSeat?
+          types.PlayerType.BOTTOM_PLAYER:types.PlayerType.TOP_PLAYER;
+        return (prompt.playerType===types.PlayerType.ANY||
+          prompt.playerType===side)&&prompt.slots.includes(at.slot);
+      });
+    out.nativeDeclaredGeometry=valid;
+    out.reason=valid?'physical-pokemon-slot-and-declared-side-match':
+      'invalid-physical-pokemon-slot-or-declared-side';
+  }else if(family==='ChoosePrizePrompt'){
+    if(!owner||!Number.isSafeInteger(prompt.options?.count))return out;
+    const prizes=(prompt.options.useOpponentPrizes===true?
+      state.players.find((p,i)=>i!==ownerSeat):owner)?.prizes;
+    if(!Array.isArray(prizes))return out;
+    const seen=new Set();
+    const valid=isArray&&count===prompt.options.count&&
+      answer.every(list=>{
+        const index=prizes.indexOf(list);
+        if(index<0||seen.has(list)||!Array.isArray(list?.cards)||
+          list.cards.length===0||
+          prompt.options.blocked?.includes(index))return false;
+        seen.add(list);
+        return true;
+      });
+    out.nativeDeclaredGeometry=valid;
+    out.reason=valid?'physical-prize-zone-and-count-match':
+      'invalid-physical-prize-zone-or-count';
+  }else if(family==='SelectPrompt'){
+    if(!Array.isArray(prompt.values))return out;
+    const valid=Number.isSafeInteger(answer)&&answer>=0&&
+      answer<prompt.values.length;
+    out.nativeDeclaredGeometry=valid;
+    out.reason=valid?'offered-option-index-match':
+      'option-outside-native-offer';
+  }else if(family==='OrderCardsPrompt'){
+    const n=prompt.cards?.cards?.length;
+    if(!Number.isSafeInteger(n))return out;
+    const seen=new Set();
+    const valid=isArray&&count===n&&answer.every(index=>{
+      if(!Number.isSafeInteger(index)||index<0||index>=n||
+        seen.has(index))return false;
+      seen.add(index);
+      return true;
+    });
+    out.nativeDeclaredGeometry=valid;
+    out.reason=valid?'physical-index-permutation-shape-match':
+      'invalid-native-index-permutation-shape';
+  }
+  return out;
 }
 
 /**
@@ -118,6 +224,9 @@ function withPaperPromptContractPortfolio(run,deps={}){
     markedVoltCyclonePrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
+    physicalChoiceShapeCounts:{
+      withinDeclaredGeometry:0,outsideDeclaredGeometry:0,
+      insufficientMetadata:0},
     statusCounts:Object.fromEntries(STATUSES.map(s=>[s,0])),
     byFamily:{},byTrial,storeCount:0,stores:[],firstByStatus:{},
     examples:[],examplesTruncated:false,
@@ -214,11 +323,21 @@ function withPaperPromptContractPortfolio(run,deps={}){
         reason='paper-randomness-not-independently-sampled-or-attributed';
       }
     }
+    const choiceGeometry=physicalPromptChoiceMetadata(
+      this.state,prompt,action.result,types);
+    if(choiceGeometry){
+      const category=choiceGeometry.nativeDeclaredGeometry===true?
+        'withinDeclaredGeometry':
+        choiceGeometry.nativeDeclaredGeometry===false?
+          'outsideDeclaredGeometry':'insufficientMetadata';
+      audit.physicalChoiceShapeCounts[category]++;
+    }
     const event={storeOrdinal:store.storeOrdinal,trialId:trial,
       turn:this.state.turn??null,family,sourcePrinting,
       contract,status,reason,submittedCount:Array.isArray(action.result)?
         action.result.length:null,nativeAccepted:false,
-      vetoedBeforeDispatch:false,nativePreflightRejected};
+      vetoedBeforeDispatch:false,nativePreflightRejected,
+      choiceGeometry};
     audit.resolvedNativeReplies++;
     store.attemptedPromptReplies++;
     if(trial){
@@ -277,4 +396,5 @@ function withPaperPromptContractPortfolio(run,deps={}){
   }
 }
 module.exports={VERSION,independentCampingGearContract,
-  independentPutDamageNegative,withPaperPromptContractPortfolio};
+  independentPutDamageNegative,physicalPromptChoiceMetadata,
+  withPaperPromptContractPortfolio};
