@@ -185,7 +185,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     ...(['play-stranded-marnie','play-lowhand-lillie',
       'play-conservative-shuffle-supporter','play-carmine-first',
       'play-seeker-recovered-lillie','play-held-guzma-mobility',
-      'play-team-flare-grunt-denial','play-eri-reveal'].includes(intent.kind)?{
+      'play-team-flare-grunt-denial','play-plumeria-payment-menu',
+      'play-eri-reveal'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
       supporterSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -310,6 +311,7 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-seeker-recovered-lillie'||
      intent.kind==='play-held-guzma-mobility'||
      intent.kind==='play-team-flare-grunt-denial'||
+     intent.kind==='play-plumeria-payment-menu'||
      intent.kind==='play-eri-reveal'){
     // The genuine Store first moves the Supporter into its publicly
     // resolving zone; subsequent hand redraws may require more prompts.
