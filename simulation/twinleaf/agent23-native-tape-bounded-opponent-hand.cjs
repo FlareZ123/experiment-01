@@ -95,6 +95,18 @@ function compareNativeOpponentHiddenHandBounded(args,
     selectBoundedHandPrizeExchanges(opponent.hand.cards,opponent.prizes,limit):
     (swapSize===2?selectBoundedDoubleExchanges:
       selectBoundedHiddenExchanges)(opponent.hand.cards,opponent.deck.cards,limit);
+  const successfulCompositions=new Set();
+  // Composition keys never enter the archived native case ledger. The
+  // release evidence records counts, including paths that failed replay.
+  function handCompositionKey(exchange){
+    if(swapSize===2)return exchange.handCompositionDelta;
+    const incoming=targetZone==='prizes'?
+      opponent.prizes[exchange.prizeIndex].cards[0]:
+      opponent.deck.cards[exchange.deckIndex];
+    return JSON.stringify([
+      opponent.hand.cards[exchange.handIndex].fullName,incoming.fullName
+    ]);
+  }
   const report={
     schema:targetZone==='prizes'?PRIZE_VERSION:
       swapSize===2?DOUBLE_VERSION:VERSION,
@@ -110,10 +122,12 @@ function compareNativeOpponentHiddenHandBounded(args,
     attemptedExchangePaths:0,successfulExchangePaths:0,
     failedExchangePaths:0,
     exhaustiveExchangePathCoverage:selected.exhaustive,
-    eligibleDistinctOpponentHandCompositions:swapSize===1?
-      selected.eligibleDistinctHandCompositions:null,
-    testedDistinctOpponentHandCompositions:swapSize===1?
-      selected.testedDistinctHandCompositions:null,
+    eligibleDistinctOpponentHandCompositions:
+      selected.eligibleDistinctHandCompositions??null,
+    testedDistinctOpponentHandCompositions:
+      selected.testedDistinctHandCompositions??null,
+    // Unlike "tested", this requires successful native tape playback.
+    successfulDistinctOpponentHandCompositions:0,
     eligibleSingleExchanges:swapSize===1?selected.available:null,
     eligibleHandPrizeExchanges:targetZone==='prizes'?selected.available:null,
     attemptedHandPrizeExchanges:targetZone==='prizes'?0:null,
@@ -233,6 +247,7 @@ function compareNativeOpponentHiddenHandBounded(args,
         const decision=actionSignature(playback.result);
         record.actionChanged=!isDeepStrictEqual(decision,parity.actualAction);
         record.executable=true;
+        successfulCompositions.add(handCompositionKey(exchange));
         report.successfulExchangePaths++;
         if(swapSize===1)report.successfulSingleExchanges++;
         else report.successfulDisjointDoubleExchangePaths++;
@@ -261,6 +276,8 @@ function compareNativeOpponentHiddenHandBounded(args,
     const replay=replayPolicyRandomTape(tape,()=>replayDecision(baseline));
     report.baselineReplayStable=isDeepStrictEqual(
       actionSignature(replay.result),parity.actualAction);
+    report.successfulDistinctOpponentHandCompositions=
+      successfulCompositions.size;
     if(!report.baselineReplayStable){
       report.error='Original-world action drifted after counterfactuals';
     }
