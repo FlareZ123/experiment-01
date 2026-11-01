@@ -480,6 +480,10 @@ function runMatch(request) {
         request.postSuperAliasRepairIsolation === true) {
       throw new Error('Choose only one experimental speculative Simulator profile');
     }
+    if (request.dhelmiseDonorCompressorSeat !== undefined &&
+        ![0,1].includes(request.dhelmiseDonorCompressorSeat)) {
+      throw new Error('Dhelmise owner Compressor policy requires physical seat 0 or 1');
+    }
     if (request.mimikyuApexTimelessPolicySeat !== undefined &&
         (request.mimikyuApexTimelessPolicy !== true ||
           ![0, 1].includes(request.mimikyuApexTimelessPolicySeat))) {
@@ -828,6 +832,10 @@ function runMatch(request) {
                 Number.POSITIVE_INFINITY :
                 (request.newMoonAttackPayloadCompressorLateSeat === seat ? 14 : 6)
           });
+      }
+      if (request.dhelmiseDonorCompressorSeat === seat) {
+        configured = require('./agent25-dhelmise-compressor-donors.cjs')
+          .withDhelmiseCompressorDonors(configured);
       }
       if (request.rank4RaichuCompressorSeat === seat) {
         configured = require('./rank4-raichu-compressor-policy.cjs')
@@ -1769,6 +1777,7 @@ function runMatch(request) {
       attachedToolPowerPolicy: request.attachedToolPowerPolicy === true,
       battleCompressorPositiveSelectionCorrection:
         request.battleCompressorPositiveSelectionCorrection === true,
+      dhelmiseDonorCompressorSeat: request.dhelmiseDonorCompressorSeat ?? null,
       grandTreeFirstTurnCorrection: request.grandTreeFirstTurnCorrection === true,
       doubleDragonRecovery: request.doubleDragonRecovery === true,
       ...(request.doubleDragonArchiveV3 === true ? {doubleDragonArchiveV3:true} : {}),
@@ -1850,6 +1859,9 @@ function runMatch(request) {
         'Twinleaf SimpleTacticsAi/defaultStateScores') +
         (request.battleCompressorPositiveSelectionCorrection === true ?
           '+BattleCompressorMin1-paper-v1' : '') +
+        (request.dhelmiseDonorCompressorSeat !== undefined ?
+          '+DhelmiseHnsOwnerCompressor-v1@seat' +
+          request.dhelmiseDonorCompressorSeat : '') +
         (request.supporterDecisionCorrection === true ? '+SupporterDecisionGuard-v1' : '') +
         (request.mandatoryOptionFallback === true ? '+MandatoryOptionDefaultFallback-v1' : '') +
         (request.enforceSelectOptionLegality === true ? '+SelectOptionLegalityGate-v1' : '') +
