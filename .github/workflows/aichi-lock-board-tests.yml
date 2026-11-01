@@ -15,6 +15,7 @@ on:
           - ceremony
           - sky
           - all-native
+          - state-guard
         default: none
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
@@ -157,6 +158,9 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
+      - name: Fail closed on hidden State mutation during coheld canPlay
+        if: inputs.agent33_stadium_mode == 'state-guard'
+        run: node --test tests/agent33-native-state-fingerprint-guard.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
