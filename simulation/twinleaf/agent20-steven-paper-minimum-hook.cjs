@@ -25,6 +25,8 @@ function installStevenPaperMinimumHook() {
   const {ResolvePromptAction} = require(path.join(output,
     'game/store/actions/resolve-prompt-action'));
   const original = Store.prototype.dispatch;
+  const audit={sourceStampedOwnDeckPrompts:0,nonemptyAccepted:0,
+    emptyVetoed:0};
 
   /** @param {object} action @param {...unknown} args */
   function guardedDispatch(action, ...args) {
@@ -39,10 +41,13 @@ function installStevenPaperMinimumHook() {
       const isPrintedOwnDeckSearch = stampedSource &&
         prompt.constructor.name === 'ChooseCardsPrompt' &&
         owner && prompt.cards === owner.deck;
-      if (isPrintedOwnDeckSearch &&
-          (!Array.isArray(action.result) ||
-           action.result.length === 0)) {
-        throw new Error('PAPER_STEVEN_CES_SEARCH_REQUIRES_ONE_CARD');
+      if (isPrintedOwnDeckSearch) {
+        audit.sourceStampedOwnDeckPrompts++;
+        if (!Array.isArray(action.result) || action.result.length === 0) {
+          audit.emptyVetoed++;
+          throw new Error('PAPER_STEVEN_CES_SEARCH_REQUIRES_ONE_CARD');
+        }
+        audit.nonemptyAccepted++;
       }
     }
     return original.call(this, action, ...args);
@@ -50,13 +55,15 @@ function installStevenPaperMinimumHook() {
 
   Store.prototype.dispatch = guardedDispatch;
   installed = {Store, original, guardedDispatch};
-  return function restoreStevenPaperMinimumHook() {
+  const restore = function restoreStevenPaperMinimumHook() {
     if (installed === null) return;
     if (Store.prototype.dispatch === guardedDispatch) {
       Store.prototype.dispatch = original;
     }
     installed = null;
   };
+  restore.audit=audit;
+  return restore;
 }
 
 module.exports = {installStevenPaperMinimumHook};
