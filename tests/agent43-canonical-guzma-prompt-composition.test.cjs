@@ -102,3 +102,32 @@ test('optional Guzma bridge works without generic ChoosePokemon and rejects miss
   assert.throws(()=>withCanonicalActorOnlyPolicy(()=>42,adapters,
     {guzmaOwnerPromptContinuation:true}),/must report a native audit/);
 });
+
+test('nominal opposing Guzma gust is default-off, explicitly forwarded, and requires owner bridge',()=>{
+  const order=[],adapters=base(order);
+  let forwarded=null;
+  adapters.guzma=(execute,flags)=>{
+    forwarded=flags;
+    return {result:execute(),audit:{version:'test-guzma',
+      acceptedGuzmaRoots:0,ownTargetAcceptances:0,
+      bySeat:{0:0,1:0},competitiveGameQualified:false}};
+  };
+  const original=withCanonicalActorOnlyPolicy(()=>17,adapters,{
+    guzmaOwnerPromptContinuation:true
+  });
+  assert.equal(original.result,17);
+  assert.deepEqual(forwarded,{nominalGust:false});
+  assert.equal(original.audit.guzmaNominalGustOptIn,false);
+  forwarded=null;
+  const proposed=withCanonicalActorOnlyPolicy(()=>18,adapters,{
+    guzmaOwnerPromptContinuation:true,guzmaNominalGust:true
+  });
+  assert.equal(proposed.result,18);
+  assert.deepEqual(forwarded,{nominalGust:true});
+  assert.equal(proposed.audit.guzmaNominalGustOptIn,true);
+  assert.ok(proposed.audit.version.includes('agent43-nominal-guzma-gust'));
+  assert.equal(proposed.audit.qualification.competitiveGames,0);
+  assert.throws(()=>withCanonicalActorOnlyPolicy(()=>19,adapters,{
+    guzmaNominalGust:true
+  }),/requires the owner Guzma continuation/);
+});
