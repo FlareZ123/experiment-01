@@ -116,6 +116,29 @@ test('paper unrestricted search can take a zero-weight filler as one-card minimu
   close(r.probabilityPositiveValue,0);
 });
 
+test('known unweighted deck-only card satisfies mandatory search',()=>{
+  const r=k0([],0,{A:10},{known:['X'],cost:1,max:3});
+  close(r.expectedValue,-1);
+  close(r.expectedCardsChosen,1);
+  close(r.probabilityPositiveValue,0);
+  assert.equal(r.exactDenominator,'1');
+});
+
+test('prized only target leaves known unweighted mandatory pick',()=>{
+  const r=k0(['A'],1,{A:10},{known:['X'],cost:1,max:2});
+  close(r.expectedValue,-1);
+  close(r.expectedCardsChosen,1);
+  close(r.probabilityPositiveValue,0);
+});
+
+test('mixed known filler and unknown target have correct K0 mean',()=>{
+  const r=k0(['A','B'],1,{A:10},
+    {known:['X'],cost:1,max:1});
+  close(r.expectedValue,4);
+  close(r.expectedCardsChosen,1);
+  close(r.probabilityPositiveValue,0.5);
+});
+
 test('unrestricted search with an empty deck is not a legal option',()=>{
   assert.throws(()=>k0([],0,{A:10}),/eligible deck card/);
 });
