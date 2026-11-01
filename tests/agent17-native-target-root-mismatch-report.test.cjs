@@ -70,3 +70,16 @@ test('known Telepath public literal alias remains narrowly supported',()=>{
   assert.equal(rootLabelMatchesNativePrinting('Telepathic Psychic Energy',
     'Telepath [P] Energy DRI'),false);
 });
+
+
+test('four original rank5 Dedenne-GX native root evidence uses one exact alias',()=>{
+  assert.equal(rootLabelMatchesNativePrinting('Dedenne-GX','Dedenne GX UNB'),true);
+  assert.equal(rootLabelMatchesNativePrinting('Dedenne-GX','Dedenne GX MEG'),false);
+  assert.equal(rootLabelMatchesNativePrinting('Dedenne-GX','Dedenne UNB'),false);
+  const roots=[{action:'PlayCardAction',playerSlot:1,turnBefore:41,card:'Dedenne-GX'}];
+  const store=[{action:'PlayCardAction',playerSlot:1,turnBefore:41,
+    declared:{ownerHandPrinting:'Dedenne GX UNB'}}];
+  assert.equal(auditNativeTargetRootLinkage(roots,store).linked,true);
+  store[0].turnBefore=42;
+  assert.equal(auditNativeTargetRootLinkage(roots,store).linked,false);
+});
