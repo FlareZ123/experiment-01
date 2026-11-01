@@ -30,16 +30,18 @@ function pidgeot(seat,used){
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
   });
   let result='accepted',error=null;
-  try{x.store.dispatch(action);}
-  catch(e){result='rejected';error=e.message;}
-  // The genuine Store can enqueue the opposite seat's WaitPrompt before
-  // exposing the selecting owner's ChooseCardsPrompt. Resolve only waits;
-  // leave the decision-bearing search prompt untouched for this proof.
-  let pending=x.store.state.prompts.find(q=>q.result===undefined);
-  for(let i=0;i<16&&pending?.constructor.name==='WaitPrompt';i++){
-    x.store.dispatch(new ResolvePromptAction(pending.id,null));
-    pending=x.store.state.prompts.find(q=>q.result===undefined);
-  }
+  // Quick Search can be checked only while settling the native WaitPrompt.
+  // Preserve the original thrown POWER_ALREADY_USED rejection rather than
+  // mistaking initial acceptance of UseAbilityAction for successful use.
+  try{
+    x.store.dispatch(action);
+    for(let i=0;i<16;i++){
+      const prompt=x.store.state.prompts.find(q=>q.result===undefined);
+      if(prompt?.constructor.name!=='WaitPrompt')break;
+      x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+  }catch(e){result='rejected';error=e.message;}
+  const pending=x.store.state.prompts.find(q=>q.result===undefined);
   return {view,receipt,result,error,prompt:pending?.constructor.name??null};
 }
 
@@ -56,7 +58,8 @@ for(const seat of [0,1]){
     assert.equal(available.prompt,'ChooseCardsPrompt');
     assert.equal(spent.result,'rejected');
     assert.equal(spent.error,'POWER_ALREADY_USED');
-    assert.equal(spent.prompt,null);
+    assert.notEqual(spent.prompt,'ChooseCardsPrompt',
+      'Already used Quick Search must not reveal a deck selection');
     console.log('AGENT8_NATIVE_ABILITY_ALIAS',
       JSON.stringify({seat,identicalOwnerObservation:true,
         unspent:available.result,spent:spent.result,
