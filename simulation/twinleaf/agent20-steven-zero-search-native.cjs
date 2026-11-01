@@ -3,6 +3,8 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
+const {installStevenPaperMinimumHook} =
+  require('./agent20-steven-paper-minimum-hook.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath */
@@ -15,9 +17,10 @@ const engine = modulePath => require(path.join(output, modulePath));
  *
  * @param {0 | 1} seat Physical acting player seat.
  * @param {0 | 1} pickedCards Actual searched-card count.
+ * @param {boolean} [paperGuard=false] Explicit opt-in reversible paper rule.
  * @returns {object} Physical prompt/zone receipt, not a game result.
  */
-function probeStevenSearch(seat, pickedCards) {
+function probeStevenSearch(seat, pickedCards, paperGuard=false) {
   const manager = initializeCards();
   const { Store } = engine('game/store/store');
   const { Player } = engine('game/store/state/player');
@@ -71,19 +74,24 @@ function probeStevenSearch(seat, pickedCards) {
   assert.equal(prompt?.constructor.name, 'ChooseCardsPrompt');
   const min = prompt.options.min;
   const max = prompt.options.max;
+  const sourceStamp=prompt.sourceCard?.fullName??null;
+  const physicallyOwnedSearch=prompt.cards===owner.deck;
   const validatorAcceptedZero = prompt.validate([]);
   const choice = pickedCards === 0 ? [] : [beforeDeck[0]];
   const choiceValidated = prompt.validate(choice);
   const errors = [];
   let dispatched = false;
+  const restore=paperGuard?installStevenPaperMinimumHook():()=>{};
   try {
     store.dispatch(new ResolvePromptAction(prompt.id, choice));
     dispatched = true;
   } catch (error) {
     errors.push(String(error?.message || error));
+  } finally {
+    restore();
   }
   const subsequentPrompts = [];
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; dispatched && i < 12; i++) {
     const next = state.prompts.find(p => p.result === undefined);
     if (!next) break;
     const family = next.constructor.name;
@@ -96,7 +104,8 @@ function probeStevenSearch(seat, pickedCards) {
     catch (error) { errors.push(String(error?.message || error)); break; }
   }
   return {
-    seat, pickedCards, sourcePrinting: "Steven's Resolve CES 145",
+    seat, pickedCards, paperGuard, sourceStamp, physicallyOwnedSearch,
+    sourcePrinting: "Steven's Resolve CES 145",
     originalRank: 7, nativePrompt: 'ChooseCardsPrompt',
     min, max, validatorAcceptedZero, choiceValidated,
     dispatched, errors,
@@ -116,16 +125,17 @@ function probeStevenSearch(seat, pickedCards) {
 
 /** @returns {object} Two-seat, zero-choice vs one-card positive controls. */
 function run() {
-  const rows = [];
+  const rows = [], guardedRows=[];
   for (const seat of [0, 1]) {
     for (const pickedCards of [0, 1]) {
       rows.push(probeStevenSearch(seat, pickedCards));
+      guardedRows.push(probeStevenSearch(seat, pickedCards,true));
     }
   }
   return {
     enginePin: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     scope: 'Staged native owner Store source-printing card. No actual opening, game, or win inference.',
-    rows
+    rows, guardedRows
   };
 }
 
