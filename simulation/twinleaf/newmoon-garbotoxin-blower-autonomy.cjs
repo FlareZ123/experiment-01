@@ -177,7 +177,11 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
         gengarInOwnDiscard: own.discard.cards.filter(gengar).length,
         gengarOnOwnBench: own.bench.filter(slot =>
           gengar(slot.getPokemonCard())).length,
-        gengarIsOwnActive: gengar(own.active.getPokemonCard())
+        gengarIsOwnActive: gengar(own.active.getPokemonCard()),
+        radiantEternatusInOwnDeck:own.deck.cards.filter(card=>
+          card?.fullName==='Radiant Eternatus CRZ').length,
+        shadowRiderVMaxInOwnDeck:own.deck.cards.filter(card=>
+          card?.fullName==='Shadow Rider Calyrex VMAX CRE').length
       });
     }
     if (state.activePlayer === candidateSeat &&
