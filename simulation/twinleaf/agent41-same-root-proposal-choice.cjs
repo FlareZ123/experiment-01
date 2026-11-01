@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v30-experimental-psychic-bench-recipient';
+const VERSION='agent41-same-root-proposal-choice-v31-optin-active-latias-preservation';
 const MAX_SAMPLES=48;
 
 /**
@@ -103,8 +103,13 @@ const PROPOSERS=Object.freeze([
   // Source-development alternative, physically supported by existing native
   // Energy-target dispatch. The scorer must separately opt into selecting it.
   {name:'rondo-psychic-bench',flag:'rondoPsychicBenchStage',
-    propose:(view,catalog)=>require('./agent7-rondo-psychic-bench-staging.cjs')
-      .proposeRondoPsychicBenchStaging(view,catalog)},
+    propose:(view,catalog,options,baseline)=>
+      require('./agent7-rondo-psychic-bench-staging.cjs')
+        .proposeRondoPsychicBenchStaging(view,catalog,{
+          protectActiveLatiasEonBlade:
+            options.rondoProtectActiveLatiasEonBlade===true,
+          baseline
+        })},
   {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
     propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
       .ownerBasicAttachmentMenu(view,catalog)},
