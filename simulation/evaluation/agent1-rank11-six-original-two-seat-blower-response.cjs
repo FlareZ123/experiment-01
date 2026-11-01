@@ -50,6 +50,18 @@ function run(){
         const game=result.result.result;
         const sourceAudit=result.result.audit;
         const blowerAudit=result.policyAudit;
+        // Plan completion is observed at the source's final first-turn
+        // decision root, BEFORE the opponent can remove the Tool.
+        assert.equal(sourceAudit.plansChosen,1,
+          'Genuine owner K0 opportunity must be selected');
+        assert.equal(sourceAudit.nativeAccepted,11,
+          'All eleven source plan actions must settle in the native Store');
+        assert.equal(sourceAudit.ownerPromptAccepted,5,
+          'All five owner-controlled search/target prompts must settle');
+        assert.equal(sourceAudit.completedEquippedGarbodor,1,
+          'Source board must be equipped when its plan finishes');
+        assert.deepEqual(sourceAudit.abortReasons,{},
+          'A partial or aborted source route is not an eligible paired arm');
         const first=sourceAudit.originalOwnK0AtOffer?.find(row=>row.seat===0);
         assert.ok(first,'No first genuine original source K0 owner observation');
         assert.equal(first.handSha256,entry.sourceFirstOwnerHandSha256,
@@ -74,7 +86,7 @@ function run(){
           sourcePlansChosen:sourceAudit.plansChosen,
           sourceNativeAccepted:sourceAudit.nativeAccepted,
           sourceOwnerPromptAccepted:sourceAudit.ownerPromptAccepted,
-          sourceCompletedEquippedAfterReply:
+          sourceCompletedEquippedAtSourcePlanEnd:
             sourceAudit.completedEquippedGarbodor,
           sourceAborts:sourceAudit.abortReasons,
           nativeTurn2FieldBlowerRootCount:turn2FieldBlowerRoots.length,
@@ -107,7 +119,7 @@ function run(){
       n+a.earlyBlowerToolRemoved,0),
     blocked:arms.length-clean.length,rows,
     competitiveQualifiedGames:0,
-    limits:'Same six retrospectively K0-selected rank11 source original 60 against rank1 original 60; source plan explicitly admitted, opponent native actor-directed Field Blower only where held and playable. Weak remaining native bot, no competitive games, no paper-equivalence claim.'};
+    limits:'Source plan-end equipped witness PRECEDES the opponent turn; opponent response is evidenced separately by its actual native Field Blower root and public post-effect Tool-removal receipt. Same six retrospectively K0-selected rank11 source original 60 against rank1 original 60; source plan explicitly admitted, opponent native actor-directed Field Blower only where held and playable. Weak remaining native bot, no competitive games, no paper-equivalence claim.'};
 }
 if(require.main===module){
   const result=run();
