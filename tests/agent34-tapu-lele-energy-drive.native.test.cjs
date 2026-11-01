@@ -139,3 +139,38 @@ test('two-unit Double Colorless Energy and Psychic Weakness bypass, both seats',
       'Energy Drive ignores Weakness, physical seat '+row.seat);
   }
 });
+
+test('diagnose native Effect class identities on actual Energy Drive path',()=>{
+  const fixture=stage(0,1,{defender:'Galarian Zapdos V CRE'});
+  const original=Store.prototype.reduceEffect;
+  const events=[];
+  Store.prototype.reduceEffect=function tracedEffect(state,effect){
+    const name=effect?.constructor?.name??null;
+    const embedded=effect?.attackEffect;
+    const attack=embedded?.attack??effect?.attack;
+    if(events.length<48 && (
+       /Damage|Attack|Weakness|Resistance|CheckHp/.test(name??'')||
+       attack?.name==='Energy Drive')){
+      events.push({
+        name,
+        keys:Object.keys(effect??{}).slice(0,25),
+        attackName:attack?.name??null,
+        attackKeys:embedded?Object.keys(embedded).slice(0,26):[],
+        source:embedded?.source?.getPokemonCard?.()?.fullName??null,
+        directIgnoreWeakness:effect?.ignoreWeakness??null,
+        nestedIgnoreWeakness:embedded?.ignoreWeakness??null,
+        directIgnoreResistance:effect?.ignoreResistance??null,
+        nestedIgnoreResistance:embedded?.ignoreResistance??null,
+        damage:effect?.damage??null
+      });
+    }
+    return original.call(this,state,effect);
+  };
+  let receipt;
+  try{receipt=settle(fixture);}
+  finally{Store.prototype.reduceEffect=original;}
+  console.log('AGENT34_ENERGY_DRIVE_EFFECT_STRUCTURE',JSON.stringify({
+    printing:receipt.printing,damage:receipt.deltaDamage,
+    effects:events}));
+  assert.equal(receipt.deltaDamage,120,'Pinned original native Weakness failure is reproducible');
+});
