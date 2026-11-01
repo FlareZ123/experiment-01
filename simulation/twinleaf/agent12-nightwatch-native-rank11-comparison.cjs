@@ -93,10 +93,25 @@ function run(){
           treated[i].fullPhysicalDealFingerprint,
           'Full physical deal changed under RNG-only native prompt handling');
       }
+      const namedNativeNightWatch=treated.reduce((n,r)=>
+        n+r.nativeNightWatchPromptCount,0);
+      assert.equal(audit.audit.structuralCandidates,namedNativeNightWatch,
+        'Narrow structural random sampler affected a non-Night Watch prompt');
+      for(let i=0;i<base.length;i++){
+        assert.equal(base[i].nativeNightWatchPromptCount,
+          treated[i].nativeNightWatchPromptCount,
+          'Native Night Watch prompt count changed under selection');
+        if(base[i].trial.candidateId==='champion-reference')
+          assert.equal(base[i].rootActionLedgerSha256,
+            treated[i].rootActionLedgerSha256,
+            'Untargeted champion reference changed under random sampler');
+      }
       out.push({registration:group,seed:groupRows[0].seed,
         attemptedBaseline:base.length,attemptedUniform:treated.length,
         baseline:base,uniform:treated,
         randomHookAudit:audit.audit,
+        exactNightWatchPromptCountMatchesIntercepts:true,
+        championReferenceRootNoninterference:true,
         competitiveQualified:false});
     }
     return {version:VERSION,
