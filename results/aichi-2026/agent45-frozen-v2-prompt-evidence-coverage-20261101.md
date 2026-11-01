@@ -17,6 +17,29 @@ Reproduction: use [pure audit module](../../simulation/evaluation/agent45-frozen
 
 ## Actual native archived observer counts
 
+The archived rootActionLedger supplies an independent **headless action-family denominator**. Its length equals the declared rootActionCount for all 32 attempts in both versions. The full logged ResolvePromptAction families are enumerated below, though this does not automatically represent hidden/internal Store dispatches or prove any prompt reply accepted.
+
+| Logged headless family | v1 | v2 |
+| --- | ---: | ---: |
+| All root actions | 7,006 | 6,314 |
+| ResolvePromptAction roots | **4,811** | **4,331** |
+| WaitPrompt roots | 4,019 | 3,431 |
+| Other ResolvePromptAction roots | **792** | **900** |
+| ShuffleDeckPrompt | 208 | 241 |
+| ShowCardsPrompt | 78 | 87 |
+| ChoosePokemonPrompt | 45 | 69 |
+| ChoosePrizePrompt | 27 | 54 |
+| SelectPrompt | 37 | 21 |
+| OrderCardsPrompt | 18 | 2 |
+| ConfirmPrompt | 49 | 48 |
+| ShowMulliganPrompt | 44 | 44 |
+| CoinFlipPrompt | 32 | 32 |
+| ChooseCardsPrompt | 250 | 271 |
+| SelectOptionPrompt | 4 | 4 |
+| AttachEnergyPrompt | 0 | 27 |
+
+**Exact family-count reconciliation:** all 250/271 ChooseCards and 4/4 SelectOption headless roots match the pre-dispatch choice observer cardinalities; all 0/27 AttachEnergy roots match the accepted-energy sidecar cardinalities. Thus, for these named families the distinct audit channels have no missing/extra records by count within the logged root stream. Record-count equality is weaker than same-action identity or settled legal-effect proof.
+
 | Observer channel / status | v1 | v2 |
 | --- | ---: | ---: |
 | Complete attempted native rows | 32 | 32 |
@@ -49,7 +72,7 @@ The observed moved cards are from Double Colorless, Speed Lightning, Capture, an
 
 ## Concrete shared-release next action
 
-The existing [choice evidence observer](../../simulation/twinleaf/native-prompt-choice-evidence.cjs) is pre-dispatch and [Energy public delta observer](../../simulation/twinleaf/accepted-energy-prompt-public-witness.cjs) only records AttachEnergyPrompt. Therefore the total native ResolvePromptAction population is **unknown**. The canonical two-seat runner needs a post-dispatch all-prompt-family ledger, with exact root/turn, actor, acceptance, independent printed paper predicate and limited status. Retain PROMPT_PAPER_UNVERIFIED until tested; distinguish PROMPT_PAPER_INVALID when an independently forbidden reply is accepted. Do not give these owner-private observations to the decision scorer.
+The existing [choice evidence observer](../../simulation/twinleaf/native-prompt-choice-evidence.cjs) is pre-dispatch and [Energy public delta observer](../../simulation/twinleaf/accepted-energy-prompt-public-witness.cjs) only records AttachEnergyPrompt. Therefore the **logged headless ResolvePromptAction population is known (4,811 v1; 4,331 v2)**, but the total genuinely Store-accepted and independently paper-qualified prompt population remains **unknown**. The canonical two-seat runner already exposes logged headless root prompt family counts, but needs a **same-root join to Store-accepted results and independent paper verdicts** for every consequential family, with exact root/turn, actor, acceptance, independent printed paper predicate and limited status. The v2 recorded 900 non-Wait prompt roots, of which 302 are covered by existing ChooseCards, SelectOption, or AttachEnergy sidecars; **598 non-Wait roots belong to other families lacking these three narrow sidecars**. Some are passive ceremony/visibility mechanics, while ChoosePokemon (69), ChoosePrize (54), and SelectPrompt (21) require separate policy/target scrutiny. Neither the 598 count nor all recorded roots is an independent card-text legality audit. Retain PROMPT_PAPER_UNVERIFIED until tested; distinguish PROMPT_PAPER_INVALID when an independently forbidden reply is accepted. Do not give these owner-private observations to the decision scorer.
 
 The 27 genuine source movement receipts supply a positive public-effect check. [Agent46's validated native Gengar forbidden-target finding](../../communications/agent41/20261101T0546Z_agent46_native_prompt_validate_bypass.md) supplies a negative control for the new paper prompt veto. Version the shared manifest rather than silently mutating frozen v2; retain every cap, abort, and error. No additional CI workflow is needed.
 
