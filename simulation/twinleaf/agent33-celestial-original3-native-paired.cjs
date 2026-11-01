@@ -22,7 +22,7 @@ const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  * @returns {object} Complete attempted result including native errors.
  */
 function runOne(c,byRank){
-  const source=byRank.get(20).cardIds;
+  const source=byRank.get(c.sourceRank??20).cardIds;
   const opponent=byRank.get(c.opponentRank??11).cardIds;
   assert.equal(source.length,60);assert.equal(opponent.length,60);
   const request={
@@ -36,7 +36,8 @@ function runOne(c,byRank){
     capturePhysicalZoneIntegrity:true,
     enforceSettledPhysicalZoneIntegrity:true,
     label:'agent33-retrospective-celestial-paper-hook-'
-      +(c.opponentRank??11)+'-'+c.sourceSeat+'-'+c.seed
+      +(c.sourceRank??20)+'-'+(c.opponentRank??11)+'-'
+      +c.sourceSeat+'-'+c.seed
   };
   try{
     const outer=withPaperCelestialRoarEnergy(()=>
