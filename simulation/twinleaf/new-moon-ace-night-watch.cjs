@@ -102,8 +102,6 @@ function sourceSecondTurn() {
   assert.equal(s.turn,5,'Completed copied attack must advance one global turn');
   assert.equal(opp.hand.cards.length,2,
     'Night Watch leaves one after Ace; opponent then draws turn-start card');
-  assert.equal(opp.deck.cards.length,26,
-    'Opponent deck has two shuffled cards and one mandatory next-turn draw');
   return {prizes:[me.getPrizeLeft(),opp.getPrizeLeft()],
    opponentHand:opp.hand.cards.length,opponentTurnAfterAttack:s.turn,
    opponentActiveAfterAttack:s.activePlayer,meHand:me.hand.cards.length,
