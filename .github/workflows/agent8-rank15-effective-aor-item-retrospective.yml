@@ -1,7 +1,13 @@
-name: Agent8 rank15 effective AOR Item-lock retrospective native comparison
+name: Agent8 rank15 effective AOR Item-lock native comparisons
 
 on:
   workflow_dispatch:
+    inputs:
+      fresh_registered:
+        description: Use the new independently precommitted CSPRNG seed tranche
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -18,7 +24,11 @@ jobs:
       - name: Restore exact pinned Twinleaf source
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Verify immutable original Aichi rank15 registration
+        if: ${{ !inputs.fresh_registered }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs --inspect-only
+      - name: Verify independently registered fresh rank15 seeds
+        if: ${{ inputs.fresh_registered }}
+        run: node simulation/evaluation/agent8-rank15-effective-aor-fresh-registered.cjs --inspect-only
       - name: Install pinned native Store dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -28,14 +38,20 @@ jobs:
       - name: Verify actual two-seat Item lock including Wobbuffet suppression
         run: node --test tests/agent8-aor-vileplume-item-preflight-native.test.cjs
       - name: Compare 32 original-source retrospective native policy attempts
+        if: ${{ !inputs.fresh_registered }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs
+      - name: Compare 32 newly registered, unscreened native policy attempts
+        if: ${{ inputs.fresh_registered }}
+        run: node simulation/evaluation/agent8-rank15-effective-aor-fresh-registered.cjs
       - name: Preserve full raw Store evidence and explicit unqualified comparison
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent8-rank15-aor-effective-item-veto-retrospective
+          name: agent8-rank15-aor-effective-item-veto-native
           path: |
             agent8-rank15-effective-aor-item-retrospective-raw.json
             agent8-rank15-effective-aor-item-retrospective-summary.json
+            agent8-rank15-effective-aor-item-fresh-native-raw.json
+            agent8-rank15-effective-aor-item-fresh-native-summary.json
           if-no-files-found: warn
           retention-days: 30
