@@ -40,7 +40,7 @@ function classifyGuzmaRoot(view,catalog){
   const quotaOpen=r?.supporterPlayedTurn===0 &&
     r?.supporterPlayLocked!==true &&
     own?.publicTurnRestrictions?.supporterPlayLocked!==true &&
-    own?.publicTurnRestrictions?.attackLockTurnsRemaining<=0 &&
+    (own?.publicTurnRestrictions?.attackLockTurnsRemaining??0)<=0 &&
     (own?.resolvingSupporter?.length??0)===0 &&
     view.globalTurn>1;
   const actionable=quotaOpen&&!directActiveNominalKo;
