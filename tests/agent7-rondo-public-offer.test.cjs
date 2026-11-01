@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {offerPublicRondo,publicRondoReadiness,publicRondoBenchFunding}=require('../simulation/twinleaf/agent7-public-rondo-attack-offer.cjs');
+const {offerPublicRondo,publicRondoReadiness,publicRondoBenchFunding,publicRondoPatchResources}=require('../simulation/twinleaf/agent7-public-rondo-attack-offer.cjs');
 
 test('exports a public attack offer',()=>assert.equal(typeof offerPublicRondo,'function'));
 
@@ -69,4 +69,24 @@ test('Benched Clefairy paper funding remains separate from Active action',()=>{
  assert.equal(publicRondoReadiness(v,catalog),'benched-not-active');
  active.energies=['Psychic Energy SVE'];
  assert.equal(publicRondoBenchFunding(v,catalog).fundedBenchedCopies,0);
+});
+
+test('Wondrous Patch resource coincidence uses owner hand and public discard only',()=>{
+ const v=view();
+ v.ownHand=['Wondrous Patch ME2','Battle Compressor PHF',
+   'Psychic Energy SVE'];
+ v.ownPublic.discard=['Psychic Energy SVE'];
+ v.ownPublic.publicTurnRestrictions={itemPlayLocked:false};
+ v.ownTurnResources={energyPlayedTurn:0};
+ v.ownPublic.bench[0]={printing:"Lillie's Clefairy ex JTG"};
+ let r=publicRondoPatchResources(v);
+ assert.equal(r.simultaneousPatchCandidate,true);
+ assert.equal(r.potentialCompressorToPatch,true);
+ assert.equal(r.heldBasicPsychic,1);
+ assert.equal(r.ordinaryEnergyAttachmentUnused,true);
+ v.ownPublic.publicTurnRestrictions.itemPlayLocked=true;
+ r=publicRondoPatchResources(v);
+ assert.equal(r.simultaneousPatchCandidate,false);
+ v.ownPublic.discard=[];
+ assert.equal(publicRondoPatchResources(v).discardBasicPsychic,0);
 });
