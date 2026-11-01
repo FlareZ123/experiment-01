@@ -1,0 +1,29 @@
+{
+  "version": "agent25-rank10-candidate-seat1-physical-custody-fork-v1",
+  "date": "2026-11-01",
+  "sourceEvent": "CL Aichi Open League 2026 source rank10 original Regidrago 60",
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 10,
+  "candidateSeat": 1,
+  "seed": 1304508082,
+  "maxRootActions": 120,
+  "originalFailures": [
+    "41272123734: rank10 candidate seat1 60 violation",
+    "41272861044: original and changed-owner-policy rank10 candidate seat1 both 60 violations"
+  ],
+  "arms": [
+    "baseline",
+    "candidate-only-Dhelmise-Compressor"
+  ],
+  "sameSetupFlags": "Use exact frozen full-60 manifest and original source 60, same policy/seed/options as registered six-arm smoke except strict settled-zone conservation gate disabled to observe subsequent full root ledger; preserve original invariant outcome as FIRST anomaly, do not call later results valid.",
+  "observationFlags": {
+    "capturePhysicalZoneIntegrity": true,
+    "enforceSettledPhysicalZoneIntegrity": false,
+    "captureDecisionTrace": true,
+    "capturePublicAttackTransitions": true,
+    "captureFinalPublicBoard": true
+  },
+  "outcome": "Diagnostic only. Record earliest settled anomaly with ordinal, action, affected physical seat, prior and next root event context. No endgame win claims or competitive validity after first anomaly.",
+  "competitiveQualifiedGames": 0
+}
