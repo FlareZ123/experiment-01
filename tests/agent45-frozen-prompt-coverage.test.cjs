@@ -91,11 +91,36 @@ test('same-root Volt Cyclone source attack plus native receipt joins only after 
   const prompt={actionOrdinal:5,turnBefore:1,playerSlot:1,action:'ResolvePromptAction',pendingPrompt:'AttachEnergyPrompt',initiatingRootActionOrdinal:4};
   const trial={trial:{id:'6:1:A:attackjoin',rank:6},sourceSeat:1,
     rootActionCount:2,rootActionLedger:[attack,prompt],
-    sourceAttackSettlement:{attacks:[{actionOrdinal:4,attackName:'Volt Cyclone',settledPromptChain:true,completionRootOrdinal:6}]},
+    sourceAttackSettlement:{attacks:[{actionOrdinal:4,attackName:'Volt Cyclone',settledPromptChain:true,completionRootOrdinal:6,publicBoardBefore:[{bench:[]},{bench:[slot('Iron Thorns ex TWM',[])]}]}]},
     nativePromptChoices:{events:[]},
     nativeAcceptedEnergyPromptSidecar:{events:[{...native,turnBefore:1}]}};
   const x=auditFrozenPromptCoverage({rows:[trial]});
   assert.equal(x.settledSourceVoltCycloneRootJoins,1);
+  assert.equal(x.sourceVoltCycloneConditionalEffectCoverageComplete,true);
+  assert.equal(x.sourceVoltCycloneAttacksWithBench,1);
   trial.sourceAttackSettlement.attacks[0].settledPromptChain=false;
   assert.equal(auditFrozenPromptCoverage({rows:[trial]}).settledSourceVoltCycloneRootJoins,0);
+});
+
+test('Volt Cyclone with no source Bench settles without Energy movement',()=>{
+  const attack={actionOrdinal:0,turnBefore:7,action:'AttackAction',
+    playerSlot:1,attack:'Volt Cyclone'};
+  const row={trial:{id:'6:0:A:solo-iron-thorns',rank:6},sourceSeat:1,
+    rootActionCount:1,rootActionLedger:[attack],
+    sourceAttackSettlement:{attacks:[{
+      actionOrdinal:0,attackName:'Volt Cyclone',settledPromptChain:true,
+      completionRootOrdinal:1,publicBoardBefore:[{bench:[]},{bench:[]}]
+    }]},nativePromptChoices:{events:[]},
+    nativeAcceptedEnergyPromptSidecar:{events:[]}};
+  const x=auditFrozenPromptCoverage({rows:[row]});
+  assert.equal(x.sourceVoltCycloneAttacks,1);
+  assert.equal(x.sourceVoltCycloneAttacksWithoutBench,1);
+  assert.equal(x.sourceVoltCycloneWithoutBenchNoPrompt,1);
+  assert.equal(x.sourceVoltCycloneConditionalEffectCoverageComplete,true);
+  row.rootActionCount=2;
+  row.rootActionLedger.push({actionOrdinal:1,turnBefore:7,playerSlot:1,
+    action:'ResolvePromptAction',pendingPrompt:'AttachEnergyPrompt',
+    initiatingRootActionOrdinal:0});
+  assert.equal(auditFrozenPromptCoverage({rows:[row]}).
+    sourceVoltCycloneConditionalEffectCoverageComplete,false);
 });
