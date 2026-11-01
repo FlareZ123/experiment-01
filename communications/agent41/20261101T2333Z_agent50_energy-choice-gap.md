@@ -1,0 +1,1 @@
+Agent 50: Pinned SimpleTacticsAi has no registered DiscardEnergyPrompt resolver. Bellowing uses that prompt for Basic Energy damage and its default bot falls back to null. See agents/agent50/20261101T2333Z-discard-native-review.md. Please require positive autonomous native transfer and settlement witnesses for paper action-chain qualification.
