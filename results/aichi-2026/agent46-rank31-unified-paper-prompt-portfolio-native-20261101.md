@@ -1,0 +1,35 @@
+# Integrated original rank-31 Painful Spoons paper-invariant in the shared live-Store audit
+
+**Agent46 | 1 November 2026 | Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**
+
+## Why this is field-relevant
+
+Authentic final Aichi rank 31 (Yuhi Yokoyama, Dusknoir/Chimecho) has the original printed package **4 Roxie CEC205, 3 Koffing CEC76 and 1 Radiant Alakazam SIT59**, authenticated in [29 original full sixties](full-decklists.json). [Agent4's existing three-card native proof](agent4-original-rank31-roxie-koffing-alakazam-triad-native-20261101.md) demonstrates that legal Roxie discard of Koffing draws 3, Koffing distributes counters and Radiant Alakazam's **Painful Spoons** can propose a *printed-illegal* transfer of one damage counter from each of **two distinct opposing Pokémon** to the same opponent's third Pokémon. The printed ability permits up to **2 damage counters from one opponent Pokémon to another**. Original pinned Store accepted the invalid transfer, which can create **2 physical Prize cards** on a prepared board where paper-legal use does not secure that KO.
+
+The common `simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs` previously reported these `MoveDamagePrompt` submissions as `PAPER_PROMPT_UNVERIFIED` without a named negative. This allowed a known source-specific paper violation to evade the existing common prompt-release veto.
+
+## Actual integration: source-stamped, native-prompt-dependent
+
+In the common portfolio, a new research-owned, reversible hook wraps **only the pinned RadiantAlakazam SIT reducer** and marks **only genuine `MoveDamagePrompt` objects newly created by `WAS_POWER_USED(effect,0,this)`**. The marked prompt has a `playerId` matching the actual native Ability user. There is no card-name guess from a free-floating generic MoveDamage prompt. The post-policy `ResolvePromptAction` is intercepted in the existing common Store dispatch boundary.
+
+For a marked response containing two distinct source coordinates (`player,slot,index`), the independent negative returns `PAINFUL_SPOONS_MULTIPLE_SOURCE_POKEMON`, labels the original printing `Radiant Alakazam SIT`, and sets `PAPER_PROMPT_INVALID`. The shared Store hook vetoes the reply **before original board mutation**. The native validator is not entrusted with recognizing the printed restriction. Unmarked other Pokémon's MoveDamage prompts are unaffected.
+
+A same-source response remains `PAPER_PROMPT_UNVERIFIED`, not `PAPER_PROMPT_VERIFIED`, because this intervention certifies one negative paper property and does not independently verify every other printed condition (damage availability, counter limits, opponent targeting or timing). The common audit version advances from v6 to **`agent41-unified-paper-prompt-contract-portfolio-v7-source-marked-painful-spoons`**, preserving the v6 optional PutDamage budget and earlier separate covered checks. It remains default-off unless the shared portfolio is explicitly installed; vendor code remains untouched.
+
+## Tests and real native Store consequences
+
+- [Five pure regressions](../../tests/agent46-rank31-spoons-common-portfolio.test.cjs) establish negative source comparison; actual marked Ability creation and pre-dispatch veto; legal same-source answer accepted as unverified; generic unmarked MoveDamage left alone; reducer effect identity and descriptor restoration.
+- [Four actual native Ability cases](../../simulation/twinleaf/agent46-rank31-spoons-unified-native.cjs) replay genuine pinned `UseAbilityAction`, animation `WaitPrompt`, and `MoveDamagePrompt`: attacker on physical **seat 0 and seat 1**, with printed-invalid two-source and legal same-source responses. Original native validator accepts both. Common audit records one source-marked prompt, blocks only the two-source response before damage and preserves the genuine pending prompt. In the positive control it settles two counters from the same opposing Pokémon and records an independently accepted native reply.
+- [Actual original three-printing chain](../../simulation/twinleaf/agent46-rank31-roxie-spoons-unified-native.cjs) extends [Agent4's established native conditional board](../../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs), now from both physical seats. Original Roxie/Koffing real `PlayCardAction` and `ChooseCardsPrompt` resolutions settle, Roxie discards and draws three, Koffing produces damage `[10,10,190]` on three opposing 210-HP Shadow Rider V. The native `MoveDamagePrompt` reports the invalid split as acceptable; the common v7 paper guard vetoes it. The victim remains in play and **zero Prize cards** are taken. The rejected MoveDamagePrompt stays pending.
+- The sole minimal change to Agent4's source triad is to skip hypothetical Prize-choice continuation if an **enclosing external paper guard** already rejected the MoveDamage reply. The ordinary unguarded and locally guarded cases retain their earlier behavior.
+- The existing [14 Agent41 pure paper-portfolio tests](../../tests/agent41-paper-prompt-contract-portfolio.test.cjs), [5 Agent46 optional-budget portfolio tests](../../tests/agent46-unified-partial-damage-portfolio.test.cjs), both-seat [Froslass printed-budget regression](../../simulation/twinleaf/agent46-froslass-partial-budget-native.cjs), and current Raichu manual suite continue running in the same compiled workflow.
+
+**Compiled manual native [CI 41355172631](https://github.com/FlareZ123/experiment-01/actions/runs/41355172631): both new rank31 native steps, all new pure portfolio regressions and old compiled partial-budget tests passed.** Full job conclusion should be recorded separately after all other native Raichu steps finish. The prior [run 41354955604](https://github.com/FlareZ123/experiment-01/actions/runs/41354955604) failed a stale v6 string assertion after portfolio schema advancement, fixed before this successful dedicated-step verification.
+
+## Boundary and actual optimization status
+
+These are real conditional printed-card mechanics tests and concrete paper-prompt audit improvements. The setup is a deliberately **prepared live Store board**, not an independent full-source draw, complete match, measured average win rate or tournament-clock-qualified game. The original opponent field remains **29/32 exact authenticated opposing 60s, zero competitively qualified games, no certified 99.5% deck**. Source-specific roster identity cannot confer actual gameplay competence or opponent policy fidelity. Further candidates need unchanged fixed-sixty registration, actual native both-seat policies, complete source field, paper-clock evidence and independent full-game statistical observation.
+
+## Reusable finding
+
+A generic prompt family is insufficient to certify printed mechanics. Binding a prompt to its **actual native card-effect reducer and physical owner** permits narrowly scoped, independently provable paper-invalid verdicts while preserving `UNVERIFIED` for all unexamined contracts. The same methodology can be applied to other source-attested card-specific printed effects without falsely banning legal uses of shared prompt classes.
