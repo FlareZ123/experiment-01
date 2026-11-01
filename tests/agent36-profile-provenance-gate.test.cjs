@@ -52,3 +52,14 @@ test('reject profile paths outside the repository', () => withFixture(root => {
       root,outer,{},gitBlobHash(bytes)),/Profile path escapes repository/);
   } finally { fs.rmSync(outer, {force:true}); }
 }));
+
+test('historical frozen-v2 disk profile remains byte-identical to its archived Git blob', () => {
+  const root = path.resolve(__dirname, '..');
+  const profilePath = 'simulation/evaluation/agent41-frozen-bilateral-development-v2.json';
+  const profile = JSON.parse(fs.readFileSync(path.join(root, profilePath), 'utf8'));
+  // An after-the-fact integrity fixture, NOT a pre-game registration or win evidence.
+  const archivedGitBlob = 'a79e7977cb224928068968934bbcfa9c9410e20a';
+  const receipt = assertExternallyPinnedSelectedProfile(
+    root, profilePath, profile, archivedGitBlob);
+  assert.equal(receipt.gitBlobSha, archivedGitBlob);
+});
