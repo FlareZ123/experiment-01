@@ -1,0 +1,125 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const Module = require('node:module');
+const {createHash} = require('node:crypto');
+
+const VERSION = 'agent36-pre-execution-commonjs-module-pin-v1';
+const EXTENSIONS = new Set(['.cjs', '.js', '.json']);
+
+/** @param {Buffer} bytes @returns {string} */
+function sha256(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+/** @param {string} value @returns {boolean} */
+function withinRoot(value) {
+  return Boolean(value) && value !== '..' &&
+    !value.startsWith('../') && !path.isAbsolute(value);
+}
+
+/**
+ * Intercept all synchronous CommonJS loads for a reproducible native game.
+ * Unknown research module bytes fail *before* their JavaScript executes.
+ * Caller must independently pin the expected file/SHA manifest before seeing
+ * outcomes. This hook cannot establish paper legality, account for dynamic
+ * `fs.readFileSync`/eval/ESM imports, or verify vendor/game-engine semantics.
+ *
+ * @template T
+ * @param {string} repositoryRoot
+ * @param {Record<string,string>} expectedByPath Frozen repo-relative SHA-256.
+ * @param {()=>T} execute Synchronous game or regression.
+ * @returns {{result:T,audit:object}}
+ */
+function withPinnedResearchModuleLoads(repositoryRoot, expectedByPath, execute) {
+  assert.equal(typeof execute, 'function');
+  assert.ok(expectedByPath && typeof expectedByPath === 'object' &&
+    !Array.isArray(expectedByPath));
+  const root = fs.realpathSync(repositoryRoot);
+  const pinned = new Map();
+  for (const [name, hash] of Object.entries(expectedByPath)) {
+    const normalized = name.split(path.sep).join('/');
+    assert.ok(withinRoot(normalized) && EXTENSIONS.has(path.extname(normalized)) &&
+      !normalized.startsWith('vendor/') &&
+      !normalized.startsWith('node_modules/'),
+    'Invalid research file in frozen manifest: ' + name);
+    assert.match(hash, /^[a-f0-9]{64}$/, 'Invalid frozen SHA-256: ' + name);
+    assert.ok(!pinned.has(normalized), 'Duplicate manifest path: ' + normalized);
+    pinned.set(normalized, hash);
+  }
+
+  const previous = Object.getOwnPropertyDescriptor(Module, '_load');
+  assert.equal(typeof previous?.value, 'function');
+  const observed = new Map();
+  const audit = {version: VERSION, preloadedChecks: 0, requireChecks: 0,
+    endChecks: 0, files: [], guardRestored: false,
+    competitiveGameQualified: false,
+    limitation: 'Synchronous CommonJS research modules only; external frozen manifest and paper/vendor/runtime-state verification remain necessary.'};
+
+  /**
+   * @param {string} filename
+   * @returns {{filename:string,name:string}|null}
+   */
+  function researchFile(filename) {
+    const original = path.resolve(filename);
+    const relative = path.relative(root, original).split(path.sep).join('/');
+    if (!withinRoot(relative) ||
+      relative.startsWith('vendor/') ||
+      relative.startsWith('node_modules/') ||
+      !EXTENSIONS.has(path.extname(relative))) return null;
+    const real = fs.realpathSync(original);
+    const actual = path.relative(root, real).split(path.sep).join('/');
+    assert.ok(withinRoot(actual) && actual === relative,
+      'Research module symlink or path escape is unregistered: ' + relative);
+    return {filename: real, name: actual};
+  }
+
+  /** @param {string} filename @param {'preloaded'|'require'|'end'} stage */
+  function check(filename, stage) {
+    const file = researchFile(filename);
+    if (!file) return;
+    const expected = pinned.get(file.name);
+    assert.ok(expected, 'Unregistered research module before execution: ' + file.name);
+    assert.equal(sha256(fs.readFileSync(file.filename)), expected,
+      'Research module changed from independently frozen manifest: ' + file.name);
+    observed.set(file.name, file.filename);
+    if (stage === 'preloaded') audit.preloadedChecks++;
+    if (stage === 'require') audit.requireChecks++;
+    if (stage === 'end') audit.endChecks++;
+  }
+
+  for (const filename of Object.keys(require.cache)) check(filename, 'preloaded');
+
+  function pinnedLoad(request, parent, isMain) {
+    const resolved = Module._resolveFilename(request, parent, isMain);
+    if (typeof resolved === 'string' &&
+      !Module.builtinModules.includes(resolved) &&
+      !resolved.startsWith('node:')) check(resolved, 'require');
+    return previous.value.apply(this, arguments);
+  }
+
+  Object.defineProperty(Module, '_load', {...previous, value: pinnedLoad});
+  try {
+    const result = execute();
+    assert.ok(!result || typeof result.then !== 'function',
+      'The module-load guard requires a synchronous run');
+    for (const filename of observed.values()) check(filename, 'end');
+    audit.files = [...observed.keys()].sort();
+    return {result, audit};
+  } catch (error) {
+    if (error && typeof error === 'object') {
+      audit.files = [...observed.keys()].sort();
+      error.agent36ModulePinAudit = audit;
+    }
+    throw error;
+  } finally {
+    assert.equal(Module._load, pinnedLoad,
+      'CommonJS module loader was modified during pinned evaluation');
+    Object.defineProperty(Module, '_load', previous);
+    audit.guardRestored = true;
+  }
+}
+
+module.exports = {VERSION, sha256, withPinnedResearchModuleLoads};
