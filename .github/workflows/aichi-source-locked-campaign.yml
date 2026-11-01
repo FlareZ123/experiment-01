@@ -231,8 +231,11 @@ jobs:
       - name: Verify common v2 candidate policy and historical-only development identities
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
         run: node --test tests/agent41-bilateral-common-policy.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent39-paper-prompt-portfolio.test.cjs tests/agent39-paper-prompt-root-reconciliation.test.cjs tests/perfection-post-pass-probe.test.cjs tests/aichi-bilateral-pass-evidence-summary.test.cjs tests/agent41-bilateral-mandatory-option-wiring.test.cjs tests/agent41-bilateral-native-pressure-wiring.test.cjs tests/agent41-native-opponent-hidden-read-observer.test.cjs tests/agent1-charged-promotion-choice.test.cjs
+      - name: Exact same-head original four-arm Store prompt guard noninterference A/B
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
+        run: node scripts/agent39-paper-prompt-native-noninterference-pair.cjs
       - name: Run four existing v1 deals with an explicit opt-in bilateral policy variant
-        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && !contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
         env:
           AGENT41_MANDATORY_OPTION_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',mandatory-options,') && 'true' || 'false' }}
           AGENT41_NATIVE_PRESSURE_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',native-pressure,') && 'true' || 'false' }}
@@ -245,15 +248,15 @@ jobs:
           AGENT1_CHARGED_PROMOTION_DEV: ${{ contains(format(',{0},', inputs.agent41_dev_options), ',charged-promotion,') && 'true' || 'false' }}
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent41-bilateral-v2-development.json
       - name: Summarize all development failures and attempted arms, without competitive outcomes
-        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && !contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
         run: node -e "const d=require('./agent41-bilateral-v2-development.json');for(const r of d.rows)console.log('DEVELOPMENT',JSON.stringify({id:r.trial?.id,errors:r.error?.slice(0,350)||null,actualSourceFirst:r.sourceActuallyFirst,actions:r.actionCount,attacks:r.attackDeclarations,closed:r.settledPublicAttackCount,prizes:r.finalPrizes,finished:r.finished,policy:r.policyVersion}));console.log('SOURCE_PAIRS',JSON.stringify(d.sourcePairs.map(p=>({id:p.pairId,sameSourceDeal:p.sameSourcePhysicalDeal,sameStarter:p.sameActualStarter,followups:p.candidateFollowupStatuses}))));console.log('UNQUALIFIED',d.competitiveQualifiedGames,'of',d.attempted)"
       - name: Extract candidate Pass opportunities from historical development evidence only
-        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && !contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
         run: |
           node --test tests/aichi-bilateral-pass-evidence-summary.test.cjs
           node scripts/aichi-bilateral-pass-evidence-summary.cjs agent41-bilateral-v2-development.json
       - uses: actions/upload-artifact@v4
-        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' }}
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent41-bilateral-v2-dev' && !contains(format(',{0},', inputs.agent41_dev_options), ',paper-prompt-pair,') }}
         with:
           name: agent41-bilateral-v2-historical-development
           path: agent41-bilateral-v2-development.json
