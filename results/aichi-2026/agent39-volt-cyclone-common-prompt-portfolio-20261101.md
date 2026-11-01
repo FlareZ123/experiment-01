@@ -37,3 +37,23 @@ This source-specific guard cannot certify the 27 frozen historical resolutions w
 - Pinned upstream card: `ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex.ts`.
 - Pinned engine dispatcher: `ptcg-server/src/game/store/store.ts`, `reducePrompt`.
 - Source portfolio baseline: `results/aichi-2026/agent17-frozen-v2-prompt-denominator-20261101.md`.
+
+
+## 17:08 UTC native compiled confirmation (replaces prior pending wording)
+
+The fully pinned native CI [41329727282](https://github.com/FlareZ123/experiment-01/actions/runs/41329727282), research head `9dff16cbc1639b35995be167b5e449f18edb4f99`, completed **successfully** and executed the additional two-seat staged native differential. Each source seat **0 and 1** independently showed:
+- Real unguarded `ResolvePromptAction(result=[])` was accepted despite the printed mandatory transfer and pinned native `min=max=1`; the Energy remained on Iron Thorns ex.
+- The research-owned shared Store pre-dispatch boundary rejected that exact invalid reply with the native state unchanged, including pending-prompt status.
+- A subsequent physically valid one-Energy transfer from the Active to a populated own Bench settled in the **real pinned Store**, and both patched method descriptors were restored.
+- Per-seat native observer: one authentic source-marked `AttachEnergyPrompt`, one `PAPER_PROMPT_INVALID` veto, one `PAPER_PROMPT_VERIFIED` native accepted resolution. Staged fixture, without a genuine full `AttackAction`, full original physical sixty, or gameplay win.
+
+Also, the prior successful [41329333283](https://github.com/FlareZ123/experiment-01/actions/runs/41329333283), artifact `13091629886`, returned exactly **four historical development attempts** under the opt-in Store portfolio: 2 engine terminals and 2 action caps. The direct artifact inspection found:
+
+| Historical trial ID | Paper verified | Invalid veto | Unverified prompt attempts | Native rejected after preflight | End |
+|---|---:|---:|---:|---:|---|
+| `6:0:A:champion-reference` | 0 | 0 | 115 | 0 | engine terminal |
+| `6:0:A:new-moon-lockbreaker-v1` | **10** | 0 | 719 | 1 | 260-action cap |
+| `11:2:B:champion-reference` | 0 | 0 | 492 | 0 | engine terminal |
+| `11:2:B:new-moon-lockbreaker-v1` | 0 | 0 | 937 | 50 | 260-action cap |
+
+All ten independently checked, Store-accepted prompts came from the original rank-6 `Volt Cyclone` attack and satisfied the physical recipient/source constraint. The `nativeRejectedAfterPreflight` counts are for other, unverified prompt types; these are not paper-invalid findings. The 4-arm cohort is historically selected and unqualified. It does **not** replay the frozen-v2 32 arms from Agent17's larger denominator. The run does not certify complete effects after every submitted response or future interventions, and the provenance/version labels must be kept distinct.
