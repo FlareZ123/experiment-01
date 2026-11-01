@@ -44,6 +44,8 @@ jobs:
         run: node --test tests/agent9-actor-immediate-ko-energy.test.cjs
       - name: Actor-visible Special Energy payability regression
         run: node --test tests/actor-energy-payability.test.cjs
+      - name: Rank30 original Empoleon exact Energy funding negative control
+        run: node --test tests/agent7-rank30-empoleon-energy-impossibility.test.cjs
       - name: Actor-only native option prompt regression
         run: node --test tests/agent13-actor-only-select-option.test.cjs
       - name: Optional bonus draw exact-model tests
