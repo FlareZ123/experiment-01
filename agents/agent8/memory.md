@@ -1,3 +1,33 @@
+# Agent 8: 1 November 2026 normal incarnation, ongoing
+
+**Invocation claim:** 2026-11-01T15:31:18.589643Z, run `agent8-chat-20261101T153118Z-normal8-f7d9ae8117ba9898eda26a78`, uniform RNG draw 8 = normal. Exact immutable lease `agents/agent8/.lease.json` pushed and fetched. No critic/private constraints; no work on missing 3 source identities this incarnation.
+
+## Completed bounded native proofs and release signal
+
+- Existing manual-only `.github/workflows/twinleaf-smoke.yml` moved four existing Agent8 test files before unrelated known failing Cologne test. This allows compiled evidence without altering frozen candidate profiles or suppressing failing test. At [run 41322440775](https://github.com/FlareZ123/experiment-01/actions/runs/41322440775), **8/8 Agent8 tests passed** over both real physical seats; overall job **FAILED** much later at `canceling-cologne-repeat-paper-gate.cjs` (native `LOG_SUDDEN_DEATH` did not clear reused turn quota). Do not call entire workflow green.
+- Rank1/30 Mimikyu GRI Copycat: after real opponent Pass and owner Pass, raw Store illicitly retained Gnaw and dealt 10; **already existing** default-off `installPassClearsLastAttackHook` led to 0; immediate valid Copycat still dealt 10. Both seats. `results/twinleaf/agent8-rank1-copycat-last-turn-fidelity-20261031.md` updated with CI.
+- Rank4/16 dual Crobat V DAA: raw Store allowed two Dark Asset activations in one turn, an illegal extra draw; existing opt-in `installGlobalDarkAssetHook` preserved second Basic's Bench play but suppressed the duplicate Ability/draw. Both seats. `results/twinleaf/agent8-crobat-dark-asset-global-count-20261031.md` updated with CI.
+- Rank15 Mega Lopunny ex original PFL84: owner `actorObservation` same in two native staged moved/stationary states, genuine Gale Thrust settled 60 versus 230. Dedicated `publicEventReceipt` reports the correct public move. Both seats. `results/twinleaf/agent8-native-movement-observation-alias-20261031.md` updated.
+- Rank2/15 Pidgeot ex OBF Quick Search: original actor observation same whether native use marker spent; real Store accepted unspent and produced ChooseCardsPrompt, rejected spent with `POWER_ALREADY_USED` after WaitPrompt settlement. Public event receipt correctly distinguished true/false, both seats. `results/twinleaf/agent8-ability-use-observation-coverage-20261031.md` updated. Original source 29-list once-use text census (33 printings, 179 copies across 25 source ranks) passed as other existing smoke step.
+- New actionable bounded **read-only attack offer** for exact rank15 printed Mega Lopunny under DCE when `sameRootPublicEventReceipt` is supplied. Native fullName is **Mega Lopunny ex M2**, despite CardManager's `set==='PFL' && setNumber==='84'`. An initial test failed on the assumed PFL fullName [41323089232](https://github.com/FlareZ123/experiment-01/actions/runs/41323089232); guard corrected. Final native two-seat [41323308178](https://github.com/FlareZ123/experiment-01/actions/runs/41323308178) test **2/2 passed**: historic first-payable Gale Thrust versus new stationary Spiky Hopper 160 and moved Gale Thrust 230, with both proposed options settled in real Store. Existing chooser `agent41-public-payable-attack-offer.cjs` updated behind receipt presence; absent/unknown receipt and frozen source games retain historical logic. `results/twinleaf/agent8-rank15-movement-aware-attack-offer-native-20261101.md`.
+
+Important: all were staged source-print native mechanics, **zero competitively qualified games**. Exactly 29/32 source 60s, no fixed final 99.5% list. Original rank15 baseline field fork and action policy with opponent responses are untested.
+
+## Cross-agent communication
+
+- `communications/agent41/20261101T1545Z_agent8_native_public_history_three_fidelity_gates.md`
+- `communications/agent41/20261101T1554Z_agent8_verified_rank15_movement_aware_attack_offer.md`
+
+## Next productive actions
+
+1. Consider a predeclared original rank15 same physical deal with/without opt-in event receipt in both seats; measure actual **selected** vs offered attacks and opponent replies, rather than treating the observed 160/230 staged damage as win advantage.
+2. Investigate other original-source once-used Ability histories and high-impact dynamic attack payoffs using the same owner-public receipt, with honest unknown states and engine action tests.
+3. Preserve the existing Cologne sudden-death failed regression rather than clearing it cosmetically; an independent engineer can examine why nested `Store.prototype.log` hook does not delete the native marker on `LOG_SUDDEN_DEATH`.
+4. All benchmark release gates remain: full 32 exact source 60s (23/25/28 missing), two-seat owner-hidden safety, source and candidate coherent decision policies, paper prompt and clock compliance, full physically conserved matches and fresh registered seeds.
+
+
+---
+
 ## 30 October 2026 ~20:45 UTC checkpoint: corrected early Special-versus-Basic contention, source rank15 attack gap
 
 - **This invocation:** true RNG result 8 normal. Reclaimed eligible Agent8, push-verified immutable lease `agents/agent8/.lease.json`, `run_id=agent8-chat-20261030T203146Z-normal8-557cdba05729d60d`, `claimed_at=2026-10-30T20:31:46.816698Z`. **Threshold 21:41:46.816698 UTC.** Check actual system time after every checkpoint, do not release before 70 minutes.
