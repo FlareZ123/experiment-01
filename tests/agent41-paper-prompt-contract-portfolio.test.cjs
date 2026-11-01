@@ -168,6 +168,61 @@ test('Night Watch-like opponent concealed hand selections and unrelated prompts 
   assert.equal(JSON.stringify(audit).includes('hidden 1'),false);
 });
 
+test('only each real AddPlayerAction Store supplies prompt denominators across two original trials',()=>{
+  class AddPlayerAction {}
+  let trial='first';
+  const first=state(),firstOwner=first.players[0],firstCard={name:'first'};
+  firstOwner.deck.cards.push(firstCard);
+  first.prompts=[new ChooseCardsPrompt(10,firstOwner.deck,firstOwner,
+    {fullName:'Camping Gear BST'})];
+  const second=state(),secondOwner=second.players[0],
+    secondCard={name:'second'};
+  secondOwner.deck.cards.push(secondCard);
+  second.prompts=[new ChooseCardsPrompt(11,secondOwner.deck,secondOwner,
+    {fullName:'Camping Gear BST'})];
+  const aux=state(),auxOwner=aux.players[0];
+  aux.prompts=[new ChooseCardsPrompt(12,auxOwner.deck,auxOwner,
+    {fullName:'Camping Gear BST'})];
+  const liveFirst=new FakeStore(first),liveSecond=new FakeStore(second),
+    auxiliary=new FakeStore(aux);
+  const audit=withPaperPromptContractPortfolio(()=>{
+    liveFirst.dispatch(new AddPlayerAction());
+    auxiliary.dispatch(new ResolvePromptAction(12,[]));
+    assert.equal(auxiliary.mutations,1,'Auxiliary answer not modified');
+    assert.throws(()=>liveFirst.dispatch(new ResolvePromptAction(10,[])),
+      /PAPER_PROMPT_INVALID/);
+    liveFirst.dispatch(new ResolvePromptAction(10,[firstCard]));
+    trial='second';
+    liveSecond.dispatch(new AddPlayerAction());
+    liveSecond.dispatch(new ResolvePromptAction(11,[secondCard]));
+  },{...deps,requireLiveStore:true,currentTrialId:()=>trial}).audit;
+  assert.equal(audit.liveSourceTrialCount,2);
+  assert.equal(audit.storeCount,2);
+  assert.equal(audit.auxiliaryPromptAttempts,1);
+  assert.equal(audit.resolvedNativeReplies,3);
+  assert.equal(audit.nativeAccepted,2);
+  assert.equal(audit.vetoedBeforeDispatch,1);
+  assert.equal(audit.byTrial.first.events.length,2);
+  assert.equal(audit.byTrial.second.events.length,1);
+  assert.equal(audit.byTrial.first.events[1].nativeAccepted,true);
+  assert.equal(audit.byTrial.first.events[1].sourcePrinting,'Camping Gear BST');
+  assert.equal(audit.byTrial.second.events[0].status,'PAPER_PROMPT_VERIFIED');
+});
+
+test('both Store and reducer descriptors are restored after a thrown native run',()=>{
+  const beforeStore=Object.getOwnPropertyDescriptor(
+    FakeStore.prototype,'dispatch');
+  const beforeReducer=Object.getOwnPropertyDescriptor(
+    IronThornsex.prototype,'reduceEffect');
+  assert.throws(()=>withPaperPromptContractPortfolio(()=>{
+    throw new Error('intentional-native-abort');
+  },deps),/intentional-native-abort/);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
+    FakeStore.prototype,'dispatch'),beforeStore);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
+    IronThornsex.prototype,'reduceEffect'),beforeReducer);
+});
+
 test('frozen v2 wrapper records exact original root prompt counts and restores headless export',()=>{
   const fakeHeadless={
     runMatch(request){return {label:request.label};}
