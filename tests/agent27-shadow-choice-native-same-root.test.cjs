@@ -72,7 +72,7 @@ for(const seat of [0,1]){
       const freshView=actorObservation(fresh.state,seat);
       assert.deepEqual(freshView,view);
       const nativeIntent={kind:'bench-basic',printing:row.printing,
-        handIndex:row.handIndex,benchIndex:4};
+        handIndex:row.handIndex,benchIndex:4,benchSlot:4};
       const physicalBefore=rootPhysicalSnapshot(fresh.state,seat,nativeIntent);
       fresh.store.dispatch(new fresh.PlayCardAction(fresh.owner.id,
         row.handIndex,{player:fresh.PlayerType.BOTTOM_PLAYER,
@@ -113,7 +113,7 @@ for(const seat of [0,1]){
       assert.equal(view.ownHand[1],'Tapu Lele-GX GRI');
       assert.equal(view.opponentPublic.active.printing,
         opponentRank===6?'Iron Thorns ex TWM':'Regidrago V SIT');
-      const intent={kind:'bench-basic',handIndex:1,benchIndex:4,
+      const intent={kind:'bench-basic',handIndex:1,benchIndex:4,benchSlot:4,
         printing:'Tapu Lele-GX GRI'};
       const before=rootPhysicalSnapshot(fixture.state,seat,intent);
       fixture.store.dispatch(new fixture.PlayCardAction(
