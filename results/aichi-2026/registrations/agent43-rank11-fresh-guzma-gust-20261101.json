@@ -1,0 +1,191 @@
+{
+  "schema": "agent43-rank11-guzma-nominal-gust-fresh-paired-20261101-v1",
+  "registeredUtc": "2026-11-01T20:08:31.987186+00:00",
+  "executionAtRegistration": "no native games run on these newly generated eight source seed groups",
+  "sourceRank": 11,
+  "sourceArchetype": "Absol Garbodor",
+  "originalSourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": [
+      996430014,
+      2722649419,
+      897409921,
+      382211949
+    ],
+    "B": [
+      3706122572,
+      3479745074,
+      3079777568,
+      418267710
+    ]
+  },
+  "trials": [
+    {
+      "id": "11:0:A:champion-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 996430014
+    },
+    {
+      "id": "11:0:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 996430014
+    },
+    {
+      "id": "11:1:A:champion-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2722649419
+    },
+    {
+      "id": "11:1:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2722649419
+    },
+    {
+      "id": "11:2:A:champion-reference",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 897409921
+    },
+    {
+      "id": "11:2:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 897409921
+    },
+    {
+      "id": "11:3:A:champion-reference",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 382211949
+    },
+    {
+      "id": "11:3:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 382211949
+    },
+    {
+      "id": "11:0:B:champion-reference",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3706122572
+    },
+    {
+      "id": "11:0:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3706122572
+    },
+    {
+      "id": "11:1:B:champion-reference",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3479745074
+    },
+    {
+      "id": "11:1:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3479745074
+    },
+    {
+      "id": "11:2:B:champion-reference",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3079777568
+    },
+    {
+      "id": "11:2:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3079777568
+    },
+    {
+      "id": "11:3:B:champion-reference",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 418267710
+    },
+    {
+      "id": "11:3:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 418267710
+    }
+  ],
+  "independentSourceSeedGroups": 8,
+  "attemptsPerPolicy": 16,
+  "plannedNativeAttempts": 32,
+  "setupAndPolicyFixed": {
+    "actorOnlyComposition": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorChoosePokemon": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "bilateralPublicContextSpecialEnergy": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootPositiveAttackOverPass": true,
+    "actorNaturalEvolutionRoot": true,
+    "losslessNativeRootJoin": true,
+    "sameRootPublicEventReceipt": true,
+    "nativeRejectedActionEvidence": true
+  },
+  "fixedEnvironment": {
+    "AGENT2_HELD_GUZMA_MOBILITY_DEV": "true"
+  },
+  "oneBooleanTreatmentOnly": "actorGuzmaNominalGust=false vs true; both arms preserve accepted-root Guzma mobility and own incoming recipient, original source/candidate printed 60s, seed/seat, all other policy hooks, and native Store.",
+  "plannedPrimary": "native accepted opponent gust target proposal and physical confirmation per paired native arm; all no-opportunities retained",
+  "plannedSecondary": "same original source physical deal, actual first turn, native setup, source attack, candidate attack, caps, engine errors, engine-only terminal causes; no competitive wins",
+  "qualification": "developmental only: no paper legality completeness, strong complete bots, 25-minute official clock or validated 32-rank performance",
+  "generatedBy": "Python secrets.randbits(32) for eight independent seeds, before any game",
+  "registeredBeforeNativeGames": true
+}
