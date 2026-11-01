@@ -66,3 +66,7 @@ The [Raging Bolt report](agent50-rank19-raging-bolt-public-basic-energy-20261101
 A paper attack may legally choose zero cards for an optional any-amount discard. Thus a zero result alone does not prove an engine defect. The missing observable nonzero payment pathway makes the current bot and native result unsuitable as validation of its nominal knockout proposal.
 
 Next useful work is to establish native nonzero Basic selection and prompt/payment settlement under a reversible adapter, then verify damage, KO, Prize handling and source-opponent reply, alongside targeted runtime tests of other repeated dynamic printings. **Benchmark remains 29/32 exact source 60s, zero competitively qualified games and no evidenced 99.5% performance.**
+
+## Complementary research
+
+The [independent 29-source action-vocabulary matrix](agent24-29source-action-vocabulary-inventory-20261029.md) examines decklist exposure to Supporter, Item and Special-Energy action families. It identifies a separate major policy-coverage deficit. This report examines printed variable-damage attack entries and native card lookup behavior. Both are inventory screens; qualifying a fixed deck will require legal, strategically credible two-player actions and physically settled effects, rather than combining exposure counts into a win probability.
