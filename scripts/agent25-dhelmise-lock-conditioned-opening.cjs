@@ -12,15 +12,19 @@ const VERSION='agent25-conditional-hns-discard-lock-opening-v1';
  * already active. Discarded cards with blocked printed HNS Abilities cannot
  * satisfy the attack. No other draw/search or actual effect resolution.
  *
- * Group order: Dhelmise, eligible HNS, blocked HNS, Telepathic Psychic,
- * Arven, Blender, Clefairy, Battle Compressor, all other.
+ * Group order: Dhelmise, eligible HNS, blocked HNS, allowed Psychic
+ * Energy class, Arven, Blender, tracked Clefairy, Battle Compressor, all
+ * other. With requireClefairy=false, the real Clefairy copies are part
+ * of "other", not deleted from the fixed 60.
  *
  * @param {{totalDonors:number,eligibleDonors:number,basicCount:number,
- * opening?:number,prizes?:number,requiredDonors?:number}} options
+ * opening?:number,prizes?:number,requiredDonors?:number,
+ * energyCount?:number,clefairyCount?:number,requireClefairy?:boolean}} options
  * @returns {object}
  */
 function exactLockedOpening({totalDonors,eligibleDonors,basicCount,
-    opening=7,prizes=6,requiredDonors=4}){
+    opening=7,prizes=6,requiredDonors=4,energyCount=4,
+    clefairyCount=2,requireClefairy=true}){
   assert.ok([8,10,12].includes(totalDonors));
   assert.ok(Number.isInteger(eligibleDonors)&&eligibleDonors>=0&&
     eligibleDonors<=totalDonors);
@@ -28,8 +32,14 @@ function exactLockedOpening({totalDonors,eligibleDonors,basicCount,
   assert.ok(Number.isInteger(opening)&&opening>=1);
   assert.ok(Number.isInteger(prizes)&&prizes>=0&&prizes<=60-opening-1);
   assert.ok(Number.isInteger(requiredDonors)&&requiredDonors>=1);
-  const counts=[4,eligibleDonors,totalDonors-eligibleDonors,4,4,1,2,4,
-    41-totalDonors];
+  assert.ok(Number.isInteger(energyCount)&&energyCount>=1&&energyCount<=10);
+  assert.ok(Number.isInteger(clefairyCount)&&clefairyCount>=0&&
+    clefairyCount<=2);
+  assert.equal(typeof requireClefairy,'boolean');
+  const otherCount=60-4-totalDonors-energyCount-4-1-clefairyCount-4;
+  assert.ok(otherCount>=0);
+  const counts=[4,eligibleDonors,totalDonors-eligibleDonors,energyCount,4,1,
+    clefairyCount,4,otherCount];
   const N=counts.reduce((a,b)=>a+b,0);
   assert.equal(N,60);
   const total=choose(N,opening)*BigInt(N-opening)*
@@ -62,7 +72,7 @@ function exactLockedOpening({totalDonors,eligibleDonors,basicCount,
             for(let pc=0;pc<=Math.min(remaining[6],prizes-pd-pb);pc++){
               const po=prizes-pd-pb-pc;
               if(po>otherRemaining)continue;
-              if(held[6]===0&&pc===remaining[6])continue;
+              if(requireClefairy&&held[6]===0&&pc===remaining[6])continue;
               const blender=blenderHeld||
                 (arvenHeld&&pb<remaining[5]);
               if(!blender&&!pairCompressors)continue;
@@ -88,6 +98,7 @@ function exactLockedOpening({totalDonors,eligibleDonors,basicCount,
   const unconditional=Number(favorable)/Number(total);
   return {version:VERSION,totalDonors,eligibleDonors,blockedDonors:
       totalDonors-eligibleDonors,basicCount,opening,prizes,requiredDonors,
+    energyCount,clefairyCount,requireClefairy,
     totalWorlds:total.toString(),favorableWorlds:favorable.toString(),
     unconditional,conditionalBasicValid:unconditional/basicValid,
     basicValid,sourceFullGameUnverified:true,
