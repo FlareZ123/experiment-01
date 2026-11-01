@@ -1,0 +1,55 @@
+{
+  "version": "agent25-dhelmise-v2-early-battle-compressor-owner-policy-v1-precommit",
+  "date": "2026-11-01",
+  "baseCandidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "baseTrial": "results/als/registrations/agent25-dhelmise-v2-native-three-lock-smoke-20261101.json",
+  "baseExactNativeRun": 41272123734,
+  "originalRanks": [
+    6,
+    10,
+    11
+  ],
+  "seedByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "candidateSeats": [
+    0,
+    1
+  ],
+  "rootActionCap": 120,
+  "baseline": "Twinleaf default SimpleTacticsAi plus opt-in HNS rule correction and source locks",
+  "alternative": "candidate-seat-only proactive Battle Compressor Item and its genuine own-deck search prompt, prioritize Banette Psychic Stage1, Shuppet Psychic Basic, Sinistcha Grass Stage1 only while Dhelmise is an actual owned in-play or held card and fewer than four HNS donors are in discard; no stolen opponent hidden state",
+  "unchanged": [
+    "canonical fixed 60 cards and counts",
+    "source original 60s",
+    "simulation engine pin",
+    "random seeds",
+    "player seat orientations",
+    "physical conservation gate",
+    "play lock gate",
+    "HNS paper correction",
+    "root-action cap"
+  ],
+  "comparisonRules": [
+    "Use ordinary Store actions and only native eligible prompts",
+    "Keep artifact baseline/alternative separately identified",
+    "Record all six alternative outcomes including exceptions and caps",
+    "Verify actual printed physical identities each turn and at candidate initial deal",
+    "No winning percentage or performance claim from untimed noncompetitive terminals",
+    "If underlying source first-deal fingerprints differ, prohibit paired same-state interpretation"
+  ],
+  "actualCompetitivelyQualifiedGames": 0,
+  "unknowns": [
+    "Whether native SimpleTacticsAi can decide to take attack after donor setup",
+    "Whether item prompts select actual Banette printings",
+    "Whether physical 60 is conserved rank10-seat1",
+    "Whether paper item-lock dispatch prevents tactical proposal"
+  ],
+  "qualifiers": {
+    "policyExperimental": true,
+    "postAichiNewCardCandidate": true,
+    "source29Of32": true
+  }
+}
