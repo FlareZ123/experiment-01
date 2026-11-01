@@ -11,6 +11,10 @@ on:
         description: 'Optional rank6 source first-turn Tag Call owner-search native control'
         type: boolean
         default: false
+      agent6_cross_turn_k1:
+        description: 'Optional owner K1 source turn information test'
+        type: boolean
+        default: false
       agent6_tagcall_dual_payment:
         description: 'Optional source rank6 dual TAG TEAM native payment control'
         type: boolean
@@ -173,6 +177,20 @@ jobs:
         with:
           name: agent6-tagcall-two-target-retrospective
           path: agent6-tagcall-two-target-retrospective.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Test owner K1 state retention pure boundary
+        if: inputs.agent6_cross_turn_k1
+        run: node --test tests/agent6-owner-k1-turn-bridge.test.cjs
+      - name: Owner K1 across turns in original Store
+        if: inputs.agent6_cross_turn_k1
+        run: node simulation/evaluation/agent6-cross-turn-owner-k1-tagcall-native.cjs > agent6-cross-turn-owner-k1-native.json
+      - name: Save owner K1 Store source attempts
+        if: always() && inputs.agent6_cross_turn_k1
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-cross-turn-owner-k1-native
+          path: agent6-cross-turn-owner-k1-native.json
           if-no-files-found: warn
           retention-days: 14
       - name: Native two-seat dual TAG TEAM G&H and Cynthia physical payment fork
