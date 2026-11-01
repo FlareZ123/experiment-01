@@ -8,6 +8,7 @@ const {chooseActorRootIntent}=require(
 
 const P=5,C=9;
 const catalog={
+  basics:new Set(),abilityBasics:new Set(),
   basicEnergies:new Set(['Psychic Energy MEE']),
   basicEnergyTypes:{Psychic:P},
   colorlessEnergyType:C,
