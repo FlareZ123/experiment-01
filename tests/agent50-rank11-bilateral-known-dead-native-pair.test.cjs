@@ -110,6 +110,23 @@ test('changed physical deals are exposed as unmatched rather than silently compa
   assert.deepEqual(paired.pairs[0].unmatchedInputs,['fullPhysicalDealFingerprint']);
 });
 
+test('later equal-index changed attacks after an earlier fork are never called same-root',()=>{
+  const trials=originalTrials();
+  const original=trials.map(x=>row(x,'Get Lost'));
+  const treated=trials.map(x=>row(x,'Mind Shock'));
+  for(const r of original){
+    r.rootActionLedger.unshift({actionOrdinal:-1,action:'PlayCardAction',
+      card:'Old card',turnBefore:3,playerSlot:r.candidateSeat});
+  }
+  for(const r of treated){
+    r.rootActionLedger.unshift({actionOrdinal:-1,action:'PlayCardAction',
+      card:'Different card',turnBefore:3,playerSlot:r.candidateSeat});
+  }
+  const paired=compareOriginalRank11Pairs(original,treated);
+  assert.equal(paired.samePhysicalInputPairs,4);
+  assert.equal(paired.pairs[0].firstRootDifference.index,0);
+  assert.deepEqual(paired.pairs[0].changedSameRootAttacks,[]);
+});
 test('missing physical source receipt is never accepted as a matched deal',()=>{
   const trials=originalTrials();
   const original=trials.map(x=>row(x,'Get Lost'));
