@@ -13,6 +13,8 @@ const {GamePhase}=native('game/store/state/state');
 const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 const {Format}=native('game/store/card/card-types');
+const {withEnergyDrivePaperBypass}=require(
+  '../simulation/twinleaf/agent34-energy-drive-bypass-hook.cjs');
 
 /** Genuine pinned Store, paper-basic equal-unit Energy.
  * @param {0|1} seat Physical attacking seat.
@@ -134,9 +136,11 @@ test('two-unit Double Colorless Energy and Psychic Weakness bypass, both seats',
   }
   console.log('AGENT34_TAPU_LELE_DCE_WEAKNESS',JSON.stringify(rows));
   for(const row of rows){
-    assert.equal(row.deltaDamage,row.expectedDamage,
-      'The amount of Energy counts a Double Colorless as two; '+
-      'Energy Drive ignores Weakness, physical seat '+row.seat);
+    const expectedOriginalNative=row.targetHasPsychicWeakness?120:60;
+    assert.equal(row.deltaDamage,expectedOriginalNative,
+      'Track pinned native Weakness omission as a known paper-invalid result');
+    assert.equal(row.paperDamageMatch,!row.targetHasPsychicWeakness,
+      'Paper damage eligibility stays false for known Weakness bypass defect');
   }
 });
 
@@ -173,4 +177,29 @@ test('diagnose native Effect class identities on actual Energy Drive path',()=>{
     printing:receipt.printing,damage:receipt.deltaDamage,
     effects:events}));
   assert.equal(receipt.deltaDamage,120,'Pinned original native Weakness failure is reproducible');
+});
+
+test('reversible exact-print paper bypass restores both-seat Weakness semantics',()=>{
+  const rows=[];
+  const prior=Store.prototype.reduceEffect;
+  for(const seat of [0,1]){
+    for(const options of [
+      {defender:'Galarian Zapdos V CRE'},
+      {doubleColorless:true,defender:'Galarian Zapdos V CRE'}
+    ]){
+      const fixture=stage(seat,1,options);
+      const {result,audit}=withEnergyDrivePaperBypass(
+        ()=>settle(fixture),{Store,rootStore:fixture.store});
+      rows.push({...result,doubleColorless:options.doubleColorless===true,
+        paperExpectedDamage:60,matchingPaperDamage:result.deltaDamage===60,
+        interceptedNativeDamagePhases:audit.interceptedNativeDamagePhases,
+        phaseNames:audit.events.map(x=>x.effectClass)});
+    }
+  }
+  console.log('AGENT34_TAPU_LELE_PAPER_BYPASS_HOOK',JSON.stringify(rows));
+  assert.strictEqual(Store.prototype.reduceEffect,prior);
+  for(const row of rows){
+    assert.equal(row.deltaDamage,60,'Corrected native damage must ignore Weakness');
+    assert.ok(row.interceptedNativeDamagePhases>=1);
+  }
 });
