@@ -76,3 +76,16 @@ test('rank uniqueness, range and interval validation fail closed',()=>{
  ]),/valid independently justified/);
  assert.throws(()=>originalFieldLossBudget([], {target:1.1}));
 });
+
+test('supplied exact Aichi original roster is 29 source 60s with specific missing ranks',()=>{
+ const roster=require('../results/aichi-2026/full-decklists.json');
+ const known=roster.decks.map(deck=>{
+   assert.equal(deck.cards.reduce((sum,c)=>sum+c.count,0),60);
+   return {rank:deck.rank,exactOriginal60:true,lower:0,upper:1};
+ });
+ const b=originalFieldLossBudget(known);
+ assert.equal(b.exactOriginalSourceCount,29);
+ assert.deepEqual(b.unknownOriginalRanks,[23,25,28]);
+ assert.equal(b.mathematicallyGuaranteedByAssumedLowerBounds,false);
+ assert.equal(b.mathematicallyImpossibleEvenAtOptimisticBounds,false);
+});
