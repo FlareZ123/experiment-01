@@ -143,13 +143,31 @@ function run(){
         competitiveQualifiedGame:false});
     }
   }
-  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v1',
+  if(rows.every(x=>x.status===
+      'native-original-K0-and-recipient-owner-K1-confirmed')){
+    assert.deepEqual(rows.map(x=>x.publicOpponentVMaxAtSourceT3),
+      [0,0,2], 'Real source turn3 public VMAX board must distinguish three arms');
+    assert.deepEqual(rows.map(x=>x.publicOpponentRadiantAtSourceT3),
+      [0,1,1], 'Native owner Radiant Bench outcomes drifted');
+    assert.deepEqual(rows.map(x=>x.recipientRadiantConfirmChosen),
+      [false,false,true], 'Native owner Climactic Gate confirmation drifted');
+    assert.deepEqual(rows.map(x=>x.recipientRadiantVmaxSelectedCount),
+      [0,0,2], 'Genuine owner VMAX deck selection count drifted');
+    const chosen=rows[2].nativeRecipientOwnDeckChoices.find(x=>
+      x.prompt==='CHOOSE_CARD_TO_PUT_ONTO_BENCH');
+    assert.deepEqual(chosen?.selectedPrintings,
+      ['Shadow Rider Calyrex VMAX CRE','Shadow Rider Calyrex VMAX CRE'],
+      'Two printed original VMAX must come from the genuine owner deck');
+    assert.equal(chosen?.nativeMax,2);
+    assert.equal(rows[2].nativeQuickBallRoots,1);
+  }
+  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v2',
     registration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
       x.status==='native-original-K0-and-recipient-owner-K1-confirmed').length,
     rows,competitiveQualifiedGames:0,
-    limitation:'Two selected original K0 physical arms. Field Blower native settled, original opponent Quick Ball K1 target choice. No claim of better game outcome or general strategy; downstream Basic Bench play and Climactic Gate are separate native observations.'};
+    limitation:'Three same-seed original K0 physical arms. Original rank1 Field Blower native settled and native Quick Ball own-deck target chosen; optional actor-owned Radiant trigger and two original VMAX physically placed in one arm. One retrospectively selected original deal; no qualified games, paper-clock or field-wide claims.'};
 }
 if(require.main===module){
   const r=run();
