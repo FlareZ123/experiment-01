@@ -52,3 +52,13 @@ These receipts show an actual same-prefix first attack choice and its subsequent
 ## Next experiments
 
 Re-execute the same original paired native fixture at a new source SHA to validate the postgame physical-choice checksum without changing the treatment; archive whether the first divergence, prizes and outcomes reproduce. Then integrate this symmetric choice into a genuinely common paper-qualified decision profile and test fresh both-start rank-11 source seeds. Extend to previously uncovered source archetypes rather than inflating the rank-11 repeated-root denominator. Support the official timing gate independently.
+
+## Reproduction after evidence hardening
+
+An independent compiled rerun [CI 41338504163](https://github.com/FlareZ123/experiment-01/actions/runs/41338504163), source head `cadb1cf11afa014c9f51872463246d710bf6f9d5`, completed SUCCESS. [Artifact 13096910095](https://github.com/FlareZ123/experiment-01/actions/runs/41338504163/artifacts/13096910095) has ZIP SHA-256 `36868f79526e7c9297a4fcc31634137bcdd79d064084d03e24839ea8be72ba1f` and raw JSON SHA-256 `aef92810de2bb9f616177d8d80a36ad5581ceddf3b367718d9aead73b3a54c33`.
+
+All four same physical-deal comparisons, first accepted native attack divergences, eight action counts, eight terminal/cap outcomes and engine winner identities reproduced exactly. Each pair now shows precisely one first shared-prefix changed attack. All eight arms also have an independent postgame hash of physically named prompt selections. Baseline/treatment hashes differ in every pair, because the intervening attack effects change later decisions. This is stronger postgame observability and remains unqualified as paper play.
+
+Original A champion prompt choice sidecars included 24 selections whose physical card names were unknown in each policy arm. The other three cases have named choices for all recorded prompts. Missing named selection receipts remain a certification limitation. The repeated native results reuse two historical original source deals and create no new statistical sample.
+
+Freshly randomized, uninspected rank11 source deal seeds were separately preregistered before their own native execution in `results/aichi-2026/registrations/agent50-prospective-rank11-bilateral-known-dead-20261101.json`.
