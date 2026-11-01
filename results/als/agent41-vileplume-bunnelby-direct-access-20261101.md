@@ -29,6 +29,32 @@ search/prizes, Bench contents, the first-turn Supporter quota, opposing locks,
 and the attack's real printed targets. **The computation does not claim
 either original player executed this line.**
 
+## Two TM Evolution attacks: the exact Stage-2 hypothesis
+
+The original rank2 chain is **Oddish UNB5 (2) → Gloom UNB7 (2) →
+Vileplume AOR3 (2)**, with **Pidgey MEW16 (2) → Pidgeotto TEU123 (2) →
+Pidgeot ex OBF164 (2)**. It also includes one Vileplume-GX CEC4.
+Rank15 has the same Oddish/Gloom/AOR and Pidgeot ex counts, an additional
+Vileplume BUS6, and Pidgeotto copies TEU123/MEW17.
+
+The supplied Advanced Player's Rulebook C-12 (pp.31–32) permits evolution
+from card effects on the first turn or on Pokémon played that turn, unless
+specified otherwise; evolution chains must still match. Bunnelby PRC121's
+printed Ω Barrage Ancient Trait permits **two attacks per turn**, while
+TM: Evolution PAR178 remains attached until end of turn. A possible
+going-second source ALS therefore has a first TM Evolution attack evolve
+**Oddish/Pidgey to Gloom/Pidgeotto**, and a second TM Evolution attack
+evolve those same Benched Pokémon to **Vileplume/Pidgeot ex**.
+
+This is a **printed-rule hypothesis only**, not a reproduced native Store
+double-attack turn. A legal source line requires actual Bunnelby activation,
+Jet/C Energy, Bench positions, both Stage-1 and Stage-2 cards accessible
+through true searches, Tool/Supporter/attack availability, and a suitable
+opponent response. It must be tested via paper-checked native prompt
+settlement, including two consecutive attack/evolution effects and
+no incorrect first-evolution timing veto. The direct-card percentages
+below do not estimate full double-evolution success.
+
 ## Exactly what is counted
 
 Start with an ordinary uniformly random **seven-card opening** and six
