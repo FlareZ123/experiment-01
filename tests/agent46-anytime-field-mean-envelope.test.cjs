@@ -107,6 +107,25 @@ test('all 128 seat-start-rank cells are equally weighted and missing cells remai
   assert.equal(r.decision,'INSUFFICIENT_INFORMATION');
 });
 
+test('minimal all-nonwin single-cell pruning counts across preregistered stratum sizes and candidate ordinals',()=>{
+  // Counts are hypothetical calculations, not observed Aichi games.
+  for(const [cellCount,ordinal,minCount] of [
+    [32,1,9],[32,2,10],[32,50,15],
+    [64,1,16],[64,2,17],[64,50,24],
+    [128,1,69],[128,2,74],[128,50,99]
+  ]){
+    const outcome=rows(cellCount);
+    outcome[0].nonWins=minCount-1;
+    assert.equal(check(outcome,ordinal).decision,
+      'INSUFFICIENT_INFORMATION');
+    outcome[0].nonWins=minCount;
+    const result=check(outcome,ordinal);
+    assert.equal(result.decision,'BELOW_TARGET_UPPER_BOUND');
+    assert.ok(result.upperFieldMean<0.995);
+    assert.equal(result.competitiveQualified,false);
+  }
+});
+
 test('reject invalid weights, count precision and multiple-deck ordinals',()=>{
   const cases=[
     {cells:rows(31),candidateOrdinal:1},
