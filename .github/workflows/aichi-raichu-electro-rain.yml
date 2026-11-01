@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/prompt-integrity.test.cjs
       - name: Check Electro Rain capped allocation pure regression
         run: node tests/raichu-prize-allocation-planner.test.cjs
+      - name: Regress true Gengar zero-cap target fidelity in both seats
+        run: node simulation/twinleaf/agent46-gengar-shadow-pain-native-cap.cjs
       - name: Characterize native printed 30-damage Electro Rain packet atomicity
         run: node simulation/twinleaf/agent46-raichu-packet-split-native.cjs
       - name: Verify Electro Rain versus Benched Pokemon V with Telescopic Sight
