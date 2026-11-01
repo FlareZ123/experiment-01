@@ -15,9 +15,10 @@ const native=modulePath=>require(path.join(output,modulePath));
  * real attached Psychic Energy cards. Opponent has one Active and 0..2 Bench
  * Pokémon. Not a full original 60 deal or competitive opponent policy.
  * @param {0|1|2} benchCount
+ * @param {0|1} [seat=0]
  * @returns {object}
  */
-function stagedAstralBarrage(benchCount){
+function stagedAstralBarrage(benchCount,seat=0){
   assert.ok([0,1,2].includes(benchCount));
   const manager=initializeCards();
   const {Store}=native('game/store/store');
@@ -30,10 +31,10 @@ function stagedAstralBarrage(benchCount){
   const state=store.state;
   const a=new Player(),b=new Player();
   a.id=141;b.id=282;
-  state.players=[a,b];
+  state.players=seat===0?[a,b]:[b,a];
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=3;
-  state.activePlayer=0;
+  state.activePlayer=seat;
   state.gameSettings.format=Format.EXPANDED;
   let id=10000;
   /** @param {string} name @returns {any} */
@@ -68,14 +69,14 @@ function stagedAstralBarrage(benchCount){
 /**
  * Use the actual pinned Store attack and native ChoosePokemonPrompt reply,
  * observing original vs optionally corrected effects with identical fixture.
- * @param {{benchCount:0|1|2,corrected:boolean}} cfg
+ * @param {{benchCount:0|1|2,corrected:boolean,seat?:0|1}} cfg
  * @returns {object}
  */
 function runAstralBarrageNative(cfg){
   const {AttackAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
-  const f=stagedAstralBarrage(cfg.benchCount);
+  const f=stagedAstralBarrage(cfg.benchCount,cfg.seat??0);
   const observe=()=>{
     f.store.dispatch(new AttackAction(f.a.id,'Astral Barrage'));
     // Native Store also holds an unrelated opposing-player WaitPrompt.
@@ -96,7 +97,7 @@ function runAstralBarrageNative(cfg){
       f.store.dispatch(new ResolvePromptAction(prompt.id,targets));
     }
     return {
-      benchCount:cfg.benchCount,corrected:cfg.corrected,
+      benchCount:cfg.benchCount,corrected:cfg.corrected,seat:cfg.seat??0,
       sourceAttack:'Shadow Rider Calyrex V CRE: Astral Barrage',
       availableOpponentPokemon:available.length,
       nativePrompt:proof,
