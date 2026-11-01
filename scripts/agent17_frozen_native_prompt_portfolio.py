@@ -99,9 +99,9 @@ def audit_native(data, archive_sha256="synthetic"):
                     else:
                         count = None
                     if count is None:
-                        if (choice["sourceZone"] == "discard"
-                                and choice["sourceZoneCardCountBefore"] == 0
-                                and choice["nativePromptAllowCancel"] is True):
+                        if (choice.get("sourceZone") == "discard"
+                                and choice.get("sourceZoneCardCountBefore") == 0
+                                and choice.get("nativePromptAllowCancel") is True):
                             choose["empty-discard-cancel-compatible"] += 1
                         else:
                             choose["selection-payload-unobserved"] += 1
