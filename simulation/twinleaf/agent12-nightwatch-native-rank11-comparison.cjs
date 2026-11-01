@@ -10,6 +10,8 @@ const {
 }=require('./agent12-nightwatch-paper-random-chooser.cjs');
 const {digestNativePromptChoices}=
   require('../evaluation/agent12-native-prompt-choice-digest.cjs');
+const {reconcileNightWatchNonceRoots}=
+  require('../evaluation/agent12-nightwatch-native-nonce-reconcile.cjs');
 
 const VERSION='agent12-native-rank11-nightwatch-independent-rng-development-v2';
 const selectionRegistration=require(
@@ -128,12 +130,17 @@ function run(){
             treated[i].nativePromptPhysicalChoiceDigest.digestSha256,
             'Uniform actual Night Watch physical choices must be recorded independently of root SHA');
       }
+      const matchedNonceRoots=reconcileNightWatchNonceRoots({
+        uniform:treated,randomHookAudit:audit.audit
+      });
+      assert.equal(matchedNonceRoots.matchedSourceRoots,namedNativeNightWatch);
       out.push({registration:group,seed:groupRows[0].seed,
         independentSelectionSeedHex:committed.independentSelectionSeedHex,
         independentlyPrecommittedPositionSeed:true,
         attemptedBaseline:base.length,attemptedUniform:treated.length,
         baseline:base,uniform:treated,
         randomHookAudit:audit.audit,
+        nativeRootNonceReconciliation:matchedNonceRoots,
         exactNightWatchPromptCountMatchesIntercepts:true,
         championReferenceRootNoninterference:true,
         competitiveQualified:false});
