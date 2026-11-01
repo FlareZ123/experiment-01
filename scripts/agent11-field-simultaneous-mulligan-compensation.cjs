@@ -93,8 +93,31 @@ function field(sourceOpeningAudit,newMoon) {
   const mean=key=>result.reduce((s,r)=>s+r[key],0)/result.length;
   const meanRef=key=>result.reduce((s,r)=>s+r.reference[key],0)/result.length;
   const meanNew=key=>result.reduce((s,r)=>s+r.lockbreaker[key],0)/result.length;
+  const unknownSourceBasicPossibilities=Array.from({length:60},(_,i)=>i+1)
+    .map(b=>({sourceBasics:b,
+      candidateBonusDifference:matchup(17,b).candidateExpectedMaximumBonus-
+        matchup(14,b).candidateExpectedMaximumBonus,
+      opponentBonusDifference:matchup(17,b).sourceExpectedMaximumBonus-
+        matchup(14,b).sourceExpectedMaximumBonus}));
+  const intervalFor=(key,knownDifference)=>{
+    const values=unknownSourceBasicPossibilities.map(x=>x[key]);
+    const base=knownDifference*result.length;
+    return {
+      lower:(base+3*Math.min(...values))/32,
+      upper:(base+3*Math.max(...values))/32
+    };
+  };
   return {
     version:VERSION,
+    missingSourceFull32Envelope:{
+      unknownRanks:[23,25,28],
+      permittedBasicCounts:'1 through 60 for each of three unpublished source 60s',
+      candidateBonusIncrease:intervalFor('candidateBonusDifference',
+        mean('extraCandidateBonus')),
+      opponentBonusReduction:intervalFor('opponentBonusDifference',
+        mean('changeInOpponentBonus')),
+      interpretation:'Worst-case per-source Basic count envelope, no missing original lists supplied or substitute matches played'
+    },
     exactOriginalSourceSixties:29,
     missingRanks:[23,25,28],
     candidateBasicCounts:{reference:14,lockbreaker:17},
