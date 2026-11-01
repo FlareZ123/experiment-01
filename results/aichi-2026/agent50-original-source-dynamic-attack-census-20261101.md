@@ -21,6 +21,9 @@ Each source entry is a distinct Pokémon entry in a decklist, rather than each p
 | Original decklists represented among the 52 entries | 24 |
 | Dynamic entries whose executable prototype owns a specialized `reduceEffect` | 0 |
 
+
+**Configuration limit:** This census initializes the pinned CardManager outside a running two-player trial. The full headless driver can install optional research adapters and printing compatibility hooks after that initialization. Consequently even the direct lookup results in this report are a baseline screening surface, rather than an exhaustive statement about every fully configured match. The exact 23 unmatched names require rerunning under the relevant full-deck configuration and paper-original numbering before any stronger coverage claim.
+
 The 23 unmatched fullNames include several Mega Evolution ex, Prism Star, and older GX/V printings. These observations may arise from aliases, catalog registration, or missing native support. **They do not demonstrate that 23 Pokémon are unavailable or unplayable.** Resolve each through the same exact-source deck-loading path before treating it as an engine-coverage failure.
 
 ## Important rejected inference
