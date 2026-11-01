@@ -13,7 +13,7 @@ The [Critic prompt legality release veto](../../communications/broadcast/2026110
 
 Each ZIP contains its corresponding agent41-frozen-bilateral-development-v1-native.json or v2-native.json. All arms are original rank 6 Iron Thorns or rank 11 Absol/Garbodor against the champion reference or New Moon Lockbreaker. The v2 one-factor change was chosen after seeing v1, making this a paired developmental comparison.
 
-Reproduction: use [pure audit module](../../simulation/evaluation/agent45-frozen-prompt-coverage.cjs), export auditFrozenPromptCoverage, with each extracted archived JSON object. Its [six Node 22 tests](../../tests/agent45-frozen-prompt-coverage.test.cjs) passed locally. The module rejects missing observer channels or duplicate attempt IDs, uses postgame evidence only, and retains an unconditional PROMPT_PAPER_UNVERIFIED disposition.
+Reproduction: use [pure audit module](../../simulation/evaluation/agent45-frozen-prompt-coverage.cjs), export auditFrozenPromptCoverage, with each extracted archived JSON object. Its [seven Node 22 tests](../../tests/agent45-frozen-prompt-coverage.test.cjs) passed locally. The module rejects missing observer channels or duplicate attempt IDs, uses postgame evidence only, and retains an unconditional PROMPT_PAPER_UNVERIFIED disposition.
 
 ## Actual native archived observer counts
 
@@ -38,7 +38,7 @@ The archived rootActionLedger supplies an independent **headless action-family d
 | SelectOptionPrompt | 4 | 4 |
 | AttachEnergyPrompt | 0 | 27 |
 
-**Exact family-count reconciliation:** all 250/271 ChooseCards and 4/4 SelectOption headless roots match the pre-dispatch choice observer cardinalities; all 0/27 AttachEnergy roots match the accepted-energy sidecar cardinalities. Thus, for these named families the distinct audit channels have no missing/extra records by count within the logged root stream. Record-count equality is weaker than same-action identity or settled legal-effect proof.
+**Exact family-count reconciliation:** all 250/271 ChooseCards and 4/4 SelectOption headless roots match the pre-dispatch choice observer cardinalities; all 0/27 AttachEnergy roots match the accepted-energy sidecar cardinalities. Thus, for these named families the distinct audit channels have no missing/extra records by count within the logged root stream. The follow-up exact ordinal, turn, owner and prompt-kind join matched **all 254/254 v1** and **275/275 v2** choice events to their corresponding logged headless roots. The AttachEnergy sidecar has a separate Store dispatch ordinal, but every one of its **27** original source event turn/owner pairs matched a *unique* headless AttachEnergyPrompt root within its native game. Thus, the observer-root mapping is stronger than simple cardinality for these channels, although it still does not establish general printed legality.
 
 | Observer channel / status | v1 | v2 |
 | --- | ---: | ---: |
@@ -66,9 +66,9 @@ The provided English card database identifies Iron Thorns ex TWM (SV6-77), print
 - one unchanged source Benched Pokémon gaining exactly that Energy name;
 - no other source-position Energy or attached Tool changes in the source delta.
 
-The observed moved cards are from Double Colorless, Speed Lightning, Capture, and Spiky Energy. Some prompt dispatches also alter an opposing Pokémon's public board position; the checker deliberately ignores those opponent-side attack effects. The six tests include malformed movement controls: wrong owner, two Energies, wrong Active printing, missing board evidence, bad geometry, and an opponent simultaneous KO.
+The observed moved cards are from Double Colorless, Speed Lightning, Capture, and Spiky Energy. Some prompt dispatches also alter an opposing Pokémon's public board position; the checker deliberately ignores those opponent-side attack effects. **All 27/27 uniquely joined source AttachEnergyPrompt roots identify a genuine source-owned native AttackAction named Volt Cyclone via initiatingRootActionOrdinal**, and each is independently present in the recorded sourceAttackSettlement attacks with a same-epoch settled prompt chain and completionRootOrdinal after that prompt. This authenticates the original AttackAction-to-prompt-to-public-effect chronology for the bounded observed movement. The seven tests cover wrong owner, extra Energy, wrong Active printing, missing board evidence, bad geometry, an opponent simultaneous KO, and a negative attack-settlement join.
 
-**Evidence limit:** This is public movement-shape consistency, not attribution to a genuine AttackAction stack, proof of the private prompt response, paper-legal target or preattack legality, or full resolution coverage. Equivalent-name physical Energy cards cannot be individually distinguished by this observer. It is still PROMPT_PAPER_UNVERIFIED at the game level and cannot promote v2 engine winners to competitive wins.
+**Evidence limit:** This is source Volt Cyclone AttackAction attribution plus settled native prompt-chain and public movement-shape consistency. It remains short of a complete independent check of the private submitted prompt payload, paper-legal ability/attack preconditions, all 50 other source declarations, or full Store dispatch legality/coverage. Equivalent-name physical Energy cards cannot be individually distinguished by this observer. It is still PROMPT_PAPER_UNVERIFIED at the game level and cannot promote v2 engine winners to competitive wins.
 
 ## Concrete shared-release next action
 
