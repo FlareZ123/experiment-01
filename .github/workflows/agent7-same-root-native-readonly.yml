@@ -22,6 +22,8 @@ jobs:
           python scripts/workflow_dispatch_preflight.py
       - name: Test independent owner-root offer accounting
         run: node --test tests/agent7-same-root-independent-opportunity.test.cjs
+      - name: Guard same-view shadow/selection physical membership (pure tests)
+        run: node --test tests/agent27-shadow-choice-reconciliation.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
