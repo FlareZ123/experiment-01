@@ -127,3 +127,61 @@ test('root integration is default-off and opt-in selects Guzma before an attack'
   assert.equal(chosen.kind,'play-guzma-forced-nominal-ko');
   assert.equal(chosen.handIndex,0);
 });
+
+test('native-shaped actor wrapper submits the typed forced Guzma Supporter root', () => {
+  const {withActorOnlyRootPolicy}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  class AddPlayerAction{}
+  class PlayCardAction{
+    constructor(id,handIndex,target){
+      this.id=id;this.handIndex=handIndex;this.target=target;
+    }
+  }
+  class AttackAction{constructor(id,name){this.id=id;this.name=name;}}
+  class PassTurnAction{constructor(id){this.id=id;}}
+  class Store{
+    constructor(){
+      const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+        specialConditions:[],energies:{cards:[]},tools:[]});
+      const player=id=>({id,active:empty(),
+        bench:Array.from({length:5},empty),
+        hand:{cards:[]},deck:{cards:[]},prizes:[],
+        stadium:{cards:[]},discard:{cards:[]},
+        lostzone:{cards:[]},supporter:{cards:[]}});
+      this.state={players:[player(101),player(202)],
+        activePlayer:0,prompts:[],turn:3,phase:2};
+    }
+    dispatch(){return true;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw Error('Unsupported generic root');}
+  }
+  const priorDecode=SimpleTacticsAi.prototype.decodeNextAction;
+  const priorDispatch=Store.prototype.dispatch;
+  const view=actor();
+  const executed=withActorOnlyRootPolicy(()=>{
+    const store=new Store();
+    store.dispatch(new AddPlayerAction());
+    const action=new SimpleTacticsAi(101).decodeNextAction(store.state);
+    assert.ok(action instanceof PlayCardAction);
+    assert.deepEqual(action.target,{player:2,slot:0,index:0});
+    assert.equal(action.handIndex,0);
+    store.dispatch(action);
+    return action;
+  },{
+    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    observe:()=>Object.freeze(view),getCatalog:()=>catalog,
+    forcedGuzmaNominalKo:true,
+    cardActions:{PlayCardAction,
+      PlayerType:{BOTTOM_PLAYER:0,ANY:2},
+      SlotType:{BOARD:0,ACTIVE:1,BENCH:2}},
+    gameActions:{AttackAction,PassTurnAction}
+  });
+  assert.equal(executed.audit.forcedGuzmaNominalKoOptIn,true);
+  assert.equal(executed.audit.typedIntentCounts[
+    'play-guzma-forced-nominal-ko'],1);
+  assert.equal(executed.audit.acceptedActorRoots,1);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,priorDecode);
+  assert.strictEqual(Store.prototype.dispatch,priorDispatch);
+});
