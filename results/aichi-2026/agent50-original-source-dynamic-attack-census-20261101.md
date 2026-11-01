@@ -55,6 +55,8 @@ The reverse shortcut is also unsound. Across these 286 matched executable source
 
 Some already have native physical tests elsewhere in this repository. Each candidate needs a paper-valid staged board with a predicted effect, owner decision/prompt evidence, actual physical outcome and a positive control where applicable. The list establishes prioritization and source reach, not a claim of absent support.
 
+**Search boundary:** The 52-entry queue recognizes only native `damageCalculation` values `x`, `+` and `-`. It excludes dynamic or decisive behavior encoded wholly in attack text, separate damage counters, copied attacks and Abilities, and it cannot assess any unmatched exact source printing. It is an intentionally incomplete first pass. Future runtime coverage must include effect semantics and source-specific tactical use.
+
 ## Confirmed rank19 differential and next gate
 
 The [Raging Bolt report](agent50-rank19-raging-bolt-public-basic-energy-20261101.md) contains the exact rank19 source printing, the owner-public optional nominal KO policy and the native control receipts. Both physical seats offered Bellowing Thunder, advanced through exactly three WaitPrompts and ended their attack turns without discarding Basic Energy or changing the defender's 90 pre-existing damage, despite two Basic cards being enough for a nominal knockout. In contrast, **Burst Roar** on the same printing genuinely drew six owner cards and removed six from deck in both seats. The final CI also required original **TEF 123** rather than relying solely on the card name.
