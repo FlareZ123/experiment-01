@@ -352,7 +352,7 @@ jobs:
         run: node -e "const r=require('./agent10-original-rank9-four-arm-native.json');console.log(JSON.stringify({attempted:r.attempted,complete:r.complete,statuses:r.statuses,sourceProxyCount:r.sourcePrintingProxyCount,qualified:r.competitiveQualifiedGames,rows:r.summaryTrials},null,2))"
       - name: Validate prior rank5 native artifact comparison and VIP counterfactual protocol
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank5-vip-retro' }}
-        run: node --test tests/agent17-rank5-vip-retrospective.test.cjs
+        run: node --test tests/agent17-rank5-vip-retrospective.test.cjs tests/agent17-native-target-root-mismatch-report.test.cjs
       - name: Replay previous eight original rank5 physical seeds with symmetric owner VIP after Pass
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank5-vip-retro' }}
         run: node simulation/evaluation/agent17-rank5-vip-retrospective.cjs > agent17-rank5-vip-retro-native.json
