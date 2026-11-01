@@ -11,3 +11,15 @@ function withElectrodeCrashBurnPaper(run,deps={}){
  const {WAS_ATTACK_USED}=deps.prefabs??native('game/store/prefabs/prefabs');
  const original=Object.getOwnPropertyDescriptor(cls.prototype,'reduceEffect');
  assert.equal(typeof original?.value,'function');
+ const audit={version:VERSION,markedPrompts:0,settled:[],competitiveQualifiedGames:0};
+ function patched(store,state,effect){
+  if(!WAS_ATTACK_USED(effect,1,this))
+   return original.value.call(this,store,state,effect);
+  const prior=store.prompt;
+  store.prompt=function(s,p,then){
+   if(p?.constructor?.name!=='DiscardEnergyPrompt'||
+      p.playerId!==effect.player.id)
+    return prior.call(store,s,p,then);
+   audit.markedPrompts++;
+   assert.equal(p.options.allowCancel,false);
+   p.options.min=0;
