@@ -13,7 +13,7 @@ const REGISTRATION='results/aichi-2026/registrations/agent8-rank15-movement-root
 const REGISTRATION_BLOB='e72eeb19e4a7157f4533fc1ad6337a090ef94695';
 const ROSTER='results/aichi-2026/full-decklists.json';
 const OUTPUT='agent8-rank15-movement-paired-native';
-const VERSION='agent8-rank15-original-receipt-postobserved-rejection-diagnostic-v2';
+const VERSION='agent8-rank15-original-receipt-postobserved-setup-recovery-v3';
 
 /** @returns {object} Immutable registered trial and source preflight. */
 function preflight(){
@@ -95,9 +95,18 @@ function summaryOf(row){
     endReason:row.endReason??null,
     error:row.error??null,
     nativeRejectedPlayCard:row.nativeRejectedPlayCard??null,
-    sourceDealFingerprint:row.sourceDealFingerprint??null,
-    actualStarterSeat:row.actualStarterSeat??null,
-    firstTurnVerified:row.verifiedFirstTurn??null,
+    // Failed source matches now carry the identical postsetup fingerprint
+    // and first native draw receipt inside the archived abort packet.
+    sourceDealFingerprint:row.sourceDealFingerprint??
+      row.nativeAbortEvidence?.sourceDealFingerprint?.digestSha256??null,
+    sourceDealFingerprintProvenance:row.sourceDealFingerprint?
+      'normal-game-result':
+      row.nativeAbortEvidence?.sourceDealFingerprint?.digestSha256?
+        'postfailure-native-abort-evidence':null,
+    actualStarterSeat:row.actualStarterSeat??
+      row.nativeSetupCoinChoiceReceipt?.firstSeatFromVerifiedDraw??null,
+    firstTurnVerified:row.verifiedFirstTurn??
+      row.nativeSetupCoinChoiceReceipt?.nativeFirstDrawVerified??null,
     initialGameRootHash:row.rootActionLedgerSha256??null,
     nativeSetupReceiptStatus:row.nativeSetupCoinChoiceReceipt?.status??null,
     physicalStatus:row.physicalZoneQualification?.status??null,
