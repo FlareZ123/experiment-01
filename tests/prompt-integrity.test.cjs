@@ -231,3 +231,47 @@ test('option-legality opt-in vetoes native null, disabled indices and foreign ch
     state,new ResolvePromptAction(27,null),
     {enforceSelectOptionLegality:true}));
 });
+
+
+class PutDamagePrompt {
+  constructor() {
+    this.id=47;
+    this.result=undefined;
+    this.options={damageMultiple:30,allowCancel:false};
+    this.maxAllowedDamage=[
+      {target:{player:1,slot:1,index:0},damage:9999},
+      {target:{player:1,slot:2,index:0},damage:9999},
+      {target:{player:1,slot:2,index:1},damage:0}
+    ];
+  }
+  validate(result) {
+    return Array.isArray(result) &&
+      result.reduce((sum,row)=>sum+row.damage,0)===30;
+  }
+}
+
+test('strict native damage gate enforces original Raichu whole 30 packets',()=>{
+  const prompt=new PutDamagePrompt();
+  const state={prompts:[prompt]};
+  const active={player:1,slot:1,index:0};
+  const bench={player:1,slot:2,index:0};
+  const excluded={player:1,slot:2,index:1};
+  assert.doesNotThrow(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(47,[{target:active,damage:30}])));
+  const split=[
+    {target:active,damage:10},{target:bench,damage:20}
+  ];
+  assert.equal(prompt.validate(split,state),true,
+    'Pinned native prompt validator accepts the illegal 10 + 20 split');
+  assert.throws(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(47,split)),
+    /INVALID_PRINTED_DAMAGE_PACKET/);
+  const zeroCap=[{target:excluded,damage:30}];
+  assert.equal(prompt.validate(zeroCap,state),true,
+    'Pinned native prompt validator accepts an excluded zero-cap target');
+  assert.throws(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(47,zeroCap)),
+    /PRINTED_TARGET_ZERO_CAP/);
+  assert.throws(()=>assertValidPromptAction(
+    state,new ResolvePromptAction(47,null)),/invalid result/);
+});
