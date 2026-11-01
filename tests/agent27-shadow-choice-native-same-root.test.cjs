@@ -100,46 +100,53 @@ for(const seat of [0,1]){
 }
 
 /**
- * Native controlled print-and-lock contrast. Both sources conserve their
- * original 60s. The two rank fixtures are deliberately staged, not actual
- * source-dealt trajectories; a pending Ability prompt is not a game result.
+ * Real PlayCardAction on controlled exact-source inventories. The pinned
+ * upstream executes Wonder Tag too early, before the Basic has entered play.
+ * Independently test the already-registered reversible paper hook.
  */
 for(const seat of [0,1]){
-  test('native rank6 Initialization suppresses an actual played Tapu Lele Wonder Tag seat '+seat,()=>{
+  test('native pinned Wonder Tag entry lock raw-versus-corrected seat '+seat,()=>{
     const outcomes=[];
+    const {installLeleEntryAbilityLockHook}=require(
+      '../simulation/twinleaf/lele-entry-ability-lock-hook.cjs');
     for(const opponentRank of [6,10]){
-      const fixture=stage(seat,opponentRank);
-      const view=actorObservation(fixture.state,seat);
-      assert.equal(view.ownHand[1],'Tapu Lele-GX GRI');
-      assert.equal(view.opponentPublic.active.printing,
-        opponentRank===6?'Iron Thorns ex TWM':'Regidrago V SIT');
-      const intent={kind:'bench-basic',handIndex:1,benchIndex:4,benchSlot:4,
-        printing:'Tapu Lele-GX GRI'};
-      const before=rootPhysicalSnapshot(fixture.state,seat,intent);
-      fixture.store.dispatch(new fixture.PlayCardAction(
-        fixture.owner.id,1,{
-          player:fixture.PlayerType.BOTTOM_PLAYER,
-          slot:fixture.SlotType.BENCH,index:4
-        }));
-      const after=rootPhysicalSnapshot(fixture.state,seat,intent);
-      assert.equal(rootPhysicalWitness(intent,before,after,fixture.GamePhase),
-        'confirmed-public-effect');
-      assert.equal(fixture.owner.bench[4].getPokemonCard()?.fullName,
-        'Tapu Lele-GX GRI');
-      const prompts=fixture.state.prompts.filter(p=>p.result===undefined)
-        .map(p=>p.constructor.name);
-      if(opponentRank===6){
-        assert.equal(prompts.includes('ConfirmPrompt'),false,
-          'Iron Thorns Initialization should suppress Wonder Tag');
-      }else{
-        assert.equal(prompts.includes('ConfirmPrompt'),true,
-          'Without active Ability lock Wonder Tag should create its native prompt');
+      for(const corrected of [false,true]){
+        const fixture=stage(seat,opponentRank);
+        const view=actorObservation(fixture.state,seat);
+        assert.equal(view.ownHand[1],'Tapu Lele-GX GRI');
+        assert.equal(view.opponentPublic.active.printing,
+          opponentRank===6?'Iron Thorns ex TWM':'Regidrago V SIT');
+        const intent={kind:'bench-basic',handIndex:1,benchIndex:4,benchSlot:4,
+          printing:'Tapu Lele-GX GRI'};
+        const before=rootPhysicalSnapshot(fixture.state,seat,intent);
+        const restore=corrected?installLeleEntryAbilityLockHook():null;
+        try{
+          fixture.store.dispatch(new fixture.PlayCardAction(
+            fixture.owner.id,1,{
+              player:fixture.PlayerType.BOTTOM_PLAYER,
+              slot:fixture.SlotType.BENCH,index:4
+            }));
+        }finally{
+          restore?.();
+        }
+        const after=rootPhysicalSnapshot(fixture.state,seat,intent);
+        assert.equal(rootPhysicalWitness(intent,before,after,fixture.GamePhase),
+          'confirmed-public-effect');
+        assert.equal(fixture.owner.bench[4].getPokemonCard()?.fullName,
+          'Tapu Lele-GX GRI');
+        const prompts=fixture.state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name);
+        const observed=prompts.includes('ConfirmPrompt');
+        const expected=opponentRank===6&&!corrected?true:
+          opponentRank===6?false:true;
+        assert.equal(observed,expected,
+          'Expected known pinned pre-entry Ability mischeck and paper correction');
+        outcomes.push({opponentRank,seat,paperCorrected:corrected,
+          playedLeleOnFinalBench:true,pendingWonderTagConfirm:observed,
+          nativeCardAccepted:true,staged:true});
       }
-      outcomes.push({opponentRank,seat,playedLeleOnFinalBench:true,
-        pendingWonderTagConfirm:prompts.includes('ConfirmPrompt'),
-        nativeCardAccepted:true,staged:true});
     }
-    console.log(JSON.stringify({contrast:'native-wonder-tag-under-initialization',
+    console.log(JSON.stringify({contrast:'pinned-preentry-vs-paper-corrected-lock',
       seat,outcomes,qualifiedCompetitiveGames:0}));
   });
 }
