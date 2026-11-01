@@ -93,6 +93,48 @@ test('one boundary rejects an invalid Camping Gear count before Store mutation, 
   assert.strictEqual(IronThornsex.prototype.reduceEffect,r.value);
 });
 
+test('foreign physical deck card is paper-invalid even when native validator falsely approves',()=>{
+  const s=state(),owner=s.players[0];
+  const card={name:'real deck card'},foreign={name:'foreign physical card'};
+  owner.deck.cards.push(card);
+  const prompt=new ChooseCardsPrompt(20,owner.deck,owner,
+    {fullName:'Camping Gear BST'});
+  prompt.validate=()=>true;
+  s.prompts=[prompt];
+  const store=new FakeStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>{
+    assert.throws(()=>store.dispatch(new ResolvePromptAction(20,[foreign])),
+      /selected-card-not-in-physical-own-deck/);
+    assert.equal(store.mutations,0);
+    return store.dispatch(new ResolvePromptAction(20,[card]));
+  },deps).audit;
+  assert.equal(audit.statusCounts.PAPER_PROMPT_INVALID,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_VERIFIED,1);
+  assert.equal(audit.nativeAccepted,1);
+});
+
+test('real own deck search with false native validator remains unverified and separately fails closed',()=>{
+  const s=state(),owner=s.players[0],card={name:'physically present'};
+  owner.deck.cards.push(card);
+  const prompt=new ChooseCardsPrompt(21,owner.deck,owner,
+    {fullName:'Camping Gear BST'});
+  prompt.validate=()=>false;
+  s.prompts=[prompt];
+  const store=new FakeStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>{
+    assert.throws(()=>store.dispatch(new ResolvePromptAction(21,[card])),
+      /NATIVE_PROMPT_PREFLIGHT_REJECTED/);
+    assert.equal(store.mutations,0);
+    prompt.validate=()=>true;
+    return store.dispatch(new ResolvePromptAction(21,[card]));
+  },deps).audit;
+  assert.equal(audit.statusCounts.PAPER_PROMPT_INVALID,0);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_VERIFIED,1);
+  assert.equal(audit.nativePreflightVetoed,1);
+  assert.equal(audit.vetoedBeforeDispatch,0);
+});
+
 test('zero-cap and nonwhole packet PutDamage answers are predispatch vetoes; valid remains paper-unverified',()=>{
   const s=state(),owner=s.players[0];
   const target={player:1,slot:'bench',index:0};
@@ -148,6 +190,27 @@ test('positively reducer-marked original Volt Cyclone accepts only one own Activ
   assert.equal(audit.statusCounts.PAPER_PROMPT_INVALID,1);
   assert.equal(audit.statusCounts.PAPER_PROMPT_VERIFIED,1);
   assert.equal(audit.nativeAccepted,1);
+});
+
+test('Volt Cyclone positive physical transfer with false native validator is an unverified native veto',()=>{
+  const s=state(),owner=s.players[0],energy={superType:'energy'};
+  owner.active.cards.push(energy);
+  const store=new FakeStore(s),pokemon=new IronThornsex();
+  const audit=withPaperPromptContractPortfolio(()=>{
+    pokemon.reduceEffect(store,s,new AfterAttackEffect(owner,pokemon.attacks[0]));
+    const prompt=s.prompts[0];
+    prompt.validate=()=>false;
+    const choice=[{card:energy,to:{player:'bottom',slot:'bench',index:0}}];
+    assert.throws(()=>store.dispatch(new ResolvePromptAction(99,choice)),
+      /NATIVE_PROMPT_PREFLIGHT_REJECTED/);
+    assert.equal(store.mutations,0);
+    prompt.validate=()=>true;
+    return store.dispatch(new ResolvePromptAction(99,choice));
+  },deps).audit;
+  assert.equal(audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_VERIFIED,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_INVALID,0);
+  assert.equal(audit.nativePreflightVetoed,1);
 });
 
 test('Night Watch-like opponent concealed hand selections and unrelated prompts remain explicitly unverified',()=>{
