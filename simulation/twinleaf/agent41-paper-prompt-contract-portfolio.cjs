@@ -45,12 +45,34 @@ function independentPutDamageNegative(prompt,answer){
   return null;
 }
 
+/**
+ * Source-specific printed Painful Spoons negative. Each transfer is one
+ * 10-damage counter and the ability moves at most two from ONE opposing
+ * Pokémon. A shared MoveDamagePrompt may be used by unrelated cards, so
+ * this predicate is applied only to a prompt marked at the Radiant
+ * Alakazam SIT reducer that actually created it.
+ *
+ * @param {unknown} answer Submitted native transfers.
+ * @returns {string|null} Covered printed invalidity only.
+ */
+function independentPainfulSpoonsNegative(answer){
+  if(!Array.isArray(answer)||answer.length<2)return null;
+  const first=answer[0]?.from;
+  if(!first||typeof first!=='object')return null;
+  if(answer.some(row=>row?.from &&
+      (row.from.player!==first.player||
+       row.from.slot!==first.slot||
+       row.from.index!==first.index)))
+    return 'PAINFUL_SPOONS_MULTIPLE_SOURCE_POKEMON';
+  return null;
+}
+
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v6-partial-damage-budget';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v7-source-marked-painful-spoons';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -193,7 +215,8 @@ function physicalPromptChoiceMetadata(state,prompt,answer,types){
  *
  * @template T
  * @param {()=>T} run Synchronous complete game, cohort, or native fixture.
- * @param {{Store?:Function,IronThornsex?:Function,types?:object,
+ * @param {{Store?:Function,IronThornsex?:Function,RadiantAlakazam?:Function,
+ *  wasPowerUsed?:Function,types?:object,
  *  currentTrialId?:()=>string|null,exampleLimit?:number,
  *  requireLiveStore?:boolean}} [deps]
  * @returns {{result:T,audit:object}}
@@ -205,6 +228,10 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const Store=deps.Store??native('game/store/store').Store;
   const IronThornsex=deps.IronThornsex??native(
     'sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex').IronThornsex;
+  const RadiantAlakazam=deps.RadiantAlakazam??native(
+    'sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam').RadiantAlakazam;
+  const wasPowerUsed=deps.wasPowerUsed??native(
+    'game/store/prefabs/prefabs').WAS_POWER_USED;
   const types=deps.types??{
     ...native('game/store/actions/play-card-action'),
     ...native('game/store/card/card-types')
@@ -212,11 +239,15 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const dispatchBefore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   const reducerBefore=Object.getOwnPropertyDescriptor(
     IronThornsex.prototype,'reduceEffect');
+  const spoonsReducerBefore=Object.getOwnPropertyDescriptor(
+    RadiantAlakazam.prototype,'reduceEffect');
   assert.equal(typeof dispatchBefore?.value,'function');
   assert.equal(typeof reducerBefore?.value,'function');
+  assert.equal(typeof spoonsReducerBefore?.value,'function');
   const limit=deps.exampleLimit??24;
   assert.ok(Number.isSafeInteger(limit)&&limit>=0&&limit<=100);
   const marked=new WeakSet();
+  const markedSpoons=new WeakSet();
   const liveByTrial=new Map();
   const liveOnly=deps.requireLiveStore===true;
   const trialKey=()=>deps.currentTrialId?.()??'__single__';
@@ -229,11 +260,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Camping Gear BST mandatory own-deck exactly-one search',
       'Iron Thorns ex TWM printed Volt Cyclone transfer, positively reducer-marked',
       'PutDamagePrompt declared zero-target, whole-packet and optional budget negatives only',
+      'Radiant Alakazam SIT source-marked Painful Spoons single-source negative only',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
     vetoedBeforeDispatch:0,nativePreflightVetoed:0,
-    markedVoltCyclonePrompts:0,
+    markedVoltCyclonePrompts:0,markedPainfulSpoonsPrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -273,6 +305,22 @@ function withPaperPromptContractPortfolio(run,deps={}){
     }
     return result;
   }
+  function reducedSpoons(store,state,effect){
+    const eligible=isLive(store)&&wasPowerUsed(effect,0,this)===true;
+    const before=eligible?new Set(state.prompts):null;
+    const result=spoonsReducerBefore.value.call(this,store,state,effect);
+    if(before){
+      for(const prompt of state.prompts){
+        if(!before.has(prompt)&&
+           prompt?.constructor?.name==='MoveDamagePrompt'&&
+           prompt.playerId===effect.player?.id){
+          markedSpoons.add(prompt);
+          audit.markedPainfulSpoonsPrompts++;
+        }
+      }
+    }
+    return result;
+  }
   function dispatched(action,...args){
     const type=action?.constructor?.name;
     if(liveOnly&&type==='AddPlayerAction'&&
@@ -296,6 +344,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
     const trial=deps.currentTrialId?.()??null;
     const camping=campingGearPaperVerdict(this.state,action);
     const volt=Boolean(prompt&&marked.has(prompt));
+    const spoons=Boolean(prompt&&markedSpoons.has(prompt));
     let status='PAPER_PROMPT_UNVERIFIED';
     let sourcePrinting=prompt?.sourceCard?.fullName??null;
     let contract=null;
@@ -326,6 +375,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
       reason=nativePreflightRejected?
         'native-validator-rejected-independent-print-valid-selection':
         result.reason;
+    }else if(spoons&&family==='MoveDamagePrompt'){
+      sourcePrinting='Radiant Alakazam SIT';
+      contract='printed-painful-spoons-one-source-negative';
+      const rejected=independentPainfulSpoonsNegative(action.result);
+      if(rejected)status='PAPER_PROMPT_INVALID';
+      reason=rejected??'only-negative-predicates-audited';
     }else if(family==='PutDamagePrompt'){
       contract='declared-zero-target-whole-packet-and-optional-budget-negative-only';
       const rejected=independentPutDamageNegative(prompt,action.result);
@@ -400,6 +455,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
   }
   Object.defineProperty(IronThornsex.prototype,'reduceEffect',
     {...reducerBefore,value:reduced});
+  Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
+    {...spoonsReducerBefore,value:reducedSpoons});
   Object.defineProperty(Store.prototype,'dispatch',
     {...dispatchBefore,value:dispatched});
   try{return {result:run(),audit};}
@@ -410,10 +467,14 @@ function withPaperPromptContractPortfolio(run,deps={}){
   }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatched);
     assert.strictEqual(IronThornsex.prototype.reduceEffect,reduced);
+    assert.strictEqual(RadiantAlakazam.prototype.reduceEffect,reducedSpoons);
     Object.defineProperty(Store.prototype,'dispatch',dispatchBefore);
     Object.defineProperty(IronThornsex.prototype,'reduceEffect',reducerBefore);
+    Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
+      spoonsReducerBefore);
   }
 }
 module.exports={VERSION,independentCampingGearContract,
-  independentPutDamageNegative,physicalPromptChoiceMetadata,
+  independentPutDamageNegative,independentPainfulSpoonsNegative,
+  physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
