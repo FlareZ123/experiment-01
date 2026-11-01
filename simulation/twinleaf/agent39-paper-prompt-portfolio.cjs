@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v1-volt-cyclone';
+const VERSION='agent39-paper-prompt-portfolio-v2-live-store-attribution';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -70,7 +70,23 @@ function withPaperPromptPortfolio(run,deps={}){
   assert.equal(typeof d?.value,'function');
   assert.equal(typeof r?.value,'function');
   const attributed=new WeakSet();
+  const storeIds=new WeakMap();
+  let nextStoreId=0;
+  let liveStore=null;
+  const scopeOf=store=>liveStore===null?'unattributed':
+    store===liveStore?'live':'auxiliary';
+  const storeId=store=>{
+    if(!storeIds.has(store))storeIds.set(store,nextStoreId++);
+    return storeIds.get(store);
+  };
   const audit={schema:VERSION,contractPrintings:[PRINTING],
+    provenance:'all-Store dispatch attempts separated from genuine live Store',
+    liveStoreObserved:false,allStoreDispatchAttempts:true,
+    liveResolutionCount:0,livePaperVerifiedNativeAccepted:0,
+    livePaperInvalidVetoed:0,livePaperUnverified:0,
+    liveNativeRejectedAfterPreflight:0,
+    auxiliaryResolutionCount:0,unattributedResolutionCount:0,
+    sourceMarkedPromptCountByScope:{live:0,auxiliary:0,unattributed:0},
     resolutionCount:0,paperVerifiedNativeAccepted:0,
     paperInvalidVetoed:0,paperUnverified:0,nativeRejectedAfterPreflight:0,
     sourceMarkedPromptCount:0,events:[],
@@ -86,14 +102,24 @@ function withPaperPromptPortfolio(run,deps={}){
            prompt.playerId===effect.player?.id){
           attributed.add(prompt);
           audit.sourceMarkedPromptCount++;
+          audit.sourceMarkedPromptCountByScope[scopeOf(store)]++;
         }
       }
     }
     return outcome;
   }
   function dispatched(action,...args){
+    const ordinal=storeId(this);
+    if(liveStore===null&&action?.constructor?.name==='AddPlayerAction'){
+      liveStore=this;
+      audit.liveStoreObserved=true;
+    }
     if(action?.constructor?.name!=='ResolvePromptAction')
       return d.value.call(this,action,...args);
+    const storeScope=scopeOf(this);
+    if(storeScope==='live')audit.liveResolutionCount++;
+    else if(storeScope==='auxiliary')audit.auxiliaryResolutionCount++;
+    else audit.unattributedResolutionCount++;
     const prompt=this.state.prompts?.find(p=>p.id===action.id&&
       p.result===undefined);
     const marked=prompt&&attributed.has(prompt);
@@ -101,25 +127,36 @@ function withPaperPromptPortfolio(run,deps={}){
     const status=!marked?'PAPER_PROMPT_UNVERIFIED':paper.valid?
       'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
     const entry={turn:this.state.turn??null,promptId:prompt?.id??null,
+      storeOrdinal:ordinal,storeScope,
+      sourceSeat:this.state.players?.findIndex(p=>
+        p.id===prompt?.playerId)??-1,
       family:prompt?.constructor?.name??null,
       sourcePrinting:marked?PRINTING:null,status,
       count:Array.isArray(action.result)?action.result.length:null,
       reason:paper?.reason??'no-independent-printed-contract',
       nativeAccepted:false};
     audit.resolutionCount++;
-    if(status==='PAPER_PROMPT_UNVERIFIED')audit.paperUnverified++;
+    if(status==='PAPER_PROMPT_UNVERIFIED'){
+      audit.paperUnverified++;
+      if(storeScope==='live')audit.livePaperUnverified++;
+    }
     audit.events.push(entry);
     if(status==='PAPER_PROMPT_INVALID'){
       audit.paperInvalidVetoed++;
+      if(storeScope==='live')audit.livePaperInvalidVetoed++;
       throw new Error('PAPER_PROMPT_INVALID:'+PRINTING+':'+paper.reason);
     }
     try{
       const output=d.value.call(this,action,...args);
       entry.nativeAccepted=true;
-      if(status==='PAPER_PROMPT_VERIFIED')audit.paperVerifiedNativeAccepted++;
+      if(status==='PAPER_PROMPT_VERIFIED'){
+        audit.paperVerifiedNativeAccepted++;
+        if(storeScope==='live')audit.livePaperVerifiedNativeAccepted++;
+      }
       return output;
     }catch(error){
       audit.nativeRejectedAfterPreflight++;
+      if(storeScope==='live')audit.liveNativeRejectedAfterPreflight++;
       throw error;
     }
   }
