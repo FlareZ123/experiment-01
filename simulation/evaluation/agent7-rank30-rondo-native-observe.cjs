@@ -34,6 +34,7 @@ function runRank30RondoReadOnly(){
    sourceRondoOffers:audit.rondoOffersBySeat?.[row.sourceSeat]??0,
    candidateRondoOffers:audit.rondoOffersBySeat?.[row.candidateSeat]??0,
    sourceRondoReadiness:audit.rondoReadinessBySeat?.[row.sourceSeat]??{},
+   sourceRondoBenchContext:audit.rondoBenchedBySeat?.[row.sourceSeat]??null,
    ownerRoots:audit.ownerRoots,selectorErrorRoots:audit.selectorErrorRoots,
    status:row.status??(row.finished?'untimed-engine-terminal':'censored')};
  });
