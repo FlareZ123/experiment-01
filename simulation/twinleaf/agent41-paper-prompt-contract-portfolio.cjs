@@ -39,8 +39,10 @@ function independentPutDamageNegative(prompt,answer){
 
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
+const {duplicatePhysicalChoiceReason}=
+  require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v4-physical-prompt-choice-geometry';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v5-distinct-physical-cards';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -215,9 +217,11 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const byTrial=Object.create(null);
   const audit={
     schema:VERSION,contractScope:[
+      'ChooseCardsPrompt independent physical-card uniqueness and source-membership negative only',
       'Camping Gear BST mandatory own-deck exactly-one search',
       'Iron Thorns ex TWM printed Volt Cyclone transfer, positively reducer-marked',
-      'PutDamagePrompt declared zero-target and whole-packet rejection only'
+      'PutDamagePrompt declared zero-target and whole-packet rejection only',
+      'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
     vetoedBeforeDispatch:0,nativePreflightVetoed:0,
@@ -289,7 +293,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
     let contract=null;
     let reason='no-independent-printed-contract';
     let nativePreflightRejected=false;
-    if(volt){
+    const physicalSourceDefect=duplicatePhysicalChoiceReason(
+      prompt,action.result);
+    if(physicalSourceDefect){
+      contract='generic-physical-choose-cards-unique-source-membership';
+      status='PAPER_PROMPT_INVALID';
+      reason=physicalSourceDefect;
+    }else if(volt){
       sourcePrinting='Iron Thorns ex TWM';
       contract='printed-volt-cyclone-energy-transfer';
       const result=verdictVoltCyclone(this.state,prompt,action.result,types);
