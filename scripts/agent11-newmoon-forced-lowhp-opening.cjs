@@ -164,8 +164,30 @@ function analyze(manifest,sourceOpenings){
     referenceForcedLowHp:sourceConditionalExposure(14,0,d.basic_count_known),
     newMoonForcedLowHp:sourceConditionalExposure(17,5,d.basic_count_known)
   }));
+  const unknownSourceBasics=Array.from({length:60},(_,i)=>i+1);
+  const full32Interval=(fn,knownMean)=>{
+    const vals=unknownSourceBasics.map(fn);
+    const knownTotal=knownMean*29;
+    return {
+      lower:(knownTotal+3*Math.min(...vals))/32,
+      upper:(knownTotal+3*Math.max(...vals))/32
+    };
+  };
+  const knownForced=rows.reduce((s,r)=>s+r.newMoonForcedLowHp,0)/29;
+  const knownNoNamed11=sourceOpenings.decks.reduce((s,d)=>s+
+    withoutNamedSearcherCopies(d.basic_count_known,11),0)/29;
   return {
     version:VERSION,
+    full32MissingSourceEnvelope:{
+      unknownRanks:[23,25,28],
+      permittedSourceBasicCounts:[1,60],
+      forcedLowHp:full32Interval(b=>sourceConditionalExposure(17,5,b),
+        knownForced),
+      noElevenNamedSearchers:full32Interval(b=>
+        withoutNamedSearcherCopies(b,11),knownNoNamed11),
+      actualMissingSourceDecksAuthenticated:false,
+      competitiveGameInference:false
+    },
     verified,
     openingSevenOnly:{
       reference:forcedLowHpInSeven(14,0),
