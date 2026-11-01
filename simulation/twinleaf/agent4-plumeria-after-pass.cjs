@@ -7,7 +7,7 @@ const actorObservation=(state,seat)=>
 const {visibleEnergyTargets,PRINTING}=
   require('./agent4-plumeria-opportunity.cjs');
 
-const VERSION='agent38-plumeria-owner-after-pass-native-v2-delegated-receipts';
+const VERSION='agent38-plumeria-owner-after-pass-native-v3-actor-provenance-adoption';
 const MAX_LOG=48;
 
 /**
@@ -161,6 +161,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
   const GamePhase=deps.GamePhase??require(path.join(base,
     'game/store/state/state')).GamePhase;
   const observe=deps.observe??actorObservation;
+  const adoptActorSelectedPlumeria=deps.adoptActorSelectedPlumeria===true;
   const largeHandOptIn=deps.largeHandOptIn===true||
     process.env.AGENT38_PLUMERIA_LARGE_HAND_DEV==='true';
   const selectHand=deps.selectHand??((state,seat)=>
@@ -185,6 +186,7 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
     genericPromptFallbacks:0,delegatedPromptDispatches:0,
     delegatedSettledEnergyDiscards:0,
     largeHandOptIn,largeHandNativeSelections:0,
+    adoptActorSelectedPlumeria,adoptedActorRootActions:0,
     bySeat:{0:{accepted:0,settled:0},1:{accepted:0,settled:0}},
     log:[],actorOnlyAddedActions:true,
     anyGameCompetitivelyQualified:false,
@@ -234,6 +236,9 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
       return action;
     }
     const original=beforeDecode.value.call(this,state);
+    // A tagged same-root chooser owns this decision. Retain this adapter
+    // solely for the mandatory Plumeria prompt chain and its native receipts.
+    if(adoptActorSelectedPlumeria)return original;
     if(original?.constructor?.name!=='PassTurnAction'||
        state.activePlayer!==seat)return original;
     audit.baselinePassRoots++;
@@ -290,12 +295,32 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
       physicalCards:action.result,delegated:true};
   }
 
+  /**
+   * Admit only the canonical actor chooser's own genuine PlayCardAction
+   * identity. The original native Store still validates the card and prompt.
+   * A generic untagged PlayCardAction can never create this chain.
+   */
+  function adoptedActorRootEvent(state,action){
+    if(!adoptActorSelectedPlumeria||!(action instanceof PlayCardAction))
+      return null;
+    const tag=require('./agent34-actor-only-root-policy.cjs')
+      .actorNativeActionReceipt(action);
+    if(tag?.kind!=='play-plumeria-payment-menu'||tag.printing!==PRINTING||
+       ![0,1].includes(tag.seat)||state.activePlayer!==tag.seat||
+       !Number.isSafeInteger(tag.handIndex)||tag.handIndex<0)return null;
+    const owner=state.players[tag.seat];
+    if(owner?.hand?.cards?.[tag.handIndex]?.fullName!==PRINTING)return null;
+    return {kind:'root',seat:tag.seat,ownerId:owner.id,
+      turn:state.turn,printing:PRINTING,origin:'same-root-actor'};
+  }
+
   function dispatch(action,...rest){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==liveStore){
       liveStore=this;awaiting.clear();audit.nativeStores++;
     }
     const event=this===liveStore?
-      proposals.get(action)??delegatedPromptEvent(this.state,action):null;
+      proposals.get(action)??adoptedActorRootEvent(this.state,action)??
+        delegatedPromptEvent(this.state,action):null;
     if(!event)return beforeDispatch.value.apply(this,[action,...rest]);
     const owner=this.state.players[event.seat];
     const opponent=this.state.players[1-event.seat];
@@ -309,11 +334,12 @@ function withOwnerPlumeriaAfterPass(execute,deps={}){
       const result=beforeDispatch.value.apply(this,[action,...rest]);
       if(event.kind==='root'){
         audit.acceptedPlumeria++;audit.bySeat[event.seat].accepted++;
+        if(event.origin==='same-root-actor')audit.adoptedActorRootActions++;
         awaiting.set(owner.id,{seat:event.seat,turn:event.turn,
           stage:0,ownerDiscardBefore:owner.discard.cards.length,
           enemyEnergyBefore:enemyBefore,discardedHand:[],target:null});
         record({kind:'plumeria-native-root',seat:event.seat,turn:event.turn,
-          accepted:true});
+          accepted:true,origin:event.origin??'after-pass'});
       }else{
         if(event.delegated)audit.delegatedPromptDispatches++;
         else audit.acceptedPrompts++;
