@@ -126,6 +126,25 @@ class PrintedTargetScreenTests(unittest.TestCase):
                 "types": frozenset(),
             }))
 
+    def test_setup_basic_selections_across_both_seats(self):
+        data = json.loads(test_native())
+        row = data["rows"][0]
+        row["sourceSeat"] = 1
+        row["rootActionLedger"][1]["initiatingRootActionOrdinal"] = None
+        row["nativePromptChoices"]["events"][0].update({
+            "sourceZone": "hand",
+            "actorSeat": 1,
+            "selectedCards": ["Psy TST", "Fire TST", "Special P TST"]
+        })
+        with test_card_zip() as cards:
+            result = screen_native(json.dumps(data).encode(), cards)
+        source = result["initial_basic_selection_screen"]["source"]
+        self.assertEqual(source["hand_selection_prompts"], 1)
+        self.assertEqual(source["selected_card_instances"], 3)
+        self.assertEqual(source["exact_print_basic_matches"], 2)
+        self.assertEqual(source["exact_print_basic_mismatches"], 1)
+        self.assertEqual(result["total_selected"], 0)
+
     def test_duplicate_trials_or_incomplete_ledger_rejected(self):
         data = json.loads(test_native())
         data["rows"] = data["rows"] * 2
