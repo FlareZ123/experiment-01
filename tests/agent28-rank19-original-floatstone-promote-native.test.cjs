@@ -76,7 +76,7 @@ for(const seat of [0,1]){
     assert.deepEqual(view.ownPublic.bench[0].energies,['Double Dragon Energy ROS']);
     const target={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
     x.store.dispatch(new PlayCardAction(x.source.id,first.handIndex,target));
-    assert.ok(x.source.active.tools.cards.includes(x.stone));
+    assert.ok(x.source.active.tools.includes(x.stone));
     assert.equal(x.source.hand.cards.length,0);
     const retreatCost=new CheckRetreatCostEffect(x.source);
     x.store.reduceEffect(x.store.state,retreatCost);
@@ -90,7 +90,7 @@ for(const seat of [0,1]){
     assert.strictEqual(x.source.active.getPokemonCard(),x.raging);
     assert.strictEqual(x.source.active.energies.cards[0],x.dde);
     assert.strictEqual(x.source.bench[0].getPokemonCard(),x.hooh);
-    assert.ok(x.source.bench[0].tools.cards.includes(x.stone));
+    assert.ok(x.source.bench[0].tools.includes(x.stone));
     assert.equal(x.source.retreatedTurn,x.store.state.turn);
     assert.equal(x.source.getPrizeLeft(),6);
   });
