@@ -24,3 +24,26 @@ Commit `60d185df7aaf102a3548d42ef330e1ab5274d40a` extends the existing shared ex
 Commit `6852b56c29741442881b96d93048e30fd7b3430b` adds pure positive, unplayed and wrong-printing regressions for all five Stadium kinds to `tests/agent33-tropical-beach-original-paired.test.cjs`. This avoids the previously observed research-side assertion when a native Beach branch is actually selected. New compiled CI and a same-seed repaired diagnostic are still required for confirmed native action/effect settlement. Treat the first failed study as retained negative/error evidence, not replaced data.
 
 **Competitive qualification remains zero.** The runner and registration are developmental; no complete timed opponent policy, all-32 original inventories, or validated overall fixed-60 success exists.
+
+## Full after-repair native original-source result, 1 November
+
+The second diagnostic [run 41273271820](https://github.com/FlareZ123/experiment-01/actions/runs/41273271820), head 79f72b633aad548f28fc7ac502b52454ce613ece, kept all 12 attempts and reproduced the two rank29 native exceptions **one action later**. The physical Tropical Beach placement succeeded; subsequent use-tropical-beach reached the shared research-owned receipt and triggered the same unknown-intent assertion. Its artifact ZIP SHA256: aa6ad38ce34b330916d14cc33d9b72add0ea9bf217d6cbd90e514794f0b0e0b4. These remain unqualified error arms, not negative play evidence.
+
+Commit a6057d30 adds actual native-use receipts for Tropical Beach and Player's Ceremony: matching Stadium in play, exact owner deck-to-hand transfer, public used-turn quota and owner turn-end transition. Commit a205a0de adds positive and failed-draw/absent-Stadium/non-ending-turn pure tests. Neither treatment policy nor preregistered opponent original printed 60s, seeds, seats or 260-action horizon was changed.
+
+**Repaired native packet:** [run 41273431460](https://github.com/FlareZ123/experiment-01/actions/runs/41273431460), artifact agent33-original-beach-paired-20261030 id 13069299745, ZIP SHA256 09064fed6c08a1691e50b2196d36e3e29ff4133acf709133909a6d2dc1a02e7a. All **12/12** control/treatment attempts preserved, **6/6 identical original physical deal/source 60 starts confirmed**, **0 native errors**, **0 physical zone invalids**, **2 native Beach placements**, **2 accepted native Stadium uses**, **2 settled draw-to-seven/end-turn witnesses**. These are two rank29 physical-seat/seed strata and represent one opponent archetype, not independent archetypes.
+
+| Original source / candidate seat | Control | Treatment | Beach draw settled? | Engine winner |
+| --- | --- | --- | --- | --- |
+| 3 / A | capped | capped | no Beach selected | none |
+| 3 / B | terminal | terminal | no Beach selected | candidate seat1 |
+| 6 / A | capped | capped | no Beach selected | none |
+| 6 / B | terminal | terminal | no Beach selected | original source seat0 |
+| 29 / A | terminal | terminal | **yes, source seat1, turn2** | candidate seat0, both |
+| 29 / B | capped | capped | **yes, source seat0, turn2** | none |
+
+Both exact original rank29 source-owner cases executed genuine Tropical Beach PlayCardAction then UseStadiumAction, with **hand 5→7, deck 46→44, Stadium-used turn2, native end-turn transition**. Rank29 candidate-seat A, seed 844567280, acted on native roots **12/13**; the opponent candidate seat0 followed on turn3 with a PassTurnAction after the mandatory wait prompts. Rank29 candidate-seat B, seed 2748052802, acted on roots **31/32**; opposing candidate seat1 followed on turn3 with a Fog Crystal PlayCardAction. Both showed SETTLED_PHYSICAL_60_VERIFIED with multiple checked native settled roots and zero physical anomalies.
+
+The rank29 A control finished in 174 actions/39 turns versus Beach treatment 168 actions/37 turns, with the **same engine winner**. Rank29 B remained **capped at 260 roots and 58 turns** under both variants; its terminal winner is unknown. There was no engine-winner reversal among completed pairs. Every attempt retains actorQualification.fullyActorOnly=false, paperClockQualified=false and competitiveGames=0. A real settled Stadium effect and subsequent opponent reply do not demonstrate a skilled policy, an actual timed-game win, or any benchmark win-rate change.
+
+The first failed 12-attempt packet and intermediate failure remain separately archived above: this repair does not delete or retroactively reclassify their observations. The user-facing fixed-deck benchmark remains 29 authenticated original sixties, zero competitively qualified games and no 99.5% evidence.
