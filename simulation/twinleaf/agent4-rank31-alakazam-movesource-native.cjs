@@ -55,7 +55,7 @@ function stagedPainfulSpoons(){
   opponent.bench[1].cards.push(card('Shadow Rider Calyrex V CRE'));
   opponent.active.damage=10;
   opponent.bench[0].damage=10;
-  return {store,state,source,opponent};
+  return {store,state,source,opponent,card};
 }
 
 /**
