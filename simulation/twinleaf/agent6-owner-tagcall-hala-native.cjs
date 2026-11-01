@@ -79,6 +79,7 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
     competitiveQualifiedGames:0};
   const tagActions=new WeakMap(),promptActions=new WeakMap();
   const tokenByOwner=new Map();
+  const k1ObservedPrompts=new WeakSet();
   let liveStore=null;
 
   function decode(state){
@@ -96,6 +97,25 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
     const token=tokenByOwner.get(owner.id);
     if(pending&&token&&pending.id===token.ownerPromptId&&
       pending.playerId===owner.id){
+      // Paper K1 is acquired only after a real accepted owner's Tag Call
+      // has opened its native own-deck prompt. Preserve only two known
+      // printing counts for the opt-in next-turn owner policy.
+      if(typeof deps.onAuthenticatedOwnerDeckInspect==='function'&&
+         pending.cards===owner.deck&&
+         pending.constructor?.name==='ChooseCardsPrompt'&&
+         pending.message==='CHOOSE_CARD_TO_HAND'&&
+         !k1ObservedPrompts.has(pending)){
+        k1ObservedPrompts.add(pending);
+        const count=name=>owner.deck.cards.filter(c=>c.name===name).length;
+        deps.onAuthenticatedOwnerDeckInspect(Object.freeze({
+          source:'accepted-original-store-owner-deck-prompt',
+          ownerId:owner.id,actorSeat:seat,
+          globalTurn:token.globalTurn,ownerPromptId:pending.id,
+          prizeCount:owner.prizes.reduce((n,slot)=>n+slot.cards.length,0),
+          thunderMountainDeckCopies:count('Thunder Mountain Prism Star'),
+          speedLightningDeckCopies:count('Speed Lightning Energy')
+        }));
+      }
       const offered=actorSingleSearchInput(state,seat);
       const chosen=offered?
         chooseAuthenticatedTagCallHala(offered,token,{
