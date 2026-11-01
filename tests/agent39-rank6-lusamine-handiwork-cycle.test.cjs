@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {SOURCE_RANK6,supporterCycle,coinWays,millTail,
-  depletionByNextOpponentDraw,prizeAccessibility}=
+  depletionByNextOpponentDraw,prizeAccessibility,unopposedDeckoutRace}=
   require('../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs');
 
 test('original rank6 has two Lusamine, one Handiwork, three VS Seeker',()=>{
@@ -78,4 +78,38 @@ test('single Gladion can rescue at most one prized loop component',()=>{
     r.blockedWithoutPrizeTaking,r.total);
   assert.ok(r.maximumAccessibleFraction>0.95);
   assert.ok(r.maximumAccessibleFraction<0.96);
+});
+
+test('independent turn-by-turn race matches every small full coin space',()=>{
+  for(let owner=1;owner<=8;owner++){
+    const uses=Math.floor(owner/2);
+    const total=1<<(2*uses);
+    for(let opponent=0;opponent<=24;opponent++){
+      let wins=0;
+      for(let bits=0;bits<total;bits++){
+        let ownDeck=owner,oppDeck=opponent,coinIndex=0;
+        while(true){
+          if(ownDeck===0)break;
+          ownDeck--;
+          if((owner-ownDeck)%2===0){
+            let heads=0;
+            for(let j=0;j<2;j++)heads+=(bits>>coinIndex++)&1;
+            oppDeck=Math.max(0,oppDeck-2*heads);
+          }
+          if(oppDeck===0){wins++;break;}
+          oppDeck--;
+        }
+      }
+      assert.equal(unopposedDeckoutRace(owner,opponent).probability,
+        wins/total,'owner='+owner+' opponent='+opponent);
+    }
+  }
+});
+
+test('eight owner draws versus twenty opponent cards is a narrow race',()=>{
+  const r=unopposedDeckoutRace(8,20);
+  assert.equal(r.handiworkUses,4);
+  assert.equal(r.opponentDrawsBefore,7);
+  assert.equal(r.probability,9/256);
+  assert.equal(unopposedDeckoutRace(12,20).probability,3302/4096);
 });
