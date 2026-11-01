@@ -81,7 +81,13 @@ function auditFrozenPromptCoverage(archive){
     publicVoltCycloneShapeMatches:0,otherAcceptedAttachOutcomes:{},
     byRank:{},promptPaperVerdict:'PROMPT_PAPER_UNVERIFIED',
     totalNativePromptResolutionCount:'UNKNOWN',
-    fullPrintedPromptCoverage:false,competitiveQualifiedGames:0
+    fullPrintedPromptCoverage:false,competitiveQualifiedGames:0,
+    recordedRootActions:0,recordedResolvePromptActions:0,
+    recordedWaitPromptActions:0,recordedNonWaitPromptActions:0,
+    recordedPromptFamilies:{},rootLedgerLengthMatchingRows:0,
+    recordedChooseCardsFamilyMatchesChoiceObserver:false,
+    recordedSelectOptionFamilyMatchesChoiceObserver:false,
+    recordedAttachEnergyFamilyMatchesAcceptedSidecar:false
   };
   const ids=new Set();
   for(const row of archive.rows){
@@ -94,6 +100,20 @@ function auditFrozenPromptCoverage(archive){
       choiceEvents:0,acceptedAttachEnergyPrompt:0,
       publicVoltCycloneShapeMatches:0
     };
+    const rootActions=row.rootActionLedger;
+    assert.ok(Array.isArray(rootActions),'missing canonical native root ledger');
+    if(rootActions.length===row.rootActionCount)
+      status.rootLedgerLengthMatchingRows++;
+    status.recordedRootActions+=rootActions.length;
+    for(const action of rootActions){
+      if(action.action!=='ResolvePromptAction')continue;
+      status.recordedResolvePromptActions++;
+      const family=action.pendingPrompt??'UNCLASSIFIED';
+      status.recordedPromptFamilies[family]=
+        (status.recordedPromptFamilies[family]??0)+1;
+      if(family==='WaitPrompt')status.recordedWaitPromptActions++;
+      else status.recordedNonWaitPromptActions++;
+    }
     const events=row.nativePromptChoices?.events;
     const energyEvents=row.nativeAcceptedEnergyPromptSidecar?.events;
     assert.ok(Array.isArray(events)&&Array.isArray(energyEvents),
@@ -141,6 +161,13 @@ function auditFrozenPromptCoverage(archive){
         (status.otherAcceptedAttachOutcomes[result]??0)+1;
     }
   }
+  status.recordedChooseCardsFamilyMatchesChoiceObserver=
+    status.recordedPromptFamilies.ChooseCardsPrompt===status.chooseCards;
+  status.recordedSelectOptionFamilyMatchesChoiceObserver=
+    status.recordedPromptFamilies.SelectOptionPrompt===status.selectOption;
+  status.recordedAttachEnergyFamilyMatchesAcceptedSidecar=
+    (status.recordedPromptFamilies.AttachEnergyPrompt??0)===
+    status.acceptedAttachEnergyPrompt;
   return status;
 }
 
