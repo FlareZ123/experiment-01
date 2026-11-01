@@ -1,0 +1,65 @@
+{
+  "schema": "agent16-original-rank1-shadow-rider-bilateral-develop-v1",
+  "registeredUtc": "2026-11-01T18:15:04.329290Z",
+  "status": "pre-registered-before-native-run; development-only; no competitive qualification",
+  "selection": "Four independent cryptographic uniform 32-bit draws, rank1 original source, two physical candidate seats A/B, two repeats per seat; no coin, initial hand, terminal, cap or engine-outcome conditioning",
+  "rank": 1,
+  "archetype": "Shadow Rider Calyrex",
+  "originalSourceRoster": "results/aichi-2026/full-decklists.json",
+  "originalSourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidate60Evidence": {
+    "championPrinted60BlobSha": "1e5b09f77d65a445bb9812ef972e2340886d4758",
+    "newMoonPublished60BlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b"
+  },
+  "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "nativeDevelopmentProfile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "nativeDevelopmentProfileSchema": "agent41-frozen-bilateral-development-v2-public-context-special-energy",
+  "seedGroups": 4,
+  "attemptedNativeArms": 8,
+  "actionCap": 260,
+  "seeds": [
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2810511751
+    },
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2668588538
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 2386368459
+    },
+    {
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 534386221
+    }
+  ],
+  "qualification": {
+    "originalExactPrintings": true,
+    "samePolicyForBothCandidateOptions": true,
+    "nativePaperPromptLegality": "unverified",
+    "officialAichiClock": "not simulated",
+    "originalSourceDecisionCompetence": "unverified",
+    "gameWinRate": false,
+    "competitiveQualifiedGames": 0
+  },
+  "caveats": [
+    "A physically distinct candidate 60 creates a distinct actual two-seat initial deal even for the same seed; do not assert a source hand match without comparing native fingerprints",
+    "The shared runner uses only the default two-seat policy for this original source rank, without an archetype-specific opponent-policy repair",
+    "The rank-1 original field includes printed attack/prompt concerns; all reached unverified or invalid prompts remain release vetoes",
+    "This is an independent rank1 Shadow Rider driver-support exploration, not a representative full-field sample"
+  ]
+}
