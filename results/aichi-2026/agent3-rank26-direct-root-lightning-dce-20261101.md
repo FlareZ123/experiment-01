@@ -29,3 +29,5 @@ Therefore the new conditional source-root event is:
 **Reproduction:** [exact calculator](../../scripts/agent3-rank26-direct-root-lightning-dce.cjs), [regression tests](../../tests/agent3-rank26-direct-root-lightning-dce.test.cjs), original [rank26 exact printing source](full-decklists.json). The next empirical falsifier is native owner-hand/owner-deck zone tracking through authentic first-turn decisions, with real paid card costs and all unsuccessful deals retained.
 
 The global benchmark remains 29/32 exact opponents, zero competitive-qualified games and no validated 99.5% fixed 60.
+
+**Executable verification (1 November):** The new deterministic Node20 tests for both exact computations passed [manual-only GitHub Actions CI 41329137800](https://github.com/FlareZ123/experiment-01/actions/runs/41329137800), pinned research head `c8ce215c5ed9b1799ce304bc758e10e0168ba547`. The single pure job completed successfully; this checks the combinatorial scripts and assertions, with no native-game or opponent-policy qualification.
