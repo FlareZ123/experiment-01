@@ -2,7 +2,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const profile=require('../simulation/evaluation/agent41-frozen-bilateral-development-v1.json');
-const {registeredTrials,assertNoUnreviewedAmbientAgentEnvironment}=
+const {registeredTrials,assertNoUnreviewedAmbientAgentEnvironment,
+  summarizeAcceptedSetupCoins}=
   require('../simulation/evaluation/agent41-frozen-bilateral-development-v1.cjs');
 
 test('single registered profile retains all 16 physical pairs and both fixed 60s',()=>{
@@ -51,4 +52,39 @@ test('release status stays explicitly unqualified until certified',()=>{
     /^[a-f0-9]{64}$/.test(profile.sourceClosureSha256));
   assert.ok(profile.releaseVetoes.length>0);
   assert.equal(profile.scheduledNativeArms,32);
+});
+
+
+test('real first-setup coin, winner choice and first-draw evidence must agree per arm',()=>{
+  const expected=require('../results/aichi-2026/registrations/agent16-balanced-native-rank6-rank11-coins-20261101.json');
+  const rows=registeredTrials().map(trial=>{
+    const p=expected.flatPredictions.find(x=>x.rank===trial.rank&&
+      x.repeat===trial.repeat&&x.candidateSlot===trial.candidateSlot);
+    return {
+      trial,actualStarterSeat:p.predictedFirstSeat,
+      nativeSetupCoinChoiceReceipt:{
+        status:'consistent-accepted-native-setup-and-first-draw',
+        firstSeatFromVerifiedDraw:p.predictedFirstSeat,
+        coin:{coinWinnerSeat:p.predictedCoinWinnerSeat},
+        choice:{choseFirst:false}
+      }
+    };
+  });
+  const good=summarizeAcceptedSetupCoins(rows);
+  assert.equal(good.attempted,32);
+  assert.equal(good.matching,32);
+  assert.equal(good.allValidated,true);
+  rows[0].nativeSetupCoinChoiceReceipt={
+    ...rows[0].nativeSetupCoinChoiceReceipt,
+    firstSeatFromVerifiedDraw:1-rows[0].actualStarterSeat
+  };
+  let wrong=summarizeAcceptedSetupCoins(rows);
+  assert.equal(wrong.allValidated,false);
+  assert.equal(wrong.byStatus['actual-first-seat-vs-registered-stratum-mismatch'],1);
+  rows[0].nativeSetupCoinChoiceReceipt=null;
+  wrong=summarizeAcceptedSetupCoins(rows);
+  assert.equal(wrong.byStatus['native-receipt-absent'],1);
+  rows[0].trial={...rows[0].trial,seed:1-rows[0].trial.seed};
+  wrong=summarizeAcceptedSetupCoins(rows);
+  assert.equal(wrong.byStatus['registration-seed-mismatch'],1);
 });
