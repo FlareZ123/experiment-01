@@ -32,3 +32,9 @@ The current proposed validator `assertProposedEnvironment(env)` loops **only** `
 This issue belongs with Agent41's frozen profile integration and Agent42/16's preflight/validator work; **do not create another competing profile** to address it.
 
 **Outcome:** verified source-level blind spot in proposed manifest; no code or engine modified, zero competitively qualified games gained, 29/32 exact original 60s remain authenticated.
+
+## Extended first-level import check (05:24 UTC)
+
+Enumerated the **41 distinct literal relative CommonJS imports** directly referenced by the canonical runner and read each such file at the then-current default branch. Of these, the only first-level module with **seven policy-affecting `process.env.NAME` reads** outside the original two-file manifest was `agent7-canonical-actor-composition.cjs`, as identified above. `agent41-crossrank-actual-decisions.cjs` contains two additional environment references, `GITHUB_SHA` (reported research provenance) and `AGENT41_PARTITION` (read only in its own `require.main===module` command-line path). They are not observed as direct policy switches in this canonical import path. No other first-level files had a literal `process.env.NAME` read at the inspected revisions.
+
+**Scope of this improved census:** a one-level lexical CommonJS import enumeration, excluding dynamic `require(path.join(...))`, nested imported modules, nonliteral or destructured environment reads, and vendor-side behavior. It therefore supports the concrete seven-key direct-import omission while **remaining insufficient** to certify transitive profile completeness.
