@@ -37,3 +37,11 @@ The research-side `simulation/twinleaf/actor-observation-contract.cjs` omits pub
 This requires a narrow research-owned Twinleaf compatibility **hook** if the native bug is confirmed; never patch upstream submodule in place, per the project rules. Any native fidelity repair must be regression-tested on both physical seats and across supported copied-attack cards. Full existing strict physical-zone, policy, source-list and paper-clock qualification gates remain applicable.
 
 **Benchmark status:** 29/32 original 60s, missing ranks 23/25/28, zero competitively qualified games, no evidence-backed 99.5% final deck.
+
+## 1 November 2026 native confirmation
+
+The previously unexecuted two-seat real-Store regression **passed both physical seats** in [manual compiled CI 41321832378](https://github.com/FlareZ123/experiment-01/actions/runs/41321832378), and the same Copycat step passed again in [41322144796](https://github.com/FlareZ123/experiment-01/actions/runs/41322144796). The overall workflows failed on a separate, still developing Pidgeot test, so neither workflow should be called green. Pinned revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+The positive native control: when the opponent had immediately attacked with printed Gnaw, Mimikyu GRI Copycat resolved **10 damage**. The negative native control: following genuine intervening **PassTurnAction** for the opponent and then the owner, uncorrected Twinleaf still retained `Gnaw` in `state.playerLastAttack` and Copycat wrongly dealt **10 damage**, even though the opponent did not attack during its immediately preceding turn. The **already existing** opt-in `installPassClearsLastAttackHook` reset the stored attack on the genuine Pass; corrected Copycat dealt **0 damage**, in both physical seats. Each fork used real native AttackAction, PassTurnAction and settled WaitPrompt actions. This is an isolated staged fidelity finding and a regression of the pre-existing repair, with no natural original-source match or competitive-performance claim.
+
+The common decision view still lacks authoritative turn-stamped opponent attack history, and `agent8-public-event-receipt.cjs` intentionally reports this channel as `null` rather than exposing stale information. Wider counterpolicy certification remains open. **Competitive-qualified games: 0.**
