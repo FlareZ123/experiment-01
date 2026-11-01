@@ -88,7 +88,7 @@ jobs:
         with:
           node-version: '22'
       - name: Regress original control mill source engines, exact Prize frontier and owner-safe decision
-        run: node --test tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs tests/agent39-rank6-control-owner-selector.test.cjs tests/agent39-original-control-mill-census.test.cjs
+        run: node --test tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs tests/agent39-rank6-control-owner-selector.test.cjs tests/agent39-original-control-mill-census.test.cjs tests/agent39-peonia-owner-visited-slots.test.cjs
       - name: Verify original 29-deck exact English archive printing census and approved aliases
         run: node --test tests/agent42-original-card-archive-census.test.cjs
       - name: Regress Agent11 source-locked two-player openings and forced low-HP Basic envelopes
