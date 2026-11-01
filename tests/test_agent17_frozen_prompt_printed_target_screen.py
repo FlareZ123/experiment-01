@@ -112,6 +112,48 @@ class PrintedTargetScreenTests(unittest.TestCase):
             result = screen_native(test_native(), cards)
         self.assertEqual(result["total_exact_category_matches"], 1)
 
+    def test_exact_promo_archive_aliases_and_wrong_collector_negative(self):
+        raw = io.BytesIO()
+        with ZipFile(raw, "w") as archive:
+            archive.writestr("sets/en.json", json.dumps([
+                {"id": "bwp", "ptcgoCode": "PR-BLW"},
+                {"id": "smp", "ptcgoCode": "PR-SM"}
+            ]))
+            archive.writestr("cards/en/bwp.json", json.dumps([
+                {"id": "bwp-BW28", "number": "BW28",
+                 "name": "Tropical Beach", "supertype": "Trainer",
+                 "subtypes": ["Stadium"]},
+                {"id": "bwp-BW50", "number": "BW50",
+                 "name": "Tropical Beach", "supertype": "Trainer",
+                 "subtypes": ["Stadium"]}
+            ]))
+            archive.writestr("cards/en/smp.json", json.dumps([{
+                "id": "smp-SM217", "number": "SM217",
+                "name": "Trevenant & Dusknoir-GX", "supertype": "Pokémon",
+                "subtypes": ["Basic", "TAG TEAM", "GX"],
+                "types": ["Psychic"]
+            }]))
+        raw.seek(0)
+        with ZipFile(raw) as cards:
+            summary = screen_native(test_native(
+                "Tropical Beach BWP 50", "Guzma & Hala CEC"), cards)
+            self.assertEqual(summary["total_exact_category_matches"], 1)
+            code_to_id, cache = {
+                "PR-BLW": ["bwp"], "PR-SM": ["smp"]}, {}
+            resolved, why = resolve_printing(
+                "Trevenant & Dusknoir-GX SMP",
+                cards, code_to_id, cache)
+            self.assertEqual(why, "resolved-exact-archive-alias")
+            self.assertIn("Basic", resolved["subtypes"])
+            invalid, why = resolve_printing(
+                "Tropical Beach BWP 28", cards, code_to_id, cache)
+            self.assertIsNone(invalid)
+            self.assertEqual(why, "unlisted-set")
+            ambiguous, why = resolve_printing(
+                "Tropical Beach BWP", cards, code_to_id, cache)
+            self.assertIsNone(ambiguous)
+            self.assertEqual(why, "unlisted-set")
+
     def test_false_capture_evolution_and_untagged_supporter(self):
         self.assertFalse(matches_printed_category(
             "Capture Energy RCL", {
