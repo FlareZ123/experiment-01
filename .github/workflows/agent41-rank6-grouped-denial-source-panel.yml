@@ -45,6 +45,9 @@ jobs:
       - name: Exact early source-owned coheld native canPlay, original Store read-only
         if: ${{ inputs.focused_native_eligibility }}
         run: node simulation/evaluation/agent41-native-source-rank6-coheld-canplay.cjs > agent41-focused-source-native-canplay.json
+      - name: Summarize focused original-source native canPlay without inventing settled effects
+        if: ${{ always() && inputs.focused_native_eligibility }}
+        run: node -e "const fs=require('node:fs');const p='agent41-focused-source-native-canplay.json';if(!fs.existsSync(p)){console.log('FOCUSED_NATIVE_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FOCUSED_NATIVE_COHELD',JSON.stringify({schema:r.schema,validation:r.validation,competitiveQualifiedGames:r.competitiveQualifiedGames,rows:r.rows.map(x=>({trial:x.trial,sourceSeat:x.sourceSeat,status:x.nativeStatus,nativeCoheldOwnerRoots:x.naturalCoheldRootCount,bothNativePlayableRoots:x.bothNativeCardCanPlayRoots,first:x.firstAuthenticCoheldRoot?{turn:x.firstAuthenticCoheldRoot.globalTurn,rootOrdinal:x.firstAuthenticCoheldRoot.rootOrdinal,plumeria:x.firstAuthenticCoheldRoot.plumeria,teamFlare:x.firstAuthenticCoheldRoot.teamFlare,bothNativePlayable:x.firstAuthenticCoheldRoot.bothHaveNativePlayablePhysicalCopy}:null}))}));if(r.validation?.passed!==true)process.exitCode=1;}"
       - name: Run exact original rank21 native Tool action recipient comparison
         if: ${{ inputs.focused_native_rank21_tool }}
         run: node simulation/evaluation/agent41-rank21-native-tool-target-pair.cjs > agent41-rank21-tool-target-raw.json
