@@ -187,7 +187,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       require('../twinleaf/agent43-guzma-prompt-continuation.cjs')
         .withGuzmaOwnerPromptContinuation;
     const selected=bridge(runActor,
-      {nominalGust:options.guzmaNominalGust===true});
+      {nominalGust:options.guzmaNominalGust===true,
+        forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true});
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Owner Guzma continuation must report a native audit');
     guzmaPromptAudit=selected.audit;
@@ -234,6 +235,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Actor ChoosePokemon option requires an executed adapter');
   if(options.guzmaOwnerPromptContinuation===true)assert.ok(guzmaPromptAudit,
     'Enabled owner Guzma continuation must report native evidence');
+  assert.ok(options.guzmaForcedNominalKo!==true||
+    options.guzmaOwnerPromptContinuation===true,
+    'Forced Guzma root must share its native prompt continuation');
   if(handDiscard)assert.ok(handDiscardAudit,
     'Actor hand-discard option requires an executed adapter');
   if(options.ownerDonorSetup)assert.ok(ownerDonorAudit,
@@ -312,6 +316,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     actorChoosePokemonOptIn:actorChoosePokemon,
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     guzmaNominalGustOptIn:options.guzmaNominalGust===true,
+    guzmaForcedNominalKoOptIn:options.guzmaForcedNominalKo===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
       ...(ownerVipBeforeAttackAudit?['OwnerAttackContendedVipFirstTurn']:[]),
