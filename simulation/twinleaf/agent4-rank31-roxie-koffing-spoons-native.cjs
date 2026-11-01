@@ -45,6 +45,10 @@ function runRank31RoxieSpoons(guarded){
     }
     assert.equal(pending(),undefined,'Roxie and Koffing must settle');
     assert.ok(f.source.discard.cards.includes(koffing));
+    // Roxie's printed one-Pokémon payment must physically draw three.
+    const roxieDrawnThree=
+      f.source.hand.cards.length===3&&f.source.deck.cards.length===4;
+    assert.equal(roxieDrawnThree,true,'Roxie must settle all three printed draws');
     const afterBomb=[f.opponent.active.damage,
       f.opponent.bench[0].damage,f.opponent.bench[1].damage];
     assert.deepEqual(afterBomb,[10,10,190]);
@@ -86,6 +90,7 @@ function runRank31RoxieSpoons(guarded){
       promptPending:prompt.result===undefined,
       physicalKoffingDiscarded:f.source.discard.cards.includes(koffing),
       roxieDiscarded:f.source.discard.cards.includes(roxie),
+      roxieDrawnThree,
       victimInDiscard:f.opponent.discard.cards.includes(victim),
       prizesTaken:before-f.source.getPrizeLeft(),
       evidence,
