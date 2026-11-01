@@ -124,3 +124,68 @@ test('existing actor root changes one attack only when public threshold is met',
   assert.equal(chooseActorRootIntent(v,rootCatalog,
     {ragingBoltNominalKoRoot:true}).attackName,'Burst Roar');
 });
+
+test('reversible genuine wrapper forwards opt-in without altering disabled baseline',()=>{
+  const {withActorOnlyRootPolicy}=
+    require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=view();
+  v.globalTurn=3;
+  v.ownPublic.active.energies=['Lightning Energy MEE','Fighting Energy MEE'];
+  v.ownPublic.active.attacks=[
+    {...burst,cost:[9],damage:0},
+    {...thunder,cost:[4,6],damage:70,damageCalculation:2}
+  ];
+  v.ownPublic.active.specialConditions=[];
+  v.ownPublic.active.publicRestrictions={};
+  v.ownPublic.publicTurnRestrictions={attackLockTurnsRemaining:0};
+  v.ownTurnResources={energyPlayedTurn:3,energyPlayLocked:false,
+    pokemonPlayLocked:false};
+  const actorCatalog={...catalog,basics:new Set(),abilityBasics:new Set(),
+    basicEnergyTypes:{Lightning:4,Fighting:6},
+    colorlessEnergyType:9,specialConditions:{ASLEEP:2,PARALYZED:0}};
+  const empty=()=>({getPokemonCard:()=>null,cards:[],damage:0,
+    specialConditions:[],energies:{cards:[]},tools:[]});
+  const player=id=>({id,active:empty(),
+    bench:Array.from({length:5},empty),hand:{cards:[]},
+    deck:{cards:[]},prizes:[],stadium:{cards:[]},discard:{cards:[]},
+    lostzone:{cards:[]},supporter:{cards:[]}});
+  class AddPlayerAction{}
+  class Store{
+    constructor(){this.state={players:[player(10),player(20)],
+      activePlayer:0,prompts:[],turn:3,phase:2};}
+    dispatch(){return true;}
+  }
+  class AttackAction{
+    constructor(id,name){this.clientId=id;this.name=name;}
+  }
+  class SimpleTacticsAi{
+    constructor(id){this.client={id};}
+    decodeNextAction(){throw new Error('Generic policy must never see root');}
+  }
+  const decode=SimpleTacticsAi.prototype.decodeNextAction;
+  const dispatch=Store.prototype.dispatch;
+  function choice(enabled){
+    return withActorOnlyRootPolicy(()=>{
+      const store=new Store();store.dispatch(new AddPlayerAction());
+      const result=new SimpleTacticsAi(10).decodeNextAction(store.state);
+      assert.ok(result instanceof AttackAction);
+      return result.name;
+    },{
+      ragingBoltNominalKoRoot:enabled,
+      SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+      observe:()=>v,getCatalog:()=>actorCatalog,
+      cardActions:{PlayCardAction:class{},PlayerType:{BOTTOM_PLAYER:0},
+        SlotType:{ACTIVE:1,BENCH:2}},
+      gameActions:{AttackAction,PassTurnAction:class{}}
+    });
+  }
+  const baseline=choice(false),enabled=choice(true);
+  assert.equal(baseline.result,'Burst Roar');
+  assert.equal(enabled.result,'Bellowing Thunder');
+  assert.match(enabled.audit.version,/agent50-raging-bolt-public-basic-energy/);
+  assert.doesNotMatch(baseline.audit.version,/agent50-raging-bolt/);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
+  assert.strictEqual(Store.prototype.dispatch,dispatch);
+  assert.equal(baseline.audit.competitiveGameQualified,false);
+  assert.equal(enabled.audit.competitiveGameQualified,false);
+});
