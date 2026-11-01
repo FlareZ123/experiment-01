@@ -74,13 +74,20 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
       const basicEnergyCards=[
         ...board.activeEnergy,...board.bench.flatMap(p=>p?.attachedEnergy??[])
       ].filter(p=>/^(Lightning|Fighting|Darkness|Grass|Fire|Water|Psychic|Metal|Fairy) Energy /.test(p)).length;
+      const owner=state.players[session.sourceSeat];
+      const ownHand=owner.hand.cards.map(card=>card.fullName);
+      const heldMobility=ownHand.filter(printing=>
+        ['Float Stone BKT','Guzma BUS','VS Seeker PHF',
+          'Arven OBF'].includes(printing));
       session.records.push({
         actionOrdinalWithinSourceGame:session.records.length,
         turn:state.turn,
         actionType,
         actionAttack:actionType==='AttackAction'?action.name:null,
         ...board,
-        attachedBasicEnergyCards:basicEnergyCards
+        attachedBasicEnergyCards:basicEnergyCards,
+        activeTools:(owner.active.tools?.cards??[]).map(card=>card.fullName),
+        heldMobility
       });
     }
     const result=original.call(this,action,...rest);
@@ -106,6 +113,8 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         r.bench.some(p=>p?.printing===RAGING));
       const fundedBench=bench.filter(r=>r.bench.some(p=>
         p?.printing===RAGING&&p.attachedEnergy.length>0));
+      const fundedWhileHoOh=fundedBench.filter(r=>
+        r.activePrinting==='Ho-Oh EX DRX');
       return {gameIndex:s.gameIndex,sourceSeat:s.sourceSeat,
         sourcePhysicalRagingCounts:s.sourceIdentityCounts,
         sourceOwnerRootCount:s.records.length,
@@ -114,6 +123,22 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         sourceRagingBenchRoots:bench.length,
         sourceRagingBenchedWithEnergyRoots:fundedBench.length,
         sourceRagingBenchUniqueTurns:[...new Set(bench.map(x=>x.turn))],
+        fundedHoOhActiveRoots:fundedWhileHoOh.length,
+        fundedHoOhWithFloatStoneHeld:fundedWhileHoOh.filter(x=>
+          x.heldMobility.includes('Float Stone BKT')).length,
+        fundedHoOhWithGuzmaHeld:fundedWhileHoOh.filter(x=>
+          x.heldMobility.includes('Guzma BUS')).length,
+        fundedHoOhWithVSSeekerHeld:fundedWhileHoOh.filter(x=>
+          x.heldMobility.includes('VS Seeker PHF')).length,
+        fundedHoOhWithArvenHeld:fundedWhileHoOh.filter(x=>
+          x.heldMobility.includes('Arven OBF')).length,
+        fundedHoOhWithFloatStoneAttached:fundedWhileHoOh.filter(x=>
+          x.activeTools.includes('Float Stone BKT')).length,
+        fundedHoOhMobilitySamples:fundedWhileHoOh.slice(0,20).map(r=>({
+          turn:r.turn,action:r.actionType,
+          hand:r.heldMobility,activeTools:r.activeTools,
+          benchRaging:r.bench.filter(p=>p?.printing===RAGING)
+        })),
         sourceRagingBenchSamples:bench.slice(0,16).map(r=>({
           turn:r.turn,action:r.actionType,
           active:r.activePrinting,activeEnergy:r.activeEnergy,
