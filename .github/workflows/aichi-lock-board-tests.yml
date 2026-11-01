@@ -222,6 +222,9 @@ jobs:
       - name: Native temporal Path proposal after own Bench arrival or spent Legacy Star in both seats
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-temporal-native-stage.test.cjs
+      - name: Audit public physical-copy Fusion Strike System use without hidden cards
+        if: inputs.agent33_stadium_mode == 'path'
+        run: node --test tests/agent33-public-fusion-usage.test.cjs tests/agent33-public-fusion-usage-pinned.test.cjs
       - name: Native original Store Tropical Beach seven-card draw and immediate turn end
         if: inputs.agent33_stadium_mode == 'beach-native' || inputs.agent33_stadium_mode == 'all-native' || inputs.agent33_stadium_mode == 'beach-paired'
         run: node --test tests/agent33-tropical-beach-pinned-native.test.cjs
