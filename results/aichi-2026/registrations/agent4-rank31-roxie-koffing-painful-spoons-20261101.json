@@ -1,0 +1,41 @@
+{
+  "schema": "agent4-rank31-printed-triple-card-native-fixture-v1",
+  "registrationDateUTC": "2026-11-01",
+  "sourceRank": 31,
+  "originalOpponentField": "Yuhi Yokoyama Dusknoir Chimecho published 60",
+  "exactPublishedPrintedPieces": [
+    {
+      "count": 4,
+      "name": "Roxie",
+      "printing": "CEC 205"
+    },
+    {
+      "count": 3,
+      "name": "Koffing",
+      "printing": "CEC 76"
+    },
+    {
+      "count": 1,
+      "name": "Radiant Alakazam",
+      "printing": "SIT 59"
+    }
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fullGame": false,
+  "originalSourceDeal": false,
+  "design": "One prepared owner turn with real Roxie Supporter from hand, one real Koffing discard and optional Blow-Away Bomb placing one counter on each opposing Pokemon, followed by one real Radiant Alakazam Painful Spoons Ability. One opposing two-prize V begins at 180 damage, two other V targets at zero. The objective is to test if native source split of the two Koffing-generated counters can produce 2 Prize KO that the paper-guarded reply rejects.",
+  "conditions": [
+    "True PlayCardAction for Roxie and real ChooseCardsPrompt physical payment",
+    "True Koffing CEC Blow-Away Bomb prompt and public damage settlement",
+    "Actual pending owner ability animation WaitPrompt and MoveDamagePrompt",
+    "Both original native and opt-in guarded attempts begin with identical prepared full physical zone arrangement",
+    "Preserve all prompt acceptance, physically discarded cards, source hand payment, damage, and Prize outcomes",
+    "No engine winner, win-rate, original starting-deal, or opponent-policy inference"
+  ],
+  "possibleOutcomes": [
+    "engine disallows original Roxie-Koffing physical payment or animation",
+    "both arms physically legal until Painful Spoons then diverge at printed source identity",
+    "other observed native implementation differences"
+  ],
+  "priorEvidence": "results/aichi-2026/agent4-rank31-radiant-alakazam-native-paper-single-source-20261101.md"
+}
