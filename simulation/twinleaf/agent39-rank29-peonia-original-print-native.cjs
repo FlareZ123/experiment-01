@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('./agent11-native-last-bench-locked-dedenne.cjs');
 const {initializeCards}=require('./headless.cjs');
-const {chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions}=
+const {chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions,
+  paperValidPeoniaPrizeSelection}=
   require('./agent39-peonia-owner-visited-slots.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -75,6 +76,10 @@ function playPeonia(seat,selectedCount){
   const selected=owner.prizes.filter(slot=>slot.cards.length>0)
     .slice(0,selectedCount);
   assert.ok(selected.includes(owner.prizes[0]));
+  assert.equal(paperValidPeoniaPrizeSelection({
+    owner,prompt:prizePrompt,sourceCard:targetCard,
+    selectedSlots:selected,safeReplacementCount:4
+  }),true,'Paper printed up-to-three source contract');
   const nativeValid=prizePrompt.validate(selected,state);
   assert.equal(nativeValid,selectedCount===3,
     'Native exact-three validator contradicts printed optional fewer');
