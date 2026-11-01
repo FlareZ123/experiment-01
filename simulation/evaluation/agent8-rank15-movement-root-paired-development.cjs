@@ -13,7 +13,7 @@ const REGISTRATION='results/aichi-2026/registrations/agent8-rank15-movement-root
 const REGISTRATION_BLOB='e72eeb19e4a7157f4533fc1ad6337a090ef94695';
 const ROSTER='results/aichi-2026/full-decklists.json';
 const OUTPUT='agent8-rank15-movement-paired-native';
-const VERSION='agent8-rank15-preregistered-real-source-event-receipt-v1';
+const VERSION='agent8-rank15-original-receipt-postobserved-rejection-diagnostic-v2';
 
 /** @returns {object} Immutable registered trial and source preflight. */
 function preflight(){
@@ -94,6 +94,7 @@ function summaryOf(row){
     winner:row.finished===true?(row.winner??null):null,
     endReason:row.endReason??null,
     error:row.error??null,
+    nativeRejectedPlayCard:row.nativeRejectedPlayCard??null,
     sourceDealFingerprint:row.sourceDealFingerprint??null,
     actualStarterSeat:row.actualStarterSeat??null,
     firstTurnVerified:row.verifiedFirstTurn??null,
@@ -159,7 +160,10 @@ function run(){
     allowAdditionalOriginalSourceRanks:true,
     registeredTrials:registration.trials,
     registeredFrameName:registration.schema,
-    sameRootPublicEventReceipt:false};
+    sameRootPublicEventReceipt:false,
+    // Postobserved diagnostic for four previously failed original trials.
+    // Printings are captured only after native dispatch fails.
+    nativeRejectedActionEvidence:true};
   assert.equal(options.sameRootChoiceApply,true);
   assert.equal(options.actorNaturalEvolutionRoot,true);
   const control=runDevelopment(options);
@@ -208,10 +212,12 @@ function run(){
     },
     errorRows:{
       control:control.rows.filter(r=>r.status==='engine-error').map(r=>({
-        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null
+        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null,
+        rejected:r.nativeRejectedPlayCard??null
       })),
       treatment:treatment.rows.filter(r=>r.status==='engine-error').map(r=>({
-        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null
+        id:r.trial.id,error:r.error,nativeStack:r.nativeStoreCauseStack??null,
+        rejected:r.nativeRejectedPlayCard??null
       }))
     },
     pairs,pairDigestSha256:digest(pairs),
