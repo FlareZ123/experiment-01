@@ -91,6 +91,7 @@ function census(roster, index) {
     assert.equal(deck.cards.reduce((sum, card) => sum + card.count, 0), 60);
     let basic = 0, supporter = 0;
     for (const card of deck.cards) {
+      if (card.category === 'Energy') continue;
       const key = card.category + ':' + normalizeName(card.name);
       const info = index.get(key);
       // Missing or ambiguous catalog printing identities must fail loudly.
