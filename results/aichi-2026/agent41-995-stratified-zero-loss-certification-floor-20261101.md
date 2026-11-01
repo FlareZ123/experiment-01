@@ -58,6 +58,18 @@ This is the **total allowable sum of the 32 matchup-specific loss probabilities*
 
 For example, the known original rank6/24/29 Iron Thorns archetypes are **three distinct original Top32 lists**. If a fixed deck could attain only 90% real win probability against each of these three and a hypothetical 100% against all other 29, its maximum equal-field average would be `(29+3×0.9)/32 = 99.0625%`, already below the target. No simulator data in this report establishes any real actual win probability. This is solely a deterministic feasibility constraint on future credible claims.
 
+The authenticated field and independently sourced missing-player archetype assignments give a sharper **group-specific necessary condition**, assuming uniform rank weight, all **other** ranks hypothetically perfect, and every printed-list variant within a group counted separately:
+
+| Observed Aichi Top32 archetype group | Number of distinct original ranked opponents | Required minimum group-average win probability |
+| --- | ---: | ---: |
+| Regidrago, including still-unauthenticated exact ranks23 and28 | **11** | **98.545%** |
+| Absol Garbodor | **4** | **96.000%** |
+| Iron Thorns ex | **3** | **94.667%** |
+| Alolan Raichu variants, including rank25's still-unauthenticated exact 60 | **3** | **94.667%** |
+| Snorlax Stall | **2** | **92.000%** |
+
+The formula for each row is `p_group >= 1 - 0.16 / groupSize`, calculated from the same full-field loss budget and assuming 100% win probability against every remaining rank. This is a logically necessary **average within the named group**, not a prediction or a measured matchup win rate. Source variants of one archetype can still differ materially in matchup and paper interactions. The other nine unique ranked archetype positions together complete the 32 source decks.
+
 The important methodological consequence is **hard-matchup triage**: the objective's total loss budget is so narrow that a single genuine 80%-win counter matchup makes 99.5% logically unreachable under uniform ranks. Swapping consistency cards to increase already dominant matchups cannot compensate for unaddressed severe opponent locks or damage rules. All 32 registered opponents, rather than a favorable subset, must be evaluated.
 
 ## Boundaries
