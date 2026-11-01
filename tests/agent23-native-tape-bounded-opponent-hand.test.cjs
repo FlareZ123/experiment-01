@@ -65,6 +65,9 @@ test('native tape second hidden exchange reveals old single-swap false negative'
   assert.equal(out.attemptedSingleExchanges,2);
   assert.equal(out.successfulSingleExchanges,2);
   assert.equal(out.failedSingleExchanges,0);
+  assert.equal(out.eligibleDistinctOpponentHandCompositions,2);
+  assert.equal(out.testedDistinctOpponentHandCompositions,2);
+  assert.equal(out.successfulDistinctOpponentHandCompositions,2);
   assert.equal(out.exhaustiveSingleExchangeCoverage,true);
   assert.equal(out.contrastExecutable,true);
   assert.equal(out.selectedActionChanged,true);
@@ -116,6 +119,8 @@ test('RNG overrun is separately censored, preserving other successful cases',()=
   const out=compareNativeOpponentHiddenHandBounded(args);
   assert.equal(out.successfulSingleExchanges,1);
   assert.equal(out.failedSingleExchanges,1);
+  assert.equal(out.testedDistinctOpponentHandCompositions,2);
+  assert.equal(out.successfulDistinctOpponentHandCompositions,1);
   assert.equal(out.cases[0].executable,true);
   assert.equal(out.cases[1].executable,false);
   assert.match(out.cases[1].error,/RNG replay exhausted/);
@@ -219,6 +224,10 @@ test('two swaps cross a concealed Trainer threshold invisible to every one-swap 
   assert.equal(doubles.failedDisjointDoubleExchangePaths,0);
   assert.equal(doubles.exhaustiveDisjointDoubleExchangePathCoverage,true);
   assert.equal(doubles.eligibleSingleExchanges,null);
+  // Two physical pairings replace the same two cards, yielding one multiset.
+  assert.equal(doubles.eligibleDistinctOpponentHandCompositions,1);
+  assert.equal(doubles.testedDistinctOpponentHandCompositions,1);
+  assert.equal(doubles.successfulDistinctOpponentHandCompositions,1);
   assert.equal(doubles.actionReversals,2);
   assert.equal(doubles.selectedActionChanged,true);
   assert.equal(doubles.baselineReplayStable,true);
