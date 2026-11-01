@@ -84,3 +84,12 @@ test('discard-cost-sensitive access tiers retain exact 29-rank location envelope
   assert.ok(tiers.every((x,i)=>i===0||
     x.meanNoNamedSearcherExposure<tiers[i-1].meanNoNamedSearcherExposure));
 });
+
+test('unknown three 60s preserve positive low-HP risk',()=>{
+  const x=mockInputs();
+  const r=model.analyze(x.manifest,x.audit).full32MissingSourceEnvelope;
+  approx(r.forcedLowHp.lower,0.0743676043903931);
+  approx(r.forcedLowHp.upper,0.07997536097037188);
+  approx(r.noElevenNamedSearchers.lower,0.01046493218004071);
+  approx(r.noElevenNamedSearchers.upper,0.01141060880546296);
+});
