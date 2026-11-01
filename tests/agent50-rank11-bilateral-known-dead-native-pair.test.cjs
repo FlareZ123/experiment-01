@@ -110,6 +110,16 @@ test('changed physical deals are exposed as unmatched rather than silently compa
   assert.deepEqual(paired.pairs[0].unmatchedInputs,['fullPhysicalDealFingerprint']);
 });
 
+test('missing physical source receipt is never accepted as a matched deal',()=>{
+  const trials=originalTrials();
+  const original=trials.map(x=>row(x,'Get Lost'));
+  const treated=trials.map(x=>row(x,'Mind Shock'));
+  original[0].sourceDealFingerprint=null;
+  treated[0].sourceDealFingerprint=null;
+  const paired=compareOriginalRank11Pairs(original,treated);
+  assert.equal(paired.samePhysicalInputPairs,3);
+  assert.deepEqual(paired.pairs[0].unmatchedInputs,['sourceDealFingerprint']);
+});
 test('action-capped and terminal outcomes are not conflated',()=>{
   const trial=originalTrials()[0];
   const capped=compactGame(row(trial,'Get Lost'));
