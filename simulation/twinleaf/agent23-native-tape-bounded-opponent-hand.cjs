@@ -192,9 +192,9 @@ function compareNativeOpponentHiddenHandBounded(args,
         }
       }
     }
-    const fingerprint=targetZone==='prizes'?
+    const concealedInventory=targetZone==='prizes'?
       hiddenHandPrizeFingerprint(detachedOther):hiddenZoneFingerprint(detachedOther);
-    assert.deepStrictEqual(fingerprint,originalPool,
+    assert.deepStrictEqual(concealedInventory,originalPool,
       'Detached world did not preserve opponent concealed inventory');
   }
 
@@ -234,9 +234,9 @@ function compareNativeOpponentHiddenHandBounded(args,
           other.hand.cards[swap.handIndex]=pile.cards[0];
           pile.cards[0]=handCard;
         }
-        const fingerprint=targetZone==='prizes'?
+        const concealedInventory=targetZone==='prizes'?
           hiddenHandPrizeFingerprint(other):hiddenZoneFingerprint(other);
-        assert.deepStrictEqual(fingerprint,originalPool,
+        assert.deepStrictEqual(concealedInventory,originalPool,
           'Alternate concealed world changed card-instance multiset');
         record.opponentHiddenInventoryConserved=true;
         assert.deepStrictEqual(actorView(world,seat),ownerView,
