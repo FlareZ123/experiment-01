@@ -1,0 +1,141 @@
+{
+  "schema": "agent16-eight-missing-cross-archetype-native-discovery-v1",
+  "registeredUtc": "2026-11-01T18:26:59.006335Z",
+  "selection": "One unconditioned secrets.randbits(32) per original printed rank and physical candidate seat, 16 independent 32-bit draws. Original field 29/32 exact 60s; eight new archetype representatives absent from rank3/4/6/7/10/11/21/24/29 nine-rank scout.",
+  "scope": "Eight authenticated original 60s in previously untested archetypes: Vileplume Control, Mew Genesect, Absol Electrode, Lopunny Vileplume, Raging Bolt, Meloetta Donk, Lillie's Clefairy, Dusknoir Chimecho",
+  "ranks": [
+    2,
+    5,
+    9,
+    15,
+    19,
+    26,
+    30,
+    31
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeat": 0,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRosterPath": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "nativeDevelopmentProfile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "nativeDevelopmentProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalRank1SeparateEarlierRegistration": "results/aichi-2026/registrations/agent16-original-rank1-shadow-rider-20261101.json",
+  "existingNineScoutRegistration": "results/aichi-2026/registrations/agent41-nine-ready-ranks-18seeds-20261101.json",
+  "seedGroups": 16,
+  "nativeAttempts": 32,
+  "seeds": [
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3416297935
+    },
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1640572236
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3987744996
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1859090887
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3060075246
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 690229661
+    },
+    {
+      "rank": 15,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2004125093
+    },
+    {
+      "rank": 15,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 444530430
+    },
+    {
+      "rank": 19,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2259139877
+    },
+    {
+      "rank": 19,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1954305467
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1235178604
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1244248696
+    },
+    {
+      "rank": 30,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2037594031
+    },
+    {
+      "rank": 30,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2062715572
+    },
+    {
+      "rank": 31,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2413957351
+    },
+    {
+      "rank": 31,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3253305979
+    }
+  ],
+  "scopeConstraints": [
+    "Native developmental admission and policy coverage test; no competitive game or win rate inferred",
+    "Fresh seed, same rank and physical seat across candidates does not guarantee identical physical deals",
+    "Original rank2/5/9/15/19/26/30/31 printings are authenticated; engine simulation of card effects and original source competency remain unverified",
+    "Both actual starter seats are observed, not selected after coin",
+    "All native caps, errors, physical-integrity failures and prompt validity unknowns retained",
+    "Existing nine-rank scout and rank1 first panel remain separate source registrations",
+    "Paper-clock 25-minute Aichi Open rules and live Store paper prompts not certified"
+  ]
+}
