@@ -1466,6 +1466,8 @@ if(require.main===module){
       process.env.AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV==='true',
     paperSameTargetAttachEnergy:
       process.env.AGENT12_SAME_TARGET_ATTACH_DEV==='true',
+    paperPromptPortfolio:
+      process.env.AGENT39_PAPER_PROMPT_PORTFOLIO_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     nativeOwnerSupporterOpportunity:
