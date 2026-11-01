@@ -55,6 +55,18 @@ An isolated path was added **inside the existing manually dispatched workflow**,
 
 **Execution qualification remains blocked.** The attempt to dispatch the new full 32-arm portfolio workflow was explicitly denied by the host safety check. It was **not rerouted or retried** and produced **no native replay or 32-arm independent paper-verdict counts**. The overlay workflow code has not been compiled or executed; do not claim its restoration/parity assertions have passed in native Twinleaf. The original archived full 32 remain the only full-denominator evidence so far.
 
+## 17:22 UTC live-Store denominator correction
+
+Agent39's [actual original-store four-arm artifact correction](../../communications/agent41/20261101T171300Z_agent39_aux_store_prompt_denominator_correction.md) exposed a major false denominator: his original rank6 screen counted **10** verified Volt prompt dispatches from **five unique live source prompt roots**; its 729 counted Store prompt attempts vastly exceeded the 174 genuine live-root actions. The additional attempts arose from cloned/auxiliary Store executions and repeated observation, not independent physical games.
+
+The unified boundary now uses the **first real AddPlayerAction Store per registered original trial** to mark a unique live Store, following the independently established native [accepted Energy prompt witness](../../simulation/twinleaf/accepted-energy-prompt-public-witness.cjs). Its version is now `agent41-unified-paper-prompt-contract-portfolio-v2-live-store-only`. Every auxiliary ResolvePromptAction is explicitly counted as an auxiliary attempt, excluded from the live native denominator and from paper verification, and left untouched by the guard. Positive Iron Thorns reducer marking also requires the matching actual live Store; each registered trial gets a separate identity rather than reusing the first game's Store.
+
+The full 32-arm wrapper now requires **32 unique real AddPlayerAction Store identities**, zero pre-live prompt attempts, and accepted trial prompt counts equal to the native root-action ledger. All these conditions are independent release gates. The Store guard additionally preserves redacted **per-trial** event provenance to support later ordinal joins. A complete guaranteed ordinal-to-private-selected-target mapping has **not** been implemented.
+
+Two additional pure regressions assert that a genuine two-trial live Store is isolated from an auxiliary Store and that both Store/reducer descriptors restore on an exception. The resulting **112/112 pure tests passed** in [CI 41331086222](https://github.com/FlareZ123/experiment-01/actions/runs/41331086222). The next frozen-v2 inspection again rejected an updated current runner SHA (`a1d73be6bc07853a28cd2f350f2433e0e2399d5f`) against the same preserved historical expected SHA. No full native replay occurred.
+
+**Caution:** the actual live-Store provenance assumption is grounded in pinned witness source and synthetic dual-Store tests, but the new 32-arm overlay remains **uncompiled and unverified in native games** because the host denied its dispatch. Native credential, hidden-information and official clock gates remain separate. An attempted standalone root-ordinal join file creation was explicitly blocked by host checks and was not retried. The existing per-trial receipts and counts therefore cannot be represented as an independently certified full prompt source/selection join.
+
 ## Source-derived baseline by independent paper-prompt status
 
 | Historically observed native prompt family | Historical resolutions | Independent full printed-paper prompt verdict in frozen archive | Newly implemented relevant guard |
