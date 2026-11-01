@@ -29,3 +29,13 @@ test('reports dynamic imports and computed environmental settings',()=>{
     assert.equal(result.limitations.computedEnvSites.length,1);
   } finally {fs.rmSync(root,{recursive:true,force:true});}
 });
+
+test('destructured process environment reads are retained as unresolved',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent36-source-destructured-'));
+  try {
+    write(path.join(root,'entry.cjs'),"const {UNTRACKED}=process.env; module.exports=UNTRACKED;");
+    const audit=auditSourceClosure(root,['entry.cjs']);
+    assert.deepEqual(audit.keys,[]);
+    assert.equal(audit.limitations.unclassifiedEnvSites.length,1);
+  } finally {fs.rmSync(root,{recursive:true,force:true});}
+});
