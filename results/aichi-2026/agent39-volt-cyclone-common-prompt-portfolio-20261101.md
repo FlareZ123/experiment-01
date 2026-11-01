@@ -90,3 +90,20 @@ This is a **significant evidence-denominator correction**. None of the five live
 4. rank11 `11:2:B:new-moon-lockbreaker-v1`: `NO_SOURCE_VOLT_PROMPTS`, no source Volt attacks.
 
 No mismatched parent, seat, histogram or observed live Store in this four-arm sample. Presence of an authentic source attack and passed mandatory transfer permits **narrow prompt contract verification on that root only**, not attack-wide paper or win-rate qualification. Each of the five is a **correlated action inside one original physical game**.
+
+
+## Same-head four-arm native policy noninterference (17:30 UTC)
+
+A **fresh, same-head, exactly paired** counterfactual replay tested this portfolio's influence on genuine native actions. `scripts/agent39-paper-prompt-native-noninterference-pair.cjs` ran the canonical four historical rank6/rank11 development arms **twice each**, in the same compiled GitHub Actions job: one default `paperPromptPortfolio=false` and one `true`; all four original physical source/deck/seed/seat and actor-policy inputs were unchanged. No other policy repair flag was enabled.
+
+[Manual compiled CI 41331375150](https://github.com/FlareZ123/experiment-01/actions/runs/41331375150) **SUCCESS**, actual research HEAD `7f66f4c708421c0b139d9ab02722691efc3556f7`. Exact 4/4 paired trial identities each showed **`fullyIdenticalExceptObserver:true`**. The independent A/B test compared and established equal:
+- initial complete physical-deal fingerprint, original source-deal fingerprint and actual starting seat;
+- complete native root-action ledger SHA256, native prompt-choice event digest and final public-board digest;
+- final Prize state, winner, terminal/cap status, action count and turn count;
+- printed source attack-settlement digest.
+
+The aggregate report had `fullyNoninterferingFourArms:true`, `matchingSourceDealAll:true`, and `realLivePromptRootAgreement:true`. The guard-on rank6 New Moon arm independently re-established `LIVE_PRINTED_SOURCE_PROMPTS_MATCHED` with five original-source `Volt Cyclone` native roots; all three no-source arms correctly retained `NO_SOURCE_VOLT_PROMPTS`.
+
+**Interpretation:** This establishes no observed game-state interference from the added paper guard in these four original historical development arms. It is **eight full native game executions, paired into four sets**, rather than eight independent competitive wins. No deliberately invalid prompt was selected in those natural four arms, so the already-proven staged invalid-preflight veto remains a separate test. This qualification does **not** transfer to other original field lists, unsupported prompt families, asymmetric future decisions, full match legality, strength or 25-minute tournament clock; all four trials remain strategically unqualified.
+
+Reproducibility: checkout the cited exact head, set `agent41_crossrank_trial=true`, `trial_ids=agent41-bilateral-v2-dev`, `agent41_dev_options=paper-prompt-pair,paper-prompt-portfolio` on the existing manually triggered `aichi-source-locked-campaign.yml`. The shared test suite and native two-seat print-specific fixture precede the paired executable. No automatic trigger or new workflow was created; no private identity or opponent deck was replaced. Status remains **29/32 exact originals, zero competitive qualified games**.
