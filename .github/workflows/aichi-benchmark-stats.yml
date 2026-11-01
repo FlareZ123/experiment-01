@@ -280,6 +280,8 @@ jobs:
         run: node --test tests/aichi-rank6-tagcall-firstdraw-access.test.cjs
       - name: Check Tag Call owner-visible K0 proposal and authenticated native-prompt K1 selection
         run: node --test tests/agent6-owner-tagcall-hala-offer.test.cjs
+      - name: Compare five printed Aichi Tag Call plus Guzma Hala sources with exact first-draw enumeration
+        run: node --test tests/aichi-tagcall-five-source-firstdraw.test.cjs
       - name: Verify Basic-valid rank6 Speed DCE Guzma second-own-turn direct packet
         run: |
           node --test tests/aichi-rank6-guzma-energy-direct.test.cjs
