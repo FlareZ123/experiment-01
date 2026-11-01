@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent7-source-psychic-bench-rondo-staging-v2-preserve-active-clefairy';
+const VERSION='agent7-source-psychic-bench-rondo-staging-v3-optin-latias-eonblade';
 
 /**
  * A deliberately narrow experimental alternative to attaching a held Basic
@@ -10,10 +10,12 @@ const VERSION='agent7-source-psychic-bench-rondo-staging-v2-preserve-active-clef
  *
  * @param {object} view Detached actor-only owner-root observation.
  * @param {{basicEnergies:Set<string>}} catalog Public printing catalog.
+ * @param {{protectActiveLatiasEonBlade?:boolean,baseline?:object}} options
+ *   Optional prior-root, owner-public preservation hypothesis.
  * @returns {{kind:string,handIndex:number,printing:string,
  *   slot:string,index:number,attackName:string,reason:string}|null}
  */
-function proposeRondoPsychicBenchStaging(view,catalog){
+function proposeRondoPsychicBenchStaging(view,catalog,options={}){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
   // An already Active JTG Clefairy may have the strongest immediate
@@ -21,6 +23,15 @@ function proposeRondoPsychicBenchStaging(view,catalog){
   // Clefairy destroyed native source attacks in a held-out 8-seed panel.
   // This guard is deliberately exact-print and owner-public only.
   if(own?.active?.printing==="Lillie's Clefairy ex JTG")return null;
+  // Keep the control's own Active Psychic attachment when it is being
+  // invested in the original rank30 Latias ex Eon Blade 200 route. This
+  // additional safeguard is opt-in, source-owned and attack-name-specific;
+  // it does not infer hidden cards or invent a playable attack next turn.
+  if(options.protectActiveLatiasEonBlade===true&&
+     own?.active?.printing==='Latias ex SSP'&&
+     own.active.attacks?.some(a=>a.name==='Eon Blade')&&
+     options.baseline?.kind==='attach-basic-energy'&&
+     options.baseline.slot!=='bench')return null;
   if(!Array.isArray(view.ownHand)||!Array.isArray(own?.bench)||
      own.publicTurnRestrictions?.energyPlayLocked===true||
      r?.energyPlayLocked===true||r?.energyPlayedTurn===view.globalTurn||
