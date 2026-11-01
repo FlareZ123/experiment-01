@@ -18,6 +18,10 @@ The following is the participating player's *reported analysis*, rather than rul
 - Their source compares early lock options **Klefki** (one-slot Basic Ability lock, also hinders the user's own Basic Abilities), **Wobbuffet** (broad non-Psychic Ability lock, including Evolutions, but generally spares Psychic Basic Abilities), and **Boost Shake accelerated Garbodor** (broader Ability lock, with setup and six-slot burden). They say they rejected the Garbodor package on resource and tempo grounds and selected a strategy accommodating Klefki.
 - Their explicitly named prospective counter-access categories include **Pokémon Ranger** for Budew, **Marshadow** for Path, **Wobbuffet/Klefki/Empoleon V** for Sudowoodo, **Escape Rope/Canceling Cologne** for an Active Wobbuffet or Klefki, and Energy denial or early GX pressure for an imminent Regidrago attack. None is proven legal or worthwhile in every specific interaction and all need original printing and current-rule tests.
 
+## Predicted share and completed-field distinction
+
+The participant's **rough 50% Regidrago forecast** was a *pre-tournament Swiss-field assumption*, whereas the authenticated final Top32 contains **11 Regidrago archetype labels out of 32 (34.375%)**, including known missing-original ranks 23 and 28. These denominators describe different cohorts and cannot be used to score calibration of the player's Swiss prediction. A finite **five-of-eight** Regidrago Swiss opponent sequence for one participant may be substantially higher than the eventual Top32 proportion without contradiction. Source provenance should therefore keep expected broad field share, a particular player's actual pairings, and final-cut archetype composition as separate quantities.
+
 ## Consequence for the one-fixed-60 decision
 
 This firsthand account supplies **adversarial policy hypotheses** from a rank25 participant. It reinforces three benchmarks for any single candidate that claims to dominate the full Aichi field:
