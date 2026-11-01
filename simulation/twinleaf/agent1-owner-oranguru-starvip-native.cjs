@@ -8,6 +8,7 @@ const {offerOranguruStarVip,PRINT}=
   require('./agent32-owner-oranguru-starvip-plan-offer.cjs');
 
 const VERSION='agent1-owner-observable-starvip-native-continuation-v1';
+const REPAIR_TOOL_PRINTINGS=Object.freeze([PRINT.float,'Muscle Band XY']);
 const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} p */
 const load=p=>require(path.join(ROOT,p));
@@ -41,7 +42,8 @@ function shakeTargetIndex(actor){
  *
  * @template T
  * @param {()=>T} execute Actual pinned Store workload.
- * @param {{chooseOffer?:(view:object,offer:object)=>boolean}} [options]
+ * @param {{chooseOffer?:(view:object,offer:object)=>boolean,
+ *   chooseReturnRepair?:(view:object,returnSnapshot:object)=>boolean}} [options]
  * @param {{SimpleTacticsAi?:Function,Store?:Function,GamePhase?:object,
  *   play?:object,ability?:object,prompt?:object,liveStore?:object}} [deps]
  * @returns {{result:T,audit:object}}
@@ -49,7 +51,9 @@ function shakeTargetIndex(actor){
 function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
   assert.equal(typeof execute,'function');
   const chooseOffer=options.chooseOffer??(()=>false);
+  const chooseReturnRepair=options.chooseReturnRepair??(()=>false);
   assert.equal(typeof chooseOffer,'function');
+  assert.equal(typeof chooseReturnRepair,'function');
   const {SimpleTacticsAi}=deps.SimpleTacticsAi?
     {SimpleTacticsAi:deps.SimpleTacticsAi}:load('simple-bot/simple-tactics-ai');
   const {Store}=deps.Store?{Store:deps.Store}:load('game/store/store');
@@ -67,6 +71,8 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
   assert.equal(typeof dispatcher?.value,'function');
   let liveStore=deps.liveStore??null;
   const chosen=new WeakMap();
+  const repairChosen=new WeakMap();
+  const repairBySeat=new Map();
   const planBySeat=new Map();
   const attemptedTurnBySeat=new Map();
   // Read-only witness at the first genuine source-owner root after the
@@ -83,6 +89,8 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       1:{opportunities:0,chosen:0,accepted:0,completed:0}},
     nonLiveDelegations:0,nonOwnerDelegations:0,
     events:[],originalOwnK0AtOffer:[],postOpponentOwnerReturns:[],
+    returnRepair:{offered:0,chosen:0,accepted:0,completed:0,
+      promptAccepted:0,rejected:0,aborts:[],events:[]},
     decisionInput:'detached authenticated actorObservation',
     deckSearchScope:'only acting owner pending native ChooseCardsPrompt',
     wholePolicyInformationSetSafe:false,
@@ -165,6 +173,43 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     }
   }
 
+  /** Native source turn-3 choice, with K1 card access only at owner search. */
+  function nextReturnRepair(state,owner,repair,pending){
+    if(repair.stage==='start'&&!pending){
+      const held=REPAIR_TOOL_PRINTINGS.find(name=>handIndex(owner,name)>=0);
+      if(held){
+        repair.targetPrinting=held;
+        repair.stage='attach';
+      }else{
+        return {action:new UseAbilityAction(owner.id,'Back Order',active),
+          transition:'search'};
+      }
+    }
+    if(repair.stage==='search'){
+      if(pending?.constructor?.name!=='ChooseCardsPrompt'||
+          pending.playerId!==owner.id||pending.cards!==owner.deck)
+        return null;
+      const card=REPAIR_TOOL_PRINTINGS
+        .map(name=>pending.cards.cards.find(c=>c.fullName===name))
+        .find(Boolean);
+      if(!card||!pending.validate([card],state))return null;
+      repair.targetPrinting=card.fullName;
+      return {action:new ResolvePromptAction(pending.id,[card]),
+        transition:'attach'};
+    }
+    if(repair.stage==='attach'&&!pending){
+      const i=owner.bench.findIndex(slot=>
+        slot.getPokemonCard()?.fullName===PRINT.garbodor&&
+        slot.tools.length===0);
+      const hand=handIndex(owner,repair.targetPrinting);
+      if(i<0||hand<0)return null;
+      return {action:new PlayCardAction(owner.id,hand,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i}),
+        transition:'verify'};
+    }
+    return null;
+  }
+
   function decide(state){
     if(state!==liveStore?.state){
       audit.nonLiveDelegations++;
@@ -193,6 +238,52 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       audit.postOpponentOwnerReturns.push(snapshot);
       audit.events.push({kind:'post-opponent-owner-root',...snapshot});
       awaitingNativeReturnBySeat.delete(seat);
+      if(snapshot.garbodorCount===1&&
+          snapshot.anyToolEquippedGarbodorCount===0&&
+          owner.active.getPokemonCard()?.fullName===PRINT.oranguru){
+        audit.returnRepair.offered++;
+        const view=actorObservation(state,seat);
+        if(chooseReturnRepair(view,snapshot)===true){
+          const repair={seat,turn:state.turn,stage:'start',
+            targetPrinting:null};
+          repairBySeat.set(seat,repair);
+          audit.returnRepair.chosen++;
+          audit.returnRepair.events.push({
+            kind:'chosen',seat,turn:state.turn,
+            toolCardsInitiallyHeld:REPAIR_TOOL_PRINTINGS.filter(name=>
+              view.ownHand.includes(name))});
+        }
+      }
+    }
+    const repair=repairBySeat.get(seat);
+    if(repair){
+      if(repair.stage==='verify'&&!pending){
+        const restored=owner.bench.some(slot=>
+          slot.getPokemonCard()?.fullName===PRINT.garbodor&&
+          slot.tools.some(card=>card.fullName===repair.targetPrinting));
+        audit.returnRepair.events.push({kind:'post-attach-check',
+          seat,turn:state.turn,printing:repair.targetPrinting,restored});
+        if(restored)audit.returnRepair.completed++;
+        else audit.returnRepair.aborts.push('no-restored-Tool-at-owner-root');
+        repairBySeat.delete(seat);
+        return decoder.value.call(this,state);
+      }
+      if(pending?.constructor?.name==='WaitPrompt')
+        return decoder.value.call(this,state);
+      if(pending&&pending.playerId!==owner.id)
+        return decoder.value.call(this,state);
+      const proposal=nextReturnRepair(state,owner,repair,pending);
+      if(proposal){
+        repairChosen.set(proposal.action,{
+          repair,seat,from:repair.stage,to:proposal.transition,
+          prompt:Boolean(pending)});
+        return proposal.action;
+      }
+      audit.returnRepair.aborts.push('unavailable-'+repair.stage);
+      audit.returnRepair.events.push({kind:'abort',seat,turn:state.turn,
+        stage:repair.stage,pending:pending?.constructor?.name??null});
+      repairBySeat.delete(seat);
+      return decoder.value.call(this,state);
     }
     let ctx=planBySeat.get(seat)??null;
     if(!ctx&&state.activePlayer===seat&&
@@ -295,8 +386,19 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&liveStore===null)
       liveStore=this;
     const tracked=this===liveStore?chosen.get(action):null;
+    const repairTrack=this===liveStore?repairChosen.get(action):null;
     try{
       const value=dispatcher.value.call(this,action,...args);
+      if(repairTrack){
+        const {repair,seat,from,to,prompt}=repairTrack;
+        assert.equal(repair.stage,from);
+        repair.stage=to;
+        audit.returnRepair.accepted++;
+        if(prompt)audit.returnRepair.promptAccepted++;
+        audit.returnRepair.events.push({kind:'accepted',seat,
+          turn:repair.turn,from,to,action:action.constructor.name,
+          tool:repair.targetPrinting});
+      }
       if(tracked){
         const {seat,ctx,step,prompt}=tracked;
         assert.equal(ctx.step,step);
@@ -310,6 +412,11 @@ function withOwnerOranguruStarVipPlan(execute,options={},deps={}){
       }
       return value;
     }catch(error){
+      if(repairTrack){
+        audit.returnRepair.rejected++;
+        audit.returnRepair.aborts.push('Store-rejected-'+repairTrack.from);
+        repairBySeat.delete(repairTrack.seat);
+      }
       if(tracked){
         audit.nativeRejected++;
         abort(tracked.ctx,'native-dispatch-rejected-at-stage-'+tracked.step);
