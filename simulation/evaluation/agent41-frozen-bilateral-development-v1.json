@@ -44,7 +44,7 @@
   },
   "sourceInventory": "simulation/evaluation/agent42-strict-switch-inventory-v1.json",
   "researchClosureAudit": "simulation/evaluation/agent36-source-closure-audit.cjs",
-  "sourceClosureSha256": null,
+  "sourceClosureSha256": "d997d105cdd3cf7b09a6b1f1a1949ee4d51840b0534d569641367ea0630a1392",
   "releaseVetoes": [
     "Transitive research-code SHA256 closure not pinned",
     "No two-seat hidden-information safety certification",
@@ -54,5 +54,9 @@
   ],
   "competitiveGameQualified": false,
   "target99Point5Verified": false,
-  "preserveEveryAttempt": true
+  "preserveEveryAttempt": true,
+  "sourceClosureFileCount": 264,
+  "sourceClosureEnvironmentKeyCount": 105,
+  "sourceClosureDynamicImportSites": 111,
+  "sourceClosureInspectionRun": 41278230285
 }
