@@ -25,7 +25,7 @@ function sha256(bytes) {
  */
 function resolveRelative(importer, request) {
   const base = path.resolve(path.dirname(importer), request);
-  const candidates = [base, \`\${base}.cjs\`, \`\${base}.js\`, \`\${base}.json\`,
+  const candidates = [base, base+'.cjs', base+'.js', base+'.json',
     path.join(base, 'index.cjs'), path.join(base, 'index.js'),
     path.join(base, 'index.json')];
   for (const candidate of candidates) {
@@ -59,7 +59,7 @@ function auditSourceClosure(repositoryRoot, entries) {
     const relative = path.relative(root, absolute);
     assert.ok(relative && relative !== '..' &&
       !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative),
-    \`Source escapes audited repository: \${filename}\`);
+    'Source escapes audited repository: '+filename);
     if (files.has(relative)) return;
     const bytes = fs.readFileSync(absolute);
     const text = bytes.toString('utf8');
