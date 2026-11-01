@@ -1091,14 +1091,10 @@ function runDevelopment({
     assert.ok(Array.isArray(registeredTrials)&&registeredTrials.length>0);
     const groups=new Map();
     const ids=new Set();
+    const admittedRanks=require('./agent25-authenticated-source-admission.cjs')
+      .authenticatedSourceRanks(roster,allowAdditionalOriginalSourceRanks);
     for(const trial of registeredTrials){
-      // Expanded discovery admits only authenticated original printed sixties.
-      // The default historical rank-6/rank-11 frame remains unchanged.
-      const admissibleSourceRanks=allowAdditionalOriginalSourceRanks?
-        roster.decks.filter(deck=>Array.isArray(deck.cards)&&
-          deck.cards.reduce((n,card)=>n+card.count,0)===60)
-          .map(deck=>deck.rank):[6,11];
-      assert.ok(admissibleSourceRanks.includes(trial.rank),
+      assert.ok(admittedRanks.includes(trial.rank),
         'Registered source rank requires an authenticated original 60');
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
