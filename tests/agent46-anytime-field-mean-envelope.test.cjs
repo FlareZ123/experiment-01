@@ -82,6 +82,17 @@ test('hypothetical uniform million undefeated games per rank passes only statist
     'Arithmetic on invented result counts cannot certify real competition');
 });
 
+test('64 equal rank-seat cells preserve the established fixed-horizon estimand',()=>{
+  const x=check(rows(64,1_000_000,0,0));
+  assert.equal(x.cellCount,64);
+  assert.equal(x.attempts,64_000_000);
+  assert.equal(x.decision,'ABOVE_TARGET_LOWER_BOUND');
+  const partly=rows(64);
+  partly[0].nonWins=9;
+  assert.equal(check(partly).decision,'INSUFFICIENT_INFORMATION',
+    'Nine nonwins at one of 64 seats need not veto the entire 64-cell mean');
+});
+
 test('all 128 seat-start-rank cells are equally weighted and missing cells remain unknown',()=>{
   const four=check(rows(128,1_000_000,0,0));
   assert.equal(four.cellCount,128);
