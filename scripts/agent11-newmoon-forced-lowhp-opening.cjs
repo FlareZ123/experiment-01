@@ -12,6 +12,10 @@ const DIRECT_BASIC_ACCESS_ITEMS = new Map([
   ['swsh8-225',{name:'Battle VIP Pass',count:4}],
   ['swsh6-140',{name:'Fog Crystal',count:4}]
 ]);
+const DISCARD_DEPENDENT_BASIC_ACCESS_ITEMS = new Map([
+  ['sm6-113',{name:'Mysterious Treasure',count:2,discardCost:1}],
+  ['sv6-163',{name:'Secret Box',count:1,discardCost:3}]
+]);
 
 const LOW_HP_PRINTINGS = new Map([
   ['xy7-30', {name:'Unown', count:3, hp:60}],
@@ -45,7 +49,8 @@ function verifyPrintedInventories(manifest,sourceOpenings) {
     assert.equal(entry.name_en,exact.name);
     assert.equal(entry.count,exact.count);
   }
-  for (const [id,expected] of DIRECT_BASIC_ACCESS_ITEMS) {
+  for (const [id,expected] of [...DIRECT_BASIC_ACCESS_ITEMS,
+    ...DISCARD_DEPENDENT_BASIC_ACCESS_ITEMS]) {
     const found=manifest.entries.filter(e=>e.english_proxy_card_id===id);
     assert.equal(found.length,1);
     assert.equal(found[0].type,'Trainer');
@@ -62,7 +67,7 @@ function verifyPrintedInventories(manifest,sourceOpenings) {
   assert.equal(champion.basic_hp_at_most_60_known,0);
   return {newMoonBasics:17,newMoonLowHpBasics:5,
     championBasics:14,championLowHpBasics:0,
-    directBasicAccessItems:8};
+    directBasicAccessItems:8,conditionalDiscardSearchItems:3};
 }
 
 /**
@@ -124,10 +129,14 @@ function sourceConditionalExposure(candidateBasics,lowHpBasics,
  * @param {number} ordinaryDraws 0..4 hypothetical natural additional draws.
  * @returns {number}
  */
-function withoutDirectBasicSearcher(sourceBasics,ordinaryDraws=0){
+function withoutNamedSearcherCopies(sourceBasics,searcherCopies,
+  ordinaryDraws=0){
+  assert.ok(Number.isInteger(searcherCopies)&&searcherCopies>=8&&
+    searcherCopies<=21);
   assert.ok(Number.isInteger(ordinaryDraws)&&ordinaryDraws>=0&&
     ordinaryDraws<=4);
-  const candidateBasics=17, lowHpBasics=5, directSearchCopies=8;
+  const candidateBasics=17, lowHpBasics=5;
+  const directSearchCopies=searcherCopies;
   const pC=validOpening(candidateBasics), pS=validOpening(sourceBasics);
   const qS=1-pS, d=1-(1-pC)*qS;
   const initial=lowHpBasics*C(60-candidateBasics-directSearchCopies,6)/
@@ -140,6 +149,11 @@ function withoutDirectBasicSearcher(sourceBasics,ordinaryDraws=0){
     result+=w*initial*C(remainingNonbasicNonsearch,extra)/C(53,extra);
   }
   return result;
+}
+
+/** @param {number} sourceBasics @param {number} ordinaryDraws @returns {number} */
+function withoutDirectBasicSearcher(sourceBasics,ordinaryDraws=0){
+  return withoutNamedSearcherCopies(sourceBasics,8,ordinaryDraws);
 }
 
 /** @param {object} manifest @param {object} sourceOpenings @returns {object} */
@@ -156,6 +170,18 @@ function analyze(manifest,sourceOpenings){
     openingSevenOnly:{
       reference:forcedLowHpInSeven(14,0),
       newMoon:forcedLowHpInSeven(17,5)
+    },
+    optionalDiscardAccessSensitivity:{
+      tiers:[8,10,11,15].map(searcherCopies=>({
+        searcherCopies,
+        type:searcherCopies===8?'Eight direct items':
+          searcherCopies===10?'Plus two one-discard Treasures':
+          searcherCopies===11?'Plus singleton three-discard Secret Box':
+          'Hypothetical addition of four discard-requiring searchers',
+        meanNoNamedSearcherExposure:sourceOpenings.decks.reduce((s,d)=>s+
+          withoutNamedSearcherCopies(d.basic_count_known,searcherCopies),0)/29
+      })),
+      interpretation:'Physical card-location only; search costs, counterplay and required four card substitutions make this non-performance evidence'
     },
     directBasicSearcherAbsent:{
       preciseScope:'No physical Battle VIP Pass or Fog Crystal; other access routes and Item locks excluded',
@@ -187,5 +213,6 @@ function fromRepo(){
   return analyze(manifest,sourceOpenings);
 }
 module.exports={VERSION,LOW_HP_PRINTINGS,DIRECT_BASIC_ACCESS_ITEMS,
-  verifyPrintedInventories,forcedLowHpInSeven,sourceConditionalExposure,
+  DISCARD_DEPENDENT_BASIC_ACCESS_ITEMS,verifyPrintedInventories,
+  forcedLowHpInSeven,sourceConditionalExposure,withoutNamedSearcherCopies,
   withoutDirectBasicSearcher,analyze,fromRepo};
