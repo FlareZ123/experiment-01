@@ -13,7 +13,7 @@ const {digestNativePromptChoices}=
 const {reconcileNightWatchNonceRoots}=
   require('../evaluation/agent12-nightwatch-native-nonce-reconcile.cjs');
 
-const VERSION='agent12-native-rank11-nightwatch-printed-root-store-development-v4';
+const VERSION='agent12-native-rank11-nightwatch-postgame-physical-pair-development-v5';
 const selectionRegistration=require(
   '../../results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json');
 const GROUPS=[
@@ -145,6 +145,8 @@ function run(){
         uniform:treated,randomHookAudit:audit.audit
       });
       assert.equal(matchedNonceRoots.matchedSourceRoots,namedNativeNightWatch);
+      assert.equal(matchedNonceRoots.exactPostgamePhysicalPairsMatched,namedNativeNightWatch);
+      assert.equal(matchedNonceRoots.allActualPhysicalPairsMatched,true);
       out.push({registration:group,seed:groupRows[0].seed,
         independentSelectionSeedHex:committed.independentSelectionSeedHex,
         independentlyPrecommittedPositionSeed:true,
