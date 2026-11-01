@@ -13,7 +13,7 @@ const {digestNativePromptChoices}=
 const {reconcileNightWatchNonceRoots}=
   require('../evaluation/agent12-nightwatch-native-nonce-reconcile.cjs');
 
-const VERSION='agent12-native-rank11-nightwatch-source-reducer-origin-development-v3';
+const VERSION='agent12-native-rank11-nightwatch-printed-root-store-development-v4';
 const selectionRegistration=require(
   '../../results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json');
 const GROUPS=[
@@ -93,7 +93,8 @@ function run(){
       assert.match(committed.independentSelectionSeedHex,/^[0-9a-f]{64}$/);
       const audit=withUniformNightWatchOpponentSelection(runNative,{
         committedSeed:committed.independentSelectionSeedHex,
-        requirePrintedOrigin:true
+        requirePrintedOrigin:true,
+        requireNativeRootState:true
       });
       assert.equal(baseline.rows.length,2);
       assert.equal(audit.result.rows.length,2);
@@ -110,6 +111,10 @@ function run(){
       }
       const namedNativeNightWatch=treated.reduce((n,r)=>
         n+r.nativeNightWatchPromptCount,0);
+      assert.equal(audit.audit.nativeRootSetupDispatchesObserved,4,
+        'Two original games per historical pair require exactly four native setup AddPlayer roots');
+      assert.equal(audit.audit.skippedDetachedStorePrintedPrompts,0,
+        'Unexpected printed Night Watch prompt on a detached speculative Store');
       assert.equal(audit.audit.printedNightWatchPromptMarks,namedNativeNightWatch,
         'Actual printed source reducer emitted a different count than genuine named Night Watch roots');
       assert.equal(audit.audit.skippedUnmarkedStructuralPrompts,0,
