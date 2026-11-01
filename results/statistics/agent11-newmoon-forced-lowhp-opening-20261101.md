@@ -69,6 +69,10 @@ After a valid initial seven with no such search Items, the extra-card no-access 
 - The five 60-HP printings have purposes in the candidate's engine, so removing them to reduce low-HP exposure could create larger consistency or attack-line losses. No card swap is justified from this number alone.
 - Original source ranks 23, 25 and 28 are still absent, and the whole field has **zero competitively qualified native games**.
 
+## Hypothetical slot allocation frontier
+
+Holding the known 29 original opponent Basic counts fixed, a source-locked sensitivity model compares the narrow no-named-search route event: frozen New Moon (17 Basics, five HP60, 11 searchers) **1.12669%**; replace three HP60 Basics with durable Basics **0.45068%**; add four durable Basics by displacing four other slots **0.43815%**; or replace four other slots with additional searchers **0.46129%**. The latter three are **unbuilt hypothetical alternative 60s**. Each sacrifices engine cards and may worsen real game strength. Crossing a 0.5% threshold on a physical starting-hand event establishes no 99.5% game-win performance.
+
 ## Missing-originals sensitivity
 
 For the three unpublished original lists at ranks 23, 25 and 28, permit each unknown source any Basic count from 1 to 60 without substituting another deck. Across all 32 ranks equally weighted, the resulting exact **interval for forced sole HP<=60 New Moon exposure** after maximum mulligan bonuses is **7.43676% to 7.99754%**. The interval also requiring absence of all 11 named Basic-search Items is **1.04649% to 1.14106%**. These bound physically observed setup cards under unknown source Basic counts. They certify neither real gameplay losses nor authenticity for the missing lists.
