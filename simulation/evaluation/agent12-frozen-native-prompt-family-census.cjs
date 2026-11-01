@@ -32,6 +32,9 @@ function censusNativePromptFamilies(rows){
         setupPromptReplyActions:0,inTurnPromptReplyActions:0,
         setupByFamily:{},inTurnByFamily:{},
         inTurnChooseCardsPromptCount:0,
+        inTurnChooseCardsWithInitiatingRoot:0,
+        inTurnChooseCardsWithNamedInitiator:0,
+        inTurnChooseCardsByInitiatingAction:{},
         firstInTurnChooseCardsPrompt:null,
         cappedGames:0,engineTerminalGames:0
       });
@@ -40,6 +43,8 @@ function censusNativePromptFamilies(rows){
     g.attemptedGames++;
     if(arm.finished===true)g.engineTerminalGames++;
     else g.cappedGames++;
+    const byOrdinal=new Map(arm.rootActionLedger.map(root=>
+      [root.actionOrdinal,root]));
     for(const root of arm.rootActionLedger){
       if(root.action!==PROMPT_ACTION)continue;
       assert.ok(Number.isInteger(root.actionOrdinal)&&
@@ -53,10 +58,22 @@ function censusNativePromptFamilies(rows){
       else g.inTurnPromptReplyActions++;
       if(!setup&&family==='ChooseCardsPrompt'){
         g.inTurnChooseCardsPromptCount++;
+        const initiating=byOrdinal.get(root.initiatingRootActionOrdinal);
+        const named=initiating?.card??initiating?.attack??initiating?.ability;
+        if(initiating)g.inTurnChooseCardsWithInitiatingRoot++;
+        if(typeof named==='string'&&named.length>0){
+          g.inTurnChooseCardsWithNamedInitiator++;
+          const source=initiating.action+' / '+named;
+          g.inTurnChooseCardsByInitiatingAction[source]=
+            (g.inTurnChooseCardsByInitiatingAction[source]??0)+1;
+        }
         if(!g.firstInTurnChooseCardsPrompt)
           g.firstInTurnChooseCardsPrompt={
             trial:trial.id,turn:root.turnBefore,
-            ordinal:root.actionOrdinal,seat:root.playerSlot
+            ordinal:root.actionOrdinal,seat:root.playerSlot,
+            initiatingRootOrdinal:root.initiatingRootActionOrdinal??null,
+            initiatingAction:initiating?.action??null,
+            initiatingName:named??null
           };
       }
     }
@@ -66,14 +83,20 @@ function censusNativePromptFamilies(rows){
     n+r.observedPromptReplyActions,0);
   const inTurnChooseCardsPromptCount=byRank.reduce((n,r)=>
     n+r.inTurnChooseCardsPromptCount,0);
+  const inTurnChooseCardsWithInitiatingRoot=byRank.reduce((n,r)=>
+    n+r.inTurnChooseCardsWithInitiatingRoot,0);
+  const inTurnChooseCardsWithNamedInitiator=byRank.reduce((n,r)=>
+    n+r.inTurnChooseCardsWithNamedInitiator,0);
   return {
     version:VERSION,attemptedArms:rows.length,byRank,
     totalPromptReplies,inTurnChooseCardsPromptCount,
+    inTurnChooseCardsWithInitiatingRoot,
+    inTurnChooseCardsWithNamedInitiator,
     sourcePrintedCardForEachPromptKnown:false,
     individuallyPaperVerifiedPromptCount:0,
     paperEvidenceStatus:'PROMPT_PAPER_UNVERIFIED',
     gameResultsQualifiedForCompetitiveInference:false,
-    caveat:'Native accepted prompt family and owner seat; no printed source/reply or independent paper validator in frozen root ledger. Correlated game attempts, including caps, not independent effects or wins.'
+    caveat:'Native root names often recover the initiating Item or attack, but not necessarily exact printed source identity, chosen physical reply or independent paper validity. Correlated games including caps are not independent effects or wins.'
   };
 }
 
