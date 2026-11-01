@@ -83,3 +83,19 @@ test('native conditional Prize effect distinguishes two-source reply from paper 
   assert.equal(b.victimInDiscard,false);
   assert.equal(b.prizesTaken,0);
 });
+
+test('native Radiant Alakazam printed one-source selection and guards are symmetric between real player seats',()=>{
+  for(const seat of [0,1]){
+    const invalid=probeTwoSourcePainfulSpoons({seat});
+    const rejected=probeTwoSourcePainfulSpoons({seat,guarded:true});
+    const valid=probeTwoSourcePainfulSpoons({seat,guarded:true,sameSource:true});
+    assert.equal(invalid.nativeValidatorAccepted,true);
+    assert.deepEqual(invalid.after,{active:0,bench0:0,bench1:20});
+    assert.equal(rejected.nativeValidatorAccepted,false);
+    assert.match(rejected.nativeStoreError,/PAPER_PAINFUL_SPOONS_REJECTED/);
+    assert.deepEqual(rejected.after,{active:10,bench0:10,bench1:0});
+    assert.equal(valid.nativeValidatorAccepted,true);
+    assert.equal(valid.nativeStoreError,null);
+    assert.deepEqual(valid.after,{active:0,bench0:10,bench1:20});
+  }
+});
