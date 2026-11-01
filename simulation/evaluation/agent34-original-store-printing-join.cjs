@@ -28,6 +28,7 @@ function joinOriginalStorePrintings(rootLedger,receiptAudit){
       typeof actual.printing==='string'&&actual.printing.length>0&&
       typeof actual.executableConstructor==='string'&&
       actual.executableConstructor.length>0&&
+      /^[0-9a-f]{64}$/.test(actual.executableConstructorSourceSha256??'')&&
       Number.isSafeInteger(actual.executablePrototypeToken)&&
       Number.isSafeInteger(actual.ordinal);
     rows.push({headlessActionOrdinal:root.actionOrdinal,
@@ -36,6 +37,7 @@ function joinOriginalStorePrintings(rootLedger,receiptAudit){
       nativeCardName:root.card??null,receiptName:actual?.cardName??null,
       physicalPrinting:match?actual.printing:null,
       executableClass:match?actual.executableConstructor:null,
+      executableClassSha256:match?actual.executableConstructorSourceSha256:null,
       executablePrototypeToken:match?actual.executablePrototypeToken:null,
       sequentialMatch:match===true,
       unmatchedReason:match?'none':'ledger-or-original-store-receipt-mismatch',
