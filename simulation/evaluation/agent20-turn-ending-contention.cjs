@@ -81,6 +81,12 @@ function run() {
   const rank6Joint = allGroupsPresent(60, draws, [
     originalRank6.basics, originalRank6.camping, originalRank6.palace
   ]);
+  const rank6CampingJoint = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.camping
+  ]);
+  const rank6PalaceJoint = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.palace
+  ]);
 
   return {
     scope: 'Uniform first seven cards conditional on at least one Basic; no extra opposing-mulligan draw',
@@ -91,6 +97,12 @@ function run() {
     probabilityStevenGivenLegalBasic: stevenJoint / validOpening,
     probabilityPalaceGivenLegalBasic: palaceJoint / validOpening,
     probabilityBothGivenLegalBasic: bothJoint / validOpening,
+    probabilityStevenOnlyGivenLegalBasic:
+      (stevenJoint - bothJoint) / validOpening,
+    probabilityPalaceOnlyGivenLegalBasic:
+      (palaceJoint - bothJoint) / validOpening,
+    probabilityNeitherGivenLegalBasic:
+      1 - (stevenJoint + palaceJoint - bothJoint) / validOpening,
     probabilityAtLeastOneGivenLegalBasic:
       (stevenJoint + palaceJoint - bothJoint) / validOpening,
     paperObservation: 'Both printings end the turn, making them mutually exclusive actions within one normal turn',
@@ -99,7 +111,13 @@ function run() {
       sourcePrintingGroups: ['Camping Gear BST 122', 'Palace Book SMP NAN25'],
       basicCards: 4, campingGearCopies: 2, palaceBookCopies: 1,
       probabilityLegalBasicOpening: rank6Legal,
-      probabilityBothGivenLegalBasic: rank6Joint / rank6Legal
+      probabilityBothGivenLegalBasic: rank6Joint / rank6Legal,
+      probabilityCampingOnlyGivenLegalBasic:
+        (rank6CampingJoint - rank6Joint) / rank6Legal,
+      probabilityPalaceOnlyGivenLegalBasic:
+        (rank6PalaceJoint - rank6Joint) / rank6Legal,
+      probabilityNeitherGivenLegalBasic: 1 -
+        (rank6CampingJoint + rank6PalaceJoint - rank6Joint) / rank6Legal
     },
     competitiveQualifiedGames: 0
   };
