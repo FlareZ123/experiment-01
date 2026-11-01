@@ -63,7 +63,8 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
     selectedGHDeckPrompts:0,acceptedGHDeckPrompts:0,
     promptTargetAbsent:0,nativePromptFallbacks:0,
     missingAcceptedOwnerPrompt:0,storeRejectedRoots:0,
-    storeRejectedPrompts:0,physicalGHHandGained:0
+    storeRejectedPrompts:0,physicalGHHandGained:0,
+    physicalSecondaryTagHandGained:0
   });
   const audit={version:VERSION,offerVersion:OFFER_VERSION,
     ownerBySeat:{0:counts(),1:counts()},
@@ -122,7 +123,11 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
           rootViewDigest:token.viewDigest,
           selectedPrintings:physical.map(c=>c.fullName),
           preGHHand:owner.hand.cards
-            .filter(c=>c.fullName===GUZMA_HALA).length});
+            .filter(c=>c.fullName===GUZMA_HALA).length,
+          preSecondary:physical.filter(c=>c.fullName!==GUZMA_HALA)
+            .map(c=>({printing:c.fullName,
+              count:owner.hand.cards.filter(x=>
+                x.fullName===c.fullName).length}))});
         audit.ownerBySeat[seat].selectedGHDeckPrompts++;
         return action;
       }
@@ -204,6 +209,11 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
           .filter(c=>c.fullName===GUZMA_HALA).length;
         if(afterGH>prompt.preGHHand)
           count.physicalGHHandGained++;
+        const secondaryGained=prompt.preSecondary.length>0&&
+          prompt.preSecondary.every(({printing,count:before})=>
+            owner.hand.cards.filter(c=>c.fullName===printing).length>before);
+        if(secondaryGained)
+          count.physicalSecondaryTagHandGained++;
         if(audit.firstAcceptedNativePairBySeat[prompt.seat]===null)
           audit.firstAcceptedNativePairBySeat[prompt.seat]={
             seat:prompt.seat,globalTurn:prompt.firstRootTurn,
@@ -211,7 +221,9 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
             ownerPromptId:prompt.promptId,
             selectedPrintings:prompt.selectedPrintings,
             nativePromptAccepted:true,
-            immediatePhysicalGHHandGained:afterGH>prompt.preGHHand
+            immediatePhysicalGHHandGained:afterGH>prompt.preGHHand,
+            secondarySelected:prompt.preSecondary.map(x=>x.printing),
+            immediatePhysicalSecondaryTagHandGained:secondaryGained
           };
         tokenByOwner.delete(prompt.ownerId);
       }
