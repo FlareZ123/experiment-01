@@ -2,6 +2,12 @@ name: Aichi Dusclops conditional self-KO
 
 on:
   workflow_dispatch:
+    inputs:
+      rank19_source_replay:
+        description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -33,3 +39,17 @@ jobs:
         run: node --test tests/agent28-native-duskull-discard-paper-hook.test.cjs
       - name: Probe original rank19 Raging Bolt Basic-card Bellowing attack on both actual native seats
         run: node --test tests/agent28-rank19-bellowing-knockout-native.test.cjs
+      - name: Reobserve exactly four archived original rank19 source games without policy changes
+        if: inputs.rank19_source_replay
+        run: node simulation/evaluation/agent28-rank19-original-source-active-retrospective.cjs > agent28-rank19-source-active-native.json
+      - name: Summarize original Raging Bolt Active and declared Bellowing root opportunities
+        if: inputs.rank19_source_replay
+        run: node -e "const r=require('./agent28-rank19-source-active-native.json');console.log('RANK19_SOURCE_ACTIVE_NATIVE',JSON.stringify({version:r.version,activeRoots:r.sourceActiveRagingRootTotal,bellowing:r.sourceBellowingAttackTotal,rows:r.rows.map(x=>({trial:x.trialId,seat:x.sourceSeat,status:x.status,roots:x.sourceOwners.sourceOwnerRootCount,active:x.sourceOwners.sourceRagingActiveRoots,first:x.sourceOwners.ragingActiveEnergySamples.slice(0,3)}))}))"
+      - name: Archive the four replayed original source read-only native root receipts
+        if: always() && inputs.rank19_source_replay
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent28-rank19-original-source-active-native
+          path: agent28-rank19-source-active-native.json
+          if-no-files-found: warn
+          retention-days: 14
