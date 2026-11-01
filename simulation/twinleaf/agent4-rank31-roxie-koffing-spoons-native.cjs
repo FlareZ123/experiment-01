@@ -5,6 +5,7 @@ const {stagedPainfulSpoons}=require('./agent4-rank31-alakazam-movesource-native.
 const {withPaperPainfulSpoonsSingleSource}=require('./agent4-painful-spoons-single-source-hook.cjs');
 const {withRoxieTrainerDiscardType}=require('./agent4-roxie-original-effect-type-hook.cjs');
 const {withPaperRoxiePayment}=require('./agent4-roxie-paper-payment-hook.cjs');
+const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} filename @returns {any} */
 const native=filename=>require(path.join(output,filename));
@@ -115,9 +116,10 @@ function runRank31RoxieSpoons(guarded,seat=0,guardRoxie=false){
  * in both paper orders. Observe native option/index drift and actual Store
  * pre-dispatch acceptance independently of broader combo completion.
  * @param {boolean} roxieFirst
+ * @param {boolean} [guarded=false] Use printed physical Roxie eligibility preflight.
  * @returns {object}
  */
-function probeRoxieChoiceIndexShift(roxieFirst){
+function probeRoxieChoiceIndexShift(roxieFirst,guarded=false){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -134,12 +136,20 @@ function probeRoxieChoiceIndexShift(roxieFirst){
   const validatorAccepted=prompt.validate([koffing],f.state);
   const blocked=[...prompt.options.blocked];
   const hand=f.source.hand.cards.map(c=>c.fullName);
+  const reply=new ResolvePromptAction(prompt.id,[koffing]);
+  let strictError=null;
+  try{assertValidPromptAction(f.state,reply);}
+  catch(e){strictError=String(e?.message??e);}
   let nativeStoreError=null;
-  try{withRoxieTrainerDiscardType(()=>
-    f.store.dispatch(new ResolvePromptAction(prompt.id,[koffing])));}
+  try{withRoxieTrainerDiscardType(()=>{
+    const settle=()=>f.store.dispatch(reply);
+    return guarded?withPaperRoxiePayment(settle):settle();
+  });}
   catch(e){nativeStoreError=String(e?.message??e);}
-  return {roxieFirst,validatorAccepted,blocked,hand,
-    nativeStoreError,promptSettled:prompt.result!==undefined,
+  return {roxieFirst,guarded,validatorAccepted,blocked,hand,
+    strictError,nativeStoreError,
+    physicalKoffingDiscarded:f.source.discard.cards.includes(koffing),
+    promptSettled:prompt.result!==undefined,
     nativePrompts:f.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
     scope:'Actual native owner Roxie CEC ChooseCards with real Koffing CEC, two physical hand orders'};
