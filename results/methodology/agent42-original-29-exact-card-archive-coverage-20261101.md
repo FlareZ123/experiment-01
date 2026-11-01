@@ -1,0 +1,34 @@
+# Agent42: exact-card archive coverage of all 29 authenticated Aichi original 60s
+
+**1 November 2026 | deterministic source-to-archive inventory, no game simulation.** The complete authenticated original source register `results/aichi-2026/full-decklists.json` has **29 decks, 989 count-bearing card rows and 1,740 physical copies**. The repository's supplied `resources/sets/en.json` and `resources/cards/en/*.json` provide the independent English card archive. This census read all **66 source display set codes** in four disjoint alphabetical groups and all 69 mapped archive set files with zero retrieval failures. The source register is unchanged.
+
+For each source row, require the registered set code, collector number and exact name to resolve to one card in an archive set. Normal set codes use exact `ptcgoCode` metadata. Promos with missing `ptcgoCode` use explicit archive set IDs and registered collector-prefix mappings `XYP n -> xyp XY n`, `BWP n -> bwp BW n`, `SMP n -> smp SM n`, without searching for a convenient unrelated card. The source code `SP` is not registered as an English archive set. No inferred printing replaces a missing card.
+
+| Independent archive match class | Original rows | Original copies | Meaning |
+| --- | ---: | ---: | --- |
+| Exact name, collector number and mapped set | **911** | **1,549** | Strict source printing identity matched one archived card |
+| Collector/set match, displayed-name difference | **34** | **57** | Specific archive printing located, but displayed names differ |
+| No English archive printing located | **44** | **134** | Unverified by this English archive; cannot assign card text from it |
+| **All 29 originals** | **989** | **1,740** | 29 × 60 |
+
+The 57 number-exact/name-different physical copies all have an identifiable same-set same-collector archive record, with four narrow name families: **37 copies** printed as `Battle Compressor` / `Robo Substitute` / `Target Whistle` in source register versus `... Team Flare Gear` in archive (PHF 92/102/106), **12 copies** displayed with `♢` versus archive `◇` (LOT Ditto / Thunder Mountain, TEU Tapu Koko / Wondrous Labyrinth), and **8 copies** source `Unit Energy LPM UPR138` versus archive `Unit Energy LightningPsychicMetal`. Their **collector numbers** uniquely matched in their archive sets; name normalization is documented, not permission to rewrite other source cards indiscriminately.
+
+The 134 copies absent from the English archive consist of:
+- **120 Basic Energy copies** in 35 source rows with `MEE` set codes (22 of 29 original decks). This is an *unlisted source printing* rather than evidence that Basic Energy as a game resource cannot be modeled; type-specific correctness must still be checked.
+- **14 Trainer copies** in nine original rows: `Palace Book SMP NAN25` **6** copies, `Player's Ceremony SP127` **5**, `Palace Belt BWP153` **3**. No alternative English text or legal implementation is assumed.
+
+These 14 unlisted Trainer copies occur in five exact original field lists: **rank3 Snorlax Stall (1), rank6 Iron Thorns (3), rank7 Snorlax Stall (3), rank24 Iron Thorns (4), rank29 Iron Thorns (3)**. Therefore **all three** original Iron Thorns source 60s that the common bilateral runner uses or plans to use contain at least one Trainer whose source printing this supplied English database cannot resolve. The known rank6 source is the central opponent-policy development benchmark. This is an important **paper-source verification gate** for claims about all printed actions in that matchup, although a particular game need not draw/play those missing cards.
+
+### Reproduction and limits
+
+Four independently evaluated sorted-code partitions yielded strict exact / mismatch / unknown rows and copies:
+- Codes AOR–CRI: 219/382 strict, 2/3 mismatch, 0 unknown.
+- Codes CRZ–MEW: 223/412 strict, 5/5 mismatch, 35/120 unknown.
+- Codes NVI–SCR: 197/371 strict, 20/37 mismatch, 0 unknown.
+- Codes SFA–XYP: 272/384 strict, 12/21 mismatch, 4/5 unknown.
+
+The mismatches partition into 57 recoverable displayed-name differences and 9 physically unresolved Trainer copies. Each set file was retrieved by its current GitHub source revision; this was a read-only source census, not a new CI run or live Store trial. If the shared card archive or registered printing list changes, recompute these counts. A code/name/number identity match alone cannot establish Japanese paper legality, card-effect fidelity, Twinleaf implementation support, correct hidden-owner selections, or official timed match results.
+
+**Practical gate:** record `ARCHIVE_EXACT`, `ARCHIVE_NUMBER_MATCH_NAME_ALIAS`, and `ARCHIVE_UNLISTED` on exact source-owned prompt/card events using the registered source-rank SHA; never upgrade a game to universally paper-verified merely because its deck's count of registered cards equals 60. Prioritize the three original Iron Thorns lists' unresolved Trainer printings when their actions appear in a native game.
+
+**Global benchmark status:** 29/32 original 60s authenticated, three source-original full lists still unknown, **zero competitively qualified games**, and no demonstrated 99.5% fixed deck.
