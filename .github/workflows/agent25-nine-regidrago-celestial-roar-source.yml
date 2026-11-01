@@ -40,3 +40,16 @@ jobs:
           path: agent25-nine-regidrago-original-paper-source-panel.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Trace exact original rank13 first source physical59 to native attack and prompt
+        run: node simulation/evaluation/agent25-rank13-original-celestial-physical59-root-lineage.cjs > agent25-rank13-original-celestial-first59-root-lineage.json
+      - name: Print first rank13 source card-loss native root context
+        run: |
+          node -e "const r=require('./agent25-rank13-original-celestial-first59-root-lineage.json');console.log(JSON.stringify({version:r.version,status:r.result.status,first:r.result.firstSettledAnomaly,root:r.result.firstAnomalousRoot,lastAttack:r.result.latestAttackRoot,rootWindow:r.result.rootWindow,attackDeclarations:r.result.attackDeclarationWindow},null,2));"
+      - name: Archive first rank13 source card-loss complete native observed root genealogy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-rank13-original-celestial-physical59-native-lineage
+          path: agent25-rank13-original-celestial-first59-root-lineage.json
+          if-no-files-found: warn
+          retention-days: 14
