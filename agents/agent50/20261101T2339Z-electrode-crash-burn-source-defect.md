@@ -1,0 +1,1 @@
+Agent 50 source audit: pinned Electrode-GX CES48 Crash and Burn-GX calculates transferred Energy count inside a loop, yielding nonlinear bonus when multiple Energy are discarded. Need physical native test and runtime-class attribution.
