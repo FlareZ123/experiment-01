@@ -67,12 +67,35 @@ function independentPainfulSpoonsNegative(answer){
   return null;
 }
 
+/**
+ * Exact original Roxie CEC source-stamped ChooseCardsPrompt negative.
+ * Roxie must discard 1 or 2 eligible own Pokémon, excluding Pokémon-EX
+ * and Pokémon-GX. Physical owner-hand membership is required independently
+ * from the pinned prompt's unreliable blocked-index validation.
+ *
+ * @param {object} prompt Genuine native source-stamped Roxie prompt.
+ * @param {unknown} answer Submitted physical cards.
+ * @param {(card:object)=>boolean|null} eligible Printed card predicate.
+ * @returns {string|null} A proven printed invalidity or unknown.
+ */
+function independentRoxiePaymentNegative(prompt,answer,eligible){
+  if(!Array.isArray(answer)||answer.length<1||answer.length>2)
+    return 'ROXIE_PRINTED_PAYMENT_REQUIRES_ONE_OR_TWO';
+  if(typeof eligible!=='function')return null;
+  if(!Array.isArray(prompt.cards?.cards)||
+     answer.some(card=>!prompt.cards.cards.includes(card)))
+    return 'ROXIE_NOT_IN_PHYSICAL_OWNER_HAND';
+  if(answer.some(card=>!eligible(card)))
+    return 'ROXIE_PRINTED_DISALLOWS_SELECTED_CARD';
+  return null;
+}
+
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v7-source-marked-painful-spoons';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v8-roxie-paper-payment';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -216,7 +239,8 @@ function physicalPromptChoiceMetadata(state,prompt,answer,types){
  * @template T
  * @param {()=>T} run Synchronous complete game, cohort, or native fixture.
  * @param {{Store?:Function,IronThornsex?:Function,RadiantAlakazam?:Function,
- *  wasPowerUsed?:Function,types?:object,
+ *  wasPowerUsed?:Function,isRoxiePaymentCard?:(card:object)=>boolean,
+ *  types?:object,
  *  currentTrialId?:()=>string|null,exampleLimit?:number,
  *  requireLiveStore?:boolean}} [deps]
  * @returns {{result:T,audit:object}}
@@ -234,6 +258,14 @@ function withPaperPromptContractPortfolio(run,deps={}){
     'sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam').RadiantAlakazam);
   const wasPowerUsed=deps.wasPowerUsed??(deps.Store?null:native(
     'game/store/prefabs/prefabs').WAS_POWER_USED);
+  const isRoxiePaymentCard=deps.isRoxiePaymentCard??(deps.Store?
+    null:(card)=>{
+      const {PokemonCard}=native('game/store/card/pokemon-card');
+      const {CardTag}=native('game/store/card/card-types');
+      return card instanceof PokemonCard&&
+        !card.hasTag(CardTag.POKEMON_GX)&&
+        !card.hasTag(CardTag.POKEMON_EX);
+    });
   const types=deps.types??{
     ...native('game/store/actions/play-card-action'),
     ...native('game/store/card/card-types')
@@ -264,11 +296,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Iron Thorns ex TWM printed Volt Cyclone transfer, positively reducer-marked',
       'PutDamagePrompt declared zero-target, whole-packet and optional budget negatives only',
       'Radiant Alakazam SIT source-marked Painful Spoons single-source negative only',
+      'Roxie CEC source-stamped one-or-two owner Pokémon payment exclusion only',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
     vetoedBeforeDispatch:0,nativePreflightVetoed:0,
     markedVoltCyclonePrompts:0,markedPainfulSpoonsPrompts:0,
+    inspectedRoxiePaymentPrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -378,6 +412,15 @@ function withPaperPromptContractPortfolio(run,deps={}){
       reason=nativePreflightRejected?
         'native-validator-rejected-independent-print-valid-selection':
         result.reason;
+    }else if(family==='ChooseCardsPrompt'&&
+             prompt?.sourceCard?.fullName==='Roxie CEC'){
+      audit.inspectedRoxiePaymentPrompts++;
+      sourcePrinting='Roxie CEC';
+      contract='printed-roxie-nonempty-eligible-own-pokemon-negative';
+      const rejected=independentRoxiePaymentNegative(
+        prompt,action.result,isRoxiePaymentCard);
+      if(rejected)status='PAPER_PROMPT_INVALID';
+      reason=rejected??'only-negative-predicates-audited';
     }else if(spoons&&family==='MoveDamagePrompt'){
       sourcePrinting='Radiant Alakazam SIT';
       contract='printed-painful-spoons-one-source-negative';
@@ -482,5 +525,6 @@ function withPaperPromptContractPortfolio(run,deps={}){
 }
 module.exports={VERSION,independentCampingGearContract,
   independentPutDamageNegative,independentPainfulSpoonsNegative,
+  independentRoxiePaymentNegative,
   physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
