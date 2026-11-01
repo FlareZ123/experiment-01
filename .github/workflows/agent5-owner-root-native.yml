@@ -72,6 +72,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify exact Night Watch printed randomness vs pinned vendor selection
+        run: node --test tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs
       - name: Native staged Iron Thorns Stadium root in both seats
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native Marshadow UNB Resetting Hole counterstage against source Thorns Stadium
