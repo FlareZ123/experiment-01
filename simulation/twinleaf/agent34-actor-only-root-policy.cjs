@@ -1120,7 +1120,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.selectedRootDecisions++;
     if(audit.losslessNativeRootJoinOptIn||
        (audit.nativePlumeriaChoiceOptIn&&
-        intent.kind==='play-plumeria-payment-menu'))
+        intent.kind==='play-plumeria-payment-menu')||
+       (audit.nativeZeroCostDenialChoiceOptIn&&
+        intent.kind==='play-team-flare-grunt-denial'))
       actorNativeActionMetadata.set(action,Object.freeze({
         seat,policyDecisionOrdinal:audit.selectedRootDecisions,
         kind:intent.kind,handIndex:intent.handIndex??null,
