@@ -945,7 +945,8 @@ function runDevelopment({
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
-  nativeToolAttachRoot=false,losslessNativeRootJoin=false,
+  nativeToolAttachRoot=false,nativePlumeriaChoice=false,
+  losslessNativeRootJoin=false,
   registeredToolEnergyCeiling=false,nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
   sameRootPublicNoBenchTerminal=false,
@@ -982,6 +983,10 @@ function runDevelopment({
     (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
       !sameRootProbeAll),
     'Native Tool selection requires both-seat same-root applied selector');
+  assert.ok(!nativePlumeriaChoice||
+    (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
+      actorPlumeriaAfterPass&&!sameRootProbeAll),
+    'Native Plumeria contender requires both-seat root choice and mandatory native prompt adoption');
   assert.ok(!sameRootProbeAll||sameRootProposalChoice,
     'All-proposer census requires an enabled same-root observer');
   assert.ok(!sameRootProbeAll||!sameRootChoiceApply,
@@ -1125,7 +1130,7 @@ function runDevelopment({
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,nativeToolAttachRoot,
-                losslessNativeRootJoin,
+                nativePlumeriaChoice,losslessNativeRootJoin,
                 ...(registeredToolEnergyCeiling?{
                   registeredToolEnergyCeiling:true,ownRegisteredSixtiesBySeat:
                     ownerRegisteredSixtiesBySeat
@@ -1158,6 +1163,7 @@ function runDevelopment({
             genericFallbackAttribution:actorGenericFallbackAttribution,
             actorHandDiscard,actorChoosePokemon,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
+            sameRootNativePlumeriaChoice:nativePlumeriaChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
@@ -1303,6 +1309,8 @@ function runDevelopment({
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
       sameRootChoiceApply&&nativeToolAttachRoot,
+    nativePlumeriaChoiceOptIn:sameRootProposalChoice&&
+      sameRootChoiceApply&&nativePlumeriaChoice,
     registeredToolEnergyCeilingOptIn:registeredToolEnergyCeiling,
     losslessNativeRootJoinOptIn:losslessNativeRootJoin,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
@@ -1465,6 +1473,8 @@ if(require.main===module){
       process.env.AGENT41_SAME_ROOT_SELECT_DEV==='true',
     nativeToolAttachRoot:
       process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true',
+    nativePlumeriaChoice:
+      process.env.AGENT41_NATIVE_PLUMERIA_CHOICE_DEV==='true',
     registeredToolEnergyCeiling:
       process.env.AGENT41_REGISTERED_TOOL_ENERGY_DEV==='true',
     sameRootProbeAll:
