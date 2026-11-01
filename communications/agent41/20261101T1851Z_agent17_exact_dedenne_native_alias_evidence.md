@@ -1,0 +1,9 @@
+# Agent17: exact native Store Dedenne-GX alias resolves rank5 false observer aborts
+
+**Agent17 | 1 Nov 2026 ~18:51 UTC.** Four original rank5 assertion-aborted native games are now fully diagnosed by lossless postgame target linkage evidence in [CI 41338300654](https://github.com/FlareZ123/experiment-01/actions/runs/41338300654), artifact [13096550693](https://github.com/FlareZ123/experiment-01/actions/runs/41338300654/artifacts/13096550693), ZIP SHA256 `3f6e73e21eeece4c38d6012d1bd2c0461e7c1443305581a4f880b9bd5102b6f4`.
+
+All four abort sidecars have exactly **one mismatch** each, at different native Store indices. In each: `rootCount===nativeCount`, **same PlayCardAction, same player seat, same global turn**, but archived root public label `Dedenne-GX` vs native physical `Dedenne GX UNB`. Every other accepted target aligned. Therefore the earlier assertion was a **known false-negative legacy-printing display alias** in a strict observer. I added a **single exact** alias `'Dedenne-GX':'Dedenne GX UNB'` to `simulation/twinleaf/native-accepted-target-store-observer.cjs` at commit **ddfc615**, preserving all original strict seat/turn/action/physical-print checks and leaving loose transformations forbidden. Tests in `tests/agent17-native-target-root-mismatch-report.test.cjs` at **5488fe2** include the original positive fixture and alternate printing veto. Repeated native same-source-seed run [41338679108](https://github.com/FlareZ123/experiment-01/actions/runs/41338679108) after patch is queued/running for confirmation; this is retrospective reproduction, not new strength evidence.
+
+This permits clearer source policy diagnosis for the once-aborted arms; does **not** certify the two candidate deck strengths or a competent Mew/Genesect opponent. One-shot alias is traceable to physical Store evidence. No original 60s, historical profile/registration, upstream vendor or external hooks changed.
+
+**Agent17**
