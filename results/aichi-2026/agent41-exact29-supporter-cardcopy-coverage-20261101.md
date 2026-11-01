@@ -20,6 +20,33 @@ Most common original Supporter print names by physical copy count: **Guzma 48**,
 
 The printed Supporter frequency explains why the new conservative shuffle action is a narrow policy repair: all the Guzma opportunities remain subject to a separate owner-gust target, both-Bench geometry, and Supporter contention policy. The exact rank-11 forensic [322 held-Guzma first-root observations](agent43-rank11-held-guzma-supporter-root-bottleneck-20261101.md) do not provide independent-play or net-benefit denominators.
 
+## Four original opponents outside the low-hand shuffle family's support
+
+These are **exact original printed 60** counts, not inferred generic archetype lists.
+They demonstrate four specific positive-test conditions for any claim that the
+shared policy has gained sufficient opponent Supporter competence.
+
+| Exact finish rank | Supported original 60 / printed Supporter channels | Native owner-action requirement still to qualify |
+| --- | --- | --- |
+| **2 Vileplume Control** | Guzma & Hala **4**, Guzma **2**, Cassius/Karen/Plumeria/Gladion/Faba/Lusamine/Bellelba & Brycen-Man/Peonia/Team Yell's Cheer **1 each**; **4 Tag Call**, **2 Technical Machine: Evolution**, **2 Jet Energy**, **2 Capture Energy** | An owner-visible **Tag Call → Guzma & Hala → Stadium** search and optional **two-card discard → Tool + Special Energy** with actual target/payment and subsequent TM: Evolution / Bench placement, where reachable. These are multiple action channels competing for one Supporter. |
+| **15 Lopunny Vileplume** | Guzma & Hala **3**, Guzma **2**, Karen **2**, N **1**; **4 Tag Call**, **2 Technical Machine: Evolution**, **2 Jet Energy** | Same multi-channel TAG TEAM Supporter and search line, with different available Tools, alternate N shuffle response and differing Bench/evolution needs. |
+| **17 Raichu Electrode Combo** | Professor's Research **3**, Carmine **1**; **4 Battle Compressor**, **4 Battle VIP Pass**, **4 Rescue Carrier**, **3 Rescue Stretcher** | Realistic discard-cost decisions: Research discards all remaining hand then draws seven; Carmine discards hand and draws five and can be played on the first turn going first. Preserving attack/setup pieces affects which whole-hand discard is acceptable. |
+| **31 Dusknoir Chimecho** | Roxie **4**, and **no other Supporters**; **3 Random Receiver**, **4 Rescue Carrier**, **3 Rescue Stretcher** | Roxie optionally discards up to two eligible non-GX/non-EX Pokémon from the hand and draws three per discard. Its real utility depends on specific Pokémon in hand and recovery/attack-line state; it cannot be emulated by a fixed-number generic shuffle draw. |
+
+Card texts above come from the bundled English archive:
+`Guzma & Hala CEC 193` (Trainer, subtypes Supporter and TAG TEAM),
+`Professor's Research` (discard-hand/draw seven),
+`Carmine TWM 145` (first-going-first exception), and
+`Roxie CEC 205` (specific two-Pokémon eligibility and per-card draw).
+The Advanced Player's Rulebook also permits only one Supporter per turn.
+Source-deck **card availability** does not prove any exact line was reachable
+through initial draws, Prizes, first-turn rules, Item lock or opponent action.
+
+This is why default-off lowhand draw coverage is a useful bounded
+improvement, and also why it must never be presented as all-opponent
+Supporter competence. **Every one of these four original lists is an
+adversarial coverage test against the shared policy.**
+
 ## Interpretation and next step
 
 An evaluation should separately record: (1) physical copy and held-card opportunity, (2) currently legal Supporter activation and target/payment, (3) other owner actions excluded by its once-per-turn quota, (4) physically settled native and paper card effect, (5) actual opponent response and terminal result. These denominators must not be conflated. Start with correctly supported native source-owned Guzma or high-frequency draw/discard root opportunities across both seats and use a freshly frozen one-factor profile. The existing historical Lillie baseline/treatment driver is a retrospective mechanism check, not independent competitive evidence.
