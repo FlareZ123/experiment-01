@@ -2,6 +2,8 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {priorK1SpeedAlternative}=
+  require('./agent6-owner-k1-turn-bridge.cjs');
 
 // Preference is explicitly heuristic. Distinct hand Card objects pay distinct
 // discard slots. Avoid consuming the ACE SPEC and irreplaceable attack channel.
@@ -205,7 +207,7 @@ function firstTurnRank6DceStageOpportunity(state,player,seat,playerTurnPhase){
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,turn3DirectSpeedAfterDce?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba'}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,turn3DirectSpeedAfterDce?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba',ownerPriorK1Lookup?:(ownerId:string)=>object|null}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -434,9 +436,35 @@ function withBroadThornsSourceAttack(work,options={}) {
       } : {activeDceAttached:attached,
         activeLiveLightningAttached:liveSpeedLightningAlternative &&
           hasLiveRank6SpeedLightning(state,p)};
-      const plan=planOpeningHand(
+      let plan=planOpeningHand(
         p.hand.cards,inPlay,priorities,conditionalTagCallPayment,constraints
       );
+      if(k1PrizedThunderSpeedFallback&&
+         typeof options.ownerPriorK1Lookup==='function'){
+        const prior=options.ownerPriorK1Lookup(p.id);
+        const previousK1=priorK1SpeedAlternative(plan,prior,{
+          ownerId:p.id,seat,turn:state.turn,
+          prizeCount:p.prizes.reduce((n,slot)=>n+slot.cards.length,0),
+          activeDceAttached:attached,
+          activeSpeedAttached:liveSpeedLightningAlternative&&
+            hasLiveRank6SpeedLightning(state,p),
+          speedAlreadyHeld:p.hand.cards.some(c=>
+            c.name==='Speed Lightning Energy'),
+          energyAttachAvailable:!dceHandAttachmentBlocked(p,state),
+          supporterAvailable:!p.cannotPlaySupporterCards&&
+            p.supporterTurn===0,
+          twoDiscardPaymentAvailable:chooseOpeningDiscards(
+            p.hand.cards,priorities,conditionalTagCallPayment).length===2
+        });
+        if(previousK1){
+          plan=previousK1;k1SpeedFallbackSelected=true;
+          events.push({turn:state.turn,phase:'owner-prior-k1',
+            action:'Use authenticated prior owner-deck absence of Thunder',
+            authenticatedEarlierPrompt:prior.ownerPromptId,
+            speedFromEarlierKnownDeckCopies:prior.speedLightningDeckCopies,
+            prizeCountUnchanged:true});
+        }
+      }
       if(!plan) {
         phase='inactive';
         return original.call(this,state);
