@@ -100,3 +100,49 @@ test('preregistered real rank31 Roxie forbidden-GX Store reply is observed on bo
     assert.ok(result.physicalCardsDrawn>=0);
   }
 });
+
+test('paper Roxie owner-physical payment gate vetoes Tapu Lele-GX without mutation on both seats',()=>{
+  for(const seat of [0,1]){
+    const raw=probeRoxieForbiddenGXPayment(seat,false);
+    const guard=probeRoxieForbiddenGXPayment(seat,true);
+    console.log('AGENT4_ROXIE_GX_PAIRED '+JSON.stringify({raw,guard}));
+    assert.equal(raw.sourceCardName,'Roxie CEC');
+    assert.equal(guard.sourceCardName,'Roxie CEC');
+    assert.equal(raw.validatorAccepted,false);
+    assert.equal(guard.validatorAccepted,false);
+    assert.deepEqual(guard.blocked,raw.blocked);
+    assert.equal(raw.storeError,null);
+    assert.equal(raw.gxPhysicallyDiscarded,true);
+    assert.equal(raw.physicalCardsDrawn,3);
+    assert.match(guard.storeError,/PAPER_ROXIE_REJECTED/);
+    assert.equal(guard.promptSettled,false);
+    assert.equal(guard.gxPhysicallyDiscarded,false);
+    assert.equal(guard.roxiePhysicallyDiscarded,true);
+    assert.deepEqual(guard.ownerHandAfter,['Tapu Lele-GX GRI']);
+    assert.equal(guard.physicalCardsDrawn,0);
+  }
+});
+
+test('paper Roxie payment guard retains real legal Koffing draw and later paper Painful Spoons guard in both seats',()=>{
+  for(const seat of [0,1]){
+    const result=runRank31RoxieSpoons(true,seat,true);
+    assert.equal(result.guardRoxie,true);
+    assert.equal(result.physicalKoffingDiscarded,true);
+    assert.equal(result.roxieDrawnThree,true);
+    assert.deepEqual(result.afterBomb,[10,10,190]);
+    assert.match(result.rejected,/PAPER_PAINFUL_SPOONS_REJECTED/);
+    assert.equal(result.prizesTaken,0);
+  }
+});
+
+test('Roxie-only guarded Store prototype restores after synchronous failure',()=>{
+  const {withPaperRoxiePayment}=require(
+    '../simulation/twinleaf/agent4-roxie-paper-payment-hook.cjs');
+  const {Store}=require('../vendor/twinleaf/ptcg-server/output/game/store/store');
+  const before=Store.prototype.dispatch;
+  assert.throws(()=>withPaperRoxiePayment(()=>{
+    assert.notEqual(Store.prototype.dispatch,before);
+    throw new Error('intentional-test-abort');
+  }),/intentional-test-abort/);
+  assert.strictEqual(Store.prototype.dispatch,before);
+});
