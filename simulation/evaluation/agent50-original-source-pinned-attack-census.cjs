@@ -5,7 +5,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 const {initializeCards}=require('../twinleaf/headless.cjs');
 
-const VERSION='agent50-29source-native-executable-attack-census-v2';
+const VERSION='agent50-29source-native-specialized-attack-census-v1';
 
 /**
  * Structural triage of original Aichi source Pokémon against the pinned card
