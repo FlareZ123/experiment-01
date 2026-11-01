@@ -1,0 +1,46 @@
+{
+  "version": "agent25-preregistered-print-mapping-correction-v1",
+  "date": "2026-11-01",
+  "sourceTrial": "results/als/registrations/agent25-dhelmise-v2-native-three-lock-smoke-20261101.json",
+  "priorNativeRunId": 41271832503,
+  "priorOutcome": "Six of six no-game printing-unresolved, strict source rank6/10/11 all ready",
+  "preregisteredBeforeChange": true,
+  "reason": "The canonical English PokemonTCG.io card names/set code differ from the pinned Twinleaf native full names for exactly 3 rows, despite identical intended printed cards. Do not change cards, counts, seed, seats, maximum root actions, outcome filters, policy flags, source 60s or full field.",
+  "aliases": [
+    {
+      "id": "xy4-92",
+      "originalName": "Battle Compressor Team Flare Gear",
+      "nativeLookupName": "Battle Compressor",
+      "sourceSet": "PHF",
+      "sourceNumber": "92",
+      "cardText": "Search your deck for up to 3 cards and discard them. Shuffle your deck afterward.",
+      "requiredNativePrinting": "PHF 92",
+      "reason": "source archive concatenates Item subtype Team Flare Gear into printed name"
+    },
+    {
+      "id": "xyp-XY177",
+      "originalName": "Karen",
+      "nativeLookupName": "Karen",
+      "sourceSet": "XYP",
+      "sourceNumber": "177",
+      "cardText": "Each player shuffles all Pokemon in their discard pile into their deck.",
+      "requiredNativePrinting": "XYP 177",
+      "reason": "source archive set code PR-XY and number XY177 need source field conventional XYP 177"
+    },
+    {
+      "id": "sve-5",
+      "originalName": "Basic Psychic Energy",
+      "nativeLookupName": "Psychic Energy",
+      "sourceSet": "SVE",
+      "sourceNumber": "5",
+      "requiredNativePrinting": "SVE 5",
+      "reason": "native Energy name omits Basic prefix"
+    }
+  ],
+  "acceptance": "Fail closed if any alias does not resolve to exactly one native class with same requested printed set number and source category, and retain an explicit audit row mapping original ID/name to engine display. Reject alternative card identities. No gameplay claims if list remains unresolved.",
+  "qualifiers": {
+    "postEventCandidate": true,
+    "originalSourceListsUnchanged": true,
+    "competitiveQualifiedGames": 0
+  }
+}
