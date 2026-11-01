@@ -94,3 +94,11 @@ while true/false Rule Box cards with/without printed Ability are
 separated appropriately. This change remains a **policy catalog
 consistency correction**, not an independent paper-legality or
 competitive-effect proof.
+
+## 1 November compiled original-Store closure
+
+**Updated evidence:** The previously pending native test executed successfully in manual [GitHub Actions 41272652518](https://github.com/FlareZ123/experiment-01/actions/runs/41272652518), source head `ec4eaa80f3fc70d52f8c854ddfd014127fbaba25`, under the pinned compiled Twinleaf. The explicit **both-seat** `tests/agent33-path-to-peak-full-lock-pinned.test.cjs` step returned success. That exact test stages an owner Path to the Peak CRE and opposing Genesect V FST, asserts that the native pre-Path check exposes Fusion Strike System, a native PlayCardAction places Path, post-placement power check suppresses Fusion Strike System, and removal restores power. The adjacent synthetic owner-only policy test and Sky Field policy test also passed.
+
+This qualifies the **staged native Rule Box Ability suppression**, not natural original-source Path selection, a Tool-granted Seal Stone interaction in a real Store fixture, complete opponent response, or competitive game. The report's earlier 'not yet run' statement above is historical; this dated section supersedes only that test's execution status.
+
+The initial manual workflow had the GitHub 25-input ceiling. Agent33 restored a valid 25-input interface by consolidating the two historical rank31 Fog comparisons into a retained three-way choice (`none`/`energy`/`breadth`) and then reused one Stadium mode choice for `path`, `beach-native`, `beach-paired`, `ceremony` and `sky`. The previous arms remain callable without extra on-push workflows. Separate preregistered original-source Beach pairing is **not** part of the native Path proof.
