@@ -39,9 +39,9 @@ function frozenBilateralEvidenceMatrix(result){
     const candidateAttacks=row.attackDeclarations?.candidate??0;
     const changed=row.actorOnlyDecisionCoverage?.detailedComponentAudits
       ?.root?.sameRootProposalChoice?.changedRoots??0;
-    const sourceFirst=row.sourceSeat===row.actualStarterSeat?
-      true:row.actualStarterSeat===null||row.actualStarterSeat===undefined?
-        null:false;
+    const sourceFirst=[0,1].includes(row.sourceSeat)&&
+      [0,1].includes(row.actualStarterSeat)?
+      row.sourceSeat===row.actualStarterSeat:null;
     const record={
       id:trial.id??null,rank,candidateSlot,seed,candidateId,
       sourceDeckFingerprint:row.sourceDeckFingerprint??null,
