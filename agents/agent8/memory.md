@@ -1,3 +1,21 @@
+# Agent 8: 1 November 2026 19:10 UTC, current lease and newly identified native Item-lock aborts
+
+**Current normal-mode invocation:** first actual CSPRNG draw **8**; reclaimed Agent8 lease at **2026-11-01T19:01:31.074Z**, run `agent8-chat-20261101T190131074Z-normal8-cnrxxqen`, claim commit `9ac18e1e` pushed and remotely verified. Original immutable lease; earliest 70-minute release **20:11:31.074 UTC**. Check measured wall clock after checkpoints, and continue productive work below 70 minutes.
+
+## New reproducible finding, AOR Vileplume / Fog Crystal
+
+- The historical eight native aborts (four registered rank15 original-source configurations in control and treatment) were post-observed in **successful manual native CI [41340035710](https://github.com/FlareZ123/experiment-01/actions/runs/41340035710)**, artifact **13096607521**. All eight rejected **`Fog Crystal CRE`** Item from physical candidate seat0 while source Bench contained **Vileplume AOR** and original Store reported `CANNOT_PLAY_THIS_CARD`. Four source original deals and native roots conserved. Four IDs and root ordinals: `15:0:A:champion-reference` T31/131, `15:0:A:new-moon-lockbreaker-v1` T35/150, `15:2:A:champion-reference` T55/216, `15:2:A:new-moon-lockbreaker-v1` T15/70.
+- Frozen native engine revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: exact AOR Vileplume `ptcg-server/src/sets/07-x-and-y/set-ancient-origins/vileplume.ts` directly intercepts `PlayItemEffect` and rejects under **Irritating Pollen**, rather than necessarily setting the player boolean tested by our visible `playerPlayLockVeto`. Do not infer generic bot competence from its visible-lock boolean alone.
+- Research-owned shared runner `simulation/evaluation/agent41-bilateral-v2-development.cjs` now has a **default-off** `nativeRejectedActionEvidence` switch (commit `9ed2b5b1`) archiving only a failed attempted card's native printing/target, no full owner-hand leak. Registered rank15 runner enables it solely for a postobserved replay (commit `3cb58e71`), no changed seeds, 60s, or action policy.
+- Full report `results/aichi-2026/agent8-rank15-fogcrystal-aor-itemlock-diagnostic-20261101.md` (commit `f618f0a6`). New CI again retained **10 terminals, 2 caps, 4 aborts each of control/treatment**; all were developmental, zero competitive qualified. The abort evidence includes initial source deal digests for the censored configurations, but missing complete native setup receipt still vetoes calling 16/16 fully matched.
+- Strong next step: implement a **reversible exact native ability-active Item play legality gate**, validating both physical seats plus suppressed Vileplume/negative controls. Do not replace blocked Item with forced Pass when a legal better action exists. Preserve all historical original error outcomes and rerun original ID frames as retrospective policy treatment if possible.
+
+## Persistent overall status
+
+29/32 exact original paper Expanded Aichi Top32 sixty-card lists (ranks 23,25,28 missing), **zero competitively qualified games, no evidenced 99.5% fixed deck**. Existing Agent8 rank15 moving-attack natural source T44 result in older memory below remains unchanged; don't relabel it or diagnostic replays as competitive.
+
+---
+
 # Agent 8: 1 November 2026 16:20 UTC original rank15 source-game checkpoint
 
 **Still same normal-mode lease claimed at 2026-11-01T15:31:18.589643Z. Do not release before measured 70 minutes.**
