@@ -7,6 +7,10 @@ on:
         description: 'Optional existing original-rank8 K0 Store artifact run ID for compact witness inspection'
         type: string
         required: false
+      agent7_energy_target_run:
+        description: 'Optional preexisting rank30 matched source Store run ID for actual accepted Energy-recipient audit'
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -33,6 +37,21 @@ jobs:
         if: inputs.agent44_source_witness_run != ''
         run: >-
           node -e "const r=require('./agent44-rank8-original-k0-source.json');const xs=r.trials.filter(t=>t.sourceK0?.offeredWindow.anyK0Window);console.log(JSON.stringify({sourceSchema:r.schema,sourceStart:r.startIndex,total:r.trialCount,windows:r.exposed,positiveSeeds:xs.map(t=>({seed:t.seed,trial:t.trial,sourceSeat:t.sourceSeat,sourceActualFirst:t.sourceActualFirst,firstOwnerTurn:t.sourceK0.turn,BoxFetch:t.sourceK0.offeredWindow.boxFetchShake,BoxShake:t.sourceK0.offeredWindow.boxHeldShake,direct:t.sourceK0.offeredWindow.directShake})),firstThreeOwners:xs.slice(0,3).map(t=>({seed:t.seed,hand:t.sourceK0.ownerHandPrintings,active:t.sourceK0.visibleActive,bench:t.sourceK0.visibleBench,flags:t.sourceK0.offeredWindow}))}));"
+      - name: Original source native Energy recipient funding pure regressions
+        run: node --test tests/agent7-original-native-energy-recipient-feasibility.test.cjs
+      - name: Retrieve existing authentic rank30 Energy target sidecars without rerunning games
+        if: inputs.agent7_energy_target_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: agent7-rank30-active-clefairy-guard-prospective
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.agent7_energy_target_run }}
+      - name: Classify every rank30 original source accepted physical Energy target
+        if: inputs.agent7_energy_target_run != ''
+        run: |
+          node scripts/agent7-original-native-energy-recipient-feasibility.cjs agent7-rank30-latias-prospective.json > agent7-source-energy-funding-audit.json
+          node -e "const x=require('./agent7-source-energy-funding-audit.json');if(x.summary.nativeGames!==16||x.summary.byAttackFunding.IMPOSSIBLE!==3||x.summary.settledUniqueTargets<37)throw Error('Source funding native receipt drift');console.log(JSON.stringify(x.summary))"
       - name: Unit tests
         run: node --test tests/aichi_opening_audit.test.cjs
       - name: Verify exact printed Basic stage and unconditional opener distribution
@@ -186,6 +205,7 @@ jobs:
           path: |
             aichi-opening-audit.md
             aichi-printed-opening-basics.json
+            agent7-source-energy-funding-audit.json
             aichi-absol-garbotoxin-window.json
             aichi-absol-boost-shake-direct.json
             absol-garbotoxin-direct-lock.json
