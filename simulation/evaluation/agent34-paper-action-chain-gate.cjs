@@ -22,7 +22,8 @@ function assessPhase(phase,witnesses,root,storeId,kinds){
   if(phase.status==='invalid'||phase.status==='unverified')
     return {status:phase.status,why:'reported-'+phase.status};
   if(phase.status==='not-encountered')
-    return phase.reason&&phase.witnessIds?.length===0?
+    return typeof phase.reason==='string'&&phase.reason.length>0&&
+      Array.isArray(phase.witnessIds)&&phase.witnessIds.length===0?
       {status:'not-encountered'}:
       {status:'unverified',why:'nonencounter-not-grounded'};
   const ids=phase.witnessIds;
@@ -53,6 +54,7 @@ function auditActionChains(archive){
   for(const root of archive.roots){
     assert.ok(Number.isSafeInteger(root.ordinal)&&root.ordinal>=0);
     assert.ok(root.seat===0||root.seat===1);
+    assert.ok(typeof root.action==='string'&&root.action.length>0);
     assert.equal(root.storeId,archive.liveStoreId);
     assert.ok(!roots.has(root.ordinal),'duplicate-root');
     roots.add(root.ordinal);
@@ -68,6 +70,7 @@ function auditActionChains(archive){
     const c=chains.get(root.ordinal);
     const matched=c?.storeId===archive.liveStoreId&&
       c?.seat===root.seat&&c?.action===root.action&&
+      typeof c?.chainId==='string'&&c.chainId.length>0&&
       c?.printing===(root.printing??null)&&
       typeof c?.executableLookup==='string'&&c.executableLookup.length>0;
     const phases={};
@@ -95,7 +98,7 @@ function auditActionChains(archive){
     profilePin:archive.profilePin,liveStoreId:archive.liveStoreId,
     acceptedRootCount:archive.roots.length,reportedChainCount:archive.chains.length,
     extraOrDuplicateChains:extras,counts,rows,
-    structurallyComplete:extras.length===0&&rows.every(r=>
+    structurallyComplete:rows.length>0&&extras.length===0&&rows.every(r=>
       r.disposition==='REPORTED_PHASES_STRUCTURALLY_WITNESSED'),
     actionChainPaperVerified:false,competitiveGameQualified:false,
     boundary:'Witness metadata is not independent proof of printed legality or native effect correctness.'};
