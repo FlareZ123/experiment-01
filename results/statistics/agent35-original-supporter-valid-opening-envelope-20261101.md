@@ -68,6 +68,22 @@ Crucial original-source distinctions:
 - Ranks 4 and 17 Raichu Electrode: both **13 Basics / 4 Supporters**, **38.23577%** conditional visibility. A uniform Supporter-first heuristic across all archetypes would ignore different setups and could be actively damaging.
 - Rank 26 Meloetta Donk: **12 Basics / 2 Supporters**, **20.93189%**. Supporter presence is structurally rare in an opening hand; Item and Pokémon-driven lines dominate its source design.
 
+## Refinement: scarcity of the actually supported refill family
+
+A crucial correction to interpreting the 94–97% Iron Thorns source Supporter visibility is that the original lists contain **mostly tactical and targeted Supporters**, which cannot be interchanged with generic draw. The common native policy currently exposes a narrow conservative subset: **Lillie's Determination, Marnie, Iono**. These are a precise printed-name family, not a guarantee of native usability, favorable shuffle/draw, unopposed lock or superior tactical play. An additional field in the reproducible census applies the **same exact valid-seven Basic conditioning** to this subset and computes its overlap difference with all-Supporter access.
+
+| Original rank | All Supporter copies | Narrow refill copies | Any Supporter held | Narrow refill held | Other Supporter but no narrow refill |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 Iron Thorns | 21 | 1 | 94.38950% | **10.41406%** | 83.97544% |
+| 24 Iron Thorns | 24 | 1 | 96.77112% | **10.41406%** | 86.35706% |
+| 29 Iron Thorns | 21 | 1 | 94.38950% | **10.41406%** | 83.97544% |
+| 11 Absol/Garbodor | 8 | 3 | 62.93697% | **29.78465%** | 33.15233% |
+| 26 Meloetta Donk | 2 | 1 | 20.93189% | **10.97963%** | 9.95225% |
+
+Across all 29 authenticated original 60s the narrow refill family accounts for **46 physical cards** and an **equal-original-list mean 16.37930%** Basic-valid initial-seven visibility. Four authentic sources, ranks **2, 15, 17, 31**, print zero copies of this narrow family. Full per-rank values and source-printed counts are emitted by the source-locked JSON census; this section is a transparent *subset refinement*, not a standalone win metric. The larger Supporter count of Iron Thorns predominantly represents alternate functions: rank6 prints Plumeria ×4, Guzma ×3, Guzma & Hala ×2, Team Flare Grunt ×2 and numerous one-offs. A general refill bot cannot simulate those strategic channels.
+
+To learn something about the 99.5% target, the experiment must measure actual playable **denial, setup, recovery and draw Supporter actions** at the original source's real native root, including legitimate targets, hand payments, identity of the Supporter already played, lock restrictions, and comparison to same-root attacks/attachments. Any aggregate held-Supporter count without a role taxonomy creates a **false impression of source competence**.
+
 ## Interpretation and next executable gate
 
 The optimal comparison is a **two-player owner-observed root-action and native-settlement census** for *actual* source games, stratified by source rank and real starting seat, with categories:
