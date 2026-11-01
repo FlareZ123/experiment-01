@@ -31,6 +31,13 @@ The five new [Store/preflight regression tests](../../tests/agent41-paper-prompt
 
 These are **synthetic/pure regressions**, not a compiled native original-source release test.
 
+
+### 17:16 UTC independent-validator correction and second pure validation
+
+After the first 109-test pass, a code review found that the earlier shared damage helper returned `NATIVE_PROMPT_VALIDATE_FALSE` **before** checking an independently proven zero-cap target. Treating that native error as sufficient proof of paper invalidity would be too strong, while ignoring it would mask a genuine zero-cap violation. The unified boundary now evaluates its own explicit zero-target, integer-damage and whole-packet negative predicates **without consulting an untrusted native validator first**. A sixth pure test demonstrates both required properties: a zero-cap assignment is rejected before mutation even when `prompt.validate()` is false, and a passing zero-damage reply stays `PAPER_PROMPT_UNVERIFIED` despite the native validator returning false.
+
+The revised **110/110 pure regression tests passed** in [manual CI 41330614593](https://github.com/FlareZ123/experiment-01/actions/runs/41330614593). Its subsequent frozen-v2 source inspection again failed correctly, because other current research commits changed the canonical runner blob to `9c226dc5778508d3aaaa84a8c7500ac4465844e6`. This second job did not request, execute or retry the safety-blocked full native portfolio. The latest unified code is now pure-tested, while its historical native overlay remains uncompiled and competitively unqualified.
+
 ## Frozen source mismatch and attempted native release path
 
 The same [CI 41329960274](https://github.com/FlareZ123/experiment-01/actions/runs/41329960274) **failed after all pure tests passed**, at the deliberate frozen-v2 inspection gate:
