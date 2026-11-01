@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate frozen physical source-deal registration and failure accounting
-        run: node --test tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+        run: node --test tests/agent41-frozen-bilateral-evidence-matrix.test.cjs tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
       - name: Inspect one transitive source profile before native execution
         if: ${{ inputs.frozen_profile_inspect || inputs.frozen_profile_run }}
         run: node simulation/evaluation/agent41-frozen-bilateral-development-v1.cjs --inspect-only
@@ -93,6 +93,9 @@ jobs:
       - name: Execute a single pinned two-seat rank6/rank11 source development policy
         if: ${{ inputs.frozen_profile_run }}
         run: node simulation/evaluation/agent41-frozen-bilateral-development-v1.cjs > agent41-frozen-bilateral-development-v1-native.json
+      - name: Preserve failure-inclusive 32-arm matchup and physical-gate matrix
+        if: ${{ inputs.frozen_profile_run }}
+        run: node simulation/evaluation/agent41-frozen-bilateral-evidence-matrix.cjs agent41-frozen-bilateral-development-v1-native.json > agent41-frozen-bilateral-matrix-v1.json
       - name: Classify complete native frozen-profile attempts without game-win promotion
         if: ${{ always() && inputs.frozen_profile_run }}
         run: node -e "const fs=require('node:fs');const p='agent41-frozen-bilateral-development-v1-native.json';if(!fs.existsSync(p)){console.log('FROZEN_PROFILE_NATIVE_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FROZEN_BILATERAL_DEVELOPMENT',JSON.stringify({version:r.version,profileHash:r.provenance.profileGitBlobSha,closure:r.provenance.sourceClosureSha256,attempted:r.attempted,complete:r.attemptedComplete,statuses:r.statuses,nativeSetupCoin:r.nativeSetupCoinAndFirstDrawEvidence?.byStatus,runtimeModules:r.runtimeResearchAttestation?.byStatus,competitiveQualifiedGames:r.competitiveQualifiedGames}));if(!r.attemptedComplete)process.exitCode=1;}"
@@ -115,5 +118,6 @@ jobs:
             agent41-native-coheld-supporter-cost-threeway.json
             agent41-rank21-tool-target-raw.json
             agent41-frozen-bilateral-development-v1-native.json
+            agent41-frozen-bilateral-matrix-v1.json
           if-no-files-found: warn
           retention-days: 14
