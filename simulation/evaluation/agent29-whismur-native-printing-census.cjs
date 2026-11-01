@@ -12,9 +12,9 @@ function inspectPrintings(manager){
   const requested=[
     'Whismur CES',
     'Latias ex SSP',
-    'Gengar & Mimikyu GX TEU',
+    'Gengar & Mimikyu-GX TEU',
     'Battle VIP Pass FST',
-    'Telepathic Psychic Energy POR'
+    'Telepath [P] Energy M3'
   ];
   const exact=requested.map(printing=>{
     const card=manager.getCardByName(printing);
@@ -22,8 +22,8 @@ function inspectPrintings(manager){
       actualFullName:card?.fullName??null,
       className:card?.constructor?.name??null,
       attacks:Array.isArray(card?.attacks)?card.attacks.map(a=>a.name):[],
-      abilityNames:Array.isArray(card?.abilities)?
-        card.abilities.map(a=>a.name):[]};
+      powerNames:Array.isArray(card?.powers)?
+        card.powers.map(p=>p.name):[]};
   });
   const candidateWhismurPrints=manager.getAllCards()
     .filter(card=>/\bWhismur\b/.test(String(card.fullName??'')))
