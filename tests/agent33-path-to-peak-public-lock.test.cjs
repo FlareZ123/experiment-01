@@ -265,8 +265,9 @@ test('same-turn owned spent Genesect marker unlocks optional late Path proposal'
    ownFusionUsage:proof
  }),{kind:'play-path-to-peak',handIndex:0,
    printing:'Path to the Peak CRE',
-   reason:'public-opposing-rulebox-ability-and-no-owner-self-lock',
-   spentOwnerFusionSlotIndices:[1]});
+   reason:'public-opposing-ability-after-spent-owner-fusion-this-turn',
+   spentOwnerFusionSlotIndices:[1],
+   futureTurnOwnGenesectSelfLockRisk:true});
 });
 test('stale, wrong seat, misplaced or incomplete spent Genesect proof fails closed',()=>{
  const x=view();x.actorSeat=1;
