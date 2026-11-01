@@ -29,7 +29,7 @@ This extends the common portfolio from **v7** to **`agent41-unified-paper-prompt
   - **Koffing CEC**: in both original hand orders and both native seats, the common guard permits the actual physical Koffing discard. The native validator accepts one hand order and incorrectly rejects the other, so allowing both is necessary to preserve paper-valid actions.
 - The same [manual native workflow](../../.github/workflows/aichi-raichu-electro-rain.yml) reruns the earlier [rank31 Radiant common audit](../../simulation/twinleaf/agent46-rank31-spoons-unified-native.cjs) and the [Roxie → Koffing → Radiant original-printing chain](../../simulation/twinleaf/agent46-rank31-roxie-spoons-unified-native.cjs), as well as preceding v8-compatible paper prompt regressions.
 
-**Compiled manual [CI 41355909747](https://github.com/FlareZ123/experiment-01/actions/runs/41355909747): all dedicated v8 Roxie pure/native steps, both rank31 Radiant native steps and the previous unified portfolio tests have passed.** Record overall CI conclusion separately when the remaining Raichu jobs finish.
+**Full compiled manual [CI 41355909747](https://github.com/FlareZ123/experiment-01/actions/runs/41355909747): SUCCESS.** The new v8 Roxie pure/native steps, both-seat rank31 Radiant and three-printing triad, earlier portfolio and Froslass tests, and all remaining preexisting Raichu workflow steps passed.
 
 ## Remaining limits and direct next step
 
