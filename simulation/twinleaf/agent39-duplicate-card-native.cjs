@@ -47,6 +47,18 @@ function exercise(seat){
   assert.equal(baseline.owner.hand.cards.includes(second),false);
   assert.equal(baseline.owner.deck.cards.includes(original),false);
   assert.equal(baseline.owner.deck.cards.includes(second),true);
+  const foreignCase=prepare(seat);
+  const foreign=foreignCase.opponent.hand.cards[0];
+  const physical=foreignCase.chosen[0];
+  assert.equal(foreignCase.prompt.validate([physical,foreign]),false);
+  assert.equal(foreignCase.owner.deck.cards.includes(foreign),false);
+  foreignCase.store.dispatch(new foreignCase.ResolvePromptAction(
+    foreignCase.prompt.id,[physical,foreign]));
+  assert.equal(foreignCase.settled(),1);
+  assert.equal(foreignCase.owner.hand.cards.includes(physical),true);
+  assert.equal(foreignCase.owner.hand.cards.includes(foreign),false);
+  assert.equal(foreignCase.opponent.hand.cards.includes(foreign),true);
+
   const guarded=prepare(seat),[a,b]=guarded.chosen;
   const handStart=guarded.owner.hand.cards.length;
   const deckStart=guarded.owner.deck.cards.length;
@@ -54,6 +66,12 @@ function exercise(seat){
     assert.throws(()=>guarded.store.dispatch(new guarded.ResolvePromptAction(
       guarded.prompt.id,[a,a])),
       /PAPER_PROMPT_INVALID:DUPLICATE_PHYSICAL_CARD_SELECTION/);
+    assert.equal(guarded.owner.hand.cards.length,handStart);
+    assert.equal(guarded.owner.deck.cards.length,deckStart);
+    assert.equal(guarded.prompt.result,undefined);
+    assert.throws(()=>guarded.store.dispatch(new guarded.ResolvePromptAction(
+      guarded.prompt.id,[a,guarded.opponent.hand.cards[0]])),
+      /PAPER_PROMPT_INVALID:SELECTED_CARD_OUTSIDE_PHYSICAL_PROMPT_SOURCE/);
     assert.equal(guarded.owner.hand.cards.length,handStart);
     assert.equal(guarded.owner.deck.cards.length,deckStart);
     assert.equal(guarded.prompt.result,undefined);
@@ -65,9 +83,11 @@ function exercise(seat){
     return true;
   });
   assert.equal(evaluated.result,true);
-  assert.equal(evaluated.audit.negativePaperVetoes,1);
+  assert.equal(evaluated.audit.negativePaperVetoes,2);
   return {seat,nativePromptValidatesDuplicateReferences:true,
     unguardedSubmitsTwoButPhysicallyMovesOne:true,
+    unguardedAcceptsForeignZoneObjectDespiteValidatorRejection:true,
+    guardedRejectsForeignZoneCardBeforeMutation:true,
     guardedRejectsDuplicateBeforeMutation:true,
     guardedDistinctSameNameCardsAccepted:true,
     originalPrintedEffectSource:null,
