@@ -16,6 +16,7 @@ on:
           - sky
           - all-native
           - state-guard
+          - celestial-native
         default: none
       agent35_perfection_pass_bridge_development:
         description: 'Historical rank6/rank11 owner-only Perfection Pass bridge dev contrast, not v2'
@@ -172,6 +173,16 @@ jobs:
         with:
           name: agent33-native-state-rank6-coheld-20261101
           path: agent33-native-state-coheld-focused.json
+          if-no-files-found: warn
+      - name: Native staged paper-corrected Celestial Roar exact original sixty both seats
+        if: inputs.agent33_stadium_mode == 'celestial-native'
+        run: node simulation/twinleaf/agent33-celestial-roar-paper-hook-native.cjs > agent33-celestial-native-fixtures.json
+      - name: Preserve both-seat Celestial Roar failures and successes
+        if: inputs.agent33_stadium_mode == 'celestial-native' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent33-celestial-roar-original-sixty-staged-20261101
+          path: agent33-celestial-native-fixtures.json
           if-no-files-found: warn
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
