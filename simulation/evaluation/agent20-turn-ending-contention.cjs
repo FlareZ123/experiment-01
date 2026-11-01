@@ -81,6 +81,32 @@ function run() {
   const rank6Joint = allGroupsPresent(60, draws, [
     originalRank6.basics, originalRank6.camping, originalRank6.palace
   ]);
+  const rank6Beach = other.cards.find(card =>
+    card.name === 'Tropical Beach')?.count;
+  assert.equal(rank6Beach, 1, 'The original rank-6 stadium is one Tropical Beach');
+  const rank6Triple = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.camping,
+    originalRank6.palace, rank6Beach
+  ]);
+  const rank6CampingBeach = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.camping, rank6Beach
+  ]);
+  const rank6PalaceBeach = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.palace, rank6Beach
+  ]);
+  const rank29 = source.decks.find(deck => deck.rank === 29);
+  assert.ok(rank29, 'Missing original rank-29 Iron Thorns');
+  const rank29Basics = rank29.cards.filter(card =>
+    card.category === 'Pokémon').reduce((sum, card) => sum + card.count, 0);
+  const rank29Camping = rank29.cards.find(card =>
+    card.name === 'Camping Gear')?.count;
+  const rank29Beach = rank29.cards.find(card =>
+    card.name === 'Tropical Beach')?.count;
+  assert.deepEqual([rank29Basics,rank29Camping,rank29Beach],[4,2,2]);
+  const rank29Legal = allGroupsPresent(60,draws,[rank29Basics]);
+  const rank29Pair = allGroupsPresent(60,draws,[
+    rank29Basics,rank29Camping,rank29Beach
+  ]);
   const rank6CampingJoint = allGroupsPresent(60, draws, [
     originalRank6.basics, originalRank6.camping
   ]);
@@ -111,6 +137,15 @@ function run() {
       sourcePrintingGroups: ['Camping Gear BST 122', 'Palace Book SMP NAN25'],
       basicCards: 4, campingGearCopies: 2, palaceBookCopies: 1,
       probabilityLegalBasicOpening: rank6Legal,
+      tropicalBeachCopies: rank6Beach,
+      probabilityCampingAndPalaceGivenLegalBasic:
+        rank6Joint / rank6Legal,
+      probabilityCampingAndBeachGivenLegalBasic:
+        rank6CampingBeach / rank6Legal,
+      probabilityPalaceAndBeachGivenLegalBasic:
+        rank6PalaceBeach / rank6Legal,
+      probabilityAllThreeGivenLegalBasic:
+        rank6Triple / rank6Legal,
       probabilityBothGivenLegalBasic: rank6Joint / rank6Legal,
       probabilityCampingOnlyGivenLegalBasic:
         (rank6CampingJoint - rank6Joint) / rank6Legal,
@@ -118,6 +153,14 @@ function run() {
         (rank6PalaceJoint - rank6Joint) / rank6Legal,
       probabilityNeitherGivenLegalBasic: 1 -
         (rank6CampingJoint + rank6PalaceJoint - rank6Joint) / rank6Legal
+    },
+    rank29Comparison: {
+      rank:29,
+      basicCards:rank29Basics,campingGearCopies:rank29Camping,
+      tropicalBeachCopies:rank29Beach,
+      probabilityLegalBasicOpening:rank29Legal,
+      probabilityCampingAndBeachGivenLegalBasic:rank29Pair/rank29Legal,
+      stadiumRequiresUseAction:true
     },
     competitiveQualifiedGames: 0
   };
