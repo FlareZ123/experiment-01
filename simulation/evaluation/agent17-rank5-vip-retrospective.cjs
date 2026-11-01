@@ -23,14 +23,15 @@ const PRIOR_DEALS=Object.freeze({
  * existing owner-only VIP-after-Pass hook symmetrically in both actual seats.
  * New results cannot be counted as prospective validation.
  */
-function run(){
+function run({naturalEvolution=false}={}){
   const inspected=preflight(ROOT);
   const {assertNoUnreviewedAmbientAgentEnvironment,assertPinnedNativeStore}=
     require('./agent41-frozen-bilateral-development-v1.cjs');
   assertNoUnreviewedAmbientAgentEnvironment(process.env,profile);
   assertPinnedNativeStore(ROOT,profile);
   const changed={...profile.injectedResearchEnvironment,
-    AGENT9_BATTLE_VIP_AFTER_PASS_DEV:'true'};
+    AGENT9_BATTLE_VIP_AFTER_PASS_DEV:'true',
+    ...(naturalEvolution?{AGENT1_NATURAL_EVOLUTION_ROOT_DEV:'true'}:{})};
   const previous={};
   for(const [k,v] of Object.entries(changed)){
     previous[k]=process.env[k];process.env[k]=v;
@@ -41,7 +42,7 @@ function run(){
       ...profile.policyOptions,
       allowAdditionalOriginalSourceRanks:true,
       registeredTrials:scheduledArms(),
-      registeredFrameName:VERSION+'-same-historical-deals-development'
+      registeredFrameName:VERSION+(naturalEvolution?'-natural-evolution':'')+'-same-historical-deals-development'
     });
     const rows=observed.rows??[];
     const pairedDealAudit=rows.map(row=>{
@@ -67,13 +68,18 @@ function run(){
     const closure=auditSourceClosure(ROOT,[
       'simulation/evaluation/agent41-bilateral-v2-development.cjs']);
     return {
-      version:VERSION,
+      version:VERSION+(naturalEvolution?'+symmetric-natural-evolution-v1':''),
+      naturalEvolutionOptIn:naturalEvolution,
       selection:'retrospective-option-enabled-after-observing-original-rank5-noattack',
       inspected,priorArchivedArtifactId:PRIOR_ARTIFACT,
       priorArchivedArtifactZipSha256:PRIOR_SHA256,
       physicalDealAudit:pairedDealAudit,
-      intervention:{runtimeFlag:'AGENT9_BATTLE_VIP_AFTER_PASS_DEV',
-        value:'true',actorSides:'both',mechanic:'actor-only native after-Pass Battle VIP and owner-authorized search'},
+      intervention:{runtimeFlags:{
+        AGENT9_BATTLE_VIP_AFTER_PASS_DEV:'true',
+        ...(naturalEvolution?{AGENT1_NATURAL_EVOLUTION_ROOT_DEV:'true'}:{})},
+        actorSides:'both',mechanic:naturalEvolution?
+          'VIP plus actor-only natural VMAX evolution':
+          'actor-only native after-Pass Battle VIP and owner-authorized search'},
       sourceClosureSha256:closure.digest,
       sourceClosureLimitations:closure.limitations,
       researchHeadCommit:process.env.GITHUB_SHA??null,
@@ -91,7 +97,7 @@ function run(){
 }
 
 if(require.main===module){
-  const output=run();
+  const output=run({naturalEvolution:process.argv.includes('--natural-evolution')});
   process.stdout.write(JSON.stringify(output,null,2)+'\n');
   if(!output.complete)process.exitCode=1;
 }
