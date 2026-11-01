@@ -9,7 +9,7 @@ const VERSION='agent6-rank6-previous-turn-k1-speed-prerequisite-exact-v1';
 
 /**
  * Exact location prerequisite for one narrowly defined source-first line:
- * first eight physically seen cards hold Tag Call and unique DCE, no
+ * first eight physically seen cards hold Tag Call and at least one DCE, no
  * Guzma & Hala, a valid Basic among the original seven, the singleton
  * Thunder in Prizes, G&H still in the searchable deck, and at least one
  * Speed Lightning still in that deck. No player's action feasibility,
@@ -30,7 +30,7 @@ function exactPreviousTurnK1Gate(counts,setup){
   assert.equal(category.length,7);
   assert.ok(category.every(x=>Number.isSafeInteger(x)&&x>=0));
   assert.equal(counts.thunder,1);
-  assert.equal(counts.dce,1);
+  assert.ok(counts.dce>=1);
   assert.ok(setup.openingHand>=1&&Number.isSafeInteger(setup.openingHand));
   assert.ok(setup.prizes>=1&&Number.isSafeInteger(setup.prizes));
   const total=category.reduce((x,y)=>x+y,0);
@@ -51,11 +51,12 @@ function exactPreviousTurnK1Gate(counts,setup){
   };
   for(let b=1;b<=Math.min(counts.basic,held);b++){
     for(let t=1;t<=Math.min(counts.tag,held-b);t++){
-      for(let s=0;s<=Math.min(counts.speed,held-b-t-1);s++){
-        const o=held-b-t-1-s;
+      for(let d=1;d<=Math.min(counts.dce,held-b-t);d++){
+        for(let s=0;s<=Math.min(counts.speed,held-b-t-d);s++){
+        const o=held-b-t-d-s;
         if(o<0||o>counts.other)continue;
         const handWays=choose(counts.basic,b)*choose(counts.tag,t)*
-          choose(counts.dce,1)*choose(counts.speed,s)*
+          choose(counts.dce,d)*choose(counts.speed,s)*
           choose(counts.other,o);
         const validDraws=BigInt(b===1?held-1:held);
         // Hala and the one Stadium are outside the first eight.
@@ -74,6 +75,7 @@ function exactPreviousTurnK1Gate(counts,setup){
             const key=speedBucket(restSpeed-sPrize);
             bySeenSpeedDeckCount[key]+=weight;
           }
+        }
         }
       }
     }
