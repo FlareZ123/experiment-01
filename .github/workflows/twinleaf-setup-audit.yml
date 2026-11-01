@@ -149,6 +149,17 @@ jobs:
           path: agent6-owner-tagcall-bothseat-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Run preregistered five-source both-seat genuine Store Tag Call cohort
+        if: inputs.agent6_tagcall
+        run: node simulation/evaluation/agent6-crossrank-tagcall-owner-native.cjs > agent6-crossrank-tagcall-owner-native.json
+      - name: Archive every preregistered native Tag Call source, prompt and physical root attempt
+        if: always() && inputs.agent6_tagcall
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-crossrank-tagcall-owner-native
+          path: agent6-crossrank-tagcall-owner-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retrospective 2x2 rank6 source K0-DCE to K1-Speed bypass
         if: inputs.agent6_prized_thunder
         run: |
