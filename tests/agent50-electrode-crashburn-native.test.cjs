@@ -63,3 +63,14 @@ function settle(x,count){
    const physical=[2,3].slice(0,count).map(index=>({
     from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},index
    }));
+   const transfers=p.decode(physical,x.state);
+   assert.equal(p.validate(transfers),true);
+   x.store.dispatch(new ResolvePromptAction(p.id,transfers));
+  }else{
+   assert.fail('Unanticipated native prompt '+name);
+  }
+ }
+ assert.equal(seen,true);
+ assert.equal(x.store.hasPrompts(),false);
+ return x.opponent.active.damage;
+}
