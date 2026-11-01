@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
+const {save}=require('./agent43-guzma-original-source-pair.cjs');
 const {createHash}=require('node:crypto');
 const {preflight}=require('./agent43-guzma-nominal-fresh-rank11-pair.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
@@ -158,8 +158,7 @@ if(require.main===module){
   }else{
     const result=run();
     if(process.env.AGENT31_FORCED_GUZMA_OUTPUT)
-      fs.writeFileSync(process.env.AGENT31_FORCED_GUZMA_OUTPUT,
-        JSON.stringify(result,null,2)+'\n');
+      save(process.env.AGENT31_FORCED_GUZMA_OUTPUT,result);
     console.log('AGENT31_FORCED_GUZMA_REGISTERED_RETROSPECTIVE '+
       JSON.stringify({matchedPairs:result.matchedPairs,
         trueBaselineReplay:result.exactBaselineReplay,
