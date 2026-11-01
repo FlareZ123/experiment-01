@@ -1,0 +1,33 @@
+{
+  "version": "agent25-agent47-source-rank10-celestial-roar-natural-exact60-v1",
+  "date": "2026-11-01",
+  "intent": "Reuse stronger existing Agent47 withPaperCelestialRoarEnergy, which corrects BOTH printed all Energy including Special and source CardList forEach physical leak, instead of maintaining an independent Basic-only custody correction.",
+  "existingPaperHook": "simulation/twinleaf/agent47-celestial-roar-paper-energy-hook.cjs",
+  "existingSixStageNativeFixture": "simulation/twinleaf/agent47-celestial-roar-double-dragon-pinned-native.cjs",
+  "rank": 10,
+  "sourceSeat": 0,
+  "candidateSeat": 1,
+  "sourceOriginal60": "results/aichi-2026/full-decklists.json",
+  "candidateV2": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "initialNativeBaselineEvidence": 41273322779,
+  "seed": 1304508082,
+  "maxRootActions": 120,
+  "pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "matchedSource": [
+    6,
+    10,
+    11
+  ],
+  "sourceCardLoss": "Rank10 original Regidrago V SIT Celestial Roar actual state at turn12 source: first observable pre-join 57 canonical +3 held in transient prompt, first settled turn13 after wait 59 canonical/0 pending. Both candidate policies reproduce same card loss; source bug in pinned reducer temp.cards.forEach.",
+  "policyModes": [
+    "defaultSimpleTacticsAi",
+    "candidateOnlyCompressor"
+  ],
+  "flags": "Identical to earlier frozen baseline root cap and visibility/physical gates, adding only Agent47 existing fixed-paper-Celestial-Roar hook, extra native attack/physical witness observation; exact decklist and 60 physical owners unchanged.",
+  "expectedOriginalControl": "Unhooked rank10 candidateSeat1 errors TWINLEAF_SETTLED_PHYSICAL_60_VIOLATION at action observer ordinal75 (default) or79 (Compressor), actual rootLedger ordinal74/78. HNS hook independent.",
+  "success": "Native corrected same original source60 must retain 60 per seat for full bounded root run, and Agent47 audit must record actual Celestial Roar settlement. If it fails, archive exception/witness and do not claim fidelity.",
+  "qualifications": {
+    "isCompetitiveQualified": false,
+    "zeroWinnerClaim": true
+  }
+}
