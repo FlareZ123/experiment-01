@@ -15,6 +15,7 @@ const load=modulePath=>require(path.resolve(__dirname,
 const {Store}=load('game/store/store');
 const {Player}=load('game/store/state/player');
 const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+const {CardList}=load('game/store/state/card-list');
 const {GamePhase}=load('game/store/state/state');
 const {AttackEffect}=load('game/store/effects/game-effects');
 const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
@@ -50,6 +51,16 @@ function board(options={}){
   const active=printed('Duskull PRE');
   owner.active.cards.push(active);
   opponent.active.cards.push(printed('Shadow Rider Calyrex V CRE'));
+  // The genuine native Store runs the *entire* game winner check after
+  // ResolvePromptAction. Nonempty physical Prize slots are essential:
+  // empty Prize arrays on both sides cause sudden death and reset all zones.
+  for(const player of [owner,opponent]){
+    player.prizes=Array.from({length:6},()=>{
+      const prize=new CardList();
+      prize.cards.push(printed('Psychic Energy SVE'));
+      return prize;
+    });
+  }
   const discard=[];
   for(let i=0;i<(options.discard??1);i++){
     const c=printed('Duskull PRE');discard.push(c);
