@@ -26,6 +26,9 @@ function stage(seat){
   const card=name=>{
     const result=manager.getCardByName(name);
     assert.ok(result,'Missing original printed card '+name);
+    if(name==='Raging Bolt ex TEF')
+      assert.equal(String(result.setNumber),'123',
+        'Exact original rank19 printed number must be TEF 123');
     result.id=id++;return result;
   };
   const store=new Store({onStateChange(){}}),owner=new Player(),opponent=new Player();
