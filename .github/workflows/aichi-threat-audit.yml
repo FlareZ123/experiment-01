@@ -37,5 +37,7 @@ jobs:
         run: node --test tests/agent25-hns-discard-ability-lock-hook.test.cjs
       - name: Verify alternative 8, 10, 12 donor locks versus card-location bottleneck
         run: node --test tests/agent25-dhelmise-donor-count-frontier.test.cjs
+      - name: Verify exact first-turn Dhelmise conditional Wobbuffet and Silent Lab donor loss
+        run: node --test tests/agent25-dhelmise-lock-conditioned-opening.test.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
