@@ -67,7 +67,7 @@ function staged(seat,kind){
     // The test dispatches a genuine printed Fusion Strike System source
     // action before evaluating Path at the later root.
   }
-  owner.bench.push(bench);
+  owner.bench.unshift(bench);
   opp.active.cards.length=0;opp.active.cards.push(get('Genesect V FST'));
   owner.hand.cards.push(get('Path to the Peak CRE'));
   state.players=players;state.turn=5;
