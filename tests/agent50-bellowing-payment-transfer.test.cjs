@@ -23,3 +23,8 @@ test('physical transfer resolves relative to owner in seat one',()=>{
  const p=decodePayment({players:[other,o]},new DiscardEnergyPrompt(7),o,[{slot:'active',index:0,energyIndex:0,printing:e.fullName}],types);
  assert.equal(p[0].card,e);
 });
+test('omitted aggregate card fails closed',()=>{
+ const e={fullName:'Lightning Energy MEE',energyType:1};
+ const o={id:7,active:{cards:[],energies:{cards:[e]}},bench:[]};
+ assert.throws(()=>decodePayment({players:[o]},new DiscardEnergyPrompt(7),o,[{slot:'active',index:0,energyIndex:0,printing:e.fullName}],types));
+});
