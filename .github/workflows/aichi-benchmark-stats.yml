@@ -129,7 +129,7 @@ jobs:
       - name: Verify exact hypergeometric Regidrago Treasure opening coexistence
         run: node --test tests/agent49-regidrago-treasure-openers.test.cjs
       - name: Regress bounded owner-only root action contention without changing decisions
-        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs
+        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs
       - name: Verify exact source nonattack terminal triggers and native turn-end lineage
         run: node --test tests/agent12-owner-sequence-compatibility.test.cjs tests/agent12-aichi-nonattack-turn-end-census.test.cjs tests/agent12-native-turn-closure-lineage.test.cjs tests/agent12-original32-native-closure-census.test.cjs
       - name: Verify field-wide five dormant Trainer channels at Basic-valid openings
