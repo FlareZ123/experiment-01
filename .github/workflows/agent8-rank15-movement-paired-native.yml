@@ -1,0 +1,41 @@
+name: Agent8 rank15 original source public movement receipt matched native pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank15-paired-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout exact pinned Twinleaf native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Fail-closed fresh registered seeds and exact original source sixty check
+        run: node simulation/evaluation/agent8-rank15-movement-root-paired-development.cjs --inspect-only
+      - name: Install native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify authentic source Mega Lopunny evolution and applied movement-aware attack decisions
+        run: node --test tests/agent8-rank15-natural-evolution-native.test.cjs tests/agent8-rank15-public-movement-payable-attack-native.test.cjs
+      - name: Execute all 32 registered rank15 original-source native development attempts
+        run: node simulation/evaluation/agent8-rank15-movement-root-paired-development.cjs
+      - name: Preserve original game, matchup, action receipt and native failure data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-rank15-original-source-32-native-development-arms
+          path: |
+            agent8-rank15-movement-paired-native-raw.json
+            agent8-rank15-movement-paired-native-summary.json
+          if-no-files-found: warn
+          retention-days: 30
