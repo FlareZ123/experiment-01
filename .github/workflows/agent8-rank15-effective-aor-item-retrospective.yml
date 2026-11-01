@@ -1,0 +1,41 @@
+name: Agent8 rank15 effective AOR Item-lock retrospective native comparison
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aor-original-source-retrospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore exact pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify immutable original Aichi rank15 registration
+        run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs --inspect-only
+      - name: Install pinned native Store dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify actual two-seat Item lock including Wobbuffet suppression
+        run: node --test tests/agent8-aor-vileplume-item-preflight-native.test.cjs
+      - name: Compare 32 original-source retrospective native policy attempts
+        run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs
+      - name: Preserve full raw Store evidence and explicit unqualified comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-rank15-aor-effective-item-veto-retrospective
+          path: |
+            agent8-rank15-effective-aor-item-retrospective-raw.json
+            agent8-rank15-effective-aor-item-retrospective-summary.json
+          if-no-files-found: warn
+          retention-days: 30
