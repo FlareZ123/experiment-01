@@ -24,7 +24,20 @@ The observer's source-seat and physical card-count assertions succeeded in all f
 
 **Interpretation:** In these four particular registered source games, a policy improvement that affects only an already Active Raging Bolt choosing `Burst Roar` versus `Bellowing Thunder` would have **zero opportunity to change an owner-root decision**. The previously identified staged [Bellowing KO selector](agent28-rank19-bellowing-ko-native-frontier-20261101.md) is still tactically valid on tested artificial states and the original printed effects are native-executable, but these four actual games require attention **upstream of the attack picker**, including getting a Raging Bolt into play, funding it and promoting it.
 
-This does not prove the source never had Raging Bolt on its Bench; `Active` and `Bench` must be separated. It does not prove that a stronger source policy would win, nor does a four-game retrospective selection estimate matchup rates. A bench-status follow-up on the same frozen sources is separately being run; attach that actual evidence before diagnosing whether the failure is search/Bench, Energy routing or mobility.
+The initial census's missing Bench information was followed up with the **same four frozen seeds and source policies**. [Clean manual native CI **41347364344**](https://github.com/FlareZ123/experiment-01/actions/runs/41347364344), Git head `a5711881932b020c5ca56c3360852eae8c686de0`, now records original Raging Bolt Bench appearances and physical Energy attachments before each source-owner action root. This second run introduced **only read-only observation and summary fields**, with no decisions changed.
+
+| Frozen exact source rank19 trial | Source physical seat | Raging Bolt on Bench (source-owner roots) | Raging Bolt on Bench with attached Energy | Native source Active at those roots |
+| --- | ---: | ---: | ---: | --- |
+| `19:0:A:champion-reference` | 1 | **0/11** | 0 | Squawkabilly ex, Sandy Shocks ex, Latias ex |
+| `19:0:A:new-moon-lockbreaker-v1` | 1 | **0/14** | 0 | Squawkabilly ex, Sandy Shocks ex, Latias ex |
+| `19:0:B:champion-reference` | 0 | **23/24** | **22/24** | **Ho-Oh EX DRX** at **24/24** |
+| `19:0:B:new-moon-lockbreaker-v1` | 0 | **36/37** | **35/37** | **Ho-Oh EX DRX** at **37/37** |
+
+The source-seat-0 games provide a **particularly concrete mobility/Active-position failure**: Raging Bolt was physically Benched, received **`Double Dragon Energy ROS`** by the first completed turn-two source Pass root, remained funded on Bench through subsequent source turns, while Ho-Oh EX occupied the Active spot at every recorded source-owner action root. A separately executed both-seat native stage [Raging Bolt Bellowing DDE paper test](agent28-rank19-bellowing-ko-native-frontier-20261101.md) proves DDE can satisfy Bellowing's Lightning/Fighting attack cost. Those original roots still need availability of **Basic Energy to discard for positive Bellowing damage**, a real legal promotion route, and appropriate turn/attack restrictions.
+
+The source-seat-1 games have **zero Raging Bolt Bench opportunities** at observed owner roots. They need earlier source search/Bench access, which is categorically different from the seat-0 funded Bench mobility failure. The physical seat number alone does **not** establish which participant took the first turn; this table does not assign first-player status. Although source board presentation is observed at many owner-action roots, it does not certify every transient position during the opposing turn.
+
+This second audit makes source-position competence the immediate priority. We must preserve a *setup-vs-promotion* distinction before treating Bellowing attack-choice fixes as impactful. The four original game terminals remain retrospectively archived with **zero game-quality qualifications**.
 
 ## Recommended next decisive test
 
