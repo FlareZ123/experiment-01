@@ -13,7 +13,7 @@ const SCHEMA='agent50-fresh-rank11-bilateral-known-dead-native-v1';
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION=
   'results/aichi-2026/registrations/agent50-prospective-rank11-bilateral-known-dead-20261101.json';
-const REGISTRATION_BLOB='ce70a4d88355edbf8084f7be1512e69def6157ef';
+const REGISTRATION_BLOB='fab43f66c30e545e27ed09dfdf6f7845a074ff13';
 
 /**
  * Fail closed on both the seed manifest and its measured executable inputs.
