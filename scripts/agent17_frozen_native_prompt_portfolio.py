@@ -263,7 +263,7 @@ def audit_native(data, archive_sha256="synthetic"):
                 energy_shape["non-volt-cyclone-parent"] += 1
             else:
                 energy_shape[public_energy_transfer_shape(evidence)] += 1
-        if row["trial"]["rank"] == 6:
+        if row["trial"].get("rank") == 6:
             attached_by_parent = Counter(
                 event["initiatingRootActionOrdinal"]
                 for event in ledger
@@ -282,7 +282,7 @@ def audit_native(data, archive_sha256="synthetic"):
                     source_attack_bench_branch["own-bench-one-move-prompt"] += 1
                 else:
                     source_attack_bench_branch["unexpected-bench-prompt-shape"] += 1
-        if row["trial"]["rank"] == 11:
+        if row["trial"].get("rank") == 11:
             for attack in row["sourceAttackSettlement"]["attacks"]:
                 if attack.get("attackName") != "Call for Family":
                     continue
