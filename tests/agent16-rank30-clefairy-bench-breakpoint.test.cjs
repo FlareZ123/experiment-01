@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {analyze,minimumBenches}=
+const {analyze,minimumBenches,coholdingProbability}=
   require('../scripts/agent16-rank30-clefairy-bench-breakpoint.cjs');
 const card=(set,id)=>require('../resources/cards/en/'+set+'.json')
   .find(x=>x.id===id);
@@ -40,4 +40,15 @@ test('full moon printed Psychic weakness creates a six-Bench two-prize-channel t
   assert.equal(minimumBenches(attacker,drago,10,{fairyZoneActive:true}),6);
   assert.match(mew.abilities.find(x=>x.name==='Perfection').text,
     /Pokémon-GX or Pokémon-EX/);
+});
+
+test('five-piece turn-one line has low raw coholding before any search',()=>{
+  const x=analyze();
+  assert.ok(Math.abs(x.rawFirstEightUnconditional.fullFivePieceCombo-
+    0.00040366512373973877)<1e-10);
+  assert.ok(Math.abs(x.rawFirstEightUnconditional.clefairyTelepathicPatch-
+    0.02990274395267033)<1e-10);
+  assert.equal(coholdingProbability([60]),1);
+  assert.equal(coholdingProbability([1,1,1,1,1],3),0);
+  assert.equal(x.rawFirstEightUnconditional.competitivelyRepresentative,false);
 });
