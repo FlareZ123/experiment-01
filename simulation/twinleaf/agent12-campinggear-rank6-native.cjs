@@ -10,6 +10,8 @@ const {withNativeCampingGearAfterPass} =
   require('./agent12-native-campinggear-after-pass.cjs');
 const {withPaperCampingGearPromptGuard} =
   require('./agent12-campinggear-prompt-paper-hook.cjs');
+const {withPaperPromptDispositionObserver} =
+  require('./agent12-paper-prompt-disposition-observer.cjs');
 const {attestNativeTurnClosureLineage} =
   require('../evaluation/agent12-native-turn-closure-lineage.cjs');
 
@@ -43,21 +45,28 @@ function main(){
     captureInitialFullPhysicalDeal:true,
     captureFinalPublicBoard:true,
     label:'agent12-retrospective-source-held-gear-native-'+REPLAY_ID};
-  function execute(searchMode,paperGuard=false,strictPreflight=true){
+  function execute(searchMode,paperGuard=false,strictPreflight=true,paperAudit=false){
     const treatment=searchMode!=='baseline';
     const run=()=>runMatch(strictPreflight?request:
       {...request,strictPromptValidation:false});
-    let guardAudit=null;
+    let guardAudit=null,paperDispositionAudit=null;
     const guardedRun=()=>{
       const guarded=withPaperCampingGearPromptGuard(run);
       guardAudit=guarded.audit;
       return guarded.result;
     };
+    const nativeRun=paperGuard?guardedRun:run;
+    const auditedRun=()=>{
+      const observed=withPaperPromptDispositionObserver(nativeRun);
+      paperDispositionAudit=observed.audit;
+      return observed.result;
+    };
+    const selectedRun=paperAudit?auditedRun:nativeRun;
     const originalPolicy=()=>withCanonicalActorOnlyPolicy(
       treatment?
-        ()=>withNativeCampingGearAfterPass(paperGuard?guardedRun:run,
+        ()=>withNativeCampingGearAfterPass(selectedRun,
           {sourceSeat:SOURCE_SEAT,searchMode}):
-        run,
+        selectedRun,
       {},{ownerSingleSearch:true,genericFallbackAttribution:true,
         actorHandDiscard:true,actorChoosePokemon:true});
     try{
@@ -104,12 +113,14 @@ function main(){
           sourceNextTurnNativeRootObserved:sourceNextAction!==null
         },
         gearAudit:offered,paperGuardAudit:guardAudit,
+        paperDispositionAudit,
         qualifiedForCompetitiveInference:false};
       return receipt;
     }catch(e){
       return {status:'native-development-error',message:String(e?.message||e),
         stack:String(e?.stack||''),gearAudit:e?.agent12GearAudit??null,
         paperGuardAudit:e?.agent12PaperPromptAudit??null,
+        paperDispositionAudit:e?.agent12PaperPromptDispositionAudit??null,
         qualifiedForCompetitiveInference:false};
     }
   }
@@ -122,11 +133,14 @@ function main(){
   // are never eligible for game-quality inference.
   const paperDoubleNoPreflight=execute('two',false,false);
   const guardDoubleNoPreflight=execute('two',true,false);
+  const withGearObserved=execute('one',false,true,true),
+    paperZeroObserved=execute('zero',false,true,true),
+    paperDoubleNoPreflightObserved=execute('two',false,false,true);
   const bothPhysicalSame=baseline.status==='completed-native-development'&&
     withGear.status==='completed-native-development'&&
     baseline.sourceDealFingerprint===withGear.sourceDealFingerprint&&
     baseline.fullPhysicalDealFingerprint===withGear.fullPhysicalDealFingerprint;
-  const report={schema:'agent12-original-rank6-gear-pass-native-v5',
+  const report={schema:'agent12-original-rank6-gear-pass-native-v6',
     sourceTrial:REPLAY_ID,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     enginePin:ENGINE_PIN,candidateDeck:'original rank1 published 60',
     sourceDeck:'original rank6 published 60',
@@ -134,6 +148,7 @@ function main(){
     bothPhysicalSame,baseline,withGear,paperZero,paperDouble,
     guardOne,guardZero,guardDouble,
     paperDoubleNoPreflight,guardDoubleNoPreflight,
+    withGearObserved,paperZeroObserved,paperDoubleNoPreflightObserved,
     paperCardinalityProbeDevelopmentOnly:true,
     improvementInGameWinRateEstablished:false,
     competitiveQualifiedGames:0};
@@ -143,7 +158,8 @@ function main(){
       'The treatment changed initial physical source/opponent deal');
   }
   for(const arm of [paperZero,paperDouble,guardOne,
-    paperDoubleNoPreflight]){
+    paperDoubleNoPreflight,withGearObserved,paperZeroObserved,
+    paperDoubleNoPreflightObserved]){
     if(arm.status==='completed-native-development'){
       assert.equal(arm.sourceDealFingerprint,baseline.sourceDealFingerprint);
       assert.equal(arm.fullPhysicalDealFingerprint,
@@ -156,6 +172,20 @@ function main(){
       'Valid guarded source must retain every native root unchanged');
     assert.equal(guardOne.paperGuardAudit?.paperValidAccepted,1);
   }
+  if(withGearObserved.status==='completed-native-development'){
+    assert.equal(withGear.rootActionLedgerSha256,
+      withGearObserved.rootActionLedgerSha256,
+      'Read-only paper-prompt observer changed real Store action ledger');
+    assert.ok(withGearObserved.paperDispositionAudit?.nativeAccepted>0);
+    assert.equal(withGearObserved.paperDispositionAudit?.
+      statusCounts.PROMPT_PAPER_VERIFIED,1);
+  }
+  if(paperZeroObserved.status==='completed-native-development')
+    assert.equal(paperZeroObserved.paperDispositionAudit?.
+      statusCounts.PROMPT_PAPER_INVALID,1);
+  if(paperDoubleNoPreflightObserved.status==='completed-native-development')
+    assert.equal(paperDoubleNoPreflightObserved.paperDispositionAudit?.
+      statusCounts.PROMPT_PAPER_INVALID,1);
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
 }
