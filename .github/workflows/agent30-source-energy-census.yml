@@ -1,0 +1,29 @@
+name: Agent30 original Aichi source printed-attack Energy census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-energy-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run full original-source 29-roster ordinary attack-cost audit
+        run: |
+          node scripts/agent30-roster-direct-energy-census.cjs > agent30-original-energy-census.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent30-original-energy-census.json');a.equal(r.sourceDeckCount,29);a.equal(r.sourcePokemonPhysicalCopies,467);a.equal(r.sourceRanks.length,29);console.log('AGENT30_SOURCE_ENERGY',JSON.stringify({sourceDecks:r.sourceDeckCount,sourcePhysicalPokemon:r.sourcePokemonPhysicalCopies,summary:r.summary,unresolvedOriginalRanks:r.unresolvedFinalRanks}));"
+      - name: Preserve every exact original printing verdict without claiming any game outcomes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent30-original-source-print-energy-census
+          path: agent30-original-energy-census.json
+          if-no-files-found: warn
+          retention-days: 30
