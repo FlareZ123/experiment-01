@@ -92,6 +92,57 @@ function assertPinnedNativeStore(root){
 }
 
 /**
+ * The canonical two-seat runner returns the authenticated first setup
+ * CoinFlipPrompt, the winner's GO_FIRST decision and the first real draw.
+ * Compare postgame receipts with the exogenous, already registered seed strata.
+ * Keep every failure and missing receipt in the 32-arm denominator.
+ * @param {object[]} rows Complete native attempted rows, including aborts.
+ * @returns {object}
+ */
+function summarizeAcceptedSetupCoins(rows){
+  assert.ok(Array.isArray(rows));
+  const expected=new Map(registration.flatPredictions.map(row=>
+    [[row.rank,row.repeat,row.candidateSlot].join(':'),row]));
+  const receipts=rows.map(row=>{
+    const trial=row.trial??{};
+    const key=[trial.rank,trial.repeat,trial.candidateSlot].join(':');
+    const registered=expected.get(key);
+    const native=row.nativeSetupCoinChoiceReceipt??null;
+    const status=!registered?'unregistered-trial':
+      trial.seed!==registered.seed?'registration-seed-mismatch':
+      !native?'native-receipt-absent':
+      native.status!=='consistent-accepted-native-setup-and-first-draw'?
+        'native-receipt-'+native.status:
+      native.firstSeatFromVerifiedDraw!==registered.predictedFirstSeat?
+        'actual-first-seat-vs-registered-stratum-mismatch':
+      row.actualStarterSeat!==registered.predictedFirstSeat?
+        'reported-game-start-mismatch':'matching-native-start';
+    return {
+      id:trial.id??null,group:key,seed:trial.seed??null,
+      observedStatus:status,
+      nativeReceiptStatus:native?.status??null,
+      registeredFirstSeat:registered?.predictedFirstSeat??null,
+      nativeFirstSeat:native?.firstSeatFromVerifiedDraw??null,
+      nativeCoinWinnerSeat:native?.coin?.coinWinnerSeat??null,
+      nativeWinnerChoseFirst:native?.choice?.choseFirst??null,
+      actualGameFirstSeat:row.actualStarterSeat??null
+    };
+  });
+  const byStatus={};
+  for(const receipt of receipts)
+    byStatus[receipt.observedStatus]=(byStatus[receipt.observedStatus]??0)+1;
+  return {
+    expectedRegisteredArms:profile.scheduledNativeArms,
+    attempted:rows.length,
+    allValidated:rows.length===profile.scheduledNativeArms&&
+      receipts.every(x=>x.observedStatus==='matching-native-start'),
+    matching:byStatus['matching-native-start']??0,
+    byStatus,receipts,
+    competitiveQualified:false
+  };
+}
+
+/**
  * This is a precompetitive implementation exercise: it records every
  * preregistered arm, failure, cap and source/candidate policy mismatch.
  * @param {object} [overrides]
@@ -125,6 +176,7 @@ function runFrozenDevelopment(overrides={}){
       const key=row.status??(row.finished===true?'engine-terminal':'censored');
       statuses[key]=(statuses[key]??0)+1;
     }
+    const nativeStarts=summarizeAcceptedSetupCoins(rows);
     return {
       version:VERSION,profile,provenance,
       nativePin:profile.pinnedVendorRevision,
@@ -134,10 +186,11 @@ function runFrozenDevelopment(overrides={}){
         rows.length===profile.scheduledNativeArms,
       statuses,rows,
       sourceComparison:result.paired??null,
-      actualCoinAndFirstDrawVerified:false,
+      nativeSetupCoinAndFirstDrawEvidence:nativeStarts,
+      actualCoinAndFirstDrawVerified:nativeStarts.allValidated,
       transitiveImportsCompletelyResolved:false,
       competitiveQualifiedGames:0,winRateCertified:false,
-      caveat:'Development only: native coin/choice receipt, full actor information safety, paper timing and policy competence are not certified.'
+      caveat:'Development only: first setup receipt is post-Store evidence, not tournament coin-policy or paper-clock certification. Full actor information safety, opponent competence and all card mechanics remain unqualified.'
     };
   }finally{
     for(const [key,value] of Object.entries(prior)){
@@ -159,4 +212,4 @@ if(require.main===module){
 }
 
 module.exports={VERSION,registeredTrials,assertNoUnreviewedAmbientAgentEnvironment,
-  exactSourceFingerprint,assertPinnedNativeStore,runFrozenDevelopment};
+  summarizeAcceptedSetupCoins,exactSourceFingerprint,assertPinnedNativeStore,runFrozenDevelopment};
