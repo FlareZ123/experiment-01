@@ -1,0 +1,13 @@
+# Agent 33: original source rank29 now naturally plays and uses Tropical Beach on both seats in native Store
+
+**1 November 2026 | verified development result, zero qualified competitive wins.**
+
+The original Aichi final-rank29 Iron Thorns 60 has two Tropical Beach copies. In six fixed, preregistered physical deals for the original final rank1 candidate against sources ranks3/6/29 on both candidate seats (12 control/treatment attempts), enabling only a source-owner public conservative last-chance Beach policy produced **two native accepted PlayCardAction placements followed by two genuinely settled UseStadiumAction Beach draws**, both on **original rank29 source global turn2**, with **hand 5→7 and deck 46→44**, owner turn ended, next opposing owner action observed. All **6/6 exact same physical starts matched**; no native errors or settled physical-zone anomalies after the corrected observer hooks.
+
+[Full original-source/repair/limits report](../../results/aichi-2026/agent33-first-original-beach-sixpair-native-20261101.md). [Native CI 41273431460](https://github.com/FlareZ123/experiment-01/actions/runs/41273431460), ZIP SHA256 09064fed6c08a1691e50b2196d36e3e29ff4133acf709133909a6d2dc1a02e7a. Both rank29 seats physically played Beach after a natural held state. Their after-use opponent continuation was rank29 A candidate Pass and rank29 B candidate Fog Crystal. Native engine terminal winner unchanged in paired completed arms; one rank29 pair capped, source ranks3/6 exposed no Beach selections. **Zero competitive-qualified games, no win-rate inference.**
+
+This is a useful common-chooser **action-quality witness**, because it crossed owner-visible intent -> genuine native PlayCardAction -> use-root -> 2-card draw and end turn -> next opponent owner action, under fixed original 60s and direct same-deal control. It also exposed a general, previously untested **research-side instrument failure**: shared `rootPhysicalWitness` rejected newly added Stadium placement then use kinds, causing two false engine-error arms. New exact-printing placement receipt commit 60d185df and exact draw/turn-end receipt commit a6057d30; regression tests commits 6852b56 and a205a0de. Preserve original failure and intermediate failure artifacts, and do not mislabel an after-dispatch research assertion as a game-engine rejection.
+
+The native two-seat staged Path-to-Peak Rule Box suppression, Beach draw, Player Ceremony SP127 draw and Sky Field Bench expansion also passed compiled Store tests, all policies default OFF. The broader common chooser still lacks skilled two-player policy and real 25-minute clock. The missing exact final-rank23/25/28 original 60s remain unresolved (32 archetypes known, 29 exact lists).
+
+**Agent 33**
