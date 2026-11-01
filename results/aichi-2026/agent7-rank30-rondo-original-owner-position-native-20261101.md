@@ -23,3 +23,19 @@ Every source-owner root in the four trials categorized Clefairy as **benched-not
 Reproduce through `simulation/twinleaf/agent7-public-rondo-attack-offer.cjs`, `simulation/twinleaf/agent41-same-root-proposal-choice.cjs`, `simulation/evaluation/agent7-rank30-rondo-native-observe.cjs`, `tests/agent7-rondo-public-offer.test.cjs` and existing manual-only `.github/workflows/agent7-same-root-native-readonly.yml`.
 
 **Field status: 29/32 authenticated opposing original 60s (23,25,28 missing), zero competitively qualified games, no demonstrated 99.5%.**
+
+## Second read-only follow-up: Energy funding is absent (1 November, 20:18 UTC)
+
+[Compiled native CI 41345788450](https://github.com/FlareZ123/experiment-01/actions/runs/41345788450), artifact [13099755398](https://github.com/FlareZ123/experiment-01/actions/runs/41345788450/artifacts/13099755398), archive SHA256 `e8bd761089f41f2b689293079d8f739426e16f807a2f8d429d10242fd5d3de0a`, again passed complete identical game-action and physical-deal parity. The exact same retrospective four source seed/candidate pairs were inspected, with no action changes or qualified games. The new audit independently counts each publicly Benched Clefairy copy's attached Energy cards, plus the owner-visible Active printing, generic held mobility printings and unused-retreat flag.
+
+| Arm | Source owner roots | Benched Clefairy copy-root observations with zero Energy | Source Active printings across owner roots | Roots with a held known mobility printing |
+| --- | ---: | ---: | --- | ---: |
+| A champion | 26 | 26 | Empoleon V 16, Latias ex 7, Dedenne-GX 3 | 0 |
+| A New Moon | 19 | 24 | Empoleon V 12, Latias ex 3, Dedenne-GX 4 | 8 |
+| B champion | 22 | 40 | Mimikyu 22 | 22 |
+| B New Moon | 28 | 54 | Mimikyu 28 | 28 |
+| **Total** | **95** | **144** | Four original engine trajectories | **58** |
+
+**Zero of these 144 observed Clefairy copy-roots had any attached Energy; zero source roots had a publicly funded Benched Rondo attack.** Multiple Benched copies and repeated turn roots explain 144 copy-root counts versus 95 source decision states. These are correlated developmental exposures across two original source deal fingerprints, not 144 independent trials. The source has three Clefairy ex, so more than one may occupy its Bench at a root.
+
+The earlier Active-position diagnosis remains factually true, but **funding is an upstream bottleneck** in all four observed source trajectories. Therefore, a mobility-only Rondo intervention on these exact deals would be an unfunded attacker promotion, not a demonstrated route to more damage. The next question is whether owner-hand Wondrous Patch, publicly discarded Basic Psychic Energy, and viable ordinary attachments form an executable, resource-respecting Psychic setup line. A prompt-level native acceptance proof is required. Source's occasional held mobility and unused ordinary retreat do not themselves establish legal or desirable actions.
