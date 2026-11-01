@@ -37,7 +37,9 @@ function runFocusedNativeEligibility(){
     const physical=audit?.nativeCoheldDenialCanPlayWitnesses??[];
     return {
       trial:row.trial.id,
-      sourceSeat:row.sourceSeat??null,
+      // Physical source seat is fixed by the registered candidate slot.
+      // 'sourceSeat' is not a standard row field in the development runner.
+      sourceSeat:row.trial.candidateSlot==='A'?1:0,
       sourceDealFingerprint:row.sourceDealFingerprint??null,
       fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
       nativeStatus:row.status??(row.finished?'engine-terminal':'censored'),
