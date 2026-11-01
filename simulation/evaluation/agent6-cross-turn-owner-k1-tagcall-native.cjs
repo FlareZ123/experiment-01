@@ -67,6 +67,7 @@ function run(){
               withBroadThornsSourceAttack(()=>
                 withOwnerTagCallHala([deckA,deckB],
                   ()=>runMatch(request),{
+                    includeCanonicalOwnerK1Snapshot:true,
                     onAuthenticatedOwnerDeckInspect:record=>{
                       seenK1.push(record);
                       byOwner.set(record.ownerId,record);
