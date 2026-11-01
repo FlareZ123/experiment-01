@@ -22,10 +22,13 @@ function paperPutDamageRejectReason(prompt,answer,state){
   if(!prompt.validate(answer,state))return 'NATIVE_PROMPT_VALIDATE_FALSE';
   if(!Array.isArray(answer))return null;
   const multiple=prompt.options.damageMultiple;
+  let total=0;
   for(const row of answer){
     if(!Number.isSafeInteger(row?.damage)||row.damage<0){
       return 'INVALID_DAMAGE_AMOUNT';
     }
+    total+=row.damage;
+    if(!Number.isSafeInteger(total))return 'INVALID_DAMAGE_TOTAL';
     if(row.damage===0)continue;
     if(Number.isSafeInteger(multiple)&&multiple>0&&
        row.damage%multiple!==0){
@@ -37,6 +40,13 @@ function paperPutDamageRejectReason(prompt,answer,state){
       entry.target.slot===target.slot&&
       entry.target.index===target.index);
     if(cap?.damage===0)return 'PRINTED_TARGET_ZERO_CAP';
+  }
+  // Pinned PutDamagePrompt.validate checks equality only for mandatory
+  // allocation. For optional "up to N" allocation it fails to enforce N as
+  // an upper bound, permitting an illegal over-budget self-damage attack.
+  if(prompt.options.allowPlacePartialDamage===true&&
+     Number.isSafeInteger(prompt.damage)&&total>prompt.damage){
+    return 'EXCEEDS_PRINTED_PARTIAL_DAMAGE_BUDGET';
   }
   return null;
 }
