@@ -75,6 +75,23 @@ function run(){
       const ownerRadiantPlays=trace.filter(x=>
         x.playerSlot===1&&x.turnBefore===2&&
         x.action==='PlayCardAction'&&x.card==='Radiant Eternatus');
+      const radiantPlayOrdinal=ownerRadiantPlays[0]?.actionOrdinal??null;
+      const recipientNativeRootsAfterRadiant=radiantPlayOrdinal===null?
+        []:(game.rootActionLedger??[]).filter(x=>
+          x.playerSlot===1&&x.turnBefore===2&&
+          x.actionOrdinal>radiantPlayOrdinal&&
+          x.actionOrdinal<=radiantPlayOrdinal+16)
+          .map(x=>({ordinal:x.actionOrdinal,action:x.action,
+            card:x.card??null,ability:x.ability??null,
+            pendingPrompt:x.pendingPrompt??null}));
+      const recipientDecisionTraceAfterRadiant=radiantPlayOrdinal===null?
+        []:trace.filter(x=>x.playerSlot===1&&x.turnBefore===2&&
+          x.actionOrdinal>radiantPlayOrdinal&&
+          x.actionOrdinal<=radiantPlayOrdinal+16)
+          .map(x=>({ordinal:x.actionOrdinal,action:x.action,
+            card:x.card??null,ability:x.ability??null,
+            selectedOption:x.optionSelection??null,
+            selectedCards:x.cardSelection?.selectedCards??null}));
       const ownerClimacticGates=trace.filter(x=>
         x.playerSlot===1&&x.turnBefore===2&&
         x.action==='UseAbilityAction'&&x.ability==='Climactic Gate');
@@ -101,6 +118,8 @@ function run(){
         recipientRadiantSelectionCommitted:recipient.radiantSearchSelected,
         nativeRadiantBenchPlayRoots:ownerRadiantPlays.length,
         nativeClimacticGateAbilityRoots:ownerClimacticGates.length,
+        recipientNativeRootsAfterRadiant,
+        recipientDecisionTraceAfterRadiant,
         publicOpponentRadiantAtSourceT3:
           atSourceT3?.opponentPublicRadiantEternatusCount??null,
         publicOpponentVMaxAtSourceT3:
@@ -132,6 +151,8 @@ if(require.main===module){
       radiantSelected:x.recipientRadiantSelectionCommitted,
       played:x.nativeRadiantBenchPlayRoots,
       climactic:x.nativeClimacticGateAbilityRoots,
+      nativeRootsAfterRadiant:x.recipientNativeRootsAfterRadiant,
+      publicDecisionAfterRadiant:x.recipientDecisionTraceAfterRadiant,
       recipientPublicRadiant:x.publicOpponentRadiantAtSourceT3,
       recipientPublicVMAX:x.publicOpponentVMaxAtSourceT3,
       error:x.error??null})))+'\n');
