@@ -106,14 +106,78 @@ function playPeonia(seat,selectedCount){
     completeOriginal60:false,competitiveQualifiedGames:0};
 }
 
+/**
+ * Exercise the generic source bot's first actual Peonia decision, then
+ * inspect its next hypothetical identical Prize prompt. Only the first
+ * Peonia is played; no turn skip, resource reuse or second Supporter claim.
+ * The bot's fixed geometry can never discover an unvisited later slot
+ * without other Prize changes or a better selection policy.
+ * @param {0|1} seat
+ * @returns {object}
+ */
+function originalBotPrizeRevisit(seat){
+  const scene=stageSource(seat);
+  const {owner,state,store,criticalPrized}=scene;
+  const temp=owner.prizes[4].cards[0];
+  owner.prizes[0].cards[0]=temp;
+  owner.prizes[4].cards[0]=criticalPrized;
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const {ChoosePrizePrompt}=
+    native('game/store/prompts/choose-prize-prompt');
+  const {GameMessage}=native('game/game-message');
+  const {ChoosePrizePromptResolver}=
+    native('simple-bot/prompt-resolver/choose-prize-prompt-resolver');
+  const resolver=new ChoosePrizePromptResolver({});
+  store.dispatch(new PlayCardAction(owner.id,0,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+  const pending=()=>state.prompts.find(p=>p.result===undefined);
+  const firstPrompt=pending();
+  assert.equal(firstPrompt?.constructor.name,'ChoosePrizePrompt');
+  const first=resolver.resolvePrompt(state,owner,firstPrompt);
+  assert.deepEqual(first.result,owner.prizes.slice(0,3));
+  store.dispatch(first);
+  const paid=pending();
+  assert.equal(paid?.constructor.name,'ChooseCardsPrompt');
+  const payments=owner.hand.cards.filter(c=>
+    c.fullName==='Crushing Hammer POR').slice(0,3);
+  assert.equal(payments.length,3);
+  store.dispatch(new ResolvePromptAction(paid.id,payments));
+  const order=pending();
+  assert.equal(order?.constructor.name,'OrderCardsPrompt');
+  store.dispatch(new ResolvePromptAction(order.id,[0,1,2]));
+  assert.equal(store.hasPrompts(),false);
+  assert.ok(owner.prizes[4].cards.includes(criticalPrized));
+  assert.ok(!owner.hand.cards.includes(criticalPrized));
+  const hypothetical=new ChoosePrizePrompt(owner.id,
+    GameMessage.CHOOSE_PRIZE_CARD,{count:3,allowCancel:false});
+  const repeated=resolver.resolvePrompt(state,owner,hypothetical);
+  assert.deepEqual(repeated.result,owner.prizes.slice(0,3));
+  const complement=owner.prizes.slice(3,6);
+  assert.equal(hypothetical.validate(complement,state),true);
+  assert.ok(complement.includes(owner.prizes[4]));
+  assert.ok(complement.some(p=>p.cards.includes(criticalPrized)));
+  return {seat,rank:29,firstActualPeoniaSettled:true,
+    firstSelectedPrizeIndices:[0,1,2],
+    laterHypotheticalDefaultIndices:[0,1,2],
+    laterHumanPaperValidComplementIndices:[3,4,5],
+    unvisitedCriticalHandiworkInPrizeIndex:4,
+    fixedFirstThreeCanRecoverCritical:false,
+    laterSecondPeoniaActuallyPlayed:false,
+    originalFull60:false,competitiveQualifiedGames:0};
+}
+
 /** @returns {object} */
 function run(){
   return {schema:'agent39-rank29-native-peonia-optional-source-v1',
-    pin:PIN,records:[0,1].flatMap(seat=>
+    pin:PIN,revisitCases:[originalBotPrizeRevisit(0),originalBotPrizeRevisit(1)],
+    records:[0,1].flatMap(seat=>
       [1,2,3].map(count=>playPeonia(seat,count))),
     status:'PREPARED_NATIVE_OWNER_PHYSICAL_PROMPT_ONLY',
     fixedDeckWinRateQualified:false};
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={PIN,stageSource,playPeonia,run};
+module.exports={PIN,stageSource,playPeonia,originalBotPrizeRevisit,run};
