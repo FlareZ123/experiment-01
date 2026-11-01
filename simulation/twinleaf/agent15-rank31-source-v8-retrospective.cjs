@@ -11,6 +11,8 @@ const {withRoxieKoffingConfirmation}=
 const {roxieExposure}=require('./roxie-selection-evidence.cjs');
 const {withPaperPromptContractPortfolio,VERSION:PAPER_VERSION}=
   require('./agent41-paper-prompt-contract-portfolio.cjs');
+const {withRank31RoxiePlayCardRootObserver,VERSION:ROOT_VERSION}=
+  require('./agent15-rank31-roxie-playcard-root-observer.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 
@@ -54,21 +56,24 @@ function replay() {
 
   const rows=[];
   for(const mode of ['generic-decline','koffing-accept']) {
-    let audited=null;
+    let audited=null,rootAudit=null;
     try {
-      const treatment=withPaperPromptContractPortfolio(()=>
-        withRoxieDiscardEffectType(()=>mode==='koffing-accept'
-          ?withRoxieKoffingConfirmation(()=>runMatch(request))
-          :runMatch(request)),{
-        requireLiveStore:true,
-        currentTrialId:()=>mode,
-        exampleLimit:32
-      });
+      const watched=withRank31RoxiePlayCardRootObserver(()=>
+        withPaperPromptContractPortfolio(()=>
+          withRoxieDiscardEffectType(()=>mode==='koffing-accept'
+            ?withRoxieKoffingConfirmation(()=>runMatch(request))
+            :runMatch(request)),{
+          requireLiveStore:true,
+          currentTrialId:()=>mode,
+          exampleLimit:32
+        }));
+      const treatment=watched.result;
+      rootAudit=watched.audit;
       audited=treatment.audit;
       const game=mode==='koffing-accept'
         ?treatment.result.value:treatment.result;
       const selection=roxieExposure(game,1);
-      rows.push({mode,status:'returned-native-Store',paper:{
+      rows.push({mode,status:'returned-native-Store',rootPlayAudit:rootAudit,paper:{
         schema:audited.schema,attempted:audited.resolvedNativeReplies,
         accepted:audited.nativeAccepted,invalid:audited.vetoedBeforeDispatch,
         roxiePaymentPrompts:audited.inspectedRoxiePaymentPrompts,
@@ -89,7 +94,9 @@ function replay() {
       winnerUnqualified:game.winner??null});
     } catch(error) {
       audited=error?.agent41UnifiedPaperPromptPortfolio??null;
+      rootAudit=error?.agent15RoxieRootAudit??null;
       rows.push({mode,status:'paper-veto-or-native-abort',
+        rootPlayAudit:rootAudit,
         error:String(error?.message??error),
         paper:audited?{
           schema:audited.schema,attempted:audited.resolvedNativeReplies,
@@ -106,6 +113,7 @@ function replay() {
   }
   const completedNativeRows=rows.filter(x=>x.status==='returned-native-Store');
   return {version:VERSION,paperPortfolioVersion:PAPER_VERSION,
+    sourceRootObserverVersion:ROOT_VERSION,
     historicalSourceMechanism:'agent43-rank31-koffing-root-confirmation-pair',
     preregistered:false,retrospective:true,
     sourceRank:31,referenceRank:1,
