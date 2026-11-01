@@ -73,3 +73,14 @@ test('eight immediate Basic-search Items narrow uncovered solo starters',()=>{
   invalid.manifest.entries.find(e=>e.name_en==='Fog Crystal').count=3;
   assert.throws(()=>model.analyze(invalid.manifest,invalid.audit));
 });
+
+test('discard-cost-sensitive access tiers retain exact 29-rank location envelope',()=>{
+  const {manifest,audit}=mockInputs();
+  const tiers=model.analyze(manifest,audit).optionalDiscardAccessSensitivity.tiers;
+  assert.deepEqual(tiers.map(x=>x.searcherCopies),[8,10,11,15]);
+  for(const [i,expected] of [0.02042247352512743,0.013824747492984547,
+    0.011266884502394959,0.0046129423882219].entries())
+    approx(tiers[i].meanNoNamedSearcherExposure,expected);
+  assert.ok(tiers.every((x,i)=>i===0||
+    x.meanNoNamedSearcherExposure<tiers[i-1].meanNoNamedSearcherExposure));
+});
