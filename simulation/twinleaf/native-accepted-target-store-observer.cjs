@@ -14,7 +14,10 @@ const VERSION='actual-store-physical-target-witness-v1';
  * normalization could wrongly link distinct physical cards.
  */
 const EXACT_ROOT_PRINTING_ALIASES=Object.freeze({
-  'Telepathic Psychic Energy':'Telepath [P] Energy M3'
+  'Telepathic Psychic Energy':'Telepath [P] Energy M3',
+  // Four authenticated rank5 Store abort receipts matched the same seat,
+  // turn and action, differing only in this legacy printed name's hyphen.
+  'Dedenne-GX':'Dedenne GX UNB'
 });
 
 /** @param {string} rootName @param {string} printing @returns {boolean} */
