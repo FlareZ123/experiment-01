@@ -117,3 +117,30 @@ test('all new Stadium owner intents require the exact native public physical pla
     },{}),'no-confirmed-public-effect',kind+' must match exact printing');
   }
 });
+
+test('Beach and Ceremony native uses require exact draw and terminated turn',()=>{
+  const {rootPhysicalWitness}=
+    require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  for(const [kind,printing,handStart,draw] of [
+    ['use-tropical-beach','Tropical Beach BWP',3,4],
+    ['use-players-ceremony',"Player's Ceremony SP127",3,2]
+  ]){
+    const before={inPlayStadiumPrintings:[printing],
+      handCount:handStart,deckCount:12,stadiumUsedTurn:4,
+      turn:5,phase:2,activePlayer:0};
+    const after={...before,
+      handCount:handStart+draw,deckCount:12-draw,
+      stadiumUsedTurn:5,turn:6,activePlayer:1};
+    assert.equal(rootPhysicalWitness({kind},before,after,{}),
+      'confirmed-public-effect',kind+' should witness real public draw/end turn');
+    assert.equal(rootPhysicalWitness({kind},before,
+      {...after,deckCount:11-draw},{}),'no-confirmed-public-effect',
+      kind+' must conserve exactly drawn cards');
+    assert.equal(rootPhysicalWitness({kind},before,
+      {...after,turn:5,activePlayer:0,phase:2},{}),
+      'no-confirmed-public-effect',kind+' must actually end turn');
+    assert.equal(rootPhysicalWitness({kind},{...before,
+      inPlayStadiumPrintings:[]},after,{}),
+      'no-confirmed-public-effect',kind+' must have matching Stadium');
+  }
+});
