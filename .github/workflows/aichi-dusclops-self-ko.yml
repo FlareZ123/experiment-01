@@ -29,3 +29,5 @@ jobs:
         run: node --test tests/dusclops-self-ko-condition.test.cjs
       - name: Validate source-card Ditto direct Stage-2 transformation and reroll
         run: node --test tests/ditto-stage2-store.test.cjs
+      - name: Verify original rank31 Duskull PRE discard-zone paper correction in native Store
+        run: node --test tests/agent28-native-duskull-discard-paper-hook.test.cjs
