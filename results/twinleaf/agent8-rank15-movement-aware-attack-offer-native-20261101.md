@@ -34,3 +34,16 @@ This is **staged native positive/negative evidence and a read-only same-root pro
 A next actor-policy study should retain both physical seats and all baseline root decisions, turn on the bounded receipt only under a frozen new development profile, and compare identical original rank-15 physical deals, true native proposal acceptance, follow-on root and responding source opponent. Printed nominal damage still needs a defensively aware final damage model before it can be a universal ranking rule.
 
 **29/32 original source 60s; 0 competitively qualified games; 99.5% target unverified.**
+
+## Applied same-root chooser and genuine native attack, 1 November follow-up
+
+The earlier report certified only the independent offer. The next [manual native CI 41324432079](https://github.com/FlareZ123/experiment-01/actions/runs/41324432079) expanded the same two-seat regression to exercise the **actual `collectAndChooseOwnerRoot` applied selector** from a genuine `chooseActorRootIntent` control and then dispatch its selected attack into the real Store:
+
+- **Receipt absent**: historical actor root and applied same-root chooser both choose `Gale Thrust`.
+- **Authentic stationary public receipt present**: default-off exact-printing arbitration displaces baseline `Gale Thrust` with `Spiky Hopper`, then genuine Store attack deals **160**.
+- **Authentic moved public receipt present**: the applied selector preserves `Gale Thrust`, which deals **230** in genuine Store.
+- Both physical seats passed the complete four native same-root root/attack cases. Exact native `Mega Lopunny ex M2` alias remains source-validated against original PFL #84.
+
+This additionally verifies that the proposal can cross the existing same-root selection score gate. It remains **staged board evidence**, with original-source full-game opportunity, opponents' strategic responses, global paper-clock, and win-rate inference unproven. The workflow's overall conclusion is still failure on the separately known Cologne sudden-death assertion.
+
+A new preregistered **16 controlled + 16 treatment original-rank15 native development-attempt** study is frozen in `results/aichi-2026/registrations/agent8-rank15-movement-root-paired-native-20261101.json`, with independent unscreened seeds, both fixed candidate 60s, both physical source seats, and treatment `sameRootPublicEventReceipt=true` only. Its results, if any, must be reported separately from the already-passed staged fixtures.
