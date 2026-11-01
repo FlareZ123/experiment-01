@@ -97,3 +97,14 @@ test('live Store observer counts once per turn, restores hooks, retains actions'
   assert.equal(x.audit.attemptedActionChanges,0);
   assert.strictEqual(Store.prototype.dispatch,original);
 });
+
+test('already-payable direct Active KO excludes gust opportunity',()=>{
+  const v=view();
+  v.ownPublic.active=attacker();
+  v.opponentPublic.active={hp:90,damage:0,
+    tools:[],printed:{resistance:[]}};
+  const o=classifyGuzmaRoot(v,catalog);
+  assert.equal(o.directActiveNominalKo,true);
+  assert.equal(o.nominalKoPairCount,1);
+  assert.equal(o.nonfinalPrizeOpportunity,false);
+});
