@@ -131,4 +131,13 @@ function frozenBilateralEvidenceMatrix(result){
   };
 }
 
+if(require.main===module){
+  assert.equal(process.argv.length,3,
+    'Expected an existing frozen native JSON evidence path');
+  const data=JSON.parse(require('node:fs').readFileSync(
+    process.argv[2],'utf8'));
+  process.stdout.write(JSON.stringify(frozenBilateralEvidenceMatrix(data),
+    null,2)+'\n');
+}
+
 module.exports={VERSION,frozenBilateralEvidenceMatrix};
