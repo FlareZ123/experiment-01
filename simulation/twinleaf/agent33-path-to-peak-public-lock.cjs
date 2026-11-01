@@ -1,6 +1,42 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent33-path-to-peak-visible-actionable-power-v2';
+const VERSION='agent33-path-to-peak-physical-used-fusion-v3';
+const {VERSION:FUSION_USAGE_VERSION}=
+  require('./agent33-public-fusion-usage.cjs');
+
+/**
+ * Accept only a same-turn, same-seat native observed per-physical-copy
+ * Fusion Strike System ledger matching every visible Genesect board slot.
+ * Invalid/missing proof means all Genesect remain protected.
+ * @param {object} view Detached actor observation.
+ * @param {object|null} usage Native owner-public source marker sidecar.
+ * @returns {Set<number>} Original active/bench indices whose power is spent.
+ */
+function verifiedUsedFusionSlots(view,usage){
+  const spent=new Set();
+  if(!usage||usage.schema!==FUSION_USAGE_VERSION||
+      usage.actorSeat!==view.actorSeat||
+      usage.globalTurn!==view.globalTurn||
+      !Array.isArray(usage.faceUp))return spent;
+  const expected=[view.ownPublic?.active,...(view.ownPublic?.bench??[])]
+    .map((slot,index)=>({slot,index}))
+    .filter(x=>x.slot?.printing==='Genesect V FST');
+  if(expected.length!==usage.faceUp.length||
+      usage.faceUpGenesectCount!==expected.length)return spent;
+  let seenUsed=0;
+  for(let j=0;j<expected.length;j++){
+    const {index}=expected[j],actual=usage.faceUp[j];
+    if(actual?.printing!=='Genesect V FST'||
+        actual?.location!==(index===0?'active':'bench')||
+        actual?.benchIndex!==(index===0?null:index-1)||
+        typeof actual.usedThisTurn!=='boolean')return new Set();
+    if(actual.usedThisTurn){seenUsed++;spent.add(index);}
+  }
+  if(usage.usedCount!==seenUsed||
+      usage.unspentCount!==expected.length-seenUsed)return new Set();
+  return spent;
+}
+
 
 /**
  * Exactly printed Rule Box Abilities that trigger only on playing the Basic
@@ -48,7 +84,7 @@ function prospectiveHeldPrintedAbility(printing,playerPublic,catalog){
  * Pokémon and no held ability-bearing evolution. Only the frozen public
  * print catalog and visible opponent board determine target applicability.
  */
-function choosePathToPeakOpposingAbility(view,catalog){
+function choosePathToPeakOpposingAbility(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
   const locks=catalog.ruleboxAbilityPrintings;
@@ -62,12 +98,15 @@ function choosePathToPeakOpposingAbility(view,catalog){
   if(stadium.length>0||r.stadiumPlayLocked!==false||
     !Number.isSafeInteger(r.stadiumPlayedTurn)||
     r.stadiumPlayedTurn>=view.globalTurn)return null;
-  const cards=[own.active,...(own.bench??[])].filter(Boolean);
-  if(cards.some(slot=>actionablePrintedAbility(slot,own,catalog)||
+  const usedFusionSlots=verifiedUsedFusionSlots(view,options.ownFusionUsage);
+  const cards=[own.active,...(own.bench??[])];
+  if(cards.some((slot,index)=>slot&&(
+      (actionablePrintedAbility(slot,own,catalog)&&
+        !(slot.printing==='Genesect V FST'&&usedFusionSlots.has(index)))||
       (ruleboxes.has(slot.printing)&&slot.tools?.some(print=>
         print.startsWith('Forest Seal Stone ')||
         print.startsWith('Sky Seal Stone '))&&
-        own.publicTurnRestrictions?.vstarUsed!==true)))return null;
+        own.publicTurnRestrictions?.vstarUsed!==true))))return null;
   if(view.ownHand.some(printing=>
     prospectiveHeldPrintedAbility(printing,own,catalog)))return null;
   const opponents=[view.opponentPublic?.active,
@@ -84,7 +123,11 @@ function choosePathToPeakOpposingAbility(view,catalog){
   if(index<0)return null;
   return {kind:'play-path-to-peak',
     handIndex:index,printing:view.ownHand[index],
-    reason:'public-opposing-rulebox-ability-and-no-owner-self-lock'};
+    reason:'public-opposing-rulebox-ability-and-no-owner-self-lock',
+    ...(usedFusionSlots.size>0?{
+      spentOwnerFusionSlotIndices:[...usedFusionSlots].sort((a,b)=>a-b)
+    }:{})};
 }
 module.exports={VERSION,choosePathToPeakOpposingAbility,
-  actionablePrintedAbility,prospectiveHeldPrintedAbility};
+  actionablePrintedAbility,prospectiveHeldPrintedAbility,
+  verifiedUsedFusionSlots};
