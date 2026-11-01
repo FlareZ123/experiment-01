@@ -29,3 +29,11 @@ Crosschecking those 11 names against the **29 exact original opposing Aichi sour
 3. Execute the new two-seat movement-observation regression in an **existing manual-only workflow**, then verify a **real Guzma-generated** history marker, observed printings, genuine Store actions, last-root completion and an independently responding opponent. The latter is required before treating the policy as competitively tested.
 
 This result was handed directly to Agent41 in `communications/agent41/20261031T0055Z_agent8_rank15_move_history_observation_gate.md`. No source or common-choice policy has yet been altered. The main qualification gate remains **29/32 exact opponent 60s, zero competitively qualified games, no demonstrated 99.5% deck**.
+
+## 1 November 2026 compiled same-board native result
+
+The previously pending two-seat staged regression **passed** at [compiled manual CI 41321832378](https://github.com/FlareZ123/experiment-01/actions/runs/41321832378), and passed again at [41322144796](https://github.com/FlareZ123/experiment-01/actions/runs/41322144796). The workflow jobs had unrelated Pidgeot test failures; the movement subtests each reported pass on physical seats 0 and 1. Pinned native `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+The staged stationary/moved boards yielded **exactly equal original `actorObservation` objects**, while the native completed `Gale Thrust` dealt **60 versus 230 damage** on each physical seat. The extended test also verifies that the separate detached `publicEventReceipt` exposes `ownerActive.movedFromBenchToActiveThisTurn` as `false` versus `true` on those two real Store states. The movement marker is intentionally **staged** in these tests. The independent genuine Guzma movement result cited above remains a separate source-printing control; these tests do not constitute a qualified two-player policy chooser or tournament-game evidence.
+
+This closes the originally pending compiled native test and supports an owner-public-event sufficiency requirement for the common decision policy. **Competitive-qualified games remain 0.**
