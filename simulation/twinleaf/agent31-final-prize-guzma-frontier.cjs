@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {fundedPlainAttacks}=require('./agent31-forced-guzma-ko-frontier.cjs');
 const {isGuzma}=require('./agent2-held-guzma-mobility-frontier.cjs');
 
-const VERSION='agent31-final-prize-guzma-owner-public-v1';
+const VERSION='agent31-final-prize-guzma-owner-public-v2-shared-prize-selector';
 
 /**
  * A fixed printed attack is only a nominal KO when it covers remaining HP
@@ -48,11 +48,11 @@ function nominalKo(target,attacker,attack){
  * @param {object} catalog Public CardManager printing catalog.
  * @returns {object|null}
  */
-function chooseFinalPrizeGuzma(view,catalog){
+function chooseNominalPrizeGuzma(view,catalog,prizeGuard,planFamily){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,opponent=view.opponentPublic;
   const r=view.ownTurnResources;
-  if(view.globalTurn<=1 || own?.prizeCount!==1 ||
+  if(view.globalTurn<=1 || !prizeGuard(own?.prizeCount) ||
      !own.active||!opponent?.active||
      !Array.isArray(own.bench)||!Array.isArray(opponent.bench)||
      !Array.isArray(view.ownHand)||
@@ -98,10 +98,35 @@ function chooseFinalPrizeGuzma(view,catalog){
     kind:'play-guzma-forced-nominal-ko',
     handIndex,printing:view.ownHand[handIndex],
     ...options[0],
-    planFamily:'last-prize-multi-bench-nominal-gust',
-    finalPrizeBeforeRoot:1,
+    planFamily,
+    prizeCardsRemainingBeforeRoot:own.prizeCount,
+    finalPrizeBeforeRoot:own.prizeCount===1?1:null,
     nativeOpponentTargetMustMatchIndex:true,
     actualKoAndTacticalBenefitUnverified:true
   };
 }
-module.exports={VERSION,nominalKo,chooseFinalPrizeGuzma};
+/**
+ * Final-Prize special case: a resulting genuine native KO could end the game.
+ * @param {object} view
+ * @param {object} catalog
+ * @returns {object|null}
+ */
+function chooseFinalPrizeGuzma(view,catalog){
+  return chooseNominalPrizeGuzma(view,catalog,
+    prizes=>prizes===1,'last-prize-multi-bench-nominal-gust');
+}
+
+/**
+ * Exploratory nonfinal Prize trade: a nominal knockout may improve the
+ * exchange, but opponent responses and Supporter opportunity cost can
+ * reverse that apparent gain. It cannot be promoted without paired testing.
+ * @param {object} view
+ * @param {object} catalog
+ * @returns {object|null}
+ */
+function choosePrizeTradeGuzma(view,catalog){
+  return chooseNominalPrizeGuzma(view,catalog,
+    prizes=>Number.isSafeInteger(prizes)&&prizes>=2&&prizes<=6,
+    'nonfinal-prize-trade-nominal-gust');
+}
+module.exports={VERSION,nominalKo,chooseFinalPrizeGuzma,choosePrizeTradeGuzma};
