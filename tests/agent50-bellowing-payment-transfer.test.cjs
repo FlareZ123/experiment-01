@@ -16,3 +16,10 @@ test('physical Basic selection uses aggregate identity and original index',()=>{
  assert.equal(selected[0].card,light);
  assert.deepEqual(selected[0].from,{player:2,slot:3,index:0});
 });
+test('physical transfer resolves relative to owner in seat one',()=>{
+ const e={fullName:'Lightning Energy MEE',energyType:1};
+ const o={id:7,active:{cards:[{name:'Raging Bolt ex'},e],energies:{cards:[e]}},bench:[]};
+ const other={id:9};
+ const p=decodePayment({players:[other,o]},new DiscardEnergyPrompt(7),o,[{slot:'active',index:0,energyIndex:0,printing:e.fullName}],types);
+ assert.equal(p[0].card,e);
+});
