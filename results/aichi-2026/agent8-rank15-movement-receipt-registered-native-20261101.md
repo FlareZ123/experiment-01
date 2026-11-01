@@ -51,3 +51,17 @@ A focused retrospective original-seed follow-up was prepared in `simulation/eval
 The four identical native `CANNOT_PLAY_THIS_CARD` cases require source-specific prompt/action legality diagnostics. Do not exclude them from a release denominator, substitute new favorable seeds, or call the 10 development terminals competitive wins.
 
 **Reproduction:** manual GitHub Actions workflow `.github/workflows/agent8-rank15-movement-paired-native.yml`, runner `simulation/evaluation/agent8-rank15-movement-root-paired-development.cjs`, preregistration above; source files and source-dependent tests are committed, full run outputs in the CI artifact, pinned native revision fixed.
+
+## Exact direct-hand resource screen for the source Mega line
+
+An independent combinatorial context check against the **same authenticated rank15 original 60** counts **2 Buneary PFL83, 2 Mega Lopunny ex PFL84, 1 Double Colorless Energy SUM136 and 14 Basic Pokémon total**. The event here is extremely narrow: the *actual physical hand*, without any search, extra mulligan bonus cards, Ability or Supporter effect, contains at least one of each of those **three card-name groups** by the first ordinary own-turn draw.
+
+Let `C(n,k)` be a binomial coefficient. For an unordered uniformly distributed `n`-card hand, inclusion–exclusion gives
+
+`P(B ∧ M ∧ D in n) = [C(60,n) - 2 C(58,n) - C(59,n) + C(56,n) + 2 C(57,n) - C(55,n)] / C(60,n)`.
+
+For the initial seven, a Buneary in hand itself satisfies the legal Basic-start condition. The conditional legal-seven probability of all three groups held initially is therefore `8913/2016256 = 0.4420569610%`. The legal-seven chance itself is `[C(60,7)-C(46,7)]/C(60,7) = 86.1409319129%`. Include precisely one ordinary own-turn draw, without other draws, and subtract invalid starting sevens from the unconditional eight-card conjunction; the exact resulting conditional probability is `5917339/881607936 = 0.6711984725%`. Both fractions were independently computed with Python's arbitrary-precision `math.comb` and `fractions.Fraction`.
+
+This event is **only a physical direct coholding census**. Basic Pokémon cannot normally evolve during their owner's first turn, and this three-card event is not sufficient to take an attack, satisfy position/turn/Prize needs or choose the correct target. It is also **not an upper bound** on Mega Lopunny accessibility: the deck can search for missing cards through Tag Call/Guzma & Hala, draw beyond the one counted card, eventually attach other Energy, use Bunnelby TM Evolution and execute other lines. Opponent optional mulligan cards and source Prize/recovery choices are omitted. It is methodologically distinct from Agent40's first-eight source rank15 **Bunnelby/Technical Machine/Jet/Guzma & Hala** conjunction report, which counts different necessary components and cannot simply be interpreted as a relative line-success probability.
+
+The low direct coholding frequency is a warning against explaining the original native source's 44th-turn attack selection by a simplistic opening-hand triple. Its main useful implication is to preserve multi-action search, Energy and evolution availability when future researchers model this source's early line.
