@@ -93,6 +93,37 @@ def source_thorns_volt_cyclone_base_cost_shape(attack, source_seat):
             else "observed-base-cost-unpayable")
 
 
+def rank11_full_bench_trubbish_call_family_shape(attack, source_seat):
+    """Count paper empty-Bench effects and printed *base* alternative costs.
+
+    This is a source actor policy cue, not permission to bypass any attack-
+    specific prohibitions or global cost modifiers in a full game state.
+    """
+    if attack.get("attackName") != "Call for Family":
+        return "other-attack"
+    boards = attack.get("publicBoardBefore")
+    if not isinstance(boards, list) or len(boards) != 2:
+        return "unknown-public-board"
+    board = boards[source_seat]
+    active = board.get("active")
+    if not active or active.get("name") != "Trubbish":
+        return "unknown-source-attacker"
+    if len(board.get("bench", [])) < 5:
+        return "bench-room-call-for-family"
+    if "Super Poison Breath" not in {
+            move["name"] for move in active.get("printedAttacks", [])}:
+        return "full-bench-no-printed-alternate"
+    stadiums = [name for seat in boards for name in seat.get("stadium", [])]
+    if stadiums:
+        return "full-bench-alternative-modifiers-unverified"
+    energy = Counter(active.get("energyCards", []))
+    if set(energy) - {"Darkness Energy"}:
+        return "full-bench-energy-type-unverified"
+    return ("full-bench-super-poison-base-payable"
+            if energy["Darkness Energy"] >= 2
+            else "full-bench-super-poison-base-short")
+
+
 def audit_archive(path):
     path = Path(path)
     raw_bytes = path.read_bytes()
@@ -123,6 +154,8 @@ def audit_native(data, archive_sha256="synthetic"):
     energy_dispatch_ordinal_offsets = Counter()
     source_attack_base_cost = Counter()
     source_attack_bench_branch = Counter()
+    rank11_call_family_policy = Counter()
+    rank11_full_bench_opponents = Counter()
     gaps = Counter()
     source_rows = []
 
@@ -249,6 +282,19 @@ def audit_native(data, archive_sha256="synthetic"):
                     source_attack_bench_branch["own-bench-one-move-prompt"] += 1
                 else:
                     source_attack_bench_branch["unexpected-bench-prompt-shape"] += 1
+        if row["trial"]["rank"] == 11:
+            for attack in row["sourceAttackSettlement"]["attacks"]:
+                if attack.get("attackName") != "Call for Family":
+                    continue
+                classification = rank11_full_bench_trubbish_call_family_shape(
+                    attack, row["sourceSeat"])
+                rank11_call_family_policy[classification] += 1
+                if classification == "full-bench-super-poison-base-payable":
+                    opponent = attack["publicBoardBefore"][row["candidateSeat"]]
+                    opponent_active = opponent.get("active")
+                    rank11_full_bench_opponents[
+                        opponent_active.get("name")
+                        if opponent_active else "no-active"] += 1
         source_rows.append({
             "trial": trial_id,
             "root_actions": len(ledger),
@@ -287,6 +333,8 @@ def audit_native(data, archive_sha256="synthetic"):
         "volt_cyclone_public_energy_transfers": dict(energy_shape),
         "rank6_source_printed_volt_cyclone_base_cost": dict(source_attack_base_cost),
         "rank6_volt_cyclone_bench_prompt_branch": dict(source_attack_bench_branch),
+        "rank11_source_call_for_family_policy": dict(rank11_call_family_policy),
+        "rank11_full_bench_payable_opponent_active": dict(rank11_full_bench_opponents),
         "energy_sidecar_minus_root_ordinal": {
             str(key): count for key, count in sorted(
                 energy_dispatch_ordinal_offsets.items())
