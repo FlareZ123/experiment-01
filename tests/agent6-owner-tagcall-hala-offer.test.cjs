@@ -163,3 +163,25 @@ test('authenticated two-card deck-search menu selects only G&H if allowed',()=>{
   assert.deepEqual(chooseAuthenticatedTagCallHala(input,origin),
     {printings:['Tag Team A',GUZMA_HALA]});
 });
+
+test('second native TAG TEAM selection is explicit and validated',()=>{
+  const input={actor:{actorSeat:0,decisionKind:'owner-prompt'},
+    prompt:{id:77,source:'own-deck',message:'CHOOSE_CARD_TO_HAND',
+      bundles:[{printings:[GUZMA_HALA]},
+        {printings:['Cynthia & Caitlin CEC',GUZMA_HALA]},
+        {printings:['Bellelba & Brycen-Man CEC',GUZMA_HALA]}]}};
+  const receipt={acceptedNativeTagCall:true,actorSeat:0,
+    originPrinting:TAG_CALL,ownerPromptId:77};
+  assert.deepEqual(chooseAuthenticatedTagCallHala(input,receipt),
+    {printings:[GUZMA_HALA]});
+  assert.deepEqual(chooseAuthenticatedTagCallHala(input,receipt,{
+    secondaryTagTeamPriority:['Cynthia & Caitlin CEC']
+  }),{printings:['Cynthia & Caitlin CEC',GUZMA_HALA]});
+  assert.deepEqual(chooseAuthenticatedTagCallHala(input,receipt,{
+    secondaryTagTeamPriority:['Bellelba & Brycen-Man CEC']
+  }),{printings:['Bellelba & Brycen-Man CEC',GUZMA_HALA]});
+  assert.equal(chooseAuthenticatedTagCallHala(input,
+    {...receipt,acceptedNativeTagCall:false},{
+    secondaryTagTeamPriority:['Cynthia & Caitlin CEC']
+  }),null);
+});
