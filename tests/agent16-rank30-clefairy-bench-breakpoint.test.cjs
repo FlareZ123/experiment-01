@@ -20,8 +20,10 @@ test('rank30 original inventory and New Moon 60 preserve distinct printing count
 test('full moon printed Psychic weakness creates a six-Bench two-prize-channel threat',()=>{
   const x=analyze();
   assert.deepEqual(x.targetBreakpoints.map(t=>t.totalBenchesForOHKO),
-    [6,10,15]);
-  assert.deepEqual(x.targetBreakpoints.map(t=>t.prizesPerKO),[3,2,3]);
+    [6,10,15,6,5]);
+  assert.equal(x.publishedRegidragoSources,9);
+  assert.equal(x.perfectionCannotCopyClefairyEx,true);
+  assert.deepEqual(x.targetBreakpoints.map(t=>t.prizesPerKO),[3,2,3,2,2]);
   assert.equal(x.normalTwoBenchMaximum,10);
   assert.equal(x.skyFieldTwoBenchMaximum,16);
   assert.equal(x.targetBreakpoints[0].hp,270);
@@ -33,4 +35,9 @@ test('full moon printed Psychic weakness creates a six-Bench two-prize-channel t
   assert.equal(minimumBenches(attacker,mew,6),6);
   assert.equal(minimumBenches(attacker,vmax,10),null);
   assert.equal(minimumBenches(attacker,vmax,16),15);
+  const drago=card('swsh12','swsh12-136');
+  assert.equal(minimumBenches(attacker,drago,10),null);
+  assert.equal(minimumBenches(attacker,drago,10,{fairyZoneActive:true}),6);
+  assert.match(mew.abilities.find(x=>x.name==='Perfection').text,
+    /Pokémon-GX or Pokémon-EX/);
 });
