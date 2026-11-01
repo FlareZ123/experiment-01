@@ -125,3 +125,28 @@ test('Volt Cyclone with no source Bench settles without Energy movement',()=>{
   assert.equal(auditFrozenPromptCoverage({rows:[row]}).
     sourceVoltCycloneConditionalEffectCoverageComplete,false);
 });
+
+test('native following turn separates next attack, pass, and right censor',()=>{
+  const turn7={actionOrdinal:0,turnBefore:7,playerSlot:1,
+    action:'AttackAction',attack:'Volt Cyclone'};
+  const original={trial:{id:'6:0:A:continuation',rank:6},sourceSeat:1,
+    rootActionCount:1,rootActionLedger:[turn7],
+    nativePromptChoices:{events:[]},
+    nativeAcceptedEnergyPromptSidecar:{events:[]},
+    sourceAttackSettlement:{attacks:[{actionOrdinal:0,turnBefore:7,attackName:'Volt Cyclone',
+      settledPromptChain:true,publicBoardBefore:[{}, {bench:[]}]}]}};
+  const censor=auditFrozenPromptCoverage({rows:[original]});
+  assert.equal(censor.sourceVoltCycloneUnobservedNextTurn,1);
+  assert.equal(censor.sourceVoltCycloneSoloObservedNextTurn,0);
+  const advanced={...original,rootActionCount:2,
+    rootActionLedger:[turn7,{actionOrdinal:1,turnBefore:9,playerSlot:1,
+      action:'AttackAction',attack:'Volt Cyclone'}]};
+  const attacked=auditFrozenPromptCoverage({rows:[advanced]});
+  assert.equal(attacked.sourceVoltCycloneSoloObservedNextTurn,1);
+  assert.equal(attacked.sourceVoltCycloneSoloImmediateRepeatAttack,1);
+  advanced.rootActionLedger[1]={actionOrdinal:1,turnBefore:9,playerSlot:1,
+    action:'PassTurnAction'};
+  const passed=auditFrozenPromptCoverage({rows:[advanced]});
+  assert.equal(passed.sourceVoltCycloneSoloObservedNextTurn,1);
+  assert.equal(passed.sourceVoltCycloneSoloImmediateRepeatAttack,0);
+});
