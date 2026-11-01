@@ -112,6 +112,25 @@ test('zero-cap and nonwhole packet PutDamage answers are predispatch vetoes; val
   assert.equal(audit.nativeAccepted,1);
 });
 
+test('independent PutDamage zero target is still vetoed when native prompt validator is false',()=>{
+  const s=state(),owner=s.players[0];
+  const target={player:1,slot:'bench',index:0};
+  const prompt=new PutDamagePrompt(8,owner,{damageMultiple:10},
+    [{target,damage:0}]);
+  prompt.validate=()=>false;
+  s.prompts=[prompt];
+  const store=new FakeStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>{
+    assert.throws(()=>store.dispatch(new ResolvePromptAction(8,[
+      {target,damage:10}])),/PRINTED_TARGET_ZERO_CAP/);
+    assert.equal(store.mutations,0);
+    return store.dispatch(new ResolvePromptAction(8,[{target,damage:0}]));
+  },deps).audit;
+  assert.equal(audit.vetoedBeforeDispatch,1);
+  assert.equal(audit.nativeAccepted,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
+});
+
 test('positively reducer-marked original Volt Cyclone accepts only one own Active Energy moved to occupied Bench',()=>{
   const s=state(),owner=s.players[0],energy={superType:'energy'};
   owner.active.cards.push(energy);
