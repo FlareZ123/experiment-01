@@ -1,0 +1,40 @@
+name: Agent 43 fresh rank11 original Guzma nominal gust paired native
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-original-rank11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore exact pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify frozen original 60, eight seeds, trials and pin before native play
+        run: node simulation/evaluation/agent43-guzma-nominal-fresh-rank11-pair.cjs --inspect-only
+      - name: Execute all 32 preregistered original Store arms, both seats, both 60s
+        env:
+          AGENT43_FRESH_GUZMA_NATIVE_OUTPUT: ${{ runner.temp }}/agent43-rank11-fresh-original-32arm.json
+        run: node simulation/evaluation/agent43-guzma-nominal-fresh-rank11-pair.cjs
+      - name: Preserve complete failure-inclusive native raw archive
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-fresh-rank11-original-guzma-nominal-raw
+          path: ${{ runner.temp }}/agent43-rank11-fresh-original-32arm.json
+          if-no-files-found: warn
