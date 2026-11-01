@@ -47,6 +47,10 @@ jobs:
           node --check simulation/twinleaf/agent41-rank24-paper-supporter-opposite-seat-native.cjs
           node --check simulation/twinleaf/owner-deck-search-witness.cjs
           node --test tests/aichi-thorns-crossrank-opening.test.cjs tests/rank6-broad-thorns-policy.test.cjs tests/owner-deck-search-witness.test.cjs tests/owner-k1-deck-membership.test.cjs tests/owner-k0-observable-inventory.test.cjs tests/native-supporter-turn-audit.test.cjs tests/paper-supporter-quota-guard.test.cjs tests/supporter-proposal-paper-quota.test.cjs tests/agent41-paper-supporter-discipline.test.cjs
+      - name: Census exact Aichi original printed attack exceptions
+        run: |
+          node --test tests/agent34-source-printed-attack-exemptions.test.cjs
+          node -e "const r=require('./simulation/evaluation/agent34-source-printed-attack-exemptions.cjs').run();console.log('AGENT34_AICHI_PRINTED_ATTACK_EXEMPTIONS',JSON.stringify({sourceDecks:r.sourceDecks,uniquePokemonPrintings:r.sourcePokemonPrintings,matchingPrintings:r.resolvedPrintedExceptions,unresolved:r.unresolvedPrintingCount,byKind:r.byKind,weaknessExceptions:r.rows.filter(x=>x.attacks.some(a=>a.kinds.includes('disregardWeaknessResistance'))).map(x=>({name:x.name,set:x.set,number:x.number,ranks:x.ranks}))}));"
       - name: Install pinned engine packages
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -106,10 +110,6 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Test actor-visible Fog prompt and typed action acceptance
         run: node --test tests/agent9-fog-actor-prompt.test.cjs
-      - name: Census exact Aichi original printed attack exceptions
-        run: |
-          node --test tests/agent34-source-printed-attack-exemptions.test.cjs
-          node -e "const r=require('./simulation/evaluation/agent34-source-printed-attack-exemptions.cjs').run();console.log('AGENT34_AICHI_PRINTED_ATTACK_EXEMPTIONS',JSON.stringify({sourceDecks:r.sourceDecks,uniquePokemonPrintings:r.sourcePokemonPrintings,matchingPrintings:r.resolvedPrintedExceptions,unresolved:r.unresolvedPrintingCount,byKind:r.byKind,weaknessExceptions:r.rows.filter(x=>x.attacks.some(a=>a.kinds.includes('disregardWeaknessResistance'))).map(x=>({name:x.name,set:x.set,number:x.number,ranks:x.ranks}))}));"
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
