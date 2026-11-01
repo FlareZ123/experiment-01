@@ -3,8 +3,10 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {runRank31RoxieSpoons,probeRoxieChoiceIndexShift}=require(
-  '../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
+const {
+  runRank31RoxieSpoons,probeRoxieChoiceIndexShift,
+  probeRoxieForbiddenGXPayment
+}=require('../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
 
 test('the authenticated published rank31 source physically plays all three required printing families',()=>{
   const d=JSON.parse(fs.readFileSync(path.resolve(__dirname,
@@ -84,4 +86,17 @@ test('pinned Roxie ChooseCards treats identical genuine Koffing differently by o
   assert.equal(last.nativeStoreError,null);
   assert.equal(first.promptSettled,true);
   assert.equal(last.promptSettled,true);
+});
+
+test('preregistered real rank31 Roxie forbidden-GX Store reply is observed on both physical seats',()=>{
+  for(const seat of [0,1]){
+    const result=probeRoxieForbiddenGXPayment(seat);
+    console.log('AGENT4_ROXIE_GX_NATIVE '+JSON.stringify(result));
+    assert.equal(result.seat,seat);
+    assert.equal(result.selectedPrinting,'Tapu Lele-GX GRI');
+    assert.equal(result.printedRoxieDisallowsPokemonGX,true);
+    assert.equal(result.validatorAccepted,false);
+    assert.ok(result.blocked.length>=1);
+    assert.ok(result.physicalCardsDrawn>=0);
+  }
 });
