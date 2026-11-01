@@ -56,3 +56,7 @@ owner root sees those slots and prioritizes the held Basic naturally.
 Placing Sky Field only after all attack choices would never execute the
 intended two-root line on attack-ready turns. This earlier location is
 deliberate and does not alter any existing behavior with the option OFF.
+
+## 1 November staged native closure
+
+[Compiled manual run 41273271820](https://github.com/FlareZ123/experiment-01/actions/runs/41273271820) passed the genuine two-seat native Sky Field ROS staged `PlayCardAction` test, including expansion to eight Bench slots in the pinned Store. This demonstrates an engine interaction and validates the earlier pure owner policy independently; **no** original-source Sky Field root is shown to be selected or strategically beneficial, and the flag remains default OFF.
