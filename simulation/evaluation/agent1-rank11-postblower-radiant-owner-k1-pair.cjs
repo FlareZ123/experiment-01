@@ -97,7 +97,7 @@ function run(){
         recipientFirstRealK1:firstRecipientK1,
         postBlowerRadiantOwnerK1Predicate:candidateK1,
         nativeQuickBallRoots:quickBall.length,
-        nativeRecipientOwnDeckChoices,
+        nativeRecipientOwnDeckChoices:nativeOpponentDeckChoices,
         recipientRadiantSelectionCommitted:recipient.radiantSearchSelected,
         nativeRadiantBenchPlayRoots:ownerRadiantPlays.length,
         nativeClimacticGateAbilityRoots:ownerClimacticGates.length,
