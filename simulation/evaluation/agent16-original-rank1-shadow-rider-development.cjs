@@ -103,7 +103,7 @@ function summarizeEight(rows){
         row.winner===row.sourceSeat?'source':'unknown';
       nativeWinners[winner]++;
     }
-    if(row.physicalZoneQualification?.status==='PHYSICAL_INTEGRITY_VERIFIED')
+    if(row.physicalZoneQualification?.status==='SETTLED_PHYSICAL_INTEGRITY_PASSED')
       physicalPass++;
     if(typeof row.fullPhysicalDealFingerprint==='string'&&
       row.fullPhysicalDealFingerprint.length===64)initialDealFingerprints++;
