@@ -18,3 +18,16 @@ test('more Hood and Arven increases this restricted resource event',()=>{
   assert.ok(b.jointProbability<c.jointProbability);
   assert.equal(directOpeningModel({hoodCopies:0,arvenCopies:0}).favorable,'0');
 });
+
+test('source proxy has 17 starting Basics and six Psychic providers',()=>{
+  const entries=require('../results/als/new-moon-lockbreak-english-proxy-60.json').entries;
+  const count=name=>entries.filter(e=>e.name_en===name)
+    .reduce((total,e)=>total+e.count,0);
+  assert.equal(entries.reduce((total,e)=>total+e.count,0),60);
+  assert.equal(count('Gengar & Mimikyu-GX'),1);
+  assert.equal(count('Dusclops'),2);
+  assert.equal(count('Basic Psychic Energy')+count('Telepathic Psychic Energy'),6);
+  assert.equal(count('Stealthy Hood'),0);
+  assert.equal(count('Arven'),0);
+  assert.equal(entries.filter(e=>e.type==='Pokémon').reduce((t,e)=>t+e.count,0),19);
+});
