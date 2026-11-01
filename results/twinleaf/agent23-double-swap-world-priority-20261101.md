@@ -40,3 +40,24 @@ The change improves *which* concealed counterfactuals a bounded budget tries. It
 Next, run the existing manually dispatched hidden-information workflow with both `agent23_native_opponent_hand_tape` and `agent23_native_bounded_opponent_hand_tape` enabled and `agent23_native_bounded_double_swap` true. Preserve 16-case per-root denominators, native strict tape errors and original-game action parity, and compare **successfully executable unique hand worlds**, rather than assuming `attempted` means `tested`. Check full original-source two-seat policy and paper-prompt qualifications independently before any claimed matchup win.
 
 **Benchmark boundary:** 29/32 exact source 60s; ranks 23, 25, 28 missing; **zero competitively qualified wins**; no validated fixed 60 or 99.5% result.
+
+
+## Compiled native verification after the original isolated tests
+
+The committed source-60 repeatability script is [`scripts/agent23-double-swap-field-diversity.cjs`](../../scripts/agent23-double-swap-field-diversity.cjs), with [Node regressions](../../tests/agent23-double-swap-field-diversity.test.cjs). It was executed in an isolated V8 harness, fetching the *actual* committed source registry, sampler and script. Its output exactly reproduces the frozen 29 rows, **439→441**, with only ranks 24 and 30 increasing. Its `cardKind` compatibility is explicit via native-like `trainerType`, `energyType` and `stage` fields.
+
+The first [compiled pinned-engine native GitHub Actions run 41346707938](https://github.com/FlareZ123/experiment-01/actions/runs/41346707938), head `2999031ef83f13015c8ee6bcebc6ac2d8685c70f`, completed successfully. Its Agent50 shared native job passed **152/152** pre-existing and **46/46** targeted hidden-world tests, including the new three-case sampler regression. Four genuine original historical Store/control arms each replayed **16/16** native counterfactual physical two-swap paths with zero failures or selected-action reversals. This verified the temporal-dead-zone fix under compiled pinned-engine conditions.
+
+The second [compiled native GitHub Actions run 41347316898](https://github.com/FlareZ123/experiment-01/actions/runs/41347316898), head `d1036f90f6ed7f136fc9b576c37ee018e2a1efb1`, also completed successfully. The shared job passed **152/152** broad and **48/48** targeted tests, now including the exact full 29-source replay and frozen row assertions. This run included newly exposed *actual unique-hand replay counts*, read from the original GitHub Actions diagnostic log:
+
+| Genuine, historical owner-root arm | Eligible distinct resulting hand multisets | Attempted paths | Successfully replayed distinct multisets | Native action reversals |
+| --- | ---: | ---: | ---: | ---: |
+| Rank 6, champion | 2,198 | 16 | 15 | 0 |
+| Rank 6, New Moon | 2,198 | 16 | 15 | 0 |
+| Rank 11, champion | 696 | 16 | 16 | 0 |
+| Rank 11, New Moon | 1,040 | 16 | 15 | 0 |
+| **Total** | **6,132** | **64** | **61** | **0** |
+
+All **64/64 physical double-swap tapes** were independently consumed successfully under strict native replay; the **61/64** count describes *distinct result-hand printings* within the 64 cases. Repeated physical routes are deliberately reported separately. Every original source/control decision matched under the same full physical root. No selected-action reversal was observed in those 61 selected distinct alternative hands.
+
+This evidence is a **bounded four-retrospective-root negative sensitivity result**, not a probability that the policy is information-safe. Under unverified reveal histories and without a defensible posterior over hidden opponent worlds, 61 selected alternative hands out of 6,132 eligible distinct hand multisets cannot establish statistical risk. None of these runs counts as a competitively qualified game. The exact sampler and tape improvements are fully compiled only for the **hand/deck** two-swap case; the newly introduced disjoint hand/face-down-Prize diagnostic has its separate pending compiled qualification.
