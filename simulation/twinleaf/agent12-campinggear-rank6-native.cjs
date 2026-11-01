@@ -43,9 +43,10 @@ function main(){
     captureInitialFullPhysicalDeal:true,
     captureFinalPublicBoard:true,
     label:'agent12-retrospective-source-held-gear-native-'+REPLAY_ID};
-  function execute(searchMode,paperGuard=false){
+  function execute(searchMode,paperGuard=false,strictPreflight=true){
     const treatment=searchMode!=='baseline';
-    const run=()=>runMatch(request);
+    const run=()=>runMatch(strictPreflight?request:
+      {...request,strictPromptValidation:false});
     let guardAudit=null;
     const guardedRun=()=>{
       const guarded=withPaperCampingGearPromptGuard(run);
@@ -116,17 +117,23 @@ function main(){
   const paperZero=execute('zero'),paperDouble=execute('two');
   const guardOne=execute('one',true),guardZero=execute('zero',true),
     guardDouble=execute('two',true);
+  // Isolate pinned Store acceptance from the headless pre-dispatch
+  // prompt-integrity check. These arms are unsafe diagnostic controls and
+  // are never eligible for game-quality inference.
+  const paperDoubleNoPreflight=execute('two',false,false);
+  const guardDoubleNoPreflight=execute('two',true,false);
   const bothPhysicalSame=baseline.status==='completed-native-development'&&
     withGear.status==='completed-native-development'&&
     baseline.sourceDealFingerprint===withGear.sourceDealFingerprint&&
     baseline.fullPhysicalDealFingerprint===withGear.fullPhysicalDealFingerprint;
-  const report={schema:'agent12-original-rank6-gear-pass-native-v4',
+  const report={schema:'agent12-original-rank6-gear-pass-native-v5',
     sourceTrial:REPLAY_ID,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     enginePin:ENGINE_PIN,candidateDeck:'original rank1 published 60',
     sourceDeck:'original rank6 published 60',
     originalScoutReplayedExactly:false,retrospective:true,
     bothPhysicalSame,baseline,withGear,paperZero,paperDouble,
     guardOne,guardZero,guardDouble,
+    paperDoubleNoPreflight,guardDoubleNoPreflight,
     paperCardinalityProbeDevelopmentOnly:true,
     improvementInGameWinRateEstablished:false,
     competitiveQualifiedGames:0};
@@ -135,7 +142,8 @@ function main(){
     assert.equal(bothPhysicalSame,true,
       'The treatment changed initial physical source/opponent deal');
   }
-  for(const arm of [paperZero,paperDouble,guardOne]){
+  for(const arm of [paperZero,paperDouble,guardOne,
+    paperDoubleNoPreflight]){
     if(arm.status==='completed-native-development'){
       assert.equal(arm.sourceDealFingerprint,baseline.sourceDealFingerprint);
       assert.equal(arm.fullPhysicalDealFingerprint,
