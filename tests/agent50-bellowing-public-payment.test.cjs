@@ -12,3 +12,9 @@ test('minimal raw KO uses public Bench Basic before Active',()=>{
 test('insufficient Basic cards cannot offer an immediate raw KO',()=>{
  assert.equal(chooseBellowingPayment(view(281,0),basic),null);
 });
+test('source confirmation prevents cross-attack payment',()=>{
+ const v=view(70,0);
+ assert.equal(chooseBellowingPayment({...v,decisionKind:'owner-root'},basic),null);
+ v.ownPublic.active.printing='Regidrago V SIT';
+ assert.equal(chooseBellowingPayment(v,basic),null);
+});
