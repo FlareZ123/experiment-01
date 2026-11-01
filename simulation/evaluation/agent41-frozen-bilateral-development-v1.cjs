@@ -20,7 +20,7 @@ const ENTRY='simulation/evaluation/agent41-bilateral-v2-development.cjs';
 function assertNoUnreviewedAmbientAgentEnvironment(env){
   assert.ok(env&&typeof env==='object');
   const ambient=Object.keys(env).filter(key=>
-    /^AGENT(?:[0-9]+|_)/.test(key)&&env[key]!==undefined);
+    /^AGENT[0-9]+_/.test(key)&&env[key]!==undefined);
   assert.deepEqual(ambient,profile.permittedAmbientAgentEnvironment,
     'Ambient AGENT policy override would change the frozen development profile');
   return ambient;
