@@ -75,7 +75,7 @@ test('SIT Painful Spoons independent negative rejects exactly two different sour
   assert.equal(independentPainfulSpoonsNegative(unified),null);
   assert.equal(independentPainfulSpoonsNegative([unified[0]]),null);
   assert.equal(independentPainfulSpoonsNegative(null),null);
-  assert.match(VERSION,/v7-source-marked-painful-spoons/);
+  assert.match(VERSION,/v8-roxie-paper-payment/);
 });
 
 test('actual source-created ability prompt receives a source-identity negative audit',()=>{
