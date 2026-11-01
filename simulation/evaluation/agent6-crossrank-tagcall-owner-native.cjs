@@ -106,8 +106,9 @@ function run(){
       rows.push({rank,sourceSeat,seed,arms,
         originalPhysicalSourceDealMatched:arms.every(x=>
           x.status==='native-complete-or-capped')?
-          arms[0].originalSourceDealDigest===
-            arms[1].originalSourceDealDigest:null});
+          (arms[0].originalSourceDealDigest!==null&&
+            arms[0].originalSourceDealDigest===
+              arms[1].originalSourceDealDigest):null});
     }
   }
   assert.equal(rows.length,20);
