@@ -74,3 +74,14 @@ test('observer refuses an unauthenticated actor root and malformed public ledger
  owner.marker={};
  assert.throws(()=>publicFusionUsageAtRoot(state,0),/function/);
 });
+
+test('cannot accept consumed-power sidecar from attack phase or pending prompt',()=>{
+ const {state}=staged();
+ state.phase=3;
+ assert.throws(()=>publicFusionUsageAtRoot(state,0),/PLAYER_TURN/);
+ state.phase=2;
+ state.prompts=[{result:undefined}];
+ assert.throws(()=>publicFusionUsageAtRoot(state,0),/unresolved prompt/);
+ state.prompts=[{result:['resolved']}];
+ assert.equal(publicFusionUsageAtRoot(state,0).usedCount,1);
+});
