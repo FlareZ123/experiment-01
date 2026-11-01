@@ -82,6 +82,20 @@ jobs:
       - name: Inspect nine original-ready ranks with 18 unscreened registered seeds
         if: ${{ inputs.nine_ranks_inspect || inputs.nine_ranks_native_scout }}
         run: node simulation/evaluation/agent41-nine-ready-ranks-native-scout.cjs --inspect-only
+      - name: Restore original frozen v2 source tree with separately identified audit overlay
+        if: ${{ inputs.frozen_profile_prompt_portfolio_run }}
+        run: |
+          tar -cf /tmp/agent41-frozen-paper-overlay.tar \
+            simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs \
+            simulation/evaluation/agent41-frozen-v2-paper-contract-portfolio.cjs \
+            simulation/twinleaf/agent39-paper-prompt-portfolio.cjs \
+            simulation/twinleaf/agent12-campinggear-prompt-paper-hook.cjs \
+            simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs \
+            simulation/twinleaf/agent12-nightwatch-paper-random-chooser.cjs
+          git fetch --depth=1 origin 86e0410847a953a73fdef7f76865493e75ac1c7f
+          git checkout --detach 86e0410847a953a73fdef7f76865493e75ac1c7f
+          tar -xf /tmp/agent41-frozen-paper-overlay.tar
+          node simulation/evaluation/agent41-frozen-bilateral-development-v2.cjs --inspect-only
       - name: Checkout exactly pinned original Store
         if: ${{ !inputs.frozen_profile_inspect && !inputs.frozen_profile_v2_inspect && !inputs.nine_ranks_inspect }}
         run: git submodule update --init --depth=1 vendor/twinleaf
