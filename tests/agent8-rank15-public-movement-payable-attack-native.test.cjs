@@ -50,7 +50,8 @@ function stagedRank15(seat,moved){
     card('Shadow Rider Calyrex VMAX CRE'));
   x.state.turn=4;
   const lopunny=x.owner.active.getPokemonCard();
-  assert.equal(lopunny.fullName,'Mega Lopunny ex PFL');
+  assert.equal(lopunny.fullName,'Mega Lopunny ex M2',
+    'Pinned native fullName M2 aliases authenticated source set PFL #84');
   if(moved)x.owner.movedToActiveThisTurn.push(lopunny.id);
   const base=actorObservation(x.state,seat);
   const event=publicEventReceipt(x.state,seat);
