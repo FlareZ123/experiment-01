@@ -80,3 +80,38 @@ test('retains source root action attribution without pretending exact printing',
     'AttackAction / Get Lost'],1);
   assert.equal(c.sourcePrintedCardForEachPromptKnown,false);
 });
+
+test('joins archived separately captured physically selected prompt names',()=>{
+  const trial=arm(11,'joined',[
+    {action:'AttackAction',actionOrdinal:1,turnBefore:3,
+      attack:'Night Watch'},
+    {...prompt(2,3,'ChooseCardsPrompt',0),
+      initiatingRootActionOrdinal:1}
+  ]);
+  trial.nativePromptChoices={events:[{
+    ordinal:2,kind:'ChooseCardsPrompt',sourceZone:'hand',
+    sourcePlayerSlot:1,selectedCards:['Energy EVS','Supporter PHF']
+  }]};
+  const c=censusNativePromptFamilies([trial]);
+  assert.equal(c.inTurnChooseCardsWithSelectionReceipt,1);
+  assert.equal(c.inTurnChooseCardsWithSelectedCardNames,1);
+  assert.equal(c.byRank[0].inTurnChooseCardsSelectionZoneCounts.hand,1);
+  assert.equal(c.byRank[0].inTurnChooseCardsByInitiatingAction[
+    'AttackAction / Night Watch'],1);
+  assert.equal(c.individuallyPaperVerifiedPromptCount,0);
+});
+
+test('missing private selected names cannot be treated as paper verified',()=>{
+  const trial=arm(11,'lost-zone',[
+    {action:'AttackAction',actionOrdinal:1,turnBefore:3,attack:'Get Lost'},
+    {...prompt(2,3,'ChooseCardsPrompt'),initiatingRootActionOrdinal:1}
+  ]);
+  trial.nativePromptChoices={events:[{
+    ordinal:2,kind:'ChooseCardsPrompt',sourceZone:'discard',
+    sourcePlayerSlot:1,selectedCards:null
+  }]};
+  const c=censusNativePromptFamilies([trial]);
+  assert.equal(c.inTurnChooseCardsWithSelectionReceipt,1);
+  assert.equal(c.inTurnChooseCardsWithSelectedCardNames,0);
+  assert.equal(c.byRank[0].inTurnChooseCardsSelectionZoneCounts.discard,1);
+});
