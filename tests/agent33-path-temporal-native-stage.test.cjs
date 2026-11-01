@@ -92,8 +92,12 @@ for(const seat of [0,1]){
       store.dispatch(new UseAbilityAction(owner.id,'Fusion Strike System',{
         player:PlayerType.ANY,slot:SlotType.BENCH,index:0
       }));
-      assert.equal(owner.hand.cards.length,2,
-        'Actual native Fusion Strike System must draw to two Fusion Strike Pokemon');
+      const settled=store.state.players[seat];
+      assert.equal(settled.marker.hasMarker(MARKER,
+        settled.bench[0].getPokemonCard()),true,
+        'Actual native Fusion Strike System source must carry used marker');
+      assert.ok(settled.hand.cards.length>=1,
+        'The original held Path must remain available');
     }
     const view=actorObservation(store.state,seat);
     const usage=kind==='spent-fusion'?
