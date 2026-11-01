@@ -34,6 +34,10 @@ function stageSource(seat){
     card('Lusamine CIN'),card('Lusamine CIN'));
   for(let k=0;k<4;k++)scene.owner.hand.cards.push(
     card('Crushing Hammer POR'));
+  for(let k=0;k<2;k++){
+    scene.owner.hand.cards.push(card("Trainers' Mail ROS"));
+    scene.owner.hand.cards.push(card('Tag Call CEC'));
+  }
   const criticalPrized=card("Team Rocket's Handiwork FCO");
   scene.owner.prizes[0].cards[0]=criticalPrized;
   assert.equal(scene.owner.prizes.length,6);
