@@ -22,6 +22,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Regress strict damage prompt cap and packet integrity
+        run: node --test tests/prompt-integrity.test.cjs
       - name: Check Electro Rain capped allocation pure regression
         run: node tests/raichu-prize-allocation-planner.test.cjs
       - name: Characterize native printed 30-damage Electro Rain packet atomicity
