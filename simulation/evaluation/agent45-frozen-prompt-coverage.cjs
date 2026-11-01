@@ -90,7 +90,14 @@ function auditFrozenPromptCoverage(archive){
     recordedAttachEnergyFamilyMatchesAcceptedSidecar:false,
     choiceEventsJoinedToSameRoot:0,
     energyPublicReceiptsJoinedByUniqueTurnAndSeat:0,
-    settledSourceVoltCycloneRootJoins:0
+    settledSourceVoltCycloneRootJoins:0,
+    sourceVoltCycloneAttacks:0,
+    sourceVoltCycloneAttacksWithBench:0,
+    sourceVoltCycloneAttacksWithoutBench:0,
+    sourceVoltCycloneWithBenchMatchedMove:0,
+    sourceVoltCycloneWithoutBenchNoPrompt:0,
+    sourceVoltCycloneUnclassified:0,
+    sourceVoltCycloneConditionalEffectCoverageComplete:false
   };
   const ids=new Set();
   for(const row of archive.rows){
@@ -170,6 +177,7 @@ function auditFrozenPromptCoverage(archive){
     }
     const settledAttacks=new Map((row.sourceAttackSettlement?.attacks??[]).map(
       attack=>[attack.actionOrdinal,attack]));
+    const settledPromptOrdinals=new Set();
     for(const event of energyEvents){
       const k=key(event);
       const roots=groupedEnergyRoots.get(k)??[];
@@ -187,7 +195,10 @@ function auditFrozenPromptCoverage(archive){
            settled.completionRootOrdinal>=matched.actionOrdinal&&
            classifyVoltCyclonePublicMove(event,row.sourceSeat)===
              'PUBLIC_VOLT_CYCLONE_ONE_ENERGY_MATCH')
-          status.settledSourceVoltCycloneRootJoins++;
+          {
+            status.settledSourceVoltCycloneRootJoins++;
+            settledPromptOrdinals.add(matched.actionOrdinal);
+          }
       }
       if(event.nativeDispatchAccepted!==true){
         status.otherAcceptedAttachOutcomes.NON_ACCEPTED_SIDECAR_RECORD=
@@ -205,6 +216,32 @@ function auditFrozenPromptCoverage(archive){
       }else status.otherAcceptedAttachOutcomes[result]=
         (status.otherAcceptedAttachOutcomes[result]??0)+1;
     }
+    // Printed Volt Cyclone only has an Energy-moving recipient when this
+    // source player actually has a Benched Pokemon. The attack can still
+    // resolve its damage without a recipient, so absence of an AttachEnergy
+    // prompt is expected in that exact public board state. This is a
+    // bounded conditional effect check, not an attack-legality certificate.
+    for(const attack of row.sourceAttackSettlement?.attacks??[]){
+      if(attack.attackName!=='Volt Cyclone')continue;
+      status.sourceVoltCycloneAttacks++;
+      const ownBoard=attack.publicBoardBefore?.[row.sourceSeat];
+      const prompts=energyRoots.filter(root=>
+        root.initiatingRootActionOrdinal===attack.actionOrdinal);
+      const settled=attack.settledPromptChain===true;
+      if(!Array.isArray(ownBoard?.bench)||!settled){
+        status.sourceVoltCycloneUnclassified++;
+      }else if(ownBoard.bench.length===0){
+        status.sourceVoltCycloneAttacksWithoutBench++;
+        if(prompts.length===0)
+          status.sourceVoltCycloneWithoutBenchNoPrompt++;
+        else status.sourceVoltCycloneUnclassified++;
+      }else{
+        status.sourceVoltCycloneAttacksWithBench++;
+        if(prompts.length===1&&settledPromptOrdinals.has(prompts[0].actionOrdinal))
+          status.sourceVoltCycloneWithBenchMatchedMove++;
+        else status.sourceVoltCycloneUnclassified++;
+      }
+    }
   }
   status.recordedChooseCardsFamilyMatchesChoiceObserver=
     status.recordedPromptFamilies.ChooseCardsPrompt===status.chooseCards;
@@ -213,6 +250,12 @@ function auditFrozenPromptCoverage(archive){
   status.recordedAttachEnergyFamilyMatchesAcceptedSidecar=
     (status.recordedPromptFamilies.AttachEnergyPrompt??0)===
     status.acceptedAttachEnergyPrompt;
+  status.sourceVoltCycloneConditionalEffectCoverageComplete=
+    status.sourceVoltCycloneAttacks>0&&
+    status.sourceVoltCycloneUnclassified===0&&
+    status.sourceVoltCycloneAttacks===
+      status.sourceVoltCycloneWithBenchMatchedMove+
+      status.sourceVoltCycloneWithoutBenchNoPrompt;
   return status;
 }
 
