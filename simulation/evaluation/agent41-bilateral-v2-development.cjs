@@ -946,6 +946,7 @@ function runDevelopment({
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
   nativeToolAttachRoot=false,nativePlumeriaChoice=false,
+  nativeZeroCostDenialChoice=false,
   losslessNativeRootJoin=false,
   registeredToolEnergyCeiling=false,nativeCoheldDenialCanPlay=false,
   sameRootPassAttackProbeGlobalTurn=null,
@@ -987,6 +988,10 @@ function runDevelopment({
     (actorOnlyComposition&&sameRootProposalChoice&&sameRootChoiceApply&&
       actorPlumeriaAfterPass&&!sameRootProbeAll),
     'Native Plumeria contender requires both-seat root choice and mandatory native prompt adoption');
+  assert.ok(!nativeZeroCostDenialChoice||
+    (nativePlumeriaChoice&&teamFlareGruntDenialRoot&&actorOnlyComposition&&
+      sameRootChoiceApply&&!sameRootProbeAll),
+    'Coheld free Supporter choice requires a native-capable two-branch Supporter contender');
   assert.ok(!sameRootProbeAll||sameRootProposalChoice,
     'All-proposer census requires an enabled same-root observer');
   assert.ok(!sameRootProbeAll||!sameRootChoiceApply,
@@ -1130,7 +1135,8 @@ function runDevelopment({
                 sameRootProposalChoice:true,
                 sameRootChoiceApply,sameRootProbeAll,
                 sameRootPublicEventReceipt,nativeToolAttachRoot,
-                nativePlumeriaChoice,losslessNativeRootJoin,
+                nativePlumeriaChoice,nativeZeroCostDenialChoice,
+                losslessNativeRootJoin,
                 ...(registeredToolEnergyCeiling?{
                   registeredToolEnergyCeiling:true,ownRegisteredSixtiesBySeat:
                     ownerRegisteredSixtiesBySeat
@@ -1311,6 +1317,8 @@ function runDevelopment({
       sameRootChoiceApply&&nativeToolAttachRoot,
     nativePlumeriaChoiceOptIn:sameRootProposalChoice&&
       sameRootChoiceApply&&nativePlumeriaChoice,
+    nativeZeroCostDenialChoiceOptIn:sameRootProposalChoice&&
+      sameRootChoiceApply&&nativeZeroCostDenialChoice,
     registeredToolEnergyCeilingOptIn:registeredToolEnergyCeiling,
     losslessNativeRootJoinOptIn:losslessNativeRootJoin,
     sameRootProbeAllOptIn:sameRootProposalChoice&&sameRootProbeAll,
@@ -1475,6 +1483,8 @@ if(require.main===module){
       process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true',
     nativePlumeriaChoice:
       process.env.AGENT41_NATIVE_PLUMERIA_CHOICE_DEV==='true',
+    nativeZeroCostDenialChoice:
+      process.env.AGENT41_NATIVE_FREE_FLARE_CHOICE_DEV==='true',
     registeredToolEnergyCeiling:
       process.env.AGENT41_REGISTERED_TOOL_ENERGY_DEV==='true',
     sameRootProbeAll:
