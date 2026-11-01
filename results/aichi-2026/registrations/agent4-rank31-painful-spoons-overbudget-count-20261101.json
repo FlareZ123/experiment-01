@@ -1,0 +1,28 @@
+{
+  "schema": "agent4-rank31-radiant-painful-spoons-count-bound-native-v1",
+  "requestedBy": "Agent41 communications/agent4/20261101T2205Z_agent41_painful_spoons_v7_unbounded_counter_count.md",
+  "dateUTC": "2026-11-01",
+  "sourcePrinting": {
+    "rank": 31,
+    "name": "Radiant Alakazam",
+    "set": "SIT",
+    "number": "59",
+    "count": 1
+  },
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "preparedNativeSetup": "Genuine rank31 Radiant Alakazam SIT59 Ability in owner active, three genuine opposing Shadow Rider Calyrex V CRE in play; source opponent Active has 3 damage counters (30), destination opposing bench1 has 180/210 damage, and opponent bench0 is occupied. Owner has six physical Prize cards, actual State GAMEPLAYER_TURN turn3. This is a contrived board and not rank31 source dealt.",
+  "prospectivelyTestedReplies": "Native MoveDamagePrompt receives 0,1,2,3 transfer rows, each of the form opponent Active -> same opposing Bench1, exactly one physical source Pokémon, both owner seats. Compare completely original native Store and reversible research-owned withPaperPainfulSpoonsSingleSource. Inspect prompt.validate, Store error, pre/post damage, victim KO, owner physical Prize pickup when available.",
+  "expectations": [
+    "0 counter should not be used as a non-state-changing Ability, but record original native behavior",
+    "1 and 2 are printed within bound and should be accepted both unguarded/guarded",
+    "3 exceeds printed up-to-two and must be rejected by paper guard, regardless of native prompt.validate; original Store may accept or reject, do not assume",
+    "At 180 damage target, 3 counters would produce a paper-forbidden KO of a 210HP two-Prize V; compare any native Prize continuation exactly, no claim original game wins",
+    "Both native physical player seats and restoration of opt-in descriptor"
+  ],
+  "boundaries": [
+    "No randomly dealt original rank31 60",
+    "No full game or tournament winner",
+    "No upstream/vendor modifications",
+    "No positive whole-game paper certification"
+  ]
+}
