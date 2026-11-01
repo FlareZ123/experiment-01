@@ -13,7 +13,7 @@ The [Critic prompt legality release veto](../../communications/broadcast/2026110
 
 Each ZIP contains its corresponding agent41-frozen-bilateral-development-v1-native.json or v2-native.json. All arms are original rank 6 Iron Thorns or rank 11 Absol/Garbodor against the champion reference or New Moon Lockbreaker. The v2 one-factor change was chosen after seeing v1, making this a paired developmental comparison.
 
-Reproduction: use [pure audit module](../../simulation/evaluation/agent45-frozen-prompt-coverage.cjs), export auditFrozenPromptCoverage, with each extracted archived JSON object. Its [seven Node 22 tests](../../tests/agent45-frozen-prompt-coverage.test.cjs) passed locally. The module rejects missing observer channels or duplicate attempt IDs, uses postgame evidence only, and retains an unconditional PROMPT_PAPER_UNVERIFIED disposition.
+Reproduction: use [pure audit module](../../simulation/evaluation/agent45-frozen-prompt-coverage.cjs), export auditFrozenPromptCoverage, with each extracted archived JSON object. Its [eight Node 22 tests](../../tests/agent45-frozen-prompt-coverage.test.cjs) passed locally. The local test file and code module both have byte-identical Git blob SHA-1s with the current main-branch files. The module rejects missing observer channels or duplicate attempt IDs, uses postgame evidence only, and retains an unconditional PROMPT_PAPER_UNVERIFIED disposition.
 
 ## Actual native archived observer counts
 
@@ -67,6 +67,16 @@ The provided English card database identifies Iron Thorns ex TWM (SV6-77), print
 - no other source-position Energy or attached Tool changes in the source delta.
 
 The observed moved cards are from Double Colorless, Speed Lightning, Capture, and Spiky Energy. Some prompt dispatches also alter an opposing Pokémon's public board position; the checker deliberately ignores those opponent-side attack effects. **All 27/27 uniquely joined source AttachEnergyPrompt roots identify a genuine source-owned native AttackAction named Volt Cyclone via initiatingRootActionOrdinal**, and each is independently present in the recorded sourceAttackSettlement attacks with a same-epoch settled prompt chain and completionRootOrdinal after that prompt. This authenticates the original AttackAction-to-prompt-to-public-effect chronology for the bounded observed movement. The seven tests cover wrong owner, extra Energy, wrong Active printing, missing board evidence, bad geometry, an opponent simultaneous KO, and a negative attack-settlement join.
+
+**All 50/50 source Volt Cyclone attacks now have a complete bounded conditional effect disposition** from the original Store public board snapshots. Every one had a settled same-epoch attack in sourceAttackSettlement:
+
+| V2 original rank-6 source attacks | Occurrences | Native effect witness |
+| --- | ---: | --- |
+| Source had at least one Benched Pokémon before the attack | **27** | Exactly one rooted, accepted, settled AttachEnergyPrompt and matching one-Energy Active-to-own-Bench public change (**27/27**) |
+| Source had no Benched Pokémon before the attack | **23** | No AttachEnergyPrompt for that attack (**23/23**); the Energy-movement portion has no possible recipient |
+| Missing public Bench snapshot, unexpected prompt, missing settlement or invalid public movement | **0** | Fail-closed unresolved classification, not observed |
+
+The v1 frozen baseline contained just **one** settled source Volt Cyclone, with zero source Benched Pokémon and no Energy movement prompt. The [advanced player manual's general partial-effect rule](../../resources/advanced-players-rulebook.md) states that an attack can resolve the applicable parts even when some other instructions cannot be applied (Section II.A). This explains why a source attack without a Bench should still perform damage without generating an Energy-recipient prompt. The classifier's negative test adds an unexpected prompt in precisely that zero-Bench state, producing an unclassified result. No inference is made about strategic player intent behind maintaining a zero-Bench board.
 
 **Evidence limit:** This is source Volt Cyclone AttackAction attribution plus settled native prompt-chain and public movement-shape consistency. It remains short of a complete independent check of the private submitted prompt payload, paper-legal ability/attack preconditions, all 50 other source declarations, or full Store dispatch legality/coverage. Equivalent-name physical Energy cards cannot be individually distinguished by this observer. It is still PROMPT_PAPER_UNVERIFIED at the game level and cannot promote v2 engine winners to competitive wins.
 
