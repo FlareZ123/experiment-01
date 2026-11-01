@@ -51,6 +51,7 @@ for(const seat of [0,1]){
     assert.equal(x.observations,6);
     assert.equal(x.owner.supporterTurn,0);
     assert.equal(result.nativeActionDispatched,false);
+    assert.equal(result.nativeStateOwnDataMutationGuardPassed,true);
     assert.equal(result.outcomeUnverified,true);
   });
 }
@@ -87,4 +88,20 @@ test('a native canPlay probe that mutates owner-visible state fails closed',()=>
   x.hand[0].canPlay=()=>{x.owner.supporterTurn=4;return true;};
   assert.throws(()=>inspectNativeCoheldDenialCanPlay(
     x.view,x.state,x.store,1,3,x.observe),/observation|quota/);
+});
+
+test('native canPlay concealed deck mutation is rejected despite unchanged actor view',()=>{
+  const x=fixture(1);
+  x.state.players[0].privateDeck={cards:[{name:'Unrevealed'}]};
+  x.hand[0].canPlay=()=>{
+    x.state.players[0].privateDeck.cards[0].name='Rewritten';
+    return true;
+  };
+  assert.throws(()=>inspectNativeCoheldDenialCanPlay(
+    x.view,x.state,x.store,1,6,x.observe),
+  /native hidden or public own-data State/);
+  assert.deepEqual(x.observe(),{
+    hand:x.view.ownHand,publicEnergy:x.view.opponentPublic.active.energies,
+    quota:x.owner.supporterTurn
+  });
 });
