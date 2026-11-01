@@ -42,6 +42,16 @@ For candidate ordinal 1, 32 equal-rank cells and `alpha=0.05`:
 
 The cutoff follows from the exact field geometry: if any single rank has true win probability no higher than 84%, then even perfect wins at all other 31 ranks cannot exceed 99.5% overall. These nine losses are **constructed test values**, not observed results from the Aichi cohort.
 
+For planning **early statistical rejection** rather than proving 99.5% success, the same executable boundary yields the following *minimum hypothetical consecutive nonwins in one chosen cell*, assuming every other cell is untested and receives upper bound 1. These values are exact search results under the module's formulas and do not represent observed games:
+
+| Precommitted field partition | First candidate `k=1` | Second `k=2` | 50th `k=50` |
+| --- | ---: | ---: | ---: |
+| 32 equally weighted ranks | 9 | 10 | 15 |
+| 64 rank × seat cells | 16 | 17 | 24 |
+| 128 rank × seat × start cells | 69 | 74 | 99 |
+
+The threshold is based on the single weak cell's maximum permitted mean under an otherwise perfect field: `p_weak < 1 - C*(1-0.995)` is enough to rule out 99.5%. Each entry is the first integer `n` for which `(C-1+min(1,epsilon(k,C,n)))/C < 0.995`. A new [ninth pure regression](../../tests/agent46-anytime-field-mean-envelope.test.cjs) pins the threshold boundary (`n-1` remains inconclusive and `n` rejects) for nine size/ordinal combinations. The slower threshold for 128 cells is a logical consequence of a much narrower cell's weight, not evidence that any source was played.
+
 All-censored attempts remain uninformative by design. With the three missing original Aichi ranks 23/25/28 unsampled, a mathematically certified 99.5% **lower bound cannot be established**, regardless of how well the 29 known matchups perform: those three cells retain a lower bound zero. An upper bound can still be used to reject a candidate if a known matchup is sufficiently weak. The 64- and 128-cell modes test different explicitly equal rank/seat or rank/seat/start targets and must not be mixed with a 32-rank target using an unregistered seat mixture.
 
 ## Implementation, reproducibility and limitations
