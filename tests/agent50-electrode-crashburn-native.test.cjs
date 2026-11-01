@@ -39,3 +39,12 @@ function stage(seat){
    return prize;
   });
  }
+ const store=new Store({onStateChange(){}});
+ const state=store.state;
+ state.players=seat===0?[owner,opponent]:[opponent,owner];
+ state.activePlayer=seat;
+ state.turn=4;
+ state.phase=GamePhase.PLAYER_TURN;
+ state.gameSettings.format=Format.EXPANDED;
+ return {store,state,owner,opponent,first,second};
+}
