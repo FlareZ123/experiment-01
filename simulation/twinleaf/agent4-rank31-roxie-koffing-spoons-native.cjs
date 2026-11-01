@@ -190,7 +190,84 @@ function probeRoxieForbiddenGXPayment(seat=0,guarded=false){
   };
 }
 
+/**
+ * Opponent ranks/hand remain a prepared native Store board. Test Roxie's
+ * printed nonempty payment rule when the source owner's only other card
+ * is the authentic original GX. The root guard must reject before play.
+ * @param {0|1} [seat=0]
+ * @param {boolean} [guarded=false]
+ * @returns {object}
+ */
+function probeRoxieNoEligibleRoot(seat=0,guarded=false){
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const f=stagedPainfulSpoons(seat);
+  const gx=f.card('Tapu Lele-GX GRI'),roxie=f.card('Roxie CEC');
+  f.source.hand.cards.push(gx,roxie);
+  const before={
+    hand:f.source.hand.cards.map(card=>card.fullName),
+    deckCount:f.source.deck.cards.length,
+    supporterTurn:f.source.supporterTurn
+  };
+  const action=()=>f.store.dispatch(new PlayCardAction(f.source.id,1,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  let rootError=null;
+  try{guarded?withPaperRoxiePayment(action):action();}
+  catch(e){rootError=String(e?.message??e);}
+  return {seat,guarded,before,rootError,
+    after:{
+      hand:f.source.hand.cards.map(card=>card.fullName),
+      deckCount:f.source.deck.cards.length,
+      supporterTurn:f.source.supporterTurn,
+      gxInHand:f.source.hand.cards.includes(gx),
+      roxieInHand:f.source.hand.cards.includes(roxie),
+      roxieInDiscard:f.source.discard.cards.includes(roxie),
+      pendingPrompts:f.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)
+    },
+    scope:'Staged source rank31 Roxie plus original GX only; no source-dealt full game'
+  };
+}
+
+/**
+ * Same original native Roxie root, but attempt an empty ChooseCardsPrompt
+ * answer. Rulebook D-05 permits zero on some attacks but says Trainer
+ * "up to" choices select one through the stated maximum.
+ * @param {0|1} [seat=0]
+ * @param {boolean} [guarded=false]
+ * @returns {object}
+ */
+function probeRoxieZeroPrompt(seat=0,guarded=false){
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const f=stagedPainfulSpoons(seat);
+  const gx=f.card('Tapu Lele-GX GRI'),roxie=f.card('Roxie CEC');
+  f.source.hand.cards.push(gx,roxie);
+  f.store.dispatch(new PlayCardAction(f.source.id,1,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  const prompt=f.state.prompts.find(p=>p.result===undefined&&
+    p.constructor.name==='ChooseCardsPrompt');
+  assert.ok(prompt,'Need actual pinned original Roxie zero-choice prompt');
+  const nativeValidatorAccepted=prompt.validate([],f.state);
+  let storeError=null;
+  const empty=()=>f.store.dispatch(new ResolvePromptAction(prompt.id,[]));
+  try{guarded?withPaperRoxiePayment(empty):empty();}
+  catch(e){storeError=String(e?.message??e);}
+  return {seat,guarded,nativeValidatorAccepted,
+    sourceCard:prompt.sourceCard?.fullName??null,
+    storeError,promptPending:prompt.result===undefined,
+    gxInHand:f.source.hand.cards.includes(gx),
+    roxieInDiscard:f.source.discard.cards.includes(roxie),
+    deckCount:f.source.deck.cards.length,
+    scope:'Actual original Store Roxie zero-payment response after prepared root; not legal paper'
+  };
+}
+
 if(require.main===module)console.log(JSON.stringify([
   runRank31RoxieSpoons(false),runRank31RoxieSpoons(true)
 ],null,2));
-module.exports={runRank31RoxieSpoons,probeRoxieChoiceIndexShift,probeRoxieForbiddenGXPayment};
+module.exports={runRank31RoxieSpoons,probeRoxieChoiceIndexShift,probeRoxieForbiddenGXPayment,probeRoxieNoEligibleRoot,probeRoxieZeroPrompt};
