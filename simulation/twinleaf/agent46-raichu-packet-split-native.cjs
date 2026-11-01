@@ -16,10 +16,15 @@ const engine=name=>require(path.join(output,name));
  *
  * @param {boolean} illegalSplit Submit 10 active + 20 Bench from one 30 packet.
  * @param {boolean} [guarded] Install the reversible paper-validating Store hook.
+ * @param {0|1} [seat] Actual source physical seat.
  * @returns {object} Native prompt, reply and visible board changes.
  */
-function probeElectroRainPacketSplit(illegalSplit,guarded=false){
+function probeElectroRainPacketSplit(illegalSplit,guarded=false,seat=0){
   const f=stagedRaichu(['Unit Energy LPM UPR'],null);
+  if(seat===1){
+    f.state.players=[f.b,f.a];
+    f.state.activePlayer=1;
+  }
   const {PokemonCardList}=engine('game/store/state/pokemon-card-list');
   const {CardList}=engine('game/store/state/card-list');
   const {PlayerType,SlotType}=engine('game/store/actions/play-card-action');
@@ -101,7 +106,7 @@ function probeElectroRainPacketSplit(illegalSplit,guarded=false){
   return {
     sourcePrinting:'Alolan Raichu UNM 57',
     opponentPrintings:['Shadow Rider Calyrex V CRE','Shadow Rider Calyrex V CRE'],
-    illegalSplit,guarded,
+    illegalSplit,guarded,ownerSeat:seat,
     ...check,dispatchError,
     publicDamage:{active:f.b.active.damage,bench:bench.damage},
     unresolvedPrompts:f.state.prompts.filter(p=>p.result===undefined)
@@ -112,34 +117,38 @@ function probeElectroRainPacketSplit(illegalSplit,guarded=false){
 }
 
 function run(){
-  const legal=probeElectroRainPacketSplit(false);
-  const split=probeElectroRainPacketSplit(true);
-  const guardedLegal=probeElectroRainPacketSplit(false,true);
-  const guardedSplit=probeElectroRainPacketSplit(true,true);
-  assert.equal(legal.nativeValidatorAccepted,true);
-  assert.equal(legal.publicDamage.active,30);
-  assert.equal(legal.publicDamage.bench,0);
-  assert.equal(legal.attachedEnergyDiscarded,true);
-  assert.equal(split.attachedEnergyDiscarded,true);
-  assert.equal(split.dispatchError,null);
-  assert.deepEqual(guardedLegal.publicDamage,legal.publicDamage);
-  assert.equal(guardedLegal.dispatchError,null);
-  assert.match(guardedSplit.dispatchError,
-    /PAPER_PUT_DAMAGE_REJECTED:INVALID_PRINTED_DAMAGE_PACKET/,
-    'Native Store paper guard must reject fractional 30-damage packet');
-  assert.deepEqual(guardedSplit.publicDamage,{active:0,bench:0},
-    'Rejected fractional-packet action must leave all targets undamaged');
-  assert.deepEqual(guardedSplit.unresolvedPrompts,['PutDamagePrompt'],
-    'Paper-rejected prompt remains pending for a later valid reply');
+  const cases=[];
+  for(const seat of [0,1]){
+    const legal=probeElectroRainPacketSplit(false,false,seat);
+    const split=probeElectroRainPacketSplit(true,false,seat);
+    const guardedLegal=probeElectroRainPacketSplit(false,true,seat);
+    const guardedSplit=probeElectroRainPacketSplit(true,true,seat);
+    assert.equal(legal.nativeValidatorAccepted,true);
+    assert.equal(legal.publicDamage.active,30);
+    assert.equal(legal.publicDamage.bench,0);
+    assert.equal(legal.attachedEnergyDiscarded,true);
+    assert.equal(split.attachedEnergyDiscarded,true);
+    assert.equal(split.dispatchError,null);
+    assert.equal(split.nativeValidatorAccepted,true);
+    assert.deepEqual(split.publicDamage,{active:10,bench:20});
+    assert.deepEqual(guardedLegal.publicDamage,legal.publicDamage);
+    assert.equal(guardedLegal.dispatchError,null);
+    assert.match(guardedSplit.dispatchError,
+      /PAPER_PUT_DAMAGE_REJECTED:INVALID_PRINTED_DAMAGE_PACKET/,
+      'Native Store paper guard must reject fractional 30-damage packet');
+    assert.deepEqual(guardedSplit.publicDamage,{active:0,bench:0},
+      'Rejected fractional-packet action must leave both targets undamaged');
+    assert.deepEqual(guardedSplit.unresolvedPrompts,['PutDamagePrompt'],
+      'Paper-rejected prompt remains pending for a valid reply');
+    cases.push({seat,legal,split,guardedLegal,guardedSplit});
+  }
   const out={
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    status:'native-original-printing-attack-prompt-characterization',
-    legal,split,guardedLegal,guardedSplit,
-    failure:split.nativeValidatorAccepted&&
-      split.publicDamage.active===10&&split.publicDamage.bench===20?
-      'pinned-store-accepts-paper-forbidden-10-plus-20-packet':
-      'native-rejection-or-damage-normalization',
-    benchmark:'original ranks4/17 contain Alolan Raichu UNM, no full-game qualification'
+    status:'both-physical-seat-native-Raichu-paper-packet-contract',
+    cases,
+    failure:'pinned-store-accepts-paper-forbidden-10-plus-20-packet',
+    correction:'opt-in-paper-dispatch-guard-rejects-before-damage',
+    benchmark:'original Aichi ranks4/17, no full-game qualification'
   };
   console.log(JSON.stringify(out,null,2));
   return out;
