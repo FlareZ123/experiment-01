@@ -47,6 +47,22 @@ function selectBoundedDoubleExchanges(hand,deck,limit=16){
       });
     }
   }
+  // The player's hand is a multiset of printings. Different disjoint
+  // physical swaps can have the same net effect on that multiset, including
+  // cases with different outgoing/incoming printing pairs. Preserve this
+  // distinction to spend limited diagnostic budgets on unique worlds first.
+  function handCompositionDelta(path){
+    const net=new Map();
+    for(const swap of path.swaps){
+      const outgoing=hand[swap.handIndex].fullName;
+      const incoming=deck[swap.deckIndex].fullName;
+      net.set(outgoing,(net.get(outgoing)??0)-1);
+      net.set(incoming,(net.get(incoming)??0)+1);
+    }
+    return JSON.stringify([...net].filter(([,count])=>count!==0)
+      .sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0));
+  }
+  for(const path of paths)path.handCompositionDelta=handCompositionDelta(path);
   // Deliberately favor contrasts of visible card categories, without
   // inspecting the candidate policy's action or the value of any printing.
   paths.sort((a,b)=>b.crossKindCount-a.crossKindCount||
@@ -68,28 +84,39 @@ function selectBoundedDoubleExchanges(hand,deck,limit=16){
       seenDeckIndices.add(s.deckIndex);
     }
   }
-  while(selected.length<limit&&selected.length<paths.length){
-    let best=-1,bestValue=-1;
-    for(let i=0;i<paths.length;i++){
-      if(chosen.has(i))continue;
-      const candidate=paths[i];
-      let novelty=0;
-      for(const s of candidate.swaps){
-        if(!seenHandIndices.has(s.handIndex))novelty+=2;
-        if(!seenDeckIndices.has(s.deckIndex))novelty++;
+  const seenCompositions=new Set(selected.map(x=>x.handCompositionDelta));
+  // First cover new resulting hand multisets, then fill the remaining
+  // diagnostic budget with distinct physical order and position variants.
+  for(const requireNovelComposition of [true,false]){
+    while(selected.length<limit&&selected.length<paths.length){
+      let best=-1,bestValue=-1;
+      for(let i=0;i<paths.length;i++){
+        if(chosen.has(i))continue;
+        const candidate=paths[i];
+        if(requireNovelComposition&&
+          seenCompositions.has(candidate.handCompositionDelta))continue;
+        let novelty=0;
+        for(const s of candidate.swaps){
+          if(!seenHandIndices.has(s.handIndex))novelty+=2;
+          if(!seenDeckIndices.has(s.deckIndex))novelty++;
+        }
+        if(novelty>bestValue){best=i;bestValue=novelty;}
       }
-      if(novelty>bestValue){best=i;bestValue=novelty;}
-    }
-    assert.ok(best>=0);
-    chosen.add(best);
-    const current=paths[best];
-    selected.push(current);
-    for(const s of current.swaps){
-      seenHandIndices.add(s.handIndex);
-      seenDeckIndices.add(s.deckIndex);
+      if(best<0)break;
+      chosen.add(best);
+      const current=paths[best];
+      selected.push(current);
+      seenCompositions.add(current.handCompositionDelta);
+      for(const s of current.swaps){
+        seenHandIndices.add(s.handIndex);
+        seenDeckIndices.add(s.deckIndex);
+      }
     }
   }
   return {available:paths.length,exchanges:selected,
+    eligibleDistinctHandCompositions:
+      new Set(paths.map(x=>x.handCompositionDelta)).size,
+    testedDistinctHandCompositions:seenCompositions.size,
     exhaustive:selected.length===paths.length};
 }
 
