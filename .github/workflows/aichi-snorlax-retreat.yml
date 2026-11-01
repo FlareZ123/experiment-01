@@ -39,6 +39,8 @@ jobs:
         run: node simulation/twinleaf/agent20-rank7-turnend-original60-pair.cjs > agent20-original60-turnend.json
       - name: Test identical physical source60 turn-ending action comparison
         run: node --test tests/agent20-rank7-turnend-original60-pair.test.cjs
+      - name: Replay original rank7 real-deal source roots with and without Steven paper guard
+        run: node simulation/twinleaf/agent20-rank7-steven-guard-natural-pair.cjs > agent20-steven-original-deal-guard.json
       - name: Characterize interactive and direct retreat actions
         run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs | tee aichi-snorlax-retreat.json
       - name: Verify Snorlax Block interaction and reversible hook
@@ -75,4 +77,5 @@ jobs:
             agent20-steven-native.json
             agent20-palace-native.json
             agent20-original60-turnend.json
+            agent20-steven-original-deal-guard.json
           if-no-files-found: warn
