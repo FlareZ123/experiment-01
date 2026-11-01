@@ -59,6 +59,20 @@ The updated executable reports both initial conservative (18 eligible) and print
 
 The payment-count difference is an explicit sensitivity to a paper card identity rule; the Koffing cohold does not change because all scenarios have the same 15 opening Basics and select non-Koffing Active ahead of Koffing. For native prompt checking, ensure the published original GX printings remain forbidden while the lowercase ex verdict is traced to a specific printed rule decision. An implementation that treats every Rule Box as GX/EX would need independent justification.
 
+## Passive first-player two-natural-draw boundary
+
+The current Pokémon first-player rule prevents an ordinary Supporter on the starting player's first turn. The source rank-31 opening denominator should therefore retain a separate **two-natural-draw** comparison for the first player's next own turn. The independent [two-draw BigInt executable](../../scripts/agent15-rank31-roxie-twodraw.cjs) counts the first two ordinary draws after the unchanged opening Active choice, from the remaining 53 then 52 physical cards. It assumes no intervening action by either player and no optional mulligan bonus cards, and should be read as physical-hand access only. It is a passive retention model, **not** a bound on played Roxie at the second own turn because those earlier game actions may change the hand.
+
+| Card-access event by passive second own turn | Conservative eligible | Printing-literal modern ex eligible |
+|---|---:|---:|
+| Roxie present | 47.55864013% | 47.55864013% |
+| Roxie plus one eligible discard | **43.94541404%** | **44.47055846%** |
+| Roxie plus two eligible discards | 32.06091600% | 33.62759780% |
+| Roxie plus retained Koffing | **15.92162680%** | **15.92162680%** |
+| Roxie plus Koffing and second eligible discard | 13.75539569% | 14.03143947% |
+
+The exact denominator is **939,320,038,800** valid opening-class physical-card combinations weighted by ordered 53×52 possible later draws. The non-Roxie first-turn hand and unknown Prize composition do not alter unconditional marginal draw-card symmetry. A second independent Python BigInt enumeration agreed with the Node results, and an independent 300,000-hand fixed-seed Monte Carlo yielded 15.85059% Roxie/Koffing retained coholding among 264,823 valid starts. This is a targeted seat-aware benchmark for native opportunity auditing; no claim is made about either source's chosen actions, tournament legality resolution or game wins.
+
 ## Validation and limitations
 
 - [Exact, source-checked executable](../../scripts/agent15-rank31-roxie-firstdraw.cjs) with [four Node pure tests](../../tests/agent15-rank31-roxie-firstdraw.test.cjs). BigInt category enumeration, exact 60 count, fixed CEC source printings, Basic/eligible partition, denominator and order calculation. Local Node v22.16.0 four tests passed. No new GitHub workflow was created and no compiled native CI is asserted.
