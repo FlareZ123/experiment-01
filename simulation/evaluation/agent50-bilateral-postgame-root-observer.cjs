@@ -170,9 +170,8 @@ function withPostgameRootOrderProbe(
     target.nativeTapeBoundedOpponentHiddenHand===true,
     'Two-card swaps require bounded native opponent-hand mode');
   assert.ok(target.nativeTapeHandPrizeContrast!==true||
-    (target.nativeTapeBoundedOpponentHiddenHand===true&&
-      target.nativeTapeBoundedDoubleExchange!==true),
-    'Face-down Prize swaps require bounded single-card native tape mode');
+    target.nativeTapeBoundedOpponentHiddenHand===true,
+    'Face-down Prize swaps require bounded native tape mode');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
