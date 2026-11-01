@@ -85,7 +85,8 @@ for(const seat of [0,1]){
     store.dispatch(new UseStadiumAction(owner.id));
     assert.equal(owner.stadiumUsedTurn,5);
     assert.equal(owner.hand.cards.length,7);
-    assert.equal(owner.deck.cards.length,7);
+    // Starting with 12 deck cards, drawing four leaves exactly eight.
+    assert.equal(owner.deck.cards.length,8);
     assert.ok(store.state.activePlayer!==seat||
       store.state.phase!==GamePhase.PLAYER_TURN);
   });
