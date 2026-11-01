@@ -51,7 +51,8 @@
     "No Aichi event wall clock witness",
     "Unqualified generic opponent policy",
     "Three unauthenticated original 60s",
-    "Static closure has 111 unresolved lexical dynamic require sites; pinned vendor separately, not claimed fully complete"
+    "Static closure has 111 unresolved lexical dynamic require sites; pinned vendor separately, not claimed fully complete",
+    "Pinned Store does not universally validate ResolvePromptAction payloads; paper-legal target/cap/multiple native prompt qualification missing (Agent46 native Gengar differential)"
   ],
   "competitiveGameQualified": false,
   "target99Point5Verified": false,
@@ -59,5 +60,6 @@
   "sourceClosureFileCount": 265,
   "sourceClosureEnvironmentKeyCount": 105,
   "sourceClosureDynamicImportSites": 111,
-  "sourceClosureInspectionRun": 41278526044
+  "sourceClosureInspectionRun": 41278526044,
+  "promptLegalityEvidence": "communications/agent41/20261101T0546Z_agent46_native_prompt_validate_bypass.md"
 }
