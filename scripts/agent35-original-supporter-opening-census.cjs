@@ -35,7 +35,10 @@ function buildClassificationIndex(directory) {
       };
       const previous = index.get(key);
       if (previous) {
-        assert.deepEqual(entry, previous, 'Conflicting stage or Trainer class: ' + key);
+        if (previous.basic !== entry.basic ||
+            previous.supporter !== entry.supporter) {
+          index.set(key, {...previous, ambiguous: true});
+        }
       } else {
         index.set(key, entry);
       }
@@ -91,7 +94,8 @@ function census(roster, index) {
       const key = card.category + ':' + normalizeName(card.name);
       const info = index.get(key);
       // Missing or ambiguous catalog printing identities must fail loudly.
-      assert.ok(info, 'Missing printed classification: ' + key + ' rank ' + deck.rank);
+      assert.ok(info && !info.ambiguous,
+        'Missing or ambiguous printed classification: ' + key + ' rank ' + deck.rank);
       if (info.basic) basic += card.count;
       if (info.supporter) supporter += card.count;
     }
