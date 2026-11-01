@@ -92,6 +92,26 @@ class PrintedTargetScreenTests(unittest.TestCase):
                     summary = screen_native(test_native(target, parent), cards)
                 self.assertEqual(summary["total_exact_category_matches"], 1)
 
+    def test_shared_ptcgo_code_across_main_and_gallery_sets(self):
+        bio = io.BytesIO()
+        with ZipFile(bio, "w") as archive:
+            archive.writestr("sets/en.json", json.dumps([
+                {"id": "main", "ptcgoCode": "TST"},
+                {"id": "gallery", "ptcgoCode": "TST"}
+            ]))
+            archive.writestr("cards/en/main.json", json.dumps([{
+                "name": "Psy", "supertype": "Pokémon",
+                "subtypes": ["Basic"], "types": ["Psychic"]
+            }]))
+            archive.writestr("cards/en/gallery.json", json.dumps([{
+                "name": "Other", "supertype": "Trainer",
+                "subtypes": ["Supporter"]
+            }]))
+        bio.seek(0)
+        with ZipFile(bio) as cards:
+            result = screen_native(test_native(), cards)
+        self.assertEqual(result["total_exact_category_matches"], 1)
+
     def test_false_capture_evolution_and_untagged_supporter(self):
         self.assertFalse(matches_printed_category(
             "Capture Energy RCL", {
