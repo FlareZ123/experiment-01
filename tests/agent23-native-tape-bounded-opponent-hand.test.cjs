@@ -323,12 +323,58 @@ test('hand Prize selector preserves face-down one-card piles and reports zero op
   assert.equal(out.baselineReplayStable,true);
 });
 
-test('native hand-Prize mode refuses shallow Prize aliases and double Prize swaps',()=>{
+test('native hand-Prize double paths cross a two-Trainer hidden threshold',()=>{
+  const root=state();
+  root.players[1].hand.cards=[
+    energy(2,'Opponent Darkness'),energy(5,'Opponent Lightning')
+  ];
+  root.players[1].prizes=[
+    {cards:[trainer(6,'Prized Alpha')]},
+    {cards:[trainer(7,'Prized Beta')]}
+  ];
+  const threshold=world=>{
+    Math.random();
+    const count=world.players[1].hand.cards.filter(card=>
+      card.trainerType!==undefined).length;
+    return {type:count>=2?'hidden-double-prize-route':'owner-pass'};
+  };
+  const args=makeArgs(root,threshold),before=fingerprint(root);
+  const single=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes',limit:16});
+  assert.equal(single.eligibleHandPrizeExchanges,4);
+  assert.equal(single.successfulHandPrizeExchanges,4);
+  assert.equal(single.actionReversals,0);
+  const double=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes',swapSize:2,limit:16});
+  assert.equal(double.schema,
+    'agent23-native-tape-bounded-double-hand-prize-v1');
+  assert.equal(double.eligibleHandPrizeExchanges,2);
+  assert.equal(double.attemptedHandPrizeExchanges,2);
+  assert.equal(double.successfulHandPrizeExchanges,2);
+  assert.equal(double.failedHandPrizeExchanges,0);
+  assert.equal(double.eligibleDistinctOpponentHandCompositions,1);
+  assert.equal(double.testedDistinctOpponentHandCompositions,1);
+  assert.equal(double.successfulDistinctOpponentHandCompositions,1);
+  assert.equal(double.exhaustiveHandPrizeExchangeCoverage,true);
+  assert.equal(double.actionReversals,2);
+  assert.equal(double.contrastExecutable,true);
+  assert.equal(double.actorObservationMatched,true);
+  assert.equal(double.opponentHiddenInventoryConserved,true);
+  assert.equal(double.sourceRootUnchanged,true);
+  assert.equal(double.competitiveGameQualified,false);
+  assert.equal(fingerprint(root),before);
+});
+
+test('native hand-Prize mode refuses shallow Prize aliases and ineligible doubles',()=>{
   const root=state();
   root.players[1].prizes=[{cards:[trainer(8,'Critical Prize Trainer')]}];
   const args=makeArgs(root),before=fingerprint(root);
-  assert.throws(()=>compareNativeOpponentHiddenHandBounded(args,
-    {targetZone:'prizes',swapSize:2}),/Prize exchange/);
+  const none=compareNativeOpponentHiddenHandBounded(args,
+    {targetZone:'prizes',swapSize:2});
+  assert.equal(none.eligibleHandPrizeExchanges,0);
+  assert.equal(none.attemptedHandPrizeExchanges,0);
+  assert.equal(none.contrastExecutable,false);
+  assert.equal(none.baselineReplayStable,true);
   args.cloneState=world=>({
     ...structuredClone(world),
     players:world.players.map((player,index)=>{
