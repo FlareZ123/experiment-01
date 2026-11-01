@@ -73,6 +73,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent32_rank11_seed2_candidate_known_dead:
+        description: 'Four matched genuine Store source seed2:A rank11 candidate Get Lost controls vs known-dead attack choices; development only'
+        required: false
+        type: boolean
+        default: false
       native_known_dead_attack_gate:
         description: Run injected pinned Store attack and Prize pairing (development-only)
         required: false
@@ -170,6 +175,12 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Agent32 native original rank11 seed2:A candidate known-dead attack same-source pair
+        if: ${{ inputs.agent32_rank11_seed2_candidate_known_dead }}
+        run: |
+          node --test tests/agent32-rank11-seed2-candidate-dead-attack-pair.test.cjs
+          node simulation/evaluation/agent32-rank11-seed2-candidate-dead-attack-pair.cjs > agent32-rank11-seed2-known-dead-fourarm.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent32-rank11-seed2-known-dead-fourarm.json');a.equal(r.actualNativeArmCount,4);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT32_RANK11_NATIVE_PAIRED',JSON.stringify({matchedInputs:r.matchedPhysicalInputs,archivedSource:r.comparisonAgainstArchivedV2SourceInputs,pairs:r.pairs.map(x=>({id:x.trialId,first:x.firstNativeRootDivergence?.index,originalAttacks:x.baseline.selectedAttacks.length,afterAttacks:x.knownDeadCandidate.selectedAttacks.length,finished:x.knownDeadCandidate.finished}))}));"
       - name: Stage original rank3 Girafarig-Capture genuinely payable competing native roots
         if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         run: node --test tests/agent16-girafarig-capture-staged-native.test.cjs
@@ -588,6 +599,7 @@ jobs:
             agent1-evolution-pass-baseline.json
             agent1-evolution-pass-optin.json
             agent7-native-known-dead-attacks.json
+            agent32-rank11-seed2-known-dead-fourarm.json
             agent41-denial-sourcefirst-pair.json
           if-no-files-found: warn
           retention-days: 30
