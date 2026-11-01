@@ -756,7 +756,7 @@ function executeDevelopment(trial,candidates,{
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
-      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v1-volt-cyclone':'')+
+      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -1317,7 +1317,7 @@ function runDevelopment({
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
-      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v1-volt-cyclone':'')+
+      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
