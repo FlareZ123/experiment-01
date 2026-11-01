@@ -34,12 +34,12 @@ function choosePayablePrintedAttackOffer(view,catalog){
        s===catalog.specialConditions?.ASLEEP||
        s===catalog.specialConditions?.PARALYZED))
     return null;
-  // Only the exact source PFL printing has the known Gale Thrust movement
+  // Only the native M2 alias for source PFL #84 has the Gale Thrust movement
   // bonus in this bounded policy. An absent/unknown public event receipt must
   // retain the historical first-payable offer, so frozen development profiles
   // and unsupported cards never gain fabricated effective-damage knowledge.
   const receipt=view.publicEventReceipt;
-  const movement=active.printing==='Mega Lopunny ex PFL'&&
+  const movement=active.printing==='Mega Lopunny ex M2'&&
     receipt?.actorSeat===view.actorSeat&&
     receipt?.turn===view.globalTurn&&
     receipt?.ownerActive?.printing===active.printing&&
