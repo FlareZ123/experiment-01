@@ -55,13 +55,7 @@ function sampleUniformPositions(population,sampleSize,committedSeed,nonce){
  */
 function nightWatchLikeShape(state,actor,prompt){
   if(prompt?.constructor?.name!=='ChooseCardsPrompt'||
-    prompt.playerId!==actor?.id||
-    prompt.message!=='Choose 2 cards from opponent hand'){
-    // The GameMessage enum may use a different human label. Base eligibility
-    // below uses actual structural identity, not user-visible wording.
-    if(prompt?.constructor?.name!=='ChooseCardsPrompt'||
-      prompt.playerId!==actor?.id)return false;
-  }
+    prompt.playerId!==actor?.id)return false;
   const opponent=state.players.find(x=>x.id!==actor.id);
   if(!opponent||prompt.cards!==opponent.hand)return false;
   const n=opponent.hand.cards.length;
