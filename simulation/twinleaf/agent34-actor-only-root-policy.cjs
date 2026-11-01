@@ -1008,10 +1008,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
       rondoPsychicBenchStage:actorSpecialEnergyEnabled(
         audit.rondoPsychicBenchStageOptIn,
-        audit.rondoPsychicBenchStageOwnerSeat,seat),
+        audit.rondoPsychicBenchStageOwnerSeat??null,seat),
       rondoPsychicBenchStagingPreference:actorSpecialEnergyEnabled(
         audit.rondoPsychicBenchStageOptIn,
-        audit.rondoPsychicBenchStageOwnerSeat,seat),
+        audit.rondoPsychicBenchStageOwnerSeat??null,seat),
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
       nativeZeroCostDenialChoice:audit.nativeZeroCostDenialChoiceOptIn===true,
