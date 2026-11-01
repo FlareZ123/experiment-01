@@ -60,7 +60,7 @@ function inspectSource(row,seat){
  const toClefairy=allSourceAttached.filter(e=>
   e.publicBoardChanges?.some(change=>
    change.seat===seat&&change.position==='bench'&&
-   change.after?.pokemon==="Lillie's Clefairy ex"));
+   change.after?.pokemon==="Lillie's Clefairy ex JTG"));
  return {status:row.status??(row.finished?'untimed-engine-terminal':'censored'),
   nativeWinnerUnqualified:row.winner??null,
   sourceActualAttacks:actionRows.map(x=>x.attack??x.attackName??null),
