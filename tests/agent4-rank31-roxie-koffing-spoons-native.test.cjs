@@ -182,3 +182,24 @@ test('rulebook D-05 nonempty Roxie payment blocks native zero-response settlemen
     assert.equal(paper.gxInHand,true);
   }
 });
+
+test('shared strict prompt checker falsely rejects real legal Roxie Koffing after shifted hand but printed guard accepts both orders and seats',()=>{
+  for(const seat of [0,1]){
+    for(const roxieFirst of [true,false]){
+      const result=probeRoxieChoiceIndexShift(roxieFirst,true,seat);
+      console.log('AGENT4_ROXIE_STRICT_CROSSRANK '+JSON.stringify(result));
+      assert.equal(result.seat,seat);
+      assert.equal(result.guarded,true);
+      assert.equal(result.nativeStoreError,null);
+      assert.equal(result.physicalKoffingDiscarded,true);
+      assert.equal(result.promptSettled,true);
+      if(roxieFirst){
+        assert.equal(result.validatorAccepted,false);
+        assert.match(result.strictError,/invalid result to ChooseCardsPrompt/);
+      }else{
+        assert.equal(result.validatorAccepted,true);
+        assert.equal(result.strictError,null);
+      }
+    }
+  }
+});
