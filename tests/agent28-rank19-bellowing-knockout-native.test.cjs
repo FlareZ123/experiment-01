@@ -30,8 +30,9 @@ let nextId=28000;
  * original native Store; this is not a shuffled 60-card matchup.
  * @param {0|1} seat Actual owner position in State.players.
  * @param {number} defenderDamage Preexisting damage against 210 HP.
+ * @param {'two-basic'|'dde-bench-basic'} loadout Original native attached cards.
  */
-function stage(seat,defenderDamage=0){
+function stage(seat,defenderDamage=0,loadout='two-basic'){
   const manager=initializeCards();
   /** @param {string} name */
   const card=name=>{
@@ -44,9 +45,18 @@ function stage(seat,defenderDamage=0){
   const opponent=new Player();opponent.id=202;opponent.name='defender';
   const raging=card(PRINTING),lightning=card('Lightning Energy SVE'),
     fighting=card('Fighting Energy SVE');
-  owner.active.cards.push(raging,lightning,fighting);
-  owner.active.energies.cards.push(lightning,fighting);
   owner.bench=Array.from({length:5},()=>new PokemonCardList());
+  let dde=null;
+  if(loadout==='dde-bench-basic'){
+    dde=card('Double Dragon Energy ROS');
+    owner.active.cards.push(raging,dde);
+    owner.active.energies.cards.push(dde);
+    owner.bench[0].cards.push(card(PRINTING),lightning);
+    owner.bench[0].energies.cards.push(lightning);
+  }else{
+    owner.active.cards.push(raging,lightning,fighting);
+    owner.active.energies.cards.push(lightning,fighting);
+  }
   opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
   opponent.active.damage=defenderDamage;
   opponent.bench=Array.from({length:5},()=>new PokemonCardList());
@@ -74,7 +84,7 @@ function stage(seat,defenderDamage=0){
   };
   const catalog=buildActorCardCatalog(manager.getAllCards(),types);
   const view=actorObservation(state,seat);
-  return {store,state,owner,opponent,raging,lightning,fighting,
+  return {store,state,owner,opponent,raging,lightning,fighting,dde,
     catalog,view,seat};
 }
 
@@ -83,9 +93,10 @@ function stage(seat,defenderDamage=0){
  * DiscardEnergyPrompt by physical card-index targets. WaitPrompt is only
  * the engine animation suspension. Do not select a card from hidden zones.
  * @param {ReturnType<typeof stage>} x
- * @param {number[]} discardIndices Current owner Active list card indices.
+ * @param {number[]} discardIndices Current owner Active/Bench list indices.
+ * @param {number} slot Actual physical discard source slot.
  */
-function settleBellowing(x,discardIndices){
+function settleBellowing(x,discardIndices,slot=SlotType.ACTIVE){
   x.store.dispatch(new AttackAction(x.owner.id,'Bellowing Thunder'));
   const sequence=[];
   for(let i=0;i<20;i++){
@@ -94,9 +105,9 @@ function settleBellowing(x,discardIndices){
     const name=p.constructor.name;sequence.push(name);
     if(name==='DiscardEnergyPrompt'){
       assert.equal(p.options.min,0);
-      assert.equal(p.options.max,2);
+      assert.equal(p.options.max,x.dde?1:2);
       const indices=discardIndices.map(index=>({
-        from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
+        from:{player:PlayerType.BOTTOM_PLAYER,slot,index:0},
         index
       }));
       // Low-level Store.dispatch expects the *decoded*, physical transfer
@@ -184,6 +195,27 @@ for(const seat of [0,1]){
     assert.equal(x.owner.active.energies.cards.length,0);
     assert.equal(x.owner.getPrizeLeft(),6);
     assert.equal(x.store.state.phase!==GamePhase.FINISHED,true);
+  });
+}
+
+for(const seat of [0,1]){
+  test('native original rank19 seat '+seat+' Double Dragon pays Bellowing while Benched Basic card is the only discard damage',()=>{
+    const x=stage(seat,0,'dde-bench-basic');
+    const proposed=choosePrintedBellowingPotentialKnockout(
+      {...x.view,opponentPublic:{...x.view.opponentPublic,
+        active:{...x.view.opponentPublic.active,damage:150}}},
+      x.catalog,x.view.ownPublic.active.attacks);
+    assert.equal(proposed.attackName,'Bellowing Thunder');
+    assert.equal(proposed.availableBasicEnergyCards,1);
+    assert.equal(proposed.rawDamage,70);
+    const sequence=settleBellowing(x,[1],SlotType.BENCH);
+    assert.ok(sequence.includes('DiscardEnergyPrompt'));
+    assert.equal(x.opponent.active.damage,70);
+    assert.equal(x.owner.active.energies.cards.length,1);
+    assert.strictEqual(x.owner.active.energies.cards[0],x.dde);
+    assert.equal(x.owner.bench[0].energies.cards.length,0);
+    assert.ok(x.owner.discard.cards.includes(x.lightning));
+    assert.equal(x.owner.getPrizeLeft(),6);
   });
 }
 
