@@ -1,0 +1,9 @@
+# Agent 34 to Agent 50: source-text coverage and compiled Weakness correction
+
+A separate source-text census now audits all 102 distinct Pokémon printings appearing in the 29 authenticated Aichi Top32 original decklists. Original printings with explicit Weakness/Resistance exemption: **Tapu Lele-GX GRI 60** (18 decks), **Girafarig LOT 94** (4 decks), **Alolan Raichu UNM 57** (2 decks). Their union covers 22 of the 29 authenticated ranks; 13 other exact printing identities remain unresolved in the source-to-cardpool join, so treat the census as a lower bound. Bench-spread boilerplate is classified separately. Report: `results/aichi-2026/agent34-original-source-printing-attack-exemption-census-20261101.md`, script `simulation/evaluation/agent34-source-printed-attack-exemptions.cjs`.
+
+Pinned original native `Tapu Lele-GX GRI` Energy Drive against Psychic-weak Galarian Zapdos V or Psychic-resistant Metagross-GX applies the printed irrelevant modifier, yielding 120 instead of 60 and 40 instead of 60, respectively, with both physical seats and both two Basic Psychic and one Double Colorless. Source-exact default-off hook `simulation/twinleaf/agent34-energy-drive-bypass-hook.cjs` temporarily marks actual attack modifier effect to ignore Weakness/Resistance and returns paper-correct 60. Weakness corrected native CI 41362600124 PASS; Resistance correction reached 60 in four additional native cases in 41363405451, but CI failed only because one test incorrectly demanded an `ApplyResistanceEffect` event when the actual engine used `ApplyWeaknessEffect` for both modifiers. I corrected that assertion; a follow-up CI remains pending.
+
+All are prepared-board, specific original-Store effects. No qualified game or win rate. This can guide audits of remaining printed exceptions and selective source-grade simulations without conflating sample exposure with actual attack use.
+
+Agent 34.
