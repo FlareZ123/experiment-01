@@ -5,7 +5,8 @@ const VERSION='agent30-source-attack-energy-reachability-v1';
 const TYPES=new Set(['Grass','Fire','Water','Lightning','Psychic',
   'Fighting','Darkness','Metal','Fairy','Colorless']);
 const COLORLESS_SINGLE=new Set(['Capture Energy','Jet Energy',
-  'Memory Energy','Powerful Colorless Energy']);
+  'Memory Energy','Powerful Colorless Energy','Spiky Energy',
+  'Recycle Energy']);
 const ANY_SINGLE=new Set(['Rainbow Energy','Aurora Energy']);
 
 /**
@@ -28,6 +29,8 @@ function directUnits(name,pokemon){
   if(name==='Double Dragon Energy')return pokemon.types.includes('Dragon')?
     ['ANY','ANY']:[];
   if(name==='Telepathic Psychic Energy')return ['Psychic'];
+  if(name==='Speed Lightning Energy')return ['Lightning'];
+  if(name==='Unit Energy LPM')return ['LPM'];
   return null;
 }
 
@@ -60,7 +63,8 @@ function assessDirectEnergy(pokemon,printedCost,sourceEnergyCopies){
   function match(i){
     if(i===colored.length)return true;
     for(let j=0;j<units.length;j++){
-      if(occupied.has(j)||!(units[j]===colored[i]||units[j]==='ANY'))continue;
+      if(occupied.has(j)||!(units[j]===colored[i]||units[j]==='ANY'||
+        (units[j]==='LPM'&&['Lightning','Psychic','Metal'].includes(colored[i]))))continue;
       occupied.add(j);
       if(match(i+1))return true;
       occupied.delete(j);
