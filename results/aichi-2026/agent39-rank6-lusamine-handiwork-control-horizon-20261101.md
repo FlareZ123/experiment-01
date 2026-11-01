@@ -85,6 +85,14 @@ For `Do=20`, selected exact outcomes are:
 
 The calculations are **neither game probabilities nor observed opponent decisions**. They exclude actual opponent deck changes, optional additional draws, hand reshuffling, other Supporters and the official match clock. The Node model now includes `unopposedDeckoutRace()` with an independent turn-by-turn exhaustive test over all coin outcomes for owner-deck sizes 1–8 and opponent-deck sizes 0–24, increasing its local regression suite to **10 passing tests**. An original-source policy needs both owner-deck and public opposing-deck stock, actual printed refill options, the opponent's responses and the wall-clock ledger at the decision.
 
+## Owner-visible policy interface, prepared for native integration
+
+[Default-off root selector](../../simulation/twinleaf/agent39-rank6-control-owner-selector.cjs) and [five Node regressions](../../tests/agent39-rank6-control-owner-selector.test.cjs) propose either the actually held Handiwork or the actually held Lusamine to recover Handiwork plus the other Lusamine. The selector receives only a detached, exact-print `actorObservation`; uses a free Supporter slot; requires solo Active Iron Thorns ex and zero attached Energy on the publicly visible opposing Active; and requires the correct two cards in the owner's public discard. It does not read the opponent's hand, hidden deck identities or unrevealed Prize cards.
+
+The model explicitly shifts own-deck count **+1** when comparing a real owner action root with its earlier *before-current-turn-draw* mathematical counterfactual. A specific synthetic owner view containing **11** deck cards *after* the current mandatory draw, opponent deck count **20**, held Lusamine and both needed discard pieces yields the conditional illustrative **3302/4096 = 80.615234375%** depletion projection. This is purely a policy-coverage test fixture. The arbitrary `minIllustrativeDepletion` gate (default 0.5) is adjustable and cannot serve as a calibrated win evaluator.
+
+**Important boundary:** these are pure detached-observation regressions. They do **not** automatically patch the pinned Store, resolve a real Lusamine discard-selection prompt, prove that Team Rocket's Handiwork is implemented faithfully, or measure any native match. To release them as a source opponent policy, a separate native adapter must validate `card.canPlay`, settle the owner's physically selected `ChooseCardsPrompt`, and compare actual competing Supporter and attack actions on original source-dealt roots under both seats.
+
 ## A direct qualification gap and useful experiment
 
 The source AI should be explicitly tested for these **owner-visible board/action phases**:
