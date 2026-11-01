@@ -2,6 +2,12 @@ name: Agent7 original rank30 Psychic Bench staging native A-B-A
 
 on:
   workflow_dispatch:
+    inputs:
+      agent6_rank30_rondo:
+        description: 'Optional previously selected native funded Clefairy Pass to Retreat and Rondo fork'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -36,8 +42,21 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
+        if: '!inputs.agent6_rank30_rondo'
         run: node simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs > agent7-rank30-source-psychic-stage-aba.json
+      - name: Retro original rank30 paid Clefairy actual source retreat and Rondo native fork
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/evaluation/agent6-rank30-funded-clefairy-retreat-native.cjs > agent6-rank30-funded-clefairy-retreat-native.json
+      - name: Archive all native original rank30 funded Rondo fork outcomes and errors
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank30-funded-clefairy-retreat-native
+          path: agent6-rank30-funded-clefairy-retreat-native.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Preserve every control, experimental arm, prompt and failure
+        if: '!inputs.agent6_rank30_rondo'
         if: always()
         uses: actions/upload-artifact@v4
         with:
