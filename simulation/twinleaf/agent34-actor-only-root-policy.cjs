@@ -424,8 +424,17 @@ function chooseActorRootIntent(view,catalog,options={}){
       const knownDead=options.knownDeadAttackRoot===true?
         require('./agent1-actor-dead-first-attack-frontier.cjs')
           .chooseKnownDeadLeadingAttack(view,payable):null;
+      // Default-off exact-print Raging Bolt breakpoint: Basic Energy on ALL
+      // of our public Pokémon may fund nominal Bellowing Thunder damage.
+      // This ranks an attack only; native discard prompts and damage effects
+      // still require independent paper-valid settlement.
+      const ragingBolt=options.ragingBoltNominalKoRoot===true?
+        require('./agent50-raging-bolt-nominal-ko.cjs')
+          .chooseRagingBoltNominalKo(view,payable,catalog):null;
       const chosen=knownDead?
         payable.find(attack=>attack.name===knownDead.attackName):
+        ragingBolt?
+          payable.find(attack=>attack.name===ragingBolt.attackName):
         options.potentialKoRoot===true?
           require('./agent49-actor-potential-knockout.cjs')
             .choosePotentialKnockout(view,payable):payable[0];
