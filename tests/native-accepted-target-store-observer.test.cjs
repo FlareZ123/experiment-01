@@ -164,6 +164,30 @@ test('alias matching rejects different printings and approximate spellings',()=>
     'Darkness Energy SVE 7'),true);
 });
 
+test('rank19 original-source aliases are exact and retain root-to-native veto',()=>{
+  // Four original pinned-Store rank19 runs shared the same two physical
+  // printing-label discrepancies with matching action, seat, and turn.
+  const {auditNativeTargetRootLinkage}=require(
+    '../simulation/twinleaf/native-accepted-target-store-observer.cjs');
+  const cases=[
+    ['Ho-Oh-EX','Ho-Oh EX DRX'],
+    ['Arceus & Dialga & Palkia-GX','Arceus & Dialga & Palkia GX CEC']
+  ];
+  for(const [legacy,native] of cases){
+    assert.equal(rootLabelMatchesNativePrinting(legacy,native),true);
+    assert.equal(rootLabelMatchesNativePrinting(legacy,native+' 2'),false);
+    assert.equal(rootLabelMatchesNativePrinting(legacy,native+' ALT'),false);
+    assert.equal(rootLabelMatchesNativePrinting(legacy.toLowerCase(),native),false);
+    const roots=[{action:'PlayCardAction',playerSlot:0,turnBefore:4,
+      card:legacy}];
+    const records=[{action:'PlayCardAction',playerSlot:0,turnBefore:4,
+      declared:{ownerHandPrinting:native}}];
+    assert.equal(auditNativeTargetRootLinkage(roots,records).linked,true);
+    assert.equal(auditNativeTargetRootLinkage(roots,[{
+      ...records[0],playerSlot:1}]).linked,false);
+  }
+});
+
 // Existing manual native-target CI also exercises both nested public witnesses.
 require('./agent41-bilateral-dual-target-evidence.test.cjs');
 
