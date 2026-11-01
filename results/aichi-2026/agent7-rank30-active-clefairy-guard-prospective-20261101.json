@@ -1,0 +1,123 @@
+{
+  "registration": "agent7-rank30-active-clefairy-recipient-guard-fresh-source-v1",
+  "registeredAtUTC": "2026-11-01T20:53:46.893920Z",
+  "registeredBeforeNativeRun": true,
+  "rank": 30,
+  "originalSixtyUnchanged": true,
+  "sourceGroups": 8,
+  "pairedGames": 16,
+  "priorSourceSeedsExcluded": [
+    3407938073,
+    233633536,
+    1509408075,
+    1696349563,
+    3637285017,
+    1353153974,
+    3505963197,
+    1157416090,
+    2558814955,
+    1255534097
+  ],
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "control": "standard original source and candidate policy without any Clefairy Psychic recipient proposer",
+  "treatment": "default-off source-seat-only psychic recipient proposer and exact face-up Active Clefairy safeguard. No diversion when original source Active is Lillie's Clefairy ex JTG. All other source/candidate decisions unchanged.",
+  "primary": "source-native accepted physical Psychic attachments into Benched JTG Clefairy, compared within all 16 exact paired original Store games",
+  "secondary": [
+    "source Full Moon Rondo uses",
+    "source Filch uses",
+    "native original source/candidate terminal winner or censor",
+    "true same-original-deal native first differences and accepted target sidecars"
+  ],
+  "cohort": "eight brand-new original source physical shuffle groups, both fixed candidate 60s each, candidate source seats alternated; all attempts included without cherry-picking",
+  "paperQualification": "zero until clock, exact sources 32/32, full papers rules and opposing policies validated",
+  "groups": [
+    {
+      "rank": 30,
+      "repeat": 2200,
+      "seed": 1437031889,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2201,
+      "seed": 2305130028,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2202,
+      "seed": 2878464917,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2203,
+      "seed": 3909393694,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2204,
+      "seed": 97767724,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2205,
+      "seed": 859473431,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2206,
+      "seed": 2723809904,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2207,
+      "seed": 3375132501,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    }
+  ]
+}
