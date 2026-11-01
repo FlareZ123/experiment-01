@@ -194,3 +194,55 @@ test('spent printed power is independent of a held pending Dedenne trigger',()=>
  x.ownHand.push('Dedenne-GX UNB');
  assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
 });
+
+test('source English printings certify the four one-shot Bench arrival Abilities',()=>{
+ const fs=require('node:fs');
+ const path=require('node:path');
+ const cases=[
+   ['sm10','57','Dedenne-GX','Dedechange'],
+   ['swsh3','104','Crobat V','Dark Asset'],
+   ['sm2','60','Tapu Lele-GX','Wonder Tag'],
+   ['swsh2','19','Eldegoss V','Happy Match']
+ ];
+ for(const [set,number,name,abilityName] of cases){
+   const cards=JSON.parse(fs.readFileSync(
+     path.join(__dirname,'../resources/cards/en',set+'.json'),'utf8'));
+   const card=cards.find(x=>x.number===number);
+   assert.equal(card?.name,name);
+   assert.equal(card?.abilities?.length,1);
+   assert.equal(card.abilities[0].name,abilityName);
+   assert.match(card.abilities[0].text,
+     /^When you play this Pokémon from your hand onto your Bench during your turn/);
+ }
+});
+test('Regidrago printed Legacy Star has one global VSTAR Power and Genesect is reusable',()=>{
+ const fs=require('node:fs');
+ const path=require('node:path');
+ const card=(set,number)=>JSON.parse(fs.readFileSync(
+   path.join(__dirname,'../resources/cards/en',set+'.json'),'utf8'))
+   .find(x=>x.number===number);
+ const reg=card('swsh12','136');
+ const gen=card('swsh8','185');
+ assert.equal(reg?.name,'Regidrago VSTAR');
+ assert.equal(reg.abilities.length,1);
+ assert.equal(reg.abilities[0].name,'Legacy Star');
+ assert.match(reg.abilities[0].text,/more than 1 VSTAR Power in a game/);
+ assert.equal(gen?.name,'Genesect V');
+ assert.equal(gen.abilities.length,1);
+ assert.equal(gen.abilities[0].name,'Fusion Strike System');
+ assert.match(gen.abilities[0].text,/Once during your turn/);
+});
+test('authentic original 29 source ranks still have eight Path copies across seven decks',()=>{
+ const roster=require('../results/aichi-2026/full-decklists.json');
+ const found=roster.decks.map(deck=>({
+   rank:deck.rank,
+   copies:deck.cards.filter(c=>c.name==='Path to the Peak'&&
+     c.printing?.set==='CRE'&&String(c.printing.number)==='148')
+     .reduce((sum,c)=>sum+c.count,0)
+ })).filter(x=>x.copies>0);
+ assert.deepEqual(found,[
+   {rank:5,copies:2},{rank:9,copies:1},{rank:12,copies:1},
+   {rank:15,copies:1},{rank:20,copies:1},{rank:21,copies:1},
+   {rank:27,copies:1}
+ ]);
+});
