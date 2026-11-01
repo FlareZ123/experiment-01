@@ -12,6 +12,9 @@ const VERSION='agent46-anytime-field-mean-envelope-v1';
  *
  * spans candidate ordinal k, cell i from 1 to C and cell sample count
  * n from 1 upward. The double sums of 1/[m(m+1)] each equal one.
+ * Choose C in advance: 32-rank, 64-rank/seat and 128-rank/seat/start
+ * are distinct estimands, not three free simultaneous alpha-level tests.
+ * Testing multiple C at once requires another preallocated alpha split.
  * For any fixed iid Bernoulli cell sequence and any sequential checking
  * schedule, simultaneous failure probability is at most alpha.
  *
