@@ -43,7 +43,7 @@ function inspectNativeCoheldDenialCanPlay(
   assert.deepStrictEqual(hand.map(c=>c.fullName),view.ownHand,
     'Authentic original hand physical cards must match detached owner view');
   const candidates={plumeria:[],teamFlare:[]};
-  const observe=(printing,into)=>{
+  const inspectPrinting=(printing,into)=>{
     for(let index=0;index<hand.length;index++){
       const card=hand[index];
       if(card.fullName!==printing)continue;
@@ -60,8 +60,8 @@ function inspectNativeCoheldDenialCanPlay(
       into.push({handIndex:index,printing,nativePlayable,error});
     }
   };
-  observe(PLUMERIA,candidates.plumeria);
-  observe(FLARE,candidates.teamFlare);
+  inspectPrinting(PLUMERIA,candidates.plumeria);
+  inspectPrinting(FLARE,candidates.teamFlare);
   assert.ok(candidates.plumeria.length>0&&candidates.teamFlare.length>0);
   const paymentPairsPerCopy=hand.length>=3?
     (hand.length-1)*(hand.length-2)/2:0;
