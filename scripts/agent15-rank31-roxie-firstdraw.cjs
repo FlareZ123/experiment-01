@@ -26,10 +26,12 @@ function choose(n, k) {
 }
 
 /** @param {object} deck @returns {Record<string, number>} */
-function classify(deck) {
+function classify(deck, {includeModernEx = false} = {}) {
   const out = Object.fromEntries(CLASSES.map(k => [k, 0]));
-  const eligibleBasics = new Set(['Duskull', 'Unown', 'Chimecho', 'Radiant Alakazam']);
-  const otherBasics = new Set(['Gengar & Mimikyu-GX', 'Bloodmoon Ursaluna ex', 'Latias ex', 'Tapu Lele-GX']);
+  const eligibleBasics = new Set(['Duskull', 'Unown', 'Chimecho', 'Radiant Alakazam',
+    ...(includeModernEx ? ['Bloodmoon Ursaluna ex', 'Latias ex'] : [])]);
+  const otherBasics = new Set(['Gengar & Mimikyu-GX', 'Tapu Lele-GX',
+    ...(includeModernEx ? [] : ['Bloodmoon Ursaluna ex', 'Latias ex'])]);
   const eligibleEvolutions = new Set(['Dusclops', 'Dusknoir']);
   for (const card of deck.cards) {
     const n = card.name;
@@ -43,7 +45,8 @@ function classify(deck) {
     if (n === 'Koffing') assert.deepEqual([card.printing.set, String(card.printing.number)], ['CEC', '76']);
   }
   assert.deepEqual(out, {
-    koffing: 3, eligibleBasic: 8, otherBasic: 4,
+    koffing: 3, eligibleBasic: includeModernEx ? 10 : 8,
+    otherBasic: includeModernEx ? 2 : 4,
     eligibleEvolution: 7, roxie: 4, other: 34,
   });
   assert.equal(deck.cards.reduce((s, c) => s + c.count, 0), 60);
@@ -129,7 +132,8 @@ function main() {
   const source = manifest.decks.find(deck => deck.rank === 31);
   assert(source, 'Authenticated original rank 31 is missing');
   console.log(JSON.stringify({rank: 31, source: manifest.source,
-    classification: classify(source), model: analyze(classify(source))}, null, 2));
+    conservative: analyze(classify(source)),
+    modernExEligible: analyze(classify(source, {includeModernEx: true}))}, null, 2));
 }
 
 if (require.main === module) main();
