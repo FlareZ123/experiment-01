@@ -1,0 +1,114 @@
+{
+  "schema": "agent6-crossrank-tagcall-owner-native-prospective-20261101-v1",
+  "registeredAtUTC": "2026-11-01T04:32:00Z",
+  "rng": "Python secrets.randbits(32), uniformly random 0..2^32-1, sampled once before simulations",
+  "researchQuestion": "Does same standalone owner-K0 Tag Call + G&H native root-to-prompt bridge execute on five exact original Aichi source sixties across two physical seats and source-first starts?",
+  "sourceRanks": [
+    2,
+    6,
+    15,
+    24,
+    29
+  ],
+  "opponentReferenceRank": 1,
+  "bothOriginalSourceSixties": true,
+  "sourceFirst": true,
+  "opponentFrozen": "rank1 exact published unchanged original 60",
+  "setup": "open seven conditional on Basic, six Prizes, mandatory turn draw; native simulator uses fixed source-first GO_FIRST choice",
+  "intervention": "Default OFF two-seat owner K0/K1 native Tag Call hook vs unchanged baseline",
+  "maxActionsPerArm": 120,
+  "seedsByRankAndSeat": [
+    {
+      "rank": 2,
+      "sourceSeat": 0,
+      "seeds": [
+        165877120,
+        2624617155
+      ]
+    },
+    {
+      "rank": 2,
+      "sourceSeat": 1,
+      "seeds": [
+        4093774780,
+        1623178506
+      ]
+    },
+    {
+      "rank": 6,
+      "sourceSeat": 0,
+      "seeds": [
+        1517036243,
+        251736955
+      ]
+    },
+    {
+      "rank": 6,
+      "sourceSeat": 1,
+      "seeds": [
+        3513487611,
+        2869690247
+      ]
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 0,
+      "seeds": [
+        1246540996,
+        1646634204
+      ]
+    },
+    {
+      "rank": 15,
+      "sourceSeat": 1,
+      "seeds": [
+        3527220782,
+        3209953580
+      ]
+    },
+    {
+      "rank": 24,
+      "sourceSeat": 0,
+      "seeds": [
+        2578711501,
+        1668753085
+      ]
+    },
+    {
+      "rank": 24,
+      "sourceSeat": 1,
+      "seeds": [
+        38224574,
+        445468980
+      ]
+    },
+    {
+      "rank": 29,
+      "sourceSeat": 0,
+      "seeds": [
+        2085001397,
+        908197602
+      ]
+    },
+    {
+      "rank": 29,
+      "sourceSeat": 1,
+      "seeds": [
+        3024908723,
+        2381592845
+      ]
+    }
+  ],
+  "physicalPairs": 20,
+  "nativeArms": 40,
+  "retainedFailures": true,
+  "plannedAnalysis": "Archive every native result, physical start digest, root and prompted selection; no selection on outcome",
+  "qualifiesForCompetitiveWinRate": false,
+  "primaryEvidenceType": "native Store mechanical source opener positive and negative receipts",
+  "caveats": [
+    "No paper clock",
+    "Canonical opponent and source policies are not competitively qualified",
+    "No proof Tag Call is the best option",
+    "Missing original Top32 source ranks 23,25,28"
+  ]
+}
