@@ -32,6 +32,13 @@ function withPaperAstralBarrageTargets(execute){
     native('game/store/actions/play-card-action');
   const {PutCountersEffect}=native('game/store/effects/attack-effects');
   const {GameMessage}=native('game/game-message');
+  const {Store}=native('game/store/store');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const previousDispatch=Object.getOwnPropertyDescriptor(
+    Store.prototype,'dispatch');
+  assert.equal(typeof previousDispatch?.value,'function');
+  const createdPrompts=new WeakSet();
   const proto=ShadowRiderCalyrexV.prototype;
   const original=Object.getOwnPropertyDescriptor(proto,'reduceEffect');
   assert.equal(typeof original?.value,'function');
@@ -46,13 +53,15 @@ function withPaperAstralBarrageTargets(execute){
       opponent.bench.filter(slot=>slot.cards.length>0).length;
     const required=Math.min(2,available);
     if(required===0)return state;
-    return store.prompt(state,new ChoosePokemonPrompt(
+    const prompt=new ChoosePokemonPrompt(
       player.id,
       GameMessage.CHOOSE_POKEMON_TO_DAMAGE,
       PlayerType.TOP_PLAYER,
       [SlotType.BENCH,SlotType.ACTIVE],
       {min:required,max:required,allowCancel:false}
-    ),selected=>{
+    );
+    createdPrompts.add(prompt);
+    return store.prompt(state,prompt,selected=>{
       for(const target of selected??[]){
         const damageEffect=new PutCountersEffect(effect,50);
         damageEffect.target=target;
@@ -61,11 +70,47 @@ function withPaperAstralBarrageTargets(execute){
     });
   }
 
+  /**
+   * The pinned Store never invokes prompt.validate at ResolvePromptAction.
+   * Scope this extra paper check to prompts created by the CRE74 reducer.
+   * Require physically distinct, occupied opposing Pokémon and exactly the
+   * printed available cardinality. Do not interpret as global validation.
+   * @param {any} action Store action
+   * @param {any[]} args Remaining Store dispatch arguments
+   * @returns {any}
+   */
+  function guardAstralReply(action,...args){
+    if(action instanceof ResolvePromptAction){
+      const pending=this.state.prompts.find(p=>
+        p.id===action.id&&p.result===undefined);
+      if(pending&&createdPrompts.has(pending)){
+        const owner=this.state.players.find(p=>p.id===pending.playerId);
+        const opponent=this.state.players.find(p=>p.id!==pending.playerId);
+        const allowed=opponent?[
+          opponent.active,...opponent.bench
+        ].filter(s=>s.cards.length>0):[];
+        const result=action.result;
+        if(!Array.isArray(result)||
+           result.length!==Math.min(2,allowed.length)||
+           new Set(result).size!==result.length||
+           result.some(s=>!allowed.includes(s))||
+           pending.validate(result,this.state)!==true){
+          throw new Error('PAPER_ASTRAL_BARRAGE_REJECTED:INVALID_PRINTED_TARGETS');
+        }
+      }
+    }
+    return previousDispatch.value.apply(this,[action,...args]);
+  }
+
   Object.defineProperty(proto,'reduceEffect',
     {...original,value:paperAstralBarrage});
+  Object.defineProperty(Store.prototype,'dispatch',
+    {...previousDispatch,value:guardAstralReply});
   try{return execute();}
   finally{
     assert.strictEqual(proto.reduceEffect,paperAstralBarrage);
+    assert.strictEqual(Store.prototype.dispatch,guardAstralReply);
+    Object.defineProperty(Store.prototype,'dispatch',previousDispatch);
     Object.defineProperty(proto,'reduceEffect',original);
   }
 }
