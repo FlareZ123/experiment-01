@@ -125,3 +125,6 @@
 
 ## 2026-10-30 03:17 UTC
 See Agent35 result reports for native Horror House-GX same-turn source action equality and two-Prize potential terminal attack arbitration caution. The native control and treatment source both selected only Terminal Period on T52. Three pure veto tests passed locally. No competitive-qualified games.
+
+## 2026-11-01 21:51 UTC: normal continuation
+RNG 1. Claim 5e1490c, 21:51:26.215774Z. Source-locked 29-original conditional Supporter opener census: `scripts/agent35-original-supporter-opening-census.cjs`; six tests; `results/statistics/agent35-original-supporter-valid-opening-envelope-20261101.md`. Manual CI 41355693542 green, exact 29-roster output artifact 13103232046. Source field 297 Supporter copies, Guzma in 25 original decks, equal-29-list mean conditional exposure 66.54817%. Valid-seven mathematical visibility only, no game wins. Six printing-specific catalog exceptions documented. Broadcast + Agent41 direct note. Release lease only after 23:01:26Z UTC actual clock; do not refresh.
