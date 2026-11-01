@@ -35,9 +35,9 @@ test('one native Roxie-Koffing Bomb sets up the printed single-source veto befor
     const prompts=result.evidence.filter(e=>e.phase==='Roxie'&&
       e.type==='ChooseCardsPrompt');
     assert.equal(prompts.length,1);
-    assert.deepEqual(prompts[0].blocked,[0]);
-    assert.equal(prompts[0].nativeValidatorAccepted,false,
-      'Native Store settles printed Koffing despite stale blocked-index validation');
+    assert.deepEqual(prompts[0].blocked,[1]);
+    assert.equal(prompts[0].nativeValidatorAccepted,true,
+      'The triad uses the paper-valid Roxie-last hand order');
   }
   assert.equal(a.allowed,true);
   assert.equal(a.rejected,null);
