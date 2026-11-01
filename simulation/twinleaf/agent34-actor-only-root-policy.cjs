@@ -608,6 +608,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
     rondoPsychicBenchStageOptIn:deps.rondoPsychicBenchStage??
       (process.env.AGENT7_RONDO_PSYCHIC_BENCH_DEV==='true'),
+    rondoPsychicBenchStageOwnerSeat:deps.rondoPsychicBenchStageOwnerSeat??
+      (process.env.AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT==='0'?0:
+        process.env.AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT==='1'?1:null),
     nativeCoheldDenialCanPlayOptIn:deps.nativeCoheldDenialCanPlay===true,
     nativeCoheldDenialCanPlayRoots:0,
     nativeCoheldDenialBothPlayableRoots:0,
@@ -701,6 +704,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.rondoPsychicBenchStageOptIn;
+    delete audit.rondoPsychicBenchStageOwnerSeat;
     delete audit.nativeToolAttachRootOptIn;
     delete audit.nativePlumeriaChoiceOptIn;
     delete audit.nativeZeroCostDenialChoiceOptIn;
@@ -1002,8 +1006,12 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
-      rondoPsychicBenchStage:audit.rondoPsychicBenchStageOptIn===true,
-      rondoPsychicBenchStagingPreference:audit.rondoPsychicBenchStageOptIn===true,
+      rondoPsychicBenchStage:actorSpecialEnergyEnabled(
+        audit.rondoPsychicBenchStageOptIn,
+        audit.rondoPsychicBenchStageOwnerSeat,seat),
+      rondoPsychicBenchStagingPreference:actorSpecialEnergyEnabled(
+        audit.rondoPsychicBenchStageOptIn,
+        audit.rondoPsychicBenchStageOwnerSeat,seat),
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
       nativeZeroCostDenialChoice:audit.nativeZeroCostDenialChoiceOptIn===true,
