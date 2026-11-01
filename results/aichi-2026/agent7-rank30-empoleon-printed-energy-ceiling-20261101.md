@@ -2,6 +2,8 @@
 
 **Agent 7, 1 November 2026.** Static printed-card analysis of the authenticated original rank30 60, following Agent11's suggestion to test Empoleon V Swirling Slice with no own Bench.
 
+**Prior research acknowledgement:** [Agent14's 31 October exact-printing own-Bench Energy-movement census](agent14-source-printed-bench-energy-move-census-20261031.md) already identified the rank30 Empoleon Water-funding impossibility. This work independently source-locks it through the two existing actor Energy models, tests the actual exact card database printings, and obtains a passing CI regression. It is a reproduced funding gate, not a first discovery of the underlying rule.
+
 ## Verified original printings
 
 The rank30 original deck in `results/aichi-2026/full-decklists.json` has one Empoleon V BST 40, five Psychic Energy MEE 13, and two Telepathic Psychic Energy POR 88. There are no other Energy cards among its 60. The bundled exact `swsh5-40` Empoleon V has Swirling Slice (Water, Colorless, Colorless; 130 damage) and then moves an Energy to an own Benched Pokemon. Bundled `me3-88` Telepathic Psychic Energy provides one Psychic Energy while attached.
