@@ -79,3 +79,7 @@ tests passed locally**. A newly added pinned native two-seat held-card
 test asserts exact native Stadium placement then draw-to-seven and end-turn.
 This test is registered in existing manual CI, but no compiled CI result
 is claimed in this artifact.
+
+## 1 November staged native closure
+
+[Compiled manual run 41273271820](https://github.com/FlareZ123/experiment-01/actions/runs/41273271820) passed all five native Beach fixtures: native Stadium use draws exactly four from a three-card hand and ends turn on both seats; a second use in the same turn is rejected; playing a held original Beach then using it reaches hand seven with exact deck conservation on both seats. An earlier run 41272959104 failed **only because the held-play test incorrectly expected seven cards left in an initial twelve-card deck after drawing four**; this is corrected in `tests/agent33-tropical-beach-pinned-native.test.cjs` commit `3df1a038`. Staged mechanics do not show source-dealt strategic value. Separate same-original-source-deal results and integration failure evidence: `agent33-first-original-beach-sixpair-native-20261101.md`.
