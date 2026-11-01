@@ -630,6 +630,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     rondoPsychicBenchStageOwnerSeat:deps.rondoPsychicBenchStageOwnerSeat??
       (process.env.AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT==='0'?0:
         process.env.AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT==='1'?1:null),
+    rondoProtectActiveLatiasEonBladeOptIn:
+      (process.env.AGENT7_RONDO_PSYCHIC_PROTECT_LATIAS_DEV==='true'),
     nativeCoheldDenialCanPlayOptIn:deps.nativeCoheldDenialCanPlay===true,
     nativeCoheldDenialCanPlayRoots:0,
     nativeCoheldDenialBothPlayableRoots:0,
@@ -724,6 +726,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.rondoPsychicBenchStageOptIn;
     delete audit.rondoPsychicBenchStageOwnerSeat;
+    delete audit.rondoProtectActiveLatiasEonBladeOptIn;
     delete audit.nativeToolAttachRootOptIn;
     delete audit.nativePlumeriaChoiceOptIn;
     delete audit.nativeZeroCostDenialChoiceOptIn;
@@ -1038,6 +1041,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.rondoPsychicBenchStageOwnerSeat??null,seat),
       rondoPsychicBenchStagingPreference:actorSpecialEnergyEnabled(
         audit.rondoPsychicBenchStageOptIn,
+        audit.rondoPsychicBenchStageOwnerSeat??null,seat),
+      rondoProtectActiveLatiasEonBlade:actorSpecialEnergyEnabled(
+        audit.rondoPsychicBenchStageOptIn&&
+          audit.rondoProtectActiveLatiasEonBladeOptIn,
         audit.rondoPsychicBenchStageOwnerSeat??null,seat),
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
