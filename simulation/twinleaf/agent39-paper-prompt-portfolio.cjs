@@ -1,0 +1,142 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+
+const VERSION='agent39-paper-prompt-portfolio-v1-volt-cyclone';
+const PRINTING='Iron Thorns ex TWM';
+
+/**
+ * Independently check the printed Volt Cyclone transfer contract against the
+ * pending physical Store state. Only prompts positively marked by the actual
+ * Iron Thorns ex TWM attack reducer are eligible for this verdict.
+ * @param {object} state Genuine Store state, inaccessible to bot policy.
+ * @param {object} prompt Positively attributed native attack prompt.
+ * @param {unknown} result Submitted physical CardAssign[] reply.
+ * @param {object} types Pinned Store enums.
+ * @returns {{valid:boolean,reason:string}}
+ */
+function verdictVoltCyclone(state,prompt,result,types){
+  const {PlayerType,SlotType,SuperType}=types;
+  const owner=state?.players?.find(p=>p.id===prompt?.playerId);
+  if(!owner||!Array.isArray(owner.bench)||
+     !Array.isArray(owner.active?.cards)||
+     prompt.cardList!==owner.active||
+     prompt.playerType!==PlayerType.BOTTOM_PLAYER||
+     !Array.isArray(prompt.slots)||
+     prompt.slots.length!==1||prompt.slots[0]!==SlotType.BENCH)
+    return {valid:false,reason:'unmatched-original-source-contract'};
+  if(!Array.isArray(result)||result.length!==1)
+    return {valid:false,reason:'exactly-one-energy-required'};
+  const {card,to}=result[0]??{};
+  if(!card||card.superType!==SuperType.ENERGY||
+     !owner.active.cards.includes(card))
+    return {valid:false,reason:'energy-not-attached-to-attacker'};
+  if(!to||to.player!==PlayerType.BOTTOM_PLAYER||
+     to.slot!==SlotType.BENCH||!Number.isSafeInteger(to.index)||
+     to.index<0||to.index>=owner.bench.length||
+     !Array.isArray(owner.bench[to.index]?.cards)||
+     owner.bench[to.index].cards.length===0)
+    return {valid:false,reason:'recipient-not-occupied-own-bench'};
+  if(typeof prompt.validate!=='function'||prompt.validate(result)!==true)
+    return {valid:false,reason:'native-additional-contract-rejected'};
+  return {valid:true,reason:'printed-one-active-energy-to-own-bench'};
+}
+
+/**
+ * One shared Store dispatch boundary, currently certifying only the TWM77
+ * Volt Cyclone mandatory transfer. All other resolved prompts are explicitly
+ * unverified. Card reducer marking is used because attack prompts are not
+ * reliably source-stamped. The reducer is restored even when native throws.
+ *
+ * @template T
+ * @param {()=>T} run Synchronous native Store game.
+ * @param {{Store?:Function,IronThornsex?:Function,types?:object}} [deps]
+ * @returns {{result:T,audit:object}}
+ */
+function withPaperPromptPortfolio(run,deps={}){
+  assert.equal(typeof run,'function');
+  const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+  const native=(name)=>require(path.join(root,name));
+  const Store=deps.Store??native('game/store/store').Store;
+  const IronThornsex=deps.IronThornsex??native(
+    'sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex').IronThornsex;
+  const types=deps.types??{
+    ...native('game/store/actions/play-card-action'),
+    ...native('game/store/card/card-types')
+  };
+  const d=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  const r=Object.getOwnPropertyDescriptor(IronThornsex.prototype,'reduceEffect');
+  assert.equal(typeof d?.value,'function');
+  assert.equal(typeof r?.value,'function');
+  const attributed=new WeakSet();
+  const audit={schema:VERSION,contractPrintings:[PRINTING],
+    resolutionCount:0,paperVerifiedNativeAccepted:0,
+    paperInvalidVetoed:0,paperUnverified:0,nativeRejectedAfterPreflight:0,
+    sourceMarkedPromptCount:0,events:[],
+    allPromptFamiliesPaperVerified:false,competitiveGameQualified:false};
+  function reduced(store,state,effect){
+    const relevant=effect?.constructor?.name==='AfterAttackEffect'&&
+      effect.attack===this.attacks?.[0];
+    const prior=relevant?new Set(state.prompts):null;
+    const outcome=r.value.call(this,store,state,effect);
+    if(relevant){
+      for(const prompt of state.prompts){
+        if(!prior.has(prompt)&&prompt?.constructor?.name==='AttachEnergyPrompt'&&
+           prompt.playerId===effect.player?.id){
+          attributed.add(prompt);
+          audit.sourceMarkedPromptCount++;
+        }
+      }
+    }
+    return outcome;
+  }
+  function dispatched(action,...args){
+    if(action?.constructor?.name!=='ResolvePromptAction')
+      return d.value.call(this,action,...args);
+    const prompt=this.state.prompts?.find(p=>p.id===action.id&&
+      p.result===undefined);
+    const marked=prompt&&attributed.has(prompt);
+    const paper=marked?verdictVoltCyclone(this.state,prompt,action.result,types):null;
+    const status=!marked?'PAPER_PROMPT_UNVERIFIED':paper.valid?
+      'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
+    const entry={turn:this.state.turn??null,promptId:prompt?.id??null,
+      family:prompt?.constructor?.name??null,
+      sourcePrinting:marked?PRINTING:null,status,
+      count:Array.isArray(action.result)?action.result.length:null,
+      reason:paper?.reason??'no-independent-printed-contract',
+      nativeAccepted:false};
+    audit.resolutionCount++;
+    if(status==='PAPER_PROMPT_UNVERIFIED')audit.paperUnverified++;
+    audit.events.push(entry);
+    if(status==='PAPER_PROMPT_INVALID'){
+      audit.paperInvalidVetoed++;
+      throw new Error('PAPER_PROMPT_INVALID:'+PRINTING+':'+paper.reason);
+    }
+    try{
+      const output=d.value.call(this,action,...args);
+      entry.nativeAccepted=true;
+      if(status==='PAPER_PROMPT_VERIFIED')audit.paperVerifiedNativeAccepted++;
+      return output;
+    }catch(error){
+      audit.nativeRejectedAfterPreflight++;
+      throw error;
+    }
+  }
+  Object.defineProperty(IronThornsex.prototype,'reduceEffect',
+    {...r,value:reduced});
+  Object.defineProperty(Store.prototype,'dispatch',
+    {...d,value:dispatched});
+  try{return {result:run(),audit};}
+  catch(error){
+    if(error&&typeof error==='object')error.paperPromptPortfolioEvidence=audit;
+    throw error;
+  }finally{
+    assert.strictEqual(Store.prototype.dispatch,dispatched);
+    assert.strictEqual(IronThornsex.prototype.reduceEffect,reduced);
+    Object.defineProperty(Store.prototype,'dispatch',d);
+    Object.defineProperty(IronThornsex.prototype,'reduceEffect',r);
+  }
+}
+
+module.exports={VERSION,PRINTING,verdictVoltCyclone,withPaperPromptPortfolio};
