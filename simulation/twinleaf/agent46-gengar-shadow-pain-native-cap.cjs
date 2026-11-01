@@ -14,9 +14,10 @@ const engine=modulePath=>require(path.join(output,modulePath));
  * paper-forbidden target to characterize the vendor prompt validator.
  *
  * @param {boolean} forbidden Whether to place counters on non-GX Bench.
+ * @param {0|1} [seat] Physical owner's position in the two-player State.
  * @returns {object} Actual reducer and post-Store public consequences.
  */
-function probeShadowPain(forbidden){
+function probeShadowPain(forbidden,seat=0){
   const manager=initializeCards();
   const card=name=>{
     const result=manager.getCardByName(name);
@@ -61,8 +62,8 @@ function probeShadowPain(forbidden){
   const state=new State();
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=3;
-  state.activePlayer=0;
-  state.players=[a,b];
+  state.activePlayer=seat;
+  state.players=seat===0?[a,b]:[b,a];
   state.gameSettings.format=Format.EXPANDED;
   const store=new Store({onStateChange(){}});
   store.state=state;
@@ -101,7 +102,8 @@ function probeShadowPain(forbidden){
   try{store.dispatch(new ResolvePromptAction(prompt.id,allocation));}
   catch(e){dispatchError=String(e?.message??e);}
   const result={
-    forbidden,stage:'native-PlayCardAction-to-real-Shadow-Pain-prompt',
+    forbidden,ownerSeat:seat,
+    stage:'native-PlayCardAction-to-real-Shadow-Pain-prompt',
     printedRestriction:'opposing GX and EX only',
     targets:{gx:'Dedenne-GX UNB',nonGx:'Shadow Rider Calyrex V CRE'},
     caps:{gx:capFor(gxTarget),nonGx:capFor(nonGxTarget)},
@@ -125,35 +127,38 @@ function run(){
   const original=Store.prototype.dispatch;
   const {withPutDamageZeroCapPaperHook}=
     require('./put-damage-zero-cap-paper-hook.cjs');
-  const legal=probeShadowPain(false);
-  const forbidden=probeShadowPain(true);
-  assert.equal(forbidden.validatorAccepted,true,
-    'Pinned Store should reproduce the observed zero-cap paper bug');
-  assert.equal(forbidden.dispatchError,null);
-  assert.equal(forbidden.publicDamage.ineligibleBench,60);
-  const guardedLegal=withPutDamageZeroCapPaperHook(()=>
-    probeShadowPain(false));
-  const guardedForbidden=withPutDamageZeroCapPaperHook(()=>
-    probeShadowPain(true));
-  assert.equal(Store.prototype.dispatch,original,
-    'The reversible guard must restore native Store.dispatch exactly');
-  assert.deepEqual(guardedLegal.publicDamage,legal.publicDamage,
-    'The corrected hook cannot alter valid GX Shadow Pain damage');
-  assert.equal(guardedLegal.dispatchError,null);
-  assert.equal(guardedForbidden.validatorAccepted,true,
-    'Pinned prompt.validate still ignores zero-cap: Store boundary must guard');
-  assert.match(guardedForbidden.dispatchError,
-    /PAPER_PUT_DAMAGE_REJECTED:PRINTED_TARGET_ZERO_CAP/,
-    'The native Store-dispatch boundary must reject forbidden target');
-  assert.equal(guardedForbidden.publicDamage.ineligibleBench,0,
-    'Rejected paper-forbidden reply must leave the non-GX unhurt');
+  const cases=[];
+  for(const seat of [0,1]){
+    const legal=probeShadowPain(false,seat);
+    const forbidden=probeShadowPain(true,seat);
+    assert.equal(forbidden.validatorAccepted,true,
+      'Pinned Store should reproduce zero-cap paper bug in both seats');
+    assert.equal(forbidden.dispatchError,null);
+    assert.equal(forbidden.publicDamage.ineligibleBench,60);
+    const guardedLegal=withPutDamageZeroCapPaperHook(()=>
+      probeShadowPain(false,seat));
+    const guardedForbidden=withPutDamageZeroCapPaperHook(()=>
+      probeShadowPain(true,seat));
+    assert.equal(Store.prototype.dispatch,original,
+      'Reversible guard must restore native Store.dispatch exactly');
+    assert.deepEqual(guardedLegal.publicDamage,legal.publicDamage,
+      'Guard cannot alter valid GX Shadow Pain damage');
+    assert.equal(guardedLegal.dispatchError,null);
+    assert.equal(guardedForbidden.validatorAccepted,true,
+      'Pinned prompt.validate still ignores zero cap, at either seat');
+    assert.match(guardedForbidden.dispatchError,
+      /PAPER_PUT_DAMAGE_REJECTED:PRINTED_TARGET_ZERO_CAP/,
+      'Store-dispatch guard must reject forbidden target');
+    assert.equal(guardedForbidden.publicDamage.ineligibleBench,0,
+      'Rejected reply must leave the ineligible non-GX Bench unhurt');
+    cases.push({seat,legal,forbidden,guardedLegal,guardedForbidden});
+  }
   const out={
     engine:'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    kind:'real-Gengar-evolution-prompt-native-zero-cap-paper-guard',
-    legal,forbidden,guardedLegal,guardedForbidden,
-    originalStoreDispatchRestored:true,
+    kind:'both-physical-seat-Gengar-Shadow-Pain-native-paper-guard',
+    cases,originalStoreDispatchRestored:true,
     conclusion:'native-paper-zero-cap-fault-corrected-under-opt-in-guard',
-    qualification:'synthetic original-card printings, native Store effects, no Top32 game'
+    qualification:'synthetic printed original card boards, no Top32 game'
   };
   console.log(JSON.stringify(out,null,2));
   return out;
