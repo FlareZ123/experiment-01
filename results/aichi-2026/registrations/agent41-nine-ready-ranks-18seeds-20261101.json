@@ -1,0 +1,152 @@
+{
+  "schema": "agent41-nine-original-ready-rank-source-scout-registration-v1",
+  "registeredUtc": "2026-11-01T06:11:32Z",
+  "selectionMethod": "Python secrets.randbits(32), independent 32-bit full-range uniform draw per predeclared rank and candidate seat, no conditioning on initial coin, physical deal, game state or result",
+  "selectionOrder": "rank ascending, seat A then seat B",
+  "status": "registered-before-any-native-game-attempt; discovery-only unqualified",
+  "ranks": [
+    3,
+    4,
+    6,
+    7,
+    10,
+    11,
+    21,
+    24,
+    29
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeat": 0,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRosterPath": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "baselinePolicy": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "baselinePolicySchema": "agent41-frozen-bilateral-development-v2-public-context-special-energy",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceClosureSha256": "b2d332085097953b119b8a2ff1ea6f5b98e61c8384ee72550873d8e8bcef8bb6",
+  "seedGroups": 18,
+  "nativeAttempts": 36,
+  "seeds": [
+    {
+      "rank": 3,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3479423573
+    },
+    {
+      "rank": 3,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2218090155
+    },
+    {
+      "rank": 4,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 4285736550
+    },
+    {
+      "rank": 4,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 65028199
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2075827341
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3488496957
+    },
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1188436653
+    },
+    {
+      "rank": 7,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2254525901
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1846674069
+    },
+    {
+      "rank": 10,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1587943849
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 489826265
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 132034027
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 4100744658
+    },
+    {
+      "rank": 21,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3536874586
+    },
+    {
+      "rank": 24,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1448464630
+    },
+    {
+      "rank": 24,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2185209944
+    },
+    {
+      "rank": 29,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2350476497
+    },
+    {
+      "rank": 29,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 3370986171
+    }
+  ],
+  "scope": "nine exact-ready original Aichi ranks accepted by canonical runner; 29/32 exact original published lists exist but only these nine are driver-supported at registration; one repeat per physical seat, not full-field",
+  "caveats": [
+    "This scout is a policy-development coverage screen; rank selection is determined by existing driver support rather than random field sampling",
+    "Two alternative candidate sixties are independent arms, not simultaneously the single 60-card deliverable",
+    "Native game result and real-time paper-clock qualification remain unverified",
+    "Zero competitive-qualified games"
+  ]
+}
