@@ -39,6 +39,23 @@ The source-seat-1 games have **zero Raging Bolt Bench opportunities** at observe
 
 This second audit makes source-position competence the immediate priority. We must preserve a *setup-vs-promotion* distinction before treating Bellowing attack-choice fixes as impactful. The four original game terminals remain retrospectively archived with **zero game-quality qualifications**.
 
+## Third native source audit: actual held mobility cards at funded Bench roots (20:40 UTC)
+
+The native Store source-own-hand observer was extended **without changing the source policy** to collect only exact mobility-printing names already visible to the source player in its own hand, plus face-up Active Pokémon Tools. All four original exact 60s, deal seeds and seats remain unchanged. [Clean manually dispatched compiled CI **41347801029**](https://github.com/FlareZ123/experiment-01/actions/runs/41347801029), Git head `ba4b90ed8cb8cbd8c36f45c75e32a82b703640bc`, had all 8 Duskull, all 10 Raging native component tests and full original source retrospective success.
+
+In the **two physical source-seat-0 games**, the immediately relevant denominator is all source-owner no-prompt roots where Ho-Oh EX remained Active and Raging Bolt ex TEF was Benched **with any Energy physically attached**:
+
+| Exact original seat-0 trial | Funded Raging Bench roots with Ho-Oh Active | Held Float Stone BKT | Held Guzma BUS | Held VS Seeker PHF | Held Arven OBF | Float Stone physically attached to Active |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `19:0:B:champion-reference` | 22 | **12** | 5 | **22** | 4 | **0** |
+| `19:0:B:new-moon-lockbreaker-v1` | 35 | **23** | **18** | **35** | 17 | **0** |
+
+All counts are **owner action roots**, not independent turns or card draws; a single held card persists across multiple roots within one turn, so these counts should **never** be interpreted as 12 or 23 independent Float Stone opportunities or converted into a probability. A held `Guzma` likewise requires Supporter quota and a valid opponent Bench; a held `VS Seeker` requires eligible discard Supporters and Item permissions. A held Float Stone still requires Tool attachment legality and no opposing Tool suppression.
+
+Even with those caveats, **12/22 and 23/35 funded Bench roots had a Float Stone already in the owner's hand, while Ho-Oh remained Active and had no Tool attached at every such root**. The source policy therefore missed repeated *visible candidates* for a meaningful move to Raging Bolt. Native printed Ho-Oh EX DRX has two Colorless retreat units, so absent other modifiers, Float Stone could make the previously unpowered Active freely retreatable. The actual original eligible root must still be checked for `Tool` lock, Stadium suppression, retreat quota and whether a prior action consumed the opportunity.
+
+The existing generic [Float Stone owner-mobility selector](../../simulation/twinleaf/agent1-owner-float-stone-mobility.cjs) explicitly allows a Bench with attached Special Energy as its target when the Active has no Energy, which is promising for this source board. In contrast, the existing [held Guzma mobility selector](../../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs) intentionally refuses to model a Bench attack funded by unrecognized Special Energy; its `attackFunding` returns null, which excludes a DDE-funded Raging Bolt. The source-policy repair direction is increasingly specific: **actual native Float Stone attachment plus one normal retreat to a DDE-funded Benched Raging Bolt**, with target and clock legality tested on source-owned roots.
+
 ## Recommended next decisive test
 
 Use an **original 60**, native both-seat paper-legal source policy to establish Raging Bolt from actual own-hand and publicly revealed deck-search opportunities. Capture the exact first turn/accepted root where a Raging Bolt becomes Benched and where it acquires effective Lightning/Fighting Energy; then observe a **legal** switch/retreat/gust-supporter line that moves it Active. At a real native Raging Bolt attacking root, compare `Burst Roar` to a paid `Bellowing Thunder` using actual attached Basic Energy **cards** (not Double Dragon Energy units), with source-deck preservation, genuine physical attacks, and downstream opponent responses.
