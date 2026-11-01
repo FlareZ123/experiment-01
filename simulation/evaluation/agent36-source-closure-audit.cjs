@@ -10,6 +10,7 @@ const LITERAL_REQUIRE = /\brequire\s*\(\s*(['"])([^'"]+)\1\s*\)/g;
 const ANY_REQUIRE = /\brequire\s*\(/g;
 const ENV_DOT = /\bprocess\s*\.\s*env\s*\.\s*([A-Za-z_$][\w$]*)/g;
 const ENV_BRACKET = /\bprocess\s*\.\s*env\s*\[/g;
+const ENV_BASE = /\bprocess\s*\.\s*env\b/g;
 
 /** @param {Buffer|string} bytes @returns {string} */
 function sha256(bytes) {
@@ -51,7 +52,7 @@ function auditSourceClosure(repositoryRoot, entries) {
   const root = path.resolve(repositoryRoot);
   const files = new Map();
   const limitations = {dynamicRequireSites:[], computedEnvSites:[],
-    missingRelativeImports:[], externalRequires:[]};
+    unclassifiedEnvSites:[], missingRelativeImports:[], externalRequires:[]};
 
   /** @param {string} filename */
   function visit(filename) {
@@ -69,6 +70,12 @@ function auditSourceClosure(repositoryRoot, entries) {
     if (dynamicCount > 0) limitations.dynamicRequireSites.push({file:relative,count:dynamicCount});
     const computedCount = [...text.matchAll(ENV_BRACKET)].length;
     if (computedCount > 0) limitations.computedEnvSites.push({file:relative,count:computedCount});
+    const baseCount = [...text.matchAll(ENV_BASE)].length;
+    const recognizedCount = [...text.matchAll(ENV_DOT)].length + computedCount;
+    if (baseCount > recognizedCount) {
+      limitations.unclassifiedEnvSites.push({file:relative,
+        count:baseCount - recognizedCount});
+    }
     files.set(relative,{path:relative,sha256:sha256(bytes),envKeys:env});
     for (const match of direct) {
       const request = match[2];
