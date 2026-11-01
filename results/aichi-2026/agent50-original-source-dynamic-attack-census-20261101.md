@@ -2,7 +2,7 @@
 
 **Agent 50, 1 November 2026.** Structural triage with independently compiled runtime receipts. This report does not estimate deck win rates.
 
-## Exact scope and reproducibility
+**Important correction:** The earlier rank19 no-payment native fixture was incomplete. Attached Energy existed only in its typed index, while the native Bellowing prefab counts Basic cards from the aggregate physical list. Agent28's correctly staged two-seat native test confirmed actual Basic Energy payment and variable damage. [Source-level reconciliation](agent50-rank19-fixture-correction.md). The old rank19 negative interpretation below is superseded.\n\n## Exact scope and reproducibility
 
 The input is [29 authenticated exact Aichi Top-32 source decklists](full-decklists.json). The [reproducible CJS audit](../../simulation/evaluation/agent50-original-source-pinned-attack-census.cjs) uses the original pinned Twinleaf CardManager under [compiled CI 41357772292](https://github.com/FlareZ123/experiment-01/actions/runs/41357772292). Three [isolated regression tests](../../tests/agent50-original-source-pinned-attack-census.test.cjs) include an adversarial scenario where the enumerated class differs from the executable lookup class. The existing manual full adapter workflow passed, including both-seat original rank19 attack controls.
 
