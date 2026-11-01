@@ -20,6 +20,19 @@
 
 Both candidate lists have **zero candidate-native terminals** against original rank6 in the v2 repaired-source cohort. This is a serious **developmental threat signal** worth including in future structural deck-screening hypotheses, while any claimed real competitive rank6 loss probability would be unjustified. Rank11 candidate terminals tie at two apiece; no support for choosing the stronger deck.
 
+### Censor-sensitive descriptive bounds
+
+Even if the engine-terminal \`candidate\` label were a competent competitive win (it is not), the uncensored candidate-terminal fraction alone cannot summarize an attempted cohort. Giving **every capped game its unknown outcome**, the logically sharp descriptive candidate-outcome range per original rank is:
+
+| Native source | Fixed candidate | Observed candidate-terminal fraction | Full-data fraction with censored arms arbitrary |
+| --- | --- | ---: | ---: |
+| rank6 | Shadow Rider | 0/8 | **0% to 62.5%** |
+| rank6 | New Moon | 0/8 | **0% to 37.5%** |
+| rank11 | Shadow Rider | 2/8 | **25% to 62.5%** |
+| rank11 | New Moon | 2/8 | **25% to 50%** |
+
+These intervals reflect only the finite set of **eight already-selected developmental engine deals** for each source/candidate pair. They are logical missing-outcome bounds, **not sampling-confidence intervals**, posterior estimates, prospective rates, or paper-tournament results. They overlap for both candidates at both sources. A competitor's action cap should be resolved as an explicit clock/policy state in later registered data rather than silently interpreted as a loss or win.
+
 ### Opponent-start and matched-source-deal discipline
 
 Rank6 source actually starts first in four of eight games per candidate. Shadow Rider's three original-source engine terminals all occur **source-first**; New Moon's five source terminals include **four source-first and one source-second**. Rank11 original-source engine terminals are three for Shadow Rider and four for New Moon; candidate engine terminals are two each. A native start is a separate axis from which physical side the candidate deck occupies.
