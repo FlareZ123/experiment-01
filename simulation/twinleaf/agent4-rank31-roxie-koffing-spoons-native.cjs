@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stagedPainfulSpoons}=require('./agent4-rank31-alakazam-movesource-native.cjs');
 const {withPaperPainfulSpoonsSingleSource}=require('./agent4-painful-spoons-single-source-hook.cjs');
+const {withRoxieTrainerDiscardType}=require('./agent4-roxie-original-effect-type-hook.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} filename @returns {any} */
 const native=filename=>require(path.join(output,filename));
@@ -93,7 +94,8 @@ function runRank31RoxieSpoons(guarded){
       evidence,
       scope:'actual original rank31 printed line on a prepared Store board; not a source-dealt game'};
   };
-  return guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
+  return withRoxieTrainerDiscardType(()=>
+    guarded?withPaperPainfulSpoonsSingleSource(execute):execute());
 }
 /**
  * Inspect a real native Roxie ChooseCardsPrompt with exactly the same two
