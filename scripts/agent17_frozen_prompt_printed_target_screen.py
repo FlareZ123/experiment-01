@@ -100,6 +100,8 @@ def screen_native(archive, card_zip, archive_sha="synthetic",
     status = Counter()
     examples = Counter()
     roots = Counter()
+    setup = Counter()
+    setup_unknown = Counter()
     seen_trials = set()
     for row in data["rows"]:
         trial = row["trial"]["id"]
@@ -116,9 +118,31 @@ def screen_native(archive, card_zip, archive_sha="synthetic",
             if item.get("rootActionOrdinal") is not None
         }
         for choice in row["nativePromptChoices"]["events"]:
-            if choice["kind"] != "ChooseCardsPrompt" or choice["sourceZone"] != "deck":
+            if choice["kind"] != "ChooseCardsPrompt":
                 continue
             ordinal = choice["ordinal"]
+            if choice["sourceZone"] == "hand":
+                setup_root = ledger[ordinal]
+                if (setup_root["action"] == "ResolvePromptAction"
+                        and setup_root["initiatingRootActionOrdinal"] is None):
+                    seat = ("source" if choice["actorSeat"] ==
+                            row["sourceSeat"] else "candidate")
+                    setup[(seat, "prompts")] += 1
+                    for printing in choice["selectedCards"] or []:
+                        setup[(seat, "selected")] += 1
+                        resolved, why = resolve_printing(
+                            printing, card_zip, code_to_id, cache)
+                        if resolved is None:
+                            setup[(seat, "print-unresolved")] += 1
+                            setup_unknown[(printing, why)] += 1
+                        elif (resolved["supertype"] == "Pokémon"
+                              and "Basic" in resolved["subtypes"]):
+                            setup[(seat, "basic-category-matches")] += 1
+                        else:
+                            setup[(seat, "basic-category-mismatch")] += 1
+                continue
+            if choice["sourceZone"] != "deck":
+                continue
             root = ledger[ordinal]
             if root["actionOrdinal"] != ordinal or root["action"] != "ResolvePromptAction":
                 raise ValueError("prompt root mismatch")
@@ -164,6 +188,20 @@ def screen_native(archive, card_zip, archive_sha="synthetic",
                 "printing_unresolved": status[(parent, "print-unresolved")],
             }
             for parent in PARENT_CATEGORIES
+        ],
+        "initial_basic_selection_screen": {
+            seat: {
+                "hand_selection_prompts": setup[(seat, "prompts")],
+                "selected_card_instances": setup[(seat, "selected")],
+                "exact_print_basic_matches": setup[(seat, "basic-category-matches")],
+                "exact_print_basic_mismatches": setup[(seat, "basic-category-mismatch")],
+                "print_unresolved": setup[(seat, "print-unresolved")],
+            }
+            for seat in ("source", "candidate")
+        },
+        "initial_basic_unresolved_printings": [
+            {"printing": printing, "reason": why, "instances": count}
+            for (printing, why), count in sorted(setup_unknown.items())
         ],
         "total_selected": sum(selected.values()),
         "total_exact_category_matches": sum(
