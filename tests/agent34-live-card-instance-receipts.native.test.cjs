@@ -5,6 +5,8 @@ const {runMatch,upstreamSmokeDeck}=require(
   '../simulation/twinleaf/headless.cjs');
 const {withLiveCardInstanceReceipts}=require(
   '../simulation/twinleaf/agent34-live-card-instance-receipts.cjs');
+const {joinOriginalStorePrintings}=require(
+  '../simulation/evaluation/agent34-original-store-printing-join.cjs');
 
 test('read-only original Store printing receipts preserve a native seeded game',()=>{
   const cards=upstreamSmokeDeck();
@@ -37,6 +39,11 @@ test('read-only original Store printing receipts preserve a native seeded game',
     assert.ok(Number.isSafeInteger(row.executablePrototypeToken));
     assert.equal(row.paperEffectVerified,false);
   }
+  const joined=joinOriginalStorePrintings(actual.rootActionLedger,receipts);
+  assert.equal(joined.sequentialNameSeatPrintingJoin,true);
+  assert.equal(joined.nativePlayRoots,receipts.acceptedPlayCardRoots);
+  assert.equal(joined.exactActionObjectIdentityVerified,false);
+  assert.equal(joined.paperRootValidity,'unverified');
   assert.equal(receipts.headlessOrdinalJoinVerified,false);
   assert.equal(receipts.competitiveGameQualified,false);
   console.log('AGENT34_LIVE_CARD_INSTANCES',JSON.stringify({
