@@ -1,0 +1,23 @@
+{
+  "schema": "agent4-readonly-public-energy-replay-v1",
+  "registeredAtUTC": "2026-11-01T15:50:00Z",
+  "purpose": "Replay EXACT prior preregistered 32 matched source pairs, record public opponent Active and Bench Energy at first Team Flare action and next source-owned root, with no new seeds or changed policy. Compare prior native original root ledgers.",
+  "priorProtocol": "results/aichi-2026/registrations/agent4-crossrank-four-source-flare-20261031.json",
+  "priorProtocolGitBlob": "b8d9259cf7c71fe04efab4baac9f570791326bb8",
+  "priorArtifactRun": 41233975688,
+  "priorArtifactId": 13054888068,
+  "priorArtifactZipSha256": "23743de4b2936c1b072c8edc0f839371f4606740d92081151b4d64af15bc8cf8",
+  "command": "existing manual workflow rank11-sametarget-source-replay.yml with agent4_crossrank_four_source_physical_gate=true",
+  "preregisteredChecks": [
+    "32/32 id and initial full physical starts match prior replay",
+    "32/32 old originalRootSha and alternativeRootSha match prior replay, else report drift",
+    "same 15 selected original first Team Flare actions and four fully paid second Plumeria actions or report differences",
+    "extract first public opposite Active+Bench Energy and first subsequent source root energy counts for all 15 positive arms",
+    "retain every source arm including all nonselected roots and all 27 action caps; no selected-seed filtering",
+    "classify observed one-Active-Energy and zero-two-turn cases by actual public Bench Energy at first/next source root",
+    "record native paper-prompt validity as unverified outside narrow printed receipt predicates"
+  ],
+  "changeToDeckOrPolicy": false,
+  "sampleIndependence": "None, exact original physical seed replay",
+  "competitivelyQualified": false
+}
