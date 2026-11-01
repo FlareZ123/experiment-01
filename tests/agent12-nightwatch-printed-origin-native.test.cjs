@@ -13,7 +13,7 @@ const load=sourceModule=>require(path.join(root,sourceModule));
 const {Store}=load('game/store/store');
 const {Player}=load('game/store/state/player');
 const {GamePhase}=load('game/store/state/state');
-const {AttackEffect}=load('game/store/effects/attack-effects');
+const {AttackEffect}=load('game/store/effects/game-effects');
 const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
 const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
 const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
