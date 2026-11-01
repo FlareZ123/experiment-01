@@ -50,6 +50,27 @@ test('one native Roxie-Koffing Bomb sets up the printed single-source veto befor
   assert.equal(b.prizesTaken,0);
 });
 
+test('rank31 physical Roxie-Koffing-Alakazam native Prize veto also holds when source is in seat 1',()=>{
+  const original=runRank31RoxieSpoons(false,1);
+  const paper=runRank31RoxieSpoons(true,1);
+  assert.equal(original.seat,1);
+  assert.equal(paper.seat,1);
+  assert.deepEqual(original.afterBomb,[10,10,190]);
+  assert.deepEqual(paper.afterBomb,original.afterBomb);
+  assert.equal(original.physicalKoffingDiscarded,true);
+  assert.equal(paper.physicalKoffingDiscarded,true);
+  assert.equal(original.roxieDrawnThree,true);
+  assert.equal(paper.roxieDrawnThree,true);
+  assert.equal(original.allowed,true);
+  assert.equal(original.rejected,null);
+  assert.equal(original.victimInDiscard,true);
+  assert.equal(original.prizesTaken,2);
+  assert.equal(paper.allowed,false);
+  assert.match(paper.rejected,/PAPER_PAINFUL_SPOONS_REJECTED/);
+  assert.equal(paper.victimInDiscard,false);
+  assert.equal(paper.prizesTaken,0);
+});
+
 test('pinned Roxie ChooseCards treats identical genuine Koffing differently by original hand position',()=>{
   const first=probeRoxieChoiceIndexShift(true);
   const last=probeRoxieChoiceIndexShift(false);
