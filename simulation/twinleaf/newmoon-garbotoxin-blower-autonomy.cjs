@@ -125,7 +125,7 @@ function twoGarbotoxinBlowerOption(prompt,opponent){
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
- * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number,preferRadiantAfterBlowerSearch?:boolean}} [options]
+ * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number,preferRadiantAfterBlowerSearch?:boolean,activateRadiantClimacticGate?:boolean}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
 function withNewMoonBlowerAutonomy(candidateSeat, execute, {
@@ -134,7 +134,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   automaticFieldBlower=true,
   allowAnyActiveBlower=false,
   earliestFieldBlowerTurn=0,
-  preferRadiantAfterBlowerSearch=false
+  preferRadiantAfterBlowerSearch=false,
+  activateRadiantClimacticGate=false
 }={}) {
   if (!Number.isSafeInteger(earliestFieldBlowerTurn) ||
       earliestFieldBlowerTurn<0) {
@@ -159,6 +160,10 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   let ownerHasSearchedDeck = false;
   let radiantSearchAttempted=false;
   let radiantSearchSelected=false;
+  let radiantConfirmAttempted=false;
+  let radiantConfirmChosen=false;
+  let radiantVmaxSelectionAttempted=false;
+  let radiantVmaxSelectedCount=0;
 
   const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
@@ -258,6 +263,42 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
         return new ResolvePromptAction(pending.id,[radiant]);
       }
     }
+    // The optional Climactic Gate continuation is authorized only from
+    // the same recipient's native pending prompt after its own legal
+    // Quick Ball -> Radiant Bench path. No hidden deck read before K1.
+    if(activateRadiantClimacticGate && radiantSearchSelected &&
+        !radiantConfirmAttempted &&
+        lastBlowerSuccessTurn===state.turn &&
+        pending?.constructor?.name==='ConfirmPrompt' &&
+        pending.playerId===own.id &&
+        own.bench.some(slot=>slot.getPokemonCard()?.fullName===
+          'Radiant Eternatus CRZ')){
+      radiantConfirmAttempted=true;
+      const valid=pending.validate(true,state);
+      events.push({turn:state.turn,kind:'Radiant-Climactic-Gate-confirm',
+        actorOwned:true,acceptedByNativeValidator:Boolean(valid)});
+      if(valid){
+        radiantConfirmChosen=true;
+        return new ResolvePromptAction(pending.id,true);
+      }
+    }
+    if(activateRadiantClimacticGate && radiantConfirmChosen &&
+        !radiantVmaxSelectionAttempted &&
+        lastBlowerSuccessTurn===state.turn &&
+        pending?.constructor?.name==='ChooseCardsPrompt' &&
+        pending.playerId===own.id && pending.cards===own.deck){
+      radiantVmaxSelectionAttempted=true;
+      const vm=own.deck.cards.filter(card=>
+        card.fullName==='Shadow Rider Calyrex VMAX CRE');
+      const chosen=[vm.slice(0,2),vm.slice(0,1)].find(cards=>
+        cards.length>0&&pending.validate(cards,state))??null;
+      events.push({turn:state.turn,kind:'Radiant-Climactic-Gate-VMAX-owner-K1',
+        present:vm.length,nativeValidatedSelectionCount:chosen?.length??0});
+      if(chosen){
+        radiantVmaxSelectedCount=chosen.length;
+        return new ResolvePromptAction(pending.id,chosen);
+      }
+    }
     const validLillie=lowHandLillieOpportunity(
       state,own,candidateSeat,GamePhase.PLAYER_TURN);
     const afterConfirmedBlower=lastBlowerSuccessTurn===state.turn;
@@ -319,7 +360,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
           'newmoon-garbotoxin-blower-autonomous-v1'),
       allowAnyActiveBlower,earliestFieldBlowerTurn,
       preferRadiantAfterBlowerSearch,
-      radiantSearchSelected,
+      radiantSearchSelected,activateRadiantClimacticGate,
+      radiantConfirmChosen,radiantVmaxSelectedCount,
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
         x.kind==='autonomous-legal-Item').length,
