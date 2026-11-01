@@ -5,7 +5,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from agent17_frozen_native_prompt_portfolio import audit_native
+from agent17_frozen_native_prompt_portfolio import audit_native, public_energy_transfer_shape
 
 
 def fixture():
@@ -104,6 +104,43 @@ class FrozenPromptPortfolioTests(unittest.TestCase):
         data["rows"][0]["actionCount"] = 4
         with self.assertRaisesRegex(ValueError, "Energy prompt sidecar"):
             audit_native(data)
+
+
+    def test_public_volt_cyclone_energy_move_and_impossible_moves(self):
+        event = {
+            "nativeDispatchAccepted": True, "playerSlot": 1,
+            "publicChanges": [
+                {"seat": 1, "position": "active", "index": 0,
+                 "before": {"pokemon": "Iron Thorns ex TWM",
+                            "energies": ["Double Colorless Energy SUM",
+                                         "Speed Lightning Energy RCL"]},
+                 "after": {"pokemon": "Iron Thorns ex TWM",
+                           "energies": ["Speed Lightning Energy RCL"]}},
+                {"seat": 1, "position": "bench", "index": 0,
+                 "before": {"pokemon": "Iron Thorns ex TWM", "energies": []},
+                 "after": {"pokemon": "Iron Thorns ex TWM",
+                           "energies": ["Double Colorless Energy SUM"]}},
+                {"seat": 0, "position": "active", "index": 0,
+                 "before": {"pokemon": "Klefki SVI", "energies": []},
+                 "after": {"pokemon": None, "energies": []}},
+            ],
+        }
+        self.assertEqual(public_energy_transfer_shape(event),
+                         "single-energy-moved-active-to-own-bench")
+        modified = copy.deepcopy(event)
+        modified["publicChanges"][1]["after"]["energies"] = [
+            "Speed Lightning Energy RCL"
+        ]
+        self.assertEqual(public_energy_transfer_shape(modified),
+                         "not-one-matching-active-bench-energy")
+        modified = copy.deepcopy(event)
+        modified["publicChanges"][1]["position"] = "active"
+        self.assertEqual(public_energy_transfer_shape(modified),
+                         "not-one-matching-active-bench-energy")
+        modified = copy.deepcopy(event)
+        modified["publicChanges"][0]["before"]["pokemon"] = "Other ex"
+        self.assertEqual(public_energy_transfer_shape(modified),
+                         "incorrect-source-or-recipient-pokemon")
 
 
 if __name__ == "__main__":
