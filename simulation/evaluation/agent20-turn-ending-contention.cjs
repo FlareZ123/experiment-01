@@ -65,6 +65,23 @@ function run() {
   const stevenJoint = allGroupsPresent(total, draws, [basics, steven]);
   const palaceJoint = allGroupsPresent(total, draws, [basics, palace]);
   const bothJoint = allGroupsPresent(total, draws, [basics, steven, palace]);
+  const other = source.decks.find(d => d.rank === 6);
+  assert.ok(other, 'Missing original rank-6 Iron Thorns 60');
+  const originalRank6 = {
+    total: other.cards.reduce((sum, card) => sum + card.count, 0),
+    basics: other.cards.filter(card => card.category === 'Pokémon')
+      .reduce((sum, card) => sum + card.count, 0),
+    camping: other.cards.find(card => card.name === 'Camping Gear')?.count,
+    palace: other.cards.find(card => card.name === 'Palace Book')?.count
+  };
+  assert.deepEqual(originalRank6, {
+    total: 60, basics: 4, camping: 2, palace: 1
+  }, 'Original rank-6 Iron Thorns has four Basic and two turn-ending Items');
+  const rank6Legal = allGroupsPresent(60, draws, [originalRank6.basics]);
+  const rank6Joint = allGroupsPresent(60, draws, [
+    originalRank6.basics, originalRank6.camping, originalRank6.palace
+  ]);
+
   return {
     scope: 'Uniform first seven cards conditional on at least one Basic; no extra opposing-mulligan draw',
     sourceRank: 7,
@@ -77,6 +94,13 @@ function run() {
     probabilityAtLeastOneGivenLegalBasic:
       (stevenJoint + palaceJoint - bothJoint) / validOpening,
     paperObservation: 'Both printings end the turn, making them mutually exclusive actions within one normal turn',
+    rank6Comparison: {
+      rank: 6,
+      sourcePrintingGroups: ['Camping Gear BST 122', 'Palace Book SMP NAN25'],
+      basicCards: 4, campingGearCopies: 2, palaceBookCopies: 1,
+      probabilityLegalBasicOpening: rank6Legal,
+      probabilityBothGivenLegalBasic: rank6Joint / rank6Legal
+    },
     competitiveQualifiedGames: 0
   };
 }
