@@ -19,3 +19,7 @@
 - Integrate a reusable native-fixture identity invariant into the common action-chain audit; stage artifacts with both root and paid effect.
 
 **No fixed-60 reranking, no qualified game, 29/32 exact source lists, 99.5% not demonstrated.**
+
+## Reusable scope beyond Raging Bolt
+
+The same pinned `costs.ts` file implements both `DISCARD_UP_TO_X_ENERGY_FROM_THIS_POKEMON` through the shared `DISCARD_UP_TO_X_ENERGY_FROM_YOUR_POKEMON` and `DISCARD_UP_TO_X_TYPE_ENERGY_FROM_YOUR_POKEMON` through an explicit `cardList.cards.forEach`. The dual-index fixture invariant therefore applies to tests of other discard-payment attacks that use those shared prefabs. This is a concrete reason to add the identity invariant once at the staged-board/test helper boundary rather than compensating for a single Raging Bolt printing. It is still a source-level generalization; actual other-printing errors have not been demonstrated.
