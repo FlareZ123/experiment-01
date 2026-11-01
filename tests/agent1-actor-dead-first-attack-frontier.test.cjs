@@ -46,7 +46,7 @@ test('source-printed Mega Absol first-payable baseline is Terminal Period',()=>{
     'Terminal Period');
 });
 test('actor-public non-60 damage selects payable Claw of Darkness',()=>{
-  assert.equal(VERSION,'agent1-actor-known-dead-leading-attack-v1');
+  assert.equal(VERSION,'agent1-actor-known-dead-leading-attack-v2-trubbish-fullbench');
   const decision=chooseKnownDeadLeadingAttack(view(),[terminal,claw]);
   assert.equal(decision?.attackName,'Claw of Darkness');
   assert.match(decision.reason,/exactly six/);
