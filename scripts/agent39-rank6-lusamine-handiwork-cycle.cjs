@@ -121,5 +121,26 @@ function prizeAccessibility(){
     maximumAccessibleFraction:Number(direct+oneGladionRecoverable)/Number(total)};
 }
 
+/**
+ * Idealized natural-draw race for the uninterrupted two-Lusamine line.
+ * Start before owner's first normal draw; each owner turn spends exactly
+ * one Supporter, odd turns on Lusamine, even turns on Handiwork.
+ * No deck refills, extra draws, response, prize moves or paper clock.
+ * The result is a conditional deck-exhaustion branch, not a match win rate.
+ * @param {number} ownerDeck Cards in owner deck before first draw.
+ * @param {number} opponentDeck Cards in opposing deck at that moment.
+ */
+function unopposedDeckoutRace(ownerDeck,opponentDeck){
+  if(!Number.isSafeInteger(ownerDeck)||ownerDeck<1||ownerDeck>256)
+    throw new RangeError('ownerDeck must be an integer in [1,256]');
+  if(!Number.isSafeInteger(opponentDeck)||opponentDeck<0)
+    throw new RangeError('opponentDeck must be nonnegative');
+  const uses=Math.floor(ownerDeck/2);
+  const opponentDrawsBefore=ownerDeck-1;
+  return {ownerTurns:ownerDeck,handiworkUses:uses,
+    opponentDrawsBefore,
+    ...millTail(uses,Math.max(0,opponentDeck-opponentDrawsBefore))};
+}
+
 module.exports={SOURCE_RANK6,supporterCycle,coinWays,millTail,
-  depletionByNextOpponentDraw,prizeAccessibility};
+  depletionByNextOpponentDraw,prizeAccessibility,unopposedDeckoutRace};
