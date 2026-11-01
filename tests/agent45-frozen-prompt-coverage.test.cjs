@@ -57,6 +57,11 @@ test('source geometry or missing public deltas fail closed',()=>{
 test('postgame counts preserve paper-unverified veto even on matching public effects',()=>{
   const archive={rows:[{
     trial:{id:'6:1:A:test',rank:6},sourceSeat:1,
+    rootActionCount:4,rootActionLedger:[
+      {action:'ResolvePromptAction',pendingPrompt:'ChooseCardsPrompt'},
+      {action:'ResolvePromptAction',pendingPrompt:'ChooseCardsPrompt'},
+      {action:'ResolvePromptAction',pendingPrompt:'SelectOptionPrompt'},
+      {action:'ResolvePromptAction',pendingPrompt:'AttachEnergyPrompt'}],
     nativePromptChoices:{events:[
       {kind:'ChooseCardsPrompt',nativePromptMin:1,nativePromptMax:2,
         nativePromptAllowCancel:false,sourceZone:'deck',selectedCards:['Iron Thorns ex TWM']},
@@ -68,6 +73,9 @@ test('postgame counts preserve paper-unverified veto even on matching public eff
   }]};
   const result=auditFrozenPromptCoverage(archive);
   assert.equal(result.choiceEvents,3);
+  assert.equal(result.recordedResolvePromptActions,4);
+  assert.equal(result.rootLedgerLengthMatchingRows,1);
+  assert.equal(result.recordedAttachEnergyFamilyMatchesAcceptedSidecar,true);
   assert.equal(result.selectedWithinNativeNumericBounds,1);
   assert.equal(result.cancelledWithNativePermission,1);
   assert.equal(result.publicVoltCycloneShapeMatches,1);
