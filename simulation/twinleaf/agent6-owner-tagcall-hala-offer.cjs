@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent6-owner-tagcall-hala-k0-k1-offer-v1';
+const VERSION='agent6-owner-tagcall-hala-k0-k1-offer-v2-optional-second-tagteam';
 const TAG_CALL='Tag Call CEC';
 const GUZMA_HALA='Guzma & Hala CEC';
 
@@ -144,9 +144,11 @@ function offerOwnerTagCallHala(view,ownRegisteredSixty){
  *
  * @param {object} input actorSingleSearchInput detached prompt menu.
  * @param {object} provenance Trusted native root-to-prompt receipt.
+ * @param {{secondaryTagTeamPriority?:string[]}} [options] Optional K1
+ *  native-menu-validated second TAG TEAM target priority; default single G&H.
  * @returns {{indices:number[]}|{printings:string[]}|null}
  */
-function chooseAuthenticatedTagCallHala(input,provenance){
+function chooseAuthenticatedTagCallHala(input,provenance,options={}){
   if(input?.actor?.decisionKind!=='owner-prompt'||
     input.prompt?.source!=='own-deck'||
     input.prompt?.message!=='CHOOSE_CARD_TO_HAND'||
@@ -156,6 +158,18 @@ function chooseAuthenticatedTagCallHala(input,provenance){
     provenance?.ownerPromptId!==input.prompt.id)
     return null;
   if(Array.isArray(input.prompt.bundles)){
+    // Additional TAG TEAM cards can supply one extra physical discard to
+    // G&H's optional two-card search payment, but can also be strategically
+    // protected resources. Never select a second card by default: the owner
+    // policy must explicitly request and justify its opportunity cost.
+    for(const printing of options.secondaryTagTeamPriority??[]){
+      if(typeof printing!=='string'||printing===GUZMA_HALA)continue;
+      const pair=input.prompt.bundles.find(bundle=>
+        bundle.printings.length===2&&
+        bundle.printings.includes(GUZMA_HALA)&&
+        bundle.printings.includes(printing));
+      if(pair)return {printings:[...pair.printings]};
+    }
     const singles=input.prompt.bundles.find(bundle=>
       bundle.printings.length===1&&bundle.printings[0]===GUZMA_HALA);
     if(singles)return {printings:[GUZMA_HALA]};
