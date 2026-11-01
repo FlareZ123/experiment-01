@@ -47,6 +47,23 @@ Each H has two independent fair coins, milling **0, 2, or 4 cards** with probabi
 
 The `25-minute` Swiss/Top32 paper-clock regimes mean this long cycle may be competitively impractical in a particular state. No wall-clock game logs have established the likelihood of actually reaching five, six or ten Handiworks, retaining the lock, or finishing inside time. Deck size alone cannot characterize elapsed wall time.
 
+## Exact six-Prize structural gate for this no-Prize loop
+
+The exact original rank6 sixty also contains **one Gladion CIN95**, whose printed effect moves one chosen Prize card into hand and puts that Gladion into the remaining Prizes. Without taking any Prizes or another independent Prize-manipulation effect, that single Gladion can recover **at most one** Prized member of the three critical physical cards (L1,L2,H). Two or three Prized core pieces therefore collapse this specific three-card recursion, as does a lone Prized core piece when Gladion itself is Prized. This is a *necessary resource-access classification* assuming this recovery channel, and says nothing about alternative non-recursion win conditions.
+
+Uniform random six-Prize configurations among 60 have exactly **C(60,6)=50,063,860** equally likely six-card sets:
+
+| Initial Prize category | Exact deal sets | Probability |
+| --- | ---: | ---: |
+| None of L1,L2,H Prized (Gladion may be Prized) | 36,288,252 | **72.48392753%** |
+| Exactly one core Prized and Gladion unprized, conditionally rescue-capable | 11,459,448 | **22.88966132%** |
+| At least two core Prized, or one core plus Gladion Prized | 2,316,160 | **4.62641115%** |
+| **Total** | **50,063,860** | **100%** |
+
+The last row has two independently countable failure categories: **2.42548217%** have at least two of the three core cards Prized; **2.20092897%** have exactly one of the core cards plus Gladion Prized. Even an *optimally accessible* one-use Gladion can make all core pieces physically available from initial Prizes in at most **95.37358885%** of these random six-Prize sets if the source never takes a Prize and has no alternative Prize-card transfer. Access is still further limited by actual own hand, discard, legal use, setup order, timing and opponent interaction. The **95.37%** is **not** an upper bound on win percentage because the deck can win via other routes and in games involving Prize-taking.
+
+This exact calculation was independently checked against the combinatorial partition and added as `prizeAccessibility()` with an eighth Node regression. In particular, the six-Prize denominator is **50,063,860**, distinct from the often-quoted seven-card opener denominator `C(60,7)=386,206,920`.
+
 ## A direct qualification gap and useful experiment
 
 The source AI should be explicitly tested for these **owner-visible board/action phases**:
@@ -60,6 +77,6 @@ A source opponent evaluator that chooses Volt Cyclone opportunistically but neve
 
 ## Reproducibility
 
-[Pure source-conditional construction and exact BigInt coin polynomial](../../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs), [seven Node 22 tests including independent 4,096-sequence enumeration](../../tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs). The tests were exercised locally using equivalent source code on 1 November. No compiled pinned Store CI has been executed for this experiment. Source inventory: `full-decklists.json` rank 6; exact English printings cross-checked against the user's provided card archive. Manual gameplay rules: [Advanced Player's Rulebook](../../resources/) one Supporter per turn and draw-step terminal condition.
+[Pure source-conditional construction and exact BigInt coin polynomial](../../scripts/agent39-rank6-lusamine-handiwork-cycle.cjs), [eight Node 22 tests including independent 4,096-sequence enumeration](../../tests/agent39-rank6-lusamine-handiwork-cycle.test.cjs). The tests were exercised locally using equivalent source code on 1 November. No compiled pinned Store CI has been executed for this experiment. Source inventory: `full-decklists.json` rank 6; exact English printings cross-checked against the user's provided card archive. Manual gameplay rules: [Advanced Player's Rulebook](../../resources/) one Supporter per turn and draw-step terminal condition.
 
 **Release classification:** no new authenticated original 60s, no qualified game, no validated fixed 60. The benchmark remains **29/32 exact original 60s, zero competitive-qualified games and no demonstrated 99.5% win rate**.
