@@ -72,6 +72,7 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
     firstRootOfferedBySeat:{0:null,1:null},
     nativeErrors:[],nativeFallbacks:0,
     actorSource:'detached-owner-observation-with-registered-own-sixty',
+    secondaryTagTeamPriority:[...(deps.secondaryTagTeamPriority??[])],
     nonOwnerNativeDelegations:0,nonLiveSpeculativeDelegations:0,
     nativeRootSelectionDoesNotEstablishDominance:true,
     competitiveQualifiedGames:0};
@@ -96,7 +97,9 @@ function withOwnerTagCallHala(ownRegisteredSixtiesBySeat,execute,deps={}){
       pending.playerId===owner.id){
       const offered=actorSingleSearchInput(state,seat);
       const chosen=offered?
-        chooseAuthenticatedTagCallHala(offered,token):null;
+        chooseAuthenticatedTagCallHala(offered,token,{
+          secondaryTagTeamPriority:deps.secondaryTagTeamPriority??[]
+        }):null;
       if(chosen!==null){
         const physical=chosen.printings?
           physicalBundleForPrintings(pending,chosen.printings):
