@@ -15,7 +15,7 @@
     "newMoon": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b"
   },
   "sourceCodePrecommitBlobs": {
-    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "ece7146071f194a4951ff0b8313a9e82cdf6a471",
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "bc06e53a92e4eb23dbbca3269ba2071f07e777aa",
     "simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs": "f7b8fb252360aaccf0780b3da4265035ff98a467",
     "simulation/evaluation/agent50-rank11-bilateral-known-dead-native-pair.cjs": "0f5ab24a0aaf6243752b41fd1d33fb4451142f2e"
   },
@@ -190,5 +190,14 @@
     "originalSeedDrawsUnchanged": true,
     "allAbortsRetainedInCI": true,
     "analysisChangedOnly": true
+  },
+  "concurrentSourceAuditAfterRegisteredRuns": {
+    "triggeringRun": 41340025588,
+    "observation": "Third attempted CI never ran any games because strict preflight caught another identity's concurrent common driver change.",
+    "oldDriverGitBlob": "ece7146071f194a4951ff0b8313a9e82cdf6a471",
+    "newDriverGitBlob": "bc06e53a92e4eb23dbbca3269ba2071f07e777aa",
+    "audit": "Line-by-line 9-hunk comparison: two new default-false optional diagnostics actorVipBeforeAttack and nativeRejectedActionEvidence, their matching guards, opt-in request fields, and postgame rejected-action observer. Under frozen v2 policyOptions both flags are absent/false and do not alter the targeted native game decisions. No previous selected seed or winner was changed or examined.",
+    "seedValuesChanged": false,
+    "cohortWillRunOnPinnedOwnBranch": true
   }
 }
