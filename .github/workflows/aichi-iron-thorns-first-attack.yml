@@ -58,6 +58,8 @@ jobs:
         run: npm run compile
       - name: Reproduce paper Astral Barrage Active-target defect and reversible correction
         run: node --test tests/agent4-astral-barrage-native.test.cjs
+      - name: Audit rank31 Radiant Alakazam native MoveDamage single-source constraint
+        run: node --test tests/agent4-rank31-alakazam-movesource-native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
