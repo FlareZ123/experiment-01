@@ -21,6 +21,10 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Pure decision and reversible wrapper tests
         run: node --test tests/shadow-rider-evolution-priority.test.cjs tests/shadow-rider-evolution-runner.test.cjs tests/first-evolution-natural.test.cjs tests/first-evolution-field.test.cjs tests/first-evolution-contention.test.cjs
+      - name: Verify exact original rank31 Roxie first-draw model and read-only native-root observer
+        run: node --test tests/agent15-rank31-roxie-firstdraw.test.cjs tests/agent15-rank31-roxie-playcard-root-observer.test.cjs
+      - name: Print passive going-first two-draw access envelope
+        run: node scripts/agent15-rank31-roxie-twodraw.cjs
       - name: Install pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
