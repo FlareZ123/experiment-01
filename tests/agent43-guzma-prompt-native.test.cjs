@@ -254,7 +254,8 @@ test('optional first-opponent gust uses native exact physical second Bench targe
   }
 });
 
-test('actual printed fixed-damage nominal gust policy selects native opponent KO target in both seats',()=>{
+test('actual fixed-damage native Guzma gust resolves Prize and exposes Eviolite reduction limit in both seats',()=>{
+  for(const toolMitigation of [false,true]){
   for(const seat of [0,1]){
     const {store,state,owner,opponent}=staged(seat);
     const manager=initializeCards();
@@ -276,6 +277,7 @@ test('actual printed fixed-damage nominal gust policy selects native opponent KO
     ];
     opponent.bench[0].cards=[card('Oranguru V ASR')];
     opponent.bench[1].cards=[card('Lunatone OBF')];
+    if(toolMitigation)opponent.bench[1].tools=[card('Eviolite NVI')];
     const secondId=opponent.bench[1].getPokemonCard().id;
     const ownId=owner.bench[1].getPokemonCard().id;
     const observe=require('../simulation/twinleaf/actor-observation-contract.cjs')
@@ -353,10 +355,20 @@ test('actual printed fixed-damage nominal gust policy selects native opponent KO
       }
     }
     assert.equal(state.prompts.some(p=>p.result===undefined),false);
-    assert.ok(opponent.discard.cards.some(c=>c.id===secondId),
-      'Actually gusted 90-HP Lunatone must be native Knocked Out');
     const afterPrizes=owner.prizes.reduce((n,p)=>n+p.cards.length,0);
-    assert.equal(afterPrizes,beforePrizes-1,
-      'Real native Moon Press knockout must take exactly one Prize');
+    if(toolMitigation){
+      assert.equal(opponent.active.getPokemonCard()?.id,secondId,
+        'Eviolite-protected 90-HP nominal target must remain Active');
+      assert.equal(opponent.active.damage,80,
+        'Actual pinned Eviolite must reduce printed 100 damage to 80');
+      assert.equal(afterPrizes,beforePrizes,
+        'An 80-damage actual hit on 90 HP does not earn a Prize');
+    }else{
+      assert.ok(opponent.discard.cards.some(c=>c.id===secondId),
+        'Actually gusted 90-HP Lunatone must be native Knocked Out');
+      assert.equal(afterPrizes,beforePrizes-1,
+        'Real native Moon Press knockout must take exactly one Prize');
+    }
+  }
   }
 });
