@@ -1,0 +1,26 @@
+{
+  "schema": "agent12-nightwatch-independent-uniform-position-seeds-v1",
+  "recordedAtUtc": "2026-11-01T17:05:00Z",
+  "independentSeedSource": "Python secrets.token_hex(32) drawn independently of native deal seed",
+  "selectedAfterHistoricalPromptExposure": true,
+  "benchmarkRole": "post-hoc native paper-effect development only, never prospective competitive evaluation",
+  "pinnedNativeRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "arms": [
+    {
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "originalDealSeed": 3821563342,
+      "independentSelectionSeedHex": "16d38f54967dd5e58c338ffd8829f653a23c578f9bb343ea5506e2728a92330c"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "originalDealSeed": 2164233582,
+      "independentSelectionSeedHex": "7cda740b4a20d70d45e82752d3a0c7bf8222af5d2bc5ce55ce168a0babce6d65"
+    }
+  ],
+  "sealedBeforeNativeRun": true,
+  "qualifiedWinRateCount": 0
+}
