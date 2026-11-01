@@ -48,6 +48,9 @@ function expectedK0UnrestrictedSearchValue(input){
   }));
   const unknownValued=valued.reduce((n,g)=>n+g.unknown,0);
   const unvalued=pool.length-unknownValued;
+  // Known in-deck unweighted cards also satisfy the mandatory first pick.
+  const knownUnvalued=observedDeckPrintings.length-
+    valued.reduce((n,g)=>n+g.known,0);
   const denominator=choose(pool.length,prizeCount);
   assert.ok(denominator>0n);
   let enumerated=0,positive=0,score=0,selected=0,totalWays=0n;
@@ -75,7 +78,7 @@ function expectedK0UnrestrictedSearchValue(input){
         increments.push(value);
       }
     }
-    const unweightedAvailable=unvalued-
+    const unweightedAvailable=knownUnvalued+unvalued-
       (prizeCount-assigned);
     if(unweightedAvailable>0)increments.push(-input.perCardCost);
     increments.sort((a,b)=>b-a);
