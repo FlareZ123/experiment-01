@@ -55,4 +55,45 @@ function recordAcceptedPeoniaPositions(previouslyVisited,acceptedIndices){
   return indices.sort((a,b)=>a-b);
 }
 
-module.exports={chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions};
+
+/**
+ * Source-specific paper legality preflight for the authentic Peonia CRE
+ * Prize prompt. Native ChoosePrizePrompt.validate currently requires three
+ * when Peonia's printed "up to 3" allows one or two. The caller must pass
+ * its actual ongoing physical Supporter, current prompt and owned Prize
+ * slot references from the genuine Store. This does not inspect concealed
+ * Prize identities; slot containment alone is used.
+ *
+ * The safe replacement count must conservatively exclude reserved cards
+ * if preserving those is a source-policy requirement. An actual native
+ * Store dispatch must still settle the full Peonia payment and ordering.
+ *
+ * @param {{owner:object,prompt:object,sourceCard:object,
+ *   selectedSlots:object[],safeReplacementCount:number}} proof
+ * @returns {boolean}
+ */
+function paperValidPeoniaPrizeSelection(proof){
+  const {owner,prompt,sourceCard,selectedSlots,
+    safeReplacementCount}=proof??{};
+  if(!owner||prompt?.constructor?.name!=='ChoosePrizePrompt'||
+     prompt.playerId!==owner.id||
+     prompt.result!==undefined||
+     sourceCard?.fullName!=='Peonia CRE'||
+     !owner.supporter?.cards?.includes(sourceCard)||
+     !Array.isArray(owner.prizes)||
+     !Array.isArray(selectedSlots)||
+     !Number.isSafeInteger(safeReplacementCount)||
+     safeReplacementCount<0||
+     selectedSlots.length<1||selectedSlots.length>3||
+     selectedSlots.length>safeReplacementCount||
+     selectedSlots.length>owner.prizes.length||
+     selectedSlots.length>prompt.options?.count)
+    return false;
+  if(new Set(selectedSlots).size!==selectedSlots.length)
+    return false;
+  return selectedSlots.every(slot=>
+    owner.prizes.includes(slot)&&slot?.cards?.length>0);
+}
+
+module.exports={chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions,
+  paperValidPeoniaPrizeSelection};
