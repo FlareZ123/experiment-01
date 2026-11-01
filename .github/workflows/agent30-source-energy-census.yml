@@ -18,7 +18,7 @@ jobs:
       - name: Run full original-source 29-roster ordinary attack-cost audit
         run: |
           node scripts/agent30-roster-direct-energy-census.cjs > agent30-original-energy-census.json
-          node -e "const a=require('node:assert/strict');const r=require('./agent30-original-energy-census.json');a.equal(r.sourceDeckCount,29);a.equal(r.sourcePokemonPhysicalCopies,467);a.equal(r.sourceRanks.length,29);console.log('AGENT30_SOURCE_ENERGY',JSON.stringify({sourceDecks:r.sourceDeckCount,sourcePhysicalPokemon:r.sourcePokemonPhysicalCopies,summary:r.summary,unresolvedOriginalRanks:r.unresolvedFinalRanks}));"
+          node -e "const a=require('node:assert/strict');const r=require('./agent30-original-energy-census.json');a.equal(r.sourceDeckCount,29);a.equal(r.sourcePokemonPhysicalCopies,467);a.equal(r.sourceRanks.length,29);a.equal(r.normalUnreachableThoughEnergyPossibleCopies,25);a.equal(r.normalEvolution.NO_CONSECUTIVE_CHAIN.physicalCopies,25);console.log('AGENT30_SOURCE_ENERGY',JSON.stringify({sourceDecks:r.sourceDeckCount,sourcePhysicalPokemon:r.sourcePokemonPhysicalCopies,summary:r.summary,normalEvolution:r.normalEvolution,energyPayableWithoutConsecutiveEvolution:r.normalUnreachableThoughEnergyPossibleCopies,unresolvedOriginalRanks:r.unresolvedFinalRanks}));"
       - name: Preserve every exact original printing verdict without claiming any game outcomes
         if: always()
         uses: actions/upload-artifact@v4
