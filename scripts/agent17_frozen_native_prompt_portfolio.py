@@ -99,7 +99,12 @@ def audit_native(data, archive_sha256="synthetic"):
                     else:
                         count = None
                     if count is None:
-                        choose["selection-payload-unobserved"] += 1
+                        if (choice["sourceZone"] == "discard"
+                                and choice["sourceZoneCardCountBefore"] == 0
+                                and choice["nativePromptAllowCancel"] is True):
+                            choose["empty-discard-cancel-compatible"] += 1
+                        else:
+                            choose["selection-payload-unobserved"] += 1
                         gaps[(trial_id, parent.get("attack") if parent else None)] += 1
                     elif choice["nativePromptMin"] <= count <= choice["nativePromptMax"]:
                         choose["native-bounds-consistent"] += 1
