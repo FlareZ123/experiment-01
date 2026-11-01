@@ -13,6 +13,10 @@ Recent genuine paired native rank-11 results observed 322 owner-turn first roots
 - [Canonical actor-only root](../../simulation/twinleaf/agent34-actor-only-root-policy.cjs) recognizes `AGENT31_GUZMA_FORCED_KO_DEV=true` (or explicit injected `forcedGuzmaNominalKo:true`), disabled by default. The owner-visible proposal is evaluated before the normal payable attack's first-return choice. The typed native Guzma root uses the already established `PlayCardAction` Supporter target shape.
 - The existing [manual Agent43 pinned-native workflow](../../.github/workflows/agent43-guzma-recipient-native.yml) includes these tests after pinned Twinleaf compilation. The existing native Guzma prompt tests provide separate background proof that legal recipient choices can settle on the pinned engine; our new policy's live matched turn and full outcome remain to be demonstrated.
 
+## Why this matters beyond one rank11 matchup
+
+An exact printed-name census of `results/aichi-2026/full-decklists.json` counts **48 Guzma BUS cards across 25 of the 29 authenticated original 60-card opponents**. Only authenticated ranks 4, 17, 26, 31 omit Guzma entirely. The separate `Guzma & Hala` print is excluded because it does not gust. These are source-list facts, not observed Guzma use or proof that this highly restricted first-return line occurs in games. They support making tactical Supporter policy coverage a field-wide priority.
+
 ## Bounded positive case
 
 The owner has exactly one Bench Pokémon with a currently payable, positive, fixed printed attack; the opponent also has exactly one Bench Pokémon, in nominal knockout range. The owner holds exactly identified `Guzma`, has an unspent Supporter, is beyond the first global turn, and has no visible global Supporter/attack lock. Both effects of Guzma will offer only one Bench destination each, so the root proposer does not need to guess prompt target ordering. The selector declines when the present owner Active can already nominally KO the opposing Active.
