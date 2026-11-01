@@ -104,7 +104,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const adapter=adapters.plumeriaAfterPass??
       require('../twinleaf/agent4-plumeria-after-pass.cjs')
         .withOwnerPlumeriaAfterPass;
-    const selected=adapter(execute);
+    const selected=adapter(execute,{adoptActorSelectedPlumeria:
+      options.sameRootNativePlumeriaChoice===true});
     ownerPlumeriaAfterPassAudit=selected.audit;
     return selected.result;
   };
