@@ -11,7 +11,7 @@ const inventory=require(
 const repoRoot=path.resolve(__dirname,'..');
 const roots=inventory.checkedSources.map(source=>source.path);
 
-test('native release source closure captures directly imported omitted policy keys',()=>{
+test('transitive source closure captures every reviewed policy key and audits residual keys',()=>{
   const x=scanPolicySourceClosure(repoRoot,roots);
   assert.equal(x.staticLocalCommonJsOnly,true);
   assert.equal(x.fullTransitiveBehaviorCertified,false);
@@ -25,7 +25,7 @@ test('native release source closure captures directly imported omitted policy ke
   console.log('STATIC_POLICY_CLOSURE_SUMMARY '+JSON.stringify({
     version:x.version,moduleFiles:x.sourceCount,
     distinctLiteralEnvKeys:x.envKeys.length,
-    missingFromTwoFileInventory:additional.length,
+    unreviewedBeyondInventory:additional.length,
     unparsedRequireSites:x.unparsedRequires.length,
     unresolvedRelativeSites:x.unresolvedRelative.length,
     distinctExternalPackages:new Set(x.externalPackages.map(v=>v.spec)).size,
@@ -40,10 +40,21 @@ test('native release source closure captures directly imported omitted policy ke
     'AGENT7_OWNER_SUPPORTER_AUDIT_DEV',
     'AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV'
   ]){
-    assert.ok(additional.includes(missing),
-      'Preflight misses policy-bearing transitive option '+missing);
+    assert.ok(direct.has(missing),
+      'Reviewed inventory must include transitive option '+missing);
+    assert.ok(x.envKeys.includes(missing),
+      'Transitive closure must include registered option '+missing);
+    assert.ok(!additional.includes(missing));
   }
-  assert.ok(x.envKeys.length>=inventory.keyCount+7);
+  assert.equal(inventory.keys.length,inventory.keyCount);
+  assert.equal(new Set(inventory.keys).size,inventory.keyCount);
+  for(const reviewed of inventory.keys){
+    assert.ok(x.envKeys.includes(reviewed),
+      'Reviewed key is missing from scanned closure '+reviewed);
+  }
+  assert.ok(additional.length<=3,
+    'Additional unreviewed policy keys require an inventory refresh');
+  assert.equal(x.envKeys.length,inventory.keyCount+additional.length);
   assert.equal(x.qualifications,undefined);
   assert.equal(x.qualification,
     'audit-only-dependency-coverage-not-a-release-policy');
