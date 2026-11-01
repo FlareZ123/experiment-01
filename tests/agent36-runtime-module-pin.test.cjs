@@ -98,3 +98,32 @@ test('unexpected game exception restores global native loader exactly', () =>
       () => {throw Error('game abort');}), /game abort/);
     assert.deepEqual(Object.getOwnPropertyDescriptor(Module, '_load'), prior);
   }));
+
+test('noncanonical manifest aliases are rejected before games', () =>
+  fixture((root) => {
+    const hash = create(root, 'entry.cjs', 'module.exports = 1;\n');
+    assert.throws(() => withPinnedResearchModuleLoads(root,
+      {'sub/../entry.cjs':hash}, () => 'never started'),
+    /Frozen manifest paths must be canonical/);
+  }));
+
+test('relative research import escaping repository is blocked before evaluation', () =>
+  fixture((root, localRequire) => {
+    const outer = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-foreign-'));
+    const outside = path.join(outer, 'escape.cjs');
+    const marker = path.join(outer, 'did-execute');
+    fs.writeFileSync(outside,
+      "require('node:fs').writeFileSync(" +
+      JSON.stringify(marker) + ",'ran'); module.exports=1;\n");
+    const request = path.relative(root, outside);
+    const entryHash = create(root, 'entry.cjs',
+      'module.exports = () => require(' + JSON.stringify(request) + ');\n');
+    try {
+      assert.throws(() => withPinnedResearchModuleLoads(root,
+        {'entry.cjs':entryHash}, () => localRequire('./entry.cjs')()),
+      /Relative research import escapes repository/);
+      assert.equal(fs.existsSync(marker), false);
+    } finally {
+      fs.rmSync(outer, {recursive: true, force: true});
+    }
+  }));
