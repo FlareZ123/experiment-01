@@ -4,6 +4,7 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 
 const VERSION='agent9-fog-crystal-owner-prompt-v2-live-state';
+const AOR_GATE_VERSION='agent8-effective-aor-item-veto-optin-v1';
 const OUTPUT=path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output');
 
@@ -52,9 +53,18 @@ function withActorFogCrystalPrompt(run,deps={}) {
     SimpleTacticsAi.prototype,'decodeNextAction');
   const originalDispatch=Object.getOwnPropertyDescriptor(
     Store.prototype,'dispatch');
+  const nativeAorItemLock=deps.nativeAorItemLock===true;
+  const originalValidity=nativeAorItemLock?
+    Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,
+      'isValidAction'):null;
   assert.equal(typeof originalBot?.value,'function');
   assert.equal(typeof originalDispatch?.value,'function');
+  if(nativeAorItemLock)
+    assert.equal(typeof originalValidity?.value,'function');
   const observe=deps.observe??actorObservation;
+  const aorPreflight=nativeAorItemLock?
+    require('./agent8-aor-vileplume-item-preflight.cjs')
+      .nativeAorVileplumeItemPreflight:null;
   const actions=new WeakMap(),perOwner=new Map();
   const searchedPhysicalCards=new Map();
   let live=null;
@@ -65,9 +75,64 @@ function withActorFogCrystalPrompt(run,deps={}) {
     postSearchPhysicalCardPlays:0,postSearchPhysicalEvents:[],
     rejectedNativeChoices:0,unsupportedPrompts:0,
     nonLiveSpeculativeFallbacks:0,
+    nativeAorItemLockOptIn:nativeAorItemLock,
+    nativeAorItemGateVersion:nativeAorItemLock?AOR_GATE_VERSION:null,
+    skippedAorFogRoots:0,skippedAorGenericItemTactics:0,
+    aorGateChecks:0,aorGateNativeVetoes:0,
+    aorGateEvents:[],
     events:[],competitiveGameQualified:false,
     note:'Only authentic Fog Crystal first search is actor-owned; other prompt types and all delegated root actions remain outside this policy.'
   };
+  /**
+   * The only authoritative positive native Vileplume signal used in this
+   * opt-in policy is a detached PowerEffect check. The underlying actor
+   * observation includes only the public, face-up AOR location.
+   * @param {object} state Actual live state.
+   * @param {0|1} seat Physical actor.
+   * @param {object} view Current actor-only observation.
+   * @returns {boolean}
+   */
+  function aorBlocksItem(state,seat,view){
+    if(!nativeAorItemLock)return false;
+    const result=aorPreflight(view,state);
+    if(!result.applicable)return false;
+    audit.aorGateChecks++;
+    if(result.nativeItemLocked)audit.aorGateNativeVetoes++;
+    if(audit.aorGateEvents.length<24)audit.aorGateEvents.push({
+      turn:state.turn,seat,visibleAorCount:result.visibleAorCount,
+      nativeItemLocked:result.nativeItemLocked
+    });
+    return result.nativeItemLocked;
+  }
+
+  /**
+   * Suppress illegal generic Item proposals at their native tactic filter.
+   * This preserves the original bot's ability to try subsequent tactics.
+   * @param {object} state Live native root (clones delegate unchanged).
+   * @param {object} action Original proposed card action.
+   * @returns {boolean}
+   */
+  function validNativeItem(state,action){
+    if(state===live?.state&&
+       action?.type==='PLAY_CARD_ACTION'&&
+       state.phase!==undefined&&
+       !state.prompts.some(prompt=>prompt.result===undefined)){
+      const seat=state.players.findIndex(p=>p.id===this.client?.id);
+      if(seat>=0&&state.activePlayer===seat){
+        const owner=state.players[seat];
+        const card=owner.hand.cards[action.handIndex];
+        if(card?.trainerType===TrainerType.ITEM){
+          const view=observe(state,seat);
+          if(aorBlocksItem(state,seat,view)){
+            audit.skippedAorGenericItemTactics++;
+            return false;
+          }
+        }
+      }
+    }
+    return originalValidity.value.call(this,state,action);
+  }
+
   /** @param {object} state */
   function decoded(state) {
     // A native tactic can score a hypothetical cloned State. Only the
@@ -130,6 +195,10 @@ function withActorFogCrystalPrompt(run,deps={}) {
     if(handIndex<0)return originalBot.value.call(this,state);
     assert.equal(actor.hand.cards[handIndex].fullName,view.ownHand[handIndex]);
     assert.equal(actor.hand.cards[handIndex].trainerType,TrainerType.ITEM);
+    if(aorBlocksItem(state,seat,view)){
+      audit.skippedAorFogRoots++;
+      return originalBot.value.call(this,state);
+    }
     const action=new PlayCardAction(actor.id,handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     });
@@ -195,12 +264,20 @@ function withActorFogCrystalPrompt(run,deps={}) {
   }
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
     ...originalBot,value:decoded});
+  if(nativeAorItemLock)
+    Object.defineProperty(SimpleTacticsAi.prototype,'isValidAction',{
+      ...originalValidity,value:validNativeItem});
   Object.defineProperty(Store.prototype,'dispatch',{
     ...originalDispatch,value:dispatch});
   try{return {result:run(),audit};}
   finally {
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decoded);
     assert.strictEqual(Store.prototype.dispatch,dispatch);
+    if(nativeAorItemLock){
+      assert.strictEqual(SimpleTacticsAi.prototype.isValidAction,validNativeItem);
+      Object.defineProperty(SimpleTacticsAi.prototype,'isValidAction',
+        originalValidity);
+    }
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',originalBot);
     Object.defineProperty(Store.prototype,'dispatch',originalDispatch);
   }
