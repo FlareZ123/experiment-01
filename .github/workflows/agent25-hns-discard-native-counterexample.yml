@@ -52,3 +52,16 @@ jobs:
           path: agent25-dhelmise-v2-six-arm-native-smoke.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Run pre-registered owner Compressor policy on matching six original source arms
+        run: node simulation/evaluation/agent25-dhelmise-v2-compressor-policy-six-arm.cjs > agent25-dhelmise-v2-compressor-policy-six-arm.json
+      - name: Print paired candidate-only donor policy outcome and any physical failure
+        run: |
+          node -e "const r=require('./agent25-dhelmise-v2-compressor-policy-six-arm.json');console.log(JSON.stringify({policy:r.policy,printing:r.printing,attempts:r.attempts.map(a=>({key:a.key,status:a.status,actions:a.nativeRootActions||null,turns:a.turns||null,prizesRemaining:a.prizesRemaining||null,hook:a.hnsHookAudit?{countChecks:a.hnsHookAudit.countChecks,rawNamedDonors:a.hnsHookAudit.rawNamedDonors,effectiveDonors:a.hnsHookAudit.effectiveDonors,suppressedDonors:a.hnsHookAudit.suppressedDonors}:null,physicalFailure:a.physicalConservationWitness||null,error:a.errorCode||null}))},null,2));"
+      - name: Archive paired owner-only native policy six original sixty-card attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-dhelmise-v2-owner-compressor-six-arm
+          path: agent25-dhelmise-v2-compressor-policy-six-arm.json
+          if-no-files-found: warn
+          retention-days: 14
