@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      focused_native_plumeria_choice:
+        description: 'Native common chooser Plumeria fork for the exact original source physical deal'
+        type: boolean
+        required: false
+        default: false
       focused_native_rank21_tool:
         description: 'Run original rank21 Tool target source Store comparison, retrospective, unqualified'
         type: boolean
@@ -37,10 +42,10 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all 48 preregistered source 60 game-development arms without selection
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice }}
         run: node simulation/evaluation/agent41-rank6-grouped-denial-source-panel.cjs > agent41-rank6-denial-source-raw.json
       - name: Preserve compact true-root and distinct-seed counts
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice }}
         run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank6-denial-source-raw.json','utf8'));fs.writeFileSync('agent41-rank6-denial-source-summary.json',JSON.stringify(x.summary,null,2)+'\\n');console.log(JSON.stringify({scheduled:x.summary.scheduled,uniqueSourceSeedGroups:x.summary.uniqueSourceSeedGroups,resultsWithNativeActorAudit:x.summary.resultsWithNativeActorAudit,ownerRoots:x.summary.ownerRoots,plumeriaOwnerRoots:x.summary.plumeriaOwnerRoots,coheldFlareOwnerRoots:x.summary.coheldFlareOwnerRoots,bothSupporterOffersRoots:x.summary.bothSupporterOffersRoots,distinctSeedGroupsWithCoheldFlare:x.summary.distinctSeedGroupsWithCoheldFlare,competitiveQualifiedGames:x.summary.competitiveQualifiedGames}));"
       - name: Exact early source-owned coheld native canPlay, original Store read-only
         if: ${{ inputs.focused_native_eligibility }}
@@ -48,6 +53,12 @@ jobs:
       - name: Summarize focused original-source native canPlay without inventing settled effects
         if: ${{ always() && inputs.focused_native_eligibility }}
         run: node -e "const fs=require('node:fs');const p='agent41-focused-source-native-canplay.json';if(!fs.existsSync(p)){console.log('FOCUSED_NATIVE_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FOCUSED_NATIVE_COHELD',JSON.stringify({schema:r.schema,validation:r.validation,competitiveQualifiedGames:r.competitiveQualifiedGames,rows:r.rows.map(x=>({trial:x.trial,sourceSeat:x.sourceSeat,status:x.nativeStatus,nativeCoheldOwnerRoots:x.naturalCoheldRootCount,bothNativePlayableRoots:x.bothNativeCardCanPlayRoots,first:x.firstAuthenticCoheldRoot?{turn:x.firstAuthenticCoheldRoot.globalTurn,rootOrdinal:x.firstAuthenticCoheldRoot.rootOrdinal,plumeria:x.firstAuthenticCoheldRoot.plumeria,teamFlare:x.firstAuthenticCoheldRoot.teamFlare,bothNativePlayable:x.firstAuthenticCoheldRoot.bothHaveNativePlayablePhysicalCopy}:null}))}));if(r.validation?.passed!==true)process.exitCode=1;}"
+      - name: Run frozen original rank6 common-owner same-root native Plumeria development fork
+        if: ${{ inputs.focused_native_plumeria_choice }}
+        run: node simulation/evaluation/agent41-rank6-native-plumeria-common-choice-pair.cjs > agent41-rank6-same-root-native-plumeria.json
+      - name: Summarize original native same-root choice and physically settled prompts
+        if: ${{ always() && inputs.focused_native_plumeria_choice }}
+        run: node -e "const fs=require('node:fs');const p='agent41-rank6-same-root-native-plumeria.json';if(!fs.existsSync(p)){console.log('NATIVE_PLUMERIA_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('ORIGINAL_SAME_ROOT_PLUMERIA',JSON.stringify({validation:r.validation,attempts:r.actualNativeAttempts,pairs:r.paired.map(x=>({id:x.id,physicalMatched:x.sameInitialSourceAndFullPhysicalDeal,control:x.control?{status:x.control.status,changed:x.control.changedSameRootDecisions}:null,treatment:x.treatment?{status:x.treatment.status,selected:x.treatment.selectedPlumeriaOwnerRoots,accepted:x.treatment.acceptedPlumeria,adopted:x.treatment.adoptedActorRootActions,settled:x.treatment.settledPhysicalEnergyDiscards,unresolved:x.treatment.unresolvedNativeChains,settlementSamples:x.treatment.boundedSettlementSamples}:null})),competitiveQualifiedGames:r.competitiveQualifiedGames}));if(r.validation?.passed!==true)process.exitCode=1;}"
       - name: Run exact original rank21 native Tool action recipient comparison
         if: ${{ inputs.focused_native_rank21_tool }}
         run: node simulation/evaluation/agent41-rank21-native-tool-target-pair.cjs > agent41-rank21-tool-target-raw.json
@@ -63,6 +74,7 @@ jobs:
             agent41-rank6-denial-source-raw.json
             agent41-rank6-denial-source-summary.json
             agent41-focused-source-native-canplay.json
+            agent41-rank6-same-root-native-plumeria.json
             agent41-rank21-tool-target-raw.json
           if-no-files-found: warn
           retention-days: 14
