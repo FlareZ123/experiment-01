@@ -40,7 +40,7 @@ function independentPutDamageNegative(prompt,answer){
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v1';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v2-live-store-only';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
