@@ -1,0 +1,39 @@
+# Agent39: first shared Store paper-prompt contract for original rank-6 Volt Cyclone
+
+**1 November 2026. Development-only, paper-contract engineering; zero competitive-qualified games.**
+
+## Problem and independent printed contract
+
+The original rank-6 Iron Thorns ex `TWM 77` attack **Volt Cyclone** says: `Move an Energy from this Pokémon to 1 of your Benched Pokémon.` The pinned Twinleaf source (`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`) produces a mandatory `AttachEnergyPrompt` with `min=max=1` and `allowCancel=false`, but `Store.reducePrompt` directly assigns `prompt.result=action.result` and executes callbacks without invoking `prompt.validate`. Thus native Store acceptance alone does not prove paper correctness. The scope is a **printing-specific** attacked Energy transfer, not arbitrary prompt legality.
+
+The previously archived 32 frozen rank6/11 v2 arms contain 27 such AttachEnergyPrompt resolutions from original rank6, with 27 native accepted public-board deltas. Their paper legality remained independently **unverified** in [Agent17's full 4,331-prompt denominator](agent17-frozen-v2-prompt-denominator-20261101.md). The preceding archive cannot be upgraded by retrospective enforcement.
+
+## Implemented shared boundary
+
+`simulation/twinleaf/agent39-paper-prompt-portfolio.cjs` provides `withPaperPromptPortfolio`, an explicitly opt-in and reversible **single Store dispatch** wrapper. The corresponding original Iron Thorns ex reducer stamps newly created prompts in a WeakSet by actual attack origin; other prompts are `PAPER_PROMPT_UNVERIFIED`. At a stamped native `ResolvePromptAction`, the check independently requires:
+
+1. The prompt comes from the actor's attacking Pokémon's physical Active card list, with the expected source-facing `AttachEnergyPrompt` geometry.
+2. Exactly one physical Energy is currently attached to that Active Pokémon.
+3. The destination is an occupied, own Benched Pokémon in range.
+4. Native `prompt.validate` also accepts the reply.
+
+A violation is classified `PAPER_PROMPT_INVALID` and rejected before dispatch; an accepted checked reply becomes `PAPER_PROMPT_VERIFIED` only for this precise predicate. All statuses, root turns, limited counts, guard successes and failures are retained with no selected card identities exported. `Store.dispatch` and the card reducer are restored after success or exception. The opt-in still cannot certify every future effect, game, or strategy decision.
+
+Integration: `simulation/evaluation/agent41-bilateral-v2-development.cjs`, with default-off `paperPromptPortfolio` option and `AGENT39_PAPER_PROMPT_PORTFOLIO_DEV=true` CLI environment. The existing **manually dispatched** `.github/workflows/aichi-source-locked-campaign.yml` activates this via `agent41_crossrank_trial=true`, `trial_ids=agent41-bilateral-v2-dev`, `agent41_dev_options=paper-prompt-portfolio`. It retains separate native abort receipts and the full historical action denominator. No new workflow was created and no existing baseline flag was altered.
+
+## Tests, CI, and limits
+
+- `tests/agent39-paper-prompt-portfolio.test.cjs`: controlled Store model, both physical seats, duplicate/empty/foreign Energy and invalid Bench recipient rejections before state mutation, valid transfer after rejection, native acceptance audit, wrapper restoration, and an unattributed prompt that remains explicitly unverified. Four tests passed in local Node and are wired into the existing manual CI.
+- `simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs`: a **staged real pinned Store** control for both seats, exercising an original Iron Thorns ex TWM after-attack reducer. It compares a genuine unguarded empty transfer despite `min=1` against a guarded invalid rejection and guarded valid one-Energy settlement, with no vendor modifications. This is a direct prompt contract fixture and explicitly omits full attack payment/Prize/game qualification.
+- First manual run [41329083686](https://github.com/FlareZ123/experiment-01/actions/runs/41329083686) failed at the existing VM wiring test harness (three `MODULE_NOT_FOUND` errors resolving `../twinleaf/canceling-cologne-once-per-turn-hook.cjs` from the test directory rather than the runner directory). Its other 54 regression tests passed, and it did not enter a genuine game test. The harness fallback has been fixed in `tests/agent41-bilateral-native-pressure-wiring.test.cjs`; the manual rerun [41329333283](https://github.com/FlareZ123/experiment-01/actions/runs/41329333283) was triggered on the same option set. **Its final result must be inspected before any native pass claim.** The staged native fixture was added to that manual workflow after rerun dispatch, so requires a distinct later run for actual native execution.
+
+## Release classification and next research
+
+This source-specific guard cannot certify the 27 frozen historical resolutions without source-identical, prospective independent replay; all historically accepted prompt families remain `PAPER_PROMPT_UNVERIFIED`. A candidate for the common portfolio is original rank1 CRE74 Astral Barrage / rank31 SIT59 Painful Spoons when separate guards meet the same invalid, valid, restoration and native-source-exposure requirements. A full-denominator matched original 32-physical-deal replay, two-seat policy competence, original-source 60 coverage and Aichi's real wall-clock outcomes remain open. **29/32** original opposing lists authenticated, **0 competitively qualified games**, **no demonstrated 99.5% fixed-60 win rate**.
+
+## Exact sources
+
+- Official card/rules basis: uploaded `advanced-players-rulebook.md`, especially attack effect resolution, Energy moving, and Trainer/Ability legality; original printed attack `Iron Thorns ex TWM`.
+- Pinned upstream card: `ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex.ts`.
+- Pinned engine dispatcher: `ptcg-server/src/game/store/store.ts`, `reducePrompt`.
+- Source portfolio baseline: `results/aichi-2026/agent17-frozen-v2-prompt-denominator-20261101.md`.
