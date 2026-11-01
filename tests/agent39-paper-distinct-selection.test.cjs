@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {duplicatePhysicalChoiceReason,withDistinctPhysicalCardSelectionVeto,
-  REASON}=require('../simulation/twinleaf/agent39-paper-distinct-selection.cjs');
+  REASON,FOREIGN}=require('../simulation/twinleaf/agent39-paper-distinct-selection.cjs');
 
 class ChooseCardsPrompt{
   constructor(id,cards){this.id=id;this.cards={cards};this.result=undefined;}
@@ -29,6 +29,7 @@ test('same-name distinct physical cards accepted, duplicate object rejected',()=
   const prompt=new ChooseCardsPrompt(1,[a,b]);
   assert.equal(duplicatePhysicalChoiceReason(prompt,[a,a]),REASON);
   assert.equal(duplicatePhysicalChoiceReason(prompt,[a,b]),null);
+  assert.equal(duplicatePhysicalChoiceReason(prompt,[a,{name:'Psychic Energy'}]),FOREIGN);
   assert.equal(duplicatePhysicalChoiceReason(prompt,[a]),null);
   assert.equal(duplicatePhysicalChoiceReason(prompt,[]),null);
   assert.equal(duplicatePhysicalChoiceReason(new OtherPrompt(1),[a,a]),null);
