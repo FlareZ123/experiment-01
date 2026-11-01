@@ -127,6 +127,24 @@ test('later equal-index changed attacks after an earlier fork are never called s
   assert.equal(paired.pairs[0].firstRootDifference.index,0);
   assert.deepEqual(paired.pairs[0].changedSameRootAttacks,[]);
 });
+test('preregistered sixteen candidate-sixty arms compare without hardcoded four-arm assumption',()=>{
+  const trials=[];
+  for(let repeat=0;repeat<4;repeat++){
+    for(const x of originalTrials()){
+      trials.push({...x,repeat,id:[11,repeat,x.candidateSlot,x.candidateId].join(':'),
+        seed:x.seed+repeat});
+    }
+  }
+  const baseline=trials.map(x=>row(x,'Get Lost'));
+  const treatment=trials.map(x=>row(x,'Mind Shock'));
+  const result=compareOriginalRank11Pairs(baseline,treatment,
+    {expectedArms:16,schema:'fresh-sixteen-test'});
+  assert.equal(result.schema,'fresh-sixteen-test');
+  assert.equal(result.nativeGameAttempts,32);
+  assert.equal(result.physicalGroups,8);
+  assert.equal(result.samePhysicalInputPairs,16);
+  assert.equal(result.pairs.length,16);
+});
 test('missing physical source receipt is never accepted as a matched deal',()=>{
   const trials=originalTrials();
   const original=trials.map(x=>row(x,'Get Lost'));
