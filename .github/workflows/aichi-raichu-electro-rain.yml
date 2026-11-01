@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/prompt-integrity.test.cjs
       - name: Regress partial damage budget against original pinned prompt semantics
         run: node --test tests/agent46-putdamage-partial-budget.test.cjs
+      - name: Verify native Froslass optional self-damage budget both seats
+        run: node simulation/twinleaf/agent46-froslass-partial-budget-native.cjs
       - name: Check Electro Rain capped allocation pure regression
         run: node tests/raichu-prize-allocation-planner.test.cjs
       - name: Verify invalid fractional Raichu packet would inflate native KO Prizes
