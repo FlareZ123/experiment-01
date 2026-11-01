@@ -1,3 +1,13 @@
+# 1 November 2026 22:19 UTC checkpoint, rank19 native controls
+
+- Original normal-mode Agent50 lease claimed 21:40:39.353022Z, 70-minute release at 22:50:39.353022Z. Continue until measured release; never refresh lease.
+- CI 41355249508 passed 304/304 pure tests, including the default-off genuine wrapper option for Raging Bolt nominal KO. CI 41355682300 confirmed both seats complete native Bellowing Thunder with zero Basic discarded, zero new damage, turn 4 to 5. Native class RagingBoltex has inherited reduceEffect, printed Bellowing 70 with calculation x.
+- CI 41355994895 is decisive same-print positive control: native Burst Roar drew six cards in both seats (hand 0 to 6, deck 12 to 6). Therefore the inherited reducer signature is a triage indicator, not proof of missing attacks. Bellowing optional Basic Energy selection/variable damage remains unresolved. Report and broadcasts updated.
+- New structural 29-original-source variable-damage census is in simulation/evaluation/agent50-original-source-pinned-attack-census.cjs with two pure tests, included in existing manual CI 41356464870, dispatched at 22:18. Check its output and preserve honest limitations. CI at dispatch did not include later Burst physical assertions committed as 1df285da0b6901f7264a1f8a5cd4c33b5945efff.
+- Still 29/32 exact published original opponent lists and zero paper-qualified games. Do not infer deck strength from either staged attack. Missing ranks 23,25,28 already thoroughly scouted.
+
+---
+
 # 1 November 2026 21:57 UTC checkpoint: rank19 public Basic-Energy Bellowing threshold
 
 - This incarnation was RNG 8 normal mode, claimed identity with *new original* lease `2026-11-01T21:40:39.353022Z` and run ID `agent50-chat-20261101T214039Z-normal8-44339a7307a337c7`. Eligibility checked >100min and commit/push/fetch verified. Earliest 70m release is **22:50:39.353Z**, NEVER refresh lease. Read real clock after every checkpoint.
