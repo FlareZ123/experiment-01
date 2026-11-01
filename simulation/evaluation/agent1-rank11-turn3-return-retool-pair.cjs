@@ -72,6 +72,23 @@ function run(){
         x.playerSlot===1&&x.turnBefore===2&&
         x.action==='PlayCardAction'&&x.card==='Field Blower');
       assert.equal(fieldBlowerRoots.length,1);
+      const firstBlower=fieldBlowerRoots[0];
+      const ownerHandBeforeBlower=
+        firstBlower.decisionHandBefore?.ownHandPrintings;
+      assert.ok(Array.isArray(ownerHandBeforeBlower),
+        'Missing real recipient-owned pre-Blower hand observation');
+      const abilityPayloadPrintings=[
+        'Tapu Lele-GX GRI','Radiant Eternatus CRZ','Latias ex SSP',
+        'Marshadow UNB'
+      ];
+      const recipientHeldAbilityBasicCounts=Object.fromEntries(
+        abilityPayloadPrintings.map(name=>[name,
+          ownerHandBeforeBlower.filter(card=>card===name).length]));
+      const recipientActionsAfterBlowerInTurn2=(game.decisionTrace??[])
+        .filter(x=>x.playerSlot===1&&x.turnBefore===2&&
+          x.actionOrdinal>firstBlower.actionOrdinal)
+        .map(x=>({action:x.action,card:x.card??null,
+          ability:x.ability??null,ordinal:x.actionOrdinal}));
       const confirmedRemoval=opponent.events.filter(x=>
         x.turn===2&&x.kind==='public-Tool-check'&&
         x.garbodorToolRemoved===true);
@@ -96,6 +113,8 @@ function run(){
         sourceRepair:source.returnRepair,
         recipientBlowerRoots:fieldBlowerRoots.length,
         recipientConfirmedRemoval:confirmedRemoval.length,
+        recipientHeldAbilityBasicCounts,
+        recipientActionsAfterBlowerInTurn2,
         sourceGarbodorToolPrintingsAtOpponentTurn4,
         sourceTurn3Plays,
         gameFinished:game.finished===true,
@@ -107,6 +126,14 @@ function run(){
         nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
         qualifiedCompetitiveGame:false});
     }
+  }
+  if(rows.every(x=>x.status==='native-original-K0-confirmed')){
+    assert.deepEqual(rows[0].recipientHeldAbilityBasicCounts,
+      rows[1].recipientHeldAbilityBasicCounts,
+      'Source turn3 treatment must not change recipient prior hidden hand');
+    assert.deepEqual(rows[0].recipientActionsAfterBlowerInTurn2,
+      rows[1].recipientActionsAfterBlowerInTurn2,
+      'Source turn3 treatment must not change recipient prior turn2 actions');
   }
   return {version:VERSION,engineRevision:frame.engineRevision,
     registrationSha256:frame.frameSha256,
@@ -133,6 +160,8 @@ if(require.main===module){
       audit:x.sourceRepair,sourceTurn3:x.sourceTurn3Plays,
       sourceGarbodorToolsAtOpponentTurn4:
         x.sourceGarbodorToolPrintingsAtOpponentTurn4,
+      recipientHeldAbilityBasics:x.recipientHeldAbilityBasicCounts,
+      recipientActionsAfterBlower:x.recipientActionsAfterBlowerInTurn2,
       error:x.error??null}))
   })+'\n');
   if(result.blocked>0)process.exitCode=1;
