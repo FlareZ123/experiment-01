@@ -92,11 +92,14 @@ function compactGame(row){
  * required for a causal comparison but mismatches remain visible as vetoes.
  * @param {object[]} controlRows Native baseline rows.
  * @param {object[]} treatmentRows Symmetric policy rows.
- * @returns {object} Four paired cases and qualification vetoes.
+ * @param {object} [options] Explicit registered arm cardinality.
+ * @returns {object} Paired cases and qualification vetoes.
  */
-function compareOriginalRank11Pairs(controlRows,treatmentRows){
-  assert.equal(controlRows.length,4);
-  assert.equal(treatmentRows.length,4);
+function compareOriginalRank11Pairs(controlRows,treatmentRows,options={}){
+  const expected=options.expectedArms??4;
+  assert.ok(Number.isSafeInteger(expected)&&expected>=4&&expected%2===0);
+  assert.equal(controlRows.length,expected);
+  assert.equal(treatmentRows.length,expected);
   const baseline=new Map(controlRows.map(x=>[x.trial.id,compactGame(x)]));
   const treated=new Map(treatmentRows.map(x=>[x.trial.id,compactGame(x)]));
   assert.equal(baseline.size,4);assert.equal(treated.size,4);
@@ -155,7 +158,8 @@ function compareOriginalRank11Pairs(controlRows,treatmentRows){
       attemptRetained:true,competitiveQualified:false});
   }
   return {
-    schema:SCHEMA,physicalGroups:2,fixed60Arms:4,nativeGameAttempts:8,
+    schema:options.schema??SCHEMA,physicalGroups:expected/2,
+    fixed60Arms:expected,nativeGameAttempts:2*expected,
     samePhysicalInputPairs:pairs.filter(x=>x.samePhysicalInput).length,
     mismatchedPhysicalInputPairs:pairs.filter(x=>!x.samePhysicalInput).length,
     pairs,
