@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const VERSION='agent30-public-inert-leading-attack-v1';
 
 /**
- * Detect four source-printed, board-observable cases where the first
+ * Detect source-printed, board-observable cases where the first
  * affordable attack has no useful target, and suggest a separately affordable
  * printed damage attack. This is a tactical preference, not a proof that
  * damage is always better in every matchup. The real Store settles attacks.
@@ -45,6 +45,13 @@ function choosePublicInertLeadingAttack(view,payable){
     nextName='Shred';
     nextDamage=80;
     reason='Dialga-GX UPR Overclock draws zero cards with six or more in hand';
+  }else if(Array.isArray(bench)&&bench.length>0&&
+      bench.every(slot=>slot===null)&&
+      own.active?.printing==='Buneary PFL'&&
+      first.name==='Run Around'){
+    nextName='Kick';
+    nextDamage=20;
+    reason='Buneary PFL cannot switch without any Benched Pokemon';
   }else if(discardEmpty&&own.active?.printing==='Trubbish NVI'&&
       first.name==='Garbage Collection'){
     nextName='Sludge Bomb';
