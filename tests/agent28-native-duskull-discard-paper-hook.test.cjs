@@ -14,6 +14,7 @@ const load=modulePath=>require(path.resolve(__dirname,
 
 const {Store}=load('game/store/store');
 const {Player}=load('game/store/state/player');
+const {PokemonCardList}=load('game/store/state/pokemon-card-list');
 const {GamePhase}=load('game/store/state/state');
 const {AttackEffect}=load('game/store/effects/game-effects');
 const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
@@ -41,6 +42,8 @@ function board(options={}){
   const owner=new Player();owner.id=101;owner.name='original-rank31';
   const opponent=new Player();opponent.id=202;opponent.name='opponent';
   state.players=[owner,opponent];
+  owner.bench=Array.from({length:5},()=>new PokemonCardList());
+  opponent.bench=Array.from({length:5},()=>new PokemonCardList());
   state.activePlayer=0;
   state.turn=3;
   state.phase=GamePhase.ATTACK;
