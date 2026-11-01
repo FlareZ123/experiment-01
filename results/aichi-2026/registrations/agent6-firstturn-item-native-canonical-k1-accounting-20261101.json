@@ -1,0 +1,32 @@
+{
+  "schema": "agent6-native-firstturn-item-owner-k1-canonical-prize-accounting-v1",
+  "dateUTC": "2026-11-01",
+  "retrospective": true,
+  "primaryQuestion": "Does existing captureOwnerK1 certify original source rank6 Prize multiset at genuine first-turn Tag Call Item owner-deck search or fail closed due resolving Item zone accounting?",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "physicalSeatSeedPairs": [
+    {
+      "sourceSeat": 0,
+      "seed": 2341469307
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 516187842
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2411836147
+    }
+  ],
+  "unchangedPolicies": "Reuse prior cross-turn K1 source six-arm replay with same original printed sixties and two carry-OFF/ON policies; add read-only existing canonical full K1 snapshot at only native accepted owner search prompt",
+  "sourceResult": "CI 41358800704, original pinned Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "predeclaredChecks": [
+    "all six original Store trial attempts retained including errors",
+    "for each source seat and seed source physical opening and actual opponent T2 action roots unchanged",
+    "record captureOwnerK1 prizeInferenceCertified, unaccountedTotal, knownPrized and known Thunder status at native T1 Item Tag prompt",
+    "compare complete root-action ledgers with old accepted run",
+    "canonical unaccounted mismatch if resolving Tag Call Item excluded is an empirical failure, not paper-game failure"
+  ],
+  "noClaims": "Do not infer win rate; source/opponent policies unqualified"
+}
