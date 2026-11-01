@@ -113,6 +113,7 @@ for(const seat of [0,1]){
       nextPromptOwnerSeat:next?state.players.findIndex(p=>
         p.id===next.playerId):null,
       damageAfter:opponent.active.damage,
+      turnAfter:state.turn,phaseAfter:state.phase,
       activeBasicCount:owner.active.energies.cards.length,
       benchBasicCount:owner.bench[0].energies.cards.length,
       competitiveQualifiedGames:0
