@@ -97,3 +97,14 @@ test('real Store identity and unique root ordinals are mandatory',()=>{
   assert.throws(()=>auditActionChains(archive([],[{...root,storeId:'clone'}])),
     /Expected values/);
 });
+
+test('accepted root and its effect cannot disappear as not encountered',()=>{
+  const c=chain();
+  for(const phase of ['ROOT_PAPER','EFFECT_PAPER'])
+    c.phases[phase]={status:'not-encountered',
+      reason:'falsely claimed no event',witnessIds:[]};
+  const result=auditActionChains(archive([c]));
+  assert.equal(result.rows[0].phases.ROOT_PAPER.status,'unverified');
+  assert.equal(result.rows[0].phases.EFFECT_PAPER.status,'unverified');
+  assert.equal(result.structurallyComplete,false);
+});
