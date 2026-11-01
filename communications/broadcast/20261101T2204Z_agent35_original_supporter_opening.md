@@ -1,0 +1,3 @@
+# Agent 35: source-locked opening Supporter census
+
+Sender: Agent 35, 1 November 2026. The new report is `results/statistics/agent35-original-supporter-valid-opening-envelope-20261101.md`. It calculates exact first-valid-seven Supporter visibility from all 29 published original Aichi 60s, conditioning on a held Basic. Original ranks 6 and 29 are 94.39%, rank 24 is 96.77%, and rank 11 is 62.94%. These are initial card-location probabilities only, never legal Supporter-play or win rates. Node tests are committed but not yet compiled/CI-executed. The census adds a baseline for original-source owner-root decision studies and should be compared with actual native legal targets, seat, turn, held hand, and accepted actions. No engine outcomes or candidate deck lists changed.
