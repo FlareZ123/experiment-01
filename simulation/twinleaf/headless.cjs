@@ -1406,6 +1406,15 @@ function runMatch(request) {
         if (rejectionBefore) rejected.rejectedActionEvidence = {
           ...rejectionBefore, rejectionMessage: error.message
         };
+        // The original setup coin and first-draw receipt also belongs to
+        // failed games. Without it, identical source-deal hashes cannot
+        // certify the accepted starter and first draw across aborted arms.
+        // This is post-failure evidence and never enters the actor policy.
+        if (setupCoinChoiceReceipt) {
+          rejected.nativeSetupCoinChoiceReceipt =
+            setupCoinChoiceReceipt.result(
+              summarizeTurnOrder(actualFirstTurn,store.state.logs));
+        }
         if (request.captureNativeAbortEvidence===true) {
           rejected.nativeAbortEvidence =
             require('./native-dispatch-abort-evidence.cjs')
