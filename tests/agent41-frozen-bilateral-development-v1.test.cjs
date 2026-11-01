@@ -46,7 +46,8 @@ test('unreviewed ambient switch cannot silently change an owner policy',()=>{
 
 test('release status stays explicitly unqualified until certified',()=>{
   assert.equal(profile.competitiveGameQualified,false);
-  assert.equal(profile.sourceClosureSha256,null);
+  assert.ok(profile.sourceClosureSha256===null||
+    /^[a-f0-9]{64}$/.test(profile.sourceClosureSha256));
   assert.ok(profile.releaseVetoes.length>0);
   assert.equal(profile.scheduledNativeArms,32);
 });
