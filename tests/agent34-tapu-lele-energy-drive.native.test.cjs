@@ -226,6 +226,6 @@ test('original native Psychic Resistance also deviates from Energy Drive; opt-in
       'Pinned original Store should exhibit the uncorrected Psychic -20 Resistance');
     assert.equal(row.correctedDamage,60,
       'Printed Energy Drive ignores Psychic Resistance');
-    assert.ok(row.auditedPhases.includes('ApplyResistanceEffect'));
+    assert.ok(row.auditedPhases.includes('ApplyWeaknessEffect'));
   }
 });
