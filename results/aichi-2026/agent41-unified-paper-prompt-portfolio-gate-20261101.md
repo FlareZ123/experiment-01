@@ -194,8 +194,8 @@ untouched in hand. The engine has completed a **paper-forbidden free
 Pokémon search**, without an exception. See the exact
 [original rank14 print report](agent4-original-rank14-ultraball-free-search-native-20261101.md).
 
-The exact 29-opponent field lists contain **14 separate original
-60s with this printed Ultra Ball MEG131**: ranks
+An independent scan of the frozen 29-original field list confirms
+**24 physical Ultra Ball MEG131 copies across 14 original 60s**: ranks
 **4, 5, 8, 9, 12, 14, 16, 18, 20, 21, 22, 27, 30, 32**.
 This is card-copy exposure *potential*; source players were not
 observed deliberately submitting empty payments in real random games.
