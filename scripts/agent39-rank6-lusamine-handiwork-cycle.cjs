@@ -96,5 +96,30 @@ function depletionByNextOpponentDraw(uses,deckBeforeCycle){
     ...millTail(uses,Math.max(0,deckBeforeCycle-opponentDrawsBefore))};
 }
 
+/**
+ * Exact ordinary six-Prize initial-deal accessibility for original rank6's
+ * two distinct Lusamine, singleton Handiwork, and singleton Gladion.
+ * One Gladion can rescue at most one missing piece without taking Prizes.
+ * @returns {{total:bigint,direct:bigint,oneGladionRecoverable:bigint,
+ *   blockedWithoutPrizeTaking:bigint,maximumAccessibleFraction:number}}
+ */
+function prizeAccessibility(){
+  /** @param {number} n @param {number} k @returns {bigint} */
+  function choose(n,k){
+    if(k<0||k>n)return 0n;
+    let result=1n;
+    for(let i=1;i<=Math.min(k,n-k);i++)
+      result=result*BigInt(n-i+1)/BigInt(i);
+    return result;
+  }
+  const total=choose(60,6);
+  const direct=choose(57,6);
+  const oneGladionRecoverable=3n*choose(56,5);
+  const blockedWithoutPrizeTaking=total-direct-oneGladionRecoverable;
+  return {total,direct,oneGladionRecoverable,
+    blockedWithoutPrizeTaking,
+    maximumAccessibleFraction:Number(direct+oneGladionRecoverable)/Number(total)};
+}
+
 module.exports={SOURCE_RANK6,supporterCycle,coinWays,millTail,
-  depletionByNextOpponentDraw};
+  depletionByNextOpponentDraw,prizeAccessibility};
