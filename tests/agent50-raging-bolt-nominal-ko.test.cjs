@@ -118,7 +118,9 @@ test('existing actor root changes one attack only when public threshold is met',
   assert.equal(chooseActorRootIntent(v,rootCatalog).attackName,'Burst Roar');
   assert.equal(chooseActorRootIntent(v,rootCatalog,
     {ragingBoltNominalKoRoot:true}).attackName,'Bellowing Thunder');
-  v.opponentPublic.active.hp=210;
+  // The fixture has THREE public Basic Energy, including one on the Bench.
+  // 210 nominal damage is still payable; 211 HP requires a fourth card.
+  v.opponentPublic.active.hp=211;
   assert.equal(chooseActorRootIntent(v,rootCatalog,
     {ragingBoltNominalKoRoot:true}).attackName,'Burst Roar');
 });
