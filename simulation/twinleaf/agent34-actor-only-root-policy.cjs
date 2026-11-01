@@ -605,6 +605,14 @@ function withActorOnlyRootPolicy(run,deps={}){
     nativeCoheldDenialCanPlayRoots:0,
     nativeCoheldDenialBothPlayableRoots:0,
     nativeCoheldDenialCanPlayWitnesses:[],
+    nativeCoheldDenialFirstPositiveWitness:null,
+    nativeCoheldDenialFirstNegativeWitness:null,
+    nativeCoheldDenialFirstErrorWitness:null,
+    nativeCoheldDenialNativeCanPlayErrorRoots:0,
+    nativeCoheldDenialExamplesTruncated:false,
+    nativeCoheldDenialPositiveExamplesTruncated:false,
+    nativeCoheldDenialErrorExamplesTruncated:false,
+    nativeCoheldDenialPositiveWitnessMissing:false,
     sameRootChoiceApplyOptIn:deps.sameRootChoiceApply===true,
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
@@ -720,6 +728,14 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.nativeCoheldDenialCanPlayRoots;
     delete audit.nativeCoheldDenialBothPlayableRoots;
     delete audit.nativeCoheldDenialCanPlayWitnesses;
+    delete audit.nativeCoheldDenialFirstPositiveWitness;
+    delete audit.nativeCoheldDenialFirstNegativeWitness;
+    delete audit.nativeCoheldDenialFirstErrorWitness;
+    delete audit.nativeCoheldDenialNativeCanPlayErrorRoots;
+    delete audit.nativeCoheldDenialExamplesTruncated;
+    delete audit.nativeCoheldDenialPositiveExamplesTruncated;
+    delete audit.nativeCoheldDenialErrorExamplesTruncated;
+    delete audit.nativeCoheldDenialPositiveWitnessMissing;
   }
   if(!audit.beforeAttackDenialOptIn)delete audit.beforeAttackDenialOptIn;
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
@@ -882,13 +898,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       const witness=require('./agent41-native-coheld-denial-canplay.cjs')
         .inspectNativeCoheldDenialCanPlay(
           view,state,nativeStore,seat,audit.selectedRootDecisions+1);
-      if(witness){
-        audit.nativeCoheldDenialCanPlayRoots++;
-        if(witness.bothHaveNativePlayablePhysicalCopy)
-          audit.nativeCoheldDenialBothPlayableRoots++;
-        if(audit.nativeCoheldDenialCanPlayWitnesses.length<48)
-          audit.nativeCoheldDenialCanPlayWitnesses.push(witness);
-      }
+      if(witness)
+        require('./agent33-coheld-positive-witness-retention.cjs')
+          .retainNativeCoheldWitness(audit,witness);
     }
     if(audit.lowHandLillieCensusOptIn){
       const {LILLIE}=require('./agent12-actor-only-lillie-after-pass.cjs');
