@@ -138,7 +138,51 @@ function probeRoxieChoiceIndexShift(roxieFirst){
     scope:'Actual native owner Roxie CEC ChooseCards with real Koffing CEC, two physical hand orders'};
 }
 
+/**
+ * Genuine native Roxie prompt with the actual rank31 singleton Tapu Lele-GX
+ * as its proposed payment. Printed Roxie excludes Pokémon-GX explicitly.
+ * Observe the original Store response; do not infer acceptance in advance.
+ * @param {0|1} [seat=0]
+ * @returns {object}
+ */
+function probeRoxieForbiddenGXPayment(seat=0){
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const f=stagedPainfulSpoons(seat);
+  const gx=f.card('Tapu Lele-GX GRI');
+  const roxie=f.card('Roxie CEC');
+  f.source.hand.cards.push(gx,roxie);
+  f.store.dispatch(new PlayCardAction(f.source.id,1,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  const prompt=f.state.prompts.find(p=>p.result===undefined&&
+    p.constructor.name==='ChooseCardsPrompt');
+  assert.ok(prompt,'Original Roxie must create a native choose-cards prompt');
+  const validatorAccepted=prompt.validate([gx],f.state);
+  const blocked=[...prompt.options.blocked];
+  const cardsBefore=f.source.deck.cards.length;
+  let storeError=null;
+  try{
+    withRoxieTrainerDiscardType(()=>
+      f.store.dispatch(new ResolvePromptAction(prompt.id,[gx])));
+  }catch(e){storeError=String(e?.message??e);}
+  return {
+    seat,selectedPrinting:gx.fullName,
+    printedRoxieDisallowsPokemonGX:true,
+    validatorAccepted,blocked,
+    storeError,
+    promptSettled:prompt.result!==undefined,
+    gxPhysicallyDiscarded:f.source.discard.cards.includes(gx),
+    roxiePhysicallyDiscarded:f.source.discard.cards.includes(roxie),
+    ownerHandAfter:f.source.hand.cards.map(x=>x.fullName),
+    physicalCardsDrawn:cardsBefore-f.source.deck.cards.length,
+    scope:'Actual original rank31 printed GX payment in staged Store, not original full game'
+  };
+}
+
 if(require.main===module)console.log(JSON.stringify([
   runRank31RoxieSpoons(false),runRank31RoxieSpoons(true)
 ],null,2));
-module.exports={runRank31RoxieSpoons,probeRoxieChoiceIndexShift};
+module.exports={runRank31RoxieSpoons,probeRoxieChoiceIndexShift,probeRoxieForbiddenGXPayment};
