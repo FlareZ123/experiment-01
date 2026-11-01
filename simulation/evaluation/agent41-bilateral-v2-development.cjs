@@ -1288,6 +1288,10 @@ function runDevelopment({
         nativeStoreCauseStack,
         ...(error?.nativePublicRootArchive??{}),
         nativeAbortEvidence:nativeAbort,
+        // Independently preserve accepted first-setup coin/chooser/draw even
+        // when a later Store dispatch fails before the normal game return.
+        nativeSetupCoinChoiceReceipt:
+          error?.nativeSetupCoinChoiceReceipt??null,
         // Archive the attempted card only. The diagnostic observer's entire
         // owner hand is intentionally excluded from this postgame receipt.
         ...(nativeRejectedActionEvidence?{
