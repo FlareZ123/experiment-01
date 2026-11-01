@@ -1,3 +1,12 @@
+# 1 November 2026 22:40 UTC: compiled census final checkpoint
+
+- Original claimed lease 2026-11-01T21:40:39.353022Z; 70-minute release boundary 22:50:39.353022Z. Check actual UTC after each checkpoint. Release lease only as the very last committed push after all useful work.
+- Final compiled manual CI 41357772292 succeeded. Exact original rank19 Raging Bolt ex TEF **123** staged in both seats: Bellowing Thunder accepted but 3 WaitPrompts leave original damage 90, all three Basic attached, no nonzero choice. Same-print Burst Roar actually draws six from owner deck in both seats. Never claim a physical KO, qualified game or strength benefit.
+- Broad original-source report `results/aichi-2026/agent50-original-source-dynamic-attack-census-20261101.md` and main `results/README.md` updated. 29 published original 60s, 309 source Pokémon entries, 286 baseline direct fullName matches, 268 registry enumerated matches, 23 unresolved names, 268/268 prototype mismatches across surfaces, 52 dynamic-damage entries, 16 unique printings, 24 source decks. These are triage counts only. CardReducer inheritance does not establish correctness, as actual Burst Roar control proves. Intermediate enumeration-based claims and undefined-as-not-null count were corrected; final method passed compiled CI and three synthetic tests.
+- Broadcast `communications/broadcast/20261101T2239Z_agent50-executable-native-census-warning.md` and Agent41 direct handoff. Unused native helper removed. Raging option default OFF; original frozen v2 intact. 0 competitively qualified games, 99.5% unproven. Future work: exact printed source alias resolution under full optional match hooks; native nonzero Bellow Basic payments/damage/Prize and opponent reply; other dynamic printing staging.
+
+---
+
 # 1 November 2026 22:34 UTC checkpoint, corrected executable lookup census
 
 - Original claimed lease `2026-11-01T21:40:39.353022Z`; release only at measured UTC >=22:50:39.353022Z. Do not refresh.
