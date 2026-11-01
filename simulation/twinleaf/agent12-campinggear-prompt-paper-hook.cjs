@@ -1,0 +1,90 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+
+const VERSION='agent12-paper-camping-gear-choose-one-v1';
+const PRINTING='Camping Gear BST';
+
+/**
+ * Inspect a real pending source-stamped native ChooseCardsPrompt without
+ * changing state or supplying private cards to an actor's decision policy.
+ * A printed unrestricted one-card search must select exactly one own-deck
+ * card. Native validation is an additional, independent predicate.
+ *
+ * @param {object} state The real Store state, exclusively in this guard.
+ * @param {object} action Proposed native dispatch action.
+ * @returns {object} Narrow paper contract verdict.
+ */
+function campingGearPaperVerdict(state,action){
+  if(action?.constructor?.name!=='ResolvePromptAction')
+    return {applicable:false};
+  const prompt=state.prompts?.find(x=>
+    x.id===action.id&&x.result===undefined);
+  if(prompt?.constructor?.name!=='ChooseCardsPrompt'||
+     prompt.sourceCard?.fullName!==PRINTING)
+    return {applicable:false};
+  const cards=action.result;
+  const one=Array.isArray(cards)&&cards.length===1;
+  const ownDeck=prompt.cards===prompt.player?.deck;
+  const nativeValid=typeof prompt.validate==='function'&&
+    prompt.validate(cards)===true;
+  return {applicable:true,printing:PRINTING,
+    cardCount:Array.isArray(cards)?cards.length:null,
+    ownDeck,one,nativeValid,
+    paperValid:one&&ownDeck&&nativeValid};
+}
+
+/**
+ * Fail-closed, reversible research-only Store dispatch guard.
+ * It affects precisely source-stamped Camping Gear's own deck search.
+ * No other trainer/card prompt is generalized from this narrow evidence.
+ * @template T
+ * @param {()=>T} run Real Store run or staged dispatch.
+ * @param {{Store?:Function}} [deps] Optional constructor for pure regression.
+ * @returns {{result:T,audit:object}}
+ */
+function withPaperCampingGearPromptGuard(run,deps={}){
+  assert.equal(typeof run,'function');
+  const Store=deps.Store??require(path.join(__dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/store')).Store;
+  const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof before?.value,'function');
+  const audit={version:VERSION,printing:PRINTING,
+    inspected:0,paperValidAccepted:0,paperInvalidVetoed:0,
+    nativeRejectedAfterGuard:0,examples:[]};
+  function dispatch(action,...args){
+    const verdict=campingGearPaperVerdict(this.state,action);
+    if(!verdict.applicable)
+      return before.value.apply(this,[action,...args]);
+    audit.inspected++;
+    if(audit.examples.length<8)audit.examples.push(verdict);
+    if(!verdict.paperValid){
+      audit.paperInvalidVetoed++;
+      throw new Error('PAPER_PROMPT_INVALID: '+PRINTING+
+        ' requires exactly one native-valid card from its own deck');
+    }
+    try{
+      const value=before.value.apply(this,[action,...args]);
+      audit.paperValidAccepted++;
+      return value;
+    }catch(error){
+      audit.nativeRejectedAfterGuard++;
+      throw error;
+    }
+  }
+  Object.defineProperty(Store.prototype,'dispatch',{...before,value:dispatch});
+  try{
+    return {result:run(),audit};
+  }catch(error){
+    if(error&&typeof error==='object')
+      error.agent12PaperPromptAudit=audit;
+    throw error;
+  }finally{
+    assert.equal(Store.prototype.dispatch,dispatch);
+    Object.defineProperty(Store.prototype,'dispatch',before);
+  }
+}
+
+module.exports={VERSION,PRINTING,campingGearPaperVerdict,
+  withPaperCampingGearPromptGuard};
