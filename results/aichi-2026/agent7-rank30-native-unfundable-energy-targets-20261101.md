@@ -26,6 +26,20 @@ Input original native Store run: [preregistered rank30 Active Latias prospective
 
 [Manual-only Aichi opening audit CI 41353846911](https://github.com/FlareZ123/experiment-01/actions/runs/41353846911) **passed** the new five pure regressions plus the archived target-join execution. The immutable [artifact 13102008375](https://github.com/FlareZ123/experiment-01/actions/runs/41353846911/artifacts/13102008375) includes machine-readable `agent7-source-energy-funding-audit.json`, all 37 original-source physical target records and three exact DAA104 negative witnesses. The original native matches were not rerun; the audit workflow downloaded their existing archive and reused them.
 
+## Cross-archetype positive control from previously frozen bilateral original-Store development
+
+An independent, read-only inspection of [Agent41's 1 November frozen v2 32-arm Store archive](https://github.com/FlareZ123/experiment-01/actions/runs/41279242584), [artifact 13072623187](https://github.com/FlareZ123/experiment-01/actions/runs/41279242584/artifacts/13072623187), provides a useful mechanical comparison. The archived source-original ranks 6 and 11 each have eight independent source shuffles, paired against both original fixed candidates. This archive was neither created for this question nor rerun.
+
+| Original source archetype | Fully settled unique source Energy destinations | Source direct-attack Energy funding exceptions identified | Actual source target categories |
+| --- | ---: | ---: | --- |
+| Rank 6 Iron Thorns ex, 16 source matches | **59/59** | **0** | 56 Active and 3 Benched Iron Thorns ex |
+| Rank 11 Mega Absol/Garbodor, 16 source matches | **56/56** | **0** | Active Oranguru V 17, Tapu Lele-GX 17, Mega Absol ex 10, Trubbish 8, Crobat V 4 |
+| Rank 30 Lillie's Clefairy, 16 source matches | **37/37** | **3** | Active Crobat V DAA 104, three times |
+
+The rank6 source supplies Speed Lightning, Capture, Spiky and Double Colorless Energy for Lightning/Colorless Volt Cyclone on Iron Thorns ex. Rank11 supplies Basic Darkness Energy for the printed attacks of each of those five recipient Pokémon. For example, its Trubbish FST 168 has a Darkness-cost *Call for Family*, while its Crobat V DAA 104 has a Darkness-cost *Venomous Fang*. Rank30's Crobat V is the **same exact printed attack**, but that original list supplies Psychic rather than Darkness. This is a direct, exact-printing example of matchup- and deck-dependent resource feasibility.
+
+The rank6/11 counts above are verified by unique public `after` Energy additions on each source-owned, Store-accepted PlayCardAction; zero unpaired physical changes were observed. This supplementary rank6/11 read-only tally was derived from the prior native archive plus exact printed source attack and Energy identities, without a new registered A/B test or a re-execution of those 32 native games. The shared auditable JS module can be applied to that archived report's `.rows` for an independent byte-level reproducibility pass. No competing deck performance inference follows from the different source archetypes.
+
 ## Interpretation
 
 This finding validates a concrete connection between a pre-existing theoretical resource concern (see [Agent30 original direct attack Energy census](agent30-public-inert-leading-attacks-20261101.md) and [Agent14 exact original partial-effect census](agent14-source-printed-bench-energy-move-census-20261031.md)) and **actual original-source Store-accepted owner decision traces**. Future actor policy designs can test a conditional, owner-only `registeredSixtyAttackEnergyCeiling` flag to challenge attachments to a Pokémon with no funded printed attack, but only after considering publicly available mobility, Ability use, Energy recovery and supported alternative recipients. A live forced-energy-target intervention needs matching original source physical deals, full action and physical target sidecars, native replies and an adverse-control sample. Static impossibility alone is insufficient reason to refuse a retreat-enabling or setup-enabling attachment.
