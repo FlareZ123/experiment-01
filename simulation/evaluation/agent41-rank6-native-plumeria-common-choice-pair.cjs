@@ -68,6 +68,9 @@ function auditNativeArm(row){
   const plumeria=coverage.ownerPlumeriaAfterPass??{};
   const selected=(chooser.changedSamples??[]).filter(x=>
     x.selectedSource==='grouped-plumeria-payments');
+  const selectedFlare=(chooser.changedSamples??[]).filter(x=>
+    x.selectedSource==='team-flare-grunt');
+  const flare=coverage.ownerNativeFlarePrompt??{};
   const rootActions=root.nativeRootJoinReceipts??[];
   return {
     status:row.status??(row.finished?'engine-terminal':'censored'),
@@ -89,6 +92,18 @@ function auditNativeArm(row){
       nativeStoreReceipts:rootActions.filter(x=>
         x.policyDecisionOrdinal===root.rootOrdinal&&x.seat===root.seat)
     })),
+    selectedFlareOwnerRoots:selectedFlare.map(root=>({
+      seat:root.seat,globalTurn:root.globalTurn,
+      rootOrdinal:root.rootOrdinal,selectedKind:root.selectedKind,
+      nativeStoreReceipts:rootActions.filter(x=>
+        x.policyDecisionOrdinal===root.rootOrdinal&&x.seat===root.seat)
+    })),
+    nativeFlarePromptAdapterPresent:
+      Object.hasOwn(coverage,'ownerNativeFlarePrompt'),
+    acceptedFlare:flare.nativeRootAccepted??null,
+    physicallySettledFlareEnergy:flare.physicallySettledActiveEnergy??null,
+    unresolvedFlareChains:flare.nativeUnresolvedChains??null,
+    nativeFlareReceipts:(flare.receipts??[]).slice(0,20),
     nativePlumeriaPromptAdapterPresent:
       Object.hasOwn(coverage,'ownerPlumeriaAfterPass'),
     acceptedPlumeria:plumeria.acceptedPlumeria??null,
