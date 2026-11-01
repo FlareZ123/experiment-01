@@ -176,6 +176,19 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Audit native Whismur Bawl and existing Horror House printings
+        run: |
+          node --test tests/agent29-whismur-native-printing-census.test.cjs
+          node simulation/evaluation/agent29-whismur-native-printing-census.cjs > agent29-whismur-pinned-registry.json
+          node -e "const x=require('./agent29-whismur-pinned-registry.json');console.log('AGENT29_WHISMUR_NATIVE_REGISTRY',JSON.stringify(x))"
+      - name: Preserve original pinned Whismur card registry and missing printings
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-whismur-native-registry
+          path: agent29-whismur-pinned-registry.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Agent50 original rank11 both-seat known-dead attack policy paired native comparison
         if: ${{ inputs.native_known_dead_attack_gate }}
         run: |
