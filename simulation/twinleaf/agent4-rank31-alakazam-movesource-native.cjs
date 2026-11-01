@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
+const {withPaperPainfulSpoonsSingleSource}=
+  require('./agent4-painful-spoons-single-source-hook.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath @returns {any} */
@@ -60,15 +62,18 @@ function stagedPainfulSpoons(){
  * Try a real native ability and two counters from two different opposing
  * source Pokémon to one destination. This is a negative paper-validity
  * fixture, not a recommendation to play the rejected line.
+ * @param {{guarded?:boolean,sameSource?:boolean}} [options]
  * @returns {object}
  */
-function probeTwoSourcePainfulSpoons(){
+function probeTwoSourcePainfulSpoons(options={}){
   const {UseAbilityAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
   const {PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const f=stagedPainfulSpoons();
+  if(options.sameSource)f.opponent.active.damage=20;
+  const execute=()=>{
   f.store.dispatch(new UseAbilityAction(f.source.id,'Painful Spoons',{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
   }));
@@ -99,7 +104,7 @@ function probeTwoSourcePainfulSpoons(){
   const bench1={player:PlayerType.TOP_PLAYER,slot:SlotType.BENCH,index:1};
   const result=[
     {from:active,to:bench1},
-    {from:bench0,to:bench1}
+    {from:options.sameSource?active:bench0,to:bench1}
   ];
   const nativeValidated=prompt.validate(result,f.state);
   const before={
@@ -111,6 +116,8 @@ function probeTwoSourcePainfulSpoons(){
   try{f.store.dispatch(new ResolvePromptAction(prompt.id,result));}
   catch(e){error=String(e?.message??e);}
   return {
+    guarded:!!options.guarded,
+    sameSource:!!options.sameSource,
     source:'Authenticated rank31 Radiant Alakazam SIT59 Painful Spoons',
     originalPrintedSingleSource:true,
     nativeOptions:{...prompt.options},
@@ -125,6 +132,8 @@ function probeTwoSourcePainfulSpoons(){
     },
     scope:'True pinned native Store conditional-board prompt; not a source-dealt full game'
   };
+  };
+  return options.guarded?withPaperPainfulSpoonsSingleSource(execute):execute();
 }
 if(require.main===module)
   console.log(JSON.stringify(probeTwoSourcePainfulSpoons(),null,2));
