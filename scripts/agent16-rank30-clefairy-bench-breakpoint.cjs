@@ -26,6 +26,24 @@ function minimumBenches(attacker,target,maxBenches=16,{fairyZoneActive=false}={}
   }
   return null;
 }
+/** Exact finite-60 hypergeometric inclusion-exclusion for a raw unsorted sample. */
+function coholdingProbability(groupCounts,draws=8){
+  const choose=(n,k)=>{
+    if(n<k)return 0;
+    let value=1;
+    for(let i=1;i<=k;i++)value=value*(n-i+1)/i;
+    return Math.round(value);
+  };
+  let favorable=0;
+  for(let mask=0;mask<2**groupCounts.length;mask++){
+    let absent=0,excluded=0;
+    for(let i=0;i<groupCounts.length;i++){
+      if(mask&(1<<i)){absent++;excluded+=groupCounts[i];}
+    }
+    favorable+=(absent%2===0?1:-1)*choose(60-excluded,draws);
+  }
+  return favorable/choose(60,draws);
+}
 function analyze(){
   const field=load('results/aichi-2026/full-decklists.json');
   const rank30=field.decks.find(x=>x.rank===30);
@@ -40,6 +58,8 @@ function analyze(){
   assert.equal(sourceCount('Wondrous Patch'),4);
   assert.equal(sourceCount('Telepathic Psychic Energy'),2);
   assert.equal(sourceCount('Sky Field'),3);
+  assert.equal(sourceCount('Latias ex'),1);
+  assert.equal(sourceCount('Battle Compressor'),2);
   assert.equal(newMoonCount('Mewtwo & Mew-GX'),2);
   assert.equal(rank1.cards.filter(x=>x.name==='Shadow Rider Calyrex VMAX')
     .reduce((n,x)=>n+x.count,0),4);
@@ -59,6 +79,12 @@ function analyze(){
     sourceRank:30,sourceClefairy:3,sourceWondrousPatch:4,
     sourceTelepathicPsychicEnergy:2,sourceSkyField:3,
     candidateNewMoonMewtwoMew:2,
+    rawFirstEightUnconditional:{
+      clefairyTelepathicPatch:coholdingProbability([3,2,4]),
+      fullFivePieceCombo:coholdingProbability([3,1,2,4,2]),
+      reference:'uniform eight-card subset of 60, no search, no setup/mulligan conditioning',
+      competitivelyRepresentative:false
+    },
     attack:'Full Moon Rondo',energyCost:['Psychic','Colorless'],
     normalTwoBenchMaximum:10,skyFieldTwoBenchMaximum:16,
     publishedRegidragoSources:field.decks.filter(x=>x.archetype==='Regidrago').length,
@@ -86,4 +112,4 @@ function analyze(){
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(analyze(),null,2)+'\n');
-module.exports={analyze,minimumBenches};
+module.exports={analyze,minimumBenches,coholdingProbability};
