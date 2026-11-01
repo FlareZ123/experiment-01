@@ -39,3 +39,13 @@ jobs:
           path: agent25-hns-original-store-counterexample.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Run frozen exact-print Dhelmise v2 six-arm native feasibility screen
+        run: node simulation/evaluation/agent25-dhelmise-v2-native-three-lock-smoke.cjs > agent25-dhelmise-v2-six-arm-native-smoke.json
+      - name: Archive original 60 resolution and all native source smoke attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-dhelmise-v2-native-three-lock-smoke
+          path: agent25-dhelmise-v2-six-arm-native-smoke.json
+          if-no-files-found: warn
+          retention-days: 14
