@@ -1,0 +1,351 @@
+{
+  "schema": "agent16-balanced-coin-only-preregistered-native-source-cells-v1",
+  "registeredUtc": "2026-11-01T05:08:07.225246Z",
+  "status": "unexecuted-preregistered-development-seeds-not-a-selected-competitive-policy",
+  "scope": "Exact original Aichi rank6 Iron Thorns and rank11 Absol/Garbodor; unchanged champion-reference and new-moon-lockbreaker-v1 candidates, both candidate physical seats. Coin-winner stratification is exogenous, before any native game. No results inspected before this registration.",
+  "selection": "For each rank x candidate physical slot, draw independent cryptographic uniform 32-bit seeds in order until 2 initial heads and 2 initial tails have been accepted. Discard only additional candidates of an already filled outcome, record every rejected candidate. Then order the two accepted heads and tails alternately H/T/H/T. Stratifies on only the first xorshift32 output before any game/hand/deck draw, with 2 starts per orientation in each rank/seat cell.",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "championPrinted60BlobSha": "1e5b09f77d65a445bb9812ef972e2340886d4758",
+  "newMoonPublished60BlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "firstCoinHeadlessBlobSha": "427ca2c2c34c05a317f3b24d849012000858d02f",
+  "parentCanonicalDevelopmentBlobSha": "39356cce125789ca867d27bc28113798686f5e54",
+  "defaultOriginalConfirmPromptResolver": "Pinned Twinleaf ConfirmPromptResolver always resolves ConfirmPrompt false; winner chooses second, so the loser is actual first player. Future explicit choice policy requires new preregistration and must not be retroactively applied.",
+  "ranks": [
+    6,
+    11
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "6": {
+      "A": [
+        2761542632,
+        1061684108,
+        951799926,
+        46853744
+      ],
+      "B": [
+        1774391546,
+        3189657615,
+        1098823904,
+        3724748000
+      ]
+    },
+    "11": {
+      "A": [
+        848653723,
+        2805720135,
+        3821563342,
+        2843664875
+      ],
+      "B": [
+        2164233582,
+        2787717881,
+        1326071353,
+        924452853
+      ]
+    }
+  },
+  "seedAttempts": [
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "seed": 2761542632,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "seed": 1061684108,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "seed": 951799926,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "seed": 46853744,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "seed": 3189657615,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "seed": 3724748000,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "seed": 3672077165,
+      "coinHeads": false,
+      "selected": false
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "seed": 1774391546,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "seed": 1098823904,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 848653723,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 2805720135,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 2843664875,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 3821563342,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 2164233582,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 1326071353,
+      "coinHeads": true,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 4234457713,
+      "coinHeads": true,
+      "selected": false
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 2787717881,
+      "coinHeads": false,
+      "selected": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 924452853,
+      "coinHeads": false,
+      "selected": true
+    }
+  ],
+  "seedAttemptsLength": 18,
+  "seedRejections": 2,
+  "flatPredictions": [
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 0,
+      "seed": 2761542632,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 1,
+      "seed": 1061684108,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 2,
+      "seed": 951799926,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 3,
+      "seed": 46853744,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 0,
+      "seed": 1774391546,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 1,
+      "seed": 3189657615,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 2,
+      "seed": 1098823904,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 3,
+      "seed": 3724748000,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 0,
+      "seed": 848653723,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 1,
+      "seed": 2805720135,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 2,
+      "seed": 3821563342,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 3,
+      "seed": 2843664875,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 0,
+      "seed": 2164233582,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 1,
+      "seed": 2787717881,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": true
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 2,
+      "seed": 1326071353,
+      "predictedCoinWinnerSeat": 0,
+      "predictedFirstSeat": 1,
+      "predictedSourceFirst": false
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 3,
+      "seed": 924452853,
+      "predictedCoinWinnerSeat": 1,
+      "predictedFirstSeat": 0,
+      "predictedSourceFirst": true
+    }
+  ],
+  "independentPhysicalPairs": 16,
+  "attemptedNativeArms": 32,
+  "perRankSeatCell": {
+    "projectedSourceFirst": 2,
+    "projectedCandidateFirst": 2,
+    "attemptedPairs": 4,
+    "attemptedArms": 8
+  },
+  "hashMethod": "Git blob SHA-1 references code/decks; all seat/first outcomes are deterministic projections from pinned xorshift32 and default bot ConfirmPrompt false, require native physical draw-log confirmation in every future arm. These seed selections do NOT balance future modified coin choice policies.",
+  "runProfile": "No run options or release policy authorized here. Await a single source-controlled frozen canonical profile v1 before execution; fail closed on code/hash or starter-choice changes.",
+  "qualifications": {
+    "freshSeedsBeforeGames": true,
+    "hasRunNativeGames": false,
+    "comparativeStrengthQualified": false,
+    "informationSafePolicyCertified": false,
+    "exactOriginalSourceCoverage": "2 of 32 ranks only; 29 of 32 original sixties currently authenticated",
+    "competitiveQualifiedGames": 0
+  },
+  "acceptance": "Keep every preregistered attempt, including engine errors, invalid physical states, action caps, and actual starter mismatches. Do not cherry-pick games or replace original seeds after seeing outcomes. Coin outcome stratification is explicit and must not be mistaken for unconditioned tournament random-sampling weights."
+}
