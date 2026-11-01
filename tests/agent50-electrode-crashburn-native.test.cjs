@@ -32,3 +32,10 @@ function stage(seat){
  owner.active.energies.cards.push(first,second);
  opponent.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
  opponent.bench[0].cards.push(card('Duskull PRE'));
+ for(const player of [owner,opponent]){
+  for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy SVE'));
+  player.prizes=Array.from({length:6},()=>{
+   const prize=new CardList();prize.cards.push(card('Psychic Energy SVE'));
+   return prize;
+  });
+ }
