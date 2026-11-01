@@ -15,9 +15,10 @@ const native=modulePath=>require(path.join(output,modulePath));
  * three public opposing Pokémon. Both first source Pokémon have 1 damage
  * counter, third is undamaged. No hidden information, source full-60 claim,
  * attacker policy, or competitive outcome is modeled.
+ * @param {0|1} [seat=0]
  * @returns {object}
  */
-function stagedPainfulSpoons(){
+function stagedPainfulSpoons(seat=0){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -35,9 +36,9 @@ function stagedPainfulSpoons(){
   const store=new Store({onStateChange(){}}),state=store.state;
   const source=new Player(),opponent=new Player();
   source.id=411;opponent.id=522;
-  state.players=[source,opponent];
+  state.players=seat===0?[source,opponent]:[opponent,source];
   state.phase=GamePhase.PLAYER_TURN;
-  state.activePlayer=0;
+  state.activePlayer=seat;
   state.turn=3;
   state.gameSettings.format=Format.EXPANDED;
   source.active.cards.push(card('Radiant Alakazam SIT'));
@@ -62,7 +63,7 @@ function stagedPainfulSpoons(){
  * Try a real native ability and two counters from two different opposing
  * source Pokémon to one destination. This is a negative paper-validity
  * fixture, not a recommendation to play the rejected line.
- * @param {{guarded?:boolean,sameSource?:boolean}} [options]
+ * @param {{guarded?:boolean,sameSource?:boolean,seat?:0|1}} [options]
  * @returns {object}
  */
 function probeTwoSourcePainfulSpoons(options={}){
@@ -71,7 +72,7 @@ function probeTwoSourcePainfulSpoons(options={}){
     native('game/store/actions/resolve-prompt-action');
   const {PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
-  const f=stagedPainfulSpoons();
+  const f=stagedPainfulSpoons(options.seat??0);
   if(options.sameSource)f.opponent.active.damage=20;
   const execute=()=>{
   f.store.dispatch(new UseAbilityAction(f.source.id,'Painful Spoons',{
