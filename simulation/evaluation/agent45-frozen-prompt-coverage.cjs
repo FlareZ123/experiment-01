@@ -80,7 +80,8 @@ function auditFrozenPromptCoverage(archive){
     acceptedAttachEnergyPrompt:0,sourceOwnedAcceptedAttachEnergyPrompt:0,
     publicVoltCycloneShapeMatches:0,otherAcceptedAttachOutcomes:{},
     byRank:{},promptPaperVerdict:'PROMPT_PAPER_UNVERIFIED',
-    totalNativePromptResolutionCount:'UNKNOWN',
+    totalNativePromptResolutionCount:0,
+    acceptedRootDispatchWitness:true,
     fullPrintedPromptCoverage:false,competitiveQualifiedGames:0,
     recordedRootActions:0,recordedResolvePromptActions:0,
     recordedWaitPromptActions:0,recordedNonWaitPromptActions:0,
@@ -120,6 +121,7 @@ function auditFrozenPromptCoverage(archive){
     for(const action of rootActions){
       if(action.action!=='ResolvePromptAction')continue;
       status.recordedResolvePromptActions++;
+      status.totalNativePromptResolutionCount++;
       const family=action.pendingPrompt??'UNCLASSIFIED';
       status.recordedPromptFamilies[family]=
         (status.recordedPromptFamilies[family]??0)+1;
