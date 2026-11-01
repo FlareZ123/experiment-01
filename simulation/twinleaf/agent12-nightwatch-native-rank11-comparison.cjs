@@ -94,7 +94,8 @@ function run(){
       const audit=withUniformNightWatchOpponentSelection(runNative,{
         committedSeed:committed.independentSelectionSeedHex,
         requirePrintedOrigin:true,
-        requireNativeRootState:true
+        requireNativeRootState:true,
+        capturePostGamePhysicalNames:true
       });
       assert.equal(baseline.rows.length,2);
       assert.equal(audit.result.rows.length,2);
