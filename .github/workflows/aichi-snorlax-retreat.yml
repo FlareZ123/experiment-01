@@ -35,6 +35,10 @@ jobs:
         run: node simulation/twinleaf/agent20-palace-book-turnend-native.cjs > agent20-palace-native.json
       - name: Test original Japanese Palace Book physical action
         run: node --test tests/agent20-palace-book-turnend-native.test.cjs
+      - name: Run identical-original-60 Palace versus Steven action counterfactuals
+        run: node simulation/twinleaf/agent20-rank7-turnend-original60-pair.cjs > agent20-original60-turnend.json
+      - name: Test identical physical source60 turn-ending action comparison
+        run: node --test tests/agent20-rank7-turnend-original60-pair.test.cjs
       - name: Characterize interactive and direct retreat actions
         run: node simulation/twinleaf/snorlax-retreat-action-characterization.cjs | tee aichi-snorlax-retreat.json
       - name: Verify Snorlax Block interaction and reversible hook
@@ -70,4 +74,5 @@ jobs:
             aichi-snorlax-solo-source.json
             agent20-steven-native.json
             agent20-palace-native.json
+            agent20-original60-turnend.json
           if-no-files-found: warn
