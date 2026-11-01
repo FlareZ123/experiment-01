@@ -27,5 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: aichi-exact-joint-bonus
-          path: |\n            joint-bonus-field.json\n            original-supporter-opening.json
+          path: |
+            joint-bonus-field.json
+            original-supporter-opening.json
           retention-days: 30
