@@ -111,6 +111,8 @@ jobs:
         run: node --test tests/agent40-native-bus-lock-position-root.test.cjs
       - name: Verify Regidrago Dragon donor discard and owner-deck VSTAR retrieval both native seats
         run: node --test tests/agent49-native-regidrago-treasure-line.test.cjs
+      - name: Probe original rank19 Raging Bolt Basic-card Bellowing attack on both actual native seats
+        run: node --test tests/agent28-rank19-bellowing-knockout-native.test.cjs
       - name: Prove both-seat owner-private Mysterious Treasure typed native cost/search prompt bridge
         run: node --test tests/agent49-owner-treasure-native-prompt-bridge.test.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
