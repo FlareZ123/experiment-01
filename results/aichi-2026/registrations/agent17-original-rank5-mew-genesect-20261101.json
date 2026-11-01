@@ -1,0 +1,52 @@
+{
+  "schema": "agent17-original-rank5-mew-genesect-bilateral-develop-v1",
+  "registeredUtc": "2026-11-01T18:27:45Z",
+  "status": "prospective-development-only-before-native-attempt",
+  "originalSourceRoster": "results/aichi-2026/full-decklists.json",
+  "originalSourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "archetype": "Mew Genesect",
+  "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policyProfile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "policyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "seedSource": "Python secrets.randbits(32); 4 unconditioned draws by repeat and physical candidate slot",
+  "seedGroups": 4,
+  "attemptedNativeArms": 8,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3872497374
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2550999703
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1520364753
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2853659703
+    }
+  ],
+  "qualifications": {
+    "rank5Printed60": "original source 60; only substitution-free published 60 in 29-source pinned native resolver census",
+    "physicalDealParity": "requires real Store first-deal fingerprint and accepted setup first-draw receipt",
+    "sourcePolicy": "unqualified common bot",
+    "paperPrompt": "unverified",
+    "tournamentClock": "unverified",
+    "competitiveWinRate": "unverified"
+  }
+}
