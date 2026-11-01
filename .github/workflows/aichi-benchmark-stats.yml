@@ -89,6 +89,8 @@ jobs:
           node-version: '22'
       - name: Verify original 29-deck exact English archive printing census and approved aliases
         run: node --test tests/agent42-original-card-archive-census.test.cjs
+      - name: Regress Agent11 source-locked two-player openings and forced low-HP Basic envelopes
+        run: node --test tests/agent11-rank10-last-bench-mulligan-bound.test.cjs tests/agent11-field-simultaneous-mulligan-compensation.test.cjs tests/agent11-thorns-solo-basic-envelope.test.cjs tests/agent11-newmoon-forced-lowhp-opening.test.cjs
       - name: Regress rank26 exact 280-HP forced-lone and original-source card printings
         run: node --test tests/agent3-rank26-printed-280hp-starter-screen.test.cjs tests/agent3-rank26-coupled-lone-basic-root.test.cjs
       - name: Regress independent same-root offers without synthetic-hold denominator inflation
