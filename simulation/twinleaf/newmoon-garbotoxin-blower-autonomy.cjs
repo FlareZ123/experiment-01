@@ -125,7 +125,7 @@ function twoGarbotoxinBlowerOption(prompt,opponent){
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
- * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number}} [options]
+ * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number,preferRadiantAfterBlowerSearch?:boolean}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
 function withNewMoonBlowerAutonomy(candidateSeat, execute, {
@@ -133,7 +133,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   proactiveLowHandLillie=false,
   automaticFieldBlower=true,
   allowAnyActiveBlower=false,
-  earliestFieldBlowerTurn=0
+  earliestFieldBlowerTurn=0,
+  preferRadiantAfterBlowerSearch=false
 }={}) {
   if (!Number.isSafeInteger(earliestFieldBlowerTurn) ||
       earliestFieldBlowerTurn<0) {
@@ -156,6 +157,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   let lastObservedCandidateTurn = -1;
   let lastBlowerSuccessTurn = -1;
   let ownerHasSearchedDeck = false;
+  let radiantSearchAttempted=false;
+  let radiantSearchSelected=false;
 
   const newMoonBlowerDecision = function (state) {
     const own = state.players.find(player => player.id === this.client?.id);
@@ -234,6 +237,27 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       if (toolRemoved) lastBlowerSuccessTurn = state.turn;
       phase = 'idle';
     }
+    // This optional original-owner payload intervention never reads a deck
+    // outside the real pending search prompt for this acting player.
+    if(preferRadiantAfterBlowerSearch && !radiantSearchAttempted &&
+        lastBlowerSuccessTurn===state.turn &&
+        pending?.constructor?.name==='ChooseCardsPrompt' &&
+        pending.playerId===own.id && pending.cards===own.deck){
+      radiantSearchAttempted=true;
+      const radiant=own.deck.cards.find(card=>
+        card.fullName==='Radiant Eternatus CRZ');
+      const acceptedByPrompt=Boolean(radiant&&
+        pending.validate([radiant],state));
+      events.push({turn:state.turn,kind:'post-Blower-Radiant-owner-K1-check',
+        presentInRealOwnDeck:Boolean(radiant),
+        genuinePromptAcceptsRadiant:acceptedByPrompt,
+        promptKind:pending.constructor.name});
+      if(acceptedByPrompt){
+        radiantSearchSelected=true;
+        events.push({turn:state.turn,kind:'post-Blower-Radiant-owner-K1-selection'});
+        return new ResolvePromptAction(pending.id,[radiant]);
+      }
+    }
     const validLillie=lowHandLillieOpportunity(
       state,own,candidateSeat,GamePhase.PLAYER_TURN);
     const afterConfirmedBlower=lastBlowerSuccessTurn===state.turn;
@@ -294,6 +318,8 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
           'newmoon-garbotoxin-blower-lowhand-lillie-v2' :
           'newmoon-garbotoxin-blower-autonomous-v1'),
       allowAnyActiveBlower,earliestFieldBlowerTurn,
+      preferRadiantAfterBlowerSearch,
+      radiantSearchSelected,
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
         x.kind==='autonomous-legal-Item').length,
