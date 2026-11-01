@@ -26,10 +26,29 @@ The [two-arm native executable](../../simulation/evaluation/agent1-rank11-postbl
 
 Thus the purported Quick Ball-to-Radiant branch is **physically accessible and legal through the search and Bench-play steps** in this exact original game. The original generic bot selected another Basic. The alternative selected Radiant, and the generic bot **did play it onto the Bench**. The expected two VMAX placements did **not** happen before source's turn3 first root. Card data prints Radiant Eternatus's *Climactic Gate* as a conditional hand-to-Bench Ability that may put up to two Pokémon VMAX from the owner's deck directly onto Bench before ending turn if used. It is possible the bot declined its optional effect, the engine did not implement it, or the particular native prompt could not select the available VMAX; this study has not distinguished those explanations yet. A triggered-on-entry Ability does not necessarily appear as an explicit `UseAbilityAction`, so its **absence in that event type alone does not prove an engine bug**. The public VMAX board witness proves that the intended VMAX setup was not completed.
 
+## New outcome: the missing native Climactic Gate confirmation and two-VMAX placement are now solved
+
+The further [preregistered actual-owner ConfirmPrompt intervention](registrations/agent1-rank11-radiant-confirm-climactic-20261101.json) was tested by the *existing* manual workflow [CI 41349684416](https://github.com/FlareZ123/experiment-01/actions/runs/41349684416), **SUCCESS**, using original unchanged source and recipient 60s, the exact same physical seed and the same pinned Twinleaf as the two controls. [All-three-arm native archive 13099814871](https://github.com/FlareZ123/experiment-01/actions/runs/41349684416/artifacts/13099814871), ZIP digest `sha256:fbde251c9d019a97a4326e924a9ed71a0bfbdd94cf04062238685cad22bc7bb4`.
+
+The original two arms reproduce their prior card choices and real public boards. The third arm changes **only the recipient's real owner-authenticated optional ability confirmation and legitimate subsequent own-deck VMAX search** after receiving Radiant from native Quick Ball and actually playing it onto the Bench. The owner’s native search returned:
+
+`CHOOSE_CARD_TO_PUT_ONTO_BENCH` (native maximum 2) → **[Shadow Rider Calyrex VMAX CRE, Shadow Rider Calyrex VMAX CRE]**.
+
+| Real original Store outcome, source first turn-3 public board | Generic Quick Ball | Radiant + generic Confirm | Radiant + owner Confirm + actual VMAX search |
+| --- | ---: | ---: | ---: |
+| Recipient chose Radiant via native owner Quick Ball search | 0 | 1 | 1 |
+| Recipient Radiant actually on Bench | 0 | 1 | 1 |
+| Real owner pending VMAX-to-Bench search selected both physical copies | 0 | 0 | **2** |
+| Recipient Shadow Rider Calyrex VMAX publicly in play at source next turn | 0 | 0 | **2** |
+
+The native turn trace after Radiant showed a **real ConfirmPrompt**; the generic policy completed that prompt and passed without placing VMAX. The new actor-owned continuation accepted the confirmation, selected both actual owner-deck VMAX using the native validator, and the *public source first-return observer* saw **two Shadow Rider Calyrex VMAX in play**. This is direct evidence of an **unexercised legal, consequential optional-Ability branch in the opponent policy**, not evidence of a missing Twinleaf card implementation. The Ability activation is resolved through prompt actions; zero explicit `UseAbilityAction` roots remains consistent with this triggered ability.
+
+The gain is a concrete board-setup capability in one positive original deal. The sample was selected retrospectively for the rank11 first-turn setup and recipient-held Field Blower, the source setup is conditionally approved, and the rest of the recipient bot is still weak. These are developmental root/board witnesses; **zero competitive-qualified games** and no evidence of a 99.5% fixed deck.
+
 ## Importance for deck optimization
 
 This is a concrete high-leverage **Archetype-Line-Specific** test. In the brief unlocked window after Field Blower, a stronger opponent decision can steer real owner search to an Ability-bearing Basic. The existing generic policy chose a different physical Basic, and an owner-safe search choice alone still failed to materialize the consequential VMAX Board. A deck evaluator that counts only unlocked Ability availability, legal Quick Ball access, or Radiant Bench placement as a completed *Climactic Gate* line will overstate realized strength.
 
-**Next discriminating experiment:** observe the real `rootActionLedger` prompts/actions just after Radiant's native Bench play and identify whether Twinleaf offered an optional trigger. If yes, test a native actor-owned decision to accept it and select actual owner VMAX from the legitimate search prompt. If the engine provides no such prompt, isolate and patch that missing behavior in a **research-owned Twinleaf hook**, without modifying the vendor submodule. Validate the printed rules and preserve separate evidence for search, trigger, selected VMAX, Bench occupancy and end-turn. Do not count a hypothetical VMAX setup as a win.
+**Next discriminating experiment:** validate the new third-arm optional ConfirmPrompt and two native owner VMAX selections against printed paper wording, physical zone conservation, exact timing, and the source's later responding turn. Test refusal controls and whether a rival recipient can turn the resulting VMAX board into attacks or credible wins against a responsive original rank11 source. Port the demonstrated owner-search/Confirm chain into the canonical bilateral chooser only alongside opportunity-denominator and genuine other-action comparison. Do not classify a setup witness as a complete matchup win.
 
 **Qualification:** One preselected original K0-positive physical seed; original opponent's remaining bot weak; no proof of competitive advantage, no complete match quality. The Aichi field still has 29/32 exact original 60s and zero competitively qualified games; the 99.5% target remains unproven.
