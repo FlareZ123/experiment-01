@@ -61,13 +61,15 @@ function chooseActualCampingGearCard(prompt,liveState){
  *
  * @template T
  * @param {()=>T} run Existing pinned source-dealt native run.
- * @param {{sourceSeat:0|1,observe?:Function,deps?:object}} options
+ * @param {{sourceSeat:0|1,searchMode?:'one'|'zero'|'two',observe?:Function,deps?:object}} options
  * @returns {{result:T,audit:object}}
  */
 function withNativeCampingGearAfterPass(run,options){
   assert.equal(typeof run,'function');
   assert.ok(options?.sourceSeat===0||options?.sourceSeat===1);
   const sourceSeat=options.sourceSeat;
+  const searchMode=options.searchMode??'one';
+  assert.ok(['one','zero','two'].includes(searchMode));
   const engine=n=>require(path.join(__dirname,
     '../../vendor/twinleaf/ptcg-server/output',n));
   const deps=options.deps??{};
@@ -86,7 +88,7 @@ function withNativeCampingGearAfterPass(run,options){
   let nativeStore=null;
   const awaiting=new Map();
   const marked=new WeakMap();
-  const audit={version:VERSION,sourceSeat,liveStoreSeen:false,
+  const audit={version:VERSION,sourceSeat,searchMode,liveStoreSeen:false,
     originalPassesOnSourceFirst:0,heldGearAtPass:0,
     originalPassOtherActionCount:0,
     proposedRoot:0,nativeLegalProposed:0,
@@ -94,6 +96,7 @@ function withNativeCampingGearAfterPass(run,options){
     ownerSearchPromptSeen:0,ownerSearchProposed:0,
     ownerSearchAccepted:0,ownerSearchRejected:0,
     searchNativePostconditionConfirmed:0,
+    nativeAcceptedPaperInvalidSelections:0,
     selectedPrintings:[],events:[],
     competitiveQualifiedGames:0,
     paperEffectCertified:false,
@@ -112,11 +115,16 @@ function withNativeCampingGearAfterPass(run,options){
     if(wait&&pending?.constructor?.name==='ChooseCardsPrompt'&&
        pending.playerId===source.id&&pending.cards===source.deck){
       audit.ownerSearchPromptSeen++;
-      const card=chooseActualCampingGearCard(pending,state);
-      const action=new ResolvePromptAction(pending.id,[card]);
+      const cards=searchMode==='one'?
+        [chooseActualCampingGearCard(pending,state)]:
+        searchMode==='zero'?[]:pending.cards.cards.slice(0,2);
+      assert.equal(searchMode==='two'?cards.length:cards.length<=1,
+        searchMode==='two'?2:true,'Rank6 source needs two deck cards');
+      const nativeValidatorVerdict=pending.validate(cards);
+      const action=new ResolvePromptAction(pending.id,cards);
       marked.set(action,{kind:'owner-gear-search',seat:sourceSeat,
-        ownerId:source.id,printing:card.fullName,physicalCard:card,
-        turn:state.turn});
+        ownerId:source.id,printings:cards.map(c=>c.fullName),
+        physicalCards:cards,nativeValidatorVerdict,turn:state.turn});
       audit.ownerSearchProposed++;
       return action;
     }
@@ -166,15 +174,20 @@ function withNativeCampingGearAfterPass(run,options){
           handAfter:source.hand.cards.length});
       }else{
         audit.ownerSearchAccepted++;
-        audit.selectedPrintings.push(markedAction.printing);
-        const physicalOwnerHasCard=source.hand.cards.includes(
-          markedAction.physicalCard);
-        const physicalDeckLostCard=!source.deck.cards.includes(
-          markedAction.physicalCard);
-        if(physicalOwnerHasCard&&physicalDeckLostCard)
+        audit.selectedPrintings.push(...markedAction.printings);
+        const count=markedAction.physicalCards.length;
+        const paperCardinalityValid=count===1;
+        const physicalOwnerHasCard=markedAction.physicalCards.every(c=>
+          source.hand.cards.includes(c));
+        const physicalDeckLostCard=markedAction.physicalCards.every(c=>
+          !source.deck.cards.includes(c));
+        if(!paperCardinalityValid)audit.nativeAcceptedPaperInvalidSelections++;
+        if(paperCardinalityValid&&physicalOwnerHasCard&&physicalDeckLostCard)
           audit.searchNativePostconditionConfirmed++;
         add({kind:'native-owner-search-accepted',seat:sourceSeat,
-          turn:markedAction.turn,selected:markedAction.printing,
+          turn:markedAction.turn,selected:markedAction.printings,
+          count,paperCardinalityValid,
+          nativeValidatorVerdict:markedAction.nativeValidatorVerdict,
           physicalOwnerHasCard,physicalDeckLostCard,
           deckBefore,deckAfter:source.deck.cards.length,
           handBefore,handAfter:source.hand.cards.length});
@@ -195,6 +208,9 @@ function withNativeCampingGearAfterPass(run,options){
     ...beforeDispatch,value:dispatch});
   try{
     return {result:run(),audit};
+  }catch(error){
+    if(error&&typeof error==='object')error.agent12GearAudit=audit;
+    throw error;
   }finally{
     assert.equal(SimpleTacticsAi.prototype.decodeNextAction,decision);
     assert.equal(Store.prototype.dispatch,dispatch);
