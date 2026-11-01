@@ -80,6 +80,8 @@ function run(){
       const turn2=ownerTurn(trace,2);
       const turn4=ownerTurn(trace,4);
       const handAtT4=turn4[0]?.decisionHandBefore?.ownHandPrintings??null;
+      const recipientFirstOwnerK1Search=recipient.events.find(x=>
+        x.kind==='legitimate-owner-first-deck-search-K1')??null;
       const opponentT4Public=recipient.events.find(x=>
         x.turn===4&&x.kind==='read-only-own-turn-board');
       const sourceT3=source.postOpponentOwnerReturns.find(x=>
@@ -102,6 +104,7 @@ function run(){
         originalSourceHandSha256:first.handSha256,
         sourceSetupAccepted:source.nativeAccepted,
         sourceFirstT3Return:sourceT3??null,
+        recipientFirstOwnerK1Search,
         recipientHeldBlowerAtT4:handAtT4?
           handAtT4.filter(card=>card==='Field Blower GRI').length:null,
         recipientTurn4PublicSourceGarbodorTools:
@@ -140,6 +143,7 @@ if(require.main===module){
     r.rows.map(x=>({arm:x.arm,status:x.status,sourceT3:x.sourceFirstT3Return,
       heldT4:x.recipientHeldBlowerAtT4,
       publicT4:x.recipientTurn4PublicSourceGarbodorTools,
+      firstRecipientK1:x.recipientFirstOwnerK1Search,
       blowerT2:x.recipientTurn2BlowerRoots,
       blowerT4:x.recipientTurn4BlowerRoots,
       removedT2:x.confirmedToolRemovalTurn2,
