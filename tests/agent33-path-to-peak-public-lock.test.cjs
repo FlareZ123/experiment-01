@@ -246,3 +246,59 @@ test('authentic original 29 source ranks still have eight Path copies across sev
    {rank:27,copies:1}
  ]);
 });
+
+function usedFusionProof(viewData,index=1){
+ const {VERSION}=require('../simulation/twinleaf/agent33-public-fusion-usage.cjs');
+ return {schema:VERSION,actorSeat:viewData.actorSeat,globalTurn:viewData.globalTurn,
+   faceUpGenesectCount:1,usedCount:1,unspentCount:0,faceUp:[{
+     location:index===0?'active':'bench',
+     benchIndex:index===0?null:index-1,
+     printing:'Genesect V FST',usedThisTurn:true
+   }]};
+}
+test('same-turn owned spent Genesect marker unlocks optional late Path proposal',()=>{
+ const x=view();x.actorSeat=0;
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+ const proof=usedFusionProof(x);
+ assert.deepEqual(choosePathToPeakOpposingAbility(x,catalog,{
+   ownFusionUsage:proof
+ }),{kind:'play-path-to-peak',handIndex:0,
+   printing:'Path to the Peak CRE',
+   reason:'public-opposing-rulebox-ability-and-no-owner-self-lock',
+   spentOwnerFusionSlotIndices:[1]});
+});
+test('stale, wrong seat, misplaced or incomplete spent Genesect proof fails closed',()=>{
+ const x=view();x.actorSeat=1;
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ const proof=usedFusionProof(x);
+ for(const change of [
+   {actorSeat:0},{globalTurn:5},{faceUpGenesectCount:2},
+   {unspentCount:1},{usedCount:0},
+   {faceUp:[{...proof.faceUp[0],benchIndex:1}]}
+ ]){
+   assert.equal(choosePathToPeakOpposingAbility(x,catalog,{
+     ownFusionUsage:{...proof,...change}
+   }),null,JSON.stringify(change));
+ }
+});
+test('unspent identical second Genesect still vetoes despite first source spent',()=>{
+ const x=view();x.actorSeat=0;
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ x.ownPublic.bench[1]={printing:'Genesect V FST'};
+ const proof=usedFusionProof(x);
+ proof.faceUpGenesectCount=2;proof.unspentCount=1;
+ proof.faceUp.push({location:'bench',benchIndex:1,
+   printing:'Genesect V FST',usedThisTurn:false});
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog,{
+   ownFusionUsage:proof
+ }),null);
+});
+test('future held Genesect still protects own live copy after spent board Ability',()=>{
+ const x=view();x.actorSeat=0;
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ x.ownHand.push('Genesect V FST');
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog,{
+   ownFusionUsage:usedFusionProof(x)
+ }),null);
+});
