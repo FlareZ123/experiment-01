@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {offerPublicRondo,publicRondoReadiness}=require('../simulation/twinleaf/agent7-public-rondo-attack-offer.cjs');
+const {offerPublicRondo,publicRondoReadiness,publicRondoBenchFunding}=require('../simulation/twinleaf/agent7-public-rondo-attack-offer.cjs');
 
 test('exports a public attack offer',()=>assert.equal(typeof offerPublicRondo,'function'));
 
@@ -51,4 +51,22 @@ test('read-only Rondo proposer leaves ordinary Pass unchanged',()=>{
    rondoPublicAttackPreference:true},[r]);
  assert.equal(decision.intent.attackName,'Full Moon Rondo');
  assert.equal(decision.receipt.changed,true);
+});
+
+test('Benched Clefairy paper funding remains separate from Active action',()=>{
+ const v=view();
+ const active=v.ownPublic.active;
+ v.ownPublic.active={printing:'Other Active',energies:[],printed:{retreatCost:[]}};
+ v.ownPublic.bench=[active,null];
+ v.ownTurnResources={retreatedTurn:0};
+ v.ownHand=[];
+ const x=publicRondoBenchFunding(v,catalog);
+ assert.equal(x.benchedCopies,1);
+ assert.equal(x.fundedBenchedCopies,1);
+ assert.deepEqual(x.benchedEnergyCounts,[2]);
+ assert.equal(x.activePrinting,'Other Active');
+ assert.equal(x.retreatUnused,true);
+ assert.equal(publicRondoReadiness(v,catalog),'benched-not-active');
+ active.energies=['Psychic Energy SVE'];
+ assert.equal(publicRondoBenchFunding(v,catalog).fundedBenchedCopies,0);
 });
