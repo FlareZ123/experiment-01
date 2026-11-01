@@ -18,6 +18,7 @@ function chooser(view,_catalog,first,options){
   const selected=shadow?first:other;
   return {intent:selected,receipt:{mode:shadow?'all-proposers-observe':'select',
     selectedSource:shadow?'first-return':'alternative',
+    supportedAlternativeCount:1,
     offers:[{...first,source:'first-return',slot:'bench',index:1},
       {...other,source:'alternative',slot:'bench',index:1}]}};
 }
