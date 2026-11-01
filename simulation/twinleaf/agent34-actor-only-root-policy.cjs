@@ -169,7 +169,9 @@ function chooseActorRootIntent(view,catalog,options={}){
   }
   if(options.pathToPeakOpposingAbility===true){
     const path=require('./agent33-path-to-peak-public-lock.cjs')
-      .choosePathToPeakOpposingAbility(view,catalog);
+      .choosePathToPeakOpposingAbility(view,catalog,{
+        ownFusionUsage:options.ownFusionUsage??null
+      });
     if(path)return path;
   }
   if(options.naturalEvolutionRoot===true){
@@ -548,6 +550,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     playersCeremonyLastChanceOptIn:deps.playersCeremonyLastChance===true,
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
+    pathToPeakPublicSpentFusionOptIn:deps.pathToPeakPublicSpentFusion===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -775,6 +778,12 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.pathToPeakOpposingAbilityOptIn)
     audit.version+='+'+
       require('./agent33-path-to-peak-public-lock.cjs').VERSION;
+  if(audit.pathToPeakPublicSpentFusionOptIn){
+    assert.equal(audit.pathToPeakOpposingAbilityOptIn,true,
+      'Used Fusion proof requires explicit Path selection');
+    audit.version+='+'+
+      require('./agent33-public-fusion-usage.cjs').VERSION;
+  }
   if(audit.jetBenchSwitchRootOptIn)
     audit.version+='+'+
       require('./agent40-public-jet-bench-frontier.cjs').VERSION;
@@ -941,6 +950,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
+      ...(audit.pathToPeakPublicSpentFusionOptIn?{
+        ownFusionUsage:require('./agent33-public-fusion-usage.cjs')
+          .publicFusionUsageAtRoot(state,seat)
+      }:{}),
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
