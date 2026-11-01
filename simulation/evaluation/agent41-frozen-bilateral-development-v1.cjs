@@ -10,6 +10,8 @@ const registration=require('../../results/aichi-2026/registrations/agent16-balan
 const {gitBlobHash,assertInventoryUnchanged}=
   require('./agent42-strict-profile-preflight.cjs');
 const {auditSourceClosure}=require('./agent36-source-closure-audit.cjs');
+const {attestLoadedResearchModules}=
+  require('./agent41-runtime-research-module-attestation.cjs');
 
 const VERSION='agent41-frozen-bilateral-development-v1';
 const ROOT=path.resolve(__dirname,'../..');
@@ -177,6 +179,9 @@ function runFrozenDevelopment(overrides={}){
       statuses[key]=(statuses[key]??0)+1;
     }
     const nativeStarts=summarizeAcceptedSetupCoins(rows);
+    // Offline provenance analysis only, after every native game has completed.
+    const runtimeResearchAttestation=attestLoadedResearchModules(root,
+      auditSourceClosure(root,[ENTRY]));
     return {
       version:VERSION,profile,provenance,
       nativePin:profile.pinnedVendorRevision,
@@ -187,6 +192,7 @@ function runFrozenDevelopment(overrides={}){
       statuses,rows,
       sourceComparison:result.paired??null,
       nativeSetupCoinAndFirstDrawEvidence:nativeStarts,
+      runtimeResearchAttestation,
       actualCoinAndFirstDrawVerified:nativeStarts.allValidated,
       transitiveImportsCompletelyResolved:false,
       competitiveQualifiedGames:0,winRateCertified:false,
