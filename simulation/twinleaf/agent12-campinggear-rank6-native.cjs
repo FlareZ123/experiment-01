@@ -1,12 +1,15 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const {createHash}=require('node:crypto');
 const {planAichi} = require('../evaluation/aichi-pilot.cjs');
 const {runMatch} = require('./headless.cjs');
 const {withCanonicalActorOnlyPolicy} =
   require('../evaluation/agent7-canonical-actor-composition.cjs');
 const {withNativeCampingGearAfterPass} =
   require('./agent12-native-campinggear-after-pass.cjs');
+const {withPaperCampingGearPromptGuard} =
+  require('./agent12-campinggear-prompt-paper-hook.cjs');
 const {attestNativeTurnClosureLineage} =
   require('../evaluation/agent12-native-turn-closure-lineage.cjs');
 
@@ -40,12 +43,19 @@ function main(){
     captureInitialFullPhysicalDeal:true,
     captureFinalPublicBoard:true,
     label:'agent12-retrospective-source-held-gear-native-'+REPLAY_ID};
-  function execute(searchMode){
+  function execute(searchMode,paperGuard=false){
     const treatment=searchMode!=='baseline';
     const run=()=>runMatch(request);
+    let guardAudit=null;
+    const guardedRun=()=>{
+      const guarded=withPaperCampingGearPromptGuard(run);
+      guardAudit=guarded.audit;
+      return guarded.result;
+    };
     const originalPolicy=()=>withCanonicalActorOnlyPolicy(
       treatment?
-        ()=>withNativeCampingGearAfterPass(run,{sourceSeat:SOURCE_SEAT,searchMode}):
+        ()=>withNativeCampingGearAfterPass(paperGuard?guardedRun:run,
+          {sourceSeat:SOURCE_SEAT,searchMode}):
         run,
       {},{ownerSingleSearch:true,genericFallbackAttribution:true,
         actorHandDiscard:true,actorChoosePokemon:true});
@@ -73,6 +83,8 @@ function main(){
         firstTurnSeat:game.firstTurnSlot,
         verifiedFirstTurn:game.verifiedByDrawLog,
         actions:game.actions,finished:game.finished,
+        rootActionLedgerSha256:createHash('sha256').update(
+          JSON.stringify(game.rootActionLedger)).digest('hex'),
         resultMarker:game.winner,rootCount:game.rootActionLedger.length,
         sourceDealFingerprint:game.initialSourceDealFingerprint?.digestSha256??null,
         fullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint?.digestSha256??null,
@@ -90,26 +102,31 @@ function main(){
           opponentReplyNativeRootObserved:opponentReply!==null,
           sourceNextTurnNativeRootObserved:sourceNextAction!==null
         },
-        gearAudit:offered,qualifiedForCompetitiveInference:false};
+        gearAudit:offered,paperGuardAudit:guardAudit,
+        qualifiedForCompetitiveInference:false};
       return receipt;
     }catch(e){
       return {status:'native-development-error',message:String(e?.message||e),
         stack:String(e?.stack||''),gearAudit:e?.agent12GearAudit??null,
+        paperGuardAudit:e?.agent12PaperPromptAudit??null,
         qualifiedForCompetitiveInference:false};
     }
   }
   const baseline=execute('baseline'),withGear=execute('one');
   const paperZero=execute('zero'),paperDouble=execute('two');
+  const guardOne=execute('one',true),guardZero=execute('zero',true),
+    guardDouble=execute('two',true);
   const bothPhysicalSame=baseline.status==='completed-native-development'&&
     withGear.status==='completed-native-development'&&
     baseline.sourceDealFingerprint===withGear.sourceDealFingerprint&&
     baseline.fullPhysicalDealFingerprint===withGear.fullPhysicalDealFingerprint;
-  const report={schema:'agent12-original-rank6-gear-pass-native-v3',
+  const report={schema:'agent12-original-rank6-gear-pass-native-v4',
     sourceTrial:REPLAY_ID,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     enginePin:ENGINE_PIN,candidateDeck:'original rank1 published 60',
     sourceDeck:'original rank6 published 60',
     originalScoutReplayedExactly:false,retrospective:true,
     bothPhysicalSame,baseline,withGear,paperZero,paperDouble,
+    guardOne,guardZero,guardDouble,
     paperCardinalityProbeDevelopmentOnly:true,
     improvementInGameWinRateEstablished:false,
     competitiveQualifiedGames:0};
@@ -118,12 +135,18 @@ function main(){
     assert.equal(bothPhysicalSame,true,
       'The treatment changed initial physical source/opponent deal');
   }
-  for(const arm of [paperZero,paperDouble]){
+  for(const arm of [paperZero,paperDouble,guardOne]){
     if(arm.status==='completed-native-development'){
       assert.equal(arm.sourceDealFingerprint,baseline.sourceDealFingerprint);
       assert.equal(arm.fullPhysicalDealFingerprint,
         baseline.fullPhysicalDealFingerprint);
     }
+  }
+  if(guardOne.status==='completed-native-development'){
+    assert.equal(withGear.rootActionLedgerSha256,
+      guardOne.rootActionLedgerSha256,
+      'Valid guarded source must retain every native root unchanged');
+    assert.equal(guardOne.paperGuardAudit?.paperValidAccepted,1);
   }
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
