@@ -122,3 +122,29 @@ for(const seat of [0,1]){
 
   });
 }
+
+for(const seat of [0,1]){
+  test('rank19 same-print Burst Roar native positive-control draw in seat '+seat,()=>{
+    const {store,state,owner}=stage(seat);
+    const {AttackAction}=native('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const handBefore=owner.hand.cards.length;
+    const deckBefore=owner.deck.cards.length;
+    store.dispatch(new AttackAction(owner.id,'Burst Roar'));
+    const promptKinds=[];
+    for(let i=0;i<24;i++){
+      const prompt=state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      promptKinds.push(prompt.constructor.name);
+      if(prompt.constructor.name!=='WaitPrompt')break;
+      store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+    console.log('AGENT50_RANK19_BURST_NATIVE_CONTROL',JSON.stringify({
+      seat,promptKinds,handBefore,handAfter:owner.hand.cards.length,
+      deckBefore,deckAfter:owner.deck.cards.length,
+      turnAfter:state.turn,competitiveQualifiedGames:0
+    }));
+    assert.equal(state.prompts.some(p=>p.result===undefined),false);
+  });
+}
