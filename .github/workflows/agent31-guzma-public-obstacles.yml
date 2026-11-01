@@ -1,0 +1,43 @@
+name: Agent31 pinned original rank11 Guzma owner-public obstacle census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank11-public-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate owner-only detached audit regression
+        run: node --test tests/agent31-guzma-public-obstacle-audit.test.cjs
+      - name: Install exact pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Validate immutable original 16 source rank11 trials and pinned engine
+        run: node simulation/evaluation/agent31-guzma-public-obstacle-retrospective.cjs --inspect-only
+      - name: Observe accepted owner Guzma roots without changing native policy
+        env:
+          AGENT31_GUZMA_OBSTACLE_OUTPUT: ${{ runner.temp }}/agent31-guzma-public-obstacles-rank11-16games.json
+        run: node simulation/evaluation/agent31-guzma-public-obstacle-retrospective.cjs
+      - name: Preserve native unchanged-ledger public obstacle receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank11-public-guzma-obstacles
+          path: ${{ runner.temp }}/agent31-guzma-public-obstacles-rank11-16games.json
+          if-no-files-found: warn
+          retention-days: 30
