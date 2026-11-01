@@ -106,6 +106,10 @@ jobs:
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Test actor-visible Fog prompt and typed action acceptance
         run: node --test tests/agent9-fog-actor-prompt.test.cjs
+      - name: Census exact Aichi original printed attack exceptions
+        run: |
+          node --test tests/agent34-source-printed-attack-exemptions.test.cjs
+          node -e "const r=require('./simulation/evaluation/agent34-source-printed-attack-exemptions.cjs').run();console.log('AGENT34_AICHI_PRINTED_ATTACK_EXEMPTIONS',JSON.stringify({sourceDecks:r.sourceDecks,uniquePokemonPrintings:r.sourcePokemonPrintings,matchingPrintings:r.resolvedPrintedExceptions,unresolved:r.unresolvedPrintingCount,byKind:r.byKind,weaknessExceptions:r.rows.filter(x=>x.attacks.some(a=>a.kinds.includes('disregardWeaknessResistance'))).map(x=>({name:x.name,set:x.set,number:x.number,ranks:x.ranks}))}));"
       - name: Install pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
