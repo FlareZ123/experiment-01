@@ -6,13 +6,13 @@
 
 The existing [Agent2 zero-loss field confidence analysis](agent2-zero-loss-field-confidence-20261020.md) gives a sharp 32-rank exact bound for **prospectively fixed sample counts and an undefeated candidate**. The existing `scripts/aichi_familywise_evidence.py` already implements **candidate-index alpha spending** over a countably infinite series, and `scripts/matchup_evidence.py` provides **fixed-horizon Bonferroni exact lower bounds** for completed per-rank/seat games. `scripts/aichi_balanced_global_gate.py` also supplies a one-sided fixed-horizon globally balanced binomial comparison with nonwins. Preserve these existing sharper specialized approaches. The new method supplies a complementary **two-sided anytime bound with censored attempts, arbitrary unbalanced cell counts and repeated data-dependent looks**.
 
-The companion pure [anytime evidence envelope](../../simulation/evaluation/agent46-anytime-field-mean-envelope.cjs) accepts **all attempted game outcomes**, with states `wins`, `nonWins` (including ties), and `censored` (not a fabricated win or discardable failed attempt). It supports 32 equally weighted rank cells or 128 equally weighted rank-by-seat-by-start cells. It assigns each sequential candidate a positive stable ordinal before testing, with an alpha-spending budget across infinitely many potential candidates, cells and observation counts.
+The companion pure [anytime evidence envelope](../../simulation/evaluation/agent46-anytime-field-mean-envelope.cjs) accepts **all attempted game outcomes**, with states `wins`, `nonWins` (including ties), and `censored` (not a fabricated win or discardable failed attempt). It supports 32 equally weighted rank cells, 64 equally weighted rank-by-seat cells and 128 equally weighted rank-by-seat-by-start cells. It assigns each sequential candidate a positive stable ordinal before testing, with an alpha-spending budget across infinitely many potential candidates, cells and observation counts.
 
 This module is intended for **screening or reporting uncertainty on independently qualified games**, never as a shortcut for validating game rules, clock, source lists or policies.
 
 ## Coverage derivation
 
-Let `k>=1` be a candidate's preregistered unique evaluation ordinal, `C` the number of field cells (32 or 128), `i` its particular cell and `n>=1` the number of genuine game attempts for that cell. At overall two-sided familywise error budget `alpha`, allocate
+Let `k>=1` be a candidate's preregistered unique evaluation ordinal, `C` the number of field cells (32, 64 or 128), `i` its particular cell and `n>=1` the number of genuine game attempts for that cell. At overall two-sided familywise error budget `alpha`, allocate
 
 `delta(k,i,n) = alpha / [k(k+1) * C * n(n+1)]`.
 
@@ -26,7 +26,7 @@ At every time, let `W` be completed wins and `U` the count of censored attempts 
 
 `L = max(0, W/n-epsilon)`, `H = min(1, (W+U)/n+epsilon)`.
 
-For an unsampled cell, use `[0,1]`. Averaging the 32 or 128 lower bounds and upper bounds gives a field-mean envelope. Under the declared independence/stationarity requirements, a union bound gives **at least 95% simultaneous coverage for all looks and all indexed candidates when alpha=0.05**, even if stopping and selecting the next rank to evaluate depend on previous results. Candidate k's *future* physical deals must be independent of data used to choose that candidate; replaying cherry-picked evaluation seeds breaks this assumption.
+For an unsampled cell, use `[0,1]`. Averaging the 32, 64 or 128 lower bounds and upper bounds gives a field-mean envelope. Under the declared independence/stationarity requirements, a union bound gives **at least 95% simultaneous coverage for all looks and all indexed candidates when alpha=0.05**, even if stopping and selecting the next rank to evaluate depend on previous results. Candidate k's *future* physical deals must be independent of data used to choose that candidate; replaying cherry-picked evaluation seeds breaks this assumption.
 
 This proof does not require independence between opponent cells, but each cell's successive potential finished-game outcomes must be identically distributed and independently sampled under the frozen policy.
 
@@ -42,12 +42,12 @@ For candidate ordinal 1, 32 equal-rank cells and `alpha=0.05`:
 
 The cutoff follows from the exact field geometry: if any single rank has true win probability no higher than 84%, then even perfect wins at all other 31 ranks cannot exceed 99.5% overall. These nine losses are **constructed test values**, not observed results from the Aichi cohort.
 
-All-censored attempts remain uninformative by design. With the three missing original Aichi ranks 23/25/28 unsampled, a mathematically certified 99.5% **lower bound cannot be established**, regardless of how well the 29 known matchups perform: those three cells retain a lower bound zero. An upper bound can still be used to reject a candidate if a known matchup is sufficiently weak. The 128-cell mode tests a different explicitly equally weighted rank/seat/start target and must not be mixed with a 32-rank target using an unregistered seat mixture.
+All-censored attempts remain uninformative by design. With the three missing original Aichi ranks 23/25/28 unsampled, a mathematically certified 99.5% **lower bound cannot be established**, regardless of how well the 29 known matchups perform: those three cells retain a lower bound zero. An upper bound can still be used to reject a candidate if a known matchup is sufficiently weak. The 64- and 128-cell modes test different explicitly equal rank/seat or rank/seat/start targets and must not be mixed with a 32-rank target using an unregistered seat mixture.
 
 ## Implementation, reproducibility and limitations
 
 - [Pure source](../../simulation/evaluation/agent46-anytime-field-mean-envelope.cjs), `VERSION='agent46-anytime-field-mean-envelope-v1'`.
-- [Seven pure tests](../../tests/agent46-anytime-field-mean-envelope.test.cjs) cover nine-loss screening, multiple adaptive candidate ordinals, zero attempts, censored cases, overflows, 128-cell and missing-rank behavior, and a deliberately hypothetical high-sample undefeated positive confidence control.
+- [Seven pure tests](../../tests/agent46-anytime-field-mean-envelope.test.cjs) cover nine-loss screening, multiple adaptive candidate ordinals, zero attempts, censored cases, overflows, 64-cell, 128-cell and missing-rank behavior, and a deliberately hypothetical high-sample undefeated positive confidence control.
 - Added to the existing manually triggered [global field evidence workflow](../../.github/workflows/aichi-global-field-gate.yml), beside its existing exact candidate-familywise Python test. The unrelated full [statistical benchmark run 41353467622](https://github.com/FlareZ123/experiment-01/actions/runs/41353467622) failed earlier at `agent16-transitive-policy-source-inventory.test.cjs` before executing the new test; the test was moved to the topical global gate without changing that Agent16 test. Record the global gate's actual run separately.
 - The Hoeffding boundary is intentionally conservative, particularly for confirming a win rate near 100%; retain Agent2's sharper fixed-allocation zero-loss likelihood method for its own strictly narrower conditions.
 - `decision='ABOVE_TARGET_LOWER_BOUND'` establishes a statistical conclusion **only if the counted inputs are authentic, independent, prospectively qualified games**. This module never attests such qualification and returns `competitiveQualified:false` for every numerical input.
