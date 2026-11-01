@@ -937,6 +937,7 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
+  actorNaturalEvolutionRoot=false,
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
@@ -966,6 +967,8 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
+    'Native symmetric natural evolution requires actor-only roots');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
@@ -1049,7 +1052,7 @@ function runDevelopment({
     const groups=new Map();
     const ids=new Set();
     for(const trial of registeredTrials){
-      assert.ok((allowAdditionalOriginalSourceRanks?[3,4,6,7,10,11,21,24,29]:[6,11])
+      assert.ok((allowAdditionalOriginalSourceRanks?[3,4,6,7,10,11,15,21,24,29]:[6,11])
         .includes(trial.rank));
       assert.ok(['A','B'].includes(trial.candidateSlot));
       assert.ok(['champion-reference','new-moon-lockbreaker-v1']
@@ -1127,6 +1130,7 @@ function runDevelopment({
           },trial.candidateSlot);
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
+           !actorNaturalEvolutionRoot&&
           !candidateOnlyKnownDeadRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1138,6 +1142,9 @@ function runDevelopment({
               ...(bilateralPublicContextSpecialEnergy?{
                 publicContextSpecialEnergy:true,
                 specialEnergyRootOwnerSeat:null
+              }:{}),
+              ...(actorNaturalEvolutionRoot?{
+                naturalEvolutionRoot:true
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
@@ -1322,6 +1329,8 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    actorNaturalEvolutionRootOptIn:
+      actorOnlyComposition&&actorNaturalEvolutionRoot,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
