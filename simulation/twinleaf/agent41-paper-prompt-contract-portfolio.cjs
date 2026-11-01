@@ -228,10 +228,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const Store=deps.Store??native('game/store/store').Store;
   const IronThornsex=deps.IronThornsex??native(
     'sets/10-scarlet-and-violet/set-twilight-masquerade/iron-thorns-ex').IronThornsex;
-  const RadiantAlakazam=deps.RadiantAlakazam??native(
-    'sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam').RadiantAlakazam;
-  const wasPowerUsed=deps.wasPowerUsed??native(
-    'game/store/prefabs/prefabs').WAS_POWER_USED;
+  // Pure injected-Store tests can run without the compiled Twinleaf vendor.
+  // Native runs always install the source-specific Radiant reducer marker.
+  const RadiantAlakazam=deps.RadiantAlakazam??(deps.Store?null:native(
+    'sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam').RadiantAlakazam);
+  const wasPowerUsed=deps.wasPowerUsed??(deps.Store?null:native(
+    'game/store/prefabs/prefabs').WAS_POWER_USED);
   const types=deps.types??{
     ...native('game/store/actions/play-card-action'),
     ...native('game/store/card/card-types')
@@ -239,11 +241,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
   const dispatchBefore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   const reducerBefore=Object.getOwnPropertyDescriptor(
     IronThornsex.prototype,'reduceEffect');
-  const spoonsReducerBefore=Object.getOwnPropertyDescriptor(
-    RadiantAlakazam.prototype,'reduceEffect');
+  const spoonsReducerBefore=RadiantAlakazam?
+    Object.getOwnPropertyDescriptor(RadiantAlakazam.prototype,'reduceEffect'):null;
   assert.equal(typeof dispatchBefore?.value,'function');
   assert.equal(typeof reducerBefore?.value,'function');
-  assert.equal(typeof spoonsReducerBefore?.value,'function');
+  if(RadiantAlakazam)
+    assert.equal(typeof spoonsReducerBefore?.value,'function');
   const limit=deps.exampleLimit??24;
   assert.ok(Number.isSafeInteger(limit)&&limit>=0&&limit<=100);
   const marked=new WeakSet();
@@ -455,8 +458,9 @@ function withPaperPromptContractPortfolio(run,deps={}){
   }
   Object.defineProperty(IronThornsex.prototype,'reduceEffect',
     {...reducerBefore,value:reduced});
-  Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
-    {...spoonsReducerBefore,value:reducedSpoons});
+  if(RadiantAlakazam)
+    Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
+      {...spoonsReducerBefore,value:reducedSpoons});
   Object.defineProperty(Store.prototype,'dispatch',
     {...dispatchBefore,value:dispatched});
   try{return {result:run(),audit};}
@@ -467,11 +471,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
   }finally{
     assert.strictEqual(Store.prototype.dispatch,dispatched);
     assert.strictEqual(IronThornsex.prototype.reduceEffect,reduced);
-    assert.strictEqual(RadiantAlakazam.prototype.reduceEffect,reducedSpoons);
+    if(RadiantAlakazam)
+      assert.strictEqual(RadiantAlakazam.prototype.reduceEffect,reducedSpoons);
     Object.defineProperty(Store.prototype,'dispatch',dispatchBefore);
     Object.defineProperty(IronThornsex.prototype,'reduceEffect',reducerBefore);
-    Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
-      spoonsReducerBefore);
+    if(RadiantAlakazam)
+      Object.defineProperty(RadiantAlakazam.prototype,'reduceEffect',
+        spoonsReducerBefore);
   }
 }
 module.exports={VERSION,independentCampingGearContract,
