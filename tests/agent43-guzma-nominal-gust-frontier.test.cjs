@@ -33,10 +33,10 @@ const view=()=>({
 });
 test('nominal fixed damage target skips native-first surviving target',()=>{
   const result=chooseNominalGuzmaGust(view(),plan,offered,catalog);
-  assert.match(VERSION,/v1$/);
+  assert.match(VERSION,/v2$/);
   assert.deepEqual(result,{
     benchIndex:1,firstBenchIndex:0,maxPrintedDamage:100,
-    targetRemainingHp:80,
+    targetRemainingHp:80,targetNominalDamage:100,
     reason:'fixed-printed-damage-nominal-KO-where-first-native-option-survives'
   });
 });
@@ -74,4 +74,26 @@ test('opponent hidden-hand changes cannot enter detached opponent target choice'
   }});
   const b=chooseNominalGuzmaGust(x,plan,offered,catalog);
   assert.deepEqual(b,a);
+});
+
+test('public Eviolite discounts candidate damage and avoids a false KO proposal',()=>{
+  const x=view();
+  x.opponentPublic.bench[1]={...pokemon(90),tools:['Eviolite NVI']};
+  x.opponentPublic.bench[2]=pokemon(120);
+  assert.equal(chooseNominalGuzmaGust(x,plan,offered,catalog),null);
+  // Twenty public damage counters already on this exact target convert
+  // effective remaining HP to 70: 100 printed minus Eviolite 20 is enough.
+  x.opponentPublic.bench[1].damage=20;
+  const chosen=chooseNominalGuzmaGust(x,plan,offered,catalog);
+  assert.equal(chosen?.benchIndex,1);
+  assert.equal(chosen?.targetRemainingHp,70);
+  assert.equal(chosen?.targetNominalDamage,80);
+});
+test('Eviolite can make first native target survive and expose a second KO',()=>{
+  const x=view();
+  x.opponentPublic.bench[0]={...pokemon(100),tools:['Eviolite NVI']};
+  const chosen=chooseNominalGuzmaGust(x,plan,offered,catalog);
+  assert.equal(chosen?.benchIndex,1);
+  assert.equal(chosen?.firstBenchIndex,0);
+  assert.equal(chosen?.targetNominalDamage,100);
 });
