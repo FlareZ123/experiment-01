@@ -40,11 +40,12 @@ function main(){
     captureInitialFullPhysicalDeal:true,
     captureFinalPublicBoard:true,
     label:'agent12-retrospective-source-held-gear-native-'+REPLAY_ID};
-  function execute(treatment){
+  function execute(searchMode){
+    const treatment=searchMode!=='baseline';
     const run=()=>runMatch(request);
     const originalPolicy=()=>withCanonicalActorOnlyPolicy(
       treatment?
-        ()=>withNativeCampingGearAfterPass(run,{sourceSeat:SOURCE_SEAT}):
+        ()=>withNativeCampingGearAfterPass(run,{sourceSeat:SOURCE_SEAT,searchMode}):
         run,
       {},{ownerSingleSearch:true,genericFallbackAttribution:true,
         actorHandDiscard:true,actorChoosePokemon:true});
@@ -93,26 +94,36 @@ function main(){
       return receipt;
     }catch(e){
       return {status:'native-development-error',message:String(e?.message||e),
-        stack:String(e?.stack||''),qualifiedForCompetitiveInference:false};
+        stack:String(e?.stack||''),gearAudit:e?.agent12GearAudit??null,
+        qualifiedForCompetitiveInference:false};
     }
   }
-  const baseline=execute(false),withGear=execute(true);
+  const baseline=execute('baseline'),withGear=execute('one');
+  const paperZero=execute('zero'),paperDouble=execute('two');
   const bothPhysicalSame=baseline.status==='completed-native-development'&&
     withGear.status==='completed-native-development'&&
     baseline.sourceDealFingerprint===withGear.sourceDealFingerprint&&
     baseline.fullPhysicalDealFingerprint===withGear.fullPhysicalDealFingerprint;
-  const report={schema:'agent12-original-rank6-gear-pass-native-v2',
+  const report={schema:'agent12-original-rank6-gear-pass-native-v3',
     sourceTrial:REPLAY_ID,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     enginePin:ENGINE_PIN,candidateDeck:'original rank1 published 60',
     sourceDeck:'original rank6 published 60',
     originalScoutReplayedExactly:false,retrospective:true,
-    bothPhysicalSame,baseline,withGear,
+    bothPhysicalSame,baseline,withGear,paperZero,paperDouble,
+    paperCardinalityProbeDevelopmentOnly:true,
     improvementInGameWinRateEstablished:false,
     competitiveQualifiedGames:0};
   if(baseline.status==='completed-native-development'&&
      withGear.status==='completed-native-development'){
     assert.equal(bothPhysicalSame,true,
       'The treatment changed initial physical source/opponent deal');
+  }
+  for(const arm of [paperZero,paperDouble]){
+    if(arm.status==='completed-native-development'){
+      assert.equal(arm.sourceDealFingerprint,baseline.sourceDealFingerprint);
+      assert.equal(arm.fullPhysicalDealFingerprint,
+        baseline.fullPhysicalDealFingerprint);
+    }
   }
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
   return report;
