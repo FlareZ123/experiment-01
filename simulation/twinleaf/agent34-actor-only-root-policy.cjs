@@ -5,7 +5,7 @@ const {createHash}=require('node:crypto');
 const {actorObservation,publicPlayer}=require('./actor-observation-contract.cjs');
 const {rootPhysicalSnapshot,rootPhysicalWitness}=
   require('./agent5-owner-root-slice.cjs');
-const VERSION='agent34-actor-only-root-slice-v7-native-same-root-plumeria-intent';
+const VERSION='agent34-actor-only-root-slice-v8-same-root-coheld-cost-aware-denial';
 const ENERGY_NAMES=['Grass','Fire','Water','Lightning','Psychic','Fighting','Darkness','Metal','Fairy'];
 /**
  * Shared policy-to-headless provenance channel, keyed by the identical typed
@@ -609,6 +609,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
     nativePlumeriaChoiceOptIn:deps.nativePlumeriaChoice===true,
+    nativeZeroCostDenialChoiceOptIn:deps.nativeZeroCostDenialChoice===true,
     losslessNativeRootJoinOptIn:deps.losslessNativeRootJoin===true,
     registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
     sameRootPassAttackProbeGlobalTurn:deps.sameRootPassAttackProbeGlobalTurn??null,
@@ -683,6 +684,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.sameRootChoiceApplyOptIn;
     delete audit.nativeToolAttachRootOptIn;
     delete audit.nativePlumeriaChoiceOptIn;
+    delete audit.nativeZeroCostDenialChoiceOptIn;
     delete audit.sameRootPassAttackProbeGlobalTurn;
     delete audit.sameRootPublicNoBenchTerminalOptIn;
     delete audit.sameRootPositiveAttackOverPassOptIn;
@@ -963,6 +965,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
+      nativeZeroCostDenialChoice:audit.nativeZeroCostDenialChoiceOptIn===true,
       registeredToolEnergyCeiling:audit.registeredToolEnergyCeilingOptIn===true,
       passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
       publicNoBenchTerminalAttack:audit.sameRootPublicNoBenchTerminalOptIn===true,
