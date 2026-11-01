@@ -98,9 +98,15 @@ function sourceSecondTurn() {
   assert.equal(choice.cards.cards.length,2,'Random subset must be preselected');
   resolve(choice,choice.cards.cards.slice());
   settle(); // Complete any post-selection shuffle, animation and damage roots.
-  assert.equal(opp.hand.cards.length,1,'Night Watch leaves one card after Ace');
+  assert.equal(s.activePlayer,1,'Completed attack must pass turn to opponent');
+  assert.equal(s.turn,5,'Completed copied attack must advance one global turn');
+  assert.equal(opp.hand.cards.length,2,
+    'Night Watch leaves one after Ace; opponent then draws turn-start card');
+  assert.equal(opp.deck.cards.length,26,
+    'Opponent deck has two shuffled cards and one mandatory next-turn draw');
   return {prizes:[me.getPrizeLeft(),opp.getPrizeLeft()],
-   opponentHand:opp.hand.cards.length,meHand:me.hand.cards.length,
+   opponentHand:opp.hand.cards.length,opponentTurnAfterAttack:s.turn,
+   opponentActiveAfterAttack:s.activePlayer,meHand:me.hand.cards.length,
    damage:opp.active.damage,usedGX:me.usedGX,source:payload.fullName,
    nextPrompts:s.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name),
    scope:'Injected turn-two board; no real intervening opponent turn or legal opener'};
