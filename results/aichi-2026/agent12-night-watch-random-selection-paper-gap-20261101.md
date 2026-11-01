@@ -47,6 +47,20 @@ The uniform intervention selected reproducible physical pairs at observed public
 
 The pure deterministic sampler and reversible hook are tested by [`tests/agent12-nightwatch-paper-random-chooser.test.cjs`](../../tests/agent12-nightwatch-paper-random-chooser.test.cjs). A separate [pinned vendor/printed card source regression](../../tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs) is staged for the native CI built-submodule job.
 
+## Independent game/selection RNG stream replication (development v2)
+
+To eliminate even a theoretical dependency between the **game's original physical shuffle seed** and the experimental choice-index random seed, an auxiliary 256-bit random hex seed was drawn independently for each prior source-deal group and **committed before running the next native experiment** to [immutable registration](../aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json), commit `d5f98cb89bf4e915c0aaf61723e568bb079af2bd`. These source groups and their underlying card hands had already been inspected before the auxiliary registration; this is **not a prospective benchmark**, but a stronger causal probe of RNG separation.
+
+An updated [same-original-deal runner](../../simulation/twinleaf/agent12-nightwatch-native-rank11-comparison.cjs) requires the original registered physical game seed and the separately preregistered selection seed to agree with the stored group. It asserts the number of uniformly sampled prompts equals the count of independently attributed real `AttackAction / Night Watch` prompt resolutions and that champion-reference control roots remain unchanged.
+
+**Compiled independent-randomness replication:** [CI 41329692695](https://github.com/FlareZ123/experiment-01/actions/runs/41329692695), head `d266876d7d502684dcc56aba297d70bf2514184d`, artifact [13092822679](https://github.com/FlareZ123/experiment-01/actions/runs/41329692695/artifacts/13092822679), ZIP SHA256 `78e5ec07b0c28bd6ff627b373caf4d7f491b234474b79586fbfadf3c72f49ac5`.
+
+- Source group `11:2:A` original physical seed `3821563342`, auxiliary chooser seed prefix `16d38f...`: **5/5** source-owned Night Watch prompt pairs selected differently from the native attacker-choice control; original source-candidate physical deal fingerprint unchanged. The source-rank11 original and new moon 60s are unchanged, and native engine winner remains candidate seat0 in both.
+- Source group `11:0:B` physical seed `2164233582`, auxiliary chooser seed prefix `7cda74...`: **4/4** selected pairs differ; same initial complete source/candidate deal, native engine winner remains candidate seat1 in both. **Complete native root-action checksum is identical despite these four physically different selections.**
+- Both champion-reference pair-control games have **zero** structurally matched Night Watch prompts/intercepts and exact unchanged full native root-action checksums, with their respective caps or terminal retained.
+
+The compiled CI also passed the pinned source-vs-print [Night Watch static regression](../../tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs) and the pure independently seeded sampling tests. The earlier v1 artifact remains archived as a distinct first-stage result, rather than silently overwritten. **Neither v1 nor v2 supports a competitive win-rate or official tournament timing claim**, and late turn numbers remain a major limitation.
+
 ## Research decision and required gate
 
 - **Print-specific paper predicate:** `Night Watch` must select `min(2,physical opponent hand size)` cards by engine-controlled random sampling independent of their identities and independent of the attacker's policy. `ChooseCardsPrompt.validate` can check cardinality but cannot establish random selection.
