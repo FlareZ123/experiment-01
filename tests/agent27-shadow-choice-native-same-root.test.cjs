@@ -64,10 +64,32 @@ for(const seat of [0,1]){
     assert.equal(augmented.verification.nativeStoreAccepted,false);
     assert.equal(augmented.verification.prePostShadowExecutableDecisionIdentical,true);
     assert.deepEqual(view,before);
+    // Every observed same-kind alternative is separately accepted by native
+    // Store on a fresh, identically staged original-source physical state.
+    let accepted=0;
+    for(const row of conflict.omitted){
+      const fresh=stage(seat);
+      const freshView=actorObservation(fresh.state,seat);
+      assert.deepEqual(freshView,view);
+      const nativeIntent={kind:'bench-basic',printing:row.printing,
+        handIndex:row.handIndex,benchIndex:4};
+      const physicalBefore=rootPhysicalSnapshot(fresh.state,seat,nativeIntent);
+      fresh.store.dispatch(new fresh.PlayCardAction(fresh.owner.id,
+        row.handIndex,{player:fresh.PlayerType.BOTTOM_PLAYER,
+          slot:fresh.SlotType.BENCH,index:4}));
+      const physicalAfter=rootPhysicalSnapshot(fresh.state,seat,nativeIntent);
+      assert.equal(rootPhysicalWitness(nativeIntent,physicalBefore,
+        physicalAfter,fresh.GamePhase),'confirmed-public-effect');
+      assert.equal(fresh.owner.bench[4].getPokemonCard()?.fullName,
+        row.printing);
+      accepted++;
+    }
+    assert.equal(accepted,n);
     console.log(JSON.stringify({seat,
       baselineKind:shadow.selectionReceipt.baselineKind,
       shadowSupportedAlternatives:shadow.shadowReceipt.supportedAlternativeCount,
       afterLastBenchShadowAlternatives:augmented.shadowReceipt.supportedAlternativeCount,
+      nativeAcceptedStagedAlternatives:accepted,
       actualOmittedBasicCopies:conflict.omitted.map(row=>({
         printing:row.printing,handIndex:row.handIndex})),
       shadowSelectorErrorCount:shadow.shadowReceipt.selectorErrors.length,
