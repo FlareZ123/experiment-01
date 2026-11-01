@@ -970,6 +970,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorVipBeforeAttack=false,
+  actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
@@ -1006,6 +1007,8 @@ function runDevelopment({
     'Native symmetric natural evolution requires actor-only roots');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
+  assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
+    'Mega Absol VIP targeting requires native both-seat VIP before Attack');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
@@ -1229,6 +1232,7 @@ function runDevelopment({
             actorHandDiscard,actorChoosePokemon,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
+            ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
