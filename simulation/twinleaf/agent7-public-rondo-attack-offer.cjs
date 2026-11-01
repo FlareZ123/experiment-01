@@ -107,5 +107,44 @@ function publicRondoBenchFunding(view,catalog){
   };
 }
 
+/**
+ * Owner-visible physical setup resources for original rank-30 Psychic Item
+ * acceleration. Wondrous Patch requires a Basic Psychic Energy already in
+ * the owner's public discard pile and a Benched Psychic recipient.
+ *
+ * No deck or opponent hand identities enter this census. Physical resource
+ * co-presence is only a candidate line; native Store and Item locks decide
+ * whether the action may actually be played.
+ *
+ * @param {object} view Detached owner-root observation.
+ * @returns {object|null} Exact visible resource counts.
+ */
+function publicRondoPatchResources(view){
+  if(view?.decisionKind!=='owner-root')return null;
+  const own=view.ownPublic;
+  if(!own?.bench?.some(p=>p?.printing==="Lillie's Clefairy ex JTG"))
+    return null;
+  const hand=view.ownHand??[],discard=own.discard??[];
+  const heldPatchCopies=hand.filter(c=>c.startsWith('Wondrous Patch ')).length;
+  const discardBasicPsychic=discard.filter(c=>
+    c.startsWith('Psychic Energy ')).length;
+  const heldBasicPsychic=hand.filter(c=>
+    c.startsWith('Psychic Energy ')).length;
+  const heldBattleCompressor=hand.filter(c=>
+    c.startsWith('Battle Compressor ')).length;
+  const itemLocked=own.publicTurnRestrictions?.itemPlayLocked===true||
+    view.ownTurnResources?.itemPlayLocked===true;
+  return {
+    heldPatchCopies,discardBasicPsychic,heldBasicPsychic,
+    heldBattleCompressor,itemLocked,
+    simultaneousPatchCandidate:heldPatchCopies>0&&
+      discardBasicPsychic>0&&!itemLocked,
+    potentialCompressorToPatch:heldPatchCopies>0&&
+      heldBattleCompressor>0&&!itemLocked,
+    ordinaryEnergyAttachmentUnused:
+      view.ownTurnResources?.energyPlayedTurn!==view.globalTurn
+  };
+}
+
 module.exports={VERSION,offerPublicRondo,publicRondoReadiness,
-  publicRondoBenchFunding};
+  publicRondoBenchFunding,publicRondoPatchResources};
