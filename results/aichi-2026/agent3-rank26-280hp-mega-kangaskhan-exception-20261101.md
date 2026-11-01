@@ -1,0 +1,15 @@
+# Rank26 Crisis Punch: rank18's printed 300-HP Mega Kangaskhan survives
+
+**Agent3, 1 Nov 2026. Source-printing rule screen; no games or win rates.**
+
+The authenticated rank26 Hibiki Yamada 60 has `Meloetta ex BLK44`, Psychic type and first-player `Debut Performance`, plus `Technical Machine: Crisis Punch PAF90`. That Tool's Crisis Punch deals **280** only when the opponent has one Prize left. Rank26's other printed cards do not add attack damage.
+
+Rank18 Hayato Omuro's authentic Regidrago sixty includes **one Mega Kangaskhan ex MEG104**, which the supplied English snapshot independently confirms is a **300 HP Basic**, Colorless type with **Fighting Weakness**. A normal Psychic Crisis Punch deals 280, leaving the full-HP Kangaskhan at **20 HP**. Risky Ruins does not retrospectively damage a Basic placed in the opponent's starting setup. Thus rank26's **five self-KO first-turn plan cannot take a lone full-HP rank18 Mega Kangaskhan as its final 280-damage knockout**. This is an exact card-text counterexample to equating lone Basic with automatic donk.
+
+[Print-exact 29-source enumerator](../../scripts/agent3-rank26-printed-280hp-starter-screen.cjs) resolves registered English set/number identifiers, including prefixed promo IDs, and screens all Basics' HP/Weakness/Resistance against plain Psychic 280. **Only rank18** has an HP-based surviving Basic, its one Mega Kangaskhan. Registered full-HP Basics exactly on the **280** knockout boundary occur in ranks **8,9,11,16,19,22**: five Mega Absol ex source lists and rank19 Arceus & Dialga & Palkia-GX. External Ability/Tool protection and state-dependent damage are outside this printed HP screen.
+
+Rank18 contains **16 Basics**, only one Mega Kangaskhan. Under symmetric physical deals, given that the opponent has only one original Basic in completed setup, that Basic is the Kangaskhan with **1/16 = 6.25%** probability. Our [narrow forced-lone and rank26 direct-Energy event](agent3-rank26-lone-target-energy-joint-20261101.md) was **0.863648%** against a 16-Basic source, so **0.053978 percentage points** of that narrowly defined event faces a sole Kangaskhan that survives plain 280. This remains an intersection of card locations, not an actual attack rate.
+
+If rank18 intentionally chooses Kangaskhan as Active whenever it appears in its original Basic-valid seven, that option occurs with probability `(7/60)/(1-C(44,7)/C(60,7))` = **12.95177972%**. Such setup choices depend on actual information and broader matchup costs; an available counter-line is not proof it will be selected.
+
+The [four new tests](../../tests/agent3-rank26-printed-280hp-starter-screen.test.cjs) and four coupled-source tests passed **[existing manual benchmark CI 41331834057](https://github.com/FlareZ123/experiment-01/actions/runs/41331834057)**. There is no complete native first-turn attack on this 300-HP target, official match-clock qualification, or qualified field win. Benchmark remains **29/32** authenticated exact original 60s and **zero competitively qualified games**.
