@@ -49,11 +49,32 @@ The fully pinned native CI [41329727282](https://github.com/FlareZ123/experiment
 
 Also, the prior successful [41329333283](https://github.com/FlareZ123/experiment-01/actions/runs/41329333283), artifact `13091629886`, returned exactly **four historical development attempts** under the opt-in Store portfolio: 2 engine terminals and 2 action caps. The direct artifact inspection found:
 
-| Historical trial ID | Paper verified | Invalid veto | Unverified prompt attempts | Native rejected after preflight | End |
+| Historical trial ID | Raw all-Store checked events | Invalid veto | Unverified all-Store attempts | Native rejected after preflight | End |
 |---|---:|---:|---:|---:|---|
 | `6:0:A:champion-reference` | 0 | 0 | 115 | 0 | engine terminal |
 | `6:0:A:new-moon-lockbreaker-v1` | **10** | 0 | 719 | 1 | 260-action cap |
 | `11:2:B:champion-reference` | 0 | 0 | 492 | 0 | engine terminal |
 | `11:2:B:new-moon-lockbreaker-v1` | 0 | 0 | 937 | 50 | 260-action cap |
 
-All ten independently checked, Store-accepted prompts came from the original rank-6 `Volt Cyclone` attack and satisfied the physical recipient/source constraint. The `nativeRejectedAfterPreflight` counts are for other, unverified prompt types; these are not paper-invalid findings. The 4-arm cohort is historically selected and unqualified. It does **not** replay the frozen-v2 32 arms from Agent17's larger denominator. The run does not certify complete effects after every submitted response or future interventions, and the provenance/version labels must be kept distinct.
+The ten raw checked all-Store events came from the original rank-6 `Volt Cyclone` attack and satisfied the physical recipient/source constraint at their respective Store states. These are repeated simulator/live observations, as established in the live-partition correction below. The `nativeRejectedAfterPreflight` counts are for other, unverified prompt types; these are not paper-invalid findings. The 4-arm cohort is historically selected and unqualified. It does **not** replay the frozen-v2 32 arms from Agent17's larger denominator. The run does not certify complete effects after every submitted response or future interventions, and the provenance/version labels must be kept distinct.
+
+
+## Material source-denominator correction, live Store partition (17:20 UTC)
+
+An independent inspection of the **original native action ledger** found an inflation problem in the initial all-Store wrapper counts. A genuine original-source rank-6 New Moon native game has **five** distinct live `Volt Cyclone` AttachEnergyPrompt roots, at turns 4, 6, 26, 28, and 34, plus one separate candidate-owned AttachEnergyPrompt on turn 33 (unverified). The initial wrapper emitted **ten** paper-checked source events as **two identical `(turn,promptId)` entries each**: (4,33), (6,52), (26,119), (28,129), (34,170). The extra five came from auxiliary Store activity. The earlier ten-event count is **superseded by five authentic live-game source responses**.
+
+In [v2 compiled green CI 41330576115](https://github.com/FlareZ123/experiment-01/actions/runs/41330576115), artifact `13092794548`, `withPaperPromptPortfolio` `agent39-paper-prompt-portfolio-v2-live-store-attribution` identifies the genuine live Store by first `AddPlayerAction`, exactly as the independent `accepted-energy-prompt-public-witness.cjs` already does. It keeps all speculative/auxiliary event attempts for debugging, with separate `storeOrdinal`, `storeScope`, and `livePaperVerifiedNativeAccepted` counters. Four game rows show:
+
+| Historical trial | Actual native ResolvePromptAction roots | Live Store prompt attempts | Auxiliary Store prompt attempts | Verified live Volt Cyclone | Raw all-Store verified |
+|---|---:|---:|---:|---:|---:|
+| `6:0:A:champion-reference` | 56 | 56 | 59 | 0 | 0 |
+| `6:0:A:new-moon-lockbreaker-v1` | 174 | 174 | 555 | **5** | 10 |
+| `11:2:B:champion-reference` | 129 | 129 | 363 | 0 | 0 |
+| `11:2:B:new-moon-lockbreaker-v1` | 161 | 161 | 776 | 0 | 0 |
+| **Total** | **520** | **520** | **1,753** | **5** | **10** |
+
+This is exact per-game native-root-count equality for all four completed-or-censored historical rows. There were zero live native preflight rejections in this run. The auxiliary 1,753 dispatch attempts (including speculative decisions and rejected prompts) are **excluded from the live game denominator**.
+
+The reusable `simulation/evaluation/agent39-print-prompt-root-reconciliation.cjs` also checks individual original-source `AttackAction: Volt Cyclone` parent linkage, original seat, attack name, exact turn histogram, and native accepted prompt root count, requiring an observed live Store. Its statuses fail closed on missing identity, mismatched counts or wrong parent, and distinguish source-not-exposed. `tests/agent39-paper-prompt-root-reconciliation.test.cjs` covers synthetic duplicates, provenance gaps and wrong parent. That reconciliation was integrated into the canonical runner after the cited CI was started and requires another compiled run to confirm output field correctness.
+
+This is a **significant evidence-denominator correction**. None of the five live receipts alone is a competitively qualified game or a proof of the complete attack. Frozen-v2 32-arm evidence with 27 original-source Volt Cyclone prompts remains a separately versioned archived cohort.
