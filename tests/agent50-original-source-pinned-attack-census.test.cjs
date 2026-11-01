@@ -61,3 +61,19 @@ test('the numeric printing ID never resolves an ambiguous wrong variant',()=>{
   assert.equal(r.exactNumberMatched,3);
   assert.equal(r.dynamicWithoutSpecializedReducer[0].nativeNumber,'123');
 });
+
+test('actual game lookup dominates a misleading enumerated source class',()=>{
+  const available=native();
+  const fake={
+    getAllCards:()=>available,
+    getCardByName:name=>name==='Raging Bolt ex TEF'?
+      new Generic('Raging Bolt ex TEF','123',[
+        {name:'Bellowing Thunder',damage:70,damageCalculation:'x'}
+      ]):available.find(card=>card.fullName===name)??null
+  };
+  const selected=census(fake,archive);
+  assert.equal(selected.executableLookupMatched,3);
+  assert.equal(selected.registryEnumerationMatched,3);
+  assert.equal(selected.dynamicWithoutSpecializedReducer.length,2);
+  assert.equal(selected.registryLookupMismatches.length,2);
+});
