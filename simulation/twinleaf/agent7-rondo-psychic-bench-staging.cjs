@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
-const VERSION='agent7-source-psychic-bench-rondo-staging-v1';
+const VERSION='agent7-source-psychic-bench-rondo-staging-v2-preserve-active-clefairy';
 
 /**
  * A deliberately narrow experimental alternative to attaching a held Basic
@@ -16,6 +16,11 @@ const VERSION='agent7-source-psychic-bench-rondo-staging-v1';
 function proposeRondoPsychicBenchStaging(view,catalog){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,r=view.ownTurnResources;
+  // An already Active JTG Clefairy may have the strongest immediate
+  // Rondo route. Diverting scarce once-per-turn Psychic to a second Benched
+  // Clefairy destroyed native source attacks in a held-out 8-seed panel.
+  // This guard is deliberately exact-print and owner-public only.
+  if(own?.active?.printing==="Lillie's Clefairy ex JTG")return null;
   if(!Array.isArray(view.ownHand)||!Array.isArray(own?.bench)||
      own.publicTurnRestrictions?.energyPlayLocked===true||
      r?.energyPlayLocked===true||r?.energyPlayedTurn===view.globalTurn||
