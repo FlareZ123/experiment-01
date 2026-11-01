@@ -77,7 +77,10 @@ function runRank31RoxieSpoons(guarded,seat=0,guardRoxie=false){
     let rejected=null;
     try{f.store.dispatch(new ResolvePromptAction(prompt.id,reply));}
     catch(e){rejected=String(e?.message??e);}
-    if(!guarded){
+    // A separate enclosing paper portfolio may reject the movement despite
+    // this fixture's local guard being off. No Prize continuation can begin
+    // while the rejected native MoveDamagePrompt remains unresolved.
+    if(!guarded&&rejected===null){
       for(let k=0;k<10;k++){
         const p=pending();
         if(!p)break;
