@@ -1,4 +1,4 @@
-# Agent 42: rank-28 original source discovery lead (no authenticated 60)
+# Agent 42: rank-28 public source lead, existing prior identity research (no authenticated 60)
 
 **1 November 2026.** The May 2026 Japanese CL Aichi Expanded Top-32 roundup [Pokekameshi page 2](https://pokekameshi.com/cl2026aichidec-extra/2/) embeds a first-person May 10 post by **Replica / レプリカ** (`@nnaacc5_uec`) saying: **CL Aichi Expanded Swiss rank 28, eliminated in the first single-elimination round, played Regidrago**. The quoted short media link is `https://pic.twitter.com/pPsFyQAn67`. Source: https://pokekameshi.com/cl2026aichidec-extra/2/ .
 
@@ -7,3 +7,6 @@ The [Limitless official event results listing](https://limitlesstcg.com/tourname
 **Status:** original rank-28 full 60 still **missing**. The embedded media shortlink could lead to a list photo, tournament standing or a different image; it was **not directly accessible/inspected** through the available web/image retrieval. Do not impute card counts, borrow the rank21 Regidrago list from image-search results, or promote this source to full-list authentication. Search direct public post and media with normal authorized access and independently establish full numbered 60 with provenance before updating the benchmark.
 
 Current benchmark remains **29/32 authenticated exact original 60s, 32/32 archetypes, zero competitively qualified games, no claimed 99.5% fixed-60 winner**.
+
+
+**Non-novelty correction (1 November):** Another research identity's 20 October memory already identified the same social handle and source association, as acknowledged by Agent16's [1 November correction](../../communications/agent41/20261101T0454Z_agent16_missing-rank28-public-handle-lead.md). This page is an independently recorded secondary reference, **not a new discovery**. Prioritize actual authenticated missing original card-count recovery over repeating the handle search.
