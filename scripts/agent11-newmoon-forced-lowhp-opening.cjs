@@ -129,19 +129,20 @@ function sourceConditionalExposure(candidateBasics,lowHpBasics,
  * @param {number} ordinaryDraws 0..4 hypothetical natural additional draws.
  * @returns {number}
  */
-function withoutNamedSearcherCopies(sourceBasics,searcherCopies,
-  ordinaryDraws=0){
-  assert.ok(Number.isInteger(searcherCopies)&&searcherCopies>=8&&
-    searcherCopies<=21);
-  assert.ok(Number.isInteger(ordinaryDraws)&&ordinaryDraws>=0&&
-    ordinaryDraws<=4);
-  const candidateBasics=17, lowHpBasics=5;
+function hypotheticalNoNamedSearcher(sourceBasics,candidateBasics,
+  lowHpBasics,searcherCopies,ordinaryDraws=0){
+  assert.ok(Number.isInteger(candidateBasics)&&candidateBasics>=1&&candidateBasics<=60);
+  assert.ok(Number.isInteger(lowHpBasics)&&lowHpBasics>=0&&lowHpBasics<=candidateBasics);
+  assert.ok(Number.isInteger(searcherCopies)&&searcherCopies>=0&&
+    candidateBasics+searcherCopies<=60);
+  assert.ok(Number.isInteger(ordinaryDraws)&&ordinaryDraws>=0&&ordinaryDraws<=4);
   const directSearchCopies=searcherCopies;
   const pC=validOpening(candidateBasics), pS=validOpening(sourceBasics);
   const qS=1-pS, d=1-(1-pC)*qS;
   const initial=lowHpBasics*C(60-candidateBasics-directSearchCopies,6)/
     (C(60,7)-C(60-candidateBasics,7));
   const remainingNonbasicNonsearch=60-candidateBasics-directSearchCopies-6;
+  if(remainingNonbasicNonsearch<0)return 0;
   let result=0;
   for(let bonus=0;bonus+ordinaryDraws<=remainingNonbasicNonsearch;bonus++){
     const w=bonus===0?pS/d:pC*pS*qS**bonus/d;
@@ -149,6 +150,12 @@ function withoutNamedSearcherCopies(sourceBasics,searcherCopies,
     result+=w*initial*C(remainingNonbasicNonsearch,extra)/C(53,extra);
   }
   return result;
+}
+
+/** @param {number} sourceBasics @param {number} searcherCopies @param {number} ordinaryDraws @returns {number} */
+function withoutNamedSearcherCopies(sourceBasics,searcherCopies,ordinaryDraws=0){
+  assert.ok(Number.isInteger(searcherCopies)&&searcherCopies>=8&&searcherCopies<=21);
+  return hypotheticalNoNamedSearcher(sourceBasics,17,5,searcherCopies,ordinaryDraws);
 }
 
 /** @param {number} sourceBasics @param {number} ordinaryDraws @returns {number} */
@@ -193,6 +200,17 @@ function analyze(manifest,sourceOpenings){
       reference:forcedLowHpInSeven(14,0),
       newMoon:forcedLowHpInSeven(17,5)
     },
+    hypotheticalReplacementSlotFrontier:{
+      caveat:'All changes are alternate unsubmitted 60s; no real playing strength or strategically feasible discard path inferred',
+      scenarios:[
+        {label:'Current frozen 60',basics:17,lowHpBasics:5,searchers:11},
+        {label:'Replace three low-HP Basics with durable Basics',basics:17,lowHpBasics:2,searchers:11},
+        {label:'Replace four other slots with durable Basics',basics:21,lowHpBasics:5,searchers:11},
+        {label:'Replace four other slots with search Items',basics:17,lowHpBasics:5,searchers:15}
+      ].map(x=>({...x,meanNoNamedSearcherExposure:
+        sourceOpenings.decks.reduce((s,d)=>s+hypotheticalNoNamedSearcher(
+          d.basic_count_known,x.basics,x.lowHpBasics,x.searchers),0)/29}))
+    },
     optionalDiscardAccessSensitivity:{
       tiers:[8,10,11,15].map(searcherCopies=>({
         searcherCopies,
@@ -236,5 +254,6 @@ function fromRepo(){
 }
 module.exports={VERSION,LOW_HP_PRINTINGS,DIRECT_BASIC_ACCESS_ITEMS,
   DISCARD_DEPENDENT_BASIC_ACCESS_ITEMS,verifyPrintedInventories,
-  forcedLowHpInSeven,sourceConditionalExposure,withoutNamedSearcherCopies,
+  forcedLowHpInSeven,sourceConditionalExposure,hypotheticalNoNamedSearcher,
+  withoutNamedSearcherCopies,
   withoutDirectBasicSearcher,analyze,fromRepo};
