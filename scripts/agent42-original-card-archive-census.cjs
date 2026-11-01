@@ -12,7 +12,19 @@ const PROMOS = {
   SMP: { id: 'smp', prefix: 'SM' },
   XYP: { id: 'xyp', prefix: 'XY' }
 };
-const VERSION = 'agent42-source-archive-print-census-v1';
+const VERSION = 'agent42-source-archive-print-census-v2-explicit-aliases';
+
+/** @param {string} displayed @param {string} archived */
+function approvedDisplayedNameAlias(displayed, archived) {
+  const exactAliases = new Map([
+    ['Battle Compressor', 'Battle Compressor Team Flare Gear'],
+    ['Robo Substitute', 'Robo Substitute Team Flare Gear'],
+    ['Target Whistle', 'Target Whistle Team Flare Gear'],
+    ['Unit Energy LPM', 'Unit Energy LightningPsychicMetal']
+  ]);
+  return exactAliases.get(displayed) === archived ||
+    (displayed.includes('♢') && displayed.replaceAll('♢', '◇') === archived);
+}
 
 /**
  * Compare each registered original printed card against exactly indexed
@@ -53,7 +65,9 @@ function auditOriginalPrints(database, indexMetadata, readCards) {
       const status = exact.length === 1 && candidates.length === 1
         ? 'ARCHIVE_EXACT'
         : candidates.length === 1
-          ? 'ARCHIVE_NUMBER_MATCH_NAME_ALIAS'
+          ? approvedDisplayedNameAlias(source.name, candidates[0].name)
+            ? 'ARCHIVE_NUMBER_MATCH_NAME_ALIAS'
+            : 'ARCHIVE_NAME_CONFLICT'
           : 'ARCHIVE_UNLISTED';
       rows.push({
         rank: deck.rank, card: source.name, set: printing.set,
@@ -67,6 +81,7 @@ function auditOriginalPrints(database, indexMetadata, readCards) {
   for (const status of [
     'ARCHIVE_EXACT',
     'ARCHIVE_NUMBER_MATCH_NAME_ALIAS',
+    'ARCHIVE_NAME_CONFLICT',
     'ARCHIVE_UNLISTED'
   ]) {
     const subset = rows.filter(row => row.status === status);
