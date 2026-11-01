@@ -47,7 +47,12 @@ function census(manager,source){
         requestedPrinting:requested,requestedNumber:String(printing.number),
         nativePrinting:matched?.fullName??null,
         nativeNumber:matched?.setNumber??null,
-        registryCollisions:options.length,matchedExactNumber:matched?
+        registryCollisions:options.length,
+        executableLookupFound:live!==null,
+        enumerationFound:registryMatched!==null,
+        registryLookupClassDiff:live&&registryMatched?
+          live.constructor.name!==registryMatched.constructor.name:false,
+        matchedExactNumber:matched?
           String(matched.setNumber)===String(printing.number):false,
         nativeClass:matched?.constructor.name??null,
         specializedReducer:ownReducer,
