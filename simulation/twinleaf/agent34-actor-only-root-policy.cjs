@@ -170,7 +170,8 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(options.pathToPeakOpposingAbility===true){
     const path=require('./agent33-path-to-peak-public-lock.cjs')
       .choosePathToPeakOpposingAbility(view,catalog,{
-        ownFusionUsage:options.ownFusionUsage??null
+        ownFusionUsage:options.ownFusionUsage??null,
+        allowSafeSkyFieldReplacement:options.pathSafeSkyFieldReplacement===true
       });
     if(path)return path;
   }
@@ -551,6 +552,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     skyFieldBenchExpansionOptIn:deps.skyFieldBenchExpansion===true,
     pathToPeakOpposingAbilityOptIn:deps.pathToPeakOpposingAbility===true,
     pathToPeakPublicSpentFusionOptIn:deps.pathToPeakPublicSpentFusion===true,
+    pathSafeSkyFieldReplacementOptIn:deps.pathSafeSkyFieldReplacement===true,
     jetBenchSwitchRootOptIn:deps.jetBenchSwitchRoot??
       (process.env.AGENT40_JET_BENCH_SWITCH_DEV==='true'),
     bunnelbyTmJetRootOptIn:deps.bunnelbyTmJetRoot??
@@ -778,6 +780,11 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.pathToPeakOpposingAbilityOptIn)
     audit.version+='+'+
       require('./agent33-path-to-peak-public-lock.cjs').VERSION;
+  if(audit.pathSafeSkyFieldReplacementOptIn){
+    assert.equal(audit.pathToPeakOpposingAbilityOptIn,true,
+      'Safe Sky Field replacement requires explicit Path root');
+    audit.version+='+agent33-sky-replacement-opt-in-v1';
+  }
   if(audit.pathToPeakPublicSpentFusionOptIn){
     assert.equal(audit.pathToPeakOpposingAbilityOptIn,true,
       'Used Fusion proof requires explicit Path selection');
@@ -950,6 +957,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       playersCeremonyLastChance:audit.playersCeremonyLastChanceOptIn===true,
       skyFieldBenchExpansion:audit.skyFieldBenchExpansionOptIn===true,
       pathToPeakOpposingAbility:audit.pathToPeakOpposingAbilityOptIn===true,
+      pathSafeSkyFieldReplacement:audit.pathSafeSkyFieldReplacementOptIn===true,
       ...(audit.pathToPeakPublicSpentFusionOptIn?{
         ownFusionUsage:require('./agent33-public-fusion-usage.cjs')
           .publicFusionUsageAtRoot(state,seat)
