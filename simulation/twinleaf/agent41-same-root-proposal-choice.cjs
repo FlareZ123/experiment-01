@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v29-rondo-psychic-setup-census';
+const VERSION='agent41-same-root-proposal-choice-v30-experimental-psychic-bench-recipient';
 const MAX_SAMPLES=48;
 
 /**
@@ -100,6 +100,11 @@ const PROPOSERS=Object.freeze([
   {name:'public-rondo',flag:'rondoPublicOpportunity',
     propose:(view,catalog)=>require('./agent7-public-rondo-attack-offer.cjs')
       .offerPublicRondo(view,catalog)},
+  // Source-development alternative, physically supported by existing native
+  // Energy-target dispatch. The scorer must separately opt into selecting it.
+  {name:'rondo-psychic-bench',flag:'rondoPsychicBenchStage',
+    propose:(view,catalog)=>require('./agent7-rondo-psychic-bench-staging.cjs')
+      .proposeRondoPsychicBenchStaging(view,catalog)},
   {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
     propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
       .ownerBasicAttachmentMenu(view,catalog)},
@@ -411,6 +416,16 @@ function scoreOffer(view,catalog,baseline,offer,options){
      Number.isSafeInteger(offer.intent.estimatedDamage)&&
      offer.intent.estimatedDamage>=100)
     return {score:25,reason:'experimental-public-rondo-bench-count-over-pass'};
+  // Explicitly experimental, symmetric owner-public recipient arbitration.
+  // Opponent replies and any later Rondo are independent native questions.
+  if(options.rondoPsychicBenchStagingPreference===true&&
+     offer.source==='rondo-psychic-bench'&&
+     offer.intent.kind==='attach-basic-energy'&&
+     ['attach-basic-energy','pass'].includes(baseline.kind)&&
+     offer.intent.slot==='bench'&&
+     view.ownPublic?.bench?.[offer.intent.index]?.printing===
+       "Lillie's Clefairy ex JTG")
+    return {score:18,reason:'experimental-benched-clefairy-basic-psychic-recipient'};
   // Preregistered rank-6 development experiment, not a release policy:
   // each real owner root proposing Pass and a positive printed, publicly
   // payable attack may choose the Attack regardless of turn or physical seat.
