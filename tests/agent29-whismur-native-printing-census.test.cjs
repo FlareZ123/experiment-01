@@ -24,7 +24,7 @@ test('read-only candidate inventory can expose native attack name without certif
   const cards=[
     {fullName:'Whismur CES',attacks:[{name:'Bawl'}],abilities:[]},
     {fullName:'Whismur STS',attacks:[{name:'Disarming Voice'}],abilities:[]},
-    {fullName:'Gengar & Mimikyu GX TEU',
+    {fullName:'Gengar & Mimikyu-GX TEU',
       attacks:[{name:'Horror House-GX'}],abilities:[]}
   ];
   const manager={
