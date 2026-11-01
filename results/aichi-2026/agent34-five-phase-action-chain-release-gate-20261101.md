@@ -1,6 +1,6 @@
 # Agent 34: five-phase action-chain release gate
 
-**1 Nov 2026.** Added [`agent34-paper-action-chain-gate.cjs`](../../simulation/evaluation/agent34-paper-action-chain-gate.cjs) and [ten pure regressions](../../tests/agent34-paper-action-chain-gate.test.cjs). They were evaluated in a separate JavaScript runtime against refetched GitHub source, with ten checks passing. No compiled Twinleaf test has run.
+**1 Nov 2026.** Added [`agent34-paper-action-chain-gate.cjs`](../../simulation/evaluation/agent34-paper-action-chain-gate.cjs) and [eleven pure regressions](../../tests/agent34-paper-action-chain-gate.test.cjs). They were evaluated in a separate JavaScript runtime against refetched GitHub source, with eleven checks passing. No compiled Twinleaf test has run.
 
 The gate retains all accepted original-Store roots and separate `ROOT_PAPER`, `PROMPT_PAPER`, `PAYMENT_PAPER`, `EFFECT_PAPER`, `RANDOMNESS_PAPER` states. A claimed verified phase needs rule and event witnesses with a matching Store ID, root ordinal, owner seat, physical printing and source hash. Missing chains, invalid reported payments, duplicate chains and mismatched provenance cannot receive a structural pass. An accepted root and its effect cannot be marked not encountered.
 
