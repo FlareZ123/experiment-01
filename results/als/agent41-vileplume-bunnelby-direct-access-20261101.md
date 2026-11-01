@@ -14,9 +14,15 @@ Vileplume**, whose card rows are read from
 **14 starting-eligible Basic Pokémon**. Rank 2 contains **4 Guzma & Hala
 CEC 193**, rank 15 has **3**.
 
-The possible source ALS is a going-second Bunnelby with *Barrage* carrying
-Technical Machine: Evolution, obtained together with Jet Energy through
-Tag Call → Guzma & Hala under a two-discard optional payment.
+The possible source ALS is a going-second **Bunnelby PRC 121** with the
+printed **Ω Barrage Ancient Trait**, which permits attacking twice in a turn,
+carrying **Technical Machine: Evolution PAR 178** (a Tool granting the
+one-Colorless Evolution attack). **Jet Energy PAL 190** provides that Colorless
+unit; the named Tool and Energy can be obtained together by a search via
+**Tag Call CEC 206 → Guzma & Hala CEC 193** after the TAG TEAM Supporter
+pays its optional two-card discard. The card archive classifies Ω Barrage as
+an *Ancient Trait*, not as Bunnelby's Ability. Any relevance under a lock
+remains separately testable through the applicable paper rules and native Store.
 The Tool provides an attack and the special Energy can pay its Colorless
 cost. Whether the actual line can resolve depends on exact rules, own hand,
 search/prizes, Bench contents, the first-turn Supporter quota, opposing locks,
