@@ -58,7 +58,15 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const ResolvePromptAction=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
-  const choosePlan=deps.choosePlan??chooseHeldGuzmaMobility;
+  const choosePlan=deps.choosePlan??((view,catalog)=>{
+    const mobility=chooseHeldGuzmaMobility(view,catalog);
+    if(mobility)return mobility;
+    if(deps.forcedGuzmaNominalKo===true||
+       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true')
+      return require('./agent31-forced-guzma-ko-frontier.cjs')
+        .chooseForcedGuzmaNominalKo(view,catalog);
+    return null;
+  });
   const getCatalog=deps.getCatalog??publicCatalog;
   const getChoices=deps.getChoices??nativeSinglePokemonChoices;
   const nominalGust=deps.nominalGust===true;
@@ -86,6 +94,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     version:VERSION+(nominalGust?'+'+GUST_VERSION:''),
     nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
+    matchedForcedNominalKoPlans:0,
     guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
     ownTargetProposals:0,ownTargetAcceptances:0,ownTargetRejections:0,
@@ -208,7 +217,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         const choice=choosePlan(view,catalog);
         candidate={seat,ownerId:owner.id,turn:state.turn,
           handCountBefore:owner.hand.cards.length,
-          plan:choice?.kind==='play-held-guzma-mobility'&&
+          plan:(choice?.kind==='play-held-guzma-mobility'||
+            choice?.kind==='play-guzma-forced-nominal-ko')&&
             choice.handIndex===action.handIndex?choice:null};
       }
     }
@@ -242,6 +252,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
           anticipatedMissing:candidate.plan.anticipatedMissing??null
         });
         audit.matchedMobilityPlans++;
+        if(candidate.plan.kind==='play-guzma-forced-nominal-ko')
+          audit.matchedForcedNominalKoPlans++;
       }else audit.mismatchedOrUnplannedGuzma++;
     }
     if(gustReply){
