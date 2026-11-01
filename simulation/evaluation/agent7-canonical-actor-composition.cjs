@@ -36,6 +36,9 @@ const POKEMON_PROMPT_VERSION = 'agent8-canonical-actor-choose-pokemon-v7';
  */
 function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   assert.equal(typeof execute, 'function');
+  assert.ok(options.guzmaNominalGust!==true||
+    options.guzmaOwnerPromptContinuation===true,
+    'Nominal opponent gust requires the owner Guzma continuation');
   const ownerSingleSearch = options.ownerSingleSearch===true;
   const genericFallbackAttribution = options.genericFallbackAttribution===true;
   const actorChoosePokemon = options.actorChoosePokemon===true;
@@ -183,7 +186,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const bridge=adapters.guzma??
       require('../twinleaf/agent43-guzma-prompt-continuation.cjs')
         .withGuzmaOwnerPromptContinuation;
-    const selected=bridge(runActor);
+    const selected=bridge(runActor,
+      {nominalGust:options.guzmaNominalGust===true});
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Owner Guzma continuation must report a native audit');
     guzmaPromptAudit=selected.audit;
@@ -290,7 +294,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (options.guzmaOwnerPromptContinuation===true?'+'+
         require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:'')+
       (options.nativeAorItemLock===true?
-        '+agent8-effective-aor-item-veto-optin-v1':''),
+        '+agent8-effective-aor-item-veto-optin-v1':'')+
+      (options.guzmaNominalGust===true?'+'+
+        require('../twinleaf/agent43-guzma-nominal-gust-frontier.cjs').VERSION:''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
@@ -305,6 +311,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     nativeAorItemLockOptIn:options.nativeAorItemLock===true,
     actorChoosePokemonOptIn:actorChoosePokemon,
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
+    guzmaNominalGustOptIn:options.guzmaNominalGust===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
       ...(ownerVipBeforeAttackAudit?['OwnerAttackContendedVipFirstTurn']:[]),
