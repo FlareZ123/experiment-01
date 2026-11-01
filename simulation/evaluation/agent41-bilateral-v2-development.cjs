@@ -364,6 +364,7 @@ function executeDevelopment(trial,candidates,{
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
+  paperPromptPortfolio=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -459,6 +460,7 @@ function executeDevelopment(trial,candidates,{
   let sameTargetAttachEnergyAudit=null;
   let nativeAcceptedTargetAudit=null;
   let nativeAcceptedEnergyPromptAudit=null;
+  let paperPromptPortfolioAudit=null;
   // Development-only, both-seat correction for the original bot's split
   // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
   // A native Store or strict prompt failure still aborts the trial.
@@ -487,14 +489,24 @@ function executeDevelopment(trial,candidates,{
     nativeAcceptedTargetAudit=observed.audit;
     return observed.result;
   };
+  // Research-owned, printing-aware pre-dispatch Store gate. It is opt-in
+  // and covers only TWM Volt Cyclone physical Energy transfers.
+  // All other prompt families receive an explicit unverified disposition.
+  const runWithPaperPromptPortfolio=()=>{
+    if(!paperPromptPortfolio)return runWithNativeAcceptedTargets();
+    const witnessed=require('../twinleaf/agent39-paper-prompt-portfolio.cjs')
+      .withPaperPromptPortfolio(runWithNativeAcceptedTargets);
+    paperPromptPortfolioAudit=witnessed.audit;
+    return witnessed.result;
+  };
   const runWithActionInputWitness=()=>{
-    if(!nativeActionInputWitness)return runWithNativeAcceptedTargets();
+    if(!nativeActionInputWitness)return runWithPaperPromptPortfolio();
     const base=path.join(root,'vendor/twinleaf/ptcg-server/output');
     const SimpleTacticsAi=require(path.join(base,
       'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
     const Store=require(path.join(base,'game/store/store')).Store;
     const witnessed=require('../twinleaf/agent23-native-decision-dispatch-witness.cjs')
-      .withNativeDecisionDispatchWitness(runWithNativeAcceptedTargets,
+      .withNativeDecisionDispatchWitness(runWithPaperPromptPortfolio,
         {SimpleTacticsAi,Store,maxRecords:512,
           tapeOrdinal:nativeActionInputTapeOrdinal});
     nativeActionInputAudit=witnessed.audit;
@@ -744,6 +756,7 @@ function executeDevelopment(trial,candidates,{
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
+      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v1-volt-cyclone':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -777,8 +790,10 @@ function executeDevelopment(trial,candidates,{
     paperCologneQuotaOptIn:paperCologneQuota,
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
+    paperPromptPortfolioOptIn:paperPromptPortfolio,
     paperSameTargetAttachEnergyAudit:paperSameTargetAttachEnergy?
       sameTargetAttachEnergyAudit:null,
+    paperPromptPortfolioAudit:paperPromptPortfolio?paperPromptPortfolioAudit:null,
     paperFullBenchCallForFamilyAudit:paperFullBenchCallForFamily?
       fullBenchTrubbishAudit:null,
     paperCologneNativePlayAudit:cologneNativePlayAudit,
@@ -930,6 +945,7 @@ function runDevelopment({
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
+  paperPromptPortfolio=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -1103,6 +1119,7 @@ function runDevelopment({
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
+        paperPromptPortfolio,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         nativeSetupCoinChoiceReceipt,physicalZoneGate,
@@ -1267,6 +1284,10 @@ function runDevelopment({
               .acceptedEnergyPromptPublicAbortEvidence(error)}:{}),
         ...(paperSameTargetAttachEnergy?{
           paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
+        ...(paperPromptPortfolio?{
+          paperPromptPortfolioAbortEvidence:
+            error?.paperPromptPortfolioEvidence??
+            error?.cause?.paperPromptPortfolioEvidence??null}:{}),
         ...(actorOnlyComposition&&actorGenericFallbackAttribution?{
           nativeGenericFallbackAbortEvidence:genericAbort}:{}),
         qualifiesForCompetitiveInference:false
@@ -1296,6 +1317,7 @@ function runDevelopment({
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
+      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v1-volt-cyclone':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -1313,6 +1335,7 @@ function runDevelopment({
     paperCologneQuotaOptIn:paperCologneQuota,
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
+    paperPromptPortfolioOptIn:paperPromptPortfolio,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
