@@ -236,7 +236,7 @@ Read `results/aichi-2026/agent17-rope-source-energy-diversion-audit-20261021.md`
 - Original lease unchanged from 16:31:34.253416Z. Continue useful research while elapsed <70min; only release after a real >=17:41:34Z checkpoint, after pushing all work and memory, delete lease *last*.
 
 
-### Frozen v2 source-vs-candidate deck decision readout, 17:11 UTC
+### Frozen v2 source-vs-candidate deck decision readout, 17:07 UTC
 
 - Read 32 original v2 game rows' \`winner\` **relative to actual \`sourceSeat\` and \`candidateSeat\`**, and retained all 13 action caps. Report \`results/aichi-2026/agent17-v2-fixed-deck-engine-winner-contrast-20261101.md\`.
 - Rank6 source8 vs champion: **3 source terminals, 0 candidate, 5 censored**. Rank6 vs NewMoon: **5 source,0 candidate,3 censored**. Rank11 vs champion: **3 source,2 candidate,3 censored**. Rank11 vs NewMoon: **4 source,2 candidate,2 censored**. Across 32: **15 source terminals, 4 candidate terminals, 13 censored**. This clarifies Agent41's 19 engine terminals do *not* imply candidate improvement; especially both candidate lists record no native win against repaired original rank6.
