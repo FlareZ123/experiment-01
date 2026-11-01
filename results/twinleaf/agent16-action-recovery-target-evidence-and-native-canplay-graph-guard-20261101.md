@@ -1,0 +1,30 @@
+# Agent16: separating deferred-action recovery evidence and guarding native canPlay against concealed-state mutation
+
+**1 November 2026.** Normal-mode, push-verified Agent16 invocation. This is a tooling/evidence improvement for the current common two-player selection gate. No original-source competitive games, matchup wins, or fixed 60-card superiority are inferred.
+
+## A real attribution vulnerability in the existing analysis
+
+The prior `traceAcceptedOwnerRootRecoveries` combined an earlier proposed action with a later accepted root if its broad action kind and optional printing/target fields appeared compatible. It used `opportunityKey` without any attack name. Two distinct attack proposals, e.g. **Get Lost** and **Mind Shock** on the same hypothetical original rank3 Girafarig, could be stored under the same key; a different later attack could therefore spuriously count as recovered. For Energy attachments, the prior `recoveredPhysicalConfirmed` could be incremented when a later `nativePhysicalEffect='confirmed-public-effect'` was present even though the earlier offer's recipient was absent from the accepted root. Neither case proves a physically identical decision.
+
+The versioned `agent16-accepted-root-sequential-recovery-v2-public-target-evidence` now includes attack names and the proposed Basic Bench position in opportunity identity, and requires matching nonempty attack names for attack recovery. The original broad `recoveredInSameTurn` and `recoveredPhysicalConfirmed` counters remain as **printed-class** matches. New `recoveredExplicitEnergyTarget` and `recoveredExplicitEnergyTargetWithEffect` require the same explicitly specified Active/Bench slot and Bench index on both the earlier offer and later accepted root, plus printed Energy identity. Missing recipient metadata never receives the stricter credit. A matching slot is still **not proof of a persistent Pokémon/card identity**, because occupants of that slot can change; identical printing copies also remain indistinguishable. Neither the original offered action's native legality nor superior strategic value is verified.
+
+The [code](../../simulation/twinleaf/agent16-root-recovery-trace.cjs) and [regressions](../../tests/agent16-root-recovery-trace.test.cjs) demonstrate two different proposed attacks are distinct, an accepted action without a recipient earns no explicit-target credit, and explicit same-slot Energy plus confirmed physical effect earns that bounded evidence tier. Previous later-root and terminal-closure tests remain in place.
+
+## New whole-Store own-data canPlay nonmutation guard
+
+The shared [`agent41-native-coheld-denial-canplay.cjs`](../../simulation/twinleaf/agent41-native-coheld-denial-canplay.cjs) already checks that `card.canPlay(store,state,owner)` preserves its detached owner observation and `supporterTurn` quota. These checks cannot detect mutation solely in the nonacting player's concealed hand, unrevealed Prize cards, or other native Store-only fields. The [1 November 03:58 Critic intervention](../../communications/broadcast/20261101T0358Z_critic_coheld_witness_retention_and_shadow_selection.md) correctly requested an independent whole-native-state check.
+
+Added [`agent16-native-canplay-graph-guard.cjs`](../../simulation/twinleaf/agent16-native-canplay-graph-guard.cjs), which requires the actual card object to occur in the acting owner's physical hand and compares the existing `storeDataGraphFingerprint` before and after `canPlay`, including if the native call throws. It returns positive, negative or error verdicts after verifying no Store own-data graph change. A graph change throws and fails closed. **The fingerprint must never enter actor decision features or expose private-state inputs to proposal scorers.** The guard is reusable but has not yet been installed in Agent41's live code or tested against a real original-source coheld root.
+
+The [pure adversarial tests](../../tests/agent16-native-canplay-graph-guard.test.cjs) exercise both physical owner seats, true/false/error calls, hidden opposing-hand mutation, hidden Prize mutation plus thrown error, nonacting quota mutation and nonowner physical card rejection. The existing fingerprint excludes transport handler, logs contents (while retaining count), lexical closures and prototype method identity. As always, a before/after probe cannot observe a mutation that is completely undone before the post-snapshot. Graph equivalence therefore provides a bounded nonmutation certificate, not universal behavioral purity.
+
+## Reproducibility and qualification
+
+- GitHub commits: `50fa2b6` action-recovery implementation, `cf36f0b` action regression, `b9e493b` native graph guard, `dc3b9c8` mutation regressions, `836811e` existing manual workflow gate.
+- [Manual statistics CI 41274001146](https://github.com/FlareZ123/experiment-01/actions/runs/41274001146): **30/30** Agent16 root-contention plus deferred-action tests passed in the targeted step. Overall job failed later in unrelated Agent40 Jet/physical fixture, explicitly preserved.
+- [Manual statistics CI 41274101254](https://github.com/FlareZ123/experiment-01/actions/runs/41274101254): **overall SUCCESS** on the revision including both new Agent16 suites and all prior checks. No per-commit workflow was created.
+- [Integration-steward handoff](../../communications/agent41/20261101T0443Z_agent16_native_graph_canplay_guard_and_sequential_recovery.md): request genuine original-Store coheld native test, role-safe integration and retained positive source witness.
+
+## Remaining decision gate
+
+The main benchmark still has **29/32 authenticated exact original 60s**, all 32 archetypes independently identified, **zero competitively qualified games**, and no proven 99.5% result. The shared selector still needs fully owner-safe executable alternatives, natural native canPlay witnesses, first-positive retention under sample truncation, real action acceptance and downstream both-player response. A synthetic pure certificate cannot replace those observations.
