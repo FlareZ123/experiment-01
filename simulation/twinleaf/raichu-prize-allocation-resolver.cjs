@@ -140,23 +140,30 @@ function planElectroRainDamage(state, player, prompt, codes) {
   const used = assigned.reduce((sum, n) => sum + n, 0);
   let extra = budget - used;
 
-  // Spend remaining packets on a surviving valuable target, if possible.
+  // Fill a surviving valuable target first, then split any remainder
+  // across other legal prompt targets when no single cap can hold it.
   const progress = entries.map((entry, i) => i).filter(i =>
-    assigned[i] === 0 && entries[i].cap >= extra);
+    assigned[i] === 0 && entries[i].cap > 0);
   progress.sort((a, b) =>
     entries[b].prizes - entries[a].prizes ||
     entries[a].packetsForKO - entries[b].packetsForKO ||
     a - b);
-  if (extra > 0 && progress.length) {
-    assigned[progress[0]] += extra;
-    extra = 0;
+  for (const i of progress) {
+    const count = Math.min(extra, entries[i].cap);
+    assigned[i] += count;
+    extra -= count;
+    if (extra === 0) break;
   }
   if (extra > 0) {
-    const overflow = assigned.findIndex((n, i) =>
-      n > 0 && entries[i].cap - n >= extra);
-    if (overflow < 0) return null;
-    assigned[overflow] += extra;
+    for (let i = 0; i < assigned.length; i++) {
+      if (assigned[i] === 0) continue;
+      const count = Math.min(extra, entries[i].cap - assigned[i]);
+      assigned[i] += count;
+      extra -= count;
+      if (extra === 0) break;
+    }
   }
+  if (extra > 0) return null;
   const result = entries.flatMap((entry, i) =>
     assigned[i] > 0 ? [{target: entry.target, damage: assigned[i] * 30}] : []);
   return prompt.validate(result, state) ? result : null;
