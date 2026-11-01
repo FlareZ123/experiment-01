@@ -65,7 +65,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
     }
     const session=sessions.get(this);
     const state=this.state;
-    if(session?.sourceSeat!==null&&
+    if((session?.sourceSeat===0||session?.sourceSeat===1)&&
        state?.phase===GamePhase.PLAYER_TURN&&
        state.activePlayer===session.sourceSeat&&
        !state.prompts?.some(p=>p.result===undefined)&&
