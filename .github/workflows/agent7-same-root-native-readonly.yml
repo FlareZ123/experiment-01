@@ -55,6 +55,8 @@ jobs:
         run: node simulation/evaluation/agent41-bilateral-v2-development.cjs > agent7-same-root-on.json
       - name: Demand physical-deal, action, prompt and target identity
         run: node scripts/agent7-same-root-native-parity.cjs agent7-same-root-off.json agent7-same-root-on.json > agent7-same-root-pair.json
+      - name: Source-dealt registered two-seat same-kind final Bench development
+        run: node simulation/evaluation/agent27-natural-lastbench-development.cjs > agent27-natural-lastbench-source.json
       - name: Preserve controls, observed game evidence and every failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,5 +66,6 @@ jobs:
             agent7-same-root-off.json
             agent7-same-root-on.json
             agent7-same-root-pair.json
+            agent27-natural-lastbench-source.json
           if-no-files-found: warn
           retention-days: 10
