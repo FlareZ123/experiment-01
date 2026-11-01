@@ -90,6 +90,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerShuffleSupporterAudit = null;
   let ownerHammerAfterPassAudit = null;
   let ownerVipAfterPassAudit = null;
+  let ownerVipBeforeAttackAudit = null;
   let ownerPlumeriaOpportunityAudit = null;
   let ownerPlumeriaAfterPassAudit = null;
   let ownerNativeFlarePromptAudit = null;
@@ -212,7 +213,13 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   };
   // Root remains the terminal fallback decoder. Plumeria is nested deepest
   // so its callback is invoked first on Pass and on owner-controlled prompts.
-  const runRoot = () => root(runVip);
+  const runRoot = () => root(() => {
+    if(options.ownerVipBeforeAttack!==true)return runVip();
+    const selected=require('../twinleaf/agent10-battle-vip-before-attack.cjs')
+      .withActorVipBeforeAttack(runVip);
+    ownerVipBeforeAttackAudit=selected.audit;
+    return selected.result;
+  });
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
@@ -239,6 +246,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled actor-only shuffle Supporter must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
     'Enabled actor-only Battle VIP Pass must expose native audit');
+  if(options.ownerVipBeforeAttack===true)assert.ok(ownerVipBeforeAttackAudit,
+    'Enabled attack-contended native VIP must expose owned-root audit');
   const vipOrSearch = rooted.result;
   const searchOrFog = vipAfterPassOptIn?vipOrSearch.result:vipOrSearch;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
@@ -268,6 +277,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ownerSingleSearch?OWNER_SEARCH_VERSION:VERSION)+
       (actorChoosePokemon?'+'+POKEMON_PROMPT_VERSION:'')+
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
+      (ownerVipBeforeAttackAudit?'+'+ownerVipBeforeAttackAudit.version:'')+
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
       (plumeriaAfterPassOptIn?'+'+ownerPlumeriaAfterPassAudit.version:'')+
       (ownerNativeFlarePromptAudit?'+'+ownerNativeFlarePromptAudit.version:'')+
@@ -283,10 +293,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
+    ownerVipBeforeAttackOptIn:options.ownerVipBeforeAttack===true,
     actorChoosePokemonOptIn:actorChoosePokemon,
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
+      ...(ownerVipBeforeAttackAudit?['OwnerAttackContendedVipFirstTurn']:[]),
       ...(options.guzmaOwnerPromptContinuation===true?['GuzmaOwnBenchPrompt']:[]),
       ...(actorChoosePokemon?['ChoosePokemonPrompt']:[]),
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
@@ -300,6 +312,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     componentVersions: {
       root: rootAudit.version ?? null,
       ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
+      ...(ownerVipBeforeAttackAudit?{vipBeforeAttack:ownerVipBeforeAttackAudit.version??null}:{}),
       ...(plumeriaAfterPassOptIn?{
         plumeriaAfterPass:ownerPlumeriaAfterPassAudit.version??null}:{}),
       ...(ownerNativeFlarePromptAudit?{
@@ -378,6 +391,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         plumeriaAfterPassSettled:ownerPlumeriaAfterPassAudit.settledEnergyDiscards,
         plumeriaAfterPassBySeat:ownerPlumeriaAfterPassAudit.bySeat
       }:{}),
+      ...(ownerVipBeforeAttackAudit?{
+        vipBeforeAttackAccepted:ownerVipBeforeAttackAudit.acceptedItems,
+        vipBeforeAttackBenchConfirmed:ownerVipBeforeAttackAudit.physicallyConfirmedBenchSearches,
+        vipBeforeAttackBySeat:ownerVipBeforeAttackAudit.bySeat
+      }:{}),
       ...(vipAfterPassOptIn?{
         vipItemAccepted:ownerVipAfterPassAudit.acceptedItems,
         vipSearchAccepted:ownerVipAfterPassAudit.acceptedSearches,
@@ -417,6 +435,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerPlumeriaAfterPassAudit,
     ownerNativeFlarePromptAudit,
     ownerHammerAfterPassAudit,
+    ownerVipBeforeAttackAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
     overlappingDelegationObservations: {
@@ -453,6 +472,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(vipAfterPassOptIn?{
         ownerVipAfterPass:ownerVipAfterPassAudit
+      }:{}),
+      ...(ownerVipBeforeAttackAudit?{
+        ownerVipBeforeAttack:ownerVipBeforeAttackAudit
       }:{}),
       ...(genericFallbackAttribution?{genericFallback:genericFallbackAudit}:{}),
       fog: fogAudit,
