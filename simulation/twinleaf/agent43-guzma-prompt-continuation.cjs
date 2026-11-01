@@ -7,6 +7,8 @@ const {chooseHeldGuzmaMobility,isGuzma}=
   require('./agent2-held-guzma-mobility-frontier.cjs');
 const {nativeSinglePokemonChoices}=
   require('./agent8-actor-only-choose-pokemon.cjs');
+const {VERSION:GUST_VERSION,chooseNominalGuzmaGust}=
+  require('./agent43-guzma-nominal-gust-frontier.cjs');
 
 const VERSION='agent43-owner-guzma-native-prompt-continuation-v1';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -59,6 +61,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const choosePlan=deps.choosePlan??chooseHeldGuzmaMobility;
   const getCatalog=deps.getCatalog??publicCatalog;
   const getChoices=deps.getChoices??nativeSinglePokemonChoices;
+  const nominalGust=deps.nominalGust===true;
+  const chooseGust=deps.chooseGust??chooseNominalGuzmaGust;
   const trace=deps.trace??(()=>{});
   const botOriginal=Object.getOwnPropertyDescriptor(
     Bot.prototype,'decodeNextAction');
@@ -70,19 +74,24 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   assert.equal(typeof choosePlan,'function');
   assert.equal(typeof getCatalog,'function');
   assert.equal(typeof getChoices,'function');
+  if(nominalGust)assert.equal(typeof chooseGust,'function');
 
   // A staged native Store can be supplied by a test without dispatching
   // its normal AddPlayerAction ceremony against an already staged board.
   let liveStore=deps.initialLiveStore??null,catalog=null;
   const plans=new Map();
   const ownedReplies=new WeakMap();
+  const gustReplies=new WeakMap();
   const audit={
-    version:VERSION,ownerOnly:true,bothSeats:true,
+    version:VERSION+(nominalGust?'+'+GUST_VERSION:''),
+    nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
     guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
     ownTargetProposals:0,ownTargetAcceptances:0,ownTargetRejections:0,
     ownTargetPhysicalConfirmations:0,ownTargetPhysicalMismatches:0,
+    gustTargetProposals:0,gustTargetAcceptances:0,
+    gustTargetPhysicalConfirmations:0,gustTargetPhysicalMismatches:0,
     missingPlannedRecipients:0,ambiguousPromptMenus:0,
     expiredPlans:0,nonLiveFallbacks:0,
     bySeat:{0:0,1:0},receipts:[],
@@ -120,6 +129,24 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     // Printed Guzma first requests the opposing gust. The existing
     // owner's policy decides that separate tactical target.
     if(opposite.length && !own.length){
+      if(nominalGust){
+        const view=observe(state,plan.seat);
+        assert.equal(view.decisionKind,'owner-prompt');
+        catalog??=getCatalog();
+        const proposed=chooseGust(view,plan,opposite,catalog);
+        if(proposed){
+          const target=opposite.find(c=>c.index===proposed.benchIndex);
+          assert.ok(target&&pending.validate([target.physical],state),
+            'Nominal gust proposal must be native prompt-legal');
+          const action=new ResolvePromptAction(pending.id,[target.physical]);
+          gustReplies.set(action,{...plan,promptId:pending.id,
+            expectedPhysicalId:target.physical.getPokemonCard?.()?.id??null,
+            expectedPrinting:target.physical.getPokemonCard?.()?.fullName??null,
+            proposed});
+          audit.gustTargetProposals++;
+          return action;
+        }
+      }
       audit.opponentTargetDelegations++;
       return botOriginal.value.apply(this,[state,...rest]);
     }
@@ -156,6 +183,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     const real=this===liveStore;
     const state=this.state;
     const reply=real?ownedReplies.get(action):null;
+    const gustReply=real?gustReplies.get(action):null;
     const currentPrompt=reply?state.prompts?.find(p=>
       p.id===reply.promptId&&p.result===undefined):null;
     let candidate=null;
@@ -210,10 +238,29 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         plans.set(candidate.ownerId,{
           seat:candidate.seat,turn:candidate.turn,
           benchIndex:candidate.plan.benchIndex,
-          handIndex:candidate.plan.handIndex
+          handIndex:candidate.plan.handIndex,
+          anticipatedMissing:candidate.plan.anticipatedMissing??null
         });
         audit.matchedMobilityPlans++;
       }else audit.mismatchedOrUnplannedGuzma++;
+    }
+    if(gustReply){
+      const opposite=state.players[1-gustReply.seat];
+      const active=opposite.active.getPokemonCard?.();
+      const confirmed=Number.isSafeInteger(gustReply.expectedPhysicalId)&&
+        active?.id===gustReply.expectedPhysicalId&&
+        active?.fullName===gustReply.expectedPrinting;
+      audit.gustTargetAcceptances++;
+      if(confirmed)audit.gustTargetPhysicalConfirmations++;
+      else audit.gustTargetPhysicalMismatches++;
+      bounded({kind:'native-opponent-gust',seat:gustReply.seat,
+        turn:gustReply.turn,promptId:gustReply.promptId,
+        expectedBenchIndex:gustReply.proposed.benchIndex,
+        maxPrintedDamage:gustReply.proposed.maxPrintedDamage,
+        firstNativeBenchIndex:gustReply.proposed.firstBenchIndex,
+        expectedPhysicalId:gustReply.expectedPhysicalId,
+        actualPhysicalId:active?.id??null,confirmed,
+        nominalOnly:true});
     }
     if(reply){
       assert.ok(currentPrompt,'Original owner target prompt vanished before dispatch');
