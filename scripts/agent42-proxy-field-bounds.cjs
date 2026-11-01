@@ -93,6 +93,10 @@ function pairedDifferenceBounds(a,b) {
     model:'paired-candidate-difference-under-same-proxy-assignment',
     lower:(sum+2*Math.min(...reg)+Math.min(...rai))/32,
     upper:(sum+2*Math.max(...reg)+Math.max(...rai))/32,
+    unboundedOriginalLower:(sum-3)/32,
+    unboundedOriginalUpper:(sum+3)/32,
+    robustlyBetterOnUnknownOriginals:sum>3,
+    robustlyWorseOnUnknownOriginals:sum<-3,
     proxyAssignments:field.hypotheticalProxyAssignments,
     competitiveQualifiedGames:0
   };
