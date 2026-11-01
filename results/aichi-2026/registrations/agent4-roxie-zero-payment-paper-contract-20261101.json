@@ -1,0 +1,17 @@
+{
+  "schema": "agent4-roxie-paper-nonempty-trainer-native-v1",
+  "dateUTC": "2026-11-01",
+  "originalSourceRank": 31,
+  "originalPrintedRoxie": "CEC 205",
+  "sourceRule": "advanced-players-rulebook.md D-05 Up to: Trainer and Ability choose between 1 and specified number, zero exception applies to Pokemon attacks, not Trainers; B-03 no-effect Trainer cannot be used",
+  "priorGuardRegistration": "results/aichi-2026/registrations/agent4-roxie-native-paper-payment-guard-20261101.json",
+  "registrationCorrection": "Original hypothesis described legal zero-selection. Detailed D-05 rulebook explicitly refutes it. This follow-up prospectively tests stricter >=1 source-payment and preplay eligibility.",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "design": "Staged physical Store owner hand [Tapu Lele-GX GRI, Roxie CEC] has no printed Roxie-eligible Pokemon. Compare unguarded native PlayCardAction and guarded root PlayCardAction before Store mutation in both physical seats; source-specific guard must reject entirely. Independently test original native Roxie prompt resolves zero/empty and printed guard rejects before mutation when root already played, and legal Koffing payment draws three in both seats.",
+  "evidenceRules": [
+    "Record source printer, root and prompt acceptance separately",
+    "Both physical seats",
+    "No original source deal or game winner",
+    "Run only existing manual compiled workflow"
+  ]
+}
