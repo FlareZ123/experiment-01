@@ -87,7 +87,8 @@ function isolatedCampaign(){
         return execute();
       }
     };
-    return require(specifier);
+    return require(specifier.startsWith('.')?
+      path.resolve(path.dirname(runnerPath),specifier):specifier);
   };
   const mock={exports:{}};
   vm.runInNewContext(source,{
