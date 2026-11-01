@@ -1172,6 +1172,7 @@ function runDevelopment({
             actorHandDiscard,actorChoosePokemon,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             sameRootNativePlumeriaChoice:nativePlumeriaChoice,
+            sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
