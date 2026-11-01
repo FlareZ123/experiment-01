@@ -181,5 +181,73 @@ class FrozenPromptPortfolioTests(unittest.TestCase):
             changed, 1), "unmodeled-energy")
 
 
+    def test_rank6_bench_count_matches_actual_attached_prompt(self):
+        data = fixture()
+        row = data["rows"][0]
+        row["trial"]["rank"] = 6
+        row["rootActionLedger"][0]["action"] = "AttackAction"
+        row["rootActionLedger"][0]["attack"] = "Volt Cyclone"
+        row["rootActionLedger"].append({
+            "actionOrdinal": 3, "action": "ResolvePromptAction",
+            "pendingPrompt": "AttachEnergyPrompt", "playerSlot": 1,
+            "turnBefore": 0, "initiatingRootActionOrdinal": 0})
+        row["rootActionCount"] = 4
+        row["actionCount"] = 4
+        board_before = [
+            {"stadium": [], "active": {"name": "Other",
+                                      "energyCards": []}, "bench": []},
+            {"stadium": [], "active": {
+                "name": "Iron Thorns ex",
+                "energyCards": ["Speed Lightning Energy",
+                                "Double Colorless Energy"]},
+             "bench": [{"name": "Iron Thorns ex"}]}
+        ]
+        row["sourceAttackSettlement"] = {"attacks": [{
+            "actionOrdinal": 0, "attackName": "Volt Cyclone",
+            "publicBoardBefore": board_before
+        }]}
+        event = {
+            "dispatchOrdinal": 6, "turnBefore": 0, "playerSlot": 1,
+            "nativeDispatchAccepted": True,
+            "publicChanges": [
+                {"seat": 1, "position": "active", "index": 0,
+                 "before": {"pokemon": "Iron Thorns ex TWM",
+                            "energies": ["Double Colorless Energy SUM"]},
+                 "after": {"pokemon": "Iron Thorns ex TWM",
+                           "energies": []}},
+                {"seat": 1, "position": "bench", "index": 0,
+                 "before": {"pokemon": "Iron Thorns ex TWM", "energies": []},
+                 "after": {"pokemon": "Iron Thorns ex TWM",
+                           "energies": ["Double Colorless Energy SUM"]}}
+            ]
+        }
+        row["nativeAcceptedEnergyPromptSidecar"] = {
+            "events": [event], "acceptedEnergyPromptResolutions": 1,
+            "publiclyChangedResolutions": 1, "publicDeltaUnobserved": 0
+        }
+        result = audit_native(data)
+        self.assertEqual(result["rank6_volt_cyclone_bench_prompt_branch"],
+                         {"own-bench-one-move-prompt": 1})
+        self.assertEqual(result["rank6_source_printed_volt_cyclone_base_cost"],
+                         {"observed-base-cost-payable": 1})
+        self.assertEqual(result["energy_sidecar_minus_root_ordinal"],
+                         {"3": 1})
+
+        without_bench = copy.deepcopy(data)
+        no = without_bench["rows"][0]
+        no["rootActionLedger"].pop()
+        no["rootActionCount"] = 3
+        no["actionCount"] = 3
+        no["sourceAttackSettlement"]["attacks"][0]["publicBoardBefore"][1][
+            "bench"] = []
+        no["nativeAcceptedEnergyPromptSidecar"] = {
+            "events": [], "acceptedEnergyPromptResolutions": 0,
+            "publiclyChangedResolutions": 0, "publicDeltaUnobserved": 0
+        }
+        result = audit_native(without_bench)
+        self.assertEqual(result["rank6_volt_cyclone_bench_prompt_branch"],
+                         {"no-bench-no-move-prompt": 1})
+
+
 if __name__ == "__main__":
     unittest.main()
