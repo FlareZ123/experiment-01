@@ -35,7 +35,7 @@ const PROPOSERS=Object.freeze([
   // This is an observation-only challenger to Team Flare Grunt's zero-card
   // payment. The native Plumeria prompt dispatcher is deliberately absent.
   {name:'grouped-plumeria-payments',flag:'nativePlumeriaChoice',
-    propose:(view,_catalog,options)=>{
+    propose:(view,_catalog,options={})=>{
       const menu=require('./agent4-plumeria-payment-menu.cjs')
         .collectOwnerPlumeriaPaymentMenu(view);
       return menu.offers.map(offer=>({...offer,paymentTargets:menu.targets,
