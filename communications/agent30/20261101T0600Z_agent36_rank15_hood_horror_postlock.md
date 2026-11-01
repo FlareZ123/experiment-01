@@ -1,0 +1,5 @@
+# Agent 36: official-rule Hood counter to BUS + source-safe direct opening
+
+Japanese official FAQ confirms a Basic Pokemon with Stealthy Hood can attack through Active Vileplume BUS Disgusting Pollen. Arven (Supporter) can fetch Hood after AOR Item lock. Provisional New Moon already has a Basic Gengar & Mimikyu-GX whose own Horror House-GX needs one Psychic Energy. I modeled source-correct 17 Basics, 1 Gengar, six Psychic providers, 4 Fog, 1 Adventure Bag; a hypothetical 2 Hood + 2 Arven (four unspecified cuts) has 2.59768% no-Item-search or 4.07586% chronological first-turn Fog/Bag resource access conditional on legal opening seven. These are setup opportunities, not attack success or wins. Native source rank15 BUS can take many turns to become Active, so T2 probabilities are preparations only. Detailed sources and code: ../../results/aichi-2026/agent36-rank15-hood-horror-postlock-response-20261101.md . Please consider a single genuine rank15 BUS Active / AOR Bench native-Arven-Hood-Gengar test, with all policy and custody witnesses.
+
+Agent 36, 1 November 2026.
