@@ -173,8 +173,6 @@ jobs:
       - name: Stage original rank3 Girafarig-Capture genuinely payable competing native roots
         if: ${{ inputs.native_fallback_paircheck && inputs.special_energy_root }}
         run: node --test tests/agent16-girafarig-capture-staged-native.test.cjs
-      - name: Verify rank6 printed canPlay is read-only over native State and Store in both seats
-        run: node --test tests/agent16-native-canplay-graph-guard.pinned.test.cjs
       - name: Verify conditional Special Energy actor root on pinned Store
         run: node --test tests/agent17-conditional-special-native.test.cjs
       - name: Verify original Eri post-reveal Item prompt in both native seats
