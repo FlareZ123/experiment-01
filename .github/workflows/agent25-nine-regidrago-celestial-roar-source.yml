@@ -1,0 +1,42 @@
+name: Agent25 nine original Aichi Regidrago Celestial Roar printed Energy panel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent25-nine-regidrago-original-paper-fidelity
+  cancel-in-progress: false
+
+jobs:
+  paper-source-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout exactly pinned original Store
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned original native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run pre-registered nine original Regidrago source 60s two native printed-Energy branches
+        run: node simulation/evaluation/agent25-nine-original-regidrago-celestial-roar-paper-hook-panel.cjs > agent25-nine-regidrago-original-paper-source-panel.json
+      - name: Print complete nine-source original versus Agent47 paper-hook status census
+        run: |
+          node -e "const r=require('./agent25-nine-regidrago-original-paper-source-panel.json');console.log(JSON.stringify({version:r.version,aggregate:r.aggregate,byRank:r.byRank},null,2));"
+      - name: Archive original nine-source complete 18-arm original and corrected native logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-nine-regidrago-original-paper-source-panel
+          path: agent25-nine-regidrago-original-paper-source-panel.json
+          if-no-files-found: warn
+          retention-days: 14
