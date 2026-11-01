@@ -5,7 +5,7 @@ const path=require('node:path');
 const assert=require('node:assert/strict');
 const {initializeCards}=require('../twinleaf/headless.cjs');
 
-const VERSION='agent50-29source-native-specialized-attack-census-v1';
+const VERSION='agent50-29source-native-executable-attack-census-v2';
 
 /**
  * Structural triage of original Aichi source Pokémon against the pinned card
@@ -81,7 +81,7 @@ function census(manager,source){
     specializedReducerEntries:count(r=>r.specializedReducer===true),
     distinctRiskPrintings:Array.from(new Map(rows.filter(r=>
       r.dynamicPrintedDamage&&r.specializedReducer===false).map(r=>
-        [r.requestedPrinting,r])).values()),
+        [r.requestedPrinting+' #'+r.requestedNumber,r])).values()),
     byRank:source.decks.map(deck=>{
       const here=rows.filter(r=>r.rank===deck.rank);
       return {rank:deck.rank,entries:here.length,
