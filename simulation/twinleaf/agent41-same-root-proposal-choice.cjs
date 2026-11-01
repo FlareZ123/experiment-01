@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v26-rondo-owner-root-readiness';
+const VERSION='agent41-same-root-proposal-choice-v27-rondo-per-seat-readiness';
 const MAX_SAMPLES=48;
 
 /**
@@ -633,7 +633,7 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
 function newSameRootAudit(){
   return {version:VERSION,ownerRoots:0,changedRoots:0,
     offerRoots:0,selectorErrorRoots:0,
-    rondoReadinessBySeat:{0:{},1:{}},bySeat:{
+    rondoReadinessBySeat:{0:{},1:{}},rondoOffersBySeat:{0:0,1:0},bySeat:{
       0:{ownerRoots:0,changedRoots:0},
       1:{ownerRoots:0,changedRoots:0}},
     selectionReasons:{},samples:[],
@@ -662,6 +662,8 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   assert.ok(seat===0||seat===1);
   assert.ok(Number.isSafeInteger(ordinal)&&ordinal>=1);
   audit.ownerRoots++;audit.bySeat[seat].ownerRoots++;
+  audit.rondoOffersBySeat[seat]+=
+    receipt.offers.filter(o=>o.source==='public-rondo').length;
   if(typeof receipt.publicRondoReadiness==='string'){
     const categories=audit.rondoReadinessBySeat[seat];
     const category=receipt.publicRondoReadiness;
