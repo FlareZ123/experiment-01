@@ -1,6 +1,8 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {createNativeStateFingerprintGuard}=
+  require('./agent33-native-state-fingerprint-guard.cjs');
 
 const VERSION='agent41-native-coheld-denial-owner-only-canplay-v1';
 const PLUMERIA='Plumeria BUS';
@@ -43,11 +45,15 @@ function inspectNativeCoheldDenialCanPlay(
   assert.deepStrictEqual(hand.map(c=>c.fullName),view.ownHand,
     'Authentic original hand physical cards must match detached owner view');
   const candidates={plumeria:[],teamFlare:[]};
+  // The complete research-owned State snapshot stays inside this audit.
+  // Only equality is reported: concealed identities never reach the scorer.
+  const stateFingerprint=createNativeStateFingerprintGuard();
   const inspectPrinting=(printing,into)=>{
     for(let index=0;index<hand.length;index++){
       const card=hand[index];
       if(card.fullName!==printing)continue;
       const before=observe(state,seat);
+      const nativeBefore=stateFingerprint.digest(state);
       const quota=owner.supporterTurn;
       let nativePlayable=null,error=null;
       try{nativePlayable=card.canPlay(store,state,owner)===true;}
@@ -57,6 +63,8 @@ function inspectNativeCoheldDenialCanPlay(
         'Native canPlay inspection changed public owner/root observation');
       assert.equal(owner.supporterTurn,quota,
         'Native canPlay inspection consumed the acting Supporter quota');
+      assert.equal(stateFingerprint.digest(state),nativeBefore,
+        'Native canPlay inspection changed native hidden or public own-data State');
       into.push({handIndex:index,printing,nativePlayable,error});
     }
   };
@@ -75,6 +83,7 @@ function inspectNativeCoheldDenialCanPlay(
       candidates.plumeria.some(x=>x.nativePlayable) &&
       candidates.teamFlare.some(x=>x.nativePlayable),
     paperInitialSupporterRestrictionPassed:true,
+    nativeStateOwnDataMutationGuardPassed:true,
     physicalPaymentPairsPerPlumeriaCopy:paymentPairsPerCopy,
     nativeActionDispatched:false,nativePromptsResolved:false,
     outcomeUnverified:true
