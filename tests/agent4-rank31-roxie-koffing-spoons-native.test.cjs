@@ -5,7 +5,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {
   runRank31RoxieSpoons,probeRoxieChoiceIndexShift,
-  probeRoxieForbiddenGXPayment
+  probeRoxieForbiddenGXPayment,probeRoxieNoEligibleRoot,
+  probeRoxieZeroPrompt
 }=require('../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
 
 test('the authenticated published rank31 source physically plays all three required printing families',()=>{
@@ -146,4 +147,38 @@ test('Roxie-only guarded Store prototype restores after synchronous failure',()=
     throw new Error('intentional-test-abort');
   }),/intentional-test-abort/);
   assert.strictEqual(Store.prototype.dispatch,before);
+});
+
+test('rulebook D-05 forbids owner Roxie root with only GX and no eligible payment in both seats',()=>{
+  for(const seat of [0,1]){
+    const raw=probeRoxieNoEligibleRoot(seat,false);
+    const paper=probeRoxieNoEligibleRoot(seat,true);
+    console.log('AGENT4_ROXIE_NO_ELIGIBLE_ROOT '+JSON.stringify({raw,paper}));
+    assert.equal(raw.rootError,null);
+    assert.deepEqual(raw.after.pendingPrompts,['ChooseCardsPrompt']);
+    assert.match(paper.rootError,/PAPER_ROXIE_REJECTED:NO_ELIGIBLE_SOURCE_POKEMON/);
+    assert.deepEqual(paper.after.hand,paper.before.hand);
+    assert.equal(paper.after.deckCount,paper.before.deckCount);
+    assert.equal(paper.after.supporterTurn,paper.before.supporterTurn);
+    assert.deepEqual(paper.after.pendingPrompts,[]);
+  }
+});
+
+test('rulebook D-05 nonempty Roxie payment blocks native zero-response settlement in both seats',()=>{
+  for(const seat of [0,1]){
+    const raw=probeRoxieZeroPrompt(seat,false);
+    const paper=probeRoxieZeroPrompt(seat,true);
+    console.log('AGENT4_ROXIE_ZERO_PROMPT '+JSON.stringify({raw,paper}));
+    assert.equal(raw.sourceCard,'Roxie CEC');
+    assert.equal(paper.sourceCard,raw.sourceCard);
+    assert.equal(raw.nativeValidatorAccepted,true);
+    assert.equal(paper.nativeValidatorAccepted,true);
+    assert.equal(raw.storeError,null);
+    assert.equal(raw.promptPending,false);
+    assert.match(paper.storeError,/PAPER_ROXIE_REJECTED/);
+    assert.equal(paper.promptPending,true);
+    assert.equal(raw.deckCount,paper.deckCount);
+    assert.equal(raw.gxInHand,true);
+    assert.equal(paper.gxInHand,true);
+  }
 });
