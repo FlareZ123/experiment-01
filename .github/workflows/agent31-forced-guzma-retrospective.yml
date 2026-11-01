@@ -1,0 +1,41 @@
+name: Agent31 pinned original rank11 forced Guzma 16-pair retrospective
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-registered-retrospective:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install exact pinned dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Validate immutable original 16 source rank11 trials and pinned engine
+        run: node simulation/evaluation/agent31-forced-guzma-registered-retrospective.cjs --inspect-only
+      - name: Compare 16 baseline and 16 forced Guzma actual native arms
+        env:
+          AGENT31_FORCED_GUZMA_OUTPUT: ${{ runner.temp }}/agent31-original-rank11-forced-guzma-32arms.json
+        run: node simulation/evaluation/agent31-forced-guzma-registered-retrospective.cjs
+      - name: Preserve all failure-inclusive retrospective native receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank11-forced-guzma-registered-32arms
+          path: ${{ runner.temp }}/agent31-original-rank11-forced-guzma-32arms.json
+          if-no-files-found: warn
+          retention-days: 30
