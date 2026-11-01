@@ -43,3 +43,11 @@ function withElectrodeCrashBurnPaper(run,deps={}){
    else delete store.prompt;
   }
  }
+ Object.defineProperty(cls.prototype,'reduceEffect',{...original,value:patched});
+ try{return {result:run(),audit};}
+ finally{
+  assert.strictEqual(cls.prototype.reduceEffect,patched);
+  Object.defineProperty(cls.prototype,'reduceEffect',original);
+ }
+}
+module.exports={VERSION,withElectrodeCrashBurnPaper};
