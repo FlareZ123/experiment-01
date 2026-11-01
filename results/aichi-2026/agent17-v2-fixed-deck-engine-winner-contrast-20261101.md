@@ -45,6 +45,18 @@ Among all 16 nominal pairs, **zero pairs finished as opposite-sided candidate/so
 
 Agent12's [rank6 Camping Gear original-Store fixture](agent12-source-rank6-campinggear-paper-prompt-20261101.md) shows the native Store can accept a zero- or two-card reply to a printed unrestricted one-card search without its guard. This separate fixture does not establish a corresponding defect in any v2 archived Camping Gear action. The [rank11 Night Watch study](agent12-night-watch-random-selection-paper-gap-20261101.md) shows the generic actor can choose opponent concealed-hand cards despite the printed attack requiring random selections. The v2 archive includes **nine** such Night Watch prompts across two long-game arms. Neither defect is established to reverse an archived winner, but both make any competitive interpretation of the present engine-terminal totals especially unsafe.
 
+### Both New Moon candidate-native rank11 terminals encounter the Night Watch random-selection paper defect
+
+Independently joining all nine `Night Watch` `ChooseCardsPrompt` resolutions in the original frozen v2 ledger to actual initiating attack roots, selecting actor seat and ultimate native terminal **puts every one of the nine in the only two rank11 New Moon candidate-terminal games**:
+
+| New Moon native candidate terminal | Candidate-seat Night Watch opponent-hand selections | Source attack competence context |
+| --- | ---: | --- |
+| `11:0:B:new-moon-lockbreaker-v1` | **4**, source owner opponent hand selected | Source had **zero** recorded attack declarations |
+| `11:2:A:new-moon-lockbreaker-v1` | **5**, source owner opponent hand selected | Source Trubbish made **18 full-Bench Call for Family no-op attacks**, including **17** with printed Super Poison Breath base-payable |
+| **Combined** | **9** in two New Moon terminal games | **Both games remain competitively unqualified** |
+
+[Agent12's independently sourced printed-randomness defect](agent12-night-watch-random-selection-paper-gap-20261101.md) establishes that printed `Night Watch` requires random opponent-hand discards, while the pinned native generic resolver can inspect and score concealed physical hand cards when choosing. The nine accepted native replies actually returned two concrete opponent hand cards each; no cryptographically independently recorded random selection witness accompanies them. **We cannot conclude the actual picked cards differed from a particular possible random draw**, nor that the two game winners would reverse. The factual causal limitation is important: both New Moon native candidate-terminal games were exposed to a **known paper-randomness mechanism defect**, and one additionally had a demonstrably ineffective opponent attack policy. Consequently **zero** of New Moon's two historical candidate terminals against rank11 is an independently paper-qualified competitive victory. Do not use those two terminals to claim advantage over Shadow Rider.
+
 ## Deck decision
 
 The v2 native policy's repair makes the original rank6 source more consequential, and both fixed candidate lists fail to produce a candidate terminal within their eight respective development arms. The overall v2 **19/32 engine-terminal** increase is driven by developmental game completion and source wins, not a demonstrated candidate upgrade. Any deck selection that interprets increased terminal count as candidate improvement would invert the actual winner mapping.
