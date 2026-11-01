@@ -55,6 +55,7 @@ function probePalaceBook(seat, deckSize) {
   owner.hand.cards.push(palace);
   for(let n=0;n<deckSize;n++)owner.deck.cards.push(card('Psychic Energy MEE'));
   opponent.deck.cards.push(card('Psychic Energy MEE'));
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
   const canPlay=palace.canPlay(store,state,owner);
   let error=null,accepted=false;
   try {
@@ -63,6 +64,21 @@ function probePalaceBook(seat, deckSize) {
     }));
     accepted=true;
   }catch(failure){error=String(failure?.message||failure);}
+  const resolvedPrompts=[];
+  if(accepted && !error){
+    for(let k=0;k<12;k++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      const kind=pending.constructor.name;
+      resolvedPrompts.push(kind);
+      if(kind!=='WaitPrompt'){
+        error='Unexpected Palace Book follow-up: '+kind;
+        break;
+      }
+      try { store.dispatch(new ResolvePromptAction(pending.id,null)); }
+      catch(failure){error=String(failure?.message||failure);break;}
+    }
+  }
   return {
     seat,deckSize,
     printing:'Palace Book SMP NAN25',
@@ -76,6 +92,7 @@ function probePalaceBook(seat, deckSize) {
     supporterQuota:owner.supporterTurn,
     resultingTurn:state.turn,
     resultingActiveSeat:state.activePlayer,
+    resolvedPrompts,
     pendingPrompts:state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name)
   };
