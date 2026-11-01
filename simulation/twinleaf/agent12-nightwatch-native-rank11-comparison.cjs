@@ -8,6 +8,8 @@ const {runDevelopment}=require('../evaluation/agent41-bilateral-v2-development.c
 const {
   withUniformNightWatchOpponentSelection
 }=require('./agent12-nightwatch-paper-random-chooser.cjs');
+const {digestNativePromptChoices}=
+  require('../evaluation/agent12-native-prompt-choice-digest.cjs');
 
 const VERSION='agent12-native-rank11-nightwatch-independent-rng-development-v2';
 const selectionRegistration=require(
@@ -57,6 +59,8 @@ function extract(row){
     sourceDealFingerprint:row.sourceDealFingerprint,
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint,
     rootActionLedgerSha256:row.rootActionLedgerSha256,
+    nativePromptPhysicalChoiceDigest:
+      digestNativePromptChoices(row.nativePromptChoices),
     nativeNightWatchPromptCount:nights.length,
     nightWatchPromptReceipts:nights,
     qualifiesForCompetitiveInference:false
@@ -109,10 +113,20 @@ function run(){
         assert.equal(base[i].nativeNightWatchPromptCount,
           treated[i].nativeNightWatchPromptCount,
           'Native Night Watch prompt count changed under selection');
-        if(base[i].trial.candidateId==='champion-reference')
+        if(base[i].trial.candidateId==='champion-reference'){
           assert.equal(base[i].rootActionLedgerSha256,
             treated[i].rootActionLedgerSha256,
             'Untargeted champion reference changed under random sampler');
+          assert.equal(
+            base[i].nativePromptPhysicalChoiceDigest.digestSha256,
+            treated[i].nativePromptPhysicalChoiceDigest.digestSha256,
+            'Untargeted champion prompt physical choices changed');
+        }
+        if(base[i].nativeNightWatchPromptCount>0)
+          assert.notEqual(
+            base[i].nativePromptPhysicalChoiceDigest.digestSha256,
+            treated[i].nativePromptPhysicalChoiceDigest.digestSha256,
+            'Uniform actual Night Watch physical choices must be recorded independently of root SHA');
       }
       out.push({registration:group,seed:groupRows[0].seed,
         independentSelectionSeedHex:committed.independentSelectionSeedHex,
