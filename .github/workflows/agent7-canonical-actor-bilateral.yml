@@ -152,6 +152,8 @@ jobs:
         run: node --test tests/agent1-source-first-owned-affordances.test.cjs tests/agent8-source-postpass-teamflare.test.cjs
       - name: Verify owner-visible Hammer denial root planning
         run: node --test tests/agent29-actor-hammer-after-pass.test.cjs
+      - name: Regress registered Hammer trial terminal and action-cap accounting
+        run: node --test tests/agent29-fresh-hammer-disposition.test.cjs
       - name: Regress matched Plumeria native-census denominator and negative cases
         run: node --test tests/agent38-plumeria-paired-census.test.cjs
       - name: Verify Agent3 owner-only VIP target scorer and printed first-player Supporter exceptions
