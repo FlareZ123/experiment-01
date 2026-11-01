@@ -51,3 +51,9 @@ test('actual registered 29 originals contain the exact Tapu Lele GRI source card
   assert.equal(lele.ranks.length,18);
   assert.equal(result.competitiveGameQualified,false);
 });
+
+test('Benched damage Weakness reminder is not an Active exemption',()=>{
+  const spread="This attack also does 20 damage to 1 of your opponent's Benched Pokémon. (Don't apply Weakness and Resistance for Benched Pokémon.)";
+  assert.equal(PATTERNS.benchOnlyWeaknessReminder.test(spread),true);
+  assert.equal(PATTERNS.disregardWeaknessResistance.test(spread),false);
+});
