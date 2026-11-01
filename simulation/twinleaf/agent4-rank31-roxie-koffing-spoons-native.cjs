@@ -8,12 +8,15 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} filename @returns {any} */
 const native=filename=>require(path.join(output,filename));
 
-/** @param {boolean} guarded */
-function runRank31RoxieSpoons(guarded){
+/**
+ * @param {boolean} guarded
+ * @param {0|1} [seat=0] Physical actor seat in the real Store.
+ */
+function runRank31RoxieSpoons(guarded,seat=0){
   const {PlayCardAction,PlayerType,SlotType}=native('game/store/actions/play-card-action');
   const {UseAbilityAction}=native('game/store/actions/game-actions');
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-  const f=stagedPainfulSpoons();
+  const f=stagedPainfulSpoons(seat);
   f.opponent.active.damage=0;
   f.opponent.bench[0].damage=0;
   f.opponent.bench[1].damage=180;
@@ -86,7 +89,7 @@ function runRank31RoxieSpoons(guarded){
         evidence.push({phase:'Prize',type});
       }
     }
-    return {guarded,afterBomb,allowed,rejected,
+    return {guarded,seat,afterBomb,allowed,rejected,
       promptPending:prompt.result===undefined,
       physicalKoffingDiscarded:f.source.discard.cards.includes(koffing),
       roxieDiscarded:f.source.discard.cards.includes(roxie),
