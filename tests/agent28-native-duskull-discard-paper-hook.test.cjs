@@ -4,8 +4,10 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
-const {installDuskullDiscardPaperHook,withDuskullDiscardPaperHook}=
-  require('../simulation/twinleaf/agent28-duskull-discard-paper-hook.cjs');
+const {withPaperDuskullDiscardOption}=
+  require('../simulation/twinleaf/agent25-rank31-paper-duskull-discard-hook.cjs');
+/** @template T @param {()=>T} action @returns {T} */
+const withPaper=action=>withPaperDuskullDiscardOption(action).result;
 /** @param {string} modulePath */
 const load=modulePath=>require(path.resolve(__dirname,
   '../vendor/twinleaf/ptcg-server/output',modulePath));
@@ -78,14 +80,14 @@ test('pinned original PRE attack fails on valid discard-only Duskull',()=>{
 
 test('opt-in paper hook retrieves actual discard target to native Bench',()=>{
   const b=board({discard:1,hand:0});
-  withDuskullDiscardPaperHook(()=>{
+  withPaper(()=>{
     invoke(b);
     assert.equal(b.state.prompts.length,1);
     const prompt=b.state.prompts[0];
     assert.ok(prompt instanceof ChooseCardsPrompt);
     assert.equal(prompt.playerId,b.owner.id);
     assert.strictEqual(prompt.cards,b.owner.discard);
-    assert.equal(prompt.options.min,1);
+    assert.equal(prompt.options.min,0);
     assert.equal(prompt.options.max,1);
     assert.equal(prompt.validate([b.discard[0]]),true);
     b.store.dispatch(new ResolvePromptAction(prompt.id,[b.discard[0]]));
@@ -101,7 +103,7 @@ test('opt-in paper hook retrieves actual discard target to native Bench',()=>{
 
 test('printed up-to search does nothing without discard candidates',()=>{
   const b=board({discard:0,hand:1});
-  withDuskullDiscardPaperHook(()=>{
+  withPaper(()=>{
     const result=invoke(b);
     assert.strictEqual(result,b.state);
     assert.equal(b.state.prompts.length,0);
@@ -110,9 +112,22 @@ test('printed up-to search does nothing without discard candidates',()=>{
   });
 });
 
+test('printed up-to permits declining an otherwise available discard target',()=>{
+  const b=board({discard:1,hand:0});
+  withPaper(()=>{
+    invoke(b);
+    const p=b.state.prompts[0];
+    assert.equal(p.options.min,0);
+    assert.equal(p.validate([]),true);
+    b.store.dispatch(new ResolvePromptAction(p.id,[]));
+    assert.deepEqual(b.owner.discard.cards,b.discard);
+    assert.ok(b.owner.bench.every(slot=>!slot.getPokemonCard()));
+  });
+});
+
 test('full Bench is a legal no-target attack, no impossible prompt',()=>{
   const b=board({discard:1,hand:0,fullBench:true});
-  withDuskullDiscardPaperHook(()=>{
+  withPaper(()=>{
     assert.strictEqual(invoke(b),b.state);
     assert.equal(b.state.prompts.length,0);
     assert.equal(b.owner.discard.cards.length,1);
@@ -125,10 +140,10 @@ test('native prompt limits returned copies to the available Bench',()=>{
     const c=initializeCards().getCardByName('Duskull PRE');c.id=nextId++;
     b.owner.bench[i].cards.push(c);
   }
-  withDuskullDiscardPaperHook(()=>{
+  withPaper(()=>{
     invoke(b);
     const [p]=b.state.prompts;
-    assert.equal(p.options.min,1);
+    assert.equal(p.options.min,0);
     assert.equal(p.options.max,1);
     assert.equal(p.validate(b.discard),false);
     assert.equal(p.validate([b.discard[1]]),true);
@@ -141,19 +156,19 @@ test('native prompt limits returned copies to the available Bench',()=>{
 test('other Duskull attack still delegates to native original reducer',()=>{
   const b=board({discard:1,hand:0});
   const attack=new AttackEffect(b.owner,b.opponent,b.active.attacks[1]);
-  withDuskullDiscardPaperHook(()=>{
+  withPaper(()=>{
     assert.strictEqual(b.active.reduceEffect(b.store,b.state,attack),b.state);
     assert.equal(b.state.prompts.length,0);
   });
 });
 
 test('throwing scoped execution restores pinned native method',()=>{
-  const old=load('sets/10-scarlet-and-violet/set-shrouded-fable/duskull')
-    .Duskull.prototype.reduceEffect;
-  assert.throws(()=>withDuskullDiscardPaperHook(()=>{
+  const old=load('sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts')
+    .DuskullPRE.prototype.reduceEffect;
+  assert.throws(()=>withPaper(()=>{
     throw new Error('sentinel');
   }),/sentinel/);
   assert.strictEqual(
-    load('sets/10-scarlet-and-violet/set-shrouded-fable/duskull')
-      .Duskull.prototype.reduceEffect,old);
+    load('sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts')
+      .DuskullPRE.prototype.reduceEffect,old);
 });
