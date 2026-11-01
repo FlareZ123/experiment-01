@@ -3,7 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {runRank31RoxieSpoons}=require(
+const {runRank31RoxieSpoons,probeRoxieChoiceIndexShift}=require(
   '../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
 
 test('the authenticated published rank31 source physically plays all three required printing families',()=>{
@@ -38,4 +38,19 @@ test('one native Roxie-Koffing Bomb sets up the printed single-source veto befor
   assert.equal(b.promptPending,true);
   assert.equal(b.victimInDiscard,false);
   assert.equal(b.prizesTaken,0);
+});
+
+test('pinned Roxie ChooseCards treats identical genuine Koffing differently by original hand position',()=>{
+  const first=probeRoxieChoiceIndexShift(true);
+  const last=probeRoxieChoiceIndexShift(false);
+  assert.deepEqual(first.hand,['Koffing CEC']);
+  assert.deepEqual(last.hand,['Koffing CEC']);
+  assert.deepEqual(first.blocked,[0]);
+  assert.equal(first.validatorAccepted,false);
+  assert.equal(last.validatorAccepted,true);
+  assert.equal(first.nativeStoreError,null,
+    'Original Store bypasses prompt.validate despite blocked Koffing');
+  assert.equal(last.nativeStoreError,null);
+  assert.equal(first.promptSettled,true);
+  assert.equal(last.promptSettled,true);
 });
