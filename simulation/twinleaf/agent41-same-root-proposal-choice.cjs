@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v28-rondo-bench-energy-context';
+const VERSION='agent41-same-root-proposal-choice-v29-rondo-psychic-setup-census';
 const MAX_SAMPLES=48;
 
 /**
@@ -618,6 +618,10 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       (offers.some(o=>o.source==='payable-printed-attack')?
         'printed-positive-offer':'no-supported-printed-positive-offer'):
       'not-enumerated',
+    publicRondoPatchResources:(options.sameRootProbeAll===true||
+      options.rondoPublicOpportunity===true)?
+      require('./agent7-public-rondo-attack-offer.cjs')
+        .publicRondoPatchResources(view):null,
     publicRondoBenchFunding:(options.sameRootProbeAll===true||
       options.rondoPublicOpportunity===true)?
       require('./agent7-public-rondo-attack-offer.cjs')
@@ -638,6 +642,14 @@ function newSameRootAudit(){
   return {version:VERSION,ownerRoots:0,changedRoots:0,
     offerRoots:0,selectorErrorRoots:0,
     rondoReadinessBySeat:{0:{},1:{}},rondoOffersBySeat:{0:0,1:0},
+    rondoPatchBySeat:{0:{roots:0,heldPatchRoots:0,discardPsychicRoots:0,
+      heldCompressorRoots:0,coPresentPatchRoots:0,
+      compressorToPatchRoots:0,basicPsychicHandRoots:0,
+      unusedAttachmentRoots:0},
+      1:{roots:0,heldPatchRoots:0,discardPsychicRoots:0,
+      heldCompressorRoots:0,coPresentPatchRoots:0,
+      compressorToPatchRoots:0,basicPsychicHandRoots:0,
+      unusedAttachmentRoots:0}},
     rondoBenchedBySeat:{0:{roots:0,fundedRoots:0,heldMobilityRoots:0,
       unusedRetreatRoots:0,byActivePrinting:{},energyCardCopies:{}},
       1:{roots:0,fundedRoots:0,heldMobilityRoots:0,
@@ -672,6 +684,18 @@ function recordSameRootAudit(audit,seat,turn,ordinal,receipt){
   audit.ownerRoots++;audit.bySeat[seat].ownerRoots++;
   audit.rondoOffersBySeat[seat]+=
     receipt.offers.filter(o=>o.source==='public-rondo').length;
+  const patch=receipt.publicRondoPatchResources;
+  if(patch){
+    const stats=audit.rondoPatchBySeat[seat];
+    stats.roots++;
+    if(patch.heldPatchCopies>0)stats.heldPatchRoots++;
+    if(patch.discardBasicPsychic>0)stats.discardPsychicRoots++;
+    if(patch.heldBattleCompressor>0)stats.heldCompressorRoots++;
+    if(patch.simultaneousPatchCandidate)stats.coPresentPatchRoots++;
+    if(patch.potentialCompressorToPatch)stats.compressorToPatchRoots++;
+    if(patch.heldBasicPsychic>0)stats.basicPsychicHandRoots++;
+    if(patch.ordinaryEnergyAttachmentUnused)stats.unusedAttachmentRoots++;
+  }
   const funding=receipt.publicRondoBenchFunding;
   if(funding){
     const row=audit.rondoBenchedBySeat[seat];
