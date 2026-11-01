@@ -9,3 +9,6 @@ test('minimal raw KO uses public Bench Basic before Active',()=>{
  assert.equal(p.count,2);
  assert.deepEqual(p.choices.map(x=>[x.slot,x.energyIndex]),[['bench',0],['active',1]]);
 });
+test('insufficient Basic cards cannot offer an immediate raw KO',()=>{
+ assert.equal(chooseBellowingPayment(view(281,0),basic),null);
+});
