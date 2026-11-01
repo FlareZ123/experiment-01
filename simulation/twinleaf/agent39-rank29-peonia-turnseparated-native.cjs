@@ -149,6 +149,11 @@ function playActualLusamine(scene){
   assert.equal(choose.options.min,1);
   assert.equal(choose.validate([peonia]),true);
   store.dispatch(new ResolvePromptAction(choose.id,[peonia]));
+  const reveal=pending(scene);
+  assert.equal(reveal?.constructor.name,'ShowCardsPrompt');
+  assert.equal(reveal.playerId,scene.opponent.id);
+  assert.ok(reveal.cards.includes(peonia));
+  store.dispatch(new ResolvePromptAction(reveal.id,true));
   assert.equal(pending(scene),null);
   assert.equal(owner.supporterTurn,1);
   assert.ok(owner.hand.cards.includes(peonia));
