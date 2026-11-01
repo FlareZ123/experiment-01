@@ -43,6 +43,8 @@ test('capture exact printing from real native hand before consumed',()=>{
   assert.equal(players[0].hand.cards.length,0);
   assert.equal(audit.acceptedPlayCardRoots,1);
   assert.equal(audit.accepted[0].printing,'Roxie CEC 205');
+  assert.match(audit.accepted[0].executableConstructorSourceSha256,
+    /^[0-9a-f]{64}$/);
   assert.equal(audit.accepted[0].cardLeftHand,true);
   assert.equal(audit.accepted[0].ordinal,2);
   assert.equal(audit.headlessOrdinalJoinVerified,false);
