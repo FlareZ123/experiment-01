@@ -83,7 +83,8 @@ test('postgame counts preserve paper-unverified veto even on matching public eff
   assert.equal(result.publicVoltCycloneShapeMatches,1);
   assert.equal(result.promptPaperVerdict,'PROMPT_PAPER_UNVERIFIED');
   assert.equal(result.fullPrintedPromptCoverage,false);
-  assert.equal(result.totalNativePromptResolutionCount,'UNKNOWN');
+  assert.equal(result.totalNativePromptResolutionCount,4);
+  assert.equal(result.acceptedRootDispatchWitness,true);
 });
 
 test('same-root Volt Cyclone source attack plus native receipt joins only after settlement',()=>{
