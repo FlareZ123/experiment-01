@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stage}=require('./agent11-native-last-bench-locked-dedenne.cjs');
 const {initializeCards}=require('./headless.cjs');
+const {chooseOwnerPeoniaSlots,recordAcceptedPeoniaPositions}=
+  require('./agent39-peonia-owner-visited-slots.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -159,7 +161,14 @@ function originalBotPrizeRevisit(seat){
     GameMessage.CHOOSE_PRIZE_CARD,{count:3,allowCancel:false});
   const repeated=resolver.resolvePrompt(state,owner,hypothetical);
   assert.deepEqual(repeated.result,owner.prizes.slice(0,3));
-  const complement=owner.prizes.slice(3,6);
+  const acceptedVisited=recordAcceptedPeoniaPositions([],[0,1,2]);
+  const ownerOnly=chooseOwnerPeoniaSlots({
+    occupiedIndices:[0,1,2,3,4,5],
+    visitedIndices:acceptedVisited,
+    safeReplacementCount:5
+  });
+  assert.deepEqual(ownerOnly,{indices:[3,4,5],unvisitedSelected:3});
+  const complement=ownerOnly.indices.map(index=>owner.prizes[index]);
   assert.equal(hypothetical.validate(complement,state),true);
   assert.ok(complement.includes(owner.prizes[4]));
   assert.ok(complement.some(p=>p.cards.includes(criticalPrized)));
