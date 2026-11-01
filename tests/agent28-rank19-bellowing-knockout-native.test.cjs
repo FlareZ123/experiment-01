@@ -95,11 +95,15 @@ function settleBellowing(x,discardIndices){
     if(name==='DiscardEnergyPrompt'){
       assert.equal(p.options.min,0);
       assert.equal(p.options.max,2);
-      const result=discardIndices.map(index=>({
+      const indices=discardIndices.map(index=>({
         from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
         index
       }));
-      x.store.dispatch(new ResolvePromptAction(p.id,result));
+      // Low-level Store.dispatch expects the *decoded*, physical transfer
+      // records. The HTTP/prompt boundary normally invokes prompt.decode.
+      const transfers=p.decode(indices,x.store.state);
+      assert.equal(p.validate(transfers),true);
+      x.store.dispatch(new ResolvePromptAction(p.id,transfers));
     }else if(name==='WaitPrompt'){
       x.store.dispatch(new ResolvePromptAction(p.id,null));
     }else{
