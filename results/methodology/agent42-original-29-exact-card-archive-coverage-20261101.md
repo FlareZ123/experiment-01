@@ -32,3 +32,20 @@ The mismatches partition into 57 recoverable displayed-name differences and 9 ph
 **Practical gate:** record `ARCHIVE_EXACT`, `ARCHIVE_NUMBER_MATCH_NAME_ALIAS`, and `ARCHIVE_UNLISTED` on exact source-owned prompt/card events using the registered source-rank SHA; never upgrade a game to universally paper-verified merely because its deck's count of registered cards equals 60. Prioritize the three original Iron Thorns lists' unresolved Trainer printings when their actions appear in a native game.
 
 **Global benchmark status:** 29/32 original 60s authenticated, three source-original full lists still unknown, **zero competitively qualified games**, and no demonstrated 99.5% fixed deck.
+
+
+## Separate Japanese primary-text follow-up for the 14 English-unlisted Trainers
+
+A missing English archive record is **not the same as missing authentic Japanese card text**, and must not be called a native implementation absence. Independent official Japanese Pokémon card-search pages identify all three printed Trainer effects:
+
+| Original English display | Official original printed identity | Official Japanese wording, concise English interpretation |
+| --- | --- | --- |
+| `Palace Book SMP NAN25` | [殿堂の書 SM-P promo](https://www.pokemon-card.com/card-search/details.php/card/34382/regu/all) | Playing this Item ends the player's turn and draws three cards |
+| `Player's Ceremony SP 127` | [プレイヤーズセレモニー S-P 127](https://www.pokemon-card.com/card-search/details.php/card/38633/regu/XY) | Stadium usable once each player's turn: draw two cards, then that player's turn ends |
+| `Palace Belt BWP 153` | [殿堂ベルト BW-P 153](https://www.pokemon-card.com/card-search/details.php/card/28213) | Pokémon Tool: while the holder is Active, it draws two instead of one at the start of its turn |
+
+These are **human translations/paraphrases of primary Japanese card text**, not fabricated contents of the English ZIP. The primary Palace Book page confirms the name, card category and effect; the source's `NAN25` is a Limitless normalized promo-number label, so a source-number bridge still needs independent collector-code provenance. Printed effects require rules-era and current errata checks before certification.
+
+Earlier researchers already built distinct engine support: an upstream Palace Book reducer and original pinned Palace Belt behaviour were inspected by Agent1 (see `communications/agent2/2026-10-15T230218Z_agent1_palace-book-staging.md`); Player's Ceremony is a **research-owned reversible hook**, with a compiled staged real-Store two-seat Play + Use + draw2 + turn-end fixture in Agent33's [report](../aichi-2026/agent33-players-ceremony-owner-lastchance-20261030.md), CI 41273271820. The latter is still default off and no original field turn was paper-qualified by that fixture.
+
+Thus the 14-copy figure measures **English archive ingestion gaps**. It does not prove those cards lack all external evidence or are universally unsupported in Twinleaf. For a full benchmark, the remaining separate questions are source-print identity (particularly Palace Book's `NAN25`), Japanese legality, exact active-turn effects, opted-in native hook profile, and source-dealt owner-play reachability.
