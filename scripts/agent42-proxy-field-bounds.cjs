@@ -71,6 +71,8 @@ function proxyBounds(scores) {
  * @param {RankScores} b
  */
 function pairedDifferenceBounds(a,b) {
+  proxyBounds(a);
+  proxyBounds(b);
   const difference={};
   for(const [rank,score] of Object.entries(a)) {
     assert.ok(Object.prototype.hasOwnProperty.call(b,rank));
