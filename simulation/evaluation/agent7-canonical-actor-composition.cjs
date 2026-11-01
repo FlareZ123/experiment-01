@@ -92,6 +92,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerVipAfterPassAudit = null;
   let ownerPlumeriaOpportunityAudit = null;
   let ownerPlumeriaAfterPassAudit = null;
+  let ownerNativeFlarePromptAudit = null;
   const vipAfterPassOptIn=options.ownerVipAfterPass===true||
     process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV==='true';
   const shuffleSupporterOptIn=options.ownerShuffleSupporterRoot===true||
@@ -99,12 +100,20 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   // The last-installed handler must see root Pass AND all three Plumeria
   // prompts before lower-priority prompt handlers can consume them.
   const plumeriaAfterPassOptIn=options.ownerPlumeriaAfterPass===true;
+  const runWithNativeFlarePrompt=()=>{
+    if(options.sameRootNativeFreeFlareChoice!==true)return execute();
+    const bridge=require('../twinleaf/agent41-same-root-native-flare-prompt.cjs')
+      .withNativeActorFlarePrompt;
+    const selected=bridge(execute);
+    ownerNativeFlarePromptAudit=selected.audit;
+    return selected.result;
+  };
   const runWithPlumeriaAfterPass=()=>{
-    if(!plumeriaAfterPassOptIn)return execute();
+    if(!plumeriaAfterPassOptIn)return runWithNativeFlarePrompt();
     const adapter=adapters.plumeriaAfterPass??
       require('../twinleaf/agent4-plumeria-after-pass.cjs')
         .withOwnerPlumeriaAfterPass;
-    const selected=adapter(execute,{adoptActorSelectedPlumeria:
+    const selected=adapter(runWithNativeFlarePrompt,{adoptActorSelectedPlumeria:
       options.sameRootNativePlumeriaChoice===true});
     ownerPlumeriaAfterPassAudit=selected.audit;
     return selected.result;
@@ -223,6 +232,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled Plumeria observer must have executed');
   if(plumeriaAfterPassOptIn)assert.ok(ownerPlumeriaAfterPassAudit,
     'Enabled Plumeria after-Pass adapter must have executed');
+  if(options.sameRootNativeFreeFlareChoice===true)
+    assert.ok(ownerNativeFlarePromptAudit,
+      'Native Team Flare contender requires physically tracked prompt adapter');
   if(shuffleSupporterOptIn)assert.ok(ownerShuffleSupporterAudit,
     'Enabled actor-only shuffle Supporter must expose native audit');
   if(vipAfterPassOptIn)assert.ok(ownerVipAfterPassAudit,
@@ -258,6 +270,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
       (plumeriaAfterPassOptIn?'+'+ownerPlumeriaAfterPassAudit.version:'')+
+      (ownerNativeFlarePromptAudit?'+'+ownerNativeFlarePromptAudit.version:'')+
       (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
       (options.guzmaOwnerPromptContinuation===true?'+'+
         require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:''),
@@ -266,6 +279,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
     ownerPlumeriaAfterPassOptIn:plumeriaAfterPassOptIn,
+    ownerNativeFlarePromptOptIn:options.sameRootNativeFreeFlareChoice===true,
     ownerHammerAfterPassOptIn:hammerAfterPassOptIn,
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
@@ -280,6 +294,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
       ...(handDiscard?['ActorHandDiscardPrompt']:[]),
       ...(plumeriaAfterPassOptIn?['PlumeriaAfterRootPass']:[]),
+      ...(ownerNativeFlarePromptAudit?['NativeActorTeamFlareEnergyPrompt']:[]),
       'ActorOnlyRoot'
     ],
     componentVersions: {
@@ -287,6 +302,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
       ...(plumeriaAfterPassOptIn?{
         plumeriaAfterPass:ownerPlumeriaAfterPassAudit.version??null}:{}),
+      ...(ownerNativeFlarePromptAudit?{
+        nativeActorFlarePrompt:ownerNativeFlarePromptAudit.version??null}:{}),
       ...(hammerAfterPassOptIn?{hammerAfterPass:ownerHammerAfterPassAudit.version??null}:{}),
       ...(genericFallbackAttribution?{
         genericFallback:genericFallbackAudit.version??null}:{}),
@@ -349,6 +366,12 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         plumeriaSettledEnergyDiscards:
           ownerPlumeriaOpportunityAudit.settledEnergyDiscards
       }:{}),
+      ...(ownerNativeFlarePromptAudit?{
+        nativeTeamFlareRootsAccepted:ownerNativeFlarePromptAudit.nativeRootAccepted,
+        nativeTeamFlareEnergySettled:
+          ownerNativeFlarePromptAudit.physicallySettledActiveEnergy,
+        nativeTeamFlareBySeat:ownerNativeFlarePromptAudit.bySeat
+      }:{}),
       ...(plumeriaAfterPassOptIn?{
         plumeriaAfterPassProposed:ownerPlumeriaAfterPassAudit.proposedPlumeria,
         plumeriaAfterPassAccepted:ownerPlumeriaAfterPassAudit.acceptedPlumeria,
@@ -392,6 +415,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerSupporterOpportunityAudit,
     ownerPlumeriaOpportunityAudit,
     ownerPlumeriaAfterPassAudit,
+    ownerNativeFlarePromptAudit,
     ownerHammerAfterPassAudit,
     // Every upstream interceptor also counts events it delegates downstream.
     // These counters overlap and cannot be added into a decision denominator.
@@ -417,6 +441,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(plumeriaAfterPassOptIn?{
         ownerPlumeriaAfterPass:ownerPlumeriaAfterPassAudit
+      }:{}),
+      ...(ownerNativeFlarePromptAudit?{
+        ownerNativeFlarePrompt:ownerNativeFlarePromptAudit
       }:{}),
       ...(hammerAfterPassOptIn?{
         ownerHammerAfterPass:ownerHammerAfterPassAudit
