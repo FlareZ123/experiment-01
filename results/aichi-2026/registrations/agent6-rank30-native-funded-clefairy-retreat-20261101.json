@@ -1,0 +1,37 @@
+{
+  "schema": "agent6-rank30-original-source-funded-clefairy-native-retreat-v1",
+  "date": "2026-11-01",
+  "knownRetrospectiveSelection": true,
+  "baselinePublished": "Agent7 genuine native source rank30 Psychic Benched staging CI 41348200964",
+  "sourceRank": 30,
+  "originalNativeCases": [
+    {
+      "sourceSeat": 1,
+      "seed": 3407938073,
+      "candidate": "champion-reference",
+      "targetTurn": 30
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 233633536,
+      "candidate": "new-moon-lockbreaker-v1",
+      "targetTurn": 33
+    }
+  ],
+  "goal": "At actual original source player PassTurnAction with printed JTG Clefairy carrying two physically attached Basic Psychic, measure native CheckRetreatCostEffect and safe retreat permission. Where actual legally payable, compare same input original native Store Pass vs proposed RetreatAction to that Bench and native Full Moon Rondo attack, then opponent reply.",
+  "arms": [
+    "staged-basic-psychic-control",
+    "staged-basic-psychic-retreat-rondo-conditional"
+  ],
+  "invariant": [
+    "same original printed 60s and physical initial deal across arms",
+    "owner-only public board and own Energy, no opponent hidden identity reads",
+    "actual native Store accepts RetreatAction and AttackAction rather than synthetic proof",
+    "retain entire action ledger/physical target and opponent reply as available",
+    "report every available/unavailable or failed arm",
+    "no competitive qualification or win-rate inference"
+  ],
+  "sourceInfluence": "source only, other player unchanged",
+  "predeclaredEvent": "source first actual PassTurnAction after second accepted Psychic to exact JTG Clefairy, never inject at an unrelated root",
+  "qualification": "Retrospective previous seed, unqualified policy and clock"
+}
