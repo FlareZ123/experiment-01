@@ -9,7 +9,9 @@ const {
   withUniformNightWatchOpponentSelection
 }=require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent12-native-rank11-nightwatch-randomness-development-v1';
+const VERSION='agent12-native-rank11-nightwatch-independent-rng-development-v2';
+const selectionRegistration=require(
+  '../../results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json');
 const GROUPS=[
   {rank:11,repeat:2,candidateSlot:'A'},
   {rank:11,repeat:0,candidateSlot:'B'}
@@ -76,9 +78,15 @@ function run(){
         registeredFrameName:VERSION+'-archived-exact-physical-seed'
       });
       const baseline=runNative();
+      const committed=selectionRegistration.arms.find(x=>
+        x.rank===group.rank&&x.repeat===group.repeat&&
+        x.candidateSlot===group.candidateSlot);
+      assert.ok(committed,'Independent RNG seed registration missing');
+      assert.equal(committed.originalDealSeed,groupRows[0].seed,
+        'Native physical deal seed must match the precommitted registration');
+      assert.match(committed.independentSelectionSeedHex,/^[0-9a-f]{64}$/);
       const audit=withUniformNightWatchOpponentSelection(runNative,{
-        committedSeed:VERSION+':'+groupRows[0].seed+':'+
-          group.candidateSlot+':'+group.repeat
+        committedSeed:committed.independentSelectionSeedHex
       });
       assert.equal(baseline.rows.length,2);
       assert.equal(audit.result.rows.length,2);
@@ -107,6 +115,8 @@ function run(){
             'Untargeted champion reference changed under random sampler');
       }
       out.push({registration:group,seed:groupRows[0].seed,
+        independentSelectionSeedHex:committed.independentSelectionSeedHex,
+        independentlyPrecommittedPositionSeed:true,
         attemptedBaseline:base.length,attemptedUniform:treated.length,
         baseline:base,uniform:treated,
         randomHookAudit:audit.audit,
@@ -118,7 +128,9 @@ function run(){
       pinnedVendorRevision:profile.pinnedVendorRevision,
       profileSchema:profile.schema,
       profileOptions:profile.policyOptions,
-      groups:out,registeredGroups:GROUPS.length,
+      groups:out,
+      externalRandomnessRegistration:selectionRegistration.schema,
+      registeredGroups:GROUPS.length,
       gameArmsAttempted:GROUPS.length*2*2,
       independentPhysicalDeals:GROUPS.length,
       fullOriginalSourceSixtiesRetained:true,
