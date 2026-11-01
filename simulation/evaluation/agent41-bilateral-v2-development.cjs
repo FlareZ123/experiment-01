@@ -984,11 +984,14 @@ function runDevelopment({
   sameRootPublicNoBenchTerminal=false,
   sameRootPositiveAttackOverPass=false,
   sameRootThornsEmptyBench=false,
-  candidateOnlyKnownDeadRoot=false,
+  candidateOnlyKnownDeadRoot=false,bilateralKnownDeadAttackRoot=false,
   registeredTrials=null,registeredFrameName=null,
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!bilateralKnownDeadAttackRoot||
+    (actorOnlyComposition&&!candidateOnlyKnownDeadRoot),
+    'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
   assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
     'Native symmetric natural evolution requires actor-only roots');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
@@ -1154,7 +1157,7 @@ function runDevelopment({
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
            !actorNaturalEvolutionRoot&&
-          !candidateOnlyKnownDeadRoot)?{}:
+          !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
               ...(energyProfile.enabled?{
@@ -1189,6 +1192,10 @@ function runDevelopment({
               ...(sourceFloatStoneMobility?{
                 floatStoneMobility:true,
                 floatStoneMobilityOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+              }:{}),
+              ...(bilateralKnownDeadAttackRoot?{
+                knownDeadAttackRoot:true,
+                knownDeadAttackRootOwnerSeat:null
               }:{}),
               ...(candidateOnlyKnownDeadRoot?{
                 knownDeadAttackRoot:true,
@@ -1228,6 +1235,13 @@ function runDevelopment({
               mode:'both',ownerSeat:null,sharedPolicy:true,
               specialEnergyModel:'actor-energy-payability',
               rootSelector:'agent17-public-context-special-energy'
+            }
+          }:{}),
+          ...(bilateralKnownDeadAttackRoot?{
+            bilateralKnownDeadAttackProfile:{
+              version:require('../twinleaf/agent1-actor-dead-first-attack-frontier.cjs').VERSION,
+              bothPhysicalSeats:true,ownerSeat:null,sharedPolicy:true,
+              exactPrintingOnly:true,competitiveQualified:false
             }
           }:{}),
           actorOnlyPolicyVersion:observed.audit.version,
