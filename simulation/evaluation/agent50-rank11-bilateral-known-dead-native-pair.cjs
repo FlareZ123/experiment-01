@@ -78,6 +78,11 @@ function compactGame(row){
       source:settlement(row.sourceAttackSettlement,sourceSeat),
       candidate:settlement(row.candidateAttackSettlement,candidateSeat)
     },
+    // The separate postgame physical-selection checksum detects card-identity
+    // differences even when every compact root action has identical labels.
+    physicalPromptChoices:row.nativePromptChoices===undefined?null:
+      require('./agent12-native-prompt-choice-digest.cjs')
+        .digestNativePromptChoices(row.nativePromptChoices),
     roots
   };
 }
@@ -113,26 +118,40 @@ function compareOriginalRank11Pairs(controlRows,treatmentRows){
     if(!firstRootDifference&&a.roots.length!==b.roots.length)
       firstRootDifference={index:len,baseline:a.roots[len]??null,
         treatment:b.roots[len]??null};
+    // Only the FIRST action difference shares an identical predecision
+    // native action prefix. Later equal-index actions can belong to a
+    // different game trajectory and must not be described as same-root.
     const changedSameRootAttacks=[];
-    for(let i=0;i<len;i++){
-      const left=a.roots[i],right=b.roots[i];
-      if(left.action==='AttackAction'&&right.action==='AttackAction'&&
-         left.playerSlot===right.playerSlot&&left.attack!==right.attack){
-        const owner=left.playerSlot===a.sourceSeat?'source':'candidate';
-        const attackReport=(record,root)=>record.attacksBySeat[owner].attacks
-          .find(x=>x.actionOrdinal===root.actionOrdinal)??null;
-        changedSameRootAttacks.push({
-          index:i,owner,baselineAttack:left.attack,treatmentAttack:right.attack,
-          baselineSettlement:attackReport(a,left),
-          treatmentSettlement:attackReport(b,right)
-        });
-      }
+    const left=firstRootDifference?.baseline;
+    const right=firstRootDifference?.treatment;
+    if(left?.action==='AttackAction'&&right?.action==='AttackAction'&&
+       left.actionOrdinal===right.actionOrdinal&&
+       left.turnBefore===right.turnBefore&&
+       left.playerSlot===right.playerSlot&&left.attack!==right.attack){
+      const owner=left.playerSlot===a.sourceSeat?'source':'candidate';
+      const attackReport=(record,root)=>record.attacksBySeat[owner].attacks
+        .find(x=>x.actionOrdinal===root.actionOrdinal)??null;
+      changedSameRootAttacks.push({
+        index:firstRootDifference.index,owner,
+        baselineAttack:left.attack,treatmentAttack:right.attack,
+        baselineSettlement:attackReport(a,left),
+        treatmentSettlement:attackReport(b,right)
+      });
     }
     const {roots:ar,...original}=a;
     const {roots:br,...knownDeadBothSeats}=b;
     pairs.push({id,sourceSeat:a.sourceSeat,candidateSeat:a.candidateSeat,
       seed:a.seed,unmatchedInputs,samePhysicalInput:unmatchedInputs.length===0,
       original,knownDeadBothSeats,firstRootDifference,changedSameRootAttacks,
+      physicalPromptSelectionComparison:{
+        bothCaptured:Boolean(a.physicalPromptChoices&&b.physicalPromptChoices),
+        samePhysicalChoiceDigest:Boolean(a.physicalPromptChoices&&
+          b.physicalPromptChoices&&
+          a.physicalPromptChoices.digestSha256===
+          b.physicalPromptChoices.digestSha256),
+        baseline:a.physicalPromptChoices,
+        treatment:b.physicalPromptChoices
+      },
       attemptRetained:true,competitiveQualified:false});
   }
   return {
