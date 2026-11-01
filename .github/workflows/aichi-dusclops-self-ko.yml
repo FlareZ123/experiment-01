@@ -31,3 +31,5 @@ jobs:
         run: node --test tests/ditto-stage2-store.test.cjs
       - name: Verify original rank31 Duskull PRE discard-zone paper correction in native Store
         run: node --test tests/agent28-native-duskull-discard-paper-hook.test.cjs
+      - name: Probe original rank19 Raging Bolt Basic-card Bellowing attack on both actual native seats
+        run: node --test tests/agent28-rank19-bellowing-knockout-native.test.cjs
