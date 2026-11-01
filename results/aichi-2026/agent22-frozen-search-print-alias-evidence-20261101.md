@@ -19,6 +19,16 @@ I read the exact bundled `sets/en.json` and `cards/en/bwp.json` ZIP members. The
 
 The exact `BW50` identity is corroborated by [Limitless's Tropical Beach BWP #50 printing](https://limitlesstcg.com/cards/bwp/50), which identifies it as a Stadium and distinguishes it from the other 2011/2012 printing. The `MEE` Basic Psychic Energy identity is independently documented by [Bulbapedia's Basic Psychic Energy print list](https://bulbapedia.bulbagarden.net/wiki/Psychic_Energy_%28DPt-P_Promo_26%29), with **MEE Basic Energies 005 and 013**. Because the native label omits a printed number, neither printing can be selected uniquely from that reference. It is possible to classify the *name-level* MEE target as a Basic Psychic Energy with **external provenance** while leaving the exact MEE printing number undetermined.
 
+## Additional exact archive startup evidence
+
+The original source startup Basic-selection audit separately reports **129 chosen Pokémon instances**, with **124 source-ZIP Basic-category matches** and five ZIP-unresolved selections. The unresolved group contains three `Trevenant & Dusknoir-GX SMP` and two `Mega Absol ex M1L`.
+
+The same supplied `sets/en.json` identifies archive set `smp` with PTCGO code `PR-SM`; `cards/en/smp.json` contains **exactly one** matching named card, ID `smp-SM217`, whose `supertype` is `Pokémon` and whose `subtypes` include `Basic`, `TAG TEAM`, `GX`. The original `SMP` abbreviation is an unambiguous local set alias when gated by this unique exact-name record. This is also independently indexed by [Limitless SMP #217](https://limitlesstcg.com/cards/en/SMP/217). Three previously unresolved startup print categories can therefore be matched to this archive record without inventing a collector number.
+
+The archive's English `me1` set has `Mega Absol ex` records `me1-86`, `me1-161` and `me1-180`, all categorized Basic. The original native `M1L` label identifies a different Japanese set, however, and these English records do **not** authenticate the exact original Japanese printing. Preserve the two `Mega Absol ex M1L` startup choices as unresolved from this ZIP, while noting external name-level Basic-category corroboration.
+
+**Projected impact of additionally applying a strict `SMP` alias to the original startup audit**: archive-resolved Basic choices move from **124 to 127 of 129**, and ZIP-unresolved choices decrease from **five to two**. This is derived from Agent17's existing reported instance counts and my independent archive inspection. It is not an executed replay or updated archive census.
+
 ## Consequences for the shared paper-prompt portfolio
 
 There are three different evidentiary classes that should remain explicit:
@@ -32,6 +42,8 @@ There are three different evidentiary classes that should remain explicit:
 ## Reproduction recipe and independent check
 
 With the original attached `card-list.zip`, read `sets/en.json`; filter set ID `bwp`, then in `cards/en/bwp.json` find `bwp-BW50` with the name, supertype and subtype specified above. Verify that `bwp-BW28` also exists and that there is no `cards/en/mee.json`. The external URLs establish the category of the two printed families and provide cross-source confidence. The freeze archive ZIP need not be downloaded for this limited check; for the proposed 66/32 quantitative update, **the original 32-game archive must be reprocessed with a new versioned alias mapping**, and its original 19 terminals / 13 caps retained unchanged.
+
+The strict source-archive evidence was independently rerun on the supplied ZIP on 1 November 2026 and reproduced the two Tropical Beach `bwp-BW28` / `bwp-BW50` print IDs, the singleton `smp-SM217` record, the three English `me1` Mega Absol ex print IDs, and the absence of any MEE archive member. The original native frozen replay was not rerun.
 
 No opponent original-60 gap closes here: ranks **23,25,28** remain missing, **29/32** exact original lists are known, **zero competitively qualified games** and **no demonstrated 99.5% fixed-deck win rate**.
 
