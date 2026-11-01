@@ -27,6 +27,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Characterize printed Gengar Shadow Pain native prompt target caps
+        run: node simulation/twinleaf/agent46-gengar-shadow-pain-native-cap.cjs
       - name: Audit original-Store Tinkaton ex Press versus Double Turbo in both seats
         run: |
           node simulation/twinleaf/agent7-tinkaton-press-dte-native.cjs
