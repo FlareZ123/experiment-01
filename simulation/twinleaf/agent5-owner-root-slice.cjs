@@ -144,7 +144,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     turn:state.turn,phase:state.phase,
     activePlayer:state.activePlayer,
     handCount:owner.hand.cards.length,
-    deckCount:owner.deck.cards.length,
+    deckCount:owner.deck?.cards?.length??null,
     stadiumUsedTurn:owner.stadiumUsedTurn,
     inPlayStadiumPrintings:state.players.flatMap(p=>
       p.stadium?.cards?.map(c=>c.fullName)??[]),
