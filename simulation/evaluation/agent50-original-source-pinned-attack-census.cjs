@@ -51,7 +51,8 @@ function census(manager,source){
         executableLookupFound:live!=null,
         enumerationFound:registryMatched!==null,
         registryLookupClassDiff:live&&registryMatched?
-          live.constructor.name!==registryMatched.constructor.name:false,
+          Object.getPrototypeOf(live)!==
+            Object.getPrototypeOf(registryMatched):false,
         matchedExactNumber:matched?
           String(matched.setNumber)===String(printing.number):false,
         nativeClass:matched?.constructor.name??null,
