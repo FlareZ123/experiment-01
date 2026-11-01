@@ -177,7 +177,7 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent39-rank29-peonia-original-print-native.cjs
           node simulation/twinleaf/agent39-rank29-peonia-original-print-native.cjs > agent39-rank29-peonia-native.json
-          node -e "const assert=require('node:assert/strict');const r=require('./agent39-rank29-peonia-native.json');assert.equal(r.records.length,6);assert.ok(r.records.every(x=>x.fullPromptChainClosed&&x.physicalCoreRetrieved&&x.competitiveQualifiedGames===0));console.log(JSON.stringify({schema:r.schema,records:r.records,competitiveQualifiedGames:0},null,2))"
+          node -e "const assert=require('node:assert/strict');const r=require('./agent39-rank29-peonia-native.json');assert.equal(r.records.length,6);assert.ok(r.records.every(x=>x.fullPromptChainClosed&&x.physicalCoreRetrieved&&x.competitiveQualifiedGames===0));assert.equal(r.revisitCases.length,2);assert.ok(r.revisitCases.every(x=>x.firstActualPeoniaSettled&&x.fixedFirstThreeCanRecoverCritical===false&&x.laterSecondPeoniaActuallyPlayed===false));console.log(JSON.stringify({schema:r.schema,records:r.records,competitiveQualifiedGames:0},null,2))"
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.trial_ids == 'agent39-peonia-native-v1' }}
         with:
