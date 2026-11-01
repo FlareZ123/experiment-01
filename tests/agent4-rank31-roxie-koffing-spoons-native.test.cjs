@@ -117,7 +117,8 @@ test('paper Roxie owner-physical payment gate vetoes Tapu Lele-GX without mutati
     assert.match(guard.storeError,/PAPER_ROXIE_REJECTED/);
     assert.equal(guard.promptSettled,false);
     assert.equal(guard.gxPhysicallyDiscarded,false);
-    assert.equal(guard.roxiePhysicallyDiscarded,true);
+    assert.equal(guard.roxiePhysicallyDiscarded,false,
+      'Native Roxie remains unconsumed until its outstanding prompt resolves');
     assert.deepEqual(guard.ownerHandAfter,['Tapu Lele-GX GRI']);
     assert.equal(guard.physicalCardsDrawn,0);
   }
