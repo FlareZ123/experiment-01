@@ -38,3 +38,15 @@ The treatment did not establish a Rondo attack. Additional Psychic/Colorless Ene
 - Manual-only pinned compilation: `.github/workflows/agent7-rank30-source-psychic-staging.yml`.
 
 **Field benchmark unchanged:** 29/32 exact original 60s, ranks 23/25/28 absent, zero qualified competitive games and no demonstrated 99.5%.
+
+## Further physical target continuity: Rondo is funded in two treatment histories but remains Benched
+
+The actual Store sidecar proves both staged Basic Psychic attachments landed on the **same physical Bench slot 0** in two cases:
+
+- A champion: source turn24 first Psychic, turn30 second Psychic, same `Lillie's Clefairy ex JTG`; after the second accepted dispatch the visible Bench slot carries **two** Basic Psychic Energy, sufficient for printed P+C. The source nevertheless Passed later that turn without promoting Clefairy, and never used Rondo in the observed remaining actions.
+- B New Moon: source turn15 first Psychic, turn33 second Psychic, same JTG Bench slot0; two attached Basic Psychic Energy. The source proceeded to use Active Mimikyu's *Filch* on turn33 and later source turns, with no Rondo.
+- A New Moon and B champion: only one Basic Psychic was put on a Clefairy before the game ended, so their Rondo prerequisites stayed incomplete.
+
+**This is a second, genuinely different opportunity after funding:** selection of a legal Active promotion may still be absent. Active Latias ex can sometimes grant free retreat to Basics with Skyliner, but its actual ability-lock status and native `CheckRetreatCostEffect` on this exact later original Store state were not measured here. Likewise, held mobility does not prove a legal switch. Do not assert that a Rondo attack was actually reachable until physical retreat/switch acceptance, native attack declaration, damage settlement and opponent reply have all been observed.
+
+The full sidecar shows that `after.pokemon` uses the **printed native fullName including JTG**, which is the evidence basis for the summary correction.
