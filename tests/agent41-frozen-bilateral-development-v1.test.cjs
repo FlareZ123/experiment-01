@@ -31,7 +31,8 @@ test('single registered profile retains all 16 physical pairs and both fixed 60s
 
 test('unreviewed ambient switch cannot silently change an owner policy',()=>{
   assert.deepEqual(assertNoUnreviewedAmbientAgentEnvironment({
-    CI:'true',GITHUB_SHA:'a',PATH:'test'}),[]);
+    CI:'true',GITHUB_SHA:'a',PATH:'test',
+    AGENT_TOOLSDIRECTORY:'/opt/hostedtoolcache'}),[]);
   for(const setting of [
     'AGENT9_BATTLE_VIP_AFTER_PASS_DEV',
     'AGENT38_PLUMERIA_LARGE_HAND_DEV',
