@@ -88,7 +88,7 @@ test('Store exceptions retain rejection and restore method exactly',()=>{
         real.dispatch(new AddPlayerAction());
         real.dispatch(new PlayCardAction(101,-1));
       },{Store});
-    }catch(error)return {audit:error.agent34CardInstanceAudit,error};
+    }catch(error){return {audit:error.agent34CardInstanceAudit,error};}
     throw Error('expected Store rejection');
   })();
   assert.equal(error.message,'bad physical hand index');
