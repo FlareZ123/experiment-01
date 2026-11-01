@@ -932,6 +932,15 @@ function runMatch(request) {
     const abilityTrace = [];
     const decisionTrace = request.captureDecisionTrace === true ? [] : null;
     const rootActionLedger = request.captureDecisionTrace === true ? [] : null;
+    // Postdispatch-only, first-setup coin and GO_FIRST evidence. Never passed
+    // into either actor's tactic or prompt-selection input.
+    const setupCoinChoiceReceipt=request.captureSetupCoinChoiceReceipt===true?
+      require('./agent16-setup-coin-choice-receipt.cjs')
+        .createSetupCoinChoiceReceipt({
+          coinMessage:GameMessage.SETUP_WHO_BEGINS_FLIP,
+          goFirstMessage:GameMessage.GO_FIRST,
+          setupPhase:GamePhase.SETUP
+        }):null;
     // Preserve the public restart boundary separately from the stable root
     // ledger protocol and SHA. A paper sudden-death replay resets turn to 0.
     const suddenDeathClockResets = rootActionLedger ? [] : null;
@@ -1384,6 +1393,9 @@ function runMatch(request) {
           .bindActorNativeStoreOrdinal(action,actions,seat):null;
       try {
         store.dispatch(action);
+        if(setupCoinChoiceReceipt)setupCoinChoiceReceipt.onAccepted({
+          pending,action,ordinal:actions,phaseBefore,turnBefore
+        });
         if (setupCompensationObserver) {
           setupCompensationObserver.after(store.state);
         }
@@ -1680,12 +1692,16 @@ function runMatch(request) {
       actions += 1;
     }
     const state = store.state;
+    const finalTurnOrder=summarizeTurnOrder(actualFirstTurn,state.logs);
     return {
       label: request.label || '',
       seed: request.seed,
       actions,
       turns: state.turn,
-      ...summarizeTurnOrder(actualFirstTurn, state.logs),
+      ...finalTurnOrder,
+      ...(setupCoinChoiceReceipt?{
+        setupCoinChoiceReceipt:setupCoinChoiceReceipt.result(finalTurnOrder)
+      }:{}),
       finished: state.phase === GamePhase.FINISHED,
       endReason: state.phase === GamePhase.FINISHED ? 'engine-game-end' : 'action-limit',
       winner: state.winner,
