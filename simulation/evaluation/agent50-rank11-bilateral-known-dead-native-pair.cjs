@@ -154,7 +154,7 @@ function run(){
   const profile=JSON.parse(fs.readFileSync(path.join(ROOT,PROFILE),'utf8'));
   const registrationBytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   const blob=createHash('sha1')
-    .update('blob '+registrationBytes.length+'\\0')
+    .update('blob '+registrationBytes.length+'\0')
     .update(registrationBytes).digest('hex');
   assert.equal(blob,profile.registrationGitBlobSha);
   const {registeredTrials,assertNoUnreviewedAmbientAgentEnvironment}=
@@ -193,7 +193,7 @@ function run(){
 
 if(require.main===module){
   const result=run();
-  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(!result.nativeAttemptsComplete||
      result.mismatchedPhysicalInputPairs>0)process.exitCode=1;
 }
