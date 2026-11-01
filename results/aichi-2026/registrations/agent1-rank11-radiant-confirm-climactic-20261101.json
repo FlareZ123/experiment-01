@@ -1,0 +1,14 @@
+{
+  "schema": "agent1-radiant-own-prompt-climactic-v1",
+  "time": "2026-11-01T20:58:00Z",
+  "sourceSeed": 2387754768,
+  "sourceK0Index": 299,
+  "sourceRank": 11,
+  "recipientRank": 1,
+  "paperInputs": "Original unchanged rank11 and rank1 60s, pinned engine a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, same natural K0 original source hand/Bench, genuine Field Blower + Quick Ball -> Radiant Eternatus selected from its owner's deck only at a native ChooseCardsPrompt; Radiant played onto Bench by original generic bot.",
+  "preObserved": "After Radiant native Bench play, the original owner receives a genuine ConfirmPrompt root ordinal39 and baseline bot resolves it; next root is PassTurnAction, no VMAX in play at source turn3 first root.",
+  "armA": "Keep original generic response to Radiant ConfirmPrompt.",
+  "armB": "At actual recipient-owned ConfirmPrompt after the physically logged Radiant Bench play, opt in to choose true only if native validator accepts. Then choose up to two actual Shadow Rider Calyrex VMAX from subsequent real owner deck-search prompt only if validator accepts chosen count. Delegate any unsupported prompt explicitly and record failure.",
+  "primaryOutcome": "Owner native ConfirmPrompt response, actual VMAX search and selected count, accepted Bench placements, owner's turn end, and opponent public VMAX count at the next source first root.",
+  "boundary": "Single retrospective original physical source K0 positive; no qualified wins or field extrapolation, never modify vendor."
+}
