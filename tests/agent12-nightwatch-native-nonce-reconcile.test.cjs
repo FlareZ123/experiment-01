@@ -30,6 +30,18 @@ test('original native source root joins one stable actor prompt without revealin
   assert.equal(JSON.stringify(evidence).includes('positions'),false);
 });
 
+test('postgame sampled physical printings must match Store accepted physical cards',()=>{
+  const x=fixture();
+  x.uniform[0].nightWatchPromptReceipts[0].selectedNames=['A','B'];
+  x.randomHookAudit.events[0].postGameSelectedPrintings=['B','A'];
+  const valid=reconcileNightWatchNonceRoots(x);
+  assert.equal(valid.exactPostgamePhysicalPairsMatched,1);
+  assert.equal(valid.allActualPhysicalPairsMatched,true);
+  x.randomHookAudit.events[0].postGameSelectedPrintings=['A','C'];
+  assert.throws(()=>reconcileNightWatchNonceRoots(x),
+    /physical objects differ from actual accepted/);
+});
+
 test('speculative extra structural prompt cannot masquerade as accepted live root',()=>{
   const x=fixture();
   x.randomHookAudit.structuralCandidates=2;
