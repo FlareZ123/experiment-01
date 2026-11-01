@@ -22,13 +22,38 @@ function chooseVipBeforeAttack(ownView,proposedRoot,spentOnThisOwnTurn){
 }
 
 /**
+ * Tested only after an original owner-deck VIP search has opened.
+ * With an Active Voltorb, prioritize its Toedscool evolution setup and
+ * a Basic Mega Absol recipient for the potential later Electrode Ability.
+ * All unrelated decks delegate to the previous common prompt selector.
+ * @param {object} pending Native authorized owner-deck search prompt.
+ * @param {object} view Detached owner prompt view.
+ * @param {{BASIC:number,POKEMON:number}} enums Native card types.
+ * @returns {object[]|null} Original two physical cards, or fallback.
+ */
+function preferMegaAbsolVipRecipient(pending,view,enums){
+  assert.equal(view?.decisionKind,'owner-prompt');
+  assert.equal(view.pendingOwnerDeckSearch,true);
+  if(view.ownPublic?.active?.name!=='Voltorb')return null;
+  if(view.ownPublic.bench.filter(x=>x===null).length<2)return null;
+  const basics=pending.cards.cards.filter(c=>
+    c.superType===enums.POKEMON&&c.stage===enums.BASIC);
+  const toed=basics.find(c=>c.name==='Toedscool'&&
+    pending.validate([c])===true);
+  const mega=basics.find(c=>c.name==='Mega Absol ex'&&
+    pending.validate([c])===true);
+  if(!toed||!mega||!pending.validate([toed,mega]))return null;
+  return [toed,mega];
+}
+
+/**
  * Install after the common actor-root handler so its genuine proposed
  * AttackAction can be inspected. One native Item may be inserted before
  * the attack on either physical seat. Search is delegated to Agent9's
  * tested native owner-deck selector. This deliberately is not a game bot.
  * @template T
  * @param {()=>T} execute Nested Store execution under existing common policy.
- * @param {object} [deps] Mock native dependency injection only for unit tests.
+ * @param {object} [deps] Optional native dependency injection and opt-in source-recipient policy.
  * @returns {{result:T,audit:object}}
  */
 function withActorVipBeforeAttack(execute,deps={}){
@@ -56,7 +81,10 @@ function withActorVipBeforeAttack(execute,deps={}){
   const pendingSearches=new Map();
   const usedTurn=new Set();
   let liveStore=null;
-  const audit={version:VERSION,allPhysicalSeats:true,
+  const preferMegaAbsolRecipient=deps.preferMegaAbsolRecipient===true;
+  const audit={version:VERSION+(preferMegaAbsolRecipient?'+mega-absol-recipient-v1':''),
+    preferMegaAbsolRecipient,preferredMegaAbsolSearches:0,
+    allPhysicalSeats:true,
     candidateSpecificLogic:false,requiresOriginalAttack:true,
     originalAttacksSeen:0,ownerVipCoheldAttackOpportunities:0,
     acceptedItems:0,rejectedItems:0,acceptedSearches:0,
@@ -81,9 +109,13 @@ function withActorVipBeforeAttack(execute,deps={}){
         pending?.turn===state.turn&&
         prompt.constructor?.name==='ChooseCardsPrompt'&&
         prompt.message===PROMPT_MESSAGE&&prompt.cards===own.deck){
-      const selected=chooseVipPromptCards(prompt,observe(state,seat),{
-        BASIC:Stage.BASIC,POKEMON:SuperType.POKEMON
-      });
+      const view=observe(state,seat);
+      const enums={BASIC:Stage.BASIC,POKEMON:SuperType.POKEMON};
+      const specialized=preferMegaAbsolRecipient?
+        preferMegaAbsolVipRecipient(prompt,view,enums):null;
+      const selected=specialized??
+        chooseVipPromptCards(prompt,view,enums);
+      if(specialized)audit.preferredMegaAbsolSearches++;
       const action=new ResolvePromptAction(prompt.id,selected);
       pendingActions.set(action,{kind:'vip-search',seat,turn:state.turn,
         selectedPhysical:[...selected],
@@ -182,4 +214,5 @@ function withActorVipBeforeAttack(execute,deps={}){
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',beforeDecode);
   }
 }
-module.exports={VERSION,chooseVipBeforeAttack,withActorVipBeforeAttack};
+module.exports={VERSION,chooseVipBeforeAttack,preferMegaAbsolVipRecipient,
+  withActorVipBeforeAttack};
