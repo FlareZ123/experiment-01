@@ -794,6 +794,12 @@ function executeDevelopment(trial,candidates,{
     paperSameTargetAttachEnergyAudit:paperSameTargetAttachEnergy?
       sameTargetAttachEnergyAudit:null,
     paperPromptPortfolioAudit:paperPromptPortfolio?paperPromptPortfolioAudit:null,
+    paperPromptOriginalSourceRootReconciliation:paperPromptPortfolio?
+      require('./agent39-print-prompt-root-reconciliation.cjs')
+        .reconcileVoltCycloneRoot({
+          rootActionLedger:game.rootActionLedger,
+          paperPromptPortfolioAudit
+        },sourceSeat):null,
     paperFullBenchCallForFamilyAudit:paperFullBenchCallForFamily?
       fullBenchTrubbishAudit:null,
     paperCologneNativePlayAudit:cologneNativePlayAudit,
