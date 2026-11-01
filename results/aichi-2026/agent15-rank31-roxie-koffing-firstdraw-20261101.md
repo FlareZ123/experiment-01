@@ -51,7 +51,7 @@ A naive after-draw Roxie/Koffing coholding count **without Active subtraction** 
 | Hand-access event after valid starting seven | Conservative eligible subset | Printed lowercase-ex eligible |
 |---|---:|---:|
 | **After one natural draw**, Roxie held but zero eligible Pokémon in hand | **4.97068068%** | **4.47525725%** |
-| Among Roxie-held after one draw, fraction with zero conservative payment | **11.50926195%** | **10.362% approximately** |
+| Among Roxie-held after one draw, fraction with zero conservative payment | **11.50926195%** | **10.36214379%** |
 | **After two passive natural draws**, Roxie held but zero eligible Pokémon in hand | **3.61322609%** | **3.08808166%** |
 
 These are exact differences between the corresponding Roxie-held and Roxie-plus-one-eligible events, both conditioning on a Basic-valid initial seven. They respect the specified Active reservation and unknown six Prizes. They measure **physical lack of immediately payable cards under this model**. They do not measure how often a native bot attempts to play Roxie despite that lack, or how frequently the common runner reaches that state after other actions. The root deficiency remains a live paper release issue even when the actual native attempted-invalid frequency is unmeasured. A forthcoming common guard should report this as an owner-hand state and an actual selected PlayCard attempt separately.
