@@ -31,7 +31,8 @@ function runRank30RondoReadOnly(){
   const audit=row.actorOnlyDecisionCoverage.detailedComponentAudits.root.sameRootProposalChoice;
   return {id:row.trial.id,sourceSeat:row.sourceSeat,
    sourceDealFingerprint:row.sourceDealFingerprint,
-   sourceRondoOffers:audit.offerSourceCounts['public-rondo']??0,
+   sourceRondoOffers:audit.rondoOffersBySeat?.[row.sourceSeat]??0,
+   candidateRondoOffers:audit.rondoOffersBySeat?.[row.candidateSeat]??0,
    sourceRondoReadiness:audit.rondoReadinessBySeat?.[row.sourceSeat]??{},
    ownerRoots:audit.ownerRoots,selectorErrorRoots:audit.selectorErrorRoots,
    status:row.status??(row.finished?'untimed-engine-terminal':'censored')};
@@ -46,5 +47,13 @@ function runRank30RondoReadOnly(){
   competitivelyQualifiedGames:0,
   caveat:'Retrospective same-seed original Store read-only opportunities; no win inference'};
 }
-if(require.main===module)process.stdout.write(JSON.stringify(runRank30RondoReadOnly())+'\n');
+if(require.main===module){
+ const report=runRank30RondoReadOnly();
+ process.stdout.write(JSON.stringify(report)+'\\n');
+ process.stderr.write('RANK30_RONDO_PUBLIC_NATIVE_READONLY '+
+  JSON.stringify({version:report.version,parity:report.parity.samePhysicalDeals,
+   totalPublicRondoOffers:report.totalPublicRondoOffers,
+   totalOwnerRootReadiness:report.totalOwnerRootReadiness,
+   byTrial:report.byTrial,competitiveQualifiedGames:0})+'\\n');
+}
 module.exports={VERSION,runRank30RondoReadOnly};
