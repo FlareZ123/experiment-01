@@ -31,3 +31,58 @@ Allow all action-cap, paper-integrity failure, prompt failure, engine abort, and
 ## Qualification boundary
 
 The study measures how the same public-actor native attack-choice repair affects results on uninspected, prospectively selected **rank-11 source seeds**. Even if every native Store attack, Prize, setup and card-custody receipt passes, the general bot still lacks a complete hidden-information-safe policy, native Night Watch paper-random fulfillment, universal paper-prompt correctness, and the official 25-minute game clock. It represents **one** of 32 opponent rankings, with just two candidate sixties. Native outcomes are developmental observations only. Full benchmark still needs three exact original sixties and currently has **zero** competitively qualified games.
+
+## Completed prospectively seeded native evidence
+
+**Success: [frozen branch compiled CI 41340503240](https://github.com/FlareZ123/experiment-01/actions/runs/41340503240)**, branch `research/agent50-rank11-fresh-bothseat-20261101`, exactly pinned source commit `0f2560ba9dfc0f36f68c3c7ae5ab3c65a36a9fd8`. The 32-attempt [complete artifact 13096918772](https://github.com/FlareZ123/experiment-01/actions/runs/41340503240/artifacts/13096918772) has ZIP SHA-256 `8d7a05c4fe89242c81e630187449f40c1e0091b4e41667d7334336810a19f009`, and full uncompressed JSON SHA-256 `4192608ebdd609ac1e008ab53477030a379382e9bd02ab1a42e2a769c28c8663` (45,121,910 bytes). This job passed 14 preregistration/pairing pure tests, compiled the pinned native Store, played all 32 attempts and uploaded the full packet. Its source head was sealed before dispatch so unrelated concurrent main-branch changes could not alter the evaluated profile.
+
+**Physical validity and receipts:** **16/16** baseline/treatment pairs matched the registered source and candidate printed 60 SHA, original seeded full-physical-deal digest, source-deal SHA, actual physical first-player seat and seed. **32/32** native games reported `SETTLED_PHYSICAL_INTEGRITY_PASSED`, consistent accepted original setup coin and verified first draw, no sudden-death restart. No native engine aborts occurred. Original projected starting seats matched all **32/32** native starting receipts. These receipts identify the same original physical-game starts; they do not certify the official rules or 25-minute clock.
+
+| Outcome across the **16 paired fixed-60/deal cases** | Original policy | Same exact-print correction on both seats |
+| --- | ---: | ---: |
+| Original rank-11 source engine wins | **5** | **10** |
+| Candidate engine wins | **7** | **4** |
+| Root-action caps (260) | **4** | **2** |
+| Native errors / missing attempts | **0** | **0** |
+
+**Crucial observation:** the *same* one-option actor policy improved original source engine outcomes in **five** matched cases: **three former candidate engine wins became original source engine wins**, and **two former action caps became original source engine wins**. One capped comparison remained capped but original source Prizes improved. All nine other comparisons retained the identical terminal/cap outcome. This is direct evidence of a material opponent-policy decision deficiency under the previous benchmark; the lower measured candidate win count cannot be interpreted as a change in the fixed candidate decks' intrinsic strength.
+
+### Every registered printed-60 / original-source seed pairing
+
+Notation: `C` candidate engine win, `S` original source engine win, `Cap` 260-root censor. The printed 60 names remain identical in both policy arms.
+
+| Registered seed / slot | Fixed candidate 60 | Baseline | Both-seat repair | First true common-root change |
+| --- | --- | --- | --- | --- |
+| `1550013320` A | Champion | C | C | None |
+| `1550013320` A | New Moon | C | C | None |
+| `1068765975` A | Champion | Cap | Cap | Source T53: `Terminal Period` → `Claw of Darkness` (root 231) |
+| `1068765975` A | New Moon | C | C | None |
+| `2680168583` A | Champion | S | S | None |
+| `2680168583` A | New Moon | S | S | None |
+| `4039884054` A | Champion | Cap | S | Source T9: `Call for Family` → `Super Poison Breath` (root 52) |
+| `4039884054` A | New Moon | C | S | Source T7: `Call for Family` → `Super Poison Breath` (root 43) |
+| `3831821809` B | Champion | Cap | Cap | None |
+| `3831821809` B | New Moon | C | C | None |
+| `1131666043` B | Champion | S | S | None |
+| `1131666043` B | New Moon | S | S | None |
+| `1767975561` B | Champion | S | S | Source T15: `Terminal Period` → `Claw of Darkness` (root 88) |
+| `1767975561` B | New Moon | C | S | Source T15: `Terminal Period` → `Claw of Darkness` (root 68) |
+| `3831234043` B | Champion | Cap | S | Source T11: `Terminal Period` → `Claw of Darkness` (root 51) |
+| `3831234043` B | New Moon | C | S | Source T11: `Terminal Period` → `Claw of Darkness` (root 54) |
+
+All **seven** first changed roots were authentic original **source**-owned `AttackAction` choices, with no candidate-only privilege. **Five** chose effective `Claw of Darkness` over dead `Terminal Period`, and **two** chose `Super Poison Breath` instead of full-Bench `Call for Family`. At all seven, both base and treatment attack declarations settled through genuine Store prompt chains and had verified immediate opposing next-turn roots in the same game epoch. Treatment's first attack took **2 Prizes** on two matched cases, **1 Prize** on three, and **0 immediately** on the two poison effects; future turns still sometimes reversed terminal outcomes. A first-prefix same-state comparison is asserted only for those seven root events, never later matched numeric indices after the trajectories diverged.
+
+### Independent original postgame physical prompt prefix audit
+
+The additional pure-tested `simulation/evaluation/agent50-native-prompt-before-attack-diff.cjs` audits physically named original native prompt selections **strictly before** the first changed root, independently of root-label matching. On this 32-attempt raw packet, all **seven** changed first-root cases had identical ordered native-reported selected printing names, source zones, selector indices and zone-size receipts through their unchanged decision prefix. All **seven** had **zero unknown printing names** in that recorded prefix, representing 29 named pre-fork prompt events across the seven pairs. This strengthens the same-state causality interpretation within the observer's scope, although unseen prompt information and source backend rules remain outside its authority. The other nine paired games did not change any Store root, so a first-divergence prompt-prefix comparison is inapplicable.
+
+### Printed 60 outcomes by candidate identity (descriptive only)
+
+- Champion reference: **baseline 1 C, 3 S, 4 Cap**; repaired **1 C, 5 S, 2 Cap**.
+- New Moon Lockbreaker: **baseline 6 C, 2 S, 0 Cap**; repaired **3 C, 5 S, 0 Cap**.
+
+Each candidate uses exactly the same eight source seeds in matching physical seats, and each original source deck may be paired against two different candidate 60s. These eight source groups and sixteen dependent candidate/deal cases are not a valid 32-game independent field win-rate sample. One rank-11 opponent has been studied. The native opponent policy remains unqualified for paper randomized effects, official 25-minute timer, and opponent-hidden-information-safety; the candidate policy has those same limitations. **Competitive-qualified games = 0**. Any tempting deck ranking from these native win columns is therefore premature. Preserve all action caps when comparing potential strength.
+
+## Engineering verdict
+
+Precommitted both-seat attack-action policy competency matters on genuinely fresh native deals. The previous two retrospectively selected source-deal reversals were not one-off artifacts of those exact historical seeds: in this first new prospective cohort the source's dead-attack replacements reversed five engine outcomes under identical initial physical deals. This narrows one critical simulation-policy failure with exact archived causality, while leaving the full paper Expanded evaluation and single-60 deck optimization objective open.
