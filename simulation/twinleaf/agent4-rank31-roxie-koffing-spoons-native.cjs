@@ -123,7 +123,8 @@ function probeRoxieChoiceIndexShift(roxieFirst){
   const blocked=[...prompt.options.blocked];
   const hand=f.source.hand.cards.map(c=>c.fullName);
   let nativeStoreError=null;
-  try{f.store.dispatch(new ResolvePromptAction(prompt.id,[koffing]));}
+  try{withRoxieTrainerDiscardType(()=>
+    f.store.dispatch(new ResolvePromptAction(prompt.id,[koffing])));}
   catch(e){nativeStoreError=String(e?.message??e);}
   return {roxieFirst,validatorAccepted,blocked,hand,
     nativeStoreError,promptSettled:prompt.result!==undefined,
