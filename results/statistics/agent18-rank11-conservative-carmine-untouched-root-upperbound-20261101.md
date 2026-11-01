@@ -43,6 +43,21 @@ That is about **one potentially eligible opening out of 3.83 million Basic-valid
 
 Contrast: the exact chance that rank11 **physically holds any Carmine** by the same first ordinary draw is **33.7591002849%**, computed by the [first-eight Supporter access model](../statistics/agent18-original29-valid-basic-opening-supporter-priors-20261101.md) on the three Carmine copies. Conditional on holding a Carmine, the strict untouched-root event is **63/81,411,788 = 0.0000773843709%**. This disparity isolates a selector's discard-preservation criterion and initial-stage resource geometry as the bottleneck rather than card access.
 
+
+## Generalization to the other authentic Carmine sources
+
+The 29 original 60s have **15 Carmine physical copies across 12 source ranks**: ten ranks carry **one** Carmine (1, 4, 8, 10, 14, 16, 17, 19, 26, 27), rank **18** carries two, and rank **11** carries three. Under the same no-bonus, unchanged first-root model, the Agent48 strict condition is **mathematically impossible** for every one-copy Carmine source, independent of its Basic count. If its only Carmine begins in the initial seven, the next ordinary draw is necessarily a non-Carmine left in hand. If that Carmine is drawn eighth, the initial seven would all have to be Basic; only six Basic Pokémon can be put into play during setup, leaving at least one non-Carmine card in hand. No other card can leave the hand before the first root.
+
+Original rank18 has **16 Basic printings and two Carmine**. Its only potential untouched-root composition has one Carmine and six Basics in the opening, all six Basics placed, and the other Carmine as eighth. The exact necessary-event probability is
+
+```text
+C(2,1)*C(16,6)*1 /
+  ([C(60,7)-C(44,7)]*53)
+= 91/104761231 = 0.000086864195%.
+```
+
+Across the **12 authentic Carmine-containing source lists**, the default-off strict selector can theoretically propose Carmine at a virgin first-player root under this model only for rank11 or rank18 and at less than one in a million valid openings for each. This is a structural *sampling limit* of a deliberately cautious experimental predicate, not a judgment on Carmine itself or later-turn hand compression. 
+
 ## What this proves and what it does not
 
 The above is a source-locked *mathematical* cap **only at the very first root of the first player's first turn**, before owner actions. A later root in the same turn after Items, Bench placement, Energy attachment or other legal card movements may have a different hand distribution and can satisfy Agent48's strict predicate much more readily. Actual opponent-mulligan bonus draws can be taken or declined and are excluded from this exact calculation. Other source decks have different Basic counts and Carmine copy numbers. In many states discarding a strategically protected singleton may be irrational, so one cannot conclude that a more permissive Carmine policy is automatically better.
