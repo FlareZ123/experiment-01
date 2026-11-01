@@ -35,7 +35,7 @@ function toPrintedManifest(){
       assert.equal(alias.originalName,row.name);
       assert.equal(alias.sourceSet,set==='PR-XY'?'XYP':set);
       assert.equal(normalizeNumber(alias.sourceNumber),
-        normalizeNumber(number.replace(/^XY(?=\\d)/i,'')));
+        normalizeNumber(number.startsWith('XY')?number.slice(2):number));
     }
     rows.push({category:row.category,count:row.count,
       name:alias?.nativeLookupName??row.name,
