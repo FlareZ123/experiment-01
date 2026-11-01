@@ -2,6 +2,12 @@ name: Agent7 fresh rank30 Active Clefairy recipient guard native
 
 on:
   workflow_dispatch:
+    inputs:
+      retrospective:
+        description: 'Run only the previously observed harmful rank30 physical deal in original, v2 and v3 modes'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -37,9 +43,14 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all 16 new original-deal source seat pairs with Active Clefairy guard
+        if: inputs.retrospective != true
         run: node simulation/evaluation/agent7-rank30-active-clefairy-guard-prospective.cjs > agent7-rank30-guard-prospective.json
       - name: Compare 16 freshly registered rank30 original v2 and Active Latias protected source pairs
+        if: inputs.retrospective != true
         run: node simulation/evaluation/agent7-rank30-latias-preservation-prospective.cjs > agent7-rank30-latias-prospective.json
+      - name: Retrospective prior source harm diagnostic with three exact same-deal modes
+        if: inputs.retrospective == true
+        run: node simulation/evaluation/agent7-rank30-latias-known-seed-retrospective.cjs > agent7-rank30-latias-prior-adverse.json
       - name: Archive complete native controls and every rejected or censored arm
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,5 +59,6 @@ jobs:
           path: |
             agent7-rank30-guard-prospective.json
             agent7-rank30-latias-prospective.json
+            agent7-rank30-latias-prior-adverse.json
           if-no-files-found: warn
           retention-days: 10
