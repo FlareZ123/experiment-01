@@ -48,7 +48,7 @@ function census(manager,source){
         nativePrinting:matched?.fullName??null,
         nativeNumber:matched?.setNumber??null,
         registryCollisions:options.length,
-        executableLookupFound:live!==null,
+        executableLookupFound:live!=null,
         enumerationFound:registryMatched!==null,
         registryLookupClassDiff:live&&registryMatched?
           live.constructor.name!==registryMatched.constructor.name:false,
