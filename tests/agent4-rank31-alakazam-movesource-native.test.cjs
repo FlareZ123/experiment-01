@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {probeTwoSourcePainfulSpoons}=
+const {probeTwoSourcePainfulSpoons,probeTwoSourcePrizeInflation}=
   require('../simulation/twinleaf/agent4-rank31-alakazam-movesource-native.cjs');
 
 test('authenticated exact source rank31 includes one Radiant Alakazam SIT59',()=>{
@@ -69,4 +69,17 @@ test('pinned real Painful Spoons MoveDamagePrompt accepts two distinct opposing 
   assert.equal(v.nativePromptSettled,true);
   assert.deepEqual(v.before,{active:10,bench0:10,bench1:0});
   assert.deepEqual(v.after,{active:0,bench0:0,bench1:20});
+});
+
+test('native conditional Prize effect distinguishes two-source reply from paper guard',()=>{
+  const a=probeTwoSourcePrizeInflation(false);
+  const b=probeTwoSourcePrizeInflation(true);
+  assert.equal(a.nativeValidatorAccepted,true);
+  assert.equal(a.nativeDispatchRejection,null);
+  assert.equal(a.victimInDiscard,true);
+  assert.equal(a.prizesTaken,2);
+  assert.equal(b.nativeValidatorAccepted,false);
+  assert.match(b.nativeDispatchRejection,/PAPER_PAINFUL_SPOONS_REJECTED/);
+  assert.equal(b.victimInDiscard,false);
+  assert.equal(b.prizesTaken,0);
 });
