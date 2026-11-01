@@ -46,7 +46,9 @@ function withCorrectedHnsDiscardAbilityCount(execute,deps={}){
     countChecks:0,rawNamedDonors:0,effectiveDonors:0,
     suppressedDonors:0,changedThresholdOutcomes:0,
     originalHelperRestored:false,allPrototypesRestored:false,
-    originalVendorFilesUnmodified:true,competitiveQualifiedGames:0};
+    originalVendorFilesUnmodified:true,competitiveQualifiedGames:0,
+    perCheckCounts:[],perCheckCountsTruncated:false,
+    thresholdFourChecks:0,thresholdSixChecks:0,thresholdThirteenChecks:0};
   const saved=[],patched=[];
   try{
     for(const Card of classes){
@@ -76,6 +78,18 @@ function withCorrectedHnsDiscardAbilityCount(execute,deps={}){
           audit.rawNamedDonors+=raw;
           audit.effectiveDonors+=effective;
           audit.suppressedDonors+=raw-effective;
+          if(effective>=4)audit.thresholdFourChecks++;
+          if(effective>=6)audit.thresholdSixChecks++;
+          if(effective>=13)audit.thresholdThirteenChecks++;
+          if(audit.perCheckCounts.length<128){
+            audit.perCheckCounts.push({
+              ordinal:audit.countChecks,rawNamedDonors:raw,
+              effectiveDonors:effective,suppressedDonors:raw-effective,
+              fourDonorThreshold:effective>=4,
+              sixDonorThreshold:effective>=6,
+              thirteenDonorThreshold:effective>=13
+            });
+          }else audit.perCheckCountsTruncated=true;
           if((raw>=4)!==(effective>=4)||
              (raw>=6)!==(effective>=6)||
              (raw>=13)!==(effective>=13))
