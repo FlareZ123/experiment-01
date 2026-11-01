@@ -14,7 +14,7 @@ const engine=name=>require(path.join(output,name));
  * The staged board contains Froslass with a Water Energy and both players'
  * six Prize cards; this is a mechanical regression, not a competitive game.
  * @param {number} assigned Self-damage requested as counters times ten.
- * @param {boolean} guarded Whether to intercept invalid paper allocations.
+ * @param {boolean|'portfolio'} guarded Which research-owned paper boundary to install.
  * @param {0|1} seat Physical attacker's seat.
  */
 function probeFroslassPartialBudget(assigned,guarded,seat){
@@ -78,8 +78,13 @@ function probeFroslassPartialBudget(assigned,guarded,seat){
   };
   let error=null;
   try{
-    if(guarded)withPutDamageZeroCapPaperHook(act);
-    else act();
+    if(guarded==='portfolio'){
+      const {withPaperPromptContractPortfolio}=
+        require('./agent41-paper-prompt-contract-portfolio.cjs');
+      withPaperPromptContractPortfolio(act);
+    }else if(guarded){
+      withPutDamageZeroCapPaperHook(act);
+    }else act();
   }catch(e){error=String(e?.message??e);}
   return {
     assigned,guarded,seat,promptBudget,nativeAccepted,error,
@@ -97,8 +102,11 @@ function run(){
     const illegal=probeFroslassPartialBudget(80,false,seat);
     const protectedLegal=probeFroslassPartialBudget(70,true,seat);
     const protectedIllegal=probeFroslassPartialBudget(80,true,seat);
+    const portfolioLegal=probeFroslassPartialBudget(70,'portfolio',seat);
+    const portfolioIllegal=probeFroslassPartialBudget(80,'portfolio',seat);
     console.log('AGENT46_FROSLASS_NATIVE_CASES',
-      JSON.stringify({seat,legal,illegal,protectedLegal,protectedIllegal}));
+      JSON.stringify({seat,legal,illegal,protectedLegal,protectedIllegal,
+        portfolioLegal,portfolioIllegal}));
     assert.equal(legal.nativeAccepted,true);
     assert.equal(illegal.nativeAccepted,true,
       'Pinned optional validator accepts a forbidden 80/70 allocation');
@@ -116,10 +124,19 @@ function run(){
     assert.deepEqual(protectedIllegal.openPrompts,['PutDamagePrompt']);
     assert.equal(protectedIllegal.ownerDamage,0);
     assert.equal(protectedIllegal.opposingDamage,0);
-    cases.push({seat,legal,illegal,protectedLegal,protectedIllegal});
+    assert.equal(portfolioLegal.error,null);
+    assert.equal(portfolioLegal.ownerDamage,70);
+    assert.equal(portfolioLegal.opposingDamage,140);
+    assert.match(portfolioIllegal.error,
+      /PAPER_PROMPT_INVALID:.*EXCEEDS_PRINTED_PARTIAL_DAMAGE_BUDGET/);
+    assert.deepEqual(portfolioIllegal.openPrompts,['PutDamagePrompt']);
+    assert.equal(portfolioIllegal.ownerDamage,0);
+    assert.equal(portfolioIllegal.opposingDamage,0);
+    cases.push({seat,legal,illegal,protectedLegal,protectedIllegal,
+      portfolioLegal,portfolioIllegal});
   }
   const result={
-    fixture:'genuine-pinned-native-attack-Froslass-UNM-partial-budget',
+    fixture:'genuine-pinned-native-attack-Froslass-UNM-partial-budget-both-guards',
     cards:['Froslass UNM','Snorunt UNM','Water Energy SVE'],
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     originalAichiPublishedRankCard:false,
