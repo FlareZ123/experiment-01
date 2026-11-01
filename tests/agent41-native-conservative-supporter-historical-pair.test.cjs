@@ -27,6 +27,8 @@ test('paired audit preserves caps and validates physical start',()=>{
   const baseline={rows:trials.map(t=>row(t))};
   const treated={rows:trials.map(t=>row(t))};
   assert.equal(compareAttempts(baseline,treated).allMatched,true);
+  assert.equal(compareAttempts(baseline,treated).rows[0]
+    .physicalTargetContrast.status,'incomparable');
   assert.equal(compact(baseline.rows[0]).status,'root-capped');
   assert.equal(compareAttempts(baseline,{
     rows:[row(trials[0],{fullPhysicalDealFingerprint:'other'}),row(trials[1])]
