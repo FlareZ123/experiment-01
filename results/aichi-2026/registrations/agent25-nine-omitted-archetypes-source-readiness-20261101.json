@@ -1,0 +1,152 @@
+{
+  "schema": "agent25-nine-omitted-archetypes-original-source-readiness-v1",
+  "registeredUtc": "2026-11-01T19:27:00Z",
+  "registrationBeforeAnyNativeAttempt": true,
+  "sampling": "Python secrets.randbits(32), 18 independent 32-bit integers for rank ascending and candidate seat A then B. No outcome observation before registration.",
+  "sourceRanks": [
+    1,
+    2,
+    5,
+    9,
+    15,
+    19,
+    26,
+    30,
+    31
+  ],
+  "sourceArchetypes": [
+    "Shadow Rider Calyrex",
+    "Vileplume Control",
+    "Mew Genesect",
+    "Absol Electrode",
+    "Lopunny Vileplume",
+    "Raging Bolt",
+    "Meloetta Donk",
+    "Lillie's Clefairy",
+    "Dusknoir Chimecho"
+  ],
+  "eachSourcePrinted60": "results/aichi-2026/full-decklists.json",
+  "sourceRosterBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "vendorPinned": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceGroups": 18,
+  "candidateArms": 36,
+  "registeredGroups": [
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3766709735
+    },
+    {
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1570763664
+    },
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2128748071
+    },
+    {
+      "rank": 2,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2127232474
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 290257265
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 220636727
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3574843081
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 4235973193
+    },
+    {
+      "rank": 15,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2189814479
+    },
+    {
+      "rank": 15,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1010656970
+    },
+    {
+      "rank": 19,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1295375473
+    },
+    {
+      "rank": 19,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1425569789
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 156385724
+    },
+    {
+      "rank": 26,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 405553895
+    },
+    {
+      "rank": 30,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3407938073
+    },
+    {
+      "rank": 30,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 233633536
+    },
+    {
+      "rank": 31,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3119560566
+    },
+    {
+      "rank": 31,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2444034156
+    }
+  ],
+  "policy": "existing symmetric v2 development policyOptions. Source-admission patch is new and cannot claim historical frozen v2 closure integrity.",
+  "status": "preregistered structural readiness; no original Store games or paper-qualified results yet",
+  "allTrialFailuresRetained": true,
+  "clockQualified": false,
+  "competitiveGamesQualified": 0
+}
