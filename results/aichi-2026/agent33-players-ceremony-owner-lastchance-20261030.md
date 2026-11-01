@@ -51,3 +51,7 @@ until that explicit job is executed and inspected.**
 
 Source ranks23,25,28 remain unrecovered. The original deck 60s are
 unchanged; zero competitively qualified games; 99.5% remains a goal.
+
+## 1 November staged native closure
+
+[Compiled manual run 41273271820](https://github.com/FlareZ123/experiment-01/actions/runs/41273271820) passed the staged native two-seat Player's Ceremony SP127 test. Genuine Store `PlayCardAction` puts the held promo into the Stadium zone; genuine `UseStadiumAction` draws two cards, advances the Stadium-use quota and ends the turn; repeated use on the same turn is rejected. This validates the research patch and staged effects only, with no original-source or competitive outcome. The owner policy remains default OFF. A later same-run shared owner root physical receipt added exact two-card draw/turn-end conservation checks; requires its own compiled observation before claiming common-policy integration.
