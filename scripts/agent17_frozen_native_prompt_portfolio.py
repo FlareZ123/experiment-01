@@ -54,6 +54,45 @@ def public_energy_transfer_shape(event):
     return "single-energy-moved-active-to-own-bench"
 
 
+def source_thorns_volt_cyclone_base_cost_shape(attack, source_seat):
+    """Bounded public base-cost check, not complete paper attack legality.
+
+    Uses the known exact original rank6 source Energy names and printed
+    Lightning+Colorless+Colorless cost. Unknown attack modifiers fail closed.
+    """
+    if attack.get("attackName") != "Volt Cyclone":
+        return "other-attack"
+    boards = attack.get("publicBoardBefore")
+    if not isinstance(boards, list) or len(boards) != 2:
+        return "unknown-public-board"
+    board = boards[source_seat]
+    active = board.get("active")
+    if not active or active.get("name") != "Iron Thorns ex":
+        return "unknown-source-attacker"
+    stadiums = [name for seat in boards for name in seat.get("stadium", [])]
+    if any(name not in ("Thunder Mountain Prism Star",)
+           for name in stadiums):
+        return "unmodeled-stadium"
+    attached = Counter(active.get("energyCards", []))
+    if set(attached) - {
+        "Double Colorless Energy", "Speed Lightning Energy",
+        "Capture Energy", "Spiky Energy"
+    }:
+        return "unmodeled-energy"
+    # Only source-deck physical prints with known public native names are
+    # counted. This is before other Pokemon effects and card-specific locks.
+    units = (2 * attached["Double Colorless Energy"]
+             + attached["Speed Lightning Energy"]
+             + attached["Capture Energy"]
+             + attached["Spiky Energy"])
+    if "Thunder Mountain Prism Star" in stadiums:
+        return ("observed-base-cost-payable" if units >= 2
+                else "observed-base-cost-unpayable")
+    return ("observed-base-cost-payable"
+            if units >= 3 and attached["Speed Lightning Energy"] >= 1
+            else "observed-base-cost-unpayable")
+
+
 def audit_archive(path):
     path = Path(path)
     raw_bytes = path.read_bytes()
@@ -82,6 +121,7 @@ def audit_native(data, archive_sha256="synthetic"):
     energy = Counter()
     energy_shape = Counter()
     energy_dispatch_ordinal_offsets = Counter()
+    source_attack_base_cost = Counter()
     gaps = Counter()
     source_rows = []
 
@@ -189,6 +229,11 @@ def audit_native(data, archive_sha256="synthetic"):
                 energy_shape["non-volt-cyclone-parent"] += 1
             else:
                 energy_shape[public_energy_transfer_shape(evidence)] += 1
+        if row["trial"]["rank"] == 6:
+            for attack in row["sourceAttackSettlement"]["attacks"]:
+                source_attack_base_cost[
+                    source_thorns_volt_cyclone_base_cost_shape(
+                        attack, row["sourceSeat"])] += 1
         source_rows.append({
             "trial": trial_id,
             "root_actions": len(ledger),
@@ -225,6 +270,7 @@ def audit_native(data, archive_sha256="synthetic"):
         "select_option": dict(select_option),
         "attach_energy": dict(energy),
         "volt_cyclone_public_energy_transfers": dict(energy_shape),
+        "rank6_source_printed_volt_cyclone_base_cost": dict(source_attack_base_cost),
         "energy_sidecar_minus_root_ordinal": {
             str(key): count for key, count in sorted(
                 energy_dispatch_ordinal_offsets.items())
