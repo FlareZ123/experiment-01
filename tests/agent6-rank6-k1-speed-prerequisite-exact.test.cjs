@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  exactPreviousTurnK1Gate,originalRank6Inventory,calculateOriginal
+  exactPreviousTurnK1Gate,originalThornsInventory,
+  originalRank6Inventory,calculateOriginal,calculateAllThorns
 }=require('../scripts/agent6-rank6-k1-speed-prerequisite-exact.cjs');
 
 /** Enumerate individually labeled physical cards without category weights. */
@@ -84,4 +85,33 @@ test('absence of Tag or searchable Speed makes the exact line impossible',()=>{
     {...counts,hala:0,other:3}
   ])assert.equal(exactPreviousTurnK1Gate(changed,
     {openingHand:3,prizes:2}).favorable,0n);
+});
+
+
+test('independent mini physical deal supports multiple DCE held copies',()=>{
+  const cards=['B','B','T','H','M','D','D','S','O','O'];
+  const label=brute(cards,3,2);
+  const math=exactPreviousTurnK1Gate({
+    basic:2,tag:1,hala:1,thunder:1,dce:2,speed:1,other:2
+  },{openingHand:3,prizes:2});
+  assert.equal(math.valid,label.valid);
+  assert.equal(math.favorable,label.favorable);
+});
+
+test('published rank24 triple DCE raises location-only K1 Speed opportunity',()=>{
+  assert.deepEqual(originalThornsInventory(24),{
+    basic:4,tag:2,hala:2,thunder:1,dce:3,speed:4,other:44
+  });
+  assert.deepEqual(originalThornsInventory(29),{
+    basic:4,tag:2,hala:2,thunder:1,dce:1,speed:4,other:46
+  });
+  const out=calculateAllThorns();
+  assert.deepEqual(out.map(x=>x.rank),[6,24,29]);
+  assert.deepEqual(out.map(x=>x.favorable),[
+    '348113824505220','947108318772492','348113824505220'
+  ]);
+  assert.ok(Math.abs(100*out[1].probability-
+    0.568906833870737)<1e-12);
+  assert.deepEqual(out.map(x=>x.valid),
+    Array(3).fill('166478632771651200'));
 });
