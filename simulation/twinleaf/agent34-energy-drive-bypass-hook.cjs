@@ -90,4 +90,50 @@ function withEnergyDrivePaperBypass(execute,types){
     hook.restore();
   }
 }
-module.exports={VERSION,installEnergyDrivePaperBypass,withEnergyDrivePaperBypass};
+
+/**
+ * Canonical headless adapter: capture only the first original Store carrying
+ * AddPlayerAction and install the exact-printing paper reducer correction on
+ * that one Store. Clone Store dispatches remain unaltered. A physical source
+ * deal is required before results can be claimed. Default OFF.
+ *
+ * @template T
+ * @param {()=>T} execute Synchronous original-game run.
+ * @param {{Store:Function}} types Native compiled Store dependency.
+ * @returns {{result:T,audit:object}}
+ */
+function withFirstLiveStoreEnergyDrivePaperBypass(execute,types){
+  const {Store}=types;
+  assert.equal(typeof execute,'function');
+  const prior=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof prior?.value,'function');
+  let live=null,hook=null;
+  let auxiliaryDispatches=0,originalDispatches=0;
+  function discover(action,...args){
+    if(live===null&&action?.constructor?.name==='AddPlayerAction'){
+      live=this;
+      hook=installEnergyDrivePaperBypass({Store,rootStore:this});
+    }
+    if(this===live)originalDispatches++;
+    else auxiliaryDispatches++;
+    return prior.value.apply(this,[action,...args]);
+  }
+  Object.defineProperty(Store.prototype,'dispatch',{...prior,value:discover});
+  try{
+    const result=execute();
+    return {result,audit:{
+      version:VERSION+'+first-original-Store-v1',
+      firstOriginalStoreCaptured:live!==null,
+      originalDispatches,auxiliaryDispatches,
+      printedDamageBypass:hook?.evidence()??null,
+      competitiveGameQualified:false
+    }};
+  }finally{
+    if(hook!==null)hook.restore();
+    assert.strictEqual(Store.prototype.dispatch,discover);
+    Object.defineProperty(Store.prototype,'dispatch',prior);
+  }
+}
+
+module.exports={VERSION,installEnergyDrivePaperBypass,
+  withEnergyDrivePaperBypass,withFirstLiveStoreEnergyDrivePaperBypass};
