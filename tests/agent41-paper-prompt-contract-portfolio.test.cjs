@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const {test}=require('node:test');
-const {withPaperPromptContractPortfolio,VERSION}=
+const {withPaperPromptContractPortfolio,physicalPromptChoiceMetadata,VERSION}=
   require('../simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs');
 const {runFrozenV2PaperPortfolio}=
   require('../simulation/evaluation/agent41-frozen-v2-paper-contract-portfolio.cjs');
@@ -56,7 +56,7 @@ class IronThornsex {
 }
 const types={
   PlayerType:{BOTTOM_PLAYER:'bottom'},
-  SlotType:{BENCH:'bench'},
+  SlotType:{BENCH:'bench',ACTIVE:'active'},
   SuperType:{ENERGY:'energy'}
 };
 const deps={Store:FakeStore,IronThornsex,types,currentTrialId:()=> '6:0:A:champion-reference'};
@@ -284,6 +284,105 @@ test('both Store and reducer descriptors are restored after a thrown native run'
     FakeStore.prototype,'dispatch'),beforeStore);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     IronThornsex.prototype,'reduceEffect'),beforeReducer);
+});
+
+test('physical ChoosePokemon selection reports only actor-target geometry; duplicates and foreigners rejected',()=>{
+  class ChoosePokemonPrompt{
+    constructor(id,player,playerType,slots){
+      this.id=id;this.playerId=player.id;this.playerType=playerType;
+      this.slots=slots;this.options={min:1,max:1,allowCancel:false};
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+  }
+  const s=state(),owner=s.players[0],opponent=s.players[1];
+  opponent.bench.push({cards:[{name:'concealed test pokemon'}]});
+  const p=new ChoosePokemonPrompt(27,owner,'bottom',['bench']);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,p,[owner.bench[0]],types).nativeDeclaredGeometry,true);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,p,[owner.active],types).nativeDeclaredGeometry,false);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,p,[opponent.bench[0]],types).nativeDeclaredGeometry,false);
+  const multi=new ChoosePokemonPrompt(27,owner,'any',['bench']);
+  multi.options={min:2,max:2};
+  assert.equal(physicalPromptChoiceMetadata(
+    s,multi,[owner.bench[0],owner.bench[0]],types)
+    .nativeDeclaredGeometry,false);
+  const receipt=physicalPromptChoiceMetadata(
+    s,p,[opponent.bench[0]],types);
+  assert.equal(receipt.containsPhysicalCardIdentities,false);
+  assert.equal(JSON.stringify(receipt).includes('concealed test pokemon'),false);
+  assert.equal(receipt.printedPaperEffectQualified,false);
+});
+
+test('physical prize, option and order receipts distinguish true native geometry without exporting hidden choices',()=>{
+  class ChoosePrizePrompt{
+    constructor(owner,options){
+      this.playerId=owner.id;this.options=options;
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+  }
+  class SelectPrompt{
+    constructor(){this.values=['hidden donor 1','hidden donor 2'];
+      this.options={allowCancel:false};}
+  }
+  class OrderCardsPrompt{
+    constructor(){this.cards={cards:[{name:'hidden A'},
+      {name:'hidden B'}, {name:'hidden C'}]};this.options={};}
+  }
+  const s=state(),owner=s.players[0],opponent=s.players[1];
+  owner.prizes=[{cards:[{name:'secret prize 1'}]},
+    {cards:[{name:'secret prize 2'}]}];
+  opponent.prizes=[{cards:[{name:'secret opponent prize'}]}];
+  const prize=new ChoosePrizePrompt(owner,{count:1,blocked:[0]});
+  const valid=physicalPromptChoiceMetadata(
+    s,prize,[owner.prizes[1]],types);
+  assert.equal(valid.nativeDeclaredGeometry,true);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,prize,[owner.prizes[0]],types).nativeDeclaredGeometry,false);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,prize,[opponent.prizes[0]],types).nativeDeclaredGeometry,false);
+  const reversed=new ChoosePrizePrompt(owner,{
+    count:1,useOpponentPrizes:true,blocked:[]});
+  assert.equal(physicalPromptChoiceMetadata(
+    s,reversed,[opponent.prizes[0]],types).nativeDeclaredGeometry,true);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,new SelectPrompt(),1,types).nativeDeclaredGeometry,true);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,new SelectPrompt(),2,types).nativeDeclaredGeometry,false);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,new OrderCardsPrompt(),[2,0,1],types).nativeDeclaredGeometry,true);
+  assert.equal(physicalPromptChoiceMetadata(
+    s,new OrderCardsPrompt(),[2,0,0],types).nativeDeclaredGeometry,false);
+  for(const receipt of [
+    valid,physicalPromptChoiceMetadata(s,new SelectPrompt(),1,types),
+    physicalPromptChoiceMetadata(s,new OrderCardsPrompt(),[2,0,1],types)
+  ]){
+    assert.equal(receipt.containsPhysicalCardIdentities,false);
+    assert.equal(JSON.stringify(receipt).includes('hidden '),false);
+    assert.equal(JSON.stringify(receipt).includes('secret '),false);
+  }
+});
+
+test('physical geometry observer leaves unprinted native prompt decisions unverified and does not alter Store acceptance',()=>{
+  class ChoosePokemonPrompt{
+    constructor(owner){this.id=51;this.playerId=owner.id;
+      this.playerType='bottom';this.slots=['bench'];
+      this.options={min:1,max:1};}
+    getPerspectivePlayerId(){return this.playerId;}
+  }
+  const s=state(),owner=s.players[0];
+  s.prompts=[new ChoosePokemonPrompt(owner)];
+  const store=new FakeStore(s);
+  const audit=withPaperPromptContractPortfolio(()=>{
+    return store.dispatch(new ResolvePromptAction(51,[owner.active]));
+  },deps).audit;
+  assert.equal(store.mutations,1);
+  assert.equal(audit.nativeAccepted,1);
+  assert.equal(audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
+  assert.equal(audit.physicalChoiceShapeCounts.outsideDeclaredGeometry,1);
+  assert.equal(audit.examples[0].choiceGeometry.nativeDeclaredGeometry,false);
+  assert.equal(audit.examples[0].status,'PAPER_PROMPT_UNVERIFIED');
 });
 
 test('frozen v2 wrapper records exact original root prompt counts and restores headless export',()=>{
