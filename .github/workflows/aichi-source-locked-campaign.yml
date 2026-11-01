@@ -172,6 +172,19 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify prepared rank29 Peonia source-print optional 1/2/3 Prize native prompts on both physical seats
+        if: ${{ inputs.trial_ids == 'agent39-peonia-native-v1' }}
+        run: |
+          node --check simulation/twinleaf/agent39-rank29-peonia-original-print-native.cjs
+          node simulation/twinleaf/agent39-rank29-peonia-original-print-native.cjs > agent39-rank29-peonia-native.json
+          node -e "const assert=require('node:assert/strict');const r=require('./agent39-rank29-peonia-native.json');assert.equal(r.records.length,6);assert.ok(r.records.every(x=>x.fullPromptChainClosed&&x.physicalCoreRetrieved&&x.competitiveQualifiedGames===0));console.log(JSON.stringify({schema:r.schema,records:r.records,competitiveQualifiedGames:0},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent39-peonia-native-v1' }}
+        with:
+          name: agent39-rank29-peonia-original-print-native
+          path: agent39-rank29-peonia-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify source-only Float Stone actor-root mobility selection
         if: ${{ inputs.trial_ids == 'agent1-floatstone-native-pair' }}
         run: node --test tests/agent1-owner-float-stone-mobility.test.cjs tests/agent34-actor-only-root-policy.test.cjs
