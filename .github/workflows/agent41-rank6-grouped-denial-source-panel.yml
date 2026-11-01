@@ -23,6 +23,16 @@ on:
         type: boolean
         required: false
         default: false
+      frozen_profile_v2_inspect:
+        description: 'Inspect single public-context Energy treatment profile before native execution'
+        type: boolean
+        required: false
+        default: false
+      frozen_profile_v2_run:
+        description: 'Run 32 same-seed native policy treatment arms with symmetric public-context Energy'
+        type: boolean
+        required: false
+        default: false
       frozen_profile_run:
         description: 'Run the frozen rank6/11 original-source two-seat 32-arm development comparison'
         type: boolean
@@ -47,26 +57,29 @@ jobs:
         with:
           node-version: '22'
       - name: Validate frozen physical source-deal registration and failure accounting
-        run: node --test tests/agent41-frozen-bilateral-evidence-matrix.test.cjs tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+        run: node --test tests/agent41-frozen-bilateral-development-v2.test.cjs tests/agent41-frozen-bilateral-evidence-matrix.test.cjs tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
       - name: Inspect one transitive source profile before native execution
         if: ${{ inputs.frozen_profile_inspect || inputs.frozen_profile_run }}
         run: node simulation/evaluation/agent41-frozen-bilateral-development-v1.cjs --inspect-only
+      - name: Inspect single v2 public-context Energy profile without native execution
+        if: ${{ inputs.frozen_profile_v2_inspect || inputs.frozen_profile_v2_run }}
+        run: node simulation/evaluation/agent41-frozen-bilateral-development-v2.cjs --inspect-only
       - name: Checkout exactly pinned original Store
-        if: ${{ !inputs.frozen_profile_inspect }}
+        if: ${{ !inputs.frozen_profile_inspect && !inputs.frozen_profile_v2_inspect }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native server
-        if: ${{ !inputs.frozen_profile_inspect }}
+        if: ${{ !inputs.frozen_profile_inspect && !inputs.frozen_profile_v2_inspect }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned native Store
-        if: ${{ !inputs.frozen_profile_inspect }}
+        if: ${{ !inputs.frozen_profile_inspect && !inputs.frozen_profile_v2_inspect }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all 48 preregistered source 60 game-development arms without selection
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run }}
         run: node simulation/evaluation/agent41-rank6-grouped-denial-source-panel.cjs > agent41-rank6-denial-source-raw.json
       - name: Preserve compact true-root and distinct-seed counts
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run }}
         run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank6-denial-source-raw.json','utf8'));fs.writeFileSync('agent41-rank6-denial-source-summary.json',JSON.stringify(x.summary,null,2)+'\\n');console.log(JSON.stringify({scheduled:x.summary.scheduled,uniqueSourceSeedGroups:x.summary.uniqueSourceSeedGroups,resultsWithNativeActorAudit:x.summary.resultsWithNativeActorAudit,ownerRoots:x.summary.ownerRoots,plumeriaOwnerRoots:x.summary.plumeriaOwnerRoots,coheldFlareOwnerRoots:x.summary.coheldFlareOwnerRoots,bothSupporterOffersRoots:x.summary.bothSupporterOffersRoots,distinctSeedGroupsWithCoheldFlare:x.summary.distinctSeedGroupsWithCoheldFlare,competitiveQualifiedGames:x.summary.competitiveQualifiedGames}));"
       - name: Exact early source-owned coheld native canPlay, original Store read-only
         if: ${{ inputs.focused_native_eligibility }}
@@ -99,6 +112,15 @@ jobs:
       - name: Classify complete native frozen-profile attempts without game-win promotion
         if: ${{ always() && inputs.frozen_profile_run }}
         run: node -e "const fs=require('node:fs');const p='agent41-frozen-bilateral-development-v1-native.json';if(!fs.existsSync(p)){console.log('FROZEN_PROFILE_NATIVE_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FROZEN_BILATERAL_DEVELOPMENT',JSON.stringify({version:r.version,profileHash:r.provenance.profileGitBlobSha,closure:r.provenance.sourceClosureSha256,attempted:r.attempted,complete:r.attemptedComplete,statuses:r.statuses,nativeSetupCoin:r.nativeSetupCoinAndFirstDrawEvidence?.byStatus,runtimeModules:r.runtimeResearchAttestation?.byStatus,competitiveQualifiedGames:r.competitiveQualifiedGames}));if(!r.attemptedComplete)process.exitCode=1;}"
+      - name: Run symmetric public-context Energy development treatment on original 32 seeds
+        if: ${{ inputs.frozen_profile_v2_run }}
+        run: node simulation/evaluation/agent41-frozen-bilateral-development-v2.cjs > agent41-frozen-bilateral-development-v2-native.json
+      - name: Preserve all 32 treatment attempts in independent development matrix
+        if: ${{ inputs.frozen_profile_v2_run }}
+        run: node simulation/evaluation/agent41-frozen-bilateral-evidence-matrix.cjs agent41-frozen-bilateral-development-v2-native.json > agent41-frozen-bilateral-matrix-v2.json
+      - name: Report native source pressure and failure-inclusive v2 outcome
+        if: ${{ always() && inputs.frozen_profile_v2_run }}
+        run: node -e "const fs=require('node:fs');const p='agent41-frozen-bilateral-matrix-v2.json';if(!fs.existsSync(p)){console.log('FROZEN_V2_MATRIX_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FROZEN_V2_POLICY_TREATMENT',JSON.stringify({attempts:r.preservedAttemptRows,complete:r.allAttemptRowsPresent,rank6SourceAttacks:r.byArm.filter(x=>x.rank===6).reduce((n,x)=>n+x.sourceAttackDeclarations,0),rank11SourceAttacks:r.byArm.filter(x=>x.rank===11).reduce((n,x)=>n+x.sourceAttackDeclarations,0),statuses:r.nativeOutcomes,physical:r.physicalIntegrityOutcomes,coin:r.nativeCoinEvidence,competitiveQualifiedGames:r.competitiveQualifiedGames}));if(!r.allAttemptRowsPresent)process.exitCode=1;}"
       - name: Run exact original rank21 native Tool action recipient comparison
         if: ${{ inputs.focused_native_rank21_tool }}
         run: node simulation/evaluation/agent41-rank21-native-tool-target-pair.cjs > agent41-rank21-tool-target-raw.json
@@ -119,5 +141,7 @@ jobs:
             agent41-rank21-tool-target-raw.json
             agent41-frozen-bilateral-development-v1-native.json
             agent41-frozen-bilateral-matrix-v1.json
+            agent41-frozen-bilateral-development-v2-native.json
+            agent41-frozen-bilateral-matrix-v2.json
           if-no-files-found: warn
           retention-days: 14
