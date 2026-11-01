@@ -2,7 +2,7 @@
 
 **1 November 2026 | archived frozen v2, post hoc read-only census, zero competitive-qualified games.**
 
-The existing common-policy [frozen rank6/rank11 v2 result](agent41-frozen-bilateral-v2-32-original-source-energy-20261101.md) reported 32 native physical-start attempts, 19 native engine terminal and 13 capped. Its real Store `rootActionLedger` retains actual accepted prompt reply action ordinals, prompt-class names, turn, and physical player seat. It generally does **not** retain the printed card responsible for each resolved prompt nor its physical submitted result. As a result, no independent paper-effect validator can truthfully certify those archived prompt choices from this ledger alone. This is a release-observability limitation, not a claim that every prompt was invalid.
+The existing common-policy [frozen rank6/rank11 v2 result](agent41-frozen-bilateral-v2-32-original-source-energy-20261101.md) reported 32 native physical-start attempts, 19 native engine terminal and 13 capped. Its real Store `rootActionLedger` retains actual accepted prompt reply ordinals, prompt-class names, turn, physical player seat and the **initiating native root ordinal**. Joining on that ordinal can recover the initiating public card or attack **name** for all observed in-turn `ChooseCardsPrompt` rows, although the ledger does **not** consistently preserve the exact source printing or physical submitted reply. Thus paper-contract certification remains unavailable from this ledger alone. This is a release-observability limitation, not a claim that every prompt was invalid.
 
 ## Immutable archival input
 
@@ -31,9 +31,25 @@ The existing common-policy [frozen rank6/rank11 v2 result](agent41-frozen-bilate
 | OrderCardsPrompt | 2 | 0 | 2 |
 | **Total** | **2,205** | **2,126** | **4,331** |
 
-**Setup vs in-turn is essential:** 316 reply roots occurred at global turn zero (177 rank6, 139 rank11); **4,015** at game global turn one or later (2,028 rank6, 1,987 rank11). Specifically, 71 of 271 `ChooseCardsPrompt` occurred at global turn zero and **200** during turns (119 rank6, 81 rank11). This `ChooseCardsPrompt` family includes diverse origins and may cover set-up or other effects. A prompt-type count cannot establish that 200 deck searches took place, that the native answers obeyed every printed card, or that all 200 were independent events.
+**Setup vs in-turn is essential:** 316 reply roots occurred at global turn zero (177 rank6, 139 rank11); **4,015** at game global turn one or later (2,028 rank6, 1,987 rank11). Specifically, 71 of 271 `ChooseCardsPrompt` occurred at global turn zero and **200** during turns (119 rank6, 81 rank11). **All 200 in-turn rows have a resolvable initiating native root ordinal and a named initiating public root**. These are ten distinct initiating action names:
 
-First observed post-start `ChooseCardsPrompt` in rank6 is `6:0:A:champion-reference`, root 21 global turn3, native player seat1; rank11 is `11:0:A:champion-reference`, root31 global turn6, seat0. These are reproducible navigation anchors only, **not** a claim about their hidden contents, source printing, or legality.
+| Native initiating root action | Rank6 | Rank11 | Total |
+| --- | ---: | ---: | ---: |
+| PlayCardAction / Fog Crystal | 39 | 34 | 73 |
+| PlayCardAction / Plumeria | 30 | 0 | 30 |
+| AttackAction / Get Lost | 0 | 24 | 24 |
+| PlayCardAction / Team Flare Grunt | 19 | 0 | 19 |
+| PlayCardAction / Capture Energy | 16 | 0 | 16 |
+| PlayCardAction / Telepathic Psychic Energy | 5 | 5 | 10 |
+| AttackAction / Call for Family | 0 | 9 | 9 |
+| AttackAction / Night Watch | 0 | 9 | 9 |
+| PlayCardAction / Guzma & Hala | 8 | 0 | 8 |
+| PlayCardAction / Tag Call | 2 | 0 | 2 |
+| **Total** | **119** | **81** | **200** |
+
+This is a useful **source-prioritization map** for future printed-effect audits. A prompt’s initiating native action is known by its observed name. The exact printed Pokémon performing `Get Lost` or `Night Watch`, the physical cards selected by the reply, and the paper validity of its cost or targets remain **unverified**. Counting all 200 as card searches or invalid replies would be misleading. A prompt-type count cannot establish that 200 deck searches took place, that the native answers obeyed every printed card, or that all 200 were independent events.
+
+First observed post-start `ChooseCardsPrompt` in rank6 is `6:0:A:champion-reference`, root 21 global turn3, source seat1, **initiated by root20 PlayCardAction / Team Flare Grunt**; rank11 is `11:0:A:champion-reference`, root31 global turn6, candidate seat0, **initiated by root30 PlayCardAction / Fog Crystal**. These are reproducible public-name navigation anchors only; hidden selected contents, exact printing and paper validity remain unknown.
 
 ## Concrete new native paper-invalid control
 
