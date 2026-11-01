@@ -33,6 +33,21 @@ The **deferred** owner did physically preserve the single original `Field Blower
 
 This is a **temporal option demonstration** on identical original paper inventories, not a proof that holding Field Blower is stronger than immediately using it. None of the observed rank1 turn4 continuations included a native Ability use. Whether such an Ability line was actually available, whether one would be beneficial, and whether source re-equips again after the deferred break remain open.
 
+## Subsequent turns: confirmed self-lock and rapid reattachment
+
+A separate expanded read-only audit, [compiled CI 41348864296](https://github.com/FlareZ123/experiment-01/actions/runs/41348864296) **SUCCESS**, archived [three-arm turn6 artifact 13100541802](https://github.com/FlareZ123/experiment-01/actions/runs/41348864296/artifacts/13100541802), ZIP digest `sha256:d1820ba4ba9d4dc9c2608495e984db41e9d20b7418903446e0f2f46022a37b68`, tracked only actual accepted owner UseAbilityAction/Float Stone play roots and public source Garbodor Tool state at the recipient's first real turn6 decision.
+
+| Native evidence | Immediate T2 Blower | Deferred T4 Blower | Generic no Blower |
+| --- | --- | --- | --- |
+| Source turn3 used **Back Order** | **Yes** | No | No |
+| Source turn5 used **Back Order** | No | **Yes** | No |
+| Source turn5 played another Float Stone | 0 | **1** | 0 |
+| Source Garbodor still Float-Stone-equipped at recipient turn6 first root | **Yes** | **Yes** | **Yes** |
+
+This is an especially important **symmetric self-lock effect**. The physical card text of Garbodor BKP's *Garbotoxin* suppresses the source's **own Oranguru V Back Order** whenever Garbodor has a Tool. When the recipient uses Field Blower, it temporarily unlocks **both players' Abilities**. The source can then use Back Order and obtain another Tool on its next turn, restoring the same lock. In this original physical deal, that happened after either removal timing. The source never used Back Order while its own Garbotoxin Tool remained attached in the generic/deferred turns, matching the card text.
+
+The source's ability to respond quickly does **not** make the recipient's unlocked turn worthless by itself. It does falsify an interpretation of either Field Blower as a lasting Ability-lock removal in this trial. Whether the recipient uses that one turn for a decisive Ability and whether those actions survive the source relock remain the next questions.
+
 ## Transfer to evaluation
 
 Treat `Field Blower` as a **one-use timing resource** whose strategic value depends on the board's evolving Ability payloads, search/discard consequences, the source's relock access, the recipient's other hand actions, and later source/recipient turns. A generic bot's ability to retain a card is neither evidence of deliberate resource protection nor evidence that choosing the Tool-removal turn is optimal. The observed unlock at turn4 is mechanically valid and a distinct temporal state from the turn2 unlock. Future common policy work should compare the *actually available* immediate uses of enabled Abilities and opponent responses, with the same owner hand and paper legality constraints; no universal ranking of the three arms follows.
