@@ -84,4 +84,58 @@ class TerminalAuditTests(unittest.TestCase):
         with self.assertRaises(ValueError):audit(r)
 
 
+def add_getlost(r, *, settled=True, available_psychic=3):
+    acting={"name":"Girafarig","damage":0,
+            "energyCards":["Psychic Energy"]*available_psychic,
+            "printedAttacks":[{"name":"Get Lost","cost":[9]},
+                              {"name":"Mind Shock","cost":[9,9,9]}]}
+    target={"name":"Trubbish","damage":0,"energyCards":[],
+            "printedAttacks":[]}
+    board=[{"active":target,"bench":[]},{"active":acting,"bench":[]}]
+    event={"actionOrdinal":31,"turnBefore":6,"attackName":"Get Lost",
+           "settledPromptChain":settled,"settlementCrossesClockReset":False,
+           "publicBoardBefore":deepcopy(board),
+           "publicBoardAfter":deepcopy(board) if settled else None}
+    row=r[1]
+    row["candidateAttackSettlement"]={"attacks":[event]}
+    row["rootActionLedger"]=[
+        {"actionOrdinal":31,"turnBefore":6,"playerSlot":1,
+         "action":"AttackAction","attack":"Get Lost"},
+        {"actionOrdinal":32,"turnBefore":6,"playerSlot":1,
+         "action":"ResolvePromptAction","pendingPrompt":"ChooseCardsPrompt",
+         "initiatingRootActionOrdinal":31}]
+    row["nativePromptChoices"]={"events":[
+        {"ordinal":32,"kind":"ChooseCardsPrompt","sourceZone":"discard",
+         "sourcePlayerSlot":0,"sourceZoneCardCountBefore":0,
+         "selectedCards":None}]}
+    return r
+
+
+class BilateralGetLostTests(unittest.TestCase):
+    def test_source_opponent_empty_discard_and_payable_ko(self):
+        report=audit(add_getlost(rows()))["candidateGetLost"]
+        self.assertEqual(report["totals"]["nominal_mindshock_printed_ko_if_unmodified"],1)
+        self.assertEqual(report["totals"]["fully_settled_attack_chains"],1)
+        self.assertEqual(report["byGame"][0]["nominalMindShockKoRootOrdinals"],[31])
+
+    def test_two_psychic_cannot_pay_mindshock(self):
+        report=audit(add_getlost(rows(),available_psychic=2))["candidateGetLost"]
+        self.assertEqual(report["totals"].get("nominal_mindshock_printed_ko_if_unmodified",0),0)
+
+    def test_capped_end_attack_retains_prompt_and_unfinished_distinction(self):
+        report=audit(add_getlost(rows(),settled=False))["candidateGetLost"]
+        self.assertEqual(report["totals"]["prompt_accepted_but_unfinished_attack"],1)
+        self.assertEqual(report["totals"]["right_censored_attack_chains"],1)
+        self.assertEqual(report["totals"].get("fully_settled_attack_chains",0),0)
+        self.assertEqual(report["totals"]["nominal_mindshock_printed_ko_if_unmodified"],1)
+
+    def test_wrong_receipt_or_unexplained_censor_rejected(self):
+        r=add_getlost(rows());r[1]["nativePromptChoices"]["events"][0]["sourcePlayerSlot"]=1
+        with self.assertRaises(ValueError):audit(r)
+        r=add_getlost(rows(),settled=False);r[1]["endReason"]="engine-terminal"
+        with self.assertRaises(ValueError):audit(r)
+        r=add_getlost(rows());r[1]["rootActionLedger"][1]["initiatingRootActionOrdinal"]=99
+        with self.assertRaises(ValueError):audit(r)
+
+
 if __name__=='__main__':unittest.main()
