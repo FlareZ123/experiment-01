@@ -40,6 +40,24 @@ function sourcePrintedCard(printing,name,sets,readCards){
 }
 
 /**
+ * Literal consecutive normal evolution route from some included Basic.
+ * Rare Candy, Ditto, attacks and other exceptional effects are excluded.
+ * @param {object} pokemon Exact resolved source printing.
+ * @param {object[]} sourcePokemon Exact source printings, possibly null.
+ * @param {Set<string>} [visited]
+ * @returns {boolean}
+ */
+function hasNormalEvolutionChain(pokemon,sourcePokemon,visited=new Set()){
+  if(pokemon?.subtypes?.[0]==='Basic')return true;
+  if(!pokemon?.evolvesFrom||visited.has(pokemon.name))return false;
+  const parents=sourcePokemon.filter(card=>
+    card?.name===pokemon.evolvesFrom);
+  const nextVisited=new Set(visited).add(pokemon.name);
+  return parents.some(parent=>hasNormalEvolutionChain(parent,sourcePokemon,
+    nextVisited));
+}
+
+/**
  * Census of ordinary printed attack funding under complete registered Energy
  * roster. It ignores evolving/copying attacks, switching, time, prizes, tool
  * modifiers, discarded attack payloads, and policy choices deliberately.
@@ -58,6 +76,8 @@ function directRosterCensus(decks,sets,readCards){
     const energy=deck.cards.filter(c=>c.category==='Energy').map(c=>({
       name:c.name,count:c.count
     }));
+    const sourcePokemon=deck.cards.filter(c=>c.category==='Pokémon')
+      .map(c=>sourcePrintedCard(c.printing,c.name,sets,readCards));
     for(const entry of deck.cards.filter(c=>c.category==='Pokémon')){
       const card=sourcePrintedCard(entry.printing,entry.name,sets,readCards);
       const attacks=card?.attacks??[];
@@ -70,9 +90,12 @@ function directRosterCensus(decks,sets,readCards){
         attacks.length===0?'NO_PRINTED_ATTACK':
         states.includes('POSSIBLE')?'POSSIBLE':
         states.includes('UNVERIFIED')?'UNVERIFIED':'IMPOSSIBLE';
+      const normalEvolution=!card?'PRINTING_UNRESOLVED':
+        hasNormalEvolutionChain(card,sourcePokemon)?'NORMAL_CHAIN_PRESENT':
+        'NO_CONSECUTIVE_CHAIN';
       rows.push({rank:deck.rank,printing:
         entry.printing.set+'-'+entry.printing.number,
-        name:entry.name,count:entry.count,status,attacks:perAttack});
+        name:entry.name,count:entry.count,status,normalEvolution,attacks:perAttack});
     }
   }
   const statuses=['POSSIBLE','IMPOSSIBLE','UNVERIFIED',
@@ -82,7 +105,15 @@ function directRosterCensus(decks,sets,readCards){
     physicalCopies:rows.filter(x=>x.status===status)
       .reduce((n,x)=>n+x.count,0)
   }]));
+  const normalEvolution=Object.fromEntries(
+    ['NORMAL_CHAIN_PRESENT','NO_CONSECUTIVE_CHAIN','PRINTING_UNRESOLVED']
+      .map(status=>[status,{physicalCopies:rows.filter(x=>
+        x.normalEvolution===status).reduce((n,x)=>n+x.count,0)}]));
+  const normalUnreachableThoughEnergyPossible=rows.filter(x=>
+    x.status==='POSSIBLE'&&x.normalEvolution==='NO_CONSECUTIVE_CHAIN');
   return {version:VERSION,energyVersion:ENERGY_VERSION,
+    normalEvolution,normalUnreachableThoughEnergyPossibleCopies:
+      normalUnreachableThoughEnergyPossible.reduce((n,x)=>n+x.count,0),
     sourceRanks,sourceDeckCount:decks.length,
     sourcePokemonPhysicalCopies:rows.reduce((n,x)=>n+x.count,0),
     summary,rows};
@@ -112,5 +143,5 @@ function censusFromRepository(root=ROOT){
 if(require.main===module){
   process.stdout.write(JSON.stringify(censusFromRepository(),null,2)+'\n');
 }
-module.exports={VERSION,normalizeName,sourcePrintedCard,directRosterCensus,
+module.exports={VERSION,normalizeName,sourcePrintedCard,hasNormalEvolutionChain,directRosterCensus,
   censusFromRepository};
