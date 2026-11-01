@@ -34,6 +34,9 @@ function censusNativePromptFamilies(rows){
         inTurnChooseCardsPromptCount:0,
         inTurnChooseCardsWithInitiatingRoot:0,
         inTurnChooseCardsWithNamedInitiator:0,
+        inTurnChooseCardsWithSelectionReceipt:0,
+        inTurnChooseCardsWithSelectedCardNames:0,
+        inTurnChooseCardsSelectionZoneCounts:{},
         inTurnChooseCardsByInitiatingAction:{},
         firstInTurnChooseCardsPrompt:null,
         cappedGames:0,engineTerminalGames:0
@@ -45,6 +48,9 @@ function censusNativePromptFamilies(rows){
     else g.cappedGames++;
     const byOrdinal=new Map(arm.rootActionLedger.map(root=>
       [root.actionOrdinal,root]));
+    const choicesByOrdinal=new Map(
+      (arm.nativePromptChoices?.events??[]).map(row=>
+        [row.ordinal,row]));
     for(const root of arm.rootActionLedger){
       if(root.action!==PROMPT_ACTION)continue;
       assert.ok(Number.isInteger(root.actionOrdinal)&&
@@ -61,6 +67,15 @@ function censusNativePromptFamilies(rows){
         const initiating=byOrdinal.get(root.initiatingRootActionOrdinal);
         const named=initiating?.card??initiating?.attack??initiating?.ability;
         if(initiating)g.inTurnChooseCardsWithInitiatingRoot++;
+        const choice=choicesByOrdinal.get(root.actionOrdinal);
+        if(choice){
+          g.inTurnChooseCardsWithSelectionReceipt++;
+          const zone=choice.sourceZone??'UNCLASSIFIED';
+          g.inTurnChooseCardsSelectionZoneCounts[zone]=
+            (g.inTurnChooseCardsSelectionZoneCounts[zone]??0)+1;
+          if(Array.isArray(choice.selectedCards))
+            g.inTurnChooseCardsWithSelectedCardNames++;
+        }
         if(typeof named==='string'&&named.length>0){
           g.inTurnChooseCardsWithNamedInitiator++;
           const source=initiating.action+' / '+named;
@@ -87,16 +102,22 @@ function censusNativePromptFamilies(rows){
     n+r.inTurnChooseCardsWithInitiatingRoot,0);
   const inTurnChooseCardsWithNamedInitiator=byRank.reduce((n,r)=>
     n+r.inTurnChooseCardsWithNamedInitiator,0);
+  const inTurnChooseCardsWithSelectionReceipt=byRank.reduce((n,r)=>
+    n+r.inTurnChooseCardsWithSelectionReceipt,0);
+  const inTurnChooseCardsWithSelectedCardNames=byRank.reduce((n,r)=>
+    n+r.inTurnChooseCardsWithSelectedCardNames,0);
   return {
     version:VERSION,attemptedArms:rows.length,byRank,
     totalPromptReplies,inTurnChooseCardsPromptCount,
     inTurnChooseCardsWithInitiatingRoot,
     inTurnChooseCardsWithNamedInitiator,
+    inTurnChooseCardsWithSelectionReceipt,
+    inTurnChooseCardsWithSelectedCardNames,
     sourcePrintedCardForEachPromptKnown:false,
     individuallyPaperVerifiedPromptCount:0,
     paperEvidenceStatus:'PROMPT_PAPER_UNVERIFIED',
     gameResultsQualifiedForCompetitiveInference:false,
-    caveat:'Native root names often recover the initiating Item or attack, but not necessarily exact printed source identity, chosen physical reply or independent paper validity. Correlated games including caps are not independent effects or wins.'
+    caveat:'Native roots recover initiating card or attack names; a separate nativePromptChoices sidecar sometimes retains selected physical printing names and source zones. No uniformly complete independent paper-contract verifier exists. Correlated games including caps are not independent effects or wins.'
   };
 }
 
