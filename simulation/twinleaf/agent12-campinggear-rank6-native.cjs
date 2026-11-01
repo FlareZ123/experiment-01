@@ -53,6 +53,21 @@ function main(){
       const offered=treatment?res.result.audit:null;
       const game=treatment?res.result.result:res.result;
       const lineage=attestNativeTurnClosureLineage(game.rootActionLedger);
+      // Post-dispatch native roots only; no private cards or prospective scores.
+      // T2 is the opponent's turn and T3 the source's next turn because the
+      // frozen source sits in the physical first-player seat.
+      const continuedRoots=game.rootActionLedger.filter(x=>
+        x.action!=='ResolvePromptAction'&&x.turnBefore>=2&&
+        x.turnBefore<=4).map(x=>({
+          ordinal:x.actionOrdinal,turn:x.turnBefore,seat:x.playerSlot,
+          action:x.action,card:x.card??null,attack:x.attack??null
+        }));
+      const opponentReply=continuedRoots.find(x=>
+        x.turn===2&&x.seat!==SOURCE_SEAT)??null;
+      const sourceNextAction=continuedRoots.find(x=>
+        x.turn===3&&x.seat===SOURCE_SEAT)??null;
+      const sourceNextAttack=continuedRoots.find(x=>
+        x.turn===3&&x.seat===SOURCE_SEAT&&x.action==='AttackAction')??null;
       const receipt={status:'completed-native-development',
         firstTurnSeat:game.firstTurnSlot,
         verifiedFirstTurn:game.verifiedByDrawLog,
@@ -68,6 +83,12 @@ function main(){
         sourceFirstTerminal:lineage.closures.find(x=>
           x.turnBefore===1&&x.actorSeat===SOURCE_SEAT)??null,
         terminalPromptTypeCounts:lineage.counts.promptTerminalTypes,
+        followThrough:{
+          observedPostFirstTurnRoots:continuedRoots,
+          opponentReply,sourceNextAction,sourceNextAttack,
+          opponentReplyNativeRootObserved:opponentReply!==null,
+          sourceNextTurnNativeRootObserved:sourceNextAction!==null
+        },
         gearAudit:offered,qualifiedForCompetitiveInference:false};
       return receipt;
     }catch(e){
@@ -80,7 +101,7 @@ function main(){
     withGear.status==='completed-native-development'&&
     baseline.sourceDealFingerprint===withGear.sourceDealFingerprint&&
     baseline.fullPhysicalDealFingerprint===withGear.fullPhysicalDealFingerprint;
-  const report={schema:'agent12-original-rank6-gear-pass-native-v1',
+  const report={schema:'agent12-original-rank6-gear-pass-native-v2',
     sourceTrial:REPLAY_ID,sourceSeed:SEED,sourceSeat:SOURCE_SEAT,
     enginePin:ENGINE_PIN,candidateDeck:'original rank1 published 60',
     sourceDeck:'original rank6 published 60',
