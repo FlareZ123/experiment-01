@@ -48,3 +48,27 @@ The shared action arbiter should enumerate *which* Basic is being Benched, with 
 Next proof would require a genuine original source-dealt multi-Basic last-slot root and a native **opposing response to the now-settled Wonder Tag line**, including accepted/declined alternatives and sampled failures. Only a frozen shared owner-private both-player arbitration release with such line competition can enter a competitive readiness evaluation.
 
 **Status:** 29/32 complete original source lists, 0 competitively qualified games, no evidence-backed fixed 60 list capable of 99.5%.
+
+## 1 November 2026: independent same-root shadow census and native lock contrast
+
+**Compiled evidence:** [Agent7 manually dispatched original-Store CI 41276984294](https://github.com/FlareZ123/experiment-01/actions/runs/41276984294), exact head `33c6c41fc419a496cad9706d8a5870554d9c351e`, pinned engine `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. All tests and the existing four-arm unmodified Store read-only parity completed successfully.
+
+[The new fail-closed owner-root observer](../../simulation/twinleaf/agent27-shadow-choice-reconciliation.cjs) compares a selected action against an independent all-proposer receipt and enforces that running the shadow cannot change the subsequent executable selector result. The optional [same-kind final-Bench proposer](../../simulation/twinleaf/agent27-owner-lastbench-basic-conflict.cjs) remains observation-only and does not affect live root choice.
+
+A compiled native test of the exact registered rank-1 and rank-10 card inventories, with the controlled four-occupied-Bench position, found:
+
+| Source-conserved owner root | Seat A | Seat B |
+| --- | ---: | ---: |
+| Baseline first-return | Girafarig LOT, hand 0 | Girafarig LOT, hand 0 |
+| Original registered full-shadow alternatives | 0 | 0 |
+| Extra structurally eligible same-kind alternatives | **2** | **2** |
+| Native-accepted independent alternative Bench admissions | **2 of 2** | **2 of 2** |
+| Observer changes first-return action | No | No |
+
+The second omitted Basic was **Lillie's Clefairy ex JTG at owner-hand index 6**, alongside **Tapu Lele-GX GRI at index 1**. It was missed by the earlier two-card staging description because the remaining five hand slots came from the actual original source 60. Both native admissions were tested on separate fresh, identical source-preserving Store forks; the observer never dispatched the alternatives itself. The new shadow explicitly labels their native dispatch as not wired, despite the separate mechanical positive control.
+
+A second pinned Store contrast physically played the source Tapu Lele-GX onto that final Bench spot against original rank-6 Iron Thorns ex Active and original rank-10 Regidrago V Active, in both owner physical seats. The **uncorrected** pinned engine incorrectly opened a Wonder Tag `ConfirmPrompt` under Iron Thorns' printed **Initialization** Ability lock (both seats). When using the previously established reversible [Lele entry Ability lock correction](../../simulation/twinleaf/lele-entry-ability-lock-hook.cjs), the rank-6 Wonder Tag prompt disappeared in both seats. Against rank-10 Regidrago, Wonder Tag remained available with or without the correction, as expected. Every Basic reached the Bench physically; the test records only the prompt availability, and does not complete the searched Supporter line under rank6.
+
+The existing registered rank6/rank11 bilateral development profile already includes `leleEntryAbilityLockCorrection:true` in [frozen registration](registrations/agent41-crossrank-r6-r11-v1-20261019.json). This native test independently validates why that registration must be preserved during profile release. A source-driven count from [the 29 published exact 60s](full-decklists.json) identifies Tapu Lele-GX in **18 lists, 20 total copies**, specifically ranks **1, 4, 8, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 22, 27, 30, 31 and 32**. This is a *card-inventory exposure*, with no observed incidence of Wonder Tag under live rank6 lock or proof that it determined a result.
+
+**Remaining gap:** Both native tests deliberately stage a public board; neither supplies a naturally dealt last-slot root, a completed opposing reply, a paper-clock result, or comparative winning evidence. The three missing original Top32 60s and zero competitive-qualified games are unchanged.
