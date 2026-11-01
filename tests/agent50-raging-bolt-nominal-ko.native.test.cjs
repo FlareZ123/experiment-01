@@ -146,5 +146,9 @@ for(const seat of [0,1]){
       turnAfter:state.turn,competitiveQualifiedGames:0
     }));
     assert.equal(state.prompts.some(p=>p.result===undefined),false);
+    assert.equal(owner.hand.cards.length,handBefore+6,
+      'Paper Burst Roar must actually draw six cards');
+    assert.equal(owner.deck.cards.length,deckBefore-6,
+      'Actual native owner deck must physically supply the six cards');
   });
 }
