@@ -16,6 +16,7 @@ function withElectrodeCrashBurnPaper(run,deps={}){
   if(!WAS_ATTACK_USED(effect,1,this))
    return original.value.call(this,store,state,effect);
   const prior=store.prompt;
+  const own=Object.getOwnPropertyDescriptor(store,'prompt');
   store.prompt=function(s,p,then){
    if(p?.constructor?.name!=='DiscardEnergyPrompt'||
       p.playerId!==effect.player.id)
@@ -36,3 +37,9 @@ function withElectrodeCrashBurnPaper(run,deps={}){
     return result;
    });
   };
+  try{return original.value.call(this,store,state,effect);}
+  finally{
+   if(own)Object.defineProperty(store,'prompt',own);
+   else delete store.prompt;
+  }
+ }
