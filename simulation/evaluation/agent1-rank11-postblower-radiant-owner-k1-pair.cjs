@@ -1,0 +1,140 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const {verifyFrame}=require('../twinleaf/agent32-rank11-six-star-vip-k1-native.cjs');
+const registration=require('../../results/aichi-2026/registrations/agent1-rank11-owner-quickball-radiant-20261101.json');
+const frame=require('../../results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json');
+const {withNewMoonBlowerAutonomy}=
+  require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
+const {withOwnerOranguruStarVipPlan}=
+  require('../twinleaf/agent1-owner-oranguru-starvip-native.cjs');
+
+function run(){
+  verifyFrame();
+  const {resolvedPrintedDecks}=
+    require('./rank11-conditional-k0-screen-run.cjs');
+  const {runMatch}=require('../twinleaf/headless.cjs');
+  const decks=resolvedPrintedDecks();
+  assert.equal(decks.engineRevision,registration.engineRevision);
+  const entry=frame.selectedExactK0.find(x=>x.index===registration.frozenSourceIndex);
+  assert.ok(entry);
+  assert.equal(entry.seed,registration.seed);
+  assert.equal(entry.sourceFirstOwnerHandSha256,registration.sourceFirstOwnerHandSha256);
+  const rows=[];
+  for(const preferRadiantAfterBlowerSearch of [false,true]){
+    try{
+      const reply=withNewMoonBlowerAutonomy(1,()=>(
+        withOwnerOranguruStarVipPlan(()=>runMatch({
+          ...decks,seed:entry.seed,
+          label:'rank11-conditional-K0-screen-v1:'+entry.index,
+          maxActions:200,captureDecisionTrace:true,
+          strictPromptValidation:true,
+          forestSealSearchCorrection:true,
+          battleCompressorPositiveSelectionCorrection:true,
+          isolatePolicyRandomness:true
+        }),{
+          chooseOffer:(view,offer)=>{
+            assert.equal(view.decisionKind,'owner-root');
+            assert.equal(offer.eligible,true);
+            return true;
+          }
+        })
+      ),{
+        automaticFieldBlower:true,allowAnyActiveBlower:true,
+        preferRadiantAfterBlowerSearch
+      });
+      const game=reply.result.result;
+      const source=reply.result.audit;
+      const recipient=reply.policyAudit;
+      const first=source.originalOwnK0AtOffer.find(x=>x.seat===0);
+      assert.equal(first?.handSha256,entry.sourceFirstOwnerHandSha256);
+      assert.deepEqual(first?.bench,entry.sourceBenchAtK0);
+      assert.equal(game.firstTurnSlot,0);
+      assert.equal(game.verifiedByDrawLog,true);
+      assert.equal(source.nativeAccepted,11);
+      assert.equal(source.ownerPromptAccepted,5);
+      assert.equal(source.completedEquippedGarbodor,1);
+      assert.deepEqual(source.abortReasons,{});
+      const trace=game.decisionTrace??[];
+      const blower=trace.filter(x=>x.playerSlot===1&&x.turnBefore===2&&
+        x.action==='PlayCardAction'&&x.card==='Field Blower');
+      const quickBall=trace.filter(x=>x.playerSlot===1&&x.turnBefore===2&&
+        x.action==='PlayCardAction'&&x.card==='Quick Ball');
+      const firstRecipientK1=recipient.events.find(x=>
+        x.kind==='legitimate-owner-first-deck-search-K1');
+      const candidateK1=recipient.events.find(x=>
+        x.kind==='post-Blower-Radiant-owner-K1-check')??null;
+      const nativeOpponentDeckChoices=trace.filter(x=>
+        x.playerSlot===1&&x.turnBefore===2&&
+        x.cardSelection?.sourceZone==='deck'&&
+        x.cardSelection?.sourcePlayerSlot===1)
+        .map(x=>({ordinal:x.actionOrdinal,
+          selectedPrintings:x.cardSelection.selectedCards,
+          prompt:x.cardSelection.message,
+          nativeMax:x.cardSelection.nativePromptMax}));
+      const ownerRadiantPlays=trace.filter(x=>
+        x.playerSlot===1&&x.turnBefore===2&&
+        x.action==='PlayCardAction'&&x.card==='Radiant Eternatus');
+      const ownerClimacticGates=trace.filter(x=>
+        x.playerSlot===1&&x.turnBefore===2&&
+        x.action==='UseAbilityAction'&&x.ability==='Climactic Gate');
+      const atSourceT3=source.postOpponentOwnerReturns.find(x=>
+        x.seat===0&&x.firstReturnTurn===3);
+      const publicRemoval=recipient.events.filter(x=>
+        x.turn===2&&x.kind==='public-Tool-check'&&
+        x.garbodorToolRemoved===true);
+      assert.equal(blower.length,1);
+      assert.equal(publicRemoval.length,1);
+      assert.equal(quickBall.length,1);
+      assert.equal(firstRecipientK1?.turn,2);
+      assert.equal(firstRecipientK1?.radiantEternatusInOwnDeck,1);
+      assert.equal(firstRecipientK1?.shadowRiderVMaxInOwnDeck,2);
+      assert.equal(atSourceT3?.garbodorCount,1);
+      rows.push({preferRadiantAfterBlowerSearch,
+        status:'native-original-K0-and-recipient-owner-K1-confirmed',
+        sourceOriginalK0HandSha256:first.handSha256,
+        sourceReturnPublicBoard:atSourceT3,
+        recipientFirstRealK1:firstRecipientK1,
+        postBlowerRadiantOwnerK1Predicate:candidateK1,
+        nativeQuickBallRoots:quickBall.length,
+        nativeRecipientOwnDeckChoices,
+        recipientRadiantSelectionCommitted:recipient.radiantSearchSelected,
+        nativeRadiantBenchPlayRoots:ownerRadiantPlays.length,
+        nativeClimacticGateAbilityRoots:ownerClimacticGates.length,
+        publicOpponentRadiantAtSourceT3:
+          atSourceT3?.opponentPublicRadiantEternatusCount??null,
+        publicOpponentVMaxAtSourceT3:
+          atSourceT3?.opponentPublicShadowRiderVMaxCount??null,
+        gameFinished:game.finished===true,
+        competitiveQualifiedGame:false});
+    }catch(error){
+      rows.push({preferRadiantAfterBlowerSearch,status:'blocked',
+        error:String(error?.stack??error).slice(0,1700),
+        nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
+        competitiveQualifiedGame:false});
+    }
+  }
+  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v1',
+    registration,engineRevision:frame.engineRevision,
+    attempted:rows.length,
+    nativeVerified:rows.filter(x=>
+      x.status==='native-original-K0-and-recipient-owner-K1-confirmed').length,
+    rows,competitiveQualifiedGames:0,
+    limitation:'Two selected original K0 physical arms. Field Blower native settled, original opponent Quick Ball K1 target choice. No claim of better game outcome or general strategy; downstream Basic Bench play and Climactic Gate are separate native observations.'};
+}
+if(require.main===module){
+  const r=run();
+  process.stdout.write(JSON.stringify(r,null,2)+'\n');
+  process.stderr.write('AGENT1_RADIANT_POSTBLOWER_K1 '+JSON.stringify(
+    r.rows.map(x=>({prefer:x.preferRadiantAfterBlowerSearch,
+      status:x.status,k1:x.postBlowerRadiantOwnerK1Predicate,
+      choice:x.nativeRecipientOwnDeckChoices,
+      radiantSelected:x.recipientRadiantSelectionCommitted,
+      played:x.nativeRadiantBenchPlayRoots,
+      climactic:x.nativeClimacticGateAbilityRoots,
+      recipientPublicRadiant:x.publicOpponentRadiantAtSourceT3,
+      recipientPublicVMAX:x.publicOpponentVMaxAtSourceT3,
+      error:x.error??null})))+'\n');
+  if(r.nativeVerified!==2)process.exitCode=1;
+}
+module.exports={run};
