@@ -160,6 +160,17 @@ jobs:
           path: agent6-crossrank-tagcall-owner-native.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Retrospective third-arm optional second TAG TEAM owner-search comparison
+        if: inputs.agent6_tagcall
+        run: node simulation/evaluation/agent6-tagcall-two-target-retrospective.cjs > agent6-tagcall-two-target-retrospective.json
+      - name: Archive every native optional second TAG TEAM source turn
+        if: always() && inputs.agent6_tagcall
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-tagcall-two-target-retrospective
+          path: agent6-tagcall-two-target-retrospective.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Retrospective 2x2 rank6 source K0-DCE to K1-Speed bypass
         if: inputs.agent6_prized_thunder
         run: |
