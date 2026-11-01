@@ -84,6 +84,17 @@ function run(){
         x.kind==='legitimate-owner-first-deck-search-K1')??null;
       const opponentT4Public=recipient.events.find(x=>
         x.turn===4&&x.kind==='read-only-own-turn-board');
+      const opponentT6Public=recipient.events.find(x=>
+        x.turn===6&&x.kind==='read-only-own-turn-board');
+      const sourceTurn3Abilities=trace.filter(x=>
+        x.playerSlot===0&&x.turnBefore===3&&
+        x.action==='UseAbilityAction').map(x=>x.ability);
+      const sourceTurn5Abilities=trace.filter(x=>
+        x.playerSlot===0&&x.turnBefore===5&&
+        x.action==='UseAbilityAction').map(x=>x.ability);
+      const sourceTurn5ToolPlays=trace.filter(x=>
+        x.playerSlot===0&&x.turnBefore===5&&
+        x.action==='PlayCardAction'&&x.card==='Float Stone').length;
       const sourceT3=source.postOpponentOwnerReturns.find(x=>
         x.seat===0&&x.firstReturnTurn===3);
       const t2Blowers=playedBlowers(trace,2);
@@ -109,6 +120,11 @@ function run(){
           handAtT4.filter(card=>card==='Field Blower GRI').length:null,
         recipientTurn4PublicSourceGarbodorTools:
           opponentT4Public?.garbodorToolPrintings??null,
+        recipientTurn6PublicSourceGarbodorTools:
+          opponentT6Public?.garbodorToolPrintings??null,
+        sourceTurn3AbilityNames:sourceTurn3Abilities,
+        sourceTurn5AbilityNames:sourceTurn5Abilities,
+        sourceTurn5FloatStonePlayRoots:sourceTurn5ToolPlays,
         recipientTurn2BlowerRoots:t2Blowers.length,
         recipientTurn4BlowerRoots:t4Blowers.length,
         confirmedToolRemovalTurn2:twoBlower,
@@ -143,6 +159,10 @@ if(require.main===module){
     r.rows.map(x=>({arm:x.arm,status:x.status,sourceT3:x.sourceFirstT3Return,
       heldT4:x.recipientHeldBlowerAtT4,
       publicT4:x.recipientTurn4PublicSourceGarbodorTools,
+      publicT6:x.recipientTurn6PublicSourceGarbodorTools,
+      sourceT3Abilities:x.sourceTurn3AbilityNames,
+      sourceT5Abilities:x.sourceTurn5AbilityNames,
+      sourceT5FloatStone:x.sourceTurn5FloatStonePlayRoots,
       firstRecipientK1:x.recipientFirstOwnerK1Search,
       blowerT2:x.recipientTurn2BlowerRoots,
       blowerT4:x.recipientTurn4BlowerRoots,
