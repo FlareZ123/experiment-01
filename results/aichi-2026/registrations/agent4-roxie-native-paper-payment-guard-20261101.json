@@ -1,0 +1,23 @@
+{
+  "schema": "agent4-roxie-native-paper-payment-guard-registration-v1",
+  "dateUTC": "2026-11-01",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "prereqNativeCI": "41353395812",
+  "originalSourceRank": 31,
+  "originalGX": "Tapu Lele-GX GRI",
+  "originalAllowed": "Koffing CEC",
+  "fullGame": false,
+  "experimentalAim": "Reversible Store pre-dispatch guard specific to genuine stamped Roxie CEC ChooseCardsPrompt. Reject a selected original GX before physical mutation and permit Koffing and legal zero-selection; validate both physical seats, nested Roozie type repair and prior Painful Spoons hook, and restore prototype after experiment.",
+  "preRegisteredComparisons": [
+    "Both seats native unguarded illegal Tapu Lele-GX physically discarded, three drawn vs guarded rejection no physical mutation",
+    "Both seats native Koffing legal payment and three-card draw remains accepted under payment guard plus reversible type compatibility",
+    "Both seats guarded Roxie+Koffing+Alakazam printed triad still produces source counter wave and previously demonstrated Painful Spoons paper veto",
+    "Reject duplicate physical card reference as two payments if present",
+    "Restore Store dispatcher on a synchronous execution exception"
+  ],
+  "caveats": [
+    "Prepared native Store boards only",
+    "No original Aichi source-dealt games",
+    "No competitive game winners or overall paper certification"
+  ]
+}
