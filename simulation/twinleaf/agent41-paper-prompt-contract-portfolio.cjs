@@ -167,9 +167,10 @@ function withPaperPromptContractPortfolio(run,deps={}){
     store.attemptedPromptReplies++;
     if(trial){
       const record=byTrial[trial]??={attempted:0,nativeAccepted:0,
-        statusCounts:Object.fromEntries(STATUSES.map(s=>[s,0]))};
+        statusCounts:Object.fromEntries(STATUSES.map(s=>[s,0])),events:[]};
       record.attempted++;
       record.statusCounts[status]++;
+      record.events.push(event);
       if(!store.trialIds.includes(trial))store.trialIds.push(trial);
     }
     audit.statusCounts[status]++;
