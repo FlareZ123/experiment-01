@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-uniform-opponent-hand-positions-v1';
+const VERSION='agent12-nightwatch-uniform-owner-prompt-nonce-v2';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -15,7 +15,7 @@ const VERSION='agent12-nightwatch-uniform-opponent-hand-positions-v1';
  * @param {number} population Opponent's actual concealed hand size.
  * @param {number} sampleSize Cards to select.
  * @param {string} committedSeed RNG seed fixed before the match.
- * @param {string} nonce Real prompt identifier within the matched seed.
+ * @param {string} nonce Stable actor/turn/prompt identifier within the matched seed.
  * @returns {number[]} Distinct physical indices; never card identities.
  */
 function sampleUniformPositions(population,sampleSize,committedSeed,nonce){
@@ -92,19 +92,31 @@ function withUniformNightWatchOpponentSelection(run,options){
   const audit={version:VERSION,structuralCandidates:0,
     selectedCount:0,events:[],nativeAcceptedNotEstablishedByHook:true,
     printedNightWatchSourceNotEstablishedByShape:true,
-    paperRandomnessQualified:false};
+    paperRandomnessQualified:false,
+    structuralCounterNotUsedForSampling:true,
+    liveStorePromptIdUniquenessUnverified:true};
   function resolvePrompt(player,state,prompt){
     if(!nightWatchLikeShape(state,player,prompt))
       return original.value.apply(this,[player,state,prompt]);
     const n=prompt.cards.cards.length;
     const count=Math.min(2,n);
-    const nonce=String(prompt.id)+'|'+audit.structuralCandidates++;
+    // Hypothetical cloned Store prompts must never advance a shared random
+    // sequence and thereby change the physical result of a later real root.
+    // A prompt's actor, turn and ID are stable across owner-equivalent
+    // speculative calls. Source attribution and unique live IDs remain
+    // separate release requirements; neither is inferred from this nonce.
+    assert.ok(Number.isSafeInteger(state.turn)&&state.turn>=0,
+      'Night Watch deterministic nonce requires a real turn index');
+    assert.ok(typeof prompt.id==='string'||Number.isSafeInteger(prompt.id),
+      'Night Watch deterministic nonce requires a native prompt ID');
+    const nonce=JSON.stringify([state.turn,String(player.id),String(prompt.id)]);
+    audit.structuralCandidates++;
     const indices=sampleUniformPositions(n,count,options.committedSeed,nonce);
     const chosen=indices.map(i=>prompt.cards.cards[i]);
     assert.equal(prompt.validate(chosen),true,
       'Uniform native opponent-hand selection rejected by pinned prompt');
     if(audit.events.length<24)audit.events.push({
-      promptId:prompt.id,turn:state.turn,
+      promptId:prompt.id,turn:state.turn,nonce,
       actorId:player.id,opponentHandCount:n,
       positions:indices,selectedCount:count,
       attackerCardIdentitiesInspected:false
