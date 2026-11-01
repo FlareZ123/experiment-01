@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v24-optin-coheld-free-flare-arbiter';
+const VERSION='agent41-same-root-proposal-choice-v25-public-rondo-opportunity';
 const MAX_SAMPLES=48;
 
 /**
@@ -95,6 +95,11 @@ const PROPOSERS=Object.freeze([
   {name:'payable-printed-attack',flag:'payablePrintedAttackOffer',
     propose:(view,catalog)=>require('./agent41-public-payable-attack-offer.cjs')
       .choosePayablePrintedAttackOffer(view,catalog)},
+  // Exact printed JTG Full Moon Rondo variable damage is missing from the
+  // fixed-positive-damage offer. Observation is explicitly opt-in.
+  {name:'public-rondo',flag:'rondoPublicOpportunity',
+    propose:(view,catalog)=>require('./agent7-public-rondo-attack-offer.cjs')
+      .offerPublicRondo(view,catalog)},
   {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
     propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
       .ownerBasicAttachmentMenu(view,catalog)},
@@ -396,6 +401,16 @@ function scoreOffer(view,catalog,baseline,offer,options){
      require('./agent7-iron-thorns-zero-bench-attack.cjs')
        .noOwnBenchPrintedVoltCyclone(view,offer.intent))
     return {score:27,reason:'printed-no-bench-volt-cyclone-over-pass'};
+  // Provisional public-bench dynamic damage hypothesis. Never silently
+  // promote this over Pass in the common policy: it needs same-deal native
+  // acceptance, opponent reply, and damage settlement first.
+  if(options.rondoPublicAttackPreference===true&&
+     baseline.kind==='pass'&&offer.source==='public-rondo'&&
+     offer.intent.damageEstimateScope===
+       'exact-JTG56-printed-combined-bench-only'&&
+     Number.isSafeInteger(offer.intent.estimatedDamage)&&
+     offer.intent.estimatedDamage>=100)
+    return {score:25,reason:'experimental-public-rondo-bench-count-over-pass'};
   // Preregistered rank-6 development experiment, not a release policy:
   // each real owner root proposing Pass and a positive printed, publicly
   // payable attack may choose the Attack regardless of turn or physical seat.
@@ -565,6 +580,9 @@ function collectAndChooseOwnerRoot(view,catalog,baseline,options={},proposers=PR
       handIndex:o.intent.handIndex??null,
       attackName:o.intent.attackName??null,
       printedDamage:o.intent.printedDamage??null,
+      estimatedDamage:o.intent.estimatedDamage??null,
+      benchOccupants:o.intent.benchOccupants??null,
+      damageEstimateScope:o.intent.damageEstimateScope??null,
       plannedAttackName:o.intent.plannedAttackName??null,
       potentialDrawCap:o.intent.potentialDrawCap??null,
       // Evidence for the competing Supporter payment branch, intentionally
