@@ -13,7 +13,15 @@ function runRank30RondoReadOnly(){
  const options={...profile.policyOptions,registeredTrials:trials,
   registeredFrameName:VERSION,
   allowAdditionalOriginalSourceRanks:true,actorOnlyComposition:true,
-  nativeAcceptedTargets:true,mandatoryOptionFallback:true};
+  nativeAcceptedTargets:true,mandatoryOptionFallback:true,
+  // The frozen v2 profile selects native Tool, Supporter and same-root
+  // choices. This pair observes, so disable their dependent action flags
+  // identically in both controls before enabling read-only root telemetry.
+  sameRootProposalChoice:false,sameRootChoiceApply:false,
+  sameRootProbeAll:false,losslessNativeRootJoin:false,
+  nativeToolAttachRoot:false,registeredToolEnergyCeiling:false,
+  nativePlumeriaChoice:false,nativeZeroCostDenialChoice:false,
+  teamFlareGruntDenialRoot:false,actorPlumeriaAfterPass:false};
  const control=runDevelopment(options);
  const observed=runDevelopment({...options,
   sameRootProposalChoice:true,sameRootProbeAll:true,
@@ -24,11 +32,17 @@ function runRank30RondoReadOnly(){
   return {id:row.trial.id,sourceSeat:row.sourceSeat,
    sourceDealFingerprint:row.sourceDealFingerprint,
    sourceRondoOffers:audit.offerSourceCounts['public-rondo']??0,
+   sourceRondoReadiness:audit.rondoReadinessBySeat?.[row.sourceSeat]??{},
    ownerRoots:audit.ownerRoots,selectorErrorRoots:audit.selectorErrorRoots,
    status:row.status??(row.finished?'untimed-engine-terminal':'censored')};
  });
  return {version:VERSION,control,observed,parity,byTrial,
   totalPublicRondoOffers:byTrial.reduce((n,x)=>n+x.sourceRondoOffers,0),
+  totalOwnerRootReadiness:byTrial.reduce((out,x)=>{
+    for(const [key,n] of Object.entries(x.sourceRondoReadiness))
+      out[key]=(out[key]??0)+n;
+    return out;
+  },{}),
   competitivelyQualifiedGames:0,
   caveat:'Retrospective same-seed original Store read-only opportunities; no win inference'};
 }
