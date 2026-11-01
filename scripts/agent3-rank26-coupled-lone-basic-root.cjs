@@ -44,7 +44,7 @@ function joint(opposingBasics,sourceBonusPolicy='hand-aware'){
   // the optional bonus draws and its own mandatory turn draw.
   let sourceGetsBonuses=0;
   for(let m=1;m<=46;m++){
-    const w=sourceValid*oppValid*(oppInvalid**m)/denominator;
+    const w=offeredBonusProbability(oppInvalid,sourceInvalid,m);
     sourceGetsBonuses+=w*exactlyOneConditional*directSource(m);
   }
   // Opponent originally valid, source has >=1 mulligans. Opponent
@@ -52,7 +52,7 @@ function joint(opposingBasics,sourceBonusPolicy='hand-aware'){
   // has exactly one Basic, avoid b-1 remaining Basics in those draws.
   let opponentGetsBonuses=0;
   for(let n=1;n<=46;n++){
-    const w=oppValid*sourceValid*(sourceInvalid**n)/denominator;
+    const w=offeredBonusProbability(sourceInvalid,oppInvalid,n);
     const avoidExtra= n<=54-opposingBasics?
       c(54-opposingBasics,n)/c(53,n):0;
     opponentGetsBonuses+=w*exactlyOneConditional*
