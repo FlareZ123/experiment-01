@@ -45,3 +45,15 @@ test('mismatched field and challenger print identity must reject',()=>{
   y.candidate.canonical_id_count_sha256='modified';
   assert.throws(()=>m.field(y.audit,y.candidate));
 });
+
+test('missing three sources cannot reverse 14-vs-17 Basic bonus direction',()=>{
+  const x=make();
+  const bounds=m.field(x.audit,x.candidate).missingSourceFull32Envelope;
+  assert.deepEqual(bounds.unknownRanks,[23,25,28]);
+  close(bounds.candidateBonusIncrease.lower,0.011192859370453168);
+  close(bounds.candidateBonusIncrease.upper,0.016811495653524966);
+  close(bounds.opponentBonusReduction.lower,-0.058662448377500606);
+  close(bounds.opponentBonusReduction.upper,-0.053043812094428835);
+  assert.ok(bounds.candidateBonusIncrease.lower>=0);
+  assert.ok(bounds.opponentBonusReduction.upper<0);
+});
