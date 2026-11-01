@@ -60,6 +60,42 @@ function conditionalSupporterCount(N,basic,supporter,h=7){
 }
 
 /**
+ * Probability the first eight contain at least two different printed
+ * Supporter names, conditioned on a valid original seven-card opener.
+ * Each name family has a disjoint physical copy count. Identical-name
+ * duplicates count once; strategic/legal availability remains unmeasured.
+ * @param {number} N Physical deck size.
+ * @param {number} basic Original Basic Pokémon count.
+ * @param {number[]} copies Counts of each distinct Supporter printed name.
+ * @param {number} [h] Opening hand size.
+ */
+function distinctSupporterContention(N,basic,copies,h=7){
+  assert.ok(Array.isArray(copies));
+  for(const n of [N,basic,h,...copies])
+    assert.ok(Number.isSafeInteger(n)&&n>=0);
+  assert.ok(N>h&&h>0&&basic>0&&copies.every(n=>n>0));
+  const supporters=copies.reduce((a,b)=>a+b,0);
+  assert.ok(basic+supporters<=N);
+  const denominator=(choose(N,h)-choose(N-basic,h))*BigInt(N-h);
+  const noExcluded=(excluded)=>
+    (choose(N-excluded,h)-choose(N-excluded-basic,h))*
+      BigInt(Math.max(0,N-h-excluded));
+  // Zero or one printed Supporter family gives no distinct-name contention.
+  let favorable=0n;
+  if(copies.length>=2){
+    favorable=denominator;
+    for(const count of copies)
+      favorable-=noExcluded(supporters-count);
+    favorable+=BigInt(copies.length-1)*noExcluded(supporters);
+  }
+  assert.ok(favorable>=0n&&favorable<=denominator);
+  const div=gcd(favorable,denominator);
+  return {numerator:String(favorable/div),
+    denominator:String(denominator/div),
+    probability:Number(favorable)/Number(denominator)};
+}
+
+/**
  * Exact original source 29 60s, unresolved finish ranks preserved.
  * @param {object} roster Original printed Limitless roster.
  * @param {Map<string,string>} trainerTypes Printed Trainer family.
@@ -72,6 +108,9 @@ function firstEightFieldContention(roster,trainerTypes,basicPrintings){
     basics:row.basicCopies,supporters:row.allSupporterCopies,
     distribution:conditionalSupporterCount(
       60,row.basicCopies,row.allSupporterCopies),
+    distinctSupporterNames:row.printedSupporters.length,
+    twoOrMoreDifferentSupporterNames:distinctSupporterContention(
+      60,row.basicCopies,row.printedSupporters.map(x=>x.count)),
     // The narrow three-name shuffle option is a different selection axis.
     fiveFamilyDistribution:conditionalSupporterCount(
       60,row.basicCopies,row.fiveFamilyCopies)
@@ -95,5 +134,5 @@ function main(){
   return report;
 }
 if(require.main===module)main();
-module.exports={VERSION,conditionalSupporterCount,
+module.exports={VERSION,conditionalSupporterCount,distinctSupporterContention,
   firstEightFieldContention,main};
