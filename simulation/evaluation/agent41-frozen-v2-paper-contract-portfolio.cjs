@@ -37,7 +37,7 @@ function runFrozenV2PaperPortfolio(opts={}){
     const run=opts.run??runV2;
     const portfolio=opts.portfolio??withPaperPromptContractPortfolio;
     witnessed=portfolio(run,{...opts.deps,
-      currentTrialId:()=>currentTrial});
+      requireLiveStore:true,currentTrialId:()=>currentTrial});
   }finally{
     assert.strictEqual(headless.runMatch,runMatch);
     Object.defineProperty(headless,'runMatch',original);
