@@ -22,6 +22,15 @@ test('native release source closure captures directly imported omitted policy ke
     'simulation/evaluation/agent7-canonical-actor-composition.cjs'));
   const direct=new Set(inventory.keys);
   const additional=x.envKeys.filter(k=>!direct.has(k));
+  console.log('STATIC_POLICY_CLOSURE_SUMMARY '+JSON.stringify({
+    version:x.version,moduleFiles:x.sourceCount,
+    distinctLiteralEnvKeys:x.envKeys.length,
+    missingFromTwoFileInventory:additional.length,
+    unparsedRequireSites:x.unparsedRequires.length,
+    unresolvedRelativeSites:x.unresolvedRelative.length,
+    distinctExternalPackages:new Set(x.externalPackages.map(v=>v.spec)).size,
+    sourceDigestSha256:x.sourceDigestSha256
+  }));
   for(const missing of [
     'AGENT22_SPARSE_OWNER_BUNDLE_DEV',
     'AGENT9_BATTLE_VIP_AFTER_PASS_DEV',
