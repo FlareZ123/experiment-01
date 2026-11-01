@@ -47,6 +47,8 @@ jobs:
         run: node --test tests/snorlax-solo-opening-policy.test.cjs tests/snorlax-solo-source-prospective.test.cjs
       - name: Execute frozen rank3/rank7 original-source opening comparison
         run: node simulation/twinleaf/snorlax-solo-source-prospective.cjs > aichi-snorlax-solo-source.json
+      - name: Test rank-7 Steven zero-search paper minimum
+        run: node --test tests/agent20-steven-zero-search-native.test.cjs
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
