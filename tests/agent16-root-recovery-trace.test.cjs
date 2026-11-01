@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {traceAcceptedOwnerRootRecoveries,equivalentPrintedIntent,
-  opportunityKey}=require('../simulation/twinleaf/agent16-root-recovery-trace.cjs');
+  opportunityKey,matchingExplicitEnergyTarget}=require('../simulation/twinleaf/agent16-root-recovery-trace.cjs');
 
 const special={kind:'attach-special-energy',printing:'Capture Energy RCL',
   handIndex:0,reason:'later-root-may-recover',
@@ -145,4 +145,58 @@ test('physical clock rewind cannot manufacture same-turn recovery',()=>{
     root(1,4,'attack','Opponent Attack'),
     root(0,3,'attach-special-energy','Capture Energy RCL')
   ]),/Split native clock resets/);
+});
+
+
+test('distinct attack names cannot recover or collapse into one opportunity',()=>{
+  const getLost={kind:'attack',attackName:'Get Lost',
+    reason:'later-root-may-recover'};
+  const mindShock={...getLost,attackName:'Mind Shock'};
+  assert.notEqual(opportunityKey(getLost),opportunityKey(mindShock));
+  assert.equal(equivalentPrintedIntent(getLost,mindShock),false);
+  assert.equal(equivalentPrintedIntent(getLost,{kind:'attack'}),false);
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Girafarig LOT',[getLost,mindShock]),
+    root(0,3,'attack',null,[],{attackName:'Mind Shock'})
+  ]);
+  assert.equal(result.distinctDeferrableOffers,2);
+  assert.equal(result.recoveredInSameTurn,1);
+  assert.equal(result.expiredAtTurnEnd,1);
+});
+
+test('a recipient missing in an accepted root never gains explicit-target credit',()=>{
+  const target={...special,slot:'bench',index:1};
+  const realized={kind:special.kind,printing:special.printing,
+    nativePhysicalEffect:'confirmed-public-effect'};
+  assert.equal(equivalentPrintedIntent(target,realized),true);
+  assert.equal(matchingExplicitEnergyTarget(target,realized),false);
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Girafarig LOT',[target]),
+    root(0,3,realized.kind,realized.printing,[],realized),
+    root(0,3,'pass',null)
+  ]);
+  assert.equal(result.recoveredInSameTurn,1);
+  assert.equal(result.recoveredPhysicalConfirmed,1);
+  assert.equal(result.recoveredExplicitEnergyTarget,0);
+  assert.equal(result.recoveredExplicitEnergyTargetWithEffect,0);
+  assert.equal(result.samples.recovered[0].physicalCopyIdentityVerified,false);
+});
+
+test('same explicit energy recipient plus settlement receives stronger evidence tier',()=>{
+  const target={...special,slot:'bench',index:1};
+  const accepted={slot:'bench',index:1,
+    nativePhysicalEffect:'confirmed-public-effect'};
+  assert.equal(matchingExplicitEnergyTarget(target,{
+    kind:special.kind,printing:special.printing,...accepted}),true);
+  assert.equal(matchingExplicitEnergyTarget(target,{
+    kind:special.kind,printing:special.printing,...accepted,index:2}),false);
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Girafarig LOT',[target]),
+    root(0,3,special.kind,special.printing,[],accepted),
+    root(0,3,'pass',null)
+  ]);
+  assert.equal(result.recoveredExplicitEnergyTarget,1);
+  assert.equal(result.recoveredExplicitEnergyTargetWithEffect,1);
+  assert.equal(result.samples.recovered[0].explicitEnergyTargetMatch,true);
+  assert.equal(result.qualification.explicitEnergyTargetDoesNotVerifyCardCopy,true);
 });
