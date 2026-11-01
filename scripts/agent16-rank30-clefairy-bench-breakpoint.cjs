@@ -62,8 +62,8 @@ function analyze(){
     attack:'Full Moon Rondo',energyCost:['Psychic','Colorless'],
     normalTwoBenchMaximum:10,skyFieldTwoBenchMaximum:16,
     publishedRegidragoSources:field.decks.filter(x=>x.archetype==='Regidrago').length,
-    perfectionCannotCopyClefairyEx:!mew.abilities.some(x=>
-      x.name==='Perfection'&&/Pokémon ex/.test(x.text)),
+    perfectionCannotCopyClefairyEx:mew.abilities.some(x=>
+      x.name==='Perfection'&&/Pokémon-GX or Pokémon-EX/.test(x.text)),
     targetBreakpoints:[
       {target:'new-moon Mewtwo & Mew-GX',hp:270,psychicWeakness:'x2',
         totalBenchesForOHKO:minimumBenches(attacker,mew),prizesPerKO:3},
