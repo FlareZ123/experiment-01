@@ -17,7 +17,9 @@ const mockInputs=()=>({
       {type:'Pokémon',name_en:'Duskull',english_proxy_card_id:'swsh4-69',count:2},
       {type:'Pokémon',name_en:'Other Basic',english_proxy_card_id:'test-1',count:12},
       {type:'Trainer',name_en:'Battle VIP Pass',english_proxy_card_id:'swsh8-225',count:4},
-      {type:'Trainer',name_en:'Fog Crystal',english_proxy_card_id:'swsh6-140',count:4}
+      {type:'Trainer',name_en:'Fog Crystal',english_proxy_card_id:'swsh6-140',count:4},
+      {type:'Trainer',name_en:'Mysterious Treasure',english_proxy_card_id:'sm6-113',count:2},
+      {type:'Trainer',name_en:'Secret Box',english_proxy_card_id:'sv6-163',count:1}
     ]},
   audit:{fully_resolved:29,decks:ranks.map((rank,i)=>({
     rank,archetype:'authentic-source',basic_count_known:basics[i],
@@ -30,7 +32,7 @@ test('frozen source inventory and 60 HP printing cardinality',()=>{
   const {manifest,audit}=mockInputs();
   assert.deepEqual(model.verifyPrintedInventories(manifest,audit),
     {newMoonBasics:17,newMoonLowHpBasics:5,
-      championBasics:14,championLowHpBasics:0,directBasicAccessItems:8});
+      championBasics:14,championLowHpBasics:0,directBasicAccessItems:8,conditionalDiscardSearchItems:3});
   manifest.entries[1].count=4;
   assert.throws(()=>model.verifyPrintedInventories(manifest,audit));
 });
