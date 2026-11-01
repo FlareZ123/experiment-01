@@ -32,3 +32,20 @@ An event requires Gengar in the **initial seven**, chosen Active during setup; o
 For two Hood and two Arven, the exact favorable count is `9,921,798,248,729,500` among `381,947,999,887,177,360` equally weighted, legal-opening-conditioned hand/draw/Prize-equivalent deals: **2.5976829965493404%**. Initial seven validity is `1 - C(43,7)/C(60,7) = 91.65625670%`. The calculation integrates two-Hood multi-Prize collapse; no early Item search is assumed, so it cannot silently play Fog Crystal after AOR is active.
 
 This is an optimistic *resource condition*, with no guarantee Gengar remains Active, survives, may declare GX, or wins. It omits secondary searches, opponent mulligan bonus draws, other draw sources, attacks, opponent hand composition and the second Energy needed for Poltergeist. Source viability and field performance remain unknown. The abstract four-slot 2/2 variant does not identify which original cards to cut.
+
+## Improved chronological turn-one search model: 4.076% with 2/2
+
+The direct-only 2.598% result above intentionally excludes the provisional deck's **four Fog Crystal and one Adventure Bag**. These Items may be used on candidate's first turn **before** a rank15 source going second could establish AOR, and their effects must remove searched physical cards from the deck **before** the candidate's next draw. I independently implemented that sequencing in `scripts/agent36-rank15-hood-horror-prelock-model.cjs`, with `tests/agent36-rank15-hood-horror-prelock-model.test.cjs`. The exact output agrees with an independent combinatorial Python enumeration.
+
+Frozen search policy: start with Gengar Active (opening seven contains it); if no Hood held, play **opening-hand Adventure Bag** to take a searchable Hood; if no Psychic-providing Energy held, play **opening-hand Fog Crystal** to take a searchable Basic Psychic Energy; choose these targets only when physically available after the six Prizes. Remove 0, 1 or 2 searched cards, then draw one ordinary card from the correct residual 47/46/45-card deck. If still lacking Hood after the draw, play **Arven** only when it is held and a Hood remains in the deck. No Item use occurs after source AOR lock. No second use of a search card, no deck-state foreknowledge at K0, and no opponent mulligan bonus or other draw are assumed.
+
+| Abstract Hood / Arven | Gengar + one Psychic ready | Direct or Bag Hood | Arven to remaining Hood | Joint resource event |
+| --- | ---: | ---: | ---: | ---: |
+| 1 / 1 | 9.22442268% | 1.71111156% | 0.74858532% | **2.45969688%** |
+| 2 / 1 | 9.22442149% | 2.63983458% | 0.75541431% | **3.39524889%** |
+| **2 / 2** | **9.22442149%** | **2.63983458%** | **1.43602750%** | **4.07586208%** |
+| 3 / 2 | 9.22432790% | 3.41124877% | 1.30609981% | **4.71734859%** |
+
+For two Hood plus two Arven, favorable scaled count `32,225,084,547,797,251,080` and denominator `790,632,359,766,457,135,200` give **4.075862080489108%** conditional on an accepted opening seven. The denominator uses a common 47×46×45 scale to account for distinct draw-deck sizes. All Prize configurations are integrated exactly; searches are time ordered with deck depletion. The narrow direct-only **2.5976829965493404%** remains independently valid under its stricter assumptions. The additional 1.478 percentage points quantify the specified prelock Item-search policy, rather than proving those lines are used optimally.
+
+**Paper sequencing caveat:** source's complete development line and candidate-first initiative must actually coincide, Gengar must remain Active and alive, plus the intended GX must remain unused. Arven, Hood, Bag and Fog may compete with stronger whole-field resources or actions. The 4.08% figure is a category-level **resource-access opportunity**, with no simulated source reply or valid competitive outcome. A precise four-card cut list and registration of the unchanged 60 is required before this can be considered an actual deck comparison.
