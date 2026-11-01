@@ -187,3 +187,69 @@ test('canonical opt-in both-seat handoff reaches genuine Store Guzma prompt and 
     assert.equal(result.canonicalAudit.qualification.competitiveGames,0);
   }
 });
+
+test('optional first-opponent gust uses native exact physical second Bench target on both seats',()=>{
+  for(const seat of [0,1]){
+    const {store,state,owner,opponent}=staged(seat);
+    const intendedId=71000+seat;
+    const second=initializeCards().getCardByName('Lunatone OBF');
+    assert.ok(second);
+    second.id=intendedId;
+    opponent.bench[1].cards.push(second);
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const bot=new SimpleTacticsAi({id:owner.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:definitions.defaultArbiterOptions
+    },null);
+    let offeredChecked=0;
+    const observed=withGuzmaOwnerPromptContinuation(()=>{
+      store.dispatch(new PlayCardAction(owner.id,0,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      let pending=state.prompts.find(p=>p.result===undefined);
+      assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+      const first=bot.decodeNextAction(state);
+      assert.ok(first instanceof ResolvePromptAction);
+      assert.equal(first.result[0],opponent.bench[1]);
+      store.dispatch(first);
+      assert.equal(opponent.active.getPokemonCard()?.id,intendedId);
+      pending=state.prompts.find(p=>p.result===undefined);
+      assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+      const secondChoice=bot.decodeNextAction(state);
+      assert.ok(secondChoice instanceof ResolvePromptAction);
+      assert.equal(secondChoice.result[0],owner.bench[1]);
+      store.dispatch(secondChoice);
+      return {
+        gustPhysicalId:opponent.active.getPokemonCard()?.id,
+        ownPhysicalName:owner.active.getPokemonCard()?.fullName
+      };
+    },{
+      initialLiveStore:store,nominalGust:true,
+      choosePlan:()=>({
+        kind:'play-held-guzma-mobility',
+        benchIndex:1,handIndex:0,anticipatedMissing:0
+      }),
+      // The nominal calculation has separate pure tests. This injection
+      // proves native prompt choice and physical Store acceptance without
+      // introducing a synthetic attack modifier into the native Stage.
+      chooseGust:(view,plan,offered)=>{
+        assert.equal(view.decisionKind,'owner-prompt');
+        assert.equal(plan.benchIndex,1);
+        assert.deepEqual(offered.map(x=>x.index),[0,1]);
+        offeredChecked++;
+        return {benchIndex:1,firstBenchIndex:0,maxPrintedDamage:100};
+      }
+    });
+    assert.equal(offeredChecked,1);
+    assert.equal(observed.result.gustPhysicalId,intendedId);
+    assert.equal(observed.result.ownPhysicalName,'Oranguru V ASR');
+    assert.equal(observed.audit.gustTargetProposals,1);
+    assert.equal(observed.audit.gustTargetAcceptances,1);
+    assert.equal(observed.audit.gustTargetPhysicalConfirmations,1);
+    assert.equal(observed.audit.gustTargetPhysicalMismatches,0);
+    assert.equal(observed.audit.ownTargetPhysicalConfirmations,1);
+    assert.equal(observed.audit.competitiveGameQualified,false);
+  }
+});
