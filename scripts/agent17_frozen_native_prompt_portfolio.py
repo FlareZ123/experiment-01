@@ -11,7 +11,47 @@ from pathlib import Path
 import sys
 from zipfile import ZipFile
 
-PROTOCOL = "agent17-frozen-v2-prompt-denominator-v1"
+PROTOCOL = "agent17-frozen-v2-prompt-denominator-v2-energy-movement"
+
+
+def public_energy_transfer_shape(event):
+    """Check only visible single-card Active-to-own-Bench movement.
+
+    Extra opposing board changes are not attributed to the Energy prompt.
+    Caller must independently bind this event to a live printed Volt Cyclone.
+    """
+    if event.get("nativeDispatchAccepted") is not True:
+        return "not-native-accepted"
+    own = [item for item in event.get("publicChanges", [])
+           if item["seat"] == event["playerSlot"]]
+    changed = []
+    for item in own:
+        previous = Counter(item["before"]["energies"])
+        current = Counter(item["after"]["energies"])
+        removed = list((previous - current).elements())
+        added = list((current - previous).elements())
+        if removed or added:
+            changed.append((item, removed, added))
+    if len(changed) != 2:
+        return "unexpected-own-energy-transition-count"
+    outgoing = [(item, removed) for item, removed, added in changed
+                if removed and not added]
+    incoming = [(item, added) for item, removed, added in changed
+                if added and not removed]
+    if len(outgoing) != 1 or len(incoming) != 1:
+        return "not-one-source-and-one-recipient"
+    origin, removed = outgoing[0]
+    destination, added = incoming[0]
+    if (origin["position"] != "active" or
+            destination["position"] != "bench" or
+            len(removed) != 1 or removed != added):
+        return "not-one-matching-active-bench-energy"
+    if (origin["before"]["pokemon"] != "Iron Thorns ex TWM" or
+            origin["after"]["pokemon"] != "Iron Thorns ex TWM" or
+            not destination["before"]["pokemon"] or
+            destination["before"]["pokemon"] != destination["after"]["pokemon"]):
+        return "incorrect-source-or-recipient-pokemon"
+    return "single-energy-moved-active-to-own-bench"
 
 
 def audit_archive(path):
@@ -40,6 +80,8 @@ def audit_native(data, archive_sha256="synthetic"):
     choose = Counter()
     select_option = Counter()
     energy = Counter()
+    energy_shape = Counter()
+    energy_dispatch_ordinal_offsets = Counter()
     gaps = Counter()
     source_rows = []
 
@@ -127,6 +169,26 @@ def audit_native(data, archive_sha256="synthetic"):
         energy["native-accepted"] += count
         energy["publicly-changed"] += side["publiclyChangedResolutions"]
         energy["public-delta-unobserved"] += side["publicDeltaUnobserved"]
+        native_energy_roots = [
+            index for index, item in enumerate(ledger)
+            if item["action"] == "ResolvePromptAction"
+            and item["pendingPrompt"] == "AttachEnergyPrompt"
+        ]
+        for root_ordinal, evidence in zip(native_energy_roots, side["events"]):
+            root = ledger[root_ordinal]
+            energy_dispatch_ordinal_offsets[
+                evidence["dispatchOrdinal"] - root_ordinal] += 1
+            if (evidence["playerSlot"] != root["playerSlot"] or
+                    evidence["turnBefore"] != root["turnBefore"]):
+                raise ValueError("Energy evidence owner/turn does not match root")
+            parent = root["initiatingRootActionOrdinal"]
+            if (not isinstance(parent, int) or
+                    not 0 <= parent < root_ordinal or
+                    ledger[parent]["action"] != "AttackAction" or
+                    ledger[parent].get("attack") != "Volt Cyclone"):
+                energy_shape["non-volt-cyclone-parent"] += 1
+            else:
+                energy_shape[public_energy_transfer_shape(evidence)] += 1
         source_rows.append({
             "trial": trial_id,
             "root_actions": len(ledger),
@@ -162,6 +224,11 @@ def audit_native(data, archive_sha256="synthetic"):
         "choose_cards": dict(choose),
         "select_option": dict(select_option),
         "attach_energy": dict(energy),
+        "volt_cyclone_public_energy_transfers": dict(energy_shape),
+        "energy_sidecar_minus_root_ordinal": {
+            str(key): count for key, count in sorted(
+                energy_dispatch_ordinal_offsets.items())
+        },
         "unobserved_selection_groups": [
             {"trial": trial, "initiator_attack": attack, "count": count}
             for (trial, attack), count in sorted(gaps.items())
