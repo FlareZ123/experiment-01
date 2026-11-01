@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-uniform-owner-prompt-nonce-v2';
+const VERSION='agent12-nightwatch-owner-prompt-source-guard-v3';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -73,7 +73,7 @@ function nightWatchLikeShape(state,actor,prompt){
  *
  * @template T
  * @param {()=>T} run Real game.
- * @param {{committedSeed:string,deps?:object}} options
+ * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean}} options
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatchOpponentSelection(run,options){
@@ -89,15 +89,32 @@ function withUniformNightWatchOpponentSelection(run,options){
     engine('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const original=Object.getOwnPropertyDescriptor(Ai.prototype,'resolvePrompt');
   assert.equal(typeof original?.value,'function');
+  const sourceGate=options.requirePrintedOrigin===true;
+  const Source=sourceGate?(deps.TrevenantDusknoirGX??
+    engine('sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx')
+      .TrevenantDusknoirGX):null;
+  const sourceOriginal=sourceGate?
+    Object.getOwnPropertyDescriptor(Source.prototype,'reduceEffect'):null;
+  if(sourceGate)assert.equal(typeof sourceOriginal?.value,'function');
+  const marked=new WeakSet();
   const audit={version:VERSION,structuralCandidates:0,
     selectedCount:0,events:[],nativeAcceptedNotEstablishedByHook:true,
     printedNightWatchSourceNotEstablishedByShape:true,
     paperRandomnessQualified:false,
     structuralCounterNotUsedForSampling:true,
-    liveStorePromptIdUniquenessUnverified:true};
+    liveStorePromptIdUniquenessUnverified:true,
+    requirePrintedOrigin:sourceGate,
+    printedSourceReducerInvocations:0,
+    printedNightWatchPromptMarks:0,
+    skippedUnmarkedStructuralPrompts:0,
+    genuineLiveStoreIsolationUnproven:true};
   function resolvePrompt(player,state,prompt){
     if(!nightWatchLikeShape(state,player,prompt))
       return original.value.apply(this,[player,state,prompt]);
+    if(sourceGate&&!marked.has(prompt)){
+      audit.skippedUnmarkedStructuralPrompts++;
+      return original.value.apply(this,[player,state,prompt]);
+    }
     const n=prompt.cards.cards.length;
     const count=Math.min(2,n);
     // Hypothetical cloned Store prompts must never advance a shared random
@@ -124,7 +141,25 @@ function withUniformNightWatchOpponentSelection(run,options){
     audit.selectedCount+=count;
     return new ResolvePromptAction(prompt.id,chosen);
   }
+  function reduceSource(store,state,effect){
+    if(effect?.constructor?.name!=='AttackEffect'||
+       effect.attack!==this.attacks?.[0])
+      return sourceOriginal.value.call(this,store,state,effect);
+    audit.printedSourceReducerInvocations++;
+    const before=new Set(state.prompts);
+    const result=sourceOriginal.value.call(this,store,state,effect);
+    for(const prompt of state.prompts){
+      if(!before.has(prompt)&&nightWatchLikeShape(state,effect.player,prompt)){
+        marked.add(prompt);
+        audit.printedNightWatchPromptMarks++;
+      }
+    }
+    return result;
+  }
   Object.defineProperty(Ai.prototype,'resolvePrompt',{...original,value:resolvePrompt});
+  if(sourceGate)Object.defineProperty(Source.prototype,'reduceEffect',{
+    ...sourceOriginal,value:reduceSource
+  });
   try{
     return {result:run(),audit};
   }catch(error){
@@ -134,6 +169,10 @@ function withUniformNightWatchOpponentSelection(run,options){
   }finally{
     assert.equal(Ai.prototype.resolvePrompt,resolvePrompt);
     Object.defineProperty(Ai.prototype,'resolvePrompt',original);
+    if(sourceGate){
+      assert.equal(Source.prototype.reduceEffect,reduceSource);
+      Object.defineProperty(Source.prototype,'reduceEffect',sourceOriginal);
+    }
   }
 }
 module.exports={VERSION,sampleUniformPositions,nightWatchLikeShape,
