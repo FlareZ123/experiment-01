@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {nominalKo,chooseFinalPrizeGuzma}=require(
+const {nominalKo,chooseFinalPrizeGuzma,choosePrizeTradeGuzma}=require(
   '../simulation/twinleaf/agent31-final-prize-guzma-frontier.cjs');
 const {chooseActorRootIntent}=require(
   '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
@@ -132,4 +132,21 @@ test('zero-damage and overdamaged Bench targets are never nominated',()=>{
   assert.equal(chooseFinalPrizeGuzma(v,catalog),null);
   assert.equal(nominalKo({hp:90,damage:0},v.ownPublic.bench[1],
     attack(0)),null);
+});
+
+test('nonfinal Prize-trade proposal is distinct, default-off and target-compatible',()=>{
+  for(const prizes of [2,4,6]){
+    const v=root();v.ownPublic.prizeCount=prizes;
+    assert.equal(chooseFinalPrizeGuzma(v,catalog),null);
+    const plan=choosePrizeTradeGuzma(v,catalog);
+    assert.equal(plan.planFamily,'nonfinal-prize-trade-nominal-gust');
+    assert.equal(plan.prizeCardsRemainingBeforeRoot,prizes);
+    assert.equal(plan.opponentBenchIndex,1);
+    assert.equal(plan.benchIndex,1);
+    assert.equal(chooseActorRootIntent(v,catalog).kind,'pass');
+    assert.equal(chooseActorRootIntent(v,catalog,{
+      prizeTradeGuzma:true}).kind,'play-guzma-forced-nominal-ko');
+  }
+  const terminal=root();
+  assert.equal(choosePrizeTradeGuzma(terminal,catalog),null);
 });
