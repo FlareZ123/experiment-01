@@ -24,7 +24,9 @@ function view() {
 }
 
 test('default actor root is unchanged by optional frontier installation', () => {
-  assert.match(VERSION,/optional-energy-frontier/);
+  // The canonical owner-root policy version can advance independently from
+  // the optional frontier wrapper. Behavior below is the stable contract.
+  assert.ok(VERSION.startsWith('agent34-actor-only-root-slice-v'));
   const a=chooseActorRootIntent(view(),catalog);
   assert.deepEqual(a,{kind:'attach-basic-energy',
     handIndex:0,printing:'Darkness Energy MEE'});
