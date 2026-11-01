@@ -35,4 +35,24 @@ function lastBenchBasicConflict(view,catalog,first){
     opponentLockMaySuppressAbilities:true,
     strategicPreference:'not-inferred'};
 }
-module.exports={VERSION,lastBenchBasicConflict};
+/**
+ * Narrow additive same-root proposer. Its alternative is observation-only:
+ * native Bench admission and the strategic value of the chosen Basic remain
+ * unverified in the general live runner.
+ * @returns {object} Injection-compatible independent proposer definition.
+ */
+function lastBenchShadowProposer(){
+  return {name:'agent27-lastbench-same-kind',
+    flag:'agent27LastBenchShadow',
+    propose:(view,catalog,_options,baseline)=>{
+      const conflict=lastBenchBasicConflict(view,catalog,baseline);
+      return conflict?.omitted.map(row=>({
+        kind:'bench-basic',handIndex:row.handIndex,
+        printing:row.printing,benchIndex:conflict.benchIndex,
+        nativeDispatchImplemented:false,
+        reason:'same-kind-final-bench-slot-exclusion',
+        sameKindAlternativeToHandIndex:conflict.selected.handIndex
+      }))??[];
+    }};
+}
+module.exports={VERSION,lastBenchBasicConflict,lastBenchShadowProposer};
