@@ -7,9 +7,13 @@ const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const catalog={basics:new Set(),abilityBasics:new Set(),
   ruleboxAbilityPrintings:new Set(['Genesect V FST',
-    'Shadow Rider Calyrex VMAX CRE','Regidrago VSTAR SIT']),
+    'Shadow Rider Calyrex VMAX CRE','Regidrago VSTAR SIT',
+    'Dedenne-GX UNB','Crobat V DAA',
+    'Tapu Lele-GX GRI','Eldegoss V RCL']),
   ruleboxPokemonPrintings:new Set(['Genesect V FST',
     'Shadow Rider Calyrex VMAX CRE','Regidrago VSTAR SIT',
+    'Dedenne-GX UNB','Crobat V DAA',
+    'Tapu Lele-GX GRI','Eldegoss V RCL',
     'Palkia V ASR']),
   basicEnergies:new Set(),specialConditions:{ASLEEP:-1,PARALYZED:-2}};
 function view(){
@@ -129,4 +133,64 @@ test('native Rule Box catalog uses engine hasRuleBox rather than false heuristic
   assert.equal(c.ruleboxAbilityPrintings.has('Exact Rule Box ex CRE'),true);
   assert.equal(c.ruleboxPokemonPrintings.has('Rule Box Attacker CRE'),true);
   assert.equal(c.ruleboxAbilityPrintings.has('Rule Box Attacker CRE'),false);
+});
+
+test('board-arrival Dedenne and Crobat do not prevent an active opposing Genesect lock',()=>{
+ const x=view();
+ x.ownPublic.bench[0]={printing:'Dedenne-GX UNB'};
+ x.ownPublic.bench[1]={printing:'Crobat V DAA'};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
+   'play-path-to-peak');
+});
+test('a held Dedenne, Crobat or Tapu Lele keeps its future one-shot access protected',()=>{
+ for(const printing of ['Dedenne-GX UNB','Crobat V DAA','Tapu Lele-GX GRI']){
+   const x=view();
+   x.ownHand.push(printing);
+   assert.equal(choosePathToPeakOpposingAbility(x,catalog),null,printing);
+ }
+});
+test('spent board-entry-only powers are not fictitious opposing lock targets',()=>{
+ const x=view();
+ x.opponentPublic.active={printing:'Dedenne-GX UNB'};
+ x.opponentPublic.bench[0]={printing:'Tapu Lele-GX GRI'};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('spent Legacy Star on own Regidrago VSTAR removes its immediate self-lock veto',()=>{
+ const x=view();
+ x.ownPublic.bench[0]={printing:'Regidrago VSTAR SIT'};
+ x.ownPublic.publicTurnRestrictions={vstarUsed:true};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
+   'play-path-to-peak');
+});
+test('unspent Legacy Star still protects own Regidrago VSTAR',()=>{
+ const x=view();
+ x.ownPublic.bench[0]={printing:'Regidrago VSTAR SIT'};
+ x.ownPublic.publicTurnRestrictions={vstarUsed:false};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('opponent with only spent Legacy Star has no immediately actionable Ability target',()=>{
+ const x=view();
+ x.opponentPublic.active={printing:'Regidrago VSTAR SIT'};
+ x.opponentPublic.publicTurnRestrictions={vstarUsed:true};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('held spent Legacy Star is inert, while an unspent copy is protected',()=>{
+ const x=view();
+ x.ownHand.push('Regidrago VSTAR SIT');
+ x.ownPublic.publicTurnRestrictions={vstarUsed:true};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog)?.kind,
+   'play-path-to-peak');
+ x.ownPublic.publicTurnRestrictions.vstarUsed=false;
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('unknown or reusable Genesect is still a self-lock veto',()=>{
+ const x=view();
+ x.ownPublic.bench[0]={printing:'Genesect V FST'};
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
+});
+test('spent printed power is independent of a held pending Dedenne trigger',()=>{
+ const x=view();
+ x.ownPublic.bench[0]={printing:'Crobat V DAA'};
+ x.ownHand.push('Dedenne-GX UNB');
+ assert.equal(choosePathToPeakOpposingAbility(x,catalog),null);
 });
