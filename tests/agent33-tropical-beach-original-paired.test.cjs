@@ -92,3 +92,28 @@ test('nested settled physical 59-card engine loss is an invalid game attempt',()
 test('ordinary native error cannot be fabricated into 59-card engine loss',()=>{
   assert.equal(settledPhysicalFailure(new Error('ordinary')),null);
 });
+
+test('all new Stadium owner intents require the exact native public physical placement',()=>{
+  const {rootPhysicalWitness}=
+    require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const names=[
+    ['play-tropical-beach','Tropical Beach BCR'],
+    ['play-players-ceremony','Player Ceremony SP127'],
+    ['play-sky-field','Sky Field ROS'],
+    ['play-path-to-peak','Path to the Peak CRE'],
+    ['play-thunder-mountain','Thunder Mountain {*} LOT']
+  ];
+  for(const [kind,printing] of names){
+    const intent={kind,printing};
+    const before={stadiumPrintings:[],handCount:6},
+      accepted={stadiumPrintings:[printing],handCount:5};
+    assert.equal(rootPhysicalWitness(intent,before,accepted,{}),
+      'confirmed-public-effect',kind+' should be a settled native root');
+    assert.equal(rootPhysicalWitness(intent,before,{
+      stadiumPrintings:[],handCount:6
+    },{}),'no-confirmed-public-effect',kind+' cannot credit an unplayed Stadium');
+    assert.equal(rootPhysicalWitness(intent,before,{
+      stadiumPrintings:['Another Stadium'],handCount:5
+    },{}),'no-confirmed-public-effect',kind+' must match exact printing');
+  }
+});
