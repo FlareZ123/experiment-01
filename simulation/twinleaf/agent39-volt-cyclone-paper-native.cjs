@@ -102,10 +102,39 @@ function verifySeat(seat){
       verified:observed.audit.paperVerifiedNativeAccepted
     },status:'NARROW_NATIVE_PROMPT_CONTRACT_ONLY'};
 }
+
+/**
+ * Distinguish a mandatory transfer with a legal target from a printed
+ * non-applicable effect when no own Bench Pokémon exists. The original
+ * reducer deliberately returns without a prompt in that case.
+ * @param {0|1} seat
+ * @returns {object}
+ */
+function verifyNoBenchSeat(seat){
+  const scene=prepare(seat);
+  scene.opponent.bench[0].cards.length=0;
+  assert.equal(scene.opponent.bench.every(slot=>slot.cards.length===0),true);
+  const startingEnergy=scene.opponent.active.energies.cards.length;
+  const witnessed=withPaperPromptPortfolio(()=>{
+    scene.attacker.reduceEffect(scene.store,scene.state,scene.effect);
+    assert.equal(scene.state.prompts.length,0);
+    assert.equal(scene.opponent.active.energies.cards.length,startingEnergy);
+    return true;
+  });
+  assert.equal(witnessed.result,true);
+  assert.equal(witnessed.audit.sourceMarkedPromptCount,0);
+  assert.equal(witnessed.audit.resolutionCount,0);
+  return {seat,sourcePrinting:'Iron Thorns ex TWM',
+    noOwnBenchPokemon:true,noTransferPromptGenerated:true,
+    sourceEnergyRetained:true,status:'PRINTED_NO_ELIGIBLE_RECIPIENT'};
+}
+
 function run(){
   return {schema:VERSION,pinnedEngine:PIN,
-    cases:[verifySeat(0),verifySeat(1)],nativeStoreUsed:true,
+    cases:[verifySeat(0),verifySeat(1)],
+    noBenchCases:[verifyNoBenchSeat(0),verifyNoBenchSeat(1)],
+    nativeStoreUsed:true,
     originalPhysical60:false,fullMatch:false,competitiveQualifiedGames:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={prepare,generatePrompt,verifySeat,run};
+module.exports={prepare,generatePrompt,verifySeat,verifyNoBenchSeat,run};
