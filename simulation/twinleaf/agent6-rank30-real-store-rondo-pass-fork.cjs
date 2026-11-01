@@ -39,8 +39,9 @@ function withRank30FundedRondoPassFork(execute,config){
     neverReadOpponentConcealedZones:true};
 
   function dispatch(action,...args){
-    if(action?.constructor?.name==='AddPlayerAction'&&!originalStore)
-      originalStore=this;
+    if(action?.constructor?.name==='AddPlayerAction'&&this!==originalStore){
+      originalStore=this;retreated=false;attacked=false;
+    }
     const genuine=this===originalStore;
     const state=this.state,source=state.players[config.sourceSeat];
     const actionKind=action?.constructor?.name;
