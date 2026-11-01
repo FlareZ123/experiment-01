@@ -194,6 +194,7 @@ function rootPhysicalSnapshot(state,seat,intent){
     ...(['play-stranded-marnie','play-lowhand-lillie',
       'play-conservative-shuffle-supporter','play-carmine-first',
       'play-seeker-recovered-lillie','play-held-guzma-mobility',
+      'play-guzma-forced-nominal-ko',
       'play-team-flare-grunt-denial','play-plumeria-payment-menu',
       'play-eri-reveal'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
@@ -319,6 +320,7 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-carmine-first'||
      intent.kind==='play-seeker-recovered-lillie'||
      intent.kind==='play-held-guzma-mobility'||
+     intent.kind==='play-guzma-forced-nominal-ko'||
      intent.kind==='play-team-flare-grunt-denial'||
      intent.kind==='play-plumeria-payment-menu'||
      intent.kind==='play-eri-reveal'){
