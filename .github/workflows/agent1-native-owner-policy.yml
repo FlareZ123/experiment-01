@@ -13,6 +13,7 @@ on:
           - owner-starvip-opponent-blower
           - source-return-retool
           - blower-timing-three
+          - postblower-radiant
 
 permissions:
   contents: read
@@ -81,6 +82,19 @@ jobs:
         with:
           name: agent1-original-fieldblower-timing-native
           path: agent1-blower-timing-three-native.json
+          if-no-files-found: warn
+      - name: Original recipient own-Quick-Ball K1 Radiant two-arm native counterfactual
+        if: inputs.experiment == 'postblower-radiant'
+        run: node simulation/evaluation/agent1-rank11-postblower-radiant-owner-k1-pair.cjs > agent1-postblower-radiant-native.json
+      - name: Require two original K0 and recipient genuine Quick Ball K1 arms
+        if: inputs.experiment == 'postblower-radiant'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-postblower-radiant-native.json');a.equal(r.attempted,2);a.equal(r.nativeVerified,2);a.equal(r.competitiveQualifiedGames,0);a.deepEqual(r.rows.map(x=>x.preferRadiantAfterBlowerSearch),[false,true]);a.equal(r.rows[0].nativeQuickBallRoots,1);a.equal(r.rows[1].nativeQuickBallRoots,1);console.log('AGENT1_RADIANT_NATIVE',JSON.stringify(r.rows.map(x=>({prefer:x.preferRadiantAfterBlowerSearch,choice:x.nativeRecipientOwnDeckChoices,radiantSelected:x.recipientRadiantSelectionCommitted,play:x.nativeRadiantBenchPlayRoots,climactic:x.nativeClimacticGateAbilityRoots,publicRadiant:x.publicOpponentRadiantAtSourceT3,publicVMAX:x.publicOpponentVMaxAtSourceT3}))))"
+      - name: Archive all original recipient owner-K1 Radiant trial outcomes
+        if: always() && inputs.experiment == 'postblower-radiant'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-postblower-owner-radiant-native
+          path: agent1-postblower-radiant-native.json
           if-no-files-found: warn
       - name: Archive ALL owner Star-VIP results and errors
         if: always() && inputs.experiment == 'owner-starvip'
