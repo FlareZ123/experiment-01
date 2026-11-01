@@ -11,6 +11,9 @@ const root=path.resolve(__dirname,'../..');
 const registration=require('../../results/als/registrations/agent25-dhelmise-v2-native-three-lock-smoke-20261101.json');
 const candidate=require('../../results/als/agent25-dhelmise-mixed-lock-answers-v2.json');
 const sets=require('../../resources/sets/en.json');
+const aliasAmendment=require('../../results/als/registrations/agent25-dhelmise-v2-native-print-alias-amendment-20261101.json');
+const {normalizeNumber}=require('../twinleaf/card-coverage.cjs');
+const aliasById=new Map(aliasAmendment.aliases.map(a=>[a.id,a]));
 
 /** @returns {object[]} Exact English printed-card manifest accepted by the common resolver. */
 function toPrintedManifest(){
@@ -27,8 +30,17 @@ function toPrintedManifest(){
       'resources/cards/en',setId+'.json'),'utf8'));
     const exact=pool.find(card=>card.id===row.id);
     assert.equal(exact?.name,row.name,'printed card name and ID mismatch');
-    rows.push({category:row.category,count:row.count,name:row.name,
-      printing:{set,number,language:'en'}});
+    const alias=aliasById.get(row.id);
+    if(alias){
+      assert.equal(alias.originalName,row.name);
+      assert.equal(alias.sourceSet,set==='PR-XY'?'XYP':set);
+      assert.equal(normalizeNumber(alias.sourceNumber),
+        normalizeNumber(number.replace(/^XY(?=\\d)/i,'')));
+    }
+    rows.push({category:row.category,count:row.count,
+      name:alias?.nativeLookupName??row.name,
+      printing:{set:alias?.sourceSet??set,
+        number:alias?.sourceNumber??number,language:'en'}});
   }
   assert.equal(rows.reduce((n,row)=>n+row.count,0),60);
   return rows;
@@ -41,6 +53,13 @@ const describeError=error=>String(error?.stack||error?.message||error);
 function run(){
   assert.equal(pin,registration.enginePin);
   const rows=toPrintedManifest();
+  const aliasAudit=candidate.cards.flatMap((source,i)=>{
+    const alias=aliasById.get(source.id);
+    return alias?[{canonicalId:source.id,canonicalPrintedName:source.name,
+      nativeLookupName:rows[i].name,nativeSet:rows[i].printing.set,
+      nativeNumber:rows[i].printing.number,physicalCopies:source.count}]:[];
+  });
+  assert.equal(aliasAudit.length,3);
   const registeredSource=require('../../results/aichi-2026/full-decklists.json');
   const plan=planAichi({
     label:'agent25-post-Aichi-dhelmise-v2-original-60',
@@ -55,8 +74,28 @@ function run(){
     candidateDigest:plan.candidateDigest,
     unresolved:plan.candidate.unresolved,
     substitutions:plan.candidate.substitutions,
-    totalPhysicalCards:rows.reduce((n,row)=>n+row.count,0)
+    totalPhysicalCards:rows.reduce((n,row)=>n+row.count,0),
+    researchSideAliases:aliasAudit,identityVerification:null
   };
+  if(plan.candidate.cards){
+    const {initializeCards}=require('../twinleaf/headless.cjs');
+    const manager=initializeCards();
+    let position=0;
+    for(const row of rows){
+      for(let copy=0;copy<row.count;copy++){
+        const nativeFullName=plan.candidate.cards[position++];
+        const native=manager.getCardByName(nativeFullName);
+        assert.ok(native,'Native physical printing missing '+nativeFullName);
+        assert.equal(native.name,row.name,'Native name mismatches source alias');
+        assert.equal(String(native.set).toUpperCase(),row.printing.set.toUpperCase(),
+          'Native set mismatches source');
+        assert.equal(normalizeNumber(native.setNumber),
+          normalizeNumber(row.printing.number),'Native number mismatches source');
+      }
+    }
+    assert.equal(position,60);
+    printing.identityVerification='all-60-native-set-number-and-name-exact';
+  }
   const attempts=[];
   for(const rank of registration.sourceRanks){
     const original=registeredSource.decks.find(deck=>deck.rank===rank);
