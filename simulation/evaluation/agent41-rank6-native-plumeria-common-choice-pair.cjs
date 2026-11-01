@@ -3,10 +3,62 @@
 const assert=require('node:assert/strict');
 const {readRegistration}=require('./agent41-rank6-grouped-denial-source-panel.cjs');
 
-const VERSION='agent41-original-rank6-native-common-plumeria-bridge-retrospective-v1';
+const VERSION='agent41-original-rank6-native-common-plumeria-bridge-retrospective-v2-public-causal-prefix';
 const ENGINE='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SOURCE_SHA=
   '29db5b5feaf15b2eec86b19e7d1bbe46738f63ef8e479da9a22ecb46970a1dab';
+
+/**
+ * A public root log is produced by the actual Store after dispatch. Keep
+ * only fields available to both players and omit policy/internal card IDs.
+ * @param {object} row
+ */
+function publicAction(row){
+  const keys=['actionOrdinal','turnBefore','turnAfter','playerSlot','action',
+    'card','attack','pendingPrompt','initiatingRootActionOrdinal'];
+  return Object.fromEntries(keys.filter(key=>row[key]!==undefined)
+    .map(key=>[key,row[key]]));
+}
+
+/**
+ * Compare full public action sequences until the first genuine deviation.
+ * This proof says the pre-fork native action prefix matched; the two policies
+ * can then produce legitimately different post-fork action counts and turns.
+ * @param {object[]} control
+ * @param {object[]} treatment
+ * @param {0|1} sourceSeat
+ */
+function firstPublicRootDeviation(control,treatment,sourceSeat){
+  if(!Array.isArray(control)||!Array.isArray(treatment))
+    return null;
+  const original=control.map(publicAction);
+  const intervention=treatment.map(publicAction);
+  let index=0;
+  while(index<Math.min(original.length,intervention.length)&&
+    JSON.stringify(original[index])===JSON.stringify(intervention[index]))
+    index++;
+  const before=original[index]??null,after=intervention[index]??null;
+  const originTurn=after?.turnBefore??before?.turnBefore??null;
+  const nextRoots=(ledger,seat)=>ledger.filter(x=>
+    x.playerSlot===seat&&x.turnBefore>originTurn&&
+    x.action!=='ResolvePromptAction').slice(0,5);
+  return {
+    matchedPublicActionPrefixLength:index,
+    controlPublicActionCount:original.length,
+    treatmentPublicActionCount:intervention.length,
+    firstControlDeviation:before,
+    firstTreatmentDeviation:after,
+    firstDeviationIsSourceOwned:after?.playerSlot===sourceSeat,
+    firstSourceContinuation:{
+      control:nextRoots(original,sourceSeat),
+      treatment:nextRoots(intervention,sourceSeat)
+    },
+    firstOpposingCandidateContinuation:{
+      control:nextRoots(original,1-sourceSeat),
+      treatment:nextRoots(intervention,1-sourceSeat)
+    }
+  };
+}
 
 /** Read a genuine native outcome with all nonterminal and native failure arms. */
 function auditNativeArm(row){
@@ -45,6 +97,8 @@ function auditNativeArm(row){
     nativeDelegatedPromptChoices:plumeria.delegatedPromptDispatches??null,
     settledPhysicalEnergyDiscards:plumeria.settledEnergyDiscards??null,
     unresolvedNativeChains:plumeria.unresolvedChains??null,
+    physicalOwnerPayments:(plumeria.physicallyAcceptedOwnerPayments??[])
+      .slice(0,12),
     boundedSettlementSamples:(plumeria.log??[]).filter(x=>
       x.kind==='plumeria-native-root'||
       x.kind==='plumeria-energy-settlement').slice(0,24),
@@ -93,10 +147,20 @@ function runNativeCommonChoicePair(){
       failures.push('initial-physical-deal-mismatch:'+t.id);
     if(a.sourceDealFingerprint!==SOURCE_SHA)
       failures.push('original-source-seed-mismatch:'+t.id);
+    const causal=firstPublicRootDeviation(
+      ctrl.rootActionLedger,tx.rootActionLedger,1);
+    if(!causal)failures.push('missing-public-native-root-ledger:'+t.id);
+    const firstChosenStoreAction=b.selectedPlumeriaOwnerRoots?.[0]
+      ?.nativeStoreReceipts?.[0]?.nativeStoreActionOrdinal??null;
+    if(causal&&firstChosenStoreAction!==null&&
+       (causal.firstTreatmentDeviation?.actionOrdinal!==firstChosenStoreAction||
+        !causal.firstDeviationIsSourceOwned))
+      failures.push('first-native-deviation-before-chosen-source-Plumeria:'+t.id);
     return {id:t.id,rank:t.rank,sourceSeat:1,
       sameInitialSourceAndFullPhysicalDeal:
         a.sourceDealFingerprint===b.sourceDealFingerprint&&
         a.fullPhysicalDealFingerprint===b.fullPhysicalDealFingerprint,
+      publicFirstDeviation:causal,
       control:a,treatment:b};
   });
   return {version:VERSION,enginePin:ENGINE,
@@ -117,5 +181,5 @@ if(require.main===module){
   if(!result.validation.passed)process.exitCode=1;
 }
 
-module.exports={VERSION,ENGINE,SOURCE_SHA,auditNativeArm,
-  runNativeCommonChoicePair};
+module.exports={VERSION,ENGINE,SOURCE_SHA,publicAction,
+  firstPublicRootDeviation,auditNativeArm,runNativeCommonChoicePair};
