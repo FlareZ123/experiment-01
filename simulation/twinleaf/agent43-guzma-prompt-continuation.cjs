@@ -59,13 +59,19 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choosePlan=deps.choosePlan??((view,catalog)=>{
-    const mobility=chooseHeldGuzmaMobility(view,catalog);
-    if(mobility)return mobility;
+    if(deps.finalPrizeGuzma===true||
+       process.env.AGENT31_GUZMA_FINAL_PRIZE_DEV==='true'){
+      const finalPrize=require('./agent31-final-prize-guzma-frontier.cjs')
+        .chooseFinalPrizeGuzma(view,catalog);
+      if(finalPrize)return finalPrize;
+    }
     if(deps.forcedGuzmaNominalKo===true||
-       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true')
-      return require('./agent31-forced-guzma-ko-frontier.cjs')
+       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true'){
+      const forced=require('./agent31-forced-guzma-ko-frontier.cjs')
         .chooseForcedGuzmaNominalKo(view,catalog);
-    return null;
+      if(forced)return forced;
+    }
+    return chooseHeldGuzmaMobility(view,catalog);
   });
   const getCatalog=deps.getCatalog??publicCatalog;
   const getChoices=deps.getChoices??nativeSinglePokemonChoices;
@@ -94,7 +100,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     version:VERSION+(nominalGust?'+'+GUST_VERSION:''),
     nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
-    matchedForcedNominalKoPlans:0,
+    matchedForcedNominalKoPlans:0,matchedFinalPrizePlans:0,
     guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
     ownTargetProposals:0,ownTargetAcceptances:0,ownTargetRejections:0,
@@ -138,6 +144,29 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     // Printed Guzma first requests the opposing gust. The existing
     // owner's policy decides that separate tactical target.
     if(opposite.length && !own.length){
+      if(Number.isSafeInteger(plan.opponentBenchIndex)){
+        const target=opposite.find(c=>c.index===plan.opponentBenchIndex);
+        if(!target){
+          audit.missingPlannedRecipients++;
+          bounded({kind:'missing-opponent-target',seat:plan.seat,
+            turn:plan.turn,expectedBenchIndex:plan.opponentBenchIndex,
+            availableBenchIndices:opposite.map(c=>c.index)});
+          plans.delete(ownerId);
+          return botOriginal.value.apply(this,[state,...rest]);
+        }
+        assert.equal(pending.validate([target.physical],state),true,
+          'Planned public opponent target must be native prompt-legal');
+        const action=new ResolvePromptAction(pending.id,[target.physical]);
+        gustReplies.set(action,{...plan,promptId:pending.id,
+          expectedPhysicalId:target.physical.getPokemonCard?.()?.id??null,
+          expectedPrinting:target.physical.getPokemonCard?.()?.fullName??null,
+          proposed:{benchIndex:plan.opponentBenchIndex,
+            maxPrintedDamage:plan.nominalDamage,
+            firstBenchIndex:opposite[0].index,
+            planFamily:plan.planFamily??'forced-single-bench'} });
+        audit.gustTargetProposals++;
+        return action;
+      }
       if(nominalGust){
         const view=observe(state,plan.seat);
         assert.equal(view.decisionKind,'owner-prompt');
@@ -248,12 +277,19 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         plans.set(candidate.ownerId,{
           seat:candidate.seat,turn:candidate.turn,
           benchIndex:candidate.plan.benchIndex,
+          opponentBenchIndex:candidate.plan.opponentBenchIndex??null,
+          planFamily:candidate.plan.planFamily??null,
+          nominalDamage:candidate.plan.nominalDamage??null,
           handIndex:candidate.plan.handIndex,
           anticipatedMissing:candidate.plan.anticipatedMissing??null
         });
         audit.matchedMobilityPlans++;
-        if(candidate.plan.kind==='play-guzma-forced-nominal-ko')
+        if(candidate.plan.kind==='play-guzma-forced-nominal-ko'){
           audit.matchedForcedNominalKoPlans++;
+          if(candidate.plan.planFamily===
+             'last-prize-multi-bench-nominal-gust')
+            audit.matchedFinalPrizePlans++;
+        }
       }else audit.mismatchedOrUnplannedGuzma++;
     }
     if(gustReply){
