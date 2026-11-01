@@ -108,3 +108,9 @@ test('accepted root and its effect cannot disappear as not encountered',()=>{
   assert.equal(result.rows[0].phases.EFFECT_PAPER.status,'unverified');
   assert.equal(result.structurallyComplete,false);
 });
+
+test('zero-root archives and missing IDs never gain structural pass',()=>{
+  assert.equal(auditActionChains(archive([],[])).structurallyComplete,false);
+  const c=chain();delete c.chainId;
+  assert.equal(auditActionChains(archive([c])).structurallyComplete,false);
+});
