@@ -34,6 +34,17 @@ The augmented [manual CI 41346893649](https://github.com/FlareZ123/experiment-01
 
 This is a genuine **negative result for a purported recovery-policy improvement**: the unchanged original bot **already used Back Order and physically re-equipped Garbodor with Float Stone on its first return**. The intervention changes the ordering of those named source actions. Both source boards had the same Tool-equipped Garbodor at the next opponent root. No claim is made that every other public/private game detail, intermediate board or future outcome was identical.
 
+## Actual owner's Back Order source-deck search multiplicity
+
+An expanded prompt-identity audit [manual CI 41347488577](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577), **SUCCESS**, archive [13199139027](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577/artifacts/13199139027), selected cards only from the actual source **owner-deck ChooseCardsPrompt**, rather than inferring search from the PlayCard names:
+
+- **Generic baseline:** `Back Order` owner search `CHOOSE_CARD_TO_HAND`, native min0/max2, **selected [Float Stone BKT, Float Stone BKT]**.
+- **Scripted opt-in recovery:** Same actual native prompt and original physical setup, **selected [Float Stone BKT]**.
+
+One Float Stone went onto the Garbodor in both arms. The original bot's selection kept a spare Float Stone in hand. The experimental 1-card search did not establish any tactical advantage, and it could forego a future hand-held reattachment option. Conversely, hand resources and disruption costs are state-dependent; this is a concrete **connector opportunity-cost difference**, not a universal scalar ranking.
+
+A separately independently compiled [CI 41348864296](https://github.com/FlareZ123/experiment-01/actions/runs/41348864296) provided an even longer original deal trace. With the single original Field Blower played **on turn2**, rank11 legitimately used `Back Order` on its **turn3** and restored the Tool, still equipped at the recipient first turn6 root. With the same original Field Blower held until **turn4**, rank11 had no Back Order in turn3 while its own Garbotoxin suppressed Oranguru, then used Back Order and reattached Float Stone on **turn5**, again equipped by recipient turn6. See the [timing study](agent1-rank11-fieldblower-timing-native-20261101.md) for complete registration, three arms, controls and artifact.
+
 ## Strategic consequences and limitations
 
 The first opponent's Field Blower did **suppress the Tool-dependent lock for the remainder of the opponent's turn 2**, and the source really lacked its Tool at the start of turn 3. The effect's strategic value must be evaluated as an opportunity during **that unlocked opponent turn**: whether rank1 used or could legally use newly freed Abilities or other conditional actions before its opponent re-equipped the lock. A binary “Garbodor broken” indicator at the first source turn-3 root is not a persistent lock win. The source's standard bot can make a smart enough recovery response in at least this physical game; changing that one response alone is insufficient evidence of stronger deck choice.
