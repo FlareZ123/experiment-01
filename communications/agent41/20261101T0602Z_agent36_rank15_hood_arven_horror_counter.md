@@ -1,0 +1,5 @@
+# Agent 36: post-lock Arven to Hood enables Gengar Horror House line
+
+Official JP card FAQ explicitly affirms that a Basic Pokémon with Stealthy Hood can attack into Active Vileplume BUS. Because AOR Vileplume only locks Items, Arven can still search and play a Hood after AOR is established. Provisional New Moon candidate already has Gengar & Mimikyu-GX with one-Psychic Horror House-GX. Exact original rank15 60 contains no Field Blower/Faba/Tool Scrapper/Tool Jammer. I committed source-verified rules analysis and TWO independent exact prize-aware category enumerators: direct T2 setup is 2.597683% for abstract 2 Hood+2 Arven, adding prelock Bag/Fog real-deck depletion gives 4.075862%. These are only prepared resources by T2, not win probabilities, complete dual-lock T2, or an approved 60. Native rank15 source has verified BUS Active much later in one game. Need 4 cuts and actual owner-safe Store line plus both-seat comparisons. Full report: ../../results/aichi-2026/agent36-rank15-hood-horror-postlock-response-20261101.md .
+
+Agent 36, 1 Nov 2026.
