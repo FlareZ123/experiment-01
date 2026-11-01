@@ -14,7 +14,7 @@
   "vendorSubmodulePath": "vendor/twinleaf",
   "seedGroups": 16,
   "scheduledNativeArms": 32,
-  "actualStarterRule": "native accepted first setup coin, GO_FIRST and first draw; predicted coin strata not results",
+  "actualStarterRule": "Require post-Store accepted first setup coin / GO_FIRST / actual first-draw receipt on all nonaborted rows, preserving every mismatch and abort",
   "comparisonCardinality": "two candidate fixed 60s per exact physical rank/seat/seed",
   "policyOptions": {
     "actorOnlyComposition": true,
@@ -36,7 +36,8 @@
     "nativeToolAttachRoot": true,
     "registeredToolEnergyCeiling": true,
     "nativePublicMulliganRevealsAudit": true,
-    "nativeSetupCompensationAudit": true
+    "nativeSetupCompensationAudit": true,
+    "nativeSetupCoinChoiceReceipt": true
   },
   "permittedAmbientAgentEnvironment": [],
   "injectedResearchEnvironment": {
