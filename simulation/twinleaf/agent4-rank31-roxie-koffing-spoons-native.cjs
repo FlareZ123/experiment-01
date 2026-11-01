@@ -117,14 +117,15 @@ function runRank31RoxieSpoons(guarded,seat=0,guardRoxie=false){
  * pre-dispatch acceptance independently of broader combo completion.
  * @param {boolean} roxieFirst
  * @param {boolean} [guarded=false] Use printed physical Roxie eligibility preflight.
+ * @param {0|1} [seat=0] Genuine Store actor seat.
  * @returns {object}
  */
-function probeRoxieChoiceIndexShift(roxieFirst,guarded=false){
+function probeRoxieChoiceIndexShift(roxieFirst,guarded=false,seat=0){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
-  const f=stagedPainfulSpoons();
+  const f=stagedPainfulSpoons(seat);
   const roxie=f.card('Roxie CEC'),koffing=f.card('Koffing CEC');
   f.source.hand.cards.push(...(roxieFirst?[roxie,koffing]:[koffing,roxie]));
   f.store.dispatch(new PlayCardAction(f.source.id,roxieFirst?0:1,{
@@ -146,7 +147,7 @@ function probeRoxieChoiceIndexShift(roxieFirst,guarded=false){
     return guarded?withPaperRoxiePayment(settle):settle();
   });}
   catch(e){nativeStoreError=String(e?.message??e);}
-  return {roxieFirst,guarded,validatorAccepted,blocked,hand,
+  return {seat,roxieFirst,guarded,validatorAccepted,blocked,hand,
     strictError,nativeStoreError,
     physicalKoffingDiscarded:f.source.discard.cards.includes(koffing),
     promptSettled:prompt.result!==undefined,
