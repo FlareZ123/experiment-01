@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('./headless.cjs');
 const {withNightWatchRandomHook}=require('./night-watch-random-hook.cjs');
+const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=p=>require(path.join(root,p));
 /** Execute conditioned second attacking turn with real ability, Supporter and copy prompts. */
@@ -14,7 +15,6 @@ function sourceSecondTurn() {
  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
  const {GamePhase}=load('game/store/state/state');
  const {Format}=load('game/store/card/card-types');
- const {PowerEffect}=load('game/store/effects/game-effects');
  const {UseAbilityAction}=load('game/store/actions/game-actions');
  const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
  const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
@@ -43,12 +43,25 @@ function sourceSecondTurn() {
   for(let i=0;i<6;i++){const prize=new CardList();prize.cards.push(card('Psychic Energy MEE'));p.prizes.push(prize);}
  }
  const pending=()=>s.prompts.find(p=>p.result===undefined);
- const resolve=(p,result)=>store.dispatch(new ResolvePromptAction(p.id,result));
+ const resolve=(p,result)=>{
+  const action=new ResolvePromptAction(p.id,result);
+  assertValidPromptAction(s,action);
+  return store.dispatch(action);
+ };
  const settle=()=>{
   for(let k=0;k<48;k++){
    const p=pending();if(!p)return;
    if(p.constructor.name==='WaitPrompt'){resolve(p,null);continue;}
-   if(p.constructor.name==='ChoosePrizePrompt'){resolve(p,[0]);continue;}
+   if(p.constructor.name==='ChoosePokemonPrompt'){
+    assert.equal(p.playerId,me.id);
+    resolve(p,[opp.active]);continue;
+   }
+   if(p.constructor.name==='ChoosePrizePrompt'){
+    const chooser=s.players.find(x=>x.id===p.playerId);
+    assert.ok(chooser);
+    resolve(p,chooser.prizes.filter(x=>x.cards.length)
+      .slice(0,p.options.count));continue;
+   }
    if(p.constructor.name==='ShuffleDeckPrompt'){
     const who=s.players.find(x=>x.id===p.playerId);
     assert.ok(who);resolve(p,who.deck.cards.map((_,i)=>i));continue;
@@ -59,9 +72,9 @@ function sourceSecondTurn() {
  };
  assert.equal(me.getPrizeLeft(),6);assert.equal(opp.getPrizeLeft(),6);
  assert.equal(ace.canPlay(store,s,me),false,'Ace requires opponent to be ahead');
- dusclops.reduceEffect(store,s,new PowerEffect(me,dusclops.powers[0],dusclops));
- const target=pending();assert.equal(target.constructor.name,'ChoosePokemonPrompt');
- resolve(target,[opp.active]);
+ store.dispatch(new UseAbilityAction(me.id,'Cursed Blast',{
+  player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+ }));
  settle();
  assert.equal(opp.active.damage,50);
  assert.equal(opp.getPrizeLeft(),5,'Dusclops Prize checkpoint: '+JSON.stringify({prize:opp.getPrizeLeft(),holderDamage:stack.damage,activeDamage:opp.active.damage,bench:me.bench.map(x=>x.getPokemonCard()?.name),discard:me.discard.cards.map(x=>x.name),phase:s.phase,prompts:s.prompts.map(x=>x.constructor.name)}));
