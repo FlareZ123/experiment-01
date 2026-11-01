@@ -23,7 +23,7 @@ test('pinned native physical per-copy Genesect V FST marker is separable',()=>{
   const bench=new PokemonCardList();bench.cards.push(second);
   owner.bench.push(bench);
   owner.marker.addMarker(MARKER,first,'ability','pokemon');
-  const state={activePlayer:1,turn:7,players:[opponent,owner]};
+  const state={activePlayer:1,turn:7,phase:2,prompts:[],players:[opponent,owner]};
   const before=publicFusionUsageAtRoot(state,1);
   assert.equal(before.faceUpGenesectCount,2);
   assert.equal(before.usedCount,1);
