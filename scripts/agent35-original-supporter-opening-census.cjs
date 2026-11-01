@@ -9,6 +9,30 @@ const ROOT = path.resolve(__dirname, '..');
 const SOURCE = 'results/aichi-2026/full-decklists.json';
 const CATALOG_DIRECTORY = 'resources/cards/en';
 
+/**
+ * Exact original-roster printing aliases. The three PHF cards are printed
+ * with the Team Flare Gear suffix in the bundled English database.
+ * Only these matching set/number entries are remapped.
+ */
+const PRINTING_ALIASES = new Map([
+  ['Trainer:Battle Compressor:PHF:92', 'Trainer:Battle Compressor Team Flare Gear'],
+  ['Trainer:Target Whistle:PHF:106', 'Trainer:Target Whistle Team Flare Gear'],
+  ['Trainer:Robo Substitute:PHF:102', 'Trainer:Robo Substitute Team Flare Gear']
+]);
+
+/**
+ * Three authenticated Japanese-only printed Trainer names absent from the
+ * bundled English database. Source printing identities are the published
+ * original 60s; independent paper card-type sources show all are non-Supporters:
+ * Palace Book is an Item, Palace Belt a Pokémon Tool, Player's Ceremony a Stadium.
+ * Classification only. No assumption of simulator support or legal play.
+ */
+const VERIFIED_JAPANESE_PROMOS = new Set([
+  'Trainer:Palace Book:SMP:NAN25',
+  'Trainer:Palace Belt:BWP:153',
+  "Trainer:Player's Ceremony:SP:127"
+]);
+
 /** @param {string} name @returns {string} */
 function normalizeName(name) {
   return name.normalize('NFKC').replace(/♢/g, '◇');
@@ -93,10 +117,13 @@ function census(roster, index) {
     for (const card of deck.cards) {
       if (card.category === 'Energy') continue;
       const key = card.category + ':' + normalizeName(card.name);
-      const info = index.get(key);
-      // Missing or ambiguous catalog printing identities must fail loudly.
+      const print = key + ':' + card.printing.set + ':' + card.printing.number;
+      const corrected = PRINTING_ALIASES.get(print) ?? key;
+      const promo = VERIFIED_JAPANESE_PROMOS.has(print);
+      const info = promo ? {basic: false, supporter: false} : index.get(corrected);
+      // Missing or ambiguous original-printing classifications fail closed.
       assert.ok(info && !info.ambiguous,
-        'Missing or ambiguous printed classification: ' + key + ' rank ' + deck.rank);
+        'Missing or ambiguous printed classification: ' + print + ' rank ' + deck.rank);
       if (info.basic) basic += card.count;
       if (info.supporter) supporter += card.count;
     }
