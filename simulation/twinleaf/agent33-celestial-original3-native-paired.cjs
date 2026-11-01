@@ -28,7 +28,7 @@ function runOne(c,byRank){
   const request={
     deckA:c.sourceSeat===0?source:opponent,
     deckB:c.sourceSeat===1?source:opponent,
-    seed:c.seed,maxActions:160,
+    seed:c.seed,maxActions:c.registeredMaxActions??160,
     doubleDragonRecovery:true,strictPromptValidation:true,
     isolatePolicyRandomness:true,
     captureInitialSourceDealFingerprintSeat:c.sourceSeat,
