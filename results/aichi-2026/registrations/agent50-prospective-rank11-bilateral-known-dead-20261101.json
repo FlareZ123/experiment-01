@@ -17,7 +17,7 @@
   "sourceCodePrecommitBlobs": {
     "simulation/evaluation/agent41-bilateral-v2-development.cjs": "ece7146071f194a4951ff0b8313a9e82cdf6a471",
     "simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs": "f7b8fb252360aaccf0780b3da4265035ff98a467",
-    "simulation/evaluation/agent50-rank11-bilateral-known-dead-native-pair.cjs": "141511c976645861aaa371b726e01124157d0dff"
+    "simulation/evaluation/agent50-rank11-bilateral-known-dead-native-pair.cjs": "dc762455dbc70ec36b0e7b127cfe56cbf2bda32f"
   },
   "randomGenerator": "Python secrets.randbits(32) independently uniform, drawn sequentially per candidateSlot A then B",
   "coinProjection": "Headless seededRandom xorshift32 first output; heads iff first xorshift32 output < 0.5; setup Coin winner chooses second under pinned generic ConfirmPrompt=false; verify native accepted setup and draw instead of assuming this projection.",
@@ -173,5 +173,10 @@
     "fieldRepresentative": false,
     "competitiveQualifiedGames": 0,
     "winRateCertified": false
+  },
+  "amendmentBeforeExecution": {
+    "description": "Reporting helper refactored to support registered sixteen-arm comparison; selected seed values and draw attempts retained unchanged; no fresh seed games executed or inspected.",
+    "previousHelperBlob": "141511c976645861aaa371b726e01124157d0dff",
+    "newHelperBlob": "dc762455dbc70ec36b0e7b127cfe56cbf2bda32f"
   }
 }
