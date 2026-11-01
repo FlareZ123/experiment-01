@@ -28,3 +28,9 @@ test('omitted aggregate card fails closed',()=>{
  const o={id:7,active:{cards:[],energies:{cards:[e]}},bench:[]};
  assert.throws(()=>decodePayment({players:[o]},new DiscardEnergyPrompt(7),o,[{slot:'active',index:0,energyIndex:0,printing:e.fullName}],types));
 });
+test('duplicate physical Energy target is rejected',()=>{
+ const e={fullName:'Lightning Energy MEE',energyType:1};
+ const o={id:7,active:{cards:[e],energies:{cards:[e]}},bench:[]};
+ const choice={slot:'active',index:0,energyIndex:0,printing:e.fullName};
+ assert.throws(()=>decodePayment({players:[o]},new DiscardEnergyPrompt(7),o,[choice,choice],types));
+});
