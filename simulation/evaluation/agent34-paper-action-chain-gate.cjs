@@ -16,7 +16,7 @@ const sha=/^[0-9a-f]{64}$/;
  * @param {object} root @param {string} storeId
  * @param {string[]} kinds @returns {object}
  */
-function assessPhase(phase,witnesses,root,storeId,kinds){
+function assessPhase(phase,witnesses,root,storeId,kinds,chainId){
   if(!statuses.has(phase?.status))
     return {status:'unverified',why:'missing-phase'};
   if(phase.status==='invalid'||phase.status==='unverified')
@@ -34,6 +34,7 @@ function assessPhase(phase,witnesses,root,storeId,kinds){
     return {status:'unverified',why:'missing-or-duplicate-witness'};
   if(selected.some(w=>w.storeId!==storeId||w.ordinal!==root.ordinal||
     w.seat!==root.seat||w.printing!==(root.printing??null)||
+    w.chainId!==chainId||w.action!==root.action||
     !sha.test(w.sourceSha256??'')))
     return {status:'unverified',why:'provenance-mismatch'};
   if(kinds.some(kind=>!selected.some(w=>w.kind===kind)))
@@ -77,7 +78,7 @@ function auditActionChains(archive){
     for(const [name,kinds] of Object.entries(PHASES)){
       phases[name]=matched?assessPhase(c.phases?.[name],
         Array.isArray(c.witnesses)?c.witnesses:[],root,
-        archive.liveStoreId,kinds):
+        archive.liveStoreId,kinds,c.chainId):
         {status:'unverified',why:'no-matching-chain'};
       // Every accepted Store root exists, and its state transition must
       // be demonstrated. These two phases cannot be "not encountered".
