@@ -80,9 +80,14 @@ function prospectiveHeldPrintedAbility(printing,playerPublic,catalog){
       playerPublic?.publicTurnRestrictions?.vstarUsed===true);
 }
 /**
- * Avoid self-lock by requiring no currently visible owner rule-box Ability
- * Pokémon and no held ability-bearing evolution. Only the frozen public
- * print catalog and visible opponent board determine target applicability.
+ * Admit current-turn Path only when currently actionable owner powers are
+ * absent. An optional same-root native physical Ability-use witness can
+ * mark individual Genesect copies spent for the current turn. This does
+ * not certify the value of losing their abilities on future turns.
+ * @param {object} view Detached actor-root observation.
+ * @param {object} catalog Public exact-printing card metadata.
+ * @param {{ownFusionUsage?:object}} [options] Verified owner-public witness.
+ * @returns {object|null}
  */
 function choosePathToPeakOpposingAbility(view,catalog,options={}){
   assert.equal(view.decisionKind,'owner-root');
@@ -123,9 +128,12 @@ function choosePathToPeakOpposingAbility(view,catalog,options={}){
   if(index<0)return null;
   return {kind:'play-path-to-peak',
     handIndex:index,printing:view.ownHand[index],
-    reason:'public-opposing-rulebox-ability-and-no-owner-self-lock',
+    reason:usedFusionSlots.size>0?
+      'public-opposing-ability-after-spent-owner-fusion-this-turn':
+      'public-opposing-rulebox-ability-and-no-owner-self-lock',
     ...(usedFusionSlots.size>0?{
-      spentOwnerFusionSlotIndices:[...usedFusionSlots].sort((a,b)=>a-b)
+      spentOwnerFusionSlotIndices:[...usedFusionSlots].sort((a,b)=>a-b),
+      futureTurnOwnGenesectSelfLockRisk:true
     }:{})};
 }
 module.exports={VERSION,choosePathToPeakOpposingAbility,
