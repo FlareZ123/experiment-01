@@ -40,9 +40,35 @@ function independentPutDamageNegative(prompt,answer){
 const {nightWatchLikeShape}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v2-live-store-only';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v3-independent-membership';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
+
+/**
+ * A native validator can reject an independently legal paper response or
+ * overlook a physically foreign card. Make the own-deck membership proof
+ * independent before calling a printed search contract verified.
+ * @param {object} state Original physical state, never player policy input.
+ * @param {object} action Real submitted ResolvePromptAction.
+ * @param {object} old Existing source-stamp eligibility classification.
+ * @returns {{paperValid:boolean,reason:string,nativeValid:boolean}}
+ */
+function independentCampingGearContract(state,action,old){
+  const p=state.prompts?.find(x=>x.id===action.id&&x.result===undefined);
+  const owner=state.players?.find(x=>x.id===p?.playerId);
+  if(!owner||p?.player!==owner||p?.cards!==owner.deck||
+      !Array.isArray(owner.deck?.cards))
+    return {paperValid:false,reason:'own-deck-zone-mismatch',
+      nativeValid:old.nativeValid};
+  if(!Array.isArray(action.result)||action.result.length!==1)
+    return {paperValid:false,reason:'printed-exactly-one-required',
+      nativeValid:old.nativeValid};
+  if(!owner.deck.cards.includes(action.result[0]))
+    return {paperValid:false,reason:'selected-card-not-in-physical-own-deck',
+      nativeValid:old.nativeValid};
+  return {paperValid:true,reason:'printed-one-physical-own-deck-card',
+    nativeValid:old.nativeValid};
+}
 
 /**
  * One research-owned native Store.dispatch boundary. Printed checks are
@@ -88,7 +114,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'PutDamagePrompt declared zero-target and whole-packet rejection only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
-    vetoedBeforeDispatch:0,markedVoltCyclonePrompts:0,
+    vetoedBeforeDispatch:0,nativePreflightVetoed:0,
+    markedVoltCyclonePrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     statusCounts:Object.fromEntries(STATUSES.map(s=>[s,0])),
@@ -152,18 +179,26 @@ function withPaperPromptContractPortfolio(run,deps={}){
     let sourcePrinting=prompt?.sourceCard?.fullName??null;
     let contract=null;
     let reason='no-independent-printed-contract';
+    let nativePreflightRejected=false;
     if(volt){
       sourcePrinting='Iron Thorns ex TWM';
       contract='printed-volt-cyclone-energy-transfer';
       const result=verdictVoltCyclone(this.state,prompt,action.result,types);
-      status=result.valid?'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
+      nativePreflightRejected=result.reason==='native-additional-contract-rejected';
+      status=nativePreflightRejected?'PAPER_PROMPT_UNVERIFIED':
+        result.valid?'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
       reason=result.reason;
     }else if(camping.applicable){
       sourcePrinting='Camping Gear BST';
       contract='mandatory-one-own-deck-card';
-      status=camping.paperValid?'PAPER_PROMPT_VERIFIED':'PAPER_PROMPT_INVALID';
-      reason=camping.paperValid?'printed-search-count-and-zone-matched':
-        'printed-own-deck-exactly-one-or-native-validator-failed';
+      const result=independentCampingGearContract(this.state,action,camping);
+      nativePreflightRejected=result.paperValid&&!result.nativeValid;
+      status=!result.paperValid?'PAPER_PROMPT_INVALID':
+        nativePreflightRejected?'PAPER_PROMPT_UNVERIFIED':
+        'PAPER_PROMPT_VERIFIED';
+      reason=nativePreflightRejected?
+        'native-validator-rejected-independent-print-valid-selection':
+        result.reason;
     }else if(family==='PutDamagePrompt'){
       contract='declared-zero-target-and-whole-packet-negative-only';
       const rejected=independentPutDamageNegative(prompt,action.result);
@@ -183,7 +218,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       turn:this.state.turn??null,family,sourcePrinting,
       contract,status,reason,submittedCount:Array.isArray(action.result)?
         action.result.length:null,nativeAccepted:false,
-      vetoedBeforeDispatch:false};
+      vetoedBeforeDispatch:false,nativePreflightRejected};
     audit.resolvedNativeReplies++;
     store.attemptedPromptReplies++;
     if(trial){
@@ -206,6 +241,12 @@ function withPaperPromptContractPortfolio(run,deps={}){
       event.vetoedBeforeDispatch=true;
       audit.vetoedBeforeDispatch++;
       throw new Error('PAPER_PROMPT_INVALID:'+String(contract)+':'+reason);
+    }
+    if(nativePreflightRejected){
+      event.vetoedBeforeDispatch=true;
+      audit.nativePreflightVetoed++;
+      throw new Error('NATIVE_PROMPT_PREFLIGHT_REJECTED:'+
+        String(contract)+':'+reason);
     }
     try{
       const result=dispatchBefore.value.call(this,action,...args);
@@ -235,5 +276,5 @@ function withPaperPromptContractPortfolio(run,deps={}){
     Object.defineProperty(IronThornsex.prototype,'reduceEffect',reducerBefore);
   }
 }
-module.exports={VERSION,independentPutDamageNegative,
-  withPaperPromptContractPortfolio};
+module.exports={VERSION,independentCampingGearContract,
+  independentPutDamageNegative,withPaperPromptContractPortfolio};
