@@ -26,7 +26,7 @@ const {Format}=native('game/store/card/card-types');
 const {nativeSinglePokemonChoices}=require(
   '../simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs');
 
-function fixture(seat){
+function fixture(seat,ownerPrizeCount=1){
   const manager=initializeCards();
   let id=632000+seat*1000;
   const card=printing=>{
@@ -44,7 +44,7 @@ function fixture(seat){
   for(const p of [owner,foe]){
     for(let n=0;n<5;n++)p.bench.push(new PokemonCardList());
     for(let n=0;n<12;n++)p.deck.cards.push(card('Psychic Energy MEE'));
-    for(let n=0;n<(p===owner?1:6);n++){
+    for(let n=0;n<(p===owner?ownerPrizeCount:6);n++){
       const prize=new CardList();
       prize.cards.push(card('Psychic Energy MEE'));
       p.prizes.push(prize);
@@ -164,5 +164,56 @@ test('final Prize Guzma picks nonfirst opposing and own Bench through real nativ
       gamePhase:x.state.phase,
       competitivelyQualified:false
     }));
+  }
+});
+
+test('nonfinal 6-to-5 Prize trade also uses authentic nonfirst Guzma targets in both seats',()=>{
+  const {choosePrizeTradeGuzma}=require(
+    '../simulation/twinleaf/agent31-final-prize-guzma-frontier.cjs');
+  const definitions=native('simple-bot/simple-bot-definitions');
+  for(const seat of [0,1]){
+    const x=fixture(seat,6);
+    const plan=choosePrizeTradeGuzma(
+      actorObservation(x.state,seat),publicCatalog());
+    assert.equal(plan?.planFamily,'nonfinal-prize-trade-nominal-gust');
+    assert.equal(plan?.benchIndex,1);
+    assert.equal(plan?.opponentBenchIndex,1);
+    const bot=new SimpleTacticsAi({id:x.owner.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:definitions.defaultArbiterOptions
+    },null);
+    const observed=withGuzmaOwnerPromptContinuation(()=>{
+      x.store.dispatch(new PlayCardAction(x.owner.id,plan.handIndex,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      for(let i=0;i<2;i++){
+        const pending=x.state.prompts.find(p=>p.result===undefined);
+        assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+        const offered=nativeSinglePokemonChoices(x.state,pending);
+        const action=bot.decodeNextAction(x.state);
+        assert.ok(action instanceof ResolvePromptAction);
+        const physical=offered.find(c=>c.index===1)?.physical;
+        assert.ok(physical);
+        assert.equal(action.result?.[0],physical);
+        x.store.dispatch(action);
+      }
+      return {
+        opponent:x.foe.active.getPokemonCard()?.id,
+        owner:x.owner.active.getPokemonCard()?.id
+      };
+    },{initialLiveStore:x.store,prizeTradeGuzma:true});
+    assert.equal(observed.result.opponent,x.target);
+    assert.equal(observed.result.owner,x.ownAttacker);
+    assert.equal(observed.audit.matchedNonfinalPrizeTradePlans,1);
+    assert.equal(observed.audit.gustTargetPhysicalConfirmations,1);
+    assert.equal(observed.audit.ownTargetPhysicalConfirmations,1);
+    assert.equal(observed.audit.competitiveGameQualified,false);
+    assert.equal(x.owner.prizes.reduce((n,p)=>n+p.cards.length,0),6);
+    x.store.dispatch(new AttackAction(x.owner.id,plan.attackName));
+    completeAttackPrompts(x.store,x.state);
+    assert.ok(x.foe.discard.cards.some(c=>c.id===x.target));
+    assert.equal(x.owner.prizes.reduce((n,p)=>n+p.cards.length,0),5);
   }
 });
