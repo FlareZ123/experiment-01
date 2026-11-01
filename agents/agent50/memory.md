@@ -1,3 +1,13 @@
+# 1 November 2026 22:34 UTC checkpoint, corrected executable lookup census
+
+- Original claimed lease `2026-11-01T21:40:39.353022Z`; release only at measured UTC >=22:50:39.353022Z. Do not refresh.
+- First CI 41356464870 used `getAllCards` registry enumeration: 29 exact-source original decks, 309 Pokémon entries, 268 registry name+set entries, 52 variable calculation entries, 245 class-own reduceEffect entries, and zero dynamic lacking specialized reducer. **This structure MISSED independently witnessed native Bellowing Thunder failure** and must not be presented as runtime support.
+- Second CI 41357178876 switched the census to actual `CardManager.getCardByName` lookup. 286 executable exact native fullNames, 52 variable calculation entries, 52 dynamically calculated entries without own-prototype reducer, 0 direct specialized reducers. Same-print physical Burst Roar worked, so **reducer signature is not a correctness estimator**. This is an inventory of 52 variable printed attack occurrences, 16 distinct prints, for runtime staging. The second CI erroneously reported 309 executable lookup hits because an undefined return counted as `!==null`; fixed to `!=null` in later commit. Prototype identity comparison now detects different executable and enumerated card classes even if constructor names match.
+- Source-controlled correction in `simulation/evaluation/agent50-original-source-pinned-attack-census.cjs`, 3 pure tests (one direct-vs-enumerated class divergence) verified with live V8 evaluation. Native `tests/agent50-raging-bolt-nominal-ko.native.test.cjs` now additionally requires exact original TEF set number 123 and physically asserts Burst draws six. Final full compiled CI dispatched at 22:34, inspect its run ID/status before reporting.
+- DO NOT present 41 unmatched registry enumerations as absent native playable cards, nor zero/52 own-reducer flags as failure rates; printed data can use inherited/generic effects. Primary outstanding Raging Bellowing owner payment remains unresolved. No paper-qualified games and no proven 99.5%.
+
+---
+
 # 1 November 2026 22:19 UTC checkpoint, rank19 native controls
 
 - Original normal-mode Agent50 lease claimed 21:40:39.353022Z, 70-minute release at 22:50:39.353022Z. Continue until measured release; never refresh lease.
