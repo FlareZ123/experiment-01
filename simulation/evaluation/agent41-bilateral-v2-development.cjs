@@ -365,7 +365,8 @@ function executeDevelopment(trial,candidates,{
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
-  nativePublicMulliganRevealsAudit=false,physicalZoneGate=false,
+  nativePublicMulliganRevealsAudit=false,
+  nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -431,6 +432,8 @@ function executeDevelopment(trial,candidates,{
     // Existing opaque two-seat setup fingerprint authenticates the complete
     // physical deal. It is postdecision evidence and never reaches policy.
     captureInitialFullPhysicalDeal:true,
+    // First-setup accepted coin, chooser and real first-draw receipt. Postgame only.
+    captureSetupCoinChoiceReceipt:nativeSetupCoinChoiceReceipt,
     ...(losslessNativeRootJoin?{captureNativePolicyActionJoin:true}:{}),
     // Native Store's setup/shuffle and optional-mulligan observer is strictly
     // read-only. Leave prior full-match policy and archive schema unchanged
@@ -798,6 +801,9 @@ function executeDevelopment(trial,candidates,{
     sourceDeckFingerprint:sha256(opponent.cards),
     verifiedFirstTurn:game.verifiedByDrawLog,
     actualStarterSeat:game.firstTurnSlot,
+    ...(nativeSetupCoinChoiceReceipt?{
+      nativeSetupCoinChoiceReceipt:game.setupCoinChoiceReceipt??null
+    }:{}),
     firstTurnPlayerId:game.firstTurnPlayerId,
     firstTurnPlayerName:game.firstTurnPlayerName,
     firstDrawLogName:game.firstDrawLogName,
@@ -925,7 +931,8 @@ function runDevelopment({
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
-  nativePublicMulliganRevealsAudit=false,physicalZoneGate=false,
+  nativePublicMulliganRevealsAudit=false,
+  nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
@@ -1095,7 +1102,7 @@ function runDevelopment({
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
-        physicalZoneGate,
+        nativeSetupCoinChoiceReceipt,physicalZoneGate,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,losslessNativeRootJoin,
@@ -1303,6 +1310,7 @@ function runDevelopment({
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
     nativePublicMulliganRevealsAuditOptIn:nativePublicMulliganRevealsAudit,
+    nativeSetupCoinChoiceReceiptOptIn:nativeSetupCoinChoiceReceipt,
     physicalZoneGateOptIn:physicalZoneGate,
     physicalZoneQualificationSummary:require('./physical-zone-qualification.cjs')
       .summarizePhysicalQualification(rows),
