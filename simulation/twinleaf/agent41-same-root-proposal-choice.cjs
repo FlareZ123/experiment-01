@@ -360,6 +360,24 @@ function scoreOffer(view,catalog,baseline,offer,options){
   if(offer.source==='first-return')return {score:0,reason:'control-baseline'};
   if(offer.intent.kind==='pass')return {
     score:-100,reason:'preserve-nonterminal-opportunity'};
+  // Exact original rank15 PFL #84 source printing has a native M2 fullName.
+  // With an authenticated same-turn public movement receipt, the independent
+  // payable attack offer can displace the first-return Gale Thrust for the
+  // source's stationary Double Colorless Energy board. The 160 vs 60 nominal
+  // comparison was settled by the pinned Store on both seats. This bounded
+  // override does not apply to unknown history or any other printing.
+  if(options.sameRootPublicEventReceipt===true&&
+     offer.source==='payable-printed-attack'&&
+     baseline.kind==='attack'&&baseline.attackName==='Gale Thrust'&&
+     view.ownPublic?.active?.printing==='Mega Lopunny ex M2'&&
+     view.publicEventReceipt?.actorSeat===view.actorSeat&&
+     view.publicEventReceipt?.turn===view.globalTurn&&
+     view.publicEventReceipt?.ownerActive?.printing==='Mega Lopunny ex M2'&&
+     view.publicEventReceipt.ownerActive.movedFromBenchToActiveThisTurn===false&&
+     offer.intent.attackName==='Spiky Hopper'&&
+     offer.intent.damageEstimateScope==='exact-PFL84-public-movement-only'&&
+     offer.intent.estimatedDamage===160)
+    return {score:12,reason:'rank15-public-stationary-160-over-60-payoff'};
   // The opponent's final Active Pokémon can be a discrete immediate win.
   // Use only public board information and a previously independently funded
   // attack offer; the estimate remains unverified until native settlement.
