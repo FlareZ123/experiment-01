@@ -88,6 +88,14 @@ function run(){
   const treatment=runArm(options,true);
   assert.equal(baseline.rows.length,16);
   assert.equal(treatment.rows.length,16);
+  const treatmentFlag=PRIZE_TRADE?
+    'prizeTradeGuzmaOptIn':'forcedGuzmaNominalKoOptIn';
+  const flagFor=row=>row.actorOnlyDecisionCoverage
+    ?.detailedComponentAudits?.root?.[treatmentFlag];
+  assert.ok(baseline.rows.every(row=>flagFor(row)===false),
+    'Frozen baseline unexpectedly enabled the tactical Guzma policy');
+  assert.ok(treatment.rows.every(row=>flagFor(row)===true),
+    'Every actual treatment game must attest enabled tactical Guzma root');
   const baselineDigest=replayFingerprint(baseline.rows);
   assert.equal(baselineDigest,ORIGINAL_BASELINE_DIGEST,
     'Frozen baseline must replay exactly before interpreting the treatment');
@@ -145,6 +153,8 @@ function run(){
     actualBaselineDigest:baselineDigest,
     treatmentDigest,
     exactBaselineReplay:true,
+    exactRootOptInAuditedInAllTreatments:true,
+    treatmentRootAuditField:treatmentFlag,
     changedActionLedgers:changed,
     attemptedForcedRootIntents:selected,
     acceptedForcedRoots:accepted,
