@@ -26,6 +26,8 @@ Each source entry is a distinct Pokémon entry in a decklist, rather than each p
 
 The 23 unmatched fullNames include several Mega Evolution ex, Prism Star, and older GX/V printings. These observations may arise from aliases, catalog registration, or missing native support. **They do not demonstrate that 23 Pokémon are unavailable or unplayable.** Resolve each through the same exact-source deck-loading path before treating it as an engine-coverage failure.
 
+The most repeated unresolved baseline fullNames are Mega Absol ex MEG86 (five source ranks: 8/9/11/16/22), Tapu Koko Prism Star TEU51 (four: 8/19/22/26), Mega Dragonite ex ASC152 (three: 14/20/32), and Ditto Prism Star LOT154 (two: 4/17). These are alias/printing reconciliation leads, not proven missing or unusable cards.
+
 ## Important rejected inference
 
 An earlier enumeration-only run [41356464870](https://github.com/FlareZ123/experiment-01/actions/runs/41356464870) appeared to find 245 card-own reducer entries and no problematic dynamic-damage entries. It missed the already reproduced rank19 Bellowing Thunder issue. That was a method error: the enumerated CardManager objects and the classes returned by the executable card lookup differ. A second intermediate run overcounted executable lookup hits because `undefined` was compared only against `null`. The final audit uses a nullish check and actual executable lookup.
