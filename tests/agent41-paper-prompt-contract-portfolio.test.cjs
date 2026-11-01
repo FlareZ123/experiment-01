@@ -103,8 +103,10 @@ test('foreign physical deck card is paper-invalid even when native validator fal
   s.prompts=[prompt];
   const store=new FakeStore(s);
   const audit=withPaperPromptContractPortfolio(()=>{
+    // The generic physical-source guard can correctly reject the foreign
+    // selection before Camping Gear's narrower printed-card guard runs.
     assert.throws(()=>store.dispatch(new ResolvePromptAction(20,[foreign])),
-      /selected-card-not-in-physical-own-deck/);
+      /PAPER_PROMPT_INVALID:.*(SELECTED_CARD_OUTSIDE_PHYSICAL_PROMPT_SOURCE|selected-card-not-in-physical-own-deck)/);
     assert.equal(store.mutations,0);
     return store.dispatch(new ResolvePromptAction(20,[card]));
   },deps).audit;
