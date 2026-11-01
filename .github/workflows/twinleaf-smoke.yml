@@ -27,10 +27,10 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Regress authenticated rank1 Copycat stale-turn and rank15 movement history
-        run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs tests/agent8-pidgeot-ability-used-observation-alias-native.test.cjs
       - name: Regress original rank4 and rank16 duplicate Crobat Dark Asset paper limit
         run: node --test tests/agent8-double-crobat-dark-asset-native.test.cjs
+      - name: Regress authenticated rank1 Copycat stale-turn and rank15 movement history
+        run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs tests/agent8-pidgeot-ability-used-observation-alias-native.test.cjs
       - name: Characterize printed Gengar Shadow Pain native prompt target caps
         run: node simulation/twinleaf/agent46-gengar-shadow-pain-native-cap.cjs
       - name: Audit original-Store Tinkaton ex Press versus Double Turbo in both seats
