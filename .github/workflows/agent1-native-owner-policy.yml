@@ -12,6 +12,7 @@ on:
           - original-source-opponent-blower
           - owner-starvip-opponent-blower
           - source-return-retool
+          - blower-timing-three
 
 permissions:
   contents: read
@@ -67,6 +68,19 @@ jobs:
         with:
           name: agent1-lean-source-return-retool-native
           path: agent1-source-return-retool-native.json
+          if-no-files-found: warn
+      - name: Original source K0 three-arm native Field Blower timing comparison
+        if: inputs.experiment == 'blower-timing-three'
+        run: node simulation/evaluation/agent1-rank11-blower-timing-three-native.cjs > agent1-blower-timing-three-native.json
+      - name: Require all three preregistered original physical arms and retain outcomes
+        if: inputs.experiment == 'blower-timing-three'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-blower-timing-three-native.json');a.equal(r.attempted,3);a.equal(r.settled,3);a.equal(r.blocked,0);a.deepEqual(r.rows.map(x=>x.arm),['immediate','deferred','generic']);a.equal(r.competitiveQualifiedGames,0);console.log('AGENT1_BLOWER_TIMING_NATIVE',JSON.stringify(r.rows.map(x=>({arm:x.arm,heldT4:x.recipientHeldBlowerAtT4,t2:x.recipientTurn2BlowerRoots,t4:x.recipientTurn4BlowerRoots,removal2:x.confirmedToolRemovalTurn2,removal4:x.confirmedToolRemovalTurn4,abilitiesT4:x.recipientT4AbilityNames}))))"
+      - name: Archive complete original-deal Field Blower timing arms
+        if: always() && inputs.experiment == 'blower-timing-three'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-fieldblower-timing-native
+          path: agent1-blower-timing-three-native.json
           if-no-files-found: warn
       - name: Archive ALL owner Star-VIP results and errors
         if: always() && inputs.experiment == 'owner-starvip'
