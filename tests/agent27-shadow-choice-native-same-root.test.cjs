@@ -34,6 +34,10 @@ for(const seat of [0,1]){
     assert.deepEqual(augmented.selectedIntent,baseline);
     assert.equal(augmented.shadowReceipt.supportedAlternativeCount,1);
     assert.equal(augmented.selectionReceipt.supportedAlternativeCount,1);
+    assert.equal(augmented.opportunityCensus.observedStructuralAlternatives,1);
+    assert.equal(augmented.opportunityCensus.explicitlyNativeWiredAlternatives,0);
+    assert.equal(augmented.opportunityCensus.observationOnlyAlternatives,1);
+    assert.equal(augmented.opportunityCensus.nativeCanPlayEstablished,0);
     const contender=augmented.shadowReceipt.offers.find(row=>
       row.source==='agent27-lastbench-same-kind');
     assert.ok(contender);
