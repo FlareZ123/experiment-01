@@ -1,0 +1,27 @@
+{
+  "schema": "agent4-crossrank-original-source-strict-prompt-tradeoff-v1",
+  "dateUTC": "2026-11-01",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank14": {
+    "card": "Ultra Ball MEG131",
+    "oneTarget": "Regidrago V SIT135",
+    "twoPayments": [
+      "Grass Energy MEE9",
+      "Fire Energy MEE10"
+    ]
+  },
+  "sourceRank31": {
+    "card": "Roxie CEC205",
+    "oneLegalPayment": "Koffing CEC76"
+  },
+  "pairedControls": [
+    "same physical native rank14 Store in both seats, only Ultra Ball payment reply changes: zero [] vs two distinct genuine owner Energy cards; record both actual source payment zones, searched Pokémon and settled prompts; assert general strict prompt-integrity treats zero as invalid and both as valid",
+    "same physical original rank31 Roxie and Koffing, two hand orders; general strictPromptValidation rejects paper-valid Koffing if native validator blocked positions drift in Roxie-first case; custom source-printed physical Roxie payment guard still accepts card and settles",
+    "Never default-enable broad strict checker on a source field solely because it rejects Ultra Ball 0; preserve false-positive evidence from Roxie"
+  ],
+  "boundaries": [
+    "No original source-dealt 60",
+    "No full competitive games",
+    "Pure preregistered paired native prompt efficacy, original printing identities"
+  ]
+}
