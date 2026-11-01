@@ -8,6 +8,8 @@ const {plannedTrials,REGISTRATION_BLOB}=
   require('./agent41-prospective-canonical-scout.cjs');
 const {withNativeLillieDrawSettlementAudit}=
   require('../twinleaf/agent24-native-lillie-settlement-audit.cjs');
+const {comparePairedAcceptedTargets}=
+  require('./agent41-native-paired-target-audit.cjs');
 
 const VERSION='agent41-historical-two-seat-conservative-shuffle-v1';
 const ROOT=path.resolve(__dirname,'../..');
@@ -71,6 +73,8 @@ function compareAttempts(before,after){
     rows.push({id:a.id,sameInitialPhysicalDeal:
       a.fullDeal!==null&&a.fullDeal===b.fullDeal&&
       a.sourceDeal!==null&&a.sourceDeal===b.sourceDeal,
+      physicalTargetContrast:comparePairedAcceptedTargets(
+        before.rows[i],after.rows[i]),
       baseline:a,treatment:b});
   }
   return {rows,failures,allMatched:failures.length===0};
