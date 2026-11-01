@@ -1,0 +1,44 @@
+{
+  "version": "agent25-regidrago-v-celestial-roar-card-custody-hook-v1-precommit",
+  "date": "2026-11-01",
+  "paperIssue": "Regidrago V SIT 135 Celestial Roar discards top3 cards of deck; Basic Energy among those attaches, all other cards must enter discard. Pinned original ReduceEffect handles AttachEnergyPrompt and iterates temp.cards.forEach while moving cards out of that same temp collection, which may skip remaining non-Energy.",
+  "sourceProvenance": "pinned Twinleaf upstream code ptcg-server/src/sets/09-sword-and-shield/set-silver-tempest/regidrago-v.ts at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baselineOriginalBugReproductions": [
+    41272123734,
+    41272861044,
+    41273322779
+  ],
+  "sourceRank": 10,
+  "candidateSeat": 1,
+  "seed": 1304508082,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fixedCandidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "exactSource": "results/aichi-2026/full-decklists.json",
+  "pairedArms": [
+    "originalStore",
+    "optInReversibleCelestialRoarCustodyCorrection"
+  ],
+  "candidateDecisionModes": [
+    "baseline",
+    "candidateOnlyCompressor"
+  ],
+  "maximumRootActions": 120,
+  "constantAcrossArms": [
+    "both exact original full 60 sources",
+    "fixed candidate 60 identical printed IDs",
+    "seat1 candidate, seat0 source",
+    "seed and initial protocol",
+    "HNS discard Ability correction",
+    "strict physical 60 conservation",
+    "visible play locks",
+    "uncertain policy competence"
+  ],
+  "requiredControls": [
+    "Synthetic real Store three-card top-of-deck fixture: one Basic Energy plus two non-Energy, complete actual AttachEnergyPrompt; original loses one card and corrected preserves all 60",
+    "Synthetic no-Basic-Energy control and exact replay both seats",
+    "Narrow restored prototype and after cleanup no mutation of original vendor",
+    "Original rank10 seed1304508082 source physical failure persists without patch and first anomalous source card count eliminated with patch if no other bug"
+  ],
+  "reportedOutcomes": "Never promote capped or corrupted-game terminals to wins. Capture actual root/attack/prompt, physical conservation witness, number of eligible Energy attachments, leftover nonEnergy discard count, and HNS side correction.",
+  "competitiveQualifiedGames": 0
+}
