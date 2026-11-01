@@ -266,6 +266,35 @@ function test() {
     penguin.own,penguin.prompt,penguin.codes),null,
     'Four packets cannot exploit Empoleon V Lightning Weakness');
 
+  // A full damage budget can need several recipients when each
+  // individual native target limit is smaller than the remainder.
+  const capped=caseState({budget:9,sight:false});
+  capped.state.players[1].active.hp=60;
+  capped.state.players[1].active.getPokemonCard=()=>({
+    name:'Shadow Rider Calyrex V',fullName:'Shadow Rider Calyrex V CRE',
+    hp:60,tags:['V']
+  });
+  const caps=[60,120,120];
+  capped.prompt.maxAllowedDamage.forEach((row,i)=>{
+    row.damage=caps[i];
+  });
+  const validate=capped.prompt.validate;
+  capped.prompt.validate=(rows,state)=>
+    validate(rows,state)&&rows.every(({target,damage})=>{
+      const i=target.slot===1?0:target.index+1;
+      return damage<=capped.prompt.maxAllowedDamage[i].damage;
+    });
+  const split=planElectroRainDamage(capped.state,capped.own,
+    capped.prompt,capped.codes);
+  assert.deepEqual(split?.map(({target,damage})=>
+    [target.slot,target.index,damage]),
+    [[1,0,60],[2,0,120],[2,1,90]],
+    'Remainder must fit multiple capped recipients');
+  capped.prompt.maxAllowedDamage[2].damage=60;
+  assert.equal(planElectroRainDamage(capped.state,capped.own,
+    capped.prompt,capped.codes),null,
+    'Aggregate capacity below the budget must fail closed');
+
   const insufficient=caseState({budget:1});
   assert.equal(planElectroRainDamage(insufficient.state,insufficient.own,
     insufficient.prompt,insufficient.codes),null);
