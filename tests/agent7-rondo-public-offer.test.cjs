@@ -33,3 +33,22 @@ test('source access categories distinguish active payment from Bench position',(
  v.ownPublic.bench[0]=null;
  assert.equal(publicRondoReadiness(v,catalog),'not-in-play');
 });
+
+test('read-only Rondo proposer leaves ordinary Pass unchanged',()=>{
+ const {PROPOSERS,collectAndChooseOwnerRoot}=
+  require('../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
+ const r=PROPOSERS.find(p=>p.name==='public-rondo');
+ assert.equal(r.flag,'rondoPublicOpportunity');
+ const v=view(),pass={kind:'pass'};
+ let decision=collectAndChooseOwnerRoot(v,catalog,pass,{rondoPublicOpportunity:true},[r]);
+ assert.equal(decision.intent.kind,'pass');
+ assert.equal(decision.receipt.supportedAlternativeCount,1);
+ decision=collectAndChooseOwnerRoot(v,catalog,pass,
+  {rondoPublicOpportunity:true,sameRootChoiceApply:true},[r]);
+ assert.equal(decision.intent.kind,'pass');
+ decision=collectAndChooseOwnerRoot(v,catalog,pass,
+  {rondoPublicOpportunity:true,sameRootChoiceApply:true,
+   rondoPublicAttackPreference:true},[r]);
+ assert.equal(decision.intent.attackName,'Full Moon Rondo');
+ assert.equal(decision.receipt.changed,true);
+});
