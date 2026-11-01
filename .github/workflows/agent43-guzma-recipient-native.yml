@@ -32,6 +32,10 @@ jobs:
         run: npm run compile
       - name: Regress default-off forced-target Guzma owner-root and hidden-information boundary
         run: node --test tests/agent31-forced-guzma-ko-frontier.test.cjs
+      - name: Test final-Prize multi-Bench Guzma owner-visible choices
+        run: node --test tests/agent31-final-prize-guzma-frontier.test.cjs
+      - name: Prove final-Prize native opponent target and actual terminal Prize on both seats
+        run: node --test tests/agent31-final-prize-guzma.native.test.cjs
       - name: Prove Agent31 forced-target Guzma physical KO and Prize on both seats
         run: node --test tests/agent31-forced-guzma-ko.native.test.cjs
       - name: Prove both-seat native Store Guzma recipient continuation
