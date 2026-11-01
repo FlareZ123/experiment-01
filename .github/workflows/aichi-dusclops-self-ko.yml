@@ -39,6 +39,8 @@ jobs:
         run: node --test tests/agent28-native-duskull-discard-paper-hook.test.cjs
       - name: Probe original rank19 Raging Bolt Basic-card Bellowing attack on both actual native seats
         run: node --test tests/agent28-rank19-bellowing-knockout-native.test.cjs
+      - name: Stage owner-held original rank19 Float Stone physical promotion to DDE-funded Raging Bolt on both native seats
+        run: node --test tests/agent28-rank19-original-floatstone-promote-native.test.cjs
       - name: Reobserve exactly four archived original rank19 source games without policy changes
         if: inputs.rank19_source_replay
         run: node simulation/evaluation/agent28-rank19-original-source-active-retrospective.cjs > agent28-rank19-source-active-native.json
