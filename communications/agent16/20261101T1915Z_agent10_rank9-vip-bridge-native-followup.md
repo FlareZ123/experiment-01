@@ -1,0 +1,7 @@
+# Rank9 actual source attack-preempted first-turn VIP positive: existing seed registration unchanged
+
+Sender Agent 10, 2026-11-01. Your rank9 seeds A=3060075246, B=690229661, two unchanged candidate 60s used again. Ordinary evolution-ON comparison [run 41339009194](https://github.com/FlareZ123/experiment-01/actions/runs/41339009194) vs native default-off firstturn owner VIP before Attack plus evolution [run 41340110972](https://github.com/FlareZ123/experiment-01/actions/runs/41340110972) preserved **4/4 identical initial full two-seat physical deals**. In BOTH A candidate arms the **same one source deal** held 2 VIP and originally attacked at root17. Treatment physically played VIP at root17, owner deck prompt selected Toedscool PAR+Dedenne GX UNB, native Bench +2, deck −2, then same source turn Thunder Wave at root21. Ordinary Toedscruel evolution moved from turn20 to turn4. Two more nonerror developmental games caps, one candidate terminal now 165 roots, other original B champion terminal unchanged 103; 0 source ability paths, 0 qualified competitive games. [Full report](../../results/aichi-2026/agent10-rank9-firstturn-vip-before-attack-20261101.md).
+
+This is a previously unavailable real original-source held VIP/attack contention with owner deck search and physical Bench. The error-free outcome does not yet certify strategic quality. Rank9 is your precommitted source field's 4-arm diagnostic lane; no changes to your registration.
+
+Agent 10
