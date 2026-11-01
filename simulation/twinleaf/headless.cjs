@@ -18,6 +18,8 @@ const {installMegatonBlowerHook} = require('./megaton-blower-hook.cjs');
 const {assertValidPromptAction} = require('./prompt-integrity.cjs');
 const {installForestSealSearchHook} = require('./forest-seal-search-hook.cjs');
 const {installBattleCompressorMinimumHook} = require('./battle-compressor-minimum-hook.cjs');
+const {installStevenPaperMinimumHook} =
+  require('./agent20-steven-paper-minimum-hook.cjs');
 const {installSupporterDecisionHook} = require('./supporter-decision-hook.cjs');
 const {installGuzmaSelfSwitchGuard} = require('./guzma-self-switch-guard.cjs');
 const {installDialgaBenchExposureGuard} = require('./dialga-bench-exposure-guard.cjs');
@@ -220,6 +222,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [forestSealSearchCorrection] Opt-in mandatory one-card Star Alchemy hook.
  * @property {boolean} [attachedToolPowerPolicy] Opt-in Tool-granted Ability candidate tactic for both seats.
  * @property {boolean} [battleCompressorPositiveSelectionCorrection] Opt-in paper minimum-one-card selection for Battle Compressor.
+ * @property {boolean} [stevenPaperMinimumCorrection] Opt-in original CES Steven's Resolve unrestricted search minimum-one paper correction.
  * @property {boolean} [grandTreeFirstTurnCorrection] Opt-in printed first-turn Grand Tree evolution prohibition.
  * @property {boolean} [doubleDragonRecovery] Opt-in experimental legal dynamic-Energy attachment tactic.
  * @property {boolean} [doubleDragonArchiveV3] Restore the source-locked historical DDE v3 tactic ONLY for archival replay.
@@ -452,6 +455,7 @@ function runMatch(request) {
   let restoreMegatonBlowerHook;
   let restoreForestSealSearchHook;
   let restoreBattleCompressorMinimumHook;
+  let restoreStevenPaperMinimumHook;
   let restoreGrandTreeFirstTurnHook;
   let restoreSupporterDecisionHook;
   let restoreGuzmaSelfSwitchGuard;
@@ -608,6 +612,9 @@ function runMatch(request) {
     const { Store } = engine('game/store/store');
     if (request.battleCompressorPositiveSelectionCorrection === true) {
       restoreBattleCompressorMinimumHook = installBattleCompressorMinimumHook();
+    }
+    if (request.stevenPaperMinimumCorrection === true) {
+      restoreStevenPaperMinimumHook = installStevenPaperMinimumHook();
     }
     if (request.pendingEndTurnSwitchCleanupCorrection === true) {
       const {Player}=engine('game/store/state/player');
@@ -1980,12 +1987,16 @@ function runMatch(request) {
       livePlayLockGuardBothSeats: request.enforceVisiblePlayLockBothSeats === true,
       visiblePlayLockSupporterSeat: request.visiblePlayLockSupporterSeat ?? null,
       visiblePlayLockBasicBenchFallback: request.visiblePlayLockBasicBenchFallback === true,
+      stevenPaperMinimumCorrection: request.stevenPaperMinimumCorrection === true,
+      stevenPaperMinimumAudit: restoreStevenPaperMinimumHook ?
+        {...restoreStevenPaperMinimumHook.audit} : null,
       policyRandomIsolation: request.isolatePolicyRandomness === true,
       randomnessProtocol: request.isolatePolicyRandomness === true ?
         'separate-game-and-per-seat-policy-prng-v1' : 'legacy-shared-prng',
       engine: 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05'
     };
   } finally {
+    if (restoreStevenPaperMinimumHook) restoreStevenPaperMinimumHook();
     if (restoreBattleCompressorMinimumHook) restoreBattleCompressorMinimumHook();
     if (restorePassClearsLastAttackHook) restorePassClearsLastAttackHook();
     if (restoreCopyDeclaredHistoryHook) restoreCopyDeclaredHistoryHook();
