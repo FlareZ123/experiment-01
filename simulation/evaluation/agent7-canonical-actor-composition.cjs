@@ -216,7 +216,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const runRoot = () => root(() => {
     if(options.ownerVipBeforeAttack!==true)return runVip();
     const selected=require('../twinleaf/agent10-battle-vip-before-attack.cjs')
-      .withActorVipBeforeAttack(runVip);
+      .withActorVipBeforeAttack(runVip,{
+        preferMegaAbsolRecipient:options.ownerVipMegaAbsolTarget===true
+      });
     ownerVipBeforeAttackAudit=selected.audit;
     return selected.result;
   });
@@ -248,6 +250,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled actor-only Battle VIP Pass must expose native audit');
   if(options.ownerVipBeforeAttack===true)assert.ok(ownerVipBeforeAttackAudit,
     'Enabled attack-contended native VIP must expose owned-root audit');
+  assert.ok(options.ownerVipMegaAbsolTarget!==true||options.ownerVipBeforeAttack===true,
+    'Mega Absol choice requires first-turn native VIP Item opportunity');
   const vipOrSearch = rooted.result;
   const searchOrFog = vipAfterPassOptIn?vipOrSearch.result:vipOrSearch;
   const fogged = ownerSingleSearch?searchOrFog.result:searchOrFog;
@@ -294,6 +298,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerShuffleSupporterRootOptIn:shuffleSupporterOptIn,
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     ownerVipBeforeAttackOptIn:options.ownerVipBeforeAttack===true,
+    ownerVipMegaAbsolTargetOptIn:options.ownerVipMegaAbsolTarget===true,
     actorChoosePokemonOptIn:actorChoosePokemon,
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
