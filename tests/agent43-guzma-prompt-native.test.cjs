@@ -253,3 +253,74 @@ test('optional first-opponent gust uses native exact physical second Bench targe
     assert.equal(observed.audit.competitiveGameQualified,false);
   }
 });
+
+test('actual printed fixed-damage nominal gust policy selects native opponent KO target in both seats',()=>{
+  for(const seat of [0,1]){
+    const {store,state,owner,opponent}=staged(seat);
+    const manager=initializeCards();
+    let id=82000+seat*100;
+    const card=printing=>{
+      const found=manager.getCardByName(printing);
+      assert.ok(found,'Missing exact native printing '+printing);
+      found.id=id++;
+      return found;
+    };
+    // First opposing Bench choice has 210 HP; second has 90 HP.
+    // Our actual incoming Lunatone has three real Psychic Energy and an
+    // already payable, no-text, fixed printed 100-damage Moon Press.
+    owner.bench[1].cards=[card('Lunatone OBF')];
+    owner.bench[1].energies.cards=[
+      card('Psychic Energy MEE'),
+      card('Psychic Energy MEE'),
+      card('Psychic Energy MEE')
+    ];
+    opponent.bench[0].cards=[card('Oranguru V ASR')];
+    opponent.bench[1].cards=[card('Lunatone OBF')];
+    const secondId=opponent.bench[1].getPokemonCard().id;
+    const ownId=owner.bench[1].getPokemonCard().id;
+    const observe=require('../simulation/twinleaf/actor-observation-contract.cjs')
+      .actorObservation(state,seat);
+    const catalog=require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs')
+      .publicCatalog();
+    const plan=require('../simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs')
+      .chooseHeldGuzmaMobility(observe,catalog);
+    assert.equal(plan?.benchIndex,1);
+    assert.equal(plan?.anticipatedMissing,0);
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const bot=new SimpleTacticsAi({id:owner.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:definitions.defaultArbiterOptions
+    },null);
+    const wrapped=withGuzmaOwnerPromptContinuation(()=>{
+      store.dispatch(new PlayCardAction(owner.id,0,{
+        player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+      }));
+      let pending=state.prompts.find(p=>p.result===undefined);
+      assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+      const gust=bot.decodeNextAction(state);
+      assert.ok(gust instanceof ResolvePromptAction);
+      assert.equal(gust.result[0],opponent.bench[1]);
+      store.dispatch(gust);
+      assert.equal(opponent.active.getPokemonCard()?.id,secondId);
+      pending=state.prompts.find(p=>p.result===undefined);
+      assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt');
+      const incoming=bot.decodeNextAction(state);
+      assert.ok(incoming instanceof ResolvePromptAction);
+      assert.equal(incoming.result[0],owner.bench[1]);
+      store.dispatch(incoming);
+      return {
+        gustPhysical:opponent.active.getPokemonCard()?.id,
+        ownPhysical:owner.active.getPokemonCard()?.id
+      };
+    },{initialLiveStore:store,nominalGust:true});
+    assert.equal(wrapped.result.gustPhysical,secondId);
+    assert.equal(wrapped.result.ownPhysical,ownId);
+    assert.equal(wrapped.audit.matchedMobilityPlans,1);
+    assert.equal(wrapped.audit.gustTargetProposals,1);
+    assert.equal(wrapped.audit.gustTargetPhysicalConfirmations,1);
+    assert.equal(wrapped.audit.ownTargetPhysicalConfirmations,1);
+    assert.equal(wrapped.audit.competitiveGameQualified,false);
+  }
+});
