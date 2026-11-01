@@ -1,0 +1,118 @@
+{
+  "registration": "agent7-rank30-prospective-psychic-recipient-v1",
+  "registeredAtUTC": "2026-11-01T20:47:08.121381Z",
+  "registeredBeforeNativeRun": true,
+  "sourceRank": 30,
+  "originalAuthenticatedExactSixtyUnchanged": true,
+  "sourcePreviousPhysicalSeedGroupsExcluded": [
+    3407938073,
+    233633536
+  ],
+  "sourceGroups": 8,
+  "pairs": 16,
+  "gamesPerPolicyMode": 16,
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policy": "same original two-sided frozen profile, source seat only independent Psychic Energy recipient switch in treatment; no other changes",
+  "control": "same-source-original-60, same candidate 60, exact both-player physical deck and actual first player",
+  "treatment": "when source has owned Basic Psychic Energy, Benched printed JTG Clefairy ex and unused Energy quota, choose Clefairy as recipient instead of baseline; same-root preference explicit dev flag; native Store adjudicates legality",
+  "primaryEndpoint": "number of source-owner native-accepted Basic Psychic Energy attachments that physically land on Benched JTG Clefairy, per each of 16 source-dealt pair matched games",
+  "secondaryEndpoints": [
+    "first divergent native physical target identity",
+    "source actual attack counts Mimikyu Filch and Full Moon Rondo",
+    "qualified observed native 140+ damage and Prize KOs if any",
+    "paper-unqualified native terminal and action-censored status, not converted to losses",
+    "number of owner-root alternative selections and failures"
+  ],
+  "qualification": "zero competitively qualified games even if original engine terminal; research-only timed rules not modeled",
+  "analysis": "preserve all 16 source-dealt physical pairs, both candidate print 60s, both source seating orders, all abstentions, rejected native actions and censors; cluster by 8 original physical source seeds; no cherry-picking",
+  "groups": [
+    {
+      "rank": 30,
+      "repeat": 2100,
+      "seed": 1509408075,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2101,
+      "seed": 1696349563,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2102,
+      "seed": 3637285017,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2103,
+      "seed": 1353153974,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2104,
+      "seed": 3505963197,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2105,
+      "seed": 1157416090,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2106,
+      "seed": 2558814955,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    },
+    {
+      "rank": 30,
+      "repeat": 2107,
+      "seed": 1255534097,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "candidateIds": [
+        "champion-reference",
+        "new-moon-lockbreaker-v1"
+      ]
+    }
+  ]
+}
