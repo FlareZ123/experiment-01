@@ -5,14 +5,16 @@ const {runMatch,initializeCards}=require('../twinleaf/headless.cjs');
 const {buildActorCardCatalog,chooseActorRootIntent,
   withActorOnlyRootPolicy}=require('../twinleaf/agent34-actor-only-root-policy.cjs');
 const {actorObservation}=require('../twinleaf/actor-observation-contract.cjs');
+const {withPaperCelestialRoarEnergy}=require(
+  '../twinleaf/agent47-celestial-roar-paper-energy-hook.cjs');
 const {lastBenchBasicConflict}=require(
   '../twinleaf/agent27-owner-lastbench-basic-conflict.cjs');
 const path=require('node:path');
 const native=p=>require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output',p));
-const SEED=20261101;
+const SEEDS=Object.freeze([20261101,20261102,20261103,20261104]);
 
-/** One preregistered development seed in both source-60 orientations. */
+/** Four fixed development seeds; prior uncorrected 20261101 remains archived. */
 function run(){
   const perm={allowEquivalentBasicEnergies:true,
     allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true};
@@ -27,7 +29,7 @@ function run(){
     PowerType:native('game/store/card/pokemon-types').PowerType});
   const flags=require('../../results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json').frozenFlags;
   const results=[];
-  for(const order of [[0,1],[1,0]]){
+  for(const seed of SEEDS)for(const order of [[0,1],[1,0]]){
     const conflicts=[];
     const observe=(state,seat)=>{
       const view=actorObservation(state,seat);
@@ -38,18 +40,29 @@ function run(){
         alternatives:matched.omitted.map(x=>x.printing)});
       return view;
     };
-    let error=null,game=null;
+    let error=null,game=null,energyHook=null,policyAudit=null;
     try{
-      const p=withActorOnlyRootPolicy(()=>runMatch({
-        deckA:decks[order[0]],deckB:decks[order[1]],
-        seed:SEED,maxActions:240,...flags,
-        capturePublicAttackTransitions:true,
-        enforceVisiblePlayLockBothSeats:true
-      }),{getCatalog:()=>catalog,observe});
-      game=p.result;
-    }catch(e){error=String(e?.message??e).slice(0,300);}
-    results.push({ranks:order.map(i=>ranks[i]),seed:SEED,
+      const p=withPaperCelestialRoarEnergy(
+        ()=>withActorOnlyRootPolicy(()=>runMatch({
+          deckA:decks[order[0]],deckB:decks[order[1]],
+          seed,maxActions:240,...flags,
+          capturePublicAttackTransitions:true,
+          capturePhysicalZoneIntegrity:true,
+          enforceSettledPhysicalZoneIntegrity:true,
+          enforceVisiblePlayLockBothSeats:true
+        }),{getCatalog:()=>catalog,observe}));
+      game=p.result.result;
+      policyAudit=p.result.audit;
+      energyHook=p.audit;
+    }catch(e){
+      error={name:e?.name??'Error',
+        code:e?.code??null,message:String(e?.message??e).slice(0,300)};
+      energyHook=e?.nativeCelestialRoarSpecialEvidence??null;
+    }
+    results.push({ranks:order.map(i=>ranks[i]),seed,
       observedSameKindLastBench:conflicts,
+      actorOwnerRootCount:policyAudit?.selectedRootDecisions??null,
+      celestialPaperHook:energyHook,
       nativeGame:{failure:error,finished:game?.finished??false,
         actions:game?.actions??null,turns:game?.turns??null,
         // Diagnostics only. No policy-qualified game is asserted.
@@ -59,7 +72,9 @@ function run(){
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     deckHashes:decks.map(x=>createHash('sha256')
       .update(JSON.stringify(x)).digest('hex')),
-    registeredSeed:SEED,results,qualifiedCompetitiveGames:0};
+    registeredSeeds:SEEDS,previousUncorrectedSeed:20261101,
+    sourceIntegrityGate:'settled-physical-60-fail-closed',
+    results,qualifiedCompetitiveGames:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={SEED,run};
+module.exports={SEEDS,run};
