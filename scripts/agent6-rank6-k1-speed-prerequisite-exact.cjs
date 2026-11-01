@@ -85,11 +85,16 @@ function exactPreviousTurnK1Gate(counts,setup){
   return {favorable,valid,bySeenSpeedDeckCount};
 }
 
-/** Read and verify precisely the original published rank6 physical sixty. */
-function originalRank6Inventory(){
+/**
+ * Verify the exact printed Iron Thorns source inventory for all three
+ * published Aichi source ranks sharing the relevant Tag/G&H/Speed axis.
+ * @param {6|24|29} rank
+ */
+function originalThornsInventory(rank){
+  assert.ok([6,24,29].includes(rank));
   const field=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../results/aichi-2026/full-decklists.json'),'utf8'));
-  const deck=field.decks.find(x=>x.rank===6);
+  const deck=field.decks.find(x=>x.rank===rank);
   assert.ok(deck);
   assert.equal(deck.cards.reduce((s,c)=>s+c.count,0),60);
   assert.deepEqual(deck.cards.filter(c=>c.category==='Pokémon')
@@ -100,9 +105,13 @@ function originalRank6Inventory(){
     thunder=n('Thunder Mountain ♢'),dce=n('Double Colorless Energy'),
     speed=n('Speed Lightning Energy');
   assert.deepEqual([basics,tag,hala,thunder,dce,speed],
-    [4,2,2,1,1,4]);
+    [4,2,2,1,rank===24?3:1,4]);
   return {basic:basics,tag,hala,thunder,dce,speed,
     other:60-(basics+tag+hala+thunder+dce+speed)};
+}
+
+function originalRank6Inventory(){
+  return originalThornsInventory(6);
 }
 
 function calculateOriginal(){
@@ -122,7 +131,28 @@ function calculateOriginal(){
     interpretation:'necessary location conditions only, not sufficient playable attack or competitive game'};
 }
 
+function calculateAllThorns(){
+  return [6,24,29].map(rank=>{
+    const counts=originalThornsInventory(rank);
+    const result=exactPreviousTurnK1Gate(counts,
+      {openingHand:7,prizes:6});
+    assert.equal(result.valid,166478632771651200n);
+    return {rank,counts,favorable:String(result.favorable),
+      valid:String(result.valid),
+      probability:Number(result.favorable)/Number(result.valid),
+      bySeenSpeedDeckCount:Object.fromEntries(
+        Object.entries(result.bySeenSpeedDeckCount)
+          .map(([k,v])=>[k,String(v)]))};
+  });
+}
 if(require.main===module)
-  process.stdout.write(JSON.stringify(calculateOriginal(),null,2)+'\n');
+  process.stdout.write(JSON.stringify({
+    version:VERSION,
+    originalFirstSevenBasicValid:true,
+    setup:{openingHand:7,prizes:6,ordinaryDraw:1},
+    source60s:calculateAllThorns(),
+    interpretation:'Necessary physical card-location event; no Supporter, discard, opponent response or win certification'
+  },null,2)+'\n');
 module.exports={VERSION,exactPreviousTurnK1Gate,
-  originalRank6Inventory,calculateOriginal};
+  originalThornsInventory,originalRank6Inventory,
+  calculateOriginal,calculateAllThorns};
