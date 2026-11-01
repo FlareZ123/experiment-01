@@ -140,7 +140,7 @@ jobs:
           node scripts/agent12-original-field-random-hand-text-census.cjs > agent12-original-field-random-hand.json
           node -e "const r=require('./agent12-original-field-random-hand.json');console.log(JSON.stringify({sourceDeckCount:r.sourceDeckCount,matches:r.exactPrintedEffectMatches.map(x=>({rank:x.rank,cardName:x.cardName,printing:x.printing,effect:x.name})),unresolvedManifestRows:r.unresolvedManifestRows,unresolved:r.unresolved.slice(0,10)},null,2))"
       - name: Verify exact source nonattack terminal triggers and native turn-end lineage
-        run: node --test tests/agent12-owner-sequence-compatibility.test.cjs tests/agent12-aichi-nonattack-turn-end-census.test.cjs tests/agent12-native-turn-closure-lineage.test.cjs tests/agent12-original32-native-closure-census.test.cjs tests/agent12-frozen-native-prompt-family-census.test.cjs
+        run: node --test tests/agent12-owner-sequence-compatibility.test.cjs tests/agent12-aichi-nonattack-turn-end-census.test.cjs tests/agent12-native-turn-closure-lineage.test.cjs tests/agent12-original32-native-closure-census.test.cjs tests/agent12-frozen-native-prompt-family-census.test.cjs tests/agent12-native-prompt-choice-digest.test.cjs
       - name: Verify field-wide five dormant Trainer channels at Basic-valid openings
         run: node --test tests/agent48-five-channel-opening-presence.test.cjs
       - name: Audit per-rank source Trainer action vocabulary against actual actor choices
