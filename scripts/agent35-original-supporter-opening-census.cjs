@@ -8,6 +8,12 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const SOURCE = 'results/aichi-2026/full-decklists.json';
 const CATALOG_DIRECTORY = 'resources/cards/en';
+// Deliberately narrow: printed Lillie/Marnie/Iono refill family already
+// handled by existing conservative owner-only simulator policy. Carmine,
+// Research, N, and all tactical/conditional Supporters remain outside.
+const CONSERVATIVE_REFILL = new Set([
+  "Lillie's Determination", 'Marnie', 'Iono'
+]);
 
 /**
  * Exact original-roster printing aliases. The three PHF cards are printed
@@ -130,8 +136,17 @@ function census(roster, index) {
     const guzma = deck.cards
       .filter(card => card.category === 'Trainer' && card.name === 'Guzma')
       .reduce((sum, card) => sum + card.count, 0);
+    const conservativeRefill = deck.cards
+      .filter(card => card.category === 'Trainer' &&
+        CONSERVATIVE_REFILL.has(card.name))
+      .reduce((sum, card) => sum + card.count, 0);
+    const all = openingEnvelope(basic, supporter);
+    const refill = openingEnvelope(basic, conservativeRefill);
     return {rank: deck.rank, archetype: deck.archetype,
-      basic, supporter, guzma, ...openingEnvelope(basic, supporter)};
+      basic, supporter, guzma, conservativeRefill,
+      ...all, conservativeRefillGivenBasic: refill.supporterGivenBasic,
+      otherSupporterButNoConservativeRefillGivenBasic:
+        all.supporterGivenBasic - refill.supporterGivenBasic};
   });
 }
 
@@ -141,6 +156,8 @@ function run() {
   const index = buildClassificationIndex(path.join(ROOT, CATALOG_DIRECTORY));
   const rows = census(roster, index);
   const meanValid = rows.reduce((sum, row) => sum + row.supporterGivenBasic, 0) / rows.length;
+  const meanConservativeRefillValid = rows.reduce((sum, row) =>
+    sum + row.conservativeRefillGivenBasic, 0) / rows.length;
   return {
     schema: 'agent35-original-supporter-opening-envelope-v1',
     source: SOURCE,
@@ -148,7 +165,7 @@ function run() {
     exactOriginals: rows.length,
     missingRanks: roster.missing_full_lists.map(x => x.rank),
     openingModel: 'uniform seven-card hand conditioned on at least one Basic; no bonus draws or play decisions',
-    meanValid, rows
+    meanValid, meanConservativeRefillValid, rows
   };
 }
 
