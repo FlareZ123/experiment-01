@@ -18,7 +18,7 @@ function chain(){
     phases[name]={status:'verified',witnessIds:ids};
     witnesses.push(...kinds.map(kind=>witness(name+'-'+kind,kind)));
   }
-  return {rootOrdinal:3,seat:1,storeId:'real-1',
+  return {chainId:'real-1:root:3',rootOrdinal:3,seat:1,storeId:'real-1',
     action:'PlayCardAction',printing:'Roxie CEC 205',
     executableLookup:'CardManager.getCardByName/Roxie CEC 205',
     witnesses,phases};
