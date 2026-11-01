@@ -120,6 +120,8 @@ function run() {
     fixed60: true, total, draws, basicCards: basics,
     stevenCopies: steven, palaceCopies: palace,
     probabilityLegalBasicOpening: validOpening,
+    expectedMulligansBeforeLegalBasic: (1 - validOpening) / validOpening,
+    probabilityAtLeastTwoMulligans: (1 - validOpening)**2,
     probabilityStevenGivenLegalBasic: stevenJoint / validOpening,
     probabilityPalaceGivenLegalBasic: palaceJoint / validOpening,
     probabilityBothGivenLegalBasic: bothJoint / validOpening,
@@ -137,6 +139,8 @@ function run() {
       sourcePrintingGroups: ['Camping Gear BST 122', 'Palace Book SMP NAN25'],
       basicCards: 4, campingGearCopies: 2, palaceBookCopies: 1,
       probabilityLegalBasicOpening: rank6Legal,
+      expectedMulligansBeforeLegalBasic:(1-rank6Legal)/rank6Legal,
+      probabilityAtLeastTwoMulligans:(1-rank6Legal)**2,
       tropicalBeachCopies: rank6Beach,
       probabilityCampingAndPalaceGivenLegalBasic:
         rank6Joint / rank6Legal,
@@ -159,6 +163,8 @@ function run() {
       basicCards:rank29Basics,campingGearCopies:rank29Camping,
       tropicalBeachCopies:rank29Beach,
       probabilityLegalBasicOpening:rank29Legal,
+      expectedMulligansBeforeLegalBasic:(1-rank29Legal)/rank29Legal,
+      probabilityAtLeastTwoMulligans:(1-rank29Legal)**2,
       probabilityCampingAndBeachGivenLegalBasic:rank29Pair/rank29Legal,
       stadiumRequiresUseAction:true
     },
