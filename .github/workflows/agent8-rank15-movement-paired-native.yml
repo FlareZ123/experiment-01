@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify authentic source Mega Lopunny evolution and applied movement-aware attack decisions
-        run: node --test tests/agent8-rank15-natural-evolution-native.test.cjs tests/agent8-rank15-public-movement-payable-attack-native.test.cjs
+        run: node --test tests/agent8-rank15-natural-evolution-native.test.cjs tests/agent8-rank15-public-movement-payable-attack-native.test.cjs tests/agent8-aor-vileplume-item-preflight-native.test.cjs
       - name: Execute all 32 registered rank15 original-source native development attempts
         run: node simulation/evaluation/agent8-rank15-movement-root-paired-development.cjs
       - name: Preserve original game, matchup, action receipt and native failure data
