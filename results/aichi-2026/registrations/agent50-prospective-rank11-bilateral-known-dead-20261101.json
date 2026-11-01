@@ -1,0 +1,177 @@
+{
+  "schema": "agent50-fresh-coin-stratified-rank11-bilateral-known-dead-v1",
+  "registeredUtc": "2026-11-01T18:51:52.534113Z",
+  "status": "preregistered-unexecuted-at-commit; no game or outcome was observed for these eight seeds before registration",
+  "purpose": "Test how often the existing exact-print known-dead attack policy changes ORIGINAL rank11 both-actor native source outcomes beyond two previously inspected deals. Comparison is developmental and cannot certify a competitive win rate.",
+  "sourceRank": 11,
+  "sourceLabel": "Absol Garbodor",
+  "originalRoster": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "frozenV2Profile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "frozenV2ProfileGitBlobSha1": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidatePrinted60GitBlobSha1s": {
+    "champion": "1e5b09f77d65a445bb9812ef972e2340886d4758",
+    "newMoon": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b"
+  },
+  "sourceCodePrecommitBlobs": {
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "ece7146071f194a4951ff0b8313a9e82cdf6a471",
+    "simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs": "f7b8fb252360aaccf0780b3da4265035ff98a467",
+    "simulation/evaluation/agent50-rank11-bilateral-known-dead-native-pair.cjs": "141511c976645861aaa371b726e01124157d0dff"
+  },
+  "randomGenerator": "Python secrets.randbits(32) independently uniform, drawn sequentially per candidateSlot A then B",
+  "coinProjection": "Headless seededRandom xorshift32 first output; heads iff first xorshift32 output < 0.5; setup Coin winner chooses second under pinned generic ConfirmPrompt=false; verify native accepted setup and draw instead of assuming this projection.",
+  "selectionProtocol": "For each candidate physical slot separately, accept first two projected heads and first two projected tails. Reject excess head/tail draws; preserve all draw attempts and acceptance order. Exclude previously registered 16 original native seed values; no such collision occurred.",
+  "attemptedDraws": 12,
+  "selectedGroups": 8,
+  "seedAttempts": [
+    {
+      "candidateSlot": "A",
+      "seed": 1550013320,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 1068765975,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 2680168583,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 1561829551,
+      "projectedFirstCoinHeads": false,
+      "selected": false
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 3517636313,
+      "projectedFirstCoinHeads": false,
+      "selected": false
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 4039884054,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 3831821809,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 1131666043,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 1767975561,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 3418824586,
+      "projectedFirstCoinHeads": true,
+      "selected": false
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 360089073,
+      "projectedFirstCoinHeads": true,
+      "selected": false
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 3831234043,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    }
+  ],
+  "selectedSeeds": [
+    {
+      "candidateSlot": "A",
+      "seed": 1550013320,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 1068765975,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 2680168583,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "A",
+      "seed": 4039884054,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 3831821809,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 1131666043,
+      "projectedFirstCoinHeads": true,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 1767975561,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 3831234043,
+      "projectedFirstCoinHeads": false,
+      "selected": true
+    }
+  ],
+  "rank11SourcePhysicalSeatByCandidateSlot": {
+    "A": 1,
+    "B": 0
+  },
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "perGroupPlan": "2 fixed candidate 60s x original baseline vs exact symmetric knownDeadAttackRoot:true treatment, both physically seeded from same original seed",
+  "nativeGameAttempts": 32,
+  "independentSourceCoinGroups": 8,
+  "censorTreatment": "retain every attempted error, action cap, first-draw mismatch and prompt failure, no removals, no seed replacements",
+  "qualifications": {
+    "prospectiveSeedsBeforeGameObservation": true,
+    "allPrinted60sUnchanged": true,
+    "bothActorPolicyRequired": true,
+    "firstSeatProjectedStratification": true,
+    "firstSeatActuallyVerified": false,
+    "fullSourceClosureCertified": false,
+    "fullPaperPromptVerified": false,
+    "hiddenInformationSafeBot": false,
+    "official25MinuteClockVerified": false,
+    "fieldRepresentative": false,
+    "competitiveQualifiedGames": 0,
+    "winRateCertified": false
+  }
+}
