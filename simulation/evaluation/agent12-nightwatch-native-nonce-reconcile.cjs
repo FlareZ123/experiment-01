@@ -42,6 +42,7 @@ function reconcileNightWatchNonceRoots(group){
   assert.equal(events.length,roots.length,
     'Structural prompt interception does not equal genuine named roots');
   const used=new Set(),nonces=new Set(),matches=[];
+  let exactPostgamePhysicalPairsMatched=0;
   for(const event of events){
     assert.ok(Number.isSafeInteger(event.promptId));
     assert.ok(Number.isSafeInteger(event.turn));
@@ -65,6 +66,16 @@ function reconcileNightWatchNonceRoots(group){
     const key=root.trialId+':'+root.ordinal;
     assert.ok(!used.has(key),'One genuine root matched more than once');
     used.add(key);
+    if(Array.isArray(event.postGameSelectedPrintings)){
+      assert.equal(event.postGameSelectedPrintings.length,event.selectedCount);
+      assert.equal(root.selectedNames?.length,event.selectedCount,
+        'Native physical source prompt sidecar lacks selected printings');
+      assert.deepEqual(
+        [...event.postGameSelectedPrintings].sort(),
+        [...root.selectedNames].sort(),
+        'Uniform sampler physical objects differ from actual accepted Night Watch response');
+      exactPostgamePhysicalPairsMatched++;
+    }
     assert.equal(event.positions.length,event.selectedCount);
     assert.equal(new Set(event.positions).size,event.positions.length);
     assert.ok(event.positions.every(i=>Number.isSafeInteger(i)&&i>=0&&
@@ -75,6 +86,8 @@ function reconcileNightWatchNonceRoots(group){
       nativeSelectedCount:root.selectedCount});
   }
   return {schema:VERSION,genuineNightWatchRoots:roots.length,
+    exactPostgamePhysicalPairsMatched,
+    allActualPhysicalPairsMatched:exactPostgamePhysicalPairsMatched===roots.length,
     matchedSourceRoots:used.size,uniqueObservedRandomNonces:nonces.size,
     matchBasis:'turn+actor+physical-hand-count+selected-count',
     actualNativePromptIdToRootOrdinalVerified:false,
