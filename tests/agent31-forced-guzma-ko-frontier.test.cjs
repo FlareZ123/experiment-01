@@ -105,3 +105,25 @@ test('supporter or attack lock and KOed Bench target are excluded', () => {
   view.opponentPublic.bench[0].damage=90;
   assert.equal(chooseForcedGuzmaNominalKo(view,catalog),null);
 });
+
+test('hidden opponent hand changes cannot affect the owner-public proposal', () => {
+  const left=actor({opponentHidden:{hand:['concealed A'],prizes:['A']}});
+  const right=actor({opponentHidden:{hand:['concealed B'],prizes:['B']}});
+  assert.deepEqual(chooseForcedGuzmaNominalKo(left,catalog),
+    chooseForcedGuzmaNominalKo(right,catalog));
+});
+
+test('root integration is default-off and opt-in selects Guzma before an attack', () => {
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=actor();
+  v.ownPublic.active.energies=[
+    'Psychic Energy SVI','Psychic Energy SVI'
+  ];
+  v.ownTurnResources.energyPlayedTurn=3;
+  const defaultDecision=chooseActorRootIntent(v,catalog);
+  assert.notEqual(defaultDecision.kind,'play-guzma-forced-nominal-ko');
+  const chosen=chooseActorRootIntent(v,catalog,{forcedGuzmaNominalKo:true});
+  assert.equal(chosen.kind,'play-guzma-forced-nominal-ko');
+  assert.equal(chosen.handIndex,0);
+});
