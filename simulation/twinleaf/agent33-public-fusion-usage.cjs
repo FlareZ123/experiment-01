@@ -1,7 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict');
 
-const VERSION='agent33-public-fusion-strike-system-usage-v1';
+const VERSION='agent33-public-fusion-strike-system-usage-v2';
+// Pinned Twinleaf GamePhase.PLAYER_TURN enum, verified at the fixed engine pin.
+const PLAYER_TURN_PHASE=2;
 const PRINTING='Genesect V FST';
 const MARKER='FUSION_STRIKE_SYSTEM_MARKER';
 
@@ -19,6 +21,10 @@ const MARKER='FUSION_STRIKE_SYSTEM_MARKER';
 function publicFusionUsageAtRoot(state,seat){
   assert.ok(seat===0||seat===1);
   assert.equal(state?.activePlayer,seat,'Only an own-turn root may observe usage');
+  assert.equal(state?.phase,PLAYER_TURN_PHASE,
+    'Ability-use evidence only at genuine PLAYER_TURN phase');
+  assert.ok(!state.prompts?.some(prompt=>prompt.result===undefined),
+    'Ability-use evidence cannot be sampled during an unresolved prompt');
   assert.ok(Array.isArray(state?.players)&&state.players.length===2);
   assert.ok(Number.isSafeInteger(state.turn)&&state.turn>=0);
   const owner=state.players[seat];
