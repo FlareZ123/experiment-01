@@ -24,3 +24,8 @@ test('special Energy cannot substitute for Basic attack discards',()=>{
  v.ownPublic.bench=[];
  assert.equal(chooseBellowingPayment(v,basic),null);
 });
+test('pure payment chooser preserves input state',()=>{
+ const v=view(230,90),before=JSON.stringify(v);
+ chooseBellowingPayment(v,basic);
+ assert.equal(JSON.stringify(v),before);
+});
