@@ -50,7 +50,8 @@ function toPrintedManifest(){
 const describeError=error=>String(error?.stack||error?.message||error);
 
 /** Run exactly six pre-registered native bounded trials when the 60 resolves. */
-function run(){
+function run({donorCompressor=false}={}){
+  assert.equal(typeof donorCompressor,'boolean');
   assert.equal(pin,registration.enginePin);
   const rows=toPrintedManifest();
   const aliasAudit=candidate.cards.flatMap((source,i)=>{
@@ -116,8 +117,9 @@ function run(){
         deckB:seat===1?plan.candidate.cards:opponent.cards,
         seed:registration.seedsByRank[rank],
         maxActions:registration.maximumRootActions,
-        label:'agent25-preregistered-development-'+key,
+        label:'agent25-preregistered-'+(donorCompressor?'compressor-policy':'baseline')+'-'+key,
         ...registration.options,
+        ...(donorCompressor?{dhelmiseDonorCompressorSeat:seat}:{}),
         captureStartingBoard:true,captureFinalPublicBoard:true
       };
       try{
@@ -141,6 +143,8 @@ function run(){
       }catch(error){
         attempts.push({key,rank,candidateSeat:seat,
           status:'native-exception',error:describeError(error),
+          errorCode:error?.code??null,
+          physicalConservationWitness:error?.physicalConservationWitness??null,
           competitiveQualified:false});
       }
     }
@@ -150,7 +154,8 @@ function run(){
     candidate:registration.candidate,
     originalSourceRanks:registration.sourceRanks,
     seedsByRank:registration.seedsByRank,
-    policy:'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards',
+    policy:donorCompressor?'Twinleaf SimpleTacticsAi + DhelmiseHnsOwnerCompressor-v1 candidate seat':'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards',
+    donorCompressorPolicy:donorCompressor,
     paperHnsHookVersion:HOOK_VERSION,
     printing,attempts,competitivelyQualifiedGames:0,
     noClockModel:true,postAichiNewCardCandidate:true};
