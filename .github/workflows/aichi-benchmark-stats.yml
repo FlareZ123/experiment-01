@@ -80,6 +80,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress rank26 exact 280-HP forced-lone and original-source card printings
+        run: node --test tests/agent3-rank26-printed-280hp-starter-screen.test.cjs tests/agent3-rank26-coupled-lone-basic-root.test.cjs
       - name: Regress independent same-root offers without synthetic-hold denominator inflation
         run: node --test tests/agent7-same-root-independent-opportunity.test.cjs
       - name: Verify independent source-deal and real native-opportunity receipt integrity
