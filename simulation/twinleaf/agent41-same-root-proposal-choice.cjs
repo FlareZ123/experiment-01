@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {samePhysicalProposal,contentionReason}=
   require('./agent16-owner-priority-contention.cjs');
 
-const VERSION='agent41-same-root-proposal-choice-v23-typed-optin-plumeria-bridge';
+const VERSION='agent41-same-root-proposal-choice-v24-optin-coheld-free-flare-arbiter';
 const MAX_SAMPLES=48;
 
 /**
@@ -400,6 +400,18 @@ function scoreOffer(view,catalog,baseline,offer,options){
      Number.isFinite(offer.intent.printedDamage)&&
      offer.intent.printedDamage>0)
     return {score:30,reason:'bounded-development-attack-over-pass'};
+  // Coheld same-root Supporter opportunity cost: the Active-only Team
+  // Flare Grunt effect consumes no extra hand cards, while Plumeria's
+  // two-card payment is materially expensive. Only arbitrate when both
+  // printings are visibly in this owner hand; the original Store must
+  // independently prove native acceptance and Energy effect settlement.
+  if(options.nativeZeroCostDenialChoice===true&&baseline.kind==='pass'&&
+     offer.source==='team-flare-grunt'&&
+     offer.intent.kind==='play-team-flare-grunt-denial'&&
+     (view.opponentPublic?.active?.energies?.length??0)>=2&&
+     view.ownHand?.includes('Team Flare Grunt XY')===true&&
+     view.ownHand?.includes('Plumeria BUS')===true)
+    return {score:5,reason:'coheld-free-active-energy-denial-over-paid-Plumeria'};
   // Mechanically exploratory owner choice: a native-accepted Plumeria
   // may remove one of multiple publicly attached opposing Active Energies,
   // with a mandatory two-card hand payment. The original Store and prompt
