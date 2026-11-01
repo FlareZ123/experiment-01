@@ -17,6 +17,7 @@ class AttachEnergyPrompt{
 class AfterAttackEffect{constructor(player,attack){this.player=player;this.attack=attack;}}
 class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
 class OtherAction{}
+class AddPlayerAction{}
 class IronThornsex{
   constructor(){this.attacks=[{name:'Volt Cyclone'}];}
   reduceEffect(store,state,effect){
@@ -92,4 +93,31 @@ test('unattributed prompt remains explicitly unverified',()=>{
     new ResolvePromptAction(1,[{card:f.energy,to}])),{Store,IronThornsex,types});
   assert.equal(out.audit.paperUnverified,1);
   assert.equal(out.audit.paperVerifiedNativeAccepted,0);
+});
+
+test('live Store denominator excludes accepted auxiliary clone with same id',()=>{
+  const live=fixture(0),auxiliary=fixture(1);
+  const liveStore=new Store(live.state),auxStore=new Store(auxiliary.state);
+  const liveCard=new IronThornsex(),auxCard=new IronThornsex();
+  const result=withPaperPromptPortfolio(()=>{
+    liveStore.dispatch(new AddPlayerAction());
+    liveCard.reduceEffect(liveStore,live.state,
+      new AfterAttackEffect(live.owner,liveCard.attacks[0]));
+    auxCard.reduceEffect(auxStore,auxiliary.state,
+      new AfterAttackEffect(auxiliary.owner,auxCard.attacks[0]));
+    liveStore.dispatch(new ResolvePromptAction(1,[{card:live.energy,to}]));
+    auxStore.dispatch(new ResolvePromptAction(1,[{card:auxiliary.energy,to}]));
+    return true;
+  },{Store,IronThornsex,types});
+  assert.equal(result.result,true);
+  assert.equal(result.audit.liveStoreObserved,true);
+  assert.equal(result.audit.resolutionCount,2);
+  assert.equal(result.audit.paperVerifiedNativeAccepted,2);
+  assert.equal(result.audit.liveResolutionCount,1);
+  assert.equal(result.audit.livePaperVerifiedNativeAccepted,1);
+  assert.equal(result.audit.auxiliaryResolutionCount,1);
+  assert.equal(result.audit.sourceMarkedPromptCountByScope.live,1);
+  assert.equal(result.audit.sourceMarkedPromptCountByScope.auxiliary,1);
+  assert.deepEqual(result.audit.events.map(e=>e.storeScope),
+    ['live','auxiliary']);
 });
