@@ -31,7 +31,7 @@ function staged(seat=0){
   const opponent=new Proxy({},{
     get(_target,field){throw new Error('Forbidden opponent access: '+String(field));}
   });
-  const state={turn:7,activePlayer:seat,
+  const state={turn:7,phase:2,prompts:[],activePlayer:seat,
     players:seat===0?[owner,opponent]:[opponent,owner]};
   return {state,owner,one,two,unshown};
 }
