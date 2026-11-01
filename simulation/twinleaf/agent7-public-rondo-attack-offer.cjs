@@ -72,4 +72,40 @@ function publicRondoReadiness(view,catalog){
     'benched-not-active':'not-in-play';
 }
 
-module.exports={VERSION,offerPublicRondo,publicRondoReadiness};
+/**
+ * Owner-visible Bench funding and mobility screen for authentic source roots.
+ * A Bench attack can be funded without currently being an available attack.
+ * Held movement cards and an unused retreat are possible lines, never proof
+ * that a specific switch/retreat is permitted or strategically correct.
+ *
+ * @param {object} view Owner-root observation.
+ * @param {object} catalog Public printed Energy metadata.
+ * @returns {object|null} Summary without concealed zones.
+ */
+function publicRondoBenchFunding(view,catalog){
+  if(view?.decisionKind!=='owner-root')return null;
+  const own=view.ownPublic;
+  const bench=own?.bench?.filter(p=>
+    p?.printing==="Lillie's Clefairy ex JTG")??[];
+  if(!bench.length)return null;
+  const funded=bench.filter(p=>{
+    const attack=p.attacks?.find(a=>a.name==='Full Moon Rondo');
+    return attack&&publicSpecialAttackPayable(view,catalog,p,attack);
+  });
+  const energies=bench.map(p=>p.energies?.length??null);
+  const hand=view.ownHand??[];
+  const heldMobility=hand.filter(name=>
+    /^(Float Stone |Escape Rope |Switch |Guzma |Boss's Orders )/.test(name));
+  return {
+    benchedCopies:bench.length,
+    fundedBenchedCopies:funded.length,
+    benchedEnergyCounts:energies,
+    activePrinting:own?.active?.printing??null,
+    retreatUnused:view.ownTurnResources?.retreatedTurn!==view.globalTurn,
+    heldMobilityCount:heldMobility.length,
+    fundedScope:'printed-payability-as-if-active-only'
+  };
+}
+
+module.exports={VERSION,offerPublicRondo,publicRondoReadiness,
+  publicRondoBenchFunding};
