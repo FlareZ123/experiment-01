@@ -199,7 +199,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     pokemonAudit=selected.audit;
     return selected.result;
   };
-  const runFog = () => fog(() => select(() => option(() => attack(runPokemon))));
+  const runFog = () => fog(() => select(() => option(() => attack(runPokemon))),
+    options.nativeAorItemLock===true?{nativeAorItemLock:true}:undefined);
   // Fog's already-owned deck search is the higher-priority actor handler.
   const runVip = () => {
     const runRemaining=()=>ownerSingleSearch?ownerSearch(runFog):runFog();
@@ -287,7 +288,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (ownerNativeFlarePromptAudit?'+'+ownerNativeFlarePromptAudit.version:'')+
       (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
       (options.guzmaOwnerPromptContinuation===true?'+'+
-        require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:''),
+        require('../twinleaf/agent43-guzma-prompt-continuation.cjs').VERSION:'')+
+      (options.nativeAorItemLock===true?
+        '+agent8-effective-aor-item-veto-optin-v1':''),
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
@@ -299,6 +302,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerVipAfterPassOptIn:vipAfterPassOptIn,
     ownerVipBeforeAttackOptIn:options.ownerVipBeforeAttack===true,
     ownerVipMegaAbsolTargetOptIn:options.ownerVipMegaAbsolTarget===true,
+    nativeAorItemLockOptIn:options.nativeAorItemLock===true,
     actorChoosePokemonOptIn:actorChoosePokemon,
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
