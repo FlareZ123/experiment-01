@@ -88,10 +88,21 @@ function reconcileShadowAndChoice(view,catalog,baseline,options={},chooser){
   assert.ok(inShadow,
     'Selected physical action absent from all-proposer same-view shadow');
   const incompletePaymentDetail=selected.intent.kind==='play-plumeria-payment-menu';
+  const independent=shadow.receipt.offers.filter(row=>
+    row.source!=='first-return'&&row.source!=='terminal-hold');
+  assert.equal(shadow.receipt.supportedAlternativeCount,independent.length);
   return {
     version:VERSION,ownerObservationSha256:digest,
     shadowReceipt:shadow.receipt,selectionReceipt:selected.receipt,
     selectedIntent:selected.intent,
+    opportunityCensus:{
+      observedStructuralAlternatives:independent.length,
+      explicitlyNativeWiredAlternatives:independent.filter(row=>
+        row.nativeDispatchImplemented===true).length,
+      observationOnlyAlternatives:independent.filter(row=>
+        row.nativeDispatchImplemented===false).length,
+      nativeCanPlayEstablished:0
+    },
     verification:{
       sameDetachedOwnerView:true,
       prePostShadowExecutableDecisionIdentical:true,
