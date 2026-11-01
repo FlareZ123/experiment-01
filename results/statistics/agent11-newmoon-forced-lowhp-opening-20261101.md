@@ -1,0 +1,45 @@
+# Agent 11: forced 60-HP starter tradeoff in unchanged New Moon versus Shadow Rider 60s
+
+**1 November 2026. Exact combinatorics, 29 original field source decks. Development-only deck-structure analysis.**
+
+## Candidate printings and question
+
+The frozen New Moon Lockbreaker v1 [exact 60-card English-equivalent manifest](../als/new-moon-lockbreak-english-proxy-60.json), SHA256 `a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`, has **17 Basic Pokémon**. Of these, five physically printed Basics have **60 HP**: **3 Unown AOR 30**, English database ID `xy7-30`, and **2 Duskull VIV 69**, ID `swsh4-69`. The uploaded complete card database verifies their printed 60 HP and Basic stage; all other candidate Basic printings have more than 60 HP. The other two Pokémon are Stage-1 Dusclops.
+
+The unchanged published rank-1 Shadow Rider reference 60 contains **14 Basics and zero Basics with HP at most 60**, independently established by the [source Basic and HP inventory](../aichi-2026/opening-hand-audit.json). These different Basic mixes can meaningfully affect both mulligan frequency and the chance of being forced to start with a vulnerable Pokémon.
+
+## Exact natural card-location event
+
+If a 60-card deck has (B) Basics of which (L) have at most 60 HP, then among legal starting sevens containing at least one Basic,
+
+[
+P(	ext{forced sole low-HP Basic})=
+rac{Linom{60-B}{6}}
+{inom{60}{7}-inom{60-B}{7}}.
+]
+
+New Moon: **8.61122899%** of Basic-valid first sevens contain *exactly one Basic*, one of its five 60-HP Pokémon. The reference: **0%** with the same threshold. This is physically forced only on the original seven, not a claim that 60 HP automatically loses the game.
+
+For an original opponent with (B_S) Basics, also include the legal two-player *simultaneous* mulligan process and assume every optional opponent-mulligan bonus offered to the candidate is accepted. If (k) cards are awarded and the initial New Moon seven was forced low-HP, the chance of seeing **no other Basic** among those (k) additional physical cards is exactly (inom{37}{k}/inom{53}{k}). This marginalizes the six unknown Prize cards. Sum over the joint mulligan distribution. After observing over 37 extra physical cards, a second Basic is inevitable, so the finite sum is exact for the event.
+
+**Field-wide result, 29 original known ranked opponents equally weighted:** New Moon has **7.93405063%** probability of having only one seen Basic and that Basic being HP≤60 after all maximum optional opponent mulligan bonuses. Shadow Rider stays at **0%**.
+
+| Original opponent sources | New Moon 60-HP lone Basic after all bonus draws |
+| --- | ---: |
+| Ranks 6, 24, 29, four-Basic Iron Thorns | **5.99285%** each |
+| Rank 1, 14-Basic Shadow Rider | **8.24063%** |
+| Rank 30, 16-Basic Lillie's Clefairy | **8.35474%** |
+| Equal-weight average over original 29 | **7.93405%** |
+
+This complements the separately documented [29-source two-player mulligan resource model](../../scripts/agent11-field-simultaneous-mulligan-compensation.cjs): New Moon's 17 Basics reduce the bonus draws it offers opposing decks, but the candidate also contains five fragile Basics that its own valid starting seven can force Active.
+
+## Why this is only a structural risk
+
+- A 60-HP opening Basic is **not** equivalent to an early Knock Out, donk, or game loss. Opponent attack access, setup speed, first-player seat, Bench options, Abilities, relevant HP modification, and later actions all matter.
+- The result models initial seven and optional compensation draws **before any turn actions**. It excludes Item/Supporter search, Bench placement after setup, further ordinary draws, Prize-taking, attacks and any actual opposing decision policy.
+- The five 60-HP printings have purposes in the candidate's engine, so removing them to reduce low-HP exposure could create larger consistency or attack-line losses. No card swap is justified from this number alone.
+- Original source ranks 23, 25 and 28 are still absent, and the whole field has **zero competitively qualified native games**.
+
+## Reproduction
+
+The [source-locked exact calculator](../../scripts/agent11-newmoon-forced-lowhp-opening.cjs) verifies frozen candidate printing IDs/counts, original champion HP baseline, 29-rank Basic source counts, and distinguishes pure opening location from genuine gameplay. [Four regression cases](../../tests/agent11-newmoon-forced-lowhp-opening.test.cjs) cover exact seven, joint mulligan bonus, 29-rank mean and source mutation rejection. Added to the **existing manual-only statistics workflow** with three other Agent11 pure combinatorics suites; no new automatic CI workflow. Independent Python big-integer enumeration reproduced every displayed number. Native policy comparisons and game-win qualifications remain unchanged.
