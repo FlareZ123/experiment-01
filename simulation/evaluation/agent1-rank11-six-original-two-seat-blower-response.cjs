@@ -68,6 +68,16 @@ function run(){
           'Source original K0 owner hand changed in paired reply');
         assert.deepEqual(first.bench,entry.sourceBenchAtK0,
           'Source original K0 Bench changed in paired reply');
+        const sourceReturn=sourceAudit.postOpponentOwnerReturns?.find(row=>
+          row.seat===0);
+        assert.ok(sourceReturn,
+          'Missing genuine source-owner decision root after opponent reply');
+        assert.equal(sourceReturn.planTurn,1);
+        assert.equal(sourceReturn.firstReturnTurn,3);
+        assert.equal(sourceReturn.garbodorCount,1,
+          'Source returned without its original Garbodor');
+        assert.ok([0,1].includes(
+          sourceReturn.anyToolEquippedGarbodorCount));
         assert.equal(game.firstTurnSlot,0);
         assert.equal(game.verifiedByDrawLog,true);
         const turn2FieldBlowerRoots=(game.decisionTrace??[]).filter(row=>
@@ -88,6 +98,7 @@ function run(){
           sourceOwnerPromptAccepted:sourceAudit.ownerPromptAccepted,
           sourceCompletedEquippedAtSourcePlanEnd:
             sourceAudit.completedEquippedGarbodor,
+          sourceFirstReturnAfterOpponent:sourceReturn,
           sourceAborts:sourceAudit.abortReasons,
           nativeTurn2FieldBlowerRootCount:turn2FieldBlowerRoots.length,
           earlyBlowerProposals:earlyBlowerProposals.length,
@@ -112,6 +123,15 @@ function run(){
     originalPairs:rows.length,armsAttempted:arms.length,
     originallyVerifiedArms:clean.length,
     chosenSourcePlans:clean.reduce((n,a)=>n+a.sourcePlansChosen,0),
+    genuineOwnerReturnWitnesses:clean.filter(a=>
+      a.sourceFirstReturnAfterOpponent?.firstReturnTurn===3).length,
+    equippedGarbodorAtOwnerReturn:clean.reduce((n,a)=>
+      n+(a.sourceFirstReturnAfterOpponent?.
+        anyToolEquippedGarbodorCount??0),0),
+    unequippedGarbodorAtOwnerReturn:clean.reduce((n,a)=>
+      n+(a.sourceFirstReturnAfterOpponent?.
+        garbodorCount??0)-(a.sourceFirstReturnAfterOpponent?.
+        anyToolEquippedGarbodorCount??0),0),
     acceptedSourcePlanSteps:clean.reduce((n,a)=>n+a.sourceNativeAccepted,0),
     heldBlowerResponseRootCount:clean.reduce((n,a)=>
       n+a.nativeTurn2FieldBlowerRootCount,0),
@@ -119,7 +139,7 @@ function run(){
       n+a.earlyBlowerToolRemoved,0),
     blocked:arms.length-clean.length,rows,
     competitiveQualifiedGames:0,
-    limits:'Source plan-end equipped witness PRECEDES the opponent turn; opponent response is evidenced separately by its actual native Field Blower root and public post-effect Tool-removal receipt. Same six retrospectively K0-selected rank11 source original 60 against rank1 original 60; source plan explicitly admitted, opponent native actor-directed Field Blower only where held and playable. Weak remaining native bot, no competitive games, no paper-equivalence claim.'};
+    limits:'Source plan-end equipped witness PRECEDES the opponent turn; a separate source-owner turn3 root now witnesses actual post-reply Garbodor Tool state. Opponent response is also evidenced by its native Field Blower root and public post-effect Tool-removal receipt. Same six retrospectively K0-selected rank11 source original 60 against rank1 original 60; source plan explicitly admitted, opponent native actor-directed Field Blower only where held and playable. Weak remaining native bot, no competitive games, no paper-equivalence claim.'};
 }
 if(require.main===module){
   const result=run();
