@@ -55,3 +55,10 @@ test('physical recipient receipt matches the exact native JTG printing',()=>{
  assert.equal(result.attachedBasicPsychicSource,1);
  assert.equal(result.attachedBasicPsychicToClefairy,1);
 });
+
+test('owner Active JTG Clefairy stays first priority over a second Bench copy',()=>{
+ const v=view();
+ v.ownPublic.active={printing:"Lillie's Clefairy ex JTG",
+  energies:['Psychic Energy SVE'],attacks:[{name:'Full Moon Rondo'}]};
+ assert.equal(proposeRondoPsychicBenchStaging(v,catalog),null);
+});
