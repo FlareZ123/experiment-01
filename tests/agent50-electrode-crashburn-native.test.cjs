@@ -48,3 +48,18 @@ function stage(seat){
  state.gameSettings.format=Format.EXPANDED;
  return {store,state,owner,opponent,first,second};
 }
+function settle(x,count){
+ x.store.dispatch(new AttackAction(x.owner.id,'Crash and Burn-GX'));
+ let seen=false;
+ for(let step=0;step<25;step++){
+  const p=x.state.prompts.find(row=>row.result===undefined);
+  if(!p)break;
+  const name=p.constructor.name;
+  if(name==='WaitPrompt'){
+   x.store.dispatch(new ResolvePromptAction(p.id,null));
+  }else if(name==='DiscardEnergyPrompt'){
+   assert.equal(seen,false);seen=true;
+   assert.equal(p.playerId,x.owner.id);
+   const physical=[2,3].slice(0,count).map(index=>({
+    from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},index
+   }));
