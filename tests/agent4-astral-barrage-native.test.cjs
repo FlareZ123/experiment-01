@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {runAstralBarrageNative}=
+const {runAstralBarrageNative,stagedAstralBarrage}=
   require('../simulation/twinleaf/agent4-astral-barrage-native-probe.cjs');
 const {withPaperAstralBarrageTargets}=
   require('../simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs');
@@ -53,15 +53,61 @@ test('with two Benched opponents, the patched reducer preserves existing two dis
   assert.deepEqual(corrected.targetDamage,original.targetDamage);
 });
 
+test('pinned Store illegitimately accepts two damage placements on the same target; opt-in CRE74 guard rejects and preserves pending state',()=>{
+  const output=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
+  const {AttackAction}=require(path.join(output,
+    'game/store/actions/game-actions'));
+  const {ResolvePromptAction}=require(path.join(output,
+    'game/store/actions/resolve-prompt-action'));
+
+  const original=stagedAstralBarrage(2);
+  original.store.dispatch(new AttackAction(original.a.id,'Astral Barrage'));
+  const oldPrompt=original.state.prompts.find(p=>p.result===undefined);
+  assert.equal(oldPrompt.options.min,2);
+  assert.equal(oldPrompt.validate([original.b.active,original.b.active],
+    original.state),true,
+  'Pinned ChoosePokemonPrompt validates duplicates even though print says 2 Pokémon');
+  original.store.dispatch(new ResolvePromptAction(oldPrompt.id,
+    [original.b.active,original.b.active]));
+  assert.deepEqual([
+    original.b.active.damage,original.b.bench[0].damage
+  ],[100,0],'Ungarded real Store places five counters twice on same Pokémon');
+
+  const guarded=stagedAstralBarrage(2);
+  withPaperAstralBarrageTargets(()=>{
+    guarded.store.dispatch(new AttackAction(guarded.a.id,'Astral Barrage'));
+    const prompt=guarded.state.prompts.find(p=>p.result===undefined);
+    assert.ok(prompt,'Corrected printed CRE74 prompt must remain pending');
+    assert.equal(prompt.validate([guarded.b.active,guarded.b.active],
+      guarded.state),true,'Original validator misses duplicate identity');
+    assert.throws(()=>guarded.store.dispatch(new ResolvePromptAction(prompt.id,
+      [guarded.b.active,guarded.b.active])),
+    /PAPER_ASTRAL_BARRAGE_REJECTED:INVALID_PRINTED_TARGETS/);
+    assert.strictEqual(prompt.result,undefined,
+      'Forbidden reply must be rejected before native prompt resolution');
+    assert.deepEqual([
+      guarded.b.active.damage,guarded.b.bench[0].damage
+    ],[0,0],'Rejected target choice must leave game board unchanged');
+    guarded.store.dispatch(new ResolvePromptAction(prompt.id,
+      [guarded.b.active,guarded.b.bench[0]]));
+    assert.deepEqual([
+      guarded.b.active.damage,guarded.b.bench[0].damage
+    ],[50,50],'Legal distinct selection still resolves normally');
+  });
+});
+
 test('the reversible research hook restores the pinned card reducer even on an exception',()=>{
   const output=path.resolve(__dirname,
     '../vendor/twinleaf/ptcg-server/output');
   const {ShadowRiderCalyrexV}=require(path.join(output,
     'sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-v'));
   const original=ShadowRiderCalyrexV.prototype.reduceEffect;
+  const {Store}=require(path.join(output,'game/store/store'));
+  const dispatch=Store.prototype.dispatch;
   assert.throws(()=>withPaperAstralBarrageTargets(()=>{
     assert.notStrictEqual(ShadowRiderCalyrexV.prototype.reduceEffect,original);
     throw new Error('intentional research-scope exception');
   }),/intentional research-scope exception/);
   assert.strictEqual(ShadowRiderCalyrexV.prototype.reduceEffect,original);
+  assert.strictEqual(Store.prototype.dispatch,dispatch);
 });
