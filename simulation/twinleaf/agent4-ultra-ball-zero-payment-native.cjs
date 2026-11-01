@@ -46,6 +46,8 @@ function probeUltraBallZeroPayment(seat=0,payment='zero'){
   const originalMax=paymentPrompt?.options.max??null;
   const paymentPromptSource=paymentPrompt?.sourceCard?.fullName??null;
   const chosenPayment=payment==='two'?[grass,fire]:[];
+  const chosenValidatorAccepted=
+    paymentPrompt?.validate(chosenPayment,f.state)??null;
   let strictError=null;
   let zeroPaymentError=null;
   if(paymentPrompt){
@@ -80,8 +82,8 @@ function probeUltraBallZeroPayment(seat=0,payment='zero'){
   return {seat,payment,sourceRank:14,originalPrintedCard:'Ultra Ball MEG 131',
     originalPrintedTarget:'Regidrago V SIT 135',
     physicalOwnerOpeningHand:['Grass Energy MEE','Fire Energy MEE','Ultra Ball MEG'],
-    rootError,originalValidatorAccepted,originalMin,originalMax,
-    paymentPromptSource,strictError,zeroPaymentError,
+    rootError,originalValidatorAccepted,chosenValidatorAccepted,
+    originalMin,originalMax,paymentPromptSource,strictError,zeroPaymentError,
     zeroPaymentPromptSettled:paymentPrompt?.result!==undefined,
     grassStillInHand:f.source.hand.cards.includes(grass),
     fireStillInHand:f.source.hand.cards.includes(fire),
