@@ -35,7 +35,13 @@ function runRank31RoxieSpoons(guarded){
       else if(type==='ConfirmPrompt')answer=true;
       else if(type==='WaitPrompt')answer=null;
       else throw new Error('Unexpected native Roxie prompt '+type);
-      assert.equal(prompt.validate(answer,f.state),true);
+      assert.equal(prompt.validate(answer,f.state),true,
+        'Native original '+type+' rejected: '+
+        JSON.stringify({answer:Array.isArray(answer)?answer.map(c=>c.fullName):answer,
+          sourceHand:f.source.hand.cards.map(c=>c.fullName),
+          blocked:prompt.options?.blocked,
+          promptMin:prompt.options?.min,promptMax:prompt.options?.max,
+          sourceDiscard:f.source.discard.cards.map(c=>c.fullName)}));
       evidence.push({phase:'Roxie',type});
       f.store.dispatch(new ResolvePromptAction(prompt.id,answer));
     }
