@@ -6,6 +6,7 @@ const {joinOriginalStorePrintings}=require(
 const stamp=(ordinal,seat,card,actionOrdinal)=>({
   ordinal,seat,cardName:card,printing:card+' CEC 205',
   executableConstructor:'RuntimeCard',
+  executableConstructorSourceSha256:'a'.repeat(64),
   executablePrototypeToken:1,accepted:true,
   actionOrdinal
 });
