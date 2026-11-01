@@ -26,6 +26,60 @@ function rootLabelMatchesNativePrinting(rootName,printing){
 }
 
 /**
+ * Read-only comparison of native Store accepted physical target actions with
+ * the independently archived root ledger. Never changes the game outcome.
+ * @param {object[]|null} roots Actual postgame root ledger target actions.
+ * @param {object[]} records Actual Store-dispatched target records.
+ * @returns {{linked:boolean,rootCount:number|null,nativeCount:number,
+ *   mismatchCount:number,firstMismatches:object[]}}
+ */
+function auditNativeTargetRootLinkage(roots,records){
+  const firstMismatches=[];
+  let mismatchCount=0;
+  const note=(entry)=>{
+    mismatchCount++;
+    if(firstMismatches.length<12)firstMismatches.push(entry);
+  };
+  if(roots===null){
+    note({reason:'missing-postgame-root-ledger'});
+  }else{
+    if(roots.length!==records.length)note({
+      reason:'root-native-cardinality-mismatch',
+      archivedRootCount:roots.length,acceptedStoreCount:records.length
+    });
+    const width=Math.max(roots.length,records.length);
+    for(let i=0;i<width;i++){
+      const row=roots[i],rec=records[i];
+      if(!row||!rec){
+        note({index:i,reason:row?'missing-store-record':'missing-archived-root'});
+        continue;
+      }
+      const printing=rec.declared.ownerHandPrinting;
+      const cardMatch=row.action!=='PlayCardAction'||
+        rootLabelMatchesNativePrinting(row.card,printing);
+      const comparisons={
+        action:row.action===rec.action,
+        seat:row.playerSlot===rec.playerSlot,
+        turn:row.turnBefore===rec.turnBefore,
+        physicalCardLabel:cardMatch
+      };
+      if(Object.values(comparisons).some(x=>x===false))note({
+        index:i,reason:'root-native-target-mismatch',comparisons,
+        archivedRootAction:row.action,nativeAction:rec.action,
+        archivedSeat:row.playerSlot,nativeSeat:rec.playerSlot,
+        archivedTurn:row.turnBefore,nativeTurn:rec.turnBefore,
+        archivedCardLabel:row.card??null,nativePhysicalPrinting:printing??null
+      });
+    }
+  }
+  return {
+    linked:roots!==null&&mismatchCount===0,
+    rootCount:roots?.length??null,nativeCount:records.length,
+    mismatchCount,firstMismatches
+  };
+}
+
+/**
  * Post-decision, read-only native Store dispatch observer. It never feeds
  * identities or snapshots to the bot, and does not alter any action.
  * @template T
@@ -46,21 +100,15 @@ function withAcceptedTargetWitness(execute,deps={}){
   function audit(result=null){
     const roots=result?.rootActionLedger?.filter(row=>
       row.action==='PlayCardAction'||row.action==='RetreatAction')??null;
-    const linked=roots!==null && roots.length===records.length &&
-      roots.every((row,i)=>{
-        const record=records[i];
-        const printing=record.declared.ownerHandPrinting;
-        const cardMatch=row.action!=='PlayCardAction'||
-          rootLabelMatchesNativePrinting(row.card,printing);
-        return row.action===record.action &&
-          row.playerSlot===record.playerSlot &&
-          row.turnBefore===record.turnBefore && cardMatch;
-      });
+    const linkage=auditNativeTargetRootLinkage(roots,records);
+    const linked=linkage.linked;
     const events=records.map((record,i)=>({
       ...record,rootActionOrdinal:linked?roots[i].actionOrdinal:null
     }));
     return {...targetSidecar(events),version:VERSION,
-      rootOrdinalLinked:linked,acceptedTargetDispatches:records.length,
+      rootOrdinalLinked:linked,
+      ...(linked?{}:{rootOrdinalLinkageFailure:linkage}),
+      acceptedTargetDispatches:records.length,
       observedLiveStore:live!==null,
       legacyRootProtocolUnaffected:true,competitiveGameQualified:false};
   }
@@ -119,4 +167,4 @@ function acceptedTargetAbortEvidence(error){
 }
 
 module.exports={VERSION,withAcceptedTargetWitness,acceptedTargetAbortEvidence,
-  rootLabelMatchesNativePrinting};
+  rootLabelMatchesNativePrinting,auditNativeTargetRootLinkage};
