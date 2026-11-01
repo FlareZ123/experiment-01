@@ -3,6 +3,11 @@ name: Agent41 rank6 original source grouped denial 24-seed census
 on:
   workflow_dispatch:
     inputs:
+      focused_native_conservative_supporter_pair:
+        description: 'Four retrospective original-Store baseline/treatment attempts for symmetric low-hand Lillie/Marnie/Iono root; no win qualification'
+        type: boolean
+        required: false
+        default: false
       focused_native_eligibility:
         description: 'Run only the two frozen original source coheld canPlay arms'
         type: boolean
@@ -72,7 +77,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate frozen physical source-deal registration and failure accounting
-        run: node --test tests/agent41-nine-ready-ranks-native-scout.test.cjs tests/agent41-frozen-bilateral-development-v2.test.cjs tests/agent41-frozen-bilateral-evidence-matrix.test.cjs tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent41-paper-prompt-contract-portfolio.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
+        run: node --test tests/agent41-native-conservative-supporter-historical-pair.test.cjs tests/agent41-bilateral-conservative-supporter-option.test.cjs tests/agent41-nine-ready-ranks-native-scout.test.cjs tests/agent41-frozen-bilateral-development-v2.test.cjs tests/agent41-frozen-bilateral-evidence-matrix.test.cjs tests/agent41-runtime-research-module-attestation.test.cjs tests/agent41-frozen-bilateral-development-v1.test.cjs tests/agent41-coheld-positive-witness-retention.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs tests/agent41-plumeria-root-physical-witness.test.cjs tests/agent41-plumeria-public-ledger-causal-prefix.test.cjs tests/agent41-coheld-supporter-zero-payment-arbiter.test.cjs tests/agent41-native-flare-same-root-prompt.test.cjs tests/agent41-rank6-grouped-denial-source-panel.test.cjs tests/agent7-same-root-independent-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent41-paper-prompt-contract-portfolio.test.cjs tests/agent5-owner-root-slice.test.cjs tests/agent34-actor-only-root-policy.test.cjs
       - name: Inspect one transitive source profile before native execution
         if: ${{ inputs.frozen_profile_inspect || inputs.frozen_profile_run }}
         run: node simulation/evaluation/agent41-frozen-bilateral-development-v1.cjs --inspect-only
@@ -108,10 +113,10 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all 48 preregistered source 60 game-development arms without selection
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run && !inputs.frozen_profile_prompt_portfolio_run && !inputs.nine_ranks_inspect && !inputs.nine_ranks_native_scout }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_conservative_supporter_pair && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run && !inputs.frozen_profile_prompt_portfolio_run && !inputs.nine_ranks_inspect && !inputs.nine_ranks_native_scout }}
         run: node simulation/evaluation/agent41-rank6-grouped-denial-source-panel.cjs > agent41-rank6-denial-source-raw.json
       - name: Preserve compact true-root and distinct-seed counts
-        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run && !inputs.nine_ranks_inspect && !inputs.nine_ranks_native_scout }}
+        if: ${{ !inputs.focused_native_eligibility && !inputs.focused_native_conservative_supporter_pair && !inputs.focused_native_rank21_tool && !inputs.focused_native_plumeria_choice && !inputs.focused_native_cost_threeway && !inputs.frozen_profile_inspect && !inputs.frozen_profile_run && !inputs.frozen_profile_v2_inspect && !inputs.frozen_profile_v2_run && !inputs.nine_ranks_inspect && !inputs.nine_ranks_native_scout }}
         run: node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent41-rank6-denial-source-raw.json','utf8'));fs.writeFileSync('agent41-rank6-denial-source-summary.json',JSON.stringify(x.summary,null,2)+'\\n');console.log(JSON.stringify({scheduled:x.summary.scheduled,uniqueSourceSeedGroups:x.summary.uniqueSourceSeedGroups,resultsWithNativeActorAudit:x.summary.resultsWithNativeActorAudit,ownerRoots:x.summary.ownerRoots,plumeriaOwnerRoots:x.summary.plumeriaOwnerRoots,coheldFlareOwnerRoots:x.summary.coheldFlareOwnerRoots,bothSupporterOffersRoots:x.summary.bothSupporterOffersRoots,distinctSeedGroupsWithCoheldFlare:x.summary.distinctSeedGroupsWithCoheldFlare,competitiveQualifiedGames:x.summary.competitiveQualifiedGames}));"
       - name: Exact early source-owned coheld native canPlay, original Store read-only
         if: ${{ inputs.focused_native_eligibility }}
@@ -119,6 +124,12 @@ jobs:
       - name: Summarize focused original-source native canPlay without inventing settled effects
         if: ${{ always() && inputs.focused_native_eligibility }}
         run: node -e "const fs=require('node:fs');const p='agent41-focused-source-native-canplay.json';if(!fs.existsSync(p)){console.log('FOCUSED_NATIVE_REPORT_MISSING');process.exitCode=1;}else{const r=JSON.parse(fs.readFileSync(p,'utf8'));console.log('FOCUSED_NATIVE_COHELD',JSON.stringify({schema:r.schema,validation:r.validation,competitiveQualifiedGames:r.competitiveQualifiedGames,rows:r.rows.map(x=>({trial:x.trial,sourceSeat:x.sourceSeat,status:x.nativeStatus,nativeCoheldOwnerRoots:x.naturalCoheldRootCount,bothNativePlayableRoots:x.bothNativeCardCanPlayRoots,first:x.firstAuthenticCoheldRoot?{turn:x.firstAuthenticCoheldRoot.globalTurn,rootOrdinal:x.firstAuthenticCoheldRoot.rootOrdinal,plumeria:x.firstAuthenticCoheldRoot.plumeria,teamFlare:x.firstAuthenticCoheldRoot.teamFlare,bothNativePlayable:x.firstAuthenticCoheldRoot.bothHaveNativePlayablePhysicalCopy}:null}))}));if(r.validation?.passed!==true)process.exitCode=1;}"
+      - name: Run previously selected two-seat conservative Supporter native regression
+        if: ${{ inputs.focused_native_conservative_supporter_pair }}
+        run: node simulation/evaluation/agent41-native-conservative-supporter-historical-pair.cjs > agent41-conservative-supporter-native.json
+      - name: Report same-deal native low-hand Supporter acceptance and printed draws
+        if: ${{ always() && inputs.focused_native_conservative_supporter_pair }}
+        run: node -e "const fs=require('node:fs');const p='agent41-conservative-supporter-native.json';if(!fs.existsSync(p)){console.log('SUPPORTER_RETROSPECTIVE_MISSING');process.exitCode=1;}else{const x=JSON.parse(fs.readFileSync(p,'utf8'));console.log('AGENT41_RETROSPECTIVE_SUPPORTER',JSON.stringify({attempts:x.nativeAttempts,matched:x.matching.allMatched,errors:x.matching.failures,lillieBefore:x.nativeLillieSettlement.control,lillieAfter:x.nativeLillieSettlement.treatment,rows:x.matching.rows.map(r=>({id:r.id,control:r.baseline.status,treatment:r.treatment.status,controlRoot:r.baseline.rootSha,treatmentRoot:r.treatment.rootSha})),qualified:x.competitivelyQualifiedGames}));if(!x.nativeAttemptCountVerified||!x.matching.allMatched)process.exitCode=1;}"
       - name: Run frozen original rank6 common-owner same-root native Plumeria development fork
         if: ${{ inputs.focused_native_plumeria_choice }}
         env:
@@ -185,6 +196,7 @@ jobs:
             agent41-focused-source-native-canplay.json
             agent41-rank6-same-root-native-plumeria.json
             agent41-native-coheld-supporter-cost-threeway.json
+            agent41-conservative-supporter-native.json
             agent41-rank21-tool-target-raw.json
             agent41-frozen-bilateral-development-v1-native.json
             agent41-frozen-bilateral-matrix-v1.json
