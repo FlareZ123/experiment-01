@@ -78,3 +78,15 @@ This is exact per-game native-root-count equality for all four completed-or-cens
 The reusable `simulation/evaluation/agent39-print-prompt-root-reconciliation.cjs` also checks individual original-source `AttackAction: Volt Cyclone` parent linkage, original seat, attack name, exact turn histogram, and native accepted prompt root count, requiring an observed live Store. Its statuses fail closed on missing identity, mismatched counts or wrong parent, and distinguish source-not-exposed. `tests/agent39-paper-prompt-root-reconciliation.test.cjs` covers synthetic duplicates, provenance gaps and wrong parent. That reconciliation was integrated into the canonical runner after the cited CI was started and requires another compiled run to confirm output field correctness.
 
 This is a **significant evidence-denominator correction**. None of the five live receipts alone is a competitively qualified game or a proof of the complete attack. Frozen-v2 32-arm evidence with 27 original-source Volt Cyclone prompts remains a separately versioned archived cohort.
+
+
+### Native attack-parent root reconciliation completed
+
+[Compiled green manual CI 41331029723](https://github.com/FlareZ123/experiment-01/actions/runs/41331029723), artifact `13092954101`, executed the actual canonical runner with the newly integrated `paperPromptOriginalSourceRootReconciliation` in every row. Its four printed-source statuses were:
+
+1. rank6 `6:0:A:champion-reference`: `NO_SOURCE_VOLT_PROMPTS`, 0 source attack roots, 0 checked live replies.
+2. rank6 `6:0:A:new-moon-lockbreaker-v1`: `LIVE_PRINTED_SOURCE_PROMPTS_MATCHED`, **5** genuinely accepted original source Volt Cyclone parent roots, **5** live paper-checked accepted replies, **5** auxiliary checked events explicitly excluded. Original-source turn:seat histograms both `4:1, 6:1, 26:1, 28:1, 34:1`, exactly one each.
+3. rank11 `11:2:B:champion-reference`: `NO_SOURCE_VOLT_PROMPTS`, no source Volt attacks.
+4. rank11 `11:2:B:new-moon-lockbreaker-v1`: `NO_SOURCE_VOLT_PROMPTS`, no source Volt attacks.
+
+No mismatched parent, seat, histogram or observed live Store in this four-arm sample. Presence of an authentic source attack and passed mandatory transfer permits **narrow prompt contract verification on that root only**, not attack-wide paper or win-rate qualification. Each of the five is a **correlated action inside one original physical game**.
