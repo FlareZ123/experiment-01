@@ -176,6 +176,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify Bawl native Trainer-family locks in both physical seats and expiration
+        run: node --test tests/agent2-whismur-trainer-lock.native.test.cjs tests/agent29-whismur-bawl-four-trainer-categories.native.test.cjs
       - name: Audit native Whismur Bawl and existing Horror House printings
         run: |
           node --test tests/agent29-whismur-native-printing-census.test.cjs
