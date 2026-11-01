@@ -218,6 +218,10 @@ jobs:
         run: node --test tests/agent17-conditional-special-native.test.cjs
       - name: Probe exact rank19 Raging Bolt native attack prompt in both seats
         run: node --test tests/agent50-raging-bolt-nominal-ko.native.test.cjs
+      - name: Census structural native coverage of original source variable attacks
+        run: |
+          node --test tests/agent50-original-source-pinned-attack-census.test.cjs
+          node simulation/evaluation/agent50-original-source-pinned-attack-census.cjs
       - name: Verify original Eri post-reveal Item prompt in both native seats
         run: node --test tests/agent50-eri-revealed-item-prompt.native.test.cjs
       - name: Verify first-player printed native exceptions in both physical seats
