@@ -82,7 +82,7 @@ test('common unified Store boundary vetoes 80 before mutation, then accepts 70 a
   assert.deepEqual(out.result,{nativeAccepted:true});
   assert.equal(f.store.mutations,1);
   assert.equal(out.audit.schema,VERSION);
-  assert.match(VERSION,/v6-partial-damage-budget/);
+  assert.match(VERSION,/v7-source-marked-painful-spoons/);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_INVALID,1);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
   assert.equal(out.audit.statusCounts.PAPER_PROMPT_VERIFIED,0,
