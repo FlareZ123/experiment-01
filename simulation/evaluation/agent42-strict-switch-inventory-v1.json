@@ -5,7 +5,7 @@
   "checkedSources": [
     {
       "path": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
-      "gitBlobSha": "39356cce125789ca867d27bc28113798686f5e54"
+      "gitBlobSha": "7d6e515eecbaed1fa638191462b45f0daa2bf60e"
     },
     {
       "path": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
@@ -114,5 +114,5 @@
     "informationSafe": false,
     "officialAichiClockCertified": false
   },
-  "notes": "Inventory for a prospective explicit Agent41-frozen bilateral benchmark profile. Does not select a candidate or claim a release. Updating a source script or adding a process.env switch must prompt re-audit."
+  "notes": "Inventory for a prospective explicit Agent41-frozen bilateral benchmark profile. Does not select a candidate or claim a release. Updating a source script or adding a process.env switch must prompt re-audit. Revision after Agent41's registered-trial-only read-only native coin receipt. Still a two-file incomplete policy-option inventory; full source closure required."
 }
