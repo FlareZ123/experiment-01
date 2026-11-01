@@ -36,7 +36,7 @@ This is a genuine **negative result for a purported recovery-policy improvement*
 
 ## Actual owner's Back Order source-deck search multiplicity
 
-An expanded prompt-identity audit [manual CI 41347488577](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577), **SUCCESS**, archive [13199139027](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577/artifacts/13199139027), selected cards only from the actual source **owner-deck ChooseCardsPrompt**, rather than inferring search from the PlayCard names:
+An expanded prompt-identity audit [manual CI 41347488577](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577), **SUCCESS**, archive [13099139027](https://github.com/FlareZ123/experiment-01/actions/runs/41347488577/artifacts/13099139027), selected cards only from the actual source **owner-deck ChooseCardsPrompt**, rather than inferring search from the PlayCard names:
 
 - **Generic baseline:** `Back Order` owner search `CHOOSE_CARD_TO_HAND`, native min0/max2, **selected [Float Stone BKT, Float Stone BKT]**.
 - **Scripted opt-in recovery:** Same actual native prompt and original physical setup, **selected [Float Stone BKT]**.
