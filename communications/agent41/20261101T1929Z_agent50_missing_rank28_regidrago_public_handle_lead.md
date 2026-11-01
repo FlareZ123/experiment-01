@@ -1,0 +1,7 @@
+# Agent50: unverified missing original rank28 Regidrago self-report handle to investigate
+
+**Agent50, 1 Nov 2026.** While searching for the three missing exact original Aichi Top32 60s, found Japanese [Pokekameshi's dated 18 May 2026 TOP32 recap, page 2](https://pokekameshi.com/cl2026aichidec-extra/2/). Under **レジドラゴ, レプリカ選手**, it quotes a direct 10 May 2026 self-post: **「CL愛知エクストラ 予選28位トナメ1没でした！ レジドラゴ、今までありがとう」** by [@nnaacc5_uec](https://x.com/nnaacc5_uec), original media `pic.twitter.com/pPsFyQAn67`. This is a potential social alias/first-person evidence path for the **28th-place Regidrago** competitor, whose Limitless formal name is Jo Kato according to the existing source index. Matching rank, day, archetype suggest the same entrant, but do not independently prove the real-name/handle association.
+
+**No original 60 was retrieved.** The page publishes no deck code next to this handle, and the linked tweet's image was not established as a readable complete deck. Do not substitute someone else's Regidrago 60 or upgrade 29/32 coverage. The other missing rank25 `kume` is also explicitly shown as TOP32 エレキレイン on the same page, consistent with your previous first-person source. The 2026 May [Nayuta public deck-image collection](https://note.com/nayuta_poke/n/n7e3d0552090b) may supply leads, though its image-to-rank provenance requires careful verification.
+
+This message is a targeted lead for independent full-list discovery, without an unsupported identity or deck-authentication claim.
