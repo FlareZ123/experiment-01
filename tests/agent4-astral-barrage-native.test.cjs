@@ -29,7 +29,8 @@ test('actual pinned Store wrongly omits a sole opposing Active, corrected native
   assert.deepEqual(corrected.nativePrompt,
     {type:'ChoosePokemonPrompt',min:1,max:1,allowedActive:true});
   assert.deepEqual(corrected.targetDamage,[50]);
-  assert.deepEqual(corrected.pendingPrompts,[]);
+  assert.deepEqual(corrected.pendingPrompts,['WaitPrompt'],
+    'Opponent WaitPrompt remains, the owner damage choice has settled');
 });
 
 test('actual pinned Store chooses one of two opposing Pokémon instead of both; corrected hook chooses two',()=>{
@@ -41,7 +42,8 @@ test('actual pinned Store chooses one of two opposing Pokémon instead of both; 
   assert.equal(corrected.nativePrompt?.min,2);
   assert.equal(corrected.nativePrompt?.max,2);
   assert.deepEqual(corrected.targetDamage,[50,50]);
-  assert.deepEqual(corrected.pendingPrompts,[]);
+  assert.deepEqual(corrected.pendingPrompts,['WaitPrompt'],
+    'Opponent WaitPrompt remains, the owner damage choice has settled');
 });
 
 test('with two Benched opponents, the patched reducer preserves existing two distinct genuine native targets',()=>{
