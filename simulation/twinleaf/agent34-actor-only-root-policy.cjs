@@ -606,6 +606,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerArbitration:require('./agent16-owner-priority-contention.cjs')
       .newOwnerContentionAudit(),
     sameRootProposalChoiceOptIn:deps.sameRootProposalChoice===true,
+    rondoPsychicBenchStageOptIn:deps.rondoPsychicBenchStage??
+      (process.env.AGENT7_RONDO_PSYCHIC_BENCH_DEV==='true'),
     nativeCoheldDenialCanPlayOptIn:deps.nativeCoheldDenialCanPlay===true,
     nativeCoheldDenialCanPlayRoots:0,
     nativeCoheldDenialBothPlayableRoots:0,
@@ -692,9 +694,13 @@ function withActorOnlyRootPolicy(run,deps={}){
       'Public event history is only admitted under root proposal observation');
     audit.version+='+'+
       require('./agent41-same-root-proposal-choice.cjs').VERSION;
+    if(audit.rondoPsychicBenchStageOptIn)
+      audit.version+='+'+
+        require('./agent7-rondo-psychic-bench-staging.cjs').VERSION;
   }else{
     delete audit.sameRootProposalChoiceOptIn;
     delete audit.sameRootChoiceApplyOptIn;
+    delete audit.rondoPsychicBenchStageOptIn;
     delete audit.nativeToolAttachRootOptIn;
     delete audit.nativePlumeriaChoiceOptIn;
     delete audit.nativeZeroCostDenialChoiceOptIn;
@@ -996,6 +1002,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       sameRootPublicEventReceipt:audit.sameRootPublicEventReceiptOptIn===true,
       sameRootProbeAll:audit.sameRootProbeAllOptIn===true,
       sameRootChoiceApply:audit.sameRootChoiceApplyOptIn===true,
+      rondoPsychicBenchStage:audit.rondoPsychicBenchStageOptIn===true,
+      rondoPsychicBenchStagingPreference:audit.rondoPsychicBenchStageOptIn===true,
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
       nativeZeroCostDenialChoice:audit.nativeZeroCostDenialChoiceOptIn===true,
