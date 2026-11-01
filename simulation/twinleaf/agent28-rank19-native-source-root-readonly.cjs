@@ -102,11 +102,23 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
     const result=run();
     const audit=records.map(s=>{
       const active=s.records.filter(r=>r.activePrinting===RAGING);
+      const bench=s.records.filter(r=>
+        r.bench.some(p=>p?.printing===RAGING));
+      const fundedBench=bench.filter(r=>r.bench.some(p=>
+        p?.printing===RAGING&&p.attachedEnergy.length>0));
       return {gameIndex:s.gameIndex,sourceSeat:s.sourceSeat,
         sourcePhysicalRagingCounts:s.sourceIdentityCounts,
         sourceOwnerRootCount:s.records.length,
         sourceRagingActiveRoots:active.length,
         sourceRagingActiveUniqueTurns:[...new Set(active.map(x=>x.turn))],
+        sourceRagingBenchRoots:bench.length,
+        sourceRagingBenchedWithEnergyRoots:fundedBench.length,
+        sourceRagingBenchUniqueTurns:[...new Set(bench.map(x=>x.turn))],
+        sourceRagingBenchSamples:bench.slice(0,16).map(r=>({
+          turn:r.turn,action:r.actionType,
+          active:r.activePrinting,activeEnergy:r.activeEnergy,
+          benchedRaging:r.bench.filter(p=>p?.printing===RAGING)
+        })),
         bellowingDeclared:s.records.filter(x=>
           x.actionType==='AttackAction'&&
           x.actionAttack==='Bellowing Thunder').length,
