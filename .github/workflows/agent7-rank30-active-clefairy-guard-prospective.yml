@@ -27,6 +27,7 @@ jobs:
           python scripts/workflow_dispatch_preflight.py
           node --test tests/agent7-rondo-psychic-bench-stage.test.cjs
           node -e "require('./simulation/evaluation/agent7-rank30-active-clefairy-guard-prospective.cjs').registered()"
+          node -e "require('./simulation/evaluation/agent7-rank30-latias-preservation-prospective.cjs').registered()"
       - name: Check out pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install original Store dependencies
@@ -37,11 +38,15 @@ jobs:
         run: npm run compile
       - name: Execute all 16 new original-deal source seat pairs with Active Clefairy guard
         run: node simulation/evaluation/agent7-rank30-active-clefairy-guard-prospective.cjs > agent7-rank30-guard-prospective.json
+      - name: Compare 16 freshly registered rank30 original v2 and Active Latias protected source pairs
+        run: node simulation/evaluation/agent7-rank30-latias-preservation-prospective.cjs > agent7-rank30-latias-prospective.json
       - name: Archive complete native controls and every rejected or censored arm
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank30-active-clefairy-guard-prospective
-          path: agent7-rank30-guard-prospective.json
+          path: |
+            agent7-rank30-guard-prospective.json
+            agent7-rank30-latias-prospective.json
           if-no-files-found: warn
           retention-days: 10
