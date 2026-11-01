@@ -10,7 +10,7 @@ Arven is a **Supporter** that searches an Item and a Pokémon Tool: https://asia
 
 Provisional New Moon Lockbreaker already carries one Basic Gengar & Mimikyu-GX TEU 53. Its own printed Horror House-GX costs **one Psychic Energy**, preventing the opponent from playing cards from hand on their next turn. Poltergeist costs **two Psychic Energy**, doing 50 per Trainer card in the opponent's hand. Three Trainers would reach either Vileplume's printed HP (AOR 130, BUS 140) absent other modifiers. Card text: https://www.pokebeach.com/2019/01/team-up-english-set-list .
 
-**Potential timing:** candidate going first establishes Active Gengar during setup, attaches Psychic when available; source going second establishes AOR on Bench and BUS Active; on candidate T2, held Arven can fetch Hood even after Item lock, equip the Active Gengar, and permit an actual Horror House-GX attack. Subsequent Poltergeist needs a second Psychic, another turn and sufficient opponent Trainer cards.
+**Potential timing:** candidate going first establishes Active Gengar during setup, attaches Psychic when available; source going second may establish AOR while BUS is still Benched; on candidate T2, held Arven can fetch Hood even after Item lock, equip the Active Gengar, and prepare for a possible Horror House-GX attack. Subsequent Poltergeist needs a second Psychic, another turn and sufficient opponent Trainer cards.
 
 Costs/caveats: Hood occupies Gengar's Tool slot, excluding Powerglass; Arven consumes the turn's Supporter; Horror House spends the once-per-game GX; Gengar is a three-Prize TAG TEAM; opponent's setup and attack response can still defeat the plan. The source may use tools and gust, and Path to the Peak can suppress Mewtwo's Perfection. This is a precise hypothesis for native, owner-information-safe tests, not proof of successful escape.
 
@@ -20,7 +20,7 @@ The BigInt enumerator `scripts/agent36-rank15-hood-horror-direct-model.cjs` coun
 
 The provisional New Moon source 60 has **17 starting-eligible Basics**, including exactly one Gengar & Mimikyu-GX, plus six Psychic-providing Energy (three Basic Psychic, three Telepathic). Abstract `h` Hood and `a` Arven copies replace `h+a` unspecified other cards; this model does not specify a legal modified 60.
 
-An event requires Gengar in the **initial seven**, chosen Active during setup; one Psychic-providing Energy in that seven or candidate T2 ordinary draw; and either a Hood directly held by T2, or Arven held by T2 with a Hood still searchable in the post-Prize deck. Candidate goes first; source goes second and establishes both locks. Model conditions on a legal initial seven, no extra draws, no Item searches. Arven is playable after AOR Item lock.
+An event requires Gengar in the **initial seven**, chosen Active during setup; one Psychic-providing Energy in that seven or candidate T2 ordinary draw; and either a Hood directly held by T2, or Arven held by T2 with a Hood still searchable in the post-Prize deck. Candidate goes first; source goes second; AOR and Active BUS may be established on different turns. Model conditions on a legal initial seven, no extra draws, no Item searches. Arven is playable after AOR Item lock.
 
 | Hood / Arven copies | Gengar with Energy | Held Hood route | Arven to deck-Hood | Joint |
 | --- | ---: | ---: | ---: | ---: |
