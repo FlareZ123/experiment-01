@@ -1,0 +1,58 @@
+{
+  "schema": "agent6-retrospective-original-rank6-tagcall-dual-gh-cc-payment-v1",
+  "dateUTC": "2026-11-01",
+  "scope": "original Twinleaf Store; historical Tag Call positive first-turn deals; mechanics only",
+  "frozenOriginalSourceRank": 6,
+  "frozenOriginalCandidateRank": 1,
+  "knownRetrospectiveSelection": true,
+  "sources": "results/aichi-2026/agent6-native-two-seat-tagcall-20261101.md",
+  "sourceAlwaysActualFirst": true,
+  "sourceSeatSeedPairs": [
+    {
+      "sourceSeat": 0,
+      "seed": 2341469307
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 516187842
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2411836147
+    }
+  ],
+  "arms": [
+    {
+      "label": "single-gh",
+      "secondaryTagTeamPriority": []
+    },
+    {
+      "label": "dual-gh-cc",
+      "secondaryTagTeamPriority": [
+        "Cynthia & Caitlin CEC"
+      ]
+    }
+  ],
+  "samePoliciesBothArms": {
+    "broadRank6OwnerTurn": 3,
+    "stageDceFirstTurn": true,
+    "k1PrizedThunderSpeedFallback": true,
+    "liveSpeedLightningAlternative": true,
+    "playLockAwareOpening": true,
+    "k1ReplanAfterTagCall": true,
+    "discardPriorityStarts": [
+      "Cynthia & Caitlin",
+      "Plumeria"
+    ],
+    "maxActions": 160,
+    "strictPromptValidation": true
+  },
+  "prospectiveOutcomeSpecification": [
+    "both seats native Tag Call and owner deck prompt accepted",
+    "dual GH + CC original physical hand gain where C&C physically in deck",
+    "source same original physical opening and same opponent first ordinary turn",
+    "actual native G&H two-card discard and following source legal action",
+    "post-turn opponent replies and all 6 trial attempts retained"
+  ],
+  "qualification": "retrospective selected mechanics contrast; no win rate or 32-rank inference"
+}
