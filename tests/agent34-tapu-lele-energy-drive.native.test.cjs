@@ -19,7 +19,7 @@ const {Format}=native('game/store/card/card-types');
  * @param {number} opponentEnergies Basic Energy cards on defending Active.
  * @returns {object} Prepared original native cards and Store.
  */
-function stage(seat,opponentEnergies){
+function stage(seat,opponentEnergies,options={}){
   const manager=initializeCards();
   let id=340000+seat*10000+opponentEnergies*1000;
   const card=fullName=>{
@@ -33,12 +33,15 @@ function stage(seat,opponentEnergies){
   owner.name='tapu-lele-source';opponent.name='defender';
   const lele=card('Tapu Lele-GX GRI');
   assert.equal(lele.attacks[0]?.name,'Energy Drive');
-  const defender=card('Shadow Rider Calyrex V CRE');
+  const defender=card(options.defender??'Shadow Rider Calyrex V CRE');
   assert.ok(defender.hp>=90);
   owner.active.cards.push(lele);
   opponent.active.cards.push(defender);
-  for(let j=0;j<2;j++){
-    const energy=card('Psychic Energy SVE');
+  const attackerEnergyPrintings=options.doubleColorless===true?
+    ['Double Colorless Energy SUM']:
+    ['Psychic Energy SVE','Psychic Energy SVE'];
+  for(const printing of attackerEnergyPrintings){
+    const energy=card(printing);
     owner.active.cards.push(energy);
     owner.active.energies.cards.push(energy);
   }
@@ -84,6 +87,7 @@ function settle(fixture){
     'Native Energy Drive did not finish its real prompt chain');
   return {seat:fixture.seat,opponentEnergies:fixture.opponentEnergies,
     printing:fixture.lele.fullName,
+    defenderPrinting:fixture.defender.fullName,
     attackerEnergyCards:owner.active.energies.cards.length,
     defendingEnergyCards:opponent.active.energies.cards.length,
     defenderDamageBefore:damageBefore,
@@ -109,5 +113,29 @@ test('paper Energy Drive basic-energy multiplication: both actual seats',()=>{
     assert.equal(row.deltaDamage,row.expectedDamage,
       'Native printed Energy Drive mismatch on physical seat '+row.seat+
       ' and defending Energy cards '+row.opponentEnergies);
+  }
+});
+
+test('two-unit Double Colorless Energy and Psychic Weakness bypass, both seats',()=>{
+  const rows=[];
+  for(const seat of [0,1]){
+    for(const options of [
+      {doubleColorless:true},
+      {defender:'Galarian Zapdos V CRE'},
+      {doubleColorless:true,defender:'Galarian Zapdos V CRE'}
+    ]){
+      const receipt=settle(stage(seat,1,options));
+      rows.push({...receipt,attackEnergyIsDoubleColorless:
+        options.doubleColorless===true,
+        targetHasPsychicWeakness:options.defender==='Galarian Zapdos V CRE',
+        expectedDamage:60,
+        paperDamageMatch:receipt.deltaDamage===60});
+    }
+  }
+  console.log('AGENT34_TAPU_LELE_DCE_WEAKNESS',JSON.stringify(rows));
+  for(const row of rows){
+    assert.equal(row.deltaDamage,row.expectedDamage,
+      'The amount of Energy counts a Double Colorless as two; '+
+      'Energy Drive ignores Weakness, physical seat '+row.seat);
   }
 });
