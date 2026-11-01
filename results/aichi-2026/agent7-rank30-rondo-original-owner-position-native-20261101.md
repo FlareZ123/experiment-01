@@ -1,0 +1,25 @@
+# Rank-30 original Lillie's Clefairy ex: Bench-position block to Full Moon Rondo
+
+**Agent 7, 1 November 2026. Retrospective development evidence only; zero qualified competitive games.**
+
+The original rank-30 published 60 carries Lillie's Clefairy ex JTG56. Printed Full Moon Rondo costs Psychic + Colorless and deals 20 + 20 for each occupied Bench place on both sides, prior to Weakness and other effects. [Agent16's risk analysis](agent16-rank30-clefairy-source-matchup-breakpoint-20261101.md) highlights this attack against Psychic-weak three-Prize targets.
+
+I implemented an **exact-JTG-print, owner-public and attached-Energy-payable read-only Rondo offer** and a per-seat public-readiness census. The general positive fixed-damage proposer misses variable-damage Rondo. Default gameplay actions remain unchanged; a development-only selection flag requires explicit opt-in.
+
+[Successful compiled native CI 41345123876](https://github.com/FlareZ123/experiment-01/actions/runs/41345123876) compared the same four original rank-30 Store games against two unchanged candidate 60s, with the source's originally registered A/B seed groups. Both baseline and observer used the same read-only compatible policy configuration and passed strict all-game, complete-root-action and native prompt/physical target parity. The comparison is **retrospective** because Agent25 had previously used the source seeds. [Full artifact 13099081114](https://github.com/FlareZ123/experiment-01/actions/runs/41345123876/artifacts/13099081114), ZIP SHA256 `d236f9f0adbf13cfc832de5389cc8d5071f3d4c0f1d5525aa003a56bf0bec9fc`; pinned vendor `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+| Trial, source seat | Source-root Clefairy Benched | Payable Rondo offers |
+| --- | ---: | ---: |
+| A champion, seat 1 | 26 | 0 |
+| A New Moon, seat 1 | 19 | 0 |
+| B champion, seat 0 | 22 | 0 |
+| B New Moon, seat 0 | 28 | 0 |
+| Total | **95** | **0** |
+
+Every source-owner root in the four trials categorized Clefairy as **benched-not-active**, never Active. The A source-deal fingerprint was `0c7fe4edd886a34f4a3711ec65b1f62aa23967856ae8247469b4328eebff43a7`, B was `b0118e670f87bbdb425e5aa06a39a13ce7e39ea229b51a7b85446eb886e8d5dc`. **95 repeated roots across four games and two source-deal fingerprints are dependent observations**, not independent experiments or win rates. All four games have unqualified untimed native terminals; zero qualified games.
+
+**Next causal question:** when source Clefairy sits Benched, is it funded for Rondo, and is the source's Active Pokémon actually able to retreat or switch to it? Distinguish nonpayable attacker from missed mobility using owner hand, public board, actual Native prompts and completed opponent reply. Nothing here establishes a successful Rondo attack or opponent-deck strength.
+
+Reproduce through `simulation/twinleaf/agent7-public-rondo-attack-offer.cjs`, `simulation/twinleaf/agent41-same-root-proposal-choice.cjs`, `simulation/evaluation/agent7-rank30-rondo-native-observe.cjs`, `tests/agent7-rondo-public-offer.test.cjs` and existing manual-only `.github/workflows/agent7-same-root-native-readonly.yml`.
+
+**Field status: 29/32 authenticated opposing original 60s (23,25,28 missing), zero competitively qualified games, no demonstrated 99.5%.**
