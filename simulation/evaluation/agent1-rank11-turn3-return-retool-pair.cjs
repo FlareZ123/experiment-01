@@ -76,6 +76,14 @@ function run(){
         x.turn===2&&x.kind==='public-Tool-check'&&
         x.garbodorToolRemoved===true);
       assert.equal(confirmedRemoval.length,1);
+      // The recipient's genuine turn-4 public-board read witnesses the
+      // full prior source turn, including any Tool attachment target.
+      const opponentTurn4Public=opponent.events.find(x=>
+        x.turn===4&&x.kind==='read-only-own-turn-board');
+      assert.ok(opponentTurn4Public,
+        'Opponent turn4 public state after source turn3 was not observed');
+      const sourceGarbodorToolPrintingsAtOpponentTurn4=
+        [...opponentTurn4Public.garbodorToolPrintings];
       const sourceTurn3Plays=(game.decisionTrace??[]).filter(x=>
         x.playerSlot===0&&x.turnBefore===3&&
         (x.action==='PlayCardAction'||x.action==='UseAbilityAction'))
@@ -88,6 +96,7 @@ function run(){
         sourceRepair:source.returnRepair,
         recipientBlowerRoots:fieldBlowerRoots.length,
         recipientConfirmedRemoval:confirmedRemoval.length,
+        sourceGarbodorToolPrintingsAtOpponentTurn4,
         sourceTurn3Plays,
         gameFinished:game.finished===true,
         gameRootCount:game.rootActionLedger?.length??null,
@@ -122,6 +131,8 @@ if(require.main===module){
     rows:result.rows.map(x=>({repair:x.sourceReturnRepair,
       status:x.status,firstReturn:x.sourceFirstReturn,
       audit:x.sourceRepair,sourceTurn3:x.sourceTurn3Plays,
+      sourceGarbodorToolsAtOpponentTurn4:
+        x.sourceGarbodorToolPrintingsAtOpponentTurn4,
       error:x.error??null}))
   })+'\n');
   if(result.blocked>0)process.exitCode=1;
