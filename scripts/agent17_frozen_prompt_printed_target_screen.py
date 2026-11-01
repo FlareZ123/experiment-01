@@ -36,6 +36,29 @@ def resolve_printing(printing, card_zip, code_to_id, cache):
     Prism Star is a known displayed-name spelling alias for the diamond symbol.
     Unknown sets or ambiguous printing properties remain unresolved.
     """
+    # Archive display aliases checked against an exact collector number or
+    # the archive's one and only named SM promo. A bare BWP name is ambiguous.
+    aliases = {
+        "Tropical Beach BWP 50": ("bwp", "Tropical Beach", "BW50"),
+        "Trevenant & Dusknoir-GX SMP": (
+            "smp", "Trevenant & Dusknoir-GX", "SM217"),
+    }
+    if printing in aliases:
+        set_id, name, number = aliases[printing]
+        if set_id not in cache:
+            cache[set_id] = json.loads(card_zip.read(
+                "cards/en/" + set_id + ".json"))
+        matches = [card for card in cache[set_id]
+                   if card["name"] == name and
+                   card.get("number") == number]
+        if len(matches) != 1:
+            return None, "ambiguous-exact-alias"
+        card = matches[0]
+        return {
+            "name": card["name"], "supertype": card["supertype"],
+            "subtypes": frozenset(card.get("subtypes", [])),
+            "types": frozenset(card.get("types", []))
+        }, "resolved-exact-archive-alias"
     for code in sorted(code_to_id, key=len, reverse=True):
         suffix = " " + code
         if not printing.endswith(suffix):
