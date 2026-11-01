@@ -47,6 +47,42 @@ test('different fixed exogenous seeds do not collapse to one fixed pair',()=>{
   assert.ok(positions.size>8);
 });
 
+test('speculative prompt calls cannot perturb a later real Night Watch physical choice',()=>{
+  const ai=new Ai(),live=new ChooseCardsPrompt(player,other);
+  const aux=new ChooseCardsPrompt(player,other);
+  aux.id=6;
+  const realState={turn:11,players:[player,other]};
+  const speculativeState={turn:11,players:[player,other]};
+  const opts={committedSeed:'fixed',deps:{
+    SimpleTacticsAi:Ai,ResolvePromptAction
+  }};
+  const baseline=withUniformNightWatchOpponentSelection(
+    ()=>ai.resolvePrompt(player,realState,live),opts);
+  const perturbed=withUniformNightWatchOpponentSelection(()=>{
+    ai.resolvePrompt(player,speculativeState,aux);
+    return ai.resolvePrompt(player,realState,live);
+  },opts);
+  assert.equal(baseline.audit.structuralCandidates,1);
+  assert.equal(perturbed.audit.structuralCandidates,2);
+  assert.equal(perturbed.audit.structuralCounterNotUsedForSampling,true);
+  assert.deepEqual(perturbed.result.result.map(x=>x.id),
+    baseline.result.result.map(x=>x.id));
+  assert.equal(perturbed.audit.events[1].nonce,
+    baseline.audit.events[0].nonce);
+  assert.notEqual(perturbed.audit.events[0].nonce,
+    perturbed.audit.events[1].nonce);
+  // Also exercise a speculative clone with the *same* prompt ID and turn.
+  const sameIdClone=new ChooseCardsPrompt(player,other);
+  const repeated=withUniformNightWatchOpponentSelection(()=>{
+    ai.resolvePrompt(player,speculativeState,sameIdClone);
+    return ai.resolvePrompt(player,realState,live);
+  },opts);
+  assert.deepEqual(repeated.result.result.map(x=>x.id),
+    baseline.result.result.map(x=>x.id));
+  assert.equal(repeated.audit.events[0].nonce,
+    repeated.audit.events[1].nonce);
+});
+
 test('zero-sized and complete-population physical draws work',()=>{
   assert.deepEqual(sampleUniformPositions(0,0,'seed','p'),[]);
   const all=sampleUniformPositions(3,3,'seed','p');
