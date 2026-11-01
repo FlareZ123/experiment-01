@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {stagedPainfulSpoons}=require('./agent4-rank31-alakazam-movesource-native.cjs');
+const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} modulePath @returns {any} */
 const native=modulePath=>require(path.join(output,modulePath));
@@ -15,9 +16,10 @@ const native=modulePath=>require(path.join(output,modulePath));
  * against the real native prompt/Store and observe whether native deck search
  * and a physical Pokémon addition are reached. No full-match inference.
  * @param {0|1} [seat=0]
+ * @param {'zero'|'two'} [payment='zero']
  * @returns {object}
  */
-function probeUltraBallZeroPayment(seat=0){
+function probeUltraBallZeroPayment(seat=0,payment='zero'){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -37,15 +39,20 @@ function probeUltraBallZeroPayment(seat=0){
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
   }catch(e){rootError=String(e?.message??e);}
-  const payment=f.state.prompts.find(p=>p.result===undefined&&
+  const paymentPrompt=f.state.prompts.find(p=>p.result===undefined&&
     p.constructor.name==='ChooseCardsPrompt');
-  const originalValidatorAccepted=payment?.validate([],f.state)??null;
-  const originalMin=payment?.options.min??null;
-  const originalMax=payment?.options.max??null;
-  const paymentPromptSource=payment?.sourceCard?.fullName??null;
+  const originalValidatorAccepted=paymentPrompt?.validate([],f.state)??null;
+  const originalMin=paymentPrompt?.options.min??null;
+  const originalMax=paymentPrompt?.options.max??null;
+  const paymentPromptSource=paymentPrompt?.sourceCard?.fullName??null;
+  const chosenPayment=payment==='two'?[grass,fire]:[];
+  let strictError=null;
   let zeroPaymentError=null;
-  if(payment){
-    try{f.store.dispatch(new ResolvePromptAction(payment.id,[]));}
+  if(paymentPrompt){
+    const answer=new ResolvePromptAction(paymentPrompt.id,chosenPayment);
+    try{assertValidPromptAction(f.state,answer);}
+    catch(e){strictError=String(e?.message??e);}
+    try{f.store.dispatch(answer);}
     catch(e){zeroPaymentError=String(e?.message??e);}
   }
   for(let i=0;i<12;i++){
@@ -70,12 +77,12 @@ function probeUltraBallZeroPayment(seat=0){
       chosen:type==='ChooseCardsPrompt'?[regidrago.fullName]:undefined});
     if(error)break;
   }
-  return {seat,sourceRank:14,originalPrintedCard:'Ultra Ball MEG 131',
+  return {seat,payment,sourceRank:14,originalPrintedCard:'Ultra Ball MEG 131',
     originalPrintedTarget:'Regidrago V SIT 135',
     physicalOwnerOpeningHand:['Grass Energy MEE','Fire Energy MEE','Ultra Ball MEG'],
     rootError,originalValidatorAccepted,originalMin,originalMax,
-    paymentPromptSource,zeroPaymentError,
-    zeroPaymentPromptSettled:payment?.result!==undefined??false,
+    paymentPromptSource,strictError,zeroPaymentError,
+    zeroPaymentPromptSettled:paymentPrompt?.result!==undefined,
     grassStillInHand:f.source.hand.cards.includes(grass),
     fireStillInHand:f.source.hand.cards.includes(fire),
     grassDiscarded:f.source.discard.cards.includes(grass),
