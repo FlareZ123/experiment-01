@@ -18,6 +18,8 @@ const {auditAcceptedCologneRoots}=
   require('./agent48-cologne-native-ledger-audit.cjs');
 const {withCanonicalActorOnlyPolicy,VERSION:ACTOR_COMPOSITION_VERSION}=
   require('./agent7-canonical-actor-composition.cjs');
+const {VERSION:SUPPORTER_ROOT_VERSION,commonConservativeSupporterRootOptions}=
+  require('./agent41-bilateral-conservative-supporter-option.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const registration=JSON.parse(fs.readFileSync(path.join(root,
@@ -984,6 +986,7 @@ function runDevelopment({
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
   bilateralPublicContextSpecialEnergy=false,
+  bilateralConservativeShuffleRoot=false,
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
   sameRootProbeAll=false,sameRootPublicEventReceipt=false,
@@ -1026,6 +1029,9 @@ function runDevelopment({
     'Basic/Special contention requires symmetric both-seat Special root');
   assert.ok(!bilateralPublicContextSpecialEnergy||actorOnlyComposition,
     'Public-context Special Energy requires canonical actor composition');
+  const conservativeSupporterRootOptions=commonConservativeSupporterRootOptions({
+    enabled:bilateralConservativeShuffleRoot,actorOnlyComposition
+  });
   assert.ok(!sameRootProposalChoice||actorOnlyComposition,
     'Same-root proposal choice requires canonical actor composition');
   assert.ok(!sameRootChoiceApply||sameRootProposalChoice,
@@ -1179,7 +1185,7 @@ function runDevelopment({
           },trial.candidateSlot);
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
-           !actorNaturalEvolutionRoot&&
+          !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1192,6 +1198,7 @@ function runDevelopment({
                 publicContextSpecialEnergy:true,
                 specialEnergyRootOwnerSeat:null
               }:{}),
+              ...conservativeSupporterRootOptions,
               ...(actorNaturalEvolutionRoot?{
                 naturalEvolutionRoot:true
               }:{}),
@@ -1262,6 +1269,14 @@ function runDevelopment({
               mode:'both',ownerSeat:null,sharedPolicy:true,
               specialEnergyModel:'actor-energy-payability',
               rootSelector:'agent17-public-context-special-energy'
+            }
+          }:{}),
+          ...(bilateralConservativeShuffleRoot?{
+            bilateralConservativeShuffleRootProfile:{
+              version:SUPPORTER_ROOT_VERSION,bothPhysicalSeats:true,
+              ownerSeat:null,sharedPolicy:true,
+              nativeSupporterSettlement:'independent-store-witness-required',
+              competitiveQualified:false
             }
           }:{}),
           ...(bilateralKnownDeadAttackRoot?{
@@ -1423,6 +1438,7 @@ function runDevelopment({
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
+    bilateralConservativeShuffleRootOptIn:bilateralConservativeShuffleRoot,
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
