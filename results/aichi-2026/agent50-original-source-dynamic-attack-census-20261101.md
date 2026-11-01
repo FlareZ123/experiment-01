@@ -32,6 +32,8 @@ An earlier enumeration-only run [41356464870](https://github.com/FlareZ123/exper
 
 The reverse shortcut is also unsound. Across these 286 matched executable source entries, zero classes own `reduceEffect`, **yet a physical native positive control proves that some important attack effects still work** via inherited or generic handling. Therefore the count of 52 is a **test-priority queue**, neither a count of 52 broken attacks nor a fraction of supported abilities.
 
+**Frequency is not attack use:** Tapu Lele-GX GRI60 occurs in 18 exact source decks, Marshadow UNB81 in 10, Gengar & Mimikyu-GX TEU53 in four, and Electrode-GX CES48, Lillie's Clefairy ex JTG56 and Wobbuffet PHF36 in three each. The first two account for 28 of 52 per-deck variable-damage printing entries (53.85%). These counts are decklist appearances, not witnessed native attack declarations, and therefore must not determine testing priority alone.
+
 ## Sixteen dynamic printed attack candidates
 
 - Lillie's Clefairy ex JTG
