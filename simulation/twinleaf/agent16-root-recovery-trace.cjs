@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const VERSION='agent16-accepted-root-sequential-recovery-v1';
+const VERSION='agent16-accepted-root-sequential-recovery-v2-public-target-evidence';
 
 /**
  * Conservative identity of a root proposal based on its owner-visible
@@ -14,8 +14,10 @@ function opportunityKey(a){
   return JSON.stringify([
     a.kind,
     a.printing??null,
+    a.attackName??null,
     a.slot??null,
-    a.index??null
+    a.index??null,
+    a.benchIndex??null
   ]);
 }
 
@@ -29,6 +31,13 @@ function opportunityKey(a){
  */
 function equivalentPrintedIntent(proposed,realized){
   if(proposed.kind!==realized.kind)return false;
+  // Two different attacks on the same Active must never count as the same
+  // deferred option. A nameless attack cannot establish any recovery.
+  if(proposed.kind==='attack'&&(
+    typeof proposed.attackName!=='string'||!proposed.attackName||
+    proposed.attackName!==realized.attackName))return false;
+  if(proposed.kind==='bench-basic'&&Number.isSafeInteger(proposed.benchIndex)&&
+     proposed.benchIndex!==realized.benchIndex)return false;
   if(proposed.printing&&realized.printing&&
     proposed.printing!==realized.printing)return false;
   if(proposed.printing&&!realized.printing)return false;
@@ -38,6 +47,27 @@ function equivalentPrintedIntent(proposed,realized){
       Number.isSafeInteger(realized.index)&&
       proposed.index!==realized.index)return false;
   return true;
+}
+
+/**
+ * Stronger evidence tier: the later native-accepted action retained the
+ * same named physical printing and *explicit* public Energy recipient.
+ * An absent recipient is ambiguous, even when an executor usually defaults
+ * it to Active. Printed-copy identity and strategic merit remain unproven.
+ * @param {object} proposed
+ * @param {object} realized
+ * @returns {boolean}
+ */
+function matchingExplicitEnergyTarget(proposed,realized){
+  if(!equivalentPrintedIntent(proposed,realized)||
+     !['attach-basic-energy','attach-special-energy','attach-dce']
+       .includes(proposed.kind)||
+     typeof proposed.printing!=='string'||!proposed.printing||
+     proposed.printing!==realized.printing)return false;
+  if(proposed.slot==='active'&&realized.slot==='active')return true;
+  return proposed.slot==='bench'&&realized.slot==='bench'&&
+    Number.isSafeInteger(proposed.index)&&
+    proposed.index===realized.index;
 }
 
 /**
@@ -61,6 +91,8 @@ function traceAcceptedOwnerRootRecoveries(events){
   const counts={acceptedRoots:0,alternativeOffers:0,
     distinctDeferrableOffers:0,repeatedOffers:0,
     recoveredInSameTurn:0,recoveredPhysicalConfirmed:0,
+    recoveredExplicitEnergyTarget:0,
+    recoveredExplicitEnergyTargetWithEffect:0,
     expiredAtTurnEnd:0,closedOnNextOwnerTurn:0,
     censoredAfterLastRoot:0,immediateCompetingQuota:0,
     immediateTurnEnding:0};
@@ -104,12 +136,18 @@ function traceAcceptedOwnerRootRecoveries(events){
     for(const [key,item] of open[seat]){
       if(!equivalentPrintedIntent(item,e))continue;
       counts.recoveredInSameTurn++;
-      if(e.nativePhysicalEffect==='confirmed-public-effect')
+      const explicitTarget=matchingExplicitEnergyTarget(item,e);
+      if(explicitTarget)counts.recoveredExplicitEnergyTarget++;
+      if(e.nativePhysicalEffect==='confirmed-public-effect'){
         counts.recoveredPhysicalConfirmed++;
+        if(explicitTarget)counts.recoveredExplicitEnergyTargetWithEffect++;
+      }
       append('recovered',{
         seat,turn:e.globalTurn,originOrdinal:item.ordinal,
         selectedOrdinal:ordinal,kind:e.kind,printing:e.printing??null,
-        physicalEffect:e.nativePhysicalEffect??null
+        physicalEffect:e.nativePhysicalEffect??null,
+        explicitEnergyTargetMatch:explicitTarget,
+        physicalCopyIdentityVerified:false
       });
       open[seat].delete(key);
     }
@@ -138,9 +176,11 @@ function traceAcceptedOwnerRootRecoveries(events){
       originalAlternativeLegalityCertified:false,
       realizedActionPayoffCertified:false,
       equivalentPrintingIsPhysicalIdentity:false,
+      explicitEnergyTargetDoesNotVerifyCardCopy:true,
       competitiveGamesCertified:false
     }};
 }
 
 module.exports={VERSION,opportunityKey,equivalentPrintedIntent,
+  matchingExplicitEnergyTarget,
   traceAcceptedOwnerRootRecoveries};
