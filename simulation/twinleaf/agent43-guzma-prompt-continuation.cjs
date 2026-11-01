@@ -59,6 +59,12 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choosePlan=deps.choosePlan??((view,catalog)=>{
+    if(deps.prizeTradeGuzma===true||
+       process.env.AGENT31_GUZMA_PRIZE_TRADE_DEV==='true'){
+      const trade=require('./agent31-final-prize-guzma-frontier.cjs')
+        .choosePrizeTradeGuzma(view,catalog);
+      if(trade)return trade;
+    }
     if(deps.finalPrizeGuzma===true||
        process.env.AGENT31_GUZMA_FINAL_PRIZE_DEV==='true'){
       const finalPrize=require('./agent31-final-prize-guzma-frontier.cjs')
@@ -101,6 +107,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
     matchedForcedNominalKoPlans:0,matchedFinalPrizePlans:0,
+    matchedNonfinalPrizeTradePlans:0,
     guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
     ownTargetProposals:0,ownTargetAcceptances:0,ownTargetRejections:0,
@@ -289,6 +296,9 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
           if(candidate.plan.planFamily===
              'last-prize-multi-bench-nominal-gust')
             audit.matchedFinalPrizePlans++;
+          if(candidate.plan.planFamily===
+             'nonfinal-prize-trade-nominal-gust')
+            audit.matchedNonfinalPrizeTradePlans++;
         }
       }else audit.mismatchedOrUnplannedGuzma++;
     }
