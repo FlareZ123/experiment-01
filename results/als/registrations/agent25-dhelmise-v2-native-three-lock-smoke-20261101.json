@@ -1,0 +1,45 @@
+{
+  "version": "agent25-dhelmise-v2-native-three-lock-smoke-preregistered-v1",
+  "registeredAt": "2026-11-01T04:04:00Z",
+  "owner": "agent25",
+  "purpose": "Resolve a frozen exploratory post-Aichi 60 exactly into pinned Twinleaf, then execute bounded mechanical smoke against source ranks testing Wobbuffet, Garbotoxin, Initialization. No competitive win-rate inference.",
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "source": "results/aichi-2026/full-decklists.json",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperHnsHook": "simulation/twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs",
+  "printMapping": "resources/sets/en.json ptcgoCode from each canonical card id",
+  "sourceRanks": [
+    6,
+    10,
+    11
+  ],
+  "seedsByRank": {
+    "6": 2551586391,
+    "10": 1304508082,
+    "11": 2576542056
+  },
+  "candidateSeatIndices": [
+    0,
+    1
+  ],
+  "maximumRootActions": 120,
+  "sourceDecksUnchanged": true,
+  "options": {
+    "allowEquivalentBasicEnergies": true,
+    "allowBasicEnergyMirrorPrintings": true,
+    "allowJapanesePromoHooks": true,
+    "capturePhysicalZoneIntegrity": true,
+    "enforceSettledPhysicalZoneIntegrity": true,
+    "enforceVisiblePlayLockBothSeats": true,
+    "isolatePolicyRandomness": true
+  },
+  "acceptance": "Always archive native printing resolution, each of 6 attempted arms including errors and caps, HNS hook audit; do not omit unresolved printing worlds or promote untimed outcomes.",
+  "qualifiers": {
+    "sourcePrintedFinalPlaceIdentityRequired": true,
+    "competitiveGameQualified": false,
+    "policyCompetenceVerified": false,
+    "paperClockVerified": false,
+    "postEventCandidate": true
+  },
+  "decisiveQuestion": "Is the complete candidate executable with exactly mapped native printings, and if executable do native Store physics and actions remain valid for two player seats in each lock matchup?"
+}
