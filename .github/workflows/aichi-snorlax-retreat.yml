@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test original rank-7 turn-ending overlap exact probability
+        run: node --test tests/agent20-turn-ending-contention.test.cjs
       - name: Capture rank-7 Steven zero-choice and one-card native controls
         run: node simulation/twinleaf/agent20-steven-zero-search-native.cjs > agent20-steven-native.json
       - name: Test rank-7 Steven printed search minimum
