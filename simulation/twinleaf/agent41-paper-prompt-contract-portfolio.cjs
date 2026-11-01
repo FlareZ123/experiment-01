@@ -258,14 +258,16 @@ function withPaperPromptContractPortfolio(run,deps={}){
     'sets/09-sword-and-shield/set-silver-tempest/radiant-alakazam').RadiantAlakazam);
   const wasPowerUsed=deps.wasPowerUsed??(deps.Store?null:native(
     'game/store/prefabs/prefabs').WAS_POWER_USED);
-  const isRoxiePaymentCard=deps.isRoxiePaymentCard??(deps.Store?
-    null:(card)=>{
-      const {PokemonCard}=native('game/store/card/pokemon-card');
-      const {CardTag}=native('game/store/card/card-types');
-      return card instanceof PokemonCard&&
-        !card.hasTag(CardTag.POKEMON_GX)&&
-        !card.hasTag(CardTag.POKEMON_EX);
-    });
+  // Resolve native card classes only if an actual Roxie payment is
+  // presented. This keeps injected-Store pure tests vendor-independent and
+  // preserves printed validation for externally supplied genuine Stores.
+  const isRoxiePaymentCard=deps.isRoxiePaymentCard??(card=>{
+    const {PokemonCard}=native('game/store/card/pokemon-card');
+    const {CardTag}=native('game/store/card/card-types');
+    return card instanceof PokemonCard&&
+      !card.hasTag(CardTag.POKEMON_GX)&&
+      !card.hasTag(CardTag.POKEMON_EX);
+  });
   const types=deps.types??{
     ...native('game/store/actions/play-card-action'),
     ...native('game/store/card/card-types')
