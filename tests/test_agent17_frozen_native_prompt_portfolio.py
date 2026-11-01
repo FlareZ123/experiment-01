@@ -5,7 +5,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from agent17_frozen_native_prompt_portfolio import audit_native, public_energy_transfer_shape
+from agent17_frozen_native_prompt_portfolio import audit_native, public_energy_transfer_shape, source_thorns_volt_cyclone_base_cost_shape
 
 
 def fixture():
@@ -141,6 +141,44 @@ class FrozenPromptPortfolioTests(unittest.TestCase):
         modified["publicChanges"][0]["before"]["pokemon"] = "Other ex"
         self.assertEqual(public_energy_transfer_shape(modified),
                          "incorrect-source-or-recipient-pokemon")
+
+
+    def test_original_source_volt_cyclone_printed_base_energy_cost(self):
+        attack = {
+            "attackName": "Volt Cyclone",
+            "publicBoardBefore": [
+                {"stadium": [], "active": {"name": "Other",
+                                          "energyCards": []}},
+                {"stadium": [], "active": {
+                    "name": "Iron Thorns ex",
+                    "energyCards": ["Speed Lightning Energy",
+                                    "Double Colorless Energy"]}}
+            ],
+        }
+        self.assertEqual(source_thorns_volt_cyclone_base_cost_shape(
+            attack, 1), "observed-base-cost-payable")
+        changed = copy.deepcopy(attack)
+        changed["publicBoardBefore"][1]["active"]["energyCards"] = [
+            "Double Colorless Energy"
+        ]
+        self.assertEqual(source_thorns_volt_cyclone_base_cost_shape(
+            changed, 1), "observed-base-cost-unpayable")
+        changed["publicBoardBefore"][1]["stadium"] = [
+            "Thunder Mountain Prism Star"
+        ]
+        self.assertEqual(source_thorns_volt_cyclone_base_cost_shape(
+            changed, 1), "observed-base-cost-payable")
+        changed["publicBoardBefore"][0]["stadium"] = [
+            "Temple of Sinnoh"
+        ]
+        self.assertEqual(source_thorns_volt_cyclone_base_cost_shape(
+            changed, 1), "unmodeled-stadium")
+        changed = copy.deepcopy(attack)
+        changed["publicBoardBefore"][1]["active"]["energyCards"] = [
+            "Unknown Energy"
+        ]
+        self.assertEqual(source_thorns_volt_cyclone_base_cost_shape(
+            changed, 1), "unmodeled-energy")
 
 
 if __name__ == "__main__":
