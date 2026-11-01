@@ -36,6 +36,30 @@ n >= ceil[ln(0.05)/(32 ln(0.995))] = 19 games per rank.
 
 If instead the objective demands a simultaneous **separate 99.5% lower confidence bound for every individual matchup**, one conservative Bonferroni design needs **1,290 independent lossless games *per opponent***, **41,280 total**, to guarantee familywise 5% one-sided coverage via `32 × 0.995^1290 = 0.0497650151`. That stronger requirement is **not** the prompt's primary uniformly weighted aggregate field objective.
 
+## Deterministic matchup-loss budget: why the worst opponents dominate
+
+Irrespective of how the candidate deck is tested, a uniform Top32 field mean of at least 99.5% permits only
+
+```text
+sum_i (1 - p_i) <= 32 × (1 - 0.995) = 0.16.
+```
+
+This is the **total allowable sum of the 32 matchup-specific loss probabilities**, not a sample estimate. Since each component is nonnegative, **every opponent's true win probability must be at least 84%**, even if the other 31 were mathematically unbeatable. For `k` opponents sharing the aggregate worst-case loss budget equally, their required average win probability is at least `1 - 0.16/k` if all the remaining opponents are perfect:
+
+| Difficult matchups sharing all the allowed loss | Minimum average win probability among those k |
+| ---: | ---: |
+| 1 | **84.000%** |
+| 2 | **92.000%** |
+| 3 | **94.667%** |
+| 4 | **96.000%** |
+| 8 | **98.000%** |
+| 16 | **99.000%** |
+| 32 | **99.500%** |
+
+For example, the known original rank6/24/29 Iron Thorns archetypes are **three distinct original Top32 lists**. If a fixed deck could attain only 90% real win probability against each of these three and a hypothetical 100% against all other 29, its maximum equal-field average would be `(29+3×0.9)/32 = 99.0625%`, already below the target. No simulator data in this report establishes any real actual win probability. This is solely a deterministic feasibility constraint on future credible claims.
+
+The important methodological consequence is **hard-matchup triage**: the objective's total loss budget is so narrow that a single genuine 80%-win counter matchup makes 99.5% logically unreachable under uniform ranks. Swapping consistency cards to increase already dominant matchups cannot compensate for unaddressed severe opponent locks or damage rules. All 32 registered opponents, rather than a favorable subset, must be evaluated.
+
 ## Boundaries
 
 1. **Zero losses is an extreme best case.** Even one loss invalidates the simple zero-failure derivation; a larger or differently designed sample and correctly formulated stratified inference would be needed.
