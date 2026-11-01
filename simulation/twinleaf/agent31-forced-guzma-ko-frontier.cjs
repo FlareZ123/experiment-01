@@ -5,7 +5,25 @@ const {paysWithBasics} = require('./agent7-actor-free-retreat-frontier.cjs');
 const {eligibleDamagingAttack, isGuzma} =
   require('./agent2-held-guzma-mobility-frontier.cjs');
 
-const VERSION = 'agent31-forced-guzma-nominal-ko-v1';
+const VERSION = 'agent31-forced-guzma-nominal-ko-v2-absol-fixed-side-effect';
+
+/**
+ * Explicitly allowlisted printed attack with independent post-damage hand
+ * disruption. Its 200 damage is fixed and independent of the opponent hand.
+ * Other nonempty attack text remains excluded until separately verified.
+ * @param {object} pokemon
+ * @param {object} attack
+ * @returns {boolean}
+ */
+function safePrintedDamageText(pokemon,attack){
+  if(attack.text==='')return true;
+  return pokemon.printing==='Mega Absol ex ME1'&&
+    attack.name==='Claw of Darkness'&&attack.damage===200&&
+    [
+      'Your opponent reveals their hand, and you discard a card you find there.',
+      'Your opponent reveals their hand. Discard a card you find there.'
+    ].includes(attack.text);
+}
 
 /**
  * Fixed positive printed attack only. This deliberately excludes GX moves,
@@ -19,7 +37,7 @@ function fundedPlainAttacks(pokemon, catalog) {
   if (!pokemon || !Array.isArray(pokemon.attacks)) return [];
   return pokemon.attacks.filter(attack =>
     eligibleDamagingAttack(pokemon, attack, catalog) &&
-    attack.text === '' &&
+    safePrintedDamageText(pokemon, attack) &&
     (attack.damageCalculation === null ||
       attack.damageCalculation === undefined) &&
     paysWithBasics(pokemon, attack, catalog));
@@ -95,4 +113,4 @@ function chooseForcedGuzmaNominalKo(view, catalog) {
   };
 }
 
-module.exports = {VERSION, fundedPlainAttacks, chooseForcedGuzmaNominalKo};
+module.exports = {VERSION, safePrintedDamageText, fundedPlainAttacks, chooseForcedGuzmaNominalKo};
