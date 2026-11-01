@@ -96,7 +96,7 @@ function sourceSecondTurn() {
   resolve(attack,payload.attacks[0]);
   const choice=pending();assert.equal(choice.constructor.name,'ChooseCardsPrompt');
   assert.equal(choice.cards.cards.length,2,'Random subset must be preselected');
-  resolve(choice,choice.cards.cards);
+  resolve(choice,choice.cards.cards.slice());
   settle(); // Complete any post-selection shuffle, animation and damage roots.
   assert.equal(opp.hand.cards.length,1,'Night Watch leaves one card after Ace');
   return {prizes:[me.getPrizeLeft(),opp.getPrizeLeft()],
