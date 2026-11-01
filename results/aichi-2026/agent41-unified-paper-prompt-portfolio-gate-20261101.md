@@ -106,3 +106,73 @@ The receipt records only `family`, `selectedCount`, `nativeDeclaredGeometry`, a 
 
 Three additional pure regressions exercise valid/invalid physically identified Pokémon targets, Prizes, offered option indices and hidden OrderCards permutations, plus actual original Store audit classification and no-effect acceptance. [Manual CI 41332829343](https://github.com/FlareZ123/experiment-01/actions/runs/41332829343) passed **118/118 pure tests** and then refused the unchanged frozen-v2 code-hash mismatch. This is a **prospective recording capability**. Exactly **zero** original-source prompt choices have been newly recorded in genuine native runs with v4, and **zero** games or complete printed-choice effects have become paper qualified. The common root-ordinal join remains open and the 32-arm native audit dispatch remains blocked.
 
+
+
+## 21:55 UTC paper-fidelity status update: independent native counterexamples
+
+Later native Store work by Agent4 and Agent46 supersedes a permissive reading
+of the earlier v4 prompt portfolio without changing any old frozen baseline.
+The observations below were **genuine staged native Store interactions**,
+never original random source-dealt tournament games.
+
+**Original exact rank31 source printing, invalid Roxie payment:** The exact
+rank31 60 contains Roxie CEC205 (4), Tapu Lele-GX GRI60 (1), Gengar &
+Mimikyu-GX TEU53 (1), Koffing CEC76 (3), Radiant Alakazam SIT59 (1).
+Agent4's [both-seat real prompt test](agent4-rank31-roxie-illegal-gx-native-original-20261101.md)
+passed [manual compiled CI 41353395812](https://github.com/FlareZ123/experiment-01/actions/runs/41353395812):
+the native Roxie `ChooseCardsPrompt.validate([Tapu Lele-GX])` correctly
+returned **false**, but genuine original `Store.dispatch` still accepted
+and settled that *paper-illegal* GX discard and drew three actual cards in
+**both physical seats**. A separate reversible
+[owner-payment guard](../../simulation/twinleaf/agent4-roxie-paper-payment-hook.cjs)
+passed the already recorded [CI 41354079057](https://github.com/FlareZ123/experiment-01/actions/runs/41354079057):
+both-seat invalid GX response is rejected before mutation, while legal
+Koffing payment still resolves. The native reducer's independent missing
+`DiscardCardsEffect.type` compatibility correction applied to both arms.
+The paper D-05 **nonzero payment** rule is separately under review and is
+not certified from the GX test.
+
+**Original exact rank31 source, two-source Painful Spoons:** Agent4's
+[physical Roxie → Koffing → Radiant Alakazam native triad](agent4-original-rank31-roxie-koffing-alakazam-triad-native-20261101.md)
+passed [CI 41352531300](https://github.com/FlareZ123/experiment-01/actions/runs/41352531300).
+With actual Koffing Blow-Away Bomb damage counters, the original Store
+accepted one Alakazam move from **two separate opponent source Pokémon**
+despite printed *from one Pokémon*, creating a victim KO and **two actual
+Prize cards**. A reversible single-source paper guard rejected that same
+reply with zero Prizes, preserving the victim. This is an impactful staged
+semantic divergence on an authenticated original rank31 source 60. It does
+not measure whether the original played that turn in its actual tournament
+matches. There was also a separate native prompt validator/Store mismatch
+for a legal Koffing discard depending on hand order.
+
+**Independent non-field printed optional-damage budget:** Agent46's
+[both-seat Froslass UNM native test](../twinleaf/agent46-optional-damage-budget-paper-guard-20261101.md)
+passed [CI 41352642800](https://github.com/FlareZ123/experiment-01/actions/runs/41352642800).
+An optional native `PutDamagePrompt` accepted **80** own damage where
+the printed maximum was **70**, producing a printed-invalid **160**
+opponent attack damage and an actual follow-up Prize prompt. The
+research-owned reversible guard rejects that over-budget choice before
+damage. Froslass, Banette and Walking Wake named in this check do
+not appear in the 29 original source 60s; this remains a **general
+paper-policy** engine defect, with a different direct relevance level
+from the rank31 original printing.
+
+**Unified common portfolio:** Agent46 subsequently developed an optional
+partial-damage-budget negative in the shared
+[`agent41-paper-prompt-contract-portfolio.cjs`](../../simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs)
+and advanced its audit schema to **v6**. The modification and a new
+associated regression exist, but their combined compiled native CI outcome
+must be separately checked; do not apply the old v4 archived source hash
+to the changed v6 code. No shared 32-arm native paper portfolio has
+been requalified. A native `validate` success/failure is **not** proof of
+paper-faithful accepted Store effects.
+
+**Release policy:** require owner-visible, original-printed Roxie payment
+filter and Alakazam single-source physical movement checks for rank31,
+including both seats, genuine next actions, all fail/cap receipts and
+complete prompt closure. Keep the zero-prize staged guard outcome separate
+from completed legal-turn evidence. The new v6 damage limit is a necessary
+negative veto, not positive paper certification of every passing prompt.
+
+The field remains **29/32 original exact 60s and 0 competitively
+qualified games**.
