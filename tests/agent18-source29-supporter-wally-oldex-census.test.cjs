@@ -36,3 +36,18 @@ test('printed archive resolves Wally as Supporter and legacy Tool as Tool',()=>{
   assert.deepEqual([...types.get('Technical Machine: Evolution')],['Pokémon Tool']);
   assert.deepEqual([...types.get('Float Stone')],['Pokémon Tool']);
 });
+
+test('seven explicitly sourced missing card types are strictly non-Supporters',()=>{
+  const types=loadTypes();
+  const expected={
+    'Battle Compressor':'Item',
+    'Palace Belt':'Pokémon Tool',
+    'Palace Book':'Item',
+    'Robo Substitute':'Item',
+    'Target Whistle':'Item',
+    'Thunder Mountain ♢':'Stadium',
+    'Wondrous Labyrinth ♢':'Stadium'
+  };
+  for(const [name,type] of Object.entries(expected))
+    assert.deepEqual([...types.get(name)],[type]);
+});
