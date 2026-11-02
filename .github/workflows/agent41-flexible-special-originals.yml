@@ -194,3 +194,24 @@ jobs:
             agent14-rank9-farewell-native-8arm.json
           if-no-files-found: warn
           retention-days: 20
+      - name: Validate authentic original ranks 26 30 31 Unown replay inputs
+        if: ${{ inputs.unown_multirank_replay }}
+        run: |
+          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs
+          node simulation/evaluation/agent14-multirank-unown-original-replay.cjs --inspect-only > agent14-other-unown-preflight.json
+      - name: Run 24 actual native off-on original-source Unown development trials
+        if: ${{ inputs.unown_multirank_replay }}
+        run: node simulation/evaluation/agent14-multirank-unown-original-replay.cjs > agent14-other-unown-24arm.json
+      - name: Summarize owner-native settlement by rank and censored source trials
+        if: ${{ inputs.unown_multirank_replay }}
+        run: node simulation/evaluation/agent14-multirank-unown-compact.cjs agent14-other-unown-24arm.json
+      - name: Archive complete additional original Unown rank evidence
+        if: ${{ always() && inputs.unown_multirank_replay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-original-unown-other-ranks
+          path: |
+            agent14-other-unown-preflight.json
+            agent14-other-unown-24arm.json
+          if-no-files-found: warn
+          retention-days: 20
