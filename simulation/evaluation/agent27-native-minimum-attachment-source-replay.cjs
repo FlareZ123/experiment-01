@@ -31,13 +31,15 @@ const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
  * @param {()=>T} work
  * @returns {{result:T,initialFullDealSha256:string|null}}
  */
-function withAbortSafeDealWitness(work){
+function withAbortSafeDealWitness(work,sourceSeat){
   const Store=native('game/store/store').Store;
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   const full=createFullPhysicalDealObserver();
   let root=null;
   const nativeMinimumAttachActionReceipts=[];
+  const nativeFollowingOpponentPassAttackProbes=[];
+  assert.ok(sourceSeat===0||sourceSeat===1);
   function observed(action,...args){
     if(root===null&&action?.constructor?.name==='AddPlayerAction')root=this;
     if(this===root)full.observe(this.state);
@@ -45,6 +47,31 @@ function withAbortSafeDealWitness(work){
     // returned a choice. The opponent-private and undealt deck zones never
     // enter the live actor policy.
     const state=this.state;
+    if(this===root&&action?.constructor?.name==='PassTurnAction'&&
+      state.players?.[1-sourceSeat]?.id===action.playerId){
+      const anchor=nativeMinimumAttachActionReceipts.findLast(row=>
+        row.nativeStoreActionAccepted===true&&
+        row.actorSeat===sourceSeat&&
+        row.globalTurn+1===state.turn);
+      if(anchor){
+        let probe;
+        try{
+          probe=require('../twinleaf/pass-attack-announcement-probe.cjs')
+            .probePassedAttackOptions(state,action.playerId);
+        }catch(error){
+          probe={auditError:String(error?.message??error),
+            scope:'Post-choice cloned native Store probe only'};
+        }
+        nativeFollowingOpponentPassAttackProbes.push({
+          sourcePromptId:anchor.promptId,
+          sourceTurn:anchor.globalTurn,
+          ownerSeat:1-sourceSeat,
+          replyGlobalTurn:state.turn,
+          selectedPassAction:true,
+          clonedAttackProbe:probe
+        });
+      }
+    }
     const prompt=this===root&&action?.constructor?.name==='ResolvePromptAction'?
       state.prompts?.find(p=>p.id===action.id&&p.result===undefined):null;
     const cardSource=prompt?.constructor?.name==='AttachEnergyPrompt'&&
@@ -101,7 +128,8 @@ function withAbortSafeDealWitness(work){
   Object.defineProperty(Store.prototype,'dispatch',{...previous,value:observed});
   try{return{result:work(),initialFullDealSha256:
     full.result()?.digestSha256??null,
-    nativeMinimumAttachActionReceipts};}
+    nativeMinimumAttachActionReceipts,
+    nativeFollowingOpponentPassAttackProbes};}
   finally{
     assert.strictEqual(Store.prototype.dispatch,observed);
     Object.defineProperty(Store.prototype,'dispatch',previous);
@@ -172,7 +200,7 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
         celestial:error.nativeCelestialRoarSpecialEvidence??null
       };
     }
-  });
+  },rankPair.indexOf(10));
   const sourceContinuation=wrapped.result.game ?
     require('./agent27-energy-attack-continuation.cjs')
       .joinSourceEnergyAttackContinuation({
@@ -188,6 +216,8 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
     registeredSourceHashes:sourceHash,
     separateFullSourceDealSha256:wrapped.initialFullDealSha256,
     nativeMinimumAttachActionReceipts:wrapped.nativeMinimumAttachActionReceipts,
+    nativeFollowingOpponentPassAttackProbes:
+      wrapped.nativeFollowingOpponentPassAttackProbes,
     ...wrapped.result,qualifiedCompetitiveGames:0
   };
 }
