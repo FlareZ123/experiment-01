@@ -185,6 +185,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  if(options.underworldDoorRoot===true){
+    const underworld=require('./agent31-underworld-door-owner-frontier.cjs')
+      .chooseUnderworldDoorRoot(
+        view,catalog,options.underworldMarkerReceipt);
+    if(underworld)return underworld;
+  }
   if(options.mysteriousTreasureEarlyRegistered===true){
     const early=require('./agent49-registered-treasure-early-setup.cjs')
       .chooseRegisteredTreasureEarlyIntent(
@@ -655,6 +661,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
+    underworldDoorRootOptIn:deps.underworldDoorRoot===true,
+    underworldDoorRootSelected:0,
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
     genesectFusionReceipts:[],
@@ -1168,6 +1176,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.crobatDceMewRetreatOptIn,
         audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
+      underworldDoorRoot:audit.underworldDoorRootOptIn===true,
+      underworldMarkerReceipt:audit.underworldDoorRootOptIn?
+        require('./agent31-underworld-door-owner-frontier.cjs')
+          .ownerUnderworldMarkerReceipt(state.players[seat]):undefined,
       genesectFusionUsedThisTurn:
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
       flexiblePaidRetreatRoot:audit.flexiblePaidRetreatRootOptIn,
@@ -1314,6 +1326,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(intent.kind==='use-underworld-door')
+      audit.underworldDoorRootSelected++;
     if(intent.source==='rank13-dragon-donor')
       audit.regidragoDonorQuickBallIntentCount++;
     if(audit.ownerArbitrationCensusOptIn){
@@ -1404,6 +1418,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'skyliner-rondo-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
+      case 'use-underworld-door':
       case 'use-genesect-fusion-draw':
         action=new UseAbilityAction(ownerId,intent.abilityName,{
           player:PlayerType.BOTTOM_PLAYER,
