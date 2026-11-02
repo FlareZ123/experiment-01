@@ -51,6 +51,10 @@ on:
         description: Replay full authentic owner RNG tape from first finite-scored decision entry
         type: boolean
         default: false
+      agent23_native_finite_entry_only:
+        description: Diagnostic first-finited scored root without redundant in-tape State recapture
+        type: boolean
+        default: false
       agent23_native_opponent_hand_tape:
         description: Conditional opponent hidden-hand exchange after authentic owner same-world tape parity
         type: boolean
@@ -287,6 +291,7 @@ jobs:
           AGENT50_NATIVE_TAPE_SAME_WORLD: ${{ inputs.agent50_native_same_world_tape || inputs.agent50_native_tape_hidden_deck_order || inputs.agent50_native_first_finite_tape || inputs.agent23_native_opponent_hand_tape }}
           AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER: ${{ inputs.agent50_native_tape_hidden_deck_order }}
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
+          AGENT23_NATIVE_FINITE_ENTRY_ONLY: ${{ inputs.agent23_native_finite_entry_only }}
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV: ${{ inputs.agent23_native_bounded_double_swap }}
