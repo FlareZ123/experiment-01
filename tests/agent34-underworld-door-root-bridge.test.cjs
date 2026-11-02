@@ -94,7 +94,9 @@ function nativeRoot(enabled,used=false){
     const store=new Store(used);
     store.dispatch(new AddPlayerAction());
     const action=new SimpleTacticsAi(10).decodeNextAction(store.state);
-    return {action,marker:ownerUnderworldMarkerReceipt(store.state.players[0])};
+    const marker=ownerUnderworldMarkerReceipt(store.state.players[0]);
+    store.dispatch(action);
+    return {action,marker};
   },{
     SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
     observe:()=>view(),getCatalog:()=>catalog,
@@ -122,6 +124,10 @@ test('trusted unspent marker becomes typed owner-Bench UseAbilityAction',()=>{
     player:2,slot:2,index:0
   });
   assert.equal(result.audit.underworldDoorRootSelected,1);
+  assert.equal(result.audit.acceptedActorRoots,1,
+    'Genuine Store wrapper accepted the owner root');
+  assert.equal(result.audit.nativePhysicalUnconfirmed,1,
+    'Mock Store without an Energy prompt cannot certify a real attachment');
   assert.deepEqual(result.result.marker,
     {activeUnspent:false,benchUnspent:[true,false,false,false,false]});
   assert.equal(result.audit.competitiveGameQualified,false);
