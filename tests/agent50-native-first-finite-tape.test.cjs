@@ -22,7 +22,8 @@ class NativeScoredBot {
 }
 
 function runFixture({replayPolicy=(_seat,work)=>({result:work()}),
-  entryOnly=false,fairReplayHooks=false,installFairBotHooks=()=>()=>{}}={}) {
+  entryOnly=false,fairReplayHooks=false,installFairBotHooks=()=>()=>{},
+  supporterReplayHook=false,installSupporterDecisionHook=()=>()=>{}}={}) {
   const source={
     turn:3,activePlayer:0,prompts:[],beforeScoreMutation:0,
     players:[{id:101,hand:{cards:[]},deck:{cards:['hidden-A','hidden-B']}}]
@@ -51,8 +52,10 @@ function runFixture({replayPolicy=(_seat,work)=>({result:work()}),
       nativeTapeSameWorld:true,nativeTapeFirstFiniteScore:true,
       nativeTapeEntryOnly:entryOnly,
       nativeTapeFairReplayHooks:fairReplayHooks,
+      nativeTapeSupporterReplayHook:supporterReplayHook,
       makeRandom:()=>()=>0.5},
     {headless,replayPolicy,installFairBotHooks,
+      installSupporterDecisionHook,
       compare:()=>{throw Error('No hidden contrast');}}
   );
   assert.equal(authenticCalls,1);
@@ -140,4 +143,24 @@ test('native replay exception restores research shuffle hooks and vetoes parity'
   assert.equal(restored,1);
   assert.equal(result.events[0].nativeSameWorldTape
     .sameWorldDecisionParityQualified,false);
+});
+
+test('both actual-game research replay hooks restore in reverse order',()=>{
+  const events=[];
+  const {result}=runFixture({
+    fairReplayHooks:true,supporterReplayHook:true,
+    installFairBotHooks:()=>{
+      events.push('fair-on');
+      return ()=>events.push('fair-off');
+    },
+    installSupporterDecisionHook:()=>{
+      events.push('supporter-on');
+      return ()=>events.push('supporter-off');
+    }
+  });
+  assert.deepEqual(events,[
+    'fair-on','supporter-on','supporter-off','fair-off'
+  ]);
+  assert.equal(result.events[0].nativeSameWorldTape
+    .sameWorldDecisionParityQualified,true);
 });
