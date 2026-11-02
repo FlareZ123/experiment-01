@@ -1118,6 +1118,11 @@ function runMatch(request) {
                   preDispatchPublic:publicSnapshot(state),
                   preDispatchBoard:publicBoardSnapshot(state)
                 });
+            // Only public source frame names and line coordinates survive.
+            // The decoder's potentially private exception message stays redacted.
+            error.nativeAbortEvidence.decoderFrameAttribution=
+              require('./native-dispatch-abort-evidence.cjs')
+                .safeDecoderFrameAttribution(error);
           }
         }
         throw error;
