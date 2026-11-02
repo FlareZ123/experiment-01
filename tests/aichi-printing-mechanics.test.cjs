@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {compareMixedPrintings}=
+const {compareMixedPrintings,auditSharedSetCodes}=
   require('../scripts/aichi-printing-mechanics.cjs');
 
 const field=JSON.parse(fs.readFileSync(path.resolve(__dirname,
@@ -70,4 +70,25 @@ test('shared LOR PTCGO code selects main set and Gallery by exact number',()=>{
   // Cosmetic alternate printings can share identical game text.
   assert.equal(rows[0].distinctAbilities,false);
   assert.equal(rows[0].distinctAttacks,false);
+});
+
+
+test('nine duplicated English set codes affect 142 original physical copies',()=>{
+  const sets=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+    '../resources/sets/en.json'),'utf8'));
+  const result=auditSharedSetCodes(field,sets);
+  assert.equal(result.sourceDecks,29);
+  assert.equal(result.sourcePhysicalCopies,1740);
+  assert.equal(result.duplicatePtCgoCodes,9);
+  assert.equal(result.fieldUsedDuplicateCodes,5);
+  assert.equal(result.originalRowsUsingDuplicates,76);
+  assert.equal(result.originalCopiesUsingDuplicates,142);
+  assert.deepEqual(result.aliases.map(x=>x.code),[
+    'HIF','SHF','CEL','BRS','ASR','LOR','SIT','CRZ','30C'
+  ]);
+  assert.deepEqual(result.aliases.filter(x=>x.sourceCopies>0)
+    .map(x=>[x.code,x.sourceCopies]),[
+      ['BRS',1],['ASR',53],['LOR',12],['SIT',75],['CRZ',1]
+    ]);
+  assert.equal(result.competitiveQualifiedGames,0);
 });
