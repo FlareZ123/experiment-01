@@ -37,6 +37,31 @@ function resolveArchive(archive){
 }
 
 /**
+ * Capture actual setup prompt history without interpreting native prompt
+ * counts as proof of a paper mulligan or compensation award.
+ * @param {object} row Canonical Store row.
+ * @returns {object} Root-ledger setup counts for each physical seat.
+ */
+function nativeSetupHistory(row){
+  if(!Array.isArray(row?.rootActionLedger)||
+      ![0,1].includes(row.sourceSeat)||
+      ![0,1].includes(row.candidateSeat))return {observed:false};
+  const setup=row.rootActionLedger.filter(e=>
+    e.turnBefore===0&&e.action==='ResolvePromptAction');
+  const count=(seat,kind)=>setup.filter(e=>e.playerSlot===seat&&
+    e.pendingPrompt===kind).length;
+  return {
+    observed:true,
+    sourceShufflePromptActions:count(row.sourceSeat,'ShuffleDeckPrompt'),
+    candidateShufflePromptActions:count(row.candidateSeat,'ShuffleDeckPrompt'),
+    sourceShowMulliganPromptActions:count(row.sourceSeat,'ShowMulliganPrompt'),
+    candidateShowMulliganPromptActions:count(row.candidateSeat,'ShowMulliganPrompt'),
+    sourceSelectPromptActions:count(row.sourceSeat,'SelectPrompt'),
+    candidateSelectPromptActions:count(row.candidateSeat,'SelectPrompt')
+  };
+}
+
+/**
  * Independently check whether both registered candidates received the same
  * original-source physical deal. Never equate matching PRNG seeds with
  * matching source hands and prizes.
@@ -76,8 +101,19 @@ function sourcePairReceipts(rows){
       !sameStarter?'STARTER_STRATUM_DIFFERENT':
       hashes[0]!==hashes[1]?'SOURCE_PHYSICAL_DEAL_DIFFERENT':
       'EXACT_SOURCE_PHYSICAL_MATCH';
+    const setupHistories=attempts.map(nativeSetupHistory);
+    const sameSetupHistory=present&&setupHistories.every(x=>x.observed)&&
+      setupHistories.every(x=>JSON.stringify(x)===JSON.stringify(setupHistories[0]));
+    const sourceHandHashes=attempts.map(r=>r.sourceFirstOwnHandSha256??null);
+    const sameFirstOwnerHandSha=present&&sourceHandHashes.every(h=>
+      typeof h==='string'&&SHA256.test(h))&&
+      sourceHandHashes.every(h=>h===sourceHandHashes[0]);
     return {pairId,trialIds:ids,status,
-      sourceHashes:hashes,
+      sourceHashes:hashes,setupHistories,
+      sameSetupHistory,
+      sameFirstOwnerHandSha,
+      sameFirstOwnerHandButDifferentSourceDeal:
+        sameFirstOwnerHandSha&&status==='SOURCE_PHYSICAL_DEAL_DIFFERENT',
       candidateComparisonCompetitivelyQualified:false};
   });
 }
@@ -180,5 +216,5 @@ function correctNativeArchive(archive){
   };
 }
 
-module.exports={resolveArchive,sourcePairReceipts,firstSourceTurnReceipt,
+module.exports={resolveArchive,nativeSetupHistory,sourcePairReceipts,firstSourceTurnReceipt,
   correctNativeArchive};
