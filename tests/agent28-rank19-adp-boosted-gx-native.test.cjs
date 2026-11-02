@@ -82,3 +82,30 @@ for(const seat of [0,1])for(const ddeCount of [1,2]){
       sourcePrizes:x.source.getPrizeLeft(),opponentPrizes:x.opponent.getPrizeLeft()}));
   });
 }
+
+test('original ADP actor public-cost frontier picks boosted GX over Ultimate Ray',()=>{
+  const manager=initializeCards();
+  const types={
+    PokemonCard:load('game/store/card/pokemon-card').PokemonCard,
+    EnergyCard:load('game/store/card/energy-card').EnergyCard,
+    TrainerCard:load('game/store/card/trainer-card').TrainerCard,
+    ...load('game/store/card/card-types'),
+    PowerType:load('game/store/card/pokemon-types').PowerType
+  };
+  const catalog=buildActorCardCatalog(manager.getAllCards(),types);
+  for(const seat of [0,1])for(const ddeCount of [1,2]){
+    const x=stage(seat,ddeCount);
+    const view=actorObservation(x.state,seat);
+    const chosen=chooseActorRootIntent(view,catalog,{
+      adpBoostedGxRoot:true,publicContextSpecialEnergy:true
+    });
+    assert.deepEqual(chosen,{kind:'attack',attackName:'Altered Creation-GX'},
+      'Both native seats must reach the exact printed GX via owner-visible cost');
+    if(ddeCount===2){
+      const control=chooseActorRootIntent(view,catalog,{
+        publicContextSpecialEnergy:true
+      });
+      assert.deepEqual(control,{kind:'attack',attackName:'Ultimate Ray'});
+    }
+  }
+});
