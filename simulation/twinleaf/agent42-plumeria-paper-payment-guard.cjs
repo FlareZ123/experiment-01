@@ -1,14 +1,21 @@
 'use strict';
 const assert=require('node:assert/strict');
 const path=require('node:path');
-/** @template T @param {()=>T} run @returns {{result:T,audit:object}} */
-function withPaperPlumeriaPayment(run){
+/**
+ * @template T
+ * @param {()=>T} run Synchronous native workload.
+ * @param {{requireLiveStore?:boolean}} [deps] Scope to AddPlayer-created match Stores.
+ * @returns {{result:T,audit:object}}
+ */
+function withPaperPlumeriaPayment(run,deps={}){
  assert.equal(typeof run,'function');
  const {Store}=require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
- const audit={version:'plumeria-paper-cost-v2',observed:0,accepted:0,
-  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],nativeAddPlayerStores:0};
+ const liveOnly=deps.requireLiveStore===true;
+ const audit={version:'plumeria-paper-cost-v3-live-scoped',observed:0,accepted:0,
+  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],nativeAddPlayerStores:0,
+  requireLiveStore:liveOnly,auxiliaryPromptSkips:0};
  const liveStoreOrder=new WeakMap();
  function dispatch(action,...args){
   if(action?.constructor?.name==='AddPlayerAction'&&!liveStoreOrder.has(this)){
@@ -18,6 +25,10 @@ function withPaperPlumeriaPayment(run){
   let receiptBefore=null;
   if(action?.constructor?.name==='ResolvePromptAction'){
    const p=this.state?.prompts?.find(x=>x.id===action.id&&x.result===undefined);
+   if(liveOnly&&!liveStoreOrder.has(this)){
+    if(p?.sourceCard?.fullName==='Plumeria BUS')audit.auxiliaryPromptSkips++;
+    return old.value.call(this,action,...args);
+   }
    if(p?.sourceCard?.fullName==='Plumeria BUS'&&
       p.message==='CHOOSE_CARD_TO_DISCARD'&&p.options?.min===2&&
       p.options?.max===2){
