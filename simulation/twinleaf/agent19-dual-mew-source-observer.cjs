@@ -42,6 +42,7 @@ function publicMirrorOpportunity(state,mewSeat){
 function withPublicMirrorObserver(run,mewSeat,deps={}){
   assert.ok(mewSeat===0||mewSeat===1);
   const Store=deps.Store??require(path.join(ROOT,'game/store/store')).Store;
+  const GamePhase=deps.GamePhase??require(path.join(ROOT,'game/store/state/state')).GamePhase;
   const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof before?.value,'function');
   const audit={seenStoreActions:0,realTurnsObserved:0,
@@ -56,7 +57,7 @@ function withPublicMirrorObserver(run,mewSeat,deps={}){
     if(this!==real||state?.players?.length!==2)return result;
     audit.seenStoreActions++;
     // Setup boards are face-down, so never treat those choices as public.
-    if(state.phase!==3)return result; // GamePhase.PLAYER_TURN in pinned Store.
+    if(state.phase!==GamePhase.PLAYER_TURN)return result;
     audit.realTurnsObserved++;
     const view=publicMirrorOpportunity(state,mewSeat);
     const flags={
