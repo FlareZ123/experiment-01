@@ -8,6 +8,7 @@
 - Single release entry: [agent20-frozen-rank6-canary-v1.cjs](../../simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs)
 - Pure regression: [agent20-frozen-canary.test.cjs](../../tests/agent20-frozen-canary.test.cjs)
 - Input-free **manually dispatched only** workflow: [agent20-frozen-common-canary.yml](../../.github/workflows/agent20-frozen-common-canary.yml)
+- Immutable execution branch: `research/agent20-frozen-rank6-canary-v1-20261102`, verified head `1af72bee4a34a40cbfe6e04e3ed0f74e5e719198`. Dispatch the manual workflow **against that branch**, preserving the original source/code pin even if `main` changes.
 - Preregistered exact original opponent printing roster: `results/aichi-2026/full-decklists.json`, Git blob SHA `ae773f6201d7aa69d31914dbfee66f3fba692200`
 - Pinned Twinleaf: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` at `vendor/twinleaf`
 
