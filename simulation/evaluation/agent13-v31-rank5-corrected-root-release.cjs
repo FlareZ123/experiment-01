@@ -27,7 +27,7 @@ function preflight(){
   assert.equal(profile.sourcePrinted60Sha256,registration.sourcePrinted60Sha256);
   assert.equal(profile.sourceRank,5);
   assert.deepEqual(profile.registeredSeeds,registration.registeredGroups);
-  assert.equal(registration.plannedArms,8);
+  assert.equal(registration.plannedArms,16);
   assert.equal(profile.expectedTotalNativeArms,16);
   for(const [file,sha] of Object.entries(profile.effectiveSelectedCodeBlobShas)){
     assert.equal(gitBlobHash(fs.readFileSync(path.join(ROOT,file))),sha,
