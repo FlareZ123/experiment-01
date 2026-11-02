@@ -210,6 +210,8 @@ jobs:
         run: node --test tests/agent12-native-settled-recovery-lineage-bridge.test.cjs
       - name: Verify printed rank5 Techno Blast baseline damage and Prize thresholds
         run: node --test tests/agent12-rank5-printed-techno-blast-calibration.test.cjs
+      - name: Regress raw native rank5 release status without replaying frozen outcomes
+        run: node --test --test-name-pattern="actual engine dispositions" tests/agent13-v3-rank5-release.test.cjs
       - name: Retrieve unchanged archived native rank5 v3.1 original 16 arms
         if: ${{ inputs.agent12_rank5_printed_native_replay }}
         uses: actions/download-artifact@v4
