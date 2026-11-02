@@ -85,9 +85,10 @@ function diagnostic() {
   let cohort;
   try { cohort=run(); }
   finally {
-    assert.equal(Store.prototype.dispatch,observer,
-      'Native Store observer was replaced unexpectedly');
+    const installed=Store.prototype.dispatch;
     Store.prototype.dispatch=previous;
+    assert.equal(installed,observer,
+      'Native Store observer was replaced unexpectedly');
   }
   assert.equal(current,47,'Expected exactly 48 native Store games');
   assert.equal(captures.length,48);
