@@ -55,6 +55,8 @@ jobs:
         run: node --test tests/agent28-rank19-original-floatstone-promote-native.test.cjs
       - name: Verify rank19 owner Tool-array census in native public-board view
         run: node --test tests/agent50-rank19-native-original-tool-census.test.cjs
+      - name: Diagnose native ADP global effect lifetime after leaving play
+        run: node --test tests/agent28-adp-effect-lifetime-diagnostic.native.test.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
         run: node --test tests/agent28-rank19-adp-boosted-gx-native.test.cjs
       - name: Verify rank19 actor-visible ADP boosted GX resource window
