@@ -89,6 +89,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
     }
     const session=sessions.get(this);
     const state=this.state;
+    let observedRoot=null;
     if((session?.sourceSeat===0||session?.sourceSeat===1)&&
        state?.phase===GamePhase.PLAYER_TURN&&
        state.activePlayer===session.sourceSeat&&
@@ -103,7 +104,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
       const heldMobility=ownHand.filter(printing=>
         ['Float Stone BKT','Guzma BUS','VS Seeker PHF',
           'Arven OBF'].includes(printing));
-      session.records.push({
+      observedRoot={
         actionOrdinalWithinSourceGame:session.records.length,
         turn:state.turn,
         retreatedTurn:owner.retreatedTurn,
@@ -113,10 +114,26 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         ...board,
         attachedBasicEnergyCards:basicEnergyCards,
         heldMobility
-      });
+      };
+      session.records.push(observedRoot);
     }
     const result=original.call(this,action,...rest);
     const next=this.state;
+    if(observedRoot&&actionType==='RetreatAction'){
+      const nextOwner=next.players[session.sourceSeat];
+      const nextBoard=publicOwnerBoard(nextOwner);
+      observedRoot.afterRetreat={
+        phase:next.phase,turn:next.turn,
+        activePrinting:nextBoard.activePrinting,
+        activeEnergy:nextBoard.activeEnergy,
+        activeTools:nextBoard.activeTools,
+        benchedRaging:nextBoard.bench.filter(p=>p?.printing===RAGING),
+        retreatedTurn:nextOwner.retreatedTurn,
+        remainingPrizes:nextOwner.getPrizeLeft(),
+        pendingPromptTypes:(next.prompts??[])
+          .filter(p=>p.result===undefined).map(p=>p.constructor.name)
+      };
+    }
     if(session&&session.sourceIdentityCounts===null&&
        next?.players?.length===2&&actionType==='AddPlayerAction'){
       const counts=next.players.map(countSourceRagingCopies);
@@ -159,6 +176,8 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
           x.heldMobility.includes('Arven OBF')).length,
         fundedHoOhWithFloatStoneAttached:fundedWhileHoOh.filter(x=>
           x.activeTools.includes('Float Stone BKT')).length,
+        sourceRetreatPostDispatch:s.records.filter(r=>r.afterRetreat)
+          .map(r=>({turn:r.turn,...r.afterRetreat})),
         fundedHoOhMobilitySamples:fundedWhileHoOh.slice(0,20).map(r=>({
           turn:r.turn,action:r.actionType,
           hand:r.heldMobility,activeTools:r.activeTools,
