@@ -102,4 +102,100 @@ for(const [n,direct,combined] of expected){
     'idealized Item access '+(100*x.combinedConditional).toFixed(9)+'%');
 }
 console.log('PASS: all five exact Wally-count sensitivities; zero games claimed.');
-module.exports={wallyRoute,C};
+
+/**
+ * Adds one Tapu Lele-GX GRI60 (Wonder Tag searches Supporter from deck)
+ * and the one Battle Compressor PHF92 + three VS Seeker PHF109 route.
+ * The original Apex v0 has exactly these four connector cards. Suppressed
+ * Basic Abilities invalidate Wonder Tag; Item lock invalidates Compressor
+ * and VS Seeker. Both restrictions are intentionally omitted from these
+ * permissive hand/Prize screens and must be applied before game use.
+ *
+ * Path priority is mutually exclusive and physical:
+ *  1. Wally already held; 2. Lele held, Wally survives Prize in deck;
+ *  3. Compressor+VS held, Wally survives Prize in deck.
+ * Grimer held avoids tutor; otherwise one Mysterious Treasure/Quick Ball
+ * is needed and an unprized Grimer must be searchable.
+ *
+ * @param {number} wally
+ * @returns {{wally:number,basicValid:number,unconditional:object,conditional:object}}
+ */
+function wallyConnectorRoute(wally){
+  assert.ok(Number.isInteger(wally) && wally>=0 && wally<=4);
+  const get=id=>apex.cards.find(c=>c.cardId===id)?.count??0;
+  assert.equal(get('sm2-60'),1); // physical Tapu Lele-GX GRI60
+  assert.equal(get('xy4-92'),1); // physical Battle Compressor PHF92
+  assert.equal(get('xy4-109'),3); // physical VS Seeker PHF109
+  const n=[1,2,2,wally,1,1,3,7,60-(1+2+2+wally+1+1+3+7)];
+  const prefix=Array(8).fill(0);
+  const results={
+    held_direct:0,held_grimer_tutor:0,
+    lele_direct:0,lele_grimer_tutor:0,
+    compressor_direct:0,compressor_grimer_tutor:0
+  };
+  const denominator=C(60,8), prizeDenom=C(52,6);
+  /** @param {number[]} remaining */
+  function survive(remaining){
+    let out=0;
+    // inclusion-exclusion for each required category:
+    // at least one of each remains after six Prizes and searches.
+    for(let mask=0;mask<(1<<remaining.length);mask++){
+      let k=0,bits=0;
+      for(let j=0;j<remaining.length;j++){
+        if((mask>>j)&1){k+=remaining[j];bits++;}
+      }
+      out+=(bits%2?-1:1)*C(52-k,6-k)/prizeDenom;
+    }
+    return out;
+  }
+  /** @param {number} i @param {number} left @param {number} possibilities */
+  function enumerate(i,left,possibilities){
+    if(i<8){
+      for(let x=0;x<=Math.min(n[i],left);x++){
+        prefix[i]=x;
+        enumerate(i+1,left-x,possibilities*C(n[i],x));
+      }
+      return;
+    }
+    if(left<0 || left>n[8])return;
+    const [budew,grimer,muk,wallyHeld,lele,compressor,vsSeeker,tutors]=prefix;
+    if(budew!==1 || muk===2 || (grimer===0 && !tutors))return;
+    const mass=possibilities*C(n[8],left)/denominator*7/8;
+    let path,remaining=[2-muk];
+    if(wallyHeld)path='held';
+    else if(lele){path='lele';remaining.push(wally-wallyHeld);}
+    else if(compressor&&vsSeeker){path='compressor';remaining.push(wally-wallyHeld);}
+    else return;
+    if(grimer===0)remaining.push(2);
+    const suffix=grimer?'direct':'grimer_tutor';
+    results[path+'_'+suffix]+=mass*survive(remaining);
+  }
+  enumerate(0,8,1);
+  const basicValid=1-C(48,7)/C(60,7);
+  return {wally,basicValid,unconditional:results,
+    conditional:Object.fromEntries(Object.entries(results)
+      .map(([k,v])=>[k,v/basicValid]))};
+}
+
+for (const [w,held,lele,compressor,total] of [
+  [1,0.010700951999879162,0.008567289437568318,0.002090782056933673,0.021359023494381155],
+  [2,0.020396570990798244,0.00866661980326338,0.002148628214462922,0.031211819008524553],
+  [3,0.029164015322330643,0.007904559111050334,0.001991339663593221,0.03905991409697421],
+  [4,0.03707590575225337,0.007124194766447887,0.0018241589328581195,0.04602425945155939]
+]){
+  const x=wallyConnectorRoute(w);
+  const sum=(prefix)=>Object.entries(x.conditional)
+    .filter(([k])=>k.startsWith(prefix)).reduce((s,[,v])=>s+v,0);
+  const a=sum('held'),b=sum('lele'),c=sum('compressor');
+  assert.ok(Math.abs(a-held)<1e-12,'held Wally '+w);
+  assert.ok(Math.abs(b-lele)<1e-12,'Lele route '+w);
+  assert.ok(Math.abs(c-compressor)<1e-12,'Compressor+VS route '+w);
+  assert.ok(Math.abs(a+b+c-total)<1e-12,'total Wally connectors '+w);
+  console.log('Wally='+w,'Base '+(100*a).toFixed(8)+'%',
+    'Lele addition '+(100*b).toFixed(8)+'%',
+    'Compressor+VS addition '+(100*c).toFixed(8)+'%',
+    'Full conditional '+(100*(a+b+c)).toFixed(8)+'%');
+}
+console.log('PASS: exact extra Wally connector states including double/three-way Prize survival.');
+
+module.exports={wallyRoute,wallyConnectorRoute,C};
