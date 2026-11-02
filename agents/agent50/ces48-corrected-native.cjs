@@ -36,3 +36,4 @@ function stage(seat){
  foe.bench[0].cards.push(card('Duskull PRE'));
  for(const p of [owner,foe]){
   for(let i=0;i<8;i++)p.deck.cards.push(card('Psychic Energy SVE'));
+  p.prizes=Array.from({length:6},()=>{
