@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_shared_boxshake_flexible:
+        description: 'Opt-in 32 additional disjoint original rank8 source deals with held Quick Ultra and Box Tool search; requires shared_boxshake_natural_pairs'
+        type: boolean
+        default: false
       agent44_rank8_shared_boxshake_natural_pairs:
         description: 'Default-off symmetric two-seat original-deal Secret Box firstturn experiment, historical positive plus 16 disjoint future deals'
         type: boolean
@@ -235,9 +239,11 @@ jobs:
           retention-days: 14
       - name: Unit test first-turn symmetric owner-only Secret Box root
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
-        run: node --test tests/agent44-owner-boxshake-native-policy.test.cjs tests/agent44-secretbox-owner-prompt.test.cjs
-      - name: Run retrospective original and 16 future original source physical pairs
+        run: node --test tests/agent44-owner-boxshake-native-policy.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs tests/agent44-secretbox-owner-prompt.test.cjs
+      - name: Run registered original native Box Shake physical pairs
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
+        env:
+          AGENT44_RANK8_BOX_FLEXIBLE: ${{ inputs.agent44_rank8_shared_boxshake_flexible }}
         run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
       - name: Print all paired native Box Shake outcomes
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
