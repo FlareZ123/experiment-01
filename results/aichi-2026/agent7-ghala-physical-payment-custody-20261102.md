@@ -1,0 +1,25 @@
+# Rank-6 Guzma & Hala physical owner payment-custody witness: observer and native fixture
+
+**Agent 7 | 2 November 2026 | instrumented test development. Competitive games qualified: 0.**
+
+## Source question and prior observed evidence
+
+The immutable, selected, four-arm original-rank-6 native release [Agent20 CI 41463121456](https://github.com/FlareZ123/experiment-01/actions/runs/41463121456) recorded two physical original-source `Guzma & Hala CEC` enhanced search paths. In candidate-seat-A arms, the source selected two cards from its own actual eight-card hand, `Crushing Hammer POR` and `Team Flare Grunt XY`, then selected and played `Thunder Mountain Prism Star LOT` and `Double Colorless Energy SUM`, declared `Volt Cyclone`, took one Prize and received a native opponent Pass. That archive lacks the post-resolution source-owned discard pile. Agent30's independent root and prompt reconstruction is [here](agent30-frozen-rank6-native-source-paid-selection-attack-20261102.md). Both exact source-deal pairs match, but full source-payment, native effect, opponent decision and paper-clock certification remain false.
+
+A previous six-case compiled native fixture by Agent30 proved the unguarded Store can accept **zero or one** enhanced payment card and still provide the full retrieval. These are actual paper-invalid outcomes, so the presence of a prompt and a later search result is insufficient as a legal-payment certificate; see [Agent30's payment report](agent30-guzma-hala-rank6-optional-cost-static-risk-20261102.md). The existing default-off restrictive guard `simulation/twinleaf/agent1-ghala-paper-payment-guard.cjs` is separate from this observer.
+
+## New research-owned code
+
+- `simulation/twinleaf/agent7-ghala-owner-zone-lineage.cjs`: reversible `Store.prototype.dispatch` wrapper, only observing `ResolvePromptAction` when an unresolved prompt identifies exact printed `Guzma & Hala CEC` and `CHOOSE_CARD_TO_DISCARD`. It checks two distinct *object-identical physical cards* actually in both the owner's hand and prompt source before dispatch. After the synchronous native dispatch it checks both selected references left the hand and newly entered the same owner's discard. It records raw count and move predicates by owner seat, a per-Store dispatch ordinal, native completion/rejection, and an explicit paper-two-card-zone witness. It never chooses an action or provides data to either bot.
+- `tests/agent7-ghala-owner-zone-lineage.test.cjs`: seven pure fake-Store regression cases, including both-seat positive movement, accepted 0/1 cost, two-card nonmovement, unrelated prompt, native rejection with descriptor restoration and duplicate reference. **Locally executed with Node 22: 7/7 pass.** This proves synthetic instrumentation behavior only.
+- `tests/agent7-ghala-owner-zone-native.test.cjs`: six compiled Store cases, both seats × 0/1/2 physical payment cards, reusing Agent30's native payment fixture. Designed to compare the actual payment prompt's physical owner zones under the genuine compiled engine. This is a distinct static fixture, with no original shuffled source hand or full game.
+
+The existing **manual-only** `.github/workflows/agent20-frozen-common-canary.yml` now runs these pure and compiled native tests before its unchanged frozen v1 profile, without a new per-commit workflow. Main [workflow run 41479136195](https://github.com/FlareZ123/experiment-01/actions/runs/41479136195) was dispatched after adding tests. Its outcome needs to be checked before treating the six-case native fixture as green. The frozen release's original code and registration were not edited.
+
+## Strict interpretation and next integration
+
+A positive observer event proves *one chosen two-card cost's hand-to-discard custody* under the native Store. It does not prove all allowed G&H search results, paper-complete attack effects, or a competent opponent continuation. A payment that was never encountered is `NOT_ENCOUNTERED`. A false witness can indicate invalid payment, an unobserved/native failure, or a special replacement effect; e.g. a valid Prism Star card discarded from hand may enter the Lost Zone rather than ordinary discard. The actual source-cost printings in the selected canary are ordinary Trainers, so their expected destination is owner discard.
+
+For a prospective **new** externally registered selected bilateral profile, install the passive observer around the real native match, retaining native events on the output row, and join them to the exact source physical deal, G&H selected root, follow-on search/play/attack, the resulting board and Prizes, and the next opposing owner decision. Combine with the mandatory G&H guard, a short-payment negative fixture and a nearby legally paid positive fixture. Preserve full raw rows, exceptions and caps. Any positive event remains distinct from a whole-game competitive certificate.
+
+**Current status:** independent pure test evidence only; no qualifying full game, no chosen fixed 60, and no validated 99.5% aggregate. Native compiled fixture and natural-game integration are separate evidence gates.
