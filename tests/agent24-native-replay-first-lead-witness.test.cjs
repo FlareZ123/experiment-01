@@ -6,7 +6,8 @@ const {
   paperReplayFirstLeadWitness
 }=require('../simulation/evaluation/agent24-native-replay-first-lead-witness.cjs');
 
-const PLAYER_TURN=3;
+const PLAYER_TURN=2;
+const BETWEEN_TURNS=6;
 
 /**
  * @param {[number,number]} remaining
@@ -50,6 +51,20 @@ test('equal Prize totals, including a new six-Prize setup, have no winner',()=>{
     assert.equal(receipt.status,'NO_STRICT_PRIZE_LEAD');
     assert.equal(receipt.paperWinnerSeat,null);
   }
+});
+
+test('a complete native Prize or after-attack root can stop within allowed phases',()=>{
+  const after=state([5,6]);
+  after.phase=BETWEEN_TURNS;
+  const ongoing=judge(after);
+  assert.equal(ongoing.status,'REPLAY_ROOT_NOT_SETTLED');
+  const witnessed=judge(after,{
+    allowedSettledPhases:[PLAYER_TURN,3,4,5,BETWEEN_TURNS]
+  });
+  assert.equal(witnessed.status,'PAPER_REPLAY_FIRST_PRIZE_LEAD');
+  assert.equal(witnessed.paperWinnerSeat,0);
+  assert.equal(judge(after,{allowedSettledPhases:[2,'bad']})
+    .status,'NATIVE_PHASE_CONTRACT_UNVERIFIED');
 });
 
 test('absence of genuine replay epoch vetoes an otherwise exact lead',()=>{
