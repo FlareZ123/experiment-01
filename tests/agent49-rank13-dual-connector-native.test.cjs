@@ -8,6 +8,8 @@ const {initializeCards,seededRandom,deckPermutation}=
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {chooseRegisteredTreasureEarlyIntent}=
   require('../simulation/twinleaf/agent49-registered-treasure-early-setup.cjs');
+const {chooseTreasureRootIntent}=
+  require('../simulation/twinleaf/agent49-mysterious-treasure-frontier.cjs');
 const {chooseRegidragoDonorQuickBall}=
   require('../simulation/twinleaf/agent8-regidrago-quickball-donor-frontier.cjs');
 const {decks}=require('../results/aichi-2026/full-decklists.json');
@@ -90,6 +92,15 @@ function compare(seat,quickFirst){
   x.store.dispatch(new PlayCardAction(x.owner.id,index,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}));
   assert.strictEqual(x.owner.bench[1].getPokemonCard(),targets.V);
+  const secondRoot=actorObservation(x.state,seat);
+  if(quickFirst){
+    const selected=chooseTreasureRootIntent(secondRoot,x.catalog);
+    assert.equal(selected?.printing,'Mysterious Treasure FLI');
+    assert.equal(selected?.discardPrinting,'Dragapult ex TWM');
+  }else{
+    assert.equal(chooseRegidragoDonorQuickBall(secondRoot),null,
+      'Preboard donor-first Quick Ball proposer should now be inactive');
+  }
   const secondTarget=quickFirst?'Regidrago VSTAR SIT':'Budew ASC';
   const secondPrompts=playPaidItem(x,nextItem,'Dragapult ex TWM',
     secondTarget,200+seat);
