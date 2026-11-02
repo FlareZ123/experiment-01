@@ -1,0 +1,39 @@
+name: Agent7 prospective rank6 starter seat coverage
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-first-turn-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout pinned shared research
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Initialize pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install reproducible Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all preregistered actual original rank6 setup and first-turn cohorts
+        run: node simulation/evaluation/agent7-rank6-prospective-starter-seat.cjs
+      - name: Archive every attempt including native errors and starter verification
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-rank6-prospective-starter-seat-matrix
+          path: agent7-rank6-prospective-starter-seat-coverage.json
+          if-no-files-found: error
+          retention-days: 30
