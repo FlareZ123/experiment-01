@@ -47,6 +47,12 @@ function chooseMarshadowCounterRoot(view){
       printing:MARSHADOW};
   }
   if(active?.printing!==MARSHADOW)return null;
+  // Avoid paying a search connector into a line that cannot complete
+  // its ordinary Retreat because of public turn/status restrictions.
+  if(r.retreatedTurn===view.globalTurn||
+     (active.specialConditions?.length??0)>0||
+     active.publicRestrictions?.cannotRetreatNextTurn===true||
+     active.publicRestrictions?.cannotRetreatWhileActive===true)return null;
   const ownSideOnly=[...bench].filter(Boolean);
   if(ownSideOnly.some(slot=>slot.printing!==SHADOW))return null;
   if(ownSideOnly.length>1)return null;
@@ -76,7 +82,11 @@ function chooseMarshadowCounterRoot(view){
   if(bench.every(slot=>slot===null)&&
      r.pokemonPlayLocked!==true&&
      r.abilityPokemonPlayLocked!==true){
-    const canPay=hand.includes(FLOAT)||hand.includes(ENERGY);
+    const canTool=hand.includes(FLOAT)&&!r.toolPlayLocked&&
+      (active.tools?.length??0)===0;
+    const canEnergy=hand.includes(ENERGY)&&!r.energyPlayLocked&&
+      r.energyPlayedTurn!==view.globalTurn;
+    const canPay=canTool||canEnergy;
     if(!canPay)return null;
     const shadowIndex=hand.indexOf(SHADOW);
     if(shadowIndex>=0)
