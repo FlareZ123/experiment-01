@@ -1,0 +1,60 @@
+{
+  "schema": "agent44-rank8-common-actor-boxshake-preregistration-v1",
+  "author": "Agent 44",
+  "registeredAt": "2026-11-02T22:42:00Z",
+  "objective": "Test a single coherent original rank8 source Secret Box->paid Basic search->Trubbish Tool->Boost Shake->Garbodor chain with opponent public root under existing selected common both-seat canonical actor.",
+  "printedSourceRank": 8,
+  "printedSourceSha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "candidate": "unchanged Hood Shield v1 fixed 60",
+  "nativeProfile": {
+    "commonActorBothSeats": true,
+    "enableBoxShakeTreatment": true,
+    "flexible": true,
+    "baselineSameCanonicalActor": true,
+    "unchangedOriginalDecks": true,
+    "maxActions": 120,
+    "paperValidPaymentAudited": false
+  },
+  "seedSchedule": {
+    "source": "simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs",
+    "label": "agent44-original-rank8-preregistered-box-k0-20261030",
+    "startInclusive": 370,
+    "endInclusive": 401,
+    "count": 32,
+    "seat": "index modulo 2",
+    "seed": "SHA256(label + ':' + index decimal), readUInt32BE(0)",
+    "rowsSha256": "89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d5c96b8d52239f2118",
+    "first": {
+      "trial": "rank8-original-box-k0:370",
+      "sourceSeat": 0,
+      "seed": 2589933048,
+      "selection": "preregistered-v3-canonical-fresh32"
+    },
+    "last": {
+      "trial": "rank8-original-box-k0:401",
+      "sourceSeat": 1,
+      "seed": 380396913,
+      "selection": "preregistered-v3-canonical-fresh32"
+    }
+  },
+  "analysis": {
+    "primary": "Store-accepted Box->Tool->Shake source chronology, equipped Garbodor at next opponent turn, and at least one non-prompt opponent public root",
+    "secondary": "number of native K0 offers, failures, action caps, errors, actual first player, exact same physical source deals between baseline/treatment",
+    "denominator": "all 32 preregistered fresh indexes, two real seats alternating; retrospective historical index excluded",
+    "allRowsPreserved": true,
+    "statuses": [
+      "NOT_ENCOUNTERED",
+      "NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR",
+      "OFFERED_NO_SETTLED_OPPONENT_REPLY",
+      "NATIVE_ERROR"
+    ],
+    "strictNoPaperOrWinRateClaim": true
+  },
+  "knownCautions": [
+    "Native Store prompt acceptance can bypass mandatory paper discard costs",
+    "The original rank8 source and Hood candidate bots are not tournament-competent",
+    "Opponent public root presence alone is not a meaningful competitive counter",
+    "25-minute official paper clock is absent",
+    "Only 29 of 32 original Aichi opponent sixties authenticated"
+  ]
+}
