@@ -250,14 +250,16 @@ test('hook restores original method after real exception',()=>{
 class ShowCardsPrompt{constructor(){this.id=81;}}
 class ShuffleDeckPrompt{constructor(){this.id=82;}}
 class MovementStore{
-  constructor(state){this.state=state;}
+  constructor(state){this.state=state;this.promptItems=[];}
   dispatch(action){
     if(action instanceof AddPlayerAction)return this.state;
     if(!(action instanceof ResolvePromptAction))
       throw Error('Unsupported staged action');
     const prompt=this.state.prompts.find(p=>p.id===action.id);
     assert.ok(prompt,'Physical prompt must exist');
-    this.state.prompts=this.state.prompts.filter(p=>p!==prompt);
+    // Pinned Twinleaf preserves resolved prompts in state.prompts; a filled
+    // result plus dequeue of the associated callback marks resolution.
+    prompt.result=action.result;
     if(prompt instanceof ChooseCardsPrompt){
       const source=this.state.players.find(p=>p.id!==prompt.playerId);
       for(const card of action.result){
@@ -315,7 +317,9 @@ test('original Store-shaped Night Watch moves opaque selected objects and settle
     ['ShowCardsPrompt','ShuffleDeckPrompt']);
   assert.deepEqual(e.followupResolutions.map(x=>x.promptKind),
     ['ShowCardsPrompt','ShuffleDeckPrompt']);
-  assert.ok(e.followupResolutions.every(x=>x.promptRemovedAfter));
+  assert.ok(e.followupResolutions.every(x=>
+    x.promptResultRecorded&&x.nativeCallbackDequeued&&
+    x.promptStillInStateAfter));
   assert.equal(MovementStore.prototype.dispatch,original);
 });
 
