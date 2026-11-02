@@ -6,7 +6,7 @@ const {initializeCards,runMatch}=require('./headless.cjs');
 const {registration}=require('./agent47-rank20-apex-natural-audit.cjs');
 const {captureInitialPhysicalOwners,inspectPhysicalCardZones,
   fixedDeckCountAnomalies}=require('./physical-card-ledger.cjs');
-const {projectPendingReplayPrizes}=
+const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
   require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
 
 const SEED=1847000101;
@@ -205,6 +205,15 @@ function one(reverse,byRank){
   });
   assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
   assert.deepEqual(pendingPrizeAudit.projectedRemainingPrizes,[4,4]);
+  const nativePendingComparison=compareNativePendingPrizeWinner({
+    projection:pendingPrizeAudit,
+    nativeFinished:game.finished,
+    nativeEndReason:game.endReason,
+    nativeWinnerSeat:game.winner
+  });
+  assert.equal(nativePendingComparison.status,
+    'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
+  assert.equal(nativePendingComparison.paperGameOutcomeQualified,false);
   assert.equal(game.winner,0,
     'Expected pinned native first-seat tiebreak bias');
   return {
@@ -217,7 +226,7 @@ function one(reverse,byRank){
     syntheticEnergyAndDamagePreparation:true,
     actualPrintedAttackRoot:true,attackSource,forcedFromSeat,attackBefore,
     stagedOwnerCardMoves:materializations,
-    damageEffects,koEntitlements,pendingPrizeAudit,
+    damageEffects,koEntitlements,pendingPrizeAudit,nativePendingComparison,
     nativeFinished:game.finished,nativeWinner:game.winner,
     nativeFinalPrizes:game.prizesRemaining,
     nativeActions:game.actions,
