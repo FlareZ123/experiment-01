@@ -9,7 +9,7 @@ const {probeUltraBallZeroPayment}=
   require('../simulation/twinleaf/agent4-ultra-ball-zero-payment-native.cjs');
 
 test('pure mandatory Ultra Ball cost has two distinct physically available cards',()=>{
-  assert.match(VERSION,/v10-ultra-ball-mandatory-cost/);
+  assert.match(VERSION,/v(?:10-ultra-ball-mandatory-cost|11-secret-box-physical-payment)$/);
   const grass={},fire={},unknown={};
   const p={cards:{cards:[grass,fire]}};
   assert.equal(independentUltraBallPaymentNegative(p,[]),
