@@ -63,6 +63,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent24_paper_replay_prize_lead:
+        description: 'Staged native six-Prize tiebreak first Prize lead, read-only paper winner witness both seats'
+        required: false
+        type: boolean
+        default: false
       agent31_public_mulligan_native:
         description: 'Read-only paired native opponent-visible mulligan card-history parity against rank6; setup only'
         required: false
@@ -125,6 +130,8 @@ jobs:
         run: node --test tests/physical-zone-qualification.test.cjs
       - name: Verify original physical card owners beyond the 60-card count invariant
         run: node --test tests/agent24-original-owner-custody.test.cjs
+      - name: Fail closed on unverified native replay and expose paper first-Prize winner
+        run: node --test tests/agent24-native-replay-first-lead-witness.test.cjs
       - name: Index unique non-KO Prize attacks and Gholdengo resource reset
         run: node --test tests/agent34-direct-prize-attack-frontier.test.cjs
       - name: Fail closed on first-player ordinary Supporter while allowing printed exceptions
@@ -593,6 +600,9 @@ jobs:
       - name: Inject balanced original-owner reference exchange at native source roots, both seats
         if: inputs.agent24_original_owner_swap_native
         run: node simulation/twinleaf/agent24-original-owner-native-balanced-exchange.cjs > agent24-original-owner-exchange.json
+      - name: Reproduce paper first-Prize stop on genuine native tiebreak replay both seats
+        if: inputs.agent24_paper_replay_prize_lead
+        run: node simulation/twinleaf/agent24-native-replay-paper-first-lead.cjs > agent24-native-replay-paper-lead.json
       - name: Archive actual three-case native custody receipts without game-win claims
         if: always()
         uses: actions/upload-artifact@v4
@@ -603,6 +613,7 @@ jobs:
             agent24-original-owner-native.json
             agent24-owner-sudden-death.json
             agent24-original-owner-exchange.json
+            agent24-native-replay-paper-lead.json
             agent24-ace-native.json
             agent24-ace-reducer.json
           if-no-files-found: warn
