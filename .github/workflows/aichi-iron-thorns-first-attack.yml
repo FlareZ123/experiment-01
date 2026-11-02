@@ -411,6 +411,8 @@ jobs:
           node --check simulation/evaluation/agent42-plumeria-sourcechain-paired.cjs
           node --check simulation/evaluation/agent42-plumeria-prospective-sourcechain.cjs
           node --check simulation/twinleaf/agent42-plumeria-paper-payment-guard.cjs
+      - name: Validate original Plumeria local paper-chain certificate and negative controls
+        run: node --test tests/agent42-plumeria-native-chain-certificate.test.cjs
       - name: Install pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
