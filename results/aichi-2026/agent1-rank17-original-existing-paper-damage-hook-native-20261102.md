@@ -6,6 +6,10 @@
 
 The original authenticated Yuya Yamano rank17 Alolan Raichu/Electrode 60 was held fixed across two unchanged opponent candidates, champion-reference rank1 Shadow Rider and New Moon Lockbreaker v1, both physical seats, original registration seeds `3205004075`, `1975817274`, `3186938867`, `2082256034`. Symmetric actor root `actorNaturalEvolutionRoot:true` was enabled in all arms. This is a replay of the **previously analyzed developmental seeds**, not an independent blind validation. Exactly one simulator semantics component was changed: the already-established **Agent46** research-only `withElectroRainDamageHook` in `simulation/twinleaf/electro-rain-damage-hook.cjs`. It converts Electro Rain's originally incorrect counter placement to printed attack damage, aggregating repeated target rows so once-per-target attack damage modifiers are not erroneously multiplied. Pinned vendor unchanged `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
+## Additional policy gap from code inspection
+
+The actor-only root decoder in `simulation/twinleaf/agent34-actor-only-root-policy.cjs` explicitly emits native Ability actions for Genesect Fusion draw, Unown Farewell Letter and Perfection. It has no `Extra Energy Bomb` intent/action case. Other native fallback decisions might still use that Ability, but the opt-in owner root cannot independently select it. This is consistent with the observed **zero** original Electrode-GX Extra Energy Bomb Ability roots. Future root policies must validate actual Ability availability, recipient, discard Energy transfer, self-KO, opponent Prize collection and the following attack.
+
 ## Native witness audit
 
 [Successful rerun 41443947556](https://github.com/FlareZ123/experiment-01/actions/runs/41443947556) executed all **eight** registered original-source arms, archived the full raw JSON in [artifact 13142300129](https://github.com/FlareZ123/experiment-01/actions/runs/41443947556/artifacts/13142300129), compressed ZIP SHA256 `fee751aa204440a9e740c26d29e735a3a92b1ae53fde81d6bbfba25eeeafb7ea`, execution code head `1d389cf08b5b67d81818ab58a30e28c1f1a017bb`. Its actual post-Store accepted public root ledger reports:
