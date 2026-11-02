@@ -23,7 +23,9 @@ const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v2-floatstone
 const EXTRA_EFFECT_MODES=['path-airballoon','path-airballoon-jammer',
   'thorns-airballoon','thorns-airballoon-jammer',
   'path-furybelt','path-furybelt-jammer',
-  'thorns-furybelt','thorns-furybelt-jammer'];
+  'thorns-furybelt','thorns-furybelt-jammer',
+  'path-float-bench-jammer','path-airballoon-bench-jammer',
+  'path-furybelt-bench-jammer'];
 const MODES=['baseline','path','silent','klefki','thorns',
   'garbotoxin','muk','weezing','wobbuffet',
   'path-float','path-float-jammer','thorns-float',
@@ -46,7 +48,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const equippedFloatStone=mode.includes('-float');
   const equippedAirBalloon=mode.includes('-airballoon');
   const equippedFuryBelt=mode.includes('-furybelt');
-  const opponentToolJammer=mode.endsWith('-jammer');
+  const opponentBenchJammer=mode.endsWith('-bench-jammer');
+  const opponentToolJammer=mode.endsWith('-jammer')&&!opponentBenchJammer;
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
@@ -114,6 +117,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   }else if(baseMode==='muk')addBench(enemy,'Alolan Muk SUM');
   else addBench(enemy,'Pidgey MEW');
   for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
+  if(opponentBenchJammer)enemy.bench[0].tools.push(card('Tool Jammer BST'));
   if(baseMode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
   if(baseMode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
   if(stadiumToolJamming)enemy.stadium.cards.push(card('Jamming Tower TWM'));
@@ -221,7 +225,9 @@ function runEffectRepair(){
     'path-airballoon','path-airballoon-jammer',
     'thorns-airballoon','thorns-airballoon-jammer',
     'path-furybelt','path-furybelt-jammer',
-    'thorns-furybelt','thorns-furybelt-jammer']
+    'thorns-furybelt','thorns-furybelt-jammer',
+    'path-float-bench-jammer','path-airballoon-bench-jammer',
+    'path-furybelt-bench-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
