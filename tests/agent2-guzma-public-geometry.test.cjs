@@ -29,6 +29,6 @@ test('missing board data is unverified rather than assumed playable',()=>{
     ownBenchCount:1,opponentBenchCount:1,
     ownActiveOccupied:false,opponentActiveOccupied:true
   }}),'geometry-unobserved');
-  assert.equal(guzmaRecipientGeometry(sample(0,1)),
-    'opponent-target-own-bench-empty');
+  assert.equal(guzmaRecipientGeometry(sample(-1,1)),
+    'geometry-unobserved');
 });
