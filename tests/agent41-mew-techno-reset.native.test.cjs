@@ -166,7 +166,8 @@ function completeGuzma(x,plan,receipts){
  */
 function trial(seat){
   const x=stage(seat);
-  const {store,state,owner,opp,catalog}=x;
+  const {store,catalog}=x;
+  let {state,owner,opp}=x;
   const receipts=[];
   const beforePrizes=owner.prizes.filter(p=>p.cards.length>0).length;
   console.log('AGENT41_STAGE',seat,'first-copied-attack');
@@ -188,6 +189,17 @@ function trial(seat){
   assert.equal(lockedAttackRejected,true,
     'Control: native Store must reject immediate recopy while cooldown active');
   assert.equal(state.turn,7);
+  // A rejected genuine native action rolls Store.state back to a deepClone.
+  // Reacquire live board, owners, and all future prompt targets. Mutating the
+  // obsolete Player object would fabricate owner-hand access to Guzma.
+  assert.notStrictEqual(store.state,state,
+    'Native rollback must not leave the rejected mutable State current');
+  state=store.state;
+  owner=state.players.find(p=>p.id===101);
+  opp=state.players.find(p=>p.id===202);
+  assert.ok(owner&&opp);
+  Object.assign(x,{state,owner,opp});
+  assert.equal(owner.active.cannotAttackNextTurn,true);
   console.log('AGENT41_STAGE',seat,'after-illegal-control-before-adding-guzma');
   owner.hand.cards.push(x.card('Guzma BUS'));
   console.log('AGENT41_STAGE',seat,'before-owner-observation');
