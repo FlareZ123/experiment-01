@@ -16,6 +16,12 @@ The [29 original deck inventory](../aichi-2026/full-decklists.json) expressly sa
 
 **Conclusion:** A validator demanding English display `releaseDate <= eventDate` would falsely reject these three Japanese-source rows. Official Japanese counterparts existed before Aichi. This establishes the **chronology and core effect bridge**, not ownership of an English paper printing at the Japanese event or complete rules/registration authentication. Do not reduce 29/32 original 60-card inventories or label the originals illegal.
 
+## Independent rank-16 saved-deck code links the pre-event Japanese card to an actual contemporary 60
+
+The exact [official Japanese saved deck `Lgnng9-OKq2xZ-gQNLgH`](https://www.pokemon-card.com/deck/confirm.html/deckID/Lgnng9-OKq2xZ-gQNLgH) contains **two M4 054/083 Trubbish**, **two BW10-B 054/093 Garbodor**, **one XY 050/171 Garbodor**, and a 60-card Mega Absol/Shake/Garbodor inventory. The entire source category count **14 Pokémon / 39 Trainers / 7 Energy** and its visible card multiplicities match the [published Aichi rank16 English-display 60](../aichi-2026/full-decklists.json). The contemporary [18 May Aichi deck roundup](https://pokekameshi.com/cl2026aichidec-extra/) explicitly names the same deck code in the **top-16 Mega Absol** section, attributes the public recipe to player alias **さすけ**, and embeds a contemporaneous 11 May author post describing Mega Absol/Garbodor with first-turn Boost Shake. The [separately indexed official-event compilation](https://hashimu.com/official-events/2274) independently reproduces the same deck code in the May10 Aichi top-16 context.
+
+This is a stronger, **source-specific photographed-60/official-deck-code bridge** for rank16's Trubbish M4 print than a generic Japanese-English set translation. An official deck-builder page is still a saved-list page, and secondary roundup aliases should **not** silently become a verified civil-name identity. The 29/32 name/count source admission remains unchanged.
+
 ## Primary Japanese Special Red Card zero-hand ruling
 
 The Japanese original [M4 072/083 printed card](https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all) uses wording equivalent to *shuffle the opposing hand, put it at the bottom of the deck, then draw three*. The English `CRI82` explicitly makes the draw contingent on having moved **at least one** card. At first glance, the absence of an English-style `if they put any cards` clause in the Japanese text could falsely suggest a game-functional difference at zero opponent hand.
