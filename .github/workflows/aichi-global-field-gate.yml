@@ -95,3 +95,4 @@ jobs:
           node --test tests/agent43-muk-search-eight-bound.test.cjs
           node --test tests/agent43-muk-thorns-firstturn-collision.test.cjs
           node --test tests/agent2-apex-alchemy-first-eight-slot-frontier.test.cjs
+          node --test tests/agent2-muk-field-basic-abilities.test.cjs
