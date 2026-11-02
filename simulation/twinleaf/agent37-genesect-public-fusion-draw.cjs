@@ -31,7 +31,8 @@ function chooseGenesectFusionDraw(view,options={}){
   const knownFusionCount=all.filter(p=>
     p&&FUSION_STRIKE.has(p.printing)).length;
   if(knownFusionCount===0||view.ownHand.length>=knownFusionCount)return null;
-  if(own.publicTurnRestrictions?.attackLockTurnsRemaining>0)return null;
+  // An attack prohibition does not itself prevent using a draw Ability.
+  // Printed Ability locks and used markers remain subject to native Store.
   const abilities=p=>p?.printing==='Genesect V FST'&&
     p.abilities?.includes('Fusion Strike System')===true;
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
