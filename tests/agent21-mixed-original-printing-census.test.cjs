@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {run,mixedPrintingCensus,englishPrintingResolver}=
+const {run,mixedPrintingCensus,englishPrintingResolver,
+  runCrossDeck,crossDeckPrintingCensus}=
   require('../scripts/agent21-mixed-original-printing-census.cjs');
 
 test('all 29 authenticated original 60s: exactly five mixed-name groups',()=>{
@@ -71,4 +72,62 @@ test('bundled set and collector number strictly distinguish versions',()=>{
   assert.equal(resolve('LOR','52','Pikachu').id,'swsh11-52');
   assert.equal(resolve('LOR','TG05','Pikachu').id,'swsh11tg-TG05');
   assert.throws(()=>resolve('PRE','not-a-card'),/Missing or ambiguous card printing/);
+});
+
+
+test('full original field has eight semantically different cross-deck names',()=>{
+  const result=runCrossDeck();
+  assert.equal(result.originalDecks,29);
+  assert.equal(result.sourcePhysicalSlots,1740);
+  assert.deepEqual(result.incompleteSourceRanks,[23,25,28]);
+  assert.equal(result.mixedNameGroups,8);
+  assert.equal(result.effectDifferentGroups,8);
+  assert.equal(result.affectedPhysicalCopies,42);
+  assert.deepEqual(result.affectedDeckRanks,
+    [1,2,3,4,7,8,11,15,16,17,22,30,31]);
+  assert.deepEqual(result.groups.map(g=>[g.name,g.physicalCopies]),[
+    ['Dusknoir',4],['Garbodor',9],['Mimikyu',6],
+    ['Pidgeotto',4],['Pidgey',4],['Pikachu',2],
+    ['Trubbish',8],['Vileplume',5]
+  ]);
+  assert.equal(result.competitiveQualifiedGames,0);
+});
+
+test('field-only collisions include Copycat versus Safeguard and two distinct Basics',()=>{
+  const groups=new Map(runCrossDeck().groups.map(g=>[g.name,g]));
+  const mimi=groups.get('Mimikyu');
+  assert.deepEqual(mimi.deckRanks,[1,3,7,30]);
+  assert.ok(mimi.printings.some(x=>x.attackNames.includes('Copycat')));
+  assert.ok(mimi.printings.some(x=>x.abilityNames.includes('Safeguard')));
+  const pidgey=groups.get('Pidgey');
+  assert.deepEqual(pidgey.deckRanks,[2,15]);
+  assert.ok(pidgey.printings.some(x=>x.attackNames.includes('Peck Off')));
+  assert.ok(pidgey.printings.some(x=>x.attackNames.includes('Call for Family')));
+  const pika=groups.get('Pikachu');
+  assert.deepEqual(pika.deckRanks,[4,17]);
+  assert.ok(pika.printings.some(x=>x.abilityNames.includes('Pika Dash')));
+  assert.ok(pika.printings.some(x=>x.attackNames.includes('Nuzzle')));
+  const trub=groups.get('Trubbish');
+  assert.equal(trub.printings.length,4);
+  assert.deepEqual(trub.deckRanks,[8,11,16,22]);
+});
+
+test('cross-deck printing census does not confuse printing differences with effect differences',()=>{
+  const source={decks:[1,2].map((rank)=>({
+    rank,cards:[
+      {category:'Pokémon',count:1,name:'Shared',printing:{set:'A',number:String(rank)}},
+      {category:'Energy',count:59,name:'Basic Energy'}
+    ]
+  })),missing_full_lists:[]};
+  const resolver=(set,number,name)=>({name,id:number,
+    attacks:[{name:'Identical',cost:['Colorless'],damage:'10',text:''}]});
+  const result=crossDeckPrintingCensus(source,resolver);
+  assert.equal(result.originalDecks,2);
+  assert.equal(result.mixedNameGroups,1);
+  assert.equal(result.affectedPhysicalCopies,2);
+  assert.deepEqual(result.groups[0].deckRanks,[1,2]);
+  assert.equal(result.effectDifferentGroups,0);
+  assert.equal(result.groups[0].attackOrAbilityTextDiffers,false);
+  assert.throws(()=>crossDeckPrintingCensus(
+    {...source,decks:[source.decks[0],source.decks[0]]},resolver),/Repeated source rank/);
 });
