@@ -76,24 +76,63 @@ function run(){
       registeredTrials:prepared.trials,
       registeredFrameName:profile.schema+'-original-rank5-both-seats'});
     const rows=result.rows??[];
+    const originalRoster=JSON.parse(fs.readFileSync(path.join(ROOT,
+      'results/aichi-2026/full-decklists.json'),'utf8'));
+    const source=originalRoster.decks.find(x=>x.rank===profile.rank);
+    const trainerNames=new Set(source.cards.filter(x=>x.category==='Trainer')
+      .map(x=>x.name));
     const statusCounts={};
-    for(const row of rows){
-      const key=row.status??'missing-status';
-      statusCounts[key]=(statusCounts[key]??0)+1;
-    }
+    const armDispositions=rows.map(row=>{
+      const status=row.status??(row.finished===true?
+        'engine-terminal-unqualified':row.endReason==='action-limit'?
+        'action-capped-unqualified':'incomplete-unqualified');
+      statusCounts[status]=(statusCounts[status]??0)+1;
+      const roots=(row.rootActionLedger??[])
+        .filter(x=>x.playerSlot===row.sourceSeat);
+      const sourceTrainers=roots.filter(x=>
+        x.action==='PlayCardAction'&&trainerNames.has(x.card));
+      const sourceAttacks=row.sourceAttackSettlement?.settled??0;
+      const sourceReplies=row.sourceAttackSettlement
+        ?.withVerifiedSameEpochSourceReturn??0;
+      return {
+        trialId:row.trial?.id??null,status,sourceSeat:row.sourceSeat??null,
+        actualStarterSeat:row.actualStarterSeat??null,
+        sourceDealFingerprint:row.sourceDealFingerprint??null,
+        physicalZoneStatus:row.physicalZoneQualification?.status??'NOT_OBSERVED',
+        sourceTrainerRootCount:sourceTrainers.length,
+        sourceAttackDeclarations:row.sourceAttackSettlement?.declarations??null,
+        sourceSettledAttacks:sourceAttacks,
+        candidateSettledAttacks:row.candidateAttackSettlement?.settled??null,
+        sourceAttackOpponentVerifiedSameEpochReturns:sourceReplies,
+        PAPER_PAYMENT_VERIFIED:'UNQUALIFIED_FULL_GAME',
+        SOURCE_PAYOFF_WITNESSED:sourceAttacks>0?
+          'NATIVE_ATTACK_SETTLED_PAPER_UNQUALIFIED':'NOT_OBSERVED',
+        OPPONENT_CONTINUATION_WITNESSED:sourceReplies>0?
+          'NATIVE_SAME_EPOCH_REPLY_PAPER_UNQUALIFIED':
+          sourceAttacks>0?'NOT_OBSERVED':'NO_SOURCE_PAYOFF',
+        firstMissingQualification:row.status?'NATIVE_ERROR_OR_REJECTED_ROOT':
+          sourceAttacks===0?'SOURCE_ATTACK_NOT_OBSERVED':
+          sourceReplies===0?'OPPONENT_CONTINUATION_NOT_OBSERVED':
+          'PAPER_MECHANICS_AND_OPPONENT_COMPETENCE_UNVERIFIED',
+        competitiveGameQualified:false
+      };
+    });
     const expected=prepared.trials.map(x=>x.id).sort();
     const actual=rows.map(x=>x.trial?.id).sort();
     const bothSeats=JSON.stringify(expected)===JSON.stringify(actual);
     return {schema:profile.schema,profile,sourceClosureDigest:prepared.closureDigest,
       closureFiles:prepared.closureFiles,nativePin:actualPin,
       actualResearchCommit:process.env.GITHUB_SHA??null,
-      registered:expected,attempted:rows.length,statusCounts,
+      registered:expected,attempted:rows.length,statusCounts,armDispositions,
       dispositions:{
         CONFIG_FROZEN:prepared.closurePinned?'VERIFIED':'UNVERIFIED_TRANSITIVE_CLOSURE',
         BOTH_SEATS_EXECUTED:bothSeats?'ALL_REGISTERED_ATTEMPTS_RECORDED':'INCOMPLETE',
         PAPER_PAYMENT_VERIFIED:'UNQUALIFIED_FULL_GAME',
-        SOURCE_PAYOFF_WITNESSED:'NOT_CERTIFIED',
-        OPPONENT_CONTINUATION_WITNESSED:'NOT_CERTIFIED'
+        SOURCE_PAYOFF_WITNESSED:armDispositions.some(x=>x.sourceSettledAttacks>0)?
+          'SOME_NATIVE_SETTLED_PAPER_UNQUALIFIED':'ZERO_SOURCE_ATTACKS',
+        OPPONENT_CONTINUATION_WITNESSED:armDispositions.some(x=>
+          x.sourceAttackOpponentVerifiedSameEpochReturns>0)?
+          'SOME_NATIVE_RETURNS_PAPER_UNQUALIFIED':'ZERO_VERIFIED_SOURCE_PAYOFF_REPLIES'
       },
       allOriginalSourceDealsEqualAcrossCandidates:result.sourcePairs?.every(
         x=>x.sameSourcePhysicalDeal===true)??false,
