@@ -84,6 +84,8 @@ function auditNativeArm(row){
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
     rootActionLedgerSha256:row.rootActionLedgerSha256??null,
     nativeActorAuditPresent:row.actorOnlyDecisionCoverage!=null,
+    plumeriaCostConservationOptIn:
+      root.nativePlumeriaPaymentConservationOptIn===true,
     totalOwnerRoots:chooser.ownerRoots??null,
     changedSameRootDecisions:chooser.changedRoots??null,
     selectedPlumeriaOwnerRoots:selected.map(root=>({
