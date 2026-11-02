@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned native
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify owner-only public geometry and frozen replay classifications
+        run: node --test tests/agent2-native-owner-supporter-opportunity.test.cjs tests/agent2-guzma-public-geometry.test.cjs
       - name: Verify original immutable preregistration before read-only replay
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs --inspect-only
       - name: Replay 16 PREVIOUSLY USED rank11 source seeds and assert unchanged accepted-root digest
