@@ -163,6 +163,27 @@ const withoutChar = enumerate(noChar);
 assert.equal(sum(withoutChar.phase1PrizeFiltered), 0n);
 assert.ok(sum(withoutChar.phase1) > 0n);
 
+// Original rank-6 source, first nine owner-visible physical cards: 7 setup + 2 turns.
+// Candidate going second makes the source act on its second turn after candidate GX.
+const rank6 = require('../results/aichi-2026/full-decklists.json').decks.find((row) => row.rank === 6);
+assert.ok(rank6, 'Original Aichi rank 6 missing');
+const sourceBasicCards = rank6.cards.filter((row) => row.category === 'Pokémon');
+assert.deepEqual(sourceBasicCards.map(({ name, count }) => ({ name, count })),
+  [{ name: 'Iron Thorns ex', count: 4 }]);
+const removalCounts = { Plumeria: 4, 'Team Flare Grunt': 2, 'Enhanced Hammer': 2 };
+for (const [name, copies] of Object.entries(removalCounts)) {
+  assert.equal(rank6.cards.find((row) => row.name === name).count, copies, 'Source removal count: ' + name);
+}
+const sourceBasicValidSeven = choose(60, 7) - choose(56, 7);
+const rank6Denominator = sourceBasicValidSeven * choose(53, 2);
+// Under a valid seven with a Basic, exclude all eight remover cards from
+// initial seven and both ordinary draws. Prizes are marginalized out exactly.
+const rank6NoRemover = (choose(52, 7) - choose(48, 7)) * choose(45, 2);
+const rank6RemoverFirstNine = rank6Denominator - rank6NoRemover;
+assert.equal(rank6Denominator, 212610958560n);
+assert.equal(rank6RemoverFirstNine, 153057025440n);
+assert.ok(rank6RemoverFirstNine > rank6Denominator / 2n);
+
 console.log(JSON.stringify({
   status: 'PASS',
   deck: 'agent5 ADP-Thorton-Regidrago fixed v2',
@@ -174,6 +195,7 @@ console.log(JSON.stringify({
   phase1TagCallTutorPercentOfBasicValid: percentage(result.phase1[2], result.valid),
   totalT1AlteredCreationOpportunityPercentOfBasicValid: percentage(sum(result.phase1), result.valid),
   t1AndCriticalT2IdentitiesUnprizedPercentOfBasicValid: percentage(sum(result.phase1PrizeFiltered), result.valid),
+  rank6RemoverInFirstNinePercentOfBasicValid: percentage(rank6RemoverFirstNine, rank6Denominator),
   actualNativeGames: 0,
   caution: 'Physical access only: no acceptable discard, actual T2 resource acquisition, opponent answer or game win guaranteed'
 }, null, 2));
