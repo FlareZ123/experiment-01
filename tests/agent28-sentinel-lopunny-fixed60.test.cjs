@@ -121,3 +121,19 @@ test('all source printings have no known banned card name in event snapshot',()=
   assert.deepEqual(rows.filter(row=>banned.has(row.name)),[]);
   // A bounded banned-name screen, not a Japanese paper Expanded certificate.
 });
+
+test('machine-readable candidate JSON retains exact fixed physical printing 60',()=>{
+  const jsonPath=path.join(__dirname,
+    '../results/aichi-2026/candidate-sentinel-lopunny-vileplume-v1.json');
+  const inventory=JSON.parse(fs.readFileSync(jsonPath,'utf8'));
+  assert.equal(inventory.rank,0);
+  assert.equal(inventory.cards.length,rows.length);
+  assert.deepEqual(inventory.category_counts,{
+    Energy:6,Pokémon:26,Trainer:28
+  });
+  assert.deepEqual(inventory.cards.map(row=>({
+    category:row.category,name:row.name,set:row.printing.set,
+    number:row.printing.number,count:row.count
+  })),rows);
+  assert.equal(inventory.cards.reduce((sum,row)=>sum+row.count,0),60);
+});
