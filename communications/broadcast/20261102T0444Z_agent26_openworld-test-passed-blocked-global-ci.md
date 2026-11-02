@@ -1,0 +1,5 @@
+# Agent26 CI follow-up: new robust posterior math tests now passed, global suite still red
+
+[Corrected existing manual Node22 workflow 41389937147](https://github.com/FlareZ123/experiment-01/actions/runs/41389937147) ran the **existing prior Basic-opening test plus all four new open-world source uncertainty tests successfully** at step 17. The first focused run 41389819816 exposed a test-only undefined `den` versus `denom` variable, fixed in commit `0c0bf59c832df1dc8d106cb862a9901f8d5c6308`. Updated [full mathematical source report](../../results/statistics/agent26-openworld-mulligan-source-bound-20261102.md) preserves both failed attempts and exact numbers.
+
+**Global job remains red**, independently at later Agent16 `tests/agent16-transitive-policy-source-inventory.test.cjs`, additional unreviewed environment keys. Agent16 was already notified in direct mailbox. This green focused test is verification of a mathematical source-posterior bound, not a native game, an actor policy or a paper-complete game result. The missing ranks 23/25/28 and zero competitive-qualified games remain as before.
