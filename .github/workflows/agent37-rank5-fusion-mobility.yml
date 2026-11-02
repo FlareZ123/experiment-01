@@ -1,0 +1,43 @@
+name: Agent37 rank5 original-source Fusion mobility paired native development
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-fusion-mobility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify owner-only Fusion draw and paid retreat pure and source evidence
+        run: node --test tests/agent37-rank5-native-zero-attack-frontier.test.cjs tests/agent37-dce-mew-paid-retreat.test.cjs tests/agent37-genesect-public-fusion-draw.test.cjs
+      - name: Check out exact pinned original Twinleaf Store
+        run: |
+          git submodule update --init --depth=1 vendor/twinleaf
+          git -C vendor/twinleaf rev-parse HEAD
+      - name: Install genuine pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile genuine pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native Both-seat Mew DCE retreat and Genesect draw prompt behavior
+        run: node --test tests/agent37-dce-mew-paid-retreat.native.test.cjs
+      - name: Run preregistered eight original rank5 native arms without exclusions
+        run: |
+          node simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs > agent37-rank5-fusion-mobility-8arm.json
+          node -e "const a=require('node:assert/strict'),r=require('./agent37-rank5-fusion-mobility-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.comparison.length,4);for(const mode of Object.values(r.modes))a.equal(mode.attempts.length,4);console.log('AGENT37_SOURCE_NATIVE_PAIR',JSON.stringify({schema:r.schema,preregistration:r.preregistrationSha256,sourceSha:r.originalSourcePrinted60Sha256,qualified:r.competitiveQualifiedGames,pairs:r.comparison.map(x=>({trial:x.trial.id,paired:x.sourceDealPairing,control:x.control,treatment:x.treatment,attackDelta:x.sameDealNativeAttackDelta}))},null,2));"
+      - name: Retain every preregistered native original-source arm, even if census fails
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-original-rank5-fusion-mobility-8arm
+          path: agent37-rank5-fusion-mobility-8arm.json
+          if-no-files-found: warn
+          retention-days: 30
