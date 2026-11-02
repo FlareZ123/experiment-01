@@ -1,0 +1,403 @@
+{
+  "schema": "agent18-exeggutor-vileplume-v2-native-implemented-60",
+  "status": "exploratory-unqualified-pinned-native-all-candidate-attackers-defined",
+  "source": "exact rank2 original archived 60, Aichi May 10 2026",
+  "sourceDeckRank": 2,
+  "sourceDeckPlayer": "Takahiro Ando",
+  "sourceArtifact": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "changes": [
+    "Remove 2 Lillipup CEC174, 2 Herdier SUM104 and 1 Stoutland BCR122",
+    "Add 1 Exeggcute PLF4 Propagation HP30, 1 Exeggcute MEG4 HP60 and 2 Exeggutor PLF5 Blockade",
+    "Increase Jet Energy PAL190 from 2 to 3",
+    "Replace 1 Exeggcute MEG4 (not implemented in pinned Twinleaf) with 1 Exeggcute VIV4 (60 HP, printed Seed Bomb instead of Jam-Packed)"
+  ],
+  "note": "Second immutable exploratory 60, adjusted 60-HP Exeggcute printing to Vivid Voltage VIV4 specifically because pinned Twinleaf a9905a76 implements VIV4/PLF4/PLF5. Different 60-HP Exeggcute attack behavior from first variant. No native game or competitive win evidence; paper legality independent.",
+  "category_counts": {
+    "Pokémon": 25,
+    "Trainer": 28,
+    "Energy": 7
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Pidgey",
+      "printing": {
+        "set": "MEW",
+        "number": "16",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Pidgeotto",
+      "printing": {
+        "set": "TEU",
+        "number": "123",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Pidgeot ex",
+      "printing": {
+        "set": "OBF",
+        "number": "164",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Oddish",
+      "printing": {
+        "set": "UNB",
+        "number": "5",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Gloom",
+      "printing": {
+        "set": "UNB",
+        "number": "7",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Vileplume",
+      "printing": {
+        "set": "AOR",
+        "number": "3",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Vileplume-GX",
+      "printing": {
+        "set": "CEC",
+        "number": "4",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Bunnelby",
+      "printing": {
+        "set": "PRC",
+        "number": "121",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Exeggcute",
+      "printing": {
+        "set": "PLF",
+        "number": "4",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Exeggcute",
+      "printing": {
+        "set": "VIV",
+        "number": "4",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Exeggutor",
+      "printing": {
+        "set": "PLF",
+        "number": "5",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Fan Rotom",
+      "printing": {
+        "set": "SCR",
+        "number": "118",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Relicanth",
+      "printing": {
+        "set": "TEF",
+        "number": "84",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Mr. Mime",
+      "printing": {
+        "set": "PLF",
+        "number": "47",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Girafarig",
+      "printing": {
+        "set": "LOT",
+        "number": "94",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Budew",
+      "printing": {
+        "set": "ASC",
+        "number": "16",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Jirachi",
+      "printing": {
+        "set": "XYP",
+        "number": "67",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Guzma & Hala",
+      "printing": {
+        "set": "CEC",
+        "number": "193",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Cassius",
+      "printing": {
+        "set": "XY",
+        "number": "115",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Karen",
+      "printing": {
+        "set": "XYP",
+        "number": "177",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Plumeria",
+      "printing": {
+        "set": "BUS",
+        "number": "120",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Gladion",
+      "printing": {
+        "set": "CIN",
+        "number": "95",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Faba",
+      "printing": {
+        "set": "LOT",
+        "number": "173",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Lusamine",
+      "printing": {
+        "set": "CIN",
+        "number": "96",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Bellelba & Brycen-Man",
+      "printing": {
+        "set": "CEC",
+        "number": "186",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Peonia",
+      "printing": {
+        "set": "CRE",
+        "number": "149",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Team Yell's Cheer",
+      "printing": {
+        "set": "BRS",
+        "number": "149",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Tag Call",
+      "printing": {
+        "set": "CEC",
+        "number": "206",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Stealthy Hood",
+      "printing": {
+        "set": "UNB",
+        "number": "186",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Technical Machine: Evolution",
+      "printing": {
+        "set": "PAR",
+        "number": "178",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Counter Gain",
+      "printing": {
+        "set": "SSP",
+        "number": "169",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Artazon",
+      "printing": {
+        "set": "PAL",
+        "number": "171",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Grand Tree",
+      "printing": {
+        "set": "SCR",
+        "number": "136",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "name": "Capture Energy",
+      "printing": {
+        "set": "RCL",
+        "number": "171",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 3,
+      "name": "Jet Energy",
+      "printing": {
+        "set": "PAL",
+        "number": "190",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 1,
+      "name": "Memory Energy",
+      "printing": {
+        "set": "LOT",
+        "number": "194",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 1,
+      "name": "Grass Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      }
+    }
+  ]
+}
