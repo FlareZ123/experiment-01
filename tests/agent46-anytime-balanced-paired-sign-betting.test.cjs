@@ -20,7 +20,7 @@ function grid(C=32,n=7){
 /** @param {ReturnType<typeof grid>} cells @param {string} [direction] @param {number} [ordinal] */
 function check(cells,direction='CHALLENGER_BETTER',ordinal=1){
   return anytimeBalancedPairedSignBetting({
-    candidateOrdinal:ordinal,cells,direction,alpha:0.05
+    candidateOrdinal:ordinal,cells,direction,alpha:0.05,independentAcrossCells:true
   });
 }
 
@@ -178,6 +178,10 @@ test('unbalanced rounds, duplicate labels, invalid direction and nonzero null re
   assert.throws(()=>check(bad),/unique common registered roundId/);
   assert.throws(()=>check(grid(),'MUTUAL_SUCCESS'),/Predeclare/);
   assert.throws(()=>anytimeBalancedPairedSignBetting({
-    candidateOrdinal:1,cells:grid(),direction:'CHALLENGER_BETTER',targetDelta:.1
+    candidateOrdinal:1,cells:grid(),direction:'CHALLENGER_BETTER',targetDelta:.1,independentAcrossCells:true
   }),/Predeclare/);
+});
+
+test('independence declaration mandatory',()=>{
+  assert.throws(()=>anytimeBalancedPairedSignBetting({candidateOrdinal:1,cells:grid(),direction:'CHALLENGER_BETTER'}),/independently sampled across-cell rounds/);
 });
