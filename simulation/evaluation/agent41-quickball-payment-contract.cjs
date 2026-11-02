@@ -56,7 +56,7 @@ function auditQuickBallPayment(event) {
     false, copies, copies - 1);
   if (QUICK_BALL_PRINTINGS.has(event.paidPrinting))
     return result('OTHER_QUICK_BALL_PAYMENT', true, copies, copies - 1);
-  return result(copies >= 2 ? 'PROTECTED_DUPLICATE_PAYMENT' :
+  return result(copies >= 2 ? 'DUPLICATE_PRINTING_PAYMENT' :
     'SINGLETON_PAYMENT', true, copies, copies - 1);
 }
 
