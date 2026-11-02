@@ -1,0 +1,50 @@
+name: Agent31 rank1 original Underworld Door structural owner opportunity replay
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  native-rank1-door-opportunities:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned actual Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Test owner-only native VMAX/marker/Energy preconditions and original-role assignment
+        run: node --test tests/agent31-underworld-door-native-preconditions.test.cjs tests/agent31-rank1-underworld-preconditions-replay.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Download immutable previously witnessed original-rank1 source native treatments
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 13157783706
+          run-id: 41477258434
+          github-token: ${{ github.token }}
+          repository: FlareZ123/experiment-01
+          path: original-archive
+      - name: Replay exact original rank1 physical games under read-only Underworld observer
+        env:
+          AGENT31_RANK1_DOOR_OUTPUT: ${{ runner.temp }}/agent31-rank1-underworld-source-owner-eligibility.json
+        run: node simulation/evaluation/agent31-rank1-underworld-preconditions-replay.cjs original-archive/agent31-rank1-original-prospective-basic-recipient-all-32arms/agent31-rank1-prospective-basic-recipient-32arms.json
+      - name: Preserve source ownership, preconditions and immutable receipt comparisons
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank1-underworld-native-owner-opportunity-audit
+          path: ${{ runner.temp }}/agent31-rank1-underworld-source-owner-eligibility.json
+          if-no-files-found: warn
+          retention-days: 30
