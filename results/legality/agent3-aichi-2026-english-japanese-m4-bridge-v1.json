@@ -1,0 +1,65 @@
+{
+  "schema": "agent3-aichi-2026-source-english-japanese-m4-bridge-v1",
+  "event_date": "2026-05-10",
+  "original_inventory_source_manifest_blob_sha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "english_card_catalog_set_blob_sha": "69a8ef97454d072e29c09bfd3862ccd1c3019f5c",
+  "official_japanese_set_release_url": "https://www.pokemon-card.com/ex/m4/",
+  "source_handling": "Japanese pre-event original/English post-event display crosswalk; not independent source-player authentication or final game qualification",
+  "special_red_card_zero_hand_official_ruling": "https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AC%E3%83%83%E3%83%89%E3%82%AB%E3%83%BC%E3%83%89&regulation_faq_main_item1=all",
+  "records": [
+    {
+      "rank": 5,
+      "name": "Special Red Card",
+      "count": 2,
+      "english": {
+        "set": "CRI",
+        "number": "82",
+        "id": "me4-82",
+        "released": "2026-05-22"
+      },
+      "japanese": {
+        "set": "M4",
+        "number": "072/083",
+        "released": "2026-03-13",
+        "official_url": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all"
+      }
+    },
+    {
+      "rank": 16,
+      "name": "Trubbish",
+      "count": 2,
+      "english": {
+        "set": "CRI",
+        "number": "56",
+        "id": "me4-56",
+        "released": "2026-05-22"
+      },
+      "japanese": {
+        "set": "M4",
+        "number": "054/083",
+        "released": "2026-03-13",
+        "official_url": "https://www.pokemon-card.com/card-search/details.php/card/50138/regu/all"
+      }
+    },
+    {
+      "rank": 26,
+      "name": "Special Red Card",
+      "count": 1,
+      "english": {
+        "set": "CRI",
+        "number": "82",
+        "id": "me4-82",
+        "released": "2026-05-22"
+      },
+      "japanese": {
+        "set": "M4",
+        "number": "072/083",
+        "released": "2026-03-13",
+        "official_url": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all"
+      }
+    }
+  ],
+  "record_count": 3,
+  "physical_card_slots": 5,
+  "competitively_qualified_games": 0
+}
