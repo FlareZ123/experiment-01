@@ -12,7 +12,6 @@ const load=name=>require(path.join(ROOT,name));
 const {State,GamePhase}=load('game/store/state/state');
 const {Player}=load('game/store/state/player');
 const {AlolanRaichu}=load('sets/08-sun-and-moon/set-unified-minds/alolan-raichu');
-const {Voltorb}=load('sets/08-sun-and-moon/set-roaring-skies/voltorb');
 const {AttackEffect}=load('game/store/effects/game-effects');
 const {PutDamageEffect,PutCountersEffect}=load('game/store/effects/attack-effects');
 const {shouldPreventAttackEffects}=load('game/store/effects/effect-of-attack-effects');
@@ -30,7 +29,7 @@ function nativeFixture(){
   opponent.id=2;opponent.name='Defender';
   const card=new AlolanRaichu();
   source.active.cards.push(card);
-  const targetCard=new Voltorb();
+  const targetCard=new AlolanRaichu();
   opponent.active.cards.push(targetCard);
   state.players.push(source,opponent);
   state.phase=GamePhase.ATTACK;
