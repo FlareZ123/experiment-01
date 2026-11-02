@@ -6,6 +6,7 @@ const {execFileSync}=require('node:child_process');
 const {writeAtomicLocked,gitBlobSha}=require('./agent20-frozen-rank6-canary-v1.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {withPaperPlumeriaPayment}=require('../twinleaf/agent42-plumeria-paper-payment-guard.cjs');
+const {sourcePlumeriaActionCertificates}=require('./agent42-plumeria-native-chain-certificate.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const PROFILE=path.join(__dirname,'agent20-frozen-rank6-canary-v1.json');
 const OUTPUT=path.join(ROOT,'agent42-plumeria-prospective-sourcechain-native.json');
@@ -87,6 +88,12 @@ function runProspectivePlumeriaSourcechainPair(){
  const pairs=control.rows.map((c,i)=>{
   const t=treatment.rows[i];
   assert.equal(c.trial.id,t.trial.id);
+  const paid=guard.physicalPaymentReceipts.filter(x=>
+   guard.nativeAddPlayerStores===8&&x.nativeStoreOrdinal===i+1);
+  const effects=(guard.physicalEffectReceipts??[]).filter(x=>
+   guard.nativeAddPlayerStores===8&&x.nativeStoreOrdinal===i+1);
+  const localSourceActionCertificates=
+   sourcePlumeriaActionCertificates(t,paid,effects);
   return {trialId:c.trial.id,sourceRank:6,
    candidateId:c.trial.candidateId,sourceSeat:c.trial.candidateSlot==='A'?1:0,
    sourceDealMatch:typeof c.sourceDealFingerprint==='string'&&
@@ -100,10 +107,9 @@ function runProspectivePlumeriaSourcechainPair(){
     rootCount:c.rootActionCount??null,source:sourcePaymentLine(c)},
    guarded:{gameFinished:t.gameFinished??null,
     rootCount:t.rootActionCount??null,source:sourcePaymentLine(t)},
-   guardPhysicalPaymentReceipts:guard.physicalPaymentReceipts.filter(x=>
-    guard.nativeAddPlayerStores===8&&x.nativeStoreOrdinal===i+1),
-   guardPhysicalEffectReceipts:(guard.physicalEffectReceipts??[]).filter(x=>
-    guard.nativeAddPlayerStores===8&&x.nativeStoreOrdinal===i+1),
+   guardPhysicalPaymentReceipts:paid,
+   guardPhysicalEffectReceipts:effects,
+   localSourceActionCertificates,
    qualifiedCompetitiveGames:0};
  });
  return {schema:'agent42-prospective-rank6-plumeria-physical-payment-parity-v1',
@@ -113,6 +119,10 @@ function runProspectivePlumeriaSourcechainPair(){
   pinnedVendorRevision:vendorRevision,checkoutCommit,
   sourceOriginalRanks:[6],attemptedGames:16,pairCount:pairs.length,
   competitiveQualifiedGames:0,guardAudit:guard,
+  naturallyPlayedSourcePlumeriaRoots:pairs.reduce((n,p)=>
+   n+p.localSourceActionCertificates.length,0),
+  locallyVerifiedPlumeriaWithOpponentContinuations:pairs.reduce((n,p)=>
+   n+p.localSourceActionCertificates.filter(c=>c.allLocalChecksPassed).length,0),
   allPhysicalSourceDealsMatched:pairs.every(x=>
    x.sourceDealMatch&&x.fullPhysicalDealMatch),
   allRootLedgersMatched:pairs.every(x=>x.sameAcceptedNativeRootLedger),
@@ -133,6 +143,9 @@ if(require.main===module){
   pairs:x.pairs.map(p=>({id:p.trialId,sourceRoots:p.guarded.source.acceptedSourcePlumeriaRoots,
    sourcePaymentChoices:p.guarded.source.ownerPayments.length,
    custody:p.guardPhysicalPaymentReceipts.map(x=>x.independentlyPaidTwo),
-   energyCustody:p.guardPhysicalEffectReceipts.map(x=>x.independentEnergyRemoval)}))}));
+   energyCustody:p.guardPhysicalEffectReceipts.map(x=>x.independentEnergyRemoval),
+   localSourceCerts:p.localSourceActionCertificates.map(x=>({
+    playOrdinal:x.playOrdinal,allLocalChecksPassed:x.allLocalChecksPassed,
+    opponentContinuation:x.opponentContinuation}))}))}));
 }
 module.exports={runProspectivePlumeriaSourcechainPair,sourcePaymentLine};
