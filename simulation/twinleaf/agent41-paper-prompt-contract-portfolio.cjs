@@ -80,6 +80,17 @@ function independentPainfulSpoonsNegative(answer){
  * @param {(card:object)=>boolean|null} eligible Printed card predicate.
  * @returns {string|null} A proven printed invalidity or unknown.
  */
+function independentUltraBallPaymentNegative(prompt,answer){
+  if(!Array.isArray(answer)||answer.length!==2)
+    return 'ULTRA_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_TWO';
+  if(new Set(answer).size!==2)
+    return 'ULTRA_BALL_REQUIRES_TWO_DISTINCT_PHYSICAL_CARDS';
+  if(!Array.isArray(prompt?.cards?.cards)||
+     answer.some(card=>!prompt.cards.cards.includes(card)))
+    return 'ULTRA_BALL_PAYMENT_OUTSIDE_PHYSICAL_HAND';
+  return null;
+}
+
 function independentRoxiePaymentNegative(prompt,answer,eligible){
   if(!Array.isArray(answer)||answer.length<1||answer.length>2)
     return 'ROXIE_PRINTED_PAYMENT_REQUIRES_ONE_OR_TWO';
@@ -97,7 +108,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v9-rank31-source-count-and-root';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v10-ultra-ball-mandatory-cost';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -301,6 +312,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'PutDamagePrompt declared zero-target, whole-packet and optional budget negatives only',
       'Radiant Alakazam SIT source-marked Painful Spoons one-or-two counter and single-source negatives',
       'Roxie CEC source-stamped one-or-two owner Pokémon payment and no-eligible-root exclusions',
+       'Ultra Ball MEG source-stamped exactly-two physical discard and insufficient-root exclusions',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
@@ -308,6 +320,8 @@ function withPaperPromptContractPortfolio(run,deps={}){
     markedVoltCyclonePrompts:0,markedPainfulSpoonsPrompts:0,
     inspectedRoxiePaymentPrompts:0,
     inspectedRoxiePlayCardRoots:0,vetoedRoxieNoEligibleRoots:0,
+    inspectedUltraBallPlayCardRoots:0,vetoedUltraBallInsufficientRoots:0,
+    inspectedUltraBallPaymentPrompts:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -389,6 +403,13 @@ function withPaperPromptContractPortfolio(run,deps={}){
           throw new Error('PAPER_ROOT_INVALID:ROXIE_CEC_NO_ELIGIBLE_POKEMON');
         }
       }
+      if(played?.fullName==='Ultra Ball MEG'){
+        audit.inspectedUltraBallPlayCardRoots++;
+        if(owner.hand.cards.length<3){
+          audit.vetoedUltraBallInsufficientRoots++;
+          throw new Error('PAPER_ROOT_INVALID:ULTRA_BALL_REQUIRES_TWO_OTHER_CARDS');
+        }
+      }
     }
     if(type!=='ResolvePromptAction')
       return dispatchBefore.value.call(this,action,...args);
@@ -436,6 +457,14 @@ function withPaperPromptContractPortfolio(run,deps={}){
       contract='printed-roxie-nonempty-eligible-own-pokemon-negative';
       const rejected=independentRoxiePaymentNegative(
         prompt,action.result,isRoxiePaymentCard);
+      if(rejected)status='PAPER_PROMPT_INVALID';
+      reason=rejected??'only-negative-predicates-audited';
+    }else if(family==='ChooseCardsPrompt'&&
+              prompt?.sourceCard?.fullName==='Ultra Ball MEG'){
+      audit.inspectedUltraBallPaymentPrompts++;
+      sourcePrinting='Ultra Ball MEG';
+      contract='printed-ultra-ball-exactly-two-physical-discard-negative';
+      const rejected=independentUltraBallPaymentNegative(prompt,action.result);
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
     }else if(spoons&&family==='MoveDamagePrompt'){
@@ -542,6 +571,6 @@ function withPaperPromptContractPortfolio(run,deps={}){
 }
 module.exports={VERSION,independentCampingGearContract,
   independentPutDamageNegative,independentPainfulSpoonsNegative,
-  independentRoxiePaymentNegative,
+  independentRoxiePaymentNegative,independentUltraBallPaymentNegative,
   physicalPromptChoiceMetadata,
   withPaperPromptContractPortfolio};
