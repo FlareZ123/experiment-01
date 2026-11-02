@@ -45,3 +45,22 @@ There are **464** eligible grouped eight-card compositions for the three-Basic b
 **Actual repository CI succeeded:** [manual workflow 41398700889](https://github.com/FlareZ123/experiment-01/actions/runs/41398700889), source head a1c281afd6e55ead92105b071c5ef7a1d7604c3f, executed both Node test files against the actual registered experimental 60. The named G&H/Artazon regression step and entire lightweight card-coverage job concluded SUCCESS. Zero native games were executed for this result.
 
 This is a conservative, specifically enumerated **physical resource-access screen**. It omits mulligan bonus draws, alternative searches or extra draw, prohibiting opposing effects, public board sequencing, the cost of discarding strategically valuable cards, actual policy selection, opponent continuation, and paper time limit. It is neither an estimate nor a lower bound for full Blockade setup or game wins. The full-field challenge still lacks three authenticated exact original 60s (ranks 23/25/28) and has zero competitively qualified match results.
+
+## One-card sensitivity of this exact access window
+
+The separate [source-count-asserting counterfactual evaluator](../../simulation/evaluation/agent32-gh-artazon-slot-sensitivity.cjs) recomputes the same six-Prize first-eight event after a **one-card swap with the Other group**. The original Other group contains **eight non-target Basic Pokémon and 25 nonbasics**. Swapping another Basic for a target Basic preserves 14 Basics overall; swapping a nonbasic for a target Basic increases the count to 15, altering the Basic-valid-opening denominator.
+
+| One-card modification | Basic total | Conditional route access | Relative to 2.400835% |
+| --- | ---: | ---: | ---: |
+| Nonbasic Other to fourth **Jet Energy** | 14 | **3.133374%** | **+0.732539 pp** |
+| Different Basic to third Bunnelby, Exeggcute or Oddish | 14 | **3.068825%** | **+0.667990 pp** |
+| Nonbasic Other to third Bunnelby, Exeggcute or Oddish | 15 | **2.995487%** | **+0.594651 pp** |
+| Nonbasic Other to third TM Evolution, Exeggutor, Gloom or Vileplume | 14 | **2.470883%** | **+0.070048 pp** |
+| Nonbasic Other to third **Artazon** | 14 | **2.422113%** | **+0.021278 pp** |
+| Third Jet Energy to a nonbasic Other | 14 | **1.440231%** | **-0.960604 pp** |
+
+The G&H and Tag Call four-copy sets cannot be increased under the ordinary deck limit. For this *particular* search-access event, Jet is the largest tested legal single-slot addition and Artazon's third copy has a small local marginal effect. The latter can be more valuable in actual games after Stadium removal or opposing constraints: the analysis excludes these possibilities and any opportunity cost of the removed card.
+
+The [five independent tests](../../tests/agent32-gh-artazon-slot-sensitivity.test.cjs) verify source-category composition, exact probabilities, Basic-denominator differences, target-species symmetry and four-copy ceiling. Full [manual GitHub Actions 41400021623](https://github.com/FlareZ123/experiment-01/actions/runs/41400021623) ran all 14 exact-regression tests against the authentic source 60 at head bc042a6d3c5f5ef6a7b3964f774acd290b818aa7. The named test step and whole lightweight job passed.
+
+**Scope:** a hypothetical one-copy gradient of physical resource access, with no complete alternative 60 nominated, no native games and no paper match wins measured.
