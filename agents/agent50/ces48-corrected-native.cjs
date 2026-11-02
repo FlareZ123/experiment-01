@@ -14,3 +14,12 @@ const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
 const {Format}=native('game/store/card/card-types');
+let nextId=80500;
+function stage(seat){
+ const manager=initializeCards();
+ const card=name=>{
+  const c=manager.getCardByName(name);
+  assert.ok(c,'Missing pinned card '+name);
+  c.id=nextId++;
+  return c;
+ };
