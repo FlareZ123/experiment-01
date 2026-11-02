@@ -14,9 +14,12 @@ const load=name=>require(path.join(output,name));
  * @param {0|1} seat Actual attack-owning physical seat.
  * @param {'Tapu Lele-GX GRI'|'Shadow Rider Calyrex VMAX CRE'|'Shadow Rider Calyrex V CRE'} attackerPrinting
  * @param {'Mimikyu PAL'|'Mimikyu GRI'} defenderPrinting
+ * @param {boolean} poweredGhostEye Opposing PAL has two Psychic, GX owner only two.
  * @returns {object} Genuine Store damage and KO/Prize receipts.
  */
-function runArm(seat,attackerPrinting,defenderPrinting){
+function runArm(seat,attackerPrinting,defenderPrinting,poweredGhostEye=false){
+  assert.ok(!poweredGhostEye ||
+    (attackerPrinting==='Tapu Lele-GX GRI'&&defenderPrinting==='Mimikyu PAL'));
   const manager=initializeCards();
   let nextId=0;
   const make=printing=>{
@@ -39,7 +42,8 @@ function runArm(seat,attackerPrinting,defenderPrinting){
   attacker.name='reference physical attacker';
   const physicalAttacker=make(attackerPrinting);
   attacker.active.cards.push(physicalAttacker);
-  for(let i=0;i<4;i++){
+  const attackerEnergyCount=poweredGhostEye?2:4;
+  for(let i=0;i<attackerEnergyCount;i++){
     const energy=make('Psychic Energy SVE');
     attacker.active.cards.push(energy);
     attacker.active.energies.cards.push(energy);
@@ -49,6 +53,13 @@ function runArm(seat,attackerPrinting,defenderPrinting){
   defender.name='original printed Mimikyu source wall';
   const physicalDefender=make(defenderPrinting);
   defender.active.cards.push(physicalDefender);
+  if(poweredGhostEye){
+    for(let i=0;i<2;i++){
+      const energy=make('Psychic Energy SVE');
+      defender.active.cards.push(energy);
+      defender.active.energies.cards.push(energy);
+    }
+  }
   const fallback=new PokemonCardList();
   fallback.cards.push(make('Snorlax PGO'));
   defender.bench.push(fallback);
@@ -116,6 +127,8 @@ function runArm(seat,attackerPrinting,defenderPrinting){
   }
   return {sourceRankPrintings: defenderPrinting==='Mimikyu PAL'?[3,7]:[1,30],
     seat,attackerPrinting,defenderPrinting,attackerAttack:attack,
+    ownAttachedPsychicEnergy:attackerEnergyCount,
+    sourceAttachedPsychicEnergy:poweredGhostEye?2:0,
     expectedSourceMimikyuPrizeLoss:predicted,prizeGain,
     damageOnSurvivingMimikyu:wallStillActive?defender.active.damage:null,
     damageOnSourceBench: fallback.damage,
@@ -132,11 +145,15 @@ function run(){
         'Shadow Rider Calyrex V CRE']){
         arms.push(runArm(seat,attackerPrinting,defenderPrinting));
       }
+      if(defenderPrinting==='Mimikyu PAL'){
+        arms.push(runArm(seat,'Tapu Lele-GX GRI',defenderPrinting,true));
+      }
     }
   }
-  assert.equal(arms.length,12);
+  assert.equal(arms.length,14);
   return {schema:'agent21-source-print-safeguard-v-gx-actual-store-v1',
-    enginePin:ENGINE_SHA,stagedFourPsychicEnergy:true,actualStoreAttack:true,
+    enginePin:ENGINE_SHA,stagedFourTotalPsychicEnergy:true,
+    poweredGhostEyeCounterlineTested:true,actualStoreAttack:true,
     countedCounterPlacementDistinctFromAttackDamage:true,
     realSourceMimikyuPrintings:['Mimikyu PAL','Mimikyu GRI'],
     actualSourceFull60Games:0,competitiveQualifiedGames:0,arms};
