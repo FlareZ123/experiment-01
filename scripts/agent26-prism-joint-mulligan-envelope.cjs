@@ -5,6 +5,47 @@ const {choose}=require('./aichi-opening-basics.cjs');
 const VERSION='agent26-prism-joint-mulligan-envelope-v1';
 const DECK_SIZE=60, OPENING_SIZE=7;
 const DENOMINATOR=choose(DECK_SIZE,OPENING_SIZE);
+const ACE_SPEC_NAMES=new Set([
+  "Amulet of Hope",
+  "Awakening Drum",
+  "Brilliant Blender",
+  "Computer Search",
+  "Crystal Edge",
+  "Crystal Wall",
+  "Dangerous Laser",
+  "Deluxe Bomb",
+  "Dowsing Machine",
+  "Energy Search Pro",
+  "Enriching Energy",
+  "G Booster",
+  "G Scope",
+  "Gold Potion",
+  "Grand Tree",
+  "Hero's Cape",
+  "Hyper Aroma",
+  "Legacy Energy",
+  "Life Dew",
+  "Master Ball",
+  "Max Rod",
+  "Maximum Belt",
+  "Megaton Blower",
+  "Miracle Headset",
+  "Neo Upper Energy",
+  "Neutralization Zone",
+  "Poké Vital A",
+  "Precious Trolley",
+  "Prime Catcher",
+  "Reboot Pod",
+  "Rock Guard",
+  "Scoop Up Cyclone",
+  "Scramble Switch",
+  "Secret Box",
+  "Sparkling Crystal",
+  "Survival Brace",
+  "Treasure Tracker",
+  "Unfair Stamp",
+  "Victory Piece"
+]);
 const BASIC_ENERGY=new Set([
   'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
   'Psychic Energy','Fighting Energy','Darkness Energy',
@@ -63,10 +104,16 @@ function maximumLegalHistoryLikelihood(failedSevens,options={}){
   for(const [name] of records)countedByName.set(name,
     failedSevens.map(seven=>seven.filter(x=>x===name).length));
 
+  const knownAceNames=[...countedByName.keys()].filter(n=>ACE_SPEC_NAMES.has(n));
+  if(knownAceNames.length>1)return {
+    version:VERSION,probabilityUpper:0,numerator:'0',denominator:'1',
+    observedCounts:{},residualBasicCount:0,
+    activeCopies:maxActiveCopies,totalFailedHands:failedSevens.length};
+
   /** @type {Map<number,{weight:bigint,counts:Record<string,number>}>} */
   let dp=new Map([[0,{weight:1n,counts:{}}]]);
   for(const [name,multiplicities] of countedByName){
-    const defaultCap=/[♢◇]$/u.test(name)?1:
+    const defaultCap=ACE_SPEC_NAMES.has(name)||/[♢◇]$/u.test(name)?1:
       BASIC_ENERGY.has(name)?DECK_SIZE:4;
     const cap=Object.hasOwn(copyCaps,name)?copyCaps[name]:defaultCap;
     assert.ok(Number.isSafeInteger(cap)&&cap>=0&&cap<=DECK_SIZE);
@@ -115,4 +162,4 @@ function maximumLegalHistoryLikelihood(failedSevens,options={}){
     residualBasicCount:DECK_SIZE-best.spent,
     activeCopies:maxActiveCopies,totalFailedHands:failedSevens.length};
 }
-module.exports={VERSION,maximumLegalHistoryLikelihood};
+module.exports={VERSION,ACE_SPEC_NAMES,maximumLegalHistoryLikelihood};
