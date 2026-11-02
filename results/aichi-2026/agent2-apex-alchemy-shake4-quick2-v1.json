@@ -1,0 +1,407 @@
+{
+  "schema": "agent2-apex-alchemy-shake4-quick2-v1",
+  "status": "fixed60 registered hypothesis for card-access falsification; no native game, no competitive winner",
+  "source": "Exact one-card substitution from Agent43 Apex Alchemy v0 after source-printed legality audit; does not change the champion or original Aichi opponents",
+  "base_deck_identity_sha256": "21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769",
+  "deck_identity_canonicalization": "sha256(UTF8(alphabetically sorted `cardId:count\\n`))",
+  "deck_identity_sha256": "5cd6b0fc7781e1a5a3b29f5a23654750295af89bdc63621f235fbd0c56701fd0",
+  "archetype": "Regidrago VSTAR / Alolan Muk / four Boost Shake and two Quick Ball",
+  "category_counts": {
+    "Pokémon": 20,
+    "Trainer": 30,
+    "Energy": 10
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "name": "Regidrago V",
+      "printing": {
+        "set": "SIT",
+        "number": "135",
+        "language": "en"
+      },
+      "cardId": "swsh12-135"
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "cardId": "swsh12-136"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Alolan Grimer",
+      "printing": {
+        "set": "SUM",
+        "number": "57",
+        "language": "en"
+      },
+      "cardId": "sm1-57"
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Alolan Muk",
+      "printing": {
+        "set": "SUM",
+        "number": "58",
+        "language": "en"
+      },
+      "cardId": "sm1-58"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dragapult ex",
+      "printing": {
+        "set": "TWM",
+        "number": "130",
+        "language": "en"
+      },
+      "cardId": "sv6-130"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dialga-GX",
+      "printing": {
+        "set": "UPR",
+        "number": "100",
+        "language": "en"
+      },
+      "cardId": "sm5-100"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "cardId": "swsh11-136"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Noivern ex",
+      "printing": {
+        "set": "PAL",
+        "number": "153",
+        "language": "en"
+      },
+      "cardId": "sv2-153"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Kyurem",
+      "printing": {
+        "set": "SFA",
+        "number": "47",
+        "language": "en"
+      },
+      "cardId": "sv6pt5-47"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Koraidon ex",
+      "printing": {
+        "set": "TEF",
+        "number": "120",
+        "language": "en"
+      },
+      "cardId": "sv5-120"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "printing": {
+        "set": "GRI",
+        "number": "60",
+        "language": "en"
+      },
+      "cardId": "sm2-60"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Latias ex",
+      "printing": {
+        "set": "SSP",
+        "number": "76",
+        "language": "en"
+      },
+      "cardId": "sv8-76"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Budew",
+      "printing": {
+        "set": "ASC",
+        "number": "16",
+        "language": "en"
+      },
+      "cardId": "me2pt5-16"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Professor's Research",
+      "printing": {
+        "set": "JTG",
+        "number": "155",
+        "language": "en"
+      },
+      "cardId": "sv9-155"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      },
+      "cardId": "sm3-115"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Carmine",
+      "printing": {
+        "set": "TWM",
+        "number": "145",
+        "language": "en"
+      },
+      "cardId": "sv6-145"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Iono",
+      "printing": {
+        "set": "PAL",
+        "number": "185",
+        "language": "en"
+      },
+      "cardId": "sv2-185"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Crispin",
+      "printing": {
+        "set": "SCR",
+        "number": "133",
+        "language": "en"
+      },
+      "cardId": "sv7-133"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Raihan",
+      "printing": {
+        "set": "EVS",
+        "number": "152",
+        "language": "en"
+      },
+      "cardId": "swsh7-152"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Faba",
+      "printing": {
+        "set": "LOT",
+        "number": "173",
+        "language": "en"
+      },
+      "cardId": "sm8-173"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Mysterious Treasure",
+      "printing": {
+        "set": "FLI",
+        "number": "113",
+        "language": "en"
+      },
+      "cardId": "sm6-113"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Quick Ball",
+      "printing": {
+        "set": "FST",
+        "number": "237",
+        "language": "en"
+      },
+      "cardId": "swsh8-237"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Boost Shake",
+      "printing": {
+        "set": "EVS",
+        "number": "142",
+        "language": "en"
+      },
+      "cardId": "swsh7-142"
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      },
+      "cardId": "xy4-109"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Battle Compressor Team Flare Gear",
+      "printing": {
+        "set": "PHF",
+        "number": "92",
+        "language": "en"
+      },
+      "cardId": "xy4-92"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Hisuian Heavy Ball",
+      "printing": {
+        "set": "ASR",
+        "number": "146",
+        "language": "en"
+      },
+      "cardId": "swsh10-146"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Field Blower",
+      "printing": {
+        "set": "GRI",
+        "number": "125",
+        "language": "en"
+      },
+      "cardId": "sm2-125"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Prime Catcher",
+      "printing": {
+        "set": "TEF",
+        "number": "157",
+        "language": "en"
+      },
+      "cardId": "sv5-157"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Float Stone",
+      "printing": {
+        "set": "BKT",
+        "number": "137",
+        "language": "en"
+      },
+      "cardId": "xy8-137"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Stealthy Hood",
+      "printing": {
+        "set": "UNB",
+        "number": "186",
+        "language": "en"
+      },
+      "cardId": "sm10-186"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Giant Hearth",
+      "printing": {
+        "set": "UNM",
+        "number": "197",
+        "language": "en"
+      },
+      "cardId": "sm11-197"
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "name": "Double Dragon Energy",
+      "printing": {
+        "set": "ROS",
+        "number": "97",
+        "language": "en"
+      },
+      "cardId": "xy6-97"
+    },
+    {
+      "category": "Energy",
+      "count": 3,
+      "name": "Basic Grass Energy",
+      "printing": {
+        "set": "SVE",
+        "number": "1",
+        "language": "en"
+      },
+      "cardId": "sve-1"
+    },
+    {
+      "category": "Energy",
+      "count": 3,
+      "name": "Basic Fire Energy",
+      "printing": {
+        "set": "SVE",
+        "number": "2",
+        "language": "en"
+      },
+      "cardId": "sve-2"
+    }
+  ],
+  "total_cards": 60,
+  "paper_legality_claim": "English Expanded database flags only; full Japanese/event legality and errata not independently established",
+  "source_delta": [
+    {
+      "cardId": "swsh7-142",
+      "name": "Boost Shake",
+      "old": 3,
+      "new": 4
+    },
+    {
+      "cardId": "swsh8-237",
+      "name": "Quick Ball",
+      "old": 3,
+      "new": 2
+    }
+  ],
+  "evaluation_status": "not selected final; 0 qualified games; no proven win rate"
+}
