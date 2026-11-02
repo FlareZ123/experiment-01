@@ -271,6 +271,9 @@ jobs:
       - name: Test passive native Secret Box payment custody, including real paper-invalid Store acceptance
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: node --test tests/agent44-secretbox-payment-custody.test.cjs
+      - name: Test frozen rank8 64-deal source printing and schedule registration
+        if: inputs.agent44_rank8_canonical_boxshake_pilot
+        run: node --test tests/agent44-scout64-source-registration.test.cjs
       - name: Execute exact original canonical both-seat shared Box native pilot
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         env:
