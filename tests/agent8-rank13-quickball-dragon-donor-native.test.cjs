@@ -74,8 +74,14 @@ function nativeDonorLine(seat,donor){
       selection=[found];
       assert.equal(pending.validate(selection),true);
       searched=true;
+    }else if(kind==='ShuffleDeckPrompt'){
+      // Pinned Store requires a complete index permutation for shuffling.
+      // This conditional stage does not estimate random game outcomes.
+      const player=x.state.players.find(p=>p.id===pending.playerId);
+      assert.ok(player,'Native shuffle prompt owner must be known');
+      selection=player.deck.cards.map((_,i)=>i);
     }else{
-      assert.ok(['WaitPrompt','ShowCardsPrompt','ShuffleDeckPrompt'].includes(kind),
+      assert.ok(['WaitPrompt','ShowCardsPrompt'].includes(kind),
         'Unexpected unqualified owner prompt '+kind+':'+pending.message);
     }
     receipts.push({kind,message:pending.message??null,
