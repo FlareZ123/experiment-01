@@ -172,7 +172,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
     let attackReceipt=null;
     if(attackFollowup){
-      const before={ownerPrizes:mine.prizes.length,
+      const before={ownerPrizes:mine.prizes.filter(slot=>slot.cards.length>0).length,
         opponentActive:enemy.active.getPokemonCard()?.fullName??null,
         opponentActiveDamage:enemy.active.damage};
       let attackError=null,attempted=false,accepted=false;
@@ -215,7 +215,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       attackReceipt={attempted,accepted,attackError,before,
         resolvedWaitPromptIds,resolvedPrizePromptIds,
         resolvedPromotionPromptIds,
-        after:{ownerPrizes:mine.prizes.length,
+        after:{ownerPrizes:mine.prizes.filter(slot=>slot.cards.length>0).length,
           opponentActive:enemy.active.getPokemonCard()?.fullName??null,
           opponentActiveDamage:enemy.active.damage,
           opponentDiscard:enemy.discard.cards.map(c=>c.fullName),
