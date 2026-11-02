@@ -972,6 +972,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorMewDceRetreat=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
@@ -1016,6 +1017,8 @@ function runDevelopment({
     'Native symmetric natural evolution requires actor-only roots');
   assert.ok(!actorFarewellLetterRoot||actorOnlyComposition,
     'Native symmetric Farewell Letter requires actor-only roots');
+  assert.ok(!actorMewDceRetreat||actorOnlyComposition,
+    'Native symmetric DCE Mew mobility requires actor-only roots');
   assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
     'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
@@ -1261,6 +1264,7 @@ function runDevelopment({
           {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
+            mewDceRetreat:actorMewDceRetreat,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
@@ -1473,6 +1477,8 @@ function runDevelopment({
       actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
       actorOnlyComposition&&actorMewGenesectTechnoBlast,
+    actorMewDceRetreatOptIn:
+      actorOnlyComposition&&actorMewDceRetreat,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
