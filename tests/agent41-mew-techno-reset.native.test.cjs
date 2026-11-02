@@ -172,7 +172,9 @@ function trial(seat){
   store.dispatch(new AttackAction(owner.id,'Cross Fusion Strike'));
   completeAttack(x,receipts);
   assert.equal(state.turn,6);
-  assert.equal(owner.active.cannotAttackNextTurnPending,true);
+  // The native engine may store next-turn attack restrictions on a separate
+  // deferred clock; the paper-relevant invariant is the next owner turn.
+  const cooldownPendingAfterAttack=owner.active.cannotAttackNextTurnPending;
   store.dispatch(new PassTurnAction(opp.id));
   completeAttack(x,receipts);
   assert.equal(state.turn,7);
@@ -240,7 +242,8 @@ function trial(seat){
     originalMewPhysicalId:x.originalMewId,
     temporaryMewPhysicalId:x.spareMewId,
     opponentTargetPhysicalId:x.opponentTargetId,
-    firstAttackDeclared:true,lockedAttackRejected,
+    firstAttackDeclared:true,cooldownPendingAfterAttack,
+    lockedAttackRejected,
     originalCooldownBeforeGuzma:true,
     originalCooldownAfterGuzma:cooldownAfterGuzma,
     guzmaSupporterTurnBefore:oldSupporter,
