@@ -51,6 +51,12 @@ for(const seat of [0,1]) test('early original rank13 Treasure paid V access seat
   assert.ok(x.owner.discard.cards.includes(donor));
   assert.ok(x.owner.discard.cards.includes(item));
   assert.ok(x.owner.hand.cards.includes(v));
-  assert.equal(chooseActorRootIntent(actorObservation(x.state,seat),x.catalog,opts).kind,'bench-basic');
+  const bench=chooseActorRootIntent(actorObservation(x.state,seat),x.catalog,opts);
+  assert.equal(bench.kind,'bench-basic');
+  assert.equal(bench.printing,v.fullName);
+  x.store.dispatch(new PlayCardAction(x.owner.id,bench.handIndex,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:bench.benchIndex}));
+  assert.equal(x.owner.bench[bench.benchIndex].getPokemonCard().name,'Regidrago V');
+  assert.equal(x.owner.hand.cards.includes(v),false);
   assert.equal(audit.competitiveQualifiedGames,0);
 });
