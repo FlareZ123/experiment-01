@@ -43,6 +43,8 @@ function withStrandedFusionMewPassRetreat(execute,deps={}) {
     colorlessEnergyType: types.CardType.COLORLESS,
     specialConditions: types.SpecialCondition
   };
+  assert.ok(Number.isSafeInteger(catalog.colorlessEnergyType),
+    'Pinned native Colorless must be CardType.COLORLESS, never EnergyType');
   const original = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   const pending = new WeakMap();
