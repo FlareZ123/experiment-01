@@ -16,6 +16,7 @@ on:
           - path-to-the-peak-stage
           - rank29-camping-pure
           - rank29-camping-native
+          - rank29-tagcall-second-paired
 
 permissions:
   contents: read
@@ -73,3 +74,14 @@ jobs:
       - name: Pinned both-seat Camping Gear own-search target-choice fork
         if: inputs.study == 'rank29-camping-native'
         run: node --test tests/agent33-rank29-camping-prompt-pinned-native.test.cjs
+
+      - name: Original rank29 source-second paired owner Tag Call v1
+        if: inputs.study == 'rank29-tagcall-second-paired'
+        run: node simulation/evaluation/agent33-rank29-tagcall-source-second-paired.cjs > rank29-tagcall-source-second.json
+      - name: Archive all registered rank29 original source-second trials
+        if: inputs.study == 'rank29-tagcall-second-paired' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rank29-source-second-tagcall-16-native-arms
+          path: rank29-tagcall-source-second.json
+          if-no-files-found: warn
