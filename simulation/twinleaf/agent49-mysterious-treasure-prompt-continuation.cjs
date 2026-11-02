@@ -64,6 +64,9 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     const prompt=state.prompts?.find(p=>p.result===undefined);
     if(!prompt||prompt.playerId!==ownerId||
        prompt.constructor.name!=='ChooseCardsPrompt'){
+      trace({phase:'owner-treasure-prompt-mismatch',seat:plan.seat,
+        step:plan.step,promptKind:prompt?.constructor?.name??null,
+        isOwnerPrompt:prompt?.playerId===ownerId});
       return originalDecode.value.apply(this,[state,...rest]);
     }
     const player=state.players[plan.seat];
@@ -94,6 +97,18 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     }
     if(!selection||prompt.validate([selection],state)!==true){
       audit.missingPhysicalTargets++;
+      const zone=prompt.cards===player.hand?'owner-hand':
+        prompt.cards===player.deck?'owner-deck':'unmatched';
+      const availableEligible=zone==='unmatched'?[]:
+        prompt.cards.cards.filter(card=>
+          prompt.validate([card],state)===true)
+          .map(card=>card.fullName).slice(0,12);
+      const miss={phase:'owner-treasure-target-miss',
+        seat:plan.seat,step:plan.step,zone,
+        expectedDiscard:plan.step==='cost'?plan.discardPrinting:null,
+        candidate:selection?.fullName??null,availableEligible};
+      trace(miss);
+      log({kind:'owner-treasure-target-miss',...miss});
       return originalDecode.value.apply(this,[state,...rest]);
     }
     const reply=new ResolvePromptAction(prompt.id,[selection]);
