@@ -307,7 +307,8 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
        state.turn!==1||state.phase!==GamePhase.PLAYER_TURN||
        state.prompts.some(p=>p.result===undefined))
       return result;
-    assert.equal(state.isSuddenDeath,false);
+    assert.notEqual(state.isSuddenDeath,true,
+      'Ordinary prize-ending fixture must remain outside sudden death');
     for(let seat=0;seat<2;seat++){
       const player=state.players[seat];
       const desired=ranks[seat]===11?'Crobat V':'Regidrago V';
