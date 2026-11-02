@@ -37,7 +37,8 @@ const {AttackAction,PassTurnAction,RetreatAction}=
 /**
  * Fully physical staged Store: authentic exact printed rank5 attacker line,
  * genuine Mew V to VMAX evolution stacks, double-Colorless card and Genesect
- * donor, live opposing Mimikyu PAL and Snorlax PGO. The staging replaces
+ * donor, live opposing Mimikyu PAL and safe Lunatone OBF.
+ * Snorlax PGO Block is independently excluded as a negative gust target. The staging replaces
  * opening draw/game history, so its conclusions remain unqualified.
  * @param {0|1} seat
  */
@@ -52,7 +53,7 @@ function stage(seat){
   };
   const owner=new Player(),opp=new Player();
   owner.id=101;owner.name='Aichi rank5 original Mew source';
-  opp.id=202;opp.name='Staged opponent Mimikyu/Snorlax';
+  opp.id=202;opp.name='Staged opponent Mimikyu/Lunatone';
   owner.active.cards.push(card('Mew V FST'),card(MEW));
   owner.active.pokemonPlayedTurn=1;
   const dce=card(DCE);
@@ -66,7 +67,7 @@ function stage(seat){
   owner.bench.push(donor,spare);
   opp.active.cards.push(card('Mimikyu PAL'));
   const gustTarget=new PokemonCardList();
-  gustTarget.cards.push(card('Snorlax PGO'));
+  gustTarget.cards.push(card('Lunatone OBF'));
   opp.bench.push(gustTarget);
   for(const player of [owner,opp]){
     for(let n=0;n<14;n++)
@@ -274,7 +275,7 @@ function trial(seat){
   completeAttack(x,receipts);
   const newPrizes=owner.prizes.filter(p=>p.cards.length>0).length;
   assert.equal(newPrizes,beforePrizes-1,
-    'Source must actually take Snorlax Prize after same-turn reset');
+    'Source must actually take safe gust-target Prize after same-turn reset');
   assert.equal(state.turn,8,'Second genuine attack must end owner turn');
   const result={
     schema:'agent41-mew-techno-reset-guzma-native-staged-v1',
