@@ -1,0 +1,45 @@
+name: Agent9 original rank5 Quick Ball native action activation probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank5-quickball-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify owner-only Quick Ball source and registered frozen attempts
+        run: |
+          node --check simulation/evaluation/agent9-rank5-quickball-activation-prospective.cjs
+          node --test tests/agent8-actor-quick-ball-frontier.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs
+      - name: Resolve exact pinned Twinleaf Store
+        run: |
+          git submodule update --init --depth=1 vendor/twinleaf
+          git -C vendor/twinleaf rev-parse HEAD
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all eight preregistered unchanged original-rank5 native attempts
+        env:
+          AGENT8_ACTOR_QUICK_BALL_DEV: 'true'
+        run: |
+          node simulation/evaluation/agent9-rank5-quickball-activation-prospective.cjs > agent9-rank5-native-quickball-8arm.json
+          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-native-quickball-8arm.json');a.equal(r.requestedNativeAttempts,8);a.equal(r.comparison.length,4);a.equal(r.competitiveQualifiedGames,0);console.log('SOURCE_QUICKBALL_CENSUS',JSON.stringify(r.comparison,null,2));"
+      - name: Preserve every original source native result, including capped and errored
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-original-rank5-quickball-8arm
+          path: agent9-rank5-native-quickball-8arm.json
+          if-no-files-found: warn
+          retention-days: 30
