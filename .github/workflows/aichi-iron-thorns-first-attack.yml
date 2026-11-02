@@ -100,6 +100,8 @@ jobs:
         run: node --test tests/agent30-guzma-hala-optional-payment-native.test.cjs
       - name: Test original rank6 Plumeria physical one-card payment and Energy custody
         run: node --test tests/agent42-plumeria-shortpayment-native.test.cjs
+      - name: Validate default-off Plumeria paper cost veto against real Store
+        run: node --test tests/agent42-plumeria-paper-payment-guard.native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
