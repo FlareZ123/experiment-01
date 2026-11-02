@@ -1,0 +1,55 @@
+{
+  "schema": "agent21-rank5-stranded-mew-prospective-native-retreat-fork-registration-v1",
+  "registeredUtc": "2026-11-02T15:20:26.295591Z",
+  "status": "PRE_REGISTERED_NEW_SEEDS_BEFORE_ANY_NATIVE_FORK_OUTCOME",
+  "developmentOnly": true,
+  "competitiveGameQualified": false,
+  "sourceRank": 5,
+  "sourcePlayer": "Yamato Nakano",
+  "sourceArchetype": "Mew Genesect",
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "opponentOriginalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidatePrintedProxyGitBlobSha": "d9777831271bec8c4ac400d0a2d9f49cc03c630b",
+  "treatmentModes": [
+    "frozen-selected-policy-control",
+    "frozen-selected-policy-plus-owner-pass-to-paid-retreat"
+  ],
+  "groups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1922177010
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 425998498
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1302243598
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1403335297
+    }
+  ],
+  "plannedNativeArms": 16,
+  "pairedSeedCaution": "Compare actual original physical source-deal fingerprint; matching numeric seed is not proof of identical physical deal across modes or candidates.",
+  "matchingRequirement": "Never infer causality from groups with mismatched source deal or unsupported opponent continuity",
+  "primaryEndpoint": "Count native PassTurnAction original-source states where bounded owner-visible printed DCE retirement is actionable, Store-accepted and settled; then source copied-attack declarations and genuine responses.",
+  "secondaryEndpoint": "Count original source Trainer plays, action caps, native aborts, paid DCE physical movement and candidate replies, retain all attempts",
+  "paperQualification": "native original-Store acceptance and simplified policy do not qualify paper games",
+  "clockQualification": false,
+  "sourceLegalityFullChainVerified": false
+}
