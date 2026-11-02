@@ -97,7 +97,7 @@ function safeDecoderFrameAttribution(error){
   const errorClass=classes.has(error?.name)?error.name:'OtherError';
   const frames=String(error?.stack??'').split('\n').slice(1,16)
     .map(line=>{
-      const m=line.match(/(?:^|[\\/])([A-Za-z0-9_.-]+\\.(?:cjs|js|ts)):(\\d+):(\\d+)(?:[)]|$)/);
+      const m=line.match(/(?:^|[\\/])([A-Za-z0-9_.-]+\.(?:cjs|js|ts)):(\d+):(\d+)(?:[)]|$)/);
       return m?{file:m[1],line:Number(m[2]),column:Number(m[3])}:null;
     }).filter(Boolean).slice(0,8);
   return {errorClass,frames};
