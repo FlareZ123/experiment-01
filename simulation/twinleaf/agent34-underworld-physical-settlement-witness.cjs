@@ -5,13 +5,14 @@ const path=require('node:path');
 const VERSION='agent34-original-underworld-owned-physical-effect-v1';
 
 /** Only own-hand/deck counts and own public in-play Bench Energy are read. */
-function ownerSnapshot(owner,source){
+function ownerSnapshot(owner,source,psychicType){
   return {
     hand:owner.hand.cards.length,
     deck:owner.deck.cards.length,
     sourceMarker:owner.marker.hasMarker('UNDERWORLD_DOOR_MARKER',source),
     bench:owner.bench.map(slot=>({
       pokemon:slot.getPokemonCard()?.fullName??null,
+      printedPsychic:slot.getPokemonCard()?.cardType?.includes(psychicType)===true,
       energies:slot.energies.cards.map(card=>card.fullName)
     }))
   };
@@ -33,6 +34,8 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
   const Store=deps.Store??require(path.join(root,'game/store/store')).Store;
   const {PlayerType,SlotType}=deps.cardActions??require(path.join(root,
     'game/store/actions/play-card-action'));
+  const psychicType=deps.psychicType??require(path.join(root,
+    'game/store/card/card-types')).CardType.PSYCHIC;
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   let live=null,game=0,ordinal=0;
@@ -60,7 +63,7 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
         (target.slot===SlotType.ACTIVE?owner?.active:
           target.slot===SlotType.BENCH?owner?.bench[target.index]:null):null;
       const source=slot?.getPokemonCard();
-      const before=owner&&source?ownerSnapshot(owner,source):null;
+      const before=owner&&source?ownerSnapshot(owner,source,psychicType):null;
       const native=original.value.apply(this,[action,...args]);
       if(owner&&source){
         const prompt=this.state.prompts.find(p=>
@@ -81,9 +84,9 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
     if(kind==='ResolvePromptAction'&&pending.has(action.id)){
       const context=pending.get(action.id);
       const owner=this.state.players.find(p=>p.id===context.ownerId);
-      const before=ownerSnapshot(owner,context.source);
+      const before=ownerSnapshot(owner,context.source,psychicType);
       const native=original.value.apply(this,[action,...args]);
-      const after=ownerSnapshot(owner,context.source);
+      const after=ownerSnapshot(owner,context.source,psychicType);
       pending.delete(action.id);
       const changed=before.bench.map((slot,index)=>{
         const later=after.bench[index];
@@ -92,6 +95,7 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
           slot.energies.filter(x=>x===name).length);
         const valid=slot.pokemon!==null&&
           slot.pokemon===later.pokemon&&
+          later.printedPsychic===true&&
           later.energies.length===slot.energies.length+1&&
           slot.energies.every(name=>
             later.energies.filter(x=>x===name).length>=
