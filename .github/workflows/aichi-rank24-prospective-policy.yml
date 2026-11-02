@@ -213,10 +213,13 @@ jobs:
           const r=require('./agent34-rank9-mewtwo-search-fork.json');
           console.log('AGENT34_M2W_NATIVE_FORK',JSON.stringify({
           baselineAttempts:r.baseline.rows.length,
+          baselineCoreBenchPlays:r.baseline.ownerAudit.coreBenchPlays,
           treatments:r.treatments.map(t=>({
           turn:t.targetTurn,native:t.choiceAudit.nativeReplacementCount,
           transfers:t.choiceAudit.legalPhysicalTransfers,
           substitutions:t.choiceAudit.events,
+          coreBenchPlays:t.ownerAfterActionAudit.coreBenchPlays,
+          blockedLastBenchRoots:t.ownerAfterActionAudit.events,
           sameFullPhysicalDeals:t.allFourOriginalDealsMatched,
           paired:t.paired
           })),competitiveQualifiedGames:r.competitiveQualifiedGames}));}"
