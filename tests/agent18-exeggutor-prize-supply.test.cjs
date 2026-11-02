@@ -55,3 +55,44 @@ test('rejects physically impossible group partition',()=>{
   assert.throws(()=>fullStagePrizeSupply([2],60,61));
   assert.throws(()=>fullStagePrizeSupply([0],60,6));
 });
+
+
+test('conditional exact source original agrees with Agent30 preregistered rank2 baseline',()=>{
+  const {rank2ConditionalPrizeComparison}=
+    require('../scripts/agent18-exeggutor-prize-supply.cjs');
+  const p=rank2ConditionalPrizeComparison();
+  assert.equal(p.original.available,'68469698109287/79557769491200');
+  assert.equal(p.challenger.available,'7624616168431/7955776949120');
+  assert.ok(p.availableDeltaPercentagePoints>9.7 &&
+    p.availableDeltaPercentagePoints<9.8);
+  assert.equal(p.original.availableProbability+p.original.blockedProbability,1);
+});
+
+test('basic-valid conditional six prize model agrees with exhaustive small deck deals',()=>{
+  const {conditionalFullStageSupply}=
+    require('../scripts/agent18-exeggutor-prize-supply.cjs');
+  const groups=[
+    {count:2,basic:true,required:true},
+    {count:1,basic:false,required:true},
+    {count:1,basic:true,required:false},
+    {count:2,basic:false,required:false}
+  ];
+  const model=conditionalFullStageSupply(groups,3,6,2,2);
+  // Independently choose an initial valid Basic hand, then two prizes.
+  const physical=['A','A','B','C','D','D'];
+  let good=0,total=0;
+  for(let a=0;a<6;a++)for(let b=a+1;b<6;b++){
+    const hand=[a,b];
+    if(!hand.some(i=>['A','C'].includes(physical[i])))continue;
+    const available=[0,1,2,3,4,5].filter(i=>!hand.includes(i));
+    for(let j=0;j<available.length;j++)
+      for(let k=j+1;k<available.length;k++){
+        const prizes=[physical[available[j]],physical[available[k]]];
+        const stageA=prizes.filter(p=>p==='A').length!==2;
+        const stageB=!prizes.includes('B');
+        if(stageA&&stageB)good++;
+        total++;
+      }
+  }
+  assert.equal(model.availableProbability,good/total);
+});
