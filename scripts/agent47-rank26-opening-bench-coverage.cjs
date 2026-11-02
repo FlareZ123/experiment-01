@@ -73,6 +73,12 @@ function audit(root) {
   const dce = rank26.cards.filter(entry => entry.name === 'Double Colorless Energy')
     .reduce((sum, entry) => sum + entry.count, 0);
   if (dce !== 1) throw new Error('Unexpected original rank26 DCE count: ' + dce);
+  const rank26Basics = counts(rank26.cards).basic;
+  const validOpeners = choose(60, 7) - choose(60 - rank26Basics, 7);
+  const dceOutsideLegalHand = choose(59, 7) -
+    choose(59 - rank26Basics, 7);
+  const dceAndTicketOutsideLegalHand = choose(58, 7) -
+    choose(58 - rank26Basics, 7);
 
   return {
     scope: 'First seven, before optional mulligan cards or player decisions',
@@ -80,8 +86,12 @@ function audit(root) {
       const count = counts(cards);
       return [name, {...count, ...setup(count.basic)}];
     })),
-    rank26OpeningDcePrizeProbability: Number(choose(59, 5)) / Number(choose(60, 6)),
-    dcePrizeCaveat: 'Rank26 Redeemable Ticket can replace Prizes; initial DCE Prizing is not a hard veto.'
+    rank26DceInitiallyPrizedUnconditional: Number(choose(59, 5)) / Number(choose(60, 6)),
+    rank26DceInitiallyPrizedGivenValidOpening:
+      Number(dceOutsideLegalHand) / Number(validOpeners) * 6 / 53,
+    rank26DceAndTicketInitiallyPrizedGivenValidOpening:
+      Number(dceAndTicketOutsideLegalHand) / Number(validOpeners) * (6 * 5) / (53 * 52),
+    dcePrizeCaveat: 'Ticket can move original Prizes to the deck bottom; current pinned native Ticket requires the existing opt-in paper-order correction.'
   };
 }
 
