@@ -19,6 +19,8 @@ function probe(seat,take){
  const reply=take?[stadium]:[];
  const valid=prompt.validate(reply,f.state);
  f.store.dispatch(new ResolvePromptAction(prompt.id,reply));
- return {seat,take,valid,shufflePrompt:f.state.prompts.some(p=>p.result===undefined&&p.constructor.name==='ShuffleDeckPrompt'),sameOrder:before.length===f.source.deck.cards.length&&before.every((c,i)=>c===f.source.deck.cards[i]),inHand:f.source.hand.cards.includes(stadium),paperQualified:false};
+ return {seat,take,valid,shufflePrompt:f.state.prompts.some(p=>p.result===undefined&&p.constructor.name==='ShuffleDeckPrompt'),preCount:before.length,postCount:f.source.deck.cards.length,
+    orderedBefore:before.map(c=>c.fullName),
+    orderedAfter:f.source.deck.cards.map(c=>c.fullName),inHand:f.source.hand.cards.includes(stadium),paperQualified:false};
 }
 module.exports={probe};
