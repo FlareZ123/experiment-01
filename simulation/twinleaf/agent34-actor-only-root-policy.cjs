@@ -725,6 +725,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       heldSamples:[],sampleLimit:40
     },
     selectedRootDecisions:0,acceptedActorRoots:0,rejectedActorRoots:0,
+    regidragoDonorQuickBallIntentCount:0,
+    regidragoDonorQuickBallNativeAccepted:0,
+    regidragoDonorQuickBallNativeRejected:0,
     typedIntentCounts:{},nativeRootAcceptances:[],actualGamesSeen:0,
     ...(deps.losslessNativeRootJoin===true?{
       nativeRootJoinReceipts:[],nativeRootJoinTruncated:false}:{}),
@@ -1158,6 +1161,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(intent.source==='rank13-dragon-donor')
+      audit.regidragoDonorQuickBallIntentCount++;
     if(audit.ownerArbitrationCensusOptIn){
       const diagnostics=require('./agent16-owner-priority-contention.cjs');
       const receipt=diagnostics.collectOwnerContention(
@@ -1382,6 +1387,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           before.activePlayer!==after.activePlayer||
           before.phase!==after.phase);
       audit.acceptedActorRoots++;
+      if(choice.intent.source==='rank13-dragon-donor')
+        audit.regidragoDonorQuickBallNativeAccepted++;
       if(audit.losslessNativeRootJoinOptIn){
         const bound=actorNativeActionReceipt(action);
         audit.nativeRootJoinReceipts.push({
@@ -1403,6 +1410,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
+      if(choice.intent.source==='rank13-dragon-donor')
+        audit.regidragoDonorQuickBallNativeRejected++;
       if(audit.losslessNativeRootJoinOptIn){
         const bound=actorNativeActionReceipt(action);
         audit.nativeRootJoinReceipts.push({
