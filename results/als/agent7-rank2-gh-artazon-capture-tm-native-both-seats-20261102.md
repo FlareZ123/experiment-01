@@ -1,6 +1,6 @@
 # Agent 7: original rank-2 Guzma & Hala + Artazon + Capture Energy to two TM Evolution attacks
 
-**2 November 2026 | 2/2 native original-60-conserving staged seats PASS | zero natural games or competitive wins**
+**2 November 2026 | 4/4 native original-60-conserving staged two-seat × Tag/direct variants PASS | actual original-rank1 Item-denial reply | zero natural games or competitive wins**
 
 ## Question
 
@@ -34,6 +34,17 @@ A first attempt [41403362003](https://github.com/FlareZ123/experiment-01/actions
 
 The companion [physical-card availability screen](agent7-vileplume-artazon-capture-three-channel-20261102.md) independently estimates **13.64909% ±0.01159 percentage points**, conditional on valid rank2 initial seven, for the named *resource availability* conditions across **40 million physical shuffles**. Original rank15's analogous resource screen estimates **11.34296% ±0.01068 pp**, but rank15 has **one** Capture Energy rather than rank2's two and has **not yet had this exact native turn staged**. Both opening estimates are opportunity models only; they require separate owner-visible policy conversion and never imply a realized setup or win rate.
 
-The native turn currently begins with Guzma & Hala already held. The **Tag Call → Guzma & Hala** connector, actual owner-root proposal of the actions rather than a forced favorable choice, and opposing original-source response after the Stage2 board are future tests. The original rank1 opposing player has the immediate next-turn decision; the staged test only confirms the transfer. Actual game clock, full paper legality, source matchups and win-rate qualification remain open.
+**Update:** the source-original Tag Call → Guzma & Hala connector now passes before the same Stage2 chain in both seats, and the opposing original rank1 can genuinely attempt Fog Crystal and receive the correct Item-lock rejection without hand mutation (see dedicated addendum below). Owner-root initiation, naturally dealt deals, strategic opponent play, rank15 native coverage and competitive games remain open. The original rank1 opposing player has the immediate next-turn decision; the staged test only confirms the transfer. Actual game clock, full paper legality, source matchups and win-rate qualification remain open.
 
 **Field status:** 29/32 authenticated original opposing sixties (missing 23, 25, 28), 0 competitively qualified games, unchanged fixed-60 contender decision, 99.5% not established.
+
+
+## Addendum: native Tag Call prefix and real opponent Item denial (4/4)
+
+[The same native test](../../tests/agent7-native-gh-artazon-capture-stage.test.cjs) now has four conditions: physical seats 0/1, each with either Guzma & Hala initially held or only original Tag Call held. In the Tag branch, an original physical G&H from opening hand is first moved back to deck in exchange for an actual original-source filler. The owner plays **Tag Call CEC as a real Item**, resolves a genuine Tag-Team Supporter owner-deck search to retrieve **Guzma & Hala CEC**, and follows the identical supported three-channel tutor / Artazon / Capture / double-TM chain. Both Stage2 evolutions finish on the printed target Bench for all four conditions.
+
+On the very next actual Store turn, the authenticated original **rank-1 Shadow Rider** opponent is supplied an **actual Fog Crystal CRE** moved from its original source deck to its hand without duplicating it. Each of the four conditions executes a real opposing **PlayCardAction** of that Item and receives **CANNOT_PLAY_THIS_CARD**, because Vileplume AOR's **Irritating Pollen** is effective from the Bench. The originally held Fog Crystal remains unchanged in opponent hand. This is a genuine game-engine attempted response after the completed turn, while the opponent decision to attempt it is explicitly staged. It is not a competitive opponent policy or full-game simulation.
+
+[Whole compiled manual CI SUCCESS, run 41404758912](https://github.com/FlareZ123/experiment-01/actions/runs/41404758912), research head **cd8fbaf99c61ea4b7678225899a02e67e7ebdc08**, job **125144165321**, **4/4 tests passed** in 5 seconds after compiling pinned original Store. The four native receipts independently show source Item veto, native Tag prompt in the Tag branch, source G&H payment, both Basic searches, two TM attack prompts, both Stage2 Pokémon and physical turn transfer. Original rank2 source remains conserved through the owner setup and Tag exchange.
+
+The added Tag branch and denial test substantially strengthen action-chain fidelity; the central unresolved issue is whether a detached, **owner-visible autonomous decision policy** actually elects this strong line when available in physical source-dealt hands and against strategically active opponents.
