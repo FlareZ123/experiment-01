@@ -48,6 +48,23 @@ function canRetreatIntoMew(view,catalog){
 }
 
 /**
+ * Any newly gusted Active Pokémon that continuously forbids ordinary Retreat
+ * defeats the second step, even when the temporary Mew itself has zero printed
+ * retreat. Exact Snorlax PGO is grounded by its Block Ability; other visible
+ * printed Ability texts are conservatively screened for the same effect.
+ * An Ability lock can sometimes suppress these effects, so this is a
+ * conservative opportunity veto, not a proof that native Retreat is illegal.
+ * @param {object} pokemon Opponent publicly visible Bench Pokémon.
+ * @returns {boolean}
+ */
+function mayBlockRetreatWhenGusted(pokemon){
+  if(pokemon?.printing==='Snorlax PGO')return true;
+  return (pokemon?.abilityDetails??[]).some(power=>
+    typeof power.text==='string'&&
+    /opponent['’]s active pok[eé]mon can['’]t retreat/i.test(power.text));
+}
+
+/**
  * Propose a held Guzma to Bench a Techno-Blast-restricted Active Mew VMAX,
  * promoting a DIFFERENT zero-Retreat Mew VMAX. A subsequent ordinary Retreat
  * can then return to the original DCE-bearing attacker, if the native Store
@@ -86,7 +103,8 @@ function chooseGuzmaMewCooldownReset(view,catalog){
     p.publicRestrictions?.cannotRetreatWhileActive!==true);
   if(benchIndex<0)return null;
   const opponents=opp.bench.map((p,index)=>({p,index})).filter(x=>
-    x.p&&Number.isSafeInteger(x.p.hp)&&
+    x.p&&!mayBlockRetreatWhenGusted(x.p)&&
+    Number.isSafeInteger(x.p.hp)&&
     Number.isSafeInteger(x.p.damage)&&
     x.p.hp>x.p.damage);
   if(!opponents.length)return null;
@@ -136,5 +154,6 @@ function chooseFreeRetreatToDceMew(view,catalog){
 }
 
 module.exports={VERSION,MEW,GENESECT,DCE,publicDceCrossFusionReady,
+  mayBlockRetreatWhenGusted,
   canRetreatIntoMew,chooseGuzmaMewCooldownReset,
   chooseFreeRetreatToDceMew};
