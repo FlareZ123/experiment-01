@@ -1,0 +1,29 @@
+{
+  "schema": "agent15-rank31-retrospective-owner-supporter-opportunity-diagnostic-v1",
+  "registeredUtc": "2026-11-02T05:53:00Z",
+  "phase": "registered-after-four-matched-original-rank31-v10-pairs-had-no-Roxie",
+  "purpose": "Find why original rank31 source with four Roxie and three Koffing played no Supporters in four native original-source matches, using a read-only actual Store owner-hand/Pass observer and same-code observer-disabled parity control.",
+  "priorSourceTrialRegistrationGitBlob": "b0a3859fe16e8bd9bee54af57a95ba4401a09f69",
+  "priorSourceTrialEffectiveAmendmentGitBlob": "7cdf9be1eab951568560e0535d39cf25e722fcae",
+  "priorNativeRun": 41395836041,
+  "priorObservedSourceRoxieRoots": 0,
+  "priorObservedSourceAcceptedSupporterRoots": 0,
+  "provenance": "A deliberately retrospective diagnostic on the same physical seed groups after observing root absence, invalid for independent generalization or win-rate evidence.",
+  "sourceRank": 31,
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSeeds": {
+    "A": 441470024,
+    "B": 2199247171
+  },
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "oneBooleanTreatment": "nativeOwnerSupporterOpportunity true vs false while sharedPaperPaymentPortfolio=true both arms",
+  "fixedOptionsProvenance": "Take all original frozen options with the separately preregistered pregame losslessNativeRootJoin=false telemetry amendment; add sharedPaperPaymentPortfolio=true on both arms.",
+  "observationTargets": "At genuine native Store first root and Pass actions per original source owner turn: owner-hand Supporter exact printing, quota, global first-player turn, native canPlay(null) bounded engine affordance, accepted Supporter roots, paper lock state, benchmark source-deal fingerprints. Do not hand any owner-private data to policy.",
+  "expectedNoninterference": "Same original seed, full physical-deal digest, native first-turn setup receipt, root-action ledger digest and winner/end status across observer off/on. If not, report divergence and do not label observer as passive.",
+  "nativeAttempts": 8,
+  "competitiveQualified": false
+}
