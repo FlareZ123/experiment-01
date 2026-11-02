@@ -4,7 +4,6 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const path = require('node:path');
 const { initializeCards } = require('./headless.cjs');
-const { run } = require('./rank26-natural-pre-koko-cologne-cohort.cjs');
 
 const output = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
 const EXPECTED_V11_SHA = 'c5caba34c758bdad80a6dbcdaf6c02c7bc2cebe69c90f31edb5f6f64070e9cbf';
@@ -57,6 +56,7 @@ function summarize(states) {
  */
 function diagnostic() {
   initializeCards();
+  const { run } = require('./rank26-natural-pre-koko-cologne-cohort.cjs');
   const { Store } = require(path.join(output,'game/store/store'));
   const { GamePhase } = require(path.join(output,'game/store/state/state'));
   const previous=Store.prototype.dispatch;
