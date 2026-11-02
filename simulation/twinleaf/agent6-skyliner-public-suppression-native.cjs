@@ -56,10 +56,10 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const equippedFuryBelt=mode.includes('-furybelt');
   const equippedStealthyHood=mode.includes('-stealthyhood');
   assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
-  assert.ok(!nativePlayJammer||opponentToolJammer);
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=(mode.endsWith('-jammer')||
     mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
+  assert.ok(!nativePlayJammer||opponentToolJammer);
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
