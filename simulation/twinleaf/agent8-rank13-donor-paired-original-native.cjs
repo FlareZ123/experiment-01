@@ -203,10 +203,32 @@ function main(){
     counts,rows,competitiveQualifiedGames:0,
     caveat:'Native seeded original-60 development games with simplified and generic-fallback actor policy. No paper tournament clock or strong opponent policy. Outcomes do not qualify for a competitive win rate.'};
 }
+/**
+ * Exclusive temp-write and atomic rename for a single CI-owned report.
+ * @param {object} report
+ * @param {string} filename
+ */
+function writeRegisteredReport(report,filename){
+  const lock=filename+'.lock',temporary=filename+'.'+process.pid+'.tmp';
+  const descriptor=fs.openSync(lock,'wx');
+  try{
+    fs.writeFileSync(temporary,JSON.stringify(report,null,2)+'\n',{
+      flag:'wx',encoding:'utf8'
+    });
+    fs.renameSync(temporary,filename);
+  }finally{
+    if(fs.existsSync(temporary))fs.unlinkSync(temporary);
+    fs.closeSync(descriptor);
+    fs.unlinkSync(lock);
+  }
+}
 if(require.main===module){
   const report=main();
+  if(process.env.AGENT8_RANK13_RESULT_JSON)
+    writeRegisteredReport(report,process.env.AGENT8_RANK13_RESULT_JSON);
   console.log('AGENT8_RANK13_DONOR_NATIVE_PAIRED_SUMMARY',
     JSON.stringify({schema:report.schema,counts:report.counts}));
-  process.stdout.write(JSON.stringify(report,null,2)+'\n');
+  if(!process.env.AGENT8_RANK13_RESULT_JSON)
+    process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
-module.exports={registration,executeOne,main};
+module.exports={registration,executeOne,main,writeRegisteredReport};
