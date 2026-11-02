@@ -59,3 +59,21 @@ Both game-terminal winners and differing actual-start orientations are retained 
 ### Retrospective owner-hand follow-up, registered after observing the zero Roxie roots
 
 The next [clearly retrospective native owner-hand/Pass registration](registrations/agent15-rank31-roxie-held-supporter-retrospective-20261102.json) retains the original source seeds and fixes an observer-off/on experiment with `nativeOwnerSupporterOpportunity` as the *only* new observer option. It reads the original source player's own held Supporters and native `canPlay(null)` at genuine Store first roots and accepted Passes, without making choices. That native affordance is deliberately **not** a paper-playability proof. It will compare both exact physical deals and root ledger SHA256 for observer noninterference and count held Roxie opportunities at independent owner turns. The same seeds are reused after the root absence was known, so the replay cannot supply independent matchup inference.
+
+## Original rank31 source-held Roxie policy failure: real Store owner evidence
+
+**[Manual compiled CI 41396702661](https://github.com/FlareZ123/experiment-01/actions/runs/41396702661) succeeded** at head `59dd98b37404006f7cf7e7c238fb7b73325d39d8`, artifact **13119138560**, ZIP SHA256 `9e2ba0b1dd9b253a5d5ca8c8a0bb0dc8e84e0d7584944a63888be85d7f976964`. The already-existing pinned native `agent2-native-owner-supporter-opportunity` observer was toggled on in the same eight original rank31 game attempts with identical source seeds and player policies. Its [registration](registrations/agent15-rank31-roxie-held-supporter-retrospective-20261102.json), Git blob `4c8c59e574a5603375e9a6cc908f0fadc9d3f237`, openly describes this replay as retrospective because the initial four rank31 source games had already shown zero accepted Roxie. The source root, deck construction, v10 flag, setup and all other actor options remained unchanged.
+
+| Original rank31 against candidate | Source first owner-turn roots | First roots holding Roxie CEC | Accepted Pass roots holding Roxie | Passes holding Roxie with native `canPlay(null)=true` | Accepted Source Supporters |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Champion, candidate seat A | 16 | 0 | 0 | 0 | 0 |
+| New Moon, candidate seat A | 10 | 0 | 0 | 0 | 0 |
+| Champion, candidate seat B | 16 | 8 | **8** | **8** | 0 |
+| New Moon, candidate seat B | 30 | 28 | **26** | **26** | 0 |
+| **Total** | **72** | **36** | **34** | **34** | **0** |
+
+The **34 native-positive Pass** observations are repeated owner turns within **two** original source games, not independent samples, and cannot be translated into a probability of missed legally or tactically useful actions. The observer reports native Supporter quota 0 and no broad Supporter lock in all exposed Roxie Pass samples. It does **not** inspect physical eligible Pokémon payment in hand, and native `Roxie.canPlay(null)` does not certify mandatory one-to-two printed Pokémon payment. The decision that would replace Pass also consumes that turn's Supporter and may compete with a more valuable move; those costs remain to be tested.
+
+All four observer OFF/ON replays had certified native setup, equal entire two-player physical deals, **equal root ledger SHA256** and identical terminal outcomes. This supports the observer's noninterference in this diagnostic cohort.
+
+**Consequence for the deck objective:** The original rank31 Source has four printed Roxie CEC, but the common bot left a held Roxie unused repeatedly while passing. Source-policy competence has a demonstrable root-choice coverage gap upstream of v10 physical-payment checks. Expanding sample counts with the same weak policy could systematically misstate fixed-deck strength. Next direct action is an owner-only physical Koffing cohold/eligible-payment audit at those exact Pass roots, followed by a source-dealt, both-seat native-tested, payment-valid positive root candidate with its Supporter contention and opponent continuation recorded. No new qualified competitive games exist.
