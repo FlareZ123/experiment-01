@@ -66,6 +66,19 @@ The same genuine native Store receipts reveal the *mechanism creating the late M
 
 This is a **decisive admission veto** for treating the 248-root source terminal as evidence of rank-9 real-world strength. It strengthens the narrower causal claim that the alternative late attack is actually playable and consequential under the tested toy decision policies, while explaining why the real-world interpretation is severely constrained. The exact 21 source passes and 19 candidate Joust declarations are computable directly from the preserved original Store `rootActionLedger`; KO and damage progression are independently visible in `candidateAttackSettlement.attacks`. The 19 attacks are **one serial game**, not 19 independent opponent trials.
 
+## Candidate's occupied Bench and misplaced Energy are visible during the 19-Joust stretch
+
+The accepted native `candidateAttackSettlement.attacks[].publicBoardBefore` preserves **all nineteen** public candidate board snapshots, which explain another large portion of the long-run failure to execute the New Moon strategy:
+
+- Turn **11**: Active Klefki has **one Basic Psychic Energy** and three Bench Pokémon, each with **zero attached Energy**.
+- Turn **17**: four Bench Pokémon, all zero Energy. Turn **19**: Klefki now has **two Basic Psychic Energy**, while its four Bench Pokémon remain unpowered.
+- By turn **23**, the Bench is **full (five Pokémon)** and stays full through the turn47 Joust KO: **Unown, Dusclops, Trevenant & Dusknoir-GX, Lunatone and Duskull**. Across those observed attacks, **every Benched Pokémon has zero attached Energy**. Klefki retains both Basic Psychic Energy.
+- Critically, the intended **Mewtwo & Mew-GX Perfection attacker is nowhere on the board during the whole 19-Joust sequence**. The documented New Moon 60 contains two copies, but the archive does **not** establish where they were (hand, deck, Prize or discard). Once all five Bench slots were occupied, playing a further Basic Mewtwo & Mew-GX from hand would require first freeing a Bench slot by a separate legal effect.
+
+Thus, the candidate was structurally locked into its weak Active attack and an unpowered, saturated Bench, with the two visibly used Basic Psychic attachments committed to Klefki. This is a genuine owner-policy **Bench-capacity and Energy-recipient contention** signal. It is not proof that a specific stronger attacker was available from the owner's private hand, or that any particular alternative move could have won.
+
+Klefki's printed Mischievous Lock suppresses Abilities of **Basic Pokémon** on both sides, including Perfection *if* Mewtwo & Mew-GX were in play, while Stage-1 Electrode-GX is outside that exact Basic-only lock. However, **Perfection was not in play during the observed Joust cycle**, so blaming its direct suppression would be unsupported. The stronger witnessed bottlenecks are the missing core attacker, full Bench, insufficiently placed Energy, and the reciprocal root loop.
+
 ## Early Extra Energy Bomb absence: the observed state lacked a discard-pile Energy source
 
 The original rank-9 list has **seven Energy cards** (4 Prism, 2 Darkness, 1 Telepathic Psychic) and **one Voltorb**, with two Electrode-GX cards. On the only same-deal trial that later diverged, the native source action ledger accounts for the source's entire early action channel:
