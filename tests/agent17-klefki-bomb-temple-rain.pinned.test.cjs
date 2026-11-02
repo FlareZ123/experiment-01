@@ -194,16 +194,20 @@ function run(seat){
     f.store.dispatch(new AttackAction(f.source.id,'Electro Rain'));
     const rainPrompts=drain(f,'rain');
     assert.ok(rainPrompts.some(row=>row.kind==='PutDamagePrompt'));
-    assert.ok(f.target.damage>=210,
-      'Native attack should KO opposing Benched 210 HP Shadow Rider V');
-    assert.equal(f.source.getPrizeLeft(),sourcePrizeBefore-2);
+    const packetDamage=rainPrompts.find(row=>row.kind==='PutDamagePrompt')?.damage;
+    assert.equal(packetDamage,330,'Five original source Energy must provide eleven Lightning packets');
+    assert.ok(f.opponent.discard.cards.some(card=>
+      card.fullName==='Shadow Rider Calyrex V CRE'),
+    'Benched V must be actually Knocked Out and discarded by native Store');
+    assert.equal(f.source.getPrizeLeft(),sourcePrizeBefore-2,
+      'Taking two actual Prize cards certifies the Bench V knockout');
     assert.equal(f.opponent.active.getPokemonCard()?.fullName,'Wobbuffet PHF');
     return {seat,stageOnly:true,
       ownPrintedOriginalRank:4,otherFixedCandidate:'Temple v1',
       bombPrompts,rainPrompts,
       energyDiscardedByRain: f.energies.every(card=>
         f.source.discard.cards.includes(card)),
-      attackDamage:f.target.damage,
+      attackPacketDamage:packetDamage,
       sourcePrizesTaken:sourcePrizeBefore-f.source.getPrizeLeft(),
       opponentPrizesTaken:prizeBefore-f.opponent.getPrizeLeft(),
       opponentActiveAfter:'Wobbuffet PHF',
