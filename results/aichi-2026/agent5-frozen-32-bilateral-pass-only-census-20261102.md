@@ -35,7 +35,7 @@ Reusable [read-only analysis](../../scripts/aichi-bilateral-pass-loop-census.cjs
 | 11 Absol/Garbodor | New Moon v1 | 8 | 130 | 3 | 0 |
 | **Full frozen 32** | Both unchanged inventories | **32** | **603** | **11** | **5 episodes in 4 games** |
 
-**Correction to avoid confusion:** rank-6 New Moon has four separate 10+ episodes across three or four games; the exact four individual game maxima below are the admission unit. Both candidate inventories share original source seed groups, so 32 arms are **not 32 independent source deals**. In the full set, **11/32 games** reach a 5-turn episode, **4/32 games** reach a 10-turn episode. The 603 pass-only turns are serial observations within games, not independent gameplay trials.
+Rank-6 New Moon has four 10+ episodes spread across **three** games; the four distinct game maxima below are the admission unit. Both candidate inventories share original source seed groups, so 32 arms are **not 32 independent source deals**. In the full set, **11/32 games** reach a 5-turn episode, **4/32 games** reach a 10-turn episode. The 603 pass-only turns are serial observations within games, not independent gameplay trials.
 
 ### Four most prolonged original-Store physical episodes
 
