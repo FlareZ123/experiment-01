@@ -23,6 +23,8 @@ Preconditions include going first; no effective lock on the necessary Abilities,
 4. Bench Tapu Koko Prism Star and use **Dance of the Ancients** with the two discarded Lightning, attaching one Lightning to Benched Meloetta and the other to one Benched Unown. Tapu Koko enters the Lost Zone. Attach Double Colorless Energy from hand to Meloetta; it now provides at least three Colorless Energy equivalents.
 5. Attach **Technical Machine: Crisis Punch** to Meloetta. Attach **Float Stone** to starting Active Squawkabilly (if not already done), retreat Squawkabilly to Meloetta. Use the Tool-provided **Crisis Punch** for 280 damage during the first turn going first, relying on **Debut Performance**. If it Knocks Out the opponent's lone Active and no Pokémon remain in play, the opponent loses.
 
+A separate local deterministic counter-and-slot ledger reproduced the bench sequence without assuming an executable TCG engine: 13 Bench/Item milestones, five 30-HP Exeggcute Knock Outs, final opponent Prize count five, and a maximum of five Benched Pokémon at any milestone. The ledger deliberately omits target accessibility, action timing and card-ability implementation; it only checks arithmetic and space invariants.
+
 Three Damage Pumps are sufficient for the five Exeggcute KOs under the stated board order, leaving a fourth as contingency. The two Exeggcute are reused, and the three Unown serve as 20-damage counter donors. Each relevant Basic stays within five Bench slots when played. This is a **constructive sequence**, with deliberately strong hand/search/access and matchup preconditions, and it does not imply realistic tournament consistency.
 
 ## Qualification and risk
