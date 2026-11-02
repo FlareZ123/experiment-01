@@ -27,6 +27,8 @@ function probeSentinelAdmission(){
     fixed60Count:exactCount,
     pinnedNativeCandidateResolved:status.candidateResolved,
     nativeResolvedPhysicalCards:plan.candidate.cards.length,
+    exactResolvedMegaPackage:plan.candidate.cards
+      .filter(fullName=>/Buneary|Lopunny/i.test(fullName)),
     sourceUnavailableRanks:status.unavailableSourceRanks,
     status,
     actualGameCount:0,
