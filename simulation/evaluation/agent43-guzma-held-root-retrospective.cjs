@@ -48,6 +48,30 @@ function guzmaRecipientGeometry(event){
   return 'both-benches-occupied';
 }
 
+/**
+ * Separate fully face-up Energy-card investment from physical Bench
+ * availability; card counts are not necessarily Energy units or payable
+ * attacks (Double Dragon and other Special Energy can provide more).
+ * @param {object} event Genuine owner-only post-choice reading.
+ * @returns {string} Deliberately non-payability category.
+ */
+function guzmaBenchInvestment(event){
+  const g=event?.publicGuzmaGeometry;
+  if(!g||!Number.isSafeInteger(g.ownActiveEnergyCards)||
+      !Number.isSafeInteger(g.ownBenchedEnergyCards)||
+      !Number.isSafeInteger(g.ownBenchedPokemonWithEnergy)||
+      g.ownActiveEnergyCards<0||g.ownBenchedEnergyCards<0||
+      g.ownBenchedPokemonWithEnergy<0)
+    return 'investment-unobserved';
+  if(guzmaRecipientGeometry(event)!=='both-benches-occupied')
+    return 'not-both-benches';
+  if(g.ownBenchedPokemonWithEnergy===0)
+    return 'both-no-benched-energy';
+  if(g.ownBenchedEnergyCards<g.ownActiveEnergyCards)
+    return 'both-bench-cards-fewer-than-active';
+  return 'both-bench-cards-at-least-active';
+}
+
 /** Single retrospective forensic replay of PREVIOUSLY USED seeds. */
 function run(){
   const p=preflight();
@@ -88,6 +112,15 @@ function run(){
     firstHeldGuzma:Object.fromEntries(geometryClasses.map(k=>[k,0])),
     passesHeldGuzma:Object.fromEntries(geometryClasses.map(k=>[k,0]))
   };
+  const investmentClasses=[
+    'investment-unobserved','not-both-benches','both-no-benched-energy',
+    'both-bench-cards-fewer-than-active',
+    'both-bench-cards-at-least-active'
+  ];
+  const investment={
+    firstHeldGuzma:Object.fromEntries(investmentClasses.map(k=>[k,0])),
+    passesHeldGuzma:Object.fromEntries(investmentClasses.map(k=>[k,0]))
+  };
   const lines=[];
   for(const row of replay.rows){
     const audit=row.ownerSupporterOpportunityAudit;
@@ -113,10 +146,14 @@ function run(){
       heldGuzma(e)&&e.supporters.some(card=>
         /^Guzma(?: |$)/.test(card.printing??'')&&
         card.nativeNullCanPlay==='true')).length;
-    for(const event of first.filter(heldGuzma))
+    for(const event of first.filter(heldGuzma)){
       geometry.firstHeldGuzma[guzmaRecipientGeometry(event)]++;
-    for(const event of passes.filter(heldGuzma))
+      investment.firstHeldGuzma[guzmaBenchInvestment(event)]++;
+    }
+    for(const event of passes.filter(heldGuzma)){
       geometry.passesHeldGuzma[guzmaRecipientGeometry(event)]++;
+      investment.passesHeldGuzma[guzmaBenchInvestment(event)]++;
+    }
     counts.nativeAcceptedSupporterRoots+=audit.supporterRoots?.length??0;
     counts.nativeAcceptedGuzmaRoots+=(audit.supporterRoots??[])
       .filter(e=>/^Guzma(?: |$)/.test(e.printing??'')).length;
@@ -129,7 +166,8 @@ function run(){
         nativeNullCanPlay:e.supporters.find(c=>
           /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null,
         publicGuzmaGeometry:e.publicGuzmaGeometry??null,
-        geometryClass:guzmaRecipientGeometry(e)
+        geometryClass:guzmaRecipientGeometry(e),
+        investmentClass:guzmaBenchInvestment(e)
       })),
       passesWithGuzma:passes.filter(heldGuzma).map(e=>({
         seat:e.ownerSeat,turn:e.turn,quota:e.supporterQuota,
@@ -137,7 +175,8 @@ function run(){
         nativeNullCanPlay:e.supporters.find(c=>
           /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null,
         publicGuzmaGeometry:e.publicGuzmaGeometry??null,
-        geometryClass:guzmaRecipientGeometry(e)
+        geometryClass:guzmaRecipientGeometry(e),
+        investmentClass:guzmaBenchInvestment(e)
       })),
       acceptedSupporters:(audit.supporterRoots??[])
         .map(e=>({seat:e.seat,turn:e.turn,printing:e.printing})),
@@ -152,7 +191,7 @@ function run(){
     retrospectiveObserverOnPreviouslyUsedSeeds:true,
     originalRank11RegisteredSixtyUnchanged:true,
     nativeAttempts:16,
-    counts,geometry,lines,
+    counts,geometry,investment,lines,
     competitiveQualifiedGames:0,
     caveats:[
       'Replays eight previously used source seeds after seeing zero Guzma native root exposure; not fresh prospective evidence',
@@ -181,6 +220,7 @@ if(require.main===module){
       JSON.stringify({digestUnchanged:
         x.summary.exactNativePolicyReplayUnchanged,
         counts:x.summary.counts,geometry:x.summary.geometry,
+        investment:x.summary.investment,
         replayDigest:x.summary.replayDigest,
         baselineDigest:x.summary.baselineDigest,
         competitivelyQualifiedGames:0})+'\n');
@@ -188,4 +228,5 @@ if(require.main===module){
       'Read-only owner supporter observer changed frozen accepted native policy');
   }
 }
-module.exports={VERSION,replayFingerprint,heldGuzma,guzmaRecipientGeometry,run};
+module.exports={VERSION,replayFingerprint,heldGuzma,guzmaRecipientGeometry,
+  guzmaBenchInvestment,run};
