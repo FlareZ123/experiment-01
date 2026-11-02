@@ -59,7 +59,7 @@ test('abstain on unknown or modified archetype and active funded attack',()=>{
   const a=fixture();a.ownPublic.active.printing='Electrode-GX OTHER';
   assert.equal(chooseRank9SpecialPaidRetreat(a,catalog),null);
   const b=fixture();b.ownPublic.active.attacks=[
-    {name:'Already Ready',damage:100,cost:[5]}];
+    {name:'Already Ready',damage:200,cost:[5]}];
   assert.equal(chooseRank9SpecialPaidRetreat(b,catalog),null);
 });
 test('abstain if source is restricted from attack or retreat',()=>{
