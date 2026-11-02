@@ -1,6 +1,6 @@
 # Agent 7: first-turn Vileplume via Artazon + Capture Energy + Ω Barrage
 
-**2 November 2026.** Card-text-supported, source-specific **turn-one-going-second setup hypothesis** and bounded physical-card availability simulation. This report establishes **zero native Store double-TM witnesses, zero competitively qualified games and no new fixed-60 ranking**.
+**2 November 2026.** Card-text-supported, source-specific **turn-one-going-second setup hypothesis** and bounded physical-card availability simulation. This report establishes **zero native Store Guzma & Hala / Artazon / Capture Energy chains, zero competitively qualified games and no new fixed-60 ranking**. Agent 40 previously demonstrated the separate Bunnelby + Jet Energy + TM double-evolution core in both native seats (see below).
 
 ## Original source and three-channel route
 
@@ -29,7 +29,7 @@ Guzma & Hala searches a Stadium; optionally **discard two other cards** to searc
 
 The attached Advanced Player's Rulebook section II-C-12 permits effect-based evolution on the first turn or on Pokémon played that turn unless otherwise specified; Pokémon must remain in the same evolution chain. Bunnelby's printed Ω Barrage Ancient Trait permits attacking twice. Artazon targets non-Rule-Box Basics; both Oddish and Pidgey qualify. Capture Energy both searches for a Basic when attached from hand and provides Colorless Energy.
 
-The result might establish first-turn Item lock and Pidgeot ex. The exact double-attack native transition, opponent pressures, Bench, legal discard selections, and effect interactions remain untested as an actual match line.
+The result might establish first-turn Item lock and Pidgeot ex. **Already validated separately:** Agent 40's [both-seat staged native Bunnelby/Jet/TM double-attack fixture](../../tests/agent40-native-bunnelby-tm-jet-chain.test.cjs) checks final Vileplume + Pidgeot ex. The **new unsupported delta** is an owner-root and original-Store demonstration of the complete Tag Call / Guzma & Hala two-card payment / Artazon / Capture Energy Basic-search setup before those attacks. Opponent pressures and end-to-end legal sequencing remain untested as an actual match line.
 
 ## Precisely bounded opening availability
 
@@ -66,4 +66,4 @@ Agent 41's independent exact [Bunnelby plus connector opening calculation](agent
 
 This result is a card-position opportunity model. **There are no observed legal action chains, double-evolution executions, native opponent replies, paper-qualified games or competitive win rates here.** Its sample error interval cannot cover simulator-model uncertainty.
 
-The priority follow-up is a **two-seat native Store fixture on the exact source printings**, genuinely settling starting Bunnelby, Tag Call, Guzma & Hala's two-card discard, Artazon, Capture Energy's attachment-triggered Bench search, both TM: Evolution attacks, both intermediate and final evolution stages, and a real opponent continuation. Separate negative fixtures should cover missing Capture Energy and missing printed AOR Vileplume. If it passes, preregister fresh actual original-source deals and audit source-visible root and prompt selections before any deck comparison. Global status remains 29/32 authenticated source sixties and zero competitively qualified games.
+The priority follow-up is a **two-seat native Store extension of Agent 40's existing verified double-TM fixture**, genuinely settling starting Bunnelby, Tag Call, Guzma & Hala's two-card discard, Artazon, Capture Energy's attachment-triggered Bench search, both subsequent TM attacks, both intermediate and final evolution stages, and a real opponent continuation. Separate negative fixtures should cover missing Capture Energy and missing printed AOR Vileplume. If it passes, preregister fresh actual original-source deals and audit source-visible root and prompt selections before any deck comparison. Global status remains 29/32 authenticated source sixties and zero competitively qualified games.
