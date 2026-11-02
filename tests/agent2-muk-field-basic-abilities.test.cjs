@@ -12,8 +12,11 @@ test('source field remains exact 29 original complete sixties', () => {
   assert.deepEqual(observed.sourceRanksMissing,[23,25,28]);
   assert.equal(observed.rows.length,29);
   assert.equal(new Set(observed.rows.map(x=>x.rank)).size,29);
-  assert.ok(observed.decksWithRecognizedBasicAbility>=22);
-  assert.ok(observed.totalRecognizedBasicAbilityPhysicalCopies>=88);
+  assert.deepEqual(observed.unresolvedPokemonPrintings,[]);
+  assert.equal(observed.decksWithRecognizedBasicAbility,29);
+  assert.deepEqual(observed.decksWithoutRecognizedBasicAbility,[]);
+  assert.equal(observed.totalRecognizedBasicAbilityPhysicalCopies,208);
+  assert.equal(observed.abilities.length,43);
   assert.equal(observed.authenticFieldQualifiedGames,0);
 });
 
@@ -24,6 +27,11 @@ test('known source exact Basic Abilities and cross-zone suppression class', () =
     x.name==='Exeggcute' && x.id==='bw9-4');
   assert.ok(exeggcute,'Original rank26 discard Exeggcute must be resolved');
   assert.equal(exeggcute.physicalCopies,2);
+  const rank19HoOh=observed.rows.find(x=>x.rank===19).basicAbilityCards.find(x=>
+    x.name==='Ho-Oh-EX' && x.id==='bw6-22');
+  assert.ok(rank19HoOh);
+  assert.ok(rank19HoOh.abilities.some(a=>a.name==='Rebirth' &&
+    a.window==='discard-self'));
   assert.ok(exeggcute.abilities.some(a=>
     a.name==='Propagation' && a.window==='discard-self'));
   assert.ok(observed.rows.find(x=>x.rank===9).basicAbilityCards.some(x=>
