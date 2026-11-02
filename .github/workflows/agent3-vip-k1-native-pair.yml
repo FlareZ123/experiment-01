@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank26_one_lightning_koko_native:
+        description: 'Staged printed 60 both-seat Koko one Lightning ability and Crisis Punch witness'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -134,5 +139,19 @@ jobs:
         with:
           name: agent3-rank26-post-compressor-readonly-v21
           path: agent3-rank26-post-compressor-gates-v21.json
+          if-no-files-found: warn
+          retention-days: 15
+
+      - name: Validate one-Lightning Tapu Koko native prompt through original-source Crisis Punch both seats
+        if: inputs.rank26_one_lightning_koko_native
+        run: |
+          node simulation/twinleaf/agent3-rank26-koko-one-lightning-native.cjs > agent3-rank26-one-lightning-native.json
+          node -e "const r=require('./agent3-rank26-one-lightning-native.json');if(r.cases.length!==2||r.cases.some(x=>!x.continuation?.pinnedNativePromptAcceptedOneLightning||!x.continuation?.firstturnCrisisPunchNativeAttack||!x.continuation?.originalPhysical60ConservedBothSeats||x.continuation.competitiveGameQualified!==false))throw Error('Staged one-Lightning native both-seat witness failed');console.log('AGENT3_ONE_LIGHTNING_NATIVE_TWO_SEATS',JSON.stringify(r.cases.map(c=>({sourceSeat:c.sourceSeat,paperOneLightning:c.continuation.pinnedNativePromptAcceptedOneLightning,sourceWin:c.continuation.firstturnCrisisPunchNativeAttack,qualified:c.continuation.competitiveGameQualified}))))"
+      - name: Preserve exact original 60 one-Lightning native source both-seat receipts
+        if: always() && inputs.rank26_one_lightning_koko_native
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-one-lightning-koko-native
+          path: agent3-rank26-one-lightning-native.json
           if-no-files-found: warn
           retention-days: 15
