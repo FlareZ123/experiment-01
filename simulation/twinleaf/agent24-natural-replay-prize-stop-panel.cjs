@@ -136,6 +136,13 @@ function runOne(trial,reverse,byRank){
     nativeActions:game?.actions??null,
     nativeFinished:game?.finished??null,
     nativeWinner:game?.winner??null,
+    nativeEndReason:game?.endReason??null,
+    finalReplayPrizesRemaining:game?.prizesRemaining??null,
+    finalReplayDeckRemaining:game?.finalState?.map(s=>s.deckRemaining)??null,
+    finalReplayActivePresent:game?.finalState?.map(s=>s.activePokemon!=='')??null,
+    finalReplayBenchCounts:game?.finalState?.map(s=>s.benchedPokemon.length)??null,
+    nativeTerminalWithoutObservedPrizeLead:!!(game?.finished&&
+      replayOpened&&!firstNativePhysicalLead),
     actualHeadlessPaperLeadRecords:game?.paperReplayFirstPrizeLeads??null,
     actualHeadlessPaperLeadVeto:game?.paperReplayFirstPrizeLeadVeto??null,
     sourceCardHashes:game?.deckHashes??null,
