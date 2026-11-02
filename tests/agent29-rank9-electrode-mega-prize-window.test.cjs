@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { ROLES, prizeWindow, rank9FromSource } =
+const { ROLES, prizeWindow, exhaustiveFiveEnergyProfiles, rank9FromSource } =
   require('../scripts/agent29-rank9-electrode-mega-prize-window.cjs');
 
 test('original rank9 printed role counts and Basic count source-bound', () => {
@@ -37,4 +37,17 @@ test('disjoint conditional/unconditional exact weighted probabilities conserve',
   const c = r.legalFirstSeven;
   assert.equal(multiply(a) * multiply(c) * denom(b),
     multiply(b) * denom(a) * denom(c));
+});
+
+test('source physical five-Energy subsets exhaust 21 cards and each can pay 2 Darkness',()=>{
+  const packet=exhaustiveFiveEnergyProfiles();
+  assert.equal(packet.profiles.length,5);
+  assert.equal(packet.physicalSubsets,21);
+  assert.deepEqual(packet.profiles.map(p=>[p.prism,p.darkness,p.telepathic,p.physicalSubsets]),[
+    [2,2,1,6],[3,1,1,8],[3,2,0,4],[4,0,1,1],[4,1,0,2]
+  ]);
+  assert.ok(packet.profiles.every(p=>p.blackRequiredPayable===true &&
+    p.prism>=2));
+  assert.equal(packet.allPayable,true);
+  assert.deepEqual(rank9FromSource().completeFiveEnergyPayment,packet);
 });
