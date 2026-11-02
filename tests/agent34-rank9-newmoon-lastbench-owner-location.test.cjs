@@ -109,3 +109,22 @@ test('same actual owner-deck search can validate an available core Basic',()=>{
   assert.equal(record.ownerPrivateCoreLocations.deck,1);
   assert.equal(record.observerOnly,true);
 });
+
+test('post-search physical Mewtwo bench is observed only after owner chose play',()=>{
+  const store=new Store(),owner=store.state.players[0];
+  owner.hand.cards=[pokemon(CORE)];
+  const old=Store.prototype.dispatch;
+  const r=withOwnerLastBenchReadOnlyAudit(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PlayCardAction(71,0));
+    return true;
+  },{Store});
+  assert.equal(r.audit.coreBenchPlays.length,1);
+  const receipt=r.audit.coreBenchPlays[0];
+  assert.equal(receipt.physicallyBenchedCore,true);
+  assert.equal(receipt.originalOwnerCoreLocations.hand,1);
+  assert.equal(receipt.ownerAfterCorePlay.hand,0);
+  assert.equal(receipt.ownerAfterCorePlay.bench,1);
+  assert.equal(receipt.ownerStillActive,'Klefki SVI');
+  assert.strictEqual(Store.prototype.dispatch,old);
+});
