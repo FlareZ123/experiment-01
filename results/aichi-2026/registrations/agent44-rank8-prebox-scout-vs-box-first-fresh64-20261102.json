@@ -1,0 +1,68 @@
+{
+  "schema": "agent44-prebox-quickball-vs-box-first-precommitted-native64-v1",
+  "author": "Agent 44",
+  "createdUTC": "2026-11-02T23:21:00Z",
+  "researchQuestion": "Does a real Quick Ball before Secret Box owner-K0-to-K1 information action reduce paper-costly unsuccessful first-turn Box commitments without losing strict native first-turn equipped Garbodor plus actual opponent public continuation, compared to playing Box before the same Quick Ball?",
+  "fieldOriginalRank": 8,
+  "printedSource60Sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "candidate": "unchanged Hood Shield v1 fixed60",
+  "seats": "each source index alternates physical seat, actor same canonical both seats",
+  "nFresh": 64,
+  "sourceSeedSchedule": {
+    "label": "agent44-original-rank8-preregistered-box-k0-20261030",
+    "source": "simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs",
+    "startInclusive": 402,
+    "endInclusive": 465,
+    "count": 64,
+    "sourceSeat": "index modulo 2",
+    "seed": "SHA256(label+':'+index) readUInt32BE(0)",
+    "rowSelection": "preregistered-prebox-quickball-scout64",
+    "rowsSha256": "332d1769aadbe4a03cb59c669eeb23f70e2c6ef0058d66f71221680eb78715bf",
+    "first": {
+      "trial": "rank8-original-box-k0:402",
+      "sourceSeat": 0,
+      "seed": 3905303765,
+      "selection": "preregistered-prebox-quickball-scout64"
+    },
+    "last": {
+      "trial": "rank8-original-box-k0:465",
+      "sourceSeat": 1,
+      "seed": 837792236,
+      "selection": "preregistered-prebox-quickball-scout64"
+    }
+  },
+  "baseline": "Existing canonical same both-seat actor plus original owner-only v3 flexible Box-before-Basic searcher enabled, without Quick Ball-first scouting",
+  "treatment": "Same canonical actor and same original owner-only v3 flexible Box strategy, adding default-off Quick Ball-first when needed for Trubbish; learn K1 Shake/Garbodor only from legal native owner deck search before deciding Box",
+  "controls": {
+    "identicalBaselineTreatmentPrinted60s": true,
+    "identicalInitialFullPhysicalSourceAndTwoSeatDealHashRequired": true,
+    "all64Attempted": true,
+    "errorsAndCapsNotDropped": true,
+    "oneHistoricalSelectedControlExcluded": true,
+    "maxActions": 120,
+    "paperQuickBallMandatoryGuard": true,
+    "paperSecretBoxMandatoryGuard": true,
+    "secretBoxOwnerThreePhysicalCardCustody": true,
+    "readOnlyOwnerK1Audit": true,
+    "actualOpponentPublicRootRequiredForStrictSuccess": true,
+    "baselineAndTreatmentBothBoxEnabled": true,
+    "defaultOffWithoutExplicitCIInput": true
+  },
+  "outcomes": [
+    "baseline/treatment initial physical deal hash equality",
+    "baseline paid Box when K1 Shake missing",
+    "treatment Quick Ball genuine cost and owner K1 reveal when eligible",
+    "treatment paid Box when Shake missing",
+    "baseline/treatment native Tool Garbodor and strict actual opponent-root witness",
+    "paper guard vetoes",
+    "baseline/treatment native errors and action caps"
+  ],
+  "analysisIntent": "Compare within identical actual initial physical deal and selected actor policy; describe exploratory developmental source decision frequency and fidelity only, no win-rate claims",
+  "limitations": [
+    "native root event and physical payment custody do not certify all other game actions or 25-minute official clock",
+    "no strategic opponent competency",
+    "actual fallback decisions may not preserve all tactical lines",
+    "source rank8 alone cannot establish whole-field 99.5%",
+    "historical selected seed and posthoc index383 excluded"
+  ]
+}
