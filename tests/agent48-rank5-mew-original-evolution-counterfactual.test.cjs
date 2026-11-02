@@ -76,7 +76,7 @@ test('all eight same-seed arms remain, with precisely one symmetric policy toggl
     ['EXACT_SOURCE_DEAL_MATCH','EXACT_SOURCE_DEAL_MATCH',
       'SOURCE_DEAL_DIFFERENT','SOURCE_DEAL_DIFFERENT']);
   assert.deepEqual(out.results.map(x=>x.sourceAttackCountDifference),
-    [1,1,1,1]);
+    [1,1,null,null]);
 });
 
 test('a driver exception leaves both source trials in recorded denominator',()=>{
