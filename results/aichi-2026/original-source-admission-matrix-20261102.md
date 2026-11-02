@@ -21,21 +21,21 @@
 | 5 | Yamato Nakano · Mew Genesect | `a66f9b785b7f` | 36-arm cohort; later pinned v3.1 | Initial cohort: zero source attacks in four arms. [Later pinned v3.1](agent13-rank5-v31-corrected-root-native-16arm-20261102.md): eight native-settled copied attacks in three of eight treatment attempts. Paper and opponent competence still unqualified. |
 | 6 | Kazuma Kashi · Iron Thorns | `9c479091770e` | Nine-rank scout registered | Source-specific competence not certified |
 | 7 | Hiroto Fuji · Snorlax Stall | `522c1d4d7120` | Nine-rank scout registered | Source-specific competence not certified |
-| 8 | Yusuke Kobayashi · Absol Garbodor | `6d955f821a0a` | No cited cohort | No characteristic line witnessed in cited study |
+| 8 | Yusuke Kobayashi · Absol Garbodor | `6d955f821a0a` | Separate 128-original-deal paired native study (256 arms) | Three VIP+Box roots, one complete Tool-Garbodor next-opponent-root; qualified reply missing ([supplement](agent38-hardcluster-source-lineage-supplement-20261102.json)) |
 | 9 | Shun Ito · Absol Electrode | `70382b692e5c` | 36-arm native attempted | 33 Hidden Power only; no signature Evolution attack witnessed |
 | 10 | Haruku Yoshioka · Regidrago | `3312d88e8235` | Nine-rank scout registered | Source-specific competence not certified |
-| 11 | Wataru Yano · Absol Garbodor | `d0d46361d79e` | Nine-rank scout registered | Source-specific competence not certified |
+| 11 | Wataru Yano · Absol Garbodor | `d0d46361d79e` | Nine-rank scout; separate 256-attempt native first-turn Shake campaign | 21 selected Shake roots, 20 Tool-Garbodor board completions; qualified reply missing ([supplement](agent38-hardcluster-source-lineage-supplement-20261102.json)) |
 | 12 | Risa Sato · Regidrago | `ef4cbcac9281` | No cited cohort | No characteristic line witnessed in cited study |
 | 13 | Hiromu Sasaki · Regidrago | `72746e12bd03` | No cited cohort | No characteristic line witnessed in cited study |
 | 14 | Manaya Asano · Regidrago | `a3710764f993` | No cited cohort | No characteristic line witnessed in cited study |
 | 15 | Ryotaro Nozawa · Lopunny Vileplume | `fb59d0958944` | 36-arm native attempted | Peck Off dominates; characteristic lock competence unverified |
-| 16 | Takumi Matsumoto · Absol Garbodor | `2de4e0481b76` | No cited cohort | No characteristic line witnessed in cited study |
+| 16 | Takumi Matsumoto · Absol Garbodor | `2de4e0481b76` | Two generic original hard-cluster pilot arms, absent from earlier consolidated cohort | No admitted naturally selected early-lock line; owner K0 and root missing ([supplement](agent38-hardcluster-source-lineage-supplement-20261102.json)) |
 | 17 | Yuya Yamano · Raichu Electrode Combo | `331861e47dd9` | No cited cohort | No characteristic line witnessed in cited study |
 | 18 | Hayato Omuro · Regidrago | `29cc3f5922fc` | No cited cohort | No characteristic line witnessed in cited study |
 | 19 | Mark Takahashi · Raging Bolt | `d079e3f1c10f` | 36-arm native attempted | Four original-source alias/target aborts; bounded alias correction reported |
 | 20 | Satoru Imamura · Regidrago | `b605491e69b5` | No cited cohort | No characteristic line witnessed in cited study |
 | 21 | Shun Nakajima · Regidrago | `ed03e5d4c4ce` | Nine-rank scout registered | Source-specific competence not certified |
-| 22 | Haruya Mori · Absol Garbodor | `9a3b5299ed6c` | No cited cohort | No characteristic line witnessed in cited study |
+| 22 | Haruya Mori · Absol Garbodor | `9a3b5299ed6c` | Two generic original hard-cluster pilot arms, absent from earlier consolidated cohort | Registered Wally/0 Boost Shake; no verified natural early lock/reply ([supplement](agent38-hardcluster-source-lineage-supplement-20261102.json)) |
 | 24 | Ryoya Fujii · Iron Thorns | `217a61f413f7` | Nine-rank scout registered | Source-specific competence not certified |
 | 26 | Hibiki Yamada · Meloetta Donk | `07da7009178b` | 36-arm native attempted | 18 Motivate only; no characteristic early lethal attack |
 | 27 | Yuya Nagatsuma · Regidrago | `6032a4b644d1` | No cited cohort | No characteristic line witnessed in cited study |
