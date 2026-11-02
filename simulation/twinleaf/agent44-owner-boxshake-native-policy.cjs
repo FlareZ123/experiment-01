@@ -132,8 +132,9 @@ function withSharedFirstTurnBoxShake(execute,options={}){
   function event(seat,state,detail){
     audit.events.push({seat,turn:state.turn,detail});
   }
-  function fail(seat,state,flow,reason){
-    audit.failures.push({seat,turn:state.turn,at:flow.stage,reason});
+  function fail(seat,state,flow,reason,details={}){
+    audit.failures.push({seat,turn:state.turn,at:flow.stage,reason,
+      ...details});
     stages.set(seat,{...flow,stage:'aborted'});
   }
   SimpleTacticsAi.prototype.decodeNextAction=function(state){
@@ -228,7 +229,17 @@ function withSharedFirstTurnBoxShake(execute,options={}){
         const action=names.length===flow.laterBasicSearcherPayment?
           chooseNative(pending,names,state):null;
         if(!action){
-          fail(seat,state,flow,'LATER_BASIC_PAYMENT_REJECT');
+          fail(seat,state,flow,'LATER_BASIC_PAYMENT_REJECT',{
+            sourceSearcher:flow.basicSearcher,
+            requiredPayments:flow.laterBasicSearcherPayment,
+            plannedPayments:names,
+            nativePromptType:pending.constructor?.name??null,
+            promptSourceMatchesOwnerHand:pending.cards===owner.hand,
+            promptCardNames:pending.cards?.cards?.map(card=>card.name)??null,
+            ownerHandNames:owner.hand.cards.map(card=>card.name),
+            nativePromptMinCards:pending.options?.minCards??null,
+            nativePromptMaxCards:pending.options?.maxCards??null
+          });
           return original.call(this,state);
         }
         flow.stage='basic-search-target';
