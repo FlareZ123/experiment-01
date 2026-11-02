@@ -203,7 +203,8 @@ function withPostgameRootOrderProbe(
         const nativeTrace=[];
         const nativeTacticObservation={steps:[],rngCalls:0,
           traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true,
-          traceSimulationZones:target.nativeTapeFirstFiniteScore===true};
+          traceSimulationZones:target.nativeTapeFirstFiniteScore===true,
+        traceArbiterShuffleLengths:target.nativeTapeFirstFiniteScore===true};
         const decisionStartFingerprint=(target.nativeScoreTrace===true||target.nativeTapeFirstFiniteScore===true)?
           stateGraphFingerprint(state):null;
         const restorations=[];
@@ -407,7 +408,8 @@ function withPostgameRootOrderProbe(
           .withBilateralCommonCandidatePolicy;
       const replayTacticObservation={steps:[],rngCalls:0,
           traceEngineRandomSites:target.nativeTapeFirstFiniteScore===true,
-          traceSimulationZones:target.nativeTapeFirstFiniteScore===true};
+          traceSimulationZones:target.nativeTapeFirstFiniteScore===true,
+        traceArbiterShuffleLengths:target.nativeTapeFirstFiniteScore===true};
       const policyReplay=world=>applyPolicy(target.seat,()=>{
         const bot=new BotClass({id:actorId},
           cloneBotOptions(captured.options),null);
