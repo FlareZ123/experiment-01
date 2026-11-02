@@ -44,3 +44,8 @@ Earlier rank26 owner-only source Koko and Cologne heuristics required **two** di
 The existing source owner Battle Compressor selector chooses up to **two** basic Lightning before considering at most **one** Exeggcute, and in some deck configurations uses fewer than its allowed three selections. Because the self-KO 2+2+1 engine needs two physical Exeggcute available, an owner-visible alternative priority that puts two Exeggcute into discard and **one** Lightning may provide a stronger complete attack pathway in some hands. That is **a policy optimization hypothesis**, not a demonstrated source win-rate improvement. Exact source replay and firstturn native controller testing remain necessary.
 
 **Benchmark:** Original 60s for 29/32 Aichi Top32 authenticated. Zero competitively qualified games. No 99.5% fixed-deck win claim.
+
+
+## Legacy native regression after new opt-in source Cologne gate
+
+At ~09:03 UTC, manual [CI 41417067383](https://github.com/FlareZ123/experiment-01/actions/runs/41417067383) **passed** the unchanged one-Lightning original-source staged witness in **both physical seats** and the existing owner-only/regression suite after the optional paper-correct source-Cologne gate was added on main. Frozen regression head: a71e988fe7a9cb64279778e7a5a12e1a08ad4bd1. This validates that the existing direct-Cologne path continued to work after the optional implementation change. **It does not exercise the new owner-selected Cologne policy** `withRank26CologneOpener(...,{unlockBenchedKoko:true,minimumDiscardLightning:1})` or its new pure tests: those remain unexecuted and must not be reported as passing. The prior owner-2-Lightning default remains unchanged.
