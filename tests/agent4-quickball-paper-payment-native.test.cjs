@@ -26,7 +26,7 @@ test('genuine rank5 FST Quick Ball source printed payment both physical seats',(
     assert.equal(a.rootError,null);
     assert.equal(a.promptEvidence.printing,'Quick Ball FST');
     assert.equal(a.promptEvidence.type,'ChooseCardsPrompt');
-    assert.equal(a.promptEvidence.min,1);
+    assert.equal(a.promptEvidence.min,0); // Native permits a printed-forbidden zero-cost payment.
     assert.equal(a.promptEvidence.max,1);
     assert.match(a.paymentError,/PAPER_QUICK_BALL_PAYMENT_INVALID:QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE/);
     assert.equal(a.paymentSettled,false);
