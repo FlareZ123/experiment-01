@@ -106,8 +106,7 @@ function probe(mode,sourceSeat){
   const promoted=mine.active.getPokemonCard()?.fullName;
   const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
   const expectedSuppressed=!['baseline','wobbuffet'].includes(mode);
-  assert.equal(Boolean(original),'true'===String(true),
-    'Original rank30 nominal opportunity must be visible');
+  assert.ok(original,'Original rank30 nominal opportunity must be visible');
   assert.equal(nativeBlocked,expectedSuppressed,
     'Pinned Store Ability checker disagrees with paper mechanism '+mode);
   assert.equal(nativeRetreatCost,expectedSuppressed?2:0,
