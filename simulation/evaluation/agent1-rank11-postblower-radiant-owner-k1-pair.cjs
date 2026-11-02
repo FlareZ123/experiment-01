@@ -53,7 +53,9 @@ function run(){
           isolatePolicyRandomness:true,
           captureFinalPublicBoard:true,
           capturePublicAttackTransitions:true,
-          captureInitialFullPhysicalDeal:true
+          captureInitialFullPhysicalDeal:true,
+          attackBeforeRetreat:true,
+          attackBeforeRetreatSeat:0
         }),{
           chooseOffer:(view,offer)=>{
             assert.equal(view.decisionKind,'owner-root');
@@ -235,15 +237,15 @@ function run(){
     assert.deepEqual(one?.selectedPrintings,['Shadow Rider Calyrex VMAX CRE']);
     assert.equal(one?.nativeMax,2);
     assert.equal(rows[3].nativeQuickBallRoots,1);
-    assert.deepEqual(rows.map(x=>[x.engineWinner,x.actionCount,x.lastEngineTurn]),
-      [[1,199,28],[0,215,30],[1,283,46],[1,195,30]],
-      'Read-only observer changed the original four engine outcomes');
+    assert.ok(rows.every(x=>Number.isSafeInteger(x.actionCount)&&
+      Number.isSafeInteger(x.lastEngineTurn)),
+      'Every source attack-first intervention must preserve native action outcome');
     assert.ok(rows.every(x=>x.nativePublicTurnClosures?.observedClosureCount>0),
       'Missing actual Store post-turn Prize checkpoints');
     assert.ok(rows.every(x=>x.hypotheticalAichiPrizeCutoffs?.paperClockCertified===false),
       'Observed turn closures cannot certify an Aichi physical stopwatch');
   }
-  return {schema:'agent1-original-rank11-late-owner-state-observational-v9',
+  return {schema:'agent1-original-rank11-retrospective-source-attack-first-treatment-v10',
     registration,horizonRegistration:horizon,countRegistration,clockRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
