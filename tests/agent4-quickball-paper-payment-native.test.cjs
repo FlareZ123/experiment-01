@@ -3,61 +3,103 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const {quickBallPaymentNegative,withPaperQuickBallMandatoryPayment}=
   require('../simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs');
-const {probeQuickBallMandatoryPayment,probeQuickBallNoOtherCard}=
+const {probeQuickBallMandatoryPayment,probeQuickBallExplicitPayment,
+  probeQuickBallNoOtherCard}=
   require('../simulation/twinleaf/agent4-quickball-mandatory-payment-native.cjs');
 
-test('Quick Ball printed cost requires one actual offered physical card',()=>{
-  const a={},b={},prompt={cards:{cards:[a]}};
-  assert.equal(quickBallPaymentNegative(prompt,[]),
+test('printed Quick Ball payment requires exactly one offered physical own-hand card',()=>{
+  const a={},b={},owner={hand:{cards:[a]}};
+  const prompt={cards:{cards:[a]}};
+  assert.equal(quickBallPaymentNegative(prompt,[],owner),
     'QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE');
-  assert.equal(quickBallPaymentNegative(prompt,[a,a]),
+  assert.equal(quickBallPaymentNegative(prompt,[a,a],owner),
     'QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE');
-  assert.equal(quickBallPaymentNegative(prompt,[b]),
+  assert.equal(quickBallPaymentNegative(prompt,[b],owner),
     'QUICK_BALL_PAYMENT_OUTSIDE_PHYSICAL_OWNER_HAND');
-  assert.equal(quickBallPaymentNegative(prompt,[a]),null);
+  assert.equal(quickBallPaymentNegative(prompt,[a],owner),null);
 });
 
-test('genuine rank5 FST Quick Ball source printed payment both physical seats',()=>{
+test('original rank5 Quick Ball autospends sole other card and allows zero Basic search both seats',()=>{
   for(const seat of [0,1]){
     const raw=probeQuickBallMandatoryPayment(seat,'zero');
-    const guarded=withPaperQuickBallMandatoryPayment(()=>
+    const wrapped=withPaperQuickBallMandatoryPayment(()=>
       probeQuickBallMandatoryPayment(seat,'zero'));
-    const a=guarded.result;
-    console.log('AGENT4_QUICK_BALL_PROMPT_ZONE '+JSON.stringify({seat,raw,guarded:a,audit:guarded.audit}));
+    const a=wrapped.result,b=wrapped.audit;
+    console.log('AGENT4_QUICK_BALL_AUTO_AND_SEARCH '+JSON.stringify({
+      seat,raw,guarded:a,audit:b
+    }));
     assert.equal(a.rootError,null);
     assert.equal(a.promptEvidence.printing,'Quick Ball FST');
-    assert.equal(a.promptEvidence.type,'ChooseCardsPrompt');
-    assert.equal(a.promptEvidence.min,0); // Native permits a printed-forbidden zero-cost payment.
+    assert.equal(a.promptEvidence.message,'CHOOSE_CARD_TO_HAND');
+    assert.equal(a.promptEvidence.fromOwnerDeck,true);
+    assert.equal(a.promptEvidence.min,0);
     assert.equal(a.promptEvidence.max,1);
-    assert.match(a.paymentError,/PAPER_QUICK_BALL_PAYMENT_INVALID:QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE/);
-    assert.equal(a.paymentSettled,false);
-    assert.equal(a.energyInHand,true);
+    assert.equal(a.promptEvidence.nativeValidated,true);
+    assert.equal(a.energyAutoDiscardedBeforeSearch,true);
+    assert.equal(a.searchError,null);
+    assert.equal(a.searchSettled,true);
+    assert.equal(a.energyInDiscard,true);
     assert.equal(a.dedenneInDeck,true);
-    assert.equal(guarded.audit.inspectedRoots,1);
-    assert.equal(guarded.audit.inspectedPayments,1);
-    assert.equal(guarded.audit.vetoedPayments,1);
-    const paid=withPaperQuickBallMandatoryPayment(()=>
+    assert.equal(a.dedenneInHand,false);
+    assert.deepEqual(a.pendingPrompts,[]);
+    assert.equal(b.inspectedRoots,1);
+    assert.equal(b.inspectedPayments,0);
+    assert.equal(b.vetoedPayments,0);
+    assert.equal(b.ignoredOptionalSearchPrompts,1);
+    assert.equal(raw.energyInDiscard,a.energyInDiscard);
+    assert.equal(raw.dedenneInDeck,a.dedenneInDeck);
+    const searched=withPaperQuickBallMandatoryPayment(()=>
       probeQuickBallMandatoryPayment(seat,'one'));
-    const b=paid.result;
-    assert.equal(b.rootError,null);
-    assert.equal(b.paymentError,null);
-    assert.equal(b.paymentSettled,true);
-    assert.equal(b.energyInDiscard,true);
-    assert.equal(b.dedenneInHand,true);
-    assert.equal(b.dedenneInDeck,false);
-    assert.deepEqual(b.pendingPrompts,[]);
-    assert.equal(paid.audit.vetoedPayments,0);
-    console.log('AGENT4_QUICK_BALL_NATIVE_PAYMENT '+JSON.stringify({
-      seat,rawZeroError:raw.paymentError,
-      rawZeroSettled:raw.paymentSettled,
-      guardedZeroError:a.paymentError,guardedZeroSettled:a.paymentSettled,
-      paidDiscard:b.energyInDiscard,paidBasicInHand:b.dedenneInHand,
-      validPaymentPromptSource:b.promptEvidence.printing
-    }));
+    assert.equal(searched.result.searchError,null);
+    assert.equal(searched.result.dedenneInHand,true);
+    assert.equal(searched.result.dedenneInDeck,false);
+    assert.deepEqual(searched.result.pendingPrompts,[]);
+    assert.equal(searched.audit.inspectedPayments,0);
   }
 });
 
-test('Quick Ball root with no other physically held card is guarded in both seats',()=>{
+test('original rank5 Quick Ball explicit two-option discard blocks invalid zero but preserves valid paid search',()=>{
+  for(const seat of [0,1]){
+    const raw=probeQuickBallExplicitPayment(seat,'zero');
+    const blocked=withPaperQuickBallMandatoryPayment(()=>
+      probeQuickBallExplicitPayment(seat,'zero'));
+    const a=blocked.result,b=blocked.audit;
+    console.log('AGENT4_QUICK_BALL_EXPLICIT_PAYMENT '+JSON.stringify({
+      seat,raw,guarded:a,audit:b
+    }));
+    assert.equal(a.rootError,null);
+    assert.equal(a.paymentPromptEvidence.printing,'Quick Ball FST');
+    assert.equal(a.paymentPromptEvidence.message,'CHOOSE_CARD_TO_DISCARD');
+    assert.equal(a.paymentPromptEvidence.offeredPhysicalHand,true);
+    assert.equal(a.paymentPromptEvidence.min,1);
+    assert.equal(a.paymentPromptEvidence.max,1);
+    assert.match(a.paymentError,
+      /PAPER_QUICK_BALL_PAYMENT_INVALID:QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE/);
+    assert.equal(a.paymentSettled,false);
+    assert.equal(a.energyInHand,true);
+    assert.equal(a.secondInHand,true);
+    assert.equal(a.dedenneInDeck,true);
+    assert.equal(b.inspectedPayments,1);
+    assert.equal(b.vetoedPayments,1);
+    const paid=withPaperQuickBallMandatoryPayment(()=>
+      probeQuickBallExplicitPayment(seat,'one'));
+    const c=paid.result,d=paid.audit;
+    console.log('AGENT4_QUICK_BALL_PAID '+JSON.stringify({seat,paid:c,audit:d}));
+    assert.equal(c.rootError,null);
+    assert.equal(c.paymentError,null);
+    assert.equal(c.paymentSettled,true);
+    assert.equal(c.energyInDiscard,true);
+    assert.equal(c.secondInHand,true);
+    assert.equal(c.dedenneInHand,true);
+    assert.equal(c.dedenneInDeck,false);
+    assert.deepEqual(c.pendingPrompts,[]);
+    assert.equal(d.inspectedPayments,1);
+    assert.equal(d.vetoedPayments,0);
+    assert.equal(d.ignoredOptionalSearchPrompts,1);
+  }
+});
+
+test('Quick Ball root without any other physical hand card is rejected in both seats',()=>{
   for(const seat of [0,1]){
     const raw=probeQuickBallNoOtherCard(seat);
     const wrapped=withPaperQuickBallMandatoryPayment(()=>
