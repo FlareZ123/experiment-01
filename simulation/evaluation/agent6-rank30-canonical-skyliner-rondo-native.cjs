@@ -34,9 +34,9 @@ function runOption(trials,sourceSeat,treatment){
 function evidence(game,seat){
   const root=game.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;
   const sourceRoots=(game.rootActionLedger??[]).filter(row=>
-    row.playerSlot===seat&&row.turnBefore>=28&&row.turnBefore<=35);
+    row.playerSlot===seat&&row.turnBefore>=28&&row.turnBefore<=40);
   const opponentRoots=(game.rootActionLedger??[]).filter(row=>
-    row.playerSlot!==seat&&row.turnBefore>=28&&row.turnBefore<=35);
+    row.playerSlot!==seat&&row.turnBefore>=28&&row.turnBefore<=40);
   const retreats=sourceRoots.filter(row=>row.action==='RetreatAction');
   const rondos=sourceRoots.filter(row=>row.action==='AttackAction'&&
     row.attack==='Full Moon Rondo');
@@ -46,6 +46,14 @@ function evidence(game,seat){
     fixedCandidatePrinting60:game.candidateDeckFingerprint,
     fixedSourcePrinting60:game.sourceDeckFingerprint,
     actorChosenRetreats:root?.typedIntentCounts?.['skyliner-rondo-retreat']??0,
+    nativePhysicallyConfirmedRetreats:root?.nativePhysicalConfirmedByIntent
+      ?.['skyliner-rondo-retreat']??0,
+    nativePhysicalUnconfirmedRetreats:root?.nativePhysicalUnconfirmedByIntent
+      ?.['skyliner-rondo-retreat']??0,
+    nativeRootAcceptedRetreatReceipts:(root?.nativeRootAcceptances??[])
+      .filter(a=>a.kind==='skyliner-rondo-retreat'&&a.accepted===true),
+    nativeRootRejectedRetreatReceipts:(root?.nativeRootAcceptances??[])
+      .filter(a=>a.kind==='skyliner-rondo-retreat'&&a.accepted===false),
     canonicalRootAuditVersion:root?.version??null,
     sourceRetreats:retreats,sourceRondos:rondos,
     sourceRoots,opponentRoots,
@@ -102,6 +110,14 @@ function run(){
     nativeActorChosenRetreats:games.reduce((n,g)=>n+g.actorChosenRetreats,0),
     realSourceRetreatRoots:games.reduce((n,g)=>n+g.sourceRetreats.length,0),
     sourceRondoAttackDeclarations:games.reduce((n,g)=>n+g.sourceRondos.length,0),
+    settledSourceRondoAttacks:games.reduce((n,g)=>n+
+      (g.sourceAttackSettlement?.attacks??[]).filter(a=>
+        a.attackName==='Full Moon Rondo'&&
+        a.settledPromptChain===true).length,0),
+    nativeConfirmedRetreats:games.reduce((n,g)=>
+      n+g.nativePhysicallyConfirmedRetreats,0),
+    nativeUnconfirmedRetreats:games.reduce((n,g)=>
+      n+g.nativePhysicalUnconfirmedRetreats,0),
     competitiveQualifiedGames:0,groups,
     caveat:'Retrospective source-policy development test. Exact paper rules, owner information safety across all fallback, tournament clock and competitive opponents remain unqualified.'};
 }
