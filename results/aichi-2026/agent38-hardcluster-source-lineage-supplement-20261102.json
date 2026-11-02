@@ -70,7 +70,8 @@
       "sourcePhysicalDeals": 256,
       "nativeGameAttempts": 256,
       "actualFirst": "128 source first, 128 source second",
-      "comparableIndependentDeals": 128,
+      "comparableIndependentDeals": null,
+      "pairedSourceSeedFrameSize": 128,
       "ownerVisibleOpportunity": {
         "status": "VERIFIED",
         "count": 21,
