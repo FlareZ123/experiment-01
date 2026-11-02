@@ -11,7 +11,7 @@ const {probeRoxieNoEligibleRoot,runRank31RoxieSpoons}=
   require('../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
 
 test('source-marked independent SIT59 check bounds total count and source identity',()=>{
-  assert.match(VERSION,/v9-rank31-source-count-and-root/);
+  assert.match(VERSION,/v10-ultra-ball-mandatory-cost/);
   const a={player:'top',slot:'active',index:0};
   const b={player:'top',slot:'bench',index:0};
   const dest={player:'top',slot:'bench',index:1};
