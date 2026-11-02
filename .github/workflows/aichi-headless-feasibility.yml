@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      original_rank8_vip_box_threepositive_audit:
+        description: Retrospective 3 source-rank8 VIP/Box native witnesses, detailed Box failure causes, no new selection
+        required: false
+        type: boolean
+        default: false
       original_rank8_vip_box_prospective:
         description: Preregistered 128 original rank8 native both-seat VIP-first and Box-first exact-deal pairs
         required: false
@@ -303,6 +308,19 @@ jobs:
         if: ${{ inputs.battle_compressor_source_exposure }}
         run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
 
+      - name: Re-execute only three retrospective original-rank8 native Box/VIP positive witnesses
+        if: ${{ inputs.original_rank8_vip_box_threepositive_audit }}
+        run: |
+          node simulation/evaluation/agent7-rank8-vip-box-native-threepositive.cjs > agent7-rank8-vip-box-threepositive.json
+          node -e "const a=require('node:assert/strict');const x=require('./agent7-rank8-vip-box-threepositive.json');a.equal(x.actualOriginalDealsReplayed,3);for(const r of x.rows)console.log('RETRO_SOURCE_BOX_FAILURE',JSON.stringify({seed:r.seed,trial:r.trial,status:r.status,base:r.baselineBoxNativeAudit?.failures,treat:r.treatmentBoxNativeAudit?.failures,baseOffers:r.baselineBoxNativeAudit?.offers?.length,treatmentOffers:r.treatmentBoxNativeAudit?.offers?.length,baseComplete:r.baselineBoxNativeAudit?.completeNativeEvolutions,treatComplete:r.treatmentBoxNativeAudit?.completeNativeEvolutions,sourceOrder:r.sourceToolGarbodorReply?.sourceActionOrderValid,reply:r.sourceToolGarbodorReply?.strictPublicContinuationAccepted}))"
+      - name: Archive full three retrospective original source Box/VIP paired ledgers
+        if: ${{ always() && inputs.original_rank8_vip_box_threepositive_audit }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-original-rank8-vip-box-retrospective-threepositives
+          path: agent7-rank8-vip-box-threepositive.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Test original rank8 guarded VIP-first resource payment and reversible native handler
         if: ${{ inputs.original_rank8_vip_box_prospective }}
         run: node --test tests/agent7-vip-before-box-native.test.cjs tests/agent7-rank8-box-vip-contention.test.cjs
