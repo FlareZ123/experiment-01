@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {preflight}=require('./agent1-rank17-original-evolution-prospective.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
-const {withElectroRainPaperDamage}=require('../twinleaf/agent1-electro-rain-damage-hook.cjs');
+const {withElectroRainDamageHook}=require('../twinleaf/electro-rain-damage-hook.cjs');
 const REG=path.resolve(__dirname,'../../results/aichi-2026/registrations/agent1-rank17-electro-rain-hook-observational-20261102.json');
 
 /** Replay prior original seeds as an explicitly dependent card-fidelity witness. */
@@ -19,7 +19,7 @@ function run(){
   process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV='true';
   let corrected;
   try{
-    corrected=withElectroRainPaperDamage(()=>runDevelopment({
+    corrected=withElectroRainDamageHook(()=>runDevelopment({
     ...options,actorNaturalEvolutionRoot:true,
     registeredTrials:trials,
     registeredFrameName:'agent1-original-rank17-damage-hook-observation',
@@ -29,8 +29,10 @@ function run(){
     if(previous===undefined)delete process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV;
     else process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV=previous;
   }
-  return {schema:registered.schema,attempted:corrected.result.rows.length,
-    audit:corrected.audit,rows:corrected.result.rows,
+  return {schema:registered.schema,attempted:corrected.rows.length,
+    audit:{hook:'Agent46 preexisting electro-rain-damage-hook.cjs',
+      sourceAttackConversionEvidence:'Inspect nativeRows for source Electro Rain attack roots',
+      effectConversionCountUnmeasured:true},rows:corrected.rows,
     competitiveQualifiedGames:0,paperMatchCertified:false,
     independentValidation:false};
 }
