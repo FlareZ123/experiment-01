@@ -1,0 +1,11 @@
+# Agent 5 preregistration: held source Stadium replacement versus resource-heavy Marshadow counter
+
+**2 November 2026, ahead of first genuine native Store execution.**
+
+The previous four-arm forced-Active Marshadow source line and owner-visible policy accepted 4/4 full native five-root sequences, but the policy includes a hypothesis that a **held replacement Stadium** often dominates consuming Fog Crystal plus Float Stone/Basic Psychic just to remove opponent Thunder Mountain Prism Star.
+
+Run four freshly staged original Twinleaf `Store` positions, **2 owner physical seats × 2 held original rank1 Stadium printings**: `Sky Field ROS` and `Dimension Valley PHF`. Same known public board: owner Active Marshadow UNB, zero Bench, held Fog Crystal CRE and Float Stone BKT as unused option, opponent Active Iron Thorns ex TWM, opponent Stadium Thunder Mountain Prism Star LOT. Add one matched Stadium card to owner hand and leave all else unchanged. A new pure actor-only policy `chooseMarshadowCounterRoot` must explicitly return **null** for its five-root resource-consuming counter line when either Stadium is held. This is a local *hold veto* only; a stronger shared policy may choose another turn line.
+
+Then dispatch one actual `PlayCardAction` of the held Stadium using pinned original Store and settle native nondiscretionary prompts. Positive requires a replaced Stadium in the correct field, original Thunder Mountain in opponent **Lost Zone**, holder retains Fog Crystal and Float Stone in hand, owner Marshadow stays Active, own turn is preserved, no opponent move, and Stadium play is counted. If the engine rejects, misroutes Prism Star, or effect/lock changes the game, retain full error and zero successes; never paper-certify a failed native line.
+
+Result if successful: source-held direct Stadium replacement **can mechanically save Fog plus mobility resources while using the player's one Stadium play**. This does not establish comparative strategic preference, a winner or original 60 naturally dealt game. The Stadium may be needed for a later attack or Bench expansion, so match state and connector costs still matter. Full 29/32 original 60s and 0 qualified games remain unchanged.
