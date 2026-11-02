@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {firstTurnBoxOffer,witnessOpponentTurn}=
+const {firstTurnBoxOffer,selectLaterBasicDiscardNames,witnessOpponentTurn}=
   require('../simulation/twinleaf/agent44-owner-boxshake-native-policy.cjs');
 
 function originalFirstTurn(){
@@ -105,4 +105,28 @@ test('unsettled Tool attachment can never satisfy native completion witness',()=
     {active:slot('Mew',null),bench:[slot('Mew',null)]}],turn:2,activePlayer:1,phase:1};
   witnessOpponentTurn(stages,audit,state,null,{PLAYER_TURN:1});
   assert.equal(audit.opponentContinuations[0].equippedGarbodor,false);
+});
+
+test('source index289 native Quick Ball can discard one of two Float Stones',()=>{
+  const names=['Float Stone','Float Stone','Boost Shake'];
+  assert.deepEqual(
+    selectLaterBasicDiscardNames(names,1,'Float Stone'),
+    ['Float Stone']);
+});
+test('one physical indispensable Tool and Shake stay protected',()=>{
+  const names=['Boost Shake','Float Stone','Dark Patch','VS Seeker'];
+  assert.deepEqual(
+    selectLaterBasicDiscardNames(names,2,'Float Stone'),
+    ['Dark Patch','VS Seeker']);
+});
+test('same-name Tool multiplicity can pay native Ultra Ball without burning final Tool',()=>{
+  const names=['Boost Shake','Float Stone','Float Stone','Float Stone'];
+  assert.deepEqual(
+    selectLaterBasicDiscardNames(names,2,'Float Stone'),
+    ['Float Stone','Float Stone']);
+});
+test('unaffordable payment remains empty when only protected resources in hand',()=>{
+  assert.deepEqual(
+    selectLaterBasicDiscardNames(['Boost Shake','Float Stone'],1,'Float Stone'),
+    []);
 });
