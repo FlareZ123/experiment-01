@@ -38,7 +38,8 @@ function run(){
           forestSealSearchCorrection:true,
           battleCompressorPositiveSelectionCorrection:true,
           isolatePolicyRandomness:true,
-          captureFinalPublicBoard:true
+          captureFinalPublicBoard:true,
+          captureInitialFullPhysicalDeal:true
         }),{
           chooseOffer:(view,offer)=>{
             assert.equal(view.decisionKind,'owner-root');
@@ -133,6 +134,7 @@ function run(){
         activateRadiantClimacticGate,
         status:'native-original-K0-and-recipient-owner-K1-confirmed',
         sourceOriginalK0HandSha256:first.handSha256,
+        initialFullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint,
         sourceReturnPublicBoard:atSourceT3,
         recipientFirstRealK1:firstRecipientK1,
         postBlowerRadiantOwnerK1Predicate:candidateK1,
@@ -174,6 +176,10 @@ function run(){
   }
   if(rows.every(x=>x.status===
       'native-original-K0-and-recipient-owner-K1-confirmed')){
+    assert.equal(new Set(rows.map(x=>x.initialFullPhysicalDealFingerprint?.digestSha256)).size,1,
+      'Three intervention arms must preserve BOTH players original physical setup');
+    assert.ok(rows[0].initialFullPhysicalDealFingerprint?.digestSha256,
+      'Missing independent full-physical-setup fingerprint');
     assert.deepEqual(rows.map(x=>x.publicOpponentVMaxAtSourceT3),
       [0,0,2], 'Real source turn3 public VMAX board must distinguish three arms');
     assert.deepEqual(rows.map(x=>x.publicOpponentRadiantAtSourceT3),
