@@ -47,11 +47,16 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_underworld_native_rank1:
+        description: Retrospective two-positive-seed-group original rank1 native Underworld action A/B
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork && !inputs.agent34_rank9_klefki_paid_retreat && !inputs.agent34_underworld_bridge_only }}
+    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork && !inputs.agent34_rank9_klefki_paid_retreat && !inputs.agent34_underworld_bridge_only && !inputs.agent34_underworld_native_rank1 }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -191,7 +196,7 @@ jobs:
           retention-days: 14
 
   agent34-rank9-lastbench-ownlocation:
-    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork || inputs.agent34_rank9_klefki_paid_retreat || inputs.agent34_underworld_bridge_only }}
+    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork || inputs.agent34_rank9_klefki_paid_retreat || inputs.agent34_underworld_bridge_only || inputs.agent34_underworld_native_rank1 }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -212,11 +217,24 @@ jobs:
       - name: Test read-only original Store owner-zone observer
         run: node --test tests/agent34-rank9-newmoon-lastbench-owner-location.test.cjs
       - name: Test native owner-marker Underworld Door root bridge
-        if: ${{ inputs.agent34_underworld_bridge_only }}
+        if: ${{ inputs.agent34_underworld_bridge_only || inputs.agent34_underworld_native_rank1 }}
         run: >-
           node --test
           tests/agent31-underworld-door-owner-frontier.test.cjs
           tests/agent34-underworld-door-root-bridge.test.cjs
+      - name: Replay unchanged rank1 originals with owner Underworld Door symmetric actor root
+        if: ${{ inputs.agent34_underworld_native_rank1 }}
+        env:
+          AGENT34_UNDERWORLD_NATIVE_OUTPUT: agent34-rank1-underworld-native.json
+        run: node simulation/evaluation/agent34-rank1-underworld-actor-registered-replay.cjs
+      - name: Archive all original rank1 Underworld development attempts
+        if: ${{ always() && inputs.agent34_underworld_native_rank1 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank1-retro-underworld-root-development
+          path: agent34-rank1-underworld-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Replay frozen original rank9 exact source deal and count Mewtwo zones
         if: ${{ inputs.agent34_rank9_lastbench_ownlocation }}
         run: node simulation/evaluation/agent34-rank9-newmoon-lastbench-owner-location.cjs > agent34-rank9-lastbench-ownlocation.json
