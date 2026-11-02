@@ -67,6 +67,10 @@ jobs:
         run: node --test tests/agent9-actor-immediate-ko-energy.test.cjs
       - name: Actor-visible Special Energy payability regression
         run: node --test tests/actor-energy-payability.test.cjs
+      - name: Source-pinned Vileplume Artazon Capture three-channel opening screen
+        run: |
+          node --test tests/agent7-vileplume-artazon-capture-opening.test.cjs
+          node scripts/agent7-vileplume-artazon-capture-opening.cjs 1000000
       - name: Rank30 original Empoleon exact Energy funding negative control
         run: node --test tests/agent7-rank30-empoleon-energy-impossibility.test.cjs
       - name: Actor-only native option prompt regression
