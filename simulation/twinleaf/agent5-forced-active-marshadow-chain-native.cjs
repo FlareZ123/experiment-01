@@ -91,7 +91,9 @@ function settleNative(x,allowSearch=false){
     }else throw Error('Unsupported native prompt in staged chain: '+kind);
     x.store.dispatch(new ResolvePromptAction(prompt.id,choice));
     prompts.push({kind,ownerSeat:x.seat,
-      selected:choice?.map(c=>c.fullName)??null});
+      selected:kind==='ChooseCardsPrompt'?choice.map(c=>c.fullName):null,
+      acknowledged:kind==='ShowCardsPrompt'&&choice===true,
+      shufflePermutation:kind==='ShuffleDeckPrompt'?choice:null});
   }
   assert.equal(x.state.prompts.some(p=>p.result===undefined),false,
     'Staged chain left unresolved native prompt');
