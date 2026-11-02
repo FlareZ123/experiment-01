@@ -37,3 +37,16 @@ jobs:
           path: agent3-vip-k1-native-actual.json
           if-no-files-found: warn
           retention-days: 15
+
+      - name: Complete original rank26 2+2+1 native self-KOs through printed first-turn Crisis Punch
+        run: |
+          node simulation/twinleaf/rank26-unown-full-crisis-native.cjs > agent3-rank26-full-crisis-native.json
+          node -e "const r=require('./agent3-rank26-full-crisis-native.json');if(r.cases.length!==2||r.cases.some(x=>!x.continuation?.realStoreAttack||!x.continuation?.original60BothSeatsConserved||x.continuation.competitiveGameQualified!==false))throw Error('Original source both-seat staged end-to-end Crisis Punch evidence missing');console.log('Two original-60 staged source seat completions confirmed; zero qualified games')"
+      - name: Preserve staged original rank26 full Crisis Punch physical action receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-full-crisis-native
+          path: agent3-rank26-full-crisis-native.json
+          if-no-files-found: warn
+          retention-days: 15
