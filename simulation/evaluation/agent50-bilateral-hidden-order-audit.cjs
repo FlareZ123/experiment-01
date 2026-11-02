@@ -161,6 +161,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeEntryOnly===true?{nativeTapeEntryOnly:true}:{}),
     ...(scope.nativeTapeCountShuffleRandom===true?{nativeTapeCountShuffleRandom:true}:{}),
     ...(scope.nativeTapeFairReplayHooks===true?{nativeTapeFairReplayHooks:true}:{}),
+    ...(scope.nativeTapeSupporterReplayHook===true?{nativeTapeSupporterReplayHook:true}:{}),
     ...(scope.nativeTapeHiddenOrderContrast===true?
       {nativeTapeHiddenOrderContrast:true}:{}),
     ...(scope.nativeTapeHiddenOpponentHandContrast===true?
@@ -331,6 +332,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
   nativeTapeFirstFiniteScore=false,nativeTapeEntryOnly=false,
   nativeTapeCountShuffleRandom=false,nativeTapeFairReplayHooks=false,
+  nativeTapeSupporterReplayHook=false,
   nativeTapeHiddenOrderContrast=false,
   nativeTapeHiddenOpponentHandContrast=false,
   nativeTapeBoundedOpponentHiddenHand=false,
@@ -345,6 +347,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeEntryOnly,'boolean');
   assert.equal(typeof nativeTapeCountShuffleRandom,'boolean');
   assert.equal(typeof nativeTapeFairReplayHooks,'boolean');
+  assert.equal(typeof nativeTapeSupporterReplayHook,'boolean');
+  assert.ok(!nativeTapeSupporterReplayHook||nativeTapeFairReplayHooks,
+    'Supporter proposal replay requires genuine fair simulator hooks');
   assert.ok(!nativeTapeFairReplayHooks||nativeTapeSameWorld,
     'Fair-shuffle replay diagnostic requires an original native RNG tape');
   assert.ok(!nativeTapeCountShuffleRandom||nativeTapeFirstFiniteScore,
@@ -420,7 +425,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
       nativeTapeEntryOnly,nativeTapeCountShuffleRandom,
-      nativeTapeFairReplayHooks,
+      nativeTapeFairReplayHooks,nativeTapeSupporterReplayHook,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
       nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange,
       nativeTapeHandPrizeContrast}
@@ -493,6 +498,8 @@ if(require.main===module) {
       process.env.AGENT23_NATIVE_COUNT_SHUFFLE_RNG==='true',
     nativeTapeFairReplayHooks:
       process.env.AGENT23_NATIVE_FAIR_REPLAY_HOOKS==='true',
+    nativeTapeSupporterReplayHook:
+      process.env.AGENT23_NATIVE_SUPPORTER_REPLAY_HOOK==='true',
     nativeTapeHiddenOrderContrast:
       process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true',
     nativeTapeHiddenOpponentHandContrast:
