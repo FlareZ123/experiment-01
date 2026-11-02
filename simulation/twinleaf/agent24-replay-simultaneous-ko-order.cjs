@@ -36,10 +36,27 @@ function one(reverse,byRank){
   const {Stage}=require(path.join(output,'game/store/card/card-types'));
   const {checkState}=require(path.join(output,'game/store/effect-reducers/check-effect'));
   const original=Store.prototype.dispatch;
+  const originalReduceEffect=Store.prototype.reduceEffect;
+  const nativeKOEntitlements=[];
   let root=null,owners=null,stagedTie=false,resetSeen=false;
   let replayOpened=false,doubleKOStaged=false;
   let matchedBenchSlots=0;
   let before=null,afterReducer=null;
+  Store.prototype.reduceEffect=function nativeKoPrizeGroupReceipt(state,effect){
+    const returned=originalReduceEffect.call(this,state,effect);
+    if(this===root&&doubleKOStaged&&
+       effect.constructor.name==='KnockOutEffect'){
+      const victimSeat=state.players.indexOf(effect.player);
+      assert.ok(victimSeat===0||victimSeat===1);
+      nativeKOEntitlements.push({
+        victimSeat,claimantSeat:1-victimSeat,
+        prizeCount:effect.prizeCount,
+        preventDefault:effect.preventDefault===true,
+        alternatePrizeDestination:effect.prizeDestination!==undefined
+      });
+    }
+    return returned;
+  };
   Store.prototype.dispatch=function simultaneousKORoot(action,...args){
     if(!root&&action.constructor.name==='AddPlayerAction')root=this;
     const result=original.call(this,action,...args);
@@ -115,12 +132,26 @@ function one(reverse,byRank){
     });
   }finally{
     Store.prototype.dispatch=original;
+    Store.prototype.reduceEffect=originalReduceEffect;
   }
   assert.ok(owners&&stagedTie&&resetSeen&&replayOpened&&doubleKOStaged);
   assert.equal(owners.size,120);
   assert.deepEqual(before.prizes,[6,6]);
   assert.ok(before.bench.every(x=>x>=1));
   assert.ok(game.finished,'Staged simultaneous KO did not reach native terminal');
+  assert.equal(nativeKOEntitlements.length,2,
+    'Native did not reduce two actual opponent-owned Knock Out effects');
+  assert.ok(nativeKOEntitlements.every(x=>
+    x.prizeCount>0&&!x.preventDefault&&!x.alternatePrizeDestination));
+  const pendingPrizesByClaimant=[0,0];
+  for(const ko of nativeKOEntitlements)
+    pendingPrizesByClaimant[ko.claimantSeat]+=ko.prizeCount;
+  const hypotheticalPaperRemainingPrizes=
+    pendingPrizesByClaimant.map(x=>6-x);
+  const hypotheticalPaperLeader=
+    hypotheticalPaperRemainingPrizes[0]===hypotheticalPaperRemainingPrizes[1]?
+      null:(hypotheticalPaperRemainingPrizes[0]<
+        hypotheticalPaperRemainingPrizes[1]?0:1);
   return {
     reverse,rankA:reverse?11:20,rankB:reverse?20:11,seed:SEED,
     genuineFirstSourceDeal:true,experimentalInitialTie:true,
@@ -128,6 +159,12 @@ function one(reverse,byRank){
     syntheticSimultaneousActiveLethalDamage:true,
     syntheticBasicBenchAllocations:matchedBenchSlots,
     before,afterReducer,
+    nativeKOEntitlements,
+    pendingPrizesByClaimant,
+    hypotheticalPaperRemainingPrizes,
+    hypotheticalPaperLeader,
+    prematureNativeOutcomeVersusPendingPrizeLeader:
+      hypotheticalPaperLeader!==game.winner,
     nativeFinished:game.finished,nativeWinner:game.winner,
     nativeFinalPrizes:game.prizesRemaining,nativeActions:game.actions,
     nativeEndReason:game.endReason,
