@@ -3,6 +3,11 @@ name: Aichi Dusclops conditional self-KO
 on:
   workflow_dispatch:
     inputs:
+      rank19_mobility_compare:
+        description: 'Compare four historical original-rank19 source deals under source Float Stone root'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -41,6 +46,19 @@ jobs:
         run: node --test tests/agent28-rank19-bellowing-knockout-native.test.cjs
       - name: Stage owner-held original rank19 Float Stone physical promotion to DDE-funded Raging Bolt on both native seats
         run: node --test tests/agent28-rank19-original-floatstone-promote-native.test.cjs
+      - name: Verify rank19 paired physical-deal classification before native execution
+        run: node --test tests/agent50-rank19-float-stone-paired-development.test.cjs
+      - name: Compare authentic four rank19 source deals under source-only Float Stone mobility
+        if: inputs.rank19_mobility_compare
+        run: node simulation/evaluation/agent50-rank19-float-stone-paired-development.cjs > agent50-rank19-source-float-mobility-paired.json
+      - name: Archive original source mobility paired native receipts
+        if: always() && inputs.rank19_mobility_compare
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-rank19-source-floatstone-paired-native
+          path: agent50-rank19-source-float-mobility-paired.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Reobserve exactly four archived original rank19 source games without policy changes
         if: inputs.rank19_source_replay
         run: node simulation/evaluation/agent28-rank19-original-source-active-retrospective.cjs > agent28-rank19-source-active-native.json
