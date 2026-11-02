@@ -43,7 +43,8 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
   assert.equal(typeof original?.value,'function');
   const originalStores=new WeakMap();
   let liveStoreCount=0,originalStoreDispatches=0;
-  const matches=[],searches=[],coreBenchPlays=[];
+  const matches=[],searches=[],coreBenchPlays=[],mobilityWindows=[];
+  const observedMobilityTurns=new Set();
   function observed(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&
        !originalStores.has(this)){
@@ -54,6 +55,34 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
     const root=++live.dispatches;
     originalStoreDispatches++;
     const state=this.state;
+    if(Array.isArray(state?.players)&&state.turn>=11&&state.turn<=49){
+      const owner=state.players[0];
+      const acting=owner?.id===(action?.id??action?.clientId);
+      const benchIndex=owner?.bench?.findIndex(p=>
+        p.getPokemonCard()?.fullName===CORE)??-1;
+      const coreBench=owner?.bench?.[benchIndex];
+      const active=owner?.active;
+      const key=live.run+':'+state.turn;
+      if(acting&&active?.getPokemonCard()?.fullName==='Klefki SVI'&&
+         coreBench?.getPokemonCard()?.fullName===CORE&&
+         coreBench.energies.cards.length>0&&!observedMobilityTurns.has(key)){
+        observedMobilityTurns.add(key);
+        mobilityWindows.push({
+          storeRunIndex:live.run,originalDispatchOrdinal:root,
+          globalTurn:state.turn,originalAction:action.constructor.name,
+          active:active.getPokemonCard().fullName,
+          activeEnergy:active.energies.cards.map(c=>c.fullName),
+          coreBenchEnergy:coreBench.energies.cards.map(c=>c.fullName),
+          coreBenchSlot:benchIndex,
+          heldMobilityPrintings:owner.hand.cards.map(c=>c.fullName)
+            .filter(x=>/^(Switch|Escape Rope|Guzma|Float Stone|Air Balloon) /.test(x)),
+          retreatAlreadyUsed:owner.retreatedTurn===state.turn,
+          cannotRetreat:owner.cannotRetreat===true,
+          itemPlayLocked:owner.cannotPlayItemCards===true,
+          ownerVisibleEvidenceOnly:true
+        });
+      }
+    }
     let before=null,coreBefore=null;
     if(action?.constructor?.name==='PlayCardAction'&&
        Array.isArray(state?.players)){
@@ -158,7 +187,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
       originalStores:liveStoreCount,originalStoreDispatches,
       matchingOriginalRootCount:matches.length,
       events:matches,searchPromptEvents:searches,
-      coreBenchPlays,
+      coreBenchPlays,mobilityWindows,
       gameQualifyingEvidence:false,
       paperComplete:false,
       observerIsReadOnly:true
