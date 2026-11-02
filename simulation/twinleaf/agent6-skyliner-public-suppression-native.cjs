@@ -46,7 +46,7 @@ const MODES=['baseline','path','silent','klefki','thorns',
  * @returns {object} Actual native reduction and dispatch receipt.
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false,
-  attackFollowup=false}={}){
+  attackFollowup=false,nativePlayJammer=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -56,6 +56,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const equippedFuryBelt=mode.includes('-furybelt');
   const equippedStealthyHood=mode.includes('-stealthyhood');
   assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
+  assert.ok(!nativePlayJammer||opponentToolJammer);
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=(mode.endsWith('-jammer')||
     mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
@@ -77,6 +78,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     load('game/store/card/card-types');
   const {RetreatAction,AttackAction}=
     load('game/store/actions/game-actions');
+  const {PlayCardAction,PlayerType,SlotType}=
+    load('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
     load('game/store/actions/resolve-prompt-action');
   const {CheckRetreatCostEffect,CheckHpEffect}=
@@ -123,7 +126,33 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   if(baseMode==='wobbuffet')enemyActive='Wobbuffet PHF';
   enemy.active.cards.push(card(enemyActive));
   if(baseMode==='thorns')enemy.active.damage=20;
-  if(opponentToolJammer)enemy.active.tools.push(card('Tool Jammer BST'));
+  if(opponentToolJammer&&!nativePlayJammer)
+    enemy.active.tools.push(card('Tool Jammer BST'));
+  let nativeJammerPlayReceipt=null;
+  if(nativePlayJammer){
+    const actualJammer=card('Tool Jammer BST');
+    enemy.hand.cards.push(actualJammer);
+    const handBefore=enemy.hand.cards.map(c=>c.fullName);
+    state.activePlayer=1-sourceSeat;
+    let playError=null;
+    try{store.dispatch(new PlayCardAction(enemy.id,0,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}));}
+    catch(error){playError=String(error?.message??error);}
+    nativeJammerPlayReceipt={
+      playError,handBefore,
+      handAfter:enemy.hand.cards.map(c=>c.fullName),
+      activeToolsAfter:enemy.active.tools.map(c=>c.fullName),
+      inHandAfter:enemy.hand.cards.includes(actualJammer),
+      attachedToTarget:enemy.active.tools.includes(actualJammer),
+      inEnemyDiscard:enemy.discard.cards.includes(actualJammer),
+      pendingPrompts:state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)
+    };
+    state.activePlayer=sourceSeat;
+    assert.equal(playError,null);
+    assert.equal(nativeJammerPlayReceipt.attachedToTarget,true);
+    assert.equal(nativeJammerPlayReceipt.inHandAfter,false);
+  }
   if(baseMode==='garbotoxin'){
     const slot=addBench(enemy,'Garbodor BKP');
     slot.tools.push(card('Float Stone BKT'));
@@ -251,6 +280,11 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       equippedStealthyHood||
       Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
+    nativeJammerPaymentAsPaper:!nativePlayJammer||(
+      nativeJammerPlayReceipt.playError===null&&
+      nativeJammerPlayReceipt.attachedToTarget&&
+      !nativeJammerPlayReceipt.inHandAfter&&
+      !nativeJammerPlayReceipt.inEnemyDiscard),
     attackFollowupSelectedAsPaper:!attackFollowup||
       (opponentToolJammer?!attackReceipt.attempted:
         attackReceipt.attempted&&attackReceipt.accepted),
@@ -268,6 +302,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     repairPatches:receipt.patches,
     floatStonePlannerCheckSkipped:equippedAirBalloon||equippedFuryBelt||
       equippedStealthyHood,
+    nativeJammerPlayReceipt,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
@@ -307,6 +342,17 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runNativePlayedJammerRepair(){
+  const rows=['path-float-jammer','thorns-stealthyhood-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+      effectRepair:true,nativePlayJammer:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {version:VERSION,nativePlayedJammer:true,rows,
+    stagedNativeCases:rows.length,failures,failedChecks:failures.length,
+    qualifiedCompetitiveGames:0};
+}
 function runHoodAttackRepair(){
   const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
@@ -338,7 +384,9 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_HOOD_ATTACK_FOLLOWUP_DEV==='true'?
+  const result=process.env.AGENT6_NATIVE_PLAY_TOOL_JAMMER_DEV==='true'?
+    runNativePlayedJammerRepair():
+    process.env.AGENT6_HOOD_ATTACK_FOLLOWUP_DEV==='true'?
     runHoodAttackRepair():
     process.env.AGENT6_TOOL_JAMMER_EFFECT_REPAIR_DEV==='true'?
     runEffectRepair():process.env.AGENT6_TOOL_JAMMER_REPAIR_DEV==='true'?
@@ -347,4 +395,4 @@ if(require.main===module){
   if(result.failedChecks>0)process.exitCode=1;
 }
 module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
-  runHoodAttackRepair};
+  runHoodAttackRepair,runNativePlayedJammerRepair};
