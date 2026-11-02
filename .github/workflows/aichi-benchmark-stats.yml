@@ -166,6 +166,8 @@ jobs:
         run: node --test tests/agent24-native-replay-first-lead-witness.test.cjs
       - name: Project pending simultaneous KO Prizes without fabricating paper winners
         run: node --test tests/agent24-pending-replay-prize-disposition.test.cjs
+      - name: Regress actual Aichi May 2026 Swiss and knockout paper time-call predicates
+        run: node --test tests/agent26-aichi-may2026-paper-clock-adjudicator.test.cjs
       - name: Index unique non-KO Prize attacks and Gholdengo resource reset
         run: node --test tests/agent34-direct-prize-attack-frontier.test.cjs
       - name: Fail closed on first-player ordinary Supporter while allowing printed exceptions
