@@ -3,6 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {DCE,THUNDER,chooseRank29TwoPieceCampingSearch}=
   require('../simulation/twinleaf/agent33-rank29-camping-attackpair-target.cjs');
@@ -22,34 +23,66 @@ const {ResolvePromptAction}=
   native('game/store/actions/resolve-prompt-action');
 
 function stage(seat){
-  const manager=initializeCards();
-  const get=printing=>{
+  const plan=planAichi(1,{allowEquivalentBasicEnergies:true,
+    allowBasicEnergyMirrorPrintings:true,
+    allowJapanesePromoHooks:true});
+  const original=plan.opponents.find(row=>row.rank===29);
+  assert.equal(original?.status,'ready');
+  assert.equal(original.cards.length,60);
+  const manager=initializeCards(),get=printing=>{
     const card=manager.getCardByName(printing);
     assert.ok(card,'Pinned exact printing unavailable: '+printing);
     return card;
   };
+  const protectedPrintings=new Set([
+    THUNDER,'Guzma & Hala CEC','Speed Lightning Energy RCL'
+  ]);
   const store=new Store({onStateChange(){}});
   const state=store.state,players=[new Player(),new Player()];
   players[0].id=101;players[1].id=202;
   for(const [index,player] of players.entries()){
-    player.active.cards.push(get(index===seat?'Iron Thorns ex TWM':'Dratini OBF'));
-    player.deck.cards.push(...Array.from({length:16},()=>new Card()));
+    // One original exact source 60 per seat, with deliberately staged
+    // owner-only hand/Prizes and no duplicate or invented physical cards.
+    const remaining=original.cards.map(get);
+    const take=predicate=>{
+      const at=remaining.findIndex(predicate);
+      assert.ok(at>=0,'Selected exact source card unavailable in physical 60');
+      return remaining.splice(at,1)[0];
+    };
+    player.active.cards.push(take(card=>
+      card.fullName==='Iron Thorns ex TWM'));
+    if(index===seat){
+      for(const printing of [DCE,'Camping Gear BST','Tropical Beach BWP'])
+        player.hand.cards.push(take(card=>card.fullName===printing));
+      while(player.hand.cards.length<7)
+        player.hand.cards.push(take(card=>
+          !protectedPrintings.has(card.fullName)));
+    }else{
+      while(player.hand.cards.length<7)
+        player.hand.cards.push(take(()=>true));
+    }
     player.prizes=Array.from({length:6},()=>{
-      const slot=new CardList();
-      slot.cards.push(new Card());
-      return slot;
+      const prize=new CardList();
+      prize.cards.push(take(card=>index!==seat||
+        !protectedPrintings.has(card.fullName)));
+      return prize;
     });
+    player.deck.cards.push(...remaining);
+    assert.equal(player.deck.cards.length,46);
   }
-  const owner=players[seat];
-  owner.hand.cards.push(get(DCE),get('Camping Gear BST'));
-  owner.deck.cards.push(get(THUNDER),
-    get('Guzma & Hala CEC'),get('Speed Lightning Energy RCL'));
   state.players=players;
   state.activePlayer=seat;
   state.phase=GamePhase.PLAYER_TURN;
   state.turn=5;
   store.state=state;
-  return {store,owner,opponent:players[1-seat],seat};
+  const publicPhysicalCount=player=>[
+    player.active,...player.bench,player.hand,player.deck,player.discard,
+    player.lostzone,player.supporter,player.stadium,
+    ...player.prizes
+  ].reduce((count,zone)=>count+(zone?.cards?.length??0),0);
+  assert.deepEqual(players.map(publicPhysicalCount),[60,60]);
+  return {store,owner:players[seat],opponent:players[1-seat],
+    seat,publicPhysicalCount};
 }
 
 /**
@@ -57,7 +90,7 @@ function stage(seat){
  * resolve its generated own-deck one-card prompt with the selected policy.
  */
 function run(seat,mode){
-  const {store,owner,opponent}=stage(seat);
+  const {store,owner,opponent,publicPhysicalCount}=stage(seat);
   const initialOpponentHand=opponent.hand.cards.length;
   const gearIndex=owner.hand.cards.findIndex(card=>
     card.fullName==='Camping Gear BST');
@@ -88,6 +121,8 @@ function run(seat,mode){
   assert.equal(owner.deck.cards.includes(selected),false);
   assert.equal(owner.deck.cards.length,before-1);
   assert.equal(opponent.hand.cards.length,initialOpponentHand);
+  assert.equal(publicPhysicalCount(owner),60);
+  assert.equal(publicPhysicalCount(opponent),60);
   return {selected:selected.fullName,mode,seat,
     ownSearchPromptObserved:true,
     physicalMoved:true,
