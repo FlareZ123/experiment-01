@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards,runMatch}=require('./headless.cjs');
 const {registration}=require('./agent47-rank20-apex-natural-audit.cjs');
+const {projectPendingReplayPrizes}=
+  require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
 const {
   captureInitialPhysicalOwners,inspectPhysicalCardZones,
   fixedDeckCountAnomalies
@@ -152,6 +154,27 @@ function one(reverse,byRank){
     hypotheticalPaperRemainingPrizes[0]===hypotheticalPaperRemainingPrizes[1]?
       null:(hypotheticalPaperRemainingPrizes[0]<
         hypotheticalPaperRemainingPrizes[1]?0:1);
+  const pendingPrizeAudit=projectPendingReplayPrizes({
+    authenticatedReplayEpoch:replayOpened,
+    singleSettledResolutionBatch:true,
+    physicalRemaining:before.prizes,
+    koEntitlements:nativeKOEntitlements
+  });
+  assert.deepEqual(pendingPrizeAudit.pendingPrizesByClaimant,pendingPrizesByClaimant);
+  assert.deepEqual(pendingPrizeAudit.projectedRemainingPrizes,
+    hypotheticalPaperRemainingPrizes);
+  assert.equal(pendingPrizeAudit.projectedLeaderSeat,hypotheticalPaperLeader);
+  assert.equal(pendingPrizeAudit.paperGameOutcomeQualified,false);
+  if(reverse===1){
+    assert.deepEqual(pendingPrizesByClaimant,[2,2],
+      'Expected a controlled equal-award simultaneous KO');
+    assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
+    assert.equal(game.winner,0,
+      'Expected pinned native first-seat sudden-death KO priority');
+  }else{
+    assert.deepEqual(pendingPrizesByClaimant,[3,2]);
+    assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_STRICT_LEAD');
+  }
   return {
     reverse,rankA:reverse?11:20,rankB:reverse?20:11,seed:SEED,
     genuineFirstSourceDeal:true,experimentalInitialTie:true,
@@ -160,6 +183,7 @@ function one(reverse,byRank){
     syntheticBasicBenchAllocations:matchedBenchSlots,
     before,afterReducer,
     nativeKOEntitlements,
+    pendingPrizeAudit,
     pendingPrizesByClaimant,
     hypotheticalPaperRemainingPrizes,
     hypotheticalPaperLeader,
