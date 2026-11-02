@@ -16,7 +16,7 @@ class AddPlayerAction{}
 class UseAbilityAction{
   constructor(clientId,name,target){Object.assign(this,{clientId,name,target});}
 }
-class ResolvePromptAction{constructor(id){this.id=id;}}
+class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
 class AttachEnergyPrompt{
   constructor(id,playerId){Object.assign(this,{id,playerId});}
 }
@@ -58,6 +58,7 @@ function trial(opts={}){
           this.state.prompts.push(new AttachEnergyPrompt(7,owner.id));
           return true;
         }
+        if(opts.reject)throw new Error('INVALID_PROMPT_RESULT');
         if(!opts.cancel){
           const target=owner.bench[1];
           target.energies.cards.push(owner.hand.cards.shift());
@@ -77,8 +78,14 @@ function trial(opts={}){
       player:2,slot:2,index:0
     }));
     if(opts.deferred)store.dispatch(new ResolvePromptAction(6));
-    store.dispatch(new ResolvePromptAction(7));
-    return {store,owner};
+    let rejectedError=null;
+    try{
+      store.dispatch(new ResolvePromptAction(7,opts.reject?[{
+        card:owner.hand.cards[0],
+        to:{player:2,slot:2,index:1}
+      }]:null));
+    }catch(error){rejectedError=error.message;}
+    return {store,owner,rejectedError};
   },{
     Store,psychicType:5,
     cardActions:{PlayerType:{BOTTOM_PLAYER:2},
@@ -115,6 +122,20 @@ test('preexisting identical Psychic Energy still attests one extra card',()=>{
   const result=trial({alreadyAttached:true});
   assert.equal(result.audit.confirmedCompleteEffects,1);
   assert.equal(result.result.owner.bench[1].energies.cards.length,2);
+});
+test('native strict rejection records only the acting owner invalid recipient',()=>{
+  const result=trial({reject:true,wrongType:true});
+  assert.equal(result.result.rejectedError,'INVALID_PROMPT_RESULT');
+  assert.equal(result.audit.abilityPromptsOpened,1);
+  assert.equal(result.audit.acceptedNativePromptResolutions,0);
+  assert.equal(result.audit.rejectedNativeAttachEnergyPrompts,1);
+  const event=result.audit.rejected[0];
+  assert.equal(event.nativePromptRejected,true);
+  assert.equal(event.offeredAssignmentCount,1);
+  assert.equal(event.attempted[0].toOwnBench,true);
+  assert.equal(event.attempted[0].printedPsychic,false);
+  assert.equal(event.attempted[0].ownerVisibleRecipient,'Lightning Recipient');
+  assert.equal(event.attempted[0].offeredEnergyPrinting,PSY);
 });
 test('native cancellation, short draw, used marker and off-type targets fail closed',()=>{
   for(const opts of [
