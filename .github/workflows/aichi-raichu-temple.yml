@@ -29,6 +29,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify rank-5 original Mew native Double Colorless Energy cost under Temple in both seats
+        run: node simulation/twinleaf/agent48-temple-mew-dce-native.cjs
       - name: Verify exact opening Stadium access against seeded shuffles
         run: node --test tests/aichi_raichu_stadium_access.test.cjs
       - name: Test rank-4 and rank-17 Energy sources, Temple denial and Stadium replacement
