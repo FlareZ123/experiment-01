@@ -1,0 +1,378 @@
+{
+  "schema": "agent3-rank28-replica-visual-60-tile-v1",
+  "status": "candidate visual list; original rank28 attribution not yet authenticated",
+  "source_gallery": "https://note.com/nayuta_poke/n/n7e3d0552090b",
+  "source_screenshot": "https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200",
+  "screenshot_sha256": "3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9",
+  "screenshot_original_bytes": 533272,
+  "public_handle": "@nnaacc5_uec",
+  "public_alias": "レプリカ",
+  "public_reported_placement": "予選28位トナメ1没",
+  "official_roster_rank28": "Jo Kato",
+  "identity_bridge": "unverified",
+  "event_date": "2026-05-10",
+  "public_gallery_date": "2026-05-12",
+  "source_details": "Visible pnote deck grid: visual card identity+badge transcription; English names normalized provisionally; exact Japanese card printings have not been independently checked.",
+  "tile_count": 38,
+  "row_counts": [
+    13,
+    8,
+    15,
+    11,
+    13
+  ],
+  "card_count": 60,
+  "entry_count_by_class": {
+    "pokemon": 20,
+    "item": 16,
+    "tool": 2,
+    "supporter": 10,
+    "stadium": 2,
+    "special_energy": 3,
+    "basic_energy": 7
+  },
+  "cards": [
+    {
+      "tile": "r1c1",
+      "english_name": "Regidrago V",
+      "japanese_name": "レジドラゴV",
+      "count": 4,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c2",
+      "english_name": "Regidrago VSTAR",
+      "japanese_name": "レジドラゴVSTAR",
+      "count": 3,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c3",
+      "english_name": "Dialga-GX",
+      "japanese_name": "ディアルガGX",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c4",
+      "english_name": "Dragapult ex",
+      "japanese_name": "ドラパルトex",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c5",
+      "english_name": "Koraidon ex",
+      "japanese_name": "コライドンex",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "probable",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c6",
+      "english_name": "Hisuian Goodra VSTAR",
+      "japanese_name": "ヒスイヌメルゴンVSTAR",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c7",
+      "english_name": "Noivern ex",
+      "japanese_name": "オンバーンex",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r1c8",
+      "english_name": "Kyurem",
+      "japanese_name": "キュレム",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c1",
+      "english_name": "Latias ex",
+      "japanese_name": "ラティアスex",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c2",
+      "english_name": "Dedenne-GX",
+      "japanese_name": "デデンネGX",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c3",
+      "english_name": "Tapu Lele-GX",
+      "japanese_name": "カプ・テテフGX",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c4",
+      "english_name": "Squawkabilly ex",
+      "japanese_name": "イキリンコex",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "probable",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c5",
+      "english_name": "Budew",
+      "japanese_name": "スボミー",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c6",
+      "english_name": "Marshadow",
+      "japanese_name": "マーシャドー",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c7",
+      "english_name": "Wobbuffet",
+      "japanese_name": "ソーナンス",
+      "count": 1,
+      "class": "pokemon",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r2c8",
+      "english_name": "Battle Compressor",
+      "japanese_name": "バトルコンプレッサー",
+      "count": 1,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c1",
+      "english_name": "VS Seeker",
+      "japanese_name": "バトルサーチャー",
+      "count": 3,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c2",
+      "english_name": "Mysterious Treasure",
+      "japanese_name": "ミステリートレジャー",
+      "count": 3,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c3",
+      "english_name": "Quick Ball",
+      "japanese_name": "クイックボール",
+      "count": 1,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c4",
+      "english_name": "Ultra Ball",
+      "japanese_name": "ハイパーボール",
+      "count": 2,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c5",
+      "english_name": "Hisuian Heavy Ball",
+      "japanese_name": "ヒスイのヘビーボール",
+      "count": 1,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c6",
+      "english_name": "Battle VIP Pass",
+      "japanese_name": "バトルVIPパス",
+      "count": 3,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c7",
+      "english_name": "Super Rod",
+      "japanese_name": "すごいつりざお",
+      "count": 1,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r3c8",
+      "english_name": "Prime Catcher",
+      "japanese_name": "プライムキャッチャー",
+      "count": 1,
+      "class": "item",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c1",
+      "english_name": "Muscle Band",
+      "japanese_name": "ちからのハチマキ",
+      "count": 2,
+      "class": "tool",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c2",
+      "english_name": "Professor Juniper",
+      "japanese_name": "アララギ博士",
+      "count": 2,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c3",
+      "english_name": "Lillie's Determination",
+      "japanese_name": "リーリエの決心",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "probable",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c4",
+      "english_name": "Raihan",
+      "japanese_name": "キバナ",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c5",
+      "english_name": "Iono",
+      "japanese_name": "ナンジャモ",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c6",
+      "english_name": "Crispin",
+      "japanese_name": "アカマツ",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "probable",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c7",
+      "english_name": "Guzma",
+      "japanese_name": "グズマ",
+      "count": 2,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r4c8",
+      "english_name": "Marnie",
+      "japanese_name": "マリィ",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c1",
+      "english_name": "Faba",
+      "japanese_name": "ザオボー",
+      "count": 1,
+      "class": "supporter",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c2",
+      "english_name": "Path to the Peak",
+      "japanese_name": "頂への雪道",
+      "count": 1,
+      "class": "stadium",
+      "confidence": "probable",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c3",
+      "english_name": "Parallel City",
+      "japanese_name": "パラレルシティ",
+      "count": 1,
+      "class": "stadium",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c4",
+      "english_name": "Double Dragon Energy",
+      "japanese_name": "ダブルドラゴンエネルギー",
+      "count": 3,
+      "class": "special_energy",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c5",
+      "english_name": "Fire Energy",
+      "japanese_name": "基本炎エネルギー",
+      "count": 3,
+      "class": "basic_energy",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    },
+    {
+      "tile": "r5c6",
+      "english_name": "Grass Energy",
+      "japanese_name": "基本草エネルギー",
+      "count": 4,
+      "class": "basic_energy",
+      "confidence": "high",
+      "printed_set_and_number": "unverified"
+    }
+  ]
+}
