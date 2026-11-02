@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test candidate-only actor intervention and reversible root proxy
-        run: node --test tests/agent7-prospective-candidate-lillie-after-pass.test.cjs
+        run: node --test tests/agent7-prospective-candidate-lillie-after-pass.test.cjs tests/agent7-native-terminal-physical-predicates.test.cjs
       - name: Check out pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine dependencies
@@ -39,6 +39,16 @@ jobs:
         with:
           name: agent7-rank6-lillie-coheld-hand-development
           path: agent7-rank6-lillie-dci-hand-development.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Revisit original no-six-Prize engine terminals to audit native loss predicates
+        run: node simulation/evaluation/agent7-rank6-terminal-physical-diagnostic.cjs
+      - name: Preserve separately the native terminal physics study
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-native-no-six-prize-physical-terminal
+          path: agent7-rank6-no-prize-terminal-native-diagnostic.json
           if-no-files-found: warn
           retention-days: 30
       - name: Archive full control and treatment with failed dispositions
