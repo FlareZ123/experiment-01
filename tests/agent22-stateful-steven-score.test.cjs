@@ -85,7 +85,7 @@ test('same printed copies in owner hand and selected bundle diminish marginal va
   const twice=statefulStevenBundleScore([
     'Capture Energy RCL','Capture Energy RCL'],actor);
   assert.equal(once,9/2-0.15);
-  assert.equal(twice-once,9/3-0.15);
+  assert.ok(Math.abs((twice-once)-(9/3-0.15))<1e-9);
   assert.ok(twice>once);
 });
 
