@@ -26,6 +26,15 @@ test('each printed lock has an exact distinct rank count',()=>{
  assert.equal(r.conditionalCardPresenceOnly,true);
 });
 
+test('rank30 Float Stone versus Tool Jammer is a separate mechanism',()=>{
+ const r=census();
+ assert.equal(r.sourceRank30FloatStoneCount,1);
+ assert.deepEqual(r.toolJammerRanks,[3,6,7,24,29]);
+ assert.deepEqual(r.thornsWithToolJammer,[6,24,29]);
+ assert.deepEqual(r.pathWithToolJammer,[]);
+ assert.equal(r.unionCount,18);
+});
+
 test('duplicates and illegal 59-card records fail',()=>{
  const x={rank:777,cards:[{name:'Psychic Energy',count:60}]};
  assert.equal(census([x]).unionCount,0);
