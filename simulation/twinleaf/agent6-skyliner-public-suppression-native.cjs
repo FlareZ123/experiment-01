@@ -10,11 +10,16 @@ const {publicSkylinerSuppressionReason,
   choosePublicLockGuardedSkylinerRondoRetreat}=require(
     './agent6-skyliner-ability-suppression-guard.cjs');
 
+const {chooseSkylinerOrFloatStoneRondoRetreat}=require(
+  './agent6-skyliner-or-floatstone-mobility.cjs');
+
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=relative=>require(path.join(output,relative));
-const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v1';
+const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v2-floatstone';
 const MODES=['baseline','path','silent','klefki','thorns',
-  'garbotoxin','muk','weezing','wobbuffet'];
+  'garbotoxin','muk','weezing','wobbuffet',
+  'path-float','path-float-jammer','thorns-float',
+  'thorns-float-jammer','garbotoxin-float','garbotoxin-float-jamming'];
 
 /**
  * A staged genuine pinned Store exposes printed Skyliner and actual
@@ -28,6 +33,10 @@ const MODES=['baseline','path','silent','klefki','thorns',
 function probe(mode,sourceSeat){
   assert.ok(MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
+  const baseMode=mode.split('-float')[0];
+  const equippedFloatStone=mode.includes('-float');
+  const opponentToolJammer=mode.endsWith('-jammer');
+  const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
   const card=printed=>{
@@ -66,6 +75,7 @@ function probe(mode,sourceSeat){
   }
   const latias=card('Latias ex SSP');
   mine.active.cards.push(latias);
+  if(equippedFloatStone)mine.active.tools.push(card('Float Stone BKT'));
   const addBench=(owner,printed)=>{
     const slot=new PokemonCardList();
     slot.cards.push(card(printed));
@@ -77,20 +87,22 @@ function probe(mode,sourceSeat){
   clefairy.energies.cards.push(card('Psychic Energy MEE'));
   for(let i=0;i<4;i++)addBench(mine,'Pidgey MEW');
   let enemyActive='Duskull VIV';
-  if(mode==='klefki')enemyActive='Klefki SVI';
-  if(mode==='thorns')enemyActive='Iron Thorns ex TWM';
-  if(mode==='weezing')enemyActive='Galarian Weezing RCL';
-  if(mode==='wobbuffet')enemyActive='Wobbuffet PHF';
+  if(baseMode==='klefki')enemyActive='Klefki SVI';
+  if(baseMode==='thorns')enemyActive='Iron Thorns ex TWM';
+  if(baseMode==='weezing')enemyActive='Galarian Weezing RCL';
+  if(baseMode==='wobbuffet')enemyActive='Wobbuffet PHF';
   enemy.active.cards.push(card(enemyActive));
-  if(mode==='thorns')enemy.active.damage=20;
-  if(mode==='garbotoxin'){
+  if(baseMode==='thorns')enemy.active.damage=20;
+  if(opponentToolJammer)enemy.active.tools.push(card('Tool Jammer BST'));
+  if(baseMode==='garbotoxin'){
     const slot=addBench(enemy,'Garbodor BKP');
     slot.tools.push(card('Float Stone BKT'));
-  }else if(mode==='muk')addBench(enemy,'Alolan Muk SUM');
+  }else if(baseMode==='muk')addBench(enemy,'Alolan Muk SUM');
   else addBench(enemy,'Pidgey MEW');
   for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
-  if(mode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
-  if(mode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
+  if(baseMode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
+  if(baseMode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
+  if(stadiumToolJamming)enemy.stadium.cards.push(card('Jamming Tower TWM'));
 
   const view=actorObservation(state,sourceSeat);
   const catalog={
@@ -102,6 +114,7 @@ function probe(mode,sourceSeat){
   };
   const original=chooseOwnerSkylinerRondoRetreat(view,catalog);
   const guarded=choosePublicLockGuardedSkylinerRondoRetreat(view,catalog);
+  const floatStoneGuard=chooseSkylinerOrFloatStoneRondoRetreat(view,catalog);
   const reason=publicSkylinerSuppressionReason(view);
   const livePower=latias.powers.find(power=>power.name==='Skyliner');
   assert.ok(livePower);
@@ -116,23 +129,27 @@ function probe(mode,sourceSeat){
   const afterPlayer=store.state.players[sourceSeat];
   const promoted=afterPlayer.active.getPokemonCard()?.fullName;
   const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
-  const expectedSuppressed=!['baseline','wobbuffet'].includes(mode);
+  const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode);
+  const expectedFree=!expectedSuppressed||
+    (equippedFloatStone&&!opponentToolJammer&&!stadiumToolJamming);
   const checks={
     printedRootPresent:Boolean(original),
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
-    nativeRetreatCostAsPaper:nativeRetreatCost===(expectedSuppressed?2:0),
+    nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
     publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
-    nativePhysicalRetreatAsPaper:nativeRetreatAccepted===!expectedSuppressed
+    floatStoneGuardAsPaper:Boolean(floatStoneGuard)===expectedFree,
+    nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree
   };
   return {mode,sourceSeat,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
     guardedRootWouldSelect:guarded?.kind??null,
+    floatStoneRootWouldSelect:floatStoneGuard?.kind??null,
     suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
     nativeRetreatCost,
     nativeRetreatAccepted,nativeRetreatError,activeAfter:promoted,
-    expectedRetreatAccepted:!expectedSuppressed,checks,
+    expectedRetreatAccepted:expectedFree,checks,
     competitiveQualified:false};
 }
 
