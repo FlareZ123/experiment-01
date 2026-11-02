@@ -420,6 +420,22 @@ jobs:
       - name: Report all source+candidate known-dead attack roots and native outcomes
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent10-rank9-claw-known-dead' }}
         run: node -e "const r=require('./agent10-rank9-known-dead-claw-native.json');console.log(JSON.stringify({attempted:r.attempted,statuses:r.statuses,qualified:r.competitiveQualifiedGames,rows:r.summaryTrials},null,2))"
+      - name: Regress owner VIP alternative-read receipt and original source target selection
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent9-rank5-vip-owner-alternatives-readonly' }}
+        run: node --test tests/agent9-vip-owner-alternatives-readonly.test.cjs tests/agent9-rank5-vip-owner-search-vs-genesect.test.cjs
+      - name: Observe pinned original-rank5 owner's genuinely open VIP deck options
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent9-rank5-vip-owner-alternatives-readonly' }}
+        run: node simulation/evaluation/agent9-rank5-real-owner-vip-alternatives-readonly.cjs > agent9-rank5-vip-owner-alternatives.json
+      - name: Summarize original native owner VIP source options without claiming wins
+        if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent9-rank5-vip-owner-alternatives-readonly' }}
+        run: node -e "const r=require('./agent9-rank5-vip-owner-alternatives.json');console.log(JSON.stringify({attempts:r.returnedRows,roots:r.nativeOwnerVipAudit.acceptedVipRoots,prompts:r.nativeOwnerVipAudit.ownerVipDeckPromptsAccepted,genesect:r.genuinelyAcceptedGenesectAvailablePromptCount,crobat:r.selectedCrobatWhileGenesectActuallyEligible,ownerOptions:r.nativeOwnerVipAudit.rows,errors:r.rowSummaries.filter(x=>x.error),competitiveGames:0},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent9-rank5-vip-owner-alternatives-readonly' }}
+        with:
+          name: agent9-rank5-vip-owner-alternatives
+          path: agent9-rank5-vip-owner-alternatives.json
+          retention-days: 14
+          if-no-files-found: warn
       - name: Validate prior rank5 native artifact comparison and VIP counterfactual protocol
         if: ${{ inputs.agent41_crossrank_trial && inputs.trial_ids == 'agent17-rank5-vip-retro' }}
         run: node --test tests/agent17-rank5-vip-retrospective.test.cjs tests/agent17-native-target-root-mismatch-report.test.cjs
