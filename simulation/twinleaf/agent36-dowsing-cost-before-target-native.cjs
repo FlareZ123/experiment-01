@@ -8,10 +8,10 @@ const native=p=>require(path.join(output,p));
 const PRINTING='Dowsing Machine PLS';
 
 /**
- * Original paper PLS 128 says discard 2 hand cards BEFORE choosing a Trainer
- * from discard. Pinned engine selects the recovery target from a discard
- * container before it moves those two cards. This prepared genuine-Store
- * case uses the actual rank26 singleton Damage Pump as a paid Trainer.
+ * Official Japan Pokémon Q&A for Dowsing Machine explicitly forbids
+ * retrieving any card discarded by Dowsing itself or the Dowsing card.
+ * This prepared pinned native Store probes the corresponding prohibition
+ * with rank26's original Damage Pump as a payment Trainer.
  * @param {0|1} seat Physical native owner position.
  * @returns {object} Source-stamped prompt and physical custody receipts.
  */
@@ -41,7 +41,7 @@ function probePaidTrainerAsDowsingTarget(seat){
   const recovery=pending();
   assert.equal(recovery?.message,'CHOOSE_CARD_TO_HAND');
   const recoverySourceIsOwnerDiscard=recovery.cards===f.source.discard;
-  const paperNewTrainerWasEligibleAtRecovery=true;
+  const officialPaperForbidsRecoveringPaidTrainer=true;
   const nativeNewTrainerOffered=recovery.cards.cards.includes(paidTrainer);
   const nativeNewTrainerTargetValidator=
     recovery.validate([paidTrainer],f.state);
@@ -60,7 +60,7 @@ function probePaidTrainerAsDowsingTarget(seat){
     nativePaymentValid,paymentPromptClosed:payment.result!==undefined,
     recoveryPromptFound:Boolean(recovery),
     recoverySourceIsOwnerDiscard,
-    paperNewTrainerWasEligibleAtRecovery,
+    officialPaperForbidsRecoveringPaidTrainer,
     nativeNewTrainerOffered,nativeNewTrainerTargetValidator,
     existingTargetOffered,
     preRecoveryPhysicalZones,
