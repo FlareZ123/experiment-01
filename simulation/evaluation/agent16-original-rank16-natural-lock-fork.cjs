@@ -112,9 +112,12 @@ function originalOpeningReceipt(row){
     .map(e=>({ordinal:e.actionOrdinal,name:e.attack??null}));
   const plays=native.filter(e=>e.action==='PlayCardAction')
     .map(e=>({ordinal:e.actionOrdinal,card:e.card??null}));
-  const sourceToOpponent= (row.rootActionLedger??[]).find(e=>
-    e.playerSlot===row.candidateSeat&&e.turnBefore===turn+1&&
-    e.pendingPrompt==null)??null;
+  const lastSourceOrdinal=native.at(-1)?.actionOrdinal??null;
+  const sourceToOpponent=lastSourceOrdinal===null?null:
+    (row.rootActionLedger??[]).find(e=>
+      e.playerSlot===row.candidateSeat&&e.turnBefore===turn+1&&
+      Number.isSafeInteger(e.actionOrdinal)&&
+      e.actionOrdinal>lastSourceOrdinal&&e.pendingPrompt==null)??null;
   const first=row.sourceFirstOwnedAffordances??null;
   return {
     kind:'original-source-first-turn-native-accepted-roots-v1',
