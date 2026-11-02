@@ -48,6 +48,8 @@ function makePool(source){
   const pool=[];
   for(const c of cards)for(let j=0;j<c.count;j++)pool.push(classify(c));
   assert.equal(pool.length,60);
+  // Canonical category order makes seeded Monte Carlo independent of card-row order.
+  pool.sort((a,b)=>(a===ID.OTHER?99:a)-(b===ID.OTHER?99:b));
   for(const [name,quantity] of Object.entries(expected)){
     assert.equal(pool.filter(x=>x===ID[name]).length,quantity,
       'Source printing/count changed for '+name);
