@@ -192,4 +192,59 @@ for(const seat of [0,1]){
   });
 }
 
+for(const seat of [0,1]){
+  test('canonical owner Genesect Ability root settles real native WaitPrompt, physical seat '+seat,()=>{
+    const {store,state,owner,catalog}=stage(seat);
+    const {withActorOnlyRootPolicy}=
+      require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+    const {UseAbilityAction}=engine('game/store/actions/game-actions');
+    const {ResolvePromptAction}=
+      engine('game/store/actions/resolve-prompt-action');
+    class AddPlayerAction{}
+    class BridgeStore{
+      constructor(real){this.real=real;this.state=real.state;}
+      dispatch(action){
+        if(action instanceof AddPlayerAction)return this.state;
+        return this.real.dispatch(action);
+      }
+    }
+    class OwnerBot{
+      constructor(ownerId){this.client={id:ownerId};}
+      decodeNextAction(){return 'GENERIC_FALLBACK';}
+    }
+    const {audit}=withActorOnlyRootPolicy(()=>{
+      const bridge=new BridgeStore(store);
+      bridge.dispatch(new AddPlayerAction());
+      const action=new OwnerBot(owner.id).decodeNextAction(state);
+      assert.ok(action instanceof UseAbilityAction);
+      assert.equal(action.name,'Fusion Strike System');
+      bridge.dispatch(action);
+      let settled=0;
+      for(;settled<25;settled++){
+        const pending=state.prompts.find(x=>x.result===undefined);
+        if(!pending)break;
+        assert.equal(pending.constructor.name,'WaitPrompt');
+        bridge.dispatch(new ResolvePromptAction(pending.id,null));
+      }
+      assert.ok(settled>0,'Genesect native effect was deferred, not immediate');
+      assert.equal(owner.hand.cards.length,3);
+      assert.equal(owner.deck.cards.length,11);
+      const repeat=new OwnerBot(owner.id).decodeNextAction(state);
+      assert.notEqual(repeat.constructor.name,'UseAbilityAction',
+        'Do not reselect the same Genesect Ability this turn');
+    },{
+      Store:BridgeStore,SimpleTacticsAi:OwnerBot,GamePhase:
+        engine('game/store/state/state').GamePhase,
+      getCatalog:()=>catalog,genesectFusionDraw:true
+    });
+    assert.equal(audit.genesectFusionNativeAccepted,1);
+    assert.equal(audit.genesectFusionNativeConfirmed,1);
+    assert.equal(audit.nativePhysicalPending,0);
+    assert.equal(audit.nativePhysicalConfirmedByIntent['use-genesect-fusion-draw'],1);
+    assert.equal(audit.genesectFusionReceipts[0].status,
+      'confirmed-after-native-prompt');
+    assert.equal(audit.genesectFusionReceipts[0].after.hand,3);
+  });
+}
+
 module.exports={stage};
