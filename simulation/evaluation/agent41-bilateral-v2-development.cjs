@@ -367,7 +367,7 @@ function executeDevelopment(trial,candidates,{
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   paperPromptPortfolio=false,sharedPaperPaymentPortfolio=false,
-  paperQuickBallPayment=false,
+  paperQuickBallPayment=false,paperSecretBoxPayment=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -471,6 +471,7 @@ function executeDevelopment(trial,candidates,{
   let paperPromptPortfolioAudit=null;
   let sharedPaperPaymentAudit=null;
   let paperQuickBallAudit=null;
+  let paperSecretBoxAudit=null;
   // Development-only, both-seat correction for the original bot's split
   // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
   // A native Store or strict prompt failure still aborts the trial.
@@ -509,14 +510,26 @@ function executeDevelopment(trial,candidates,{
     paperPromptPortfolioAudit=witnessed.audit;
     return witnessed.result;
   };
+  // Default-off source-printed Secret Box TWM three physical hand-card
+  // mandatory payment guard. Optional four-category deck search is separate.
+  // Only the actual live original Store is checked, never policy clones.
+  const runWithPaperSecretBoxPayment=()=>{
+    if(!paperSecretBoxPayment)return runWithPaperPromptPortfolio();
+    const observed=require('../twinleaf/agent4-secret-box-paper-payment-hook.cjs')
+      .withPaperSecretBoxMandatoryPayment(runWithPaperPromptPortfolio,{
+        requireLiveStore:true,currentTrialId:()=>trial.id
+      });
+    paperSecretBoxAudit=observed.audit;
+    return observed.result;
+  };
   // V3 additive Quick Ball printed mandatory-payment gate. The separate
   // Basic search allows zero cards, so this wrapper only checks genuine
   // CHOOSE_CARD_TO_DISCARD source prompts, on the live Store for each trial.
   // Always default OFF in historical and reference comparisons.
   const runWithPaperQuickBallPayment=()=>{
-    if(!paperQuickBallPayment)return runWithPaperPromptPortfolio();
+    if(!paperQuickBallPayment)return runWithPaperSecretBoxPayment();
     const observed=require('../twinleaf/agent4-quick-ball-paper-payment-hook.cjs')
-      .withPaperQuickBallMandatoryPayment(runWithPaperPromptPortfolio,{
+      .withPaperQuickBallMandatoryPayment(runWithPaperSecretBoxPayment,{
         requireLiveStore:true,currentTrialId:()=>trial.id
       });
     paperQuickBallAudit=observed.audit;
@@ -801,6 +814,7 @@ function executeDevelopment(trial,candidates,{
       (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
       (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v10-source-payment-opt-in':'')+
       (paperQuickBallPayment?'+agent4-paper-quickball-v3-live-store-cost':'')+
+      (paperSecretBoxPayment?'+agent4-paper-secretbox-twm-three-cost-v1-live-store':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -838,6 +852,8 @@ function executeDevelopment(trial,candidates,{
     sharedPaperPaymentPortfolioOptIn:sharedPaperPaymentPortfolio,
     paperQuickBallPaymentOptIn:paperQuickBallPayment,
     paperQuickBallPaymentAudit:paperQuickBallPayment?paperQuickBallAudit:null,
+    paperSecretBoxPaymentOptIn:paperSecretBoxPayment,
+    paperSecretBoxPaymentAudit:paperSecretBoxPayment?paperSecretBoxAudit:null,
     sharedPaperPaymentPortfolioAudit:sharedPaperPaymentPortfolio?
       sharedPaperPaymentAudit:null,
     paperSameTargetAttachEnergyAudit:paperSameTargetAttachEnergy?
@@ -1010,7 +1026,7 @@ function runDevelopment({
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
   paperPromptPortfolio=false,sharedPaperPaymentPortfolio=false,
-  paperQuickBallPayment=false,
+  paperQuickBallPayment=false,paperSecretBoxPayment=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -1238,6 +1254,7 @@ function runDevelopment({
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
         paperPromptPortfolio,sharedPaperPaymentPortfolio,paperQuickBallPayment,
+        paperSecretBoxPayment,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         nativeSetupCoinChoiceReceipt,physicalZoneGate,
@@ -1552,6 +1569,7 @@ function runDevelopment({
       (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
       (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v10-source-payment-opt-in':'')+
       (paperQuickBallPayment?'+agent4-paper-quickball-v3-live-store-cost':'')+
+      (paperSecretBoxPayment?'+agent4-paper-secretbox-twm-three-cost-v1-live-store':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -1572,6 +1590,7 @@ function runDevelopment({
     paperPromptPortfolioOptIn:paperPromptPortfolio,
     sharedPaperPaymentPortfolioOptIn:sharedPaperPaymentPortfolio,
     paperQuickBallPaymentOptIn:paperQuickBallPayment,
+    paperSecretBoxPaymentOptIn:paperSecretBoxPayment,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
