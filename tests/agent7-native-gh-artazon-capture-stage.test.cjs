@@ -9,6 +9,12 @@ const {resolveManifestFile}=
   require('../simulation/twinleaf/resolve-field.cjs');
 const {initializeCards}=
   require('../simulation/twinleaf/headless.cjs');
+const {withToolAttackAwareness}=
+  require('../simulation/twinleaf/tool-attack-policy.cjs');
+const {withBunnelbyEvolutionLine}=
+  require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
+const {withBunnelbyBarrageConsent}=
+  require('../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
 
 const OUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} relative @returns {object} */
@@ -175,6 +181,53 @@ function resolveBasicSearch(x,basic){
   return settleRoutine(x);
 }
 
+
+/**
+ * Resolve actual Bunnelby first and second TM attacks on the printed source.
+ * Tool, Stage, Confirm and second Attack prompts remain genuine Store actions.
+ * @param {object} x Source-conserving Store fixture.
+ * @returns {string[]} Actual native prompt classes in order.
+ */
+function settleNativeDoubleTm(x){
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+  const defs=native('simple-bot/simple-bot-definitions');
+  const manager=initializeCards();
+  const sourceCards=x.source.cardIds.map(printing=>{
+    const c=manager.getCardByName(printing);
+    assert.ok(c,'Unresolved source template '+printing);
+    return c;
+  });
+  const config=withBunnelbyBarrageConsent(withBunnelbyEvolutionLine(
+    withToolAttackAwareness({
+      tactics:defs.allSimpleTactics,
+      promptResolvers:defs.allPromptResolvers,
+      scores:defs.defaultStateScores,
+      arbiter:defs.defaultArbiterOptions
+    }),{sourceCards,targetAwareEvolution:true}),sourceCards);
+  const bot=new SimpleTacticsAi({id:x.player.id},config,null);
+  const prompts=[];
+  for(let n=0;n<90;n++){
+    const pending=x.state.prompts.find(p=>p.result===undefined);
+    if(!pending)return prompts;
+    const kind=pending.constructor.name;
+    const action=kind==='WaitPrompt'?
+      new ResolvePromptAction(pending.id,null):
+      kind==='ShuffleDeckPrompt'?
+        new ResolvePromptAction(pending.id,
+          x.player.deck.cards.map((_,i)=>i)):
+        bot.decodeNextAction(x.state);
+    assert.ok(action,'Bunnelby staged owner left unresolved '+kind);
+    if(kind==='ChooseAttackPrompt'){
+      assert.equal(action.result?.name,'Evolution',
+        'Second printed Ω Barrage attack must choose TM Evolution');
+    }
+    prompts.push(kind);
+    x.f.store.dispatch(action);
+  }
+  assert.fail('Double TM prompt chain exceeded 90 native actions');
+}
+
 for(const seat of [0,1]){
   test('original rank2 GH Artazon Capture genuine source cards, seat '+seat,()=>{
     const x=staged(seat);
@@ -205,6 +258,28 @@ for(const seat of [0,1]){
       ['Capture Energy RCL']);
     assert.equal(x.state.activePlayer,seat);
     assert.equal(x.f.store.hasPrompts(),false);
+    const {PlayCardAction:ToolAction,PlayerType:ToolPlayer,
+      SlotType:ToolSlot}=native('game/store/actions/play-card-action');
+    const tmIndex=x.player.hand.cards.findIndex(c=>
+      c.fullName==='Technical Machine: Evolution PAR');
+    assert.ok(tmIndex>=0);
+    x.f.store.dispatch(new ToolAction(x.player.id,tmIndex,{
+      player:ToolPlayer.BOTTOM_PLAYER,slot:ToolSlot.ACTIVE,index:0
+    }));
+    stages.tmEquip=settleRoutine(x);
+    assert.ok(x.player.active.tools.some(c=>
+      c.fullName==='Technical Machine: Evolution PAR'));
+    const {AttackAction}=native('game/store/actions/game-actions');
+    x.f.store.dispatch(new AttackAction(x.player.id,'Evolution'));
+    stages.doubleTm=settleNativeDoubleTm(x);
+    assert.ok(stages.doubleTm.includes('ConfirmPrompt'),
+      'Actual Barrage must request second attack consent');
+    assert.ok(stages.doubleTm.includes('ChooseAttackPrompt'),
+      'Actual Barrage must resolve the second attack selection');
+    assert.deepEqual(x.player.bench.map(b=>b.getPokemonCard()?.fullName)
+      .filter(Boolean),['Vileplume AOR','Pidgeot ex OBF']);
+    assert.equal(x.state.activePlayer,1-seat,
+      'Completed first turn should pass to original source opponent');
     console.log('AGENT7_NATIVE_GH_ARTAZON_CAPTURE',JSON.stringify({
       seat,sourceRank:2,sourcePhysicalCards:60,
       sourceSupporter:'Guzma & Hala CEC',
@@ -213,6 +288,7 @@ for(const seat of [0,1]){
       realBench:x.player.bench.map(b=>b.getPokemonCard()?.fullName)
         .filter(Boolean),
       realActiveEnergy:x.player.active.energies.cards.map(c=>c.fullName),
+      finalEvolvedBench:x.player.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean),
       prompts:stages,competitivelyQualifiedGames:0
     }));
   });
