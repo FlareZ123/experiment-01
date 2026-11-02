@@ -90,6 +90,14 @@ function run(){
         fundedHoOhMobilitySamples:audit.fundedHoOhMobilitySamples,
         bellowingDeclared:audit.bellowingDeclared,
         sourceActivePrintings:audit.sourceActivePrintingCounts,
+        sourceRootActions:(raw.rootActionLedger??[])
+          .filter(root=>root.playerSlot===sourceSeat&&
+            root.action!=='ResolvePromptAction')
+          .map(root=>({
+            turn:root.turnBefore,ordinal:root.actionOrdinal,
+            action:root.action,card:root.card??null,
+            attack:root.attack??null
+          })),
         ragingActiveEnergySamples:audit.ragingActiveEnergySamples,
         paperPaymentVerified:false,
         fullSourceCompetenceQualified:false,
