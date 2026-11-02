@@ -1,4 +1,4 @@
-# Agent 50: original rank-19 Raging Bolt source Float Stone mobility does not achieve an Active attack in four paired native matches
+> **Superseded diagnostic chronology:** The original headline below used Raging Bolt's Active presence as a narrow success proxy. Native evidence subsequently showed Float Stone enabling a successful source retreat into **Arceus & Dialga & Palkia GX**, immediate and repeated native-settled **Ultimate Ray**, and full six-Prize finishes in both source-seat-0 treatment games. See the canonical corrected [matched four-deal offensive tempo report](agent50-original-rank19-floatstone-adp-tempo-paired-20261102.md). This historical file preserves the original negative proxy hypothesis and subsequent debugging sequence. Never quote the title as an adverse source-policy outcome. No competitive win-rate claim is authorized.\n\n# Agent 50: original rank-19 Raging Bolt source Float Stone mobility does not achieve an Active attack in four paired native matches
 
 **2 November 2026. Developmental historical comparison; zero competitive-qualified games.**
 
