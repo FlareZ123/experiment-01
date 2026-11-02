@@ -972,6 +972,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,
@@ -1013,6 +1014,8 @@ function runDevelopment({
     'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
   assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
     'Native symmetric natural evolution requires actor-only roots');
+  assert.ok(!actorFarewellLetterRoot||actorOnlyComposition,
+    'Native symmetric Farewell Letter requires actor-only roots');
   assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
     'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
@@ -1193,6 +1196,7 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
+          !actorFarewellLetterRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1212,6 +1216,9 @@ function runDevelopment({
               ...conservativeSupporterRootOptions,
               ...(actorNaturalEvolutionRoot?{
                 naturalEvolutionRoot:true
+              }:{}),
+              ...(actorFarewellLetterRoot?{
+                farewellLetterRoot:true
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
@@ -1462,6 +1469,8 @@ function runDevelopment({
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
+    actorFarewellLetterRootOptIn:
+      actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
       actorOnlyComposition&&actorMewGenesectTechnoBlast,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
