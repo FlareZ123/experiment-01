@@ -12,6 +12,7 @@ const {CardList}=load('game/store/state/card-list');
 const {PokemonCardList}=load('game/store/state/pokemon-card-list');
 const {GamePhase}=load('game/store/state/state');
 const {AttackAction}=load('game/store/actions/game-actions');
+const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
 const {Format}=load('game/store/card/card-types');
 let id=97000;
 
