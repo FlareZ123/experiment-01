@@ -148,6 +148,11 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
       }
     }
     const reply=real?plannedReplies.get(action):null;
+    if(real&&action?.constructor?.name==='ResolvePromptAction'&&plans.size){
+      trace({phase:'owner-treasure-planned-prompt-dispatch',
+        promptId:action.id,recognized:reply!==null&&reply!==undefined,
+        pendingOwners:[...plans.keys()]});
+    }
     let result;
     try{result=originalDispatch.value.apply(this,[action,...rest]);}
     catch(error){
@@ -179,12 +184,17 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     if(reply){
       const owner=this.state.players[reply.seat];
       const plan=plans.get(reply.ownerId);
+      trace({phase:'owner-treasure-planned-reply-callback',
+        seat:reply.seat,kind:reply.kind,
+        planFound:plan!==undefined,stepBefore:plan?.step??null});
       if(!plan)return result;
       if(reply.kind==='cost'){
         audit.costPromptAccepted++;
         const settled=owner.discard.cards.includes(reply.choice);
         if(settled)audit.physicalCostDiscards++;
         plan.step='search';plan.costSettled=settled;
+        trace({phase:'owner-treasure-cost-step-advanced',
+          seat:reply.seat,stepAfter:plan.step,settled});
         log({kind:'native-owner-cost',seat:reply.seat,turn:reply.turn,
           originalDecisionReason:reply.reason,
           physicalDiscard:reply.choice.fullName,settled});
