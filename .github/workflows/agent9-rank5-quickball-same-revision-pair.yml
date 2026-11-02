@@ -18,6 +18,11 @@ on:
         type: boolean
         required: true
         default: false
+      crobatFeeCustody:
+        description: Add read-only exact physical retreat fee observation to existing registered Crobat pairs
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -37,7 +42,7 @@ jobs:
           node --check simulation/evaluation/agent9-rank5-quickball-four-scope.cjs
           node --check simulation/evaluation/agent9-rank5-quickball-payment-pair.cjs
           node --check simulation/evaluation/agent9-rank5-crobat-retreat-pair.cjs
-          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs tests/agent9-rank5-quickball-four-scope.test.cjs tests/agent9-rank5-quickball-payment-pair.test.cjs tests/agent9-crobat-dce-mew-retreat.test.cjs
+          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs tests/agent9-rank5-quickball-four-scope.test.cjs tests/agent9-rank5-quickball-payment-pair.test.cjs tests/agent9-crobat-dce-mew-retreat.test.cjs tests/agent9-rank5-crobat-native-settlement.test.cjs tests/agent9-retreat-fee-custody.test.cjs
       - name: Resolve exact pinned Twinleaf Store
         run: |
           git submodule update --init --depth=1 vendor/twinleaf
@@ -89,9 +94,12 @@ jobs:
           retention-days: 30
       - name: Run registered Crobat DCE retreat from stranded Active to Mew VMAX
         if: ${{ inputs.crobatRetreatPair && !inputs.fourScope && !inputs.paymentPair }}
+        env:
+          AGENT9_RETREAT_FEE_CUSTODY_DEV: ${{ inputs.crobatFeeCustody }}
         run: |
           node simulation/evaluation/agent9-rank5-crobat-retreat-pair.cjs > agent9-rank5-crobat-dce-retreat-16arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-crobat-dce-retreat-16arm.json');a.equal(r.nativeAttemptCount,16);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('CROBAT_MOBILITY_MATCHED_PAIRS',r.matchedPhysicalPairs);"
+          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-crobat-dce-retreat-16arm.json');if(process.env.AGENT9_RETREAT_FEE_CUSTODY_DEV==='true'){a.equal(r.physicalRetreatFeeObserverOptIn,true);a.equal(r.physicalRetreatFeeAudit?.readOnly,true);console.log('EXACT_PHYSICAL_RETREAT_FEES',JSON.stringify(r.physicalRetreatFeeAudit));}"
       - name: Preserve every original Crobat Mew retreat native attempt
         if: ${{ always() && inputs.crobatRetreatPair && !inputs.fourScope && !inputs.paymentPair }}
         uses: actions/upload-artifact@v4
