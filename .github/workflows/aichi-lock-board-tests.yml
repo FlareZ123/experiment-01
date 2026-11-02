@@ -33,6 +33,21 @@ on:
         required: false
         type: boolean
         default: false
+      agent39_rank16_original_shake:
+        description: 'Preregistered original rank16 held Shake native control/treatment panel; unqualified'
+        type: boolean
+        required: false
+        default: false
+      agent39_rank16_partition:
+        description: 'Immutable rank16 source seed groups 0-7, 8-15, 16-23 or 24-31'
+        type: choice
+        required: false
+        options:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+        default: '0'
       rank11_turn24_copied_reply:
         description: 'One authentic source-dealt candidate Poltergeist response instead of self-Path at turn24'
         required: false
@@ -169,6 +184,30 @@ jobs:
         run: node --test tests/agent33-native-state-fingerprint-guard.test.cjs tests/agent41-native-coheld-denial-canplay.test.cjs
       - working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify original rank16 source and immutable native seed registration
+        if: inputs.agent39_rank16_original_shake
+        run: node --test tests/agent39-rank16-direct-source-shake.test.cjs
+      - name: Run real original rank16 first-own-turn Shake policy, matched baseline, both seats
+        if: inputs.agent39_rank16_original_shake
+        env:
+          AGENT39_RANK16_PARTITION: ${{ inputs.agent39_rank16_partition || '0' }}
+        run: node simulation/evaluation/agent39-rank16-direct-source-shake.cjs > agent39-rank16-native-shake-panel.json
+      - name: Print bounded rank16 first-turn native source disposition
+        if: inputs.agent39_rank16_original_shake
+        run: >-
+          node -e "const v=require('./agent39-rank16-native-shake-panel.json');
+          console.log(JSON.stringify({schema:v.schema,partition:v.partition,
+          attempted:v.actualPartitionArms,counts:v.counts,
+          selected:v.nativeSelectedOpportunities,complete:v.nativeCompleted,
+          physicalPairs:v.sourcePhysicalPairs,qualified:v.competitivelyQualifiedGames}));"
+      - name: Preserve all preregistered original rank16 native attempts and negative evidence
+        if: always() && inputs.agent39_rank16_original_shake
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-rank16-original-held-shake-partition-${{ inputs.agent39_rank16_partition || '0' }}
+          path: agent39-rank16-native-shake-panel.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Native original-source rank6 coheld canPlay State nonmutation probe
         if: inputs.agent33_stadium_mode == 'state-guard'
         run: node simulation/evaluation/agent41-native-source-rank6-coheld-canplay.cjs > agent33-native-state-coheld-focused.json
