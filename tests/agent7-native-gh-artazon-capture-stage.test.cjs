@@ -280,6 +280,24 @@ for(const seat of [0,1]){
       .filter(Boolean),['Vileplume AOR','Pidgeot ex OBF']);
     assert.equal(x.state.activePlayer,1-seat,
       'Completed first turn should pass to original source opponent');
+    const opponent=x.f.defender;
+    const fog=opponent.hand.cards.find(c=>c.fullName==='Fog Crystal CRE')??
+      opponent.deck.cards.find(c=>c.fullName==='Fog Crystal CRE');
+    assert.ok(fog,'Original rank1 opponent must include Fog Crystal CRE');
+    if(!opponent.hand.cards.includes(fog)){
+      opponent.deck.cards.splice(opponent.deck.cards.indexOf(fog),1);
+      opponent.hand.cards.push(fog);
+    }
+    const fogIndex=opponent.hand.cards.indexOf(fog);
+    const beforeBlocked=opponent.hand.cards.map(c=>c.fullName);
+    assert.throws(()=>x.f.store.dispatch(new ToolAction(opponent.id,fogIndex,{
+      player:ToolPlayer.ANY,slot:ToolSlot.BOARD,index:0
+    })),e=>e?.message==='CANNOT_PLAY_THIS_CARD',
+    'Bench Vileplume Irritating Pollen must veto original opponent Item');
+    assert.deepEqual(opponent.hand.cards.map(c=>c.fullName),
+      beforeBlocked,'Blocked source Item must remain in opponent hand');
+    assert.equal(x.state.activePlayer,1-seat);
+
     console.log('AGENT7_NATIVE_GH_ARTAZON_CAPTURE',JSON.stringify({
       seat,sourceRank:2,sourcePhysicalCards:60,
       sourceSupporter:'Guzma & Hala CEC',
@@ -289,6 +307,7 @@ for(const seat of [0,1]){
         .filter(Boolean),
       realActiveEnergy:x.player.active.energies.cards.map(c=>c.fullName),
       finalEvolvedBench:x.player.bench.map(b=>b.getPokemonCard()?.fullName).filter(Boolean),
+      originalRank1OpponentItemVeto:'Fog Crystal CRE blocked from hand',
       prompts:stages,competitivelyQualifiedGames:0
     }));
   });
