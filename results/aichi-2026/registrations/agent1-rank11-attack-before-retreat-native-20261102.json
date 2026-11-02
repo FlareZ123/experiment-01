@@ -1,0 +1,29 @@
+{
+  "schema": "agent1-original-rank11-source-attack-before-retreat-policy-counterfactual-v1",
+  "registeredAt": "2026-11-02T09:32:00Z",
+  "classification": "RETROSPECTIVE_SELECTED_SOURCE_DEAL_POLICY_ORDER_INTERVENTION",
+  "hypothesis": "On the original rank11 against two-VMAX original rank1 replay, the source generic tactic chooses RetreatAction at T31 while a 3-Darkness Oranguru V has an apparently payable 3-Colorless Psychic attack. Reordering the already-existing pinned generic source AttackTactic before RetreatTactic may preserve attacker readiness and change source's last-Prize trajectory.",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "recipientRank": 1,
+  "recipientSeat": 1,
+  "seed": 2387754768,
+  "sourceK0HandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "originalBothPlayerPhysicalInitialSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "sourcePublishedPrinting": "Wataru Yano original rank11 printed 60",
+  "referencePublishedPrinting": "Yasunori Kato original rank1 printed 60",
+  "vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baselineRun": 41420606443,
+  "baselineArtifact": 13129522147,
+  "baselineHead": "0bb2a7fb5acb2ae32f2dbbe48ceac563633224b5",
+  "treatment": "Only source physical seat 0 enables existing headless attackBeforeRetreat:true and attackBeforeRetreatSeat:0. All recipient native Quick Ball/Field Blower/Radiant/count decisions, 350 root cap, source original owner K0 approved plan, Store mechanics, and cards unchanged.",
+  "arms": "Four exact same fixed reference decision arms, compare corresponding baseline and source-attackfirst intervention; primary hypothesis two-VMAX branch. No outcome postselection or alternate root injection.",
+  "expectedVerification": [
+    "All original four source K0 SHA and both-player initial full physical deal SHA unchanged",
+    "Source original first-turn owned 11-action setup still accepted",
+    "Actual T31 source root AttackAction vs RetreatAction or explicit no-change",
+    "All prompt/reducer errors, native terminal and censor preserved",
+    "No paper-clock or game-performance qualification"
+  ],
+  "noClaims": "The one seed was retrospectively selected and the behavior may change before T31. Native winner is no paper win, no exact 32-field claim and no proof of general deck strength."
+}
