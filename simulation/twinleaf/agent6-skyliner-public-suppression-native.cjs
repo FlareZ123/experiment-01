@@ -134,11 +134,44 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   if(opponentToolJammer&&!nativePlayJammer)
     enemy.active.tools.push(card('Tool Jammer BST'));
   let nativeJammerPlayReceipt=null;
+  if(baseMode==='garbotoxin'){
+    const slot=addBench(enemy,'Garbodor BKP');
+    slot.tools.push(card('Float Stone BKT'));
+  }else if(baseMode==='muk')addBench(enemy,'Alolan Muk SUM');
+  else addBench(enemy,'Pidgey MEW');
+  for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
+  if(opponentReply){
+    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
+    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
+  }
+  if(opponentBenchJammer)enemy.bench[0].tools.push(card('Tool Jammer BST'));
+  if(baseMode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
+  if(baseMode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
+  if(stadiumToolJamming)enemy.stadium.cards.push(card('Jamming Tower TWM'));
+
   if(nativePlayJammer||opponentPassOnly){
     const actualJammer=card('Tool Jammer BST');
     enemy.hand.cards.push(actualJammer);
     const handBefore=enemy.hand.cards.map(c=>c.fullName);
     state.activePlayer=1-sourceSeat;
+    const initialRootSnapshot=JSON.stringify({
+      turn:state.turn,phase:state.phase,activePlayer:state.activePlayer,
+      players:state.players.map(player=>({
+        active:player.active.cards.map(c=>c.fullName),
+        activeTools:player.active.tools.map(c=>c.fullName),
+        activeEnergies:player.active.energies.cards.map(c=>c.fullName),
+        bench:player.bench.map(slot=>({
+          pokemon:slot.cards.map(c=>c.fullName),
+          tools:slot.tools.map(c=>c.fullName),
+          energies:slot.energies.cards.map(c=>c.fullName)
+        })),
+        hand:player.hand.cards.map(c=>c.fullName),
+        stadium:player.stadium.cards.map(c=>c.fullName),
+        prizes:player.prizes.map(slot=>slot.cards.length)
+      }))
+    });
+    const initialRootFingerprint=require('node:crypto').createHash('sha256')
+      .update(initialRootSnapshot).digest('hex');
     let playError=null;
     if(nativePlayJammer){
       try{store.dispatch(new PlayCardAction(enemy.id,0,{
@@ -146,7 +179,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       catch(error){playError=String(error?.message??error);}
     }
     nativeJammerPlayReceipt={
-      playError,handBefore,
+      initialRootFingerprint,playError,handBefore,
       handAfter:enemy.hand.cards.map(c=>c.fullName),
       activeToolsAfter:enemy.active.tools.map(c=>c.fullName),
       inHandAfter:enemy.hand.cards.includes(actualJammer),
@@ -182,20 +215,6 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     assert.equal(nativeJammerPlayReceipt.attachedToTarget,nativePlayJammer);
     assert.equal(nativeJammerPlayReceipt.inHandAfter,opponentPassOnly);
   }
-  if(baseMode==='garbotoxin'){
-    const slot=addBench(enemy,'Garbodor BKP');
-    slot.tools.push(card('Float Stone BKT'));
-  }else if(baseMode==='muk')addBench(enemy,'Alolan Muk SUM');
-  else addBench(enemy,'Pidgey MEW');
-  for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
-  if(opponentReply){
-    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
-    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
-  }
-  if(opponentBenchJammer)enemy.bench[0].tools.push(card('Tool Jammer BST'));
-  if(baseMode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
-  if(baseMode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
-  if(stadiumToolJamming)enemy.stadium.cards.push(card('Jamming Tower TWM'));
 
   const view=actorObservation(state,sourceSeat);
   const catalog={
@@ -433,7 +452,16 @@ function runPairedJammerTurnCounterfactual(){
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
     .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  const rootFingerprints=Object.fromEntries([0,1].map(seat=>[
+    String(seat),rows.filter(r=>r.sourceSeat===seat).map(r=>
+      r.nativeJammerPlayReceipt.initialRootFingerprint)
+  ]));
+  for(const [seat,hashes] of Object.entries(rootFingerprints)){
+    if(hashes.length!==2||hashes[0]!==hashes[1])
+      failures.push({mode:'paired-root-mismatch',seat,hashes});
+  }
   return {version:VERSION,pairedJammerTurnCounterfactual:true,
+    rootFingerprints,
     rows,stagedNativeCases:rows.length,failures,
     failedChecks:failures.length,qualifiedCompetitiveGames:0};
 }
