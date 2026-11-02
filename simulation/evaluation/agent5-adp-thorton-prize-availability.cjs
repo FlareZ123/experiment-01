@@ -45,7 +45,7 @@ function availability(rows=source.cards){
     n+(BASIC.has(c.id)&&!used.has(c.id)?c.count:0),0);
   category.push({name:'Other Basic Pokémon',count:otherBasic,basic:true});
   category.push({name:'Other cards',count:60-category.reduce(
-    (n,c)=>n+c.count,0)-otherBasic,basic:false});
+    (n,c)=>n+c.count,0),basic:false});
   if(category.some(c=>c.count<0)||category.reduce((n,c)=>n+c.count,0)!==60)
     throw new Error('Invalid partition of the 60 physical cards');
   const basicTotal=category.filter(c=>c.basic)
