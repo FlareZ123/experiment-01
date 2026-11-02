@@ -1,0 +1,434 @@
+{
+  "schema": "agent16-original-rank16-native-first-turn-public-panel-v2",
+  "createdAtUTC": "2026-11-02T19:22:50.195Z",
+  "trigger": "New independent holdout after 16-arm pilot showed no first-turn lock selection and did not record initial public Active/Bench or Budew owned-hand count",
+  "purpose": "Nonselective original rank16 natural first-turn observed owner visibility, Budew/Shake alternative and immediate responding root with identical policy both seats, no source hardcoded choice",
+  "target": "paper expanded Aichi original final rank16 versus unchanged champion-reference and new-moon-lockbreaker-v1 printed candidate sixties",
+  "rank": 16,
+  "sourcePlayer": "Takumi Matsumoto",
+  "sourceArchetype": "Absol Garbodor",
+  "sourceRosterPath": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "policyProfilePath": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "policyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "nativeRunnerBase": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedProtocol": "aichi-decorrelated-slots-v3",
+  "seedBase": 2343341927,
+  "phase": "published-field",
+  "seeds": [
+    {
+      "rank": 16,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1776847734
+    },
+    {
+      "rank": 16,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 395571391
+    },
+    {
+      "rank": 16,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 1103928903
+    },
+    {
+      "rank": 16,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 2223505852
+    },
+    {
+      "rank": 16,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 2320451216
+    },
+    {
+      "rank": 16,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 4095285476
+    },
+    {
+      "rank": 16,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 2808593733
+    },
+    {
+      "rank": 16,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 2686484418
+    },
+    {
+      "rank": 16,
+      "repeat": 8,
+      "candidateSlot": "A",
+      "seed": 3750727543
+    },
+    {
+      "rank": 16,
+      "repeat": 9,
+      "candidateSlot": "B",
+      "seed": 2328719622
+    },
+    {
+      "rank": 16,
+      "repeat": 10,
+      "candidateSlot": "A",
+      "seed": 164266938
+    },
+    {
+      "rank": 16,
+      "repeat": 11,
+      "candidateSlot": "B",
+      "seed": 3512813619
+    },
+    {
+      "rank": 16,
+      "repeat": 12,
+      "candidateSlot": "A",
+      "seed": 169266001
+    },
+    {
+      "rank": 16,
+      "repeat": 13,
+      "candidateSlot": "B",
+      "seed": 3452705006
+    },
+    {
+      "rank": 16,
+      "repeat": 14,
+      "candidateSlot": "A",
+      "seed": 2047979462
+    },
+    {
+      "rank": 16,
+      "repeat": 15,
+      "candidateSlot": "B",
+      "seed": 505534397
+    },
+    {
+      "rank": 16,
+      "repeat": 16,
+      "candidateSlot": "A",
+      "seed": 3217791487
+    },
+    {
+      "rank": 16,
+      "repeat": 17,
+      "candidateSlot": "B",
+      "seed": 1785563367
+    },
+    {
+      "rank": 16,
+      "repeat": 18,
+      "candidateSlot": "A",
+      "seed": 2988597691
+    },
+    {
+      "rank": 16,
+      "repeat": 19,
+      "candidateSlot": "B",
+      "seed": 840416661
+    },
+    {
+      "rank": 16,
+      "repeat": 20,
+      "candidateSlot": "A",
+      "seed": 893617628
+    },
+    {
+      "rank": 16,
+      "repeat": 21,
+      "candidateSlot": "B",
+      "seed": 513061175
+    },
+    {
+      "rank": 16,
+      "repeat": 22,
+      "candidateSlot": "A",
+      "seed": 3102162279
+    },
+    {
+      "rank": 16,
+      "repeat": 23,
+      "candidateSlot": "B",
+      "seed": 1051597750
+    },
+    {
+      "rank": 16,
+      "repeat": 24,
+      "candidateSlot": "A",
+      "seed": 2755935256
+    },
+    {
+      "rank": 16,
+      "repeat": 25,
+      "candidateSlot": "B",
+      "seed": 3716209834
+    },
+    {
+      "rank": 16,
+      "repeat": 26,
+      "candidateSlot": "A",
+      "seed": 2056858164
+    },
+    {
+      "rank": 16,
+      "repeat": 27,
+      "candidateSlot": "B",
+      "seed": 306257065
+    },
+    {
+      "rank": 16,
+      "repeat": 28,
+      "candidateSlot": "A",
+      "seed": 4033615236
+    },
+    {
+      "rank": 16,
+      "repeat": 29,
+      "candidateSlot": "B",
+      "seed": 3375699148
+    },
+    {
+      "rank": 16,
+      "repeat": 30,
+      "candidateSlot": "A",
+      "seed": 2042704937
+    },
+    {
+      "rank": 16,
+      "repeat": 31,
+      "candidateSlot": "B",
+      "seed": 2029941014
+    },
+    {
+      "rank": 16,
+      "repeat": 32,
+      "candidateSlot": "A",
+      "seed": 2337829471
+    },
+    {
+      "rank": 16,
+      "repeat": 33,
+      "candidateSlot": "B",
+      "seed": 3668785737
+    },
+    {
+      "rank": 16,
+      "repeat": 34,
+      "candidateSlot": "A",
+      "seed": 3523509293
+    },
+    {
+      "rank": 16,
+      "repeat": 35,
+      "candidateSlot": "B",
+      "seed": 4175898512
+    },
+    {
+      "rank": 16,
+      "repeat": 36,
+      "candidateSlot": "A",
+      "seed": 1770995116
+    },
+    {
+      "rank": 16,
+      "repeat": 37,
+      "candidateSlot": "B",
+      "seed": 1156932943
+    },
+    {
+      "rank": 16,
+      "repeat": 38,
+      "candidateSlot": "A",
+      "seed": 409127110
+    },
+    {
+      "rank": 16,
+      "repeat": 39,
+      "candidateSlot": "B",
+      "seed": 599036767
+    },
+    {
+      "rank": 16,
+      "repeat": 40,
+      "candidateSlot": "A",
+      "seed": 2274854228
+    },
+    {
+      "rank": 16,
+      "repeat": 41,
+      "candidateSlot": "B",
+      "seed": 2205157713
+    },
+    {
+      "rank": 16,
+      "repeat": 42,
+      "candidateSlot": "A",
+      "seed": 2989287077
+    },
+    {
+      "rank": 16,
+      "repeat": 43,
+      "candidateSlot": "B",
+      "seed": 2366842242
+    },
+    {
+      "rank": 16,
+      "repeat": 44,
+      "candidateSlot": "A",
+      "seed": 833448
+    },
+    {
+      "rank": 16,
+      "repeat": 45,
+      "candidateSlot": "B",
+      "seed": 1576703925
+    },
+    {
+      "rank": 16,
+      "repeat": 46,
+      "candidateSlot": "A",
+      "seed": 958375587
+    },
+    {
+      "rank": 16,
+      "repeat": 47,
+      "candidateSlot": "B",
+      "seed": 2724840897
+    },
+    {
+      "rank": 16,
+      "repeat": 48,
+      "candidateSlot": "A",
+      "seed": 1516848389
+    },
+    {
+      "rank": 16,
+      "repeat": 49,
+      "candidateSlot": "B",
+      "seed": 617488009
+    },
+    {
+      "rank": 16,
+      "repeat": 50,
+      "candidateSlot": "A",
+      "seed": 3808794873
+    },
+    {
+      "rank": 16,
+      "repeat": 51,
+      "candidateSlot": "B",
+      "seed": 842809918
+    },
+    {
+      "rank": 16,
+      "repeat": 52,
+      "candidateSlot": "A",
+      "seed": 3892479159
+    },
+    {
+      "rank": 16,
+      "repeat": 53,
+      "candidateSlot": "B",
+      "seed": 2278171602
+    },
+    {
+      "rank": 16,
+      "repeat": 54,
+      "candidateSlot": "A",
+      "seed": 395113046
+    },
+    {
+      "rank": 16,
+      "repeat": 55,
+      "candidateSlot": "B",
+      "seed": 4272381147
+    },
+    {
+      "rank": 16,
+      "repeat": 56,
+      "candidateSlot": "A",
+      "seed": 3626071239
+    },
+    {
+      "rank": 16,
+      "repeat": 57,
+      "candidateSlot": "B",
+      "seed": 909777113
+    },
+    {
+      "rank": 16,
+      "repeat": 58,
+      "candidateSlot": "A",
+      "seed": 3689797107
+    },
+    {
+      "rank": 16,
+      "repeat": 59,
+      "candidateSlot": "B",
+      "seed": 1531220662
+    },
+    {
+      "rank": 16,
+      "repeat": 60,
+      "candidateSlot": "A",
+      "seed": 2752977397
+    },
+    {
+      "rank": 16,
+      "repeat": 61,
+      "candidateSlot": "B",
+      "seed": 2729790528
+    },
+    {
+      "rank": 16,
+      "repeat": 62,
+      "candidateSlot": "A",
+      "seed": 789401897
+    },
+    {
+      "rank": 16,
+      "repeat": 63,
+      "candidateSlot": "B",
+      "seed": 2979080954
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "independentSeedGroups": 64,
+  "plannedNativeAttempts": 128,
+  "maxNativeRootActions": 80,
+  "changesRelativeToPilot": [
+    "fresh unselected seed base and all 64 groups committed before observing any new Store outcomes",
+    "80 native actions instead of 260 to prioritize actual first turn/next owner root for 128 attempts",
+    "read-only initial both-player public Active/Bench snapshot at native first-turn state",
+    "read-only source-owned first decision hand resource counts including Budew",
+    "same established frozen two-seat actor policy and original 60s, no bespoke rank16 source behavior"
+  ],
+  "preserveEveryAttempt": true,
+  "sourceOwnerVisibleOnFirstDecisionOnly": true,
+  "opponentHiddenZonesAvailableToActor": false,
+  "requiredOutcomes": [
+    "actual source starting position and first-turn seat",
+    "initial both-seat public Pokémon board",
+    "first source-owned native card counts for Budew, Shake, Trubbish, Float Stone and connecting Items",
+    "native original source first-own-turn accepted action roots, Item lock vs Boost Shake decision",
+    "actual next candidate owner root or missing",
+    "native action cap or terminal disposition",
+    "full physical deal hashes, verify seed-matched source differences rather than assume parity"
+  ],
+  "sampleCaveat": "Only 64 independent seed-group identities with each tried against two distinct candidate sixties, not 128 independent source deals; no source policy competence guarantee, no fixed-60 superiority, no paper prompt/clock validity",
+  "competitiveGameQualified": false,
+  "winRateCertified": false
+}
