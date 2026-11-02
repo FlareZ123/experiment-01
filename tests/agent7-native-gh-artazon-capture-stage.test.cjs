@@ -46,13 +46,15 @@ function staged(seat){
   const prizes=['Cassius','Lusamine',"Team Yell's Cheer",
     'Bellelba & Brycen-Man','Peonia','Guzma'].map(take);
   const {CardList}=native('game/store/state/card-list');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
   const {GamePhase}=native('game/store/state/state');
   const player=f.attacker,state=f.store.state;
   player.active.cards.length=0;
   player.active.energies.cards.length=0;
   player.active.tools.length=0;
   player.active.cards.push(active);
-  player.bench.length=0;
+  player.bench.splice(0,player.bench.length,
+    ...Array.from({length:5},()=>new PokemonCardList()));
   player.hand.cards.splice(0,player.hand.cards.length,...hand);
   player.deck.cards.splice(0,player.deck.cards.length,...stock);
   player.discard.cards.length=0;
@@ -186,8 +188,8 @@ for(const seat of [0,1]){
       native('game/store/actions/game-actions');
     x.f.store.dispatch(new UseStadiumAction(x.player.id));
     stages.artazon=resolveBasicSearch(x,'Oddish UNB');
-    assert.deepEqual(x.player.bench.map(b=>b.getPokemonCard()?.fullName),
-      ['Oddish UNB']);
+    assert.deepEqual(x.player.bench.map(b=>b.getPokemonCard()?.fullName)
+      .filter(Boolean),['Oddish UNB']);
     const {PlayCardAction,PlayerType,SlotType}=
       native('game/store/actions/play-card-action');
     const capture=x.player.hand.cards.findIndex(c=>
@@ -197,8 +199,8 @@ for(const seat of [0,1]){
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
     stages.capture=resolveBasicSearch(x,'Pidgey MEW');
-    assert.deepEqual(x.player.bench.map(b=>b.getPokemonCard()?.fullName),
-      ['Oddish UNB','Pidgey MEW']);
+    assert.deepEqual(x.player.bench.map(b=>b.getPokemonCard()?.fullName)
+      .filter(Boolean),['Oddish UNB','Pidgey MEW']);
     assert.deepEqual(x.player.active.energies.cards.map(c=>c.fullName),
       ['Capture Energy RCL']);
     assert.equal(x.state.activePlayer,seat);
@@ -208,7 +210,8 @@ for(const seat of [0,1]){
       sourceSupporter:'Guzma & Hala CEC',
       searched:['Artazon PAL','Technical Machine: Evolution PAR',
         'Capture Energy RCL'],
-      realBench:x.player.bench.map(b=>b.getPokemonCard()?.fullName),
+      realBench:x.player.bench.map(b=>b.getPokemonCard()?.fullName)
+        .filter(Boolean),
       realActiveEnergy:x.player.active.energies.cards.map(c=>c.fullName),
       prompts:stages,competitivelyQualifiedGames:0
     }));
