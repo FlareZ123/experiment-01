@@ -141,7 +141,7 @@ for(const seat of [0,1]){
 
 for(const seat of [0,1]){
   test('native Benched Genesect Fusion Strike System draws with low owner hand, seat '+seat,()=>{
-    const {store,state,owner}=stage(seat);
+    const {store,state,owner,catalog}=stage(seat);
     const {UseAbilityAction}=engine('game/store/actions/game-actions');
     const {PlayerType,SlotType}=
       engine('game/store/actions/play-card-action');
