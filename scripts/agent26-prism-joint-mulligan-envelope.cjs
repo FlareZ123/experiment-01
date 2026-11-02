@@ -90,6 +90,10 @@ function maximumLegalHistoryLikelihood(failedSevens,options={}){
     }
     dp=next;
   }
+  if(dp.size===0)return {
+    version:VERSION,probabilityUpper:0,numerator:'0',
+    denominator:'1',observedCounts:{},residualBasicCount:0,
+    activeCopies:maxActiveCopies,totalFailedHands:failedSevens.length};
   let best=null;
   for(const [spent,row] of dp){
     if(DECK_SIZE-spent-maxActiveCopies<0)continue;
