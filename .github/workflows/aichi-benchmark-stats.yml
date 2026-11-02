@@ -93,6 +93,17 @@ on:
         required: false
         type: boolean
         default: false
+      agent39_rank16_quickbridge_partition:
+        description: 'Fresh 64-group original rank16 Quick Ball bridge prospective study; 0-3 or none'
+        required: false
+        type: choice
+        options:
+          - none
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+        default: none
       agent39_rank16_direct_shake_partition:
         description: 'Original rank16 direct Boost Shake selected-source panel, groups 0-3; none disables'
         required: false
@@ -896,5 +907,58 @@ jobs:
         with:
           name: agent39-rank16-direct-shake-partition-${{ inputs.agent39_rank16_direct_shake_partition }}
           path: agent39-rank16-direct-native.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  agent39-rank16-quickbridge-native:
+    if: inputs.agent39_rank16_quickbridge_partition != 'none'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get original pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install original pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store and card effects
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify fresh immutable source seeds, genuine K0 Quick gate and K1 failure dispositions
+        run: node --test tests/agent39-rank16-quickshake.test.cjs tests/agent39-rank16-quickbridge-prospective.test.cjs
+      - name: Execute preregistered original-source rank16 direct-only versus Quick-augmented native pairs
+        env:
+          AGENT39_RANK16_QUICK_PARTITION: ${{ inputs.agent39_rank16_quickbridge_partition }}
+        run: node simulation/evaluation/agent39-rank16-quickbridge-prospective.cjs > agent39-rank16-quickbridge-native.json
+      - name: Report full native Quick bridge K0 and K1 outcomes with negative evidence
+        run: >-
+          node -e "const p=require('./agent39-rank16-quickbridge-native.json');
+          console.log('QUICK_BRIDGE_SUMMARY',JSON.stringify({schema:p.schema,
+          partition:p.partition,arms:p.partitionAttempted,nativeGames:p.nativeGameExecutions,
+          observedQuickOffers:p.quickOffers,completed:p.nativeQuickToGarbodorComplete,
+          aborts:p.nativeQuickAborts,status:p.statuses,
+          physical:p.candidateSourcePairs,qualified:p.competitivelyQualifiedGames}));
+          for(const r of p.rows.filter(r=>r.intervention.quickAudit?.attempted))
+          console.log('QUICK_BRIDGE_SOURCE',JSON.stringify({id:r.id,group:r.group,
+          sourceSeat:r.sourceSeat,candidate:r.candidateId,seed:r.seed,
+          status:r.status,sourceInitialHand:r.intervention.sourceK0?.ownerHandPrintings,
+          quick:r.intervention.quickAudit,
+          direct:r.intervention.directAudit,
+          beforeFirstRoots:r.baseline.rootEvidence?.sourceFirst,
+          afterFirstRoots:r.intervention.rootEvidence?.sourceFirst,
+          baselinePower:r.baseline.powerReply?.opposingPowerSnapshot,
+          interventionPower:r.intervention.powerReply?.opposingPowerSnapshot,
+          sourcePairMatched:r.identicalSourcePhysicalDeal}));"
+      - name: Archive every preregistered original Quick Bridge source attempt and physical baseline
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-rank16-quickbridge-source-partition-${{ inputs.agent39_rank16_quickbridge_partition }}
+          path: agent39-rank16-quickbridge-native.json
           retention-days: 30
           if-no-files-found: warn
