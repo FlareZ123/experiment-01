@@ -1,0 +1,178 @@
+{
+  "schema": "agent7-rank6-prospective-physical-seat-first-turn-coverage-v1",
+  "registeredAtUtc": "2026-11-02T17:02:41Z",
+  "originalSourceRank": 6,
+  "sourcePrinting": "authenticated Aichi Open League 2026 rank6 original paper Expanded 60",
+  "candidatePrintings": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourcePolicy": "simulation/evaluation/agent20-frozen-rank6-canary-v1.json",
+  "sourcePolicySha256": "6ff3ee325098cfc68253928a9dd5370da52c9cc64b86a4435be2b07a0d392dc6",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedDraw": "eight independent secrets.randbits(32) drawn on 2026-11-02T17:02:41Z before native play",
+  "seeds": [
+    652911886,
+    3344886974,
+    136643745,
+    3556454342,
+    3140915274,
+    4147346438,
+    3339792625,
+    802103465
+  ],
+  "physicalSeatAssignment": {
+    "A": [
+      652911886,
+      3344886974,
+      136643745,
+      3556454342
+    ],
+    "B": [
+      3140915274,
+      4147346438,
+      3339792625,
+      802103465
+    ]
+  },
+  "registeredTrials": [
+    {
+      "id": "6:80:A:champion-reference",
+      "rank": 6,
+      "repeat": 80,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 652911886
+    },
+    {
+      "id": "6:80:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 80,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 652911886
+    },
+    {
+      "id": "6:81:A:champion-reference",
+      "rank": 6,
+      "repeat": 81,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3344886974
+    },
+    {
+      "id": "6:81:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 81,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3344886974
+    },
+    {
+      "id": "6:82:A:champion-reference",
+      "rank": 6,
+      "repeat": 82,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 136643745
+    },
+    {
+      "id": "6:82:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 82,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 136643745
+    },
+    {
+      "id": "6:83:A:champion-reference",
+      "rank": 6,
+      "repeat": 83,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3556454342
+    },
+    {
+      "id": "6:83:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 83,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3556454342
+    },
+    {
+      "id": "6:84:B:champion-reference",
+      "rank": 6,
+      "repeat": 84,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3140915274
+    },
+    {
+      "id": "6:84:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 84,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3140915274
+    },
+    {
+      "id": "6:85:B:champion-reference",
+      "rank": 6,
+      "repeat": 85,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4147346438
+    },
+    {
+      "id": "6:85:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 85,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4147346438
+    },
+    {
+      "id": "6:86:B:champion-reference",
+      "rank": 6,
+      "repeat": 86,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3339792625
+    },
+    {
+      "id": "6:86:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 86,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3339792625
+    },
+    {
+      "id": "6:87:B:champion-reference",
+      "rank": 6,
+      "repeat": 87,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 802103465
+    },
+    {
+      "id": "6:87:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 87,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 802103465
+    }
+  ],
+  "controlledVariables": "one unchanged selected common native policy for all source and candidate participants; identical original and candidate printed sixties and root decision policy; no treatment arm",
+  "primaryMeasurement": "actual first player slot verified by first-draw log and native coin/choose-first receipt, stratified by candidate physical seat",
+  "secondaryMeasurements": [
+    "source original-deal and complete physical-deal identity",
+    "native registered game terminal vs action cap",
+    "source and candidate Prize changes and native attack declarations"
+  ],
+  "analysisRule": "Report every registered trial with native errors and caps; do not select, retry or replace seeds conditional on the first player. Compare only observed starting-seat composition; do not infer independent coin or seat effects without factorial support. Two different candidate lists under the same seed may not share identical physical opening deals.",
+  "competitivelyQualifiedGameTarget": 0,
+  "performanceConclusionPrecommitted": "No native terminal is a competitive paper winner; this experiment is a prospective setup coverage and policy limitation screen."
+}
