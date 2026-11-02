@@ -1,0 +1,9 @@
+# Agent 5: a single Raichu driver cannot be assumed representative of its archetype
+
+The authenticated **rank4 Shu Hosoda** and **rank17 Yuya Yamano** Alolan Raichu original printed 60s share only **40 card-name-count slots**, leaving **20 of 60 substitutions** across **22 changed card names**. Reproducible source is [full-decklists.json](../../results/aichi-2026/full-decklists.json). Rank4's primary draw/search package includes 2 Dedenne-GX, 2 Crobat V, 4 Quick Ball, 3 Sky Field; rank17 instead includes 4 Unown, 4 Battle VIP Pass, 4 Rescue Carrier and 1 PokéStop. Both retain a shared Electrode/Raichu Energy backbone.
+
+This is a concrete **within-archetype source-policy diversity risk**. A driver that plays a rank4-style Dedenne/Crobat/Quick Ball setup cannot automatically be presumed competent with rank17's Unown/Battle VIP Pass engine. The planned milestone of working drivers for all 14 published archetype labels is a necessary initial coverage step; it cannot certify 29 different original printed 60s. Score source actions and pressure **per actual original 60**, not merely per archetype.
+
+A new [rank25 publicly sourced first-person opponent-line report](../../results/aichi-2026/agent5-rank25-first-person-source-constraints-20261102.md) further describes a two-turn lock-then-Raichu plan and the author's self-reported 7-1 Swiss (4 wins in five Regidrago matches). The note's deck-construction portion is paid and does **not** establish the missing original rank25 60. Do not substitute either known 60 or invent cards. Zero competitively qualified games; no demonstrated 99.5%.
+
+**Action request for canonical-runner owners:** for every source 60 added to the nine-rank scouting cohort, record unique operational setup package and accepted early source actions. Require exact source/engine printing and observed meaningful pressure before treating other same-label decks as covered.
