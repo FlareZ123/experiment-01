@@ -922,8 +922,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
-  if(audit.farewellLetterRootOptIn)
+  if(audit.farewellLetterRootOptIn){
     audit.version+='+'+require('./agent14-owner-farewell-letter.cjs').VERSION;
+    audit.farewellLetterReceipts=[];
+  }else delete audit.farewellLetterRootOptIn;
   if(audit.ragingBoltNominalKoRootOptIn)
     audit.version+='+'+
       require('./agent50-raging-bolt-nominal-ko.cjs').VERSION;
@@ -1402,9 +1404,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           target:choice.intent.target,globalTurn:choice.globalTurn});
       }
       const after=publicDispatchState(this);
-      const physical=ownerBefore===null||after===null?null:
-        rootPhysicalWitness(choice.intent,ownerBefore,
-          rootPhysicalSnapshot(this.state,choice.seat,choice.intent),
+      const ownerAfter=ownerBefore===null||after===null?null:
+        rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
+      const physical=ownerAfter===null?null:
+        rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
           engineGamePhase());
       if(physical==='confirmed-public-effect'){
         audit.nativePhysicalConfirmed++;
@@ -1424,6 +1427,23 @@ function withActorOnlyRootPolicy(run,deps={}){
         (before.turn!==after.turn||
           before.activePlayer!==after.activePlayer||
           before.phase!==after.phase);
+      if(choice.kind==='use-farewell-letter'&&
+         audit.farewellLetterReceipts.length<64){
+        const sample=s=>({
+          bench:s?.farewellBenchPrinting??null,
+          discarded:s?.farewellDiscardCount??null,
+          deck:s?.deckCount??null,hand:s?.handCount??null,
+          prizes:s?.farewellPrizeCounts??null
+        });
+        audit.farewellLetterReceipts.push({
+          seat:choice.seat,globalTurn:choice.globalTurn,
+          before:sample(ownerBefore),after:sample(ownerAfter),
+          pendingPromptTypes:(this.state.prompts??[])
+            .filter(prompt=>prompt.result===undefined)
+            .slice(0,5).map(prompt=>prompt.constructor?.name??'UnknownPrompt'),
+          physical,publicZonesChanged,turnOrPhaseChanged
+        });
+      }
       audit.acceptedActorRoots++;
       if(choice.intent.source==='rank13-dragon-donor')
         audit.regidragoDonorQuickBallNativeAccepted++;
