@@ -43,3 +43,5 @@ function stage(seat){
  }
  const store=new Store({onStateChange(){}});
  const state=store.state;
+ state.players=seat===0?[owner,foe]:[foe,owner];
+ state.activePlayer=seat;
