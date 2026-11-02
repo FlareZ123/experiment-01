@@ -378,6 +378,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseFinalPrizeGuzma(view,catalog);
     if(gust)return gust;
   }
+  // Owner-public bounded Techno Blast cooldown line. Its first Guzma root
+  // requires the separate native two-prompt owner continuation; the second
+  // ordinary Retreat remains independently validated by the Store.
+  if(options.mewTechnoReset===true){
+    const reset=require('./agent41-mew-techno-reset-frontier.cjs');
+    const planned=reset.chooseGuzmaMewCooldownReset(view,catalog)??
+      reset.chooseFreeRetreatToDceMew(view,catalog);
+    if(planned)return planned;
+  }
   // Opt-in owner-visible Guzma line where both native switch targets are
   // forced and an already funded Bench attack nominally takes a Prize.
   // This proposal precedes the ordinary attack-first root decision.
@@ -614,6 +623,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
+    mewTechnoResetOptIn:deps.mewTechnoReset===true,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
@@ -1100,6 +1110,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       dceMewMobilityRoot:audit.dceMewMobilityRootOptIn===true,
+      mewTechnoReset:audit.mewTechnoResetOptIn===true,
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       genesectFusionUsedThisTurn:
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
@@ -1291,6 +1302,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'play-plumeria-payment-menu':
       case 'play-held-guzma-mobility':
       case 'play-guzma-forced-nominal-ko':
+      case 'play-guzma-mew-cooldown-reset':
         action=new PlayCardAction(ownerId,intent.handIndex,{
           player:PlayerType.ANY,slot:SlotType.BOARD,index:0});
         break;
