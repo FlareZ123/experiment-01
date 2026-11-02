@@ -75,22 +75,22 @@ test('zero bonus exactly reproduces the prior Prize-aware conditional fraction',
 });
 
 test('literal toy physical-index oracle verifies zero bonus reweighting',()=>{
-  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,2];
-  assert.equal(toy.reduce((a,b)=>a+b,0),15);
+  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,3];
+  assert.equal(toy.reduce((a,b)=>a+b,0),16);
   const r=countBonusSearchWindow(toy,4,0,7,2);
   assert.equal(r.weighted,physicalOracle(toy,0));
   assert.ok(r.weighted>0n);
 });
 
 test('literal toy physical-index oracle verifies one bonus initial-seven gating',()=>{
-  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,2];
+  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,3];
   const r=countBonusSearchWindow(toy,4,1,7,2);
   assert.equal(r.weighted,physicalOracle(toy,1));
   assert.ok(r.weighted>0n);
 });
 
 test('a bonus card cannot automatically repair an invalid original seven',()=>{
-  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,2];
+  const toy=[1,1,1,1,1,2,1,1,1,1,1,1,3];
   const r=countBonusSearchWindow(toy,4,1,7,2);
   const n=9;
   // Some 9-card hands may be Basic-valid only because of late bonus cards;
