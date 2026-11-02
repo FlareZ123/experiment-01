@@ -7,6 +7,7 @@ test('real source-printed Boost Shake evolves newly-played Grimer and applies of
   const report=run();
   assert.equal(report.status,'STAGED_NATIVE_SHAKE_PAPER_MATCH',
     'Native Shake/paper mismatch: '+JSON.stringify(report));
+  console.log('AGENT2_SHAKE_CUSTODY_DIAGNOSTIC',JSON.stringify(report.rows.map(x=>({seat:x.seat,wobbuffetActive:x.wobbuffetActive,pending:x.pendingPromptTypes,hand:x.shakeOwnerHand,deck:x.shakeOwnerDeck,discard:x.shakeInDiscard,turn:x.turnAfter,phase:x.phaseAfter}))));
   assert.equal(report.attempts,4);
   assert.equal(report.passed,4);
   assert.equal(report.competitiveQualifiedGames,0);
