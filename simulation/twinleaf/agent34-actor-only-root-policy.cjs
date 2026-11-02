@@ -367,6 +367,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseDceMewPaidRetreat(view,catalog);
     if(retreat)return retreat;
   }
+  if(options.rank9SpecialPaidRetreat===true){
+    const retreat=require('./agent10-rank9-special-paid-retreat.cjs')
+      .chooseRank9SpecialPaidRetreat(view,catalog);
+    if(retreat)return retreat;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -648,6 +653,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
     genesectFusionReceipts:[],
+    rank9SpecialPaidRetreatOptIn:deps.rank9SpecialPaidRetreat===true,
+    rank9SpecialPaidRetreatOwnerSeat:deps.rank9SpecialPaidRetreatOwnerSeat??null,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
@@ -1015,6 +1022,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.heldGuzmaMobilityOptIn)
     audit.version+='+'+
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
+  if(audit.rank9SpecialPaidRetreatOptIn)
+    audit.version+='+'+
+      require('./agent10-rank9-special-paid-retreat.cjs').VERSION;
   if(audit.rank9SpecialFundedGuzmaOptIn)
     audit.version+='+'+require('./agent2-rank9-special-guzma-frontier.cjs').VERSION;
   if(audit.rank9MegaAbsolFundingOptIn)
@@ -1151,6 +1161,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       genesectFusionUsedThisTurn:
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
+      rank9SpecialPaidRetreat:actorSpecialEnergyEnabled(
+        audit.rank9SpecialPaidRetreatOptIn,
+        audit.rank9SpecialPaidRetreatOwnerSeat,seat),
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       skylinerRondoRetreat:audit.skylinerRondoRetreatOptIn===true&&
         actorSpecialEnergyEnabled(true,
