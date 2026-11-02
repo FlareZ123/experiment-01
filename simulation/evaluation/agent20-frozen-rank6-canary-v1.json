@@ -156,5 +156,19 @@
     "Source runner has lexical dynamic requires so source closure audit is incomplete",
     "Owner hidden-information safety, complete payment/effect chains, two-seat opponent competence and paper 25-minute clock remain unqualified",
     "Ranks 23, 25, 28 absent; zero competitively qualified games"
-  ]
+  ],
+  "pinnedSourceSnapshotCommit": "e63ac4f7de8d2e69e667792a45ae79ea3dc9c1cb",
+  "pinnedSourceGitBlobs": {
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "59c1450ffa754e4abb929cb6d0c1eba41c84ea3b",
+    "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/evaluation/agent36-source-closure-audit.cjs": "8ee2db6f9bc1f9bfaa82f3b10ef0273cc5ff595d",
+    "simulation/twinleaf/headless.cjs": "1690ea77ce92c9694b6e04da6dcf6159bae64160",
+    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "41ac8093e60357c572e181760ec382cb27710072",
+    "simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs": "fa1180aaa1fd5a49aa5ab309c00495523af194fa",
+    "simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs": "6e7a1af7cf7a49d2451710f326124c8ea12a7386",
+    "scripts/aichi-new-moon-candidate.cjs": "0656ee1a940cf74c884af95dada5196081a6c0e9",
+    "simulation/evaluation/aichi-pilot.cjs": "334a7071f228c4d87dbc6a1914092da9d53218ec",
+    "simulation/evaluation/agent25-authenticated-source-admission.cjs": "2c1bc5227c7b63a75fcc38291414d275a5160e50"
+  }
 }
