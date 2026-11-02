@@ -186,6 +186,8 @@ jobs:
         run: node --test tests/agent36-runtime-module-pin.test.cjs
       - name: Verify native settled turn closure joins without invented owner roots
         run: node --test tests/agent12-native-settled-recovery-lineage-bridge.test.cjs
+      - name: Verify printed rank5 Techno Blast baseline damage and Prize thresholds
+        run: node --test tests/agent12-rank5-printed-techno-blast-calibration.test.cjs
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs
       - name: Audit printed opponent-hand random effect source incidence across 29 final originals
