@@ -51,6 +51,32 @@ with denominator `212610958560` and favorable numerator `153057025440`. The sour
 
 This is a **high-probability source answer-access pressure signal**, and a reason to prioritize a naturally selected first-source-turn policy with card preservation and paid removal. It does not prove that 71.99% of actual rank6 games remove the Double Dragon or beat the ADP deck. Multiplying it by 28.99% would introduce extra independence and no-mulligan-draw assumptions and still produce only a joint physical opportunity, not a played counter or a candidate defeat.
 
+## Actual mutual mulligan bonus-draw asymmetry
+
+The preceding two opening numbers are **no-mulligan-extra baselines**. The candidate contains seven Basic Pokémon, while the exact original rank6 contains four. A complete simultaneous setup permits both players to mulligan together when both have invalid opening sevens. Once one player receives a Basic-valid seven, the player who continues to mulligan creates optional bonus draws for the already-valid opponent. The players' final Basic-valid seven-card hand compositions are independent of how many failed shuffles preceded them, but their bonus-draw counts are coupled.
+
+Let `qC = C(53,7)/C(60,7) = 0.3991204507677` be the candidate's Basic-invalid seven probability and `qS = C(56,7)/C(60,7) = 0.6005003742553` the source's. If `D_C` means optional setup extra draws received by the candidate, exact probabilities are
+
+`P(D_C=0)=(1-qS)/(1-qC qS)` and `P(D_C=d)=(1-qC)(1-qS)qS^d/(1-qC qS)` for integer `d>=1`. Exchange C and S for the source's bonus `D_S`. The two cannot simultaneously receive positive bonus draws in one game.
+
+Under independent physical decks and **both players always electing to take their full permissible mulligan draw**:
+
+| Physical setup property | Candidate ADP v2 | Original rank6 Iron Thorns |
+| --- | ---: | ---: |
+| Basic-invalid seven-card attempt | 39.91204508% | 60.05003743% |
+| Probability of receiving at least one opponent-mulligan bonus card | **47.45693763%** | **20.97101074%** |
+| Mean optional bonus cards per started game | **1.18790944** | **0.34900523** |
+| Source of original no-bonus opportunity | ADP T1 enhanced GX route 28.99365301% | Any of eight Energy removers seen by own T2 71.98924575% |
+| With full bonus draws | **30.51134%–30.51310%** | **73.39095871%–73.39095893%** |
+
+The candidate interval is exact to the stated bounds, summing `D_C=0..20` and allowing the residual geometric-tail probability `0.0000176427125` to contribute anywhere from 0 to 1. The source interval similarly sums `D_S=0..20`, with residual tail only `0.0000000022065`. The candidate's upper/lower interval is intentionally a conservative bound on the fully mixed physical event, independent of whether an omitted extreme-bonus branch actually delivers a route. Smaller or declined bonus draws invalidate these particular full-bonus figures, while the no-bonus baselines remain separately meaningful.
+
+**Payment-screen refinement:** original source rank6's **Team Flare Grunt ×2** and **Enhanced Hammer ×2** can discard the sole attached Double Dragon without Plumeria's discard-two-card cost. Team Flare Grunt consumes the Supporter for the turn; Enhanced Hammer consumes an Item, so their actual availability remains affected by other game constraints. Among Basic-valid opening source sevens, the probability of **seeing at least one of those four no-hand-discard-cost printings by the second personal turn** is **45.72047432%** without bonus draws and **47.14863458%** when full opponent-mulligan bonus draws are included. Their first nine + bonus observation includes cards that might subsequently be spent or discarded, so this measures a *seen-card opportunity*, not guaranteed preservation or actual legal Energy removal.
+
+The standalone [mulligan coupling SFT](../../tests/agent17-adp-rank6-mulligan-coupling.sft.cjs) enumerates full hypergeometric post-setup ADP/G&H/Tag Call/DDE card access for each bounded bonus count, multiplies exact physical hand probabilities by the geometric joint-mulligan mass, and separately applies the authentic source four-Basic and four/eight-remover patterns. Exact source/candidate printed counts, the no-bonus controls, the no-discard-cost subset and geometric-tail upper bounds are asserted. Manual-only CI runs the new test beside the preceding Prize-gate test; it does not invoke Twinleaf. A separate 300,000-deal physical Monte Carlo gave about 30.4237% candidate T1 opportunity and 73.3847% source remover exposure, consistent with the analytical results at Monte Carlo resolution. Neither model represents hand retention, player decisions or the match clock.
+
+These coupled percentages explain why equal random seeds do not create identical relevant *opportunity* distributions across changed candidate mulligan rates, and why original physical source-deal matching is needed before any paired rank6 native winner analysis. The cheap source-removal falsifier remains the same.
+ 
 ## Precommitted hard-source falsifier for the next integrated pilot
 
 Use original [rank-6 Iron Thorns](full-decklists.json), retaining its printed four Plumeria, two Team Flare Grunt and two Enhanced Hammer, and the registered v2 unchanged 60. Test both start orders and actual source seats in one symmetric common-policy native release with all physical deals recorded. The decisive central-plan challenge occurs after an actual payable candidate T1 enhanced Altered Creation-GX with **exactly one Double Dragon attached**: a legally selected and settled source Energy-removal effect before the candidate's T2 can strip that DDE. With only one subsequent normal manual Energy attachment, the exact proposed immediate Thorton→VSTAR→Apex Dragon attack cost cannot be met without an additional legal source of Energy acceleration. Record the real source payment, energy-zone transition, candidate's legal alternatives and opponent continuation. This falsifies **the immediate two-turn payoff under that observed response**, without automatically proving a candidate game loss.
