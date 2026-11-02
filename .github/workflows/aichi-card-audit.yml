@@ -64,6 +64,11 @@ jobs:
         run: |
           node --test tests/agent40-rank2-vs-guzma-physical-counterwindow.test.cjs
           node simulation/evaluation/agent40-rank2-vs-guzma-physical-counterwindow.cjs 200000 16
+      - name: Verify exact original rank6 Thorns Speed DCE and Guzma direct opener
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent40-rank6-turn3-guzma-volt-physical.test.cjs
+          node simulation/evaluation/agent40-rank6-turn3-guzma-volt-physical.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
