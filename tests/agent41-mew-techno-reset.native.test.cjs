@@ -169,12 +169,14 @@ function trial(seat){
   const {store,state,owner,opp,catalog}=x;
   const receipts=[];
   const beforePrizes=owner.prizes.filter(p=>p.cards.length>0).length;
+  console.log('AGENT41_STAGE',seat,'first-copied-attack');
   store.dispatch(new AttackAction(owner.id,'Cross Fusion Strike'));
   completeAttack(x,receipts);
   assert.equal(state.turn,6);
   // The native engine may store next-turn attack restrictions on a separate
   // deferred clock; the paper-relevant invariant is the next owner turn.
   const cooldownPendingAfterAttack=owner.active.cannotAttackNextTurnPending;
+  console.log('AGENT41_STAGE',seat,'opponent-pass-after-first-copy');
   store.dispatch(new PassTurnAction(opp.id));
   completeAttack(x,receipts);
   assert.equal(state.turn,7);
@@ -186,8 +188,11 @@ function trial(seat){
   assert.equal(lockedAttackRejected,true,
     'Control: native Store must reject immediate recopy while cooldown active');
   assert.equal(state.turn,7);
+  console.log('AGENT41_STAGE',seat,'after-illegal-control-before-adding-guzma');
   owner.hand.cards.push(x.card('Guzma BUS'));
+  console.log('AGENT41_STAGE',seat,'before-owner-observation');
   const view=actorObservation(state,seat);
+  console.log('AGENT41_STAGE',seat,'before-guzma-selector');
   const proposal=chooseGuzmaMewCooldownReset(view,catalog);
   assert.equal(proposal?.kind,'play-guzma-mew-cooldown-reset');
   assert.equal(proposal.benchIndex,1);
@@ -195,10 +200,12 @@ function trial(seat){
   const oldSupporter=owner.supporterTurn;
   const originalDce=owner.active.energies.cards[0];
   const beforeGuzma=rootPhysicalSnapshot(state,seat,proposal);
+  console.log('AGENT41_STAGE',seat,'before-native-guzma');
   store.dispatch(new PlayCardAction(owner.id,proposal.handIndex,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   }));
   const afterGuzma=rootPhysicalSnapshot(state,seat,proposal);
+  console.log('AGENT41_STAGE',seat,'before-guzma-prompts');
   completeGuzma(x,proposal,receipts);
   assert.equal(owner.active.getPokemonCard().id,x.spareMewId);
   assert.equal(owner.bench[1].getPokemonCard().id,x.originalMewId);
@@ -211,6 +218,7 @@ function trial(seat){
   assert.equal(nextPlan?.kind,'free-retreat',
     'Native moved-to-Bench original Mew must lose copied cooldown');
   const beforeRetreat=rootPhysicalSnapshot(state,seat,nextPlan);
+  console.log('AGENT41_STAGE',seat,'before-native-return-retreat');
   store.dispatch(new RetreatAction(owner.id,nextPlan.benchIndex));
   // A zero-cost Mew VMAX Retreat normally needs no discard prompt.
   for(let i=0;i<20;i++){
@@ -227,6 +235,7 @@ function trial(seat){
   const returnConfirmed=rootPhysicalWitness(nextPlan,
     beforeRetreat,afterRetreat,GamePhase);
   assert.equal(returnConfirmed,'confirmed-public-effect');
+  console.log('AGENT41_STAGE',seat,'before-native-second-copy');
   const secondBefore=owner.active.cannotAttackNextTurn;
   assert.equal(secondBefore,false,
     'Second Cross Fusion Strike needs genuinely reset current restriction');
