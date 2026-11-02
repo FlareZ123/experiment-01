@@ -2,7 +2,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom,deckPermutation}=
+  require('../simulation/twinleaf/headless.cjs');
 const {planAichi}=require('../simulation/evaluation/aichi-pilot.cjs');
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {DCE,THUNDER,chooseRank29TwoPieceCampingSearch}=
@@ -118,6 +119,23 @@ function run(seat,mode){
   assert.equal(prompt.validate([selected],store.state),true);
   const before=owner.deck.cards.length;
   store.dispatch(new ResolvePromptAction(prompt.id,[selected]));
+  const terminalPrompts=[];
+  for(let step=0;step<8 &&
+    store.state.activePlayer===seat &&
+    store.state.phase===GamePhase.PLAYER_TURN;step++){
+    const next=store.state.prompts.find(p=>p.result===undefined);
+    if(!next)break;
+    const kind=next.constructor?.name;
+    assert.ok(['ShuffleDeckPrompt','WaitPrompt'].includes(kind),
+      'Unexpected native terminal prompt: '+kind);
+    const answer=kind==='ShuffleDeckPrompt'?
+      deckPermutation(owner.deck.cards.length,
+        seededRandom(0x33a2026+seat)):
+      null;
+    assert.equal(next.validate(answer,store.state),true);
+    terminalPrompts.push(kind);
+    store.dispatch(new ResolvePromptAction(next.id,answer));
+  }
   assert.equal(owner.hand.cards.includes(selected),true,
     'Physical selected card must reach owner hand');
   assert.equal(owner.deck.cards.includes(selected),false);
@@ -134,6 +152,7 @@ function run(seat,mode){
     nativePending:store.state.prompts.filter(p=>p.result===undefined)
       .map(p=>({type:p.constructor?.name,actor:p.playerId,id:p.id})),
     nativePromptQueue:store.promptItems?.map(item=>item.ids?.length)??[],
+    terminalPrompts,
     turnEndObserved:store.state.activePlayer!==seat||
       store.state.phase!==GamePhase.PLAYER_TURN};
 }
