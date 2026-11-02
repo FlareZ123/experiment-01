@@ -61,14 +61,15 @@ const BET_COUNT=32;
  *    referenceFingerprint:string,challengerFingerprint:string,
  *    referenceStatus:Status,challengerStatus:Status
  *  }>>,
- *  alpha?:number,direction:'CHALLENGER_BETTER'|'REFERENCE_BETTER'
+ *  alpha?:number,independentAcrossCells:true,
+ *  direction:'CHALLENGER_BETTER'|'REFERENCE_BETTER'
  * }} config
  * @returns {object} Anytime directional evidence and independent audit warnings.
  */
 function anytimeBalancedPairedSignBetting(config){
-  if(!DIRECTIONS.has(config?.direction)||
+  if(!DIRECTIONS.has(config?.direction)||config?.independentAcrossCells!==true||
     (config?.targetDelta!==undefined&&config.targetDelta!==0)){
-    throw new TypeError('Predeclare exactly one comparison direction and zero null field difference');
+    throw new TypeError('Predeclare one comparison direction, independently sampled across-cell rounds, and zero null field difference');
   }
   const base=anytimeBalancedPairedFieldDelta({
     candidateOrdinal:config.candidateOrdinal,cells:config.cells,
