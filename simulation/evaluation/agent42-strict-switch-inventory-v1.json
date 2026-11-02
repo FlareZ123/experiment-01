@@ -1,5 +1,5 @@
 {
-  "version": "agent42-strict-switch-inventory-v1.1-known-six-source",
+  "version": "agent42-strict-switch-inventory-v1.2-known-six-source",
   "status": "six-source-partial-transitive-inventory-only-not-competitive",
   "scope": "existing canonical native development runner and nested actor policy",
   "checkedSources": [
@@ -28,13 +28,15 @@
       "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 103,
+  "keyCount": 117,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
     "AGENT12_NATIVE_TARGET_SIDECAR_DEV",
     "AGENT12_SAME_TARGET_ATTACH_DEV",
+    "AGENT13_MEW_GENES_COPY_DEV",
     "AGENT14_THORNS_SOLO_HOLD_DEV",
+    "AGENT15_SHARED_SOURCE_PAYMENT_PORTFOLIO_DEV",
     "AGENT16_OWNER_ARBITRATION_CENSUS_DEV",
     "AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV",
     "AGENT1_CHARGED_PROMOTION_DEV",
@@ -57,6 +59,9 @@
     "AGENT2_SHUFFLE_PREATTACK_DEV",
     "AGENT2_SHUFFLE_SUPPORTER_DEV",
     "AGENT30_PERFECTION_ROOT_DEV",
+    "AGENT31_GUZMA_FINAL_PRIZE_DEV",
+    "AGENT31_GUZMA_FORCED_KO_DEV",
+    "AGENT31_GUZMA_PRIZE_TRADE_DEV",
     "AGENT31_NATIVE_PUBLIC_MULLIGAN_DEV",
     "AGENT31_NATIVE_SETUP_COMPENSATION_DEV",
     "AGENT32_COMPR_ANYTURN_DEV",
@@ -70,6 +75,7 @@
     "AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV",
     "AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV",
     "AGENT38_PLUMERIA_LARGE_HAND_DEV",
+    "AGENT39_PAPER_PROMPT_PORTFOLIO_DEV",
     "AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV",
     "AGENT3_SPECIAL_ENERGY_ROOT_DEV",
     "AGENT40_BUNNELBY_TM_JET_DEV",
@@ -92,6 +98,7 @@
     "AGENT41_OWNER_TERMINAL_ARBITRATION_DEV",
     "AGENT41_PAPER_SUPPORTER_DEV",
     "AGENT41_PAPER_SUPPORTER_TRACE_DEV",
+    "AGENT41_PARTITION",
     "AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV",
     "AGENT41_REGISTERED_TOOL_ENERGY_DEV",
     "AGENT41_SAME_ROOT_ALL_PROBES_DEV",
@@ -100,6 +107,7 @@
     "AGENT41_SAME_ROOT_SELECT_DEV",
     "AGENT41_SOURCEFIRST_RETRO_DEV",
     "AGENT42_PRINTED_PRIZE_FINISHER_DEV",
+    "AGENT43_GUZMA_NOMINAL_GUST_DEV",
     "AGENT43_GUZMA_PROMPT_CONTINUATION_DEV",
     "AGENT43_HELD_EVOLUTION_BENCH_DEV",
     "AGENT44_ACTOR_ENERGY_RECIPIENT_DEV",
@@ -121,6 +129,8 @@
     "AGENT5_COMPR_LATE14_DEV",
     "AGENT5_COMPR_OPPORTUNITY_AUDIT",
     "AGENT6_PAID_RETREAT_ROOT_DEV",
+    "AGENT6_SKYLINER_RONDO_OWNER_SEAT",
+    "AGENT6_SKYLINER_RONDO_ROOT_DEV",
     "AGENT7_CANONICAL_ACTOR_POLICY_DEV",
     "AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV",
     "AGENT7_NATIVE_GENERIC_FALLBACK_DEV",
@@ -129,10 +139,14 @@
     "AGENT7_PASS_ATTACK_PROBE_TURN",
     "AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV",
     "AGENT7_PUBLIC_NO_BENCH_TERMINAL_DEV",
+    "AGENT7_RONDO_PSYCHIC_BENCH_DEV",
+    "AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT",
+    "AGENT7_RONDO_PSYCHIC_PROTECT_LATIAS_DEV",
     "AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV",
     "AGENT8_ACTOR_CHOOSE_POKEMON_DEV",
     "AGENT8_ACTOR_QUICK_BALL_DEV",
-    "AGENT9_BATTLE_VIP_AFTER_PASS_DEV"
+    "AGENT9_BATTLE_VIP_AFTER_PASS_DEV",
+    "GITHUB_SHA"
   ],
   "proposedGateValues": {
     "AGENT24_PHYSICAL_ZONE_GATE_DEV": "true"
@@ -143,5 +157,77 @@
     "informationSafe": false,
     "officialAichiClockCertified": false
   },
-  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin."
+  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin. 2026-11-02 Agent16 audited 14 newly reachable literal environment names against exact source text (12 opt-ins/seat selectors; AGENT41_PARTITION is CLI partition selection and GITHUB_SHA a read-only provenance label). These keys remain disabled/neutral absent their specified values. This classification is a static mention audit, not a frozen effective profile or a behavioral/paper safety certification.",
+  "reviewedNewEnvironmentKeys20261102": {
+    "AGENT13_MEW_GENES_COPY_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true opts into source Mew/Genesect copy adapter"
+    },
+    "AGENT15_SHARED_SOURCE_PAYMENT_PORTFOLIO_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true opts into shared paper payment portfolio"
+    },
+    "AGENT31_GUZMA_FINAL_PRIZE_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into final Prize Guzma choice"
+    },
+    "AGENT31_GUZMA_FORCED_KO_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into forced nominal KO Guzma choice"
+    },
+    "AGENT31_GUZMA_PRIZE_TRADE_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into Prize-trade Guzma choice"
+    },
+    "AGENT39_PAPER_PROMPT_PORTFOLIO_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true opts into bounded paper prompt hook"
+    },
+    "AGENT41_PARTITION": {
+      "kind": "partition-selector",
+      "firstVerifiedSource": "simulation/evaluation/agent41-crossrank-actual-decisions.cjs",
+      "sourceInterpretation": "numeric CLI partition, default 0; not a policy opt-in"
+    },
+    "AGENT43_GUZMA_NOMINAL_GUST_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true opts into nominal Guzma gust prompt"
+    },
+    "AGENT6_SKYLINER_RONDO_OWNER_SEAT": {
+      "kind": "seat-selector",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal 0 or 1 selects seat; otherwise null"
+    },
+    "AGENT6_SKYLINER_RONDO_ROOT_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into Skyliner Rondo retreat"
+    },
+    "AGENT7_RONDO_PSYCHIC_BENCH_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into Rondo Psychic Bench stage"
+    },
+    "AGENT7_RONDO_PSYCHIC_BENCH_OWNER_SEAT": {
+      "kind": "seat-selector",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal 0 or 1 selects seat; otherwise null"
+    },
+    "AGENT7_RONDO_PSYCHIC_PROTECT_LATIAS_DEV": {
+      "kind": "opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true opts into Latias Rondo guard"
+    },
+    "GITHUB_SHA": {
+      "kind": "provenance",
+      "firstVerifiedSource": "simulation/evaluation/agent41-crossrank-actual-decisions.cjs",
+      "sourceInterpretation": "CI commit provenance output, default null; not a policy opt-in"
+    }
+  }
 }
