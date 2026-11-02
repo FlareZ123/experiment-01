@@ -75,8 +75,14 @@ test('natural paper victory or tie precedes any incomplete second-player turn',(
   assert.equal(tie.winner,null);
 });
 
+test('Swiss simultaneous natural game tie lacks published Swiss tiebreak witness',()=>{
+  const r=decide(state('swiss',[1,1],{naturalOutcome:'tie'}));
+  assert.equal(r.status,'SWISS_NATURAL_TIE_UNSPECIFIED');
+  assert.equal(r.winner,null);
+});
+
 test('zero Prize without independently certified ordinary win is held unverified',()=>{
-  const r=decide(state('top32',[0,5]));
+  const r=decide(state('top32',[0,5],{lastCompletedTurnSeat:0}));
   assert.equal(r.status,'NATURAL_PAPER_TERMINAL_UNVERIFIED');
   assert.equal(r.winner,null);
 });
@@ -85,6 +91,7 @@ test('neither 25-minute call nor post-checkup snapshot can qualify a game',()=>{
   const r=decide(state('top32',[2,5]));
   assert.equal(r.paperClockMeasured,false);
   assert.equal(r.competitiveGameQualified,false);
+  assert.equal(r.postCutoffCheckupAllowed,false);
 });
 
 test('unreachable round/phase, Prize or first-seat input fail closed',()=>{
