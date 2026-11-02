@@ -66,7 +66,7 @@ test('Roxie exact printed eligibility distinguishes Koffing, GX, Item and zero c
   assert.equal(independentRoxiePaymentNegative(f.prompt,
     [koffing,lele,unrelated],predicate),
     'ROXIE_PRINTED_PAYMENT_REQUIRES_ONE_OR_TWO');
-  assert.match(VERSION,/v9-rank31-source-count-and-root/);
+  assert.match(VERSION,/v10-ultra-ball-mandatory-cost/);
 });
 
 test('common Store rejects GX payment before mutation then accepts genuine Koffing despite native validator disagreement',()=>{
