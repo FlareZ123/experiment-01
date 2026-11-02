@@ -137,6 +137,7 @@ function runOne(trial,reverse,byRank){
     nativeFinished:game?.finished??null,
     nativeWinner:game?.winner??null,
     nativeEndReason:game?.endReason??null,
+    nativeTerminalTransition:game?.terminalTransition??null,
     finalReplayPrizesRemaining:game?.prizesRemaining??null,
     finalReplayDeckRemaining:game?.finalState?.map(s=>s.deckRemaining)??null,
     finalReplayActivePresent:game?.finalState?.map(s=>s.activePokemon!=='')??null,
