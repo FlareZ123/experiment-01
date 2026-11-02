@@ -56,6 +56,32 @@ function firstTurnBoxOffer(view){
 }
 
 /**
+ * Witness native settlement only from the opposing actor's next decision
+ * boundary. A source AI is not called while the opponent is acting.
+ *
+ * @param {Map<number,object>} stages Both physical-seat flow states.
+ * @param {object} audit Append-only public witness.
+ * @param {object} state Actual native public board at decision.
+ * @param {object|null} pending Unresolved native prompt.
+ * @param {object} GamePhase Pinned native phase enum.
+ */
+function witnessOpponentTurn(stages,audit,state,pending,GamePhase){
+  for(const [sourceSeat,completed] of stages){
+    if(completed.stage!=='complete'||completed.opponentObserved||
+       state.activePlayer===sourceSeat||
+       state.phase!==GamePhase.PLAYER_TURN||pending)continue;
+    const source=state.players[sourceSeat];
+    completed.opponentObserved=true;
+    audit.opponentContinuations.push({sourceSeat,
+      opponentSeat:state.activePlayer,turn:state.turn,
+      originalBotDecisionRequested:true,
+      equippedGarbodor:source.bench.some(slot=>
+        slot.getPokemonCard()?.name==='Garbodor'&&
+        slot.tools.some(tool=>tool.name===completed.toolName))});
+  }
+}
+
+/**
  * Installs the same default-off decision rule for both physical seats.
  * Native prompts authorize own-deck K1; a failed K1 attempt is recorded
  * and delegated to the original bot instead of inventing search targets.
@@ -110,22 +136,8 @@ function withSharedFirstTurnBoxShake(execute){
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
     if(seat<0)return original.call(this,state);
     const owner=state.players[seat];
-    // During the opponent's turn the bot called is the *other* actor.
-    // Observe each completed flow from that opponent-decision boundary,
-    // after the Store settled Shake and before the opponent acts.
-    for(const [sourceSeat,completed] of stages){
-      if(completed.stage!=='complete'||completed.opponentObserved||
-         state.activePlayer===sourceSeat||
-         state.phase!==GamePhase.PLAYER_TURN||pending)continue;
-      const source=state.players[sourceSeat];
-      completed.opponentObserved=true;
-      audit.opponentContinuations.push({sourceSeat,
-        opponentSeat:state.activePlayer,turn:state.turn,
-        originalBotDecisionRequested:true,
-        equippedGarbodor:source.bench.some(slot=>
-          slot.getPokemonCard()?.name==='Garbodor'&&
-          slot.tools.some(tool=>tool.name===completed.toolName))});
-    }
+    // The opposing bot is called after native Shake and turn transition.
+    witnessOpponentTurn(stages,audit,state,pending,GamePhase);
     let flow=stages.get(seat);
     if(!flow&&state.activePlayer===seat&&
        state.phase===GamePhase.PLAYER_TURN&&!pending){
@@ -245,4 +257,4 @@ function withSharedFirstTurnBoxShake(execute){
 }
 
 module.exports={VERSION,DISCARD_PRIORITY,
-  firstTurnBoxOffer,withSharedFirstTurnBoxShake};
+  firstTurnBoxOffer,witnessOpponentTurn,withSharedFirstTurnBoxShake};
