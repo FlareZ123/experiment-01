@@ -90,6 +90,15 @@ def measure(trials=200_000, seed=44_110_207):
             counts["vip_root_basic_available"] += 1
             after_hand = hand.copy()
             after_hand.remove("Battle VIP Pass")
+            # Alternative interleaving: retain the VIP in hand until after
+            # Box resolves, so Box's upfront three-discard cost cannot use it.
+            # Test affordability using the same Box predicate and original
+            # pre-VIP Bench, without claiming this is a native policy.
+            keep_vip_box_k0, keep_vip_box_k1 = model.condition(
+                after_hand, in_play, live, flexible=True
+            )
+            counts["box_first_preserve_vip_k0"] += int(keep_vip_box_k0)
+            counts["box_first_preserve_vip_k1"] += int(keep_vip_box_k1)
             after_in_play = in_play + Counter([vip_target])
             after_live = live - Counter([vip_target])
             next_k0, next_k1 = model.condition(
@@ -108,6 +117,10 @@ def measure(trials=200_000, seed=44_110_207):
                     counts["vip_first_k1_trubbish_substitution"] += 1
             if box_k1 and next_k1:
                 counts["both_box_k1_and_vip_first_box_k1"] += 1
+            if keep_vip_box_k1 and next_k1:
+                counts["vip_first_and_box_first_preserve_vip_k1"] += 1
+            if next_k1 and not keep_vip_box_k1:
+                counts["vip_first_only_vs_box_first_preserve_vip_k1"] += 1
 
     output = {}
     for strategy, counts in results.items():
@@ -126,6 +139,10 @@ def measure(trials=200_000, seed=44_110_207):
                 "held_vip_k0_mode_held-searcher",
                 "vip_first_k1_extra_basic",
                 "vip_first_k1_trubbish_substitution",
+                "box_first_preserve_vip_k0",
+                "box_first_preserve_vip_k1",
+                "vip_first_and_box_first_preserve_vip_k1",
+                "vip_first_only_vs_box_first_preserve_vip_k1",
             ]},
             "box_k0_fraction_of_valid_openers": b / n,
             "vip_overlap_fraction_of_box_k0": v / b,
@@ -134,7 +151,7 @@ def measure(trials=200_000, seed=44_110_207):
             ),
         }
     return {
-        "schema": "agent7-rank8-box-vip-firstturn-alternative-v2-extrabench",
+        "schema": "agent7-rank8-box-vip-firstturn-alternative-v3-extrabench-and-connector-order",
         "source_original_rank": 8,
         "source_printed_60_sha256": model.SOURCE_SHA256,
         "source_handmodel_git_blob": MODEL_BLOB_SHA,
