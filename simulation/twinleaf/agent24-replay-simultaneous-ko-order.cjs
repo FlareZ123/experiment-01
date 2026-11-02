@@ -27,7 +27,9 @@ const SEED=1847000101;
  * @param {Map<number,object>} byRank Published original sources.
  * @returns {object} Full two-seat native reducer disposition.
  */
-function one(reverse,byRank){
+function one(reverse,byRank,{forceOppositeLeader=false}={}){
+  assert.ok(!forceOppositeLeader||reverse===1);
+
   const a=byRank.get(reverse?11:20).cardIds;
   const b=byRank.get(reverse?20:11).cardIds;
   assert.equal(a.length,60);assert.equal(b.length,60);
@@ -43,6 +45,7 @@ function one(reverse,byRank){
   let root=null,owners=null,stagedTie=false,resetSeen=false;
   let replayOpened=false,doubleKOStaged=false;
   let matchedBenchSlots=0;
+  const forcedActiveReplacements=[];
   let before=null,afterReducer=null;
   Store.prototype.reduceEffect=function nativeKoPrizeGroupReceipt(state,effect){
     const returned=originalReduceEffect.call(this,state,effect);
@@ -98,6 +101,40 @@ function one(reverse,byRank){
         player.deck.cards.splice(player.deck.cards.indexOf(basic),1);
         target.cards.push(basic);
         matchedBenchSlots++;
+      }
+
+      if(forceOppositeLeader){
+        // Deliberately synthetic: select the exact original-owner physical
+        // Basic from a present zone, exchanging it with the Active Basic.
+        // This never claims the move was a playable action.
+        for(const [seat,targetName] of
+          [[0,'Mega Absol ex'],[1,'Squawkabilly ex']]){
+          const player=state.players[seat];
+          const active=player.active.getPokemonCard();
+          assert.ok(active&&player.active.cards.length===1,
+            'Forced case requires an unattached Basic Active');
+          const zones=[
+            ['deck',player.deck],['hand',player.hand],
+            ...player.bench.map((s,i)=>['bench-'+i,s]),
+            ...player.prizes.map((s,i)=>['prize-'+i,s])
+          ];
+          const located=zones.find(([,zone])=>zone.cards.some(card=>
+            card instanceof PokemonCard&&card.stage===Stage.BASIC&&
+            card.name===targetName));
+          assert.ok(located,
+            'Expected original printed '+targetName+' in seat '+seat);
+          const [zoneName,zone]=located;
+          const index=zone.cards.findIndex(card=>
+            card instanceof PokemonCard&&card.stage===Stage.BASIC&&
+            card.name===targetName);
+          const replacement=zone.cards[index];
+          zone.cards[index]=active;
+          player.active.cards[0]=replacement;
+          forcedActiveReplacements.push({
+            seat,fromZone:zoneName,
+            previousActive:active.name,forcedActive:replacement.name
+          });
+        }
       }
       const audit=inspectPhysicalCardZones(state,owners);
       assert.deepEqual(fixedDeckCountAnomalies(audit),[]);
@@ -165,7 +202,14 @@ function one(reverse,byRank){
     hypotheticalPaperRemainingPrizes);
   assert.equal(pendingPrizeAudit.projectedLeaderSeat,hypotheticalPaperLeader);
   assert.equal(pendingPrizeAudit.paperGameOutcomeQualified,false);
-  if(reverse===1){
+  if(forceOppositeLeader){
+    assert.deepEqual(pendingPrizesByClaimant,[2,3],
+      'Expected forced source-owned 3-Prize A versus 2-Prize B');
+    assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_STRICT_LEAD');
+    assert.equal(pendingPrizeAudit.projectedLeaderSeat,1);
+    assert.equal(game.winner,0,
+      'Expected pinned first-seat priority despite the opposing pending Prize leader');
+  }else if(reverse===1){
     assert.deepEqual(pendingPrizesByClaimant,[2,2],
       'Expected a controlled equal-award simultaneous KO');
     assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
@@ -181,6 +225,7 @@ function one(reverse,byRank){
     genuineNativeSixPrizeReplay:true,
     syntheticSimultaneousActiveLethalDamage:true,
     syntheticBasicBenchAllocations:matchedBenchSlots,
+    syntheticActiveReplacements:forcedActiveReplacements,
     before,afterReducer,
     nativeKOEntitlements,
     pendingPrizeAudit,
@@ -200,11 +245,15 @@ function one(reverse,byRank){
 function main(){
   initializeCards();
   const {byRank}=registration();
-  const rows=[one(0,byRank),one(1,byRank)];
+  const rows=[
+    one(0,byRank),
+    one(1,byRank),
+    one(1,byRank,{forceOppositeLeader:true})
+  ];
   return {
-    schema:'agent24-native-replay-synthetic-simultaneous-ko-v1',
+    schema:'agent24-native-replay-synthetic-simultaneous-ko-v2',
     pinnedTwinleaf:PIN,rows,competitiveQualifiedGames:0,
-    note:'Both lethal Active damages are synthetic, possibly Bench placement too. Isolated pinned reducer ordering only; no legal simultaneous damage attack, actual game win, or paper match.'
+    note:'Synthetic lethal Active damage; optional synthetic Basic Bench and Active swaps explicitly tagged. This is a pinned reducer counterexample, not a paper-legal attack trace, game win or qualified match.'
   };
 }
 if(require.main===module)
