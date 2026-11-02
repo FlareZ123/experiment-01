@@ -119,8 +119,7 @@ function run(){
         leleEntryAbilityLockCorrection:true,
         radiantGateLockCorrection:true,entryDrawLockCorrection:true,
         captureDecisionTrace:true,
-        label:'agent4-rank8-retrospective-v11-'+t.trial+'-'+
-          (guarded?'guarded':'control')
+        label:'agent4-rank8-retrospective-v11-'+t.trial
       };
       const record={guarded,status:null,error:null,sourceK0:null,
         paperAudit:null,rawPaymentAudit:null,sourceBoxRoots:[],
