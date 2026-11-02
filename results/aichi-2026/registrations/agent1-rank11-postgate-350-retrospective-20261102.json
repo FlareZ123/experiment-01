@@ -1,0 +1,32 @@
+{
+  "schema": "agent1-rank11-original-radiant-postgate-retrospective-horizon-v1",
+  "registeredAt": "2026-11-02T08:50:00Z",
+  "purpose": "Extend the already-retrospective exact-original rank11 vs rank1 same-physical-three-arm native replay to 350 max actions, recording every arm outcome and actual source continuation. This is a development trajectory audit, not a prospective seed sample.",
+  "registrationClassification": "RETROSPECTIVE_SELECTED_DEAL",
+  "baselineEvidenceRun": 41415466251,
+  "baselineEvidenceArtifactId": 13127421800,
+  "originalEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "opponentSourceRank": 11,
+  "opponentSourceSeat": 0,
+  "candidateReferenceRank": 1,
+  "candidateReferenceSeat": 1,
+  "seed": 2387754768,
+  "originalSourceFirstHandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "requiredBothPlayerInitialDealDigestSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "maxActions": 350,
+  "policies": [
+    "Original generic Quick Ball -> Dialga / default native ConfirmPrompt behavior",
+    "Owner-validated Quick Ball -> Radiant Eternatus / default ConfirmPrompt decline",
+    "Owner-validated Quick Ball -> Radiant Eternatus / owner Confirm true / two owner-deck CRE VMAX native selection"
+  ],
+  "actionPolicyFrozen": "Same historical 200-root adapter, with unchanged original rank11 owner plan and rank1 Field Blower and Quick Ball logic. Only maxActions increases; observational archive fields unchanged.",
+  "expectedComparability": "Exact same two initial physical player deals in all arms, genuine owner-root and prompt actions, full errors/censor/engine terminals retained.",
+  "falsificationCriteria": [
+    "Any original full-player initial deal mismatch",
+    "Any source initial K0 hand mismatch",
+    "Any baseline setup or recipient T2 native Quick Ball mismatch",
+    "Any native prompt/reducer error",
+    "Any branch failing expected T3 0/0/2 public VMAX"
+  ],
+  "noQualify": "No paper-clock model, weak bot continuation, retrospective outcome-conditioned seed; engine terminals are not competitively qualified, and no 99.5% claim."
+}
