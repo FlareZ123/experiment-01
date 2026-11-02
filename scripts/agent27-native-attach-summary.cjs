@@ -42,6 +42,7 @@ function summarize(data) {
   return {
     schema: 'agent27-source-minimum-attach-condensed-audit-v1',
     pinnedEngine: data.pinnedEngine,
+    releaseDisposition:data.releaseDisposition??null,
     qualifiedCompetitiveGames: 0,
     cases: data.cases.map(row => ({
       seed: row.seed,
