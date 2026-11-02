@@ -136,7 +136,7 @@
     }
   ],
   "canonicalCardsSha256": "820eeef86f3097f3f880dbe311f14b5b7cc287736e7b48bc3c62c85b1bf981ed",
-  "hashDefinition": "SHA-256 of JSON.stringify(cards as array of objects with id,count,name keys sorted alphabetically, compact separators; no newline)",
+  "hashDefinition": "SHA-256 of compact JSON array of [{count,id,name}] per cards entry, with object key order count,id,name and array order preserved; no trailing newline",
   "sourceCardDatabase": "Provided card-list.zip cards/en/*.json; every selected ID expanded metadata Legal, crosschecked local 2026-11-02",
   "sourceBanlist": "https://www.pokemon-card.com/rules/regulation/index.html",
   "eventLegalProof": "name/count/Expanded metadata checked; final Japanese printed equivalence and Aichi event-era legality require independent paper-event verification",
