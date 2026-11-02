@@ -40,3 +40,14 @@ A contemporaneous **first-person [13 May 2026 article by the player known as い
 This concrete counterexample invalidates assigning alias `レプリカ` (self-reported **Swiss 28th**, Regidrago) to official **28th Jo Kato** merely from shared number 28, or `umi.` (Swiss 32nd, Regidrago) to official **32nd Kaito Higuchi** merely from shared number 32. Likewise `kume` calling themselves Swiss 25th and the official rank25 being a Raichu player is a useful consistency clue, not a standalone authenticated real-name mapping. Additional first-person identification, official opponent/bracket records, or original code-to-known-60 reconciliation is needed. The explicit primary `いとこ` deck code remains **unassigned**.
 
 The source roster stays 29/32; this observation increases the importance of **ranking-stage** and **person-attribution** provenance, not the number of decklists.
+
+## First-round bracket-reconstruction lead for the published `いとこ` Regidrago code
+
+A stronger **conditional attribution lead** comes from two independent first-person Top Cut accounts:
+
+1. [Mew VMAX player まろ's 17 May 2026 report](https://note.com/ronima723/n/nb8df1d04b8b0) explicitly identifies their **Swiss seed 6** (7–1), final Top8, and original Mew list `fFVFwv-Wlj8nQ-bvfdkk`.
+2. [Regidrago player ひな's 2026 Top16 account](https://note.com/hpionkaeka/n/na17f92eb559a) explicitly identifies their **Swiss seed 11**, first Top32 knockout win, then Top16 loss against this same Mew opponent; the account also says the Mew player defeated teammate **いとこ** during the immediately preceding Top32 knockout round. Itoko independently [published a personal Top32 Regidrago list code](https://note.com/itoko_/n/n0758eccdf029) of `ySpy2S-Ey5WAe-RX3Rpp`.
+
+**Conditional bracket inference:** Under the conventional fully seeded 32-player elimination bracket, seed **6 plays 27** in round1, and the winner would face the winner of **11 vs 22** in round2. The observed Mew-versus-Itoko then Mew-versus-Hina sequence perfectly matches that bracket structure. It is therefore **plausible** that Itoko was **Swiss seed 27**, which would fit an *already authenticated* original 27th-place Regidrago list (Yuya Nagatsuma) that, independently, contains one Echoing Horn. Under this interpretation the new Itoko deck code likely does **not** fill missing rank23 or28.
+
+**Limitations:** We have not located an official knockout bracket attesting the exact seeding rule, Itoko's claimed Swiss number, an identification of alias `いとこ` as Yuya Nagatsuma, or a full resolved physical-60 comparison of Itoko's deck code to the existing rank27 roster. As demonstrated above, Swiss number and final Limitless rank can differ substantially (Mew's own Swiss6 vs final-place5); **Swiss seed 27 alone cannot authenticate final rank27**. This inference should guide targeted verification instead of enabling roster admission. **Original list still 29/32.**
