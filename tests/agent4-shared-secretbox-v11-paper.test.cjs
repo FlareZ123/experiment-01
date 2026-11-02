@@ -66,7 +66,8 @@ test('v11 paper Secret Box mandatory discard is source-scoped and two-seat',()=>
     },deps);
     assert.equal(result.result.accepted,true);
     assert.equal(store.calls,1);
-    assert.equal(result.audit.inspectedSecretBoxPaymentPrompts,3);
+    // The earlier generic duplicate-physical-choice veto takes precedence.
+    assert.equal(result.audit.inspectedSecretBoxPaymentPrompts,2);
     assert.equal(result.audit.statusCounts.PAPER_PROMPT_INVALID,2);
     assert.equal(result.audit.statusCounts.PAPER_PROMPT_UNVERIFIED,1);
     assert.equal(result.audit.vetoedBeforeDispatch,2);
