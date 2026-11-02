@@ -88,6 +88,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent16_rank16_natural_source:
+        description: 'Eight prospective exact rank16 source physical deals, both unchanged candidate 60s, owner first-turn lock-fork observation only'
+        required: false
+        type: boolean
+        default: false
       agent50_fresh_rank11_bilateral:
         description: 'Precommitted fresh 8 rank11 source-deal groups, symmetric known-dead 32 original Store attempts, development only'
         required: false
@@ -768,5 +773,42 @@ jobs:
         with:
           name: agent50-precommitted-rank11-bothseat-32attempts
           path: agent50-fresh-rank11-bothseat-32attempts.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent16-rank16-natural-source-native:
+    if: inputs.agent16_rank16_natural_source
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned native Twinleaf simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify all eight preregistered source groups and pure accepted-root receipt behavior
+        run: |
+          node --test tests/agent16-original-rank16-natural-lock-fork.test.cjs tests/aichi-absol-budew-shake-fork.test.cjs
+          node simulation/evaluation/agent16-original-rank16-natural-lock-fork.cjs --inspect-only
+      - name: Execute exactly sixteen naturally selected original rank16 native source attempts
+        run: node simulation/evaluation/agent16-original-rank16-natural-lock-fork.cjs > agent16-rank16-all-16-native-attempts.json
+      - name: Emit bounded nonselective rank16 first-owner-turn summary
+        run: |
+          node -e "const a=require('node:assert/strict');const r=require('./agent16-rank16-all-16-native-attempts.json');a.equal(r.attempted,16);a.equal(r.competitivelyQualifiedGames,0);console.log('AGENT16_RANK16_NATIVE',JSON.stringify({dispositions:r.dispositions,starts:r.starts,originalFirstTurn:r.firstTurnRoots,ownerOpening:r.observations.map(x=>({id:x.trialId,start:x.ownerOpening?.sourceStartedFirst,status:x.status,actions:x.ownerOpening?.actions,reply:x.ownerOpening?.firstSubsequentOpponentRoot,opening:x.ownerOpening?.firstOwnerHandCounts}))})));"
+      - name: Archive every original Store rank16 printed-source attempt, caps, errors and initial deals
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent16-preregistered-rank16-natural-original-16attempts
+          path: agent16-rank16-all-16-native-attempts.json
           if-no-files-found: warn
           retention-days: 30
