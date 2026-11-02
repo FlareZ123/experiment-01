@@ -131,6 +131,19 @@ jobs:
           path: agent6-native-play-tool-jammer.json
           if-no-files-found: warn
           retention-days: 15
+      - name: Test actual opposing attack after Hood Rondo two-Prize local settlement
+        if: always() && inputs.agent6_rank30_rondo
+        env:
+          AGENT6_HOOD_OPPONENT_REPLY_DEV: 'true'
+        run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-hood-opponent-reply.json
+      - name: Archive genuine Pidgey counterattack action and damage
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-hood-opponent-native-reply
+          path: agent6-hood-opponent-reply.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
         if: '!inputs.agent6_rank30_rondo'
         run: node simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs > agent7-rank30-source-psychic-stage-aba.json
