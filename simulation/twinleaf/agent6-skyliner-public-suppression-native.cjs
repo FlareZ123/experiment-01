@@ -21,7 +21,9 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=relative=>require(path.join(output,relative));
 const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v2-floatstone';
 const EXTRA_EFFECT_MODES=['path-airballoon','path-airballoon-jammer',
-  'thorns-airballoon','thorns-airballoon-jammer'];
+  'thorns-airballoon','thorns-airballoon-jammer',
+  'path-furybelt','path-furybelt-jammer',
+  'thorns-furybelt','thorns-furybelt-jammer'];
 const MODES=['baseline','path','silent','klefki','thorns',
   'garbotoxin','muk','weezing','wobbuffet',
   'path-float','path-float-jammer','thorns-float',
@@ -40,9 +42,10 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
-  const baseMode=mode.split(/-(?:float|airballoon)/)[0];
+  const baseMode=mode.split(/-(?:float|airballoon|furybelt)/)[0];
   const equippedFloatStone=mode.includes('-float');
   const equippedAirBalloon=mode.includes('-airballoon');
+  const equippedFuryBelt=mode.includes('-furybelt');
   const opponentToolJammer=mode.endsWith('-jammer');
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
@@ -61,7 +64,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const {Format,CardType,SpecialCondition}=
     load('game/store/card/card-types');
   const {RetreatAction}=load('game/store/actions/game-actions');
-  const {CheckRetreatCostEffect}=load('game/store/effects/check-effects');
+  const {CheckRetreatCostEffect,CheckHpEffect}=
+    load('game/store/effects/check-effects');
   const {IS_ABILITY_BLOCKED}=load('game/store/prefabs/prefabs');
 
   const store=new Store({onStateChange(){}});
@@ -85,6 +89,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   mine.active.cards.push(latias);
   if(equippedFloatStone)mine.active.tools.push(card('Float Stone BKT'));
   if(equippedAirBalloon)mine.active.tools.push(card('Air Balloon SSH'));
+  if(equippedFuryBelt)mine.active.tools.push(card('Fighting Fury Belt BKP'));
   const addBench=(owner,printed)=>{
     const slot=new PokemonCardList();
     slot.cards.push(card(printed));
@@ -130,6 +135,12 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const nativeBlocked=Boolean(IS_ABILITY_BLOCKED(
     store,state,mine,latias,livePower));
   const executeNative=()=>{
+    let nativeHp=null;
+    if(equippedFuryBelt){
+      const hpEffect=new CheckHpEffect(mine,mine.active);
+      store.reduceEffect(state,hpEffect);
+      nativeHp=hpEffect.hp;
+    }
     const nativeCost=new CheckRetreatCostEffect(mine);
     store.reduceEffect(state,nativeCost);
     const nativeRetreatCost=nativeCost.cost.length;
@@ -137,15 +148,15 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     try{store.dispatch(new RetreatAction(mine.id,0));}
     catch(error){nativeRetreatError=String(error?.message??error);}
     const promoted=store.state.players[sourceSeat].active.getPokemonCard()?.fullName;
-    return {nativeRetreatCost,nativeRetreatError,promoted,
+    return {nativeHp,nativeRetreatCost,nativeRetreatError,promoted,
       nativeRetreatAccepted:promoted==="Lillie's Clefairy ex JTG"};
   };
   const receipt=effectRepair?
     withActiveToolJammerToolEffectGuard(store,mine,enemy,executeNative):
     repair?withToolJammerFloatStoneRetreatRepair(store,mine,enemy,executeNative):
     {result:executeNative(),patches:[]};
-  const {nativeRetreatCost,nativeRetreatError,promoted,nativeRetreatAccepted}=
-    receipt.result;
+  const {nativeHp,nativeRetreatCost,nativeRetreatError,promoted,
+    nativeRetreatAccepted}=receipt.result;
   const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode);
   const expectedFree=!expectedSuppressed||
     ((equippedFloatStone||equippedAirBalloon)&&
@@ -155,7 +166,9 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
     nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
     publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
-    floatStoneGuardAsPaper:equippedAirBalloon||
+    furyBeltNativeHpAsPaper:!equippedFuryBelt||
+      nativeHp===latias.hp+(opponentToolJammer?0:40),
+    floatStoneGuardAsPaper:equippedAirBalloon||equippedFuryBelt||
       Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
     paperHookApplied:effectRepair?
@@ -165,14 +178,14 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   return {mode,sourceSeat,repairApplied:repair||effectRepair,
     repairKind:effectRepair?'tool-effect':(repair?'retreat-cost':'none'),
     repairPatches:receipt.patches,
-    floatStonePlannerCheckSkipped:equippedAirBalloon,
+    floatStonePlannerCheckSkipped:equippedAirBalloon||equippedFuryBelt,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
     guardedRootWouldSelect:guarded?.kind??null,
     floatStoneRootWouldSelect:floatStoneGuard?.kind??null,
     suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
-    nativeRetreatCost,
+    nativeHp,printedHp:latias.hp,nativeRetreatCost,
     nativeRetreatAccepted,nativeRetreatError,activeAfter:promoted,
     expectedRetreatAccepted:expectedFree,checks,
     competitiveQualified:false};
@@ -206,7 +219,9 @@ function runRepair(){
 function runEffectRepair(){
   const rows=['path-float-jammer','thorns-float-jammer',
     'path-airballoon','path-airballoon-jammer',
-    'thorns-airballoon','thorns-airballoon-jammer']
+    'thorns-airballoon','thorns-airballoon-jammer',
+    'path-furybelt','path-furybelt-jammer',
+    'thorns-furybelt','thorns-furybelt-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
