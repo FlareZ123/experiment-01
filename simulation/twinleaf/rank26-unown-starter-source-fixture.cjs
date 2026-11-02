@@ -61,7 +61,7 @@ function stageUnownStarter(f){
 }
 
 /** Staged 3 original Pump 2+2+1 native source turn with Unown original Active. */
-function runSeat(seat){
+function runSeat(seat,afterFifthKO){
   const f=fixture(seat);
   const initial=stageUnownStarter(f);
   const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
@@ -108,7 +108,8 @@ function runSeat(seat){
           distinctUnownActiveAndBench:true,
           sourceMeloAndTapuBenched:true,
           printedSource60Conserved:true,realStoreSelfKnockouts:5,
-          opponentPrizeProgress:prizes,sourceRootActions:actions};
+          opponentPrizeProgress:prizes,sourceRootActions:actions,
+          continuation:afterFifthKO?afterFifthKO(f):null};
       }));
     assert.equal(x.policyAudit.actions.length,6);
     return {...x.result.result,pumpPolicyAudit:x.policyAudit,
