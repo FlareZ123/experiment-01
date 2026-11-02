@@ -162,3 +162,57 @@ test('read-only original-owner exposure census distinguishes full public afforda
   assert.equal(missing.trevDusknoirOnOpponentBench,false);
   assert.equal(missing.fullNominalProposal,false);
 });
+
+test('rank9 owner-public staged Mega funding corrects zero-energy Bench investment',()=>{
+  const {chooseMegaAbsolStagedFunding}=require(
+    '../simulation/twinleaf/agent2-rank9-mega-absol-funding.cjs');
+  const v=board();
+  v.ownPublic.bench[1].energies=[];
+  v.ownHand=['Guzma BUS','Telepathic Psychic Energy SMP',
+    'Prism Energy BW4'];
+  const plan=chooseMegaAbsolStagedFunding(v,catalog);
+  assert.equal(plan.kind,'attach-special-energy');
+  assert.equal(plan.printing,'Prism Energy BW4');
+  assert.equal(plan.slot,'bench');
+  assert.equal(plan.index,1);
+  assert.equal(plan.remainingFutureAttachments,2);
+  assert.equal(plan.helpsDark,true);
+});
+test('rank9 source prioritizes printed Darkness before Colorless when both are in hand',()=>{
+  const {chooseMegaAbsolStagedFunding}=require(
+    '../simulation/twinleaf/agent2-rank9-mega-absol-funding.cjs');
+  const v=board();
+  catalog.basicEnergies.add('Darkness Energy MEE');
+  v.ownPublic.bench[1].energies=['Prism Energy BW4'];
+  v.ownHand=['Telepathic Psychic Energy SMP','Darkness Energy MEE'];
+  const plan=chooseMegaAbsolStagedFunding(v,catalog);
+  assert.equal(plan.printing,'Darkness Energy MEE');
+  assert.equal(plan.kind,'attach-basic-energy');
+  assert.equal(plan.remainingFutureAttachments,1);
+  catalog.basicEnergies.delete('Darkness Energy MEE');
+});
+test('funded Mega and spent Energy attachment both suppress staging',()=>{
+  const {chooseMegaAbsolStagedFunding}=require(
+    '../simulation/twinleaf/agent2-rank9-mega-absol-funding.cjs');
+  const v=board();
+  v.ownHand=['Prism Energy BW4'];
+  assert.equal(chooseMegaAbsolStagedFunding(v,catalog),null);
+  v.ownPublic.bench[1].energies=[];
+  v.ownTurnResources.energyPlayedTurn=v.globalTurn;
+  assert.equal(chooseMegaAbsolStagedFunding(v,catalog),null);
+});
+test('Mega staging is default off in canonical native owner root',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=board();
+  v.ownPublic.bench[1].energies=[];
+  v.ownHand=['Prism Energy BW4'];
+  const control=chooseActorRootIntent(v,catalog);
+  const treatment=chooseActorRootIntent(v,catalog,
+    {rank9MegaAbsolFundingRoot:true});
+  assert.notEqual(control?.kind+'-'+control?.slot+'-'+control?.index,
+    'attach-special-energy-bench-1');
+  assert.equal(treatment.kind,'attach-special-energy');
+  assert.equal(treatment.slot,'bench');
+  assert.equal(treatment.index,1);
+});
