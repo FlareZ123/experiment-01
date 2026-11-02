@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {resolveArchive,sourcePairReceipts,firstSourceTurnReceipt,
+const {resolveArchive,nativeSetupHistory,sourcePairReceipts,firstSourceTurnReceipt,
   correctNativeArchive}=
   require('../simulation/evaluation/agent41-archived-native-release-bridge.cjs');
 const rank16=require('../results/aichi-2026/agent41-rank16-native-row-schema-v1.json');
@@ -136,4 +136,38 @@ test('source-pair witness rejects nonregistered candidate identities',()=>{
     sourceActuallyFirst:false,sourceDealFingerprint:'a'.repeat(64)});
   assert.equal(sourcePairReceipts([
     make('champion-reference'),make('test-candidate')])[0].status,'UNVERIFIED');
+});
+
+test('mulligan setup prompt discrepancy can coexist with same first owner hand',()=>{
+  const make=(id,hash,shuffles)=>({
+    trial:{id:'16:1:B:'+id,rank:16,repeat:1,
+      candidateSlot:'B',candidateId:id,seed:42},
+    sourceSeat:0,candidateSeat:1,verifiedFirstTurn:true,
+    sourceActuallyFirst:false,sourceDealFingerprint:hash,
+    sourceFirstOwnHandSha256:'f'.repeat(64),
+    rootActionLedger:[
+      {turnBefore:0,action:'ResolvePromptAction',
+        playerSlot:0,pendingPrompt:'ShuffleDeckPrompt'},
+      ...Array.from({length:shuffles},()=>({turnBefore:0,
+        action:'ResolvePromptAction',playerSlot:1,
+        pendingPrompt:'ShuffleDeckPrompt'})),
+      ...(shuffles===2?[{turnBefore:0,action:'ResolvePromptAction',
+        playerSlot:0,pendingPrompt:'ShowMulliganPrompt'}]:[])
+    ]
+  });
+  const first=make('champion-reference','a'.repeat(64),2);
+  const second=make('new-moon-lockbreaker-v1','b'.repeat(64),1);
+  assert.equal(nativeSetupHistory(first).candidateShufflePromptActions,2);
+  assert.equal(nativeSetupHistory(second).candidateShufflePromptActions,1);
+  const pair=sourcePairReceipts([first,second])[0];
+  assert.equal(pair.status,'SOURCE_PHYSICAL_DEAL_DIFFERENT');
+  assert.equal(pair.sameFirstOwnerHandSha,true);
+  assert.equal(pair.sameSetupHistory,false);
+  assert.equal(pair.sameFirstOwnerHandButDifferentSourceDeal,true);
+  assert.equal(pair.candidateComparisonCompetitivelyQualified,false);
+});
+
+test('native setup evidence cannot be manufactured without root transcript',()=>{
+  assert.equal(nativeSetupHistory({sourceSeat:0,candidateSeat:1}).observed,
+    false);
 });
