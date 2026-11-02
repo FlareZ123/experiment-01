@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_canonical_boxshake_pilot:
+        description: 'Default-off shared canonical both-seat actor plus actual inner-owner flexible Box source pilot (one historical and two unselected original source deals)'
+        type: boolean
+        default: false
       agent44_rank8_shared_boxshake_flexible:
         description: 'Opt-in 32 additional disjoint original rank8 source deals with held Quick Ultra and Box Tool search; requires shared_boxshake_natural_pairs'
         type: boolean
@@ -237,6 +241,24 @@ jobs:
           path: agent44-rank8-original-k0-source.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Test canonical actor and innermost Box composition order
+        if: inputs.agent44_rank8_canonical_boxshake_pilot
+        run: node --test tests/agent44-canonical-boxshake-composition.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs
+      - name: Execute exact original canonical both-seat shared Box native pilot
+        if: inputs.agent44_rank8_canonical_boxshake_pilot
+        run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
+      - name: Print concise canonical source-deal paired and native status
+        if: inputs.agent44_rank8_canonical_boxshake_pilot
+        run: >-
+          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,error:r.error?.message??null}))},null,2));"
+      - name: Archive original canonical both-seat Box native pilot
+        if: always() && inputs.agent44_rank8_canonical_boxshake_pilot
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-canonical-boxshake-native-pilot
+          path: agent44-canonical-boxshake-native.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Unit test first-turn symmetric owner-only Secret Box root
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
         run: node --test tests/agent44-owner-boxshake-native-policy.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs tests/agent44-secretbox-owner-prompt.test.cjs
