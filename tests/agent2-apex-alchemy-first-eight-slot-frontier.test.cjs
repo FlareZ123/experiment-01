@@ -2,7 +2,9 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const { createHash } = require('node:crypto');
 const manifest = require('../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json');
+const shake4Quick2 = require('../results/aichi-2026/agent2-apex-alchemy-shake4-quick2-v1.json');
 const { openingEightAccess } =
   require('../simulation/evaluation/agent43-muk-search-eight-bound.cjs');
 
@@ -75,6 +77,41 @@ test('exact marginal one-slot opportunities and two-slot interaction', () => {
     assert.ok(observed.searchAssistedWithOtherBasicStarterAmongBasicValid >=
       observed.directWithOtherBasicStarterAmongBasicValid);
   }
+});
+
+test('a registered full-60 fourth-Shake-for-Quick swap retains printing and gains access', () => {
+  const lines = shake4Quick2.cards.map(c => c.cardId + ':' + c.count + '\\n').sort().join('');
+  const hash = createHash('sha256').update(lines, 'utf8').digest('hex');
+  assert.equal(hash, '5cd6b0fc7781e1a5a3b29f5a23654750295af89bdc63621f235fbd0c56701fd0');
+  assert.equal(hash, shake4Quick2.deck_identity_sha256);
+  assert.equal(shake4Quick2.base_deck_identity_sha256, manifest.deck_identity_sha256);
+  assert.deepEqual(shake4Quick2.category_counts, manifest.category_counts);
+  assert.equal(shake4Quick2.total_cards, 60);
+  assert.equal(shake4Quick2.cards.reduce((n, c) => n + c.count, 0), 60);
+  assert.equal(shake4Quick2.cards.length, manifest.cards.length);
+  const original = new Map(manifest.cards.map(c => [c.cardId, c]));
+  const changed = [];
+  for (const c of shake4Quick2.cards) {
+    const previous = original.get(c.cardId);
+    assert.ok(previous, 'Missing base printing ' + c.cardId);
+    assert.equal(c.name, previous.name);
+    assert.equal(c.category, previous.category);
+    assert.deepEqual(c.printing, previous.printing);
+    if (previous.count !== c.count) changed.push([c.cardId, previous.count, c.count]);
+  }
+  assert.deepEqual(changed.sort(), [
+    ['swsh7-142', 3, 4],
+    ['swsh8-237', 3, 2]
+  ]);
+  const actual = scenario({ shake: 4, quick: 2 });
+  const base = scenario();
+  closePercent(actual.basicValidInitialSeven, 80.93533073);
+  closePercent(actual.directAmongBasicValid, 11.71727191);
+  closePercent(actual.searchAssistedAmongBasicValid, 27.48178669);
+  closePercent(actual.directWithOtherBasicStarterAmongBasicValid, 8.00247627);
+  closePercent(actual.searchAssistedWithOtherBasicStarterAmongBasicValid, 23.76699105);
+  assert.ok(actual.searchAssistedWithOtherBasicStarterAmongBasicValid >
+    base.searchAssistedWithOtherBasicStarterAmongBasicValid);
 });
 
 test('mulligan and Prize conditioning remain explicit', () => {
