@@ -25,7 +25,7 @@ This is a **candidate manual-review population**, not 233 illegal cards. Basic E
 
 The reproducible [single-file CJS test](../../tests/agent3-legacy-print-fidelity-sft.cjs) reads only repository resources and checks snapshot counts and original printed effect texts. It passed locally under Node 22 against the supplied 176 card JSON files. A committed GitHub-hosted CI execution has **not** been claimed.
 
-## Four strong counterexamples to unexamined exact-ID substitution
+## Five strong counterexamples to unexamined exact-ID substitution
 
 Each of these **old and new records shares the English name** and is independently flagged Expanded Legal by the supplied data. Their recorded printed effects materially differ, exceeding normal formatting or reminder-text variation.
 
@@ -35,6 +35,9 @@ Each of these **old and new records shares the English name** and is independent
 | **Super Rod** | `neo1-103` (Neo Genesis): coin flip returns one eligible Pokémon card to hand, with the category depending on heads/tails | `sv2-188` (Paldea Evolved): shuffles up to three Pokémon or Basic Energy cards from discard into deck |
 | **Great Ball** | `ex16-77` (EX Power Keepers): searches deck for a Basic non-ex Pokémon and **Benches it** | `sv2-183` (Paldea Evolved): examines top seven cards to add a Pokémon to **hand** |
 | **Rare Candy** | `ex2-88` (EX Sandstorm): allows a Basic to evolve with a Stage 1 or Stage 2 card | `sv1-191` (Scarlet & Violet): only skips to Stage 2, with explicit first-turn / played-this-turn prohibitions |
+| **PlusPower** | `base1-84` (Base): attaches to Active, adds **10 damage after applying Weakness and Resistance** | `bw1-96` (Black & White): an Item modifying attacks **before Weakness and Resistance**; a doubled Weakness can turn +10 into +20 |
+
+**Explicit non-counterexample:** Copycat `ex15-73` and `swsh7-143` have differently worded original instructions but the same functional shuffle-hand, count-opponent-hand, draw action. The official Tournament Rules Handbook uses Copycat as an example of an eligible older reprint. The updated SFT asserts both texts differ and share this effect signature; printed-text inequality alone never establishes ineligibility. **Local SFT re-executed with all five contrasting pairs and Copycat control: PASS (Node 22).**
 
 The **printed Quick Ball ambiguity is present in the [provisional rank-28 Replica deck photo](../aichi-2026/agent3-rank28-replica-source-print-mechanisms-20261102.md)**. The screenshot appears modern, but lacks legible set identifier. A source engine accidentally loading `dp2-114` would create cards and resources without the proper hand-discard cost and could search an Evolution card, changing opponent line competence. Likewise, injecting old Great Ball's to-Bench effect or Neo Super Rod's return-to-hand would fabricate entirely different lines.
 
@@ -45,6 +48,6 @@ The **printed Quick Ball ambiguity is present in the [provisional rank-28 Replic
 3. Treat a pre-BW source record with different operative printed text as **requires paper equivalence review**. Do not silently simulate its historic effect under modern reprint legality, or assume all 233 are illegal.
 4. In a registered native experiment, record selected printed-ID identities and the actual **implemented effect**. The card pool and engine implementation are separate things; neither field alone establishes a legal physical move.
 
-The SFT independently asserts the four old/new `Expanded Legal` flags, distinct printed rule strings, original legacy series, and rank28 key Pokémon signatures (Noivern PAL246, Marshadow UNB81, Wobbuffet RC11, Kyurem SFA47). Text inequality is a **screening signal**; game-functional equivalence and errata remain judged separately.
+The SFT independently asserts the five old/new `Expanded Legal` flags, distinct printed rule strings, original legacy series, and rank28 key Pokémon signatures (Noivern PAL246, Marshadow UNB81, Wobbuffet RC11, Kyurem SFA47). Text inequality is a **screening signal**; game-functional equivalence and errata remain judged separately.
 
 **Research status remains 29/32 authenticated original opponent sixties, zero qualified games and no proven 99.5% fixed 60.**
