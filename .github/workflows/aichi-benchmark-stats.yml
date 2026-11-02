@@ -172,6 +172,8 @@ jobs:
         run: node --test tests/agent26-owner-visible-mew-dce-recipient.test.cjs
       - name: Certify original rank5 all-DCE printed attack-cost feasibility
         run: node --test tests/agent26-rank5-original-energy-cost-feasibility.test.cjs
+      - name: Regress rank5 Wally four-piece opening after Prize placement
+        run: node --test tests/agent26-rank5-first-turn-wally-literal-line.test.cjs
       - name: Index unique non-KO Prize attacks and Gholdengo resource reset
         run: node --test tests/agent34-direct-prize-attack-frontier.test.cjs
       - name: Fail closed on first-player ordinary Supporter while allowing printed exceptions
