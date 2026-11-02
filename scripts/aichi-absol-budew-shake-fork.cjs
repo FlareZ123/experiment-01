@@ -41,7 +41,8 @@ function fraction(numerator,denominator){
 function budewShakeFork(cards,options={}){
   const N=options.deckSize??60,H=options.openingSize??7,
     P=options.prizeCount??6;
-  assert.ok([N,H,P,...Object.values(cards)].every(
+  assert.ok([N,H,P,cards.basics,cards.budew,cards.trubbish,
+    cards.garbodor,cards.floatStone,cards.boostShake].every(
     n=>Number.isInteger(n)&&n>=0));
   assert.ok(H>0&&H+P<N&&cards.basics>0);
   const pops=[
