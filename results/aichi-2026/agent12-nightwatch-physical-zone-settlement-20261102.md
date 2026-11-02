@@ -1,6 +1,12 @@
 # Agent 12: printed Night Watch selects real opponent-hand objects and native Store moves them
 
-**2 November 2026 | bounded retrospective original Store paper-fidelity probe, not a competitive Aichi game-result study.** The printed Trevenant & Dusknoir-GX SMP SM217 attack Night Watch requires random selection of two cards in the opponent's hand, revelation, and shuffling into that opponent's deck. Agent12's older [printed-randomness investigation](agent12-night-watch-random-selection-paper-gap-20261101.md) identified that the pinned Twinleaf upstream implementation exposes an attacker-controlled `ChooseCardsPrompt`; a default-off research-only independent seeded uniform physical-position selector had already been built and joined to **nine** genuine printed source attack roots on two historical original rank11 physical deals. The previous selector audit observed the chosen objects but did not independently establish physical post-dispatch zone movement and shuffle resolution.
+**2 November 2026 | bounded retrospective original Store paper-fidelity probe, not a competitive Aichi game-result study.** The printed Trevenant & Dusknoir-GX SMP SM217 attack Night Watch requires random selection of two cards in the opponent's hand, revelation, and shuffling into that opponent's deck. Agent12's older [printed-randomness investigation](agent12-night-watch-random-selection-paper-gap-20261101.md) identified that the pinned Twinleaf upstream implementation exposes an attacker-controlled `ChooseCardsPrompt`; a default-off research-only independent seeded uniform physical-position selector had already been built and joined to **nine** genuine printed candidate attack roots on two historical original rank11 physical deals. The previous selector audit observed the chosen objects but did not independently establish physical post-dispatch zone movement and shuffle resolution.
+
+## Actor ownership is candidate-side, verified against full raw arms
+
+**Essential attribution:** Both sets of the nine printed Night Watch attacks were made by the **New Moon Lockbreaker v1 candidate** against the original **rank11 Absol/Garbodor source opponent**. The frozen original rank11 opponent itself did **not** use Night Watch. In the repeat-2 candidate-A deal, all five attack roots belong to candidate physical seat **0**; in the repeat-0 candidate-B deal, all four belong to candidate physical seat **1**. The champion-reference candidate was the no-Night-Watch control in each seed pair. This is independently confirmed by the v7 unmodified ZIP `groups[].uniform[].trial.candidateId` and every `nightWatchPromptReceipts[].actorSeat`.
+
+Earlier wording and legacy variable `sourcePhysicalMovement` use “source” to mean the printed **SMP217 card's reducer/effect origin**, not original-opponent player ownership. Never attribute these nine actions to the original rank11 player or extrapolate rank11 source attack competence from them.
 
 ## Native full-original-60 replay and physical-zone result
 
@@ -10,8 +16,8 @@ Pinned vendor Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Exact same or
 
 | Original frozen group / active attacker seat | Genuine source-named Night Watch roots | Actual live Store `ChooseCardsPrompt` accepted | Two physically selected cards verified leaving opponent hand and entering opponent deck | Native reveal+shuffle prompts generated |
 | --- | ---: | ---: | ---: | ---: |
-| rank11 repeat2 seat A, candidate seat0, global turns 46 to 54 | 5 | 5 | **5/5** | **5/5** |
-| rank11 repeat0 seat B, candidate seat1, global turns 21 to 27 | 4 | 4 | **4/4** | **4/4** |
+| rank11 repeat2 candidate seat0, global turns 46 to 54 | 5 | 5 | **5/5** | **5/5** |
+| rank11 repeat0 candidate seat1, global turns 21 to 27 | 4 | 4 | **4/4** | **4/4** |
 | **Total** | **9** | **9** | **9/9** | **9/9** |
 
 Each source-marked, real-Store `ResolvePromptAction` was observed by a reversible research-owned hook, after the genuine pinned vendor `Store.dispatch` returned. For all nine:
