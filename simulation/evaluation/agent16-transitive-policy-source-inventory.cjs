@@ -43,7 +43,8 @@ function scanPolicySourceClosure(repoRoot,roots){
     return absolute;
   });
   const visited=new Set(),records=[],env=new Set();
-  const unparsedRequires=[],unresolvedRelative=[],externalPackages=[];
+  const unparsedRequires=[],computedRequireSites=[],
+    unresolvedRelative=[],externalPackages=[];
   while(queue.length){
     const file=queue.shift();
     if(visited.has(file))continue;
@@ -63,9 +64,16 @@ function scanPolicySourceClosure(repoRoot,roots){
     const staticRequires=[...text.matchAll(
       /\brequire\s*\(\s*(['"])([^'"]+)\1\s*\)/g)];
     const allCalls=[...text.matchAll(/\brequire\s*\(/g)];
-    if(allCalls.length>staticRequires.length)
-      unparsedRequires.push({path:relative,count:
-        allCalls.length-staticRequires.length});
+    const staticPositions=new Set(staticRequires.map(m=>m.index));
+    const missed=allCalls.filter(m=>!staticPositions.has(m.index));
+    if(missed.length){
+      unparsedRequires.push({path:relative,count:missed.length});
+      for(const m of missed){
+        const suffix=text.slice(m.index+m[0].length);
+        const shape=/^\s*([\w.]+)/.exec(suffix)?.[1]??'unclassified';
+        computedRequireSites.push({path:relative,shape});
+      }
+    }
     for(const m of staticRequires){
       const spec=m[2];
       if(!spec.startsWith('.')&&!path.isAbsolute(spec)){
@@ -96,6 +104,9 @@ function scanPolicySourceClosure(repoRoot,roots){
     sourceDigestSha256,records,envKeys:[...env].sort(),
     unparsedRequires:unparsedRequires.sort(sort),
     unresolvedRelative:unresolvedRelative.sort(sort),
+    computedRequireShapeCounts:Object.fromEntries([...new Set(
+      computedRequireSites.map(site=>site.shape))].sort().map(shape=>[
+      shape,computedRequireSites.filter(site=>site.shape===shape).length])),
     externalPackages:externalPackages.sort(sort),
     fullTransitiveBehaviorCertified:false,
     staticLocalCommonJsOnly:true,
