@@ -2,7 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {VERSION,choose,openingCounts,sourceRank5,conditionalDcePrizeExposure} = require(
+const {VERSION,choose,openingCounts,sourceRank5,conditionalDcePrizeExposure,
+  openingDuplicateCategories} = require(
   '../scripts/agent41-rank5-quickball-duplicate-openings.cjs');
 
 test('small combinatorial toy matches enumeration of physical cards',()=>{
@@ -117,5 +118,20 @@ test('conditional prize placement separates expensive DCE-only openings',()=>{
     0.2108264433717858)<1e-12);
   assert.ok(Math.abs(y.probabilityAtLeastTwoDcePrized-
     0.010391072814984005)<1e-12);
+});
+
+
+test('only 45.54 percent of duplicate-eligible originals offer repeated Trainer',()=>{
+  const x=openingDuplicateCategories(sourceRank5().cards);
+  assert.equal(x.eligible,36941838);
+  assert.deepEqual(x.groups,{
+    trainerOnly:15145407,pokemonOnly:15684085,energyOnly:4042260,
+    trainerPokemon:1423926,trainerEnergy:246732,
+    pokemonEnergy:393380,allThree:6048
+  });
+  assert.equal(x.withTrainerDuplicate,16822113);
+  assert.equal(x.withoutTrainerDuplicate,20119725);
+  assert.ok(Math.abs(x.withoutTrainerDuplicate/x.eligible-
+    0.5446324841768837)<1e-12);
 });
 
