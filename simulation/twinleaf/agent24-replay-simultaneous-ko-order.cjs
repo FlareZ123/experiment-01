@@ -254,6 +254,161 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
   };
 }
 
+/**
+ * Independently exercise ordinary non-tiebreaker simultaneous KO at two
+ * remaining Prizes per seat. This deliberately simulates previous Prize
+ * taking by moving four real owned Prize objects to the matching owner's hand.
+ * Neither the artificial prize-taking nor simultaneous lethal damage was a
+ * legal action. The point is the native decision on one already prepared
+ * state. Both printed source Actives are forced to two-Prize Basics.
+ *
+ * @param {0|1} reverse Swaps source rank 11 and rank 20 physical seats.
+ * @param {Map<number,object>} byRank Exact source lists.
+ * @returns {object} Read-only native ordinary-game adjudication receipt.
+ */
+function oneOrdinaryDoubleFinalKO(reverse,byRank){
+  const ranks=reverse?[20,11]:[11,20];
+  const decks=ranks.map(rank=>byRank.get(rank).cardIds);
+  assert.ok(decks.every(deck=>deck.length===60));
+  const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+  const {Store}=require(path.join(output,'game/store/store'));
+  const {GamePhase}=require(path.join(output,'game/store/state/state'));
+  const {PokemonCard}=require(path.join(output,'game/store/card/pokemon-card'));
+  const {Stage}=require(path.join(output,'game/store/card/card-types'));
+  const {checkState}=require(path.join(output,'game/store/effect-reducers/check-effect'));
+  const originalDispatch=Store.prototype.dispatch;
+  const originalReduce=Store.prototype.reduceEffect;
+  let root=null,owners=null,staged=false;
+  let before=null,after=null;
+  const koEntitlements=[],physicalSwaps=[];
+  Store.prototype.reduceEffect=function auditedNormalLastKO(state,effect){
+    const result=originalReduce.call(this,state,effect);
+    if(this===root&&staged&&effect.constructor.name==='KnockOutEffect'){
+      const victimSeat=state.players.indexOf(effect.player);
+      assert.ok(victimSeat===0||victimSeat===1);
+      koEntitlements.push({
+        victimSeat,claimantSeat:1-victimSeat,
+        prizeCount:effect.prizeCount,
+        preventDefault:effect.preventDefault===true,
+        alternatePrizeDestination:effect.prizeDestination!==undefined
+      });
+    }
+    return result;
+  };
+  Store.prototype.dispatch=function ordinaryDoubleLastPrize(action,...args){
+    if(!root&&action.constructor.name==='AddPlayerAction')root=this;
+    const result=originalDispatch.call(this,action,...args);
+    if(this!==root)return result;
+    const state=this.state;
+    if(action.constructor.name==='AddPlayerAction'&&
+       state.players.length===2&&!owners)
+      owners=captureInitialPhysicalOwners(state,60);
+    if(!owners||staged||state.players.length!==2||
+       state.turn!==1||state.phase!==GamePhase.PLAYER_TURN||
+       state.prompts.some(p=>p.result===undefined))
+      return result;
+    assert.equal(state.isSuddenDeath,false);
+    for(let seat=0;seat<2;seat++){
+      const player=state.players[seat];
+      const desired=ranks[seat]===11?'Crobat V':'Regidrago V';
+      assert.equal(player.getPrizeLeft(),6);
+      const current=player.active.getPokemonCard();
+      assert.ok(current instanceof PokemonCard&&current.stage===Stage.BASIC);
+      if(current.name!==desired){
+        const sources=[['deck',player.deck],['hand',player.hand]];
+        const located=sources.find(([,zone])=>zone.cards.some(card=>
+          card instanceof PokemonCard&&card.stage===Stage.BASIC&&
+          card.name===desired));
+        assert.ok(located,'Expected unplayed original 2-Prize Basic: '+desired);
+        const [zoneName,zone]=located;
+        assert.equal(player.active.cards.length,1,
+          'Prepared ordinary game must have unattached Basic Active');
+        const index=zone.cards.findIndex(card=>
+          card instanceof PokemonCard&&card.stage===Stage.BASIC&&
+          card.name===desired);
+        const replacement=zone.cards[index];
+        zone.cards[index]=current;
+        player.active.cards[0]=replacement;
+        physicalSwaps.push({
+          seat,from:zoneName,oldActive:current.name,newActive:replacement.name
+        });
+      }
+      if(!player.bench.some(slot=>slot.getPokemonCard())){
+        const available=player.deck.cards.find(card=>
+          card instanceof PokemonCard&&card.stage===Stage.BASIC);
+        const empty=player.bench.find(slot=>!slot.getPokemonCard());
+        assert.ok(available&&empty,'Need owned original Basic for live Bench');
+        player.deck.cards.splice(player.deck.cards.indexOf(available),1);
+        empty.cards.push(available);
+        physicalSwaps.push({seat,from:'deck',to:'bench',name:available.name});
+      }
+      const realPrizeSlots=player.prizes.filter(pr=>pr.cards.length>0);
+      assert.equal(realPrizeSlots.length,6);
+      for(const prize of realPrizeSlots.slice(0,4))
+        player.hand.cards.push(...prize.cards.splice(0));
+    }
+    const audit=inspectPhysicalCardZones(state,owners);
+    assert.deepEqual(fixedDeckCountAnomalies(audit),[]);
+    assert.deepEqual(audit.originalOwnerCustody.missingOriginalCounts,[0,0]);
+    assert.deepEqual(audit.originalOwnerCustody.displacedOriginalReferences,[]);
+    before={
+      isSuddenDeath:state.isSuddenDeath,
+      prizes:state.players.map(p=>p.getPrizeLeft()),
+      active:state.players.map(p=>p.active.getPokemonCard()?.name??null),
+      bench:state.players.map(p=>
+        p.bench.filter(s=>s.getPokemonCard()).length)
+    };
+    assert.deepEqual(before.prizes,[2,2]);
+    assert.ok(before.bench.every(n=>n>0));
+    for(const player of state.players)player.active.damage=9999;
+    staged=true;
+    checkState(this,state);
+    after={
+      winner:state.winner,phase:state.phase,
+      prizes:state.players.map(p=>p.getPrizeLeft()),
+      active:state.players.map(p=>p.active.getPokemonCard()?.name??null),
+      bench:state.players.map(p=>
+        p.bench.filter(s=>s.getPokemonCard()).length)
+    };
+    return result;
+  };
+  let game;
+  try{
+    game=runMatch({
+      deckA:decks[0],deckB:decks[1],seed:SEED,maxActions:100,
+      strictPromptValidation:true,isolatePolicyRandomness:true,
+      doubleDragonRecovery:true,capturePhysicalZoneIntegrity:true,
+      captureOriginalOwnerIntegrity:true,
+      enforceSettledPhysicalZoneIntegrity:true,
+      label:'agent24-synthetic-ordinary-simultaneous-last-prizes-'+reverse
+    });
+  }finally{
+    Store.prototype.dispatch=originalDispatch;
+    Store.prototype.reduceEffect=originalReduce;
+  }
+  assert.ok(owners&&staged&&before&&after);
+  assert.equal(owners.size,120);
+  assert.deepEqual(before.active.sort(),['Crobat V','Regidrago V']);
+  assert.equal(koEntitlements.length,2);
+  assert.ok(koEntitlements.every(e=>
+    e.prizeCount===2&&!e.preventDefault&&!e.alternatePrizeDestination));
+  assert.ok(game.finished,'Ordinary simultaneous KO must reach native terminal');
+  assert.equal(game.winner,0,'Expected first physical-seat priority');
+  assert.deepEqual(after.prizes,[0,2],
+    'Expected native first claimant to take both final Prizes exclusively');
+  return {
+    reverse,ranks,seed:SEED,genuineOriginal60PerSeat:true,
+    initialSixPrizesNativeDealt:true,syntheticFourPrizeMovesPerSeat:true,
+    syntheticLethalDamage:true,syntheticOwnedBoardSwaps:physicalSwaps,
+    before,after,koEntitlements,
+    hypotheticalBothAwardsRemaining:[0,0],
+    simultaneousBothTakeLastPrizesNativeNotTie:true,
+    nativeFinished:game.finished,nativeWinner:game.winner,
+    nativeEndReason:game.endReason,
+    competitiveQualified:false
+  };
+}
+
 /** @returns {object} */
 function main(){
   initializeCards();
@@ -263,12 +418,17 @@ function main(){
     one(1,byRank),
     one(1,byRank,{forceOppositeLeader:true})
   ];
+  const ordinaryDoubleFinalKOs=[
+    oneOrdinaryDoubleFinalKO(0,byRank),
+    oneOrdinaryDoubleFinalKO(1,byRank)
+  ];
   return {
     schema:'agent24-native-replay-synthetic-simultaneous-ko-v2',
-    pinnedTwinleaf:PIN,rows,competitiveQualifiedGames:0,
+    pinnedTwinleaf:PIN,rows,ordinaryDoubleFinalKOs,
+    competitiveQualifiedGames:0,
     note:'Synthetic lethal Active damage; optional synthetic Basic Bench and Active swaps explicitly tagged. This is a pinned reducer counterexample, not a paper-legal attack trace, game win or qualified match.'
   };
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(main(),null,2)+'\n');
-module.exports={main,one,SEED};
+module.exports={main,one,oneOrdinaryDoubleFinalKO,SEED};
