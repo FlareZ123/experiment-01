@@ -1,0 +1,44 @@
+{
+  "schema": "agent21-single-profile-rank5-canary-registration-v1",
+  "status": "preregistered-new-seeds-before-native-execution; development-only",
+  "createdAtUtc": "2026-11-02T14:42:26.885948Z",
+  "sourceRank": 5,
+  "sourcePlayer": "Yamato Nakano",
+  "sourceArchetype": "Mew/Genesect",
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3068556983
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1243183747
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1160953757
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3495526103
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "plannedArms": 8,
+  "purpose": "Symmetric, one selected native policy with two physical seats and two fixed candidate sixties; root/payment/attack/opponent-continuation canary, no matchup ranking",
+  "screeningRule": "Retain all 8 attempted rows; do not retrospectively select winning seeds",
+  "competitiveGameQualified": false
+}
