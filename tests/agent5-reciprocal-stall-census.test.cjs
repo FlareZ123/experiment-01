@@ -67,7 +67,7 @@ test('an unverified attack settlement does not certify a stall',()=>{
   const out=reciprocalStallCensus(fixture(19,{missingAt:8}));
   assert.equal(out.streaks[0].consecutivePairs,19);
   assert.equal(out.streaks[0].unresolvedPrizeCount,1);
-  assert.equal(out.streaks[0].policyReviewTriggered,false);
+  assert.equal(out.streaks[0].requiresPolicyReview,false);
 });
 
 test('missing turn and switched seat break a contiguous actor cycle',()=>{
