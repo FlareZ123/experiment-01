@@ -45,3 +45,6 @@ test('Guzma and Hala zero Stadium search does not schedule printed shuffle in na
     assert.equal(skipped.shufflePrompt,false);
   }
 });
+
+// Reuse this compiled-native suite for the opt-in paper-payment guard.
+require('./agent1-ghala-paper-payment-guard.test.cjs');
