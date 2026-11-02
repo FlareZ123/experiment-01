@@ -35,6 +35,21 @@ This mechanism has an important **predecessor**, not to be erased: [Agent44's re
 
 **Root-skeleton digest caution remains critical:** **7/16** matched games have exactly equal `rootActionLedgerSha256` despite at least one genuine source/candidate Benched Energy attachment in their treatment. This reproduces the previously documented root-ledger target-blindness. Comparisons must use Store dispatch target and before/after public-zone records. The new experiment's 9/16 changed root-skeleton digests refer to action-kind/ordering differences, not all 16 physical changes. The raw archived artifact is authoritative for each individual physical transition.
 
+## First complete native Bench-to-Active attack mechanism witnessed
+
+The two treatment arms with the original rank11 source physical seed group `11:1:B` provide **an actual later attack**, beyond counting attachments:
+
+| Treatment original source against candidate | Control source attacks | Treatment source attacks | Treatment attack family and accepted public damage |
+| --- | ---: | ---: | --- |
+| `11:1:B:champion-reference` | **0** | **10** | Ten real `Oranguru V` **Psychic** declarations; first one on global turn 27 dealt **30** damage to opposing Tapu Lele-GX (0→30 damage counters' damage value) |
+| `11:1:B:new-moon-lockbreaker-v1` | **0** | **13** | Thirteen real `Oranguru V` **Psychic** declarations; first one on global turn 27 dealt **80** damage to opposing Tapu Lele-GX (0→80 damage value) |
+
+These are **two correlated original seed-group trajectories**, and the attack's variable damage depends on opponent Active attached Energy. In each treatment, the actual native public target sidecar confirms **two Darkness Energy attachments to source Oranguru V while on Bench** at source global turns 15 and 17. For New Moon they occur at native dispatch ordinals **68, 75**; for champion **70, 78**. At real source turn **27**, Oranguru V is verifiably in the **Active**, having two attached Darkness from those earlier Bench turns, and an **additional third Darkness** is physically attached to it from the hand (New Moon ordinal **111**). The first ensuing native `Psychic` action is Store-accepted and fully settled against the real opponent Active with its public before/after damage receipt. The source registered 60 has only Basic Darkness, which legitimately pays Oranguru's **three Colorless** attack cost.
+
+Thus this is a concrete **Bench funding → eventual Active promotion → payable, damage-dealing attack** mechanism that *was absent from the matched original-source controls*. The endpoint difference is informative: baseline New Moon capped at `[6,6]` with zero source attacks; treatment source took all six Prizes in a native terminal at `[0,6]`. Baseline champion ended with candidate native winner `[6,2]`; treatment reached cap `[1,6]`, with source still one Prize short. This is actual native Store causal development evidence for an improved *opponent*, subject to all paper/clock/choice-policy vetoes, rather than proof of authentic competitive rank11 strength.
+
+**Other physical target pathways:** across all 82 confirmed treatment Bench Energy placements, original source recipients were Mega Absol ex (**15**), Crobat V (**7**), Trubbish (**4**), Oranguru V (**4**), Garbodor (**4**), Squawkabilly ex (**2**), Tapu Lele-GX (**2**). The source's four Darkness investments into Garbodor do not on their own pay its printed Psychic + three Colorless attack using only the registered 8 Basic Darkness; this exposes a real flaw in purely numerical hypothetical attachment scoring. Energy allocation may still have other purposes, and this is not a blanket condemnation of Garbodor's Ability-lock role.
+
 ## The native endpoints are not monotonically better
 
 Three authentic candidate-specific game endpoints change type; all other 13 retain terminal/cap status and native winner when terminal.
