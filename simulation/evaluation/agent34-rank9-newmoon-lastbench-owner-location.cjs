@@ -43,7 +43,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
   assert.equal(typeof original?.value,'function');
   const originalStores=new WeakMap();
   let liveStoreCount=0,originalStoreDispatches=0;
-  const matches=[],searches=[];
+  const matches=[],searches=[],coreBenchPlays=[];
   function observed(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&
        !originalStores.has(this)){
@@ -54,7 +54,22 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
     const root=++live.dispatches;
     originalStoreDispatches++;
     const state=this.state;
-    let before=null;
+    let before=null,coreBefore=null;
+    if(action?.constructor?.name==='PlayCardAction'&&
+       Array.isArray(state?.players)){
+      const seat=state.players.findIndex(p=>p.id===(action.clientId??action.id));
+      const owner=state.players[seat];
+      if(seat===0&&owner?.hand?.cards?.[action.handIndex]?.fullName===CORE){
+        coreBefore={
+          storeRunIndex:live.run,originalDispatchOrdinal:root,
+          globalTurn:state.turn,ownerSeat:seat,
+          originalOwnerCoreLocations:ownerZoneCounts(owner),
+          originalOwnerActive:owner.active.getPokemonCard()?.fullName??null,
+          originalOwnerBench:owner.bench.map(p=>p.getPokemonCard()?.fullName??null),
+          ownerActionSelectedWithoutPrivateObserverFeedback:true
+        };
+      }
+    }
     if(action?.constructor?.name==='ResolvePromptAction'&&
        Number.isSafeInteger(state?.turn)&&Array.isArray(action.result)){
       const pending=state.prompts?.find(p=>
@@ -110,6 +125,19 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
       }
     }
     const returnValue=original.value.apply(this,[action,...args]);
+    if(coreBefore){
+      const owner=this.state.players[coreBefore.ownerSeat];
+      const coreAfter=ownerZoneCounts(owner);
+      coreBenchPlays.push({...coreBefore,
+        ownerAfterCorePlay:coreAfter,
+        benchAfter:owner.bench.map(p=>p.getPokemonCard()?.fullName??null),
+        physicallyBenchedCore:
+          coreAfter.bench===coreBefore.originalOwnerCoreLocations.bench+1&&
+          coreAfter.hand===coreBefore.originalOwnerCoreLocations.hand-1&&
+          coreAfter.total===coreBefore.originalOwnerCoreLocations.total,
+        ownerStillActive:owner.active.getPokemonCard()?.fullName??null
+      });
+    }
     if(before){
       const owner=this.state.players[before.ownerSeat];
       const after=owner.bench.map(slot=>
@@ -130,6 +158,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
       originalStores:liveStoreCount,originalStoreDispatches,
       matchingOriginalRootCount:matches.length,
       events:matches,searchPromptEvents:searches,
+      coreBenchPlays,
       gameQualifyingEvidence:false,
       paperComplete:false,
       observerIsReadOnly:true
