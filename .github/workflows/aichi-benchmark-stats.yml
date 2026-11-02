@@ -782,6 +782,8 @@ jobs:
         run: npm run compile
       - name: Execute four registered rank5 native canary arms without claiming competitive qualification
         run: node simulation/evaluation/agent18-rank5-selected-canary.cjs > agent18-rank5-selected-canary-native.json
+      - name: Regress source Prize payoff and reject empty copied attacks as win evidence
+        run: node --test tests/agent18-source-prize-progress.test.cjs
       - name: Regress the sole natural-evolution policy change on exactly the previously observed physical deals
         run: node --test tests/agent18-rank5-natural-evolution-v2.test.cjs
       - name: Execute four retrospective rank5 native natural-evolution treatment arms
