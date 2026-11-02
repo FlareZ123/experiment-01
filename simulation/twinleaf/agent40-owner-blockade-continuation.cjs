@@ -51,7 +51,7 @@ function chooseOwnerBlockadeContinuation(view,catalog){
   const target=own.bench[index];
   const blockade=target.attacks?.find(a=>a.name==='Blockade'&&
     Array.isArray(a.cost)&&a.cost.length===1&&
-    a.cost[0]==='Colorless');
+    a.cost[0]===catalog.colorlessEnergyType);
   const denied=target.publicRestrictions??{};
   if(!blockade||!Array.isArray(target.energies)||
       target.energies.length!==0||
