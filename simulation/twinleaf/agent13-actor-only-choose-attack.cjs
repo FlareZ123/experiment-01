@@ -2,6 +2,8 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
+const {chooseMewMaxMiracleAgainstSafeguard}=
+  require('./agent19-mew-max-miracle-owner-choice.cjs');
 const VERSION='agent13-actor-only-copied-attack-choice-v4-public-gx-lock';
 
 /**
@@ -100,6 +102,13 @@ function chooseActorCopiedAttack(input,options={}){
     picked=eligible.find(x=>x.printing==='Genesect V FST'&&
       x.attackName==='Techno Blast')??picked;
   }
+  if(options.preferMewMaxMiracleAgainstSafeguard===true){
+    const selected=chooseMewMaxMiracleAgainstSafeguard(input);
+    if(selected){
+      picked=eligible.find(x=>x.sourceIndex===selected.sourceIndex&&
+        x.attackIndex===selected.attackIndex)??picked;
+    }
+  }
   if(picked)return {sourceIndex:picked.sourceIndex,
     attackIndex:picked.attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
@@ -132,13 +141,16 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
+  const preferMewMaxMiracleAgainstSafeguard=
+    deps.preferMewMaxMiracleAgainstSafeguard===true;
   const audit={version:VERSION+
     (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
     (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':'')+
-    (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':''),
+    (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':'')+
+    (preferMewMaxMiracleAgainstSafeguard?'+agent19-mew-maxmiracle-pal97-v1':''),
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
-    preferMewGenesectTechnoBlast,
+    preferMewGenesectTechnoBlast,preferMewMaxMiracleAgainstSafeguard,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -157,7 +169,7 @@ function withActorOnlyChooseAttack(run,deps={}){
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage,
-        preferMewGenesectTechnoBlast});
+        preferMewGenesectTechnoBlast,preferMewMaxMiracleAgainstSafeguard});
     const controlIntent=preferZeroHandPrintedDamage?
       chooseActorCopiedAttack(input,{preferGengarPoltergeist}):null;
     const prompt=state.prompts.find(p=>p.result===undefined);
