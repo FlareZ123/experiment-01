@@ -26,7 +26,15 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
   const ResolvePromptAction=deps.ResolvePromptAction??
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
-  const choose=deps.choose??chooseTreasureRootIntent;
+  const choose=deps.choose??((view,printedCatalog)=>{
+    if(deps.earlyRegistered===true){
+      const knownSixty=deps.ownRegisteredSixtiesBySeat?.[view.actorSeat]??null;
+      const early=require('./agent49-registered-treasure-early-setup.cjs')
+        .chooseRegisteredTreasureEarlyIntent(view,printedCatalog,knownSixty);
+      if(early)return early;
+    }
+    return chooseTreasureRootIntent(view,printedCatalog);
+  });
   const trace=deps.trace??(()=>{});
   const getCatalog=deps.getCatalog??(()=>{
     return require('./agent43-guzma-prompt-continuation.cjs')
