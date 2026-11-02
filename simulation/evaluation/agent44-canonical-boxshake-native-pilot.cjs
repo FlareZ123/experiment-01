@@ -26,7 +26,10 @@ const FRESH32_REGISTERED_SHA256='89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d
 const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
-function run({fresh32=false}={}){
+function run({fresh32=false,diagnosticFreshIndex=null}={}){
+  assert.ok(diagnosticFreshIndex===null||
+    (fresh32&&diagnosticFreshIndex===383),
+    'The diagnostic is strictly retrospective on the previously failed original index383');
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,
@@ -38,13 +41,16 @@ function run({fresh32=false}={}){
   initializeCards();
   const {Store}=require(path.join(ROOT,
     'vendor/twinleaf/ptcg-server/output/game/store/store'));
-  const fresh=schedule(fresh32?FRESH32_START:FRESH_START,
-    fresh32?FRESH32_COUNT:FRESH_COUNT).map(x=>({
-      ...x,selection:fresh32?'preregistered-v3-canonical-fresh32':
-        'precommitted-unselected-independent'
-    }));
-  if(fresh32)assert.equal(sha(JSON.stringify(fresh)),
-    FRESH32_REGISTERED_SHA256,'Fresh32 canonical physical seed schedule changed after registration');
+  const fresh=schedule(diagnosticFreshIndex??
+    (fresh32?FRESH32_START:FRESH_START),
+    diagnosticFreshIndex===null?(fresh32?FRESH32_COUNT:FRESH_COUNT):1)
+    .map(x=>({...x,selection:diagnosticFreshIndex!==null?
+      'retrospective-after-registered-failure-383':
+      fresh32?'preregistered-v3-canonical-fresh32':
+        'precommitted-unselected-independent'}));
+  if(fresh32&&diagnosticFreshIndex===null)assert.equal(
+    sha(JSON.stringify(fresh)),FRESH32_REGISTERED_SHA256,
+    'Fresh32 canonical physical seed schedule changed after registration');
   const registered=[
     {trial:'historical-selected-positive-source',seed:SEED,
       sourceSeat:0,selection:'retrospective-native-positive'},
@@ -113,13 +119,18 @@ function run({fresh32=false}={}){
     }
   }
   return {
-    schema:fresh32?'agent44-shared-canonical-bothseat-owner-boxshake-fresh32-v2':
+    schema:diagnosticFreshIndex!==null?
+      'agent44-shared-canonical-bothseat-boxshake-diagnostic383-v1':
+      fresh32?'agent44-shared-canonical-bothseat-owner-boxshake-fresh32-v2':
       'agent44-shared-canonical-bothseat-owner-boxshake-native-v1',
     historicalSelection:'retrospective-original-source-positive',
-    prospectiveIndices:fresh32?
+    retrospectiveDebugIndex:diagnosticFreshIndex,
+    prospectiveIndices:diagnosticFreshIndex!==null?
+      null:fresh32?
       [FRESH32_START,FRESH32_START+FRESH32_COUNT-1]:
       [FRESH_START,FRESH_START+FRESH_COUNT-1],
-    fresh32RegisteredScheduleSha256:fresh32?FRESH32_REGISTERED_SHA256:null,
+    fresh32RegisteredScheduleSha256:fresh32&&diagnosticFreshIndex===null?
+      FRESH32_REGISTERED_SHA256:null,
     preregistration:fresh32?
       'results/aichi-2026/registrations/agent44-rank8-common-actor-boxshake-fresh32-20261102.json':null,
     originalRank8Printed60:true,sourcePrinted60Sha256:
@@ -139,7 +150,7 @@ function run({fresh32=false}={}){
     errorCount:rows.filter(x=>x.status==='NATIVE_ERROR').length,
     completedSourceSetups:rows.filter(x=>
       x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
-    fresh32Summary:fresh32?{
+    fresh32Summary:fresh32&&diagnosticFreshIndex===null?{
       attempted:rows.length-1,
       completed:rows.slice(1).filter(x=>
         x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
@@ -153,7 +164,8 @@ function run({fresh32=false}={}){
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run({
-  fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true'
+  fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true',
+  diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
   FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
