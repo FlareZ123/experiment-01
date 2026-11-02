@@ -13,6 +13,11 @@ on:
         type: boolean
         default: false
         required: false
+      source13_native:
+        description: Run the preregistered eight original-rank13 paired source games
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -46,6 +51,11 @@ jobs:
         run: node --test tests/agent8-regidrago-quickball-donor-frontier.test.cjs
       - name: Verify paid native Quick Ball Dragon donor search and Bench
         run: node --test tests/agent8-rank13-quickball-dragon-donor-native.test.cjs
+      - name: Execute preregistered original-rank13 paired donor-root games
+        if: ${{ inputs.source13_native }}
+        env:
+          AGENT8_RANK13_RESULT_JSON: agent8-original13-donor-paired-native.json
+        run: node simulation/twinleaf/agent8-rank13-donor-paired-original-native.cjs
       - name: Compare 32 original-source retrospective native policy attempts
         if: ${{ !inputs.fresh_registered && !inputs.native_tests_only }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs
@@ -62,5 +72,6 @@ jobs:
             agent8-rank15-effective-aor-item-retrospective-summary.json
             agent8-rank15-effective-aor-item-fresh-native-raw.json
             agent8-rank15-effective-aor-item-fresh-native-summary.json
+            agent8-original13-donor-paired-native.json
           if-no-files-found: warn
           retention-days: 30
