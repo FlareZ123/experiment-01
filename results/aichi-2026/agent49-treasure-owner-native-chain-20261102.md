@@ -29,3 +29,20 @@ CI [41377988597](https://github.com/FlareZ123/experiment-01/actions/runs/4137798
 The crucial newly demonstrated behavioral handoff is **owner-root accepted Item -> owner-hand cost prompt physically paid -> owner-deck prompt physically selected and moved -> native show/shuffle completion -> Item physical final discard**, with owner ID maintained. The opponent's hidden hand/deck remains unavailable to the proposal policy. The test's staged state is deliberately controlled and contains a known target. It is not a native natural-deal opportunity frequency or a completed match.
 
 A follow-up attempt is registered by reusing the existing manual `native_treasure_pair` boolean (same original source 60s, both physical seats, seed 20261030, default-off on/off actor decision) to quantify whether the new route actually gets chosen under natural original-source deal roots. Preserve all root-action cap/error cases and avoid turning any development engine terminal into a competitive result.
+
+## First frozen source-dealt rank10 versus rank1 on/off pilot (02:36 UTC)
+
+The existing manual `native_treasure_pair:true` gate executed [CI 41378287961](https://github.com/FlareZ123/experiment-01/actions/runs/41378287961), checkout `8ed4044ac507545fd1ff63691e7333df56c16743`, original source rank10 **Regidrago** versus rank1 **Shadow Rider Calyrex**, native engine pin `a9905a76`, seed `20261030`, both physical Regidrago seats 0/1 and one same-deal control/treatment each. Development-only `withActorOnlyRootPolicy`, fixed 160-action cap, original source copies with explicit same-set Basic Energy substitutions (rank10 4 Grass + 2 Fire, rank1 11 Psychic), and default-off paid-owner Treasure intervention. The raw `AGENT49_ORIGINAL_TREASURE_MATCHES` receipt is in the job logs of that run.
+
+| Regidrago physical seat | Treasure switch | Selected Treasure roots | Genuine owner cost/search/finalized | Native actions | Native terminal |
+|---|---|---:|---:|---:|---|
+| 0 | OFF | 0 | 0 | 160 | cap, no winner |
+| 0 | ON | 1 | 1 | 160 | cap, no winner |
+| 1 | OFF | 0 | 0 | 106 | engine ended; physical seat0 Shadow Rider won |
+| 1 | ON | 1 | 1 | 112 | engine ended; physical seat0 Shadow Rider won |
+
+The **seat0 ON** natural source root at global turn **22** consumed a physical expired `Battle VIP Pass FST` from the owner hand, found `Regidrago VSTAR SIT` inside its actual owner-deck prompt and completed native Item finality. The **seat1 ON** natural source root at global turn **15** consumed physically held `Dragapult ex TWM` into discard, retrieved actual `Regidrago VSTAR SIT`, completed its owner reveal/shuffle and finalized the Item. Each encounter had one selected root, one accepted physical donor payment, one owner-deck target, one full Item settlement and **zero recorded rejected native replies**. Both OFF arms had zero planned/selected Treasure roots and no bridge receipts.
+
+This is the **first measured natural source-dealt existence witness for this bridge**, rather than only a favorable staged board. It has **no observed terminal winner improvement** and no evidence of stronger attack choices, setup quality or match clock treatment. Within-game action counts are correlated and should not be called independent games. Importantly the source-pinned pilot checkout installed the reversible prompt interceptor in OFF arms too, although no OFF arm activated its plan. Subsequent script commit `6f7ea5229f51e1dab59e3f9d513b1b8352aabc59` explicitly sets its proposed choice to `null` when the treatment switch is OFF; the updated source code and the earlier completed run must remain distinguishable.
+
+**Qualification verdict:** Both ON arms now have genuine real source-dealt Treasure payment/effect witnesses, but the entire four-arm pilot is still **0 competitively qualified games**. It is a single fixed original-opponent pair, with known weak shared actor and no independent full-game paper five-phase validation.
