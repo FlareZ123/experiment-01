@@ -131,7 +131,7 @@ function run(deps={}){
 if(require.main===module){
   const value=process.argv.includes('--inspect-only')?
     {schema:VERSION,preflight:preflight(),mode:'INSPECTION_ONLY'}:run();
-  const output=process.env.AGENT2_RANK9_SPECIAL_GUZMA_OUTPUT;
+  const output=process.env.AICHI_RANK9_SPECIAL_GUZMA_OUTPUT;
   if(output){
     const tmp=output+'.tmp-'+process.pid;
     fs.writeFileSync(tmp,JSON.stringify(value,null,2)+'\n');
