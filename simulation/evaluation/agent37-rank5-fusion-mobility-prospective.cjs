@@ -49,6 +49,10 @@ function run(){
   assert.equal(reg.status,'pre-outcome-frozen-source-two-seat-policy-development');
   assert.equal(reg.originalRank,5);
   assert.equal(reg.originalSourcePrinted60Sha256,SOURCE_SHA);
+  const sourceAdmission=require('../../results/aichi-2026/original-printed60-admission-v1.json');
+  const original=sourceAdmission.rows.find(x=>x.rank===5);
+  assert.equal(original?.physicalCards,60);
+  assert.equal(original.printed60Sha256,SOURCE_SHA);
   assert.equal(reg.plannedNativeAttempts,8);
   assert.equal(reg.registeredGroups.length,2);
   assert.deepEqual(reg.registeredGroups.map(g=>g.candidateSlot),['A','B']);
