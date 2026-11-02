@@ -87,5 +87,92 @@ function main() {
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
   return result;
 }
+
+/**
+ * Exact joint event conditional on a legal starting seven. Paper setup draws
+ * seven before setting six Prizes, so Basic-valid initial-seven selection
+ * mildly reweights the physical Prize composition. Stage groups are disjoint
+ * and describe physical card copies; other Basic/non-Basic remainder is
+ * explicitly partitioned.
+ *
+ * @param {{count:number,basic:boolean,required:boolean}[]} groups Required printed stages plus remainder.
+ * @param {number} basicCopies Total physical Basics (14 for both source variants).
+ * @param {number} n Deck cards.
+ * @param {number} prizes Prize cards.
+ * @param {number} hand Opening hand cards.
+ * @returns {{available:string,blocked:string,availableProbability:number,blockedProbability:number}}
+ */
+function conditionalFullStageSupply(groups,basicCopies,n=60,prizes=6,hand=7){
+  assert.ok(Number.isSafeInteger(n)&&n>0&&Number.isSafeInteger(prizes)&&
+    prizes>=0&&prizes<n&&Number.isSafeInteger(hand)&&hand>0&&hand<=n-prizes);
+  assert.ok(Number.isSafeInteger(basicCopies)&&basicCopies>0&&basicCopies<=n);
+  assert.ok(Array.isArray(groups)&&groups.length>0&&groups.length<=15);
+  assert.ok(groups.every(g=>Number.isSafeInteger(g.count)&&g.count>=1&&
+    typeof g.basic==='boolean'&&typeof g.required==='boolean'));
+  assert.equal(groups.reduce((s,g)=>s+g.count,0),n);
+  assert.equal(groups.filter(g=>g.basic).reduce((s,g)=>s+g.count,0),basicCopies);
+  let good=0n,total=0n;
+  function enumerate(i,selected,ways,basicPrized,blocked){
+    if(i===groups.length){
+      if(selected!==prizes)return;
+      const eligible=choose(n-prizes,hand)-
+        choose(n-prizes-basicCopies+basicPrized,hand);
+      assert.ok(eligible>=0n);
+      const weighted=ways*eligible;
+      total+=weighted;
+      if(!blocked)good+=weighted;
+      return;
+    }
+    const group=groups[i];
+    for(let k=0;k<=Math.min(group.count,prizes-selected);k++){
+      enumerate(i+1,selected+k,ways*choose(group.count,k),
+        basicPrized+(group.basic?k:0),
+        blocked||(group.required&&k===group.count));
+    }
+  }
+  enumerate(0,0,1n,0,false);
+  assert.ok(total>0n&&good<=total);
+  const gd=gcd(good,total),bd=gcd(total-good,total);
+  return {
+    available:String(good/gd)+'/'+String(total/gd),
+    blocked:String((total-good)/bd)+'/'+String(total/bd),
+    availableProbability:Number(good)/Number(total),
+    blockedProbability:Number(total-good)/Number(total)
+  };
+}
+
+/** @returns {object} Condition both rank2 and v1 Prize topology on valid original seven. */
+function rank2ConditionalPrizeComparison(){
+  const original=[
+    {count:2,basic:true,required:true},  // Oddish
+    {count:2,basic:false,required:true}, // Gloom
+    {count:2,basic:false,required:true}, // Vileplume AOR
+    {count:2,basic:true,required:true},  // Lillipup
+    {count:2,basic:false,required:true}, // Herdier
+    {count:1,basic:false,required:true}, // Stoutland
+    {count:10,basic:true,required:false},
+    {count:39,basic:false,required:false}
+  ];
+  const challenger=[
+    {count:2,basic:true,required:true},  // Oddish
+    {count:2,basic:false,required:true}, // Gloom
+    {count:2,basic:false,required:true}, // Vileplume AOR
+    {count:2,basic:true,required:true},  // Exeggcute
+    {count:2,basic:false,required:true}, // Exeggutor
+    {count:10,basic:true,required:false},
+    {count:40,basic:false,required:false}
+  ];
+  const old=conditionalFullStageSupply(original,14);
+  const proposed=conditionalFullStageSupply(challenger,14);
+  assert.equal(old.available,'68469698109287/79557769491200',
+    'Previous Agent30 rank2 original stage/prize benchmark must be reproduced');
+  assert.equal(proposed.available,'7624616168431/7955776949120');
+  return {
+    original:old,challenger:proposed,
+    availableDeltaPercentagePoints:
+      (proposed.availableProbability-old.availableProbability)*100,
+    note:'Valid first 7 Basic opener and then six unknown Prizes, no Prize recovery, Stage1 bypass or card play. Counted only copy presence, never wins.'
+  };
+}
 if(require.main===module)main();
-module.exports={VERSION,fullStagePrizeSupply,physicalNameCount,rank2JointSupply,main};
+module.exports={VERSION,fullStagePrizeSupply,conditionalFullStageSupply,rank2ConditionalPrizeComparison,physicalNameCount,rank2JointSupply,main};
