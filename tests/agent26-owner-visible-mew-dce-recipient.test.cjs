@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseMewDceRecipient:choose}=require('../simulation/twinleaf/agent26-owner-visible-mew-dce-recipient.cjs');
 const DCE='Double Colorless Energy SUM';
-const CATALOG={specialEnergies:new Set([DCE])};
+const CATALOG={specialEnergies:new Set([DCE]),colorlessEnergyType:0,
+  basicEnergyTypes:{Lightning:1,Psychic:2},basicEnergies:new Set()};
 function view({active='Lillie\'s Clefairy ex JTG',bench=['Mew V FST'],hand=[DCE],used=false,temple=false}={}){
   return {decisionKind:'owner-root',globalTurn:3,ownHand:hand,
     ownTurnResources:{energyPlayLocked:false,specialEnergyPlayLocked:false,
@@ -43,4 +44,12 @@ test('helper is owner-relative and never searches hidden opponent/deck informati
     Object.defineProperty(v,'hiddenDeck',{get(){throw Error('invalid hidden deck read');}});
     assert.equal(choose(v,CATALOG).slot,'bench');
   }
+});
+
+test('newly payable damaging non-Mew Active attack retains tactical priority',()=>{
+  const v=view();
+  v.ownPublic.active.attacks=[{name:'Immediate Attack',damage:70,cost:[0,0]}];
+  assert.equal(choose(v,CATALOG),null);
+  v.ownPublic.active.attacks=[{name:'Psychic Attack',damage:70,cost:[2,0]}];
+  assert.equal(choose(v,CATALOG).slot,'bench');
 });
