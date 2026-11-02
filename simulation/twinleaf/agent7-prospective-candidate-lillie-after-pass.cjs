@@ -67,6 +67,7 @@ function withCandidateLillieAfterPass(execute,trial,deps={}){
       trialId:trial.id,seat,turn:view.globalTurn,
       printing:alternative.printing,handIndex:alternative.handIndex,
       handCountBefore:view.ownHand.length,
+      ownerHandPrintingsBefore:view.ownHand.slice(),
       deckCountBefore:view.ownPublic.deckCount,
       sourceChosenAction:'PassTurnAction'
     };
