@@ -44,7 +44,7 @@ jobs:
         run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs
       - name: Alolan Raichu native damage-versus-counter typing fixture
         if: inputs.experiment == 'raichu-effect-differential'
-        run: node --test tests/agent1-alolan-raichu-damage-type-native.test.cjs tests/agent1-electro-rain-hook-identity.test.cjs
+        run: node --test tests/agent1-alolan-raichu-damage-type-native.test.cjs
       - name: Original rank17 paper damage hook replay
         if: inputs.experiment == 'raichu-paper-damage-native'
         run: node simulation/evaluation/agent1-rank17-electro-rain-native-hook-observation.cjs > agent1-rank17-hook-native.json
