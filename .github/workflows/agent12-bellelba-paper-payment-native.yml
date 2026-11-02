@@ -1,0 +1,29 @@
+name: Aichi Bellelba optional-payment native paper fidelity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bellelba-paper-payment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Load pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run ten original-print constructed native payment cases
+        run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs
