@@ -89,3 +89,8 @@ jobs:
 
       - name: Verify absolute paper-field 99.5-percent betting threshold
         run: node --test tests/agent46-anytime-absolute-field-win-betting.test.cjs
+      - name: Verify candidate Apex Alchemy exact fixed60, Basic-valid access and source counterwindow
+        run: |
+          node --test tests/agent43-apex-alchemy-sft.test.cjs
+          node --test tests/agent43-muk-search-eight-bound.test.cjs
+          node --test tests/agent43-muk-thorns-firstturn-collision.test.cjs
