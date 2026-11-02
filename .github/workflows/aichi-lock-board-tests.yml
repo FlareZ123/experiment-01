@@ -251,6 +251,9 @@ jobs:
       - name: Agent17 both-seat original Klefki Bomb retreat Rain continuous native chain
         if: inputs.agent33_stadium_mode == 'klefki-electrode'
         run: node --test tests/agent17-klefki-bomb-temple-rain.pinned.test.cjs
+      - name: Agent17 exact original-rank Klefki Bomb direct Prize custody gate
+        if: inputs.agent33_stadium_mode == 'klefki-electrode'
+        run: node --test tests/agent17-klefki-bomb-package-prize-gate.test.cjs
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
