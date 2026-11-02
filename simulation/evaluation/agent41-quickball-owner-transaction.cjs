@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {auditQuickBallPayment} = require(
   './agent41-quickball-payment-contract.cjs');
 
-const VERSION = 'agent41-quickball-owner-transaction-v1';
+const VERSION = 'agent41-quickball-owner-transaction-v2';
 
 /**
  * Read only accepted native Store decisions. The headless runner records
@@ -45,7 +45,10 @@ function reconcileQuickBallOwnerTransactions(evidence) {
     const selections = all.map(x => byOrdinal.get(x.actionOrdinal))
       .filter(x => x?.cardSelection);
     const payment = selections.find(x =>
-      x.cardSelection.sourceZone !== 'deck' &&
+      (x.cardSelection.sourceZone === 'hand' &&
+        x.cardSelection.sourcePlayerSlot === seat ||
+        x.cardSelection.sourceZone === 'unclassified' &&
+        x.cardSelection.sourcePlayerSlot === -1) &&
       x.cardSelection.nativePromptMin === 1 &&
       x.cardSelection.nativePromptMax === 1 &&
       x.cardSelection.selectedCards?.length === 1);
