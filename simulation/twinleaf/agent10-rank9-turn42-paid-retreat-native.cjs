@@ -10,11 +10,13 @@ const VERSION='agent10-rank9-source-t42-native-paid-retreat-v1';
  * concealed zones, and the original actor is unchanged outside this state.
  * @template T
  * @param {()=>T} execute
- * @param {{Bot?:Function,Store?:Function,RetreatAction?:Function,GamePhase?:object}} [deps]
+ * @param {{Bot?:Function,Store?:Function,RetreatAction?:Function,GamePhase?:object,targetTrialIndex?:number}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withRank9Turn42PaidRetreat(execute,deps={}){
   assert.equal(typeof execute,'function');
+  const targetTrialIndex=deps.targetTrialIndex??1;
+  assert.ok(Number.isSafeInteger(targetTrialIndex)&&targetTrialIndex>=0);
   const Bot=deps.Bot??require(path.join(OUT,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const Store=deps.Store??require(path.join(OUT,'game/store/store')).Store;
   const RetreatAction=deps.RetreatAction??
@@ -35,7 +37,7 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
       root=this;
       trial=stores.length-1;
     }
-    const isTarget=root===this&&trial===1&&this.state?.turn===42&&
+    const isTarget=root===this&&trial===targetTrialIndex&&this.state?.turn===42&&
       name==='RetreatAction';
     let before=null;
     if(isTarget){
@@ -95,7 +97,7 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
     const result=execute();
     completed=true;
     return {result,audit:{version:VERSION,storeCount:stores.length,
-      targetTrialIndex:1,sourceSeat:1,targetTurn:42,
+      targetTrialIndex,sourceSeat:1,targetTurn:42,
       selected,completed,attempts,acceptedRoots,rejectedRoots,
       paperPaymentAudited:false,printedAttackSettlementAudited:false,
       competitivelyQualifiedGames:0}};
