@@ -56,7 +56,9 @@ function independentPutDamageNegative(prompt,answer){
  * @returns {string|null} Covered printed invalidity only.
  */
 function independentPainfulSpoonsNegative(answer){
-  if(!Array.isArray(answer)||answer.length<2)return null;
+  if(!Array.isArray(answer)||answer.length<1||answer.length>2)
+    return 'PAINFUL_SPOONS_PRINTED_COUNTER_COUNT_ONE_OR_TWO';
+  if(answer.length<2)return null;
   const first=answer[0]?.from;
   if(!first||typeof first!=='object')return null;
   if(answer.some(row=>row?.from &&
@@ -95,7 +97,7 @@ const {nightWatchLikeShape}=
 const {duplicatePhysicalChoiceReason}=
   require('./agent39-paper-distinct-selection.cjs');
 
-const VERSION='agent41-unified-paper-prompt-contract-portfolio-v8-roxie-paper-payment';
+const VERSION='agent41-unified-paper-prompt-contract-portfolio-v9-rank31-source-count-and-root';
 const STATUSES=['PAPER_PROMPT_VERIFIED','PAPER_PROMPT_INVALID',
   'PAPER_PROMPT_UNVERIFIED'];
 
@@ -297,14 +299,15 @@ function withPaperPromptContractPortfolio(run,deps={}){
       'Camping Gear BST mandatory own-deck exactly-one search',
       'Iron Thorns ex TWM printed Volt Cyclone transfer, positively reducer-marked',
       'PutDamagePrompt declared zero-target, whole-packet and optional budget negatives only',
-      'Radiant Alakazam SIT source-marked Painful Spoons single-source negative only',
-      'Roxie CEC source-stamped one-or-two owner Pokémon payment exclusion only',
+      'Radiant Alakazam SIT source-marked Painful Spoons one-or-two counter and single-source negatives',
+      'Roxie CEC source-stamped one-or-two owner Pokémon payment and no-eligible-root exclusions',
       'Four interactive prompt families native-declared geometry recording only'
     ],
     resolvedNativeReplies:0,nativeAccepted:0,nativeRejected:0,
     vetoedBeforeDispatch:0,nativePreflightVetoed:0,
     markedVoltCyclonePrompts:0,markedPainfulSpoonsPrompts:0,
     inspectedRoxiePaymentPrompts:0,
+    inspectedRoxiePlayCardRoots:0,vetoedRoxieNoEligibleRoots:0,
     liveStoreRequired:liveOnly,liveSourceTrialCount:0,
     auxiliaryPromptAttempts:0,preLivePromptAttempts:0,
     physicalChoiceShapeCounts:{
@@ -375,6 +378,18 @@ function withPaperPromptContractPortfolio(run,deps={}){
       return dispatchBefore.value.call(this,action,...args);
     }
     const store=storeRow(this);
+    if(type==='PlayCardAction'){
+      const owner=this.state.players?.find(p=>p.id===action.id);
+      const played=owner?.hand?.cards?.[action.handIndex];
+      if(played?.fullName==='Roxie CEC'){
+        audit.inspectedRoxiePlayCardRoots++;
+        if(!owner.hand.cards.some(card=>card!==played&&
+          isRoxiePaymentCard(card))){
+          audit.vetoedRoxieNoEligibleRoots++;
+          throw new Error('PAPER_ROOT_INVALID:ROXIE_CEC_NO_ELIGIBLE_POKEMON');
+        }
+      }
+    }
     if(type!=='ResolvePromptAction')
       return dispatchBefore.value.call(this,action,...args);
     const prompt=this.state.prompts?.find(p=>p.id===action.id&&
@@ -425,7 +440,7 @@ function withPaperPromptContractPortfolio(run,deps={}){
       reason=rejected??'only-negative-predicates-audited';
     }else if(spoons&&family==='MoveDamagePrompt'){
       sourcePrinting='Radiant Alakazam SIT';
-      contract='printed-painful-spoons-one-source-negative';
+      contract='printed-painful-spoons-one-or-two-counter-single-source-negative';
       const rejected=independentPainfulSpoonsNegative(action.result);
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
