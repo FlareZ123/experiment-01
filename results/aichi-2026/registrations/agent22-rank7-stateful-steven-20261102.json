@@ -1,0 +1,125 @@
+{
+  "schema": "agent22-rank7-stateful-steven-original-source-development-v1",
+  "registeredBeforeNativeOutcomes": true,
+  "registrationDrawUtc": "2026-11-02T08:45:29.371348Z",
+  "registerBy": "Agent22",
+  "sourceRank": 7,
+  "sourcePlayer": "Hiroto Fuji",
+  "sourceArchetype": "Snorlax Stall",
+  "sourcePrinted60Sha256": "522c1d4d712068000426808333436886fbb9f97a722024f9cc6f01130c7c19ce",
+  "opponentRank": 1,
+  "opponentPlayer": "Yasunori Kato",
+  "opponentArchetype": "Shadow Rider Calyrex",
+  "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "rosterPath": "results/aichi-2026/full-decklists.json",
+  "rosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "admissionGitBlobSha": "62abf0d96542eb04b2e2500e8b7b10d5e3e94225",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "registeredSeeds": [
+    690788095,
+    3370031093,
+    63650769
+  ],
+  "originalSourcePhysicalSeats": [
+    0,
+    1
+  ],
+  "policyModes": [
+    "lexical",
+    "static-hypothetical",
+    "state-contingent"
+  ],
+  "trialsPerMode": 6,
+  "totalNativeAttempts": 18,
+  "maxRootActions": 120,
+  "compareSourceDealFingerprints": true,
+  "noOutcomeBasedSeedSelection": true,
+  "model": {
+    "id": "agent22-source7-steven-owner-public-contingent-v1",
+    "defaultWeight": 0.6,
+    "perCardCost": 0.15,
+    "weights": {
+      "Capture Energy RCL": {
+        "ready": 9,
+        "blocked": 1,
+        "condition": "bench-open-and-special-energy-unlocked"
+      },
+      "Artazon PAL": {
+        "ready": 10,
+        "blocked": 1,
+        "condition": "bench-open-stadium-unlocked-and-not-in-play"
+      },
+      "Counter Catcher PAR": {
+        "ready": 11,
+        "blocked": 0.6,
+        "condition": "owner-prizes-greater-opponent-prizes-and-opponent-has-bench-and-items-unlocked"
+      },
+      "VS Seeker PHF": {
+        "ready": 11,
+        "blocked": 0.6,
+        "condition": "at-least-one-named-source-supporter-in-own-discard-and-items-unlocked"
+      },
+      "Chaotic Swell CEC": {
+        "ready": 8,
+        "alternate": 4,
+        "blocked": 0.6,
+        "condition": "opponent-stadium-in-play-or-no-stadium"
+      },
+      "Nest Ball SVI": {
+        "ready": 8,
+        "blocked": 0.6,
+        "condition": "bench-open-and-items-unlocked"
+      },
+      "Robo Substitute PHF": {
+        "ready": 5,
+        "blocked": 0.6,
+        "condition": "bench-open-and-items-unlocked"
+      },
+      "Lillie's Poké Doll CEC": {
+        "ready": 5,
+        "blocked": 0.6,
+        "condition": "bench-open-and-items-unlocked"
+      },
+      "Palace Book SMP": {
+        "ready": 4,
+        "blocked": 0.6,
+        "condition": "items-unlocked"
+      },
+      "Jet Energy PAL": {
+        "ready": 4,
+        "blocked": 1,
+        "condition": "bench-open-and-special-energy-unlocked"
+      }
+    },
+    "supporterPrintings": [
+      "Steven's Resolve CES",
+      "Faba LOT",
+      "N FCO",
+      "Teammates PRC",
+      "Lusamine CIN",
+      "Lillie's Determination MEG",
+      "Plumeria BUS",
+      "Team Flare Grunt XY",
+      "Guzma BUS",
+      "Pokémon Ranger STS",
+      "Team Rocket's Handiwork FCO",
+      "Bellelba & Brycen-Man CEC",
+      "Gladion CIN"
+    ],
+    "diminishingDuplicateValue": "weight/(1+held-count-for-name)-perCardCost",
+    "includesOwnerHand": true,
+    "includesOwnerPublicBoardDiscardAndPrizes": true,
+    "includesOpponentPublicBoardAndPrizes": true,
+    "excludesOpponentHiddenCards": true,
+    "contingentWeightsHeuristic": true,
+    "notCalibratedFromRegisteredOutcomes": true
+  },
+  "qualification": {
+    "competitiveGameQualified": false,
+    "paperClockCertified": false,
+    "printedAllEffectsCertified": false,
+    "opponentPolicySkillCertified": false,
+    "matchedPairSourceDealRequired": true,
+    "allCensoredAndAbortedRetained": true
+  }
+}
