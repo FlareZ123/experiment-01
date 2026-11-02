@@ -23,8 +23,9 @@ test('selected original rank5 has two physical-seat pairs with one immutable pol
   assert.equal(p.options.candidateOnlyKnownDeadRoot,false);
   assert.equal(p.options.registeredTrials,null);
   assert.equal(profile.competitiveQualified,false);
-  assert.equal(p.closurePinned,false,
-    'Preexecuted release must not claim an unregistered transitive closure');
+  assert.equal(p.closurePinned,true,
+    'Only previously observed exact static source closure may run');
+  assert.equal(p.closureFiles,302);
 });
 test('ambient experimental toggle fails closed, including a nominal false override',()=>{
   assert.throws(()=>preflight(root,{
