@@ -89,3 +89,11 @@ test('only actual Fusion Strike printed Pokémon count, no invented marks',()=>{
   view.ownPublic.bench[1]={printing:'Mew V FST'};
   assert.equal(chooseGenesectFusionDraw(view)?.knownFusionCount,3);
 });
+
+test('attack-only lock does not veto a separately available Genesect draw Ability',()=>{
+  const view=fixture();
+  view.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=3;
+  const choice=chooseGenesectFusionDraw(view);
+  assert.equal(choice?.kind,'use-genesect-fusion-draw');
+  assert.equal(choice?.knownFusionCount,3);
+});
