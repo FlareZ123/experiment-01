@@ -39,6 +39,14 @@ The last row reproduces the independent 2.97797213% initial-hand ingredient calc
 
 A further conditional boundary is `C(49,2)/C(53,6) = 0.0051225134%`: with all four V absent the initial seven-card hand, all four are simultaneously in the subsequent six Prize cards with this probability. This does **not** validate a search, since a legal play still needs the right card in its actual prompted owner deck, with further blockers possible.
 
+## Exact owner-deck target availability after six Prize cards
+
+A stricter physical envelope splits the **248,388** two-donor coholding hands by the number of rank13's three original Regidrago VSTAR SIT copies already held: **216,006 with zero**, **31,626 with one**, and **756 with two**. For each opener, all `C(53,6)=22,957,480` six-Prize configurations are equally weighted. Inclusion-exclusion counts the deals leaving at least one of four unseen Regidrago V **and** at least one unheld Regidrago VSTAR still in the remaining deck.
+
+The resulting conditional probability is **99.747580%** (`0.9974757997185592`). This is strictly **physical two-target deck availability**, only within a selected unusual opener class. Some failing cases already hold a VSTAR in hand, so a second deck search might be unnecessary. It does not measure actual paid-search success, dominant Item order, evolution timing, attacks, opponent resistance or wins. The complete BigInt numerator/denominator and per-held-VSTAR probabilities are emitted by the versioned script.
+
+**Independent compilation:** The [full manually dispatched card coverage CI 41487945530](https://github.com/FlareZ123/experiment-01/actions/runs/41487945530) completed successfully, including its exact seven-card/Prize regression step. Its input checkout includes the v3 source and expected count tests. All numbers are reproducible from [script](../../scripts/agent49-rank13-dual-connector-openers.cjs) without simulation randomness.
+
 ## Mechanism and evidence quality
 
 - **Confirmed:** Native staged first-Item chain into a physically Benched Regidrago V, both seats in [CI 41485137386](https://github.com/FlareZ123/experiment-01/actions/runs/41485137386); a deliberately staged deck contains V, and these were never full original-source physically dealt games.
