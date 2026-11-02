@@ -135,4 +135,5 @@ function withSparseActorOwnerSearch(execute,deps={}){
   }};
 }
 
-module.exports={VERSION,sparseObservedOwnerSearch,withSparseActorOwnerSearch};
+module.exports={VERSION,isPaperStevenSearch,sparseObservedOwnerSearch,
+  withSparseActorOwnerSearch};
