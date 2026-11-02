@@ -3,6 +3,9 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const path=require('node:path');
 const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {buildActorCardCatalog,chooseActorRootIntent}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const OUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
 const load=name=>require(path.join(OUT,name));
