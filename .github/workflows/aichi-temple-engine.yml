@@ -25,7 +25,7 @@ permissions:
 
 jobs:
   paired-fixtures:
-    if: ${{ !inputs.temple_thorns_source_window }}
+    if: ${{ !inputs.temple_thorns_source_window && !inputs.agent43_muk_board }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -49,20 +49,37 @@ jobs:
       - name: Verify synthetic Wobbuffet and Iron Thorns board effects
         run: node simulation/twinleaf/temple-wobbuffet-board.cjs
 
-      - name: Opt-in staged pinned Alolan Muk and Iron Thorns board predicates
-        if: inputs.agent43_muk_board
+
+  agent43-muk-board:
+    if: inputs.agent43_muk_board
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute strictly staged Muk versus Thorns power checks
         run: |
           node simulation/twinleaf/agent43-alolan-muk-thorns-native-matrix.cjs > agent43-muk-thorns-board.json
           node -e "const a=require('./agent43-muk-thorns-board.json');console.log(JSON.stringify({schema:a.schema,status:a.status,missing:a.missing||[],discrepancies:a.discrepancies||[],rows:a.rows?.length||0,qualified:a.competitiveGameQualified}));if(a.status==='NATIVE_BOARD_PAPER_EXPECTATION_MISMATCH')process.exitCode=1"
-      - name: Archive bounded native Muk board matrix without competitive claims
-        if: inputs.agent43_muk_board && always()
+      - name: Archive all staged Muk predicate outcomes
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent43-muk-thorns-pinned-board-matrix
           path: agent43-muk-thorns-board.json
           if-no-files-found: warn
-
-
   source-window:
     if: ${{ inputs.temple_thorns_source_window }}
     runs-on: ubuntu-latest
