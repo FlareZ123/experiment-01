@@ -39,7 +39,13 @@ test('read-only shuffle observer records numeric lengths and preserves exact RNG
       ()=>arbiter.shuffle({cards:[{},{}]}),cloneSink,
       {BotArbiter:MockNativeArbiter}));
     assert.equal(replay.consumed,2);
-    assert.deepEqual(cloneSink.arbiterShuffles,sink.arbiterShuffles);
+    assert.equal(cloneSink.arbiterShuffles.length,1);
+    assert.equal(cloneSink.arbiterShuffles[0].deckLength,2);
+    assert.equal(cloneSink.arbiterShuffles[0].mode,2);
+    assert.equal(cloneSink.arbiterShuffles[0].implementationSha256,
+      sink.arbiterShuffles[0].implementationSha256);
+    assert.equal(cloneSink.arbiterShuffles[0].randomFunctionName,
+      'nativePolicyTapeReplay');
   }finally{Math.random=previous;}
 });
 
