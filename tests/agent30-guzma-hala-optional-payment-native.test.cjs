@@ -32,3 +32,17 @@ test('prospective original rank6 G&H zero/one/two physical payments in each genu
     }
   }
 });
+
+test('Guzma and Hala zero Stadium search does not schedule printed shuffle in native Store',()=>{
+  const {probe}=require('../simulation/twinleaf/agent1-ghala-zero-search-native.cjs');
+  for(const seat of [0,1]){
+    const skipped=probe(seat,false);
+    const chosen=probe(seat,true);
+    console.log('AGENT1_GHALA_ZERO_SEARCH '+JSON.stringify({skipped,chosen}));
+    assert.equal(skipped.valid,true);
+    assert.equal(chosen.valid,true);
+    assert.equal(chosen.shufflePrompt,true);
+    assert.equal(skipped.sameOrder,true);
+    assert.equal(skipped.shufflePrompt,false);
+  }
+});
