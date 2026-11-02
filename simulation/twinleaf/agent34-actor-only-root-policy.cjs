@@ -441,8 +441,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       // Printed GX attacks share the global one-GX-per-game resource. They are
       // disabled by default until explicitly tested as actor-owned roots.
       // Rule-specific eligibility still belongs to the genuine native Store.
+      const adpGxException=options.adpBoostedGxRoot===true&&
+        active.printing==='Arceus & Dialga & Palkia GX CEC'&&
+        attack.name==='Altered Creation-GX';
       if((attack.gxAttack===true||attack.name.endsWith('-GX')) && (
-        options.printedGxRoot!==true ||
+        (options.printedGxRoot!==true&&!adpGxException) ||
         own.publicTurnRestrictions?.gxUsed===true ||
         own.publicTurnRestrictions?.cannotUseGXAttacks===true
       ))continue;
