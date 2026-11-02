@@ -15,6 +15,10 @@ const {withCanonicalAndBoxShake}=
   require('./agent44-canonical-boxshake-composition.cjs');
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
+const {withPaperSecretBoxMandatoryPayment}=
+  require('../twinleaf/agent4-secret-box-paper-payment-hook.cjs');
+const {withSourceSecretBoxPhysicalPaymentCustody}=
+  require('./agent44-secretbox-payment-custody.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const SEED=214648959;
@@ -27,7 +31,7 @@ const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
 function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
-  auditOwnerK1Sources=false}={}){
+  auditOwnerK1Sources=false,auditSecretBoxCustody=false}={}){
   assert.ok(diagnosticFreshIndex===null||
     (fresh32&&diagnosticFreshIndex===383),
     'The diagnostic is strictly retrospective on the previously failed original index383');
@@ -76,10 +80,21 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
       label:'agent44-canonical-box-'+row.trial
     };
     try{
+      const paymentReceipt={baseline:null,treatment:null};
+      function runPaymentAware(arm){
+        if(!auditSecretBoxCustody)return runMatch(request);
+        const guarded=withPaperSecretBoxMandatoryPayment(()=>
+          withSourceSecretBoxPhysicalPaymentCustody(()=>runMatch(request),
+            {Store,sourceSeat:row.sourceSeat}),
+          {Store,requireLiveStore:true});
+        paymentReceipt[arm]={guard:guarded.audit,
+          physicalCustody:guarded.result.audit};
+        return guarded.result.result;
+      }
       const baseline=withRank8AuthenticK0Observer(Store,row.sourceSeat,
-        ()=>withCanonicalAndBoxShake(()=>runMatch(request)));
+        ()=>withCanonicalAndBoxShake(()=>runPaymentAware('baseline')));
       const treatment=withRank8AuthenticK0Observer(Store,row.sourceSeat,
-        ()=>withCanonicalAndBoxShake(()=>runMatch(request),{
+        ()=>withCanonicalAndBoxShake(()=>runPaymentAware('treatment'),{
           enableBoxShake:true,flexible:true,auditOwnerK1Sources
         }));
       const b=baseline.result,t=treatment.result;
@@ -106,6 +121,10 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         assert.equal(fullFingerprints[0],fullFingerprints[1],
           'Native preaction complete two-seat card-zone positions differ');
       }
+      if(auditSecretBoxCustody&&t.audit.box.offers.some(x=>
+        x.seat===row.sourceSeat))assert.ok(
+        paymentReceipt.treatment?.physicalCustody?.physicalPaidPayments>=1,
+        'A selected source Box native line lacks physical 3-card paper custody');
       const sameNoOffer=t.audit.box.offers.length===0;
       if(sameNoOffer)assert.deepEqual(b.result.decisionTrace,
         t.result.decisionTrace,
@@ -132,6 +151,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         treatment:{actions:t.result.actions,finished:t.result.finished,
           decisionTraceSha256:sha(JSON.stringify(t.result.decisionTrace))},
         boxAudit:t.audit.box,
+        ...(auditSecretBoxCustody?{sourceBoxPaymentCustody:paymentReceipt}:{}),
         opponentPublicRootReplyPacket:replyPacket,
         actorVersion:t.audit.actorVersion,
         actorQualification:t.audit.actorQualification,
@@ -140,6 +160,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
       rows.push({...row,status:'NATIVE_ERROR',
         sourceK0Parity:null,physicalDeckPair:null,
         baseline:null,treatment:null,boxAudit:null,
+        ...(auditSecretBoxCustody?{sourceBoxPaymentCustody:null}:{}),
         opponentPublicRootReplyPacket:null,
         actorVersion:null,actorQualification:null,
         error:{name:error.name??null,message:String(error.message??error)}});
@@ -166,6 +187,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     nativeStorePaperCompetenceCertified:false,
     captureInitialFullPhysicalDeal:auditPhysicalDeal,
     captureOwnerK1FailureResourceAvailability:auditOwnerK1Sources,
+    captureNativeSourceSecretBoxPaymentCustody:auditSecretBoxCustody,
     initialSourcePhysicalFingerprintRequired:auditPhysicalDeal,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
@@ -197,7 +219,8 @@ if(require.main===module)process.stdout.write(JSON.stringify(run({
   fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true',
   diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null,
   auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true',
-  auditOwnerK1Sources:process.env.AGENT44_RANK8_CANONICAL_K1_AUDIT==='true'
+  auditOwnerK1Sources:process.env.AGENT44_RANK8_CANONICAL_K1_AUDIT==='true',
+  auditSecretBoxCustody:process.env.AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT==='true'
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
   FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
