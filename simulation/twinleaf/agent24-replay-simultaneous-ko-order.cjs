@@ -4,8 +4,10 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards,runMatch}=require('./headless.cjs');
 const {registration}=require('./agent47-rank20-apex-natural-audit.cjs');
-const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
-  require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
+const {
+  projectPendingReplayPrizes,projectPendingOrdinaryPrizes,
+  compareNativePendingPrizeWinner
+}=require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
 const {
   captureInitialPhysicalOwners,inspectPhysicalCardZones,
   fixedDeckCountAnomalies
@@ -397,11 +399,30 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
   assert.equal(game.winner,0,'Expected first physical-seat priority');
   assert.deepEqual(after.prizes,[0,2],
     'Expected native first claimant to take both final Prizes exclusively');
+  const ordinaryPendingPrizeAudit=projectPendingOrdinaryPrizes({
+    authenticatedOrdinaryEpoch:staged&&
+      before.isSuddenDeath!==true,
+    singleSettledResolutionBatch:true,
+    physicalRemaining:before.prizes,
+    koEntitlements
+  });
+  const nativePendingComparison=compareNativePendingPrizeWinner({
+    projection:ordinaryPendingPrizeAudit,
+    nativeFinished:game.finished,
+    nativeEndReason:game.endReason,
+    nativeWinnerSeat:game.winner
+  });
+  assert.equal(ordinaryPendingPrizeAudit.projectedBothPrizeEmpty,true);
+  assert.deepEqual(ordinaryPendingPrizeAudit.projectedRemainingPrizes,[0,0]);
+  assert.equal(nativePendingComparison.status,
+    'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
+  assert.equal(nativePendingComparison.paperGameOutcomeQualified,false);
   return {
     reverse,ranks,seed:SEED,genuineOriginal60PerSeat:true,
     initialSixPrizesNativeDealt:true,syntheticFourPrizeMovesPerSeat:true,
     syntheticLethalDamage:true,syntheticOwnedBoardSwaps:physicalSwaps,
     before,after,koEntitlements,
+    ordinaryPendingPrizeAudit,nativePendingComparison,
     hypotheticalBothAwardsRemaining:[0,0],
     simultaneousBothTakeLastPrizesNativeNotTie:true,
     nativeFinished:game.finished,nativeWinner:game.winner,
