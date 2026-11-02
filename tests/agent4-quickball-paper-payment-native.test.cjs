@@ -23,6 +23,7 @@ test('genuine rank5 FST Quick Ball source printed payment both physical seats',(
     const guarded=withPaperQuickBallMandatoryPayment(()=>
       probeQuickBallMandatoryPayment(seat,'zero'));
     const a=guarded.result;
+    console.log('AGENT4_QUICK_BALL_PROMPT_ZONE '+JSON.stringify({seat,raw,guarded:a,audit:guarded.audit}));
     assert.equal(a.rootError,null);
     assert.equal(a.promptEvidence.printing,'Quick Ball FST');
     assert.equal(a.promptEvidence.type,'ChooseCardsPrompt');
