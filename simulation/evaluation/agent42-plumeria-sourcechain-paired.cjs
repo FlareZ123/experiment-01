@@ -54,7 +54,8 @@ function runPlumeriaSourcechainPair(){
    registeredTrials:profile.registeredTrials,
    registeredFrameName:'agent42-rank6-physical-paper-guard-v1'};
   control=runDevelopment(options);
-  const observed=withPaperPlumeriaPayment(()=>runDevelopment(options));
+  const observed=withPaperPlumeriaPayment(()=>runDevelopment(options),
+   {requireLiveStore:true});
   treatment=observed.result;
   guard=observed.audit;
  }finally{
