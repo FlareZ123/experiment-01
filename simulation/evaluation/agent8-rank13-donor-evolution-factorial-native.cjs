@@ -22,10 +22,12 @@ const ARMS=Object.freeze([
 function main(){
   initializeCards();
   const {registered,byRank}=registration();
+  const paperCorrection=process.env.AGENT8_RANK13_PAPER_CORRECTION==='true';
   const rows=registered.trialMatrix.map(trial=>{
     const arms={};
     for(const spec of ARMS){
-      arms[spec.id]=executeOne(trial,byRank,spec.donor,spec.evolution);
+      arms[spec.id]=executeOne(trial,byRank,spec.donor,
+        spec.evolution,paperCorrection);
     }
     const outcomes=Object.values(arms);
     const allReturned=outcomes.every(row=>row.status==='native-returned');
@@ -62,6 +64,8 @@ function main(){
           action.attack==='Apex Dragon').length,
         sourceAttackDetails:arm.sourceAttackDetails??[],
         sourceCopiedAttackSelections:arm.sourceCopiedAttackSelections??[],
+        physicalCustody:arm.physicalCustody??null,
+        paperCelestialAudit:arm.paperCelestialAudit??null,
         publicActionSha256:arm.gameDecisionTraceSha256??null,
         firstNativeAbort:arm.error??null
       };
@@ -98,7 +102,10 @@ function main(){
       'results/aichi-2026/registrations/agent8-rank13-donor-native-paired-20261102.json',
     registrationPrecedesOriginalNativeRuns:true,
     factorialRegisteredBeforeExecution:false,
-    experimentType:'retrospective-four-arm-mechanics-diagnostic',
+    experimentType:paperCorrection?
+      'retrospective-paper-correct-four-arm-mechanics-diagnostic':
+      'retrospective-four-arm-mechanics-diagnostic',
+    paperCelestialCorrectionEnabled:paperCorrection,
     enginePin:registered.enginePin,
     exactPrintedOriginalSixties:true,
     bothSeatsShareCommonEvolutionSelectorWhenEnabled:true,
