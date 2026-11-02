@@ -46,8 +46,9 @@ jobs:
       - name: Verify exact G&H and Artazon Prize-aware source access
         if: ${{ always() && !cancelled() }}
         run: |
-          node --test tests/agent32-gh-prize-search-window.test.cjs tests/agent32-gh-artazon-prize-window.test.cjs
+          node --test tests/agent32-gh-prize-search-window.test.cjs tests/agent32-gh-artazon-prize-window.test.cjs tests/agent32-gh-artazon-slot-sensitivity.test.cjs
           node simulation/evaluation/agent32-gh-artazon-prize-window.cjs
+          node simulation/evaluation/agent32-gh-artazon-slot-sensitivity.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
