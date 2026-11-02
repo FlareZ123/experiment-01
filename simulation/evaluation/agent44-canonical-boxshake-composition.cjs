@@ -24,10 +24,11 @@ function withCanonicalAndBoxShake(execute,options={}){
   const box=options.box??withSharedFirstTurnBoxShake;
   const enabled=options.enableBoxShake===true;
   const flexible=options.flexible===true;
+  const auditOwnerK1Sources=options.auditOwnerK1Sources===true;
   let boxAudit=null;
   const canonicalRun=canonical(()=>{
     if(!enabled)return execute();
-    const wrapped=box(execute,{flexible});
+    const wrapped=box(execute,{flexible,auditOwnerK1Sources});
     assert.ok(wrapped.audit&&typeof wrapped.audit==='object');
     boxAudit=wrapped.audit;
     return wrapped.result;
@@ -41,6 +42,7 @@ function withCanonicalAndBoxShake(execute,options={}){
       schema:'agent44-canonical-owner-boxshake-composition-v1',
       sameCanonicalActorForBothSeats:true,
       boxOptIn:enabled,flexibleBoxOptIn:enabled&&flexible,
+      ownerAuthorizedK1SourcesAudited:enabled&&auditOwnerK1Sources,
       boxVersion:enabled?(flexible?FLEX_VERSION:VERSION):null,
       actorVersion:canonicalRun.audit.version??null,
       box:boxAudit,
