@@ -236,7 +236,7 @@ jobs:
   canonical-paper-v10-smoke:
     if: ${{ inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Load pinned Twinleaf
@@ -266,10 +266,21 @@ jobs:
       - name: Require actual selected source-payment v10 wrapper and full attempt retention
         run: |
           node -e "const assert=require('node:assert/strict');const r=require('./agent15-canonical-v10-smoke.json');assert.equal(r.sharedPaperPaymentPortfolioOptIn,true);assert.equal(r.competitiveQualifiedGames,0);assert.equal(r.rows.length,4);for(const row of r.rows){assert.equal(row.sharedPaperPaymentPortfolioOptIn,true);assert.equal(row.sharedPaperPaymentPortfolioAudit?.liveStoreRequired,true);assert.ok(row.sharedPaperPaymentPortfolioAudit?.liveSourceTrialCount>=1);assert.equal(row.sharedPaperPaymentPortfolioAudit?.competitiveQualifiedGames,0);}console.log('AGENT15_SHARED_V10_CANONICAL_NATIVE',JSON.stringify(r.rows.map(x=>({id:x.trial.id,status:x.status,version:x.sharedPaperPaymentPortfolioAudit.version,storeCount:x.sharedPaperPaymentPortfolioAudit.storeCount,rootRoxie:x.sharedPaperPaymentPortfolioAudit.inspectedRoxiePlayCardRoots,rootUltraBall:x.sharedPaperPaymentPortfolioAudit.inspectedUltraBallPlayCardRoots}))))"
-      - name: Archive all original four-arm native receipts including errors
+      - name: Preflight preregistered exact original rank31 source and two random unscreened seed groups
+        run: |
+          node --check simulation/evaluation/agent15-rank31-v10-natural-paired-development.cjs
+          node -e "const r=require('./simulation/evaluation/agent15-rank31-v10-natural-paired-development.cjs').preflight();console.log('RANK31_REGISTERED_NATIVE_V10',JSON.stringify({schema:r.registration.schema,rosterGitBlob:r.rosterGitBlob,sourceRank:r.registration.sourceRank,attempts:r.registration.plannedNativeAttempts,gitHead:r.head}))"
+      - name: Compare original rank31 source v10 off and on under the same preregistered physical seeds and both seats
+        run: node simulation/evaluation/agent15-rank31-v10-natural-paired-development.cjs > agent15-rank31-v10-native-pairs.json
+      - name: Require all original rank31 attempts and explicit unqualified status
+        run: |
+          node -e "const assert=require('node:assert/strict');const x=require('./agent15-rank31-v10-native-pairs.json');assert.equal(x.allAttemptedGames,8);assert.equal(x.allPairs,4);assert.equal(x.pairs.length,4);assert.equal(x.control.rows.length,4);assert.equal(x.treatment.rows.length,4);assert.equal(x.competitiveQualifiedGames,0);assert.equal(x.treatment.sharedPaperPaymentPortfolioOptIn,true);assert.equal(x.control.sharedPaperPaymentPortfolioOptIn,false);console.log('ORIGINAL_RANK31_V10_PAIRED_STATUS',JSON.stringify({sameSourceDeals:x.pairedSamePhysicalSourceDeals,pairs:x.pairs.map(p=>({id:p.id,same:p.samePhysicalSourceDeal,off:p.control.status,on:p.treatment.status,roxieOn:p.treatment.roxieRoots}))}))"
+      - name: Archive all native receipts including original rank31 errors and caps
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent15-canonical-paper-v10-fourarm-smoke
-          path: agent15-canonical-v10-smoke.json
+          name: agent15-canonical-paper-v10-and-rank31-paired
+          path: |
+            agent15-canonical-v10-smoke.json
+            agent15-rank31-v10-native-pairs.json
           if-no-files-found: warn
