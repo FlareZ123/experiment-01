@@ -42,6 +42,7 @@ function probe(seat,offered,available=3){
       f.source.bench[i].cards.push(pokemon);
       return pokemon;
     });
+  for(const slot of f.opponent.bench.slice(0,2))slot.cards.length=0;
   const opponentBench=Array.from({length:4},(_,i)=>{
     const pokemon=f.card('Shadow Rider Calyrex V CRE');
     f.opponent.bench[i].cards.push(pokemon);
