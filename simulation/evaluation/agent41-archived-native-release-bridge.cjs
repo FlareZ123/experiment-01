@@ -104,16 +104,21 @@ function sourcePairReceipts(rows){
     const setupHistories=attempts.map(nativeSetupHistory);
     const sameSetupHistory=present&&setupHistories.every(x=>x.observed)&&
       setupHistories.every(x=>JSON.stringify(x)===JSON.stringify(setupHistories[0]));
+    // Historical 'sourceFirstOwnHandSha256' selects the FIRST owner
+    // decisionTrace entry, which can be a turn-0 setup ChooseCardsPrompt.
+    // This SHA is NOT an authenticated first-live-turn hand fingerprint.
     const sourceHandHashes=attempts.map(r=>r.sourceFirstOwnHandSha256??null);
-    const sameFirstOwnerHandSha=present&&sourceHandHashes.every(h=>
+    const sameLegacyEarlySourceHandSha=present&&sourceHandHashes.every(h=>
       typeof h==='string'&&SHA256.test(h))&&
       sourceHandHashes.every(h=>h===sourceHandHashes[0]);
     return {pairId,trialIds:ids,status,
       sourceHashes:hashes,setupHistories,
       sameSetupHistory,
-      sameFirstOwnerHandSha,
-      sameFirstOwnerHandButDifferentSourceDeal:
-        sameFirstOwnerHandSha&&status==='SOURCE_PHYSICAL_DEAL_DIFFERENT',
+      sameLegacyEarlySourceHandSha,
+      legacyDigestMayBeSetupPhase:true,
+      actualFirstLiveOwnerHandEqualityCertified:false,
+      identicalEarlyHashButDifferentSourceDeal:
+        sameLegacyEarlySourceHandSha&&status==='SOURCE_PHYSICAL_DEAL_DIFFERENT',
       candidateComparisonCompetitivelyQualified:false};
   });
 }
