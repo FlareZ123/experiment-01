@@ -376,6 +376,7 @@ function executeDevelopment(trial,candidates,{
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
+  rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
   rank11ExclusiveOpening=false,
   losslessNativeRootJoin=false,registeredTrial=false
@@ -635,9 +636,11 @@ function executeDevelopment(trial,candidates,{
     const played=withBroadThornsSourceAttack(()=>
       withBroadThornsSourceAttack(common,
         {seat:sourceSeat,turn:3,discardPriority:allowedDiscards,
-          k1AlternativeEnergy:rank6K1AlternativeEnergy}),
+          k1AlternativeEnergy:rank6K1AlternativeEnergy,
+          nativeSpecialConditionAttackGuard:rank6ScriptedSpecialConditionGuard}),
       {seat:sourceSeat,turn:2,discardPriority:allowedDiscards,
-        k1AlternativeEnergy:rank6K1AlternativeEnergy});
+        k1AlternativeEnergy:rank6K1AlternativeEnergy,
+        nativeSpecialConditionAttackGuard:rank6ScriptedSpecialConditionGuard});
     sourceAudit={
       turn2:{started:played.started,completed:played.completed,
         abortReason:played.abortReason,
@@ -999,6 +1002,7 @@ function runDevelopment({
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
+  rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
   rank11ExclusiveOpening=false,
   sourceScopedSpecialEnergyRoot=false,
@@ -1195,7 +1199,7 @@ function runDevelopment({
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,losslessNativeRootJoin,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
-        rank6K1AlternativeEnergy,
+        rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
         rank11ExclusiveOpening,
         registeredTrial:registeredTrials!==null,
@@ -1561,6 +1565,7 @@ function runDevelopment({
     sourceFirstRetrospective,
     registeredTrialFrame:registeredTrials!==null?registeredFrameName:null,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
+    rank6ScriptedSpecialConditionGuardOptIn:rank6ScriptedSpecialConditionGuard,
     rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
     sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
     candidateScopedSpecialEnergyRootOptIn:candidateScopedSpecialEnergyRoot,
