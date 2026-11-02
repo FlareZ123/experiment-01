@@ -6,6 +6,7 @@ const {classifyNativeAttempt,summarizeNativeAttempts,
   classifySourceChain,SOURCE_CHAIN_PHASES}=
   require('../simulation/evaluation/agent41-native-attempt-disposition.cjs');
 const archived=require('../results/aichi-2026/agent41-rank16-native-row-schema-v1.json');
+const earlierRank6=require('../results/aichi-2026/agent41-rank6-native-row-schema-v1.json');
 
 test('actual archived rank16 Store rows have no status property',()=>{
   assert.equal(archived.schema,'agent41-original-native-row-shape-v1');
@@ -85,4 +86,14 @@ test('missing payments, effects and opponent choice veto source promotion',()=>{
   const passed=classifySourceChain(all);
   assert.equal(passed.firstMissingPhase,null);
   assert.equal(passed.competitivelyQualified,false);
+});
+
+test('independent frozen rank6 raw rows recover four native terminals',()=>{
+  assert.equal(earlierRank6.schema,'agent41-original-native-row-shape-rank6-v1');
+  assert.equal(earlierRank6.source.artifactId,13151571539);
+  assert.deepEqual(earlierRank6.originalReporterNativeStatusCounts,{UNREPORTED:4});
+  assert.ok(earlierRank6.rows.every(row=>row.statusKeyPresent===false));
+  const outcomes=earlierRank6.rows.map(classifyNativeAttempt);
+  assert.deepEqual(outcomes.map(x=>x.kind),Array(4).fill('ENGINE_TERMINAL'));
+  assert.ok(outcomes.every(x=>!x.competitivelyQualified));
 });
