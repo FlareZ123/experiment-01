@@ -44,7 +44,7 @@ function mixedPrintingCensus(source,resolve){
       }
       if(variants.size<2)continue;
       const printings=[...variants.values()].map(p=>{
-        const card=resolve(p.set,p.number);
+        const card=resolve(p.set,p.number,name);
         assert.equal(card.name,name,
           'Bundled printing/name mismatch: '+deck.rank+' '+p.id);
         const abilityNames=(card.abilities??[]).map(x=>x.name);
@@ -80,19 +80,30 @@ function mixedPrintingCensus(source,resolve){
  */
 function englishPrintingResolver(){
   const sets=JSON.parse(fs.readFileSync(SETS,'utf8'));
-  const ids=new Map(sets.map(x=>[x.ptcgoCode,x.id]));
+  const ids=new Map();
+  for(const set of sets){
+    if(!set.ptcgoCode)continue;
+    if(!ids.has(set.ptcgoCode))ids.set(set.ptcgoCode,[]);
+    ids.get(set.ptcgoCode).push(set.id);
+  }
   const cache=new Map();
-  return (set,number)=>{
-    const id=ids.get(set);
-    assert.ok(id,'Unknown English PTCGO set: '+set);
-    if(!cache.has(id)){
-      const cards=JSON.parse(fs.readFileSync(
-        path.join(CARDROOT,id+'.json'),'utf8'));
-      cache.set(id,new Map(cards.map(c=>[String(c.number),c])));
+  return (set,number,name)=>{
+    const candidateIds=ids.get(set)??[];
+    assert.ok(candidateIds.length,'Unknown English PTCGO set: '+set);
+    const matches=[];
+    for(const id of candidateIds){
+      if(!cache.has(id)){
+        const cards=JSON.parse(fs.readFileSync(
+          path.join(CARDROOT,id+'.json'),'utf8'));
+        cache.set(id,new Map(cards.map(c=>[String(c.number),c])));
+      }
+      const card=cache.get(id).get(String(number));
+      if(card&&(!name||card.name===name))matches.push(card);
     }
-    const card=cache.get(id).get(String(number));
-    assert.ok(card,'Unknown card printing: '+set+' '+number);
-    return card;
+    assert.equal(matches.length,1,
+      'Missing or ambiguous card printing: '+set+' '+number+
+      (name?' '+name:''));
+    return matches[0];
   };
 }
 
