@@ -76,7 +76,8 @@ function run(deps={}){
   const modes={};
   try{
     for(const mode of ['control','treatment']){
-      const catalog=publicCatalog();
+      let catalogCache=null;
+      const getCatalog=()=>catalogCache??(catalogCache=publicCatalog());
       const counters={
         observedOwnerRoots:0,heldGuzmaRoots:0,
         megaBenchRoots:0,megaAndHeldRoots:0,
@@ -86,7 +87,7 @@ function run(deps={}){
       const samples=[];
       const observer=(state,seat)=>{
         const view=actorObservation(state,seat);
-        const root=classifyRank9PublicOpportunity(view,catalog);
+        const root=classifyRank9PublicOpportunity(view,getCatalog());
         counters.observedOwnerRoots++;
         if(root.heldGuzma){
           counters.heldGuzmaRoots++;
@@ -111,7 +112,7 @@ function run(deps={}){
             registeredFrameName:VERSION+'-'+mode,
             allowAdditionalOriginalSourceRanks:true
           }),
-          {observe:observer,getCatalog:()=>catalog}
+          {observe:observer,getCatalog}
         );
         const rows=withReadOnlyAudit.result.rows??[];
         assert.equal(rows.length,4);
