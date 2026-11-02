@@ -53,6 +53,8 @@ function trial(seat,answer){
   }
   source.active.cards.push(card('Mew V FST'));
   source.active.pokemonPlayedTurn=0;
+  // Native Board target indices require an explicit open Bench slot in this staged State.
+  source.bench.push(new PokemonCardList());
   opponent.active.cards.push(card('Trevenant & Dusknoir-GX SMP'));
   const vmax=card('Mew VMAX FST');
   source.deck.cards.push(vmax);
