@@ -33,3 +33,4 @@ function stage(seat){
  owner.active.cards.push(volt,gx,e1,e2);
  owner.active.energies.cards.push(e1,e2);
  foe.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+ foe.bench[0].cards.push(card('Duskull PRE'));
