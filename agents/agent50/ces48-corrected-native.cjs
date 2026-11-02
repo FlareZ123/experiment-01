@@ -29,3 +29,4 @@ function stage(seat){
  foe.bench=Array.from({length:5},()=>new PokemonCardList());
  const gx=card('Electrode-GX CES');
  const volt=card('Voltorb ROS');
+ const e1=card('Lightning Energy SVE'),e2=card('Lightning Energy SVE');
