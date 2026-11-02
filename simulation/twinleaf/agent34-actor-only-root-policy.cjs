@@ -1341,6 +1341,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         pending.receipt.deferredPromptActions++;
         if(effect==='confirmed-public-effect'){
           pending.receipt.deferredStatus='confirmed-after-prompt';
+          audit.nativePhysicalPending--;
+          audit.nativePhysicalConfirmed++;
+          audit.nativePhysicalConfirmedByIntent['use-farewell-letter']=
+            (audit.nativePhysicalConfirmedByIntent['use-farewell-letter']??0)+1;
           pending.receipt.deferredAfter={
             bench:current.farewellBenchPrinting,
             discarded:current.farewellDiscardCount,
