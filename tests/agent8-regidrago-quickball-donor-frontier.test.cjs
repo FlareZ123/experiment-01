@@ -30,7 +30,7 @@ test('owner-only Regidrago V acquisition accepts a singleton evolved Dragon paym
   }
 });
 
-test('don't spend a donor when target already accessible or on board',()=>{
+test('do not spend a donor when target already accessible or on board',()=>{
   const v=view();
   v.ownHand.push(REGIDRAGO_V);
   assert.equal(chooseRegidragoDonorQuickBall(v),null);
