@@ -16,6 +16,25 @@ const BASIC_ENERGIES = new Set([
   'Fairy Energy'
 ]);
 
+const PRINTED_STADIUM_ANSWERS = new Map([
+  [4, [{ name: 'Sky Field', count: 3, printing: 'ROS89' }]],
+  [6, [
+    { name: 'Tropical Beach', count: 1, printing: 'BWP50' },
+    { name: 'Thunder Mountain ♢', count: 1, printing: 'LOT191' },
+    { name: 'Wondrous Labyrinth ♢', count: 1, printing: 'TEU158' }
+  ]],
+  [17, [{ name: 'PokéStop', count: 1, printing: 'PGO68' }]],
+  [24, [
+    { name: 'Thunder Mountain ♢', count: 1, printing: 'LOT191' },
+    { name: 'Wondrous Labyrinth ♢', count: 1, printing: 'TEU158' }
+  ]],
+  [29, [
+    { name: 'Tropical Beach', count: 2, printing: 'BWP50' },
+    { name: 'Thunder Mountain ♢', count: 1, printing: 'LOT191' },
+    { name: 'Wondrous Labyrinth ♢', count: 1, printing: 'TEU158' }
+  ]]
+]);
+
 const TARGETS = [
   { rank: 4, pokemon: 'Alolan Raichu', printing: 'UNM57', cardId: 'sm11-57',
     file: 'sm11', attack: 'Electro Rain', expectedEnergy: 12 },
@@ -71,6 +90,24 @@ function audit(source) {
     assert.equal(energies.reduce((sum, entry) => sum + entry.count, 0), target.expectedEnergy);
     assert.ok(energies.every((entry) => !BASIC_ENERGIES.has(entry.name)));
 
+    const stadiumAnswers = PRINTED_STADIUM_ANSWERS.get(target.rank);
+    assert.ok(stadiumAnswers);
+    const directStadiumReplacements = stadiumAnswers.map((answer) => {
+      const printedSource = deck.cards.find((entry) =>
+        entry.category === 'Trainer' &&
+        entry.name === answer.name &&
+        entry.printing.set + entry.printing.number === answer.printing
+      );
+      assert.ok(printedSource, 'Missing Stadium replacement at rank ' + target.rank);
+      assert.equal(printedSource.count, answer.count);
+      assert.notEqual(answer.name, 'Temple of Sinnoh');
+      return answer;
+    });
+    const directReplacementTotal = directStadiumReplacements.reduce(
+      (sum, entry) => sum + entry.count, 0
+    );
+    assert.ok(directReplacementTotal > 0);
+
     const printed = readCard(target.file, target.cardId);
     assert.equal(printed.name, target.pokemon);
     const attack = printed.attacks.find((entry) => entry.name === target.attack);
@@ -84,6 +121,8 @@ function audit(source) {
       printedPokemon: target.pokemon + ' ' + target.printing,
       affectedAttack: target.attack,
       printedAttackCost: attack.cost,
+      directStadiumReplacements,
+      directReplacementTotal,
       energyInventory: energies.map((entry) => ({
         name: entry.name, count: entry.count,
         printing: entry.printing.set + entry.printing.number
@@ -97,6 +136,7 @@ function audit(source) {
     sevenAllSpecial,
     focalLightningRanks: affected.map((entry) => entry.rank),
     affected,
+    directStadiumReplacementCounts: affected.map(({ rank, directReplacementTotal }) => ({ rank, copies: directReplacementTotal })),
     interpretation: 'Printed Energy cannot provide Lightning while Temple of Sinnoh stays in play; other cards, Stadium removal, alternate win paths, and full-game decisions remain outside this test.',
     competitivelyQualifiedGames: 0
   };
