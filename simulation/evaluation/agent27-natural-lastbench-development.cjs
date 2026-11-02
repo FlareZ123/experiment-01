@@ -7,7 +7,7 @@ const {buildActorCardCatalog,chooseActorRootIntent,
 const {actorObservation}=require('../twinleaf/actor-observation-contract.cjs');
 const {withPaperCelestialRoarEnergy}=require(
   '../twinleaf/agent47-celestial-roar-paper-energy-hook.cjs');
-const {lastBenchBasicConflict}=require(
+const {lastBenchBasicConflict,lastBenchShadowProposer}=require(
   '../twinleaf/agent27-owner-lastbench-basic-conflict.cjs');
 const path=require('node:path');
 const native=p=>require(path.resolve(__dirname,
@@ -31,6 +31,9 @@ function run(){
   const results=[];
   for(const seed of SEEDS)for(const order of [[0,1],[1,0]]){
     const conflicts=[];
+    const unselected=[];
+    const seenOwnerStates=new Set();
+    const shadow=lastBenchShadowProposer();
     const observe=(state,seat)=>{
       const view=actorObservation(state,seat);
       const baseline=chooseActorRootIntent(view,catalog,{});
@@ -38,6 +41,26 @@ function run(){
       if(matched)conflicts.push({turn:view.globalTurn,seat,
         rank:ranks[order[seat]],baseline:baseline.printing,
         alternatives:matched.omitted.map(x=>x.printing)});
+      const offers=shadow.propose(view,catalog,{},baseline);
+      if(offers.length>0){
+        // This is an owner-visible state key, not a new independent game.
+        // Reobserving an unchanged root does not multiply opportunities.
+        const key=createHash('sha256').update(JSON.stringify([
+          seat,view.globalTurn,view.ownHand,view.ownPublic?.bench,
+          baseline
+        ])).digest('hex');
+        if(!seenOwnerStates.has(key)){
+          seenOwnerStates.add(key);
+          unselected.push({seat,rank:ranks[order[seat]],
+            globalTurn:view.globalTurn,baselineKind:baseline.kind,
+            baselinePrinting:baseline.printing??null,
+            ownerStateSha256:key,offers:offers.map(o=>({
+              printing:o.printing,handIndex:o.handIndex,
+              benchIndex:o.benchIndex,reason:o.reason
+            })),nativeAccepted:false,paperVerified:false,
+            sourceOpponentReplyVerified:false});
+        }
+      }
       return view;
     };
     let error=null,game=null,energyHook=null,policyAudit=null;
@@ -61,6 +84,8 @@ function run(){
     }
     results.push({ranks:order.map(i=>ranks[i]),seed,
       observedSameKindLastBench:conflicts,
+      distinctOwnerUnselectedFinalBench:unselected,
+      distinctOwnerUnselectedStateCount:unselected.length,
       actorOwnerRootCount:policyAudit?.selectedRootDecisions??null,
       celestialPaperHook:energyHook,
       nativeGame:{failure:error,finished:game?.finished??false,
@@ -68,7 +93,7 @@ function run(){
         // Diagnostics only. No policy-qualified game is asserted.
         competitiveQualified:false}});
   }
-  return {schema:'agent27-natural-lastbench-development-v1',
+  return {schema:'agent27-natural-lastbench-development-v2-readonly',
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     deckHashes:decks.map(x=>createHash('sha256')
       .update(JSON.stringify(x)).digest('hex')),
