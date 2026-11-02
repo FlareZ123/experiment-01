@@ -51,9 +51,11 @@ function summarizeNightWatchPhysicalReplays(data){
     revealAndShuffleResolved+=summary.bothPromptsResolved;
     for(const event of events){
       const hasShow=event.followupResolutions.filter(x=>
-        x.promptKind==='ShowCardsPrompt'&&x.promptRemovedAfter).length===1;
+        x.promptKind==='ShowCardsPrompt'&&x.promptResultRecorded&&
+            x.nativeCallbackDequeued).length===1;
       const hasShuffle=event.followupResolutions.filter(x=>
-        x.promptKind==='ShuffleDeckPrompt'&&x.promptRemovedAfter).length===1;
+        x.promptKind==='ShuffleDeckPrompt'&&x.promptResultRecorded&&
+            x.nativeCallbackDequeued).length===1;
       if(!event.physicalHandDeckMovementConfirmed||!hasShow||!hasShuffle){
         violations.push({
           registeredGroup:group.registration,
