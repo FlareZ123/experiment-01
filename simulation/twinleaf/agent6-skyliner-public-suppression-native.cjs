@@ -46,7 +46,7 @@ const MODES=['baseline','path','silent','klefki','thorns',
  * @returns {object} Actual native reduction and dispatch receipt.
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false,
-  attackFollowup=false,nativePlayJammer=false}={}){
+  attackFollowup=false,nativePlayJammer=false,opponentReply=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -56,6 +56,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const equippedFuryBelt=mode.includes('-furybelt');
   const equippedStealthyHood=mode.includes('-stealthyhood');
   assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
+  assert.ok(!opponentReply||attackFollowup);
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=(mode.endsWith('-jammer')||
     mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
@@ -159,6 +160,10 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   }else if(baseMode==='muk')addBench(enemy,'Alolan Muk SUM');
   else addBench(enemy,'Pidgey MEW');
   for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
+  if(opponentReply){
+    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
+    enemy.bench[0].energies.cards.push(card('Psychic Energy MEE'));
+  }
   if(opponentBenchJammer)enemy.bench[0].tools.push(card('Tool Jammer BST'));
   if(baseMode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
   if(baseMode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
@@ -241,9 +246,40 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
           if(kind==='promotion')resolvedPromotionPromptIds.push(prompt.id);
         }
       }
+      let opponentReplyReceipt=null;
+      if(opponentReply){
+        let replyAttempted=false,replyAccepted=false,replyError=null;
+        const ownerDamageBefore=mine.active.damage;
+        const replyActiveBefore=enemy.active.getPokemonCard()?.fullName??null;
+        const stateTurnBefore=state.turn;
+        const actorSeatBefore=state.activePlayer;
+        const resolvedReplyWaitIds=[];
+        if(accepted&&mine.prizes.filter(p=>p.cards.length>0).length===4){
+          replyAttempted=true;
+          try{store.dispatch(new AttackAction(enemy.id,'Tackle'));
+            replyAccepted=true;}
+          catch(error){replyError=String(error?.message??error);}
+          if(replyAccepted){
+            for(let i=0;i<8;i++){
+              const wait=state.prompts.find(p=>p.result===undefined&&
+                p.constructor.name==='WaitPrompt');
+              if(!wait)break;
+              store.dispatch(new ResolvePromptAction(wait.id,null));
+              resolvedReplyWaitIds.push(wait.id);
+            }
+          }
+        }
+        opponentReplyReceipt={replyAttempted,replyAccepted,replyError,
+          replyActiveBefore,ownerDamageBefore,
+          ownerDamageAfter:mine.active.damage,
+          stateTurnBefore,actorSeatBefore,resolvedReplyWaitIds,
+          pendingPrompts:state.prompts.filter(p=>p.result===undefined)
+            .map(p=>p.constructor.name),
+          activeAfter:state.players[sourceSeat].active.getPokemonCard()?.fullName??null};
+      }
       attackReceipt={attempted,accepted,attackError,before,
         resolvedWaitPromptIds,resolvedPrizePromptIds,
-        resolvedPromotionPromptIds,
+        resolvedPromotionPromptIds,opponentReplyReceipt,
         after:{ownerPrizes:mine.prizes.filter(slot=>slot.cards.length>0).length,
           opponentActive:enemy.active.getPokemonCard()?.fullName??null,
           opponentActiveDamage:enemy.active.damage,
@@ -288,6 +324,12 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     attackFollowupSelectedAsPaper:!attackFollowup||
       (opponentToolJammer?!attackReceipt.attempted:
         attackReceipt.attempted&&attackReceipt.accepted),
+    nativeOpponentReplyAsPaper:!opponentReply||
+      (opponentToolJammer?!attackReceipt.opponentReplyReceipt.replyAttempted:
+        attackReceipt.opponentReplyReceipt.replyAttempted&&
+        attackReceipt.opponentReplyReceipt.replyAccepted&&
+        attackReceipt.opponentReplyReceipt.ownerDamageAfter===20&&
+        attackReceipt.opponentReplyReceipt.pendingPrompts.length===0),
     nativePrizeAndKnockOutAsPaper:!attackFollowup||
       (opponentToolJammer?!attackReceipt.attempted:
         attackReceipt.after.ownerPrizes===4&&
@@ -342,6 +384,17 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runHoodOpponentReplyRepair(){
+  const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+      effectRepair:true,attackFollowup:true,opponentReply:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {version:VERSION,hoodOpponentReply:true,rows,
+    stagedNativeCases:rows.length,failures,failedChecks:failures.length,
+    qualifiedCompetitiveGames:0};
+}
 function runNativePlayedJammerRepair(){
   const rows=['path-float-jammer','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
@@ -384,7 +437,9 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_NATIVE_PLAY_TOOL_JAMMER_DEV==='true'?
+  const result=process.env.AGENT6_HOOD_OPPONENT_REPLY_DEV==='true'?
+    runHoodOpponentReplyRepair():
+    process.env.AGENT6_NATIVE_PLAY_TOOL_JAMMER_DEV==='true'?
     runNativePlayedJammerRepair():
     process.env.AGENT6_HOOD_ATTACK_FOLLOWUP_DEV==='true'?
     runHoodAttackRepair():
@@ -395,4 +450,5 @@ if(require.main===module){
   if(result.failedChecks>0)process.exitCode=1;
 }
 module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
-  runHoodAttackRepair,runNativePlayedJammerRepair};
+  runHoodAttackRepair,runNativePlayedJammerRepair,
+  runHoodOpponentReplyRepair};
