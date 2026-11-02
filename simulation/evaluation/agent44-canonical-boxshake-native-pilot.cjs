@@ -131,7 +131,7 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
       [FRESH_START,FRESH_START+FRESH_COUNT-1],
     fresh32RegisteredScheduleSha256:fresh32&&diagnosticFreshIndex===null?
       FRESH32_REGISTERED_SHA256:null,
-    preregistration:fresh32?
+    preregistration:fresh32&&diagnosticFreshIndex===null?
       'results/aichi-2026/registrations/agent44-rank8-common-actor-boxshake-fresh32-20261102.json':null,
     originalRank8Printed60:true,sourcePrinted60Sha256:
       '6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541',
