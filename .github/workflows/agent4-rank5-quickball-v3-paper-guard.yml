@@ -1,0 +1,40 @@
+name: Agent4 rank5 Quick Ball V3 paper payment paired native
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rank5-payment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout existing pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate additive V3 wrapper and frozen registration syntax
+        run: |
+          node --check simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/agent4-rank5-quickball-v3-live-paper-guard-pair.cjs
+      - name: Install pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify original Quick Ball paper cost with real native Store both seats
+        run: node --test tests/agent4-quickball-paper-payment-native.test.cjs
+      - name: Run preregistered original-rank5 same-deal four-pair native comparison
+        run: node simulation/evaluation/agent4-rank5-quickball-v3-live-paper-guard-pair.cjs > agent4-rank5-quickball-v3-paper-guard-pairs.json
+      - name: Archive all native pair attempts and underlying Store receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank5-quickball-v3-original-store-pair
+          path: agent4-rank5-quickball-v3-paper-guard-pairs.json
+          if-no-files-found: warn
