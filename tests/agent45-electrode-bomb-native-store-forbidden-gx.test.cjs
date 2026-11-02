@@ -86,3 +86,42 @@ for(const seat of [0,1]){
   }));
  });
 }
+
+const {installElectrodeGXEnergyHook}=
+  require('../simulation/twinleaf/electrode-gx-energy-hook.cjs');
+
+for(const seat of [0,1]){
+ test('research hook refuses five forbidden GX attachments seat '+seat,()=>{
+  const restore=installElectrodeGXEnergyHook();
+  try {
+   const s=stage(seat);
+   s.store.dispatch(new UseAbilityAction(s.owner.id,'Extra Energy Bomb',{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+   }));
+   for(let j=0;j<5;j++){
+    const wait=s.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='WaitPrompt');
+    if(!wait)break;
+    s.store.dispatch(new ResolvePromptAction(wait.id,null));
+   }
+   const prompt=s.state.prompts.find(p=>p.result===undefined&&
+     p.constructor.name==='AttachEnergyPrompt');
+   assert.ok(prompt);
+   assert.equal(prompt.options.min,5);
+   const blocked={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
+   const chosen=prompt.decode(s.energy.map((card,index)=>({
+    to:blocked,index
+   })),s.state);
+   assert.equal(prompt.validate(chosen),true,
+     'Native prompt still accepts five forbidden physical targets');
+   assert.throws(()=>s.store.dispatch(new ResolvePromptAction(prompt.id,chosen)),
+     /ILLEGAL_ACTION/);
+   assert.equal(s.owner.active.energies.cards.length,0);
+   assert.equal(s.energy.every(card=>s.owner.discard.cards.includes(card)),true);
+   assert.equal(s.owner.bench[0].getPokemonCard()?.fullName,'Electrode-GX CES');
+   console.log('AGENT45_CES48_HOOK_REJECTED_FORBIDDEN_GX',JSON.stringify({
+    seat,selected:5,accepted:false,competitiveQualifiedGames:0
+   }));
+  }finally{restore();}
+ });
+}
