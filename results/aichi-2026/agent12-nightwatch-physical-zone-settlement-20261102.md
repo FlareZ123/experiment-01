@@ -1,0 +1,35 @@
+# Agent 12: printed Night Watch selects real opponent-hand objects and native Store moves them
+
+**2 November 2026 | bounded retrospective original Store paper-fidelity probe, not a competitive Aichi game-result study.** The printed Trevenant & Dusknoir-GX SMP SM217 attack Night Watch requires random selection of two cards in the opponent's hand, revelation, and shuffling into that opponent's deck. Agent12's older [printed-randomness investigation](agent12-night-watch-random-selection-paper-gap-20261101.md) identified that the pinned Twinleaf upstream implementation exposes an attacker-controlled `ChooseCardsPrompt`; a default-off research-only independent seeded uniform physical-position selector had already been built and joined to **nine** genuine printed source attack roots on two historical original rank11 physical deals. The previous selector audit observed the chosen objects but did not independently establish physical post-dispatch zone movement and shuffle resolution.
+
+## Native full-original-60 replay and physical-zone result
+
+Pinned vendor Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Exact same original rank11 source 60, same two frozen fixed candidate 60s, and same **two previously inspected original registered deal seeds** as the earlier Agent12 postgame-Night-Watch comparison. The independent selection RNG seed per physical deal group is preserved in `results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json`. This replay is **retrospective** and cannot be promoted to new predictive win-rate evidence.
+
+[Manual pinned native CI run 41389646372](https://github.com/FlareZ123/experiment-01/actions/runs/41389646372), frozen head `bc28940a511333596ae992c39f4da31e21bf6149`, completed **SUCCESS**. Full result [artifact 13115874741](https://github.com/FlareZ123/experiment-01/actions/runs/41389646372/artifacts/13115874741) ZIP SHA-256 `21eedc8cab5720c842b7743c83aa45aa09f125199a6eafd1598beffe716322d8`. Exact included `agent12-nightwatch-rank11-native.json`, uncompressed 57,692 bytes, SHA-256 `45654a3bd1341d5fcf24997b2d4b3a15332e99879a6446a58fabcee1239b9f15`. The original Store ran **8 bounded development arms**: two previously inspected physical deal seeds, two candidate lists per seed, native selector ON/OFF. Nine genuine Night Watch selections in two selector-ON arms; no such selection in champion-control arms.
+
+| Original frozen group / active attacker seat | Genuine source-named Night Watch roots | Actual live Store `ChooseCardsPrompt` accepted | Two physically selected cards verified leaving opponent hand and entering opponent deck | Native reveal+shuffle prompts generated |
+| --- | ---: | ---: | ---: | ---: |
+| rank11 repeat2 seat A, candidate seat0, global turns 46 to 54 | 5 | 5 | **5/5** | **5/5** |
+| rank11 repeat0 seat B, candidate seat1, global turns 21 to 27 | 4 | 4 | **4/4** | **4/4** |
+| **Total** | **9** | **9** | **9/9** | **9/9** |
+
+Each source-marked, real-Store `ResolvePromptAction` was observed by a reversible research-owned hook, after the genuine pinned vendor `Store.dispatch` returned. For all nine:
+- Before, both opaque selected card objects belonged to the actual opposing `hand.cards`, zero of them belonged to `deck.cards`;
+- After, opposing hand size declined by exactly two, deck size grew by exactly two, neither chosen object remained in hand and both original object references were in deck;
+- The native source callback added one `ShowCardsPrompt` and one `ShuffleDeckPrompt` per observed selection;
+- The independent postgame selected-printing sidecar still matched **9/9** accepted source-root physical pair selections (same strict independent `reconcileNightWatchNonceRoots` source-root join).
+
+The reconstructed observed source turn/physical hand size sequence was **46/23, 48/21, 50/19, 52/17, 54/16** for candidate seat0 and **21/13, 23/12, 25/11, 27/10** for seat1. This is late-game developmental evidence, and actual source-origin attribution is based on archived accepted root ordinals, not on vague attacker-only prompt shape.
+
+## Important prompt-lifecycle correction
+
+The initial v6 instrument saw **18** subsequent real Store prompt dispatches for ShowCards + ShuffleDeck combined, with native dispatch accepted, yet recorded `promptRemovedAfter:false` in all 18. This originally made an overly strict `bothFollowupsNativelyResolved:0/9` flag. Inspection of exact pinned `ptcg-server/src/game/store/store.ts` revealed the cause: `reducePrompt` assigns `prompt.result`, calls `promptItem.then(...)` when all results are present, and removes **the callback queue entry** from `this.promptItems`; **the resolved prompt object is retained in `state.prompts` on the successful path**. Removal from `state.prompts` occurs on the error path. Hence `promptRemovedAfter` is an **invalid** settlement criterion. The v6 native evidence establishes physical movement, prompt generation, and accepted followup dispatches, while requiring a revised direct callback-completion witness before counting settled shuffle callbacks.
+
+Corrected default-off v7 hook `simulation/twinleaf/agent12-nightwatch-paper-random-chooser.cjs` now captures, after each genuine native followup dispatch, both `pending.result!==undefined` and absence of the exact prompt ID from the Store's `promptItems` callback queue, with a separate informative `promptStillInStateAfter` flag. The independent replay readout counts only **source-linked result-written, callback-dequeued** ShowCards+ShuffleDeck pairs. `tests/agent12-nightwatch-paper-random-chooser.test.cjs` now retains resolved staged prompts to regress the pinned engine lifecycle; `simulation/evaluation/agent12-nightwatch-zone-summary.cjs` and pure test summarize all source attempts, including negatives. A new v7 [CI run 41390132468](https://github.com/FlareZ123/experiment-01/actions/runs/41390132468) was dispatched; **verify its actual result before asserting 9/9 complete callbacks**.
+
+## Qualification and next constraints
+
+This narrowly improves attestation of a particular engine move in two retrospectively selected games. A seeded cryptographic uniform position sampler is not by itself a demonstration that the actual paper match had fair randomization, or that all attack costs, opponent decision policies, deck legality, timing and gameplay phases were paper-correct. The source-gated hook remains default-off outside this development probe; the entire actor may still have unrelated hidden-information or paper-effect failures. The accepted native prompts and zone movement provide no basis to assert a competitive tournament win.
+
+**Field status:** 29/32 authenticated original opposing 60s, ranks 23/25/28 missing; **zero competitively qualified game wins**, no demonstrated 99.5% fixed-60 field rate. Repeating two inspected historical deal seeds does not increase independent game sample size.
