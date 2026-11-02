@@ -594,6 +594,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
   const pendingFarewellBySeat=new Map();
+  // A once-per-turn conservative cap for the proposed native Genesect Ability
+  // across all copies, keyed by the acting physical owner seat only.
+  const genesectDrawUsedTurnBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,actualGamesSeen=0;
@@ -610,6 +613,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
+    genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
+    genesectFusionNativeAccepted:0,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
@@ -872,6 +877,13 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+'+
       require('./agent37-dce-mew-paid-retreat.cjs').VERSION;
   else delete audit.dceMewMobilityRootOptIn;
+  if(audit.genesectFusionDrawOptIn)
+    audit.version+='+'+
+      require('./agent37-genesect-public-fusion-draw.cjs').VERSION;
+  else{
+    delete audit.genesectFusionDrawOptIn;
+    delete audit.genesectFusionNativeAccepted;
+  }
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
@@ -1085,6 +1097,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       dceMewMobilityRoot:audit.dceMewMobilityRootOptIn===true,
+      genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
+      genesectFusionUsedThisTurn:
+        genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       skylinerRondoRetreat:audit.skylinerRondoRetreatOptIn===true&&
         actorSpecialEnergyEnabled(true,
@@ -1311,6 +1326,13 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'skyliner-rondo-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
+      case 'use-genesect-fusion-draw':
+        action=new UseAbilityAction(ownerId,intent.abilityName,{
+          player:PlayerType.BOTTOM_PLAYER,
+          slot:intent.position==='bench'?SlotType.BENCH:SlotType.ACTIVE,
+          index:intent.position==='bench'?intent.benchIndex:0
+        });
+        break;
       case 'use-farewell-letter':
         action=new UseAbilityAction(ownerId,intent.abilityName,{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
@@ -1353,6 +1375,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
       pendingFarewellBySeat.clear();
+      genesectDrawUsedTurnBySeat.clear();
     }
     if(this===nativeStore&&
        action?.constructor?.name==='ResolvePromptAction'&&
@@ -1521,6 +1544,10 @@ function withActorOnlyRootPolicy(run,deps={}){
         }
       }
       audit.acceptedActorRoots++;
+      if(choice.kind==='use-genesect-fusion-draw'){
+        genesectDrawUsedTurnBySeat.set(choice.seat,choice.globalTurn);
+        audit.genesectFusionNativeAccepted++;
+      }
       if(choice.intent.source==='rank13-dragon-donor')
         audit.regidragoDonorQuickBallNativeAccepted++;
       if(audit.losslessNativeRootJoinOptIn){
