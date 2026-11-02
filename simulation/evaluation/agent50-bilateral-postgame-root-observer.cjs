@@ -439,15 +439,28 @@ function withPostgameRootOrderProbe(
           traceSimulationZones:target.nativeTapeFirstFiniteScore===true,
         traceArbiterShuffleLengths:target.nativeTapeFirstFiniteScore===true,
         traceShuffleRandomCalls:target.nativeTapeCountShuffleRandom===true};
-      const policyReplay=world=>applyPolicy(target.seat,()=>{
-        const bot=new BotClass({id:actorId},
-          cloneBotOptions(captured.options),null);
-        return target.nativeTapeFirstFiniteScore===true?
-          require('../twinleaf/native-policy-tactic-sequence.cjs')
-            .observeNativePolicyTacticSequence(bot,
-              ()=>bot.decodeNextAction(world),replayTacticObservation):
-          bot.decodeNextAction(world);
-      }).result;
+      const policyReplay=world=>{
+        const execute=()=>applyPolicy(target.seat,()=>{
+          const bot=new BotClass({id:actorId},
+            cloneBotOptions(captured.options),null);
+          return target.nativeTapeFirstFiniteScore===true?
+            require('../twinleaf/native-policy-tactic-sequence.cjs')
+              .observeNativePolicyTacticSequence(bot,
+                ()=>bot.decodeNextAction(world),replayTacticObservation):
+            bot.decodeNextAction(world);
+        }).result;
+        if(target.nativeTapeFairReplayHooks!==true)return execute();
+        // The original headless match installs a Fisher-Yates bot shuffle
+        // and a FairSimulator; it removes both when the game completes.
+        // Replay must reinstate that same research-owned simulator boundary
+        // or its RNG consumption differs by one draw per shuffle.
+        const install=dependencies.installFairBotHooks??
+          require('../twinleaf/headless.cjs').installFairBotHooks;
+        const restore=install();
+        assert.equal(typeof restore,'function');
+        try{return execute();}
+        finally{restore();}
+      };
       const parity=verifyNativeSameWorldTapeParity({
         root:captured.state,
         actualAction:captured.realAction,
