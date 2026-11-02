@@ -39,7 +39,11 @@ function compactGame(game){
  *
  * @returns {object} Unconditional native evidence and all attempted rows.
  */
-function run({flexible=false}={}){
+function run({flexible=false,debugSourceIndex=null}={}){
+  assert.ok(debugSourceIndex===null||
+    (flexible&&Number.isSafeInteger(debugSourceIndex)&&
+      debugSourceIndex>=272&&debugSourceIndex<=303),
+    'Debug source must be a previously registered flexible physical index');
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,
@@ -54,8 +58,9 @@ function run({flexible=false}={}){
   const {Store}=require(path.join(BASE,'game/store/store'));
   const fixed=[{trial:'retrospective-original-positive',sourceSeat:0,
     seed:HISTORICAL_SEED,cohort:'retrospective-selected'}];
-  const startIndex=flexible?FLEX_FRESH_START:FRESH_START;
-  const count=flexible?FLEX_FRESH_COUNT:FRESH_COUNT;
+  const startIndex=debugSourceIndex??(flexible?FLEX_FRESH_START:FRESH_START);
+  const count=debugSourceIndex===null?
+    (flexible?FLEX_FRESH_COUNT:FRESH_COUNT):1;
   const future=schedule(startIndex,count).map(row=>({
     ...row,cohort:'precommitted-unselected-extension'
   }));
@@ -129,6 +134,8 @@ function run({flexible=false}={}){
     policy:flexible?
       require('./agent44-owner-boxshake-native-policy.cjs').FLEX_VERSION:VERSION,
     selectedPolicyDefaultOff:true,flexibleFirstTurnBoxPolicy: Boolean(flexible),
+    diagnosticRetrospectiveSubselection:debugSourceIndex!==null?
+      {previouslyObservedSourceIndex:debugSourceIndex,sourceRun:41407960444}:null,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
     engineRevision:plan.engineRevision,
@@ -151,7 +158,9 @@ function run({flexible=false}={}){
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run({
-  flexible:process.env.AGENT44_RANK8_BOX_FLEXIBLE==='true'
+  flexible:process.env.AGENT44_RANK8_BOX_FLEXIBLE==='true',
+  debugSourceIndex:process.env.AGENT44_RANK8_BOX_DEBUG_INDEX?
+    Number(process.env.AGENT44_RANK8_BOX_DEBUG_INDEX):null
 }),null,2)+'\n');
 module.exports={HISTORICAL_SEED,FRESH_START,FRESH_COUNT,
   FLEX_FRESH_START,FLEX_FRESH_COUNT,MAX_ACTIONS,run};
