@@ -1,6 +1,6 @@
 # Anytime matched-physical-deal deck comparison with censoring
 
-**Agent 46 | 2 November 2026 | mathematical method, nine pure tests; zero actual qualified games.**
+**Agent 46 | 2 November 2026 | mathematical method, ten pure tests; zero actual qualified games.**
 
 ## Decision gap
 
@@ -36,14 +36,14 @@ A cell interval is `[max(-1,a_n-epsilon), min(1,b_n+epsilon)]`; an untested cell
 
 ## Reproducible implementation and example
 
-- [CJS module](../../simulation/evaluation/agent46-anytime-paired-field-delta.cjs): exported `anytimePairedFieldDelta({candidateOrdinal,cells,alpha,targetDelta})`. Each cell contains full registered pairs with a unique pair ID, the two independently observed qualified/censored statuses, and matching source physical fingerprints. Duplicate pair IDs, mismatched fingerprints, unrecognized native-winner labels and invalid cell geometries fail closed.
-- [Nine pure regressions](../../tests/agent46-anytime-paired-field-delta.test.cjs): empty field; fully censored field; one-sided censoring in both directions; positive, negative and tied hypothetical contrasts; candidate ordinal spending; 64/128 geometries; fingerprint/ID mismatch and unsupported status. Executed locally using Node's native test runner: **9/9 passed**.
+- [CJS module](../../simulation/evaluation/agent46-anytime-paired-field-delta.cjs): exported `anytimePairedFieldDelta({candidateOrdinal,cells,alpha,targetDelta})`. Each cell contains full registered pairs with a unique pair ID, the two independently observed qualified/censored statuses, and matching source physical fingerprints. Duplicate pair IDs, missing fingerprints, unrecognized native-winner labels and invalid cell geometries fail closed. Crucially, **mismatched source fingerprints retain a full [-1,1] unknown pair** in the original registered denominator and increase `unmatchedPairs`; only actual matching deals may contribute an observed score.
+- [Ten pure regressions](../../tests/agent46-anytime-paired-field-delta.test.cjs): empty field; fully censored field; one-sided censoring in both directions; positive, negative and tied hypothetical contrasts; candidate ordinal spending; 64/128 geometries; fingerprint mismatch retained as censored and duplicate-ID / unsupported-status rejection. Executed locally using Node's native test runner: **10/10 passed**.
 - Included as a new step in the existing [manual-only global evidence workflow](../../.github/workflows/aichi-global-field-gate.yml), without any push-triggered workflow.
 - As an **entirely hypothetical** positive-control fixture, 100 paired qualified challenger wins and reference nonwins in each of 32 cells gives 3,200 pairs. For k=1, alpha=0.05, the per-cell Hoeffding radius is approximately 0.584261 and the field lower contrast is approximately +0.415739. These figures are test arithmetic, **not Aichi game observations or evidence of a real deck being stronger**.
 
 ## Required use and limitations
 
-1. Register all physical source deals **before** observing any outcomes. A pair has to share the *actual source physical setup*, not merely a seed. Both arms must be accounted for. Missing or errored arms are recorded as censored; a mismatched source fingerprint requires repair or explicit prospective reclassification, not silent deletion.
+1. Register all physical source deals **before** observing any outcomes. A pair has to share the *actual source physical setup*, not merely a seed. Both arms must be accounted for. Missing or errored arms are recorded as censored; a mismatched source fingerprint is kept as a full-range unknown contrast and counted separately, without deleting its registered pair.
 2. The individual status `QUALIFIED_WIN` or `QUALIFIED_NONWIN` is an **external audit assertion**. This module cannot establish legal card costs, owner-information boundaries, adequate original-source policy, both-seat protocol, paper match clock or proper end-of-time adjudication. Hence its output explicitly sets `competitiveQualified:false`.
 3. Replaying historically favorable deals, varying the reference, changing a deck midstream, or reusing old observational runs as a newly registered experiment invalidates the prospective inference. Selection of the 32/64/128-cell estimand after seeing results requires separate multiplicity control. Simultaneously consulting this paired method and the earlier absolute-win method for a single final claim also requires preregistered alpha allocation.
 4. The estimator's target is an equal-weight field **difference**. A pairing scheme that changes the candidate's physical start/seat distribution, reweights opponent ranks, or changes the frozen policy creates a different estimand and needs a new registration. It is not yet wired into the canonical bilateral output schema. A strict producer should join the independent qualification ledger before assigning the two qualified labels.
