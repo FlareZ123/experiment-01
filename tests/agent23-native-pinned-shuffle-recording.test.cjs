@@ -35,3 +35,33 @@ test('pinned native 41-card RANDOM shuffle emits precisely 41 recorded draws',()
     assert.equal(Math.random(),0.25);
   }finally{Math.random=original;}
 });
+
+test('genuine headless FairBotHooks produce 40 draws for 41-card shuffle and restore native',()=>{
+  const simulatorModule=require(
+    '../vendor/twinleaf/ptcg-server/output/game/bots/simulator');
+  const {installFairBotHooks}=require(
+    '../simulation/twinleaf/headless.cjs');
+  const upstreamShuffle=BotArbiter.prototype.shuffle;
+  const upstreamSimulator=simulatorModule.Simulator;
+  const random=Math.random;
+  let undo;
+  try{
+    Math.random=()=>0.25;
+    undo=installFairBotHooks();
+    assert.notStrictEqual(BotArbiter.prototype.shuffle,upstreamShuffle);
+    assert.notStrictEqual(simulatorModule.Simulator,upstreamSimulator);
+    const active={traceShuffleRandomCalls:true};
+    const cards={cards:Array.from({length:41},(_,i)=>i)};
+    const arbiter=new BotArbiter({shuffleMode:2});
+    const observed=observeNativeArbiterShuffles(
+      ()=>recordPolicyRandomTape(()=>arbiter.shuffle(cards)),active);
+    assert.equal(observed.tape.length,40);
+    assert.equal(active.arbiterShuffles[0].actualShuffleRngCalls,40);
+    assert.equal(active.arbiterShuffles[0].deckLength,41);
+  }finally{
+    if(undo)undo();
+    Math.random=random;
+  }
+  assert.strictEqual(BotArbiter.prototype.shuffle,upstreamShuffle);
+  assert.strictEqual(simulatorModule.Simulator,upstreamSimulator);
+});
