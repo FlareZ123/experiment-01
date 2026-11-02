@@ -13,6 +13,9 @@ const {
   fixedDeckCountAnomalies
 }=require('./physical-card-ledger.cjs');
 
+const {withNativeKODispatchLedger}=
+  require('./agent24-native-ko-batch-observer.cjs');
+
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=1847000101;
 
@@ -162,21 +165,28 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
     }
     return result;
   };
-  let game=null;
+  let game=null,dispatchLedger=null;
   try{
-    game=runMatch({
+    const observed=withNativeKODispatchLedger(()=>runMatch({
       deckA:a,deckB:b,seed:SEED,maxActions:260,
       strictPromptValidation:true,isolatePolicyRandomness:true,
       doubleDragonRecovery:true,capturePhysicalZoneIntegrity:true,
       captureOriginalOwnerIntegrity:true,enforceSettledPhysicalZoneIntegrity:true,
       label:'agent24-experimental-simultaneous-double-ko-'+reverse
-    });
+    }),{Store});
+    game=observed.result;
+    dispatchLedger=observed.evidence;
   }finally{
     Store.prototype.dispatch=original;
     Store.prototype.reduceEffect=originalReduceEffect;
   }
   assert.ok(owners&&stagedTie&&resetSeen&&replayOpened&&doubleKOStaged);
   assert.equal(owners.size,120);
+  assert.equal(dispatchLedger.sameResolutionBatchAuthenticated,false);
+  const observedKO=dispatchLedger.events.filter(e=>
+    e.koEntitlements.length===2);
+  assert.equal(observedKO.length,1);
+  assert.deepEqual(observedKO[0].koEntitlements,nativeKOEntitlements);
   assert.deepEqual(before.prizes,[6,6]);
   assert.ok(before.bench.every(x=>x>=1));
   assert.ok(game.finished,'Staged simultaneous KO did not reach native terminal');
@@ -241,7 +251,7 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
     syntheticSimultaneousActiveLethalDamage:true,
     syntheticBasicBenchAllocations:matchedBenchSlots,
     syntheticActiveReplacements:forcedActiveReplacements,
-    before,afterReducer,
+    before,afterReducer,dispatchLedger,
     nativeKOEntitlements,
     pendingPrizeAudit,nativePendingComparison,
     pendingPrizesByClaimant,
@@ -375,22 +385,31 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
     };
     return result;
   };
-  let game;
+  let game,dispatchLedger=null;
   try{
-    game=runMatch({
+    const observed=withNativeKODispatchLedger(()=>runMatch({
       deckA:decks[0],deckB:decks[1],seed:SEED,maxActions:100,
       strictPromptValidation:true,isolatePolicyRandomness:true,
       doubleDragonRecovery:true,capturePhysicalZoneIntegrity:true,
       captureOriginalOwnerIntegrity:true,
       enforceSettledPhysicalZoneIntegrity:true,
       label:'agent24-synthetic-ordinary-simultaneous-last-prizes-'+reverse
-    });
+    }),{Store});
+    game=observed.result;
+    dispatchLedger=observed.evidence;
   }finally{
     Store.prototype.dispatch=originalDispatch;
     Store.prototype.reduceEffect=originalReduce;
   }
   assert.ok(owners&&staged&&before&&after);
   assert.equal(owners.size,120);
+  assert.equal(dispatchLedger.sameResolutionBatchAuthenticated,false);
+  const observedKO=dispatchLedger.events.filter(e=>
+    e.koEntitlements.length===2);
+  assert.equal(observedKO.length,1);
+  assert.deepEqual(observedKO[0].koEntitlements,koEntitlements);
+  assert.deepEqual(observedKO[0].preFirstKOPrizes,[2,2]);
+  assert.equal(observedKO[0].suddenDeathAtFirstKO,false);
   assert.deepEqual([...before.active].sort(),['Crobat V','Regidrago V']);
   assert.equal(koEntitlements.length,2);
   assert.ok(koEntitlements.every(e=>
@@ -421,7 +440,7 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
     reverse,ranks,seed:SEED,genuineOriginal60PerSeat:true,
     initialSixPrizesNativeDealt:true,syntheticFourPrizeMovesPerSeat:true,
     syntheticLethalDamage:true,syntheticOwnedBoardSwaps:physicalSwaps,
-    before,after,koEntitlements,
+    before,after,koEntitlements,dispatchLedger,
     ordinaryPendingPrizeAudit,nativePendingComparison,
     hypotheticalBothAwardsRemaining:[0,0],
     simultaneousBothTakeLastPrizesNativeNotTie:true,
