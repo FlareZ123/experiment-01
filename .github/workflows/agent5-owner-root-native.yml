@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      forced_active_marshadow_chain:
+        description: 'Four preregistered staged physical-seat and retreat-payment Fog into Resetting Hole native arms, not games'
+        required: false
+        type: boolean
+        default: false
       owner_terminal_arbitration_rank3:
         description: Fixed two-seed rank3 original 60 vs rank1 both-seat A/B/A original Store development only
         required: false
@@ -78,6 +83,12 @@ jobs:
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native Marshadow UNB Resetting Hole counterstage against source Thorns Stadium
         run: node simulation/twinleaf/agent5-marshadow-thunder-mountain-native.cjs > agent5-marshadow-thunder-mountain-native.json
+      - name: Staged forced-Active Marshadow same-turn Fog retreat and Resetting Hole four-arm native chain
+        if: ${{ inputs.forced_active_marshadow_chain }}
+        run: node simulation/twinleaf/agent5-forced-active-marshadow-chain-native.cjs > agent5-forced-active-marshadow-chain.json
+      - name: Preserve all native chain arms and any observed errors, without gameplay qualification
+        if: ${{ inputs.forced_active_marshadow_chain }}
+        run: node -e "const r=require('./agent5-forced-active-marshadow-chain.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attemptedArms,nativeSuccesses:r.nativeSuccesses,arms:r.rows.map(x=>({seat:x.seat,payment:x.payment,success:x.success,error:x.error?.slice(0,2500)}))},null,2))"
       - name: Report both-seat native source-relevant Marshadow behavior without hiding unsupported effects
         run: node -e "const a=require('node:assert/strict');const x=require('./agent5-marshadow-thunder-mountain-native.json');a.equal(x.attemptedSeats,2);a.equal(x.rows.length,2);console.log(JSON.stringify({schema:x.schema,pin:x.pin,positiveCount:x.positiveCount,rows:x.rows.map(r=>({seat:r.seat,error:r.error,controlError:r.control?.error,abilityError:r.abilityFirst?.error,stadiumRemoved:r.abilityFirst?.confirmedPublicDiscard,attackAfter:r.abilityFirst?.attackAfter!=null,negativeError:r.noStadium?.error}))},null,2))"
       - name: Retrospective original rank6 first-turn Camping Gear Pass owner native fork
@@ -170,6 +181,7 @@ jobs:
             agent5-marshadow-opening-access.json
             agent5-thunder-mountain-native-gate.json
             agent5-marshadow-thunder-mountain-native.json
+            agent5-forced-active-marshadow-chain.json
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
