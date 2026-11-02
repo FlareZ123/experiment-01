@@ -24,8 +24,10 @@ function allRemainingPrized(left) {
  * @property {number} basicValidInitialSeven
  * @property {number} directUnconditional
  * @property {number} directAmongBasicValid
+ * @property {number} directWithOtherBasicStarterAmongBasicValid
  * @property {number} searchAssistedUnconditional
  * @property {number} searchAssistedAmongBasicValid
+ * @property {number} searchAssistedWithOtherBasicStarterAmongBasicValid
  */
 
 /**
@@ -51,8 +53,10 @@ function openingEightAccess(copies = {}) {
   const counts = Array(7).fill(0);
   let directUnconditional = 0;
   let directAndValid = 0;
+  let directWithOtherBasicStarter = 0;
   let searchAssistedUnconditional = 0;
   let searchAssistedAndValid = 0;
+  let searchAssistedWithOtherBasicStarter = 0;
 
   /** @param {number} index @param {number} left @param {number} numerator */
   function enumerate(index, left, numerator) {
@@ -76,14 +80,20 @@ function openingEightAccess(copies = {}) {
     if (mukLeft === 0) return;
     const firstEightBasics = handGrimer + handOtherBasic;
     const initialValidWeight = firstEightBasics === 0 ? 0 : (firstEightBasics === 1 ? 7 / 8 : 1);
+    // At least one non-Grimer Basic actually in the opening seven gives
+    // an alternative initial Active and preserves a Bench-Muk geometry.
+    const otherBasicOpeningWeight = handOtherBasic === 0 ? 0 : (handOtherBasic === 1 ? 7 / 8 : 1);
     const mukAvailable = 1 - allRemainingPrized(mukLeft);
 
     if (handGrimer > 0) {
       const p = p8 * mukAvailable;
       directUnconditional += p;
       directAndValid += p * initialValidWeight;
+      directWithOtherBasicStarter += p * otherBasicOpeningWeight;
       searchAssistedUnconditional += p;
       searchAssistedAndValid += p * initialValidWeight;
+    searchAssistedWithOtherBasicStarter += p * otherBasicOpeningWeight;
+      searchAssistedWithOtherBasicStarter += p * otherBasicOpeningWeight;
       return;
     }
     const grimerLeft = grimer - handGrimer;
@@ -100,8 +110,10 @@ function openingEightAccess(copies = {}) {
     basicValidInitialSeven,
     directUnconditional,
     directAmongBasicValid: directAndValid / basicValidInitialSeven,
+    directWithOtherBasicStarterAmongBasicValid: directWithOtherBasicStarter / basicValidInitialSeven,
     searchAssistedUnconditional,
-    searchAssistedAmongBasicValid: searchAssistedAndValid / basicValidInitialSeven
+    searchAssistedAmongBasicValid: searchAssistedAndValid / basicValidInitialSeven,
+    searchAssistedWithOtherBasicStarterAmongBasicValid: searchAssistedWithOtherBasicStarter / basicValidInitialSeven
   };
 }
 
