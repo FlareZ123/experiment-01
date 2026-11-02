@@ -13,7 +13,7 @@ function slot(name,energies=[]){
 function state(sourceSeat=1){
   const own={
     active:slot('Electrode-GX CES',['Prism Energy ASC']),
-    bench:[slot('Mega Absol ex MEG',['Telepathic Psychic Energy MEG']),slot('Unown AOR')],
+    bench:[slot('Mega Absol ex M1L',['Telepathic Psychic Energy MEG']),slot('Unown AOR')],
     discard:{cards:[{fullName:'Darkness Energy MEE',superType:'Energy'},
       {fullName:'Battle VIP Pass FST',superType:'Trainer'}]},
     getPrizeLeft(){return 5;},
@@ -42,7 +42,7 @@ test('owner CES Electrode discard and ex recipients are physical resource flags'
   assert.equal(o.discardedEnergyCount,1);
   assert.equal(o.atLeastFiveEnergyCardsInDiscard,false);
   assert.equal(o.eligibleMegaAbsolEx,true);
-  assert.ok(o.eligibleRecipientPrintings.includes('Mega Absol ex MEG'));
+  assert.ok(o.eligibleRecipientPrintings.includes('Mega Absol ex M1L'));
   assert.ok(!o.eligibleRecipientPrintings.includes('Electrode-GX CES'));
   assert.equal(o.possibleEnergyTransferGeometry,true);
   assert.ok(!JSON.stringify(o).includes('private hidden card'));
