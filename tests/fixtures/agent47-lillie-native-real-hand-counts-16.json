@@ -1,0 +1,317 @@
+{
+  "schema": "agent7-candidate-only-owner-visible-lillie-pass-rescue-v1",
+  "fixture": "selected real native hand-count fields only; deterministic archival extraction, never original full archive",
+  "originalArtifactURL": "https://github.com/FlareZ123/experiment-01/actions/runs/41483117649/artifacts/13161380187",
+  "originalUncompressedSha256": "93f1730901a41bace7729466ee59d21d78f4e012a776684a58bfcdf22485a92f",
+  "originalRegistrationSha256": "3fb859aa4f45d7675d38724859cae56d070ed3e19d0a520c4079b6ab5fef6364",
+  "totalNativeAcceptedLillieRoots": 6,
+  "totalNativeRejectedLillieRoots": 0,
+  "pairs": [
+    {
+      "trialId": "6:70:A:champion-reference",
+      "candidateId": "champion-reference",
+      "candidateSlot": "A",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 1,
+        "events": [
+          {
+            "turn": 10,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          }
+        ],
+        "candidateLillieNativeDraws": {
+          "events": [
+            {
+              "before": {
+                "turn": 10,
+                "hand": 11,
+                "deck": 32,
+                "prizes": 6,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 10,
+                "hand": 8,
+                "deck": 34,
+                "prizes": 6,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "trialId": "6:70:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "candidateSlot": "A",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 0,
+        "events": [],
+        "candidateLillieNativeDraws": {
+          "events": []
+        }
+      }
+    },
+    {
+      "trialId": "6:71:A:champion-reference",
+      "candidateId": "champion-reference",
+      "candidateSlot": "A",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 0,
+        "events": [],
+        "candidateLillieNativeDraws": {
+          "events": []
+        }
+      }
+    },
+    {
+      "trialId": "6:71:A:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "candidateSlot": "A",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "action-limit"
+      },
+      "treatment": {
+        "nativeEndReason": "action-limit"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 1,
+        "events": [
+          {
+            "turn": 62,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          }
+        ],
+        "candidateLillieNativeDraws": {
+          "events": [
+            {
+              "before": {
+                "turn": 62,
+                "hand": 27,
+                "deck": 13,
+                "prizes": 6,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 62,
+                "hand": 8,
+                "deck": 31,
+                "prizes": 6,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "trialId": "6:72:B:champion-reference",
+      "candidateId": "champion-reference",
+      "candidateSlot": "B",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 0,
+        "events": [],
+        "candidateLillieNativeDraws": {
+          "events": []
+        }
+      }
+    },
+    {
+      "trialId": "6:72:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "candidateSlot": "B",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 2,
+        "events": [
+          {
+            "turn": 3,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          },
+          {
+            "turn": 5,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          }
+        ],
+        "candidateLillieNativeDraws": {
+          "events": [
+            {
+              "before": {
+                "turn": 3,
+                "hand": 5,
+                "deck": 43,
+                "prizes": 6,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 3,
+                "hand": 8,
+                "deck": 39,
+                "prizes": 6,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            },
+            {
+              "before": {
+                "turn": 5,
+                "hand": 5,
+                "deck": 38,
+                "prizes": 6,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 5,
+                "hand": 8,
+                "deck": 34,
+                "prizes": 6,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "trialId": "6:73:B:champion-reference",
+      "candidateId": "champion-reference",
+      "candidateSlot": "B",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "action-limit"
+      },
+      "treatment": {
+        "nativeEndReason": "action-limit"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 1,
+        "events": [
+          {
+            "turn": 49,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          }
+        ],
+        "candidateLillieNativeDraws": {
+          "events": [
+            {
+              "before": {
+                "turn": 49,
+                "hand": 22,
+                "deck": 17,
+                "prizes": 4,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 49,
+                "hand": 6,
+                "deck": 32,
+                "prizes": 4,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "trialId": "6:73:B:new-moon-lockbreaker-v1",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "candidateSlot": "B",
+      "exactFullInitialPhysicalDealMatched": true,
+      "control": {
+        "nativeEndReason": "action-limit"
+      },
+      "treatment": {
+        "nativeEndReason": "engine-game-end"
+      },
+      "nativePolicyIntervention": {
+        "accepted": 1,
+        "events": [
+          {
+            "turn": 3,
+            "sourceChosenAction": "PassTurnAction",
+            "nativeRootAccepted": true
+          }
+        ],
+        "candidateLillieNativeDraws": {
+          "events": [
+            {
+              "before": {
+                "turn": 3,
+                "hand": 5,
+                "deck": 43,
+                "prizes": 6,
+                "supporterQuota": 0,
+                "cardInHand": true
+              },
+              "lastObserved": {
+                "turn": 3,
+                "hand": 8,
+                "deck": 39,
+                "prizes": 6,
+                "supporterQuota": 1,
+                "cardInHand": false
+              },
+              "printedDrawPostcondition": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
