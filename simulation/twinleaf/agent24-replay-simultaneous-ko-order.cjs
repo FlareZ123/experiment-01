@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards,runMatch}=require('./headless.cjs');
 const {registration}=require('./agent47-rank20-apex-natural-audit.cjs');
-const {projectPendingReplayPrizes}=
+const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
   require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
 const {
   captureInitialPhysicalOwners,inspectPhysicalCardZones,
@@ -202,7 +202,16 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
     hypotheticalPaperRemainingPrizes);
   assert.equal(pendingPrizeAudit.projectedLeaderSeat,hypotheticalPaperLeader);
   assert.equal(pendingPrizeAudit.paperGameOutcomeQualified,false);
+  const nativePendingComparison=compareNativePendingPrizeWinner({
+    projection:pendingPrizeAudit,
+    nativeFinished:game.finished,
+    nativeEndReason:game.endReason,
+    nativeWinnerSeat:game.winner
+  });
+  assert.equal(nativePendingComparison.paperGameOutcomeQualified,false);
   if(forceOppositeLeader){
+    assert.equal(nativePendingComparison.status,
+      'NATIVE_WINNER_OPPOSES_PENDING_PRIZE_LEAD');
     assert.deepEqual(pendingPrizesByClaimant,[2,3],
       'Expected forced source-owned 3-Prize A versus 2-Prize B');
     assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_STRICT_LEAD');
@@ -213,11 +222,15 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
     assert.deepEqual(pendingPrizesByClaimant,[2,2],
       'Expected a controlled equal-award simultaneous KO');
     assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
+    assert.equal(nativePendingComparison.status,
+      'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
     assert.equal(game.winner,0,
       'Expected pinned native first-seat sudden-death KO priority');
   }else{
     assert.deepEqual(pendingPrizesByClaimant,[3,2]);
     assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_STRICT_LEAD');
+    assert.equal(nativePendingComparison.status,
+      'NATIVE_WINNER_MATCHES_PENDING_PRIZE_LEAD');
   }
   return {
     reverse,rankA:reverse?11:20,rankB:reverse?20:11,seed:SEED,
@@ -228,7 +241,7 @@ function one(reverse,byRank,{forceOppositeLeader=false}={}){
     syntheticActiveReplacements:forcedActiveReplacements,
     before,afterReducer,
     nativeKOEntitlements,
-    pendingPrizeAudit,
+    pendingPrizeAudit,nativePendingComparison,
     pendingPrizesByClaimant,
     hypotheticalPaperRemainingPrizes,
     hypotheticalPaperLeader,
