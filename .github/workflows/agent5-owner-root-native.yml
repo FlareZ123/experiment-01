@@ -38,6 +38,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent12_mew_copy_cooldown_native:
+        description: 'Constructed two-seat actual Store Mew copied Genesect Techno Blast next-turn lock and later recovery'
+        required: false
+        type: boolean
+        default: false
       agent12_nightwatch_random_native:
         description: 'Original rank11 paired seed Night Watch printed random hidden-hand native audit, development only'
         required: false
@@ -125,6 +130,11 @@ jobs:
       - name: Report native Store Night Watch zone conservation and reveal shuffle stage
         if: ${{ inputs.agent12_nightwatch_random_native }}
         run: node simulation/evaluation/agent12-nightwatch-zone-summary.cjs agent12-nightwatch-rank11-native.json
+      - name: Two-seat original rank5 copied Genesect Techno Blast next-turn native Store gate
+        if: ${{ inputs.agent12_mew_copy_cooldown_native }}
+        run: |
+          node simulation/twinleaf/agent12-mew-genesect-nextturn-native.cjs > agent12-rank5-copied-techno-nextturn-native.json
+          node --test tests/agent12-mew-genesect-nextturn-native.test.cjs
       - name: Native staged rank-7 Steven three-card owner search both seats
         run: node simulation/twinleaf/agent22-steven-native-store-gate.cjs > agent22-steven-native-store-result.json
       - name: Preregistered exact rank7 source-dealt Steven prompt-choice pair
@@ -177,7 +187,7 @@ jobs:
         if: ${{ inputs.owner_terminal_arbitration_rank3 }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent41-rank3-arbitration-original-store.json');a.equal(r.attempted,12);a.equal(r.pairs.length,4);a.equal(r.summary.competitiveQualifiedGames,0);console.log(JSON.stringify({schema:r.schema,summary:r.summary,pairs:r.pairs.map(p=>({seat:p.candidateSeat,seed:p.seed,first:p.sourceFirst,initial:p.status,repeat:p.repeatStatus,changed:p.treatmentChangedRoots,steps:[p.baselineActions,p.treatmentActions],statuses:p.results}))},null,2))"
       - name: Native bilateral historical and source-first development
-        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 && ! inputs.agent12_campinggear_rank6_native && ! inputs.agent12_nightwatch_random_native }}
+        if: ${{ ! inputs.native_search_only && ! inputs.owner_terminal_arbitration_aba && ! inputs.owner_terminal_arbitration_rank3 && ! inputs.agent12_campinggear_rank6_native && ! inputs.agent12_nightwatch_random_native && ! inputs.agent12_mew_copy_cooldown_native }}
         run: node simulation/evaluation/agent5-owner-root-bilateral-native.cjs > agent5-owner-root-result.json
       - name: Fixed source-first development baseline without Thorns direct-line
         if: ${{ inputs.rank6_directline_paired }}
@@ -229,6 +239,7 @@ jobs:
             agent22-steven-followthrough.json
             agent12-campinggear-rank6-native.json
             agent12-nightwatch-rank11-native.json
+            agent12-rank5-copied-techno-nextturn-native.json
             agent5-thorns-baseline-sourcefirst.json
             agent5-thorns-treatment-sourcefirst.json
             agent5-thorns-directline-contrast.json
