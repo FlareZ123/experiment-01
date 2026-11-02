@@ -42,6 +42,8 @@ jobs:
           node simulation/twinleaf/agent7-tinkaton-press-dte-native.cjs
           node simulation/twinleaf/agent7-tinkaton-safeguard-native.cjs
           node simulation/twinleaf/agent7-tinkaton-printing-coverage.cjs
+      - name: Regress original source rank3/7 PAL Mimikyu GX-versus-V damage distinction in both native seats
+        run: node simulation/twinleaf/agent21-safeguard-gx-v-native.cjs
       - name: Attest all 29 original printed source ranks against genuine pinned native deck IDs
         run: node simulation/evaluation/agent13-native-plan-attestation-smoke.cjs
       - name: Regress exact 29-original Ability-use printing census
