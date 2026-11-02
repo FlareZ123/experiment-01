@@ -79,6 +79,18 @@ test('transitive source closure captures every reviewed policy key and audits re
       record.path===review.firstVerifiedSource&&record.keys.includes(key)),
     'Reviewed environment source drift '+key);
   }
+  const evening=inventory.reviewedNewEnvironmentKeys20261102Evening;
+  assert.equal(Object.keys(evening).length,6);
+  for(const [key,review] of Object.entries(evening)){
+    assert.ok(direct.has(key),'Evening reviewed key not in index '+key);
+    assert.ok(['actor-opt-in','auditor-opt-in',
+      'paper-guard-opt-in','scenario-guard-opt-in'].includes(review.kind),
+    'Unknown evening env role '+key);
+    assert.ok(review.sourceInterpretation.length>15);
+    assert.ok(x.records.some(record=>
+      record.path===review.firstVerifiedSource&&record.keys.includes(key)),
+    'Evening reviewed source location changed '+key);
+  }
   assert.ok(additional.length<=3,
     'Additional unreviewed policy keys require an inventory refresh');
   assert.equal(x.envKeys.length,inventory.keyCount+additional.length);
