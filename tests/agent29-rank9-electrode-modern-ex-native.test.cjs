@@ -21,11 +21,30 @@ const { PlayerType, SlotType } = native('game/store/actions/play-card-action');
 
 let nextCardId = 29000;
 
+/** All five unique 5-card multisets obtainable from the printed rank9
+ * source Energy population 4 Prism, 2 Darkness, 1 Telepathic Psychic.
+ * @type {Readonly<Record<string,ReadonlyArray<string>>>}
+ */
+const SOURCE_ENERGY_FIVE_PROFILES = Object.freeze({
+  '4P1D': ['Prism Energy ASC','Prism Energy ASC','Prism Energy ASC',
+    'Prism Energy ASC','Darkness Energy SVE'],
+  '3P2D': ['Prism Energy ASC','Prism Energy ASC','Prism Energy ASC',
+    'Darkness Energy SVE','Darkness Energy SVE'],
+  '4P1T': ['Prism Energy ASC','Prism Energy ASC','Prism Energy ASC',
+    'Prism Energy ASC','Telepath [P] Energy M3'],
+  '3P1D1T': ['Prism Energy ASC','Prism Energy ASC','Prism Energy ASC',
+    'Darkness Energy SVE','Telepath [P] Energy M3'],
+  '2P2D1T': ['Prism Energy ASC','Prism Energy ASC',
+    'Darkness Energy SVE','Darkness Energy SVE',
+    'Telepath [P] Energy M3']
+});
+
 /** Original rank-9 printed five-Energy subset, staged in discard after game play.
  * @param {0|1} seat
  * @param {boolean} [shadowRiderDefender] Staged rank1 VMAX target plus live Bench.
+ * @param {string} [energyProfile] Original-rank9 physical five-Energy multiset.
  */
-function stage(seat, shadowRiderDefender=false) {
+function stage(seat, shadowRiderDefender=false, energyProfile='4P1D') {
   const manager = initializeCards();
   /** @param {string} name */
   const card = name => {
@@ -67,13 +86,15 @@ function stage(seat, shadowRiderDefender=false) {
   }
   opponent.hand.cards.push(card('Fog Crystal CRE'));
 
-  const energy = [
-    card('Prism Energy ASC'),
-    card('Prism Energy ASC'),
-    card('Prism Energy ASC'),
-    card('Prism Energy ASC'),
-    card('Darkness Energy SVE')
-  ];
+  const names = SOURCE_ENERGY_FIVE_PROFILES[energyProfile];
+  assert.ok(names,'Unsupported original rank9 Energy profile');
+  const energy = names.map(card);
+  const telepath = energy.find(c=>c.name==='Telepathic Psychic Energy');
+  if (telepath) {
+    assert.equal(telepath.set,'POR');
+    assert.equal(telepath.setNumber,'88');
+  }
+  assert.equal(energy.length,5);
   owner.discard.cards.push(...energy);
   for (const player of [owner, opponent]) {
     for (let i = 0; i < 8; i++) player.deck.cards.push(card('Psychic Energy SVE'));
@@ -311,4 +332,26 @@ for(const seat of [0,1]){
       competitiveQualifiedGames:0
     }));
   });
+}
+
+
+for(const profile of Object.keys(SOURCE_ENERGY_FIVE_PROFILES)){
+  for(const seat of [0,1]){
+    for(const paperCorrection of [false,true]){
+      test('Complete original rank9 five-Energy multiset '+profile+
+        ' seat '+seat+' paperCorrection '+paperCorrection,()=>{
+        const restore = paperCorrection ? installElectrodeGXEnergyHook() : null;
+        try{
+          const s=stage(seat,false,profile);
+          const receipt={...activateAndPay(s),...attackAndDiscard(s)};
+          assert.equal(receipt.damage,200);
+          assert.equal(receipt.opponentPrizesAfterBomb,4);
+          assert.equal(receipt.opponentCardsDiscarded,1);
+          console.log('AGENT29_RANK9_ALL_FIVE_ENERGY_PROFILE_NATIVE',
+            JSON.stringify({profile,seat,paperCorrection,...receipt,
+              competitiveQualifiedGames:0}));
+        }finally{ if(restore)restore(); }
+      });
+    }
+  }
 }
