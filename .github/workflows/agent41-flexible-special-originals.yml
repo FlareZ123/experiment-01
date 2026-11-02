@@ -141,7 +141,7 @@ jobs:
         if: ${{ inputs.rank5_v3_release }}
         run: |
           node --check simulation/evaluation/agent13-v3-rank5-original-release.cjs
-          node --test tests/agent13-v3-rank5-integration.test.cjs tests/agent13-v3-rank5-release.test.cjs tests/agent48-mew-original-copy-option-order.test.cjs
+          node --test tests/agent13-v3-rank5-integration.test.cjs tests/agent13-v3-rank5-release.test.cjs tests/agent48-mew-original-copy-option-order.test.cjs tests/agent13-native-bot-decoder-frame-audit.test.cjs
           node simulation/evaluation/agent13-v3-rank5-original-release.cjs --inspect-only > agent13-rank5-v3-preflight.json
       - name: Run the eight preregistered original rank5 native v2 versus integrated v3 attempts
         if: ${{ inputs.rank5_v3_release }}
