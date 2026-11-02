@@ -107,6 +107,86 @@ function englishPrintingResolver(){
   };
 }
 
+
+/**
+ * Audit same-name, mechanically different Pokémon across the ENTIRE
+ * authenticated original opponent field, including differences never
+ * co-located in a single registered 60. This is a source-printing
+ * inventory, not a runtime/policy correctness result.
+ * @param {object} source Original source manifest.
+ * @param {(set:string,number:string,name:string)=>object} resolve
+ * @returns {object}
+ */
+function crossDeckPrintingCensus(source,resolve){
+  assert.ok(Array.isArray(source?.decks));
+  assert.equal(typeof resolve,'function');
+  const names=new Map();
+  const observedRanks=new Set();
+  let sourcePhysicalSlots=0;
+  for(const deck of source.decks){
+    assert.ok(Number.isSafeInteger(deck.rank));
+    assert.ok(!observedRanks.has(deck.rank),'Repeated source rank');
+    observedRanks.add(deck.rank);
+    assert.ok(Array.isArray(deck.cards));
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
+    sourcePhysicalSlots+=60;
+    for(const card of deck.cards){
+      if(card.category!=='Pokémon')continue;
+      assert.ok(Number.isSafeInteger(card.count)&&card.count>0);
+      assert.ok(card.name&&card.printing?.set&&card.printing?.number);
+      const key=card.printing.set+':'+String(card.printing.number);
+      let variants=names.get(card.name);
+      if(!variants){variants=new Map();names.set(card.name,variants);}
+      let variant=variants.get(key);
+      if(!variant){
+        variant={set:card.printing.set,number:String(card.printing.number),
+          physicalCopies:0,deckRanks:[]};
+        variants.set(key,variant);
+      }
+      variant.physicalCopies+=card.count;
+      if(!variant.deckRanks.includes(deck.rank))variant.deckRanks.push(deck.rank);
+    }
+  }
+  const groups=[];
+  for(const [name,variants] of names){
+    if(variants.size<2)continue;
+    const printings=[...variants.values()].map(variant=>{
+      const card=resolve(variant.set,variant.number,name);
+      assert.equal(card.name,name);
+      return {...variant,cardId:card.id,
+        abilityNames:(card.abilities??[]).map(a=>a.name),
+        attackNames:(card.attacks??[]).map(a=>a.name),
+        effectSignature:JSON.stringify({
+          abilities:card.abilities??[],attacks:card.attacks??[]
+        })};
+    });
+    const rankSet=new Set(printings.flatMap(x=>x.deckRanks));
+    groups.push({
+      name,physicalCopies:printings.reduce((n,x)=>n+x.physicalCopies,0),
+      deckRanks:[...rankSet].sort((a,b)=>a-b),
+      printings,
+      attackOrAbilityTextDiffers:
+        new Set(printings.map(x=>x.effectSignature)).size>1
+    });
+  }
+  groups.sort((a,b)=>a.name.localeCompare(b.name));
+  return {schema:'agent21-crossdeck-original-printing-census-v1',
+    sourceEvent:source.event,originalDecks:source.decks.length,
+    sourcePhysicalSlots,
+    incompleteSourceRanks:source.missing_full_lists?.map(x=>x.rank)??[],
+    mixedNameGroups:groups.length,
+    effectDifferentGroups:groups.filter(x=>x.attackOrAbilityTextDiffers).length,
+    affectedDeckRanks:[...new Set(groups.flatMap(x=>x.deckRanks))].sort((a,b)=>a-b),
+    affectedPhysicalCopies:groups.reduce((n,x)=>n+x.physicalCopies,0),
+    groups,competitiveQualifiedGames:0,
+    caution:'Bundled English-equivalent card-text inventory; not native gameplay, importer correctness, policy competence, Japanese legality, or a game-win estimate.'};
+}
+
+function runCrossDeck(){
+  return crossDeckPrintingCensus(
+    JSON.parse(fs.readFileSync(SRC,'utf8')),englishPrintingResolver());
+}
+
 function run(){
   return mixedPrintingCensus(
     JSON.parse(fs.readFileSync(SRC,'utf8')),
@@ -114,4 +194,5 @@ function run(){
 }
 
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={VERSION,mixedPrintingCensus,englishPrintingResolver,run};
+module.exports={VERSION,mixedPrintingCensus,englishPrintingResolver,run,
+  crossDeckPrintingCensus,runCrossDeck};
