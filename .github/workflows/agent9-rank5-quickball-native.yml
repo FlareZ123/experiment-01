@@ -18,7 +18,7 @@ jobs:
       - name: Verify owner-only Quick Ball source and registered frozen attempts
         run: |
           node --check simulation/evaluation/agent9-rank5-quickball-activation-prospective.cjs
-          node --test tests/agent8-actor-quick-ball-frontier.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs
+          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs
       - name: Resolve exact pinned Twinleaf Store
         run: |
           git submodule update --init --depth=1 vendor/twinleaf
