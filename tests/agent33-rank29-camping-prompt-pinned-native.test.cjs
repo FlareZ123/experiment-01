@@ -10,6 +10,8 @@ const {DCE,THUNDER,chooseRank29TwoPieceCampingSearch}=
   require('../simulation/twinleaf/agent33-rank29-camping-attackpair-target.cjs');
 const {chooseActualCampingGearCard}=
   require('../simulation/twinleaf/agent12-native-campinggear-after-pass.cjs');
+const {withNumericShufflePromptValidation}=
+  require('../simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs');
 
 const BASE=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(BASE,name));
@@ -159,8 +161,12 @@ function run(seat,mode){
 
 for(const seat of [0,1]){
   test('pinned native Camping Gear fixed-vs-missing-Thunder search seat '+seat,()=>{
-    const fixed=run(seat,'fixed');
-    const adaptive=run(seat,'adaptive');
+    const fixedHook=withNumericShufflePromptValidation(()=>run(seat,'fixed'));
+    const adaptiveHook=withNumericShufflePromptValidation(()=>run(seat,'adaptive'));
+    const fixed=fixedHook.result;
+    const adaptive=adaptiveHook.result;
+    assert.ok(fixedHook.audit.rawRejectedCorrected>=1);
+    assert.ok(adaptiveHook.audit.rawRejectedCorrected>=1);
     assert.equal(fixed.selected,'Guzma & Hala CEC');
     assert.equal(adaptive.selected,THUNDER);
     assert.equal(fixed.turnEndObserved,true,JSON.stringify(fixed));
