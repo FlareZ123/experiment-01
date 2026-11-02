@@ -101,7 +101,7 @@ jobs:
         run: node simulation/twinleaf/agent5-direct-stadium-marshadow-counterfactual-native.cjs > agent5-direct-source-stadium-counter.json
       - name: Log genuine source Stadium counter results and original Prism destination
         if: ${{ inputs.direct_source_stadium_counter }}
-        run: node -e "const r=require('./agent5-direct-source-stadium-counter.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,successes:r.successes,arms:r.rows.map(x=>({seat:x.seat,stadium:x.stadium,success:x.success,error:x.error?.slice(0,2500)}))},null,2))"
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent5-direct-source-stadium-counter.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,successes:r.successes,arms:r.rows.map(x=>({seat:x.seat,stadium:x.stadium,success:x.success,error:x.error?.slice(0,2500)}))},null,2));a.equal(r.competitiveQualifiedGames,0);a.equal(r.attempted,4);a.equal(r.successes,4);a.ok(r.rows.every(x=>x.success&&x.actorCounterDeferred&&x.turnPreserved&&x.after.opponentLostZone.includes('Thunder Mountain Prism Star LOT')&&x.after.ownerHand.includes('Fog Crystal CRE')&&x.after.ownerHand.includes('Float Stone BKT')));"
       - name: Staged actor-only five-root Marshadow source native counter-policy on both seats and payments
         if: ${{ inputs.forced_active_marshadow_policy }}
         run: node simulation/twinleaf/agent5-owner-visible-marshadow-autonomous-native.cjs > agent5-owner-visible-marshadow-policy-native.json
