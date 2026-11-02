@@ -59,6 +59,8 @@ jobs:
         run: node --test tests/agent28-adp-effect-lifetime-diagnostic.native.test.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
         run: node --test tests/agent28-rank19-adp-boosted-gx-native.test.cjs
+      - name: Verify native ADP console separation from locked paired JSON
+        run: node --test tests/agent28-native-pair-json-normalizer.test.cjs
       - name: Verify rank19 actor-visible ADP boosted GX resource window
         run: node --test tests/agent28-rank19-adp-post-retreat-gx-window.test.cjs
       - name: Verify rank19 paired physical-deal classification before native execution
@@ -89,6 +91,9 @@ jobs:
       - name: Recompare same four original rank19 source deals with native ADP GX preference only
         if: inputs.rank19_gx_choice_compare
         run: node simulation/evaluation/agent28-rank19-adp-gx-vs-ray-paired.cjs > agent28-rank19-adp-gx-vs-ray-native.json
+      - name: Normalize native GX console diagnostics separately from valid paired JSON
+        if: inputs.rank19_gx_choice_compare
+        run: node simulation/evaluation/agent28-normalize-native-pair-json.cjs
       - name: Print same-deal source ADP GX versus Ray native actions and Prize outcomes
         if: inputs.rank19_gx_choice_compare
         run: node -e "const x=require('./agent28-rank19-adp-gx-vs-ray-native.json');console.log('AGENT28_RANK19_ADP_GX_NATIVE',JSON.stringify({n:x.attemptedArms,matches:x.exactSourceDealMatches,pairs:x.pairs.map(p=>({trial:p.trialId,deal:p.physicalDealParity,control:{status:p.control.status,winner:p.control.nativeWinner,attacks:p.control.sourceAttackSettlement?.attacks,board:p.control.finalPublicBoard},treatment:{status:p.treatment.status,winner:p.treatment.nativeWinner,attacks:p.treatment.sourceAttackSettlement?.attacks,board:p.treatment.finalPublicBoard,roots:p.treatment.sourceRootActions.filter(r=>r.action==='AttackAction'),post:p.treatment.postRetreat}}))}))"
@@ -97,7 +102,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent28-rank19-adp-gx-vs-ray-native
-          path: agent28-rank19-adp-gx-vs-ray-native.json
+          path: |
+            agent28-rank19-adp-gx-vs-ray-native.json
+            agent28-rank19-adp-gx-vs-ray-native.native-console.log
           if-no-files-found: warn
           retention-days: 14
       - name: Reobserve exactly four archived original rank19 source games without policy changes
