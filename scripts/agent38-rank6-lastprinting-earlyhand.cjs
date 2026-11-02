@@ -61,13 +61,13 @@ function countEarlyHands(input){
   }
   // Key = [observed physical cards, Basics, Supporter held, safe-discard
   // capacity capped at two]. All combinatorial weights are BigInt.
-  let states=new Map([['0,0,0,0,0,0,0',1n]]);
+  let states=new Map([['0,0,0,0,0,0,0,0',1n]]);
   for(const row of cards){
     const next=new Map();
     for(const [key,multiplicity] of states){
       const [observed,basics,hasSupporter,capacity,
         trainerSafe,trainerDuplicated,
-        highMultiplicityGroups]=key.split(',').map(Number);
+        highMultiplicityGroups,nonBasicSafe]=key.split(',').map(Number);
       for(let copies=0;copies<=Math.min(row.count,observedSize-observed);copies++){
         const nextKey=[
           observed+copies,
@@ -82,7 +82,9 @@ function countEarlyHands(input){
               Math.max(0,copies-(row.name===supporterName?1:0)):0)),
           Math.min(2,highMultiplicityGroups+(
             row.category==='Trainer'&&row.count>=3&&
-            copies>(row.name===supporterName?1:0)?1:0))
+            copies>(row.name===supporterName?1:0)?1:0)),
+          Math.min(2,nonBasicSafe+(row.name===basicName?0:
+            Math.max(0,copies-(row.name===supporterName?2:1))))
         ].join(',');
         next.set(nextKey,(next.get(nextKey)??0n)+
           multiplicity*choose(row.count,copies));
@@ -97,6 +99,7 @@ function countEarlyHands(input){
   const byCapacity=[0n,0n,0n];
   let strictTrainerOnly=0n,globallyDuplicatedTrainer=0n;
   let distinctHighMultiplicityTrainer=0n;
+  let benchAllBasicsAllowed=0n;
   for(const [key,weight] of states){
     const [observed,basics,hasSupporter,capacity,
       trainerSafe,trainerDuplicated,
@@ -113,6 +116,7 @@ function countEarlyHands(input){
       if(trainerSafe>=2)strictTrainerOnly+=weighed;
       if(trainerDuplicated>=2)globallyDuplicatedTrainer+=weighed;
       if(highMultiplicityGroups>=2)distinctHighMultiplicityTrainer+=weighed;
+      if(nonBasicSafe>=2)benchAllBasicsAllowed+=weighed;
     }
   }
   assert.equal(byCapacity[0]+byCapacity[1]+byCapacity[2],held);
@@ -129,12 +133,15 @@ function countEarlyHands(input){
     globallyDuplicatedTrainerWeighted:String(globallyDuplicatedTrainer),
     distinctHighMultiplicityTrainerWeighted:
       String(distinctHighMultiplicityTrainer),
+    benchAllBasicsWeighted:String(benchAllBasicsAllowed),
     conditionalPaymentRate:held>0n?Number(allowed)/Number(held):null,
     strictTrainerOnlyRate:held>0n?Number(strictTrainerOnly)/Number(held):null,
     globallyDuplicatedTrainerRate:held>0n?
       Number(globallyDuplicatedTrainer)/Number(held):null,
     distinctHighMultiplicityTrainerRate:held>0n?
       Number(distinctHighMultiplicityTrainer)/Number(held):null,
+    benchAllBasicsRate:held>0n?
+      Number(benchAllBasicsAllowed)/Number(held):null,
     interpretation:'valid opening Basic and Supporter held among observed cards; payment preserves every remaining hand printing'
   };
 }
