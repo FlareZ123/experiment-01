@@ -21,6 +21,22 @@ permissions:
   actions: read
 
 jobs:
+  rank8-vip-box-archive:
+    if: inputs.agent7_vip_box_native_archive_run != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve full registered original rank8 source 128-pair native archive
+        uses: actions/download-artifact@v4
+        with:
+          name: agent7-original-rank8-vip-box-native-128-pairs
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.agent7_vip_box_native_archive_run }}
+      - name: Preserve a compact non-selective native-positive row report
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent7-rank8-vip-box-prospective.json');a.equal(x.registeredTrials,128);a.equal(x.summary.noVipBoxContention,125);const rows=x.rows.filter(r=>r.status!=='NO_VIP_BOX_CONTENTION');a.equal(rows.length,3);console.log('RANK8_NATIVE_POSITIVE',JSON.stringify(rows.map(r=>({trial:r.trial,seat:r.sourceSeat,seed:r.seed,sourceFirst:r.sourceActualFirst,status:r.status,vip:r.vipNativeAudit?{proposed:r.vipNativeAudit.proposedVipRoots,accepted:r.vipNativeAudit.acceptedVipRoots,searches:r.vipNativeAudit.acceptedVipSearches,physical:r.vipNativeAudit.physicalBenchConfirmed,outcomes:r.vipNativeAudit.outcomes}:null,boxOrdinals:r.sourceBoxRootOrdinals,vipOrdinals:r.sourceVipRootOrdinals,strictReply:r.sourceToolGarbodorReply?.strictPublicContinuationAccepted,sourceOrder:r.sourceToolGarbodorReply?.sourceActionOrderValid,opponentRoots:r.sourceToolGarbodorReply?.opponentRootCount,reason:r.sourceToolGarbodorReply?.nativeOfferObserved?'box source offer':'box source no offer'}))))"
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 5
