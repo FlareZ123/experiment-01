@@ -1,0 +1,33 @@
+# Original rank11 versus rank1: native public Prize closures and hypothetical Aichi knockout cutoffs
+
+**Agent 1 | 2 November 2026 | one retrospectively selected original physical deal | 0 competitively qualified games**
+
+## Result and limits
+
+The original rank11 Absol/Garbodor source begins in physical seat **0** and the original rank1 Shadow Rider recipient begins in seat **1**. In all four previously registered arms, the exact both-player initial deal fingerprint was `ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76`, original source seed `2387754768`. The four variants differ only in the recipient's genuine owner-visible post-Field-Blower Quick Ball / Radiant Eternatus choice and the number of VMAX selected by the actual native prompt. The rank11 original first-turn successful 11-step lock is an **experimentally privileged** selected K0 positive case, not a general competent opponent policy.
+
+A reversible read-only `Store.prototype.dispatch` observer retained **public Prize counts at actual postdispatch turn advancement**. An independent pure event module then asked a mathematical conditional: *if* a real Aichi Open Top32 time-over call occurred at an appropriate time, the second starter completed the required final turn at this native snapshot, no normal game winner had already ended the game, and the final Checkup was excluded, *what would the published bracket Prize rule say?* None of those missing real-time witnesses was fabricated. Every generated row has `paperClockCertified:false`.
+
+| Rank1 recipient's real native choice at T2 | Native untimed engine winner | Engine action / global turn | Even-turn public Prize snapshots before terminal | Hypothetical **source seat0** Prize-lead wins | Hypothetical **recipient seat1** Prize-lead wins |
+| --- | --- | --- | ---: | --- | --- |
+| Generic owner Quick Ball finds Dialga-GX | Recipient rank1 | 199 / 28 | 13 | None | T24 and T26 at `[4,2]` |
+| Find Radiant but decline optional Climactic Gate | Source rank11 | 215 / 30 | 14 | None | None; all 14 require bracket extension |
+| Find Radiant, accept Gate, place **2 VMAX** | Recipient rank1 | 283 / 46 | 22 | **11 snapshots T22–T42 inclusive, even turns** | None |
+| Find Radiant, accept Gate, place **1 VMAX** | Recipient rank1 | 195 / 30 | 14 | None | T26 and T28 at `[3,1]` |
+
+The two-VMAX arm's 11 conditional **opposite-of-untimed-winner** snapshots are genuine observed public Prize values: T22/24/26/28 `[2,6]`; T30/32/34/36/38 `[1,6]`; T40/42 `[1,3]`. At T44 the public values are `[1,1]`, so a hypothetical cutoff there requires extension instead of an immediate Prize-lead winner. It reaches the native recipient engine win on T46 at `[1,0]`. These are **11 correlated checkpoints of ONE game trajectory, not 11 games, trials, or wins**.
+
+In the other three arms, no preterminal public post-even-turn snapshot produces a conditional opposite winner under the same stated assumptions. This does not mean those arms would win real paper matches: all lack measured 25-minute call times, post-final-Checkup exclusion, human action duration, universal card and player policy correctness, and extension/tiebreak completion. Early snapshots where both players need at least three Prizes (or where the counts are tied) require bracket extension; no winner is inferred from a mere Prize lead without the official threshold.
+
+## Reproducibility and evidence boundaries
+
+- **Prospectively registered observational question before native Price-closure observer implementation:** [registration](registrations/agent1-rank11-public-turn-prize-clock-sensitivity-20261102.json). This is an observational follow-up to a *retrospectively selected* source hand, and all four earlier engine outcomes are fixed before these extra public observations.
+- **Original decisive four-arm native match:** [run 41416500514](https://github.com/FlareZ123/experiment-01/actions/runs/41416500514), [original report](agent1-rank11-radiant-vmax-count-and-horizon-native-20261102.md), exact pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **First observational success:** [run 41418671363](https://github.com/FlareZ123/experiment-01/actions/runs/41418671363), code head `68891b8b231e39bf40289693788027c8d73d0449`, archive artifact 13128966540, ZIP SHA256 `8d2875e0ed8c9c554d0ef67275314c941234b9bcc5df874b861960e9a8ecd828`.
+- **Reproducible compact logger verification:** [successful manual run 41437336423](https://github.com/FlareZ123/experiment-01/actions/runs/41437336423), code head `e3a7e1ceef0eda1aed06e33965c15533b59a48c5`, archive artifact 13137231278, ZIP SHA256 `d8f31f800d11253c5d7743c1ce335ba4a54721ead178e221cf245468c06e1141`. Its `AGENT1_PRIZE_CLOCK_SUMMARY` job-log line reports **all four arms**, all 63 public even-turn snapshots, the entire conditional win/extension partition, and every terminal unchanged from the original pre-observer 350-action study.
+- [Pinned branch](https://github.com/FlareZ123/experiment-01/tree/agent1-radiant-prizeclock-20261102) contains the actual reversible observer `simulation/twinleaf/agent1-public-prize-turn-closure.cjs`, conditional evaluator `simulation/evaluation/agent1-public-prize-hypothetical-cutoffs.cjs`, native runner `simulation/evaluation/agent1-rank11-postblower-radiant-owner-k1-pair.cjs`, compact logger `simulation/evaluation/agent1-public-prize-native-summary.cjs` and corresponding four pure tests. Manual CI dispatch only; no new on-push workload.
+- Source-specific actual event rules are independently documented in [official Aichi Open clock report](official-2026-open-clock-swiss-vs-top32-20261029.md); the existing pure official `aichi-open-time-adjudication.cjs` is reused. Open Top32 rounds except final are **25 minutes**, final **35 minutes**, while Swiss unresolved timeouts operate differently. No seconds-per-engine-action conversion is justified.
+
+## Decision implication
+
+Selecting **one** rather than two early VMAX is a real, native-legal owner decision, with very different downstream attack pathways and observation horizons in this selected deal. The two-VMAX engine terminal is particularly **clock sensitive in principle**: it has 11 different legal Prize-leading conditional snapshots favoring the opposite seat before its eventual engine win. This is a strong failure case for treating an arbitrary action cap or untimed terminal as an Aichi knockout win. It supplies **no evidence** that either VMAX count is generally optimal, or that a deck meets the objective. The current global status remains **29/32 authenticated original 60s, zero competitively qualified games**.
