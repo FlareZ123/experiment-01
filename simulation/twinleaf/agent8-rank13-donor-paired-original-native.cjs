@@ -149,6 +149,8 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
       gameDecisionTraceSha256:digest,
       publicAcceptedActions,
       sourceAttackDetails,
+      sourceCopiedAttackSelections:(components.chooseAttack?.selections??[])
+        .filter(choice=>choice.seat===sourceSeat),
       sourceOwnerVstarObservations:ownerVstarObservations,
       sourceOwnerEligibleVstarRootTurns:[...new Set(ownerVstarObservations
         .filter(row=>row.ordinaryVstarRootLegal).map(row=>row.turn))],
