@@ -66,7 +66,21 @@ function settleNative(x,allowSearch=false){
     const kind=prompt.constructor.name;
     let choice;
     if(kind==='WaitPrompt')choice=null;
-    else if(allowSearch&&kind==='ChooseCardsPrompt'&&
+    else if(kind==='ShowCardsPrompt') {
+      assert.equal(prompt.playerId,x.opponent.id,
+        'Fog Crystal must reveal selected cards only to the other player');
+      assert.deepEqual(prompt.cards.map(c=>c.fullName),[SHADOW],
+        'Native reveal must match searched printed Psychic Basic');
+      choice=true;
+    } else if(kind==='ShuffleDeckPrompt') {
+      assert.equal(prompt.playerId,x.owner.id,
+        'Fog Crystal must shuffle the searching player deck');
+      // Deterministic synthetic permutation; no randomized paper game inferred.
+      choice=Array.from({length:x.owner.deck.cards.length},
+        (_,i)=>x.owner.deck.cards.length-1-i);
+      assert.equal(prompt.validate(choice,x.state),true,
+        'Staged shuffle indices rejected by native engine');
+    } else if(allowSearch&&kind==='ChooseCardsPrompt'&&
       prompt.playerId===x.owner.id && prompt.cards===x.owner.deck){
       const selected=prompt.cards.cards.find(c=>c.fullName===SHADOW);
       assert.ok(selected,'Search prompt lacks prerequisite original Psychic Basic');
