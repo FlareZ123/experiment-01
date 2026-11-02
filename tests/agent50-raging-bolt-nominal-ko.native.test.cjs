@@ -41,7 +41,10 @@ function stage(seat){
   state.gameSettings.format=Format.EXPANDED;
   state.rules=state.gameSettings.rules;
   owner.active.cards.push(card('Raging Bolt ex TEF'));
-  owner.active.energies.cards.push(card('Lightning Energy MEE'),card('Fighting Energy MEE'));
+  const lightning=card('Lightning Energy MEE');
+  const fighting=card('Fighting Energy MEE');
+  owner.active.cards.push(lightning,fighting);
+  owner.active.energies.cards.push(lightning,fighting);
   opponent.active.cards.push(card('Iron Thorns ex TWM'));
   opponent.active.damage=90;
   for(const player of [owner,opponent]){
@@ -54,7 +57,9 @@ function stage(seat){
     }
   }
   owner.bench[0].cards.push(card('Sandy Shocks ex PAR'));
-  owner.bench[0].energies.cards.push(card('Darkness Energy MEE'));
+  const darkness=card('Darkness Energy MEE');
+  owner.bench[0].cards.push(darkness);
+  owner.bench[0].energies.cards.push(darkness);
   return {store,state,owner,opponent,catalog};
 }
 for(const seat of [0,1]){
@@ -97,8 +102,14 @@ for(const seat of [0,1]){
     assert.equal(pending.playerId,owner.id);
     const {ResolvePromptAction}=
       native('game/store/actions/resolve-prompt-action');
-    // Continue through native Wait prompts only. These do not choose cards,
-    // target an opponent zone or decide Energy payment.
+    // Native payment reads PokemonCardList.cards as well as the Energy
+    // index. The fixture shares exact object identity in both locations.
+    assert.ok(owner.active.cards.includes(owner.active.energies.cards[0]));
+    assert.ok(owner.active.cards.includes(owner.active.energies.cards[1]));
+    assert.ok(owner.bench[0].cards.includes(owner.bench[0].energies.cards[0]));
+    const {PlayerType,SlotType}=
+      native('game/store/actions/play-card-action');
+    let paid=false;
     const trace=[];
     for(let step=0;step<24;step++){
       const next=state.prompts.find(p=>p.result===undefined);
@@ -107,8 +118,20 @@ for(const seat of [0,1]){
       trace.push({kind,ownerSeat:state.players.findIndex(p=>
         p.id===next.playerId),offeredCount:next.cards?.length??null,
         optionKeys:Object.keys(next.options??{})});
-      if(kind!=='WaitPrompt')break;
-      store.dispatch(new ResolvePromptAction(next.id,null));
+      if(kind==='DiscardEnergyPrompt'){
+        assert.equal(next.playerId,owner.id);
+        const transfers=next.decode([{
+          from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0},
+          index:1
+        }],state);
+        assert.equal(next.validate(transfers),true);
+        store.dispatch(new ResolvePromptAction(next.id,transfers));
+        paid=true;
+      }else if(kind==='WaitPrompt'){
+        store.dispatch(new ResolvePromptAction(next.id,null));
+      }else{
+        throw new Error('Unexpected Bellowing prompt: '+kind);
+      }
     }
     const next=state.prompts.find(p=>p.result===undefined)??null;
     console.log('AGENT50_RANK19_AFTER_NATIVE_WAITS',JSON.stringify({
@@ -121,8 +144,13 @@ for(const seat of [0,1]){
       benchBasicCount:owner.bench[0].energies.cards.length,
       competitiveQualifiedGames:0
     }));
-    assert.ok(trace.length>0);
-
+    assert.ok(trace.includes('DiscardEnergyPrompt'));
+    assert.equal(paid,true,'A genuine owner-selected Basic Energy must be discarded');
+    assert.equal(next,null,'The complete attack prompt chain must settle');
+    assert.equal(opponent.active.damage,160,'One Basic discard must add 70 damage');
+    assert.equal(owner.active.energies.cards.length,1);
+    assert.ok(owner.discard.cards.some(c=>c.fullName==='Lightning Energy MEE'));
+    assert.equal(owner.getPrizeLeft(),6,'Non-KO payment cannot take Prizes');
   });
 }
 
