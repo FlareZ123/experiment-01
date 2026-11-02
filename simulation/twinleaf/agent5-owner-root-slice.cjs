@@ -149,7 +149,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     // A paid Retreat or unrelated owner root must not open a hidden deck.
     deckCount:intent.kind==='use-tropical-beach'||
       intent.kind==='use-players-ceremony'||
-      intent.kind==='use-farewell-letter'?
+      intent.kind==='use-farewell-letter'||
+      intent.kind==='use-genesect-fusion-draw'?
       owner.deck?.cards?.length??null:null,
     stadiumUsedTurn:owner.stadiumUsedTurn,
     inPlayStadiumPrintings:state.players.flatMap(p=>
@@ -231,6 +232,16 @@ function rootPhysicalSnapshot(state,seat,intent){
  * @returns {'confirmed-public-effect'|'no-confirmed-public-effect'|'attack-needs-declaration'}
  */
 function rootPhysicalWitness(intent,before,after,GamePhase){
+  if(intent.kind==='use-genesect-fusion-draw'){
+    // Only the publicly observable hand/deck count delta is consulted.
+    // The source's private deck contents are never exposed to the selector.
+    const draw=Math.min(before.deckCount,
+      intent.knownFusionCount-before.handCount);
+    return Number.isSafeInteger(draw)&&draw>0&&
+      after.deckCount===before.deckCount-draw&&
+      after.handCount===before.handCount+draw?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
   if(intent.kind==='use-farewell-letter'){
     // Exact native post-Ability conservation: naked Bench Unown enters its
     // public discard without a KO; one card is drawn from the owner's deck.
