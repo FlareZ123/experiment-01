@@ -13,12 +13,16 @@ const VERSION='agent50-rank19-float-stone-original-source-paired-development-v1'
  */
 function pairRows(control,treatment){
   assert.equal(control.trialId,treatment.trialId);
+  assert.equal(control.seed,treatment.seed);
+  assert.equal(control.candidateId,treatment.candidateId);
   assert.equal(control.sourceSeat,treatment.sourceSeat);
   const a=control.sourceDealSha256,b=treatment.sourceDealSha256;
-  const dealParity=typeof a==='string'&&a.length===64&&a===b?
+  const isSha256=digest=>typeof digest==='string'&&
+    /^[0-9a-f]{64}$/i.test(digest);
+  const dealParity=isSha256(a)&&isSha256(b)&&a===b?
     'EXACT_SOURCE_DEAL_MATCH':
-    (typeof a==='string'&&typeof b==='string'&&a.length===64&&
-       b.length===64?'SOURCE_DEAL_DIFFERENT':'UNVERIFIED');
+    (isSha256(a)&&isSha256(b)?
+      'SOURCE_DEAL_DIFFERENT':'UNVERIFIED');
   return {
     trialId:control.trialId,
     seed:control.seed,
