@@ -115,7 +115,7 @@ for(const seat of [0,1]){
    assert.equal(prompt.validate(chosen),true,
      'Native prompt still accepts five forbidden physical targets');
    assert.throws(()=>s.store.dispatch(new ResolvePromptAction(prompt.id,chosen)),
-     /ILLEGAL_ACTION/);
+     error=>error?.message==='ILLEGAL_ACTION');
    assert.equal(s.owner.active.energies.cards.length,0);
    assert.equal(s.energy.every(card=>s.owner.discard.cards.includes(card)),true);
    assert.equal(s.owner.bench[0].getPokemonCard()?.fullName,'Electrode-GX CES');
