@@ -19,5 +19,11 @@ test('rank13 actual printed source and exact Basic-valid seven hands',()=>{
   assert.ok(Math.abs(x.dualTwoDonorsFractionOfValidBasicOpeners-0.0008271154159065095)<1e-14);
   assert.ok(Math.abs(x.dualFractionOfValidBasicOpeners-0.012441066178503806)<1e-14);
   assert.ok(Math.abs(x.originalSalamenceEitherItemFraction-0.029779721330954537)<1e-14);
+  const p=x.twoDonorBothSearchableAfterPrizes;
+  assert.deepEqual(p.byHeldStar.map(row=>row.hands),['216006','31626','756','0']);
+  assert.equal(p.totalTwoDonorHands,'248388');
+  assert.ok(Math.abs(p.probabilityBothTargetPrintingsInDeck-
+    0.9974757997185592)<1e-14);
+  assert.ok(p.availablePrizePairings.length>10);
   assert.equal(x.competitiveQualifiedGames,0);
 });
