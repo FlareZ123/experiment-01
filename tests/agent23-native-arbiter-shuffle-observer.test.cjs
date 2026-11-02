@@ -74,3 +74,40 @@ test('observer restores original native method when original throws',()=>{
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     RejectingArbiter.prototype,'shuffle'),before);
 });
+
+test('opt-in inner shuffle counter forwards each genuine RNG draw unchanged',()=>{
+  const arbiter=new MockNativeArbiter();
+  const original=Math.random;
+  const baseline=Object.getOwnPropertyDescriptor(
+    MockNativeArbiter.prototype,'shuffle');
+  const source={traceShuffleRandomCalls:true};
+  const replay={traceShuffleRandomCalls:true};
+  try {
+    Math.random=()=>0.45;
+    const captured=observe(()=>recordPolicyRandomTape(
+      ()=>arbiter.shuffle({cards:[{},{},{}]})),source,
+    {BotArbiter:MockNativeArbiter});
+    assert.deepEqual(captured.tape,[0.45,0.45,0.45]);
+    assert.equal(source.arbiterShuffles[0].actualShuffleRngCalls,3);
+    const same=replayPolicyRandomTape(captured.tape,()=>observe(
+      ()=>arbiter.shuffle({cards:[{},{},{}]}),replay,
+      {BotArbiter:MockNativeArbiter}));
+    assert.equal(same.consumed,3);
+    assert.equal(replay.arbiterShuffles[0].actualShuffleRngCalls,3);
+    assert.deepEqual(Object.getOwnPropertyDescriptor(
+      MockNativeArbiter.prototype,'shuffle'),baseline);
+    assert.equal(Math.random(),0.45);
+  }finally{Math.random=original;}
+});
+
+test('inner shuffle counter restores global random even when shuffle rejects',()=>{
+  class ExplodingShuffle extends MockNativeArbiter{
+    shuffle(){Math.random();throw Error('native shuffle rejected');}
+  }
+  const before=Math.random,arbiter=new ExplodingShuffle();
+  const sink={traceShuffleRandomCalls:true};
+  assert.throws(()=>observe(()=>arbiter.shuffle({cards:[{},{}]}),
+    sink,{BotArbiter:ExplodingShuffle}),/native shuffle rejected/);
+  assert.equal(sink.arbiterShuffles[0].actualShuffleRngCalls,1);
+  assert.strictEqual(Math.random,before);
+});
