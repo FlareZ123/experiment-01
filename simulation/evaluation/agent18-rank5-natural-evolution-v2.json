@@ -66,5 +66,6 @@
   "contrastBaseSourceGitBlobSha": "c7235328760e0f02a12b1a2e1e019c5d033ab889",
   "contrastDifference": "Only actorNaturalEvolutionRoot false -> true; all known input decks and physical seeds identical",
   "seedsPreviouslyObserved": true,
-  "selectedEntrypointGitBlobSha": "49a7aa404c2143374c70ab233e9e101609554d59"
+  "selectedEntrypointGitBlobSha": "49a7aa404c2143374c70ab233e9e101609554d59",
+  "selectedV2EntrypointGitBlobSha": "8e69372bd12ad4f7044f93ccbd679c8bd1b76261"
 }
