@@ -85,7 +85,7 @@ function executeOne(trial,byRank,donorRootEnabled){
     assert.equal(game.verifiedByDrawLog,true);
     const root=components.root,payment=components.handDiscard;
     const search=components.ownerSearch;
-    const trace=game.rootActionLedger??[];
+    const trace=game.decisionTrace??[];
     const opponentRootActions=trace.filter(row=>
       row.playerSlot!==sourceSeat&&
       ['PlayCardAction','AttackAction','PassTurnAction'].includes(row.action));
