@@ -80,3 +80,37 @@ test('more distinct publicly seen names than sixty physical slots is impossible'
   assert.equal(out.probabilityUpper,0);
   assert.equal(out.numerator,'0');
 });
+
+test('ACE SPEC is one globally, even when different names occur in different mulligans',()=>{
+  const first=['Computer Search','A','B','C','D','E','F'];
+  const next=['Secret Box','A','B','C','D','E','F'];
+  const x=maximumLegalHistoryLikelihood([first,next]);
+  assert.equal(x.probabilityUpper,0);
+  assert.equal(x.numerator,'0');
+});
+
+test('one known ACE SPEC card has singleton cap across independent reshuffles',()=>{
+  const once=['Computer Search','A','B','C','D','E','F'];
+  const r=maximumLegalHistoryLikelihood([once],{maxActiveCopies:4});
+  const ordinary=maximumLegalHistoryLikelihood([once],{
+    maxActiveCopies:4,copyCaps:{'Computer Search':4}});
+  assert.equal(r.observedCounts['Computer Search'],1);
+  assert.ok(ordinary.probabilityUpper>r.probabilityUpper);
+  assert.ok(Math.abs(ordinary.probabilityUpper/r.probabilityUpper-4)<1e-10);
+});
+
+test('same ACE SPEC card can reappear across physically reshuffled failed sevens',()=>{
+  const hand=['Secret Box','A','B','C','D','E','F'];
+  const r=maximumLegalHistoryLikelihood([hand,hand]);
+  assert.ok(r.probabilityUpper>0);
+  assert.equal(r.observedCounts['Secret Box'],1);
+});
+
+test('ACE SPEC recognizer retains special Energy names',()=>{
+  const {ACE_SPEC_NAMES}=require('../scripts/agent26-prism-joint-mulligan-envelope.cjs');
+  assert.ok(ACE_SPEC_NAMES.has('Legacy Energy'));
+  assert.ok(ACE_SPEC_NAMES.has('Computer Search'));
+  assert.ok(ACE_SPEC_NAMES.has('Prime Catcher'));
+  assert.ok(ACE_SPEC_NAMES.has('Master Ball'));
+  assert.equal(ACE_SPEC_NAMES.size,39);
+});
