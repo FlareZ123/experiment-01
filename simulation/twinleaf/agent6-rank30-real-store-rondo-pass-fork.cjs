@@ -46,20 +46,24 @@ function withRank30FundedRondoPassFork(execute,config){
   function dispatch(action,...args){
     const state=this.state,source=state?.players?.[config.sourceSeat];
     const actionKind=action?.constructor?.name;
+    // Twinleaf action roots carry clientId (or id), while prompt actions
+    // carry playerId on the pending prompt. A nonexistent action.playerId
+    // incorrectly made every authentic source root fail the owner test.
+    const actionOwnerId=action?.clientId??action?.id??action?.playerId;
     audit.interceptedDispatches++;
     if(Number.isInteger(state?.turn)&&
        state.turn>=config.targetTurn-1&&
        state.turn<=config.targetTurn+2&&
        audit.dispatchWindowSamples.length<24&&
        (actionKind==='PassTurnAction'||
-        (source?.id===action?.playerId&&
+        (source?.id===actionOwnerId&&
          ['PlayCardAction','AttackAction','RetreatAction'].includes(actionKind)))){
       audit.dispatchWindowSamples.push({storeTurn:state.turn,
         activePlayer:state.activePlayer,sourceSeat:config.sourceSeat,
-        sourceId:source?.id??null,actionPlayerId:action?.playerId??null,
+        sourceId:source?.id??null,actionPlayerId:actionOwnerId??null,
         actionKind});
     }
-    const sourceTurn=source?.id===action?.playerId&&
+    const sourceTurn=source?.id===actionOwnerId&&
       state.activePlayer===config.sourceSeat&&
       state.turn===config.targetTurn;
     if(sourceTurn&&actionKind==='PassTurnAction'){
