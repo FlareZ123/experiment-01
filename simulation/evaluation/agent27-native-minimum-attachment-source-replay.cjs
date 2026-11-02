@@ -35,14 +35,71 @@ function withAbortSafeDealWitness(work){
   assert.equal(typeof previous?.value,'function');
   const full=createFullPhysicalDealObserver();
   let root=null;
+  const nativeMinimumAttachActionReceipts=[];
   function observed(action,...args){
     if(root===null&&action?.constructor?.name==='AddPlayerAction')root=this;
     if(this===root)full.observe(this.state);
-    return previous.value.apply(this,[action,...args]);
+    // Observe only genuine Store prompt actions, after the generic bot has
+    // returned a choice. The opponent-private and undealt deck zones never
+    // enter the live actor policy.
+    const state=this.state;
+    const prompt=this===root&&action?.constructor?.name==='ResolvePromptAction'?
+      state.prompts?.find(p=>p.id===action.id&&p.result===undefined):null;
+    const cardSource=prompt?.constructor?.name==='AttachEnergyPrompt'&&
+      prompt?.message==='ATTACH_ENERGY_CARDS'&&
+      prompt?.options?.min===2&&prompt?.options?.max===2?
+      prompt.cardList?.cards:null;
+    const recipient=cardSource&&state.players?.find(p=>
+      p.id===prompt.getPerspectivePlayerId());
+    const selections=recipient&&Array.isArray(action.result)?
+      action.result:null;
+    const selected=selections?.map(row=>({
+      physicalCard:row?.card,
+      printing:row?.card?.fullName??null,
+      target:{player:row?.to?.player??null,
+        slot:row?.to?.slot??null,index:row?.to?.index??null}
+    }));
+    const sourceIdentity=cardSource?cardSource.slice():null;
+    const targetBefore=recipient?.active?.energies?.cards?.slice()??null;
+    const tracked=selected?.length===2&&
+      selected.every(row=>sourceIdentity.includes(row.physicalCard)&&
+        row.target.player===2&&row.target.slot===1&&row.target.index===0);
+    try{
+      const result=previous.value.apply(this,[action,...args]);
+      if(tracked){
+        const after=recipient.active.energies.cards;
+        const moved=selected.every(row=>
+          after.includes(row.physicalCard)&&
+          !prompt.cardList.cards.includes(row.physicalCard)&&
+          !targetBefore.includes(row.physicalCard));
+        nativeMinimumAttachActionReceipts.push({
+          promptId:prompt.id,actorSeat:state.players.indexOf(recipient),
+          globalTurn:state.turn,
+          selected: selected.map(row=>({
+            printing:row.printing,target:row.target
+          })),
+          nativeStoreActionAccepted:true,
+          twoDistinctPhysicalCards:
+            new Set(selected.map(row=>row.physicalCard)).size===2,
+          bothOriginalSourceCards:tracked,
+          bothAttachedToOriginalActive:moved,
+          beforeActiveEnergyCount:targetBefore.length,
+          afterActiveEnergyCount:after.length,
+          sourceRemaining:prompt.cardList.cards.length
+        });
+      }
+      return result;
+    }catch(error){
+      if(tracked)nativeMinimumAttachActionReceipts.push({
+        promptId:prompt.id,globalTurn:state.turn,
+        nativeStoreActionAccepted:false,error:String(error).slice(0,220)});
+      throw error;
+    }
   }
   Object.defineProperty(Store.prototype,'dispatch',{...previous,value:observed});
   try{return{result:work(),initialFullDealSha256:
-    full.result()?.digestSha256??null};}
+    full.result()?.digestSha256??null,
+    nativeMinimumAttachActionReceipts};}
   finally{
     assert.strictEqual(Store.prototype.dispatch,observed);
     Object.defineProperty(Store.prototype,'dispatch',previous);
@@ -91,6 +148,7 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
     rankPair,seed,useMinRepair,
     registeredSourceHashes:sourceHash,
     separateFullSourceDealSha256:wrapped.initialFullDealSha256,
+    nativeMinimumAttachActionReceipts:wrapped.nativeMinimumAttachActionReceipts,
     ...wrapped.result,qualifiedCompetitiveGames:0
   };
 }
