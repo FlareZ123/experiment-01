@@ -20,10 +20,13 @@ const ROOT=path.resolve(__dirname,'../..');
 const SEED=214648959;
 const FRESH_START=304;
 const FRESH_COUNT=2;
+const FRESH32_START=370;
+const FRESH32_COUNT=32;
+const FRESH32_REGISTERED_SHA256='89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d5c96b8d52239f2118';
 const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
-function run(){
+function run({fresh32=false}={}){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,
@@ -35,12 +38,17 @@ function run(){
   initializeCards();
   const {Store}=require(path.join(ROOT,
     'vendor/twinleaf/ptcg-server/output/game/store/store'));
+  const fresh=schedule(fresh32?FRESH32_START:FRESH_START,
+    fresh32?FRESH32_COUNT:FRESH_COUNT).map(x=>({
+      ...x,selection:fresh32?'preregistered-v3-canonical-fresh32':
+        'precommitted-unselected-independent'
+    }));
+  if(fresh32)assert.equal(sha(JSON.stringify(fresh)),
+    FRESH32_REGISTERED_SHA256,'Fresh32 canonical physical seed schedule changed after registration');
   const registered=[
     {trial:'historical-selected-positive-source',seed:SEED,
       sourceSeat:0,selection:'retrospective-native-positive'},
-    ...schedule(FRESH_START,FRESH_COUNT).map(x=>({
-      ...x,selection:'precommitted-unselected-independent'
-    }))
+    ...fresh
   ];
   const scheduleSha256=sha(JSON.stringify(registered));
   const rows=[];
@@ -105,9 +113,15 @@ function run(){
     }
   }
   return {
-    schema:'agent44-shared-canonical-bothseat-owner-boxshake-native-v1',
+    schema:fresh32?'agent44-shared-canonical-bothseat-owner-boxshake-fresh32-v2':
+      'agent44-shared-canonical-bothseat-owner-boxshake-native-v1',
     historicalSelection:'retrospective-original-source-positive',
-    prospectiveIndices:[FRESH_START,FRESH_START+FRESH_COUNT-1],
+    prospectiveIndices:fresh32?
+      [FRESH32_START,FRESH32_START+FRESH32_COUNT-1]:
+      [FRESH_START,FRESH_START+FRESH_COUNT-1],
+    fresh32RegisteredScheduleSha256:fresh32?FRESH32_REGISTERED_SHA256:null,
+    preregistration:fresh32?
+      'results/aichi-2026/registrations/agent44-rank8-common-actor-boxshake-fresh32-20261102.json':null,
     originalRank8Printed60:true,sourcePrinted60Sha256:
       '6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541',
     seedScheduleSha256:scheduleSha256,actualTrials:rows.length,
@@ -125,9 +139,21 @@ function run(){
     errorCount:rows.filter(x=>x.status==='NATIVE_ERROR').length,
     completedSourceSetups:rows.filter(x=>
       x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
+    fresh32Summary:fresh32?{
+      attempted:rows.length-1,
+      completed:rows.slice(1).filter(x=>
+        x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
+      noOffer:rows.slice(1).filter(x=>x.status==='NOT_ENCOUNTERED').length,
+      offeredIncomplete:rows.slice(1).filter(x=>
+        x.status==='OFFERED_NO_SETTLED_OPPONENT_REPLY').length,
+      errors:rows.slice(1).filter(x=>x.status==='NATIVE_ERROR').length
+    }:null,
     nativeQualifiedGames:0,
-    caveat:'The common actor still has unqualified generic-bot fallbacks. One retrospective plus two prospective original physical deals, development-only. No paper clock or competitive match outcome.'
+    caveat:'The common actor retains generic-bot fallback; one selected retrospective control is excluded from the 2- or 32-deal fresh denominator. Source Box full paper-valid cost custody, meaningful opponent response, paper clock and competitive outcomes remain unqualified.'
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={SEED,FRESH_START,FRESH_COUNT,MAX_ACTIONS,run};
+if(require.main===module)process.stdout.write(JSON.stringify(run({
+  fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true'
+}),null,2)+'\n');
+module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
+  FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
