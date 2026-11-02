@@ -125,3 +125,46 @@ for(const seat of [0,1]){
   }finally{restore();}
  });
 }
+
+const {withAttachEnergyBlockedToGuard}=
+  require('../simulation/twinleaf/agent45-paper-attach-blockedto-store-guard.cjs');
+
+for(const seat of [0,1]){
+ test('generic Store paper guard vetoes forbidden GX and permits legal target seat '+seat,()=>{
+  const s=stage(seat);
+  const observed=withAttachEnergyBlockedToGuard(()=>{
+   s.store.dispatch(new UseAbilityAction(s.owner.id,'Extra Energy Bomb',{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+   }));
+   for(let j=0;j<5;j++){
+    const wait=s.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='WaitPrompt');
+    if(!wait)break;
+    s.store.dispatch(new ResolvePromptAction(wait.id,null));
+   }
+   const prompt=s.state.prompts.find(p=>p.result===undefined&&
+     p.constructor.name==='AttachEnergyPrompt');
+   assert.ok(prompt);
+   const blocked={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
+   const forbidden=prompt.decode([{to:blocked,index:0}],s.state);
+   assert.equal(prompt.validate(forbidden),true);
+   assert.throws(()=>s.store.dispatch(new ResolvePromptAction(prompt.id,forbidden)),
+     error=>error?.message==='ILLEGAL_ACTION');
+   assert.equal(s.owner.active.energies.cards.length,0);
+   assert.equal(s.owner.discard.cards.includes(s.energy[0]),true);
+   const allowed={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1};
+   const legal=prompt.decode([{to:allowed,index:0}],s.state);
+   s.store.dispatch(new ResolvePromptAction(prompt.id,legal));
+   assert.equal(s.owner.bench[1].energies.cards.includes(s.energy[0]),true);
+   return {forbiddenMoved:false,legalMoved:true};
+  });
+  assert.equal(observed.audit.intercepted,2);
+  assert.equal(observed.audit.blocked,1);
+  assert.equal(observed.audit.allowed,1);
+  assert.equal(observed.audit.bySeat[seat],1);
+  assert.equal(observed.result.legalMoved,true);
+  console.log('AGENT45_GENERIC_BLOCKEDTO_STORE_GATE',JSON.stringify({
+    seat,...observed.audit,competitiveQualifiedGames:0
+  }));
+ });
+}
