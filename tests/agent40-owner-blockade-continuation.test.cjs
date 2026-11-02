@@ -6,6 +6,8 @@ const {chooseOwnerBlockadeContinuation}=
   require('../simulation/twinleaf/agent40-owner-blockade-continuation.cjs');
 const {choosePublicJetBenchSwitch}=
   require('../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs');
+// The pinned CardType.COLORLESS enum is numeric; the catalog supplies it.
+const COLORLESS=9;
 
 /** @returns {object} An entirely actor-visible, original-printed board. */
 function view(){
@@ -17,13 +19,13 @@ function view(){
     ownPublic:{
       active:{printing:'Bunnelby PRC',energies:['Jet Energy PAL'],
         tools:[],attacks:[
-          {name:'Burrow',cost:['Colorless'],damage:0},
-          {name:'Rototiller',cost:['Colorless'],damage:0}
+          {name:'Burrow',cost:[COLORLESS],damage:0},
+          {name:'Rototiller',cost:[COLORLESS],damage:0}
         ]},
       bench:[
         {printing:'Vileplume AOR',energies:[],attacks:[]},
         {printing:'Exeggutor PLF',energies:[],
-          attacks:[{name:'Blockade',cost:['Colorless'],damage:10}],
+          attacks:[{name:'Blockade',cost:[COLORLESS],damage:10}],
           publicRestrictions:{}}
       ],
       stadium:[],publicTurnRestrictions:{}
@@ -34,7 +36,8 @@ function view(){
     }
   };
 }
-const catalog={specialEnergies:new Set(['Jet Energy PAL'])};
+const catalog={specialEnergies:new Set(['Jet Energy PAL']),
+  colorlessEnergyType:COLORLESS};
 
 test('opt-in opponent Supporter lock beats generic preservation of paid Burrow',()=>{
   const v=view();
