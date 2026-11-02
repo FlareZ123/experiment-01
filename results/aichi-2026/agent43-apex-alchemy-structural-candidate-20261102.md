@@ -32,17 +32,21 @@ This fixed 60 is an original **Regidrago VSTAR / Alolan Muk / Boost Shake** stru
 
 **E. Energy/board friction.** Double Dragon Energy must be attached to a Dragon Pokémon. Temple of Sinnoh and other Special Energy denial can shut down the color source, making the 3 Grass/3 Fire basics thin. Giant Hearth discards an owner-hand card to fetch up to two Basic Fire Energy, giving the opponent access to the same Stadium Ability while it survives. The opening board must allocate Regidrago V, Grimer/Muk, possible Budew, Lele, Latias and other targets to at most five Bench spaces. Preserve actual hand discard acceptability rather than awarding abstract search connectivity.
 
+**Correction log, 21:41 UTC 2 November:** An independent enumeration found the first-pass Basic-valid direct estimate (9.58686746%) treated any Grimer in the first eight as proof the opening seven had a Basic. That excluded the possibility that the sole Basic was the eighth draw. Corrected the conditional figure to 9.26277443%; the unconditional 7.75916289% remained unchanged. The exact scripted independent check now explicitly weights opening-seven Basic validity.
+
 ## Direct opening arithmetic (exact combinatorics, not gameplay)
 
 | Necessary event | Uniform shuffled-deck probability |
 | --- | ---: |
 | No Basic in initial seven (12 Basics in 60) | **19.06466927%** |
 | First eight cards include Grimer and Boost Shake, at least one Muk remains outside those eight and six Prizes | **7.75916289%** unconditionally |
-| Same direct Grimer/Shake/Muk event conditioned on a Basic-valid initial seven | **9.58686746%** |
+| Same direct Grimer/Shake/Muk event conditioned on a Basic-valid initial seven | **9.26277443%** |
 | Both Alolan Muk copies are in the six Prizes | **0.84745763%** |
 | All three Regidrago VSTAR copies are in the six Prizes | **0.05844535%** |
+| Either naturally held Grimer, or searchable Grimer via first-eight Mysterious Treasure / Quick Ball, with Boost Shake held and Muk fetchable after Prizes | **24.00755909%** idealized unconditional |
+| Same with Basic-valid first seven | **23.08980144%** idealized conditional |
 
-Direct event calculation enumerates all compositions of the first seven, the one ordinary first-turn draw and the six Prizes, then demands at least one Muk remaining in the deck, without search/draw effects, opponent actions, turn-order effects, opponent mulligan draws or gameplay legality. The event is a **necessary direct natural hand opportunity for a particular narrow lock line**, and is neither a game probability of deploying Muk nor a lock-success probability. Prize events can be mitigated through eventual Prize-taking but this 60 has no Gladion and Hisuian Heavy Ball retrieves Basics rather than Stage-1 Muk. Do not convert these percentages to match win rates.
+The **direct** calculation enumerates first seven, one ordinary first-turn draw and six Prizes and requires an Alolan Muk left in the deck. Its initial seven can be Basic-invalid even if a Grimer arrives as eighth card, so **dividing the unconditional 7.75916% by the Basic-valid opening rate would be mathematically wrong**. Correct conditioning explicitly uses the composition of the first seven and gives **9.26277443%**, independently cross-checked with another enumeration. The **idealized search-assisted** row additionally permits an observed Mysterious Treasure or Quick Ball to fetch Grimer if a Grimer survives the six Prizes. This intentionally assumes Item access, physically payable/acceptable one-card discard, a Bench slot, correct search sequencing, no opponent lock, and no further draws. It is an overinclusive upper screen within the first-eight/no-extra-draw model, and is not an upper bound on lines involving subsequent Supporter draws or other card effects. All figures are **hand/Prize opportunities** rather than probabilities of actually deploying Muk or locking an opponent. Prize events can be mitigated through eventual Prize-taking but this 60 has no Gladion and Hisuian Heavy Ball retrieves Basics rather than Stage-1 Muk. Do not convert these percentages to match win rates.
 
 ## Adversarial tests, deliberately decisive
 
