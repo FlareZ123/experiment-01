@@ -29,8 +29,9 @@ function captureCrobatRetreatFee(state,action){
       energies[0].fullName!==DCE||!active.cards?.includes(energies[0]))
     return null;
   const targetSlot=owner.bench[action.benchIndex];
-  if(!targetSlot.energies?.cards?.some(c=>c.fullName===DCE))return null;
   const paidCard=energies[0];
+  if(!targetSlot.energies?.cards?.some(c=>c.fullName===DCE&&
+      c!==paidCard&&targetSlot.cards?.includes(c)))return null;
   if(owner.discard?.cards?.includes(paidCard))return null;
   return {seat,turn:state.turn,benchIndex:action.benchIndex,
     from,target,paidCard,ownerId:owner.id};
@@ -134,7 +135,11 @@ function withCrobatRetreatFeeCustody(execute,deps={}){
   Object.defineProperty(Store.prototype,'dispatch',{...descriptor,value:dispatch});
   try {
     const result=execute();
-    // Any uncompleted payment prompt is explicitly not a valid receipt.
+    // Unsettled native prompts and incomplete roots remain in the denominator.
+    audit.unsettledAtEnd=audit.attemptedPhysicalRoots-
+      audit.settledExactPhysicalFees-audit.unverifiedOrPending-
+      audit.nativeDispatchRejects;
+    assert.ok(audit.unsettledAtEnd>=0);
     return {result,audit};
   } finally {
     assert.strictEqual(Store.prototype.dispatch,dispatch);
