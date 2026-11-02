@@ -25,7 +25,8 @@ const EXTRA_EFFECT_MODES=['path-airballoon','path-airballoon-jammer',
   'path-furybelt','path-furybelt-jammer',
   'thorns-furybelt','thorns-furybelt-jammer',
   'path-float-bench-jammer','path-airballoon-bench-jammer',
-  'path-furybelt-bench-jammer'];
+  'path-furybelt-bench-jammer',
+  'thorns-stealthyhood','thorns-stealthyhood-jammer'];
 const MODES=['baseline','path','silent','klefki','thorns',
   'garbotoxin','muk','weezing','wobbuffet',
   'path-float','path-float-jammer','thorns-float',
@@ -44,10 +45,11 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
-  const baseMode=mode.split(/-(?:float|airballoon|furybelt)/)[0];
+  const baseMode=mode.split(/-(?:float|airballoon|furybelt|stealthyhood)/)[0];
   const equippedFloatStone=mode.includes('-float');
   const equippedAirBalloon=mode.includes('-airballoon');
   const equippedFuryBelt=mode.includes('-furybelt');
+  const equippedStealthyHood=mode.includes('-stealthyhood');
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=mode.endsWith('-jammer')&&!opponentBenchJammer;
   const stadiumToolJamming=mode.endsWith('-jamming');
@@ -93,6 +95,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   if(equippedFloatStone)mine.active.tools.push(card('Float Stone BKT'));
   if(equippedAirBalloon)mine.active.tools.push(card('Air Balloon SSH'));
   if(equippedFuryBelt)mine.active.tools.push(card('Fighting Fury Belt BKP'));
+  if(equippedStealthyHood)mine.active.tools.push(card('Stealthy Hood UNB'));
   const addBench=(owner,printed)=>{
     const slot=new PokemonCardList();
     slot.cards.push(card(printed));
@@ -136,9 +139,11 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const reason=publicSkylinerSuppressionReason(view);
   const livePower=latias.powers.find(power=>power.name==='Skyliner');
   assert.ok(livePower);
-  const nativeBlocked=Boolean(IS_ABILITY_BLOCKED(
-    store,state,mine,latias,livePower));
   const executeNative=()=>{
+    // Ability-lock verification must occur *inside* the optional ToolEffect
+    // guard to catch Tool Jammer disabling Stealthy Hood.
+    const nativeBlocked=Boolean(IS_ABILITY_BLOCKED(
+      store,state,mine,latias,livePower));
     let nativeHp=null;
     if(equippedFuryBelt){
       const hpEffect=new CheckHpEffect(mine,mine.active);
@@ -152,16 +157,18 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     try{store.dispatch(new RetreatAction(mine.id,0));}
     catch(error){nativeRetreatError=String(error?.message??error);}
     const promoted=store.state.players[sourceSeat].active.getPokemonCard()?.fullName;
-    return {nativeHp,nativeRetreatCost,nativeRetreatError,promoted,
+    return {nativeBlocked,nativeHp,nativeRetreatCost,nativeRetreatError,
+      promoted,
       nativeRetreatAccepted:promoted==="Lillie's Clefairy ex JTG"};
   };
   const receipt=effectRepair?
     withActiveToolJammerToolEffectGuard(store,mine,enemy,executeNative):
     repair?withToolJammerFloatStoneRetreatRepair(store,mine,enemy,executeNative):
     {result:executeNative(),patches:[]};
-  const {nativeHp,nativeRetreatCost,nativeRetreatError,promoted,
-    nativeRetreatAccepted}=receipt.result;
-  const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode);
+  const {nativeBlocked,nativeHp,nativeRetreatCost,nativeRetreatError,
+    promoted,nativeRetreatAccepted}=receipt.result;
+  const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode)&&
+    !(baseMode==='thorns'&&equippedStealthyHood&&!opponentToolJammer);
   const expectedFree=!expectedSuppressed||
     ((equippedFloatStone||equippedAirBalloon)&&
       !opponentToolJammer&&!stadiumToolJamming);
@@ -169,10 +176,12 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     printedRootPresent:Boolean(original),
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
     nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
-    publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
+    publicGuardAsPaper:equippedStealthyHood||
+      Boolean(guarded)===!expectedSuppressed,
     furyBeltNativeHpAsPaper:!equippedFuryBelt||
       nativeHp===latias.hp+(opponentToolJammer?0:40),
     floatStoneGuardAsPaper:equippedAirBalloon||equippedFuryBelt||
+      equippedStealthyHood||
       Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
     paperHookApplied:effectRepair?
@@ -182,7 +191,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   return {mode,sourceSeat,repairApplied:repair||effectRepair,
     repairKind:effectRepair?'tool-effect':(repair?'retreat-cost':'none'),
     repairPatches:receipt.patches,
-    floatStonePlannerCheckSkipped:equippedAirBalloon||equippedFuryBelt,
+    floatStonePlannerCheckSkipped:equippedAirBalloon||equippedFuryBelt||
+      equippedStealthyHood,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
@@ -227,7 +237,8 @@ function runEffectRepair(){
     'path-furybelt','path-furybelt-jammer',
     'thorns-furybelt','thorns-furybelt-jammer',
     'path-float-bench-jammer','path-airballoon-bench-jammer',
-    'path-furybelt-bench-jammer']
+    'path-furybelt-bench-jammer',
+    'thorns-stealthyhood','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
