@@ -53,3 +53,4 @@ function stage(seat){
 function attack(x,count){
  x.store.dispatch(new AttackAction(x.owner.id,'Crash and Burn-GX'));
  let saw=false;
+ for(let step=0;step<25;step++){
