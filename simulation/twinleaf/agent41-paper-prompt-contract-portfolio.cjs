@@ -70,15 +70,12 @@ function independentPainfulSpoonsNegative(answer){
 }
 
 /**
- * Exact original Roxie CEC source-stamped ChooseCardsPrompt negative.
- * Roxie must discard 1 or 2 eligible own Pokémon, excluding Pokémon-EX
- * and Pokémon-GX. Physical owner-hand membership is required independently
- * from the pinned prompt's unreliable blocked-index validation.
- *
- * @param {object} prompt Genuine native source-stamped Roxie prompt.
- * @param {unknown} answer Submitted physical cards.
- * @param {(card:object)=>boolean|null} eligible Printed card predicate.
- * @returns {string|null} A proven printed invalidity or unknown.
+ * Independent mandatory two-other-card discard contract for the original
+ * Ultra Ball MEG printing's genuine owner-hand payment prompt. Later search
+ * prompts emitted by the same Item are not payment prompts.
+ * @param {object} prompt Original native payment prompt.
+ * @param {unknown} answer Native physical submitted payment cards.
+ * @returns {string|null} Proven paper-invalid reason or no covered negative.
  */
 function independentUltraBallPaymentNegative(prompt,answer){
   if(!Array.isArray(answer)||answer.length!==2)
@@ -91,6 +88,17 @@ function independentUltraBallPaymentNegative(prompt,answer){
   return null;
 }
 
+/**
+ * Exact original Roxie CEC source-stamped ChooseCardsPrompt negative.
+ * Roxie must discard 1 or 2 eligible own Pokémon, excluding Pokémon-EX
+ * and Pokémon-GX. Physical owner-hand membership is required independently
+ * from the pinned prompt's unreliable blocked-index validation.
+ *
+ * @param {object} prompt Genuine native source-stamped Roxie prompt.
+ * @param {unknown} answer Submitted physical cards.
+ * @param {(card:object)=>boolean|null} eligible Printed card predicate.
+ * @returns {string|null} A proven printed invalidity or unknown.
+ */
 function independentRoxiePaymentNegative(prompt,answer,eligible){
   if(!Array.isArray(answer)||answer.length<1||answer.length>2)
     return 'ROXIE_PRINTED_PAYMENT_REQUIRES_ONE_OR_TWO';
