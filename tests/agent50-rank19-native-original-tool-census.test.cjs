@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {publicOwnerBoard}=require(
+const {publicOwnerBoard,sourcePublicAttackInventory}=require(
   '../simulation/twinleaf/agent28-rank19-native-source-root-readonly.cjs');
 
 /**
@@ -34,4 +34,34 @@ test('empty tool array is represented as empty list',()=>{
     bench:[]
   };
   assert.deepEqual(publicOwnerBoard(owner).activeTools,[]);
+});
+
+test('promoted public attack inventory preserves original Basic and Special energy distinctions',()=>{
+  const attack=(name,cost)=>({name,cost,damage:0,
+    damageCalculation:null,gxAttack:false});
+  const view={
+    ownPublic:{
+      active:{printing:'Arceus & Dialga & Palkia GX CEC',energies:[
+        'Double Dragon Energy ROS','Double Dragon Energy ROS'
+      ],damage:0,attacks:[attack('Ultimate Ray',['W','M','C'])]},
+      bench:[
+        {printing:'Raging Bolt ex TEF',energies:[
+          'Double Dragon Energy ROS','Lightning Energy MEE'
+        ],damage:0,attacks:[
+          attack('Bellowing Thunder',['F','L'])]
+        },
+        {printing:'Ho-Oh EX DRX',energies:[],damage:0,attacks:[]},
+        null
+      ]
+    }
+  };
+  const audit=sourcePublicAttackInventory(view);
+  assert.equal(audit.totalSourceAttachedBasicEnergyCards,1);
+  assert.equal(audit.candidates.length,3);
+  assert.equal(audit.candidates[0].active,true);
+  assert.equal(audit.candidates[1].active,false);
+  assert.deepEqual(audit.candidates[0].attacks[0].cost,['W','M','C']);
+  assert.deepEqual(audit.candidates[1].energies,[
+    'Double Dragon Energy ROS','Lightning Energy MEE']);
+  assert.equal(audit.candidates[1].attacks[0].name,'Bellowing Thunder');
 });
