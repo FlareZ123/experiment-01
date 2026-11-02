@@ -40,11 +40,25 @@ function withRank30FundedRondoPassFork(execute,config){
     authenticPassedOwnerWindows:[],retreatAccepted:false,
     attackAccepted:false,retreatError:null,attackError:null,
     originalSourcePassCount:0,retreatCard:null,
+    interceptedDispatches:0,dispatchWindowSamples:[],
     neverReadOpponentConcealedZones:true};
 
   function dispatch(action,...args){
     const state=this.state,source=state?.players?.[config.sourceSeat];
     const actionKind=action?.constructor?.name;
+    audit.interceptedDispatches++;
+    if(Number.isInteger(state?.turn)&&
+       state.turn>=config.targetTurn-1&&
+       state.turn<=config.targetTurn+2&&
+       audit.dispatchWindowSamples.length<24&&
+       (actionKind==='PassTurnAction'||
+        (source?.id===action?.playerId&&
+         ['PlayCardAction','AttackAction','RetreatAction'].includes(actionKind)))){
+      audit.dispatchWindowSamples.push({storeTurn:state.turn,
+        activePlayer:state.activePlayer,sourceSeat:config.sourceSeat,
+        sourceId:source?.id??null,actionPlayerId:action?.playerId??null,
+        actionKind});
+    }
     const sourceTurn=source?.id===action?.playerId&&
       state.activePlayer===config.sourceSeat&&
       state.turn===config.targetTurn;
