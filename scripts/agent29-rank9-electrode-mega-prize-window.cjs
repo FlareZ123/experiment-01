@@ -80,6 +80,39 @@ function prizeWindow(roleCounts = ROLES) {
   };
 }
 
+/**
+ * Enumerate the complete printed 4-Prism/2-Darkness/1-Telepathic source
+ * inventory at a five-physical-Energy Extra Energy Bomb payment.
+ * Every possible five has at least two Prism, each providing any one color
+ * on the Basic Mega Absol ex, sufficient for its two Darkness symbols.
+ *
+ * @returns {{profiles:Array<{id:string,prism:number,darkness:number,telepathic:number,physicalSubsets:number,blackRequiredPayable:boolean}>,physicalSubsets:number,allPayable:boolean}}
+ */
+function exhaustiveFiveEnergyProfiles() {
+  const profiles=[];
+  let physicalSubsets=0;
+  for(let prism=0;prism<=4;prism++){
+    for(let darkness=0;darkness<=2;darkness++){
+      for(let telepathic=0;telepathic<=1;telepathic++){
+        if(prism+darkness+telepathic!==5)continue;
+        const ways=Number(choose(4,prism)*choose(2,darkness)*
+          choose(1,telepathic));
+        physicalSubsets+=ways;
+        profiles.push({
+          id:String(prism)+'P'+String(darkness)+'D'+String(telepathic)+'T',
+          prism,darkness,telepathic,physicalSubsets:ways,
+          blackRequiredPayable:prism+darkness>=2
+        });
+      }
+    }
+  }
+  assert.equal(profiles.length,5);
+  assert.equal(physicalSubsets,Number(choose(7,5)));
+  assert.equal(physicalSubsets,21);
+  assert.ok(profiles.every(p=>p.prism>=2&&p.blackRequiredPayable));
+  return {profiles,physicalSubsets,allPayable:true};
+}
+
 /** Source-bind every necessary role to the printed Aichi rank-9 60. */
 function rank9FromSource(root = path.resolve(__dirname, '..')) {
   const file = path.join(root, 'results/aichi-2026/full-decklists.json');
@@ -96,14 +129,18 @@ function rank9FromSource(root = path.resolve(__dirname, '..')) {
     .reduce((sum, row) => sum + row.count, 0);
   assert.equal(energy, 7);
   assert.equal(count('Prism Energy', 'ASC'), 4);
+  assert.equal(count('Darkness Energy','MEE'),2);
+  assert.equal(count('Telepathic Psychic Energy','POR'),1);
   const basics = basicCountFromPrintedDeck(deck, root);
   assert.equal(basics, 11);
   return {sourceRank: 9, sourcePlayer: deck.player,
-    sourceArchetype: deck.archetype, ...prizeWindow()};
+    sourceArchetype: deck.archetype, ...prizeWindow(),
+    completeFiveEnergyPayment: exhaustiveFiveEnergyProfiles()};
 }
 
 if (require.main === module) {
   process.stdout.write(JSON.stringify(rank9FromSource(), null, 2) + '\n');
 }
 
-module.exports = {ROLES, prizeWindow, rank9FromSource};
+module.exports = {ROLES, prizeWindow, exhaustiveFiveEnergyProfiles,
+  rank9FromSource};
