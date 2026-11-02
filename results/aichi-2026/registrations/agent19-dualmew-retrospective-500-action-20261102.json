@@ -1,0 +1,24 @@
+{
+  "schema": "agent19-dualmew-16same-seed-500action-retrospective-v1",
+  "registeredUtc": "2026-11-02T05:30:00Z",
+  "precedingProspective200": {
+    "run": 41393312882,
+    "executionSha": "c59a0b2d669434440fa451d60ff31be0dd851819",
+    "registration": "results/aichi-2026/registrations/agent19-dualmew-rank3-7-source-dealt-20261102.json",
+    "known200Outcome": "16 attempts, 1 twoMew board, 1 engine terminal, 15 action caps, zero PAL overlap"
+  },
+  "retrospectiveBecause": "Extended action limit chosen after seeing many 200-action caps; cannot enter prospective numerator or opportunity-rate estimate",
+  "same16SeedsAndSeats": true,
+  "sourceRank5Original": true,
+  "opponents": [
+    3,
+    7
+  ],
+  "maxActions": 500,
+  "baselineMaxActions": 200,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policy": "same natural Evolution, Special Energy, Genesect preference, common canonical fallback, only cap extended",
+  "allRowsIncluded": true,
+  "strictComparability": "Match original complete physical deal fingerprints by row ID and both decks, then compare early root prefixes when available; statuses/errors preserved",
+  "qualifiedGames": 0
+}
