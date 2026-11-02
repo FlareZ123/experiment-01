@@ -46,6 +46,20 @@ The overlap above identifies alternative *routes*, but its 1-Basic VIP selection
 
 Of the VIP-first *K1-live* continuations, **632 of 1,799** (Bench none) and **826 of 1,619** (Bench all) add a genuinely additional Basic to play relative to the baseline Box-first Trubbish requirement. In the other **1,167** and **793**, VIP supplies a Trubbish that the original Box line would already have developed by playing a held copy or using a Basic searcher. Those latter actions may alter searcher conservation, hand discardability and deck depletion, but the model proves no immediate extra Basic. Source `scripts/agent7_rank8_box_vip_contention.py` now emits this explicit extra-Basic versus Trubbish-substitution distinction. A native policy must compare the uses of the search connector and actual Bench capacity rather than treating every VIP-first search as incremental setup.
 
+## Which connector order pays the Box cost?
+
+A second alternative uses Box **first** and deliberately protects held Battle VIP Pass as one of the three Box payments, potentially playing VIP after Box and before the turn-ending Boost Shake. The same opening model can test physical Box payment while excluding VIP from disposable cards. It does not yet model a native root which actually interleaves Box, K1 search, VIP and Shake.
+
+| K1-live coheld-VIP openings | Bench none | Bench all |
+| --- | ---: | ---: |
+| Original Box K1 with VIP eligible as discard | 1,799 | 1,665 |
+| Box first, pay without VIP and retain future VIP | 1,369 | 1,184 |
+| VIP first, pay Box after placing one Basic | 1,799 | 1,619 |
+| Both protected-VIP routes payable | 1,369 | 1,184 |
+| Only VIP-first can preserve Box K1/payment | **430** | **435** |
+
+All counts use the same 200,000 physical opening allocations, K0 payment predicate and K1 unprized resource check. The 430 and 435 extra mechanically payable states occur because playing VIP can itself fulfill the Trubbish requirement, releasing a held Basic or its Basic-search connector for the three-card Box payment. Conversely, Box-first can first inspect K1 and preserve VIP when an essential Box target is Prized, which gives that order information-timing value unmodeled here. Native ownership, a real Box Item search, later VIP and actual opponent continuation must resolve this choice before any list-level advantage is inferred.
+
 ## Native and strategic qualification
 
 This finding locates a potentially neglected *parallel connector* in the actual original source. It does **not** prove two simultaneously executable native lines or that a VIP use outranks any competing card search, Supporter, attack, or Bench slot. Agent44 already has a real symmetric common-actor retrospective native Box/Shake positive at [run 41409207301](https://github.com/FlareZ123/experiment-01/actions/runs/41409207301), and the 32-deal flexible K0 source cohort has just 3 offers (2 completions, 1 aborted). None has competitively qualified play; pairing the current model count with those native successes would be invalid.
