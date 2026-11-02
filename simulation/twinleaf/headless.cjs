@@ -313,6 +313,9 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
  * @property {boolean} [captureOriginalOwnerIntegrity] Additional opt-in original owner reference audit, requires capturePhysicalZoneIntegrity.
+ * @property {boolean} [capturePaperReplayFirstPrizeLead] Additional read-only
+ *   observation of the first strict Prize lead in an authentic native replay.
+ *   Requires captureDecisionTrace for the actual native reset ancestry.
  * @property {boolean} [enforceSettledPhysicalZoneIntegrity] With capturePhysicalZoneIntegrity, fail closed on source 60 loss at a completed native root; qualification safeguard only.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
@@ -953,6 +956,15 @@ function runMatch(request) {
     // Preserve the public restart boundary separately from the stable root
     // ledger protocol and SHA. A paper sudden-death replay resets turn to 0.
     const suddenDeathClockResets = rootActionLedger ? [] : null;
+    if(request.capturePaperReplayFirstPrizeLead===true &&
+       request.captureDecisionTrace!==true){
+      throw new Error('capturePaperReplayFirstPrizeLead requires captureDecisionTrace');
+    }
+    const paperReplayFirstPrizeLeads =
+      request.capturePaperReplayFirstPrizeLead===true?[]:null;
+    const paperReplayLeadWitness=paperReplayFirstPrizeLeads?
+      require('../evaluation/agent24-native-replay-first-lead-witness.cjs')
+        .paperReplayFirstLeadWitness:null;
     // Bounded, public-count-only context for an actual native restart.
     // Excludes face-down setup and is retained only with a reset marker.
     const recentNativePublicRoots = suddenDeathClockResets ? [] : null;
@@ -1698,6 +1710,34 @@ function runMatch(request) {
           recentNativePublicRootWindow:recentNativePublicRoots.slice()
         });
       }
+      if(paperReplayFirstPrizeLeads){
+        const nativeReplayMarkers=suddenDeathClockResets.filter(row=>
+          row.afterSuddenDeath===true && row.enteredSetup===true);
+        const latestReplay=nativeReplayMarkers.at(-1);
+        if(latestReplay&&!paperReplayFirstPrizeLeads.some(row=>
+           row.nativeResetRootOrdinal===latestReplay.actionOrdinal)){
+          const witness=paperReplayLeadWitness({
+            state:store.state,
+            playerTurnPhase:GamePhase.PLAYER_TURN,
+            allowedSettledPhases:[
+              GamePhase.PLAYER_TURN,GamePhase.ATTACK,
+              GamePhase.AFTER_ATTACK,GamePhase.CHOOSE_PRIZES,
+              GamePhase.BETWEEN_TURNS
+            ],
+            authenticatedReplayEpoch:true,
+            originalActionSettled:!store.state.prompts.some(prompt=>
+              prompt.result===undefined)
+          });
+          if(witness.status==='PAPER_REPLAY_FIRST_PRIZE_LEAD'){
+            paperReplayFirstPrizeLeads.push({
+              nativeResetRootOrdinal:latestReplay.actionOrdinal,
+              firstPaperLeadRootOrdinal:actions+1,
+              action:actionName,actingSeat:seat,
+              ...witness
+            });
+          }
+        }
+      }
       if (rootActionLedger) {
         rootActionLedger.push({
           actionOrdinal: actions,
@@ -1766,6 +1806,13 @@ function runMatch(request) {
       ...(suddenDeathClockResets ? {
         suddenDeathClockResets,
         suddenDeathClockResetProtocol:'actual-native-sudden-death-clock-transition-v1'
+      } : {}),
+      ...(paperReplayFirstPrizeLeads ? {
+        paperReplayFirstPrizeLeads,
+        paperReplayFirstPrizeLeadProtocol:
+          'read-only-actual-root-first-strict-prize-lead-v1',
+        paperReplayFirstPrizeLeadVeto:
+          paperReplayFirstPrizeLeads.length>0
       } : {}),
       ...(gladionRootPrizeChoices ? {gladionRootPrizeChoices} : {}),
       rootActionLedgerProtocol: rootActionLedger ?
