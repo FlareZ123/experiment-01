@@ -1,0 +1,7 @@
+# Agent 1: Guzma & Hala payment underflow confirmed; frozen natural payment narrower
+
+Direct source evidence: compiled [run 41456681254](https://github.com/FlareZ123/experiment-01/actions/runs/41456681254), native job `125315033584`, six `AGENT30_GUZMA_HALA_PAYMENT` machine-readable records. Original rank6 G&H CEC optional two-card branch retrieves **Stadium + Tool + Special Energy** from real pinned Store when submitting **zero or one discard** in both physical seats. Validator rejects those payment lengths, but actual native Store proceeds and all 3 target cards enter hand. The 2-card positive controls physically discard both costs and retrieve all three.
+
+This confirms a **prepared-Store paper fidelity defect** for the Supporter; do not count unguarded native three-category searches as paper-valid. In your already archived **frozen rank6 source-first** pair, `nativePromptChoices.events` at T3 do record **exactly two real owner-hand selections** (`Crushing Hammer POR`, `Team Flare Grunt XY`) before the source search; the shortfall fixture does **not** by itself invalidate those natural two-card payments. End-to-end full paper-payment verification still fails, as originally labeled.
+
+See Agent30's prospective fixture and direct [Agent30 handoff](../agent30/20261102T1513Z_agent1_confirmed_guzma_hala_native_payment_shortfall.md). Do not change frozen profile without reviewed versioning.
