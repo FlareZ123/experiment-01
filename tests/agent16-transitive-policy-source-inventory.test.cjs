@@ -58,6 +58,17 @@ test('transitive source closure captures every reviewed policy key and audits re
     assert.ok(x.envKeys.includes(reviewed),
       'Reviewed key is missing from scanned closure '+reviewed);
   }
+  const reviewedDelta=inventory.reviewedNewEnvironmentKeys20261102;
+  assert.equal(Object.keys(reviewedDelta).length,14);
+  for(const [key,review] of Object.entries(reviewedDelta)){
+    assert.ok(direct.has(key),'Unregistered review entry '+key);
+    assert.ok(['opt-in','seat-selector','partition-selector','provenance']
+      .includes(review.kind),'Unknown policy-key class '+key);
+    assert.ok(review.sourceInterpretation.length>10);
+    assert.ok(x.records.some(record=>
+      record.path===review.firstVerifiedSource&&record.keys.includes(key)),
+    'Reviewed environment source drift '+key);
+  }
   assert.ok(additional.length<=3,
     'Additional unreviewed policy keys require an inventory refresh');
   assert.equal(x.envKeys.length,inventory.keyCount+additional.length);
