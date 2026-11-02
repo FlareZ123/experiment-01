@@ -15,12 +15,20 @@ function run(){
   assert.equal(registered.sourceRank,registration.sourceRank);
   assert.deepEqual(registered.groups,registration.registeredGroups);
   assert.equal(registered.expectedNativeArms,trials.length);
-  const corrected=withElectroRainPaperDamage(()=>runDevelopment({
+  const previous=process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV;
+  process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV='true';
+  let corrected;
+  try{
+    corrected=withElectroRainPaperDamage(()=>runDevelopment({
     ...options,actorNaturalEvolutionRoot:true,
     registeredTrials:trials,
     registeredFrameName:'agent1-original-rank17-damage-hook-observation',
     allowAdditionalOriginalSourceRanks:true
   }));
+  }finally{
+    if(previous===undefined)delete process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV;
+    else process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV=previous;
+  }
   return {schema:registered.schema,attempted:corrected.result.rows.length,
     audit:corrected.audit,rows:corrected.result.rows,
     competitiveQualifiedGames:0,paperMatchCertified:false,
