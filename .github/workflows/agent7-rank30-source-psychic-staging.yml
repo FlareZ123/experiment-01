@@ -170,6 +170,19 @@ jobs:
           path: agent6-paired-jammer-turn.json
           if-no-files-found: warn
           retention-days: 15
+      - name: Probe native opponent Tool Jammer followed by source-paid Field Blower answer
+        if: always() && inputs.agent6_rank30_rondo
+        env:
+          AGENT6_OWNER_FIELD_BLOWER_DEV: 'true'
+        run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-owner-field-blower-native.json
+      - name: Archive source Field Blower hold-versus-pay native response
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-owner-field-blower-native
+          path: agent6-owner-field-blower-native.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
         if: '!inputs.agent6_rank30_rondo'
         run: node simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs > agent7-rank30-source-psychic-stage-aba.json
