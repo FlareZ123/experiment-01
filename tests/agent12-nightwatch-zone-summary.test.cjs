@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {summarizeNightWatchPhysicalReplays}=require('../simulation/evaluation/agent12-nightwatch-zone-summary.cjs');
-const event={promptId:7,turn:21,physicalHandDeckMovementConfirmed:true,followupResolutions:[{promptKind:'ShowCardsPrompt',promptRemovedAfter:true},{promptKind:'ShuffleDeckPrompt',promptRemovedAfter:true}]};
+const event={promptId:7,turn:21,physicalHandDeckMovementConfirmed:true,followupResolutions:[{promptKind:'ShowCardsPrompt',promptResultRecorded:true,nativeCallbackDequeued:true},{promptKind:'ShuffleDeckPrompt',promptResultRecorded:true,nativeCallbackDequeued:true}]};
 function data(){
   return {gameArmsAttempted:8,registeredGroups:2,competitiveQualifiedGameCount:0,groups:[0,1].map((i)=>({registration:{rank:11,repeat:i},seed:100+i,baseline:[{},{}],uniform:[{nativeNightWatchPromptCount:i===0?1:0},{nativeNightWatchPromptCount:0}],randomHookAudit:{nativeMovementEvents:i===0?[{...event,followupResolutions:event.followupResolutions.slice()}]:[]},sourcePhysicalMovement:{sourceNamedNativePrompts:i===0?1:0,acceptedStoreDispatchesObserved:i===0?1:0,completeSelectedHandToDeckMoves:i===0?1:0,showAndShuffleBothPrompted:i===0?1:0,bothFollowupsNativelyResolved:i===0?1:0,confirmsNativeGameAllEvents:true}}))};
 }
