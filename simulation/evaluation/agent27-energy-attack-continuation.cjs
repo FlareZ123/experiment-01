@@ -49,6 +49,11 @@ function joinSourceEnergyAttackContinuation(match,physicalReceipts,sourceSeat){
           ordinal:root.actionOrdinal,action:root.action,
           card:root.card??null,attack:root.attack??null
         })):[];
+      const finalPass=replyActions.findLast(row=>row.action==='PassTurnAction');
+      const passContext=finalPass ?
+        match.ownerPassResources?.find(row=>
+          row.actionOrdinal===finalPass.ordinal&&
+          row.playerSlot===opponentSeat)??null : null;
       return {
         promptId:receipt.promptId,sourceTurn:receipt.globalTurn,
         status:first?'native-settled-source-attack-with-opponent-root':
@@ -60,7 +65,8 @@ function joinSourceEnergyAttackContinuation(match,physicalReceipts,sourceSeat){
           beforePublicBoard:attack.before,afterPublicBoard:attack.settled.after
         },
         opponentReply:first?{firstRootOrdinal:first.actionOrdinal,
-          turn:first.turnBefore,actions:replyActions}:null
+          turn:first.turnBefore,actions:replyActions,
+          finalPassContext:passContext}:null
       };
     }),
     qualifiedCompetitiveGames:0
