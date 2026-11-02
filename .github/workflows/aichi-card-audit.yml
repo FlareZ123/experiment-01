@@ -114,6 +114,9 @@ jobs:
       - name: Stage shared actor BUS paid Energy retreat and native opposing Basic attack veto
         if: ${{ always() && !cancelled() }}
         run: node --test tests/agent40-native-bus-lock-position-root.test.cjs
+      - name: Stage original rank2-derived Bunnelby double-TM then next-turn Exeggutor Blockade continuation
+        if: ${{ always() && !cancelled() }}
+        run: node --test tests/agent40-native-bunnelby-exeggutor-blockade-continuation.test.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
