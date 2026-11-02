@@ -366,7 +366,7 @@ function executeDevelopment(trial,candidates,{
   mandatoryOptionFallback=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
-  paperPromptPortfolio=false,
+  paperPromptPortfolio=false,sharedPaperPaymentPortfolio=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -466,6 +466,7 @@ function executeDevelopment(trial,candidates,{
   let nativeAcceptedTargetAudit=null;
   let nativeAcceptedEnergyPromptAudit=null;
   let paperPromptPortfolioAudit=null;
+  let sharedPaperPaymentAudit=null;
   // Development-only, both-seat correction for the original bot's split
   // AttachEnergyPrompt selection when the printed prompt requires sameTarget.
   // A native Store or strict prompt failure still aborts the trial.
@@ -504,14 +505,25 @@ function executeDevelopment(trial,candidates,{
     paperPromptPortfolioAudit=witnessed.audit;
     return witnessed.result;
   };
+  // V10 source-printed Roxie/Ultra Ball/Alakazam paper payment gate.
+  // Distinct from the historical Agent39 portfolio for audit attribution.
+  const runWithSharedPaperPaymentPortfolio=()=>{
+    if(!sharedPaperPaymentPortfolio)return runWithPaperPromptPortfolio();
+    const observed=require('../twinleaf/agent41-paper-prompt-contract-portfolio.cjs')
+      .withPaperPromptContractPortfolio(runWithPaperPromptPortfolio,{
+        requireLiveStore:true,currentTrialId:()=>trial.id
+      });
+    sharedPaperPaymentAudit=observed.audit;
+    return observed.result;
+  };
   const runWithActionInputWitness=()=>{
-    if(!nativeActionInputWitness)return runWithPaperPromptPortfolio();
+    if(!nativeActionInputWitness)return runWithSharedPaperPaymentPortfolio();
     const base=path.join(root,'vendor/twinleaf/ptcg-server/output');
     const SimpleTacticsAi=require(path.join(base,
       'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
     const Store=require(path.join(base,'game/store/store')).Store;
     const witnessed=require('../twinleaf/agent23-native-decision-dispatch-witness.cjs')
-      .withNativeDecisionDispatchWitness(runWithPaperPromptPortfolio,
+      .withNativeDecisionDispatchWitness(runWithSharedPaperPaymentPortfolio,
         {SimpleTacticsAi,Store,maxRecords:512,
           tapeOrdinal:nativeActionInputTapeOrdinal});
     nativeActionInputAudit=witnessed.audit;
@@ -768,6 +780,7 @@ function executeDevelopment(trial,candidates,{
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
       (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
+      (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v10-source-payment-opt-in':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -802,6 +815,9 @@ function executeDevelopment(trial,candidates,{
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
     paperPromptPortfolioOptIn:paperPromptPortfolio,
+    sharedPaperPaymentPortfolioOptIn:sharedPaperPaymentPortfolio,
+    sharedPaperPaymentPortfolioAudit:sharedPaperPaymentPortfolio?
+      sharedPaperPaymentAudit:null,
     paperSameTargetAttachEnergyAudit:paperSameTargetAttachEnergy?
       sameTargetAttachEnergyAudit:null,
     paperPromptPortfolioAudit:paperPromptPortfolio?paperPromptPortfolioAudit:null,
@@ -962,7 +978,7 @@ function runDevelopment({
   sourceFirstRetrospective=false,paperSupporterQuota=false,
   paperCologneQuota=false,paperFullBenchCallForFamily=false,
   paperSupporterComparisonTrace=false,paperSameTargetAttachEnergy=false,
-  paperPromptPortfolio=false,
+  paperPromptPortfolio=false,sharedPaperPaymentPortfolio=false,
   nativeOwnerSupporterOpportunity=false,nativeSetupCompensationAudit=false,
   nativePublicMulliganRevealsAudit=false,
   nativeSetupCoinChoiceReceipt=false,physicalZoneGate=false,
@@ -1007,6 +1023,8 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!(paperPromptPortfolio&&sharedPaperPaymentPortfolio),
+    'Choose exactly one legacy or unified source-printing paper prompt portfolio');
   assert.ok(!actorNativeAorItemLock||actorOnlyComposition,
     'Effective AOR Item play veto requires authenticated actor-only root composition');
   assert.ok(!bilateralKnownDeadAttackRoot||
@@ -1165,7 +1183,7 @@ function runDevelopment({
         anyTurnCompressorPayload,earlyBenchedCompressorPayload,
         mandatoryOptionFallback,paperSupporterQuota,paperCologneQuota,
         paperFullBenchCallForFamily,paperSameTargetAttachEnergy,
-        paperPromptPortfolio,
+        paperPromptPortfolio,sharedPaperPaymentPortfolio,
         paperSupporterComparisonTrace,nativeOwnerSupporterOpportunity,
         nativeSetupCompensationAudit,nativePublicMulliganRevealsAudit,
         nativeSetupCoinChoiceReceipt,physicalZoneGate,
@@ -1396,6 +1414,10 @@ function runDevelopment({
               .acceptedEnergyPromptPublicAbortEvidence(error)}:{}),
         ...(paperSameTargetAttachEnergy?{
           paperSameTargetAttachEnergyAbortEvidence:sameTargetAbort}:{}),
+        ...(sharedPaperPaymentPortfolio?{
+          sharedPaperPaymentPortfolioAbortEvidence:
+            error?.agent41UnifiedPaperPromptPortfolio??
+            error?.cause?.agent41UnifiedPaperPromptPortfolio??null}:{}),
         ...(paperPromptPortfolio?{
           paperPromptPortfolioAbortEvidence:
             error?.paperPromptPortfolioEvidence??
@@ -1430,6 +1452,7 @@ function runDevelopment({
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
       (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
+      (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v10-source-payment-opt-in':'')+
       (mandatoryOptionFallback?'+MandatoryOptionDefaultFallback-v1-both-seats+SelectOptionLegalityGate-v1-both-seats':'')+
       (earlyBenchedCompressorPayload?'+owner-compressor-benched-v1':
         (anyTurnCompressorPayload?'+owner-compressor-anyturn-v1':
@@ -1448,6 +1471,7 @@ function runDevelopment({
     paperFullBenchCallForFamilyOptIn:paperFullBenchCallForFamily,
     paperSameTargetAttachEnergyOptIn:paperSameTargetAttachEnergy,
     paperPromptPortfolioOptIn:paperPromptPortfolio,
+    sharedPaperPaymentPortfolioOptIn:sharedPaperPaymentPortfolio,
     paperSupporterComparisonTraceOptIn:paperSupporterComparisonTrace,
     nativeOwnerSupporterOpportunityOptIn:nativeOwnerSupporterOpportunity,
     nativeSetupCompensationAuditOptIn:nativeSetupCompensationAudit,
@@ -1589,6 +1613,8 @@ if(require.main===module){
       process.env.AGENT12_SAME_TARGET_ATTACH_DEV==='true',
     paperPromptPortfolio:
       process.env.AGENT39_PAPER_PROMPT_PORTFOLIO_DEV==='true',
+    sharedPaperPaymentPortfolio:
+      process.env.AGENT15_SHARED_SOURCE_PAYMENT_PORTFOLIO_DEV==='true',
     paperSupporterComparisonTrace:
       process.env.AGENT41_PAPER_SUPPORTER_TRACE_DEV==='true',
     nativeOwnerSupporterOpportunity:
