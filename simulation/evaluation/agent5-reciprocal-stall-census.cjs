@@ -72,11 +72,14 @@ function reciprocalStallCensus(row,options={}){
   const groups=[];
   for(const pair of pairs){
     const group=groups.at(-1),last=group?.at(-1);
+    const lastKnownActive=group?.findLast(x=>x.attackerActive!==null)
+      ?.attackerActive??null;
     if(last&&pair.attackTurn===last.attackTurn+2&&
         pair.passSeat===last.passSeat&&
         pair.attackSeat===last.attackSeat&&
         pair.attackName===last.attackName&&
-        pair.attackerActive===last.attackerActive){
+        (pair.attackerActive===null||lastKnownActive===null||
+          pair.attackerActive===lastKnownActive)){
       group.push(pair);
     }else groups.push([pair]);
   }
