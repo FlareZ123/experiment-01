@@ -2,7 +2,7 @@
 
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {projectPendingReplayPrizes}=
+const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
   require('../simulation/evaluation/agent24-pending-replay-prize-disposition.cjs');
 
 /** @param {object[]} koEntitlements @param {object} [extra] */
@@ -63,5 +63,54 @@ test('no replay proof, altered reward destination or skipped KO vetoes classific
     assert.equal(receipt.projectedLeaderSeat,null);
     assert.equal(receipt.paperGameOutcomeQualified,false);
     assert.match(receipt.status,/UNVERIFIED$/);
+  }
+});
+
+/**
+ * @param {object} projection
+ * @param {0|1|null} winner
+ * @param {object} [extra]
+ */
+function compare(projection,winner,extra={}){
+  return compareNativePendingPrizeWinner({
+    projection,nativeWinnerSeat:winner,nativeFinished:true,
+    nativeEndReason:'engine-game-end',...extra
+  });
+}
+
+test('recorded equal pending KOs do not establish a native Prize-winning lead',()=>{
+  const receipt=compare(project([ko(0,2),ko(1,2)]),0);
+  assert.equal(receipt.status,'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
+  assert.equal(receipt.projectedPrizeLeaderSeat,null);
+  assert.equal(receipt.prizeOnlyCompatible,false);
+  assert.equal(receipt.paperGameOutcomeQualified,false);
+  assert.equal(receipt.competingWinConditionsExcluded,false);
+});
+
+test('three-Prize reward to seat 1 contradicts a native seat-0 winner on Prize-only comparison',()=>{
+  const receipt=compare(project([ko(0,3),ko(1,2)]),0);
+  assert.equal(receipt.status,'NATIVE_WINNER_OPPOSES_PENDING_PRIZE_LEAD');
+  assert.equal(receipt.projectedPrizeLeaderSeat,1);
+  assert.equal(receipt.prizeOnlyCompatible,false);
+  assert.equal(receipt.paperGameOutcomeQualified,false);
+});
+
+test('a matching strict pending lead is not a qualified game result',()=>{
+  const receipt=compare(project([ko(0,2),ko(1,3)]),0);
+  assert.equal(receipt.status,'NATIVE_WINNER_MATCHES_PENDING_PRIZE_LEAD');
+  assert.equal(receipt.projectedPrizeLeaderSeat,0);
+  assert.equal(receipt.prizeOnlyCompatible,true);
+  assert.equal(receipt.paperGameOutcomeQualified,false);
+});
+
+test('missing settled KO proof and non-engine native terminals are not promoted',()=>{
+  for(const r of [
+    compare(project([ko(0,3)],{authenticatedReplayEpoch:false}),0),
+    compare(project([ko(0,3)]),0,{nativeFinished:false}),
+    compare(project([ko(0,3)]),0,{nativeEndReason:'action-limit'}),
+    compare(project([ko(0,3)]),null)
+  ]){
+    assert.match(r.status,/UNVERIFIED$/);
+    assert.equal(r.paperGameOutcomeQualified,false);
   }
 });
