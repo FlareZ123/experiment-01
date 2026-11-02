@@ -51,6 +51,26 @@ with denominator `212610958560` and favorable numerator `153057025440`. The sour
 
 This is a **high-probability source answer-access pressure signal**, and a reason to prioritize a naturally selected first-source-turn policy with card preservation and paid removal. It does not prove that 71.99% of actual rank6 games remove the Double Dragon or beat the ADP deck. Multiplying it by 28.99% would introduce extra independence and no-mulligan-draw assumptions and still produce only a joint physical opportunity, not a played counter or a candidate defeat.
 
+## Additional, disjoint Active-position route: Tag Call + Switch
+
+The preceding first-turn no-bonus GX event intentionally starts **ADP Active**. The unchanged fixed 60 also has **two Switch (SVI 194)** and **four Tag Call (CEC 206)**. When the initial seven lacks ADP but includes another Basic Pokémon, a first-eight hand containing Tag Call and Switch can execute a distinct connector sequence:
+
+`Start non-ADP Basic → Tag Call searches ADP TAG TEAM Pokémon + Guzma & Hala TAG TEAM Supporter → Bench ADP → Guzma & Hala (discard 2 other hand cards) searches Double Dragon Energy → attach DDE → Switch ADP Active → enhanced Altered Creation-GX`.
+
+If one or more of ADP, Guzma & Hala or DDE was already held, its search is unnecessary; if missing, at least one surviving copy must remain outside the six Prizes and in the deck. A single Tag Call searches at most two TAG TEAM cards and can therefore cover the two missing ADP and Supporter identities simultaneously. Guzma & Hala searches DDE using a Supporter; Switch remains a required Item and the once-per-turn attachment is DDE. The player has enough other physical hand cards for its printed discard-two cost under this exact single-search sequence, but the **strategic value of those discarded cards** and the available opponent Item/energy-answer window remain unresolved. Bench room is available if the board has only the initial non-ADP Basic; future board constraints are not modeled.
+
+An independent exact BigInt counting test partitions the fixed 60 into categories `[ADP2, other Basic5, Tag Call4, Switch2, Guzma & Hala3, DDE4, other40]`. It requires no ADP in the actual initial seven and a non-ADP Basic there, Tag Call and Switch within first eight, at least one accessible ADP/G&H/DDE in the first eight or after six Prizes, one ordinary draw, and no bonus/mulligan, extra card draw, or other search. It enumerates initial-seven card categories, the eighth natural draw, then uses inclusion-exclusion on simultaneous Prizing of the three searchable identities. Same Basic-valid seven denominator `250397245379590400` applies to the no-bonus event.
+
+| Mutually exclusive physical T1 route | Conditional on candidate Basic-valid opening seven |
+| --- | ---: |
+| Opening Active ADP, first-eight held / G&H / TagCall to DDE | **28.99365301%** |
+| Opening non-ADP Basic, first-eight Tag Call + Switch, accessible ADP/G&H/DDE | **5.67353042%** |
+| **Union of these two specifically modeled routes** | **34.66718344%** |
+
+The bridge numerator is `14206363895848805`. The [independent exact bridge SFT](../../tests/agent17-adp-tagcall-switch-bridge.sft.cjs) checks actual deck counts and printed Tag Call/Switch/DDE text, exact integers and negative controls with missing Switch/Tag Call/ADP. A separately seeded 500,000-attempt physical shuffle experiment observed about **5.71%** of Basic-valid sevens on this bridge, within ordinary Monte Carlo error of the exact figure. In a further 600,000-game coupled mulligan simulation, baseline union was about **34.67%** and the two-route union with *all* optional opponent-mulligan bonus draws was about **38.10%**. The latter is a Monte Carlo estimate for the broader full-bonus event, with no exact confidence-bound claim beyond simulation error, and **no player action or paper game simulated**.
+
+This route directly addresses the fixed proposal's **ADP-Active opening geometry** without inventing a different 60 or treating Tag Call as a free universal connector. It also heightens the importance of the original rank6 source's Energy-removal window and of capturing realistic two-card Guzma & Hala payment when evaluating natural GX success. The 34.667% no-bonus union is a valid concrete lower subset of physical T1 access under the stated uncontested, willing-discard model. Other paths involving Quick Ball, Ultra Ball, direct Switch from a drawn ADP without Tag Call, and extra Supporter/draw resources remain outside the two-route count, so this is **not** a global upper bound.
+
 ## Actual mutual mulligan bonus-draw asymmetry
 
 The preceding two opening numbers are **no-mulligan-extra baselines**. The candidate contains seven Basic Pokémon, while the exact original rank6 contains four. A complete simultaneous setup permits both players to mulligan together when both have invalid opening sevens. Once one player receives a Basic-valid seven, the player who continues to mulligan creates optional bonus draws for the already-valid opponent. The players' final Basic-valid seven-card hand compositions are independent of how many failed shuffles preceded them, but their bonus-draw counts are coupled.
