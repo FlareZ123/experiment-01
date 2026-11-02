@@ -19,7 +19,8 @@ function classifyPhysicalZoneEvidence(attempt={}){
   const {requested=false,game=null,error=null}=attempt;
   const evidence=game?.physicalZoneIntegrity??null;
   const common={schema:VERSION,requested:requested===true,
-    competitiveQualified:false,physicalIntegrityQualified:false};
+    competitiveQualified:false,physicalIntegrityQualified:false,
+    originalOwnerIntegrityQualified:false};
   if(error?.code===INVALID_CODE){
     return {...common,status:'ENGINE_PHYSICAL_INVALID',
       firstFailingRoot:error.physicalConservationWitness?.actionOrdinal??null,
@@ -56,12 +57,19 @@ function classifyPhysicalZoneEvidence(attempt={}){
       settledRootsChecked:evidence.settledRootsChecked,
       reason:'Settled physical card-count, duplicate or attachment anomaly'};
   }
+  if(evidence.originalOwnerCustodyRequested===true &&
+     evidence.originalOwnerCardCount!==120){
+    return {...common,status:'PHYSICAL_INTEGRITY_UNVERIFIED',
+      reason:'Original-owner audit requested but 120 physical-card reference index absent'};
+  }
   if(evidence.firstSettledRootAnomaly!==null){
     return {...common,status:'PHYSICAL_INTEGRITY_UNVERIFIED',
       reason:'Contradictory audit counters and settled anomaly witness'};
   }
   return {...common,status:'SETTLED_PHYSICAL_INTEGRITY_PASSED',
     physicalIntegrityQualified:true,
+    originalOwnerIntegrityQualified:
+      evidence.originalOwnerCustodyRequested===true,
     rootActionsChecked:evidence.rootActionsChecked,
     settledRootsChecked:evidence.settledRootsChecked,
     pendingRootAnomalies:evidence.actionsWithAnomaly,
