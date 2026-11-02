@@ -163,3 +163,16 @@ test('disabled option leaves original general policy behavior unchanged',()=>{
   const baseline=chooseActorRootIntent(view,catalog);
   assert.equal(baseline.kind,'pass');
 });
+
+test('realistic next-turn draw cannot preempt urgent Mew reset with ordinary Energy',()=>{
+  const view=mewState();
+  view.ownHand=['Psychic Energy SVE','Guzma BUS 115'];
+  const filledCatalog={...catalog,
+    basicEnergies:new Set(['Psychic Energy SVE'])};
+  assert.equal(chooseActorRootIntent(view,filledCatalog).kind,
+    'attach-basic-energy');
+  const prioritized=chooseActorRootIntent(view,filledCatalog,
+    {mewTechnoReset:true});
+  assert.equal(prioritized.kind,'play-guzma-mew-cooldown-reset');
+  assert.equal(prioritized.handIndex,1);
+});
