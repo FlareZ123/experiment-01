@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const VERSION = 'agent41-rank5-quickball-seven-opening-duplicate-v1';
+const VERSION = 'agent41-rank5-quickball-seven-opening-duplicate-v2';
 const BASIC_NAMES = new Set([
   'Mew V', 'Genesect V', 'Dedenne-GX', 'Crobat V', "Lillie's Clefairy ex"
 ]);
@@ -47,12 +47,12 @@ function openingCounts(cards, handSize = 7) {
   const totalCards = [...group.values()].reduce((sum, row) => sum+row.count, 0);
   assert.ok(totalCards >= handSize);
   // Each key is [physical hand size, contains QB, contains Basic,
-  // contains duplicated other non-QB non-DCE printing, contains DCE duplicate].
+  // contains duplicated other non-QB non-DCE printing, DCE cards held].
   let states = new Map([[JSON.stringify([0,0,0,0,0]), 1]]);
   for (const row of group.values()) {
     const next = new Map();
     for (const [key, ways] of states) {
-      const [size,q,b,other,dce] = JSON.parse(key);
+      const [size,q,b,other,dceHeld] = JSON.parse(key);
       for (let k = 0; k <= Math.min(row.count, handSize-size); k++) {
         const flags = [
           size+k,
@@ -60,8 +60,7 @@ function openingCounts(cards, handSize = 7) {
           Number(Boolean(b || (BASIC_NAMES.has(row.name) && k > 0))),
           Number(Boolean(other || (row.name !== 'Quick Ball' &&
             row.name !== 'Double Colorless Energy' && k >= 2))),
-          Number(Boolean(dce || (row.name === 'Double Colorless Energy' &&
-            k >= 2)))
+          dceHeld+(row.name === 'Double Colorless Energy' ? k : 0)
         ];
         const newKey = JSON.stringify(flags);
         next.set(newKey,(next.get(newKey) ?? 0)+ways*choose(row.count,k));
@@ -73,18 +72,23 @@ function openingCounts(cards, handSize = 7) {
     version:VERSION, handSize, totalCards, exactPrintings:group.size,
     totalOpeningSets:0, basicValidSets:0, quickBallValidSets:0,
     quickBallDuplicateValidSets:0,
-    quickBallOnlyDceDuplicateValidSets:0
+    quickBallOnlyDceDuplicateValidSets:0,
+    onlyDceDuplicateByHeldCount:{2:0,3:0,4:0}
   };
   for (const [key,ways] of states) {
-    const [size,q,b,other,dce] = JSON.parse(key);
+    const [size,q,b,other,dceHeld] = JSON.parse(key);
     if (size !== handSize) continue;
     result.totalOpeningSets += ways;
     if (!b) continue;
     result.basicValidSets += ways;
     if (!q) continue;
     result.quickBallValidSets += ways;
-    if (other || dce) result.quickBallDuplicateValidSets += ways;
-    if (dce && !other) result.quickBallOnlyDceDuplicateValidSets += ways;
+    if (other || dceHeld >= 2) result.quickBallDuplicateValidSets += ways;
+    if (dceHeld >= 2 && !other) {
+      result.quickBallOnlyDceDuplicateValidSets += ways;
+      result.onlyDceDuplicateByHeldCount[dceHeld] =
+        (result.onlyDceDuplicateByHeldCount[dceHeld] ?? 0)+ways;
+    }
   }
   assert.equal(result.totalOpeningSets, choose(totalCards,handSize));
   assert.ok(result.quickBallOnlyDceDuplicateValidSets <=
@@ -114,4 +118,46 @@ function sourceRank5() {
   return rank5;
 }
 
-module.exports={VERSION,BASIC_NAMES,choose,openingCounts,sourceRank5};
+
+/**
+ * Condition on a Basic-valid QB opener whose only non-QB duplicate is DCE.
+ * After setting this 7-card hand aside, 6 Prize cards are drawn uniformly
+ * from the remaining 53. Counts multiply exactly within JS safe integers.
+ *
+ * @param {object} openings Exact seven-card openingCounts() result.
+ * @param {number} sourceDceCopies Registered original deck DCE count.
+ * @returns {object}
+ */
+function conditionalDcePrizeExposure(openings, sourceDceCopies=4) {
+  assert.equal(openings.totalCards,60);
+  assert.equal(openings.handSize,7);
+  assert.equal(sourceDceCopies,4);
+  const remaining=53, prizes=6, denominator=choose(remaining,prizes);
+  let atLeastOne=0, atLeastTwo=0;
+  for (const [heldText,numberOfOpeners] of
+    Object.entries(openings.onlyDceDuplicateByHeldCount)) {
+    const held=Number(heldText), remainingDce=sourceDceCopies-held;
+    const noDcePrizes=choose(remaining-remainingDce,prizes);
+    atLeastOne+=numberOfOpeners*(denominator-noDcePrizes);
+    atLeastTwo+=numberOfOpeners*
+      Array.from({length:Math.max(remainingDce-1,0)},(_,i)=>{
+        const k=i+2;
+        return choose(remainingDce,k)*choose(remaining-remainingDce,prizes-k);
+      }).reduce((sum,n)=>sum+n,0);
+  }
+  const all=openings.quickBallOnlyDceDuplicateValidSets*denominator;
+  assert.ok(Number.isSafeInteger(all)&&Number.isSafeInteger(atLeastOne)&&
+    Number.isSafeInteger(atLeastTwo));
+  return {
+    version:VERSION,
+    heldDceDistribution:{...openings.onlyDceDuplicateByHeldCount},
+    sevenHandAndSixPrizePairs:all,
+    atLeastOneDcePrizedPairs:atLeastOne,
+    atLeastTwoDcePrizedPairs:atLeastTwo,
+    probabilityAtLeastOneDcePrized:atLeastOne/all,
+    probabilityAtLeastTwoDcePrized:atLeastTwo/all
+  };
+}
+
+module.exports={VERSION,BASIC_NAMES,choose,openingCounts,sourceRank5,
+  conditionalDcePrizeExposure};
