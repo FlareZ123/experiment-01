@@ -81,3 +81,21 @@ Four native rows verified first turn, conserved the source printed 60 and ended 
 The two candidate-seat-A native games witnessed one original rank6 source Iron Thorns sequence each: enhanced **Guzma & Hala** chose **two distinct physical owner-hand cards**, **Crushing Hammer POR** and **Team Flare Grunt XY** (8-card source hand); searched original own deck for **Thunder Mountain LOT** and **Double Colorless Energy SUM**; played the Stadium and Special Energy; declared/settled **Volt Cyclone**, changing source remaining Prizes **6→5**, then received actual next-candidate `PassTurnAction`. Native G&H root action ordinals were **21** (champion) and **19** (New Moon); respective attack ordinals **30/28** and opposing Pass ordinals **36/34**. The actual paper two-card discard-zone transfer remains unobserved independently, and the opponent's Pass may reflect policy weakness. The raw `sourceLinePacket` has `sourceEffectVerified:false` and `candidateReplyCompetenceVerified:false`.
 
 Overall, all four source development endings were engine-terminal (including two source wins on candidate-seat-A cases), and the guarded v10 portfolio logged **318 accepted prompt replies**: **11** narrowly verified source-printed Volt Cyclone prompts, **307** remaining prompt contracts unverified. Quick Ball and Secret Box cost hooks saw **zero payment encounters** in this panel. These are coherent **native execution results only**; paper-payment completeness, tactical decision quality and the tournament clock remain release blockers. Native winner labels are not competitive match victories. **Qualified games remain zero.**
+
+## Second compiled release: programmatic exact source-deal pairing PASS (14:53 UTC)
+
+The same unchanged frozen 86-option profile and four registered trial arms were executed **again** under the pinned follow-up branch, [GitHub Actions run 41465829225](https://github.com/FlareZ123/experiment-01/actions/runs/41465829225), checkout `133f507e14e3b51ee95dd2488b1917f13ec07c86`, and exact pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The existing manual workflow ran **16/16 pure regressions** (five original canary tests and eleven new physical-pair tests), compiled Twinleaf, executed all four native arms and then performed the new read-only JSON postprocessing. All stages completed green. [Full archived machine artifact 13151571539](https://github.com/FlareZ123/experiment-01/actions/runs/41465829225/artifacts/13151571539) has ZIP SHA256 `19bb6b149afabc9b27c13707a2fa39421038fdcbdfe6da159659b692c19df3a2`, 136351 ZIP bytes.
+
+The stdout now **machine-certifies**:
+
+| Stage | Result |
+| --- | --- |
+| `CONFIG_FROZEN` | true |
+| `BOTH_SEATS_EXECUTED` | true |
+| `MATCHED_SOURCE_PHYSICAL_DEALS` | **true (2/2 exact source cohorts)** |
+| `PAPER_PAYMENT_VERIFIED` | false |
+| `SOURCE_PAYOFF_WITNESSED` | false (broad gate; two narrow native sequences reported) |
+| `OPPONENT_CONTINUATION_WITNESSED` | false (broad gate; two actual Pass roots reported) |
+| `COMPETITIVE_GAME_QUALIFIED` | **false** |
+
+The postprocessor reports `missingRows:0`, `unregisteredRows:0`, with matched SHA256 fingerprints precisely equal to Agent30's independent read of the first run in both physical seats. **First remaining machine blocker: `PAPER_PAYMENT_UNVERIFIED`**. No selected policy or action choice was changed by postprocessing. This is a reproducible native source-deal-input certification, a necessary measurement milestone for conditional paired analysis. The selected source and candidate printed sixties have **not** been adjudicated for full game paper legality, hidden-information safety, game-clock semantics or competitive opponent decisions. **Zero competitively qualified games and no 99.5% claim**.
