@@ -51,6 +51,15 @@ function reportWorkflowAudit(){
     pathJoinBases:closure.pathJoinFirstArgumentCounts,
     nonJoin:closure.nonPathJoinComputedRequires
   }));
+  const unreviewed=closure.envKeys.filter(key=>!inventory.keys.includes(key))
+    .map(key=>({key,sourcePaths:closure.records
+      .filter(record=>record.keys.includes(key)).map(record=>record.path)}));
+  console.log('AGENT16_UNREVIEWED_POLICY_ENV_KEYS '+JSON.stringify({
+    reviewed:inventory.keyCount,actual:closure.envKeys.length,
+    unreviewedCount:unreviewed.length,
+    overThreeUnreviewed:unreviewed.length>3,
+    unreviewed
+  }));
   console.log('AGENT16_REGISTERED_ROOT_PIN_PARITY '+JSON.stringify({
     registered:roots.registered,matched:roots.matched,
     drifts:roots.mismatches,missing:roots.missing,
