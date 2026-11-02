@@ -92,8 +92,22 @@ function commonSymmetricPolicy(execute, vipFirst) {
  *
  * @returns {object}
  */
-function run() {
+function run({retrospectiveIndices = null} = {}) {
   const allRows = frozenSchedule();
+  const retrospective = retrospectiveIndices !== null;
+  if (retrospective) {
+    assert.ok(Array.isArray(retrospectiveIndices) &&
+      retrospectiveIndices.length > 0);
+    assert.equal(new Set(retrospectiveIndices).size,
+      retrospectiveIndices.length, 'No duplicate retrospective indices');
+    assert.ok(retrospectiveIndices.every(n =>
+      Number.isSafeInteger(n) && n >= 640 && n <= 767));
+  }
+  const selectedRows = retrospective ? allRows.filter(r =>
+    retrospectiveIndices.includes(Number(r.trial.split(':').at(-1)))) :
+    allRows;
+  if (retrospective) assert.equal(selectedRows.length,
+    retrospectiveIndices.length);
   const candidate = require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan = planAichi(candidate, {
     allowEquivalentBasicEnergies: true,
@@ -108,7 +122,7 @@ function run() {
   const {Store} = require(path.join(ROOT,
     'vendor/twinleaf/ptcg-server/output/game/store/store'));
   const rows = [];
-  for (const original of allRows) {
+  for (const original of selectedRows) {
     const request = {
       deckA: original.sourceSeat === 0 ? source.cards : plan.candidate.cards,
       deckB: original.sourceSeat === 1 ? source.cards : plan.candidate.cards,
@@ -192,6 +206,16 @@ function run() {
         sourceVipNativeRootCount: vipPublicRoots.length,
         nativeAcceptedVipBeforeBox: chronological,
         sourceToolGarbodorReply: packet,
+        ...(retrospective ? {
+          baselineBoxNativeAudit: b.audit.box,
+          treatmentBoxNativeAudit: t.audit.box,
+          baselineSourceRootLedger: b.result.rootActionLedger.filter(x =>
+            x.playerSlot === original.sourceSeat &&
+            x.turnBefore <= 4).slice(0, 100),
+          treatmentSourceRootLedger: t.result.rootActionLedger.filter(x =>
+            x.playerSlot === original.sourceSeat &&
+            x.turnBefore <= 4).slice(0, 100)
+        } : {}),
         sourceBoxRootOrdinals: originalSourceBoxRoots.map(x =>
           x.actionOrdinal).slice(0, 10),
         sourceVipRootOrdinals: vipPublicRoots.map(x =>
@@ -214,7 +238,13 @@ function run() {
   }
   const count = key => rows.filter(r => r.status === key).length;
   return {
-    schema: 'agent7-original-rank8-symmetric-vip-before-flexbox-native-128-pairs-v1',
+    schema: retrospective ?
+      'agent7-original-rank8-vip-box-retrospective-selected-diagnostics-v1' :
+      'agent7-original-rank8-symmetric-vip-before-flexbox-native-128-pairs-v1',
+    ...(retrospective ? {
+      retrospectiveCaseSelection: retrospectiveIndices,
+      selectionBasis: 'Three positives identified AFTER the frozen 128-pair native prospective run 41454932782, for failure inspection only; never used as an unbiased rate denominator'
+    } : {}),
     registration: registered,
     scheduleSha256: sha(allRows),
     actorProfile: {
@@ -228,7 +258,8 @@ function run() {
     enginePin: plan.engineRevision,
     sourceCodeRevision: process.env.GITHUB_SHA ?? null,
     nativeVipVersion: VERSION,
-    registeredTrials: rows.length,
+    registeredTrials: allRows.length,
+    actualOriginalDealsReplayed: rows.length,
     totalNativeAttempted: rows.length * 2,
     sourceSeats: {
       0: rows.filter(r => r.sourceSeat === 0).length,
