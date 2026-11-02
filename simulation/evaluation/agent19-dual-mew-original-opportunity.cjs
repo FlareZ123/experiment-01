@@ -44,11 +44,11 @@ function schedule(){
 }
 
 /** @param {object} caseInfo Exact source original deal. @param {object} cardLists */
-function attempt(caseInfo,cardLists){
+function attempt(caseInfo,cardLists,maxActions=registration.maxNativeRootActionsPerDeal){
   const {rank,seat,seed}=caseInfo;
   const req={deckA:seat===0?cardLists.mew:cardLists.others[rank],
     deckB:seat===1?cardLists.mew:cardLists.others[rank],
-    seed,maxActions:registration.maxNativeRootActionsPerDeal,
+    seed,maxActions,
     label:'agent19-dualmew-'+rank+'-'+seat+'-'+caseInfo.repeat,
     strictPromptValidation:true,mandatoryOptionFallback:true,
     enforceSelectOptionLegality:true,isolatePolicyRandomness:true,
