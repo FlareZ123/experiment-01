@@ -51,7 +51,10 @@ function preflight(root=ROOT,environment=process.env){
   assert.equal(trials.length,4);
   const closure=auditSourceClosure(root,[profile.runner]);
   const closurePinned=typeof profile.verifiedClosureSha256==='string'&&
-    closure.digest===profile.verifiedClosureSha256;
+    closure.digest===profile.verifiedClosureSha256 &&
+    closure.files.length===profile.expectedStaticClosureFiles;
+  assert.equal(closurePinned,true,
+    'Frozen static import closure or file count changed; create a new profile');
   return {options:defaults,trials,closureDigest:closure.digest,closurePinned,
     closureFiles:closure.files.length,ambient,
     originalRank:original.rank,sourceCards:60};
@@ -120,12 +123,20 @@ function run(){
     const expected=prepared.trials.map(x=>x.id).sort();
     const actual=rows.map(x=>x.trial?.id).sort();
     const bothSeats=JSON.stringify(expected)===JSON.stringify(actual);
+    const deckFingerprintsMatch=rows.length===expected.length &&
+      rows.every(row=>row.sourceDeckFingerprint===
+        profile.expectedSourceDeckFingerprint &&
+        row.candidateDeckFingerprint===
+          profile.expectedCandidateDeckFingerprints[row.trial?.candidateId]);
     return {schema:profile.schema,profile,sourceClosureDigest:prepared.closureDigest,
       closureFiles:prepared.closureFiles,nativePin:actualPin,
       actualResearchCommit:process.env.GITHUB_SHA??null,
       registered:expected,attempted:rows.length,statusCounts,armDispositions,
+      registeredDeckFingerprintsMatched:deckFingerprintsMatch,
       dispositions:{
-        CONFIG_FROZEN:prepared.closurePinned?'VERIFIED':'UNVERIFIED_TRANSITIVE_CLOSURE',
+        CONFIG_FROZEN:prepared.closurePinned&&deckFingerprintsMatch?
+          'STATIC_SOURCE_CLOSURE_AND_NATIVE_DECKS_PINNED_COMPUTED_IMPORTS_UNRESOLVED':
+          'UNVERIFIED_STATIC_OR_ACTUAL_DECK_FINGERPRINT',
         BOTH_SEATS_EXECUTED:bothSeats?'ALL_REGISTERED_ATTEMPTS_RECORDED':'INCOMPLETE',
         PAPER_PAYMENT_VERIFIED:'UNQUALIFIED_FULL_GAME',
         SOURCE_PAYOFF_WITNESSED:armDispositions.some(x=>x.sourceSettledAttacks>0)?
