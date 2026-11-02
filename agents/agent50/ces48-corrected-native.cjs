@@ -50,3 +50,6 @@ function stage(seat){
  state.gameSettings.format=Format.EXPANDED;
  return {store,state,owner,foe,e1,e2};
 }
+function attack(x,count){
+ x.store.dispatch(new AttackAction(x.owner.id,'Crash and Burn-GX'));
+ let saw=false;
