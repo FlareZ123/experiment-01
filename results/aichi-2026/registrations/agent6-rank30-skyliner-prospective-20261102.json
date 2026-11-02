@@ -1,0 +1,134 @@
+{
+  "schema": "agent6-preregistered-rank30-skyliner-rondo-native-v1",
+  "registeredAtUtc": "2026-11-02T04:15:00Z",
+  "preOutcome": true,
+  "registrationSnapshot": "cbe6dbb07485f540602cade8a3d89be091cb1748",
+  "sourceRank": 30,
+  "sourcePrinting60": "results/aichi-2026/full-decklists.json",
+  "sourcePrintedSixtyUnmodified": true,
+  "sourceSeatRule": "A=>1, B=>0",
+  "candidatePrinting60Source": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidatePrintedSixtiesUnmodified": true,
+  "vendorPinned": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policyIntervention": "AGENT6_SKYLINER_RONDO_ROOT_DEV one owner source seat only; source-only original psychic Bench staging held true across both arms",
+  "policyFunction": "simulation/twinleaf/agent6-owner-public-skyliner-rondo-frontier.cjs",
+  "policyVersion": "agent6-owner-public-skyliner-rondo-mobility-v2-nominal-ko",
+  "control": "No Skyliner Rondo root opt-in",
+  "treatment": "Native owner-root Skyliner Rondo opt-in, real Store acceptance required",
+  "registeredGroups": [
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 2085196839
+    },
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 438664109
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 901609735
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 792997838
+    }
+  ],
+  "registeredArms": [
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 2085196839,
+      "candidateId": "champion-reference",
+      "id": "30:1:A:champion-reference"
+    },
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 2085196839,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "30:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 438664109,
+      "candidateId": "champion-reference",
+      "id": "30:1:B:champion-reference"
+    },
+    {
+      "rank": 30,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 438664109,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "30:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 901609735,
+      "candidateId": "champion-reference",
+      "id": "30:2:A:champion-reference"
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "sourceSeat": 1,
+      "seed": 901609735,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "30:2:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 792997838,
+      "candidateId": "champion-reference",
+      "id": "30:2:B:champion-reference"
+    },
+    {
+      "rank": 30,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "sourceSeat": 0,
+      "seed": 792997838,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "30:2:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "maxActionCap": "unchanged frozen v2 bounded headless engine",
+  "qualification": "unqualified development; must report all errors, caps, physical-matching failures and winners, no paper-clock or full-actor guarantee",
+  "targetMetric": "Native canonical owner-selected RetreatAction, settled Full Moon Rondo, actual native Prizes and enemy continuation across matched physically identical A/B arms; no prospective win rate asserted absent qualified games.",
+  "retrospectiveSelectedSeedsExcluded": [
+    3407938073,
+    233633536
+  ],
+  "method": "4 independent preregistered integer seeds from Python secrets.randbits(32), one seed per rank/seat/repeat group, all 16 actor-choices/Store games tracked, no post-outcome seed selection"
+}
