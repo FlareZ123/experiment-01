@@ -73,6 +73,7 @@ function trial(seat,answer){
   const play=(fullName,target)=>{
     const at=source.hand.cards.findIndex(c=>c.fullName===fullName);
     assert.ok(at>=0,'Staged hand has required '+fullName);
+    console.log('AGENT48_WALLY_NATIVE_DISPATCH',JSON.stringify({seat,answer,turn:state.turn,card:fullName,activePlayer:state.activePlayer,sourceBench:source.bench.length,pending:state.prompts.filter(x=>x.result===undefined).map(x=>x.constructor.name)}));
     store.dispatch(new PlayCardAction(source.id,at,target));
   };
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
@@ -101,6 +102,7 @@ function trial(seat,answer){
     if(typeof p.validate==='function')
       assert.equal(p.validate(selected,state),true,p.constructor.name+' validates Wally response');
     trace.push(p.constructor.name);
+    console.log('AGENT48_WALLY_PROMPT',JSON.stringify({seat,answer,type:p.constructor.name,selected:Array.isArray(selected)?selected.map(x=>x.fullName??x.getPokemonCard?.()?.fullName??x):selected}));
     store.dispatch(new ResolvePromptAction(p.id,selected));
   }
   assert.equal(wallySearch,true);
@@ -125,6 +127,7 @@ function trial(seat,answer){
       'One DCE still cannot pay under remaining Temple');
     assert.equal(opponent.active.damage,0);
   }else{
+    console.log('AGENT48_WALLY_ATTACK',JSON.stringify({seat,answer,energy:printedCost()}));
     store.dispatch(new AttackAction(source.id,'Cross Fusion Strike'));
     let copied=false;
     for(let i=0;i<30;i++){
