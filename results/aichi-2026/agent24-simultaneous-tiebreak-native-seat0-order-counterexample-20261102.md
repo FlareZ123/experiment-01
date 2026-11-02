@@ -50,3 +50,23 @@ After documenting the v2 isolated outcome, the team added an explicitly conserva
 - All five native comparator receipts explicitly return `paperGameOutcomeQualified:false` and `competingWinConditionsExcluded:false`. The comparator is observational and changes neither native action nor winner.
 
 **Provenance distinction:** the first successful raw v2 native execution is `41538296976`, while `41539300794` is an independently compiled follow-up after adding the comparator. Reusing the same source seed and setup does not qualify these as independent competitive games.
+
+
+## Independent ordinary-game final-Prize counterexample, 22:55 UTC
+
+The same pinned source branch is also observable in **ordinary non-sudden-death games**, without an artificial tiebreak reset. Using genuine original rank-11 and rank-20 60-card decks in both physical-seat orientations, `oneOrdinaryDoubleFinalKO` prepares an explicitly synthetic late-game state: each player initially receives six genuine Prize objects, four per owner are relocated to the **same owner's hand** to represent already-taken Prizes, both owners retain a real Basic on Bench, and the original-owned two-Prize Basics Crobat V and Regidrago V occupy the two Active Spots. The 120 original-card owner references remain conserved. Both Active Pokémon are then set to lethal damage in the same pinned `checkState` reducer batch.
+
+**Compiled validation:** [manual workflow 41540930313](https://github.com/FlareZ123/experiment-01/actions/runs/41540930313), both the native `agent24-original-physical-native` job and the pure `test-benchmark` job succeeded. The named native simultaneous-KO and printed Spiky counteraction steps both succeeded, along with **12 pure Prize-projection tests**. Archived ZIP [artifact 13186907715](https://github.com/FlareZ123/experiment-01/actions/runs/41540930313/artifacts/13186907715), SHA-256 `d83008ee4bc5490467fdb482a949e5d4943337a255a4f220be4b2a77f85ec8ec`. Read `agent24-replay-double-ko.json.ordinaryDoubleFinalKOs`; its source prints, owner movement provenance, and seat-order-correct pre-KO Active states were verified against the actual archive.
+
+| Original source physical A / B | Genuine printed pre-KO Actives A / B | Pre-KO physical Prizes | Two actual native claimant Prize entitlements | Prize totals if **both** entitlements are honored | Native final Prizes | Native winner |
+| --- | --- | --- | --- | --- | --- | --- |
+| Rank11 / Rank20 | Crobat V / Regidrago V | [2,2] | [2,2] | **[0,0]** | **[0,2]** | **0 / A** |
+| Rank20 / Rank11 | Regidrago V / Crobat V | [2,2] | [2,2] | **[0,0]** | **[0,2]** | **0 / A** |
+
+The source's positive `group.count >= prizeLeft` branch **automatically transfers the first seat's remaining two Prize objects and ends the game immediately**, before processing the second seat's equally valid KO entitlement. Both after-state Actives are vacant because KO happened; both still had a real Benched Pokémon. The supplied Advanced Player's Rulebook 3.4, sections **D. Knock Out** and **E. Win and Loss**, requires both players' Knock Out Prizes to be taken and treats both taking all Prizes simultaneously as a tie (followed by a tiebreaker in a tournament requiring a winner). The observed native single-winner terminal conflicts with that simultaneous result. Unlike the earlier sudden-death case, **physical Prize objects really move** in this ordinary native terminal, but only for player 0.
+
+The new separately authenticated `projectPendingOrdinaryPrizes` mode reuses the Prize arithmetic with an explicit **ordinary game source-epoch gate**, without ever asserting a sudden-death replay. Both actual archived ordinary outcomes return `projectedBothPrizeEmpty:true`, `NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD`, `paperGameOutcomeQualified:false` and `competingWinConditionsExcluded:false`. The original tiebreak projection and its schema remain distinct. All existing successful native controls still pass.
+
+**Scope:** The staging of four Prizes per side into hand and the lethal damage is explicitly experimenter-induced. No paper-legal match turn sequence, naturally reachable final turn, own/opponent player-policy competence, or official event clock was established. These results diagnose the pinned engine's two independent early-winner branches under a simultaneous valid KO batch; they do not measure how often an actual Aichi matchup reaches that state.
+
+**Action for release integrators:** Simultaneous KO Prize resolution needs a **whole-batch all-recipient** gate in both sudden death and ordinary final-Prize adjudication. Staged test results cannot be projected into a competitive opponent win-rate denominator; the default native winner remains an engine result only.
