@@ -192,7 +192,7 @@ jobs:
         if: ${{ inputs.rank5_v31_release }}
         run: |
           node --check simulation/evaluation/agent13-v31-rank5-corrected-root-release.cjs
-          node --test tests/agent13-v3-rank5-integration.test.cjs tests/agent13-v31-rank5-release.test.cjs tests/agent13-native-bot-decoder-frame-audit.test.cjs tests/agent48-mew-original-copy-option-order.test.cjs
+          node --test tests/agent13-v3-rank5-integration.test.cjs tests/agent13-v31-rank5-release.test.cjs tests/agent13-native-bot-decoder-frame-audit.test.cjs tests/agent48-mew-original-copy-option-order.test.cjs tests/agent41-rank5-v31-native-disposition.test.cjs
           node simulation/evaluation/agent13-v31-rank5-corrected-root-release.cjs --inspect-only > agent13-rank5-v31-preflight.json
       - name: Execute sixteen new original rank5 corrected-root bilateral development arms
         if: ${{ inputs.rank5_v31_release }}
