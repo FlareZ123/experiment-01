@@ -1,0 +1,37 @@
+{
+  "schema": "agent10-rank9-original-source-t42-retreat-retrospective-v1",
+  "created_at_utc": "2026-11-02T12:31:00Z",
+  "source": "rank9 Shun Ito original printed60, M1L/Telepath equivalent substitutions",
+  "native_vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "original_roster_git_blob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "source_win_observation_only": true,
+  "prospective_qualified_games": 0,
+  "same_policy_both_seats": true,
+  "asymmetric_diagnostic_only": true,
+  "preinspected_seed": 3060075246,
+  "event": "source seat B, physical rank9 vs New Moon, native global turn42, before accepted Pass, Active Electrode-GX CES attached Prism+Darkness and benched Mega Absol ex M1L attached Telepath [P]+two Prism",
+  "override": "One native-owned RetreatAction to the funded M1L bench target if actual State and actor source coincide, after native isValidAction. No forced new attack, native bot remains responsible for its post-Retreat continuation.",
+  "unchanged_control": "simulation/evaluation/agent10-rank9-known-dead-attack-counterfactual.cjs",
+  "fork_runner": "simulation/evaluation/agent10-rank9-turn42-paid-retreat-fork.cjs",
+  "hook": "simulation/twinleaf/agent10-rank9-turn42-paid-retreat-native.cjs",
+  "tests": "tests/agent10-rank9-turn42-paid-retreat-native.test.cjs",
+  "expected_native_arm_ids": [
+    "9:0:A:champion-reference",
+    "9:0:A:new-moon-lockbreaker-v1",
+    "9:0:B:champion-reference",
+    "9:0:B:new-moon-lockbreaker-v1"
+  ],
+  "original_control_run_id": 41399309154,
+  "original_control_artifact_id": 13120134600,
+  "evidence_predicates": [
+    "full source and full deal identical all arms",
+    "exact root prefix t<42 identical",
+    "only source NewMoon rank9 seatB may diverge",
+    "native isValidAction for payment",
+    "accepted Store RetreatAction",
+    "native energy discard and promotion",
+    "accepted source attack before opponent reply",
+    "native settled damage KO prizes and opponents followup"
+  ],
+  "scope_caveat": "Retrospective one-factor fork of previously inspected advantageous original game state. No independent win estimate, official clock, paper legality or established selected release."
+}
