@@ -77,6 +77,11 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         .chooseForcedGuzmaNominalKo(view,catalog);
       if(forced)return forced;
     }
+    if(deps.mewTechnoReset===true){
+      const reset=require('./agent41-mew-techno-reset-frontier.cjs')
+        .chooseGuzmaMewCooldownReset(view,catalog);
+      if(reset)return reset;
+    }
     return chooseHeldGuzmaMobility(view,catalog);
   });
   const getCatalog=deps.getCatalog??publicCatalog;
@@ -106,7 +111,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     version:VERSION+(nominalGust?'+'+GUST_VERSION:''),
     nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
-    matchedForcedNominalKoPlans:0,matchedFinalPrizePlans:0,
+    matchedForcedNominalKoPlans:0,matchedMewTechnoResetPlans:0,
+    matchedFinalPrizePlans:0,
     matchedNonfinalPrizeTradePlans:0,
     guzmaHandConsumptionConfirmed:0,guzmaHandConsumptionUnconfirmed:0,
     mismatchedOrUnplannedGuzma:0,opponentTargetDelegations:0,
@@ -254,7 +260,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
         candidate={seat,ownerId:owner.id,turn:state.turn,
           handCountBefore:owner.hand.cards.length,
           plan:(choice?.kind==='play-held-guzma-mobility'||
-            choice?.kind==='play-guzma-forced-nominal-ko')&&
+            choice?.kind==='play-guzma-forced-nominal-ko'||
+            choice?.kind==='play-guzma-mew-cooldown-reset')&&
             choice.handIndex===action.handIndex?choice:null};
       }
     }
@@ -291,6 +298,8 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
           anticipatedMissing:candidate.plan.anticipatedMissing??null
         });
         audit.matchedMobilityPlans++;
+        if(candidate.plan.kind==='play-guzma-mew-cooldown-reset')
+          audit.matchedMewTechnoResetPlans++;
         if(candidate.plan.kind==='play-guzma-forced-nominal-ko'){
           audit.matchedForcedNominalKoPlans++;
           if(candidate.plan.planFamily===
