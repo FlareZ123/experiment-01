@@ -48,6 +48,9 @@ Of the VIP-first *K1-live* continuations, **632 of 1,799** (Bench none) and **82
 
 ## Connector order, corrected after an adversarial payment check
 
+**Printed timing and payment gates:** original `Battle VIP Pass FST225` is first-own-turn-only and searches up to two Basics to the Bench. `Secret Box TWM163` is an ACE SPEC Item with three other-hand-card discards as its play cost; it can search Item, Pokémon Tool, Supporter and Stadium. `Boost Shake EVS142` searches an evolution, works during the player's first turn or for a just-played Basic, then ends the turn. Therefore any Box and VIP interleaving must finish before playing Boost Shake. These points are derived from the supplied English card database printings, with card-text update and lock effects still requiring independent native and paper rules review.
+
+
 The first model called the source's unchanged Box K0 planner with VIP removed from hand, but still reserved a held Basic-search Item to find Trubbish. This is an unnecessarily restrictive alternative when that **same held VIP can find Trubbish after Box**. The earlier description of 430/435 “only VIP-first” states therefore confused an unchanged planner's reservations with physical impossibility. Those counts are preserved below as a *diagnosis of the planner*, superseded as evidence for inherent ordering advantage.
 
 | K1-live coheld-VIP openings | Bench none | Bench all other initial Basics |
