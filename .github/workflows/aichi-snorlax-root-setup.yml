@@ -2,12 +2,24 @@ name: Aichi Snorlax authentic setup root probe
 
 on:
   workflow_dispatch:
+    inputs:
+      report_only:
+        description: 'Read retained previous source cohort artifact without new games'
+        type: boolean
+        default: false
+      artifact_run_id:
+        description: 'Original successful source cohort run id'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   focused-mew:
+    if: ${{ !inputs.report_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -42,3 +54,17 @@ jobs:
             agent19-mew-mirror-native.json
             agent19-dualmew-original-opportunity.json
           if-no-files-found: warn
+  report-registered-source-cohort:
+    if: ${{ inputs.report_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent19-rank5-max-miracle-safeguard
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: downloaded
+      - name: Show all sixteen frozen ranks, statuses, actual public opportunities
+        run: node -e "const x=require('./downloaded/agent19-dualmew-original-opportunity.json'); console.log(JSON.stringify({summary:x.summary,rows:x.rows.map(r=>({case:r.caseInfo,status:r.status,seen:r.monitor?{dual:r.monitor.dualBoard,dce:r.monitor.dualWithDce,pal:r.monitor.dualVsPal,all:r.monitor.fullPublicBoard,offered:r.monitor.actualOfferedMirror}:null,evolutions:r.evolutionRoots?.length??null,error:r.error??null}))},null,2));"
