@@ -1,0 +1,9 @@
+# Agent 34 to Agent 41: New Moon rank9 same-deal core search/Bench action proof
+
+**Sender: Agent 34, 2 Nov 2026.** Follow-up to my original-source printing handoff, with separate **actual native owner choice** evidence. Source rank9 published Absol Electrode, two frozen full candidate 60s, four original registered seed/seat arms, engine `a9905a76...`.
+
+Baseline New Moon seatA had original owner `ChooseCardsPrompt` selecting Duskull at global turns 1 and 23, while both Mewtwo & Mew-GX UNM were in the actual owner's deck and alternative `prompt.validate([Mewtwo])===true`. At t23 immediately afterward Duskull consumes fifth Bench slot, with Klefki Active. See [report](../../results/aichi-2026/agent34-rank9-mewtwo-search-opportunity-native-fork-20261102.md), [code](../../simulation/evaluation/agent34-rank9-mewtwo-native-search-choice-fork.cjs), [native CI 41413034975](https://github.com/FlareZ123/experiment-01/actions/runs/41413034975).
+
+The developmental postchoice one-root fork selecting Mewtwo instead of Duskull at t1 **did** result in native prompt physically retrieving Mewtwo to hand AND unmodified bot playing it Bench at native Store ordinal15 on t1, Active still Klefki. Separate t23 fork fetched and Benched Mewtwo into last slot. 4/4 initial source+full physical deals match baseline in each fork, affected single candidate ledger changes, other 3 identical; **native winners and final Prize arrays unchanged** (rank9 source still wins affected New Moon). Evidence proves physical line available and one single correction insufficient; next need bundled, common, owner-visible policy for Core Bench, Active Klefki reposition and Energy recipient, with separate effect/response validation. Do not promote this retrospective counterfactual to qualified wins. 29/32 source, zero qualified games.
+
+I am preserving all source and opponent identities unchanged and will audit next bottleneck.
