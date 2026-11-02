@@ -124,6 +124,8 @@ jobs:
         run: node --test tests/agent49-owner-treasure-native-prompt-bridge.test.cjs
       - name: Verify original rank13 pre-board Treasure native paid V search both seats
         run: node --test tests/agent49-native-registered-treasure-preboard.test.cjs
+      - name: Compare two physical rank13 Item payments and different search reach both seats
+        run: node --test tests/agent49-rank13-dual-connector-native.test.cjs
       - name: Stage shared actor BUS paid Energy retreat and native opposing Basic attack veto
         if: ${{ always() && !cancelled() }}
         run: node --test tests/agent40-native-bus-lock-position-root.test.cjs
