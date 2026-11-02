@@ -34,6 +34,15 @@ function rank9BombOwnerSnapshot(state,seat,energySuperType){
     !/(?:-GX|-EX)(?:\s|$)/.test(x.printing));
   const discardedEnergy=owner.discard.cards.filter(card=>
     card.superType===energySuperType);
+  const hand=owner.hand.cards;
+  const held=(name)=>hand.filter(card=>
+    (card.fullName??card.name??'').startsWith(name+' ')).length;
+  const heldDiscardConnectors={
+    battleCompressor:held('Battle Compressor'),
+    ultraBall:held('Ultra Ball'),secretBox:held('Secret Box')
+  };
+  const heldEnergyPrintings=hand.filter(card=>
+    card.superType===energySuperType).map(card=>card.fullName??card.name);
   const opponentPrizes=opposing.getPrizeLeft();
   return {
     globalTurn:state.turn,ownerSeat:seat,ownerPrizes:owner.getPrizeLeft(),
@@ -41,6 +50,8 @@ function rank9BombOwnerSnapshot(state,seat,energySuperType){
     electrodeLocations:electrode.map(x=>x.location),
     discardedEnergyPrintings:discardedEnergy.map(x=>x.fullName??x.name),
     discardedEnergyCount:discardedEnergy.length,
+    heldDiscardConnectors,heldEnergyPrintings,
+    ownerHandSize:hand.length,ownerDeckCount:owner.deck.cards.length,
     anyEnergyInDiscard:discardedEnergy.length>0,
     atLeastFiveEnergyCardsInDiscard:discardedEnergy.length>=5,
     eligibleRecipientLocations:possibleTargets.map(x=>x.location),
