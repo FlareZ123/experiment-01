@@ -63,6 +63,8 @@ jobs:
         run: node simulation/evaluation/agent27-natural-lastbench-development.cjs > agent27-natural-lastbench-source.json
       - name: Same original-deal selected late final Bench native fork
         run: node simulation/evaluation/agent27-source-dealt-finalbench-bothseat-fork.cjs > agent27-finalbench-sourcefork.json
+      - name: Prospective bounded early owner last Bench source-deal census
+        run: node simulation/evaluation/agent27-early-finalbench-field-scan.cjs > agent27-early-finalbench-source.json
       - name: Preserve controls, observed game evidence and every failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,5 +77,6 @@ jobs:
             agent7-rank30-rondo-observe.json
             agent27-natural-lastbench-source.json
             agent27-finalbench-sourcefork.json
+            agent27-early-finalbench-source.json
           if-no-files-found: warn
           retention-days: 10
