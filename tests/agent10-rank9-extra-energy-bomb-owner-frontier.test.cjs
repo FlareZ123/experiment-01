@@ -17,11 +17,15 @@ function state(sourceSeat=1){
     discard:{cards:[{fullName:'Darkness Energy MEE',superType:'Energy'},
       {fullName:'Battle VIP Pass FST',superType:'Trainer'}]},
     getPrizeLeft(){return 5;},
-    hand:{cards:[{fullName:'Secret Box TWM'}]}
+    hand:{cards:[{fullName:'Secret Box TWM'},
+      {fullName:'Ultra Ball MEG'},
+      {fullName:'Prism Energy ASC',superType:'Energy'}]},
+    deck:{cards:[]}
   };
   const opp={
     active:slot('Klefki SVI'),bench:[],discard:{cards:[]},
-    getPrizeLeft(){return 4;},hand:{cards:[{fullName:'private hidden card'}]}
+    getPrizeLeft(){return 4;},hand:{cards:[{fullName:'private hidden card'}]},
+    deck:{cards:[]}
   };
   const players=sourceSeat===1?[opp,own]:[own,opp];
   return {players,activePlayer:sourceSeat,turn:6,prompts:[]};
@@ -40,6 +44,9 @@ test('owner CES Electrode discard and ex recipients are physical resource flags'
   const o=rank9BombOwnerSnapshot(s,1,'Energy');
   assert.equal(o.sourceHasElectrode,true);
   assert.equal(o.discardedEnergyCount,1);
+  assert.equal(o.heldDiscardConnectors.ultraBall,1);
+  assert.equal(o.heldDiscardConnectors.secretBox,1);
+  assert.deepEqual(o.heldEnergyPrintings,['Prism Energy ASC']);
   assert.equal(o.atLeastFiveEnergyCardsInDiscard,false);
   assert.equal(o.eligibleMegaAbsolEx,true);
   assert.ok(o.eligibleRecipientPrintings.includes('Mega Absol ex M1L'));
