@@ -1,0 +1,89 @@
+{
+  "schema": "agent16-original-rank16-bothseat-natural-opening-source-v1",
+  "registeredAtUtc": "2026-11-02T19:12:00Z",
+  "purpose": "Prospective eight unreselected exact original rank16 source physical seeds with candidate-matched champion and New Moon arms; diagnose naturally selected Budew attack versus Tool-Trubbish Boost Shake without rank16 source overrides.",
+  "scope": "source participant going second counted separately using actual accepted native first-turn Store evidence, not guessed from physical seat; all non-opportunities/errors/aborts retained",
+  "rank": 16,
+  "sourcePrinted60": "results/aichi-2026/full-decklists.json",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourcePlayer": "Takumi Matsumoto",
+  "sourceArchetype": "Absol Garbodor",
+  "policyProfile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "policyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "policyMode": "same actor-only two-seat developmental policy; no rank16 source line hard-coded, both candidates receive exactly the same source printed opponent",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedProtocol": "aichi-decorrelated-slots-v3",
+  "phase": "published-field",
+  "seedBase": 968617787,
+  "seedDerivation": "hashSlotSeed(seedBase,'published-field',16,repeat,candidateSlot,0) SHA256 JSON label first uint32LE; no simulated outcome inspected before registration",
+  "sourceGroups": 8,
+  "plannedNativeAttempts": 16,
+  "seeds": [
+    {
+      "rank": 16,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 726622150
+    },
+    {
+      "rank": 16,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3440240299
+    },
+    {
+      "rank": 16,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 1076041593
+    },
+    {
+      "rank": 16,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 148624283
+    },
+    {
+      "rank": 16,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "seed": 1832484461
+    },
+    {
+      "rank": 16,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "seed": 3678493713
+    },
+    {
+      "rank": 16,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "seed": 1562045160
+    },
+    {
+      "rank": 16,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "seed": 139426191
+    }
+  ],
+  "maxNativeRootActions": 260,
+  "requiredOutcomes": [
+    "actual accepted initial first-player and first-draw receipt",
+    "original source printed 60 preservation and source-zone integrity",
+    "initial source Budew/Trubbish/FloatStone/BoostShake owner visibility when available",
+    "all source first-own-turn native roots and prompt-verified action",
+    "post-BoostShake/ItchyPollen opposing root when actually completed",
+    "all aborts, missing information, action caps and errors retained"
+  ],
+  "preregisteredNonselective": true,
+  "selectionAfterInspectingOutcomes": false,
+  "competitiveGameQualified": false,
+  "winRateCertified": false,
+  "limitation": "Prospectively fixed tiny exploratory source-deal panel; probabilities and policy competence need much larger independently sampled cohorts, complete paper card effects and full end-to-end clock validation. No original rank16 opponent policy is known to be optimal."
+}
