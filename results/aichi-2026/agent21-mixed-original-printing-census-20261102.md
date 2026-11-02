@@ -37,3 +37,12 @@ A root labeled simply Vileplume, Trubbish or Dusknoir is insufficient to identif
 - No new workflows, candidate changes, native engine changes, or invented opponents.
 
 **Boundary:** the original source denominator is still **29/32** with ranks 23, 25 and 28 missing. **Zero competitively qualified games**, no validated strongest fixed 60, and no demonstrated 99.5% win rate.
+
+
+## Supplemental source metadata guard: reused PTCGO set codes
+
+A second source-level hazard was found while extending the exact-print resolver across source ranks. The bundled English sets metadata contains **nine** PTCGO codes reused between a main set and a companion subset: HIF, SHF, CEL, BRS, ASR, LOR, SIT, CRZ and 30C. A naive one-to-one map from code to the last set ID selects, for example, the Lost Origin Trainer Gallery instead of Lost Origin main. The source original **Pikachu LOR 52** is in the main set, while the distinct **Pikachu LOR TG05** exists in the Trainer Gallery subset. The naive resolver incorrectly failed when asked for LOR 52; it had not affected the five within-deck collision cases reported above.
+
+Across all 29 original sixties, **76 manifest rows representing 142 physical copies** reference one of the five used ambiguous codes (BRS 1, ASR 53, LOR 12, SIT 75, CRZ 1 copies). These are counts of card records needing correctly disambiguated metadata lookup, **not observed native engine failures**. No conclusion about the repository's established CardManager or deck importer follows from this local auxiliary resolver defect.
+
+Fixed the [census resolver](../../scripts/agent21-mixed-original-printing-census.cjs) to search all set-ID candidates with the requested code, collector number and, where available, the expected card name; zero or multiple matches now fail closed. Added explicit LOR main-set Pikachu 52 and Gallery Pikachu TG05 tests to the [same four-test regression](../../tests/agent21-mixed-original-printing-census.test.cjs). Updated script blob 448b8a1e8e2182dce4f2ab846923a31443bf0555, test blob d53f9f89b81bcde37c25d1a3ea2e81aea683b882. Re-executed the exact source/tests under V8 with the actual 15 fetched repository files and read-only Node shims: **4/4 passed**. Native Node CI and native game remained unrun.
