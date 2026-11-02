@@ -63,6 +63,22 @@ function preflight(){
   return {profile,registration};
 }
 
+/**
+ * Classify the actual outcome of a native development attempt using the
+ * complete settled row. These are engine dispositions, never competitive wins.
+ * A native abort has a raw error or raw status; preserve its precise reason.
+ * @param {object} row Retained raw native development row.
+ * @returns {'ENGINE_TERMINAL_UNQUALIFIED'|'CENSORED'|'NATIVE_ERROR'|'UNVERIFIED'}
+ */
+function nativeDevelopmentDisposition(row){
+  if(row.error!=null||row.status!=null)return 'NATIVE_ERROR';
+  if(row.finished===true&&row.endReason==='engine-game-end')
+    return 'ENGINE_TERMINAL_UNQUALIFIED';
+  if(row.finished===false&&row.endReason==='action-limit')
+    return 'CENSORED';
+  return 'UNVERIFIED';
+}
+
 /** @param {object} row Retained raw native development row. */
 function sourceWitness(row){
   const sourceSeat=row.trial?.candidateSlot==='A'?1:0;
@@ -76,7 +92,13 @@ function sourceWitness(row){
     sourceSeat,
     actualSourceDealFingerprint:row.sourceDealFingerprint??null,
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
-    status:row.status??'UNVERIFIED',
+    status:nativeDevelopmentDisposition(row),
+    nativeRawStatus:row.status??null,
+    nativeFinished:row.finished??null,
+    nativeEndReason:row.endReason??null,
+    nativeActionCount:row.actionCount??null,
+    nativeWinnerUnqualified:row.finished===true&&
+      row.endReason==='engine-game-end'?row.winner??null:null,
     nativeError:row.error??null,
     originalSourceAttackDeclarations:row.attackDeclarations?.source??null,
     sourceMewVMAXPlayRoots:acceptedSourceMewVMAX.map(x=>({
@@ -186,4 +208,4 @@ if(require.main===module){
 }
 
 module.exports={VERSION,PROFILE_BLOB,REGISTRATION_BLOB,preflight,
-  sourceWitness,physicalPairStatus,runRelease};
+  nativeDevelopmentDisposition,sourceWitness,physicalPairStatus,runRelease};
