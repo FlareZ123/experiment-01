@@ -144,3 +144,21 @@ test('canonical actor root leaves the rank9 tactical alternative default off',()
   assert.equal(treatment.kind,'play-guzma-forced-nominal-ko');
   assert.equal(treatment.planFamily,'rank9-special-funded-weakness-guzma');
 });
+
+test('read-only original-owner exposure census distinguishes full public affordance from a missing target',()=>{
+  const {classifyRank9PublicOpportunity}=require(
+    '../simulation/evaluation/agent2-rank9-guzma-exposure-native.cjs');
+  const v=board();
+  const full=classifyRank9PublicOpportunity(v,catalog);
+  assert.equal(full.heldGuzma,true);
+  assert.equal(full.megaOnBench,true);
+  assert.equal(full.specialOnMega,true);
+  assert.equal(full.clawPubliclyPayable,true);
+  assert.equal(full.targetDarkWeakness,true);
+  assert.equal(full.fullNominalProposal,true);
+  v.opponentPublic.bench[2]=null;
+  const missing=classifyRank9PublicOpportunity(v,catalog);
+  assert.equal(missing.heldGuzma,true);
+  assert.equal(missing.trevDusknoirOnOpponentBench,false);
+  assert.equal(missing.fullNominalProposal,false);
+});
