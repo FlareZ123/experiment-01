@@ -37,7 +37,7 @@ test('native paid singleton defeats the root duplicate-affordability intent', ()
 
 test('physically paying a repeated other printing fulfills the narrow contract', () => {
   const result = auditQuickBallPayment(nativeEvent('Double Colorless Energy SUM'));
-  assert.equal(result.status, 'PROTECTED_DUPLICATE_PAYMENT');
+  assert.equal(result.status, 'DUPLICATE_PRINTING_PAYMENT');
   assert.equal(result.paidCopiesBefore, 2);
   assert.equal(result.paidCopiesAfter, 1);
 });
