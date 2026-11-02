@@ -197,8 +197,19 @@ function sourceBunnelbyBot(x){
 }
 
 /** @param {0|1} seat */
-function verify(seat){
+function verify(seat,opponentGuzma=false){
   const x=staged(seat);
+  if(opponentGuzma){
+    // The original rank1 60 supplies a second copy of the same Basic from
+    // its initially dealt source hand. Move rather than fabricate a card.
+    const index=x.opponent.hand.cards.findIndex(card=>
+      card.fullName==='Shadow Rider Calyrex V CRE');
+    assert.ok(index>=0);
+    const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+    const slot=new PokemonCardList();
+    slot.cards.push(x.opponent.hand.cards.splice(index,1)[0]);
+    x.opponent.bench.push(slot);
+  }
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {AttackAction,PassTurnAction}=
@@ -255,6 +266,64 @@ function verify(seat){
   assert.equal(x.owner.hand.cards.filter(card=>card.fullName===JET).length,1);
   assert.ok(x.opponent.hand.cards.includes(x.heldGuzma));
 
+  if(opponentGuzma){
+    const {ResolvePromptAction}=
+      native('game/store/actions/resolve-prompt-action');
+    const {GameMessage}=native('game/game-message');
+    const before=x.owner.active.getPokemonCard()?.fullName;
+    assert.equal(before,'Bunnelby PRC');
+    const idx=x.opponent.hand.cards.indexOf(x.heldGuzma);
+    assert.ok(idx>=0);
+    x.f.store.dispatch(new PlayCardAction(x.opponent.id,idx,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const responses=[];
+    for(let n=0;n<16;n++){
+      const pending=x.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      assert.equal(pending.playerId,x.opponent.id,
+        'Guzma decisions belong to original source opponent');
+      if(pending.constructor.name==='WaitPrompt'){
+        x.f.store.dispatch(new ResolvePromptAction(pending.id,null));
+        responses.push('WaitPrompt');
+        continue;
+      }
+      assert.equal(pending.constructor.name,'ChoosePokemonPrompt');
+      const toGust=pending.message===GameMessage.CHOOSE_POKEMON_TO_SWITCH;
+      const toPromote=pending.message===GameMessage.CHOOSE_NEW_ACTIVE_POKEMON;
+      assert.ok(toGust||toPromote,
+        'Native original Guzma must request targeted gust and own promotion');
+      const chosen=toGust?
+        x.owner.bench.find(slot=>
+          slot.getPokemonCard()?.fullName==='Exeggutor PLF'):
+        x.opponent.bench.find(slot=>
+          slot.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE');
+      assert.ok(chosen);
+      assert.ok(pending.validate([chosen],x.state),
+        'Native prompt target is legal and belongs to correct board');
+      x.f.store.dispatch(new ResolvePromptAction(pending.id,[chosen]));
+      responses.push(toGust?'Gust Exeggutor':'Promote source Shadow Rider');
+    }
+    assert.equal(x.f.store.hasPrompts(),false);
+    assert.ok(responses.includes('Gust Exeggutor'));
+    assert.ok(responses.includes('Promote source Shadow Rider'));
+    assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
+    assert.notEqual(x.opponent.cannotPlaySupporterCards,true);
+    assert.equal(x.opponent.hand.cards.includes(x.heldGuzma),false);
+    console.log('AGENT40_BLOCKADE_EXPOSED_WINDOW_GUZMA',JSON.stringify({
+      seat,sourceRank:1,originalHeldSupporter:'Guzma BUS',
+      window:'opponent turn immediately after Bunnelby double TM',
+      actualOpponentSupporterAccepted:true,
+      originalOwnerBunnelbyBefore:before,
+      originalOwnerActiveAfter:x.owner.active.getPokemonCard()?.fullName,
+      gustPromptReceipts:responses,
+      blockerAtTime:'Vileplume AOR',
+      blockadeAlreadyActive:false,
+      competitiveQualifiedGames:0
+    }));
+    return;
+  }
+
   // The opponent has an actual ordinary action window before Exeggutor can
   // take Active and use its player-directed Supporter-lock attack.
   x.f.store.dispatch(new PassTurnAction(x.opponent.id));
@@ -272,18 +341,9 @@ function verify(seat){
   assert.equal(defaultJet,null,
     'Generic Jet policy preserves the paid one-Colorless Burrow');
   const directCandidate=chooseOwnerBlockadeContinuation(sourceView,x.catalog);
-  console.log('AGENT40_BLOCKADE_ROOT_DIAGNOSTIC',JSON.stringify({
-    seat,turn:sourceView.globalTurn,
-    active:sourceView.ownPublic.active,
-    bench:sourceView.ownPublic.bench,
-    hand:sourceView.ownHand,
-    quota:sourceView.ownTurnResources,
-    ownTurnRestrictions:sourceView.ownPublic.publicTurnRestrictions,
-    opponent:{deckCount:sourceView.opponentPublic.deckCount,
-      lock:sourceView.opponentPublic.publicTurnRestrictions.supporterPlayLocked,
-      stadium:sourceView.opponentPublic.stadium},
-    directCandidate
-  }));
+  assert.equal(directCandidate?.kind,'attach-special-energy',
+    'Printed numeric Colorless Blockade cost must be recognized by policy');
+
   const intent=chooseActorRootIntent(sourceView,x.catalog,{
     bunnelbyTmJetRoot:true,
     exeggutorBlockadeContinuation:true,
@@ -349,4 +409,6 @@ function verify(seat){
 for(const seat of [0,1]){
   test('native Bunnelby TM leads to later Exeggutor Blockade, seat '+seat,
     ()=>verify(seat));
+  test('original rank1 Guzma can gust Exeggutor during unblocked window, seat '+seat,
+    ()=>verify(seat,true));
 }
