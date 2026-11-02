@@ -48,7 +48,8 @@ function withStrandedFusionMewPassRetreat(execute,deps={}) {
   const pending = new WeakMap();
   const audit = {
     version:VERSION,developmentOnly:true,bothPhysicalSeats:true,
-    nativePassActionsSeen:0,eligibleOwnerOffers:0,
+    nativePassActionsSeen:0,ownerMatchedPassActions:0,
+    eligibleOwnerOffers:0,geometryNearMisses:0,geometryNearMissSamples:[],
     dispatchedRetreatActions:0,storeDispatchReturned:0,
     nativeSettledPromotions:0,pendingOrUnproven:0,storeRejections:0,
     records:[],competitiveQualified:false,
@@ -113,8 +114,35 @@ function withStrandedFusionMewPassRetreat(execute,deps={}) {
         const owner = s.players[seat];
         if(owner && (action.playerId === undefined ||
           owner.id === action.playerId)) {
+          audit.ownerMatchedPassActions++;
           const view = observation(s,seat);
+          const current = view?.ownPublic?.active;
+          const bench = view?.ownPublic?.bench??[];
+          const mewPowered = bench.some(p => p?.printing === 'Mew VMAX FST' &&
+            p.energies?.includes('Double Colorless Energy SUM'));
+          const donorPresent = bench.some(p => p?.printing === 'Genesect V FST');
+          const activeSupported = ['Dedenne GX UNB','Dedenne-GX UNB',
+            "Lillie's Clefairy ex JTG",'Genesect V FST']
+            .includes(current?.printing);
+          const onAxis = activeSupported &&
+            current.energies?.includes('Double Colorless Energy SUM') &&
+            mewPowered && donorPresent;
           const intent = selector(view,catalog);
+          if(onAxis && !intent) {
+            audit.geometryNearMisses++;
+            if(audit.geometryNearMissSamples.length < 14)
+              audit.geometryNearMissSamples.push({
+                seat,globalTurn:view.globalTurn,
+                activePrinting:current.printing,
+                actualPrintedRetreatCost:current.printed?.retreatCost,
+                activeEnergyPrintings:current.energies,
+                ownerRetreatedTurn:view.ownTurnResources?.retreatedTurn,
+                catalogColorless:catalog.colorlessEnergyType,
+                stadiums:[view.ownPublic?.stadium,view.opponentPublic?.stadium],
+                ownTurnAttackLock:view.ownPublic?.publicTurnRestrictions?.attackLockTurnsRemaining,
+                mewPowered,donorPresent
+              });
+          }
           if(intent) {
             audit.eligibleOwnerOffers++;
             assert.equal(intent.kind,'paid-retreat');
