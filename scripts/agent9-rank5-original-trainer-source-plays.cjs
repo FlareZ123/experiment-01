@@ -96,6 +96,9 @@ function auditSourceTrainerPlays(archive, family) {
     output.candidateFogCrystalAccepted += receipt.candidateFogCrystalAccepted;
     output.modes[name] = receipt;
   }
+  output.observedSourceTrainerPlays = output.observedSourcePlayCards -
+    Object.values(output.modes).reduce((n, mode) =>
+      n + mode.sourcePokemon + mode.sourceEnergy, 0);
   assert.equal(output.observedSourceUnclassified, 0,
     'Unknown original-source printed PlayCardAction requires manual class review');
   return output;
