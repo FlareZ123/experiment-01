@@ -281,3 +281,34 @@ for(const seat of [0,1]){
       JSON.stringify({seat,...payment,...attack,competitiveQualifiedGames:0}));
   });
 }
+
+/** Read the actual stock actor proposal after a fully legal, paid rank9 Bomb.
+ * This deliberately makes no claim of natural source setup reachability.
+ */
+for(const seat of [0,1]){
+  test('Read-only pinned stock actor after source-rank9 full modern ex payment seat '+seat,()=>{
+    const s=stage(seat);
+    activateAndPay(s);
+    const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+    const definitions=native('simple-bot/simple-bot-definitions');
+    const {BotFlipMode,BotShuffleMode}=native('game/bots/bot-arbiter');
+    const bot=new SimpleTacticsAi({id:s.owner.id},{
+      tactics:definitions.allSimpleTactics,
+      promptResolvers:definitions.allPromptResolvers,
+      scores:definitions.defaultStateScores,
+      arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+    },null);
+    assert.equal(s.state.prompts.some(p=>p.result===undefined),false);
+    const action=bot.decodeNextAction(s.state);
+    // The precise root is observational, not an assertion that the default
+    // scoring policy knows how to assemble the printed line unaided.
+    assert.ok(action && typeof action.type==='string');
+    console.log('AGENT29_RANK9_GENERIC_BOT_AFTER_BOMB_ROOT',JSON.stringify({
+      seat,type:action.type,attackName:action.name??null,
+      selectedAttack:action.type==='ATTACK_ACTION'&&
+        action.name==='Claw of Darkness',
+      fiveEnergyAlreadyPaid:true,opponentPrizesAfterBomb:4,
+      competitiveQualifiedGames:0
+    }));
+  });
+}
