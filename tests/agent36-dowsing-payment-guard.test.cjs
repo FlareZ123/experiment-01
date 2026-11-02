@@ -155,5 +155,77 @@ test('raw Store acceptance without actual card payment stays physically unverifi
   },{Store:UnpaidStore}).audit;
   assert.equal(audit.acceptedPayments,1);
   assert.equal(audit.settledPhysicalPayments,0);
+  assert.equal(audit.unsettledPhysicalPayments,0);
+  assert.equal(audit.unresolvedPhysicalPayments,1);
+});
+
+class DelayedPaymentStore extends FakeStore {
+  dispatch(action) {
+    this.nativeCalls++;
+    if(action?.constructor?.name!=='ResolvePromptAction')return true;
+    const prompt=this.state.prompts.find(p=>p.id===action.id);
+    prompt.result=action.result;
+    const owner=this.state.players.find(p=>p.id===prompt.playerId);
+    if(prompt.message==='CHOOSE_CARD_TO_DISCARD'){
+      this.state.stagedPayment=action.result;
+      const recovery=new ChooseCardsPrompt(61,owner);
+      recovery.message='CHOOSE_CARD_TO_HAND';
+      recovery.cards=owner.discard;
+      recovery.options={min:1,max:1};
+      this.state.prompts.push(recovery);
+    }else if(prompt.message==='CHOOSE_CARD_TO_HAND' &&
+             action.result.length===1){
+      for(const card of this.state.stagedPayment){
+        owner.hand.cards.splice(owner.hand.cards.indexOf(card),1);
+        owner.discard.cards.push(card);
+      }
+      const target=action.result[0];
+      owner.discard.cards.splice(owner.discard.cards.indexOf(target),1);
+      owner.hand.cards.push(target);
+    }
+    return true;
+  }
+}
+
+test('pinned-style delayed payment settles on target retrieval prompt, not the payment prompt',()=>{
+  const f=fixture(),target={fullName:'Battle VIP Pass FST'};
+  f.owner.hand.cards.shift();
+  f.owner.discard.cards.push(target);
+  f.state.prompts.push(new ChooseCardsPrompt(60,f.owner));
+  const audit=withDowsingMachinePaperPaymentGuard(()=>{
+    const store=new DelayedPaymentStore(f.state);
+    store.dispatch(new ResolvePromptAction(60,[f.one,f.two]));
+    // Native original Dowsing still holds both cards in hand here.
+    assert.deepEqual(f.owner.hand.cards,[f.one,f.two]);
+    assert.equal(f.owner.discard.cards.includes(f.one),false);
+    store.dispatch(new ResolvePromptAction(61,[target]));
+    // Later recovery is allowed: settlement is anchored to its actual step.
+    f.owner.discard.cards.splice(0,1);
+    f.owner.hand.cards.push(f.one);
+  },{Store:DelayedPaymentStore}).audit;
+  assert.equal(audit.acceptedPayments,1);
+  assert.equal(audit.settledPhysicalPayments,1);
+  assert.equal(audit.unsettledPhysicalPayments,0);
+  assert.equal(audit.unresolvedPhysicalPayments,0);
+  assert.equal(audit.sourceStampedPayments[0].closureDispatchType,'ResolvePromptAction');
+  assert.equal(audit.sourceStampedPayments[0].closureReason,'EXACT_PHYSICAL_COST_TRANSFER');
+});
+
+test('native target cancellation closes submitted Dowsing with unpaid paper cost',()=>{
+  const f=fixture(),target={fullName:'Battle VIP Pass FST'};
+  f.owner.hand.cards.shift();
+  f.owner.discard.cards.push(target);
+  f.state.prompts.push(new ChooseCardsPrompt(60,f.owner));
+  const audit=withDowsingMachinePaperPaymentGuard(()=>{
+    const store=new DelayedPaymentStore(f.state);
+    store.dispatch(new ResolvePromptAction(60,[f.one,f.two]));
+    store.dispatch(new ResolvePromptAction(61,[]));
+  },{Store:DelayedPaymentStore}).audit;
+  assert.equal(audit.acceptedPayments,1);
+  assert.equal(audit.settledPhysicalPayments,0);
   assert.equal(audit.unsettledPhysicalPayments,1);
+  assert.equal(audit.unresolvedPhysicalPayments,0);
+  assert.equal(audit.sourceStampedPayments[0].closureReason,
+    'RECOVERY_CLOSED_WITHOUT_PHYSICAL_COST');
+  assert.deepEqual(f.owner.hand.cards,[f.one,f.two]);
 });
