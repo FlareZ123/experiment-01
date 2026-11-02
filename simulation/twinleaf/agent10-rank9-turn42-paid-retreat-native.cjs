@@ -82,6 +82,11 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
         sameRealStoreState:state===root?.state,
         sourceActive:state.players[1]?.active.getPokemonCard()?.fullName??null,
         pendingCount:state.prompts?.filter(p=>p.result===undefined).length??null,
+        expectedPlayerTurnPhase:GamePhase.PLAYER_TURN,
+        selectedAlready:selected,
+        sourceActiveEnergy:state.players[1]?.active.energies.cards.map(c=>c.fullName)??[],
+        megaAbsolBenchEnergies:state.players[1]?.bench.find(slot=>
+          slot.getPokemonCard()?.fullName==='Mega Absol ex M1L')?.energies.cards.map(c=>c.fullName)??null,
         trial:stores.length-1
       });
     }
