@@ -21,6 +21,8 @@ const {withBunnelbyBarrageConsent}=
   require('../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
 const {choosePublicJetBenchSwitch}=
   require('../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs');
+const {chooseOwnerBlockadeContinuation}=
+  require('../simulation/twinleaf/agent40-owner-blockade-continuation.cjs');
 const {resolveManifestFile}=
   require('../simulation/twinleaf/resolve-field.cjs');
 const challenge=require('../results/als/agent18-exeggutor-vileplume-native-v2.json');
@@ -269,6 +271,19 @@ function verify(seat){
   const defaultJet=choosePublicJetBenchSwitch(sourceView,x.catalog);
   assert.equal(defaultJet,null,
     'Generic Jet policy preserves the paid one-Colorless Burrow');
+  const directCandidate=chooseOwnerBlockadeContinuation(sourceView,x.catalog);
+  console.log('AGENT40_BLOCKADE_ROOT_DIAGNOSTIC',JSON.stringify({
+    seat,turn:sourceView.globalTurn,
+    active:sourceView.ownPublic.active,
+    bench:sourceView.ownPublic.bench,
+    hand:sourceView.ownHand,
+    quota:sourceView.ownTurnResources,
+    ownTurnRestrictions:sourceView.ownPublic.publicTurnRestrictions,
+    opponent:{deckCount:sourceView.opponentPublic.deckCount,
+      lock:sourceView.opponentPublic.publicTurnRestrictions.supporterPlayLocked,
+      stadium:sourceView.opponentPublic.stadium},
+    directCandidate
+  }));
   const intent=chooseActorRootIntent(sourceView,x.catalog,{
     bunnelbyTmJetRoot:true,
     exeggutorBlockadeContinuation:true,
