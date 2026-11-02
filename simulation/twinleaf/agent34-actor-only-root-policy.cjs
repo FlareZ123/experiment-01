@@ -1005,6 +1005,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.ragingBoltNominalKoRootOptIn)
     audit.version+='+'+
       require('./agent50-raging-bolt-nominal-ko.cjs').VERSION;
+  if(audit.adpBoostedGxRootOptIn)
+    audit.version+='+'+
+      require('./agent28-adp-post-retreat-gx-window.cjs').VERSION;
   if(audit.knownDeadAttackRootOwnerSeat!==null)
     audit.version+='+candidate-only-seat-'+audit.knownDeadAttackRootOwnerSeat;
   if(audit.perfectionRootOptIn)
@@ -1177,6 +1180,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       busLockPositionRoot:audit.busLockPositionRootOptIn,
       ownRegisteredSixty:deps.ownRegisteredSixtiesBySeat?.[seat]??null,
       printedGxRoot:audit.printedGxRootOptIn,
+      adpBoostedGxRoot:audit.adpBoostedGxRootOptIn,
       printedFirstTurnAttackRoot:audit.printedFirstTurnAttackRootOptIn,
       potentialKoRoot:audit.potentialKoRootOptIn,
       ragingBoltNominalKoRoot:audit.ragingBoltNominalKoRootOptIn,
