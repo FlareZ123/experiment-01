@@ -51,7 +51,8 @@ def payable_after_vip(hand, in_play):
     """
     available = Counter(hand)
     assert available["Secret Box"] >= 1
-    assert available["Battle VIP Pass"] == 0
+    # The original deck contains two physical VIP copies: after spending
+    # one, another held VIP may legitimately pay the three-card Box cost.
     available["Secret Box"] -= 1
     searcher_payment = 0
     if not in_play["Trubbish"]:
@@ -90,7 +91,10 @@ def prove_commuted_box_first(hand, deck, vip_basic, payment):
     before = Counter(hand)
     chosen = Counter(payment)
     assert len(payment) == 3
-    assert not chosen["Secret Box"] and not chosen["Battle VIP Pass"]
+    assert not chosen["Secret Box"]
+    assert chosen["Battle VIP Pass"] < before["Battle VIP Pass"], (
+        "Reserve at least one physical VIP for the post-Box play"
+    )
     assert not chosen - before, "A payment card is absent before VIP"
     assert before["Secret Box"] and before["Battle VIP Pass"]
     assert deck[vip_basic] > 0, "The same Basic must remain searchable"
@@ -181,6 +185,8 @@ def measure(trials=200_000, seed=44_110_207):
                     hand, live, vip_target, payment
                 )
                 counts["box_first_postvip_same_payment_k1"] += 1
+                if "Battle VIP Pass" in payment:
+                    counts["commuted_boxfirst_discards_spare_vip"] += 1
                 if not keep_vip_box_k1:
                     counts["prior_boxfirst_planner_reservation_artifact"] += 1
                 if "Trubbish" in payment:
@@ -227,6 +233,7 @@ def measure(trials=200_000, seed=44_110_207):
                 "prior_boxfirst_planner_reservation_artifact",
                 "commuted_boxfirst_discarded_held_trubbish",
                 "commuted_boxfirst_discarded_basic_searcher",
+                "commuted_boxfirst_discards_spare_vip",
             ]},
             "box_k0_fraction_of_valid_openers": b / n,
             "vip_overlap_fraction_of_box_k0": v / b,
