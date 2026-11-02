@@ -11,6 +11,9 @@ function keyOf(card){
 /**
  * K0 pre-search exact probability that a two-card payment leaves at least
  * one copy of each paid printing in hand or unprized deck.
+ * A printed copy moved to the discard pile might later be recovered by
+ * card effects. Physical replacement risk does not model such recovery,
+ * strategic card value, evolving board zones or actual search access.
  *
  * @param {{inventory:object[],seen:string[],spent:string[],
  *   payment:string[],prizes?:number}} x
