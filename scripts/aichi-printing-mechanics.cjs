@@ -19,8 +19,14 @@ const fieldPath = path.resolve(__dirname,
 function compareMixedPrintings(field, root = resourceRoot) {
   const groups = analyzeIncidence(field).mixedPrintingNames;
   const sets = JSON.parse(fs.readFileSync(path.join(root,'sets','en.json'),'utf8'));
-  const codeToId = new Map(sets.filter(s=>s.ptcgoCode)
-    .map(s=>[s.ptcgoCode,s.id]));
+  // Main sets and companion subsets may share a PTCGO code. Collector
+  // numbers such as LOR 52 and LOR TG05 select different datasets.
+  const codeToIds = new Map();
+  for(const set of sets){
+    if(!set.ptcgoCode)continue;
+    if(!codeToIds.has(set.ptcgoCode))codeToIds.set(set.ptcgoCode,[]);
+    codeToIds.get(set.ptcgoCode).push(set.id);
+  }
   const cache = new Map();
 
   /** @param {string} setId */
@@ -42,11 +48,13 @@ function compareMixedPrintings(field, root = resourceRoot) {
       const number=String(row.printing?.number??'');
       assert.equal(row.printing?.language,'en',
         'Expected published English mapped printing');
-      const setId=codeToId.get(code);
-      assert.ok(setId,'Unknown source printing set: '+code);
-      const hits=cardsForSet(setId).filter(c=>String(c.number)===number);
+      const setIds=codeToIds.get(code)??[];
+      assert.ok(setIds.length,'Unknown source printing set: '+code);
+      const hits=setIds.flatMap(id=>cardsForSet(id).filter(c=>
+        String(c.number)===number&&c.name===row.name));
       assert.equal(hits.length,1,
-        'Expected exactly one printing for '+code+' '+number);
+        'Missing or ambiguous source printing '+code+' '+number+
+        ' '+row.name);
       const card=hits[0];
       assert.equal(card.name,row.name,
         'Aichi printing points to different named card');
