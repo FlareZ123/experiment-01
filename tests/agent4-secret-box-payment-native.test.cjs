@@ -105,7 +105,11 @@ test('native Secret Box illegal zero cost can expose all four searchable categor
     assert.equal(guarded.result.paymentSettled,false);
     assert.match(guarded.result.paymentError,
       /PAPER_SECRET_BOX_PAYMENT_INVALID:SECRET_BOX_REQUIRES_EXACTLY_THREE_OTHER_CARDS/);
-    assert.equal(guarded.result.boxInHand,true);
+    // Native root moves Item into transient custody before payment prompt;
+    // blocked reply must leave it unconsumed, with its prompt still pending.
+    assert.equal(guarded.result.boxInHand,false);
+    assert.equal(guarded.result.boxInDiscard,false);
+    assert.deepEqual(guarded.result.pendingPrompts,['ChooseCardsPrompt']);
     assert.equal(guarded.result.targetLocations.every(x=>x.inDeck===true),true);
     assert.equal(guarded.audit.vetoedPayments,1);
   }
