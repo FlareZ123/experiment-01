@@ -675,6 +675,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureEarlyRegistered===true,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
+    quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
     regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
     regidragoDonorQuickBallOwnerSeat:
       deps.regidragoDonorQuickBallOwnerSeat??null,
@@ -1163,7 +1164,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
-      quickBallRoot:audit.quickBallRootOptIn,
+      quickBallRoot:actorSpecialEnergyEnabled(
+        audit.quickBallRootOptIn,audit.quickBallRootOwnerSeat,seat),
       regidragoDonorQuickBallRoot:actorSpecialEnergyEnabled(
         audit.regidragoDonorQuickBallRootOptIn,
         audit.regidragoDonorQuickBallOwnerSeat,seat),
