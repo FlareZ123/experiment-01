@@ -233,6 +233,33 @@ function withPostgameRootOrderProbe(
         }
         const captureAtScore=()=>{
           if(pending)return;
+          // Opt-in diagnostic: the exact decision-entry physical snapshot has
+          // already been authenticated. Omit the redundant score-time deep
+          // clone while the *real* decision RNG tape is being recorded.
+          // A mutation before first score remains explicitly reported.
+          if(target.nativeTapeEntryOnly===true){
+            const owner=state.players.find(player=>player.id===actorId);
+            assert.ok(nativeEntry?.state&&nativeEntry.options,
+              'Entry-only scored audit requires a full native entry capture');
+            pending={
+              state:null,options:null,captureError:null,
+              sourceCaptureFidelity:null,
+              sourceStateChangedBeforeFirstScore:
+                decisionStartFingerprint.digest!==
+                  stateGraphFingerprint(state).digest,
+              ownerRootVisible:{
+                turn:state.turn,
+                ownHandPrintings:owner?.hand?.cards?.map(card=>
+                  card.fullName??null)??null,
+                ownActivePrinting:
+                  owner?.active?.getPokemonCard?.()?.fullName??null,
+                energyPlayedTurn:owner?.energyPlayedTurn??null,
+                supporterPlayedTurn:owner?.supporterTurn??null,
+                stadiumPlayedTurn:owner?.stadiumPlayedTurn??null
+              }
+            };
+            return;
+          }
           let snapshot=null,options=null,captureError=null;
           let sourceCaptureFidelity=null;
           try {
