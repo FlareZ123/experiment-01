@@ -88,7 +88,7 @@ function activeThornsOpenWorldEnvelope(manifest,failedSevens,activeName){
   return {
     version:VERSION,activeName,
     evidence:'public Active plus public failed Basic-free sevens',
-    forcedKnownRanks,
+    forcedKnownRanks:forcedRanks,
     knownOriginals:29,unknownOriginals:3,
     unknownOriginalRanks:[23,25,28],
     knownForcedThornsTotalLikelihood:knownMass,
