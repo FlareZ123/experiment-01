@@ -1,0 +1,43 @@
+name: Agent31 prospective rank1 native Guzma public Bench funding census
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank1-prospective-guzma:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate source-owned observer unit contract
+        run: node --test tests/agent31-guzma-public-obstacle-audit.test.cjs
+      - name: Install exact pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify immutable rank1 original 60, eight random groups and actual engine pin
+        run: node simulation/evaluation/agent31-rank1-prospective-guzma-obstacles.cjs --inspect-only
+      - name: Replay 16 prospective deals twice with only read-only census toggle
+        env:
+          AGENT31_RANK1_GUZMA_OUTPUT: ${{ runner.temp }}/agent31-rank1-prospective-guzma-census.json
+        run: node simulation/evaluation/agent31-rank1-prospective-guzma-obstacles.cjs
+      - name: Preserve all native receipts, failure arms and census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank1-original-prospective-guzma-census-32replays
+          path: ${{ runner.temp }}/agent31-rank1-prospective-guzma-census.json
+          if-no-files-found: warn
+          retention-days: 30
