@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const {classifyNativeAttempt}=
   require('../simulation/evaluation/agent13-v3-rank5-original-release.cjs');
 
-const VERSION='agent37-original-rank5-native-zero-attack-frontier-v1';
+const VERSION='agent37-original-rank5-native-zero-attack-frontier-v2';
 
 /**
  * Read only actual public, post-dispatch roots. A missing root does not prove
