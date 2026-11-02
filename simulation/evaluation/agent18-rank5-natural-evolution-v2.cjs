@@ -1,10 +1,17 @@
 'use strict';
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {gitBlobHash}=require('./agent42-strict-profile-preflight.cjs');
 const {run,preflight,profile:baseline}=require('./agent18-rank5-selected-canary.cjs');
 const selected=require('./agent18-rank5-natural-evolution-v2.json');
 
 /** Verify one and only one selected option changes on the same known physical deals. */
 function pairedPreflight(){
+  assert.equal(gitBlobHash(fs.readFileSync(path.join(__dirname,
+    'agent18-rank5-natural-evolution-v2.cjs'))),
+  selected.selectedV2EntrypointGitBlobSha,
+  'Retrospective treatment entrypoint changed without re-registering');
   const frozen=preflight(undefined,{},baseline);
   const experimental=preflight(undefined,{},selected);
   assert.deepEqual(experimental.trials,frozen.trials,
