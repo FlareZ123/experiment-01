@@ -39,6 +39,9 @@ jobs:
       - name: Regress public mixed-Energy paid-retreat proposal without auto-selection
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-actor-mixed-energy-retreat-proposal.test.cjs
+      - name: Verify reversible Active Tool Jammer ToolEffect blocker
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-tool-jammer-tool-effect-guard.test.cjs
       - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
@@ -84,6 +87,19 @@ jobs:
         with:
           name: agent6-tool-jammer-floatstone-native-repair
           path: agent6-tool-jammer-repair.json
+          if-no-files-found: warn
+          retention-days: 15
+      - name: Test generic ToolEffect-level Active Jammer repair in real Store
+        if: always() && inputs.agent6_rank30_rondo
+        env:
+          AGENT6_TOOL_JAMMER_EFFECT_REPAIR_DEV: 'true'
+        run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-tool-jammer-effect-repair.json
+      - name: Archive generic ToolEffect repair receipts
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-tool-jammer-effect-native-repair
+          path: agent6-tool-jammer-effect-repair.json
           if-no-files-found: warn
           retention-days: 15
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
