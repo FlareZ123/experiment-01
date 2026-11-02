@@ -150,3 +150,33 @@ test('multiple Supporter physical printings require explicit modeling',()=>{
     basicName:'Basic',supporterName:'Plumeria'
   }),/single physical Supporter printing/);
 });
+
+test('two distinct 3-plus-copy Trainer printings, exact rank6 frontier',()=>{
+  const seven=rank6EarlyHands(7),eight=rank6EarlyHands(8);
+  assert.equal(seven.distinctHighMultiplicityTrainerWeighted,'19656896');
+  assert.equal(eight.distinctHighMultiplicityTrainerWeighted,'1515148036');
+  assert.ok(Math.abs(seven.distinctHighMultiplicityTrainerRate-
+    0.35003664746562656)<1e-12);
+  assert.ok(Math.abs(eight.distinctHighMultiplicityTrainerRate-
+    0.4497542491984025)<1e-12);
+});
+
+test('distinct high-multiplicity pair matches independent toy enumeration',()=>{
+  const physical=['Basic','Basic',
+    'Plumeria','Plumeria','Plumeria','Filler','Filler','Filler'];
+  const cards=[{name:'Basic',count:2,category:'Pokémon'},
+    {name:'Plumeria',count:3,category:'Trainer'},
+    {name:'Filler',count:3,category:'Trainer'}];
+  let valid=0n;
+  for(const seen of subsets([...physical.keys()],5)){
+    for(const opener of subsets(seen,3)){
+      if(!opener.some(i=>physical[i]==='Basic'))continue;
+      const hand=seen.map(i=>physical[i]);
+      if(hand.filter(x=>x==='Plumeria').length>=2&&
+        hand.includes('Filler'))valid++;
+    }
+  }
+  const counted=countEarlyHands({cards,observedSize:5,openingSize:3,
+    basicName:'Basic',supporterName:'Plumeria'});
+  assert.equal(counted.distinctHighMultiplicityTrainerWeighted,String(valid));
+});
