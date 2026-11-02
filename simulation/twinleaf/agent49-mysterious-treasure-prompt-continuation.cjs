@@ -87,6 +87,11 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
         selection=prompt.cards.cards.find(card=>card.name==='Regidrago VSTAR'&&
           prompt.validate([card],state)===true);
       }
+      if(!selection&&!inPlay.includes('Regidrago V')&&
+         !inPlay.includes('Regidrago VSTAR')){
+        selection=prompt.cards.cards.find(card=>card.name==='Regidrago V'&&
+          prompt.validate([card],state)===true);
+      }
       if(!selection){
         selection=prompt.cards.cards.find(card=>
           (catalog?.dragonPokemonPrintings?.has(card.fullName)||
