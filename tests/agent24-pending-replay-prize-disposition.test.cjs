@@ -2,8 +2,10 @@
 
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
-  require('../simulation/evaluation/agent24-pending-replay-prize-disposition.cjs');
+const {
+  projectPendingReplayPrizes,projectPendingOrdinaryPrizes,
+  compareNativePendingPrizeWinner
+}=require('../simulation/evaluation/agent24-pending-replay-prize-disposition.cjs');
 
 /** @param {object[]} koEntitlements @param {object} [extra] */
 function project(koEntitlements,extra={}){
@@ -112,5 +114,63 @@ test('missing settled KO proof and non-engine native terminals are not promoted'
   ]){
     assert.match(r.status,/UNVERIFIED$/);
     assert.equal(r.paperGameOutcomeQualified,false);
+  }
+});
+
+/**
+ * @param {object[]} receipts
+ * @param {object} [extra]
+ * @returns {object} Ordinary source-owner Prize-only projection.
+ */
+function projectOrdinary(receipts,extra={}){
+  return projectPendingOrdinaryPrizes({
+    authenticatedOrdinaryEpoch:true,
+    singleSettledResolutionBatch:true,
+    physicalRemaining:[2,2],
+    koEntitlements:receipts,...extra
+  });
+}
+
+test('ordinary simultaneous two-Prize KOs at 2/2 project both Prizes empty',()=>{
+  const p=projectOrdinary([ko(0,2),ko(1,2)]);
+  assert.equal(p.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
+  assert.deepEqual(p.pendingPrizesByClaimant,[2,2]);
+  assert.deepEqual(p.projectedRemainingPrizes,[0,0]);
+  assert.equal(p.projectedBothPrizeEmpty,true);
+  assert.equal(p.projectedLeaderSeat,null);
+  const n=compare(p,0);
+  assert.equal(n.status,'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
+  assert.equal(n.paperGameOutcomeQualified,false);
+  assert.equal(n.competingWinConditionsExcluded,false);
+});
+
+test('ordinary unilateral final Prize still has a strict projected leader',()=>{
+  const p=projectOrdinary([ko(0,2)]);
+  assert.deepEqual(p.projectedRemainingPrizes,[2,0]);
+  assert.equal(p.projectedLeaderSeat,1);
+  assert.equal(p.projectedBothPrizeEmpty,false);
+  assert.equal(compare(p,1).status,
+    'NATIVE_WINNER_MATCHES_PENDING_PRIZE_LEAD');
+});
+
+test('ordinary Prize gate cannot be passed with a replay epoch declaration',()=>{
+  const p=projectOrdinary([ko(0,2)],{
+    authenticatedOrdinaryEpoch:false,authenticatedReplayEpoch:true
+  });
+  assert.equal(p.status,'KO_RESOLUTION_EPOCH_UNVERIFIED');
+  assert.equal(compare(p,1).status,'PENDING_PRIZE_PROJECTION_UNVERIFIED');
+  assert.equal(p.paperGameOutcomeQualified,false);
+});
+
+test('ordinary Prize projection still rejects partial or exceptional receipts',()=>{
+  for(const extra of [
+    {singleSettledResolutionBatch:false},
+    {physicalRemaining:[2,-1]},
+    {koEntitlements:[{...ko(0,2),preventDefault:true}]},
+    {koEntitlements:[{...ko(0,2),alternatePrizeDestination:true}]}
+  ]){
+    const p=projectOrdinary([ko(0,2),ko(1,2)],extra);
+    assert.match(p.status,/UNVERIFIED$/);
+    assert.equal(p.paperGameOutcomeQualified,false);
   }
 });
