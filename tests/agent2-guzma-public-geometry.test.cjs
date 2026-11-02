@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const test=require('node:test');
-const {guzmaRecipientGeometry}=
+const {guzmaRecipientGeometry,guzmaBenchInvestment}=
   require('../simulation/evaluation/agent43-guzma-held-root-retrospective.cjs');
 
 const sample=(own,opponent)=>({
@@ -31,4 +31,28 @@ test('missing board data is unverified rather than assumed playable',()=>{
   }}),'geometry-unobserved');
   assert.equal(guzmaRecipientGeometry(sample(-1,1)),
     'geometry-unobserved');
+});
+
+test('Invested Bench evidence is not equated with payable attacks',()=>{
+  const e=sample(2,3);
+  assert.equal(guzmaBenchInvestment(e),'investment-unobserved');
+  const p=e.publicGuzmaGeometry;
+  p.ownActiveEnergyCards=2;
+  p.ownBenchedEnergyCards=0;
+  p.ownBenchedPokemonWithEnergy=0;
+  assert.equal(guzmaBenchInvestment(e),'both-no-benched-energy');
+  p.ownBenchedPokemonWithEnergy=1;
+  p.ownBenchedEnergyCards=1;
+  assert.equal(guzmaBenchInvestment(e),
+    'both-bench-cards-fewer-than-active');
+  p.ownBenchedEnergyCards=2;
+  assert.equal(guzmaBenchInvestment(e),
+    'both-bench-cards-at-least-active');
+  p.ownActiveEnergyCards=1;
+  assert.equal(guzmaBenchInvestment(e),
+    'both-bench-cards-at-least-active');
+  p.opponentBenchCount=0;
+  assert.equal(guzmaBenchInvestment(e),'not-both-benches');
+  p.ownBenchedEnergyCards=-1;
+  assert.equal(guzmaBenchInvestment(e),'investment-unobserved');
 });
