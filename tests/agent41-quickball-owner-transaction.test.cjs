@@ -120,3 +120,11 @@ test('opponent-owned hand prompt is never accepted as our payment',()=>{
     'PAYMENT_PROMPT_UNVERIFIED');
 });
 
+
+test('same-sized but different owner hand before payment vetoes the join',()=>{
+  const x=fixture();
+  x.decisionTrace[1].decisionHandBefore.ownHandPrintings[0]='Guzma BUS';
+  assert.equal(reconcileQuickBallOwnerTransactions(x).rows[0].status,
+    'PAYMENT_HAND_PRESTATE_CONFLICT');
+});
+
