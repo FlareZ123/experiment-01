@@ -32,6 +32,21 @@ Control's native engine finished with source winning in **5/8** trials and ran t
 
 Accepted Lillie turns among treatment pairs were 3, 5, 10, 49, and 62, with one pair taking Lillie twice (turns3 and5). The presence of an executable Supporter alternative therefore varies by actual physical hand, turn, prior actions and remaining deck. The control remains unchanged within all pairs.
 
+## Terminal mechanism stratification of the original raw native rows
+
+A second purely descriptive classification uses the actual `nativeWinnerSeat`, actual source physical seat and **remaining Prize counts**, rather than equating every engine-game-end with six Prize cards taken:
+
+| Native disposition | Unchanged control (8) | Lillie treatment (8) |
+|---|---:|---:|
+| Source wins with **all six** source Prizes taken | 3 | 4 |
+| Source declared winner **before** all its Prizes were taken | 2 | 2 |
+| Engine reached its action cap; no native winner | 3 | 2 |
+| Candidate declared native winner | 0 | 0 |
+
+The non-Prize source victories were `6:71:A:champion-reference` (final Prize counts `[6,6]`; source used **zero attacks**) and `6:72:B:champion-reference` (final Prize counts `[3,6]`; source took three Prizes). They were identical across both policy conditions. In the former, the engine declared the source winner despite **neither side having taken any Prizes**. An opponent's loss by deck-out or having no Pokémon is compatible with the recorded facts; this summary does not establish which exact terminal predicate fired. The source's zero attacks make any interpretation as a source damage/Prize-path victory false.
+
+This distinction shows why a solver must preserve native terminal condition and Prize-state details in its raw evaluation instead of assigning a confident matchup strength value to every native end state. A source win obtained without attacking may be legally possible, yet may be heavily dependent on a bot's failure to manage deck resources or remaining Pokémon. Those alternatives require their own native termination and paper-rule verification.
+
 ## Interpretation and limitations
 
 This fixes a narrow **native action coverage gap**: six previously selected candidate Pass actions had a supported Lillie play, were observed in genuine same-physical-start games, and physically settled when selected. It also falsifies the unconditional heuristic that automatically spending an available Lillie after Pass must produce a better benchmark outcome. Here the native policy change yielded no candidate native wins; one pair shifted from unresolved action cap to a source native win.
