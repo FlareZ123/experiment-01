@@ -56,6 +56,7 @@ assert.deepEqual(categories, [2, 4, 4, 3, 5, 42]);
 assert.equal(candidate.cards.reduce((total, card) => total + card.count, 0), 60);
 const candidateValidSeven = choose(60, 7) - choose(53, 7);
 const sourceValidSeven = choose(60, 7) - choose(56, 7);
+const candidateRouteCache = new Map();
 const qCandidate = Number(choose(53, 7)) / Number(choose(60, 7));
 const qSource = Number(choose(56, 7)) / Number(choose(60, 7));
 
@@ -67,6 +68,7 @@ const qSource = Number(choose(56, 7)) / Number(choose(60, 7));
  * @returns {number}
  */
 function candidatePhysicalRoute(bonus) {
+  if (candidateRouteCache.has(bonus)) return candidateRouteCache.get(bonus);
   const draws = bonus + 1;
   const afterDraw = 53 - draws;
   const prizeTotal = choose(afterDraw, 6);
@@ -93,7 +95,9 @@ function candidatePhysicalRoute(bonus) {
       favorable += sevenWays * drawWays * routes;
     });
   });
-  return Number(favorable) / Number(denominator);
+  const probability = Number(favorable) / Number(denominator);
+  candidateRouteCache.set(bonus, probability);
+  return probability;
 }
 
 const sourceRank6 = originals.decks.find((deck) => deck.rank === 6);
@@ -167,6 +171,30 @@ function bounds(receiver, maxBonus) {
   return { lower, upper: lower + tail, tail };
 }
 
+/**
+ * Bilateral physical opportunity with actual asymmetric setup bonus distribution.
+ * Both original source and candidate get independent conditional valid hands,
+ * but the two nonzero mulligan-bonus categories are mutually exclusive.
+ * @param {number} removerCopies
+ * @param {number} maxBonus
+ * @returns {{lower:number,upper:number,tail:number}}
+ */
+function jointPhysicalOpportunity(removerCopies, maxBonus) {
+  const sameValid = (1 - qCandidate) * (1 - qSource) /
+    (1 - qCandidate * qSource);
+  const candidateNoBonus = candidatePhysicalRoute(0);
+  const sourceNoBonus = sourceRemoverSeenBySecondTurn(0, removerCopies);
+  let lower = sameValid * candidateNoBonus * sourceNoBonus;
+  for (let d = 1; d <= maxBonus; d += 1) {
+    lower += sameValid * qSource ** d * candidatePhysicalRoute(d) * sourceNoBonus;
+    lower += sameValid * qCandidate ** d * candidateNoBonus *
+      sourceRemoverSeenBySecondTurn(d, removerCopies);
+  }
+  const tail = omittedTail(maxBonus, 'candidate') * sourceNoBonus +
+    omittedTail(maxBonus, 'source') * candidateNoBonus;
+  return { lower, upper: lower + tail, tail };
+}
+
 assert.ok(Math.abs(qCandidate - 0.39912045076768693) < 1e-14);
 assert.ok(Math.abs(qSource - 0.6005003742553344) < 1e-14);
 assert.ok(Math.abs(candidatePhysicalRoute(0) - 0.289936530125) < 2e-12);
@@ -176,6 +204,8 @@ assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0) - 0.7198924574568) < 2e-12);
 assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0, 4) - 0.4572047432473605) < 2e-12);
 const candidateBounds = bounds('candidate', 20);
 const sourceBounds = bounds('source', 20);
+const jointNoCost = jointPhysicalOpportunity(4, 20);
+const jointAllRemoval = jointPhysicalOpportunity(8, 20);
 let costlessBoundLower = 0;
 for (let d = 0; d <= 20; d += 1) {
   costlessBoundLower += bonusMass(d, 'source') * sourceRemoverSeenBySecondTurn(d, 4);
@@ -186,6 +216,8 @@ const costlessBounds = {
 };
 assert.ok(costlessBounds.lower > 0.47148 && costlessBounds.upper < 0.47149);
 assert.ok(candidateBounds.lower > 0.305 && candidateBounds.upper < 0.306);
+assert.ok(jointNoCost.lower > 0.14364 && jointNoCost.upper < 0.14365);
+assert.ok(jointAllRemoval.lower > 0.22371 && jointAllRemoval.upper < 0.22373);
 assert.ok(sourceBounds.lower > 0.73390 && sourceBounds.upper < 0.73392);
 assert.ok(candidateBounds.lower > candidatePhysicalRoute(0));
 assert.ok(sourceBounds.lower > sourceRemoverSeenBySecondTurn(0));
@@ -219,6 +251,12 @@ console.log(JSON.stringify({
   sourceBonusChancePercent: 100 * pSourceBonus,
   sourceWithAllOptionalMulliganBonusPercentBounds: [
     100 * sourceBounds.lower, 100 * sourceBounds.upper
+  ],
+  bilateralCandidateGXAndSourceNoCostRemoverSeenPercentBounds: [
+    100 * jointNoCost.lower, 100 * jointNoCost.upper
+  ],
+  bilateralCandidateGXAndSourceAnyRemoverSeenPercentBounds: [
+    100 * jointAllRemoval.lower, 100 * jointAllRemoval.upper
   ],
   tailMass: { candidate: candidateBounds.tail, source: sourceBounds.tail },
   interpretation: 'Physical hand and unprized opportunity only; no native games or actual source Energy-removal payment observed'
