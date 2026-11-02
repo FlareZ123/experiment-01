@@ -153,7 +153,7 @@ function run(){
 
 if(require.main===module){
   const result=run();
-  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(result.failedChecks>0)process.exitCode=1;
 }
 module.exports={VERSION,MODES,probe,run};
