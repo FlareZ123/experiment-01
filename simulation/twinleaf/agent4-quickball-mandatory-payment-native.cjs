@@ -40,9 +40,18 @@ function probeQuickBallMandatoryPayment(seat=0,payment='zero'){
   const promptEvidence={
     printing:prompt?.sourceCard?.fullName??null,
     type:prompt?.constructor?.name??null,
+    message:prompt?.message??null,
+    cardsZone:prompt?.cards===f.source.hand?'hand':
+      prompt?.cards===f.source.deck?'deck':
+      (prompt?.cards?.cards?.every(card=>f.source.hand.cards.includes(card))?
+        'hand-physical-subset':'other'),
+    offered:prompt?.cards?.cards?.map(card=>card.fullName)??[],
     min:prompt?.options?.min??null,
     max:prompt?.options?.max??null,
-    nativeValidated:prompt?.validate(chosenPayment,f.state)??null
+    nativeValidated:prompt?.validate(chosenPayment,f.state)??null,
+    resultDefinedBeforeReply:prompt?.result!==undefined,
+    energyInHandAfterRoot:f.source.hand.cards.includes(energy),
+    energyInDiscardAfterRoot:f.source.discard.cards.includes(energy)
   };
   let paymentError=null;
   if(prompt){
@@ -51,7 +60,7 @@ function probeQuickBallMandatoryPayment(seat=0,payment='zero'){
     }catch(error){paymentError=String(error?.message??error);}
   }
   const continuation=[];
-  for(let i=0;i<12;i++){
+  for(let i=0;paymentError===null&&i<12;i++){
     const p=pending();
     if(!p)break;
     const type=p.constructor.name;
