@@ -1,0 +1,44 @@
+{
+  "schema": "agent13-rank5-original-v3-policy-preregistration-v1",
+  "preOutcomeRegistration": true,
+  "registeredUtc": "2026-11-02T03:50:00Z",
+  "signedBy": "Agent 13 normal research invocation agent13-chat-775cb34e-4c37-4c3a-b657-ade294522584",
+  "rank": 5,
+  "originalPlayer": "Yamato Nakano",
+  "originalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "originalSourceManifestGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "externalProfileManifestPath": "simulation/evaluation/agent13-v3-rank5-policy-profile-20261102.json",
+  "expectedProfileGitBlobSha": "1624cd681ef5304539e2916bd328e7b3fc7e0305",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3164314730
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 594187538
+    }
+  ],
+  "sampling": "Two fresh independent Python secrets.randbits(32) values generated before any native game for the cycle; no seed selected by postoutcome screening",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "policyNames": [
+    "frozenV2Control",
+    "integratedV3"
+  ],
+  "plannedPhysicalNativeArms": 8,
+  "profileDifferenceOnly": [
+    "actorNaturalEvolutionRoot:true",
+    "actorMewGenesectTechnoBlast:true"
+  ],
+  "primaryNaturalCompetenceWitness": "Original rank5 owner Mew VMAX evolution, DCE payable Cross Fusion Strike, native Genesect V Techno Blast selection, settled nonzero damage and a consequential opponent turn",
+  "noSameSeedPairClaimWithoutPhysicalFingerprint": true,
+  "allAbortsAndCapsInDenominator": true,
+  "neverCompetitivelyQualifiedWithoutFullIndependentAudit": true
+}
