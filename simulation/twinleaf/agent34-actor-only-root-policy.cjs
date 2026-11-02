@@ -594,6 +594,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
   const pendingFarewellBySeat=new Map();
+  const pendingGenesectBySeat=new Map();
   // A once-per-turn conservative cap for the proposed native Genesect Ability
   // across all copies, keyed by the acting physical owner seat only.
   const genesectDrawUsedTurnBySeat=new Map();
@@ -615,6 +616,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionNativeAccepted:0,
+    genesectFusionNativeConfirmed:0,
+    genesectFusionReceipts:[],
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
@@ -1375,11 +1378,12 @@ function withActorOnlyRootPolicy(run,deps={}){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
       pendingFarewellBySeat.clear();
+      pendingGenesectBySeat.clear();
       genesectDrawUsedTurnBySeat.clear();
     }
     if(this===nativeStore&&
        action?.constructor?.name==='ResolvePromptAction'&&
-       pendingFarewellBySeat.size>0){
+       (pendingFarewellBySeat.size>0||pendingGenesectBySeat.size>0)){
       const result=beforeDispatch.value.apply(this,[action,...args]);
       for(const [seat,pending] of pendingFarewellBySeat){
         const current=rootPhysicalSnapshot(this.state,seat,pending.intent);
@@ -1406,6 +1410,30 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.nativePhysicalUnconfirmedByIntent['use-farewell-letter']=
             (audit.nativePhysicalUnconfirmedByIntent['use-farewell-letter']??0)+1;
           pendingFarewellBySeat.delete(seat);
+        }
+      }
+      for(const [seat,pending] of pendingGenesectBySeat){
+        const current=rootPhysicalSnapshot(this.state,seat,pending.intent);
+        const effect=rootPhysicalWitness(pending.intent,pending.before,
+          current,engineGamePhase());
+        pending.receipt.promptResolutions++;
+        if(effect==='confirmed-public-effect'){
+          pending.receipt.status='confirmed-after-native-prompt';
+          pending.receipt.after={hand:current.handCount,deck:current.deckCount};
+          audit.nativePhysicalPending--;
+          audit.nativePhysicalConfirmed++;
+          audit.genesectFusionNativeConfirmed++;
+          audit.nativePhysicalConfirmedByIntent['use-genesect-fusion-draw']=
+            (audit.nativePhysicalConfirmedByIntent['use-genesect-fusion-draw']??0)+1;
+          pendingGenesectBySeat.delete(seat);
+        }else if(!(this.state.prompts??[]).some(p=>p.result===undefined)){
+          pending.receipt.status='prompt-closed-without-draw';
+          pending.receipt.after={hand:current.handCount,deck:current.deckCount};
+          audit.nativePhysicalPending--;
+          audit.nativePhysicalUnconfirmed++;
+          audit.nativePhysicalUnconfirmedByIntent['use-genesect-fusion-draw']=
+            (audit.nativePhysicalUnconfirmedByIntent['use-genesect-fusion-draw']??0)+1;
+          pendingGenesectBySeat.delete(seat);
         }
       }
       return result;
@@ -1492,19 +1520,42 @@ function withActorOnlyRootPolicy(run,deps={}){
       const physical=ownerAfter===null?null:
         rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
           engineGamePhase());
+      const waiting=(this.state.prompts??[])
+        .filter(p=>p.result===undefined);
       const farewellPending=choice.kind==='use-farewell-letter'&&
-        (this.state.prompts??[]).some(p=>p.result===undefined&&p.type==='WaitPrompt');
+        waiting.some(p=>p.type==='WaitPrompt');
+      const genesectPending=choice.kind==='use-genesect-fusion-draw'&&
+        physical==='no-confirmed-public-effect'&&
+        waiting.some(p=>p.constructor?.name==='WaitPrompt');
+      const deferredPending=farewellPending||genesectPending;
+      if(choice.kind==='use-genesect-fusion-draw'&&
+          audit.genesectFusionReceipts.length<64){
+        const receipt={seat:choice.seat,globalTurn:choice.globalTurn,
+          before:{hand:ownerBefore.handCount,deck:ownerBefore.deckCount},
+          immediatelyAfter:{hand:ownerAfter.handCount,deck:ownerAfter.deckCount},
+          status:genesectPending?'awaiting-native-prompt':
+            physical==='confirmed-public-effect'?'confirmed-immediately':
+            'no-confirmed-draw',
+          promptResolutions:0};
+        audit.genesectFusionReceipts.push(receipt);
+        if(genesectPending){
+          assert.ok(!pendingGenesectBySeat.has(choice.seat));
+          pendingGenesectBySeat.set(choice.seat,{
+            intent:choice.intent,before:ownerBefore,receipt
+          });
+        }
+      }
       if(physical==='confirmed-public-effect'){
         audit.nativePhysicalConfirmed++;
         audit.nativePhysicalConfirmedByIntent[choice.kind]=
           (audit.nativePhysicalConfirmedByIntent[choice.kind]??0)+1;
       }
-      if(physical==='no-confirmed-public-effect'&&!farewellPending){
+      if(physical==='no-confirmed-public-effect'&&!deferredPending){
         audit.nativePhysicalUnconfirmed++;
         audit.nativePhysicalUnconfirmedByIntent[choice.kind]=
           (audit.nativePhysicalUnconfirmedByIntent[choice.kind]??0)+1;
       }
-      if(farewellPending)audit.nativePhysicalPending++;
+      if(deferredPending)audit.nativePhysicalPending++;
       if(physical==='attack-needs-declaration')audit.nativeAttackNeedsDeclaration++;
       const witnessed=before!==null&&after!==null;
       const publicZonesChanged=witnessed&&
@@ -1557,7 +1608,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           policyDecisionOrdinal:choice.policyDecisionOrdinal,
           nativeStoreActionOrdinal:bound?.nativeStoreActionOrdinal??null,
           kind:choice.kind,accepted:true,
-          nativePhysicalEffect:farewellPending?'pending-animation-prompt':physical,
+          nativePhysicalEffect:deferredPending?'pending-animation-prompt':physical,
           publicTransitionWitnessed:witnessed,publicZonesChanged,
           turnOrPhaseChanged
         });
@@ -1568,7 +1619,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.nativeRootAcceptances.push({...choice,accepted:true,
           publicTransitionWitnessed:witnessed,
           publicZonesChanged,turnOrPhaseChanged,
-          nativePhysicalEffect:farewellPending?'pending-animation-prompt':physical,
+          nativePhysicalEffect:deferredPending?'pending-animation-prompt':physical,
           before,after});
       return result;
     }catch(error){
