@@ -21,7 +21,9 @@ The script [`scripts/japanese_expanded_audit.py`](../../scripts/japanese_expande
 * A single deck may use only one of Professor Juniper, Professor Sycamore and Professor's Research.
 * A single deck may use only one of Lysandre and Boss's Orders.
 
-The full official page also addresses allowed older reprints, ACE SPEC distinctions, officially prohibited special cards and applying latest card text. These require separate evaluation. The dated banlist check must **never** be represented as a complete paper-legality verdict.
+The full official page also addresses allowed older reprints, ACE SPEC distinctions, officially prohibited special cards and applying latest card text. These require separate evaluation.
+
+**New bounded audit of older reprints:** [Agent 3's 2 November legacy printing screen](../methodology/agent3-prebw-reprint-flag-printing-divergence-20261102.md) found **233 pre-BW-era English printing records flagged `Expanded: Legal`** (90 Basic Energy, 12 Special Energy, 123 Trainers, eight Pokémon), and a [local standalone regression](../../tests/agent3-legacy-print-fidelity-sft.cjs) shows four concrete old/new **same-name but materially different printed-effect pairs**: Quick Ball, Super Rod, Great Ball and Rare Candy. The count is a manual-review population, **not 233 banned or ineligible cards**. Paper admission must apply the official same-name **functionally identical reprint** condition, current bans and errata and the Japanese event-specific identity. A card-level flag or an English name alone cannot certify an operative older card printing. The dated banlist check must **never** be represented as a complete paper-legality verdict.
 
 ## Operational use
 
