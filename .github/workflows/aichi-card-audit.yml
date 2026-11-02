@@ -117,6 +117,11 @@ jobs:
       - name: Stage original rank2-derived Bunnelby double-TM then next-turn Exeggutor Blockade continuation
         if: ${{ always() && !cancelled() }}
         run: node --test tests/agent40-native-bunnelby-exeggutor-blockade-continuation.test.cjs
+      - name: Verify exact direct-only two-turn Exeggutor Jet access combinatorics
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent40-exeggutor-direct-two-turn-access.test.cjs
+          node simulation/evaluation/agent40-exeggutor-direct-two-turn-access.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
