@@ -1,0 +1,242 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {chooseOwnedBoxFetchShake}=
+  require('./agent44-secretbox-owner-prompt.cjs');
+
+const VERSION='agent44-shared-firstturn-secretbox-shake-v1';
+const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const DISCARD_PRIORITY=[
+  'Battle VIP Pass','Quick Ball','Dark Patch','VS Seeker',
+  'Mysterious Treasure','Ultra Ball','Iono','Carmine'
+];
+
+/**
+ * Pure K0 offer using only the actor's current hand and public board.
+ * The strict subset requires a held Trubbish, a held compatible Tool, and
+ * three disposable physical cards. Unseen Shake and Garbodor remain K1 risks.
+ *
+ * @param {{handNames:string[],benchNames:(string|null)[],activeName?:string|null,itemLocked:boolean,toolLocked:boolean,turn:number}} view
+ * @returns {{eligible:boolean,reason:string,discardNames:string[],toolName:string|null}}
+ */
+function firstTurnBoxOffer(view){
+  assert.ok(Array.isArray(view.handNames));
+  assert.ok(Array.isArray(view.benchNames));
+  const names=view.handNames;
+  if(!Number.isSafeInteger(view.turn)||view.turn<1||view.turn>2)
+    return {eligible:false,reason:'NOT_FIRST_GLOBAL_TURN',discardNames:[],toolName:null};
+  if(view.itemLocked||view.toolLocked)
+    return {eligible:false,reason:'PUBLIC_LOCK',discardNames:[],toolName:null};
+  if(!names.includes('Secret Box')||names.includes('Boost Shake'))
+    return {eligible:false,reason:'MISSING_BOX_OR_SHAKE_ALREADY_HELD',discardNames:[],toolName:null};
+  const toolName=['Float Stone','Muscle Band'].find(name=>names.includes(name))??null;
+  if(!toolName||!names.includes('Trubbish')||
+     !view.benchNames.includes(null)||
+     view.activeName==='Trubbish'||view.benchNames.includes('Trubbish'))
+    return {eligible:false,reason:'NO_HELD_FREE_TRUBBISH_TOOL_LINE',discardNames:[],toolName};
+  const reserved=new Set();
+  for(const name of ['Secret Box','Trubbish',toolName]){
+    const index=names.findIndex((card,i)=>card===name&&!reserved.has(i));
+    assert.ok(index>=0);
+    reserved.add(index);
+  }
+  const available=names.map((name,i)=>({name,i}))
+    .filter(card=>!reserved.has(card.i));
+  available.sort((a,b)=>{
+    const pa=DISCARD_PRIORITY.indexOf(a.name);
+    const pb=DISCARD_PRIORITY.indexOf(b.name);
+    return (pa<0?DISCARD_PRIORITY.length:pa)-
+      (pb<0?DISCARD_PRIORITY.length:pb)||a.i-b.i;
+  });
+  if(available.length<3)
+    return {eligible:false,reason:'CANNOT_PAY_BOX_THREE',discardNames:[],toolName};
+  return {eligible:true,reason:'K0_PHYSICAL_OFFER',
+    discardNames:available.slice(0,3).map(card=>card.name),toolName};
+}
+
+/**
+ * Installs the same default-off decision rule for both physical seats.
+ * Native prompts authorize own-deck K1; a failed K1 attempt is recorded
+ * and delegated to the original bot instead of inventing search targets.
+ * Does not inspect opponent hand, deck or Prizes.
+ *
+ * @template T
+ * @param {()=>T} execute Synchronous pinned native match
+ * @returns {{result:T,audit:object}}
+ */
+function withSharedFirstTurnBoxShake(execute){
+  assert.equal(typeof execute,'function');
+  const {SimpleTacticsAi}=require(path.join(BASE,'simple-bot/simple-tactics-ai'));
+  const {PlayCardAction,PlayerType,SlotType}=
+    require(path.join(BASE,'game/store/actions/play-card-action'));
+  const {ResolvePromptAction}=
+    require(path.join(BASE,'game/store/actions/resolve-prompt-action'));
+  const {GamePhase}=require(path.join(BASE,'game/store/state/state'));
+  const original=SimpleTacticsAi.prototype.decodeNextAction;
+  const stages=new Map();
+  const audit={version:VERSION,symmetricBothSeats:true,originalDealsUnchanged:true,
+    ownerVisibleK0Only:true,ownerDeckReadOnlyAfterNativeSearch:true,
+    offers:[],events:[],failures:[],opponentContinuations:[],
+    completeNativeEvolutions:0};
+  const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
+  function chooseNative(prompt,names,state){
+    const used=new Set();
+    const cards=names.map(name=>{
+      const i=prompt.cards.cards.findIndex((c,index)=>
+        c.name===name&&!used.has(index));
+      if(i<0)return null;
+      used.add(i);
+      return prompt.cards.cards[i];
+    });
+    if(cards.some(card=>card===null)||prompt.validate(cards,state)!==true)
+      return null;
+    return new ResolvePromptAction(prompt.id,cards);
+  }
+  function play(owner,name,target=board){
+    const handIndex=owner.hand.cards.findIndex(card=>card.name===name);
+    if(handIndex<0)return null;
+    return new PlayCardAction(owner.id,handIndex,target);
+  }
+  function event(seat,state,detail){
+    audit.events.push({seat,turn:state.turn,detail});
+  }
+  function fail(seat,state,flow,reason){
+    audit.failures.push({seat,turn:state.turn,at:flow.stage,reason});
+    stages.set(seat,{...flow,stage:'aborted'});
+  }
+  SimpleTacticsAi.prototype.decodeNextAction=function(state){
+    const seat=state.players.findIndex(player=>player.id===this.client?.id);
+    const pending=state.prompts.find(prompt=>prompt.result===undefined);
+    if(seat<0)return original.call(this,state);
+    const owner=state.players[seat];
+    let flow=stages.get(seat);
+    if(flow?.stage==='complete'&&!flow.opponentObserved&&
+       state.activePlayer!==seat&&state.phase===GamePhase.PLAYER_TURN){
+      flow.opponentObserved=true;
+      audit.opponentContinuations.push({sourceSeat:seat,
+        opponentSeat:state.activePlayer,turn:state.turn,
+        originalBotDecisionRequested:true,
+        equippedGarbodor:owner.bench.some(slot=>
+          slot.getPokemonCard()?.name==='Garbodor'&&
+          slot.tools.some(tool=>tool.name===flow.toolName))});
+    }
+    if(!flow&&state.activePlayer===seat&&
+       state.phase===GamePhase.PLAYER_TURN&&!pending){
+      const view={
+        turn:state.turn,
+        handNames:owner.hand.cards.map(card=>card.name),
+        activeName:owner.active.getPokemonCard()?.name??null,
+        benchNames:owner.bench.map(slot=>slot.getPokemonCard()?.name??null),
+        itemLocked:owner.cannotPlayItemCards===true,
+        toolLocked:owner.cannotPlayToolCards===true
+      };
+      const offer=firstTurnBoxOffer(view);
+      if(offer.eligible){
+        flow={stage:'box-discard',toolName:offer.toolName,
+          discardNames:offer.discardNames,firstTurn:state.turn};
+        stages.set(seat,flow);
+        audit.offers.push({seat,turn:state.turn,
+          handNames:view.handNames,discardNames:offer.discardNames,
+          toolName:offer.toolName});
+        event(seat,state,'play native Secret Box from unmodified owner hand');
+        return play(owner,'Secret Box');
+      }
+    }
+    if(!flow||['complete','aborted'].includes(flow.stage)||
+       state.activePlayer!==seat)
+      return original.call(this,state);
+
+    if(pending){
+      if(pending.playerId!==owner.id)return original.call(this,state);
+      if(flow.stage==='box-discard'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        const action=chooseNative(pending,flow.discardNames,state);
+        if(!action){fail(seat,state,flow,'BOX_UPFRONT_NATIVE_REJECT');
+          return original.call(this,state);}
+        flow.stage='box-search';
+        event(seat,state,'native three-card upfront discard accepted');
+        return action;
+      }
+      if(flow.stage==='box-search'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        let planned;
+        try{planned=chooseOwnedBoxFetchShake(pending,owner,state);}
+        catch(error){fail(seat,state,flow,'K1_OWNER_SIGNATURE_'+error.message);
+          return original.call(this,state);}
+        if(!planned.eligible||
+           planned.selectedNames.length!==1||
+           planned.selectedNames[0]!=='Boost Shake'){
+          fail(seat,state,flow,'UNAVAILABLE_SHAKE_OR_GARBODOR_K1');
+          return original.call(this,state);
+        }
+        flow.stage='bench-trubbish';
+        event(seat,state,'native owner-deck Shake search accepted');
+        return new ResolvePromptAction(pending.id,planned.selectedCards);
+      }
+      if(flow.stage==='shake-evolution-search'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        const action=chooseNative(pending,['Garbodor'],state);
+        if(!action){fail(seat,state,flow,'EVOLUTION_SEARCH_REJECT');
+          return original.call(this,state);}
+        flow.stage='shake-evolution-target';
+        event(seat,state,'native unprized Garbodor search accepted');
+        return action;
+      }
+      if(flow.stage==='shake-evolution-target'&&
+         pending.constructor?.name==='ChoosePokemonPrompt'){
+        const slot=owner.bench.find(s=>
+          s.getPokemonCard()?.name==='Trubbish'&&
+          s.tools.some(tool=>tool.name===flow.toolName));
+        if(!slot||pending.validate([slot],state)!==true){
+          fail(seat,state,flow,'SHAKE_TARGET_NATIVE_REJECT');
+          return original.call(this,state);
+        }
+        flow.stage='complete';
+        audit.completeNativeEvolutions++;
+        event(seat,state,'native first-turn evolution target accepted');
+        return new ResolvePromptAction(pending.id,[slot]);
+      }
+      return original.call(this,state);
+    }
+    if(flow.stage==='bench-trubbish'){
+      const index=owner.bench.findIndex(slot=>!slot.getPokemonCard());
+      const action=index<0?null:play(owner,'Trubbish',{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index});
+      if(!action){fail(seat,state,flow,'TRUBBISH_BENCH_UNAVAILABLE');
+        return original.call(this,state);}
+      flow.stage='attach-tool';
+      event(seat,state,'bench held Trubbish through native PlayCardAction');
+      return action;
+    }
+    if(flow.stage==='attach-tool'){
+      const index=owner.bench.findIndex(slot=>
+        slot.getPokemonCard()?.name==='Trubbish'&&slot.tools.length===0);
+      const action=index<0?null:play(owner,flow.toolName,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index});
+      if(!action){fail(seat,state,flow,'HELD_TOOL_ATTACHMENT_UNAVAILABLE');
+        return original.call(this,state);}
+      flow.stage='play-shake';
+      event(seat,state,'attach held Tool through native PlayCardAction');
+      return action;
+    }
+    if(flow.stage==='play-shake'){
+      const action=play(owner,'Boost Shake');
+      if(!action){fail(seat,state,flow,'SEARCHED_SHAKE_NOT_IN_HAND');
+        return original.call(this,state);}
+      flow.stage='shake-evolution-search';
+      event(seat,state,'play Box-fetched Boost Shake');
+      return action;
+    }
+    return original.call(this,state);
+  };
+  try{
+    const result=execute();
+    return {result,audit};
+  }finally{
+    SimpleTacticsAi.prototype.decodeNextAction=original;
+  }
+}
+
+module.exports={VERSION,DISCARD_PRIORITY,
+  firstTurnBoxOffer,withSharedFirstTurnBoxShake};
