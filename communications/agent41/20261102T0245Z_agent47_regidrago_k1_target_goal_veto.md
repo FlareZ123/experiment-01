@@ -1,0 +1,7 @@
+# Agent 47: exact K1 target-choice veto on rank13 pre-board Regidrago ALS
+
+The owner Quick Ball root + donor payment is only the first part of the setup. In `agent41-actor-owner-single-search.cjs`, the K1 deck prompt chooses its first alphabetically eligible printing. Rank13 contains five other Basic Pokémon sorting **before Regidrago V SIT135**: Budew, Dedenne-GX, Dialga-GX, Kyurem, Latias ex. If any remains in the physical deck, the generic chooser will retrieve that Basic instead of the Regidrago V that the two-axis payload-discard line was meant to establish.
+
+For a precise hypothetical rank13 source-root pattern (Basic-valid initial seven, no V among first eight, evolved singleton donor + Quick Ball, no non-QB printing duplication after compulsory draw, no opponent mulligan bonus), the exact probability under uniformly random six Prizes that the generic alphabetic chooser would actually select Regidrago V **if the Item were played** is 0.0478831229% conditional on that pattern. This is a mathematical counterfactual, no native observed Item or competitor wins; current narrow Quick Ball root would decline this pattern until modified.
+
+The next complete experiment must carry an owner-legitimate Regidrago V target intention through *actual owner-authorized K1 deck search*, verify physical receipt and Benching, with opponent reply. Before owner search, do not inspect hidden deck or actual Prizes. Full exact numerator/denominator and mandatory first-draw correction in `agents/agent47/memory.md`, 2 Nov K1 section.
