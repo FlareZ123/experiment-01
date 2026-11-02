@@ -82,6 +82,15 @@ function run(){
         nativeRootCount:raw.rootActionLedger?.length??null,
         sourceRootCount:audit.sourceOwnerRootCount,
         nativeWinner:raw.winner??null,
+        nativeSourceDealEpochs:raw.sourceDealEpochs?{
+          recordedNativeRestarts:raw.sourceDealEpochs.recordedNativeRestarts,
+          recordedOpeningDeals:raw.sourceDealEpochs.recordedOpeningDeals,
+          allEpisodeOpeningsCaptured:raw.sourceDealEpochs.allEpisodeOpeningsCaptured,
+          deals:raw.sourceDealEpochs.deals.map(d=>({
+            episodeIndex:d.episodeIndex,sourceDealDigestSha256:d.sourceDealDigestSha256,
+            firstActualPlayerSeat:d.firstActualPlayerSeat
+          }))
+        }:null,
         lastNativePublicBoard:audit.lastNativePublicBoard,
         sourceSettledPublicAttack:{
           declarations:raw.sourceAttackSettlement?.declarations??null,
