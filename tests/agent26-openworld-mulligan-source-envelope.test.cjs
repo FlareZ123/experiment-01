@@ -14,8 +14,8 @@ const close=(a,b,tolerance=1e-12)=>
 test('exact unordered-seven unknown limits respect four-copy and Basic Energy exemptions',()=>{
   const h=['A','B','C','D','E','F','G'];
   const repeated=["Trainers' Mail","Trainers' Mail",'A','B','C','D','E'];
-  close(unknownInvalidSevenUpper(h),4**7/den,1e-16);
-  close(unknownInvalidSevenUpper(repeated),6*4**5/den,1e-16);
+  close(unknownInvalidSevenUpper(h),4**7/denom,1e-16);
+  close(unknownInvalidSevenUpper(repeated),6*4**5/denom,1e-16);
   close(unknownInvalidSevenUpper(Array(7).fill('Grass Energy')),1);
   assert.equal(unknownInvalidSevenUpper(Array(7).fill('Double Colorless Energy')),0);
   close(unknownHistoryUpper([h,repeated]),
@@ -31,7 +31,7 @@ test('genuine source-rank6 visible seven is 100% inside known 29 and not across 
   assert.deepEqual(x.missingRanks,[23,25,28]);
   close(six.posteriorConditionalOn29Known,1);
   close(x.knownEventMean,6.848564596959988e-9,1e-17);
-  close(x.missingEventLikelihoodUpper,4**7/den,1e-16);
+  close(x.missingEventLikelihoodUpper,4**7/denom,1e-16);
   close(x.posteriorKnownSourceMassLower,0.0015581139055567503);
   close(six.posteriorLowerAcross32,0.0015581139055567503);
   close(six.posteriorUpperAcross32,1);
@@ -40,7 +40,7 @@ test('genuine source-rank6 visible seven is 100% inside known 29 and not across 
 test('duplicate Trainers Mail and zero mulligans have independently predictable bounds',()=>{
   const first=receipts.rows.find(x=>x.seed===3730833191&&x.candidateSeat===0);
   const x=openWorldSourceEnvelope(manifest,[first.firstPublicHand]);
-  close(x.missingEventLikelihoodUpper,6*4**5/den,1e-16);
+  close(x.missingEventLikelihoodUpper,6*4**5/denom,1e-16);
   close(x.posteriorKnownSourceMassLower,0.0002600232724899876);
   const empty=openWorldSourceEnvelope(manifest,[]);
   close(empty.knownEventMean,0.7912294697289253);
