@@ -36,6 +36,9 @@ jobs:
       - name: Test owner-only natural Clefairy root retreat and negative cases
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-rank30-actor-rondo-retreat.test.cjs
+      - name: Regress public mixed-Energy paid-retreat proposal without auto-selection
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-actor-mixed-energy-retreat-proposal.test.cjs
       - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
