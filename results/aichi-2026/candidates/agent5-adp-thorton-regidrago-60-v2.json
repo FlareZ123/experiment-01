@@ -1,0 +1,151 @@
+{
+  "schema": "agent5-adp-thorton-regidrago-candidate-v2",
+  "status": "provisional structural fifth candidate, source-counter repaired, unqualified",
+  "createdAtUTC": "2026-11-02",
+  "eventScope": "Aichi Open League 2026 Top32, paper Expanded BW onward, event 2026-05-10",
+  "cards": [
+    {
+      "id": "sm12-156",
+      "name": "Arceus & Dialga & Palkia-GX",
+      "count": 2
+    },
+    {
+      "id": "swsh12-135",
+      "name": "Regidrago V",
+      "count": 3
+    },
+    {
+      "id": "swsh12-136",
+      "name": "Regidrago VSTAR",
+      "count": 3
+    },
+    {
+      "id": "xy2-69",
+      "name": "M Charizard-EX",
+      "count": 1
+    },
+    {
+      "id": "sv6-130",
+      "name": "Dragapult ex",
+      "count": 1
+    },
+    {
+      "id": "sv6pt5-46",
+      "name": "Haxorus",
+      "count": 1
+    },
+    {
+      "id": "zsv10pt5-70",
+      "name": "Haxorus",
+      "count": 1
+    },
+    {
+      "id": "swsh11-136",
+      "name": "Hisuian Goodra VSTAR",
+      "count": 1
+    },
+    {
+      "id": "sv2-153",
+      "name": "Noivern ex",
+      "count": 1
+    },
+    {
+      "id": "sm2-60",
+      "name": "Tapu Lele-GX",
+      "count": 1
+    },
+    {
+      "id": "swsh3-104",
+      "name": "Crobat V",
+      "count": 1
+    },
+    {
+      "id": "sm12-206",
+      "name": "Tag Call",
+      "count": 4
+    },
+    {
+      "id": "swsh1-179",
+      "name": "Quick Ball",
+      "count": 3
+    },
+    {
+      "id": "swsh9-150",
+      "name": "Ultra Ball",
+      "count": 4
+    },
+    {
+      "id": "xy4-92",
+      "name": "Battle Compressor Team Flare Gear",
+      "count": 4
+    },
+    {
+      "id": "swsh11-167",
+      "name": "Thorton",
+      "count": 4
+    },
+    {
+      "id": "sm12-193",
+      "name": "Guzma & Hala",
+      "count": 3
+    },
+    {
+      "id": "sm2-125",
+      "name": "Field Blower",
+      "count": 2
+    },
+    {
+      "id": "sm9-156",
+      "name": "Viridian Forest",
+      "count": 2
+    },
+    {
+      "id": "sv1-194",
+      "name": "Switch",
+      "count": 2
+    },
+    {
+      "id": "sv5-152",
+      "name": "Hero's Cape",
+      "count": 1
+    },
+    {
+      "id": "xy4-109",
+      "name": "VS Seeker",
+      "count": 1
+    },
+    {
+      "id": "sv1-186",
+      "name": "Pokégear 3.0",
+      "count": 2
+    },
+    {
+      "id": "swsh2-154",
+      "name": "Boss's Orders",
+      "count": 1
+    },
+    {
+      "id": "xy6-97",
+      "name": "Double Dragon Energy",
+      "count": 4
+    },
+    {
+      "id": "swsh12pt5-152",
+      "name": "Grass Energy",
+      "count": 4
+    },
+    {
+      "id": "swsh12pt5-153",
+      "name": "Fire Energy",
+      "count": 3
+    }
+  ],
+  "canonicalCardsSha256": "bab0ff2ea97da8c410e9ca096ec1826a3f5186878de684856c4dd9454b40d19b",
+  "hashDefinition": "SHA-256 over UTF-8 JSON.stringify array of [{count,id,name}], no ASCII Unicode escaping, with object key order count,id,name and array order preserved; no trailing newline",
+  "sourceCardDatabase": "Provided card-list.zip cards/en/*.json; every selected ID expanded metadata Legal, crosschecked local 2026-11-02",
+  "sourceBanlist": "https://www.pokemon-card.com/rules/regulation/index.html",
+  "eventLegalProof": "name/count/Expanded metadata checked; final Japanese printed equivalence and Aichi event-era legality require independent paper-event verification",
+  "competitiveQualifiedGames": 0,
+  "parentDraft": "results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v1.json",
+  "proposedAdvantage": "Field Blower adds active Temple of Sinnoh clearing and Garbodor Tool removal without consuming the Thorton Supporter turn; 1 Quick Ball and 1 Pokegear removed"
+}
