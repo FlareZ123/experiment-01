@@ -44,6 +44,16 @@ function ownerCompressorPrompt(state, seat) {
  * Battle Compressor choice, including genuine no-move or rejected outcomes.
  * It never chooses an action, reads opponent private cards, or mutates state.
  *
+ * IMPORTANT: ownerCompressorPrompt classifies by the card still present in the
+ * temporary Trainer/Supporter zone and a deck-source prompt. It does not prove
+ * causal action lineage from the owner choosing a Battle Compressor card. The
+ * retrospective v2.1 rank26 audit produced apparent first-turn baseline
+ * settlements even when the independent decision trace reported zero
+ * first-turn Battle Compressor plays. Until exact originating PlayCardAction
+ * object and Store prompt lineage are joined, regard these records as
+ * provisional same-object deck-to-discard movements, NOT certified printed
+ * Battle Compressor effect settlements or first-turn conversion counts.
+ *
  * @template T
  * @param {0|1} seat
  * @param {()=>T} execute
