@@ -110,17 +110,23 @@ function withSharedFirstTurnBoxShake(execute){
     const pending=state.prompts.find(prompt=>prompt.result===undefined);
     if(seat<0)return original.call(this,state);
     const owner=state.players[seat];
-    let flow=stages.get(seat);
-    if(flow?.stage==='complete'&&!flow.opponentObserved&&
-       state.activePlayer!==seat&&state.phase===GamePhase.PLAYER_TURN){
-      flow.opponentObserved=true;
-      audit.opponentContinuations.push({sourceSeat:seat,
+    // During the opponent's turn the bot called is the *other* actor.
+    // Observe each completed flow from that opponent-decision boundary,
+    // after the Store settled Shake and before the opponent acts.
+    for(const [sourceSeat,completed] of stages){
+      if(completed.stage!=='complete'||completed.opponentObserved||
+         state.activePlayer===sourceSeat||
+         state.phase!==GamePhase.PLAYER_TURN||pending)continue;
+      const source=state.players[sourceSeat];
+      completed.opponentObserved=true;
+      audit.opponentContinuations.push({sourceSeat,
         opponentSeat:state.activePlayer,turn:state.turn,
         originalBotDecisionRequested:true,
-        equippedGarbodor:owner.bench.some(slot=>
+        equippedGarbodor:source.bench.some(slot=>
           slot.getPokemonCard()?.name==='Garbodor'&&
-          slot.tools.some(tool=>tool.name===flow.toolName))});
+          slot.tools.some(tool=>tool.name===completed.toolName))});
     }
+    let flow=stages.get(seat);
     if(!flow&&state.activePlayer===seat&&
        state.phase===GamePhase.PLAYER_TURN&&!pending){
       const view={
