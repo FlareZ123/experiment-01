@@ -1,5 +1,7 @@
 # Champion follow-through: owner resources distinguish Pass from missed attacks
 
+> **Subsequent native result:** [Exact champion Pass attack-announcement probes](agent27-original-champion-post-roar-attack-announcement-20261102.md) were rejected by the pinned Store for all eight printed Active attacks across the four opportunities. This strengthens the finding that no missed printed Active attack was demonstrated. It does not settle other tactical lines or paper gameplay.
+
 **2 November 2026, post-choice audit of existing three original rank10/rank1 source deals.** This is a qualification of the earlier [source-attack/opponent continuation report](agent27-regidrago-source-energy-attack-opponent-chain-20261102.md), not a new batch of matches.
 
 The [compiled manual native run 41458133507](https://github.com/FlareZ123/experiment-01/actions/runs/41458133507) passed at repository commit `5e6c3208ad3e1332c7f35ee034f98f2cd5e8cd77`. The matched physical source deals, four accepted Regidrago Energy transfers, four settled *Celestial Roar* attacks, two action caps and one untimed native terminal remained unchanged. The new post-decision extraction copies **only the acting owner's hand size, Basic/Special Energy counts and public board** at each original rank-1 opponent Pass. It never supplies this information to the actor from an external zone. The native raw artifact and read-only summary are retained with the CI run.
