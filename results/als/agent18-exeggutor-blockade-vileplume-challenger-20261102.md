@@ -41,6 +41,23 @@ The first controlled change is **+3.22757626 percentage points** in forced-30HP 
 
 The [reproducible source-diff and BigInt calculator](../../scripts/agent18-exeggutor-opener-risk.cjs) and [four pure tests](../../tests/agent18-exeggutor-opener-risk.test.cjs) cover exact original rank-2 printed changes, supplied card HP and attack/Ability, toy-hand exhaustive enumeration and exact combinatorial fractions. All four **local pure Node tests passed**; the integrated card-archive main and native Store matches have **not yet run**. The candidate JSON's exact source delta and 60-card sum were independently verified against fetched original GitHub bytes.
 
+
+## Independent exact six-Prize stage-supply comparison
+
+There is a second, oppositely directed structural tradeoff beyond 30-HP starts. The original Supporter-lock line has **2 Lillipup, 2 Herdier and a singleton Stoutland**, whereas the challenger has **2 Exeggcute and 2 Exeggutor**. Both lines still require 2 Oddish, 2 Gloom and 2 Vileplume AOR3 for the specific full-stage Vileplume Item-lock chain. Assume six uniformly sampled hidden Prizes and require at least one physical copy of every named Stage0/1/2 class to remain **outside** those six Prizes, before any Prize retrieval, card recovery, or Stage bypass.
+
+For pairwise disjoint stage-copy groups with sizes c[i], the chance at least one group is entirely Prized is computed by inclusion-exclusion: sum over nonempty subsets S of groups of (-1)^(|S|+1) C(60-sum(c[i] for i in S), 6-sum(c[i] for i in S)) / C(60,6), treating impossible over-six subset terms as zero.
+
+| Exact physical supply event | Original Stoutland | Exeggutor v1 |
+| --- | ---: | ---: |
+| At least one Supporter-lock stage entirely Prized | **8929/77140 = 11.575058335%** | **550/32509 = 1.691839183%** |
+| At least one of the Supporter-lock or AOR Vileplume full-stage groups entirely Prized | **248807/1787995 = 13.915419227%** | **5542/131747 = 4.206547398%** |
+| All named stages have at least one unprized copy | **86.084580773%** | **95.793452602%** |
+
+This is a **+9.708871829 percentage-point increase in simple full-stage unprized availability**, opposite to the +3.2276-point deterioration in fragile-Basic-only starts. It is substantial enough to motivate real paired testing of two distinct failure modes. It is **not** an increase in win probability, not a literal impossibility of any lock line, and does not establish that any printed stage can be searched/evolved in time. Original **Gladion and Peonia** can recover Prized cards, and **Grand Tree** can bypass Stage 1, invalidating an inference that a wholly Prized Gloom always prevents the AOR Vileplume lock. Those alternatives are deliberately excluded by the strict full-stage event and must be simulated.
+
+Reproducible exact BigInt enumerator: [joint six-Prize supply](../../scripts/agent18-exeggutor-prize-supply.cjs), with [five independent unit tests](../../tests/agent18-exeggutor-prize-supply.test.cjs) including toy-deck exhaustive enumeration and frozen source-stage assertions. Fractions were independently cross-checked with Python's exact `Fraction` and `math.comb`; **the new Node test file and full source-integrated runner are pending execution**, and native games remain zero.
+
 ## Necessary release tests
 
 1. Execute the actual printed Exeggutor Blockade attack and test the opponent's Supporter selection on the following turn, including gust and Ability-lock perturbations, then the effect's expiration. Do not infer native results from source text.
