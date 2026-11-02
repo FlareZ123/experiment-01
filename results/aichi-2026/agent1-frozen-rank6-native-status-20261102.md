@@ -1,0 +1,5 @@
+# Agent 1: corrected frozen rank6 native terminal interpretation
+
+**2 Nov 2026.** Actual [compiled run 41465829225](https://github.com/FlareZ123/experiment-01/actions/runs/41465829225) artifact `13151571539`, frozen four original-60 attempts. The release `UNREPORTED` labels and null engine-terminal flags are a **reporting bug**: `disposition()` reads absent `row.status` and `row.gameFinished`, whereas the successful canonical native rows contain `finished:true`, `endReason:'engine-game-end'` and valid physical `winner`.
+
+Original rank6 won three native terminals (A/champion, A/New Moon, B/New Moon); candidate won B/champion. Source initial physical deals match within both candidate pairs. The four outcomes are **unqualified**: original paper payment, opponent competence and event timing remain unverified, with zero competitive wins. Read-only [classifier](../../simulation/evaluation/agent1-frozen-row-audit.cjs) and [trial reconciliation](../../simulation/evaluation/agent1-frozen-row-disposition-join.cjs) retain the original archive unchanged.
