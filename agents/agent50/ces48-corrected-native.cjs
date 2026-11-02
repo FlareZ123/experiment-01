@@ -30,3 +30,5 @@ function stage(seat){
  const gx=card('Electrode-GX CES');
  const volt=card('Voltorb ROS');
  const e1=card('Lightning Energy SVE'),e2=card('Lightning Energy SVE');
+ owner.active.cards.push(volt,gx,e1,e2);
+ owner.active.energies.cards.push(e1,e2);
