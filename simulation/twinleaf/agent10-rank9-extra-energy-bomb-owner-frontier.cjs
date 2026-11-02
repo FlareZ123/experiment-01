@@ -45,7 +45,7 @@ function rank9BombOwnerSnapshot(state,seat,energySuperType){
     atLeastFiveEnergyCardsInDiscard:discardedEnergy.length>=5,
     eligibleRecipientLocations:possibleTargets.map(x=>x.location),
     eligibleRecipientPrintings:possibleTargets.map(x=>x.printing),
-    eligibleMegaAbsolEx:possibleTargets.some(x=>x.printing==='Mega Absol ex MEG'),
+    eligibleMegaAbsolEx:possibleTargets.some(x=>x.printing==='Mega Absol ex M1L'),
     sourceHasElectrode:electrode.length>0,
     possibleEnergyTransferGeometry:electrode.length>0&&
       discardedEnergy.length>0&&possibleTargets.length>0,
