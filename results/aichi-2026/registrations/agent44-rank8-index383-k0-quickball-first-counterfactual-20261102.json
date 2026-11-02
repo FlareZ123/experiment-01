@@ -1,0 +1,33 @@
+{
+  "schema": "agent44-original-rank8-383-prebox-scout-postselected-counterfactual-v1",
+  "author": "Agent 44",
+  "registeredUTC": "2026-11-02T23:14:00Z",
+  "population": "one original source seed index383 already observed missing Shake in native deck after costly Box. Historical positive seed214648959 retained only as separate selected harness control.",
+  "sourceRank": 8,
+  "sourcePrinted60Sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "fixedCandidate": "Hood Shield v1 60",
+  "sourceIndex": 383,
+  "sourceSeat": 1,
+  "sourceSeed": "SHA256(label rank8-original-box-k0): index383 source schedule; unchanged",
+  "nativeActor": "existing Agent7 common canonical BOTH seats, with separate default-off innermost v3 Box decision and one posthoc source scout optimization",
+  "contrast": "same initial physical source deal replay between baseline and pre-Box Quick Ball-first treatment; native exact source and all-zone preaction SHA256 equality mandatory",
+  "counterfactualPolicy": "When K0 Box firstturn plan needs held Quick Ball to get Trubbish, pay native Quick Ball first using one free resource then search actual owner deck to obtain Trubbish; only after genuine own-deck search inspect whether Boost Shake and Garbodor remain. If Shake missing, do not invoke custom Box line; if available, recompute K0 Box payment and continue. No opponent hidden knowledge, deck substitutions or candidate changes.",
+  "paperGuards": [
+    "Agent4 printed Secret Box 3-other-card mandatory payment",
+    "Agent4 printed Quick Ball 1-other-card mandatory payment",
+    "Agent44 exact source Secret Box physical-card movement receipt"
+  ],
+  "observables": [
+    "root selected order Quick Ball vs Box",
+    "owner K1 actual shakeInDeck boolean observed only during native search",
+    "Box committed or preserved",
+    "physical card cost and owner custody",
+    "native Trubbish bench and opponent actual public root",
+    "full preaction physical digest equality and bot action cap",
+    "errors and paper vetoes"
+  ],
+  "sampleStatus": "retrospective, explicitly post-selected after known index383 K1 failure; do not use to estimate prevalence, win rate, effect size, or 99.5% target",
+  "maxActions": 120,
+  "paperClock": false,
+  "competitiveGames": 0
+}
