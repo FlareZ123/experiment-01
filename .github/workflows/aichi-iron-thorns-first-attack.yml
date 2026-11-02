@@ -37,6 +37,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank6_plumeria_prospective:
+        description: Preregistered original rank6 Plumeria physical chain, eight candidate pairs and sixteen native attempts
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -131,7 +136,7 @@ jobs:
             rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
-    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold && !inputs.rank6_plumeria_sourcechain_pair }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold && !inputs.rank6_plumeria_sourcechain_pair && !inputs.rank6_plumeria_prospective }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -389,7 +394,7 @@ jobs:
           if-no-files-found: warn
 
   rank6-plumeria-sourcechain-pair:
-    if: ${{ inputs.rank6_plumeria_sourcechain_pair && !inputs.native_energy_probe && !inputs.policy_smoke_only && !inputs.canonical_paper_v10_smoke && !inputs.astral_native_source_probe }}
+    if: ${{ (inputs.rank6_plumeria_sourcechain_pair || inputs.rank6_plumeria_prospective) && !inputs.native_energy_probe && !inputs.policy_smoke_only && !inputs.canonical_paper_v10_smoke && !inputs.astral_native_source_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -404,6 +409,7 @@ jobs:
       - name: Check original source parity and physical-payment script
         run: |
           node --check simulation/evaluation/agent42-plumeria-sourcechain-paired.cjs
+          node --check simulation/evaluation/agent42-plumeria-prospective-sourcechain.cjs
           node --check simulation/twinleaf/agent42-plumeria-paper-payment-guard.cjs
       - name: Install pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
@@ -411,12 +417,18 @@ jobs:
       - name: Compile pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Compare complete original source and candidate roots with paper Plumeria guard off and on
+      - name: Compare complete historical source and candidate roots with paper Plumeria guard off and on
+        if: ${{ inputs.rank6_plumeria_sourcechain_pair }}
         run: node simulation/evaluation/agent42-plumeria-sourcechain-paired.cjs
+      - name: Measure freshly preregistered original source Plumeria paid and resolved chain across both seats
+        if: ${{ inputs.rank6_plumeria_prospective }}
+        run: node simulation/evaluation/agent42-plumeria-prospective-sourcechain.cjs
       - name: Preserve all original rank6 guarded and unguarded native attempts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent42-original-rank6-plumeria-physical-sourcechain-8attempts
-          path: agent42-plumeria-sourcechain-native.json
+          path: |
+            agent42-plumeria-sourcechain-native.json
+            agent42-plumeria-prospective-sourcechain-native.json
           if-no-files-found: warn
