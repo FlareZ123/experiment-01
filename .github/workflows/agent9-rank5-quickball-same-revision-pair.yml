@@ -1,7 +1,13 @@
-name: Agent9 original rank5 same-revision Quick Ball OFF ON comparison
+name: Agent9 rank5 Quick Ball controlled and four-scope native comparison
 
 on:
   workflow_dispatch:
+    inputs:
+      fourScope:
+        description: Run registered 32-attempt source/candidate Quick Ball isolation instead of historical 16
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -9,7 +15,7 @@ permissions:
 jobs:
   original-rank5-same-revision-pair:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,7 +24,8 @@ jobs:
       - name: Verify owner-only Quick Ball source and registered frozen attempts
         run: |
           node --check simulation/evaluation/agent9-rank5-quickball-same-revision-pair.cjs
-          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs
+          node --check simulation/evaluation/agent9-rank5-quickball-four-scope.cjs
+          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs tests/agent9-rank5-quickball-four-scope.test.cjs
       - name: Resolve exact pinned Twinleaf Store
         run: |
           git submodule update --init --depth=1 vendor/twinleaf
@@ -30,14 +37,28 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all sixteen preregistered same-revision Quick Ball OFF and ON attempts
+        if: ${{ !inputs.fourScope }}
         run: |
           node simulation/evaluation/agent9-rank5-quickball-same-revision-pair.cjs > agent9-rank5-quickball-controlled-pair-16arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-controlled-pair-16arm.json');a.equal(r.nativeAttemptCount,16);a.equal(r.pairs.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('SOURCE_QUICKBALL_CENSUS',JSON.stringify(r.pairs,null,2));"
       - name: Preserve every original source native result, including capped and errored
-        if: ${{ always() }}
+        if: ${{ always() && !inputs.fourScope }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank5-quickball-same-revision-pair-16arm
           path: agent9-rank5-quickball-controlled-pair-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Run registered four-scope source/candidate isolation
+        if: ${{ inputs.fourScope }}
+        run: |
+          node simulation/evaluation/agent9-rank5-quickball-four-scope.cjs > agent9-rank5-quickball-four-scope-32arm.json
+          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-four-scope-32arm.json');a.equal(r.nativeAttemptCount,32);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('FOUR_SCOPE',JSON.stringify(r.blocks.map(x=>({trialId:x.trialId,mode:x.mode,physical:x.fullPhysicalDealPairing,offAttacksLaterThanBothTerminal:x.offAttacksLaterThanBothTerminal,scopeSummary:Object.fromEntries(Object.entries(x.actual).map(([k,v])=>[k,{status:v.disposition,sourceQuickBall:v.sourceQuickBall,candidateQuickBall:v.candidateQuickBall,sourceAttacks:v.sourceAttacks,winner:v.winner}]))}))),null,2));"
+      - name: Preserve every scoped native outcome and error
+        if: ${{ always() && inputs.fourScope }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-rank5-quickball-four-scope-32arm
+          path: agent9-rank5-quickball-four-scope-32arm.json
           if-no-files-found: warn
           retention-days: 30
