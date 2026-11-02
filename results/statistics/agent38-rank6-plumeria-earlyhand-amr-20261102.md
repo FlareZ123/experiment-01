@@ -52,6 +52,23 @@ The second screen is an inventory-based **upper opportunity envelope**. It is no
 
 All columns use the **same** Basic-valid seven and held-Plumeria conditioning as the earlier tables. The rank-6 initial-seven counts are 315,096 strict Trainer-only weighted arrangements versus 44,942,410 source-list-duplicate Trainer arrangements, of 56,156,680 with the conditioning. The model demonstrates why **last copy in the hand** is an especially blunt proxy for **last strategically available resource** in the whole game. It does not rank the underlying discard choices, estimate a competitive match outcome, or recommend switching the currently default-off policy. The independent physical-card toy test reproduces the difference without relying on the multivariate DP.
 
+
+## A two-distinct-printing, three-plus-copy source subset with bounded K0 Prize risk
+
+A tighter source-inventory screen finds at least **one payable Trainer from each of two different physical printings**, where both printings have **at least three copies in the registered 60**. The Plumeria being played is excluded from its own payment candidates. Each payment spends only one physical card of each printing; this is stronger than simply finding any two globally duplicated Trainer cards.
+
+| Original rank | Valid initial seven with held Plumeria | After one ordinary draw |
+| ---: | ---: | ---: |
+| 6 | **35.0037%** | **44.9754%** |
+| 24 | **12.2915%** | **17.0863%** |
+| 29 | **23.1320%** | **30.9005%** |
+
+Rank6's initial-seven numerator is **19,656,896** of **56,156,680** conditional physical arrangements; after a draw the numerator is **1,515,148,036** of **3,368,835,400**. Source ranks 6, 24 and 29 differ in high-copy Trainer distribution.
+
+**Physical replacement bound at K0:** If one card of a printing with at least three total deck copies is paid, then either another copy remains in the observed hand or at least two copies were initially outside that hand. With **six random Prize cards** and an initial observed seven, the worst-case probability that both unseen replacement copies are Prized is C(6,2)/C(53,2) = 15/1,378 (about **1.0885%**). For two *different printings*, the union bound gives probability at least **97.8229%** that each printing retains at least one copy in the hand or unprized remaining deck. With eight observed cards, the analogous conservative bound is **97.7376%** based on C(6,2)/C(52,2).
+
+This Prize-risk guarantee is solely conditional on the stated source construction, hand observation and random Prize placement, *before other card effects or losses*. Remaining in a deck does not guarantee timely search access. Some higher-copy cards such as VS Seeker or Guzma can still be tactically invaluable. No outcome or discard strategy is inferred from this subset. The new source-driven combinatorial column is checked by an independent exhaustive toy-deck test.
+
 ## Implication and limits
 
 The last-printing payment heuristic is a particularly restrictive approximation to state-dependent discard value. Among Basic-valid openings with Plumeria held, at least **96.86%** fail its *hand-only* no-erasure test before public opposing attached Energy, actual Supporter quota, locks, native prompt restrictions, hand changes or opponent matchup are considered. The one-draw percentage still fails in more than **93.45%** of those conditioned states.
