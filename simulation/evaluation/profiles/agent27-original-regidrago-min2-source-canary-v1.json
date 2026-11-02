@@ -1,0 +1,75 @@
+{
+  "schema": "agent27-original-source-min2-canary-profile-v1",
+  "purpose": "Matched original rank10 Regidrago and rank1 Shadow Rider bounded native resource-to-attack-to-opponent regression. No competitive strength estimate.",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceDeckManifest": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "ranks": [
+      1,
+      10
+    ],
+    "originalSixtiesOnly": true
+  },
+  "seedCases": [
+    {
+      "seed": 20261106,
+      "seatRanks": [
+        10,
+        1
+      ]
+    },
+    {
+      "seed": 20261113,
+      "seatRanks": [
+        1,
+        10
+      ]
+    },
+    {
+      "seed": 20261114,
+      "seatRanks": [
+        10,
+        1
+      ]
+    }
+  ],
+  "maxNativeActions": 110,
+  "fixedTwoSeatActor": "withActorOnlyRootPolicy",
+  "frozenFlags": {
+    "strictPromptValidation": true,
+    "forestSealSearchCorrection": true,
+    "doubleDragonRecovery": true,
+    "supporterDecisionCorrection": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "leleEntryAbilityLockCorrection": true,
+    "radiantGateLockCorrection": true,
+    "entryDrawLockCorrection": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "shadowRiderEnergyPriority": true
+  },
+  "bothArmsPaperCorrection": "withPaperCelestialRoarEnergy",
+  "treatment": "withMinimumAttachEnergySelection",
+  "baseline": "no-minimum-attach-bot-repair",
+  "observations": [
+    "captureInitialFullPhysicalDeal",
+    "capturePhysicalZoneIntegrity",
+    "enforceSettledPhysicalZoneIntegrity",
+    "enforceVisiblePlayLockBothSeats",
+    "capturePublicAttackTransitions",
+    "captureDecisionTrace"
+  ],
+  "requiresCleanAmbientAgentSettings": true,
+  "runner": "simulation/evaluation/agent27-native-minimum-attachment-source-replay.cjs",
+  "join": "simulation/evaluation/agent27-energy-attack-continuation.cjs",
+  "summary": "scripts/agent27-native-attach-summary.cjs",
+  "disposition": {
+    "CONFIG_FROZEN": true,
+    "BOTH_SEATS_EXECUTED": true,
+    "PAPER_PAYMENT_VERIFIED": "local mandatory two-energy attachment only",
+    "SOURCE_PAYOFF_WITNESSED": "Celestial Roar resource attachment; zero Prize attack",
+    "OPPONENT_CONTINUATION_WITNESSED": "native root exists, opponent strategic competence unverified",
+    "competitiveGameQualified": false
+  }
+}
