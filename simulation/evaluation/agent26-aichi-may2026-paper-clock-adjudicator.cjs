@@ -50,20 +50,21 @@ function adjudicateMay2026AichiTime(state){
   const base={version:VERSION,officialClockMinutes:stage==='final'?35:25,
     stage,phase,requiredFinalSeat:1-firstPlayerSeat,winner:null,requiresExtension:false,
     actorActionAllowed:false,competitiveGameQualified:false,
-    paperClockMeasured:false};
+    paperClockMeasured:false,postCutoffCheckupAllowed:false};
   // Ordinary paper wins/ties terminate immediately, even before the
   // second-starting player's final turn has been reached.
-  if(naturalOutcome==='tie')return {
-    ...base,status:'PAPER_TIEBREAKER_NEW_SIX_PRIZE_GAME',
-    actorActionAllowed:true};
+  if(naturalOutcome==='tie')return stage==='swiss'?
+    {...base,status:'SWISS_NATURAL_TIE_UNSPECIFIED'}:
+    {...base,status:'PAPER_TIEBREAKER_NEW_SIX_PRIZE_GAME',
+      actorActionAllowed:true};
   if(naturalOutcome===0||naturalOutcome===1)return {
     ...base,status:'NATURAL_PAPER_WIN',winner:naturalOutcome};
+  if(prizeRemaining.includes(0))return {
+    ...base,status:'NATURAL_PAPER_TERMINAL_UNVERIFIED'};
   if(phase==='cutoff'&&lastCompletedTurnSeat!==1-firstPlayerSeat){
     return {...base,status:'AWAIT_SECOND_STARTING_PLAYER_FINAL_TURN',
       actorActionAllowed:true};
   }
-  if(prizeRemaining.includes(0))return {
-    ...base,status:'NATURAL_PAPER_TERMINAL_UNVERIFIED'};
   if(stage==='swiss')return {...base,status:'SWISS_BOTH_LOSS'};
   const [a,b]=prizeRemaining;
   if(a!==b&&Math.min(a,b)<=2)return {
