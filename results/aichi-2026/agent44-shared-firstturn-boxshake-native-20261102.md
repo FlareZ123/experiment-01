@@ -27,3 +27,18 @@ The original pinned engine was built using existing **manual-dispatch-only** [Ho
 ## Integration next step
 
 Once an unmodified original-deal natural run demonstrates a full Store-confirmed line with opponent continuation, expose the new default-off owner-root and search/prompt selectors inside the canonical bilateral common actor and measure the same fixed 60 across meaningful source ranks. Source competence must be evaluated under an externally pinned combined profile, with all actual physical start seats and failed arms recorded. There is currently no competitively qualified game, and 3 of the 32 published original source 60s (ranks 23,25,28) remain unrecovered.
+
+## Completed narrow shared-policy cohort: explicit 1 + 16 outcome
+
+[Manual run 41405548401](https://github.com/FlareZ123/experiment-01/actions/runs/41405548401) succeeded on source checkout `6a796e3bd695b85d63784b29ec52777980cf5ca4` at 07:25 UTC. Its job log printed the entire predeclared 17-row status, and its raw trial archive is [artifact 13123038695](https://github.com/FlareZ123/experiment-01/actions/runs/41405548401/artifacts/13123038695) (ZIP SHA-256 `a491f27018d5502031907869392cae00b551a5c9f57281ad88db0f270956469c`).
+
+| Original physical cohort | Count | K0 Box offers | Native firstturn evolved + opponent public equipped Garbo | No offers | Native errors |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Retrospectively selected historical seed `214648959` | 1 | **1** | **1** | 0 | 0 |
+| Separately registered new seed indices `256..271` | 16 | **0** | **0** | **16** | **0** |
+
+The archived source-positive run preserved the unchanged original K0 and physical-deal fingerprints against its baseline and recorded the opponent-turn public board. The 16 no-offer trials retained unchanged baseline versus treatment decision traces. These 16 new observations do not establish the tactic's population frequency; the first K0 policy demands both a held Trubbish and held compatible Tool together with three spare physical cards, a stricter conjunction than the earlier source K0 census.
+
+### Expansion now registered
+
+A separate [flexible K0 planner](../../simulation/twinleaf/agent44-flexible-box-k0-plan.cjs) retains real three-card upfront Box payment while allowing Secret Box to fetch a compatible Tool, an already in-play Trubbish, or a held Quick/Ultra Ball with sufficient later discard liquidity to find Trubbish. [Its unit suite](../../tests/agent44-flexible-box-k0-plan.test.cjs) covers all three extended pathways plus negative payment and public-lock cases. The same native hook has an explicit `{flexible:true}` profile that adds Quick/Ultra search/discard stages and first-turn Tool category selection. It is separately registered against **32 disjoint, unselected original physical rank8 source seeds `272..303`**; those results must not be mixed into the earlier 16 narrow-offer denominator. No favorable outcome is pre-assumed. The existing manual CI input `agent44_rank8_shared_boxshake_flexible` is default OFF and never changes existing historical runs. The expanded profile is being checked independently.
