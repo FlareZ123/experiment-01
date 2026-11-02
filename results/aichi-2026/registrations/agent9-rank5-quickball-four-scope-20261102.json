@@ -1,0 +1,47 @@
+{
+  "schema": "agent9-rank5-quickball-four-scope-causal-registration-v1",
+  "registeredAt": "2026-11-02T09:51:09Z",
+  "originalRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "twinleafPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "scopes": [
+    "off",
+    "source",
+    "candidate",
+    "both"
+  ],
+  "gamePolicyModes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "originalPhysicalGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1291978585
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2174158724
+    }
+  ],
+  "candidatePrinted60Ids": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "nativeAttemptCount": 32,
+  "pairedPhysicalDealBlocks": 8,
+  "noPostOutcomeExclusions": true,
+  "executionProfile": "Same original Agent37 v3.1 two modes, four frozen physical groups, no cardlist changes, all sixteen historical arms repeated twice across Quick Ball availability",
+  "causalQuestion": "Does source-owner Quick Ball versus candidate-owner Quick Ball cause the already observed bilateral attack-count and terminal shifts?",
+  "qualificationVetoes": [
+    "Role-dependent policies only isolate causal effects; they are not valid common competition policies",
+    "Four previously exposed source deals are not new holdout samples",
+    "No paper game clock, completeness, opponent strategic decision qualification",
+    "No independently verified 99.5% win-rate estimate"
+  ],
+  "status": "REGISTERED_PRE_OUTCOME"
+}
