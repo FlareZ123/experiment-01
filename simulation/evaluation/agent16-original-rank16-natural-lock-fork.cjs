@@ -148,7 +148,10 @@ function summarize(rows){
   const firstTurnRoots={budewAttack:0,boostShakeRoot:0,neither:0,unknown:0};
   const observations=[];
   for(const row of rows){
-    const status=row.status??'missing-native-status';
+    const status=row.status??(row.finished===true?'engine-terminal':
+      row.endReason==='action-limit'?'action-cap':
+      row.finished===false?'native-incomplete':
+      'native-disposition-unverified');
     dispositions[status]=(dispositions[status]??0)+1;
     const start=row.sourceActuallyFirst===true?'sourceFirst':
       row.sourceActuallyFirst===false?'sourceSecond':'unknown';
