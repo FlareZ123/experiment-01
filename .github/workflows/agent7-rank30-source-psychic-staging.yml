@@ -144,6 +144,19 @@ jobs:
           path: agent6-hood-opponent-reply.json
           if-no-files-found: warn
           retention-days: 15
+      - name: Native Tool Jammer PlayCardAction then actual opposing end turn
+        if: always() && inputs.agent6_rank30_rondo
+        env:
+          AGENT6_NATIVE_JAMMER_REAL_TURN_DEV: 'true'
+        run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-native-jammer-real-turn.json
+      - name: Archive true opponent turn-to-owner TurnStart Tool Jammer
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-native-jammer-turn-boundary
+          path: agent6-native-jammer-real-turn.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
         if: '!inputs.agent6_rank30_rondo'
         run: node simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs > agent7-rank30-source-psychic-stage-aba.json
