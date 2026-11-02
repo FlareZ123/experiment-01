@@ -29,6 +29,10 @@ jobs:
         run: node --test tests/agent19-mew-max-miracle-owner-choice.test.cjs tests/agent19-mew-mirror-actor-optin.test.cjs
       - name: Test genuine Store same-board copied attack choices
         run: node simulation/twinleaf/agent19-mew-mimikyu-native.cjs > agent19-mew-mirror-native.json
+      - name: Test live public observer and exact registered source cohort
+        run: node --test tests/agent19-dual-mew-source-observer.test.cjs tests/agent19-dual-mew-original-opportunity.test.cjs
+      - name: Run frozen source-dealt rank5 versus Snorlax cohort
+        run: node simulation/evaluation/agent19-dual-mew-original-opportunity.cjs
       - name: Archive exact native copies and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
