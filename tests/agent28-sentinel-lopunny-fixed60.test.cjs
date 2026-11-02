@@ -44,7 +44,7 @@ test('fixed candidate manifest keeps its exact registered SHA-256 and row identi
     row.category,row.name,row.set,row.number].join('|'));
   assert.equal(new Set(keys).size,rows.length,
     'duplicate printing identity would invalidate a fixed 60');
-  assert.deepEqual([...keys].sort((a,b)=>a.localeCompare(b)),
+  assert.deepEqual([...keys].sort(),
     keys,'the persisted manifest order must be canonical');
 });
 
