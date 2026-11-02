@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_shared_boxshake_natural_pairs:
+        description: 'Default-off symmetric two-seat original-deal Secret Box firstturn experiment, historical positive plus 16 disjoint future deals'
+        type: boolean
+        default: false
       agent44_rank8_original_firstturn_boxshake:
         description: 'Execute native first-own-turn Box to Shake on exact original rank8 source seed selected after K0 witness (research development only)'
         type: boolean
@@ -229,6 +233,20 @@ jobs:
           path: agent44-rank8-original-k0-source.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Unit test first-turn symmetric owner-only Secret Box root
+        if: inputs.agent44_rank8_shared_boxshake_natural_pairs
+        run: node --test tests/agent44-owner-boxshake-native-policy.test.cjs tests/agent44-secretbox-owner-prompt.test.cjs
+      - name: Run retrospective original and 16 future original source physical pairs
+        if: inputs.agent44_rank8_shared_boxshake_natural_pairs
+        run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
+      - name: Archive all original source-deal attempts and native evidence
+        if: always() && inputs.agent44_rank8_shared_boxshake_natural_pairs
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent44-shared-boxshake-original-paired-development
+          path: agent44-shared-boxshake-original-pairs.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Test authenticated Secret Box owner-K1 category prompt selector
         if: inputs.agent44_rank8_box_fetch_shake_native
         run: node --test tests/agent44-secretbox-owner-prompt.test.cjs
