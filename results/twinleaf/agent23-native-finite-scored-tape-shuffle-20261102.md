@@ -101,6 +101,49 @@ same simulator and shuffle references. The genuine source and
 strict source tape remain untouched. The inner RNG trace, entry-only
 clone experiment and both audit modes remain default-off.
 
+## Separate Supporter proposal replay mismatch after shuffle fidelity
+
+Restoring only source-equivalent fair shuffle plus Simulator resolved the
+random-tape overreads and promoted the strict same-world decision parity
+from **1/4 to 3/4**, in
+[compiled run 41424981456](https://github.com/FlareZ123/experiment-01/actions/runs/41424981456),
+original JSON artifact **13132186191**. All four arms preserved original
+physical Store controls. The source/replay first-shuffle method SHA256 now
+matched identically (`5e6088f0...`) and 40/40 or 41/41 RNG use matched.
+
+The remaining rank6 champion native decision was **PlayCardAction**
+(Lillie's Determination, owner hand index0) in the source and **AttackAction**
+(Pale Moon-GX) in the detached replay, despite identical exact 40/40
+RNG draws and an identical first finite candidate score of **-24**.
+Archived ordered tactic traces showed the source returned from
+`PlaySupporterTactic` immediately, while the replay fell through
+UseStadium/Retreat/Attack tactics and chose the attack. This is a genuine
+selected-action mismatch, so its concealed-world interpretation remains
+vetoed.
+
+The frozen original v1 registration at
+`results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json`
+has `frozenFlags.supporterDecisionCorrection=true`.
+The original `headless.runMatch` consequently installs
+`installSupporterDecisionHook()` at line588 and restores it at line2095.
+That research-owned hook wraps native
+`PlaySupporterTactic.useTactic`, restoring
+`player.supporterTurn` after merely proposing a Supporter candidate.
+Unpatched Twinleaf incorrectly mutates that field during candidate proposal
+before action validation, potentially vetoing an otherwise selected
+Supporter. This matches the source PlayCardAction versus detached replay
+AttackAction divergence exactly.
+
+An additional explicit scoped option `nativeTapeSupporterReplayHook`,
+exposed in manual workflow input `agent23_native_supporter_replay_hook`,
+reinstates the source-registered Supporter proposal wrapper after the fair
+shuffle hook and restores them in reverse order. The original Store,
+frozen source tape and full strict decision parity requirements are
+unmodified. Compiled follow-up run
+[41426375437](https://github.com/FlareZ123/experiment-01/actions/runs/41426375437)
+was dispatched on head `14aa58a5...` with both opt-in original-game
+hooks; verify its original JSON and 4/4 parity before claiming closure.
+
 ## Scoped falsification procedure
 
 Added `simulation/twinleaf/agent23-native-arbiter-shuffle-observer.cjs`,
