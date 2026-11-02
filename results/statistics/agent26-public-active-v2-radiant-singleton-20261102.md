@@ -19,7 +19,7 @@ A missing list's actual conditional likelihood is never inferred from a proxy li
 
 ## Independently useful Radiant Eternatus example
 
-The supplied original-printed 29-source manifest contains **Radiant Eternatus in precisely the rank-1 Shadow Rider champion's deck**, one copy, amid its 14 starting-eligible Basic Pokémon. The [Advanced Player's Rulebook, section D-18](../../resources/advanced-players-rulebook.md) states the **Radiant Pokémon Rule** permits only one Radiant Pokémon in a deck. Therefore a missing hypothetical source has at most one Radiant Eternatus. Consider only the following public information: a face-up **Radiant Eternatus Active**, with **no publicly shown failed sevens**.
+The supplied original-printed 29-source manifest contains **Radiant Eternatus in precisely the rank-1 Shadow Rider champion's deck**, one copy, amid its 14 starting-eligible Basic Pokémon. The [official Radiant Eternatus card and deck-building restriction](https://www.pokemon.com/uk/pokemon-tcg/pokemon-cards/series/swsh12pt5/105) states the **Radiant Pokémon Rule** permits only one Radiant Pokémon in a deck. Therefore a missing hypothetical source has at most one Radiant Eternatus. Consider only the following public information: a face-up **Radiant Eternatus Active**, with **no publicly shown failed sevens**.
 
 For rank 1, the forced-Active lower event probability is
 
