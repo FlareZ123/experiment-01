@@ -126,6 +126,7 @@ function withUnderworldDoorPreconditions(execute,deps={}){
       state.activePlayer===seat&&state.phase===phase&&
       Number.isSafeInteger(state.turn)&&state.turn>=1&&
       state.prompts?.every(prompt=>prompt.result!==undefined)===true;
+    const preTurn=state.turn;
     let observation=null;
     if(eligible){
       scanned++;
@@ -142,9 +143,9 @@ function withUnderworldDoorPreconditions(execute,deps={}){
       accepted++;
       sourceVmaxRoots+=Number(observation.sourceInPlay>0);
       opportunities+=Number(observation.structuralOpportunity);
-      const key=gameId+':'+seat+':'+state.turn;
+      const key=gameId+':'+seat+':'+preTurn;
       const prior=turns.get(key)??{
-        gameId,seat,turn:state.turn,acceptedRoots:0,
+        gameId,seat,turn:preTurn,acceptedRoots:0,
         maxVmax:0,maxUnspent:0,maxPsychicHand:0,
         maxPrintedPsychicBench:0,
         anyVMAX:false,anyUnspent:false,
