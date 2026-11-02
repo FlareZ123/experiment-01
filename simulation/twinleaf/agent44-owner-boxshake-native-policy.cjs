@@ -6,6 +6,7 @@ const {chooseOwnedBoxFetchShake}=
   require('./agent44-secretbox-owner-prompt.cjs');
 
 const VERSION='agent44-shared-firstturn-secretbox-shake-v1';
+const FLEX_VERSION='agent44-shared-firstturn-secretbox-shake-v2-flex';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const DISCARD_PRIORITY=[
   'Battle VIP Pass','Quick Ball','Dark Patch','VS Seeker',
@@ -75,7 +76,7 @@ function witnessOpponentTurn(stages,audit,state,pending,GamePhase){
     audit.opponentContinuations.push({sourceSeat,
       opponentSeat:state.activePlayer,turn:state.turn,
       originalBotDecisionRequested:true,
-      equippedGarbodor:source.bench.some(slot=>
+      equippedGarbodor:[source.active,...source.bench].some(slot=>
         slot.getPokemonCard()?.name==='Garbodor'&&
         slot.tools.some(tool=>tool.name===completed.toolName))});
   }
@@ -89,9 +90,10 @@ function witnessOpponentTurn(stages,audit,state,pending,GamePhase){
  *
  * @template T
  * @param {()=>T} execute Synchronous pinned native match
+ * @param {{flexible?:boolean}} [options] Wider K0-only Basic/Tool access.
  * @returns {{result:T,audit:object}}
  */
-function withSharedFirstTurnBoxShake(execute){
+function withSharedFirstTurnBoxShake(execute,options={}){
   assert.equal(typeof execute,'function');
   const {SimpleTacticsAi}=require(path.join(BASE,'simple-bot/simple-tactics-ai'));
   const {PlayCardAction,PlayerType,SlotType}=
@@ -101,7 +103,10 @@ function withSharedFirstTurnBoxShake(execute){
   const {GamePhase}=require(path.join(BASE,'game/store/state/state'));
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const stages=new Map();
-  const audit={version:VERSION,symmetricBothSeats:true,originalDealsUnchanged:true,
+  const flexible=options.flexible===true;
+  const audit={version:flexible?FLEX_VERSION:VERSION,
+    flexibleOwnerAccessOptIn:flexible,
+    symmetricBothSeats:true,originalDealsUnchanged:true,
     ownerVisibleK0Only:true,ownerDeckReadOnlyAfterNativeSearch:true,
     offers:[],events:[],failures:[],opponentContinuations:[],
     completeNativeEvolutions:0};
@@ -149,14 +154,21 @@ function withSharedFirstTurnBoxShake(execute){
         itemLocked:owner.cannotPlayItemCards===true,
         toolLocked:owner.cannotPlayToolCards===true
       };
-      const offer=firstTurnBoxOffer(view);
+      const offer=flexible?
+        require('./agent44-flexible-box-k0-plan.cjs')
+          .flexibleFirstTurnBoxOffer(view):firstTurnBoxOffer(view);
       if(offer.eligible){
         flow={stage:'box-discard',toolName:offer.toolName,
-          discardNames:offer.discardNames,firstTurn:state.turn};
+          discardNames:offer.discardNames,firstTurn:state.turn,
+          trubbishMode:offer.trubbishMode??'held-basic',
+          basicSearcher:offer.basicSearcher??null,
+          laterBasicSearcherPayment:offer.laterBasicSearcherPayment??0};
         stages.set(seat,flow);
         audit.offers.push({seat,turn:state.turn,
           handNames:view.handNames,discardNames:offer.discardNames,
-          toolName:offer.toolName});
+          toolName:offer.toolName,trubbishMode:flow.trubbishMode,
+          basicSearcher:flow.basicSearcher,
+          laterBasicSearcherPayment:flow.laterBasicSearcherPayment});
         event(seat,state,'play native Secret Box from unmodified owner hand');
         return play(owner,'Secret Box');
       }
@@ -182,15 +194,57 @@ function withSharedFirstTurnBoxShake(execute){
         try{planned=chooseOwnedBoxFetchShake(pending,owner,state);}
         catch(error){fail(seat,state,flow,'K1_OWNER_SIGNATURE_'+error.message);
           return original.call(this,state);}
-        if(!planned.eligible||
-           planned.selectedNames.length!==1||
-           planned.selectedNames[0]!=='Boost Shake'){
-          fail(seat,state,flow,'UNAVAILABLE_SHAKE_OR_GARBODOR_K1');
+        const selected=planned.selectedNames;
+        const toolFetched=flow.toolName===null;
+        if(!planned.eligible||selected[0]!=='Boost Shake'||
+           (toolFetched?
+             selected.length!==2||!['Float Stone','Muscle Band']
+               .includes(selected[1]):
+             selected.length!==1)){
+          fail(seat,state,flow,'UNAVAILABLE_SHAKE_TOOL_OR_GARBODOR_K1');
+          return original.call(this,state);
+        }
+        if(toolFetched)flow.toolName=selected[1];
+        flow.stage=flow.trubbishMode==='held-searcher'?
+          'play-basic-searcher':flow.trubbishMode==='already-in-play'?
+          'attach-tool':'bench-trubbish';
+        event(seat,state,'native owner-deck Shake and Tool allocation accepted');
+        return new ResolvePromptAction(pending.id,planned.selectedCards);
+      }
+      if(flow.stage==='basic-search-discard'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        const reserved=new Set(['Boost Shake',flow.toolName,'Trubbish']);
+        const available=owner.hand.cards.map((card,index)=>
+          ({name:card.name,index}))
+          .filter(card=>!reserved.has(card.name));
+        available.sort((a,b)=>{
+          const i=DISCARD_PRIORITY.indexOf(a.name),
+            j=DISCARD_PRIORITY.indexOf(b.name);
+          return (i<0?DISCARD_PRIORITY.length:i)-
+            (j<0?DISCARD_PRIORITY.length:j)||a.index-b.index;
+        });
+        const names=available.slice(0,flow.laterBasicSearcherPayment)
+          .map(card=>card.name);
+        const action=names.length===flow.laterBasicSearcherPayment?
+          chooseNative(pending,names,state):null;
+        if(!action){
+          fail(seat,state,flow,'LATER_BASIC_PAYMENT_REJECT');
+          return original.call(this,state);
+        }
+        flow.stage='basic-search-target';
+        event(seat,state,'native held Basic-search discard accepted');
+        return action;
+      }
+      if(flow.stage==='basic-search-target'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        const action=chooseNative(pending,['Trubbish'],state);
+        if(!action){
+          fail(seat,state,flow,'TRUBBISH_OWNER_DECK_SEARCH_REJECT');
           return original.call(this,state);
         }
         flow.stage='bench-trubbish';
-        event(seat,state,'native owner-deck Shake search accepted');
-        return new ResolvePromptAction(pending.id,planned.selectedCards);
+        event(seat,state,'native Basic-search Trubbish accepted');
+        return action;
       }
       if(flow.stage==='shake-evolution-search'&&
          pending.constructor?.name==='ChooseCardsPrompt'){
@@ -203,7 +257,7 @@ function withSharedFirstTurnBoxShake(execute){
       }
       if(flow.stage==='shake-evolution-target'&&
          pending.constructor?.name==='ChoosePokemonPrompt'){
-        const slot=owner.bench.find(s=>
+        const slot=[owner.active,...owner.bench].find(s=>
           s.getPokemonCard()?.name==='Trubbish'&&
           s.tools.some(tool=>tool.name===flow.toolName));
         if(!slot||pending.validate([slot],state)!==true){
@@ -216,6 +270,16 @@ function withSharedFirstTurnBoxShake(execute){
         return new ResolvePromptAction(pending.id,[slot]);
       }
       return original.call(this,state);
+    }
+    if(flow.stage==='play-basic-searcher'){
+      const action=play(owner,flow.basicSearcher);
+      if(!action){
+        fail(seat,state,flow,'HELD_BASIC_SEARCH_ITEM_MISSING');
+        return original.call(this,state);
+      }
+      flow.stage='basic-search-discard';
+      event(seat,state,'play held native Quick or Ultra Ball for Trubbish');
+      return action;
     }
     if(flow.stage==='bench-trubbish'){
       const index=owner.bench.findIndex(slot=>!slot.getPokemonCard());
@@ -230,8 +294,14 @@ function withSharedFirstTurnBoxShake(execute){
     if(flow.stage==='attach-tool'){
       const index=owner.bench.findIndex(slot=>
         slot.getPokemonCard()?.name==='Trubbish'&&slot.tools.length===0);
-      const action=index<0?null:play(owner,flow.toolName,{
-        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index});
+      const active=owner.active.getPokemonCard()?.name==='Trubbish'&&
+        owner.active.tools.length===0;
+      const target=index>=0?{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index
+      }:active?{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+      }:null;
+      const action=target?play(owner,flow.toolName,target):null;
       if(!action){fail(seat,state,flow,'HELD_TOOL_ATTACHMENT_UNAVAILABLE');
         return original.call(this,state);}
       flow.stage='play-shake';
@@ -256,5 +326,5 @@ function withSharedFirstTurnBoxShake(execute){
   }
 }
 
-module.exports={VERSION,DISCARD_PRIORITY,
+module.exports={VERSION,FLEX_VERSION,DISCARD_PRIORITY,
   firstTurnBoxOffer,witnessOpponentTurn,withSharedFirstTurnBoxShake};
