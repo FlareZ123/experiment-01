@@ -26,7 +26,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify printed rank-5 dual-Mew source and owner-only selector
-        run: node --test tests/agent19-mew-max-miracle-owner-choice.test.cjs
+        run: node --test tests/agent19-mew-max-miracle-owner-choice.test.cjs tests/agent19-mew-mirror-actor-optin.test.cjs
       - name: Test genuine Store same-board copied attack choices
         run: node simulation/twinleaf/agent19-mew-mimikyu-native.cjs > agent19-mew-mirror-native.json
       - name: Archive exact native copies and failure evidence
