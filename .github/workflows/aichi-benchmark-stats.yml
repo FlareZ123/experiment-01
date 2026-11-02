@@ -104,6 +104,10 @@ jobs:
           python -m pip install --disable-pip-version-check --quiet PyYAML==6.0.3
           python -m unittest discover -s tests -p test_workflow_dispatch_preflight.py
           python scripts/workflow_dispatch_preflight.py
+      - name: Verify exact accepted-Basic opening Temple and Raichu Prize windows
+        run: |
+          python -m unittest discover -s tests -p test_agent17_raichu_temple_prize_windows.py -v
+          python scripts/agent17_raichu_temple_prize_windows.py > agent17-raichu-temple-prize-windows.json
       - name: Regress Agent17 frozen original Store prompt-family and exact-print category screens
         run: |
           python -m unittest discover -s tests -p test_agent17_frozen_native_prompt_portfolio.py
