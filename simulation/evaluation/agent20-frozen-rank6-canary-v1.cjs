@@ -94,8 +94,9 @@ function checkProfile(profile, runnerSource) {
  * @param {object} profile
  * @param {object} closure
  * @param {NodeJS.ProcessEnv|Record<string,string|undefined>} env
+ * @param {string} checkoutCommit Actual immutable checked-out Git commit.
  */
-function assertEnvironment(profile, closure, env) {
+function assertEnvironment(profile, closure, env, checkoutCommit) {
   const injected = profile.injectedResearchEnvironment;
   const ambient = profile.allowedAmbientEnvironment;
   const keys = new Set([...closure.keys,
@@ -109,7 +110,8 @@ function assertEnvironment(profile, closure, env) {
     if (Object.hasOwn(injected,key)) continue;
     const actual=env[key];
     if (actual===undefined) continue;
-    assert.ok(Object.hasOwn(ambient,key) && actual===ambient[key],
+    const expected=ambient[key]==='@checkoutCommit'?checkoutCommit:ambient[key];
+    assert.ok(Object.hasOwn(ambient,key) && actual===expected,
       'Unreviewed source-visible ambient environment: '+key);
   }
 }
@@ -208,7 +210,7 @@ function runFrozenCanary() {
   const checkoutCommit=execFileSync('git',['rev-parse','HEAD'],
     {cwd:ROOT,encoding:'utf8'}).trim();
   const closure=auditSourceClosure(ROOT,[RUNNER]);
-  assertEnvironment(profile,closure,process.env);
+  assertEnvironment(profile,closure,process.env,checkoutCommit);
   const prior=new Map();
   try {
     for (const [key,value] of Object.entries(profile.injectedResearchEnvironment)) {
@@ -216,9 +218,15 @@ function runFrozenCanary() {
       process.env[key]=value;
     }
     const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
-    const result=runDevelopment({...profile.policyOptions,
-      registeredTrials:profile.registeredTrials,
-      registeredFrameName:profile.schema});
+    let result;
+    try {
+      result=runDevelopment({...profile.policyOptions,
+        registeredTrials:profile.registeredTrials,
+        registeredFrameName:profile.schema});
+    } catch(error) {
+      if(error && typeof error==='object')error.frozenConfigVerified=true;
+      throw error;
+    }
     return {
       schema:'agent20-frozen-release-disposition-v1',
       releaseProfile:profile.schema,
@@ -251,14 +259,16 @@ if (require.main===module) {
   let out;
   try {out=runFrozenCanary();}
   catch(error){
+    const configFrozen=error?.frozenConfigVerified===true;
     out={schema:'agent20-frozen-release-disposition-v1',
       releaseProfile:'agent20-frozen-bilateral-rank6-canary-v1',
-      releaseDisposition:{stages:{CONFIG_FROZEN:false,
+      releaseDisposition:{stages:{CONFIG_FROZEN:configFrozen,
         BOTH_SEATS_EXECUTED:false,PAPER_PAYMENT_VERIFIED:false,
         SOURCE_PAYOFF_WITNESSED:false,
         OPPONENT_CONTINUATION_WITNESSED:false,
         COMPETITIVE_GAME_QUALIFIED:false},
-      firstBlocker:'PREFLIGHT_OR_EXECUTION_ERROR',attempts:[],
+      firstBlocker:configFrozen?'NATIVE_EXECUTION_EXCEPTION':
+        'PREFLIGHT_REJECTED',attempts:[],
       competitiveQualifiedGames:0},
       error:String(error?.stack??error),competitiveGameQualified:false};
     process.exitCode=1;
