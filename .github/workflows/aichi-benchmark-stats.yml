@@ -3,6 +3,11 @@ name: Aichi benchmark statistical tests
 on:
   workflow_dispatch:
     inputs:
+      agent12_rank5_printed_native_replay:
+        description: 'Read-only SHA-pinned archived rank5 Mew/Genesect eight original Store copied attacks against printed HP and Prize rules'
+        required: false
+        type: boolean
+        default: false
       agent48_seeker_native_census:
         description: '12 preregistered native original-source owner-only VS Seeker and Lillie 120-root audits, no competitive games'
         required: false
@@ -86,6 +91,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   test-benchmark:
@@ -188,6 +194,19 @@ jobs:
         run: node --test tests/agent12-native-settled-recovery-lineage-bridge.test.cjs
       - name: Verify printed rank5 Techno Blast baseline damage and Prize thresholds
         run: node --test tests/agent12-rank5-printed-techno-blast-calibration.test.cjs
+      - name: Retrieve unchanged archived native rank5 v3.1 original 16 arms
+        if: ${{ inputs.agent12_rank5_printed_native_replay }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent13-rank5-v31-native-16arm
+          run-id: 41387484608
+          github-token: ${{ github.token }}
+          path: agent12-rank5-archive
+      - name: Audit original rank5 Techno Blast against printed HP, Weakness and Prize awards
+        if: ${{ inputs.agent12_rank5_printed_native_replay }}
+        run: |
+          node simulation/evaluation/agent12-rank5-printed-techno-blast-calibration.cjs agent12-rank5-archive/agent13-rank5-v31-native-16arm.json > agent12-rank5-native-printed-calibration.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent12-rank5-native-printed-calibration.json');console.log(JSON.stringify({version:r.version,sourceOriginalRank:r.sourceOriginalRank,sourcePrintedAttackEvents:r.sourcePrintedAttackEvents,consistent:r.baselinePaperOutcomesConsistent,knockouts:r.printedTargetKnockouts,damages:r.printedTargetDamageWithoutKnockout,prizes:r.printedPrizesTaken,unverifiedWins:r.competitivelyQualifiedGames},null,2));a.equal(r.sourcePrintedAttackEvents,8);a.equal(r.baselinePaperOutcomesConsistent,8);a.equal(r.printedTargetKnockouts,7);a.equal(r.printedTargetDamageWithoutKnockout,1);a.equal(r.printedPrizesTaken,13);a.equal(r.competitivelyQualifiedGames,0);"
       - name: Regress bounded owner-only root action contention without changing decisions
         run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs
       - name: Audit printed opponent-hand random effect source incidence across 29 final originals
