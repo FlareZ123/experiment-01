@@ -40,6 +40,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank5_v31_release:
+        description: 'Corrected native root rank5 fresh four-seed original integrated v3.1 developmental'
+        type: boolean
+        required: false
+        default: false
       rank9_farewell_replay:
         description: 'Retrospective exact original rank9 two-seat Unown Ability Store comparison'
         type: boolean
@@ -71,7 +76,7 @@ jobs:
       - name: Verify sealed source identities, metadata comparisons and failure retention
         run: node --test tests/agent41-flexible-special-four-rank-paired.test.cjs tests/agent41-public-flexible-energy-contest.test.cjs tests/agent41-mysterious-treasure-root-witness.test.cjs tests/agent41-flexible-special-compact-evidence.test.cjs
       - name: Verify registered nine-archetype read-only seed and source membership
-        if: ${{ inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         run: |
           node --check simulation/evaluation/agent25-nine-omitted-archetypes-source-readiness.cjs
           node simulation/evaluation/agent25-nine-omitted-archetypes-source-readiness.cjs --inspect-only
@@ -81,23 +86,23 @@ jobs:
           node --test tests/native-accepted-target-store-observer.test.cjs
           node simulation/evaluation/agent25-rank19-source-alias-retrospective.cjs --inspect-only
       - name: Native rank10 Regidrago V Basic versus Double Dragon two-seat settlement
-        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay && inputs.study == 'contest' }}
+        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay && inputs.study == 'contest' }}
         run: node --test tests/agent41-public-flexible-contest-native.test.cjs
       - name: Execute the preregistered 16 actual native Store developmental attempts
-        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         env:
           AGENT41_FLEXIBLE_SPECIAL_STUDY: ${{ inputs.study }}
           AGENT41_FLEXIBLE_SPECIAL_COHORT: ${{ inputs.cohort }}
         run: node simulation/evaluation/agent41-flexible-special-four-rank-paired.cjs > agent41-original-flexible-special-16arm.json
       - name: Assert denominator, preserve censored trials, and print bounded receipts
-        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         run: |
           node -e "const a=require('node:assert/strict');const p=require('./agent41-original-flexible-special-16arm.json');a.equal(p.attempts,16);a.equal(p.expectedAttempts,16);a.equal(p.rows.length,8);a.equal(p.competitiveQualifiedGames,0);a.equal(p.winRateCertified,false);console.log('FLEXIBLE_SPECIAL_REGISTERED',JSON.stringify({cohort:p.cohort,mode:p.comparisonMode,attempts:p.attempts,pairs:p.pairedPhysicalStarts,errors:p.nativeErrors,selected:p.treatmentSpecialSelections,acceptedSample:p.treatmentSpecialSampleAcceptedLowerBound,sourceAttacks:[p.sourceAttackControl,p.sourceAttackTreatment],pairsByRank:p.rows.map(x=>({id:x.trial.id,control:x.comparison.controlStatus,treatment:x.comparison.treatmentStatus,fullDeal:x.comparison.fullDealMatch,specialSelected:[x.comparison.controlSpecialSelected,x.comparison.treatmentSpecialSelected],nativeWinner:[x.comparison.controlNativeWinner,x.comparison.treatmentNativeWinner]}))}));"
       - name: Print bounded native error and accepted physical Energy-target receipts
-        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         run: node simulation/evaluation/agent41-flexible-special-compact-evidence.cjs agent41-original-flexible-special-16arm.json
       - name: Archive every native status, original fingerprint and physical target evidence
-        if: ${{ always() && !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ always() && !inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         uses: actions/upload-artifact@v4
         with:
           name: agent41-original-flexible-special-16arm
@@ -105,10 +110,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 20
       - name: Run preregistered missing-nine original printed-source cohort, two physical seats
-        if: ${{ inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         run: node simulation/evaluation/agent25-nine-omitted-archetypes-source-readiness.cjs > agent25-nine-omitted-source-readiness-36arm.json
       - name: Archive every readiness result including print failures and action caps
-        if: ${{ always() && inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank9_farewell_replay }}
+        if: ${{ always() && inputs.nine_archetype_readiness && !inputs.rank19_source_alias_replay && !inputs.rank31_paper_duskull_replay && !inputs.rank5_v3_release && !inputs.rank5_v31_release && !inputs.rank9_farewell_replay }}
         uses: actions/upload-artifact@v4
         with:
           name: agent25-nine-omitted-source-readiness-36arm
@@ -181,5 +186,28 @@ jobs:
           path: |
             agent14-rank9-preflight.json
             agent14-rank9-farewell-native-8arm.json
+          if-no-files-found: warn
+          retention-days: 20
+      - name: Preflight corrected root v3.1 exact original Mew profile and all sixteen registered arms
+        if: ${{ inputs.rank5_v31_release }}
+        run: |
+          node --check simulation/evaluation/agent13-v31-rank5-corrected-root-release.cjs
+          node --test tests/agent13-v3-rank5-integration.test.cjs tests/agent13-v31-rank5-release.test.cjs tests/agent13-native-bot-decoder-frame-audit.test.cjs tests/agent48-mew-original-copy-option-order.test.cjs
+          node simulation/evaluation/agent13-v31-rank5-corrected-root-release.cjs --inspect-only > agent13-rank5-v31-preflight.json
+      - name: Execute sixteen new original rank5 corrected-root bilateral development arms
+        if: ${{ inputs.rank5_v31_release }}
+        run: node simulation/evaluation/agent13-v31-rank5-corrected-root-release.cjs > agent13-rank5-v31-native-16arm.json
+      - name: Assert sixteen complete attempted rows and summarize unqualified source witnesses
+        if: ${{ inputs.rank5_v31_release }}
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent13-rank5-v31-native-16arm.json');a.equal(x.attempted,16);a.equal(x.comparisons.length,8);a.equal(x.competitiveQualifiedGames,0);console.log('RANK5_V31_CORRECTED_ROOT',JSON.stringify({profile:x.profileGitBlobSha,registration:x.registrationGitBlobSha,comparisons:x.comparisons.map(r=>({trial:r.trial.id,sameSource:r.controlledSameSourceDeal,baseline:r.baseline.status,v31:r.integratedV3.status,attackDelta:r.observedAttackDelta,sourceEvolution:r.integratedV3.sourceMewVMAXPlayRoots?.length??0,sourceTechnoBlast:r.integratedV3.ownerSourceGenesectCopiedSelections?.length??0,baselineSourceAttack:r.baseline.originalSourceAttackDeclarations??null,v31SourceAttack:r.integratedV3.originalSourceAttackDeclarations??null}))}));"
+      - name: Archive corrected-root sixteen native receipts and preflight
+        if: ${{ always() && inputs.rank5_v31_release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-rank5-v31-native-16arm
+          path: |
+            agent13-rank5-v31-native-16arm.json
+            agent13-rank5-v31-preflight.json
           if-no-files-found: warn
           retention-days: 20
