@@ -53,7 +53,7 @@ jobs:
         if: ${{ inputs.fourScope }}
         run: |
           node simulation/evaluation/agent9-rank5-quickball-four-scope.cjs > agent9-rank5-quickball-four-scope-32arm.json
-          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-four-scope-32arm.json');a.equal(r.nativeAttemptCount,32);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('FOUR_SCOPE',JSON.stringify(r.blocks.map(x=>({trialId:x.trialId,mode:x.mode,physical:x.fullPhysicalDealPairing,offAttacksLaterThanBothTerminal:x.offAttacksLaterThanBothTerminal,scopeSummary:Object.fromEntries(Object.entries(x.actual).map(([k,v])=>[k,{status:v.disposition,sourceQuickBall:v.sourceQuickBall,candidateQuickBall:v.candidateQuickBall,sourceAttacks:v.sourceAttacks,winner:v.winner}]))}))),null,2));"
+          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-four-scope-32arm.json');a.equal(r.nativeAttemptCount,32);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.physicalMatches,8);console.log('FOUR_SCOPE_MATCHED_NATIVE_BLOCKS',r.blocks.length,'CERTIFIED',r.competitiveQualifiedGames);"
       - name: Preserve every scoped native outcome and error
         if: ${{ always() && inputs.fourScope }}
         uses: actions/upload-artifact@v4
