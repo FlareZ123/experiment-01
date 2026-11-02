@@ -15,6 +15,44 @@ function chooseMewDceRecipient(view,catalog){
     r.energyPlayedTurn===view.globalTurn)return null;
   if([...(own.stadium??[]),...(view.opponentPublic?.stadium??[])]
     .some(x=>x.startsWith('Temple of Sinnoh ')))return null;
+  // Do not steal a fully funded immediate attack from a different Active.
+  // Unknown attached-energy printings fail closed on this opportunity test.
+  const active=own.active;
+  if(active?.printing!=='Mew V FST'&&
+      active?.printing!=='Mew VMAX FST'&&Array.isArray(active?.attacks)&&
+      active.attacks.length>0){
+    const {specialEnergyUnits,missingEnergyUnits}=
+      require('./agent3-special-energy-frontier.cjs');
+    const {effectiveNativeAttackCost}=
+      require('./agent17-public-context-special-energy.cjs');
+    const supplied=[];
+    let known=true;
+    for(const energy of active.energies??[]){
+      let units=specialEnergyUnits(energy,catalog,false);
+      if(units===null&&catalog.basicEnergies?.has(energy)){
+        const type=Object.keys(catalog.basicEnergyTypes??{})
+          .find(n=>energy.startsWith(n+' Energy '));
+        units=type?[catalog.basicEnergyTypes[type]]:null;
+      }
+      if(units===null){known=false;break;}
+      supplied.push(...units);
+    }
+    if(known){
+      const afterUnits=[...supplied,catalog.colorlessEnergyType,
+        catalog.colorlessEnergyType];
+      for(const attack of active.attacks){
+        if(!(Number.isSafeInteger(attack.damage)&&attack.damage>0)||
+            attack.gxAttack===true||attack.name?.endsWith('-GX'))continue;
+        const cost=effectiveNativeAttackCost(view,catalog,active,attack);
+        if(!Array.isArray(cost))continue;
+        const before=missingEnergyUnits(cost,supplied,
+          catalog.colorlessEnergyType);
+        const after=missingEnergyUnits(cost,afterUnits,
+          catalog.colorlessEnergyType);
+        if(before>0&&after===0)return null;
+      }
+    }
+  }
   const targets=[{slot:'active',index:0,pokemon:own.active},
     ...(own.bench??[]).map((pokemon,index)=>({slot:'bench',index,pokemon}))];
   const options=targets.filter(t=>t.pokemon&&
