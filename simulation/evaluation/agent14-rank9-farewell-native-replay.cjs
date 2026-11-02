@@ -24,6 +24,8 @@ function sourceEvidence(row){
     (event.detail==='Farewell Letter'||event.abilityName==='Farewell Letter'||
      event.name==='Farewell Letter'||event.ability==='Farewell Letter'));
   const originalAudit=row.actorOnlyDecisionCoverage?.detailedComponentAudits?.root??null;
+  const sourceReceipts=(originalAudit?.farewellLetterReceipts??[])
+    .filter(receipt=>receipt.seat===seat);
   return {
     sourceSeat:seat,
     sourceDealFingerprint:row.sourceDealFingerprint??null,
@@ -34,6 +36,11 @@ function sourceEvidence(row){
       action:event.action,detail:event.detail??null
     })),
     bothSeatFarewellIntentCount:originalAudit?.typedIntentCounts?.['use-farewell-letter']??0,
+    sourceFarewellSettled:sourceReceipts.filter(receipt=>
+      receipt.deferredStatus==='confirmed-after-prompt'||
+      receipt.deferredStatus==='confirmed-immediately').length,
+    sourceFarewellPending:sourceReceipts.filter(receipt=>
+      receipt.deferredStatus==='awaiting-prompt').length,
     bothSeatFarewellConfirmedEffects:
       originalAudit?.nativePhysicalConfirmedByIntent?.['use-farewell-letter']??0,
     bothSeatFarewellUnconfirmedEffects:
