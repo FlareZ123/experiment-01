@@ -54,6 +54,11 @@ jobs:
           node simulation/evaluation/agent32-gh-artazon-prize-window.cjs
           node simulation/evaluation/agent32-gh-artazon-slot-sensitivity.cjs
           node simulation/evaluation/agent32-gh-artazon-bonus-cards.cjs
+      - name: Verify rank2 physical TM source access under simultaneous original opponent mulligans
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent40-rank2-mulligan-bonus-tm-screen.test.cjs
+          node simulation/evaluation/agent40-rank2-mulligan-bonus-tm-screen.cjs 200000 16
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
