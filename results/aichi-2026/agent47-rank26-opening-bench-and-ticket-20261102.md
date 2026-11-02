@@ -25,6 +25,17 @@ The machine-readable immutable source inventories are [rank-1 original 60](full-
 | Temple v1 | 15 | **35.84686438%** | 64.15313562% |
 | New Moon Lockbreaker v1 | 17 | **29.27817856%** | 70.72182144% |
 
+The existing [exact simultaneous-mulligan bonus model](../../scripts/aichi_solo_start.cjs) sharpens the comparison if the defender accepts **all** offered bonus cards from rank26's mulligans and Benches every additional Basic. This handles simultaneous redraws correctly; the companion 17-Basic and champion figures were already established in [prior New Moon research](../als/new-moon-meloetta-start-exposure.md).
+
+| Fixed 60 | Solo after seven | Solo after all opponent-mulligan bonuses | Additional reduction |
+| --- | ---: | ---: | ---: |
+| Original champion Shadow Rider | 39.4176% | **37.5068%** | 1.9108 percentage points |
+| Hood Shield v1 | 39.4176% | **37.5068%** | 1.9108 percentage points |
+| Temple v1 | 35.8469% | **33.9457%** | 1.9012 percentage points |
+| New Moon Lockbreaker v1 | 29.2782% | **27.4628%** | 1.8154 percentage points |
+
+This row comparison reveals **no independent benefit from Hood Shield's card choices in this strict setup bucket** because its Basic count remains fourteen. Temple's fifteenth Basic lowers the after-bonus solo event by approximately 3.56 percentage points relative to champion; New Moon lowers it by approximately 10.04 points. These are count-only exposures; no first-turn attack is simulated.
+
 For B Basic copies and a seven-card hand, exact integer combinatorics give
 
 \[
