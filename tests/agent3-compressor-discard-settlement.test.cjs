@@ -10,7 +10,7 @@ const card=(name,id)=>({name,id,fullName:name+' Test'});
 class ChooseCardsPrompt {
   constructor(owner) {
     this.result=undefined;
-    this.playerId=owner.id;
+    this.player=owner;
     this.cards=owner.deck;
     this.options={min:0,max:3};
   }
