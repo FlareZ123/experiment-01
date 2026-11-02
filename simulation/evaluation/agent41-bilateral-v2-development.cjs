@@ -986,6 +986,7 @@ function runDevelopment({
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
   bilateralPublicContextSpecialEnergy=false,
+  bilateralBasicEnergyRecipientFrontier=false,
   bilateralConservativeShuffleRoot=false,
   bilateralEnergyContest=false,
   sameRootProposalChoice=false,sameRootChoiceApply=false,
@@ -1029,6 +1030,8 @@ function runDevelopment({
     'Basic/Special contention requires symmetric both-seat Special root');
   assert.ok(!bilateralPublicContextSpecialEnergy||actorOnlyComposition,
     'Public-context Special Energy requires canonical actor composition');
+  assert.ok(!bilateralBasicEnergyRecipientFrontier||actorOnlyComposition,
+    'Two-seat Basic Energy recipient frontier requires canonical actor composition');
   const conservativeSupporterRootOptions=commonConservativeSupporterRootOptions({
     enabled:bilateralConservativeShuffleRoot,actorOnlyComposition
   });
@@ -1184,6 +1187,7 @@ function runDevelopment({
             candidate:candidateScopedSpecialEnergyRoot
           },trial.candidateSlot);
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
+          !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
@@ -1197,6 +1201,10 @@ function runDevelopment({
               ...(bilateralPublicContextSpecialEnergy?{
                 publicContextSpecialEnergy:true,
                 specialEnergyRootOwnerSeat:null
+              }:{}),
+              ...(bilateralBasicEnergyRecipientFrontier?{
+                energyRecipientFrontier:true,
+                mobilityAwareRecipient:true
               }:{}),
               ...conservativeSupporterRootOptions,
               ...(actorNaturalEvolutionRoot?{
@@ -1269,6 +1277,14 @@ function runDevelopment({
               mode:'both',ownerSeat:null,sharedPolicy:true,
               specialEnergyModel:'actor-energy-payability',
               rootSelector:'agent17-public-context-special-energy'
+            }
+          }:{}),
+          ...(bilateralBasicEnergyRecipientFrontier?{
+            bilateralBasicEnergyRecipientProfile:{
+              version:require('../twinleaf/agent44-actor-energy-recipient.cjs').VERSION,
+              bothPhysicalSeats:true,ownerSeat:null,
+              actorOnlyInformation:true,mobilityAware:true,
+              developmentOnly:true,competitiveQualified:false
             }
           }:{}),
           ...(bilateralConservativeShuffleRoot?{
