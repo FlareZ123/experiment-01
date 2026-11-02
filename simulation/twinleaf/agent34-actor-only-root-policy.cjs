@@ -342,6 +342,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseOwnerSkylinerRondoRetreat(view,catalog);
     if(rondo)return rondo;
   }
+  if(options.genesectFusionDraw===true){
+    const draw=require('./agent37-genesect-public-fusion-draw.cjs')
+      .chooseGenesectFusionDraw(view,{
+        usedThisTurn:options.genesectFusionUsedThisTurn===true
+      });
+    if(draw)return draw;
+  }
   if(options.dceMewMobilityRoot===true){
     const retreat=require('./agent37-dce-mew-paid-retreat.cjs')
       .chooseDceMewPaidRetreat(view,catalog);
