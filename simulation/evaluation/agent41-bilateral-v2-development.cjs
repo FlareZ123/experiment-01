@@ -1037,6 +1037,7 @@ function runDevelopment({
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
+  actorUnderworldDoorRoot=false,
   sourceCrobatDceMewRetreat=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
@@ -1103,6 +1104,8 @@ function runDevelopment({
     'Owner-paid DCE retreat must use the same actor-only policy in both seats');
   assert.ok(!actorGenesectFusionDrawRoot||actorOnlyComposition,
     'Genesect Fusion draw must use the same actor-only policy in both seats');
+  assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
+    'Underworld Door must use the same actor-only policy in both seats');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1290,6 +1293,7 @@ function runDevelopment({
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
+          !actorUnderworldDoorRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -1331,6 +1335,9 @@ function runDevelopment({
               }:{}),
               ...(actorGenesectFusionDrawRoot?{
                 genesectFusionDraw:true
+              }:{}),
+              ...(actorUnderworldDoorRoot?{
+                underworldDoorRoot:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
