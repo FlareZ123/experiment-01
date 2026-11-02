@@ -24,7 +24,7 @@ test('rank16 authentic row statuses recover nine terminals and seven caps',()=>{
     candidateIds:['champion-reference','new-moon-lockbreaker-v1']}};
   const result=correctNativeArchive(archived);
   assert.equal(result.registrySource,'ORIGINAL_PRECOMMITTED_SEEDS');
-  assert.deepEqual(result.nativeDispositionCounts,{ENGINE_TERMINAL:9,ACTION_CAP:7});
+  assert.deepEqual(result.nativeDispositionCounts,{'engine-terminal':9,'action-cap':7});
   assert.equal(result.registrationIdentityFullyVerified,true);
   assert.equal(result.competitivelyQualifiedPaperGames,0);
   assert.ok(result.perAttempt.every(r=>
@@ -38,7 +38,7 @@ test('distinct frozen rank6 historical attempt envelope preserves truth',()=>{
     releaseDisposition:{attempts}});
   assert.equal(result.registrySource,'HISTORICAL_REPORTER_ATTEMPT_LEDGER');
   assert.equal(result.registrationIdentityFullyVerified,false);
-  assert.deepEqual(result.nativeDispositionCounts,{ENGINE_TERMINAL:4});
+  assert.deepEqual(result.nativeDispositionCounts,{'engine-terminal':4});
   assert.equal(result.observedAttempts,4);
 });
 
