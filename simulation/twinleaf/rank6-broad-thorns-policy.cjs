@@ -201,13 +201,19 @@ function firstTurnRank6DceStageOpportunity(state,player,seat,playerTurnPhase){
     player.hand.cards.some(card=>card.name==='Double Colorless Energy');
 }
 
+/** @param {number[]} conditions @param {{ASLEEP:number,PARALYZED:number}} native */
+function nativeIncapacitatingStatus(conditions,native){
+  return conditions.some(value=>value===native.ASLEEP||
+    value===native.PARALYZED);
+}
+
 /**
  * Opt-in broad source-opponent attack tactic, still deliberately simple.
  * Selects using own hand, public stadium and legal search prompts only;
  * reading deck cards is restricted to actual ChooseCardsPrompt resolution.
  * @template T
  * @param {()=>T} work
- * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,turn3DirectSpeedAfterDce?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba',ownerPriorK1Lookup?:(ownerId:string)=>object|null}} [options]
+ * @param {{seat?:number,turn?:number|'first-eligible',discardPriority?:string[],benchBackup?:boolean,conditionalTagCallPayment?:boolean,playLockAwareOpening?:boolean,k1ReplanAfterTagCall?:boolean,k1AlternativeEnergy?:boolean,liveSpeedLightningAlternative?:boolean,stageSpeedLightningFirstTurn?:boolean,stageDceFirstTurn?:boolean,k1PrizedThunderSpeedFallback?:boolean,turn3DirectSpeedAfterDce?:boolean,k1TagCallAlternative?:'none'|'append-bellelba'|'replace-bellelba',ownerPriorK1Lookup?:(ownerId:string)=>object|null,nativeSpecialConditionAttackGuard?:boolean}} [options]
  * @returns {{result:T,started:boolean,completed:boolean,events:object[],abortReason:string|null,openingPlan:object|null}}
  */
 function withBroadThornsSourceAttack(work,options={}) {
@@ -215,6 +221,9 @@ function withBroadThornsSourceAttack(work,options={}) {
   const seat=options.seat??1,turn=options.turn??2;
   assert.ok(turn==='first-eligible'||(Number.isInteger(turn)&&turn>=1));
   const priorities=options.discardPriority??discardOrder;
+  const nativeSpecialConditionAttackGuard=
+    options.nativeSpecialConditionAttackGuard===true||
+    process.env.AGENT38_RANK6_SCRIPTED_SPECIAL_CONDITION_GUARD_DEV==='true';
   const benchBackup=options.benchBackup===true;
   const conditionalTagCallPayment=options.conditionalTagCallPayment===true;
   const playLockAwareOpening=options.playLockAwareOpening===true;
@@ -246,7 +255,8 @@ function withBroadThornsSourceAttack(work,options={}) {
     engine('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
     engine('game/store/actions/resolve-prompt-action');
-  const {AttackAction}=engine('game/store/actions/game-actions');
+  const {AttackAction,PassTurnAction}=engine('game/store/actions/game-actions');
+  const {SpecialCondition}=engine('game/store/card/card-types');
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const active={player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0};
@@ -271,6 +281,19 @@ function withBroadThornsSourceAttack(work,options={}) {
     events.push({turn:state.turn,phase,abort:reason});
     phase='aborted';
     abortReason=reason;
+  }
+  /** Apply the same native status gate before every scripted source attack. */
+  function chooseNativeAttackOrPass(state,player,label){
+    phase='done';
+    if(nativeSpecialConditionAttackGuard&&
+       nativeIncapacitatingStatus(player.active.specialConditions,
+         SpecialCondition)){
+      completed=false;
+      abortReason='Native active Asleep/Paralyzed blocks Volt Cyclone';
+      return select(state,'Pass: '+abortReason,new PassTurnAction(player.id));
+    }
+    completed=true;
+    return select(state,label,new AttackAction(player.id,'Volt Cyclone'));
   }
   /** @param {object} p @param {string} name @param {object} target */
   function play(p,name,target) {
@@ -324,9 +347,7 @@ function withBroadThornsSourceAttack(work,options={}) {
     // A source-first player may have legally attached DCE on global turn 1;
     // no second manual Energy attachment is required on turn 3.
     if(p.active.energies.cards.some(c=>c.name==='Double Colorless Energy')) {
-      phase='done';completed=true;
-      return select(state,'Attack with previously attached DCE',
-        new AttackAction(p.id,'Volt Cyclone'));
+      return chooseNativeAttackOrPass(state,p,'Attack with previously attached DCE');
     }
     if(!p.hand.cards.some(c=>c.name==='Double Colorless Energy')) {
       if(k1AlternativeEnergy&&backupEnergyName&&
@@ -647,9 +668,8 @@ function withBroadThornsSourceAttack(work,options={}) {
         abort(state,'Original Store did not settle direct T3 Speed + preattached DCE');
         return original.call(this,state);
       }
-      phase='done';completed=true;
-      return select(state,'Declare direct Speed+DCE Volt Cyclone',
-        new AttackAction(p.id,'Volt Cyclone'));
+      return chooseNativeAttackOrPass(state,p,
+        'Declare direct Speed+DCE Volt Cyclone');
     }
     if(phase==='attach-k1-speed' && !prompt &&
         state.phase===GamePhase.PLAYER_TURN) {
@@ -668,9 +688,7 @@ function withBroadThornsSourceAttack(work,options={}) {
         abort(state,'Attack prerequisites missing after actual Store actions');
         return original.call(this,state);
       }
-      phase='done';completed=true;
-      return select(state,'Announce Volt Cyclone',
-        new AttackAction(p.id,'Volt Cyclone'));
+      return chooseNativeAttackOrPass(state,p,'Announce Volt Cyclone');
     }
     abort(state,'Unexpected prompt or phase '+(prompt?.constructor.name??'none'));
     return original.call(this,state);
@@ -700,4 +718,5 @@ module.exports={discardOrder,chooseOpeningDiscards,planOpeningHand,
   missingTagCallK1Requirements,dceHandAttachmentBlocked,
   chooseK1AlternateSpecialEnergy,hasLiveRank6SpeedLightning,
   firstTurnRank6SpeedStageOpportunity,
-  firstTurnRank6DceStageOpportunity,withBroadThornsSourceAttack};
+  firstTurnRank6DceStageOpportunity,withBroadThornsSourceAttack,
+  nativeIncapacitatingStatus};
