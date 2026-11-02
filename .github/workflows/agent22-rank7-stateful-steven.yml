@@ -1,0 +1,43 @@
+name: Original rank7 Steven owner-public contingent newseed development
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stateful-original-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Initialize pinned original Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install frozen native dependency graph
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Prove owner-visible contingent scorer and external pre-outcome registration
+        run: node --test tests/agent22-stateful-steven-score.test.cjs tests/agent22-rank7-stateful-steven-release.test.cjs tests/agent22-steven-physical-lineage.test.cjs
+      - name: Verify immutable rank7 source registration without executing native matches
+        run: node simulation/twinleaf/agent22-rank7-stateful-steven-release.cjs --inspect-only > agent22-rank7-stateful-preflight.json
+      - name: Execute all preregistered 18 original Store development arms
+        run: node simulation/twinleaf/agent22-rank7-stateful-steven-release.cjs > agent22-rank7-stateful-18arm.json
+      - name: Summarize exact source deals and every original score-policy disposition
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent22-rank7-stateful-18arm.json');a.equal(x.attempted,18);a.equal(x.rows.length,18);a.equal(x.sourceDealGroups.length,6);a.equal(x.competitiveQualifiedGames,0);console.log('AGENT22_STATEFUL_STEVEN',JSON.stringify({attempted:x.attempted,mode:x.policies,groups:x.sourceDealGroups,rows:x.rows.map(r=>({id:r.trial.id,status:r.status,end:r.nativeEndReason,actions:r.nativeActions,sourceSearches:r.sourceStevenPhysical?.nativeSearchPromptResolutions??null,selected:r.sourceStevenPhysical?.nativeSettledSelectedPhysicalCards??null,physicalPlayed:r.sourceStevenPhysical?.physicalTokensLaterPlayed??null}))}));"
+      - name: Retain all complete and failed source-native attempts for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-rank7-stateful-steven-original-18arm
+          path: |
+            agent22-rank7-stateful-18arm.json
+            agent22-rank7-stateful-preflight.json
+          if-no-files-found: warn
+          retention-days: 20
