@@ -8,8 +8,9 @@ function withPaperPlumeriaPayment(run){
   '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
  const audit={version:'plumeria-paper-cost-v1',observed:0,accepted:0,
-  rejected:0,qualifiedGames:0};
+  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[]};
  function dispatch(action,...args){
+  let receiptBefore=null;
   if(action?.constructor?.name==='ResolvePromptAction'){
    const p=this.state?.prompts?.find(x=>x.id===action.id&&x.result===undefined);
    if(p?.sourceCard?.fullName==='Plumeria BUS'&&
@@ -26,10 +27,36 @@ function withPaperPlumeriaPayment(run){
      audit.rejected++;
      throw Error('PAPER_PLUMERIA_INVALID_TWO_CARD_PAYMENT');
     }
-    audit.accepted++;
+    receiptBefore={ownerId:owner.id,
+     ownerSeat:this.state.players.indexOf(owner),
+     cardNames:cards.map(c=>c.fullName),
+     cards,handBefore:cards.filter(c=>owner.hand.cards.includes(c)).length,
+     discardBefore:cards.filter(c=>owner.discard.cards.includes(c)).length,
+     prompt:p};
    }
   }
-  return old.value.call(this,action,...args);
+  const result=old.value.call(this,action,...args);
+  if(receiptBefore){
+   const owner=this.state.players.find(x=>x.id===receiptBefore.ownerId);
+   const {cards,prompt}=receiptBefore;
+   const moved=cards.filter(c=>owner.discard.cards.includes(c)&&
+     !owner.hand.cards.includes(c)).length;
+   audit.accepted++;
+   audit.physicalPaymentReceipts.push({
+    printing:'Plumeria BUS',ownerSeat:receiptBefore.ownerSeat,
+    paymentNames:receiptBefore.cardNames,
+    submittedPhysicalCount:cards.length,
+    handMembersBefore:receiptBefore.handBefore,
+    discardMembersBefore:receiptBefore.discardBefore,
+    movedToOwnerDiscardCount:moved,
+    noLongerInOwnerHandCount:cards.filter(c=>!owner.hand.cards.includes(c)).length,
+    nativePromptSettled:prompt.result!==undefined,
+    independentlyPaidTwo:moved===2&&receiptBefore.handBefore===2&&
+      receiptBefore.discardBefore===0&&prompt.result!==undefined,
+    qualificationScope:'this Store payment only; later game effects unverified'
+   });
+  }
+  return result;
  }
  Object.defineProperty(Store.prototype,'dispatch',{...old,value:dispatch});
  try{return {result:run(),audit};}
