@@ -116,4 +116,37 @@ function scanPolicySourceClosure(repoRoot,roots){
   };
 }
 
-module.exports={VERSION,gitBlobHash,scanPolicySourceClosure};
+/**
+ * Compare historically reviewed entrypoint blobs against the files actually
+ * reached by today's source scanner. This produces a separate source-pin
+ * attestation, not a complete behavioral or executable release certificate.
+ *
+ * @param {{path:string,gitBlobSha:string}[]} checkedSources
+ * @param {{records:{path:string,gitBlobSha:string}[]}} closure
+ * @returns {{registered:number,matched:number,mismatches:object[],missing:object[],allRootPinsExact:boolean,qualification:string}}
+ */
+function auditCheckedSourcePins(checkedSources,closure){
+  assert.ok(Array.isArray(checkedSources));
+  assert.ok(Array.isArray(closure?.records));
+  const current=new Map(closure.records.map(record=>[
+    record.path,record.gitBlobSha]));
+  const mismatches=[],missing=[];
+  let matched=0;
+  for(const entry of checkedSources){
+    assert.ok(typeof entry?.path==='string'&&entry.path.length>0);
+    assert.match(entry.gitBlobSha,/^[a-f0-9]{40}$/);
+    const actual=current.get(entry.path);
+    if(!actual){
+      missing.push({path:entry.path,registered:entry.gitBlobSha});
+    }else if(actual!==entry.gitBlobSha){
+      mismatches.push({path:entry.path,registered:entry.gitBlobSha,
+        actual});
+    }else matched++;
+  }
+  return {registered:checkedSources.length,matched,mismatches,missing,
+    allRootPinsExact:mismatches.length===0&&missing.length===0,
+    qualification:'entrypoint-blob-parity-only-no-transitive-runtime-certification'};
+}
+
+module.exports={VERSION,gitBlobHash,scanPolicySourceClosure,
+  auditCheckedSourcePins};
