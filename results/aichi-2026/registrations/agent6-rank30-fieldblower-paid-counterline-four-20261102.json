@@ -1,0 +1,48 @@
+{
+  "schema": "agent6-rank30-paid-tool-jammer-field-blower-4stage-registration-v1",
+  "registered_at": "2026-11-02T23:53:41Z",
+  "program_commit": "42f3a7db7a2d04c3157164a1a1185f7db3138c27",
+  "workflow_commit": "3f054c02664211982102b9f65d605bf795b280a1",
+  "engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "workflow": ".github/workflows/agent7-rank30-source-psychic-staging.yml",
+  "inputs": {
+    "agent6_rank30_rondo": true
+  },
+  "env": "AGENT6_OWNER_FIELD_BLOWER_DEV=true",
+  "test": "Opposing Iron Thorns ex TWM actually attaches Tool Jammer BST from physical hand and passes genuine turn4 to original source-owner turn5. Original source-owner holds printed Field Blower GRI in both arms. Source physically plays Field Blower vs retains it, then attempts actual RetreatAction to powered Clefairy, settled Full Moon Rondo, and opponent Pidgey reply.",
+  "fixed_board": "mechanical fixture, synthetic prizes/hands/decks, Latias ex SSP + Float Stone BKT on original-source owner Active, Clefairy ex JTG pre-funded, opponent Active Iron Thorns ex with 20 damage and Tool Jammer physically in hand, Pidgey MEW pre-funded on enemy Bench. No source shuffle.",
+  "source_exact_printings": {
+    "rank30_original_sixty_sha": "8423dac2d79c86a3385e31008a8e9ac79c07840197b4e54e6ff7000a1ff67039",
+    "rank30_field_blower": "Field Blower GRI125 (3 physical copies)",
+    "rank30_float_stone": "Float Stone BKT137 (1 physical copy)",
+    "rank30_latias": "Latias ex SSP76 (1 physical copy)",
+    "iron_thorns": "Iron Thorns ex TWM77 and Tool Jammer BST136 (ranks6/24/29 each Tool Jammer singleton)"
+  },
+  "paired_arms": [
+    {
+      "owner_seat": 0,
+      "owner_plays_field_blower": false
+    },
+    {
+      "owner_seat": 0,
+      "owner_plays_field_blower": true
+    },
+    {
+      "owner_seat": 1,
+      "owner_plays_field_blower": false
+    },
+    {
+      "owner_seat": 1,
+      "owner_plays_field_blower": true
+    }
+  ],
+  "preregistered_assertions": [
+    "Within each source seat, exactly matching physical owner root fingerprint just after opponent paid Tool Jammer and actual turn transition.",
+    "Control retains original physical Field Blower in own hand, opponent Tool Jammer remains on opposing Active, retreat cost2, unsupported RetreatAction rejected, no attack or Prize taken.",
+    "Treatment genuinely plays Field Blower from hand through actual native PlayCardAction and legal ChoosePokemonPrompt to opposing active; actual Item to own discard and opposing physical Tool Jammer to its owner's discard.",
+    "Treatment frees original physical Float Stone Retreat Cost to zero, genuine RetreatAction promotes funded Clefairy, actual Full Moon Rondo knocks out Thorns and takes exactly 2 synthetic Prize cards; opponent Pidgey promoted and real next-turn Tackle deals 20.",
+    "Every real pending prompt is consumed, and both physical seats satisfy the paper-fidelity hook and the native action checks.",
+    "All attempts retained, including any negative failures, and no staged win considered a competitive result."
+  ],
+  "qualification": "Pure mechanical selected-branch staged witness, no naturally dealt original source, no field probability, 0 competitively qualified games."
+}
