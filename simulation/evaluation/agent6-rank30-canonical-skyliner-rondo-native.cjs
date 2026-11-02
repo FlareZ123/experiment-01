@@ -123,4 +123,4 @@ function run(){
 }
 if(require.main===module)
   process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={VERSION,run};
+module.exports={VERSION,run,runOption,evidence};
