@@ -357,6 +357,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       });
     if(draw)return draw;
   }
+  if(options.crobatDceMewRetreat===true){
+    const retreat=require('./agent9-crobat-dce-mew-retreat.cjs')
+      .chooseCrobatDceMewRetreat(view,catalog);
+    if(retreat)return retreat;
+  }
   if(options.dceMewMobilityRoot===true){
     const retreat=require('./agent37-dce-mew-paid-retreat.cjs')
       .chooseDceMewPaidRetreat(view,catalog);
@@ -629,6 +634,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
+    crobatDceMewRetreatOptIn:deps.crobatDceMewRetreat===true,
+    crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
@@ -894,6 +901,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.skylinerRondoRetreatOptIn;
     delete audit.skylinerRondoRetreatOwnerSeat;
   }
+  if(audit.crobatDceMewRetreatOptIn)
+    audit.version+='+'+
+      require('./agent9-crobat-dce-mew-retreat.cjs').VERSION;
   if(audit.dceMewMobilityRootOptIn)
     audit.version+='+'+
       require('./agent37-dce-mew-paid-retreat.cjs').VERSION;
@@ -1122,6 +1132,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       dceMewMobilityRoot:audit.dceMewMobilityRootOptIn===true,
+      crobatDceMewRetreat:actorSpecialEnergyEnabled(
+        audit.crobatDceMewRetreatOptIn,
+        audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       genesectFusionUsedThisTurn:
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
