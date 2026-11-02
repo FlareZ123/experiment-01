@@ -260,7 +260,7 @@ jobs:
       - name: Regress bounded owner-only root action contention without changing decisions
         id: agent16_policy_inventory
         continue-on-error: true
-        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs
+        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs tests/agent16-policy-audit-lanes.test.cjs
       - name: Audit printed opponent-hand random effect source incidence across 29 final originals
         run: |
           node --test tests/agent12-original-field-random-hand-text-census.test.cjs
@@ -445,21 +445,12 @@ jobs:
       - name: Cross-check rank28 provisional source ledgers without admitting missing official sixty
         run: node --test tests/aichi-rank28-photo-ledger-parity.test.cjs
 
-      - name: Report historical policy pin parity, strict veto only on pinned release
+      - name: Preserve policy test failures and strictly pin immutable source releases
         if: always()
         env:
           AGENT16_INVENTORY_OUTCOME: ${{ steps.agent16_policy_inventory.outcome }}
           STRICT_HISTORICAL_PINS: ${{ inputs.strict_historical_policy_pins }}
-        run: |
-          echo "Policy inventory raw outcome: $AGENT16_INVENTORY_OUTCOME"
-          node -e "const a=require('./simulation/evaluation/agent16-transitive-policy-source-inventory.cjs'),i=require('./simulation/evaluation/agent42-strict-switch-inventory-v1.json');const s=a.scanPolicySourceClosure(process.cwd(),i.checkedSources.map(x=>x.path));const p=a.auditCheckedSourcePins(i.checkedSources,s);console.log('AGENT16_COMPUTED_IMPORT_AUDIT',JSON.stringify({sourceFiles:s.sourceCount,affectedFiles:s.unparsedRequires.length,computedCalls:Object.values(s.computedRequireShapeCounts).reduce((n,x)=>n+x,0),shapes:s.computedRequireShapeCounts,pathJoinBases:s.pathJoinFirstArgumentCounts,nonJoin:s.nonPathJoinComputedRequires}));console.log('AGENT16_REGISTERED_ROOT_PIN_PARITY',JSON.stringify({registered:p.registered,matched:p.matched,drifts:p.mismatches,missing:p.missing,allRootPinsExact:p.allRootPinsExact,qualification:p.qualification}));"
-          if [ "$AGENT16_INVENTORY_OUTCOME" != "success" ]; then
-            if [ "$STRICT_HISTORICAL_PINS" = "true" ]; then
-              echo "::error::Registered historical policy pins differ; strict compatibility requires the exact pinned ref."
-              exit 1
-            fi
-            echo "::warning::Historical registered source pins drift on development main. Independent results are development-only and provide no historical policy qualification."
-          fi
+        run: node simulation/evaluation/agent16-policy-audit-lanes.cjs
 
   rank11-source-census:
     runs-on: ubuntu-latest
