@@ -39,6 +39,9 @@ jobs:
       - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
+      - name: Verify prospective rank30 source deck candidate and fresh seed registration
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-rank30-skyliner-prospective.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -84,6 +87,17 @@ jobs:
         with:
           name: agent6-rank30-filch-vs-rondo-native
           path: agent6-rank30-filch-vs-rondo-native.json
+          if-no-files-found: warn
+          retention-days: 15
+      - name: Preregistered four new rank30 source seat seed groups with natural canonical Rondo option
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/evaluation/agent6-rank30-skyliner-prospective-native.cjs > agent6-rank30-skyliner-prospective-native.json
+      - name: Archive all fresh rank30 owner-root attempts, errors and source Rondo responses
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank30-skyliner-prospective-native
+          path: agent6-rank30-skyliner-prospective-native.json
           if-no-files-found: warn
           retention-days: 15
       - name: Archive all native original rank30 funded Rondo fork outcomes and errors
