@@ -21,22 +21,28 @@ const eligible={
 function run(){
   const frozen=JSON.parse(fs.readFileSync(original));
   const registered=JSON.parse(fs.readFileSync(path.join(root,REG)));
-  const trials=registered.trials.filter(t=>t.id in eligible);
-  assert.equal(trials.length,2);
+  // The shared canonical runner requires both fixed candidate 60s for each
+  // original physical seed, so retain the two companion pairs as controls.
+  const trials=registered.trials.filter(t=>
+    t.seed===1855410067||t.seed===2335986362);
+  assert.equal(trials.length,4);
   const observed=withNativeTerminalPhysicalPredicates(()=>runDevelopment({
     ...frozen.policyOptions,registeredTrials:trials,
     registeredFrameName:REG
   }));
   const rows=observed.result.rows;
-  assert.equal(rows.length,2);
+  assert.equal(rows.length,4);
   const ledgerWitness=rows.map((r,i)=>{
     const terminal=observed.audit.events.find(e=>e.gameOrdinal===i);
+    const isTarget=r.trial.id in eligible;
     const sourceSeat=r.sourceSeat;
     return {
       trialId:r.trial.id,sourcePhysicalSeat:sourceSeat,
-      originalDecisionLedgerSha256:eligible[r.trial.id],
+      isSelectedNonPrizeSourceTerminal:isTarget,
+      originalDecisionLedgerSha256:eligible[r.trial.id]??null,
       replayDecisionLedgerSha256:r.rootActionLedgerSha256,
-      exactReplayMatched:r.rootActionLedgerSha256===eligible[r.trial.id],
+      exactReplayMatched:isTarget?
+        r.rootActionLedgerSha256===eligible[r.trial.id]:null,
       sourceNativeWin:r.winner===sourceSeat,
       sourcePrizesRemaining:r.finalPrizes[sourceSeat],
       candidatePrizesRemaining:r.finalPrizes[1-sourceSeat],
