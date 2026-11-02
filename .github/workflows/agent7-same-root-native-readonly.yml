@@ -26,6 +26,8 @@ jobs:
         run: node --test tests/agent7-rondo-public-offer.test.cjs
       - name: Guard same-view shadow/selection physical membership (pure tests)
         run: node --test tests/agent27-shadow-choice-reconciliation.test.cjs
+      - name: Verify paired source repair receipt summarizer (pure tests)
+        run: node --test tests/agent27-native-attach-summary.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -67,6 +69,8 @@ jobs:
         run: node simulation/evaluation/agent27-early-finalbench-field-scan.cjs > agent27-early-finalbench-source.json
       - name: Original Regidrago source min-attachment invalid prompt paired replay
         run: node simulation/evaluation/agent27-native-minimum-attachment-source-replay.cjs > agent27-native-minimum-attach-paired.json
+      - name: Audit completed native Regidrago Energy transfer receipts
+        run: node scripts/agent27-native-attach-summary.cjs agent27-native-minimum-attach-paired.json
       - name: Preserve controls, observed game evidence and every failure
         if: always()
         uses: actions/upload-artifact@v4
