@@ -204,6 +204,14 @@ function chooseActorRootIntent(view,catalog,options={}){
         options.ownRegisteredSixty);
     if(line)return line;
   }
+  // Development-only second-own-turn Blockade priority after Bunnelby TM.
+  // This can override a payable Burrow when a held Jet establishes the
+  // public Exeggutor player-level Supporter lock; no hidden deck access.
+  if(options.exeggutorBlockadeContinuation===true){
+    const line=require('./agent40-owner-blockade-continuation.cjs')
+      .chooseOwnerBlockadeContinuation(view,catalog);
+    if(line)return line;
+  }
   if(options.floatStoneMobility===true){
     const mobility=require('./agent1-owner-float-stone-mobility.cjs')
       .chooseOwnerFloatStoneMobility(view,catalog);
