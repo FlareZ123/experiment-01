@@ -32,6 +32,12 @@ In the champion seat-B treatment, native public Prize counts at the five complet
 
 The champion seat-B **control** was marked winner source seat 0 at global turn 31 with both sides still showing six Prize cards and a surviving opponent Mimikyu. That is a native non-Prize game resolution, not evidence of offensive superiority. The match lacks independently qualified tournament-clock and opponent-policy checks. In seat-B New Moon, the control did eventually take all six Prizes, but its Rainbow Burn offense began **20 global turns later** than the treatment's Ultimate Ray line.
 
+## One physical game episode per matched arm
+
+The separately audited [native source-deal epoch run 41412376524](https://github.com/FlareZ123/experiment-01/actions/runs/41412376524) reports **zero native sudden-death clock resets in all eight arms**, exactly one captured opening deal per arm, and `allEpisodeOpeningsCaptured:true` throughout. The original-source initial-deal SHA-256 was exactly matched within each of the four control/treatment pairs. The source seat 1 deal fingerprint was `468375196c3aee61fcff2b1ff91913baa6e6f1fa2dc5f812c5b444ecc54d4947` and the source seat 0 deal fingerprint was `a8b7f01f438eb90121a148941c9b06c2f11b8ae4a428793ea2702c1b02c0257d` in both arms. The same source initial deal appears against two different fixed candidate decks per seat; this does **not** imply that opponents had the same initial cards across those different printed 60s.
+
+This rules out a native reset/new-deal interpretation of the observed paired Ultimate Ray attack and Prize transitions. Paper clock, competent opponent policy, card-effect fidelity beyond the bounded receipts and external generalization remain separately unverified.
+
 ## Mechanistic cause, including target decision
 
 Real source owner roots, in each of the two candidate-B games, show:
