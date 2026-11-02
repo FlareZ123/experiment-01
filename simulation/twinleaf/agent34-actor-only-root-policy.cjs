@@ -180,6 +180,12 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  if(options.mysteriousTreasureEarlyRegistered===true){
+    const early=require('./agent49-registered-treasure-early-setup.cjs')
+      .chooseRegisteredTreasureEarlyIntent(
+        view,catalog,options.ownRegisteredSixty);
+    if(early)return early;
+  }
   if(options.mysteriousTreasureRoot===true){
     const item=require('./agent49-mysterious-treasure-frontier.cjs')
       .chooseTreasureRootIntent(view,catalog);
@@ -597,6 +603,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
     mysteriousTreasureRootOptIn:deps.mysteriousTreasureRoot??
       (process.env.AGENT49_MYSTERIOUS_TREASURE_ROOT_DEV==='true'),
+    mysteriousTreasureEarlyRegisteredOptIn:
+      deps.mysteriousTreasureEarlyRegistered===true,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     printedGxRootOptIn:deps.printedGxRoot??
@@ -1034,6 +1042,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
       mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
+      mysteriousTreasureEarlyRegistered:
+        audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
       powerglassRoot:audit.powerglassRootOptIn,
       floatStoneMobility:actorSpecialEnergyEnabled(
