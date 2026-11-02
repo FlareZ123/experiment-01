@@ -375,6 +375,7 @@ function executeDevelopment(trial,candidates,{
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
+  nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
@@ -864,6 +865,15 @@ function executeDevelopment(trial,candidates,{
       nativeAcceptedTargetSidecar:nativeAcceptedTargetAudit,
       nativeAcceptedEnergyPromptSidecar:nativeAcceptedEnergyPromptAudit,
       physicalTargetCertification:'selective-public-evidence-only'}:{}),
+    ...(nativeQuickBallOwnerTransactionAudit?{
+      nativeQuickBallOwnerTransactions:
+        require('./agent41-quickball-owner-transaction.cjs')
+          .reconcileQuickBallOwnerTransactions({
+            decisionTrace:game.decisionTrace,
+            rootActionLedger:rootTrace,
+            nativeAcceptedTargetSidecar:nativeAcceptedTargetAudit
+          })
+    }:{}),
     sourceSeat,candidateSeat,sourceActuallyFirst:sourceFirst,
     enginePin:registration.enginePin,
     candidateDeckFingerprint:sha256(candidateCards),
@@ -1022,6 +1032,7 @@ function runDevelopment({
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
+  nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
@@ -1051,6 +1062,8 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!nativeQuickBallOwnerTransactionAudit||nativeAcceptedTargets,
+    'Quick Ball transaction proof requires the native accepted-target sidecar');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
     'Quick Ball source and candidate scope probes are exclusive');
   assert.ok((!sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot)||
@@ -1231,7 +1244,8 @@ function runDevelopment({
         nativeRejectedActionEvidence,actorNativeAorItemLock,
         proposalStateAudit,nativeProposalValidationAudit,nativeProposalTapeOrdinal,
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
-        nativeAcceptedTargets,losslessNativeRootJoin,
+        nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
+        losslessNativeRootJoin,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
@@ -1572,6 +1586,8 @@ function runDevelopment({
     nativeOpponentHiddenReadAuditOptIn:nativeOpponentHiddenReadAudit,
     nativeActionInputWitnessOptIn:nativeActionInputWitness,
     nativeAcceptedTargetsOptIn:nativeAcceptedTargets,
+    nativeQuickBallOwnerTransactionAuditOptIn:
+      nativeQuickBallOwnerTransactionAudit,
     nativeActionInputTapeOrdinal:nativeActionInputWitness?
       nativeActionInputTapeOrdinal:null,
     actorOnlyCompositionOptIn:actorOnlyComposition,
@@ -1726,6 +1742,8 @@ if(require.main===module){
       process.env.AGENT23_NATIVE_INPUT_WITNESS_DEV==='true',
     nativeAcceptedTargets:
       process.env.AGENT12_NATIVE_TARGET_SIDECAR_DEV==='true',
+    nativeQuickBallOwnerTransactionAudit:
+      process.env.AGENT41_QUICKBALL_TRANSACTION_DEV==='true',
     paperTerminalAttackKo:
       process.env.AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV==='true',
     nativeActionInputTapeOrdinal:
