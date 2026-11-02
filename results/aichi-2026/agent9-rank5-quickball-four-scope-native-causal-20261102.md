@@ -36,6 +36,17 @@ The following table shows the **four distinct physical trials** from `integrated
 
 **State-level qualification:** In A/reference source-only the original player still executed **two Mew VMAX evolution roots**, yet never announced an attack. Its root ledger has **zero Double Colorless Energy hand attachments** versus two in OFF and two in candidate-only. The source-only Quick Ball payments were Muscle Band, Guzma and Karen, not Double Colorless Energy. Thus its failed attack line is associated with changed access/turn sequencing and loss of Energy attachments, rather than simply failed evolution or directly discarding the Energy. No counterfactual claim about the precise cause of missed Energy draws is established without more state tracing.
 
+### Concrete first attack and return-to-turn line, A/reference
+
+Original Store `candidateAttackSettlement.attacks` independently records the next source turn after the candidate's Full Moon Rondo, including exact Prize counts and public board position:
+
+- **OFF:** candidate's Full Moon Rondo at global turn **37** Knocked Out source Active Crobat V, moving candidate Prizes **6 to 4**. The source promoted **Mew VMAX with Double Colorless Energy attached**, then announced Cross Fusion Strike on turn **38** and took two Prizes. It ultimately made four attacks and won the native terminal.
+- **Candidate-only Quick Ball:** the candidate's Full Moon Rondo occurred turn **35**, also taking two Prizes. The source again promoted **Mew VMAX with Double Colorless Energy attached**, answered immediately with Cross Fusion Strike on turn **36**, made four source attacks and won the native terminal.
+- **Source-only Quick Ball:** Full Moon Rondo at turn **35** likewise took two Prizes from Crobat V. The source promoted **Mew VMAX with zero Energy**, then played an extra Mew V and passed on turn **36**. The source passed again on turn **38**. Candidate attacks reached the source's three-Prize Mew VMAX on turn **39** (candidate Prizes **4 to 1**) and took its final Prize by turn **43**. The source never attached a Double Colorless Energy or announced an attack.
+- **Both-seat Quick Ball:** source failed to establish Mew VMAX and did not attack; the candidate's Full Moon Rondo line advanced to zero Prizes at global turn **45**.
+
+This exposes a sharper **observable tactical failure** than the raw aggregate attack count: source-only Quick Ball yielded two Mew VMAX evolution roots but no attached Energy, so the otherwise useful post-Crobat-KO counterattack was inaccessible at the exact attack window. The immediate weakness is a **funding/turn-closure failure** in a paired native state. These observations do not tell whether a particular Quick Ball shuffle, future draw, hand-discard policy, or opponent attack explains the missing Double Colorless Energy without additional intervention.
+
 ## Physical Quick Ball prompt chains
 
 All source-only Quick Ball payments/searches are genuine accepted original Store roots with `ChooseCardsPrompt` follow-ups:
