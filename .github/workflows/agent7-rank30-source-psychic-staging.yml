@@ -39,6 +39,9 @@ jobs:
       - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
+      - name: Test Skyliner lock veto
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-skyliner-public-ability-suppression.test.cjs
       - name: Verify prospective rank30 source deck candidate and fresh seed registration
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-rank30-skyliner-prospective.test.cjs
