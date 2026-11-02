@@ -1,0 +1,33 @@
+{
+  "schema": "agent9-rank5-original-source-pass-held-supporter-native-census-v1",
+  "registeredAt": "2026-11-02T20:37:59.192Z",
+  "objective": "When the unchanged original rank5 Mew Genesect source actor genuinely passes in the archived four-deal Store family, determine which exact printed Supporter cards were in the original acting owner's native hand, whether its one-Supporter limit had been used, and whether a native opponent lock was public.",
+  "originalSourceRank": 5,
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceSupporterNames": [
+    "Guzma BUS",
+    "Karen XYP",
+    "Wally ROS",
+    "Marnie SSH",
+    "Pokémon Ranger STS"
+  ],
+  "knownOriginalSourceDeals": "Existing 5:0 A/B versus champion-reference and new-moon-lockbreaker-v1, each repeated in two historical policy modes; retrospective exposure only",
+  "registeredActions": 16,
+  "comparison": "Same-deal original control versus original source-scoped Crobat→Mew paid retreat treatment, all current setup and Quick Ball owner payment options unchanged",
+  "nativeScope": "Observe genuine Store-dispatched PassTurnAction at PLAYER_TURN only, check owner physical hand source identity after source-rank+physical-seat join, no action replacement, do not expose opponent private hand to actor",
+  "primaryEndpoints": [
+    "Count original source PassTurnAction native Store roots holding Guzma, Marnie, Wally, Karen or Pokémon Ranger by exact printing and Supporter-used-this-turn flag",
+    "For the already-known T54 and T58 copied Techno Blast cooldown Pass roots, determine whether any held Guzma or other switch-like line existed (without assuming playability)"
+  ],
+  "secondaryEndpoints": [
+    "Source exact physical source-deal identity and source actor physical seat",
+    "Source active and Bench physical publicly visible positions, retreat used turn, opponent Active printing",
+    "Compare full native source control/treatment rootActionLedger to previous archived run, do not discard anomalies"
+  ],
+  "noActionMutation": true,
+  "originalFullDeckCount": 29,
+  "all32FieldQualified": false,
+  "competitiveQualifiedGames": 0,
+  "paperSupporterPayabilityNeedsFurtherAudit": true,
+  "note": "Observing a held Supporter is no proof that playing it is legal, free of contention, superior to passing, or a win. This is read-only research on known exposed deals."
+}
