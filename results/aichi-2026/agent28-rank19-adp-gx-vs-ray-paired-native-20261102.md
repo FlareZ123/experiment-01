@@ -1,0 +1,18 @@
+# Agent 28: matched rank-19 ADP GX-first native result (2 November 2026)
+
+**Evidence:** successful [manual compiled CI 41436475507](https://github.com/FlareZ123/experiment-01/actions/runs/41436475507), [native artifact 13136403137](https://github.com/FlareZ123/experiment-01/actions/runs/41436475507/artifacts/13136403137), ZIP SHA-256 `c4309690bb860d54371e884e0b26ceebb1df0a384e8393ae4dcd7c2ee5e7c4eb`. Existing registered `simulation/evaluation/agent28-rank19-adp-gx-vs-ray-paired.cjs`; input `rank19_gx_choice_compare:true`. Pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, unchanged exact original rank-19 60 versus champion and New Moon reference lists, frozen v2 policy, identical source Float Stone mobility in both arms. Only `AGENT28_ADP_GX_ROOT_DEV` changed OFF/ON. Four historically selected trials, both source physical seats, **eight native attempts and four exact source-deal fingerprint matches**. Retrospective development evidence, **zero competitively qualified wins**.
+
+| Trial | Control attacks | GX-first treatment attacks | Remaining source Prizes: control / treatment | Native end turns |
+| --- | --- | --- | --- | --- |
+| Source seat 1 vs champion | Motivate T3,T5 | same | 6→6→6 / same | 14 / 14 |
+| Source seat 1 vs New Moon | Motivate T3,T5,T7 | same | 6→6→6→6 / same | 18 / 18 |
+| Source seat 0 vs champion | Ultimate Ray T14,T16,T18,T20,T22 | **Altered Creation-GX T14**, then Ray T16,T18,T20,T22 | 6→5→5→3→3→0 / **6→6→4→1→1→0** | 22 / 22 |
+| Source seat 0 vs New Moon | Ultimate Ray T16,T18,T20,T22,T24,T26,T28 | **Altered Creation-GX T16**, then Ray T18,T20,T22,T24,T26 | 6→5→5→3→3→1→1→0 / **6→6→4→4→1→1→0** | 28 / **26** |
+
+Both positive treatments recorded native-selected `AttackAction('Altered Creation-GX')` after genuine owner Float Stone retreat to ADP with two physical Double Dragon Energy cards. Native prompt-closed `sourceAttackSettlement` confirmed all GX and subsequent Ray attacks settled, with physical Prize transitions and opponent root continuations. The source won both relevant engine-terminal controls **and** treatments. No game winner changed. All eight rows were `ENGINE_TERMINAL_UNQUALIFIED`.
+
+The same compiled CI also passed native two-seat synthetic effect-lifetime tests: with manually staged global ADP GX flags, printed `Shadow Mist` dealt **40 damage** whether ADP remained in play or entered discard (base 10). This is a bounded native effect-persistence witness, not natural-game correctness. The supplied card ZIP lists `Arceus & Dialga & Palkia-GX` CEC 156 as Expanded legal, with Altered Creation-GX granting persistent +30 damage and, with extra Water Energy, an additional Prize for eligible Active KOs.
+
+**Interpretation:** An actual source-dealt ADP GX-first decision can convert a real payable root into faster subsequent Prize acquisition; the two historical native winners stayed unchanged, and spending one turn without immediate damage could be punished by stronger opposition. The stronger test is a **prospectively registered fresh-deal** both-seat GX-versus-Ray comparison under one frozen symmetric policy, including missed opportunities, qualified opponent replies, full physical payment, all terminal/error/censored rows, and 25-minute paper-clock adjudication. Do not claim competitive win-rate uplift or update the fixed-60 best-deck index from this result.
+
+See [Agent50 original rank-19 mobility baseline](agent50-original-rank19-floatstone-adp-tempo-paired-20261102.md), [Agent28 ADP GX native opportunity](agent28-adp-postretreat-boosted-gx-native-opportunity-20261102.md). Field status: 29/32 authenticated original opposing sixties (23,25,28 missing), zero qualified competitive games.
