@@ -19,6 +19,9 @@ function nativeMatch(){
       settled:{completionRootActionOrdinal:57,
         prizesRemaining:[6,6],after:{sentinel:'after'}}
     }],
+    ownerPassResources:[{actionOrdinal:62,playerSlot:1,turnBefore:21,
+      ownerHandCount:5,basicEnergyCopiesHeld:1,specialEnergyCopiesHeld:0,
+      ownActivePublic:{name:'Mimikyu',energyCards:[]}}],
     rootActionLedger:[
       {actionOrdinal:55,turnBefore:20,playerSlot:0,action:'ResolvePromptAction',pendingPrompt:'AttachEnergyPrompt'},
       {actionOrdinal:57,turnBefore:20,playerSlot:0,action:'ResolvePromptAction',pendingPrompt:'AttachEnergyPrompt'},
@@ -68,4 +71,18 @@ test('source after attack with no owner-opponent response remains censored',()=>
   assert.equal(x.promptEpisodes[0].status,
     'native-settled-source-attack-no-opponent-root');
   assert.equal(x.promptEpisodes[0].opponentReply,null);
+});
+
+test('only selected next-turn Pass links owner-visible public board and aggregate held Energy',()=>{
+  const match=nativeMatch();
+  match.rootActionLedger.splice(4,0,{
+    actionOrdinal:62,turnBefore:21,playerSlot:1,
+    action:'PassTurnAction',pendingPrompt:null
+  });
+  const out=joinSourceEnergyAttackContinuation(match,[settledReceipt],0);
+  const ctx=out.promptEpisodes[0].opponentReply.finalPassContext;
+  assert.equal(ctx.ownerHandCount,5);
+  assert.equal(ctx.basicEnergyCopiesHeld,1);
+  assert.equal(ctx.ownActivePublic.name,'Mimikyu');
+  assert.equal(ctx.ownActivePublic.energyCards.length,0);
 });
