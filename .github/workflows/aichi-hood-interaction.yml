@@ -38,6 +38,10 @@ on:
         description: 'Default-off shared canonical both-seat actor plus actual inner-owner flexible Box source pilot (one historical and two unselected original source deals)'
         type: boolean
         default: false
+      agent44_rank8_box_prospective_v3:
+        description: 'Prerecorded 64 fresh original rank8 physical deals (306-369), native v3 physical-multiplicity owner payment, requires shared_boxshake_natural_pairs and flexible'
+        type: boolean
+        default: false
       agent44_rank8_box_debug_previous_289:
         description: 'Reproduce only previously observed uncompleted native seed index289 (retrospective diagnosis)'
         type: boolean
@@ -271,6 +275,7 @@ jobs:
         env:
           AGENT44_RANK8_BOX_FLEXIBLE: ${{ inputs.agent44_rank8_shared_boxshake_flexible }}
           AGENT44_RANK8_BOX_DEBUG_INDEX: ${{ inputs.agent44_rank8_box_debug_previous_289 && '289' || '' }}
+          AGENT44_RANK8_BOX_PROSPECTIVE_V3: ${{ inputs.agent44_rank8_box_prospective_v3 }}
         run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
       - name: Print all paired native Box Shake outcomes
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
