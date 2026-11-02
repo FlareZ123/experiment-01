@@ -13,7 +13,7 @@ const {digestNativePromptChoices}=
 const {reconcileNightWatchNonceRoots}=
   require('../evaluation/agent12-nightwatch-native-nonce-reconcile.cjs');
 
-const VERSION='agent12-native-rank11-nightwatch-postgame-physical-pair-development-v5';
+const VERSION='agent12-native-rank11-nightwatch-postgame-zone-settlement-development-v6';
 const selectionRegistration=require(
   '../../results/aichi-2026/registrations/agent12-nightwatch-independent-rng-20261101.json');
 const GROUPS=[
@@ -95,7 +95,8 @@ function run(){
         committedSeed:committed.independentSelectionSeedHex,
         requirePrintedOrigin:true,
         requireNativeRootState:true,
-        capturePostGamePhysicalNames:true
+        capturePostGamePhysicalNames:true,
+        captureNativeMovementEvidence:true
       });
       assert.equal(baseline.rows.length,2);
       assert.equal(audit.result.rows.length,2);
@@ -147,12 +148,35 @@ function run(){
       assert.equal(matchedNonceRoots.matchedSourceRoots,namedNativeNightWatch);
       assert.equal(matchedNonceRoots.exactPostgamePhysicalPairsMatched,namedNativeNightWatch);
       assert.equal(matchedNonceRoots.allActualPhysicalPairsMatched,true);
+      const movement=audit.audit.nativeMovementEvents;
+      const sourcePhysicalMovement={
+        sourceNamedNativePrompts:namedNativeNightWatch,
+        acceptedStoreDispatchesObserved:movement.length,
+        completeSelectedHandToDeckMoves:movement.filter(e=>
+          e.physicalHandDeckMovementConfirmed).length,
+        showAndShuffleBothPrompted:movement.filter(e=>
+          e.generatedFollowupPromptKinds.includes('ShowCardsPrompt')&&
+          e.generatedFollowupPromptKinds.includes('ShuffleDeckPrompt')).length,
+        bothFollowupsNativelyResolved:movement.filter(e=>
+          e.followupResolutions.filter(x=>
+            x.promptKind==='ShowCardsPrompt'&&x.promptRemovedAfter).length===1&&
+          e.followupResolutions.filter(x=>
+            x.promptKind==='ShuffleDeckPrompt'&&x.promptRemovedAfter).length===1).length,
+        confirmsNativeGameAllEvents:false,
+        paperQualified:false
+      };
+      sourcePhysicalMovement.confirmsNativeGameAllEvents=
+        movement.length===namedNativeNightWatch&&
+        sourcePhysicalMovement.completeSelectedHandToDeckMoves===movement.length&&
+        sourcePhysicalMovement.showAndShuffleBothPrompted===movement.length&&
+        sourcePhysicalMovement.bothFollowupsNativelyResolved===movement.length;
       out.push({registration:group,seed:groupRows[0].seed,
         independentSelectionSeedHex:committed.independentSelectionSeedHex,
         independentlyPrecommittedPositionSeed:true,
         attemptedBaseline:base.length,attemptedUniform:treated.length,
         baseline:base,uniform:treated,
         randomHookAudit:audit.audit,
+        sourcePhysicalMovement,
         nativeRootNonceReconciliation:matchedNonceRoots,
         exactNightWatchPromptCountMatchesIntercepts:true,
         championReferenceRootNoninterference:true,
