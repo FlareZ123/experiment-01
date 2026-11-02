@@ -61,6 +61,9 @@ jobs:
       - name: Report original source terminal Prize and actual attack declarations for each same-deal pair
         if: inputs.rank19_mobility_compare
         run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');for(const p of x.pairs)console.log('AGENT50_SOURCE_ATTACK_PRIZES',JSON.stringify({trial:p.trialId,parity:p.physicalDealParity,control:{final:p.control.lastNativePublicBoard,attacks:p.control.sourceAttackPrizeTrace},treatment:{final:p.treatment.lastNativePublicBoard,attacks:p.treatment.sourceAttackPrizeTrace}}))"
+      - name: Report all source native attacks with settled public damage and physical Prize transitions
+        if: inputs.rank19_mobility_compare
+        run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');for(const p of x.pairs)console.log('AGENT50_SOURCE_SETTLED_ATTACKS',JSON.stringify({trial:p.trialId,control:p.control.sourceSettledPublicAttack,treatment:p.treatment.sourceSettledPublicAttack}))"
       - name: Archive original source mobility paired native receipts
         if: always() && inputs.rank19_mobility_compare
         uses: actions/upload-artifact@v4
