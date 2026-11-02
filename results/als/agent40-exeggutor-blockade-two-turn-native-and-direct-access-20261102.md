@@ -39,7 +39,7 @@ Exact favorable card-access sequences: **340,221,072**.
 
 Exact Basic-valid denominator: **916,872,253,440**.
 
-<escape>**Conditional event probability: 7,087,939 / 19,101,505,280 = 0.03710670387543405%** (approximately 1 in 2,695).</escape>
+**Conditional event probability: 7,087,939 / 19,101,505,280 = 0.03710670387543405%** (approximately 1 in 2,695).
 
 The unconditional analogous probability is **0.03196406052044868%**. These are **not** projected successful setup rates or win probabilities. In particular, `Guzma & Hala`, `Tag Call`, card draw, alternate attachment/payment lines and Prize recovery can create actual legal Blockade sequences without satisfying the artificially direct-hand-only conjunction. The result shows only why tutors and sequencing are fundamental to this particular two-Jet construction.
 
