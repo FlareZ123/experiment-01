@@ -202,6 +202,8 @@ jobs:
         run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs tests/agent50-native-prompt-before-attack-diff.test.cjs tests/agent50-source-group-sign-sensitivity.test.cjs
       - name: Regress original-source Crobat-to-Mew native settlement attribution
         run: node --test tests/agent9-rank5-crobat-native-settlement.test.cjs
+      - name: Verify actual Crobat retreat fee physical card identity
+        run: node --test tests/agent9-retreat-fee-custody.test.cjs
       - name: Audit deck-name incidence and VIP hand-entry provenance
         run: node --test tests/aichi-source-incidence.test.cjs tests/agent9-vip-bench-entry-provenance.test.cjs tests/agent9-vip-source-archive-trigger-crosscheck.test.cjs tests/agent9-rank5-vip-owner-search-vs-genesect.test.cjs tests/agent9-rank5-vip-crobat-genesect-exact-partition.test.cjs tests/agent9-vip-owner-alternatives-readonly.test.cjs tests/agent9-rank5-vip-prize-bench-window.test.cjs tests/agent9-v31-genesect-ability-archive-census.test.cjs
       - name: Attest all 32 original rank and archetype identities with exact published printing inventories
