@@ -183,17 +183,38 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
         catch(error){attackError=String(error?.message??error);}
       }
       const resolvedWaitPromptIds=[];
+      const resolvedPrizePromptIds=[];
+      const resolvedPromotionPromptIds=[];
       if(accepted){
-        for(let i=0;i<8;i++){
-          const pendingWait=store.state.prompts.find(p=>
-            p.result===undefined&&p.constructor.name==='WaitPrompt');
-          if(!pendingWait)break;
-          store.dispatch(new ResolvePromptAction(pendingWait.id,null));
-          resolvedWaitPromptIds.push(pendingWait.id);
+        for(let i=0;i<16;i++){
+          const prompt=store.state.prompts.find(p=>p.result===undefined);
+          if(!prompt)break;
+          let choice=null,kind=null;
+          if(prompt.constructor.name==='WaitPrompt'){
+            kind='wait';
+          }else if(prompt.constructor.name==='ChoosePrizePrompt'&&
+              prompt.playerId===mine.id){
+            const ownerPrizes=mine.prizes.filter(p=>p.cards.length>0);
+            choice=ownerPrizes.slice(0,prompt.options.count);
+            assert.ok(prompt.validate(choice,store.state));
+            kind='prize';
+          }else if(prompt.constructor.name==='ChoosePokemonPrompt'&&
+              prompt.playerId===enemy.id){
+            choice=[enemy.bench.find(slot=>slot.cards.length>0)];
+            assert.ok(prompt.validate(choice,store.state));
+            kind='promotion';
+          }else{
+            break;
+          }
+          store.dispatch(new ResolvePromptAction(prompt.id,choice));
+          if(kind==='wait')resolvedWaitPromptIds.push(prompt.id);
+          if(kind==='prize')resolvedPrizePromptIds.push(prompt.id);
+          if(kind==='promotion')resolvedPromotionPromptIds.push(prompt.id);
         }
       }
       attackReceipt={attempted,accepted,attackError,before,
-        resolvedWaitPromptIds,
+        resolvedWaitPromptIds,resolvedPrizePromptIds,
+        resolvedPromotionPromptIds,
         after:{ownerPrizes:mine.prizes.length,
           opponentActive:enemy.active.getPokemonCard()?.fullName??null,
           opponentActiveDamage:enemy.active.damage,
@@ -233,6 +254,10 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     attackFollowupSelectedAsPaper:!attackFollowup||
       (opponentToolJammer?!attackReceipt.attempted:
         attackReceipt.attempted&&attackReceipt.accepted),
+    nativePrizeAndKnockOutAsPaper:!attackFollowup||
+      (opponentToolJammer?!attackReceipt.attempted:
+        attackReceipt.after.ownerPrizes===4&&
+        attackReceipt.after.opponentDiscard.includes('Iron Thorns ex TWM')),
     paperHookApplied:effectRepair?
       (opponentToolJammer&&!stadiumToolJamming?
         receipt.patches.length>0:
