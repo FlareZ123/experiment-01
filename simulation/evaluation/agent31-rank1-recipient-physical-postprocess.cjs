@@ -110,6 +110,15 @@ function auditOneNativeGame(row){
         turn:action.turnBefore,attack:action.attack??null,
         printing:action.card??null
       })):null;
+  const sourcePlayedCards=Array.isArray(roots)?
+    roots.filter(action=>action.action==='PlayCardAction'&&
+      action.playerSlot===seat).map(action=>action.card??null):null;
+  const sourceAbilityNames=Array.isArray(roots)?
+    roots.filter(action=>action.action==='UseAbilityAction'&&
+      action.playerSlot===seat).map(action=>action.ability??null):null;
+  const candidateAbilityNames=Array.isArray(roots)?
+    roots.filter(action=>action.action==='UseAbilityAction'&&
+      action.playerSlot!==seat).map(action=>action.ability??null):null;
   return {
     id:row.trial?.id??null,
     sourceSeat:seat,
@@ -130,6 +139,14 @@ function auditOneNativeGame(row){
     candidatePromptBasicBenchAdditions:
       abilityPrompt?.filter(e=>e.seat!==seat)??null,
     sourceUnderworldDoorActionRoots:underworld?.length??null,
+    candidateUnderworldDoorActionRoots:
+      candidateAbilityNames?.filter(x=>x==='Underworld Door').length??null,
+    sourceDirectlyPlayedShadowRiderVMAX:
+      sourcePlayedCards?.filter(x=>x==='Shadow Rider Calyrex VMAX').length??null,
+    sourceDirectlyPlayedShadowRiderV:
+      sourcePlayedCards?.filter(x=>x==='Shadow Rider Calyrex V').length??null,
+    sourceUseAbilityActionNames:sourceAbilityNames,
+    candidateUseAbilityActionNames:candidateAbilityNames,
     sourceDeclaredAttacks:attackLabels??null,
     evidenceLimit:'Distinct direct Basic PlayCardAction and AttachEnergyPrompt physical deltas, not yet a full Underworld Door causal-link proof'
   };
@@ -158,6 +175,11 @@ function summarizeArtifact(raw){
       sourcePromptBasicBenchAdditions:0,
       candidatePromptBasicBenchAdditions:0,
       sourceUnderworldDoorActionRoots:0,
+      candidateUnderworldDoorActionRoots:0,
+      sourceDirectlyPlayedShadowRiderVMAX:0,
+      sourceDirectlyPlayedShadowRiderV:0,
+      sourceAllUseAbilityActionRoots:0,
+      candidateAllUseAbilityActionRoots:0,
       sourceAttackDeclarations:0
     };
     for(const row of rows){
@@ -171,6 +193,16 @@ function summarizeArtifact(raw){
         row.candidatePromptBasicBenchAdditions?.length??0;
       sum.sourceUnderworldDoorActionRoots+=
         row.sourceUnderworldDoorActionRoots??0;
+      sum.candidateUnderworldDoorActionRoots+=
+        row.candidateUnderworldDoorActionRoots??0;
+      sum.sourceDirectlyPlayedShadowRiderVMAX+=
+        row.sourceDirectlyPlayedShadowRiderVMAX??0;
+      sum.sourceDirectlyPlayedShadowRiderV+=
+        row.sourceDirectlyPlayedShadowRiderV??0;
+      sum.sourceAllUseAbilityActionRoots+=
+        row.sourceUseAbilityActionNames?.length??0;
+      sum.candidateAllUseAbilityActionRoots+=
+        row.candidateUseAbilityActionNames?.length??0;
       sum.sourceAttackDeclarations+=
         row.sourceDeclaredAttacks?.length??0;
     }
