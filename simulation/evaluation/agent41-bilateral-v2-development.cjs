@@ -377,6 +377,7 @@ function executeDevelopment(trial,candidates,{
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
+  nativeRootActionLimit=null,nativeFirstTurnPublicBoard=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
@@ -409,7 +410,8 @@ function executeDevelopment(trial,candidates,{
   const request={
     deckA:candidateSeat===0?candidateCards:opponent.cards,
     deckB:candidateSeat===1?candidateCards:opponent.cards,
-    seed:trial.seed,maxActions:registration.maxRootActions,
+    seed:trial.seed,
+    maxActions:nativeRootActionLimit??registration.maxRootActions,
     label:'agent41-bilateral-v2-common-policy-development-'+trial.id,
     ...registration.frozenFlags,
     // Optional both-seat release gate: native Store must retain all physical
@@ -432,6 +434,8 @@ function executeDevelopment(trial,candidates,{
     // candidate attack, including a redacted Poltergeist-base audit.
     capturePoltergeistEffectTrace:true,
     captureFinalPublicBoard:true,
+    // Pure post-game public Active/Bench observer, off for every frozen arm.
+    captureStartingBoard:nativeFirstTurnPublicBoard,
     captureAttackPassProbes:true,
     capturePerfectionPassProbeSeat:candidateSeat,
     captureHeldTelepathPassProbeSeat:candidateSeat,
@@ -912,6 +916,15 @@ function executeDevelopment(trial,candidates,{
     ...(nativePublicMulliganRevealsAudit?{
       initialPublicMulliganReveals:game.initialPublicMulliganReveals??null}:{}),
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
+    ...(nativeFirstTurnPublicBoard?{
+      sourceInitialPublicActiveBench:game.initialBoardAtFirstTurn??null,
+      sourceFirstOwnerRelevantHandCounts:ownerFirst?Object.fromEntries(
+        ['Budew','Boost Shake','Trubbish','Garbodor','Float Stone',
+          'Secret Box','Quick Ball','Battle VIP Pass'].map(name=>[
+          name,ownerFirst.filter(card=>
+            card===name||card.startsWith(name+' ')).length
+        ])):null
+    }:{}),
     // Read-only owner K1 deck-search choices, for all historical arms.
     // Never give the real deck membership to a pre-search K0 policy.
     candidateOwnDeckSelectionEvidence,
@@ -1053,6 +1066,7 @@ function runDevelopment({
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
   nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
+  nativeRootActionLimit=null,nativeFirstTurnPublicBoard=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
@@ -1081,6 +1095,11 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(nativeRootActionLimit===null||
+    (Number.isSafeInteger(nativeRootActionLimit)&&
+      nativeRootActionLimit>=16&&
+      nativeRootActionLimit<=registration.maxRootActions),
+    'Read-only first-turn panel cap must be a bounded native integer');
   assert.ok(!nativeQuickBallOwnerTransactionAudit||nativeAcceptedTargets,
     'Quick Ball transaction proof requires the native accepted-target sidecar');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
@@ -1268,6 +1287,7 @@ function runDevelopment({
         nativeOpponentHiddenReadAudit,nativeActionInputWitness,
         nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
         losslessNativeRootJoin,
+        nativeRootActionLimit,nativeFirstTurnPublicBoard,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
