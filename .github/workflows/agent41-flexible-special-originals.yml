@@ -179,7 +179,7 @@ jobs:
       - name: Validate owner-only Unown Ability decisions and frozen rank9 source registrations
         if: ${{ inputs.rank9_farewell_replay }}
         run: |
-          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs
+          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs tests/agent14-unown-original-registration.test.cjs
           node simulation/evaluation/agent14-rank9-farewell-native-replay.cjs --inspect-only > agent14-rank9-preflight.json
       - name: Run same-source rank9 Farewell Letter root comparison, both physical seats
         if: ${{ inputs.rank9_farewell_replay }}
@@ -203,7 +203,7 @@ jobs:
       - name: Validate authentic original ranks 26 30 31 Unown replay inputs
         if: ${{ inputs.unown_multirank_replay }}
         run: |
-          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs
+          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs tests/agent14-unown-original-registration.test.cjs
           node simulation/evaluation/agent14-multirank-unown-original-replay.cjs --inspect-only > agent14-other-unown-preflight.json
       - name: Run 24 actual native off-on original-source Unown development trials
         if: ${{ inputs.unown_multirank_replay }}
@@ -224,7 +224,7 @@ jobs:
       - name: Validate preregistered original rank17 source and pure Unown decision tests
         if: ${{ inputs.rank17_farewell_replay }}
         run: |
-          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs
+          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs tests/agent14-unown-original-registration.test.cjs
           node simulation/evaluation/agent14-rank17-farewell-original-replay.cjs --inspect-only > agent14-rank17-preflight.json
       - name: Run preregistered original rank17 two-seat native Unown replay
         if: ${{ inputs.rank17_farewell_replay }}
