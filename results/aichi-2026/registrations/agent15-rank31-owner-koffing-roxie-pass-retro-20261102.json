@@ -1,0 +1,25 @@
+{
+  "schema": "agent15-rank31-retro-owner-private-koffing-roxie-pass-census-v1",
+  "registeredUtc": "2026-11-02T06:02:00Z",
+  "phase": "after rank31 v10 source root null and same-seed owner-only held Roxie/native canPlay audit",
+  "purpose": "Read exact original source actor's owned physical hand at previously observed 34 native-positive Roxie Passes; distinguish having physically payable Koffing from mere Supporter visibility, preserve all same-physical-deal controls.",
+  "retrospectiveSelection": "Original source seat B had Roxie held for 34 repeated Passes across two native games in previously observed 41396702661. No fresh independent seed inference, predeclared root mechanism only.",
+  "originalRegistrationGitBlob": "b0a3859fe16e8bd9bee54af57a95ba4401a09f69",
+  "pregameAmendmentGitBlob": "7cdf9be1eab951568560e0535d39cf25e722fcae",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 31,
+  "priorRank31NativeCI": 41395836041,
+  "priorOwnerSupporterCI": 41396702661,
+  "sourceSeeds": {
+    "A": 441470024,
+    "B": 2199247171
+  },
+  "oneBooleanObserver": "AGENT7_OWNER_SUPPORTER_AUDIT_DEV false or true, leave actor policy and v10 true in both",
+  "nativeNullCanPlayProbe": false,
+  "expectedNoninterference": "Identical two-player full physical deal, certified first native draw, same root-action digest, same engine terminal/abort, and same winner in paired control/observer.",
+  "observations": "For each original rank31 owned first-turn root and actual accepted Pass: exact owned Supporter Roxie CEC printing, Koffing CEC copies in its own hand, option quota/lock/first turn, source hand sizes, no opponent private hand or deck contents. Count coheld Koffing at independent owner turns and repeated Passes, not as independent games.",
+  "referenceReport": "results/aichi-2026/agent15-canonical-v10-original-payment-integration-20261102.md",
+  "attempts": 8,
+  "qualifiedCompetitiveGames": 0
+}
