@@ -57,6 +57,35 @@ function staged(seat){
   x.state.turn=18;
   return x;
 }
+/**
+ * Complete the pinned Store's mandatory between-turn animation/checkup
+ * acknowledgements before inspecting the opponent's ordinary action window.
+ * PassTurnAction alone enters BETWEEN_TURNS and leaves the original seat
+ * active until the queued WaitPrompt is resolved.
+ * @param {object} x Staged native Store and players.
+ * @param {0|1} seat Physical source seat.
+ * @returns {string[]} Actual native transition prompt sequence.
+ */
+function reachOpponentTurn(x,seat){
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
+  const witnessed=[];
+  for(let n=0;n<12;n++){
+    const state=x.store.state;
+    const pending=state.prompts.find(p=>p.result===undefined);
+    if(state.activePlayer===1-seat&&
+       state.phase===x.GamePhase.PLAYER_TURN&&!pending)
+      return witnessed;
+    assert.ok(pending,
+      'Between-turn advance requires an actual pending native prompt');
+    assert.equal(pending.constructor.name,'WaitPrompt',
+      'Do not auto-answer discretionary opponent or source prompts');
+    witnessed.push(pending.constructor.name);
+    x.store.dispatch(new ResolvePromptAction(pending.id,null));
+  }
+  assert.fail('Native opponent turn did not settle in twelve WaitPrompts');
+}
+
 for(const seat of [0,1]){
   test('native owner two-step BUS lock position and opposing Basic attack veto seat '+seat,()=>{
     const x=staged(seat),options={busLockPositionRoot:true};
@@ -97,7 +126,10 @@ for(const seat of [0,1]){
     assert.equal(x.owner.bench[2].getPokemonCard()?.fullName,'Vileplume AOR');
 
     x.store.dispatch(new PassTurnAction(x.owner.id));
-    assert.equal(x.state.activePlayer,1-seat);
+    const transitionWaits=reachOpponentTurn(x,seat);
+    assert.ok(transitionWaits.length>0,
+      'Native phase transition must have real WaitPrompt receipts');
+    assert.equal(x.store.state.activePlayer,1-seat);
     const candidateBefore=x.opponent.active.damage;
     let rejected=null;
     try{
@@ -151,7 +183,10 @@ for(const seat of [0,1]){
     assert.equal(x.owner.retreatedTurn===x.state.turn,false,
       'Jet switching does not spend the ordinary Retreat action');
     x.store.dispatch(new PassTurnAction(x.owner.id));
-    assert.equal(x.state.activePlayer,1-seat);
+    const transitionWaits=reachOpponentTurn(x,seat);
+    assert.ok(transitionWaits.length>0,
+      'Native phase transition must have real WaitPrompt receipts');
+    assert.equal(x.store.state.activePlayer,1-seat);
     let rejected=null;
     try{x.store.dispatch(new AttackAction(x.opponent.id,
       'Miraculous Duo-GX'));}
