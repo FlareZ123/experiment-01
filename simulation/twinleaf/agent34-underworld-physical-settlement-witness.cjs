@@ -87,7 +87,7 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
       pending.delete(action.id);
       const changed=before.bench.map((slot,index)=>{
         const later=after.bench[index];
-        const added=later.energies.filter(name=>
+        const added=[...new Set(later.energies)].filter(name=>
           later.energies.filter(x=>x===name).length>
           slot.energies.filter(x=>x===name).length);
         const valid=slot.pokemon!==null&&
