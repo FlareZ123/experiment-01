@@ -14,6 +14,8 @@ const {withActorOnlyRootPolicy}=
   require('./agent34-actor-only-root-policy.cjs');
 const {source13QuickBallActorAdapters}=
   require('./agent8-rank13-donor-actor-adapters.cjs');
+const {withPaperCelestialRoarEnergy}=
+  require('./agent47-celestial-roar-paper-energy-hook.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION_PATH=path.join(ROOT,
@@ -58,7 +60,8 @@ function registration(){
  * @param {boolean} donorRootEnabled
  * @returns {object}
  */
-function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false){
+function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
+  paperCelestialEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -102,8 +105,10 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
     ...source13QuickBallActorAdapters(sourceSeat)
   };
   try{
-    const actual=withCanonicalActorOnlyPolicy(()=>runMatch(request),
+    const run=()=>withCanonicalActorOnlyPolicy(()=>runMatch(request),
       adapters,{ownerSingleSearch:true,actorHandDiscard:true});
+    const corrected=paperCelestialEnabled?withPaperCelestialRoarEnergy(run):null;
+    const actual=corrected?corrected.result:run();
     const game=actual.result,components=actual.audit.detailedComponentAudits;
     assert.equal(game.seed,trial.seed);
     assert.equal(game.engine,'twinleafgg/'+PIN);
@@ -139,6 +144,8 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
       game.decisionTrace??[])).digest('hex');
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
+      paperCelestialEnabled,
+      paperCelestialAudit:corrected?.audit??null,
       actualFirstSeat:game.firstTurnSlot,
       gameFinished:game.finished===true,
       nativeActionCount:game.actions,
@@ -225,6 +232,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
     };
   }catch(error){
     return{status:'native-aborted',donorRootEnabled,naturalEvolutionEnabled,
+      paperCelestialEnabled,
       error:String(error?.stack??error).slice(0,1100),
       censored:true,competitiveGameQualified:false};
   }
