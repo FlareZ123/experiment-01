@@ -24,3 +24,20 @@ test('native Plumeria exactly two physical cards required in both seats',()=>{
   assert.equal(a.qualifiedGames,0);
  }
 });
+
+test('paper Plumeria rejects repeated reference and cards outside owner hand',()=>{
+ for(const seat of [0,1])for(const variant of ['duplicate','foreign']){
+  const {result:r,audit:a}=withPaperPlumeriaPayment(()=>
+   probePlumeriaShortPayment(seat,2,variant));
+  console.log('AGENT42_PLUMERIA_GUARD_ADVERSARIAL '+JSON.stringify({seat,variant,audit:a,result:r}));
+  assert.equal(a.observed,1);
+  assert.equal(a.accepted,0);
+  assert.equal(a.rejected,1);
+  assert.match(r.paymentError,/PAPER_PLUMERIA_INVALID_TWO_CARD_PAYMENT/);
+  assert.equal(r.targetPromptFound,false);
+  assert.equal(r.energyPromptFound,false);
+  assert.deepEqual(r.paymentCustody.map(c=>c.inOwnerDiscard),[false,false]);
+  assert.equal(r.opposingEnergyCustody.inOpponentActive,true);
+  assert.equal(r.opposingEnergyCustody.inOpponentDiscard,false);
+ }
+});
