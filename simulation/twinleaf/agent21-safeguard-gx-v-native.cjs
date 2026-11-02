@@ -12,7 +12,7 @@ const load=name=>require(path.join(output,name));
 
 /**
  * @param {0|1} seat Actual attack-owning physical seat.
- * @param {'Tapu Lele-GX GRI'|'Shadow Rider Calyrex VMAX CRE'} attackerPrinting
+ * @param {'Tapu Lele-GX GRI'|'Shadow Rider Calyrex VMAX CRE'|'Shadow Rider Calyrex V CRE'} attackerPrinting
  * @param {'Mimikyu PAL'|'Mimikyu GRI'} defenderPrinting
  * @returns {object} Genuine Store damage and KO/Prize receipts.
  */
@@ -71,8 +71,9 @@ function runArm(seat,attackerPrinting,defenderPrinting){
   const store=new Store({onStateChange(){}});
   store.state=state;
 
-  const attack=attackerPrinting==='Tapu Lele-GX GRI'?
-    'Energy Drive':'Max Geist';
+  const astral=attackerPrinting==='Shadow Rider Calyrex V CRE';
+  const attack=astral?'Astral Barrage':
+    (attackerPrinting==='Tapu Lele-GX GRI'?'Energy Drive':'Max Geist');
   const before=attacker.prizes.filter(p=>p.cards.length>0).length;
   store.dispatch(new AttackAction(attacker.id,attack));
   const promptTypes=[];
@@ -88,8 +89,8 @@ function runArm(seat,attackerPrinting,defenderPrinting){
       value=owner.prizes.filter(p=>p.cards.length>0).slice(0,prompt.options.count);
     }else if(kind==='ChoosePokemonPrompt'){
       const owner=store.state.players.find(p=>p.id===prompt.getPerspectivePlayerId());
-      assert.equal(owner,defender);
-      value=[fallback];
+      assert.ok(owner===attacker||owner===defender);
+      value=owner===attacker?[defender.active,fallback]:[fallback];
     }else{
       assert.fail('Unrecognized native prompt '+kind);
     }
@@ -98,7 +99,7 @@ function runArm(seat,attackerPrinting,defenderPrinting){
   }
   assert.deepEqual(store.state.prompts.filter(p=>p.result===undefined),[]);
   const prizeGain=before-attacker.prizes.filter(p=>p.cards.length>0).length;
-  const predicted=(defenderPrinting==='Mimikyu PAL' &&
+  const predicted=astral||(defenderPrinting==='Mimikyu PAL' &&
     attackerPrinting==='Shadow Rider Calyrex VMAX CRE')?0:1;
   assert.equal(prizeGain,predicted,
     'Native paper Safeguard should distinguish VMAX from GX attacking species');
@@ -106,14 +107,18 @@ function runArm(seat,attackerPrinting,defenderPrinting){
     'Physical defender should be discarded exactly on the 70 HP knockout');
   const wallStillActive=defender.active.getPokemonCard()===physicalDefender;
   if(predicted===0){
-    assert.equal(wallStillActive,true,'Safeguard wall must remain Active');
-    assert.equal(defender.active.damage,0,
-      'Safeguard must prevent all damage, beyond merely avoiding a KO');
+    assert.equal(wallStillActive,true,'Mimikyu must remain Active');
+    assert.equal(defender.active.damage,astral?50:0,
+      astral?'Placing five counters must bypass the damage-only Safeguard':
+        'Safeguard must prevent all damage, beyond merely avoiding a KO');
+    if(astral)assert.equal(fallback.damage,50,
+      'Astral Barrage should also place counters on the second chosen Pokémon');
   }
   return {sourceRankPrintings: defenderPrinting==='Mimikyu PAL'?[3,7]:[1,30],
     seat,attackerPrinting,defenderPrinting,attackerAttack:attack,
     expectedSourceMimikyuPrizeLoss:predicted,prizeGain,
     damageOnSurvivingMimikyu:wallStillActive?defender.active.damage:null,
+    damageOnSourceBench: fallback.damage,
     defenderInDiscard:defender.discard.cards.includes(physicalDefender),
     resolvedPromptTypes:promptTypes};
 }
@@ -123,14 +128,16 @@ function run(){
   for(const seat of [0,1]){
     for(const defenderPrinting of ['Mimikyu PAL','Mimikyu GRI']){
       for(const attackerPrinting of [
-        'Shadow Rider Calyrex VMAX CRE','Tapu Lele-GX GRI']){
+        'Shadow Rider Calyrex VMAX CRE','Tapu Lele-GX GRI',
+        'Shadow Rider Calyrex V CRE']){
         arms.push(runArm(seat,attackerPrinting,defenderPrinting));
       }
     }
   }
-  assert.equal(arms.length,8);
+  assert.equal(arms.length,12);
   return {schema:'agent21-source-print-safeguard-v-gx-actual-store-v1',
     enginePin:ENGINE_SHA,stagedFourPsychicEnergy:true,actualStoreAttack:true,
+    countedCounterPlacementDistinctFromAttackDamage:true,
     realSourceMimikyuPrintings:['Mimikyu PAL','Mimikyu GRI'],
     actualSourceFull60Games:0,competitiveQualifiedGames:0,arms};
 }
