@@ -101,3 +101,42 @@ test('other authenticated original Iron Thorns printed sixties',()=>{
     }
   }
 });
+
+test('source-rank6 strict Trainer and global-deck-duplicate Trainer screens',()=>{
+  const n7=rank6EarlyHands(7),n8=rank6EarlyHands(8);
+  assert.equal(n7.strictTrainerOnlyWeighted,'315096');
+  assert.equal(n7.globallyDuplicatedTrainerWeighted,'44942410');
+  assert.equal(n8.strictTrainerOnlyWeighted,'45473672');
+  assert.equal(n8.globallyDuplicatedTrainerWeighted,'2978721832');
+  assert.ok(n7.strictTrainerOnlyRate<n7.globallyDuplicatedTrainerRate);
+  assert.ok(n8.strictTrainerOnlyRate<n8.globallyDuplicatedTrainerRate);
+});
+
+test('toy exhaustive physical opener distinguishes hand and deck duplication',()=>{
+  const cards=[{name:'Basic',category:'Pokémon',count:2},
+    {name:'Plumeria',category:'Trainer',count:2},
+    {name:'Filler',category:'Trainer',count:2}];
+  const physical=['Basic','Basic','Plumeria','Plumeria','Filler','Filler'];
+  const observedSize=5,openingSize=3;
+  let trainerSafe=0n,globalDuplicateTrainer=0n;
+  for(const observed of subsets([...physical.keys()],observedSize)){
+    for(const opening of subsets(observed,openingSize)){
+      if(!opening.some(i=>physical[i]==='Basic'))continue;
+      const hand=observed.map(i=>physical[i]);
+      if(!hand.includes('Plumeria'))continue;
+      const counts=new Map();
+      for(const x of hand)counts.set(x,(counts.get(x)??0)+1);
+      const strict=Math.max(0,(counts.get('Plumeria')??0)-2)+
+        Math.max(0,(counts.get('Filler')??0)-1);
+      const global=(counts.get('Plumeria')??0)-1+
+        (counts.get('Filler')??0);
+      if(strict>=2)trainerSafe++;
+      if(global>=2)globalDuplicateTrainer++;
+    }
+  }
+  const got=countEarlyHands({cards,observedSize,openingSize,
+    basicName:'Basic',supporterName:'Plumeria'});
+  assert.equal(got.strictTrainerOnlyWeighted,String(trainerSafe));
+  assert.equal(got.globallyDuplicatedTrainerWeighted,
+    String(globalDuplicateTrainer));
+});
