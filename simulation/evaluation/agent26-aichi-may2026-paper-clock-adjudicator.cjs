@@ -22,7 +22,7 @@ const PHASES=new Set(['cutoff','extension']);
  *   stage:'swiss'|'top32'|'final',
  *   phase:'cutoff'|'extension',
  *   firstPlayerSeat:0|1,
- *   afterSecondStartingPlayerTurn:boolean,
+ *   lastCompletedTurnSeat:0|1|null,
  *   prizeRemaining:[number,number],
  *   naturalOutcome?:0|1|'tie'|null
  * }} state
@@ -36,19 +36,19 @@ const PHASES=new Set(['cutoff','extension']);
 function adjudicateMay2026AichiTime(state){
   assert.ok(state&&typeof state==='object');
   const {stage,phase,firstPlayerSeat,
-    afterSecondStartingPlayerTurn,prizeRemaining,
+    lastCompletedTurnSeat,prizeRemaining,
     naturalOutcome=null}=state;
   assert.ok(STAGES.has(stage));
   assert.ok(PHASES.has(phase));
   assert.ok(firstPlayerSeat===0||firstPlayerSeat===1);
-  assert.equal(typeof afterSecondStartingPlayerTurn,'boolean');
+  assert.ok(lastCompletedTurnSeat===null||lastCompletedTurnSeat===0||lastCompletedTurnSeat===1);
   assert.ok(Array.isArray(prizeRemaining)&&prizeRemaining.length===2);
   for(const x of prizeRemaining)assert.ok(Number.isSafeInteger(x)&&x>=0&&x<=6);
   assert.ok(naturalOutcome===null||naturalOutcome==='tie'||
     naturalOutcome===0||naturalOutcome===1);
   if(stage==='swiss')assert.equal(phase,'cutoff');
   const base={version:VERSION,officialClockMinutes:stage==='final'?35:25,
-    stage,phase,winner:null,requiresExtension:false,
+    stage,phase,requiredFinalSeat:1-firstPlayerSeat,winner:null,requiresExtension:false,
     actorActionAllowed:false,competitiveGameQualified:false,
     paperClockMeasured:false};
   // Ordinary paper wins/ties terminate immediately, even before the
@@ -58,7 +58,7 @@ function adjudicateMay2026AichiTime(state){
     actorActionAllowed:true};
   if(naturalOutcome===0||naturalOutcome===1)return {
     ...base,status:'NATURAL_PAPER_WIN',winner:naturalOutcome};
-  if(phase==='cutoff'&&!afterSecondStartingPlayerTurn){
+  if(phase==='cutoff'&&lastCompletedTurnSeat!==1-firstPlayerSeat){
     return {...base,status:'AWAIT_SECOND_STARTING_PLAYER_FINAL_TURN',
       actorActionAllowed:true};
   }
