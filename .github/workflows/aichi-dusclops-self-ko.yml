@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      sentinel_native_probe:
+        description: 'Opt-in unresolved PFL Mega Lopunny native attack fixture; never a competitive game'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
@@ -57,7 +62,10 @@ jobs:
         run: node --test tests/agent50-rank19-native-original-tool-census.test.cjs
       - name: Diagnose native ADP global effect lifetime after leaving play
         run: node --test tests/agent28-adp-effect-lifetime-diagnostic.native.test.cjs
+      - name: Audit exact paper Mega Lopunny PFL printing and pinned native registration
+        run: node --test tests/agent28-sentinel-native-card-coverage.test.cjs
       - name: Test new Sentinel Mega Lopunny original native attack transition
+        if: inputs.sentinel_native_probe
         run: node --test tests/agent28-sentinel-mega-lopunny-native.test.cjs
       - name: Resolve fifth fixed 60 against pinned native card inventory without playing games
         run: node simulation/evaluation/agent28-sentinel-pinned-printing-admission.cjs
