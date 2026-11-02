@@ -988,6 +988,7 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorDceMewMobilityRoot=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
@@ -1036,6 +1037,8 @@ function runDevelopment({
     'Native symmetric Farewell Letter requires actor-only roots');
   assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
     'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
+  assert.ok(!actorDceMewMobilityRoot||actorOnlyComposition,
+    'Owner-paid DCE retreat must use the same actor-only policy in both seats');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1214,6 +1217,7 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
+          !actorDceMewMobilityRoot&&
           !actorFarewellLetterRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
@@ -1234,6 +1238,9 @@ function runDevelopment({
               ...conservativeSupporterRootOptions,
               ...(actorNaturalEvolutionRoot?{
                 naturalEvolutionRoot:true
+              }:{}),
+              ...(actorDceMewMobilityRoot?{
+                dceMewMobilityRoot:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
@@ -1493,6 +1500,8 @@ function runDevelopment({
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
+    actorDceMewMobilityRootOptIn:
+      actorOnlyComposition&&actorDceMewMobilityRoot,
     actorFarewellLetterRootOptIn:
       actorOnlyComposition&&actorFarewellLetterRoot,
     actorMewGenesectTechnoBlastOptIn:
@@ -1643,6 +1652,8 @@ if(require.main===module){
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
     actorMewGenesectTechnoBlast:
       process.env.AGENT13_MEW_GENES_COPY_DEV==='true',
+    actorDceMewMobilityRoot:
+      process.env.AGENT37_DCE_MEW_RETREAT_DEV==='true',
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
     actorGenericFallbackAttribution:
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
