@@ -29,11 +29,17 @@ jobs:
         run: node simulation/twinleaf/agent2-muk-wobbuffet-native-order.cjs > agent2-muk-wobbuffet-native.json
       - name: Test real hand evolution and Wobbuffet disable cascade on both seats
         run: node --test tests/agent2-muk-wobbuffet-official.native.test.cjs
+      - name: Capture real Boost Shake from new Grimer and Wobbuffet interaction
+        run: node simulation/twinleaf/agent2-muk-wobbuffet-boostshake.cjs > agent2-muk-wobbuffet-boostshake.json
+      - name: Test printed Boost Shake native prompts and official lock cascade
+        run: node --test tests/agent2-muk-boostshake-first-grimer-turn.native.test.cjs
       - name: Archive explicit raw native outcomes including mismatches
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent2-muk-wobbuffet-pinned-native-staged
-          path: agent2-muk-wobbuffet-native.json
+          path: |
+            agent2-muk-wobbuffet-native.json
+            agent2-muk-wobbuffet-boostshake.json
           if-no-files-found: warn
           retention-days: 14
