@@ -69,6 +69,8 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
           storeRunIndex:live.run,originalDispatchOrdinal:root,
           globalTurn:state.turn,ownerSeat:seat,
           promptId:pending.id,promptClass:pending.constructor.name,
+          promptMessage:pending.message,promptMinimum:pending.options?.min??null,
+          promptMaximum:pending.options?.max??null,
           promptOwnerDeck:true,
           originalChosenPrintings:requested,
           candidateAlternative:alternative?.fullName??null,
