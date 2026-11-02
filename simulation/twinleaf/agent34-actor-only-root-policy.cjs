@@ -1354,6 +1354,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           pendingFarewellBySeat.delete(seat);
         }else if(!(this.state.prompts??[]).some(p=>p.result===undefined)){
           pending.receipt.deferredStatus='prompt-closed-without-effect';
+          audit.nativePhysicalPending--;
+          audit.nativePhysicalUnconfirmed++;
+          audit.nativePhysicalUnconfirmedByIntent['use-farewell-letter']=
+            (audit.nativePhysicalUnconfirmedByIntent['use-farewell-letter']??0)+1;
           pendingFarewellBySeat.delete(seat);
         }
       }
