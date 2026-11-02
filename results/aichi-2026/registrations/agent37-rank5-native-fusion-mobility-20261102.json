@@ -1,0 +1,42 @@
+{
+  "schema": "agent37-original-rank5-prospective-ability-mobility-v1",
+  "status": "pre-outcome-frozen-source-two-seat-policy-development",
+  "createdUTC": "2026-11-02T07:48:06Z",
+  "originalRank": 5,
+  "originalArchetype": "Mew Genesect",
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1291978585
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2174158724
+    }
+  ],
+  "policyModes": [
+    "integrated-v3-control: frozen-v2 bilateral owner policy + actorNaturalEvolutionRoot + actorMewGenesectTechnoBlast",
+    "integrated-v3-fusion-mobility: same control + actorDceMewMobilityRoot + actorGenesectFusionDrawRoot"
+  ],
+  "actionAudit": "original-source acceptance, actual physical fingerprints, native prompts, accepted source AttackAction, native terminal or cap, no inferred opportunities",
+  "plannedNativeAttempts": 8,
+  "noPostOutcomeExclusions": true,
+  "sourceSeedSelection": "Two independent fresh cryptographic random 32-bit integers sampled before any native execution; two physical source seats A/B, both candidate printed 60s, same seed under control/treatment.",
+  "competitiveQualifiedGames": 0,
+  "explicitQualificationVetoes": [
+    "generic both-seat policy unqualified",
+    "partial paper card/effect/clock coverage",
+    "missing original source ranks 23,25,28",
+    "candidate policy not competitive certified"
+  ],
+  "nativeTestStatus": "UNRUN"
+}
