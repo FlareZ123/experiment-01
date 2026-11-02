@@ -23,8 +23,9 @@ let nextCardId = 29000;
 
 /** Original rank-9 printed five-Energy subset, staged in discard after game play.
  * @param {0|1} seat
+ * @param {boolean} [shadowRiderDefender] Staged rank1 VMAX target plus live Bench.
  */
-function stage(seat) {
+function stage(seat, shadowRiderDefender=false) {
   const manager = initializeCards();
   /** @param {string} name */
   const card = name => {
@@ -54,8 +55,16 @@ function stage(seat) {
   owner.active.cards.push(mega);
   owner.bench[0].cards.push(card('Voltorb ROS'), card('Electrode-GX CES'));
   owner.bench[1].cards.push(card('Unown AOR'));
-  // Rank-10 original Regidrago V is a 220-HP neutral-Weakness attack recipient.
-  opponent.active.cards.push(card('Regidrago V SIT'));
+  if (shadowRiderDefender) {
+    // Rank-1 printed V -> VMAX stage, with a second live source Basic to
+    // avoid conflating three Prize settlement with a no-Pokémon win.
+    opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'),
+      card('Shadow Rider Calyrex VMAX CRE'));
+    opponent.bench[0].cards.push(card('Shadow Rider Calyrex V CRE'));
+  } else {
+    // Rank-10 original Regidrago V survives a 200-damage neutral-Weakness attack.
+    opponent.active.cards.push(card('Regidrago V SIT'));
+  }
   opponent.hand.cards.push(card('Fog Crystal CRE'));
 
   const energy = [
@@ -197,5 +206,78 @@ for (const seat of [0, 1]) {
     } finally {
       restore();
     }
+  });
+}
+
+
+/** Resolve the three-Prize attack trade against actual rank1 VMAX printing.
+ * @param {ReturnType<typeof stage>} s
+ */
+function attackShadowRiderAndSettle(s) {
+  assert.equal(s.opponent.getPrizeLeft(),4);
+  assert.equal(s.owner.getPrizeLeft(),6);
+  assert.equal(s.opponent.active.getPokemonCard()?.fullName,
+    'Shadow Rider Calyrex VMAX CRE');
+  s.store.dispatch(new AttackAction(s.owner.id,'Claw of Darkness'));
+  for(let i=0;i<6;i++){
+    const wait=s.state.prompts.find(p=>
+      p.result===undefined&&p.constructor.name==='WaitPrompt');
+    if(!wait)break;
+    s.store.dispatch(new ResolvePromptAction(wait.id,null));
+  }
+  const hand=s.state.prompts.find(p=>
+    p.result===undefined&&p.constructor.name==='ChooseCardsPrompt');
+  assert.ok(hand);
+  assert.equal(hand.playerId,s.owner.id);
+  const fog=s.opponent.hand.cards.findIndex(c=>c.fullName==='Fog Crystal CRE');
+  assert.ok(fog>=0);
+  const chosen=hand.decode([fog]);
+  assert.equal(hand.validate(chosen),true);
+  s.store.dispatch(new ResolvePromptAction(hand.id,chosen));
+  for(let i=0;i<24;i++){
+    const next=s.state.prompts.find(p=>p.result===undefined);
+    if(!next)break;
+    if(next.constructor.name==='WaitPrompt'){
+      s.store.dispatch(new ResolvePromptAction(next.id,null));
+    } else if(next.constructor.name==='ChoosePrizePrompt'){
+      assert.equal(next.playerId,s.owner.id);
+      const result=s.owner.prizes.filter(p=>p.cards.length)
+        .slice(0,next.options.count);
+      assert.equal(result.length,next.options.count);
+      s.store.dispatch(new ResolvePromptAction(next.id,result));
+    } else if(next.constructor.name==='ChoosePokemonPrompt'){
+      assert.equal(next.playerId,s.opponent.id);
+      const selection=next.decode([{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }],s.state);
+      assert.equal(next.validate(selection,s.state),true);
+      s.store.dispatch(new ResolvePromptAction(next.id,selection));
+    } else {
+      throw new Error('Unexpected rank1 VMAX KO continuation '+next.constructor.name);
+    }
+    if(s.owner.getPrizeLeft()===3 &&
+      s.opponent.discard.cards.some(c=>
+        c.fullName==='Shadow Rider Calyrex VMAX CRE'))break;
+  }
+  assert.equal(s.owner.getPrizeLeft(),3,
+    'Darkness-weak Shadow Rider VMAX must grant three Prize cards');
+  assert.equal(s.opponent.getPrizeLeft(),4,
+    'The earlier Electrode-GX self-KO cost exactly two Prizes');
+  assert.ok(s.opponent.discard.cards.some(c=>
+    c.fullName==='Shadow Rider Calyrex VMAX CRE'));
+  assert.ok(s.opponent.discard.cards.some(c=>c.fullName==='Fog Crystal CRE'));
+  assert.equal(s.owner.active.getPokemonCard()?.set,'MEG');
+  return {damageExpectedBeforeKO:400,knockedOut:'Shadow Rider Calyrex VMAX CRE',
+    ownerPrizesAfterAttack:3,opponentPrizesAfterBomb:4,
+    opponentHandDiscard:1};
+}
+
+for(const seat of [0,1]){
+  test('Original-rank1 VMAX weakness three-Prize CES48 Mega Absol native seat '+seat,()=>{
+    const s=stage(seat,true);
+    const payment=activateAndPay(s);
+    const attack=attackShadowRiderAndSettle(s);
+    console.log('AGENT29_RANK9_VS_RANK1_THREE_PRIZE_STAGED_NATIVE',
+      JSON.stringify({seat,...payment,...attack,competitiveQualifiedGames:0}));
   });
 }
