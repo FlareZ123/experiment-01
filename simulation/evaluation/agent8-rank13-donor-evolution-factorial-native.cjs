@@ -64,6 +64,12 @@ function main(){
           action.attack==='Apex Dragon').length,
         sourceAttackDetails:arm.sourceAttackDetails??[],
         sourceCopiedAttackSelections:arm.sourceCopiedAttackSelections??[],
+        sourceDragonDiscardAtApex:(arm.sourceAttackDetails??[])
+          .filter(attack=>attack.attack==='Apex Dragon')
+          .map(attack=>({turn:attack.turn,
+            ownerVisibleDiscardSnapshots:
+              (arm.sourceOwnerDragonDiscardTimeline??[])
+                .filter(row=>row.turn===attack.turn)})),
         physicalCustody:arm.physicalCustody??null,
         paperCelestialAudit:arm.paperCelestialAudit??null,
         nativeMinimumAttachAudit:arm.nativeMinimumAttachAudit??null,
