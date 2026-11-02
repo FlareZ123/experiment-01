@@ -34,6 +34,18 @@ Within existing Box K0 openings, a held VIP is present in **19.934%** with no ot
 
 A counterexample matters: under all-other-Basics Benched, 46 of the 1,665 original K1-live held-VIP states fail the alternative. A blind mandatory VIP-before-Box policy can therefore destroy a setup. A full Bench, no deck Basic, a public Item lock, and choice of the wrong Basic recipient impose additional vetoes. An Item's printed legality cannot be inferred from this opening resource model.
 
+## Net board development versus resource substitution (model refinement)
+
+The overlap above identifies alternative *routes*, but its 1-Basic VIP selection does not always produce an additional Basic in play relative to the source's original Box-first Trubbish line. Classification of the same fixed-seed openings by the original Box K0 setup mode gives:
+
+| Source Box K0 mode (among coheld VIP) | Bench none | Bench all |
+| --- | ---: | ---: |
+| Trubbish already in play | 651 | 983 |
+| Held Trubbish, not in play | 393 | 61 |
+| Needs held Quick/Ultra Ball for Trubbish | 1,073 | 913 |
+
+Of the VIP-first *K1-live* continuations, **632 of 1,799** (Bench none) and **826 of 1,619** (Bench all) add a genuinely additional Basic to play relative to the baseline Box-first Trubbish requirement. In the other **1,167** and **793**, VIP supplies a Trubbish that the original Box line would already have developed by playing a held copy or using a Basic searcher. Those latter actions may alter searcher conservation, hand discardability and deck depletion, but the model proves no immediate extra Basic. Source `scripts/agent7_rank8_box_vip_contention.py` now emits this explicit extra-Basic versus Trubbish-substitution distinction. A native policy must compare the uses of the search connector and actual Bench capacity rather than treating every VIP-first search as incremental setup.
+
 ## Native and strategic qualification
 
 This finding locates a potentially neglected *parallel connector* in the actual original source. It does **not** prove two simultaneously executable native lines or that a VIP use outranks any competing card search, Supporter, attack, or Bench slot. Agent44 already has a real symmetric common-actor retrospective native Box/Shake positive at [run 41409207301](https://github.com/FlareZ123/experiment-01/actions/runs/41409207301), and the 32-deal flexible K0 source cohort has just 3 offers (2 completions, 1 aborted). None has competitively qualified play; pairing the current model count with those native successes would be invalid.
