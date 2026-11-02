@@ -72,3 +72,5 @@ jobs:
         run: node --test tests/agent46-anytime-balanced-paired-field-delta.test.cjs
       - name: Fail closed from native-original-source rows to per-cell paired statistics
         run: node --test tests/agent46-original-source-field-pair-bridge.test.cjs
+      - name: Preserve frozen rank6 original-source native four-arm censor disposition
+        run: node --test tests/agent46-frozen-rank6-censored-postprocessor.test.cjs
