@@ -28,7 +28,7 @@ This experiment tests the *existing* source-only `sourceFloatStoneMobility` opti
 | rank19, candidate seat B, champion | 22 | 19 | 12 | 1 | 0 → 0 |
 | rank19, candidate seat B, New Moon | 35 | 22 | 23 | 1 | 0 → 0 |
 
-All eight arms ended as **untimed native engine terminals**, and none declared `Bellowing Thunder`. Reduced repeated held-Float roots demonstrate a policy-sensitive physical-game trajectory. A later corrected Tool audit establishes attached Float Stone; a selected native RetreatAction is separately observed. The physical post-retreat state and any subsequent source attack remain unverified. A held card counted at many owner roots is one card carried across roots, rather than many independent opportunities.
+All eight arms ended as **untimed native engine terminals**, and none declared `Bellowing Thunder`. Reduced repeated held-Float roots demonstrate a policy-sensitive physical-game trajectory. A later corrected Tool audit establishes attached Float Stone; a selected native RetreatAction is separately observed. The post-retreat State confirms ADP GX was promoted, while Raging remained Benched; no later original-source Raging attack root was observed. A held card counted at many owner roots is one card carried across roots, rather than many independent opportunities.
 
 ## Independent native Energy fixture correction
 
@@ -60,7 +60,7 @@ All released tests and observations remain default-off in the natural shared fie
 
 The corrected active Tool-array observer and new pure test passed in [compiled manual run 41409207827](https://github.com/FlareZ123/experiment-01/actions/runs/41409207827), [artifact 13124324298](https://github.com/FlareZ123/experiment-01/actions/runs/41409207827/artifacts/13124324298), ZIP SHA-256 `bf7ae5a1f066aeff6cc4da1f47264ec1ccd6df1e0d231bee28c57b648537c4b1`. All four original-source physical fingerprints matched their frozen comparison partner, with 8/8 native engine terminals, zero Bellowing and zero Raging Active owner roots.
 
-Crucially, each source-seat-0 **treatment** game recorded **one original-source owner root with Float Stone actually attached to Active Ho-Oh** while Raging Bolt remained Benched and funded. Each corresponding baseline recorded zero such attached-Tool owner roots. The earlier repeated-held counts fell from 12→1 and 23→1, and each treatment then selected a RetreatAction after attaching Float Stone. No later source Raging owner root is observed; the post-retreat physical transition still requires a State witness. This establishes a real Tool attachment, followed by a selected native RetreatAction, on the tested sources. The remaining uncertainty is what the original Store physically did with those RetreatActions and why no later source Raging attack opportunity was observed.
+Crucially, each source-seat-0 **treatment** game recorded **one original-source owner root with Float Stone actually attached to Active Ho-Oh** while Raging Bolt remained Benched and funded. Each corresponding baseline recorded zero such attached-Tool owner roots. The earlier repeated-held counts fell from 12→1 and 23→1, and each treatment then selected a RetreatAction after attaching Float Stone. No later source Raging owner root is observed; the physical retreat transition is now witnessed: ADP GX was promoted instead of Raging Bolt. This establishes a real Tool attachment, followed by a selected native RetreatAction, on the tested sources. The remaining uncertainty is what the original Store physically did with those RetreatActions and why no later source Raging attack opportunity was observed.
 
 At the first five funded-Ho-Oh owner roots in the treated seat-0 games, Ho-Oh had **zero attached Energy**, `retreatedTurn=0`, and no Tool. The later observed attached Float Stone root must therefore be inspected in its actual chronology. The follow-up source-root action ledger is being preserved separately to distinguish these stages without conflating repeated owner roots with turns.
 
@@ -73,3 +73,19 @@ At the first five funded-Ho-Oh owner roots in the treated seat-0 games, Ho-Oh ha
 - `19:0:B:new-moon-lockbreaker-v1`: global native turn **16**, root ordinal **98** `PlayCardAction` with displayed **Float Stone**; next source-owned root ordinal **99** `RetreatAction`. The same pre-retreat physical board facts held, including `retreatedTurn=0). No later source owner root was recorded.
 
 These are **selected native root actions** and pre-action physical state witnesses. They do **not** yet prove that the RetreatAction successfully swapped Ho-Oh for Raging Bolt, that the game continued, or that Bellowing became available. This correction supersedes the earlier tentative diagnosis of a policy that failed to select the retreat. The pending diagnostic is a **post-dispatch Store state witness** of the real RetreatAction, including phase, active Pokémon, current turn and terminal reason. No additional on-board attack is inferred.
+
+
+## Source-root mobility target fully resolved
+
+[Compiled CI 41410103913](https://github.com/FlareZ123/experiment-01/actions/runs/41410103913) completed with the original source-action observer's post-dispatch **physical State** witness. Four original physical source deal comparisons still matched. The actor's pure, own-hand/public-board mobility proposal matched the actual selected Float Stone attachment and retreat action sequence.
+
+| Rank19 source seat-0 treatment | Native Float Stone | Native retreat | Physically Active **after** RetreatAction | Raging Bolt after |
+| --- | --- | --- | --- | --- |
+| versus champion-reference | Turn 14, ordinal 73 | Turn 14, ordinal 74 | **Arceus & Dialga & Palkia GX CEC**, 2 DDE, phase PLAYER_TURN, `retreatedTurn=14` | Benched, 1 DDE |
+| versus New Moon | Turn 16, ordinal 98 | Turn 16, ordinal 99 | **Arceus & Dialga & Palkia GX CEC**, 2 DDE, phase PLAYER_TURN, `retreatedTurn=16` | Benched, 1 DDE |
+
+The original source had six Prize cards remaining after each successful retreat, with no outstanding native prompt. This closes the immediate question: **the original Store completed a retreat, but the active recipient was ADP GX**.
+
+The existing `chooseOwnerFloatStoneMobility` selector sorts funded Bench Pokémon by **descending number of attached Energy cards**, then Bench index. Two DDE cards on ADP outrank one DDE on Raging. Consequently, the selected retreat never opens a Raging Active root in these two exact games. The source-decision failure was a narrow *recipient targeting heuristic*, not a failure to attach Float Stone or execute the physical RetreatAction.
+
+These observations **do not establish that ADP was a strategically inferior recipient**. Its payable attack options and effect value may exceed Raging Bolt's, particularly if no Basic Energy card can be discarded for Bellowing. Future target policies need game-state-dependent attack payability, expected prize payoff, attached Basic cards, GX-use state and opportunity cost. The original-source policy remains unqualified for win-rate inference.
