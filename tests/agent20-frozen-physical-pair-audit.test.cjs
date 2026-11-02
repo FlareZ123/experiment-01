@@ -71,7 +71,7 @@ test('duplicate native row or changed registered seed is rejected',()=>{
 test('apparent equality without verified seat/turn is insufficient',()=>{
   const rows=fixtureRows();
   rows[0].verifiedFirstTurn=false;
-  rows[2].sourceSeat=0;
+  rows[2].sourceSeat=1;
   const result=auditFrozenSourcePhysicalPairs(profile,{rows});
   assert.equal(result.matchedSourcePhysicalDeals,false);
   assert.deepEqual(result.cohorts.map(x=>x.status),
