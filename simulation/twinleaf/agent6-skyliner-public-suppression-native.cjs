@@ -20,6 +20,8 @@ const {withActiveToolJammerToolEffectGuard}=require(
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=relative=>require(path.join(output,relative));
 const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v2-floatstone';
+const EXTRA_EFFECT_MODES=['path-airballoon','path-airballoon-jammer',
+  'thorns-airballoon','thorns-airballoon-jammer'];
 const MODES=['baseline','path','silent','klefki','thorns',
   'garbotoxin','muk','weezing','wobbuffet',
   'path-float','path-float-jammer','thorns-float',
@@ -36,10 +38,11 @@ const MODES=['baseline','path','silent','klefki','thorns',
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   assert.ok(!(repair&&effectRepair));
-  assert.ok(MODES.includes(mode));
+  assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
-  const baseMode=mode.split('-float')[0];
+  const baseMode=mode.split(/-(?:float|airballoon)/)[0];
   const equippedFloatStone=mode.includes('-float');
+  const equippedAirBalloon=mode.includes('-airballoon');
   const opponentToolJammer=mode.endsWith('-jammer');
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
@@ -81,6 +84,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const latias=card('Latias ex SSP');
   mine.active.cards.push(latias);
   if(equippedFloatStone)mine.active.tools.push(card('Float Stone BKT'));
+  if(equippedAirBalloon)mine.active.tools.push(card('Air Balloon SSH'));
   const addBench=(owner,printed)=>{
     const slot=new PokemonCardList();
     slot.cards.push(card(printed));
@@ -144,19 +148,24 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     receipt.result;
   const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode);
   const expectedFree=!expectedSuppressed||
-    (equippedFloatStone&&!opponentToolJammer&&!stadiumToolJamming);
+    ((equippedFloatStone||equippedAirBalloon)&&
+      !opponentToolJammer&&!stadiumToolJamming);
   const checks={
     printedRootPresent:Boolean(original),
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
     nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
     publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
-    floatStoneGuardAsPaper:Boolean(floatStoneGuard)===expectedFree,
+    floatStoneGuardAsPaper:equippedAirBalloon||
+      Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
-    paperHookApplied:!(repair||effectRepair)||receipt.patches.length>0
+    paperHookApplied:effectRepair?
+      (opponentToolJammer?receipt.patches.length>0:
+        receipt.patches.length===0):!repair||receipt.patches.length>0
   };
   return {mode,sourceSeat,repairApplied:repair||effectRepair,
     repairKind:effectRepair?'tool-effect':(repair?'retreat-cost':'none'),
     repairPatches:receipt.patches,
+    floatStonePlannerCheckSkipped:equippedAirBalloon,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
@@ -195,7 +204,9 @@ function runRepair(){
     qualifiedCompetitiveGames:0};
 }
 function runEffectRepair(){
-  const rows=['path-float-jammer','thorns-float-jammer']
+  const rows=['path-float-jammer','thorns-float-jammer',
+    'path-airballoon','path-airballoon-jammer',
+    'thorns-airballoon','thorns-airballoon-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
