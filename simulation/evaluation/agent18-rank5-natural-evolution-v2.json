@@ -1,0 +1,69 @@
+{
+  "schema": "agent18-rank5-natural-evolution-retrospective-v2",
+  "status": "retrospective-deck-and-seed-matched-development-unqualified",
+  "runnerGitBlobSha": "59c1450ffa754e4abb929cb6d0c1eba41c84ea3b",
+  "runner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "expectedRunnerOptions": 86,
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "rank": 5,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": [
+    {
+      "seat": "A",
+      "seed": 67151115
+    },
+    {
+      "seat": "B",
+      "seed": 1865046151
+    }
+  ],
+  "vendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "enabled": [
+    "mandatoryOptionFallback",
+    "nativePressureWindows",
+    "paperSupporterQuota",
+    "paperFullBenchCallForFamily",
+    "paperSameTargetAttachEnergy",
+    "sharedPaperPaymentPortfolio",
+    "paperQuickBallPayment",
+    "paperSecretBoxPayment",
+    "nativeSetupCoinChoiceReceipt",
+    "nativePublicMulliganRevealsAudit",
+    "nativeSetupCompensationAudit",
+    "physicalZoneGate",
+    "nativeAcceptedTargets",
+    "actorOnlyComposition",
+    "actorMewGenesectTechnoBlast",
+    "actorGenesectFusionDrawRoot",
+    "actorChoosePokemon",
+    "bilateralPublicContextSpecialEnergy",
+    "sameRootProposalChoice",
+    "sameRootChoiceApply",
+    "losslessNativeRootJoin",
+    "nativeToolAttachRoot",
+    "registeredToolEnergyCeiling",
+    "allowAdditionalOriginalSourceRanks",
+    "actorNaturalEvolutionRoot"
+  ],
+  "allowedAmbientAgentVariables": [],
+  "injectedEnv": {
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": "true"
+  },
+  "verifiedClosureSha256": "715dc7be6eae80797f06ea994c64faadfa3278de253b4fb833307655f195c4dd",
+  "competitiveQualified": false,
+  "expectedStaticClosureFiles": 302,
+  "staticClosureLimitations": "Static literal require closure only; computed/dynamic imports and hidden information remain unqualified",
+  "expectedSourceDeckFingerprint": "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193",
+  "expectedCandidateDeckFingerprints": {
+    "champion-reference": "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+    "new-moon-lockbreaker-v1": "99969539010abfa11c4e671a5744ed4d97f23cf2f7f275399ac35f5bc1013c0f"
+  },
+  "preliminaryNativeStatus": "NOT_YET_EXECUTED",
+  "contrastBaseProfile": "simulation/evaluation/agent18-rank5-selected-canary-v1.json",
+  "contrastBaseSourceGitBlobSha": "c7235328760e0f02a12b1a2e1e019c5d033ab889",
+  "contrastDifference": "Only actorNaturalEvolutionRoot false -> true; all known input decks and physical seeds identical",
+  "seedsPreviouslyObserved": true
+}
