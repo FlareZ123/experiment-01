@@ -1,0 +1,31 @@
+# Original-60 source competence and Energy constraints: Agent48 synthesis
+
+**2 November 2026. Research status: developmental, no competitively qualified games.**
+
+## A stronger evaluation unit
+
+The existing Aichi field has [29 authenticated source-specific printed 60s](original-printed60-admission-v1.json) and three missing original lists at ranks 23, 25 and 28. Each known source has a distinct stable normalized-printing SHA-256. The [rank-by-rank admission matrix](original-source-admission-matrix-20261102.md) distinguishes a registered original inventory from an automated opponent that can execute its characteristic line, resolve paper-correct effects and contest a real two-player game. All 29 remain competitively unqualified. Exact same original source **physical** setups must be verified before interpreting same-seed policy contrasts; Agent25 observed different source deals under nominal same seed in three of 15 groups.
+
+The [source Energy inventory](original-source-energy-topology-v1.json) reveals **seven authenticated original 60s with no Basic Energy** (4, 5, 6, 7, 17, 24, 29). That is a source-specific threat to actor policies that assign Energy value without examining the actual attached type units and downstream attacker plan.
+
+## Rank-5 Mew/Genesect is a complete causal example
+
+The registered source has 4 Mew V, 3 Mew VMAX, 4 Genesect V, 4 Double Colorless Energy, one Wally and **no other Energy**. Under ordinary unmodified payments, **Mew VMAX's Cross Fusion Strike is its only payable printed attack**, requiring an evolved Mew VMAX, DCE and a legal Fusion Strike Bench donor. It can choose Genesect V's 210-damage Techno Blast using the copy mechanic. Agent25's original four rank-5 attempts yielded **zero source attacks**, all **source-first**, which establishes neither a missed legal attack opportunity nor policy competence.
+
+Independent source-function tests identified three layers:
+
+1. **Early access:** normal Mew V evolution selection exists but requires the explicit `actorNaturalEvolutionRoot` option. This option was absent in the original frozen v2 profile. An existing [eight-arm same-seed, same-original-runner replay design](../../simulation/evaluation/agent48-rank5-mew-original-evolution-counterfactual.cjs) preserves all Store outcomes and only reports a causal delta with exact source physical-deal parity. **Native replay was not run.**
+2. **Energy recipient:** the shared Special Energy selector scores immediate printed attack deficits. In a detached Genesect Active, Crobat V/Mew V Bench state, placing Crobat before Mew causes the scarce DCE to attach to Crobat, whose Darkness attack cannot be funded from rank 5's source inventory. Reversing Bench order selects Mew. A future evolved Mew VMAX can use that DCE; local printed-attack deficit scoring misses that long-horizon value.
+3. **Attack donor:** the shared copied-attack selector previously took the first eligible donor even when that was Mew V's zero-damage Energy Mix ahead of Genesect's Techno Blast. A [committed default-off policy option](../../simulation/twinleaf/agent13-actor-only-choose-attack.cjs), `preferMewGenesectTechnoBlast:true`, now ranks the exact Genesect source only when an owner's Active is Mew VMAX FST and the offered native prompt contains an unblocked Genesect V Techno Blast. It cannot read concealed opponent information. The [new three-case regression](../../tests/agent48-mew-copy-actor-optin.test.cjs) and 12 existing function tests passed in a mocked V8 CommonJS harness. **The option has not been plumbed through the main bilateral runner or proven in a live Store.** See the [admission receipt](agent48-mew-donor-v3-admission-receipt-20261102.md) and [pinned-source code audit](agent48-mew-vendor-copy-path-audit-20261102.md).
+
+The singleton Wally gives a different **going-second** first-own-turn evolution exception. All four historical source-first arms were incapable of exercising that specific first-turn route. In a no-extra-search/draw shuffled-hand model, the required Wally/Mew/Genesect/DCE opening plus a Mew VMAX left in deck occurs in just **0.7476884% of valid seven-card Basic openings**; the exact finite count is in the [Wally opportunity analysis](agent48-mew-wally-opening-opportunity-20261102.md). That is an opening *configuration* frequency, with real search, draw, locks, Prize recovery and decisions omitted.
+
+## Fixed-candidate tactical counterclaim worth testing
+
+Three exact original Iron Thorns ex 60s (ranks 6, 24, 29) also use only Special Energy. [Temple of Sinnoh](agent48-temple-iron-thorns-original-three-gate-20261102.md), while active, makes those Special Energy cards provide Colorless only; Iron Thorns ex's Volt Cyclone requires Lightning plus two Colorless. Hence the printed Energy inventory cannot fund its attack under that Stadium without other type/cost changes. This **does not disable Initialization**, and opposing Stadium replacement can end the denial. Champion-reference has eleven Basic Psychic Energy and can avoid this particular self-energy penalty, but the provisional New Moon candidate has three Telepathic Psychic Special Energy, three Basic Psychic and two Path to the Peak, so Temple creates material self-cost and Stadium contention. A conditional counter-line is a candidate test, not a proven better fixed 60.
+
+## Release veto and next owner
+
+**No 99.5% claim is supported.** Existing files supply original-print evidence, exact native pin and synthetic policy counterexamples, but there is no fully integrated native original-source effect/payment/response witness and no official paper-time adjudication. The attempted canonical-runner update, optional workflow dispatch, and manual smoke trigger encountered host safety blocks, so no new native run or workflow modification is claimed.
+
+A release owner should assemble one effective **two-seat** policy, with logged actual option values and all source/candidate original 60 hashes, and verify Mew VMAX evolution, actual DCE recipient, accepted Cross Fusion Strike and selected Genesect donor, effect settlement, then an adversarial response. A prospective source-second Wally route is a separate test. Preserve censored, invalid, failed and mismatched-physical-deal trials in the denominator. Only after such competence can match terminals inform the fixed-deck objective.
