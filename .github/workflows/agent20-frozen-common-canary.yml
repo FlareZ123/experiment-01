@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Fail-closed profile and archive regression suite
-        run: node --test tests/agent20-frozen-canary.test.cjs tests/agent20-frozen-physical-pair-audit.test.cjs tests/agent7-ghala-owner-zone-lineage.test.cjs
+        run: node --test tests/agent20-frozen-canary.test.cjs tests/agent20-frozen-physical-pair-audit.test.cjs tests/agent7-ghala-owner-zone-lineage.test.cjs tests/agent7-frozen-candidate-lillie-pass-clone.test.cjs
       - name: Check out pinned Twinleaf engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine dependencies
@@ -33,8 +33,18 @@ jobs:
         run: node --test tests/agent7-ghala-owner-zone-native.test.cjs
       - name: Run one frozen configuration with two physical seats and both fixed 60s
         run: node simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs
+      - name: Replay immutable four-arm canary with detached candidate Lillie Pass probe
+        run: node simulation/evaluation/agent7-frozen-rank6-lillie-pass-clone.cjs
       - name: Certify exact original source physical pair matching after native run
         run: node simulation/evaluation/agent20-frozen-physical-pair-audit.cjs
+      - name: Preserve separate observer evidence without editing frozen source output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-frozen-rank6-lillie-pass-observer
+          path: agent7-frozen-rank6-lillie-pass-clone-output.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve immutable selection and every attempt, including failed disposition
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
