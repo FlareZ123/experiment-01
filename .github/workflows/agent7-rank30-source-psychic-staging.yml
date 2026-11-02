@@ -45,6 +45,9 @@ jobs:
       - name: Run lock source census
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-public-skyliner-lock-field-census.test.cjs
+      - name: Check Float Stone owner-public alternative and Tool Jammer veto
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-skyliner-or-floatstone-mobility.test.cjs
       - name: Verify prospective rank30 source deck candidate and fresh seed registration
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-rank30-skyliner-prospective.test.cjs
