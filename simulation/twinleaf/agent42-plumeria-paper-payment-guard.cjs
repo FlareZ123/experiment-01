@@ -14,20 +14,35 @@ function withPaperPlumeriaPayment(run,deps={}){
  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
  const liveOnly=deps.requireLiveStore===true;
  const audit={version:'plumeria-paper-cost-v3-live-scoped',observed:0,accepted:0,
-  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],nativeAddPlayerStores:0,
+  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],
+  physicalEffectReceipts:[],nativeAddPlayerStores:0,
   requireLiveStore:liveOnly,auxiliaryPromptSkips:0};
  const liveStoreOrder=new WeakMap();
+ const pendingPaymentByStore=new WeakMap();
  function dispatch(action,...args){
   if(action?.constructor?.name==='AddPlayerAction'&&!liveStoreOrder.has(this)){
    audit.nativeAddPlayerStores++;
    liveStoreOrder.set(this,audit.nativeAddPlayerStores);
   }
-  let receiptBefore=null;
+  let receiptBefore=null,targetBefore=null,energyBefore=null;
   if(action?.constructor?.name==='ResolvePromptAction'){
    const p=this.state?.prompts?.find(x=>x.id===action.id&&x.result===undefined);
    if(liveOnly&&!liveStoreOrder.has(this)){
     if(p?.sourceCard?.fullName==='Plumeria BUS')audit.auxiliaryPromptSkips++;
     return old.value.call(this,action,...args);
+   }
+   const pending=pendingPaymentByStore.get(this);
+   if(pending?.stage==='paid'&&p?.constructor?.name==='ChoosePokemonPrompt'&&
+      p.message==='CHOOSE_POKEMON_TO_DISCARD_CARDS')
+    targetBefore={pending,prompt:p,selected:action.result};
+   if(pending?.stage==='targeted'&&p?.constructor?.name==='ChooseCardsPrompt'&&
+      p.message==='CHOOSE_CARD_TO_DISCARD'&&p.options?.min===1&&
+      p.options?.max===1){
+    const opponent=this.state.players.find(x=>x.id!==pending.ownerId);
+    const selected=Array.isArray(action.result)?action.result[0]:null;
+    energyBefore={pending,prompt:p,selected,
+     inTargetBefore:pending.target?.cards?.includes(selected)??false,
+     inOpponentDiscardBefore:opponent?.discard?.cards?.includes(selected)??false};
    }
    if(p?.sourceCard?.fullName==='Plumeria BUS'&&
       p.message==='CHOOSE_CARD_TO_DISCARD'&&p.options?.min===2&&
@@ -58,7 +73,7 @@ function withPaperPlumeriaPayment(run,deps={}){
    const moved=cards.filter(c=>owner.discard.cards.includes(c)&&
      !owner.hand.cards.includes(c)).length;
    audit.accepted++;
-   audit.physicalPaymentReceipts.push({
+   const paymentReceipt={
     printing:'Plumeria BUS',ownerSeat:receiptBefore.ownerSeat,
     nativeStoreOrdinal:liveStoreOrder.get(this)??null,
     globalTurnAfter:this.state.turn??null,
@@ -71,8 +86,46 @@ function withPaperPlumeriaPayment(run,deps={}){
     nativePromptSettled:prompt.result!==undefined,
     independentlyPaidTwo:moved===2&&receiptBefore.handBefore===2&&
       receiptBefore.discardBefore===0&&prompt.result!==undefined,
-    qualificationScope:'this Store payment only; later game effects unverified'
+    qualificationScope:'the exact hand payment only'
+   };
+   audit.physicalPaymentReceipts.push(paymentReceipt);
+   pendingPaymentByStore.set(this,{stage:'paid',ownerId:owner.id,
+    paymentReceipt,target:null});
+  }
+  if(targetBefore){
+   const {pending,prompt,selected}=targetBefore;
+   const opponent=this.state.players.find(x=>x.id!==pending.ownerId);
+   const targetValid=Array.isArray(selected)&&selected.length===1&&
+    [opponent.active,...opponent.bench].includes(selected[0])&&
+    prompt.result!==undefined;
+   if(targetValid){
+    pending.stage='targeted';
+    pending.target=selected[0];
+   }else pendingPaymentByStore.delete(this);
+  }
+  if(energyBefore){
+   const {pending,prompt,selected,inTargetBefore,inOpponentDiscardBefore}=
+    energyBefore;
+   const opponent=this.state.players.find(x=>x.id!==pending.ownerId);
+   const afterInDiscard=opponent.discard.cards.includes(selected);
+   const afterAttached=pending.target?.cards?.includes(selected)??false;
+   audit.physicalEffectReceipts.push({
+    printing:'Plumeria BUS',
+    ownerSeat:pending.paymentReceipt.ownerSeat,
+    nativeStoreOrdinal:liveStoreOrder.get(this)??null,
+    paymentIndependentlyPaidTwo:pending.paymentReceipt.independentlyPaidTwo,
+    targetInActualOpponentBoardBefore:true,
+    energyPrinting:selected?.fullName??null,
+    energyAttachedToTargetBefore:inTargetBefore,
+    energyInOpponentDiscardBefore:inOpponentDiscardBefore,
+    energyInOpponentDiscardAfter:afterInDiscard,
+    energyStillAttachedAfter:afterAttached,
+    nativePromptSettled:prompt.result!==undefined,
+    independentEnergyRemoval:inTargetBefore&&!inOpponentDiscardBefore&&
+     afterInDiscard&&!afterAttached&&prompt.result!==undefined,
+    qualificationScope:'same native Plumeria effect, not entire game'
    });
+   pendingPaymentByStore.delete(this);
   }
   return result;
  }
