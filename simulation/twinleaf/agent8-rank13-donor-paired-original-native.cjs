@@ -67,6 +67,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
     seed:trial.seed,maxActions:160,
     doubleDragonRecovery:true,strictPromptValidation:true,
     isolatePolicyRandomness:true,captureDecisionTrace:true,
+    capturePhysicalZoneIntegrity:true,captureOriginalOwnerIntegrity:true,
     captureInitialSourceDealFingerprintSeat:sourceSeat,
     captureInitialFullPhysicalDeal:true,
     label:'agent8-original-rank13-donor-'+
