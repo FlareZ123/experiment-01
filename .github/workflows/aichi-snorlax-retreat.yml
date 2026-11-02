@@ -66,9 +66,14 @@ jobs:
       - name: Execute frozen rank3/rank7 original-source opening comparison
         run: node simulation/twinleaf/snorlax-solo-source-prospective.cjs > aichi-snorlax-solo-source.json
       - name: Validate rank5 Night Stretcher owner-only Pass observer
+        if: always()
         run: node --test tests/agent20-rank5-night-stretcher-native.test.cjs
       - name: Reobserve rank5 original source Pass with held Night Stretcher and discard Basic
+        if: always()
         run: node simulation/twinleaf/agent20-rank5-night-stretcher-native.cjs > agent20-rank5-night-stretcher-native.json
+      - name: Debug historical restricted Nest Ball control without altering paper assertions
+        if: always()
+        run: node simulation/twinleaf/agent20-steven-paper-guard-nest-negative.cjs > agent20-rank7-nest-negative-diagnostic.json
       - name: Preserve source-backed action characterization
         if: always()
         uses: actions/upload-artifact@v4
@@ -85,4 +90,5 @@ jobs:
             agent20-original60-turnend.json
             agent20-steven-original-deal-guard.json
             agent20-rank5-night-stretcher-native.json
+            agent20-rank7-nest-negative-diagnostic.json
           if-no-files-found: warn
