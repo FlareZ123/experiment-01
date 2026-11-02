@@ -37,8 +37,9 @@ function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
 
   /** @param {object} action @returns {unknown} */
   function observedDispatch(action,...args) {
-    dispatchOrdinal++;
+    const ordinal=++dispatchOrdinal;
     const state=this.state;
+    const turnBefore=state.turn;
     const owner=state.players?.[sourceSeat];
     const pending=state.prompts?.find(prompt=>prompt.result===undefined);
     const chosen=owner&&pending?.id===action?.id&&
@@ -63,7 +64,7 @@ function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
         tokens.push({token,printing:card.fullName});
       }
       searches.push({
-        dispatchOrdinal,globalTurn:state.turn,
+        dispatchOrdinal:ordinal,globalTurn:turnBefore,
         nativeSubmittedCards:chosen.length,
         nativeSettledPhysicalCards:tokens.length,
         cards:tokens
@@ -72,7 +73,7 @@ function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
     if(tagged){
       const leftHand=!owner.hand.cards.includes(played);
       laterPlays.push({
-        dispatchOrdinal,globalTurn:state.turn,
+        dispatchOrdinal:ordinal,globalTurn:turnBefore,
         token:tagged.token,printing:tagged.printing,
         physicallyRemovedFromSourceHand:leftHand,
         nativeDispatchReturned:true
