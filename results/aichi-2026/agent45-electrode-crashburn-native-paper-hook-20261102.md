@@ -11,3 +11,11 @@ The **two new two-Energy corrected native cases passed**: each settled the actua
 A narrow correction can make the audit's zero count canonical (`const excess=n<2?0:50*n*(n-1)`) or adjust the test to numeric equivalence; then rerun the same manual native workflow. Preserve the original failing evidence. The hook remains **not integrated or default-selected in canonical bilateral whole-game trials**; the generic bot may send null to this prompt instead of choosing a valid zero or positive payment. This stage test does not establish competent source policy, natural source encounter, full paper fidelity, or any competitively qualified game.
 
 **Field implications:** original Aichi ranks 4, 9 and 17 contain Electrode-GX CES 48. Rank 23, 25 and 28 original full lists remain unverified. No fixed 60 has demonstrated 99.5% performance against all 32 opponents.
+
+## Successful rerun after audit fix (07:57 UTC)
+
+The research-owned correction now canonicalizes zero transfers in its excess-damage audit with `n===0?0:50*n*(n-1)`. This preserves the observed gameplay effect and prevents a JavaScript signed-zero bookkeeping mismatch.
+
+**[Compiled manual run 41409433890](https://github.com/FlareZ123/experiment-01/actions/runs/41409433890) succeeded**, testing both native seats. All four new corrected tests and all four original upstream controls passed, including n=2 corrected 130-damage/usedGX, n=0 corrected 30-damage/usedGX, n=1 unmodified 80, and n=2 unmodified 230 controls. The earlier red run remains documented above. Hook commit `4e293d1c2c5151897c3b58fa4780a94eca55823f`; test `tests/agent45-electrode-crashburn-paper-hook.native.test.cjs`.
+
+This closes **staged native GX damage/prompt hook verification**. Still no default canonical integration, actual source-selected attack, strategically verified opponent reply, paper clock, or competitive-qualified match.
