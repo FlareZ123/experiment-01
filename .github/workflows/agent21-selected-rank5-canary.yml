@@ -1,0 +1,47 @@
+name: One selected Aichi rank-5 both-seat canary
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selected-policy-canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test externally pinned selected manifest and fail-closed evidence
+        run: node --test tests/agent21-single-profile-rank5-canary.test.cjs
+      - name: Inspect selected profile without running native games
+        run: node simulation/evaluation/agent21-single-profile-rank5-canary.cjs --inspect-only > agent21-selected-profile-preflight.json
+      - name: Check out exact pinned Twinleaf upstream submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned Twinleaf server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all eight registered natural native canary arms under one policy
+        run: node simulation/evaluation/agent21-single-profile-rank5-canary.cjs > agent21-selected-rank5-canary-native.json
+      - name: Print bounded unqualified gate disposition
+        if: always()
+        run: |
+          node -e "const fs=require('node:fs');if(!fs.existsSync('agent21-selected-rank5-canary-native.json')){console.log('NATIVE_CANARY_NO_OUTPUT');process.exit(0)}const x=JSON.parse(fs.readFileSync('agent21-selected-rank5-canary-native.json','utf8'));console.log(JSON.stringify({schema:x.schema,registeredArms:x.registeredArms,retainedArms:x.retainedArms,gates:x.gates,batchError:x.batchError,positions:x.attempts.map(a=>({id:a.trial.id,seat:a.sourceSeat,status:a.status,sourceAttacks:a.sourceAttackDeclarations}))},null,2));"
+      - name: Preserve full selected profile and every attempted/censored native row
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-selected-rank5-bilateral-canary
+          path: |
+            agent21-selected-profile-preflight.json
+            agent21-selected-rank5-canary-native.json
+          if-no-files-found: warn
+          retention-days: 30
