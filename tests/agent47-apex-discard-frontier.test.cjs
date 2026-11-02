@@ -114,3 +114,24 @@ test('source rank20 contains the printed Ultra Ball, payload, Energy and ACE SPE
    .find(c=>c.name==='Dragapult ex'&&c.number==='130');
  assert.ok(dragon.types.includes('Dragon'));
 });
+
+test('cross-source Dragon donors reach the actual opt-in Apex discard proposal',()=>{
+ const {verifiedApexPayloadPrintings}=require(
+  '../simulation/twinleaf/agent47-actor-hand-discard.cjs');
+ const sourceRoster=verifiedApexPayloadPrintings();
+ for(const donor of [
+  'Hisuian Goodra VSTAR LOR','Koraidon ex TEF','Salamence ex JTG'
+ ]){
+  assert.ok(sourceRoster.has(donor));
+  const v=make();
+  v.actor.ownHand[0]=donor;
+  v.prompt.menu=v.prompt.menu.map(row=>row.map(name=>
+    name==='Dragapult ex TWM'?donor:name).sort());
+  const x=proposeApexPayloadDiscard(v,sourceRoster);
+  assert.equal(x.reason,'first-copyable-apex-payload-opportunity',donor);
+  assert.equal(x.changed,true,donor);
+  assert.ok(x.proposal.includes(donor),donor);
+  assert.ok(v.prompt.menu.some(row=>JSON.stringify(row)===
+    JSON.stringify(x.proposal)),donor);
+ }
+});
