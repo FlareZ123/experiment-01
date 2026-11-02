@@ -57,6 +57,25 @@ test('no all-Special-wide denial claim: ranks 5 and 7 excluded', () => {
   ]);
 });
 
+test('each affected original has printed different-name Stadium replacement resources', () => {
+  const result = audit(original);
+  assert.deepEqual(result.directStadiumReplacementCounts, [
+    { rank: 4, copies: 3 },
+    { rank: 6, copies: 3 },
+    { rank: 17, copies: 1 },
+    { rank: 24, copies: 2 },
+    { rank: 29, copies: 4 }
+  ]);
+  const source17 = result.affected.find((entry) => entry.rank === 17);
+  assert.deepEqual(source17.directStadiumReplacements, [
+    { name: 'PokéStop', count: 1, printing: 'PGO68' }
+  ]);
+  const source4 = result.affected.find((entry) => entry.rank === 4);
+  assert.deepEqual(source4.directStadiumReplacements, [
+    { name: 'Sky Field', count: 3, printing: 'ROS89' }
+  ]);
+});
+
 test('source change is rejected rather than silently overgeneralized', () => {
   const changed = structuredClone(original);
   const deck = changed.decks.find((entry) => entry.rank === 17);
