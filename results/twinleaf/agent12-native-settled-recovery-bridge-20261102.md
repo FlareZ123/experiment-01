@@ -1,0 +1,29 @@
+# Agent 12: postgame native-turn lineage repairs false recovery classification
+
+**2 November 2026.** This is a correction to one research statistic, using genuine post-prompt native turn advancement as the **only additional positive end-of-turn witness**. It supplies no competitive matchup result, no newly proved paper-card fidelity and no estimate of the fixed-deck win rate.
+
+## Precise error and repair
+
+The shared `simulation/twinleaf/agent16-root-recovery-trace.cjs` historically expired pending same-owner-turn alternative actions on accepted `attack` and `pass` roots alone. Yet [the archived, SHA-verified native 32-arm ledger](agent12-original32-exhaustive-native-turn-closure-20261030.md) establishes **1,334** complete accepted native turn advances: 783 initiated by Pass, 549 by Attack and **two by original rank-11 Boost Shake PlayCardAction**. Those last two advanced only after a later genuine `ResolvePromptAction(WaitPrompt)`; there was no Pass. The old recovery algorithm would leave a deferred offer open past a confirmed nonattack turn end, potentially classifying it as later-owner-turn expiration or final-censor rather than turn-end expiration.
+
+The revised shared recovery tracer adds an optional `nativeSettledTurnAfter` field. It must denote the **actual final Store turn following resolution of all linked prompts**, not the initially accepted PlayCardAction. If it is a validated integer greater than the accepted root's `globalTurn`, the tracer expires outstanding same-turn alternatives, counts one independently attested completed native turn and records whether the initiating intent was outside the attack/pass families. Contradictory future roots on a previously closed native turn throw. Absent evidence, the historical attack/pass behavior and the nonattack uncertainty/censor remain unchanged. A mere card name, printed turn-ending text or native PlayCardAction acceptance cannot manufacture a completed turn.
+
+### Stronger physical-root attribution bridge
+
+`simulation/evaluation/agent12-native-settled-recovery-lineage-bridge.cjs` accepts two complete, already-finished inputs: (1) accepted owner-intent rows carrying their **actual native root action ordinals** and (2) the original unfiltered Store `rootActionLedger`. It runs the existing strict `attestNativeTurnClosureLineage` checker, which binds a turn-advancing prompt to its initiating same-turn owner root via `initiatingRootActionOrdinal`. The bridge requires accepted roots, same real actor seat, matching turn and unique native root ordinals. Caller-injected `nativeSettledTurnAfter` is rejected. It attaches the observed terminal prompt kind, root ordinal and native before/after turn only for positively bound closures; incomplete pending prompts remain unverified.
+
+**Important custody:** The bridge deliberately uses **postgame** future outcomes. Its output is admissible only for retrospective statistical analysis, never inside a live actor decision: that would introduce future-state information. It does not certify the paper-validity of the underlying action. In a canonical bilateral game, an independent accepted-root ordinal mapping must first be carried from actual Store dispatch, not inferred from printing or same-name cards.
+
+## Regression and native evidence scope
+
+Five new `tests/agent16-root-recovery-trace.test.cjs` cases cover observed-style Boost Shake, Camping Gear, Palace Book, Steven's Resolve and Tropical Beach turn closures (all non-Boost examples are *synthetic turn-advance fixtures*), absent evidence remaining censored, unchanged-turn follow-through, and rejecting impossible time chronology. In [compiled manual statistics CI 41388803090](https://github.com/FlareZ123/experiment-01/actions/runs/41388803090), **all five new tests passed**. The workflow as a whole failed at the pre-existing `agent16-transitive-policy-source-inventory` unreviewed-key gate; it never reached later steps. No engine-native Aichi game was newly run by these five tests.
+
+Five independent `tests/agent12-native-settled-recovery-lineage-bridge.test.cjs` regressions additionally verify native prompt-to-initiating-root binding, positive versus absent closure status, prevention of duplicate or wrong-seat/turn attribution, unbound prompts, and strict separation of analysis from player policy. The example genuine-Store-*shaped* ledger carries a Boost Shake root ending at a later WaitPrompt: with a derived receipt, one earlier deferred offer is expired on that turn; without the receipt, the same offer remains censored. This comparison is a deterministic **fixture**, separate from the two historical native Boost Shake events.
+
+The bridge regression has been inserted **before** the existing known-red transitive-inventory step in the manual-only `.github/workflows/aichi-benchmark-stats.yml`. The first bridge-enabled run is [41389003146](https://github.com/FlareZ123/experiment-01/actions/runs/41389003146); consult the run for its final outcome. Neither test suite adds a push-triggered workflow.
+
+## Remaining integration and statistical limits
+
+The current production canonical actor does not yet export a verified one-to-one association between every abstract recovery intent and its original native Store root ordinal. Until that is available, the bridge is a **reusable strict joining component**, not a retroactively reclassified 32-arm recovery-result dataset. The two historical Boost Shake roots show why the omission matters; the record does **not** establish how many deferred offers a real active source policy failed to recover in those two games. This integration should follow the Agent41/Agent13 selected both-seat release owner instead of creating a competing policy profile.
+
+Original Aichi status remains **29/32 authenticated printed opponent 60s**, missing ranks **23, 25 and 28**; **zero** games competitively qualified; no fixed 60 verified to attain **99.5%**.
