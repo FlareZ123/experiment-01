@@ -64,6 +64,9 @@ jobs:
       - name: Report all source native attacks with settled public damage and physical Prize transitions
         if: inputs.rank19_mobility_compare
         run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');for(const p of x.pairs)console.log('AGENT50_SOURCE_SETTLED_ATTACKS',JSON.stringify({trial:p.trialId,control:p.control.sourceSettledPublicAttack,treatment:p.treatment.sourceSettledPublicAttack}))"
+      - name: Verify original source physical deal continuity across native replay epochs
+        if: inputs.rank19_mobility_compare
+        run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');for(const p of x.pairs)console.log('AGENT50_SOURCE_EPOCHS',JSON.stringify({trial:p.trialId,control:p.control.nativeSourceDealEpochs,treatment:p.treatment.nativeSourceDealEpochs}))"
       - name: Archive original source mobility paired native receipts
         if: always() && inputs.rank19_mobility_compare
         uses: actions/upload-artifact@v4
