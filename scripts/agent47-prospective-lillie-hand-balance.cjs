@@ -78,4 +78,27 @@ function auditNativeLillieHandExchange(report) {
   };
 }
 
-module.exports = {auditNativeLillieHandExchange};
+/**
+ * Read the actual candidate Supporter, Pass and attack roots of each treatment.
+ * @param {object} report
+ */
+function auditSameTurnLillieFollowThrough(report){
+  const roots=[];
+  for(const pair of report.pairs){
+    for(const lillie of pair.treatment.candidateLillieRoots){
+      const pass=pair.treatment.candidateTurnPasses.find(r=>
+        r.turn===lillie.turn && r.ordinal>lillie.ordinal);
+      const attacks=pair.treatment.candidateAttacks.filter(r=>
+        r.turn===lillie.turn && r.ordinal>lillie.ordinal);
+      roots.push({trialId:pair.trialId,turn:lillie.turn,
+        lillieOrdinal:lillie.ordinal,passOrdinal:pass?.ordinal??null,
+        sameTurnAttackCount:attacks.length});
+    }
+  }
+  return {totalRoots:roots.length,
+    sameTurnPasses:roots.filter(r=>r.passOrdinal!==null).length,
+    sameTurnAttacks:roots.reduce((n,r)=>n+r.sameTurnAttackCount,0),
+    roots,competitiveQualifiedGames:0};
+}
+
+module.exports = {auditNativeLillieHandExchange,auditSameTurnLillieFollowThrough};
