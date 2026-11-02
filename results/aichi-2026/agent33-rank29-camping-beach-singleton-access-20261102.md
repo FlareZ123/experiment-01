@@ -1,10 +1,10 @@
 # Rank-29 co-held Camping Gear versus Tropical Beach: exact singleton DCE access
 
-**Agent 33, 2 November 2026.** Source: authenticated original Aichi 2026 rank-29 physical 60 in [full-decklists.json](full-decklists.json). The original source contains exactly **4 Basic Iron Thorns ex, 2 Camping Gear, 2 Tropical Beach, and 1 Double Colorless Energy (DCE)**. This is a source-locked idealized resource model, not a game simulator, action policy, or competitive win rate.
+**Agent 33, 2 November 2026; mandatory first-turn draw correction applied.** Source: authenticated original Aichi 2026 rank-29 physical 60 in [full-decklists.json](full-decklists.json). The original source contains exactly **4 Basic Iron Thorns ex, 2 Camping Gear, 2 Tropical Beach, and 1 Double Colorless Energy (DCE)**. This is a source-locked idealized resource model, not a game simulator, action policy, or competitive win rate.
 
 ## Specific choice and observation boundary
 
-Condition on the opening seven containing at least one Basic, at least one Camping Gear and at least one Tropical Beach. Starting Active uses one Basic, then the owner plays one held Beach into an initially empty Stadium zone. With no other actions, hand size is **5** and the owner may activate Beach for **2** cards, ending the turn. Alternatively, Camping Gear searches for any one deck-resident card, then ends the turn; Beach placement can precede that search. Neither terminal action can be followed by an attachment or attack that same turn. Assumptions: both Actions remain legal; no prior draw/search, Stadium lock, Item lock, extra mulligan draw, opponent interaction or already-in-play Stadium; uniform shuffled opening seven and six unknown Prizes. The searched target is **DCE**, which can be unavailable if Prized.
+Condition on the opening seven containing at least one Basic, at least one Camping Gear and at least one Tropical Beach. Starting Active uses one Basic; the mandatory draw at the start of the owner's first turn restores hand size to **7**. Playing one held Beach into an initially empty Stadium zone leaves **6** cards, so Beach can draw **1** card, ending the turn. The initial-turn resource comparison therefore sees **two total natural/draw-effect cards**: one mandatory draw and one Beach draw. Alternatively, Camping Gear searches for any one deck-resident card, then ends the turn; Beach placement can precede that search. Neither terminal action can be followed by an attachment or attack that same turn. Assumptions: both Actions remain legal; no prior draw/search, Stadium lock, Item lock, extra mulligan draw, opponent interaction or already-in-play Stadium; uniform shuffled opening seven and six unknown Prizes. The searched target is **DCE**, which can be unavailable if Prized.
 
 K0 means the player does not already know their six Prizes. When DCE was absent from the seven, the remaining card is uniformly distributed among **53** cards, of which **6** are Prizes and **47** form the deck. Camping Gear can search it with probability **47/53**; Beach's next two draws hit it with probability **2/53**. When DCE was initially in hand, either line retains DCE possession. These probabilities measure *holding the target by the end of the turn-ending action*, not being able to attack immediately.
 
@@ -29,15 +29,18 @@ DCE alone cannot pay the intended Iron Thorns ex first-attack line without the s
 | Exactly one held | **13.83146829%** |
 | Neither held | **85.75824256%** |
 
-If one piece is missing, Gear may search it with probability **47/53**. If neither piece is held, a Gear search for one and the next ordinary draw finding the other succeeds with probability **47/(53×52)**, after accounting for Prizes. Beach supplies two cards at the end of the opening turn and the next ordinary draw, for three random draws altogether. If exactly one piece is missing, it is among these three with probability **3/53**. If both are missing, both appear with probability **6/(53×52)**.
+If one piece is missing, Gear may search it with probability **47/53**. If neither piece is held, Gear sees the mandatory first-turn draw before searching: that card may itself be a missing piece, or Gear may search one piece before the following ordinary turn draw discovers the other. This succeeds with probability **3×46/(53×52)**, after accounting for Prizes. Beach sees the mandatory first-turn draw, its own one-card draw and the next ordinary draw, for three random draws altogether. If exactly one piece is missing, it is among these three with probability **3/53**. If both are missing, both appear with probability **6/(53×52)**.
 
 | Two-piece resource condition | Probability, given Basic + Gear + Beach opening |
 | --- | ---: |
-| Have both DCE and Thunder by next ordinary draw, Gear search line | **14.13842627%** |
+| Have both DCE and Thunder by next ordinary draw, Gear search line | **16.97006636%** |
 | Have both by next ordinary draw, Beach draw line | **1.37990399%** |
-| Gear-minus-Beach two-piece access | **12.75852228 percentage points** |
+| Gear-minus-Beach two-piece access | **15.59016236 percentage points** |
 
-This exposes why a one-resource metric can be misleading: **89.51% DCE possession after Gear** becomes only **14.14% two-piece access by the following ordinary draw**. The larger bottleneck is the missing second singleton. Even successfully acquiring both cards does not certify an attack: Stadium replacement rules, manual attachment quota, the owner going first/second, Item/Ability locks, opposing play and native Store settlement still apply. The model counts already-held dual resources in both branches, although that rare opening may support a superior immediate attack without either terminal action.
+This exposes why a one-resource metric can be misleading: **89.51% DCE possession after Gear** becomes only **16.97% two-piece access by the following ordinary draw**. The larger bottleneck is the missing second singleton. Even successfully acquiring both cards does not certify an attack: Stadium replacement rules, manual attachment quota, the owner going first/second, Item/Ability locks, opposing play and native Store settlement still apply. The model counts already-held dual resources in both branches, although that rare opening may support a superior immediate attack without either terminal action.
+
+
+**Correction history.** The first saved v2 two-piece Gear estimate **14.13842627%** omitted the compulsory draw at the beginning of turn one. Under the same opening-seven and Prize constraints, the corrected Gear result is **16.97006636%**. Beach's dual-piece result remains **1.37990399%** because the earlier three-total-draw count was right, although the division between compulsory and Beach draws was wrong. The original target-only DCE figures are unchanged. The paper rule is the [Pokémon TCG rulebook, Turn Actions: draw first](https://assets.pokemon.com/assets/cms2/pdf/trading-card-game/rulebook/swsh7_rulebook_en.pdf#page=10). Retain superseded figures in this note for audit instead of silently erasing the mistake.
 
 ## Decision significance and limits
 
