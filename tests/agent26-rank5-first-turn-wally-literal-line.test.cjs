@@ -53,3 +53,12 @@ test('event assumptions exclude extra card access and independent opponents',()=
   assert.equal(r.alternateAccessAndDrawEffectsExcluded,true);
   assert.equal(r.noOpponentActionsOrLocksModeled,true);
 });
+
+test('broader Mew DCE Genesect first-eight future route is over ten times likelier',()=>{
+  const r=calculate(field);
+  const future=r.futureMewPreparationWithoutWally;
+  assert.equal(future.numerator,'174932053418');
+  assert.equal(future.denominator,'2827276033725');
+  close(future.probability,0.061873001196675895);
+  assert.ok(future.probability/r.openingLine.probability>10);
+});
