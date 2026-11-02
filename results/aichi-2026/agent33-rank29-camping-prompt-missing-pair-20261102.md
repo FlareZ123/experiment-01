@@ -14,6 +14,20 @@ At an authorized own-deck Camping Gear prompt, suppose owner Active is **Iron Th
 
 Real board conditions can make this preference strategically inferior, including opponent lock, alternate Energy or Stadium solutions, replacement problems, future search and Supporter contention. The helper is **default-off**, unintegrated with the shared game policy, and not a deck ranking.
 
+## Original-source frequency envelope for this exact counterexample
+
+Using all six original fallbacks (2 Guzma & Hala + 4 Speed Lightning), [the exact seven-card, first-turn-draw and six-Prize enumeration](../../simulation/evaluation/agent33-rank29-gear-fixed-fallback-incidence.cjs) quantifies when the legacy search can prefer a fallback over the missing Thunder:
+
+| Restricted paper resource-location event | Exact probability |
+| --- | ---: |
+| Legal-Basic opening seven also has Camping, Beach and DCE; Thunder remains undrawn on T1 and is in deck rather than Prizes | **0.20522550% of legal-Basic openings** |
+| At least one G&H or Speed remains in the own deck, conditional on the above | **99.99921678%** |
+| Joint event and fallback present, conditional on legal-Basic opening | **0.20522389%** |
+
+All three numbers use a uniform physical 60, random six Prizes, and exactly one mandatory first-turn draw. This is **only the location envelope** for an avoidable fixed-target error. It does not show that Camping Gear was played or that the opponent allowed that line. Higher-turn draws/search can change encounter frequency. Repeated source-policy failures may occur at later decision states, outside this narrow opening calculation.
+
+The calculation treats the one Thunder as already established *if it was in hand or played*; the tabulated branch deliberately conditions it being absent and deck-resident. The two absent/prized cases are disjoint. Among the 51 non-Thunder unknown cards after the first-turn draw, the six Prizes must contain **all** remaining G&H/Speed copies for the fixed order to have no fallback; the exact numerator uses that rare combinatorial event. [Independent count tests](../../tests/agent33-rank29-gear-fixed-fallback-incidence.test.cjs) constrain the original source counts and exact numerical probabilities.
+
 ## Tests and next native proof
 
 [Eight tests](../../tests/agent33-rank29-camping-attackpair-target.test.cjs) cover the fixed-order G&H counterexample, held and attached DCE, in-play Thunder, no pieces, DCE unavailable, native validator rejection, wrong Active and ordinary-root rejection. A local Node22 run passed **8/8** using a copy of the exact inspected fixed-order Agent12 function; the committed repo test imports the full actual Agent12 module. No compiled pinned Store run occurred.
