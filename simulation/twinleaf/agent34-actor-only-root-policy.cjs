@@ -342,6 +342,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseOwnerSkylinerRondoRetreat(view,catalog);
     if(rondo)return rondo;
   }
+  if(options.dceMewMobilityRoot===true){
+    const retreat=require('./agent37-dce-mew-paid-retreat.cjs')
+      .chooseDceMewPaidRetreat(view,catalog);
+    if(retreat)return retreat;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -597,6 +602,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
+    dceMewMobilityRootOptIn:deps.dceMewMobilityRoot===true,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
@@ -1067,6 +1073,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       energyRecipientFrontier:audit.energyRecipientFrontierOptIn,
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
+      dceMewMobilityRoot:audit.dceMewMobilityRootOptIn===true,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
       skylinerRondoRetreat:audit.skylinerRondoRetreatOptIn===true&&
         actorSpecialEnergyEnabled(true,
