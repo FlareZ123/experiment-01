@@ -38,5 +38,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: agent19-rank5-max-miracle-safeguard
-          path: agent19-mew-mirror-native.json
+          path: |\n            agent19-mew-mirror-native.json\n            agent19-dualmew-original-opportunity.json
           if-no-files-found: warn
