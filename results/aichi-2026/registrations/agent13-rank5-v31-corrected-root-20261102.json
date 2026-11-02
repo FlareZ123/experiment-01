@@ -1,0 +1,48 @@
+{
+  "schema": "agent13-rank5-v31-corrected-root-original-release-v1",
+  "registeredUtc": "2026-11-02T04:11:00Z",
+  "preOutcome": true,
+  "rank": 5,
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "profilePath": "simulation/evaluation/agent13-v31-rank5-policy-profile-20261102.json",
+  "profileBlobSha": "14195053fbe11c2f6e35dae994c1cf8e0a73cc33",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 734170394
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1297346081
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 198157155
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3062107528
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "policyModeNames": [
+    "frozenV2Control",
+    "integratedV3"
+  ],
+  "plannedArms": 16,
+  "originalVendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "priorV3AbortRunId": 41385619135,
+  "qualification": "development-only; all errors, physical-deal mismatches and caps included"
+}
