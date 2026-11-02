@@ -133,3 +133,30 @@ test('opponent target order chooses the weakest known living Bench slot',()=>{
     .opponentBenchIndex,1);
   assert.equal(Object.prototype.hasOwnProperty.call(v,'opponentHand'),false);
 });
+
+test('Snorlax Block veto: a Guzma gust that creates Retreat lock cannot reset Techno',()=>{
+  const v=setup();
+  v.opponentPublic.bench=[{
+    printing:'Snorlax PGO',hp:150,damage:0,
+    abilityDetails:[{name:'Block',
+      text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}]
+  }];
+  assert.equal(chooseGuzmaMewCooldownReset(v,catalog),null);
+});
+
+test('publicly visible retreat-lock targets are excluded in favor of safe gusts',()=>{
+  const v=setup();
+  v.opponentPublic.bench=[
+    {printing:'Snorlax PGO',hp:150,damage:0,
+      abilityDetails:[{name:'Block',
+        text:"As long as this Pokémon is in the Active Spot, your opponent's Active Pokémon can't retreat."}]},
+    {printing:'Lunatone OBF',hp:90,damage:0}
+  ];
+  assert.equal(chooseGuzmaMewCooldownReset(v,catalog)?.opponentBenchIndex,1);
+  v.opponentPublic.bench[0]={
+    printing:'Unknown Retreat Lock',hp:70,damage:0,
+    abilityDetails:[{name:'Lock',
+      text:"Your opponent's Active Pokémon can't retreat."}]
+  };
+  assert.equal(chooseGuzmaMewCooldownReset(v,catalog)?.opponentBenchIndex,1);
+});
