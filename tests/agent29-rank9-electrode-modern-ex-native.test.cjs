@@ -159,6 +159,15 @@ function attackAndDiscard(s) {
   const selected = prompt.decode([fogIndex]);
   assert.equal(prompt.validate(selected), true);
   s.store.dispatch(new ResolvePromptAction(prompt.id, selected));
+  // Native AttackAction is a generator. After its card-specific hand prompt
+  // settles, it still yields a distinct attack-animation WaitPrompt before
+  // calculating and applying the printed 200 damage.
+  for (let i=0; i<5 && s.opponent.active.damage===priorDamage; i++) {
+    const wait = s.state.prompts.find(p =>
+      p.result===undefined && p.constructor.name==='WaitPrompt');
+    assert.ok(wait,'Expected pending native attack-animation continuation');
+    s.store.dispatch(new ResolvePromptAction(wait.id,null));
+  }
   assert.equal(s.opponent.active.damage, priorDamage + 200);
   assert.equal(s.opponent.hand.cards.length, priorHandLength-1);
   assert.equal(s.opponent.discard.cards.some(c => c.fullName === 'Fog Crystal CRE'), true);
