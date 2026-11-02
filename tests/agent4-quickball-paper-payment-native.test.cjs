@@ -116,3 +116,36 @@ test('Quick Ball root without any other physical hand card is rejected in both s
     }));
   }
 });
+
+test('live-only guard excludes speculative stores and isolates native trial keys',()=>{
+  class AddPlayerAction{constructor(id){this.id=id;}}
+  class PlayCardAction{constructor(id,index){this.id=id;this.handIndex=index;}}
+  class Store{
+    constructor(){
+      this.state={players:[{id:11,hand:{cards:[{fullName:'Quick Ball FST'}]}}],prompts:[]};
+    }
+    dispatch(){return true;}
+  }
+  const before=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  let trial='A';
+  const liveA=new Store(),liveB=new Store(),clone=new Store();
+  const observed=withPaperQuickBallMandatoryPayment(()=>{
+    assert.equal(clone.dispatch(new PlayCardAction(11,0)),true);
+    liveA.dispatch(new AddPlayerAction(11));
+    assert.throws(()=>liveA.dispatch(new PlayCardAction(11,0)),
+      /PAPER_QUICK_BALL_ROOT_INVALID/);
+    assert.equal(clone.dispatch(new PlayCardAction(11,0)),true);
+    trial='B';
+    liveB.dispatch(new AddPlayerAction(11));
+    assert.throws(()=>liveB.dispatch(new PlayCardAction(11,0)),
+      /PAPER_QUICK_BALL_ROOT_INVALID/);
+    assert.equal(liveA.dispatch(new PlayCardAction(11,0)),true);
+    return 'completed';
+  },{Store,requireLiveStore:true,currentTrialId:()=>trial});
+  assert.equal(observed.result,'completed');
+  assert.equal(observed.audit.liveSourceTrialCount,2);
+  assert.equal(observed.audit.inspectedRoots,2);
+  assert.equal(observed.audit.vetoedRoots,2);
+  assert.equal(observed.audit.excludedAuxiliaryDispatches,3);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(Store.prototype,'dispatch'),before);
+});
