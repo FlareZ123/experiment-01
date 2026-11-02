@@ -15,6 +15,8 @@ const {
 
 const {withNativeKODispatchLedger}=
   require('./agent24-native-ko-batch-observer.cjs');
+const {projectOrdinaryWinMatrix}=
+  require('../evaluation/agent24-ordinary-simultaneous-win-matrix.cjs');
 
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const SEED=1847000101;
@@ -366,6 +368,7 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
     assert.deepEqual(audit.originalOwnerCustody.displacedOriginalReferences,[]);
     before={
       isSuddenDeath:state.isSuddenDeath,
+      turn:state.turn,
       prizes:state.players.map(p=>p.getPrizeLeft()),
       active:state.players.map(p=>p.active.getPokemonCard()?.name??null),
       bench:state.players.map(p=>
@@ -377,7 +380,8 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
     staged=true;
     checkState(this,state);
     after={
-      winner:state.winner,phase:state.phase,
+      winner:state.winner,phase:state.phase,turn:state.turn,
+      decks:state.players.map(p=>p.deck.cards.length),
       prizes:state.players.map(p=>p.getPrizeLeft()),
       active:state.players.map(p=>p.active.getPokemonCard()?.name??null),
       bench:state.players.map(p=>
@@ -436,12 +440,25 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
   assert.equal(nativePendingComparison.status,
     'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD');
   assert.equal(nativePendingComparison.paperGameOutcomeQualified,false);
+  const ordinaryEndMatrix=projectOrdinaryWinMatrix({
+    authenticatedOrdinaryState:staged&&owners.size===120&&
+      before.isSuddenDeath!==true,
+    allPrizesTaken:ordinaryPendingPrizeAudit.projectedRemainingPrizes
+      .map(n=>n===0),
+    noPokemonInPlay:after.active.map((active,seat)=>
+      active===null&&after.bench[seat]===0),
+    deckOutConditionExcluded:after.turn===before.turn&&
+      after.decks.every(n=>n>0)
+  });
+  assert.equal(ordinaryEndMatrix.status,'SIMULTANEOUS_TIE');
+  assert.equal(ordinaryEndMatrix.projectedWinnerSeat,null);
+  assert.equal(ordinaryEndMatrix.paperGameOutcomeQualified,false);
   return {
     reverse,ranks,seed:SEED,genuineOriginal60PerSeat:true,
     initialSixPrizesNativeDealt:true,syntheticFourPrizeMovesPerSeat:true,
     syntheticLethalDamage:true,syntheticOwnedBoardSwaps:physicalSwaps,
     before,after,koEntitlements,dispatchLedger,
-    ordinaryPendingPrizeAudit,nativePendingComparison,
+    ordinaryPendingPrizeAudit,nativePendingComparison,ordinaryEndMatrix,
     hypotheticalBothAwardsRemaining:[0,0],
     simultaneousBothTakeLastPrizesNativeNotTie:true,
     nativeFinished:game.finished,nativeWinner:game.winner,
