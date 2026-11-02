@@ -45,4 +45,20 @@ function observeAdpBoostedGxResourceWindow(view){
     opponentResponseCertified:false};
 }
 
-module.exports={VERSION,ADP,DDE,GX,observeAdpBoostedGxResourceWindow};
+/**
+ * Select printed GX only among attacks already accepted as payable by the
+ * independent actor-owned resource-cost model. Native Store remains final.
+ * @param {object} view Detached owner-only observation.
+ * @param {object[]} payable Actor cost-screened attacks.
+ * @returns {{kind:'attack',attackName:string}|null}
+ */
+function chooseAdpGxFromPayable(view,payable){
+  assert.ok(Array.isArray(payable));
+  const window=observeAdpBoostedGxResourceWindow(view);
+  if(!window?.nominalBoostedResourceWindow)return null;
+  return payable.some(attack=>attack.name===GX)?
+    {kind:'attack',attackName:GX}:null;
+}
+
+module.exports={VERSION,ADP,DDE,GX,observeAdpBoostedGxResourceWindow,
+  chooseAdpGxFromPayable};
