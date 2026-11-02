@@ -1,0 +1,192 @@
+{
+  "schema": "agent4-native-attempt-disposition-rank16-projection-v1",
+  "source": {
+    "runId": 41507843137,
+    "artifactId": 13171637457,
+    "artifactZipSha256": "a3ab73a08691e0b348767a90363104529b84320b619d749656f8e6c349c6b563",
+    "fullNativeJsonSha256": "9e56a0ae667243b6f003f3f645ed5a34f3c6267077f159b5556044747a36dbdb",
+    "sourceFile": "agent16-rank16-all-16-native-attempts.json",
+    "pathWithinFullSource": "allNativeDevelopmentRows",
+    "originalSourceRank": 16,
+    "originalSourcePrinted60": true,
+    "description": "Faithful projection of trial.id, finished, endReason, winner, actionCount, turns, absent status and unqualified flag from every original native row, not standalone raw trial evidence."
+  },
+  "rows": [
+    {
+      "trial": {
+        "id": "16:0:A:champion-reference"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 203,
+      "turns": 41,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:0:A:new-moon-lockbreaker-v1"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 64,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:1:B:champion-reference"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 50,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:1:B:new-moon-lockbreaker-v1"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 54,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:2:A:champion-reference"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 153,
+      "turns": 35,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:2:A:new-moon-lockbreaker-v1"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 131,
+      "turns": 33,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:3:B:champion-reference"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 62,
+      "turns": 14,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:3:B:new-moon-lockbreaker-v1"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 90,
+      "turns": 18,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:4:A:champion-reference"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 227,
+      "turns": 50,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:4:A:new-moon-lockbreaker-v1"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 153,
+      "turns": 33,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:5:B:champion-reference"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 59,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:5:B:new-moon-lockbreaker-v1"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 73,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:6:A:champion-reference"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 58,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:6:A:new-moon-lockbreaker-v1"
+      },
+      "finished": false,
+      "endReason": "action-limit",
+      "winner": null,
+      "actionCount": 260,
+      "turns": 56,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:7:B:champion-reference"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 117,
+      "turns": 26,
+      "qualifiesForCompetitiveInference": false
+    },
+    {
+      "trial": {
+        "id": "16:7:B:new-moon-lockbreaker-v1"
+      },
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 105,
+      "turns": 24,
+      "qualifiesForCompetitiveInference": false
+    }
+  ]
+}
