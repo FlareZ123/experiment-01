@@ -1046,6 +1046,7 @@ function runDevelopment({
   actorRank9SpecialFundedGuzma=false,
   actorRank9MegaAbsolFundingRoot=false,
   actorRank9SpecialPaidRetreatSource=false,
+  actorFlexiblePaidRetreatRoot=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -1293,6 +1294,7 @@ function runDevelopment({
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
           !actorRank9SpecialPaidRetreatSource&&
+          !actorFlexiblePaidRetreatRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1338,6 +1340,9 @@ function runDevelopment({
               }:{}),
               ...(actorRank9MegaAbsolFundingRoot?{
                 rank9MegaAbsolFundingRoot:true
+              }:{}),
+              ...(actorFlexiblePaidRetreatRoot?{
+                flexiblePaidRetreatRoot:true
               }:{}),
               ...(actorRank9SpecialPaidRetreatSource?{
                 rank9SpecialPaidRetreat:true,
