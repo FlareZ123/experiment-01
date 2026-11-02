@@ -1505,7 +1505,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           seat:choice.seat,globalTurn:choice.globalTurn,
           policyDecisionOrdinal:choice.policyDecisionOrdinal,
           nativeStoreActionOrdinal:bound?.nativeStoreActionOrdinal??null,
-          kind:choice.kind,accepted:true,nativePhysicalEffect:physical,
+          kind:choice.kind,accepted:true,
+          nativePhysicalEffect:farewellPending?'pending-animation-prompt':physical,
           publicTransitionWitnessed:witnessed,publicZonesChanged,
           turnOrPhaseChanged
         });
