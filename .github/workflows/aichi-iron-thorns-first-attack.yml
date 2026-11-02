@@ -27,6 +27,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank31_roxie_koffing_owner_cohold:
+        description: Retrospective physical Koffing/Roxie cohold on native accepted Pass, no win-rate claims
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -109,7 +114,7 @@ jobs:
             rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
-    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -239,7 +244,7 @@ jobs:
           if-no-files-found: warn
 
   canonical-paper-v10-smoke:
-    if: ${{ inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.rank31_roxie_owner_supporter_diagnostic }}
+    if: ${{ inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -291,7 +296,7 @@ jobs:
           if-no-files-found: warn
 
   rank31-retrospective-owner-roxie-audit:
-    if: ${{ inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
+    if: ${{ inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.rank31_roxie_koffing_owner_cohold }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -326,4 +331,42 @@ jobs:
         with:
           name: agent15-rank31-retrospective-owner-roxie-audit
           path: agent15-rank31-roxie-owner-retro.json
+          if-no-files-found: warn
+
+  rank31-original-owner-physical-koffing-cohold:
+    if: ${{ inputs.rank31_roxie_koffing_owner_cohold && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Original rank31 registration and source owner-cohold preflight
+        run: |
+          node --check simulation/evaluation/agent15-rank31-coheld-roxie-koffing-pass-retro.cjs
+          node -e "const x=require('./simulation/evaluation/agent15-rank31-coheld-roxie-koffing-pass-retro.cjs').preflightRetro();console.log('AGENT15_ORIGINAL_RANK31_COHOLD',JSON.stringify({rank:x.registration.sourceRank,attempts:x.registration.attempts,parent:x.registration.originalRegistrationGitBlob,observer:x.registration.oneBooleanObserver}))"
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify actor-only Supporter observer in pure State fixtures
+        run: node --test tests/agent7-owner-supporter-opportunity.test.cjs
+      - name: Capture physical Koffing and Roxie at rank31 source owner Pass roots
+        run: node simulation/evaluation/agent15-rank31-coheld-roxie-koffing-pass-retro.cjs > agent15-rank31-roxie-koffing-cohold.json
+      - name: Verify paired original native games and preserve all cohold/noncohold evidence
+        run: |
+          node -e "const assert=require('node:assert/strict');const x=require('./agent15-rank31-roxie-koffing-cohold.json');assert.equal(x.allAttempted,8);assert.equal(x.pairs,4);assert.equal(x.qualifiedCompetitiveGames,0);console.log('ORIGINAL_RANK31_KOFFING_ROXIE_COHOLD',JSON.stringify({allSameDeals:x.allObserverNoninterfering,byArm:x.pairReceipts.map(r=>({id:r.id,same:r.observerNoninterfering,roots:r.sourceCohold.sourceFirstOwnerTurns,heldRoxiePass:r.sourceCohold.sourceAcceptedPassesHoldingRoxie,coheldKoffingPass:r.sourceCohold.sourceAcceptedPassesCoholdingKoffingAndRoxie}))}))"
+      - name: Archive all original native outcomes and owner-only observed physical coholds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-rank31-roxie-koffing-owner-cohold
+          path: agent15-rank31-roxie-koffing-cohold.json
           if-no-files-found: warn
