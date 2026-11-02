@@ -46,3 +46,4 @@ function stage(seat){
  state.players=seat===0?[owner,foe]:[foe,owner];
  state.activePlayer=seat;
  state.turn=4;
+ state.phase=GamePhase.PLAYER_TURN;
