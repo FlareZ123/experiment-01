@@ -4,6 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards,seededRandom,deckPermutation}=require('../simulation/twinleaf/headless.cjs');
+const {withWallyPaperRecipientGuard,PAPER_DENIAL}=
+  require('../simulation/twinleaf/agent18-wally-target-paper-guard.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -16,7 +18,7 @@ const native=name=>require(path.join(OUTPUT,name));
  * @param {0|1} ownerSeat
  * @returns {{selectedEvolution:string,illegalTargetPassedNativePrompt:boolean,legalTargetPassedNativePrompt:boolean,sourceSeat:number}}
  */
-function inspectNativeWally(ownerSeat,selection='legal'){
+function inspectNativeWally(ownerSeat,selection='legal',guarded=false){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -86,7 +88,38 @@ function inspectNativeWally(ownerSeat,selection='legal'){
   // checker prompts. Do not treat later CoinFlipPrompt as part of Wally.
   assert.ok(selection==='legal'||selection==='illegal');
   const chosen=selection==='legal'?owner.active:owner.bench[0];
-  store.dispatch(new ResolvePromptAction(second.id,[chosen]));
+  const resolve=()=>store.dispatch(new ResolvePromptAction(second.id,[chosen]));
+  let guardAudit=null;
+  if(guarded){
+    const {GameMessage}=native('game/game-message');
+    const before=Store.prototype.dispatch;
+    const ret=withWallyPaperRecipientGuard(
+      {Store,ResolvePromptAction,CardTag,GameMessage},()=>{
+        if(selection==='illegal'){
+          assert.throws(resolve,e=>e?.code===PAPER_DENIAL);
+          return 'denied paper-illegal target';
+        }
+        resolve();
+        return 'accepted paper-legal target';
+      });
+    guardAudit=ret.audit;
+    assert.equal(Store.prototype.dispatch,before,
+      'Scoped paper guard must restore original native Store dispatch');
+    assert.equal(guardAudit.scopedPrompts,1);
+    if(selection==='illegal'){
+      assert.equal(guardAudit.denied,1);
+      assert.equal(owner.bench[0].getPokemonCard()?.fullName,'Mewtwo-EX BKT');
+      assert.equal(owner.active.getPokemonCard()?.fullName,'Exeggcute VIV');
+      assert.equal(second.result,undefined);
+      return {
+        sourceSeat:ownerSeat,selection,guarded,guardAudit,
+        illegallyStackedExOnWrongPokemon:false,
+        nativePromptWouldAllowIllegalTarget:illegalTargetPassedNativePrompt,
+        sourcePrinting:'Wally ROS',competitiveQualifiedGames:0
+      };
+    }
+    assert.equal(guardAudit.approved,1);
+  }else resolve();
   assert.equal(chosen.getPokemonCard()?.fullName,'Exeggutor PLF',
     'Actual Wally target must receive the selected physical evolution');
   assert.ok(chosen.cards.includes(evolution));
@@ -99,7 +132,7 @@ function inspectNativeWally(ownerSeat,selection='legal'){
       'Actual Store has put Exeggutor above unrelated Mewtwo-EX');
   }
   return {
-    sourceSeat:ownerSeat,selection,
+    sourceSeat:ownerSeat,selection,guarded,guardAudit,
     selectedEvolution:'Exeggutor PLF',
     ownerFirstTurnGoingSecond:true,
     legalRecipient:'Exeggcute VIV',
@@ -111,10 +144,11 @@ function inspectNativeWally(ownerSeat,selection='legal'){
 }
 
 test('pinned Wally native accepts legal evolution and also paper-illegal EX target, both seats',()=>{
-  for(const seat of [0,1])for(const selection of ['legal','illegal']){
-    const row=inspectNativeWally(seat,selection);
-    assert.equal(row.illegalTargetPassedNativePrompt,true);
-    assert.equal(row.illegallyStackedExOnWrongPokemon,selection==='illegal');
+  for(const seat of [0,1])for(const selection of ['legal','illegal'])
+    for(const guarded of [false,true]){
+      const row=inspectNativeWally(seat,selection,guarded);
+      assert.equal(row.nativePromptWouldAllowIllegalTarget??row.illegalTargetPassedNativePrompt,true);
+      assert.equal(row.illegallyStackedExOnWrongPokemon,selection==='illegal'&&!guarded);
     console.log('AGENT18_WALLY_NATIVE_PROMPT',JSON.stringify(row));
   }
 });
