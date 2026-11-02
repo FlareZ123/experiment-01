@@ -43,7 +43,8 @@ function sourceSummary(row){
  * concise source summary, preserve all native errors/action caps as outcomes,
  * and never treat engine terminal as a competitive game.
  */
-function run(){
+function run({quickBallScope='none'}={}){
+  assert.ok(['none','source','candidate'].includes(quickBallScope));
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   const reg=JSON.parse(bytes.toString('utf8'));
   assert.equal(reg.status,'pre-outcome-frozen-source-two-seat-policy-development');
@@ -63,7 +64,9 @@ function run(){
     .policyOptions;
   assert.equal(baseline.actorOnlyComposition,true);
   const options={...baseline,actorNaturalEvolutionRoot:true,
-    actorMewGenesectTechnoBlast:true};
+    actorMewGenesectTechnoBlast:true,
+    ...(quickBallScope==='source'?{sourceScopedQuickBallRoot:true}:{}),
+    ...(quickBallScope==='candidate'?{candidateScopedQuickBallRoot:true}:{})};
   const modes={
     integratedV3Control:options,
     integratedV3FusionMobility:{
