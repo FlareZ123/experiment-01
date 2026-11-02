@@ -58,8 +58,8 @@ jobs:
         run: node --test tests/aichi-event-era-proxy-audit.test.cjs
       - name: Count all bilateral v2 attempts independently of observed pressure
         run: node --test tests/agent2-bilateral-unconditional-census.test.cjs tests/agent2-pressure-ledger-alignment.test.cjs
-      - name: Detect native bilateral same-attack versus repeated-pass policy stalls
-        run: node --test tests/agent5-reciprocal-stall-census.test.cjs
+      - name: Detect settled attack-pass and pure bilateral pass-only policy stalls
+        run: node --test tests/agent5-reciprocal-stall-census.test.cjs tests/aichi-bilateral-pass-loop-census.test.cjs
       - name: Verify registered 32-arm denominator, rank11 hand predicate and K0 Supporter rescue
         run: node --test tests/agent41-prospective-canonical-scout.test.cjs tests/agent41-rank11-direct-triple-probability.test.cjs tests/agent41-rank11-source-pass-supporter.test.cjs
       - name: Verify exact familywise allocation across future candidate attempts
