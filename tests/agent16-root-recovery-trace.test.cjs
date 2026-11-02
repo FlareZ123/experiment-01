@@ -200,3 +200,74 @@ test('same explicit energy recipient plus settlement receives stronger evidence 
   assert.equal(result.samples.recovered[0].explicitEnergyTargetMatch,true);
   assert.equal(result.qualification.explicitEnergyTargetDoesNotVerifyCardCopy,true);
 });
+
+
+test('genuine post-prompt native turn advance closes Boost Shake without Pass',()=>{
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Trubbish BKP',[special]),
+    root(0,3,'play-boost-shake','Boost Shake EVS',[],{
+      nativeSettledTurnAfter:4
+    }),
+    root(1,4,'pass',null)
+  ]);
+  assert.equal(result.expiredAtTurnEnd,1);
+  assert.equal(result.closedOnNextOwnerTurn,0);
+  assert.equal(result.censoredAfterLastRoot,0);
+  assert.equal(result.nativeAttestedTurnEnds,1);
+  assert.equal(result.nativeAttestedNonattackTurnEnds,1);
+  assert.equal(result.samples.expired[0].status,'turn-ended');
+});
+
+test('other printed terminal Trainer classes require post-settlement native evidence',()=>{
+  for(const [kind,printing] of [
+    ['play-camping-gear','Camping Gear BST'],
+    ['play-palace-book','Palace Book SMP'],
+    ['play-stevens-resolve',"Steven's Resolve CES"],
+    ['use-tropical-beach','Tropical Beach BWP']
+  ]){
+    const result=traceAcceptedOwnerRootRecoveries([
+      root(1,8,'bench-basic','Rotom V LOR',[special]),
+      root(1,8,kind,printing,[],{nativeSettledTurnAfter:9}),
+      root(0,9,'pass',null)
+    ]);
+    assert.equal(result.expiredAtTurnEnd,1,kind);
+    assert.equal(result.nativeAttestedNonattackTurnEnds,1,kind);
+  }
+});
+
+test('an accepted terminal-looking Item without post-prompt turn proof stays censored',()=>{
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Trubbish BKP',[special]),
+    root(0,3,'play-boost-shake','Boost Shake EVS')
+  ]);
+  assert.equal(result.expiredAtTurnEnd,0);
+  assert.equal(result.nativeAttestedNonattackTurnEnds,0);
+  assert.equal(result.censoredAfterLastRoot,1);
+});
+
+test('nonadvancing native state does not close owner turn or prevent later recovery',()=>{
+  const result=traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Trubbish BKP',[special]),
+    root(0,3,'play-quick-ball','Quick Ball SSH',[],{
+      nativeSettledTurnAfter:3
+    }),
+    root(0,3,'attach-special-energy','Capture Energy RCL'),
+    root(0,3,'pass',null)
+  ]);
+  assert.equal(result.recoveredInSameTurn,1);
+  assert.equal(result.nativeAttestedTurnEnds,0);
+});
+
+test('invalid or contradictory native closure evidence fails closed',()=>{
+  assert.throws(()=>traceAcceptedOwnerRootRecoveries([
+    root(0,3,'bench-basic','Trubbish BKP',[],{
+      nativeSettledTurnAfter:2
+    })
+  ]),/nondecreasing integer/);
+  assert.throws(()=>traceAcceptedOwnerRootRecoveries([
+    root(0,3,'play-palace-book','Palace Book SMP',[],{
+      nativeSettledTurnAfter:4
+    }),
+    root(0,3,'bench-basic','Rotom V LOR')
+  ]),/already-ended turn/);
+});
