@@ -144,7 +144,7 @@ for(const seat of [0,1]){
       benchBasicCount:owner.bench[0].energies.cards.length,
       competitiveQualifiedGames:0
     }));
-    assert.ok(trace.includes('DiscardEnergyPrompt'));
+    assert.ok(trace.some(p=>p.kind==='DiscardEnergyPrompt'));
     assert.equal(paid,true,'A genuine owner-selected Basic Energy must be discarded');
     assert.equal(next,null,'The complete attack prompt chain must settle');
     assert.equal(opponent.active.damage,160,'One Basic discard must add 70 damage');
