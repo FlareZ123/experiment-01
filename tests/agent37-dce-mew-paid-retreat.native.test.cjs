@@ -148,7 +148,15 @@ for(const seat of [0,1]){
     assert.equal(owner.hand.cards.length,0);
     assert.equal(owner.deck.cards.length,14);
     assert.equal(owner.bench[1].getPokemonCard().fullName,'Genesect V FST');
-    store.dispatch(new UseAbilityAction(owner.id,'Fusion Strike System',{
+    const offered=chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      genesectFusionDraw:true
+    });
+    assert.ok(offered,'Owner-only Genesect Ability must be proposed');
+    assert.equal(offered.kind,'use-genesect-fusion-draw');
+    assert.equal(offered.position,'bench');
+    assert.equal(offered.benchIndex,1);
+    assert.equal(offered.knownFusionCount,3);
+    store.dispatch(new UseAbilityAction(owner.id,offered.abilityName,{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
     }));
     const {ResolvePromptAction}=
@@ -177,6 +185,10 @@ for(const seat of [0,1]){
       'Native visible three Fusion Strike Pokémon must set target hand size 3');
     assert.equal(owner.deck.cards.length,11);
     assert.equal(state.players[seat],owner);
+    assert.equal(chooseActorRootIntent(actorObservation(state,seat),catalog,{
+      genesectFusionDraw:true
+    })?.kind==='use-genesect-fusion-draw',false,
+    'Ability cannot be reoffered once its draw filled the owner hand');
   });
 }
 
