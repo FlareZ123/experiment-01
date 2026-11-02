@@ -13,6 +13,8 @@ jobs:
           node-version: '22'
       - name: Verify census against published lists
         run: node --test scripts/test-aichi-energy-audit.cjs
+      - name: Verify all 47 same-archetype original source-pair distances
+        run: node --test tests/aichi-original-archetype-diversity.test.cjs
       - name: Verify attached-Energy Trainer threat inventory
         run: node --test tests/aichi-attached-energy-threat-inventory.test.cjs
       - name: Verify exact Shadow Rider Hood natural access
