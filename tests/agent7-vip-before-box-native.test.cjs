@@ -27,9 +27,9 @@ test('requires a payable original Box and a payable Box after VIP removal', () =
     ['Dark Patch', 'Quick Ball', 'VS Seeker']);
 
   const short = offerVipBeforeBox(view([
-    'Secret Box', 'Trubbish', 'Float Stone',
+    'Secret Box', 'Float Stone',
     'Battle VIP Pass', 'Dark Patch', 'VS Seeker'
-  ]));
+  ], ['Trubbish', null, null, null, null]));
   assert.equal(short.eligible, false);
   assert.equal(short.reason, 'VIP_FIRST_LOSES_BOX_K0_PAYMENT');
 });
