@@ -48,7 +48,8 @@ function probeSidney(seat,mode,printing=PRINTING){
     p.message==='CHOOSE_CARD_TO_DISCARD');
   assert.ok(prompt,'Expected actual Sidney opponent-hand ChooseCardsPrompt');
   const selections={
-    'legal-two':printing==='Team Skull Grunt SUM'?\n      [opponentHand[1],opponentHand[2]]:[opponentHand[2],opponentHand[3]],
+    'legal-two':printing==='Team Skull Grunt SUM'?
+      [opponentHand[1],opponentHand[2]]:[opponentHand[2],opponentHand[3]],
     'illegal-pokemon-and-basic-energy':[opponentHand[0],opponentHand[1]],
     'mixed-illegal':[opponentHand[5],opponentHand[4]],
     'no-target':[]
