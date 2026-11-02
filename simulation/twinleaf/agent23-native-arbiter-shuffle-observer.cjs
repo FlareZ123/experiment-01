@@ -7,7 +7,9 @@ const {createHash}=require('node:crypto');
  * Read-only record of the deck lengths passed to native BotArbiter.shuffle.
  * Compiled pinned Twinleaf exposes its TypeScript private method as a regular
  * prototype function. This observer never reads card identities, chooses
- * shuffles or consumes RNG. The original descriptor is restored in finally.
+ * shuffles or draws additional RNG. An optional inner counter forwards exactly
+ * each actual random call and restores the previous function in finally.
+ * The original descriptor is restored in finally.
  *
  * @template T
  * @param {()=>T} execute One genuine or detached native policy decision.
@@ -35,13 +37,27 @@ function observeNativeArbiterShuffles(execute,sink,deps={}){
     ...original,
     value:function observedNativeShuffle(cards){
       assert.ok(Array.isArray(cards?.cards));
-      sink.arbiterShuffles.push({
+      const record={
         deckLength:cards.cards.length,
         mode:this.options?.shuffleMode??null,
         implementationSha256,
         randomFunctionName:Math.random.name
-      });
-      return original.value.call(this,cards);
+      };
+      sink.arbiterShuffles.push(record);
+      if(sink.traceShuffleRandomCalls!==true){
+        return original.value.call(this,cards);
+      }
+      const before=Math.random;
+      let calls=0;
+      Math.random=function countedArbiterShuffleRandom(){
+        calls++;
+        return before();
+      };
+      try{return original.value.call(this,cards);}
+      finally{
+        Math.random=before;
+        record.actualShuffleRngCalls=calls;
+      }
     }
   });
   try{return execute();}
