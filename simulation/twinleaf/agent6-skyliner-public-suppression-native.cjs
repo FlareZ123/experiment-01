@@ -1,0 +1,143 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {initializeCards}=require('./headless.cjs');
+const {actorObservation}=require('./actor-observation-contract.cjs');
+const {chooseOwnerSkylinerRondoRetreat}=require(
+  './agent6-owner-public-skyliner-rondo-frontier.cjs');
+const {publicSkylinerSuppressionReason,
+  choosePublicLockGuardedSkylinerRondoRetreat}=require(
+    './agent6-skyliner-ability-suppression-guard.cjs');
+
+const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const load=relative=>require(path.join(output,relative));
+const VERSION='agent6-skyliner-pinned-store-public-ability-retreat-v1';
+const MODES=['baseline','path','silent','klefki','thorns',
+  'garbotoxin','muk','weezing','wobbuffet'];
+
+/**
+ * A staged genuine pinned Store exposes printed Skyliner and actual
+ * CheckRetreatCostEffect in the same state. Both physical seats checked.
+ * This bypasses natural opening/setup and is never a competitive game.
+ *
+ * @param {'baseline'|'path'|'silent'|'klefki'|'thorns'|'garbotoxin'|'muk'|'weezing'|'wobbuffet'} mode
+ * @param {0|1} sourceSeat
+ * @returns {object} Actual native reduction and dispatch receipt.
+ */
+function probe(mode,sourceSeat){
+  assert.ok(MODES.includes(mode));
+  assert.ok(sourceSeat===0||sourceSeat===1);
+  const manager=initializeCards();
+  let id=1;
+  const card=printed=>{
+    const actual=manager.getCardByName(printed);
+    assert.ok(actual,'Missing pinned card '+printed);
+    actual.id=id++;
+    return actual;
+  };
+  const {Store}=load('game/store/store');
+  const {Player}=load('game/store/state/player');
+  const {PokemonCardList}=load('game/store/state/pokemon-card-list');
+  const {GamePhase}=load('game/store/state/state');
+  const {Format,CardType,SpecialCondition}=
+    load('game/store/card/card-types');
+  const {RetreatAction}=load('game/store/actions/game-actions');
+  const {CheckRetreatCostEffect}=load('game/store/effects/check-effects');
+  const {IS_ABILITY_BLOCKED}=load('game/store/prefabs/prefabs');
+
+  const store=new Store({onStateChange(){}});
+  const state=store.state,mine=new Player(),enemy=new Player();
+  mine.id=101;enemy.id=202;
+  state.players=sourceSeat===0?[mine,enemy]:[enemy,mine];
+  state.activePlayer=sourceSeat;
+  state.turn=4;
+  state.phase=GamePhase.PLAYER_TURN;
+  state.gameSettings.format=Format.EXPANDED;
+  const latias=card('Latias ex SSP');
+  mine.active.cards.push(latias);
+  const addBench=(owner,printed)=>{
+    const slot=new PokemonCardList();
+    slot.cards.push(card(printed));
+    owner.bench.push(slot);
+    return slot;
+  };
+  const clefairy=addBench(mine,"Lillie's Clefairy ex JTG");
+  clefairy.energies.cards.push(card('Psychic Energy MEE'));
+  clefairy.energies.cards.push(card('Psychic Energy MEE'));
+  for(let i=0;i<4;i++)addBench(mine,'Pidgey MEW');
+  let enemyActive='Duskull VIV';
+  if(mode==='klefki')enemyActive='Klefki SVI';
+  if(mode==='thorns')enemyActive='Iron Thorns ex TWM';
+  if(mode==='weezing')enemyActive='Galarian Weezing RCL';
+  if(mode==='wobbuffet')enemyActive='Wobbuffet PHF';
+  enemy.active.cards.push(card(enemyActive));
+  if(mode==='thorns')enemy.active.damage=20;
+  if(mode==='garbotoxin'){
+    const slot=addBench(enemy,'Garbodor BKP');
+    slot.tools.push(card('Float Stone BKT'));
+  }else if(mode==='muk')addBench(enemy,'Alolan Muk SUM');
+  else addBench(enemy,'Pidgey MEW');
+  for(let i=0;i<4;i++)addBench(enemy,'Pidgey MEW');
+  if(mode==='path')enemy.stadium.cards.push(card('Path to the Peak CRE'));
+  if(mode==='silent')enemy.stadium.cards.push(card('Silent Lab PRC'));
+
+  const view=actorObservation(state,sourceSeat);
+  const catalog={
+    basicEnergies:new Set(['Psychic Energy MEE']),
+    basicEnergyTypes:{Psychic:CardType.PSYCHIC},
+    colorlessEnergyType:CardType.COLORLESS,
+    specialConditions:{ASLEEP:SpecialCondition.ASLEEP,
+      PARALYZED:SpecialCondition.PARALYZED}
+  };
+  const original=chooseOwnerSkylinerRondoRetreat(view,catalog);
+  const guarded=choosePublicLockGuardedSkylinerRondoRetreat(view,catalog);
+  const reason=publicSkylinerSuppressionReason(view);
+  const livePower=latias.powers.find(power=>power.name==='Skyliner');
+  assert.ok(livePower);
+  const nativeBlocked=Boolean(IS_ABILITY_BLOCKED(
+    store,state,mine,latias,livePower));
+  const nativeCost=new CheckRetreatCostEffect(mine);
+  store.reduceEffect(state,nativeCost);
+  const nativeRetreatCost=nativeCost.cost.length;
+  let nativeRetreatError=null;
+  try{store.dispatch(new RetreatAction(mine.id,0));}
+  catch(error){nativeRetreatError=String(error?.message??error);}
+  const promoted=mine.active.getPokemonCard()?.fullName;
+  const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
+  const expectedSuppressed=!['baseline','wobbuffet'].includes(mode);
+  assert.equal(Boolean(original),'true'===String(true),
+    'Original rank30 nominal opportunity must be visible');
+  assert.equal(nativeBlocked,expectedSuppressed,
+    'Pinned Store Ability checker disagrees with paper mechanism '+mode);
+  assert.equal(nativeRetreatCost,expectedSuppressed?2:0,
+    'Pinned Store retreat modifier disagrees with paper mechanism '+mode);
+  assert.equal(Boolean(guarded),!expectedSuppressed,
+    'Owner-public guard eligibility differs from expected native lock '+mode);
+  assert.equal(nativeRetreatAccepted,!expectedSuppressed,
+    'Uncharged Latias should retreat only if Skyliner works '+mode);
+  return {mode,sourceSeat,
+    activeBefore:latias.fullName,printedPower:livePower.name,
+    ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
+    originalRootWouldSelect:original?.kind??null,
+    guardedRootWouldSelect:guarded?.kind??null,
+    suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
+    nativeRetreatCost,
+    nativeRetreatAccepted,nativeRetreatError,activeAfter:promoted,
+    competitiveQualified:false};
+}
+
+/** @returns {object} Full staged native case archive, paper unqualified. */
+function run(){
+  const rows=[];
+  for(const mode of MODES)for(const seat of [0,1])
+    rows.push(probe(mode,seat));
+  return {version:VERSION,enginePin:
+    'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    stagedNativeCases:rows.length,rows,
+    qualifiedCompetitiveGames:0};
+}
+
+if(require.main===module)
+  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+module.exports={VERSION,MODES,probe,run};
