@@ -1,0 +1,1053 @@
+{
+  "schema": "agent48-authenticated-original-energy-topology-v1",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "originalSourceIdentityLedgerGitBlobSha": "62abf0d96542eb04b2e2500e8b7b10d5e3e94225",
+  "convention": "Basic Energy is precisely one of the nine named basic types, all other Energy-category cards classified Special; printed lists only",
+  "totals": {
+    "originalDecks": 29,
+    "basicEnergyCards": 120,
+    "specialEnergyCards": 118,
+    "onlySpecialEnergySources": [
+      4,
+      5,
+      6,
+      7,
+      17,
+      24,
+      29
+    ],
+    "qualifiedCompetitiveGames": 0
+  },
+  "rows": [
+    {
+      "rank": 1,
+      "sourcePrintingSha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+      "archetype": "Shadow Rider Calyrex",
+      "energyCards": 11,
+      "basicEnergyCards": 11,
+      "specialEnergyCards": 0,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Psychic Energy",
+          "count": 11,
+          "printing": {
+            "set": "MEE",
+            "number": "13",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "sourcePrintingSha256": "dcf96da30eac32196432f547f667d1b807a3c325063b336dbda3eae4fae29c50",
+      "archetype": "Vileplume Control",
+      "energyCards": 6,
+      "basicEnergyCards": 1,
+      "specialEnergyCards": 5,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Capture Energy",
+          "count": 2,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Jet Energy",
+          "count": 2,
+          "printing": {
+            "set": "PAL",
+            "number": "190",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Memory Energy",
+          "count": 1,
+          "printing": {
+            "set": "LOT",
+            "number": "194",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 1,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "sourcePrintingSha256": "83b572db9a53be1e239440933fccd89a502ec31e18d539b5c540fc2e08132263",
+      "archetype": "Snorlax Stall",
+      "energyCards": 5,
+      "basicEnergyCards": 2,
+      "specialEnergyCards": 3,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Capture Energy",
+          "count": 3,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Water Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "11",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "sourcePrintingSha256": "c17423030daad7848a9a056049df4739c283ca924198ad1b340ea810bc6f5159",
+      "archetype": "Raichu Electrode Combo",
+      "energyCards": 12,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 12,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Reversal Energy",
+          "count": 4,
+          "printing": {
+            "set": "PAL",
+            "number": "192",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Counter Energy",
+          "count": 4,
+          "printing": {
+            "set": "CIN",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Unit Energy LPM",
+          "count": 4,
+          "printing": {
+            "set": "UPR",
+            "number": "138",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "sourcePrintingSha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+      "archetype": "Mew Genesect",
+      "energyCards": 4,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Double Colorless Energy",
+          "count": 4,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "sourcePrintingSha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5",
+      "archetype": "Iron Thorns",
+      "energyCards": 8,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 8,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Speed Lightning Energy",
+          "count": 4,
+          "printing": {
+            "set": "RCL",
+            "number": "173",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Capture Energy",
+          "count": 2,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Spiky Energy",
+          "count": 1,
+          "printing": {
+            "set": "JTG",
+            "number": "159",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Colorless Energy",
+          "count": 1,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "sourcePrintingSha256": "522c1d4d712068000426808333436886fbb9f97a722024f9cc6f01130c7c19ce",
+      "archetype": "Snorlax Stall",
+      "energyCards": 4,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Capture Energy",
+          "count": 2,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Recycle Energy",
+          "count": 1,
+          "printing": {
+            "set": "UNM",
+            "number": "212",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Jet Energy",
+          "count": 1,
+          "printing": {
+            "set": "PAL",
+            "number": "190",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "sourcePrintingSha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+      "archetype": "Absol Garbodor",
+      "energyCards": 7,
+      "basicEnergyCards": 7,
+      "specialEnergyCards": 0,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Darkness Energy",
+          "count": 5,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Lightning Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "sourcePrintingSha256": "70382b692e5c96fff6f66b390c9dc38bcca9148d64ef65a9fe9c6b54eb2100bf",
+      "archetype": "Absol Electrode",
+      "energyCards": 7,
+      "basicEnergyCards": 2,
+      "specialEnergyCards": 5,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Prism Energy",
+          "count": 4,
+          "printing": {
+            "set": "ASC",
+            "number": "216",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Darkness Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Telepathic Psychic Energy",
+          "count": 1,
+          "printing": {
+            "set": "POR",
+            "number": "88",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "sourcePrintingSha256": "3312d88e8235ad0dbb943e92c78f74dd03c4b9b519b5dec7030f4f845fa20a88",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "sourcePrintingSha256": "d0d46361d79e93b4f4a2da061fed10b474cf5bc10909225983c81acb040d6258",
+      "archetype": "Absol Garbodor",
+      "energyCards": 8,
+      "basicEnergyCards": 8,
+      "specialEnergyCards": 0,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Darkness Energy",
+          "count": 8,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "sourcePrintingSha256": "ef4cbcac9281b69833531b0e17d6c4cd675ec442d32de15cfc8dab61b74d2e34",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "sourcePrintingSha256": "72746e12bd035c8640b410cd8d09a56fdca5fa40ca6dfb8f4d4c38bc8075afcb",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 7,
+      "specialEnergyCards": 3,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Dragon Energy",
+          "count": 3,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "sourcePrintingSha256": "a3710764f9937cde704d487d37da21aa0260f5ee5c5f3a4a909d80eeaeaa55b4",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "sourcePrintingSha256": "fb59d0958944ea80722e3fc236c4d5013261fcf6c2b3b7b6bcd364008f449efa",
+      "archetype": "Lopunny Vileplume",
+      "energyCards": 7,
+      "basicEnergyCards": 2,
+      "specialEnergyCards": 5,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Jet Energy",
+          "count": 2,
+          "printing": {
+            "set": "PAL",
+            "number": "190",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Capture Energy",
+          "count": 1,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Powerful Colorless Energy",
+          "count": 1,
+          "printing": {
+            "set": "DAA",
+            "number": "176",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Colorless Energy",
+          "count": 1,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 16,
+      "sourcePrintingSha256": "2de4e0481b76278020b1221a25458ab1783cb1edd5f19af3b83596af7262f733",
+      "archetype": "Absol Garbodor",
+      "energyCards": 7,
+      "basicEnergyCards": 7,
+      "specialEnergyCards": 0,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Darkness Energy",
+          "count": 7,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 17,
+      "sourcePrintingSha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+      "archetype": "Raichu Electrode Combo",
+      "energyCards": 12,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 12,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Reversal Energy",
+          "count": 4,
+          "printing": {
+            "set": "PAL",
+            "number": "192",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Counter Energy",
+          "count": 4,
+          "printing": {
+            "set": "CIN",
+            "number": "100",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Unit Energy LPM",
+          "count": 4,
+          "printing": {
+            "set": "UPR",
+            "number": "138",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 18,
+      "sourcePrintingSha256": "29cc3f5922fc65f92865bbe5f78acf0928976c5587ad1cba508069c07ee5b8e0",
+      "archetype": "Regidrago",
+      "energyCards": 8,
+      "basicEnergyCards": 4,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 19,
+      "sourcePrintingSha256": "d079e3f1c10fbf7853331c1c6043a3665cb625324b541a512a8b67a907d28f4a",
+      "archetype": "Raging Bolt",
+      "energyCards": 13,
+      "basicEnergyCards": 9,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Lightning Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fighting Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "14",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Darkness Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 20,
+      "sourcePrintingSha256": "b605491e69b5caf93348b3921a0ad36cc55239c6717ef25973f1aa5119711774",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 21,
+      "sourcePrintingSha256": "ed03e5d4c4ce870c73b9591fabec16148986e7334dfb3233278a23fec6d86428",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 7,
+      "specialEnergyCards": 3,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Dragon Energy",
+          "count": 3,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 22,
+      "sourcePrintingSha256": "9a3b5299ed6c45860904619b7be29785a2c8e4cca898ef8800dc24b4340e775e",
+      "archetype": "Absol Garbodor",
+      "energyCards": 8,
+      "basicEnergyCards": 8,
+      "specialEnergyCards": 0,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Darkness Energy",
+          "count": 5,
+          "printing": {
+            "set": "MEE",
+            "number": "15",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Lightning Energy",
+          "count": 3,
+          "printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 24,
+      "sourcePrintingSha256": "217a61f413f7151f5cb0856a8ebc3c48261fd8daa95d16ffbea239a5ff20e170",
+      "archetype": "Iron Thorns",
+      "energyCards": 8,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 8,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Speed Lightning Energy",
+          "count": 4,
+          "printing": {
+            "set": "RCL",
+            "number": "173",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Colorless Energy",
+          "count": 3,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Capture Energy",
+          "count": 1,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 26,
+      "sourcePrintingSha256": "07da7009178b63868ef21047982955663ac855bfcd15006e30541d4f90e55e4c",
+      "archetype": "Meloetta Donk",
+      "energyCards": 3,
+      "basicEnergyCards": 2,
+      "specialEnergyCards": 1,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Lightning Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "12",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Colorless Energy",
+          "count": 1,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 27,
+      "sourcePrintingSha256": "6032a4b644d1ee09445523dab1a6d5066d883db41b8a4ec942181d6787e3a25c",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 29,
+      "sourcePrintingSha256": "423998d2419c18e65bbf09f5844aa7a4b8c9eb31703ead031844bab350483636",
+      "archetype": "Iron Thorns",
+      "energyCards": 8,
+      "basicEnergyCards": 0,
+      "specialEnergyCards": 8,
+      "onlySpecialEnergy": true,
+      "printedEnergy": [
+        {
+          "name": "Speed Lightning Energy",
+          "count": 4,
+          "printing": {
+            "set": "RCL",
+            "number": "173",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Capture Energy",
+          "count": 2,
+          "printing": {
+            "set": "RCL",
+            "number": "171",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Spiky Energy",
+          "count": 1,
+          "printing": {
+            "set": "JTG",
+            "number": "159",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Double Colorless Energy",
+          "count": 1,
+          "printing": {
+            "set": "SUM",
+            "number": "136",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 30,
+      "sourcePrintingSha256": "8423dac2d79c86a3385e31008a8e9ac79c07840197b4e54e6ff7000a1ff67039",
+      "archetype": "Lillie's Clefairy",
+      "energyCards": 7,
+      "basicEnergyCards": 5,
+      "specialEnergyCards": 2,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Psychic Energy",
+          "count": 5,
+          "printing": {
+            "set": "MEE",
+            "number": "13",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Telepathic Psychic Energy",
+          "count": 2,
+          "printing": {
+            "set": "POR",
+            "number": "88",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 31,
+      "sourcePrintingSha256": "f95e3f644dc510fd48f122a158c06f37bdf93181210f08deef91b20bc984841a",
+      "archetype": "Dusknoir Chimecho",
+      "energyCards": 5,
+      "basicEnergyCards": 2,
+      "specialEnergyCards": 3,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Telepathic Psychic Energy",
+          "count": 3,
+          "printing": {
+            "set": "POR",
+            "number": "88",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Psychic Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "13",
+            "language": "en"
+          }
+        }
+      ]
+    },
+    {
+      "rank": 32,
+      "sourcePrintingSha256": "603a939e19953babd877b07bdc1be36d9936a08c4cd99e5d3a2d21f9b6555822",
+      "archetype": "Regidrago",
+      "energyCards": 10,
+      "basicEnergyCards": 6,
+      "specialEnergyCards": 4,
+      "onlySpecialEnergy": false,
+      "printedEnergy": [
+        {
+          "name": "Double Dragon Energy",
+          "count": 4,
+          "printing": {
+            "set": "ROS",
+            "number": "97",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Grass Energy",
+          "count": 4,
+          "printing": {
+            "set": "MEE",
+            "number": "9",
+            "language": "en"
+          }
+        },
+        {
+          "name": "Fire Energy",
+          "count": 2,
+          "printing": {
+            "set": "MEE",
+            "number": "10",
+            "language": "en"
+          }
+        }
+      ]
+    }
+  ]
+}
