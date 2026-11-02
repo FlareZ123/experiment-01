@@ -8,6 +8,7 @@ const root = path.resolve(__dirname, '..');
 const manifest = require('../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json');
 const sets = require('../resources/sets/en.json');
 const printings = new Map(sets.map((set) => [set.id, set.ptcgoCode || set.name]));
+const { openingEightAccess } = require('../simulation/evaluation/agent43-muk-search-eight-bound.cjs');
 const allCardSets = new Map();
 
 /** @param {number} n @param {number} k @returns {number} */
@@ -111,12 +112,17 @@ assert.match(cardById('sv6-77').abilities[0].text, /Pokémon with a Rule Box in 
 
 const mulligan = choose(60 - basics, 7) / choose(60, 7);
 const direct = directFirstTurnOpportunity(2, 3, 2);
-const conditional = direct / (1 - mulligan);
+const access = openingEightAccess();
+const conditional = access.directAmongBasicValid;
+assert.ok(Math.abs(direct - access.directUnconditional) < 1e-12);
+assert.ok(Math.abs(access.basicValidInitialSeven - (1 - mulligan)) < 1e-12);
 const bothMukPrized = choose(58, 4) / choose(60, 6);
 const allVstarPrized = choose(57, 3) / choose(60, 6);
 assert.ok(Math.abs(mulligan - 0.1906466927107365) < 1e-12);
 assert.ok(Math.abs(direct - 0.07759162886050825) < 1e-12);
-assert.ok(Math.abs(conditional - 0.09586867460934084) < 1e-12);
+assert.ok(Math.abs(conditional - 0.0926277443382764) < 1e-12);
+assert.ok(Math.abs(access.searchAssistedUnconditional - 0.24007559091372999) < 1e-12);
+assert.ok(Math.abs(access.searchAssistedAmongBasicValid - 0.23089801437797755) < 1e-12);
 assert.ok(Math.abs(bothMukPrized - 0.00847457627118644) < 1e-12);
 assert.ok(Math.abs(allVstarPrized - 0.0005844535359438924) < 1e-12);
 
@@ -130,7 +136,9 @@ console.log(JSON.stringify({
   mulliganPercent: 100 * mulligan,
   directFirstTurnGrimerBoostMukPercent: 100 * direct,
   conditionalOnBasicValidFirstSevenPercent: 100 * conditional,
+  idealizedSearchAssistedFirstEightPercent: 100 * access.searchAssistedUnconditional,
+  idealizedSearchAssistedBasicValidPercent: 100 * access.searchAssistedAmongBasicValid,
   bothMukInSixPrizePercent: 100 * bothMukPrized,
   allThreeVSTARInSixPrizePercent: 100 * allVstarPrized,
-  evidenceCategory: 'printed-card database and exact combinatorics; zero native games'
+  evidenceCategory: 'printed-card database and exact combinatorics; idealized search assumes playable Items and acceptable discards; zero native games'
 }, null, 2));
