@@ -168,6 +168,9 @@ function settle(x,bot){
       action=bot.decodeNextAction(x.state);
     }
     assert.ok(action,'No native action for '+kind);
+    if(kind==='ChooseAttackPrompt')
+      assert.equal(action.result?.name,'Evolution',
+        'Second Omega Barrage attack must be native TM Evolution');
     kinds.push(kind);
     x.f.store.dispatch(action);
   }
@@ -238,6 +241,9 @@ function verify(seat){
     'Bunnelby TM must actually evolve Exeggcute VIV');
   assert.ok(x.owner.bench.some(p=>p.getPokemonCard()?.fullName==='Vileplume AOR'),
     'Second TM must actually establish AOR Item lock');
+  const firstTurnBench=x.owner.bench.map(slot=>
+    slot.getPokemonCard()?.fullName??null);
+  const firstTurnActive=x.owner.active.getPokemonCard()?.fullName;
   assert.equal(x.state.activePlayer,1-seat,
     'Omega Barrage turn must pass to the opponent');
   assert.notEqual(x.opponent.cannotPlaySupporterCards,true,
@@ -295,7 +301,9 @@ function verify(seat){
     seat,challenger:'Agent18 Exeggutor Vileplume native v2',
     initialToolAndJetRoots:['equip-bunnelby-tm','attach-special-energy'],
     bunnelbyAttack:'Evolution',omegaBarrageSecondAttackPrompt:true,
-    benchAfterFirstTurn:x.owner.bench.map(slot=>
+    benchAfterFirstTurn:firstTurnBench,
+    activeAfterFirstTurn:firstTurnActive,
+    benchAfterBlockade:x.owner.bench.map(slot=>
       slot.getPokemonCard()?.fullName??null),
     actualUnblockedOpponentTurn:true,
     secondSourceTurnJetPromotion:'Exeggutor PLF',
