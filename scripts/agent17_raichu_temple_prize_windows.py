@@ -24,6 +24,10 @@ def set_code_index() -> dict[str, list[str]]:
         code = entry.get("ptcgoCode")
         if code:
             index.setdefault(code, []).append(entry["id"])
+        if entry["id"] == "smp":
+            index.setdefault("SMP", []).append("smp")
+        if entry["id"] == "bwp":
+            index.setdefault("BWP", []).append("bwp")
     return index
 
 
