@@ -32,3 +32,20 @@ Fixed the job-level predicate in [the existing manual workflow](../../.github/wo
 Added **read-only terminal projection** to the native replay panel at `d4894c280c02f058f0b2709356c91a48146c0026`: final Prize totals, deck counts, Active/Bench occupancy and the headless end reason, plus an explicit native-terminal-with-no-observed-lead flag. It changes neither decisions nor game rules. These new fields do not exist in the first four-attempt archive, and any replay to obtain them is a retrospective diagnostic under a new code revision, not the same recorded trial.
 
 **Release status:** 29/32 authenticated original field 60s, ranks 23/25/28 missing, **zero competitively qualified games**, no verified fixed best 60, and no demonstrated 99.5% rate.
+
+## Retrospective public terminal projection, compiled 05:06 UTC
+
+The post-hoc read-only output expansion at `d4894c280c02f058f0b2709356c91a48146c0026` was verified in the existing native job on [manual one-input run 41391811173](https://github.com/FlareZ123/experiment-01/actions/runs/41391811173). Crucially, the **single `agent24_natural_replay_prize_panel=true` dispatch now actually starts the native job**, validating the job-level predicate fix. The `agent24-original-physical-native` job succeeded, while unrelated test-job failure keeps the entire workflow red. Artifact ID `13117557576`, ZIP SHA-256 `18323607af0c88e76fca6553449aede24fbd9d0cf8e7f7c3a0c25075095b1889`.
+
+All four replays reproduce the initial archive's exact `nativeActions` counts (136, 57, 155, 166), winner-seat indices (1,1,0,0), and settled replay-root counts (113,34,132,143). Their final public counters are:
+
+| Physical A/B | End Prizes A/B | End deck cards A/B | Active present A/B | Benched Pokémon A/B | Native winner |
+| --- | --- | --- | --- | --- | --- |
+| Rank20 / Rank11 | [6,6] | [35,32] | [false,true] | [3,2] | B |
+| Rank11 / Rank20 | [6,6] | [42,41] | [false,true] | [0,1] | B |
+| Rank5 / Rank26 | [6,6] | [32,31] | [true,false] | [4,3] | A |
+| Rank26 / Rank5 | [6,6] | [29,29] | [true,false] | [4,5] | A |
+
+Every row has `nativeEndReason=engine-game-end` and `nativeTerminalWithoutObservedPrizeLead=true`. The losing player's Active is empty on all four. In **three** of the four, that same player still has **3, 3 or 5 Benched Pokémon**. The 2025 advanced manual's E. Win and Loss requires the player to have *no Pokémon in play* for that ordinary loss condition, while a replay winner is defined by the first strict Prize lead. The public totals show neither a Prize lead nor deck exhaustion. This is a **serious native terminal-causation question**, with a possible unresolved mandatory promotion or other card-effect/engine condition. These aggregates do not establish which operation induced the terminal, so **do not yet declare a proved engine bug**.
+
+The panel now records the existing headless `nativeTerminalTransition` public before/after states, final dispatch and action lineage (added at `1d300d1f85f380313a4579aeaf0632cae8fccc8c`), for a separate retrospective diagnostic. The final root's exact cause must be qualified before any paper-validity claim.
