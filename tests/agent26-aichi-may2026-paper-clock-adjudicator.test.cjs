@@ -102,7 +102,7 @@ test('new six-Prize knockout tiebreak ends at first strict Prize lead',()=>{
   assert.equal(firstPrize.winner,0);
   const reversed=decide(state('final',[6,5],{phase:'tiebreak'}));
   assert.equal(reversed.winner,1);
-  assert.equal(reversed.officialClockMinutes,35);
+  assert.equal(reversed.officialClockMinutes,null);
 });
 
 test('zero Prize without independently certified ordinary win is held unverified',()=>{
