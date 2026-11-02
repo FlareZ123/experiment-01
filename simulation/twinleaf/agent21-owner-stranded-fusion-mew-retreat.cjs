@@ -7,6 +7,8 @@ const DCE = 'Double Colorless Energy SUM';
 const MEW_VMAX = 'Mew VMAX FST';
 const GENESECT_V = 'Genesect V FST';
 const STRANDED_ACTIVE = new Map([
+  // Exact native CardManager identifier differs from conventional card notation.
+  ['Dedenne GX UNB', 1],
   ['Dedenne-GX UNB', 1],
   ["Lillie's Clefairy ex JTG", 1],
   ['Genesect V FST', 2]
