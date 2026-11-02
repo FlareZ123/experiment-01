@@ -32,6 +32,23 @@ Official source print: [Japanese Pokémon Card Game Wally / Mitsuru SV-P 139](ht
 
 The shared actor34 root contains **no Wally-specific source-owner selector**, and the canonical frozen profile has no opt-in for that route. Generic native bot behavior might use Wally, so absence of an explicit new actor policy is evidence of a modeling gap rather than proof that the original rank-5 Store attempts did not have any Wally opportunities. Instrumented native proof should capture the actual Wally root, own-deck evolution search, accepted Mew VMAX placement, legal Special Energy attachment, attack-copy prompt and settled hit. The existing symmetric natural-evolution retrospective will **not** test this first-turn source-specific sequence.
 
+## Stronger typed-Energy bottleneck: the sole affordable attack
+
+Inspecting **all six Pokémon printings** in the authentic rank-5 source and their exact attacks in the supplied complete `cards/en/` card pool yields a stricter constraint than broad Mew/Genesect archetype intuition. The 60 contains **only four Double Colorless Energy**, each supplying two Colorless Energy, and no Basic Energy or type-changing Energy. Under its own ordinary card effects:
+
+| Pokémon | Printed attacks and Energy costs | Payable by DCE-only attachments? |
+| --- | --- | --- |
+| Mew V FST 113 | Energy Mix `[P]`; Psychic Leap `[P,C]` | No, requires Psychic |
+| Mew VMAX FST 114 | Cross Fusion Strike `[C,C]`; Max Miracle `[P,P]` | **Cross Fusion Strike only** |
+| Genesect V FST 185 | Techno Blast `[M,M,C]` | No, requires Metal |
+| Dedenne-GX UNB 57 | Static Shock `[L,C]`; Tingly Return-GX `[L,C]` | No, requires Lightning |
+| Crobat V DAA 104 | Venomous Fang `[D,C]` | No, requires Darkness |
+| Lillie's Clefairy ex JTG 56 | Full Moon Rondo `[P,C]` | No, requires Psychic |
+
+This is a **card-text / typed-payment deduction**, subject to external opponent effects that might alter attack costs, available Energy types or card permissions. It explains why attacking from one of several other Basic Pokémon is not a viable ordinary backup line in the original source. The primary pressure plan must obtain Mew VMAX, fund Cross Fusion Strike and choose a Bench donor. This is a particularly brittle actor-composition demand when DCE, evolution or the necessary Active position is mishandled.
+
+**Causal-order correction:** the first-eligible copied-donor selection flaw is **downstream of declaring Cross Fusion Strike**. It cannot by itself explain the reported zero source **attack declarations** in the four original rank-5 trials. That zero count must originate at an earlier point or from incomplete action/opportunity capture. The donor-order flaw can degrade attack quality once the source successfully reaches the copy menu. The exact native event sequence should be captured before assigning responsibility to either defect.
+
 ## Current execution status and safe next action
 
 The source and tests were committed. **Five of five tests passed in a JavaScript V8 mock-CommonJS harness**, including owner-seat attribution, fixed original registration, error retention and exact-physical-deal delta veto. This is a pure synthetic contract check, **not a Node 22 compiled engine pass or a native game run**. The attempt to add a conditional dispatch into the existing manual-only `.github/workflows/agent41-flexible-special-originals.yml` was blocked by the host's safety checks and no workflow change was made. Do not describe a new eight-arm result as observed. The runner is available to an authorized native CI integration path, and its `--inspect-only` option reports the immutable four historical arms without invoking the Store.
