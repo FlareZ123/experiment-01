@@ -69,3 +69,19 @@ The recovered source rank8 sixty has one Secret Box, one Boost Shake, two Trubbi
 These model frequencies depend strongly on Bench choices, especially whether Trubbish is kept in hand. They ignore opponent Item lock, card sequencing, stronger competing plays, actual opponent continuation, source prize-recovery tricks, mulligan compensation and any paper-match clock. Their nominal Wilson 95% intervals for the flexible physical K0 probability are **7.039–7.302%** with no other initial Basics Benched and **6.370–6.621%** with all other Basics Benched. Do not use these as game-win percentages or confident estimates of actual bot trigger rates.
 
 The immediate priority is to run and retain a substantial disjoint original native flexible cohort and then assess the natural prompt-abort/settled frequency. [Run 41406786273](https://github.com/FlareZ123/experiment-01/actions/runs/41406786273) did not reach gameplay: its three new observer unit fixtures omitted the mandatory native Active Slot; the fixtures were fixed at `6c0855feaab8659db7cb19326ae7342a0ec63356`, while the original seven narrow K0 tests and all owner-K1 category tests passed in that failed run.
+
+## Completed 32-original-deal flexible firstturn native cohort
+
+[Manual native run 41407960444](https://github.com/FlareZ123/experiment-01/actions/runs/41407960444) at fixed original repo checkout `707f7bb53b6d78aa7d5604774b5b6e0ede4979cd` finished SUCCESS, with the three observer unit fixtures corrected and **all 33 scheduled pair records** persisted in [raw artifact 13124965916](https://github.com/FlareZ123/experiment-01/actions/runs/41407960444/artifacts/13124965916), ZIP SHA256 `c7da15b174dba1038e1c9e4c09a2aea12d6f2047efa8c3fee1a3642da90426a4`. No observed native Store execution error occurred; initial original source K0 state, deck hash and starter parity are checked per row.
+
+| Cohort and original physical seed index | Original dealt source seat | Eligible K0 Box proposal | Actual firstturn native Tool-Garbodor and opposing-turn public-board witness | Incomplete |
+| --- | ---: | --- | --- | --- |
+| Previously selected seed `214648959` | 0 | 1 | **1** | 0 |
+| Previously unobserved `272..303` (32 distinct scheduled physical seeds) | both alternate | **3 / 32** | **2 / 32** | **1 / 32** |
+| Specific completed new original trial `286` | 0 | yes | yes | no |
+| Specific incomplete new original trial `289` | 1 | yes | no | yes |
+| Specific completed new original trial `299` | 1 | yes | yes | no |
+
+Within the independently scheduled 32 seed indices: **29 had no eligible opening opportunity**, **two completed native firstturn equipped Garbodor**, **one offered and failed to complete**, **zero engine errors**. The previously selected original seed is excluded from that denominator. These are *conditional native action-sequence outcomes* and contain no paper win-rate estimate. Source prompt selectors use real only-own-deck revealed K1 cards after the real Secret Box owner search, and every comparator starts from the same physical cards with no research-zone replacement. The two new positive original physical deals support generality of the executable line on both actor seats within this limited source versus Hood pair. The incomplete seed `289` is retained as a first-class negative, with its reason under targeted post-hoc diagnosis; do not silently discard it.
+
+The additional freedom raises opening opportunity compared to the narrow held-Trubbish-and-Tool rule, yet the resulting 3/32 rate must **not** be read as the precise target metagame probability. It is an unselected *original physical-deal cohort* under a particular native opponent, native initial game policy, public locks, available hand cards and setup timing. We still lack a whole-battle competent policy, 25-minute paper clock, all 32 fully identified original decks and any competitive-qualified game.
