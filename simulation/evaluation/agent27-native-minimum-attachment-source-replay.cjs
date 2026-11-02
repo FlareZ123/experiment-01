@@ -235,7 +235,8 @@ function run(){
   assert.equal(blobSha,selectedProfile.sourceDeckManifest.blobSha,
     'Registered source original-deck file changed');
   const ambientAgentVariables=Object.keys(process.env)
-    .filter(key=>key==='AGENT'||key.startsWith('AGENT_')).sort();
+    .filter(key=>(key==='AGENT'||key.startsWith('AGENT_'))&&
+      !selectedProfile.allowedInfrastructureEnvironmentKeys.includes(key)).sort();
   assert.deepEqual(ambientAgentVariables,[],
     'Selected original-source canary refuses ambient AGENT development toggles');
   const permissions=selectedProfile.sourceResolutionPermissions;
