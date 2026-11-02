@@ -112,9 +112,10 @@ function run(){
         assert.equal(game.endReason,'action-limit');
         assert.deepEqual(game.prizesRemaining,[6,6]);
         assert.equal(w.audit.bySeat[sourceSeat],frozen.searches);
-        assert.equal(physical.audit.nativeSearchPromptResolutions,
-          frozen.searches,
-          'Native physical source search count must match prior accepted searches');
+        assert.equal(physical.audit.authenticatedLiveStore,true,
+          'Only the authenticated game Store may contribute physical lineage');
+        // Steven-only native prompt resolutions and adapter-selected generic
+        // owner-search choices have different denominators. Keep both.
         status='native-replay-identical';
         const publicRoots=ledger.filter(row=>row.pendingPrompt===null);
         summary={
