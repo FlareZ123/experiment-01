@@ -75,3 +75,37 @@ test('exact named copy accounting includes active and stacked Bench cards',()=>{
   assert.equal(counts.bench,1);
   assert.equal(counts.total,4);
 });
+
+class ResolvePromptAction{
+  constructor(id,result){this.id=id;this.result=result;}
+}
+class ChooseCardsPrompt{
+  constructor(owner){
+    this.id=56;this.playerId=owner.id;this.cards=owner.deck;
+    this.result=undefined;
+  }
+  validate(cards){
+    return cards.length===1&&
+      this.cards.cards.includes(cards[0])&&
+      cards[0].fullName===CORE;
+  }
+}
+test('same actual owner-deck search can validate an available core Basic',()=>{
+  const store=new Store(),owner=store.state.players[0];
+  owner.deck.cards.push(pokemon(TARGET));
+  store.state.prompts=[new ChooseCardsPrompt(owner)];
+  const target=owner.deck.cards.find(c=>c.fullName===TARGET);
+  const observed=withOwnerLastBenchReadOnlyAudit(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new ResolvePromptAction(56,[target]));
+    return true;
+  },{Store});
+  assert.equal(observed.audit.searchPromptEvents.length,1);
+  const record=observed.audit.searchPromptEvents[0];
+  assert.equal(record.promptOwnerDeck,true);
+  assert.equal(record.candidateInOwnerDeck,true);
+  assert.equal(record.nativePromptValidatesAlternative,true);
+  assert.deepEqual(record.originalChosenPrintings,[TARGET]);
+  assert.equal(record.ownerPrivateCoreLocations.deck,1);
+  assert.equal(record.observerOnly,true);
+});
