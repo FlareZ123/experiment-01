@@ -68,6 +68,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent24_natural_replay_prize_panel:
+        description: 'Four bounded natural-attack first Prize search replays after staged original-source tie'
+        required: false
+        type: boolean
+        default: false
       agent31_public_mulligan_native:
         description: 'Read-only paired native opponent-visible mulligan card-history parity against rank6; setup only'
         required: false
@@ -610,6 +615,9 @@ jobs:
       - name: Reproduce paper first-Prize stop on genuine native tiebreak replay both seats
         if: inputs.agent24_paper_replay_prize_lead
         run: node simulation/twinleaf/agent24-native-replay-paper-first-lead.cjs > agent24-native-replay-paper-lead.json
+      - name: Seek paper stop on actual native tiebreaker Prize-taking roots, two pairs and both seats
+        if: inputs.agent24_natural_replay_prize_panel
+        run: node simulation/twinleaf/agent24-natural-replay-prize-stop-panel.cjs > agent24-natural-replay-prize-panel.json
       - name: Archive actual three-case native custody receipts without game-win claims
         if: always()
         uses: actions/upload-artifact@v4
@@ -621,6 +629,7 @@ jobs:
             agent24-owner-sudden-death.json
             agent24-original-owner-exchange.json
             agent24-native-replay-paper-lead.json
+            agent24-natural-replay-prize-panel.json
             agent24-ace-native.json
             agent24-ace-reducer.json
           if-no-files-found: warn
