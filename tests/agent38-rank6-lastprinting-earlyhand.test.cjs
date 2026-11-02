@@ -140,3 +140,13 @@ test('toy exhaustive physical opener distinguishes hand and deck duplication',()
   assert.equal(got.globallyDuplicatedTrainerWeighted,
     String(globalDuplicateTrainer));
 });
+
+test('multiple Supporter physical printings require explicit modeling',()=>{
+  assert.throws(()=>countEarlyHands({
+    cards:[{name:'Basic',count:2},{name:'Plumeria',count:1,
+      printing:{set:'A',number:'1'}},
+    {name:'Plumeria',count:1,printing:{set:'B',number:'2'}},
+    {name:'Filler',count:2}],observedSize:4,openingSize:3,
+    basicName:'Basic',supporterName:'Plumeria'
+  }),/single physical Supporter printing/);
+});
