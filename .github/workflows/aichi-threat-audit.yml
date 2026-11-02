@@ -43,5 +43,10 @@ jobs:
         run: node --test tests/agent25-dhelmise-compressor-donors.test.cjs
       - name: Verify exact ordinary Basic plus Telepathic Psychic HNS opener versus narrow Clefairy line
         run: node --test tests/agent25-dhelmise-any-psychic-attack-opening.test.cjs
+      - name: Regress original Thorns first-turn Tag Call access and fragile New Moon conjunction
+        run: |
+          node --test tests/agent11-thorns-tagcall-first-attack.test.cjs tests/agent11-newmoon-thorns-firstturn-exposure.test.cjs
+          node scripts/agent11-thorns-tagcall-first-attack.cjs
+          node scripts/agent11-newmoon-thorns-firstturn-exposure.cjs
       - name: Emit auditable JSON report
         run: node scripts/field_threat_audit.cjs
