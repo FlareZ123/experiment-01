@@ -1,0 +1,45 @@
+{
+  "schema": "agent41-original-native-row-shape-rank6-v1",
+  "source": {
+    "workflowRunId": 41465829225,
+    "artifactId": 13151571539,
+    "zipSha256": "19bb6b149afabc9b27c13707a2fa39421038fdcbdfe6da159659b692c19df3a2"
+  },
+  "rows": [
+    {
+      "trialId": "6:0:A:champion-reference",
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 90,
+      "statusKeyPresent": false
+    },
+    {
+      "trialId": "6:0:A:new-moon-lockbreaker-v1",
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 99,
+      "statusKeyPresent": false
+    },
+    {
+      "trialId": "6:1:B:champion-reference",
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 1,
+      "actionCount": 91,
+      "statusKeyPresent": false
+    },
+    {
+      "trialId": "6:1:B:new-moon-lockbreaker-v1",
+      "finished": true,
+      "endReason": "engine-game-end",
+      "winner": 0,
+      "actionCount": 174,
+      "statusKeyPresent": false
+    }
+  ],
+  "originalReporterNativeStatusCounts": {
+    "UNREPORTED": 4
+  }
+}
