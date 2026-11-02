@@ -27,3 +27,10 @@ This observer is more stringent than interpreting a prompt selection as a comple
 Emit complete JSON, then return nonzero for any native-arm error, missing or mismatched physical deal fingerprint, missing 60-card original list or incomplete 24/48 denominator. Preserve failures, without dropping unsuccessful seeds.
 
 Exact source play, information-set-safe decisions, human opponent competence, the 25-minute clock, and all 32 original opponent lists remain unfinished. All outcomes are **developmental**, with **zero competitive-qualified games** and no demonstrated 99.5% field strength. This protocol adds a narrow physical-effect witness, without nominating a new fixed deck.
+
+
+## Native owner-field preflight correction (before v2 outcomes)
+
+The first immutable invocation branch at commit d54b3859669abb93b0e91f355fe113e89b219581 was [CI 41412533630](https://github.com/FlareZ123/experiment-01/actions/runs/41412533630). It was **cancelled before interpreting or publishing any v2 source-game result**, after static inspection of the pinned `newmoon-compressor-owner-prompt-native.cjs` fixture demonstrated that native `ChooseCardsPrompt` ownership is `prompt.player === owner`, as also used by the preregistered source Item selector. The new passive observer alone had incorrectly tested `prompt.playerId === owner.id`, which would silently report zero recognized prompts even if source owner choices succeeded. This was a measurement preflight defect.
+
+The only replacement changes are to compare the native owner object in the **read-only observer** (commit 91c5fec) and its pure fake prompt fixture (commit 5e1d314). The five pure tests pass locally again. All predeclared original 60s, seed base 20261106, repeats 72..83, two physical seats, 120-action cap, policies, and source scoring remain unchanged. Restart v2 on a new immutable commit without selecting any cases. This is the *same preregistered cohort*, not another independent sample.
