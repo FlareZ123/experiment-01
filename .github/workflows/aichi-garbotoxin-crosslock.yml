@@ -3,6 +3,10 @@ name: Aichi Garbotoxin cross-lock action audit
 on:
   workflow_dispatch:
     inputs:
+      rank8_v11_paper_cost_retrospective:
+        description: 'Audit 3 previously exposed rank8 original source Box roots under legal three-discard shared portfolio v11'
+        type: boolean
+        default: false
       rank8_source_fork:
         description: 'Opt-in same-source rank8 Latias Field Blower and paid retreat counterfactuals'
         type: boolean
@@ -244,6 +248,22 @@ jobs:
           name: rank11-held-shake-source112-blower
           path: rank11-held-shake-source112-blower.json
           if-no-files-found: warn
+      - name: Validate rank8 retro payment-observer fail-closed evidence
+        if: inputs.rank8_v11_paper_cost_retrospective
+        run: |
+          node --check simulation/evaluation/agent4-rank8-legacy-box-v11-paper-native.cjs
+          node --test tests/agent4-rank8-v11-paper-native-observer.test.cjs tests/agent4-shared-secretbox-v11-paper.test.cjs
+      - name: Reconcile exactly three authentic rank8 source Secret Box roots against v11 compulsory three-card payment
+        if: inputs.rank8_v11_paper_cost_retrospective
+        run: node simulation/evaluation/agent4-rank8-legacy-box-v11-paper-native.cjs > agent4-rank8-retro-box-v11.json
+      - name: Preserve every rank8 retrospective native payment attempt and error, with both prior-selection and unqualified labels
+        if: always() && inputs.rank8_v11_paper_cost_retrospective
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank8-original-secretbox-cost-v11-retro
+          path: agent4-rank8-retro-box-v11.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Reproduce authentic rank8 Latias escape decision alternatives
         if: inputs.rank8_source_fork
         run: node simulation/twinleaf/rank8-latias-escape-fork.cjs > rank8-latias-escape-fork.json
