@@ -75,6 +75,17 @@ jobs:
           path: agent6-rank30-canonical-skyliner-rondo-native.json
           if-no-files-found: warn
           retention-days: 15
+      - name: Exact original rank30 Benched Skyliner Filch versus funded Rondo native counterfactual
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/evaluation/agent6-rank30-filch-vs-rondo-native.cjs > agent6-rank30-filch-vs-rondo-native.json
+      - name: Archive actual rank30 source Filch replacement, accepted retreat and Rondo settlement
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank30-filch-vs-rondo-native
+          path: agent6-rank30-filch-vs-rondo-native.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Archive all native original rank30 funded Rondo fork outcomes and errors
         if: always() && inputs.agent6_rank30_rondo
         uses: actions/upload-artifact@v4
