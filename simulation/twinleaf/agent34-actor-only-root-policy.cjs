@@ -752,6 +752,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       nativeRootJoinReceipts:[],nativeRootJoinTruncated:false}:{}),
     publicTransitionWitnesses:0,publicTransitionChanges:0,
     nativePhysicalConfirmed:0,nativePhysicalUnconfirmed:0,
+    nativePhysicalPending:0,
     nativePhysicalConfirmedByIntent:{},nativePhysicalUnconfirmedByIntent:{},
     nativeAttackNeedsDeclaration:0,
     observationSchema:'agent2-public-native-dispatch-diff-v1',
