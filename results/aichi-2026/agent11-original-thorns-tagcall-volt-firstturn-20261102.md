@@ -45,7 +45,7 @@ provided that at least one Basic is in \(h\), and the resulting actual deck cont
 \left[{60 \choose 7}-{56 \choose 7}\right]{53 \choose 6}\cdot 47.
 \]
 
-[Expanded local regression assertions](../../tests/agent11-thorns-tagcall-first-attack.test.cjs) passed, including an independently exhaustive toy-deck enumeration, both full-deck exact constants, and printing/count validation. A separate fixed-seed independent 200,000-permutation Monte Carlo sanity check for one DCE gave ~25.29% against the 25.38% exact value. No compiled CI or live-game claim is made by this pure calculation.
+[Expanded local regression assertions](../../tests/agent11-thorns-tagcall-first-attack.test.cjs) passed, including an independently exhaustive toy-deck enumeration, both full-deck exact constants, and printing/count validation. A separate fixed-seed independent 200,000-permutation Monte Carlo sanity check for one DCE gave ~25.29% against the 25.38% exact value. [Manual GitHub Actions CI 41437593853](https://github.com/FlareZ123/experiment-01/actions/runs/41437593853) **passed**, covering this exact test, its source-locked executable, the independent New Moon conjunction and the existing field threat regressions. No native game claim is made by this pure calculation.
 
 ## Consequences and boundaries
 
