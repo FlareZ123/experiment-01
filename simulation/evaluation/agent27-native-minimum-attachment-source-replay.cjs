@@ -256,6 +256,13 @@ function run(){
   const casesOut=cases.map(x=>{
     const raw=runArm(x.order,x.seed,catalog,decks,flags,false);
     const repaired=runArm(x.order,x.seed,catalog,decks,flags,true);
+    const registeredDealSha=selectedProfile.expectedFullPhysicalDealSha256BySeed[x.seed];
+    assert.ok(typeof registeredDealSha==='string'&&registeredDealSha.length===64,
+      'Original physical-deal fingerprint is unregistered');
+    assert.equal(raw.separateFullSourceDealSha256,registeredDealSha,
+      'Control physical source deal diverged from frozen original proof');
+    assert.equal(repaired.separateFullSourceDealSha256,registeredDealSha,
+      'Repaired physical source deal diverged from frozen original proof');
     return {
       seed:x.seed,seatRanks:x.order,
       sameRegisteredOriginalSixties:
