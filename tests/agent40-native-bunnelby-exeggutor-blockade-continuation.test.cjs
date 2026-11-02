@@ -197,7 +197,7 @@ function sourceBunnelbyBot(x){
 }
 
 /** @param {0|1} seat */
-function verify(seat,opponentGuzma=false){
+function verify(seat,opponentGuzma=false,continueAfterGuzma=false){
   const x=staged(seat);
   if(opponentGuzma){
     // The original rank1 60 supplies a second copy of the same Basic from
@@ -321,6 +321,52 @@ function verify(seat,opponentGuzma=false){
       blockadeAlreadyActive:false,
       competitiveQualifiedGames:0
     }));
+    if(continueAfterGuzma){
+      // The opponent's genuine Guzma moved Exeggutor Active before Blockade.
+      // Continue the actual, constrained native game to test whether that
+      // position helps or prevents the follow-up lock attack.
+      x.f.store.dispatch(new PassTurnAction(x.opponent.id));
+      const passPrompts=settle(x,null);
+      assert.ok(passPrompts.length>0);
+      assert.equal(x.state.activePlayer,seat);
+      assert.equal(x.state.phase,x.GamePhase.PLAYER_TURN);
+      assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
+      const sourceView=actorObservation(x.state,seat);
+      const intent=chooseActorRootIntent(sourceView,x.catalog,{
+        bunnelbyTmJetRoot:true,
+        exeggutorBlockadeContinuation:true,
+        ownRegisteredSixty:x.ownRegisteredSixty
+      });
+      assert.equal(intent?.kind,'attach-special-energy');
+      assert.equal(intent.slot,'active',
+        'Opponent-gusted Exeggutor must attach held Jet directly to Active');
+      assert.equal(intent.printing,JET);
+      assert.equal(intent.plannedAttackName,'Blockade');
+      const before=rootPhysicalSnapshot(x.state,seat,intent);
+      x.f.store.dispatch(new PlayCardAction(x.owner.id,intent.handIndex,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+      }));
+      const after=rootPhysicalSnapshot(x.state,seat,intent);
+      assert.equal(rootPhysicalWitness(intent,before,after,x.GamePhase),
+        'confirmed-public-effect');
+      assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
+      assert.deepEqual(x.owner.active.energies.cards.map(c=>c.fullName),[JET]);
+      const priorDamage=x.opponent.active.damage;
+      x.f.store.dispatch(new AttackAction(x.owner.id,'Blockade'));
+      const attackPrompts=settle(x,null);
+      assert.equal(x.state.activePlayer,1-seat);
+      assert.equal(x.opponent.cannotPlaySupporterCards,true);
+      assert.equal(x.opponent.active.damage-priorDamage,10);
+      console.log('AGENT40_NATIVE_GUZMA_GUST_ADAPTIVE_BLOCKADE',JSON.stringify({
+        seat,originalRank1GuzmaAccepted:true,
+        sourceAfterGust:'Exeggutor PLF',
+        sourceSelectedAdaptedJetRecipient:intent.slot,
+        physicalJetAttached:'Exeggutor PLF',
+        secondTurnAttack:'Blockade',nativeOpponentSupporterLock:true,
+        actualAttackDamageDelta:10,passPrompts,attackPrompts,
+        competitivelyQualifiedGames:0
+      }));
+    }
     return;
   }
 
@@ -411,4 +457,6 @@ for(const seat of [0,1]){
     ()=>verify(seat));
   test('original rank1 Guzma can gust Exeggutor during unblocked window, seat '+seat,
     ()=>verify(seat,true));
+  test('adapt after original rank1 Guzma and still use Blockade, seat '+seat,
+    ()=>verify(seat,true,true));
 }
