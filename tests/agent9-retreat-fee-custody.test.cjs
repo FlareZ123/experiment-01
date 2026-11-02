@@ -112,6 +112,7 @@ test('an unresolved prompt cannot produce a paid retreat proof',()=>{
   const output=withCrobatRetreatFeeCustody(()=>store.dispatch(x.action),{Store});
   assert.equal(output.audit.attemptedPhysicalRoots,1);
   assert.equal(output.audit.settledExactPhysicalFees,0);
+  assert.equal(output.audit.unsettledAtEnd,1);
   assert.equal(output.audit.qualifiedCompetitiveGames,0);
 });
 
