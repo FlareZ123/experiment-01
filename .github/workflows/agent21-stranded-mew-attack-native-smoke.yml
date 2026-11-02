@@ -1,0 +1,29 @@
+name: Agent 21 native paid retreat copied attack smoke
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-store-source-mechanics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact pinned Twinleaf vendor
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install exact pinned server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Settle DCE retreat into copied Techno Blast in both native seats
+        run: node --test tests/agent21-owner-stranded-mew-copied-attack.native.test.cjs
