@@ -23,7 +23,16 @@ function nativeRetreatAudit(entry){
     x.action==='RetreatAction');
   const sourceAttacks=roots.filter(x=>x.playerSlot===seat&&
     x.action==='AttackAction');
-  const settlements=row.candidateAttackSettlement?.attacks??[];
+  // The prior summary mistakenly read candidateAttackSettlement: that is the
+  // opposing actor's evidence. Only the explicitly role-labeled source ledger
+  // can support claims about original-source settled attacks.
+  const settlement=row.sourceAttackSettlement;
+  const sourceSettlements=settlement?.auditedActorRole==='source'&&
+    settlement.candidateSeat===seat&&Array.isArray(settlement.attacks)?
+    settlement.attacks.filter(x=>x.settledPromptChain===true&&
+      x.settlementCrossesClockReset===false&&
+      sourceAttacks.some(root=>root.actionOrdinal===x.actionOrdinal&&
+        root.attack===x.attackName)):null;
   return {sourceAcceptedRetreat:sourceRetreat.length,
     candidateAcceptedRetreat:candidateRetreat.length,
     sourceRetreatRootEvents:sourceRetreat.map(x=>({
@@ -33,8 +42,18 @@ function nativeRetreatAudit(entry){
       globalTurn:x.turnBefore,attack:x.attack??null})),
     sourceAttackDeclared:sourceAttacks.length,
     terminal:entry.summary.nativeDisposition,
-    sourceSettledAttackTransitions:settlements.filter(x=>
-      x.attackerSeat===seat).length};
+    sourceSettledAttackTransitions:sourceSettlements?.length??null,
+    sourceSameEpochOpponentContinuations:sourceSettlements?
+      sourceSettlements.filter(x=>x.nextSourceSameEpochProven===true&&
+        Number.isSafeInteger(x.nextSourceRoot?.turn)&&
+        x.nextSourceRoot.turn>x.turnBefore).length:null,
+    sourceSettledAttackPrizeTrace:sourceSettlements?.map(x=>({
+      globalTurn:x.turnBefore,attackName:x.attackName,
+      prizesBefore:x.prizesBefore,prizesAfter:x.prizesAfter,
+      nextOpponentRoot:x.nextSourceRoot??null}))??null,
+    // A Store-accepted retreat with public board change alone does not
+    // independently prove that the fee reached the physical discard zone.
+    retreatFeePhysicalDiscardVerified:false};
 }
 
 /** Execute 16 controlled native Store attempts with paired source physical deals. */
