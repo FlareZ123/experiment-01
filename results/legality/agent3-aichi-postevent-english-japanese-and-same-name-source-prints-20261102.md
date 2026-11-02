@@ -4,7 +4,7 @@
 
 ## The English-display chronology anomaly is explained by Japanese pre-event publication
 
-The [29 original deck inventory](../aichi-2026/full-decklists.json) expressly says that source printing IDs follow Limitless **English display** where available, with Japanese original printings requiring separate checking. CL Aichi took place **10 May 2026**. The supplied English card database dates Chaos Rising (\`me4\`, \`CRI\`) to **22 May 2026**. A full 29-deck scan found **three rows, five cards** carrying that future English display release:
+The [29 original deck inventory](../aichi-2026/full-decklists.json) expressly says that source printing IDs follow Limitless **English display** where available, with Japanese original printings requiring separate checking. CL Aichi took place **10 May 2026**. The supplied English card database dates Chaos Rising (`me4`, `CRI`) to **22 May 2026**. A full 29-deck scan found **three rows, five cards** carrying that future English display release:
 
 | Source rank | English proxy | Count | Official Japanese counterpart |
 | ---: | --- | ---: | --- |
@@ -14,11 +14,11 @@ The [29 original deck inventory](../aichi-2026/full-decklists.json) expressly sa
 
 **Primary official evidence:** Japan's [Ninja Spinner / M4 release announcement](https://www.pokemon-card.com/ex/m4/) states **13 March 2026**. The official Japanese card records [Special Red Card M4 072/083](https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all) and [Trubbish M4 054/083](https://www.pokemon-card.com/card-search/details.php/card/50138/regu/all) establish those exact Japanese identities. The corresponding English effects and card images are documented for [Special Red Card CRI82](https://checkpokemoncard.com/card/me04-082-special-red-card/) and [Trubbish CRI56](https://bulbapedia.bulbagarden.net/wiki/Trubbish_%28Chaos_Rising_56%29). In each pair the key game effect agrees: Special Red Card requires the opponent at three or fewer Prizes and returns their hand to the deck's bottom, then draws three; Trubbish's Acid Spray flips to discard Energy.
 
-**Conclusion:** A validator demanding English display \`releaseDate <= eventDate\` would falsely reject these three Japanese-source rows. Official Japanese counterparts existed before Aichi. This establishes the **chronology and core effect bridge**, not ownership of an English paper printing at the Japanese event or complete rules/registration authentication. Do not reduce 29/32 original 60-card inventories or label the originals illegal.
+**Conclusion:** A validator demanding English display `releaseDate <= eventDate` would falsely reject these three Japanese-source rows. Official Japanese counterparts existed before Aichi. This establishes the **chronology and core effect bridge**, not ownership of an English paper printing at the Japanese event or complete rules/registration authentication. Do not reduce 29/32 original 60-card inventories or label the originals illegal.
 
 ## Exact eight same-name printing collisions in the 29 source decks
 
-Programmatic enumeration of the committed manifest yields **238 distinct English card names**, of which precisely **eight names use more than one source \`set:number\` pair**. Reading supplied exact printed English card data reveals materially different attacks/Abilities:
+Programmatic enumeration of the committed manifest yields **238 distinct English card names**, of which precisely **eight names use more than one source `set:number` pair**. Reading supplied exact printed English card data reveals materially different attacks/Abilities:
 
 | Name | Source ranks and printing counts | Mechanically relevant difference |
 | --- | --- | --- |
@@ -35,6 +35,6 @@ Programmatic enumeration of the committed manifest yields **238 distinct English
 
 ## Method, scope and qualification
 
-For each \`full-decklists.json\` row, group \`card.name\` by exact \`printing.set:number\`. Join set-code to \`resources/sets/en.json\` \`ptcgoCode\` and source printed stats to \`resources/cards/en/*.json\`; if a code maps to multiple English subsets, classify future publication only when **all** matched subsets postdate 10 May. **57 source rows** use set codes not resolved by that narrow English \`ptcgoCode\` join (mostly Japanese-only/promo/Basic Energy display codes). The audit gives a positive three-row anomaly and an exhaustive eight-name collision under the recorded English display. It does **not** certify Japanese printing IDs or dates for all 29×60 source cards.
+For each `full-decklists.json` row, group `card.name` by exact `printing.set:number`. Join set-code to `resources/sets/en.json` `ptcgoCode` and source printed stats to `resources/cards/en/*.json`; if a code maps to multiple English subsets, classify future publication only when **all** matched subsets postdate 10 May. **57 source rows** use set codes not resolved by that narrow English `ptcgoCode` join (mostly Japanese-only/promo/Basic Energy display codes). The audit gives a positive three-row anomaly and an exhaustive eight-name collision under the recorded English display. It does **not** certify Japanese printing IDs or dates for all 29×60 source cards.
 
-Record both \`english_display_print\` and \`event_japanese_print\`, preserve exact effect/HP/type, and separately establish native implementation, current errata, paper legality and source tournament provenance. This is a **source-policy and matchup-fidelity warning**, never a new qualified win: the shared benchmark remains **29/32 authenticated original name/count inventories, zero competitive games and no demonstrated 99.5% fixed deck**.
+Record both `english_display_print` and `event_japanese_print`, preserve exact effect/HP/type, and separately establish native implementation, current errata, paper legality and source tournament provenance. This is a **source-policy and matchup-fidelity warning**, never a new qualified win: the shared benchmark remains **29/32 authenticated original name/count inventories, zero competitive games and no demonstrated 99.5% fixed deck**.
