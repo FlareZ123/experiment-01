@@ -13,8 +13,14 @@
   "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
   "vendorSubmodulePath": "vendor/twinleaf",
   "candidatePrinted60Evidence": {
-    "championGitBlobSha": "1e5b09f77d65a445bb9812ef972e2340886d4758",
-    "newMoonGitBlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b"
+    "championRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "newMoonProxyPath": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "newMoonProxyGitBlobSha": "d9777831271bec8c4ac400d0a2d9f49cc03c630b",
+    "newMoonOriginalJapanesePrintPath": "results/als/new-moon-lockbreak-japanese-print-60.json",
+    "newMoonOriginalJapaneseGitBlobSha": "b9615279cadab6805f54b42d708dd3640f8a8b2a",
+    "newMoonSource52PrintPath": "results/als/new-moon-perfection-source-60.json",
+    "newMoonSource52GitBlobSha": "0edaa9ee651ae9724bb0ea9b46b6431adb12760b",
+    "proxyNotCertifiedPaperPrinting": true
   },
   "selectedCodeGitBlobShas": {
     "simulation/evaluation/agent41-bilateral-v2-development.cjs": "59c1450ffa754e4abb929cb6d0c1eba41c84ea3b",
@@ -25,7 +31,8 @@
     "simulation/twinleaf/headless.cjs": "1690ea77ce92c9694b6e04da6dcf6159bae64160",
     "simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs": "6e7a1af7cf7a49d2451710f326124c8ea12a7386",
     "simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs": "fa1180aaa1fd5a49aa5ab309c00495523af194fa",
-    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "41ac8093e60357c572e181760ec382cb27710072"
+    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "41ac8093e60357c572e181760ec382cb27710072",
+    "scripts/aichi-new-moon-candidate.cjs": "0656ee1a940cf74c884af95dada5196081a6c0e9"
   },
   "permittedAmbientAgentEnvironment": [],
   "injectedResearchEnvironment": {},
@@ -66,7 +73,7 @@
   ],
   "sourcePairingRequiresActualInitialPhysicalFingerprint": true,
   "allowAdditionalOriginalSourceRanks": true,
-  "knownUnresolvedDependencyClosure": "Dynamic imports beyond selected core code blobs not fully pinned; revalidate per build/runner revision",
+  "knownUnresolvedDependencyClosure": "The source-52 Japanese source SHA is not the New Moon Lockbreaker candidate proxy SHA; selected code pin is partial, dynamic dependencies and full card database not closed",
   "nativePaperQualification": {
     "root": "UNVERIFIED",
     "payment": "UNVERIFIED",
