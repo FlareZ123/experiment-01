@@ -74,6 +74,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     load('game/store/card/card-types');
   const {RetreatAction,AttackAction}=
     load('game/store/actions/game-actions');
+  const {ResolvePromptAction}=
+    load('game/store/actions/resolve-prompt-action');
   const {CheckRetreatCostEffect,CheckHpEffect}=
     load('game/store/effects/check-effects');
   const {IS_ABILITY_BLOCKED}=load('game/store/prefabs/prefabs');
@@ -177,7 +179,18 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
           accepted=true;}
         catch(error){attackError=String(error?.message??error);}
       }
+      const resolvedWaitPromptIds=[];
+      if(accepted){
+        for(let i=0;i<8;i++){
+          const pendingWait=store.state.prompts.find(p=>
+            p.result===undefined&&p.constructor.name==='WaitPrompt');
+          if(!pendingWait)break;
+          store.dispatch(new ResolvePromptAction(pendingWait.id,null));
+          resolvedWaitPromptIds.push(pendingWait.id);
+        }
+      }
       attackReceipt={attempted,accepted,attackError,before,
+        resolvedWaitPromptIds,
         after:{ownerPrizes:mine.prizes.length,
           opponentActive:enemy.active.getPokemonCard()?.fullName??null,
           opponentActiveDamage:enemy.active.damage,
