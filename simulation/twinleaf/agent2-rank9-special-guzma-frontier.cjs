@@ -2,12 +2,14 @@
 const assert=require('node:assert/strict');
 const {isGuzma,eligibleDamagingAttack}=
   require('./agent2-held-guzma-mobility-frontier.cjs');
-const {safePrintedDamageText}=
-  require('./agent31-forced-guzma-ko-frontier.cjs');
 const {publicSpecialAttackPayable}=
   require('./agent17-public-context-special-energy.cjs');
 
-const VERSION='agent2-rank9-public-special-funded-guzma-v1';
+const VERSION='agent2-rank9-public-special-funded-guzma-v2-m1l-printing';
+const CLAW_TEXT=new Set([
+  'Your opponent reveals their hand, and you discard a card you find there.',
+  'Your opponent reveals their hand. Discard a card you find there.'
+]);
 
 /**
  * The exact observed rank-9 owner-public counterfactual is deliberately
@@ -26,7 +28,7 @@ function chooseRank9SpecialFundedGuzma(view,catalog){
      !Array.isArray(own.bench)||!Array.isArray(opp.bench)||
      !Array.isArray(view.ownHand)||!own.bench.some(Boolean)||
      !opp.bench.some(Boolean)||
-     own.active.printing==='Mega Absol ex ME1'||
+     own.active.printing==='Mega Absol ex M1L'||
      r?.supporterPlayedTurn!==0||r?.supporterPlayLocked===true||
      own.publicTurnRestrictions?.supporterPlayLocked===true||
      own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
@@ -35,7 +37,7 @@ function chooseRank9SpecialFundedGuzma(view,catalog){
   if(handIndex<0)return null;
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
     const attacker=own.bench[benchIndex];
-    if(attacker?.printing!=='Mega Absol ex ME1'|| 
+    if(attacker?.printing!=='Mega Absol ex M1L'|| 
        attacker.printed?.stage!==catalog.stages?.BASIC||
        !attacker.printed?.types?.includes(catalog.basicEnergyTypes?.Darkness)||
        !attacker.energies?.some(p=>catalog.specialEnergies?.has(p)))
@@ -43,7 +45,7 @@ function chooseRank9SpecialFundedGuzma(view,catalog){
     const attack=attacker.attacks?.find(a=>a.name==='Claw of Darkness'&&
       a.damage===200&&a.damageCalculation==null&&
       eligibleDamagingAttack(attacker,a,catalog)&&
-      safePrintedDamageText(attacker,a)&&
+      CLAW_TEXT.has(a.text)&&
       publicSpecialAttackPayable(view,catalog,attacker,a));
     if(!attack)continue;
     for(let opponentBenchIndex=0;opponentBenchIndex<opp.bench.length;
