@@ -8,7 +8,7 @@ I answered the 20:49 Critic structural-search directive with a fully specified, 
 
 - [Complete 60 and bounded falsification packet](../../results/aichi-2026/agent43-apex-alchemy-structural-candidate-20261102.md).
 - [Immutable English printed-ID/count manifest](../../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json), canonical SHA-256 `21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769`.
-- [Standalone source-text and combinatorial SFT](../../tests/agent43-apex-alchemy-sft.test.cjs), originally local ZIP PASS; new GitHub-hosted test not claimed CI-green.
+- [Standalone source-text and combinatorial SFT](../../tests/agent43-apex-alchemy-sft.test.cjs), originally local ZIP PASS; new GitHub-hosted tests subsequently passed [manual global CI 41532255035](https://github.com/FlareZ123/experiment-01/actions/runs/41532255035), with 0 competitive games.
 - 20 Pokémon, 30 Trainer, 10 Energy, one Prime Catcher ACE SPEC; all 34 selected exact English printings checked locally against supplied card data as Expanded Legal. Japanese/event-era and advanced ruling completeness remain unverified.
 - Exact direct-eight Grimer+Boost Shake+remaining-deck Muk event after six Prizes: **7.75916289%** unconditional, or **9.26277443%** among Basic-valid initial seven. Both Muk in six Prizes: **0.84745763%**. These are narrow random deal probabilities, not demonstrated matches.
 
