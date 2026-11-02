@@ -46,7 +46,8 @@ const MODES=['baseline','path','silent','klefki','thorns',
  * @returns {object} Actual native reduction and dispatch receipt.
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false,
-  attackFollowup=false,nativePlayJammer=false,opponentReply=false}={}){
+  attackFollowup=false,nativePlayJammer=false,opponentReply=false,
+  nativeEndOpponentTurn=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -61,6 +62,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const opponentToolJammer=(mode.endsWith('-jammer')||
     mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
   assert.ok(!nativePlayJammer||opponentToolJammer);
+  assert.ok(!nativeEndOpponentTurn||nativePlayJammer);
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
@@ -77,7 +79,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const {GamePhase}=load('game/store/state/state');
   const {Format,CardType,SpecialCondition}=
     load('game/store/card/card-types');
-  const {RetreatAction,AttackAction}=
+  const {RetreatAction,AttackAction,PassTurnAction}=
     load('game/store/actions/game-actions');
   const {PlayCardAction,PlayerType,SlotType}=
     load('game/store/actions/play-card-action');
@@ -149,7 +151,29 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       pendingPrompts:state.prompts.filter(p=>p.result===undefined)
         .map(p=>p.constructor.name)
     };
-    state.activePlayer=sourceSeat;
+    if(nativeEndOpponentTurn&&playError===null){
+      nativeJammerPlayReceipt.nativeTurnEnd={
+        beforeTurn:state.turn,beforeSeat:state.activePlayer,
+        passError:null,resolvedWaitIds:[],afterTurn:null,afterSeat:null,
+        pendingPromptTypes:[]};
+      try{store.dispatch(new PassTurnAction(enemy.id));}
+      catch(error){nativeJammerPlayReceipt.nativeTurnEnd.passError=
+        String(error?.message??error);}
+      if(nativeJammerPlayReceipt.nativeTurnEnd.passError===null){
+        for(let i=0;i<16;i++){
+          const wait=state.prompts.find(p=>p.result===undefined&&
+            p.constructor.name==='WaitPrompt');
+          if(!wait)break;
+          store.dispatch(new ResolvePromptAction(wait.id,null));
+          nativeJammerPlayReceipt.nativeTurnEnd.resolvedWaitIds.push(wait.id);
+        }
+      }
+      nativeJammerPlayReceipt.nativeTurnEnd.afterTurn=state.turn;
+      nativeJammerPlayReceipt.nativeTurnEnd.afterSeat=state.activePlayer;
+      nativeJammerPlayReceipt.nativeTurnEnd.pendingPromptTypes=
+        state.prompts.filter(p=>p.result===undefined)
+          .map(p=>p.constructor.name);
+    }else state.activePlayer=sourceSeat;
     assert.equal(playError,null);
     assert.equal(nativeJammerPlayReceipt.attachedToTarget,true);
     assert.equal(nativeJammerPlayReceipt.inHandAfter,false);
@@ -316,6 +340,12 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       equippedStealthyHood||
       Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
+    nativeTurnBoundaryAsPaper:!nativeEndOpponentTurn||(
+      nativeJammerPlayReceipt.nativeTurnEnd.passError===null&&
+      nativeJammerPlayReceipt.nativeTurnEnd.afterSeat===sourceSeat&&
+      nativeJammerPlayReceipt.nativeTurnEnd.afterTurn>
+        nativeJammerPlayReceipt.nativeTurnEnd.beforeTurn&&
+      nativeJammerPlayReceipt.nativeTurnEnd.pendingPromptTypes.length===0),
     nativeJammerPaymentAsPaper:!nativePlayJammer||(
       nativeJammerPlayReceipt.playError===null&&
       nativeJammerPlayReceipt.attachedToTarget&&
@@ -384,6 +414,17 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runNativePlayedJammerTurnBoundaryRepair(){
+  const rows=['path-float-jammer','thorns-stealthyhood-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+      effectRepair:true,nativePlayJammer:true,nativeEndOpponentTurn:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {version:VERSION,nativePlayedJammerTurnBoundary:true,rows,
+    stagedNativeCases:rows.length,failures,failedChecks:failures.length,
+    qualifiedCompetitiveGames:0};
+}
 function runHoodOpponentReplyRepair(){
   const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
@@ -437,7 +478,9 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_HOOD_OPPONENT_REPLY_DEV==='true'?
+  const result=process.env.AGENT6_NATIVE_JAMMER_REAL_TURN_DEV==='true'?
+    runNativePlayedJammerTurnBoundaryRepair():
+    process.env.AGENT6_HOOD_OPPONENT_REPLY_DEV==='true'?
     runHoodOpponentReplyRepair():
     process.env.AGENT6_NATIVE_PLAY_TOOL_JAMMER_DEV==='true'?
     runNativePlayedJammerRepair():
@@ -451,4 +494,4 @@ if(require.main===module){
 }
 module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
   runHoodAttackRepair,runNativePlayedJammerRepair,
-  runHoodOpponentReplyRepair};
+  runHoodOpponentReplyRepair,runNativePlayedJammerTurnBoundaryRepair};
