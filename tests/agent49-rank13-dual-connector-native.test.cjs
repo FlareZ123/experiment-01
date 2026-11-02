@@ -52,15 +52,17 @@ function playPaidItem(x,printing,donor,target,seed){
     if(!prompt)break;
     let selected=null,kind=prompt.constructor.name;
     if(kind==='ChooseCardsPrompt'){
-      if(prompt.cards===owner.hand){
-        const paid=owner.hand.cards.find(c=>c.fullName===donor);
-        assert.ok(paid,'Missing paid donor');
-        selected=[paid];
-      }else{
-        assert.strictEqual(prompt.cards,owner.deck,
-          'Unexpected nonowner search');
-        selected=[found];
-      }
+      assert.equal(prompt.playerId,owner.id,'No nonowner prompts');
+      // Quick Ball exposes an owner-hand candidate list, which is not
+      // necessarily identical to owner.hand. Trace physical Card identity.
+      const paid=prompt.cards.cards.find(c=>
+        c.fullName===donor&&owner.hand.cards.includes(c));
+      const searched=prompt.cards.cards.find(c=>
+        c===found&&owner.deck.cards.includes(c));
+      if(paid)selected=[paid];
+      else if(searched)selected=[searched];
+      else throw Error('Prompt offers no owner-held payment/target: '+
+        prompt.message);
       assert.equal(prompt.validate(selected,x.state),true);
     }else if(kind==='ShuffleDeckPrompt'){
       selected=deckPermutation(owner.deck.cards.length,seededRandom(seed));
