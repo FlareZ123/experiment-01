@@ -37,7 +37,8 @@ function run(){
           strictPromptValidation:true,
           forestSealSearchCorrection:true,
           battleCompressorPositiveSelectionCorrection:true,
-          isolatePolicyRandomness:true
+          isolatePolicyRandomness:true,
+          captureFinalPublicBoard:true
         }),{
           chooseOffer:(view,offer)=>{
             assert.equal(view.decisionKind,'owner-root');
@@ -113,6 +114,21 @@ function run(){
       assert.equal(firstRecipientK1?.radiantEternatusInOwnDeck,1);
       assert.equal(firstRecipientK1?.shadowRiderVMaxInOwnDeck,2);
       assert.equal(atSourceT3?.garbodorCount,1);
+      const laterPublicRoots=(game.rootActionLedger??[]).filter(x=>
+        x.turnBefore>=3 && x.turnBefore<=12 &&
+        ['PlayCardAction','UseAbilityAction','AttackAction',
+          'PassTurnAction','RetreatAction'].includes(x.action))
+        .slice(0,90).map(x=>({
+          actionOrdinal:x.actionOrdinal,turnBefore:x.turnBefore,
+          playerSlot:x.playerSlot,action:x.action,
+          card:x.card??null,ability:x.ability??null,
+          attack:x.attack??null
+        }));
+      const settledAttacks=(game.attackTrace??[]).map(x=>({
+        turn:x.turn,seat:x.seat,activePokemon:x.activePokemon,
+        attack:x.attack,prizesBefore:x.prizeCountBefore,
+        prizesAfter:x.prizeCountAfter
+      }));
       rows.push({preferRadiantAfterBlowerSearch,
         activateRadiantClimacticGate,
         status:'native-original-K0-and-recipient-owner-K1-confirmed',
@@ -134,6 +150,19 @@ function run(){
         publicOpponentVMaxAtSourceT3:
           atSourceT3?.opponentPublicShadowRiderVMaxCount??null,
         gameFinished:game.finished===true,
+        engineEndReason:game.endReason,
+        engineWinner:game.finished?game.winner:null,
+        actionCount:game.actions,
+        lastEngineTurn:game.turns,
+        prizesRemaining:game.prizesRemaining,
+        finalPublicBoard:game.finalPublicBoard,
+        finalPendingPromptTypes:game.finalPendingPromptTypes,
+        finalPublicSlots:game.finalState.map(x=>({
+          deckRemaining:x.deckRemaining,activePokemon:x.activePokemon,
+          benchedPokemon:x.benchedPokemon
+        })),
+        settledAttacks,
+        laterPublicRoots,
         competitiveQualifiedGame:false});
     }catch(error){
       rows.push({preferRadiantAfterBlowerSearch,
@@ -161,7 +190,7 @@ function run(){
     assert.equal(chosen?.nativeMax,2);
     assert.equal(rows[2].nativeQuickBallRoots,1);
   }
-  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v2',
+  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v3-observational',
     registration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
