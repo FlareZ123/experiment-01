@@ -81,7 +81,9 @@ jobs:
 
       - name: Read-only retrospective source-visible opportunity census
         if: inputs.rank26_prerequisite_census
-        run: node simulation/twinleaf/rank26-prerequisite-census-v12.cjs > agent3-rank26-source-gates-v12.json
+        run: |
+          node simulation/twinleaf/rank26-prerequisite-census-v12.cjs > agent3-rank26-source-gates-v12.json
+          node -e "const r=require('./agent3-rank26-source-gates-v12.json');const s=r.summary;console.log('RANK26_V12_PUBLIC_GATE_SUMMARY',JSON.stringify({schema:r.schema,exactV11JsonReplay:r.exactV11JsonReplay,replayBaselineJsonSha256:r.replayBaselineJsonSha256,summary:s}));if(!r.exactV11JsonReplay||s.physicalMatches!==24||s.developmentArms!==48||s.competitiveQualifiedGames!==0)process.exitCode=1"
       - name: Archive all retrospective source-visible gate reads and failed attempts
         if: always() && inputs.rank26_prerequisite_census
         uses: actions/upload-artifact@v4
