@@ -9,9 +9,12 @@ class AddPlayerAction{constructor(id){this.id=id;}}
 class PassTurnAction{constructor(id){this.id=id;}}
 class PlayCardAction{constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}}
 class AttackAction{constructor(id){this.id=id;}}
+function slot(name=null){
+  return {getPokemonCard(){return name===null?null:{name};}};
+}
 function player(id,cards=[]){
   return {id,hand:{cards},deck:{cards:['x']},supporterTurn:0,
-    cannotPlaySupporterCards:false};
+    cannotPlaySupporterCards:false,active:slot('Active'),bench:[]};
 }
 function supporter(name,value=true){
   return {name,fullName:name+' TEST',trainerType:SUPPORTER,
@@ -63,6 +66,30 @@ test('owner-only engine affordability distinguishes held, quota, locks',()=>{
   state.players[0].supporterTurn=0;
   state.players[0].cannotPlaySupporterCards=true;
   assert.equal(ownerSupporterOpportunity(state,0,SUPPORTER).nativeNullTrueCount,0);
+});
+test('Guzma public geometry is bounded and distinguishes missing recipients',()=>{
+  const state={turn:3,activePlayer:0,prompts:[],players:[
+    player(101,[supporter('Guzma')]),
+    player(202,[supporter('Private Opponent Card')])
+  ]};
+  const hidden='Private Opponent Card TEST';
+  const empty=ownerSupporterOpportunity(state,0,SUPPORTER);
+  assert.deepEqual(empty.publicGuzmaGeometry,{
+    ownActiveOccupied:true,opponentActiveOccupied:true,
+    ownBenchCount:0,opponentBenchCount:0,
+    opponentGustTargetPresent:false,bothBenchRecipientsPresent:false
+  });
+  state.players[1].bench.push(slot('Target'));
+  const gust=ownerSupporterOpportunity(state,0,SUPPORTER);
+  assert.equal(gust.publicGuzmaGeometry.opponentGustTargetPresent,true);
+  assert.equal(gust.publicGuzmaGeometry.bothBenchRecipientsPresent,false);
+  state.players[0].bench.push(slot('Switch Recipient'),slot(null));
+  const both=ownerSupporterOpportunity(state,0,SUPPORTER);
+  assert.equal(both.publicGuzmaGeometry.ownBenchCount,1);
+  assert.equal(both.publicGuzmaGeometry.opponentBenchCount,1);
+  assert.equal(both.publicGuzmaGeometry.bothBenchRecipientsPresent,true);
+  assert.equal(both.geometryOnlyNoPaperTargetCertification,true);
+  assert.equal(JSON.stringify(both).includes(hidden),false);
 });
 test('accepted native first roots and Pass capture both seats before advancing',()=>{
   const store=new Store();
