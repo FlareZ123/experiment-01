@@ -30,7 +30,11 @@ function withRank30FundedRondoPassFork(execute,config){
     engine('game/store/actions/game-actions');
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
-  let originalStore=null,retreated=false,attacked=false;
+  // The canonical runner constructs two genuine Stores in one A/B group.
+  // AddPlayerAction is not guaranteed to traverse Store.dispatch, so acquire
+  // each native Store at an authenticated owner action instead.
+  const perStore=new WeakMap();
+  let storeOrdinal=0;
   const audit={version:VERSION,sourceSeat:config.sourceSeat,
     targetTurn:config.targetTurn,treatment:config.treatment,
     authenticPassedOwnerWindows:[],retreatAccepted:false,
@@ -39,15 +43,17 @@ function withRank30FundedRondoPassFork(execute,config){
     neverReadOpponentConcealedZones:true};
 
   function dispatch(action,...args){
-    if(action?.constructor?.name==='AddPlayerAction'&&this!==originalStore){
-      originalStore=this;retreated=false;attacked=false;
-    }
-    const genuine=this===originalStore;
-    const state=this.state,source=state.players[config.sourceSeat];
+    const state=this.state,source=state?.players?.[config.sourceSeat];
     const actionKind=action?.constructor?.name;
-    const sourceTurn=genuine&&state.activePlayer===config.sourceSeat&&
-      state.turn===config.targetTurn&&source?.id===action.playerId;
+    const sourceTurn=source?.id===action?.playerId&&
+      state.activePlayer===config.sourceSeat&&
+      state.turn===config.targetTurn;
     if(sourceTurn&&actionKind==='PassTurnAction'){
+      let session=perStore.get(this);
+      if(!session){
+        session={ordinal:++storeOrdinal,retreated:false,attacked:false};
+        perStore.set(this,session);
+      }
       audit.originalSourcePassCount++;
       const active=source.active.getPokemonCard();
       const bench=source.bench.flatMap((slot,index)=>{
@@ -57,10 +63,11 @@ function withRank30FundedRondoPassFork(execute,config){
           [{index,printing:poke.fullName,
             energies:slot.energies.cards.map(c=>c.fullName)}]:[];
       });
-      if(!retreated&&bench.length>0){
+      if(!session.retreated&&bench.length>0){
         const check=new CheckRetreatCostEffect(source);
         this.reduceEffect(state,check);
-        const window={globalTurn:state.turn,sourceSeat:config.sourceSeat,
+        const window={globalTurn:state.turn,storeOrdinal:session.ordinal,
+          sourceSeat:config.sourceSeat,
           nativeActionProposed:actionKind,
           activePrinting:active?.fullName??null,
           activeAbilities:active?.powers?.map(p=>p.name)??[],
@@ -83,7 +90,7 @@ function withRank30FundedRondoPassFork(execute,config){
           try{
             const result=previous.value.apply(this,[
               new RetreatAction(source.id,bench[0].index),...args]);
-            retreated=true;audit.retreatAccepted=true;
+            session.retreated=true;audit.retreatAccepted=true;
             audit.retreatCard=source.active.getPokemonCard()?.fullName??null;
             return result;
           }catch(error){
@@ -92,7 +99,7 @@ function withRank30FundedRondoPassFork(execute,config){
           }
         }
       }
-      if(config.treatment&&retreated&&!attacked&&
+      if(config.treatment&&session.retreated&&!session.attacked&&
          source.active.getPokemonCard()?.fullName===
            "Lillie's Clefairy ex JTG"){
         try{
@@ -100,7 +107,7 @@ function withRank30FundedRondoPassFork(execute,config){
           const before=target.damage;
           const result=previous.value.apply(this,[
             new AttackAction(source.id,'Full Moon Rondo'),...args]);
-          attacked=true;audit.attackAccepted=true;
+          session.attacked=true;audit.attackAccepted=true;
           audit.opponentActiveDamageAtAttack={
             before,after:target.damage,
             printing:target.getPokemonCard()?.fullName??null};
