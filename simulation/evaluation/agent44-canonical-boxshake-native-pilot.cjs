@@ -17,6 +17,8 @@ const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 const {withPaperSecretBoxMandatoryPayment}=
   require('../twinleaf/agent4-secret-box-paper-payment-hook.cjs');
+const {withPaperQuickBallMandatoryPayment}=
+  require('../twinleaf/agent4-quick-ball-paper-payment-hook.cjs');
 const {withSourceSecretBoxPhysicalPaymentCustody}=
   require('./agent44-secretbox-payment-custody.cjs');
 
@@ -86,11 +88,16 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
       const paymentReceipt={baseline:null,treatment:null};
       function runPaymentAware(arm){
         if(!auditSecretBoxCustody)return runMatch(request);
-        const guarded=withPaperSecretBoxMandatoryPayment(()=>
+        const executeSecretGuard=()=>withPaperSecretBoxMandatoryPayment(()=>
           withSourceSecretBoxPhysicalPaymentCustody(()=>runMatch(request),
             {Store,sourceSeat:row.sourceSeat}),
           {Store,requireLiveStore:true});
+        const quick=preBoxScout?
+          withPaperQuickBallMandatoryPayment(executeSecretGuard,
+            {Store,requireLiveStore:true}):null;
+        const guarded=quick?quick.result:executeSecretGuard();
         paymentReceipt[arm]={guard:guarded.audit,
+          quickBallGuard:quick?.audit??null,
           physicalCustody:guarded.result.audit};
         return guarded.result.result;
       }
