@@ -285,6 +285,8 @@ jobs:
           x.name==='search-plus-energy')?.energy,
           bench:r.experiments.find(x=>
           x.name==='search-plus-energy')?.coreBenchPlays,
+          mobility:r.experiments.find(x=>
+          x.name==='search-plus-energy')?.observer.mobilityWindows,
           competitive:r.competitiveQualifiedGames}));}"
       - name: Archive original physical Energy targeting differential
         if: ${{ always() && inputs.agent34_rank9_mewtwo_energy_fork }}
