@@ -25,7 +25,7 @@ function closePercent(actual, expected) {
 
 test('source identity and baseline access are fixed', () => {
   assert.equal(manifest.deck_identity_sha256,
-    '21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948d8468a769');
+    '21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769');
   const count = (name) => manifest.cards.find(c => c.name === name)?.count;
   assert.equal(count('Alolan Grimer'), 2);
   assert.equal(count('Alolan Muk'), 2);
