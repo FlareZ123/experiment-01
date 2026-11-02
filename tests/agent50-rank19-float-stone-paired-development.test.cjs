@@ -33,6 +33,20 @@ test('unobserved source deal never becomes a matched source encounter',()=>{
   assert.equal(pairRows(row({sourceDealSha256:null}),row())
     .physicalDealParity,'UNVERIFIED');
 });
+test('invalid digest strings cannot masquerade as an exact SHA-256 deal',()=>{
+  assert.equal(pairRows(
+    row({sourceDealSha256:'z'.repeat(64)}),
+    row({sourceDealSha256:'z'.repeat(64)})
+  ).physicalDealParity,'UNVERIFIED');
+  assert.equal(pairRows(
+    row({sourceDealSha256:'a'.repeat(63)}),
+    row({sourceDealSha256:'a'.repeat(63)})
+  ).physicalDealParity,'UNVERIFIED');
+});
+test('a comparison must preserve the registered seed and candidate printing 60',()=>{
+  assert.throws(()=>pairRows(row(),row({seed:177124})));
+  assert.throws(()=>pairRows(row(),row({candidateId:'new-moon-lockbreaker-v1'})));
+});
 test('a comparison cannot silently change rank trial or seat',()=>{
   assert.throws(()=>pairRows(row(),row({trialId:'19:0:A:champion-reference'})));
   assert.throws(()=>pairRows(row(),row({sourceSeat:1})));
