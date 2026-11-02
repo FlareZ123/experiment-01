@@ -15,7 +15,7 @@ const {createFullPhysicalDealObserver}=
 
 const ENGINE='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
-const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>140+i));
+const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>84+i));
 const BASE=20261102;
 const CAP=120;
 const digest=cards=>crypto.createHash('sha256')
@@ -187,11 +187,11 @@ function run(){
     competitiveGames:0
   };
   return {
-    schema:'agent3-rank26-pre-koko-owner-natural-24deal-v1',
+    schema:'agent3-rank26-pre-koko-owner-natural-24deal-v1.1',
     sourceRank:26,opponentRank:6,original60s:[60,60],
     engineRevision:ENGINE,sourceDeckDigest:digest(source),
     opponentDeckDigest:digest(opponent),
-    seedBase:BASE,repeatRange:[140,151],seats:[0,1],
+    seedBase:BASE,repeatRange:[84,95],seats:[0,1],
     maximumNativeActions:CAP,
     controlPolicy:RANK26_PROPAGATION_PROFILE,
     variantPolicy:'rank26-cologne-pre-koko-v2 opt-in over frozen source propagation',
