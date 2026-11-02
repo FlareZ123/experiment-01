@@ -6,12 +6,45 @@ const {chooseOwnedBoxFetchShake}=
   require('./agent44-secretbox-owner-prompt.cjs');
 
 const VERSION='agent44-shared-firstturn-secretbox-shake-v1';
-const FLEX_VERSION='agent44-shared-firstturn-secretbox-shake-v2-flex';
+const FLEX_VERSION='agent44-shared-firstturn-secretbox-shake-v3-physical-multiplicity';
 const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const DISCARD_PRIORITY=[
   'Battle VIP Pass','Quick Ball','Dark Patch','VS Seeker',
   'Mysterious Treasure','Ultra Ball','Iono','Carmine'
 ];
+
+/**
+ * Protect one physical copy of each indispensable hand resource.
+ * A second copy of a Tool is expendable to fund a held Basic searcher.
+ * This fixes the original rank8 source index289 failure in the prior v2
+ * policy, which protected all same-named Tools by name-only membership.
+ *
+ * @param {string[]} handNames Genuine owner hand at native cost prompt.
+ * @param {number} requiredDiscardCount Current native searcher payment.
+ * @param {string|null} toolName Tool retained for upcoming Garbodor.
+ * @returns {string[]} Exactly those physical payment names, or [].
+ */
+function selectLaterBasicDiscardNames(handNames,requiredDiscardCount,toolName){
+  assert.ok(Array.isArray(handNames));
+  assert.ok(Number.isSafeInteger(requiredDiscardCount)&&
+    requiredDiscardCount>=1&&requiredDiscardCount<=2);
+  const protectedIndices=new Set();
+  for(const required of ['Boost Shake',toolName,'Trubbish']){
+    if(!required)continue;
+    const i=handNames.findIndex((name,index)=>
+      name===required&&!protectedIndices.has(index));
+    if(i>=0)protectedIndices.add(i);
+  }
+  const available=handNames.map((name,index)=>({name,index}))
+    .filter(card=>!protectedIndices.has(card.index));
+  available.sort((a,b)=>{
+    const i=DISCARD_PRIORITY.indexOf(a.name),
+      j=DISCARD_PRIORITY.indexOf(b.name);
+    return (i<0?DISCARD_PRIORITY.length:i)-
+      (j<0?DISCARD_PRIORITY.length:j)||a.index-b.index;
+  });
+  return available.slice(0,requiredDiscardCount).map(card=>card.name);
+}
 
 /**
  * Pure K0 offer using only the actor's current hand and public board.
@@ -214,18 +247,9 @@ function withSharedFirstTurnBoxShake(execute,options={}){
       }
       if(flow.stage==='basic-search-discard'&&
          pending.constructor?.name==='ChooseCardsPrompt'){
-        const reserved=new Set(['Boost Shake',flow.toolName,'Trubbish']);
-        const available=owner.hand.cards.map((card,index)=>
-          ({name:card.name,index}))
-          .filter(card=>!reserved.has(card.name));
-        available.sort((a,b)=>{
-          const i=DISCARD_PRIORITY.indexOf(a.name),
-            j=DISCARD_PRIORITY.indexOf(b.name);
-          return (i<0?DISCARD_PRIORITY.length:i)-
-            (j<0?DISCARD_PRIORITY.length:j)||a.index-b.index;
-        });
-        const names=available.slice(0,flow.laterBasicSearcherPayment)
-          .map(card=>card.name);
+        const names=selectLaterBasicDiscardNames(
+          owner.hand.cards.map(card=>card.name),
+          flow.laterBasicSearcherPayment,flow.toolName);
         const action=names.length===flow.laterBasicSearcherPayment?
           chooseNative(pending,names,state):null;
         if(!action){
@@ -338,4 +362,5 @@ function withSharedFirstTurnBoxShake(execute,options={}){
 }
 
 module.exports={VERSION,FLEX_VERSION,DISCARD_PRIORITY,
-  firstTurnBoxOffer,witnessOpponentTurn,withSharedFirstTurnBoxShake};
+  firstTurnBoxOffer,selectLaterBasicDiscardNames,
+  witnessOpponentTurn,withSharedFirstTurnBoxShake};
