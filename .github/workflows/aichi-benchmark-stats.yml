@@ -113,6 +113,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Audit five source-printing-specific Temple Lightning attack gates
+        run: |
+          node --test tests/agent17-temple-five-lightning-originals.test.cjs
+          node scripts/agent17-temple-five-lightning-originals.cjs > agent17-temple-five-originals.json
+          node -e "const r=require('./agent17-temple-five-originals.json');if(JSON.stringify(r.focalLightningRanks)!=='[4,6,17,24,29]'||r.competitivelyQualifiedGames!==0)throw Error('Original Temple gate mismatch');console.log(JSON.stringify({allSpecial:r.sevenAllSpecial,focal:r.focalLightningRanks,qualified:r.competitivelyQualifiedGames}))"
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
         run: |
           node --test tests/agent18-missing-field-ceiling.test.cjs tests/agent18-exeggutor-opener-risk.test.cjs tests/agent18-exeggutor-prize-supply.test.cjs tests/agent18-wally-blockade-window.test.cjs tests/agent18-grand-tree-turn2-window.test.cjs tests/agent18-wally-target-paper-guard.test.cjs
