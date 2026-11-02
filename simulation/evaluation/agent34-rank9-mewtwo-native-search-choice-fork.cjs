@@ -115,6 +115,23 @@ function withOwnerSearchAlternative(execute,config){
 
 /** @param {object} row Real matched native trial row. */
 function conciseRow(row){
+  const attackRows=row.candidateAttackSettlement?.attacks??[];
+  const seat=row.candidateAttackSettlement?.candidateSeat;
+  const actualAttacks=attackRows.map(event=>{
+    const before=event.publicBoardBefore?.[seat]??null;
+    return {
+      turn:event.turnBefore,ordinal:event.actionOrdinal,
+      name:event.attackName,settled:event.settledPromptChain,
+      active:before?.active?.name??null,
+      activeEnergyNames:before?.active?.energyCards??[],
+      benchCore:(before?.bench??[]).filter(p=>p.name==='Mewtwo & Mew-GX')
+        .map(p=>({damage:p.damage,energyCards:p.energyCards})),
+      prizeDelta:!event.prizesBefore||!event.prizesAfter?null:
+        event.prizesBefore.map((count,i)=>count-event.prizesAfter[i])
+    };
+  });
+  const roots=row.rootActionLedger??[];
+  const ownRoots=roots.filter(x=>x.playerSlot===seat);
   return {
     id:row.trial?.id??null,
     candidateId:row.trial?.candidateId??null,
@@ -128,7 +145,23 @@ function conciseRow(row){
     nativeWinner:row.winner??null,
     nativeFinalPrizes:row.finalPrizes??null,
     status:row.status??null,
-    engineError:row.error??null
+    engineError:row.error??null,
+    candidateAttackProfile:{
+      declarations:row.candidateAttackSettlement?.declarations??null,
+      settled:row.candidateAttackSettlement?.settled??null,
+      activeAttackNames:actualAttacks.map(x=>x.name),
+      firstAttack:actualAttacks[0]??null,
+      firstCoreAttacks:actualAttacks.filter(x=>x.active==='Mewtwo & Mew-GX')
+        .slice(0,8),
+      firstKlefkiAttacks:actualAttacks.filter(x=>x.active==='Klefki')
+        .slice(0,8)
+    },
+    ownerRootTypeCounts:ownRoots.reduce((out,x)=>{
+      out[x.action]=(out[x.action]??0)+1;return out;
+    },{}),
+    ownerEnergyPlayRoots:ownRoots.filter(x=>
+      x.action==='PlayCardAction'&&/Energy/i.test(x.card??''))
+      .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore,card:x.card}))
   };
 }
 
