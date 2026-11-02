@@ -6,6 +6,8 @@ const {runDevelopment}=
   require('./agent41-bilateral-v2-development.cjs');
 const {save}=
   require('./agent43-guzma-original-source-pair.cjs');
+const {withUnderworldPhysicalSettlementWitness}=
+  require('../twinleaf/agent34-underworld-physical-settlement-witness.cjs');
 
 const VERSION='agent34-rank1-retrospective-underworld-actor-root-replay-v1';
 const SELECTED_GROUPS=new Set(['1:1:A','1:3:A']);
@@ -28,10 +30,13 @@ function run(){
     bilateralBasicEnergyRecipientFrontier:true};
   const prior=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
   process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV='true';
-  let control,treatment;
+  let control,treatment,underworldPhysical;
   try {
     control=runDevelopment({...fixed,actorUnderworldDoorRoot:false});
-    treatment=runDevelopment({...fixed,actorUnderworldDoorRoot:true});
+    const observed=withUnderworldPhysicalSettlementWitness(()=>
+      runDevelopment({...fixed,actorUnderworldDoorRoot:true}));
+    treatment=observed.result;
+    underworldPhysical=observed.audit;
   }finally{
     if(prior===undefined)delete process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
     else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=prior;
@@ -80,7 +85,7 @@ function run(){
     matched,allInitialDealsMatched,
     controlSummary:summarise(control.rows),
     treatmentSummary:summarise(treatment.rows),
-    control,treatment,
+    control,treatment,underworldPhysical,
     competitiveQualifiedGames:0,paperFullGameCertified:false,
     fullNativeUnderworldPromptPaymentCertified:false
   };
@@ -97,6 +102,12 @@ if(require.main===module){
       allInitialDealsMatched:outcome.allInitialDealsMatched,
       controlSummary:outcome.controlSummary,
       treatmentSummary:outcome.treatmentSummary,
+      underworldPhysicalSummary:{
+        opened:outcome.underworldPhysical.abilityPromptsOpened,
+        resolved:outcome.underworldPhysical.acceptedNativePromptResolutions,
+        complete:outcome.underworldPhysical.confirmedCompleteEffects,
+        events:outcome.underworldPhysical.events
+      },
       competitiveQualifiedGames:0
     })+'\n');
   assert.equal(outcome.allInitialDealsMatched,true,
