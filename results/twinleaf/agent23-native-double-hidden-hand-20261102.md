@@ -82,8 +82,14 @@ or one- versus two-swap receipts. Expected eligibility zero in an individual
 arm is allowed when another arm contains actual native exercise. This gate
 certifies **diagnostic execution only**.
 
-The new CI gate's integrated native verification is documented separately
-upon its follow-up run; the earlier run 41419427578 predates this CI edit.
+The follow-up [manual compiled run 41420123283](https://github.com/FlareZ123/experiment-01/actions/runs/41420123283)
+**passed** the new required gate with 4 authenticated arms, 64 attempts,
+64 successful native double exchanges, zero failed cases, 61 distinct
+successfully tested opponent-hand multisets and zero selected-action
+reversals. The archived original JSON artifact ID is `13130270585`.
+This second run uses head `59a61b2246bfa4952e2b4d512c3dc7765f1d689e`;
+it provides independent integrated CI acceptance rather than retrospectively
+changing the first run.
 
 ## Highest-value next issue
 
