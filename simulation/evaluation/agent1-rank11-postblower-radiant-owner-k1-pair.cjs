@@ -50,6 +50,7 @@ function run(){
           battleCompressorPositiveSelectionCorrection:true,
           isolatePolicyRandomness:true,
           captureFinalPublicBoard:true,
+          capturePublicAttackTransitions:true,
           captureInitialFullPhysicalDeal:true
         }),{
           chooseOffer:(view,offer)=>{
@@ -143,6 +144,15 @@ function run(){
         attack:x.attack,prizesBefore:x.prizeCountBefore,
         prizesAfter:x.prizeCountAfter
       }));
+      const latePublicRoots=(game.rootActionLedger??[])
+        .filter(x=>x.turnBefore>=29&&x.turnBefore<=46&&
+          x.action!=='ResolvePromptAction')
+        .map(x=>({
+          actionOrdinal:x.actionOrdinal,turnBefore:x.turnBefore,
+          turnAfter:x.turnAfter,playerSlot:x.playerSlot,
+          action:x.action,card:x.card??null,
+          attack:x.attack??null,ability:x.ability??null
+        }));
       rows.push({preferRadiantAfterBlowerSearch,
         radiantVmaxTargetCount,
         activateRadiantClimacticGate,
@@ -181,6 +191,9 @@ function run(){
         })),
         settledAttacks,
         laterPublicRoots,
+        latePublicRoots,
+        latePublicAttackTransitions:(game.publicAttackTransitions??[])
+          .filter(x=>x.turn>=29),
         competitiveQualifiedGame:false});
     }catch(error){
       rows.push({preferRadiantAfterBlowerSearch,
@@ -226,7 +239,7 @@ function run(){
     assert.ok(rows.every(x=>x.hypotheticalAichiPrizeCutoffs?.paperClockCertified===false),
       'Observed turn closures cannot certify an Aichi physical stopwatch');
   }
-  return {schema:'agent1-original-postblower-Radiant-native-hypothetical-open-bracket-prize-cutoffs-v7',
+  return {schema:'agent1-original-rank11-late-source-closeout-root-audit-v8',
     registration,horizonRegistration:horizon,countRegistration,clockRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
