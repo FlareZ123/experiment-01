@@ -28,4 +28,6 @@ The failure was discovered while testing a **real native Camping Gear BST** play
 
 Confirmed: pinned source uses default lexicographic `.sort()` and both genuine native 45-card shuffle prompt validations failed in the unhooked staged test. This proves the validator's defect. Whether the ordinary Twinleaf bot/Store checks that validation result in every game mode requires a separate end-to-end audit; some headless consumers may bypass it. Do not claim all native games become unplayable from this observation. The repair is deliberately default-off until native protocol verification and shared-agent review.
 
+**Native confirmation:** [compiled run 41420339475](https://github.com/FlareZ123/experiment-01/actions/runs/41420339475) passed the rank29 both-seat test after the reversible numeric validator settled actual 45-card shuffle prompts and subsequent wait prompts. Genuine Item play, selected physical card transfer, and turn termination succeeded in both native Store seats. Earlier unhooked run [41419716046](https://github.com/FlareZ123/experiment-01/actions/runs/41419716046) failed when the real shuffle validator rejected the correct numeric permutation. Neither test compares complete opponent games.
+
 At the time of this report, no competitively qualified matchup games were produced. The final 99.5% objective remains unproven.
