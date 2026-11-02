@@ -1,3 +1,11 @@
+## 2 Nov 2026 22:51Z checkpoint
+
+Original Agent2 normal lease starts 21:57:30.477374Z, must not refresh; orderly release at measured age >=70m (23:07:30.477374Z). Verified official Japanese Pokemon FAQ: Grimer evolving into Muk SUM58 while PHF Wobbuffet Active suppresses Wobbuffet, restores non-Basic abilities. Paper ruling: results/aichi-2026/agent2-muk-wobbuffet-official-ruling-20261102.md. Pinned native staged real held Muk hand PlayCardAction, both seats and Wobb Active/Bench, four cases passed CI 41538584932 with Stage VSTAR Legacy Star restored and own Basic Latias Skyliner suppressed. Native report: results/aichi-2026/agent2-muk-wobbuffet-genuine-native-hand-evolution-20261102.md. Full field 29 Basic Ability census previously reported.
+Concrete Shake4/Quick2 v1 trades Muk idealized alternate-starter opening +3.64298263pp for Grass Budew Quick-only idealized access -7.49009379pp (41.50397560→34.01388181%), all calculations exact six prizes Basic-valid first7, confirmed CI 41539275390. See results/aichi-2026/agent2-apex-alchemy-budew-search-opportunity-cost-20261102.md. Preserve original v0 as reference; game-strength implications unproven.
+Genuine Boost Shake EVS hand PlayCardAction searched Muk from actual deck, evolved just-played Grimer with real prompts, native both seats, four Wobb state tests showed exact paper Ability cascade, but CI 41539648987 failed because Shake remained absent from owner discard at observation. Raw artifact 13186915881 and tests simulation/twinleaf/agent2-muk-wobbuffet-boostshake.cjs, tests/agent2-muk-boostshake-first-grimer-turn.native.test.cjs. Diagnostic rerun 41540368753 tests pending prompts and item zone; need close action before classifying as fidelity bug. Do not qualify as full legal line. Original 29/32, qualified competitive games0, 99.5% unproven.
+
+---
+
 ## 2 November 2026 22:26 UTC | checkpoint: candidate, all29 Muk census and CI repair
 
 - Existing Agent2 lease original **21:57:30.477374Z** remains untouched, normal mode roll2/10. 22:26 runtime clock age ~29min, so **continue research** until measured >=70min (no release yet).
