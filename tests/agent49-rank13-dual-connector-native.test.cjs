@@ -78,7 +78,11 @@ function playPaidItem(x,printing,donor,target,seed){
   return seen;
 }
 
-function compare(seat,quickFirst){
+function compare(seat,mode){
+  const quickFirst=mode==='quick-v-then-treasure-vstar';
+  const treasureFirstStar=mode==='treasure-vstar-then-quick-v';
+  assert.ok(quickFirst||treasureFirstStar||
+    mode==='treasure-v-then-quick-budew');
   const {x,targets}=prepared(seat);
   const first=actorObservation(x.state,seat);
   const quick=chooseRegidragoDonorQuickBall(first);
@@ -88,26 +92,40 @@ function compare(seat,quickFirst){
   assert.equal(treasure?.targetExactDeckMembershipKnown,false);
   const firstItem=quickFirst?'Quick Ball FST':'Mysterious Treasure FLI';
   const nextItem=quickFirst?'Mysterious Treasure FLI':'Quick Ball FST';
+  const firstTarget=treasureFirstStar?'Regidrago VSTAR SIT':'Regidrago V SIT';
   const firstPrompts=playPaidItem(x,firstItem,'Salamence ex JTG',
-    'Regidrago V SIT',100+seat);
-  const index=x.owner.hand.cards.indexOf(targets.V);
-  x.store.dispatch(new PlayCardAction(x.owner.id,index,{
-    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}));
-  assert.strictEqual(x.owner.bench[1].getPokemonCard(),targets.V);
+    firstTarget,100+seat);
+  if(!treasureFirstStar){
+    const index=x.owner.hand.cards.indexOf(targets.V);
+    x.store.dispatch(new PlayCardAction(x.owner.id,index,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}));
+    assert.strictEqual(x.owner.bench[1].getPokemonCard(),targets.V);
+  }
   const secondRoot=actorObservation(x.state,seat);
   if(quickFirst){
     const selected=chooseTreasureRootIntent(secondRoot,x.catalog);
     assert.equal(selected?.printing,'Mysterious Treasure FLI');
     assert.equal(selected?.discardPrinting,'Dragapult ex TWM');
+  }else if(treasureFirstStar){
+    const selected=chooseRegidragoDonorQuickBall(secondRoot);
+    assert.equal(selected?.printing,'Quick Ball FST');
+    assert.equal(selected?.donorPrinting,'Dragapult ex TWM');
   }else{
     assert.equal(chooseRegidragoDonorQuickBall(secondRoot),null,
       'Preboard donor-first Quick Ball proposer should now be inactive');
   }
-  const secondTarget=quickFirst?'Regidrago VSTAR SIT':'Budew ASC';
+  const secondTarget=quickFirst?'Regidrago VSTAR SIT':
+    treasureFirstStar?'Regidrago V SIT':'Budew ASC';
   const secondPrompts=playPaidItem(x,nextItem,'Dragapult ex TWM',
     secondTarget,200+seat);
+  if(treasureFirstStar){
+    const index=x.owner.hand.cards.indexOf(targets.V);
+    x.store.dispatch(new PlayCardAction(x.owner.id,index,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}));
+    assert.strictEqual(x.owner.bench[1].getPokemonCard(),targets.V);
+  }
   return {
-    seat,quickFirst,firstPrompts,secondPrompts,
+    seat,mode,quickFirst,firstPrompts,secondPrompts,
     boardV:x.owner.bench[1].getPokemonCard()?.fullName,
     heldStar:x.owner.hand.cards.includes(targets.STAR),
     heldBudew:x.owner.hand.cards.includes(targets.BUDEW),
@@ -119,20 +137,23 @@ function compare(seat,quickFirst){
   };
 }
 
-for(const seat of [0,1])test('rank13 two real paid Items choice contest seat '+seat,()=>{
-  const quickFirst=compare(seat,true),treasureFirst=compare(seat,false);
-  assert.equal(quickFirst.boardV,'Regidrago V SIT');
-  assert.equal(treasureFirst.boardV,'Regidrago V SIT');
-  assert.equal(quickFirst.heldStar,true);
-  assert.equal(quickFirst.heldBudew,false);
-  assert.equal(treasureFirst.heldStar,false);
-  assert.equal(treasureFirst.heldBudew,true);
-  for(const row of [quickFirst,treasureFirst]){
+for(const seat of [0,1])test('rank13 two paid Items three target-order branches seat '+seat,()=>{
+  const quickFirst=compare(seat,'quick-v-then-treasure-vstar');
+  const treasureFirstV=compare(seat,'treasure-v-then-quick-budew');
+  const treasureFirstStar=compare(seat,'treasure-vstar-then-quick-v');
+  for(const row of [quickFirst,treasureFirstV,treasureFirstStar]){
+    assert.equal(row.boardV,'Regidrago V SIT');
     assert.equal(row.donorsPaid,true);
     assert.equal(row.itemsFinalized,true);
     assert.equal(row.promptsClear,true);
   }
+  assert.equal(quickFirst.heldStar,true);
+  assert.equal(quickFirst.heldBudew,false);
+  assert.equal(treasureFirstV.heldStar,false);
+  assert.equal(treasureFirstV.heldBudew,true);
+  assert.equal(treasureFirstStar.heldStar,true);
+  assert.equal(treasureFirstStar.heldBudew,false);
   console.log('AGENT49_DUAL_CONNECTOR_NATIVE',
-    JSON.stringify({quickFirst,treasureFirst,
+    JSON.stringify({quickFirst,treasureFirstV,treasureFirstStar,
       competitiveQualifiedGames:0,stagedOriginalSixty:false}));
 });
