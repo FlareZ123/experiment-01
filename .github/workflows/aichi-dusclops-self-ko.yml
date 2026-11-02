@@ -8,6 +8,11 @@ on:
         type: boolean
         required: false
         default: false
+      rank19_gx_choice_compare:
+        description: 'Compare exact four original rank19 source deals with same Float Stone mobility and first ADP GX preference OFF/ON'
+        type: boolean
+        required: false
+        default: false
       rank19_source_replay:
         description: 'Revisit exactly four prior original rank19 source physical games, read-only Active/root census'
         type: boolean
