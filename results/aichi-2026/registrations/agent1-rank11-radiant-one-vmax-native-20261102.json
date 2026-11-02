@@ -1,0 +1,33 @@
+{
+  "schema": "agent1-rank11-Radiant-native-VMAX-count-intervention-registration-v1",
+  "registeredAt": "2026-11-02T08:52:00Z",
+  "classification": "RETROSPECTIVE_CHOICE_COUNTS_NOT_COMPETITIVE_SAMPLE",
+  "hypothesis": "A native legal exactly-one VMAX selection in Radiant Eternatus Climactic Gate can preserve later Bench flexibility and affect the attack/prize trajectory relative to two native-selected VMAX from the same original owner deck.",
+  "opponentSourceRank": 11,
+  "opponentSeat": 0,
+  "referenceRank": 1,
+  "referenceSeat": 1,
+  "originalDecks": "Exact published original 60s; rank 11 Wataru Yano Absol/Garbodor and rank 1 Yasunori Kato Shadow Rider",
+  "seed": 2387754768,
+  "sourceOwnerK0HandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "bothPlayerPhysicalDealSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "pinnedVendorSha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "maxActions": 350,
+  "arms": [
+    "Original generic Quick Ball, no Radiant",
+    "Owner Quick Ball chooses Radiant; generic Confirm declines",
+    "Owner Quick Ball chooses Radiant; native Confirm activates and chooses two own-deck CRE VMAX",
+    "Owner Quick Ball chooses Radiant; native Confirm activates and chooses ONE own-deck CRE VMAX"
+  ],
+  "effectiveSourcePolicy": "Identical already verified K0 Oranguru StarVIP owner setup, plus original opponent Field Blower and all generic bot decisions, except exact conditional recipient Quick Ball / Confirm / VMAX count.",
+  "registeredBeforeCodeChanges": true,
+  "requiredReceipts": [
+    "Identical full original physical initial deal SHA in four arms",
+    "T2 genuine recipient Field Blower Tool removal",
+    "Source T3 genuine retool Back Order and Float Stone or explicit error",
+    "Native owner legal Confirm and own-deck selector with exactly one VMAX",
+    "Public VMAX count at opponent source T3 0/0/2/1",
+    "All 350 action game ends / caps / exceptions, resulting Prizes and attacks"
+  ],
+  "nonClaims": "No tournament clock, no qualified games, only one source-positive selected deal; do not turn developmental winners into deck ranking."
+}
