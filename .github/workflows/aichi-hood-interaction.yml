@@ -239,6 +239,10 @@ jobs:
       - name: Run retrospective original and 16 future original source physical pairs
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
         run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
+      - name: Print all paired native Box Shake outcomes
+        if: inputs.agent44_rank8_shared_boxshake_natural_pairs
+        run: >-
+          node -e "const r=require('./agent44-shared-boxshake-original-pairs.json'); console.log(JSON.stringify({schema:r.schema,historical:r.historicalPositiveSummary,prospective:r.prospectiveSummary,historicalReply:r.historicalSourceNextOpponentTurnObserved,each:r.allAttempted.map(x=>({trial:x.trial,seat:x.sourceSeat,status:x.status,offers:x.nativePolicyAudit?.offers?.length??null,complete:x.nativePolicyAudit?.completeNativeEvolutions??null,error:x.error?.message??null}))},null,2));"
       - name: Archive all original source-deal attempts and native evidence
         if: always() && inputs.agent44_rank8_shared_boxshake_natural_pairs
         uses: actions/upload-artifact@v4
