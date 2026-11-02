@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {runMatch,initializeCards}=require('../twinleaf/headless.cjs');
 const {frozenSchedule,commonSymmetricPolicy}=
@@ -12,10 +13,14 @@ const {withPaperPromptContractPortfolio,VERSION:PAPER_VERSION}=
   require('../twinleaf/agent41-paper-prompt-contract-portfolio.cjs');
 const {secretBoxPaymentNegative}=
   require('../twinleaf/agent4-secret-box-paper-payment-hook.cjs');
+const {boxShakeOpponentReplyPacket}=
+  require('./agent44-boxshake-opponent-reply-packet.cjs');
 
 const VERSION='agent4-rank8-retrospective-source-vip-box-v11-cost-contrast-v1';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
+/** @param {unknown} item */
+const digest=item=>createHash('sha256').update(JSON.stringify(item)).digest('hex');
 
 /**
  * One real live Store and paper source-marked Secret Box prompt, observed
@@ -122,7 +127,8 @@ function run(){
         sourceShakeRoots:[],sourceVipRoots:[],sourceBoxPolicy:null,
         sourceVipPolicy:null,sourceActualFirst:null,
         initialDeckHashes:null,firstTurnSlot:null,
-        rootLedgerDigest:null,actions:null,finished:null};
+        rootLedgerDigest:null,decisionTraceDigest:null,
+        sourcePublicReply:null,actions:null,finished:null};
       try{
         const observed=withRank8AuthenticK0Observer(Store,t.sourceSeat,()=>
           withSourceBoxPaymentObserver(Store,t.sourceSeat,()=>{
@@ -146,6 +152,16 @@ function run(){
         record.sourceActualFirst=game.firstTurnSlot===t.sourceSeat;
         record.actions=game.actions;
         record.finished=game.finished;
+        record.rootLedgerDigest=digest(game.rootActionLedger);
+        record.decisionTraceDigest=digest(game.decisionTrace);
+        const reply=boxShakeOpponentReplyPacket(game,
+          played.audit.box,t.sourceSeat);
+        record.sourcePublicReply={
+          strictPublicContinuationAccepted:reply.strictPublicContinuationAccepted,
+          sourceActionOrderValid:reply.sourceActionOrderValid,
+          opponentRootCount:reply.opponentRootCount,
+          nativeOfferObserved:reply.nativeOfferObserved
+        };
         const roots=game.rootActionLedger??[];
         for(const [key,name] of [
           ['sourceBoxRoots','Secret Box'],
@@ -178,6 +194,10 @@ function run(){
         'Same complete source physical deal must match after v11 toggle');
       assert.equal(control.firstTurnSlot,treatment.firstTurnSlot,
         'Identical underlying seed must produce same starter');
+      assert.equal(control.rootLedgerDigest,treatment.rootLedgerDigest,
+        'Secret Box paper guard must preserve every native public root when no invalid payment');
+      assert.equal(control.decisionTraceDigest,treatment.decisionTraceDigest,
+        'Secret Box paper guard must preserve full native decision trace when no invalid payment');
     }
     rows.push({trial:t.trial,sourceSeat:t.sourceSeat,seed:t.seed,
       sameInitialDealCertified:comparable,
