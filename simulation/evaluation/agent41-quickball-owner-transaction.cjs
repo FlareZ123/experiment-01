@@ -4,7 +4,15 @@ const assert = require('node:assert/strict');
 const {auditQuickBallPayment} = require(
   './agent41-quickball-payment-contract.cjs');
 
-const VERSION = 'agent41-quickball-owner-transaction-v2';
+const VERSION = 'agent41-quickball-owner-transaction-v3';
+
+
+/** @param {string[]|null} a @param {string[]} b @returns {boolean} */
+function samePrintedHand(a, b) {
+  if (!Array.isArray(a) || a.length !== b.length) return false;
+  const aa=[...a].sort(),bb=[...b].sort();
+  return aa.every((x,i)=>x===bb[i]);
+}
 
 /**
  * Read only accepted native Store decisions. The headless runner records
@@ -61,6 +69,9 @@ function reconcileQuickBallOwnerTransactions(evidence) {
     else if (!Number.isInteger(rootIndex) || ownHand[rootIndex] !== ownerPrinting)
       status = 'PRINTED_ROOT_HAND_INDEX_CONFLICT';
     else if (!payment) status = 'PAYMENT_PROMPT_UNVERIFIED';
+    else if (!samePrintedHand(payment.decisionHandBefore?.ownHandPrintings,
+      ownHand.filter((_,index)=>index!==rootIndex)))
+      status = 'PAYMENT_HAND_PRESTATE_CONFLICT';
     else if (payment.cardSelection.sourceZoneCardCountBefore !== ownHand.length - 1)
       status = 'PAYMENT_HAND_SIZE_CONFLICT';
     else if (payment.playerSlot !== seat ||
