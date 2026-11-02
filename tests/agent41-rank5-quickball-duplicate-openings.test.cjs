@@ -121,7 +121,8 @@ test('conditional prize placement separates expensive DCE-only openings',()=>{
 });
 
 
-test('only 45.54 percent of duplicate-eligible originals offer repeated Trainer',()=>{
+
+test('only 45.54% of duplicate-eligible originals offer repeated Trainer',()=>{
   const x=openingDuplicateCategories(sourceRank5().cards);
   assert.equal(x.eligible,36941838);
   assert.deepEqual(x.groups,{
