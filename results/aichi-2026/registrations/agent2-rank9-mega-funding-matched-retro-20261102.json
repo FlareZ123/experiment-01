@@ -1,0 +1,60 @@
+{
+  "schema": "agent2-rank9-m1l-funding-exact-source-retrospective-v1",
+  "createdBeforeNativeExecution": true,
+  "selection": "Posthoc original rank9 same source cohorts, explicit policy comparison not independent strength evidence",
+  "sourceRank": 9,
+  "sourcePrinted60Sha256": "70382b692e5c96fff6f66b390c9dc38bcca9148d64ef65a9fe9c6b54eb2100bf",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "originalTrialRegistrationBlob": "e15578d7863422c6f4bd9df751d45b1b7044f904",
+  "originalPreviouslyInspectedGuzmaRegistrationBlob": "e4e50b69bea3b3ae82dd54500ea848aa7a890eb2",
+  "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceGroups": [
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3060075246
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 690229661
+    }
+  ],
+  "unchangedCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "attemptsPerMode": 4,
+  "totalNativeAttemptsPlanned": 8,
+  "commonBaselineOptions": {
+    "actorNaturalEvolutionRoot": true,
+    "actorVipBeforeAttack": true,
+    "actorVipMegaAbsolTarget": true,
+    "bilateralKnownDeadAttackRoot": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorRank9SpecialFundedGuzma": true
+  },
+  "singleDifference": {
+    "actorRank9MegaAbsolFundingRoot": {
+      "control": false,
+      "treatment": true
+    }
+  },
+  "executableCodeGitBlobShas": {
+    "simulation/twinleaf/agent2-rank9-special-guzma-frontier.cjs": "8ae9975a2691539744da4ccc1c5925449684e373",
+    "simulation/twinleaf/agent2-rank9-mega-absol-funding.cjs": "610cc9a87f1d6524aec34e8cdf670c081bbaf4a5",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "aa085bba3841a12e1b54a639f31b30b2a2a6636e",
+    "simulation/twinleaf/agent43-guzma-prompt-continuation.cjs": "e977e7900bf716947afcc0df8fdecdffc1066520",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "3d50d95944b5fd8799663b5574197c126ab6198d",
+    "simulation/evaluation/agent41-frozen-bilateral-development-v2.json": "a79e7977cb224928068968934bbcfa9c9410e20a"
+  },
+  "samePhysicalSourceDealRequiredForPairedCausalLabels": true,
+  "competitivelyQualifiedGames": 0,
+  "sourceHandAndPrizePrivacyRequirement": true,
+  "paperActionChainQualified": false,
+  "officialClockQualified": false,
+  "allowNativeEngineTerminalAsWinRateEvidence": false
+}
