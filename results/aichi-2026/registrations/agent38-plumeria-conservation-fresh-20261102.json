@@ -1,0 +1,54 @@
+{
+  "schema": "agent38-prospective-native-plumeria-payment-conservation-v1",
+  "registeredUtc": "2026-11-02T07:07:00Z",
+  "purpose": "Precommitted independent rank6 same-source original 60 full-deal comparison: actor Plumeria payment-conservation OFF/ON, both physical seats and two fixed opposing 60s. Study real Store action changes and failed/censored cases. No game-win qualification.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalRosterBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceRank": 6,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "repeatsPerSlot": 4,
+  "originalSourceSeedGroups": 8,
+  "candidatePhysicalMatchupCases": 16,
+  "policyArms": 2,
+  "nativeAttempts": 32,
+  "nativeRootActionCap": 260,
+  "seedMethod": "8 fresh independent uniform 32-bit integer seeds drawn with Python secrets.randbelow(2**32) at 2026-11-02T07:06:21Z before executing any native games in this plan. Each seed reused only across the two opposing candidate 60s and OFF/ON policy; full physical deals must be matched within each exact candidate and two-arm pair.",
+  "seeds": {
+    "A": [
+      4242117358,
+      1898999257,
+      2742294323,
+      3398593538
+    ],
+    "B": [
+      3406624545,
+      1003248062,
+      1602990746,
+      1652852813
+    ]
+  },
+  "frozenCommonRootOptions": {
+    "actorOnlyComposition": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "nativePressureWindows": true,
+    "nativeAcceptedTargets": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootProbeAll": false,
+    "losslessNativeRootJoin": true,
+    "actorPlumeriaAfterPass": true,
+    "nativePlumeriaChoice": true
+  },
+  "singlePolicyChange": "Only AGENT38_NATIVE_PLUMERIA_PAYMENT_CONSERVATION_DEV is false versus true for identical registered deals.",
+  "requirements": "Compare all exact full starting physical deals, source deal fingerprint, control root ledger, native accepted Plumeria and prompt-settled attached Energy, and post-change Store ledger. Keep all errors, KO states, root caps, missing observations. Do not select or delete any seeds after observing outcomes.",
+  "qualification": "All 32 games are developmental with partial native effects and low-competence policies. Zero game outcomes qualify for 99.5% or paper clock regardless of native engine winner.",
+  "expectedOutput": "32 failure-inclusive original Store attempts over 16 matched pairings, 8 independent rank6 seed groups and 2 fixed candidate 60s; exact per-comparison receipt."
+}
