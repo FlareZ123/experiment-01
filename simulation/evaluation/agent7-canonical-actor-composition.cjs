@@ -188,7 +188,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withGuzmaOwnerPromptContinuation;
     const selected=bridge(runActor,
       {nominalGust:options.guzmaNominalGust===true,
-        forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true});
+        forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true,
+        mewTechnoReset:options.mewTechnoReset===true});
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Owner Guzma continuation must report a native audit');
     guzmaPromptAudit=selected.audit;
