@@ -29,6 +29,19 @@ test('same-name different printed attacks are not identical sources',()=>{
     {shared:0,replacements:2});
 });
 
+test('duplicate names printed differently are accumulated before matching',()=>{
+  const a=deck(1,'example',[
+    card('A',1,'AAA','4'),card('A',1,'BBB','7'),card('B',1)
+  ]);
+  const b=deck(2,'example',[
+    card('A',2,'AAA','4'),card('C',1)
+  ]);
+  assert.deepEqual(deckDistance(a,b,c=>c.name),
+    {shared:2,replacements:1});
+  assert.deepEqual(deckDistance(a,b,printingKey),
+    {shared:1,replacements:2});
+});
+
 test('an incomplete original roster card count is rejected',()=>{
   const a=deck(1,'example',[card('A',59)]);
   assert.throws(()=>analyzeRoster([a]),/complete 60/);
