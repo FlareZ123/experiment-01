@@ -5,6 +5,7 @@ const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {gitBlobHash}=require('./agent42-strict-profile-preflight.cjs');
 const {auditSourceClosure}=require('./agent36-source-closure-audit.cjs');
+const {sourcePrizeProgress}=require('./agent18-source-prize-progress.cjs');
 const profile=require('./agent18-rank5-selected-canary-v1.json');
 const ROOT=path.resolve(__dirname,'../..');
 
@@ -97,6 +98,11 @@ function run(chosen=profile){
       const sourceAttacks=row.sourceAttackSettlement?.settled??0;
       const sourceReplies=row.sourceAttackSettlement
         ?.withVerifiedSameEpochSourceReturn??0;
+      const payoff=(row.sourceSeat===0||row.sourceSeat===1)?
+        sourcePrizeProgress(row.sourceAttackSettlement,row.sourceSeat):null;
+      const prizeAttacks=payoff?.sourceAttacksWithNativePrizeProgress??0;
+      const prizeReturns=payoff
+        ?.actualSameEpochOpponentReturnsAfterPrizeProgress??0;
       return {
         trialId:row.trial?.id??null,status,sourceSeat:row.sourceSeat??null,
         actualStarterSeat:row.actualStarterSeat??null,
@@ -107,15 +113,19 @@ function run(chosen=profile){
         sourceSettledAttacks:sourceAttacks,
         candidateSettledAttacks:row.candidateAttackSettlement?.settled??null,
         sourceAttackOpponentVerifiedSameEpochReturns:sourceReplies,
+        nativeSourcePrizeProgress:payoff,
         PAPER_PAYMENT_VERIFIED:'UNQUALIFIED_FULL_GAME',
-        SOURCE_PAYOFF_WITNESSED:sourceAttacks>0?
-          'NATIVE_ATTACK_SETTLED_PAPER_UNQUALIFIED':'NOT_OBSERVED',
-        OPPONENT_CONTINUATION_WITNESSED:sourceReplies>0?
-          'NATIVE_SAME_EPOCH_REPLY_PAPER_UNQUALIFIED':
-          sourceAttacks>0?'NOT_OBSERVED':'NO_SOURCE_PAYOFF',
+        SOURCE_PAYOFF_WITNESSED:prizeAttacks>0?
+          'NATIVE_SOURCE_PRIZE_PROGRESS_PAPER_UNQUALIFIED':
+          sourceAttacks>0?'ATTACK_WITHOUT_NATIVE_PRIZE_PROGRESS':'NOT_OBSERVED',
+        OPPONENT_CONTINUATION_WITNESSED:prizeReturns>0?
+          'NATIVE_RETURN_AFTER_PRIZE_PROGRESS_PAPER_UNQUALIFIED':
+          prizeAttacks>0?'NO_VERIFIED_AFTER_PRIZE_OPPONENT_RETURN':
+          'NO_OBSERVED_SOURCE_PRIZE_PROGRESS',
         firstMissingQualification:row.status?'NATIVE_ERROR_OR_REJECTED_ROOT':
           sourceAttacks===0?'SOURCE_ATTACK_NOT_OBSERVED':
-          sourceReplies===0?'OPPONENT_CONTINUATION_NOT_OBSERVED':
+          prizeAttacks===0?'SOURCE_PRIZE_PROGRESS_NOT_OBSERVED':
+          prizeReturns===0?'OPPONENT_RETURN_AFTER_SOURCE_PRIZE_NOT_OBSERVED':
           'PAPER_MECHANICS_AND_OPPONENT_COMPETENCE_UNVERIFIED',
         competitiveGameQualified:false
       };
@@ -139,11 +149,14 @@ function run(chosen=profile){
           'UNVERIFIED_STATIC_OR_ACTUAL_DECK_FINGERPRINT',
         BOTH_SEATS_EXECUTED:bothSeats?'ALL_REGISTERED_ATTEMPTS_RECORDED':'INCOMPLETE',
         PAPER_PAYMENT_VERIFIED:'UNQUALIFIED_FULL_GAME',
-        SOURCE_PAYOFF_WITNESSED:armDispositions.some(x=>x.sourceSettledAttacks>0)?
-          'SOME_NATIVE_SETTLED_PAPER_UNQUALIFIED':'ZERO_SOURCE_ATTACKS',
+        SOURCE_PAYOFF_WITNESSED:armDispositions.some(x=>
+          x.nativeSourcePrizeProgress?.sourceAttacksWithNativePrizeProgress>0)?
+          'SOME_NATIVE_SOURCE_PRIZE_PROGRESS_PAPER_UNQUALIFIED':'ZERO_NATIVE_SOURCE_PRIZE_PROGRESS',
         OPPONENT_CONTINUATION_WITNESSED:armDispositions.some(x=>
-          x.sourceAttackOpponentVerifiedSameEpochReturns>0)?
-          'SOME_NATIVE_RETURNS_PAPER_UNQUALIFIED':'ZERO_VERIFIED_SOURCE_PAYOFF_REPLIES'
+          x.nativeSourcePrizeProgress
+            ?.actualSameEpochOpponentReturnsAfterPrizeProgress>0)?
+          'SOME_NATIVE_RETURNS_AFTER_PRIZE_PAPER_UNQUALIFIED':
+          'ZERO_VERIFIED_AFTER_PRIZE_SOURCE_REPLIES'
       },
       allOriginalSourceDealsEqualAcrossCandidates:result.sourcePairs?.every(
         x=>x.sameSourcePhysicalDeal===true)??false,
