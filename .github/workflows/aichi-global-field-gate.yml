@@ -68,3 +68,5 @@ jobs:
         run: node --test tests/agent46-anytime-field-mean-envelope.test.cjs
       - name: Verify matched-deal anytime candidate contrast with censored outcomes
         run: node --test tests/agent46-anytime-paired-field-delta.test.cjs
+      - name: Verify balanced-round pooled paired contrast with stronger independence
+        run: node --test tests/agent46-anytime-balanced-paired-field-delta.test.cjs
