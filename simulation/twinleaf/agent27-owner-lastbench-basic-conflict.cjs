@@ -45,14 +45,36 @@ function lastBenchShadowProposer(){
   return {name:'agent27-lastbench-same-kind',
     flag:'agent27LastBenchShadow',
     propose:(view,catalog,_options,baseline)=>{
-      const conflict=lastBenchBasicConflict(view,catalog,baseline);
-      return conflict?.omitted.map(row=>({
+      if(view?.decisionKind!=='owner-root'||
+        !(catalog?.basics instanceof Set)||
+        !(catalog?.abilityBasics instanceof Set)||
+        !Array.isArray(view.ownHand)||
+        view.ownTurnResources?.pokemonPlayLocked===true)return [];
+      const free=view.ownPublic?.bench?.flatMap((slot,i)=>
+        slot===null?[i]:[])??[];
+      if(free.length!==1)return [];
+      const eligible=view.ownHand.flatMap((printing,handIndex)=>{
+        if(!catalog.basics.has(printing)||
+          (view.ownTurnResources?.abilityPokemonPlayLocked===true&&
+            catalog.abilityBasics.has(printing)))return [];
+        return [{printing,handIndex}];
+      });
+      // A same-kind baseline already consumes this exact final Bench slot;
+      // retain only the other physical cards. A Pass, attack or attachment
+      // baseline may overlook every Basic, even with just one eligible copy.
+      const others=baseline?.kind==='bench-basic'?
+        eligible.filter(row=>row.handIndex!==baseline.handIndex):eligible;
+      return others.map(row=>({
         kind:'bench-basic',handIndex:row.handIndex,
-        printing:row.printing,benchIndex:conflict.benchIndex,
+        printing:row.printing,benchIndex:free[0],
         nativeDispatchImplemented:false,
-        reason:'same-kind-final-bench-slot-exclusion',
-        sameKindAlternativeToHandIndex:conflict.selected.handIndex
-      }))??[];
+        reason:baseline?.kind==='bench-basic'?
+          'same-kind-final-bench-slot-exclusion':
+          'unselected-final-bench-basic-opportunity',
+        ...(baseline?.kind==='bench-basic'?{
+          sameKindAlternativeToHandIndex:baseline.handIndex}:{}),
+        nativePlayability:'unverified'
+      }));
     }};
 }
 module.exports={VERSION,lastBenchBasicConflict,lastBenchShadowProposer};
