@@ -1,6 +1,6 @@
 # Agent41: proposed original rank-5 Mew VMAX same-turn Techno Blast reset via Guzma + free Retreat
 
-**2 November 2026. Mechanically reasoned ALS with locally executed owner-observation tests. No native Store execution, no verified increased attack rate, no qualified game win.**
+**2 November 2026. Mechanically reasoned ALS, owner-only pure tests and real pinned-Store staged negative gust witness. Full positive native recopy pending; no demonstrated win-rate gain or competitive game qualification.**
 
 ## Original source, exact printed inventory
 
@@ -43,3 +43,13 @@ There are `C(60,6)=50,063,860` equally likely six-card Prize sets. Exactly `48,3
 
 The count is reproducible by summing `∏_i C(n_i,k_i)` over all `k_i≥0` with `Σk_i=6` and `k_MewVMAX≤1, k_MewV≤2, k_Guzma≤1, k_DCE≤3, k_Genesect≤3`; the residual group has 43 cards. The calculation was executed using Python `math.comb` and an explicit multivariate enumeration. The 2.4254821742% probability of initially Prizing **at least two of three Mew VMAX** is the dominant individual exclusion event.
 
+
+## Native counterexample: gusting a retreat-lock opponent creates self-blocking position
+
+Real pinned Store manual [CI 41421737096](https://github.com/FlareZ123/experiment-01/actions/runs/41421737096), both physical owner seats, original Mew/Genesect printed cards, staged opponent Mimikyu PAL Active plus **Snorlax PGO 55 on Bench**. Every arm proved native first copied Techno Blast and the actual next-turn attack restriction. It then accepted held Guzma, settled both native opponent and owner `ChoosePokemonPrompt` targets, moved the original DCE Mew to Bench, and promoted the spare Mew. Both arms then rejected the ordinary zero-retreat `RetreatAction` with `BLOCKED_BY_EFFECT`.
+
+This is the correct paper result: Snorlax PGO's printed **Block Ability**, active after Guzma's gust, forbids the opposing Active Pokémon from retreating. The printed cost of zero on Mew VMAX does not override an Ability that prohibits Retreat. The pinned engine's `retreat-effect.ts` and PGO Snorlax implementation independently enforce this. It is an evidence-backed example of post-gust **lock-induced connector domination** and matchup-sensitive Active Move Realism. The naive assumption `opponentBenchIndex = weakest living Bench target` was falsified and corrected.
+
+The source Aichi Top32 registered opponent field matters here: of 29 authenticated original decklists, **rank 3 Haruto Miki Snorlax Stall contains three Snorlax PGO 55**, and **rank 7 Hiroto Fuji Snorlax Stall contains two Snorlax PGO 55**; the remaining source original ranks 23,25,28 are missing. Rank3 lists other Pokémon Galarian Stunfisk SSH, Regirock XYP, Mimikyu PAL, Girafarig LOT, Bunnelby PRC, Articuno-GX CES and Rotom V LOR; rank7 also lists Wobbuffet PHF, Mimikyu PAL, Regirock XYP, Electrike PRC and Girafarig LOT. An opponent's available Bench targets vary by live board, so these list-level counts never guarantee a non-locking Guzma target.
+
+The default-off selector now rejects a known Snorlax PGO target and conservative printed Ability text explicitly forbidding the opponent's Active from retreating. With another eligible visible opponent Benched Pokémon, it can select that alternative. This veto may be overconservative if the relevant opponent Ability is suppressed; native Store remains the authority. Additional locks outside this recognizer remain open research gaps. Two pure negative fixtures have been added to `tests/agent41-mew-techno-reset-frontier.test.cjs`. The candidate 60 remains unchanged.
