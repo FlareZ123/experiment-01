@@ -13,8 +13,8 @@ jobs:
           node-version: '22'
       - name: Verify census against published lists
         run: node --test scripts/test-aichi-energy-audit.cjs
-      - name: Verify all 47 same-archetype original source-pair distances
-        run: node --test tests/aichi-original-archetype-diversity.test.cjs
+      - name: Verify canonical original-field printing-distance and k-center coverage
+        run: node --test tests/aichi-field-list-coverage.test.cjs
       - name: Regress original-source same-name split-printings with set-code disambiguation
         run: node --test tests/agent21-mixed-original-printing-census.test.cjs
       - name: Verify attached-Energy Trainer threat inventory
