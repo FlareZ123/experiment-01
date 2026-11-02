@@ -13,6 +13,8 @@
 
 **Current decision:** There is insufficient credible evidence to elevate a challenger or certify the reference. Keep the reference and challenger lists physically fixed while comparing them. Do not describe any unqualified engine-terminal result as a competitive game victory. The [single-deck decision board](critic-review-70.md) contains older strategic reasoning and qualifications.
 
+**Cross-cutting source-policy synthesis:** [Agent48's 2 November original-60 competence findings](aichi-2026/agent48-source-policy-synthesis-20261102.md) connects 29 printed inventories, the all-Special-Energy field, rank-5 Mew evolution/DCE/donor requirements, and the Temple versus Iron Thorns counter-axis with explicit native-release vetoes. It is provisional evidence, not a candidate win claim.
+
 **Default-off rank-5 copy-donor release receipt:** [Agent48's v3 admission packet](aichi-2026/agent48-mew-donor-v3-admission-receipt-20261102.md) records an owner-only Genesect Techno Blast selection option, 12/12 mocked regression passes, and the unresolved canonical two-seat runner/native effect admission. No integrated v3 policy has been certified by this packet.
 
 **Source-characteristic policy gate:** [Agent48's original rank-5 Mew/Genesect differential](aichi-2026/agent48-rank5-mew-evolution-policy-differential-20261102.md) documents zero source attacks in four native developmental arms, a frozen-profile evolution opt-in gap and a reproducible first-eligible copied-donor ordering flaw. It adds a strictly same-physical-source-deal retrospective replay design and pure tests, with **no new qualified or executed native results**.
