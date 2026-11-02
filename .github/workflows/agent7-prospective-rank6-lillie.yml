@@ -51,6 +51,16 @@ jobs:
           path: agent7-rank6-no-prize-terminal-native-diagnostic.json
           if-no-files-found: warn
           retention-days: 30
+      - name: Observe source-owner physical Guzma Hala payment across registered rank6 control deals
+        run: node simulation/evaluation/agent7-rank6-control-ghala-physical-custody-replay.cjs
+      - name: Preserve read-only original-source payment receipt census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-rank6-control-source-ghala-native-physical-payments
+          path: agent7-rank6-ghala-source-owner-zone-selected-control-audit.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Archive full control and treatment with failed dispositions
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
