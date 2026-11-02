@@ -263,4 +263,4 @@ jobs:
           node --check simulation/twinleaf/agent41-mew-techno-reset-frontier.cjs
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/twinleaf/agent43-guzma-prompt-continuation.cjs
-          node --test tests/agent41-mew-techno-reset-frontier.test.cjs tests/agent41-mew-techno-reset-native-root.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs
+          node --test tests/agent41-mew-techno-reset-frontier.test.cjs tests/agent41-mew-techno-reset-native-root.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs tests/agent41-mew-reset-physical-receipt.test.cjs
