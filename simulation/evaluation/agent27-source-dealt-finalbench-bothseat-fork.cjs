@@ -50,11 +50,12 @@ function withExactOwnerBenchFork(execute,catalog,chosenPrinting){
     accepted:false,physicalEffect:null,requestedTurn:TURN,
     ownerSeat:SEAT,baselinePrinting:null,availableAlternatives:[],
     handIndex:null,benchIndex:null,originalActionName:null,
-    observedSourceOnly:true
+    observedSourceOnly:true,ownerObservationSha256:null,
+    ownerHandSizeAtFork:null,ownerDeckCountAtFork:null
   };
   function patchedBot(state){
     const original=oldBot.value.call(this,state);
-    if(chosenPrinting===null||receipt.selectedActionIssued||
+    if(receipt.matchedOwnerRootCount>0||receipt.selectedActionIssued||
        state!==liveStore?.state||state.turn!==TURN||
        state.activePlayer!==SEAT||state.phase!==GamePhase.PLAYER_TURN||
        state.prompts?.some(p=>p.result===undefined))return original;
@@ -69,8 +70,12 @@ function withExactOwnerBenchFork(execute,catalog,chosenPrinting){
     if(!conflict)return original;
     receipt.matchedOwnerRootCount++;
     receipt.baselinePrinting=baseline.printing;
+    receipt.ownerObservationSha256=sha(view);
+    receipt.ownerHandSizeAtFork=view.ownHand.length;
+    receipt.ownerDeckCountAtFork=view.ownPublic?.deckCount??null;
     receipt.availableAlternatives=conflict.omitted.map(x=>({
       printing:x.printing,handIndex:x.handIndex}));
+    if(chosenPrinting===null)return original;
     const other=conflict.omitted.find(x=>x.printing===chosenPrinting);
     if(!other)return original;
     intent={kind:'bench-basic',printing:other.printing,
@@ -106,6 +111,7 @@ function withExactOwnerBenchFork(execute,catalog,chosenPrinting){
   Object.defineProperty(Bot.prototype,'decodeNextAction',
     {...oldBot,value:patchedBot});
   try{return {result:execute(),receipt};}
+  catch(error){error.agent27ForkReceipt=receipt;throw error;}
   finally{
     assert.strictEqual(Store.prototype.dispatch,patchedStore);
     assert.strictEqual(Bot.prototype.decodeNextAction,patchedBot);
@@ -139,6 +145,7 @@ function run(){
         ()=>withExactOwnerBenchFork(()=>runMatch({
           deckA:decks[0],deckB:decks[1],seed:SEED,maxActions:240,...flags,
           capturePublicAttackTransitions:true,captureDecisionTrace:true,
+          captureInitialFullPhysicalDeal:true,
           capturePhysicalZoneIntegrity:true,
           enforceSettledPhysicalZoneIntegrity:true,
           enforceVisiblePlayLockBothSeats:true
@@ -147,6 +154,7 @@ function run(){
       result=staged.result.result.result;
       receipt=staged.result.result.receipt;
     }catch(e){
+      receipt=e.agent27ForkReceipt??receipt;
       error={name:e.name??'Error',code:e.code??null,
         message:String(e.message??e).slice(0,500)};
     }
@@ -188,8 +196,13 @@ function run(){
         JSON.stringify(arm.identicalOriginalSource60s),
       identicalRootPrefixLength:n,
       firstControlRoot:a[n]??null,firstForkRoot:b[n]??null,
+      matchedOwnerObservation:baseline.receipt.ownerObservationSha256!==null&&
+        baseline.receipt.ownerObservationSha256===
+          arm.receipt.ownerObservationSha256,
+      genuineNextOpponentNativeRoot:b.slice(n+1).find(x=>
+        x.playerSlot===0)??null,
       genuinelyAcceptedAlternative:arm.receipt.accepted===true,
-      sourceOpponentReplyCertified:false
+      paperPromptOrOpponentReplyCertified:false
     };
   });
   return {
