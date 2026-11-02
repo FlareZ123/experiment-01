@@ -26,4 +26,4 @@ jobs:
       - name: Pure actor-only Bellowing payment and physical transfer tests
         run: node --test tests/agent50-bellowing-public-payment.test.cjs tests/agent50-bellowing-payment-transfer.test.cjs
       - name: Native original CES48 two-seat positive Energy payment and GX damage
-        run: node --test tests/agent50-electrode-crashburn-native.test.cjs
+        run: node --test tests/agent50-electrode-crashburn-native.test.cjs tests/agent45-electrode-crashburn-paper-hook.native.test.cjs
