@@ -91,6 +91,14 @@ function executeOne(trial,byRank,donorRootEnabled){
       ['PlayCardAction','AttackAction','PassTurnAction'].includes(row.action));
     const sourceAttacks=trace.filter(row=>
       row.playerSlot===sourceSeat&&row.action==='AttackAction');
+    const donorTurns=root.ownerRootIntents.filter(row=>
+      row.seat===sourceSeat&&row.intent?.source==='rank13-dragon-donor')
+      .map(row=>row.globalTurn);
+    const donorTurn=donorTurns.length>0?Math.min(...donorTurns):null;
+    const postDonorOpponentRoots=donorTurn===null?[]:
+      opponentRootActions.filter(row=>row.turnBefore>donorTurn);
+    const postDonorSourceAttacks=donorTurn===null?[]:
+      sourceAttacks.filter(row=>row.turnBefore>donorTurn);
     const digest=createHash('sha256').update(JSON.stringify(
       game.decisionTrace??[])).digest('hex');
     return{
@@ -105,7 +113,9 @@ function executeOne(trial,byRank,donorRootEnabled){
         game.initialFullPhysicalDealFingerprint?.digestSha256??null,
       gameDecisionTraceSha256:digest,
       deckHashes:game.deckHashes,
-      gameResult:game.result??null,
+      winner:game.finished?game.winner:null,
+      endReason:game.endReason,
+      prizesRemaining:game.prizesRemaining,
       root:{
         totalActorRoots:root.selectedRootDecisions,
         acceptedActorRoots:root.acceptedActorRoots,
@@ -144,6 +154,16 @@ function executeOne(trial,byRank,donorRootEnabled){
       })).slice(0,8),
       sourceAttackCount:sourceAttacks.length,
       opponentRootCount:opponentRootActions.length,
+      postDonorContinuation:{
+        firstDonorTurn:donorTurn,
+        followingOpponentAcceptedRootCount:postDonorOpponentRoots.length,
+        firstOpponentAcceptedRoot:postDonorOpponentRoots[0]?{
+          turn:postDonorOpponentRoots[0].turnBefore,
+          action:postDonorOpponentRoots[0].action,
+          card:postDonorOpponentRoots[0].card??null
+        }:null,
+        laterSourceAttackDeclarations:postDonorSourceAttacks.length
+      },
       competitiveGameQualified:false
     };
   }catch(error){
