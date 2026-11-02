@@ -262,3 +262,91 @@ for(const seat of [0,1]){
     assert.ok(audit.rawRejectedCorrected>=1);
   });
 }
+
+
+/**
+ * Further bounded exact-original-source physical Store chain. The owner
+ * begins with Tag Call, but the hand is deliberately staged, not sampled.
+ */
+function nativeRank29TagGuzmaAttack(seat){
+ const {store,owner,opponent,publicPhysicalCount}=stage(seat);
+ const move=(from,to,c)=>{
+  const i=from.cards.indexOf(c);
+  assert.ok(i>=0);
+  from.cards.splice(i,1);to.cards.push(c);
+ };
+ const tag=owner.deck.cards.find(c=>c.fullName==='Tag Call CEC');
+ const gear=owner.hand.cards.find(c=>c.fullName==='Camping Gear BST');
+ const dce=owner.hand.cards.find(c=>c.fullName===DCE);
+ const filler=owner.deck.cards.find(c=>c.fullName!=='Tag Call CEC'&&
+  c.fullName!=='Guzma & Hala CEC'&&c.fullName!==THUNDER&&
+  c.fullName!=='Speed Lightning Energy RCL');
+ assert.ok(tag&&gear&&dce&&filler);
+ move(owner.hand,owner.deck,gear);
+ move(owner.deck,owner.hand,tag);
+ move(owner.hand,owner.deck,dce);
+ move(owner.deck,owner.hand,filler);
+ store.state.turn=2;
+ const {AttackAction}=native('game/store/actions/game-actions');
+ const pending=()=>store.state.prompts.find(p=>p.result===undefined);
+ const reply=(p,v)=>store.dispatch(new ResolvePromptAction(p.id,v));
+ const play=(c,target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0})=>{
+  const i=owner.hand.cards.indexOf(c);assert.ok(i>=0);
+  store.dispatch(new PlayCardAction(owner.id,i,target));
+ };
+ const settle=label=>{
+  for(let i=0;i<16&&pending();i++){
+   const p=pending(),type=p.constructor.name;
+   const val=type==='ShuffleDeckPrompt'?
+    deckPermutation(owner.deck.cards.length,seededRandom(3300+seat+i)):
+    type==='ShowCardsPrompt'?true:type==='WaitPrompt'?null:undefined;
+   assert.notEqual(val,undefined,label+' unexpected prompt '+type);
+   assert.equal(p.validate(val,store.state),true,label+' invalid '+type);
+   reply(p,val);
+  }
+  assert.equal(Boolean(pending()),false,label+' pending');
+ };
+ play(tag);
+ const first=pending();assert.equal(first?.constructor.name,'ChooseCardsPrompt');
+ assert.equal(first.cards,owner.deck);assert.equal(first.playerId,owner.id);
+ const gh=owner.deck.cards.find(c=>c.fullName==='Guzma & Hala CEC');
+ assert.ok(gh);assert.equal(first.validate([gh],store.state),true);
+ reply(first,[gh]);settle('Tag Call');
+ assert.ok(owner.hand.cards.includes(gh));
+ assert.ok(owner.discard.cards.includes(tag));
+ play(gh);
+ assert.equal(pending()?.constructor.name,'SelectOptionPrompt');
+ reply(pending(),1);
+ const cost=pending();assert.equal(cost?.constructor.name,'ChooseCardsPrompt');
+ assert.equal(cost.cards,owner.hand);
+ const paid=owner.hand.cards.filter(c=>c.fullName!==THUNDER).slice(0,2);
+ assert.equal(paid.length,2);
+ assert.equal(cost.validate(paid,store.state),true);
+ reply(cost,paid);
+ const search=pending();assert.equal(search?.constructor.name,'ChooseCardsPrompt');
+ assert.equal(search.cards,owner.deck);
+ const mountain=owner.deck.cards.find(c=>c.fullName===THUNDER);
+ const energy=owner.deck.cards.find(c=>c.fullName===DCE);
+ assert.ok(mountain&&energy);
+ assert.equal(search.validate([mountain,energy],store.state),true);
+ reply(search,[mountain,energy]);settle('G&H search');
+ assert.ok(paid.every(c=>owner.discard.cards.includes(c)));
+ play(mountain);
+ assert.ok(owner.stadium.cards.includes(mountain));
+ play(energy,{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0});
+ assert.ok(owner.active.energies.cards.includes(energy));
+ store.dispatch(new AttackAction(owner.id,'Volt Cyclone'));
+ settle('Volt Cyclone');
+ assert.equal(opponent.active.damage,140);
+ assert.equal(publicPhysicalCount(owner),60);
+ assert.equal(publicPhysicalCount(opponent),60);
+ return {seat,paid:paid.map(c=>c.fullName),
+  damage:opponent.active.damage,sourceOriginal60:true,qualifiedGames:0};
+}
+for(const seat of [0,1]){
+ test('rank29 Tag Call through paid G&H and Volt Cyclone seat '+seat,()=>{
+  const {result}=withNumericShufflePromptValidation(()=>nativeRank29TagGuzmaAttack(seat));
+  assert.equal(result.damage,140);
+  assert.equal(result.paid.length,2);
+ });
+}
