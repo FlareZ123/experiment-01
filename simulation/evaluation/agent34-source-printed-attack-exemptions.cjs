@@ -43,7 +43,7 @@ function censusOriginalSourceExceptions(source,sets,readCards){
       unique.get(key).ranks.push(deck.rank);
     }
   }
-  const unresolved=[],rows=[],setCache=new Map();
+  const unresolved=[],rows=[],resolved=[],setCache=new Map();
   for(const entry of unique.values()){
     const promo=PROMO_SET_ALIASES[entry.set];
     const ids=promo?[promo.id]:(byCode.get(entry.set)??[]);
@@ -70,7 +70,9 @@ function censusOriginalSourceExceptions(source,sets,readCards){
         ids,candidates:nearby});
       continue;
     }
-    const card=matches[0].card;
+    const {id:setId,card}=matches[0];
+    resolved.push({...entry,setId,cardId:card.id,
+      canonicalName:card.name,collectorNumber:String(card.number)});
     const attacks=(card.attacks??[]).map(a=>{
       const txt=a.text??'';
       const kinds=Object.entries(PATTERNS).filter(([,regex])=>
@@ -89,7 +91,7 @@ function censusOriginalSourceExceptions(source,sets,readCards){
     }]));
   return {schema:VERSION,sourceDecks:source.decks.length,
     sourcePokemonPrintings:unique.size,resolvedPrintedExceptions:rows.length,
-    unresolvedPrintingCount:unresolved.length,rows,unresolved,byKind,
+    unresolvedPrintingCount:unresolved.length,rows,resolved,unresolved,byKind,
     actualNativeEffectVerified:false,competitiveGameQualified:false,
     limitation:'Printed exception catalog only. Matchup attack usage, native behavior, and every source paper effect require independent real-Store tests.'};
 }
