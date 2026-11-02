@@ -40,6 +40,7 @@ function guzmaRecipientGeometry(event){
   const g=event?.publicGuzmaGeometry;
   if(!g||!Number.isSafeInteger(g.ownBenchCount)||
       !Number.isSafeInteger(g.opponentBenchCount)||
+      g.ownBenchCount<0||g.opponentBenchCount<0||
       g.ownActiveOccupied!==true||g.opponentActiveOccupied!==true)
     return 'geometry-unobserved';
   if(g.opponentBenchCount===0)return 'opponent-bench-empty';
