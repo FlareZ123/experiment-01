@@ -107,6 +107,8 @@ function scanPolicySourceClosure(repoRoot,roots){
     computedRequireShapeCounts:Object.fromEntries([...new Set(
       computedRequireSites.map(site=>site.shape))].sort().map(shape=>[
       shape,computedRequireSites.filter(site=>site.shape===shape).length])),
+    nonPathJoinComputedRequires:computedRequireSites.filter(site=>
+      site.shape!=='path.join').sort(sort),
     externalPackages:externalPackages.sort(sort),
     fullTransitiveBehaviorCertified:false,
     staticLocalCommonJsOnly:true,
