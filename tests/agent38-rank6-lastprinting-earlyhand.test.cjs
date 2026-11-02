@@ -83,3 +83,21 @@ test('no duplicate printings cannot pay conservatively',()=>{
   });
   assert.equal(got.paymentAllowedWeighted,'0');
 });
+
+test('other authenticated original Iron Thorns printed sixties',()=>{
+  const originals=require('../results/aichi-2026/full-decklists.json').decks;
+  const expected=[
+    [24,0.033027166135889803,0.06962328880775831],
+    [29,0.030194520046413,0.06293311926133287]
+  ];
+  for(const [rank,p7,p8] of expected){
+    const deck=originals.find(d=>d.rank===rank);
+    assert.ok(deck);
+    for(const [n,p] of [[7,p7],[8,p8]]){
+      const got=countEarlyHands({cards:deck.cards,observedSize:n,
+        openingSize:7,basicName:'Iron Thorns ex',
+        supporterName:'Plumeria'});
+      assert.ok(Math.abs(got.conditionalPaymentRate-p)<1e-12);
+    }
+  }
+});
