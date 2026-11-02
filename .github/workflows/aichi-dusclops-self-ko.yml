@@ -84,6 +84,20 @@ jobs:
           path: agent50-rank19-source-float-mobility-paired.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Recompare same four original rank19 source deals with native ADP GX preference only
+        if: inputs.rank19_gx_choice_compare
+        run: node simulation/evaluation/agent28-rank19-adp-gx-vs-ray-paired.cjs > agent28-rank19-adp-gx-vs-ray-native.json
+      - name: Print same-deal source ADP GX versus Ray native actions and Prize outcomes
+        if: inputs.rank19_gx_choice_compare
+        run: node -e "const x=require('./agent28-rank19-adp-gx-vs-ray-native.json');console.log('AGENT28_RANK19_ADP_GX_NATIVE',JSON.stringify({n:x.attemptedArms,matches:x.exactSourceDealMatches,pairs:x.pairs.map(p=>({trial:p.trialId,deal:p.physicalDealParity,control:{status:p.control.status,winner:p.control.nativeWinner,attacks:p.control.sourceAttackSettlement?.attacks,board:p.control.finalPublicBoard},treatment:{status:p.treatment.status,winner:p.treatment.nativeWinner,attacks:p.treatment.sourceAttackSettlement?.attacks,board:p.treatment.finalPublicBoard,roots:p.treatment.sourceRootActions.filter(r=>r.action==='AttackAction'),post:p.treatment.postRetreat}}))}))"
+      - name: Archive source ADP GX versus Ray native paired receipts
+        if: always() && inputs.rank19_gx_choice_compare
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent28-rank19-adp-gx-vs-ray-native
+          path: agent28-rank19-adp-gx-vs-ray-native.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Reobserve exactly four archived original rank19 source games without policy changes
         if: inputs.rank19_source_replay
         run: node simulation/evaluation/agent28-rank19-original-source-active-retrospective.cjs > agent28-rank19-source-active-native.json
