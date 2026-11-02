@@ -365,6 +365,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseRaichuPrintedKnockoutAttachment(view,catalog);
     if(proposed)return proposed;
   }
+  // Exact rank-9 Special Energy + Darkness Weakness Guzma opportunity.
+  // Default OFF; native Store must prove both targets and real damage.
+  if(options.rank9SpecialFundedGuzma===true){
+    const special=require('./agent2-rank9-special-guzma-frontier.cjs')
+      .chooseRank9SpecialFundedGuzma(view,catalog);
+    if(special)return special;
+  }
   // Experimental nonfinal Prize trade: still only an owner-public nominal KO.
   if(options.prizeTradeGuzma===true){
     const gust=require('./agent31-final-prize-guzma-frontier.cjs')
@@ -679,6 +686,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
+    rank9SpecialFundedGuzmaOptIn:deps.rank9SpecialFundedGuzma===true,
     forcedGuzmaNominalKoOptIn:deps.forcedGuzmaNominalKo===true||
       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
     finalPrizeGuzmaOptIn:deps.finalPrizeGuzma===true||
@@ -974,6 +982,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.heldGuzmaMobilityOptIn)
     audit.version+='+'+
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
+  if(audit.rank9SpecialFundedGuzmaOptIn)
+    audit.version+='+'+require('./agent2-rank9-special-guzma-frontier.cjs').VERSION;
   if(audit.forcedGuzmaNominalKoOptIn)
     audit.version+='+'+
       require('./agent31-forced-guzma-ko-frontier.cjs').VERSION;
@@ -1151,6 +1161,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
+      rank9SpecialFundedGuzma:audit.rank9SpecialFundedGuzmaOptIn,
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
