@@ -13,6 +13,11 @@ on:
         type: boolean
         required: true
         default: false
+      crobatRetreatPair:
+        description: Run registered source Crobat V DCE retreat to powered Mew VMAX comparison
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -31,7 +36,8 @@ jobs:
           node --check simulation/evaluation/agent9-rank5-quickball-same-revision-pair.cjs
           node --check simulation/evaluation/agent9-rank5-quickball-four-scope.cjs
           node --check simulation/evaluation/agent9-rank5-quickball-payment-pair.cjs
-          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs tests/agent9-rank5-quickball-four-scope.test.cjs tests/agent9-rank5-quickball-payment-pair.test.cjs
+          node --check simulation/evaluation/agent9-rank5-crobat-retreat-pair.cjs
+          node --test tests/agent8-actor-quick-ball-root.test.cjs tests/agent9-rank5-original-trainer-source-plays.test.cjs tests/agent9-rank5-quickball-four-scope.test.cjs tests/agent9-rank5-quickball-payment-pair.test.cjs tests/agent9-crobat-dce-mew-retreat.test.cjs
       - name: Resolve exact pinned Twinleaf Store
         run: |
           git submodule update --init --depth=1 vendor/twinleaf
@@ -43,12 +49,12 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Execute all sixteen preregistered same-revision Quick Ball OFF and ON attempts
-        if: ${{ !inputs.fourScope && !inputs.paymentPair }}
+        if: ${{ !inputs.fourScope && !inputs.paymentPair && !inputs.crobatRetreatPair }}
         run: |
           node simulation/evaluation/agent9-rank5-quickball-same-revision-pair.cjs > agent9-rank5-quickball-controlled-pair-16arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-controlled-pair-16arm.json');a.equal(r.nativeAttemptCount,16);a.equal(r.pairs.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('SOURCE_QUICKBALL_CENSUS',JSON.stringify(r.pairs,null,2));"
       - name: Preserve every original source native result, including capped and errored
-        if: ${{ always() && !inputs.fourScope && !inputs.paymentPair }}
+        if: ${{ always() && !inputs.fourScope && !inputs.paymentPair && !inputs.crobatRetreatPair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank5-quickball-same-revision-pair-16arm
@@ -56,12 +62,12 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Run registered four-scope source/candidate isolation
-        if: ${{ inputs.fourScope && !inputs.paymentPair }}
+        if: ${{ inputs.fourScope && !inputs.paymentPair && !inputs.crobatRetreatPair }}
         run: |
           node simulation/evaluation/agent9-rank5-quickball-four-scope.cjs > agent9-rank5-quickball-four-scope-32arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-four-scope-32arm.json');a.equal(r.nativeAttemptCount,32);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);a.equal(r.physicalMatches,8);console.log('FOUR_SCOPE_MATCHED_NATIVE_BLOCKS',r.blocks.length,'CERTIFIED',r.competitiveQualifiedGames);"
       - name: Preserve every scoped native outcome and error
-        if: ${{ always() && inputs.fourScope && !inputs.paymentPair }}
+        if: ${{ always() && inputs.fourScope && !inputs.paymentPair && !inputs.crobatRetreatPair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank5-quickball-four-scope-32arm
@@ -69,15 +75,28 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Run registered source-only Quick Ball owner-payment repair pair
-        if: ${{ inputs.paymentPair && !inputs.fourScope }}
+        if: ${{ inputs.paymentPair && !inputs.fourScope && !inputs.crobatRetreatPair }}
         run: |
           node simulation/evaluation/agent9-rank5-quickball-payment-pair.cjs > agent9-rank5-quickball-payment-pair-16arm.json
           node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-quickball-payment-pair-16arm.json');a.equal(r.nativeAttemptCount,16);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('OWNER_PAYMENT_MATCHED_PAIRS',r.matchedPhysicalPairs);"
       - name: Preserve every native Quick Ball owner-payment trial
-        if: ${{ always() && inputs.paymentPair && !inputs.fourScope }}
+        if: ${{ always() && inputs.paymentPair && !inputs.fourScope && !inputs.crobatRetreatPair }}
         uses: actions/upload-artifact@v4
         with:
           name: agent9-rank5-quickball-payment-pair-16arm
           path: agent9-rank5-quickball-payment-pair-16arm.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Run registered Crobat DCE retreat from stranded Active to Mew VMAX
+        if: ${{ inputs.crobatRetreatPair && !inputs.fourScope && !inputs.paymentPair }}
+        run: |
+          node simulation/evaluation/agent9-rank5-crobat-retreat-pair.cjs > agent9-rank5-crobat-dce-retreat-16arm.json
+          node -e "const a=require('node:assert/strict'),r=require('./agent9-rank5-crobat-dce-retreat-16arm.json');a.equal(r.nativeAttemptCount,16);a.equal(r.blocks.length,8);a.equal(r.competitiveQualifiedGames,0);console.log('CROBAT_MOBILITY_MATCHED_PAIRS',r.matchedPhysicalPairs);"
+      - name: Preserve every original Crobat Mew retreat native attempt
+        if: ${{ always() && inputs.crobatRetreatPair && !inputs.fourScope && !inputs.paymentPair }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-rank5-crobat-dce-retreat-16arm
+          path: agent9-rank5-crobat-dce-retreat-16arm.json
           if-no-files-found: warn
           retention-days: 30
