@@ -188,7 +188,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withGuzmaOwnerPromptContinuation;
     const selected=bridge(runActor,
       {nominalGust:options.guzmaNominalGust===true,
-        forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true});
+        forcedGuzmaNominalKo:options.guzmaForcedNominalKo===true,
+        rank9SpecialFundedGuzma:options.rank9SpecialFundedGuzma===true});
     assert.ok(selected.audit && typeof selected.audit==='object',
       'Owner Guzma continuation must report a native audit');
     guzmaPromptAudit=selected.audit;
@@ -237,6 +238,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Actor ChoosePokemon option requires an executed adapter');
   if(options.guzmaOwnerPromptContinuation===true)assert.ok(guzmaPromptAudit,
     'Enabled owner Guzma continuation must report native evidence');
+  assert.ok(options.rank9SpecialFundedGuzma!==true||
+    options.guzmaOwnerPromptContinuation===true,
+    'Rank9 Special-funded Guzma root requires native both-target bridge');
   assert.ok(options.guzmaForcedNominalKo!==true||
     options.guzmaOwnerPromptContinuation===true,
     'Forced Guzma root must share its native prompt continuation');
@@ -319,6 +323,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     guzmaOwnerPromptContinuationOptIn:options.guzmaOwnerPromptContinuation===true,
     guzmaNominalGustOptIn:options.guzmaNominalGust===true,
     guzmaForcedNominalKoOptIn:options.guzmaForcedNominalKo===true,
+    rank9SpecialFundedGuzmaOptIn:options.rank9SpecialFundedGuzma===true,
     genericFallbackAttributionOptIn:genericFallbackAttribution,
     selectedHandlerPriority: [
       ...(ownerVipBeforeAttackAudit?['OwnerAttackContendedVipFirstTurn']:[]),
