@@ -67,5 +67,8 @@ test('bundled set and collector number strictly distinguish versions',()=>{
   assert.equal(newer.name,'Dusknoir');
   assert.notEqual(old.id,newer.id);
   assert.notDeepEqual(old.abilities,newer.abilities);
-  assert.throws(()=>resolve('PRE','not-a-card'),/Unknown card printing/);
+  // LOR is shared by the main set and the Trainer Gallery subset.
+  assert.equal(resolve('LOR','52','Pikachu').id,'swsh11-52');
+  assert.equal(resolve('LOR','TG05','Pikachu').id,'swsh11tg-TG05');
+  assert.throws(()=>resolve('PRE','not-a-card'),/Missing or ambiguous card printing/);
 });
