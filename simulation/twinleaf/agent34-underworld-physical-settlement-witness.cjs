@@ -39,13 +39,15 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   let live=null,game=0,ordinal=0;
-  const awaitingByOwner=new Map(),events=[],opened=[];
+  const awaitingByOwner=new Map(),events=[],opened=[],rejected=[];
   const summary=()=>({
     version:VERSION,gamesSeen:game,
     abilityPromptsOpened:opened.length,
     acceptedNativePromptResolutions:events.length,
     confirmedCompleteEffects:events.filter(e=>e.fullPhysicalEffect).length,
-    opened,events,sourceOwnHandOnly:true,
+    opened,events,rejected,
+    rejectedNativeAttachEnergyPrompts:rejected.length,
+    sourceOwnHandOnly:true,
     opponentsHiddenZonesNeverRead:true,
     competitiveGameQualified:false
   });
@@ -88,7 +90,39 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
       context.entry.promptId=prompt.id;
       const owner=this.state.players.find(p=>p.id===context.ownerId);
       const before=ownerSnapshot(owner,context.source,psychicType);
-      const native=original.value.apply(this,[action,...args]);
+      let native;
+      try{
+        native=original.value.apply(this,[action,...args]);
+      }catch(error){
+        // Rejected native prompt answers remain evidence of bot-policy
+        // failures. This witness consults only the acting owner's printed
+        // Bench geometry and the energy the owner offered to transfer.
+        // It does not disclose opposing concealed zones or raw card IDs.
+        const attempted=Array.isArray(action.result)?
+          action.result.map(assignment=>{
+            const target=assignment?.to;
+            const ownBench=target?.player===PlayerType.BOTTOM_PLAYER&&
+              target.slot===SlotType.BENCH&&
+              Number.isSafeInteger(target.index)?
+              before.bench[target.index]:null;
+            return {
+              toOwnBench:Boolean(ownBench),
+              ownBenchIndex:ownBench?target.index:null,
+              ownerVisibleRecipient:ownBench?.pokemon??null,
+              printedPsychic:ownBench?.printedPsychic??null,
+              offeredEnergyPrinting:assignment?.card?.fullName??null
+            };
+          }):null;
+        rejected.push({
+          ...context.entry,promptDispatchOrdinal:ordinal,
+          nativePromptRejected:true,
+          offeredAssignmentCount:attempted?.length??null,
+          attempted,
+          errorClass:error?.constructor?.name??null,
+          noOpponentConcealedZonesRead:true
+        });
+        throw error;
+      }
       const after=ownerSnapshot(owner,context.source,psychicType);
       awaitingByOwner.delete(context.ownerId);
       const changed=before.bench.map((slot,index)=>{
