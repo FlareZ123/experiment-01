@@ -148,7 +148,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     // Native physical effect proof for draw Stadiums alone needs deck size.
     // A paid Retreat or unrelated owner root must not open a hidden deck.
     deckCount:intent.kind==='use-tropical-beach'||
-      intent.kind==='use-players-ceremony'?
+      intent.kind==='use-players-ceremony'||
+      intent.kind==='use-farewell-letter'?
       owner.deck?.cards?.length??null:null,
     stadiumUsedTurn:owner.stadiumUsedTurn,
     inPlayStadiumPrintings:state.players.flatMap(p=>
@@ -181,6 +182,12 @@ function rootPhysicalSnapshot(state,seat,intent){
     targetEnergies:energyRecipient?.energies?.cards.map(c=>c.fullName)??null,
     benchPrinting:intent.kind==='bench-basic'?
       owner.bench[intent.benchSlot].getPokemonCard()?.fullName??null:null,
+    ...(intent.kind==='use-farewell-letter'?{
+      farewellBenchPrinting:
+        owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
+      farewellDiscardCount:owner.discard.cards.filter(card=>
+        card.fullName===intent.printing).length
+    }:{}),
     ...(intent.kind==='play-seeker-get-lillie'?{
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
         .filter(card=>card.fullName===intent.printing).length
@@ -222,6 +229,16 @@ function rootPhysicalSnapshot(state,seat,intent){
  * @returns {'confirmed-public-effect'|'no-confirmed-public-effect'|'attack-needs-declaration'}
  */
 function rootPhysicalWitness(intent,before,after,GamePhase){
+  if(intent.kind==='use-farewell-letter'){
+    // Exact native post-Ability conservation: naked Bench Unown enters its
+    // public discard without a KO; one card is drawn from the owner's deck.
+    return before.farewellBenchPrinting===intent.printing&&
+      after.farewellBenchPrinting===null&&
+      after.farewellDiscardCount===before.farewellDiscardCount+1&&
+      after.deckCount===before.deckCount-1&&
+      after.handCount===before.handCount+1?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
   if(intent.kind==='evolve-pokemon')return before.evolutionTop===intent.from&&after.evolutionTop===intent.printing&&after.evolutionLayers===before.evolutionLayers+1?'confirmed-public-effect':'no-confirmed-public-effect';
   if(intent.kind==='bench-basic'){
     return before.benchPrinting===null&&
