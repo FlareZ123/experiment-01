@@ -21,7 +21,7 @@ These rows use **different allowed action sets**. The last excludes a T2 Support
 
 The exact counting enumerates first-seven card categories from the original fixed 60, retaining the mandatory Basic/Gear/Beach groups, and then all six-Prize combinations among the remaining 53. For each opener, exclude Prize sets containing the unheld DCE or unheld Thunder. Also exclude Prize sets containing both G&H if neither G&H was initially in hand. The result is **5,275,304** admissible coheld starting seven-card hands and **22,957,480** equally sized six-Prize combinations per hand. No independent draws are incorrectly treated as replacement sampling.
 
-Reproduction: [exact source-count enumeration](../../simulation/evaluation/agent33-rank29-guzma-hala-prize-reachability.cjs) and [source-identity regression](../../tests/agent33-rank29-guzma-hala-prize-reachability.test.cjs). An independent Python random-permutation check of 450,000 physical deals found 6,164 coheld openings and 79.33% satisfying the source-location event, consistent with the exact 79.15% at its sampling precision.
+Reproduction: the [fast four-file manual GitHub Actions test run 41418887541](https://github.com/FlareZ123/experiment-01/actions/runs/41418887541) completed successfully on Node20 without Twinleaf compilation. [Exact source-count enumeration](../../simulation/evaluation/agent33-rank29-guzma-hala-prize-reachability.cjs) and [source-identity regression](../../tests/agent33-rank29-guzma-hala-prize-reachability.test.cjs). An independent Python random-permutation check of 450,000 physical deals found 6,164 coheld openings and 79.33% satisfying the source-location event, consistent with the exact 79.15% at its sampling precision.
 
 ## AMR and opponent-policy limitations
 
