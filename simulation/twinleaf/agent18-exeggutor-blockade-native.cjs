@@ -108,7 +108,7 @@ function probe(sourceSeat){
     opponent.id,owner().hand.cards.indexOf(supporter),
     {player:PlayerType.ANY,slot:SlotType.BOARD,index:0}
   ));
-  assert.throws(attempt,/CANNOT_PLAY_THIS_CARD/,
+  assert.throws(attempt,/BLOCKED_BY_EFFECT/,
     'Attack-applied player lock must reject genuinely held Supporter');
   assert.deepEqual({
     hand:owner().hand.cards.map(c=>c.fullName),
