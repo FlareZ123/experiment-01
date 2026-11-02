@@ -63,7 +63,7 @@ test('accepted native prompt choice of singleton remains distinctly flagged',()=
 
 test('identical root physically choosing repeated DCE satisfies only narrow duplicate claim',()=>{
   const x=reconcileQuickBallOwnerTransactions(fixture('Double Colorless Energy SUM'));
-  assert.equal(x.rows[0].status,'PROTECTED_DUPLICATE_PAYMENT');
+  assert.equal(x.rows[0].status,'DUPLICATE_PRINTING_PAYMENT');
   assert.equal(x.rows[0].paymentCopiesBefore,2);
   assert.equal(x.rows[0].paymentCopiesAfter,1);
   assert.equal(x.rows[0].nativePaymentChoiceAccepted,true);
