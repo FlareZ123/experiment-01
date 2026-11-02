@@ -37,6 +37,8 @@ test('source identity and baseline access are fixed', () => {
   closePercent(base.searchAssistedUnconditional, 24.00755909);
   closePercent(base.directAmongBasicValid, 9.26277443);
   closePercent(base.searchAssistedAmongBasicValid, 23.08980144);
+  closePercent(base.directWithOtherBasicStarterAmongBasicValid, 6.29698142);
+  closePercent(base.searchAssistedWithOtherBasicStarterAmongBasicValid, 20.12400842);
 });
 
 test('exact marginal one-slot opportunities and two-slot interaction', () => {
@@ -58,6 +60,21 @@ test('exact marginal one-slot opportunities and two-slot interaction', () => {
     scenario({ grimer: 3 }).searchAssistedAmongBasicValid);
   assert.ok(scenario({ grimer: 3 }).directAmongBasicValid >
     scenario({ shake: 4 }).directAmongBasicValid);
+  const otherStarterCases = [
+    [{}, 6.29698142, 20.12400842],
+    [{ shake: 4 }, 8.00247627, 25.50231562],
+    [{ grimer: 3 }, 8.69784572, 20.79412385],
+    [{ muk: 3 }, 6.49831656, 20.79968909],
+    [{ quick: 4 }, 6.29698142, 21.34563485],
+    [{ shake: 4, grimer: 3 }, 11.04887125, 26.34163877]
+  ];
+  for (const [copies, direct, assisted] of otherStarterCases) {
+    const observed = scenario(copies);
+    closePercent(observed.directWithOtherBasicStarterAmongBasicValid, direct);
+    closePercent(observed.searchAssistedWithOtherBasicStarterAmongBasicValid, assisted);
+    assert.ok(observed.searchAssistedWithOtherBasicStarterAmongBasicValid >=
+      observed.directWithOtherBasicStarterAmongBasicValid);
+  }
 });
 
 test('mulligan and Prize conditioning remain explicit', () => {
@@ -82,7 +99,9 @@ console.log('APEX_ALCHEMY_OPENING_SLOT_FRONTIER ' + JSON.stringify({
   scenarios: variants.map(([name, copies]) => ({
     name, copies,
     directPercentBasicValid: 100 * scenario(copies).directAmongBasicValid,
-    searchPercentBasicValid: 100 * scenario(copies).searchAssistedAmongBasicValid
+    searchPercentBasicValid: 100 * scenario(copies).searchAssistedAmongBasicValid,
+    searchWithOtherBasicStarterPercentBasicValid:
+      100 * scenario(copies).searchAssistedWithOtherBasicStarterAmongBasicValid
   })),
   evidence: 'exact opening opportunity only; substitutions unregistered; zero games'
 }));
