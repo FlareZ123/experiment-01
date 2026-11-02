@@ -28,6 +28,8 @@ jobs:
         run: node --test tests/agent27-shadow-choice-reconciliation.test.cjs
       - name: Verify paired source repair receipt summarizer (pure tests)
         run: node --test tests/agent27-native-attach-summary.test.cjs
+      - name: Verify real source Energy to attack and opponent-root join (pure tests)
+        run: node --test tests/agent27-energy-attack-continuation.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
