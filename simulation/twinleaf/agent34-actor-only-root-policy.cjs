@@ -342,6 +342,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseOwnerSkylinerRondoRetreat(view,catalog);
     if(rondo)return rondo;
   }
+  if(options.mewDceRetreat===true){
+    const proposed=require('./agent13-owner-mew-dce-retreat.cjs')
+      .chooseOwnerMewDceRetreat(view,catalog);
+    if(proposed)return proposed;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -596,6 +601,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT30_PERFECTION_ROOT_DEV==='true'),
     perfectionTransitionRootOptIn:deps.perfectionTransitionRoot??
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
+    mewDceRetreatOptIn:deps.mewDceRetreat===true,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
     skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
@@ -849,6 +855,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.skylinerRondoRetreatOptIn;
     delete audit.skylinerRondoRetreatOwnerSeat;
   }
+  if(audit.mewDceRetreatOptIn)
+    audit.version+='+'+require('./agent13-owner-mew-dce-retreat.cjs').VERSION;
+  else delete audit.mewDceRetreatOptIn;
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
@@ -1060,6 +1069,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
+      mewDceRetreat:audit.mewDceRetreatOptIn,
       skylinerRondoRetreat:audit.skylinerRondoRetreatOptIn===true&&
         actorSpecialEnergyEnabled(true,
           audit.skylinerRondoRetreatOwnerSeat,seat),
