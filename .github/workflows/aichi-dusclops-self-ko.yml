@@ -50,6 +50,8 @@ jobs:
         run: node --test tests/agent28-rank19-original-floatstone-promote-native.test.cjs
       - name: Verify rank19 owner Tool-array census in native public-board view
         run: node --test tests/agent50-rank19-native-original-tool-census.test.cjs
+      - name: Verify rank19 actor-visible ADP boosted GX resource window
+        run: node --test tests/agent28-rank19-adp-post-retreat-gx-window.test.cjs
       - name: Verify rank19 paired physical-deal classification before native execution
         run: node --test tests/agent50-rank19-float-stone-paired-development.test.cjs
       - name: Compare authentic four rank19 source deals under source-only Float Stone mobility
