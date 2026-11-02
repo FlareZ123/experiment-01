@@ -179,7 +179,7 @@ jobs:
       - name: Regress original native generic fallback prompt stage and owner accounting
         run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs tests/agent50-native-prompt-before-attack-diff.test.cjs tests/agent50-source-group-sign-sensitivity.test.cjs
       - name: Audit deck-name incidence and VIP hand-entry provenance
-        run: node --test tests/aichi-source-incidence.test.cjs tests/agent9-vip-bench-entry-provenance.test.cjs tests/agent9-vip-source-archive-trigger-crosscheck.test.cjs tests/agent9-rank5-vip-owner-search-vs-genesect.test.cjs tests/agent9-rank5-vip-crobat-genesect-exact-partition.test.cjs tests/agent9-vip-owner-alternatives-readonly.test.cjs tests/agent9-rank5-vip-prize-bench-window.test.cjs
+        run: node --test tests/aichi-source-incidence.test.cjs tests/agent9-vip-bench-entry-provenance.test.cjs tests/agent9-vip-source-archive-trigger-crosscheck.test.cjs tests/agent9-rank5-vip-owner-search-vs-genesect.test.cjs tests/agent9-rank5-vip-crobat-genesect-exact-partition.test.cjs tests/agent9-vip-owner-alternatives-readonly.test.cjs tests/agent9-rank5-vip-prize-bench-window.test.cjs tests/agent9-v31-genesect-ability-archive-census.test.cjs
       - name: Attest all 32 original rank and archetype identities with exact published printing inventories
         run: node --test tests/agent13-source-identity-gate.test.cjs
       - name: Fail closed on skipped native printed-card fixtures before competitive release
@@ -227,6 +227,11 @@ jobs:
         run: |
           node simulation/evaluation/agent12-rank5-printed-techno-blast-calibration.cjs agent12-rank5-archive/agent13-rank5-v31-native-16arm.json > agent12-rank5-native-printed-calibration.json
           node -e "const a=require('node:assert/strict');const r=require('./agent12-rank5-native-printed-calibration.json');console.log(JSON.stringify({version:r.version,sourceOriginalRank:r.sourceOriginalRank,sourcePrintedAttackEvents:r.sourcePrintedAttackEvents,consistent:r.baselinePaperOutcomesConsistent,knockouts:r.printedTargetKnockouts,damages:r.printedTargetDamageWithoutKnockout,prizes:r.printedPrizesTaken,unverifiedWins:r.competitivelyQualifiedGames},null,2));a.equal(r.sourcePrintedAttackEvents,8);a.equal(r.baselinePaperOutcomesConsistent,8);a.equal(r.printedTargetKnockouts,7);a.equal(r.printedTargetDamageWithoutKnockout,1);a.equal(r.printedPrizesTaken,13);a.equal(r.competitivelyQualifiedGames,0);"
+      - name: Validate exact source Genesect Ability-use census against pinned original 16-arm Store archive
+        if: ${{ inputs.agent12_rank5_printed_native_replay }}
+        run: |
+          node --test tests/agent9-v31-genesect-ability-archive-census.test.cjs
+          node -e "const a=require('node:assert/strict');const m=require('./scripts/agent9-v31-genesect-ability-archive-census.cjs');const d=require('./agent12-rank5-archive/agent13-rank5-v31-native-16arm.json');const x=m.censusArchivedGenesectAbility(d);const c=x.modes.frozenV2Control,v=x.modes.integratedV3;for(const z of [c,v]){a.equal(z.attempts,8);a.equal(z.sourceAcceptedGenesectHandBenchPlays,10);a.equal(z.sourceAcceptedUseAbilityAction,0);a.equal(z.bothSeatsAcceptedUseAbilityAction,0)}a.equal(c.sourceAcceptedAttackAction,0);a.equal(v.sourceAcceptedAttackAction,8);a.equal(x.competitiveQualifiedGames,0);console.log(JSON.stringify({control:{roots:c.rootsInspected,genesect:c.sourceAcceptedGenesectHandBenchPlays,ability:c.sourceAcceptedUseAbilityAction,attacks:c.sourceAcceptedAttackAction},integrated:{roots:v.rootsInspected,genesect:v.sourceAcceptedGenesectHandBenchPlays,ability:v.sourceAcceptedUseAbilityAction,attacks:v.sourceAcceptedAttackAction}},null,2))"
       - name: Summarize archived native rank5 zero-attack root frontier
         if: ${{ inputs.agent12_rank5_printed_native_replay }}
         run: |
