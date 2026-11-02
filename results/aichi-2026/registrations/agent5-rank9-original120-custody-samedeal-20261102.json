@@ -9,8 +9,8 @@
   "registeredSourceTrialIds": [
     "9:0:A:champion-reference",
     "9:0:A:new-moon-lockbreaker-v1",
-    "9:1:B:champion-reference",
-    "9:1:B:new-moon-lockbreaker-v1"
+    "9:0:B:champion-reference",
+    "9:0:B:new-moon-lockbreaker-v1"
   ],
   "arms": [
     {
@@ -33,5 +33,9 @@
   "testFile": "tests/agent5-rank9-original120-custody-pair.test.cjs",
   "runnerFile": "simulation/evaluation/agent5-rank9-original120-custody-pair.cjs",
   "paperQualifiedGames": 0,
-  "performanceInferenceAllowed": false
+  "performanceInferenceAllowed": false,
+  "registeredSeedsBySlot": {
+    "A": 3060075246,
+    "B": 690229661
+  }
 }
