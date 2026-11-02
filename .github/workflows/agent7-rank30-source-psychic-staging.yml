@@ -157,6 +157,19 @@ jobs:
           path: agent6-native-jammer-real-turn.json
           if-no-files-found: warn
           retention-days: 15
+      - name: Pair actual Tool Jammer play vs holding it through native turn and answer
+        if: always() && inputs.agent6_rank30_rondo
+        env:
+          AGENT6_PAIRED_JAMMER_TURN_DEV: 'true'
+        run: node simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs > agent6-paired-jammer-turn.json
+      - name: Archive native Tool Jammer played-vs-held paired local outcome
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-paired-jammer-turn-native
+          path: agent6-paired-jammer-turn.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Retrospective original rank30 owner-seat-only A-B-A native target contrast
         if: '!inputs.agent6_rank30_rondo'
         run: node simulation/evaluation/agent7-rank30-psychic-bench-stage-aba.cjs > agent7-rank30-source-psychic-stage-aba.json
