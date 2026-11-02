@@ -21,7 +21,16 @@ function summarizeArm(arm) {
     engineWinner: arm.game?.winner ?? null,
     actions: arm.game?.actions ?? null,
     settledZoneAnomalies: arm.game?.settledPhysicalZoneAnomalies ?? null,
-    nativeReceiptsDetails: receipts
+    nativeReceiptsDetails: receipts,
+    sourceAttackContinuation:arm.sourceNativeEnergyAttackContinuation?.promptEpisodes
+      ?.map(row=>({
+        promptId:row.promptId,sourceTurn:row.sourceTurn,status:row.status,
+        sourceAttackOrdinal:row.sourceAttack?.actionOrdinal??null,
+        attackSettledRootOrdinal:row.sourceAttack?.settledRootOrdinal??null,
+        prizeCountsAfterAttack:row.sourceAttack?.afterPrizesRemaining??null,
+        opponentReplyTurn:row.opponentReply?.turn??null,
+        opponentReplyRoots:row.opponentReply?.actions??[]
+      }))??[]
   };
 }
 
