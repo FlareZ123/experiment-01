@@ -72,3 +72,59 @@ test('an already payable live VSTAR is not a pre-Apex opportunity',()=>{
  assert.equal(x.opportunity,false);
  assert.equal(x.reason,'apex-already-directly-ready');
 });
+
+test('all three Dragon payloads omitted by rank20-only v1 are recognized before Apex',()=>{
+ for(const printing of [
+   'Hisuian Goodra VSTAR LOR','Koraidon ex TEF','Salamence ex JTG'
+ ]){
+  const f=fixture();
+  f.actor.ownHand[1]=printing;
+  f.prompt.menu[1][0]=printing;
+  const r=inspectFutureApexDiscard(f);
+  assert.equal(r.opportunity,true,printing);
+  assert.equal(r.alternativeMenus,1,printing);
+  assert.equal(r.soleCopyAlternative,true,printing);
+ }
+});
+test('a non-Dragon Pokemon cannot masquerade as a Regidrago payload',()=>{
+ const f=fixture();
+ f.actor.ownHand[1]="Lillie's Clefairy ex JTG";
+ f.prompt.menu[1][0]="Lillie's Clefairy ex JTG";
+ const r=inspectFutureApexDiscard(f);
+ assert.equal(r.opportunity,false);
+ assert.equal(r.reason,'no-valid-payload-discard-menu');
+});
+test('recognized non-engine Dragon set exactly covers all nine authenticated source 60s',()=>{
+ const path=require('node:path');
+ const manifest=require('../results/aichi-2026/full-decklists.json');
+ const {DRAGONS}=require(
+  '../simulation/twinleaf/agent47-preapex-payload-opportunity.cjs');
+ const {loadPrintedPokemon}=require(
+  '../scripts/aichi-regidrago-attack-payload-panel.cjs');
+ const catalog=loadPrintedPokemon(manifest,path.join(__dirname,'../resources'));
+ const observed=new Set(),ranksWithV1Misses=new Set();
+ const omittedByV1=new Set([
+  'Hisuian Goodra VSTAR LOR','Koraidon ex TEF','Salamence ex JTG'
+ ]);
+ const decks=manifest.decks.filter(d=>d.archetype==='Regidrago');
+ assert.equal(decks.length,9);
+ for(const deck of decks){
+  for(const c of deck.cards.filter(c=>c.category==='Pokémon')){
+   const key=JSON.stringify([c.name,c.printing.set,String(c.printing.number)]);
+   const printed=catalog.get(key);
+   assert.ok(printed,key);
+   if(!printed.types.includes('Dragon')||
+      ['Regidrago V','Regidrago VSTAR'].includes(c.name))continue;
+   assert.ok(printed.attacks.length>0,key);
+   const fullName=c.name+' '+c.printing.set;
+   observed.add(fullName);
+   assert.ok(DRAGONS.has(fullName),fullName);
+   if(omittedByV1.has(fullName))ranksWithV1Misses.add(deck.rank);
+  }
+ }
+ assert.equal(observed.size,8);
+ assert.deepEqual([...DRAGONS].filter(x=>x!=='Regidrago V SIT').sort(),
+  [...observed].sort());
+ assert.deepEqual([...ranksWithV1Misses].sort((a,b)=>a-b),
+  [10,12,13,14,18,21,27,32]);
+});
