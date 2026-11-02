@@ -72,3 +72,11 @@ test('Basic Energy does not inherit ordinary 4-copy limit',()=>{
   assert.ok(res.probabilityUpper>0);
   assert.ok(res.observedCounts['Lightning Energy']>4);
 });
+
+test('more distinct publicly seen names than sixty physical slots is impossible',()=>{
+  const nine=Array.from({length:9},(_,j)=>
+    Array.from({length:7},(_,i)=>'Different card '+(j*7+i)));
+  const out=maximumLegalHistoryLikelihood(nine,{maxActiveCopies:4});
+  assert.equal(out.probabilityUpper,0);
+  assert.equal(out.numerator,'0');
+});
