@@ -174,6 +174,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
         plannedDiscard:opportunity.planned?.discardPrinting??null});
       if(consumed&&hasOwnerPrompt&&opportunity.planned){
         plans.set(opportunity.ownerId,{
+          ownerId:opportunity.ownerId,
           seat:opportunity.seat,turn:opportunity.turn,
           itemRef:opportunity.itemRef,
           discardPrinting:opportunity.planned.discardPrinting,
