@@ -90,6 +90,8 @@ jobs:
         run: node --test tests/agent4-rank31-unified-source-negative-native.test.cjs
       - name: Test shared v10 rank14 Ultra Ball mandatory two-card root and payment in both seats
         run: node --test tests/agent4-rank14-ultraball-shared-paper-native.test.cjs
+      - name: Test original rank5 Quick Ball mandatory physical discard both seats
+        run: node --test tests/agent4-quickball-paper-payment-native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
