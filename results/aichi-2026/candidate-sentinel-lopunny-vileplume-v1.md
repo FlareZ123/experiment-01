@@ -32,4 +32,6 @@ Relative to rank-2's original 60, Vileplume-GX, Mr. Mime, Jirachi and one Herdie
 
 **Adversarial field and direct-opener supplement:** [Original denial exposure, three-of-three Wondrous Labyrinth counterexample, and precise direct-card co-occurrence bounds](agent28-sentinel-field-denial-direct-opener-20261102.md).
 
+**Machine-ready fixed inventory:** [JSON source-printing 60](candidate-sentinel-lopunny-vileplume-v1.json), exactly matched to the canonical PSV. **Native gap:** [Pinned Twinleaf does not recognize source-display Buneary PFL; staged attack probe did not run](agent28-sentinel-native-printing-gap-20261102.md). No strength claim can be made from this failed fixture.
+
 **Admission:** Serious, structurally separate candidate with precise falsification and immutable manifest. **No games run with this candidate. No qualified field win rate or promotion to results/README.md is justified.**
