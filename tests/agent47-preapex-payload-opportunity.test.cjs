@@ -128,3 +128,15 @@ test('recognized non-engine Dragon set exactly covers all nine authenticated sou
  assert.deepEqual([...ranksWithV1Misses].sort((a,b)=>a-b),
   [10,12,13,14,18,21,27,32]);
 });
+
+test('the shared source donor roster is defensively copied for observers',()=>{
+ const {DRAGONS}=require(
+  '../simulation/twinleaf/agent47-preapex-payload-opportunity.cjs');
+ const {verifiedApexPayloadPrintings}=require(
+  '../simulation/twinleaf/agent47-actor-hand-discard.cjs');
+ const a=verifiedApexPayloadPrintings();
+ assert.deepEqual([...a].sort(),[...DRAGONS].sort());
+ a.add('Not a real Dragon');
+ assert.equal(verifiedApexPayloadPrintings().has('Not a real Dragon'),false);
+ assert.equal(DRAGONS.has('Not a real Dragon'),false);
+});
