@@ -9,7 +9,7 @@ function evaluateCounts(c){
   const {basic,tag,supporter,dce,thunder}=c;
   assert.equal(basic,4);assert.equal(dce,1);assert.equal(thunder,1);
   assert.ok(tag>=1&&tag<=4&&supporter>=1&&supporter<=4);
-  const cap=[basic,tag,supporter,1,1,54-basic-tag-supporter];
+  const cap=[basic,tag,supporter,1,1,58-basic-tag-supporter];
   const prize=C(52,6);
   let denominator=0n,held=0n,tagRoute=0n,direct=0n,union=0n;
   for(let b=1;b<=basic;b++)for(let t=0;t<=tag;t++)
