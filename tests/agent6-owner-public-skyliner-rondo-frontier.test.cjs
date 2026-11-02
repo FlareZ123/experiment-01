@@ -101,3 +101,26 @@ test('owner-visible lock and retreat restrictions veto route',()=>{
   locked.ownPublic.publicTurnRestrictions.attackLockTurnsRemaining=1;
   assert.equal(chooseOwnerSkylinerRondoRetreat(locked,catalog),null);
 });
+
+test('native public-zone witness confirms only actual zero-cost swap',()=>{
+  const {rootPhysicalWitness}=require(
+    '../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent={kind:'skyliner-rondo-retreat',
+    benchIndex:0,printing:"Lillie's Clefairy ex JTG"};
+  const before={turn:30,publicSkylinerPresent:true,
+    activePokemonPrinting:'Latias ex SSP',
+    targetPokemonPrinting:"Lillie's Clefairy ex JTG",
+    activeEnergies:[],retreatedTurn:11};
+  const after={...before,
+    activePokemonPrinting:"Lillie's Clefairy ex JTG",
+    targetPokemonPrinting:'Latias ex SSP',
+    targetEnergies:[],retreatedTurn:30};
+  assert.equal(rootPhysicalWitness(intent,before,after,{FINISHED:9}),
+    'confirmed-public-effect');
+  const noMove={...before,targetEnergies:[],retreatedTurn:30};
+  assert.equal(rootPhysicalWitness(intent,before,noMove,{FINISHED:9}),
+    'no-confirmed-public-effect');
+  const lostEnergy={...after,targetEnergies:['Telepathic Psychic Energy']};
+  assert.equal(rootPhysicalWitness(intent,before,lostEnergy,{FINISHED:9}),
+    'no-confirmed-public-effect');
+});
