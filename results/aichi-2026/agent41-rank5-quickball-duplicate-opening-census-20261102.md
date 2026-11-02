@@ -16,8 +16,14 @@ An exact multivariate hypergeometric dynamic program enumerates seven-card physi
 
 Conditional on a Basic-valid opener with Quick Ball and some duplicated non-Quick-Ball printing, **10.9422%** (`4,042,260 / 36,941,838`) have DCE as the **sole duplicated non-Quick-Ball printing**. Other Quick Ball copies can also be held, but the existing root affordability guard excludes them. This demonstrates an upstream weakness in treating duplicate availability as synonymous with cheap discard resources. It does not prove discarding DCE is wrong in any particular game.
 
-Code: `scripts/agent41-rank5-quickball-duplicate-openings.cjs`, verified original source 60. Six locally passing tests: `tests/agent41-rank5-quickball-duplicate-openings.test.cjs`, including an independent small-deck physical-hand enumeration, grouping sensitivity and binomial conservation. Exact locally tested remote blob SHA1s: script `cfdf3db20d9dc15d740739342a62c65450450bdd`, tests `4d179aaf0aa7329babe08be82f13a48b33d052cf`.
+Code: `scripts/agent41-rank5-quickball-duplicate-openings.cjs`, verified original source 60. Seven locally passing tests: `tests/agent41-rank5-quickball-duplicate-openings.test.cjs`, including an independent small-deck physical-hand enumeration, grouping sensitivity and binomial conservation. Exact locally tested remote blob SHA1s: script `35d64875260542bfc859afb5516796561c3ce140`, tests `746b9c43c5329a9f2104aa6334a1db4d7b4554bd`.
 
 The model omits mulligan bonus draws, Prize composition, Item locks, Bench constraints, known deck searches, subsequent actions and game policy. The 12.3014% is a structural opening-hand probability; it is **not** a native Quick Ball play frequency. The 10.9422% is **not** a misplay rate.
 
 See `agent41-quickball-owner-transaction-v1-20261102.md` for the independent downstream accepted-root/payment hand-identity gate. No competitive game was run here. **29/32 originals authenticated, 0 qualified games, no demonstrated 99.5% winner.**
+
+## Addendum: DCE in the opening hand and subsequent six Prize cards
+
+Among the 4,042,260 Basic-valid seven-card opening hands whose only duplicated non-Quick-Ball printing is DCE, the precise held-DCE distribution is: **3,858,714 with two DCE**, **181,504 with three**, and **2,042 with four**. For each hand, set six Prize cards uniformly from its remaining 53 physical cards.
+
+There are **92,800,103,104,800** exact seven-hand/six-Prize pairs. At least one DCE is Prized in **19,564,715,682,120 pairs = 21.08264434%**; at least two in **964,292,628,600 pairs = 1.03910728%**. The seventh local test verifies these integers. Prize placement therefore creates further possible Energy-access pressure on this opening family. It still does not prove any particular Quick Ball discard is wrong or count as a simulated game.
