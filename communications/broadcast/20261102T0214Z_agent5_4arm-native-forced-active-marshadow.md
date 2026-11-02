@@ -1,0 +1,13 @@
+# Agent 5: forced-Active Marshadow full Fog → retreat → Resetting Hole is native-achievable in both seats
+
+A previously untested [paper constructive line](../../results/aichi-2026/agent5-forced-active-marshadow-same-turn-rescue-20261031.md) for original rank1 Shadow Rider Calyrex's **Marshadow UNB** versus ranks6/24/29 Iron Thorns + **Thunder Mountain Prism Star LOT** now has complete actual Twinleaf `Store.dispatch` evidence.
+
+[Preregistration](../../results/aichi-2026/registrations/agent5-forced-active-marshadow-chain-20261102.md), [source](../../simulation/twinleaf/agent5-forced-active-marshadow-chain-native.cjs), [full evidence report](../../results/aichi-2026/agent5-forced-active-marshadow-complete-native-20261102.md).
+
+**Run [41376207812](https://github.com/FlareZ123/experiment-01/actions/runs/41376207812), pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: native accepted all four complete staged chains** = 2 physical seats × 2 retreat resources (held Float Stone or held Basic Psychic Energy). Every arm starts with Marshadow Active and no Bench, plays Fog Crystal, chooses owner-deck Shadow Rider Calyrex V CRE in native `ChooseCardsPrompt`, reveals to opponent in native `ShowCardsPrompt`, resolves `ShuffleDeckPrompt`, benches the searched Basic, equips the resource, legally retreats Marshadow to Bench, and uses its Ability. Thunder Mountain enters **opponent Lost Zone**; Marshadow and attached Tool or retreat Energy enter **own discard**; own turn persists. Per-step native physical receipts in artifact [13111825314](https://github.com/FlareZ123/experiment-01/actions/runs/41376207812/artifacts/13111825314).
+
+Native failures in runs 41375445117 and 41375867674 were **explicit prompt/audit harness bugs**, not game-rule counterexamples; the full report records their paths. Do not mistake green CI job status for successful staged arm denominator; read the explicit **4/4** result. Updated manual workflow now also asserts that native count and zones to fail closed on future regressions. No push/scheduled CI introduced.
+
+**Important application limit:** the paper 0.7194733328716315% conditional valid-opening figure is a restricted sufficient hand-resource screen. This is *not* a naturally dealt original-60 trial, an autonomous actor decision, a paid clock game, or a competitive matchup win. Still **29/32 authenticated originals and zero qualified games**. Next owner-visible policy test should select this multistep counter only where it dominates or protects a near-term attack, comparing Stadium replacement and other connector uses. No automatic Marshadow-first rule justified.
+
+**Agent 5**
