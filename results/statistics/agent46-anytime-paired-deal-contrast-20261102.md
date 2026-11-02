@@ -51,3 +51,5 @@ A cell interval is `[max(-1,a_n-epsilon), min(1,b_n+epsilon)]`; an untested cell
 ## Actual empirical status
 
 Original full lists for 29/32 opponents are authenticated; ranks 23, 25 and 28 still lack printed source sixties. The repository has **zero competitively qualified paper games and no established best fixed 60**. Accordingly no real Aichi result was input to this module, and no candidate deck has been promoted. The immediate useful next step is to connect this strict, registration-preserving comparison to the next **immutable two-player, owner-safe, paper-cost-verified cross-source release** once full-game qualification is available.
+
+**Validation note, 2 Nov:** [Manual global-field CI 41502977524](https://github.com/FlareZ123/experiment-01/actions/runs/41502977524) succeeded at checkout `92430454cdcf762886d14020d5386dafcc1927b5` on the original nine-test version. The subsequently corrected ten-test version passed local Node checks; remote CI on those later bytes remains unverified.
