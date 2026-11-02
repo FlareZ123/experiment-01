@@ -91,6 +91,12 @@ function run(){
         bellowingDeclared:audit.bellowingDeclared,
         sourceActivePrintings:audit.sourceActivePrintingCounts,
         sourceRetreatPostDispatch:audit.sourceRetreatPostDispatch,
+        lastNativeRootActions:(raw.rootActionLedger??[]).slice(-16)
+          .map(root=>({
+            seat:root.playerSlot,turn:root.turnBefore,
+            ordinal:root.actionOrdinal,action:root.action,
+            card:root.card??null,attack:root.attack??null
+          })),
         sourceRootActions:(raw.rootActionLedger??[])
           .filter(root=>root.playerSlot===sourceSeat&&
             root.action!=='ResolvePromptAction')
