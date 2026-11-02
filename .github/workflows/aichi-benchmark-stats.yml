@@ -758,3 +758,35 @@ jobs:
           path: agent50-fresh-rank11-bothseat-32attempts.json
           if-no-files-found: warn
           retention-days: 30
+
+  agent18-selected-rank5-canary:
+    if: github.ref == 'refs/heads/research/agent18-selected-rank5-release-canary-20261102'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out pinned Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Check frozen rank5 seats, source pins and selected native option profile
+        run: node --test tests/agent18-rank5-selected-canary.test.cjs
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute four registered rank5 native canary arms without claiming competitive qualification
+        run: node simulation/evaluation/agent18-rank5-selected-canary.cjs > agent18-rank5-selected-canary-native.json
+      - name: Preserve all registered attempts, failures and disposition vetoes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-rank5-selected-both-seat-development
+          path: agent18-rank5-selected-canary-native.json
+          if-no-files-found: warn
+          retention-days: 15
