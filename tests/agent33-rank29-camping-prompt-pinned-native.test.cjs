@@ -47,6 +47,10 @@ function stage(seat){
     // One original exact source 60 per seat, with deliberately staged
     // owner-only hand/Prizes and no duplicate or invented physical cards.
     const remaining=original.cards.map(get);
+    // Real matches assign distinct physical IDs during deck initialization.
+    // An ad hoc CardManager.getCardByName clone defaults to id=-1, which
+    // would make ChooseCardsPrompt blocked-card mapping reject every card.
+    remaining.forEach((card,j)=>{card.id=index*60+j+1;});
     const take=(predicate,label='exact physical source target')=>{
       const at=remaining.findIndex(predicate);
       assert.ok(at>=0,'Missing '+label+' in resolved original rank29 60; related: '+
