@@ -10,7 +10,7 @@ Can one functional source driver trained on a single original 60 legitimately re
 
 Source: [authenticated 29 original 60s](full-decklists.json), printed card counts and original rank, dated Aichi 2026 May 10, 29 of 32. Missing complete original ranks **23, 25, 28** are **excluded**.
 
-Reproduce by running the no-network [CJS analyzer](../../scripts/aichi-original-archetype-diversity.cjs), with [synthetic and roster regressions](../../tests/aichi-original-archetype-diversity.test.cjs). The analyzer verifies that each source sums to exactly 60 and groups by the *published archetype label*. For two lists A and B, let a(c) and b(c) be the number of copies of card name c. It computes
+Reproduce with the no-network [CJS analyzer](../../scripts/aichi-original-archetype-diversity.cjs) and [synthetic and roster regressions](../../tests/aichi-original-archetype-diversity.test.cjs). The tests passed in the existing [manually dispatched original-field Energy census](https://github.com/FlareZ123/experiment-01/actions/runs/41373906358), head `0a8cf04766edad2792d24b2f12a37ba29e425eed`. The first CI run [failed](https://github.com/FlareZ123/experiment-01/actions/runs/41373789128) because the exploratory one-entry-per-name calculation erroneously overwrote rank22's split-printing Trubbish; the corrected accumulated-count test and explicit synthetic duplicate-name regression passed the second run. Preserve this failure as a warning against naive `Map(name,count)` overwrites. The analyzer verifies that each source sums to exactly 60 and groups by the *published archetype label*. For two lists A and B, let a(c) and b(c) be the number of copies of card name c. It computes
 
 ```text
 shared-by-name = sum over card names c of min(a(c), b(c))
