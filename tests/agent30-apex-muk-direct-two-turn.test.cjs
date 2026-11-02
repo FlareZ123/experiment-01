@@ -117,6 +117,101 @@ function opportunity(deck) {
   return {...total, basicValid};
 }
 
+
+/**
+ * Strict paid Dragon-copy branch. One Mysterious Treasure or Quick Ball held
+ * by turn one discards one physical Dragon attack payload. If Grimer is not
+ * held, that same Item fetches it from the surviving deck; if already held,
+ * its restricted search may choose no target. Then attach Energy + Shake
+ * Muk; turn two evolves Regidrago and completes the GGF attack cost.
+ * No extra draws, no second search, no mobility, and no other acceleration.
+ *
+ * @param {object} deck
+ * @returns {{setup:number,allEight:number,turnTwo:number,viaSearch:number,
+ *   grimerHeld:number,basicValid:number}}
+ */
+function paidCopyOpportunity(deck) {
+  const initial = categoryCounts(deck);
+  const count = id => deck.cards.find(c => c.cardId === id)?.count ?? 0;
+  const payloadIds = ['sv6-130', 'sm5-100', 'swsh11-136',
+    'sv2-153', 'sv6pt5-47', 'sv5-120'];
+  const payload = payloadIds.reduce((s, id) => s + count(id), 0);
+  const tutor = count('sm6-113') + count('swsh8-237');
+  const basicPayload = ['sm5-100','sv6pt5-47','sv5-120']
+    .reduce((s, id) => s + count(id), 0);
+  // Grimer, Muk, Regidrago V, VSTAR, Shake, DDE, basic Grass/Fire,
+  // six copyable Dragon attack payloads, seven/six payable search Items,
+  // other Basic starters, and the remaining cards.
+  const n = [...initial.slice(0, 7), payload, tutor,
+    initial[7] - basicPayload];
+  n.push(60 - n.reduce((a,b) => a+b, 0));
+  assert.equal(payload, 6);
+  assert.equal(n[9], 3);
+  assert.equal(n.reduce((a,b) => a+b, 0), 60);
+  const seen = Array(10).fill(0);
+  const total = {setup:0,allEight:0,turnTwo:0,viaSearch:0,grimerHeld:0};
+  const den = choose(60, 8);
+  /** @param {number} k @param {number} nDeck */
+  const allPrized = (k, nDeck) =>
+    choose(nDeck-k, 6-k) / choose(nDeck, 6);
+
+  /** @param {number} i @param {number} left @param {number} ways */
+  function enumerate(i, left, ways) {
+    if (i < 10) {
+      for (let x=0; x<=Math.min(n[i],left); x++) {
+        seen[i]=x;
+        enumerate(i+1,left-x,ways*choose(n[i],x));
+      }
+      return;
+    }
+    if (left > n[10]) return;
+    const [g,m,r,v,s,d,b,p,t] = seen;
+    if (!r || !s || !p || !t || m===n[1]) return;
+    const weight=ways*choose(n[10],left)/den*(r>1?1:7/8);
+    const M=n[1]-m;
+    const G=n[0]-g;
+    const needGrimerSearch = g===0;
+    const survive = needGrimerSearch
+      ? 1-allPrized(M,52)-allPrized(G,52)+allPrized(M+G,52)
+      : 1-allPrized(M,52);
+    total.setup+=weight*survive;
+    if (!d && !b) return;
+    const missing=[3,5,6].filter(j=>seen[j]===0);
+    let joint;
+    if (missing.length===0) {
+      joint=survive;
+      total.allEight+=weight*joint;
+    } else if (missing.length===1) {
+      const target=n[missing[0]];
+      const remainingPrizeValid=needGrimerSearch
+        ? 1-allPrized(M,51)-allPrized(G,51)+allPrized(M+G,51)
+        : 1-allPrized(M,51);
+      // Search consumes Grimer if absent from hand; Boost Shake consumes
+      // Muk. 46 unprized deck cards become 44 or 45 after both searches.
+      joint=target*46/(52*(needGrimerSearch?44:45))*remainingPrizeValid;
+    } else return;
+    const p=weight*joint;
+    total.turnTwo+=p;
+    total[needGrimerSearch?'viaSearch':'grimerHeld']+=p;
+  }
+  enumerate(0,8,1);
+  return {...total,basicValid:1-choose(48,7)/choose(60,7)};
+}
+
+const paidA=paidCopyOpportunity(original);
+const paidB=paidCopyOpportunity(shake4);
+assert.ok(Math.abs(paidA.setup - 0.033515030805) < 1e-10);
+assert.ok(Math.abs(paidA.allEight - 0.000485505995) < 1e-10);
+assert.ok(Math.abs(paidA.turnTwo - 0.001011907390) < 1e-10);
+assert.ok(Math.abs(paidB.setup - 0.038250700361) < 1e-10);
+assert.ok(Math.abs(paidB.allEight - 0.000554863995) < 1e-10);
+assert.ok(Math.abs(paidB.turnTwo - 0.001156256752) < 1e-10);
+assert.ok(paidA.viaSearch > paidA.grimerHeld);
+assert.ok(paidB.viaSearch > paidB.grimerHeld);
+console.log('Paid copy route original/Shake4, conditional valid seven:',
+  (100*paidA.turnTwo/paidA.basicValid).toFixed(9)+'%',
+  (100*paidB.turnTwo/paidB.basicValid).toFixed(9)+'%');
+
 const a = opportunity(original);
 const b = opportunity(shake4);
 // Independent ordered-physical-deal Monte Carlo at 600k each also produced
@@ -138,4 +233,4 @@ for (const [name, values] of [['Apex v0', a], ['Shake4/Quick2', b]]) {
   }, null, 2));
 }
 console.log('PASS: exact first-eight plus post-Shake-shuffle turn-two combinatorics.');
-module.exports = {opportunity, categoryCounts, choose};
+module.exports = {opportunity, paidCopyOpportunity, categoryCounts, choose};
