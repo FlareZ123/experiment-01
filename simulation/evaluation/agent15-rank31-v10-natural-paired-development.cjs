@@ -9,6 +9,8 @@ const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION='results/aichi-2026/registrations/agent15-rank31-paper-v10-natural-paired-20261102.json';
 const REGISTERED_BLOB='b0a3859fe16e8bd9bee54af57a95ba4401a09f69';
+const AMENDMENT='results/aichi-2026/registrations/agent15-rank31-v10-pre-game-telemetry-amendment-20261102.json';
+const AMENDMENT_BLOB='7cdf9be1eab951568560e0535d39cf25e722fcae';
 
 /** @param {Buffer} bytes @returns {string} */
 function gitBlobSha(bytes){
@@ -24,6 +26,14 @@ function preflight(){
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION));
   assert.equal(gitBlobSha(bytes),REGISTERED_BLOB);
   const registration=JSON.parse(bytes.toString('utf8'));
+  const amendmentBytes=fs.readFileSync(path.join(ROOT,AMENDMENT));
+  assert.equal(gitBlobSha(amendmentBytes),AMENDMENT_BLOB);
+  const amendment=JSON.parse(amendmentBytes.toString('utf8'));
+  assert.equal(amendment.parentRegistration,REGISTRATION);
+  assert.equal(amendment.parentRegistrationGitBlob,REGISTERED_BLOB);
+  assert.equal(amendment.pregameFailedWorkflow,41395333780);
+  assert.equal(amendment.sourceGameStartedBeforeAmendment,false);
+  assert.deepEqual(amendment.effectiveOverrides,{losslessNativeRootJoin:false});
   assert.equal(registration.schema,
     'agent15-rank31-source-v10-paper-payment-natural-same-deal-v1');
   assert.equal(registration.phase,
@@ -66,7 +76,7 @@ function preflight(){
   assert.equal(pinned,registration.enginePin);
   const head=execFileSync('git',['-C',ROOT,'rev-parse','HEAD'],
     {encoding:'utf8'}).trim();
-  return {registration,source,rosterGitBlob:gitBlobSha(rosterBytes),head};
+  return {registration,amendment,source,rosterGitBlob:gitBlobSha(rosterBytes),head};
 }
 /** @param {object} row */
 function summarize(row){
@@ -76,7 +86,9 @@ function summarize(row){
     row.nativeAbortEvidence?.sourceDealFingerprint?.digestSha256??null;
   return {
     id:row.trial?.id??null,seed:row.trial?.seed??null,
-    status:row.status??null,finished:row.finished??null,
+    status:row.status??(row.finished===true?'engine-terminal-unqualified':
+      row.finished===false?'action-limit-censored':'unclassified'),
+    finished:row.finished??null,
     winner:row.finished===true?(row.winner??null):null,
     error:row.error??null,
     sourceDealFingerprint:typeof sourceDeal==='string'?
@@ -86,7 +98,7 @@ function summarize(row){
     sourceAttacks:row.sourceAttackDeclarations??null,
     candidateAttacks:row.candidateAttackDeclarations??null,
     v10Requested:row.sharedPaperPaymentPortfolioOptIn===true,
-    v10AuditVersion:a?.version??null,
+    v10AuditVersion:a?.schema??null,
     liveStores:a?.liveSourceTrialCount??null,
     roxieRoots:a?.inspectedRoxiePlayCardRoots??null,
     roxieNoEligibleVetoes:a?.vetoedRoxieNoEligibleRoots??null,
@@ -102,6 +114,7 @@ function summarize(row){
 function run(){
   const p=preflight(),registration=p.registration;
   const options={...registration.fixedOptions,
+    ...p.amendment.effectiveOverrides,
     registeredTrials:registration.trials,
     registeredFrameName:registration.schema,
     allowAdditionalOriginalSourceRanks:true};
@@ -131,6 +144,9 @@ function run(){
     schema:'agent15-rank31-v10-natural-paired-unqualified-native-v1',
     registeredUtc:registration.registeredUtc,
     registrationGitBlob:REGISTERED_BLOB,
+    pregameAmendmentGitBlob:AMENDMENT_BLOB,
+    originalFixedOptionSha256:sha256(registration.fixedOptions),
+    effectiveOptionSha256:sha256(options),
     repositoryCommit:p.head,sourceRosterGitBlob:p.rosterGitBlob,
     enginePin:registration.enginePin,sourceRank:31,
     sourceArchetype:p.source.archetype,
@@ -140,7 +156,7 @@ function run(){
       x.samePhysicalSourceDeal===true).length,
     pairs,control,treatment,
     competitiveQualifiedGames:0,
-    caveat:'All native games are developmental. No opponent competence, game clock, full paper effect/rand audits, or ranked-field win estimate.'
+    caveat:'Prematch dependency amendment disables lossless ordinal observer after zero original rank31 games had started. All native games are developmental. No opponent competence, game clock, full paper effect/rand audits, or ranked-field win estimate.'
   };
 }
 if(require.main===module)
