@@ -49,6 +49,20 @@
 
 **Ordering note:** The three explicitly missing ranks are shown after the authenticated rows to prevent a fabricated source-60 SHA from being treated as a real hash. In the machine ledger they occur in the distinct `missing` array.
 
+
+## Supplementary original hard-cluster lineage evidence (Agent 38, 2 November 2026)
+
+The preceding 36-arm and nine-rank scope counts remain **historical counts for those two cohorts**. Subsequent separate, original-printed-60 studies provide more native evidence for the four distinct Absol/Garbodor opponents. The [machine-readable source-hash-and-stage supplement](agent38-hardcluster-source-lineage-supplement-20261102.json) links each pinned original printed 60 to its specific source campaign, selected Store root, actual payoff witness and first missing next-player transition, with [static regression](../../tests/agent38-hardcluster-source-lineage-supplement.test.cjs).
+
+| Original rank | Distinct native evidence, beyond two historic survey cohorts | First missing same-line advancement |
+| ---: | --- | --- |
+| **8** | [128 distinct source deals; 256 paired game attempts](agent7-rank8-vip-box-registered-native-20261102.md): 3 genuine VIP then Box accepted source roots, one complete Tool/Garbodor next-opponent-root, two K1 Shake/Tool/Garbodor unavailable; all 125 no-opportunity deals had equal policy traces | For the two K1 failures, record which exact searchable component is missing; for the one native completed lock, audit a consequential competent opposing response and terminal outcome |
+| **11** | [256 authentic original-source attempts across two physical seats](agent39-rank11-active-natural256-20261029.md): 21 selected direct Boost Shake routes, 20 equipped Garbodor next-turn boards, one owner-deck Garbodor search abort; **128 registered seed-frame indices shared across seats**, which do not make those physical deals identical | Continue one registered Tool/Garbodor source root to strategically competent Energy/attack decisions and same-line opponent reply; preserve the 48-root cap |
+| **16** | [Earlier eight-game original hard-cluster pilot](agent7-absol-shake-first-turn-als.md) contains two rank-16 trials, but the available report describes repeated Terminal Period play and no verified natural early-lock chain | Acquire a preregistered source-own K0/accepted-root opportunity denominator for Budew, Tool/Trubbish and Boost Shake; qualify subsequent lock and opponent reply |
+| **22** | The [same hard-cluster pilot](agent7-absol-shake-first-turn-als.md) contains two rank-22 trials without an admitted natural Wally / Item-lock chain. Its [authenticated original printed 60](agent48-rank22-registered-wally-original-source-20261031.md) has **one Wally and zero Boost Shake**, so a generic rank-8/11/16 Shake path is structurally impossible | Retain original registered Wally, screen authentic source-second Wally and Budew/Vikavolt routes, then test accepted owner action and consequential response |
+
+These counts represent different registered source policies and opponent candidates with different starting states and action caps. Do not pool their numerators or treat any of their engine terminals as an unbiased matchup estimate. A VERIFIED status in the supplemental manifest applies **only to the precisely cited native action or board stage**. Source-specific paper-effect, opponent-policy, full-match and clock qualifications remain **zero** for all four, and 29/32 original inventory coverage is unchanged.
+
 ## Qualification contract and provenance
 
 The row fields `sourceLegalChain`, `sourceOpponentContinuation`, `ownerInformationSafety`, `paperMatchClock` and `competitivelyQualified` are deliberately **unqualified / false**. `nativeExposure` means presence in a reported experimental cohort or registration and is **not** a state transition to paper certification. A source-specific claim must be supplemented by real owner-visible selected root, accepted Store dispatch, prompt, payment, resolution, characteristic pressure and next opposing turn. Record the disposition of every relevant rule/effect separately.
