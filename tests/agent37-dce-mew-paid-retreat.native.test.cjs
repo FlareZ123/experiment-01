@@ -151,6 +151,28 @@ for(const seat of [0,1]){
     store.dispatch(new UseAbilityAction(owner.id,'Fusion Strike System',{
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
     }));
+    const {ResolvePromptAction}=
+      engine('game/store/actions/resolve-prompt-action');
+    const pendingBefore=state.prompts.filter(p=>p.result===undefined)
+      .map(p=>({name:p.constructor?.name??'Unknown',
+        owner:p.playerId,message:p.message??null}));
+    for(let i=0;i<25;i++){
+      const p=state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      if(p.constructor.name!=='WaitPrompt')break;
+      store.dispatch(new ResolvePromptAction(p.id,null));
+    }
+    const power=owner.bench[1].getPokemonCard().powers.find(x=>
+      x.name==='Fusion Strike System');
+    const pendingAfter=state.prompts.filter(p=>p.result===undefined)
+      .map(p=>({name:p.constructor?.name??'Unknown',
+        owner:p.playerId,message:p.message??null}));
+    if(owner.hand.cards.length!==3)
+      assert.fail(JSON.stringify({error:'Native Genesect draw unobserved',
+        hand:owner.hand.cards.length,deck:owner.deck.cards.length,
+        phase:state.phase,turn:state.turn,used:owner.bench[1].used,
+        powerType:power?.powerType??null,
+        pendingBefore,pendingAfter}));
     assert.equal(owner.hand.cards.length,3,
       'Native visible three Fusion Strike Pokémon must set target hand size 3');
     assert.equal(owner.deck.cards.length,11);
