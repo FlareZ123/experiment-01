@@ -29,7 +29,12 @@ function probe(seat,psychicRecipient,corrected=false){
  const {PlayerType,SlotType}=load('game/store/actions/play-card-action');
  const dest=i=>({player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:i});
  x.store.dispatch(new UseAbilityAction(x.owner.id,'Underworld Door',dest(0)));
- const prompt=x.state.prompts.find(q=>q.result===undefined);
+ let prompt=x.state.prompts.find(q=>q.result===undefined);
+ // Pinned Store emits a WaitPrompt before the actual Energy selection.
+ if(prompt?.constructor.name==='WaitPrompt'){
+   x.store.dispatch(new ResolvePromptAction(prompt.id,null));
+   prompt=x.state.prompts.find(q=>q.result===undefined);
+ }
  assert.equal(prompt?.constructor.name,'AttachEnergyPrompt');
  const answer=[{card:energy,to:dest(psychicRecipient?0:1)}];
  const accepted=prompt.validate(answer);
