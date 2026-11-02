@@ -1,0 +1,46 @@
+{
+  "schema": "agent10-rank9-retreat-retrospective-onefactor-v1",
+  "registeredAtUtc": "2026-11-02T16:30:00Z",
+  "aim": "Test exact original rank9 native source seat RetreatAction payment and subsequent Claw settlement against previously observed Electrode Pass.",
+  "source": "authenticated original Shun Ito Aichi rank9 Absol Electrode original printed 60",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceSeatByCandidatePhysicalSeat": {
+    "A": 1,
+    "B": 0
+  },
+  "registeredSeeds": [
+    {
+      "candidateSlot": "A",
+      "seed": 3060075246
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 690229661
+    }
+  ],
+  "expectedTrialsPerArm": 4,
+  "control": "agent10-rank9-mega-absol-known-dead-native-development-v1",
+  "treatmentDelta": {
+    "actorRank9SpecialPaidRetreatSource": true
+  },
+  "predictedFirstSourceOpportunity": "Candidate A / New Moon / source seat B: native global turn42 or earlier if physically funded.",
+  "outcomesWillBePreserved": [
+    "source and full physical deal equality",
+    "first differing actual root",
+    "real native Ret and prompt payment",
+    "source attack settlements",
+    "opponent following root",
+    "errors, caps, winners"
+  ],
+  "disqualifications": [
+    "retrospective previously selected seeds",
+    "simulator may omit paper effects",
+    "timing/clock unspecified",
+    "source policy otherwise unqualified",
+    "any physical payment not demonstrated"
+  ],
+  "competitiveQualifiedGames": 0
+}
