@@ -1,0 +1,195 @@
+{
+  "schema": "agent31-rank1-prospective-symmetric-basic-energy-recipient-v1",
+  "registeredUtc": "2026-11-02T15:58:52.749565Z",
+  "originalRank": 1,
+  "originalArchetype": "Shadow Rider Calyrex",
+  "priorMotivation": "Independent fresh rank1 passive observer previously observed 0/35 held Guzma original-source owner turns with any Benched Energy; this treatment schedule uses entirely fresh random seeds.",
+  "registeredBeforeAnyNativeOutcomeForTheseSeeds": true,
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": [
+      473230894,
+      1570303559,
+      3436412365,
+      2281610773
+    ],
+    "B": [
+      3977639764,
+      2841371716,
+      2406768491,
+      1140188337
+    ]
+  },
+  "trials": [
+    {
+      "id": "1:0:A:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 473230894
+    },
+    {
+      "id": "1:0:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 473230894
+    },
+    {
+      "id": "1:1:A:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1570303559
+    },
+    {
+      "id": "1:1:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1570303559
+    },
+    {
+      "id": "1:2:A:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3436412365
+    },
+    {
+      "id": "1:2:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3436412365
+    },
+    {
+      "id": "1:3:A:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2281610773
+    },
+    {
+      "id": "1:3:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2281610773
+    },
+    {
+      "id": "1:0:B:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3977639764
+    },
+    {
+      "id": "1:0:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3977639764
+    },
+    {
+      "id": "1:1:B:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2841371716
+    },
+    {
+      "id": "1:1:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2841371716
+    },
+    {
+      "id": "1:2:B:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2406768491
+    },
+    {
+      "id": "1:2:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2406768491
+    },
+    {
+      "id": "1:3:B:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1140188337
+    },
+    {
+      "id": "1:3:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1140188337
+    }
+  ],
+  "independentSeedGroups": 8,
+  "trialsPerPolicy": 16,
+  "totalNativeAttempts": 32,
+  "sourceRank1Printed60Required": true,
+  "frozenCommonPolicy": {
+    "actorOnlyComposition": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorChoosePokemon": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "bilateralPublicContextSpecialEnergy": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootPositiveAttackOverPass": true,
+    "actorNaturalEvolutionRoot": true,
+    "losslessNativeRootJoin": true,
+    "sameRootPublicEventReceipt": true,
+    "nativeRejectedActionEvidence": true,
+    "allowAdditionalOriginalSourceRanks": true,
+    "nativeOwnerSupporterOpportunity": true,
+    "actorGuzmaNominalGust": false
+  },
+  "frozenEnvironment": {
+    "AGENT2_HELD_GUZMA_MOBILITY_DEV": "true"
+  },
+  "onlyTreatmentDifference": "bilateralBasicEnergyRecipientFrontier: false in control versus true in treatment, applied symmetrically to both actual player seats. Preserve every original source and candidate card, game seed, starting seat and other option.",
+  "primarySourceEvidence": "Native original-source owner first turns with face-up Bench-attached Energy and confirmed physically accepted Bench-directed Basic Energy PlayCardAction targets",
+  "secondarySourceEvidence": "Original-source Underworld Door optional Ability action and resolved owner hand/Bench/deck transitions; source actual AttackAction and public paid attack damage; candidate same metrics",
+  "readOnlyComparators": "Native seed/seat, original and complete initial physical deals, status/abort, source/candidate attack declarations, owner first-turn attached Energy, accepted target sidecar, physical opponent reply",
+  "qualification": "Developmental source policy improvement hypothesis only. No qualified paper matches, opponent competence, 25-minute clock, complete original Top32 field, or 99.5% claim."
+}
