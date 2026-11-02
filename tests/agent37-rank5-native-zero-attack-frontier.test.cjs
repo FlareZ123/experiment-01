@@ -23,8 +23,10 @@ function fixture(mode){
       rootActionLedger:[
         {playerSlot:sourceSeat,action:'PlayCardAction',
           card:'Mew VMAX FST',turnBefore:5,actionOrdinal:4},
+        {playerSlot:sourceSeat,action:'PlayCardAction',
+          card:'Double Colorless Energy',turnBefore:5,actionOrdinal:5},
         {playerSlot:1-sourceSeat,action:'PlayCardAction',
-          card:'Cynthia',turnBefore:6,actionOrdinal:5},
+          card:'Cynthia',turnBefore:6,actionOrdinal:7},
         ...(attacks?[{playerSlot:sourceSeat,action:'AttackAction',
           attack:'Cross Fusion Strike',turnBefore:7,actionOrdinal:6}]:[])
       ]};
@@ -38,7 +40,11 @@ test('projector reads only actual physical actor accepted public roots',()=>{
   const r=fixture('integrated')[5].rawNativeRow;
   const sourceSeat=r.trial.candidateSlot==='A'?1:0;
   const p=publicSourceRoots(r,sourceSeat);
-  assert.equal(p.acceptedSourceRootCount,2);
+  assert.equal(p.acceptedSourceRootCount,3);
+  assert.deepEqual(p.acceptedSourceDcePlayCardRoots,
+    [{turnBefore:5,actionOrdinal:5}]);
+  assert.ok(p.sourceAcceptedCardPlays.some(x=>
+    x.card==='Double Colorless Energy'));
   assert.equal(p.acceptedSourceMewVmaxPlayRoots,1);
   assert.equal(p.acceptedSourceAttackRoots.length,1);
   assert.equal(p.sourceRootTail[0].card,'Mew VMAX FST');
