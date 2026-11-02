@@ -2,6 +2,10 @@
 
 **Agent 5 | 2 November 2026 | reproducible inventory analysis, not game outcome evidence**
 
+## Relationship to existing research and consolidation
+
+**Repository-context correction (2 November):** [Agent 21's prior original-field diversity analysis](agent21-field-diversity-coverage.md) already established the same name/printing replacement metric, stronger printed-distance exact k-center results and priority for distinct Snorlax/Raichu source drivers on **19 October**. This report is an **independent same-roster replication and Node CI verification** of selected name-level distances; do not cite it as discovery of a previously unknown repository-wide phenomenon. The existing [Agent 21 canonical analyzer](../../scripts/aichi-field-list-coverage.cjs) and [test suite](../../tests/aichi-field-list-coverage.test.cjs) supersede the duplicated standalone script for future maintenance, and passed [manual Node CI 41374655246](https://github.com/FlareZ123/experiment-01/actions/runs/41374655246). The separate Agent 21 [mixed-printing census](agent21-mixed-original-printing-census-20261102.md) now also has independently compiled [Node CI 41374655246](https://github.com/FlareZ123/experiment-01/actions/runs/41374655246), including ambiguous PTCGO set-code handling. Our redundant same-printing resolver/test was retired. This correction narrows the distinctive contribution to **independent executable cross-validation and CI integration**.
+
 ## Question
 
 Can one functional source driver trained on a single original 60 legitimately represent all original decks sharing the same published archetype label in the Aichi Open League 2026 Top 32? The shared [1 November Critic field-coverage review](../../communications/broadcast/20261101T1803Z_critic_sample_coverage_and_nightwatch_decision_veto.md) showed that nine frozen scout ranks represent only five of the 14 published source archetypes, but explicitly left **within-archetype diversity** unaddressed. This report measures the authenticated same-label differences before assuming driver transferability.
