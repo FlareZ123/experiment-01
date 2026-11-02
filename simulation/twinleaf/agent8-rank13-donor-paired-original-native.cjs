@@ -1,0 +1,212 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {createHash}=require('node:crypto');
+const {initializeCards,runMatch}=require('./headless.cjs');
+const {resolveManifestFile}=require('./resolve-field.cjs');
+const {withCanonicalActorOnlyPolicy}=
+  require('../evaluation/agent7-canonical-actor-composition.cjs');
+const {withActorOnlyRootPolicy}=
+  require('./agent34-actor-only-root-policy.cjs');
+const {source13QuickBallActorAdapters}=
+  require('./agent8-rank13-donor-actor-adapters.cjs');
+
+const ROOT=path.resolve(__dirname,'../..');
+const REGISTRATION_PATH=path.join(ROOT,
+  'results/aichi-2026/registrations/agent8-rank13-donor-native-paired-20261102.json');
+const MANIFEST_PATH=path.join(ROOT,'results/aichi-2026/full-decklists.json');
+const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+
+/** @returns {{registration:object,byRank:Map<number,object>}} */
+function registration(){
+  const registered=JSON.parse(fs.readFileSync(REGISTRATION_PATH,'utf8'));
+  assert.equal(registered.schema,
+    'agent8-rank13-regidrago-quickball-donor-native-paired-original-v1');
+  assert.equal(registered.enginePin,PIN);
+  assert.equal(registered.trialMatrix.length,8);
+  const manifest=resolveManifestFile(MANIFEST_PATH,{
+    allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+  });
+  const byRank=new Map(manifest.decks.map(deck=>[deck.rank,deck]));
+  for(const rank of [1,13]){
+    const deck=byRank.get(rank);
+    assert.ok(deck?.playableUnderEngine,'Source not engine-mapped: '+rank);
+    assert.equal(deck.cardIds.length,60);
+  }
+  const seen=new Set();
+  for(const trial of registered.trialMatrix){
+    assert.ok(trial.sourceSeat===0||trial.sourceSeat===1);
+    assert.ok(Number.isSafeInteger(trial.seed)&&trial.seed>=0&&
+      trial.seed<=0xffffffff);
+    assert.ok(!seen.has(trial.seed),'Registered seed repeated');
+    seen.add(trial.seed);
+  }
+  return {registered,byRank};
+}
+
+/**
+ * Both arms receive exactly the same identical print-only owner prompt
+ * selectors and canonical actor composition. Only the root donor offer
+ * changes; the source rank13 physical seat alone may receive it.
+ *
+ * @param {{sourceSeat:0|1,seed:number}} trial
+ * @param {Map<number,object>} byRank
+ * @param {boolean} donorRootEnabled
+ * @returns {object}
+ */
+function executeOne(trial,byRank,donorRootEnabled){
+  const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
+  const sourceSeat=trial.sourceSeat;
+  const request={
+    deckA:sourceSeat===0?source:opponent,
+    deckB:sourceSeat===1?source:opponent,
+    seed:trial.seed,maxActions:160,
+    doubleDragonRecovery:true,strictPromptValidation:true,
+    isolatePolicyRandomness:true,captureDecisionTrace:true,
+    captureInitialSourceDealFingerprintSeat:sourceSeat,
+    captureInitialFullPhysicalDeal:true,
+    label:'agent8-original-rank13-donor-'+
+      trial.seed+'-'+sourceSeat+'-'+Number(donorRootEnabled)
+  };
+  const adapters={
+    root:work=>withActorOnlyRootPolicy(work,{
+      regidragoDonorQuickBallRoot:donorRootEnabled,
+      regidragoDonorQuickBallOwnerSeat:sourceSeat
+    }),
+    ...source13QuickBallActorAdapters(sourceSeat)
+  };
+  try{
+    const actual=withCanonicalActorOnlyPolicy(()=>runMatch(request),
+      adapters,{ownerSingleSearch:true,actorHandDiscard:true});
+    const game=actual.result,components=actual.audit.detailedComponentAudits;
+    assert.equal(game.seed,trial.seed);
+    assert.equal(game.engine,'twinleafgg/'+PIN);
+    assert.equal(game.verifiedByDrawLog,true);
+    const root=components.root,payment=components.handDiscard;
+    const search=components.ownerSearch;
+    const trace=game.rootActionLedger??[];
+    const opponentRootActions=trace.filter(row=>
+      row.playerSlot!==sourceSeat&&
+      ['PlayCardAction','AttackAction','PassTurnAction'].includes(row.action));
+    const sourceAttacks=trace.filter(row=>
+      row.playerSlot===sourceSeat&&row.action==='AttackAction');
+    const digest=createHash('sha256').update(JSON.stringify(
+      game.decisionTrace??[])).digest('hex');
+    return{
+      status:'native-returned',donorRootEnabled,
+      actualFirstSeat:game.firstTurnSlot,
+      gameFinished:game.finished===true,
+      nativeActionCount:game.actions,
+      turns:game.turns,
+      sourceDealSha256:
+        game.initialSourceDealFingerprint?.digestSha256??null,
+      fullPhysicalDealSha256:
+        game.initialFullPhysicalDealFingerprint?.digestSha256??null,
+      gameDecisionTraceSha256:digest,
+      deckHashes:game.deckHashes,
+      gameResult:game.result??null,
+      root:{
+        totalActorRoots:root.selectedRootDecisions,
+        acceptedActorRoots:root.acceptedActorRoots,
+        rejectedActorRoots:root.rejectedActorRoots,
+        donorIntents:root.regidragoDonorQuickBallIntentCount,
+        donorNativeAccepted:root.regidragoDonorQuickBallNativeAccepted,
+        donorNativeRejected:root.regidragoDonorQuickBallNativeRejected,
+        donorIntentsSample:root.ownerRootIntents.filter(row=>
+          row.intent?.source==='rank13-dragon-donor').slice(0,8),
+        donorNativeAcceptanceSample:root.nativeRootAcceptances.filter(row=>
+          row.intent?.source==='rank13-dragon-donor').map(row=>({
+            seat:row.seat,turn:row.globalTurn,
+            kind:row.kind,accepted:row.accepted,
+            nativePhysicalEffect:row.nativePhysicalEffect,
+            publicZonesChanged:row.publicZonesChanged
+          })).slice(0,8)
+      },
+      payment:{
+        nativeAccepted:payment.accepted,
+        sourceDonorPaymentProposals:payment.sourceDonorPaymentProposals,
+        nativeUnqualifiedFallbacks:payment.nativeFallbacks
+      },
+      search:{
+        nativeAccepted:search.accepted,
+        sourceRegidragoSearchProposals:search.sourceRegidragoSearchProposals,
+        nativeUnqualifiedFallbacks:search.nativeFallbacks
+      },
+      sourceAttacks:sourceAttacks.map(row=>({
+        turn:row.turnBefore,
+        action:row.action,
+        initiatingRootActionOrdinal:row.initiatingRootActionOrdinal??null
+      })).slice(0,8),
+      opponentFollowUp:opponentRootActions.map(row=>({
+        turn:row.turnBefore,action:row.action,
+        card:row.card??null
+      })).slice(0,8),
+      sourceAttackCount:sourceAttacks.length,
+      opponentRootCount:opponentRootActions.length,
+      competitiveGameQualified:false
+    };
+  }catch(error){
+    return{status:'native-aborted',donorRootEnabled,
+      error:String(error?.stack??error).slice(0,1100),
+      censored:true,competitiveGameQualified:false};
+  }
+}
+
+/** Run all independently registered source and seat attempts without omissions. */
+function main(){
+  initializeCards();
+  const {registered,byRank}=registration();
+  const rows=registered.trialMatrix.map(trial=>{
+    const control=executeOne(trial,byRank,false);
+    const treatment=executeOne(trial,byRank,true);
+    const matched=control.status==='native-returned'&&
+      treatment.status==='native-returned'&&
+      control.sourceDealSha256!==null&&
+      control.sourceDealSha256===treatment.sourceDealSha256&&
+      control.fullPhysicalDealSha256!==null&&
+      control.fullPhysicalDealSha256===treatment.fullPhysicalDealSha256;
+    return {trial,control,treatment,
+      matchedInitialSourceAndFullPhysicalDeal:matched,
+      competitiveQualifiedGames:0};
+  });
+  const counts={
+    registeredSourceDeals:rows.length,
+    nativeGameAttempts:rows.length*2,
+    bothNativeReturned:rows.filter(row=>
+      row.control.status==='native-returned'&&
+      row.treatment.status==='native-returned').length,
+    initialDealPairsVerified:rows.filter(row=>
+      row.matchedInitialSourceAndFullPhysicalDeal===true).length,
+    nativeAbortArms:rows.reduce((n,row)=>
+      n+(row.control.status==='native-aborted'?1:0)+
+      (row.treatment.status==='native-aborted'?1:0),0),
+    treatmentDonorIntents:rows.reduce((n,row)=>
+      n+(row.treatment.root?.donorIntents??0),0),
+    treatmentDonorNativeAccepted:rows.reduce((n,row)=>
+      n+(row.treatment.root?.donorNativeAccepted??0),0),
+    donorPaymentProposalsBothArms:rows.reduce((n,row)=>
+      n+(row.control.payment?.sourceDonorPaymentProposals?.length??0)+
+      (row.treatment.payment?.sourceDonorPaymentProposals?.length??0),0),
+    donorSearchProposalsBothArms:rows.reduce((n,row)=>
+      n+(row.control.search?.sourceRegidragoSearchProposals?.length??0)+
+      (row.treatment.search?.sourceRegidragoSearchProposals?.length??0),0)
+  };
+  return {schema:registered.schema,sourceRank:13,opponentRank:1,
+    exactlyOriginalSourceSixties:true,enginePin:PIN,
+    maxActions:160,
+    experimentRegistration:
+      'results/aichi-2026/registrations/agent8-rank13-donor-native-paired-20261102.json',
+    precommittedBeforeOutcomes:true,
+    isolatedDifference:'source13 donor Quick Ball owner-root offer only',
+    bothArmsShareSourceScopedDonorPaymentAndSearchPrompts:true,
+    counts,rows,competitiveQualifiedGames:0,
+    caveat:'Native seeded original-60 development games with simplified and generic-fallback actor policy. No paper tournament clock or strong opponent policy. Outcomes do not qualify for a competitive win rate.'};
+}
+if(require.main===module){
+  const report=main();
+  console.log('AGENT8_RANK13_DONOR_NATIVE_PAIRED_SUMMARY',
+    JSON.stringify({schema:report.schema,counts:report.counts}));
+  process.stdout.write(JSON.stringify(report,null,2)+'\n');
+}
+module.exports={registration,executeOne,main};
