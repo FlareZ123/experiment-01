@@ -207,8 +207,11 @@ function withSharedFirstTurnBoxShake(execute,options={}){
         if(preBoxScout&&offer.trubbishMode==='held-searcher'&&
            offer.basicSearcher==='Quick Ball'){
           const costName=offer.discardNames[0];
+          // The K0 planner reserves one *physical* Quick Ball. A duplicate
+          // Quick Ball may be the spare cost without consuming the played
+          // searcher; the native payment prompt validates the distinct card.
           assert.ok(costName&&costName!=='Secret Box'&&
-            costName!=='Quick Ball'&&costName!=='Trubbish');
+            costName!=='Trubbish');
           flow={stage:'prebox-basic-discard',
             firstTurn:state.turn,scoutCard:'Quick Ball',
             scoutPaymentName:costName,shakeKnownAvailable:null};
