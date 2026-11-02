@@ -82,6 +82,10 @@ function checkProfile(profile, runnerSource) {
   assert.deepEqual([...new Set(profile.registeredTrials.map(t=>t.seed))].sort(),
     profile.precommitTrialSeeds.slice().sort());
   assert.equal(profile.strictEnvironment, true);
+  assert.ok(profile.pinnedSourceGitBlobs &&
+    Object.keys(profile.pinnedSourceGitBlobs).length>=11,
+    'Frozen research dependency source registry missing');
+  assert.equal(profile.pinnedSourceGitBlobs[RUNNER] !== undefined,true);
   assert.equal(profile.preserveEveryAttempt, true);
   assert.equal(profile.dispositionsMustNotClaimWin, true);
 }
@@ -200,6 +204,10 @@ function runFrozenCanary() {
   const rosterBytes=fs.readFileSync(path.join(ROOT,profile.printedRoster));
   assert.equal(gitBlobSha(rosterBytes),profile.printedRosterBlobSha,
     'Original opponent printing roster has changed');
+  for (const [filename,blobSha] of Object.entries(profile.pinnedSourceGitBlobs)) {
+    assert.equal(gitBlobSha(fs.readFileSync(path.join(ROOT,filename))),blobSha,
+      'Frozen release source dependency changed: '+filename);
+  }
   assert.ok(fs.readFileSync(path.join(ROOT,'.gitmodules'),'utf8')
     .includes('path = '+profile.pinnedVendorPath));
   const vendor=execFileSync('git',
@@ -242,6 +250,8 @@ function runFrozenCanary() {
         sourceClosureComputedEnvSites:
           closure.limitations.computedEnvSites.length,
         frozenPolicyOptions:profile.policyOptions,
+        pinnedSourceSnapshotCommit:profile.pinnedSourceSnapshotCommit,
+        pinnedSourceGitBlobs:profile.pinnedSourceGitBlobs,
         injectedResearchEnvironment:profile.injectedResearchEnvironment},
       releaseDisposition:disposition(result,profile),
       rawNativeResult:result,
