@@ -30,6 +30,10 @@ The test is intentionally discriminating: prompt min/max, `prompt.validate` resu
 
 **Execution status:** No new CI result is available for this Guzma & Hala prospective fixture. A later manual workflow dispatch attempt for the preceding Dowsing provenance assertion was blocked by host safety checks; no workaround or reroute was attempted. The G&H test has been committed but not run and may fail because of fixture details or engine semantics. Explicitly do not promote it to confirmed status until a successful actual pinned-native both-seat replay and complete verified receipt exist.
 
+## Existing rank6 policy already has a valid payment branch
+
+Independently inspected [`rank6-broad-thorns-policy.cjs`](../../simulation/twinleaf/rank6-broad-thorns-policy.cjs), around its G&H source-prompt handler. When that opt-in line chooses the enhanced G&H mode, it obtains two real owner-hand cards through `chooseOpeningDiscards` and **explicitly requires both `payment.length === 2` and `prompt.validate(payment,state)`** before submitting `ResolvePromptAction`. This is a narrow source-specific safeguard in the existing ALS policy. The suspected generic unguarded Store vulnerability does **not** justify claiming the original rank6 opening policy has ever used it. Actual composite selected policy paths and all other owners still require examination. This balance matters before assigning a priority to a hypothetical exploit.
+
 ## Implications and release condition
 
 A genuine rank6 Guzma & Hala natural ALS (Tag Call → G&H → Special Energy/Tool/Stadium) is central to the Iron Thorns attacking line. A false free Tool+Energy opportunity would inflate source competence and distort candidate comparisons; conversely improper rejection of a legal two-card paid branch could artificially weaken source. Three original Iron Thorns ranks and two Vileplume ranks are enough to justify investigating the *actual* Supporter payment continuation.
