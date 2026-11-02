@@ -15,6 +15,8 @@ test('rank13 actual printed source and exact Basic-valid seven hands',()=>{
   assert.equal(x.validBasicHands,'300306336');
   assert.equal(x.originalSalamenceEitherItemNoVHands,'8943039');
   assert.equal(x.dualItemDonorNoVHands,'3736131');
+  assert.equal(x.dualItemTwoDonorsNoVHands,'248388');
+  assert.ok(Math.abs(x.dualTwoDonorsFractionOfValidBasicOpeners-0.0008271154159065095)<1e-14);
   assert.ok(Math.abs(x.dualFractionOfValidBasicOpeners-0.012441066178503806)<1e-14);
   assert.ok(Math.abs(x.originalSalamenceEitherItemFraction-0.029779721330954537)<1e-14);
   assert.equal(x.competitiveQualifiedGames,0);
