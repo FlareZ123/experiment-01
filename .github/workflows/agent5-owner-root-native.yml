@@ -96,7 +96,7 @@ jobs:
         run: node simulation/twinleaf/agent5-owner-visible-marshadow-autonomous-native.cjs > agent5-owner-visible-marshadow-policy-native.json
       - name: Audit genuine native owner-only counter-policy roots and all four arm failures
         if: ${{ inputs.forced_active_marshadow_policy }}
-        run: node -e "const r=require('./agent5-owner-visible-marshadow-policy-native.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attemptedArms,successes:r.actualNativePolicySuccesses,arms:r.rows.map(x=>({seat:x.seat,payment:x.payment,success:x.success,roots:x.roots?.map(r=>r.intent.kind),error:x.error?.slice(0,3000)}))},null,2))"
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent5-owner-visible-marshadow-policy-native.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attemptedArms,successes:r.actualNativePolicySuccesses,arms:r.rows.map(x=>({seat:x.seat,payment:x.payment,success:x.success,roots:x.roots?.map(r=>r.intent.kind),error:x.error?.slice(0,3000)}))},null,2));a.equal(r.competitiveQualifiedGames,0);a.equal(r.attemptedArms,4);a.equal(r.actualNativePolicySuccesses,4);a.ok(r.rows.every(x=>x.success&&x.nativeRootCount===5&&x.originalTurnPreserved&&x.finalActive==='Shadow Rider Calyrex V CRE'&&x.opponentLostZone.includes('Thunder Mountain Prism Star LOT')));"
       - name: Staged forced-Active Marshadow same-turn Fog retreat and Resetting Hole four-arm native chain
         if: ${{ inputs.forced_active_marshadow_chain }}
         run: node simulation/twinleaf/agent5-forced-active-marshadow-chain-native.cjs > agent5-forced-active-marshadow-chain.json
