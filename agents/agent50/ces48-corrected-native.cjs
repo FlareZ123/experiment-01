@@ -57,3 +57,4 @@ function attack(x,count){
   const p=x.state.prompts.find(row=>row.result===undefined);
   if(!p)break;
   const kind=p.constructor.name;
+  if(kind==='WaitPrompt'){
