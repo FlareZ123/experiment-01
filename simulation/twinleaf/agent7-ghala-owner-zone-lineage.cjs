@@ -31,10 +31,13 @@ function withGuzmaHalaOwnerZoneLineage(run, dependencies = {}) {
 
   const events = [];
   const dispatchCounts = new WeakMap();
+  const liveStoreOrdinals = new WeakMap();
+  let nativeGameCount = 0;
   const audit = {
     schema: VERSION,
     printing: PRINTING,
     paymentMessage: PAYMENT_MESSAGE,
+    liveOnly:dependencies.liveOnly === true,
     observedPaymentPrompts: 0,
     paperTwoCardZoneWitnesses: 0,
     rejectedOrUnverifiedPayments: 0,
@@ -44,6 +47,9 @@ function withGuzmaHalaOwnerZoneLineage(run, dependencies = {}) {
   };
 
   function dispatch(action, ...args) {
+    if(action?.constructor?.name === 'AddPlayerAction' &&
+        !liveStoreOrdinals.has(this))
+      liveStoreOrdinals.set(this,nativeGameCount++);
     const count = (dispatchCounts.get(this) ?? 0) + 1;
     dispatchCounts.set(this, count);
     const isResolution = action?.constructor?.name === 'ResolvePromptAction';
@@ -52,7 +58,9 @@ function withGuzmaHalaOwnerZoneLineage(run, dependencies = {}) {
     ) : null;
     const observe = prompt?.sourceCard?.fullName === PRINTING &&
       prompt.message === PAYMENT_MESSAGE;
-    if (!observe) return old.value.call(this, action, ...args);
+    if (!observe || (dependencies.liveOnly === true &&
+        !liveStoreOrdinals.has(this)))
+      return old.value.call(this, action, ...args);
 
     const ownerBefore = this.state?.players?.find(p =>
       p.id === prompt.playerId
@@ -70,6 +78,8 @@ function withGuzmaHalaOwnerZoneLineage(run, dependencies = {}) {
       new Set(discardBefore) : null;
     const witness = {
       storeDispatchOrdinal: count,
+      gameOrdinal:liveStoreOrdinals.get(this) ?? null,
+      globalTurnBefore:this.state?.turn ?? null,
       playerId: prompt.playerId ?? null,
       ownerSeat: Array.isArray(this.state?.players) ?
         this.state.players.indexOf(ownerBefore) : null,
@@ -77,6 +87,8 @@ function withGuzmaHalaOwnerZoneLineage(run, dependencies = {}) {
       requestedCount: Array.isArray(selected) ? selected.length : null,
       distinctSelected: Array.isArray(selected) ?
         new Set(selected).size : null,
+      selectedPrintings:Array.isArray(selected) ?
+        selected.map(card => card?.fullName ?? null) : null,
       nativePromptMin: prompt.options?.min ?? null,
       nativePromptMax: prompt.options?.max ?? null,
       handCountBefore: Array.isArray(handBefore) ? handBefore.length : null,
