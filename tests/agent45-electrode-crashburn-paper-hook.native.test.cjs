@@ -131,3 +131,55 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+const {withOwnerCes48GXPayment}=
+  require('../simulation/twinleaf/agent45-owner-ces48-gx-payment.cjs');
+const {SimpleTacticsAi}=
+  native('simple-bot/simple-tactics-ai');
+
+for(const seat of [0,1]){
+ for(const count of [0,1,2]){
+  test('owner-only CES48 native GX payment seat '+seat+' count '+count,()=>{
+   const s=stage(seat);
+   const remaining=30+50*count;
+   const printedHp=s.defender.active.getPokemonCard().hp;
+   s.defender.active.damage=printedHp-remaining;
+   const bot=new SimpleTacticsAi({id:s.source.id},
+     {tactics:[],promptResolvers:[]},null);
+   const wrapped=withElectrodeCrashBurnPaper(()=>
+     withOwnerCes48GXPayment(()=>{
+      s.store.dispatch(new AttackAction(s.source.id,'Crash and Burn-GX'));
+      for(let j=0;j<12;j++){
+       const waiting=s.state.prompts.find(p=>p.result===undefined&&
+         p.constructor.name==='WaitPrompt');
+       if(!waiting)break;
+       s.store.dispatch(new ResolvePromptAction(waiting.id,null));
+      }
+      const p=s.state.prompts.find(x=>x.result===undefined&&
+        x.constructor.name==='DiscardEnergyPrompt');
+      assert.ok(p,'Real GX payment must remain pending');
+      const action=bot.resolvePrompt(s.source,s.state,p);
+      assert.equal(action?.constructor.name,'ResolvePromptAction');
+      assert.equal(action.result?.length,count);
+      assert.equal(p.validate(action.result),true);
+      s.store.dispatch(action);
+      return {chosen:action.result.length,
+        discarded:s.lightning.filter(card=>
+          s.source.discard.cards.includes(card)).length,
+        gxConsumed:s.source.usedGX};
+     },{initialLiveStore:s.store}));
+   assert.equal(wrapped.result.result.chosen,count);
+   assert.equal(wrapped.result.result.discarded,count);
+   assert.equal(wrapped.result.result.gxConsumed,true);
+   assert.equal(wrapped.result.audit.selected,1);
+   assert.equal(wrapped.result.audit.accepted,1);
+   assert.equal(wrapped.result.audit.bySeat[seat],1);
+   assert.equal(wrapped.audit.settled.length,1);
+   assert.equal(wrapped.audit.settled[0].count,count);
+   console.log('AGENT45_OWNER_CES48_NATIVE_GX_PAYMENT',JSON.stringify({
+    seat,count,printedRaw:remaining,physicalDiscards:count,
+    selected:1,accepted:1,competitiveQualifiedGames:0
+   }));
+  });
+ }
+}
