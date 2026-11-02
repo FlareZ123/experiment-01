@@ -696,6 +696,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.regidragoDonorQuickBallOwnerSeat??null,
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
+    adpBoostedGxRootOptIn:deps.adpBoostedGxRoot??
+      (process.env.AGENT28_ADP_GX_ROOT_DEV==='true'),
     printedFirstTurnAttackRootOptIn:deps.printedFirstTurnAttackRoot??
       (process.env.AGENT37_FIRSTTURN_ATTACK_ROOT_DEV==='true'),
     potentialKoRootOptIn:deps.potentialKoRoot??
