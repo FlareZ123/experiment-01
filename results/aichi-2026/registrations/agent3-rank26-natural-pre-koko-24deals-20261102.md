@@ -21,3 +21,10 @@ Observe whether v2 ever actually triggers in natural source games. A **zero-hit 
 ## Version constraints and postanalysis
 
 Pinned deck hashes, source code and vendor revision are required on output. Do not change trial seed range or code in response to trial outcomes; any follow-up must be a separate explicit version. Native mismatches and errors are separate outcomes. This specific experiment cannot establish improved fixed-60 win rate. A next stage would require an owner-only search/preparation policy that actually assembles registered rank26 non-staged resources and a meaningful rank6 opponent continuation.
+
+
+## Prospective seed-API erratum, 02:57 UTC, before any successful source trial
+
+The first workflow attempt [41380099291](https://github.com/FlareZ123/experiment-01/actions/runs/41380099291) **failed before the first random deal**. The existing repository's `scripts/aichi-decorrelated-seeds.cjs` explicitly requires `repeat` to be 0 through 99, while this registration mistakenly prescribed 140 through 151. No game state or result was observed, and no seed outcome could be selected or excluded.
+
+Replacement **version 1.1** for the same sample size, both seats and phase/seed-base uses **repeats 84 through 95 inclusive**. The new range is declared here **before changing the source file or dispatching the amended trial**, with zero earlier gameplay observations. All other policies, caps, reporting, and 24 unique source setups / 48 native arms remain identical. Preserve [41380099291](https://github.com/FlareZ123/experiment-01/actions/runs/41380099291) as a failed protocol attempt; no unregistered replacement or postselection.
