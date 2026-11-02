@@ -444,7 +444,8 @@ function verify(seat,opponentGuzma=false,continueAfterGuzma=false,
         nativeAttackPrompts.push(kind);
         x.f.store.dispatch(answer);
       }
-      assert.equal(x.f.store.hasPrompts(),false);
+      assert.equal(x.state.prompts.some(p=>p.result===undefined),false,
+        'Native attack must settle all pending prompts');
       assert.equal(x.owner.active.getPokemonCard()?.fullName,
         'Bunnelby PRC','Rank6 must Knock Out the gusted 100 HP Exeggutor');
       assert.equal(x.opponent.prizes.reduce((n,p)=>n+p.cards.length,0),5,
