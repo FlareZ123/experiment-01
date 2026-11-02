@@ -47,3 +47,4 @@ function stage(seat){
  state.activePlayer=seat;
  state.turn=4;
  state.phase=GamePhase.PLAYER_TURN;
+ state.gameSettings.format=Format.EXPANDED;
