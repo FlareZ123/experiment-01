@@ -41,9 +41,9 @@ The nonmatching rank16 registered pair is 16:1:B. The competing source physical 
 Apply this reporting contract to a newly selected immutable cross-source common-policy release and secure an actually paper-eligible, owner-selected source characteristic action followed by validated cost/target/effect and a consequential opposing response from the same physical lineage. Both archived experiments remain unqualified. Global benchmark standing remains **29/32 authenticated original sixty-card lists, zero competitively qualified paper games, and no demonstrated 99.5% winning fixed deck**.
 
 
-## New physical-pair mechanism: different opponent mulligan setup, same first owner hand
+## New physical-pair mechanism: opponent mulligan and setup-dependent source-deal drift
 
-Root-ledger comparison across the **eight actual rank16 registered seed pairs** now establishes a sharper distinction. For 7/8 pairs the source physical fingerprints and the relevant setup-prompt histories both match. In the only mismatching pair, 16:1:B, the original source's **first own-hand SHA-256 is identical** across champion-reference and New Moon, while its complete original-source physical-deal SHA-256 differs.
+Root-ledger comparison across the **eight actual rank16 registered seed pairs** now establishes a sharper distinction. For 7/8 pairs the source physical fingerprints and the relevant setup-prompt histories both match. In the only mismatching pair, 16:1:B, the legacy field named **sourceFirstOwnHandSha256 is identical** across champion-reference and New Moon, while the actual original-source physical-deal SHA-256 differs. A new source-code audit below shows that the legacy hand hash can be captured **during setup**, so actual first-live-turn hand equality has **not been certified**.
 
 The accepted setup root sequence is different:
 
@@ -52,9 +52,17 @@ The accepted setup root sequence is different:
 | Candidate physical deck ShuffleDeckPrompt actions at setup | **2** | **1** |
 | Total setup ShowMulliganPrompt root actions (both seats) | **2** | **0** |
 | Setup-phase ResolvePromptAction root count | **11** | **6** |
-| Source first-own-hand SHA-256 | same | same |
+| Legacy sourceFirstOwnHandSha256 (possible setup hash) | same | same |
 | Source full physical-deal SHA-256 | **different** | **different** |
 
 In the champion-reference arm the opponent's additional setup shuffle and the source's observed post-mulligan SelectPrompt / ChooseCardsPrompt occur before the first turn. The New Moon arm lacks those events. In the other seven pairs, both source and candidate setup-shuffle prompt counts match and the source physical digests are equal. This is a strong **association of the source-deal drift with different opponent mulligan/setup histories**, without a controlled causal proof of how Twinleaf consumed its random-number streams or how much came from compensation draws versus order of Prize placement.
 
-The critical experimental lesson is that **matching original source first-owner hand hashes does not certify a matched physical source deal**. Prize cards, draw-pile order, setup Bench placement and follow-on draws must be authenticated separately. The new bridge exposes per-seat native setup prompt counts, first owner hand SHA equality and a dedicated same-hand/different-source-deal veto. Its local test suite now passes **12/12** cases, with full-archive replays rechecked on both unchanged ZIPs. No new CI or paper game was executed.
+The critical experimental lesson is that **matching the legacy early source-hand hash cannot certify a matched physical source deal or actual first-live-turn hand equality**. Prize cards, draw-pile order, setup Bench placement and follow-on draws must be authenticated separately. The corrected bridge exposes per-seat native setup prompt counts, **legacy early source-hand hash equality**, and a different-source-deal veto with **actualFirstLiveOwnerHandEqualityCertified:false**. Its local test suite now passes **12/12** cases, with full-archive replays rechecked on both unchanged ZIPs. No new CI or paper game was executed.
+
+## Further source-code audit: the misleading hand-hash timing
+
+The historical rank16 reporter computes `sourceFirstOwnHandSha256` using the first `game.decisionTrace` entry with the source actor's hand. Its `find` predicate **does not require the source's actual first playing turn**, and `simulation/twinleaf/headless.cjs` records `ChooseCardsPrompt` resolutions in `decisionTrace` even during setup. In both original `16:1:B` arms, source seat A has a genuine `turnBefore:0` `ChooseCardsPrompt` root at ordinal 4, preceding the opponent mulligan bonus prompt at ordinal 9 in the champion-reference arm. That first recorded source decision is therefore setup-phase and the resulting legacy digest should not be called a live-turn first-owner hand fingerprint.
+
+The archived real Store setup-compensation audit resolves the mismatch independently: **champion-reference opponent mulligans [0,1], source bonus offered 1, selected 1 and drawn 1**, while New Moon shows mulligans [0,0] and zero setup bonus cards. Both runs have source initial deal prize counts six, source initially second, and original printed source sixty unchanged. The source-deal digest differs. The recorded source first-own-turn resource **counts** come from a separate genuine first-own-turn observer and are equal on the named cards, but that count map cannot establish full physical hand equality. The confirmed causal *timing* is opponent mulligan and resulting source bonus before the source first live turn; the precise seeded random-stream/draw order producing the source-digest difference remains unproved.
+
+**Correction to prior report wording:** all references above to equal early owner-hand hashes are restricted to the legacy, potentially setup-phase field. The bridge now labels it `sameLegacyEarlySourceHandSha`, keeps `legacyDigestMayBeSetupPhase:true`, and explicitly records `actualFirstLiveOwnerHandEqualityCertified:false`. This correction prevents a false same-hand hypothesis from being propagated to the next selected policy release. The source-deal mismatch and setup-compensation receipts remain independently verified.
