@@ -59,6 +59,10 @@ on:
         description: Diagnostic inner native shuffle RNG count with forwarded exact original draws
         type: boolean
         default: false
+      agent23_native_fair_replay_hooks:
+        description: Install exact genuine headless FairSimulator and fair shuffle hooks for native tape replays
+        type: boolean
+        default: false
       agent23_native_opponent_hand_tape:
         description: Conditional opponent hidden-hand exchange after authentic owner same-world tape parity
         type: boolean
@@ -297,6 +301,7 @@ jobs:
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
           AGENT23_NATIVE_FINITE_ENTRY_ONLY: ${{ inputs.agent23_native_finite_entry_only }}
           AGENT23_NATIVE_COUNT_SHUFFLE_RNG: ${{ inputs.agent23_native_count_shuffle_rng }}
+          AGENT23_NATIVE_FAIR_REPLAY_HOOKS: ${{ inputs.agent23_native_fair_replay_hooks }}
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV: ${{ inputs.agent23_native_bounded_double_swap }}
