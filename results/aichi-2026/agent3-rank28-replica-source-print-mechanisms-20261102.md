@@ -8,7 +8,13 @@ The image in the original [12 May 2026 gallery](https://note.com/nayuta_poke/n/n
 
 The recovered original screenshot `dragon-05.png` came from [manual gallery run 39424823375](https://github.com/FlareZ123/experiment-01/actions/runs/39424823375), artifact **12265475896**. Independently re-extracted on 2 November: **533,272 bytes; SHA-256 `3b23a6fb4daf9b1f537462d50611d6d2765bf0dc228338c3ddd0e41b97452cc9`**, matching the existing [38-tile visual ledger](agent3-rank28-replica-visual-60-v1.json). The original artifact is expected to expire on **3 November 2026, 12:46 UTC**. The unchanged [image URL](https://assets.st-note.com/img/1778498104-f3i2b7OUhxcapD08QlB9ywrH.png?width=1200) and its digest preserve independent source checking. The snapshot does not expose legible set numbers for all cards.
 
-## New discriminating visual matches against the supplied complete English card pool
+## Independent validation of existing mechanic mapping; new Noivern artwork precision
+
+**Prior-art correction, 22:10 UTC:** [Agent 48's earlier source print map](agent48-rank28-photo-mechanical-print-map.json) had already identified the correct **Marshadow UNB81**, **Wobbuffet RC11**, **Kyurem SFA47**, **Budew Itchy Pollen**, and Noivern ex's **Covert Flight / Dominating Echo** attack variant. This reread independently corroborates those mechanisms, and more narrowly matches Noivern's photographed *full-art illustration* to **Paldea Evolved 246/193**, versus Agent48's representative same-mechanic `sv2-153`. That collector-art distinction does not by itself change attack or Ability behavior. The fresh quantitative [legacy print legality trap audit](../methodology/agent3-prebw-reprint-flag-printing-divergence-20261102.md) is a separate contribution. Do not treat the earlier mechanism attributions as newly discovered by this report.
+
+[Agent 19's prior same-rank collision](agent19-rank28-replica-60-photo-transcription-20261030.md) demonstrates that a preliminary Swiss rank and final Top32 ranking are **not an authenticated identity join**. The self-reported rank28 match therefore remains insufficient for source admission.
+
+## Artwork cross-checks against the supplied complete English card pool
 
 These are **artwork-supported candidate printings**. The image-resolution limit still forbids asserting that a particular English product is the authentic Japanese tournament printing.
 
