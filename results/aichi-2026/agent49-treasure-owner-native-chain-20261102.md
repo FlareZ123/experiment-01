@@ -1,0 +1,23 @@
+# Agent 49: pinned Mysterious Treasure two-seat native action chain
+
+**2 November 2026 | Development-only paper Expanded source interaction.** Exact pinned Twinleaf upstream gitlink: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The original 29-source print census and rank10 Regidrago donor statistics remain in [the Oct30 print-release result](agent49-native-print-release-gate-20261030.md). This finding does not produce a qualified game or a deck-strength estimate.
+
+## Native Store proof, both actual owner seats
+
+The genuine pinned Store's `Mysterious Treasure FLI` item from the owner's hand requests a physical one-card payment. The staged test places the actually printed Dragon `Dragapult ex TWM` in hand and a genuine `Regidrago VSTAR SIT` in the owner's remaining deck, with Regidrago V already on Bench. The test chooses the printed donor using the live owner-hand `ChooseCardsPrompt`, then chooses VSTAR through the newly granted live owner-deck prompt.
+
+The full physical sequence executes a native `ShowCardsPrompt`, a non-null seeded `ShuffleDeckPrompt` permutation and the native waiting prompt. The terminal staged assertions require the donor **and the Item** in the owner's discard, VSTAR in the owner's hand and absent from deck, no remaining Store prompt and an unchanged opponent hand. Both physically distinct seats passed **2/2** in [manual pinned CI 41377396511](https://github.com/FlareZ123/experiment-01/actions/runs/41377396511). The workflow as a whole failed at the subsequent owner-only automated prompt adapter. **A successful staged payment/effect does not establish a naturally selected player decision or match win.**
+
+The earlier [run 41133516227](https://github.com/FlareZ123/experiment-01/actions/runs/41133516227) failed after replying to a native shuffle prompt with `null`; `CardList.applyOrder` requires an actual number permutation. This was a test harness error, not evidence that native Mysterious Treasure cannot settle. The current direct test uses `deckPermutation` and passes.
+
+## Separate owner-only policy bridge and failure provenance
+
+`simulation/twinleaf/agent49-mysterious-treasure-prompt-continuation.cjs` intercepts genuine accepted Item roots and owns the payment prompt; it is supposed to move into a separately observed owner deck-search step only after a real accepted discard. Both-seat regression `tests/agent49-owner-treasure-native-prompt-bridge.test.cjs` previously failed, revealing that the second owner deck prompt arrived while the bridge retained `plan.step='cost'`. Diagnostic [CI 41377396511](https://github.com/FlareZ123/experiment-01/actions/runs/41377396511) showed the physical VSTAR was native-valid yet inaccessible to the incorrect step selector. The adapter's acceptance plan was missing the `ownerId` field subsequently looked up in the paid-discard callback; the callback therefore returned before updating its step. This has now been patched in commit `49c6d5b97b4d2369039c5cf81c89261a9c886dd7`. **At this report's initial creation, the bridge fix is awaiting an independent compiled rerun; it is a code-level diagnosis, not yet a claimed verified success.**
+
+Trace events now distinguish mismatched native prompt, missing eligible owner-only candidate and planned-discard callback acknowledgement. The native actor and Store prototype wrappers are restored after the scoped synchronous run. Policy remains explicitly opt-in under `mysteriousTreasureRoot`. The original Store must continue to establish physical payment and source authority; a staged card-catalog search alone does not certify it.
+
+## Integration and open gates
+
+The existing manually dispatched `.github/workflows/aichi-card-audit.yml` has both direct and bridge tests ahead of an independent Agent40 BUS lock-position test. [Run 41376985348](https://github.com/FlareZ123/experiment-01/actions/runs/41376985348) encountered four actual BUS test failures before the prior order reached this bridge; this was separately relayed to Agent40's mailbox, and its fail-hard regression remains intact. No workflow was added and no on-push trigger changed.
+
+The optional existing `native_treasure_pair` workflow input can attempt four original-deck rank10 Regidrago vs rank1 Shadow Rider first-seat/order fixed-seed development games, never full-field evidence. Genuine 32-opponent qualification still needs a frozen two-player policy, both starts, action-root/payment/effect/randomness paper proof, representative opponents, tournament clock and the three missing exact original lists. **29/32 original sixties, 0 competitive-qualified games, no demonstrated 99.5% fixed 60.**
