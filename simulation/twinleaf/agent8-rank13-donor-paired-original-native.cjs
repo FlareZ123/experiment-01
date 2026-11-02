@@ -80,11 +80,28 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
   };
   const {Stage}=require(path.join(ROOT,
     'vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
+  const sourceDragonDonors=new Set([
+    'Regidrago V SIT','Regidrago VSTAR SIT','Salamence ex JTG',
+    'Dragapult ex TWM','Noivern ex PAL','Dialga-GX UPR','Kyurem SFA'
+  ]);
+  const sourceDragonDiscardTimeline=[];
+  const sourceDragonDiscardKeys=new Set();
   const ownerVstarObservations=[];
   const ownerVstarKeys=new Set();
   const observedRoot=(state,seat)=>{
     const actor=actorObservation(state,seat);
     if(seat===sourceSeat){
+      const present=(actor.ownPublic.discard??[])
+        .filter(printing=>sourceDragonDonors.has(printing));
+      const donorReceipt={turn:actor.globalTurn,
+        copyableDragonDiscard:[...new Set(present)].sort(),
+        copyableDragonCardsInDiscard:present.length};
+      const donorKey=JSON.stringify(donorReceipt);
+      if(!sourceDragonDiscardKeys.has(donorKey)){
+        sourceDragonDiscardKeys.add(donorKey);
+        if(sourceDragonDiscardTimeline.length<100)
+          sourceDragonDiscardTimeline.push(donorReceipt);
+      }
       const root=observeRank13VstarOpportunity(actor,Stage);
       if(root.heldVstarCount>0||root.inPlayRegidragoVCount>0){
         const key=JSON.stringify(root);
@@ -175,6 +192,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       sourceCopiedAttackSelections:(components.chooseAttack?.selections??[])
         .filter(choice=>choice.seat===sourceSeat),
       sourceOwnerVstarObservations:ownerVstarObservations,
+      sourceOwnerDragonDiscardTimeline:sourceDragonDiscardTimeline,
       sourceOwnerEligibleVstarRootTurns:[...new Set(ownerVstarObservations
         .filter(row=>row.ordinaryVstarRootLegal).map(row=>row.turn))],
       deckHashes:game.deckHashes,
