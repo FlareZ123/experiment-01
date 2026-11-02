@@ -7,9 +7,14 @@ function withPaperPlumeriaPayment(run){
  const {Store}=require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
- const audit={version:'plumeria-paper-cost-v1',observed:0,accepted:0,
-  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[]};
+ const audit={version:'plumeria-paper-cost-v2',observed:0,accepted:0,
+  rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],nativeAddPlayerStores:0};
+ const liveStoreOrder=new WeakMap();
  function dispatch(action,...args){
+  if(action?.constructor?.name==='AddPlayerAction'&&!liveStoreOrder.has(this)){
+   audit.nativeAddPlayerStores++;
+   liveStoreOrder.set(this,audit.nativeAddPlayerStores);
+  }
   let receiptBefore=null;
   if(action?.constructor?.name==='ResolvePromptAction'){
    const p=this.state?.prompts?.find(x=>x.id===action.id&&x.result===undefined);
@@ -44,6 +49,8 @@ function withPaperPlumeriaPayment(run){
    audit.accepted++;
    audit.physicalPaymentReceipts.push({
     printing:'Plumeria BUS',ownerSeat:receiptBefore.ownerSeat,
+    nativeStoreOrdinal:liveStoreOrder.get(this)??null,
+    globalTurnAfter:this.state.turn??null,
     paymentNames:receiptBefore.cardNames,
     submittedPhysicalCount:cards.length,
     handMembersBefore:receiptBefore.handBefore,
