@@ -36,11 +36,22 @@ function ownerSupporterOpportunity(state,seat,supporterType){
   assert.ok(Array.isArray(owner.bench)&&Array.isArray(opponent.bench));
   const occupied=player=>player.bench.filter(slot=>
     slot.getPokemonCard()!=null).length;
+  const ownBenched=owner.bench.filter(slot=>
+    slot.getPokemonCard()!=null);
+  // Energy cards are attached face up. Counts are deliberately only
+  // investment evidence: variable Energy provision, Ability modifiers,
+  // attack effects, GX restrictions and tool locks are not certified.
+  const energyCount=slot=>slot.energies?.cards?.length??0;
   const publicGuzmaGeometry={
     ownActiveOccupied:owner.active.getPokemonCard()!=null,
     opponentActiveOccupied:opponent.active.getPokemonCard()!=null,
     ownBenchCount:occupied(owner),
-    opponentBenchCount:occupied(opponent)
+    opponentBenchCount:occupied(opponent),
+    ownActiveEnergyCards:energyCount(owner.active),
+    ownBenchedEnergyCards:ownBenched.reduce(
+      (sum,slot)=>sum+energyCount(slot),0),
+    ownBenchedPokemonWithEnergy:ownBenched.filter(
+      slot=>energyCount(slot)>0).length
   };
   publicGuzmaGeometry.opponentGustTargetPresent=
     publicGuzmaGeometry.opponentBenchCount>0;
@@ -74,6 +85,7 @@ function ownerSupporterOpportunity(state,seat,supporterType){
     ownerSupporterLock:broadPlayLock,
     publicGuzmaGeometry,
     geometryOnlyNoPaperTargetCertification:true,
+    attachedEnergyIsInvestmentOnlyNoAttackPayabilityCertification:true,
     firstGlobalTurn:state.turn===1,
     heldCount:supporters.length,
     nativeNullTrueCount:supporters.filter(s=>
