@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      original_rank8_vip_box_prospective:
+        description: Preregistered 128 original rank8 native both-seat VIP-first and Box-first exact-deal pairs
+        required: false
+        type: boolean
+        default: false
       absol_rank8_wally_fork:
         description: One authentic rank-8 source turn2 Wally-versus-Pass branch
         required: false
@@ -298,6 +303,22 @@ jobs:
         if: ${{ inputs.battle_compressor_source_exposure }}
         run: node simulation/twinleaf/battle-compressor-source-exposure.cjs
 
+      - name: Test original rank8 guarded VIP-first resource payment and reversible native handler
+        if: ${{ inputs.original_rank8_vip_box_prospective }}
+        run: node --test tests/agent7-vip-before-box-native.test.cjs tests/agent7-rank8-box-vip-contention.test.cjs
+      - name: Execute preregistered original rank8 128-deal symmetric VIP-first versus Box-native pairs
+        if: ${{ inputs.original_rank8_vip_box_prospective }}
+        run: |
+          node simulation/evaluation/agent7-rank8-vip-box-native-prospective.cjs > agent7-rank8-vip-box-prospective.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent7-rank8-vip-box-prospective.json');a.equal(r.registeredTrials,128);a.equal(r.totalNativeAttempted,256);a.equal(r.competitiveQualifiedGames,0);a.equal(r.scheduleSha256,'d541f8ff6982888a2cb38a61127c67c0ebf6b79a65ebc36eddd8f665e814c422');console.log('AGENT7_RANK8_VIP_BOX_NATIVE',JSON.stringify(r.summary))"
+      - name: Archive all original rank8 VIP/Box native paired attempts and errors
+        if: ${{ always() && inputs.original_rank8_vip_box_prospective }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-original-rank8-vip-box-native-128-pairs
+          path: agent7-rank8-vip-box-prospective.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Verify own-hand-only rank-8 Wally source decision predicate
         run: node --test tests/absol-rank8-wally-source-fork.test.cjs
       - name: Contrast source-dealt rank8 opponent turn2 Pass and Wally
