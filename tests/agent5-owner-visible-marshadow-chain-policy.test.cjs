@@ -138,6 +138,31 @@ test('owner can activate non-Rule-Box Ability even when attacking is locked',()=
     'marshadow-resetting-hole');
 });
 
+test('search is withheld before spending Fog when Retreat cannot complete',()=>{
+  const v=view('float');
+  v.ownPublic.active.specialConditions=[1];
+  assert.equal(chooseMarshadowCounterRoot(v),null);
+  v.ownPublic.active.specialConditions=[];
+  v.ownTurnResources.retreatedTurn=2;
+  assert.equal(chooseMarshadowCounterRoot(v),null);
+  v.ownTurnResources.retreatedTurn=0;
+  v.ownPublic.active.publicRestrictions.cannotRetreatNextTurn=true;
+  assert.equal(chooseMarshadowCounterRoot(v),null);
+  v.ownPublic.active.publicRestrictions.cannotRetreatNextTurn=false;
+  v.ownTurnResources.toolPlayLocked=true;
+  assert.equal(chooseMarshadowCounterRoot(v),null);
+  v.ownTurnResources.toolPlayLocked=false;
+  v.ownPublic.active.tools=['Unreplaceable Other Tool'];
+  assert.equal(chooseMarshadowCounterRoot(v),null);
+
+  const e=view('energy');
+  e.ownTurnResources.energyPlayedTurn=2;
+  assert.equal(chooseMarshadowCounterRoot(e),null);
+  e.ownTurnResources.energyPlayedTurn=0;
+  e.ownTurnResources.energyPlayLocked=true;
+  assert.equal(chooseMarshadowCounterRoot(e),null);
+});
+
 test('an unresolved prompt cannot be treated as an ordinary root',()=>{
   const v=view('float');
   v.decisionKind='owner-prompt';
