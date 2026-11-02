@@ -93,5 +93,6 @@ test('frozen observation untouched, opponent hidden fields not accessed',()=>{
   const hidden=new Proxy({},{get(){throw Error('hidden access');}});
   v.opponentSecret=hidden;
   assert.equal(publicHoodAwareSkylinerSuppressionReason(v),null);
+  delete v.opponentSecret;
   assert.equal(JSON.stringify(v),before);
 });
