@@ -1,0 +1,29 @@
+{
+  "schema": "agent1-retrospective-rank11-lastprize-source-own-state-observer-v1",
+  "registeredAt": "2026-11-02T09:24:30Z",
+  "classification": "RETROSPECTIVE_OWNER_STATE_DIAGNOSTIC_NO_WIN_RATE",
+  "question": "Why did rank11 original Absol/Garbodor generic bot stop taking attacks on global turns31..45, after rank11 reached one remaining Prize against two-VMAX rank1 recipient? Audit only the source's genuine own hand/board and opponent public Active without altering bot decisions.",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "recipientRank": 1,
+  "recipientSeat": 1,
+  "seed": 2387754768,
+  "sourceK0HandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "fullBothPlayerPhysicalDealSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "baseExecutionRef": "db7d5c41499f9f9aacd3a556961563c2c7f879f6",
+  "vendorCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "conditions": "Read-only reversible Store dispatch interceptor captures at source seat0's first owner root of native T29,31,...45, and before source PassTurnAction; permitted fields only source own hand, own Active+Bench printed cards and physically attached Energy, opponent public Active printing and Energy, public Prize counts. No opposing hand/deck/prized identities; no data used by bots.",
+  "hypotheses": [
+    "Repeated source Pass may be forced because active cannot attack without sufficient Energy",
+    "Source may have a possible hand attachment/retreat line but generic bot fails sequencing",
+    "Observed opponent Active changes and source attack energy geometry can distinguish these"
+  ],
+  "expectedUnchanged": [
+    "All 4 arm same winner/action/turn as v8",
+    "Source first original K0 SHA",
+    "Both-player full initial deal SHA",
+    "Native source no-attack T31..45",
+    "No Store errors; clock unverified"
+  ],
+  "qualification": "No prospective game sampling, no claim of legal alternative action or clock without independently checking per-card source actual active attack cost/lock and native Store affordance."
+}
