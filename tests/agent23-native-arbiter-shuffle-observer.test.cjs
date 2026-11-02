@@ -26,7 +26,12 @@ test('read-only shuffle observer records numeric lengths and preserves exact RNG
     {BotArbiter:MockNativeArbiter});
     assert.deepEqual(done.tape,[0.125,0.125]);
     assert.deepEqual(done.result,[[0,0.125],[1,0.125]]);
-    assert.deepEqual(sink.arbiterShuffles,[{deckLength:2,mode:2}]);
+    assert.equal(sink.arbiterShuffles.length,1);
+    assert.equal(sink.arbiterShuffles[0].deckLength,2);
+    assert.equal(sink.arbiterShuffles[0].mode,2);
+    assert.match(sink.arbiterShuffles[0].implementationSha256,/^[0-9a-f]{64}$/);
+    assert.equal(sink.arbiterShuffles[0].randomFunctionName,
+      'nativePolicyTapeSampler');
     assert.deepEqual(Object.getOwnPropertyDescriptor(
       MockNativeArbiter.prototype,'shuffle'),before);
     const cloneSink={};
@@ -63,7 +68,9 @@ test('observer restores original native method when original throws',()=>{
   assert.throws(()=>observe(
     ()=>arbiter.shuffle({cards:[{}]}),sink,
     {BotArbiter:RejectingArbiter}),/source rejection/);
-  assert.deepEqual(sink.arbiterShuffles,[{deckLength:1,mode:2}]);
+  assert.equal(sink.arbiterShuffles.length,1);
+  assert.equal(sink.arbiterShuffles[0].deckLength,1);
+  assert.equal(sink.arbiterShuffles[0].mode,2);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     RejectingArbiter.prototype,'shuffle'),before);
 });
