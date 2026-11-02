@@ -128,3 +128,29 @@ test('post-search physical Mewtwo bench is observed only after owner chose play'
   assert.equal(receipt.ownerStillActive,'Klefki SVI');
   assert.strictEqual(Store.prototype.dispatch,old);
 });
+
+class PassTurnAction{
+  constructor(id){this.id=id;}
+}
+test('actor-visible funded Mewtwo Bench audits held Escape Rope without policy feedback',()=>{
+  const store=new Store(),owner=store.state.players[0];
+  owner.hand.cards=[pokemon('Escape Rope BST')];
+  owner.bench[1].cards=[pokemon(CORE)];
+  owner.bench[1].energies={cards:[pokemon('Psychic Energy MEE')]};
+  owner.active.energies={cards:[]};
+  owner.retreatedTurn=0;
+  const original=Store.prototype.dispatch;
+  const result=withOwnerLastBenchReadOnlyAudit(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new PassTurnAction(71));
+  },{Store});
+  assert.equal(result.audit.mobilityWindows.length,1);
+  const event=result.audit.mobilityWindows[0];
+  assert.equal(event.originalAction,'PassTurnAction');
+  assert.deepEqual(event.heldMobilityPrintings,['Escape Rope BST']);
+  assert.equal(event.activeEnergy.length,0);
+  assert.equal(event.coreBenchEnergy.length,1);
+  assert.equal(event.retreatAlreadyUsed,false);
+  assert.equal(event.ownerVisibleEvidenceOnly,true);
+  assert.strictEqual(Store.prototype.dispatch,original);
+});
