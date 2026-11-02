@@ -60,6 +60,8 @@ jobs:
         run: node --test tests/aichi-event-era-proxy-audit.test.cjs
       - name: Count all bilateral v2 attempts independently of observed pressure
         run: node --test tests/agent2-bilateral-unconditional-census.test.cjs tests/agent2-pressure-ledger-alignment.test.cjs
+      - name: Verify exact valid-opening conditioned prize collapse for ADP Thorton chain
+        run: node --test tests/agent5-adp-thorton-prize-availability.test.cjs
       - name: Revalidate structurally distinct ADP Thorton Regidrago fixed60 and attack source text
         run: node --test tests/agent5-adp-thorton-regidrago-60.test.cjs
       - name: Distinguish original 120-reference custody from count-balanced cross-owner swaps
