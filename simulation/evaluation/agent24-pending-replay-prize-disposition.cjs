@@ -1,33 +1,29 @@
 'use strict';
 
 const VERSION='agent24-same-resolution-pending-replay-prize-v1';
+const ORDINARY_VERSION='agent24-same-resolution-pending-ordinary-prize-v1';
 
 /**
- * Read-only numerical projection of a *single already validated native
- * knockout-resolution batch*. This intentionally does not assert that the
- * event occurred legally under paper rules, nor determine a final game
- * winner (simultaneous Pokemon absence and other win conditions are external).
- *
- * A native sudden-death KO can end the game before moving a physical Prize.
- * Therefore a [6,6] physical snapshot by itself cannot decide whether a
- * first-Prize lead was about to exist. This function requires the reduced
- * actual KnockOutEffect entitlement receipts before making any projection.
+ * Shared read-only arithmetic for one already authenticated, fully observed
+ * native KO resolution batch. A pending Prize calculation cannot certify any
+ * paper outcome or exclude other game-end and card-text interactions.
  *
  * @param {object} args
- * @param {boolean} args.authenticatedReplayEpoch Actual reset/new six-Prize deal.
- * @param {boolean} args.singleSettledResolutionBatch Same simultaneous KO batch.
- * @param {number[]} args.physicalRemaining Public Prize counts before movement.
- * @param {object[]} args.koEntitlements Post-reduction, exact physical KO effects.
- * @returns {object} Projected Prize counts and unresolved-paper caveat.
+ * @param {boolean} args.authenticatedEpoch Exact source-owner Prize epoch.
+ * @param {boolean} args.singleSettledResolutionBatch Entire simultaneous KOs.
+ * @param {number[]} args.physicalRemaining Pre-KO public Prize counts.
+ * @param {object[]} args.koEntitlements Reduced native KO effect receipts.
+ * @param {string} schema Distinct ordinary/replay evidence provenance.
+ * @returns {object} Prize-only projection with paper qualification veto.
  */
-function projectPendingReplayPrizes({
-  authenticatedReplayEpoch=false,
+function calculatePendingPrizes({
+  authenticatedEpoch=false,
   singleSettledResolutionBatch=false,
   physicalRemaining=null,
   koEntitlements=null
-}={}){
-  const base={schema:VERSION,paperGameOutcomeQualified:false};
-  if(authenticatedReplayEpoch!==true||singleSettledResolutionBatch!==true)
+}={},schema){
+  const base={schema,paperGameOutcomeQualified:false};
+  if(authenticatedEpoch!==true||singleSettledResolutionBatch!==true)
     return {...base,status:'KO_RESOLUTION_EPOCH_UNVERIFIED',
       projectedLeaderSeat:null};
   if(!Array.isArray(physicalRemaining)||physicalRemaining.length!==2||
@@ -54,9 +50,48 @@ function projectPendingReplayPrizes({
     pendingPrizesByClaimant:pendingByClaimant,
     projectedRemainingPrizes:projectedRemaining,
     projectedLeaderSeat:leader,
+    projectedBothPrizeEmpty:projectedRemaining.every(n=>n===0),
     paperWinnerSeat:null,
     reason:'Pending KO prizes in one batch; no actual transfer, card-effect, simultaneous-loss or event-clock qualification'
   };
+}
+
+/**
+ * @param {object} [args]
+ * @param {boolean} [args.authenticatedReplayEpoch] Native fresh-six Prize replay.
+ * @param {boolean} [args.singleSettledResolutionBatch]
+ * @param {number[]} [args.physicalRemaining]
+ * @param {object[]} [args.koEntitlements]
+ * @returns {object} Native sudden-death KO Prize projection.
+ */
+function projectPendingReplayPrizes({
+  authenticatedReplayEpoch=false,
+  ...rest
+}={}){
+  return calculatePendingPrizes({
+    ...rest,authenticatedEpoch:authenticatedReplayEpoch
+  },VERSION);
+}
+
+/**
+ * Separate source-provenance gate for ordinary six-Prize games, including
+ * simultaneous final-Prize KO events. The ordinary epoch must be positively
+ * authenticated; merely setting the current Prize count is insufficient.
+ *
+ * @param {object} [args]
+ * @param {boolean} [args.authenticatedOrdinaryEpoch]
+ * @param {boolean} [args.singleSettledResolutionBatch]
+ * @param {number[]} [args.physicalRemaining]
+ * @param {object[]} [args.koEntitlements]
+ * @returns {object} Ordinary-game KO Prize projection.
+ */
+function projectPendingOrdinaryPrizes({
+  authenticatedOrdinaryEpoch=false,
+  ...rest
+}={}){
+  return calculatePendingPrizes({
+    ...rest,authenticatedEpoch:authenticatedOrdinaryEpoch
+  },ORDINARY_VERSION);
 }
 
 const NATIVE_COMPARISON_VERSION='agent24-native-pending-prize-winner-compare-v1';
@@ -86,7 +121,7 @@ function compareNativePendingPrizeWinner({
     nativeWinnerSeat,
     projectedPrizeLeaderSeat:null
   };
-  if(!projection||projection.schema!==VERSION||
+  if(!projection||![VERSION,ORDINARY_VERSION].includes(projection.schema)||
      !['PENDING_KO_PRIZES_STRICT_LEAD',
        'PENDING_KO_PRIZES_NO_STRICT_LEAD'].includes(projection.status))
     return {...base,status:'PENDING_PRIZE_PROJECTION_UNVERIFIED'};
@@ -106,6 +141,7 @@ function compareNativePendingPrizeWinner({
   };
 }
 
-module.exports={VERSION,NATIVE_COMPARISON_VERSION,
-  projectPendingReplayPrizes,compareNativePendingPrizeWinner};
+module.exports={VERSION,ORDINARY_VERSION,NATIVE_COMPARISON_VERSION,
+  projectPendingReplayPrizes,projectPendingOrdinaryPrizes,
+  compareNativePendingPrizeWinner};
 
