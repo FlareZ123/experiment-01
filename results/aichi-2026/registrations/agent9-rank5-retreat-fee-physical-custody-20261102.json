@@ -1,0 +1,45 @@
+{
+  "schema": "agent9-original-rank5-retreat-fee-physical-custody-registration-v1",
+  "registeredAt": "2026-11-02T20:27:21.489Z",
+  "objective": "Does the previously witnessed native Crobat V DCE retreat to DCE Mew VMAX physically move the identical physical Crobat-attached Double Colorless Energy card object into the original acting owner's discard pile when the native Store accepts RetreatAction?",
+  "baselineRun": 41427913887,
+  "baselineArtifact": 13132259052,
+  "baselineZipSha256": "e7049fa2b4df5b7e6d01a8d367819aa4d8b6d5511875bd1867b2310b3786c849",
+  "knownAlreadySelectedSourceDeal": "5:0:A:new-moon-lockbreaker-v1",
+  "knownAlreadySelectedRoot": {
+    "sourcePhysicalSeat": 1,
+    "globalTurn": 52,
+    "rootOrdinal": 215
+  },
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "existingOriginalCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceQuickBallScope": "source",
+  "actorHandDiscard": true,
+  "sourceCrobatDceMewRetreat": true,
+  "policyModes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "expectedRetrospectiveNativeAttempts": 16,
+  "registeredReadOnlyChange": "Instrument actual Store dispatch to retain owner Crobat-attached DCE physical reference pre-root, confirm identical reference in owner.discard and original Pokémon identity promotion post-root; never replace native action or influence policy",
+  "primaryEndpoint": "Count exact same-object physical paid DCE moved to owner discard for each accepted native Crobat DCE-to-Mew VMAX RetreatAction; retain unknown, rejected, error and prompt-pending states",
+  "secondaryEndpoints": [
+    "exact source seat, turn, physical deal, native root reference",
+    "source native Cross Fusion Strike settled attack and opponent continuation",
+    "all native errors and action limits, no post-outcome exclusions"
+  ],
+  "paperQualifiers": {
+    "feeCustody": false,
+    "opponentPolicy": false,
+    "attackEffect": false,
+    "matchClock": false,
+    "fullField": false
+  },
+  "independentWinRateInference": false,
+  "competitiveQualifiedGames": 0,
+  "noPostOutcomeExclusions": true
+}
