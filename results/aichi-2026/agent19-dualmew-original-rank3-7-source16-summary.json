@@ -1,0 +1,276 @@
+{
+  "schema": "agent19-source-dealt-dual-mew-opportunity-census-reported-v1",
+  "sourceRegistration": "results/aichi-2026/registrations/agent19-dualmew-rank3-7-source-dealt-20261102.json",
+  "runId": 41393312882,
+  "executionSha": "c59a0b2d669434440fa451d60ff31be0dd851819",
+  "summaryReceiptRunId": 41393777791,
+  "artifactId": 13118087556,
+  "artifactDigest": "sha256:d8e670c44cb61b6df89184a4e1249434e5aa3a8d05db9673538ec6ca4de9e737",
+  "sourceOriginalRank5Printed60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceRanks": [
+    3,
+    7
+  ],
+  "sourceMewBothSeats": [
+    0,
+    1
+  ],
+  "maxRootActions": 200,
+  "summary": {
+    "attempts": 16,
+    "nativeErrors": 0,
+    "engineTerminals": 1,
+    "actionCaps": 15,
+    "twoMewBoards": 1,
+    "withDce": 1,
+    "versusPal": 0,
+    "allPublicRequirements": 0,
+    "offeredCopyMenus": 0,
+    "qualifiedCompetitiveGames": 0,
+    "demonstratedWinRate": null
+  },
+  "rows": [
+    {
+      "opponentRank": 3,
+      "mewSeat": 0,
+      "repeat": 0,
+      "seed": 1246024775,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 2
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 0,
+      "repeat": 1,
+      "seed": 2682499799,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 0,
+      "repeat": 2,
+      "seed": 3070588817,
+      "status": "engine-terminal",
+      "publicObserved": {
+        "dual": 16,
+        "dce": 1,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 2
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 0,
+      "repeat": 3,
+      "seed": 938347549,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 1,
+      "repeat": 0,
+      "seed": 3631660776,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 2
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 1,
+      "repeat": 1,
+      "seed": 3620927277,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 1,
+      "repeat": 2,
+      "seed": 38746009,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 3,
+      "mewSeat": 1,
+      "repeat": 3,
+      "seed": 4159167774,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 2
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 0,
+      "repeat": 0,
+      "seed": 981677518,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 0,
+      "repeat": 1,
+      "seed": 381615918,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 0,
+      "repeat": 2,
+      "seed": 2646233996,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 0,
+      "repeat": 3,
+      "seed": 2632051660,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 1,
+      "repeat": 0,
+      "seed": 404231343,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 1,
+      "repeat": 1,
+      "seed": 1844129054,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 1,
+      "repeat": 2,
+      "seed": 2067087779,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 1
+    },
+    {
+      "opponentRank": 7,
+      "mewSeat": 1,
+      "repeat": 3,
+      "seed": 3121554511,
+      "status": "action-cap-or-incomplete",
+      "publicObserved": {
+        "dual": 0,
+        "dce": 0,
+        "pal": 0,
+        "all": 0,
+        "offered": 0
+      },
+      "mewVmaxEvolutionRoots": 0
+    }
+  ],
+  "evidenceClass": "Development original source-dealt native Store telemetry with weak actor and censor; no competitive or paper clock qualification",
+  "limitation": "15 action-capped games, one untimed engine terminal. 0 observed full-board Mimikyu opportunities cannot support frequency or win rate."
+}
