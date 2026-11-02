@@ -52,6 +52,11 @@ test('actual registered 29 originals contain the exact Tapu Lele GRI source card
   assert.equal(result.sourcePokemonPrintings,102);
   assert.equal(result.unresolvedPrintingCount,0,
     'All 102 distinct authentic source Pokémon printings must resolve uniquely');
+  assert.equal(result.resolved.length,102);
+  const expectedIds=['smp-SM217','xyp-XY67','xyp-XY49','sm8-154',
+    'sm9-51','swsh12-135','swsh12-136'];
+  for(const id of expectedIds)assert.ok(result.resolved.some(x=>x.cardId===id),
+    'Exact printing must appear in the full authenticated ledger: '+id);
   assert.equal(result.competitiveGameQualified,false);
 });
 
