@@ -19,9 +19,11 @@ const ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  *
  * @param {object} c Pre-existing Agent47 frozen seed and physical seat.
  * @param {Map<number,object>} byRank Original registered printed 60s.
+ * @param {boolean} [originalOwnerIntegrity=false] Optional original reference
+ *   ownership census in the same physical-deal Store.
  * @returns {object}
  */
-function execute(c,byRank){
+function execute(c,byRank,originalOwnerIntegrity=false){
   const source=byRank.get(20).cardIds;
   const opponent=byRank.get(11).cardIds;
   assert.equal(source.length,60);
@@ -34,7 +36,8 @@ function execute(c,byRank){
     isolatePolicyRandomness:true,
     capturePhysicalZoneIntegrity:true,
     enforceSettledPhysicalZoneIntegrity:true,
-    // Keep the complete original Agent47 request identity unchanged.
+    ...(originalOwnerIntegrity?{captureOriginalOwnerIntegrity:true}:{}),
+    // The default replay preserves the complete original Agent47 request.
     label:'agent47-strict-physical-60-'+c.seed+'-'+c.sourceSeat
   };
   let game=null,error=null;
@@ -64,6 +67,9 @@ function execute(c,byRank){
     assert.equal(physicalZoneQualification.status,
       'SETTLED_PHYSICAL_INTEGRITY_PASSED');
     assert.ok(physicalZoneQualification.settledRootsChecked>0);
+    if(originalOwnerIntegrity){
+      assert.equal(physicalZoneQualification.originalOwnerIntegrityQualified,true);
+    }
   }
   assert.equal(physicalZoneQualification.competitiveQualified,false);
   return {sourceRank:20,opponentRank:11,sourceSeat:c.sourceSeat,
