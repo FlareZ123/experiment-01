@@ -20,6 +20,9 @@ class ResolvePromptAction{constructor(id){this.id=id;}}
 class AttachEnergyPrompt{
   constructor(id,playerId){Object.assign(this,{id,playerId});}
 }
+class WaitPrompt{
+  constructor(id,playerId){Object.assign(this,{id,playerId});}
+}
 
 /** @param {object} [opts] @returns {object} */
 function trial(opts={}){
@@ -45,11 +48,16 @@ function trial(opts={}){
     }
     dispatch(action){
       if(action instanceof UseAbilityAction){
-        this.state.prompts.push(new AttachEnergyPrompt(7,owner.id));
+        this.state.prompts.push(opts.deferred?
+          new WaitPrompt(6,owner.id):new AttachEnergyPrompt(7,owner.id));
       }
       if(action instanceof ResolvePromptAction){
-        const prompt=this.state.prompts[0];
+        const prompt=this.state.prompts.find(p=>p.id===action.id);
         prompt.result=[];
+        if(opts.deferred&&action.id===6){
+          this.state.prompts.push(new AttachEnergyPrompt(7,owner.id));
+          return true;
+        }
         if(!opts.cancel){
           const target=owner.bench[1];
           target.energies.cards.push(owner.hand.cards.shift());
@@ -68,6 +76,7 @@ function trial(opts={}){
     store.dispatch(new UseAbilityAction(10,'Underworld Door',{
       player:2,slot:2,index:0
     }));
+    if(opts.deferred)store.dispatch(new ResolvePromptAction(6));
     store.dispatch(new ResolvePromptAction(7));
     return {store,owner};
   },{
@@ -94,6 +103,13 @@ test('native Store prompt physically adds one Psychic Energy and draws two',()=>
   assert.deepEqual(e.physicalBenchChanges,[{
     index:1,recipient:'Trevenant & Dusknoir-GX SMP',energy:PSY
   }]);
+});
+test('WaitPrompt defers a genuine Underworld AttachEnergyPrompt yet still settles',()=>{
+  const result=trial({deferred:true});
+  assert.equal(result.audit.abilityPromptsOpened,1);
+  assert.equal(result.audit.acceptedNativePromptResolutions,1);
+  assert.equal(result.audit.confirmedCompleteEffects,1);
+  assert.equal(result.audit.events[0].promptId,7);
 });
 test('preexisting identical Psychic Energy still attests one extra card',()=>{
   const result=trial({alreadyAttached:true});
