@@ -231,5 +231,8 @@ function withActorHandDiscard(execute,deps={},options={}){
   }
 }
 
+/** Return a detached copy of the printed Dragon payload roster. */
+function verifiedApexPayloadPrintings(){return new Set(APEX_PAYLOAD_PRINTINGS);}
+
 module.exports={VERSION,actorHandDiscardInput,chooseActorHandDiscard,
-  resolvePhysicalHandCards,withActorHandDiscard};
+  resolvePhysicalHandCards,withActorHandDiscard,verifiedApexPayloadPrintings};
