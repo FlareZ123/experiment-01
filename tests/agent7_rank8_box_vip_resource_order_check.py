@@ -44,6 +44,14 @@ def verify(path):
             vip_only
         )
         assert protected_box_k1 + vip_only == vip_k1
+        assert row["box_first_postvip_same_payment_k1"] == vip_k1, (
+            strategy, "failed symmetric upfront-payment witness"
+        )
+        assert row["prior_boxfirst_planner_reservation_artifact"] == vip_only
+        assert (
+            row["commuted_boxfirst_discarded_held_trubbish"] +
+            row["commuted_boxfirst_discarded_basic_searcher"]
+        ) <= vip_k1
     return {"status": "EXACT_RANK8_BOX_VIP_ACCOUNTING_PASSED",
             "source": "fixed seed 44110207; 200000 attempts",
             "qualifiedGames": 0}
