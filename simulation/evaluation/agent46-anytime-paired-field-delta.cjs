@@ -32,8 +32,10 @@ const UNKNOWN = [0, 1];
  *
  * IMPORTANT: Qualified outcome labels are external attestations. This tool
  * cannot independently inspect native game rules or certify paper games.
- * The equality of fingerprints is a necessary matching condition, not proof
- * that every other aspect of the arm was equal or legal.
+ * Equal fingerprints are a necessary matching condition, not proof that
+ * every other aspect of either arm was equal or legal. Mismatched deals
+ * remain in the denominator with [-1,1] contrast, preserving intent-to-test
+ * coverage instead of cherry-picking the coincidentally matched subset.
  *
  * @typedef {'QUALIFIED_WIN'|'QUALIFIED_NONWIN'|'CENSORED'} Status
  * @typedef {{
@@ -57,6 +59,7 @@ function anytimePairedFieldDelta(config) {
   const C = cells.length;
   let totalPairs = 0;
   let censoredPairs = 0;
+  let unmatchedPairs = 0;
   const intervals = cells.map((pairs, cellIndex) => {
     if (!Array.isArray(pairs)) throw new TypeError('Cell must be an array of registered physical-deal pairs');
     const n = pairs.length;
@@ -65,17 +68,24 @@ function anytimePairedFieldDelta(config) {
     let observedLower = 0;
     let observedUpper = 0;
     let pending = 0;
+    let unmatched = 0;
     for (const pair of pairs) {
       if (!pair || typeof pair.pairId !== 'string' || !pair.pairId ||
           seen.has(pair.pairId) || typeof pair.referenceFingerprint !== 'string' ||
           !pair.referenceFingerprint || typeof pair.challengerFingerprint !== 'string' ||
-          pair.referenceFingerprint !== pair.challengerFingerprint) {
-        throw new TypeError('Duplicate pair, missing ID, or unmatched source physical-deal fingerprint');
+          !pair.challengerFingerprint) {
+        throw new TypeError('Duplicate pair or missing source physical-deal identifier/fingerprint');
       }
       seen.add(pair.pairId);
       if (!FINISHED.has(pair.referenceStatus) && pair.referenceStatus !== 'CENSORED' ||
           !FINISHED.has(pair.challengerStatus) && pair.challengerStatus !== 'CENSORED') {
         throw new TypeError('Arms must be independently QUALIFIED_WIN, QUALIFIED_NONWIN or CENSORED');
+      }
+      // Different source physical openings are still registered attempts.
+      // Refuse a conditional same-deal claim and count the contrast as [-1,1].
+      if (pair.referenceFingerprint !== pair.challengerFingerprint) {
+        observedLower--; observedUpper++; pending++; unmatched++;
+        continue;
       }
       const [rlo, rhi] = FINISHED.get(pair.referenceStatus) ?? UNKNOWN;
       const [clo, chi] = FINISHED.get(pair.challengerStatus) ?? UNKNOWN;
@@ -84,7 +94,8 @@ function anytimePairedFieldDelta(config) {
       if (pair.referenceStatus === 'CENSORED' || pair.challengerStatus === 'CENSORED') pending++;
     }
     censoredPairs += pending;
-    if (!n) return {cell:cellIndex + 1, pairs:0, censoredPairs:0,
+    unmatchedPairs += unmatched;
+    if (!n) return {cell:cellIndex + 1, pairs:0, censoredPairs:0, unmatchedPairs:0,
       observedLower:null, observedUpper:null, radius:null,
       lower:-1, upper:1, untested:true};
     // Split the logarithm into sums to avoid unsafe intermediate products.
@@ -92,7 +103,7 @@ function anytimePairedFieldDelta(config) {
       Math.log(candidateOrdinal) + Math.log(candidateOrdinal + 1) +
       Math.log(n) + Math.log(n + 1);
     const radius = Math.sqrt(2 * logBudget / n);
-    return {cell:cellIndex + 1, pairs:n, censoredPairs:pending,
+    return {cell:cellIndex + 1, pairs:n, censoredPairs:pending, unmatchedPairs:unmatched,
       observedLower:observedLower / n, observedUpper:observedUpper / n,
       radius, lower:Math.max(-1, observedLower / n - radius),
       upper:Math.min(1, observedUpper / n + radius), untested:false};
@@ -101,7 +112,7 @@ function anytimePairedFieldDelta(config) {
   const upperFieldDelta = intervals.reduce((sum, row) => sum + row.upper, 0) / C;
   return {
     version:VERSION, candidateOrdinal, alpha, targetDelta, cellCount:C,
-    registeredPairs:totalPairs, censoredPairs,
+    registeredPairs:totalPairs, censoredPairs, unmatchedPairs,
     untestedCells:intervals.filter(row => row.untested).length,
     lowerFieldDelta, upperFieldDelta,
     decision:lowerFieldDelta > targetDelta ? 'IMPROVEMENT_ABOVE_TARGET' :
