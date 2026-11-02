@@ -1,0 +1,27 @@
+name: Agent45 CES48 native Extra Energy Bomb target resolution gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent45-ces48-bomb-store
+  cancel-in-progress: false
+jobs:
+  native-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Real native CE S48 Extra Energy Bomb target validation
+        run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs tests/agent45-electrode-bomb-native-store-forbidden-gx.test.cjs
