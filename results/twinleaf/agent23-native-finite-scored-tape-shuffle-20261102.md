@@ -46,13 +46,60 @@ differ between `bot-arbiter.js:37` (the shuffle callsite) and
 `bot-arbiter.js:75` (the per-card RNG loop), but stack shape alone cannot
 establish the error's cause.
 
-The source decision may have had one call bypass the currently installed RNG
-instrumentation, or an intervening wrapper may have modified the native
-source-side tape. The sequence of nested original Store policy hooks,
-source-only `captureAtScore` cloning, recorder wrapping, and native
-speculative dispatch needs isolation. Any proposed repair must preserve all
-original Store outcomes and the complete exact RNG sequence; padding or
-truncation would manufacture parity.
+At the time of the original 41419691107 run the implementation mismatch
+had not yet been identified. Its consistent one-draw deficit is explained by
+the actual research-owned `installFairBotHooks()` behavior described below.
+RNG tape padding and relaxed consumption remain prohibited.
+
+## Root cause: original research fair-shuffle hook absent from postgame replay
+
+The decisive source/replay inconsistency was located in
+`simulation/twinleaf/headless.cjs`:
+
+- `installFairBotHooks()` (lines 154–177) patches the native
+  `BotArbiter.prototype.shuffle` with a uniform Fisher–Yates
+  `deckPermutation(cards.cards.length,Math.random)`, with a loop
+  `for (i=length-1; i>0; i--)`, therefore consuming **length minus one**
+  random draws.
+- During the same real Store game it also patches
+  `game/bots/simulator.Simulator` with `FairSimulator`.
+- The full game installs these research-owned hooks at line 580 and
+  explicitly restores them at lines 2097–2098. All postgame decision
+  replays were therefore unexpectedly using the restored native
+  `BotArbiter.shuffle` and original Simulator rather than the same
+  fair research boundary used at the actual source decision.
+- The pinned native shuffle itself loops `i=0; i<len; i++`, consuming
+  **length** random draws. This produces the exact 1-draw mismatch.
+
+This is confirmed empirically in
+[compiled run 41424257029](https://github.com/FlareZ123/experiment-01/actions/runs/41424257029),
+original JSON artifact **13132315283**. The original source shuffle's
+function SHA256 was
+`5e6088f0d79fd766fba6bf8cb427c93bfdf354b306b67614f5b7aa3d7085d032`;
+the postgame replay native shuffle's hash was
+`d3e8a9d7c30037e132b49ed9e3a6019f06598816f915bb4c4ab38740cf5eeeb3`.
+Those hashes matched within each role across the three failed historical
+arms, but **not across source and replay**. Read-only deck-length
+and optional exact-forwarding inner RNG-call counts established:
+
+| Role | Shuffle card count | Actual draws inside implementation |
+| --- | ---: | ---: |
+| Rank6 source / replay, both arms | 41 / 41 | 40 / 41 |
+| Rank11 NewMoon source / replay | 42 / 42 | 41 / 42 |
+
+Both original Store playback controls and all four source root
+noninterference gates remained passing. This resolves the immediate
+implementation-count puzzle with a concrete cause in the research adapter.
+It does **not yet** show that reapplying the fair hooks restores full
+native decision parity. Other original game hooks also restore at end.
+
+The scoped fix is opt-in `nativeTapeFairReplayHooks`, exposed by the
+manual workflow input `agent23_native_fair_replay_hooks`. It invokes
+the already-exported `headless.installFairBotHooks()` during every
+reconstructed postgame native decision, in `finally` restoring the
+same simulator and shuffle references. The genuine source and
+strict source tape remain untouched. The inner RNG trace, entry-only
+clone experiment and both audit modes remain default-off.
 
 ## Scoped falsification procedure
 
