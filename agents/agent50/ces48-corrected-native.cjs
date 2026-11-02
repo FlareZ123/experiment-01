@@ -27,3 +27,4 @@ function stage(seat){
  owner.id=501;foe.id=502;
  owner.bench=Array.from({length:5},()=>new PokemonCardList());
  foe.bench=Array.from({length:5},()=>new PokemonCardList());
+ const gx=card('Electrode-GX CES');
