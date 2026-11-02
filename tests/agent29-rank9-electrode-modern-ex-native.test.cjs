@@ -15,7 +15,7 @@ const { CardList } = native('game/store/state/card-list');
 const { PokemonCardList } = native('game/store/state/pokemon-card-list');
 const { GamePhase } = native('game/store/state/state');
 const { CardTag, Format } = native('game/store/card/card-types');
-const { UseAbilityAction } = native('game/store/actions/game-actions');
+const { UseAbilityAction, AttackAction } = native('game/store/actions/game-actions');
 const { ResolvePromptAction } = native('game/store/actions/resolve-prompt-action');
 const { PlayerType, SlotType } = native('game/store/actions/play-card-action');
 
@@ -55,6 +55,7 @@ function stage(seat) {
   owner.bench[0].cards.push(card('Voltorb ROS'), card('Electrode-GX CES'));
   owner.bench[1].cards.push(card('Unown AOR'));
   opponent.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+  opponent.hand.cards.push(card('Fog Crystal CRE'));
 
   const energy = [
     card('Prism Energy ASC'),
@@ -117,10 +118,37 @@ function activateAndPay(s) {
   return { selectionCount: selection.length, activeEnergyCount: 5 };
 }
 
+
+/** Settle the rank-9 Mega Absol payoff on the same owner turn.
+ * @param {ReturnType<typeof stage>} s
+ */
+function attackAndDiscard(s) {
+  assert.equal(s.opponent.hand.cards.length, 1);
+  const priorDamage = s.opponent.active.damage;
+  s.store.dispatch(new AttackAction(s.owner.id, 'Claw of Darkness'));
+  for (let i = 0; i < 5; i++) {
+    const wait = s.state.prompts.find(p =>
+      p.result === undefined && p.constructor.name === 'WaitPrompt');
+    if (!wait) break;
+    s.store.dispatch(new ResolvePromptAction(wait.id, null));
+  }
+  const prompt = s.state.prompts.find(p =>
+    p.result === undefined && p.constructor.name === 'ChooseCardsPrompt');
+  assert.ok(prompt, 'Claw of Darkness must offer physical opponent-hand discard');
+  assert.equal(prompt.playerId, s.owner.id);
+  const selected = prompt.decode([0]);
+  assert.equal(prompt.validate(selected), true);
+  s.store.dispatch(new ResolvePromptAction(prompt.id, selected));
+  assert.equal(s.opponent.active.damage, priorDamage + 200);
+  assert.equal(s.opponent.hand.cards.length, 0);
+  assert.equal(s.opponent.discard.cards.some(c => c.fullName === 'Fog Crystal CRE'), true);
+  return { attacked: 'Claw of Darkness', damage: 200, opponentCardsDiscarded: 1 };
+}
+
 for (const seat of [0, 1]) {
   test('Pinned CES48 ability can attach to modern Mega Absol ex in seat ' + seat, () => {
     const s = stage(seat);
-    const receipt = activateAndPay(s);
+    const receipt = { ...activateAndPay(s), ...attackAndDiscard(s) };
     console.log('AGENT29_RANK9_NATIVE_MODERN_EX_ALLOWED', JSON.stringify({
       seat, ...receipt, originalRank: 9, usedFullOriginalEnergySubset: true,
       competitiveQualifiedGames: 0
@@ -133,7 +161,7 @@ for (const seat of [0, 1]) {
     const restore = installElectrodeGXEnergyHook();
     try {
       const s = stage(seat);
-      const receipt = activateAndPay(s);
+      const receipt = { ...activateAndPay(s), ...attackAndDiscard(s) };
       console.log('AGENT29_RANK9_GUARDED_MODERN_EX_ALLOWED', JSON.stringify({
         seat, ...receipt, originalRank: 9, paperQualifiedFullGames: 0
       }));
