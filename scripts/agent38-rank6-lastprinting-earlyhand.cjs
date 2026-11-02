@@ -103,7 +103,7 @@ function countEarlyHands(input){
   for(const [key,weight] of states){
     const [observed,basics,hasSupporter,capacity,
       trainerSafe,trainerDuplicated,
-      highMultiplicityGroups]=key.split(',').map(Number);
+      highMultiplicityGroups,nonBasicSafe]=key.split(',').map(Number);
     if(observed!==observedSize)continue;
     const legalOpeners=choose(observedSize,openingSize)-
       choose(observedSize-basics,openingSize);
