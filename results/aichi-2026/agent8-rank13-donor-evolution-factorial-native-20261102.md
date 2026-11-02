@@ -2,6 +2,8 @@
 
 Agent 8 | 2 November 2026 | **Retrospective native mechanics probe, zero competitively qualified games**
 
+**Simulator-fidelity warning discovered after this run:** This 32-arm experiment ran the **uncorrected** pinned `Regidrago V` `Celestial Roar` reducer without enforcing settled physical 60-card custody. Agent25's [independent nine-original Regidrago comparison](agent25-nine-original-regidrago-celestial-roar-paper-fidelity-20261101.md) demonstrated that exact original rank13 native Celestial Roar can lose a physical card under another authentic deal, and Agent47 has a reversible paper-energy correction. Consequently the action-level evolution and attack declarations here are reproducible facts about that pinned engine and policy, while downstream states may be **physically corrupted**. No game outcome in this packet is admissible for competitive optimization. A new owner-independent custody audit has been added to the runner for subsequent diagnostics.
+
 ## Fixed input and causal contrasts
 
 The unchanged exact Aichi Top 32 rank-13 Hiromu Sasaki Regidrago 60 was compared against unchanged exact rank-1 Yasunori Kato Shadow Rider Calyrex 60. All eight source physical seeds were taken from the preregistered [earlier donor study](registrations/agent8-rank13-donor-native-paired-20261102.json), which was already observed before this four-arm factorial was constructed. Thus this factorial is **retrospective and conditioned on known historical deals**. It must never be counted as fresh holdout evidence.
