@@ -7,7 +7,9 @@ class AddPlayerAction {}
 class PlayCardAction{
   constructor(clientId,handIndex){this.clientId=clientId;this.handIndex=handIndex;}
 }
-class PassTurnAction {}
+class PassTurnAction{
+  constructor(id){this.id=id;}
+}
 const pokemon=name=>({fullName:name});
 function slot(name=null){
   const cards=name?[pokemon(name)]:[];
@@ -129,9 +131,6 @@ test('post-search physical Mewtwo bench is observed only after owner chose play'
   assert.strictEqual(Store.prototype.dispatch,old);
 });
 
-class PassTurnAction{
-  constructor(id){this.id=id;}
-}
 test('actor-visible funded Mewtwo Bench audits held Escape Rope without policy feedback',()=>{
   const store=new Store(),owner=store.state.players[0];
   owner.hand.cards=[pokemon('Escape Rope BST')];
