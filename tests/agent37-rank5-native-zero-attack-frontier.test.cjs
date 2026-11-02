@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {publicSourceRoots,auditRank5Archive}=
+const {publicSourceRoots,sourceCardTargetChanges,
+  opponentActiveChanges,auditRank5Archive}=
   require('../scripts/agent37-rank5-native-zero-attack-frontier.cjs');
 
 const HASH='a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05';
@@ -49,6 +50,40 @@ test('projector reads only actual physical actor accepted public roots',()=>{
   assert.equal(p.acceptedSourceAttackRoots.length,1);
   assert.equal(p.sourceRootTail[0].card,'Mew VMAX FST');
   assert.equal(JSON.stringify(p).includes('Cynthia'),false);
+});
+
+test('physical owner recipient and opposing KO-promotion chain come from native public Store',()=>{
+  const sourceSeat=0;
+  const row={nativeAcceptedTargetSidecar:{events:[
+    {playerSlot:sourceSeat,storeAccepted:true,action:'PlayCardAction',
+      turnBefore:47,declared:{ownerHandPrinting:'Double Colorless Energy SUM'},
+      publicBoardChanges:[{seat:sourceSeat,position:'bench',index:1,
+        before:{pokemon:'Mew VMAX FST',energies:[]},
+        after:{pokemon:'Mew VMAX FST',
+          energies:['Double Colorless Energy SUM']}}]},
+    {playerSlot:1,storeAccepted:true,action:'PlayCardAction',
+      turnBefore:47,declared:{ownerHandPrinting:'Double Colorless Energy SUM'},
+      publicBoardChanges:[{seat:1,position:'active',index:0,
+        after:{pokemon:'Dialga-GX',energies:['Double Colorless Energy SUM']}}]},
+    {playerSlot:sourceSeat,storeAccepted:false,action:'PlayCardAction',
+      turnBefore:45,declared:{ownerHandPrinting:'Double Colorless Energy SUM'},
+      publicBoardChanges:[]}
+  ]},candidateAttackSettlement:{attacks:[{
+    turnBefore:68,attackName:'Energy Drive',settledPromptChain:true,
+    publicBoardBefore:[{active:{name:'Genesect V'}},{active:{name:'Tapu Lele-GX'}}],
+    publicBoardAfter:[{active:{name:'Mew VMAX'}},{active:{name:'Tapu Lele-GX'}}],
+    prizesBefore:[6,6],prizesAfter:[6,4],nextSourceSameEpochProven:true
+  }]}};
+  assert.deepEqual(sourceCardTargetChanges(row,sourceSeat).acceptedDceRecipients,
+    [{turnBefore:47,recipientChanges:[{
+      position:'bench',slotIndex:1,pokemon:'Mew VMAX FST'
+    }]}]);
+  assert.deepEqual(opponentActiveChanges(row,sourceSeat),[{
+    attackTurn:68,attackName:'Energy Drive',sourceActiveBefore:'Genesect V',
+    sourceActiveAfter:'Mew VMAX',prizesBefore:[6,6],prizesAfter:[6,4],
+    nextSourceSameEpochProven:true
+  }]);
+  assert.equal(opponentActiveChanges(row,1).length,0);
 });
 
 test('exact 16-attempt archive yields all 5 zero-attack fronts and 3 positives',()=>{
