@@ -34,7 +34,7 @@ function ownerCompressorPrompt(state, seat) {
   }
   const prompt = state.prompts?.find(p => p.result === undefined &&
     p.constructor?.name === 'ChooseCardsPrompt' &&
-    p.playerId === owner.id && p.cards === owner.deck);
+    p.player === owner && p.cards === owner.deck);
   return prompt ? {owner, prompt} : null;
 }
 
