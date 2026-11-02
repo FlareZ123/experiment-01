@@ -49,3 +49,25 @@ test('Garbodor printings share Garbotoxin despite different attacks',()=>{
   assert.equal(trubbish.distinctAttacks,true);
   assert.deepEqual(trubbish.printings.map(p=>p.hp),[70,60]);
 });
+
+
+test('shared LOR PTCGO code selects main set and Gallery by exact number',()=>{
+  const field={
+    decks:[{rank:1,cards:[
+      {name:'Pikachu',count:1,printing:{
+        set:'LOR',number:'52',language:'en'}},
+      {name:'Pikachu',count:1,printing:{
+        set:'LOR',number:'TG05',language:'en'}},
+      {name:'Psychic Energy',count:58,printing:{
+        set:'MEE',number:'13',language:'en'}}
+    ]}],
+    missing_full_lists:[]
+  };
+  const rows=compareMixedPrintings(field);
+  assert.equal(rows.length,1);
+  assert.deepEqual(rows[0].printings.map(c=>c.cardId),
+    ['swsh11-52','swsh11tg-TG05']);
+  // Cosmetic alternate printings can share identical game text.
+  assert.equal(rows[0].distinctAbilities,false);
+  assert.equal(rows[0].distinctAttacks,false);
+});
