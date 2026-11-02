@@ -85,7 +85,7 @@ jobs:
       - name: Replay all four original rank9 physical groups under both symmetric policies
         if: ${{ inputs.rank9_special_guzma_native }}
         env:
-          AGENT2_RANK9_SPECIAL_GUZMA_OUTPUT: ${{ runner.temp }}/agent2-rank9-guzma-retro-native.json
+          AICHI_RANK9_SPECIAL_GUZMA_OUTPUT: ${{ runner.temp }}/agent2-rank9-guzma-retro-native.json
         run: node simulation/evaluation/agent2-rank9-special-guzma-retro-native.cjs
       - name: Preserve complete native rank9 original-source actions, rejections and physical deals
         if: ${{ always() && inputs.rank9_special_guzma_native }}
