@@ -113,6 +113,8 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
       const task=()=>withActorOnlyRootPolicy(()=>runMatch({
         deckA:decks.get(rankPair[0]),deckB:decks.get(rankPair[1]),
         seed,maxActions:110,...flags,
+        captureDecisionTrace:true,
+        capturePublicAttackTransitions:true,
         captureInitialFullPhysicalDeal:true,
         capturePhysicalZoneIntegrity:true,
         enforceSettledPhysicalZoneIntegrity:true,
@@ -129,7 +131,9 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
           prizesRemaining:match.prizesRemaining,
           nativeFullDealSha256:match.initialFullPhysicalDealFingerprint?.digestSha256??null,
           settledPhysicalZoneAnomalies:
-            match.physicalZoneIntegrity?.settledRootsWithAnomaly??null
+            match.physicalZoneIntegrity?.settledRootsWithAnomaly??null,
+          nativePublicAttackTransitions:match.publicAttackTransitions??[],
+          nativePublicRootLedger:match.rootActionLedger??[]
         },
         minRepair:ready.result.audit,
         celestial:ready.audit
@@ -144,8 +148,17 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
       };
     }
   });
+  const sourceContinuation=wrapped.result.game ?
+    require('./agent27-energy-attack-continuation.cjs')
+      .joinSourceEnergyAttackContinuation({
+        publicAttackTransitions:
+          wrapped.result.game.nativePublicAttackTransitions,
+        rootActionLedger:wrapped.result.game.nativePublicRootLedger
+      },wrapped.nativeMinimumAttachActionReceipts,rankPair.indexOf(10)):
+    null;
   return {
     rankPair,seed,useMinRepair,
+    sourceNativeEnergyAttackContinuation:sourceContinuation,
     registeredSourceHashes:sourceHash,
     separateFullSourceDealSha256:wrapped.initialFullDealSha256,
     nativeMinimumAttachActionReceipts:wrapped.nativeMinimumAttachActionReceipts,
