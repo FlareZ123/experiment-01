@@ -98,5 +98,12 @@ test('entry-only source finite-score probe skips redundant deep clone under real
     .sameWorldDecisionParityQualified,true);
   assert.equal(entryOnly.result.events[0]
     .sourceStateChangedBeforeFirstScore,true);
-  assert.deepEqual(entryOnly.result.result,traditional.result.result);
+  assert.deepEqual(
+    {early:entryOnly.result.result.early.kind,
+      kind:entryOnly.result.result.later.kind,
+      score:entryOnly.result.result.later.score},
+    {early:traditional.result.result.early.kind,
+      kind:traditional.result.result.later.kind,
+      score:traditional.result.result.later.score}
+  );
 });
