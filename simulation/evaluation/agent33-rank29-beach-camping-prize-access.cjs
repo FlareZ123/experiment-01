@@ -52,9 +52,10 @@ function evaluate(source) {
   assert.deepEqual([total, basics, camping, beach, dce, thunder], [60, 4, 2, 2, 1, 1],
     'Exact rank-29 original-card source identity changed');
 
-  // Seven opening cards, one Basic set Active, place one held Beach.
-  // No other hand plays: Beach draws from five cards to seven (two draws).
-  const opener = 7, prizes = 6, beachDraws = 2;
+  // Seven opening cards, one Basic Active, then mandatory T1 draw.
+  // Placing one held Beach leaves six cards; Beach draws one more.
+  const opener = 7, prizes = 6, firstTurnDraw = 1, beachEffectDraws = 1;
+  const beachDraws = firstTurnDraw + beachEffectDraws;
   const afterHand = total - opener;
   const deckAfterPrizes = afterHand - prizes;
   const legal = completeGroups(total, opener, [basics]);
@@ -79,20 +80,23 @@ function evaluate(source) {
   const beachPossession = heldDce * BigInt(afterHand) +
     noDce * BigInt(beachDraws);
   const denominator = joint * BigInt(afterHand);
-  // By the next ordinary draw, one missing singleton is found by Gear in
-  // 47/53 cases; two missing singletons require that one is searched and
-  // the other is the T2 card: 47/(53*52). Beach draws two on T1 and one
-  // on T2: probabilities 3/53 (one missing) or 6/(53*52) (two missing).
+  // Mandatory T1 draw precedes either terminal action. With exactly one
+  // missing singleton, Gear then finds it if not Prized: 47/53. With two
+  // missing, Gear searches the other when T1 drew a piece, or searches one
+  // and T2 draws the other: 3*46/(53*52). The Beach line sees the T1 draw,
+  // one Beach-effect draw, and T2 draw: 3/53 for one missing or 6/(53*52)
+  // for two missing.
   const pairDen = joint * 53n * 52n;
   const gearPair = initiallyBoth * 53n * 52n +
-    initiallyOne * 47n * 52n + initiallyNeither * 47n;
+    initiallyOne * 47n * 52n + initiallyNeither * (3n * 46n);
   const beachPair = initiallyBoth * 53n * 52n +
     initiallyOne * 3n * 52n + initiallyNeither * 6n;
   return {
     version: VERSION, rank: 29, sourceOriginal60: true,
     basicCopies: basics, campingCopies: camping,
     beachCopies: beach, dceCopies: dce, thunderCopies: thunder,
-    opener, prizes, beachDraws, deckAfterPrizes,
+    opener, prizes, firstTurnDraw, beachEffectDraws,
+    beachDraws, deckAfterPrizes,
     legalOpeningProbability: asNumber(legal, choose(total, opener)),
     bothHeldGivenLegalOpening: asNumber(joint, legal),
     dceInitiallyHeldGivenBoth: asNumber(heldDce, joint),
@@ -107,7 +111,7 @@ function evaluate(source) {
     gearMinusBeachAttackPairGap: asNumber(gearPair - beachPair, pairDen),
     dceInDeckGivenAbsentFromSeven: deckAfterPrizes / afterHand,
     dceInBeachDrawGivenAbsentFromSeven: beachDraws / afterHand,
-    scope: 'No other plays, native actions permitted, DCE and DCE+Thunder access only; no opponent interaction, future Stadium value, search/draw abilities, turn-clock or win rates',
+    scope: 'Mandatory first turn draw and second turn draw; no other plays, native actions permitted, DCE and DCE+Thunder access only; no opponent interaction, future Stadium value, search/draw abilities, turn-clock or win rates',
     competitiveQualifiedGames: 0
   };
 }
