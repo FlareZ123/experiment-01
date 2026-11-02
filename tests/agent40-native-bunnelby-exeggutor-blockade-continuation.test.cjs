@@ -19,6 +19,8 @@ const {withBunnelbyEvolutionLine}=
   require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
 const {withBunnelbyBarrageConsent}=
   require('../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
+const {choosePublicJetBenchSwitch}=
+  require('../simulation/twinleaf/agent40-public-jet-bench-frontier.cjs');
 const {resolveManifestFile}=
   require('../simulation/twinleaf/resolve-field.cjs');
 const challenge=require('../results/als/agent18-exeggutor-vileplume-native-v2.json');
@@ -263,11 +265,22 @@ function verify(seat){
   const exIndex=x.owner.bench.findIndex(slot=>
     slot.getPokemonCard()?.fullName==='Exeggutor PLF');
   assert.ok(exIndex>=0);
-  const heldIndex=x.owner.hand.cards.findIndex(card=>card.fullName===JET);
-  assert.ok(heldIndex>=0);
-  const intent={kind:'attach-special-energy',handIndex:heldIndex,
-    printing:JET,slot:'bench',index:exIndex,
-    reason:'exeggutor-blockade-next-owner-turn'};
+  const sourceView=actorObservation(x.state,seat);
+  const defaultJet=choosePublicJetBenchSwitch(sourceView,x.catalog);
+  assert.equal(defaultJet,null,
+    'Generic Jet policy preserves the paid one-Colorless Burrow');
+  const intent=chooseActorRootIntent(sourceView,x.catalog,{
+    bunnelbyTmJetRoot:true,
+    exeggutorBlockadeContinuation:true,
+    ownRegisteredSixty:x.ownRegisteredSixty
+  });
+  assert.equal(intent.kind,'attach-special-energy');
+  assert.equal(intent.slot,'bench');
+  assert.equal(intent.index,exIndex);
+  assert.equal(intent.printing,JET);
+  assert.equal(intent.plannedAttackName,'Blockade');
+  const heldIndex=intent.handIndex;
+  assert.equal(x.owner.hand.cards[heldIndex]?.fullName,JET);
   const pre=rootPhysicalSnapshot(x.state,seat,intent);
   x.f.store.dispatch(new PlayCardAction(x.owner.id,heldIndex,{
     player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:exIndex
@@ -306,6 +319,9 @@ function verify(seat){
     benchAfterBlockade:x.owner.bench.map(slot=>
       slot.getPokemonCard()?.fullName??null),
     actualUnblockedOpponentTurn:true,
+    genericJetWouldPreserveBurrow:true,
+    policySelectedSecondTurnJet:true,
+    plannedAttackName:intent.plannedAttackName,
     secondSourceTurnJetPromotion:'Exeggutor PLF',
     settledAttack:'Blockade',opponentActiveDamageDelta:10,
     actualPlayerSupporterLock:true,
