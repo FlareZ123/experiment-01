@@ -1,0 +1,25 @@
+# Agent18: one-option natural evolution converts original rank5 from zero attack to 12 native attacks
+
+**2 November 2026 | retrospective single-variable mechanism comparison | zero competitively qualified games**
+
+[Compiled CI run 41464411780](https://github.com/FlareZ123/experiment-01/actions/runs/41464411780), head d1ecbe24561bf67d85396c7205bcb0acec7bc413. Target compiled pinned Twinleaf job succeeded; artifact 13150936923 (SHA256 b905afff5215d574a477b2601b7d0ed8a2a4d73b6dcb28023dc00392ddf0483b) contains two complete native JSON files, about 4.95 MB and 5.03 MB uncompressed. Canonical runner blob 59c1450ffa754e4abb929cb6d0c1eba41c84ea3b; lexical source closure SHA256 715dc7be6eae80797f06ea994c64faadfa3278de253b4fb833307655f195c4dd (302 files); native vendor a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Original printed Aichi rank5 source 60 and both candidate 60 fingerprints matched the externally selected profile.
+
+The two explicit profiles are [original v1](../../simulation/evaluation/agent18-rank5-selected-canary-v1.json) and [one-option v2](../../simulation/evaluation/agent18-rank5-natural-evolution-v2.json). Only the actorNaturalEvolutionRoot option changed false to true. All 86 named underlying default options were selected and code-pinned, with inherited native payment/physical-zone audits. This reuses two **previously observed** seeds, 67151115 for physical candidate seat A and 1865046151 for candidate seat B, and is a **retrospective mechanism comparison**. It is not an independent prospective benchmark. Source initial physical deal fingerprints matched across control/treatment within each unchanged candidate and seed. Actual source went first in both groups.
+
+| Original source vs unchanged candidate | Control native source attacks | Evolution native source settled attacks | Evolution native source attacks with Prize reduction | Verified next-actor root after Prize-progress attack | Evolution native outcome |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Candidate seat A, champion-reference | 0 | 3 | 0 | 0 | engine terminal, candidate won |
+| Candidate seat A, New Moon | 0 | 4 | 4 | 3 | engine terminal, source won |
+| Candidate seat B, champion-reference | 0 | 0 | 0 | 0 | action cap, no native winner |
+| Candidate seat B, New Moon | 0 | 5 | 5 | 4 | engine terminal, source won |
+| **Total** | **0** | **12** | **9** | **7** | **3 native engine terminals / 1 cap** |
+
+All twelve treatment attacks were actual native settled Cross Fusion Strike declarations by Mew VMAX. All 9 Prize-progress attacks were against New Moon (4 and 5, respectively). The source took six native Prizes in each of those two arms; these are not paper wins. The three other settled Cross Fusion Strike attacks against champion-reference did not cause native Prize reduction or visible active damage. The attacking Mew VMAX carried printed Double Colorless Energy, but the only Benched Fusion Strike Pokémon in those snapshots were Mew V; **no Genesect V donor was on that Bench**. Thus Techno Blast was unavailable to copy. A settled declaration by itself is insufficient payoff evidence.
+
+Exact provided card-pool texts: Mew V FST 113 Energy Mix requires Psychic, Psychic Leap requires Psychic+Colorless; Genesect V FST 185 Techno Blast requires Metal+Metal+Colorless; Mew VMAX FST 114 Cross Fusion Strike requires Colorless+Colorless and copies a Benched Fusion Strike Pokémon attack. The source original printed 60 contains four Double Colorless Energy, four Mew V, three Mew VMAX and four Genesect V. This explains why attaching DCE to an unevolved Mew V does not make its printed attack payable and why natural evolution creates a real attack path. The native attack path remains susceptible to donor absence and strategic choice.
+
+**Outstanding failure: source played zero Trainer PlayCard roots in all eight control and treatment arms.** Rank5 original actually carries four Quick Ball, four Ultra Ball, three Battle VIP Pass, three Trainers' Mail, Secret Box, Supporters, etc. The enabled paper-payment guards for Quick Ball and Secret Box inspected zero actual payments. Native root correctness for owner-visible Trainer selection, discard alternatives, card search, Bench donor setup, Prize continuity, clock, full rules and competent opposing counterplay remains unresolved. All native terminal labels and candidate/source attack totals are developmental only.
+
+An integrated summarizer [sourcePrizeProgress](../../simulation/evaluation/agent18-source-prize-progress.cjs) now requires native post-prompt source Prize reduction to call an attack payoff. It reports the precise count of same-epoch opponent returns after such Prize-progress attacks. Attacks without Prize progress may still have other tactical effects, which this conservative screen deliberately excludes.
+
+Next priority: one pre-registered owner-visible Trainer-to-Genesect Bench chain, then honest native payment receipt and opponent post-payoff response with fresh starter-balanced physical seeds. Full Aichi Top32 99.5% claim remains unsupported: 29/32 verified originals, 0 qualified games.
