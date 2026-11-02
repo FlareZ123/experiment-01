@@ -581,6 +581,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const ownerSeekerPending=new Map();
   const typedEriReplies=new WeakMap();
   const ownerEriPending=new Map();
+  const pendingFarewellBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
   let nativeStore=null,catalog=null,actualGamesSeen=0;
@@ -1326,6 +1327,32 @@ function withActorOnlyRootPolicy(run,deps={}){
   function dispatchObserved(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&this!==nativeStore){
       nativeStore=this;actualGamesSeen++;audit.actualGamesSeen=actualGamesSeen;
+      pendingFarewellBySeat.clear();
+    }
+    if(this===nativeStore&&
+       action?.constructor?.name==='ResolvePromptAction'&&
+       pendingFarewellBySeat.size>0){
+      const result=beforeDispatch.value.apply(this,[action,...args]);
+      for(const [seat,pending] of pendingFarewellBySeat){
+        const current=rootPhysicalSnapshot(this.state,seat,pending.intent);
+        const effect=rootPhysicalWitness(pending.intent,pending.before,
+          current,engineGamePhase());
+        pending.receipt.deferredPromptActions++;
+        if(effect==='confirmed-public-effect'){
+          pending.receipt.deferredStatus='confirmed-after-prompt';
+          pending.receipt.deferredAfter={
+            bench:current.farewellBenchPrinting,
+            discarded:current.farewellDiscardCount,
+            deck:current.deckCount,hand:current.handCount,
+            prizes:current.farewellPrizeCounts
+          };
+          pendingFarewellBySeat.delete(seat);
+        }else if(!(this.state.prompts??[]).some(p=>p.result===undefined)){
+          pending.receipt.deferredStatus='prompt-closed-without-effect';
+          pendingFarewellBySeat.delete(seat);
+        }
+      }
+      return result;
     }
     const eriReply=this===nativeStore?typedEriReplies.get(action):undefined;
     if(eriReply){
@@ -1435,14 +1462,27 @@ function withActorOnlyRootPolicy(run,deps={}){
           deck:s?.deckCount??null,hand:s?.handCount??null,
           prizes:s?.farewellPrizeCounts??null
         });
-        audit.farewellLetterReceipts.push({
+        const waiting=(this.state.prompts??[])
+          .filter(prompt=>prompt.result===undefined);
+        const receipt={
           seat:choice.seat,globalTurn:choice.globalTurn,
           before:sample(ownerBefore),after:sample(ownerAfter),
-          pendingPromptTypes:(this.state.prompts??[])
-            .filter(prompt=>prompt.result===undefined)
-            .slice(0,5).map(prompt=>prompt.constructor?.name??'UnknownPrompt'),
-          physical,publicZonesChanged,turnOrPhaseChanged
-        });
+          pendingPromptTypes:waiting.slice(0,5)
+            .map(prompt=>prompt.constructor?.name??'UnknownPrompt'),
+          physical,publicZonesChanged,turnOrPhaseChanged,
+          deferredStatus:'no-prompt',deferredPromptActions:0
+        };
+        audit.farewellLetterReceipts.push(receipt);
+        if(physical==='confirmed-public-effect')
+          receipt.deferredStatus='confirmed-immediately';
+        else if(waiting.some(prompt=>prompt.constructor?.name==='WaitPrompt')){
+          assert.ok(!pendingFarewellBySeat.has(choice.seat),
+            'Farewell Letter prompt overlaps an unresolved owner Ability');
+          pendingFarewellBySeat.set(choice.seat,{
+            intent:choice.intent,before:ownerBefore,receipt
+          });
+          receipt.deferredStatus='awaiting-prompt';
+        }
       }
       audit.acceptedActorRoots++;
       if(choice.intent.source==='rank13-dragon-donor')
