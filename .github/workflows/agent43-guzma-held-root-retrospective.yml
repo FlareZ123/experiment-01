@@ -3,6 +3,11 @@ name: Agent 43 rank11 held Guzma diagnostic exact frozen replay
 on:
   workflow_dispatch:
     inputs:
+      rank9_special_guzma_pure:
+        description: 'Pure owner-public Special Energy funded Weakness Guzma proposal; skip retrospective replay'
+        type: boolean
+        required: false
+        default: false
       basic_energy_recipient_comparison:
         description: 'Run additional fixed-rank11 both-seat Basic Energy recipient paired development'
         type: boolean
@@ -36,19 +41,19 @@ jobs:
       - name: Verify original immutable preregistration before read-only replay
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs --inspect-only
       - name: Replay 16 PREVIOUSLY USED rank11 source seeds and assert unchanged accepted-root digest
-        if: ${{ !inputs.basic_energy_recipient_comparison }}
+        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
         env:
           AGENT43_GUZMA_HELD_AUDIT_OUTPUT: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs
       - name: Preserve complete retrospective observer data, including failures
-        if: ${{ always() && !inputs.basic_energy_recipient_comparison }}
+        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
         uses: actions/upload-artifact@v4
         with:
           name: agent43-rank11-held-guzma-retrospective-16
           path: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
           if-no-files-found: warn
       - name: Preflight additional unchanged-source rank11 Basic Energy comparator
-        if: ${{ inputs.basic_energy_recipient_comparison }}
+        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
         run: node simulation/evaluation/agent2-rank11-basic-recipient-matched-development.cjs --inspect-only
       - name: Compare symmetric Basic Energy recipient frontier on frozen 16 rank11 source-dealt arms
         if: ${{ inputs.basic_energy_recipient_comparison }}
@@ -63,3 +68,6 @@ jobs:
           path: ${{ runner.temp }}/agent2-rank11-basic-recipient-existing16-development.json
           if-no-files-found: warn
           retention-days: 30
+      - name: Verify default-off rank9 publicly funded Weakness Guzma proposal
+        if: ${{ inputs.rank9_special_guzma_pure }}
+        run: node --test tests/agent2-rank9-special-guzma-frontier.test.cjs
