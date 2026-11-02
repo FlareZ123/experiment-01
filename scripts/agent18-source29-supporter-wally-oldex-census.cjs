@@ -27,6 +27,28 @@ function loadTypes(){
       result.set(card.name,found);
     }
   }
+  // The bundled EN card archive omits seven actual original-printing names.
+  // Keep the scope explicit. Their printed types are established by the
+  // source deck's authenticated set+number plus external printed-card
+  // catalogues; they are all non-Supporters. Do not silently make a
+  // missing card look as if it came from the bundled card archive.
+  // PHF 92/102/106: Battle Compressor, Robo Substitute, Target Whistle
+  // BWP 153: Palace Belt (Tool). SMP NAN25: Palace Book (Item).
+  // LOT 191 and TEU 158: Prism Star Stadiums.
+  const verifiedOutsideBundledArchive={
+    'Battle Compressor':'Item',
+    'Palace Belt':'Pokémon Tool',
+    'Palace Book':'Item',
+    'Robo Substitute':'Item',
+    'Target Whistle':'Item',
+    'Thunder Mountain ♢':'Stadium',
+    'Wondrous Labyrinth ♢':'Stadium'
+  };
+  for(const [name,type] of Object.entries(verifiedOutsideBundledArchive)){
+    assert.equal(result.has(name),false,
+      'Remove extra-archive override after bundled archive includes '+name);
+    result.set(name,new Set([type]));
+  }
   return result;
 }
 
@@ -63,6 +85,14 @@ function census(){
   return {
     schema:'agent18-source29-supporter-wally-oldex-typed-card-archive-v1',
     sample:rows.length,missingRanks,
+    trainerClassificationEvidence:{
+      bundledEnglishCardArchive:'176 original JSON sets, exact name/subtypes',
+      explicitExternalPrintingTypeOverrides:[
+        'Battle Compressor','Palace Belt','Palace Book','Robo Substitute',
+        'Target Whistle','Thunder Mountain ♢','Wondrous Labyrinth ♢'
+      ],
+      note:'Seven published source Trainer names absent from supplied archive; override only their verified non-Supporter printed type.'
+    },
     supporterSummary:{
       min:sorted[0],median:sorted[Math.floor(sorted.length/2)],
       max:sorted.at(-1),
