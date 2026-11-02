@@ -330,6 +330,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseConservativeFirstCarmine(view);
     if(first)return first;
   }
+  // Default-off, owner-public funded Clefairy path under printed Skyliner.
+  // Native Store remains final for modified Retreat Cost and attack effects.
+  if(options.skylinerRondoRetreat===true){
+    const rondo=require('./agent6-owner-public-skyliner-rondo-frontier.cjs')
+      .chooseOwnerSkylinerRondoRetreat(view,catalog);
+    if(rondo)return rondo;
+  }
   if(options.paidRetreatRoot===true){
     const retreat=require('./agent6-actor-paid-retreat-frontier.cjs')
       .choosePaidRetreatToDamagingBench(view,catalog);
@@ -586,6 +593,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT35_PERFECTION_TRANSITION_ROOT_DEV==='true'),
     paidRetreatRootOptIn:deps.paidRetreatRoot??
       (process.env.AGENT6_PAID_RETREAT_ROOT_DEV==='true'),
+    skylinerRondoRetreatOptIn:deps.skylinerRondoRetreat??
+      (process.env.AGENT6_SKYLINER_RONDO_ROOT_DEV==='true'),
+    skylinerRondoRetreatOwnerSeat:deps.skylinerRondoRetreatOwnerSeat??
+      (process.env.AGENT6_SKYLINER_RONDO_OWNER_SEAT==='0'?0:
+        process.env.AGENT6_SKYLINER_RONDO_OWNER_SEAT==='1'?1:null),
     thornsDirectLineOptIn:deps.thornsDirectLine??
       (process.env.AGENT1_THORNS_DIRECT_ROOT_DEV==='true'),
     thornsSoloEnergyRetentionOptIn:deps.thornsSoloEnergyRetention??
@@ -823,6 +835,14 @@ function withActorOnlyRootPolicy(run,deps={}){
   assert.ok([null,0,1].includes(audit.specialEnergyRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.knownDeadAttackRootOwnerSeat));
   assert.ok([null,0,1].includes(audit.floatStoneMobilityOwnerSeat));
+  assert.ok([null,0,1].includes(audit.skylinerRondoRetreatOwnerSeat));
+  if(audit.skylinerRondoRetreatOptIn)
+    audit.version+='+'+
+      require('./agent6-owner-public-skyliner-rondo-frontier.cjs').VERSION;
+  else{
+    delete audit.skylinerRondoRetreatOptIn;
+    delete audit.skylinerRondoRetreatOwnerSeat;
+  }
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
@@ -1032,6 +1052,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
+      skylinerRondoRetreat:actorSpecialEnergyEnabled(
+        audit.skylinerRondoRetreatOptIn,
+        audit.skylinerRondoRetreatOwnerSeat,seat),
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
@@ -1248,6 +1271,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
       case 'paid-retreat':
+      case 'skyliner-rondo-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
       case 'perfection':
