@@ -290,6 +290,14 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePublicBusPositionTransition(view,catalog);
     if(lock)return lock;
   }
+  // A multi-turn, exact-printing Bench funding plan. Its independent
+  // owner-public opportunity is evaluated BEFORE the generic nearest-attack
+  // Energy attachment, which otherwise diverts valuable Prism to Active.
+  if(options.rank9MegaAbsolFundingRoot===true){
+    const staged=require('./agent2-rank9-mega-absol-funding.cjs')
+      .chooseMegaAbsolStagedFunding(view,catalog);
+    if(staged)return staged;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -687,6 +695,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     rank9SpecialFundedGuzmaOptIn:deps.rank9SpecialFundedGuzma===true,
+    rank9MegaAbsolFundingOptIn:deps.rank9MegaAbsolFundingRoot===true,
     forcedGuzmaNominalKoOptIn:deps.forcedGuzmaNominalKo===true||
       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
     finalPrizeGuzmaOptIn:deps.finalPrizeGuzma===true||
@@ -984,6 +993,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
   if(audit.rank9SpecialFundedGuzmaOptIn)
     audit.version+='+'+require('./agent2-rank9-special-guzma-frontier.cjs').VERSION;
+  if(audit.rank9MegaAbsolFundingOptIn)
+    audit.version+='+'+require('./agent2-rank9-mega-absol-funding.cjs').VERSION;
   if(audit.forcedGuzmaNominalKoOptIn)
     audit.version+='+'+
       require('./agent31-forced-guzma-ko-frontier.cjs').VERSION;
@@ -1162,6 +1173,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       rank9SpecialFundedGuzma:audit.rank9SpecialFundedGuzmaOptIn,
+      rank9MegaAbsolFundingRoot:audit.rank9MegaAbsolFundingOptIn,
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
