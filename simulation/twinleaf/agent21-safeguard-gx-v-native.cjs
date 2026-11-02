@@ -104,9 +104,16 @@ function runArm(seat,attackerPrinting,defenderPrinting){
     'Native paper Safeguard should distinguish VMAX from GX attacking species');
   assert.equal(defender.discard.cards.includes(physicalDefender),predicted===1,
     'Physical defender should be discarded exactly on the 70 HP knockout');
+  const wallStillActive=defender.active.getPokemonCard()===physicalDefender;
+  if(predicted===0){
+    assert.equal(wallStillActive,true,'Safeguard wall must remain Active');
+    assert.equal(defender.active.damage,0,
+      'Safeguard must prevent all damage, beyond merely avoiding a KO');
+  }
   return {sourceRankPrintings: defenderPrinting==='Mimikyu PAL'?[3,7]:[1,30],
     seat,attackerPrinting,defenderPrinting,attackerAttack:attack,
     expectedSourceMimikyuPrizeLoss:predicted,prizeGain,
+    damageOnSurvivingMimikyu:wallStillActive?defender.active.damage:null,
     defenderInDiscard:defender.discard.cards.includes(physicalDefender),
     resolvedPromptTypes:promptTypes};
 }
