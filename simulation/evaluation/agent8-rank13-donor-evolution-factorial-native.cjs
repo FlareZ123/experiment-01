@@ -66,6 +66,7 @@ function main(){
         sourceCopiedAttackSelections:arm.sourceCopiedAttackSelections??[],
         physicalCustody:arm.physicalCustody??null,
         paperCelestialAudit:arm.paperCelestialAudit??null,
+        nativeMinimumAttachAudit:arm.nativeMinimumAttachAudit??null,
         publicActionSha256:arm.gameDecisionTraceSha256??null,
         firstNativeAbort:arm.error??null
       };
