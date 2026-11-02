@@ -68,6 +68,13 @@ for(const seat of [0,1])for(const ddeCount of [1,2]){
       'Pinned source card omits GX metadata; native reducer must enforce quota');
     assert.equal(x.source.usedGX===true,false);
     x.store.dispatch(new AttackAction(x.source.id,'Altered Creation-GX'));
+    for(let n=0;n<20;n++){
+      const pending=x.store.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      x.store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(x.store.hasPrompts(),false);
     assert.equal(x.source.usedGX,true,'native card must consume GX allowance');
     assert.equal(x.source.alteredCreationDamage,true,
       'native card must persist offensive +30 effect');
