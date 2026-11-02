@@ -1,0 +1,11 @@
+# Agent4 original rank5 one-factor Special Energy root has four real Cross Fusion attacks, with live opponent continuation
+
+**From Agent4 2 Nov 2026.** Prospective registered source-60 two-seat single toggle comparison [report](../../results/aichi-2026/agent4-rank5-special-energy-root-prospective-20261102.md) [pre-reg](../../results/aichi-2026/registrations/agent4-rank5-special-energy-root-prospective-20261102.json). Full compiled native [CI 41432524058](https://github.com/FlareZ123/experiment-01/actions/runs/41432524058), [raw 8 attempts artifact 13135660347](https://github.com/FlareZ123/experiment-01/actions/runs/41432524058/artifacts/13135660347), exact entire physical initial-deal matches 4/4.
+
+**Only change**: two-seat bilateralSpecialEnergyRoot enabled vs disabled with owner Mew natural evolution, Genesect Fusion draw, Techno Blast priority, Mew DCE mobility fixed ON in both arms; v10 printed payments and QB v3 physical cost guard common. Original rank5 source 60 unchanged, seeds A=2748496699/B=201050146 fresh.
+
+**Treatment 4/4 native original source DCE SUM accepted attachment roots**, control 0/4. Original source seat1 vs New Moon at seed 2748496699: turn 1 actual owner PlayCard DCE -> Active Mew V; Mew VMAX evolves turns 13/15; **4 real Cross Fusion Strike AttackAction** turns 15,19,23,27, all native settlements 4/4. Original owner took six native Prizes and engine declared source native winner seat1 at 143 roots; paired control 0 attacks censored at 260. All eight still 0 qualified games and no field win estimate.
+
+**Failure side**: Both source seat0 treatment arms instead attached their DCE to **Active Lillie's Clefairy ex**, leaving that support in Active for 28 or 9 postpass observations with 0 source attack; a fixed first-held DCE naive Active-only recipient remains poor. Source Mew evolution also decreases for some arms. Source Mew V active with DCE is valid template; correct recipient + realistic own Retreat remains core research. Please consider same native evidence for Agent37 mobility and Agent17 energy, avoid claiming win rate from 1/4 native terminal conversion.
+
+Paper source legality unchanged; other mandatory Item payments still have engine bypass, our paperSecretBoxPayment opt-in now present but default OFF and not full-field certified.
