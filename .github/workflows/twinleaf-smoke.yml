@@ -28,83 +28,168 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Regress original rank4 and rank16 duplicate Crobat Dark Asset paper limit
+        id: smoke_check_01
+        continue-on-error: true
         run: node --test tests/agent8-double-crobat-dark-asset-native.test.cjs
       - name: Regress authenticated rank1 Copycat stale-turn and rank15 movement history
+        id: smoke_check_02
+        continue-on-error: true
         run: node --test tests/agent8-copycat-stale-last-turn-native.test.cjs tests/agent8-rank15-movement-observation-alias-native.test.cjs tests/agent8-pidgeot-ability-used-observation-alias-native.test.cjs
       - name: Settle rank15 public-movement-informed same-root attack offer on both seats
+        id: smoke_check_03
+        continue-on-error: true
         run: node --test tests/agent8-rank15-public-movement-payable-attack-native.test.cjs
       - name: Qualify rank15 exact PFL Mega Lopunny natural evolution at both native owner roots
+        id: smoke_check_04
+        continue-on-error: true
         run: node --test tests/agent8-rank15-natural-evolution-native.test.cjs
       - name: Characterize printed Gengar Shadow Pain native prompt target caps
+        id: smoke_check_05
+        continue-on-error: true
         run: node simulation/twinleaf/agent46-gengar-shadow-pain-native-cap.cjs
       - name: Audit original-Store Tinkaton ex Press versus Double Turbo in both seats
+        id: smoke_check_06
+        continue-on-error: true
         run: |
           node simulation/twinleaf/agent7-tinkaton-press-dte-native.cjs
           node simulation/twinleaf/agent7-tinkaton-safeguard-native.cjs
           node simulation/twinleaf/agent7-tinkaton-printing-coverage.cjs
       - name: Regress original PAL Mimikyu paid attack constraints, GX damage, and V counter placement
+        id: smoke_check_07
+        continue-on-error: true
         run: |
           node simulation/twinleaf/agent21-safeguard-gx-v-native.cjs
           node simulation/twinleaf/agent21-pal-mimikyu-source-payment-native.cjs
       - name: Attest all 29 original printed source ranks against genuine pinned native deck IDs
+        id: smoke_check_08
+        continue-on-error: true
         run: node simulation/evaluation/agent13-native-plan-attestation-smoke.cjs
       - name: Regress exact 29-original Ability-use printing census
+        id: smoke_check_09
+        continue-on-error: true
         run: node --test tests/agent8-public-ability-use-source-census.test.cjs
       - name: Test both-seat native legal-but-unproductive Special Energy hold
+        id: smoke_check_10
+        continue-on-error: true
         run: node simulation/twinleaf/agent13-staged-energy-hold-native.cjs
       - name: Verify guarded source-print last-Bench Dedenne versus Regidrago native forks in both seats
+        id: smoke_check_11
+        continue-on-error: true
         run: node simulation/twinleaf/agent11-native-last-bench-locked-dedenne.cjs
       - name: Settle printed Iron Thorns Volt Cyclone reply after two-seat last-Bench forks
+        id: smoke_check_12
+        continue-on-error: true
         run: node simulation/twinleaf/agent11-last-bench-volt-cyclone-reply.cjs
       - name: Enforce native Energy recipient legality under printed type filters
+        id: smoke_check_13
+        continue-on-error: true
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
       - name: Regress optional actor-only typed Energy frontier and unchanged root
+        id: smoke_check_14
+        continue-on-error: true
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs
       - name: Regress full-Bench FST Trubbish paper attack correction
+        id: smoke_check_15
+        continue-on-error: true
         run: node --test tests/agent10-trubbish-fst-full-bench-paper-hook.test.cjs tests/agent10-pinned-trubbish-fst-full-bench-paper-hook.test.cjs
       - name: Verify real Store two-Psychic attachment counterfactual
+        id: smoke_check_16
+        continue-on-error: true
         run: node --test tests/agent10-pinned-basic-energy-frontier-store.test.cjs
       - name: Verify pinned Telepath Psychic owner-deck search versus Basic attachment
+        id: smoke_check_17
+        continue-on-error: true
         run: node --test tests/agent10-pinned-telepath-psychic-energy.test.cjs
       - name: Reject unsimulatable New Moon Horror House and Perfection opening roots
+        id: smoke_check_18
+        continue-on-error: true
         run: node --test tests/new-moon-opening-horror-house-preflight.test.cjs
       - name: Prove both Horror House channels against real printed Psychic Energy in Store
+        id: smoke_check_19
+        continue-on-error: true
         run: node --test tests/new-moon-opening-horror-house-store-preflight.test.cjs
       - name: Probe source Regidrago printed-copy discard and Double Dragon Energy
+        id: smoke_check_20
+        continue-on-error: true
         run: node simulation/twinleaf/regidrago-dragon-energy-probe.cjs
       - name: Diagnose native Canceling Cologne sudden-death epoch without altering its hook
+        id: smoke_check_21
+        continue-on-error: true
         run: node simulation/twinleaf/agent13-cologne-epoch-diagnostic.cjs
       - name: Regress official Japanese same-turn Canceling Cologne duplicate ruling
+        id: smoke_check_22
+        continue-on-error: true
         run: node simulation/twinleaf/canceling-cologne-repeat-paper-gate.cjs
       - name: Verify Forest Seal Stone Power bypasses Ability lock
+        id: smoke_check_23
+        continue-on-error: true
         run: node simulation/twinleaf/forest-seal-ability-check.cjs
       - name: Check Forest Seal Stone on board
+        id: smoke_check_24
+        continue-on-error: true
         run: node simulation/twinleaf/forest-seal-board-check.cjs
       - name: Verify first-turn attribution contracts
+        id: smoke_check_25
+        continue-on-error: true
         run: node --test tests/turn_order_evidence.test.cjs
       - name: Regress Ranger/Channeler versus attack-origin and Ability-origin Item lock
+        id: smoke_check_26
+        continue-on-error: true
         run: node --test tests/ranger_lock_engine.test.cjs
       - name: Verify Japanese Player's Ceremony reducer effect
+        id: smoke_check_27
+        continue-on-error: true
         run: node --test tests/players_ceremony_effect.test.cjs
       - name: Verify Meloetta donk component attack and Stadium effects
+        id: smoke_check_28
+        continue-on-error: true
         run: node --test tests/meloetta_donk_reducer.test.cjs
       - name: Verify a staged self-KO awards opponent's final Prize
+        id: smoke_check_29
+        continue-on-error: true
         run: node --test tests/meloetta_self_ko.test.cjs
       - name: Verify recurring Exeggcute Propagation reducer
+        id: smoke_check_30
+        continue-on-error: true
         run: node --test tests/exeggcute_propagation.test.cjs
       - name: Verify Wobbuffet lock across play, Bench, and discard
+        id: smoke_check_31
+        continue-on-error: true
         run: node --test tests/wobbuffet_donk_lock.test.cjs
       - name: Verify independent policy and game RNG streams
+        id: smoke_check_32
+        continue-on-error: true
         run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
       - name: Execute bounded deterministic smoke game
+        id: smoke_check_33
+        continue-on-error: true
         run: node simulation/twinleaf/smoke-test.cjs
       - name: Audit all published Aichi printings against Twinleaf card implementations
+        id: smoke_check_34
+        continue-on-error: true
         run: node simulation/twinleaf/card-coverage.cjs
       - name: Resolve Aichi opponent decks with explicit, tracked substitutions
+        id: smoke_check_35
+        continue-on-error: true
         run: node simulation/twinleaf/resolve-field.cjs
       - name: Regress copied-attack selection and declaration root boundaries
+        id: smoke_check_36
+        continue-on-error: true
         run: node simulation/twinleaf/perfection-attack-ordinal-boundary.cjs
       - name: Reproduce duplicate-name copied attack source-printing mismatch
+        id: smoke_check_37
+        continue-on-error: true
         run: node simulation/twinleaf/copy-attack-name-collision-source.cjs
       - name: Verify corrected copied-donor selection in Store
+        id: smoke_check_38
+        continue-on-error: true
         run: node simulation/twinleaf/copy-attack-name-collision-corrected.cjs
+
+      # All smoke checks are reportable independently. Keep the job red if any
+      # regression failed, even when an earlier check was allowed to continue.
+      - name: Summarize smoke checks and restore failed job status
+        if: ${{ always() }}
+        env:
+          SMOKE_STEP_CONTEXT: ${{ toJSON(steps) }}
+        run: |
+          node -e 'const fs=require("node:fs"); const a=Object.entries(JSON.parse(process.env.SMOKE_STEP_CONTEXT)).filter(([k])=>/^smoke_check_[0-9]+$/.test(k)); const bad=a.filter(([,v])=>v.outcome!=="success"); const report="Twinleaf independent smoke checks: "+a.length+"/38 present, "+bad.length+" failed or non-success\\n"+a.map(([k,v])=>k+": "+v.outcome).join("\\n")+"\\n"; console.log(report); fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,"## Independent smoke checks\\n\\n"+report+"\\n"); if(a.length!==38||bad.length>0) process.exitCode=1;'
