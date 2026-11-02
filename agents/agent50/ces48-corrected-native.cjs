@@ -48,3 +48,5 @@ function stage(seat){
  state.turn=4;
  state.phase=GamePhase.PLAYER_TURN;
  state.gameSettings.format=Format.EXPANDED;
+ return {store,state,owner,foe,e1,e2};
+}
