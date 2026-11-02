@@ -216,8 +216,71 @@ function verify(seat){
     'Second TM must actually establish AOR Item lock');
   assert.equal(x.state.activePlayer,1-seat,
     'Omega Barrage turn must pass to the opponent');
+  assert.notEqual(x.opponent.cannotPlaySupporterCards,true,
+    'Only Vileplume Item lock is established; no Blockade Supporter lock yet');
+  assert.equal(x.owner.hand.cards.filter(card=>card.fullName===JET).length,1);
+  assert.ok(x.opponent.hand.cards.includes(x.heldGuzma));
+
+  // The opponent has an actual ordinary action window before Exeggutor can
+  // take Active and use its player-directed Supporter-lock attack.
+  x.f.store.dispatch(new PassTurnAction(x.opponent.id));
+  const turnPrompts=settle(x,null);
+  assert.ok(turnPrompts.length>0);
+  assert.equal(x.state.activePlayer,seat);
+  assert.equal(x.state.phase,x.GamePhase.PLAYER_TURN);
+  assert.notEqual(x.opponent.cannotPlaySupporterCards,true);
+
+  const exIndex=x.owner.bench.findIndex(slot=>
+    slot.getPokemonCard()?.fullName==='Exeggutor PLF');
+  assert.ok(exIndex>=0);
+  const heldIndex=x.owner.hand.cards.findIndex(card=>card.fullName===JET);
+  assert.ok(heldIndex>=0);
+  const intent={kind:'attach-special-energy',handIndex:heldIndex,
+    printing:JET,slot:'bench',index:exIndex,
+    reason:'exeggutor-blockade-next-owner-turn'};
+  const pre=rootPhysicalSnapshot(x.state,seat,intent);
+  x.f.store.dispatch(new PlayCardAction(x.owner.id,heldIndex,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:exIndex
+  }));
+  const post=rootPhysicalSnapshot(x.state,seat,intent);
+  assert.equal(rootPhysicalWitness(intent,pre,post,x.GamePhase),
+    'confirmed-public-effect');
+  assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
+  assert.deepEqual(x.owner.active.energies.cards.map(card=>card.fullName),
+    [JET],'Second Jet must attach to promoted Exeggutor Active');
+
+  const opponentBefore=x.opponent.active.damage;
+  x.f.store.dispatch(new AttackAction(x.owner.id,'Blockade'));
+  const blockadePrompts=settle(x,null);
+  assert.equal(x.state.activePlayer,1-seat);
   assert.equal(x.opponent.cannotPlaySupporterCards,true,
-    'Check baseline native player flag when no Blockade happened yet');
+    'Native effect must lock opponent Supporter only after settled attack');
+  assert.equal(x.opponent.active.damage-opponentBefore,10);
+
+  const guzmaIndex=x.opponent.hand.cards.indexOf(x.heldGuzma);
+  assert.ok(guzmaIndex>=0);
+  const opponentHandBefore=x.opponent.hand.cards.map(card=>card.fullName);
+  assert.throws(()=>x.f.store.dispatch(new PlayCardAction(
+    x.opponent.id,guzmaIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }
+  )),error=>error?.message==='BLOCKED_BY_EFFECT');
+  assert.deepEqual(x.opponent.hand.cards.map(card=>card.fullName),
+    opponentHandBefore,'Forbidden held Guzma must remain in opposing hand');
+  console.log('AGENT40_NATIVE_BLOCKADE_TWO_TURN',JSON.stringify({
+    seat,challenger:'Agent18 Exeggutor Vileplume native v2',
+    initialToolAndJetRoots:['equip-bunnelby-tm','attach-special-energy'],
+    bunnelbyAttack:'Evolution',omegaBarrageSecondAttackPrompt:true,
+    benchAfterFirstTurn:x.owner.bench.map(slot=>
+      slot.getPokemonCard()?.fullName??null),
+    actualUnblockedOpponentTurn:true,
+    secondSourceTurnJetPromotion:'Exeggutor PLF',
+    settledAttack:'Blockade',opponentActiveDamageDelta:10,
+    actualPlayerSupporterLock:true,
+    opposingHeldOriginalRank1GuzmaRejected:'BLOCKED_BY_EFFECT',
+    promptKinds,turnPrompts,blockadePrompts,
+    competitiveQualifiedGames:0
+  }));
 }
 
 for(const seat of [0,1]){
