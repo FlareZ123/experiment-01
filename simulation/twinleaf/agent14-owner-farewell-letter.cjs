@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION='agent14-owner-farewell-letter-frontier-v1';
+const VERSION='agent14-owner-farewell-letter-frontier-v2-public-basic-lock-veto';
 const UNOWN='Unown AOR';
 const ABILITY='Farewell Letter';
 
@@ -44,6 +44,7 @@ function chooseOwnerFarewellLetter(view){
   // Silent Lab removes the Ability from Basic Unown while it is in play.
   const stadiums=[...(own.stadium??[]),...(view.opponentPublic?.stadium??[])];
   if(stadiums.some(p=>p.startsWith('Silent Lab ')))return null;
+  if(isPublicBasicAbilityLocked(view))return null;
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
     const pokemon=own.bench[benchIndex];
     if(pokemon?.printing!==UNOWN||
@@ -58,4 +59,4 @@ function chooseOwnerFarewellLetter(view){
   return null;
 }
 
-module.exports={VERSION,chooseOwnerFarewellLetter};
+module.exports={VERSION,chooseOwnerFarewellLetter,isPublicBasicAbilityLocked};
