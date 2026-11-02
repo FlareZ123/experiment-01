@@ -46,5 +46,60 @@ function chooseRegidragoDonorQuickBall(view){
     source:'rank13-dragon-donor'};
 }
 
+
+/**
+ * The pinned Quick Ball reducer leaves its publicly played Item in the
+ * actor's resolvingSupporter zone throughout the owner payment/search prompts.
+ * The pure prompt decisions use this owner-visible provenance. Other Items'
+ * discard prompts must not inherit the Regidrago-specific donor preference.
+ * @param {object} input Detached actor-owned prompt input.
+ * @returns {boolean}
+ */
+function activeQuickBallPrompt(input){
+  return input?.actor?.decisionKind==='owner-prompt'&&
+    input.actor.ownPublic?.resolvingSupporter?.some(printing=>
+      QUICK_BALLS.has(printing))===true;
+}
+
+/**
+ * Pure owner-hand mandatory Quick Ball payment selector. Native validation
+ * remains the authoritative choice menu, and the adapter handles mapping
+ * selected printings to physical card instances.
+ * @param {object} input Detached owner-hand discard prompt.
+ * @returns {{printings:string[]}|null}
+ */
+function chooseRegidragoQuickBallDiscard(input){
+  if(!activeQuickBallPrompt(input)||
+     input.prompt?.message!=='CHOOSE_CARD_TO_DISCARD'||
+     input.prompt?.requiredCount!==1)return null;
+  const own=input.actor.ownPublic;
+  if(input.actor.ownHand.includes(REGIDRAGO_V)||
+     [own.active,...own.bench].some(slot=>
+       slot?.printing===REGIDRAGO_V||
+       slot?.printing==='Regidrago VSTAR SIT'))return null;
+  const donor=input.actor.ownHand.find(name=>
+    EVOLVED_DONORS.has(name)&&
+    input.prompt.menu.some(bundle=>bundle.length===1&&bundle[0]===name));
+  return donor?{printings:[donor]}:null;
+}
+
+/**
+ * Prefer the first Regidrago V after the legally paid Quick Ball search.
+ * The owner is permitted to see all search offered printing identities,
+ * while opponent-hidden and Prize identities remain inaccessible.
+ * @param {object} input Detached authenticated owner-deck search prompt.
+ * @returns {{indices:number[]}|null}
+ */
+function chooseRegidragoQuickBallSearch(input){
+  if(!activeQuickBallPrompt(input)||
+     input.prompt?.source!=='own-deck'||
+     !['CHOOSE_CARD_TO_HAND','CHOOSE_CARD_FROM_DECK',
+       'SEARCH_DECK_FOR_CARD'].includes(input.prompt?.message))return null;
+  const found=input.prompt.offered?.find(row=>
+    row.printing===REGIDRAGO_V&&row.selectableAlone);
+  return found?{indices:[found.index]}:null;
+}
+
 module.exports={VERSION,QUICK_BALLS,REGIDRAGO_V,EVOLVED_DONORS,
-  chooseRegidragoDonorQuickBall};
+  chooseRegidragoDonorQuickBall,activeQuickBallPrompt,
+  chooseRegidragoQuickBallDiscard,chooseRegidragoQuickBallSearch};
