@@ -41,7 +41,12 @@ function stage(seat){
   spare.pokemonPlayedTurn=1;
   const dce2=card(DCE);
   spare.cards.push(dce2);spare.energies.cards.push(dce2);
-  owner.bench.push(donor,spare);
+  const support1=new PokemonCardList();support1.cards.push(card('Dedenne-GX UNB'));
+  const support2=new PokemonCardList();support2.cards.push(card(GENESECT));
+  const support3=new PokemonCardList();
+  support3.cards.push(card("Lillie's Clefairy ex JTG"));
+  owner.bench.push(donor,spare,support1,support2,support3);
+  assert.equal(owner.bench.length,5);
   opp.active.cards.push(card('Lunatone OBF'));
   const secondFoe=new PokemonCardList();
   secondFoe.cards.push(card('Solrock OBF'));

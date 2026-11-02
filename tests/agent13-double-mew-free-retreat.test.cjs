@@ -80,3 +80,11 @@ test('public opponent Block and Temple of Sinnoh veto',()=>{
   view.ownPublic.stadium=[];
   assert.deepEqual(chooseDoubleMewCooldownPivot(view,catalog)?.benchIndex,0);
 });
+
+test('a full five-Pokémon Bench still permits a free ordinary retreat',()=>{
+  const {view,catalog}=fixture();
+  view.ownPublic.bench.push({printing:'Dedenne-GX UNB'},
+    {printing:GENESECT},{printing:"Lillie's Clefairy ex JTG"});
+  assert.equal(view.ownPublic.bench.length,5);
+  assert.equal(chooseDoubleMewCooldownPivot(view,catalog)?.benchIndex,0);
+});
