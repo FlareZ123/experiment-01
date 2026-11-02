@@ -1,0 +1,41 @@
+name: Agent7 prospective rank6 two-seat candidate Lillie after Pass
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preregistered-native-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out immutable research revision
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Pinned Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test candidate-only actor intervention and reversible root proxy
+        run: node --test tests/agent7-prospective-candidate-lillie-after-pass.test.cjs
+      - name: Check out pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run all registered native source pairs without seed reselection
+        run: node simulation/evaluation/agent7-rank6-lillie-prospective-paired.cjs
+      - name: Archive full control and treatment with failed dispositions
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-rank6-lillie-prospective-control-treatment
+          path: agent7-rank6-lillie-prospective-paired-output.json
+          if-no-files-found: error
+          retention-days: 30
