@@ -1,4 +1,4 @@
-name: Aichi Bellelba optional-payment native paper fidelity
+name: Aichi original-source Supporter native paper fidelity
 
 on:
   workflow_dispatch:
@@ -25,5 +25,5 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Run ten original-print constructed native payment cases
-        run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs
+      - name: Run Bellelba three-card cost and Sidney eligible-type native cases
+        run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs tests/agent12-sidney-opponent-hand-native.test.cjs
