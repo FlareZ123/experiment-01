@@ -137,8 +137,11 @@ function withSharedFirstTurnBoxShake(execute,options={}){
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const stages=new Map();
   const flexible=options.flexible===true;
+  const preBoxScout=flexible&&options.preBoxScout===true;
   const audit={version:flexible?FLEX_VERSION:VERSION,
     flexibleOwnerAccessOptIn:flexible,
+    sourceOwnerPreBoxScoutOptIn:preBoxScout,
+    scouts:[],
     symmetricBothSeats:true,originalDealsUnchanged:true,
     ownerVisibleK0Only:true,ownerDeckReadOnlyAfterNativeSearch:true,
     offers:[],events:[],failures:[],opponentContinuations:[],
@@ -178,6 +181,15 @@ function withSharedFirstTurnBoxShake(execute,options={}){
     // The opposing bot is called after native Shake and turn transition.
     witnessOpponentTurn(stages,audit,state,pending,GamePhase);
     let flow=stages.get(seat);
+    if(preBoxScout&&flow?.stage==='prebox-resume'&&
+       !pending&&state.activePlayer===seat){
+      if(!flow.shakeKnownAvailable){
+        fail(seat,state,flow,'PREBOX_SCOUT_K1_NO_SHAKE');
+        return original.call(this,state);
+      }
+      stages.delete(seat);
+      flow=undefined;
+    }
     if(!flow&&state.activePlayer===seat&&
        state.phase===GamePhase.PLAYER_TURN&&!pending){
       const view={
@@ -192,6 +204,21 @@ function withSharedFirstTurnBoxShake(execute,options={}){
         require('./agent44-flexible-box-k0-plan.cjs')
           .flexibleFirstTurnBoxOffer(view):firstTurnBoxOffer(view);
       if(offer.eligible){
+        if(preBoxScout&&offer.trubbishMode==='held-searcher'&&
+           offer.basicSearcher==='Quick Ball'){
+          const costName=offer.discardNames[0];
+          assert.ok(costName&&costName!=='Secret Box'&&
+            costName!=='Quick Ball'&&costName!=='Trubbish');
+          flow={stage:'prebox-basic-discard',
+            firstTurn:state.turn,scoutCard:'Quick Ball',
+            scoutPaymentName:costName,shakeKnownAvailable:null};
+          stages.set(seat,flow);
+          audit.scouts.push({seat,turn:state.turn,
+            sourceK0SearchBeforeBox:true,scoutCard:'Quick Ball',
+            paymentName:costName,ownerDeckNotYetInspected:true});
+          event(seat,state,'pre-Box owner-only Quick Ball deck-knowledge scout');
+          return play(owner,'Quick Ball');
+        }
         flow={stage:'box-discard',toolName:offer.toolName,
           discardNames:offer.discardNames,firstTurn:state.turn,
           trubbishMode:offer.trubbishMode??'held-basic',
@@ -213,6 +240,40 @@ function withSharedFirstTurnBoxShake(execute,options={}){
 
     if(pending){
       if(pending.playerId!==owner.id)return original.call(this,state);
+      if(flow.stage==='prebox-basic-discard'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        const payment=chooseNative(pending,[flow.scoutPaymentName],state);
+        if(!payment){fail(seat,state,flow,'PREBOX_QUICKBALL_PAYMENT_REJECT');
+          return original.call(this,state);}
+        flow.stage='prebox-basic-target';
+        event(seat,state,'pre-Box native Quick Ball paper-cost payment accepted');
+        return payment;
+      }
+      if(flow.stage==='prebox-basic-target'&&
+         pending.constructor?.name==='ChooseCardsPrompt'){
+        if(pending.playerId!==owner.id||pending.cards!==owner.deck){
+          fail(seat,state,flow,'PREBOX_K1_OWNER_DECK_PROMPT_MISMATCH');
+          return original.call(this,state);
+        }
+        const shake=owner.deck.cards.some(card=>card.name==='Boost Shake');
+        const garbodor=owner.deck.cards.some(card=>card.name==='Garbodor');
+        const trubbish=owner.deck.cards.find(card=>card.name==='Trubbish');
+        const selected=trubbish?[trubbish]:[];
+        if(!trubbish||pending.validate(selected,state)!==true){
+          fail(seat,state,flow,'PREBOX_TRUBBISH_NATIVE_SEARCH_REJECT');
+          return original.call(this,state);
+        }
+        flow.shakeKnownAvailable=shake&&garbodor;
+        flow.stage='prebox-resume';
+        const recorded=audit.scouts.findLast(row=>row.seat===seat);
+        assert.ok(recorded);
+        recorded.ownerAuthenticatedK1=true;
+        recorded.shakeInDeck=shake;
+        recorded.garbodorInDeck=garbodor;
+        recorded.trubbishInDeck=true;
+        event(seat,state,'pre-Box native owner search revealed Shake and Garbodor availability');
+        return new ResolvePromptAction(pending.id,selected);
+      }
       if(flow.stage==='box-discard'&&
          pending.constructor?.name==='ChooseCardsPrompt'){
         const action=chooseNative(pending,flow.discardNames,state);
