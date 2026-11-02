@@ -56,3 +56,4 @@ function attack(x,count){
  for(let step=0;step<25;step++){
   const p=x.state.prompts.find(row=>row.result===undefined);
   if(!p)break;
+  const kind=p.constructor.name;
