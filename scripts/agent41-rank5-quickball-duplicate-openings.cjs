@@ -160,7 +160,6 @@ function conditionalDcePrizeExposure(openings, sourceDceCopies=4) {
 }
 
 
-
 /**
  * Separate the categories supplying the original Quick Ball duplicate:
  * Trainer (excluding Quick Ball), Pokémon, or Energy. This deliberately
