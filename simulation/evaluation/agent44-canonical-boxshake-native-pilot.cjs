@@ -13,6 +13,8 @@ const {withRank8AuthenticK0Observer}=
   require('../twinleaf/agent44-rank8-box-k0-source-census.cjs');
 const {withCanonicalAndBoxShake}=
   require('./agent44-canonical-boxshake-composition.cjs');
+const {boxShakeOpponentReplyPacket}=
+  require('./agent44-boxshake-opponent-reply-packet.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const SEED=214648959;
@@ -73,7 +75,10 @@ function run(){
         'Canonical no-Box-opportunity trace drift');
       const equipped=t.audit.box.opponentContinuations.some(x=>
         x.sourceSeat===row.sourceSeat&&x.equippedGarbodor);
-      rows.push({...row,status:equipped?
+      const replyPacket=boxShakeOpponentReplyPacket(
+        t.result,t.audit.box,row.sourceSeat);
+      rows.push({...row,status:equipped&&
+        replyPacket.strictPublicContinuationAccepted?
         'NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR':
         t.audit.box.offers.length?'OFFERED_NO_SETTLED_OPPONENT_REPLY':
           'NOT_ENCOUNTERED',
@@ -86,6 +91,7 @@ function run(){
         treatment:{actions:t.result.actions,finished:t.result.finished,
           decisionTraceSha256:sha(JSON.stringify(t.result.decisionTrace))},
         boxAudit:t.audit.box,
+        opponentPublicRootReplyPacket:replyPacket,
         actorVersion:t.audit.actorVersion,
         actorQualification:t.audit.actorQualification,
         error:null});
@@ -93,6 +99,7 @@ function run(){
       rows.push({...row,status:'NATIVE_ERROR',
         sourceK0Parity:null,physicalDeckPair:null,
         baseline:null,treatment:null,boxAudit:null,
+        opponentPublicRootReplyPacket:null,
         actorVersion:null,actorQualification:null,
         error:{name:error.name??null,message:String(error.message??error)}});
     }
