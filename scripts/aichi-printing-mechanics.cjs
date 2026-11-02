@@ -82,14 +82,59 @@ function compareMixedPrintings(field, root = resourceRoot) {
   return output;
 }
 
+/**
+ * PTCGO code is not a unique set database key. Count direct source
+ * exposure to shared-code main/companion set pairs without guessing which
+ * cards were ever played in a native game.
+ * @param {object} field Authenticated original 60-card deck manifest.
+ * @param {object[]} sets English card-snapshot set metadata.
+ * @returns {object} Full 29-source denominator and aliased physical copies.
+ */
+function auditSharedSetCodes(field,sets){
+  assert.ok(Array.isArray(field?.decks));
+  assert.ok(Array.isArray(sets));
+  const byCode=new Map();
+  for(const s of sets){
+    if(!s.ptcgoCode)continue;
+    if(!byCode.has(s.ptcgoCode))byCode.set(s.ptcgoCode,[]);
+    byCode.get(s.ptcgoCode).push(s.id);
+  }
+  const collisions=[...byCode].filter(([code,ids])=>ids.length>1)
+    .map(([code,ids])=>({code,setIds:ids,sourceRows:0,
+      sourceCopies:0,sourceRanks:[]}));
+  const byAlias=new Map(collisions.map(c=>[c.code,c]));
+  for(const deck of field.decks){
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
+    for(const c of deck.cards){
+      const row=byAlias.get(c.printing?.set);
+      if(!row)continue;
+      row.sourceRows++;
+      row.sourceCopies+=c.count;
+      if(!row.sourceRanks.includes(deck.rank))row.sourceRanks.push(deck.rank);
+    }
+  }
+  return {schema:'agent21-source-shared-ptcgo-codes-v1',
+    sourceDecks:field.decks.length,
+    sourcePhysicalCopies:field.decks.length*60,
+    duplicatePtCgoCodes:collisions.length,
+    fieldUsedDuplicateCodes:collisions.filter(c=>c.sourceRows>0).length,
+    originalRowsUsingDuplicates:
+      collisions.reduce((n,c)=>n+c.sourceRows,0),
+    originalCopiesUsingDuplicates:
+      collisions.reduce((n,c)=>n+c.sourceCopies,0),
+    aliases:collisions,competitiveQualifiedGames:0};
+}
+
 /** @returns {object} Full source-locked mechanical comparison. */
 function main() {
   const field=JSON.parse(fs.readFileSync(fieldPath,'utf8'));
   const groups=compareMixedPrintings(field);
+  const sharedSetCodes=auditSharedSetCodes(field,JSON.parse(fs.readFileSync(
+    path.join(resourceRoot,'sets','en.json'),'utf8')));
   const result={
     source:'resources/cards/en and resources/sets/en.json',
     field:'results/aichi-2026/full-decklists.json',
-    groups,
+    groups,sharedSetCodes,
     note:'Printing text is a card database record, not a gameplay or simulator validation.'
   };
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
@@ -97,4 +142,4 @@ function main() {
 }
 
 if(require.main===module)main();
-module.exports={compareMixedPrintings,main};
+module.exports={compareMixedPrintings,auditSharedSetCodes,main};
