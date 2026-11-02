@@ -44,7 +44,7 @@ function one(leader,byRank){
   let paperReceipt=null,beforeNative=null,afterNative=null;
   let beforeCustody=null,afterCustody=null;
   let beforeReplayPrizes=null,afterReplayPrizes=null;
-  let prizeMoved=0;
+  let prizeMoved=0, observedHeadlessWitness=null, observedHeadlessWitnessCount=0;
   Store.prototype.dispatch=function stagedPaperReplayFirstLead(action,...args){
     if(!root&&action.constructor.name==='AddPlayerAction')root=this;
     if(this===root&&firstLeadStaged)throw sentinel;
@@ -118,6 +118,16 @@ function one(leader,byRank){
     }
     return result;
   };
+  const witnessModule=require('../evaluation/agent24-native-replay-first-lead-witness.cjs');
+  const originalWitness=witnessModule.paperReplayFirstLeadWitness;
+  witnessModule.paperReplayFirstLeadWitness=function headlessWitnessProbe(args){
+    const receipt=originalWitness(args);
+    if(receipt.status==='PAPER_REPLAY_FIRST_PRIZE_LEAD'){
+      observedHeadlessWitnessCount++;
+      observedHeadlessWitness=receipt;
+    }
+    return receipt;
+  };
   let reachedSentinel=false;
   try{
     runMatch({
@@ -127,6 +137,8 @@ function one(leader,byRank){
       capturePhysicalZoneIntegrity:true,
       captureOriginalOwnerIntegrity:true,
       enforceSettledPhysicalZoneIntegrity:true,
+      captureDecisionTrace:true,
+      capturePaperReplayFirstPrizeLead:true,
       label:'agent24-experimentally-staged-paper-first-prize-lead-'+leader
     });
   }catch(error){
@@ -135,10 +147,14 @@ function one(leader,byRank){
     if(!reachedSentinel)throw error;
   }finally{
     Store.prototype.dispatch=previous;
+    witnessModule.paperReplayFirstPrizeLeadWitness=originalWitness;
   }
   assert.ok(stagedTie&&resetSeen&&actualNewSixPrizes&&
     firstLeadStaged&&reachedSentinel);
   assert.equal(prizeMoved,1);
+  assert.equal(observedHeadlessWitnessCount,1,
+    'Headless actual-root adapter failed to retain first paper Prize lead');
+  assert.equal(observedHeadlessWitness.paperWinnerSeat,leader);
   return {
     stagedWinnerSeat:leader,sourceRank:20,opponentRank:11,seed:SEED,
     originalPhysicalCards:originalOwners.size,
@@ -147,6 +163,8 @@ function one(leader,byRank){
     replayPrizesBefore:beforeReplayPrizes,
     replayPrizesAfterStagedFirstLead:afterReplayPrizes,
     observedPaperReplayPrizeLead:paperReceipt,
+    observedHeadlessRootPaperPrizeWitnessCount:observedHeadlessWitnessCount,
+    observedHeadlessRootPaperPrizeWinner:observedHeadlessWitness.paperWinnerSeat,
     nativeCheckWinnerBefore:beforeNative,
     nativeCheckWinnerAfter:afterNative,
     physicalZoneCounts:afterCustody.canonicalCounts,
