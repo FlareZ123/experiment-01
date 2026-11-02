@@ -115,7 +115,7 @@ jobs:
           node-version: '22'
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
         run: |
-          node --test tests/agent18-missing-field-ceiling.test.cjs tests/agent18-exeggutor-opener-risk.test.cjs tests/agent18-exeggutor-prize-supply.test.cjs tests/agent18-wally-blockade-window.test.cjs tests/agent18-grand-tree-turn2-window.test.cjs
+          node --test tests/agent18-missing-field-ceiling.test.cjs tests/agent18-exeggutor-opener-risk.test.cjs tests/agent18-exeggutor-prize-supply.test.cjs tests/agent18-wally-blockade-window.test.cjs tests/agent18-grand-tree-turn2-window.test.cjs tests/agent18-wally-target-paper-guard.test.cjs
           node scripts/agent18-missing-field-ceiling.cjs > agent18-missing-field.json
           node scripts/agent18-exeggutor-opener-risk.cjs > agent18-exeggutor-opening.json
           node scripts/agent18-exeggutor-prize-supply.cjs > agent18-exeggutor-prizes.json
