@@ -32,3 +32,10 @@ The new native control should also be executed with that correction installed in
 - `.github/workflows/agent45-electrode-bomb-native-store.yml`: manual-only pinned vendor compilation;
 - The first failed setup [CI 41408734627](https://github.com/FlareZ123/experiment-01/actions/runs/41408734627) did not advance beyond the required animation `WaitPrompt` and is retained as failed test evidence;
 - Final native Store positive [CI 41409401304](https://github.com/FlareZ123/experiment-01/actions/runs/41409401304), full two-seat genuine physical transfer.
+
+
+## Green card-specific hook native correction
+
+Compiled [CI 41409955295](https://github.com/FlareZ123/experiment-01/actions/runs/41409955295) succeeded all 6 tests after correcting a test assertion for native GameError object shape. With the existing research hook `installElectrodeGXEnergyHook()` installed, each native Store seat offered five physical discarded Lightning Energy cards aimed at the prohibited Active Tapu Lele-GX. Native prompt validation still returned true, while the card-specific hook rejected the resolution with an ILLEGAL_ACTION error before any Energy moved. Electrode remained in play. The previous red CI 41409714467 had reached that same intended rejection but its test incorrectly expected a stringified Error instead of reading its message property.
+
+A generic optional Store safeguard `simulation/twinleaf/agent45-paper-attach-blockedto-store-guard.cjs` now compares physical destination coordinates against genuine AttachEnergyPrompt blockedTo targets before dispatch, without claiming to resolve card-specific mandatory attachment count. Its native paired rejection/allowed-target regression is in the same test suite, awaiting a separate successful manual CI run.
