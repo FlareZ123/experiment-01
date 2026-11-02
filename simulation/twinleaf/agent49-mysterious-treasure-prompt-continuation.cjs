@@ -5,7 +5,7 @@ const {actorObservation}=require('./actor-observation-contract.cjs');
 const {chooseTreasureRootIntent,ITEM}=
   require('./agent49-mysterious-treasure-frontier.cjs');
 
-const VERSION='agent49-owner-treasure-two-prompt-native-bridge-v1';
+const VERSION='agent49-owner-treasure-two-prompt-native-bridge-v2';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -56,6 +56,7 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
     missingPhysicalTargets:0,unplannedPrompts:0,
     failedOrRejectedReplies:0,completedPhysicalChains:0,
     nativeItemFinalized:0,postSearchDisplayPending:0,
+    deferredVstarChoices:0,
     bySeat:{0:0,1:0},receipts:[],competitiveQualifiedGames:0};
 
   function log(data){
@@ -91,6 +92,28 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
       // genuinely eligible Dragon or Psychic Pokémon under native validation.
       const inPlay=[player.active,...player.bench]
         .map(slot=>slot.getPokemonCard?.()?.name??null);
+      // Development-only K1 alternative: Treasure can take VSTAR first
+      // when a second payable Quick Ball can subsequently obtain Basic V.
+      // Reading offered deck identities is authorized only here.
+      if(deps.preferVstarIfQuickBallRemaining===true &&
+         plan.reason==='dragon-donor-for-registered-regidrago-v' &&
+         !inPlay.includes('Regidrago V')&&
+         !inPlay.includes('Regidrago VSTAR')&&
+         !player.hand.cards.some(c=>['Regidrago V','Regidrago VSTAR']
+           .includes(c.name))&&
+         player.bench.some(slot=>!slot.getPokemonCard?.())&&
+         player.hand.cards.some(c=>c.fullName==='Quick Ball FST')&&
+         player.hand.cards.some(c=>[
+           'Salamence ex JTG','Dragapult ex TWM','Noivern ex PAL'
+         ].includes(c.fullName))){
+        const hasV=prompt.cards.cards.some(c=>c.name==='Regidrago V'&&
+          prompt.validate([c],state)===true);
+        if(hasV){
+          selection=prompt.cards.cards.find(c=>c.name==='Regidrago VSTAR'&&
+            prompt.validate([c],state)===true);
+          if(selection)plan.deferredStarFirst=true;
+        }
+      }
       if(inPlay.includes('Regidrago V')&&!inPlay.includes('Regidrago VSTAR')){
         selection=prompt.cards.cards.find(card=>card.name==='Regidrago VSTAR'&&
           prompt.validate([card],state)===true);
@@ -216,6 +239,8 @@ function withOwnerTreasurePromptContinuation(execute,deps={}){
         audit.searchPromptAccepted++;
         const settled=owner.hand.cards.includes(reply.choice);
         if(settled)audit.physicalTargetRetrievals++;
+        if(settled&&reply.deferredStarFirst===true)
+          audit.deferredVstarChoices++;
         if(settled&&plan.costSettled){
           audit.completedPhysicalChains++;
           audit.bySeat[reply.seat]++;
