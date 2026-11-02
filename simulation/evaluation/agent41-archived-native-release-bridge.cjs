@@ -1,6 +1,7 @@
 'use strict';
 
-const {classifyNativeAttempt, classifySourceChain}=
+const {classifyNativeAttempt}=require('./native-attempt-disposition.cjs');
+const {classifySourceChain}=
   require('./agent41-native-attempt-disposition.cjs');
 
 const SHA256=/^[0-9a-f]{64}$/;
