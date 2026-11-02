@@ -861,6 +861,23 @@ jobs:
           nativeComplete:v.nativeCompleted,
           matchedSourcePairs:v.sourcePhysicalPairs,
           competitiveQualified:v.competitivelyQualifiedGames}));"
+      - name: Preserve human-readable selected source openings and next opponent roots
+        run: >-
+          node -e "const a=require('./agent39-rank16-direct-native.json');
+          for(const r of a.rows.filter(r=>r.intervention.policyAudit?.opportunityTurn!=null))
+          console.log('ORIGINAL_SOURCE_SELECTED',
+          JSON.stringify({id:r.id,group:r.group,sourceSeat:r.sourceSeat,
+          candidateId:r.candidateId,seed:r.seed,firstHand:r.intervention.sourceK0?.ownerHandPrintings,
+          firstActive:r.intervention.sourceK0?.visibleActive,
+          firstBench:r.intervention.sourceK0?.visibleBench,
+          line:r.intervention.policyAudit?.actions,
+          completed:r.intervention.policyAudit?.completed,
+          nextTurnLock:r.intervention.policyAudit?.nextTurnLockWitness,
+          baselineFirst:r.baseline.game?.firstSourceRootActions,
+          treatedFirst:r.intervention.game?.firstSourceRootActions,
+          candidateReply:r.completeLineNextCandidateTurnRoots,
+          sourceParity:r.exactlySameSourcePhysicalDeal,
+          gameQualified:r.competitiveGameQualified}));"
       - name: Preserve every registered source-deal baseline and intervention
         if: always()
         uses: actions/upload-artifact@v4
