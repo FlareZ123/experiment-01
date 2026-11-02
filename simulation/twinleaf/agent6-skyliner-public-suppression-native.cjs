@@ -47,7 +47,8 @@ const MODES=['baseline','path','silent','klefki','thorns',
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   attackFollowup=false,nativePlayJammer=false,opponentReply=false,
-  nativeEndOpponentTurn=false,opponentPassOnly=false}={}){
+  nativeEndOpponentTurn=false,opponentPassOnly=false,
+  ownerHoldsBlower=false,ownerPlaysBlower=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -65,6 +66,9 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   assert.ok(!nativePlayJammer||opponentToolJammer);
   assert.ok(!nativeEndOpponentTurn||nativePlayJammer||opponentPassOnly);
   assert.ok(!(nativePlayJammer&&opponentPassOnly));
+  assert.ok(!ownerPlaysBlower||ownerHoldsBlower);
+  assert.ok(!ownerHoldsBlower||
+    (nativePlayJammer&&nativeEndOpponentTurn&&opponentToolJammer));
   assert.ok(!opponentPassOnly||!opponentToolJammer);
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
@@ -121,6 +125,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     owner.bench.push(slot);
     return slot;
   };
+  const physicalFieldBlower=ownerHoldsBlower?card('Field Blower GRI'):null;
+  if(physicalFieldBlower)mine.hand.cards.push(physicalFieldBlower);
   const clefairy=addBench(mine,"Lillie's Clefairy ex JTG");
   clefairy.energies.cards.push(card('Psychic Energy MEE'));
   clefairy.energies.cards.push(card('Psychic Energy MEE'));
@@ -217,6 +223,52 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     assert.equal(nativeJammerPlayReceipt.inHandAfter,opponentPassOnly);
   }
 
+  // This is a second source-action decision on the authentic next owner turn.
+  // The owner holds the same physical Field Blower in both matched arms.
+  let ownerBlowerReceipt=null;
+  if(ownerHoldsBlower){
+    assert.equal(state.activePlayer,sourceSeat);
+    const ownHandBefore=mine.hand.cards.map(c=>c.fullName);
+    const opposingToolsBefore=enemy.active.tools.map(c=>c.fullName);
+    const start=JSON.stringify({turn:state.turn,activePlayer:state.activePlayer,
+      ownHand:ownHandBefore,opponentHand:enemy.hand.cards.map(c=>c.fullName),
+      opposingTools:opposingToolsBefore,
+      ownActive:mine.active.getPokemonCard()?.fullName,
+      ownTools:mine.active.tools.map(c=>c.fullName),
+      ownBench:mine.bench.map(b=>b.cards.map(c=>c.fullName)),
+      ownPrizes:mine.prizes.map(p=>p.cards.map(c=>c.fullName)),
+      opponentPrizes:enemy.prizes.map(p=>p.cards.map(c=>c.fullName))});
+    const startFingerprint=require('node:crypto').createHash('sha256')
+      .update(start).digest('hex');
+    let playError=null,promptError=null,chosenPromptType=null;
+    const targetTool=enemy.active.tools[0];
+    if(ownerPlaysBlower){
+      try{
+        store.dispatch(new PlayCardAction(mine.id,
+          mine.hand.cards.indexOf(physicalFieldBlower),{
+            player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+        const prompt=state.prompts.find(p=>p.result===undefined);
+        chosenPromptType=prompt?.constructor.name??null;
+        assert.equal(chosenPromptType,'ChoosePokemonPrompt');
+        assert.equal(prompt.playerId,mine.id);
+        assert.ok(prompt.validate([enemy.active],state));
+        store.dispatch(new ResolvePromptAction(prompt.id,[enemy.active]));
+      }catch(error){
+        if(chosenPromptType)promptError=String(error?.message??error);
+        else playError=String(error?.message??error);
+      }
+    }
+    ownerBlowerReceipt={startFingerprint,ownerPlaysBlower,
+      ownHandBefore,opposingToolsBefore,chosenPromptType,
+      playError,promptError,
+      ownHandAfter:mine.hand.cards.map(c=>c.fullName),
+      physicalItemDiscarded:mine.discard.cards.includes(physicalFieldBlower),
+      physicalToolDiscarded:enemy.discard.cards.includes(targetTool),
+      opposingToolsAfter:enemy.active.tools.map(c=>c.fullName),
+      pendingPromptTypes:state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)};
+  }
+  const effectiveOpponentToolJammer=opponentToolJammer&&!ownerPlaysBlower;
   const view=actorObservation(state,sourceSeat);
   const catalog={
     basicEnergies:new Set(['Psychic Energy MEE']),
@@ -346,11 +398,20 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const {nativeBlocked,nativeHp,nativeRetreatCost,nativeRetreatError,
     promoted,nativeRetreatAccepted,attackReceipt}=receipt.result;
   const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode)&&
-    !(baseMode==='thorns'&&equippedStealthyHood&&!opponentToolJammer);
+    !(baseMode==='thorns'&&equippedStealthyHood&&!effectiveOpponentToolJammer);
   const expectedFree=!expectedSuppressed||
     ((equippedFloatStone||equippedAirBalloon)&&
-      !opponentToolJammer&&!stadiumToolJamming);
+      !effectiveOpponentToolJammer&&!stadiumToolJamming);
   const checks={
+    nativeOwnerBlowerAnswerAsPaper:!ownerHoldsBlower||(
+      ownerBlowerReceipt.playError===null&&
+      ownerBlowerReceipt.promptError===null&&
+      ownerBlowerReceipt.pendingPromptTypes.length===0&&
+      ownerBlowerReceipt.physicalItemDiscarded===ownerPlaysBlower&&
+      ownerBlowerReceipt.physicalToolDiscarded===ownerPlaysBlower&&
+      (ownerPlaysBlower?
+        ownerBlowerReceipt.opposingToolsAfter.length===0:
+        ownerBlowerReceipt.opposingToolsAfter.includes('Tool Jammer BST'))),
     printedRootPresent:Boolean(original),
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
     nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
@@ -359,7 +420,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     publicGuardAsPaper:equippedStealthyHood||
       Boolean(guarded)===!expectedSuppressed,
     furyBeltNativeHpAsPaper:!equippedFuryBelt||
-      nativeHp===latias.hp+(opponentToolJammer?0:40),
+      nativeHp===latias.hp+(effectiveOpponentToolJammer?0:40),
     floatStoneGuardAsPaper:equippedAirBalloon||equippedFuryBelt||
       equippedStealthyHood||
       Boolean(floatStoneGuard)===expectedFree,
@@ -381,20 +442,20 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       !nativeJammerPlayReceipt.inHandAfter&&
       !nativeJammerPlayReceipt.inEnemyDiscard),
     attackFollowupSelectedAsPaper:!attackFollowup||
-      (opponentToolJammer?!attackReceipt.attempted:
+      (effectiveOpponentToolJammer?!attackReceipt.attempted:
         attackReceipt.attempted&&attackReceipt.accepted),
     nativeOpponentReplyAsPaper:!opponentReply||
-      (opponentToolJammer?!attackReceipt.opponentReplyReceipt.replyAttempted:
+      (effectiveOpponentToolJammer?!attackReceipt.opponentReplyReceipt.replyAttempted:
         attackReceipt.opponentReplyReceipt.replyAttempted&&
         attackReceipt.opponentReplyReceipt.replyAccepted&&
         attackReceipt.opponentReplyReceipt.ownerDamageAfter===20&&
         attackReceipt.opponentReplyReceipt.pendingPrompts.length===0),
     nativePrizeAndKnockOutAsPaper:!attackFollowup||
-      (opponentToolJammer?!attackReceipt.attempted:
+      (effectiveOpponentToolJammer?!attackReceipt.attempted:
         attackReceipt.after.ownerPrizes===4&&
         attackReceipt.after.opponentDiscard.includes('Iron Thorns ex TWM')),
     paperHookApplied:effectRepair?
-      (opponentToolJammer&&!stadiumToolJamming?
+      (effectiveOpponentToolJammer&&!stadiumToolJamming?
         receipt.patches.length>0:
         receipt.patches.length===0):!repair||receipt.patches.length>0
   };
@@ -403,7 +464,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
     repairPatches:receipt.patches,
     floatStonePlannerCheckSkipped:equippedAirBalloon||equippedFuryBelt||
       equippedStealthyHood,
-    nativeJammerPlayReceipt,
+    nativeJammerPlayReceipt,ownerBlowerReceipt,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
@@ -474,6 +535,31 @@ function runPairedJammerTurnCounterfactual(){
     rows,stagedNativeCases:rows.length,failures,
     failedChecks:failures.length,qualifiedCompetitiveGames:0};
 }
+function runOwnerFieldBlowerAfterPaidJammer(){
+  // The source owner already holds original-rank30 Field Blower GRI125.
+  // Compare playing it against retaining the identical initial card.
+  const rows=[0,1].flatMap(seat=>[false,true].map(ownerPlaysBlower=>
+    probe('thorns-float-jammer',seat,{
+      effectRepair:true,nativePlayJammer:true,nativeEndOpponentTurn:true,
+      ownerHoldsBlower:true,ownerPlaysBlower,
+      attackFollowup:true,opponentReply:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,
+      ownerPlaysBlower:row.ownerBlowerReceipt.ownerPlaysBlower,check})));
+  const ownerRootFingerprints={};
+  for(const seat of [0,1]){
+    const hashes=rows.filter(r=>r.sourceSeat===seat).map(row=>
+      row.ownerBlowerReceipt.startFingerprint);
+    ownerRootFingerprints[String(seat)]=hashes;
+    if(hashes.length!==2||hashes[0]!==hashes[1])
+      failures.push({mode:'owner-blower-root-mismatch',seat,hashes});
+  }
+  return {version:VERSION,ownerFieldBlowerCounterline:true,
+    rows,ownerRootFingerprints,stagedNativeCases:rows.length,
+    failures,failedChecks:failures.length,qualifiedCompetitiveGames:0};
+}
+
 function runNativePlayedJammerTurnBoundaryRepair(){
   const rows=['path-float-jammer','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
@@ -538,7 +624,9 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_PAIRED_JAMMER_TURN_DEV==='true'?
+  const result=process.env.AGENT6_OWNER_FIELD_BLOWER_DEV==='true'?
+    runOwnerFieldBlowerAfterPaidJammer():
+    process.env.AGENT6_PAIRED_JAMMER_TURN_DEV==='true'?
     runPairedJammerTurnCounterfactual():
     process.env.AGENT6_NATIVE_JAMMER_REAL_TURN_DEV==='true'?
     runNativePlayedJammerTurnBoundaryRepair():
@@ -557,4 +645,4 @@ if(require.main===module){
 module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
   runHoodAttackRepair,runNativePlayedJammerRepair,
   runHoodOpponentReplyRepair,runNativePlayedJammerTurnBoundaryRepair,
-  runPairedJammerTurnCounterfactual};
+  runPairedJammerTurnCounterfactual,runOwnerFieldBlowerAfterPaidJammer};
