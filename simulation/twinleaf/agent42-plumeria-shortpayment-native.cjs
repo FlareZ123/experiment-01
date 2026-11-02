@@ -60,7 +60,9 @@ function probePlumeriaShortPayment(seat, count) {
     fixture.store.dispatch(new ResolvePromptAction(target.id, selectedTarget));
   } catch (e) { targetError = String(e.message); }
   resolveWaits();
-  const energyPrompt = find('ChooseCardsPrompt');
+  // After a rejected payment, the pending ChooseCardsPrompt is still the cost.
+  // Only a settled target stage can open the separate opponent-Energy choice.
+  const energyPrompt = target && !targetError ? find('ChooseCardsPrompt') : null;
   const energyValidatorAccepted = energyPrompt?.validate([energy], fixture.state) ?? null;
   let energyError = null;
   if (energyPrompt) try {
