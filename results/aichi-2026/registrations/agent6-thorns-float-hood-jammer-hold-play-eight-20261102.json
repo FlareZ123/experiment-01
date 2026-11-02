@@ -1,0 +1,52 @@
+{
+  "version": "agent6-staged-native-jammer-hold-play-8case-v1",
+  "registered_at_utc": "2026-11-02T23:42:26.184097Z",
+  "registration_kind": "staged-mechanical-comparison-not-natural-source-game",
+  "tested_commit_sha": "371f8b32dc76162d11d4d4a58622e47fd2d16477",
+  "pinned_vendor_sha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "native_runner": "simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs",
+  "env": "AGENT6_PAIRED_JAMMER_TURN_DEV=true",
+  "workflow": ".github/workflows/agent7-rank30-source-psychic-staging.yml",
+  "workflow_dispatch_inputs": {
+    "agent6_rank30_rondo": true
+  },
+  "source_print_relevance": "Rank30 original has Float Stone BKT and Latias ex SSP; original rank6/24/29 Iron Thorns sixties each have Tool Jammer BST. Stealthy Hood is a synthetic positive-control printing and is not part of rank30 original printed sixty.",
+  "physical_setup": "Fixed synthetic board, independent of shuffled original sixty: opponent Active Iron Thorns ex TWM with 20 damage and Tool Jammer BST in hand; owner Active Latias ex SSP with either Float Stone BKT or Stealthy Hood UNB; owner Bench Lillie's Clefairy ex JTG with 2 Basic Psychic Energy, plus other staged Basics; opposing first Bench Pidgey MEW funded for Tackle; six synthetic prizes and deck cards each; starting opponent's actual turn 4.",
+  "groups": [
+    {
+      "name": "float",
+      "modes": [
+        "thorns-float",
+        "thorns-float-jammer"
+      ]
+    },
+    {
+      "name": "hood",
+      "modes": [
+        "thorns-stealthyhood",
+        "thorns-stealthyhood-jammer"
+      ]
+    }
+  ],
+  "seats": [
+    0,
+    1
+  ],
+  "intervention": "Opponent physically holds Tool Jammer BST in hand and PassTurnAction, versus actually PlayCardAction attaches same Tool Jammer from hand, then PassTurnAction. Both routes resolve WaitPrompts. Actual owner turn follows.",
+  "hard_invariants": [
+    "Each pair (same Tool, same owner seat) has identical initial physical zone fingerprint including opponent hand before action.",
+    "Control holding Jammer keeps it in hand; treatment playing Jammer moves same reference from hand to opposing Active Tool slot.",
+    "Control owner native retreat cost zero, native RetreatAction promotes powered Clefairy, settled Rondo knocks out opposing Thorns, takes exactly two prizes, actual opponent Pidgey Tackle deals 20.",
+    "Treatment owner retreat cost two, unsupported no-Energy RetreatAction rejects, no own attack or Prize taken.",
+    "Every real native prompt and paper suppression check passes in both physical seats, zero unresolved prompts.",
+    "No result is a competitively qualified game, a natural source opportunity frequency, or a candidate win-rate claim."
+  ],
+  "excluded_from_inference": [
+    "random source hands",
+    "original complete 60s in a full game",
+    "natural opponent policy decisions",
+    "full paper game length",
+    "official 25-minute clock",
+    "whole-field win rate"
+  ]
+}
