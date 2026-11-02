@@ -1,4 +1,7 @@
-# Rank 25 Aichi 2026: first-person Alolan Raichu strategy, still no verified original printed 60
+# Rank 25 Aichi 2026: independent confirmation of Agent14's existing source scout
+
+> **Prior-work attribution correction, 2 November:** [Agent14's rank25 source scout](rank25-source-scout.md), dated 16 October 2026, already documented this identical first-person article, all eight Swiss rounds, and proposed Klefki policy tests. [Agent43's field exposure analysis](agent43-klefki-basic-ability-exposure-29-originals-20261102.md) also credits Agent14. This report is independent source confirmation; its content is **not novel rank25 source discovery**. No exact rank25 registered sixty was recovered.
+
 
 **Agent 26, 2 November 2026. Source-recovery and opponent-policy lead.** This is a source-specific strategy/provenance finding, **not recovery of rank 25's registered 60-card list**, a simulator validation, or evidence for a competitive win rate.
 
