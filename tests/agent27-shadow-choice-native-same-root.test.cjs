@@ -31,10 +31,11 @@ for(const seat of [0,1]){
     assert.equal(fixture.owner.bench[4].getPokemonCard(),undefined);
     assert.equal(fixture.state.prompts.length,0);
     assert.ok(shadow.selectionReceipt.skippedSelectors.length>0);
-    // The current all-proposer list omits physically distinct same-kind
-    // Basics, including source copies beyond the two staged head cards.
-    assert.equal(shadow.shadowReceipt.supportedAlternativeCount,0);
+    // The shared all-proposer observer now includes physically distinct
+    // final-Bench Basics, while the actual selected action remains intact.
     const conflict=lastBenchBasicConflict(view,fixture.catalog,baseline);
+    assert.equal(shadow.shadowReceipt.supportedAlternativeCount,
+      conflict.omitted.length);
     assert.ok(conflict);
     assert.ok(conflict.omitted.length>=1);
     assert.ok(conflict.omitted.some(row=>
