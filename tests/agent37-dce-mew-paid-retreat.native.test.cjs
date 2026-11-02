@@ -56,10 +56,8 @@ function stage(seat){
     return item;
   };
   owner.active.cards.push(card('Genesect V FST'));
-  owner.active.energies.cards.push(card('Double Colorless Energy SUM'));
   const mew=new PokemonCardList();
   mew.cards.push(card('Mew V FST'),card('Mew VMAX FST'));
-  mew.energies.cards.push(card('Double Colorless Energy SUM'));
   const donor=new PokemonCardList();
   donor.cards.push(card('Genesect V FST'));
   owner.bench=[mew,donor];
@@ -72,6 +70,23 @@ function stage(seat){
       player.prizes.push(prize);
     }
   }
+  // Attach both DCE through the genuine native action/effect lifecycle.
+  // Direct manipulation of Energy arrays skips Energy attachment callbacks
+  // and cannot prove the native card supplies two actual Colorless units.
+  const {PlayCardAction,PlayerType,SlotType}=
+    engine('game/store/actions/play-card-action');
+  state.turn=45;
+  owner.hand.cards.push(card('Double Colorless Energy SUM'));
+  store.dispatch(new PlayCardAction(owner.id,0,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+  }));
+  assert.equal(mew.energies.cards.length,1);
+  state.turn=47;
+  owner.hand.cards.push(card('Double Colorless Energy SUM'));
+  store.dispatch(new PlayCardAction(owner.id,0,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+  }));
+  assert.equal(owner.active.energies.cards.length,1);
   return {store,state,owner,opponent,catalog,seat};
 }
 
