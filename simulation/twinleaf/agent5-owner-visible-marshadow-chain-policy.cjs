@@ -33,7 +33,11 @@ function chooseMarshadowCounterRoot(view){
   if(!own||!foe||!r||!Array.isArray(hand))return null;
   if(!foe.stadium?.includes(THUNDER)||
      foe.active?.printing!==THORNS)return null;
-  if(hand.some(c=>COMPETING_STADIUMS.has(c)))return null;
+  // A held Stadium only substitutes for the counter if a Stadium play
+  // remains available and the opponent has not prohibited Stadium plays.
+  if(r.stadiumPlayedTurn!==view.globalTurn &&
+     r.stadiumPlayLocked!==true &&
+     hand.some(c=>COMPETING_STADIUMS.has(c)))return null;
 
   const active=own.active,bench=own.bench??[];
   const marshadowOnBench=bench.findIndex(slot=>
