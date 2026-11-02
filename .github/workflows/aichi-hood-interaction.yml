@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_canonical_box_payment_audit:
+        description: 'Owner-only native Store Secret Box source three-card paper guard plus physical object custody; canonical pilot must be on'
+        type: boolean
+        default: false
       agent44_rank8_canonical_k1_audit:
         description: 'Post-hoc owner-authorized actual Secret Box K1 component-availability telemetry (boolean only), requires canonical pilot'
         type: boolean
@@ -268,6 +272,9 @@ jobs:
       - name: Test canonical actor and innermost Box composition order
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: node --test tests/agent44-canonical-boxshake-composition.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs tests/agent44-boxshake-opponent-reply-packet.test.cjs
+      - name: Test passive native Secret Box payment custody, including real paper-invalid Store acceptance
+        if: inputs.agent44_rank8_canonical_boxshake_pilot
+        run: node --test tests/agent44-secretbox-payment-custody.test.cjs
       - name: Execute exact original canonical both-seat shared Box native pilot
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         env:
@@ -275,11 +282,12 @@ jobs:
           AGENT44_RANK8_CANONICAL_DEBUG_383: ${{ inputs.agent44_rank8_canonical_debug_383 }}
           AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT: ${{ inputs.agent44_rank8_canonical_physical_audit }}
           AGENT44_RANK8_CANONICAL_K1_AUDIT: ${{ inputs.agent44_rank8_canonical_k1_audit }}
+          AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT: ${{ inputs.agent44_rank8_canonical_box_payment_audit }}
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: >-
-          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,physicalParity:r.completePhysicalDealParity??null,sourceDigest:r.physicalSourceDealSha256??null,fullDigest:r.fullPhysicalDealSha256??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
+          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,paperCustody:r.sourceBoxPaymentCustody??null,physicalParity:r.completePhysicalDealParity??null,sourceDigest:r.physicalSourceDealSha256??null,fullDigest:r.fullPhysicalDealSha256??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
       - name: Archive original canonical both-seat Box native pilot
         if: always() && inputs.agent44_rank8_canonical_boxshake_pilot
         uses: actions/upload-artifact@v4
