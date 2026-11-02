@@ -16,6 +16,10 @@ const VERSION='agent24-native-replay-first-strict-prize-lead-v1';
  * @param {object} args
  * @param {object|null} [args.state] Actual native Store state after dispatch.
  * @param {number} [args.playerTurnPhase] Pinned native GamePhase.PLAYER_TURN.
+ * @param {number[]|null} [args.allowedSettledPhases=null] Native playable
+ *   phases in which a real Prize-taking root can finish (including attack
+ *   and Prize resolution). The caller supplies actual pinned enum values.
+ *   Defaults to player-turn only for backward-compatible direct checks.
  * @param {boolean} [args.authenticatedReplayEpoch=false] Actual native
  *   reset marker and six-Prize new deal validated separately.
  * @param {boolean} [args.originalActionSettled=false] Actual accepted Store
@@ -23,7 +27,7 @@ const VERSION='agent24-native-replay-first-strict-prize-lead-v1';
  * @returns {object} Read-only public Prize-count witness and failure reason.
  */
 function paperReplayFirstLeadWitness({
-  state=null,playerTurnPhase,
+  state=null,playerTurnPhase,allowedSettledPhases=null,
   authenticatedReplayEpoch=false,
   originalActionSettled=false
 }={}){
@@ -33,7 +37,12 @@ function paperReplayFirstLeadWitness({
   if(!state||state.isSuddenDeath!==true||!Number.isSafeInteger(playerTurnPhase))
     return {...base,status:'NATIVE_REPLAY_STATE_UNVERIFIED',
       paperWinnerSeat:null};
-  if(state.phase!==playerTurnPhase||originalActionSettled!==true||
+  const allowedPhases=allowedSettledPhases??[playerTurnPhase];
+  if(!Array.isArray(allowedPhases)||allowedPhases.length===0||
+     !allowedPhases.every(Number.isSafeInteger))
+    return {...base,status:'NATIVE_PHASE_CONTRACT_UNVERIFIED',
+      paperWinnerSeat:null};
+  if(!allowedPhases.includes(state.phase)||originalActionSettled!==true||
      !Array.isArray(state.prompts)||
      state.prompts.some(prompt=>prompt.result===undefined))
     return {...base,status:'REPLAY_ROOT_NOT_SETTLED',
