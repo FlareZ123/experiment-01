@@ -15,13 +15,15 @@ For an Iron Thorns owner **going second**, consider the following particularly n
 
 All conditions are **mechanical**. Paying two cards can still be strategically costly and an opponent may constrain the line. The eight physical source cards include the Active Basic and leave enough other hand cards to pay Guzma & Hala whenever the stated connector is present.
 
-| Original rank | DCE copies | Exact conditional access |
-| --- | ---: | ---: |
-| 6 | 1 | **25.3773107035%** |
-| 24 | 3 | **32.0703662663%** |
-| 29 | 1 | **25.3773107035%** |
+| Original rank | DCE copies | Strict both-resources-in-deck subset | Broader same-connector envelope |
+| --- | ---: | ---: | ---: |
+| 6 | 1 | **25.3773107035%** | **33.7815057106%** |
+| 24 | 3 | **32.0703662663%** | **39.1078506273%** |
+| 29 | 1 | **25.3773107035%** | **33.7815057106%** |
 
-The numerator is **42,247,799,893,454,400** (one DCE) or **53,390,307,284,997,648** (three DCE), over a shared conditional denominator **166,478,632,771,651,200** physical deal/draw sequences. Conditioning is on the source's valid initial seven. This is a *restricted* access subset: holding Thunder Mountain or DCE directly can permit additional lines, and other trainer paths may also reach the pieces. In particular these numbers are neither full access probabilities nor ceilings.
+The broader envelope permits Thunder Mountain and/or DCE to be **held directly** in the physical eight-card hand. If both are held, the owner needs no Tag Call or Guzma & Hala; otherwise, a held Guzma & Hala or Tag Call with an accessible Guzma & Hala supplies whichever resource remains in deck. It is a more complete characterization of *this named search connector*, and still excludes Trainers' Mail and all other relevant gameplay paths.
+
+Strict-subset numerators are **42,247,799,893,454,400** (one DCE) and **53,390,307,284,997,648** (three DCE). The broader numerators are respectively **56,238,988,836,673,440** and **65,106,215,030,784,032**. All four results use the shared conditional denominator **166,478,632,771,651,200** physical deal/draw sequences, conditioned on the source's valid initial seven. These percentages are neither complete access probabilities across all card effects nor upper bounds on actual attacks.
 
 ## Enumeration
 
@@ -37,13 +39,13 @@ It sums multivariate hypergeometric counts over opening seven, six Prize cards, 
 (c_i-h_i-p_i)
 \]
 
-provided that at least one Basic is in \(h\), and the resulting actual deck contains Mountain and DCE and the stated Supporter connector exists. The denominator is
+provided that at least one Basic is in \(h\), and the resulting actual deck contains Mountain and DCE and the stated Supporter connector exists (strict subset). For the broader event, the hand may itself contain either or both resources, with a connector required only for missing resources. The denominator is
 
 \[
 \left[{60 \choose 7}-{56 \choose 7}\right]{53 \choose 6}\cdot 47.
 \]
 
-[Eight local regression assertions](../../tests/agent11-thorns-tagcall-first-attack.test.cjs) passed, including an independently exhaustive toy-deck enumeration, both full-deck exact constants, and printing/count validation. A separate fixed-seed independent 200,000-permutation Monte Carlo sanity check for one DCE gave ~25.29% against the 25.38% exact value. No compiled CI or live-game claim is made by this pure calculation.
+[Expanded local regression assertions](../../tests/agent11-thorns-tagcall-first-attack.test.cjs) passed, including an independently exhaustive toy-deck enumeration, both full-deck exact constants, and printing/count validation. A separate fixed-seed independent 200,000-permutation Monte Carlo sanity check for one DCE gave ~25.29% against the 25.38% exact value. No compiled CI or live-game claim is made by this pure calculation.
 
 ## Consequences and boundaries
 
