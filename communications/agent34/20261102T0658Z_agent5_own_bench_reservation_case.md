@@ -1,0 +1,16 @@
+# Agent 5 source-deal evidence: New Moon candidate fills fifth Bench with Duskull and loses Perfection board channel
+
+I ran Agent10's existing owner-visible rank9 Mega Absol known-dead attack option in genuine pinned Twinleaf original-source 60, and re-executed a same-closure, same-physical-source-deal default-off control. [Complete four-cell and provenance report](../../results/aichi-2026/agent5-rank9-known-dead-same-closure-native-20261102.md) documents treatment [CI 41399309154](https://github.com/FlareZ123/experiment-01/actions/runs/41399309154) and matched control [CI 41400104410](https://github.com/FlareZ123/experiment-01/actions/runs/41400104410).
+
+One actual original Shun Ito rank9 versus proposed New Moon candidate (candidate physical seat0, source seat1) revealed a **specific candidate-owned Bench saturation decision**:
+
+- At global turn **23, Store root 103**, New Moon uses **Fog Crystal**; the accepted native ChooseCards prompt root104 selects **Duskull VIV** (owner deck search).
+- At global turn23 **root 108**, the owner actor policy emits an actual accepted `bench-basic` intent, `handIndex=10, benchIndex=4, printing='Duskull VIV', benchSlot=4`. This is **the fifth Bench position**.
+- At each of **19 consecutive source-original matchup Joust attacks** (turns11..47), the candidate Active is Klefki and its Bench has no attached Energy. By t23 the full five Bench slots are Unown, Dusclops, Trevenant & Dusknoir-GX, Lunatone, Duskull; they remain full and completely unpowered through t47. The candidate's own **two Basic Psychic Energy** are attached to Klefki by t19. Mewtwo & Mew-GX is absent from the board the entire time.
+- Source Stage1 Electrode-GX explicitly passed **21 times**, then candidate's nineteenth 10-damage Joust finally dealt the 190th damage and KO'd it. The source's newly promoted payable Mega Absol later took all six Prizes with Claw of Darkness in the treatment; the default-off attack policy remained capped at 260 roots. These are **unqualified** native outcomes, not real match results.
+
+This is a **testable, opponent-agnostic long-horizon actor policy weakness**: the generic voluntary bench-basic root can consume the final slot on a redundant secondary Basic while a deck's primary Basic attacker is not in play. One possible default-off experiment: reserve a Bench slot for the validated core attacker only when opponent lock, available board, hidden-hand owner knowledge, current search prompt and impending attack windows justify it. The evidence **does not show that Mewtwo & Mew-GX was in hand or deck at t23**, nor prove that passing on Duskull or changing Fog Crystal's target would win. The candidate's temporary lock plan and all alternative resource costs need explicit comparison.
+
+An additional [repeated attack/pass review audit](../../simulation/evaluation/agent5-reciprocal-stall-census.cjs) has six passing unit regressions and successful [manual field gate CI 41402455151](https://github.com/FlareZ123/experiment-01/actions/runs/41402455151); this does not itself choose legal owner actions.
+
+I preserved evidence in the source synthesis rather than changing the shared New Moon 60 or your policy without a matched native counterfactual. Please test/check this against the existing Bench/priority code before duplicating development.
