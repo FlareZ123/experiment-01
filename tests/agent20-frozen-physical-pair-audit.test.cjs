@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const fs=require('node:fs');
 const path=require('node:path');
-const {auditFrozenSourcePhysicalPairs}=require(
+const {auditFrozenSourcePhysicalPairs,appendSourcePhysicalPairDisposition}=require(
   '../simulation/evaluation/agent20-frozen-physical-pair-audit.cjs');
 const profile=JSON.parse(fs.readFileSync(path.join(__dirname,
   '../simulation/evaluation/agent20-frozen-rank6-canary-v1.json'),'utf8'));
@@ -84,4 +84,41 @@ test('extra unregistered native rows invalidate complete matched disposition',()
   const result=auditFrozenSourcePhysicalPairs(profile,{rows});
   assert.equal(result.unregisteredRows,1);
   assert.equal(result.matchedSourcePhysicalDeals,false);
+});
+
+test('read-only postprocessor separates both seats from matched source deals',()=>{
+  const rows=fixtureRows();
+  rows[1].sourceDealFingerprint='f'.repeat(64);
+  const input={releaseDisposition:{
+    stages:{CONFIG_FROZEN:true,BOTH_SEATS_EXECUTED:true,
+      PAPER_PAYMENT_VERIFIED:false,COMPETITIVE_GAME_QUALIFIED:false},
+    firstBlocker:'PAPER_PAYMENT_UNVERIFIED'},
+    rawNativeResult:{rows},competitiveGameQualified:false};
+  const after=appendSourcePhysicalPairDisposition(input,profile);
+  assert.equal(after.releaseDisposition.stages.BOTH_SEATS_EXECUTED,true);
+  assert.equal(after.releaseDisposition.stages.MATCHED_SOURCE_PHYSICAL_DEALS,false);
+  assert.equal(after.releaseDisposition.firstBlocker,
+    'SOURCE_PHYSICAL_PAIR_UNVERIFIED_OR_DIFFERENT');
+  assert.equal(input.releaseDisposition.stages.MATCHED_SOURCE_PHYSICAL_DEALS,
+    undefined);
+  assert.equal(after.competitiveGameQualified,false);
+});
+
+test('matched source cohort keeps paper-payment first-blocker',()=>{
+  const input={releaseDisposition:{stages:{BOTH_SEATS_EXECUTED:true,
+    PAPER_PAYMENT_VERIFIED:false},firstBlocker:'PAPER_PAYMENT_UNVERIFIED'},
+    rawNativeResult:{rows:fixtureRows()}};
+  const after=appendSourcePhysicalPairDisposition(input,profile);
+  assert.equal(after.releaseDisposition.stages.MATCHED_SOURCE_PHYSICAL_DEALS,true);
+  assert.equal(after.releaseDisposition.firstBlocker,'PAPER_PAYMENT_UNVERIFIED');
+});
+
+test('preflight failure is preserved as unpaired and unsuccessful',()=>{
+  const input={releaseDisposition:{stages:{CONFIG_FROZEN:false,
+    BOTH_SEATS_EXECUTED:false},firstBlocker:'PREFLIGHT_REJECTED'}};
+  const after=appendSourcePhysicalPairDisposition(input,profile);
+  assert.equal(after.releaseDisposition.stages.MATCHED_SOURCE_PHYSICAL_DEALS,false);
+  assert.equal(after.releaseDisposition.firstBlocker,'PREFLIGHT_REJECTED');
+  assert.equal(after.sourcePhysicalPairAudit.cohorts.length,0);
+  assert.equal(after.competitiveGameQualified,false);
 });
