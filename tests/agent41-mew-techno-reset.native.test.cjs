@@ -200,10 +200,29 @@ function trial(seat){
   const oldSupporter=owner.supporterTurn;
   const originalDce=owner.active.energies.cards[0];
   const beforeGuzma=rootPhysicalSnapshot(state,seat,proposal);
-  console.log('AGENT41_STAGE',seat,'before-native-guzma');
-  store.dispatch(new PlayCardAction(owner.id,proposal.handIndex,{
-    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  console.log('AGENT41_STAGE',seat,'before-native-guzma',JSON.stringify({
+    handIndex:proposal.handIndex,
+    selectedHand:owner.hand.cards[proposal.handIndex]?.fullName??null,
+    ownerHand:owner.hand.cards.map(c=>c.fullName),
+    activeSeat:state.activePlayer,
+    activePlayerId:state.players[state.activePlayer]?.id??null,
+    ownerId:owner.id,phase:state.phase,globalTurn:state.turn,
+    supporterTurn:owner.supporterTurn,
+    status:owner.active.cannotAttackNextTurn
   }));
+  try {
+    store.dispatch(new PlayCardAction(owner.id,proposal.handIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+  } catch(e){
+    console.error('AGENT41_GUZMA_STORE_ERROR',JSON.stringify({seat,
+      error:String(e),stack:e?.stack??null,
+      currentHand:owner.hand.cards.map(c=>c.fullName),
+      pending:state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor?.name??null)
+    }));
+    throw e;
+  }
   const afterGuzma=rootPhysicalSnapshot(state,seat,proposal);
   console.log('AGENT41_STAGE',seat,'before-guzma-prompts');
   completeGuzma(x,proposal,receipts);
