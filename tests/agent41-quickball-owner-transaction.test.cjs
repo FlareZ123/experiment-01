@@ -103,3 +103,20 @@ test('unrelated actions, including another card with the same selected cards, re
   x.rootActionLedger[0].card='Ultra Ball';
   assert.deepEqual(reconcileQuickBallOwnerTransactions(x).rows,[]);
 });
+
+test('discard-zone card prompt is never accepted as a Quick Ball hand payment',()=>{
+  const x=fixture();
+  x.decisionTrace[1].cardSelection.sourceZone='discard';
+  x.decisionTrace[1].cardSelection.sourcePlayerSlot=1;
+  assert.equal(reconcileQuickBallOwnerTransactions(x).rows[0].status,
+    'PAYMENT_PROMPT_UNVERIFIED');
+});
+
+test('opponent-owned hand prompt is never accepted as our payment',()=>{
+  const x=fixture();
+  x.decisionTrace[1].cardSelection.sourceZone='hand';
+  x.decisionTrace[1].cardSelection.sourcePlayerSlot=0;
+  assert.equal(reconcileQuickBallOwnerTransactions(x).rows[0].status,
+    'PAYMENT_PROMPT_UNVERIFIED');
+});
+
