@@ -133,7 +133,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     (intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const jetRecipient=intent.kind==='attach-special-energy'&&
     intent.slot==='bench'?owner.bench[intent.index]:null;
-  const energyRecipient=['paid-retreat','skyliner-rondo-retreat']
+  const energyRecipient=['paid-retreat','skyliner-rondo-retreat',
+    'free-retreat']
     .includes(intent.kind)?
     owner.bench[intent.benchIndex]:
     (intent.kind==='attach-basic-energy'||
@@ -171,7 +172,10 @@ function rootPhysicalSnapshot(state,seat,intent){
         owner.active.getPokemonCard()?.fullName??null
     }:{}),
     ...(['paid-retreat','retreat-emergency-floatstone',
-      'skyliner-rondo-retreat'].includes(intent.kind)?{
+      'skyliner-rondo-retreat','free-retreat'].includes(intent.kind)?{
+      activePokemonPhysicalId:owner.active.getPokemonCard()?.id??null,
+      targetPokemonPhysicalId:
+        owner.bench[intent.benchIndex]?.getPokemonCard()?.id??null,
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
@@ -207,6 +211,7 @@ function rootPhysicalSnapshot(state,seat,intent){
       'play-conservative-shuffle-supporter','play-carmine-first',
       'play-seeker-recovered-lillie','play-held-guzma-mobility',
       'play-guzma-forced-nominal-ko',
+      'play-guzma-mew-cooldown-reset',
       'play-team-flare-grunt-denial','play-plumeria-payment-menu',
       'play-eri-reveal'].includes(intent.kind)?{
       supporterTurn:owner.supporterTurn,
@@ -355,6 +360,7 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
      intent.kind==='play-seeker-recovered-lillie'||
      intent.kind==='play-held-guzma-mobility'||
      intent.kind==='play-guzma-forced-nominal-ko'||
+     intent.kind==='play-guzma-mew-cooldown-reset'||
      intent.kind==='play-team-flare-grunt-denial'||
      intent.kind==='play-plumeria-payment-menu'||
      intent.kind==='play-eri-reveal'){
@@ -432,6 +438,27 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.targetPokemonPrinting===before.activePokemonPrinting&&
       Array.isArray(before.activeEnergies)&&
       Array.isArray(after.targetEnergies)&&
+      JSON.stringify(after.targetEnergies)===
+        JSON.stringify(before.activeEnergies)&&
+      after.retreatedTurn===before.turn?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='free-retreat'){
+    // The attacking and temporary Mew VMAX share an exact printing. Distinct
+    // physical IDs, coupled to a native Retreat counter and Energy custody,
+    // distinguish their actual one-turn exchange with no discarded Energy.
+    return Number.isSafeInteger(before.activePokemonPhysicalId)&&
+      Number.isSafeInteger(before.targetPokemonPhysicalId)&&
+      before.activePokemonPhysicalId!==before.targetPokemonPhysicalId&&
+      before.activePokemonPrinting!==null&&
+      before.targetPokemonPrinting===intent.printing&&
+      after.activePokemonPhysicalId===before.targetPokemonPhysicalId&&
+      after.targetPokemonPhysicalId===before.activePokemonPhysicalId&&
+      Array.isArray(before.activeEnergies)&&
+      Array.isArray(before.targetEnergies)&&
+      before.activeEnergies.length===0&&
+      JSON.stringify(after.activeEnergies)===
+        JSON.stringify(before.targetEnergies)&&
       JSON.stringify(after.targetEnergies)===
         JSON.stringify(before.activeEnergies)&&
       after.retreatedTurn===before.turn?
