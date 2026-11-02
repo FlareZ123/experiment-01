@@ -16,8 +16,12 @@ const base = openingEightAccess();
 near(base.basicValidInitialSeven, 0.8093533072892635);
 near(base.directUnconditional, 0.07759162886050825);
 near(base.directAmongBasicValid, 0.0926277443382764);
+near(base.directWithOtherBasicStarterAmongBasicValid, 0.06296981420960828);
 near(base.searchAssistedUnconditional, 0.24007559091372999);
 near(base.searchAssistedAmongBasicValid, 0.23089801437797755);
+near(base.searchAssistedWithOtherBasicStarterAmongBasicValid, 0.20124008424930906);
+near(base.directAmongBasicValid-base.directWithOtherBasicStarterAmongBasicValid, 0.029657930128668096);
+near(base.searchAssistedAmongBasicValid-base.searchAssistedWithOtherBasicStarterAmongBasicValid, 0.029657930128668096);
 assert.ok(base.searchAssistedUnconditional > base.directUnconditional);
 assert.ok(base.directAmongBasicValid < base.directUnconditional / base.basicValidInitialSeven);
 
@@ -47,5 +51,7 @@ console.log(JSON.stringify({
   directBasicValid: base.directAmongBasicValid,
   permissiveSearch: base.searchAssistedUnconditional,
   permissiveSearchBasicValid: base.searchAssistedAmongBasicValid,
+  directWithOtherBasicStarterBasicValid: base.directWithOtherBasicStarterAmongBasicValid,
+  permissiveWithOtherBasicStarterBasicValid: base.searchAssistedWithOtherBasicStarterAmongBasicValid,
   shakeCounterfactuals: cases.length
 }, null, 2));
