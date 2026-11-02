@@ -156,6 +156,16 @@ jobs:
           if-no-files-found: error
       - name: Verify rank26 two-Egg Damage Pump source-bound decision planner
         run: node --test tests/rank26-exeggcute-pump-policy.test.cjs
+      - name: Pure public opposing Bench veto for prospective rank26 solo-donk policy
+        run: node --test tests/agent47-rank26-solo-opponent-pump-gate.test.cjs
+      - name: Native original-sixties rank26 solo versus opposing Bench proposed Pump decisions
+        run: node simulation/twinleaf/agent47-rank26-solo-opponent-pump-staged.cjs > agent47-rank26-solo-pump-staged.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent47-rank26-solo-pump-bench-gate
+          path: agent47-rank26-solo-pump-staged.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Validate source-conserved two-Egg and fifth-KO Pump actions in both seats
         run: node simulation/twinleaf/rank26-pump-source-conserved-fixture.cjs > rank26-pump-autonomous-source-conditioned.json
       - name: Archive source-card-conserved Pump and Prize cap diagnostics
