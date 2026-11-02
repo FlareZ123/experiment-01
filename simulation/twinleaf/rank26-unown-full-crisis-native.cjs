@@ -98,9 +98,19 @@ function continueAfterFiveKOs(f){
   assert.equal(koko?.name,'Tapu Koko Prism Star');
 
   f.store.dispatch(new UseAbilityAction(source.id,'Dance of the Ancients',bench(1)));
+  // Native Store may request opponent acknowledgements before the queued
+  // AttachEnergyPrompt. These acknowledgements have no card selection.
+  for(let i=0;i<12;i++){
+    const pending=f.state.prompts.find(p=>p.result===undefined);
+    if(pending?.constructor.name!=='WaitPrompt')break;
+    receipts.push({phase:'native-koko-wait',owner:pending.playerId});
+    f.store.dispatch(new ResolvePromptAction(pending.id,null));
+  }
   const energyPrompt=f.state.prompts.find(p=>p.result===undefined);
   assert.equal(energyPrompt?.constructor.name,'AttachEnergyPrompt',
-    'Koko should request actual owner-discard Lightning attachments');
+    'Koko prompt after acknowledgement: '+
+      JSON.stringify(f.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>({type:p.constructor.name,owner:p.playerId}))));
   assert.equal(energyPrompt.playerId,source.id);
   const lightnings=source.discard.cards
     .filter(c=>c.name==='Lightning Energy');
