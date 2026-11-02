@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {preflight,sourceWitness,physicalPairStatus,runRelease}=
+const {preflight,classifyNativeAttempt,sourceWitness,physicalPairStatus,runRelease}=
   require('../simulation/evaluation/agent13-v3-rank5-original-release.cjs');
 
 test('external registration, selected profile and pinned code bytes agree',()=>{
@@ -35,6 +35,30 @@ test('source witness belongs to original physical seat and never self-qualifies'
   assert.equal(s.originalSourceAttackDeclarations,1);
   assert.equal(s.paperActionQualified,false);
   assert.equal(s.competitiveGameQualified,false);
+});
+
+test('actual engine dispositions classify every rank5 native attempt without claiming paper wins',()=>{
+  const terminal={trial:{candidateSlot:'A'},finished:true,
+    endReason:'engine-game-end',actionCount:115,winner:1};
+  const capped={trial:{candidateSlot:'B'},finished:false,
+    endReason:'action-limit',actionCount:260};
+  const errored={trial:{candidateSlot:'B'},error:'Native Store failed',
+    finished:false,endReason:null};
+  const unknown={trial:{candidateSlot:'A'},finished:false,
+    endReason:'nonstandard-procedure'};
+  assert.equal(classifyNativeAttempt(terminal),'ENGINE_TERMINAL_UNQUALIFIED');
+  assert.equal(classifyNativeAttempt(capped),'CENSORED');
+  assert.equal(classifyNativeAttempt(errored),'NATIVE_ERROR');
+  assert.equal(classifyNativeAttempt(unknown),'UNVERIFIED');
+  const t=sourceWitness(terminal);
+  assert.equal(t.status,'ENGINE_TERMINAL_UNQUALIFIED');
+  assert.equal(t.rawNativeFinished,true);
+  assert.equal(t.rawNativeEndReason,'engine-game-end');
+  assert.equal(t.rawNativeActionCount,115);
+  assert.equal(t.competitiveGameQualified,false);
+  assert.equal(sourceWitness(capped).status,'CENSORED');
+  assert.equal(sourceWitness(errored).status,'NATIVE_ERROR');
+  assert.equal(sourceWitness(unknown).status,'UNVERIFIED');
 });
 
 test('only exact native source physical fingerprints authorize controlled labels',()=>{
