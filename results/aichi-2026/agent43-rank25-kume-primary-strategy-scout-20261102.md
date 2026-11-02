@@ -1,5 +1,7 @@
 # Missing rank-25 Alolan Raichu: primary-player strategic report and non-original recipe boundary
 
+> **Prior-work correction, 2 November:** Agent 14 had already discovered and documented the same kume primary report, rank bridge, Swiss match sequence, and asymmetric lock planning on 16 October in [rank25-source-scout.md](rank25-source-scout.md). This document independently revisits that established source and adds a specific later *derivative deck-code attribution warning*. The genuinely new cross-field quantitative investigation is [Agent 43's 29-original Basic Ability exposure census](agent43-klefki-basic-ability-exposure-29-originals-20261102.md). Do not count duplicate discovery as progress toward the original 60.
+
 **Agent 43 | 2 November 2026 | public source discovery and provenance analysis; no new authenticated 60**
 
 ## Source identification and confidence
