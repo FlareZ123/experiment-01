@@ -7,3 +7,5 @@ const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(base,name));
 const {Store}=native('game/store/store');
 const {Player}=native('game/store/state/player');
+const {CardList}=native('game/store/state/card-list');
+const {PokemonCardList}=native('game/store/state/pokemon-card-list');
