@@ -28,7 +28,9 @@ const EXTRA_EFFECT_MODES=['path-airballoon','path-airballoon-jammer',
   'thorns-furybelt','thorns-furybelt-jammer',
   'path-float-bench-jammer','path-airballoon-bench-jammer',
   'path-furybelt-bench-jammer',
-  'thorns-stealthyhood','thorns-stealthyhood-jammer'];
+  'thorns-stealthyhood','thorns-stealthyhood-jammer',
+  'thorns-float-jammer-jamming',
+  'thorns-stealthyhood-jammer-jamming'];
 const MODES=['baseline','path','silent','klefki','thorns',
   'garbotoxin','muk','weezing','wobbuffet',
   'path-float','path-float-jammer','thorns-float',
@@ -55,7 +57,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const equippedStealthyHood=mode.includes('-stealthyhood');
   assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
-  const opponentToolJammer=mode.endsWith('-jammer')&&!opponentBenchJammer;
+  const opponentToolJammer=(mode.endsWith('-jammer')||
+    mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
@@ -231,7 +234,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       (opponentToolJammer?!attackReceipt.attempted:
         attackReceipt.attempted&&attackReceipt.accepted),
     paperHookApplied:effectRepair?
-      (opponentToolJammer?receipt.patches.length>0:
+      (opponentToolJammer&&!stadiumToolJamming?
+        receipt.patches.length>0:
         receipt.patches.length===0):!repair||receipt.patches.length>0
   };
   return {mode,sourceSeat,repairApplied:repair||effectRepair,
@@ -297,7 +301,9 @@ function runEffectRepair(){
     'thorns-furybelt','thorns-furybelt-jammer',
     'path-float-bench-jammer','path-airballoon-bench-jammer',
     'path-furybelt-bench-jammer',
-    'thorns-stealthyhood','thorns-stealthyhood-jammer']
+    'thorns-stealthyhood','thorns-stealthyhood-jammer',
+    'thorns-float-jammer-jamming',
+    'thorns-stealthyhood-jammer-jamming']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
