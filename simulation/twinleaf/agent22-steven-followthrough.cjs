@@ -50,6 +50,8 @@ function run(){
   const {SEEDS,scoreBundle}=require('./agent22-rank7-dealt-steven-pair.cjs');
   const {withNumericShuffleValidator}=
     require('./agent22-numeric-shuffle-validation-hook.cjs');
+  const {withSourceStevenPhysicalLineage}=
+    require('./agent22-steven-physical-lineage.cjs');
   const {sparseObservedOwnerSearch,withSparseActorOwnerSearch}=
     require('./agent22-sparse-owner-search-adapter.cjs');
   const {withLiveOwnerRootStarts}=
@@ -88,14 +90,16 @@ function run(){
       };
       let status='native-exception',error=null,summary=null;
       try{
-        const observed=withLiveOwnerRootStarts(()=>
-          withNumericShuffleValidator(()=>
-            withSparseActorOwnerSearch(()=>runMatch(request),{
-              observe:(state,seat)=>seat===sourceSeat?
-                sparseObservedOwnerSearch(state,seat,actorObservation,
-                  policy==='scored-opt-in'?scoreBundle:null):null
-            })),
-          {Store,SimpleTacticsAi,GamePhase,sourceSeat});
+        const physical=withSourceStevenPhysicalLineage(sourceSeat,()=>
+          withLiveOwnerRootStarts(()=>
+            withNumericShuffleValidator(()=>
+              withSparseActorOwnerSearch(()=>runMatch(request),{
+                observe:(state,seat)=>seat===sourceSeat?
+                  sparseObservedOwnerSearch(state,seat,actorObservation,
+                    policy==='scored-opt-in'?scoreBundle:null):null
+              })),
+            {Store,SimpleTacticsAi,GamePhase,sourceSeat}),{Store});
+        const observed=physical.result;
         const w=observed.result;
         assert.equal(observed.audit.authenticatedLiveStore,true);
         const game=w.result,ledger=game.rootActionLedger;
@@ -108,6 +112,9 @@ function run(){
         assert.equal(game.endReason,'action-limit');
         assert.deepEqual(game.prizesRemaining,[6,6]);
         assert.equal(w.audit.bySeat[sourceSeat],frozen.searches);
+        assert.equal(physical.audit.nativeSearchPromptResolutions,
+          frozen.searches,
+          'Native physical source search count must match prior accepted searches');
         status='native-replay-identical';
         const publicRoots=ledger.filter(row=>row.pendingPrompt===null);
         summary={
@@ -121,6 +128,7 @@ function run(){
             .update(JSON.stringify(ledger)).digest('hex'),
           ownerSearchAccepted:w.audit.bySeat[sourceSeat],
           nativePrintedNameMapUsed:true,
+          physicalSourceSelectionAndLaterPlay:physical.audit,
           authenticatedLiveOwnerRootSnapshots:observed.audit.snapshots,
           nextOwnerRootAfterSearch:w.audit.boundedSelections.map(
             search=>{
