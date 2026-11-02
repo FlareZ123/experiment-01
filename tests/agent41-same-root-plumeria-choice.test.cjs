@@ -83,7 +83,9 @@ test('Plumeria payment menu cannot spend the physical Plumeria card itself',()=>
   const [offer]=proposer.propose(view,{},{
     nativePlumeriaChoice:true
   });
-  assert.equal(structurallySupported(view,offer),false);
+  // The proposer now supplies public paymentTargets directly. This is a
+  // structural hand/board check; native Store legality remains unverified.
+  assert.equal(structurallySupported(view,offer),true);
   const attached={...offer,paymentTargets:[{
     slot:'active',index:0,pokemonPrinting:'Opponent Active',
     energyIndex:0,energyPrinting:'Psychic Energy SVE 5'
