@@ -8,19 +8,20 @@ const {VERSION,proposeMixedEnergyPaidRetreat}=
 function sample(){
   const catalog={
     basicEnergies:new Set(['Darkness Energy MEE']),
-    basicEnergyTypes:{Darkness:7,Psychic:5},
+    basicEnergyTypes:{Darkness:7,Psychic:5,Lightning:4},
     colorlessEnergyType:10,
-    stages:{BASIC:1},
+    stages:{BASIC:1,STAGE_1:2},
     specialEnergies:new Set(['Prism Energy ASC',
       'Telepath [P] Energy M3']),
     specialConditions:{ASLEEP:1,PARALYZED:2}
   };
   const active={
     printing:'Electrode-GX CES',
-    printed:{retreatCost:[10],stage:1,types:[4]},
+    printed:{retreatCost:[10],stage:2,types:[4]},
     energies:['Prism Energy ASC','Darkness Energy MEE'],
-    tools:[],attacks:[{name:'Non-damaging setup',cost:[10],damage:0,
-      gxAttack:false}],specialConditions:[],publicRestrictions:{}
+    tools:[],attacks:[{name:'Electro Ball',cost:[4,10],damage:50,
+      gxAttack:false},{name:'Crash and Burn-GX',cost:[4,10],damage:30,
+      gxAttack:true}],specialConditions:[],publicRestrictions:{}
   };
   const mega={
     printing:'Mega Absol ex M1L',
@@ -58,6 +59,17 @@ test('proposes rank9-shaped mixed payment with explicit Basic discard',()=>{
     preferredDiscardPrinting:'Darkness Energy MEE',
     validation:'UNVERIFIED_NATIVE_PROMPT_AND_ATTACK'
   });
+});
+
+test('Stage-1 Electrode Prism is Colorless, while Basic Absol Prism pays Darkness',()=>{
+  const {catalog,view}=sample();
+  const {publicSpecialAttackPayable}=
+    require('../simulation/twinleaf/agent17-public-context-special-energy.cjs');
+  assert.equal(publicSpecialAttackPayable(view,catalog,view.ownPublic.active,
+    view.ownPublic.active.attacks[0]),false);
+  assert.equal(publicSpecialAttackPayable(view,catalog,view.ownPublic.bench[0],
+    view.ownPublic.bench[0].attacks[0]),true);
+  assert.ok(proposeMixedEnergyPaidRetreat(view,catalog));
 });
 
 test('refuses unsupported source cost and no Basic payment',()=>{
