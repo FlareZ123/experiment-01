@@ -1,0 +1,117 @@
+{
+  "schema": "agent47-original-native-v1-field-extract",
+  "sourceArtifactUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/41463121456/artifacts/13150042319",
+  "sourceRawOutputSha256": "0f03c717a86d2a70f922e5c08085830a22e6db7f08b42e83f62dd4b4643c2b89",
+  "releaseProfile": "agent20-frozen-bilateral-rank6-canary-v1",
+  "profileSha256": "6ff3ee325098cfc68253928a9dd5370da52c9cc64b86a4435be2b07a0d392dc6",
+  "runtime": {
+    "checkoutCommit": "c448a9126645ef7bf2bc36f4a93ffad725118e8b"
+  },
+  "releaseDisposition": {
+    "nativeStatusCounts": {
+      "UNREPORTED": 4
+    },
+    "attempts": [
+      {
+        "trialId": "6:0:A:champion-reference",
+        "sourceRank": 6,
+        "sourcePhysicalSeat": "B",
+        "candidatePhysicalSeat": "A",
+        "nativeStatus": "UNREPORTED",
+        "observedEngineTerminal": null
+      },
+      {
+        "trialId": "6:0:A:new-moon-lockbreaker-v1",
+        "sourceRank": 6,
+        "sourcePhysicalSeat": "B",
+        "candidatePhysicalSeat": "A",
+        "nativeStatus": "UNREPORTED",
+        "observedEngineTerminal": null
+      },
+      {
+        "trialId": "6:1:B:champion-reference",
+        "sourceRank": 6,
+        "sourcePhysicalSeat": "A",
+        "candidatePhysicalSeat": "B",
+        "nativeStatus": "UNREPORTED",
+        "observedEngineTerminal": null
+      },
+      {
+        "trialId": "6:1:B:new-moon-lockbreaker-v1",
+        "sourceRank": 6,
+        "sourcePhysicalSeat": "A",
+        "candidatePhysicalSeat": "B",
+        "nativeStatus": "UNREPORTED",
+        "observedEngineTerminal": null
+      }
+    ]
+  },
+  "rawNativeResult": {
+    "rows": [
+      {
+        "trial": {
+          "rank": 6,
+          "repeat": 0,
+          "candidateSlot": "A",
+          "candidateId": "champion-reference",
+          "seed": 430745698,
+          "id": "6:0:A:champion-reference"
+        },
+        "finished": true,
+        "endReason": "engine-game-end",
+        "winner": 1,
+        "actionCount": 90,
+        "verifiedFirstTurn": true,
+        "actualStarterSeat": 1
+      },
+      {
+        "trial": {
+          "rank": 6,
+          "repeat": 0,
+          "candidateSlot": "A",
+          "candidateId": "new-moon-lockbreaker-v1",
+          "seed": 430745698,
+          "id": "6:0:A:new-moon-lockbreaker-v1"
+        },
+        "finished": true,
+        "endReason": "engine-game-end",
+        "winner": 1,
+        "actionCount": 99,
+        "verifiedFirstTurn": true,
+        "actualStarterSeat": 1
+      },
+      {
+        "trial": {
+          "rank": 6,
+          "repeat": 1,
+          "candidateSlot": "B",
+          "candidateId": "champion-reference",
+          "seed": 1207371343,
+          "id": "6:1:B:champion-reference"
+        },
+        "finished": true,
+        "endReason": "engine-game-end",
+        "winner": 1,
+        "actionCount": 91,
+        "verifiedFirstTurn": true,
+        "actualStarterSeat": 1
+      },
+      {
+        "trial": {
+          "rank": 6,
+          "repeat": 1,
+          "candidateSlot": "B",
+          "candidateId": "new-moon-lockbreaker-v1",
+          "seed": 1207371343,
+          "id": "6:1:B:new-moon-lockbreaker-v1"
+        },
+        "finished": true,
+        "endReason": "engine-game-end",
+        "winner": 0,
+        "actionCount": 174,
+        "verifiedFirstTurn": true,
+        "actualStarterSeat": 1
+      }
+    ]
+  }
+}
