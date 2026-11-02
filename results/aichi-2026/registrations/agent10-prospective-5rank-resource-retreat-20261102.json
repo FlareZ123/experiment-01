@@ -1,0 +1,103 @@
+{
+  "schema": "agent10-prospective-5-original-archetype-attack-chain-v1",
+  "registeredAtUtc": "2026-11-02T16:57:00Z",
+  "sourceRng": "Python secrets.randbits(32), one draw for each listed rank and physical seat before running",
+  "focus": "Prospective independent actual initial deals, source rank1 Shadow Rider, rank4 Raichu Electrode, rank9 Absol Electrode, rank11 Absol Garbodor, rank15 Lopunny Vileplume",
+  "seedGroups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "seed": 4096046452
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "seed": 1971610097
+    },
+    {
+      "rank": 4,
+      "candidateSlot": "A",
+      "seed": 347742307
+    },
+    {
+      "rank": 4,
+      "candidateSlot": "B",
+      "seed": 290576834
+    },
+    {
+      "rank": 9,
+      "candidateSlot": "A",
+      "seed": 3964666359
+    },
+    {
+      "rank": 9,
+      "candidateSlot": "B",
+      "seed": 1585054907
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "seed": 1461144973
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "seed": 4096421492
+    },
+    {
+      "rank": 15,
+      "candidateSlot": "A",
+      "seed": 2443258620
+    },
+    {
+      "rank": 15,
+      "candidateSlot": "B",
+      "seed": 3344362754
+    }
+  ],
+  "trialIds": [
+    "1:0:A:champion-reference",
+    "1:0:A:new-moon-lockbreaker-v1",
+    "1:0:B:champion-reference",
+    "1:0:B:new-moon-lockbreaker-v1",
+    "4:0:A:champion-reference",
+    "4:0:A:new-moon-lockbreaker-v1",
+    "4:0:B:champion-reference",
+    "4:0:B:new-moon-lockbreaker-v1",
+    "9:0:A:champion-reference",
+    "9:0:A:new-moon-lockbreaker-v1",
+    "9:0:B:champion-reference",
+    "9:0:B:new-moon-lockbreaker-v1",
+    "11:0:A:champion-reference",
+    "11:0:A:new-moon-lockbreaker-v1",
+    "11:0:B:champion-reference",
+    "11:0:B:new-moon-lockbreaker-v1",
+    "15:0:A:champion-reference",
+    "15:0:A:new-moon-lockbreaker-v1",
+    "15:0:B:champion-reference",
+    "15:0:B:new-moon-lockbreaker-v1"
+  ],
+  "frozenOpponentPrinted60s": true,
+  "origination": "source full-decklists.json 29 authenticated exact printed 60s",
+  "control": "agent41 bilateral-v2 common actor known-dead baseline with rank9 previous VIP/evolution opt-ins",
+  "treatmentDelta": {
+    "actorRank9MegaAbsolFundingRoot": true,
+    "actorFlexiblePaidRetreatRoot": true
+  },
+  "symmetry": "Both actors see same flexible Retreat selector. Staging targets a Pokémon printing if present on either actor's own public Bench.",
+  "attemptsPerArm": 20,
+  "arms": 2,
+  "totalNativeAttempts": 40,
+  "anticipatedArtifacts": [
+    "actual full source and both-player setup fingerprint parity",
+    "original deck byte fingerprints",
+    "selected native root and payment prompt",
+    "first source and candidate attack on each original",
+    "KO and Prize settlement and actual opponent response",
+    "turn and cap details",
+    "all 40 attempt records"
+  ],
+  "winRateClaim": "none",
+  "competitiveQualifiedGames": 0,
+  "limits": "Unqualified paper card custody, incomplete native effects, weak bot policy, official time clock absent; independently random new seed groups remain development only"
+}
