@@ -709,6 +709,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     nativeToolAttachRootOptIn:deps.nativeToolAttachRoot??
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
     nativePlumeriaChoiceOptIn:deps.nativePlumeriaChoice===true,
+    nativePlumeriaPaymentConservationOptIn:
+      deps.nativePlumeriaPaymentConservation===true,
     nativeZeroCostDenialChoiceOptIn:deps.nativeZeroCostDenialChoice===true,
     losslessNativeRootJoinOptIn:deps.losslessNativeRootJoin===true,
     registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
@@ -794,6 +796,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.rondoProtectActiveLatiasEonBladeOptIn;
     delete audit.nativeToolAttachRootOptIn;
     delete audit.nativePlumeriaChoiceOptIn;
+    delete audit.nativePlumeriaPaymentConservationOptIn;
     delete audit.nativeZeroCostDenialChoiceOptIn;
     delete audit.sameRootPassAttackProbeGlobalTurn;
     delete audit.sameRootPublicNoBenchTerminalOptIn;
@@ -1142,6 +1145,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.rondoPsychicBenchStageOwnerSeat??null,seat),
       nativeToolAttachRoot:audit.nativeToolAttachRootOptIn===true,
       nativePlumeriaChoice:audit.nativePlumeriaChoiceOptIn===true,
+      nativePlumeriaPaymentConservation:
+        audit.nativePlumeriaPaymentConservationOptIn===true,
       nativeZeroCostDenialChoice:audit.nativeZeroCostDenialChoiceOptIn===true,
       registeredToolEnergyCeiling:audit.registeredToolEnergyCeilingOptIn===true,
       passAttackProbeGlobalTurn:audit.sameRootPassAttackProbeGlobalTurn,
