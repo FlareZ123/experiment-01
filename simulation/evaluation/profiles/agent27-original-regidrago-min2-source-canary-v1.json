@@ -76,5 +76,8 @@
     "allowEquivalentBasicEnergies": true,
     "allowBasicEnergyMirrorPrintings": true,
     "allowJapanesePromoHooks": true
-  }
+  },
+  "allowedInfrastructureEnvironmentKeys": [
+    "AGENT_TOOLSDIRECTORY"
+  ]
 }
