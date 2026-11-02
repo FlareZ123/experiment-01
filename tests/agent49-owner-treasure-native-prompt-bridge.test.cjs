@@ -41,12 +41,17 @@ for(const seat of [0,1]){
       assert.ok(armed,'No native owner Item arming: '+JSON.stringify(trace));
       assert.equal(armed.plannedKind,'play-mysterious-treasure',
         JSON.stringify(trace));
+      assert.equal(armed.plannedDiscard,donor.fullName);
       assert.equal(armed.consumed,true);
       assert.equal(armed.hasOwnerPrompt,true);
       const first=x.state.prompts.find(p=>p.result===undefined);
       assert.equal(first?.constructor?.name,'ChooseCardsPrompt');
       assert.strictEqual(first.cards,x.owner.hand);
-      const fakeBot={client:{id:x.owner.id}};
+      const fakeBot={client:{id:x.owner.id},
+        resolvePrompt(){
+          throw Error('Unplanned native Treasure prompt fallback: '+
+            JSON.stringify(trace));
+        }};
       const firstAction=SimpleTacticsAi.prototype.decodeNextAction.call(
         fakeBot,x.store.state);
       assert.ok(firstAction instanceof ResolvePromptAction);
