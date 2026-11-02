@@ -11,9 +11,11 @@ function withPaperPlumeriaPayment(run,deps={}){
  assert.equal(typeof run,'function');
  const {Store}=require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output/game/store/store'));
+ const {CardTag}=require(path.resolve(__dirname,
+  '../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
  const liveOnly=deps.requireLiveStore===true;
- const audit={version:'plumeria-paper-cost-v3-live-scoped',observed:0,accepted:0,
+ const audit={version:'plumeria-paper-cost-v4-prism-lostzone-physical',observed:0,accepted:0,
   rejected:0,qualifiedGames:0,physicalPaymentReceipts:[],
   physicalEffectReceipts:[],nativeAddPlayerStores:0,
   requireLiveStore:liveOnly,auxiliaryPromptSkips:0};
@@ -63,6 +65,7 @@ function withPaperPlumeriaPayment(run,deps={}){
      cardNames:cards.map(c=>c.fullName),
      cards,handBefore:cards.filter(c=>owner.hand.cards.includes(c)).length,
      discardBefore:cards.filter(c=>owner.discard.cards.includes(c)).length,
+     lostzoneBefore:cards.filter(c=>owner.lostzone.cards.includes(c)).length,
      prompt:p};
    }
   }
@@ -72,6 +75,23 @@ function withPaperPlumeriaPayment(run,deps={}){
    const {cards,prompt}=receiptBefore;
    const moved=cards.filter(c=>owner.discard.cards.includes(c)&&
      !owner.hand.cards.includes(c)).length;
+   const movedLostZone=cards.filter(c=>owner.lostzone.cards.includes(c)&&
+     !owner.hand.cards.includes(c)).length;
+   const zoneDetails=cards.map(c=>{
+    const prismStar=c.tags?.includes(CardTag.PRISM_STAR)===true;
+    const inHandAfter=owner.hand.cards.includes(c);
+    const inDiscardAfter=owner.discard.cards.includes(c);
+    const inLostZoneAfter=owner.lostzone.cards.includes(c);
+    return {printing:c.fullName,
+     expectedDestination:prismStar?'lostzone':'discard',
+     actualDestination:inDiscardAfter?'discard':inLostZoneAfter?'lostzone':
+       inHandAfter?'hand':'other',
+     paperDiscardRedirectCorrect:prismStar?inLostZoneAfter:inDiscardAfter,
+     inHandAfter};
+   });
+   const correctDestinations=zoneDetails.every(x=>
+    x.paperDiscardRedirectCorrect&&!x.inHandAfter);
+
    audit.accepted++;
    const paymentReceipt={
     printing:'Plumeria BUS',ownerSeat:receiptBefore.ownerSeat,
@@ -81,11 +101,15 @@ function withPaperPlumeriaPayment(run,deps={}){
     submittedPhysicalCount:cards.length,
     handMembersBefore:receiptBefore.handBefore,
     discardMembersBefore:receiptBefore.discardBefore,
+    lostzoneMembersBefore:receiptBefore.lostzoneBefore,
     movedToOwnerDiscardCount:moved,
+    movedToOwnerLostZoneCount:movedLostZone,
+    physicalPaymentDestinations:zoneDetails,
     noLongerInOwnerHandCount:cards.filter(c=>!owner.hand.cards.includes(c)).length,
     nativePromptSettled:prompt.result!==undefined,
-    independentlyPaidTwo:moved===2&&receiptBefore.handBefore===2&&
-      receiptBefore.discardBefore===0&&prompt.result!==undefined,
+    independentlyPaidTwo:correctDestinations&&receiptBefore.handBefore===2&&
+      receiptBefore.discardBefore===0&&receiptBefore.lostzoneBefore===0&&
+      prompt.result!==undefined,
     qualificationScope:'the exact hand payment only'
    };
    audit.physicalPaymentReceipts.push(paymentReceipt);
