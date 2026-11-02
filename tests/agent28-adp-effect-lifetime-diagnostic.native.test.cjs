@@ -74,6 +74,13 @@ for(const seat of [0,1]){
       assert.equal(x.source.alteredCreationDamage,true);
       assert.equal(x.source.usedAlteredCreation,true);
       x.store.dispatch(new AttackAction(x.source.id,'Shadow Mist'));
+      for(let n=0;n<20;n++){
+        const pending=x.store.state.prompts.find(p=>p.result===undefined);
+        if(!pending)break;
+        assert.equal(pending.constructor.name,'WaitPrompt');
+        x.store.dispatch(new ResolvePromptAction(pending.id,null));
+      }
+      assert.equal(x.store.hasPrompts(),false);
     }
     const inPlayDamage=present.opponent.active.damage;
     const afterDiscardDamage=absent.opponent.active.damage;
