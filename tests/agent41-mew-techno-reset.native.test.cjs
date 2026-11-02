@@ -337,7 +337,8 @@ function actorRootTrial(seat){
 
   const first=withActorOnlyRootPolicy(()=>{
     store.dispatch(new AddPlayerAction(owner.id,owner.name,[]));
-    const action=new SimpleTacticsAi(owner.id).decodeNextAction(store.state);
+    const action=new SimpleTacticsAi({id:owner.id},
+      {tactics:[],promptResolvers:[]},null).decodeNextAction(store.state);
     assert.ok(action instanceof PlayCardAction);
     assert.equal(action.handIndex,firstPlan.handIndex);
     store.dispatch(action);
@@ -354,7 +355,8 @@ function actorRootTrial(seat){
   });
   const second=withActorOnlyRootPolicy(()=>{
     store.dispatch(new AddPlayerAction(owner.id,owner.name,[]));
-    const action=new SimpleTacticsAi(owner.id).decodeNextAction(store.state);
+    const action=new SimpleTacticsAi({id:owner.id},
+      {tactics:[],promptResolvers:[]},null).decodeNextAction(store.state);
     assert.ok(action instanceof RetreatAction);
     assert.equal(action.benchIndex,1);
     store.dispatch(action);
