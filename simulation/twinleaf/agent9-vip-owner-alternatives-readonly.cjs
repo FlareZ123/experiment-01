@@ -47,7 +47,7 @@ function withOwnerVipAlternativesReceipt(execute,deps={}){
     const awaiting=isNativeGame?vipAwait.get(this):null;
     let attemptedVip=null,promptWitness=null;
     if(isNativeGame&&action?.constructor?.name==='PlayCardAction'){
-      const seat=players.findIndex(p=>p.id===action.playerId);
+      const seat=players.findIndex(p=>p.id===action.id);
       const player=players[seat];
       const candidate=player?.hand?.cards?.[action.handIndex];
       if(candidate?.fullName===VIP){
