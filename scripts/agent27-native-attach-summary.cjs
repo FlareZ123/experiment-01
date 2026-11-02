@@ -22,6 +22,8 @@ function summarizeArm(arm) {
     actions: arm.game?.actions ?? null,
     settledZoneAnomalies: arm.game?.settledPhysicalZoneAnomalies ?? null,
     nativeReceiptsDetails: receipts,
+    postRoarChampionPassAttackProbes:
+      arm.nativeFollowingOpponentPassAttackProbes??[],
     sourceAttackContinuation:arm.sourceNativeEnergyAttackContinuation?.promptEpisodes
       ?.map(row=>({
         promptId:row.promptId,sourceTurn:row.sourceTurn,status:row.status,
