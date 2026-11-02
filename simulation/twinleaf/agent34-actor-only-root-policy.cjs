@@ -290,6 +290,15 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePublicBusPositionTransition(view,catalog);
     if(lock)return lock;
   }
+  // Owner-public bounded Techno Blast cooldown line. Its first Guzma root
+  // requires the separate native two-prompt owner continuation; the second
+  // ordinary Retreat remains independently validated by the Store.
+  if(options.mewTechnoReset===true){
+    const reset=require('./agent41-mew-techno-reset-frontier.cjs');
+    const planned=reset.chooseGuzmaMewCooldownReset(view,catalog)??
+      reset.chooseFreeRetreatToDceMew(view,catalog);
+    if(planned)return planned;
+  }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
     const first=view.ownHand.findIndex(p=>catalog.basicEnergies.has(p));
     if(first>=0){
@@ -377,15 +386,6 @@ function chooseActorRootIntent(view,catalog,options={}){
     const gust=require('./agent31-final-prize-guzma-frontier.cjs')
       .chooseFinalPrizeGuzma(view,catalog);
     if(gust)return gust;
-  }
-  // Owner-public bounded Techno Blast cooldown line. Its first Guzma root
-  // requires the separate native two-prompt owner continuation; the second
-  // ordinary Retreat remains independently validated by the Store.
-  if(options.mewTechnoReset===true){
-    const reset=require('./agent41-mew-techno-reset-frontier.cjs');
-    const planned=reset.chooseGuzmaMewCooldownReset(view,catalog)??
-      reset.chooseFreeRetreatToDceMew(view,catalog);
-    if(planned)return planned;
   }
   // Opt-in owner-visible Guzma line where both native switch targets are
   // forced and an already funded Bench attack nominally takes a Prize.
