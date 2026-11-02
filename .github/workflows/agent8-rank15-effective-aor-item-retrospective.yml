@@ -18,6 +18,11 @@ on:
         type: boolean
         default: false
         required: false
+      source13_evolution_factorial:
+        description: Run retrospective four-arm rank13 donor by common evolution native diagnostic
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -56,6 +61,11 @@ jobs:
         env:
           AGENT8_RANK13_RESULT_JSON: agent8-original13-donor-paired-native.json
         run: node simulation/twinleaf/agent8-rank13-donor-paired-original-native.cjs
+      - name: Retrospective original-rank13 four-arm donor by two-seat evolution diagnostic
+        if: ${{ inputs.source13_evolution_factorial }}
+        env:
+          AGENT8_RANK13_FACTORIAL_JSON: agent8-original13-donor-evolution-factorial-native.json
+        run: node simulation/evaluation/agent8-rank13-donor-evolution-factorial-native.cjs
       - name: Compare 32 original-source retrospective native policy attempts
         if: ${{ !inputs.fresh_registered && !inputs.native_tests_only }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs
@@ -73,5 +83,6 @@ jobs:
             agent8-rank15-effective-aor-item-fresh-native-raw.json
             agent8-rank15-effective-aor-item-fresh-native-summary.json
             agent8-original13-donor-paired-native.json
+            agent8-original13-donor-evolution-factorial-native.json
           if-no-files-found: warn
           retention-days: 30
