@@ -16,6 +16,8 @@ const BASE=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const HISTORICAL_SEED=214648959;
 const FRESH_START=256;
 const FRESH_COUNT=16;
+const FLEX_FRESH_START=272;
+const FLEX_FRESH_COUNT=32;
 const MAX_ACTIONS=120;
 function sha(data){
   return crypto.createHash('sha256').update(data).digest('hex');
@@ -37,7 +39,7 @@ function compactGame(game){
  *
  * @returns {object} Unconditional native evidence and all attempted rows.
  */
-function run(){
+function run({flexible=false}={}){
   const candidate=require('../../results/aichi-2026/candidate-hood-shadow-rider.json');
   const plan=planAichi(candidate,{
     allowEquivalentBasicEnergies:true,
@@ -52,7 +54,9 @@ function run(){
   const {Store}=require(path.join(BASE,'game/store/store'));
   const fixed=[{trial:'retrospective-original-positive',sourceSeat:0,
     seed:HISTORICAL_SEED,cohort:'retrospective-selected'}];
-  const future=schedule(FRESH_START,FRESH_COUNT).map(row=>({
+  const startIndex=flexible?FLEX_FRESH_START:FRESH_START;
+  const count=flexible?FLEX_FRESH_COUNT:FRESH_COUNT;
+  const future=schedule(startIndex,count).map(row=>({
     ...row,cohort:'precommitted-unselected-extension'
   }));
   const precommitted=[...fixed,...future];
@@ -73,7 +77,7 @@ function run(){
       const baseline=withRank8AuthenticK0Observer(Store,row.sourceSeat,
         ()=>runMatch(request));
       const treatment=withRank8AuthenticK0Observer(Store,row.sourceSeat,
-        ()=>withSharedFirstTurnBoxShake(()=>runMatch(request)));
+        ()=>withSharedFirstTurnBoxShake(()=>runMatch(request),{flexible}));
       assert.deepEqual(baseline.sourceK0,treatment.sourceK0,
         'Source K0 before first native action drifted');
       assert.deepEqual(baseline.result.deckHashes,
@@ -119,9 +123,12 @@ function run(){
     nativeErrors:rows.filter(row=>row.status==='NATIVE_ERROR').length
   });
   return {
-    schema:'agent44-shared-box-shake-original-native-deal-pairs-v1',
+    schema:flexible?'agent44-shared-box-shake-flexible-original-pairs-v2':
+      'agent44-shared-box-shake-original-native-deal-pairs-v1',
     sourceRank:8,sourceOriginal60:true,candidateOriginal60:true,
-    policy:VERSION,selectedPolicyDefaultOff:true,
+    policy:flexible?
+      require('./agent44-owner-boxshake-native-policy.cjs').FLEX_VERSION:VERSION,
+    selectedPolicyDefaultOff:true,flexibleFirstTurnBoxPolicy: Boolean(flexible),
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
     engineRevision:plan.engineRevision,
@@ -132,7 +139,7 @@ function run(){
     sourceK0SourceSha256:sha(fs.readFileSync(path.join(__dirname,
       'agent44-rank8-box-k0-window.cjs'))),
     maxActions:MAX_ACTIONS,manifestSha256,
-    predeclaredFreshIndices:[FRESH_START,FRESH_START+FRESH_COUNT-1],
+    predeclaredFreshIndices:[startIndex,startIndex+count-1],
     historicalPositiveSummary:summary([historical]),
     prospectiveSummary:summary(trials.slice(1)),
     historicalSourceNextOpponentTurnObserved:
@@ -143,5 +150,8 @@ function run(){
     caveat:'One retrospectively selected positive original deal and 16 separate unselected future original deals. Symmetric owner-only opt-in, no illegal hand/deck/Prize swap. A native-accepted scripted first-turn line remains developmental; original opponent decisions and the paper clock are not competitive-qualified. No win-rate inference.'
   };
 }
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={HISTORICAL_SEED,FRESH_START,FRESH_COUNT,MAX_ACTIONS,run};
+if(require.main===module)process.stdout.write(JSON.stringify(run({
+  flexible:process.env.AGENT44_RANK8_BOX_FLEXIBLE==='true'
+}),null,2)+'\n');
+module.exports={HISTORICAL_SEED,FRESH_START,FRESH_COUNT,
+  FLEX_FRESH_START,FLEX_FRESH_COUNT,MAX_ACTIONS,run};
