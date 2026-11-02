@@ -80,6 +80,8 @@ test('Guzma public geometry is bounded and distinguishes missing recipients',()=
   assert.deepEqual(empty.publicGuzmaGeometry,{
     ownActiveOccupied:true,opponentActiveOccupied:true,
     ownBenchCount:0,opponentBenchCount:0,
+    ownActiveEnergyCards:0,ownBenchedEnergyCards:0,
+    ownBenchedPokemonWithEnergy:0,
     opponentGustTargetPresent:false,bothBenchRecipientsPresent:false
   });
   state.players[1].bench.push(slot('Target'));
