@@ -58,6 +58,12 @@ for(const seat of [0,1]){
   s.store.dispatch(new UseAbilityAction(s.owner.id,'Extra Energy Bomb',{
    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
   }));
+  for(let i=0;i<5;i++){
+   const wait=s.state.prompts.find(p=>p.result===undefined&&
+     p.constructor.name==='WaitPrompt');
+   if(!wait)break;
+   s.store.dispatch(new ResolvePromptAction(wait.id,null));
+  }
   const prompt=s.state.prompts.find(p=>p.result===undefined&&
     p.constructor.name==='AttachEnergyPrompt');
   assert.ok(prompt,'Printed CES48 Ability must create real AttachEnergyPrompt');
