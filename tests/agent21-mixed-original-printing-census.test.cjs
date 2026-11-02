@@ -131,3 +131,27 @@ test('cross-deck printing census does not confuse printing differences with effe
   assert.throws(()=>crossDeckPrintingCensus(
     {...source,decks:[source.decks[0],source.decks[0]]},resolver),/Repeated source rank/);
 });
+
+test('both PAL Safeguard original Stall lists lack self-payable Psychic for Ghost Eye',()=>{
+  const originals=require('../results/aichi-2026/full-decklists.json').decks;
+  const expected=[
+    {rank:3,energy:[['Capture Energy',3],['Water Energy',2]],mimikyu:1},
+    {rank:7,energy:[['Capture Energy',2],['Jet Energy',1],['Recycle Energy',1]],mimikyu:3}
+  ];
+  const pal=englishPrintingResolver()('PAL','97','Mimikyu');
+  const ghost=pal.attacks.find(attack=>attack.name==='Ghost Eye');
+  assert.deepEqual(ghost.cost,['Psychic','Colorless']);
+  for(const row of expected){
+    const source=originals.find(deck=>deck.rank===row.rank);
+    assert.ok(source,'Missing rank '+row.rank);
+    assert.equal(source.cards.filter(c=>c.name==='Mimikyu'&&
+      c.printing.set==='PAL'&&String(c.printing.number)==='97')
+      .reduce((n,c)=>n+c.count,0),row.mimikyu);
+    assert.deepEqual(source.cards.filter(c=>c.category==='Energy')
+      .map(c=>[c.name,c.count]).sort((a,b)=>a[0].localeCompare(b[0])),
+      row.energy);
+    assert.ok(source.cards.filter(c=>c.category==='Energy').every(c=>
+      c.name==='Capture Energy'||c.name==='Recycle Energy'||
+      c.name==='Jet Energy'||c.name==='Water Energy'));
+  }
+});
