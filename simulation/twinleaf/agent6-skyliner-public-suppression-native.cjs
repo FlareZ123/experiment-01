@@ -47,7 +47,7 @@ const MODES=['baseline','path','silent','klefki','thorns',
  */
 function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   attackFollowup=false,nativePlayJammer=false,opponentReply=false,
-  nativeEndOpponentTurn=false}={}){
+  nativeEndOpponentTurn=false,opponentPassOnly=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -62,7 +62,9 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const opponentToolJammer=(mode.endsWith('-jammer')||
     mode.includes('-jammer-jamming'))&&!opponentBenchJammer;
   assert.ok(!nativePlayJammer||opponentToolJammer);
-  assert.ok(!nativeEndOpponentTurn||nativePlayJammer);
+  assert.ok(!nativeEndOpponentTurn||nativePlayJammer||opponentPassOnly);
+  assert.ok(!(nativePlayJammer&&opponentPassOnly));
+  assert.ok(!opponentPassOnly||!opponentToolJammer);
   const stadiumToolJamming=mode.endsWith('-jamming');
   const manager=initializeCards();
   let id=1;
@@ -132,15 +134,17 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   if(opponentToolJammer&&!nativePlayJammer)
     enemy.active.tools.push(card('Tool Jammer BST'));
   let nativeJammerPlayReceipt=null;
-  if(nativePlayJammer){
+  if(nativePlayJammer||opponentPassOnly){
     const actualJammer=card('Tool Jammer BST');
     enemy.hand.cards.push(actualJammer);
     const handBefore=enemy.hand.cards.map(c=>c.fullName);
     state.activePlayer=1-sourceSeat;
     let playError=null;
-    try{store.dispatch(new PlayCardAction(enemy.id,0,{
-      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}));}
-    catch(error){playError=String(error?.message??error);}
+    if(nativePlayJammer){
+      try{store.dispatch(new PlayCardAction(enemy.id,0,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0}));}
+      catch(error){playError=String(error?.message??error);}
+    }
     nativeJammerPlayReceipt={
       playError,handBefore,
       handAfter:enemy.hand.cards.map(c=>c.fullName),
@@ -175,8 +179,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
           .map(p=>p.constructor.name);
     }else state.activePlayer=sourceSeat;
     assert.equal(playError,null);
-    assert.equal(nativeJammerPlayReceipt.attachedToTarget,true);
-    assert.equal(nativeJammerPlayReceipt.inHandAfter,false);
+    assert.equal(nativeJammerPlayReceipt.attachedToTarget,nativePlayJammer);
+    assert.equal(nativeJammerPlayReceipt.inHandAfter,opponentPassOnly);
   }
   if(baseMode==='garbotoxin'){
     const slot=addBench(enemy,'Garbodor BKP');
@@ -346,6 +350,11 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
       nativeJammerPlayReceipt.nativeTurnEnd.afterTurn>
         nativeJammerPlayReceipt.nativeTurnEnd.beforeTurn&&
       nativeJammerPlayReceipt.nativeTurnEnd.pendingPromptTypes.length===0),
+    nativeOpponentPassCardPreservedAsPaper:!opponentPassOnly||(
+      nativeJammerPlayReceipt.playError===null&&
+      !nativeJammerPlayReceipt.attachedToTarget&&
+      nativeJammerPlayReceipt.inHandAfter&&
+      !nativeJammerPlayReceipt.inEnemyDiscard),
     nativeJammerPaymentAsPaper:!nativePlayJammer||(
       nativeJammerPlayReceipt.playError===null&&
       nativeJammerPlayReceipt.attachedToTarget&&
@@ -414,6 +423,20 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runPairedJammerTurnCounterfactual(){
+  const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+      effectRepair:true,nativeEndOpponentTurn:true,
+      nativePlayJammer:mode.endsWith('-jammer'),
+      opponentPassOnly:!mode.endsWith('-jammer'),
+      attackFollowup:true,opponentReply:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {version:VERSION,pairedJammerTurnCounterfactual:true,
+    rows,stagedNativeCases:rows.length,failures,
+    failedChecks:failures.length,qualifiedCompetitiveGames:0};
+}
 function runNativePlayedJammerTurnBoundaryRepair(){
   const rows=['path-float-jammer','thorns-stealthyhood-jammer']
     .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
@@ -478,7 +501,9 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_NATIVE_JAMMER_REAL_TURN_DEV==='true'?
+  const result=process.env.AGENT6_PAIRED_JAMMER_TURN_DEV==='true'?
+    runPairedJammerTurnCounterfactual():
+    process.env.AGENT6_NATIVE_JAMMER_REAL_TURN_DEV==='true'?
     runNativePlayedJammerTurnBoundaryRepair():
     process.env.AGENT6_HOOD_OPPONENT_REPLY_DEV==='true'?
     runHoodOpponentReplyRepair():
@@ -494,4 +519,5 @@ if(require.main===module){
 }
 module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
   runHoodAttackRepair,runNativePlayedJammerRepair,
-  runHoodOpponentReplyRepair,runNativePlayedJammerTurnBoundaryRepair};
+  runHoodOpponentReplyRepair,runNativePlayedJammerTurnBoundaryRepair,
+  runPairedJammerTurnCounterfactual};
