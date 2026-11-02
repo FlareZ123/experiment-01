@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent6-owner-public-skyliner-rondo-mobility-v2-nominal-ko';
+const VERSION='agent6-owner-public-skyliner-rondo-mobility-v3-public-ability-lock-veto';
 
 /**
  * Offer a public nominal Prize attack, using a zero-cost Skyliner retreat
@@ -38,6 +38,19 @@ function chooseOwnerSkylinerRondoRetreat(view,catalog){
   const latias=slot=>slot?.printing==='Latias ex SSP'&&
     slot.abilities?.includes('Skyliner');
   if(!latias(active)&&!own.bench.some(latias))return null;
+  // Printed abilities in actor observations remain listed even when a
+  // publicly known lock makes their effects inactive. This conservative
+  // gate avoids proposing Skyliner-based free Retreat under those locks.
+  const stadium=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])];
+  if(stadium.some(p=>p.startsWith('Path to the Peak ')))return null;
+  const opponent=view.opponentPublic;
+  if(opponent?.active?.printing==='Iron Thorns ex TWM'&&
+     opponent.active.abilities?.includes('Initialization'))return null;
+  const opponentPokemon=[opponent?.active,...(opponent?.bench??[])];
+  if(opponentPokemon.some(p=>p?.abilities?.includes('Garbotoxin')&&
+     Array.isArray(p.tools)&&p.tools.length>0))return null;
+
   if(!Array.isArray(active.energies))return null;
   const unchargedLatias=active.printing==='Latias ex SSP'&&
     active.energies.length===0;
