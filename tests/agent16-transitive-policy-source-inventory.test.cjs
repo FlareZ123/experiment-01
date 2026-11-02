@@ -31,6 +31,8 @@ test('transitive source closure captures every reviewed policy key and audits re
     distinctExternalPackages:new Set(x.externalPackages.map(v=>v.spec)).size,
     sourceDigestSha256:x.sourceDigestSha256
   }));
+  console.log('UNPARSED_STATIC_REQUIRE_SITE_COUNTS '+
+    JSON.stringify(x.unparsedRequires));
   if(additional.length){
     console.log('UNREVIEWED_POLICY_KEYS '+JSON.stringify(additional.map(key=>({
       key,sources:x.records.filter(record=>record.keys.includes(key))
