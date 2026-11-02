@@ -38,7 +38,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Pure owner-plan selectors, lifecycle and fail-closed original-six pairing
-        run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs tests/agent1-public-prize-turn-closure.test.cjs tests/agent1-public-prize-hypothetical-cutoffs.test.cjs
+        run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs tests/agent1-public-prize-turn-closure.test.cjs tests/agent1-public-prize-hypothetical-cutoffs.test.cjs tests/agent1-late-source-own-state-observer.test.cjs
       - name: Original six K0 owner-visible Star-VIP native plan
         if: inputs.experiment == 'owner-starvip'
         run: node simulation/evaluation/agent1-rank11-owner-starvip-autonomy-original-six.cjs > agent1-owner-starvip-native.json
