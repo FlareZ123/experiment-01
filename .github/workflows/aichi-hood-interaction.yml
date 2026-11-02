@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_canonical_boxshake_fresh32:
+        description: 'Preregistered 32 original source deals 370-401, actual shared canonical both-seat actor plus optional inner v3 Box-Shake; requires canonical_boxshake_pilot'
+        type: boolean
+        default: false
       agent44_rank8_canonical_boxshake_pilot:
         description: 'Default-off shared canonical both-seat actor plus actual inner-owner flexible Box source pilot (one historical and two unselected original source deals)'
         type: boolean
@@ -254,6 +258,8 @@ jobs:
         run: node --test tests/agent44-canonical-boxshake-composition.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs tests/agent44-boxshake-opponent-reply-packet.test.cjs
       - name: Execute exact original canonical both-seat shared Box native pilot
         if: inputs.agent44_rank8_canonical_boxshake_pilot
+        env:
+          AGENT44_RANK8_CANONICAL_FRESH32: ${{ inputs.agent44_rank8_canonical_boxshake_fresh32 }}
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
