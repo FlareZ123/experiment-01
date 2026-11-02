@@ -1,6 +1,33 @@
 'use strict';
 
 /**
+ * Record each physical card's original player before the first shuffle.
+ * The native headless runner calls this after adding two complete decks.
+ * This object-identity map is never given to an actor or policy.
+ *
+ * @param {{players:object[]}} state Native pre-setup Store state.
+ * @param {number} [expected=60] Registered deck size.
+ * @returns {Map<object,number>} Original physical reference => owner seat.
+ */
+function captureInitialPhysicalOwners(state,expected=60){
+  if(!Array.isArray(state.players)||state.players.length!==2 ||
+      !Number.isSafeInteger(expected)||expected<1)
+    throw new Error('Two registered complete original decks required');
+  const owners=new Map();
+  for(const [seat,player] of state.players.entries()){
+    const cards=player.deck?.cards;
+    if(!Array.isArray(cards)||cards.length!==expected)
+      throw new Error('Pre-setup original deck must contain '+expected+' cards');
+    for(const card of cards){
+      if(owners.has(card))
+        throw new Error('Original physical reference shared between decks');
+      owners.set(card,seat);
+    }
+  }
+  return owners;
+}
+
+/**
  * Diagnose physical-card reference ownership in pinned Twinleaf State.
  *
  * CardList.cards and PokemonCardList.tools are canonical locations. energies.cards
@@ -11,13 +38,18 @@
  * This audit is read-only and independent of card names or hidden card faces.
  *
  * @param {{players: object[]}} state Current live Store state.
+ * @param {Map<object,number>|null} [originalOwners=null] Optional original
+ *   physical card owner reference map captured before the first shuffle.
  * @returns {{schema: string, canonicalCounts: number[], referenceDuplications:
  * Array<{locations: string[]}>, energyWithoutPhysicalCard:
  * Array<{location: string, count: number}>, repeatedEnergyIndexes:
  * Array<{location: string, count: number}>}}
  */
-function inspectPhysicalCardZones(state) {
+function inspectPhysicalCardZones(state,originalOwners=null) {
   const seen = new Map();
+  const displacedOriginalReferences=[];
+  const unregisteredOriginalReferences=[];
+
   const doubled = new Map();
   const canonicalCounts = state.players.map(() => 0);
   const energyWithoutPhysicalCard = [];
@@ -27,6 +59,16 @@ function inspectPhysicalCardZones(state) {
   function visit(list, label, seat) {
     for (const card of list.cards) {
       canonicalCounts[seat]++;
+      if(originalOwners){
+        const originalSeat=originalOwners.get(card);
+        if(originalSeat===undefined){
+          unregisteredOriginalReferences.push({location:label,locatedSeat:seat});
+        }else if(originalSeat!==seat){
+          displacedOriginalReferences.push({
+            location:label,locatedSeat:seat,originalSeat
+          });
+        }
+      }
       const previous = seen.get(card);
       if (previous === undefined) {
         seen.set(card, label);
@@ -91,13 +133,27 @@ function inspectPhysicalCardZones(state) {
     }
   }
 
+  const missingOriginalCounts=originalOwners?
+    state.players.map(()=>0):null;
+  if(originalOwners){
+    for(const [card,seat] of originalOwners){
+      if(!seen.has(card))missingOriginalCounts[seat]++;
+    }
+  }
+
   return {
     schema: 'twinleaf-physical-reference-ownership-v1',
     canonicalCounts,
     transientPromptCustody,
     referenceDuplications: [...doubled.values()].map(locations => ({locations})),
     energyWithoutPhysicalCard,
-    repeatedEnergyIndexes
+    repeatedEnergyIndexes,
+    ...(originalOwners?{originalOwnerCustody:{
+      originalCardCount:originalOwners.size,
+      displacedOriginalReferences,
+      unregisteredOriginalReferences,
+      missingOriginalCounts
+    }}:{})
   };
 }
 
@@ -127,5 +183,5 @@ function locatedOrPromptCountAnomalies(ledger, expected = 60) {
   });
 }
 
-module.exports = {inspectPhysicalCardZones, fixedDeckCountAnomalies,
-  locatedOrPromptCountAnomalies};
+module.exports = {captureInitialPhysicalOwners,inspectPhysicalCardZones,
+  fixedDeckCountAnomalies,locatedOrPromptCountAnomalies};
