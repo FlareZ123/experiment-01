@@ -98,9 +98,30 @@ function continueAfterFiveKOs(f){
   assert.equal(source.getPrizeLeft(),6);
 
   const receipts=[];
-  const cologne=play(f,'Canceling Cologne',board,receipts);
+  // Exercise a genuine owner-only SimpleTacticsAi root at the prepared
+  // five-KO source state. This optional extension preserves the frozen
+  // canonical rank26 profile's earlier Active-Meloetta-only behavior.
+  const {withRank26CologneOpener}=
+    require('./rank26-cologne-opener.cjs');
+  const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+  const colPolicy=withRank26CologneOpener(f.sourceSeat,()=>{
+    const actor={client:{id:source.id}};
+    const selected=SimpleTacticsAi.prototype.decodeNextAction.call(actor,f.state);
+    assert.equal(selected?.constructor.name,'PlayCardAction');
+    const physicalCard=source.hand.cards[selected.handIndex];
+    assert.equal(physicalCard?.name,'Canceling Cologne');
+    f.store.dispatch(selected);
+    return physicalCard;
+  },{unlockBenchedKoko:true});
+  const cologne=colPolicy.result;
+  assert.equal(colPolicy.policyAudit.version,'rank26-cologne-pre-koko-v2');
+  assert.equal(colPolicy.policyAudit.opportunitiesSelected,1);
   assert.ok(source.discard.cards.includes(cologne),
     'Cologne must enter owner discard before suppressed Koko use');
+  receipts.push({phase:'native-owner-only-pre-koko-cologne',
+    card:cologne.fullName,cardId:cologne.id,
+    policy:colPolicy.policyAudit.version,
+    source:colPolicy.policyAudit.actions[0]?.source});
   const koko=source.bench[1].getPokemonCard();
   assert.equal(koko?.name,'Tapu Koko Prism Star');
 
@@ -196,7 +217,9 @@ function continueAfterFiveKOs(f){
     opponentPrizesBeforeAttack:1,sourceActive:'Meloetta ex SV11B',
     attack:'Crisis Punch',sourceEnergy:['Lightning Energy',
       'Double Colorless Energy'],kokoTwoDistinctBenchRecipients:true,
-    heldColognePlayedBeforeKoko:true,sourceEscapeRopePromotion:true,
+    heldColognePlayedBeforeKoko:true,
+    preKokoColognePolicy:colPolicy.policyAudit,
+    sourceEscapeRopePromotion:true,
     opponentSoleActiveKnockedOut:true,receipts,
     stagedInitialCards:true,actualRandomDeal:false,
     rootPaper:'unverified-original-hands-staged',
