@@ -1,0 +1,29 @@
+{
+  "schema": "agent14-new-original-source-rank17-v1",
+  "date": "2026-11-02",
+  "registeredBeforeNative": true,
+  "sourceRank": 17,
+  "sourceArchetype": "Raichu Electrode Combo",
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "groups": [
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2494066265
+    },
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2674729000
+    }
+  ],
+  "sampling": "Python secrets.randbelow(2**32), no observed rank17 native result before registration",
+  "experimentalStatus": "unqualified-native-competency-development",
+  "competitiveGames": 0
+}
