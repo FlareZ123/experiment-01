@@ -48,12 +48,19 @@ function preflight(root=ROOT,environment=process.env,chosen=profile){
   assert.ok(original);
   assert.equal(original.cards.reduce((n,card)=>n+card.count,0),60);
   assert.equal(new Set(chosen.seeds.map(s=>s.seat)).size,2);
-  assert.deepEqual(chosen.seeds.map(s=>s.seat).sort(),['A','B']);
+  const seatCounts=chosen.seeds.reduce((counts,row)=>{
+    assert.ok(row.seat==='A'||row.seat==='B');
+    counts[row.seat]=(counts[row.seat]??0)+1;
+    return counts;
+  },{});
+  assert.equal(seatCounts.A,seatCounts.B,
+    'Release comparison must balance physical candidate seats');
   const trials=chosen.seeds.flatMap((s,i)=>chosen.candidateIds.map(
     candidateId=>({id:[chosen.rank,i,s.seat,candidateId].join(':'),
       rank:chosen.rank,repeat:i,candidateSlot:s.seat,
       candidateId,seed:s.seed})));
-  assert.equal(trials.length,4);
+  assert.equal(trials.length,chosen.expectedArms);
+  assert.equal(new Set(trials.map(row=>row.id)).size,trials.length);
   const closure=auditSourceClosure(root,[chosen.runner]);
   const closurePinned=typeof chosen.verifiedClosureSha256==='string'&&
     closure.digest===chosen.verifiedClosureSha256 &&
