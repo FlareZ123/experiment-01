@@ -801,9 +801,8 @@ jobs:
           node simulation/evaluation/agent16-original-rank16-natural-lock-fork.cjs --inspect-only
       - name: Execute exactly sixteen naturally selected original rank16 native source attempts
         run: node simulation/evaluation/agent16-original-rank16-natural-lock-fork.cjs > agent16-rank16-all-16-native-attempts.json
-      - name: Emit bounded nonselective rank16 first-owner-turn summary
-        run: |
-          node -e "const a=require('node:assert/strict');const r=require('./agent16-rank16-all-16-native-attempts.json');a.equal(r.attempted,16);a.equal(r.competitivelyQualifiedGames,0);console.log('AGENT16_RANK16_NATIVE',JSON.stringify({dispositions:r.dispositions,starts:r.starts,originalFirstTurn:r.firstTurnRoots,ownerOpening:r.observations.map(x=>({id:x.trialId,start:x.ownerOpening?.sourceStartedFirst,status:x.status,actions:x.ownerOpening?.actions,reply:x.ownerOpening?.firstSubsequentOpponentRoot,opening:x.ownerOpening?.firstOwnerHandCounts}))})));"
+      - name: Emit compact, independently audited original rank16 Store dispositions
+        run: node scripts/agent16-rank16-native-archive-summary.cjs agent16-rank16-all-16-native-attempts.json
       - name: Archive every original Store rank16 printed-source attempt, caps, errors and initial deals
         if: always()
         uses: actions/upload-artifact@v4
