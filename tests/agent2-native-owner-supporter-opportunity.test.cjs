@@ -9,8 +9,11 @@ class AddPlayerAction{constructor(id){this.id=id;}}
 class PassTurnAction{constructor(id){this.id=id;}}
 class PlayCardAction{constructor(id,handIndex){this.id=id;this.handIndex=handIndex;}}
 class AttackAction{constructor(id){this.id=id;}}
-function slot(name=null){
-  return {getPokemonCard(){return name===null?null:{name};}};
+function slot(name=null,energies=0){
+  return {
+    getPokemonCard(){return name===null?null:{name};},
+    energies:{cards:Array.from({length:energies},()=>({name:'Energy'}))}
+  };
 }
 function player(id,cards=[]){
   return {id,hand:{cards},deck:{cards:['x']},supporterTurn:0,
@@ -88,8 +91,19 @@ test('Guzma public geometry is bounded and distinguishes missing recipients',()=
   assert.equal(both.publicGuzmaGeometry.ownBenchCount,1);
   assert.equal(both.publicGuzmaGeometry.opponentBenchCount,1);
   assert.equal(both.publicGuzmaGeometry.bothBenchRecipientsPresent,true);
+  assert.equal(both.publicGuzmaGeometry.ownBenchedEnergyCards,0);
+  assert.equal(both.publicGuzmaGeometry.ownBenchedPokemonWithEnergy,0);
   assert.equal(both.geometryOnlyNoPaperTargetCertification,true);
-  assert.equal(JSON.stringify(both).includes(hidden),false);
+  assert.equal(both.attachedEnergyIsInvestmentOnlyNoAttackPayabilityCertification,
+    true);
+  state.players[0].active.energies.cards.push({name:'Active Energy'});
+  state.players[0].bench[0].energies.cards.push(
+    {name:'Bench Energy 1'},{name:'Bench Energy 2'});
+  const invested=ownerSupporterOpportunity(state,0,SUPPORTER);
+  assert.equal(invested.publicGuzmaGeometry.ownActiveEnergyCards,1);
+  assert.equal(invested.publicGuzmaGeometry.ownBenchedEnergyCards,2);
+  assert.equal(invested.publicGuzmaGeometry.ownBenchedPokemonWithEnergy,1);
+  assert.equal(JSON.stringify(invested).includes(hidden),false);
 });
 test('accepted native first roots and Pass capture both seats before advancing',()=>{
   const store=new Store();
