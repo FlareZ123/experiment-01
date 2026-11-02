@@ -57,6 +57,35 @@ function publicOwnerBoard(player){
 }
 
 /**
+ * Count each physically attached Basic Energy card on the source's visible
+ * board and list printed attacks for every funded possible promotion.
+ * These printed costs/damage are a public preflight, not native permission,
+ * modified damage, GX availability or guaranteed Basic discard payment.
+ * @param {object} view Detached actorObservation owned by source actor.
+ * @returns {object} Public card and attack opportunities only.
+ */
+function sourcePublicAttackInventory(view){
+  const entries=[view.ownPublic.active,...view.ownPublic.bench]
+    .filter(Boolean);
+  const basicName=/^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy /;
+  return {
+    totalSourceAttachedBasicEnergyCards:entries.reduce((sum,p)=>
+      sum+p.energies.filter(energy=>basicName.test(energy)).length,0),
+    candidates:entries.map(p=>({
+      printing:p.printing,
+      active:p===view.ownPublic.active,
+      energies:[...p.energies],
+      damage:p.damage,
+      attacks:p.attacks.map(a=>({
+        name:a.name,cost:[...a.cost],damage:a.damage,
+        damageCalculation:a.damageCalculation,
+        gxAttack:a.gxAttack
+      }))
+    }))
+  };
+}
+
+/**
  * Post-identity read-only original Store dispatch observer. Collects source
  * owner root position before each actual native action; never substitutes a
  * decision or consults any hidden zone during decision-making. The frozen
@@ -135,7 +164,14 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         retreatedTurn:nextOwner.retreatedTurn,
         remainingPrizes:nextOwner.getPrizeLeft(),
         pendingPromptTypes:(next.prompts??[])
-          .filter(p=>p.result===undefined).map(p=>p.constructor.name)
+          .filter(p=>p.result===undefined).map(p=>p.constructor.name),
+        ...(next.phase===GamePhase.PLAYER_TURN&&
+           next.activePlayer===session.sourceSeat&&
+           !(next.prompts??[]).some(p=>p.result===undefined)?{
+          ownPublicAttackInventory:sourcePublicAttackInventory(
+            require('./actor-observation-contract.cjs')
+              .actorObservation(next,session.sourceSeat))
+        }:{})
       };
     }
     if(session?.sourceSeat!==null&&session?.sourceSeat!==undefined&&
@@ -234,5 +270,5 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
 }
 
 module.exports={VERSION,RAGING,countSourceRagingCopies,
-  publicOwnerBoard,observedMobilityProposal,
+  publicOwnerBoard,observedMobilityProposal,sourcePublicAttackInventory,
   withRank19NativePublicActiveReadOnly};
