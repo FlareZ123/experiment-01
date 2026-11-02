@@ -1,0 +1,20 @@
+{
+  "schema": "agent1-retrospective-original-rank11-last-prize-native-public-closeout-diagnosis-v1",
+  "registeredAt": "2026-11-02T09:18:30Z",
+  "classification": "RETROSPECTIVE_OBSERVATIONAL_NO_CONTEST_WIN_RATE",
+  "question": "In the originally registered exact source-dealt two-VMAX Radiant branch, rank11 has one Prize remaining after T30 but rank1 wins at T46. Which actual source and recipient public root actions occur from T29 through terminal, and can an unsupported source-policy pass/energy setup failure be isolated before asserting a strategic deck weakness?",
+  "runParent": 41418671363,
+  "sourceHead": "68891b8b231e39bf40289693788027c8d73d0449",
+  "seed": 2387754768,
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "recipientRank": 1,
+  "recipientSeat": 1,
+  "sourceK0HandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "bothPlayerFullInitialPhysicalSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "engine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fourArms": "Exact prior four source-deal native branches, unchanged source and recipient card lists/policies and 350 root action cap",
+  "observation": "Add read-only all actual Store root action events in 29..46 with public named cards/abilities/attacks and optional native public attack before/after evidence. Do not make new player choices or alter the RNG.",
+  "expectation": "The precise four native winners/actions/turns must equal [rank1:199/T28,rank11:215/T30,rank1:283/T46,rank1:195/T30]. The late two-VMAX branch may reveal long passes or other unsupported policy behavior; no claim of misplay without owner-action availability.",
+  "noClaim": "No clock, no source opponent competence, no prospective game sample, zero certified competitive games."
+}
