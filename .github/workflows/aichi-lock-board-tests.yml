@@ -229,6 +229,9 @@ jobs:
           name: agent18-exeggutor-blockade-printed-coverage-20261102
           path: agent18-blockade-native-coverage.json
           if-no-files-found: warn
+      - name: Agent18 pinned native Wally first-turn evolution and EX target eligibility differential
+        if: inputs.agent33_stadium_mode == 'blockade'
+        run: node --test tests/agent18-native-wally-prompt-target.test.cjs
       - name: Agent18 pinned two-seat Blockade Supporter lock and expiry Store contract
         if: inputs.agent33_stadium_mode == 'blockade'
         run: node simulation/twinleaf/agent18-exeggutor-blockade-native.cjs > agent18-blockade-native.json
