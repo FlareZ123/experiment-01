@@ -1,0 +1,66 @@
+{
+  "schema": "agent4-original-rank1-astral-versus-rank6-iron-thorns-prospective-v1",
+  "preparedAtUtc": "2026-11-02T05:05:20Z",
+  "agent": "Agent 4",
+  "sourceRank": 6,
+  "candidateRank": 1,
+  "originalRank1Printed60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "originalRank6Printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "paperPromptPortfolioVersion": "agent41-unified-paper-prompt-contract-portfolio-v10-ultra-ball-mandatory-cost",
+  "randomSeedProtocol": "python secrets.randbits(32) once before any native experiment",
+  "randomSeeds": [
+    1015365796,
+    2565306089,
+    217633110,
+    460334966
+  ],
+  "physicalCandidateSeats": [
+    0,
+    1
+  ],
+  "armsPerPhysicalSeat": 8,
+  "attemptedArmsPlanned": 16,
+  "treatments": [
+    "original-native-CRE74-reducer",
+    "opt-in-original-CRE74-Astral-Barrage-paper-correction"
+  ],
+  "maxActions": 180,
+  "source": "Aichi original rank6 Kazuma Kashi Iron Thorns exact 60",
+  "candidate": "Aichi rank1 champion reference Shadow Rider Calyrex exact 60",
+  "selectedFlags": {
+    "strictPromptValidation": true,
+    "forestSealSearchCorrection": true,
+    "doubleDragonRecovery": true,
+    "supporterDecisionCorrection": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "capturePublicAttackTransitions": true,
+    "captureInitialSourceDealFingerprintSeat": "actual opponent seat",
+    "captureInitialFullPhysicalDeal": true,
+    "captureFinalPublicBoard": true,
+    "leleEntryAbilityLockCorrection": true,
+    "radiantGateLockCorrection": true,
+    "entryDrawLockCorrection": true,
+    "commonPaperPromptGuard": "both arms default-off outside this experiment",
+    "astralPaperReducer": "treatment arm only"
+  },
+  "hypothesis": "The printed Astral Barrage chooses up to two opposing Pokémon including Active, while the pinned original reducer incorrectly computes target count using only occupied opponent Bench. A corrected genuine reducer could alter a natural owner-selected Astral attack if it occurs.",
+  "outcomes": [
+    "NOT_ENCOUNTERED",
+    "NATIVE_ERROR",
+    "CENSORED_ACTION_LIMIT",
+    "ENGINE_TERMINAL_UNQUALIFIED"
+  ],
+  "pairingRule": "only same original candidate, physical seat, seed, sourceDealSha256 and fullDealSha256 are comparable; never pool unpaired arms",
+  "inference": "developmental native Store source competency; no game has paper-rule, policy quality, timer or actual competitive win qualification",
+  "frozenGitBlobShas": {
+    "simulation/evaluation/agent4-astral-rank1-rank6-natural-contrast.cjs": "e2f893670649cd4692704dbcba27e855b8a8fd13",
+    "simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs": "e9c148532d72dcfbe5417641eab0836faee2267f",
+    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "41ac8093e60357c572e181760ec382cb27710072",
+    "simulation/twinleaf/headless.cjs": "1690ea77ce92c9694b6e04da6dcf6159bae64160",
+    "simulation/evaluation/aichi-pilot.cjs": "334a7071f228c4d87dbc6a1914092da9d53218ec",
+    "results/aichi-2026/full-decklists.json": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "results/aichi-2026/original-printed60-admission-v1.json": "62abf0d96542eb04b2e2500e8b7b10d5e3e94225"
+  }
+}
