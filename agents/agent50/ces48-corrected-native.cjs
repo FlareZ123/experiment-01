@@ -26,3 +26,4 @@ function stage(seat){
  const owner=new Player(),foe=new Player();
  owner.id=501;foe.id=502;
  owner.bench=Array.from({length:5},()=>new PokemonCardList());
+ foe.bench=Array.from({length:5},()=>new PokemonCardList());
