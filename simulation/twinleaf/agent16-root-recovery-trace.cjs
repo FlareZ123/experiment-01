@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const VERSION='agent16-accepted-root-sequential-recovery-v2-public-target-evidence';
+const VERSION='agent16-accepted-root-sequential-recovery-v3-native-turn-advance';
 
 /**
  * Conservative identity of a root proposal based on its owner-visible
@@ -76,8 +76,11 @@ function matchingExplicitEnergyTarget(proposed,realized){
  * strategic value of originally offered actions remain unknown.
  *
  * Input consists only of authentic accepted actor roots in Store order.
- * Attacks and Pass close the owner's root-turn. Capped/truncated final turns
- * are separately censored rather than counted as missed actions.
+ * Attacks and Pass close the owner's root-turn. An optional
+ * `nativeSettledTurnAfter` attests the actual post-prompt Store turn after
+ * the root fully resolved; a strictly later native turn closes nonattacking
+ * terminal effects too. Unobserved post-prompt states remain censored.
+ * Capped/truncated final turns are not counted as missed actions.
  *
  * @param {object[]} events Chronological accepted native owner-root events.
  * @returns {object} Partial evidence about sequential opportunity recovery.
@@ -87,6 +90,7 @@ function traceAcceptedOwnerRootRecoveries(events){
   const open={0:new Map(),1:new Map()};
   const lastTurn={0:null,1:null};
   let previousGlobalTurn=0,previousSeat=null;
+  let minimumNextGlobalTurn=1;
   const evidence=[];
   const counts={acceptedRoots:0,alternativeOffers:0,
     distinctDeferrableOffers:0,repeatedOffers:0,
@@ -95,7 +99,8 @@ function traceAcceptedOwnerRootRecoveries(events){
     recoveredExplicitEnergyTargetWithEffect:0,
     expiredAtTurnEnd:0,closedOnNextOwnerTurn:0,
     censoredAfterLastRoot:0,immediateCompetingQuota:0,
-    immediateTurnEnding:0};
+    immediateTurnEnding:0,nativeAttestedTurnEnds:0,
+    nativeAttestedNonattackTurnEnds:0};
   const records={recovered:[],expired:[],censored:[]};
   const append=(group,row)=>{
     if(records[group].length<40)records[group].push(row);
@@ -123,6 +128,8 @@ function traceAcceptedOwnerRootRecoveries(events){
     assert.ok(Array.isArray(e.alternatives));
     assert.ok(e.globalTurn>=previousGlobalTurn,
       'Split native clock resets into distinct episodes before recovery analysis');
+    assert.ok(e.globalTurn>=minimumNextGlobalTurn,
+      'Accepted root cannot remain on a native-attested already-ended turn');
     assert.ok(e.globalTurn!==previousGlobalTurn||
       previousSeat===null||e.seat===previousSeat,
       'Two actors cannot take independent roots on the same global turn');
@@ -165,6 +172,19 @@ function traceAcceptedOwnerRootRecoveries(events){
       if(open[seat].has(key)){counts.repeatedOffers++;continue;}
       counts.distinctDeferrableOffers++;
       open[seat].set(key,{...alternative,globalTurn:e.globalTurn,ordinal});
+    }
+    if(e.nativeSettledTurnAfter!==undefined){
+      assert.ok(Number.isSafeInteger(e.nativeSettledTurnAfter)&&
+        e.nativeSettledTurnAfter>=e.globalTurn,
+        'Post-prompt native Store turn must be a nondecreasing integer');
+      if(e.nativeSettledTurnAfter>e.globalTurn){
+        counts.nativeAttestedTurnEnds++;
+        if(e.kind!=='attack'&&e.kind!=='pass')
+          counts.nativeAttestedNonattackTurnEnds++;
+        minimumNextGlobalTurn=e.nativeSettledTurnAfter;
+        close(seat,'turn-ended');
+        continue;
+      }
     }
     if(e.kind==='attack'||e.kind==='pass')
       close(seat,'turn-ended');
