@@ -46,7 +46,7 @@ function readWait(f) {
  * discard. The other Lightning remains in the original physical deck zone.
  * @param {object} f
  */
-function oneLightningAfterFiveKOs(f){
+function oneLightningAfterFiveKOs(f,{ownerColognePolicy=false}={}){
   const own=f.own,opp=f.opponent;
   const ownIds=ids(own),opponentIds=ids(opp);
   assert.equal(ownIds.length,60);
@@ -69,7 +69,29 @@ function oneLightningAfterFiveKOs(f){
   assert.deepEqual(ids(own),ownIds);
   const receipts=[];
 
-  const cologne=playNative(f,'Canceling Cologne',board);
+  let cologne;
+  if(ownerColognePolicy){
+    const {withRank26CologneOpener}=
+      require('./rank26-cologne-opener.cjs');
+    const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+    const policy=withRank26CologneOpener(f.sourceSeat,()=>{
+      const actor={client:{id:own.id}};
+      const selected=SimpleTacticsAi.prototype.decodeNextAction.call(actor,f.state);
+      assert.equal(selected?.constructor.name,'PlayCardAction');
+      const chosen=own.hand.cards[selected.handIndex];
+      assert.equal(chosen?.name,'Canceling Cologne');
+      f.store.dispatch(selected);
+      return chosen;
+    },{unlockBenchedKoko:true,minimumDiscardLightning:1});
+    assert.equal(policy.policyAudit.version,
+      'rank26-cologne-pre-koko-single-lightning-v3');
+    assert.equal(policy.policyAudit.opportunitiesSelected,1);
+    cologne=policy.result;
+    receipts.push({step:'SourceOwnerOneLightningColognePolicy',
+      version:policy.policyAudit.version,opportunities:1});
+  }else{
+    cologne=playNative(f,'Canceling Cologne',board);
+  }
   assert.equal(own.discard.cards.includes(cologne),true);
   receipts.push({step:'Cologne',card:cologne.fullName,id:cologne.id,
     physicallyDiscarded:true});
@@ -145,7 +167,7 @@ function oneLightningAfterFiveKOs(f){
     originalSecondLightningNotRequiredForAttack:true,
     stagedSourceHand:true,stagedSourceLightning:true,
     randomizedOriginalSourceDeal:false,competitiveGameQualified:false,
-    receipts};
+    ownerColognePolicy,receipts};
 }
 
 /** @returns {object} */
