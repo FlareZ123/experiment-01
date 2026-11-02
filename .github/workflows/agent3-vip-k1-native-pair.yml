@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank26_post_compressor_gates_v21:
+        description: 'Same-deal retrospective first-turn physical settlement and source prerequisite gates'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -41,7 +46,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Check standalone owner-only and exact-card-location regressions
-        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/agent3-source-rank11-vip-role-selector.test.cjs tests/agent3-rank11-vip-k1-combinatorics.test.cjs tests/agent3-rank11-vip-role-location-census.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs tests/agent3-rank26-pre-koko-cologne-opportunity.test.cjs tests/agent3-rank26-readonly-prerequisite-census.test.cjs tests/agent3-rank26-energy-setup.test.cjs tests/agent3-compressor-discard-settlement.test.cjs
+        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/agent3-source-rank11-vip-role-selector.test.cjs tests/agent3-rank11-vip-k1-combinatorics.test.cjs tests/agent3-rank11-vip-role-location-census.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs tests/agent3-rank26-pre-koko-cologne-opportunity.test.cjs tests/agent3-rank26-readonly-prerequisite-census.test.cjs tests/agent3-rank26-energy-setup.test.cjs tests/agent3-compressor-discard-settlement.test.cjs tests/agent3-rank26-post-compressor-gate-v21.test.cjs
       - name: Install pinned game engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -117,5 +122,17 @@ jobs:
         with:
           name: agent3-rank26-compressor-physical-settlement-v2
           path: agent3-rank26-physical-compressor-v2.json
+          if-no-files-found: warn
+          retention-days: 15
+
+      - name: Read-only same-seed v2.1 first-turn post-Compressor source gate replay
+        if: inputs.rank26_post_compressor_gates_v21
+        run: node simulation/twinleaf/agent3-rank26-post-compressor-gate-v21.cjs
+      - name: Preserve all original source firstturn root gates and actual card-settlement receipts
+        if: always() && inputs.rank26_post_compressor_gates_v21
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-post-compressor-readonly-v21
+          path: agent3-rank26-post-compressor-gates-v21.json
           if-no-files-found: warn
           retention-days: 15
