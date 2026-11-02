@@ -74,6 +74,7 @@ function probeDowsingPayment(seat,count){
     scope:'Prepared real pinned native Store; rank26 original printing, not a dealt match',
     sourceRank:26,seat,count,printing:PRINTING,
     firstPromptFound:Boolean(payment),
+    nativePaymentPromptSourceCard:payment?.sourceCard?.fullName??null,
     nativePaymentLimits:payment?{min:payment.options.min,max:payment.options.max,
       allowCancel:payment.options.allowCancel}:null,
     nativePaymentValidatorAccepted:validatorAccepted,
