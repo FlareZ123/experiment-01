@@ -8,9 +8,11 @@ const {rootPhysicalWitness}=
 const intent={kind:'use-farewell-letter',benchIndex:1,
   printing:'Unown AOR',abilityName:'Farewell Letter'};
 const original=()=>({farewellBenchPrinting:'Unown AOR',
-  farewellDiscardCount:0,deckCount:23,handCount:2});
+  farewellDiscardCount:0,deckCount:23,handCount:2,
+  farewellPrizeCounts:[6,6]});
 const settled=()=>({farewellBenchPrinting:null,
-  farewellDiscardCount:1,deckCount:22,handCount:3});
+  farewellDiscardCount:1,deckCount:22,handCount:3,
+  farewellPrizeCounts:[6,6]});
 const classify=after=>rootPhysicalWitness(intent,original(),after,{});
 
 test('native self-discard and draw is physically confirmed',()=>{
@@ -30,5 +32,9 @@ test('ordinary draw with retained Bench Unown cannot count',()=>{
 });
 test('wrong discarded printing cannot count',()=>{
   assert.equal(classify({...settled(),farewellDiscardCount:0}),
+    'no-confirmed-public-effect');
+});
+test('a KO that awards a Prize is not Farewell Letter settlement',()=>{
+  assert.equal(classify({...settled(),farewellPrizeCounts:[6,5]}),
     'no-confirmed-public-effect');
 });
