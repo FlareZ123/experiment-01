@@ -1452,7 +1452,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.nativePhysicalConfirmedByIntent[choice.kind]=
           (audit.nativePhysicalConfirmedByIntent[choice.kind]??0)+1;
       }
-      if(physical==='no-confirmed-public-effect'){
+      if(physical==='no-confirmed-public-effect'&&!farewellPending){
         audit.nativePhysicalUnconfirmed++;
         audit.nativePhysicalUnconfirmedByIntent[choice.kind]=
           (audit.nativePhysicalUnconfirmedByIntent[choice.kind]??0)+1;
