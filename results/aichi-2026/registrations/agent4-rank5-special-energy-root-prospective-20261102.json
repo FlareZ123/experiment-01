@@ -1,0 +1,84 @@
+{
+  "schema": "agent4-rank5-special-energy-owner-root-fresh-paired-v1",
+  "phase": "registered-before-first-native-comparison",
+  "registeredAt": "2026-11-02T10:51:00Z",
+  "sourceRank": 5,
+  "source60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": 2748496699,
+    "B": 201050146
+  },
+  "trials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2748496699,
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2748496699,
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 201050146,
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 201050146,
+      "id": "5:0:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "commonOptions": {
+    "actorOnlyComposition": true,
+    "actorGenericFallbackAttribution": true,
+    "actorHandDiscard": true,
+    "actorOnlySingleSearch": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "sharedPaperPaymentPortfolio": true,
+    "paperQuickBallPayment": true,
+    "nativeAcceptedTargets": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "allowAdditionalOriginalSourceRanks": true
+  },
+  "control": {
+    "bilateralSpecialEnergyRoot": false
+  },
+  "treatment": {
+    "bilateralSpecialEnergyRoot": true
+  },
+  "environment": "AGENT8_ACTOR_QUICK_BALL_DEV=true in both arms",
+  "plannedNativeAttempts": 8,
+  "noPostOutcomeExclusions": true,
+  "measures": [
+    "owner source DCE or other Special Energy attachment",
+    "source genuine AttackAction declarations",
+    "source Active attached Energy at PostPass",
+    "source physical seat and paired full deal",
+    "native action cap or terminal"
+  ],
+  "qualification": "All game outcomes unqualified; only Special Energy root toggle changes, applied to both actors"
+}
