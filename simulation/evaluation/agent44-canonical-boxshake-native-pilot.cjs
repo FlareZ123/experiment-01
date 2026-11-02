@@ -135,7 +135,8 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         x.seat===row.sourceSeat))assert.ok(
         paymentReceipt.treatment?.physicalCustody?.physicalPaidPayments>=1,
         'A selected source Box native line lacks physical 3-card paper custody');
-      const sameNoOffer=t.audit.box.offers.length===0;
+      const sameNoOffer=t.audit.box.offers.length===0&&
+        t.audit.box.scouts.length===0;
       if(sameNoOffer)assert.deepEqual(b.result.decisionTrace,
         t.result.decisionTrace,
         'Canonical no-Box-opportunity trace drift');
@@ -147,6 +148,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         replyPacket.strictPublicContinuationAccepted?
         'NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR':
         t.audit.box.offers.length?'OFFERED_NO_SETTLED_OPPONENT_REPLY':
+          t.audit.box.scouts.length?'SCOUTED_K1_NO_BOX':
           'NOT_ENCOUNTERED',
         sourceK0Parity:true,sourceActualFirst:
           b.result.firstTurnSlot===row.sourceSeat,
