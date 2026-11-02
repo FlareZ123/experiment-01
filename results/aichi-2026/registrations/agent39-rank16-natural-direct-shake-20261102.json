@@ -1,0 +1,213 @@
+{
+  "schema": "agent39-rank16-natural-source-shake-v1",
+  "registeredAtUtc": "2026-11-02T20:37:41Z",
+  "dataCutoff": "Before any of these 32 source physical seeds or candidate assignments were played",
+  "originalRank": 16,
+  "sourcePlayer": "Takumi Matsumoto",
+  "sourceArchetype": "Absol Garbodor",
+  "originalPrinted60Sha256": "2de4e0481b76278020b1221a25458ab1783cb1edd5f19af3b83596af7262f733",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedMethod": "sha256(UTF8(seedLabel+':'+group)) first four bytes big endian unsigned",
+  "seedLabel": "agent39-rank16-direct-shake-original-v1-20261102",
+  "seedFrameSha256": "9bf1a569c1ae75993a4a7c7b14ae6c4abcf217d04495b62d20d9d8a42e21234c",
+  "seedGroups": 32,
+  "seedFrame": [
+    {
+      "group": 0,
+      "sourceSeat": 0,
+      "seed": 2190392943
+    },
+    {
+      "group": 1,
+      "sourceSeat": 1,
+      "seed": 3362518196
+    },
+    {
+      "group": 2,
+      "sourceSeat": 0,
+      "seed": 1303161746
+    },
+    {
+      "group": 3,
+      "sourceSeat": 1,
+      "seed": 3567485238
+    },
+    {
+      "group": 4,
+      "sourceSeat": 0,
+      "seed": 2803462898
+    },
+    {
+      "group": 5,
+      "sourceSeat": 1,
+      "seed": 1275580515
+    },
+    {
+      "group": 6,
+      "sourceSeat": 0,
+      "seed": 3882678872
+    },
+    {
+      "group": 7,
+      "sourceSeat": 1,
+      "seed": 1281494949
+    },
+    {
+      "group": 8,
+      "sourceSeat": 0,
+      "seed": 3468799850
+    },
+    {
+      "group": 9,
+      "sourceSeat": 1,
+      "seed": 3568945078
+    },
+    {
+      "group": 10,
+      "sourceSeat": 0,
+      "seed": 3293915965
+    },
+    {
+      "group": 11,
+      "sourceSeat": 1,
+      "seed": 469052225
+    },
+    {
+      "group": 12,
+      "sourceSeat": 0,
+      "seed": 3461647610
+    },
+    {
+      "group": 13,
+      "sourceSeat": 1,
+      "seed": 3119648845
+    },
+    {
+      "group": 14,
+      "sourceSeat": 0,
+      "seed": 3916003036
+    },
+    {
+      "group": 15,
+      "sourceSeat": 1,
+      "seed": 1597293203
+    },
+    {
+      "group": 16,
+      "sourceSeat": 0,
+      "seed": 1337601344
+    },
+    {
+      "group": 17,
+      "sourceSeat": 1,
+      "seed": 3731325473
+    },
+    {
+      "group": 18,
+      "sourceSeat": 0,
+      "seed": 2403333884
+    },
+    {
+      "group": 19,
+      "sourceSeat": 1,
+      "seed": 3117764252
+    },
+    {
+      "group": 20,
+      "sourceSeat": 0,
+      "seed": 1182402974
+    },
+    {
+      "group": 21,
+      "sourceSeat": 1,
+      "seed": 3539700717
+    },
+    {
+      "group": 22,
+      "sourceSeat": 0,
+      "seed": 895626924
+    },
+    {
+      "group": 23,
+      "sourceSeat": 1,
+      "seed": 3484574748
+    },
+    {
+      "group": 24,
+      "sourceSeat": 0,
+      "seed": 353605231
+    },
+    {
+      "group": 25,
+      "sourceSeat": 1,
+      "seed": 2765299099
+    },
+    {
+      "group": 26,
+      "sourceSeat": 0,
+      "seed": 2044947168
+    },
+    {
+      "group": 27,
+      "sourceSeat": 1,
+      "seed": 789744613
+    },
+    {
+      "group": 28,
+      "sourceSeat": 0,
+      "seed": 133207143
+    },
+    {
+      "group": 29,
+      "sourceSeat": 1,
+      "seed": 2386237452
+    },
+    {
+      "group": 30,
+      "sourceSeat": 0,
+      "seed": 1135887286
+    },
+    {
+      "group": 31,
+      "sourceSeat": 1,
+      "seed": 2129622959
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidatePrinted60s": [
+    "rank1 original via full-decklists.json",
+    "scripts/aichi-new-moon-candidate.cjs loadNewMoonCandidate"
+  ],
+  "nativeArms": 64,
+  "unmodifiedControlArms": 64,
+  "sourcePhysicalSeats": [
+    0,
+    1
+  ],
+  "maxNativeRootActions": 96,
+  "policy": "Existing default-off reversible source owner-hand/public-board rank11-direct-boostshake.cjs reused unchanged for original rank16, source seat only, with native K1 owner-deck Garbodor prompt",
+  "policyParameters": {
+    "k0AvoidAllGarbodorHeld": false,
+    "k1AvoidMissingGarbodor": true,
+    "allowLaterTurns": false
+  },
+  "measurementPlan": [
+    "A real original source first-own-root and its held cards before choosing a line",
+    "Original printed source deck and native physical deal fingerprint at setup",
+    "First natural opportunity from authentic hand/public Trubbish/Tool, independently of whether a Garbodor is available at future authorized K1 search",
+    "Actual Store selected Tool and Boost Shake roots, owner-deck search and target prompt native validation, source equipped Garbodor at following opposing turn",
+    "Actual opposing first response root without inferring competence",
+    "Control/treatment physical-source-deal parity by same seed, candiate and source seat, unselected no-op root-trace parity",
+    "All exceptions, missing roots and action caps in numerator and denominator"
+  ],
+  "preregistrationCaveats": [
+    "This panel selects a first-turn Boost Shake tactical policy in treatment. It cannot establish policy optimality.",
+    "Native prompt.validate and engine terminal cannot independently certify every paper ruling, opponent competence, or wall-clock resolution.",
+    "Same seed with different candidate sixties can change original source physical deal through mulligan effects; compare digest per candidate, never assume cross-candidate matching.",
+    "No whole-paper competitively qualified game and no win-rate claim."
+  ]
+}
