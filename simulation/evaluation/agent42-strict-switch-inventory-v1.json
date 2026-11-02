@@ -28,7 +28,7 @@
       "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 117,
+  "keyCount": 123,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
@@ -52,6 +52,7 @@
     "AGENT25_LOWHAND_LILLIE_CENSUS_DEV",
     "AGENT25_LOWHAND_LILLIE_DEV",
     "AGENT25_PRINTED_GX_ROOT_DEV",
+    "AGENT28_ADP_GX_ROOT_DEV",
     "AGENT29_HAMMER_AFTER_PASS_DEV",
     "AGENT2_HELD_GUZMA_MOBILITY_DEV",
     "AGENT2_MOBILITY_ENERGY_RECIPIENT_DEV",
@@ -68,13 +69,17 @@
     "AGENT32_COMPR_BENCHED_DEV",
     "AGENT35_PERFECTION_TRANSITION_ROOT_DEV",
     "AGENT35_POTENTIAL_TWO_PRIZE_ATTACK_VETO_DEV",
+    "AGENT37_DCE_MEW_RETREAT_DEV",
     "AGENT37_FIRSTTURN_ATTACK_ROOT_DEV",
+    "AGENT37_GENESECT_FUSION_DRAW_DEV",
     "AGENT37_OWNER_ATTACK_EVOLUTION_DEV",
     "AGENT37_OWNER_ATTACK_RECOVERY_DEV",
     "AGENT37_OWNER_ATTACK_SEARCH_DEV",
     "AGENT38_CANONICAL_PLUMERIA_AFTERPASS_DEV",
+    "AGENT38_NATIVE_PLUMERIA_PAYMENT_CONSERVATION_DEV",
     "AGENT38_PAPER_FULLBENCH_TRUBBISH_DEV",
     "AGENT38_PLUMERIA_LARGE_HAND_DEV",
+    "AGENT38_RANK6_SCRIPTED_SPECIAL_CONDITION_GUARD_DEV",
     "AGENT39_PAPER_PROMPT_PORTFOLIO_DEV",
     "AGENT3_PAPER_TERMINAL_ATTACK_KO_DEV",
     "AGENT3_SPECIAL_ENERGY_ROOT_DEV",
@@ -100,6 +105,7 @@
     "AGENT41_PAPER_SUPPORTER_TRACE_DEV",
     "AGENT41_PARTITION",
     "AGENT41_PUBLIC_FLEXIBLE_CONTEST_DEV",
+    "AGENT41_QUICKBALL_TRANSACTION_DEV",
     "AGENT41_REGISTERED_TOOL_ENERGY_DEV",
     "AGENT41_SAME_ROOT_ALL_PROBES_DEV",
     "AGENT41_SAME_ROOT_EVENT_RECEIPT_DEV",
@@ -157,7 +163,7 @@
     "informationSafe": false,
     "officialAichiClockCertified": false
   },
-  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin. 2026-11-02 Agent16 audited 14 newly reachable literal environment names against exact source text (12 opt-ins/seat selectors; AGENT41_PARTITION is CLI partition selection and GITHUB_SHA a read-only provenance label). These keys remain disabled/neutral absent their specified values. This classification is a static mention audit, not a frozen effective profile or a behavioral/paper safety certification.",
+  "notes": "Extends original two-entry inventory with canonical composition and three second-level source modules based on Agent36's independent source audit. This is a lower bound on all transitive switches and does not qualify the live effective executable: deeper/dynamic imports, computed environment reads, source drift, decks, vendor, paper-contract prompts and tournament clock require their own evidence. Original two frozen entrypoint SHA pins retained; changed current code must fail closed until a reviewed prospective re-pin. 2026-11-02 Agent16 audited 14 newly reachable literal environment names against exact source text (12 opt-ins/seat selectors; AGENT41_PARTITION is CLI partition selection and GITHUB_SHA a read-only provenance label). These keys remain disabled/neutral absent their specified values. This classification is a static mention audit, not a frozen effective profile or a behavioral/paper safety certification. 2026-11-02 evening Agent16 separately reaudited six newly reachable opt-in environment names (four actor/guard, one scripted scenario guard and one Quick Ball transaction audit), with their exact current source paths. Generic development may tolerate source SHA drift only; actual inventory-test failure still vetoes both execution lanes.",
   "reviewedNewEnvironmentKeys20261102": {
     "AGENT13_MEW_GENES_COPY_DEV": {
       "kind": "opt-in",
@@ -228,6 +234,38 @@
       "kind": "provenance",
       "firstVerifiedSource": "simulation/evaluation/agent41-crossrank-actual-decisions.cjs",
       "sourceInterpretation": "CI commit provenance output, default null; not a policy opt-in"
+    }
+  },
+  "reviewedNewEnvironmentKeys20261102Evening": {
+    "AGENT28_ADP_GX_ROOT_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true activates actor ADP boosted GX root"
+    },
+    "AGENT37_DCE_MEW_RETREAT_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true activates symmetric DCE Mew retreat mobility root"
+    },
+    "AGENT37_GENESECT_FUSION_DRAW_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true activates symmetric Genesect Fusion draw root"
+    },
+    "AGENT38_NATIVE_PLUMERIA_PAYMENT_CONSERVATION_DEV": {
+      "kind": "paper-guard-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent34-actor-only-root-policy.cjs",
+      "sourceInterpretation": "literal true activates native Plumeria paper-payment conservation guard"
+    },
+    "AGENT38_RANK6_SCRIPTED_SPECIAL_CONDITION_GUARD_DEV": {
+      "kind": "scenario-guard-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/rank6-broad-thorns-policy.cjs",
+      "sourceInterpretation": "literal true activates scripted rank6 special-condition attack guard"
+    },
+    "AGENT41_QUICKBALL_TRANSACTION_DEV": {
+      "kind": "auditor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true enables native Quick Ball owner transaction audit"
     }
   }
 }
