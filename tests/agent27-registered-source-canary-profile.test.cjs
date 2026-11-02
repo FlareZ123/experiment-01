@@ -32,6 +32,11 @@ test('registered source cases and historic flags are fixed',()=>{
   assert.deepEqual(profile.frozenFlags,registration.frozenFlags);
   assert.deepEqual(profile.allowedInfrastructureEnvironmentKeys,
     ['AGENT_TOOLSDIRECTORY']);
+  assert.deepEqual(profile.expectedFullPhysicalDealSha256BySeed,{
+    '20261106':'904d37e7c932f664a33fa02ee0417314f6256709f3b10197d6419d8882111d02',
+    '20261113':'fc6545372675f04b386052bbfd78cfd949e2113dc2a08ba0ac8e23f47282f985',
+    '20261114':'bd5448a4ceb5e014671c04ff4a2eb10a4a4710d85afed284b6ff101724554d96'
+  });
   assert.equal(profile.maxNativeActions,110);
   assert.equal(profile.pinnedTwinleaf,
     'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
