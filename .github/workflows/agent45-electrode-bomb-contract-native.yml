@@ -1,0 +1,27 @@
+name: Agent45 pinned CES48 Extra Energy Bomb prompt validator audit
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent45-ces48-bomb-prompt-native
+  cancel-in-progress: false
+jobs:
+  native-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Native CES48 Extra Energy Bomb prompt validator characterization
+        run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs
