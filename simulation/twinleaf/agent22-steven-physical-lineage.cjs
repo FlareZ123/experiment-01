@@ -19,7 +19,8 @@ const VERSION='agent22-source-steven-physical-card-lineage-v1';
  * @template T
  * @param {0|1} sourceSeat Genuine original-source physical player seat.
  * @param {()=>T} execute Synchronous native Store match.
- * @param {{Store?:Function}} [deps] Optional unit-test class injection.
+ * @param {{Store?:Function,authorizedStore?:object}} [deps]
+ *   Optional unit-test class and genuine-Store identity injection.
  * @returns {{result:T,audit:object}} Genuine run result and source-only trace.
  */
 function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
@@ -34,9 +35,20 @@ function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
   const searches=[],laterPlays=[];
   let dispatchOrdinal=0;
   let tokenOrdinal=0;
+  let liveStore=deps.authorizedStore??null;
 
   /** @param {object} action @returns {unknown} */
   function observedDispatch(action,...args) {
+    // Only the Store proven to own this game may produce physical lineage.
+    // Synthetic proposal stores may invoke the same native dispatcher.
+    if(liveStore===null){
+      const result=original.value.call(this,action,...args);
+      if(action?.constructor?.name==='AddPlayerAction'&&
+         this.state.players?.length===1&&
+         this.state.players[0]?.id===101)liveStore=this;
+      return result;
+    }
+    if(this!==liveStore)return original.value.call(this,action,...args);
     const ordinal=++dispatchOrdinal;
     const state=this.state;
     const turnBefore=state.turn;
@@ -100,6 +112,7 @@ function withSourceStevenPhysicalLineage(sourceSeat,execute,deps={}) {
       nativeSourcePlayRootsOnTrackedCards:laterPlays.filter(play=>
         play.physicallyRemovedFromSourceHand).length,
       searches,laterPlays,
+      authenticatedLiveStore:liveStore!==null,
       sourceOwnHandOnly:true,postDecisionOnly:true,
       deliberatelyReadOnly:true,
       gameOutcomeQualified:false,competitiveGameQualified:false
