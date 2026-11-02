@@ -129,3 +129,22 @@ test('one invalid duplicated card reference never becomes a positive payment', (
   assert.equal(x.audit.paperTwoCardZoneWitnesses,0);
   assert.strictEqual(FakeStore.prototype.dispatch,original);
 });
+
+class AddPlayerAction {}
+
+test('live-only natural-game filter excludes detached and preexisting prepared Stores', () => {
+  const x=withGuzmaHalaOwnerZoneLineage(()=>{
+    const ignored=new FakeStore();
+    ignored.run();
+    const real=new FakeStore({seat:1});
+    real.dispatch(new AddPlayerAction());
+    real.run();
+    return 'done';
+  },{Store:FakeStore,liveOnly:true});
+  assert.equal(x.result,'done');
+  assert.equal(x.audit.liveOnly,true);
+  assert.equal(x.audit.events.length,1);
+  assert.equal(x.audit.events[0].gameOrdinal,0);
+  assert.equal(x.audit.events[0].ownerSeat,1);
+  assert.equal(x.audit.paperTwoCardZoneWitnesses,1);
+});
