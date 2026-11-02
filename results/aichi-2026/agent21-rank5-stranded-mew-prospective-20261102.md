@@ -1,0 +1,32 @@
+# Original rank-5 Mew/Genesect: preregistered natural native Pass-to-Retreat fork
+
+**2 November 2026, 15:27 UTC. Development only, zero paper-qualified competitive games.** The objective was to test whether a narrow real Store correction of the source's previously observed stranded DCE-backed off-axis Active could restore native Cross Fusion Strike activity without modifying either candidate decklist or opponent policy. Result: **the corrective hook was never offered in eight fresh treatment games**, so there was zero change to outcomes. This null coverage is a useful experimental limit.
+
+## Frozen registration and genuine native execution
+
+- Preregistered **before** fork execution: `results/aichi-2026/registrations/agent21-rank5-stranded-mew-retreat-fork-20261102.json`, Git blob `0d94e6c94296ab367e3780cc512cf99024af3aac`; registration at 2026-11-02T15:20:26.295591Z, fresh cryptographic seeds (0/A 1922177010; 0/B 425998498; 1/A 1302243598; 1/B 1403335297), each repeated across two unchanged fixed candidate decklists, for eight physical groups.
+- Two conditions for each of eight groups: unchanged original selected Agent21 native policy control, or that exact policy plus a both-seat real native `PassTurnAction` to `RetreatAction` boundary when `chooseStrandedFusionMewRetreat` verifies an owner-visible printed DCE-funded Mew VMAX attack line. This was a **single specified intervention**, 16 native attempts total. No adaptive seed replacement, candidate substitution, or per-card workflow dispatch inputs.
+- One zero-input manual CI workflow: [GitHub Actions run 41471037085](https://github.com/FlareZ123/experiment-01/actions/runs/41471037085), head `321d9108e3b6995ce334c7c2974f003f42d499ae`. All steps passed, including six pinned staged native physical retreat tests, 6 pure root-hook tests, all 16 original Store arms, and complete archival output.
+- Full 16-row actual native evidence: [GitHub Actions artifact 13154489881](https://github.com/FlareZ123/experiment-01/actions/runs/41471037085/artifacts/13154489881), ZIP SHA256 `b12da50e9480838383e7c2fd3c9ea4311588d834040becf044a4a7096ea80011`. Exact original printed rank-5 source 60 SHA256 `a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05`; Lockbreaker actual loaded English proxy blob `d9777831271bec8c4ac400d0a2d9f49cc03c630b`; pinned Twinleaf submodule `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Research-side native hook: `simulation/twinleaf/agent21-owner-stranded-mew-native-pass-retreat.cjs` version `agent21-symmetric-owner-pass-to-paid-fusion-retreat-v1`, source code as of run `321d9108`. Context was original owner-visible `actorObservation` with native physical Store checks for genuine payment and promotion, and unchanged policy for all other roots. The code and original Store output were not independently certified as paper-rules-complete.
+
+## Native results, without win-rate interpretation
+
+| Physical group | Champion-reference source attacks, ctrl / treatment | Lockbreaker source attacks, ctrl / treatment | Control status (both candidates) |
+| --- | ---: | ---: | --- |
+| 0/A | 4 / 4 | 3 / 3 | Both native terminals |
+| 0/B | 0 / 0 | 3 / 3 | Both 260-action caps |
+| 1/A | 1 / 1 | 1 / 1 | Both native terminals |
+| 1/B | 0 / 0 | 0 / 0 | Both native terminals |
+
+**Complete mirrored evidence:** all eight pairs had identical `sourceDealFingerprint` and identical `fullPhysicalDealFingerprint` across control and treatment. All eight also had **identical SHA256 native `rootActionLedger` streams** between conditions, stronger than equality of aggregate attack counts. The original source made 12 attack declarations total in each mode, six games each ended in native board-terminal conditions, and two games each reached the 260-action cap. Both controls and treatments returned eight of eight intended rows with no batch error. No native outcome difference was detected.
+
+The treatment-side audit recorded **270 actual native Store Pass roots across both players**, **zero eligible owner-visible paid Mew retreat proposals**, **zero substituted RetreatAction dispatches**, and **zero native paid-retreat settlements or rejections**. Hence this run was an *opportunity-coverage null*. It cannot determine whether the policy intervention would help in states in which it is genuinely playable. It also cannot prove that missing source attack lines are harmless. No paper-qualified games, independent win-rate estimates, or meaningful 99.5% comparisons follow.
+
+The archived raw original source boards show a potentially important nuance: the 0/B champion 260-action-cap game ended with **Genesect V Active carrying DCE**, a **Benched Mew VMAX carrying separate DCE**, and **Benched Genesect V attack donor**. This resembles the previously diagnosed stranded geometry despite zero hook proposals. A **separate historical diagnostic** has therefore been scheduled with enhanced owner-identity and near-miss logging to distinguish genuine native restrictions from selector/Store-hook integration failure. Do not silently interpret the zero offers as proof there were zero realistically payable retired-Mew turns.
+
+## Independent staged proof and release limit
+
+The exact printed physical mechanics independently passed: original Store DCE payment from Dedenne GX UNB, Lillie's Clefairy ex JTG, and Genesect V FST to Mew VMAX in **six of six native tests across both physical seats** at CI 41469793183. A separate complete staged Store sequence paid retreat from Dedenne-GX, promoted DCE-fed Mew, selected Benched Genesect's Techno Blast via Cross Fusion Strike, Knocked Out authentic two-Prize Tapu Lele-GX, took two Prizes, and promoted opponent's backup: **both seats succeeded** in [CI 41471572562](https://github.com/FlareZ123/experiment-01/actions/runs/41471572562). Those are artificial boards constructed for mechanical testing and cannot establish occurrence rates or win probability in natural shuffled original games.
+
+The controlling release veto remains absence of qualified original full-chain paper games across all 32 Aichi opponents and credible decision policies. Preserve this unqualified zero-effect fork rather than reusing the seeds as purported proof of deck equality or superiority.
