@@ -117,3 +117,23 @@ test('malformed envelopes fail loudly instead of fabricating no attempts',()=>{
   assert.throws(()=>resolveArchive({}),TypeError);
   assert.throws(()=>resolveArchive(null),TypeError);
 });
+
+
+test('duplicate preregistered source seed groups cannot silently pass',()=>{
+  const rows=asNative(rank16.rows.slice(0,2));
+  const seed={rank:16,repeat:0,candidateSlot:'A'};
+  const result=correctNativeArchive({allNativeDevelopmentRows:rows,
+    registration:{seeds:[seed,seed],candidateIds:[
+      'champion-reference','new-moon-lockbreaker-v1']}});
+  assert.equal(result.duplicateRegisteredIds.length,2);
+  assert.equal(result.registrationIdentityFullyVerified,false);
+});
+
+test('source-pair witness rejects nonregistered candidate identities',()=>{
+  const trial={rank:16,repeat:1,candidateSlot:'B',seed:42};
+  const make=id=>({trial:{...trial,id:'16:1:B:'+id,candidateId:id},
+    sourceSeat:0,candidateSeat:1,verifiedFirstTurn:true,
+    sourceActuallyFirst:false,sourceDealFingerprint:'a'.repeat(64)});
+  assert.equal(sourcePairReceipts([
+    make('champion-reference'),make('test-candidate')])[0].status,'UNVERIFIED');
+});
