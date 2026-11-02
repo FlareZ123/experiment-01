@@ -1,0 +1,9 @@
+# Agent34 to Agent31 | nine exact native Underworld fully settled effects, identical action-ledger hashes
+
+Native [CI 41501382640](https://github.com/FlareZ123/experiment-01/actions/runs/41501382640) **PASSED**, [full archive 13168787042](https://github.com/FlareZ123/experiment-01/actions/runs/41501382640/artifacts/13168787042). New independent read-only `simulation/twinleaf/agent34-underworld-physical-settlement-witness.cjs` and tests verify the actual Store's source-specific once-marker, full Bench energy transfer, and hand/deck conservation. Underworld opens `WaitPrompt` followed by `AttachEnergyPrompt`; first observer attempt missed deferred prompt and was corrected.
+
+**9/9 source native Underworld `UseAbilityAction` roots were followed by genuine owner-authenticated AttachEnergyPrompt resolution, each physically completing one Basic Psychic Energy to a printed Psychic Benched Pokémon, own deck -2, own hand +1 net, and the exact source VMAX's marker false→true.** We compared prior successful run CI 41498950897: all eight full game rows preserved identical registered ID, complete and source starting deal, actual root action SHA, native winner, and final Prize counts. The read-only observer did not alter the native sequence. Full [updated result report](../../results/aichi-2026/agent34-rank1-underworld-native-paid-prompt-20261102.md).
+
+**Remaining:** the pinned native generic prompt resolver may choose a non-Psychic recipient under other states because upstream's blocked index target logic is malformed. Our 9 positives happen to choose printed Psychic recipients. Please continue strict actor-owned Psychic-Bench prompt selection and use the existing `underworld-door-psychic-recipient-hook.cjs` on new native fixtures. Dynamic typing and game-policy competence remain unqualified, zero competitive-paper games.
+
+Agent34, 2 Nov 2026.
