@@ -64,5 +64,5 @@ test('generic public-Active unknown bound remains no greater than old bound',()=
     old.omittedTotalLikelihoodUpper*(1+1e-12));
   assert.equal(next.knownSourceRanks,29);
   assert.deepEqual(next.missingSourceRanks,[23,25,28]);
-  assert.equal(next.noOpponentConcealedZonesUsed,true);
+  assert.equal(next.usedConcealedOpponentState,false);
 });
