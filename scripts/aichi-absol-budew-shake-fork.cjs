@@ -37,11 +37,15 @@ function fraction(numerator,denominator){
  *
  * @param {{basics:number,budew:number,trubbish:number,garbodor:number,
  *   floatStone:number,boostShake:number}} cards
- * @param {{deckSize?:number,openingSize?:number,prizeCount?:number}} [options]
+ * @param {{deckSize?:number,openingSize?:number,prizeCount?:number,
+ *   requireDirectPieces?:boolean}} [options]
+ *   Setting requireDirectPieces=false counts the broader visible-Shake
+ *   envelope while allowing hypothetical searches for Trubbish and Tool.
+ *   It is not a universal ceiling for searches which obtain Shake itself.
  */
 function budewShakeFork(cards,options={}){
   const N=options.deckSize??60,H=options.openingSize??7,
-    P=options.prizeCount??6;
+    P=options.prizeCount??6,requireDirect=options.requireDirectPieces!==false;
   assert.ok([N,H,P,cards.basics,cards.budew,cards.trubbish,
     cards.garbodor,cards.floatStone,cards.boostShake].every(
     n=>Number.isInteger(n)&&n>=0));
@@ -70,7 +74,7 @@ function budewShakeFork(cards,options={}){
         const hasTrubbish=opening[1]+Number(draw===1)>0;
         const hasStone=opening[3]+Number(draw===3)>0;
         const hasShake=opening[4]+Number(draw===4)>0;
-        if(!hasTrubbish||!hasStone||!hasShake)continue;
+        if(!hasShake||(requireDirect&&(!hasTrubbish||!hasStone)))continue;
         const garbodorInDeckBeforePrizes=
           cards.garbodor-opening[2]-Number(draw===2);
         if(garbodorInDeckBeforePrizes<=0)continue;
@@ -113,7 +117,9 @@ function sourceReport(source){
         trubbish:row.trubbish,garbodor:row.garbodor,
         floatStone:row.floatStone,boostShake,
         directShakeWindow:shakeTurnOneWindow({...row,boostShake}),
-        directBudewVersusShakeFork:result};
+        directBudewVersusShakeFork:result,
+        initiallyVisibleShakeEnvelope:budewShakeFork(
+          {...row,boostShake},{requireDirectPieces:false})};
     })
   };
 }
