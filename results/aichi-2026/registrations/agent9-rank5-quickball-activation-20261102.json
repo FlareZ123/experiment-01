@@ -1,0 +1,43 @@
+{
+  "schema": "agent9-rank5-native-quickball-activation-registration-v1",
+  "registeredAtUtc": "2026-11-02T09:11:00Z",
+  "status": "pre-outcome-frozen-eight-native-attempts-no-exclusions",
+  "rank": 5,
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "baselineRun": "https://github.com/FlareZ123/experiment-01/actions/runs/41409175394",
+  "changedParameter": {
+    "env": "AGENT8_ACTOR_QUICK_BALL_DEV",
+    "value": "true",
+    "bothPhysicalSeats": true,
+    "rootDefaultOffPreviously": true
+  },
+  "unchangedPairPolicy": "simulation/evaluation/agent37-rank5-fusion-mobility-prospective.cjs",
+  "expectedNativeAttempts": 8,
+  "expectedModes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "expectedTrialSourceDealFingerprint": {
+    "5:0:A:champion-reference": "fdad3fecfe0439e0fb73fc7703d64f47537e5b7c8ead36c8d63722f44bc7bd44",
+    "5:0:A:new-moon-lockbreaker-v1": "a50e35a76b6c60c17a68eae70471efc7613ba3b522cf0dd7cb69d2530d2b99bf",
+    "5:0:B:champion-reference": "778e973ca11829aa5c366224947caad4708c300e4da258489d10d5d2ac361e9d",
+    "5:0:B:new-moon-lockbreaker-v1": "778e973ca11829aa5c366224947caad4708c300e4da258489d10d5d2ac361e9d"
+  },
+  "predeclaredEndpoints": [
+    "source actor Quick Ball FST proposed",
+    "native accepted owner PlayCardAction Quick Ball",
+    "discard owner prompt settled",
+    "owner deck search physically moves card",
+    "new source hand and bench counts",
+    "native source attacks",
+    "source next turn and opponent reply"
+  ],
+  "qualificationVetoes": [
+    "all 8 native arms regardless of cap and error",
+    "no printed paper-clock model",
+    "no claim of competitively qualified wins",
+    "original source may still lack Ultra Ball and Supporter competence",
+    "paired archived results use correlated seeds and distinct policy versions"
+  ]
+}
