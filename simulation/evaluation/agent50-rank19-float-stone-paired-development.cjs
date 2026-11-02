@@ -83,6 +83,20 @@ function run(){
         sourceRootCount:audit.sourceOwnerRootCount,
         nativeWinner:raw.winner??null,
         lastNativePublicBoard:audit.lastNativePublicBoard,
+        sourceSettledPublicAttack:{
+          declarations:raw.sourceAttackSettlement?.declarations??null,
+          settled:raw.sourceAttackSettlement?.settled??null,
+          crossEpochRejected:raw.sourceAttackSettlement?.crossEpochSettlementsRejected??null,
+          opponentReturnCount:raw.sourceAttackSettlement?.withImmediateSourceReturn??null,
+          attackEvents:(raw.sourceAttackSettlement?.attacks??[]).map(a=>({
+            turn:a.turnBefore,attack:a.attackName,
+            settled:a.settledPromptChain,
+            beforeOpponentActive:a.publicBoardBefore?.[1-sourceSeat]?.active??null,
+            afterOpponentActive:a.publicBoardAfter?.[1-sourceSeat]?.active??null,
+            prizesBefore:a.prizesBefore??null,prizesAfter:a.prizesAfter??null,
+            nextOpponentRoot:a.nextSourceRoot??null
+          }))
+        },
         sourceAttackPrizeTrace:(raw.attackTrace??[])
           .filter(t=>t.seat===sourceSeat)
           .map(t=>({
