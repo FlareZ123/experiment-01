@@ -642,6 +642,9 @@ jobs:
       - name: Exercise both native pending-Prize groups after synthetic simultaneous tiebreak KOs
         if: inputs.agent24_owner_tiebreak_fixture
         run: node simulation/twinleaf/agent24-replay-simultaneous-ko-order.cjs > agent24-replay-double-ko.json
+      - name: Exercise actual printed Spiky Energy counter KO in a staged native Iron Thorns attack
+        if: inputs.agent24_owner_tiebreak_fixture
+        run: node simulation/twinleaf/agent24-iron-thorns-spiky-double-ko-attack.cjs > agent24-spiky-double-ko.json
       - name: Inject balanced original-owner reference exchange at native source roots, both seats
         if: inputs.agent24_original_owner_swap_native
         run: node simulation/twinleaf/agent24-original-owner-native-balanced-exchange.cjs > agent24-original-owner-exchange.json
@@ -661,6 +664,7 @@ jobs:
             agent24-original-owner-native.json
             agent24-owner-sudden-death.json
             agent24-replay-double-ko.json
+            agent24-spiky-double-ko.json
             agent24-original-owner-exchange.json
             agent24-native-replay-paper-lead.json
             agent24-natural-replay-prize-panel.json
