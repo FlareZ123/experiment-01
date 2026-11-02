@@ -49,6 +49,8 @@ function countEarlyHands(input){
   assert.ok(observedSize<=deckSize);
   assert.ok(cards.some(row=>row.name===basicName));
   assert.ok(cards.some(row=>row.name===supporterName));
+  assert.equal(cards.filter(row=>row.name===supporterName).length,1,
+    'single physical Supporter printing required for this payment screen');
   // A distinct physical printing is a distinct discard-conservation class.
   const seen=new Set();
   for(const row of cards){
