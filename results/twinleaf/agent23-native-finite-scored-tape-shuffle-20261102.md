@@ -68,8 +68,18 @@ The next experiment enables an explicit diagnostic
 than repeating a deep clone while recording the source RNG tape. It still
 records whether the physical State changed before the first score and
 preserves the full original-game noninterference check. The baseline native
-mode remains unchanged. This experiment can rule out one possible
-source-only observer perturbation; it does not relax the parity gate.
+mode remains unchanged. The first attempt had a unit-test assertion comparing two independent
+unseeded fixture RNG values and consequently failed before the native step
+(run 41422377083). The test was corrected to compare deterministic fixture
+action fields. The compiled rerun
+[41422863744](https://github.com/FlareZ123/experiment-01/actions/runs/41422863744)
+then passed its tests and four original Store controls (full JSON artifact
+**13130189273**). Its classifications and first shuffle observations were
+identical to the preceding run: **1/4 strict parity**, three source
+one-draw deficits and same source/replay shuffle deck lengths. Thus the
+redundant first-score deep clone is **not sufficient** to explain this
+mismatch. The optional entry-only mode remains development-only; do not
+remove the original strict parity veto.
 
 ## Interpretation and remaining work
 
