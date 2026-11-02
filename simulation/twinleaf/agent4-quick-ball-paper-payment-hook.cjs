@@ -2,30 +2,37 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent4-quick-ball-paper-mandatory-discard-v1';
+const VERSION='agent4-quick-ball-printed-mandatory-payment-v2-search-is-distinct';
 const PRINTINGS=new Set(['Quick Ball FST','Quick Ball SSH']);
+const PAYMENT_MESSAGE='CHOOSE_CARD_TO_DISCARD';
 
 /**
- * An original Sword & Shield Quick Ball requires exactly one OTHER physical
- * card from its owner's hand as payment. This examines the genuine pending
- * payment prompt, never relying on its native validate() implementation.
- * @param {object} prompt Source-marked pending ChooseCardsPrompt
- * @param {unknown} answer Physical cards selected by the native actor
- * @returns {string|null} Independently invalid printed cost, or null
+ * Printed Quick Ball discards exactly one OTHER owner-hand card. The engine
+ * also has an entirely different, optional own-deck Basic search prompt.
+ * Only the mandatory payment prompt may be checked by this predicate.
+ *
+ * @param {object} prompt Actual native CHOOSE_CARD_TO_DISCARD prompt
+ * @param {unknown} answer Original physical cards selected for discard
+ * @param {object} owner Original physical owner, read only for payment validation
+ * @returns {string|null} A proved invalid physical payment or no invalidity
  */
-function quickBallPaymentNegative(prompt,answer){
+function quickBallPaymentNegative(prompt,answer,owner){
   if(!Array.isArray(answer)||answer.length!==1)
     return 'QUICK_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_ONE';
-  if(!Array.isArray(prompt?.cards?.cards)||
-      !prompt.cards.cards.includes(answer[0]))
+  const offered=prompt?.cards?.cards;
+  const hand=owner?.hand?.cards;
+  if(!Array.isArray(offered)||!Array.isArray(hand)||
+      !offered.includes(answer[0])||!hand.includes(answer[0]))
     return 'QUICK_BALL_PAYMENT_OUTSIDE_PHYSICAL_OWNER_HAND';
   return null;
 }
 
 /**
- * Reversible research-only Store guard. Source printing and actual physical
- * ownership scope both root and prompt checks; it is not automatically
- * integrated into the canonical benchmark.
+ * Reversible research-only native Store guard for genuine printed Quick Ball.
+ * The pinned engine can pay one unambiguous cost automatically at root,
+ * before its later optional Basic search prompt. Never intercept the search.
+ * Does not select any cards for the actor or certify competent decisions.
+ *
  * @template T
  * @param {()=>T} execute Synchronous actual Store workload
  * @param {{Store?:Function}} [deps] Native test injection
@@ -40,8 +47,8 @@ function withPaperQuickBallMandatoryPayment(execute,deps={}){
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
   const audit={version:VERSION,inspectedRoots:0,inspectedPayments:0,
-    vetoedRoots:0,vetoedPayments:0,paperQualifiedGames:0,
-    ownerInformationLeakIntoPolicy:false};
+    ignoredOptionalSearchPrompts:0,vetoedRoots:0,vetoedPayments:0,
+    paperQualifiedGames:0,decisionsChanged:false};
   function dispatch(action,...args){
     const state=this.state;
     const actionName=action?.constructor?.name;
@@ -62,11 +69,16 @@ function withPaperQuickBallMandatoryPayment(execute,deps={}){
         p.id===action.id&&p.result===undefined);
       if(prompt?.constructor?.name==='ChooseCardsPrompt'&&
           PRINTINGS.has(prompt.sourceCard?.fullName)){
-        audit.inspectedPayments++;
-        const violation=quickBallPaymentNegative(prompt,action.result);
-        if(violation){
-          audit.vetoedPayments++;
-          throw Error('PAPER_QUICK_BALL_PAYMENT_INVALID:'+violation);
+        if(prompt.message===PAYMENT_MESSAGE){
+          audit.inspectedPayments++;
+          const owner=state.players?.find(p=>p.id===prompt.playerId);
+          const violation=quickBallPaymentNegative(prompt,action.result,owner);
+          if(violation){
+            audit.vetoedPayments++;
+            throw Error('PAPER_QUICK_BALL_PAYMENT_INVALID:'+violation);
+          }
+        }else if(prompt.message==='CHOOSE_CARD_TO_HAND'){
+          audit.ignoredOptionalSearchPrompts++;
         }
       }
     }
