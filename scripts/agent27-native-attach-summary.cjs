@@ -29,7 +29,8 @@ function summarizeArm(arm) {
         attackSettledRootOrdinal:row.sourceAttack?.settledRootOrdinal??null,
         prizeCountsAfterAttack:row.sourceAttack?.afterPrizesRemaining??null,
         opponentReplyTurn:row.opponentReply?.turn??null,
-        opponentReplyRoots:row.opponentReply?.actions??[]
+        opponentReplyRoots:row.opponentReply?.actions??[],
+        opponentPassContext:row.opponentReply?.finalPassContext??null
       }))??[]
   };
 }
