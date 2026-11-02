@@ -26,7 +26,7 @@ On four authentic printed rank-19 Raging Bolt source/candidate historical games,
 | Candidate B, champion | 0 attacks | 5 × Ultimate Ray, turn 14 | 0 → 6 | 31 → 22 | No, source wins both |
 | Candidate B, New Moon | 7 × Rainbow Burn, turn 36 | 7 × Ultimate Ray, turn 16 | 6 → 6 | 48 → 28 | No, source wins both |
 
-All above attacks are **actual native Store declarations with completed prompt-chain settlement** according to the canonical `sourceAttackSettlement` packet. Each of the **24 declarations** (2+2+3+3+0+5+7+7, including duplicated unchanged A-trial arms) was settled, with **zero cross-epoch settlement rejections**. The source's native winner was unchanged in all four pairs, so there is no observed game-winner improvement in this experiment.
+All above attacks are **actual native Store declarations with completed prompt-chain settlement** according to the canonical `sourceAttackSettlement` packet. Each of the **29 declarations** (2+2+3+3+0+5+7+7, including duplicated unchanged A-trial arms) was settled, with **zero cross-epoch settlement rejections**. The source's native winner was unchanged in all four pairs, so there is no observed game-winner improvement in this experiment.
 
 In the champion seat-B treatment, native public Prize counts at the five completed Ultimate Ray attacks were **6 → 5 → 5 → 3 → 3 → 0 remaining**. Public opposing Active board transitions include KO/promotion of Mimikyu, then Dialga-GX, then Trevenant & Dusknoir-GX. In the New Moon seat-B treatment, seven settled Ultimate Rays changed source Prizes **6 → 5 → 5 → 3 → 3 → 1 → 1 → 0 remaining**. These counts are physical native Store outcomes after attack/prompt resolution. No amount of repeated attack declarations alone is being credited with Prizes.
 
