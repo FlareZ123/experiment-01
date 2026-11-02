@@ -8,7 +8,7 @@ const {observeAdpBoostedGxResourceWindow:observe,ADP,DDE,GX}=
 function view(change={}){
   const active={printing:ADP,energies:[DDE,DDE],
     attacks:[{name:'Ultimate Ray',gxAttack:false,cost:['W','M','C']},
-      {name:GX,gxAttack:true,cost:['M']}],publicRestrictions:{}};
+      {name:GX,gxAttack:false,cost:['M']}],publicRestrictions:{}};
   const owner={active,stadium:[],publicTurnRestrictions:{
     gxUsed:false,cannotUseGXAttacks:false,attackLockTurnsRemaining:0}};
   return {decisionKind:'owner-root',globalTurn:14,ownPublic:owner,
@@ -22,6 +22,8 @@ test('post-retreat ADP with two DDE exposes a nominal boosted GX option',()=>{
   assert.equal(row.globalTurn,14);
   assert.equal(row.ddeAttachedCards,2);
   assert.deepEqual(row.printedCost,['M']);
+  assert.equal(row.engineGxAttackAnnotation,false,
+    'Pinned ADP source printing does not mark its GX attack with gxAttack');
   assert.equal(row.nominalBoostedResourceWindow,true);
   assert.equal(row.nativePlayableCertified,false);
   assert.equal(JSON.stringify(v),before,'observer must not mutate caller state');
