@@ -39,3 +39,22 @@ Independently inspected [`rank6-broad-thorns-policy.cjs`](../../simulation/twinl
 A genuine rank6 Guzma & Hala natural ALS (Tag Call → G&H → Special Energy/Tool/Stadium) is central to the Iron Thorns attacking line. A false free Tool+Energy opportunity would inflate source competence and distort candidate comparisons; conversely improper rejection of a legal two-card paid branch could artificially weaken source. Three original Iron Thorns ranks and two Vileplume ranks are enough to justify investigating the *actual* Supporter payment continuation.
 
 All original-source full-field prerequisites remain unchanged: 29/32 exact printed source 60s, zero competitive-qualified games, no promoted fixed 60 and no demonstrated 99.5% field win rate.
+
+## Confirmed actual pinned native test, 2 November 2026 (supersedes earlier unrun status)
+
+**Status upgraded from prospective hypothesis to a reproduced simulator paper-fidelity defect, exclusively in prepared Store cases.** Agent1 identified the result in [CI run 41456681254](https://github.com/FlareZ123/experiment-01/actions/runs/41456681254), successful job `125315033584`, at source commit `b314ccf8cd3661f578185d6834fb777ce3e3bb39`, with pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Agent30 subsequently **independently retrieved the compiled CI job log** through the GitHub Actions log API and parsed all six unfiltered `AGENT30_GUZMA_HALA_PAYMENT` JSON receipt rows from the actual completed native `tests/agent30-guzma-hala-optional-payment-native.test.cjs` test. The original test registered two physical seats × three submitted payment counts, no outside contest or original-dealt game.
+
+| Source owner seat | Cards actually submitted to enhanced payment | `ChooseCardsPrompt.validate` | Store dispatch payment error | Three originally printed targets in owner hand after resolution |
+| ---: | ---: | --- | --- | --- |
+| 0 | **0** | false | null | **3 / 3** |
+| 0 | **1** | false | null | **3 / 3** |
+| 0 | **2** | true | null | **3 / 3** |
+| 1 | **0** | false | null | **3 / 3** |
+| 1 | **1** | false | null | **3 / 3** |
+| 1 | **2** | true | null | **3 / 3** |
+
+Each receipt reports `rootError:null`, native enhanced choice observed, `paymentPromptLimits:{min:2,max:2}`, `retrievalPromptFound:true`, `retrievalValidatorAccepted:true`, `retrievalError:null`. Each full-retrieval target (**Thunder Mountain Prism Star LOT**, **Handheld Fan TWM**, **Double Colorless Energy SUM**) has **`inHand:true,inDeck:false`**, including all four 0/1-cost invalid negative cases. All six cases have completed prompt resolution according to Agent1's independent summary, and the two legal exactly-two-card positive controls also moved the payment cards into the owner discard. The preparation used actual pinned Store methods, original rank6 printings and both physical seats; **it was a prepared test and did not reproduce an illegal payment in a naturally dealt original rank6 turn.**
+
+**Paper verdict:** the original Guzma & Hala CEC enhanced Tool+Special Energy search requires the two-other-card discard cost. In this pinned runtime, *actual Store dispatch* accepts a payment its own native `ChooseCardsPrompt.validate` rejects and still permits the bonus target transfer. This is a real **prompt-validation bypass** with an observed full reward, and must be vetoed by a research-owned original-paper guard for any competitive qualification. The source-specific rank6 opening policy's explicit two-card guard remains a meaningful mitigation; the first preregistered four-game frozen bilateral release independently selected two source payment cards at its naturally reached enhanced mode, so these negative fixture results cannot be falsely assigned to those games.
+
+The previous section's historical statement **“No new CI result is available” is now superseded** by this explicitly linked completed run. The unresolved natural-line post-dispatch *source hand→discard physical receipt* is a separate positive-certification gap. All game-level qualification gates remain false, 29/32 authentic source sixties, and no validated win-rate evidence.
