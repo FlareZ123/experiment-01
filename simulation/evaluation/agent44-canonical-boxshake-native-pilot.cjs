@@ -26,7 +26,8 @@ const FRESH32_REGISTERED_SHA256='89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d
 const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
-function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false}={}){
+function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
+  auditOwnerK1Sources=false}={}){
   assert.ok(diagnosticFreshIndex===null||
     (fresh32&&diagnosticFreshIndex===383),
     'The diagnostic is strictly retrospective on the previously failed original index383');
@@ -79,7 +80,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false}={
         ()=>withCanonicalAndBoxShake(()=>runMatch(request)));
       const treatment=withRank8AuthenticK0Observer(Store,row.sourceSeat,
         ()=>withCanonicalAndBoxShake(()=>runMatch(request),{
-          enableBoxShake:true,flexible:true
+          enableBoxShake:true,flexible:true,auditOwnerK1Sources
         }));
       const b=baseline.result,t=treatment.result;
       assert.deepEqual(baseline.sourceK0,treatment.sourceK0,
@@ -164,6 +165,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false}={
     seedScheduleSha256:scheduleSha256,actualTrials:rows.length,
     nativeStorePaperCompetenceCertified:false,
     captureInitialFullPhysicalDeal:auditPhysicalDeal,
+    captureOwnerK1FailureResourceAvailability:auditOwnerK1Sources,
     initialSourcePhysicalFingerprintRequired:auditPhysicalDeal,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
@@ -194,7 +196,8 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false}={
 if(require.main===module)process.stdout.write(JSON.stringify(run({
   fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true',
   diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null,
-  auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true'
+  auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true',
+  auditOwnerK1Sources:process.env.AGENT44_RANK8_CANONICAL_K1_AUDIT==='true'
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
   FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
