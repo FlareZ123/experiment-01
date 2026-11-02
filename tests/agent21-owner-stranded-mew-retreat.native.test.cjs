@@ -131,7 +131,9 @@ function trial(seat,strandedPrinting,units) {
   const intent = chooseStrandedFusionMewRetreat(view,catalog);
   assert.ok(intent, 'No owner-visible paid-retreat intent: '+JSON.stringify({active:view.ownPublic.active,resources:view.ownTurnResources,bench:view.ownPublic.bench,stadiums:[view.ownPublic.stadium,view.opponentPublic.stadium]}));
   assert.equal(intent.kind,'paid-retreat');
-  assert.equal(intent.activePrinting,strandedPrinting);
+  const nativePrinting = strandedPrinting === 'Dedenne-GX UNB' ?
+    'Dedenne GX UNB' : strandedPrinting;
+  assert.equal(intent.activePrinting,nativePrinting);
   assert.equal(intent.retreatCostUnits,units);
   assert.equal(intent.benchIndex,0);
   const {RetreatAction} = native('game/store/actions/game-actions');
@@ -143,7 +145,7 @@ function trial(seat,strandedPrinting,units) {
   assert.equal(owner.active.getPokemonCard().fullName,MEW_VMAX);
   assert.equal(owner.active.energies.cards.length,1,
     'Mew must retain its independent DCE after source Retreat');
-  assert.equal(owner.bench[0].getPokemonCard().fullName,strandedPrinting);
+  assert.equal(owner.bench[0].getPokemonCard().fullName,nativePrinting);
   assert.equal(owner.bench[0].energies.cards.length,0,
     'Previously Active DCE must enter the discard as retreat payment');
   assert.equal(owner.retreatedTurn,47);
