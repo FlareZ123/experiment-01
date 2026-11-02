@@ -133,7 +133,8 @@ function rootPhysicalSnapshot(state,seat,intent){
     (intent.slot==='bench'?owner.bench[intent.index]:owner.active):null;
   const jetRecipient=intent.kind==='attach-special-energy'&&
     intent.slot==='bench'?owner.bench[intent.index]:null;
-  const energyRecipient=intent.kind==='paid-retreat'?
+  const energyRecipient=['paid-retreat','skyliner-rondo-retreat']
+    .includes(intent.kind)?
     owner.bench[intent.benchIndex]:
     (intent.kind==='attach-basic-energy'||
      intent.kind==='attach-special-energy')&&intent.slot==='bench'?
@@ -167,7 +168,8 @@ function rootPhysicalSnapshot(state,seat,intent){
       jetActivePokemonPrinting:
         owner.active.getPokemonCard()?.fullName??null
     }:{}),
-    ...(['paid-retreat','retreat-emergency-floatstone'].includes(intent.kind)?{
+    ...(['paid-retreat','retreat-emergency-floatstone',
+      'skyliner-rondo-retreat'].includes(intent.kind)?{
       activePokemonPrinting:owner.active.getPokemonCard()?.fullName??null,
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
@@ -384,6 +386,23 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       (after.turn!==before.turn||
         after.phase!==before.phase||
         after.activePlayer!==before.activePlayer)?
+      'confirmed-public-effect':'no-confirmed-public-effect';
+  }
+  if(intent.kind==='skyliner-rondo-retreat'){
+    // A native zero-cost Skyliner retreat must preserve each attached Energy
+    // on the former Active and exchange exactly these two Pokémon in play.
+    // This Store witness is independent from any later attack declaration.
+    return before.publicSkylinerPresent===true&&
+      before.activePokemonPrinting!==null&&
+      before.targetPokemonPrinting===intent.printing&&
+      before.activePokemonPrinting!==intent.printing&&
+      after.activePokemonPrinting===intent.printing&&
+      after.targetPokemonPrinting===before.activePokemonPrinting&&
+      Array.isArray(before.activeEnergies)&&
+      Array.isArray(after.targetEnergies)&&
+      JSON.stringify(after.targetEnergies)===
+        JSON.stringify(before.activeEnergies)&&
+      after.retreatedTurn===before.turn?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='paid-retreat'){
