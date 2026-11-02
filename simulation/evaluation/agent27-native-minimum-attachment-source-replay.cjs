@@ -199,8 +199,8 @@ function run(){
   assert.deepEqual(selectedProfile.sourceDeckManifest.ranks,[1,10]);
   const sourceFile=fs.readFileSync(path.resolve(__dirname,'../..',
     selectedProfile.sourceDeckManifest.path));
-  const blobSha=createHash('sha1').update(Buffer.from(
-    'blob '+sourceFile.length+'\\0')).update(sourceFile).digest('hex');
+  const blobSha=createHash('sha1').update('blob '+sourceFile.length)
+    .update(Buffer.from([0])).update(sourceFile).digest('hex');
   assert.equal(blobSha,selectedProfile.sourceDeckManifest.blobSha,
     'Registered source original-deck file changed');
   const ambientAgentVariables=Object.keys(process.env)
