@@ -63,6 +63,24 @@ function preflight(){
   return {profile,registration};
 }
 
+/**
+ * Classify native Store attempts from the actual retained engine disposition.
+ * Completed uncensored engines are still unqualified as paper game wins.
+ * Preserve explicitly recorded legacy statuses only when the raw outcome
+ * fields are absent, never promote an unknown or incomplete outcome.
+ * @param {object} row Retained raw native development row.
+ * @returns {string}
+ */
+function classifyNativeAttempt(row){
+  if(row.error!==undefined&&row.error!==null)return 'NATIVE_ERROR';
+  if(row.finished===true&&row.endReason==='engine-game-end')
+    return 'ENGINE_TERMINAL_UNQUALIFIED';
+  if(row.finished===false&&row.endReason==='action-limit')
+    return 'CENSORED';
+  return typeof row.status==='string'&&row.status.length>0?
+    row.status:'UNVERIFIED';
+}
+
 /** @param {object} row Retained raw native development row. */
 function sourceWitness(row){
   const sourceSeat=row.trial?.candidateSlot==='A'?1:0;
@@ -76,7 +94,10 @@ function sourceWitness(row){
     sourceSeat,
     actualSourceDealFingerprint:row.sourceDealFingerprint??null,
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
-    status:row.status??'UNVERIFIED',
+    status:classifyNativeAttempt(row),
+    rawNativeFinished:row.finished??null,
+    rawNativeEndReason:row.endReason??null,
+    rawNativeActionCount:row.actionCount??null,
     nativeError:row.error??null,
     originalSourceAttackDeclarations:row.attackDeclarations?.source??null,
     sourceMewVMAXPlayRoots:acceptedSourceMewVMAX.map(x=>({
@@ -186,4 +207,4 @@ if(require.main===module){
 }
 
 module.exports={VERSION,PROFILE_BLOB,REGISTRATION_BLOB,preflight,
-  sourceWitness,physicalPairStatus,runRelease};
+  classifyNativeAttempt,sourceWitness,physicalPairStatus,runRelease};
