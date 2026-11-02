@@ -997,6 +997,7 @@ function runDevelopment({
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
+  actorRank9SpecialFundedGuzma=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -1051,6 +1052,9 @@ function runDevelopment({
     'Mega Absol VIP targeting requires native both-seat VIP before Attack');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
+  assert.ok(!actorRank9SpecialFundedGuzma||
+    (actorOnlyComposition&&actorGuzmaPromptContinuation),
+    'Special-funded Guzma needs canonical both-seat root and prompt bridge');
   assert.ok(!actorGuzmaPromptContinuation||actorOnlyComposition,
     'Guzma owner recipient bridge requires canonical actor composition');
   assert.ok(!actorGuzmaNominalGust||actorGuzmaPromptContinuation,
@@ -1224,7 +1228,7 @@ function runDevelopment({
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
-          !actorFarewellLetterRoot&&
+          !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1253,6 +1257,9 @@ function runDevelopment({
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
+              }:{}),
+              ...(actorRank9SpecialFundedGuzma?{
+                rank9SpecialFundedGuzma:true
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
@@ -1305,6 +1312,7 @@ function runDevelopment({
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             guzmaNominalGust:actorGuzmaNominalGust,
+            rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
                 setup:earlyBenchedCompressorPayload?
@@ -1345,6 +1353,14 @@ function runDevelopment({
               version:require('../twinleaf/agent1-actor-dead-first-attack-frontier.cjs').VERSION,
               bothPhysicalSeats:true,ownerSeat:null,sharedPolicy:true,
               exactPrintingOnly:true,competitiveQualified:false
+            }
+          }:{}),
+          ...(actorRank9SpecialFundedGuzma?{
+            rank9SpecialFundedGuzmaProfile:{
+              version:require('../twinleaf/agent2-rank9-special-guzma-frontier.cjs').VERSION,
+              bothPhysicalSeats:true,ownerVisible:true,
+              nativePaperActionChainQualified:false,
+              competitiveGameQualified:false
             }
           }:{}),
           actorOnlyPolicyVersion:observed.audit.version,
