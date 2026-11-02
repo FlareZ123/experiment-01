@@ -43,25 +43,19 @@ function brute(c){
   return hit/total;
 }
 
-test('exact unchanged original and proposed 60 turn-two direct access',()=>{
-  const shared={deckSize:60,opening:7,prizes:6,targetBasics:2,otherBasics:12,grandTrees:1};
-  const expected={
-    '1,2,2,1':'3489859/734673280',
-    '1,3,2':'49738489/5877386240',
-    '2,2,2,1':'7444820561/1112696076800',
-    '2,3,2':'3016209569/249788915200'
-  };
-  for(const draws of [1,2]){
-    for(const pair of [{jet:2,stages:[2,1]},{jet:3,stages:[2]}]){
-      const key=[draws,pair.jet,...pair.stages].join(',');
-      assert.equal(grandTreeDirectWindow({...shared,...pair,draws}).fraction,expected[key]);
-    }
-  }
+test('both starting seats see two own draws by own second turn; original versus challenger golden rates',()=>{
+  const shared={deckSize:60,opening:7,prizes:6,targetBasics:2,otherBasics:12,grandTrees:1,draws:2};
+  assert.equal(grandTreeDirectWindow({...shared,jet:2,stages:[2,1]}).fraction,
+    '7444820561/1112696076800');
+  assert.equal(grandTreeDirectWindow({...shared,jet:3,stages:[2]}).fraction,
+    '3016209569/249788915200');
+  assert.throws(()=>grandTreeDirectWindow({...shared,jet:2,stages:[2,1],draws:1}),
+    /Both starting seats draw/);
 });
 
 test('separate physical-order brute-force for both first and second seats',()=>{
   const base={deckSize:10,opening:3,prizes:2,targetBasics:1,otherBasics:1,grandTrees:1,jet:1};
-  for(const draws of [1,2])for(const stages of [[1],[1,1]]){
+  for(const draws of [2])for(const stages of [[1],[1,1]]){
     const c={...base,draws,stages};
     assert.equal(grandTreeDirectWindow(c).probability,brute(c));
   }
@@ -69,7 +63,7 @@ test('separate physical-order brute-force for both first and second seats',()=>{
 
 test('Stage2 requires two distinct stages searchable after Prizes',()=>{
   const base={deckSize:60,opening:7,prizes:6,targetBasics:2,otherBasics:12,grandTrees:1,jet:2};
-  const stage1=grandTreeDirectWindow({...base,stages:[2],draws:1}).probability;
-  const stage2=grandTreeDirectWindow({...base,stages:[2,1],draws:1}).probability;
+  const stage1=grandTreeDirectWindow({...base,stages:[2],draws:2}).probability;
+  const stage2=grandTreeDirectWindow({...base,stages:[2,1],draws:2}).probability;
   assert.ok(stage1>stage2);
 });
