@@ -24,6 +24,7 @@ function compact(data){
       treatmentStatus:row.farewellEnabled?.evidence?.nativeStatus,
       sourceAbilityRoots:row.farewellEnabled?.evidence?.sourceFarewellAbilityRoots,
       bothSeatIntentCount:row.farewellEnabled?.evidence?.bothSeatFarewellIntentCount,
+      nativePhysicalReceipts:row.farewellEnabled?.rawDevelopmentRow?.actorOnlyDecisionCoverage?.detailedComponentAudits?.root?.farewellLetterReceipts??[],
       bothSeatPhysicalConfirmed:
         row.farewellEnabled?.evidence?.bothSeatFarewellConfirmedEffects,
       bothSeatPhysicalUnconfirmed:
