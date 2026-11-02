@@ -4,6 +4,9 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {initializeCards,runMatch}=require('./headless.cjs');
+const {actorObservation}=require('./actor-observation-contract.cjs');
+const {observeRank13VstarOpportunity}=
+  require('./agent8-rank13-vstar-owner-opportunity.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {withCanonicalActorOnlyPolicy}=
   require('../evaluation/agent7-canonical-actor-composition.cjs');
@@ -69,8 +72,28 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
     label:'agent8-original-rank13-donor-'+
       trial.seed+'-'+sourceSeat+'-'+Number(donorRootEnabled)
   };
+  const {Stage}=require(path.join(ROOT,
+    'vendor/twinleaf/ptcg-server/output/game/store/card/card-types'));
+  const ownerVstarObservations=[];
+  const ownerVstarKeys=new Set();
+  const observedRoot=(state,seat)=>{
+    const actor=actorObservation(state,seat);
+    if(seat===sourceSeat){
+      const root=observeRank13VstarOpportunity(actor,Stage);
+      if(root.heldVstarCount>0||root.inPlayRegidragoVCount>0){
+        const key=JSON.stringify(root);
+        if(!ownerVstarKeys.has(key)){
+          ownerVstarKeys.add(key);
+          if(ownerVstarObservations.length<100)
+            ownerVstarObservations.push(root);
+        }
+      }
+    }
+    return actor;
+  };
   const adapters={
-    root:work=>withActorOnlyRootPolicy(work,{
+    root:work=>withActorOnlyRootPolicy(work,{ 
+      observe:observedRoot,
       regidragoDonorQuickBallRoot:donorRootEnabled,
       regidragoDonorQuickBallOwnerSeat:sourceSeat,
       naturalEvolutionRoot:naturalEvolutionEnabled
@@ -126,6 +149,9 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
       gameDecisionTraceSha256:digest,
       publicAcceptedActions,
       sourceAttackDetails,
+      sourceOwnerVstarObservations:ownerVstarObservations,
+      sourceOwnerEligibleVstarRootTurns:[...new Set(ownerVstarObservations
+        .filter(row=>row.ordinaryVstarRootLegal).map(row=>row.turn))],
       deckHashes:game.deckHashes,
       winner:game.finished?game.winner:null,
       endReason:game.endReason,
