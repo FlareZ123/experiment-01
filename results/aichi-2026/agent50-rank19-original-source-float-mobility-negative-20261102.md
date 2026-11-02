@@ -54,3 +54,12 @@ These data demonstrate source-policy limitations and a formerly malformed native
 - Existing manually dispatched `.github/workflows/aichi-dusclops-self-ko.yml`
 
 All released tests and observations remain default-off in the natural shared field policy. No on-push workflow was created.
+
+
+## Corrected attached-Tool remeasurement, same exact original-source deals
+
+The corrected active Tool-array observer and new pure test passed in [compiled manual run 41409207827](https://github.com/FlareZ123/experiment-01/actions/runs/41409207827), [artifact 13124324298](https://github.com/FlareZ123/experiment-01/actions/runs/41409207827/artifacts/13124324298), ZIP SHA-256 `bf7ae5a1f066aeff6cc4da1f47264ec1ccd6df1e0d231bee28c57b648537c4b1`. All four original-source physical fingerprints matched their frozen comparison partner, with 8/8 native engine terminals, zero Bellowing and zero Raging Active owner roots.
+
+Crucially, each source-seat-0 **treatment** game recorded **one original-source owner root with Float Stone actually attached to Active Ho-Oh** while Raging Bolt remained Benched and funded. Each corresponding baseline recorded zero such attached-Tool owner roots. The earlier repeated-held counts fell from 12→1 and 23→1, but an actual promotion still did not happen before game termination. This establishes a real Tool attachment on the tested sources, and narrows the remaining defect to the *continuation after attachment*: owner retreat clock, Source Store acceptance, another competing decision, or an intervening loss of the position. It does not establish which of those explanations is correct.
+
+At the first five funded-Ho-Oh owner roots in the treated seat-0 games, Ho-Oh had **zero attached Energy**, `retreatedTurn=0`, and no Tool. The later observed attached Float Stone root must therefore be inspected in its actual chronology. The follow-up source-root action ledger is being preserved separately to distinguish these stages without conflating repeated owner roots with turns.
