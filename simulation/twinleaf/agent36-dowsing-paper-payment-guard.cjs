@@ -3,18 +3,17 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent36-dowsing-pls128-immediate-physical-payment-v2';
+const VERSION = 'agent36-dowsing-pls128-transaction-custody-v3';
 const PRINTING = 'Dowsing Machine PLS';
 
 /**
- * Evaluate only the original PLS 128 mandatory discard payment. The card
- * requires two distinct OTHER physical hand cards. No native validator is
- * trusted as the source of paper legality.
- *
- * @param {object} prompt Genuine source-stamped discard prompt.
- * @param {unknown} answer Physical native ResolvePromptAction result.
- * @param {object} owner Physical player with this prompt.
- * @returns {string|null} Independently established invalidity.
+ * Evaluate only the original PLS 128 mandatory discard payment.
+ * The two chosen cards must be distinct original physical owner-hand cards.
+ * Do not use the native prompt validator as a paper legality oracle.
+ * @param {object} prompt Native source-stamped discard prompt.
+ * @param {unknown} answer Submitted native physical card objects.
+ * @param {object} owner Current physical owner.
+ * @returns {string|null} Proven invalid payment or null.
  */
 function dowsingPaymentNegative(prompt, answer, owner) {
   if (prompt?.message !== 'CHOOSE_CARD_TO_DISCARD' ||
@@ -34,14 +33,17 @@ function dowsingPaymentNegative(prompt, answer, owner) {
 }
 
 /**
- * Reversible, default-off native Store boundary. A two-card payment is
- * credited at the payment resolution boundary only if both actual card
- * objects enter the owner's discard and leave the owner's hand. Target recovery and a full turn
- * remain separate evidence; no game is certified by this wrapper.
+ * Explicit opt-in reversible native Store boundary, default off.
+ * Pinned Dowsing PLS stores the submitted payment before offering its target
+ * recovery prompt. The discard physically occurs only after successful
+ * recovery. Therefore inspect each post-dispatch source transaction state,
+ * settle at the first observed physical cost transfer, and never reclassify
+ * a settled payment because the cards are legitimately recycled later.
+ * An unresolved transaction is distinct from a completed unpaid transaction.
  *
  * @template T
- * @param {()=>T} run Synchronous native game or prepared Store probe.
- * @param {{Store?:Function}} [deps] Native Store injection for pure tests.
+ * @param {()=>T} run Synchronous native test or full game.
+ * @param {{Store?:Function}} [deps] Store injection in isolated tests.
  * @returns {{result:T,audit:object}}
  */
 function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
@@ -51,15 +53,44 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
   const Store = deps.Store ?? native('game/store/store').Store;
   const previous = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
   assert.equal(typeof previous?.value, 'function');
+  const pendingByStore = new Map();
   const audit = {
     schema: VERSION, printing: PRINTING, defaultEnabled: false,
-    scope: 'Original PLS128 mandatory two-other-card physical payment only',
+    scope: 'Source-stamped PLS128 mandatory two-other-card physical payment only',
     inspectedRoots: 0, invalidRoots: 0, inspectedPayments: 0,
     invalidPayments: 0, acceptedPayments: 0,
     settledPhysicalPayments: 0, unsettledPhysicalPayments: 0,
+    unresolvedPhysicalPayments: 0,
     sourceStampedPayments: [], entireGamePaperQualified: false,
     competitiveQualifiedGames: 0
   };
+
+  /** @param {object} store @param {string} actionType @param {object|null} before */
+  function observePaymentCustody(store, actionType, before) {
+    const pending = pendingByStore.get(store);
+    if (!pending?.length) return;
+    for (const entry of [...pending]) {
+      const {owner, selected, event} = entry;
+      const settled = selected.every(card =>
+        owner.discard?.cards?.includes(card) &&
+        !owner.hand?.cards?.includes(card));
+      const recoveryClosed =
+        before?.constructor?.name === 'ChooseCardsPrompt' &&
+        before.message === 'CHOOSE_CARD_TO_HAND' &&
+        before.playerId === owner.id &&
+        before.cards === owner.discard;
+      if (!settled && !recoveryClosed) continue;
+      event.physicallySettled = settled;
+      event.transactionClosed = true;
+      event.closureDispatchType = actionType;
+      event.closureReason = settled ?
+        'EXACT_PHYSICAL_COST_TRANSFER' : 'RECOVERY_CLOSED_WITHOUT_PHYSICAL_COST';
+      if (settled) audit.settledPhysicalPayments++;
+      else audit.unsettledPhysicalPayments++;
+      pending.splice(pending.indexOf(entry), 1);
+    }
+  }
+
   function dispatched(action, ...args) {
     const actionType = action?.constructor?.name;
     if (actionType === 'PlayCardAction') {
@@ -73,43 +104,54 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
         }
       }
     }
-    if (actionType !== 'ResolvePromptAction')
-      return previous.value.call(this, action, ...args);
-    const prompt = this.state?.prompts?.find(p =>
-      p.id === action.id && p.result === undefined);
-    if (prompt?.constructor?.name !== 'ChooseCardsPrompt' ||
-        prompt.sourceCard?.fullName !== PRINTING ||
-        prompt.message !== 'CHOOSE_CARD_TO_DISCARD')
-      return previous.value.call(this, action, ...args);
+    const before = actionType === 'ResolvePromptAction' ?
+      this.state?.prompts?.find(p => p.id === action.id && p.result === undefined) :
+      null;
+    const payment = actionType === 'ResolvePromptAction' &&
+      before?.constructor?.name === 'ChooseCardsPrompt' &&
+      before.sourceCard?.fullName === PRINTING &&
+      before.message === 'CHOOSE_CARD_TO_DISCARD';
+    if (!payment) {
+      const result = previous.value.call(this, action, ...args);
+      observePaymentCustody(this, actionType, before);
+      return result;
+    }
     audit.inspectedPayments++;
-    const owner = this.state?.players?.find(p => p.id === prompt.playerId);
-    const reason = dowsingPaymentNegative(prompt, action.result, owner);
+    const owner = this.state?.players?.find(p => p.id === before.playerId);
+    const reason = dowsingPaymentNegative(before, action.result, owner);
     const event = {
       seat: this.state?.players?.indexOf(owner) ?? -1,
       submittedCount: Array.isArray(action.result) ? action.result.length : null,
-      reason, nativeAccepted: false, physicallySettled: false
+      reason, nativeAccepted: false, physicallySettled: false,
+      transactionClosed: false, closureDispatchType: null,
+      closureReason: null
     };
     audit.sourceStampedPayments.push(event);
     if (reason) {
       audit.invalidPayments++;
       throw new Error('PAPER_PROMPT_INVALID:' + reason);
     }
-    const accepted = previous.value.call(this, action, ...args);
+    const result = previous.value.call(this, action, ...args);
     event.nativeAccepted = true;
     audit.acceptedPayments++;
-    event.physicallySettled = action.result.every(card =>
-      owner.discard?.cards?.includes(card) &&
-      !owner.hand?.cards?.includes(card));
-    if (event.physicallySettled) audit.settledPhysicalPayments++;
-    else audit.unsettledPhysicalPayments++;
-    return accepted;
+    const list = pendingByStore.get(this) ?? [];
+    list.push({owner, selected: [...action.result], event});
+    pendingByStore.set(this, list);
+    observePaymentCustody(this, actionType, before);
+    return result;
   }
+
   Object.defineProperty(Store.prototype, 'dispatch',
     {...previous, value: dispatched});
   try {
-    const result = run();
-    return {result, audit};
+    return {result: run(), audit};
   } finally {
+    for (const pending of pendingByStore.values()) {
+      for (const entry of pending) {
+        entry.event.closureReason = 'TRANSACTION_UNRESOLVED_AT_RUN_END';
+        audit.unresolvedPhysicalPayments++;
+      }
+    }
     assert.strictEqual(Store.prototype.dispatch, dispatched);
     Object.defineProperty(Store.prototype, 'dispatch', previous);
   }
