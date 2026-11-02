@@ -117,17 +117,13 @@ function probe(mode,sourceSeat){
   const promoted=afterPlayer.active.getPokemonCard()?.fullName;
   const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
   const expectedSuppressed=!['baseline','wobbuffet'].includes(mode);
-  assert.ok(original,'Original rank30 nominal opportunity must be visible');
-  assert.equal(nativeBlocked,expectedSuppressed,
-    'Pinned Store Ability checker disagrees with paper mechanism '+mode);
-  assert.equal(nativeRetreatCost,expectedSuppressed?2:0,
-    'Pinned Store retreat modifier disagrees with paper mechanism '+mode);
-  assert.equal(Boolean(guarded),!expectedSuppressed,
-    'Owner-public guard eligibility differs from expected native lock '+mode);
-  // Retain the actual native action result as a separate fidelity witness.
-  // A fabricated staged board can have unrelated dispatch preconditions.
-  // Native CheckRetreatCostEffect and printed Ability statuses remain the
-  // primary mechanically isolated assertions here.
+  const checks={
+    printedRootPresent:Boolean(original),
+    nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
+    nativeRetreatCostAsPaper:nativeRetreatCost===(expectedSuppressed?2:0),
+    publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
+    nativePhysicalRetreatAsPaper:nativeRetreatAccepted===!expectedSuppressed
+  };
   return {mode,sourceSeat,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
@@ -136,7 +132,7 @@ function probe(mode,sourceSeat){
     suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
     nativeRetreatCost,
     nativeRetreatAccepted,nativeRetreatError,activeAfter:promoted,
-    expectedRetreatAccepted:!expectedSuppressed,
+    expectedRetreatAccepted:!expectedSuppressed,checks,
     competitiveQualified:false};
 }
 
@@ -145,12 +141,19 @@ function run(){
   const rows=[];
   for(const mode of MODES)for(const seat of [0,1])
     rows.push(probe(mode,seat));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,sourceSeat:row.sourceSeat,
+      check,nativeRetreatError:row.nativeRetreatError})));
   return {version:VERSION,enginePin:
     'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    stagedNativeCases:rows.length,rows,
-    qualifiedCompetitiveGames:0};
+    stagedNativeCases:rows.length,failedChecks:failures.length,
+    failures,rows,qualifiedCompetitiveGames:0};
 }
 
-if(require.main===module)
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const result=run();
+  process.stdout.write(JSON.stringify(result,null,2)+'\\n');
+  if(result.failedChecks>0)process.exitCode=1;
+}
 module.exports={VERSION,MODES,probe,run};
