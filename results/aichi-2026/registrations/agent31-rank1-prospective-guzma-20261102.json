@@ -1,0 +1,192 @@
+{
+  "schema": "agent31-rank1-original-owner-public-guzma-obstacle-prospective-20261102-v1",
+  "registeredUtc": "2026-11-02T15:42:47.545626Z",
+  "registeredBeforeNativeGames": true,
+  "researchQuestion": "Does a genuinely played rank1 original Shadow Rider or the fixed candidate have held Guzma together with an already funded fixed-damage Bench attacker, when rank11 source did not?",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceRank": 1,
+  "sourceArchetype": "Shadow Rider Calyrex",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": [
+      1473975189,
+      3316634531,
+      2187037524,
+      2718425727
+    ],
+    "B": [
+      3191938428,
+      1299331422,
+      3247274510,
+      4243710812
+    ]
+  },
+  "trials": [
+    {
+      "id": "1:0:A:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1473975189
+    },
+    {
+      "id": "1:0:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1473975189
+    },
+    {
+      "id": "1:1:A:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3316634531
+    },
+    {
+      "id": "1:1:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3316634531
+    },
+    {
+      "id": "1:2:A:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2187037524
+    },
+    {
+      "id": "1:2:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2187037524
+    },
+    {
+      "id": "1:3:A:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2718425727
+    },
+    {
+      "id": "1:3:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2718425727
+    },
+    {
+      "id": "1:0:B:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3191938428
+    },
+    {
+      "id": "1:0:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3191938428
+    },
+    {
+      "id": "1:1:B:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1299331422
+    },
+    {
+      "id": "1:1:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1299331422
+    },
+    {
+      "id": "1:2:B:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3247274510
+    },
+    {
+      "id": "1:2:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3247274510
+    },
+    {
+      "id": "1:3:B:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4243710812
+    },
+    {
+      "id": "1:3:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4243710812
+    }
+  ],
+  "independentNativeSeedGroups": 8,
+  "nativeAttemptsPerPolicy": 16,
+  "totalNativeAttempts": 32,
+  "fixedEnvironment": {
+    "AGENT2_HELD_GUZMA_MOBILITY_DEV": "true"
+  },
+  "setupAndPolicyFixed": {
+    "actorOnlyComposition": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorChoosePokemon": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "bilateralPublicContextSpecialEnergy": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootPositiveAttackOverPass": true,
+    "actorNaturalEvolutionRoot": true,
+    "losslessNativeRootJoin": true,
+    "sameRootPublicEventReceipt": true,
+    "nativeRejectedActionEvidence": true,
+    "allowAdditionalOriginalSourceRanks": true
+  },
+  "singleIndependentVariable": "The only difference between paired same-registration native runs is the passive Store Guzma obstacle observer wrapper; underlying policy remains identical.",
+  "selectionRule": "All 16 authentic original-source/candidate/seat trial rows, including aborts/caps, captured; preregistered before any native games and not dependent on observed results.",
+  "primaryOutcome": "Owner-turns holding genuine Guzma with funded Basic-Energy fixed positive attack from any own Bench and paired opponent public Bench target; secondary nominal KO and Supporter quota conjunctions.",
+  "verification": "Compare registered trial-by-trial full physical initial deal, source initial deal, verified first seat, all native accepted root action ledger digests and native outcome/error status between observer-off and observer-on.",
+  "qualification": "Development-only. A charged printed attack is a necessary conservative screen, not actual native payability/KO; no policy treatment and no competitive-game qualification."
+}
