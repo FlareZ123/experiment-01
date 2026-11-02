@@ -34,6 +34,8 @@ jobs:
         run: node --test tests/agent27-source-profile-disposition.test.cjs
       - name: Verify genuine native clientId source-followup Pass matcher (pure tests)
         run: node --test tests/agent27-source-followup-pass.test.cjs
+      - name: Check immutable selected source Git blob, cases, historic options (pure tests)
+        run: node --test tests/agent27-registered-source-canary-profile.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
