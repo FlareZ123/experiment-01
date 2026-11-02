@@ -11,6 +11,7 @@ test('original rank26 Dowsing PLS mandatory two-card native prompt audit both se
     for(const r of rows){
       assert.equal(r.sourceRank,26);
       assert.equal(r.firstPromptFound,true,JSON.stringify(r));
+      assert.equal(r.nativePaymentPromptSourceCard,PRINTING,JSON.stringify(r));
       assert.equal(r.rootError,null,JSON.stringify(r));
       assert.equal(r.nativePaymentLimits.min,2);
       assert.equal(r.nativePaymentLimits.max,2);
