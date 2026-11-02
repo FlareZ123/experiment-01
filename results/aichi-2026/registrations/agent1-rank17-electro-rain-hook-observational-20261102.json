@@ -1,0 +1,49 @@
+{
+  "schema": "agent1-rank17-electro-rain-original-seeds-paper-hook-observational-v1",
+  "registeredAtUTC": "2026-11-02T12:06:43Z",
+  "sourceRank": 17,
+  "originalExperimentRegistration": "results/aichi-2026/registrations/agent1-rank17-prospective-evolution-policy-20261102.json",
+  "sameRegisteredSeedsNoNewSamples": true,
+  "selectionStatus": "Previously known one positive Electro Rain attack under symmetric naturalEvolution root; DEVELOPMENT_REPLAY",
+  "hypothesis": "When source-original Alolan Raichu UNM Electro Rain actually attacks, the reversible specific-source hook will convert a printed misclassification PutCountersEffect to PutDamageEffect and preserve real Store reducer/selected physical targets. Full run must report actual correction count, damage before/after and preserve all aborted rows.",
+  "treatment": "Frozen v2 symmetric actor-only profile + actorNaturalEvolutionRoot=true + reversible one-print Electro Rain damage-type replacement. Other player policies, 60s, source rank, seats, seeds remain unchanged.",
+  "originalPrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "groups": [
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3205004075
+    },
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1975817274
+    },
+    {
+      "rank": 17,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3186938867
+    },
+    {
+      "rank": 17,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2082256034
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "expectedNativeArms": 8,
+  "priorEngineWitnesses": {
+    "nativeExtraEnergyBombRoots": 0,
+    "nativeElectroRainAttackDeclarations": 1,
+    "nativeEvolutions": 7
+  },
+  "qualification": "No real paper clock, no verified end-to-end effects, selected known-positive original seeds and still weak both-seat policy. NEVER score as independent validation or competitive win."
+}
