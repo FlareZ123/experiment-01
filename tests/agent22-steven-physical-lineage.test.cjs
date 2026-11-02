@@ -62,9 +62,10 @@ for(const sourceSeat of [0,1]){
       // The actual selected physical copy is now the remaining card.
       store.dispatch(new PlayCardAction(77,0));
       return store.owner.discard.cards.length;
-    },{Store:MockStore});
+    },{Store:MockStore,authorizedStore:store});
     assert.equal(wrapped.result,2);
     assert.strictEqual(MockStore.prototype.dispatch,original.value);
+    assert.equal(wrapped.audit.authenticatedLiveStore,true);
     assert.equal(wrapped.audit.nativeSearchPromptResolutions,1);
     assert.equal(wrapped.audit.nativeSettledSelectedPhysicalCards,1);
     assert.equal(wrapped.audit.physicalTokensLaterPlayed,1);
@@ -81,11 +82,28 @@ test('native accepted empty Steven search is recorded without invented cards',()
   const store=new MockStore(0,{fullName:'A'},{fullName:'B'});
   const result=withSourceStevenPhysicalLineage(0,()=>{
     store.dispatch(new ResolvePromptAction(31,[]));
-  },{Store:MockStore});
+  },{Store:MockStore,authorizedStore:store});
   assert.equal(result.audit.nativeSearchPromptResolutions,1);
   assert.equal(result.audit.searches[0].nativeSubmittedCards,0);
   assert.equal(result.audit.nativeSettledSelectedPhysicalCards,0);
   assert.equal(result.audit.physicalTokensLaterPlayed,0);
+});
+
+test('an unrelated speculative Store cannot contribute false physical roots',()=>{
+  const source={fullName:'VS Seeker PHF'};
+  const actual=new MockStore(0,source,{fullName:'Capture Energy RCL'});
+  const copied={fullName:'VS Seeker PHF'};
+  const speculative=new MockStore(0,copied,{fullName:'VS Seeker PHF'});
+  const {audit}=withSourceStevenPhysicalLineage(0,()=>{
+    speculative.dispatch(new ResolvePromptAction(31,[copied]));
+    speculative.dispatch(new PlayCardAction(77,1));
+    actual.dispatch(new ResolvePromptAction(31,[source]));
+    actual.dispatch(new PlayCardAction(77,1));
+  },{Store:MockStore,authorizedStore:actual});
+  assert.equal(audit.nativeSearchPromptResolutions,1);
+  assert.equal(audit.nativeSettledSelectedPhysicalCards,1);
+  assert.equal(audit.physicalTokensLaterPlayed,1);
+  assert.equal(audit.authenticatedLiveStore,true);
 });
 
 test('Store dispatcher is restored when native execution throws',()=>{
