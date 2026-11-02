@@ -83,6 +83,21 @@ Both payments fail the current rule of retaining every last *hand-held* printing
 
 The above calculation is inclusion-exclusion over two disjoint printing-loss events. For a paid printing with `u` unobserved copies and zero physical copies remaining in hand after payment, the probability of losing every duplicate to six random Prizes is `C(53-u,6-u)/C(53,6)` (zero when `u>6`). The intersection event with two distinct printings uses their summed unseen copies. This is a hand-specific exact K0 risk, unlike the earlier unconditional sampled-hand opportunity rates.
 
+
+## Bench-placement sensitivity: remove all additional Iron Thorns Basics from the hand
+
+The first strict payment census allows extra Basic Iron Thorns ex copies to remain in the observed hand. Those physical cards could instead be placed into the Active Spot/Bench during setup, or Benched during the turn. If we explicitly place **every** observed Iron Thorns ex into play and no longer offer any as a discard payment, the safe-payment screen is substantially tighter. With four total Iron Thorns ex, the five-slot ordinary Bench can accommodate all three extras.
+
+| Original rank | Strict all-printing initial-seven rate | If all Basics leave hand, initial seven | If all Basics leave hand, after one ordinary draw |
+| ---: | ---: | ---: | ---: |
+| 6 | 3.1375% | **0.9285%** | **2.2408%** |
+| 24 | 3.3027% | **0.9814%** | **2.4288%** |
+| 29 | 3.0195% | **0.8575%** | **2.0786%** |
+
+This is an explicitly hypothetical board-action counterfactual, preserving the same initial Basic-valid/Plumeria-held conditioning and random draw model. It neither proves that real players Bench every available Iron Thorns nor specifies the timing of the turn's cards. Bench occupancy, vulnerability to gust and the need to retain an extra attacker can make a player choose to keep a Basic in hand. These counts are an illustration that the discard-capacity property is **state-dependent**, and a reminder that opening-hand duplication alone overstates what is in hand at a later actual Plumeria decision.
+
+The script tracks this separate capped non-Basic capacity exactly; its independent physical toy-case regression agrees with the dynamic program.
+
 ## Implication and limits
 
 The last-printing payment heuristic is a particularly restrictive approximation to state-dependent discard value. Among Basic-valid openings with Plumeria held, at least **96.86%** fail its *hand-only* no-erasure test before public opposing attached Energy, actual Supporter quota, locks, native prompt restrictions, hand changes or opponent matchup are considered. The one-draw percentage still fails in more than **93.45%** of those conditioned states.
