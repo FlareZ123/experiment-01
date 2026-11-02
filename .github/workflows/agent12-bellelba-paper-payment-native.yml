@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify reversible payment guard and physical reference safety
-        run: node --test tests/agent12-bellelba-paper-optional-payment-guard.test.cjs
+        run: node --test tests/agent12-bellelba-paper-optional-payment-guard.test.cjs tests/agent12-opponent-hand-discard-paper-guard.test.cjs
       - name: Load pinned Twinleaf submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine
@@ -26,4 +26,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run Bellelba three-card cost and Sidney eligible-type native cases
-        run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs tests/agent12-sidney-opponent-hand-native.test.cjs tests/agent12-team-skull-grunt-native.test.cjs
+        run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs tests/agent12-sidney-opponent-hand-native.test.cjs tests/agent12-team-skull-grunt-native.test.cjs tests/agent12-opponent-hand-discard-guarded-native.test.cjs
