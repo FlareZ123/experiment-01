@@ -1,5 +1,9 @@
 'use strict';
 
+// SUPERSEDED EXPERIMENT ONLY. Agent46's existing electro-rain-damage-hook.cjs
+// aggregates repeated target damage before flat modifiers. Use that hook.
+// This older single-effect conversion must not be promoted to paper games.
+
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
