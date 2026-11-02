@@ -7,7 +7,7 @@ const {chooseRank9SpecialFundedGuzma}=require(
 const D=7,P=5,C=9,BASIC=0;
 const catalog={
   stages:{BASIC},
-  basics:new Set(['Mega Absol ex ME1']),
+  basics:new Set(['Mega Absol ex M1L']),
   basicEnergies:new Set(['Psychic Energy MEE']),
   specialEnergies:new Set([
     'Prism Energy BW4','Telepathic Psychic Energy SMP'
@@ -24,7 +24,7 @@ const claw={
 };
 function board(){
   const attacker={
-    name:'Mega Absol ex',printing:'Mega Absol ex ME1',
+    name:'Mega Absol ex',printing:'Mega Absol ex M1L',
     printed:{stage:BASIC,types:[D],weakness:[],resistance:[]},
     attacks:[claw],energies:[
       'Prism Energy BW4','Prism Energy BW4',
@@ -87,7 +87,7 @@ test('exact printed weakness and native public print identity are required',()=>
   assert.equal(chooseRank9SpecialFundedGuzma(v,catalog),null);
   v.opponentPublic.bench[2].printed.weakness=[{type:D,value:2}];
   assert.equal(chooseRank9SpecialFundedGuzma(v,catalog).nominalDamage,400);
-  v.ownPublic.bench[1].printing='Other Absol ex ME1';
+  v.ownPublic.bench[1].printing='Other Absol ex M1L';
   assert.equal(chooseRank9SpecialFundedGuzma(v,catalog),null);
 });
 test('unknown target Tools, Resistance and attack change all veto proposal',()=>{
