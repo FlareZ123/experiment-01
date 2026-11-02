@@ -16,7 +16,7 @@ const native=name=>require(path.join(OUTPUT,name));
  * @param {0|1} ownerSeat
  * @returns {{selectedEvolution:string,illegalTargetPassedNativePrompt:boolean,legalTargetPassedNativePrompt:boolean,sourceSeat:number}}
  */
-function inspectNativeWally(ownerSeat){
+function inspectNativeWally(ownerSeat,selection='legal'){
   const manager=initializeCards();
   const {Store}=native('game/store/store');
   const {Player}=native('game/store/state/player');
@@ -26,7 +26,7 @@ function inspectNativeWally(ownerSeat){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
-  const {Format}=native('game/store/card/card-types');
+  const {Format,CardTag}=native('game/store/card/card-types');
   const store=new Store({onStateChange(){}});
   const state=store.state;
   const owner=new Player(),opponent=new Player();
@@ -62,6 +62,7 @@ function inspectNativeWally(ownerSeat){
   assert.equal(owner.hand.cards[0],wally);
   assert.equal(owner.active.getPokemonCard(),legalEgg);
   assert.equal(owner.bench[0].getPokemonCard(),illegalEx);
+  assert.equal(illegalEx.hasTag(CardTag.POKEMON_EX),true);
   store.dispatch(new PlayCardAction(owner.id,0,{
     player:PlayerType.ANY,slot:SlotType.BOARD,index:0
   }));
@@ -81,40 +82,39 @@ function inspectNativeWally(ownerSeat){
     'Legal physical Exeggcute VIV must be a valid Wally recipient');
   assert.equal(illegalTargetPassedNativePrompt,true,
     'Pinned Wally target filter unexpectedly repaired; revisit the source-code diagnosis');
-  // Never actually send the paper-illegal Mewtwo-EX selection to Store.
-  store.dispatch(new ResolvePromptAction(second.id,[owner.active]));
-  for(let k=0;k<32;k++){
-    const pending=state.prompts.find(p=>p.result===undefined);
-    if(!pending)break;
-    if(pending.constructor.name==='ShuffleDeckPrompt'){
-      const order=deckPermutation(owner.deck.cards.length,
-        seededRandom(20261102+ownerSeat*100+k));
-      store.dispatch(new ResolvePromptAction(pending.id,order));
-      continue;
-    }
-    assert.equal(pending.constructor.name,'WaitPrompt');
-    store.dispatch(new ResolvePromptAction(pending.id,null));
+  // Staged physical target resolution is assessed before unrelated end-turn
+  // checker prompts. Do not treat later CoinFlipPrompt as part of Wally.
+  assert.ok(selection==='legal'||selection==='illegal');
+  const chosen=selection==='legal'?owner.active:owner.bench[0];
+  store.dispatch(new ResolvePromptAction(second.id,[chosen]));
+  assert.equal(chosen.getPokemonCard()?.fullName,'Exeggutor PLF',
+    'Actual Wally target must receive the selected physical evolution');
+  assert.ok(chosen.cards.includes(evolution));
+  if(selection==='legal'){
+    assert.ok(owner.active.cards.includes(legalEgg));
+    assert.equal(owner.bench[0].getPokemonCard()?.fullName,'Mewtwo-EX BKT');
+  }else{
+    assert.equal(owner.active.getPokemonCard()?.fullName,'Exeggcute VIV');
+    assert.ok(owner.bench[0].cards.includes(illegalEx),
+      'Actual Store has put Exeggutor above unrelated Mewtwo-EX');
   }
-  assert.equal(owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
-  assert.ok(owner.active.cards.includes(legalEgg));
-  assert.ok(owner.active.cards.includes(evolution));
-  assert.equal(owner.bench[0].getPokemonCard()?.fullName,'Mewtwo-EX BKT');
   return {
-    sourceSeat:ownerSeat,
+    sourceSeat:ownerSeat,selection,
     selectedEvolution:'Exeggutor PLF',
     ownerFirstTurnGoingSecond:true,
     legalRecipient:'Exeggcute VIV',
-    rejectedActualIllegalMutation:true,
+    illegallyStackedExOnWrongPokemon:selection==='illegal',
     invalidRecipient:'Mewtwo-EX BKT',
     legalTargetPassedNativePrompt,illegalTargetPassedNativePrompt,
     disclaimer:'Staged physical native source turn; exact prompt bug witness only, zero competitive matches'
   };
 }
 
-test('pinned Wally admits unrelated EX recipient at native prompt in both seats',()=>{
-  for(const seat of [0,1]){
-    const row=inspectNativeWally(seat);
+test('pinned Wally native accepts legal evolution and also paper-illegal EX target, both seats',()=>{
+  for(const seat of [0,1])for(const selection of ['legal','illegal']){
+    const row=inspectNativeWally(seat,selection);
     assert.equal(row.illegalTargetPassedNativePrompt,true);
+    assert.equal(row.illegallyStackedExOnWrongPokemon,selection==='illegal');
     console.log('AGENT18_WALLY_NATIVE_PROMPT',JSON.stringify(row));
   }
 });
