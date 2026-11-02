@@ -6,8 +6,10 @@ const {initializeCards,runMatch}=require('./headless.cjs');
 const {registration}=require('./agent47-rank20-apex-natural-audit.cjs');
 const {captureInitialPhysicalOwners,inspectPhysicalCardZones,
   fixedDeckCountAnomalies}=require('./physical-card-ledger.cjs');
-const {projectPendingReplayPrizes,compareNativePendingPrizeWinner}=
-  require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
+const {
+  projectPendingReplayPrizes,projectPendingOrdinaryPrizes,
+  compareNativePendingPrizeWinner
+}=require('../evaluation/agent24-pending-replay-prize-disposition.cjs');
 
 const SEED=1847000101;
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -53,9 +55,10 @@ function stageOwnedCard(owner,name,target){
  *
  * @param {0|1} reverse
  * @param {Map<number,object>} byRank
+ * @param {{ordinaryLastPrizes?:boolean}} [settings]
  * @returns {object}
  */
-function one(reverse,byRank){
+function one(reverse,byRank,{ordinaryLastPrizes=false}={}){
   const a=byRank.get(reverse?29:6).cardIds;
   const b=byRank.get(reverse?6:29).cardIds;
   assert.equal(a.length,60);assert.equal(b.length,60);
@@ -123,9 +126,12 @@ function one(reverse,byRank){
       assert.deepEqual(fixedDeckCountAnomalies(census),[]);
       assert.deepEqual(census.originalOwnerCustody.missingOriginalCounts,[0,0]);
       assert.equal(census.originalOwnerCustody.displacedOriginalReferences.length,0);
-      assert.deepEqual(state.players.map(p=>p.getPrizeLeft()),[6,6]);
+      assert.deepEqual(state.players.map(p=>p.getPrizeLeft()),
+        ordinaryLastPrizes?[2,2]:[6,6]);
+      assert.equal(state.isSuddenDeath===true,!ordinaryLastPrizes);
       attackBefore={
         seat,turn:state.turn,
+        physicalPrizeCounts:state.players.map(p=>p.getPrizeLeft()),
         attacker:attacker.active.getPokemonCard()?.name,
         defender:defender.active.getPokemonCard()?.name,
         attackerDamage:attacker.active.damage,
@@ -158,11 +164,15 @@ function one(reverse,byRank){
     if(!stagedTie&&ready&&after.turn===1&&
        after.phase===GamePhase.PLAYER_TURN){
       for(const player of after.players){
-        assert.equal(player.prizes.filter(p=>p.cards.length>0).length,6);
-        for(const prize of player.prizes)
+        const authenticPrizes=player.prizes.filter(p=>p.cards.length>0);
+        assert.equal(authenticPrizes.length,6);
+        const moving=ordinaryLastPrizes?authenticPrizes.slice(0,4):
+          authenticPrizes;
+        for(const prize of moving)
           player.hand.cards.push(...prize.cards.splice(0));
       }
       stagedTie=true;
+      if(ordinaryLastPrizes)replayOpened=true;
     }else if(stagedTie&&after.turn===0&&
              after.phase===GamePhase.SETUP&&after.isSuddenDeath===true){
       resetSeen=true;
@@ -181,13 +191,16 @@ function one(reverse,byRank){
       doubleDragonRecovery:true,capturePhysicalZoneIntegrity:true,
       captureOriginalOwnerIntegrity:true,
       enforceSettledPhysicalZoneIntegrity:true,
-      label:'agent24-staged-real-Spiky-Volt-Cyclone-double-ko-'+reverse
+      label:'agent24-staged-real-Spiky-Volt-Cyclone-double-ko-'+reverse+
+        (ordinaryLastPrizes?'-ordinary-last-prize':'-replay')
     });
   }finally{
     Store.prototype.dispatch=previousDispatch;
     Store.prototype.reduceEffect=previousReduce;
   }
-  assert.ok(owners&&stagedTie&&resetSeen&&replayOpened&&forcedAttack);
+  assert.ok(owners&&stagedTie&&replayOpened&&forcedAttack);
+  assert.ok(ordinaryLastPrizes||resetSeen,
+    'Replay mode requires an actual native new six-Prize deal');
   assert.equal(owners.size,120);
   assert.ok(game.finished,'Real Store attack did not reach a native terminal');
   assert.equal(koEntitlements.length,2,
@@ -197,14 +210,22 @@ function one(reverse,byRank){
   assert.ok(damageEffects.some(e=>e.type==='PutCountersEffect'&&
     e.effectTargetsAttacker),
     'Spiky Energy counter effect did not apply to attacker');
-  const pendingPrizeAudit=projectPendingReplayPrizes({
-    authenticatedReplayEpoch:replayOpened,
-    singleSettledResolutionBatch:true,
-    physicalRemaining:[6,6],
-    koEntitlements
-  });
+  const pendingPrizeAudit=ordinaryLastPrizes?
+    projectPendingOrdinaryPrizes({
+      authenticatedOrdinaryEpoch:replayOpened&&resetSeen===false,
+      singleSettledResolutionBatch:true,
+      physicalRemaining:[2,2],koEntitlements
+    }):
+    projectPendingReplayPrizes({
+      authenticatedReplayEpoch:replayOpened&&resetSeen===true,
+      singleSettledResolutionBatch:true,
+      physicalRemaining:[6,6],koEntitlements
+    });
   assert.equal(pendingPrizeAudit.status,'PENDING_KO_PRIZES_NO_STRICT_LEAD');
-  assert.deepEqual(pendingPrizeAudit.projectedRemainingPrizes,[4,4]);
+  assert.deepEqual(pendingPrizeAudit.projectedRemainingPrizes,
+    ordinaryLastPrizes?[0,0]:[4,4]);
+  assert.equal(pendingPrizeAudit.projectedBothPrizeEmpty,
+    ordinaryLastPrizes);
   const nativePendingComparison=compareNativePendingPrizeWinner({
     projection:pendingPrizeAudit,
     nativeFinished:game.finished,
@@ -221,8 +242,9 @@ function one(reverse,byRank){
     pin:PIN,rankA:reverse?29:6,rankB:reverse?6:29,
     seed:SEED,reverse,
     initialRealSourceSixties:true,
-    initialTieExperimenterStaged:true,
-    genuineNativeFreshSixPrizeReplay:true,
+    initialTieExperimenterStaged:!ordinaryLastPrizes,
+    genuineNativeFreshSixPrizeReplay:!ordinaryLastPrizes,
+    syntheticFourPrizeMovesPerOwner:ordinaryLastPrizes,
     syntheticEnergyAndDamagePreparation:true,
     actualPrintedAttackRoot:true,attackSource,forcedFromSeat,attackBefore,
     stagedOwnerCardMoves:materializations,
@@ -239,11 +261,15 @@ function main(){
   initializeCards();
   const {byRank}=registration();
   return {
-    schema:'agent24-real-printed-attack-staged-spiky-double-ko-panel-v1',
+    schema:'agent24-real-printed-attack-staged-spiky-double-ko-panel-v2',
     pinnedTwinleaf:PIN,
     rows:[one(0,byRank),one(1,byRank)],
+    ordinaryRows:[
+      one(0,byRank,{ordinaryLastPrizes:true}),
+      one(1,byRank,{ordinaryLastPrizes:true})
+    ],
     competitiveQualifiedGames:0,
-    caveat:'Both source 60s real rank6/rank29. Synthetic tie, Bench, Energy, and damage setup; actual native Volt Cyclone attack + actual Spiky Energy reducer. Not legal turn-by-turn development, not field-game evidence.'
+    caveat:'Both source 60s real rank6/rank29. Synthetic either tie or prior four-Prize movement, Bench, Energy, and damage setup; actual native Volt Cyclone attack + actual Spiky Energy reducer. No legal turn-by-turn development or field-game evidence.'
   };
 }
 if(require.main===module)
