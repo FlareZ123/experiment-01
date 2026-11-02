@@ -1,0 +1,81 @@
+{
+  "schema": "agent7-original-rank8-registered-vip-prebox-symmetric-native-v1",
+  "registered_utc": "2026-11-02T13:35:00Z",
+  "method": "Pre-register 128 previously unexecuted original-source physical ranks8 source-vs-Hood seeds in existing deterministic Agent44 source K0 schedule; all rows, source seats, errors and action caps included; no result-driven selection or seed replacement.",
+  "source_rank": 8,
+  "source_player": "Yusuke Kobayashi",
+  "source_printed60_sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "candidate": "hood-shadow-rider",
+  "candidate_manifest": "results/aichi-2026/candidate-hood-shadow-rider.json",
+  "source_manifest": "results/aichi-2026/full-decklists.json",
+  "original_engine_pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seed_schedule_label": "agent44-original-rank8-preregistered-box-k0-20261030",
+  "seed_formula": "SHA256(UTF8(label+':'+decimal index)).digest().readUInt32BE(0)",
+  "index_start": 640,
+  "index_count": 128,
+  "index_end_inclusive": 767,
+  "source_seat_formula": "index % 2",
+  "actual_first_player": "record native Store's actual starting player separately",
+  "source_schedule_sha256_canonical_json": "d541f8ff6982888a2cb38a61127c67c0ebf6b79a65ebc36eddd8f665e814c422",
+  "first": [
+    {
+      "index": 640,
+      "sourceSeat": 0,
+      "seed": 1545674158
+    },
+    {
+      "index": 641,
+      "sourceSeat": 1,
+      "seed": 2388963140
+    },
+    {
+      "index": 642,
+      "sourceSeat": 0,
+      "seed": 101295462
+    }
+  ],
+  "last": [
+    {
+      "index": 765,
+      "sourceSeat": 1,
+      "seed": 2859930169
+    },
+    {
+      "index": 766,
+      "sourceSeat": 0,
+      "seed": 3110414935
+    },
+    {
+      "index": 767,
+      "sourceSeat": 1,
+      "seed": 3609609409
+    }
+  ],
+  "arms_per_original_deal": [
+    "canonical+Box flexible control",
+    "same canonical+Box flexible plus guarded VIP-before-Box option"
+  ],
+  "intended_real_store_attempts": 256,
+  "max_native_actions_per_attempt": 120,
+  "source_k0_same_physical_hand": true,
+  "expected_competitive_qualified_games": 0,
+  "paired_primary_outcomes": [
+    "source actual first/root fingerprint matching",
+    "owner held VIP and original Box K0 overlapping",
+    "native VIP Item accepted",
+    "owner K1 VIP Basic selected",
+    "native Basic-to-Bench physical movement",
+    "subsequent original Box3 payment",
+    "Shake target and Tool Garbodor settlement",
+    "immediate opponent owner root",
+    "abort, cap and engine terminal"
+  ],
+  "prerequisites": [
+    "source owner Item play legal",
+    "VIP physically held",
+    "original native flexible Box firstturn K0",
+    "one Bench slot available",
+    "Box remains physically three-discard payable after spending VIP"
+  ],
+  "broad_notes": "Source-only root sequence competence study; does not certify general actor optimality, paper match clock, hidden info safety across generic bot, strength or 99.5% field game win."
+}
