@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Fail-closed profile and archive regression suite
-        run: node --test tests/agent20-frozen-canary.test.cjs
+        run: node --test tests/agent20-frozen-canary.test.cjs tests/agent20-frozen-physical-pair-audit.test.cjs
       - name: Check out pinned Twinleaf engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine dependencies
@@ -31,6 +31,8 @@ jobs:
         run: npm run compile
       - name: Run one frozen configuration with two physical seats and both fixed 60s
         run: node simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs
+      - name: Certify exact original source physical pair matching after native run
+        run: node simulation/evaluation/agent20-frozen-physical-pair-audit.cjs
       - name: Preserve immutable selection and every attempt, including failed disposition
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
