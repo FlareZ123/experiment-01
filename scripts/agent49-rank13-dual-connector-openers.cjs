@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {decks}=require('../results/aichi-2026/full-decklists.json');
 
-const VERSION='agent49-rank13-dual-search-connector-opening-v2';
+const VERSION='agent49-rank13-dual-search-connector-opening-v3';
 const BASIC_OTHER=[
   'Kyurem SFA','Latias ex SSP','Tapu Lele-GX GRI',
   'Dedenne-GX UNB','Squawkabilly ex PAL','Budew ASC','Dialga-GX UPR'
@@ -62,6 +62,52 @@ function singleDonorEitherConnector(groups,handSize){
   return count;
 }
 
+/**
+ * Conditional on the physical two-donor both-Item opener, count hands grouped
+ * by held VSTAR, then pair each with all C(53,6) possible Prize deals.
+ * @param {object} g Source group counts, 39 residual cards include 3 VSTAR.
+ * @param {number} stars 3 original VSTAR copies.
+ * @returns {object}
+ */
+function twoDonorPrizeAvailability(g,stars){
+  assert.equal(stars,3);
+  const prizeDeals=binom(g.n-7,6);
+  let totalHands=0n,goodPairs=0n;
+  const byHeldStar=[];
+  for(let held=0;held<=stars;held++){
+    let hands=0n;
+    for(let a=1;a<=g.a;a++)
+      for(let d=2;d<=g.d;d++)
+        for(let q=1;q<=g.q;q++)
+          for(let t=1;t<=g.t;t++){
+            const rest=7-a-d-q-t-held;
+            if(rest>=0&&rest<=g.r-stars)
+              hands+=binom(g.a,a)*binom(g.d,d)*binom(g.q,q)*
+                binom(g.t,t)*binom(stars,held)*
+                binom(g.r-stars,rest);
+          }
+    const missingV=binom(g.n-7-g.v,6-g.v);
+    const remainingStars=stars-held;
+    const missingStar=binom(g.n-7-remainingStars,6-remainingStars);
+    const overlap=g.v+remainingStars<=6?
+      binom(g.n-7-g.v-remainingStars,6-g.v-remainingStars):0n;
+    const good=prizeDeals-missingV-missingStar+overlap;
+    assert.ok(good>=0n&&good<=prizeDeals);
+    byHeldStar.push({held,hands:hands.toString(),
+      probabilityBothTargetPrintingsInDeck:Number(good)/Number(prizeDeals)});
+    totalHands+=hands;
+    goodPairs+=hands*good;
+  }
+  return {
+    byHeldStar,
+    totalTwoDonorHands:totalHands.toString(),
+    availablePrizePairings:goodPairs.toString(),
+    totalPrizePairings:(totalHands*prizeDeals).toString(),
+    probabilityBothTargetPrintingsInDeck:
+      Number(goodPairs)/Number(totalHands*prizeDeals)
+  };
+}
+
 /** @returns {object} Exact original source rank13 combination statistics. */
 function analyze(){
   const source=decks.find(row=>row.rank===13);
@@ -82,6 +128,7 @@ function analyze(){
   const valid=total-binom(n-a-v,7);
   const countDual=dualConnectorHands(groups,7);
   const countDualTwoDonors=dualConnectorHands(groups,7,2);
+  const prizeEnvelope=twoDonorPrizeAvailability(groups,count('Regidrago VSTAR SIT'));
   const salmonGroups={n:60,a,v,d:count('Salamence ex JTG'),
     q,t,r:60-a-v-count('Salamence ex JTG')-q-t};
   const salmonEither=singleDonorEitherConnector(salmonGroups,7);
@@ -95,6 +142,7 @@ function analyze(){
     dualItemTwoDonorsNoVHands:countDualTwoDonors.toString(),
     dualTwoDonorsFractionOfValidBasicOpeners:
       Number(countDualTwoDonors)/Number(valid),
+    twoDonorBothSearchableAfterPrizes:prizeEnvelope,
     originalSalamenceEitherItemNoVHands:salmonEither.toString(),
     originalSalamenceEitherItemFraction:Number(salmonEither)/Number(valid),
     allFourVPrizedConditionalNoVSeven:allVPrizedGivenNoV,
@@ -104,4 +152,4 @@ function analyze(){
 }
 if(require.main===module)process.stdout.write(JSON.stringify(analyze(),null,2)+'\n');
 module.exports={VERSION,BASIC_OTHER,DONORS,binom,dualConnectorHands,
-  singleDonorEitherConnector,analyze};
+  twoDonorPrizeAvailability,singleDonorEitherConnector,analyze};
