@@ -101,3 +101,7 @@ test('other seat and native exceptions cannot fabricate settlement',()=>{
   assert.strictEqual(FakeStore.prototype.dispatch,original);
   assert.deepEqual(g.source.discard.cards,[]);
 });
+
+// Regress precise real-Store provenance alongside the older physical movement observer.
+require('./agent3-compressor-root-provenance-v3.test.cjs');
+require('./agent3-rank26-compressor-provenance-audit.test.cjs');
