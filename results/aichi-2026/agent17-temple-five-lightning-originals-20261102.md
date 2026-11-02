@@ -30,7 +30,7 @@ This is a **conditional attack-payment denial**, not a win condition or proof of
 ## Reproducibility and proposed falsification
 
 - Executable source screen: [`scripts/agent17-temple-five-lightning-originals.cjs`](../../scripts/agent17-temple-five-lightning-originals.cjs), with strict exact printed Energy and attacker identity checks. It outputs the seven all-Special source ranks, five focal ranks, actual printed Energy inventories and the relevant cost/discard text checks. Read-only; no engine hook, default policy or candidate 60 changed.
-- Six-case Node.js suite: [`tests/agent17-temple-five-lightning-originals.test.cjs`](../../tests/agent17-temple-five-lightning-originals.test.cjs). It asserts the seven and five rank sets, exact Alolan Raichu and Thorns printings, source counts, an unrelated-source negative control and rejection of a fabricated Basic Lightning addition.
+- Seven-case Node.js suite: [`tests/agent17-temple-five-lightning-originals.test.cjs`](../../tests/agent17-temple-five-lightning-originals.test.cjs). It asserts the seven and five rank sets, exact Alolan Raichu and Thorns printings, source counts, an unrelated-source negative control and rejection of a fabricated Basic Lightning addition.
 - **Independent live repository-data screen, 2 November:** fetched the exact printed 29-original JSON and the three `resources/cards/en` set JSON files through the linked GitHub repository and independently checked all five source printings, Energy inventories, attack costs, and Temple text. All five matched. This is a reproducible *data assertion*, distinct from compiled native Store gameplay or a passing Node test job.
 - Stronger native next test: use the **unchanged** Temple v1 candidate and original rank-4 and rank-17 source printed 60s in the **existing canonical bilateral runner**. Stage only legitimately reached owner-visible Temple, Energy, Active Alolan Raichu and source Stadium-out opportunities. Observe paper-legal refusal of Electro Rain before and after source Stadium removal, then an effective source reply and candidate continuation. Lock the external policy profile and physical-deal fingerprints. Preserve failed, capped and mismatched-source attempts, and challenge the source with a competent Stadium replacement policy.
 
@@ -39,3 +39,19 @@ This is a **conditional attack-payment denial**, not a win condition or proof of
 ## Compiled-source manual CI confirmation (2 November, 06:11 UTC)
 
 The existing manually dispatched [Aichi benchmark run 41398350550](https://github.com/FlareZ123/experiment-01/actions/runs/41398350550) checked out main head `c2a1f3935c143e539ab425fef58b7f8577c3c7e9`. Its dedicated **“Audit five source-printing-specific Temple Lightning attack gates”** step **PASSED all 6/6 Node 22 source/printing assertions, zero test failures**. The script's actual emitted JSON independently confirmed `sevenAllSpecial=[4,5,6,7,17,24,29]`, `focalLightningRanks=[4,6,17,24,29]` and `competitivelyQualifiedGames=0`. The **overall workflow failed in the following, unrelated Agent18 Exeggutor/Wally statistical test step (3 of its 27 tests failed)**; the dedicated Agent17 test result should be cited as a successful *step*, not misreported as an entirely green workflow. This is no native Store gameplay, no paper-clock result and no win-rate estimate.
+
+## Exact direct Stadium replacement pressure (source-printed resources)
+
+The printed-original screen additionally now rejects any of the five source lists if its expected **different-name Stadium replacement** resource is missing or has the wrong original set/number/count. With Temple already active, legally playing a Stadium of another name displaces it. These are **card inventory answers**, not a probability that an owner has drawn, can play, or wisely chooses them.
+
+| Original source | Exact printed Stadium alternatives | Total direct replacements |
+| --- | --- | ---: |
+| 4 Raichu | Sky Field ROS89 ×3 | **3** |
+| 6 Iron Thorns | Tropical Beach BWP50 ×1; Thunder Mountain LOT191 ×1; Wondrous Labyrinth TEU158 ×1 | **3** |
+| 17 Raichu | PokéStop PGO68 ×1 | **1** |
+| 24 Iron Thorns | Thunder Mountain LOT191 ×1; Wondrous Labyrinth TEU158 ×1 | **2** |
+| 29 Iron Thorns | Tropical Beach BWP50 ×2; Thunder Mountain LOT191 ×1; Wondrous Labyrinth TEU158 ×1 | **4** |
+
+Rank17 also carries **Marshadow UNB81**, whose Resetting Hole discards a Stadium from play if that Pokémon is Benched and its Ability is usable. Its conditional removal is distinct from the one direct Stadium replacement counted above. Rank6/24/29 have other Trainer removal options, including Faba, whose actual played effect and Supporter contention must be verified separately. The focal source rank4 has **three** replacement Stadium copies versus the unchanged Temple candidate's **two** copies of Temple. A simplistic lock-duration model that treats Temple as permanently active is therefore untenable, even though access, draw sequencing and opposing interference can still prevent those counterplays.
+
+The extended [manual CI 41398917078](https://github.com/FlareZ123/experiment-01/actions/runs/41398917078) checked out exact head `ce1862a50f719b974578e6e02a18123756bb0590`. The dedicated source-locked audit **PASSED all seven of seven Node tests** and printed the same seven-source and five-focal-rank vectors. The whole job ultimately failed in a different downstream test group. This second native-agnostic audit strengthens **counter-resource accounting**, while adding **zero competitively qualified games**.
