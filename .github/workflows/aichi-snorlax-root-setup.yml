@@ -72,3 +72,35 @@ jobs:
           path: downloaded
       - name: Show all sixteen frozen ranks, statuses, actual public opportunities
         run: node -e "const x=require('./downloaded/agent19-dualmew-original-opportunity.json'); console.log(JSON.stringify({summary:x.summary,rows:x.rows.map(r=>({case:r.caseInfo,status:r.status,seen:r.monitor?{dual:r.monitor.dualBoard,dce:r.monitor.dualWithDce,pal:r.monitor.dualVsPal,all:r.monitor.fullPublicBoard,offered:r.monitor.actualOfferedMirror}:null,evolutions:r.evolutionRoots?.length??null,error:r.error??null}))},null,2));"
+  retrospective-500:
+    if: ${{ inputs.extended_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify registered source and public observer
+        run: node --test tests/agent19-dual-mew-source-observer.test.cjs tests/agent19-dual-mew-original-opportunity.test.cjs
+      - name: Run same sixteen old deals with 500 action cap
+        run: node simulation/evaluation/agent19-dualmew-retrospective-500.cjs
+      - name: Show all sixteen extended native outcomes and the exact opportunity count
+        run: node -e "const x=require('./agent19-dualmew-retro500.json'); console.log(JSON.stringify({summary:x.summary,rows:x.rows.map(r=>({case:r.caseInfo,status:r.status,dual:r.monitor?.dualBoard??null,dce:r.monitor?.dualWithDce??null,pal:r.monitor?.dualVsPal??null,all:r.monitor?.fullPublicBoard??null,offered:r.monitor?.actualOfferedMirror??null,error:r.error??null}))},null,2));"
+      - name: Retain complete extended original-board observations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent19-dualmew-original-500-retrospective
+          path: agent19-dualmew-retro500.json
+          if-no-files-found: warn
