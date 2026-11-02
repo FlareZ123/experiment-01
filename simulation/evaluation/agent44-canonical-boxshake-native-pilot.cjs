@@ -29,14 +29,22 @@ const FRESH_COUNT=2;
 const FRESH32_START=370;
 const FRESH32_COUNT=32;
 const FRESH32_REGISTERED_SHA256='89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d5c96b8d52239f2118';
+const SCOUT64_START=402;
+const SCOUT64_COUNT=64;
+const SCOUT64_REGISTERED_SHA256='332d1769aadbe4a03cb59c669eeb23f70e2c6ef0058d66f71221680eb78715bf';
 const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
 function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
   auditOwnerK1Sources=false,auditSecretBoxCustody=false,
-  preBoxScout=false}={}){
-  assert.ok(!preBoxScout||(fresh32&&diagnosticFreshIndex===383),
-    'The currently selected K0-to-K1 scout is strictly the posthoc index383 counterfactual');
+  preBoxScout=false,prospectiveScout64=false}={}){
+  assert.ok(!prospectiveScout64||(preBoxScout&&fresh32&&
+    diagnosticFreshIndex===null&&auditPhysicalDeal&&
+    auditOwnerK1Sources&&auditSecretBoxCustody),
+  'Frozen scout64 needs canonical both-seat, original deals, exact fingerprints, K1 and paper custody');
+  assert.ok(!preBoxScout||(prospectiveScout64||
+    (fresh32&&diagnosticFreshIndex===383)),
+    'Owner K0-to-K1 scouting is restricted to the registered source383 retrospective or fresh64 cohort');
   assert.ok(diagnosticFreshIndex===null||
     (fresh32&&diagnosticFreshIndex===383),
     'The diagnostic is strictly retrospective on the previously failed original index383');
@@ -52,13 +60,18 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
   const {Store}=require(path.join(ROOT,
     'vendor/twinleaf/ptcg-server/output/game/store/store'));
   const fresh=schedule(diagnosticFreshIndex??
-    (fresh32?FRESH32_START:FRESH_START),
-    diagnosticFreshIndex===null?(fresh32?FRESH32_COUNT:FRESH_COUNT):1)
+    (prospectiveScout64?SCOUT64_START:fresh32?FRESH32_START:FRESH_START),
+    diagnosticFreshIndex===null?
+      (prospectiveScout64?SCOUT64_COUNT:fresh32?FRESH32_COUNT:FRESH_COUNT):1)
     .map(x=>({...x,selection:diagnosticFreshIndex!==null?
       'retrospective-after-registered-failure-383':
+      prospectiveScout64?'preregistered-prebox-quickball-scout64':
       fresh32?'preregistered-v3-canonical-fresh32':
         'precommitted-unselected-independent'}));
-  if(fresh32&&diagnosticFreshIndex===null)assert.equal(
+  if(prospectiveScout64)assert.equal(
+    sha(JSON.stringify(fresh)),SCOUT64_REGISTERED_SHA256,
+    'Scout64 registered exact-original physical seed schedule drifted');
+  else if(fresh32&&diagnosticFreshIndex===null)assert.equal(
     sha(JSON.stringify(fresh)),FRESH32_REGISTERED_SHA256,
     'Fresh32 canonical physical seed schedule changed after registration');
   const registered=[
@@ -102,7 +115,11 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         return guarded.result.result;
       }
       const baseline=withRank8AuthenticK0Observer(Store,row.sourceSeat,
-        ()=>withCanonicalAndBoxShake(()=>runPaymentAware('baseline')));
+        ()=>withCanonicalAndBoxShake(()=>runPaymentAware('baseline'),
+          prospectiveScout64?{
+            enableBoxShake:true,flexible:true,auditOwnerK1Sources,
+            preBoxScout:false
+          }:{}));
       const treatment=withRank8AuthenticK0Observer(Store,row.sourceSeat,
         ()=>withCanonicalAndBoxShake(()=>runPaymentAware('treatment'),{
           enableBoxShake:true,flexible:true,auditOwnerK1Sources,preBoxScout
@@ -131,12 +148,16 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         assert.equal(fullFingerprints[0],fullFingerprints[1],
           'Native preaction complete two-seat card-zone positions differ');
       }
-      if(auditSecretBoxCustody&&t.audit.box.offers.some(x=>
-        x.seat===row.sourceSeat))assert.ok(
-        paymentReceipt.treatment?.physicalCustody?.physicalPaidPayments>=1,
-        'A selected source Box native line lacks physical 3-card paper custody');
+      if(auditSecretBoxCustody){
+        for(const [arm,armResult] of [['baseline',b],['treatment',t]]){
+          if(armResult.audit.box?.offers.some(x=>x.seat===row.sourceSeat))
+            assert.ok(paymentReceipt[arm]?.physicalCustody?.physicalPaidPayments>=1,
+              'A selected source Box native line lacks physical 3-card paper custody in '+arm);
+        }
+      }
       const sameNoOffer=t.audit.box.offers.length===0&&
-        t.audit.box.scouts.length===0;
+        t.audit.box.scouts.length===0&&
+        (!prospectiveScout64||b.audit.box?.offers.length===0);
       if(sameNoOffer)assert.deepEqual(b.result.decisionTrace,
         t.result.decisionTrace,
         'Canonical no-Box-opportunity trace drift');
@@ -144,6 +165,15 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         x.sourceSeat===row.sourceSeat&&x.equippedGarbodor);
       const replyPacket=boxShakeOpponentReplyPacket(
         t.result,t.audit.box,row.sourceSeat);
+      const baselinePacket=prospectiveScout64?
+        boxShakeOpponentReplyPacket(b.result,b.audit.box,row.sourceSeat):null;
+      const baselineStatus=prospectiveScout64?
+        baselinePacket.strictPublicContinuationAccepted&&
+          b.audit.box.opponentContinuations.some(x=>
+            x.sourceSeat===row.sourceSeat&&x.equippedGarbodor)?
+          'NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR':
+        b.audit.box.offers.length?'OFFERED_NO_SETTLED_OPPONENT_REPLY':
+          'NOT_ENCOUNTERED':null;
       rows.push({...row,status:equipped&&
         replyPacket.strictPublicContinuationAccepted?
         'NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR':
@@ -159,7 +189,9 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         completePhysicalDealParity:auditPhysicalDeal?true:null,
         noOfferFullTraceParity:sameNoOffer?true:null,
         baseline:{actions:b.result.actions,finished:b.result.finished,
-          decisionTraceSha256:sha(JSON.stringify(b.result.decisionTrace))},
+          decisionTraceSha256:sha(JSON.stringify(b.result.decisionTrace)),
+          ...(prospectiveScout64?{boxAudit:b.audit.box,
+            status:baselineStatus,opponentPublicRootReplyPacket:baselinePacket}: {})},
         treatment:{actions:t.result.actions,finished:t.result.finished,
           decisionTraceSha256:sha(JSON.stringify(t.result.decisionTrace))},
         boxAudit:t.audit.box,
@@ -179,7 +211,8 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     }
   }
   return {
-    schema:preBoxScout?'agent44-shared-canonical-prebox-k0-k1-counterfactual383-v1':
+    schema:prospectiveScout64?'agent44-canonical-prebox-scout-vs-box-first-fresh64-v1':
+      preBoxScout?'agent44-shared-canonical-prebox-k0-k1-counterfactual383-v1':
       diagnosticFreshIndex!==null?
       'agent44-shared-canonical-bothseat-boxshake-diagnostic383-v1':
       fresh32?'agent44-shared-canonical-bothseat-owner-boxshake-fresh32-v2':
@@ -187,12 +220,15 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     historicalSelection:'retrospective-original-source-positive',
     retrospectiveDebugIndex:diagnosticFreshIndex,
     prospectiveIndices:diagnosticFreshIndex!==null?
-      null:fresh32?
+      null:prospectiveScout64?[SCOUT64_START,SCOUT64_START+SCOUT64_COUNT-1]:fresh32?
       [FRESH32_START,FRESH32_START+FRESH32_COUNT-1]:
       [FRESH_START,FRESH_START+FRESH_COUNT-1],
-    fresh32RegisteredScheduleSha256:fresh32&&diagnosticFreshIndex===null?
+    scout64RegisteredScheduleSha256:prospectiveScout64?SCOUT64_REGISTERED_SHA256:null,
+    fresh32RegisteredScheduleSha256:fresh32&&diagnosticFreshIndex===null&&!prospectiveScout64?
       FRESH32_REGISTERED_SHA256:null,
-    preregistration:fresh32&&diagnosticFreshIndex===null?
+    preregistration:prospectiveScout64?
+      'results/aichi-2026/registrations/agent44-rank8-prebox-scout-vs-box-first-fresh64-20261102.json':
+      fresh32&&diagnosticFreshIndex===null?
       'results/aichi-2026/registrations/agent44-rank8-common-actor-boxshake-fresh32-20261102.json':null,
     originalRank8Printed60:true,sourcePrinted60Sha256:
       '6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541',
@@ -202,6 +238,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     captureOwnerK1FailureResourceAvailability:auditOwnerK1Sources,
     captureNativeSourceSecretBoxPaymentCustody:auditSecretBoxCustody,
     preBoxNativeOwnerQuickBallK1Scout:preBoxScout,
+    matchedBaselineBoxFirstVsScoutFirst:prospectiveScout64,
     initialSourcePhysicalFingerprintRequired:auditPhysicalDeal,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
@@ -216,7 +253,23 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     errorCount:rows.filter(x=>x.status==='NATIVE_ERROR').length,
     completedSourceSetups:rows.filter(x=>
       x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
-    fresh32Summary:fresh32&&diagnosticFreshIndex===null?{
+    prospectiveScout64Summary:prospectiveScout64?{
+      attempted:rows.length-1,
+      baselineCompleted:rows.slice(1).filter(x=>
+        x.baseline?.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
+      treatmentCompleted:rows.slice(1).filter(x=>
+        x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
+      baselineOffered:rows.slice(1).filter(x=>
+        x.baseline?.boxAudit?.offers?.length>0).length,
+      treatmentOffered:rows.slice(1).filter(x=>x.boxAudit?.offers?.length>0).length,
+      treatmentScouted:rows.slice(1).filter(x=>x.boxAudit?.scouts?.length>0).length,
+      treatmentScoutedNoBox:rows.slice(1).filter(x=>x.status==='SCOUTED_K1_NO_BOX').length,
+      paperPaymentExceptions:rows.slice(1).filter(x=>
+        x.sourceBoxPaymentCustody?.treatment?.physicalCustody?.paperInvalidPayments>0||
+        x.sourceBoxPaymentCustody?.baseline?.physicalCustody?.paperInvalidPayments>0).length,
+      nativeErrors:rows.slice(1).filter(x=>x.status==='NATIVE_ERROR').length
+    }:null,
+    fresh32Summary:fresh32&&diagnosticFreshIndex===null&&!prospectiveScout64?{
       attempted:rows.length-1,
       completed:rows.slice(1).filter(x=>
         x.status==='NATIVE_OPPONENT_TURN_EQUIPPED_GARBODOR').length,
@@ -226,7 +279,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
       errors:rows.slice(1).filter(x=>x.status==='NATIVE_ERROR').length
     }:null,
     nativeQualifiedGames:0,
-    caveat:'The common actor retains generic-bot fallback; one selected retrospective control is excluded from the 2- or 32-deal fresh denominator. Source Box full paper-valid cost custody, meaningful opponent response, paper clock and competitive outcomes remain unqualified.'
+    caveat:'The common actor retains generic-bot fallback; historical selected control is excluded from the 2-, 32- or 64-deal fresh denominators. Native costs and exact preaction whole-deal hashes are locally audited if explicitly enabled, but full paper game rules, competent opponent decisions, 25-minute clock and competitive outcomes remain unqualified.'
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run({
@@ -235,7 +288,9 @@ if(require.main===module)process.stdout.write(JSON.stringify(run({
   auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true',
   auditOwnerK1Sources:process.env.AGENT44_RANK8_CANONICAL_K1_AUDIT==='true',
   auditSecretBoxCustody:process.env.AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT==='true',
-  preBoxScout:process.env.AGENT44_RANK8_CANONICAL_PREBOX_SCOUT==='true'
+  preBoxScout:process.env.AGENT44_RANK8_CANONICAL_PREBOX_SCOUT==='true',
+  prospectiveScout64:process.env.AGENT44_RANK8_CANONICAL_SCOUT_PROSPECTIVE64==='true'
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
-  FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
+  FRESH32_REGISTERED_SHA256,SCOUT64_START,SCOUT64_COUNT,
+  SCOUT64_REGISTERED_SHA256,MAX_ACTIONS,run};
