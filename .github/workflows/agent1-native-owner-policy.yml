@@ -15,6 +15,7 @@ on:
           - blower-timing-three
           - postblower-radiant
           - rank17-prospective-evolution
+          - raichu-effect-differential
 
 permissions:
   contents: read
@@ -40,6 +41,9 @@ jobs:
         run: npm run compile
       - name: Pure owner-plan selectors, lifecycle and fail-closed original-six pairing
         run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs
+      - name: Alolan Raichu native damage-versus-counter typing fixture
+        if: inputs.experiment == 'raichu-effect-differential'
+        run: node --test tests/agent1-alolan-raichu-damage-type-native.test.cjs
       - name: Rank17 prospective source-identity and actor-only source ledger tests
         if: inputs.experiment == 'rank17-prospective-evolution'
         run: node --test tests/agent1-rank17-original-evolution-prospective.test.cjs
