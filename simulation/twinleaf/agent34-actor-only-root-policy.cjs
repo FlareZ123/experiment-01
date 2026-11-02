@@ -191,6 +191,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseTreasureRootIntent(view,catalog);
     if(item)return item;
   }
+  if(options.regidragoDonorQuickBallRoot===true){
+    const donor=require('./agent8-regidrago-quickball-donor-frontier.cjs')
+      .chooseRegidragoDonorQuickBall(view);
+    if(donor)return donor;
+  }
   if(options.quickBallRoot===true){
     const item=require('./agent8-actor-quick-ball-frontier.cjs')
       .chooseQuickBallRootIntent(view);
@@ -615,6 +620,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       deps.mysteriousTreasureEarlyRegistered===true,
     quickBallRootOptIn:deps.quickBallRoot??
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
+    regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
+    regidragoDonorQuickBallOwnerSeat:
+      deps.regidragoDonorQuickBallOwnerSeat??null,
     printedGxRootOptIn:deps.printedGxRoot??
       (process.env.AGENT25_PRINTED_GX_ROOT_DEV==='true'),
     printedFirstTurnAttackRootOptIn:deps.printedFirstTurnAttackRoot??
@@ -878,6 +886,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.quickBallRootOptIn)
     audit.version+='+'+
       require('./agent8-actor-quick-ball-frontier.cjs').VERSION;
+  if(audit.regidragoDonorQuickBallRootOptIn)
+    audit.version+='+'+
+      require('./agent8-regidrago-quickball-donor-frontier.cjs').VERSION;
   if(audit.potentialKoRootOptIn)
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
@@ -1053,6 +1064,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
       quickBallRoot:audit.quickBallRootOptIn,
+      regidragoDonorQuickBallRoot:actorSpecialEnergyEnabled(
+        audit.regidragoDonorQuickBallRootOptIn,
+        audit.regidragoDonorQuickBallOwnerSeat,seat),
       powerglassRoot:audit.powerglassRootOptIn,
       floatStoneMobility:actorSpecialEnergyEnabled(
         audit.floatStoneMobilityOptIn,
