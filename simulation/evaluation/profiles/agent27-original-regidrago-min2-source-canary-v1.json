@@ -65,11 +65,16 @@
   "join": "simulation/evaluation/agent27-energy-attack-continuation.cjs",
   "summary": "scripts/agent27-native-attach-summary.cjs",
   "disposition": {
-    "CONFIG_FROZEN": true,
-    "BOTH_SEATS_EXECUTED": true,
-    "PAPER_PAYMENT_VERIFIED": "local mandatory two-energy attachment only",
-    "SOURCE_PAYOFF_WITNESSED": "Celestial Roar resource attachment; zero Prize attack",
-    "OPPONENT_CONTINUATION_WITNESSED": "native root exists, opponent strategic competence unverified",
-    "competitiveGameQualified": false
+    "CONFIG_FROZEN": "runtime_asserted",
+    "BOTH_SEATS_EXECUTED": "runtime_asserted",
+    "PAPER_PAYMENT_VERIFIED": "local_attach_prompt_only",
+    "SOURCE_PAYOFF_WITNESSED": "runtime_asserted",
+    "OPPONENT_CONTINUATION_WITNESSED": "runtime_asserted",
+    "COMPETITIVE_GAME_QUALIFIED": false
+  },
+  "sourceResolutionPermissions": {
+    "allowEquivalentBasicEnergies": true,
+    "allowBasicEnergyMirrorPrintings": true,
+    "allowJapanesePromoHooks": true
   }
 }
