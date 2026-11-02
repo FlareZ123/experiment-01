@@ -14,9 +14,11 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  * @param {object} player
  * @param {number} sourceSeat
  * @param {number} playerTurnPhase
+ * @param {{unlockBenchedKoko?:boolean}} [options]
  * @returns {boolean}
  */
-function cologneOpeningOpportunity(state, player, sourceSeat, playerTurnPhase) {
+function cologneOpeningOpportunity(state, player, sourceSeat, playerTurnPhase,
+  {unlockBenchedKoko=false}={}) {
   if (state.turn !== 1 || state.activePlayer !== sourceSeat ||
       state.phase !== playerTurnPhase ||
       !player.hand.cards.some(card => card.name === 'Canceling Cologne')) {
@@ -30,6 +32,7 @@ function cologneOpeningOpportunity(state, player, sourceSeat, playerTurnPhase) {
   if (player.active.getPokemonCard()?.name === 'Meloetta ex') {
     return true;
   }
+  if (!unlockBenchedKoko) return false;
   // A different source starter can be Active while the locked Prism Star
   // is the real Energy gateway to the Benched Meloetta source line.
   // All these inputs are publicly visible or in the acting owner's discard.
@@ -50,9 +53,11 @@ function cologneOpeningOpportunity(state, player, sourceSeat, playerTurnPhase) {
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
+ * @param {{unlockBenchedKoko?:boolean}} [options]
  * @returns {{result:T, policyAudit:object}}
  */
-function withRank26CologneOpener(sourceSeat, execute) {
+function withRank26CologneOpener(sourceSeat, execute,
+  {unlockBenchedKoko=false}={}) {
   if (![0, 1].includes(sourceSeat) || typeof execute !== 'function') {
     throw new TypeError('Require known rank-26 source seat and experiment.');
   }
@@ -68,7 +73,8 @@ function withRank26CologneOpener(sourceSeat, execute) {
     const own = state.players[sourceSeat];
     if (this.client?.id !== sourceId ||
         state.prompts.some(prompt => prompt.result === undefined) ||
-        !cologneOpeningOpportunity(state, own, sourceSeat, GamePhase.PLAYER_TURN)) {
+        !cologneOpeningOpportunity(state, own, sourceSeat,
+          GamePhase.PLAYER_TURN,{unlockBenchedKoko})) {
       return original.call(this, state);
     }
     const handIndex = own.hand.cards.findIndex(card => card.name === 'Canceling Cologne');
@@ -88,7 +94,8 @@ function withRank26CologneOpener(sourceSeat, execute) {
     return {
       result,
       policyAudit: {
-        version: 'rank26-cologne-opener-v1',
+        version: unlockBenchedKoko ?
+          'rank26-cologne-pre-koko-v2' : 'rank26-cologne-opener-v1',
         sourceSeat,
         opportunitiesSelected: events.length,
         actions: events,
