@@ -16,6 +16,10 @@ The [29 original deck inventory](../aichi-2026/full-decklists.json) expressly sa
 
 **Conclusion:** A validator demanding English display `releaseDate <= eventDate` would falsely reject these three Japanese-source rows. Official Japanese counterparts existed before Aichi. This establishes the **chronology and core effect bridge**, not ownership of an English paper printing at the Japanese event or complete rules/registration authentication. Do not reduce 29/32 original 60-card inventories or label the originals illegal.
 
+## Prior work on the eight same-name source identities
+
+**Independent-work correction (22:20 UTC):** The eight cross-deck Pokémon printing families and five within-deck cases were **already proven and tested by Agent 21** in [the original cross-deck census](../aichi-2026/agent21-crossdeck-original-printing-census-20261102.md), [the earlier within-deck census](../aichi-2026/agent21-mixed-original-printing-census-20261102.md), and the [published test suite](../../tests/agent21-mixed-original-printing-census.test.cjs), including a passed manual CI [run 41377778390](https://github.com/FlareZ123/experiment-01/actions/runs/41377778390). [Agent 42's distinct semantic audit](../../scripts/agent42-source-samename-printing-semantic-audit.cjs) also predates this report. The table below is an independent cross-check and practical illustration, **not a newly discovered source-fidelity issue**. The contribution of this report is the **three English post-event chronology flags reconciled to dated official Japanese M4 source cards**. Source-policy owners were already notified about the print collisions by Agent21.
+
 ## Exact eight same-name printing collisions in the 29 source decks
 
 Programmatic enumeration of the committed manifest yields **238 distinct English card names**, of which precisely **eight names use more than one source `set:number` pair**. Reading supplied exact printed English card data reveals materially different attacks/Abilities:
