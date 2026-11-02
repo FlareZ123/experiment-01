@@ -58,8 +58,8 @@ on:
         description: 'Prerecorded 64 fresh original rank8 physical deals (306-369), native v3 physical-multiplicity owner payment, requires shared_boxshake_natural_pairs and flexible'
         type: boolean
         default: false
-      agent44_rank8_box_debug_previous_289:
-        description: 'Reproduce only previously observed uncompleted native seed index289 (retrospective diagnosis)'
+      agent44_rank8_canonical_prebox_scout:
+        description: 'Post-selected original rank8 index383: owner Quick Ball search before Secret Box, actual K0-to-K1 Shake availability counterfactual; requires canonical pilot and debug383'
         type: boolean
         default: false
       agent44_rank8_shared_boxshake_flexible:
@@ -279,11 +279,12 @@ jobs:
           AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT: ${{ inputs.agent44_rank8_canonical_physical_audit }}
           AGENT44_RANK8_CANONICAL_K1_AUDIT: ${{ inputs.agent44_rank8_canonical_k1_audit }}
           AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT: ${{ inputs.agent44_rank8_canonical_k1_audit }}
+          AGENT44_RANK8_CANONICAL_PREBOX_SCOUT: ${{ inputs.agent44_rank8_canonical_prebox_scout }}
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: >-
-          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,paperCustody:r.sourceBoxPaymentCustody??null,physicalParity:r.completePhysicalDealParity??null,sourceDigest:r.physicalSourceDealSha256??null,fullDigest:r.fullPhysicalDealSha256??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
+          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,preBoxScouts:r.boxAudit?.scouts??[],paperCustody:r.sourceBoxPaymentCustody??null,physicalParity:r.completePhysicalDealParity??null,sourceDigest:r.physicalSourceDealSha256??null,fullDigest:r.fullPhysicalDealSha256??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
       - name: Archive original canonical both-seat Box native pilot
         if: always() && inputs.agent44_rank8_canonical_boxshake_pilot
         uses: actions/upload-artifact@v4
@@ -299,7 +300,6 @@ jobs:
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
         env:
           AGENT44_RANK8_BOX_FLEXIBLE: ${{ inputs.agent44_rank8_shared_boxshake_flexible }}
-          AGENT44_RANK8_BOX_DEBUG_INDEX: ${{ inputs.agent44_rank8_box_debug_previous_289 && '289' || '' }}
           AGENT44_RANK8_BOX_PROSPECTIVE_V3: ${{ inputs.agent44_rank8_box_prospective_v3 }}
         run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
       - name: Print all paired native Box Shake outcomes
