@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const crypto=require('node:crypto');
-const {run:runFrozen,saveResult}=require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
+// Load native runner only after compilation, inside diagnostic().
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const VERSION='agent3-rank26-firstturn-post-compressor-readonly-v2.1';
 
@@ -105,6 +105,7 @@ function firstTurnSettlements(arm){
  * original cards, source policies, native hooks and seeds remain unchanged.
  */
 function diagnostic(){
+  const {run:runFrozen}=require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
   const {Store}=require(path.join(output,'game/store/store'));
   const {GamePhase}=require(path.join(output,'game/store/state/state'));
   const original=Store.prototype.dispatch;
@@ -223,6 +224,7 @@ function diagnostic(){
 module.exports={VERSION,sourceRootGates,summarizeRootReadings,
   firstTurnSettlements,diagnostic};
 if(require.main===module){
+  const {saveResult}=require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
   const result=diagnostic();
   saveResult(path.resolve(process.cwd(),'agent3-rank26-post-compressor-gates-v21.json'),result);
   process.stdout.write('AGENT3_RANK26_POSTCOMPRESSOR_V21 '+
