@@ -1,0 +1,46 @@
+{
+  "schema": "agent9-rank5-quickball-payment-pair-registration-v1",
+  "registeredAt": "2026-11-02T10:03:57Z",
+  "control": "Source-only Quick Ball ON, native bot mandatory hand-discard prompt",
+  "treatment": "Source-only Quick Ball ON, actor47 hand-discard on both seats; all other policies equal",
+  "candidateScope": "Source-only Quick Ball root changes, with both seats' mandatory discard prompts eligible for actor47. Candidate prompt changes must be enumerated and cannot be ignored.",
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalPhysicalGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1291978585
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2174158724
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "gamePolicyModes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "scope": "Source-only Quick Ball in both control and treatment",
+  "nativeAttemptCount": 16,
+  "pairedBlocks": 8,
+  "noPostOutcomeExclusions": true,
+  "classification": "Historical original deals previously exposed; pre-register novel payment-policy treatment before any native treatment execution, so engineering reproducibility only",
+  "metrics": [
+    "Quick Ball owner payment selection and deck search identity per native prompt",
+    "actor hand-discard by seat and physical Store acceptance",
+    "Double Colorless Energy native attachments",
+    "Mew VMAX evolutions and attack declarations",
+    "native terminal, action cap and engine errors",
+    "same physical deal fingerprint"
+  ],
+  "competitivelyQualifiedGames": 0,
+  "status": "FROZEN_BEFORE_TREATMENT"
+}
