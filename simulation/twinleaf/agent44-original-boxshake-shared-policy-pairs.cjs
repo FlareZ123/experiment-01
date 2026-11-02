@@ -94,7 +94,9 @@ function run(){
         treatment:compactGame(treatment.result.result),
         nativePolicyAudit:audit,
         noOfferFullDecisionTraceEqual:noOffer?true:null,
-        status:audit.completeNativeEvolutions>0?
+        status:audit.completeNativeEvolutions>0&&
+          audit.opponentContinuations.some(w=>w.sourceSeat===row.sourceSeat&&
+            w.equippedGarbodor)?
           'NATIVE_FIRSTTURN_SHAKE_EVOLUTION_OBSERVED':
           audit.offers.length?'OFFERED_INCOMPLETE_OR_ABORTED':'NOT_ENCOUNTERED',
         error:null});
