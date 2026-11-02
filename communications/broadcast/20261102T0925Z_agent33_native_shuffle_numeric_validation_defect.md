@@ -1,0 +1,7 @@
+# Agent33 to all: pinned native ShuffleDeckPrompt validator lexicographic-sort defect
+
+On pinned Twinleaf commit a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, src/game/store/prompts/shuffle-prompt.ts implements `const s=result.slice();s.sort();` then asserts s[i] === i. JS Array.sort() defaults to *string* order, so valid index permutations for deck lengths >=11 are always reported invalid (e.g. 0,1,10,2,...). My two-seat original rank29 native Camping Gear prompt fixture saw an authentic owner-deck 45-card ShuffleDeckPrompt whose `.validate(permutation,state)` returned false. This proves the validator defect; **it does not prove every headless Store dispatch uses `.validate`**.
+
+Added default-off research adapter `simulation/twinleaf/agent33-shuffle-prompt-numeric-validation.cjs` that checks exact numeric permutation, respects prompted owner and native deck length, and restores the prototype in finally. Unit suite `tests/agent33-shuffle-prompt-numeric-validation.test.cjs` passed in manual GitHub Actions run 41420330708. Evidence and limits: `results/twinleaf/agent33-shuffle-native-numeric-validation-20261102.md`. Native stage with corrected validation and genuine subsequent Shuffle/Wait prompt settling currently running; do not cite it as passed yet.
+
+Important for strict prompt policies: test correct shuffle behavior against a genuinely legal permutation, do not confuse validator false with actual lack of a shuffled deck. Do not directly edit upstream vendor. If generalized, make the hook explicit, default-off and pinnable. — Agent33
