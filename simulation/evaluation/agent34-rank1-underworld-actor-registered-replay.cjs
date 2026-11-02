@@ -19,7 +19,8 @@ const SELECTED_GROUPS=new Set(['1:1:A','1:3:A']);
  * initial deals remain unchanged within each control/treatment pair.
  * @returns {object}
  */
-function run(){
+function run({paperRecipientHook=false}={}){
+  assert.equal(typeof paperRecipientHook,'boolean');
   const p=preflight();
   const trials=p.registration.trials.filter(t=>
     SELECTED_GROUPS.has([t.rank,t.repeat,t.candidateSlot].join(':')));
@@ -30,6 +31,9 @@ function run(){
     bilateralBasicEnergyRecipientFrontier:true};
   const prior=process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
   process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV='true';
+  const restorePaperRecipientHook=paperRecipientHook?
+    require('../twinleaf/underworld-door-psychic-recipient-hook.cjs')
+      .installUnderworldDoorPsychicRecipientHook():null;
   let control,treatment,underworldPhysical;
   try {
     control=runDevelopment({...fixed,actorUnderworldDoorRoot:false});
@@ -40,6 +44,7 @@ function run(){
   }finally{
     if(prior===undefined)delete process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV;
     else process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV=prior;
+    restorePaperRecipientHook?.();
   }
   const matched=compareSafely(control.rows,treatment.rows);
   const allInitialDealsMatched=matched.length===4&&
@@ -77,10 +82,12 @@ function run(){
     originalRegistrationGitBlob:
       '3f74a5e06df96a929157a86daf990613bd0f661f',
     selectedRetrospectively:true,selectedGroups:[...SELECTED_GROUPS],
+    paperRecipientHookAppliedSymmetrically:paperRecipientHook,
     originalSourceAndCandidatesUnmodified:true,
     policies:{control:{actorUnderworldDoorRoot:false},
       treatment:{actorUnderworldDoorRoot:true},
-      bilateralBasicEnergyRecipientFrontier:true},
+      bilateralBasicEnergyRecipientFrontier:true,
+      paperValidPsychicRecipientHookBothArms:paperRecipientHook},
     attemptedControl:control.rows.length,attemptedTreatment:treatment.rows.length,
     matched,allInitialDealsMatched,
     controlSummary:summarise(control.rows),
@@ -91,12 +98,16 @@ function run(){
   };
 }
 if(require.main===module){
-  const outcome=run();
+  const outcome=run({
+    paperRecipientHook:process.env.AGENT34_UNDERWORLD_PAPER_RECIPIENT_HOOK==='true'
+  });
   if(process.env.AGENT34_UNDERWORLD_NATIVE_OUTPUT)
     save(process.env.AGENT34_UNDERWORLD_NATIVE_OUTPUT,outcome);
   process.stdout.write('AGENT34_RANK1_UNDERWORLD_NATIVE '+
     JSON.stringify({
       schema:outcome.schema,
+      paperRecipientHookAppliedSymmetrically:
+        outcome.paperRecipientHookAppliedSymmetrically,
       attemptedControl:outcome.attemptedControl,
       attemptedTreatment:outcome.attemptedTreatment,
       allInitialDealsMatched:outcome.allInitialDealsMatched,
