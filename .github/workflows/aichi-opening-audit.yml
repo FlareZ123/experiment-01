@@ -7,6 +7,10 @@ on:
         description: 'Optional existing original-rank8 K0 Store artifact run ID for compact witness inspection'
         type: string
         required: false
+      agent7_vip_box_native_archive_run:
+        description: Optional previously completed 128 original rank8 paired native results for compact evidence inspection
+        type: string
+        required: false
       agent7_energy_target_run:
         description: 'Optional preexisting rank30 matched source Store run ID for actual accepted Energy-recipient audit'
         type: string
@@ -41,6 +45,18 @@ jobs:
         if: inputs.agent44_source_witness_run != ''
         run: >-
           node -e "const r=require('./agent44-rank8-original-k0-source.json');const xs=r.trials.filter(t=>t.sourceK0?.offeredWindow.anyK0Window);console.log(JSON.stringify({sourceSchema:r.schema,sourceStart:r.startIndex,total:r.trialCount,windows:r.exposed,positiveSeeds:xs.map(t=>({seed:t.seed,trial:t.trial,sourceSeat:t.sourceSeat,sourceActualFirst:t.sourceActualFirst,firstOwnerTurn:t.sourceK0.turn,BoxFetch:t.sourceK0.offeredWindow.boxFetchShake,BoxShake:t.sourceK0.offeredWindow.boxHeldShake,direct:t.sourceK0.offeredWindow.directShake})),firstThreeOwners:xs.slice(0,3).map(t=>({seed:t.seed,hand:t.sourceK0.ownerHandPrintings,active:t.sourceK0.visibleActive,bench:t.sourceK0.visibleBench,flags:t.sourceK0.offeredWindow}))}));"
+      - name: Retrieve existing preregistered rank8 VIP before Box native paired source artifact
+        if: inputs.agent7_vip_box_native_archive_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: agent7-original-rank8-vip-box-native-128-pairs
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.agent7_vip_box_native_archive_run }}
+      - name: Inspect exact three real source native VIP to Box positive seeds without rerun
+        if: inputs.agent7_vip_box_native_archive_run != ''
+        run: |
+          node -e "const x=require('./agent7-rank8-vip-box-prospective.json');const rows=x.rows.filter(r=>r.status!=='NO_VIP_BOX_CONTENTION');if(rows.length!==3)throw Error('Unexpected positive source seed count');console.log('AGENT7_NATIVE_VIP_BOX_WITNESSES',JSON.stringify(rows.map(r=>({seed:r.seed,trial:r.trial,sourceSeat:r.sourceSeat,sourceActualFirst:r.sourceActualFirst,status:r.status,actualK0:r.originalSourceK0,physicalOriginalDealEqual:r.physicalDeckHashesEqual,nativeVip:r.vipNativeAudit,sourceBoxRootOrdinals:r.sourceBoxRootOrdinals,sourceVipRootOrdinals:r.sourceVipRootOrdinals,sourceReply:r.sourceToolGarbodorReply}))))"
       - name: Original source native Energy recipient funding pure regressions
         run: node --test tests/agent7-original-native-energy-recipient-feasibility.test.cjs
       - name: Retrieve existing authentic rank30 Energy target sidecars without rerunning games
