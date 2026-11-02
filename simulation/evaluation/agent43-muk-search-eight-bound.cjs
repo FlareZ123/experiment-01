@@ -92,7 +92,6 @@ function openingEightAccess(copies = {}) {
       directWithOtherBasicStarter += p * otherBasicOpeningWeight;
       searchAssistedUnconditional += p;
       searchAssistedAndValid += p * initialValidWeight;
-    searchAssistedWithOtherBasicStarter += p * otherBasicOpeningWeight;
       searchAssistedWithOtherBasicStarter += p * otherBasicOpeningWeight;
       return;
     }
@@ -103,6 +102,7 @@ function openingEightAccess(copies = {}) {
     const p = p8 * bothAvailable;
     searchAssistedUnconditional += p;
     searchAssistedAndValid += p * initialValidWeight;
+    searchAssistedWithOtherBasicStarter += p * otherBasicOpeningWeight;
   }
 
   enumerate(0, 8, 1);
