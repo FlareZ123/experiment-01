@@ -1,6 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const {createHash}=require('node:crypto');
 
 /**
  * Read-only record of the deck lengths passed to native BotArbiter.shuffle.
@@ -28,13 +29,17 @@ function observeNativeArbiterShuffles(execute,sink,deps={}){
   assert.equal(original.configurable,true);
   sink.arbiterShuffles??=[];
   assert.ok(Array.isArray(sink.arbiterShuffles));
+  const implementationSha256=createHash('sha256').update(
+    Function.prototype.toString.call(original.value)).digest('hex');
   Object.defineProperty(proto,'shuffle',{
     ...original,
     value:function observedNativeShuffle(cards){
       assert.ok(Array.isArray(cards?.cards));
       sink.arbiterShuffles.push({
         deckLength:cards.cards.length,
-        mode:this.options?.shuffleMode??null
+        mode:this.options?.shuffleMode??null,
+        implementationSha256,
+        randomFunctionName:Math.random.name
       });
       return original.value.call(this,cards);
     }
