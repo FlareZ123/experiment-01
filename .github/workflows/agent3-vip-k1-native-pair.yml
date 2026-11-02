@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank26_compressor_settlement_v2:
+        description: 'Fresh 24-pair rank26 real physical deck-to-discard settlement audit'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -36,7 +41,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Check standalone owner-only and exact-card-location regressions
-        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/agent3-source-rank11-vip-role-selector.test.cjs tests/agent3-rank11-vip-k1-combinatorics.test.cjs tests/agent3-rank11-vip-role-location-census.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs tests/agent3-rank26-pre-koko-cologne-opportunity.test.cjs tests/agent3-rank26-readonly-prerequisite-census.test.cjs tests/agent3-rank26-energy-setup.test.cjs
+        run: node --test tests/agent3-owner-evolution-vip-search.test.cjs tests/agent3-source-rank11-vip-role-selector.test.cjs tests/agent3-rank11-vip-k1-combinatorics.test.cjs tests/agent3-rank11-vip-role-location-census.test.cjs tests/aichi-first-player-supporter-exceptions.test.cjs tests/agent3-rank26-pre-koko-cologne-opportunity.test.cjs tests/agent3-rank26-readonly-prerequisite-census.test.cjs tests/agent3-rank26-energy-setup.test.cjs tests/agent3-compressor-discard-settlement.test.cjs
       - name: Install pinned game engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
@@ -100,5 +105,17 @@ jobs:
         with:
           name: agent3-rank26-energy-source-prospective-v1
           path: agent3-rank26-energy-source-cohort-v1.json
+          if-no-files-found: warn
+          retention-days: 15
+
+      - name: Trace true source-owned Battle Compressor physical discard transitions on 24 fresh pairs
+        if: inputs.rank26_compressor_settlement_v2
+        run: node simulation/twinleaf/agent3-rank26-compressor-settlement-prospective-v2.cjs
+      - name: Preserve every original rank26 physical-settlement pair, including failed arms
+        if: always() && inputs.rank26_compressor_settlement_v2
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-compressor-physical-settlement-v2
+          path: agent3-rank26-physical-compressor-v2.json
           if-no-files-found: warn
           retention-days: 15
