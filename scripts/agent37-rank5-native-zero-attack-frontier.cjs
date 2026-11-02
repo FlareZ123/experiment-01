@@ -54,6 +54,69 @@ function publicSourceRoots(row,sourceSeat){
 }
 
 /**
+ * Project a source player's actually accepted card recipient changes.
+ * Sidecar snapshots are public after dispatch and do not reveal source hand
+ * inventory, attempted alternate targets, or legal unused actions.
+ * @param {object} row Original native Store row.
+ * @param {number} sourceSeat Physical source seat.
+ * @returns {object}
+ */
+function sourceCardTargetChanges(row,sourceSeat){
+  const events=row.nativeAcceptedTargetSidecar?.events??[];
+  const plays=events.filter(x=>x.playerSlot===sourceSeat&&
+    x.storeAccepted===true&&x.action==='PlayCardAction');
+  return {
+    acceptedDceRecipients:plays.filter(x=>
+      x.declared?.ownerHandPrinting?.startsWith('Double Colorless Energy'))
+      .map(x=>({
+        turnBefore:x.turnBefore??null,
+        recipientChanges:(x.publicBoardChanges??[])
+          .filter(y=>y.seat===sourceSeat&&
+            y.after?.energies?.some(e=>e.startsWith('Double Colorless Energy')))
+          .map(y=>({
+            position:y.position,slotIndex:y.index??null,
+            pokemon:y.after?.pokemon??null
+          }))
+      })),
+    acceptedMewVmaxEvolutions:plays.filter(x=>
+      x.declared?.ownerHandPrinting?.startsWith('Mew VMAX')).map(x=>({
+        turnBefore:x.turnBefore??null,
+        targetChanges:(x.publicBoardChanges??[])
+          .filter(y=>y.seat===sourceSeat&&
+            y.after?.pokemon==='Mew VMAX FST')
+          .map(y=>({position:y.position,slotIndex:y.index??null}))
+      }))
+  };
+}
+
+/**
+ * Find public transitions in settled opposing attacks that physically changed
+ * this source player's Active. These are pressure windows, never automatic
+ * evidence that a particular replacement or alternate attack was legal.
+ * @param {object} row Original native Store row.
+ * @param {number} sourceSeat Physical source seat.
+ * @returns {object[]}
+ */
+function opponentActiveChanges(row,sourceSeat){
+  const attacks=row.candidateAttackSettlement?.attacks??[];
+  return attacks.filter(a=>
+    a.settledPromptChain===true &&
+    a.publicBoardBefore?.[sourceSeat]?.active?.name&&
+    a.publicBoardAfter?.[sourceSeat]?.active?.name&&
+    a.publicBoardBefore[sourceSeat].active.name !==
+      a.publicBoardAfter[sourceSeat].active.name)
+    .map(a=>({
+      attackTurn:a.turnBefore??null,
+      attackName:a.attackName??null,
+      sourceActiveBefore:a.publicBoardBefore[sourceSeat].active.name,
+      sourceActiveAfter:a.publicBoardAfter[sourceSeat].active.name,
+      prizesBefore:a.prizesBefore??null,
+      prizesAfter:a.prizesAfter??null,
+      nextSourceSameEpochProven:a.nextSourceSameEpochProven??false
+    }));
+}
+
+/**
  * Classify the unchanged archived v3.1 registered original-rank5 source arms
  * without conflating source policy strength with native terminal status.
  * @param {object} archive Archived rank5 experiment.
@@ -92,7 +155,9 @@ function auditRank5Archive(archive){
       originalSourceAttackDeclarations:Number.isSafeInteger(count)?count:null,
       ownerGenesectCopySelections:
         entry.evidence.ownerSourceGenesectCopiedSelections?.length??null,
-      ...rootSummary
+      ...rootSummary,
+      ...sourceCardTargetChanges(row,sourceSeat),
+      opponentActiveChanges:opponentActiveChanges(row,sourceSeat)
     };
   };
   const baseline=control.map(x=>summarise(x,'frozenV2Control'));
@@ -134,4 +199,5 @@ if(require.main===module){
     null,2)+'\n');
 }
 
-module.exports={VERSION,publicSourceRoots,auditRank5Archive};
+module.exports={VERSION,publicSourceRoots,sourceCardTargetChanges,
+  opponentActiveChanges,auditRank5Archive};
