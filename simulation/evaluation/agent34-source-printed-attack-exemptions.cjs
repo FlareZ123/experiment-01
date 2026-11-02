@@ -3,7 +3,12 @@ const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'../..');
-const VERSION='agent34-aichi-29-original-printed-exemptions-v1';
+const VERSION='agent34-aichi-29-original-printed-exemptions-v2';
+const PROMO_SET_ALIASES=Object.freeze({
+  SMP:Object.freeze({id:'smp',numberPrefix:'SM'}),
+  XYP:Object.freeze({id:'xyp',numberPrefix:'XY'})
+});
+const canonicalPokemonName=name=>name.replace(/♢/g,'◇');
 const PATTERNS=Object.freeze({
   disregardWeaknessResistance:/\b(?:isn't|is not|not)\s+affected\s+by\s+Weakness\s+or\s+Resistance\b|\bdon't\s+apply\s+Weakness\s+and\s+Resistance\b(?!\s+for\s+Benched\s+Pok[eé]mon)/i,
   benchOnlyWeaknessReminder:/\bdon't\s+apply\s+Weakness\s+and\s+Resistance\s+for\s+Benched\s+Pok[eé]mon/i,
@@ -40,23 +45,32 @@ function censusOriginalSourceExceptions(source,sets,readCards){
   }
   const unresolved=[],rows=[],setCache=new Map();
   for(const entry of unique.values()){
-    const ids=byCode.get(entry.set)??[];
-    if(ids.length!==1){
-      unresolved.push({...entry,reason:ids.length===0?
-        'no-exact-set-code':'ambiguous-set-code',ids});
+    const promo=PROMO_SET_ALIASES[entry.set];
+    const ids=promo?[promo.id]:(byCode.get(entry.set)??[]);
+    if(ids.length===0){
+      unresolved.push({...entry,reason:'no-exact-set-code',ids});
       continue;
     }
-    const id=ids[0];
-    if(!setCache.has(id))setCache.set(id,readCards(id));
-    const matches=setCache.get(id).filter(c=>
-      String(c.number)===entry.number&&c.name===entry.name);
+    const expectedNumber=promo?promo.numberPrefix+entry.number:entry.number;
+    const expectedName=canonicalPokemonName(entry.name);
+    const matches=[];
+    const nearby=[];
+    for(const id of ids){
+      if(!setCache.has(id))setCache.set(id,readCards(id));
+      for(const c of setCache.get(id)){
+        if(String(c.number)!==expectedNumber)continue;
+        nearby.push({id,name:c.name,cardId:c.id});
+        if(c.name===expectedName)matches.push({id,card:c});
+      }
+    }
     if(matches.length!==1){
-      unresolved.push({...entry,reason:'exact-card-printing-unresolved',
-        candidates:setCache.get(id).filter(c=>
-          String(c.number)===entry.number).map(c=>c.name)});
+      unresolved.push({...entry,reason:matches.length>1?
+        'ambiguous-card-printing':ids.length>1?
+        'ambiguous-set-code':'exact-card-printing-unresolved',
+        ids,candidates:nearby});
       continue;
     }
-    const card=matches[0];
+    const card=matches[0].card;
     const attacks=(card.attacks??[]).map(a=>{
       const txt=a.text??'';
       const kinds=Object.entries(PATTERNS).filter(([,regex])=>
@@ -91,4 +105,4 @@ function run(){
       'resources/cards/en',id+'.json'),'utf8')));
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
-module.exports={VERSION,PATTERNS,censusOriginalSourceExceptions,run};
+module.exports={VERSION,PATTERNS,PROMO_SET_ALIASES,canonicalPokemonName,censusOriginalSourceExceptions,run};
