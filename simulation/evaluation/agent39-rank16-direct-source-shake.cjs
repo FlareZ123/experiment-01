@@ -123,7 +123,7 @@ function classifyPair(control,treatment,audit){
 }
 
 /** @param {object} trial Preregistered source seat/seed/candidate. */
-function runTrial(trial,prepared,Store){
+function runTrial(trial,prepared,Store,{powerReplyObserver=false}={}){
   const source=prepared.get(trial.candidateId);
   const candidateSeat=1-trial.sourceSeat;
   const candidate=source.plan.candidate.cards;
@@ -156,9 +156,15 @@ function runTrial(trial,prepared,Store){
   const capture=execute=>{
     try{
       const observed=withRank8AuthenticK0Observer(
-        Store,trial.sourceSeat,execute);
-      return {error:null,game:summarizeGame(observed.result,trial.sourceSeat),
-        sourceK0:observed.sourceK0,raw:observed.result};
+        Store,trial.sourceSeat,powerReplyObserver?()=>
+          require('../twinleaf/agent39-rank16-original-power-reply.cjs')
+            .withOriginalSourcePowerReply(Store,trial.sourceSeat,execute):
+          execute);
+      const raw=powerReplyObserver?observed.result.result:observed.result;
+      const replyPowerAudit=powerReplyObserver?observed.result.audit:null;
+      return {error:null,game:raw?.policyAudit?null:
+        summarizeGame(raw,trial.sourceSeat),
+        sourceK0:observed.sourceK0,raw,replyPowerAudit};
     }catch(error){
       return {error:{name:error?.name??'Error',
         message:String(error?.message??error).slice(0,500)},
@@ -188,11 +194,13 @@ function runTrial(trial,prepared,Store){
   const result={
     id:trial.id,group:trial.group,sourceSeat:trial.sourceSeat,
     candidateId:trial.candidateId,seed:trial.seed,
-    baseline:{error:control.error,game:ctrl,sourceK0:control.sourceK0},
+    baseline:{error:control.error,game:ctrl,sourceK0:control.sourceK0,
+      ...(powerReplyObserver?{replyPowerAudit:control.replyPowerAudit}: {})},
     intervention:{
       error:treatment.error,game:treat,
       sourceK0:treatment.sourceK0,
-      policyAudit:audit
+      policyAudit:audit,
+      ...(powerReplyObserver?{replyPowerAudit:treatment.replyPowerAudit}: {})
     },
     status,
     exactlySameSourcePhysicalDeal:
@@ -213,7 +221,7 @@ function runTrial(trial,prepared,Store){
 }
 
 /** @param {number} partition Prespecified group blocks of 8, from 0 to 3. */
-function run(partition=0){
+function run(partition=0,{powerReplyObserver=false}={}){
   assert.ok(Number.isSafeInteger(partition)&&partition>=0&&partition<4);
   const scheduled=scheduledArms();
   validateSource();
@@ -243,7 +251,7 @@ function run(partition=0){
   initializeCards();
   const engineBase=path.join(ROOT,'vendor/twinleaf/ptcg-server/output');
   const {Store}=require(path.join(engineBase,'game/store/store'));
-  const rows=selected.map(trial=>runTrial(trial,candidates,Store));
+  const rows=selected.map(trial=>runTrial(trial,candidates,Store,{powerReplyObserver}));
   assert.equal(rows.length,16);
   const counts={};
   for(const row of rows)counts[row.status]=(counts[row.status]??0)+1;
@@ -260,7 +268,9 @@ function run(partition=0){
     });
   }
   return {
-    schema:SCHEMA,preregistration:REGISTRATION_PATH,
+    schema:powerReplyObserver?SCHEMA+'-read-only-reply-v1':SCHEMA,
+    originalNativePanelProtocol:SCHEMA,powerReplyObserver,
+    preregistration:REGISTRATION_PATH,
     researchHeadCommit:process.env.GITHUB_SHA??null,
     nativeEnginePin:registration.enginePin,
     partition,registeredSeedGroups:32,registeredTreatmentArms:64,
@@ -280,7 +290,9 @@ function run(partition=0){
 }
 if(require.main===module){
   const partition=Number(process.env.AGENT39_RANK16_PARTITION??'0');
-  process.stdout.write(JSON.stringify(run(partition),null,2)+'\n');
+  process.stdout.write(JSON.stringify(run(partition,{
+    powerReplyObserver:process.env.AGENT39_RANK16_POWER_REPLY==='true'
+  }),null,2)+'\n');
 }
 module.exports={SCHEMA,scheduledArms,validateSource,rootPublic,
   summarizeGame,classifyPair,runTrial,run};
