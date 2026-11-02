@@ -82,7 +82,7 @@ test('v11 physical foreign payment card fails closed for both native seats',()=>
     owner.hand.cards.push(a,b);
     const payment=new ChooseCardsPrompt(14,owner,'Secret Box TWM',
       'CHOOSE_CARD_TO_DISCARD');
-    payment.cards.cards.push(foreign);
+    payment.cards={cards:[a,b,foreign]};
     s.prompts.push(payment);
     const store=new FakeStore(s);
     const result=withPaperPromptContractPortfolio(()=>{
