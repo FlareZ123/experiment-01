@@ -44,8 +44,12 @@ test('fixed candidate manifest keeps its exact registered SHA-256 and row identi
     row.category,row.name,row.set,row.number].join('|'));
   assert.equal(new Set(keys).size,rows.length,
     'duplicate printing identity would invalidate a fixed 60');
-  assert.deepEqual([...keys].sort(),
-    keys,'the persisted manifest order must be canonical');
+  const compare=(a,b)=>a<b?-1:a>b?1:0;
+  const sorted=[...rows].sort((a,b)=>compare(a.category,b.category)||
+    compare(a.name,b.name)||compare(a.set,b.set)||
+    compare(a.number,b.number));
+  assert.deepEqual(sorted,rows,
+    'the persisted manifest must be sorted by category, then full name');
 });
 
 test('candidate is exactly 26 Pokémon, 28 Trainers, 6 Energy and one ACE SPEC',()=>{
