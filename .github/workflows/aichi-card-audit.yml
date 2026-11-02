@@ -122,6 +122,9 @@ jobs:
         run: |
           node --test tests/agent40-exeggutor-direct-two-turn-access.test.cjs
           node simulation/evaluation/agent40-exeggutor-direct-two-turn-access.cjs
+      - name: Verify actor-visible Blockade continuation beats generic payable Burrow
+        if: ${{ always() && !cancelled() }}
+        run: node --test tests/agent40-owner-blockade-continuation.test.cjs
       - name: Stage public Wondrous attack-cost contrast on both actual native seats
         run: node simulation/twinleaf/agent49-wondrous-native-root-parity.cjs > agent49-wondrous-native-root-parity.json
       - name: Archive staged native Wondrous versus baseline action receipts
