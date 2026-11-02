@@ -30,14 +30,15 @@ The Japanese regulations use the number of Prizes **needed to win**, rather than
 | Top 32, 25 min | 3 / 3 | **Extension required** | Conclude a tie |
 | Top 32 extension | 2 / 6, reached in extension | **A wins** | Reject permitted special extension winner |
 | Final, 35 min | 3 / 5 | **Extension required** | Apply simple 25-minute Prize cutoff |
+| New six-Prize knockout tiebreak | 5 / 6 | **A wins immediately** | Demand a normal six-Prize victory in tiebreak |
 
 Each disposition assumes a verified actual time call, correct starting seat, completed final second player's turn, independently verified normal paper-game terminal status, correct Prize accounting and the excluded final Pokémon Checkup. None of those full prerequisites has been witnessed for a competitively qualified simulation result.
 
 ## Reproducible pure rule helper
 
-[CommonJS oracle](../../simulation/evaluation/agent26-aichi-may2026-paper-clock-adjudicator.cjs) accepts the round, cutoff/extension phase, physical first-player and last-completed-turn seats, required Prize counts and optional independently verified natural paper win/tie. It returns official clock minutes, required physical final seat, the conditional disposition and any winner. Every result explicitly has paperClockMeasured false and competitiveGameQualified false. Zero Prize with no verified natural paper result fails closed. The oracle cannot infer human-time minutes from the simulator's computer execution duration.
+[CommonJS oracle](../../simulation/evaluation/agent26-aichi-may2026-paper-clock-adjudicator.cjs) accepts the round, cutoff/extension phase, physical first-player and last-completed-turn seats, required Prize counts and optional independently verified natural paper win/tie. It returns official clock minutes, required physical final seat, the conditional disposition and any winner. The separate tiebreak phase can also identify the first strict Prize lead in a freshly initialized six-Prize knockout tiebreak. Every result explicitly has paperClockMeasured false and competitiveGameQualified false. Zero Prize with no verified natural paper result fails closed. The oracle cannot infer human-time minutes from the simulator's computer execution duration.
 
-[Eleven pure regressions](../../tests/agent26-aichi-may2026-paper-clock-adjudicator.test.cjs) test Swiss both-loss and missing second-player turn; low-Prize knockout threshold and ties; midturn continuation; 35-minute final; precedence of natural victories and knockout tiebreaks; undefined Swiss natural tie; unverified zero-Prize and invalid input.
+[Twelve pure regressions](../../tests/agent26-aichi-may2026-paper-clock-adjudicator.test.cjs) test Swiss both-loss and missing second-player turn; low-Prize knockout threshold and ties; midturn continuation; 35-minute final; precedence of natural victories and knockout tiebreaks; undefined Swiss natural tie; unverified zero-Prize and invalid input.
 
 **Limitations:** This helper neither times an actual paper match nor validates full printed Pokémon action resolution. It does not qualify a Twinleaf terminal or establish a matchup result.
 
