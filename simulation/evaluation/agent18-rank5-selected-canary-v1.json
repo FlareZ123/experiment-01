@@ -1,0 +1,56 @@
+{
+  "schema": "agent18-rank5-two-seat-canary-v1",
+  "status": "preexecution-development-unqualified",
+  "runnerGitBlobSha": "59c1450ffa754e4abb929cb6d0c1eba41c84ea3b",
+  "runner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "expectedRunnerOptions": 86,
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "rank": 5,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": [
+    {
+      "seat": "A",
+      "seed": 67151115
+    },
+    {
+      "seat": "B",
+      "seed": 1865046151
+    }
+  ],
+  "vendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "enabled": [
+    "mandatoryOptionFallback",
+    "nativePressureWindows",
+    "paperSupporterQuota",
+    "paperFullBenchCallForFamily",
+    "paperSameTargetAttachEnergy",
+    "sharedPaperPaymentPortfolio",
+    "paperQuickBallPayment",
+    "paperSecretBoxPayment",
+    "nativeSetupCoinChoiceReceipt",
+    "nativePublicMulliganRevealsAudit",
+    "nativeSetupCompensationAudit",
+    "physicalZoneGate",
+    "nativeAcceptedTargets",
+    "actorOnlyComposition",
+    "actorMewGenesectTechnoBlast",
+    "actorGenesectFusionDrawRoot",
+    "actorChoosePokemon",
+    "bilateralPublicContextSpecialEnergy",
+    "sameRootProposalChoice",
+    "sameRootChoiceApply",
+    "losslessNativeRootJoin",
+    "nativeToolAttachRoot",
+    "registeredToolEnergyCeiling",
+    "allowAdditionalOriginalSourceRanks"
+  ],
+  "allowedAmbientAgentVariables": [],
+  "injectedEnv": {
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": "true"
+  },
+  "verifiedClosureSha256": null,
+  "competitiveQualified": false
+}
