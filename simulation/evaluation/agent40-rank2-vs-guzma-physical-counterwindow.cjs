@@ -154,7 +154,7 @@ function assessJointCounterwindow(sourceReadinessByBonus,opponent,
     jointPhysicalCounterwindowLower:lower,
     jointPhysicalCounterwindowUpper:upper,
     conditionalOpposingResourceGivenSourceOpportunity:
-      [lower/sourceRate,upper/sourceRate],
+      sourceRate>0?[lower/sourceRate,upper/sourceRate]:null,
     exhaustiveOutcomeWeights:{bothValid:common,
       sourceValidOpponentInitiallyInvalid:sourceBonus,
       opponentValidSourceInitiallyInvalid:opponentBonus},
