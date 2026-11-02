@@ -48,7 +48,8 @@ test('authenticated Aichi source multiset divergence is reproducible',()=>{
   assert.deepEqual(snorlax.ranks,[3,7]);
   assert.equal(snorlax.mostDifferent.nameReplacements,34);
   const absol=get('Absol Garbodor');
-  assert.equal(absol.mostDifferent.nameReplacements,27);
+  assert.equal(absol.mostDifferent.nameReplacements,26);
+  assert.equal(absol.mostDifferent.printingReplacements,27);
   assert.deepEqual(absol.mostDifferent.ranks,[11,22]);
   const drago=get('Regidrago');
   assert.equal(drago.pairCount,36);
