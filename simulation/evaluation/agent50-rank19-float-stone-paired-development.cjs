@@ -106,13 +106,6 @@ function run(){
             nextOpponentRoot:a.nextSourceRoot??null
           }))
         },
-        sourceAttackPrizeTrace:(raw.attackTrace??[])
-          .filter(t=>t.seat===sourceSeat)
-          .map(t=>({
-            turn:t.turn,attack:t.attack,active:t.activePokemon,
-            prizeBefore:t.prizeCountBefore,
-            prizeAfter:t.prizeCountAfter
-          })),
         ragingActiveRoots:audit.sourceRagingActiveRoots,
         ragingActiveTurns:audit.sourceRagingActiveUniqueTurns,
         ragingFundedBenchRoots:audit.sourceRagingBenchedWithEnergyRoots,
