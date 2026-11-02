@@ -8,7 +8,9 @@ const GX='Altered Creation-GX';
 
 /**
  * Observe the printed boosted-GX resource opportunity from the current
- * player's detached public board. This is not a native permission verdict.
+ * player's detached public board. The pinned native ADP printing reports
+ * gxAttack=false even for Altered Creation-GX; use its exact printed name
+ * and keep native GX legality separate. This is not a permission verdict.
  * @param {object} view Owner-only detached actor observation.
  * @returns {object|null}
  */
@@ -17,7 +19,7 @@ function observeAdpBoostedGxResourceWindow(view){
   const own=view.ownPublic;
   const active=own?.active;
   if(active?.printing!==ADP)return null;
-  const printedAttack=active.attacks.find(a=>a.name===GX&&a.gxAttack===true);
+  const printedAttack=active.attacks.find(a=>a.name===GX);
   const ddeCount=active.energies.filter(name=>name===DDE).length;
   const usedGX=own.publicTurnRestrictions?.gxUsed===true;
   const gxLocked=own.publicTurnRestrictions?.cannotUseGXAttacks===true;
@@ -37,6 +39,7 @@ function observeAdpBoostedGxResourceWindow(view){
   return {printing:ADP,globalTurn:view.globalTurn,
     ddeAttachedCards:ddeCount,printedGxFound:Boolean(printedAttack),
     printedCost:printedAttack?[...printedAttack.cost]:null,
+    engineGxAttackAnnotation:printedAttack?.gxAttack===true,
     gxAlreadyUsed:usedGX,gxLocked,attackLocked,templeOfSinnoh,
     nominalBoostedResourceWindow,nativePlayableCertified:false,
     opponentResponseCertified:false};
