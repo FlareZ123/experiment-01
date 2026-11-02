@@ -33,9 +33,19 @@ function publicSourceRoots(row,sourceSeat){
     acceptedSourceMewVmaxPlayRoots:accepted.filter(x=>
       x.action==='PlayCardAction'&&typeof x.card==='string'&&
       x.card.startsWith('Mew VMAX')).length,
-    acceptedSourceDceAttachmentRoots:accepted.filter(x=>
-      x.action==='AttachEnergyAction'&&typeof x.card==='string'&&
-      x.card.startsWith('Double Colorless Energy')).length,
+    // Genuine archived Store roots encode an ordinary hand Energy play as
+    // PlayCardAction with the Energy's printed name. Treat these only as
+    // accepted public plays, without inventing an unobserved recipient.
+    acceptedSourceDcePlayCardRoots:accepted.filter(x=>
+      x.action==='PlayCardAction'&&typeof x.card==='string'&&
+      x.card.startsWith('Double Colorless Energy')).map(x=>({
+        turnBefore:x.turnBefore??null,actionOrdinal:x.actionOrdinal??null
+      })),
+    sourceAcceptedCardPlays:accepted.filter(x=>
+      x.action==='PlayCardAction').map(x=>({
+        turnBefore:x.turnBefore??null,
+        actionOrdinal:x.actionOrdinal??null,card:x.card??null
+      })),
     acceptedSourceAttackRoots:accepted.filter(x=>x.action==='AttackAction')
       .map(x=>({turnBefore:x.turnBefore??null,
         attack:x.attack??null,actionOrdinal:x.actionOrdinal??null})),
