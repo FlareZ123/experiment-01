@@ -6,7 +6,7 @@ const {adjudicateMay2026AichiTime:decide}=
 
 function state(stage,prizeRemaining,overrides={}){
   return {stage,phase:'cutoff',firstPlayerSeat:0,
-    afterSecondStartingPlayerTurn:true,prizeRemaining,...overrides};
+    lastCompletedTurnSeat:1,prizeRemaining,...overrides};
 }
 
 test('Swiss timeout unresolved is simultaneous loss, even with large Prize lead',()=>{
@@ -21,9 +21,10 @@ test('Swiss timeout unresolved is simultaneous loss, even with large Prize lead'
 
 test('Swiss time-call before final second-player turn cannot score a timeout',()=>{
   const r=decide(state('swiss',[2,6],
-    {afterSecondStartingPlayerTurn:false}));
+    {lastCompletedTurnSeat:0}));
   assert.equal(r.status,'AWAIT_SECOND_STARTING_PLAYER_FINAL_TURN');
   assert.equal(r.actorActionAllowed,true);
+  assert.equal(r.requiredFinalSeat,1);
 });
 
 test('knockout on end-of-time call requires at most two Prizes plus strict lead',()=>{
@@ -44,10 +45,10 @@ test('knockout on end-of-time call requires at most two Prizes plus strict lead'
 
 test('knockout extension resolves on threshold midturn, not on raw Prize lead',()=>{
   let r=decide(state('top32',[3,6],
-    {phase:'extension',afterSecondStartingPlayerTurn:false}));
+    {phase:'extension',lastCompletedTurnSeat:0}));
   assert.equal(r.status,'KNOCKOUT_EXTENSION_REQUIRED');
   r=decide(state('top32',[2,6],
-    {phase:'extension',afterSecondStartingPlayerTurn:false}));
+    {phase:'extension',lastCompletedTurnSeat:0}));
   assert.equal(r.status,'KNOCKOUT_PAPER_TIME_WIN');
   assert.equal(r.winner,0);
   r=decide(state('top32',[2,2],{phase:'extension'}));
@@ -65,11 +66,11 @@ test('35-minute final has same extension predicate but distinct official clock',
 
 test('natural paper victory or tie precedes any incomplete second-player turn',()=>{
   const one=decide(state('top32',[3,6],
-    {naturalOutcome:0,afterSecondStartingPlayerTurn:false}));
+    {naturalOutcome:0,lastCompletedTurnSeat:0}));
   assert.equal(one.status,'NATURAL_PAPER_WIN');
   assert.equal(one.winner,0);
   const tie=decide(state('final',[3,3],
-    {naturalOutcome:'tie',afterSecondStartingPlayerTurn:false}));
+    {naturalOutcome:'tie',lastCompletedTurnSeat:0}));
   assert.equal(tie.status,'PAPER_TIEBREAKER_NEW_SIX_PRIZE_GAME');
   assert.equal(tie.winner,null);
 });
