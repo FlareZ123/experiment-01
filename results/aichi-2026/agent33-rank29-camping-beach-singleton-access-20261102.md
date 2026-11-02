@@ -19,6 +19,26 @@ K0 means the player does not already know their six Prizes. When DCE was absent 
 Opening-hand inclusion-exclusion uses exact integers:
 \`J = sum_{S subset {Basic,Camping,Beach}} (-1)^|S| C(60-sum_{i in S} n_i,7)\`, where \`(n_B,n_C,n_T)=(4,2,2)\`. The count without DCE in hand is the same formula with population **59**. Let \`H=J-J_noDCE\`. Then the conditional Gear-access numerator is \`53H+47J_noDCE\` and Beach-access numerator is \`53H+2J_noDCE\`, each over \`53J\`. Thus Prized DCE is explicitly included.
 
+## Stronger two-piece test: DCE **and** Thunder Mountain by the next own-turn draw
+
+DCE alone cannot pay the intended Iron Thorns ex first-attack line without the separate printed **Thunder Mountain Prism Star** cost reduction (and other legal attack conditions). Original rank29 contains **one Thunder Mountain ♢** as well as one DCE. The exact model now evaluates possession of **both** by the owner's next ordinary draw after the terminal opening action, assuming no other draw/search, with the same six unknown Prizes.
+
+| Initial pieces within Basic + Gear + Beach first seven | Conditional probability |
+| --- | ---: |
+| Both DCE and Thunder already held | **0.41028915%** |
+| Exactly one held | **13.83146829%** |
+| Neither held | **85.75824256%** |
+
+If one piece is missing, Gear may search it with probability **47/53**. If neither piece is held, a Gear search for one and the next ordinary draw finding the other succeeds with probability **47/(53×52)**, after accounting for Prizes. Beach supplies two cards at the end of the opening turn and the next ordinary draw, for three random draws altogether. If exactly one piece is missing, it is among these three with probability **3/53**. If both are missing, both appear with probability **6/(53×52)**.
+
+| Two-piece resource condition | Probability, given Basic + Gear + Beach opening |
+| --- | ---: |
+| Have both DCE and Thunder by next ordinary draw, Gear search line | **14.13842627%** |
+| Have both by next ordinary draw, Beach draw line | **1.37990399%** |
+| Gear-minus-Beach two-piece access | **12.75852228 percentage points** |
+
+This exposes why a one-resource metric can be misleading: **89.51% DCE possession after Gear** becomes only **14.14% two-piece access by the following ordinary draw**. The larger bottleneck is the missing second singleton. Even successfully acquiring both cards does not certify an attack: Stadium replacement rules, manual attachment quota, the owner going first/second, Item/Ability locks, opposing play and native Store settlement still apply. The model counts already-held dual resources in both branches, although that rare opening may support a superior immediate attack without either terminal action.
+
 ## Decision significance and limits
 
 This establishes a **target-specific resource asymmetry** that a generic draw-volume or "available terminal move" scorer could miss: when a singleton Special Energy is urgently required for a planned future attack, Gear has much higher immediate target access than Beach under the stated constrained conditions. It does not establish a universally optimal action. Camping Gear uses an Item and ends the owner's turn, while Beach draws multiple potentially useful cards and remains a Stadium. Playing Beach before Gear creates a future *opponent* Beach activation opportunity; its net utility depends on public hand size, available setup/disruption, opponent abilities, lock effects and future turns. Source rank29 has two Camping Gear and two Beach; the model does not treat holding both as an automatic obligation to play either.
@@ -28,7 +48,7 @@ The independent [Agent20 opening overlap](agent20-rank6-rank7-turnending-paper-c
 ## Reproduction
 
 - Code: [source-locked exact model](../../simulation/evaluation/agent33-rank29-beach-camping-prize-access.cjs), reads the authentic original source 60 and fails closed on count changes.
-- Tests: [small independent enumeration, conditional probabilities, identity drift](../../tests/agent33-rank29-beach-camping-prize-access.test.cjs). Three tests passed locally with Node; no new automatic CI workflow.
+- Tests: [small independent enumeration, singleton and dual-piece conditional probabilities, identity drift](../../tests/agent33-rank29-beach-camping-prize-access.test.cjs). Three tests passed locally with Node; no new automatic CI workflow.
 - No simulator winner, game length, seat outcome, original-source policy competence, paper 25-minute clock, or competitive field result is claimed. **Qualified games: zero.**
 
 **Next falsifiable native test:** Capture a source-rank29 physical turn with owner-held Camping Gear and Beach, both native-legal, then compare a single original-source-deal pair: Beach placement followed by *either* Camping Gear DCE search or Beach two-card draw, logging exact source hand/Prize access under owner-appropriate knowledge, both accepted terminal actions, actual native prompts, physical zones, the next opponent turn and possible opponent Beach use. Keep the paired result censored if missing any gate. Do not promote it to a matchup win rate.
