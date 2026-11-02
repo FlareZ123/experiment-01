@@ -55,6 +55,17 @@ test('knockout extension resolves on threshold midturn, not on raw Prize lead',(
   assert.equal(r.status,'KNOCKOUT_EXTENSION_REQUIRED');
 });
 
+
+test('provisional three-Prize leader can lose after genuine knockout extension',()=>{
+  const call=decide(state('top32',[3,6]));
+  assert.equal(call.status,'KNOCKOUT_EXTENSION_REQUIRED');
+  assert.equal(call.winner,null);
+  // These are conditional abstract Prize states; no four-Prize attack claimed.
+  const later=decide(state('top32',[3,2],{phase:'extension'}));
+  assert.equal(later.status,'KNOCKOUT_PAPER_TIME_WIN');
+  assert.equal(later.winner,1);
+});
+
 test('35-minute final has same extension predicate but distinct official clock',()=>{
   const r=decide(state('final',[3,5]));
   assert.equal(r.officialClockMinutes,35);
