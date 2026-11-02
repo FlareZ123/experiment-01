@@ -1,6 +1,6 @@
 {
   "schema": "agent18-exeggutor-vileplume-v2-native-implemented-60",
-  "status": "exploratory-unqualified-pinned-native-all-candidate-attackers-defined",
+  "status": "exploratory-unqualified-primary-blockade-cards-implemented",
   "source": "exact rank2 original archived 60, Aichi May 10 2026",
   "sourceDeckRank": 2,
   "sourceDeckPlayer": "Takahiro Ando",
@@ -12,7 +12,7 @@
     "Increase Jet Energy PAL190 from 2 to 3",
     "Replace 1 Exeggcute MEG4 (not implemented in pinned Twinleaf) with 1 Exeggcute VIV4 (60 HP, printed Seed Bomb instead of Jam-Packed)"
   ],
-  "note": "Second immutable exploratory 60, adjusted 60-HP Exeggcute printing to Vivid Voltage VIV4 specifically because pinned Twinleaf a9905a76 implements VIV4/PLF4/PLF5. Different 60-HP Exeggcute attack behavior from first variant. No native game or competitive win evidence; paper legality independent.",
+  "note": "Second immutable exploratory 60, changing 60HP Exeggcute MEG4 to Vivid Voltage VIV4. At pinned Twinleaf a9905a76, VIV4, PLF4 and PLF5 are implemented and registered. This does not certify implementation of all other 60 printings, prompts, mechanics or engine executable gameplay. VIV4's printed attack differs from MEG4. No native game/competitive win evidence; independent paper legality pending.",
   "category_counts": {
     "Pokémon": 25,
     "Trainer": 28,
