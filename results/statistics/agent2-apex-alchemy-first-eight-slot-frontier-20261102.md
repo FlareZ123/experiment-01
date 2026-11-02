@@ -55,3 +55,7 @@ During manual field-gate run [41534560910](https://github.com/FlareZ123/experime
 Only if the strategy owner can identify a specific low-utility *nonmodeled* slot to cut without harming Regidrago Energy, Dragon donor access, draw, matchup answer or prize routing, register a separately hashed **4-Boost-Shake fixed 60**. Then prospectively compare against unchanged v0 on the same policy, both actual seats and all original opponent lists, tracking natural held/discard-paid Grimer+Shake+Muk and the complete post-lock opponent response. The third Grimer is a legitimate alternate test against search-denial pressure, since direct-opening results favor it. Focus initially on Iron Thorns, Vileplume and original Absol/Garbodor counterlines. The 29/32 opponent authenticity, zero competitively qualified games and no demonstrated 99.5% winner are unchanged.
 
 **Evidence class:** exact deck-access mathematical sensitivity and independent numerical reproduction. There is no observed game, registered variant, legal-replacement identity, actual win-rate estimate or assertion that a fourth Shake is globally optimal.
+
+## Reproduction and CI release status
+
+[Manually dispatched field-gate run 41535766261](https://github.com/FlareZ123/experiment-01/actions/runs/41535766261) **passed** after the alternate-starter branch correction and canonical SHA fix; it includes the new 60-card concrete Shake4/Quick2 regression and all Agent43 source tests. This is numerical/printed-identity CI evidence only, no game win.
