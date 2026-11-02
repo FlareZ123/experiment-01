@@ -1,0 +1,64 @@
+# Agent 43: Apex Alchemy v0, a structural fifth fixed-60 admission packet
+
+**2 November 2026 | normal research | status: proposed structural challenger, zero qualified paper games, zero field win-rate evidence.**
+
+## Decision and provenance
+
+This fixed 60 is an original **Regidrago VSTAR / Alolan Muk / Boost Shake** structural hypothesis. It explores a Stage-1 Bench-based Basic Ability suppressor alongside a Dragon attack-copy engine. It differs materially from the existing Shadow Rider VMAX reference/Hood/Temple variants and the Mewtwo & Mew-GX New Moon Lockbreaker. It is **not a chosen best deck**, original Aichi Top32 registration, demonstrated win, or claim of 99.5%. Do not promote it in `results/README.md` without subsequent evidence.
+
+- [Frozen complete 34-printing, 60-card machine manifest](agent43-apex-alchemy-paper-expanded-v0.json), SHA-256 canonical card-count identity `21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769`.
+- Canonical identity algorithm: sort UTF-8 lines `cardId:count\n` lexically, concatenate them, SHA-256 the resulting bytes. Keep these 60 unchanged when registering comparisons.
+- [Standalone deterministic audit/SFT](../../tests/agent43-apex-alchemy-sft.test.cjs) checks each chosen English printed ID against `resources/cards/en/*.json`, `resources/sets/en.json`, name, category, set code, number, Expanded database flag, four-card/ACE SPEC limits, SHA and exact random-deal calculations. The identical candidate was locally audited against the supplied ZIP on 2 November: **PASS**. GitHub-hosted test was committed but no CI run of that new remote file is claimed.
+- The Aichi public reference [29 authenticated printed original sixties](full-decklists.json) is evidence about the opponents and event-era mechanisms, **not** a claim every new candidate printing is present in those 29 decks. Ranks **23, 25, 28** lack authenticated complete originals.
+- The current official Pokémon 2026 Expanded baseline remains Black & White onward; candidate cards are not on the currently published Expanded banned-card names checked 2 November. The supplied card database flags all selected printings `Legal` for Expanded. **Japanese tournament-day legal printing identity, errata and all interaction rulings have not independently been certified**. Refer to the local Advanced Player's Rulebook and official format/ban list before paper registration.
+
+## Complete human-readable fixed sixty
+
+**Pokémon 20:** 4 Regidrago V (SIT 135); 3 Regidrago VSTAR (SIT 136); 2 Alolan Grimer (SUM 57); 2 Alolan Muk (SUM 58); 1 Dragapult ex (TWM 130); 1 Dialga-GX (UPR 100); 1 Hisuian Goodra VSTAR (LOR 136); 1 Noivern ex (PAL 153); 1 Kyurem (SFA 47); 1 Koraidon ex (TEF 120); 1 Tapu Lele-GX (GRI 60); 1 Latias ex (SSP 76); 1 Budew (ASC 16).
+
+**Trainers 30:** 2 Professor's Research (JTG 155); 2 Guzma (BUS 115); 1 Carmine (TWM 145); 1 Iono (PAL 185); 1 Crispin (SCR 133); 1 Raihan (EVS 152); 1 Faba (LOT 173); 4 Mysterious Treasure (FLI 113); 3 Quick Ball (FST 237); 3 Boost Shake (EVS 142); 3 VS Seeker (PHF 109); 1 Battle Compressor (PHF 92); 1 Hisuian Heavy Ball (ASR 146); 1 Field Blower (GRI 125); 1 Prime Catcher **ACE SPEC** (TEF 157); 1 Float Stone (BKT 137); 1 Stealthy Hood (UNB 186); 2 Giant Hearth (UNM 197).
+
+**Energy 10:** 4 Double Dragon Energy (ROS 97); 3 Basic Grass Energy (SVE 1); 3 Basic Fire Energy (SVE 2).
+
+## Exact printed mechanisms and tactical plans
+
+**A. First own turn Muk attempt.** Alolan Muk SUM 58 has **Power of Alchemy**: each Basic Pokémon in play, in either hand and in either discard pile has no Abilities. Alolan Grimer SUM 57 is Psychic type and searchable by Mysterious Treasure, as is Muk. With a Grimer in play and Muk still in the deck, Boost Shake EVS 142 can evolve Grimer even on the first turn or the turn Grimer was played, and **ends the turn**. Muk is Stage 1 with no Rule Box, so an active Iron Thorns ex Initialization does not itself suppress Muk. Muk would remove Iron Thorns ex's Basic Ability, subject to exact lock ordering and any opponent response. This is an inferred printed-card interaction requiring a dedicated native two-seat fixture before evidence promotion. Muk has just **120 HP, Psychic ×2 Weakness, and four Retreat Cost**, so an exposed Active Muk can be a serious liability.
+
+**B. The alternative first-turn attack-lock and setup decision.** Budew ASC 16 has a zero-Energy Item-lock attack option if Active and attacking is allowed. An initial Boost Shake consumes the full first turn, so a player cannot take the same-turn Budew attack after using it. A going-second opponent may already have an early Item lock or established attacker that prevents the Muk route. The player may instead use available Items to find Regidrago V, attach Energy, discard a Dragon payload, and delay Muk. This conflicts with some other lines because Mysterious Treasure/Quick Ball require discard payments and are scarce connectors; one Supporter per turn remains binding.
+
+**C. The attack engine.** Regidrago VSTAR SIT 136 has **Apex Dragon** at Grass, Grass, Fire. One attached Double Dragon Energy on a Dragon Pokémon can supply two of these units while an appropriately typed Basic Energy supplies the third, if Special Energy effects are live. Mysterious Treasure, hand-discard draw and Battle Compressor provide discard-pile Dragon attack payloads. Apex Dragon can choose the printed attack of a Dragon Pokémon there, without requiring the copied attack's own printed Energy cost under the Advanced Player's Rulebook C-18. Available roles include Dialga-GX's **Timeless-GX** (150 and an extra turn, subject to GX once-per-game rules); Dragapult ex's **Phantom Dive** (200 to Active and six Bench damage counters); Hisuian Goodra VSTAR's **Rolling Iron** (200 and damage reduction); Noivern ex's **Covert Flight** or **Dominating Echo**; and Kyurem's costly **Trifrost** (110 to three opponents and discards Energy from the actual attacking Pokémon). These are reachability proposals; actual timing, board placement, lock state, GX/VSTAR eligibility, targetability and legal Pay/Prize chains must be tested.
+
+**D. Multiple conflicts.** Power of Alchemy also suppresses our own Basic Tapu Lele-GX Wonder Tag and Latias ex Skyliner, along with other Basic Abilities the pilot might wish to retain; ideally use those abilities before Muk starts locking, if the game affords that order. Muk leaves the evolved Regidrago VSTAR Legacy Star Ability available when no other lock applies. Opposing Stage-1 Garbodor's Garbotoxin can turn Muk off; Stealthy Hood attached directly to Muk may counter some opponent Ability effects, but the sole Hood competes with Float Stone and protection of Regidrago itself, and Tool denial can break the line. Faba consumes a Supporter but can Lost Zone an opposing Tool, Special Energy or Stadium; Field Blower can discard attached Tools/Stadium. Both can be inaccessible under Item or Supporter denial.
+
+**E. Energy/board friction.** Double Dragon Energy must be attached to a Dragon Pokémon. Temple of Sinnoh and other Special Energy denial can shut down the color source, making the 3 Grass/3 Fire basics thin. Giant Hearth discards an owner-hand card to fetch up to two Basic Fire Energy, giving the opponent access to the same Stadium Ability while it survives. The opening board must allocate Regidrago V, Grimer/Muk, possible Budew, Lele, Latias and other targets to at most five Bench spaces. Preserve actual hand discard acceptability rather than awarding abstract search connectivity.
+
+## Direct opening arithmetic (exact combinatorics, not gameplay)
+
+| Necessary event | Uniform shuffled-deck probability |
+| --- | ---: |
+| No Basic in initial seven (12 Basics in 60) | **19.06466927%** |
+| First eight cards include Grimer and Boost Shake, at least one Muk remains outside those eight and six Prizes | **7.75916289%** unconditionally |
+| Same direct Grimer/Shake/Muk event conditioned on a Basic-valid initial seven | **9.58686746%** |
+| Both Alolan Muk copies are in the six Prizes | **0.84745763%** |
+| All three Regidrago VSTAR copies are in the six Prizes | **0.05844535%** |
+
+Direct event calculation enumerates all compositions of the first seven, the one ordinary first-turn draw and the six Prizes, then demands at least one Muk remaining in the deck, without search/draw effects, opponent actions, turn-order effects, opponent mulligan draws or gameplay legality. The event is a **necessary direct natural hand opportunity for a particular narrow lock line**, and is neither a game probability of deploying Muk nor a lock-success probability. Prize events can be mitigated through eventual Prize-taking but this 60 has no Gladion and Hisuian Heavy Ball retrieves Basics rather than Stage-1 Muk. Do not convert these percentages to match win rates.
+
+## Adversarial tests, deliberately decisive
+
+| Opponent class / authenticated ranks | Expected opportunity / likely failure | Preregistered counterexample that could reject the hypothesis |
+| --- | --- | --- |
+| Iron Thorns (6, 24, 29) | Muk is a potential early answer to Basic Initialization, but does not itself remove Trainer denial, attacks, or Special Energy disruption | Full two-seat native first-turn Grimer/Shake/Muk under active Thorns; allow source Guzma/Plumeria/Faba, Stadium changes, and a genuine reply. Reject a claim of reliable counterlock if the attacker routinely cannot be funded or Muk cannot hold. |
+| Regidrago (10, 12, 13, 14, 18, 20, 21, 27, 32) | Muk suppresses opponent Basic Lele/Latias/Dedenne but opposing evolved VSTAR attacks can proceed; known originals all contain Lele and Latias | Run authenticated same-turn source access and funded Apex Dragon with and without Muk; check opponent Mimikyu/Copycat, copied Timeless-GX and gust. Reject if Muk's self-lock and turn cost worsen time-to-first-Prize. |
+| Absol/Garbodor (8, 11, 16, 22) | Enemy Garbotoxin suppresses Muk and Regidrago Legacy Star, and may deny early value from Basic support | Source-paid Tool + Garbotoxin with actual next-root ability predicates, then our legal Faba or Hood/Field Blower chain, KO and source follow-through. Reject if opponent Tool lock or paid mobility reliably locks Muk out. |
+| Vileplume and Lopunny Vileplume (2, 15) | Item denial can prevent Boost Shake and search; Muk need not disable evolved Vileplume | Test going second with opponent already locking Items and Supporter/Active windows. Reject if primary lock line is unreachable before source board establishment. |
+| Snorlax Stall (3, 7) | A four-Retreat-Cost Muk is an exposed trap; attack-copy toolbox may bypass some walls | Start forced Active Muk, scarce mobility, then source gust/lock and real deck-out continuation. Record any inability to attack even with apparent search access. |
+| Shadow Rider rank 1 / Raichu ranks 4,17 (25 missing) | Psychic attack pressure exploits Muk's Weakness and source Klefki is alternative Basic suppression; exact rank25 deck missing | Competent opponent targets Muk early and rearranges position; perform source-authenticated counter-ALS. Never pretend a substituted rank25 list is original. |
+
+## Comparison and falsification contract
+
+Register the immutable SHA above before fresh RNG draws. Compare **the unchanged rank-1 champion, frozen New Moon v1 and this fixed fifth 60** against the 29 exact original-source printed rosters with all start-seat and first-player order cells; keep ranks 23/25/28 explicitly unobserved. Use the same truly *selected*, owner-information-safe, paper-cost-checked, bilateral candidate/source decision policy once certified in the canonical `simulation/evaluation/agent41-bilateral-v2-development.cjs` runner. Preserve source and candidate roster hashes, vendor/hook/code/profile revision, actual dealt hand/Prize fingerprints, all attempts, and all errors, caps, paper-invalid states, native terminals and meaningful opponent continuation. Seed equality by itself does not imply equivalent physical source deals across differently composed candidates.
+
+A complete natural game can enter an estimate only after original-source competence, paper effect and payment, all prompts, attack/KO/Prize consequences, full opponent policy, and the official **25-minute match clock** qualify. Report each of 32 source rankings with uncertainty, plus actual zero-qualification if applicable; never promote a simulator-native terminal to a demonstrated paper win. A source-paid hard-cluster counterexample disproving a defining advantage is sufficient grounds to reject or revise this candidate **before** expensive field CI.
+
+**Current decision: admit only as a fully specified falsifiable fifth candidate, with major self-lock, energy, Muk Prize and Tool-lock hazards. The 99.5% target remains wholly unproven.**
