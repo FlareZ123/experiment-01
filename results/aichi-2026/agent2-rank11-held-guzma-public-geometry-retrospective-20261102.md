@@ -132,6 +132,19 @@ In the **190** original-source first roots with both Benches populated, active-a
 
 **Distinctive actual source Pass details:** The existing exact owner-only native `sourceOwnerPostPassMobility` records match the same retained source-owner turns. At the 100 held-Guzma original-source Passes with both Benches, source Active was Mega Absol ex **60** times, Latias ex **31** times, Oranguru V **4**, Trubbish **2**, Crobat V **2**, Tapu Lele-GX **1**. Mega Absol's 60 Passes split **18 without Active Energy / 42 with one attached**. The 31 Latias with 3–7 attached cards belong to **only two correlated printed-deck trajectories**, the same rank11 seed group against distinct candidates, and must not count as 31 independent games. The original printed rank11 60 has **8 Basic Darkness, zero Psychic and zero Special Energy**; Latias ex's Psychic-cost Eon Blade is not paid by ordinary attached Darkness alone. This supports investigating earlier Energy recipient and deck-specific move-payability decisions, while leaving unknown modifying card effects and successful alternative lines open.
 
+### Independent all-owner-turn cross-check
+
+The observer records the **same detached public Energy state on every native first owner root**, even when no Guzma is held. Direct re-aggregation of the archived 16-arm full JSON gives:
+
+| Face-up owner Bench Energy-card count | Source first owner roots | Candidate first owner roots | Source accepted Pass | Candidate accepted Pass |
+| --- | ---: | ---: | ---: | ---: |
+| Exactly zero | **359** | 238 | **161** | 130 |
+| One attached Energy card | **0** | 80 | **0** | 77 |
+| Two attached Energy cards | **0** | 44 | **0** | 48 |
+| Total | **359** | **362** | **161** | **255** |
+
+Therefore source rank11 shows **zero Benched Energy on every observed one of its 359 distinct native owner turns and 161 Passes** from 16 matches, regardless of holding Guzma. This is broader than the initial held-Guzma finding. Candidate seats have **124 first owner turns** and **125 Passes** with a Benched Energy card, proving the observer distinguishes actual investment. The repeated within-game turns do not create 359 or 161 independent games; the paper-legal value of Bench investment is deck/matchup dependent. An owner may intentionally keep Energy on the Active attacker or reserve Energy for other reasons.
+
 ### Decision-policy bottleneck and forward test
 
 The shared canonical root policy `simulation/twinleaf/agent34-actor-only-root-policy.cjs` has a default Basic Energy action: if no explicit `energyRecipientFrontier` option is set, it returns `attach-basic-energy` with no Bench target, and native conversion routes the default to the Active. The frozen v2 campaign did **not** enable that frontier. Existing `simulation/twinleaf/agent44-actor-energy-recipient.cjs` can instead consider visible eligible Bench and Active attacks, attached Basic/Special Energy and public reductions; it is a **default-off development heuristic**, currently not certified to improve legal paper decisions or matches. Its own approximations may favor a nominal but strategically poor move, so further instrumentation and full counterfactual Store settlement are required.
