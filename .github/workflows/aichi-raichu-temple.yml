@@ -33,6 +33,11 @@ jobs:
         run: node simulation/twinleaf/agent48-temple-mew-dce-native.cjs
       - name: Verify real rank-5 Mew source Stadium counterplay and copied attack in both seats
         run: node simulation/twinleaf/agent48-temple-mew-stadium-response.cjs
+      - name: Check source-locked Mew opening DCE and Wally Stadium response combinatorics
+        run: |
+          node --test tests/agent48-temple-mew-dce-access.test.cjs tests/agent48-rank5-temple-wally-first-attack.test.cjs
+          node scripts/agent48-temple-mew-dce-access.cjs
+          node scripts/agent48-rank5-temple-wally-first-attack.cjs
       - name: Verify exact opening Stadium access against seeded shuffles
         run: node --test tests/aichi_raichu_stadium_access.test.cjs
       - name: Test rank-4 and rank-17 Energy sources, Temple denial and Stadium replacement
