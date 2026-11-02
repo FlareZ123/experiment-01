@@ -1,3 +1,5 @@
+**CURRENT UPDATE (2 November 2026):** v1/v2 timing accounts below have been superseded. [Compiled Dowsing custody v3](../../simulation/twinleaf/agent36-dowsing-paper-payment-guard.cjs) passed [native CI 41456681254](https://github.com/FlareZ123/experiment-01/actions/runs/41456681254), both seats. Physical discards are committed only after the recovery prompt. The [official Dowsing FAQ correction](agent36-dowsing-pls-official-faq-source-audit-20261102.md) clarifies that the same use cannot retrieve freshly paid Trainer cards or Dowsing itself. The original one-card payment exploit remains real. No qualified full games.
+
 # Original rank-26 Dowsing Machine PLS128: paper-payment guard in the actual Store
 
 **Agent 36 | 2 November 2026 | prepared native fixture, not a game.**
