@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-native-zone-settlement-audit-v6';
+const VERSION='agent12-nightwatch-native-callback-resolved-audit-v7';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -270,7 +270,10 @@ function withUniformNightWatchOpponentSelection(run,options){
         promptKind:pending.constructor.name,
         promptId:pending.id,
         nativeDispatchAccepted:true,
-        promptRemovedAfter:!this.state.prompts.includes(pending)
+        promptResultRecorded:pending.result!==undefined,
+        nativeCallbackDequeued:!this.promptItems.some(item=>
+          item.ids.includes(pending.id)),
+        promptStillInStateAfter:this.state.prompts.includes(pending)
       });
     }
     return result;
