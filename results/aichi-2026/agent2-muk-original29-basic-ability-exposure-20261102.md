@@ -63,7 +63,7 @@ The cited 208 is a sum of physical copies of **Basic Pokémon with an Ability pr
 
 ## Limits and next discriminating test
 
-A card being in a source 60 **does not imply** it was accessible, deployed, effective, desired or timed to matter. The source field includes active-only, bench-entry, bench-activated, continuous and discard abilities that have different strategic windows and different self-interference. It is impossible to derive matchup wins by counting affected card copies. The mapping does not decide whether opponent counterlocks, Active/Bentch placement, paper rules, subsequent attacks or Prize trajectories work as intended.
+A card being in a source 60 **does not imply** it was accessible, deployed, effective, desired or timed to matter. The source field includes active-only, bench-entry, bench-activated, continuous and discard abilities that have different strategic windows and different self-interference. It is impossible to derive matchup wins by counting affected card copies. The mapping does not decide whether opponent counterlocks, Active/Bench placement, paper rules, subsequent attacks or Prize trajectories work as intended.
 
 Prioritize a **genuine original-source rank6 Thorns versus live elected Muk** same-deal two-player fixture and a **rank7 Wobbuffet-overlap lock** state with exact Ability outcome. In parallel, test whether rank26's source *Propagation* genuinely activates before and fails after Muk under a legal native state without overriding effects, then continue to a consequential opponent turn. Each test requires real selected roots, settled prompts, original-owner physical custody, non-passive opponent policy and the paper clock to be competitive evidence. Zero qualified games remain and 99.5% is wholly unproven.
 
