@@ -971,7 +971,8 @@ function runDevelopment({
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
-  actorNaturalEvolutionRoot=false,actorVipBeforeAttack=false,
+  actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
+  actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
@@ -1012,6 +1013,8 @@ function runDevelopment({
     'Symmetric known-dead attack correction requires two-seat actor-only composition and excludes candidate-only diagnostic');
   assert.ok(!actorNaturalEvolutionRoot||actorOnlyComposition,
     'Native symmetric natural evolution requires actor-only roots');
+  assert.ok(!actorMewGenesectTechnoBlast||actorOnlyComposition,
+    'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1250,6 +1253,7 @@ function runDevelopment({
         const observed=withCanonicalActorOnlyPolicy(execute,
           {...scopedRoot,...chargedPokemon},
           {ownerSingleSearch:actorOnlySingleSearch,
+            preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
@@ -1458,6 +1462,8 @@ function runDevelopment({
     actorNativeAorItemLockOptIn:actorNativeAorItemLock,
     actorNaturalEvolutionRootOptIn:
       actorOnlyComposition&&actorNaturalEvolutionRoot,
+    actorMewGenesectTechnoBlastOptIn:
+      actorOnlyComposition&&actorMewGenesectTechnoBlast,
     sameRootProposalChoiceOptIn:sameRootProposalChoice,
     sameRootChoiceApplyOptIn:sameRootProposalChoice&&sameRootChoiceApply,
     nativeToolAttachRootOptIn:sameRootProposalChoice&&
@@ -1600,6 +1606,8 @@ if(require.main===module){
       process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL?
         Number(process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL):null,
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
+    actorMewGenesectTechnoBlast:
+      process.env.AGENT13_MEW_GENES_COPY_DEV==='true',
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
     actorGenericFallbackAttribution:
       process.env.AGENT7_NATIVE_GENERIC_FALLBACK_DEV==='true',
