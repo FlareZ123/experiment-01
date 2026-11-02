@@ -24,6 +24,8 @@ test('exact choose and inclusion-exclusion match explicit tiny subset enumeratio
 test('rank29 original grouped counts and conditional rational figures', () => {
   const o=evaluate(fixture);
   assert.equal(o.basicCopies,4);
+  assert.equal(o.firstTurnDraw,1);
+  assert.equal(o.beachEffectDraws,1);
   assert.equal(o.beachDraws,2);
   assert.equal(o.deckAfterPrizes,47);
   assert.ok(Math.abs(o.bothHeldGivenLegalOpening-0.034190941808620576)<1e-14);
@@ -34,9 +36,9 @@ test('rank29 original grouped counts and conditional rational figures', () => {
   assert.ok(Math.abs(o.initiallyBothAttackPiecesGivenBothTerminal-0.004102891511)<1e-10);
   assert.ok(Math.abs(o.initiallyOneAttackPieceGivenBothTerminal-0.138314682907)<1e-10);
   assert.ok(Math.abs(o.initiallyNeitherAttackPieceGivenBothTerminal-0.857582425582)<1e-10);
-  assert.ok(Math.abs(o.bothAttackPiecesByT2Gear-0.141384262711)<1e-10);
+  assert.ok(Math.abs(o.bothAttackPiecesByT2Gear-0.169700663556)<1e-10);
   assert.ok(Math.abs(o.bothAttackPiecesByT2Beach-0.013799039946)<1e-10);
-  assert.ok(Math.abs(o.gearMinusBeachAttackPairGap-0.127585222765)<1e-10);
+  assert.ok(Math.abs(o.gearMinusBeachAttackPairGap-0.155901623610)<1e-10);
   assert.equal(o.competitiveQualifiedGames,0);
 });
 
