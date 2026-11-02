@@ -86,11 +86,27 @@ test('a missing full-game ledger produces an unqualified empty census',()=>{
 });
 
 test('a valid settled Prize change is distinguished from unverifiable data',()=>{
-  assert.equal(prizeMovement({prizesBefore:[6,6],prizesAfter:[5,6]}),true);
-  assert.equal(prizeMovement({prizesBefore:[6,6],prizesAfter:[6,6]}),false);
-  assert.equal(prizeMovement({prizesBefore:[],prizesAfter:[]}),null);
+  assert.equal(prizeMovement({settledPromptChain:true,prizesBefore:[6,6],prizesAfter:[5,6]}),true);
+  assert.equal(prizeMovement({settledPromptChain:true,prizesBefore:[6,6],prizesAfter:[6,6]}),false);
+  assert.equal(prizeMovement({settledPromptChain:true,prizesBefore:[],prizesAfter:[]}),null);
   assert.equal(prizeMovement(undefined),null);
   assert.throws(()=>reciprocalStallCensus({},{
     minPairs:10,reviewPairs:9
   }),RangeError);
+});
+
+
+test('unresolved or cross-episode Prize arrays never count as settled',()=>{
+  const pseudo={prizesBefore:[6,6],prizesAfter:[6,6]};
+  assert.equal(prizeMovement(pseudo),null);
+  assert.equal(prizeMovement({...pseudo,settledPromptChain:false}),null);
+  assert.equal(prizeMovement({...pseudo,settledPromptChain:true,
+    settlementCrossesClockReset:true}),null);
+  const unresolved=fixture(19);
+  unresolved.candidateAttackSettlement.attacks[8].settledPromptChain=false;
+  assert.equal(reciprocalStallCensus(unresolved).streaks[0].unresolvedPrizeCount,1);
+  assert.equal(reciprocalStallCensus(unresolved).policyReviewTriggered,false);
+  const crossEpoch=fixture(19);
+  crossEpoch.candidateAttackSettlement.attacks[8].settlementCrossesClockReset=true;
+  assert.equal(reciprocalStallCensus(crossEpoch).policyReviewTriggered,false);
 });
