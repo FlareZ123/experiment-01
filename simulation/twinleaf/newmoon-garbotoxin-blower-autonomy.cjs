@@ -125,7 +125,7 @@ function twoGarbotoxinBlowerOption(prompt,opponent){
  * @template T
  * @param {0|1} candidateSeat
  * @param {()=>T} execute
- * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number,preferRadiantAfterBlowerSearch?:boolean,activateRadiantClimacticGate?:boolean}} [options]
+ * @param {{lowHandLillieAfterBlower?:boolean,proactiveLowHandLillie?:boolean,automaticFieldBlower?:boolean,allowAnyActiveBlower?:boolean,earliestFieldBlowerTurn?:number,preferRadiantAfterBlowerSearch?:boolean,activateRadiantClimacticGate?:boolean,radiantVmaxTargetCount?:1|2}} [options]
  * @returns {{result:T,policyAudit:object}}
  */
 function withNewMoonBlowerAutonomy(candidateSeat, execute, {
@@ -135,11 +135,15 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
   allowAnyActiveBlower=false,
   earliestFieldBlowerTurn=0,
   preferRadiantAfterBlowerSearch=false,
-  activateRadiantClimacticGate=false
+  activateRadiantClimacticGate=false,
+  radiantVmaxTargetCount=2
 }={}) {
   if (!Number.isSafeInteger(earliestFieldBlowerTurn) ||
       earliestFieldBlowerTurn<0) {
     throw new RangeError('earliestFieldBlowerTurn must be nonnegative integer');
+  }
+  if (![1,2].includes(radiantVmaxTargetCount)) {
+    throw new RangeError('radiantVmaxTargetCount must be 1 or 2');
   }
   if (![0,1].includes(candidateSeat) || typeof execute !== 'function') {
     throw new TypeError('Need candidate physical seat and synchronous game runner');
@@ -290,7 +294,9 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       radiantVmaxSelectionAttempted=true;
       const vm=own.deck.cards.filter(card=>
         card.fullName==='Shadow Rider Calyrex VMAX CRE');
-      const chosen=[vm.slice(0,2),vm.slice(0,1)].find(cards=>
+      const candidates=radiantVmaxTargetCount===1?
+        [vm.slice(0,1)]:[vm.slice(0,2),vm.slice(0,1)];
+      const chosen=candidates.find(cards=>
         cards.length>0&&pending.validate(cards,state))??null;
       events.push({turn:state.turn,kind:'Radiant-Climactic-Gate-VMAX-owner-K1',
         present:vm.length,nativeValidatedSelectionCount:chosen?.length??0});
@@ -361,6 +367,7 @@ function withNewMoonBlowerAutonomy(candidateSeat, execute, {
       allowAnyActiveBlower,earliestFieldBlowerTurn,
       preferRadiantAfterBlowerSearch,
       radiantSearchSelected,activateRadiantClimacticGate,
+      radiantVmaxTargetCount,
       radiantConfirmChosen,radiantVmaxSelectedCount,
       candidateSeat,opponentSeat:1-candidateSeat,
       opportunitySelections:events.filter(x=>
