@@ -49,6 +49,15 @@ function census(decks=manifest.decks){
     matches.sort((a,b)=>a-b);
   const union=[...new Set(Object.values(byMechanism).flat())]
     .sort((a,b)=>a-b);
+  // Tool Jammer is a separate, conditional obstruction to the
+  // already-attached Float Stone fallback; it does not suppress Skyliner.
+  const toolJammerRanks=decks.filter(d=>d.cards.some(card=>
+    card.name==='Tool Jammer'&&
+    card.printing?.set==='BST'&&card.printing?.number==='136'))
+    .map(d=>d.rank).sort((a,b)=>a-b);
+  const thornsRanks=byMechanism['iron-thorns-initialization'];
+  const pathRanks=byMechanism['path-to-the-peak'];
+
   return {
     version:VERSION,
     authenticatedOriginals:decks.length,
@@ -58,6 +67,15 @@ function census(decks=manifest.decks){
         card.printing?.set==='SSP'&&card.printing?.number==='76')),
     conditionalCardPresenceOnly:true,
     byMechanism,unionRanks:union,unionCount:union.length,
+    sourceRank30FloatStoneCount:decks.filter(d=>d.rank===30)
+      .flatMap(d=>d.cards.filter(card=>card.name==='Float Stone'&&
+        card.printing?.set==='BKT'&&card.printing?.number==='137'))
+      .reduce((sum,card)=>sum+card.count,0),
+    toolJammerRanks,
+    thornsWithToolJammer:thornsRanks.filter(rank=>
+      toolJammerRanks.includes(rank)),
+    pathWithToolJammer:pathRanks.filter(rank=>
+      toolJammerRanks.includes(rank)),
     knownMissingOriginalRanks:[23,25,28],
     qualification:'no established lock uptime or human-game win probability'
   };
