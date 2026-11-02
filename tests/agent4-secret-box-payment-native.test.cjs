@@ -81,3 +81,32 @@ test('Secret Box cannot play without three other hand cards both seats',()=>{
     }));
   }
 });
+
+test('native Secret Box illegal zero cost can expose all four searchable categories, both seats',()=>{
+  for(const seat of [0,1]){
+    const raw=probeSecretBoxPayment(seat,'zero','four');
+    const guarded=withPaperSecretBoxMandatoryPayment(()=>
+      probeSecretBoxPayment(seat,'zero','four'));
+    console.log('AGENT4_SECRET_BOX_FREE_FOUR_CATEGORY_NATIVE '+JSON.stringify({
+      seat,raw,guarded:guarded.result,audit:guarded.audit
+    }));
+    assert.equal(raw.rootError,null);
+    assert.equal(raw.paymentError,null);
+    assert.equal(raw.paymentSettled,true);
+    assert.equal(raw.energyADiscarded,false);
+    assert.equal(raw.energyBDiscarded,false);
+    assert.equal(raw.energyCDiscarded,false);
+    assert.equal(raw.boxInDiscard,true);
+    assert.equal(raw.continuation[0]?.message,'CHOOSE_CARD_TO_HAND');
+    assert.equal(raw.continuation[0]?.selected?.length,4);
+    assert.equal(raw.continuation[0]?.nativeValidatorAccepted,true);
+    assert.equal(raw.continuation[0]?.error,null);
+    assert.equal(raw.targetLocations.every(x=>x.inHand===true),true);
+    assert.equal(guarded.result.paymentSettled,false);
+    assert.match(guarded.result.paymentError,
+      /PAPER_SECRET_BOX_PAYMENT_INVALID:SECRET_BOX_REQUIRES_EXACTLY_THREE_OTHER_CARDS/);
+    assert.equal(guarded.result.boxInHand,true);
+    assert.equal(guarded.result.targetLocations.every(x=>x.inDeck===true),true);
+    assert.equal(guarded.audit.vetoedPayments,1);
+  }
+});
