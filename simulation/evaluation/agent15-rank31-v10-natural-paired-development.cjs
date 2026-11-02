@@ -134,9 +134,15 @@ function run(){
     assert.ok(left&&right);
     const both=typeof left.sourceDealFingerprint==='string'&&
       typeof right.sourceDealFingerprint==='string';
+    const bothNativeSetup=left.setupStatus===
+      'consistent-accepted-native-setup-and-first-draw'&&
+      right.setupStatus==='consistent-accepted-native-setup-and-first-draw';
     return {id:t.id,sourceRank:31,seed:t.seed,
       candidateSlot:t.candidateSlot,candidateId:t.candidateId,
-      samePhysicalSourceDeal:both?
+      bothNativeSetupCertified:bothNativeSetup,
+      sourceFingerprintMatch:both?
+        left.sourceDealFingerprint===right.sourceDealFingerprint:null,
+      samePhysicalSourceDeal:both&&bothNativeSetup?
         left.sourceDealFingerprint===right.sourceDealFingerprint:null,
       control:left,treatment:right};
   });
