@@ -1,12 +1,74 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
-const {run:runControl,VERSION:CONTROL_VERSION}=
+const {run:runControl,VERSION:CONTROL_VERSION,treatmentOptions}=
   require('./agent10-rank9-known-dead-attack-counterfactual.cjs');
 const {withRank9Turn42PaidRetreat,VERSION:FORK_VERSION}=
   require('../twinleaf/agent10-rank9-turn42-paid-retreat-native.cjs');
 const VERSION='agent10-rank9-original-t42-paid-retreat-same-deal-v1';
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
+
+const profile=require('./agent41-frozen-bilateral-development-v2.json');
+const ROOT=require('node:path').resolve(__dirname,'../..');
+
+/**
+ * Canonical actor-root composition itself creates a bot decoder. A wrapper
+ * installed around runControl() is superseded and becomes a no-op. Wrap
+ * exactly the target canonical arm's deepest *actual Store execute* instead,
+ * after all ordinary actor wrappers have been installed. Restrict the
+ * intervention to native source owner B on the unchanged New Moon rank9 deal.
+ *
+ * Temporarily reload the shared development module to bind a scoped
+ * replacement of canonical composition, without modifying its source,
+ * ambient policy or any installed global module after this function returns.
+ */
+function runInternallyScopedT42Treatment(){
+  const canonicalPath=require.resolve('./agent7-canonical-actor-composition.cjs');
+  const developmentPath=require.resolve('./agent41-bilateral-v2-development.cjs');
+  const canonical=require(canonicalPath);
+  const originalCanonical=canonical.withCanonicalActorOnlyPolicy;
+  const previousDevelopmentCache=require.cache[developmentPath];
+  assert.equal(typeof originalCanonical,'function');
+  let canonicalArms=0;
+  let rank9T42Audit=null;
+  const scopedCanonical=function(runMatch,adapters,options){
+    const armIndex=canonicalArms++;
+    if(armIndex!==1)return originalCanonical(runMatch,adapters,options);
+    return originalCanonical(()=>{
+      const selected=withRank9Turn42PaidRetreat(runMatch,{targetTrialIndex:0});
+      rank9T42Audit=selected.audit;
+      return selected.result;
+    },adapters,options);
+  };
+  const {assertNoUnreviewedAmbientAgentEnvironment,assertPinnedNativeStore}=
+    require('./agent41-frozen-bilateral-development-v1.cjs');
+  assertNoUnreviewedAmbientAgentEnvironment(process.env,profile);
+  assertPinnedNativeStore(ROOT,profile);
+  const previousEnv={};
+  for(const [key,value] of Object.entries(profile.injectedResearchEnvironment)){
+    previousEnv[key]=process.env[key];
+    process.env[key]=value;
+  }
+  canonical.withCanonicalActorOnlyPolicy=scopedCanonical;
+  delete require.cache[developmentPath];
+  try{
+    const {runDevelopment}=require(developmentPath);
+    const observed=runDevelopment(treatmentOptions());
+    assert.equal(canonicalArms,4,'Canonical four-arm scheduling drift');
+    assert.ok(rank9T42Audit,'Target original source arm did not execute');
+    return {observed,audit:rank9T42Audit,canonicalArms};
+  }finally{
+    canonical.withCanonicalActorOnlyPolicy=originalCanonical;
+    delete require.cache[developmentPath];
+    if(previousDevelopmentCache)
+      require.cache[developmentPath]=previousDevelopmentCache;
+    for(const [key,value] of Object.entries(previousEnv)){
+      if(value===undefined)delete process.env[key];
+      else process.env[key]=value;
+    }
+  }
+}
+
 
 /**
  * Read the original frozen native Store in two complete 4-arm sequences.
@@ -14,10 +76,10 @@ const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex'
  */
 function run(){
   const control=runControl();
-  const experimental=withRank9Turn42PaidRetreat(runControl);
-  const treatment=experimental.result,audit=experimental.audit;
+  const experimental=runInternallyScopedT42Treatment();
+  const {observed:treatment,audit}=experimental;
   assert.equal(control.version,CONTROL_VERSION);
-  assert.equal(treatment.version,CONTROL_VERSION);
+  assert.equal(treatment.attempted,4);
   assert.equal(control.complete,true);
   assert.equal(treatment.attempted,4);
   assert.equal(control.rows.length,4);
@@ -76,6 +138,7 @@ function run(){
   return {
     version:VERSION,controlVersion:CONTROL_VERSION,
     forkVersion:FORK_VERSION,
+    canonicalFourArmOrder:experimental.canonicalArms,
     controlGitHead:process.env.GITHUB_SHA??null,
     enginePin:treatment.enginePin,
     baselineSourceClosureSha256:control.sourceClosureSha256,
