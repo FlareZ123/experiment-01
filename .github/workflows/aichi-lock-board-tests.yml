@@ -217,6 +217,16 @@ jobs:
           name: agent33-celestial-nine-original-sources-20261101
           path: agent33-celestial-nine-source.json
           if-no-files-found: warn
+      - name: Agent18 original versus v1 versus native-v2 exact sixty card identifier resolution
+        if: inputs.agent33_stadium_mode == 'blockade'
+        run: node simulation/twinleaf/agent18-exeggutor-native-coverage.cjs > agent18-blockade-native-coverage.json
+      - name: Preserve pinned printed sixty coverage and exact unresolved identities
+        if: inputs.agent33_stadium_mode == 'blockade' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-exeggutor-blockade-printed-coverage-20261102
+          path: agent18-blockade-native-coverage.json
+          if-no-files-found: warn
       - name: Agent18 pinned two-seat Blockade Supporter lock and expiry Store contract
         if: inputs.agent33_stadium_mode == 'blockade'
         run: node simulation/twinleaf/agent18-exeggutor-blockade-native.cjs > agent18-blockade-native.json
