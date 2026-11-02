@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {decks}=require('../results/aichi-2026/full-decklists.json');
 
-const VERSION='agent49-rank13-dual-search-connector-opening-v1';
+const VERSION='agent49-rank13-dual-search-connector-opening-v2';
 const BASIC_OTHER=[
   'Kyurem SFA','Latias ex SSP','Tapu Lele-GX GRI',
   'Dedenne-GX UNB','Squawkabilly ex PAL','Budew ASC','Dialga-GX UPR'
@@ -27,14 +27,15 @@ function binom(n,k){
  * All cards are physically distinct; combinations are without replacement.
  * @param {{n:number,a:number,v:number,d:number,q:number,t:number,r:number}} groups
  * @param {number} handSize
+ * @param {number} minDonors At least this many distinct Dragon donor cards.
  * @returns {bigint}
  */
-function dualConnectorHands(groups,handSize){
+function dualConnectorHands(groups,handSize,minDonors=1){
   const {n,a,v,d,q,t,r}=groups;
   assert.equal(a+v+d+q+t+r,n);
   let count=0n;
   for(let ai=1;ai<=a;ai++)
-    for(let di=1;di<=d;di++)
+    for(let di=minDonors;di<=d;di++)
       for(let qi=1;qi<=q;qi++)
         for(let ti=1;ti<=t;ti++){
           const ri=handSize-ai-di-qi-ti;
@@ -80,6 +81,7 @@ function analyze(){
   const total=binom(n,7);
   const valid=total-binom(n-a-v,7);
   const countDual=dualConnectorHands(groups,7);
+  const countDualTwoDonors=dualConnectorHands(groups,7,2);
   const salmonGroups={n:60,a,v,d:count('Salamence ex JTG'),
     q,t,r:60-a-v-count('Salamence ex JTG')-q-t};
   const salmonEither=singleDonorEitherConnector(salmonGroups,7);
@@ -90,6 +92,9 @@ function analyze(){
     validBasicHands:valid.toString(),
     dualItemDonorNoVHands:countDual.toString(),
     dualFractionOfValidBasicOpeners:Number(countDual)/Number(valid),
+    dualItemTwoDonorsNoVHands:countDualTwoDonors.toString(),
+    dualTwoDonorsFractionOfValidBasicOpeners:
+      Number(countDualTwoDonors)/Number(valid),
     originalSalamenceEitherItemNoVHands:salmonEither.toString(),
     originalSalamenceEitherItemFraction:Number(salmonEither)/Number(valid),
     allFourVPrizedConditionalNoVSeven:allVPrizedGivenNoV,
