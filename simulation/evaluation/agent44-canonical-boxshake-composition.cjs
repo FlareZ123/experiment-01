@@ -15,7 +15,7 @@ const {withSharedFirstTurnBoxShake,FLEX_VERSION,VERSION}=
  *
  * @template T
  * @param {()=>T} execute Synchronous native headless game.
- * @param {{enableBoxShake?:boolean,flexible?:boolean,canonical?:Function,box?:Function}} [options]
+ * @param {{enableBoxShake?:boolean,flexible?:boolean,preBoxScout?:boolean,auditOwnerK1Sources?:boolean,canonical?:Function,box?:Function}} [options]
  * @returns {{result:T,audit:object}}
  */
 function withCanonicalAndBoxShake(execute,options={}){
@@ -25,10 +25,11 @@ function withCanonicalAndBoxShake(execute,options={}){
   const enabled=options.enableBoxShake===true;
   const flexible=options.flexible===true;
   const auditOwnerK1Sources=options.auditOwnerK1Sources===true;
+  const preBoxScout=options.preBoxScout===true;
   let boxAudit=null;
   const canonicalRun=canonical(()=>{
     if(!enabled)return execute();
-    const wrapped=box(execute,{flexible,auditOwnerK1Sources});
+    const wrapped=box(execute,{flexible,auditOwnerK1Sources,preBoxScout});
     assert.ok(wrapped.audit&&typeof wrapped.audit==='object');
     boxAudit=wrapped.audit;
     return wrapped.result;
@@ -43,6 +44,7 @@ function withCanonicalAndBoxShake(execute,options={}){
       sameCanonicalActorForBothSeats:true,
       boxOptIn:enabled,flexibleBoxOptIn:enabled&&flexible,
       ownerAuthorizedK1SourcesAudited:enabled&&auditOwnerK1Sources,
+      ownerPreBoxK1ScoutOptIn:enabled&&preBoxScout,
       boxVersion:enabled?(flexible?FLEX_VERSION:VERSION):null,
       actorVersion:canonicalRun.audit.version??null,
       box:boxAudit,
