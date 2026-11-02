@@ -72,11 +72,24 @@ function sourceWitness(row){
     typeof x.card==='string'&&x.card.startsWith('Mew VMAX'));
   const copied=row.actorOnlyDecisionCoverage?.detailedComponentAudits
     ?.chooseAttack?.selections??[];
+  // Successful native development rows expose finished/endReason, but have
+  // no top-level status. Preserve explicit error statuses from the runner.
+  const explicit=typeof row.status==='string'&&row.status.length>0;
+  const status=explicit?row.status:
+    row.finished===true&&row.endReason==='engine-game-end'?
+      'ENGINE_TERMINAL_UNQUALIFIED':
+    row.finished===false&&row.endReason==='action-limit'?
+      'CENSORED':'UNVERIFIED';
   return {
     sourceSeat,
     actualSourceDealFingerprint:row.sourceDealFingerprint??null,
     fullPhysicalDealFingerprint:row.fullPhysicalDealFingerprint??null,
-    status:row.status??'UNVERIFIED',
+    status,
+    statusEvidence:explicit?'native-error-status':
+      status==='UNVERIFIED'?'unmatched-native-disposition':
+      'native-finished-and-endReason',
+    nativeFinished:row.finished??null,
+    nativeEndReason:row.endReason??null,
     nativeError:row.error??null,
     originalSourceAttackDeclarations:row.attackDeclarations?.source??null,
     sourceMewVMAXPlayRoots:acceptedSourceMewVMAX.map(x=>({
