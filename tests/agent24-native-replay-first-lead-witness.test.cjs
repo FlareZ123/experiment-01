@@ -87,7 +87,7 @@ test('unsettled prompt, wrong phase or missing accepted root does not stop',()=>
   assert.equal(judge(open).status,'REPLAY_ROOT_NOT_SETTLED');
   assert.equal(judge(state([5,6]),{originalActionSettled:false})
     .status,'REPLAY_ROOT_NOT_SETTLED');
-  const wrong=state([5,6]);wrong.phase=2;
+  const wrong=state([5,6]);wrong.phase=1; // SETUP is never a settled play root
   assert.equal(judge(wrong).status,'REPLAY_ROOT_NOT_SETTLED');
 });
 
