@@ -87,6 +87,7 @@ function run(){
         fundedHoOhRoots:audit.fundedHoOhActiveRoots,
         hoOhFundedFloatHeldRoots:audit.fundedHoOhWithFloatStoneHeld,
         hoOhFundedFloatAttachedRoots:audit.fundedHoOhWithFloatStoneAttached,
+        fundedHoOhMobilitySamples:audit.fundedHoOhMobilitySamples,
         bellowingDeclared:audit.bellowingDeclared,
         sourceActivePrintings:audit.sourceActivePrintingCounts,
         ragingActiveEnergySamples:audit.ragingActiveEnergySamples,
