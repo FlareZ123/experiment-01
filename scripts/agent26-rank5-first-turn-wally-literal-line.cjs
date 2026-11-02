@@ -35,6 +35,7 @@ function rank5LiteralFirstTurnWallyLine(field){
   assert.deepEqual(source.cards.filter(x=>x.category==='Energy')
     .map(x=>[x.name,x.count]),[['Double Colorless Energy',4]]);
   let numerator=0n,unprizedNotRequiredNumerator=0n;
+  let futureMewAccessNumerator=0n;
   let examinedOpeningCategories=0;
   function visit(open,index,remaining){
     if(index===N.length){
@@ -45,8 +46,12 @@ function rank5LiteralFirstTurnWallyLine(field){
         const left=N[k]-open[k];
         if(left===0)continue;
         const counts=open.slice();counts[k]++;
-        if(counts[1]<1||counts[2]<1||counts[3]<1)continue;
+        if(counts[1]<1||counts[2]<1)continue;
         const weight=ways*BigInt(left);
+        const availableVMAX=counts[4]>0?PRIZE_DEN:
+          PRIZE_DEN-choose(49,3);
+        futureMewAccessNumerator+=weight*availableVMAX;
+        if(counts[3]<1)continue;
         unprizedNotRequiredNumerator+=weight*PRIZE_DEN;
         const vmaxRemaining=N[4]-counts[4];
         if(vmaxRemaining===0)continue;
@@ -68,6 +73,8 @@ function rank5LiteralFirstTurnWallyLine(field){
     cardCounts:N,openedCategoriesExamined:examinedOpeningCategories,
     firstTurnDrawCount:1,initialHandCount:7,prizeCount:6,
     openingLine:opening,withoutVmaxInDeckGate:withoutPrizeGate,
+    futureMewPreparationWithoutWally:reduced(
+      futureMewAccessNumerator,denominator),
     sourceValidInitialHand:reduced(noMulliganCount,D7),
     conditionalOnValidInitialHand:reduced(numerator*D7,
       denominator*noMulliganCount),
