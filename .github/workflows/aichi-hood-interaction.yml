@@ -34,12 +34,8 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
-      agent44_rank8_canonical_box_payment_audit:
-        description: 'Owner-only native Store Secret Box source three-card paper guard plus physical object custody; canonical pilot must be on'
-        type: boolean
-        default: false
       agent44_rank8_canonical_k1_audit:
-        description: 'Post-hoc owner-authorized actual Secret Box K1 component-availability telemetry (boolean only), requires canonical pilot'
+        description: 'Post-hoc owner-K1 component audit plus paid Secret Box source physical custody and paper guard; requires canonical pilot'
         type: boolean
         default: false
       agent44_rank8_canonical_physical_audit:
@@ -282,7 +278,7 @@ jobs:
           AGENT44_RANK8_CANONICAL_DEBUG_383: ${{ inputs.agent44_rank8_canonical_debug_383 }}
           AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT: ${{ inputs.agent44_rank8_canonical_physical_audit }}
           AGENT44_RANK8_CANONICAL_K1_AUDIT: ${{ inputs.agent44_rank8_canonical_k1_audit }}
-          AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT: ${{ inputs.agent44_rank8_canonical_box_payment_audit }}
+          AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT: ${{ inputs.agent44_rank8_canonical_k1_audit }}
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
