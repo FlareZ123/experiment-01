@@ -37,6 +37,32 @@ test('source witness belongs to original physical seat and never self-qualifies'
   assert.equal(s.competitiveGameQualified,false);
 });
 
+test('post-outcome native status evidence separates engine terminals, caps and aborts',()=>{
+  const trial={candidateSlot:'A'};
+  const terminal=sourceWitness({trial,finished:true,
+    endReason:'engine-game-end'});
+  assert.equal(terminal.status,'ENGINE_TERMINAL_UNQUALIFIED');
+  assert.equal(terminal.statusEvidence,'native-finished-and-endReason');
+  assert.equal(terminal.nativeFinished,true);
+  assert.equal(terminal.nativeEndReason,'engine-game-end');
+  assert.equal(terminal.competitiveGameQualified,false);
+
+  const cap=sourceWitness({trial,finished:false,endReason:'action-limit'});
+  assert.equal(cap.status,'CENSORED');
+  assert.equal(cap.statusEvidence,'native-finished-and-endReason');
+  assert.equal(cap.competitiveGameQualified,false);
+
+  const abort=sourceWitness({trial,status:'engine-physical-invalid',
+    error:'native invalid action',finished:false,endReason:'action-limit'});
+  assert.equal(abort.status,'engine-physical-invalid');
+  assert.equal(abort.statusEvidence,'native-error-status');
+  assert.equal(abort.nativeError,'native invalid action');
+
+  const unknown=sourceWitness({trial,finished:true,endReason:'unexpected'});
+  assert.equal(unknown.status,'UNVERIFIED');
+  assert.equal(unknown.statusEvidence,'unmatched-native-disposition');
+});
+
 test('only exact native source physical fingerprints authorize controlled labels',()=>{
   assert.equal(physicalPairStatus({sourceDealFingerprint:'x'},
     {sourceDealFingerprint:'x'}),'EXACT_SOURCE_DEAL_MATCH');
