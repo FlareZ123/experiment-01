@@ -20,11 +20,18 @@ const bench=index=>({player:PlayerType.BOTTOM_PLAYER,
 
 /** Gather physical original-60 identities, including Active and Bench attachments. */
 function physical(player){
-  return [player.active,...player.bench].flatMap(slot=>[
-    ...slot.cards,...slot.tools,...slot.energies.cards])
-    .concat(player.stadium.cards,player.supporter.cards,
-      player.hand.cards,player.deck.cards,player.discard.cards,
-      player.lostzone.cards,...player.prizes.flatMap(p=>p.cards));
+  // Pinned PokemonCardList.cards also references attached Energy objects
+  // held by .energies.cards. Count each exact slot object once, while
+  // retaining duplicate-card detection ACROSS distinct physical zones.
+  const slots=[player.active,...player.bench].flatMap(slot=>{
+    const cards=[...slot.cards];
+    for(const attached of [...slot.tools,...slot.energies.cards])
+      if(!cards.includes(attached))cards.push(attached);
+    return cards;
+  });
+  return slots.concat(player.stadium.cards,player.supporter.cards,
+    player.hand.cards,player.deck.cards,player.discard.cards,
+    player.lostzone.cards,...player.prizes.flatMap(p=>p.cards));
 }
 
 /** Find one original owner card and preserve six populated Prize positions. */
