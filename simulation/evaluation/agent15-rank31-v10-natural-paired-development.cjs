@@ -84,6 +84,8 @@ function summarize(row){
     row.sharedPaperPaymentPortfolioAbortEvidence??null;
   const sourceDeal=row.sourceDealFingerprint??
     row.nativeAbortEvidence?.sourceDealFingerprint?.digestSha256??null;
+  const fullDeal=row.fullPhysicalDealFingerprint??
+    row.nativeAbortEvidence?.fullPhysicalDealFingerprint?.digestSha256??null;
   return {
     id:row.trial?.id??null,seed:row.trial?.seed??null,
     status:row.status??(row.finished===true?'engine-terminal-unqualified':
@@ -93,6 +95,8 @@ function summarize(row){
     error:row.error??null,
     sourceDealFingerprint:typeof sourceDeal==='string'?
       sourceDeal:sourceDeal?.digestSha256??null,
+    fullPhysicalDealFingerprint:typeof fullDeal==='string'?
+      fullDeal:fullDeal?.digestSha256??null,
     setupStatus:row.nativeSetupCoinChoiceReceipt?.status??null,
     rootActions:row.rootActionCount??row.rootActionLedger?.length??null,
     sourceAttacks:row.sourceAttackDeclarations??null,
@@ -134,6 +138,8 @@ function run(){
     assert.ok(left&&right);
     const both=typeof left.sourceDealFingerprint==='string'&&
       typeof right.sourceDealFingerprint==='string';
+    const bothFull=typeof left.fullPhysicalDealFingerprint==='string'&&
+      typeof right.fullPhysicalDealFingerprint==='string';
     const bothNativeSetup=left.setupStatus===
       'consistent-accepted-native-setup-and-first-draw'&&
       right.setupStatus==='consistent-accepted-native-setup-and-first-draw';
@@ -144,6 +150,12 @@ function run(){
         left.sourceDealFingerprint===right.sourceDealFingerprint:null,
       samePhysicalSourceDeal:both&&bothNativeSetup?
         left.sourceDealFingerprint===right.sourceDealFingerprint:null,
+      fullPhysicalFingerprintMatch:bothFull?
+        left.fullPhysicalDealFingerprint===
+          right.fullPhysicalDealFingerprint:null,
+      sameFullPhysicalDeal:bothFull&&bothNativeSetup?
+        left.fullPhysicalDealFingerprint===
+          right.fullPhysicalDealFingerprint:null,
       control:left,treatment:right};
   });
   return {
@@ -160,6 +172,8 @@ function run(){
     allAttemptedGames:8,allPairs:4,
     pairedSamePhysicalSourceDeals:pairs.filter(x=>
       x.samePhysicalSourceDeal===true).length,
+    pairedSameFullPhysicalDeals:pairs.filter(x=>
+      x.sameFullPhysicalDeal===true).length,
     pairs,control,treatment,
     competitiveQualifiedGames:0,
     caveat:'Prematch dependency amendment disables lossless ordinal observer after zero original rank31 games had started. All native games are developmental. No opponent competence, game clock, full paper effect/rand audits, or ranked-field win estimate.'
