@@ -25,8 +25,9 @@ function fraction(numerator,denominator){
  * Float Stone and Boost Shake in the first seven plus first normal draw
  * permit a separate Boost Shake route into a still-decked Garbodor.
  *
- * The mutually exclusive paths are a Budew Itchy Pollen attack and
- * an Item Boost Shake that ends the turn. No searches or bonus draws,
+ * For a source player going second, the mutually exclusive first-turn
+ * paths are a Budew Itchy Pollen attack and an Item Boost Shake that
+ * ends the turn. No searches or bonus draws,
  * opponent ability/Item restrictions or decision policies are modeled.
  *
  * The first seven must contain a Basic. Six Prize cards are sampled
@@ -102,7 +103,7 @@ function sourceReport(source){
   return {
     version:'agent16-budew-vs-boost-shake-mutually-exclusive-direct-fork-v1',
     source:'results/aichi-2026/full-decklists.json',
-    condition:'valid seven-card Basic opener, initial Budew, first normal draw, six unseen Prizes, unprized and undrawn Garbodor available in deck',
+    condition:'source going second; valid seven-card Basic opener, initial Budew, first normal draw, six unseen Prizes, unprized and undrawn Garbodor available in deck',
     qualification:'physical resource coaccess only; no selected actions, lock application, or certified games',
     ranks:four.map(row=>{
       const deck=source.decks.find(d=>d.rank===row.rank);
