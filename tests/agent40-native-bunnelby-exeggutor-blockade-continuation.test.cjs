@@ -106,7 +106,13 @@ function staged(seat,opponentRank=1,poweredRank6=false){
     opponent.bench.splice(0,opponent.bench.length,
       ...Array.from({length:5},()=>new PokemonCardList()));
     opponent.bench[0].cards.push(benchThorns);
-    if(originalSpeed)opponent.bench[0].energies.cards.push(originalSpeed);
+    if(originalSpeed){
+      // Twinleaf's PokemonCardList holds the same attached object in the
+      // encompassing cards stack AND typed energies list; a typed-only
+      // synthetic insertion is not a legal physical attachment.
+      opponent.bench[0].cards.push(originalSpeed);
+      opponent.bench[0].energies.cards.push(originalSpeed);
+    }
     opponent.hand.cards.splice(0,opponent.hand.cards.length,
       held,...(heldDce?[heldDce]:[]),...fillers);
     opponent.deck.cards.splice(0,opponent.deck.cards.length,...stock);
@@ -115,14 +121,14 @@ function staged(seat,opponentRank=1,poweredRank6=false){
     opponent.prizes=prizeCards.map(c=>{
       const slot=new CardList();slot.cards.push(c);return slot;
     });
-    const physical=[
+    const physical=[...new Set([
       ...opponent.active.cards,...opponent.hand.cards,
       ...opponent.deck.cards,...opponent.discard.cards,
       ...opponent.lostzone.cards,
       ...opponent.bench.flatMap(slot=>[
         ...slot.cards,...slot.energies.cards,...slot.tools]),
       ...opponent.prizes.flatMap(slot=>slot.cards)
-    ];
+    ])];
     assert.equal(physical.length,60,'Full rank6 original source supply');
     assert.deepEqual(physical.map(c=>c.fullName).sort(),
       originalRank6.cardIds.slice().sort(),
