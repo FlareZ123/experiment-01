@@ -59,6 +59,11 @@ jobs:
         run: |
           node --test tests/agent40-rank2-mulligan-bonus-tm-screen.test.cjs
           node simulation/evaluation/agent40-rank2-mulligan-bonus-tm-screen.cjs 200000 16
+      - name: Verify genuine rank2 versus opposing original Guzma and Bench resource conjunction
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent40-rank2-vs-guzma-physical-counterwindow.test.cjs
+          node simulation/evaluation/agent40-rank2-vs-guzma-physical-counterwindow.cjs 200000 16
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
