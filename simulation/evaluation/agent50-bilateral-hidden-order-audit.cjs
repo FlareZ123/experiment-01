@@ -160,6 +160,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeFirstFiniteScore===true?{nativeTapeFirstFiniteScore:true}:{}),
     ...(scope.nativeTapeEntryOnly===true?{nativeTapeEntryOnly:true}:{}),
     ...(scope.nativeTapeCountShuffleRandom===true?{nativeTapeCountShuffleRandom:true}:{}),
+    ...(scope.nativeTapeFairReplayHooks===true?{nativeTapeFairReplayHooks:true}:{}),
     ...(scope.nativeTapeHiddenOrderContrast===true?
       {nativeTapeHiddenOrderContrast:true}:{}),
     ...(scope.nativeTapeHiddenOpponentHandContrast===true?
@@ -329,7 +330,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
   nativeTapeFirstFiniteScore=false,nativeTapeEntryOnly=false,
-  nativeTapeCountShuffleRandom=false,
+  nativeTapeCountShuffleRandom=false,nativeTapeFairReplayHooks=false,
   nativeTapeHiddenOrderContrast=false,
   nativeTapeHiddenOpponentHandContrast=false,
   nativeTapeBoundedOpponentHiddenHand=false,
@@ -343,6 +344,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeFirstFiniteScore,'boolean');
   assert.equal(typeof nativeTapeEntryOnly,'boolean');
   assert.equal(typeof nativeTapeCountShuffleRandom,'boolean');
+  assert.equal(typeof nativeTapeFairReplayHooks,'boolean');
+  assert.ok(!nativeTapeFairReplayHooks||nativeTapeSameWorld,
+    'Fair-shuffle replay diagnostic requires an original native RNG tape');
   assert.ok(!nativeTapeCountShuffleRandom||nativeTapeFirstFiniteScore,
     'Native shuffle RNG inner call counter requires first finite-scored tape');
   assert.ok(!nativeTapeEntryOnly||nativeTapeFirstFiniteScore,
@@ -416,6 +420,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
       nativeTapeEntryOnly,nativeTapeCountShuffleRandom,
+      nativeTapeFairReplayHooks,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
       nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange,
       nativeTapeHandPrizeContrast}
@@ -486,6 +491,8 @@ if(require.main===module) {
       process.env.AGENT23_NATIVE_FINITE_ENTRY_ONLY==='true',
     nativeTapeCountShuffleRandom:
       process.env.AGENT23_NATIVE_COUNT_SHUFFLE_RNG==='true',
+    nativeTapeFairReplayHooks:
+      process.env.AGENT23_NATIVE_FAIR_REPLAY_HOOKS==='true',
     nativeTapeHiddenOrderContrast:
       process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true',
     nativeTapeHiddenOpponentHandContrast:
