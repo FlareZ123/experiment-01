@@ -583,7 +583,12 @@ jobs:
         run: node --test tests/public-mulligan-reveal-observer.pinned.test.cjs tests/agent26-public-mulligan-native-bridge.pinned.test.cjs tests/agent26-all29-native-public-name-parity.pinned.test.cjs
 
   agent24-original-physical-native:
-    if: inputs.agent24_original_physical_native
+    if: >-
+      inputs.agent24_original_physical_native ||
+      inputs.agent24_owner_tiebreak_fixture ||
+      inputs.agent24_original_owner_swap_native ||
+      inputs.agent24_paper_replay_prize_lead ||
+      inputs.agent24_natural_replay_prize_panel
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
