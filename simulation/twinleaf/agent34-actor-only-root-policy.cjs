@@ -1607,9 +1607,15 @@ function withActorOnlyRootPolicy(run,deps={}){
       const after=publicDispatchState(this);
       const ownerAfter=ownerBefore===null||after===null?null:
         rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
+      // Underworld Door opens a native AttachEnergyPrompt. The root dispatch
+      // alone cannot certify attachment, two draws or once-per-VMAX usage;
+      // preserve acceptance as pending/unconfirmed until a separate
+      // physical post-prompt witness exists.
       const physical=ownerAfter===null?null:
-        rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
-          engineGamePhase());
+        choice.kind==='use-underworld-door'?
+          'no-confirmed-public-effect':
+          rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
+            engineGamePhase());
       const waiting=(this.state.prompts??[])
         .filter(p=>p.result===undefined);
       const farewellPending=choice.kind==='use-farewell-letter'&&
