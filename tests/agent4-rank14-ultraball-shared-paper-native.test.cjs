@@ -69,3 +69,28 @@ test('shared v10 native owner Ultra Ball rejects free search, retains paid searc
     }));
   }
 });
+
+test('shared v10 native root check precludes Ultra Ball without two other cards in both seats',()=>{
+  const {probeUltraBallInsufficientRoot}=
+    require('../simulation/twinleaf/agent4-ultra-ball-insufficient-root-native.cjs');
+  for(const seat of [0,1]){
+    const unguarded=probeUltraBallInsufficientRoot(seat);
+    const guarded=withPaperPromptContractPortfolio(()=>
+      probeUltraBallInsufficientRoot(seat));
+    const r=guarded.result,a=guarded.audit;
+    assert.match(r.error,/PAPER_ROOT_INVALID:ULTRA_BALL_REQUIRES_TWO_OTHER_CARDS/);
+    assert.equal(r.ultraStillInHand,true);
+    assert.equal(r.grassStillInHand,true);
+    assert.equal(r.ultraInDiscard,false);
+    assert.equal(r.sourceHandAfter,r.sourceHandBefore);
+    assert.equal(r.deckAfter,r.deckBefore);
+    assert.deepEqual(r.pendingPrompts,[]);
+    assert.equal(a.inspectedUltraBallPlayCardRoots,1);
+    assert.equal(a.vetoedUltraBallInsufficientRoots,1);
+    console.log('AGENT4_SHARED_V10_ULTRA_ROOT '+JSON.stringify({
+      seat,rawError:unguarded.error,rawUltraConsumed:unguarded.ultraInDiscard,
+      guardedError:r.error,guardedUltraRetained:r.ultraStillInHand,
+      guardedVetoCount:a.vetoedUltraBallInsufficientRoots
+    }));
+  }
+});
