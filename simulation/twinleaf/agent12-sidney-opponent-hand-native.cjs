@@ -84,4 +84,8 @@ if(require.main===module){
       'mixed-illegal','no-target'])
       console.log('AGENT12_SIDNEY_NATIVE '+JSON.stringify(probeSidney(seat,mode)));
 }
-/** @param {0|1} seat @param {string} mode */\nfunction probeTeamSkull(seat,mode){\n  return probeSidney(seat,mode,'Team Skull Grunt SUM');\n}\nmodule.exports={PRINTING,probeSidney,probeTeamSkull};
+/** @param {0|1} seat @param {string} mode */
+function probeTeamSkull(seat,mode){
+  return probeSidney(seat,mode,'Team Skull Grunt SUM');
+}
+module.exports={PRINTING,probeSidney,probeTeamSkull};
