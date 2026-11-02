@@ -32,11 +32,16 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_rank9_mewtwo_energy_fork:
+        description: Same original rank9 t1 Mewtwo search plus native Bench Psychic Energy target
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork }}
+    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -176,7 +181,7 @@ jobs:
           retention-days: 14
 
   agent34-rank9-lastbench-ownlocation:
-    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork }}
+    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -254,5 +259,38 @@ jobs:
         with:
           name: agent34-rank9-mewtwo-source-native-forks
           path: agent34-rank9-mewtwo-search-fork.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Check actual owner Basic Psychic target redirection invariants
+        if: ${{ inputs.agent34_rank9_mewtwo_energy_fork }}
+        run: node --test tests/agent34-rank9-mewtwo-energy-native-target-fork.test.cjs
+      - name: Replay unchanged rank9 physical source deals with Mewtwo search plus target
+        if: ${{ inputs.agent34_rank9_mewtwo_energy_fork }}
+        run: node simulation/evaluation/agent34-rank9-mewtwo-energy-native-target-fork.cjs > agent34-rank9-mewtwo-energy-native.json
+      - name: Show native Mewtwo Energy changes and actual attack outcomes
+        if: ${{ always() && inputs.agent34_rank9_mewtwo_energy_fork }}
+        run: >-
+          node -e "const fs=require('node:fs');
+          if(fs.existsSync('agent34-rank9-mewtwo-energy-native.json')){
+          const r=require('./agent34-rank9-mewtwo-energy-native.json');
+          console.log('AGENT34_M2W_ENERGY_FORK',JSON.stringify({
+          baseline:r.experiments[0].sourceMatchedDealTrials.find(x=>
+          x.id==='9:0:A:new-moon-lockbreaker-v1'),
+          cases:r.matched.map(x=>({
+          case:x.case,matched:x.physicalDealsMatch,
+          treatment:x.affectedTreatment,failed:x.negativeAttempts
+          })),
+          actualEnergy:r.experiments.find(x=>
+          x.name==='search-plus-energy')?.energy,
+          bench:r.experiments.find(x=>
+          x.name==='search-plus-energy')?.coreBenchPlays,
+          competitive:r.competitiveQualifiedGames}));}"
+      - name: Archive original physical Energy targeting differential
+        if: ${{ always() && inputs.agent34_rank9_mewtwo_energy_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-original-rank9-mewtwo-energy-native
+          path: agent34-rank9-mewtwo-energy-native.json
           if-no-files-found: warn
           retention-days: 14
