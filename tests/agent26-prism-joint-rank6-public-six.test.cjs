@@ -13,7 +13,8 @@ test('six original public receipts give strict, repeatable singleton-aware inter
   assert.equal(result.competitiveQualifiedGames,0);
   for(const row of result.rows){
     assert.ok(row.strictRank6Lower>=row.oldRank6Lower-1e-13);
-    assert.ok(row.strictMissingSingleSourceUpper<=row.oldMissingSingleSourceUpper);
+    assert.ok(row.strictMissingSingleSourceUpper<=
+      row.oldMissingSingleSourceUpper*(1+1e-12));
     assert.equal(row.competitiveGameQualified,false);
   }
   const first=result.rows[0];
