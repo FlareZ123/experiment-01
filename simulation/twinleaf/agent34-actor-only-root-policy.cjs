@@ -1052,9 +1052,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       contestedEnergyRoot:audit.contestedEnergyRootOptIn===true,
       mobilityAwareRecipient:audit.mobilityAwareRecipientOptIn,
       paidRetreatRoot:audit.paidRetreatRootOptIn,
-      skylinerRondoRetreat:actorSpecialEnergyEnabled(
-        audit.skylinerRondoRetreatOptIn,
-        audit.skylinerRondoRetreatOwnerSeat,seat),
+      skylinerRondoRetreat:audit.skylinerRondoRetreatOptIn===true&&
+        actorSpecialEnergyEnabled(true,
+          audit.skylinerRondoRetreatOwnerSeat,seat),
       perfectionRoot:audit.perfectionRootOptIn,
       perfectionTransitionRoot:audit.perfectionTransitionRootOptIn,
       thornsDirectLine:audit.thornsDirectLineOptIn,
