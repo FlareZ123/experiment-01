@@ -46,19 +46,22 @@ The overlap above identifies alternative *routes*, but its 1-Basic VIP selection
 
 Of the VIP-first *K1-live* continuations, **632 of 1,799** (Bench none) and **826 of 1,619** (Bench all) add a genuinely additional Basic to play relative to the baseline Box-first Trubbish requirement. In the other **1,167** and **793**, VIP supplies a Trubbish that the original Box line would already have developed by playing a held copy or using a Basic searcher. Those latter actions may alter searcher conservation, hand discardability and deck depletion, but the model proves no immediate extra Basic. Source `scripts/agent7_rank8_box_vip_contention.py` now emits this explicit extra-Basic versus Trubbish-substitution distinction. A native policy must compare the uses of the search connector and actual Bench capacity rather than treating every VIP-first search as incremental setup.
 
-## Which connector order pays the Box cost?
+## Connector order, corrected after an adversarial payment check
 
-A second alternative uses Box **first** and deliberately protects held Battle VIP Pass as one of the three Box payments, potentially playing VIP after Box and before the turn-ending Boost Shake. The same opening model can test physical Box payment while excluding VIP from disposable cards. It does not yet model a native root which actually interleaves Box, K1 search, VIP and Shake.
+The first model called the source's unchanged Box K0 planner with VIP removed from hand, but still reserved a held Basic-search Item to find Trubbish. This is an unnecessarily restrictive alternative when that **same held VIP can find Trubbish after Box**. The earlier description of 430/435 “only VIP-first” states therefore confused an unchanged planner's reservations with physical impossibility. Those counts are preserved below as a *diagnosis of the planner*, superseded as evidence for inherent ordering advantage.
 
-| K1-live coheld-VIP openings | Bench none | Bench all |
+| K1-live coheld-VIP openings | Bench none | Bench all other initial Basics |
 | --- | ---: | ---: |
-| Original Box K1 with VIP eligible as discard | 1,799 | 1,665 |
-| Box first, pay without VIP and retain future VIP | 1,369 | 1,184 |
-| VIP first, pay Box after placing one Basic | 1,799 | 1,619 |
-| Both protected-VIP routes payable | 1,369 | 1,184 |
-| Only VIP-first can preserve Box K1/payment | **430** | **435** |
+| Original Box K1 with VIP permitted as three-discard payment | 1,799 | 1,665 |
+| VIP then Box, both K1-live, with some non-VIP payment | 1,799 | 1,619 |
+| Box then VIP with the **same three physical discard cards** (commuted payment witness) | **1,799** | **1,619** |
+| Original Box planner, with VIP protected, and its original Basic-search reservation unchanged | 1,369 | 1,184 |
+| Valid commuted Box-first route rejected by that restricted planner | **430** | **435** |
 
-All counts use the same 200,000 physical opening allocations, K0 payment predicate and K1 unprized resource check. The 430 and 435 extra mechanically payable states occur because playing VIP can itself fulfill the Trubbish requirement, releasing a held Basic or its Basic-search connector for the three-card Box payment. Conversely, Box-first can first inspect K1 and preserve VIP when an essential Box target is Prized, which gives that order information-timing value unmodeled here. Native ownership, a real Box Item search, later VIP and actual opponent continuation must resolve this choice before any list-level advantage is inferred.
+The v4 [reproducible model](../../scripts/agent7_rank8_box_vip_contention.py) extracts a concrete three-card `P` for every VIP-first K1-live state, removing VIP and Secret Box from possible payments. It checks that exactly the same three physical cards `P` are present **before** VIP is played, while VIP remains held and the desired Basic remains unprized. Thus the player can pay `P` for Box, fetch the same Item/Tool, use held VIP to search the same Basic, and establish the same relevant pre-Shake resource multiset. Box's Item/Tool targets and VIP's Basic target do not compete for card identity. A model payment succeeds in both orders for every VIP-first K1-live case. The scripted order swap presumes the first-turn legality window stays open, no opponent interposes between the two Items and no additional effects alter resource zones.
+
+The corrected inference is about **resource reservation and actual action sequencing**: the prior source Box planner prematurely reserves Basic-search resources even when held VIP can later supply the Basic. Native action search, search information timing, deterministic card ordering, Tool placement, lock interaction, timing before turn-ending Boost Shake, and opponent response still need proper independent validation. This order-commutation proof concerns physical resources only and says nothing about comparative win rates.
+
 
 ## Native and strategic qualification
 
