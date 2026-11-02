@@ -1,0 +1,78 @@
+{
+  "schema": "agent15-rank31-source-v10-paper-payment-natural-same-deal-v1",
+  "registeredUtc": "2026-11-02T05:37:37.538324Z",
+  "phase": "registered-before-first-native-rank31-v10-comparison",
+  "purpose": "Unselected natural original-rank31 same-seed two-seat control/treatment of unified paper payment v10 within canonical bilateral common runner; actual root, prompt, payment, effects, native aborts and source continuation, no competitive inference.",
+  "sourceRank": 31,
+  "sourceIdentity": "Yuhi Yokoyama, Dusknoir Chimecho, authenticated original 60",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "randomness": "Two independent cryptographic secrets.randbits(32) seeds drawn before source-game execution. No preselection, seed filtering or replacement.",
+  "seeds": {
+    "A": 441470024,
+    "B": 2199247171
+  },
+  "oneBooleanTreatmentOnly": "sharedPaperPaymentPortfolio, default off control and v10 opt-in treatment",
+  "fixedOptions": {
+    "actorOnlyComposition": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorFarewellLetterRoot": true,
+    "actorHandDiscard": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "losslessNativeRootJoin": true
+  },
+  "trials": [
+    {
+      "id": "31:0:A:champion-reference",
+      "rank": 31,
+      "repeat": 0,
+      "seed": 441470024,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:0:A:new-moon-lockbreaker-v1",
+      "rank": 31,
+      "repeat": 0,
+      "seed": 441470024,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1"
+    },
+    {
+      "id": "31:0:B:champion-reference",
+      "rank": 31,
+      "repeat": 0,
+      "seed": 2199247171,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "31:0:B:new-moon-lockbreaker-v1",
+      "rank": 31,
+      "repeat": 0,
+      "seed": 2199247171,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    }
+  ],
+  "attemptsPerPolicy": 4,
+  "plannedNativeAttempts": 8,
+  "qualification": "unqualified native developmental experiment, no paper-clock, source-policy competency, randomness audit or judge confirmation",
+  "predeclaredOutcomes": "Every control/treatment arm classified terminal/cap/error; compare source physical-deal signatures only when both native receipts exist, count native eligible Roxie/Ultra Ball roots, prompt payment and Source continuation. Preserve all errors and caps; zero observed opportunities is valid evidence, not an exclusion.",
+  "gameWinRateCertified": false
+}
