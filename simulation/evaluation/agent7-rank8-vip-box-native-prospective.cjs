@@ -61,7 +61,7 @@ function frozenSchedule() {
  * @param {boolean} vipFirst Adopt the independent alternative or baseline.
  * @returns {{result:T,audit:object,vipAudit:object|null}}
  */
-function commonSymmetricPolicy(execute, vipFirst) {
+function commonSymmetricPolicy(execute, vipFirst, authorizedK1Audit = false) {
   let vipAudit = null;
   const options = {
     enableBoxShake: true, flexible: true
@@ -77,7 +77,11 @@ function commonSymmetricPolicy(execute, vipFirst) {
           vipAudit = error.agent7VipBeforeBoxAudit ?? null;
           throw error;
         }
-      }, boxOptions);
+      }, {...boxOptions, auditOwnerK1Sources: authorizedK1Audit});
+  } else if (authorizedK1Audit) {
+    options.box = (inner, boxOptions) =>
+      withSharedFirstTurnBoxShake(inner,
+        {...boxOptions, auditOwnerK1Sources: true});
   }
   const result = withCanonicalAndBoxShake(execute, options);
   if (vipFirst) assert.ok(vipAudit,
@@ -137,10 +141,12 @@ function run({retrospectiveIndices = null} = {}) {
     try {
       const baseline = withRank8AuthenticK0Observer(Store,
         original.sourceSeat, () =>
-          commonSymmetricPolicy(() => runMatch(request), false));
+          commonSymmetricPolicy(() => runMatch(request), false,
+            retrospective));
       const selected = withRank8AuthenticK0Observer(Store,
         original.sourceSeat, () =>
-          commonSymmetricPolicy(() => runMatch(request), true));
+          commonSymmetricPolicy(() => runMatch(request), true,
+            retrospective));
       const b = baseline.result;
       const t = selected.result;
       const v = t.vipAudit;
@@ -243,7 +249,7 @@ function run({retrospectiveIndices = null} = {}) {
       'agent7-original-rank8-symmetric-vip-before-flexbox-native-128-pairs-v1',
     ...(retrospective ? {
       retrospectiveCaseSelection: retrospectiveIndices,
-      selectionBasis: 'Three positives identified AFTER the frozen 128-pair native prospective run 41454932782, for failure inspection only; never used as an unbiased rate denominator'
+      selectionBasis: 'Three positives identified AFTER the frozen 128-pair native prospective run 41454932782, for authorized owner K1 source diagnosis and failure inspection only; never used as an unbiased rate denominator'
     } : {}),
     registration: registered,
     scheduleSha256: sha(allRows),
