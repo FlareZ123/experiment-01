@@ -3,6 +3,10 @@ name: Aichi Snorlax authentic setup root probe
 on:
   workflow_dispatch:
     inputs:
+      extended_only:
+        description: 'Extend prior sixteen physical source deals to 500 actions retrospectively'
+        type: boolean
+        default: false
       report_only:
         description: 'Read retained previous source cohort artifact without new games'
         type: boolean
@@ -19,7 +23,7 @@ permissions:
 
 jobs:
   focused-mew:
-    if: ${{ !inputs.report_only }}
+    if: ${{ !inputs.report_only && !inputs.extended_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
