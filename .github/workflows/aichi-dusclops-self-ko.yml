@@ -58,6 +58,9 @@ jobs:
       - name: Print original rank19 matched source mobility outcomes with every arm retained
         if: inputs.rank19_mobility_compare
         run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');console.log('AGENT50_RANK19_MOBILITY_PAIRS',JSON.stringify({n:x.attemptedArms,matches:x.exactSourceDealMatches,nonMatches:x.nonMatches,pairs:x.pairs.map(p=>({trial:p.trialId,parity:p.physicalDealParity,control:{status:p.control.status,active:p.control.ragingActiveRoots,fundedBench:p.control.ragingFundedBenchRoots,floatHeld:p.control.hoOhFundedFloatHeldRoots,floatAttached:p.control.hoOhFundedFloatAttachedRoots,bellow:p.control.bellowingDeclared},treatment:{status:p.treatment.status,active:p.treatment.ragingActiveRoots,fundedBench:p.treatment.ragingFundedBenchRoots,floatHeld:p.treatment.hoOhFundedFloatHeldRoots,floatAttached:p.treatment.hoOhFundedFloatAttachedRoots,bellow:p.treatment.bellowingDeclared,samples:p.treatment.fundedHoOhMobilitySamples,sourceRoots:p.treatment.sourceRootActions,postRetreat:p.treatment.sourceRetreatPostDispatch,finalNativeRoots:p.treatment.lastNativeRootActions}}))}))"
+      - name: Report original source terminal Prize and actual attack declarations for each same-deal pair
+        if: inputs.rank19_mobility_compare
+        run: node -e "const x=require('./agent50-rank19-source-float-mobility-paired.json');for(const p of x.pairs)console.log('AGENT50_SOURCE_ATTACK_PRIZES',JSON.stringify({trial:p.trialId,parity:p.physicalDealParity,control:{final:p.control.lastNativePublicBoard,attacks:p.control.sourceAttackPrizeTrace},treatment:{final:p.treatment.lastNativePublicBoard,attacks:p.treatment.sourceAttackPrizeTrace}}))"
       - name: Archive original source mobility paired native receipts
         if: always() && inputs.rank19_mobility_compare
         uses: actions/upload-artifact@v4
