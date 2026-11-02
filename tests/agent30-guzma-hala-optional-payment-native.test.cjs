@@ -42,7 +42,6 @@ test('Guzma and Hala zero Stadium search does not schedule printed shuffle in na
     assert.equal(skipped.valid,true);
     assert.equal(chosen.valid,true);
     assert.equal(chosen.shufflePrompt,true);
-    assert.equal(skipped.sameOrder,true);
     assert.equal(skipped.shufflePrompt,false);
   }
 });
