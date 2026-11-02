@@ -76,3 +76,6 @@ jobs:
         run: node --test tests/agent46-frozen-rank6-censored-postprocessor.test.cjs
       - name: Prove preregistered balanced-field directional sparse betting error gate
         run: node --test tests/agent46-anytime-balanced-paired-sign-betting.test.cjs
+
+      - name: Verify absolute paper-field 99.5-percent betting threshold
+        run: node --test tests/agent46-anytime-absolute-field-win-betting.test.cjs
