@@ -25,3 +25,21 @@ Mew VMAX's Cross Fusion Strike copies a Benched Genesect V's Techno Blast for 21
 First show the authentic original rank-5 setup and a real Techno Blast effect applied to Mew #1. Independently confirm its public cannot-attack restriction at the next owner root. Then witness a legitimate held Guzma, both Store-accepted target prompts with consumed Supporter, first Mew's actual transition to Bench and cooldown removal, legitimate free Retreat of second Mew, Cross Fusion Strike / Genesect donor selection, paid double-Colorless attack, damage/Prize settlement and the opponent's subsequent meaningful decision. Verify both physical seats, exact source deal, paper root/prompt/payment/effect/randomness and the 25-minute clock veto separately. Negative opportunities and all error/censor outcomes stay in the denominator. A one-off selected deal remains a regression case, not a win-rate sample.
 
 **Potential optimization significance:** A reusable intra-turn cooldown reset could change the speed and payoff of the original source's mid-game Techno Blast loop, as a *hypothesis*. Guzma consumes a scarce tactical Supporter and the entire same-turn retreat window; the opponent's target can also make it inferior to waiting. No estimated frequency or advantage is supported yet.
+
+## Initial-Prize feasibility of this exact two-Mew path
+
+A direct multivariate-hypergeometric count on the source printed60's initial **six unobserved Prize cards** gives:
+
+| Required printings outside starting Prizes | Source copies | Initial-Prize criterion |
+| --- | ---: | --- |
+| Mew VMAX FST | 3 | At least 2 unprized |
+| Mew V FST | 4 | At least 2 unprized |
+| Guzma BUS | 2 | At least 1 unprized |
+| Double Colorless Energy SUM | 4 | At least 1 unprized |
+| Genesect V FST | 4 | At least 1 unprized |
+| Other original cards | 43 | Unrestricted |
+
+There are `C(60,6)=50,063,860` equally likely six-card Prize sets. Exactly `48,315,178` meet those five outside-Prize thresholds, giving **96.5070971355%**. This models *initial unprized physical copies*, prior to Prize recovery, draw, searches, discard, setup, attacks or opponents. It is a ceiling only on this **specific** version of the route before any Prize taking; the deck can pursue other attacks or recover Prized pieces. The 3.4929028645% complement must never be called a game loss rate.
+
+The count is reproducible by summing `∏_i C(n_i,k_i)` over all `k_i≥0` with `Σk_i=6` and `k_MewVMAX≤1, k_MewV≤2, k_Guzma≤1, k_DCE≤3, k_Genesect≤3`; the residual group has 43 cards. The calculation was executed using Python `math.comb` and an explicit multivariate enumeration. The 2.4254821742% probability of initially Prizing **at least two of three Mew VMAX** is the dominant individual exclusion event.
+
