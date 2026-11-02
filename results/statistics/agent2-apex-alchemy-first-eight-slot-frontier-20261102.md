@@ -29,6 +29,27 @@ All percentages below are **conditional on a Basic-valid initial seven**. A vari
 
 The three-to-four Shake gain is a useful falsifiable design lever for Agent43's challenger and a useful upper-screen for trying a registered variant. Yet even the favorable **29.21711%** search-assisted rate is a first-eight-only reachability quantity and includes unrealistically free search. It cannot justify saying the deck establishes Muk in that fraction of games. Extra Supporter draws may increase later opportunity. Starting with a non-Basic opening can cause a mulligan, so the conditioned figure represents one valid opening seven rather than arbitrary initial random sevens.
 
+## Separate benchable-Muk geometry: an alternative Basic in the opening seven
+
+The newer Agent43 model also tracks whether **at least one non-Grimer Basic Pokémon is present in the actual initial seven**. Such a Basic could occupy the opening Active Spot while Grimer is placed on the Bench, avoiding a forced-Active Grimer that might take extra mobility actions. This is an additional **necessary first-eight geometric predicate**, still insufficient for an achieved Muk lock. I independently enumerated this predicate by multiplying each eight-card count by `0`, `7/8` or `1` depending on whether it contains zero, one or two-plus other Basics; it retains the same Basic-valid-opening denominator.
+
+| Variant | Direct, other Basic opens Active | Idealized Grimer search, other Basic opens Active |
+| --- | ---: | ---: |
+| Unchanged v0 | 6.29698142% | 20.12400842% |
+| +1 fourth Boost Shake | 8.00247627% | **25.50231562%** |
+| +1 third Grimer | **8.69784572%** | 20.79412385% |
+| +1 third Muk | 6.49831656% | 20.79968909% |
+| +1 fourth Quick Ball | 6.29698142% | 21.34563485% |
+| Fourth Shake plus third Grimer | 11.04887125% | 26.34163877% |
+
+The conditional search-assisted fourth Shake benefit remains largest among these one-slot variations, **+5.37830719 percentage points** from the unchanged alternate-starter baseline. A third Grimer remains strongest for the direct no-Grimer-search opening, while its improved overall Basic-opening rate shifts the conditioning denominator. The count of other Basics stays at ten in these virtual variants, and the new category occupies a residual hypothetical card slot.
+
+**Important lock caveat:** The third-Grimer direct advantage applies where a Grimer search is unavailable but **Boost Shake itself can still legally be played**. Against a pre-existing Item lock that prevents Boost Shake, *both* the first-turn Shake routes disappear; an initial Basic position alone does not bypass that limitation. No claim of improved Item-lock matchup is justified.
+
+### Discovered regression in the alternate-starter implementation
+
+During manual field-gate run [41534560910](https://github.com/FlareZ123/experiment-01/actions/runs/41534560910), Agent43's newly added alternate-starter calculation failed its assertion: expected search-assisted 0.20124008424930906, observed 0.1259396284192167. The original source counted the direct branch's alternate-Basic term twice and omitted the searched-Grimer branch. Agent2 corrected both accumulator placements in `simulation/evaluation/agent43-muk-search-eight-bound.cjs` (commit `20d1769123215e8f03b489e96d3e35dcbd208164`) while preserving the existing direct and search-assisted baseline outputs. The expanded independent regression pins all six variant alternate-starter percentages. This failure is evidence about a numerical implementation bug, not about empirical card strength.
+
 ## Actionable next comparison
 
 Only if the strategy owner can identify a specific low-utility *nonmodeled* slot to cut without harming Regidrago Energy, Dragon donor access, draw, matchup answer or prize routing, register a separately hashed **4-Boost-Shake fixed 60**. Then prospectively compare against unchanged v0 on the same policy, both actual seats and all original opponent lists, tracking natural held/discard-paid Grimer+Shake+Muk and the complete post-lock opponent response. The third Grimer is a legitimate alternate test against search-denial pressure, since direct-opening results favor it. Focus initially on Iron Thorns, Vileplume and original Absol/Garbodor counterlines. The 29/32 opponent authenticity, zero competitively qualified games and no demonstrated 99.5% winner are unchanged.
