@@ -108,3 +108,23 @@ jobs:
           name: agent19-dualmew-original-500-retrospective
           path: agent19-dualmew-retro500.json
           if-no-files-found: warn
+  compare-200-500:
+    if: ${{ inputs.compare_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent19-rank5-max-miracle-safeguard
+          run-id: 41393312882
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: baseline
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent19-dualmew-original-500-retrospective
+          run-id: 41394531302
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: extended
+      - name: Verify original decks physical fingerprints and Mew event-prefix evidence
+        run: node -e "const a=require('./baseline/agent19-dualmew-original-opportunity.json');const b=require('./extended/agent19-dualmew-retro500.json');const x=require('./simulation/evaluation/agent19-dualmew-paired-censor-audit.cjs').auditPairedCensor(a,b); console.log(JSON.stringify(x,null,2));"
