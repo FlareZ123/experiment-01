@@ -154,6 +154,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify fifth fixed 60 structural candidate manifest and source transformation
+        run: node --test tests/agent28-sentinel-lopunny-fixed60.test.cjs
       - name: Check original rank6/24/29 Plumeria printing-safe versus copy-access combinatorics
         run: node --test tests/agent38-rank6-lastprinting-earlyhand.test.cjs tests/agent38-k0-payment-replacement.test.cjs
       - name: Verify four original hard-cluster source identity and no false admission
