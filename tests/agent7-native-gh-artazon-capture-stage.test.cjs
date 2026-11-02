@@ -228,10 +228,39 @@ function settleNativeDoubleTm(x){
   assert.fail('Double TM prompt chain exceeded 90 native actions');
 }
 
+/**
+ * Reallocate one held G&H to deck, exchange an original held-supporter
+ * replacement, and execute the actual Tag Call Item search before G&H.
+ * Every card remains an identical original physical copy.
+ * @param {object} x
+ */
+function resolveNativeTagConnector(x){
+  const held=x.player.hand.cards.findIndex(c=>
+    c.fullName==='Guzma & Hala CEC');
+  assert.ok(held>=0);
+  const gh=x.player.hand.cards.splice(held,1)[0];
+  x.player.deck.cards.push(gh);
+  const replacement=x.player.deck.cards.findIndex(c=>
+    c.fullName==='Guzma BUS');
+  assert.ok(replacement>=0);
+  x.player.hand.cards.push(x.player.deck.cards.splice(replacement,1)[0]);
+  assert.equal(x.player.hand.cards.length,7);
+  playBoardTrainer(x,'Tag Call');
+  resolveNamedDeckPrompt(x,['Guzma & Hala CEC']);
+  const after=settleRoutine(x);
+  assert.ok(x.player.hand.cards.some(c=>c.fullName==='Guzma & Hala CEC'));
+  assert.ok(x.player.discard.cards.some(c=>c.fullName==='Tag Call CEC'));
+  return after;
+}
+
 for(const seat of [0,1]){
-  test('original rank2 GH Artazon Capture genuine source cards, seat '+seat,()=>{
+  for(const viaTag of [false,true]){
+  test('original rank2 G&H Artazon Capture two TM real Store seat '+
+    seat+' viaTag '+viaTag,()=>{
     const x=staged(seat);
+
     const stages={};
+    if(viaTag)stages.tag=resolveNativeTagConnector(x);
     stages.gh=resolveGuzmaThreeChannels(x);
     playBoardTrainer(x,'Artazon');
     stages.stadium=settleRoutine(x);
@@ -299,7 +328,7 @@ for(const seat of [0,1]){
     assert.equal(x.state.activePlayer,1-seat);
 
     console.log('AGENT7_NATIVE_GH_ARTAZON_CAPTURE',JSON.stringify({
-      seat,sourceRank:2,sourcePhysicalCards:60,
+      seat,viaTag,sourceRank:2,sourcePhysicalCards:60,
       sourceSupporter:'Guzma & Hala CEC',
       searched:['Artazon PAL','Technical Machine: Evolution PAR',
         'Capture Energy RCL'],
@@ -311,4 +340,5 @@ for(const seat of [0,1]){
       prompts:stages,competitivelyQualifiedGames:0
     }));
   });
+  }
 }
