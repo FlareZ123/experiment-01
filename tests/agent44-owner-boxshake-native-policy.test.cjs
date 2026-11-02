@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {firstTurnBoxOffer}=
+const {firstTurnBoxOffer,witnessOpponentTurn}=
   require('../simulation/twinleaf/agent44-owner-boxshake-native-policy.cjs');
 
 function originalFirstTurn(){
@@ -63,4 +63,46 @@ test('preserve useful held Tool even when other same-name copies exist',()=>{
   assert.equal(offer.eligible,true);
   assert.deepEqual(offer.discardNames,
     ['Battle VIP Pass','Quick Ball','Dark Patch']);
+});
+
+function slot(name,tool){
+  return {getPokemonCard:()=>name?{name}:null,
+    tools:tool?[{name:tool}]:[]};
+}
+test('opponent decision receives settled first-turn Tool Garbodor witness',()=>{
+  const stages=new Map([[0,{stage:'complete',toolName:'Float Stone'}]]);
+  const audit={opponentContinuations:[]};
+  const phase={PLAYER_TURN:1};
+  const source={bench:[slot('Garbodor','Float Stone')]};
+  const opponent={bench:[slot('Mew',null)]};
+  const state={players:[source,opponent],turn:2,activePlayer:1,phase:1};
+  witnessOpponentTurn(stages,audit,state,null,phase);
+  assert.deepEqual(audit.opponentContinuations,[{
+    sourceSeat:0,opponentSeat:1,turn:2,
+    originalBotDecisionRequested:true,equippedGarbodor:true
+  }]);
+  witnessOpponentTurn(stages,audit,state,null,phase);
+  assert.equal(audit.opponentContinuations.length,1);
+});
+test('pending prompt and own turn never count as opponent continuation',()=>{
+  const stages=new Map([[1,{stage:'complete',toolName:'Float Stone'}]]);
+  const audit={opponentContinuations:[]};
+  const phase={PLAYER_TURN:1};
+  const state={players:[{bench:[slot('Mew',null)]},
+    {bench:[slot('Garbodor','Float Stone')]}],
+    turn:2,activePlayer:1,phase:1};
+  witnessOpponentTurn(stages,audit,state,null,phase);
+  state.activePlayer=0;
+  witnessOpponentTurn(stages,audit,state,{id:7},phase);
+  assert.equal(audit.opponentContinuations.length,0);
+  witnessOpponentTurn(stages,audit,state,null,phase);
+  assert.equal(audit.opponentContinuations[0].sourceSeat,1);
+});
+test('unsettled Tool attachment can never satisfy native completion witness',()=>{
+  const stages=new Map([[0,{stage:'complete',toolName:'Float Stone'}]]);
+  const audit={opponentContinuations:[]};
+  const state={players:[{bench:[slot('Garbodor',null)]},
+    {bench:[slot('Mew',null)]}],turn:2,activePlayer:1,phase:1};
+  witnessOpponentTurn(stages,audit,state,null,{PLAYER_TURN:1});
+  assert.equal(audit.opponentContinuations[0].equippedGarbodor,false);
 });
