@@ -38,6 +38,10 @@ on:
         description: 'Default-off shared canonical both-seat actor plus actual inner-owner flexible Box source pilot (one historical and two unselected original source deals)'
         type: boolean
         default: false
+      agent44_rank8_box_debug_previous_289:
+        description: 'Reproduce only previously observed uncompleted native seed index289 (retrospective diagnosis)'
+        type: boolean
+        default: false
       agent44_rank8_shared_boxshake_flexible:
         description: 'Opt-in 32 additional disjoint original rank8 source deals with held Quick Ultra and Box Tool search; requires shared_boxshake_natural_pairs'
         type: boolean
@@ -266,11 +270,12 @@ jobs:
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
         env:
           AGENT44_RANK8_BOX_FLEXIBLE: ${{ inputs.agent44_rank8_shared_boxshake_flexible }}
+          AGENT44_RANK8_BOX_DEBUG_INDEX: ${{ inputs.agent44_rank8_box_debug_previous_289 && '289' || '' }}
         run: node simulation/twinleaf/agent44-original-boxshake-shared-policy-pairs.cjs > agent44-shared-boxshake-original-pairs.json
       - name: Print all paired native Box Shake outcomes
         if: inputs.agent44_rank8_shared_boxshake_natural_pairs
         run: >-
-          node -e "const r=require('./agent44-shared-boxshake-original-pairs.json'); console.log(JSON.stringify({schema:r.schema,historical:r.historicalPositiveSummary,prospective:r.prospectiveSummary,historicalReply:r.historicalSourceNextOpponentTurnObserved,each:r.allAttempted.map(x=>({trial:x.trial,seat:x.sourceSeat,status:x.status,offers:x.nativePolicyAudit?.offers?.length??null,complete:x.nativePolicyAudit?.completeNativeEvolutions??null,error:x.error?.message??null}))},null,2));"
+          node -e "const r=require('./agent44-shared-boxshake-original-pairs.json'); console.log(JSON.stringify({schema:r.schema,historical:r.historicalPositiveSummary,prospective:r.prospectiveSummary,historicalReply:r.historicalSourceNextOpponentTurnObserved,each:r.allAttempted.map(x=>({trial:x.trial,seat:x.sourceSeat,status:x.status,offers:x.nativePolicyAudit?.offers?.length??null,complete:x.nativePolicyAudit?.completeNativeEvolutions??null,failures:x.nativePolicyAudit?.failures??[],events:x.nativePolicyAudit?.events??[],error:x.error?.message??null}))},null,2));"
       - name: Archive all original source-deal attempts and native evidence
         if: always() && inputs.agent44_rank8_shared_boxshake_natural_pairs
         uses: actions/upload-artifact@v4
