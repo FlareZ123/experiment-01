@@ -991,7 +991,8 @@ function runDevelopment({
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
-  actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
+  actorDceMewMobilityRoot=false,actorMewTechnoReset=false,
+  actorGenesectFusionDrawRoot=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
@@ -1043,6 +1044,10 @@ function runDevelopment({
     'Native symmetric Mew/Genesect copy preference requires actor-only prompts');
   assert.ok(!actorDceMewMobilityRoot||actorOnlyComposition,
     'Owner-paid DCE retreat must use the same actor-only policy in both seats');
+  assert.ok(!actorMewTechnoReset||actorOnlyComposition,
+    'Mew reset requires the same actor-only root in both seats');
+  assert.ok(!actorMewTechnoReset||actorGuzmaPromptContinuation,
+    'Mew reset requires both native Guzma switch prompts');
   assert.ok(!actorGenesectFusionDrawRoot||actorOnlyComposition,
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
@@ -1223,7 +1228,8 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
-          !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
+          !actorDceMewMobilityRoot&&!actorMewTechnoReset&&
+          !actorGenesectFusionDrawRoot&&
           !actorFarewellLetterRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
@@ -1247,6 +1253,9 @@ function runDevelopment({
               }:{}),
               ...(actorDceMewMobilityRoot?{
                 dceMewMobilityRoot:true
+              }:{}),
+              ...(actorMewTechnoReset?{
+                mewTechnoReset:true
               }:{}),
               ...(actorGenesectFusionDrawRoot?{
                 genesectFusionDraw:true
@@ -1305,6 +1314,7 @@ function runDevelopment({
             sameRootNativeFreeFlareChoice:nativeZeroCostDenialChoice,
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             guzmaNominalGust:actorGuzmaNominalGust,
+            mewTechnoReset:actorMewTechnoReset,
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
                 setup:earlyBenchedCompressorPayload?
@@ -1511,6 +1521,8 @@ function runDevelopment({
       actorOnlyComposition&&actorNaturalEvolutionRoot,
     actorDceMewMobilityRootOptIn:
       actorOnlyComposition&&actorDceMewMobilityRoot,
+    actorMewTechnoResetOptIn:
+      actorOnlyComposition&&actorMewTechnoReset,
     actorGenesectFusionDrawRootOptIn:
       actorOnlyComposition&&actorGenesectFusionDrawRoot,
     actorFarewellLetterRootOptIn:
@@ -1666,6 +1678,8 @@ if(require.main===module){
       process.env.AGENT13_MEW_GENES_COPY_DEV==='true',
     actorDceMewMobilityRoot:
       process.env.AGENT37_DCE_MEW_RETREAT_DEV==='true',
+    actorMewTechnoReset:
+      process.env.AGENT41_MEW_TECHNO_RESET_DEV==='true',
     actorGenesectFusionDrawRoot:
       process.env.AGENT37_GENESECT_FUSION_DRAW_DEV==='true',
     actorOnlySingleSearch:process.env.AGENT41_ACTOR_SINGLE_SEARCH_DEV==='true',
