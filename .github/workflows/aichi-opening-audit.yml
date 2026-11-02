@@ -165,6 +165,11 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_rank11_garbotoxin_field_blower_response.py'
       - name: Rank-11 Field Blower and Arven response exact output
         run: python3 scripts/rank11_garbotoxin_field_blower_response.py > rank11-arven-blower-response.txt
+      - name: Rank8 original Box/VIP alternative resource-contention regression
+        run: |
+          node --test tests/agent7-rank8-box-vip-contention.test.cjs
+          python3 scripts/agent7_rank8_box_vip_contention.py > agent7-rank8-box-vip-contention.json
+          python3 -c "import json; x=json.load(open('agent7-rank8-box-vip-contention.json')); a=x['bench_strategies']['bench-none']; b=x['bench_strategies']['bench-all-other-basics']; assert (a['valid_opener'],a['box_k0'],a['box_k0_with_held_vip'],a['vip_first_then_box_k1'])==(148137,10620,2117,1799),a; assert (b['box_k0'],b['box_k0_with_held_vip'],b['vip_first_then_box_k1'])==(9620,1957,1619),b; print('BOX_VIP_K0_COMPETING_RESOURCE', json.dumps(x['bench_strategies']))"
       - name: Rank-8 held Secret Box Boost Shake Float Stone early gate
         run: python3 -m unittest discover -s tests -p 'test_rank8_hood_core_early_exact.py'
       - name: Preserve rank-8 core policy first-eight exact source probability
@@ -219,6 +224,7 @@ jobs:
             aichi-printed-opening-basics.json
             agent7-source-energy-funding-audit.json
             aichi-absol-garbotoxin-window.json
+            agent7-rank8-box-vip-contention.json
             aichi-absol-boost-shake-direct.json
             absol-garbotoxin-direct-lock.json
             aichi-absol-any-tool-first-turn.json
