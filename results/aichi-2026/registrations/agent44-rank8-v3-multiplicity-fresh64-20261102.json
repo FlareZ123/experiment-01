@@ -1,0 +1,77 @@
+{
+  "schema": "agent44-rank8-source-boxshake-v3-prospective-registration-v1",
+  "registeredUTC": "2026-11-02T22:37:31.289601Z",
+  "author": "Agent 44",
+  "researchQuestion": "Does the physical-multiplicity Quick/Ultra payment repair execute as native selected Box to Garbodor plus opponent-turn board across independently precommitted exact-original rank8 source deals?",
+  "design": "Frozen symmetric both-physical-seat policy contrast: common original rank8 versus unchanged Hood original-60. Each fresh physical source seed is replayed baseline versus same actor plus default-off Box-Shake v3. Do not infer candidate strength or game win rate.",
+  "originalRank": 8,
+  "originalPrinted60Sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "candidate": "Hood Shield v1 fixed60",
+  "seedSchedule": {
+    "label": "agent44-original-rank8-preregistered-box-k0-20261030",
+    "sourceFile": "simulation/twinleaf/agent44-rank8-box-k0-source-census.cjs",
+    "startInclusive": 306,
+    "endInclusive": 369,
+    "count": 64,
+    "sourceSeatParity": "index modulo 2",
+    "seedDerivation": "SHA256(label+':'+decimal index) first four bytes big-endian uint32",
+    "rowsSha256": "d5064404f65ff05e25a21dbff7d302e48c17ce28ddbb6c91f5d55e0dff59f9ef",
+    "first": [
+      {
+        "trial": "rank8-original-box-k0:306",
+        "sourceSeat": 0,
+        "seed": 1998672324
+      },
+      {
+        "trial": "rank8-original-box-k0:307",
+        "sourceSeat": 1,
+        "seed": 3553575333
+      }
+    ],
+    "last": [
+      {
+        "trial": "rank8-original-box-k0:368",
+        "sourceSeat": 0,
+        "seed": 4225548660
+      },
+      {
+        "trial": "rank8-original-box-k0:369",
+        "sourceSeat": 1,
+        "seed": 3579314415
+      }
+    ]
+  },
+  "retrospectiveControl": {
+    "sourceIndex": 289,
+    "runId": 41410263642,
+    "excludedFromProspectiveDenominator": true
+  },
+  "selectionConstraints": {
+    "beforeNativeExecution": true,
+    "all64AttemptsRetained": true,
+    "maxActions": 120,
+    "noChangesToPrintedDecks": true,
+    "physicalDealParityRequired": true,
+    "sourceOwnerVisibleK0Only": true,
+    "ownerK1RequiresNativeSecretBoxSearch": true,
+    "StoreAcceptanceDoesNotImplyPaperLegality": true,
+    "completeSourcePaymentAndZoneCustodyUnverified": true
+  },
+  "registeredOutcomes": [
+    "NOT_ENCOUNTERED",
+    "OFFERED_INCOMPLETE_OR_ABORTED",
+    "NATIVE_FIRSTTURN_SHAKE_EVOLUTION_OBSERVED",
+    "NATIVE_ERROR"
+  ],
+  "requiredEvidence": [
+    "same first owner K0",
+    "same exact deck hashes and actual first player",
+    "native Store accepted Secret Box cost prompt",
+    "Quick or Ultra discard paid with spare physical card if needed",
+    "Box-fetched Shake and Tool selected from actual owner deck",
+    "actual firstturn Trubbish equipped Tool then Shake Garbodor",
+    "native opponent-turn observable source board and real opponent public root",
+    "record no-op equality, errors and action caps"
+  ],
+  "classification": "All native outcomes developmental and not competitively qualified. The 99.5% fixed-field target remains entirely unverified; only 29/32 original field sixties authenticated."
+}
