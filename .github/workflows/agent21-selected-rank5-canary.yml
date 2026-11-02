@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test externally pinned selected manifest and fail-closed evidence
-        run: node --test tests/agent21-single-profile-rank5-canary.test.cjs
+        run: node --test tests/agent21-single-profile-rank5-canary.test.cjs tests/agent21-source-trainer-play-census.test.cjs tests/agent21-owner-stranded-fusion-mew-retreat.test.cjs
       - name: Inspect selected profile without running native games
         run: node simulation/evaluation/agent21-single-profile-rank5-canary.cjs --inspect-only > agent21-selected-profile-preflight.json
       - name: Check out exact pinned Twinleaf upstream submodule
