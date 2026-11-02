@@ -24,3 +24,9 @@ test('original rank26 Dowsing PLS mandatory two-card native prompt audit both se
     assert.equal(rows[1].nativePaymentValidatorAccepted,false);
   }
 });
+
+// The original diagnostic retains its unguarded negative controls. These
+// additional tests are separate source-stamped, default-off corrected Store
+// cases under the same existing manually dispatched native CI suite.
+require('./agent36-dowsing-payment-guard.test.cjs');
+require('./agent36-dowsing-payment-guard.native.test.cjs');
