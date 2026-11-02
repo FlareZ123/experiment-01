@@ -9,7 +9,8 @@ const fixture = {decks:[{rank:29,cards:[
   {name:'Camping Gear',category:'Trainer',count:2},
   {name:'Tropical Beach',category:'Trainer',count:2},
   {name:'Double Colorless Energy',category:'Energy',count:1},
-  {name:'Other',category:'Trainer',count:51}
+  {name:'Thunder Mountain ♢',category:'Trainer',count:1},
+  {name:'Other',category:'Trainer',count:50}
 ]}]};
 
 test('exact choose and inclusion-exclusion match explicit tiny subset enumeration', () => {
@@ -30,6 +31,12 @@ test('rank29 original grouped counts and conditional rational figures', () => {
   assert.ok(Math.abs(o.campingDceByTurnEndGivenBoth-0.8950860641)<1e-10);
   assert.ok(Math.abs(o.beachDceByTurnEndGivenBoth-0.1082315449)<1e-10);
   assert.ok(Math.abs(o.campingMinusBeachAccessGap-0.7868545192)<1e-10);
+  assert.ok(Math.abs(o.initiallyBothAttackPiecesGivenBothTerminal-0.004102891511)<1e-10);
+  assert.ok(Math.abs(o.initiallyOneAttackPieceGivenBothTerminal-0.138314682907)<1e-10);
+  assert.ok(Math.abs(o.initiallyNeitherAttackPieceGivenBothTerminal-0.857582425582)<1e-10);
+  assert.ok(Math.abs(o.bothAttackPiecesByT2Gear-0.141384262711)<1e-10);
+  assert.ok(Math.abs(o.bothAttackPiecesByT2Beach-0.013799039946)<1e-10);
+  assert.ok(Math.abs(o.gearMinusBeachAttackPairGap-0.127585222765)<1e-10);
   assert.equal(o.competitiveQualifiedGames,0);
 });
 
