@@ -46,7 +46,7 @@ const {withActorOnlyRootPolicy}=
  * opening draw/game history, so its conclusions remain unqualified.
  * @param {0|1} seat
  */
-function stage(seat){
+function stage(seat,opponentBenchPrinting='Lunatone OBF'){
   const manager=initializeCards();
   let nextId=85000+1000*seat;
   const card=fullName=>{
@@ -71,7 +71,7 @@ function stage(seat){
   owner.bench.push(donor,spare);
   opp.active.cards.push(card('Mimikyu PAL'));
   const gustTarget=new PokemonCardList();
-  gustTarget.cards.push(card('Lunatone OBF'));
+  gustTarget.cards.push(card(opponentBenchPrinting));
   opp.bench.push(gustTarget);
   for(const player of [owner,opp]){
     for(let n=0;n<14;n++)
@@ -389,4 +389,54 @@ for(const seat of [0,1]){
     ()=>actorRootTrial(seat));
 }
 
-module.exports={stage,completeAttack,completeGuzma,trial,actorRootTrial};
+
+/**
+ * Falsifying counterpart to the positive native test. A public print target
+ * with active Block makes the proposed free retreat illegal even if the spare
+ * Mew has zero printed Retreat. The planner veto must precede the attempted
+ * card play; forcing the root here is only an engine-specific negative test.
+ */
+function snorlaxBlockTrial(seat){
+  const x=stage(seat,'Snorlax PGO');
+  const {state,store,owner,opp}=x;
+  const receipts=[];
+  store.dispatch(new AttackAction(owner.id,'Cross Fusion Strike'));
+  completeAttack(x,receipts);
+  store.dispatch(new PassTurnAction(opp.id));
+  completeAttack(x,receipts);
+  assert.equal(state.turn,7);
+  assert.equal(owner.active.cannotAttackNextTurn,true);
+  owner.hand.cards.push(x.card('Guzma BUS'));
+  assert.equal(chooseGuzmaMewCooldownReset(
+    actorObservation(store.state,seat),x.catalog),null,
+  'The conservative planner must reject a sole opponent Snorlax Block target');
+  const plan={kind:'play-guzma-mew-cooldown-reset',
+    handIndex:owner.hand.cards.length-1,
+    opponentBenchIndex:0,benchIndex:1,printing:'Guzma BUS'};
+  store.dispatch(new PlayCardAction(owner.id,plan.handIndex,{
+    player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+  }));
+  completeGuzma(x,plan,receipts);
+  assert.equal(owner.active.getPokemonCard().id,x.spareMewId);
+  assert.equal(opp.active.getPokemonCard().fullName,'Snorlax PGO');
+  assert.throws(
+    ()=>store.dispatch(new RetreatAction(owner.id,1)),
+    error=>{
+      assert.equal(error.message,'BLOCKED_BY_EFFECT');
+      return true;
+    }
+  );
+  console.log('AGENT41_MEW_RESET_BLOCK_VETO',JSON.stringify({
+    seat,pinnedTwinleaf:PIN,forcedOpponentActive:'Snorlax PGO',
+    realGuzmaPrompts:receipts.filter(r=>r.benchIndex!==undefined).length,
+    zeroRetreatNative:'BLOCKED_BY_EFFECT',guardedPlannerProposals:0,
+    competitiveQualified:false
+  }));
+}
+for(const seat of [0,1]){
+  test('native Snorlax Block correctly vetoes staged Mew reset in seat '+seat,
+    ()=>snorlaxBlockTrial(seat));
+}
+
+module.exports={stage,completeAttack,completeGuzma,trial,actorRootTrial,
+  snorlaxBlockTrial};
