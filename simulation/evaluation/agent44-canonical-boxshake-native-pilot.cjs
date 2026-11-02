@@ -26,7 +26,7 @@ const FRESH32_REGISTERED_SHA256='89e7579a8bdaace0b172fb50ce0a452b5c37c0629b12e2d
 const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
-function run({fresh32=false,diagnosticFreshIndex=null}={}){
+function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false}={}){
   assert.ok(diagnosticFreshIndex===null||
     (fresh32&&diagnosticFreshIndex===383),
     'The diagnostic is strictly retrospective on the previously failed original index383');
@@ -67,7 +67,12 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
       doubleDragonRecovery:true,supporterDecisionCorrection:true,
       isolatePolicyRandomness:true,leleEntryAbilityLockCorrection:true,
       radiantGateLockCorrection:true,entryDrawLockCorrection:true,
-      captureDecisionTrace:true,label:'agent44-canonical-box-'+row.trial
+      captureDecisionTrace:true,
+      ...(auditPhysicalDeal?{
+        captureInitialSourceDealFingerprintSeat:row.sourceSeat,
+        captureInitialFullPhysicalDeal:true
+      }:{}),
+      label:'agent44-canonical-box-'+row.trial
     };
     try{
       const baseline=withRank8AuthenticK0Observer(Store,row.sourceSeat,
@@ -83,6 +88,23 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
         'Canonical paired physical deck fingerprint drift');
       assert.equal(b.result.firstTurnSlot,t.result.firstTurnSlot,
         'Canonical paired actual starter drift');
+      const sourceFingerprints=auditPhysicalDeal?[
+        b.result.initialSourceDealFingerprint?.digestSha256??null,
+        t.result.initialSourceDealFingerprint?.digestSha256??null
+      ]:null;
+      const fullFingerprints=auditPhysicalDeal?[
+        b.result.initialFullPhysicalDealFingerprint?.digestSha256??null,
+        t.result.initialFullPhysicalDealFingerprint?.digestSha256??null
+      ]:null;
+      if(auditPhysicalDeal){
+        for(const digest of [...sourceFingerprints,...fullFingerprints])
+          assert.match(digest,/^[a-f0-9]{64}$/,
+            'Missing exact native preaction source or full physical deal');
+        assert.equal(sourceFingerprints[0],sourceFingerprints[1],
+          'Native preaction source card-zone positions differ');
+        assert.equal(fullFingerprints[0],fullFingerprints[1],
+          'Native preaction complete two-seat card-zone positions differ');
+      }
       const sameNoOffer=t.audit.box.offers.length===0;
       if(sameNoOffer)assert.deepEqual(b.result.decisionTrace,
         t.result.decisionTrace,
@@ -99,6 +121,10 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
         sourceK0Parity:true,sourceActualFirst:
           b.result.firstTurnSlot===row.sourceSeat,
         physicalDeckPair:true,
+        fullHiddenDealAudited:auditPhysicalDeal,
+        physicalSourceDealSha256:sourceFingerprints?.[0]??null,
+        fullPhysicalDealSha256:fullFingerprints?.[0]??null,
+        completePhysicalDealParity:auditPhysicalDeal?true:null,
         noOfferFullTraceParity:sameNoOffer?true:null,
         baseline:{actions:b.result.actions,finished:b.result.finished,
           decisionTraceSha256:sha(JSON.stringify(b.result.decisionTrace))},
@@ -137,6 +163,8 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
       '6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541',
     seedScheduleSha256:scheduleSha256,actualTrials:rows.length,
     nativeStorePaperCompetenceCertified:false,
+    captureInitialFullPhysicalDeal:auditPhysicalDeal,
+    initialSourcePhysicalFingerprintRequired:auditPhysicalDeal,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
     engineRevision:plan.engineRevision,
@@ -165,7 +193,8 @@ function run({fresh32=false,diagnosticFreshIndex=null}={}){
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run({
   fresh32:process.env.AGENT44_RANK8_CANONICAL_FRESH32==='true',
-  diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null
+  diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null,
+  auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true'
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
   FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
