@@ -103,5 +103,5 @@ test('a bonus card cannot automatically repair an invalid original seven',()=>{
 test('invalid optional bonus count rejected',()=>{
   const {counts,totalBasics}=sourceBonusCounts();
   assert.throws(()=>countBonusSearchWindow(counts,totalBasics,6),
-    /AssertionError/);
+    error=>error instanceof assert.AssertionError);
 });
