@@ -45,7 +45,7 @@ test('only exact native source physical fingerprints authorize controlled labels
   assert.equal(physicalPairStatus({},{}),'UNVERIFIED');
 });
 
-test('two policy modes retain all four authentic registered arms including native errors',()=>{
+test('two policy modes retain all eight authentic registered arms including native errors',()=>{
   const orders=[];
   let mode=0;
   const result=runRelease({pinNative:false,runDevelopment:opts=>{
@@ -63,7 +63,7 @@ test('two policy modes retain all four authentic registered arms including nativ
         chooseAttack:{selections:[]}
       }}
     }));
-    return {attempted:4,rows};
+    return {attempted:8,rows};
   }});
   assert.equal(result.attempted,16);
   assert.equal(result.competitiveQualifiedGames,0);
