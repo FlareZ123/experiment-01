@@ -36,6 +36,17 @@ test('shared v10 native owner Ultra Ball rejects free search, retains paid searc
     assert.equal(a.originalMin,2);
     assert.equal(a.originalMax,2);
     assert.equal(a.chosenValidatorAccepted,false);
+    console.log('AGENT4_V10_ULTRA_FAILED_PROMPT_DIAGNOSTIC '+JSON.stringify({
+      seat,paymentPromptSource:a.paymentPromptSource,min:a.originalMin,max:a.originalMax,
+      originalValidatorAccepted:a.originalValidatorAccepted,
+      zeroPaymentError:a.zeroPaymentError,
+      originalStorePromptSettled:a.zeroPaymentPromptSettled,
+      commonObserved:{root:fa.inspectedUltraBallPlayCardRoots,
+        payments:fa.inspectedUltraBallPaymentPrompts,
+        resolved:fa.resolvedNativeReplies,
+        invalid:fa.statusCounts.PAPER_PROMPT_INVALID,
+        firstStatus:fa.examples[0]??null}
+    }));
     assert.match(a.zeroPaymentError,/PAPER_PROMPT_INVALID:.*ULTRA_BALL_PRINTED_PAYMENT_REQUIRES_EXACTLY_TWO/);
     assert.equal(a.zeroPaymentPromptSettled,false);
     assert.equal(a.regidragoStillInDeck,true);
