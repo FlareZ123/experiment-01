@@ -34,6 +34,10 @@ on:
         description: 'Run bounded rank1 versus rank10 natural evolution root pairs'
         type: boolean
         default: false
+      agent44_rank8_canonical_physical_audit:
+        description: 'Read-only, fail-closed native firstturn source and all-zone physical SHA256 parity across both canonical arms; requires canonical pilot'
+        type: boolean
+        default: false
       agent44_rank8_canonical_debug_383:
         description: 'Post-hoc diagnostic replay of original source index383, excluded from fresh32 denominator; requires canonical pilot'
         type: boolean
@@ -265,11 +269,12 @@ jobs:
         env:
           AGENT44_RANK8_CANONICAL_FRESH32: ${{ inputs.agent44_rank8_canonical_boxshake_fresh32 || inputs.agent44_rank8_canonical_debug_383 }}
           AGENT44_RANK8_CANONICAL_DEBUG_383: ${{ inputs.agent44_rank8_canonical_debug_383 }}
+          AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT: ${{ inputs.agent44_rank8_canonical_physical_audit }}
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: >-
-          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
+          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,physicalParity:r.completePhysicalDealParity??null,sourceDigest:r.physicalSourceDealSha256??null,fullDigest:r.fullPhysicalDealSha256??null,failures:r.boxAudit?.failures??[],events:r.boxAudit?.offers?.length?r.boxAudit.events:[],error:r.error?.message??null}))},null,2));"
       - name: Archive original canonical both-seat Box native pilot
         if: always() && inputs.agent44_rank8_canonical_boxshake_pilot
         uses: actions/upload-artifact@v4
