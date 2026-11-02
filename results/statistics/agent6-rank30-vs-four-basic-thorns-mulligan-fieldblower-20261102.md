@@ -70,8 +70,6 @@ P(B\mid n,\mathrm{legal}_7)
 
 The first factor in the subtraction is the chance of no Field Blower in the legal seven, and the second is the chance of no Field Blower among the extra draws when all three remain unseen. Weighting against the full simultaneous-mulligan distribution gives:
 
-<escape>
-</escape>
 | Rank-30 draw policy | Chance of holding at least one Field Blower by first mandatory draw |
 | --- | ---: |
 | Decline every compensation card | **34.4006393670%** |
