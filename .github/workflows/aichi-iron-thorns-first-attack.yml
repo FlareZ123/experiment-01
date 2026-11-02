@@ -96,6 +96,8 @@ jobs:
         run: node --test tests/agent4-secret-box-payment-native.test.cjs
       - name: Diagnose original rank26 Dowsing Machine two-card mandatory cost in both native seats
         run: node --test tests/agent30-dowsing-machine-payment-native.test.cjs
+      - name: Prospectively test rank6 Guzma and Hala option one-card underpayment native effect in both seats
+        run: node --test tests/agent30-guzma-hala-optional-payment-native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
