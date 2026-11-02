@@ -62,10 +62,12 @@ test('one bonus can expose G&H and another can strand the last Gloom',()=>{
 test('a bonus-drawn Bunnelby cannot become the initial Active',()=>{
   const cards=makeControlled();
   const first=cards.indexOf(ID.B);
-  const later=cards.indexOf(ID.B,13);
   assert.ok(first<7);
-  assert.ok(later>=13);
-  const tmp=cards[first];cards[first]=cards[later];cards[later]=tmp;
+  assert.equal(cards[14],ID.GH,'Known first optional bonus slot');
+  const tmp=cards[first];cards[first]=cards[14];cards[14]=tmp;
+  assert.equal(cards[14],ID.B,'Bunnelby is now bonus-drawn');
+  assert.equal(cards.slice(0,7).includes(ID.B),false,
+    'Original seven has no starting eligible Bunnelby');
   assert.deepEqual(evaluateBonusLayout(cards,2),[false,false,false]);
 });
 
