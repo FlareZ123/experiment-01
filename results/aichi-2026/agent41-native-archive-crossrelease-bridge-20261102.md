@@ -39,3 +39,22 @@ The nonmatching rank16 registered pair is 16:1:B. The competing source physical 
 ## Remaining release gate
 
 Apply this reporting contract to a newly selected immutable cross-source common-policy release and secure an actually paper-eligible, owner-selected source characteristic action followed by validated cost/target/effect and a consequential opposing response from the same physical lineage. Both archived experiments remain unqualified. Global benchmark standing remains **29/32 authenticated original sixty-card lists, zero competitively qualified paper games, and no demonstrated 99.5% winning fixed deck**.
+
+
+## New physical-pair mechanism: different opponent mulligan setup, same first owner hand
+
+Root-ledger comparison across the **eight actual rank16 registered seed pairs** now establishes a sharper distinction. For 7/8 pairs the source physical fingerprints and the relevant setup-prompt histories both match. In the only mismatching pair, 16:1:B, the original source's **first own-hand SHA-256 is identical** across champion-reference and New Moon, while its complete original-source physical-deal SHA-256 differs.
+
+The accepted setup root sequence is different:
+
+| Rank16 pair 16:1:B | Champion-reference opponent | New Moon opponent |
+| --- | ---: | ---: |
+| Candidate physical deck ShuffleDeckPrompt actions at setup | **2** | **1** |
+| Total setup ShowMulliganPrompt root actions (both seats) | **2** | **0** |
+| Setup-phase ResolvePromptAction root count | **11** | **6** |
+| Source first-own-hand SHA-256 | same | same |
+| Source full physical-deal SHA-256 | **different** | **different** |
+
+In the champion-reference arm the opponent's additional setup shuffle and the source's observed post-mulligan SelectPrompt / ChooseCardsPrompt occur before the first turn. The New Moon arm lacks those events. In the other seven pairs, both source and candidate setup-shuffle prompt counts match and the source physical digests are equal. This is a strong **association of the source-deal drift with different opponent mulligan/setup histories**, without a controlled causal proof of how Twinleaf consumed its random-number streams or how much came from compensation draws versus order of Prize placement.
+
+The critical experimental lesson is that **matching original source first-owner hand hashes does not certify a matched physical source deal**. Prize cards, draw-pile order, setup Bench placement and follow-on draws must be authenticated separately. The new bridge exposes per-seat native setup prompt counts, first owner hand SHA equality and a dedicated same-hand/different-source-deal veto. Its local test suite now passes **12/12** cases, with full-archive replays rechecked on both unchanged ZIPs. No new CI or paper game was executed.
