@@ -449,17 +449,30 @@ function withPostgameRootOrderProbe(
                 ()=>bot.decodeNextAction(world),replayTacticObservation):
             bot.decodeNextAction(world);
         }).result;
-        if(target.nativeTapeFairReplayHooks!==true)return execute();
-        // The original headless match installs a Fisher-Yates bot shuffle
-        // and a FairSimulator; it removes both when the game completes.
-        // Replay must reinstate that same research-owned simulator boundary
-        // or its RNG consumption differs by one draw per shuffle.
-        const install=dependencies.installFairBotHooks??
-          require('../twinleaf/headless.cjs').installFairBotHooks;
-        const restore=install();
-        assert.equal(typeof restore,'function');
-        try{return execute();}
-        finally{restore();}
+        if(target.nativeTapeFairReplayHooks!==true&&
+          target.nativeTapeSupporterReplayHook!==true)return execute();
+        // Original Store installs fair shuffle then Supporter proposal guard,
+        // and restores both after the game. Restore in reverse order here.
+        let restoreFair=null,restoreSupporter=null;
+        try{
+          if(target.nativeTapeFairReplayHooks===true){
+            const install=dependencies.installFairBotHooks??
+              require('../twinleaf/headless.cjs').installFairBotHooks;
+            restoreFair=install();
+            assert.equal(typeof restoreFair,'function');
+          }
+          if(target.nativeTapeSupporterReplayHook===true){
+            const install=dependencies.installSupporterDecisionHook??
+              require('../twinleaf/supporter-decision-hook.cjs')
+                .installSupporterDecisionHook;
+            restoreSupporter=install();
+            assert.equal(typeof restoreSupporter,'function');
+          }
+          return execute();
+        }finally{
+          if(restoreSupporter)restoreSupporter();
+          if(restoreFair)restoreFair();
+        }
       };
       const parity=verifyNativeSameWorldTapeParity({
         root:captured.state,
