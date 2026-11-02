@@ -14,12 +14,13 @@ const root=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(root,name));
 
 /**
- * Conditional midgame source-rank4 board. Every non-basic card here is
- * contained by exact original rank4 or fixed Temple-v1 identities.
+ * Conditional midgame original rank4/rank17 source board. Every non-basic
+ * card is from the selected source sixty or fixed Temple-v1 identities.
  * This is a staged physical state and cannot establish game reachability.
  * @param {0|1} seat Physical seat occupied by Raichu source.
+ * @param {4|17} sourceRank Published authenticated source rank.
  */
-function makeBoard(seat){
+function makeBoard(seat,sourceRank){
   const {Store}=native('game/store/store');
   const {State,GamePhase}=native('game/store/state/state');
   const {Player}=native('game/store/state/player');
@@ -27,7 +28,7 @@ function makeBoard(seat){
   const {CardList}=native('game/store/state/card-list');
   const {Format}=native('game/store/card/card-types');
   const manager=initializeCards();
-  let serial=1700000+seat*1000;
+  let serial=1700000+seat*1000+sourceRank*100;
   const card=name=>{
     const value=manager.getCardByName(name);
     assert.ok(value,'Unavailable printed card: '+name);
@@ -36,12 +37,13 @@ function makeBoard(seat){
   };
   const source=new Player(),opponent=new Player();
   source.id=171;opponent.id=172;
-  source.name='rank4 Raichu original';
+  source.name='rank'+sourceRank+' Raichu original';
   opponent.name='fixed Temple v1';
   source.active.cards.push(card('Klefki SVI'));
   source.active.tools.push(card('U-Turn Board UNM'));
   const raichu=new PokemonCardList();
-  raichu.cards.push(card('Pikachu LOR'),card('Alolan Raichu UNM'));
+  raichu.cards.push(card(sourceRank===4?'Pikachu LOR':'Pikachu XY'),
+    card('Alolan Raichu UNM'));
   source.bench.push(raichu);
   const electrode=new PokemonCardList();
   electrode.cards.push(card('Voltorb ROS'),card('Electrode-GX CES'));
@@ -51,7 +53,7 @@ function makeBoard(seat){
   target.cards.push(card('Shadow Rider Calyrex V CRE'));
   opponent.bench.push(target);
   opponent.stadium.cards.push(card('Temple of Sinnoh ASR'));
-  source.hand.cards.push(card('Sky Field ROS'));
+  source.hand.cards.push(card(sourceRank===4?'Sky Field ROS':'PokéStop PGO'));
   const energies=[
     'Reversal Energy PAL','Counter Energy CIN','Unit Energy LPM UPR',
     'Reversal Energy PAL','Counter Energy CIN'
@@ -131,23 +133,28 @@ function drain(f,phase){
   return events;
 }
 
-/** @param {0|1} seat */
-function run(seat){
+/** @param {0|1} seat @param {4|17} sourceRank */
+function run(seat,sourceRank){
   const field=JSON.parse(fs.readFileSync(path.resolve(__dirname,
     '../results/aichi-2026/full-decklists.json'),'utf8'));
-  const rank4=field.decks.find(row=>row.rank===4);
+  const sourceDeck=field.decks.find(row=>row.rank===sourceRank);
+  assert.ok(sourceDeck,'Missing authenticated source '+sourceRank);
+  const stadiumName=sourceRank===4?'Sky Field':'PokéStop';
+  const stadiumPrint=sourceRank===4?'Sky Field ROS':'PokéStop PGO';
   const required=[
     ['Klefki',1],['U-Turn Board',1],['Electrode-GX',3],
-    ['Alolan Raichu',2],['Sky Field',3],['Reversal Energy',4],
+    ['Alolan Raichu',2],[stadiumName,sourceRank===4?3:1],
+    ['Reversal Energy',4],
     ['Counter Energy',4],['Unit Energy LPM',4]
   ];
-  for(const [name,min] of required)assert.ok(rank4.cards.some(
-    row=>row.name===name&&row.count>=min),'Exact rank4 inventory: '+name);
+  for(const [name,min] of required)assert.ok(sourceDeck.cards.some(
+    row=>row.name===name&&row.count>=min),
+    'Exact rank'+sourceRank+' inventory: '+name);
 
   const restoreBomb=installElectrodeGXEnergyHook();
   const restoreRain=installElectroRainDamageHook();
   try{
-    const f=makeBoard(seat);
+    const f=makeBoard(seat,sourceRank);
     const {UseAbilityAction,RetreatAction,AttackAction}=
       native('game/store/actions/game-actions');
     const {PlayCardAction,PlayerType,SlotType}=
@@ -177,12 +184,12 @@ function run(seat){
     assert.ok(provided(f).every(row=>
       row.provides.every(n=>n!==CardType.LIGHTNING)),
       'While Temple is active Special Energy must not furnish Lightning');
-    const stadiumIndex=f.source.hand.cards.findIndex(c=>c.fullName==='Sky Field ROS');
+    const stadiumIndex=f.source.hand.cards.findIndex(c=>c.fullName===stadiumPrint);
     assert.ok(stadiumIndex>=0);
     f.store.dispatch(new PlayCardAction(f.source.id,stadiumIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     }));
-    assert.equal(StateUtils.getStadiumCard(f.state)?.fullName,'Sky Field ROS');
+    assert.equal(StateUtils.getStadiumCard(f.state)?.fullName,stadiumPrint);
     f.store.dispatch(new RetreatAction(f.source.id,0));
     assert.equal(f.source.active.getPokemonCard()?.fullName,'Alolan Raichu UNM',
       'Original Klefki U-Turn Board should give free retreat to funded Raichu');
@@ -203,7 +210,7 @@ function run(seat){
       'Taking two actual Prize cards certifies the Bench V knockout');
     assert.equal(f.opponent.active.getPokemonCard()?.fullName,'Wobbuffet PHF');
     return {seat,stageOnly:true,
-      ownPrintedOriginalRank:4,otherFixedCandidate:'Temple v1',
+      ownPrintedOriginalRank:sourceRank,otherFixedCandidate:'Temple v1',
       bombPrompts,rainPrompts,
       energyDiscardedByRain: f.energies.every(card=>
         f.source.discard.cards.includes(card)),
@@ -219,8 +226,8 @@ function run(seat){
   }
 }
 
-test('both seats: source Klefki releases Bomb -> Sky Field -> U-Turn retreat -> Electro Rain with opposing Active Wobbuffet unchanged',()=>{
-  const rows=[run(0),run(1)];
+test('source original ranks4/17, both seats: Klefki -> Bomb -> Stadium -> U-Turn retreat -> Electro Rain, opposing Active Wobbuffet unchanged',()=>{
+  const rows=[run(0,4),run(1,4),run(0,17),run(1,17)];
   for(const row of rows){
     assert.equal(row.sourcePrizesTaken,2);
     assert.equal(row.opponentPrizesTaken,2);
