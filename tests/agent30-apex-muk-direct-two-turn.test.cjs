@@ -190,9 +190,9 @@ function paidCopyOpportunity(deck) {
       // Muk. 46 unprized deck cards become 44 or 45 after both searches.
       joint=target*46/(52*(needGrimerSearch?44:45))*remainingPrizeValid;
     } else return;
-    const p=weight*joint;
-    total.turnTwo+=p;
-    total[needGrimerSearch?'viaSearch':'grimerHeld']+=p;
+    const contribution=weight*joint;
+    total.turnTwo+=contribution;
+    total[needGrimerSearch?'viaSearch':'grimerHeld']+=contribution;
   }
   enumerate(0,8,1);
   return {...total,basicValid:1-choose(48,7)/choose(60,7)};
