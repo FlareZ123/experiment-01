@@ -33,8 +33,8 @@ const native=name=>require(path.join(OUTPUT,name));
 const TM='Technical Machine: Evolution PAR';
 const JET='Jet Energy PAL';
 
-/** @param {0|1} seat */
-function staged(seat){
+/** @param {0|1} seat @param {1|6} opponentRank */
+function staged(seat,opponentRank=1){
   const {fixture:f}=stageSourceBunnelbyBoard();
   const manager=initializeCards();
   const {PokemonCardList}=
@@ -72,11 +72,68 @@ function staged(seat){
     'Grass Energy MEE','Psychic Energy SVE'
   ].map(card));
 
-  const remainingGuzma=opponent.deck.cards.findIndex(
-    c=>c.fullName==='Guzma BUS');
-  assert.ok(remainingGuzma>=0,'Exact rank1 source deck Guzma expected');
-  const heldGuzma=opponent.deck.cards.splice(remainingGuzma,1)[0];
-  opponent.hand.cards.push(heldGuzma);
+  // For the original-rank6 counterwindow variation, replace the entire
+  // source opponent with its authenticated physical printed 60, preserving
+  // every copy in a genuine player/zone. This is still a staged favorable
+  // position and cannot be interpreted as a naturally dealt matchup.
+  if(opponentRank===6){
+    const originalRank6=resolveManifestFile(path.resolve(__dirname,
+      '../results/aichi-2026/full-decklists.json'),{
+        allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+      }).decks.find(d=>d.rank===6);
+    assert.ok(originalRank6?.playableUnderEngine);
+    const stock=originalRank6.cardIds.map(card);
+    const remove=printing=>{
+      const at=stock.findIndex(c=>c.fullName===printing);
+      assert.ok(at>=0,'Rank6 registered card missing '+printing);
+      return stock.splice(at,1)[0];
+    };
+    const activeThorns=remove('Iron Thorns ex TWM');
+    const benchThorns=remove('Iron Thorns ex TWM');
+    const held=remove('Guzma BUS');
+    const fillers=stock.splice(0,6);
+    const prizeCards=stock.splice(0,6);
+    const {CardList}=native('game/store/state/card-list');
+    opponent.active.cards.splice(0,opponent.active.cards.length,activeThorns);
+    opponent.active.energies.cards.length=0;
+    opponent.active.tools.length=0;
+    opponent.bench.splice(0,opponent.bench.length,
+      ...Array.from({length:5},()=>new PokemonCardList()));
+    opponent.bench[0].cards.push(benchThorns);
+    opponent.hand.cards.splice(0,opponent.hand.cards.length,
+      held,...fillers);
+    opponent.deck.cards.splice(0,opponent.deck.cards.length,...stock);
+    opponent.discard.cards.length=0;
+    opponent.lostzone.cards.length=0;
+    opponent.prizes=prizeCards.map(c=>{
+      const slot=new CardList();slot.cards.push(c);return slot;
+    });
+    const physical=[
+      ...opponent.active.cards,...opponent.hand.cards,
+      ...opponent.deck.cards,...opponent.discard.cards,
+      ...opponent.lostzone.cards,
+      ...opponent.bench.flatMap(slot=>slot.cards),
+      ...opponent.prizes.flatMap(slot=>slot.cards)
+    ];
+    assert.equal(physical.length,60,'Full rank6 original source supply');
+    assert.deepEqual(physical.map(c=>c.fullName).sort(),
+      originalRank6.cardIds.slice().sort(),
+      'No original rank6 source card duplicated or invented');
+    assert.equal(opponent.hand.cards.length,7);
+    assert.equal(opponent.active.getPokemonCard()?.fullName,
+      'Iron Thorns ex TWM');
+    assert.equal(opponent.bench[0].getPokemonCard()?.fullName,
+      'Iron Thorns ex TWM');
+  }
+  const remainingGuzma=opponentRank===1?
+    opponent.deck.cards.findIndex(c=>c.fullName==='Guzma BUS'):-1;
+  if(opponentRank===1)
+    assert.ok(remainingGuzma>=0,'Exact rank1 source deck Guzma expected');
+  const heldGuzma=opponentRank===1?
+    opponent.deck.cards.splice(remainingGuzma,1)[0]:
+    opponent.hand.cards.find(c=>c.fullName==='Guzma BUS');
+  if(opponentRank===1)opponent.hand.cards.push(heldGuzma);
+  assert.ok(heldGuzma,'Original opponent held Guzma required');
 
   const state=f.store.state;
   if(seat===1)state.players=[opponent,owner];
@@ -140,7 +197,7 @@ function staged(seat){
       }
     }
   }
-  return {f,state,owner,opponent,seat,bunnelbyIndex,
+  return {f,state,owner,opponent,seat,opponentRank,bunnelbyIndex,
     ownRegisteredSixty,ownCards,catalog,GamePhase,heldGuzma};
 }
 
@@ -197,9 +254,10 @@ function sourceBunnelbyBot(x){
 }
 
 /** @param {0|1} seat */
-function verify(seat,opponentGuzma=false,continueAfterGuzma=false){
-  const x=staged(seat);
-  if(opponentGuzma){
+function verify(seat,opponentGuzma=false,continueAfterGuzma=false,
+  opponentRank=1){
+  const x=staged(seat,opponentRank);
+  if(opponentGuzma&&opponentRank===1){
     // The original rank1 60 supplies a second copy of the same Basic from
     // its initially dealt source hand. Move rather than fabricate a card.
     const index=x.opponent.hand.cards.findIndex(card=>
@@ -297,21 +355,22 @@ function verify(seat,opponentGuzma=false,continueAfterGuzma=false){
         x.owner.bench.find(slot=>
           slot.getPokemonCard()?.fullName==='Exeggutor PLF'):
         x.opponent.bench.find(slot=>
-          slot.getPokemonCard()?.fullName==='Shadow Rider Calyrex V CRE');
+          slot.getPokemonCard()?.fullName===(opponentRank===6?
+            'Iron Thorns ex TWM':'Shadow Rider Calyrex V CRE'));
       assert.ok(chosen);
       assert.ok(pending.validate([chosen],x.state),
         'Native prompt target is legal and belongs to correct board');
       x.f.store.dispatch(new ResolvePromptAction(pending.id,[chosen]));
-      responses.push(toGust?'Gust Exeggutor':'Promote source Shadow Rider');
+      responses.push(toGust?'Gust Exeggutor':'Promote own Bench Basic');
     }
     assert.equal(x.f.store.hasPrompts(),false);
     assert.ok(responses.includes('Gust Exeggutor'));
-    assert.ok(responses.includes('Promote source Shadow Rider'));
+    assert.ok(responses.includes('Promote own Bench Basic'));
     assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
     assert.notEqual(x.opponent.cannotPlaySupporterCards,true);
     assert.equal(x.opponent.hand.cards.includes(x.heldGuzma),false);
     console.log('AGENT40_BLOCKADE_EXPOSED_WINDOW_GUZMA',JSON.stringify({
-      seat,sourceRank:1,originalHeldSupporter:'Guzma BUS',
+      seat,sourceRank:opponentRank,originalHeldSupporter:'Guzma BUS',
       window:'opponent turn immediately after Bunnelby double TM',
       actualOpponentSupporterAccepted:true,
       originalOwnerBunnelbyBefore:before,
@@ -459,4 +518,8 @@ for(const seat of [0,1]){
     ()=>verify(seat,true));
   test('adapt after original rank1 Guzma and still use Blockade, seat '+seat,
     ()=>verify(seat,true,true));
+  test('original rank6 Iron Thorns Guzma can gust Exeggutor, seat '+seat,
+    ()=>verify(seat,true,false,6));
+  test('adapt Blockade after original rank6 Iron Thorns Guzma, seat '+seat,
+    ()=>verify(seat,true,true,6));
 }
