@@ -112,3 +112,61 @@ test('real common selector keeps independent immediate Special contender in shad
   assert.equal(out.shadowReceipt.independentAllProposers,true);
   assert.equal(out.verification.nativeCanPlayVerified,false);
 });
+
+test('shared all-proposer mode sees unchosen physical Basics after Pass at final Bench',()=>{
+  const {PROPOSERS,collectAndChooseOwnerRoot}=require(
+    '../simulation/twinleaf/agent41-same-root-proposal-choice.cjs');
+  const proposer=PROPOSERS.find(p=>p.name==='agent27-lastbench-same-kind');
+  assert.ok(proposer,'Observer must be registered in shared proposer family');
+  assert.equal(proposer.flag,'agent27LastBenchShadow');
+  const view={...owner,ownPublic:{...owner.ownPublic,
+    active:{printing:'E'},bench:[{printing:'A'},{printing:'B'},
+      {printing:'C'},{printing:'D'},null]}};
+  const completeCatalog={basics:new Set(owner.ownHand),
+    abilityBasics:new Set(['Tapu Lele-GX GRI'])};
+  const first={kind:'pass'};
+  const before=structuredClone(view);
+  const observed=collectAndChooseOwnerRoot(view,completeCatalog,first,
+    {sameRootProbeAll:true,sameRootChoiceApply:false},[proposer]);
+  assert.deepEqual(view,before);
+  assert.deepEqual(observed.intent,first);
+  assert.equal(observed.receipt.mode,'all-proposers-observe');
+  assert.equal(observed.receipt.supportedAlternativeCount,2);
+  const basics=observed.receipt.offers.filter(x=>
+    x.source==='agent27-lastbench-same-kind');
+  assert.deepEqual(basics.map(x=>[x.printing,x.handIndex,x.index]).sort(),
+    [['Girafarig LOT',0,4],['Tapu Lele-GX GRI',1,4]]);
+  assert.ok(basics.every(x=>x.nativeDispatchImplemented===false));
+  const defaultOff=collectAndChooseOwnerRoot(view,completeCatalog,first,
+    {sameRootProbeAll:false,sameRootChoiceApply:false},[proposer]);
+  assert.equal(defaultOff.receipt.supportedAlternativeCount,0);
+  const benchFirst={kind:'bench-basic',printing:'Girafarig LOT',
+    handIndex:0,benchIndex:4};
+  const sameKind=collectAndChooseOwnerRoot(view,completeCatalog,benchFirst,
+    {sameRootProbeAll:true,sameRootChoiceApply:false},[proposer]);
+  assert.equal(sameKind.receipt.supportedAlternativeCount,1);
+  assert.equal(sameKind.receipt.offers.find(x=>
+    x.source==='agent27-lastbench-same-kind').printing,'Tapu Lele-GX GRI');
+});
+
+test('last-Bench shadow obeys owner play locks and ignores opponent hidden cards',()=>{
+  const {lastBenchShadowProposer}=require(
+    '../simulation/twinleaf/agent27-owner-lastbench-basic-conflict.cjs');
+  const propose=lastBenchShadowProposer().propose;
+  const catalog={basics:new Set(owner.ownHand),
+    abilityBasics:new Set(['Tapu Lele-GX GRI'])};
+  const view={...owner,ownPublic:{active:{printing:'E'},
+    bench:[{printing:'A'},{printing:'B'},{printing:'C'},
+      {printing:'D'},null]}};
+  const initial=propose(view,catalog,{}, {kind:'pass'});
+  assert.equal(initial.length,2);
+  const unseen={...view,opponentPrivate:{hand:['Secret'],prizes:['X']},
+    unseenOwnedDeckOrder:['Private']};
+  assert.deepEqual(propose(unseen,catalog,{}, {kind:'pass'}),initial);
+  assert.deepEqual(propose({...view,ownTurnResources:{
+    pokemonPlayLocked:true}},catalog,{}, {kind:'pass'}),[]);
+  const noAbility=propose({...view,ownTurnResources:{
+    pokemonPlayLocked:false,abilityPokemonPlayLocked:true}},
+    catalog,{}, {kind:'pass'});
+  assert.deepEqual(noAbility.map(x=>x.printing),['Girafarig LOT']);
+});
