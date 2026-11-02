@@ -11,7 +11,7 @@ const VERSION='agent38-registered-source-special-condition-native-debug-v1';
  * Preserve the original failed paired result as failed; this is separate from
  * the untouched 32-attempt prospectively registered cohort.
  */
-function diagnoseRegisteredFailure(){
+function diagnoseRegisteredFailure({rank6ScriptedSpecialConditionGuard=false}={}){
   const {plan,trials}=registeredPlan();
   assert.equal(REGISTRATION_BLOB,
     '6142a6bac7dcb3fc88eb135c38f60ed1d2083151');
@@ -25,12 +25,14 @@ function diagnoseRegisteredFailure(){
     registeredTrials:selected,
     registeredFrameName:plan.sourceRank+
       ':special-condition-diagnostic-of-immutable-registration',
-    nativeActionInputWitness:true});
+    nativeActionInputWitness:true,rank6ScriptedSpecialConditionGuard});
   return {
     version:VERSION,
     referenceRegistrationGitBlob:REGISTRATION_BLOB,
     originalFailedTrialId:'6:0:B:new-moon-lockbreaker-v1',
     nativeAttempts:candidate.attempted,
+    rank6ScriptedSpecialConditionGuardOptIn:
+      candidate.rank6ScriptedSpecialConditionGuardOptIn,
     rows:candidate.rows.map(row=>({
       trial:row.trial,status:row.status,
       sourceSeat:row.sourceSeat??null,
