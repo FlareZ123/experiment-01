@@ -1,0 +1,91 @@
+{
+  "schema": "agent42-prospective-rank6-plumeria-payment-v1",
+  "registeredAtUTC": "2026-11-02T17:02:06.971Z",
+  "status": "sealed-before-native-execution",
+  "purpose": "Unselected original rank6 actual Plumeria physical paid/effect natural roots and opponent continuation; developmental only",
+  "sourceOriginalRank": 6,
+  "sourceOpponentOriginalPrintedRoster": "results/aichi-2026/full-decklists.json",
+  "parentPolicyProfile": "simulation/evaluation/agent20-frozen-rank6-canary-v1.json",
+  "parentPolicyProfileGitBlob": "fcb54de73c7b9f92c5793258a8450ff605449fa8",
+  "trialSeeds": [
+    476812527,
+    2570068619,
+    740204527,
+    615236925
+  ],
+  "trialCount": 8,
+  "pairCount": 4,
+  "registeredTrials": [
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 476812527,
+      "id": "6:0:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 476812527,
+      "id": "6:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2570068619,
+      "id": "6:1:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2570068619,
+      "id": "6:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 740204527,
+      "id": "6:2:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 740204527,
+      "id": "6:2:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 615236925,
+      "id": "6:3:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 615236925,
+      "id": "6:3:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "candidateFrozenIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "selection": "Four independent secure 32-bit random seeds drawn before any executions and committed; two candidate arms per seed, candidate slot alternates A/B for physical source seats B/A; selected via no game outcomes",
+  "disposition": "All outcomes, aborts, caps and games retained; none competitively qualified",
+  "neverUseForStrength": "This remains a methodological source payment exposure cohort and can never alone prove 99.5%"
+}
