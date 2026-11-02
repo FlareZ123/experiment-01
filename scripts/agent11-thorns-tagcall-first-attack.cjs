@@ -39,11 +39,12 @@ function* allocations(counts, draw) {
  * Setup: 7 opening cards, then 6 Prizes, then first ordinary draw.
  * Successful subset deliberately requires Mountain AND DCE remain in deck,
  * plus held Guzma & Hala or held Tag Call with a deck-resident Guzma & Hala.
- * This is a mechanically accessible line, NOT a demonstrated attack/game win.
+ * Also count the broader same-connector event when Mountain/DCE may be held.
+ * Neither is a demonstrated attack or competitive game win.
  * @param {number[]} counts Six exact nonnegative category counts
  * @param {number} handSize Opening hand size
  * @param {number} prizeSize Face-down Prize cards
- * @returns {{favorable: bigint, denominator: bigint, probability: number}}
+ * @returns {{favorable: bigint, broader: bigint, denominator: bigint, probability: number, broaderProbability: number}}
  */
 function countSourceAttackLine(counts, handSize = 7, prizeSize = 6) {
   assert.equal(counts.length, 6);
@@ -52,6 +53,7 @@ function countSourceAttackLine(counts, handSize = 7, prizeSize = 6) {
   assert.ok(handSize >= 1 && prizeSize >= 0 && total > handSize + prizeSize);
   const drawPool = total - handSize - prizeSize;
   let favorable = 0n;
+  let broader = 0n;
   const legalHands = choose(total, handSize) - choose(total - counts[0], handSize);
   const denominator = legalHands * choose(total - handSize, prizeSize) * BigInt(drawPool);
   for (const hand7 of allocations(counts, handSize)) {
@@ -66,13 +68,16 @@ function countSourceAttackLine(counts, handSize = 7, prizeSize = 6) {
         const hand8 = hand7.map((n, i) => n + Number(i === draw));
         const inDeck = afterPrizes.map((n, i) => n - Number(i === draw));
         const canSearch = hand8[1] > 0 || (hand8[2] > 0 && inDeck[1] > 0);
-        if (canSearch && inDeck[3] > 0 && inDeck[4] > 0) {
-          favorable += handWays * prizeWays * BigInt(afterPrizes[draw]);
-        }
+        const ways = handWays * prizeWays * BigInt(afterPrizes[draw]);
+        if (canSearch && inDeck[3] > 0 && inDeck[4] > 0) favorable += ways;
+        if ((hand8[3] > 0 || (canSearch && inDeck[3] > 0)) &&
+          (hand8[4] > 0 || (canSearch && inDeck[4] > 0))) broader += ways;
       }
     }
   }
-  return { favorable, denominator, probability: Number(favorable) / Number(denominator) };
+  return { favorable, broader, denominator,
+    probability: Number(favorable) / Number(denominator),
+    broaderProbability: Number(broader) / Number(denominator) };
 }
 
 /** @param {object} deck @returns {number[]} */
@@ -108,7 +113,10 @@ function main() {
       favorable: output.favorable.toString(),
       denominator: output.denominator.toString(),
       conditionalProbability: output.probability,
-      conditionalPercent: 100 * output.probability
+      conditionalPercent: 100 * output.probability,
+      broader: output.broader.toString(),
+      broaderProbability: output.broaderProbability,
+      broaderPercent: 100 * output.broaderProbability
     };
   });
   process.stdout.write(JSON.stringify(results, null, 2) + '\n');
