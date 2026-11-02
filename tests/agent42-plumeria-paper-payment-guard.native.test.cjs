@@ -11,6 +11,17 @@ test('native Plumeria exactly two physical cards required in both seats',()=>{
   assert.equal(a.observed,1);
   assert.equal(a.accepted,count===2?1:0);
   assert.equal(a.rejected,count===2?0:1);
+  assert.equal(a.physicalPaymentReceipts.length,count===2?1:0);
+  if(count===2){
+   const receipt=a.physicalPaymentReceipts[0];
+   assert.equal(receipt.ownerSeat,seat);
+   assert.equal(receipt.handMembersBefore,2);
+   assert.equal(receipt.discardMembersBefore,0);
+   assert.equal(receipt.movedToOwnerDiscardCount,2);
+   assert.equal(receipt.noLongerInOwnerHandCount,2);
+   assert.equal(receipt.nativePromptSettled,true);
+   assert.equal(receipt.independentlyPaidTwo,true);
+  }
   if(count<2){
    assert.match(r.paymentError,/PAPER_PLUMERIA_INVALID_TWO_CARD_PAYMENT/);
    assert.equal(r.targetPromptFound,false);
@@ -33,6 +44,7 @@ test('paper Plumeria rejects repeated reference and cards outside owner hand',()
   assert.equal(a.observed,1);
   assert.equal(a.accepted,0);
   assert.equal(a.rejected,1);
+  assert.equal(a.physicalPaymentReceipts.length,0);
   assert.match(r.paymentError,/PAPER_PLUMERIA_INVALID_TWO_CARD_PAYMENT/);
   assert.equal(r.targetPromptFound,false);
   assert.equal(r.energyPromptFound,false);
