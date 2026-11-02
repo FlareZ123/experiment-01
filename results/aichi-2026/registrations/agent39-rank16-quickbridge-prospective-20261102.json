@@ -1,0 +1,361 @@
+{
+  "schema": "agent39-rank16-real-quick-to-direct-shake-prospective-v1",
+  "registeredAtUtc": "2026-11-02T21:09:10Z",
+  "seedLabel": "agent39-rank16-quickbridge-prospective-source-v1-20261102",
+  "seedProtocol": "SHA256(UTF8(seedLabel+':'+group)), first 4 bytes as unsigned big-endian 32-bit integer",
+  "sourceFrameSha256": "3a6ea176b33b778ab74f0ededa31244ceced2a18702e61a5cd97e461a7c6fd8c",
+  "seedGroups": 64,
+  "groupsPerPartition": 16,
+  "partitionCount": 4,
+  "sourceFrame": [
+    {
+      "group": 0,
+      "sourceSeat": 0,
+      "seed": 3348622778
+    },
+    {
+      "group": 1,
+      "sourceSeat": 1,
+      "seed": 1547672125
+    },
+    {
+      "group": 2,
+      "sourceSeat": 0,
+      "seed": 707209922
+    },
+    {
+      "group": 3,
+      "sourceSeat": 1,
+      "seed": 2330060618
+    },
+    {
+      "group": 4,
+      "sourceSeat": 0,
+      "seed": 265859134
+    },
+    {
+      "group": 5,
+      "sourceSeat": 1,
+      "seed": 2972317708
+    },
+    {
+      "group": 6,
+      "sourceSeat": 0,
+      "seed": 424454499
+    },
+    {
+      "group": 7,
+      "sourceSeat": 1,
+      "seed": 2125094871
+    },
+    {
+      "group": 8,
+      "sourceSeat": 0,
+      "seed": 1801381511
+    },
+    {
+      "group": 9,
+      "sourceSeat": 1,
+      "seed": 2747827860
+    },
+    {
+      "group": 10,
+      "sourceSeat": 0,
+      "seed": 3380454806
+    },
+    {
+      "group": 11,
+      "sourceSeat": 1,
+      "seed": 764131512
+    },
+    {
+      "group": 12,
+      "sourceSeat": 0,
+      "seed": 3476160202
+    },
+    {
+      "group": 13,
+      "sourceSeat": 1,
+      "seed": 2210385295
+    },
+    {
+      "group": 14,
+      "sourceSeat": 0,
+      "seed": 1235236333
+    },
+    {
+      "group": 15,
+      "sourceSeat": 1,
+      "seed": 69999301
+    },
+    {
+      "group": 16,
+      "sourceSeat": 0,
+      "seed": 2184904321
+    },
+    {
+      "group": 17,
+      "sourceSeat": 1,
+      "seed": 2409039941
+    },
+    {
+      "group": 18,
+      "sourceSeat": 0,
+      "seed": 1769637031
+    },
+    {
+      "group": 19,
+      "sourceSeat": 1,
+      "seed": 1126254815
+    },
+    {
+      "group": 20,
+      "sourceSeat": 0,
+      "seed": 921035357
+    },
+    {
+      "group": 21,
+      "sourceSeat": 1,
+      "seed": 1438248376
+    },
+    {
+      "group": 22,
+      "sourceSeat": 0,
+      "seed": 672528091
+    },
+    {
+      "group": 23,
+      "sourceSeat": 1,
+      "seed": 2850834566
+    },
+    {
+      "group": 24,
+      "sourceSeat": 0,
+      "seed": 338013959
+    },
+    {
+      "group": 25,
+      "sourceSeat": 1,
+      "seed": 2081820125
+    },
+    {
+      "group": 26,
+      "sourceSeat": 0,
+      "seed": 1170206732
+    },
+    {
+      "group": 27,
+      "sourceSeat": 1,
+      "seed": 450259395
+    },
+    {
+      "group": 28,
+      "sourceSeat": 0,
+      "seed": 4161045497
+    },
+    {
+      "group": 29,
+      "sourceSeat": 1,
+      "seed": 3357726608
+    },
+    {
+      "group": 30,
+      "sourceSeat": 0,
+      "seed": 103004870
+    },
+    {
+      "group": 31,
+      "sourceSeat": 1,
+      "seed": 2579954377
+    },
+    {
+      "group": 32,
+      "sourceSeat": 0,
+      "seed": 3232251494
+    },
+    {
+      "group": 33,
+      "sourceSeat": 1,
+      "seed": 4164905756
+    },
+    {
+      "group": 34,
+      "sourceSeat": 0,
+      "seed": 1552305126
+    },
+    {
+      "group": 35,
+      "sourceSeat": 1,
+      "seed": 426582884
+    },
+    {
+      "group": 36,
+      "sourceSeat": 0,
+      "seed": 3135794501
+    },
+    {
+      "group": 37,
+      "sourceSeat": 1,
+      "seed": 2093710068
+    },
+    {
+      "group": 38,
+      "sourceSeat": 0,
+      "seed": 2792232750
+    },
+    {
+      "group": 39,
+      "sourceSeat": 1,
+      "seed": 3864210941
+    },
+    {
+      "group": 40,
+      "sourceSeat": 0,
+      "seed": 710250137
+    },
+    {
+      "group": 41,
+      "sourceSeat": 1,
+      "seed": 2196465717
+    },
+    {
+      "group": 42,
+      "sourceSeat": 0,
+      "seed": 3705330934
+    },
+    {
+      "group": 43,
+      "sourceSeat": 1,
+      "seed": 1241409934
+    },
+    {
+      "group": 44,
+      "sourceSeat": 0,
+      "seed": 927687604
+    },
+    {
+      "group": 45,
+      "sourceSeat": 1,
+      "seed": 3662479779
+    },
+    {
+      "group": 46,
+      "sourceSeat": 0,
+      "seed": 122393615
+    },
+    {
+      "group": 47,
+      "sourceSeat": 1,
+      "seed": 1971169298
+    },
+    {
+      "group": 48,
+      "sourceSeat": 0,
+      "seed": 4038992909
+    },
+    {
+      "group": 49,
+      "sourceSeat": 1,
+      "seed": 247581714
+    },
+    {
+      "group": 50,
+      "sourceSeat": 0,
+      "seed": 2781927150
+    },
+    {
+      "group": 51,
+      "sourceSeat": 1,
+      "seed": 1199510880
+    },
+    {
+      "group": 52,
+      "sourceSeat": 0,
+      "seed": 3013491049
+    },
+    {
+      "group": 53,
+      "sourceSeat": 1,
+      "seed": 1269765779
+    },
+    {
+      "group": 54,
+      "sourceSeat": 0,
+      "seed": 212336845
+    },
+    {
+      "group": 55,
+      "sourceSeat": 1,
+      "seed": 3866162854
+    },
+    {
+      "group": 56,
+      "sourceSeat": 0,
+      "seed": 1036068277
+    },
+    {
+      "group": 57,
+      "sourceSeat": 1,
+      "seed": 3331212596
+    },
+    {
+      "group": 58,
+      "sourceSeat": 0,
+      "seed": 3133560349
+    },
+    {
+      "group": 59,
+      "sourceSeat": 1,
+      "seed": 4063867161
+    },
+    {
+      "group": 60,
+      "sourceSeat": 0,
+      "seed": 2613529318
+    },
+    {
+      "group": 61,
+      "sourceSeat": 1,
+      "seed": 638180926
+    },
+    {
+      "group": 62,
+      "sourceSeat": 0,
+      "seed": 3902403961
+    },
+    {
+      "group": 63,
+      "sourceSeat": 1,
+      "seed": 409840341
+    }
+  ],
+  "originalSourceRank": 16,
+  "originalSourcePlayer": "Takumi Matsumoto",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourcePrinted60Sha256": "2de4e0481b76278020b1221a25458ab1783cb1edd5f19af3b83596af7262f733",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceComparison": "same original source printed sixty, same source seed, same candidate sixty, same physical source seat; baseline direct Shake-only, treatment Quick Ball paid K0->K1 Trubbish owner-deck search+bench then direct Shake",
+  "treatmentGuards": [
+    "only source's first own turn, public Item/Tool unlock, free Bench, held Quick Ball+Shake+Tool, no held/in-play Trubbish, no held VIP",
+    "physical exactly-one-other-card native Quick Ball mandatory discard prompted, owner-deck Basic search and native validate",
+    "same base direct-policy remaining Tool/Shake/Garbodor actions and native K1 deck target, with source-only prior and no opponent hidden information"
+  ],
+  "budget": {
+    "sourceArms": 128,
+    "totalNativeGames": 256,
+    "rootActionCapPerGame": 96
+  },
+  "outcomePlan": [
+    "0-64 genuine source physical deal matching and cross-candidate source matching, no posthoc selection",
+    "direct-only control vs Quick-augmented treatment root policy matched under same original source deal",
+    "real source Quick Ball root, printed one-card payment prompt, native Trubbish owner-deck choice, Bench, Tool+Shake, native Garbodor target or exact failure stage",
+    "first candidate owner decision boundary and native Power block difference if available",
+    "all source opportunities, no offers, K1 miss, native exceptions and action caps remain in denominator",
+    "no competitive win-rate inference; paper effect and human reply qualification separate"
+  ],
+  "preregistrationNote": "Frozen new prospective seed frame committed before any of these games, separate from prior direct Shake 32-group original source panel. Owner Quick Bridge is an opt-in research-only policy heuristic. Do not select or drop seeds based on outcome."
+}
