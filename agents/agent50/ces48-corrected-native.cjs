@@ -34,3 +34,5 @@ function stage(seat){
  owner.active.energies.cards.push(e1,e2);
  foe.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
  foe.bench[0].cards.push(card('Duskull PRE'));
+ for(const p of [owner,foe]){
+  for(let i=0;i<8;i++)p.deck.cards.push(card('Psychic Energy SVE'));
