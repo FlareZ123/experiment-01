@@ -5,6 +5,7 @@ const {verifyFrame}=require('../twinleaf/agent32-rank11-six-star-vip-k1-native.c
 const registration=require('../../results/aichi-2026/registrations/agent1-rank11-owner-quickball-radiant-20261101.json');
 const frame=require('../../results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json');
 const horizon=require('../../results/aichi-2026/registrations/agent1-rank11-postgate-350-retrospective-20261102.json');
+const countRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-radiant-one-vmax-native-20261102.json');
 const {withNewMoonBlowerAutonomy}=
   require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 const {withOwnerOranguruStarVipPlan}=
@@ -21,16 +22,19 @@ function run(){
   assert.ok(entry);
   assert.equal(entry.seed,registration.seed);
   assert.equal(entry.seed,horizon.seed);
-  assert.equal(horizon.maxActions,350);
+  assert.equal(horizon.maxActions,countRegistration.maxActions);
+  assert.equal(entry.seed,countRegistration.seed);
   assert.equal(entry.sourceFirstOwnerHandSha256,registration.sourceFirstOwnerHandSha256);
   const rows=[];
-  for(const {preferRadiantAfterBlowerSearch,activateRadiantClimacticGate}
+  for(const {preferRadiantAfterBlowerSearch,activateRadiantClimacticGate,radiantVmaxTargetCount}
       of [{preferRadiantAfterBlowerSearch:false,
-            activateRadiantClimacticGate:false},
+            activateRadiantClimacticGate:false,radiantVmaxTargetCount:2},
           {preferRadiantAfterBlowerSearch:true,
-            activateRadiantClimacticGate:false},
+            activateRadiantClimacticGate:false,radiantVmaxTargetCount:2},
           {preferRadiantAfterBlowerSearch:true,
-            activateRadiantClimacticGate:true}]){
+            activateRadiantClimacticGate:true,radiantVmaxTargetCount:2},
+          {preferRadiantAfterBlowerSearch:true,
+            activateRadiantClimacticGate:true,radiantVmaxTargetCount:1}]){
     try{
       const reply=withNewMoonBlowerAutonomy(1,()=>(
         withOwnerOranguruStarVipPlan(()=>runMatch({
@@ -52,7 +56,8 @@ function run(){
         })
       ),{
         automaticFieldBlower:true,allowAnyActiveBlower:true,
-        preferRadiantAfterBlowerSearch,activateRadiantClimacticGate
+        preferRadiantAfterBlowerSearch,activateRadiantClimacticGate,
+        radiantVmaxTargetCount
       });
       const game=reply.result.result;
       const source=reply.result.audit;
@@ -134,6 +139,7 @@ function run(){
         prizesAfter:x.prizeCountAfter
       }));
       rows.push({preferRadiantAfterBlowerSearch,
+        radiantVmaxTargetCount,
         activateRadiantClimacticGate,
         status:'native-original-K0-and-recipient-owner-K1-confirmed',
         sourceOriginalK0HandSha256:first.handSha256,
@@ -171,6 +177,7 @@ function run(){
         competitiveQualifiedGame:false});
     }catch(error){
       rows.push({preferRadiantAfterBlowerSearch,
+        radiantVmaxTargetCount,
         activateRadiantClimacticGate,status:'blocked',
         error:String(error?.stack??error).slice(0,1700),
         nativeDiagnostic:error?.agent1OwnerPlanDiagnostic??null,
@@ -180,18 +187,18 @@ function run(){
   if(rows.every(x=>x.status===
       'native-original-K0-and-recipient-owner-K1-confirmed')){
     assert.equal(new Set(rows.map(x=>x.initialFullPhysicalDealFingerprint?.digestSha256)).size,1,
-      'Three intervention arms must preserve BOTH players original physical setup');
+      'Four intervention arms must preserve BOTH players original physical setup');
     assert.equal(rows[0].initialFullPhysicalDealFingerprint?.digestSha256,
       horizon.requiredBothPlayerInitialDealDigestSha256,
       'Full original same-seed physical deal differs from registered baseline');
     assert.deepEqual(rows.map(x=>x.publicOpponentVMaxAtSourceT3),
-      [0,0,2], 'Real source turn3 public VMAX board must distinguish three arms');
+      [0,0,2,1], 'Real source turn3 public VMAX board must distinguish four arms');
     assert.deepEqual(rows.map(x=>x.publicOpponentRadiantAtSourceT3),
-      [0,1,1], 'Native owner Radiant Bench outcomes drifted');
+      [0,1,1,1], 'Native owner Radiant Bench outcomes drifted');
     assert.deepEqual(rows.map(x=>x.recipientRadiantConfirmChosen),
-      [false,false,true], 'Native owner Climactic Gate confirmation drifted');
+      [false,false,true,true], 'Native owner Climactic Gate confirmation drifted');
     assert.deepEqual(rows.map(x=>x.recipientRadiantVmaxSelectedCount),
-      [0,0,2], 'Genuine owner VMAX deck selection count drifted');
+      [0,0,2,1], 'Genuine owner VMAX deck selection count drifted');
     const chosen=rows[2].nativeRecipientOwnDeckChoices.find(x=>
       x.prompt==='CHOOSE_CARD_TO_PUT_ONTO_BENCH');
     assert.deepEqual(chosen?.selectedPrintings,
@@ -199,14 +206,19 @@ function run(){
       'Two printed original VMAX must come from the genuine owner deck');
     assert.equal(chosen?.nativeMax,2);
     assert.equal(rows[2].nativeQuickBallRoots,1);
+    const one=rows[3].nativeRecipientOwnDeckChoices.find(x=>
+      x.prompt==='CHOOSE_CARD_TO_PUT_ONTO_BENCH');
+    assert.deepEqual(one?.selectedPrintings,['Shadow Rider Calyrex VMAX CRE']);
+    assert.equal(one?.nativeMax,2);
+    assert.equal(rows[3].nativeQuickBallRoots,1);
   }
-  return {schema:'agent1-original-postblower-Radiant-K1-native-retrospective-350-v4',
-    registration,horizonRegistration:horizon,engineRevision:frame.engineRevision,
+  return {schema:'agent1-original-postblower-Radiant-K1-native-retrospective-one-vmax-350-v5',
+    registration,horizonRegistration:horizon,countRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
       x.status==='native-original-K0-and-recipient-owner-K1-confirmed').length,
     rows,competitiveQualifiedGames:0,
-    limitation:'Three same-seed original K0 physical arms. Original rank1 Field Blower native settled and native Quick Ball own-deck target chosen; optional actor-owned Radiant trigger and two original VMAX physically placed in one arm. One retrospectively selected original deal; no qualified games, paper-clock or field-wide claims.'};
+    limitation:'Four same-seed original K0 physical arms. Original rank1 Field Blower native settled and native Quick Ball own-deck target chosen; optional actor-owned Radiant trigger and two original VMAX physically placed in one arm. One retrospectively selected original deal; no qualified games, paper-clock or field-wide claims.'};
 }
 if(require.main===module){
   const r=run();
@@ -226,6 +238,6 @@ if(require.main===module){
       recipientPublicRadiant:x.publicOpponentRadiantAtSourceT3,
       recipientPublicVMAX:x.publicOpponentVMaxAtSourceT3,
       error:x.error??null})))+'\n');
-  if(r.nativeVerified!==3)process.exitCode=1;
+  if(r.nativeVerified!==4)process.exitCode=1;
 }
 module.exports={run};
