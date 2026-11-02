@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
+const {sourceCanaryDisposition}=require('./agent27-source-profile-disposition.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
 const {withActorOnlyRootPolicy,buildActorCardCatalog}=
@@ -240,6 +241,7 @@ function run(){
   return {
     schema:'agent27-paired-native-minimum-energy-prompt-source-replay-v1',
     pinnedEngine:selectedProfile.pinnedTwinleaf,
+    releaseDisposition:sourceCanaryDisposition(selectedProfile,casesOut),
     selectedCanaryProfile:{
       schema:selectedProfile.schema,
       sourceManifestBlobSha:blobSha,
