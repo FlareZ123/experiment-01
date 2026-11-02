@@ -180,3 +180,43 @@ test('distinct high-multiplicity pair matches independent toy enumeration',()=>{
     basicName:'Basic',supporterName:'Plumeria'});
   assert.equal(counted.distinctHighMultiplicityTrainerWeighted,String(valid));
 });
+
+test('bench-all-extra-Basics sensitivity for original Iron Thorns source ranks',()=>{
+  const originals=require('../results/aichi-2026/full-decklists.json').decks;
+  for(const [rank,initial,afterDraw] of [
+    [6,'521440','75487792'],
+    [24,'551100','81822328'],
+    [29,'481524','70024440']
+  ]){
+    const deck=originals.find(x=>x.rank===rank);
+    for(const [seen,weighted] of [[7,initial],[8,afterDraw]]){
+      const got=countEarlyHands({cards:deck.cards,observedSize:seen,
+        openingSize:7,basicName:'Iron Thorns ex',
+        supporterName:'Plumeria'});
+      assert.equal(got.benchAllBasicsWeighted,weighted);
+      assert.ok(got.benchAllBasicsRate<=got.conditionalPaymentRate);
+    }
+  }
+});
+
+test('independent physical toy enumeration with every Basic outside hand',()=>{
+  const cards=[{name:'Basic',count:2},{name:'Plumeria',count:1},
+    {name:'A',count:3},{name:'B',count:2}];
+  const physical=['Basic','Basic','Plumeria','A','A','A','B','B'];
+  let allowed=0n;
+  for(const seen of subsets([...physical.keys()],5)){
+    for(const opener of subsets(seen,3)){
+      if(!opener.some(i=>physical[i]==='Basic'))continue;
+      const hand=seen.map(i=>physical[i]);
+      if(!hand.includes('Plumeria'))continue;
+      const count=new Map();
+      for(const x of hand)count.set(x,(count.get(x)??0)+1);
+      const capacity=[...count].reduce((a,[name,k])=>a+
+        (name==='Basic'?0:Math.max(0,k-(name==='Plumeria'?2:1))),0);
+      if(capacity>=2)allowed++;
+    }
+  }
+  const exact=countEarlyHands({cards,observedSize:5,openingSize:3,
+    basicName:'Basic',supporterName:'Plumeria'});
+  assert.equal(exact.benchAllBasicsWeighted,String(allowed));
+});
