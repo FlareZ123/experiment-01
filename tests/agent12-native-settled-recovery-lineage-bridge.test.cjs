@@ -51,7 +51,8 @@ test('genuine native WaitPrompt closes earlier Boost Shake root, with full linea
   assert.equal(withReceipt.expiredAtTurnEnd,1);
   assert.equal(withReceipt.closedOnNextOwnerTurn,0);
   assert.equal(withoutReceipt.expiredAtTurnEnd,0);
-  assert.equal(withoutReceipt.closedOnNextOwnerTurn,1);
+  assert.equal(withoutReceipt.censoredAfterLastRoot,1);
+  assert.equal(withoutReceipt.closedOnNextOwnerTurn,0);
 });
 
 test('incomplete pending Item prompt cannot count as settled turn end',()=>{
