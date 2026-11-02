@@ -65,6 +65,10 @@ test('four distinct printed Absol/Garbodor original 60s preserve exact direct fo
   assert.equal(result.qualification.includes('no selected actions'),true);
   assert.equal(result.ranks[1].directBudewVersusShakeFork.probability,0);
   assert.equal(result.ranks[3].directBudewVersusShakeFork.probability,0);
+  assert.deepEqual(result.ranks.map(row=>[
+    row.initiallyVisibleShakeEnvelope.numerator,
+    row.initiallyVisibleShakeEnvelope.denominator]),[
+    ['77763','4338220'],['0','1'],['6409893','100102112'],['0','1']]);
 });
 
 test('coaccessible fork is a proper subevent of direct Boost Shake window',()=>{
@@ -73,6 +77,8 @@ test('coaccessible fork is a proper subevent of direct Boost Shake window',()=>{
   for(const row of sourceReport(source).ranks){
     assert.ok(row.directBudewVersusShakeFork.probability<=
       row.directShakeWindow.probability);
+    assert.ok(row.directBudewVersusShakeFork.probability<=
+      row.initiallyVisibleShakeEnvelope.probability);
   }
   assert.ok(budewShakeFork({basics:11,budew:2,trubbish:2,
     garbodor:3,floatStone:4,boostShake:2}).probability>
