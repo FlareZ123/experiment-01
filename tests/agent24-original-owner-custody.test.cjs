@@ -81,7 +81,7 @@ test('duplicate initial references or incomplete initial decks fail closed',()=>
   const incomplete=setup().state;
   incomplete.players[1].deck.cards.pop();
   assert.throws(()=>captureInitialPhysicalOwners(incomplete,2),
-    /complete original deck/);
+    /Pre-setup original deck/);
   assert.throws(()=>captureInitialPhysicalOwners({players:[]},2),
     /Two registered complete/);
 });
