@@ -56,7 +56,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
     const state=this.state;
     let before=null;
     if(action?.constructor?.name==='ResolvePromptAction'&&
-       state?.turn===23&&Array.isArray(action.result)){
+       Number.isSafeInteger(state?.turn)&&Array.isArray(action.result)){
       const pending=state.prompts?.find(p=>
         p.id===action.id&&p.result===undefined);
       const seat=state.players.findIndex(p=>p.id===pending?.playerId);
@@ -76,6 +76,9 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
           nativePromptValidatesAlternative:alternative?
             pending.validate([alternative]):false,
           ownerPrivateCoreLocations:ownerZoneCounts(owner),
+          ownerBenchBefore:owner.bench.map(p=>p.getPokemonCard()?.fullName??null),
+          ownPokemonPlayLocked:owner.cannotPlayPokemonCards===true,
+          ownAbilityPokemonPlayLocked:owner.cannotPlayPokemonWithAbilities===true,
           observerOnly:true
         });
       }
