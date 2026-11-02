@@ -48,7 +48,7 @@ function runOne(regidrago,calyrex,sourceSeat,treasureEnabled){
       }catch(error){
         return {status:'aborted',error:String(error?.message??error)};
       }
-    }),
+    },{choose:treasureEnabled?undefined:()=>null}),
     {mysteriousTreasureRoot:treasureEnabled});
   return {sourceSeat,treasureEnabled,
     game:wrapped.result.result,
