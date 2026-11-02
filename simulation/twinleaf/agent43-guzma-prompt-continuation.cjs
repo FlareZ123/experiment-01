@@ -59,6 +59,11 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choosePlan=deps.choosePlan??((view,catalog)=>{
+    if(deps.rank9SpecialFundedGuzma===true){
+      const special=require('./agent2-rank9-special-guzma-frontier.cjs')
+        .chooseRank9SpecialFundedGuzma(view,catalog);
+      if(special)return special;
+    }
     if(deps.prizeTradeGuzma===true||
        process.env.AGENT31_GUZMA_PRIZE_TRADE_DEV==='true'){
       const trade=require('./agent31-final-prize-guzma-frontier.cjs')
@@ -104,6 +109,7 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
   const gustReplies=new WeakMap();
   const audit={
     version:VERSION+(nominalGust?'+'+GUST_VERSION:''),
+    rank9SpecialFundedGuzmaOptIn:deps.rank9SpecialFundedGuzma===true,
     nominalGustOptIn:nominalGust,ownerOnly:true,bothSeats:true,
     nativeStores:0,acceptedGuzmaRoots:0,matchedMobilityPlans:0,
     matchedForcedNominalKoPlans:0,matchedFinalPrizePlans:0,
