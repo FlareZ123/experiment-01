@@ -221,3 +221,24 @@ jobs:
             agent14-other-unown-24arm.json
           if-no-files-found: warn
           retention-days: 20
+      - name: Validate preregistered original rank17 source and pure Unown decision tests
+        if: ${{ inputs.rank17_farewell_replay }}
+        run: |
+          node --test tests/agent14-owner-farewell-letter.test.cjs tests/agent14-farewell-physical-witness.test.cjs
+          node simulation/evaluation/agent14-rank17-farewell-original-replay.cjs --inspect-only > agent14-rank17-preflight.json
+      - name: Run preregistered original rank17 two-seat native Unown replay
+        if: ${{ inputs.rank17_farewell_replay }}
+        run: node simulation/evaluation/agent14-rank17-farewell-original-replay.cjs > agent14-rank17-original-8arm.json
+      - name: Print rank17 original native Abilities and complete failure status
+        if: ${{ inputs.rank17_farewell_replay }}
+        run: node simulation/evaluation/agent14-rank17-farewell-compact.cjs agent14-rank17-original-8arm.json
+      - name: Archive rank17 exact original source native off-on data
+        if: ${{ always() && inputs.rank17_farewell_replay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-rank17-original-farewell
+          path: |
+            agent14-rank17-preflight.json
+            agent14-rank17-original-8arm.json
+          if-no-files-found: warn
+          retention-days: 20
