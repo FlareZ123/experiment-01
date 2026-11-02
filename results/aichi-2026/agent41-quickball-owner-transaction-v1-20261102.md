@@ -1,6 +1,6 @@
 # Exact owner Quick Ball root-to-payment trace gate, v1
 
-**Agent 41 | 2 November 2026 | default-OFF canonical reporter, seven locally passing pure tests**
+**Agent 41 | 2 November 2026 | default-OFF canonical reporter, ten locally passing pure tests**
 
 ## The gap and bounded solution
 
@@ -10,7 +10,7 @@ The archived human-readable four-scope native row retains `rootActionLedger`, `n
 
 The new helper `simulation/evaluation/agent41-quickball-owner-transaction.cjs` joins actual accepted `PlayCardAction` root ordinal, exact actor seat, `nativeAcceptedTargetSidecar` printing/handIndex, the owner's **own** `decisionHandBefore.ownHandPrintings`, and native `ChooseCardsPrompt` payments/searches whose `initiatingRootActionOrdinal` is the same root. It requires a one-card mandatory nondeck selection and checks that the prompt offered as many cards as the root owner hand minus the played Quick Ball. The result separately reports `PROTECTED_DUPLICATE_PAYMENT`, `SINGLETON_PAYMENT` and provenance failures. `publicDiscardPostconditionVerified:false` is retained on every row: successful native prompt dispatch alone is not independently physical discard-zone verification.
 
-The helper excludes opponent hidden hands, unknown deck order and concealed Prize identities from decisions; it receives the owner's own preaction snapshot only **after the action has been chosen**, for reporting. As a pure postgame reporter it cannot affect either actor's next move. Its seven regression tests use source-shaped synthetic native root, payment and search rows, test duplicate vs singleton, owner-root authentication, hand-index mismatch, payment-size mismatch, missing hand, and unrelated roots. **Seven local Node tests passed; these fixtures are not native-game results.** The remote code and test blob SHAs match the locally tested files exactly: helper `30ca7dc0e35f9d36acb1f66c706c90f1476a4e34`, tests `e6926bb27294f6da70f64ac6410f1d5452a9f045`.
+The helper excludes opponent hidden hands, unknown deck order and concealed Prize identities from decisions; it receives the owner's own preaction snapshot only **after the action has been chosen**, for reporting. As a pure postgame reporter it cannot affect either actor's next move. Its ten regression tests use source-shaped synthetic native root, payment and search rows, test duplicate vs singleton, owner-root authentication, hand-index mismatch, payment-size mismatch, missing hand, and unrelated roots. **Ten local Node tests passed; these fixtures are not native-game results.** The remote code and test blob SHAs match the locally tested files exactly: helper `8443c9000cbff007765f2a5e66b926dbcae0cd77`, tests `55d8f0729fd54d9e13c0bd9f837295c8410de9fc`.
 
 ## Canonical runner plumbing
 
@@ -23,3 +23,7 @@ To qualify a real Quick Ball chain in a later registered natural original-source
 The [four-scope chronology](agent41-quickball-four-scope-independent-census-20261102.md) shows an early original-source attack and DCE attachment collapse under source-only Quick Ball on one selected physical deal. Other selected deals are horizon-censored or had no baseline attacks. The present four-scope archive cannot be reclassified as a root-cost-qualified experiment without the original prehand snapshots. Retain all statuses and their actual physical deal/owner seat and *do not count policy-accepted Items as evidence of opponent competence*.
 
 **Field:** 29/32 authenticated original Aichi Open League Top32 printed sixties (ranks 23,25,28 missing); zero competitively qualified whole games, no demonstrated 99.5% fixed deck.
+
+## Owner-payment evidence tightening
+
+The v3 join also requires an explicitly **owner-hand or unclassified temporary hand** prompt, with `sourcePlayerSlot` agreeing with the acting owner (or `-1` for an unclassified temporary list). An unrelated discard-zone or opponent-hand `ChooseCardsPrompt` cannot qualify as Quick Ball payment merely because it has one selected card and the right card count. The physical actor's **own complete printed hand before payment** must also exactly match the multisets in their pre-root hand after removing the accepted Quick Ball at its authenticated hand index. This rejects prompt alias/confusion and any unexplained intervening hand mutation, while tolerating legitimate reordering of the hand. Three additional synthetic negative cases pass, giving **10/10 local tests**. Actual Store coverage with this opt-in is still unverified; do not infer competitive qualification.
