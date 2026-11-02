@@ -85,6 +85,25 @@ function nativeDispatchAbortEvidence(evidence) {
 }
 
 /**
+ * Audit only the source location of a native decoder exception. Stack messages
+ * can contain private card identities: export no message or argument text.
+ * Supports Windows and POSIX paths but emits only basename/line/column.
+ * @param {Error} error Actual decoder exception, never visible to a bot.
+ * @returns {{errorClass:string,frames:object[]}}
+ */
+function safeDecoderFrameAttribution(error){
+  const classes=new Set(['Error','TypeError','RangeError','ReferenceError',
+    'SyntaxError','AssertionError']);
+  const errorClass=classes.has(error?.name)?error.name:'OtherError';
+  const frames=String(error?.stack??'').split('\n').slice(1,16)
+    .map(line=>{
+      const m=line.match(/(?:^|[\\/])([A-Za-z0-9_.-]+\.(?:cjs|js|ts)):(\d+):(\d+)(?:[)]|$)/);
+      return m?{file:m[1],line:Number(m[2]),column:Number(m[3])}:null;
+    }).filter(Boolean).slice(0,8);
+  return {errorClass,frames};
+}
+
+/**
  * Publish only redacted diagnostics when the bot or strict prompt gate may
  * have embedded concealed selected card printings in its exception. Store
  * dispatch failures retain the legacy stack for forensic compatibility.
@@ -108,4 +127,5 @@ function publicNativeAbortError(error) {
   };
 }
 
-module.exports = {VERSION,nativeDispatchAbortEvidence,publicNativeAbortError};
+module.exports = {VERSION,nativeDispatchAbortEvidence,publicNativeAbortError,
+  safeDecoderFrameAttribution};
