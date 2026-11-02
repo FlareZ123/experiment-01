@@ -132,3 +132,15 @@ test('unsupported opportunity does not nominate an unrelated recipient',()=>{
   v.opponentPublic.bench=[null,null,null,null,null];
   assert.equal(chooseRank9SpecialFundedGuzma(v,catalog),null);
 });
+
+test('canonical actor root leaves the rank9 tactical alternative default off',()=>{
+  const {chooseActorRootIntent}=require(
+    '../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const view=board();
+  const control=chooseActorRootIntent(view,catalog);
+  assert.notEqual(control.kind,'play-guzma-forced-nominal-ko');
+  const treatment=chooseActorRootIntent(view,catalog,
+    {rank9SpecialFundedGuzma:true});
+  assert.equal(treatment.kind,'play-guzma-forced-nominal-ko');
+  assert.equal(treatment.planFamily,'rank9-special-funded-weakness-guzma');
+});
