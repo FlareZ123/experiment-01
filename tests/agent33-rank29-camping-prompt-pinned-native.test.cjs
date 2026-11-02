@@ -54,7 +54,7 @@ function stage(seat){
     player.active.cards.push(take(card=>
       card.fullName==='Iron Thorns ex TWM'));
     if(index===seat){
-      for(const printing of [DCE,'Camping Gear BST','Tropical Beach BWP'])
+      for(const printing of [DCE,'Camping Gear BST','Tropical Beach BWP 50'])
         player.hand.cards.push(take(card=>card.fullName===printing,printing));
       while(player.hand.cards.length<7)
         player.hand.cards.push(take(card=>
