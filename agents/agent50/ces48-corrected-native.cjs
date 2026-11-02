@@ -2,3 +2,6 @@
 const assert = require('node:assert/strict');
 const path=require('node:path');
 const {initializeCards}=require('../../simulation/twinleaf/headless.cjs');
+const {withElectrodeCrashBurnPaper}=require('../../simulation/twinleaf/agent50-electrode-gx-paper-hook.cjs');
+const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const native=name=>require(path.join(base,name));
