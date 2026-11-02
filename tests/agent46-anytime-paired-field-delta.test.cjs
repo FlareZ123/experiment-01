@@ -104,14 +104,30 @@ test('64 and 128 prespecified equal-rank/seat/start geometries use their own bud
   assert.ok(b.intervals[0].radius>a.intervals[0].radius);
 });
 
-test('wrong source physical setup and duplicated pairs must fail closed',()=>{
+test('unmatched source physical setup stays censored; duplicate pair IDs fail closed',()=>{
   const cells=empty();
   cells[0]=allPairs(32,1,'QUALIFIED_WIN','QUALIFIED_NONWIN')[0];
   cells[0][0].challengerFingerprint='different-physical-setup';
-  assert.throws(()=>check(cells),/unmatched source physical-deal/);
+  const mismatch=check(cells);
+  assert.equal(mismatch.registeredPairs,1);
+  assert.equal(mismatch.unmatchedPairs,1);
+  assert.equal(mismatch.censoredPairs,1);
+  assert.equal(mismatch.intervals[0].observedLower,-1);
+  assert.equal(mismatch.intervals[0].observedUpper,1);
   cells[0][0].challengerFingerprint=cells[0][0].referenceFingerprint;
   cells[1]=[{...cells[0][0]}];
   assert.throws(()=>check(cells),/Duplicate pair/);
+});
+
+test('all mismatched physical pair deals cannot counterfeit improvement',()=>{
+  const cells=allPairs(32,100,'QUALIFIED_WIN','QUALIFIED_NONWIN');
+  for(const cell of cells) for(const pair of cell) pair.challengerFingerprint+='-shift';
+  const r=check(cells);
+  assert.equal(r.unmatchedPairs,3200);
+  assert.equal(r.registeredPairs,3200);
+  assert.equal(r.lowerFieldDelta,-1);
+  assert.equal(r.upperFieldDelta,1);
+  assert.equal(r.decision,'INSUFFICIENT_INFORMATION');
 });
 
 test('reject unqualified-as-win labels, invalid budgets and rank geometry',()=>{
