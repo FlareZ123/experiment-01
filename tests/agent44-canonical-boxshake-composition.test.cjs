@@ -53,3 +53,31 @@ test('enabled integration rejects an adapter that skipped native Box',()=>{
     box:()=>({result:7,audit:{offers:[]}})
   }),/did not install inside canonical actor/);
 });
+
+test('pre-Box owner scout is only passed to an explicitly enabled inner Box actor',()=>{
+  const calls=[];
+  const canonical=execute=>({result:execute(),audit:{
+    version:'canonical-frozen-test',qualification:{fullyActorOnly:false}
+  }});
+  const box=(execute,options)=>{
+    calls.push({...options});
+    return {result:execute(),audit:{offers:[],scouts:[],completeNativeEvolutions:0}};
+  };
+  const enabled=withCanonicalAndBoxShake(()=>17,{
+    canonical,box,enableBoxShake:true,flexible:true,
+    preBoxScout:true,auditOwnerK1Sources:true
+  });
+  assert.equal(enabled.result,17);
+  assert.equal(calls.length,1);
+  assert.deepEqual(calls[0],{
+    flexible:true,auditOwnerK1Sources:true,preBoxScout:true
+  });
+  assert.equal(enabled.audit.ownerPreBoxK1ScoutOptIn,true);
+  const disabled=withCanonicalAndBoxShake(()=>18,{
+    canonical,box,enableBoxShake:false,flexible:true,
+    preBoxScout:true,auditOwnerK1Sources:true
+  });
+  assert.equal(disabled.result,18);
+  assert.equal(calls.length,1,'The disabled actor cannot mutate source decisions');
+  assert.equal(disabled.audit.ownerPreBoxK1ScoutOptIn,false);
+});
