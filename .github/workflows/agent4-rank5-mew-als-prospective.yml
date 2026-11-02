@@ -1,0 +1,35 @@
+name: Agent4 rank5 original Mew owner ALS prospective
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rank5-mew-als:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate registered Mew owner ALS script
+        run: node --check simulation/evaluation/agent4-rank5-owner-mew-als-prospective.cjs
+      - name: Install pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Registered two-seat full original source rank5 8-attempt ALS comparison
+        run: node simulation/evaluation/agent4-rank5-owner-mew-als-prospective.cjs > agent4-rank5-mew-als-prospective.json
+      - name: Retain every original Store attempt and fingerprint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-rank5-original-Mew-ALS-all-eight-native
+          path: agent4-rank5-mew-als-prospective.json
+          if-no-files-found: warn
