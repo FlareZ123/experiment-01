@@ -8,6 +8,7 @@ const horizon=require('../../results/aichi-2026/registrations/agent1-rank11-post
 const countRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-radiant-one-vmax-native-20261102.json');
 const clockRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-public-turn-prize-clock-sensitivity-20261102.json');
 const {withPublicPrizeTurnClosures}=require('../twinleaf/agent1-public-prize-turn-closure.cjs');
+const {hypotheticalBracketCutoffs}=require('./agent1-public-prize-hypothetical-cutoffs.cjs');
 const {withNewMoonBlowerAutonomy}=
   require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 const {withOwnerOranguruStarVipPlan}=
@@ -149,6 +150,7 @@ function run(){
         sourceOriginalK0HandSha256:first.handSha256,
         initialFullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint,
         nativePublicTurnClosures:observed.audit,
+        hypotheticalAichiPrizeCutoffs:hypotheticalBracketCutoffs(observed.audit),
         sourceReturnPublicBoard:atSourceT3,
         recipientFirstRealK1:firstRecipientK1,
         postBlowerRadiantOwnerK1Predicate:candidateK1,
@@ -221,8 +223,10 @@ function run(){
       'Read-only observer changed the original four engine outcomes');
     assert.ok(rows.every(x=>x.nativePublicTurnClosures?.observedClosureCount>0),
       'Missing actual Store post-turn Prize checkpoints');
+    assert.ok(rows.every(x=>x.hypotheticalAichiPrizeCutoffs?.paperClockCertified===false),
+      'Observed turn closures cannot certify an Aichi physical stopwatch');
   }
-  return {schema:'agent1-original-postblower-Radiant-native-prize-turn-closures-v6',
+  return {schema:'agent1-original-postblower-Radiant-native-hypothetical-open-bracket-prize-cutoffs-v7',
     registration,horizonRegistration:horizon,countRegistration,clockRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
