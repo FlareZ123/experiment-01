@@ -27,11 +27,16 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_rank9_mewtwo_search_fork:
+        description: Same physical source-deal developer-only t1 and t23 Mewtwo search counterfactual
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation }}
+    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -171,7 +176,7 @@ jobs:
           retention-days: 14
 
   agent34-rank9-lastbench-ownlocation:
-    if: ${{ inputs.agent34_rank9_lastbench_ownlocation }}
+    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -192,7 +197,29 @@ jobs:
       - name: Test read-only original Store owner-zone observer
         run: node --test tests/agent34-rank9-newmoon-lastbench-owner-location.test.cjs
       - name: Replay frozen original rank9 exact source deal and count Mewtwo zones
+        if: ${{ inputs.agent34_rank9_lastbench_ownlocation }}
         run: node simulation/evaluation/agent34-rank9-newmoon-lastbench-owner-location.cjs > agent34-rank9-lastbench-ownlocation.json
+      - name: Check exact native search-choice counterfactual helper
+        if: ${{ inputs.agent34_rank9_mewtwo_search_fork }}
+        run: node --test tests/agent34-rank9-mewtwo-native-search-choice-fork.test.cjs
+      - name: Replay both original native Mewtwo search-choice forks
+        if: ${{ inputs.agent34_rank9_mewtwo_search_fork }}
+        run: node simulation/evaluation/agent34-rank9-mewtwo-native-search-choice-fork.cjs > agent34-rank9-mewtwo-search-fork.json
+      - name: Print genuine native search transfer and same-source-deal pairing
+        if: always()
+        run: >-
+          node -e "const fs=require('node:fs');
+          if(fs.existsSync('agent34-rank9-mewtwo-search-fork.json')){
+          const r=require('./agent34-rank9-mewtwo-search-fork.json');
+          console.log('AGENT34_M2W_NATIVE_FORK',JSON.stringify({
+          baselineAttempts:r.baseline.rows.length,
+          treatments:r.treatments.map(t=>({
+          turn:t.targetTurn,native:t.choiceAudit.nativeReplacementCount,
+          transfers:t.choiceAudit.legalPhysicalTransfers,
+          substitutions:t.choiceAudit.events,
+          sameFullPhysicalDeals:t.allFourOriginalDealsMatched,
+          paired:t.paired
+          })),competitiveQualifiedGames:r.competitiveQualifiedGames}));}"
       - name: Show exact original last Bench root and retained failure denominator
         if: always()
         run: >-
@@ -209,5 +236,14 @@ jobs:
         with:
           name: agent34-rank9-original-owner-lastbench-deal
           path: agent34-rank9-lastbench-ownlocation.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Preserve all native source search alternatives and negative cells
+        if: ${{ always() && inputs.agent34_rank9_mewtwo_search_fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank9-mewtwo-source-native-forks
+          path: agent34-rank9-mewtwo-search-fork.json
           if-no-files-found: warn
           retention-days: 14
