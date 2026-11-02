@@ -1,5 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {planAichi}=require('./aichi-pilot.cjs');
@@ -14,11 +15,11 @@ const {createFullPhysicalDealObserver}=require(
   './full-physical-deal-fingerprint.cjs');
 const native=name=>require(path.resolve(__dirname,
   '../../vendor/twinleaf/ptcg-server/output',name));
-const cases=Object.freeze([
-  {seed:20261106,order:[10,1]},
-  {seed:20261113,order:[1,10]},
-  {seed:20261114,order:[10,1]}
-]);
+const selectedProfile=JSON.parse(fs.readFileSync(path.resolve(__dirname,
+  'profiles/agent27-original-regidrago-min2-source-canary-v1.json'),'utf8'));
+const cases=Object.freeze(selectedProfile.seedCases.map(row=>Object.freeze({
+  seed:row.seed,order:Object.freeze([...row.seatRanks])
+})));
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 
 /**
@@ -112,7 +113,7 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
     try{
       const task=()=>withActorOnlyRootPolicy(()=>runMatch({
         deckA:decks.get(rankPair[0]),deckB:decks.get(rankPair[1]),
-        seed,maxActions:110,...flags,
+        seed,maxActions:selectedProfile.maxNativeActions,...flags,
         captureDecisionTrace:true,
         capturePublicAttackTransitions:true,
         captureInitialFullPhysicalDeal:true,
@@ -191,8 +192,22 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
 }
 /** @returns {object} Same original-60 source deals under exact opt-in guard. */
 function run(){
-  const permissions={allowEquivalentBasicEnergies:true,
-    allowBasicEnergyMirrorPrintings:true,allowJapanesePromoHooks:true};
+  assert.equal(selectedProfile.schema,
+    'agent27-original-source-min2-canary-profile-v1');
+  assert.equal(selectedProfile.pinnedTwinleaf,
+    'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  assert.deepEqual(selectedProfile.sourceDeckManifest.ranks,[1,10]);
+  const sourceFile=fs.readFileSync(path.resolve(__dirname,'../..',
+    selectedProfile.sourceDeckManifest.path));
+  const blobSha=createHash('sha1').update(Buffer.from(
+    'blob '+sourceFile.length+'\\0')).update(sourceFile).digest('hex');
+  assert.equal(blobSha,selectedProfile.sourceDeckManifest.blobSha,
+    'Registered source original-deck file changed');
+  const ambientAgentVariables=Object.keys(process.env)
+    .filter(key=>key==='AGENT'||key.startsWith('AGENT_')).sort();
+  assert.deepEqual(ambientAgentVariables,[],
+    'Selected original-source canary refuses ambient AGENT development toggles');
+  const permissions=selectedProfile.sourceResolutionPermissions;
   const ranks=[1,10],decks=new Map(ranks.map(rank=>[
     rank,planAichi(rank,permissions).candidate.cards]));
   const manager=initializeCards();
@@ -203,8 +218,11 @@ function run(){
     ...native('game/store/card/card-types'),
     PowerType:native('game/store/card/pokemon-types').PowerType
   });
-  const flags=require(
+  const historicalFlags=require(
     '../../results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json').frozenFlags;
+  const flags=selectedProfile.frozenFlags;
+  assert.deepEqual(flags,historicalFlags,
+    'Selected canary flags diverged from original historical regression');
   const casesOut=cases.map(x=>{
     const raw=runArm(x.order,x.seed,catalog,decks,flags,false);
     const repaired=runArm(x.order,x.seed,catalog,decks,flags,true);
@@ -221,7 +239,15 @@ function run(){
   });
   return {
     schema:'agent27-paired-native-minimum-energy-prompt-source-replay-v1',
-    pinnedEngine:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+    pinnedEngine:selectedProfile.pinnedTwinleaf,
+    selectedCanaryProfile:{
+      schema:selectedProfile.schema,
+      sourceManifestBlobSha:blobSha,
+      frozenFlags:flags,
+      ambientAgentVariables,
+      bothSeatSourceRanks:[...new Set(casesOut.map(x=>
+        x.seatRanks.indexOf(10)))].sort()
+    },
     registeredOriginalRanks:ranks,seedRegistrations:cases,
     correction:'agent47-bounded-mandatory-attach-selection-v1',
     celestialRoarPaperHook:'agent47-paper-celestial-roar-special-energy-hook-v1',
