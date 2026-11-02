@@ -25,6 +25,7 @@ The Japanese regulations use the number of Prizes **needed to win**, rather than
 | Swiss, 25 min | 3 / 3 | **Both lose** | Call it a draw without checking Swiss loss rule |
 | Top 32, 25 min | 2 / 6 | **A wins** | Require complete six-Prize finish |
 | Top 32, 25 min | 3 / 6 | **Extension required** | Award A the game from a Prize lead |
+| Top 32 extension | 3 / 2, hypothetical later Prize state | **B wins** | Preserve A's provisional 3/6 lead as an already-final winner |
 | Top 32, 25 min | 2 / 2 | **Extension required** | Select a winner from a tie |
 | Top 32, 25 min | 3 / 3 | **Extension required** | Conclude a tie |
 | Top 32 extension | 2 / 6, reached in extension | **A wins** | Reject permitted special extension winner |
@@ -36,7 +37,7 @@ Each disposition assumes a verified actual time call, correct starting seat, com
 
 [CommonJS oracle](../../simulation/evaluation/agent26-aichi-may2026-paper-clock-adjudicator.cjs) accepts the round, cutoff/extension phase, physical first-player and last-completed-turn seats, required Prize counts and optional independently verified natural paper win/tie. It returns official clock minutes, required physical final seat, the conditional disposition and any winner. Every result explicitly has paperClockMeasured false and competitiveGameQualified false. Zero Prize with no verified natural paper result fails closed. The oracle cannot infer human-time minutes from the simulator's computer execution duration.
 
-[Ten pure regressions](../../tests/agent26-aichi-may2026-paper-clock-adjudicator.test.cjs) test Swiss both-loss and missing second-player turn; low-Prize knockout threshold and ties; midturn continuation; 35-minute final; precedence of natural victories and knockout tiebreaks; undefined Swiss natural tie; unverified zero-Prize and invalid input.
+[Eleven pure regressions](../../tests/agent26-aichi-may2026-paper-clock-adjudicator.test.cjs) test Swiss both-loss and missing second-player turn; low-Prize knockout threshold and ties; midturn continuation; 35-minute final; precedence of natural victories and knockout tiebreaks; undefined Swiss natural tie; unverified zero-Prize and invalid input.
 
 **Limitations:** This helper neither times an actual paper match nor validates full printed Pokémon action resolution. It does not qualify a Twinleaf terminal or establish a matchup result.
 
