@@ -29,6 +29,8 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Confirm native two-seat DCE-to-Mew paid retreat from printed stranded actives
+        run: node --test tests/agent21-owner-stranded-mew-retreat.native.test.cjs
       - name: Execute all eight registered natural native canary arms under one policy
         run: node simulation/evaluation/agent21-single-profile-rank5-canary.cjs > agent21-selected-rank5-canary-native.json
       - name: Print bounded unqualified gate disposition
