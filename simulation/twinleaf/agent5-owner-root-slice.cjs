@@ -186,7 +186,9 @@ function rootPhysicalSnapshot(state,seat,intent){
       farewellBenchPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
       farewellDiscardCount:owner.discard.cards.filter(card=>
-        card.fullName===intent.printing).length
+        card.fullName===intent.printing).length,
+      farewellPrizeCounts:state.players.map(p=>
+        p.prizes.reduce((sum,slot)=>sum+slot.cards.length,0))
     }:{}),
     ...(intent.kind==='play-seeker-get-lillie'?{
       seekerSpent:[...owner.discard.cards,...owner.supporter.cards]
@@ -236,7 +238,9 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
       after.farewellBenchPrinting===null&&
       after.farewellDiscardCount===before.farewellDiscardCount+1&&
       after.deckCount===before.deckCount-1&&
-      after.handCount===before.handCount+1?
+      after.handCount===before.handCount+1&&
+      JSON.stringify(after.farewellPrizeCounts)===
+        JSON.stringify(before.farewellPrizeCounts)?
       'confirmed-public-effect':'no-confirmed-public-effect';
   }
   if(intent.kind==='evolve-pokemon')return before.evolutionTop===intent.from&&after.evolutionTop===intent.printing&&after.evolutionLayers===before.evolutionLayers+1?'confirmed-public-effect':'no-confirmed-public-effect';
