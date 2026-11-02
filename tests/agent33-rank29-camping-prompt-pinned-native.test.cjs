@@ -31,8 +31,8 @@ function stage(seat){
   const store=new Store({onStateChange(){}});
   const state=store.state,players=[new Player(),new Player()];
   players[0].id=101;players[1].id=202;
-  for(const player of players){
-    player.active.cards.push(get('Dratini OBF'));
+  for(const [index,player] of players.entries()){
+    player.active.cards.push(get(index===seat?'Iron Thorns ex TWM':'Dratini OBF'));
     player.deck.cards.push(...Array.from({length:16},()=>new Card()));
     player.prizes=Array.from({length:6},()=>{
       const slot=new CardList();
@@ -41,8 +41,6 @@ function stage(seat){
     });
   }
   const owner=players[seat];
-  owner.active.cards.length=0;
-  owner.active.cards.push(get('Iron Thorns ex TWM'));
   owner.hand.cards.push(get(DCE),get('Camping Gear BST'));
   owner.deck.cards.push(get(THUNDER),
     get('Guzma & Hala CEC'),get('Speed Lightning Energy RCL'));
