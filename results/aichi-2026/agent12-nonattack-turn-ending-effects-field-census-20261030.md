@@ -2,6 +2,8 @@
 
 **30 October 2026.** Exact source-card and English printing audit; **not a gameplay observation, competitive win, or exhaustive effect scanner.** The recovered opponent field remains **29/32**, missing ranks **23, 25 and 28**.
 
+> **2 November Japanese-paper supplement:** This six-printing census is deliberately **English-database-only**. The authenticated original Aichi source lists also contain **Palace Book SMP NAN25**, a Japanese Item reading “Draw 3 cards. Your turn ends,” in ranks 6 (one copy), 7 (three) and 24 (two), six additional copies. Agent20 independently checked the original rank6/rank7 opening contention and the pinned native Store turn-end/WaitPrompt timing: [Japanese Palace Book and Steven paper contract](agent20-rank6-rank7-turnending-paper-contract-20261101.md). Neither the six-English-print count below nor its original script includes that Japanese promo. A complete international-versus-Japanese legality matrix is outside this bounded inventory. The independent [2 November native-turn-closure recovery bridge](../twinleaf/agent12-native-settled-recovery-bridge-20261102.md) now accounts for truly completed nonattack turns without assuming any held or accepted card ends a turn before prompts settle.
+
 ## Exact print crosswalk
 
 The original [29-source manifest](full-decklists.json) was matched by name, set code and card number to six specific English card-database IDs, whose printed rules/Abilities explicitly contain a turn-ending clause:
