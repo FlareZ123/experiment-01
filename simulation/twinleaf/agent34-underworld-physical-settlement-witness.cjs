@@ -39,7 +39,7 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
   const original=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof original?.value,'function');
   let live=null,game=0,ordinal=0;
-  const pending=new Map(),events=[],opened=[];
+  const awaitingByOwner=new Map(),events=[],opened=[];
   const summary=()=>({
     version:VERSION,gamesSeen:game,
     abilityPromptsOpened:opened.length,
@@ -52,7 +52,7 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
   function dispatch(action,...args){
     const kind=action?.constructor?.name;
     if(kind==='AddPlayerAction'&&this!==live){
-      live=this;game++;pending.clear();
+      live=this;game++;awaitingByOwner.clear();
     }
     if(this!==live)return original.value.apply(this,[action,...args]);
     ordinal++;
@@ -66,28 +66,31 @@ function withUnderworldPhysicalSettlementWitness(work,deps={}){
       const before=owner&&source?ownerSnapshot(owner,source,psychicType):null;
       const native=original.value.apply(this,[action,...args]);
       if(owner&&source){
-        const prompt=this.state.prompts.find(p=>
-          p.result===undefined&&p.playerId===owner.id&&
-          p.constructor.name==='AttachEnergyPrompt');
         const entry={
           game,sourceSeat:this.state.players.indexOf(owner),
           rootDispatchOrdinal:ordinal,turn:this.state.turn,
           sourcePrinting:source.fullName,
           sourceMarkerUnspent:before.sourceMarker===false,
-          promptId:prompt?.id??null
+          promptId:null
         };
         opened.push(entry);
-        if(prompt)pending.set(prompt.id,{ownerId:owner.id,source,entry});
+        // Twinleaf first inserts WaitPrompt and creates the actual
+        // AttachEnergyPrompt on the following accepted prompt resolution.
+        awaitingByOwner.set(owner.id,{ownerId:owner.id,source,entry});
       }
       return native;
     }
-    if(kind==='ResolvePromptAction'&&pending.has(action.id)){
-      const context=pending.get(action.id);
+    const prompt=kind==='ResolvePromptAction'?this.state.prompts.find(p=>
+      p.id===action.id&&p.result===undefined):null;
+    const context=prompt?.constructor?.name==='AttachEnergyPrompt'?
+      awaitingByOwner.get(prompt.playerId):null;
+    if(context&&context.entry.turn===this.state.turn){
+      context.entry.promptId=prompt.id;
       const owner=this.state.players.find(p=>p.id===context.ownerId);
       const before=ownerSnapshot(owner,context.source,psychicType);
       const native=original.value.apply(this,[action,...args]);
       const after=ownerSnapshot(owner,context.source,psychicType);
-      pending.delete(action.id);
+      awaitingByOwner.delete(context.ownerId);
       const changed=before.bench.map((slot,index)=>{
         const later=after.bench[index];
         const added=[...new Set(later.energies)].filter(name=>
