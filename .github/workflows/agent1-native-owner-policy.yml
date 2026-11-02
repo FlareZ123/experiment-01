@@ -16,6 +16,7 @@ on:
           - postblower-radiant
           - rank17-prospective-evolution
           - raichu-effect-differential
+          - raichu-paper-damage-native
 
 permissions:
   contents: read
