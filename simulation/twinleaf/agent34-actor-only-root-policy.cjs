@@ -497,8 +497,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       const ragingBolt=options.ragingBoltNominalKoRoot===true?
         require('./agent50-raging-bolt-nominal-ko.cjs')
           .chooseRagingBoltNominalKo(view,payable,catalog):null;
-      const chosen=knownDead?
-        payable.find(attack=>attack.name===knownDead.attackName):
+      const adpGx=options.adpBoostedGxRoot===true?
+        require('./agent28-adp-post-retreat-gx-window.cjs')
+          .chooseAdpGxFromPayable(view,payable):null;
+      const chosen=adpGx?
+        payable.find(attack=>attack.name===adpGx.attackName):
+        knownDead?
+          payable.find(attack=>attack.name===knownDead.attackName):
         ragingBolt?
           payable.find(attack=>attack.name===ragingBolt.attackName):
         options.potentialKoRoot===true?
