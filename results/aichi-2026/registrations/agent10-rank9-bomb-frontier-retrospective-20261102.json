@@ -1,0 +1,55 @@
+{
+  "schema": "agent10-rank9-original-store-extra-energy-bomb-owner-frontier-retro-v1",
+  "date": "2026-11-02",
+  "type": "retrospective post-observation audit, zero prospective win-rate evidence",
+  "source": "Aichi Open League 2026 rank 9 Shun Ito Absol Electrode original printed 60",
+  "sourceSha256": "70382b692e5c",
+  "sourceEnergyCount": 7,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "registeredTrials": [
+    {
+      "id": "9:0:A:champion-reference",
+      "candidateSeat": "A",
+      "sourceSeat": 1,
+      "seed": 3060075246
+    },
+    {
+      "id": "9:0:A:new-moon-lockbreaker-v1",
+      "candidateSeat": "A",
+      "sourceSeat": 1,
+      "seed": 3060075246
+    },
+    {
+      "id": "9:0:B:champion-reference",
+      "candidateSeat": "B",
+      "sourceSeat": 0,
+      "seed": 690229661
+    },
+    {
+      "id": "9:0:B:new-moon-lockbreaker-v1",
+      "candidateSeat": "B",
+      "sourceSeat": 0,
+      "seed": 690229661
+    }
+  ],
+  "control": "simulation/evaluation/agent10-rank9-known-dead-attack-counterfactual.cjs",
+  "observationalRunner": "simulation/evaluation/agent10-rank9-bomb-frontier-development.cjs",
+  "audit": "simulation/twinleaf/agent10-rank9-extra-energy-bomb-owner-frontier.cjs",
+  "priorNativeRun": 41399309154,
+  "priorArtifact": 13120134600,
+  "priorResultSha256": "03dff6b9712e6d50c89add9a59b70f8820d4dbbb382a2c2d62f03954583dacfa",
+  "comparison": "Same historical original physical seed groups, not a fresh prospective sample. Verify exact physical source deal and root ledger fingerprints; code closure may have changed since 41399309154.",
+  "objective": "Count native owner discard Energy, Electrode-GX zone, eligible non-GX/non-EX recipient geometry and opponent Prize self-KO exposure at every actual source first root and accepted Pass, both seats, without changing either actor.",
+  "registrationDispositions": [
+    "observed complete original Store",
+    "native error",
+    "action cap",
+    "engine terminal",
+    "no matching Store",
+    "no Electrode",
+    "zero discarded Energy",
+    "nonzero discard Energy",
+    "no permitted recipient"
+  ],
+  "exclusions": "Does not validate printed ability, require five physical Energy, perform ability, verify KO resolution, or qualify paper game."
+}
