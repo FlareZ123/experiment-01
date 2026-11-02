@@ -6,7 +6,8 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 /**
  * A deliberately narrow paper-visible policy opportunity. It selects a held
  * Canceling Cologne only while the opponent's Active Pokemon presently
- * suppresses Meloetta ex's Live Debut first-turn attack exception.
+ * suppresses Meloetta ex's Live Debut, or prevents a Benched Koko from
+ * accelerating two Basic Lightning onto the Benched Meloetta line.
  * Neither hidden Prize cards nor deck contents are consulted.
  *
  * @param {object} state
@@ -18,13 +19,26 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
 function cologneOpeningOpportunity(state, player, sourceSeat, playerTurnPhase) {
   if (state.turn !== 1 || state.activePlayer !== sourceSeat ||
       state.phase !== playerTurnPhase ||
-      player.active.getPokemonCard()?.name !== 'Meloetta ex' ||
       !player.hand.cards.some(card => card.name === 'Canceling Cologne')) {
     return false;
   }
   const opposing = state.players[1 - sourceSeat];
   const defendingName = opposing?.active.getPokemonCard()?.name;
-  return defendingName === 'Iron Thorns ex' || defendingName === 'Klefki';
+  if (defendingName !== 'Iron Thorns ex' && defendingName !== 'Klefki') {
+    return false;
+  }
+  if (player.active.getPokemonCard()?.name === 'Meloetta ex') {
+    return true;
+  }
+  // A different source starter can be Active while the locked Prism Star
+  // is the real Energy gateway to the Benched Meloetta source line.
+  // All these inputs are publicly visible or in the acting owner's discard.
+  const hasBenched = name => player.bench.some(slot =>
+    slot.getPokemonCard()?.name === name);
+  const lightningReady = player.discard.cards.filter(card =>
+    card.name === 'Lightning Energy').length >= 2;
+  return hasBenched('Meloetta ex') &&
+    hasBenched('Tapu Koko Prism Star') && lightningReady;
 }
 
 /**
