@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent36-dowsing-pls128-physical-two-card-payment-v1';
+const VERSION = 'agent36-dowsing-pls128-immediate-physical-payment-v2';
 const PRINTING = 'Dowsing Machine PLS';
 
 /**
@@ -35,8 +35,8 @@ function dowsingPaymentNegative(prompt, answer, owner) {
 
 /**
  * Reversible, default-off native Store boundary. A two-card payment is
- * finally credited only if both actual card objects enter the owner's
- * discard and leave the owner's hand. Target recovery and a full turn
+ * credited at the payment resolution boundary only if both actual card
+ * objects enter the owner's discard and leave the owner's hand. Target recovery and a full turn
  * remain separate evidence; no game is certified by this wrapper.
  *
  * @template T
@@ -51,7 +51,6 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
   const Store = deps.Store ?? native('game/store/store').Store;
   const previous = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
   assert.equal(typeof previous?.value, 'function');
-  const pendingSettlements = [];
   const audit = {
     schema: VERSION, printing: PRINTING, defaultEnabled: false,
     scope: 'Original PLS128 mandatory two-other-card physical payment only',
@@ -98,7 +97,11 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
     const accepted = previous.value.call(this, action, ...args);
     event.nativeAccepted = true;
     audit.acceptedPayments++;
-    pendingSettlements.push({owner, selected: [...action.result], event});
+    event.physicallySettled = action.result.every(card =>
+      owner.discard?.cards?.includes(card) &&
+      !owner.hand?.cards?.includes(card));
+    if (event.physicallySettled) audit.settledPhysicalPayments++;
+    else audit.unsettledPhysicalPayments++;
     return accepted;
   }
   Object.defineProperty(Store.prototype, 'dispatch',
@@ -107,13 +110,6 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
     const result = run();
     return {result, audit};
   } finally {
-    for (const {owner, selected, event} of pendingSettlements) {
-      event.physicallySettled = selected.every(card =>
-        owner.discard?.cards?.includes(card) &&
-        !owner.hand?.cards?.includes(card));
-      if (event.physicallySettled) audit.settledPhysicalPayments++;
-      else audit.unsettledPhysicalPayments++;
-    }
     assert.strictEqual(Store.prototype.dispatch, dispatched);
     Object.defineProperty(Store.prototype, 'dispatch', previous);
   }
