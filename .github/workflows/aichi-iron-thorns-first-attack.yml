@@ -68,6 +68,8 @@ jobs:
         run: node --test tests/agent4-rank31-spoons-overbudget-native.test.cjs
       - name: Test shared v9 original rank31 paper guards in genuine native Store both seats
         run: node --test tests/agent4-rank31-unified-source-negative-native.test.cjs
+      - name: Test shared v10 rank14 Ultra Ball mandatory two-card root and payment in both seats
+        run: node --test tests/agent4-rank14-ultraball-shared-paper-native.test.cjs
       - name: Test pinned native two-seat same-root Bench versus solo Volt Cyclone decision
         run: node --test tests/agent14-solo-thorns-choice-native.test.cjs
       - name: Compare native legal and second-attachment rejects
