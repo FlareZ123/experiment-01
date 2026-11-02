@@ -121,7 +121,8 @@ function runOne(view){
     store.dispatch(action);
     return action;
   },{
-    SimpleTacticsAi,Store,GamePhase:{PLAYER_TURN:2,FINISHED:7},
+    SimpleTacticsAi,Store,mewTechnoReset:true,
+    GamePhase:{PLAYER_TURN:2,FINISHED:7},
     observe:()=>Object.freeze(view),getCatalog:()=>catalog,
     cardActions:{PlayCardAction,
       PlayerType:{ANY:0,BOTTOM_PLAYER:0},
