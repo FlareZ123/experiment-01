@@ -35,6 +35,71 @@ def prefer_unprized_basic(model, live_deck, in_play):
                  if name in model.BASICS and live_deck[name]), None)
 
 
+# Preserve Agent44's originally prioritized payment order, while comparing
+# identical physical payments across hypothetical first-turn action orders.
+BOX_PAYMENT_PRIORITY = (
+    "Battle VIP Pass", "Dark Patch", "Quick Ball", "VS Seeker",
+    "Mysterious Treasure", "Iono", "Carmine", "Ultra Ball"
+)
+
+
+def payable_after_vip(hand, in_play):
+    """Return an explicit three-card Box payment after a prior VIP play.
+
+    This is a narrowly scoped physical witness under Agent44's source
+    K0 reserves, rather than an asserted legal native Store action.
+    """
+    available = Counter(hand)
+    assert available["Secret Box"] >= 1
+    assert available["Battle VIP Pass"] == 0
+    available["Secret Box"] -= 1
+    searcher_payment = 0
+    if not in_play["Trubbish"]:
+        if available["Trubbish"]:
+            available["Trubbish"] -= 1
+        elif available["Quick Ball"]:
+            available["Quick Ball"] -= 1
+            searcher_payment = 1
+        elif available["Ultra Ball"]:
+            available["Ultra Ball"] -= 1
+            searcher_payment = 2
+        else:
+            return None
+    if available["Float Stone"]:
+        available["Float Stone"] -= 1
+    elif available["Muscle Band"]:
+        available["Muscle Band"] -= 1
+    physical = sorted((name for name, n in available.items()
+                       for _ in range(n) if n > 0),
+                      key=lambda name: (BOX_PAYMENT_PRIORITY.index(name)
+                                        if name in BOX_PAYMENT_PRIORITY
+                                        else len(BOX_PAYMENT_PRIORITY)))
+    if len(physical) < 3 + searcher_payment:
+        return None
+    return physical[:3]
+
+
+def prove_commuted_box_first(hand, deck, vip_basic, payment):
+    """The exact same up-front Box payment remains in hand before VIP.
+
+    Box searches Item/Tool, while the VIP subsequently searches a Basic.
+    This proof concerns physical card-zone cardinality and the two search
+    categories, assuming no intervening opponent action. Actual native
+    prompt resolution and future draws are separately tested.
+    """
+    before = Counter(hand)
+    chosen = Counter(payment)
+    assert len(payment) == 3
+    assert not chosen["Secret Box"] and not chosen["Battle VIP Pass"]
+    assert not chosen - before, "A payment card is absent before VIP"
+    assert before["Secret Box"] and before["Battle VIP Pass"]
+    assert deck[vip_basic] > 0, "The same Basic must remain searchable"
+    post_box = before - chosen
+    assert post_box["Secret Box"] >= 1
+    assert post_box["Battle VIP Pass"] >= 1
+    return True
+
+
 def measure(trials=200_000, seed=44_110_207):
     model = load_model()
     deck = [name for name, count in model.COUNTS.items()
@@ -108,6 +173,21 @@ def measure(trials=200_000, seed=44_110_207):
                 counts["vip_first_then_box_k0"] += 1
             if next_k1:
                 counts["vip_first_then_box_k1"] += 1
+                payment = payable_after_vip(after_hand, after_in_play)
+                assert payment is not None, (
+                    "Agent44 K1 payer had no explicit three-discard witness"
+                )
+                assert prove_commuted_box_first(
+                    hand, live, vip_target, payment
+                )
+                counts["box_first_postvip_same_payment_k1"] += 1
+                if not keep_vip_box_k1:
+                    counts["prior_boxfirst_planner_reservation_artifact"] += 1
+                if "Trubbish" in payment:
+                    counts["commuted_boxfirst_discarded_held_trubbish"] += 1
+                if ("Quick Ball" in payment or
+                        "Ultra Ball" in payment):
+                    counts["commuted_boxfirst_discarded_basic_searcher"] += 1
                 # VIP may merely replace the Trubbish normally fetched or
                 # benched by Box-first, without adding another Basic to play.
                 extra = mode == "already-in-play" or vip_target != "Trubbish"
@@ -143,6 +223,10 @@ def measure(trials=200_000, seed=44_110_207):
                 "box_first_preserve_vip_k1",
                 "vip_first_and_box_first_preserve_vip_k1",
                 "vip_first_only_vs_box_first_preserve_vip_k1",
+                "box_first_postvip_same_payment_k1",
+                "prior_boxfirst_planner_reservation_artifact",
+                "commuted_boxfirst_discarded_held_trubbish",
+                "commuted_boxfirst_discarded_basic_searcher",
             ]},
             "box_k0_fraction_of_valid_openers": b / n,
             "vip_overlap_fraction_of_box_k0": v / b,
@@ -151,7 +235,7 @@ def measure(trials=200_000, seed=44_110_207):
             ),
         }
     return {
-        "schema": "agent7-rank8-box-vip-firstturn-alternative-v3-extrabench-and-connector-order",
+        "schema": "agent7-rank8-box-vip-firstturn-alternative-v4-commuted-box-first",
         "source_original_rank": 8,
         "source_printed_60_sha256": model.SOURCE_SHA256,
         "source_handmodel_git_blob": MODEL_BLOB_SHA,
