@@ -1,0 +1,49 @@
+name: Agent 21 rank5 preregistered owner Mew retreat fork
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genuine-native-fork:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify immutable source registry and pure owner boundary
+        run: node --test tests/agent21-single-profile-rank5-canary.test.cjs tests/agent21-source-trainer-play-census.test.cjs tests/agent21-owner-stranded-fusion-mew-retreat.test.cjs tests/agent21-owner-stranded-mew-native-pass-retreat.test.cjs
+      - name: Inspect preregistered new seeds before any Store call
+        run: node simulation/evaluation/agent21-rank5-stranded-mew-retreat-prospective.cjs --inspect-only > agent21-retreat-fork-registered-profile.json
+      - name: Initialize existing pinned Twinleaf vendor without updating revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Qualify native staged owner DCE cost for three source printings in both seats
+        run: node --test tests/agent21-owner-stranded-mew-retreat.native.test.cjs
+      - name: Run 16 preregistered natural Store control versus DCE paid retreat arms
+        run: node simulation/evaluation/agent21-rank5-stranded-mew-retreat-prospective.cjs > agent21-stranded-mew-prospective-native.json
+      - name: Print bounded attribution, failed/capped native rows, and owner paid-retreat settlements
+        if: always()
+        run: |
+          node -e "const fs=require('node:fs');if(!fs.existsSync('agent21-stranded-mew-prospective-native.json')){console.log('NO_PROSPECTIVE_NATIVE_OUTPUT');process.exit(0)}const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-prospective-native.json','utf8')); console.log(JSON.stringify({schema:x.schema,arms:x.executedNativeArms,physicalSourcePairs:x.exactPhysicalSourceDealMatchedCount,modes:x.modes.map(m=>({mode:m.mode,returned:m.returnedRows,batchError:m.error,sourceAttacks:m.sourceAttacksDeclared,terminal:m.nativeTerminalCount,caps:m.actionCapCount,hookAudit:m.hookAudit&&{nativePass:m.hookAudit.nativePassActionsSeen,offers:m.hookAudit.eligibleOwnerOffers,dispatches:m.hookAudit.dispatchedRetreatActions,storeReturned:m.hookAudit.storeDispatchReturned,settled:m.hookAudit.nativeSettledPromotions,unproven:m.hookAudit.pendingOrUnproven,rejections:m.hookAudit.storeRejections},rows:m.attempts.map(a=>({id:a.trial.id,status:a.status,sourceAttacks:a.sourceAttackDeclarations,turns:a.nativeTurnCount}))})),competitiveQualifiedGames:x.competitiveQualifiedGames},null,2));"
+      - name: Preserve every native attempted row and immutable preflight
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent21-rank5-stranded-mew-native-control-retreat
+          path: |
+            agent21-retreat-fork-registered-profile.json
+            agent21-stranded-mew-prospective-native.json
+          if-no-files-found: warn
+          retention-days: 30
