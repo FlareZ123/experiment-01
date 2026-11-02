@@ -214,12 +214,18 @@ jobs:
           console.log('AGENT34_M2W_NATIVE_FORK',JSON.stringify({
           baselineAttempts:r.baseline.rows.length,
           baselineCoreBenchPlays:r.baseline.ownerAudit.coreBenchPlays,
+          baselineAffectedAttack:r.baseline.rows.find(x=>
+          x.id==='9:0:A:new-moon-lockbreaker-v1')?.candidateAttackProfile,
           treatments:r.treatments.map(t=>({
           turn:t.targetTurn,native:t.choiceAudit.nativeReplacementCount,
           transfers:t.choiceAudit.legalPhysicalTransfers,
           substitutions:t.choiceAudit.events,
           coreBenchPlays:t.ownerAfterActionAudit.coreBenchPlays,
           blockedLastBenchRoots:t.ownerAfterActionAudit.events,
+          candidateAffectedAttack:t.rows.find(x=>
+          x.id==='9:0:A:new-moon-lockbreaker-v1')?.candidateAttackProfile,
+          ownerEnergyPlayRoots:t.rows.find(x=>
+          x.id==='9:0:A:new-moon-lockbreaker-v1')?.ownerEnergyPlayRoots,
           sameFullPhysicalDeals:t.allFourOriginalDealsMatched,
           paired:t.paired
           })),competitiveQualifiedGames:r.competitiveQualifiedGames}));}"
