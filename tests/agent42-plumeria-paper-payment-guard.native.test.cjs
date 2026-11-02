@@ -66,3 +66,29 @@ test('paper Plumeria rejects repeated reference and cards outside owner hand',()
   assert.equal(r.opposingEnergyCustody.inOpponentDiscard,false);
  }
 });
+
+test('two valid Plumeria cards include one Prism Star paid into Lost Zone',()=>{
+ for(const seat of [0,1]){
+  const {result:r,audit:a}=withPaperPlumeriaPayment(()=>
+   probePlumeriaShortPayment(seat,2,'prism'));
+  console.log('AGENT42_PLUMERIA_PRISM_GUARDED '+JSON.stringify({
+   seat,audit:a,paymentCustody:r.paymentCustody}));
+  assert.equal(a.observed,1);
+  assert.equal(a.accepted,1);
+  assert.equal(a.rejected,0);
+  assert.equal(a.physicalPaymentReceipts.length,1);
+  const receipt=a.physicalPaymentReceipts[0];
+  assert.equal(receipt.independentlyPaidTwo,true);
+  assert.equal(receipt.movedToOwnerDiscardCount,1);
+  assert.equal(receipt.movedToOwnerLostZoneCount,1);
+  assert.deepEqual(receipt.physicalPaymentDestinations.map(x=>x.expectedDestination),
+   ['discard','lostzone']);
+  assert.deepEqual(receipt.physicalPaymentDestinations.map(x=>x.actualDestination),
+   ['discard','lostzone']);
+  assert.equal(a.physicalEffectReceipts.length,1);
+  assert.equal(a.physicalEffectReceipts[0].paymentIndependentlyPaidTwo,true);
+  assert.equal(a.physicalEffectReceipts[0].independentEnergyRemoval,true);
+  assert.deepEqual(r.paymentCustody.map(c=>c.inOwnerLostZone),[false,true]);
+  assert.equal(r.opposingEnergyCustody.inOpponentDiscard,true);
+ }
+});
