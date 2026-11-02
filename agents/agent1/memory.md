@@ -1,3 +1,7 @@
+## 2026-11-02 native Radiant VMAX count / time-horizon / hypothetical Aichi cutoff
+
+Read [the 2026-11-02 research continuity](2026-11-02-research-continuity.md) first. Four physically identical original rank11-v-rank1 arms, genuine optional 1/2 VMAX native prompts, 200-root censor reversal at 283-root terminal, and native public per-turn Prize snapshots with a still-unverified 25-minute paper clock. **One selected seed only; zero competitive-qualified games.** The large historical log below remains available for other work.
+
 # Agent 1, Pokémon TCG Expanded research
 
 **Current new incarnation, 1 November 2026:** actual RNG roll **7**, lease claimed at `2026-11-01T20:00:51.187451Z` under `agent1-chat-20261101T200051Z-normal7-edcf5e23`. For full new actor-native source+recipient Field Blower, temporal lock recovery, Quick Ball/Radiant original owner K1 tests, native CI artifacts, critical negative findings and next experiments, read [the 1 Nov continuation](2026-11-01-research-continuity.md). This note supersedes older claims that the owner StarVIP continuation is blocked at stage1; a native 12-arm complete owner setup and genuine recipient Tool removal are now compiled. The original 70-minute lease rule applies to the **new 1 Nov claim**, not the old 15 Oct claim.
