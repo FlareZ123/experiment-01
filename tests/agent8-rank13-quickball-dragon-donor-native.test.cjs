@@ -7,8 +7,13 @@ const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
 const {chooseQuickBallRootIntent}=
   require('../simulation/twinleaf/agent8-actor-quick-ball-frontier.cjs');
-const {chooseRegidragoDonorQuickBall,REGIDRAGO_V,EVOLVED_DONORS}=
+const {chooseRegidragoDonorQuickBall,chooseRegidragoQuickBallDiscard,
+  chooseRegidragoQuickBallSearch,REGIDRAGO_V,EVOLVED_DONORS}=
   require('../simulation/twinleaf/agent8-regidrago-quickball-donor-frontier.cjs');
+const {actorHandDiscardInput}=
+  require('../simulation/twinleaf/agent47-actor-hand-discard.cjs');
+const {actorSingleSearchInput}=
+  require('../simulation/twinleaf/agent41-actor-owner-single-search.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(OUTPUT,name));
@@ -64,6 +69,11 @@ function nativeDonorLine(seat,donor){
        pending.message==='CHOOSE_CARD_TO_DISCARD'&&
        pending.cards.cards.some(card=>card.fullName===donor)){
       assert.equal(discarded,false,'Duplicate donor payment prompt');
+      const input=actorHandDiscardInput(x.state,seat);
+      assert.ok(input,'Native Quick Ball must expose authenticated owner hand prompt');
+      const choice=chooseRegidragoQuickBallDiscard(input);
+      assert.deepEqual(choice,{printings:[donor]},
+        'Actor-only prompt policy must choose exact preannounced Dragon donor');
       selection=[pending.cards.cards.find(card=>card.fullName===donor)];
       assert.equal(pending.validate(selection),true);
       discarded=true;
@@ -71,6 +81,12 @@ function nativeDonorLine(seat,donor){
              SEARCH_MESSAGES.has(pending.message)&&
              pending.cards.cards.some(card=>card===found)){
       assert.equal(searched,false,'Duplicate Regidrago owner search');
+      const input=actorSingleSearchInput(x.state,seat);
+      assert.ok(input,'Native Quick Ball must expose authenticated owner deck search');
+      const choice=chooseRegidragoQuickBallSearch(input);
+      assert.ok(choice,'Actor-only search must find unPrized Regidrago V');
+      assert.equal(input.prompt.offered[choice.indices[0]].printing,
+        REGIDRAGO_V);
       selection=[found];
       assert.equal(pending.validate(selection),true);
       searched=true;
