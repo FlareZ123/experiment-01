@@ -71,7 +71,9 @@ function scanPolicySourceClosure(repoRoot,roots){
       for(const m of missed){
         const suffix=text.slice(m.index+m[0].length);
         const shape=/^\s*([\w.]+)/.exec(suffix)?.[1]??'unclassified';
-        computedRequireSites.push({path:relative,shape});
+        const joinBase=shape==='path.join'?
+          /^\s*path\.join\s*\(\s*([^,)\r\n]+)/.exec(suffix)?.[1].trim()??null:null;
+        computedRequireSites.push({path:relative,shape,joinBase});
       }
     }
     for(const m of staticRequires){
@@ -109,6 +111,11 @@ function scanPolicySourceClosure(repoRoot,roots){
       shape,computedRequireSites.filter(site=>site.shape===shape).length])),
     nonPathJoinComputedRequires:computedRequireSites.filter(site=>
       site.shape!=='path.join').sort(sort),
+    pathJoinFirstArgumentCounts:Object.fromEntries([...new Set(
+      computedRequireSites.filter(site=>site.shape==='path.join')
+        .map(site=>site.joinBase??'unclassified'))].sort().map(name=>[
+      name,computedRequireSites.filter(site=>site.shape==='path.join'&&
+        (site.joinBase??'unclassified')===name).length])),
     externalPackages:externalPackages.sort(sort),
     fullTransitiveBehaviorCertified:false,
     staticLocalCommonJsOnly:true,
