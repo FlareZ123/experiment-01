@@ -48,7 +48,7 @@ function withAbortSafeDealWitness(work,sourceSeat=0){
     // enter the live actor policy.
     const state=this.state;
     if(this===root&&action?.constructor?.name==='PassTurnAction'&&
-      state.players?.[1-sourceSeat]?.id===action.playerId){
+      state.players?.[1-sourceSeat]?.id===action.clientId){
       const anchor=nativeMinimumAttachActionReceipts.findLast(row=>
         row.nativeStoreActionAccepted===true&&
         row.actorSeat===sourceSeat&&
@@ -57,7 +57,7 @@ function withAbortSafeDealWitness(work,sourceSeat=0){
         let probe;
         try{
           probe=require('../twinleaf/pass-attack-announcement-probe.cjs')
-            .probePassedAttackOptions(state,action.playerId);
+            .probePassedAttackOptions(state,action.clientId);
         }catch(error){
           probe={auditError:String(error?.message??error),
             scope:'Post-choice cloned native Store probe only'};
