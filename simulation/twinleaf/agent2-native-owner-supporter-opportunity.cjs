@@ -29,6 +29,24 @@ function ownerSupporterOpportunity(state,seat,supporterType){
   const ownerTurn=state.activePlayer===seat&&state.turn>=1&&!pending;
   const broadPlayLock=owner.cannotPlaySupporterCards===true;
   const ownerDeckCount=owner.deck?.cards?.length??null;
+  // Both Benches and Active Pokémon are face-up public information. These
+  // counts distinguish a held gust card from a board with no gust target.
+  // No opponent-hand, Prize or deck contents are read here.
+  const opponent=state.players[1-seat];
+  assert.ok(Array.isArray(owner.bench)&&Array.isArray(opponent.bench));
+  const occupied=player=>player.bench.filter(slot=>
+    slot.getPokemonCard()!=null).length;
+  const publicGuzmaGeometry={
+    ownActiveOccupied:owner.active.getPokemonCard()!=null,
+    opponentActiveOccupied:opponent.active.getPokemonCard()!=null,
+    ownBenchCount:occupied(owner),
+    opponentBenchCount:occupied(opponent)
+  };
+  publicGuzmaGeometry.opponentGustTargetPresent=
+    publicGuzmaGeometry.opponentBenchCount>0;
+  publicGuzmaGeometry.bothBenchRecipientsPresent=
+    publicGuzmaGeometry.ownBenchCount>0&&
+    publicGuzmaGeometry.opponentBenchCount>0;
   const supporters=[];
   for(let index=0;index<owner.hand.cards.length;index++){
     const card=owner.hand.cards[index];
@@ -54,6 +72,8 @@ function ownerSupporterOpportunity(state,seat,supporterType){
     ownerHandSize:owner.hand.cards.length,
     ownerDeckCount,supporterQuota:quota,
     ownerSupporterLock:broadPlayLock,
+    publicGuzmaGeometry,
+    geometryOnlyNoPaperTargetCertification:true,
     firstGlobalTurn:state.turn===1,
     heldCount:supporters.length,
     nativeNullTrueCount:supporters.filter(s=>
