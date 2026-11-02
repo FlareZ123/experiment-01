@@ -28,3 +28,4 @@ function stage(seat){
  owner.bench=Array.from({length:5},()=>new PokemonCardList());
  foe.bench=Array.from({length:5},()=>new PokemonCardList());
  const gx=card('Electrode-GX CES');
+ const volt=card('Voltorb ROS');
