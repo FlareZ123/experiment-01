@@ -11,11 +11,6 @@ const {withGuzmaHalaOwnerZoneLineage,VERSION}=
 const ROOT=path.resolve(__dirname,'../..');
 const REG='results/aichi-2026/registrations/agent7-lillie-pass-rank6-prospective-20261102.json';
 const OUT=path.join(ROOT,'agent7-rank6-ghala-source-owner-zone-selected-control-audit.json');
-const expectedRootSHA={
- '6:70:A:champion-reference':'bd8a3ad02937841fc7a820743708b425184442fb80d23efb7092e8d7ad6f8323e',
- '6:70:A:new-moon-lockbreaker-v1':'b3c4dc704342bf04802986fc56c48114b2b277b119465d00060921584df2c82d6',
-};
-
 /** Retrospectively observe enhanced G&H payment in all eight already run control source deals. */
 function run(){
   const registration=JSON.parse(fs.readFileSync(path.join(ROOT,REG)));
