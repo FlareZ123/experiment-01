@@ -24,18 +24,18 @@ It also computes a strictly printing-aware variant with key (card name, set, num
 | Published source archetype | Original ranks | Same-label pairs | Name-level replacements, min..max | Largest divergence pair |
 | --- | --- | ---: | ---: | --- |
 | Regidrago | 10, 12, 13, 14, 18, 20, 21, 27, 32 | 36 | 6..21 | 18 vs 32 (21) |
-| Absol Garbodor | 8, 11, 16, 22 | 6 | 8..27 | 11 vs 22 (27) |
+| Absol Garbodor | 8, 11, 16, 22 | 6 | 7..26 | 11 vs 22 (26; printing-aware 27) |
 | Iron Thorns | 6, 24, 29 | 3 | 5..18 | 24 vs 29 (18) |
 | Snorlax Stall | 3, 7 | 1 | 34 | 3 vs 7 (34) |
 | Raichu Electrode Combo | 4, 17 | 1 | 20 | 4 vs 17 (20; printing-aware 21) |
 
-**Coverage: 29 original 60s, 14 distinct published archetype labels, 47 unordered original-deck pairs within identical labels.** The other nine labels each have one authenticated 60, so no within-label comparison is possible. Regidrago's closest same-label pair is ranks 12 vs 27 at **6** name-level substitutions.
+**Coverage: 29 original 60s, 14 distinct published archetype labels, 47 unordered original-deck pairs within identical labels.** Rank22 contains two different Trubbish printings under the same name. The canonical analyzer **adds** duplicate-name counts before matching: using a raw name-to-count map that overwrites the first printing would falsely report Absol's range as 8..27 instead of 7..26. The other nine labels each have one authenticated 60, so no within-label comparison is possible. Regidrago's closest same-label pair is ranks 12 vs 27 at **6** name-level substitutions.
 
 ## Why these discrepancies can change source-player decisions
 
 **Snorlax Stall (34 of 60 replacement slots, ranks 3 vs 7).** Rank3 has **4 Plumeria, 4 Arven, 2 Galarian Stunfisk, 1 Bunnelby, 1 Rotom V, 1 Scoop Up Cyclone** and three separate original Stadium entries Tropical Beach, Player's Ceremony, Temple of Sinnoh. Rank7 has **4 Steven's Resolve, 3 Wobbuffet, 3 Mimikyu, 3 Palace Book, 2 Robo Substitute, 1 Megaton Blower** and **2 Chaotic Swell**. These are facts about the published inventories. A source policy hard-coded around Arven/Plumeria availability, Bunnelby milling, or a particular ACE SPEC cannot be presumed to activate the rank7 list's Steven's Resolve/Wobbuffet/Palace Book lines.
 
-**Absol Garbodor (27 replacements, ranks 11 vs 22).** Rank11 contains **2 Oranguru V, 3 Carmine, 4 Professor's Letter, 2 Boost Shake, 2 Shopping Center, 8 Darkness Energy**. Rank22 instead has **2 Vikavolt V, 1 Budew, 3 Lightning Energy, 2 Battle Compressor, 2 Night Stretcher**, and no Oranguru V, Professor's Letter or Shopping Center. Both use the same label but could present substantially different lock and attacking windows. Any claim of transfer needs owner-visible native evidence in each original 60.
+**Absol Garbodor (26 name-level replacements, ranks 11 vs 22; 27 printing-aware).** Rank11 contains **2 Oranguru V, 3 Carmine, 4 Professor's Letter, 2 Boost Shake, 2 Shopping Center, 8 Darkness Energy**. Rank22 instead has **2 Vikavolt V, 1 Budew, 3 Lightning Energy, 2 Battle Compressor, 2 Night Stretcher**, and no Oranguru V, Professor's Letter or Shopping Center. Both use the same label but could present substantially different lock and attacking windows. Any claim of transfer needs owner-visible native evidence in each original 60.
 
 **Raichu Electrode Combo (20 replacements, ranks 4 vs 17; 21 printing-specific).** Rank4 includes **2 Dedenne-GX, 2 Crobat V, 4 Quick Ball, 3 Sky Field and 1 Forest Seal Stone**. Rank17 instead has **4 Unown, 4 Battle VIP Pass, 4 Rescue Carrier, 1 PokéStop, 1 Marshadow**. Both share a substantial Electrode/Raichu Energy core. Printed package divergence means a single generic turbo-draw rule may make different action choices.
 
