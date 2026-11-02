@@ -35,6 +35,18 @@ function exeggcutePumpMoves(player, bottom, bench, remainingOpponentPrizes) {
   }));
 }
 
+/**
+ * Whether the defender has another Pokémon that survives a single Active KO.
+ * Observes public Pokémon in play only, never hidden hand/deck/Prizes.
+ * @param {object} state
+ * @param {0|1} sourceSeat
+ * @returns {boolean}
+ */
+function opponentHasLiveBench(state,sourceSeat){
+  return state.players[1-sourceSeat].bench.some(slot=>
+    slot.getPokemonCard()?.name!==undefined);
+}
+
 /** @param {object} state @param {object} player @param {number} seat @param {number} phase @returns {boolean} */
 function eligiblePumpTurn(state,player,seat,phase) {
   return state.turn===1&&state.activePlayer===seat&&
@@ -50,9 +62,10 @@ function eligiblePumpTurn(state,player,seat,phase) {
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
+ * @param {{requireOpponentSoloActive?:boolean}} [options] Prospective opt-in gate only.
  * @returns {{result:T,policyAudit:object}}
  */
-function withRank26ExeggcutePump(sourceSeat,execute) {
+function withRank26ExeggcutePump(sourceSeat,execute,options={}) {
   if(![0,1].includes(sourceSeat)||typeof execute!=='function')
     throw new TypeError('Source seat and synchronous match required.');
   const engine=rel=>require(path.join(OUTPUT,rel));
@@ -64,6 +77,7 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const id=sourceSeat===0?101:202;
   const events=[];
+  const vetoes=[];
   SimpleTacticsAi.prototype.decodeNextAction=function rank26Pump(state){
     const own=state.players[sourceSeat];
     if(this.client?.id!==id||!own||
@@ -76,6 +90,12 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
       if(cologneOpeningOpportunity(state,own,sourceSeat,GamePhase.PLAYER_TURN)){
         return original.call(this,state);
       }
+    }
+    if(options.requireOpponentSoloActive===true &&
+       opponentHasLiveBench(state,sourceSeat)){
+      vetoes.push({turn:state.turn,
+        reason:'defender-has-another-public-pokemon-in-play'});
+      return original.call(this,state);
     }
     const remainingOpponentPrizes=state.players[1-sourceSeat].prizes
       .filter(slot=>slot.cards.length>0).length;
@@ -102,8 +122,11 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
   };
   try{
     return {result:execute(),policyAudit:{
-      version:'rank26-single-source-pump-v1',
+      version:options.requireOpponentSoloActive===true?
+        'rank26-single-source-pump-solo-public-board-v2':
+        'rank26-single-source-pump-v1',
       sourceSeat,actions:events,
+      ...(options.requireOpponentSoloActive===true?{vetoes}:{}),
       qualifiedForCompetitiveInference:false
     }};
   }finally{
@@ -112,5 +135,5 @@ function withRank26ExeggcutePump(sourceSeat,execute) {
 }
 
 module.exports={
-  exeggcutePumpMoves,eligiblePumpTurn,withRank26ExeggcutePump
+  exeggcutePumpMoves,eligiblePumpTurn,opponentHasLiveBench,withRank26ExeggcutePump
 };
