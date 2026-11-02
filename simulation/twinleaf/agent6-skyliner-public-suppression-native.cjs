@@ -14,6 +14,8 @@ const {chooseSkylinerOrFloatStoneRondoRetreat}=require(
   './agent6-skyliner-or-floatstone-mobility.cjs');
 const {withToolJammerFloatStoneRetreatRepair}=require(
   './agent6-tool-jammer-floatstone-retreat-hook.cjs');
+const {withActiveToolJammerToolEffectGuard}=require(
+  './agent6-tool-jammer-tool-effect-guard.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const load=relative=>require(path.join(output,relative));
@@ -32,7 +34,8 @@ const MODES=['baseline','path','silent','klefki','thorns',
  * @param {0|1} sourceSeat
  * @returns {object} Actual native reduction and dispatch receipt.
  */
-function probe(mode,sourceSeat,{repair=false}={}){
+function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
+  assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
   const baseMode=mode.split('-float')[0];
@@ -133,8 +136,9 @@ function probe(mode,sourceSeat,{repair=false}={}){
     return {nativeRetreatCost,nativeRetreatError,promoted,
       nativeRetreatAccepted:promoted==="Lillie's Clefairy ex JTG"};
   };
-  const receipt=repair?
-    withToolJammerFloatStoneRetreatRepair(store,mine,enemy,executeNative):
+  const receipt=effectRepair?
+    withActiveToolJammerToolEffectGuard(store,mine,enemy,executeNative):
+    repair?withToolJammerFloatStoneRetreatRepair(store,mine,enemy,executeNative):
     {result:executeNative(),patches:[]};
   const {nativeRetreatCost,nativeRetreatError,promoted,nativeRetreatAccepted}=
     receipt.result;
@@ -148,9 +152,11 @@ function probe(mode,sourceSeat,{repair=false}={}){
     publicGuardAsPaper:Boolean(guarded)===!expectedSuppressed,
     floatStoneGuardAsPaper:Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
-    paperHookApplied:!repair||receipt.patches.length>0
+    paperHookApplied:!(repair||effectRepair)||receipt.patches.length>0
   };
-  return {mode,sourceSeat,repairApplied:repair,repairPatches:receipt.patches,
+  return {mode,sourceSeat,repairApplied:repair||effectRepair,
+    repairKind:effectRepair?'tool-effect':(repair?'retreat-cost':'none'),
+    repairPatches:receipt.patches,
     activeBefore:latias.fullName,printedPower:livePower.name,
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
@@ -188,10 +194,21 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runEffectRepair(){
+  const rows=['path-float-jammer','thorns-float-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{effectRepair:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {effectRepairTest:true,version:VERSION,rows,failures,
+    stagedNativeCases:rows.length,failedChecks:failures.length,
+    qualifiedCompetitiveGames:0};
+}
 if(require.main===module){
-  const result=process.env.AGENT6_TOOL_JAMMER_REPAIR_DEV==='true'?
+  const result=process.env.AGENT6_TOOL_JAMMER_EFFECT_REPAIR_DEV==='true'?
+    runEffectRepair():process.env.AGENT6_TOOL_JAMMER_REPAIR_DEV==='true'?
     runRepair():run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(result.failedChecks>0)process.exitCode=1;
 }
-module.exports={VERSION,MODES,probe,run,runRepair};
+module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair};
