@@ -91,3 +91,32 @@ test('native-rejected alternative defers to the original supported prompt',()=>{
   assert.deepEqual(store.state.players[0].hand.cards.map(c=>c.fullName),[TARGET]);
   assert.strictEqual(Store.prototype.dispatch,original);
 });
+
+test('first-turn VIP-like owner-deck selection moves source Mewtwo to Bench',()=>{
+  class VipStore extends Store{
+    dispatch(action){
+      if(action.constructor.name==='ResolvePromptAction'){
+        const owner=this.state.players[0],card=action.result[0];
+        const index=owner.deck.cards.indexOf(card);
+        assert.notEqual(index,-1);
+        owner.deck.cards.splice(index,1);
+        owner.bench.find(slot=>!slot.getPokemonCard()).cards.push(card);
+        this.state.prompts=[];
+      }
+      return 'native-accepted';
+    }
+  }
+  const store=new VipStore(1),prior=VipStore.prototype.dispatch;
+  const card=store.state.players[0].deck.cards.find(c=>c.fullName===TARGET);
+  const r=withOwnerSearchAlternative(()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new ResolvePromptAction(12,[card]));
+    return null;
+  },{targetTurn:1,Store:VipStore});
+  assert.equal(r.audit.nativeReplacementCount,1);
+  assert.equal(r.audit.legalPhysicalTransfers,1);
+  assert.equal(r.audit.events[0].confirmedDeckToBench,true);
+  assert.equal(r.audit.events[0].confirmedDeckToHand,false);
+  assert.equal(store.state.players[0].bench[1].getPokemonCard().fullName,CORE);
+  assert.strictEqual(VipStore.prototype.dispatch,prior);
+});
