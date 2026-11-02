@@ -14,6 +14,7 @@ on:
           - source-return-retool
           - blower-timing-three
           - postblower-radiant
+          - rank17-prospective-evolution
 
 permissions:
   contents: read
@@ -39,6 +40,9 @@ jobs:
         run: npm run compile
       - name: Pure owner-plan selectors, lifecycle and fail-closed original-six pairing
         run: node --test tests/agent1-owner-oranguru-starvip-native.test.cjs tests/agent1-rank11-six-source-policy-pair.test.cjs
+      - name: Rank17 prospective source-identity and actor-only source ledger tests
+        if: inputs.experiment == 'rank17-prospective-evolution'
+        run: node --test tests/agent1-rank17-original-evolution-prospective.test.cjs
       - name: Original six K0 owner-visible Star-VIP native plan
         if: inputs.experiment == 'owner-starvip'
         run: node simulation/evaluation/agent1-rank11-owner-starvip-autonomy-original-six.cjs > agent1-owner-starvip-native.json
@@ -95,6 +99,19 @@ jobs:
         with:
           name: agent1-postblower-owner-radiant-native
           path: agent1-postblower-radiant-native.json
+          if-no-files-found: warn
+      - name: Rank17 original 60 symmetric natural evolution randomized 16-arm native trial
+        if: inputs.experiment == 'rank17-prospective-evolution'
+        run: node simulation/evaluation/agent1-rank17-original-evolution-prospective.cjs > agent1-rank17-native.json
+      - name: Require all 16 original registered native attempts and explicit zero qualified games
+        if: inputs.experiment == 'rank17-prospective-evolution'
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-rank17-native.json');a.equal(r.attempted,16);a.equal(r.competitiveQualifiedGames,0);a.equal(r.paired.length,8);a.equal(r.modes.frozenV2Control.rows.length,8);a.equal(r.modes.naturalEvolutionOnly.rows.length,8);console.log('AGENT1_RANK17_ATTEMPT_STATUS',JSON.stringify(r.paired.map(x=>({id:x.trial.id,physical:x.sourceDealMatch,baseline:x.control.status,treatment:x.naturalEvolution.status,baselineEvolutions:x.control.sourceStage1PlayRoots.length,treatmentEvolutions:x.naturalEvolution.sourceStage1PlayRoots.length}))))"
+      - name: Preserve every rank17 registered original native trial and diagnostic abort
+        if: always() && inputs.experiment == 'rank17-prospective-evolution'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-rank17-evolution-native
+          path: agent1-rank17-native.json
           if-no-files-found: warn
       - name: Archive ALL owner Star-VIP results and errors
         if: always() && inputs.experiment == 'owner-starvip'
