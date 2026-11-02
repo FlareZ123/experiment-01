@@ -173,3 +173,88 @@ for(const seat of [0,1]){
     assert.equal(adaptive.turnEndObserved,true,JSON.stringify(adaptive));
   });
 }
+
+
+/**
+ * Separate native Store proof of the printed G&H multi-axis line, staged at
+ * owner Supporter time with exact original physical 60 and both resources
+ * deliberately deck-resident. No opponent policy or full-game claim.
+ */
+function runNativeGuzmaHalaTwoAxis(seat){
+  const {store,owner,opponent,publicPhysicalCount}=stage(seat);
+  const dceCard=owner.hand.cards.find(c=>c.fullName===DCE);
+  const ghCard=owner.deck.cards.find(c=>c.fullName==='Guzma & Hala CEC');
+  assert.ok(dceCard&&ghCard);
+  owner.hand.cards.splice(owner.hand.cards.indexOf(dceCard),1);
+  owner.deck.cards.push(dceCard);
+  owner.deck.cards.splice(owner.deck.cards.indexOf(ghCard),1);
+  owner.hand.cards.push(ghCard);
+  assert.equal(owner.hand.cards.length,7);
+  assert.equal(owner.deck.cards.length,46);
+  const startingOpponent=opponent.hand.cards.length;
+  const run=()=> {
+    const i=owner.hand.cards.indexOf(ghCard);
+    store.dispatch(new PlayCardAction(owner.id,i,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    const option=store.state.prompts.find(p=>p.result===undefined&&
+      p.constructor?.name==='SelectOptionPrompt');
+    assert.ok(option,'G&H actual native choose-option missing');
+    assert.equal(option.playerId,owner.id);
+    assert.equal(option.validate(1,store.state),true);
+    store.dispatch(new ResolvePromptAction(option.id,1));
+    const discard=store.state.prompts.find(p=>p.result===undefined&&
+      p.constructor?.name==='ChooseCardsPrompt'&&p.cards===owner.hand);
+    assert.ok(discard,'Printed G&H 2-card discard prompt missing');
+    const payments=owner.hand.cards.filter(c=>
+      c.fullName!==DCE&&c.fullName!==THUNDER).slice(0,2);
+    assert.equal(payments.length,2);
+    assert.equal(discard.validate(payments,store.state),true);
+    store.dispatch(new ResolvePromptAction(discard.id,payments));
+    const search=store.state.prompts.find(p=>p.result===undefined&&
+      p.constructor?.name==='ChooseCardsPrompt'&&p.cards===owner.deck);
+    assert.ok(search,'G&H exact native multi-axis deck prompt missing');
+    assert.equal(search.playerId,owner.id);
+    const stadium=owner.deck.cards.find(c=>c.fullName===THUNDER);
+    const energy=owner.deck.cards.find(c=>c.fullName===DCE);
+    assert.ok(stadium&&energy);
+    assert.equal(search.validate([stadium,energy],store.state),true);
+    store.dispatch(new ResolvePromptAction(search.id,[stadium,energy]));
+    const seen=[];
+    for(let step=0;step<10;step++){
+      const prompt=store.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      const type=prompt.constructor?.name;
+      const result=type==='ShuffleDeckPrompt'?
+        deckPermutation(owner.deck.cards.length,seededRandom(0x33a2030+seat)):
+        type==='ShowCardsPrompt'?true:
+        type==='WaitPrompt'?null:undefined;
+      assert.notEqual(result,undefined,'Unknown native G&H prompt '+type);
+      assert.equal(prompt.validate(result,store.state),true);
+      seen.push(type);
+      store.dispatch(new ResolvePromptAction(prompt.id,result));
+    }
+    assert.equal(store.state.prompts.some(p=>p.result===undefined),false);
+    assert.equal(owner.hand.cards.includes(ghCard),false);
+    assert.equal(owner.hand.cards.includes(stadium),true);
+    assert.equal(owner.hand.cards.includes(energy),true);
+    assert.equal(owner.discard.cards.includes(payments[0]),true);
+    assert.equal(owner.discard.cards.includes(payments[1]),true);
+    assert.equal(publicPhysicalCount(owner),60);
+    assert.equal(publicPhysicalCount(opponent),60);
+    assert.equal(opponent.hand.cards.length,startingOpponent);
+    return {stadium:stadium.fullName,specialEnergy:energy.fullName,
+      selected:2,paidDiscardCount:2,followingPrompts:seen,
+      sourceLegalSixties:2,seat,competitiveQualifiedGames:0};
+  };
+  return withNumericShufflePromptValidation(run);
+}
+
+for(const seat of [0,1]){
+  test('pinned original rank29 G&H dual-axis Supporter search seat '+seat,()=>{
+    const {result,audit}=runNativeGuzmaHalaTwoAxis(seat);
+    assert.equal(result.stadium,THUNDER);
+    assert.equal(result.specialEnergy,DCE);
+    assert.ok(audit.rawRejectedCorrected>=1);
+  });
+}
