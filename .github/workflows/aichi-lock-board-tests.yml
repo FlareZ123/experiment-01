@@ -90,6 +90,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent18_blockade_native:
+        description: 'Opt-in staged actual Blockade attack opponent player-level Supporter denial and expiry, two seats, no games'
+        required: false
+        type: boolean
+        default: false
       herdier_evolution_lock_probe:
         description: 'Pinned Herdier SUM 104 actual evolution under Wobbuffet and Garbotoxin'
         type: boolean
@@ -215,6 +220,16 @@ jobs:
         with:
           name: agent33-celestial-nine-original-sources-20261101
           path: agent33-celestial-nine-source.json
+          if-no-files-found: warn
+      - name: Agent18 pinned two-seat Blockade Supporter lock and expiry Store contract
+        if: inputs.agent18_blockade_native
+        run: node simulation/twinleaf/agent18-exeggutor-blockade-native.cjs > agent18-blockade-native.json
+      - name: Preserve Agent18 staged Blockade genuine Store outcomes including failures
+        if: inputs.agent18_blockade_native && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent18-exeggutor-blockade-pinned-native-20261102
+          path: agent18-blockade-native.json
           if-no-files-found: warn
       - name: Native pinned Store Path to the Peak blocks and restores Genesect V Ability on both seats
         if: inputs.agent33_stadium_mode == 'path'
