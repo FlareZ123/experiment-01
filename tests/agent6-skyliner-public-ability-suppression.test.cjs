@@ -46,7 +46,7 @@ test('registered v2 version and positive baseline remain identical',()=>{
   const original='agent6-owner-public-skyliner-rondo-mobility-v2-nominal-ko';
   assert.equal(ORIGINAL_VERSION,original);
   assert.equal(BASE_VERSION,original);
-  assert.equal(VERSION,'agent6-skyliner-public-ability-suppression-v1');
+  assert.equal(VERSION,'agent6-skyliner-public-ability-suppression-v2-basic-locks');
   const state=view();
   assert.equal(publicSkylinerSuppressionReason(state),null);
   assert.deepEqual(choosePublicLockGuardedSkylinerRondoRetreat(state,catalog),
@@ -112,6 +112,42 @@ test('opponent active Neutralizing Gas suppresses, benched does not',()=>{
   const benched=view();
   benched.opponentPublic.bench[0]=weezing;
   assert.equal(publicSkylinerSuppressionReason(benched),null);
+});
+
+test('Basic-only public locks: Silent Lab, Active Klefki, and Alolan Muk',()=>{
+  const silent=view();
+  silent.opponentPublic.stadium=['Silent Lab PRC'];
+  assert.equal(publicSkylinerSuppressionReason(silent),
+    'silent-lab-basic-ability-lock');
+  assert.equal(choosePublicLockGuardedSkylinerRondoRetreat(
+    silent,catalog),null);
+  for(const side of ['ownPublic','opponentPublic']){
+    const klefki=view();
+    klefki[side].active={...klefki[side].active,
+      printing:'Klefki SVI',abilities:['Mischievous Lock']};
+    assert.equal(publicSkylinerSuppressionReason(klefki),
+      'active-klefki-mischievous-lock');
+    assert.equal(choosePublicLockGuardedSkylinerRondoRetreat(
+      klefki,catalog),null);
+    const muc=view();
+    muc[side].bench[1]={printing:'Alolan Muk SUM',
+      abilities:['Power of Alchemy'],tools:[]};
+    assert.equal(publicSkylinerSuppressionReason(muc),
+      'alolan-muk-power-of-alchemy');
+    assert.equal(choosePublicLockGuardedSkylinerRondoRetreat(
+      muc,catalog),null);
+  }
+});
+
+test('benched Klefki and Active Psychic-exempt Wobbuffet do not trigger veto',()=>{
+  const state=view();
+  state.opponentPublic.bench[1]={printing:'Klefki SVI',
+    abilities:['Mischievous Lock'],tools:[]};
+  state.opponentPublic.active={...state.opponentPublic.active,
+    printing:'Wobbuffet PHF',abilities:['Bide Barricade']};
+  assert.equal(publicSkylinerSuppressionReason(state),null);
+  assert.equal(choosePublicLockGuardedSkylinerRondoRetreat(state,catalog)
+    ?.kind,'skyliner-rondo-retreat');
 });
 
 test('no own or opponent concealed-zone access',()=>{
