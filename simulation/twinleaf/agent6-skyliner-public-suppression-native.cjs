@@ -43,7 +43,8 @@ const MODES=['baseline','path','silent','klefki','thorns',
  * @param {0|1} sourceSeat
  * @returns {object} Actual native reduction and dispatch receipt.
  */
-function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
+function probe(mode,sourceSeat,{repair=false,effectRepair=false,
+  attackFollowup=false}={}){
   assert.ok(!(repair&&effectRepair));
   assert.ok(MODES.includes(mode)||EXTRA_EFFECT_MODES.includes(mode));
   assert.ok(sourceSeat===0||sourceSeat===1);
@@ -52,6 +53,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const equippedAirBalloon=mode.includes('-airballoon');
   const equippedFuryBelt=mode.includes('-furybelt');
   const equippedStealthyHood=mode.includes('-stealthyhood');
+  assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=mode.endsWith('-jammer')&&!opponentBenchJammer;
   const stadiumToolJamming=mode.endsWith('-jamming');
@@ -70,7 +72,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   const {GamePhase}=load('game/store/state/state');
   const {Format,CardType,SpecialCondition}=
     load('game/store/card/card-types');
-  const {RetreatAction}=load('game/store/actions/game-actions');
+  const {RetreatAction,AttackAction}=
+    load('game/store/actions/game-actions');
   const {CheckRetreatCostEffect,CheckHpEffect}=
     load('game/store/effects/check-effects');
   const {IS_ABILITY_BLOCKED}=load('game/store/prefabs/prefabs');
@@ -161,16 +164,37 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     try{store.dispatch(new RetreatAction(mine.id,0));}
     catch(error){nativeRetreatError=String(error?.message??error);}
     const promoted=store.state.players[sourceSeat].active.getPokemonCard()?.fullName;
+    const nativeRetreatAccepted=promoted==="Lillie's Clefairy ex JTG";
+    let attackReceipt=null;
+    if(attackFollowup){
+      const before={ownerPrizes:mine.prizes.length,
+        opponentActive:enemy.active.getPokemonCard()?.fullName??null,
+        opponentActiveDamage:enemy.active.damage};
+      let attackError=null,attempted=false,accepted=false;
+      if(nativeRetreatAccepted){
+        attempted=true;
+        try{store.dispatch(new AttackAction(mine.id,'Full Moon Rondo'));
+          accepted=true;}
+        catch(error){attackError=String(error?.message??error);}
+      }
+      attackReceipt={attempted,accepted,attackError,before,
+        after:{ownerPrizes:mine.prizes.length,
+          opponentActive:enemy.active.getPokemonCard()?.fullName??null,
+          opponentActiveDamage:enemy.active.damage,
+          opponentDiscard:enemy.discard.cards.map(c=>c.fullName),
+          pendingPrompts:store.state.prompts.filter(p=>
+            p.result===undefined).map(p=>p.constructor.name),
+          phase:store.state.phase}};
+    }
     return {nativeBlocked,nativeHp,nativeRetreatCost,nativeRetreatError,
-      promoted,
-      nativeRetreatAccepted:promoted==="Lillie's Clefairy ex JTG"};
+      promoted,nativeRetreatAccepted,attackReceipt};
   };
   const receipt=effectRepair?
     withActiveToolJammerToolEffectGuard(store,mine,enemy,executeNative):
     repair?withToolJammerFloatStoneRetreatRepair(store,mine,enemy,executeNative):
     {result:executeNative(),patches:[]};
   const {nativeBlocked,nativeHp,nativeRetreatCost,nativeRetreatError,
-    promoted,nativeRetreatAccepted}=receipt.result;
+    promoted,nativeRetreatAccepted,attackReceipt}=receipt.result;
   const expectedSuppressed=!['baseline','wobbuffet'].includes(baseMode)&&
     !(baseMode==='thorns'&&equippedStealthyHood&&!opponentToolJammer);
   const expectedFree=!expectedSuppressed||
@@ -190,6 +214,9 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
       equippedStealthyHood||
       Boolean(floatStoneGuard)===expectedFree,
     nativePhysicalRetreatAsPaper:nativeRetreatAccepted===expectedFree,
+    attackFollowupSelectedAsPaper:!attackFollowup||
+      (opponentToolJammer?!attackReceipt.attempted:
+        attackReceipt.attempted&&attackReceipt.accepted),
     paperHookApplied:effectRepair?
       (opponentToolJammer?receipt.patches.length>0:
         receipt.patches.length===0):!repair||receipt.patches.length>0
@@ -208,6 +235,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
     nativeHp,printedHp:latias.hp,nativeRetreatCost,
     nativeRetreatAccepted,nativeRetreatError,activeAfter:promoted,
+    attackReceipt,
     expectedRetreatAccepted:expectedFree,checks,
     competitiveQualified:false};
 }
@@ -237,6 +265,17 @@ function runRepair(){
     stagedNativeCases:rows.length,failedChecks:failures.length,
     qualifiedCompetitiveGames:0};
 }
+function runHoodAttackRepair(){
+  const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
+    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+      effectRepair:true,attackFollowup:true})));
+  const failures=rows.flatMap(row=>Object.entries(row.checks)
+    .filter(([,passes])=>!passes)
+    .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
+  return {version:VERSION,hoodAttackFollowup:true,rows,
+    stagedNativeCases:rows.length,failures,failedChecks:failures.length,
+    qualifiedCompetitiveGames:0};
+}
 function runEffectRepair(){
   const rows=['path-float-jammer','thorns-float-jammer',
     'path-airballoon','path-airballoon-jammer',
@@ -255,10 +294,13 @@ function runEffectRepair(){
     qualifiedCompetitiveGames:0};
 }
 if(require.main===module){
-  const result=process.env.AGENT6_TOOL_JAMMER_EFFECT_REPAIR_DEV==='true'?
+  const result=process.env.AGENT6_HOOD_ATTACK_FOLLOWUP_DEV==='true'?
+    runHoodAttackRepair():
+    process.env.AGENT6_TOOL_JAMMER_EFFECT_REPAIR_DEV==='true'?
     runEffectRepair():process.env.AGENT6_TOOL_JAMMER_REPAIR_DEV==='true'?
     runRepair():run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
   if(result.failedChecks>0)process.exitCode=1;
 }
-module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair};
+module.exports={VERSION,MODES,probe,run,runRepair,runEffectRepair,
+  runHoodAttackRepair};
