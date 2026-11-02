@@ -43,6 +43,11 @@ jobs:
           node -e "const x=require('./scripts/aichi-initialization-potential-census.cjs').run();console.log(JSON.stringify({published:x.published,noTarget:x.noTarget,evolutionOnly:x.evolutionOnly,basicPossible:x.basicPossible.length}))"
       - name: Screen exact Aichi donor attack-name collisions
         run: node scripts/aichi-copy-donor-name-collision-screen.cjs
+      - name: Verify exact G&H and Artazon Prize-aware source access
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-gh-prize-search-window.test.cjs tests/agent32-gh-artazon-prize-window.test.cjs
+          node simulation/evaluation/agent32-gh-artazon-prize-window.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: aichi-card-coverage
