@@ -55,6 +55,10 @@ on:
         description: Diagnostic first-finited scored root without redundant in-tape State recapture
         type: boolean
         default: false
+      agent23_native_count_shuffle_rng:
+        description: Diagnostic inner native shuffle RNG count with forwarded exact original draws
+        type: boolean
+        default: false
       agent23_native_opponent_hand_tape:
         description: Conditional opponent hidden-hand exchange after authentic owner same-world tape parity
         type: boolean
@@ -292,6 +296,7 @@ jobs:
           AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER: ${{ inputs.agent50_native_tape_hidden_deck_order }}
           AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE: ${{ inputs.agent50_native_first_finite_tape }}
           AGENT23_NATIVE_FINITE_ENTRY_ONLY: ${{ inputs.agent23_native_finite_entry_only }}
+          AGENT23_NATIVE_COUNT_SHUFFLE_RNG: ${{ inputs.agent23_native_count_shuffle_rng }}
           AGENT23_NATIVE_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_OPPONENT_HAND_TAPE: ${{ inputs.agent23_native_bounded_opponent_hand_tape }}
           AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV: ${{ inputs.agent23_native_bounded_double_swap }}
