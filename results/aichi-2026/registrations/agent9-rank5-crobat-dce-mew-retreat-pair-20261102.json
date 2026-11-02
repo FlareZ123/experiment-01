@@ -1,0 +1,45 @@
+{
+  "schema": "agent9-rank5-crobat-dce-mew-paid-retreat-pair-registration-v1",
+  "registeredAt": "2026-11-02T10:18:04Z",
+  "objective": "Does an owner-only native Crobat V DCE-funded retreat to already DCE-funded Benched Mew VMAX restore source attacks following source Quick Ball actor47 payment policy?",
+  "control": "Original source-only QuickBall root plus actor47 mandatory hand-discard, existing two integrated policy modes",
+  "treatment": "Exactly the control with sourceCrobatDceMewRetreat true, which offers paid-retreat only to owner-visible Crobat V DAA with one DCE, ready DCE MewVMAX, available Genesect donor, printed retreat one colorless, no observed lock; Store independently validates",
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "previousPaymentPairArtifact": 13132252054,
+  "physicalGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1291978585
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2174158724
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "modes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "nativeAttempts": 16,
+  "matchedBlocks": 8,
+  "zeroPostOutcomeExclusions": true,
+  "priorSelectionDisclosure": "Original fixed physical seeds already seen in previous native runs. Within original A/New Moon source turn61 had an Active Crobat V with Double Colorless Energy and a Benched Mew VMAX with DCE; this prospective code intervention is a development regression, no held-out win inference.",
+  "metrics": [
+    "original root RetreatAction accepted for source and candidate",
+    "root metadata kind paid-retreat, physical owner public board",
+    "source Cross Fusion Strike AttackAction, opponent attacks and prizes",
+    "source Energy attachment, evolution and no-end/censor",
+    "full/source physical deal equality",
+    "all native failures and unsuccessful offers"
+  ],
+  "competitiveQualifiedGames": 0
+}
