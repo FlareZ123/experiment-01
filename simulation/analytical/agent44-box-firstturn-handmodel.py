@@ -141,9 +141,14 @@ def run():
                 [name for name in other if name in BASICS][:5]
                 if bench_strategy == "bench-all-other-basics" else []
             )
-            hand = [
-                name for name in other if name not in bench
-            ] + [turn_draw]
+            benched_copies = Counter(bench)
+            hand = []
+            for name in other:
+                if benched_copies[name]:
+                    benched_copies[name] -= 1
+                else:
+                    hand.append(name)
+            hand.append(turn_draw)
             in_play = Counter([active] + bench)
             for profile in ("strict", "flexible"):
                 k0, k1 = condition(
