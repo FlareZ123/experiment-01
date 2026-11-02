@@ -65,5 +65,6 @@
   "contrastBaseProfile": "simulation/evaluation/agent18-rank5-selected-canary-v1.json",
   "contrastBaseSourceGitBlobSha": "c7235328760e0f02a12b1a2e1e019c5d033ab889",
   "contrastDifference": "Only actorNaturalEvolutionRoot false -> true; all known input decks and physical seeds identical",
-  "seedsPreviouslyObserved": true
+  "seedsPreviouslyObserved": true,
+  "selectedEntrypointGitBlobSha": "49a7aa404c2143374c70ab233e9e101609554d59"
 }
