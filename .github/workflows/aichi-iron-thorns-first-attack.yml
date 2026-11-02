@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank31_roxie_owner_supporter_diagnostic:
+        description: Retrospective same-seed native owner-held Roxie and accepted Pass audit, zero win-rate claims
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -104,7 +109,7 @@ jobs:
             rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
-    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -234,7 +239,7 @@ jobs:
           if-no-files-found: warn
 
   canonical-paper-v10-smoke:
-    if: ${{ inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
+    if: ${{ inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.rank31_roxie_owner_supporter_diagnostic }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -283,4 +288,42 @@ jobs:
           path: |
             agent15-canonical-v10-smoke.json
             agent15-rank31-v10-native-pairs.json
+          if-no-files-found: warn
+
+  rank31-retrospective-owner-roxie-audit:
+    if: ${{ inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.canonical_paper_v10_smoke && !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify syntax and original frozen retrospective preflight
+        run: |
+          node --check simulation/evaluation/agent15-rank31-roxie-owner-supporter-retro.cjs
+          node -e "const x=require('./simulation/evaluation/agent15-rank31-roxie-owner-supporter-retro.cjs').registeredDiagnostic();console.log('OWNER_RANK31_ROXIE_POSTGAME_DIAGNOSTIC',JSON.stringify({originalSourceRank:x.d.sourceRank,registeredNativeAttempts:x.d.nativeAttempts,priorZeroRoxie:x.d.priorObservedSourceRoxieRoots,diagnosticGitBlob:'4c8c59e574a5603375e9a6cc908f0fadc9d3f237'}))"
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify read-only owner-hand native Store observer against fake native Store
+        run: node --test tests/agent2-native-owner-supporter-opportunity.test.cjs
+      - name: Reproduce both physical seats same-checkout native original rank31 owner-held Roxie census
+        run: node simulation/evaluation/agent15-rank31-roxie-owner-supporter-retro.cjs > agent15-rank31-roxie-owner-retro.json
+      - name: Print paired native ledger status and observed original source Roxie Pass opportunities
+        run: |
+          node -e "const assert=require('node:assert/strict');const x=require('./agent15-rank31-roxie-owner-retro.json');assert.equal(x.attempted,8);assert.equal(x.observedPairedGames,4);assert.equal(x.competitiveQualifiedGames,0);console.log('RETROSPECTIVE_OWNER_ROXIE_DIAGNOSTIC',JSON.stringify({allParity:x.observerNoninterferingAllArms,pairs:x.pairs.map(p=>({id:p.id,noninterfering:p.observerNoninterfering,rootDigestMatch:p.rootLedgerMatch,source:p.sourceOwnerSupporter}))}))"
+      - name: Preserve all read-only audit evidence and censored original native attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-rank31-retrospective-owner-roxie-audit
+          path: agent15-rank31-roxie-owner-retro.json
           if-no-files-found: warn
