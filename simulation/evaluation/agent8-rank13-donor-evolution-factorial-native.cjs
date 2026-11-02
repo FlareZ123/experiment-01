@@ -49,6 +49,11 @@ function main(){
         donorNativeAccepted:arm.root?.donorNativeAccepted??0,
         nativeSourceEvolutionAcceptances:
           arm.sourceNativeEvolutionAcceptances??[],
+        sourceOwnerEligibleVstarRootTurns:
+          arm.sourceOwnerEligibleVstarRootTurns??[],
+        sourceOwnerHeldVstarObservedTurns:[...new Set(
+          (arm.sourceOwnerVstarObservations??[])
+            .filter(row=>row.heldVstarCount>0).map(row=>row.turn))],
         sourceRegidragoVPlayRoots:ownerActions.filter(action=>
           action.action==='PlayCardAction'&&action.card==='Regidrago V').length,
         sourceVstarPlayRoots:ownerActions.filter(action=>
