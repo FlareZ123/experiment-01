@@ -10,6 +10,8 @@ const {publicSkylinerSuppressionReason,
   choosePublicLockGuardedSkylinerRondoRetreat}=require(
     './agent6-skyliner-ability-suppression-guard.cjs');
 
+const {choosePublicHoodAwareSkylinerRondoRetreat}=
+  require('./agent6-skyliner-hood-vs-thorns-frontier.cjs');
 const {chooseSkylinerOrFloatStoneRondoRetreat}=require(
   './agent6-skyliner-or-floatstone-mobility.cjs');
 const {withToolJammerFloatStoneRetreatRepair}=require(
@@ -135,6 +137,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
   };
   const original=chooseOwnerSkylinerRondoRetreat(view,catalog);
   const guarded=choosePublicLockGuardedSkylinerRondoRetreat(view,catalog);
+  const hoodGuard=equippedStealthyHood?
+    choosePublicHoodAwareSkylinerRondoRetreat(view,catalog):null;
   const floatStoneGuard=chooseSkylinerOrFloatStoneRondoRetreat(view,catalog);
   const reason=publicSkylinerSuppressionReason(view);
   const livePower=latias.powers.find(power=>power.name==='Skyliner');
@@ -176,6 +180,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     printedRootPresent:Boolean(original),
     nativeAbilityBlockAsPaper:nativeBlocked===expectedSuppressed,
     nativeRetreatCostAsPaper:nativeRetreatCost===(expectedFree?0:2),
+    hoodGuardAsPaper:!equippedStealthyHood||
+      Boolean(hoodGuard)===expectedFree,
     publicGuardAsPaper:equippedStealthyHood||
       Boolean(guarded)===!expectedSuppressed,
     furyBeltNativeHpAsPaper:!equippedFuryBelt||
@@ -197,6 +203,7 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false}={}){
     ownerPrintedPowerVisible:view.ownPublic.active.abilities.includes('Skyliner'),
     originalRootWouldSelect:original?.kind??null,
     guardedRootWouldSelect:guarded?.kind??null,
+    hoodGuardRootWouldSelect:hoodGuard?.kind??null,
     floatStoneRootWouldSelect:floatStoneGuard?.kind??null,
     suppressionReason:reason,nativeAbilityBlocked:nativeBlocked,
     nativeHp,printedHp:latias.hp,nativeRetreatCost,
