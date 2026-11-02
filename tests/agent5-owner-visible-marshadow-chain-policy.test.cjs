@@ -90,6 +90,15 @@ test('competing held replacement Stadium is a deliberate source policy veto',()=
   const v=view('float');
   v.ownHand.push('Sky Field ROS');
   assert.equal(chooseMarshadowCounterRoot(v),null);
+  v.ownTurnResources.stadiumPlayedTurn=2;
+  assert.equal(chooseMarshadowCounterRoot(v)?.kind,
+    'fog-search-shadow',
+    'A spent Stadium attachment turn is not a valid substitute');
+  v.ownTurnResources.stadiumPlayedTurn=0;
+  v.ownTurnResources.stadiumPlayLocked=true;
+  assert.equal(chooseMarshadowCounterRoot(v)?.kind,
+    'fog-search-shadow',
+    'A Stadium lock removes the competing Stadium replacement option');
 });
 
 test('cannot retreat twice or through status',()=>{
