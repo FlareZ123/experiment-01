@@ -33,6 +33,10 @@ test('future runner options and unregistered source cards fail closed',()=>{
 test('ambient AGENT switches and source-visible settings are rejected',()=>{
   const closure={keys:['AGENT7_EXPERIMENT_DEV','CI','CONTEXT_OVERRIDE']};
   assert.doesNotThrow(()=>assertEnvironment(profile,closure,{CI:'true'}));
+  assert.doesNotThrow(()=>assertEnvironment(profile,
+    {keys:['GITHUB_SHA']},{GITHUB_SHA:'pinned-commit'},'pinned-commit'));
+  assert.throws(()=>assertEnvironment(profile,
+    {keys:['GITHUB_SHA']},{GITHUB_SHA:'other-commit'},'pinned-commit'),/Unreviewed/);
   assert.throws(()=>assertEnvironment(profile,closure,
     {CI:'true',AGENT7_EXPERIMENT_DEV:'true'}),/Unreviewed/);
   assert.throws(()=>assertEnvironment(profile,closure,
