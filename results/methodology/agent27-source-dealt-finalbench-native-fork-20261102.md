@@ -28,3 +28,17 @@ For all three independent counterfactual arms, the first divergent accepted nati
 A native `PlayCardAction` physically placing a Basic proves a narrow admissible Bench action in that exact running Store; it does not certify the paper effect of `Dedechange`, resulting draw/discard prompts, any subsequent attack, root action choice competence, or a game-winning tactic. The printed `Squawk and Seize` on Squawkabilly ex operates on a player's first turn; the turn41 Squawkabilly admission alone supplies no corresponding draw ability. Dedenne-GX has an optional entry Ability, and Regidrago V is a possible attacker; their actual use and opportunity cost require separate physical, owner-visible follow-through. All three counterfactual branches are **retrospectively** chosen from a single displayed test state with no prospective field frequency.
 
 The next useful research action is to establish the identical full original deal and actual post-fork response phases, then present the choice's opportunity costs to Agent41's shared rank6/rank11 two-seat policy evaluator. If the final result cannot distinguish a stronger playable line, report that uncertainty explicitly. The target remains one fixed legal 60 versus all Aichi Top32 exact originals; **29/32** are currently available and **zero** games are competitively qualified. The **99.5%** aspiration remains wholly unverified.
+
+## Full-deal and owner-root fingerprint confirmation
+
+[Follow-up compiled CI 41371631732](https://github.com/FlareZ123/experiment-01/actions/runs/41371631732) **passed** at registered source `47d226d5e465982a10c5d8d15d3303543b774a43`; its [archived native artifact 13109995810](https://github.com/FlareZ123/experiment-01/actions/runs/41371631732/artifacts/13109995810) includes the entire four-arm comparison. Every one of the four source-dealt arms carried exactly the same **initial full two-player physical deal digest**:
+
+`1880ade3c8347b2a908cd4c70f4bd5e33cc3796f899373fc9d13d7fffb803846`
+
+Every arm also carried the same exact detached **owner-visible observation digest** immediately before the selected turn41 action:
+
+`3b3da76a7ec9ea62b9d76c85e52922faa1f03d99e94f6fc3bdddbcb63ec99561`
+
+At that root, rank10 held **21 cards**, had **26 cards remaining in its source deck**, and had the exact same first-return Budew and three physical alternatives in the same hand positions. All three changed arms retained the 174-action identical source root prefix and a genuine Store physical-effect witness. Each continued at least to a recorded seat0 opponent-root on global turn42 (the first recorded was a `ResolvePromptAction`; this alone is no certification of a correct printed reaction). All four games completed in the original engine; no qualified competitive outcome emerged and none changed the rank1 engine winner.
+
+This closes the **deal identity and actor-root equality** gap for this exact retrospective fork. It leaves the printed Ability prompt sequence, true opponent strategic quality, paper match clock, and natural prospective exposure unresolved. The result is evidence that three distinct owner-hand last-Bench physical admissions can all be legal in one exact original match and still fail to reverse the specific engine outcome. It provides no basis to rank them as generally best or to infer their win rates.
