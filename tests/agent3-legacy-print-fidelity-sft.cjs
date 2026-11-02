@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-/** @typedef {{id:string,name:string,supertype:string,subtypes?:string[], rules?:string[], legalities?:{expanded?:string}}} Card */
+/** @typedef {{id:string,name:string,supertype:string,subtypes?:string[], rules?:string[], legalities?:{expanded?:string},abilities?:Array<{name:string,text?:string}>,attacks?:Array<{name:string,text?:string}>}} Card */
 /** @typedef {{id:string,series:string,name:string}} SetRecord */
 
 const root = path.resolve(__dirname, '..');
@@ -28,10 +28,11 @@ const byId = new Map(cards.map(card => [card.id, card]));
 const legacyFlagged = cards.filter(card => {
   const setId = card.id.split('-')[0];
   const series = sets.get(setId)?.series;
-  return preBwSeries.has(series) && card.legalities?.expanded === 'Legal';
+  return series !== undefined && preBwSeries.has(series) && card.legalities?.expanded === 'Legal';
 });
 
 assert.equal(legacyFlagged.length, 233, 'database snapshot unexpectedly changed');
+/** @param {string} name @returns {number} */
 const bySupertype = (name) => legacyFlagged.filter(card => card.supertype === name).length;
 assert.equal(bySupertype('Energy'), 102);
 assert.equal(bySupertype('Trainer'), 123);
@@ -61,7 +62,7 @@ for (const [name, oldId, modernId] of crossPrintPairs) {
   assert.equal(modern.name, name);
   assert.equal(old.legalities?.expanded, 'Legal');
   assert.equal(modern.legalities?.expanded, 'Legal');
-  assert.ok(preBwSeries.has(sets.get(oldId.split('-')[0])?.series));
+  assert.ok(preBwSeries.has(sets.get(oldId.split('-')[0])?.series ?? ''));
   assert.notEqual(printedEffect(old), printedEffect(modern));
   console.log(`IDENTICAL NAME + DATABASE EXPANDED LEGAL + DISTINCT ORIGINAL TEXT: ${oldId} <-> ${modernId}`);
   console.log(`  OLD    ${printedEffect(old).slice(0, 230)}`);
