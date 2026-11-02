@@ -35,9 +35,10 @@ function chooseRank9SpecialPaidRetreat(view,catalog){
     return null;
 
   // The source line already has a funded attacker stranded on Bench.
-  // Do not displace a currently playable damaging Active attack.
+  // Prefer a funded 200-damage pivot over Electrode's printed
+  // Electro Ball (50); avoid displacing a payable 200+ Active attack.
   if((active.attacks??[]).some(a=>
-      a.gxAttack!==true&&a.damage>0&&
+      a.gxAttack!==true&&a.damage>=200&&
       publicSpecialAttackPayable(view,catalog,active,a)))return null;
 
   for(let index=0;index<(own.bench??[]).length;index++){
