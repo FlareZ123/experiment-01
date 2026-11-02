@@ -1,0 +1,76 @@
+{
+  "schema": "agent8-rank13-regidrago-quickball-donor-native-paired-original-v1",
+  "registeredAtUtc": "2026-11-02T03:00:31.468873Z",
+  "registrationStatus": "precommitted-before-any-native-game-execution",
+  "source": {
+    "rank": 13,
+    "player": "Hiromu Sasaki",
+    "archetype": "Regidrago",
+    "file": "results/aichi-2026/full-decklists.json",
+    "physicalCopies": 60
+  },
+  "opponent": {
+    "rank": 1,
+    "description": "authenticated original Aichi rank1 published 60",
+    "file": "results/aichi-2026/full-decklists.json",
+    "physicalCopies": 60
+  },
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "trialMatrix": [
+    {
+      "sourceSeat": 0,
+      "seed": 1626632453
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1478863204
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2621207203
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 603372370
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2295622320
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 455806637
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 299991154
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 160440262
+    }
+  ],
+  "arms": [
+    "control-no-donor-root",
+    "treatment-with-rank13-donor-root"
+  ],
+  "nativeMaxActions": 160,
+  "flags": {
+    "strictPromptValidation": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "captureInitialSourceDealFingerprint": true,
+    "captureInitialFullPhysicalDeal": true,
+    "doubleDragonRecovery": true,
+    "ownerSingleSearch": true,
+    "actorHandDiscard": true,
+    "rootPolicy": "canonical actor-only source-rank13-scoped"
+  },
+  "analyticPlan": "Report all sixteen native attempts, matching source/full physical deal fingerprints per arm pair, native terminal/censor/error, actual source-specific Quick Ball donor root intents and Store acceptance, owner-hand donor payment selections and owner-deck Regidrago search selections, accepted subsequent source attacks and opponent response if observed. Do not derive a competitive win rate or suggest natural frequency from eight conditioned/unconditioned seeds.",
+  "selection": "Unscreened independent CSPRNG samples from full unsigned32 domain; no outcomes or opening draws inspected before commitment.",
+  "qualification": {
+    "competitiveGame": false,
+    "opponentPolicyCompetence": false,
+    "paperClock": false
+  }
+}
