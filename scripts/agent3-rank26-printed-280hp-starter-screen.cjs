@@ -53,10 +53,9 @@ function printIndex(){
  * This is strictly a printed HP/Weakness/Resistance screen. Abilities,
  * Tools, prior damage, external modifiers and actual play are excluded.
  */
-function audit(){
+function audit(get=printIndex()){
   const roster=JSON.parse(fs.readFileSync(path.join(ROOT,
     'results/aichi-2026/full-decklists.json'),'utf8'));
-  const get=printIndex();
   const me=roster.decks.find(d=>d.rank===26);
   const melo=get(me.cards.find(c=>c.name==='Meloetta ex'));
   const tm=get(me.cards.find(c=>c.name==='Technical Machine: Crisis Punch'));
