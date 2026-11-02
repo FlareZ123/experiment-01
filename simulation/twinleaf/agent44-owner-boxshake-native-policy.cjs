@@ -235,7 +235,15 @@ function withSharedFirstTurnBoxShake(execute,options={}){
              selected.length!==2||!['Float Stone','Muscle Band']
                .includes(selected[1]):
              selected.length!==1)){
-          fail(seat,state,flow,'UNAVAILABLE_SHAKE_TOOL_OR_GARBODOR_K1');
+          // Explicit opt-in: the native Secret Box owner-deck prompt is
+          // already authorized. Archive only bounded own-K1 source booleans,
+          // never the concealed deck order or the opponent's zones.
+          const sourceDetail=options.auditOwnerK1Sources===true?{
+            ownerAuthorizedK1:planned.sources,
+            ownerK1Reason:planned.reason
+          }:{};
+          fail(seat,state,flow,'UNAVAILABLE_SHAKE_TOOL_OR_GARBODOR_K1',
+            sourceDetail);
           return original.call(this,state);
         }
         if(toolFetched)flow.toolName=selected[1];
