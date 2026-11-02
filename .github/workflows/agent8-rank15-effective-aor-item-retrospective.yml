@@ -61,6 +61,9 @@ jobs:
         env:
           AGENT8_RANK13_RESULT_JSON: agent8-original13-donor-paired-native.json
         run: node simulation/twinleaf/agent8-rank13-donor-paired-original-native.cjs
+      - name: Verify owner-visible source Regidrago VSTAR opportunity witness
+        if: ${{ inputs.source13_evolution_factorial }}
+        run: node --test tests/agent8-rank13-vstar-owner-opportunity.test.cjs
       - name: Retrospective original-rank13 four-arm donor by two-seat evolution diagnostic
         if: ${{ inputs.source13_evolution_factorial }}
         env:
