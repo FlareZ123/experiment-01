@@ -12,6 +12,7 @@ const load=name=>require(path.join(ROOT,name));
 const {State,GamePhase}=load('game/store/state/state');
 const {Player}=load('game/store/state/player');
 const {AlolanRaichu}=load('sets/08-sun-and-moon/set-unified-minds/alolan-raichu');
+const {MistEnergy}=load('sets/10-scarlet-and-violet/set-temporal-forces/mist-energy');
 const {AttackEffect}=load('game/store/effects/game-effects');
 const {PutDamageEffect,PutCountersEffect}=load('game/store/effects/attack-effects');
 const {shouldPreventAttackEffects}=load('game/store/effects/effect-of-attack-effects');
@@ -73,4 +74,16 @@ test('native attack reducer applies Electro Rain type to a damage-protected targ
   attackReducer(fakeStore,state,damage);
   assert.equal(target.damage,0,
     'Native PUT_DAMAGE path honors the same prevention');
+});
+
+test('native Mist Energy distinguishes counters from damage',()=>{
+  const {state,base,target}=nativeFixture();
+  const mist=new MistEnergy();target.cards.push(mist);
+  const counters=new PutCountersEffect(base,30);counters.target=target;
+  const damage=new PutDamageEffect(base,30);damage.target=target;
+  const store={reduceEffect(current){return current;}};
+  mist.reduceEffect(store,state,counters);
+  mist.reduceEffect(store,state,damage);
+  assert.equal(counters.preventDefault,true);
+  assert.equal(damage.preventDefault,false);
 });
