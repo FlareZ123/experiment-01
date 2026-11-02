@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const crypto=require('node:crypto');
 const path=require('node:path');
 
-const VERSION='agent12-nightwatch-postgame-physical-pair-attestation-v5';
+const VERSION='agent12-nightwatch-native-zone-settlement-audit-v6';
 
 /**
  * Deterministic simulation of independent uniform physical-position draws
@@ -73,7 +73,7 @@ function nightWatchLikeShape(state,actor,prompt){
  *
  * @template T
  * @param {()=>T} run Real game.
- * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean,requireNativeRootState?:boolean,capturePostGamePhysicalNames?:boolean}} options
+ * @param {{committedSeed:string,deps?:object,requirePrintedOrigin?:boolean,requireNativeRootState?:boolean,capturePostGamePhysicalNames?:boolean,captureNativeMovementEvidence?:boolean}} options
  * @returns {{result:T,audit:object}}
  */
 function withUniformNightWatchOpponentSelection(run,options){
@@ -108,6 +108,11 @@ function withUniformNightWatchOpponentSelection(run,options){
   if(nativeRootGate)assert.equal(typeof dispatchOriginal?.value,'function');
   const nativeRootStates=new WeakSet();
   const marked=new WeakSet();
+  const selectedNativePrompts=new WeakMap();
+  const followupSourcePrompts=new WeakMap();
+  const movementEnabled=options.captureNativeMovementEvidence===true;
+  assert.ok(!movementEnabled||nativeRootGate,
+    'Physical Night Watch movement audit requires original native Store gate');
   const postGamePhysicalRefs=[];
   const audit={version:VERSION,structuralCandidates:0,
     selectedCount:0,events:[],nativeAcceptedNotEstablishedByHook:true,
@@ -123,6 +128,10 @@ function withUniformNightWatchOpponentSelection(run,options){
     requireNativeRootState:nativeRootGate,
     nativeRootSetupDispatchesObserved:0,
     skippedDetachedStorePrintedPrompts:0,
+    nativeMovementAuditEnabled:movementEnabled,
+    nativeMovementDispatches:0,
+    nativeMovementEvents:[],
+    nativeMovementEffectNotGloballyQualified:true,
     postgamePhysicalNamesEnabled:options.capturePostGamePhysicalNames===true,
     postgamePhysicalNamesExposedToPolicy:false,
     nativeRootBindingScope:nativeRootGate?
@@ -166,6 +175,7 @@ function withUniformNightWatchOpponentSelection(run,options){
       audit.events.push(event);
       if(options.capturePostGamePhysicalNames===true)
         postGamePhysicalRefs.push({event,cards:chosen.slice()});
+      if(movementEnabled)selectedNativePrompts.set(prompt,{event,cards:chosen.slice()});
     }
     audit.selectedCount+=count;
     return new ResolvePromptAction(prompt.id,chosen);
@@ -186,11 +196,84 @@ function withUniformNightWatchOpponentSelection(run,options){
     return result;
   }
   function trackNativeRoot(action,...rest){
+    const stateBefore=this.state;
     if(action instanceof AddPlayerAction){
-      nativeRootStates.add(this.state);
+      nativeRootStates.add(stateBefore);
       audit.nativeRootSetupDispatchesObserved++;
     }
-    return dispatchOriginal.value.call(this,action,...rest);
+    const isNativePrompt=movementEnabled&&
+      action instanceof ResolvePromptAction&&nativeRootStates.has(stateBefore);
+    const pending=isNativePrompt?
+      stateBefore.prompts.find(p=>p.id===action.id):null;
+    const sampled=pending?selectedNativePrompts.get(pending):null;
+    const followup=pending?followupSourcePrompts.get(pending):null;
+    let before=null;
+    if(sampled){
+      const other=stateBefore.players.find(p=>p.id!==sampled.event.actorId);
+      assert.ok(other&&pending.cards===other.hand,
+        'Source-marked native Night Watch must select real opposing hand');
+      const selected=sampled.cards;
+      before={
+        player:other,handCount:other.hand.cards.length,
+        deckCount:other.deck.cards.length,
+        selectedAllInHand:selected.every(card=>other.hand.cards.includes(card)),
+        selectedInitiallyInDeck:selected.filter(card=>
+          other.deck.cards.includes(card)).length,
+        promptSet:new Set(stateBefore.prompts)
+      };
+    }
+    const result=dispatchOriginal.value.call(this,action,...rest);
+    // Every result below is recorded after native dispatch, outside bot logic.
+    if(sampled){
+      const selected=sampled.cards,other=before.player;
+      const event=sampled.event;
+      const afterPrompts=this.state.prompts.filter(p=>
+        !before.promptSet.has(p));
+      const record={
+        promptId:event.promptId,turn:event.turn,actorId:event.actorId,
+        sampledPositions:event.positions.slice(),
+        chosenCount:selected.length,
+        handCountBefore:before.handCount,
+        deckCountBefore:before.deckCount,
+        handCountAfter:other.hand.cards.length,
+        deckCountAfter:other.deck.cards.length,
+        selectedAllInHandBefore:before.selectedAllInHand,
+        selectedInitiallyInDeck:before.selectedInitiallyInDeck,
+        selectedRemainingInHand:selected.filter(card=>
+          other.hand.cards.includes(card)).length,
+        selectedNowInDeck:selected.filter(card=>
+          other.deck.cards.includes(card)).length,
+        nativePromptDispatched:true,
+        nativeAfterAcceptedAction:true,
+        generatedFollowupPromptKinds:afterPrompts.map(p=>
+          p.constructor.name),
+        followupResolutions:[]
+      };
+      record.physicalHandDeckMovementConfirmed=
+        record.selectedAllInHandBefore&&
+        record.selectedInitiallyInDeck===0&&
+        record.handCountAfter===record.handCountBefore-selected.length&&
+        record.deckCountAfter===record.deckCountBefore+selected.length&&
+        record.selectedRemainingInHand===0&&
+        record.selectedNowInDeck===selected.length;
+      for(const next of afterPrompts){
+        if(next.constructor.name==='ShowCardsPrompt'||
+           next.constructor.name==='ShuffleDeckPrompt')
+          followupSourcePrompts.set(next,record);
+      }
+      event.nativeMovementRecord=record;
+      audit.nativeMovementEvents.push(record);
+      audit.nativeMovementDispatches++;
+    }
+    if(followup){
+      followup.followupResolutions.push({
+        promptKind:pending.constructor.name,
+        promptId:pending.id,
+        nativeDispatchAccepted:true,
+        promptRemovedAfter:!this.state.prompts.includes(pending)
+      });
+    }
+    return result;
   }
   Object.defineProperty(Ai.prototype,'resolvePrompt',{...original,value:resolvePrompt});
   if(sourceGate)Object.defineProperty(Source.prototype,'reduceEffect',{
