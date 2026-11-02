@@ -99,6 +99,17 @@ function executeOne(trial,byRank,donorRootEnabled){
       opponentRootActions.filter(row=>row.turnBefore>donorTurn);
     const postDonorSourceAttacks=donorTurn===null?[]:
       sourceAttacks.filter(row=>row.turnBefore>donorTurn);
+    const publicAcceptedActions=trace.filter(row=>
+      ['PlayCardAction','AttackAction','RetreatAction',
+        'PassTurnAction','UseStadiumAction'].includes(row.action))
+      .map(row=>({actionOrdinal:row.actionOrdinal,
+        turn:row.turnBefore,seat:row.playerSlot,
+        action:row.action,card:row.card??null}));
+    const sourceAttackDetails=(game.attackTrace??[])
+      .filter(row=>row.seat===sourceSeat)
+      .map(row=>({turn:row.turn,attacker:row.activePokemon,
+        attack:row.attack,prizesBefore:row.prizeCountBefore,
+        prizesAfter:row.prizeCountAfter}));
     const digest=createHash('sha256').update(JSON.stringify(
       game.decisionTrace??[])).digest('hex');
     return{
@@ -112,6 +123,8 @@ function executeOne(trial,byRank,donorRootEnabled){
       fullPhysicalDealSha256:
         game.initialFullPhysicalDealFingerprint?.digestSha256??null,
       gameDecisionTraceSha256:digest,
+      publicAcceptedActions,
+      sourceAttackDetails,
       deckHashes:game.deckHashes,
       winner:game.finished?game.winner:null,
       endReason:game.endReason,
@@ -186,8 +199,19 @@ function main(){
       control.sourceDealSha256===treatment.sourceDealSha256&&
       control.fullPhysicalDealSha256!==null&&
       control.fullPhysicalDealSha256===treatment.fullPhysicalDealSha256;
+    const left=control.publicAcceptedActions??[];
+    const right=treatment.publicAcceptedActions??[];
+    const discrepancy=Array.from({length:Math.max(left.length,right.length)},
+      (_,i)=>i).find(i=>JSON.stringify(left[i]??null)!==
+        JSON.stringify(right[i]??null));
+    const firstPublicActionDifference=discrepancy===undefined?null:{
+      actionIndex:discrepancy,
+      control:left[discrepancy]??null,
+      treatment:right[discrepancy]??null
+    };
     return {trial,control,treatment,
       matchedInitialSourceAndFullPhysicalDeal:matched,
+      firstPublicActionDifference,
       competitiveQualifiedGames:0};
   });
   const counts={
