@@ -8,6 +8,8 @@
 
 The [pure derived-count verifier](../../scripts/agent47-prospective-lillie-hand-balance.cjs) rechecks every native settled event from the original report; the [compact real-field fixture](../../tests/fixtures/agent47-lillie-native-real-hand-counts-16.json) preserves all six observed before/after hand/deck counts across all eight trial IDs and the original file's SHA for independent regression. It is a filtered archival excerpt, **not a replacement for the complete artifact**. [Negative tests](../../tests/agent47-prospective-lillie-hand-balance.test.cjs) reject unpaired original deals, missing native effects, false deck conservation and inconsistent acceptance counts.
 
+**Executed pure regression:** [Existing manual Agent47 CI 41486548694](https://github.com/FlareZ123/experiment-01/actions/runs/41486548694) **SUCCESS**, registered the new real-field and negative tests alongside the existing research tests. This does not rerun native matches; the original Agent7 compiled artifact remains the sole native evidence.
+
 ## The actual six settled candidate decision outcomes
 
 `Hand Δ` means **owner physical cards held immediately after the accepted Supporter resolves minus owner cards held immediately before its play**, including Lillie itself. Positive is an immediate increase. All these cards are shuffled into the deck by Lillie's effect; they are **not discarded** or permanently lost.
