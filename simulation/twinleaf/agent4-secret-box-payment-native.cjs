@@ -12,9 +12,10 @@ const native=name=>require(path.join(output,name));
  * this fixture never claims a natural 60-card game.
  * @param {0|1} [seat]
  * @param {'zero'|'three'} [payment]
+ * @param {'none'|'four'} [searchMode] Optional real own-deck search selection
  * @returns {object}
  */
-function probeSecretBoxPayment(seat=0,payment='zero'){
+function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
@@ -66,8 +67,8 @@ function probeSecretBoxPayment(seat=0,payment='zero'){
     let reply;
     if(type==='ChooseCardsPrompt'){
       // Search from a private own deck may legally fail each category.
-      reply=p.validate([],f.state)?[]:
-        [p.cards.cards.find(card=>p.validate([card],f.state))].filter(Boolean);
+      reply=searchMode==='four'?targets:(p.validate([],f.state)?[]:
+        [p.cards.cards.find(card=>p.validate([card],f.state))].filter(Boolean));
     }else if(type==='ShowCardsPrompt')reply=true;
     else if(type==='ShuffleDeckPrompt')
       reply=Array.from({length:f.source.deck.cards.length},(_,index)=>index);
@@ -80,7 +81,7 @@ function probeSecretBoxPayment(seat=0,payment='zero'){
       selected:reply?.map?.(c=>c?.fullName??null)??null,error});
     if(error)break;
   }
-  return {seat,payment,originalPrinting:'Secret Box TWM',
+  return {seat,payment,searchMode,originalPrinting:'Secret Box TWM',
     rootError,paymentPromptEvidence,paymentError,paymentSettled,
     energyADiscarded:f.source.discard.cards.includes(energyA),
     energyBDiscarded:f.source.discard.cards.includes(energyB),
