@@ -52,6 +52,8 @@ jobs:
         run: node --test tests/agent10-rank11-crobat-darkpatch-route.test.cjs
       - name: Reject seat-confounded zero-loss evidence under a four-cell estimand
         run: node --test tests/aichi-physical-seat-imbalance.test.cjs
+      - name: Preserve real rank16 native engine-terminal versus cap disposition with missing row veto
+        run: node --test tests/native-attempt-disposition-real-rank16.test.cjs
       - name: Verify source-deck positioning census and corner cases
         run: node tests/aichi-positioning-census.test.cjs
       - name: Verify event-era Japanese origin of late English print proxies
