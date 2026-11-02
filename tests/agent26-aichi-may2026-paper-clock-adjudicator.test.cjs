@@ -92,6 +92,19 @@ test('Swiss simultaneous natural game tie lacks published Swiss tiebreak witness
   assert.equal(r.winner,null);
 });
 
+test('new six-Prize knockout tiebreak ends at first strict Prize lead',()=>{
+  const start=decide(state('top32',[6,6],{phase:'tiebreak'}));
+  assert.equal(start.status,'PAPER_TIEBREAKER_CONTINUE');
+  assert.equal(start.winner,null);
+  assert.equal(start.postCutoffCheckupAllowed,true);
+  const firstPrize=decide(state('top32',[5,6],{phase:'tiebreak'}));
+  assert.equal(firstPrize.status,'PAPER_TIEBREAKER_PRIZE_LEAD_WIN');
+  assert.equal(firstPrize.winner,0);
+  const reversed=decide(state('final',[6,5],{phase:'tiebreak'}));
+  assert.equal(reversed.winner,1);
+  assert.equal(reversed.officialClockMinutes,35);
+});
+
 test('zero Prize without independently certified ordinary win is held unverified',()=>{
   const r=decide(state('top32',[0,5],{lastCompletedTurnSeat:0}));
   assert.equal(r.status,'NATURAL_PAPER_TERMINAL_UNVERIFIED');
