@@ -115,7 +115,23 @@ function activateAndPay(s) {
   assert.equal(s.energy.some(c => s.owner.discard.cards.includes(c)), false);
   assert.equal(s.owner.bench[0].getPokemonCard(), undefined,
     'Electrode self-KO occurs only after five paid physical attachments');
-  return { selectionCount: selection.length, activeEnergyCount: 5 };
+  // A self-KO is still a full Knock Out: opponent Prize prompts must resolve
+  // before the same-turn attack becomes a legal native root.
+  for (let i = 0; i < 12; i++) {
+    const next = s.state.prompts.find(p => p.result === undefined);
+    if (!next) break;
+    let response;
+    if (next.constructor.name === 'WaitPrompt') response = null;
+    else if (next.constructor.name === 'ChoosePrizePrompt') {
+      response = s.opponent.prizes.filter(p => p.cards.length).slice(0,next.options.count);
+    } else if (next.constructor.name === 'ShuffleDeckPrompt') {
+      response = Array.from({length:s.owner.deck.cards.length},(_,i)=>i);
+    } else throw new Error('Unexpected post-Electrode prompt '+next.constructor.name);
+    s.store.dispatch(new ResolvePromptAction(next.id,response));
+  }
+  assert.equal(s.state.prompts.some(p=>p.result===undefined),false);
+  assert.equal(s.opponent.getPrizeLeft(),4,'Electrode-GX awards two Prize cards');
+  return { selectionCount: selection.length, activeEnergyCount: 5, opponentPrizesAfterBomb:4 };
 }
 
 
@@ -123,7 +139,8 @@ function activateAndPay(s) {
  * @param {ReturnType<typeof stage>} s
  */
 function attackAndDiscard(s) {
-  assert.equal(s.opponent.hand.cards.length, 1);
+  const priorHandLength = s.opponent.hand.cards.length;
+  assert.equal(priorHandLength,3,'One seeded hand card plus two self-KO Prizes');
   const priorDamage = s.opponent.active.damage;
   s.store.dispatch(new AttackAction(s.owner.id, 'Claw of Darkness'));
   for (let i = 0; i < 5; i++) {
@@ -136,11 +153,13 @@ function attackAndDiscard(s) {
     p.result === undefined && p.constructor.name === 'ChooseCardsPrompt');
   assert.ok(prompt, 'Claw of Darkness must offer physical opponent-hand discard');
   assert.equal(prompt.playerId, s.owner.id);
-  const selected = prompt.decode([0]);
+  const fogIndex = s.opponent.hand.cards.findIndex(c => c.fullName === 'Fog Crystal CRE');
+  assert.ok(fogIndex>=0);
+  const selected = prompt.decode([fogIndex]);
   assert.equal(prompt.validate(selected), true);
   s.store.dispatch(new ResolvePromptAction(prompt.id, selected));
   assert.equal(s.opponent.active.damage, priorDamage + 200);
-  assert.equal(s.opponent.hand.cards.length, 0);
+  assert.equal(s.opponent.hand.cards.length, priorHandLength-1);
   assert.equal(s.opponent.discard.cards.some(c => c.fullName === 'Fog Crystal CRE'), true);
   return { attacked: 'Claw of Darkness', damage: 200, opponentCardsDiscarded: 1 };
 }
