@@ -145,6 +145,11 @@ function chooseActorRootIntent(view,catalog,options={}){
   const soloThornsHold=options.thornsSoloEnergyRetention===true&&
     require('./agent14-thorns-solo-energy-retention.cjs')
       .holdSoloThornsBench(view,catalog);
+  if(options.farewellLetterRoot===true){
+    const farewell=require('./agent14-owner-farewell-letter.cjs')
+      .chooseOwnerFarewellLetter(view);
+    if(farewell)return farewell;
+  }
   if(benchIndex>=0&&!r.pokemonPlayLocked&&!soloThornsHold){
     const index=view.ownHand.findIndex(p=>catalog.basics.has(p)&&
       !(r.abilityPokemonPlayLocked===true&&catalog.abilityBasics.has(p)));
@@ -626,6 +631,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    farewellLetterRootOptIn:deps.farewellLetterRoot===true,
     mysteriousTreasureRootOptIn:deps.mysteriousTreasureRoot??
       (process.env.AGENT49_MYSTERIOUS_TREASURE_ROOT_DEV==='true'),
     mysteriousTreasureEarlyRegisteredOptIn:
@@ -916,6 +922,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.farewellLetterRootOptIn)
+    audit.version+='+'+require('./agent14-owner-farewell-letter.cjs').VERSION;
   if(audit.ragingBoltNominalKoRootOptIn)
     audit.version+='+'+
       require('./agent50-raging-bolt-nominal-ko.cjs').VERSION;
@@ -1086,6 +1094,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      farewellLetterRoot:audit.farewellLetterRootOptIn,
       mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
       mysteriousTreasureEarlyRegistered:
         audit.mysteriousTreasureEarlyRegisteredOptIn,
@@ -1273,6 +1282,11 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'paid-retreat':
       case 'skyliner-rondo-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
+        break;
+      case 'use-farewell-letter':
+        action=new UseAbilityAction(ownerId,intent.abilityName,{
+          player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
+          index:intent.benchIndex});
         break;
       case 'perfection':
         action=new UseAbilityAction(ownerId,'Perfection',{
