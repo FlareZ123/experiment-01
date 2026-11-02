@@ -3,6 +3,11 @@ name: Agent 43 rank11 held Guzma diagnostic exact frozen replay
 on:
   workflow_dispatch:
     inputs:
+      rank9_special_guzma_exposure:
+        description: 'Read-only source rank9 owner-public Guzma conjunction census on unchanged frozen source deals'
+        type: boolean
+        required: false
+        default: false
       rank9_special_guzma_native:
         description: 'Retrospective exact rank9 original 60 two-seat Guzma full native Store comparison'
         type: boolean
@@ -46,19 +51,19 @@ jobs:
       - name: Verify original immutable preregistration before read-only replay
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs --inspect-only
       - name: Replay 16 PREVIOUSLY USED rank11 source seeds and assert unchanged accepted-root digest
-        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
+        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
         env:
           AGENT43_GUZMA_HELD_AUDIT_OUTPUT: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs
       - name: Preserve complete retrospective observer data, including failures
-        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
+        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
         uses: actions/upload-artifact@v4
         with:
           name: agent43-rank11-held-guzma-retrospective-16
           path: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
           if-no-files-found: warn
       - name: Preflight additional unchanged-source rank11 Basic Energy comparator
-        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
+        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
         run: node simulation/evaluation/agent2-rank11-basic-recipient-matched-development.cjs --inspect-only
       - name: Compare symmetric Basic Energy recipient frontier on frozen 16 rank11 source-dealt arms
         if: ${{ inputs.basic_energy_recipient_comparison }}
@@ -95,5 +100,21 @@ jobs:
           path: |
             agent2-rank9-guzma-profile-inspect.json
             ${{ runner.temp }}/agent2-rank9-guzma-retro-native.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Validate Special Energy Guzma exposure classifier against detached owner-only states
+        if: ${{ inputs.rank9_special_guzma_exposure }}
+        run: node --test tests/agent2-rank9-special-guzma-frontier.test.cjs
+      - name: Run read-only exact source rank9 Guzma opportunity census across original native roots
+        if: ${{ inputs.rank9_special_guzma_exposure }}
+        env:
+          AICHI_RANK9_GUZMA_EXPOSURE_OUTPUT: ${{ runner.temp }}/agent2-rank9-guzma-owner-public-exposure.json
+        run: node simulation/evaluation/agent2-rank9-guzma-exposure-native.cjs
+      - name: Preserve all accepted original-source owner-public exposure receipts
+        if: ${{ always() && inputs.rank9_special_guzma_exposure }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-rank9-guzma-owner-public-exposure
+          path: ${{ runner.temp }}/agent2-rank9-guzma-owner-public-exposure.json
           if-no-files-found: warn
           retention-days: 21
