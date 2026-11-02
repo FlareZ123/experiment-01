@@ -44,11 +44,12 @@ function sourcePlumeriaActionCertificates(row,payments,effects){
    e.paymentIndependentlyPaidTwo===true&&
    e.independentEnergyRemoval===true&&nativeEnergy&&
    e.energyPrinting===nativeEnergy.selectedCards[0]);
-  const sourcePass=roots.find(r=>r.playerSlot===sourceSeat&&
-   r.action==='PassTurnAction'&&r.actionOrdinal>(energy?.actionOrdinal??Infinity)&&
+  const sourceCompletion=roots.find(r=>r.playerSlot===sourceSeat&&
+   ['PassTurnAction','AttackAction'].includes(r.action)&&
+   r.actionOrdinal>(energy?.actionOrdinal??Infinity)&&
    r.turnBefore===play.turnBefore);
   const opponentResponse=roots.find(r=>r.playerSlot!==sourceSeat&&
-   r.actionOrdinal>(sourcePass?.actionOrdinal??Infinity)&&
+   r.actionOrdinal>(sourceCompletion?.actionOrdinal??Infinity)&&
    Number.isSafeInteger(r.actorPolicyDecisionOrdinal)&&
    r.turnBefore>play.turnBefore);
   const checks={
@@ -57,7 +58,7 @@ function sourcePlumeriaActionCertificates(row,payments,effects){
    nativeEnergySelection:Boolean(energy&&nativeEnergy),
    physicalTwoCardPayment:Boolean(paid),
    physicalOpponentEnergyRemoval:Boolean(removed),
-   actualSourceTurnPass:Boolean(sourcePass),
+   actualSourceTurnCompletion:Boolean(sourceCompletion),
    subsequentOpponentPolicyRoot:Boolean(opponentResponse)
   };
   return {registeredTrialId:row.trial.id,sourceRank:row.trial.rank,
@@ -65,7 +66,10 @@ function sourcePlumeriaActionCertificates(row,payments,effects){
    costPromptOrdinal:cost?.actionOrdinal??null,
    targetPromptOrdinal:target?.actionOrdinal??null,
    energyPromptOrdinal:energy?.actionOrdinal??null,
-   sourcePassOrdinal:sourcePass?.actionOrdinal??null,
+   sourceTurnCompletionOrdinal:sourceCompletion?.actionOrdinal??null,
+   sourceTurnCompletionAction:sourceCompletion?.action??null,
+   sourcePassOrdinal:sourceCompletion?.action==='PassTurnAction'?
+    sourceCompletion.actionOrdinal:null,
    opponentContinuation:opponentResponse?{
     ordinal:opponentResponse.actionOrdinal,turn:opponentResponse.turnBefore,
     action:opponentResponse.action,
