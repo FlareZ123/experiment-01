@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent24_owner_tiebreak_fixture:
+        description: 'Opt-in staged native both-zero-Prize tiebreak 120-original-reference identity check'
+        required: false
+        type: boolean
+        default: false
       agent31_public_mulligan_native:
         description: 'Read-only paired native opponent-visible mulligan card-history parity against rank6; setup only'
         required: false
@@ -577,6 +582,9 @@ jobs:
         run: node simulation/twinleaf/agent24-physical-release-original-store-threecase.cjs > agent24-original-physical-native.json
       - name: Run original-owner reference audit against same three genuine native Stores
         run: node simulation/twinleaf/agent24-original-owner-native-3case.cjs > agent24-original-owner-native.json
+      - name: Stage native sudden-death setup and verify original physical card identity
+        if: inputs.agent24_owner_tiebreak_fixture
+        run: node simulation/twinleaf/agent24-sudden-death-original-owner-fixture.cjs > agent24-owner-sudden-death.json
       - name: Archive actual three-case native custody receipts without game-win claims
         if: always()
         uses: actions/upload-artifact@v4
@@ -585,6 +593,7 @@ jobs:
           path: |
             agent24-original-physical-native.json
             agent24-original-owner-native.json
+            agent24-owner-sudden-death.json
             agent24-ace-native.json
             agent24-ace-reducer.json
           if-no-files-found: warn
