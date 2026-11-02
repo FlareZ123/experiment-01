@@ -1,0 +1,35 @@
+{
+  "schema": "agent9-rank5-quickball-same-revision-controlled-pair-registration-v1",
+  "registeredAt": "2026-11-02T09:19:00Z",
+  "objective": "Causal effect of single owner-safe Quick Ball root policy on original rank5 source and candidate actors under same pinned code",
+  "sourceRank": 5,
+  "source60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "registeredCandidatePrints": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredGameCount": 16,
+  "gamePolicyModes": [
+    "integratedV3Control",
+    "integratedV3FusionMobility"
+  ],
+  "environmentTreatment": [
+    "AGENT8_ACTOR_QUICK_BALL_DEV=false",
+    "AGENT8_ACTOR_QUICK_BALL_DEV=true"
+  ],
+  "pairing": "same process; same commit; exact source and full physical deal fingerprints for each of eight matched baseline/treatment arms",
+  "noPostHocExclusion": true,
+  "metrics": [
+    "native source accepted Quick Ball",
+    "source AttackAction",
+    "candidate AttackAction",
+    "original seat and status",
+    "source printed 60",
+    "full actual physical deal fingerprint",
+    "native terminal and Prize state",
+    "actual owner discard/search prompt chain",
+    "Genesect draw opportunity upper bound"
+  ],
+  "qualification": "All engine terminals remain unqualified for paper-clock and field win claims; enabling owner-safe Quick Ball on both physical seats is a bilateral policy toggle."
+}
