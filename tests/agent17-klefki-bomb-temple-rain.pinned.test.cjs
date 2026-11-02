@@ -152,6 +152,7 @@ function run(seat){
       native('game/store/actions/game-actions');
     const {PlayCardAction,PlayerType,SlotType}=
       native('game/store/actions/play-card-action');
+    const {CardType}=native('game/store/card/card-types');
     const {CheckPokemonPowersEffect}=native('game/store/effects/check-effects');
     const {StateUtils}=native('game/store/state-utils');
     const first=new CheckPokemonPowersEffect(f.source,
@@ -173,7 +174,8 @@ function run(seat){
     assert.equal(f.raichu.energies.cards.length,5);
     assert.equal(f.source.active.getPokemonCard().fullName,'Klefki SVI');
     assert.equal(f.opponent.active.getPokemonCard().fullName,'Wobbuffet PHF');
-    assert.ok(provided(f).every(row=>row.provides.every(n=>n!==4)),
+    assert.ok(provided(f).every(row=>
+      row.provides.every(n=>n!==CardType.LIGHTNING)),
       'While Temple is active Special Energy must not furnish Lightning');
     const stadiumIndex=f.source.hand.cards.findIndex(c=>c.fullName==='Sky Field ROS');
     assert.ok(stadiumIndex>=0);
@@ -187,7 +189,7 @@ function run(seat){
     assert.equal(f.opponent.active.getPokemonCard()?.fullName,'Wobbuffet PHF');
     const sourcePrizeBefore=f.source.getPrizeLeft();
     const energyMap=provided(f);
-    assert.ok(energyMap.some(row=>row.provides.some(n=>n!==0)),
+    assert.ok(energyMap.some(row=>row.provides.includes(CardType.LIGHTNING)),
       'Stadium removal must restore non-Colorless Energy');
     f.store.dispatch(new AttackAction(f.source.id,'Electro Rain'));
     const rainPrompts=drain(f,'rain');
