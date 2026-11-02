@@ -84,6 +84,8 @@ function runPlumeriaSourcechainPair(){
     rootCount:t.rootActionCount??null,source:sourcePaymentLine(t)},
    guardPhysicalPaymentReceipts:guard.physicalPaymentReceipts.filter(x=>
     guard.nativeAddPlayerStores===4&&x.nativeStoreOrdinal===i+1),
+   guardPhysicalEffectReceipts:(guard.physicalEffectReceipts??[]).filter(x=>
+    guard.nativeAddPlayerStores===4&&x.nativeStoreOrdinal===i+1),
    qualifiedCompetitiveGames:0};
  });
  return {schema:'agent42-rank6-plumeria-physical-payment-parity-v1',
@@ -111,6 +113,7 @@ if(require.main===module){
   payments:x.guardAudit.physicalPaymentReceipts,
   pairs:x.pairs.map(p=>({id:p.trialId,sourceRoots:p.guarded.source.acceptedSourcePlumeriaRoots,
    sourcePaymentChoices:p.guarded.source.ownerPayments.length,
-   custody:p.guardPhysicalPaymentReceipts.map(x=>x.independentlyPaidTwo)}))}));
+   custody:p.guardPhysicalPaymentReceipts.map(x=>x.independentlyPaidTwo),
+   energyCustody:p.guardPhysicalEffectReceipts.map(x=>x.independentEnergyRemoval)}))}));
 }
 module.exports={runPlumeriaSourcechainPair,sourcePaymentLine};
