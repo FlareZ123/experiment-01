@@ -42,11 +42,16 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_underworld_bridge_only:
+        description: Default-off native Underworld Door actor-root bridge regressions only
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork && !inputs.agent34_rank9_klefki_paid_retreat }}
+    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork && !inputs.agent34_rank9_klefki_paid_retreat && !inputs.agent34_underworld_bridge_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -186,7 +191,7 @@ jobs:
           retention-days: 14
 
   agent34-rank9-lastbench-ownlocation:
-    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork || inputs.agent34_rank9_klefki_paid_retreat }}
+    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork || inputs.agent34_rank9_klefki_paid_retreat || inputs.agent34_underworld_bridge_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -206,6 +211,12 @@ jobs:
         run: npm run compile
       - name: Test read-only original Store owner-zone observer
         run: node --test tests/agent34-rank9-newmoon-lastbench-owner-location.test.cjs
+      - name: Test native owner-marker Underworld Door root bridge
+        if: ${{ inputs.agent34_underworld_bridge_only }}
+        run: >-
+          node --test
+          tests/agent31-underworld-door-owner-frontier.test.cjs
+          tests/agent34-underworld-door-root-bridge.test.cjs
       - name: Replay frozen original rank9 exact source deal and count Mewtwo zones
         if: ${{ inputs.agent34_rank9_lastbench_ownlocation }}
         run: node simulation/evaluation/agent34-rank9-newmoon-lastbench-owner-location.cjs > agent34-rank9-lastbench-ownlocation.json
