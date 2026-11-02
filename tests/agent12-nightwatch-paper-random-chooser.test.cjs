@@ -245,3 +245,102 @@ test('hook restores original method after real exception',()=>{
   assert.equal(caught.agent12NightWatchRandomAudit.structuralCandidates,0);
   assert.equal(Ai.prototype.resolvePrompt,before);
 });
+
+
+class ShowCardsPrompt{constructor(){this.id=81;}}
+class ShuffleDeckPrompt{constructor(){this.id=82;}}
+class MovementStore{
+  constructor(state){this.state=state;}
+  dispatch(action){
+    if(action instanceof AddPlayerAction)return this.state;
+    if(!(action instanceof ResolvePromptAction))
+      throw Error('Unsupported staged action');
+    const prompt=this.state.prompts.find(p=>p.id===action.id);
+    assert.ok(prompt,'Physical prompt must exist');
+    this.state.prompts=this.state.prompts.filter(p=>p!==prompt);
+    if(prompt instanceof ChooseCardsPrompt){
+      const source=this.state.players.find(p=>p.id!==prompt.playerId);
+      for(const card of action.result){
+        const idx=source.hand.cards.indexOf(card);
+        assert.ok(idx>=0);
+        source.hand.cards.splice(idx,1);
+        source.deck.cards.push(card);
+      }
+      this.state.prompts.push(new ShowCardsPrompt(),
+        new ShuffleDeckPrompt());
+    }
+    return this.state;
+  }
+}
+
+test('original Store-shaped Night Watch moves opaque selected objects and settles both followups',()=>{
+  const actor={id:1};
+  const concealed=[{name:'SECRET-ONE'},{name:'SECRET-TWO'},
+    {name:'SECRET-THREE'},{name:'SECRET-FOUR'}];
+  const opponent={id:2,hand:{cards:concealed.slice()},deck:{cards:[]}};
+  const native={turn:21,players:[actor,opponent],prompts:[]};
+  const store=new MovementStore(native);
+  const ai=new Ai(),source=new FakeTrevenantDusknoirGX();
+  const original=MovementStore.prototype.dispatch;
+  const observed=withUniformNightWatchOpponentSelection(()=>{
+    store.dispatch(new AddPlayerAction());
+    source.reduceEffect(store,native,new AttackEffect(actor,source.attacks[0]));
+    native.prompts[0].id=77;
+    const choice=ai.resolvePrompt(actor,native,native.prompts[0]);
+    store.dispatch(choice);
+    store.dispatch(new ResolvePromptAction(81,null));
+    store.dispatch(new ResolvePromptAction(82,[]));
+    return {opponentHand:opponent.hand.cards.length,
+      opponentDeck:opponent.deck.cards.length};
+  },{committedSeed:'already-registered-independent-seed',
+    requirePrintedOrigin:true,requireNativeRootState:true,
+    captureNativeMovementEvidence:true,deps:{
+      SimpleTacticsAi:Ai,ResolvePromptAction,
+      TrevenantDusknoirGX:FakeTrevenantDusknoirGX,
+      Store:MovementStore,AddPlayerAction
+    }});
+  assert.deepEqual(observed.result,{opponentHand:2,opponentDeck:2});
+  assert.equal(observed.audit.nativeMovementDispatches,1);
+  const e=observed.audit.nativeMovementEvents[0];
+  assert.equal(e.nativePromptDispatched,true);
+  assert.equal(e.handCountBefore,4);
+  assert.equal(e.deckCountBefore,0);
+  assert.equal(e.handCountAfter,2);
+  assert.equal(e.deckCountAfter,2);
+  assert.equal(e.selectedAllInHandBefore,true);
+  assert.equal(e.selectedNowInDeck,2);
+  assert.equal(e.selectedRemainingInHand,0);
+  assert.equal(e.physicalHandDeckMovementConfirmed,true);
+  assert.deepEqual(e.generatedFollowupPromptKinds,
+    ['ShowCardsPrompt','ShuffleDeckPrompt']);
+  assert.deepEqual(e.followupResolutions.map(x=>x.promptKind),
+    ['ShowCardsPrompt','ShuffleDeckPrompt']);
+  assert.ok(e.followupResolutions.every(x=>x.promptRemovedAfter));
+  assert.equal(MovementStore.prototype.dispatch,original);
+});
+
+test('an accepted native prompt without physical movement records a negative',()=>{
+  const actor={id:1},opponent={id:2,hand:{cards:[
+    {name:'A'},{name:'B'},{name:'C'}
+  ]},deck:{cards:[]}};
+  const native={turn:23,players:[actor,opponent],prompts:[]};
+  const store=new FakeStore(native);
+  const observed=withUniformNightWatchOpponentSelection(()=>{
+    store.dispatch(new AddPlayerAction());
+    const source=new FakeTrevenantDusknoirGX();
+    source.reduceEffect(store,native,new AttackEffect(actor,source.attacks[0]));
+    return store.dispatch(new Ai().resolvePrompt(actor,native,native.prompts[0]));
+  },{committedSeed:'fixed',
+    requirePrintedOrigin:true,requireNativeRootState:true,
+    captureNativeMovementEvidence:true,deps:{
+      SimpleTacticsAi:Ai,ResolvePromptAction,
+      TrevenantDusknoirGX:FakeTrevenantDusknoirGX,
+      Store:FakeStore,AddPlayerAction
+    }});
+  assert.equal(observed.audit.nativeMovementDispatches,1);
+  const e=observed.audit.nativeMovementEvents[0];
+  assert.equal(e.physicalHandDeckMovementConfirmed,false);
+  assert.equal(e.handCountBefore,e.handCountAfter);
+  assert.equal(e.deckCountBefore,e.deckCountAfter);
+  assert.equal(e.followupResolutions.length,0);
+});
