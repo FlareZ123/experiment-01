@@ -34,6 +34,9 @@ The [exact BigInt enumeration](../../scripts/agent26-rank5-first-turn-wally-lite
 | Same access without checking whether Wally can search VMAX | 14,945,908 / 2,558,620,845 | 0.58413923% |
 | Source has any starting Basic in the initial seven | 1,137,524 / 1,462,905 | 77.75788585% |
 | Literal line given a valid initial seven | 5,479,135,647 / 732,810,023,660 | **0.74768841%** |
+| Broader future Mew setup pieces, no Wally required | **174,932,053,418 / 2,827,276,033,725** | **6.18730012%** |
+
+The **6.18730012%** broader event requires initial Mew V, Genesect V and DCE among the first eight, and at least one Mew VMAX either among those drawn cards or still unprized in the deck. This event does not require Wally or assert that Mew survives and evolves on the next turn. It is **10.64 times** as frequent as the much stricter first-turn Wally route, illustrating why longer-horizon Mew preparation may matter more to a playing policy.
 
 The 0.58138670% is across unconditioned first shuffles **conditional on the seat being chosen to go second**, without multiplying by any coin-flip chance. The source's own mulligan conditioning changes the value, as shown. The actual strategic probability of a first-turn attack can be much higher because Trainers' Mail, Quick Ball, Ultra Ball, Genesect Fusion Strike System and other resources are deliberately omitted; it can also be lower against relevant first-player lock or an incapable pilot.
 
@@ -43,6 +46,6 @@ A naive policy might deem DCE on Active Lillie's Clefairy ex "one Energy closer"
 
 This extends the [Agent4 actual rank5 DCE-target defect](../aichi-2026/agent4-rank5-special-energy-root-prospective-20261102.md) and the [inactive source-owner Bench-Mew recipient proposal](../methodology/agent26-rank5-mew-dce-benched-recipient-20261102.md). The exact **0.58%** literal Wally line is relatively rare, so an effective real opponent policy must also support multi-turn Mew evolution and paid Active promotion, instead of relying on the rare four-piece starting hand alone.
 
-**Validation:** [six pure source-locked attack-printing tests](../../tests/agent26-rank5-original-energy-cost-feasibility.test.cjs) and [four exact combinatorial tests](../../tests/agent26-rank5-first-turn-wally-literal-line.test.cjs) passed in manual Node22 GitHub Actions [run 41487753371](https://github.com/FlareZ123/experiment-01/actions/runs/41487753371). The standalone native source-integrity gate remained red for reasons unrelated to these tests, and no prospective native run was launched.
+**Validation:** [six pure source-locked attack-printing tests](../../tests/agent26-rank5-original-energy-cost-feasibility.test.cjs) and [five exact combinatorial tests](../../tests/agent26-rank5-first-turn-wally-literal-line.test.cjs) passed in manual Node22 GitHub Actions [run 41487753371](https://github.com/FlareZ123/experiment-01/actions/runs/41487753371). The standalone native source-integrity gate remained red for reasons unrelated to these tests, and no prospective native run was launched.
 
 **Benchmark limitations:** This proves a specific card-resource constraint and a four-piece draw probability. It does not certify that Wally line survives any opponent, that the runner chooses it, or that a completed game is paper-valid. Still 29/32 authenticated original opponent lists, zero competitively qualified games and no observed 99.5% fixed-60 win rate.
