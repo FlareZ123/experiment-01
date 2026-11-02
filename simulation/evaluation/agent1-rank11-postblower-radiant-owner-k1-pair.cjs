@@ -8,6 +8,7 @@ const horizon=require('../../results/aichi-2026/registrations/agent1-rank11-post
 const countRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-radiant-one-vmax-native-20261102.json');
 const clockRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-public-turn-prize-clock-sensitivity-20261102.json');
 const {withPublicPrizeTurnClosures}=require('../twinleaf/agent1-public-prize-turn-closure.cjs');
+const {withLateSourceOwnState}=require('../twinleaf/agent1-late-source-own-state-observer.cjs');
 const {hypotheticalBracketCutoffs}=require('./agent1-public-prize-hypothetical-cutoffs.cjs');
 const {withNewMoonBlowerAutonomy}=
   require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
@@ -40,7 +41,8 @@ function run(){
           {preferRadiantAfterBlowerSearch:true,
             activateRadiantClimacticGate:true,radiantVmaxTargetCount:1}]){
     try{
-      const observed=withPublicPrizeTurnClosures(()=>withNewMoonBlowerAutonomy(1,()=>(
+      const sourceObserved=withLateSourceOwnState(()=>
+        withPublicPrizeTurnClosures(()=>withNewMoonBlowerAutonomy(1,()=>(
         withOwnerOranguruStarVipPlan(()=>runMatch({
           ...decks,seed:entry.seed,
           label:'rank11-conditional-K0-screen-v1:'+entry.index,
@@ -63,7 +65,8 @@ function run(){
         automaticFieldBlower:true,allowAnyActiveBlower:true,
         preferRadiantAfterBlowerSearch,activateRadiantClimacticGate,
         radiantVmaxTargetCount
-      }));
+      })));
+      const observed=sourceObserved.result;
       const reply=observed.result;
       const game=reply.result.result;
       const source=reply.result.audit;
@@ -160,6 +163,7 @@ function run(){
         sourceOriginalK0HandSha256:first.handSha256,
         initialFullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint,
         nativePublicTurnClosures:observed.audit,
+        nativeSourceOwnVisibleLateTurns:sourceObserved.audit,
         hypotheticalAichiPrizeCutoffs:hypotheticalBracketCutoffs(observed.audit),
         sourceReturnPublicBoard:atSourceT3,
         recipientFirstRealK1:firstRecipientK1,
@@ -239,7 +243,7 @@ function run(){
     assert.ok(rows.every(x=>x.hypotheticalAichiPrizeCutoffs?.paperClockCertified===false),
       'Observed turn closures cannot certify an Aichi physical stopwatch');
   }
-  return {schema:'agent1-original-rank11-late-source-closeout-root-audit-v8',
+  return {schema:'agent1-original-rank11-late-owner-state-observational-v9',
     registration,horizonRegistration:horizon,countRegistration,clockRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
