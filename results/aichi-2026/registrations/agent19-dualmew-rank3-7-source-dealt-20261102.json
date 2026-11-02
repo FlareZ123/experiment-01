@@ -1,0 +1,72 @@
+{
+  "schema": "agent19-original-rank5-vs-rank3-7-source-dealt-dual-mew-opportunity-v1",
+  "registeredAtUtc": "2026-11-02T05:15:00Z",
+  "status": "pre-native-frozen-hypothesis",
+  "originalSourceRanks": [
+    3,
+    5,
+    7
+  ],
+  "originalDeckRoster": "results/aichi-2026/full-decklists.json",
+  "sourcePrinted60Rank5Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalMewSeat": [
+    0,
+    1
+  ],
+  "opponentRanks": [
+    3,
+    7
+  ],
+  "seedSchedule": {
+    "3": {
+      "0": [
+        1246024775,
+        2682499799,
+        3070588817,
+        938347549
+      ],
+      "1": [
+        3631660776,
+        3620927277,
+        38746009,
+        4159167774
+      ]
+    },
+    "7": {
+      "0": [
+        981677518,
+        381615918,
+        2646233996,
+        2632051660
+      ],
+      "1": [
+        404231343,
+        1844129054,
+        2067087779,
+        3121554511
+      ]
+    }
+  },
+  "exactPhysicalDeals": 16,
+  "maxNativeRootActionsPerDeal": 200,
+  "actorOptions": {
+    "ownerSingleSearch": true,
+    "genericFallbackAttribution": true,
+    "naturalEvolutionRoot": true,
+    "preferMewGenesectTechnoBlast": true,
+    "publicContextSpecialEnergy": true,
+    "specialEnergyRoot": true
+  },
+  "observe": [
+    "real Store postdispatch public active and Bench Mew VMAX",
+    "held or attached DCE is not observed until publicly attached",
+    "opponent public Active PAL97",
+    "real pending ChooseAttackPrompt Max Miracle donor"
+  ],
+  "analysis": "16 unconditional source-dealt original 60 vs original 60 developmental native attempts, both physical Mew seats; count all malformed, cap and terminal attempts and actual trigger opportunities, no wins qualified",
+  "qualification": {
+    "competitivelyQualifiedGames": 0,
+    "demonstratedWinRate": null
+  }
+}
