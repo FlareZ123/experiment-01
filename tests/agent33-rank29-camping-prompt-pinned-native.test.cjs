@@ -44,16 +44,18 @@ function stage(seat){
     // One original exact source 60 per seat, with deliberately staged
     // owner-only hand/Prizes and no duplicate or invented physical cards.
     const remaining=original.cards.map(get);
-    const take=predicate=>{
+    const take=(predicate,label='exact physical source target')=>{
       const at=remaining.findIndex(predicate);
-      assert.ok(at>=0,'Selected exact source card unavailable in physical 60');
+      assert.ok(at>=0,'Missing '+label+' in resolved original rank29 60; related: '+
+        remaining.map(card=>card.fullName).filter(name=>
+          /Iron Thorns|Double Colorless|Camping Gear|Tropical Beach/.test(name)).join(', '));
       return remaining.splice(at,1)[0];
     };
     player.active.cards.push(take(card=>
       card.fullName==='Iron Thorns ex TWM'));
     if(index===seat){
       for(const printing of [DCE,'Camping Gear BST','Tropical Beach BWP'])
-        player.hand.cards.push(take(card=>card.fullName===printing));
+        player.hand.cards.push(take(card=>card.fullName===printing,printing));
       while(player.hand.cards.length<7)
         player.hand.cards.push(take(card=>
           !protectedPrintings.has(card.fullName)));
