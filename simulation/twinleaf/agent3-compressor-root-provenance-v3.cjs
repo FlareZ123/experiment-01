@@ -58,8 +58,7 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
       }
       return result;
     }
-    if(actionName==='ResolvePromptAction'&&
-       action.clientId===ownerClient&&pending&&
+    if(actionName==='ResolvePromptAction'&&pending&&
        this.state.turn===pending.turn&&
        this.state.prompts.includes(pending.prompt)&&
        pending.prompt.result===undefined) {
