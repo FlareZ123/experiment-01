@@ -6,6 +6,29 @@ const VERSION='agent28-original-rank19-native-public-active-roots-readonly-v1';
 const RAGING='Raging Bolt ex TEF';
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
+/**
+ * Shadow-evaluate the existing pure Float Stone selector from the real
+ * source player's information set. This proposal is audit-only and never
+ * replaces, dispatches or validates a chosen native action.
+ * @param {object} state Native current Store State.
+ * @param {0|1} seat Physical source actor seat.
+ * @returns {object|null}
+ */
+function observedMobilityProposal(state,seat){
+  const {actorObservation}=require('./actor-observation-contract.cjs');
+  const {chooseOwnerFloatStoneMobility}=require(
+    './agent1-owner-float-stone-mobility.cjs');
+  const {SpecialCondition}=require(path.join(
+    OUT,'game/store/card/card-types'));
+  return chooseOwnerFloatStoneMobility(actorObservation(state,seat),{
+    specialConditions:{
+      ASLEEP:SpecialCondition.ASLEEP,
+      PARALYZED:SpecialCondition.PARALYZED
+    }
+  });
+}
+
+
 /** @param {object} player Complete physical card zones, used only to identify the frozen source deck after native setup. */
 function countSourceRagingCopies(player){
   const lists=[player.active,player.deck,player.hand,player.discard,
@@ -84,6 +107,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         actionOrdinalWithinSourceGame:session.records.length,
         turn:state.turn,
         retreatedTurn:owner.retreatedTurn,
+        mobilityProposal:observedMobilityProposal(state,session.sourceSeat),
         actionType,
         actionAttack:actionType==='AttackAction'?action.name:null,
         ...board,
@@ -139,6 +163,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
           turn:r.turn,action:r.actionType,
           hand:r.heldMobility,activeTools:r.activeTools,
           activeEnergy:r.activeEnergy,retreatedTurn:r.retreatedTurn,
+          mobilityProposal:r.mobilityProposal,
           benchRaging:r.bench.filter(p=>p?.printing===RAGING)
         })),
         sourceRagingBenchSamples:bench.slice(0,16).map(r=>({
@@ -170,4 +195,5 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
 }
 
 module.exports={VERSION,RAGING,countSourceRagingCopies,
-  publicOwnerBoard,withRank19NativePublicActiveReadOnly};
+  publicOwnerBoard,observedMobilityProposal,
+  withRank19NativePublicActiveReadOnly};
