@@ -29,6 +29,24 @@ function heldGuzma(event){
     /^Guzma(?: |$)/.test(card.printing??''));
 }
 
+/**
+ * Public recipient geometry is a necessary targeting screen only.
+ * The Guzma printed effect and full native prompt target restrictions remain
+ * unverified even with both Benches populated. No hidden hand is consulted.
+ * @param {object} event Owner-only post-choice observation.
+ * @returns {string}
+ */
+function guzmaRecipientGeometry(event){
+  const g=event?.publicGuzmaGeometry;
+  if(!g||!Number.isSafeInteger(g.ownBenchCount)||
+      !Number.isSafeInteger(g.opponentBenchCount)||
+      g.ownActiveOccupied!==true||g.opponentActiveOccupied!==true)
+    return 'geometry-unobserved';
+  if(g.opponentBenchCount===0)return 'opponent-bench-empty';
+  if(g.ownBenchCount===0)return 'opponent-target-own-bench-empty';
+  return 'both-benches-occupied';
+}
+
 /** Single retrospective forensic replay of PREVIOUSLY USED seeds. */
 function run(){
   const p=preflight();
@@ -61,6 +79,14 @@ function run(){
     nativeAcceptedGuzmaRoots:0,
     sampleTruncations:0
   };
+  const geometryClasses=[
+    'geometry-unobserved','opponent-bench-empty',
+    'opponent-target-own-bench-empty','both-benches-occupied'
+  ];
+  const geometry={
+    firstHeldGuzma:Object.fromEntries(geometryClasses.map(k=>[k,0])),
+    passesHeldGuzma:Object.fromEntries(geometryClasses.map(k=>[k,0]))
+  };
   const lines=[];
   for(const row of replay.rows){
     const audit=row.ownerSupporterOpportunityAudit;
@@ -86,6 +112,10 @@ function run(){
       heldGuzma(e)&&e.supporters.some(card=>
         /^Guzma(?: |$)/.test(card.printing??'')&&
         card.nativeNullCanPlay==='true')).length;
+    for(const event of first.filter(heldGuzma))
+      geometry.firstHeldGuzma[guzmaRecipientGeometry(event)]++;
+    for(const event of passes.filter(heldGuzma))
+      geometry.passesHeldGuzma[guzmaRecipientGeometry(event)]++;
     counts.nativeAcceptedSupporterRoots+=audit.supporterRoots?.length??0;
     counts.nativeAcceptedGuzmaRoots+=(audit.supporterRoots??[])
       .filter(e=>/^Guzma(?: |$)/.test(e.printing??'')).length;
@@ -96,13 +126,17 @@ function run(){
         seat:e.ownerSeat,turn:e.turn,quota:e.supporterQuota,
         lock:e.ownerSupporterLock,
         nativeNullCanPlay:e.supporters.find(c=>
-          /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null
+          /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null,
+        publicGuzmaGeometry:e.publicGuzmaGeometry??null,
+        geometryClass:guzmaRecipientGeometry(e)
       })),
       passesWithGuzma:passes.filter(heldGuzma).map(e=>({
         seat:e.ownerSeat,turn:e.turn,quota:e.supporterQuota,
         lock:e.ownerSupporterLock,
         nativeNullCanPlay:e.supporters.find(c=>
-          /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null
+          /^Guzma(?: |$)/.test(c.printing??''))?.nativeNullCanPlay??null,
+        publicGuzmaGeometry:e.publicGuzmaGeometry??null,
+        geometryClass:guzmaRecipientGeometry(e)
       })),
       acceptedSupporters:(audit.supporterRoots??[])
         .map(e=>({seat:e.seat,turn:e.turn,printing:e.printing})),
@@ -117,7 +151,7 @@ function run(){
     retrospectiveObserverOnPreviouslyUsedSeeds:true,
     originalRank11RegisteredSixtyUnchanged:true,
     nativeAttempts:16,
-    counts,lines,
+    counts,geometry,lines,
     competitiveQualifiedGames:0,
     caveats:[
       'Replays eight previously used source seeds after seeing zero Guzma native root exposure; not fresh prospective evidence',
@@ -145,11 +179,12 @@ if(require.main===module){
     process.stdout.write('AGENT43_GUZMA_HELD_RETROSPECTIVE '+
       JSON.stringify({digestUnchanged:
         x.summary.exactNativePolicyReplayUnchanged,
-        counts:x.summary.counts,replayDigest:x.summary.replayDigest,
+        counts:x.summary.counts,geometry:x.summary.geometry,
+        replayDigest:x.summary.replayDigest,
         baselineDigest:x.summary.baselineDigest,
         competitivelyQualifiedGames:0})+'\n');
     assert.equal(x.summary.exactNativePolicyReplayUnchanged,true,
       'Read-only owner supporter observer changed frozen accepted native policy');
   }
 }
-module.exports={VERSION,replayFingerprint,heldGuzma,run};
+module.exports={VERSION,replayFingerprint,heldGuzma,guzmaRecipientGeometry,run};
