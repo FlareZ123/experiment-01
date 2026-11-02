@@ -62,5 +62,6 @@
   },
   "initialDevelopmentRunId": 41462432631,
   "initialDevelopmentArtifactId": 13150361204,
-  "preliminaryNativeStatus": "4/4 attempted, 0/4 source attacks, 0/4 source trainer roots, 3 action caps, 1 unqualified native terminal"
+  "preliminaryNativeStatus": "4/4 attempted, 0/4 source attacks, 0/4 source trainer roots, 3 action caps, 1 unqualified native terminal",
+  "selectedEntrypointGitBlobSha": "49a7aa404c2143374c70ab233e9e101609554d59"
 }
