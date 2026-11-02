@@ -9,3 +9,5 @@ const {Store}=native('game/store/store');
 const {Player}=native('game/store/state/player');
 const {CardList}=native('game/store/state/card-list');
 const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+const {GamePhase}=native('game/store/state/state');
+const {AttackAction}=native('game/store/actions/game-actions');
