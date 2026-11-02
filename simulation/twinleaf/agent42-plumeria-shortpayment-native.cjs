@@ -12,17 +12,22 @@ const native = filename => require(path.join(output, filename));
  * Real original-rank6 printings, but a staged Store, not a shuffled game.
  * @param {0|1} seat Physical seat controlling Plumeria.
  * @param {0|1|2} count Number of physical owner-hand cards submitted as payment.
+ * @param {'normal'|'duplicate'|'foreign'} [variant='normal'] Adversarial payload.
  * @returns {object} Store responses and individual post-dispatch card custody.
  */
-function probePlumeriaShortPayment(seat, count) {
+function probePlumeriaShortPayment(seat, count, variant = 'normal') {
   assert.ok(seat === 0 || seat === 1);
   assert.ok(count === 0 || count === 1 || count === 2);
+  assert.ok(['normal','duplicate','foreign'].includes(variant));
+  if (variant !== 'normal') assert.equal(count, 2);
   const {PlayCardAction, PlayerType, SlotType} =
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction} =
     native('game/store/actions/resolve-prompt-action');
   const fixture = stagedPainfulSpoons(seat);
   const payments = [fixture.card('Guzma BUS'), fixture.card('Enhanced Hammer TWM')];
+  const foreign = variant === 'foreign' ? fixture.card('Guzma BUS') : null;
+  if (foreign) fixture.opponent.hand.cards.push(foreign);
   const supporter = fixture.card('Plumeria BUS');
   const energy = fixture.card('Psychic Energy SVE');
   fixture.source.hand.cards.push(...payments, supporter);
@@ -45,7 +50,8 @@ function probePlumeriaShortPayment(seat, count) {
   } catch (e) { rootError = String(e.message); }
   resolveWaits();
   const payment = find('ChooseCardsPrompt');
-  const chosen = payments.slice(0, count);
+  const chosen = variant === 'duplicate' ? [payments[0], payments[0]] :
+    variant === 'foreign' ? [payments[0], foreign] : payments.slice(0, count);
   const paymentValidatorAccepted = payment?.validate(chosen, fixture.state) ?? null;
   let paymentError = null;
   if (payment) try {
@@ -72,7 +78,13 @@ function probePlumeriaShortPayment(seat, count) {
   return {
     schema: 'agent42-plumeria-shortpayment-native-v1',
     scope: 'Prepared original-rank6 printing in pinned Store, not source-dealt game',
-    sourceRank: 6, ownerSeat: seat, paymentCount: count,
+    sourceRank: 6, ownerSeat: seat, paymentCount: count, variant,
+    submittedCardCount: chosen.length,
+    submittedDistinctCount: new Set(chosen).size,
+    submittedOwnerHandCount: chosen.filter(c =>
+      fixture.source.hand.cards.includes(c) || fixture.source.discard.cards.includes(c)).length,
+    foreignCardRemainsInOpponentHand: foreign ?
+      fixture.opponent.hand.cards.includes(foreign) : null,
     supporterPrinting: supporter.fullName,
     paymentPrintings: payments.map(card => card.fullName),
     energyPrinting: energy.fullName,
