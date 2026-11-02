@@ -61,6 +61,7 @@ function main(){
         apexDragonDeclarations:(arm.sourceAttackDetails??[]).filter(action=>
           action.attack==='Apex Dragon').length,
         sourceAttackDetails:arm.sourceAttackDetails??[],
+        sourceCopiedAttackSelections:arm.sourceCopiedAttackSelections??[],
         publicActionSha256:arm.gameDecisionTraceSha256??null,
         firstNativeAbort:arm.error??null
       };
