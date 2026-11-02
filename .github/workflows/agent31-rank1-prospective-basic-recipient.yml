@@ -1,0 +1,43 @@
+name: Agent31 original rank1 prospective symmetric Basic Energy recipient contrast
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank1-prospective-basic-recipient:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate exact original physical pair and negative controls
+        run: node --test tests/agent31-rank1-prospective-basic-recipient-pair.test.cjs tests/agent2-rank11-basic-recipient-matched-development.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile exact pinned Twinleaf engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Assert unaltered original rank1 roster, new random seeds and native pin
+        run: node simulation/evaluation/agent31-rank1-prospective-basic-recipient-pair.cjs --inspect-only
+      - name: Execute all 32 original-source native control and treatment arms
+        env:
+          AGENT31_RANK1_BASIC_RECIPIENT_OUTPUT: ${{ runner.temp }}/agent31-rank1-prospective-basic-recipient-32arms.json
+        run: node simulation/evaluation/agent31-rank1-prospective-basic-recipient-pair.cjs
+      - name: Archive complete original control and treatment, including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank1-original-prospective-basic-recipient-all-32arms
+          path: ${{ runner.temp }}/agent31-rank1-prospective-basic-recipient-32arms.json
+          if-no-files-found: warn
+          retention-days: 30
