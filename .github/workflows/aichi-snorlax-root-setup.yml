@@ -3,6 +3,10 @@ name: Aichi Snorlax authentic setup root probe
 on:
   workflow_dispatch:
     inputs:
+      compare_only:
+        description: 'Compare the saved 200 and 500 action physical deals'
+        type: boolean
+        default: false
       extended_only:
         description: 'Extend prior sixteen physical source deals to 500 actions retrospectively'
         type: boolean
@@ -23,7 +27,7 @@ permissions:
 
 jobs:
   focused-mew:
-    if: ${{ !inputs.report_only && !inputs.extended_only }}
+    if: ${{ !inputs.report_only && !inputs.extended_only && !inputs.compare_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -59,7 +63,7 @@ jobs:
             agent19-dualmew-original-opportunity.json
           if-no-files-found: warn
   report-registered-source-cohort:
-    if: ${{ inputs.report_only }}
+    if: ${{ inputs.report_only && !inputs.compare_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -73,7 +77,7 @@ jobs:
       - name: Show all sixteen frozen ranks, statuses, actual public opportunities
         run: node -e "const x=require('./downloaded/agent19-dualmew-original-opportunity.json'); console.log(JSON.stringify({summary:x.summary,rows:x.rows.map(r=>({case:r.caseInfo,status:r.status,seen:r.monitor?{dual:r.monitor.dualBoard,dce:r.monitor.dualWithDce,pal:r.monitor.dualVsPal,all:r.monitor.fullPublicBoard,offered:r.monitor.actualOfferedMirror}:null,evolutions:r.evolutionRoots?.length??null,error:r.error??null}))},null,2));"
   retrospective-500:
-    if: ${{ inputs.extended_only }}
+    if: ${{ inputs.extended_only && !inputs.compare_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
