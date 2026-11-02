@@ -89,3 +89,36 @@ test('reject disabled Special Energy, Temple, outstanding TM, and Blockade restr
   blocked.ownPublic.bench[1].publicRestrictions.cannotAttackNextTurn=true;
   assert.equal(chooseOwnerBlockadeContinuation(blocked,catalog),null);
 });
+
+test('after real opponent gust, fund Active Exeggutor instead of old Bench target',()=>{
+  const v=view();
+  const previouslyActive=v.ownPublic.active;
+  v.ownPublic.active=v.ownPublic.bench.pop();
+  v.ownPublic.bench.push(previouslyActive);
+  assert.deepEqual(chooseOwnerBlockadeContinuation(v,catalog),{
+    kind:'attach-special-energy',handIndex:0,printing:'Jet Energy PAL',
+    slot:'active',index:0,
+    reason:'fund-gusted-active-exeggutor-blockade',
+    plannedAttackName:'Blockade'
+  });
+  v.ownPublic.active.energies.push('Jet Energy PAL');
+  assert.equal(chooseOwnerBlockadeContinuation(v,catalog),null,
+    'Already funded Exeggutor must not accept redundant Jet');
+  v.ownPublic.active.energies.length=0;
+  v.ownPublic.active.publicRestrictions.cannotAttackNextTurn=true;
+  assert.equal(chooseOwnerBlockadeContinuation(v,catalog),null,
+    'Do not spend Jet while Blockade is forbidden');
+});
+
+test('gusted Active requires real AOR and legal owner attachment window',()=>{
+  const v=view();
+  v.ownPublic.active=v.ownPublic.bench[1];
+  v.ownPublic.bench=[v.ownPublic.bench[0]];
+  v.ownPublic.bench.length=0;
+  assert.equal(chooseOwnerBlockadeContinuation(v,catalog),null,
+    'Do not choose narrow dual-lock continuation without Vileplume');
+  v.ownPublic.bench.push({printing:'Vileplume AOR'});
+  v.ownTurnResources.energyPlayedTurn=v.globalTurn;
+  assert.equal(chooseOwnerBlockadeContinuation(v,catalog),null,
+    'No second normal Energy attachment');
+});
