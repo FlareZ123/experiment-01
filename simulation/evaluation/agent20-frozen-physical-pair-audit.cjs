@@ -67,4 +67,53 @@ function auditFrozenSourcePhysicalPairs(profile,nativeResult){
     cohorts,missingRows,unregisteredRows,competitiveGameQualified:false,
     note:'Only exact source physical deal equality. All full paper legality, policy competence and clock gates remain independent.'};
 }
-module.exports={auditFrozenSourcePhysicalPairs};
+
+/**
+ * Produce a strictly postgame gate without changing the original native row,
+ * selected player policy, registered seeds or frozen profile.
+ * @param {object} output The original frozen release JSON.
+ * @param {object} profile Independently committed profile.
+ * @returns {object} Enriched disposition with distinct source pairing stage.
+ */
+function appendSourcePhysicalPairDisposition(output,profile){
+  assert.ok(output && typeof output==='object');
+  assert.ok(output.releaseDisposition?.stages &&
+    typeof output.releaseDisposition.stages==='object');
+  const audit=Array.isArray(output.rawNativeResult?.rows)?
+    auditFrozenSourcePhysicalPairs(profile,output.rawNativeResult):{
+      schema:'agent20-frozen-source-physical-pair-v1',
+      matchedSourcePhysicalDeals:false,
+      cohorts:[],missingRows:profile.registeredTrials.length,
+      unregisteredRows:0,competitiveGameQualified:false,
+      note:'No native rows; preflight or execution failed before source pairing'
+    };
+  const stages={...output.releaseDisposition.stages,
+    MATCHED_SOURCE_PHYSICAL_DEALS:audit.matchedSourcePhysicalDeals};
+  return {...output,sourcePhysicalPairAudit:audit,
+    releaseDisposition:{...output.releaseDisposition,stages,
+      firstBlocker:stages.BOTH_SEATS_EXECUTED===true &&
+        !audit.matchedSourcePhysicalDeals?
+        'SOURCE_PHYSICAL_PAIR_UNVERIFIED_OR_DIFFERENT':
+        output.releaseDisposition.firstBlocker},
+    competitiveGameQualified:false};
+}
+
+if(require.main===module){
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const directory=__dirname;
+  const filename=path.resolve(directory,'../../agent20-frozen-rank6-canary-v1-output.json');
+  const profileFile=path.join(directory,'agent20-frozen-rank6-canary-v1.json');
+  const profile=JSON.parse(fs.readFileSync(profileFile,'utf8'));
+  const output=JSON.parse(fs.readFileSync(filename,'utf8'));
+  const checked=appendSourcePhysicalPairDisposition(output,profile);
+  require('./agent20-frozen-rank6-canary-v1.cjs')
+    .writeAtomicLocked(filename,JSON.stringify(checked,null,2)+'\n');
+  process.stdout.write(JSON.stringify({
+    sourcePhysicalPairAudit:checked.sourcePhysicalPairAudit,
+    releaseStages:checked.releaseDisposition.stages,
+    firstBlocker:checked.releaseDisposition.firstBlocker
+  })+'\n');
+}
+
+module.exports={auditFrozenSourcePhysicalPairs,appendSourcePhysicalPairDisposition};
