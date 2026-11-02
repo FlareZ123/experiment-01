@@ -167,6 +167,8 @@ jobs:
           node scripts/agent17-temple-five-lightning-originals.cjs > agent17-temple-five-originals.json
           node -e "const r=require('./agent17-temple-five-originals.json');if(JSON.stringify(r.focalLightningRanks)!=='[4,6,17,24,29]'||r.competitivelyQualifiedGames!==0)throw Error('Original Temple gate mismatch');console.log(JSON.stringify({allSpecial:r.sevenAllSpecial,focal:r.focalLightningRanks,qualified:r.competitivelyQualifiedGames}))"
           node -e "const r=require('./agent17-temple-raichu-counterline.json');if(JSON.stringify(r.sourceOriginals.map(x=>x.rank))!=='[4,17]'||r.competitivelyQualifiedGames!==0)throw Error('Raichu counterline paper screen mismatch');console.log(JSON.stringify({counterRankIds:r.sourceOriginals.map(x=>x.rank),nativeWitness:r.isNaturalGameWitness}))"
+      - name: Verify Agent17 fixed ADP v2 exact T1 GX Prize and source-rank6 mutual-mulligan gate
+        run: node --test tests/agent17-adp-t1-gx-prize-gate.sft.cjs tests/agent17-adp-rank6-mulligan-coupling.sft.cjs
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
         run: |
           node --test tests/agent18-missing-field-ceiling.test.cjs tests/agent18-exeggutor-opener-risk.test.cjs tests/agent18-exeggutor-prize-supply.test.cjs tests/agent18-wally-blockade-window.test.cjs tests/agent18-grand-tree-turn2-window.test.cjs tests/agent18-wally-target-paper-guard.test.cjs tests/agent18-source29-supporter-wally-oldex-census.test.cjs
