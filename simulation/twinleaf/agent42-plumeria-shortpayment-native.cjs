@@ -12,20 +12,21 @@ const native = filename => require(path.join(output, filename));
  * Real original-rank6 printings, but a staged Store, not a shuffled game.
  * @param {0|1} seat Physical seat controlling Plumeria.
  * @param {0|1|2} count Number of physical owner-hand cards submitted as payment.
- * @param {'normal'|'duplicate'|'foreign'} [variant='normal'] Adversarial payload.
+ * @param {'normal'|'duplicate'|'foreign'|'prism'} [variant='normal'] Payment payload.
  * @returns {object} Store responses and individual post-dispatch card custody.
  */
 function probePlumeriaShortPayment(seat, count, variant = 'normal') {
   assert.ok(seat === 0 || seat === 1);
   assert.ok(count === 0 || count === 1 || count === 2);
-  assert.ok(['normal','duplicate','foreign'].includes(variant));
+  assert.ok(['normal','duplicate','foreign','prism'].includes(variant));
   if (variant !== 'normal') assert.equal(count, 2);
   const {PlayCardAction, PlayerType, SlotType} =
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction} =
     native('game/store/actions/resolve-prompt-action');
   const fixture = stagedPainfulSpoons(seat);
-  const payments = [fixture.card('Guzma BUS'), fixture.card('Enhanced Hammer TWM')];
+  const payments = [fixture.card('Guzma BUS'),
+    fixture.card(variant==='prism'?'Wondrous Labyrinth Prism Star TEU':'Enhanced Hammer TWM')];
   const foreign = variant === 'foreign' ? fixture.card('Guzma BUS') : null;
   if (foreign) fixture.opponent.hand.cards.push(foreign);
   const supporter = fixture.card('Plumeria BUS');
@@ -99,7 +100,8 @@ function probePlumeriaShortPayment(seat, count, variant = 'normal') {
     energyPromptFound: Boolean(energyPrompt), energyValidatorAccepted, energyError,
     paymentCustody: payments.map(card => ({
       inOwnerHand: fixture.source.hand.cards.includes(card),
-      inOwnerDiscard: fixture.source.discard.cards.includes(card)
+      inOwnerDiscard: fixture.source.discard.cards.includes(card),
+      inOwnerLostZone: fixture.source.lostzone.cards.includes(card)
     })),
     opposingEnergyCustody: {
       inOpponentActive: fixture.opponent.active.cards.includes(energy),
