@@ -27,9 +27,11 @@ function printIndex(){
     const sought=normalizeName(card.name);
     const matches=[];
     for(const id of ids){
-      if(!cache.has(id))
-        cache.set(id,JSON.parse(fs.readFileSync(
-          path.join(resources,'cards/en',id+'.json'),'utf8')));
+      if(!cache.has(id)){
+        const filename=path.join(resources,'cards/en',id+'.json');
+        cache.set(id,fs.existsSync(filename)?
+          JSON.parse(fs.readFileSync(filename,'utf8')):[]);
+      }
       for(const printed of cache.get(id)){
         const no=String(card.printing.number);
         const promoPrefix={SMP:'SM',XYP:'XY',BWP:'BW',SWSP:'SWSH',SVP:'SVP'};
@@ -40,9 +42,8 @@ function printIndex(){
           matches.push(printed);
       }
     }
-    if(matches.length!==1)throw Error('Printing resolution '+
-      card.name+' '+JSON.stringify(card.printing)+' matched '+matches.length);
-    return matches[0];
+    // A missing exact printing is unclassified; never guess its Stage/HP.
+    return matches.length===1?matches[0]:null;
   };
 }
 
@@ -66,10 +67,16 @@ function audit(){
   const rows=[];
   for(const deck of roster.decks){
     let basics=0;
+    const unresolvedPrintings=[];
     const exceptions=[];
     const boundary=[];
     for(const entry of deck.cards.filter(c=>c.category==='Pokémon')){
       const card=get(entry);
+      if(!card){
+        unresolvedPrintings.push({name:entry.name,printing:entry.printing,
+          count:entry.count,stage:'unresolved'});
+        continue;
+      }
       if(!card.subtypes?.includes('Basic'))continue;
       basics+=entry.count;
       const hit=card.weaknesses?.find(x=>x.type==='Psychic');
@@ -82,22 +89,36 @@ function audit(){
       if(Number(card.hp)===damage)boundary.push({name:entry.name,
         printing:entry.printing,count:entry.count,hp:Number(card.hp)});
     }
-    const scenario=joint(basics,'hand-aware');
-    const chance=exceptions.reduce((sum,e)=>sum+e.count,0)/basics;
-    rows.push({rank:deck.rank,archetype:deck.archetype,basicCount:basics,
-      exceptions,boundary,conditionalSoleBasicSurvivesDamage:chance,
-      directRootAndForcedLone:scenario.conditionalJointSetupAndSourceRoot,
-      directRootForcedLoneAndDamageSurvivor:
-        scenario.conditionalJointSetupAndSourceRoot*chance});
+    // Unknown printing can be either Basic or Evolution. Bounds are safe,
+    // while exact Basic-conditioned probabilities must remain unavailable.
+    const complete=unresolvedPrintings.length===0;
+    const scenario=complete?joint(basics,'hand-aware'):null;
+    const chance=complete?
+      exceptions.reduce((sum,e)=>sum+e.count,0)/basics:null;
+    rows.push({rank:deck.rank,archetype:deck.archetype,
+      basicCount:complete?basics:null,
+      basicCountMin:basics,
+      basicCountMax:basics+unresolvedPrintings.reduce((n,e)=>n+e.count,0),
+      unresolvedPrintings,exceptions,boundary,
+      conditionalSoleBasicSurvivesDamage:chance,
+      directRootAndForcedLone:scenario?
+        scenario.conditionalJointSetupAndSourceRoot:null,
+      directRootForcedLoneAndDamageSurvivor:scenario?
+        scenario.conditionalJointSetupAndSourceRoot*chance:null});
   }
   if(rows.length!==29)throw Error('Authenticated original 29 changed');
-  return {schema:'rank26-280-HP-original-basic-hard-survival-screen-v1',
+  const incompleteRows=rows.filter(r=>r.unresolvedPrintings.length);
+  return {schema:'rank26-280-HP-original-basic-hard-survival-screen-v2',
     sourceRank:26,sourceAttack:'Crisis Punch',
     printedPsychicDamage:280,originalOpponentLists:29,
+    printCoverage:incompleteRows.length?'incomplete':'complete',
+    incompleteRows:incompleteRows.map(r=>({rank:r.rank,
+      basicCountMin:r.basicCountMin,basicCountMax:r.basicCountMax,
+      unresolvedPrintings:r.unresolvedPrintings})),
     exceptions:rows.filter(r=>r.exceptions.length),
     exact280Boundary:rows.filter(r=>r.boundary.length),
     rows,modeledGameWins:0,
-    caveat:'Screen of full-HP solo registered Basic surviving exact unmodified 280 Psychic damage only. Excludes damage prevention, board modifiers, actual line, searches, attachment, opponent decisions and games.'};
+    caveat:'Only fully print-resolved rows receive exact probabilities. Unknown printings leave Basic status, HP and survival unclassified. Full-HP solo registered Basics only, unmodified Psychic 280. Excludes damage prevention, modifiers, actual attack setup, opponent decisions and games.'};
 }
 module.exports={printIndex,audit};
 if(require.main===module)
