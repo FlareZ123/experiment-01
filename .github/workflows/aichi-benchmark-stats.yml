@@ -88,6 +88,17 @@ on:
         required: false
         type: boolean
         default: false
+      agent39_rank16_direct_shake_partition:
+        description: 'Original rank16 direct Boost Shake selected-source panel, groups 0-3; none disables'
+        required: false
+        type: choice
+        options:
+          - none
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+        default: none
       agent16_rank16_natural_source:
         description: 'Eight prospective exact rank16 source physical deals, both unchanged candidate 60s, owner first-turn lock-fork observation only'
         required: false
@@ -815,3 +826,46 @@ jobs:
           path: agent16-rank16-all-16-native-attempts.json
           if-no-files-found: warn
           retention-days: 30
+
+  agent39-rank16-direct-native-source:
+    if: inputs.agent39_rank16_direct_shake_partition != 'none'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get pinned native Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify registered rank16 original source, seeds and native disposition logic
+        run: node --test tests/agent39-rank16-direct-source-shake.test.cjs
+      - name: Execute bounded preregistered original rank16 direct Shake source/control pairs
+        env:
+          AGENT39_RANK16_PARTITION: ${{ inputs.agent39_rank16_direct_shake_partition }}
+        run: node simulation/evaluation/agent39-rank16-direct-source-shake.cjs > agent39-rank16-direct-native.json
+      - name: Print bounded complete native status and all failures
+        run: >-
+          node -e "const v=require('./agent39-rank16-direct-native.json');
+          console.log(JSON.stringify({schema:v.schema,partition:v.partition,
+          attempted:v.actualPartitionArms,status:v.counts,
+          sourceOptions:v.nativeSelectedOpportunities,
+          nativeComplete:v.nativeCompleted,
+          matchedSourcePairs:v.sourcePhysicalPairs,
+          competitiveQualified:v.competitivelyQualifiedGames}));"
+      - name: Preserve every registered source-deal baseline and intervention
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent39-rank16-direct-shake-partition-${{ inputs.agent39_rank16_direct_shake_partition }}
+          path: agent39-rank16-direct-native.json
+          retention-days: 30
+          if-no-files-found: warn
