@@ -45,8 +45,30 @@ A separate **default-off pure policy wrapper**, [`agent6-skyliner-ability-suppre
 
 The original six guard tests passed the **real Node** optional manual rank30 CI step in [run 41431981492](https://github.com/FlareZ123/experiment-01/actions/runs/41431981492), which also recompiled the pinned Store and passed the original v2 register/panel workflow. This verifies isolated policy logic but **does not prove native lock settlement** or full policy integration. The expanded Basic lock tests and the source census are in a subsequent manual audit; retain its exact run result separately.
 
+## Verified genuine pinned-Store mechanics, both seats
+
+[Manual CI 41434356495](https://github.com/FlareZ123/experiment-01/actions/runs/41434356495) compiled the unchanged Twinleaf pin `a9905a76`, and the new staged Store check completed successfully **before** any later workflow steps. The independently downloaded [complete native artifact 13135837503](https://github.com/FlareZ123/experiment-01/actions/runs/41434356495/artifacts/13135837503) matches GitHub ZIP SHA-256 `b3601a367b44dbd450f833bcb0e57349dc7320cc486e3495767035101e98b4bf`; extracted 15,109-byte JSON SHA-256 `edc0c406b9a6e6e634117da9da384257f22995e375c81cb9b0ac156182c91aab`. Source runner is [agent6-skyliner-public-suppression-native.cjs](../../simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs). This is a **staged rules check** with six prepared Prizes and native deck zones, not an authentic tournament source game.
+
+**18/18 physical two-seat staged Store cases**, nine modes × two acting seats; **0 mismatched assertions**, actual `IS_ABILITY_BLOCKED`, actual `CheckRetreatCostEffect`, actual `RetreatAction` dispatch, and a public-only policy view all recorded.
+
+| Staged public opponent posture | Printed Skyliner visible to owner? | Native Skyliner blocked? | Actual uncharged Latias Retreat Cost | Native zero-Energy retreat | Original v2 nominal selector | Default-off guarded variant |
+| --- | --- | --- | ---: | --- | --- | --- |
+| Baseline, no lock | Yes | No | 0 | Accepted | Proposed | Proposed |
+| Path to the Peak | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Silent Lab | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Active Klefki | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Active Iron Thorns ex | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Equipped Garbodor | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Alolan Muk | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Active Galarian Weezing | Yes | Yes | 2 | Rejected: NOT_ENOUGH_ENERGY | Proposed | Vetoed |
+| Active Wobbuffet, Psychic exception | Yes | No | 0 | Accepted | Proposed | Proposed |
+
+Every row was independently repeated with the source as physical seat 0 and seat 1, with the same result. The native action acceptance test uses **Latias ex SSP with zero attached Energy**, two Basic Psychic Energy on a Benched Lillie's Clefairy ex, five occupied Benches each side, and a legitimate attacker target. In all seven suppression modes, **the original v2 would propose a retreat that the real native Store rejected**. Thus the printed-vs-effective-Ability planning issue is now a reproduced **native action failure**, not merely hypothetical card-text reasoning. The guard's veto was correct for these staged conditions.
+
+These stages **do not prove full tournament lock uptime**, Tool-protection interactions, the original rank30 deck's ability to arrange the board before lock, or broader paper game strength. They also do not permit turning the prior prospective rank30 turn-46 result into a competitively qualified game.
+
 ## Next decisive validation
 
-A focused pinned original Store check should stage each relevant lock with the Latias-Clefairy line and confirm (1) the public printed Ability remains visible to the actor, (2) the actual native CheckRetreatCostEffect and RetreatAction show the correct legal restriction, (3) the guarded planner vetoes appropriately, and (4) a real opponent reply or native final effect is recorded. A genuine symmetric common-policy release must also assess Tool protection, suppression of the suppressor, and other existing lock interactions rather than considering visible Ability names alone.
+The controlled pinned Store lock-cost tests above now establish the original v2's actionable incorrect proposals and the guard's correct negative choices in nine staged postures. Next, reproduce the same effect in a genuine original-source two-player natural opening or continuation, with accepted opponent action, actual clock semantics, Tool protection or alternative Float Stone escape, and a valid common symmetric actor policy. Do not infer tournament win percentages from stage-only mechanics.
 
 **Status:** This is a correctness and applicability improvement to source-opponent decision modeling. All rank30 engine terminals, including the one prospective turn-46 game flip, remain competitively **unqualified**; the fixed-60 99.5% objective remains unproven.
