@@ -21,3 +21,10 @@ Output per original deal and arm with full source owner root snapshots and posit
 ## Interpretation limits
 
 These are descriptive state and mechanics observations on 24 previously reported seeds. Same-seed replication cannot be pooled with v2 as 48 more independent source deals. The observer does not establish firstturn owner resource acquisition beyond native actions already seen, proper opponent human strategy, 25-minute paper clock, all 32 exact original lists, or candidate superiority. Original-source and fixed-deck comparison qualification remains at **zero**.
+
+
+## Pure-test import preflight correction
+
+First manual [CI 41414786379](https://github.com/FlareZ123/experiment-01/actions/runs/41414786379) failed **before game compilation and before any retrospective native replay**, because the new pure source-root test imported the diagnostics module, which had eagerly imported the compiled Twinleaf-dependent v2 runner. Node raised MODULE_NOT_FOUND during module loading. The other 33 standalone tests passed. This is a pure-test initialization defect and supplies **zero v2.1 result**.
+
+The diagnostic runner is now loaded lazily inside diagnostic(), preserving the exact original native parent run and all passive snapshot logic. Source commit d2d7729. All frozen original cards, seeds, game policy and source observations remain untouched. The corrected run must satisfy the preregistered strict v2 aggregate equality checks before publishing a finding. This preflight failure stays in the record.
