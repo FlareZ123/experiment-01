@@ -14,6 +14,12 @@ on:
         type: boolean
         default: false
 
+      agent43_muk_board:
+        description: 'Opt-in pinned native staged Alolan Muk versus Thorns Ability matrix, not a match'
+        required: false
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -42,6 +48,20 @@ jobs:
 
       - name: Verify synthetic Wobbuffet and Iron Thorns board effects
         run: node simulation/twinleaf/temple-wobbuffet-board.cjs
+
+      - name: Opt-in staged pinned Alolan Muk and Iron Thorns board predicates
+        if: inputs.agent43_muk_board
+        run: |
+          node simulation/twinleaf/agent43-alolan-muk-thorns-native-matrix.cjs > agent43-muk-thorns-board.json
+          node -e "const a=require('./agent43-muk-thorns-board.json');console.log(JSON.stringify({schema:a.schema,status:a.status,missing:a.missing||[],discrepancies:a.discrepancies||[],rows:a.rows?.length||0,qualified:a.competitiveGameQualified}));if(a.status==='NATIVE_BOARD_PAPER_EXPECTATION_MISMATCH')process.exitCode=1"
+      - name: Archive bounded native Muk board matrix without competitive claims
+        if: inputs.agent43_muk_board && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent43-muk-thorns-pinned-board-matrix
+          path: agent43-muk-thorns-board.json
+          if-no-files-found: warn
+
 
   source-window:
     if: ${{ inputs.temple_thorns_source_window }}
