@@ -173,6 +173,9 @@ jobs:
       - name: Run same-source rank9 Farewell Letter root comparison, both physical seats
         if: ${{ inputs.rank9_farewell_replay }}
         run: node simulation/evaluation/agent14-rank9-farewell-native-replay.cjs > agent14-rank9-farewell-native-8arm.json
+      - name: Rank9 brief native ability summary
+        if: ${{ inputs.rank9_farewell_replay }}
+        run: node simulation/evaluation/agent14-rank9-farewell-compact.cjs agent14-rank9-farewell-native-8arm.json
       - name: Retain every original rank9 native attempt, censor and Store failure
         if: ${{ always() && inputs.rank9_farewell_replay }}
         uses: actions/upload-artifact@v4
