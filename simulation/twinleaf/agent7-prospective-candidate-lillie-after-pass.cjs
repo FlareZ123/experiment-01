@@ -30,6 +30,8 @@ function withCandidateLillieAfterPass(execute,trial,deps={}){
   const {Store}=deps.store??require(path.join(output,'game/store/store'));
   const {PlayCardAction,PlayerType,SlotType}=deps.actions??require(path.join(
     output,'game/store/actions/play-card-action'));
+  const observe=deps.observe??actorObservation;
+  const choose=deps.chooseLillie??chooseLillieAfterPass;
   const previousDecode=Object.getOwnPropertyDescriptor(
     SimpleTacticsAi.prototype,'decodeNextAction');
   const previousDispatch=Object.getOwnPropertyDescriptor(
@@ -55,8 +57,8 @@ function withCandidateLillieAfterPass(execute,trial,deps={}){
         state.players?.[seat]?.id!==this.client?.id||
         state.prompts?.some(p=>p.result===undefined))
       return native;
-    const view=actorObservation(state,seat);
-    const alternative=chooseLillieAfterPass(view);
+    const view=observe(state,seat);
+    const alternative=choose(view);
     if(!alternative)return native;
     const action=new PlayCardAction(this.client.id,alternative.handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
