@@ -170,7 +170,14 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
            !(next.prompts??[]).some(p=>p.result===undefined)?{
           ownPublicAttackInventory:sourcePublicAttackInventory(
             require('./actor-observation-contract.cjs')
-              .actorObservation(next,session.sourceSeat))
+              .actorObservation(next,session.sourceSeat)),
+          // Actor-owned, public-only printed resource preflight; the native
+          // Store has not been asked to settle Altered Creation-GX.
+          postRetreatAdpBoostedGxWindow:require(
+            './agent28-adp-post-retreat-gx-window.cjs')
+            .observeAdpBoostedGxResourceWindow(
+              require('./actor-observation-contract.cjs')
+                .actorObservation(next,session.sourceSeat))
         }:{})
       };
     }
