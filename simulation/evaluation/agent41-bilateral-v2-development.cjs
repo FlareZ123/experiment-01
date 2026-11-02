@@ -998,6 +998,7 @@ function runDevelopment({
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
+  actorRank9MegaAbsolFundingRoot=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
   nativeActionInputWitness=false,
   nativeActionInputTapeOrdinal=null,nativeAcceptedTargets=false,
@@ -1052,6 +1053,8 @@ function runDevelopment({
     'Mega Absol VIP targeting requires native both-seat VIP before Attack');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
+  assert.ok(!actorRank9MegaAbsolFundingRoot||actorOnlyComposition,
+    'Rank9 Mega Absol staging requires the common actor-only root');
   assert.ok(!actorRank9SpecialFundedGuzma||
     (actorOnlyComposition&&actorGuzmaPromptContinuation),
     'Special-funded Guzma needs canonical both-seat root and prompt bridge');
@@ -1229,6 +1232,7 @@ function runDevelopment({
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
+          !actorRank9MegaAbsolFundingRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
           {root:work=>require('../twinleaf/agent34-actor-only-root-policy.cjs')
             .withActorOnlyRootPolicy(work,{
@@ -1260,6 +1264,9 @@ function runDevelopment({
               }:{}),
               ...(actorRank9SpecialFundedGuzma?{
                 rank9SpecialFundedGuzma:true
+              }:{}),
+              ...(actorRank9MegaAbsolFundingRoot?{
+                rank9MegaAbsolFundingRoot:true
               }:{}),
               ...(sameRootProposalChoice?{
                 sameRootProposalChoice:true,
@@ -1353,6 +1360,13 @@ function runDevelopment({
               version:require('../twinleaf/agent1-actor-dead-first-attack-frontier.cjs').VERSION,
               bothPhysicalSeats:true,ownerSeat:null,sharedPolicy:true,
               exactPrintingOnly:true,competitiveQualified:false
+            }
+          }:{}),
+          ...(actorRank9MegaAbsolFundingRoot?{
+            rank9MegaAbsolFundingProfile:{
+              version:require('../twinleaf/agent2-rank9-mega-absol-funding.cjs').VERSION,
+              bothPhysicalSeats:true,ownerVisible:true,
+              completeGameStrengthQualified:false
             }
           }:{}),
           ...(actorRank9SpecialFundedGuzma?{
