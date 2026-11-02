@@ -70,3 +70,19 @@ The new separately authenticated `projectPendingOrdinaryPrizes` mode reuses the 
 **Scope:** The staging of four Prizes per side into hand and the lethal damage is explicitly experimenter-induced. No paper-legal match turn sequence, naturally reachable final turn, own/opponent player-policy competence, or official event clock was established. These results diagnose the pinned engine's two independent early-winner branches under a simultaneous valid KO batch; they do not measure how often an actual Aichi matchup reaches that state.
 
 **Action for release integrators:** Simultaneous KO Prize resolution needs a **whole-batch all-recipient** gate in both sudden death and ordinary final-Prize adjudication. Staged test results cannot be projected into a competitive opponent win-rate denominator; the default native winner remains an engine result only.
+
+
+## Ordinary final-Prize failure through the actual printed Spiky Energy attack chain, 23:10 UTC
+
+The same original Aichi source 60s in **rank6/rank29 and rank29/rank6 seat orders** now produce the ordinary-game two-final-Prize discrepancy via **genuine native printed effects** after explicitly labeled synthetic prior-Prize, Bench, Energy and damage staging. A real `AttackAction` on Iron Thorns ex's `Volt Cyclone` triggers native attack damage and actual `Spiky Energy` counter placement, creating two post-reducer `KnockOutEffect` entitlements of two Prizes each.
+
+[Compiled native job on manual 41542561341](https://github.com/FlareZ123/experiment-01/actions/runs/41542561341) was **successful**, including the printed Spiky Energy KO step. Raw [artifact 13185994868](https://github.com/FlareZ123/experiment-01/actions/runs/41542561341/artifacts/13185994868) ZIP SHA-256 `6eb336d7b05eed69bbbcdb1379e5ed57f1ac7362de40258212ec573422a8e041`. In `agent24-spiky-double-ko.json.ordinaryRows`:
+
+| Original A / B rank | Actual native attacking seat | Pre-attack Prizes | Pending native claimant Prizes | Projected both honored | Native physical final | Native winner |
+| --- | --- | --- | --- | --- | --- | --- |
+| 6 / 29 | 1 | [2,2] | [2,2] | **[0,0]** | **[0,2]** | **0** |
+| 29 / 6 | 1 | [2,2] | [2,2] | **[0,0]** | **[0,2]** | **0** |
+
+Each trial used 19 native actions, `actualPrintedAttackRoot:true`, `syntheticFourPrizeMovesPerOwner:true`, `genuineNativeFreshSixPrizeReplay:false`, and a distinct ordinary-source-epoch projection with `paperGameOutcomeQualified:false`. Both frozen sixties preserve original physical ownership. This excludes a simple defense that the ordinary final-Prize failure only occurs when manually setting Active damage: actual implemented attack and reaction effects can reach it from a prepared, albeit synthetic, board.
+
+**No natural game or competitive win:** Those preparatory moves were not a legal turn-by-turn replay, and card text completion, opponent competence, 25-minute clock, and counter-interactions remain unqualified. The native engine should receive a scoped research-side whole-batch correction only after the full simultaneous end-condition matrix is implemented and validated.
