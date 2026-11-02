@@ -66,6 +66,19 @@ The same genuine native Store receipts reveal the *mechanism creating the late M
 
 This is a **decisive admission veto** for treating the 248-root source terminal as evidence of rank-9 real-world strength. It strengthens the narrower causal claim that the alternative late attack is actually playable and consequential under the tested toy decision policies, while explaining why the real-world interpretation is severely constrained. The exact 21 source passes and 19 candidate Joust declarations are computable directly from the preserved original Store `rootActionLedger`; KO and damage progression are independently visible in `candidateAttackSettlement.attacks`. The 19 attacks are **one serial game**, not 19 independent opponent trials.
 
+## Early Extra Energy Bomb absence: the observed state lacked a discard-pile Energy source
+
+The original rank-9 list has **seven Energy cards** (4 Prism, 2 Darkness, 1 Telepathic Psychic) and **one Voltorb**, with two Electrode-GX cards. On the only same-deal trial that later diverged, the native source action ledger accounts for the source's entire early action channel:
+
+- Global **turn 2**: attach Prism Energy to its Active Voltorb; play Battle VIP Pass; use Thunder Wave.
+- Global **turn 4**: evolve Toedscool into Toedscruel; use Thunder Wave.
+- Global **turn 6**: evolve Voltorb into Electrode-GX; attach Telepathic Psychic Energy; pass. The Active Electrode-GX retained its original Prism Energy; Mega Absol ex occupied the Bench.
+- Global **turns 8–46**: the source played or attached Prism (14,42), Darkness (32), and Benched Unown (24,28), otherwise passed every own turn. The opponent's only attack during turns 11–47 was Klefki's Joust, which discards **Pokémon Tools**, rather than Energy. No source Energy-discarding Item, Trainer, attack, paid retreat or knocked-out source Pokémon appears before the Joust KO at **turn 47**.
+
+The source's **Energy discard pile therefore remained empty through its turn 46** in this observed game, subject to the accepted native action ledger's completeness and standard starting-empty discard. Electrode-GX's printed **Extra Energy Bomb** attaches Energy **from that discard pile** and then Knocks Out Electrode-GX if it attaches. With no eligible Energy in discard, this Ability could not perform an attachment in the observed early source states; the rulebook forbids announcing an optional Ability with no game-state change. There was no ability-selection opportunity established by this deal. At turn47 the Active Electrode-GX was Knocked Out and discarded its Prism Energy; the previously in-play Electrode was no longer available to use its Ability.
+
+This narrows the previously posed question. **Zero Extra Energy Bomb activations in this trial are not independently evidence of a missing bot Ability branch.** The strategy and actor-policy issue is earlier: the entire 46-turn opening failed to create any discarded Energy, while the Active Electrode-GX remained an unproductive defender. A valid test of the Ability decision must first find or construct an original-60 state with at least one eligible discarded Energy, a legal recipient, and a genuine owner turn. The card says to attach 5 if available; when fewer exist, the advanced rulebook's partial-number rule must be checked before assuming a strict five-card prerequisite. None of these distinctions supports an inferred ability action in the actual archived trial.
+
 ## Admission boundaries and scientific conclusion
 
 1. The attack-choice correction is **consequential**: it changes one genuine native source game from a 260-root censor to a 248-root source engine terminal, while the other three fixed-deck games and same-physical-deal accepted root logs are unchanged. This directly cautions against accepting earlier New Moon engine-terminal or capped comparisons with an incompetent original Absol/Electrode opponent as reliable competitive results.
