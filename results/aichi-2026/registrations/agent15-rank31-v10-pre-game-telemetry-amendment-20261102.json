@@ -1,0 +1,17 @@
+{
+  "schema": "agent15-rank31-v10-native-pre-game-telemetry-only-amendment-v1",
+  "registeredUtc": "2026-11-02T05:44:00Z",
+  "parentRegistration": "results/aichi-2026/registrations/agent15-rank31-paper-v10-natural-paired-20261102.json",
+  "parentRegistrationGitBlob": "b0a3859fe16e8bd9bee54af57a95ba4401a09f69",
+  "pregameFailedWorkflow": 41395333780,
+  "observedFailure": "Before original rank31 runDevelopment starts any game: losslessNativeRootJoin=true requires sameRootProposalChoice=true. The latter is absent by preregistration and would add a decision candidate.",
+  "correction": "Override read-only native ordinal join losslessNativeRootJoin=false for BOTH control and treatment. Keep exact printed 60s, both physical seats, two original randomly registered seeds, action policy and all remaining options unmodified.",
+  "effectiveOverrides": {
+    "losslessNativeRootJoin": false
+  },
+  "sourceGameStartedBeforeAmendment": false,
+  "nativeRank31GameCountBeforeAmendment": 0,
+  "outcomeSelection": "No native rank31 game output existed; the previous workflow stopped on an assert at the start of runDevelopment.",
+  "preregistrationAssurance": "Amendment records original prereg immutable blob; accepted for future inference only under an explicit pre-game compatibility repair disclosure.",
+  "competitiveQualified": false
+}
