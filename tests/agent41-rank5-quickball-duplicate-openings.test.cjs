@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {VERSION,choose,openingCounts,sourceRank5} = require(
+const {VERSION,choose,openingCounts,sourceRank5,conditionalDcePrizeExposure} = require(
   '../scripts/agent41-rank5-quickball-duplicate-openings.cjs');
 
 test('small combinatorial toy matches enumeration of physical cards',()=>{
@@ -103,3 +103,19 @@ test('binomial arguments conserve the exact safe number of physical hands',()=>{
   assert.equal(choose(2,3),0);
   assert.throws(()=>choose(-1,1),RangeError);
 });
+
+test('conditional prize placement separates expensive DCE-only openings',()=>{
+  const x=openingCounts(sourceRank5().cards);
+  assert.deepEqual(x.onlyDceDuplicateByHeldCount,{
+    2:3858714,3:181504,4:2042
+  });
+  const y=conditionalDcePrizeExposure(x);
+  assert.equal(y.sevenHandAndSixPrizePairs,92800103104800);
+  assert.equal(y.atLeastOneDcePrizedPairs,19564715682120);
+  assert.equal(y.atLeastTwoDcePrizedPairs,964292628600);
+  assert.ok(Math.abs(y.probabilityAtLeastOneDcePrized-
+    0.2108264433717858)<1e-12);
+  assert.ok(Math.abs(y.probabilityAtLeastTwoDcePrized-
+    0.010391072814984005)<1e-12);
+});
+
