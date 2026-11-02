@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom,deckPermutation}=require('../simulation/twinleaf/headless.cjs');
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name */
@@ -86,6 +86,12 @@ function inspectNativeWally(ownerSeat){
   for(let k=0;k<32;k++){
     const pending=state.prompts.find(p=>p.result===undefined);
     if(!pending)break;
+    if(pending.constructor.name==='ShuffleDeckPrompt'){
+      const order=deckPermutation(owner.deck.cards.length,
+        seededRandom(20261102+ownerSeat*100+k));
+      store.dispatch(new ResolvePromptAction(pending.id,order));
+      continue;
+    }
     assert.equal(pending.constructor.name,'WaitPrompt');
     store.dispatch(new ResolvePromptAction(pending.id,null));
   }
