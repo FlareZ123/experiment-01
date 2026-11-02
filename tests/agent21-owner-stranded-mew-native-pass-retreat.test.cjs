@@ -47,7 +47,8 @@ function state(seat){
 const deps= {
   Store:FakeStore,actions:{PassTurnAction,RetreatAction},
   phase:{GamePhase:{PLAYER_TURN:'PLAYER_TURN'}},
-  types:{EnergyType:{COLORLESS:9},SpecialCondition:{ASLEEP:1,PARALYZED:2}},
+  types:{CardType:{COLORLESS:9},EnergyType:{BASIC:0,SPECIAL:1},
+    SpecialCondition:{ASLEEP:1,PARALYZED:2}},
   observe:(s,seat)=>({decisionKind:'owner-root',sourceSeat:seat}),
   choose:()=>({kind:'paid-retreat',benchIndex:0,
     printing:'Mew VMAX FST',paymentPrinting:'Double Colorless Energy SUM'})
