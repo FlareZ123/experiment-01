@@ -33,8 +33,10 @@ const native=name=>require(path.join(OUTPUT,name));
 const TM='Technical Machine: Evolution PAR';
 const JET='Jet Energy PAL';
 
-/** @param {0|1} seat @param {1|6} opponentRank */
-function staged(seat,opponentRank=1){
+/** @param {0|1} seat @param {1|6} opponentRank
+ * @param {boolean} poweredRank6 Staged original Speed attachment from turn1.
+ */
+function staged(seat,opponentRank=1,poweredRank6=false){
   const {fixture:f}=stageSourceBunnelbyBoard();
   const manager=initializeCards();
   const {PokemonCardList}=
@@ -91,7 +93,11 @@ function staged(seat,opponentRank=1){
     const activeThorns=remove('Iron Thorns ex TWM');
     const benchThorns=remove('Iron Thorns ex TWM');
     const held=remove('Guzma BUS');
-    const fillers=stock.splice(0,6);
+    const originalSpeed=poweredRank6?
+      remove('Speed Lightning Energy RCL'):null;
+    const heldDce=poweredRank6?
+      remove('Double Colorless Energy SUM'):null;
+    const fillers=stock.splice(0,poweredRank6?5:6);
     const prizeCards=stock.splice(0,6);
     const {CardList}=native('game/store/state/card-list');
     opponent.active.cards.splice(0,opponent.active.cards.length,activeThorns);
@@ -100,8 +106,9 @@ function staged(seat,opponentRank=1){
     opponent.bench.splice(0,opponent.bench.length,
       ...Array.from({length:5},()=>new PokemonCardList()));
     opponent.bench[0].cards.push(benchThorns);
+    if(originalSpeed)opponent.bench[0].energies.cards.push(originalSpeed);
     opponent.hand.cards.splice(0,opponent.hand.cards.length,
-      held,...fillers);
+      held,...(heldDce?[heldDce]:[]),...fillers);
     opponent.deck.cards.splice(0,opponent.deck.cards.length,...stock);
     opponent.discard.cards.length=0;
     opponent.lostzone.cards.length=0;
@@ -112,7 +119,8 @@ function staged(seat,opponentRank=1){
       ...opponent.active.cards,...opponent.hand.cards,
       ...opponent.deck.cards,...opponent.discard.cards,
       ...opponent.lostzone.cards,
-      ...opponent.bench.flatMap(slot=>slot.cards),
+      ...opponent.bench.flatMap(slot=>[
+        ...slot.cards,...slot.energies.cards,...slot.tools]),
       ...opponent.prizes.flatMap(slot=>slot.cards)
     ];
     assert.equal(physical.length,60,'Full rank6 original source supply');
@@ -197,8 +205,8 @@ function staged(seat,opponentRank=1){
       }
     }
   }
-  return {f,state,owner,opponent,seat,opponentRank,bunnelbyIndex,
-    ownRegisteredSixty,ownCards,catalog,GamePhase,heldGuzma};
+  return {f,state,owner,opponent,seat,opponentRank,poweredRank6,
+    bunnelbyIndex,ownRegisteredSixty,ownCards,catalog,GamePhase,heldGuzma};
 }
 
 /**
@@ -255,8 +263,8 @@ function sourceBunnelbyBot(x){
 
 /** @param {0|1} seat */
 function verify(seat,opponentGuzma=false,continueAfterGuzma=false,
-  opponentRank=1){
-  const x=staged(seat,opponentRank);
+  opponentRank=1,poweredRank6=false){
+  const x=staged(seat,opponentRank,poweredRank6);
   if(opponentGuzma&&opponentRank===1){
     // The original rank1 60 supplies a second copy of the same Basic from
     // its initially dealt source hand. Move rather than fabricate a card.
@@ -330,6 +338,20 @@ function verify(seat,opponentGuzma=false,continueAfterGuzma=false,
     const {GameMessage}=native('game/game-message');
     const before=x.owner.active.getPokemonCard()?.fullName;
     assert.equal(before,'Bunnelby PRC');
+    if(poweredRank6){
+      // The printed Speed Lightning was legitimately staged from rank6's
+      // earlier first turn. The second attachment, DCE, is a real T3
+      // PlayCardAction before the source rank6 plays its held Guzma.
+      assert.equal(opponentRank,6);
+      const energyIndex=x.opponent.hand.cards.findIndex(c=>
+        c.fullName==='Double Colorless Energy SUM');
+      assert.ok(energyIndex>=0);
+      x.f.store.dispatch(new PlayCardAction(x.opponent.id,energyIndex,{
+        player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0
+      }));
+      assert.deepEqual(x.opponent.bench[0].energies.cards.map(c=>c.fullName),
+        ['Speed Lightning Energy RCL','Double Colorless Energy SUM']);
+    }
     const idx=x.opponent.hand.cards.indexOf(x.heldGuzma);
     assert.ok(idx>=0);
     x.f.store.dispatch(new PlayCardAction(x.opponent.id,idx,{
@@ -369,6 +391,71 @@ function verify(seat,opponentGuzma=false,continueAfterGuzma=false,
     assert.equal(x.owner.active.getPokemonCard()?.fullName,'Exeggutor PLF');
     assert.notEqual(x.opponent.cannotPlaySupporterCards,true);
     assert.equal(x.opponent.hand.cards.includes(x.heldGuzma),false);
+    if(poweredRank6){
+      // Same-turn printed TWM Thorns Volt Cyclone, using the newly promoted
+      // original rank6 Bench attacker carrying Speed Lightning + DCE.
+      assert.equal(x.opponent.active.getPokemonCard()?.fullName,
+        'Iron Thorns ex TWM');
+      const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+      const defs=native('simple-bot/simple-bot-definitions');
+      const {ResolvePromptAction}=
+        native('game/store/actions/resolve-prompt-action');
+      const activeOriginalRank6Bot=new SimpleTacticsAi({
+        id:x.opponent.id
+      },{
+        tactics:defs.allSimpleTactics,
+        promptResolvers:defs.allPromptResolvers,
+        scores:defs.defaultStateScores,
+        arbiter:defs.defaultArbiterOptions
+      },null);
+      const priorPrizes=x.opponent.prizes.reduce((n,p)=>n+p.cards.length,0);
+      assert.equal(priorPrizes,6);
+      x.f.store.dispatch(new AttackAction(x.opponent.id,'Volt Cyclone'));
+      const nativeAttackPrompts=[];
+      for(let n=0;n<45;n++){
+        const pending=x.state.prompts.find(p=>p.result===undefined);
+        if(!pending)break;
+        const kind=pending.constructor.name;
+        let answer;
+        if(kind==='WaitPrompt')
+          answer=new ResolvePromptAction(pending.id,null);
+        else if(kind==='ShuffleDeckPrompt')
+          answer=new ResolvePromptAction(pending.id,
+            deckPermutation(x.opponent.deck.cards.length,
+              seededRandom(20261102+seat+n)));
+        else if(pending.playerId===x.opponent.id)
+          answer=activeOriginalRank6Bot.decodeNextAction(x.state);
+        else if(pending.playerId===x.owner.id&&
+          kind==='ChoosePokemonPrompt'){
+          const slot=x.owner.bench.find(s=>
+            s.getPokemonCard()?.fullName==='Bunnelby PRC');
+          assert.ok(slot);
+          assert.ok(pending.validate([slot],x.state));
+          answer=new ResolvePromptAction(pending.id,[slot]);
+        }else assert.fail('Unplanned owner response to native rank6 attack: '+
+          kind);
+        assert.ok(answer,'Native Volt Cyclone left unresolved '+kind);
+        nativeAttackPrompts.push(kind);
+        x.f.store.dispatch(answer);
+      }
+      assert.equal(x.f.store.hasPrompts(),false);
+      assert.equal(x.owner.active.getPokemonCard()?.fullName,
+        'Bunnelby PRC','Rank6 must Knock Out the gusted 100 HP Exeggutor');
+      assert.equal(x.opponent.prizes.reduce((n,p)=>n+p.cards.length,0),5,
+        'Real opponent takes one Prize for the native Exeggutor KO');
+      assert.notEqual(x.opponent.cannotPlaySupporterCards,true,
+        'Opponent plays Guzma before Blockade was applied');
+      console.log('AGENT40_NATIVE_ORIGINAL_RANK6_POWERED_GUZMA_KO',
+        JSON.stringify({seat,sourceRank:6,
+          originalRank6CardsConserved:60,
+          originalFirstTurnSpeed:'Speed Lightning Energy RCL',
+          actualSecondTurnDce:'Double Colorless Energy SUM',
+          actualGuzmaAccepted:true,
+          actualVoltCycloneAccepted:true,
+          prizeCardsTaken:1,sourceExeggutorKnockedOut:true,
+          nativeAttackPrompts,competitivelyQualifiedGames:0}));
+      return;
+    }
     console.log('AGENT40_BLOCKADE_EXPOSED_WINDOW_GUZMA',JSON.stringify({
       seat,sourceRank:opponentRank,originalHeldSupporter:'Guzma BUS',
       window:'opponent turn immediately after Bunnelby double TM',
@@ -522,4 +609,6 @@ for(const seat of [0,1]){
     ()=>verify(seat,true,false,6));
   test('adapt Blockade after original rank6 Iron Thorns Guzma, seat '+seat,
     ()=>verify(seat,true,true,6));
+  test('original rank6 precharged Thorns uses Guzma + Volt Cyclone KO, seat '+seat,
+    ()=>verify(seat,true,false,6,true));
 }
