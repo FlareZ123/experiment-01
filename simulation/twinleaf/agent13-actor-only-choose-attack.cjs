@@ -93,6 +93,13 @@ function chooseActorCopiedAttack(input,options={}){
       (candidate.damageCalculation===null ||
        candidate.damageCalculation===undefined))??picked;
   }
+  // Opt-in exact-print Fusion Strike copy line. The real Store offers
+  // the legal menu, so this only ranks owner-visible eligible choices.
+  if(options.preferMewGenesectTechnoBlast===true&&
+      input.actor.ownPublic?.active?.printing==='Mew VMAX FST'){
+    picked=eligible.find(x=>x.printing==='Genesect V FST'&&
+      x.attackName==='Techno Blast')??picked;
+  }
   if(picked)return {sourceIndex:picked.sourceIndex,
     attackIndex:picked.attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
@@ -124,11 +131,14 @@ function withActorOnlyChooseAttack(run,deps={}){
   let liveStore=null;
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
+  const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
   const audit={version:VERSION+
     (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
-    (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':''),
+    (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':'')+
+    (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':''),
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
+    preferMewGenesectTechnoBlast,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -146,7 +156,8 @@ function withActorOnlyChooseAttack(run,deps={}){
     }
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
-      {preferGengarPoltergeist,preferZeroHandPrintedDamage});
+      {preferGengarPoltergeist,preferZeroHandPrintedDamage,
+        preferMewGenesectTechnoBlast});
     const controlIntent=preferZeroHandPrintedDamage?
       chooseActorCopiedAttack(input,{preferGengarPoltergeist}):null;
     const prompt=state.prompts.find(p=>p.result===undefined);
