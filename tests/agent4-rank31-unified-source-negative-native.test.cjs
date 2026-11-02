@@ -7,7 +7,7 @@ const {
 }=require('../simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs');
 const {probePainfulSpoonsCounterBudget}=
   require('../simulation/twinleaf/agent4-rank31-spoons-overbudget-native.cjs');
-const {probeRoxieNoEligibleRoot}=
+const {probeRoxieNoEligibleRoot,runRank31RoxieSpoons}=
   require('../simulation/twinleaf/agent4-rank31-roxie-koffing-spoons-native.cjs');
 
 test('source-marked independent SIT59 check bounds total count and source identity',()=>{
@@ -77,6 +77,29 @@ test('v9 shared native root guard forbids original Roxie with only GX payment on
     console.log('AGENT4_UNIFIED_ROXIE_ROOT_V9 '+JSON.stringify({
       seat,rootError:r.rootError,rootCount:a.inspectedRoxiePlayCardRoots,
       vetoed:a.vetoedRoxieNoEligibleRoots
+    }));
+  }
+});
+
+test('v9 common root preflight preserves printed legal Roxie Koffing three-card draw in both seats',()=>{
+  for(const seat of [0,1]){
+    const observed=withPaperPromptContractPortfolio(()=>
+      runRank31RoxieSpoons(false,seat,false));
+    const r=observed.result,a=observed.audit;
+    assert.equal(r.roxieDrawnThree,true);
+    assert.equal(r.physicalKoffingDiscarded,true);
+    assert.deepEqual(r.afterBomb,[10,10,190]);
+    assert.match(r.rejected,/PAPER_PROMPT_INVALID:.*PAINFUL_SPOONS_MULTIPLE_SOURCE_POKEMON/);
+    assert.equal(r.prizesTaken,0);
+    assert.equal(a.inspectedRoxiePlayCardRoots,1);
+    assert.equal(a.vetoedRoxieNoEligibleRoots,0);
+    assert.equal(a.markedPainfulSpoonsPrompts,1);
+    assert.equal(a.inspectedRoxiePaymentPrompts,1);
+    console.log('AGENT4_UNIFIED_ROXIE_LEGAL_ROOT_V9 '+JSON.stringify({
+      seat,drawnThree:r.roxieDrawnThree,
+      rootCount:a.inspectedRoxiePlayCardRoots,
+      vetoedRoots:a.vetoedRoxieNoEligibleRoots,
+      rejectedSpooning:r.rejected
     }));
   }
 });
