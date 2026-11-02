@@ -148,26 +148,27 @@ function one(reverse,byRank){
     }
     const result=previousDispatch.call(this,action,...args);
     if(this!==root)return result;
+    const after=this.state;
     if(action.constructor.name==='AddPlayerAction'&&
-       state.players.length===2&&!owners)
-      owners=captureInitialPhysicalOwners(state,60);
+       after.players.length===2&&!owners)
+      owners=captureInitialPhysicalOwners(after,60);
     if(!owners)return result;
-    const ready=state.players.length===2&&
-       !state.prompts.some(p=>p.result===undefined);
-    if(!stagedTie&&ready&&state.turn===1&&
-       state.phase===GamePhase.PLAYER_TURN){
-      for(const player of state.players){
+    const ready=after.players.length===2&&
+       !after.prompts.some(p=>p.result===undefined);
+    if(!stagedTie&&ready&&after.turn===1&&
+       after.phase===GamePhase.PLAYER_TURN){
+      for(const player of after.players){
         assert.equal(player.prizes.filter(p=>p.cards.length>0).length,6);
         for(const prize of player.prizes)
           player.hand.cards.push(...prize.cards.splice(0));
       }
       stagedTie=true;
-    }else if(stagedTie&&state.turn===0&&
-             state.phase===GamePhase.SETUP&&state.isSuddenDeath===true){
+    }else if(stagedTie&&after.turn===0&&
+             after.phase===GamePhase.SETUP&&after.isSuddenDeath===true){
       resetSeen=true;
-    }else if(resetSeen&&ready&&state.turn>=1&&
-             state.phase===GamePhase.PLAYER_TURN&&
-             state.isSuddenDeath===true){
+    }else if(resetSeen&&ready&&after.turn>=1&&
+             after.phase===GamePhase.PLAYER_TURN&&
+             after.isSuddenDeath===true){
       replayOpened=true;
     }
     return result;
