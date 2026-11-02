@@ -46,5 +46,9 @@ test('immutable printed 60 inventories and singleton DCE are sourced from repo',
     assert.equal(result.contenders[label].basic, basics, label);
     assert.equal(result.contenders[label].evolutions, evolutions, label);
   }
-  assert.equal(result.rank26OpeningDcePrizeProbability, 0.1);
+  assert.equal(result.rank26DceInitiallyPrizedUnconditional, 0.1);
+  assert.ok(Math.abs(result.rank26DceInitiallyPrizedGivenValidOpening -
+    0.10077777379917645) < 1e-12);
+  assert.ok(Math.abs(result.rank26DceAndTicketInitiallyPrizedGivenValidOpening -
+    0.008606833848066566) < 1e-12);
 });
