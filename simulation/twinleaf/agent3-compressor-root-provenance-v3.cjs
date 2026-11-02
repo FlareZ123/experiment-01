@@ -41,7 +41,7 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
     const state=this.state;
     const owner=state?.players?.[seat];
     if(actionName==='PlayCardAction'&&
-       action.clientId===ownerClient&&
+       action.id===ownerClient&&
        state?.activePlayer===seat&&owner) {
       const physical=owner.hand.cards[action.handIndex];
       const compressor=physical?.name==='Battle Compressor';
@@ -60,6 +60,7 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
     }
     if(actionName==='ResolvePromptAction'&&pending&&
        this.state.turn===pending.turn&&
+       action.id===pending.prompt.id&&
        this.state.prompts.includes(pending.prompt)&&
        pending.prompt.result===undefined) {
       const {owner:source,prompt}=pending;
