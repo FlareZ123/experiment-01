@@ -42,3 +42,30 @@ The archived source-positive run preserved the unchanged original K0 and physica
 ### Expansion now registered
 
 A separate [flexible K0 planner](../../simulation/twinleaf/agent44-flexible-box-k0-plan.cjs) retains real three-card upfront Box payment while allowing Secret Box to fetch a compatible Tool, an already in-play Trubbish, or a held Quick/Ultra Ball with sufficient later discard liquidity to find Trubbish. [Its unit suite](../../tests/agent44-flexible-box-k0-plan.test.cjs) covers all three extended pathways plus negative payment and public-lock cases. The same native hook has an explicit `{flexible:true}` profile that adds Quick/Ultra search/discard stages and first-turn Tool category selection. It is separately registered against **32 disjoint, unselected original physical rank8 source seeds `272..303`**; those results must not be mixed into the earlier 16 narrow-offer denominator. No favorable outcome is pre-assumed. The existing manual CI input `agent44_rank8_shared_boxshake_flexible` is default OFF and never changes existing historical runs. The expanded profile is being checked independently.
+
+## Executed canonical both-seat actor integration: positive witness
+
+The [default-off canonical bridge](../../simulation/evaluation/agent44-canonical-boxshake-composition.cjs) installs the Box native continuation inside the existing Agent7 canonical actor chain without replacing its root, select, fog, attack and prompt components. The [three-source-deal original native pilot](../../simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs) compares baseline common canonical to the *same* common canonical with the flexible Box component switched on. Both real actors are given the same canonical policy and Box extension. The adapter explicitly labels common generic bot fallback as unqualified.
+
+[Manual run 41407175159](https://github.com/FlareZ123/experiment-01/actions/runs/41407175159) **SUCCESS**, source commit `758eb0148b549af1ab71f2df88c451461d13ed0d`, includes:
+
+| Original rank8 physical deal | Policy Box K0 offers | Actual opponent-turn Tool-Garbodor | Errors |
+| --- | ---: | ---: | ---: |
+| Retrospective known-positive seed `214648959` | 1 | **1** | 0 |
+| New independent registered seed index `304` | 0 | 0 | 0 |
+| New independent registered seed index `305` | 0 | 0 | 0 |
+
+The printed headless experiment's canonical source K0 is identical between baseline and treatment, and it checks physical deck hashes and actual starting player. The original positive survives the more realistic bilateral common actor interceptors, and the next opponent actor receives the board after native Shake settlement. There are **still no competitive-qualified games** or demonstrations of general source response competence. Retrospective success and two fresh no-opportunity samples must not be pooled as a win rate. Raw artifact [13123623297](https://github.com/FlareZ123/experiment-01/actions/runs/41407175159/artifacts/13123623297), ZIP SHA-256 `8a59e023a78c26787977975e0be63bd54e121c1180784dfb772aa142176d9aac`.
+
+## Exact printed60 theoretical opening sensitivity
+
+The recovered source rank8 sixty has one Secret Box, one Boost Shake, two Trubbish, two Garbodor, four Quick Ball, two Ultra Ball, four Float Stone, one Muscle Band and seven Basic Energy. [The deterministic source60 hand-model](../../simulation/analytical/agent44-box-firstturn-handmodel.py) draws seven initial cards conditional on a Basic, places six random Prizes and draws one firstturn card. It compares extremes in the player's choice to Bench other Basic starters: **none** versus **all**. It tests only held-card K0 and whether Shake, Garbodor, Tool and Trubbish search targets remain in the unprized deck. This is an approximate resource model, not a native policy simulation. Seed `44110207`; 200,000 pre-mulligan attempts generated 148,137 valid opening hands.
+
+| Assumed Basic Bench strategy | Strict v1 Box K0 | Flexible v2 Box K0 | Flexible K0 plus K1 targets live |
+| --- | ---: | ---: | ---: |
+| No other initial Basics Benched | 901 / 148,137 = **0.608%** | 10,620 / 148,137 = **7.169%** | 8,944 / 148,137 = **6.038%** |
+| All other initial Basics Benched | 172 / 148,137 = **0.116%** | 9,620 / 148,137 = **6.494%** | 8,104 / 148,137 = **5.471%** |
+
+These model frequencies depend strongly on Bench choices, especially whether Trubbish is kept in hand. They ignore opponent Item lock, card sequencing, stronger competing plays, actual opponent continuation, source prize-recovery tricks, mulligan compensation and any paper-match clock. Their nominal Wilson 95% intervals for the flexible physical K0 probability are **7.039–7.302%** with no other initial Basics Benched and **6.370–6.621%** with all other Basics Benched. Do not use these as game-win percentages or confident estimates of actual bot trigger rates.
+
+The immediate priority is to run and retain a substantial disjoint original native flexible cohort and then assess the natural prompt-abort/settled frequency. [Run 41406786273](https://github.com/FlareZ123/experiment-01/actions/runs/41406786273) did not reach gameplay: its three new observer unit fixtures omitted the mandatory native Active Slot; the fixtures were fixed at `6c0855feaab8659db7cb19326ae7342a0ec63356`, while the original seven narrow K0 tests and all owner-K1 category tests passed in that failed run.
