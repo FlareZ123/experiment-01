@@ -11,7 +11,7 @@ assert.equal(choose(3, 4), 0n);
 /** @param {number[]} counts @param {number} handSize @param {number} prizeSize */
 function brute(counts, handSize, prizeSize) {
   const cards = counts.flatMap((count, category) => Array(count).fill(category));
-  let favorable = 0, total = 0;
+  let favorable = 0, broader = 0, total = 0;
   /** @param {number[]} chosen @param {number[]} remaining @param {number} size @returns {number[][]} */
   function choosePositions(chosen, remaining, size) {
     if (chosen.length === size) return [chosen];
@@ -28,25 +28,31 @@ function brute(counts, handSize, prizeSize) {
         total++;
         const held = [...h, next].map(i => cards[i]);
         const remaining = withoutP.filter(i => i !== next).map(i => cards[i]);
-        if (remaining.includes(3) && remaining.includes(4) &&
-          (held.includes(1) || (held.includes(2) && remaining.includes(1)))) {
-          favorable++;
-        }
+        const connector = held.includes(1) || (held.includes(2) && remaining.includes(1));
+        if (remaining.includes(3) && remaining.includes(4) && connector) favorable++;
+        if ((held.includes(3) || (connector && remaining.includes(3))) &&
+          (held.includes(4) || (connector && remaining.includes(4)))) broader++;
       }
     }
   }
-  return { favorable, total };
+  return { favorable, broader, total };
 }
 
 const toy = [2, 1, 1, 1, 1, 2];
 const exactToy = countSourceAttackLine(toy, 2, 1);
 const bruteToy = brute(toy, 2, 1);
 assert.equal(exactToy.favorable, BigInt(bruteToy.favorable));
+assert.equal(exactToy.broader, BigInt(bruteToy.broader));
 assert.equal(exactToy.denominator, BigInt(bruteToy.total));
 
-for (const [dce, p] of [[1, 0.2537731070353226], [3, 0.3207036626630127]]) {
+for (const [dce, p, broad] of [
+  [1, 0.2537731070353226, 0.3378150571059356],
+  [3, 0.3207036626630127, 0.39107850627345275]
+]) {
   const exact = countSourceAttackLine([4, 2, 2, 1, dce, 51 - dce]);
   assert.ok(Math.abs(exact.probability - p) < 1e-12);
+  assert.ok(Math.abs(exact.broaderProbability - broad) < 1e-12);
+  assert.ok(exact.broader >= exact.favorable);
   assert.equal(exact.denominator, 166478632771651200n);
 }
 const fake = {
