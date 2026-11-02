@@ -15,6 +15,25 @@ The shared first-return owner policy can fill the final ordinary Bench slot with
 
 The fully qualified target remains one fixed 60 against all 32 Aichi Top32 original decks. This study only observes two authenticated archetypes, rank 1 and rank 10, in unqualified original-store bot games. The original source 60s remain unchanged and the engine is pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
+## Native original-Store evidence, frozen eight-arm read-only sample
+
+The [successful manual compiled CI 41370289372](https://github.com/FlareZ123/experiment-01/actions/runs/41370289372) used pinned Twinleaf, executed all eight registered physical deals and passed the original shared four-arm off-versus-shadow action-parity test. Its [full raw artifact](https://github.com/FlareZ123/experiment-01/actions/runs/41370289372/artifacts/13108363339) retains the game rows, the source and observer control transcripts and the rank30 read-only Rondo census.
+
+| Original rank seats | Seed | Engine result | Distinct final-Bench conflicts |
+| --- | --- | --- | ---: |
+| rank1 A, rank10 B | 20261101 | terminal, 236 actions | 0 |
+| rank10 A, rank1 B | 20261101 | terminal, 71 actions | 0 |
+| rank1 A, rank10 B | 20261102 | terminal, 222 actions | **3** |
+| rank10 A, rank1 B | 20261102 | terminal, 59 actions | 0 |
+| rank1 A, rank10 B | 20261103 | 240-action censor | 0 |
+| rank10 A, rank1 B | 20261103 | invalid AttachEnergyPrompt abort | 0 |
+| rank1 A, rank10 B | 20261104 | 240-action censor | 0 |
+| rank10 A, rank1 B | 20261104 | 240-action censor | **1** |
+
+The four last-Bench contexts all had a first-return `bench-basic`, so this exact sample **did not encounter** the expanded Pass/attack/unrelated-action branch. The pure tests cover that structural possibility. On the rank10 B source game at turn 41, the baseline selected Budew ASC into Bench slot 4 while the owner held Squawkabilly ex PAL, Dedenne GX UNB and Regidrago V SIT as alternatives (hand indices 8, 9, 16). The same source game later generated two further distinct rank10 decisions (turns 45 and 49) because Bench capacity reopened. The rank1 B game yielded one alternative state at turn 65, with Shadow Rider Calyrex V, Tapu Lele-GX and Marshadow as competing printings. All were developmental late-game positions with a weak policy, not 4 independent favorable outcomes.
+
+The 8-game audit records all terminal, capped and native-error outcomes. Its original policy remains unchanged; the alternative admissions, post-entry Ability prompts, opponent response and causal effects are **unverified** by this read-only audit. The original controlled-bench fixture had already confirmed certain individual alternative Bench admissions in both seats, which is separate evidence and must not be substituted for these later actual-deal states.
+
 ## Proof obligations and decision relevance
 
 An observed eligible Basic in this model is **structural**, not an independently accepted native `PlayCardAction`. Card-specific Bench admission restrictions, Ability entry behavior, full source-dealt opponent replies, opportunity cost, post-prompt effect settlement, owner K1 information, game clock and competitive decision quality remain unverified. The earlier controlled positive admission of Tapu Lele-GX and Lillie's Clefairy ex cannot be generalized to arbitrary owners and turns. An opportunity count is not a win-rate or legality estimate.
