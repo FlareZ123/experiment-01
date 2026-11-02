@@ -138,6 +138,21 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
           .filter(p=>p.result===undefined).map(p=>p.constructor.name)
       };
     }
+    if(session?.sourceSeat!==null&&session?.sourceSeat!==undefined&&
+       next?.players?.length===2){
+      const own=next.players[session.sourceSeat];
+      const other=next.players[1-session.sourceSeat];
+      session.latestNativePublicBoard={
+        phase:next.phase,turn:next.turn,winner:next.winner??null,
+        currentActivePlayerSeat:next.activePlayer,
+        sourcePrizeRemaining:own.getPrizeLeft(),
+        opponentPrizeRemaining:other.getPrizeLeft(),
+        sourceActive:own.active.getPokemonCard()?.fullName??null,
+        sourceActiveDamage:own.active.damage,
+        opponentActive:other.active.getPokemonCard()?.fullName??null,
+        opponentActiveDamage:other.active.damage
+      };
+    }
     if(session&&session.sourceIdentityCounts===null&&
        next?.players?.length===2&&actionType==='AddPlayerAction'){
       const counts=next.players.map(countSourceRagingCopies);
@@ -162,6 +177,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
       const fundedWhileHoOh=fundedBench.filter(r=>
         r.activePrinting==='Ho-Oh EX DRX');
       return {gameIndex:s.gameIndex,sourceSeat:s.sourceSeat,
+        lastNativePublicBoard:s.latestNativePublicBoard??null,
         sourcePhysicalRagingCounts:s.sourceIdentityCounts,
         sourceOwnerRootCount:s.records.length,
         sourceRagingActiveRoots:active.length,
