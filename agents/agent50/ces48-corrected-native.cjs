@@ -41,3 +41,5 @@ function stage(seat){
    return prize;
   });
  }
+ const store=new Store({onStateChange(){}});
+ const state=store.state;
