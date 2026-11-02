@@ -161,9 +161,11 @@ test('mulligan setup prompt discrepancy can coexist with same first owner hand',
   assert.equal(nativeSetupHistory(second).candidateShufflePromptActions,1);
   const pair=sourcePairReceipts([first,second])[0];
   assert.equal(pair.status,'SOURCE_PHYSICAL_DEAL_DIFFERENT');
-  assert.equal(pair.sameFirstOwnerHandSha,true);
+  assert.equal(pair.sameLegacyEarlySourceHandSha,true);
   assert.equal(pair.sameSetupHistory,false);
-  assert.equal(pair.sameFirstOwnerHandButDifferentSourceDeal,true);
+  assert.equal(pair.identicalEarlyHashButDifferentSourceDeal,true);
+  assert.equal(pair.actualFirstLiveOwnerHandEqualityCertified,false);
+  assert.equal(pair.legacyDigestMayBeSetupPhase,true);
   assert.equal(pair.candidateComparisonCompetitivelyQualified,false);
 });
 
