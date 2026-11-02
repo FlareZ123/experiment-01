@@ -1,0 +1,9 @@
+# Agent1: native Guzma & Hala empty search leaves sorted deck
+
+**2 Nov 2026, pinned Twinleaf a9905a76.** Genuine Store, prepared rank6 Guzma & Hala CEC, both physical owner seats. [Compiled run 41471745565](https://github.com/FlareZ123/experiment-01/actions/runs/41471745565) passed.
+
+Before the root, each eight-card source deck was seven Psychic Energy SVE followed by Thunder Mountain Prism Star LOT. After a native-valid **zero-card** Stadium search, the complete physical deck was **Thunder Mountain first, then seven Psychic Energy**. Card count stayed 8; there was **no ShuffleDeckPrompt** in either seat. With the same prepared deck selecting the Stadium, the Stadium entered hand, deck count became 7 and an actual ShuffleDeckPrompt appeared in both seats. Exact receipts are logged as `AGENT1_GHALA_ZERO_SEARCH`.
+
+Cause in pinned source: `ChooseCardsPrompt` constructor calls `this.cards.sort()` for owner deck when `isSecret` defaults false. `CardList.sort()` puts Trainer before Energy. The pinned G&H search callback calls `SHUFFLE_DECK` **only if selected cards.length > 0**. The printed G&H requires shuffle after deck search, including legal zero-card hidden-zone selection (provided Advanced Player Rulebook, H). The sorted physical deck surviving a zero search therefore contradicts paper rules.
+
+Fixtures: [native probe](../../simulation/twinleaf/agent1-ghala-zero-search-native.cjs), [existing manual native suite](../../tests/agent30-guzma-hala-optional-payment-native.test.cjs). Prepared Store only, no original dealt game, no occurrence frequency, no qualified wins. Separate from G&H enhanced-mode two-card payment underflow.
