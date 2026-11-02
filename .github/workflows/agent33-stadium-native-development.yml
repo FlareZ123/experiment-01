@@ -33,7 +33,7 @@ jobs:
           node-version: '20.19.0'
       - name: Test exact rank29 opening, fallback, and owner prompt choices
         if: inputs.study == 'rank29-camping-pure'
-        run: node --test tests/agent33-rank29-beach-camping-prize-access.test.cjs tests/agent33-rank29-camping-attackpair-target.test.cjs tests/agent33-rank29-gear-fixed-fallback-incidence.test.cjs
+        run: node --test tests/agent33-rank29-beach-camping-prize-access.test.cjs tests/agent33-rank29-camping-attackpair-target.test.cjs tests/agent33-rank29-gear-fixed-fallback-incidence.test.cjs tests/agent33-rank29-guzma-hala-prize-reachability.test.cjs
       - run: git submodule update --init --depth=1 vendor/twinleaf
         if: inputs.study != 'rank29-camping-pure'
       - uses: actions/setup-node@v4
