@@ -27,14 +27,14 @@ function loadTypes(){
       result.set(card.name,found);
     }
   }
-  // The bundled EN card archive omits seven actual original-printing names.
+  // The bundled EN card archive omits eight actual original-printing names.
   // Keep the scope explicit. Their printed types are established by the
   // source deck's authenticated set+number plus external printed-card
   // catalogues; they are all non-Supporters. Do not silently make a
   // missing card look as if it came from the bundled card archive.
   // PHF 92/102/106: Battle Compressor, Robo Substitute, Target Whistle
   // BWP 153: Palace Belt (Tool). SMP NAN25: Palace Book (Item).
-  // LOT 191 and TEU 158: Prism Star Stadiums.
+  // LOT 191 and TEU 158: Prism Star Stadiums. SP 127: Player's Ceremony (Stadium).
   const verifiedOutsideBundledArchive={
     'Battle Compressor':'Item',
     'Palace Belt':'Pokémon Tool',
@@ -42,7 +42,8 @@ function loadTypes(){
     'Robo Substitute':'Item',
     'Target Whistle':'Item',
     'Thunder Mountain ♢':'Stadium',
-    'Wondrous Labyrinth ♢':'Stadium'
+    'Wondrous Labyrinth ♢':'Stadium',
+    "Player's Ceremony":'Stadium'
   };
   for(const [name,type] of Object.entries(verifiedOutsideBundledArchive)){
     assert.equal(result.has(name),false,
@@ -89,9 +90,10 @@ function census(){
       bundledEnglishCardArchive:'176 original JSON sets, exact name/subtypes',
       explicitExternalPrintingTypeOverrides:[
         'Battle Compressor','Palace Belt','Palace Book','Robo Substitute',
-        'Target Whistle','Thunder Mountain ♢','Wondrous Labyrinth ♢'
+        'Target Whistle','Thunder Mountain ♢','Wondrous Labyrinth ♢',
+        "Player's Ceremony"
       ],
-      note:'Seven published source Trainer names absent from supplied archive; override only their verified non-Supporter printed type.'
+      note:'Eight published source Trainer names absent from supplied archive; override only their verified non-Supporter printed type.'
     },
     supporterSummary:{
       min:sorted[0],median:sorted[Math.floor(sorted.length/2)],
