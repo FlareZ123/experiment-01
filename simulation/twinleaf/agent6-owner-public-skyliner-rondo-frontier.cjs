@@ -4,30 +4,30 @@ const assert=require('node:assert/strict');
 const {paysWithBasics}=
   require('./agent7-actor-free-retreat-frontier.cjs');
 
-const VERSION='agent6-owner-public-skyliner-rondo-mobility-v1';
+const VERSION='agent6-owner-public-skyliner-rondo-mobility-v2-nominal-ko';
 
 /**
- * Owner-only source-line alternative: an uncharged Latias ex with Skyliner
- * can attempt to retreat into a funded JTG Clefairy. Printed Skyliner,
- * in-play Ability suppression, genuine Retreat cost, and full damage are
- * finally adjudicated by Store; this is a paper-uncertified offer.
+ * Offer a public nominal Prize attack, using a zero-cost Skyliner retreat
+ * into funded JTG Clefairy. The acting owner can see its own board, attacks,
+ * Energy and its opponent's face-up target and Bench size. Do not infer a
+ * real KO if a print's HP, damage or other modifiers are unknown.
  *
- * A genuinely payable attack by the current Active has priority, and an
- * otherwise current-turn-used retreat must be protected. No hidden zones or
- * opponent names, ranks, seed IDs or physical seats enter this function.
+ * The first proven source ALS uses Active uncharged Latias; the second uses
+ * Active Mimikyu GRI with one Telepath [P] Energy and Latias on the Bench.
+ * Native Store ultimately adjudicates Ability suppression, actual retreat
+ * cost, attack damage, prevention, retaliation and Knock Outs. These
+ * restraints intentionally keep this an exact-printing experimental root.
  *
  * @param {object} view Deeply frozen authenticated actor owner-root view.
  * @param {object} catalog Public native basic Energy/status metadata.
  * @returns {{kind:'skyliner-rondo-retreat',benchIndex:number,
  *   printing:string,attackName:string,estimatedBaseDamage:number,
- *   reason:string}|null}
+ *   nominalPrizeOpportunity:true,reason:string}|null}
  */
 function chooseOwnerSkylinerRondoRetreat(view,catalog){
   assert.equal(view?.decisionKind,'owner-root');
   const own=view.ownPublic,active=own?.active,r=view.ownTurnResources;
-  if(view.globalTurn===1||active?.printing!=='Latias ex SSP'||
-     !active.abilities?.includes('Skyliner')||
-     !Array.isArray(own.bench)||!r||
+  if(view.globalTurn===1||!active||!Array.isArray(own.bench)||!r||
      r.retreatedTurn===view.globalTurn||
      own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
      active.publicRestrictions?.cannotRetreatNextTurn===true||
@@ -35,12 +35,31 @@ function chooseOwnerSkylinerRondoRetreat(view,catalog){
      active.specialConditions?.some(s=>
        s===catalog.specialConditions.ASLEEP||
        s===catalog.specialConditions.PARALYZED))return null;
-  // If Latias has Energy or can itself do positive immediate attack damage,
-  // use existing attack/attachment arbitration rather than overriding it.
-  if(!Array.isArray(active.energies)||active.energies.length>0||
-     active.attacks?.some(attack=>
-       Number.isSafeInteger(attack.damage)&&attack.damage>0&&
-       paysWithBasics(active,attack,catalog)))return null;
+  const latias=slot=>slot?.printing==='Latias ex SSP'&&
+    slot.abilities?.includes('Skyliner');
+  if(!latias(active)&&!own.bench.some(latias))return null;
+  if(!Array.isArray(active.energies))return null;
+  const unchargedLatias=active.printing==='Latias ex SSP'&&
+    active.energies.length===0;
+  const filchMimikyu=active.printing==='Mimikyu GRI'&&
+    active.energies.length===1&&
+    active.energies[0]==='Telepath [P] Energy M3';
+  if(!unchargedLatias&&!filchMimikyu)return null;
+  if(active.attacks?.some(a=>Number.isSafeInteger(a.damage)&&a.damage>0&&
+    paysWithBasics(active,a,catalog)))return null;
+
+  const enemy=view.opponentPublic?.active;
+  if(!Number.isSafeInteger(enemy?.hp)||enemy.hp<=0||
+     !Number.isSafeInteger(enemy.damage)||enemy.damage<0||
+     !Array.isArray(view.opponentPublic?.bench))return null;
+  const benchCount=own.bench.filter(Boolean).length+
+    view.opponentPublic.bench.filter(Boolean).length;
+  const base=20+20*benchCount;
+  // Damage-preventing effects and Weakness remain native Store questions.
+  // Requiring a public no-Weakness nominal KO gives a useful lower-bound
+  // opportunity where positive attack value exceeds a draw-only Filch.
+  if(base<enemy.hp-enemy.damage)return null;
+
   for(let benchIndex=0;benchIndex<own.bench.length;benchIndex++){
     const pokemon=own.bench[benchIndex];
     if(pokemon?.printing!=="Lillie's Clefairy ex JTG"||
@@ -53,9 +72,8 @@ function chooseOwnerSkylinerRondoRetreat(view,catalog){
     if(!rondo||!paysWithBasics(pokemon,rondo,catalog))continue;
     return {kind:'skyliner-rondo-retreat',benchIndex,
       printing:pokemon.printing,attackName:rondo.name,
-      estimatedBaseDamage:20+20*(own.bench.filter(Boolean).length+
-        (view.opponentPublic?.bench?.filter(Boolean).length??0)),
-      reason:'owner-public-free-retreat-into-funded-rondo'};
+      estimatedBaseDamage:base,nominalPrizeOpportunity:true,
+      reason:'owner-public-skyliner-funded-rondo-nominal-active-ko'};
   }
   return null;
 }
