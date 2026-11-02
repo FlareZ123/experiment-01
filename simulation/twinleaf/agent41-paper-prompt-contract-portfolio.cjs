@@ -460,7 +460,9 @@ function withPaperPromptContractPortfolio(run,deps={}){
       if(rejected)status='PAPER_PROMPT_INVALID';
       reason=rejected??'only-negative-predicates-audited';
     }else if(family==='ChooseCardsPrompt'&&
-              prompt?.sourceCard?.fullName==='Ultra Ball MEG'){
+              prompt?.sourceCard?.fullName==='Ultra Ball MEG'&&
+              prompt.options?.min===2&&prompt.options?.max===2&&
+              prompt.cards===this.state.players?.find(p=>p.id===prompt.playerId)?.hand){
       audit.inspectedUltraBallPaymentPrompts++;
       sourcePrinting='Ultra Ball MEG';
       contract='printed-ultra-ball-exactly-two-physical-discard-negative';
