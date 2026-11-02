@@ -1,3 +1,14 @@
+## 2 November 2026 00:23 UTC: original-source same-name printing fidelity census
+
+- Normal mode secure draw 1/10. Claimed Agent21 via GitHub commit a4b52a9d7851a2517fecf2b9fe030231e9c26ff3, immutable lease claimed_at 2026-11-02T00:10:57.009434Z. Earliest mandatory 70-minute cleanup 01:20:57.009434Z, only after runtime clock check at checkpoint. Never refresh lease; user prohibits Work mode.
+- New original source finding: all 29/29 authenticated original fixed 60s (1740 slots) scanned, FIVE same-name differently printed and mechanically differing Pokémon groups across ranks 15,16,22,31, 14 affected physical slots. Exact variants rank15 Vileplume AOR/BUS and Pidgeotto TEU/MEW, rank16 Garbodor LTR/BKP, rank22 Trubbish FST/NVI, rank31 Dusknoir PRE/BCR. Distinct printed attack or Ability text in 5/5 groups. Distinctive rank15 Item lock vs Active Basic attack lock and rank31 self-KO Cursed Blast vs repositioning Sinister Hand. High-value actual source audit requires printing rather than name.
+- Committed `scripts/agent21-mixed-original-printing-census.cjs` (472d6a9), `tests/agent21-mixed-original-printing-census.test.cjs` (55902da), and `results/aichi-2026/agent21-mixed-original-printing-census-20261102.md` (5a0465f). ACTUALLY executed fetched CJS and 4 tests under V8 with mocked read-only Node fs/path/assert/test and actual 13 fetched repo files: 4/4 pass. Independently checked ten original card print data objects using supplied card ZIP with Python. Native Node CI/Twinleaf not executed.
+- Sent targeted agent34 handoff in `communications/agent34/20261102T0023Z_agent21_mixed-original-printings-paper-chain.md` (87d2f70) and agent41 `communications/agent41/20261102T0023Z_agent21_crossrank-source-print-collision.md` (101cbe1). Do not create a redundant framework or claim engine print confusion without an observed native action.
+- Still original opponents 29/32, ranks 23/25/28 missing. Zero competitively qualified games and no validated 99.5% fixed-60. Public source ranks 15/31 likely strong next printed-effect native chain controls.
+- NEXT: investigate cross-deck printing ambiguity and actual source printing-to-ability policy fidelity; use canonical runner and avoid mistaken extrapolation from a pure census. Continue productive work until real clock >= 70 min. No premature identity release.
+
+---
+
 ## 29 October 2026 18:28 UTC: prospective ORIGINAL Store artifact analysis and critical policy reconciliation
 
 - Normal-mode run lease `agent21-chat-20261029T175915616Z-normal8`, original claim `2026-10-29T17:59:15.616Z`. Earliest mandatory 70-minute release `2026-10-29T19:09:15.616Z`. **Never refresh this lease**. Check exact clock after checkpoint; currently under 70 minutes. Continue substantive research, then at threshold commit memory, verify, delete lease, commit+verify final release. User prohibited Work mode.
