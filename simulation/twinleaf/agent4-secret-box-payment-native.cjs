@@ -78,7 +78,9 @@ function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
     try{f.store.dispatch(new ResolvePromptAction(p.id,reply));}
     catch(e){error=String(e?.message??e);}
     continuation.push({type,message:p.message??null,
-      selected:reply?.map?.(c=>c?.fullName??null)??null,error});
+      selected:reply?.map?.(c=>c?.fullName??null)??null,
+      nativeValidatorAccepted:typeof p.validate==='function'&&Array.isArray(reply)?
+        p.validate(reply,f.state):null,error});
     if(error)break;
   }
   return {seat,payment,searchMode,originalPrinting:'Secret Box TWM',
