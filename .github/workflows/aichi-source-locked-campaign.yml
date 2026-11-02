@@ -656,6 +656,18 @@ jobs:
       - name: Audit source New Moon attack passes without policy intervention
         if: ${{ inputs.newmoon_pass_probe }}
         run: node simulation/evaluation/newmoon-rank11-pass-observer.cjs > newmoon-rank11-pass-observer.json
+      - name: Check four-arm rank9 funding and Retreat factorial code
+        if: ${{ inputs.trial_ids == 'agent10-rank9-funding-retreat-factorial' }}
+        run: |
+          node --check simulation/evaluation/agent10-rank9-funding-retreat-factorial.cjs
+          node --test tests/agent10-flexible-paid-retreat-frontier.test.cjs
+      - name: Execute exact source and two-seat paid Retreat four-arm factorial
+        if: ${{ inputs.trial_ids == 'agent10-rank9-funding-retreat-factorial' }}
+        run: node simulation/evaluation/agent10-rank9-funding-retreat-factorial.cjs > agent10-rank9-funding-retreat-factorial.json
+      - name: Print source Claw onset and paid Retreat by factor
+        if: ${{ inputs.trial_ids == 'agent10-rank9-funding-retreat-factorial' }}
+        run: |
+          node -e "const a=require('./agent10-rank9-funding-retreat-factorial.json');console.log('count',a.totalNativeTrialCount,'deals',a.allPhysicalDealsAndOriginalDecksEqual);for(const p of a.comparisons)console.log(JSON.stringify({id:p.id,arms:Object.fromEntries(Object.entries(p.arms).map(([k,v])=>[k,{firstClawTurn:v.source.firstClawTurn,sourceRetreats:v.source.retreatRoots,actions:v.nativeFinal.actionCount,winner:v.nativeFinal.winner}]))}))"
       - name: Test owner-public Special-powered paid Retreat across generic printings
         if: ${{ inputs.trial_ids == 'agent10-flexible-retreat-bilateral-v1' }}
         run: |
@@ -683,7 +695,7 @@ jobs:
         run: |
           node -e "const r=require('./agent10-rank9-retreat-native.json');console.log('attempts',r.attemptedControl,r.attemptedTreatment,'parity',r.physicalDealParity,'qualified',r.competitiveQualifiedGames);for(const p of r.pairs)console.log(JSON.stringify({id:p.id,sameDeal:p.sourceDealSame,firstDiff:p.firstDifferentNativeRootIndex,retreats:p.treatmentSourceRetreats,attacks:p.treatmentSourceAttacks.length,winners:[p.baselineStatus.winner,p.treatmentStatus.winner]}))"
       - name: Run up to six source-locked pilot trials
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' && inputs.trial_ids != 'agent10-rank9-funding-retreat-factorial' }}
         env:
           CAMPAIGN_INPUT_ORDER_PROTOCOL: ${{ inputs.input_order_protocol || 'source-row-order-v1' }}
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
@@ -697,19 +709,19 @@ jobs:
           CAMPAIGN_MAX_ACTIONS: '800'
         run: node simulation/evaluation/aichi-campaign-runner.cjs > aichi-campaign-report.json
       - name: Print recorded source-seat actions and attack declarations
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' && inputs.trial_ids != 'agent10-rank9-funding-retreat-factorial' }}
         env:
           CAMPAIGN_TRIAL_IDS: ${{ inputs.trial_ids || 'pilot:6:0:champion-reference:A,pilot:6:0:champion-reference:B,pilot:6:0:hood-shield-v1:A,pilot:6:0:hood-shield-v1:B,pilot:6:0:temple-v1:A,pilot:6:0:temple-v1:B' }}
         run: |
           node --test tests/aichi-source-action-brief.test.cjs
           node scripts/aichi-source-action-brief.cjs aichi-campaign-report.json
       - name: Reconcile source rank26 v3 proposed tactics and actual Store dispatch
-        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' }}
+        if: ${{ inputs.policy_profile == 'rank26-autonomous-cologne-pump-propagation-v3' && !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' && inputs.trial_ids != 'agent10-rank9-funding-retreat-factorial' }}
         run: |
           node --test tests/aichi-rank26-v3-action-brief.test.cjs
           node scripts/aichi-rank26-v3-action-brief.cjs aichi-campaign-report.json
       - name: Cross-check sourced games and fingerprint evidence envelope
-        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' }}
+        if: ${{ !inputs.setup_order_probe && !inputs.setup_multiseed_audit && !inputs.hood_source_turn_audit && !inputs.rank11_autonomous_probe && !inputs.rank11_exposure_probe && !inputs.rank11_first_screen && !inputs.rank11_conditional_k0_screen && !inputs.rank11_k0_continuation && !inputs.newmoon_pass_probe && !inputs.newmoon_vip_probe && !inputs.agent41_crossrank_trial && inputs.trial_ids != 'agent1-charged-promotion-pair' && inputs.trial_ids != 'agent1-floatstone-native-pair' && inputs.trial_ids != 'agent39-peonia-native-v1' && inputs.trial_ids != 'agent39-peonia-real-turns-v1' && inputs.trial_ids != 'agent10-rank9-retreat-native-v1' && inputs.trial_ids != 'agent10-flexible-retreat-bilateral-v1' && inputs.trial_ids != 'agent10-rank9-funding-retreat-factorial' }}
         env:
           CAMPAIGN_SEED_PROTOCOL: ${{ inputs.seat_seed_protocol || 'decorrelated-slots-v3' }}
         run: node simulation/evaluation/aichi-campaign-envelope-runner.cjs aichi-campaign-report.json aichi-campaign-envelope.json
@@ -752,6 +764,7 @@ jobs:
             agent10-rank9-known-dead-claw-native.json
             agent10-rank9-retreat-native.json
             agent10-flexible-retreat-bilateral.json
+            agent10-rank9-funding-retreat-factorial.json
             agent17-rank5-vip-retro-native.json
             agent17-rank5-vip-evolve-retro-native.json
             agent17-rank5-vip-evo-mobility-retro.json
