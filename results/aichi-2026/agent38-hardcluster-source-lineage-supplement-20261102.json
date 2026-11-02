@@ -1,0 +1,182 @@
+{
+  "schema": "agent38-hardcluster-source-lineage-supplement-v1",
+  "createdAt": "2026-11-02",
+  "originalSourceDataset": "results/aichi-2026/full-decklists.json",
+  "originalPrinted60Manifest": "results/aichi-2026/original-printed60-admission-v1.json",
+  "scope": "additional independently documented original-source native cohorts beyond the original matrix's 36-arm/nine-rank surveys",
+  "statuses": [
+    "VERIFIED",
+    "REJECTED",
+    "PAPER_INVALID",
+    "NATIVE_ERROR",
+    "NOT_ENCOUNTERED",
+    "UNVERIFIED"
+  ],
+  "interpretation": "VERIFIED applies only to the explicitly bounded native action/board witness, never whole-game competitive admission. Non-hit and unexamined owner opportunities remain distinct. All native experimental win metrics excluded.",
+  "fieldAuthenticatedPrinted60": 29,
+  "fieldTotalRanks": 32,
+  "missingOriginalRanks": [
+    23,
+    25,
+    28
+  ],
+  "competitivelyQualifiedGames": 0,
+  "fixedChampionDeckSelected": false,
+  "rows": [
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "printed60Sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+      "cohort": "rank8-vip-box-128-preregistered",
+      "sourceCandidate": "original rank8 versus unchanged Hood Shadow Rider",
+      "sourcePhysicalDeals": 128,
+      "nativeGameAttempts": 256,
+      "actualFirst": "both seats registered; all 3 positive roots source second",
+      "comparableIndependentDeals": 128,
+      "ownerVisibleOpportunity": {
+        "status": "VERIFIED",
+        "count": 3,
+        "denominator": 128,
+        "meaning": "held VIP before owner-initiated Secret Box in specific native test, not all potential Item-lock windows"
+      },
+      "naturalSelectedRoot": {
+        "status": "VERIFIED",
+        "acceptedCount": 3,
+        "meaning": "three actual owner VIP Basic-search to Trubbish followed by Store-accepted Secret Box"
+      },
+      "paidCharacteristicEffect": {
+        "status": "VERIFIED",
+        "completedGarbodor": 1,
+        "ownerK1Unavailable": 2,
+        "meaning": "one complete Box/Tool/Shake/Garbodor board with next opposing public roots; two failed Shake/Tool/Garbodor K1"
+      },
+      "opposingResponse": {
+        "status": "UNVERIFIED",
+        "meaning": "two next opposing public roots in one positive source deal, no independently established competent tactical reply"
+      },
+      "firstMissingTransition": "In positive #683/#694 K1 Shake/Tool/Garbodor unavailable; in #756 verify consequential competent opponent action after attached-Garbodor lock and complete full-paper game.",
+      "sourceReport": "results/aichi-2026/agent7-rank8-vip-box-registered-native-20261102.md",
+      "registration": "results/aichi-2026/registrations/agent7-rank8-vip-box-native-prospective-20261102.json",
+      "workflowRunId": 41454932782,
+      "archiveArtifactId": 13145834594,
+      "competitiveQualifiedGames": 0
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "printed60Sha256": "d0d46361d79e93b4f4a2da061fed10b474cf5bc10909225983c81acb040d6258",
+      "cohort": "rank11-direct-shake-256-registered",
+      "sourceCandidate": "original rank11 versus unchanged original rank1",
+      "sourcePhysicalDeals": 256,
+      "nativeGameAttempts": 256,
+      "actualFirst": "128 source first, 128 source second",
+      "comparableIndependentDeals": 128,
+      "ownerVisibleOpportunity": {
+        "status": "VERIFIED",
+        "count": 21,
+        "denominator": 256,
+        "meaning": "selected genuine first-owner-turn Shake lines under this source policy"
+      },
+      "naturalSelectedRoot": {
+        "status": "VERIFIED",
+        "acceptedCount": 21,
+        "meaning": "13 VIP, 3 Active, 3 Bench, 2 hand-Trubbish route proposals"
+      },
+      "paidCharacteristicEffect": {
+        "status": "VERIFIED",
+        "completedGarbodor": 20,
+        "ownerK1Unavailable": 1,
+        "meaning": "20 equipped Garbodor on next-turn board, one owner K1 Garbodor search unavailable"
+      },
+      "opposingResponse": {
+        "status": "UNVERIFIED",
+        "meaning": "this 48-root-cap first-turn source-board study does not establish a strategically competent opposing response"
+      },
+      "firstMissingTransition": "Promote one of 20 native Tool-Garbodor completions through paper-validated continuing source Energy/attack policy and a consequential opposing action on the same physical lineage.",
+      "sourceReport": "results/aichi-2026/agent39-rank11-active-natural256-20261029.md",
+      "registration": "results/aichi-2026/registrations/agent39-rank11-active-route-source-20261029.md",
+      "workflowRunId": 40929005931,
+      "secondSeatRunId": 40929015628,
+      "archiveArtifactId": 12921463859,
+      "secondSeatArtifactId": 12922251643,
+      "competitiveQualifiedGames": 0
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "printed60Sha256": "2de4e0481b76278020b1221a25458ab1783cb1edd5f19af3b83596af7262f733",
+      "cohort": "early-generic-eight-game-hardcluster-pilot",
+      "sourceCandidate": "original rank16 versus reference Shadow Rider",
+      "sourcePhysicalDeals": 2,
+      "nativeGameAttempts": 2,
+      "actualFirst": "one physical source seed per candidate seat, actual source first not established here",
+      "comparableIndependentDeals": 2,
+      "ownerVisibleOpportunity": {
+        "status": "UNVERIFIED",
+        "count": null,
+        "denominator": 2,
+        "meaning": "early generic pilot does not report first-turn owner hand/Prizes for representative Budew or Boost Shake lines"
+      },
+      "naturalSelectedRoot": {
+        "status": "NOT_ENCOUNTERED",
+        "acceptedCount": null,
+        "meaning": "published pilot describes repeated Terminal Period instead of the intended early lock"
+      },
+      "paidCharacteristicEffect": {
+        "status": "UNVERIFIED",
+        "completedGarbodor": null,
+        "ownerK1Unavailable": null,
+        "meaning": "no admitted natural early Garbotoxin payment and opponent-root reply in this pilot"
+      },
+      "opposingResponse": {
+        "status": "UNVERIFIED",
+        "meaning": "no characteristic original-source early-lock chain with qualified candidate reply"
+      },
+      "firstMissingTransition": "Register independent original rank16 deals in both starting orders and log owner-visible initial Budew/Boost Shake/Trubbish/Tool opportunities before attributing absent early lock to policy.",
+      "sourceReport": "results/aichi-2026/agent7-absol-shake-first-turn-als.md",
+      "registration": null,
+      "workflowRunId": 39042133324,
+      "archiveArtifactId": 12103783612,
+      "competitiveQualifiedGames": 0
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "printed60Sha256": "9a3b5299ed6c45860904619b7be29785a2c8e4cca898ef8800dc24b4340e775e",
+      "cohort": "early-generic-eight-game-hardcluster-pilot",
+      "sourceCandidate": "original rank22 versus reference Shadow Rider",
+      "sourcePhysicalDeals": 2,
+      "nativeGameAttempts": 2,
+      "actualFirst": "one physical source seed per candidate seat, actual source first not established here",
+      "comparableIndependentDeals": 2,
+      "ownerVisibleOpportunity": {
+        "status": "UNVERIFIED",
+        "count": null,
+        "denominator": 2,
+        "meaning": "original 60 contains 1 Wally, 0 Boost Shake, 1 Budew and 2 Vikavolt V; source Wally window not observed in this early pilot"
+      },
+      "naturalSelectedRoot": {
+        "status": "UNVERIFIED",
+        "acceptedCount": null,
+        "meaning": "pilot does not certify a Wally-first-turn Garbotoxin or Budew/Vikavolt Item-lock route"
+      },
+      "paidCharacteristicEffect": {
+        "status": "UNVERIFIED",
+        "completedGarbodor": null,
+        "ownerK1Unavailable": null,
+        "meaning": "no source Wally or Item-lock payoff plus same-line candidate reply established in cited pilot"
+      },
+      "opposingResponse": {
+        "status": "UNVERIFIED",
+        "meaning": "no qualified tactical opposing response to naturally selected ranked pressure"
+      },
+      "firstMissingTransition": "Register independent rank22 authentic 60, keep original Wally (not intended Heavy Ball), source going-second Wally and Budew/Vikavolt opportunities; then audit native Store choice, timing, and candidate reply.",
+      "sourceReport": "results/aichi-2026/agent7-absol-shake-first-turn-als.md",
+      "sourceProvenanceReport": "results/aichi-2026/agent48-rank22-registered-wally-original-source-20261031.md",
+      "registration": null,
+      "workflowRunId": 39042133324,
+      "archiveArtifactId": 12103783612,
+      "competitiveQualifiedGames": 0
+    }
+  ]
+}
