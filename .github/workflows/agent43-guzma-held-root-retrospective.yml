@@ -3,6 +3,11 @@ name: Agent 43 rank11 held Guzma diagnostic exact frozen replay
 on:
   workflow_dispatch:
     inputs:
+      rank9_mega_funding_native:
+        description: 'Matched original rank9 four-pair staged Mega Energy experiment'
+        type: boolean
+        required: false
+        default: false
       rank9_special_guzma_exposure:
         description: 'Read-only source rank9 owner-public Guzma conjunction census on unchanged frozen source deals'
         type: boolean
@@ -51,19 +56,19 @@ jobs:
       - name: Verify original immutable preregistration before read-only replay
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs --inspect-only
       - name: Replay 16 PREVIOUSLY USED rank11 source seeds and assert unchanged accepted-root digest
-        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
+        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native }}
         env:
           AGENT43_GUZMA_HELD_AUDIT_OUTPUT: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs
       - name: Preserve complete retrospective observer data, including failures
-        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
+        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native }}
         uses: actions/upload-artifact@v4
         with:
           name: agent43-rank11-held-guzma-retrospective-16
           path: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
           if-no-files-found: warn
       - name: Preflight additional unchanged-source rank11 Basic Energy comparator
-        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure }}
+        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_exposure && !inputs.rank9_mega_funding_native }}
         run: node simulation/evaluation/agent2-rank11-basic-recipient-matched-development.cjs --inspect-only
       - name: Compare symmetric Basic Energy recipient frontier on frozen 16 rank11 source-dealt arms
         if: ${{ inputs.basic_energy_recipient_comparison }}
@@ -116,5 +121,25 @@ jobs:
         with:
           name: agent2-rank9-guzma-owner-public-exposure
           path: ${{ runner.temp }}/agent2-rank9-guzma-owner-public-exposure.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Verify rank9 staged Mega Energy proposal, native opt-in and pin
+        if: ${{ inputs.rank9_mega_funding_native }}
+        run: |
+          node --test tests/agent2-rank9-special-guzma-frontier.test.cjs
+          node simulation/evaluation/agent2-rank9-mega-funding-retro-native.cjs --inspect-only > agent2-rank9-staged-funding-profile.json
+      - name: Execute exact original rank9 four same-deal pairs with staged Mega funding
+        if: ${{ inputs.rank9_mega_funding_native }}
+        env:
+          AICHI_RANK9_STAGED_FUNDING_OUTPUT: ${{ runner.temp }}/agent2-rank9-staged-funding-native.json
+        run: node simulation/evaluation/agent2-rank9-mega-funding-retro-native.cjs
+      - name: Preserve complete staged Mega comparison and actual native effects
+        if: ${{ always() && inputs.rank9_mega_funding_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-rank9-staged-mega-original-same-deal
+          path: |
+            agent2-rank9-staged-funding-profile.json
+            ${{ runner.temp }}/agent2-rank9-staged-funding-native.json
           if-no-files-found: warn
           retention-days: 21
