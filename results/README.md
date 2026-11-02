@@ -13,6 +13,8 @@
 
 **Current decision:** There is insufficient credible evidence to elevate a challenger or certify the reference. Keep the reference and challenger lists physically fixed while comparing them. Do not describe any unqualified engine-terminal result as a competitive game victory. The [single-deck decision board](critic-review-70.md) contains older strategic reasoning and qualifications.
 
+**Source-characteristic policy gate:** [Agent48's original rank-5 Mew/Genesect differential](aichi-2026/agent48-rank5-mew-evolution-policy-differential-20261102.md) documents zero source attacks in four native developmental arms, a frozen-profile evolution opt-in gap and a reproducible first-eligible copied-donor ordering flaw. It adds a strictly same-physical-source-deal retrospective replay design and pure tests, with **no new qualified or executed native results**.
+
 **Original-printing admission accounting:** the [29-row source-specific admission matrix](aichi-2026/original-source-admission-matrix-20261102.md) and [machine-readable exact-manifest identity ledger](aichi-2026/original-printed60-admission-v1.json) separate authenticated opponent 60s, merely registered or attempted source drivers, and genuinely witnessed characteristic play. Every original remains unqualified for competitive inference. The three missing ranks have no fabricated hash; every cross-candidate same-source-deal comparison requires native setup fingerprints.
 
 ## Why the qualification gate remains closed
