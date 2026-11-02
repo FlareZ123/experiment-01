@@ -123,6 +123,28 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
       const ready=withPaperCelestialRoarEnergy(()=>useMinRepair?
         withMinimumAttachEnergySelection(task):{result:task(),audit:null});
       const match=ready.result.result.result;
+      const opponentSeat=rankPair.indexOf(1);
+      const nativeOwnerPassResources=(match.decisionTrace??[])
+        .filter(row=>row.playerSlot===opponentSeat&&
+          row.action==='PassTurnAction')
+        .map(row=>{
+          const hand=row.decisionHandBefore?.perspectiveSeat===opponentSeat?
+            row.decisionHandBefore.ownHandPrintings:null;
+          const board=row.publicBoardBeforePass;
+          return {
+            actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
+            playerSlot:opponentSeat,
+            ownerHandCount:hand?.length??null,
+            basicEnergyCopiesHeld:hand?.filter(p=>
+              catalog.basicEnergies.has(p)).length??null,
+            specialEnergyCopiesHeld:hand?.filter(p=>
+              catalog.specialEnergies.has(p)).length??null,
+            ownActivePublic:board?.[opponentSeat]?.active??null,
+            ownBenchedCount:board?.[opponentSeat]?.bench?.length??null,
+            opponentActivePublic:board?.[1-opponentSeat]?.active??null,
+            ownStadium:board?.[opponentSeat]?.stadium??null
+          };
+        });
       return {
         failure:null,
         game:{
@@ -133,7 +155,8 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
           settledPhysicalZoneAnomalies:
             match.physicalZoneIntegrity?.settledRootsWithAnomaly??null,
           nativePublicAttackTransitions:match.publicAttackTransitions??[],
-          nativePublicRootLedger:match.rootActionLedger??[]
+          nativePublicRootLedger:match.rootActionLedger??[],
+          nativeOwnerPassResources
         },
         minRepair:ready.result.audit,
         celestial:ready.audit
@@ -153,7 +176,8 @@ function runArm(rankPair,seed,catalog,decks,flags,useMinRepair){
       .joinSourceEnergyAttackContinuation({
         publicAttackTransitions:
           wrapped.result.game.nativePublicAttackTransitions,
-        rootActionLedger:wrapped.result.game.nativePublicRootLedger
+        rootActionLedger:wrapped.result.game.nativePublicRootLedger,
+        ownerPassResources:wrapped.result.game.nativeOwnerPassResources
       },wrapped.nativeMinimumAttachActionReceipts,rankPair.indexOf(10)):
     null;
   return {
