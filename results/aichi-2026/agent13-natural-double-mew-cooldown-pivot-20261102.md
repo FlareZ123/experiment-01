@@ -16,6 +16,23 @@ Unlike the existing [Agent41 Guzma plus free Retreat reset](agent41-mew-techno-g
 
 The v3.1 archive does **not** record a certified T31 pending legal menu, owner cooldown flag, or a native-accepted T31 alternate Retreat; neither an archived Pass nor public charge proves the full line was legal at that specific root. Native effect, legality, attack, Prize, and next-opponent continuation remain **unverified**. The archive contains no owner-hidden hand census at T31. A report claiming observed missed legal opportunity or win-rate change would exceed evidence.
 
+## Stronger consequence: repeatable zero-Supporter Techno Blast cycle
+
+The relevant exact printings in the supplied card pool are `Mew VMAX FST114` (printed **zero Retreat Cost**, Cross Fusion Strike costs two Colorless) and `Genesect V FST185` (printed Techno Blast does **210** and states “During your next turn, this Pokémon can't attack”). A distinct DCE SUM136 on each Mew VMAX supplies the two Colorless attack cost. An attached DCE is not consumed by this copied attack. Under the supplied Advanced Player's Rulebook **A-03 Retreat**, a Pokémon moving from Active to Bench loses attack effects imposed on it, including an inability to attack on its next turn; ordinary Retreat can be used once per player turn.
+
+Consequently, if these two already charged Mew VMAX and an eligible Genesect donor all stay in play, and no contrary lock applies, **the same ordinary Retreat action can alternate the two attackers every own turn**:
+
+| Source turn | Active at start | Proposed action | Attacker after action |
+| --- | --- | --- | --- |
+| T29 | Mew A, DCE | Copy Genesect Techno Blast; A gains next-turn restriction | A |
+| T31 | Mew A restricted | Zero-cost Retreat A to Bench, promote charged Mew B; copy Techno Blast | B |
+| T33 | Mew B restricted | Zero-cost Retreat B to Bench, promote charged Mew A; copy Techno Blast | A |
+| T35, T37, ... | Current Mew restricted | Repeat a single ordinary free Retreat into the other charged Mew | Alternating A/B |
+
+The **cycle is a conditional rules derivation**, not an observed natural 4-turn policy sequence. The natural original game made T29 and T33 copied attacks but **passed at T31** instead of demonstrating a pivot. Genuine native settlement of T31 and repeated cycle remains untested. Each step presumes the appropriate owner-only restriction and current Retreat quota, both Mew remaining funded and legal, Genesect still Benched, an accessible target, and no adverse opponent Board/Status/Stadium effects. Changing the attacker alters vulnerability and consumes the turn's Retreat; opponent gust or Knock Outs can break the engine. Reported 210 is nominal printed attack damage and does not guarantee a KO.
+
+This is a stronger ALS hypothesis than a one-time cooldown shortcut: the two charged Mews could avoid Guzma **on every consecutive attack turn**, rather than using Guzma to reset one. The single-move native selector already supports both directions because it depends on live board and cooldown state, not physical Pokémon identity. Before integration, test at least three consecutive native copy attacks with both physical seats and compare against meaningful opponents.
+
 ## Reproducible research-owned selector
 
 `simulation/twinleaf/agent13-double-mew-free-retreat.cjs` is a **default-off pure function**. It requires active exact printed Mew VMAX with DCE, an actual publicly exposed cannot-attack-next-turn flag, printed zero Retreat Cost, unused ordinary Retreat, another Benched exact printed Mew VMAX independently funded by DCE, a Genesect V donor and a legal-looking Cross Fusion Strike cost. It vetoes known retreat-lock, attack-lock, Snorlax Block and Temple of Sinnoh cases. It reads only detached owner/public data and reuses Agent41's existing exact printed readiness and conservative retreat-lock screen. Native Store still judges legality; no default profile or deck changed.
