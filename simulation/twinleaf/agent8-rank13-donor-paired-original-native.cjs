@@ -55,7 +55,7 @@ function registration(){
  * @param {boolean} donorRootEnabled
  * @returns {object}
  */
-function executeOne(trial,byRank,donorRootEnabled){
+function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -72,7 +72,8 @@ function executeOne(trial,byRank,donorRootEnabled){
   const adapters={
     root:work=>withActorOnlyRootPolicy(work,{
       regidragoDonorQuickBallRoot:donorRootEnabled,
-      regidragoDonorQuickBallOwnerSeat:sourceSeat
+      regidragoDonorQuickBallOwnerSeat:sourceSeat,
+      naturalEvolutionRoot:naturalEvolutionEnabled
     }),
     ...source13QuickBallActorAdapters(sourceSeat)
   };
@@ -113,7 +114,7 @@ function executeOne(trial,byRank,donorRootEnabled){
     const digest=createHash('sha256').update(JSON.stringify(
       game.decisionTrace??[])).digest('hex');
     return{
-      status:'native-returned',donorRootEnabled,
+      status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
       actualFirstSeat:game.firstTurnSlot,
       gameFinished:game.finished===true,
       nativeActionCount:game.actions,
@@ -166,6 +167,10 @@ function executeOne(trial,byRank,donorRootEnabled){
         card:row.card??null
       })).slice(0,8),
       sourceAttackCount:sourceAttacks.length,
+      sourceNativeEvolutionAcceptances:root.nativeRootAcceptances.filter(row=>
+        row.seat===sourceSeat&&row.kind==='evolve-pokemon'&&row.accepted)
+        .map(row=>({turn:row.globalTurn,printing:row.intent?.printing??null,
+          nativePhysicalEffect:row.nativePhysicalEffect})),
       opponentRootCount:opponentRootActions.length,
       postDonorContinuation:{
         firstDonorTurn:donorTurn,
@@ -180,7 +185,7 @@ function executeOne(trial,byRank,donorRootEnabled){
       competitiveGameQualified:false
     };
   }catch(error){
-    return{status:'native-aborted',donorRootEnabled,
+    return{status:'native-aborted',donorRootEnabled,naturalEvolutionEnabled,
       error:String(error?.stack??error).slice(0,1100),
       censored:true,competitiveGameQualified:false};
   }
