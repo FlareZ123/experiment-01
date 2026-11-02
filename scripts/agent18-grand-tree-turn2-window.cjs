@@ -6,22 +6,21 @@ const {choose,gcd}=require('./agent18-exeggutor-opener-risk.cjs');
 /**
  * Exact direct-hand turn-two Grand Tree + Jet setup for one named Basic
  * evolving into either a Stage1 (Exeggutor) or Stage2 (Stoutland).
- * Going first: seven opening cards and one draw by own turn two; the target
- * Basic must have been among the opening seven.
- * Going second: seven plus two draws by own turn two; the target Basic
- * must have appeared by the eighth card, before the next opponent turn.
+ * Both starting seats: the opening seven plus a draw on EACH own turn,
+ * so exactly two natural draws by the owner's second turn. The target
+ * Basic must appear in the first eight, before the preceding own turn ends.
  * Stage copies must remain in the deck after opening, draw and Prizes,
  * because Grand Tree searches from the deck. No draw, tutor, natural
  * evolution, opponent response or player policy is modeled.
  *
- * @param {{deckSize:number,opening:number,prizes:number,targetBasics:number,otherBasics:number,grandTrees:number,jet:number,stages:number[],draws:1|2}} c
+ * @param {{deckSize:number,opening:number,prizes:number,targetBasics:number,otherBasics:number,grandTrees:number,jet:number,stages:number[],draws:2}} c
  * @returns {{fraction:string,probability:number,percent:number}}
  */
 function grandTreeDirectWindow(c){
   const {deckSize:n,opening:h,prizes:p,targetBasics:e,otherBasics:b,
     grandTrees:t,jet:j,stages,draws:d}=c;
   assert.ok([n,h,p,e,b,t,j,d].every(v=>Number.isSafeInteger(v)&&v>=0));
-  assert.ok(d===1||d===2);
+  assert.equal(d,2,'Both starting seats draw at the start of both turns');
   assert.ok(h>=1&&n>h+p+d&&e>0&&t>0&&j>0&&
     Array.isArray(stages)&&stages.length>=1&&stages.length<=2&&
     stages.every(v=>Number.isSafeInteger(v)&&v>0));
@@ -46,8 +45,7 @@ function grandTreeDirectWindow(c){
       function draws(after,selectedTypes,placements){
         if(selectedTypes.length===d){
           if(after[0]+after[1]<1)return;
-          if(d===1&&after[0]<1)return;
-          if(d===2&&q[0]-(selectedTypes[1]===0?1:0)<1)return;
+          if(q[0]-(selectedTypes[1]===0?1:0)<1)return;
           assignments+=placements;
           return;
         }
@@ -90,10 +88,10 @@ function main(){
     {label:'exact-original-Stoutland',jet:2,stages:[2,1]},
     {label:'frozen-Exeggutor-v2',jet:3,stages:[2]}
   ];
-  return {schema:'agent18-turn2-grand-tree-direct-opening-physical-v1',
-    table:[1,2].flatMap(draws=>candidates.map(({label,jet,stages})=>({
-      seat:draws===1?'going-first':'going-second',label,
-      ...grandTreeDirectWindow({...shared,jet,stages,draws})}))),
+  return {schema:'agent18-turn2-grand-tree-direct-opening-physical-v2-correct-two-draws',
+    table:candidates.map(({label,jet,stages})=>({
+      seat:'either seat, two own natural draws',label,
+      ...grandTreeDirectWindow({...shared,jet,stages,draws:2})})),
     competitiveQualifiedGames:0,
     scope:'Untutored natural physical presence of target Basic by previous turn, Grand Tree and Jet by turn 2, and Stage(s) in deck; no other playable setup or wins inferred.'};
 }
