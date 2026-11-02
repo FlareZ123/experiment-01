@@ -9,50 +9,50 @@ const profile=require('./agent18-rank5-selected-canary-v1.json');
 const ROOT=path.resolve(__dirname,'../..');
 
 /** @param {string} root @param {object} [environment] */
-function preflight(root=ROOT,environment=process.env){
-  const runner=path.resolve(root,profile.runner);
+function preflight(root=ROOT,environment=process.env,chosen=profile){
+  const runner=path.resolve(root,chosen.runner);
   const source=fs.readFileSync(runner);
-  assert.equal(gitBlobHash(source),profile.runnerGitBlobSha,
+  assert.equal(gitBlobHash(source),chosen.runnerGitBlobSha,
     'Selected runner changed; repin and explicitly register a new treatment');
   const signature=source.toString('utf8')
     .match(/function runDevelopment\(\{([\s\S]*?)\}=\{\}\)\{/);
   assert.ok(signature,'Selected runDevelopment option signature disappeared');
   const all=[...signature[1].matchAll(/([A-Za-z]\w*)\s*=\s*(false|true|null)/g)];
-  assert.equal(all.length,profile.expectedRunnerOptions,
+  assert.equal(all.length,chosen.expectedRunnerOptions,
     'Runner options changed without selection review');
   const defaults=Object.fromEntries(all.map(match=>[
     match[1],match[2]==='null'?null:match[2]==='true'
   ]));
   assert.equal(Object.keys(defaults).length,all.length,
     'Duplicate option parameters in selected runner');
-  assert.ok(Array.isArray(profile.enabled));
-  for(const name of profile.enabled){
+  assert.ok(Array.isArray(chosen.enabled));
+  for(const name of chosen.enabled){
     assert.equal(defaults[name],false,
       'Enabled option absent or no longer default-off: '+name);
     defaults[name]=true;
   }
   const ambient=Object.keys(environment).filter(name=>
     /^AGENT\d+_/.test(name)&&environment[name]!==undefined).sort();
-  assert.deepEqual(ambient,profile.allowedAmbientAgentVariables,
+  assert.deepEqual(ambient,chosen.allowedAmbientAgentVariables,
     'Ambient agent environment changes selected policy');
   const roster=fs.readFileSync(path.join(root,'results/aichi-2026/full-decklists.json'));
-  assert.equal(gitBlobHash(roster),profile.originalRosterGitBlobSha,
+  assert.equal(gitBlobHash(roster),chosen.originalRosterGitBlobSha,
     'Authenticated original printed roster drifted');
   const original=JSON.parse(roster.toString('utf8')).decks.find(
-    row=>row.rank===profile.rank);
+    row=>row.rank===chosen.rank);
   assert.ok(original);
   assert.equal(original.cards.reduce((n,card)=>n+card.count,0),60);
-  assert.equal(new Set(profile.seeds.map(s=>s.seat)).size,2);
-  assert.deepEqual(profile.seeds.map(s=>s.seat).sort(),['A','B']);
-  const trials=profile.seeds.flatMap((s,i)=>profile.candidateIds.map(
-    candidateId=>({id:[profile.rank,i,s.seat,candidateId].join(':'),
-      rank:profile.rank,repeat:i,candidateSlot:s.seat,
+  assert.equal(new Set(chosen.seeds.map(s=>s.seat)).size,2);
+  assert.deepEqual(chosen.seeds.map(s=>s.seat).sort(),['A','B']);
+  const trials=chosen.seeds.flatMap((s,i)=>chosen.candidateIds.map(
+    candidateId=>({id:[chosen.rank,i,s.seat,candidateId].join(':'),
+      rank:chosen.rank,repeat:i,candidateSlot:s.seat,
       candidateId,seed:s.seed})));
   assert.equal(trials.length,4);
-  const closure=auditSourceClosure(root,[profile.runner]);
-  const closurePinned=typeof profile.verifiedClosureSha256==='string'&&
-    closure.digest===profile.verifiedClosureSha256 &&
-    closure.files.length===profile.expectedStaticClosureFiles;
+  const closure=auditSourceClosure(root,[chosen.runner]);
+  const closurePinned=typeof chosen.verifiedClosureSha256==='string'&&
+    closure.digest===chosen.verifiedClosureSha256 &&
+    closure.files.length===chosen.expectedStaticClosureFiles;
   assert.equal(closurePinned,true,
     'Frozen static import closure or file count changed; create a new profile');
   return {options:defaults,trials,closureDigest:closure.digest,closurePinned,
@@ -61,15 +61,15 @@ function preflight(root=ROOT,environment=process.env){
 }
 
 /** Execute only this registered four-attempt developmental Store canary. */
-function run(){
-  const prepared=preflight();
+function run(chosen=profile){
+  const prepared=preflight(ROOT,process.env,chosen);
   const actualPin=execFileSync('git',['-C',
     path.join(ROOT,'vendor/twinleaf'),'rev-parse','HEAD'],
     {encoding:'utf8'}).trim();
-  assert.equal(actualPin,profile.vendorRevision,
+  assert.equal(actualPin,chosen.vendorRevision,
     'Native engine differs from selected pinned revision');
   const prior={};
-  for(const [key,value] of Object.entries(profile.injectedEnv)){
+  for(const [key,value] of Object.entries(chosen.injectedEnv)){
     prior[key]=process.env[key];
     process.env[key]=value;
   }
@@ -77,11 +77,11 @@ function run(){
     const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
     const result=runDevelopment({...prepared.options,
       registeredTrials:prepared.trials,
-      registeredFrameName:profile.schema+'-original-rank5-both-seats'});
+      registeredFrameName:chosen.schema+'-original-rank5-both-seats'});
     const rows=result.rows??[];
     const originalRoster=JSON.parse(fs.readFileSync(path.join(ROOT,
       'results/aichi-2026/full-decklists.json'),'utf8'));
-    const source=originalRoster.decks.find(x=>x.rank===profile.rank);
+    const source=originalRoster.decks.find(x=>x.rank===chosen.rank);
     const trainerNames=new Set(source.cards.filter(x=>x.category==='Trainer')
       .map(x=>x.name));
     const statusCounts={};
@@ -125,10 +125,10 @@ function run(){
     const bothSeats=JSON.stringify(expected)===JSON.stringify(actual);
     const deckFingerprintsMatch=rows.length===expected.length &&
       rows.every(row=>row.sourceDeckFingerprint===
-        profile.expectedSourceDeckFingerprint &&
+        chosen.expectedSourceDeckFingerprint &&
         row.candidateDeckFingerprint===
-          profile.expectedCandidateDeckFingerprints[row.trial?.candidateId]);
-    return {schema:profile.schema,profile,sourceClosureDigest:prepared.closureDigest,
+          chosen.expectedCandidateDeckFingerprints[row.trial?.candidateId]);
+    return {schema:chosen.schema,profile,sourceClosureDigest:prepared.closureDigest,
       closureFiles:prepared.closureFiles,nativePin:actualPin,
       actualResearchCommit:process.env.GITHUB_SHA??null,
       registered:expected,attempted:rows.length,statusCounts,armDispositions,
