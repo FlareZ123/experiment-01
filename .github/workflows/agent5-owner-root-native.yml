@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      direct_source_stadium_counter:
+        description: 'Four staged direct source Stadium replacement counterfactuals against Thunder Mountain'
+        required: false
+        type: boolean
+        default: false
       forced_active_marshadow_policy:
         description: 'Four staged native seats/payment arms driven by pure owner/public five-root policy'
         required: false
@@ -91,6 +96,12 @@ jobs:
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native Marshadow UNB Resetting Hole counterstage against source Thorns Stadium
         run: node simulation/twinleaf/agent5-marshadow-thunder-mountain-native.cjs > agent5-marshadow-thunder-mountain-native.json
+      - name: Native direct held source Stadium replacement alternative on two seats and two printings
+        if: ${{ inputs.direct_source_stadium_counter }}
+        run: node simulation/twinleaf/agent5-direct-stadium-marshadow-counterfactual-native.cjs > agent5-direct-source-stadium-counter.json
+      - name: Log genuine source Stadium counter results and original Prism destination
+        if: ${{ inputs.direct_source_stadium_counter }}
+        run: node -e "const r=require('./agent5-direct-source-stadium-counter.json');console.log(JSON.stringify({schema:r.schema,attempted:r.attempted,successes:r.successes,arms:r.rows.map(x=>({seat:x.seat,stadium:x.stadium,success:x.success,error:x.error?.slice(0,2500)}))},null,2))"
       - name: Staged actor-only five-root Marshadow source native counter-policy on both seats and payments
         if: ${{ inputs.forced_active_marshadow_policy }}
         run: node simulation/twinleaf/agent5-owner-visible-marshadow-autonomous-native.cjs > agent5-owner-visible-marshadow-policy-native.json
@@ -197,6 +208,7 @@ jobs:
             agent5-marshadow-thunder-mountain-native.json
             agent5-forced-active-marshadow-chain.json
             agent5-owner-visible-marshadow-policy-native.json
+            agent5-direct-source-stadium-counter.json
             agent5-special-energy-bench-native-result.json
             agent5-attack-special-arbitration-native.json
             agent41-owner-arbitration-native.json
