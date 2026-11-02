@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
-const {writeAtomicLocked}=require('./agent20-frozen-rank6-canary-v1.cjs');
+const {writeAtomicLocked,gitBlobSha}=require('./agent20-frozen-rank6-canary-v1.cjs');
 const {runDevelopment}=require('./agent41-bilateral-v2-development.cjs');
 const {withPaperPlumeriaPayment}=require('../twinleaf/agent42-plumeria-paper-payment-guard.cjs');
 const ROOT=path.resolve(__dirname,'../..');
@@ -41,6 +41,8 @@ function runPlumeriaSourcechainPair(){
  assert.ok(profile.registeredTrials.every(t=>t.rank===6));
  assert.equal(profile.policyOptions.sharedPaperPaymentPortfolio,true);
  assert.equal(profile.policyOptions.actorOnlyComposition,true);
+ assert.equal(gitBlobSha(fs.readFileSync(path.join(ROOT,profile.printedRoster))),
+  profile.printedRosterBlobSha,'Immutable original printed roster drift');
  const checkoutCommit=execFileSync('git',['rev-parse','HEAD'],
   {cwd:ROOT,encoding:'utf8'}).trim();
  const vendorRevision=execFileSync('git',['-C',path.join(ROOT,'vendor/twinleaf'),
@@ -69,8 +71,11 @@ function runPlumeriaSourcechainPair(){
   assert.equal(c.trial.id,t.trial.id);
   return {trialId:c.trial.id,sourceRank:6,
    candidateId:c.trial.candidateId,sourceSeat:c.trial.candidateSlot==='A'?1:0,
-   sourceDealMatch:c.sourceDealFingerprint===t.sourceDealFingerprint,
-   fullPhysicalDealMatch:c.fullPhysicalDealFingerprint===t.fullPhysicalDealFingerprint,
+   sourceDealMatch:typeof c.sourceDealFingerprint==='string'&&
+    c.sourceDealFingerprint.length===64&&c.sourceDealFingerprint===t.sourceDealFingerprint,
+   fullPhysicalDealMatch:typeof c.fullPhysicalDealFingerprint==='string'&&
+    c.fullPhysicalDealFingerprint.length===64&&
+    c.fullPhysicalDealFingerprint===t.fullPhysicalDealFingerprint,
    sameAcceptedNativeRootLedger:JSON.stringify(c.rootActionLedger)===
     JSON.stringify(t.rootActionLedger),
    controls:{gameFinished:c.gameFinished??null,
