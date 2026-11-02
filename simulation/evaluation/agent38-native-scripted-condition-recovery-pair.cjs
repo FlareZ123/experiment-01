@@ -18,6 +18,9 @@ function auditNativeRecovery(baseline,protectedRun){
   const errors=[];
   if(baseline.nativeAttempts!==2||protectedRun.nativeAttempts!==2)
     errors.push('wrong-exact-attempt-count');
+  if(baseline.rank6ScriptedSpecialConditionGuardOptIn!==false||
+     protectedRun.rank6ScriptedSpecialConditionGuardOptIn!==true)
+    errors.push('source-guard-setting-not-observed');
   const before=baseline.rows.find(row=>row.trial.id===FAILED_ID);
   const after=protectedRun.rows.find(row=>row.trial.id===FAILED_ID);
   if(!before||!after)errors.push('failed-case-not-present');
@@ -86,17 +89,11 @@ function auditNativeRecovery(baseline,protectedRun){
 
 /** @returns {object} Fixed-source native Store repair test. */
 function runNativeRecoveryPair(){
-  const old=process.env[SWITCH];
-  try{
-    process.env[SWITCH]='false';
-    const before=diagnoseRegisteredFailure();
-    process.env[SWITCH]='true';
-    const after=diagnoseRegisteredFailure();
-    return auditNativeRecovery(before,after);
-  }finally{
-    if(old===undefined)delete process.env[SWITCH];
-    else process.env[SWITCH]=old;
-  }
+  const before=diagnoseRegisteredFailure({
+    rank6ScriptedSpecialConditionGuard:false});
+  const after=diagnoseRegisteredFailure({
+    rank6ScriptedSpecialConditionGuard:true});
+  return auditNativeRecovery(before,after);
 }
 if(require.main===module){
   const result=runNativeRecoveryPair();
