@@ -109,3 +109,35 @@ test('entry-only source finite-score probe skips redundant deep clone under real
       score:traditional.result.result.later.score}
   );
 });
+
+
+test('finite score native replay restores research shuffle hooks once',()=>{
+  let installed=0,restored=0;
+  const {result}=runFixture({
+    fairReplayHooks:true,
+    installFairBotHooks:()=>{
+      installed++;
+      return ()=>{restored++;};
+    }
+  });
+  assert.equal(installed,1);
+  assert.equal(restored,1);
+  assert.equal(result.events[0].nativeSameWorldTape
+    .sameWorldDecisionParityQualified,true);
+});
+
+test('native replay exception restores research shuffle hooks and vetoes parity',()=>{
+  let installed=0,restored=0;
+  const {result}=runFixture({
+    fairReplayHooks:true,
+    installFairBotHooks:()=>{
+      installed++;
+      return ()=>{restored++;};
+    },
+    replayPolicy:()=>{throw Error('injected replay error');}
+  });
+  assert.equal(installed,1);
+  assert.equal(restored,1);
+  assert.equal(result.events[0].nativeSameWorldTape
+    .sameWorldDecisionParityQualified,false);
+});
