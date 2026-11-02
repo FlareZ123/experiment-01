@@ -118,9 +118,12 @@ function observeNativePolicyTacticSequence(bot,work,observation){
         else delete tactic.useTactic;
       });
     }
-    return observation.traceSimulationZones===true?
+    const chosen=()=>observation.traceSimulationZones===true?
       require('./agent23-native-speculative-zone-trace.cjs')
         .observeNativeSpeculativeZoneTrace(bot,work,observation):work();
+    return observation.traceArbiterShuffleLengths===true?
+      require('./agent23-native-arbiter-shuffle-observer.cjs')
+        .observeNativeArbiterShuffles(chosen,observation):chosen();
   }finally{
     observation.rngCalls=count;
     for(const restore of restorations.reverse())restore();
