@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const {verifyFrame}=require('../twinleaf/agent32-rank11-six-star-vip-k1-native.cjs');
 const registration=require('../../results/aichi-2026/registrations/agent1-rank11-owner-quickball-radiant-20261101.json');
 const frame=require('../../results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json');
+const horizon=require('../../results/aichi-2026/registrations/agent1-rank11-postgate-350-retrospective-20261102.json');
 const {withNewMoonBlowerAutonomy}=
   require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 const {withOwnerOranguruStarVipPlan}=
@@ -19,6 +20,8 @@ function run(){
   const entry=frame.selectedExactK0.find(x=>x.index===registration.frozenSourceIndex);
   assert.ok(entry);
   assert.equal(entry.seed,registration.seed);
+  assert.equal(entry.seed,horizon.seed);
+  assert.equal(horizon.maxActions,350);
   assert.equal(entry.sourceFirstOwnerHandSha256,registration.sourceFirstOwnerHandSha256);
   const rows=[];
   for(const {preferRadiantAfterBlowerSearch,activateRadiantClimacticGate}
@@ -33,7 +36,7 @@ function run(){
         withOwnerOranguruStarVipPlan(()=>runMatch({
           ...decks,seed:entry.seed,
           label:'rank11-conditional-K0-screen-v1:'+entry.index,
-          maxActions:200,captureDecisionTrace:true,
+          maxActions:horizon.maxActions,captureDecisionTrace:true,
           strictPromptValidation:true,
           forestSealSearchCorrection:true,
           battleCompressorPositiveSelectionCorrection:true,
@@ -178,8 +181,9 @@ function run(){
       'native-original-K0-and-recipient-owner-K1-confirmed')){
     assert.equal(new Set(rows.map(x=>x.initialFullPhysicalDealFingerprint?.digestSha256)).size,1,
       'Three intervention arms must preserve BOTH players original physical setup');
-    assert.ok(rows[0].initialFullPhysicalDealFingerprint?.digestSha256,
-      'Missing independent full-physical-setup fingerprint');
+    assert.equal(rows[0].initialFullPhysicalDealFingerprint?.digestSha256,
+      horizon.requiredBothPlayerInitialDealDigestSha256,
+      'Full original same-seed physical deal differs from registered baseline');
     assert.deepEqual(rows.map(x=>x.publicOpponentVMaxAtSourceT3),
       [0,0,2], 'Real source turn3 public VMAX board must distinguish three arms');
     assert.deepEqual(rows.map(x=>x.publicOpponentRadiantAtSourceT3),
@@ -196,8 +200,8 @@ function run(){
     assert.equal(chosen?.nativeMax,2);
     assert.equal(rows[2].nativeQuickBallRoots,1);
   }
-  return {schema:'agent1-original-postblower-Radiant-K1-native-pair-v3-observational',
-    registration,engineRevision:frame.engineRevision,
+  return {schema:'agent1-original-postblower-Radiant-K1-native-retrospective-350-v4',
+    registration,horizonRegistration:horizon,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
       x.status==='native-original-K0-and-recipient-owner-K1-confirmed').length,
