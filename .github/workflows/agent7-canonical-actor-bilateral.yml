@@ -3,6 +3,11 @@ name: Canonical bilateral actor-only decision composition
 on:
   workflow_dispatch:
     inputs:
+      rank8_vip_box_prospective:
+        description: Preregistered original rank8 native 128-deal Box-first versus guarded VIP-first both-seat pair
+        required: false
+        type: boolean
+        default: false
       source_first_retrospective:
         description: Also execute previously selected native source-first four-arm stress panel
         required: false
@@ -176,6 +181,20 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Run preregistered original rank8 128-deal symmetric VIP-before-Box native pair
+        if: ${{ inputs.rank8_vip_box_prospective }}
+        run: |
+          node --test tests/agent7-vip-before-box-native.test.cjs tests/agent7-rank8-box-vip-contention.test.cjs
+          node simulation/evaluation/agent7-rank8-vip-box-native-prospective.cjs > agent7-rank8-vip-box-prospective.json
+          node -e "const a=require('node:assert/strict');const r=require('./agent7-rank8-vip-box-prospective.json');a.equal(r.registeredTrials,128);a.equal(r.totalNativeAttempted,256);a.equal(r.competitiveQualifiedGames,0);a.equal(r.scheduleSha256,'d541f8ff6982888a2cb38a61127c67c0ebf6b79a65ebc36eddd8f665e814c422');console.log('AGENT7_RANK8_VIP_BOX_NATIVE',JSON.stringify(r.summary))"
+      - name: Preserve all preregistered native rank8 VIP/Box arm results including errors
+        if: ${{ always() && inputs.rank8_vip_box_prospective }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-rank8-vip-box-prospective-original-128pairs
+          path: agent7-rank8-vip-box-prospective.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Verify Bawl native Trainer-family locks in both physical seats and expiration
         run: node --test tests/agent2-whismur-trainer-lock.native.test.cjs tests/agent29-whismur-bawl-four-trainer-categories.native.test.cjs
       - name: Audit native Whismur Bawl and existing Horror House printings
