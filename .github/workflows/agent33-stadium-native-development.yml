@@ -15,6 +15,7 @@ on:
           - sky-field-stage
           - path-to-the-peak-stage
           - rank29-camping-pure
+          - rank29-camping-native
 
 permissions:
   contents: read
@@ -69,3 +70,6 @@ jobs:
       - name: Native both-seat Path to Peak suppression of Genesect Ability
         if: inputs.study == 'path-to-the-peak-stage'
         run: node --test tests/agent33-path-to-peak-full-lock-pinned.test.cjs
+      - name: Pinned both-seat Camping Gear own-search target-choice fork
+        if: inputs.study == 'rank29-camping-native'
+        run: node --test tests/agent33-rank29-camping-prompt-pinned-native.test.cjs
