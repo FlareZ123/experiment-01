@@ -1,0 +1,19 @@
+name: Agent31 pure owner-only Underworld Door root and marker contract
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-owner-source-ability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pure owned Underworld Door root and native-read-only marker receipt
+        run: node --test tests/agent31-underworld-door-owner-frontier.test.cjs tests/agent31-underworld-door-native-preconditions.test.cjs tests/agent31-rank1-underworld-preconditions-replay.test.cjs
