@@ -367,6 +367,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseDceMewPaidRetreat(view,catalog);
     if(retreat)return retreat;
   }
+  if(options.flexiblePaidRetreatRoot===true){
+    const flexible=require('./agent10-flexible-paid-retreat-frontier.cjs')
+      .chooseFlexiblePaidRetreatToFundedBench(view,catalog);
+    if(flexible)return flexible;
+  }
   if(options.rank9SpecialPaidRetreat===true){
     const retreat=require('./agent10-rank9-special-paid-retreat.cjs')
       .chooseRank9SpecialPaidRetreat(view,catalog);
@@ -653,6 +658,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
     genesectFusionReceipts:[],
+    flexiblePaidRetreatRootOptIn:deps.flexiblePaidRetreatRoot===true,
     rank9SpecialPaidRetreatOptIn:deps.rank9SpecialPaidRetreat===true,
     rank9SpecialPaidRetreatOwnerSeat:deps.rank9SpecialPaidRetreatOwnerSeat??null,
     paidRetreatRootOptIn:deps.paidRetreatRoot??
@@ -1022,6 +1028,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.heldGuzmaMobilityOptIn)
     audit.version+='+'+
       require('./agent2-held-guzma-mobility-frontier.cjs').VERSION;
+  if(audit.flexiblePaidRetreatRootOptIn)
+    audit.version+='+'+
+      require('./agent10-flexible-paid-retreat-frontier.cjs').VERSION;
   if(audit.rank9SpecialPaidRetreatOptIn)
     audit.version+='+'+
       require('./agent10-rank9-special-paid-retreat.cjs').VERSION;
@@ -1161,6 +1170,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       genesectFusionUsedThisTurn:
         genesectDrawUsedTurnBySeat.get(seat)===view.globalTurn,
+      flexiblePaidRetreatRoot:audit.flexiblePaidRetreatRootOptIn,
       rank9SpecialPaidRetreat:actorSpecialEnergyEnabled(
         audit.rank9SpecialPaidRetreatOptIn,
         audit.rank9SpecialPaidRetreatOwnerSeat,seat),
