@@ -22,6 +22,22 @@ test('preserves unresolved-prompt anomalies while passing settled custody',()=>{
   assert.equal(r.physicalIntegrityQualified,true);
   assert.equal(r.competitiveQualified,false);
 });
+test('owner-index qualification requires independently captured 120-card registration',()=>{
+  const ownerGood=good({
+    originalOwnerCustodyRequested:true,originalOwnerCardCount:120
+  });
+  const r=judge({requested:true,game:{physicalZoneIntegrity:ownerGood}});
+  assert.equal(r.status,'SETTLED_PHYSICAL_INTEGRITY_PASSED');
+  assert.equal(r.originalOwnerIntegrityQualified,true);
+  const old=judge({requested:true,game:{physicalZoneIntegrity:good()}});
+  assert.equal(old.originalOwnerIntegrityQualified,false);
+  const forged=judge({requested:true,game:{physicalZoneIntegrity:good({
+    originalOwnerCustodyRequested:true,originalOwnerCardCount:119
+  })}});
+  assert.equal(forged.status,'PHYSICAL_INTEGRITY_UNVERIFIED');
+  assert.equal(forged.originalOwnerIntegrityQualified,false);
+});
+
 test('settled 59-card case vetoes and keeps the first real witness',()=>{
   const w={actionOrdinal:22,turn:7,actingSeat:1,
     countAnomalies:[{seat:1,located:59,expected:60}]};
