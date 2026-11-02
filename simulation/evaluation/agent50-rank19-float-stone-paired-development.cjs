@@ -81,6 +81,15 @@ function run(){
         rootActionLedgerSha256:raw.rootActionLedgerSha256??null,
         nativeRootCount:raw.rootActionLedger?.length??null,
         sourceRootCount:audit.sourceOwnerRootCount,
+        nativeWinner:raw.winner??null,
+        lastNativePublicBoard:audit.lastNativePublicBoard,
+        sourceAttackPrizeTrace:(raw.attackTrace??[])
+          .filter(t=>t.seat===sourceSeat)
+          .map(t=>({
+            turn:t.turn,attack:t.attack,active:t.activePokemon,
+            prizeBefore:t.prizeCountBefore,
+            prizeAfter:t.prizeCountAfter
+          })),
         ragingActiveRoots:audit.sourceRagingActiveRoots,
         ragingActiveTurns:audit.sourceRagingActiveUniqueTurns,
         ragingFundedBenchRoots:audit.sourceRagingBenchedWithEnergyRoots,
