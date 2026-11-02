@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const {soloAfterBonus} = require('./aichi_solo_start.cjs');
 
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n, k) {
@@ -84,7 +85,10 @@ function audit(root) {
     scope: 'First seven, before optional mulligan cards or player decisions',
     contenders: Object.fromEntries(candidates.map(([name, cards]) => {
       const count = counts(cards);
-      return [name, {...count, ...setup(count.basic)}];
+      return [name, {
+        ...count, ...setup(count.basic),
+        soloAfterAllRank26MulliganBonuses: soloAfterBonus(count.basic, rank26Basics)
+      }];
     })),
     rank26DceInitiallyPrizedUnconditional: Number(choose(59, 5)) / Number(choose(60, 6)),
     rank26DceInitiallyPrizedGivenValidOpening:
