@@ -479,8 +479,15 @@ function scoreOffer(view,catalog,baseline,offer,options){
      offer.source==='grouped-plumeria-payments'&&
      offer.intent.kind==='play-plumeria-payment-menu'&&
      offer.intent.nativeDispatchImplemented===true&&
-     (view.opponentPublic?.active?.energies?.length??0)>=2)
+     (view.opponentPublic?.active?.energies?.length??0)>=2){
+    if(options.nativePlumeriaPaymentConservation===true){
+      const forecast=require('./agent38-plumeria-cost-conservation.cjs')
+        .screenPlumeriaPayment(view,offer.intent);
+      if(!forecast.allow)return {score:-11,reason:forecast.reason};
+      return {score:3,reason:'experimental-native-plumeria-conserved-payment'};
+    }
     return {score:3,reason:'experimental-native-plumeria-over-pass'};
+  }
   if(baseline.kind==='attach-basic-energy'&&
      offer.source==='immediate-special'&&
      offer.intent.kind==='attach-special-energy')
