@@ -243,14 +243,14 @@ jobs:
           retention-days: 14
       - name: Test canonical actor and innermost Box composition order
         if: inputs.agent44_rank8_canonical_boxshake_pilot
-        run: node --test tests/agent44-canonical-boxshake-composition.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs
+        run: node --test tests/agent44-canonical-boxshake-composition.test.cjs tests/agent44-flexible-box-k0-plan.test.cjs tests/agent44-boxshake-opponent-reply-packet.test.cjs
       - name: Execute exact original canonical both-seat shared Box native pilot
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: node simulation/evaluation/agent44-canonical-boxshake-native-pilot.cjs > agent44-canonical-boxshake-native.json
       - name: Print concise canonical source-deal paired and native status
         if: inputs.agent44_rank8_canonical_boxshake_pilot
         run: >-
-          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,error:r.error?.message??null}))},null,2));"
+          node -e "const x=require('./agent44-canonical-boxshake-native.json'); console.log(JSON.stringify({schema:x.schema,attempted:x.actualTrials,errors:x.errorCount,nativeSetups:x.completedSourceSetups,rows:x.rows.map(r=>({trial:r.trial,status:r.status,offers:r.boxAudit?.offers?.length??null,evolutions:r.boxAudit?.completeNativeEvolutions??null,publicReply:r.opponentPublicRootReplyPacket?.strictPublicContinuationAccepted??null,opponentRoots:r.opponentPublicRootReplyPacket?.opponentRootCount??null,error:r.error?.message??null}))},null,2));"
       - name: Archive original canonical both-seat Box native pilot
         if: always() && inputs.agent44_rank8_canonical_boxshake_pilot
         uses: actions/upload-artifact@v4
