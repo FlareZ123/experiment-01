@@ -57,6 +57,8 @@ jobs:
         run: node --test tests/agent50-rank19-native-original-tool-census.test.cjs
       - name: Diagnose native ADP global effect lifetime after leaving play
         run: node --test tests/agent28-adp-effect-lifetime-diagnostic.native.test.cjs
+      - name: Test new Sentinel Mega Lopunny original native attack transition
+        run: node --test tests/agent28-sentinel-mega-lopunny-native.test.cjs
       - name: Validate native rank19 ADP Altered Creation GX energy and persistent effects on both seats
         run: node --test tests/agent28-rank19-adp-boosted-gx-native.test.cjs
       - name: Verify native ADP console separation from locked paired JSON
