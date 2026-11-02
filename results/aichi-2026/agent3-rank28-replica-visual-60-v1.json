@@ -12,7 +12,7 @@
   "identity_bridge": "unverified",
   "event_date": "2026-05-10",
   "public_gallery_date": "2026-05-12",
-  "source_details": "Visible pnote deck grid: visual card identity+badge transcription; English names normalized provisionally; exact Japanese card printings have not been independently checked.",
+  "source_details": "Visible pnote deck grid: visual card identity+badge transcription; English names normalized provisionally; exact Japanese card printings have not been independently checked. Eight distinctive illustrative printings were cross-referenced by image. Artwork matches are not readable set-number proof from the 533,272-byte screenshot.",
   "tile_count": 38,
   "row_counts": [
     13,
@@ -74,8 +74,10 @@
       "japanese_name": "コライドンex",
       "count": 1,
       "class": "pokemon",
-      "confidence": "probable",
-      "printed_set_and_number": "unverified"
+      "confidence": "high",
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "SVHK 012/053",
+      "artwork_comparison_url": "https://www.pokemon-card.com/card-search/details.php/card/45300/regu/all"
     },
     {
       "tile": "r1c6",
@@ -137,8 +139,10 @@
       "japanese_name": "イキリンコex",
       "count": 1,
       "class": "pokemon",
-      "confidence": "probable",
-      "printed_set_and_number": "unverified"
+      "confidence": "high",
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "SV2P 094/071",
+      "artwork_comparison_url": "https://www.pokemon-card.com/card-search/details.php/card/43687/regu/all"
     },
     {
       "tile": "r2c5",
@@ -255,7 +259,9 @@
       "count": 2,
       "class": "tool",
       "confidence": "high",
-      "printed_set_and_number": "unverified"
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "019/XY-P",
+      "artwork_comparison_url": "https://okini.land/en/75569-pokemon-tcg-promo-019-xy-p-muscle-band-famitsu-the-pokemon-company.html"
     },
     {
       "tile": "r4c2",
@@ -264,7 +270,9 @@
       "count": 2,
       "class": "supporter",
       "confidence": "high",
-      "printed_set_and_number": "unverified"
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "BKR 015/018",
+      "artwork_comparison_url": "https://www.pokemon-card.com/card-search/details.php/card/27619"
     },
     {
       "tile": "r4c3",
@@ -272,8 +280,10 @@
       "japanese_name": "リーリエの決心",
       "count": 1,
       "class": "supporter",
-      "confidence": "probable",
-      "printed_set_and_number": "unverified"
+      "confidence": "high",
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "M1L 086/063",
+      "artwork_comparison_url": "https://okini.land/en/95526-pokemon-tcg-m1l-086-063-sr-lillie-s-determination-the-pokemon-company.html"
     },
     {
       "tile": "r4c4",
@@ -282,7 +292,9 @@
       "count": 1,
       "class": "supporter",
       "confidence": "high",
-      "printed_set_and_number": "unverified"
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "S12a 237/172",
+      "artwork_comparison_url": "https://www.pokemon-card.com/card-search/details.php/card/42887/regu/all"
     },
     {
       "tile": "r4c5",
@@ -299,8 +311,10 @@
       "japanese_name": "アカマツ",
       "count": 1,
       "class": "supporter",
-      "confidence": "probable",
-      "printed_set_and_number": "unverified"
+      "confidence": "high",
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "SV8a 227/187",
+      "artwork_comparison_url": "https://www.cardrush-pokemon.jp/product/87092"
     },
     {
       "tile": "r4c7",
@@ -335,8 +349,10 @@
       "japanese_name": "頂への雪道",
       "count": 1,
       "class": "stadium",
-      "confidence": "probable",
-      "printed_set_and_number": "unverified"
+      "confidence": "high",
+      "printed_set_and_number": "unverified",
+      "artwork_match_printing": "S10D 088/067",
+      "artwork_comparison_url": "https://ec.treasure-f.com/item/1009007646081009"
     },
     {
       "tile": "r5c3",
@@ -374,5 +390,6 @@
       "confidence": "high",
       "printed_set_and_number": "unverified"
     }
-  ]
+  ],
+  "artwork_matches_recorded": 8
 }
