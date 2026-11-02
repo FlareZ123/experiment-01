@@ -21,13 +21,15 @@ const VERSION='agent34-rank9-early-mewtwo-basic-psychic-target-retro-v1';
  * actually occupied Bench Mewtwo. Native Store enforces legality.
  * @template T
  * @param {()=>T} execute Original rank9 fixed-source development runner.
- * @param {{Store?:Function,PlayerType?:object,SlotType?:object}} [deps]
+ * @param {{Store?:Function,PlayerType?:object,SlotType?:object,targetTurns?:number[]}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerMewtwoEnergyTarget(execute,deps={}){
   const NativeStore=deps.Store??Store;
   const players=deps.PlayerType??PlayerType;
   const slots=deps.SlotType??SlotType;
+  const targetTurns=deps.targetTurns??[11,19];
+  assert.ok(targetTurns.every(t=>t===11||t===19));
   const descriptor=Object.getOwnPropertyDescriptor(NativeStore.prototype,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
   const originalStores=new WeakMap();
@@ -47,7 +49,7 @@ function withOwnerMewtwoEnergyTarget(execute,deps={}){
     const index=owner?.bench?.findIndex(slot=>
       slot.getPokemonCard()?.fullName===CORE)??-1;
     const matches=action?.constructor?.name==='PlayCardAction'&&
-      seat===0&&[11,19].includes(state.turn)&&
+      seat===0&&targetTurns.includes(state.turn)&&
       owner?.active?.getPokemonCard()?.fullName==='Klefki SVI'&&
       action.target?.slot===slots.ACTIVE&&
       card?.name==='Psychic Energy'&&
@@ -93,7 +95,7 @@ function withOwnerMewtwoEnergyTarget(execute,deps={}){
   try{
     const result=execute();
     return {result,audit:{schema:VERSION,
-      originalStoreInstances:count,attempts,
+      originalStoreInstances:count,targetTurns,attempts,
       nativeAccepted:attempts.filter(x=>x.nativeAccepted).length,
       physicallyConfirmed:attempts.filter(x=>
         x.nativeAccepted&&x.physicalBenchEnergyIncreased&&
