@@ -34,6 +34,24 @@ The same exact method, with unchanged original inventories and four Iron Thorns 
 
 These rates condition on a Basic-valid first seven and at least one held Plumeria at the displayed observation size. The original source lists differ in their duplicate-printing structure, so they have slightly different conservation capacity even though all have the same four Basics and four Plumeria. The third column at nine cards assumes *two* ordinary random draws and no other intervening card interactions. Actual Pokémon TCG turns consume and add cards, so the third column is a sensitivity point only.
 
+
+## Two distinct Trainer-payment availability screens
+
+A second exact DP tracks the subset of **Trainer** payment cards only, with the played Plumeria removed from the hand before forming a two-card payment:
+
+1. **Strict hand retention:** a Trainer can be paid only while leaving at least one copy of its physical printing in that *same hand*.
+2. **Source-list duplicate availability:** a Trainer can be a payment candidate if its physical printing occurs at least twice in the *full registered 60*, even if this is the last copy held in hand.
+
+The second screen is an inventory-based **upper opportunity envelope**. It is not proof that an unheld duplicate is available in the deck instead of Prizes, that paying it is strategically acceptable, or that the opposing Energy target exists. It excludes singly printed Trainers and all Pokémon/Energy from the payment pool. The first screen is a strict subset of the second for Trainer-only two-card payments because any two discardable hand-extra physical copies necessarily belong to printings with more than one source-deck copy.
+
+| Original source | Initial 7: strict Trainer-only | Initial 7: globally duplicated Trainers | One ordinary draw: strict Trainer-only | One ordinary draw: globally duplicated Trainers |
+| ---: | ---: | ---: | ---: | ---: |
+| Rank 6 | 0.5611% | **80.0304%** | 1.3498% | **88.4199%** |
+| Rank 24 | 0.4974% | **91.5364%** | 1.2443% | **96.2016%** |
+| Rank 29 | 0.4993% | **82.3814%** | 1.2114% | **90.1631%** |
+
+All columns use the **same** Basic-valid seven and held-Plumeria conditioning as the earlier tables. The rank-6 initial-seven counts are 315,096 strict Trainer-only weighted arrangements versus 44,942,410 source-list-duplicate Trainer arrangements, of 56,156,680 with the conditioning. The model demonstrates why **last copy in the hand** is an especially blunt proxy for **last strategically available resource** in the whole game. It does not rank the underlying discard choices, estimate a competitive match outcome, or recommend switching the currently default-off policy. The independent physical-card toy test reproduces the difference without relying on the multivariate DP.
+
 ## Implication and limits
 
 The last-printing payment heuristic is a particularly restrictive approximation to state-dependent discard value. Among Basic-valid openings with Plumeria held, at least **96.86%** fail its *hand-only* no-erasure test before public opposing attached Energy, actual Supporter quota, locks, native prompt restrictions, hand changes or opponent matchup are considered. The one-draw percentage still fails in more than **93.45%** of those conditioned states.
