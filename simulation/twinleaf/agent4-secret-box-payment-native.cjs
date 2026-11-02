@@ -74,13 +74,14 @@ function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
       reply=Array.from({length:f.source.deck.cards.length},(_,index)=>index);
     else if(type==='WaitPrompt')reply=null;
     else{continuation.push({type,error:'UNHANDLED_NATIVE_PROMPT'});break;}
+    const nativeValidatorAccepted=typeof p.validate==='function'&&
+      Array.isArray(reply)?p.validate(reply,f.state):null;
     let error=null;
     try{f.store.dispatch(new ResolvePromptAction(p.id,reply));}
     catch(e){error=String(e?.message??e);}
     continuation.push({type,message:p.message??null,
       selected:reply?.map?.(c=>c?.fullName??null)??null,
-      nativeValidatorAccepted:typeof p.validate==='function'&&Array.isArray(reply)?
-        p.validate(reply,f.state):null,error});
+      nativeValidatorAccepted,error});
     if(error)break;
   }
   return {seat,payment,searchMode,originalPrinting:'Secret Box TWM',
