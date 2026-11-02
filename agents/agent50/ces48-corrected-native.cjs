@@ -45,3 +45,4 @@ function stage(seat){
  const state=store.state;
  state.players=seat===0?[owner,foe]:[foe,owner];
  state.activePlayer=seat;
+ state.turn=4;
