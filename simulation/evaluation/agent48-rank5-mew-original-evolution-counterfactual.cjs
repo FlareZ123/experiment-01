@@ -105,12 +105,14 @@ function runComparison({runner=null,pinNative=true}={}){
       }
       for(let k=0;k<2;k++){
         const control=modes.baseline[k],treatment=modes['evolution-enabled'][k];
+        const sameDeal=compareDeal(control.evidence,treatment.evidence);
         results.push({
           trial:control.trial,
-          sameSourcePhysicalDeal:compareDeal(control.evidence,treatment.evidence),
+          sameSourcePhysicalDeal:sameDeal,
           baseline:control,
           evolutionEnabled:treatment,
           sourceAttackCountDifference:
+            sameDeal==='EXACT_SOURCE_DEAL_MATCH'&&
             Number.isSafeInteger(control.evidence.originalSourceAttackCount)&&
             Number.isSafeInteger(treatment.evidence.originalSourceAttackCount)?
               treatment.evidence.originalSourceAttackCount-
