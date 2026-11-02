@@ -65,8 +65,9 @@ const {withAttackBeforeRetreat} = require('./attack-retreat-order.cjs');
 const {withCopycatApexTimelessPolicy} = require('./mimikyu-counter-policy.cjs');
 const {copycatTurnStartSnapshot} = require('./copycat-turn-start-evidence.cjs');
 const {retreatTransitionEvidence} = require('./retreat-transition-evidence.cjs');
-const {inspectPhysicalCardZones, fixedDeckCountAnomalies,
-  locatedOrPromptCountAnomalies} = require('./physical-card-ledger.cjs');
+const {captureInitialPhysicalOwners,inspectPhysicalCardZones,
+  fixedDeckCountAnomalies,locatedOrPromptCountAnomalies} =
+  require('./physical-card-ledger.cjs');
 const {newlyLoggedAttackDeclarations} =
   require('../evaluation/twinleaf-attack-log-declarations.cjs');
 const {snapshot:poltergeistSnapshot,assess:assessPoltergeist} =
@@ -311,6 +312,7 @@ function policyRandomStreams(seed) {
  * @property {boolean} [captureFinalPublicBoard] Capture last face-up board and unresolved prompt types for capped-game forensics.
  * @property {boolean} [captureElectrodeOpportunity] Observe source Raichu/Bomb public necessary conditions only at live non-prompt decisions.
  * @property {boolean} [capturePhysicalZoneIntegrity] Opt-in read-only physical reference/attached Energy checks after each live root action.
+ * @property {boolean} [captureOriginalOwnerIntegrity] Additional opt-in original owner reference audit, requires capturePhysicalZoneIntegrity.
  * @property {boolean} [enforceSettledPhysicalZoneIntegrity] With capturePhysicalZoneIntegrity, fail closed on source 60 loss at a completed native root; qualification safeguard only.
  * @property {0|1} [captureCopycatTurnStartSeat] Opt-in candidate perspective resource snapshot once per own turn, taken before selecting the first action.
  * @property {0|1} [visiblePlayLockSupporterSeat] With enforceVisiblePlayLockSeat, substitute held legal Lillie's Determination once before falling back to Pass; historical source-policy regression only.
@@ -968,6 +970,14 @@ function runMatch(request) {
        request.capturePhysicalZoneIntegrity!==true){
       throw new Error('enforceSettledPhysicalZoneIntegrity requires capturePhysicalZoneIntegrity');
     }
+    if(request.captureOriginalOwnerIntegrity===true &&
+       request.capturePhysicalZoneIntegrity!==true){
+      throw new Error('captureOriginalOwnerIntegrity requires capturePhysicalZoneIntegrity');
+    }
+    // Created after both original printed 60s have been materialized by AddPlayer.
+    // Never passed to either actor's information-set decision policy.
+    const originalPhysicalOwners=request.captureOriginalOwnerIntegrity===true?
+      captureInitialPhysicalOwners(store.state):null;
     const physicalZoneIntegrity = request.capturePhysicalZoneIntegrity === true
       ? {
         schema: 'live-headless-physical-zone-integrity-v1',
@@ -976,7 +986,11 @@ function runMatch(request) {
         firstAnomaly: null,
         settledRootsChecked: 0,
         settledRootsWithAnomaly: 0,
-        firstSettledRootAnomaly: null
+        firstSettledRootAnomaly: null,
+        ...(originalPhysicalOwners?{
+          originalOwnerCustodyRequested:true,
+          originalOwnerCardCount:originalPhysicalOwners.size
+        }:{})
       }
       : null;
     const copycatTurnStartEvidence = request.captureCopycatTurnStartSeat === undefined ?
@@ -1555,12 +1569,19 @@ function runMatch(request) {
           horrorHouseBefore,horrorHouseAudit.beforeAction(store.state),rootDeclarations));
       }
       if (physicalZoneIntegrity) {
-        const ownership = inspectPhysicalCardZones(store.state);
+        const ownership = inspectPhysicalCardZones(
+          store.state,originalPhysicalOwners);
         const countAnomalies = fixedDeckCountAnomalies(ownership);
+        const originalCustody=ownership.originalOwnerCustody;
+        const wrongOriginalOwner=Boolean(originalCustody&&(
+          originalCustody.displacedOriginalReferences.length>0 ||
+          originalCustody.unregisteredOriginalReferences.length>0 ||
+          originalCustody.missingOriginalCounts.some(count=>count>0)));
         physicalZoneIntegrity.rootActionsChecked++;
         if (ownership.referenceDuplications.length ||
             ownership.energyWithoutPhysicalCard.length ||
-            ownership.repeatedEnergyIndexes.length || countAnomalies.length) {
+            ownership.repeatedEnergyIndexes.length || countAnomalies.length ||
+            wrongOriginalOwner) {
           physicalZoneIntegrity.actionsWithAnomaly++;
           if (physicalZoneIntegrity.firstAnomaly === null) {
             physicalZoneIntegrity.firstAnomaly = {
@@ -1582,7 +1603,7 @@ function runMatch(request) {
           if (ownership.referenceDuplications.length ||
               ownership.energyWithoutPhysicalCard.length ||
               ownership.repeatedEnergyIndexes.length ||
-              settledCountAnomalies.length) {
+              settledCountAnomalies.length || wrongOriginalOwner) {
             physicalZoneIntegrity.settledRootsWithAnomaly++;
             if (physicalZoneIntegrity.firstSettledRootAnomaly===null) {
               physicalZoneIntegrity.firstSettledRootAnomaly={
