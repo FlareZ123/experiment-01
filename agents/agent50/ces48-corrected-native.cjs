@@ -11,3 +11,6 @@ const {CardList}=native('game/store/state/card-list');
 const {PokemonCardList}=native('game/store/state/pokemon-card-list');
 const {GamePhase}=native('game/store/state/state');
 const {AttackAction}=native('game/store/actions/game-actions');
+const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+const {Format}=native('game/store/card/card-types');
