@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent4-quick-ball-printed-mandatory-payment-v2-search-is-distinct';
+const VERSION='agent4-quick-ball-printed-payment-v3-live-only-optional-search-safe';
 const PRINTINGS=new Set(['Quick Ball FST','Quick Ball SSH']);
 const PAYMENT_MESSAGE='CHOOSE_CARD_TO_DISCARD';
 
@@ -35,7 +35,8 @@ function quickBallPaymentNegative(prompt,answer,owner){
  *
  * @template T
  * @param {()=>T} execute Synchronous actual Store workload
- * @param {{Store?:Function}} [deps] Native test injection
+ * @param {{Store?:Function,requireLiveStore?:boolean,
+ *   currentTrialId?:()=>string|null}} [deps] Native injection and live scope
  * @returns {{result:T,audit:object}}
  */
 function withPaperQuickBallMandatoryPayment(execute,deps={}){
@@ -46,12 +47,27 @@ function withPaperQuickBallMandatoryPayment(execute,deps={}){
     'game/store/store')).Store;
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
+  const liveOnly=deps.requireLiveStore===true;
+  const trialKey=()=>deps.currentTrialId?.()??'__single__';
+  const liveByTrial=new Map();
+  const isLive=store=>!liveOnly||liveByTrial.get(trialKey())===store;
   const audit={version:VERSION,inspectedRoots:0,inspectedPayments:0,
     ignoredOptionalSearchPrompts:0,vetoedRoots:0,vetoedPayments:0,
-    paperQualifiedGames:0,decisionsChanged:false};
+    liveStoreRequired:liveOnly,liveSourceTrialCount:0,
+    excludedAuxiliaryDispatches:0,
+    paperQualifiedGames:0,actorDecisionPolicyChanged:false};
   function dispatch(action,...args){
-    const state=this.state;
     const actionName=action?.constructor?.name;
+    if(liveOnly&&actionName==='AddPlayerAction'&&
+       !liveByTrial.has(trialKey())){
+      liveByTrial.set(trialKey(),this);
+      audit.liveSourceTrialCount++;
+    }
+    if(!isLive(this)){
+      audit.excludedAuxiliaryDispatches++;
+      return previous.value.call(this,action,...args);
+    }
+    const state=this.state;
     if(actionName==='PlayCardAction'){
       const owner=state.players?.find(p=>p.id===action.id);
       const held=owner?.hand?.cards;
