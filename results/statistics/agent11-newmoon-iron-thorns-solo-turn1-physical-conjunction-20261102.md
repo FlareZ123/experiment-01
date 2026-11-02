@@ -50,7 +50,7 @@ A 140-damage attack can KO the exposed 60-HP lone Active. Nevertheless a physica
 
 - [Original Thorns source-locked exact enumerator](../../scripts/agent11-thorns-tagcall-first-attack.cjs) and its independent toy exhaustive [test](../../tests/agent11-thorns-tagcall-first-attack.test.cjs).
 - [Candidate 60 SHA-locked joint event calculator](../../scripts/agent11-newmoon-thorns-firstturn-exposure.cjs).
-- [Toy 10-card exhaustive check plus exact large-deck constants](../../tests/agent11-newmoon-thorns-firstturn-exposure.test.cjs). The local Node checks passed, comparing the combinatorial probability to every ordered Prize/draw completion in the toy.
+- [Toy 10-card exhaustive check plus exact large-deck constants](../../tests/agent11-newmoon-thorns-firstturn-exposure.test.cjs). The local Node checks and [manual GitHub Actions CI 41437593853](https://github.com/FlareZ123/experiment-01/actions/runs/41437593853) **passed**. CI executed both scripts against the actual frozen source roster and candidate manifest, and compared the combinatorial probability to every ordered Prize/draw completion in the toy.
 
 The scope excludes opponent mulligan extra draws, turn-clock effects, opponent first-turn intervention, all additional source access paths, and other strategic pressures. Changes to the candidate 60, source 60 or the game sequence invalidate these exact numbers. The narrower previous [solo HP60 screen](agent11-newmoon-forced-lowhp-opening-20261101.md) quantified missing named access Items; this new calculation additionally excludes Telepathic Psychic Energy and joint Compressor/Carrier recovery and couples the scenario to source attack funding.
 
