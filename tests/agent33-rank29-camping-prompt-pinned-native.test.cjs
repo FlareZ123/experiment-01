@@ -128,6 +128,12 @@ function run(seat,mode){
   return {selected:selected.fullName,mode,seat,
     ownSearchPromptObserved:true,
     physicalMoved:true,
+    nativePhase:store.state.phase,
+    nativeTurn:store.state.turn,
+    nativeActiveSeat:store.state.activePlayer,
+    nativePending:store.state.prompts.filter(p=>p.result===undefined)
+      .map(p=>({type:p.constructor?.name,actor:p.playerId,id:p.id})),
+    nativePromptQueue:store.promptItems?.map(item=>item.ids?.length)??[],
     turnEndObserved:store.state.activePlayer!==seat||
       store.state.phase!==GamePhase.PLAYER_TURN};
 }
@@ -138,7 +144,7 @@ for(const seat of [0,1]){
     const adaptive=run(seat,'adaptive');
     assert.equal(fixed.selected,'Guzma & Hala CEC');
     assert.equal(adaptive.selected,THUNDER);
-    assert.equal(fixed.turnEndObserved,true);
-    assert.equal(adaptive.turnEndObserved,true);
+    assert.equal(fixed.turnEndObserved,true,JSON.stringify(fixed));
+    assert.equal(adaptive.turnEndObserved,true,JSON.stringify(adaptive));
   });
 }
