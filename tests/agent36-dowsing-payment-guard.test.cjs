@@ -122,3 +122,38 @@ test('unknown source prompt structure does not become a false positive paper cer
   assert.equal(dowsingPaymentNegative(p,[one,two],owner),
     'DOWSING_UNEXPECTED_PAYMENT_PROMPT');
 });
+
+test('completed physical payment remains credited if cards legitimately move zones later',()=>{
+  const f=fixture();
+  f.owner.hand.cards.shift();
+  f.state.prompts.push(new ChooseCardsPrompt(50,f.owner));
+  const audit=withDowsingMachinePaperPaymentGuard(()=>{
+    f.store.dispatch(new ResolvePromptAction(50,[f.one,f.two]));
+    assert.deepEqual(f.owner.discard.cards,[f.one,f.two]);
+    f.owner.discard.cards.splice(0,1);
+    f.owner.hand.cards.push(f.one);
+  },{Store:FakeStore}).audit;
+  assert.equal(audit.settledPhysicalPayments,1);
+  assert.equal(audit.unsettledPhysicalPayments,0);
+});
+
+test('raw Store acceptance without actual card payment stays physically unverified',()=>{
+  class UnpaidStore extends FakeStore {
+    dispatch(action) {
+      this.nativeCalls++;
+      const prompt=this.state.prompts.find(p=>p.id===action.id);
+      if(prompt)prompt.result=action.result;
+      return true;
+    }
+  }
+  const f=fixture();
+  f.owner.hand.cards.shift();
+  f.state.prompts.push(new ChooseCardsPrompt(51,f.owner));
+  const audit=withDowsingMachinePaperPaymentGuard(()=>{
+    const store=new UnpaidStore(f.state);
+    return store.dispatch(new ResolvePromptAction(51,[f.one,f.two]));
+  },{Store:UnpaidStore}).audit;
+  assert.equal(audit.acceptedPayments,1);
+  assert.equal(audit.settledPhysicalPayments,0);
+  assert.equal(audit.unsettledPhysicalPayments,1);
+});
