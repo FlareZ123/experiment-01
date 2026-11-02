@@ -1,0 +1,69 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {observeNativeArbiterShuffles:observe}=
+  require('../simulation/twinleaf/agent23-native-arbiter-shuffle-observer.cjs');
+const {recordPolicyRandomTape,replayPolicyRandomTape}=
+  require('../simulation/twinleaf/native-policy-random-tape.cjs');
+
+class MockNativeArbiter {
+  constructor(){this.options={shuffleMode:2};}
+  shuffle(deck){
+    return deck.cards.map((_,i)=>[i,Math.random()]);
+  }
+}
+
+test('read-only shuffle observer records numeric lengths and preserves exact RNG tape',()=>{
+  const arbiter=new MockNativeArbiter();
+  const before=Object.getOwnPropertyDescriptor(MockNativeArbiter.prototype,'shuffle');
+  const sink={};
+  const previous=Math.random;
+  try{
+    Math.random=()=>0.125;
+    const done=observe(()=>recordPolicyRandomTape(
+      ()=>arbiter.shuffle({cards:[{},{}]})),sink,
+    {BotArbiter:MockNativeArbiter});
+    assert.deepEqual(done.tape,[0.125,0.125]);
+    assert.deepEqual(done.result,[[0,0.125],[1,0.125]]);
+    assert.deepEqual(sink.arbiterShuffles,[{deckLength:2,mode:2}]);
+    assert.deepEqual(Object.getOwnPropertyDescriptor(
+      MockNativeArbiter.prototype,'shuffle'),before);
+    const cloneSink={};
+    const replay=replayPolicyRandomTape(done.tape,()=>observe(
+      ()=>arbiter.shuffle({cards:[{},{}]}),cloneSink,
+      {BotArbiter:MockNativeArbiter}));
+    assert.equal(replay.consumed,2);
+    assert.deepEqual(cloneSink.arbiterShuffles,sink.arbiterShuffles);
+  }finally{Math.random=previous;}
+});
+
+test('one extra simulated deck card visibly precedes exact RNG overread veto',()=>{
+  const arbiter=new MockNativeArbiter(),original=Math.random;
+  let tape;
+  try{
+    Math.random=()=>0.375;
+    tape=recordPolicyRandomTape(()=>arbiter.shuffle({cards:[{},{}]})).tape;
+  }finally{Math.random=original;}
+  const sink={};
+  assert.throws(()=>replayPolicyRandomTape(tape,()=>observe(
+    ()=>arbiter.shuffle({cards:[{},{},{}]}),sink,
+    {BotArbiter:MockNativeArbiter})),/replay exhausted/);
+  assert.equal(sink.arbiterShuffles[0].deckLength,3);
+  assert.equal(MockNativeArbiter.prototype.shuffle.name,'shuffle');
+});
+
+test('observer restores original native method when original throws',()=>{
+  class RejectingArbiter extends MockNativeArbiter{
+    shuffle(){throw Error('source rejection');}
+  }
+  const arbiter=new RejectingArbiter(),before=Object.getOwnPropertyDescriptor(
+    RejectingArbiter.prototype,'shuffle');
+  const sink={};
+  assert.throws(()=>observe(
+    ()=>arbiter.shuffle({cards:[{}]}),sink,
+    {BotArbiter:RejectingArbiter}),/source rejection/);
+  assert.deepEqual(sink.arbiterShuffles,[{deckLength:1,mode:2}]);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(
+    RejectingArbiter.prototype,'shuffle'),before);
+});
