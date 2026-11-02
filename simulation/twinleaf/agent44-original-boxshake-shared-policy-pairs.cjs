@@ -18,6 +18,9 @@ const FRESH_START=256;
 const FRESH_COUNT=16;
 const FLEX_FRESH_START=272;
 const FLEX_FRESH_COUNT=32;
+const V3_FRESH_START=306;
+const V3_FRESH_COUNT=64;
+const V3_REGISTERED_SHA256='d5064404f65ff05e25a21dbff7d302e48c17ce28ddbb6c91f5d55e0dff59f9ef';
 const MAX_ACTIONS=120;
 function sha(data){
   return crypto.createHash('sha256').update(data).digest('hex');
@@ -39,7 +42,9 @@ function compactGame(game){
  *
  * @returns {object} Unconditional native evidence and all attempted rows.
  */
-function run({flexible=false,debugSourceIndex=null}={}){
+function run({flexible=false,debugSourceIndex=null,prospectiveV3=false}={}){
+  assert.ok(!prospectiveV3||(flexible&&debugSourceIndex===null),
+    'The preregistered v3 fresh cohort requires flexible policy and no retrospective sub-selection');
   assert.ok(debugSourceIndex===null||
     (flexible&&Number.isSafeInteger(debugSourceIndex)&&
       debugSourceIndex>=272&&debugSourceIndex<=303),
@@ -58,12 +63,16 @@ function run({flexible=false,debugSourceIndex=null}={}){
   const {Store}=require(path.join(BASE,'game/store/store'));
   const fixed=[{trial:'retrospective-original-positive',sourceSeat:0,
     seed:HISTORICAL_SEED,cohort:'retrospective-selected'}];
-  const startIndex=debugSourceIndex??(flexible?FLEX_FRESH_START:FRESH_START);
-  const count=debugSourceIndex===null?
-    (flexible?FLEX_FRESH_COUNT:FRESH_COUNT):1;
+  const startIndex=prospectiveV3?V3_FRESH_START:
+    debugSourceIndex??(flexible?FLEX_FRESH_START:FRESH_START);
+  const count=prospectiveV3?V3_FRESH_COUNT:
+    debugSourceIndex===null?(flexible?FLEX_FRESH_COUNT:FRESH_COUNT):1;
   const future=schedule(startIndex,count).map(row=>({
-    ...row,cohort:'precommitted-unselected-extension'
+    ...row,cohort:prospectiveV3?
+      'precommitted-unselected-v3-multiplicity':'precommitted-unselected-extension'
   }));
+  if(prospectiveV3)assert.equal(sha(JSON.stringify(future)),
+    V3_REGISTERED_SHA256,'Fresh physical-source schedule differs from pre-execution registration');
   const precommitted=[...fixed,...future];
   const manifestSha256=sha(JSON.stringify(precommitted));
   const trials=[];
@@ -128,7 +137,8 @@ function run({flexible=false,debugSourceIndex=null}={}){
     nativeErrors:rows.filter(row=>row.status==='NATIVE_ERROR').length
   });
   return {
-    schema:flexible?'agent44-shared-box-shake-flexible-original-pairs-v2':
+    schema:prospectiveV3?'agent44-shared-box-shake-flexible-fresh64-v3':
+      flexible?'agent44-shared-box-shake-flexible-original-pairs-v2':
       'agent44-shared-box-shake-original-native-deal-pairs-v1',
     sourceRank:8,sourceOriginal60:true,candidateOriginal60:true,
     policy:flexible?
@@ -146,6 +156,9 @@ function run({flexible=false,debugSourceIndex=null}={}){
     sourceK0SourceSha256:sha(fs.readFileSync(path.join(__dirname,
       'agent44-rank8-box-k0-window.cjs'))),
     maxActions:MAX_ACTIONS,manifestSha256,
+    preregisteredFreshScheduleSha256:prospectiveV3?V3_REGISTERED_SHA256:null,
+    preregistrationPath:prospectiveV3?
+      'results/aichi-2026/registrations/agent44-rank8-v3-multiplicity-fresh64-20261102.json':null,
     predeclaredFreshIndices:[startIndex,startIndex+count-1],
     historicalPositiveSummary:summary([historical]),
     prospectiveSummary:summary(trials.slice(1)),
@@ -154,13 +167,15 @@ function run({flexible=false,debugSourceIndex=null}={}){
         row.sourceSeat===0&&row.equippedGarbodor)??false,
     allAttempted:trials,
     competitiveQualifiedGames:0,
-    caveat:'One retrospectively selected positive original deal and 16 separate unselected future original deals. Symmetric owner-only opt-in, no illegal hand/deck/Prize swap. A native-accepted scripted first-turn line remains developmental; original opponent decisions and the paper clock are not competitive-qualified. No win-rate inference.'
+    caveat:'One retrospectively selected positive original deal plus separately precommitted physical source deals (16, 32 or 64 depending on selected profile). Symmetric owner-only opt-in, no hand/deck/Prize replacement. Store acceptance and a native-accepted scripted first-turn line remain developmental; whole paper payment custody, opponent competence and clock are unqualified. No win-rate inference.'
   };
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run({
   flexible:process.env.AGENT44_RANK8_BOX_FLEXIBLE==='true',
   debugSourceIndex:process.env.AGENT44_RANK8_BOX_DEBUG_INDEX?
-    Number(process.env.AGENT44_RANK8_BOX_DEBUG_INDEX):null
+    Number(process.env.AGENT44_RANK8_BOX_DEBUG_INDEX):null,
+  prospectiveV3:process.env.AGENT44_RANK8_BOX_PROSPECTIVE_V3==='true'
 }),null,2)+'\n');
 module.exports={HISTORICAL_SEED,FRESH_START,FRESH_COUNT,
-  FLEX_FRESH_START,FLEX_FRESH_COUNT,MAX_ACTIONS,run};
+  FLEX_FRESH_START,FLEX_FRESH_COUNT,V3_FRESH_START,V3_FRESH_COUNT,
+  V3_REGISTERED_SHA256,MAX_ACTIONS,run};
