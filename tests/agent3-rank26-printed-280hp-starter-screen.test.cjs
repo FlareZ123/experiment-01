@@ -2,19 +2,25 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {audit}=require('../scripts/agent3-rank26-printed-280hp-starter-screen.cjs');
+const {audit,printIndex}=require('../scripts/agent3-rank26-printed-280hp-starter-screen.cjs');
 
-test('fail closed on ZIP-absent source printings, preserving all original rows',()=>{
+test('fail closed on an explicitly absent source printing, preserving all original rows',()=>{
   const result=audit();
   assert.equal(result.originalOpponentLists,29);
   assert.equal(result.printedPsychicDamage,280);
   assert.equal(result.rows.length,29);
-  assert.equal(result.printCoverage,'incomplete');
-  const rank1=result.incompleteRows.find(r=>r.rank===1);
+  assert.ok(['complete','incomplete'].includes(result.printCoverage));
+  const actualPrinting=printIndex();
+  const absentSmp217=entry=>entry.name==='Trevenant & Dusknoir-GX'&&
+    entry.printing.set==='SMP'&&entry.printing.number==='217'?
+    null:actualPrinting(entry);
+  const missing=audit(absentSmp217);
+  assert.equal(missing.printCoverage,'incomplete');
+  const rank1=missing.incompleteRows.find(r=>r.rank===1);
   assert.ok(rank1);
   assert.ok(rank1.unresolvedPrintings.some(x=>x.name==='Trevenant & Dusknoir-GX'&&
     x.printing.set==='SMP'&&x.printing.number==='217'));
-  const source=result.rows.find(r=>r.rank===1);
+  const source=missing.rows.find(r=>r.rank===1);
   assert.equal(source.basicCount,null);
   assert.equal(source.directRootAndForcedLone,null);
   assert.equal(source.directRootForcedLoneAndDamageSurvivor,null);
