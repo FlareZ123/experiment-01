@@ -1,0 +1,37 @@
+{
+  "schema": "agent5-rank9-original120-custody-prereg-v1",
+  "registeredAtUTC": "2026-11-02T20:47:00Z",
+  "objective": "Test 120 original physical card owner reference custody without changing a selected native decision policy.",
+  "sourceRank": 9,
+  "printedSource": "Exact original Shun Ito Aichi rank9, via agent10-rank9-known-dead-attack-counterfactual.cjs",
+  "comparator": "Same existing 4 previously registered historical physical deals and both existing champion-reference/New Moon fixed printed sixties.",
+  "cohortStatus": "Retrospective historical source deals; policy and competitive game inference unqualified",
+  "registeredSourceTrialIds": [
+    "9:0:A:champion-reference",
+    "9:0:A:new-moon-lockbreaker-v1",
+    "9:1:B:champion-reference",
+    "9:1:B:new-moon-lockbreaker-v1"
+  ],
+  "arms": [
+    {
+      "name": "control",
+      "nativeOriginalOwnerCapture": false,
+      "physicalZoneGate": true
+    },
+    {
+      "name": "treatment",
+      "nativeOriginalOwnerCapture": true,
+      "physicalZoneGate": true
+    }
+  ],
+  "predictionsToCheck": [
+    "All four trial identities and registered actual physical source and full deals match cross-arm",
+    "All four native root action SHA256 digests match unless physical integrity gate exposes a defect",
+    "Each treated match collects originalOwnerCardCount=120, originalOwnerCustodyRequested=true, and zero settled physical anomalies if intact",
+    "Classify native terminal, cap, error and original-owner custody separately. Preserve all four rows even on failure."
+  ],
+  "testFile": "tests/agent5-rank9-original120-custody-pair.test.cjs",
+  "runnerFile": "simulation/evaluation/agent5-rank9-original120-custody-pair.cjs",
+  "paperQualifiedGames": 0,
+  "performanceInferenceAllowed": false
+}
