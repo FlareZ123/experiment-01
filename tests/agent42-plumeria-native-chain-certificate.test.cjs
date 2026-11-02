@@ -81,3 +81,14 @@ test('no natural source Plumeria root gives empty certificates',()=>{
  f.row.rootActionLedger[0].card='Faba';
  assert.deepEqual(sourcePlumeriaActionCertificates(f.row,f.payments,f.effects),[]);
 });
+
+test('attack after Plumeria settles the source turn',()=>{
+ const f=fixture();
+ const r=f.row.rootActionLedger.find(x=>x.actionOrdinal===61);
+ r.action='AttackAction';
+ r.attack='Volt Cyclone';
+ const c=sourcePlumeriaActionCertificates(f.row,f.payments,f.effects)[0];
+ assert.equal(c.checks.actualSourceTurnCompletion,true);
+ assert.equal(c.sourceTurnCompletionAction,'AttackAction');
+ assert.equal(c.allLocalChecksPassed,true);
+});
