@@ -124,6 +124,10 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
       const nextBoard=publicOwnerBoard(nextOwner);
       observedRoot.afterRetreat={
         phase:next.phase,turn:next.turn,
+        activePlayerSeat:next.activePlayer,
+        originalSourceSeat:session.sourceSeat,
+        engineWinner:next.winner??null,
+        opponentRemainingPrizes:next.players[1-session.sourceSeat].getPrizeLeft(),
         activePrinting:nextBoard.activePrinting,
         activeEnergy:nextBoard.activeEnergy,
         activeTools:nextBoard.activeTools,
