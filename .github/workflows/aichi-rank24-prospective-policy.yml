@@ -222,6 +222,7 @@ jobs:
           node --test
           tests/agent31-underworld-door-owner-frontier.test.cjs
           tests/agent34-underworld-door-root-bridge.test.cjs
+          tests/agent34-underworld-physical-settlement-witness.test.cjs
       - name: Replay unchanged rank1 originals with owner Underworld Door symmetric actor root
         if: ${{ inputs.agent34_underworld_native_rank1 }}
         env:
