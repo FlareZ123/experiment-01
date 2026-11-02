@@ -17,7 +17,7 @@ function preflight(){
   assert.equal(registration.schema,
     'agent4-rank5-special-energy-owner-root-fresh-paired-v1');
   assert.equal(registration.phase,'registered-before-first-native-comparison');
-  assert.equal(registration.plannedAttempts,8);
+  assert.equal(registration.plannedNativeAttempts,8);
   assert.equal(registration.sourceRank,5);
   assert.equal(registration.trials.length,4);
   const ids=new Set();
