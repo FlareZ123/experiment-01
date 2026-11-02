@@ -90,6 +90,7 @@ function run(){
         fundedHoOhMobilitySamples:audit.fundedHoOhMobilitySamples,
         bellowingDeclared:audit.bellowingDeclared,
         sourceActivePrintings:audit.sourceActivePrintingCounts,
+        sourceRetreatPostDispatch:audit.sourceRetreatPostDispatch,
         sourceRootActions:(raw.rootActionLedger??[])
           .filter(root=>root.playerSlot===sourceSeat&&
             root.action!=='ResolvePromptAction')
