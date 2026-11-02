@@ -43,6 +43,9 @@ function diagnoseRegisteredFailure(){
       nativeActionInputAudit:row.nativeActionInputAudit??null,
       nativeGenericFallbackAbortEvidence:
         row.nativeGenericFallbackAbortEvidence??null,
+      rootActionLedgerSha256:row.rootActionLedgerSha256??null,
+      prefixActionLedger:(row.rootActionLedger??
+        row.nativeAbortEvidence?.rootActionLedger??[]).slice(0,46),
       rootLedger:(row.rootActionLedger??[]).slice(-52),
       competitiveQualified:false
     })),
