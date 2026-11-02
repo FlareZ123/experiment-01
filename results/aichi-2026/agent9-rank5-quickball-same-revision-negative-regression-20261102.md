@@ -14,10 +14,10 @@
 | Source native `AttackAction` | **12** | **0** |
 | Source genuine engine terminals, excluding censored | **6** | **8** |
 | Native censored/nonterminal | **2** | **0** |
-| Original source engine wins as recorded by `winner` seat | **6 of 8 attempts with one unqualified original engine win per candidate branch in seat B and seat A reference** | **4 of 8** |
+| Native engine terminals naming original source as winner | **2** | **0** |
 | Competitively qualified game wins | **0** | **0** |
 
-**The winner row is intentionally an illustrative unqualified engine counter and should not be used as a win-rate estimate.** Actual per-trial `winner` field is a seat number (0 or1), and the table's verbal summary is incomplete without source-seat matching. See the per-pair table below instead of the winner prose.
+**The winner count is unqualified and correlated through repeated policy-mode runs.** It was derived from the actual per-trial native `winner` field matched against each source's physical seat. It must not be used as a real paper game win-rate estimate.
 
 | Policy mode and trial | Source seat | OFF source attacks | ON source attacks | ON source Quick Ball | OFF native status | ON native status |
 | --- | ---: | ---: | ---: | ---: | --- | --- |
