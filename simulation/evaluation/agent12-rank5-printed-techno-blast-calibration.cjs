@@ -3,8 +3,10 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 
 const VERSION='agent12-ranked5-printed-techno-blast-outcome-calibration-v1';
+const FROZEN_ARCHIVE_JSON_SHA256='7b35948d130495f97349ef3f030fcd62a8f33f990c32a8a4973e878b259ec792';
 const EXPECTED_ARCHIVE_SCHEMA='agent13-integrated-rank5-v31-corrected-root-release-v1';
 const EXPECTED_SOURCE_PRINTED60='a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05';
 const PINNED_VENDOR='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -166,9 +168,14 @@ function calibrateRank5TechnoBlast(archive,options={}){
 if(require.main===module){
   const input=process.argv[2];
   assert.ok(input,'Expected the actual original Agent13 v3.1 archive JSON path');
-  const archive=JSON.parse(fs.readFileSync(input,'utf8'));
-  process.stdout.write(JSON.stringify(calibrateRank5TechnoBlast(archive),null,2)+'\n');
+  const bytes=fs.readFileSync(input);
+  const sha256=createHash('sha256').update(bytes).digest('hex');
+  assert.equal(sha256,FROZEN_ARCHIVE_JSON_SHA256,
+    'Archived original rank5 16-arm SHA-256 identity mismatch');
+  const archive=JSON.parse(bytes.toString('utf8'));
+  process.stdout.write(JSON.stringify({originalArchiveSha256:sha256,
+    ...calibrateRank5TechnoBlast(archive)},null,2)+'\n');
 }
 
-module.exports={VERSION,PRINTINGS,readSourcePrintings,
+module.exports={VERSION,FROZEN_ARCHIVE_JSON_SHA256,PRINTINGS,readSourcePrintings,
   expectedPrintedPrizes,computedPsychicDamage,calibrateRank5TechnoBlast};
