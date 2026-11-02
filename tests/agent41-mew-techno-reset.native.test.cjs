@@ -33,6 +33,10 @@ const {ResolvePromptAction}=native(
   'game/store/actions/resolve-prompt-action');
 const {AttackAction,PassTurnAction,RetreatAction}=
   native('game/store/actions/game-actions');
+const {AddPlayerAction}=native('game/store/actions/add-player-action');
+const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+const {withActorOnlyRootPolicy}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 /**
  * Fully physical staged Store: authentic exact printed rank5 attacker line,
@@ -308,4 +312,81 @@ for(const seat of [0,1]){
   test('staged pinned-Store original Mew cooldown Guzma-return attack, seat '+seat,
     ()=>trial(seat));
 }
-module.exports={stage,completeAttack,completeGuzma,trial};
+
+/**
+ * Two additional constructed physical seats validate the actual active
+ * canonical owner-root bridge, rather than manually dispatching each pure
+ * intent. Real Store handles all cards, both Guzma prompts and returned attack.
+ * Its AddPlayerAction records the staged Store for reversible actor adapters,
+ * and is a setup-phase no-op once the synthetic board is already live.
+ */
+function actorRootTrial(seat){
+  const x=stage(seat);
+  const {store,state,owner,opp}=x;
+  const replies=[];
+  store.dispatch(new AttackAction(owner.id,'Cross Fusion Strike'));
+  completeAttack(x,replies);
+  store.dispatch(new PassTurnAction(opp.id));
+  completeAttack(x,replies);
+  assert.equal(state.turn,7);
+  assert.equal(owner.active.cannotAttackNextTurn,true);
+  owner.hand.cards.push(x.card('Guzma BUS'));
+  const firstPlan=chooseGuzmaMewCooldownReset(
+    actorObservation(store.state,seat),x.catalog);
+  assert.equal(firstPlan?.kind,'play-guzma-mew-cooldown-reset');
+
+  const first=withActorOnlyRootPolicy(()=>{
+    store.dispatch(new AddPlayerAction(owner.id,owner.name,[]));
+    const action=new SimpleTacticsAi(owner.id).decodeNextAction(store.state);
+    assert.ok(action instanceof PlayCardAction);
+    assert.equal(action.handIndex,firstPlan.handIndex);
+    store.dispatch(action);
+    return action;
+  },{mewTechnoReset:true});
+  assert.equal(first.audit.typedIntentCounts['play-guzma-mew-cooldown-reset'],1);
+  assert.equal(store.state.prompts.filter(p=>p.result===undefined).length,1);
+  completeGuzma(x,firstPlan,replies);
+  assert.equal(owner.active.getPokemonCard().id,x.spareMewId);
+  assert.equal(owner.bench[1].cannotAttackNextTurn,false);
+
+  const beforeRetreat=rootPhysicalSnapshot(store.state,seat,{
+    kind:'free-retreat',benchIndex:1,printing:MEW
+  });
+  const second=withActorOnlyRootPolicy(()=>{
+    store.dispatch(new AddPlayerAction(owner.id,owner.name,[]));
+    const action=new SimpleTacticsAi(owner.id).decodeNextAction(store.state);
+    assert.ok(action instanceof RetreatAction);
+    assert.equal(action.benchIndex,1);
+    store.dispatch(action);
+    return action;
+  },{mewTechnoReset:true});
+  assert.equal(second.audit.typedIntentCounts['free-retreat'],1);
+  assert.equal(owner.active.getPokemonCard().id,x.originalMewId);
+  assert.equal(rootPhysicalWitness(
+    {kind:'free-retreat',benchIndex:1,printing:MEW},
+    beforeRetreat,
+    rootPhysicalSnapshot(store.state,seat,{
+      kind:'free-retreat',benchIndex:1,printing:MEW
+    }),
+    GamePhase),'confirmed-public-effect');
+  store.dispatch(new AttackAction(owner.id,'Cross Fusion Strike'));
+  completeAttack(x,replies);
+  assert.equal(owner.prizes.filter(p=>p.cards.length>0).length,5);
+  assert.equal(store.state.turn,8);
+  console.log('AGENT41_MEW_RESET_NATIVE_ACTOR',JSON.stringify({
+    pinnedTwinleaf:PIN,seat,firstNativeActorIntent:'play-guzma-mew-cooldown-reset',
+    secondNativeActorIntent:'free-retreat',
+    rootGuzmaNativeAccepted:first.audit.nativePhysicalConfirmations??null,
+    rootRetreatNativeAccepted:second.audit.nativePhysicalConfirmations??null,
+    actualPrizesRemaining:5,fullOriginal60:false,
+    competitiveQualified:false
+  }));
+  return {first,second};
+}
+
+for(const seat of [0,1]){
+  test('native owner root executes actual staged Mew reset in seat '+seat,
+    ()=>actorRootTrial(seat));
+}
+
+module.exports={stage,completeAttack,completeGuzma,trial,actorRootTrial};
