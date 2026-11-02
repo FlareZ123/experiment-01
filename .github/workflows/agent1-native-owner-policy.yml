@@ -48,6 +48,13 @@ jobs:
       - name: Original rank17 paper damage hook replay
         if: inputs.experiment == 'raichu-paper-damage-native'
         run: node simulation/evaluation/agent1-rank17-electro-rain-native-hook-observation.cjs > agent1-rank17-hook-native.json
+      - name: Archive eight original rank17 damage-hook replay attempts
+        if: always() && inputs.experiment == 'raichu-paper-damage-native'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-original-rank17-native-paper-damage-hook
+          path: agent1-rank17-hook-native.json
+          if-no-files-found: warn
       - name: Rank17 prospective source-identity and actor-only source ledger tests
         if: inputs.experiment == 'rank17-prospective-evolution'
         run: node --test tests/agent1-rank17-original-evolution-prospective.test.cjs
