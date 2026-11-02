@@ -7,7 +7,7 @@ const {withOwnerVipAlternativesReceipt,MSG,VIP}=require(
 
 class AddPlayerAction {}
 class PlayCardAction {
-  constructor(playerId,handIndex){this.playerId=playerId;this.handIndex=handIndex;}
+  constructor(playerId,handIndex){this.id=playerId;this.handIndex=handIndex;}
 }
 class ResolvePromptAction {
   constructor(id,result){this.id=id;this.result=result;}
