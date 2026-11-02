@@ -107,5 +107,5 @@ function run(){
 }
 
 if(require.main===module)
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+  process.stdout.write('AGENT28_JSON_BOUNDARY\n'+JSON.stringify(run(),null,2)+'\n');
 module.exports={VERSION,run};
