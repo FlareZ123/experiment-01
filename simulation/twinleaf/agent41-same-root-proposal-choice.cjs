@@ -113,7 +113,12 @@ const PROPOSERS=Object.freeze([
   {name:'all-owner-basic-attachments',flag:'sameRootProbeAll',
     propose:(view,catalog)=>require('./agent41-owner-basic-energy-attachment-menu.cjs')
       .ownerBasicAttachmentMenu(view,catalog)},
-  // Observation-only final-Bench alternatives, including when the ordinary\n  // first-return root is Pass or an unrelated action. Never dispatch these\n  // speculative physical Basics without an independent native legality check.\n  require('./agent27-owner-lastbench-basic-conflict.cjs')\n    .lastBenchShadowProposer(),\n  {name:'preterminal-speed-draw',flag:'preterminalSpeedDrawOffer',
+  // Observation-only final-Bench alternatives, including when the ordinary
+  // first-return root is Pass or an unrelated action. Never dispatch these
+  // speculative physical Basics without an independent native legality check.
+  require('./agent27-owner-lastbench-basic-conflict.cjs')
+    .lastBenchShadowProposer(),
+  {name:'preterminal-speed-draw',flag:'preterminalSpeedDrawOffer',
     propose:(view,catalog,_options,baseline)=>{
       const evidence=require('./agent50-preterminal-speed-draw-offer.cjs')
         .offerSpeedDrawBeforeAttack(view,catalog,baseline);
