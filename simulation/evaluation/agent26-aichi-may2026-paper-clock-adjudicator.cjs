@@ -27,7 +27,7 @@ const PHASES=new Set(['cutoff','extension','tiebreak']);
  *   naturalOutcome?:0|1|'tie'|null
  * }} state
  * @returns {{
- *   version:string,officialClockMinutes:number,stage:string,phase:string,
+ *   version:string,officialClockMinutes:number|null,stage:string,phase:string,
  *   status:string,winner:0|1|null,requiresExtension:boolean,
  *   actorActionAllowed:boolean,competitiveGameQualified:false,
  *   paperClockMeasured:false
@@ -47,7 +47,7 @@ function adjudicateMay2026AichiTime(state){
   assert.ok(naturalOutcome===null||naturalOutcome==='tie'||
     naturalOutcome===0||naturalOutcome===1);
   if(stage==='swiss')assert.equal(phase,'cutoff');
-  const base={version:VERSION,officialClockMinutes:stage==='final'?35:25,
+  const base={version:VERSION,officialClockMinutes:phase==='tiebreak'?null:(stage==='final'?35:25),
     stage,phase,requiredFinalSeat:1-firstPlayerSeat,winner:null,requiresExtension:false,
     actorActionAllowed:false,competitiveGameQualified:false,
     paperClockMeasured:false,postCutoffCheckupAllowed:phase!=='cutoff'};
