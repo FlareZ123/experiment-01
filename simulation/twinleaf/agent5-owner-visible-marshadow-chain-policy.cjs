@@ -38,8 +38,7 @@ function chooseMarshadowCounterRoot(view){
   const active=own.active,bench=own.bench??[];
   const marshadowOnBench=bench.findIndex(slot=>
     slot?.printing===MARSHADOW);
-  if(active?.printing===SHADOW&&marshadowOnBench>=0&&
-    own.publicTurnRestrictions?.attackLockTurnsRemaining===0){
+  if(active?.printing===SHADOW&&marshadowOnBench>=0){
     return {kind:'marshadow-resetting-hole',benchIndex:marshadowOnBench,
       printing:MARSHADOW};
   }
