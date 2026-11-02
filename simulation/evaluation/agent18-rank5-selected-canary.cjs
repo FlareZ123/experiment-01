@@ -11,6 +11,10 @@ const ROOT=path.resolve(__dirname,'../..');
 
 /** @param {string} root @param {object} [environment] */
 function preflight(root=ROOT,environment=process.env,chosen=profile){
+  const entrypoint=fs.readFileSync(path.join(root,
+    'simulation/evaluation/agent18-rank5-selected-canary.cjs'));
+  assert.equal(gitBlobHash(entrypoint),chosen.selectedEntrypointGitBlobSha,
+    'Selected canary entrypoint changed; register new exact code before execution');
   const runner=path.resolve(root,chosen.runner);
   const source=fs.readFileSync(runner);
   assert.equal(gitBlobHash(source),chosen.runnerGitBlobSha,
