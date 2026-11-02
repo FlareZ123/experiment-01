@@ -31,7 +31,10 @@ const MAX_ACTIONS=120;
 const sha=string=>crypto.createHash('sha256').update(string).digest('hex');
 const codeSha=relative=>sha(fs.readFileSync(path.join(ROOT,relative)));
 function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
-  auditOwnerK1Sources=false,auditSecretBoxCustody=false}={}){
+  auditOwnerK1Sources=false,auditSecretBoxCustody=false,
+  preBoxScout=false}={}){
+  assert.ok(!preBoxScout||(fresh32&&diagnosticFreshIndex===383),
+    'The currently selected K0-to-K1 scout is strictly the posthoc index383 counterfactual');
   assert.ok(diagnosticFreshIndex===null||
     (fresh32&&diagnosticFreshIndex===383),
     'The diagnostic is strictly retrospective on the previously failed original index383');
@@ -95,7 +98,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
         ()=>withCanonicalAndBoxShake(()=>runPaymentAware('baseline')));
       const treatment=withRank8AuthenticK0Observer(Store,row.sourceSeat,
         ()=>withCanonicalAndBoxShake(()=>runPaymentAware('treatment'),{
-          enableBoxShake:true,flexible:true,auditOwnerK1Sources
+          enableBoxShake:true,flexible:true,auditOwnerK1Sources,preBoxScout
         }));
       const b=baseline.result,t=treatment.result;
       assert.deepEqual(baseline.sourceK0,treatment.sourceK0,
@@ -167,7 +170,8 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     }
   }
   return {
-    schema:diagnosticFreshIndex!==null?
+    schema:preBoxScout?'agent44-shared-canonical-prebox-k0-k1-counterfactual383-v1':
+      diagnosticFreshIndex!==null?
       'agent44-shared-canonical-bothseat-boxshake-diagnostic383-v1':
       fresh32?'agent44-shared-canonical-bothseat-owner-boxshake-fresh32-v2':
       'agent44-shared-canonical-bothseat-owner-boxshake-native-v1',
@@ -188,6 +192,7 @@ function run({fresh32=false,diagnosticFreshIndex=null,auditPhysicalDeal=false,
     captureInitialFullPhysicalDeal:auditPhysicalDeal,
     captureOwnerK1FailureResourceAvailability:auditOwnerK1Sources,
     captureNativeSourceSecretBoxPaymentCustody:auditSecretBoxCustody,
+    preBoxNativeOwnerQuickBallK1Scout:preBoxScout,
     initialSourcePhysicalFingerprintRequired:auditPhysicalDeal,
     sourceManifestDigest:plan.manifestDigest,
     candidateDigest:plan.candidateDigest,
@@ -220,7 +225,8 @@ if(require.main===module)process.stdout.write(JSON.stringify(run({
   diagnosticFreshIndex:process.env.AGENT44_RANK8_CANONICAL_DEBUG_383==='true'?383:null,
   auditPhysicalDeal:process.env.AGENT44_RANK8_CANONICAL_PHYSICAL_AUDIT==='true',
   auditOwnerK1Sources:process.env.AGENT44_RANK8_CANONICAL_K1_AUDIT==='true',
-  auditSecretBoxCustody:process.env.AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT==='true'
+  auditSecretBoxCustody:process.env.AGENT44_RANK8_CANONICAL_BOX_PAYMENT_AUDIT==='true',
+  preBoxScout:process.env.AGENT44_RANK8_CANONICAL_PREBOX_SCOUT==='true'
 }),null,2)+'\n');
 module.exports={SEED,FRESH_START,FRESH_COUNT,FRESH32_START,FRESH32_COUNT,
   FRESH32_REGISTERED_SHA256,MAX_ACTIONS,run};
