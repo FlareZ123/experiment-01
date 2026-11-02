@@ -34,7 +34,7 @@ test('precommitted original rank8 64 exact physical seeds and both real seats ar
   assert.equal(rows.filter(r=>r.sourceSeat===1).length,32);
   for(const row of rows){
     assert.ok(Number.isSafeInteger(row.seed)&&row.seed>=0&&row.seed<=0xFFFFFFFF);
-    assert.ok(/^rank8-original-box-k0:\\d+$/.test(row.trial));
+    assert.ok(/^rank8-original-box-k0:\d+$/.test(row.trial));
   }
 });
 
