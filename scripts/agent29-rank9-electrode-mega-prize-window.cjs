@@ -71,7 +71,7 @@ function prizeWindow(roleCounts = ROLES) {
       choose(60, 6) * sevenWays),
     prerequisiteAvailabilityGivenLegalFirstSeven:
       fraction(resourceValidWeight, basicValidWeight),
-    prerequisiteAvailabilityUnconditionalFirstSeven:
+    prerequisiteAndLegalOpeningJointProbability:
       fraction(resourceValidWeight, choose(60, 6) * sevenWays),
     requiresFiveEnergyActuallyInDiscard: true,
     countsPrizeRecovery: false,
