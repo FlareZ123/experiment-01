@@ -21,6 +21,15 @@ function setsByDisplayCode() {
     const values = out.get(code) || [];
     values.push(set.id);
     out.set(code, values);
+    // Tournament transcription drops Black Star Promo number prefixes.
+    // The supplied catalog stores PR-SM/SM217 and PR-XY/XY49 instead.
+    const alias = set.ptcgoCode==='PR-SM'?'SMP':
+      (set.ptcgoCode==='PR-XY'?'XYP':null);
+    if (alias) {
+      const ids = out.get(alias) || [];
+      ids.push(set.id);
+      out.set(alias, ids);
+    }
   }
   return out;
 }
@@ -40,6 +49,9 @@ function normalizedDisplayName(value) {
  */
 function resolvePrinting(source, setIndex, cache) {
   const ids = setIndex.get(source.printing.set) || [];
+  const possibleNumbers = new Set([String(source.printing.number)]);
+  if (source.printing.set==='SMP') possibleNumbers.add('SM'+source.printing.number);
+  if (source.printing.set==='XYP') possibleNumbers.add('XY'+source.printing.number);
   const matches = [];
   for (const id of ids) {
     if (!cache.has(id)) {
@@ -47,13 +59,16 @@ function resolvePrinting(source, setIndex, cache) {
       cache.set(id, fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename,'utf8')) : []);
     }
     for (const card of cache.get(id)) {
-      if (String(card.number) === String(source.printing.number)) {
+      if (possibleNumbers.has(String(card.number))) {
         matches.push(card);
       }
     }
   }
   const exact = matches.filter(c => c.name === source.name);
-  if (exact.length === 1) return {card:exact[0],status:'exact',matchedIds:[exact[0].id]};
+  if (exact.length === 1) return {card:exact[0],
+    status:String(exact[0].number)===String(source.printing.number)?
+      'exact':'promo-number-normalized',
+    matchedIds:[exact[0].id]};
   const normalized = matches.filter(c =>
     normalizedDisplayName(c.name) === normalizedDisplayName(source.name));
   if (normalized.length === 1)
