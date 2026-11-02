@@ -12,11 +12,16 @@ on:
         required: false
         type: boolean
         default: false
+      astral_native_source_probe:
+        description: Run preregistered original rank1 versus rank6 two-seat native Astral paper contrast
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   policy-smoke:
-    if: ${{ inputs.policy_smoke_only && !inputs.native_energy_probe }}
+    if: ${{ inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -36,7 +41,7 @@ jobs:
       - name: Run source K0 opening and rejected-action safety regressions
         run: node --test tests/rank6-broad-thorns-policy.test.cjs tests/new-moon-compressor-payload-policy.test.cjs
   native-attachment-probe:
-    if: ${{ inputs.native_energy_probe }}
+    if: ${{ inputs.native_energy_probe && !inputs.astral_native_source_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -94,7 +99,7 @@ jobs:
             rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
-    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -187,4 +192,38 @@ jobs:
         with:
           name: rank6-backup-bench-source-fork
           path: rank6-backup-bench-source-fork.json
+          if-no-files-found: warn
+  astral-original-source-contrast:
+    if: ${{ inputs.astral_native_source_probe }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Preflight original-sixty frozen source, policy and preregistration
+        run: |
+          node --check simulation/evaluation/agent4-astral-rank1-rank6-natural-contrast.cjs
+          node -e "require('./simulation/evaluation/agent4-astral-rank1-rank6-natural-contrast.cjs').preflight()"
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce frozen rank1 CRE74 authentic two-seat target correction
+        run: node --test tests/agent4-astral-barrage-native.test.cjs
+      - name: Evaluate 16 precommitted original-source native arms, preserving all outcomes
+        run: node simulation/evaluation/agent4-astral-rank1-rank6-natural-contrast.cjs > agent4-astral-original-source-native.json
+      - name: Archive exact sixteen-arm native paper contrast
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-rank1-rank6-astral-native-16arm
+          path: agent4-astral-original-source-native.json
           if-no-files-found: warn
