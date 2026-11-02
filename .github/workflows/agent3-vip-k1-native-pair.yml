@@ -2,6 +2,12 @@ name: Agent3 original rank11 VIP owner-K1 native comparison
 
 on:
   workflow_dispatch:
+    inputs:
+      rank26_natural_pre_koko:
+        description: 'Optional 24 original-deal owner-only pre-Koko Cologne matched cohort'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -48,5 +54,17 @@ jobs:
         with:
           name: agent3-rank26-full-crisis-native
           path: agent3-rank26-full-crisis-native.json
+          if-no-files-found: warn
+          retention-days: 15
+
+      - name: Compare frozen and opt-in owner-only rank26 Cologne on 24 natural deals
+        if: inputs.rank26_natural_pre_koko
+        run: node simulation/twinleaf/rank26-natural-pre-koko-cologne-cohort.cjs > agent3-rank26-natural-pre-koko-cohort.json
+      - name: Preserve all natural first-turn attempts, native errors and exact original source fingerprints
+        if: always() && inputs.rank26_natural_pre_koko
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-natural-pre-koko-original-source
+          path: agent3-rank26-natural-pre-koko-cohort.json
           if-no-files-found: warn
           retention-days: 15
