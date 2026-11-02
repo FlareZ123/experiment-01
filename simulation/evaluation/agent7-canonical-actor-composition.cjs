@@ -229,7 +229,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       });
     ownerVipBeforeAttackAudit=selected.audit;
     return selected.result;
-  });
+  },options.mewDceRetreat===true?{mewDceRetreat:true}:undefined);
   const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
   const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
