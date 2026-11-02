@@ -40,7 +40,7 @@ function withStrandedFusionMewPassRetreat(execute,deps={}) {
     require('./actor-observation-contract.cjs').actorObservation;
   const selector = deps.choose ?? chooseStrandedFusionMewRetreat;
   const catalog = deps.catalog ?? {
-    colorlessEnergyType: types.EnergyType.COLORLESS,
+    colorlessEnergyType: types.CardType.COLORLESS,
     specialConditions: types.SpecialCondition
   };
   const original = Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
