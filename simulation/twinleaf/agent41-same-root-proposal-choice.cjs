@@ -116,8 +116,8 @@ const PROPOSERS=Object.freeze([
   // Observation-only final-Bench alternatives, including when the ordinary
   // first-return root is Pass or an unrelated action. Never dispatch these
   // speculative physical Basics without an independent native legality check.
-  {...require('./agent27-owner-lastbench-basic-conflict.cjs')
-    .lastBenchShadowProposer(),flag:'sameRootProbeAll'},
+  require('./agent27-owner-lastbench-basic-conflict.cjs')
+    .lastBenchShadowProposer(),
   {name:'preterminal-speed-draw',flag:'preterminalSpeedDrawOffer',
     propose:(view,catalog,_options,baseline)=>{
       const evidence=require('./agent50-preterminal-speed-draw-offer.cjs')
