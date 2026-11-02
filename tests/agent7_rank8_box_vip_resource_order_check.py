@@ -48,10 +48,12 @@ def verify(path):
             strategy, "failed symmetric upfront-payment witness"
         )
         assert row["prior_boxfirst_planner_reservation_artifact"] == vip_only
-        assert (
-            row["commuted_boxfirst_discarded_held_trubbish"] +
-            row["commuted_boxfirst_discarded_basic_searcher"]
-        ) <= vip_k1
+        for name in (
+            "commuted_boxfirst_discarded_held_trubbish",
+            "commuted_boxfirst_discarded_basic_searcher",
+            "commuted_boxfirst_discards_spare_vip",
+        ):
+            assert 0 <= row[name] <= vip_k1, (strategy, name, row[name])
     return {"status": "EXACT_RANK8_BOX_VIP_ACCOUNTING_PASSED",
             "source": "fixed seed 44110207; 200000 attempts",
             "qualifiedGames": 0}
