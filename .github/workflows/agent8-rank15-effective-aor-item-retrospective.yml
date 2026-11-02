@@ -72,6 +72,9 @@ jobs:
       - name: Verify exact Regidrago donor and held VSTAR opening DP
         if: ${{ inputs.source13_paper_evolution_factorial }}
         run: node --test tests/agent8-rank13-vstar-opening-dp.test.cjs
+      - name: Verify bounded physical multi-Energy mandatory assignment policy
+        if: ${{ inputs.source13_paper_evolution_factorial }}
+        run: node --test tests/agent47-minimum-attach-energy-hook.test.cjs
       - name: Retrospective original-rank13 four-arm donor by corrected paper Celestial Roar
         if: ${{ inputs.source13_paper_evolution_factorial }}
         env:
