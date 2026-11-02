@@ -73,6 +73,11 @@ def measure(trials=200_000, seed=44_110_207):
                 continue
             counts["box_k0_with_held_vip"] += 1
             counts["box_k1_with_held_vip"] += int(box_k1)
+            # Baseline source setup mode determines whether one VIP Basic
+            # actually creates an extra Bench Pokemon beyond Box-first.
+            mode = ("already-in-play" if in_play["Trubbish"] else
+                    "held-basic" if "Trubbish" in hand else "held-searcher")
+            counts["held_vip_k0_mode_" + mode] += 1
             # At the referenced native planner revision, VIP is the first
             # unreserved physical payment by DISCARD_ORDER index 0.
             # The planner reserves Box/Trubbish/Tool/searcher, never VIP.
@@ -94,6 +99,13 @@ def measure(trials=200_000, seed=44_110_207):
                 counts["vip_first_then_box_k0"] += 1
             if next_k1:
                 counts["vip_first_then_box_k1"] += 1
+                # VIP may merely replace the Trubbish normally fetched or
+                # benched by Box-first, without adding another Basic to play.
+                extra = mode == "already-in-play" or vip_target != "Trubbish"
+                if extra:
+                    counts["vip_first_k1_extra_basic"] += 1
+                else:
+                    counts["vip_first_k1_trubbish_substitution"] += 1
             if box_k1 and next_k1:
                 counts["both_box_k1_and_vip_first_box_k1"] += 1
 
@@ -109,6 +121,11 @@ def measure(trials=200_000, seed=44_110_207):
                 "planner_discards_vip", "vip_root_basic_available",
                 "vip_first_then_box_k0", "vip_first_then_box_k1",
                 "both_box_k1_and_vip_first_box_k1",
+                "held_vip_k0_mode_already-in-play",
+                "held_vip_k0_mode_held-basic",
+                "held_vip_k0_mode_held-searcher",
+                "vip_first_k1_extra_basic",
+                "vip_first_k1_trubbish_substitution",
             ]},
             "box_k0_fraction_of_valid_openers": b / n,
             "vip_overlap_fraction_of_box_k0": v / b,
@@ -117,7 +134,7 @@ def measure(trials=200_000, seed=44_110_207):
             ),
         }
     return {
-        "schema": "agent7-rank8-box-vip-firstturn-alternative-v1",
+        "schema": "agent7-rank8-box-vip-firstturn-alternative-v2-extrabench",
         "source_original_rank": 8,
         "source_printed_60_sha256": model.SOURCE_SHA256,
         "source_handmodel_git_blob": MODEL_BLOB_SHA,
