@@ -261,3 +261,47 @@ test('opt-in nominal Guzma gust chooses second physical opponent Bench KO candid
   assert.equal(observed.audit.opponentTargetDelegations,0);
   assert.equal(observed.audit.nominalGustOptIn,true);
 });
+
+test('Mew cooldown reset both-seat Guzma executes both exact physical prompts',()=>{
+  const oldBot=SimpleTacticsAi.prototype.decodeNextAction;
+  const oldDispatch=Store.prototype.dispatch;
+  const observed=withGuzmaOwnerPromptContinuation(()=>{
+    const rows=[];
+    for(const seat of [0,1]){
+      const state=scenario(seat);
+      const owner=state.players[seat],opponent=state.players[1-seat];
+      opponent.bench[1]=slot('Selected New Target',500+seat);
+      const store=new Store(state);
+      store.dispatch(new AddPlayerAction());
+      const bot=new SimpleTacticsAi(owner.id);
+      store.dispatch(bot.decodeNextAction(state));
+      assert.equal(state.prompts[0].playerType,1);
+      store.dispatch(bot.decodeNextAction(state));
+      assert.equal(opponent.active.getPokemonCard().fullName,
+        'Selected New Target');
+      assert.equal(state.prompts[0].playerType,2);
+      store.dispatch(bot.decodeNextAction(state));
+      rows.push({
+        own:owner.active.getPokemonCard().fullName,
+        opponent:opponent.active.getPokemonCard().fullName
+      });
+    }
+    return rows;
+  },{...deps,choosePlan:()=>({
+    kind:'play-guzma-mew-cooldown-reset',handIndex:0,benchIndex:1,
+    opponentBenchIndex:1,planFamily:'mew-techno-reset'
+  })});
+  assert.deepEqual(observed.result,[
+    {own:'Funded Attacker',opponent:'Selected New Target'},
+    {own:'Funded Attacker',opponent:'Selected New Target'}
+  ]);
+  assert.equal(observed.audit.matchedMewTechnoResetPlans,2);
+  assert.equal(observed.audit.matchedMobilityPlans,2);
+  assert.equal(observed.audit.ownTargetProposals,2);
+  assert.equal(observed.audit.ownTargetPhysicalConfirmations,2);
+  assert.equal(observed.audit.gustTargetProposals,2);
+  assert.equal(observed.audit.gustTargetPhysicalConfirmations,2);
+  assert.equal(observed.audit.opponentTargetDelegations,0);
+  assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,oldBot);
+  assert.strictEqual(Store.prototype.dispatch,oldDispatch);
+});
