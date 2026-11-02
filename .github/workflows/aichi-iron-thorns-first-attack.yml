@@ -108,6 +108,8 @@ jobs:
         run: node --test tests/agent4-secret-box-payment-native.test.cjs
       - name: Check common v11 Secret Box physical-root paper guard both seats
         run: node --test tests/agent4-shared-secretbox-v11-paper.test.cjs
+      - name: Reproduce common v11 original source-stamped Secret Box payment and root in pinned Store both seats
+        run: node --test tests/agent4-shared-secretbox-v11-native.test.cjs
       - name: Diagnose original rank26 Dowsing Machine two-card mandatory cost in both native seats
         run: node --test tests/agent30-dowsing-machine-payment-native.test.cjs
       - name: Prospectively test rank6 Guzma and Hala option one-card underpayment native effect in both seats
