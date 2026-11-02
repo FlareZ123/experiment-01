@@ -22,7 +22,7 @@ class NativeScoredBot {
 }
 
 function runFixture({replayPolicy=(_seat,work)=>({result:work()}),
-  entryOnly=false}={}) {
+  entryOnly=false,fairReplayHooks=false,installFairBotHooks=()=>()=>{}}={}) {
   const source={
     turn:3,activePlayer:0,prompts:[],beforeScoreMutation:0,
     players:[{id:101,hand:{cards:[]},deck:{cards:['hidden-A','hidden-B']}}]
@@ -50,8 +50,10 @@ function runFixture({replayPolicy=(_seat,work)=>({result:work()}),
     {turn:3,seat:0,firstFiniteScoredRoot:true,
       nativeTapeSameWorld:true,nativeTapeFirstFiniteScore:true,
       nativeTapeEntryOnly:entryOnly,
+      nativeTapeFairReplayHooks:fairReplayHooks,
       makeRandom:()=>()=>0.5},
-    {headless,replayPolicy,compare:()=>{throw Error('No hidden contrast');}}
+    {headless,replayPolicy,installFairBotHooks,
+      compare:()=>{throw Error('No hidden contrast');}}
   );
   assert.equal(authenticCalls,1);
   assert.equal(complete,true);
