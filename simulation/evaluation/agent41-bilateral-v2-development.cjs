@@ -992,6 +992,7 @@ function runDevelopment({
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
+  sourceCrobatDceMewRetreat=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
   actorVipMegaAbsolTarget=false,
@@ -1237,6 +1238,7 @@ function runDevelopment({
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
+          !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
@@ -1267,6 +1269,11 @@ function runDevelopment({
               }:{}),
               ...(actorDceMewMobilityRoot?{
                 dceMewMobilityRoot:true
+              }:{}),
+              ...(sourceCrobatDceMewRetreat?{
+                crobatDceMewRetreat:true,
+                crobatDceMewRetreatOwnerSeat:
+                  1-(trial.candidateSlot==='A'?0:1)
               }:{}),
               ...(actorGenesectFusionDrawRoot?{
                 genesectFusionDraw:true
