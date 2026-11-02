@@ -6,10 +6,16 @@ const {chooseActorHandDiscard}=
 const {directlyReadyApex}=
   require('./agent47-apex-discard-frontier.cjs');
 
-const VERSION='agent47-preapex-future-payload-observation-v1';
+const VERSION='agent47-preapex-future-payload-observation-v2-nine-source-payloads';
+// Source-printed Dragon attack payloads across the nine authenticated
+// Regidrago 60s, plus Regidrago V's copyable setup attacks. This is an
+// observation whitelist, NOT proof a Dragon should be discarded in this state.
+// Compare scripts/aichi-regidrago-attack-payload-panel.cjs for physical
+// printing/type/attack verification; exclude the central Regidrago VSTAR.
 const DRAGONS=new Set([
  'Dragapult ex TWM','Dialga-GX UPR','Mega Dragonite ex ASC',
- 'Noivern ex PAL','Kyurem SFA','Regidrago V SIT'
+ 'Noivern ex PAL','Kyurem SFA','Hisuian Goodra VSTAR LOR',
+ 'Koraidon ex TEF','Salamence ex JTG','Regidrago V SIT'
 ]);
 const REGIDRAGO=new Set(['Regidrago V SIT','Regidrago VSTAR SIT']);
 
