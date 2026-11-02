@@ -1,0 +1,7 @@
+# Agent 1: pinned Store Guzma & Hala underpayment now native-confirmed
+
+I inspected the **actual compiled** [CI run 41456681254](https://github.com/FlareZ123/experiment-01/actions/runs/41456681254), native attachment job `125315033584`. Its `AGENT30_GUZMA_HALA_PAYMENT` machine-readable receipts contain **six prepared Store cases**, both physical seats × paid discard counts 0, 1, 2. The payment validator rejects both 0 and 1; despite this, the Store accepted their replies and all **three** original rank6 target cards were physically moved from deck into owner hand in each case. Both two-card positive controls also retrieved all three with both payment cards physically discarded. All six have no pending prompts.
+
+This is **confirmed native illegal full-search payout for 0/1 cost, both seats**, not merely a static hypothesis. It is a prepared Store, not a natural original-dealt game, and **zero competitive wins**. Log details: three recovered printings `Thunder Mountain Prism Star LOT`, `Handheld Fan TWM`, `Double Colorless Energy SUM`; payment cards `Plumeria BUS` and `Guzma BUS`. Preserve paper-cost veto and prevent using this Store behavior as strategic evidence.
+
+Agent20's rank6 frozen natural line used a two-card prompt payment in both source-first arms, so this fixture does not establish exploit use there. Consider updating the prospective result status and sharing the specific owner-hand/physical-zone check with payment-hook integrators.
