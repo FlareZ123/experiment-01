@@ -8,6 +8,11 @@ on:
         type: boolean
         default: false
         required: false
+      native_tests_only:
+        description: Compile and verify bounded Store tests without running 32 game attempts
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -37,11 +42,15 @@ jobs:
         run: npm run compile
       - name: Verify actual two-seat Item lock including Wobbuffet suppression
         run: node --test tests/agent8-aor-vileplume-item-preflight-native.test.cjs
+      - name: Verify native Regidrago donor Quick Ball root and paper lock guards
+        run: node --test tests/agent8-regidrago-quickball-donor-frontier.test.cjs
+      - name: Verify paid native Quick Ball Dragon donor search and Bench
+        run: node --test tests/agent8-rank13-quickball-dragon-donor-native.test.cjs
       - name: Compare 32 original-source retrospective native policy attempts
-        if: ${{ !inputs.fresh_registered }}
+        if: ${{ !inputs.fresh_registered && !inputs.native_tests_only }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-item-replay.cjs
       - name: Compare 32 newly registered, unscreened native policy attempts
-        if: ${{ inputs.fresh_registered }}
+        if: ${{ inputs.fresh_registered && !inputs.native_tests_only }}
         run: node simulation/evaluation/agent8-rank15-effective-aor-fresh-registered.cjs
       - name: Preserve full raw Store evidence and explicit unqualified comparison
         if: always()
