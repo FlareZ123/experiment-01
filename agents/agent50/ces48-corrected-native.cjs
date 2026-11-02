@@ -54,3 +54,5 @@ function attack(x,count){
  x.store.dispatch(new AttackAction(x.owner.id,'Crash and Burn-GX'));
  let saw=false;
  for(let step=0;step<25;step++){
+  const p=x.state.prompts.find(row=>row.result===undefined);
+  if(!p)break;
