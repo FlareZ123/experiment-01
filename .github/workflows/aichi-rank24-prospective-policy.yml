@@ -37,11 +37,16 @@ on:
         required: false
         type: boolean
         default: false
+      agent34_rank9_klefki_paid_retreat:
+        description: Same original rank9 Mewtwo one-energy funding plus native Klefki Retreat
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   source-rank24:
-    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork }}
+    if: ${{ !inputs.agent9_fog_prompt_only && !inputs.agent9_paid_search_only && !inputs.agent34_rank9_lastbench_ownlocation && !inputs.agent34_rank9_mewtwo_search_fork && !inputs.agent34_rank9_mewtwo_energy_fork && !inputs.agent34_rank9_klefki_paid_retreat }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -181,7 +186,7 @@ jobs:
           retention-days: 14
 
   agent34-rank9-lastbench-ownlocation:
-    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork }}
+    if: ${{ inputs.agent34_rank9_lastbench_ownlocation || inputs.agent34_rank9_mewtwo_search_fork || inputs.agent34_rank9_mewtwo_energy_fork || inputs.agent34_rank9_klefki_paid_retreat }}
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -294,5 +299,39 @@ jobs:
         with:
           name: agent34-original-rank9-mewtwo-energy-native
           path: agent34-rank9-mewtwo-energy-native.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Regress original action to native paid Retreat transition
+        if: ${{ inputs.agent34_rank9_klefki_paid_retreat }}
+        run: >-
+          node --test
+          tests/agent34-rank9-mewtwo-energy-native-target-fork.test.cjs
+          tests/agent34-rank9-klefki-paid-retreat-to-core-native.test.cjs
+      - name: Run original same-physical-deal rank9 paid Retreat followthrough
+        if: ${{ inputs.agent34_rank9_klefki_paid_retreat }}
+        run: node simulation/evaluation/agent34-rank9-klefki-paid-retreat-to-core-native.cjs > agent34-rank9-paid-retreat-native.json
+      - name: Print actual native retreat and Mewtwo attack transition
+        if: ${{ always() && inputs.agent34_rank9_klefki_paid_retreat }}
+        run: >-
+          node -e "const fs=require('node:fs');
+          if(fs.existsSync('agent34-rank9-paid-retreat-native.json')){
+          const r=require('./agent34-rank9-paid-retreat-native.json');
+          console.log('AGENT34_M2W_RETREAT',JSON.stringify({
+          sameDeal:r.allSameOriginalFullDeals,
+          trials:r.trials,
+          retreat:r.nativeRetreat.retreat,
+          energyControl:r.control.energy,
+          energyTreatment:r.nativeRetreat.energy,
+          controlAttack:r.control.candidate?.candidateAttackProfile,
+          treatmentAttack:r.nativeRetreat.candidate?.candidateAttackProfile,
+          heldMobility:r.nativeRetreat.observer.mobilityWindows,
+          qualification:r.competitiveQualifiedGames}));}"
+      - name: Archive original native funded Mewtwo Retreat outcome
+        if: ${{ always() && inputs.agent34_rank9_klefki_paid_retreat }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-original-rank9-paid-retreat-core
+          path: agent34-rank9-paid-retreat-native.json
           if-no-files-found: warn
           retention-days: 14
