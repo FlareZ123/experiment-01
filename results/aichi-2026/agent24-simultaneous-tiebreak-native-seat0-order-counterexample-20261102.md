@@ -37,3 +37,16 @@ This result is specifically a **simultaneous pending-KO-Prize adjudication** def
 A future optional, research-owned paper correction should evaluate **both pending Prize groups in one resolution batch** before declaring a tiebreaker winner. It must preserve differing Prize destinations, owner choice of Prize card, knockout side effects, simultaneous no-Pokémon conditions, active promotion, and the normal non-tiebreaker path. Verify opposite claimed leaders, equality, swapped seat order, and a genuine selected naturally achieved legal attack board. Keep the option default off until full pinned tests and shared runner integration pass. Do not rewrite historical native winners or treat staged outcomes as genuine games.
 
 **Field release: 29/32 original source 60s authenticated; ranks 23, 25, 28 missing; zero competitively qualified games; no selected final fixed 60; 99.5% not demonstrated.**
+
+
+## Read-only live comparator and 3+2 native regression, 22:43 UTC
+
+After documenting the v2 isolated outcome, the team added an explicitly conservative native-to-pending Prize comparator at [`simulation/evaluation/agent24-pending-replay-prize-disposition.cjs`](../../simulation/evaluation/agent24-pending-replay-prize-disposition.cjs). It requires an authenticated simultaneous KO projection, an actual `finished:true` with `endReason:"engine-game-end"`, and a concrete winning physical seat. It never certifies a paper result or excludes other win conditions.
+
+- [Manual pure workflow 41539111445](https://github.com/FlareZ123/experiment-01/actions/runs/41539111445) **overall success**; eight pure pending-Prize regressions including the four new adversarial cases succeeded.
+- [Pinned compiled manual workflow 41539300794](https://github.com/FlareZ123/experiment-01/actions/runs/41539300794) **Agent24 native job success**, with both named double-KO native fixture steps success. [Raw artifact 13186455318](https://github.com/FlareZ123/experiment-01/actions/runs/41539300794/artifacts/13186455318), ZIP SHA-256 `b6b8b9c68a3b78512aa78d25710f236bb740bb589db318888e028e7b64ce7542`.
+- From that **actual native archive**, `agent24-replay-double-ko.json` contains the ordered statuses `NATIVE_WINNER_MATCHES_PENDING_PRIZE_LEAD` for [3,2] claimant Prizes, `NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD` for [2,2], and `NATIVE_WINNER_OPPOSES_PENDING_PRIZE_LEAD` for [2,3]. The source counterexample remains **opposing leader seat1 versus native winner seat0**.
+- `agent24-spiky-double-ko.json` contains two `NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD` outcomes from genuine printed `Volt Cyclone` and `Spiky Energy` reducer sequences under staged board setup, both native winner seat0.
+- All five native comparator receipts explicitly return `paperGameOutcomeQualified:false` and `competingWinConditionsExcluded:false`. The comparator is observational and changes neither native action nor winner.
+
+**Provenance distinction:** the first successful raw v2 native execution is `41538296976`, while `41539300794` is an independently compiled follow-up after adding the comparator. Reusing the same source seed and setup does not qualify these as independent competitive games.
