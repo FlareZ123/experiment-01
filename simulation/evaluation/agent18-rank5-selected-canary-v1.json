@@ -51,6 +51,16 @@
   "injectedEnv": {
     "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": "true"
   },
-  "verifiedClosureSha256": null,
-  "competitiveQualified": false
+  "verifiedClosureSha256": "715dc7be6eae80797f06ea994c64faadfa3278de253b4fb833307655f195c4dd",
+  "competitiveQualified": false,
+  "expectedStaticClosureFiles": 302,
+  "staticClosureLimitations": "Static literal require closure only; computed/dynamic imports and hidden information remain unqualified",
+  "expectedSourceDeckFingerprint": "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193",
+  "expectedCandidateDeckFingerprints": {
+    "champion-reference": "de8b454ce520b9f6b8db9395c5bea4e8c09cd3958b8e78159f704ba5aec71311",
+    "new-moon-lockbreaker-v1": "99969539010abfa11c4e671a5744ed4d97f23cf2f7f275399ac35f5bc1013c0f"
+  },
+  "initialDevelopmentRunId": 41462432631,
+  "initialDevelopmentArtifactId": 13150361204,
+  "preliminaryNativeStatus": "4/4 attempted, 0/4 source attacks, 0/4 source trainer roots, 3 action caps, 1 unqualified native terminal"
 }
