@@ -48,7 +48,8 @@ function evaluate(source) {
   const camping = count('Camping Gear');
   const beach = count('Tropical Beach');
   const dce = count('Double Colorless Energy');
-  assert.deepEqual([total, basics, camping, beach, dce], [60, 4, 2, 2, 1],
+  const thunder = count('Thunder Mountain ♢');
+  assert.deepEqual([total, basics, camping, beach, dce, thunder], [60, 4, 2, 2, 1, 1],
     'Exact rank-29 original-card source identity changed');
 
   // Seven opening cards, one Basic set Active, place one held Beach.
@@ -60,6 +61,14 @@ function evaluate(source) {
   const joint = completeGroups(total, opener, [basics, camping, beach]);
   const noDce = completeGroups(total - dce, opener,
     [basics, camping, beach]);
+  const noThunder = completeGroups(total - thunder, opener,
+    [basics, camping, beach]);
+  const noEither = completeGroups(total - dce - thunder, opener,
+    [basics, camping, beach]);
+  const initiallyBoth = joint - noDce - noThunder + noEither;
+  const initiallyOne = noDce + noThunder - 2n * noEither;
+  const initiallyNeither = noEither;
+  assert.equal(initiallyBoth + initiallyOne + initiallyNeither, joint);
   const heldDce = joint - noDce;
   const asNumber = (num, den) => Number(num) / Number(den);
   // Given DCE absent from the opening seven, the remaining single DCE is
@@ -70,10 +79,19 @@ function evaluate(source) {
   const beachPossession = heldDce * BigInt(afterHand) +
     noDce * BigInt(beachDraws);
   const denominator = joint * BigInt(afterHand);
+  // By the next ordinary draw, one missing singleton is found by Gear in
+  // 47/53 cases; two missing singletons require that one is searched and
+  // the other is the T2 card: 47/(53*52). Beach draws two on T1 and one
+  // on T2: probabilities 3/53 (one missing) or 6/(53*52) (two missing).
+  const pairDen = joint * 53n * 52n;
+  const gearPair = initiallyBoth * 53n * 52n +
+    initiallyOne * 47n * 52n + initiallyNeither * 47n;
+  const beachPair = initiallyBoth * 53n * 52n +
+    initiallyOne * 3n * 52n + initiallyNeither * 6n;
   return {
     version: VERSION, rank: 29, sourceOriginal60: true,
     basicCopies: basics, campingCopies: camping,
-    beachCopies: beach, dceCopies: dce,
+    beachCopies: beach, dceCopies: dce, thunderCopies: thunder,
     opener, prizes, beachDraws, deckAfterPrizes,
     legalOpeningProbability: asNumber(legal, choose(total, opener)),
     bothHeldGivenLegalOpening: asNumber(joint, legal),
@@ -81,9 +99,15 @@ function evaluate(source) {
     campingDceByTurnEndGivenBoth: asNumber(gearPossession, denominator),
     beachDceByTurnEndGivenBoth: asNumber(beachPossession, denominator),
     campingMinusBeachAccessGap: asNumber(gearPossession - beachPossession, denominator),
+    initiallyBothAttackPiecesGivenBothTerminal: asNumber(initiallyBoth, joint),
+    initiallyOneAttackPieceGivenBothTerminal: asNumber(initiallyOne, joint),
+    initiallyNeitherAttackPieceGivenBothTerminal: asNumber(initiallyNeither, joint),
+    bothAttackPiecesByT2Gear: asNumber(gearPair, pairDen),
+    bothAttackPiecesByT2Beach: asNumber(beachPair, pairDen),
+    gearMinusBeachAttackPairGap: asNumber(gearPair - beachPair, pairDen),
     dceInDeckGivenAbsentFromSeven: deckAfterPrizes / afterHand,
     dceInBeachDrawGivenAbsentFromSeven: beachDraws / afterHand,
-    scope: 'No other plays, native actions permitted, DCE access only; no opponent interaction, future Stadium value, search/draw abilities, turn-clock or win rates',
+    scope: 'No other plays, native actions permitted, DCE and DCE+Thunder access only; no opponent interaction, future Stadium value, search/draw abilities, turn-clock or win rates',
     competitiveQualifiedGames: 0
   };
 }
