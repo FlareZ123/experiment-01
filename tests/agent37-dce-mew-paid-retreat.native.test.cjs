@@ -139,4 +139,23 @@ for(const seat of [0,1]){
   });
 }
 
+for(const seat of [0,1]){
+  test('native Benched Genesect Fusion Strike System draws with low owner hand, seat '+seat,()=>{
+    const {store,state,owner}=stage(seat);
+    const {UseAbilityAction}=engine('game/store/actions/game-actions');
+    const {PlayerType,SlotType}=
+      engine('game/store/actions/play-card-action');
+    assert.equal(owner.hand.cards.length,0);
+    assert.equal(owner.deck.cards.length,14);
+    assert.equal(owner.bench[1].getPokemonCard().fullName,'Genesect V FST');
+    store.dispatch(new UseAbilityAction(owner.id,'Fusion Strike System',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1
+    }));
+    assert.equal(owner.hand.cards.length,3,
+      'Native visible three Fusion Strike Pokémon must set target hand size 3');
+    assert.equal(owner.deck.cards.length,11);
+    assert.equal(state.players[seat],owner);
+  });
+}
+
 module.exports={stage};
