@@ -58,6 +58,7 @@ function withOwnerSearchAlternative(execute,config){
       storeRunIndex:live.run,originalDispatchOrdinal:ordinal,
       globalTurn:state.turn,ownerSeat:seat,
       pendingPromptId:prompt.id,pendingPromptClass:prompt.constructor.name,
+      pendingPromptMessage:prompt.message,
       selectedByUnmodifiedBot:chosen,
       physicallyDispatched:allowed?[CORE]:chosen,
       alternativeNativeValidated:allowed,
@@ -80,6 +81,10 @@ function withOwnerSearchAlternative(execute,config){
       event.ownerAfterNativePrompt=after;
       event.confirmedDeckToHand=after.deck===before.deck-1&&
         after.hand===before.hand+1&&after.total===before.total;
+      event.confirmedDeckToBench=after.deck===before.deck-1&&
+        after.bench===before.bench+1&&after.total===before.total;
+      event.confirmedDeckToOwnerZone=event.confirmedDeckToHand||
+        event.confirmedDeckToBench;
       events.push(event);
       return result;
     }catch(error){
@@ -98,7 +103,7 @@ function withOwnerSearchAlternative(execute,config){
       genuineRootStores:rootStores,events,
       opportunityCount:events.length,
       nativeReplacementCount:events.filter(e=>e.nativeApplied).length,
-      legalPhysicalTransfers:events.filter(e=>e.confirmedDeckToHand).length,
+      legalPhysicalTransfers:events.filter(e=>e.confirmedDeckToOwnerZone).length,
       competitiveQualifiedGames:0,
       cannotInterpretAsAutonomousPolicy:true
     }};
