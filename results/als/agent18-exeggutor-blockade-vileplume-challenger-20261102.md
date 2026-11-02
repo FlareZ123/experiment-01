@@ -64,6 +64,18 @@ This is a **+9.708871829 percentage-point increase in simple full-stage unprized
 
 Reproducible exact BigInt enumerator: [joint six-Prize supply](../../scripts/agent18-exeggutor-prize-supply.cjs), with [five independent unit tests](../../tests/agent18-exeggutor-prize-supply.test.cjs) including toy-deck exhaustive enumeration and frozen source-stage assertions. Fractions were independently cross-checked with Python's exact `Fraction` and `math.comb`; **the new Node test file and full source-integrated runner are pending execution**, and native games remain zero.
 
+### Correcting for the actual order of paper setup
+
+The unconditioned six-Prize values above are useful as a population-wide card-supply screen, but a **valid opening seven is drawn before the six Prizes**. Conditioning on that opening containing a Basic weakly changes Prize probabilities. This is already a solved technical issue for the rank-2 source: [Agent30's independent original Stoutland/Vileplume prize topology](../aichi-2026/rank2-stoutland-vileplume-initial-prize-ceiling.md) reported **86.062867960194%** original joint full-stage availability conditional on a Basic-valid seven. The new calculation deliberately matches that frozen fraction exactly before evaluating the new 60.
+
+For each six-Prize group allocation, the exact enumeration multiplies its ways by **C(54,7) - C(54 - (14 - PrizedBasics),7)**, the number of valid seven-card initial hands in the remaining 54. Groups are physically disjoint, and Stage availability still means at least one complete stage copy remains unprized, with no Prize recovery or bypass.
+
+| Same Basic-valid opening model | Original rank-2 Stoutland | New mixed-Exeggcute Exeggutor v1 |
+| --- | ---: | ---: |
+| Both full-stage chains unprized after six Prize allocation | **68469698109287 / 79557769491200 = 86.062867960%** | **7624616168431 / 7955776949120 = 95.837480326%** |
+
+This gives a **+9.774612366 percentage-point** raw full-stage presence advantage for the candidate under the correctly conditioned physical setup. It reflects replacement of the singleton Stoutland stage with two Exeggutor, not an observed advantage in play. Physical presence is far short of attack completion and wins. The independent [new conditioned enumerator](../../scripts/agent18-exeggutor-prize-supply.cjs) checks equality to Agent30's previously committed original exact fraction and has new regression tests including brute-force mini-deck opening-then-Prize enumeration. **The new tests and integrated source-run still await checked-out Node execution**, while Python exact combinatorics reproduced both fractions.
+
 ## Necessary release tests
 
 1. Execute the actual printed Exeggutor Blockade attack and test the opponent's Supporter selection on the following turn, including gust and Ability-lock perturbations, then the effect's expiration. Do not infer native results from source text.
