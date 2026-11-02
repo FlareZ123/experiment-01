@@ -128,7 +128,7 @@ function run(chosen=profile){
         chosen.expectedSourceDeckFingerprint &&
         row.candidateDeckFingerprint===
           chosen.expectedCandidateDeckFingerprints[row.trial?.candidateId]);
-    return {schema:chosen.schema,profile,sourceClosureDigest:prepared.closureDigest,
+    return {schema:chosen.schema,profile:chosen,sourceClosureDigest:prepared.closureDigest,
       closureFiles:prepared.closureFiles,nativePin:actualPin,
       actualResearchCommit:process.env.GITHUB_SHA??null,
       registered:expected,attempted:rows.length,statusCounts,armDispositions,
