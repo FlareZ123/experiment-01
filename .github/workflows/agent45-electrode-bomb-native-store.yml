@@ -24,4 +24,4 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Real native CE S48 Extra Energy Bomb target validation
-        run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs tests/agent45-electrode-bomb-native-store-forbidden-gx.test.cjs
+        run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs tests/agent45-electrode-bomb-native-store-forbidden-gx.test.cjs tests/agent29-rank9-electrode-modern-ex-native.test.cjs
