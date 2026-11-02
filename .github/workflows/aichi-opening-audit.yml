@@ -157,6 +157,10 @@ jobs:
         run: node --test tests/aichi-gladion-grandtree-opening.test.cjs
       - name: First turn Boost Shake direct Garbotoxin tests
         run: node --test tests/aichi-absol-boost-shake-direct.test.cjs
+      - name: Exact mutually exclusive Budew Item-lock and Boost Shake Garbotoxin opening window
+        run: |
+          node --test tests/aichi-absol-budew-shake-fork.test.cjs
+          node scripts/aichi-absol-budew-shake-fork.cjs
       - name: Source-specific Wally and Boost Shake direct route tests
         run: node --test tests/absol-garbotoxin-direct-lock.test.cjs
       - name: Muscle Band compatible Garbotoxin Tool test
