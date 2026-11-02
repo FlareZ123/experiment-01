@@ -58,4 +58,54 @@ function projectPendingReplayPrizes({
     reason:'Pending KO prizes in one batch; no actual transfer, card-effect, simultaneous-loss or event-clock qualification'
   };
 }
-module.exports={VERSION,projectPendingReplayPrizes};
+
+const NATIVE_COMPARISON_VERSION='agent24-native-pending-prize-winner-compare-v1';
+
+/**
+ * A read-only comparison of one native engine terminal against the pending
+ * Prize projection. A mismatch can reveal a risky adjudication shortcut, but
+ * this function cannot exclude other legal ways to win the game.
+ *
+ * @param {object} [args]
+ * @param {object} [args.projection] Output of projectPendingReplayPrizes.
+ * @param {boolean} [args.nativeFinished] Native terminal flag.
+ * @param {string} [args.nativeEndReason] Exact engine terminal reason.
+ * @param {0|1} [args.nativeWinnerSeat] Native winner physical seat.
+ * @returns {object} Prize-only compatibility, never paper qualification.
+ */
+function compareNativePendingPrizeWinner({
+  projection=null,
+  nativeFinished=false,
+  nativeEndReason=null,
+  nativeWinnerSeat=null
+}={}){
+  const base={
+    schema:NATIVE_COMPARISON_VERSION,
+    paperGameOutcomeQualified:false,
+    competingWinConditionsExcluded:false,
+    nativeWinnerSeat,
+    projectedPrizeLeaderSeat:null
+  };
+  if(!projection||projection.schema!==VERSION||
+     !['PENDING_KO_PRIZES_STRICT_LEAD',
+       'PENDING_KO_PRIZES_NO_STRICT_LEAD'].includes(projection.status))
+    return {...base,status:'PENDING_PRIZE_PROJECTION_UNVERIFIED'};
+  if(nativeFinished!==true||nativeEndReason!=='engine-game-end'||
+     (nativeWinnerSeat!==0&&nativeWinnerSeat!==1))
+    return {...base,status:'NATIVE_ENGINE_TERMINAL_UNVERIFIED'};
+  const leader=projection.projectedLeaderSeat;
+  const status=leader===null?
+    'NATIVE_WINNER_WITHOUT_PENDING_PRIZE_LEAD':
+    leader!==nativeWinnerSeat?
+      'NATIVE_WINNER_OPPOSES_PENDING_PRIZE_LEAD':
+      'NATIVE_WINNER_MATCHES_PENDING_PRIZE_LEAD';
+  return {
+    ...base,status,projectedPrizeLeaderSeat:leader,
+    prizeOnlyCompatible:leader===nativeWinnerSeat,
+    reason:'Compares pending KO Prize totals only; excludes neither other win conditions nor effects and never qualifies a paper result'
+  };
+}
+
+module.exports={VERSION,NATIVE_COMPARISON_VERSION,
+  projectPendingReplayPrizes,compareNativePendingPrizeWinner};
+
