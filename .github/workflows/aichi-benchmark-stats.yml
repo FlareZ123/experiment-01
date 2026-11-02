@@ -88,6 +88,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent39_rank16_power_reply:
+        description: 'Read-only native opponent Power witness; same frozen source seeds, retrospective replay'
+        required: false
+        type: boolean
+        default: false
       agent39_rank16_direct_shake_partition:
         description: 'Original rank16 direct Boost Shake selected-source panel, groups 0-3; none disables'
         required: false
@@ -847,10 +852,11 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify registered rank16 original source, seeds and native disposition logic
-        run: node --test tests/agent39-rank16-direct-source-shake.test.cjs
+        run: node --test tests/agent39-rank16-direct-source-shake.test.cjs tests/agent39-rank16-original-power-reply.test.cjs
       - name: Execute bounded preregistered original rank16 direct Shake source/control pairs
         env:
           AGENT39_RANK16_PARTITION: ${{ inputs.agent39_rank16_direct_shake_partition }}
+          AGENT39_RANK16_POWER_REPLY: ${{ inputs.agent39_rank16_power_reply && 'true' || 'false' }}
         run: node simulation/evaluation/agent39-rank16-direct-source-shake.cjs > agent39-rank16-direct-native.json
       - name: Print bounded complete native status and all failures
         run: >-
@@ -860,6 +866,10 @@ jobs:
           sourceOptions:v.nativeSelectedOpportunities,
           nativeComplete:v.nativeCompleted,
           matchedSourcePairs:v.sourcePhysicalPairs,
+          nativePowerObserver:v.powerReplyObserver,
+          observedOpponentRoots:v.rows.filter(x=>x.intervention.replyPowerAudit?.firstOpponentRootSeen).length,
+          nativePowerSuppressionReceipts:v.rows.filter(x=>x.intervention.replyPowerAudit
+            ?.opposingPowerSnapshot?.candidateBlockedPowerCount>0).length,
           competitiveQualified:v.competitivelyQualifiedGames}));"
       - name: Preserve human-readable selected source openings and next opponent roots
         run: >-
@@ -877,6 +887,8 @@ jobs:
           treatedFirst:r.intervention.game?.firstSourceRootActions,
           candidateReply:r.completeLineNextCandidateTurnRoots,
           sourceParity:r.exactlySameSourcePhysicalDeal,
+          nativeBaselinePower:r.baseline.replyPowerAudit?.opposingPowerSnapshot,
+          nativeTreatmentPower:r.intervention.replyPowerAudit?.opposingPowerSnapshot,
           gameQualified:r.competitiveGameQualified}));"
       - name: Preserve every registered source-deal baseline and intervention
         if: always()
