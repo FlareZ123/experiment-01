@@ -1,0 +1,56 @@
+{
+  "schema": "agent1-rank17-original-prospective-onefactor-two-seat-evolution-v1",
+  "registeredAt": "2026-11-02T11:43:32.229593Z",
+  "generatedBy": "python secrets.randbits(32) for four distinct 32-bit seed groups",
+  "researchQuestion": "For exact authenticated rank17 Yuya Yamano Alolan Raichu/Electrode original 60 versus two fixed candidate 60s, does enabling existing actor-only symmetric natural evolution root cause physically accepted source Electrode-GX CES or Alolan Raichu UNM stage1 plays, actual ability/attack declarations, or better original-source follow-through on unseen seeds?",
+  "sourceRank": 17,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "originalRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "modes": {
+    "frozenV2Control": "Read EXACT policyOptions from pre-existing simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+    "naturalEvolutionOnly": "The SAME policyOptions plus actorNaturalEvolutionRoot:true; no other option change"
+  },
+  "registeredGroups": [
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3205004075
+    },
+    {
+      "rank": 17,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1975817274
+    },
+    {
+      "rank": 17,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3186938867
+    },
+    {
+      "rank": 17,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2082256034
+    }
+  ],
+  "expectedTrialsPerMode": 8,
+  "expectedNativeArms": 16,
+  "admission": "Both candidate IDs must be present in each exact rank-repeat-seat-seed group, source-original printed 60 authenticated; keep all errors and aborted attempts",
+  "earlyPolicyTestOnly": false,
+  "qualificationVetoes": [
+    "Weak generic default and incomplete natural decision policies",
+    "No Aichi Open paper stopwatch, final Checkup or timed adjudication",
+    "Native cards and compulsory payments may not universally reproduce paper effects",
+    "No independent two-seat information-set safety proof",
+    "Three other original field ranks still missing exact 60s",
+    "Prospective developmental seeds only, no claimed competitive win-rate"
+  ]
+}
