@@ -118,6 +118,8 @@ jobs:
         run: node --test tests/agent49-native-regidrago-treasure-line.test.cjs
       - name: Prove both-seat owner-private Mysterious Treasure typed native cost/search prompt bridge
         run: node --test tests/agent49-owner-treasure-native-prompt-bridge.test.cjs
+      - name: Verify original rank13 pre-board Treasure native paid V search both seats
+        run: node --test tests/agent49-native-registered-treasure-preboard.test.cjs
       - name: Stage shared actor BUS paid Energy retreat and native opposing Basic attack veto
         if: ${{ always() && !cancelled() }}
         run: node --test tests/agent40-native-bus-lock-position-root.test.cjs
