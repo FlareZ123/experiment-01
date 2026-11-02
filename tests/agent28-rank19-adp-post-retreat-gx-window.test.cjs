@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {observeAdpBoostedGxResourceWindow:observe,ADP,DDE,GX}=
+const {observeAdpBoostedGxResourceWindow:observe,
+  chooseAdpGxFromPayable:choose,ADP,DDE,GX}=
   require('../simulation/twinleaf/agent28-adp-post-retreat-gx-window.cjs');
 
 /** @param {object} [change] @returns {object} Detached source-visible view. */
@@ -56,4 +57,13 @@ test('other Active and wrong decision type never yield a GX opportunity',()=>{
   assert.equal(observe(v),null);
   v.decisionKind='owner-prompt';
   assert.throws(()=>observe(v),/owner-root/);
+});
+
+test('owner-only ADP GX is considered only if the independent cost gate admits it',()=>{
+  const v=view();
+  assert.deepEqual(choose(v,[{name:'Ultimate Ray'},{name:GX}]),
+    {kind:'attack',attackName:GX});
+  assert.equal(choose(v,[{name:'Ultimate Ray'}]),null);
+  v.ownPublic.publicTurnRestrictions.gxUsed=true;
+  assert.equal(choose(v,[{name:GX}]),null);
 });
