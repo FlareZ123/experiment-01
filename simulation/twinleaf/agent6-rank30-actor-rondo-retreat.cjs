@@ -35,7 +35,7 @@ function chooseOwnerRondoRetreatFromPass(state,action,actorId,config){
   if(!Array.isArray(bench))return null;
   for(let index=0;index<bench.length;index++){
     const pokemon=bench[index]?.getPokemonCard?.();
-    if(pokemon?.fullName!==\"Lillie's Clefairy ex JTG\"||
+    if(pokemon?.fullName!=="Lillie's Clefairy ex JTG"||
        !pokemon.attacks?.some(a=>a.name==='Full Moon Rondo'))continue;
     const energy=bench[index].energies?.cards;
     if(!Array.isArray(energy)||energy.filter(e=>
