@@ -16,8 +16,11 @@ function loadTypes(){
     assert.ok(Array.isArray(cards),'Card archive set is not an array: '+entry);
     for(const card of cards){
       if(card.supertype!=='Trainer')continue;
-      const subtype=(card.subtypes??[]).find(s=>
-        ['Supporter','Item','Pokémon Tool','Stadium'].includes(s));
+      const tags=card.subtypes??[];
+      const subtype=tags.includes('Supporter')?'Supporter':
+        tags.includes('Pokémon Tool')?'Pokémon Tool':
+          tags.includes('Stadium')?'Stadium':
+            tags.includes('Item')?'Item':null;
       if(!subtype)continue;
       const found=result.get(card.name)??new Set();
       found.add(subtype);
@@ -30,7 +33,8 @@ function loadTypes(){
 /** @returns {{schema:string,sample:number,missingRanks:number[],supporterSummary:object,rows:object[],qualifiedMatches:number}} */
 function census(){
   const source=JSON.parse(fs.readFileSync(SOURCE_FILE,'utf8'));
-  assert.equal(source.schema,'aichi-top32-original-decklists-v1');
+  assert.equal(source.published_deck_count,29);
+  assert.equal(source.total_placements,32);
   assert.equal(source.decks.length,29);
   const types=loadTypes();
   const rows=source.decks.map(deck=>{
