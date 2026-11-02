@@ -38,6 +38,8 @@ jobs:
           node --test tests/agent48-temple-mew-dce-access.test.cjs tests/agent48-rank5-temple-wally-first-attack.test.cjs
           node scripts/agent48-temple-mew-dce-access.cjs
           node scripts/agent48-rank5-temple-wally-first-attack.cjs
+      - name: Execute both-seat rank-5 Wally actual first-turn Temple reply
+        run: node simulation/twinleaf/agent48-rank5-wally-temple-first-turn-native.cjs
       - name: Verify exact opening Stadium access against seeded shuffles
         run: node --test tests/aichi_raichu_stadium_access.test.cjs
       - name: Test rank-4 and rank-17 Energy sources, Temple denial and Stadium replacement
