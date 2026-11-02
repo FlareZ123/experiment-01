@@ -30,6 +30,8 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
   const stores=[];
   let root=null,trial=-1,attempts=[],acceptedRoots=[],rejectedRoots=[];
   let selected=false,completed=false;
+  const sourceTurn42DecodeObservations=[];
+  const realSourceTurn42Passes=[];
   const observedDispatch=function(action,...args){
     const name=action?.constructor?.name;
     if(name==='AddPlayerAction'&&!stores.includes(this)){
@@ -39,6 +41,17 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
     }
     const isTarget=root===this&&trial===targetTrialIndex&&this.state?.turn===42&&
       name==='RetreatAction';
+    if(root===this&&trial===targetTrialIndex&&this.state?.turn===42&&
+       name==='PassTurnAction'&&this.state?.activePlayer===1){
+      const source=this.state.players[1];
+      realSourceTurn42Passes.push({
+        turn:this.state.turn,sourceSeat:1,
+        active:source.active.getPokemonCard()?.fullName??null,
+        bench:source.bench.map(slot=>slot.getPokemonCard()?.fullName??null),
+        activeEnergy:source.active.energies.cards.map(c=>c.fullName),
+        rootStoreWitness:true
+      });
+    }
     let before=null;
     if(isTarget){
       const owner=this.state.players[1];
@@ -60,6 +73,18 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
     }
   };
   const proposedDecode=function(state,...args){
+    if(state?.turn===42&&state.activePlayer===1&&
+        sourceTurn42DecodeObservations.length<24){
+      sourceTurn42DecodeObservations.push({
+        sourceTurn:state.turn,phase:state.phase,
+        ownerId:state.players[1]?.id??null,
+        botClientId:this.client?.id??null,
+        sameRealStoreState:state===root?.state,
+        sourceActive:state.players[1]?.active.getPokemonCard()?.fullName??null,
+        pendingCount:state.prompts?.filter(p=>p.result===undefined).length??null,
+        trial:stores.length-1
+      });
+    }
     const current=stores.length-1;
     if(selected||state!==root?.state||current!==1||
        state.turn!==42||state.activePlayer!==1||
@@ -99,11 +124,13 @@ function withRank9Turn42PaidRetreat(execute,deps={}){
     return {result,audit:{version:VERSION,storeCount:stores.length,
       targetTrialIndex,sourceSeat:1,targetTurn:42,
       selected,completed,attempts,acceptedRoots,rejectedRoots,
+      sourceTurn42DecodeObservations,realSourceTurn42Passes,
       paperPaymentAudited:false,printedAttackSettlementAudited:false,
       competitivelyQualifiedGames:0}};
   }catch(error){
     if(error&&typeof error==='object')error.agent10Rank9Turn42Fork={
-      version:VERSION,storeCount:stores.length,selected,completed,attempts,acceptedRoots,rejectedRoots
+      version:VERSION,storeCount:stores.length,selected,completed,attempts,acceptedRoots,rejectedRoots,
+      sourceTurn42DecodeObservations,realSourceTurn42Passes
     };
     throw error;
   }finally{
