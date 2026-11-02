@@ -389,7 +389,7 @@ function oneOrdinaryDoubleFinalKO(reverse,byRank){
   }
   assert.ok(owners&&staged&&before&&after);
   assert.equal(owners.size,120);
-  assert.deepEqual(before.active.sort(),['Crobat V','Regidrago V']);
+  assert.deepEqual([...before.active].sort(),['Crobat V','Regidrago V']);
   assert.equal(koEntitlements.length,2);
   assert.ok(koEntitlements.every(e=>
     e.prizeCount===2&&!e.preventDefault&&!e.alternatePrizeDestination));
