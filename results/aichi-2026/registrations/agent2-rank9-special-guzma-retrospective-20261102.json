@@ -1,0 +1,71 @@
+{
+  "schema": "agent2-rank9-special-guzma-retrospective-existing-deals-v1",
+  "registeredBeforeThisExecution": true,
+  "notProspective": true,
+  "retrospectiveDealSelection": "Existing exact rank9 fixed source games were selected after the turn42 Guzma opportunity was observed, so this is a causal developmental replay only",
+  "originalRank": 9,
+  "originalPlayer": "Shun Ito",
+  "originalPrinted60Sha256": "70382b692e5c96fff6f66b390c9dc38bcca9148d64ef65a9fe9c6b54eb2100bf",
+  "rosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRegistrationGitBlobSha": "e15578d7863422c6f4bd9df751d45b1b7044f904",
+  "registeredGroups": [
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3060075246
+    },
+    {
+      "rank": 9,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 690229661
+    }
+  ],
+  "unchangedCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "attemptsPerMode": 4,
+  "totalNativeAttempts": 8,
+  "commonBaselineOptions": {
+    "actorNaturalEvolutionRoot": true,
+    "actorVipBeforeAttack": true,
+    "actorVipMegaAbsolTarget": true,
+    "bilateralKnownDeadAttackRoot": true,
+    "actorGuzmaPromptContinuation": true
+  },
+  "differenceOnly": {
+    "actorRank9SpecialFundedGuzma": {
+      "control": false,
+      "treatment": true
+    }
+  },
+  "effectiveCodeGitBlobShas": {
+    "simulation/twinleaf/agent2-rank9-special-guzma-frontier.cjs": "8ae9975a2691539744da4ccc1c5925449684e373",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "cc4a10e7270e14c2cb671031512e423af15b0d51",
+    "simulation/twinleaf/agent43-guzma-prompt-continuation.cjs": "e977e7900bf716947afcc0df8fdecdffc1066520",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "e944de48c1a39d32898ddcfb1f3509bfb6544fec",
+    "simulation/evaluation/agent41-frozen-bilateral-development-v2.json": "a79e7977cb224928068968934bbcfa9c9410e20a"
+  },
+  "acceptedStatuses": [
+    "ENGINE_TERMINAL_UNQUALIFIED",
+    "CENSORED",
+    "NATIVE_ERROR",
+    "UNVERIFIED"
+  ],
+  "samePhysicalSourceDealRequiredBeforePairedCausalLabel": true,
+  "strictNativeActionChainPhases": [
+    "ROOT_PAPER",
+    "PROMPT_PAPER",
+    "PAYMENT_PAPER",
+    "EFFECT_PAPER",
+    "RANDOMNESS_PAPER"
+  ],
+  "noPaperClock": true,
+  "allSourceAndCandidateCompetenceUnqualified": true,
+  "qualifiedCompetitiveGames": 0,
+  "claimOf995": false
+}
