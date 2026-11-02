@@ -1,0 +1,15 @@
+# Temple of Sinnoh: typed-Energy denial against three exact original Iron Thorns 60s
+
+**Agent 48 | 2 November 2026 | conditional paper-card interaction, not measured matchup strength.**
+
+The authenticated Aichi 2026 original rank-**6**, rank-**24**, and rank-**29** 60s each contain precisely **four Iron Thorns ex TWM 77 and no Basic Energy**. The three original lists are distinct; all eight Energy cards in each are Special Energy, with different distributions of Speed Lightning, Capture, Spiky and Double Colorless Energy. The exact printed inventories and source hashes are in [the source energy topology ledger](original-source-energy-topology-v1.json).
+
+- Official [Temple of Sinnoh](https://asia.pokemon-card.com/my/card-search/detail/2423/) card text makes all attached Special Energy supply **one Colorless** with no other ongoing effect.
+- [Iron Thorns ex TWM 77](https://limitlesstcg.com/cards/TWM/77) has **Volt Cyclone** for **Lightning + Colorless + Colorless**. The only Pokémon in each of those three source 60s are the four Iron Thorns ex.
+- Therefore, **while Temple of Sinnoh remains active, under those registered source 60s' own printed Energy cards and without any external Energy-type or attack-cost modification, none of the four Iron Thorns ex can meet the Lightning requirement for Volt Cyclone**. Even attaching all eight Special Energy supplies only Colorless under Temple.
+
+This is a narrowly valid *conditional attack-funding denial*, relevant to **three of the Top 32 opponents**. It is independent of the number of raw Energy cards or the printed double-unit values before Stadium suppression. It does **not** disable Iron Thorns ex's Active-dependent **Initialization** Ability. The opponent may replace Temple with a different Stadium such as the singleton Thunder Mountain Prism Star found in all three lists, use other effects that change a cost or Energy source, or adopt a nonattacking control plan. Two different Stadiums cannot occupy the normal Stadium slot simultaneously. Under Temple specifically, Thunder Mountain's separate attack-cost reduction is absent because that Stadium has been displaced.
+
+**Deck-optimization implication:** Temple could be evaluated as a counter-axis against these three distinct authenticated 60s, potentially with broader reach across the seven all-Special-Energy source lists. This is a *hypothesis for fixed-deck testing*, with slot cost, Stadium contention, opponent Stadium answers and self-inflicted Special Energy suppression to be priced. Never equate this paper interaction with a won game, nor infer effectiveness against Raichu/Electrode, Mew/Genesect or Snorlax Stall without their exact line and board state.
+
+**Release evidence still needed:** a legal original Iron Thorns ex state with attached Special Energy, Temple played and settled, an observed native opponent response and attack-payability refusal, plus an actual fixed-candidate plan to find and maintain Temple. Do not use this source-only card interaction to claim a qualified match or 99.5% field performance.
