@@ -29,6 +29,8 @@ Opponent next actual turn **43**: the candidate genuinely played `Solrock`, atta
 | Champion reference, candidate B | Yes | None | None | Yes | 103 → 103 |
 | New Moon v1, candidate B | Yes | None | None | No terminal (cap) | 260 → 260 |
 
+**Final-selector independent re-run:** [compiled Actions run 41482935835](https://github.com/FlareZ123/experiment-01/actions/runs/41482935835) succeeded at head `d9ccb327bf47829bc1d67acec10d399dfc575593` after the exact selector's 200-damage Active-attack preservation correction and amended pure regression. [Artifact 13159644009](https://github.com/FlareZ123/experiment-01/actions/runs/41482935835/artifacts/13159644009), inner JSON SHA-256 `2f85177ef7f6f6b849084c9f387cabcb24659a96da50d966317c1ffdc27359b6`. Independent inspection of both archived JSONs confirms **all four paired rows byte-for-byte equal**, with the same actual source Retreat at ordinal 180, turn-42 Claw, attack settlement and unchanged physical deal fingerprints. The re-run confirms this source line survives the final selector guard rather than depending on an obsolete code revision.
+
 ## Interpretation and competitive vetoes
 
 This is a **causal, authentic Store source-line witness** for an available funded attacker previously skipped by the baseline policy. The experimental selector was applied only to source, while the fixed 60s and initial physical deals were held constant. In the one changed pair, the real Retreat, associated energy-selection prompt, 200-damage attack root, opponent discard choice, first Prize and immediate opposing turn were observed. This establishes the importance of **complete resource-to-attack sequencing** and identifies an actual actor policy flaw.
