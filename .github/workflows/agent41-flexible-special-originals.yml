@@ -3,6 +3,11 @@ name: Registered Aichi original Special Energy both-seat development
 on:
   workflow_dispatch:
     inputs:
+      mew_reset_pure_only:
+        description: 'Default-off pure owner Mew reset root and two-prompt test; no native game'
+        type: boolean
+        required: false
+        default: false
       cohort:
         description: 'Frozen published original source cohort'
         type: choice
@@ -62,6 +67,7 @@ permissions:
 
 jobs:
   native-paired-flexible-special:
+    if: ${{ !inputs.mew_reset_pure_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -242,3 +248,19 @@ jobs:
             agent14-rank17-original-8arm.json
           if-no-files-found: warn
           retention-days: 20
+
+  mew-reset-owner-pure:
+    if: ${{ inputs.mew_reset_pure_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify rank5 Mew reset actor root, native action mapping and two prompt continuations
+        run: |
+          node --check simulation/twinleaf/agent41-mew-techno-reset-frontier.cjs
+          node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
+          node --check simulation/twinleaf/agent43-guzma-prompt-continuation.cjs
+          node --test tests/agent41-mew-techno-reset-frontier.test.cjs tests/agent41-mew-techno-reset-native-root.test.cjs tests/agent43-guzma-prompt-continuation.test.cjs
