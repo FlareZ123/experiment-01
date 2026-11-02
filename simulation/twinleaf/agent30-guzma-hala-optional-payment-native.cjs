@@ -26,12 +26,12 @@ function probeGuzmaHalaPayment(seat,paymentCount){
   f.source.active.cards.splice(0,1,f.card('Iron Thorns ex TWM'));
   const handCards=[
     f.card('Plumeria BUS'),
-    f.card('Crushing Hammer POR')
+    f.card('Guzma BUS')
   ];
   const supporter=f.card(PRINTING);
   f.source.hand.cards.push(...handCards,supporter);
   const retrieval=[
-    f.card('Thunder Mountain LOT'),
+    f.card('Thunder Mountain Prism Star LOT'),
     f.card('Handheld Fan TWM'),
     f.card('Double Colorless Energy SUM')
   ];
