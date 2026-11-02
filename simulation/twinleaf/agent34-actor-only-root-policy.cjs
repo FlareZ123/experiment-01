@@ -1457,6 +1457,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.nativePhysicalUnconfirmedByIntent[choice.kind]=
           (audit.nativePhysicalUnconfirmedByIntent[choice.kind]??0)+1;
       }
+      if(farewellPending)audit.nativePhysicalPending++;
       if(physical==='attack-needs-declaration')audit.nativeAttackNeedsDeclaration++;
       const witnessed=before!==null&&after!==null;
       const publicZonesChanged=witnessed&&
