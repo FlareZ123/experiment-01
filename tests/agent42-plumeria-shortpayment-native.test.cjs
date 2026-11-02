@@ -50,3 +50,16 @@ test('Plumeria two-element duplicate and nonowner payment replies, both seats',(
   }
  }
 });
+
+test('original rank6 Plumeria pays a Prism Star by Lost Zone replacement, both seats',()=>{
+ for(const seat of [0,1]){
+  const r=probePlumeriaShortPayment(seat,2,'prism');
+  console.log('AGENT42_PLUMERIA_PRISM_UNGUARDED '+JSON.stringify(r));
+  assert.equal(r.paymentValidatorAccepted,true);
+  assert.equal(r.paymentError,null);
+  assert.deepEqual(r.paymentCustody.map(c=>c.inOwnerDiscard),[true,false]);
+  assert.deepEqual(r.paymentCustody.map(c=>c.inOwnerLostZone),[false,true]);
+  assert.deepEqual(r.paymentCustody.map(c=>c.inOwnerHand),[false,false]);
+  assert.equal(r.opposingEnergyCustody.inOpponentDiscard,true);
+ }
+});
