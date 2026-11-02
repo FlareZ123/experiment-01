@@ -116,7 +116,7 @@ test('root arbitration is unchanged until its explicit donor option',()=>{
     specialConditions:{ASLEEP:2,PARALYZED:0}
   };
   const noNewOption=chooseActorRootIntent(root,catalog,{});
-  assert.deepEqual(noNewOption,{kind:'pass'});
+  assert.deepEqual(noNewOption,{kind:'pass',reason:'no-supported-owner-visible-root'});
   const proposed=chooseActorRootIntent(root,catalog,{
     regidragoDonorQuickBallRoot:true
   });
