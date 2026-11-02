@@ -3,6 +3,11 @@ name: Agent 43 rank11 held Guzma diagnostic exact frozen replay
 on:
   workflow_dispatch:
     inputs:
+      rank9_special_guzma_native:
+        description: 'Retrospective exact rank9 original 60 two-seat Guzma full native Store comparison'
+        type: boolean
+        required: false
+        default: false
       rank9_special_guzma_pure:
         description: 'Pure owner-public Special Energy funded Weakness Guzma proposal; skip retrospective replay'
         type: boolean
@@ -41,19 +46,19 @@ jobs:
       - name: Verify original immutable preregistration before read-only replay
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs --inspect-only
       - name: Replay 16 PREVIOUSLY USED rank11 source seeds and assert unchanged accepted-root digest
-        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
+        if: ${{ !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
         env:
           AGENT43_GUZMA_HELD_AUDIT_OUTPUT: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
         run: node simulation/evaluation/agent43-guzma-held-root-retrospective.cjs
       - name: Preserve complete retrospective observer data, including failures
-        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
+        if: ${{ always() && !inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
         uses: actions/upload-artifact@v4
         with:
           name: agent43-rank11-held-guzma-retrospective-16
           path: ${{ runner.temp }}/agent43-held-root-rank11-retrospective-16.json
           if-no-files-found: warn
       - name: Preflight additional unchanged-source rank11 Basic Energy comparator
-        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure }}
+        if: ${{ inputs.basic_energy_recipient_comparison && !inputs.rank9_special_guzma_pure && !inputs.rank9_special_guzma_native && !inputs.rank9_special_guzma_native }}
         run: node simulation/evaluation/agent2-rank11-basic-recipient-matched-development.cjs --inspect-only
       - name: Compare symmetric Basic Energy recipient frontier on frozen 16 rank11 source-dealt arms
         if: ${{ inputs.basic_energy_recipient_comparison }}
@@ -71,3 +76,24 @@ jobs:
       - name: Verify default-off rank9 publicly funded Weakness Guzma proposal
         if: ${{ inputs.rank9_special_guzma_pure }}
         run: node --test tests/agent2-rank9-special-guzma-frontier.test.cjs
+      - name: Preflight exact original rank9 special-funded Guzma retrospective profile
+        if: ${{ inputs.rank9_special_guzma_native }}
+        run: node simulation/evaluation/agent2-rank9-special-guzma-retro-native.cjs --inspect-only > agent2-rank9-guzma-profile-inspect.json
+      - name: Verify owner-only Special Energy Guzma and explicit root opt-in tests
+        if: ${{ inputs.rank9_special_guzma_native }}
+        run: node --test tests/agent2-rank9-special-guzma-frontier.test.cjs
+      - name: Replay all four original rank9 physical groups under both symmetric policies
+        if: ${{ inputs.rank9_special_guzma_native }}
+        env:
+          AGENT2_RANK9_SPECIAL_GUZMA_OUTPUT: ${{ runner.temp }}/agent2-rank9-guzma-retro-native.json
+        run: node simulation/evaluation/agent2-rank9-special-guzma-retro-native.cjs
+      - name: Preserve complete native rank9 original-source actions, rejections and physical deals
+        if: ${{ always() && inputs.rank9_special_guzma_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-rank9-special-funded-guzma-native-retrospective
+          path: |
+            agent2-rank9-guzma-profile-inspect.json
+            ${{ runner.temp }}/agent2-rank9-guzma-retro-native.json
+          if-no-files-found: warn
+          retention-days: 21
