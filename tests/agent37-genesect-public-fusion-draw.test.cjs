@@ -65,6 +65,21 @@ test('ability root ignores opponent private information and never mutates view',
   assert.throws(()=>chooseGenesectFusionDraw(view),/owner-root/);
 });
 
+test('physical native draw receipt requires exact publicly visible hand/deck delta',()=>{
+  const {rootPhysicalWitness}=
+    require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const intent={kind:'use-genesect-fusion-draw',knownFusionCount:3};
+  assert.equal(rootPhysicalWitness(intent,
+    {deckCount:14,handCount:0},{deckCount:11,handCount:3},{}),
+  'confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,
+    {deckCount:14,handCount:0},{deckCount:13,handCount:3},{}),
+  'no-confirmed-public-effect');
+  assert.equal(rootPhysicalWitness(intent,
+    {deckCount:14,handCount:3},{deckCount:14,handCount:3},{}),
+  'no-confirmed-public-effect');
+});
+
 test('only actual Fusion Strike printed Pokémon count, no invented marks',()=>{
   const view=fixture();
   view.ownPublic.bench[1]={printing:"Lillie's Clefairy ex JTG"};
