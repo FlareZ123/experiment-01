@@ -113,11 +113,12 @@ for (const [name, countExpected] of [
  * @param {number} bonus
  * @returns {number}
  */
-function sourceRemoverInHand(bonus) {
+function sourceRemoverSeenBySecondTurn(bonus, removerCount = 8) {
   const n = 2 + bonus;
-  const noRemoverInValidSeven = Number(choose(52, 7) - choose(48, 7)) /
-    Number(sourceValidSeven);
-  const noRemoverInDraws = Number(choose(45, n)) / Number(choose(53, n));
+  const noRemoverInValidSeven = Number(
+    choose(60 - removerCount, 7) - choose(56 - removerCount, 7)
+  ) / Number(sourceValidSeven);
+  const noRemoverInDraws = Number(choose(53 - removerCount, n)) / Number(choose(53, n));
   return 1 - noRemoverInValidSeven * noRemoverInDraws;
 }
 
@@ -160,7 +161,7 @@ function bounds(receiver, maxBonus) {
   let lower = 0;
   for (let d = 0; d <= maxBonus; d += 1) {
     lower += bonusMass(d, receiver) * (receiver === 'candidate'
-      ? candidatePhysicalRoute(d) : sourceRemoverInHand(d));
+      ? candidatePhysicalRoute(d) : sourceRemoverSeenBySecondTurn(d));
   }
   const tail = omittedTail(maxBonus, receiver);
   return { lower, upper: lower + tail, tail };
@@ -171,13 +172,23 @@ assert.ok(Math.abs(qSource - 0.6005003742553344) < 1e-14);
 assert.ok(Math.abs(candidatePhysicalRoute(0) - 0.289936530125) < 2e-12);
 assert.ok(Math.abs(candidatePhysicalRoute(1) - 0.30655579098) < 2e-10);
 assert.ok(Math.abs(candidatePhysicalRoute(2) - 0.31991716256) < 2e-10);
-assert.ok(Math.abs(sourceRemoverInHand(0) - 0.7198924574568) < 2e-12);
+assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0) - 0.7198924574568) < 2e-12);
+assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0, 4) - 0.4572047432473605) < 2e-12);
 const candidateBounds = bounds('candidate', 20);
 const sourceBounds = bounds('source', 20);
+let costlessBoundLower = 0;
+for (let d = 0; d <= 20; d += 1) {
+  costlessBoundLower += bonusMass(d, 'source') * sourceRemoverSeenBySecondTurn(d, 4);
+}
+const costlessBounds = {
+  lower: costlessBoundLower,
+  upper: costlessBoundLower + omittedTail(20, 'source')
+};
+assert.ok(costlessBounds.lower > 0.47148 && costlessBounds.upper < 0.47149);
 assert.ok(candidateBounds.lower > 0.305 && candidateBounds.upper < 0.306);
 assert.ok(sourceBounds.lower > 0.73390 && sourceBounds.upper < 0.73392);
 assert.ok(candidateBounds.lower > candidatePhysicalRoute(0));
-assert.ok(sourceBounds.lower > sourceRemoverInHand(0));
+assert.ok(sourceBounds.lower > sourceRemoverSeenBySecondTurn(0));
 assert.ok(candidateBounds.upper - candidateBounds.lower < 0.00003);
 assert.ok(sourceBounds.upper - sourceBounds.lower < 0.00000001);
 
@@ -200,7 +211,11 @@ console.log(JSON.stringify({
   candidateWithAllOptionalMulliganBonusPercentBounds: [
     100 * candidateBounds.lower, 100 * candidateBounds.upper
   ],
-  rank6BaselineRemoverBySecondTurnPercent: 100 * sourceRemoverInHand(0),
+  rank6BaselineRemoverSeenBySecondTurnPercent: 100 * sourceRemoverSeenBySecondTurn(0),
+  rank6BaselineNoDiscardCostRemoverSeenPercent: 100 * sourceRemoverSeenBySecondTurn(0, 4),
+  rank6NoDiscardCostRemoverWithBonusPercentBounds: [
+    100 * costlessBounds.lower, 100 * costlessBounds.upper
+  ],
   sourceBonusChancePercent: 100 * pSourceBonus,
   sourceWithAllOptionalMulliganBonusPercentBounds: [
     100 * sourceBounds.lower, 100 * sourceBounds.upper
