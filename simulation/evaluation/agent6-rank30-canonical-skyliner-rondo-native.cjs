@@ -54,6 +54,9 @@ function evidence(game,seat){
     sourceActuallyFirst:game.sourceActuallyFirst,
     winnerUnqualified:game.winner,finalPrizes:game.finalPrizes,
     status:game.status??(game.finished?'engine-terminal':'censored'),
+    rowNativeError:game.error??null,
+    nativeStoreCauseStack:game.nativeStoreCauseStack??null,
+    nativeAbortEvidence:game.nativeAbortEvidence??null,
     originalRootLedgerHash:game.rootActionLedgerSha256,
     competitiveQualified:false};
 }
@@ -95,6 +98,7 @@ function run(){
     totalNativeAttempts:8,
     errors:groups.flatMap(g=>g.arms).filter(a=>a.status==='native-error').length,
     matchedPhysicalPairs:groups.filter(g=>g.exactSameFullInitialPhysicalDeals).length*2,
+    nativeRowErrors:games.filter(g=>g.status==='engine-error').length,
     nativeActorChosenRetreats:games.reduce((n,g)=>n+g.actorChosenRetreats,0),
     realSourceRetreatRoots:games.reduce((n,g)=>n+g.sourceRetreats.length,0),
     sourceRondoAttackDeclarations:games.reduce((n,g)=>n+g.sourceRondos.length,0),
