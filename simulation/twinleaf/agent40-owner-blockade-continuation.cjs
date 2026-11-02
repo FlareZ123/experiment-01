@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent40-owner-exeggutor-blockade-followup-v1';
+const VERSION='agent40-owner-exeggutor-blockade-followup-v2-gust-active';
 const BUNNELBY='Bunnelby PRC';
 const EXEGGUTOR='Exeggutor PLF';
 const AOR='Vileplume AOR';
@@ -20,7 +20,9 @@ const JET='Jet Energy ';
  *
  * Only the acting player's own hand and face-up public information are
  * considered. This proposes one native action; the Store must still prove
- * actual Jet attachment, switch, and Blockade attack legality.
+ * actual Jet attachment, any required switch, and Blockade attack legality.
+ * An opponent's intervening Guzma can gust Exeggutor Active before the
+ * owner attacks; directly fund that Active when the opponent leaves it alive.
  *
  * @param {object} view Frozen detached actorObservation of the owner root.
  * @param {object} catalog Immutable public printed card metadata.
@@ -30,10 +32,7 @@ function chooseOwnerBlockadeContinuation(view,catalog){
   assert.equal(view.decisionKind,'owner-root');
   const own=view.ownPublic,opponent=view.opponentPublic,
     quota=view.ownTurnResources,active=own?.active;
-  if(view.globalTurn<=2||!active||active.printing!==BUNNELBY||
-      !Array.isArray(active.energies)||
-      !active.energies.some(p=>p.startsWith(JET))||
-      !Array.isArray(active.tools)||active.tools.length!==0||
+  if(view.globalTurn<=2||!active||
       !Array.isArray(own.bench)||!Array.isArray(view.ownHand)||
       opponent?.deckCount<=1||
       opponent?.publicTurnRestrictions?.supporterPlayLocked===true||
@@ -44,17 +43,28 @@ function chooseOwnerBlockadeContinuation(view,catalog){
       own.publicTurnRestrictions?.energyPlayLocked===true||
       own.publicTurnRestrictions?.specialEnergyPlayLocked===true||
       [...(own.stadium??[]),...(opponent?.stadium??[])]
-        .some(p=>p.startsWith('Temple of Sinnoh ')))return null;
+        .some(p=>p.startsWith('Temple of Sinnoh '))||
+      !own.bench.some(p=>p?.printing===AOR))return null;
 
-  const index=own.bench.findIndex(p=>p?.printing===EXEGGUTOR);
-  if(index<0||!own.bench.some(p=>p?.printing===AOR))return null;
-  const target=own.bench[index];
+  const activeBunnelby=active.printing===BUNNELBY&&
+    Array.isArray(active.energies)&&
+    active.energies.some(p=>p.startsWith(JET))&&
+    Array.isArray(active.tools)&&active.tools.length===0;
+  const index=activeBunnelby?
+    own.bench.findIndex(p=>p?.printing===EXEGGUTOR):-1;
+  const gustedActive=active.printing===EXEGGUTOR;
+  const target=gustedActive?active:index>=0?own.bench[index]:null;
+  if(!target||!Array.isArray(target.energies)||
+      target.energies.length!==0||
+      target.specialConditions?.some(x=>
+        x===catalog.specialConditions?.ASLEEP||
+        x===catalog.specialConditions?.PARALYZED))return null;
+
   const blockade=target.attacks?.find(a=>a.name==='Blockade'&&
     Array.isArray(a.cost)&&a.cost.length===1&&
     a.cost[0]===catalog.colorlessEnergyType);
   const denied=target.publicRestrictions??{};
-  if(!blockade||!Array.isArray(target.energies)||
-      target.energies.length!==0||
+  if(!blockade||
       denied.cannotAttackNextTurn===true||
       denied.blockedAttackNameNextTurn==='Blockade'||
       denied.blockedAttackNameUntilLeavesActive==='Blockade'||
@@ -66,8 +76,12 @@ function chooseOwnerBlockadeContinuation(view,catalog){
     catalog.specialEnergies instanceof Set&&catalog.specialEnergies.has(p));
   if(handIndex<0)return null;
   return {kind:'attach-special-energy',handIndex,
-    printing:view.ownHand[handIndex],slot:'bench',index,
-    reason:'finish-bunnelby-tm-into-exeggutor-blockade',
+    printing:view.ownHand[handIndex],
+    slot:gustedActive?'active':'bench',
+    index:gustedActive?0:index,
+    reason:gustedActive?
+      'fund-gusted-active-exeggutor-blockade':
+      'finish-bunnelby-tm-into-exeggutor-blockade',
     plannedAttackName:'Blockade'};
 }
 
