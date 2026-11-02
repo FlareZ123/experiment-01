@@ -861,6 +861,10 @@ function withActorOnlyRootPolicy(run,deps={}){
     delete audit.skylinerRondoRetreatOptIn;
     delete audit.skylinerRondoRetreatOwnerSeat;
   }
+  if(audit.dceMewMobilityRootOptIn)
+    audit.version+='+'+
+      require('./agent37-dce-mew-paid-retreat.cjs').VERSION;
+  else delete audit.dceMewMobilityRootOptIn;
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
   if(audit.specialEnergyRootOwnerSeat!==null)
