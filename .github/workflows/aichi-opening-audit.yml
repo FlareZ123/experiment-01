@@ -71,6 +71,10 @@ jobs:
         run: |
           node --test tests/agent7-vileplume-artazon-capture-opening.test.cjs
           node scripts/agent7-vileplume-artazon-capture-opening.cjs 1000000
+      - name: Exact prize-conditioned Vileplume three-channel opening count with exhaustive toy proof
+        run: |
+          node --test tests/agent7-vileplume-triple-opening-exact.test.cjs
+          node scripts/agent7-vileplume-triple-opening-exact.cjs
       - name: Rank30 original Empoleon exact Energy funding negative control
         run: node --test tests/agent7-rank30-empoleon-energy-impossibility.test.cjs
       - name: Actor-only native option prompt regression
