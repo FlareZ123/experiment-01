@@ -1010,6 +1010,7 @@ function runDevelopment({
   sourceScopedSpecialEnergyRoot=false,
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
+  sourceScopedQuickBallRoot=false,candidateScopedQuickBallRoot=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralBasicEnergyRecipientFrontier=false,
   bilateralConservativeShuffleRoot=false,
@@ -1030,6 +1031,10 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
+    'Quick Ball source and candidate scope probes are exclusive');
+  assert.ok((!sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot)||
+    actorOnlyComposition,'Scoped Quick Ball requires actor-only policy');
   assert.ok(!(paperPromptPortfolio&&sharedPaperPaymentPortfolio),
     'Choose exactly one legacy or unified source-printing paper prompt portfolio');
   assert.ok(!actorNativeAorItemLock||actorOnlyComposition,
@@ -1229,6 +1234,7 @@ function runDevelopment({
         const scopedRoot=(!energyProfile.enabled&&!bilateralPublicContextSpecialEnergy&&
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
+          !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
@@ -1250,6 +1256,12 @@ function runDevelopment({
                 mobilityAwareRecipient:true
               }:{}),
               ...conservativeSupporterRootOptions,
+              ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot?{
+                quickBallRoot:true,
+                quickBallRootOwnerSeat:sourceScopedQuickBallRoot?
+                  1-(trial.candidateSlot==='A'?0:1):
+                  (trial.candidateSlot==='A'?0:1)
+              }:{}),
               ...(actorNaturalEvolutionRoot?{
                 naturalEvolutionRoot:true
               }:{}),
