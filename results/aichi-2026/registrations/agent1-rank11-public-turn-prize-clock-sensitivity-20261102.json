@@ -1,0 +1,27 @@
+{
+  "schema": "agent1-rank11-public-turn-prize-clock-sensitivity-v1",
+  "registeredAt": "2026-11-02T09:05:00Z",
+  "classification": "Counterfactual clock cutoffs only; the paper timed result remains uncertified",
+  "originalComparison": "Exact registered four-arm 350-action native Store run 41416500514, no gameplay changes",
+  "parentRunId": 41416500514,
+  "parentArtifactId": 13127552861,
+  "parentSourceRevision": "b029d990ff652fa3d3525134380fe5e6c4df8187",
+  "sourceRank": 11,
+  "sourceSeat": 0,
+  "recipientRank": 1,
+  "recipientSeat": 1,
+  "originalFullBothPlayerDealSha256": "ad5aa3b88bc0e39e0fedd902990b76f7526953b4ff356d08ed43ebe48082ba76",
+  "sourceK0FirstHandSha256": "5692184381aca7a6f772a8a840e59d14f9b9bca642a3f3bb516776b06b8567cf",
+  "seed": 2387754768,
+  "maxActions": 350,
+  "nativeVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "question": "For each branch, at which actual Store post-even-turn public Prize snapshots would a strictly hypothetical Aichi May Open Top32 time-over call, after the second player's turn completes, produce an opposite Prize-leader decision from the untimed engine terminal? Never infer an elapsed 25-minute time from action count.",
+  "independentAdditionalObservation": "Install a reversible read-only Store dispatch wrapper recording only actual native per-turn transitions, before/after public Prize counts and dispatch action type; never pass the snapshots to an actor policy. Preserve all original actions and fourth-arm outcomes.",
+  "requiredAssertions": [
+    "Exact original both-player full physical deal digest in each arm",
+    "Identical terminal action count, winner, turn and Prize counts to prior frozen run",
+    "No Store dispatch abort or invalid prompt",
+    "Observed even-turn closure snapshots are real native postdispatch, no invented action",
+    "Show unqualified UNKNOWN actual 25-minute call and only conditional hypothetical prize adjudication"
+  ]
+}
