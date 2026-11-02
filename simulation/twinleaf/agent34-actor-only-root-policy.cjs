@@ -1445,6 +1445,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       const physical=ownerAfter===null?null:
         rootPhysicalWitness(choice.intent,ownerBefore,ownerAfter,
           engineGamePhase());
+      const farewellPending=choice.kind==='use-farewell-letter'&&
+        (this.state.prompts??[]).some(p=>p.result===undefined&&p.type==='WaitPrompt');
       if(physical==='confirmed-public-effect'){
         audit.nativePhysicalConfirmed++;
         audit.nativePhysicalConfirmedByIntent[choice.kind]=
