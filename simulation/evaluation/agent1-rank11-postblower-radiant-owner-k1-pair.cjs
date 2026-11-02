@@ -6,6 +6,8 @@ const registration=require('../../results/aichi-2026/registrations/agent1-rank11
 const frame=require('../../results/aichi-2026/registrations/agent32-rank11-six-k0-star-vip-native-20261030.json');
 const horizon=require('../../results/aichi-2026/registrations/agent1-rank11-postgate-350-retrospective-20261102.json');
 const countRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-radiant-one-vmax-native-20261102.json');
+const clockRegistration=require('../../results/aichi-2026/registrations/agent1-rank11-public-turn-prize-clock-sensitivity-20261102.json');
+const {withPublicPrizeTurnClosures}=require('../twinleaf/agent1-public-prize-turn-closure.cjs');
 const {withNewMoonBlowerAutonomy}=
   require('../twinleaf/newmoon-garbotoxin-blower-autonomy.cjs');
 const {withOwnerOranguruStarVipPlan}=
@@ -24,6 +26,7 @@ function run(){
   assert.equal(entry.seed,horizon.seed);
   assert.equal(horizon.maxActions,countRegistration.maxActions);
   assert.equal(entry.seed,countRegistration.seed);
+  assert.equal(entry.seed,clockRegistration.seed);
   assert.equal(entry.sourceFirstOwnerHandSha256,registration.sourceFirstOwnerHandSha256);
   const rows=[];
   for(const {preferRadiantAfterBlowerSearch,activateRadiantClimacticGate,radiantVmaxTargetCount}
@@ -36,7 +39,7 @@ function run(){
           {preferRadiantAfterBlowerSearch:true,
             activateRadiantClimacticGate:true,radiantVmaxTargetCount:1}]){
     try{
-      const reply=withNewMoonBlowerAutonomy(1,()=>(
+      const observed=withPublicPrizeTurnClosures(()=>withNewMoonBlowerAutonomy(1,()=>(
         withOwnerOranguruStarVipPlan(()=>runMatch({
           ...decks,seed:entry.seed,
           label:'rank11-conditional-K0-screen-v1:'+entry.index,
@@ -58,7 +61,8 @@ function run(){
         automaticFieldBlower:true,allowAnyActiveBlower:true,
         preferRadiantAfterBlowerSearch,activateRadiantClimacticGate,
         radiantVmaxTargetCount
-      });
+      }));
+      const reply=observed.result;
       const game=reply.result.result;
       const source=reply.result.audit;
       const recipient=reply.policyAudit;
@@ -144,6 +148,7 @@ function run(){
         status:'native-original-K0-and-recipient-owner-K1-confirmed',
         sourceOriginalK0HandSha256:first.handSha256,
         initialFullPhysicalDealFingerprint:game.initialFullPhysicalDealFingerprint,
+        nativePublicTurnClosures:observed.audit,
         sourceReturnPublicBoard:atSourceT3,
         recipientFirstRealK1:firstRecipientK1,
         postBlowerRadiantOwnerK1Predicate:candidateK1,
@@ -211,9 +216,14 @@ function run(){
     assert.deepEqual(one?.selectedPrintings,['Shadow Rider Calyrex VMAX CRE']);
     assert.equal(one?.nativeMax,2);
     assert.equal(rows[3].nativeQuickBallRoots,1);
+    assert.deepEqual(rows.map(x=>[x.engineWinner,x.actionCount,x.lastEngineTurn]),
+      [[1,199,28],[0,215,30],[1,283,46],[1,195,30]],
+      'Read-only observer changed the original four engine outcomes');
+    assert.ok(rows.every(x=>x.nativePublicTurnClosures?.observedClosureCount>0),
+      'Missing actual Store post-turn Prize checkpoints');
   }
-  return {schema:'agent1-original-postblower-Radiant-K1-native-retrospective-one-vmax-350-v5',
-    registration,horizonRegistration:horizon,countRegistration,engineRevision:frame.engineRevision,
+  return {schema:'agent1-original-postblower-Radiant-native-prize-turn-closures-v6',
+    registration,horizonRegistration:horizon,countRegistration,clockRegistration,engineRevision:frame.engineRevision,
     attempted:rows.length,
     nativeVerified:rows.filter(x=>
       x.status==='native-original-K0-and-recipient-owner-K1-confirmed').length,
