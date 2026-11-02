@@ -1,0 +1,36 @@
+{
+  "schema": "agent4-ultra-ball-shared-cost-pretest-registration-v1",
+  "registeredAt": "2026-11-02T04:45:00Z",
+  "agent": "Agent 4",
+  "scope": "paper-rule invariants in genuine prepared Twinleaf Store, both owner seats; no natural game or win inference",
+  "sourceRank": 14,
+  "source": "Manaya Asano Regidrago",
+  "originalPrinted60Sha256": "a3710764f9937cde704d487d37da21aa0260f5ee5c5f3a4a909d80eeaeaa55b4",
+  "cardPrinting": "Ultra Ball MEG 131",
+  "otherPrinting": [
+    "Grass Energy MEE 9",
+    "Fire Energy MEE 10",
+    "Regidrago V SIT 135"
+  ],
+  "vendorPinnedSha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "priorUnmitigatedNativeReceipt": "https://github.com/FlareZ123/experiment-01/actions/runs/41354915711",
+  "hypotheses": [
+    "Original Store accepts a prompt response with zero discarded physical cards, despite printed mandatory two-card payment and false native validator",
+    "New shared source-stamped paper guard rejects zero/one/three or nonphysical/disallowed payment before Store mutation, without relying on native blocked index",
+    "Exactly two distinct physical other hand cards remain legal and search proceeds to a real Regidrago V addition under same guarded Store",
+    "An Ultra Ball PlayCardAction with fewer than two other physical hand cards is rejected by shared root guard before play",
+    "An unrelated ChooseCardsPrompt remains unaffected and owner-only data are not exported as audit examples"
+  ],
+  "plannedCases": {
+    "ownerPhysicalSeats": [
+      0,
+      1
+    ],
+    "zeroVsTwoNativePayments": true,
+    "rootWithOneAndTwoOtherCards": true,
+    "unrelatedPrintingNoninterference": true
+  },
+  "integrationTarget": "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs",
+  "existingWorkflow": ".github/workflows/aichi-iron-thorns-first-attack.yml",
+  "qualification": "default-off shared paper negative-only check; unresolved non-covered card effects, player policy, full original 60 source draws, clock, missing 3 original opposing lists"
+}
