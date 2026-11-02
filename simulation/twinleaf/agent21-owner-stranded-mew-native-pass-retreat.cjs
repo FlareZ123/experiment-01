@@ -111,7 +111,8 @@ function withStrandedFusionMewPassRetreat(execute,deps={}) {
         audit.nativePassActionsSeen++;
         const seat = s.activePlayer;
         const owner = s.players[seat];
-        if(owner && owner.id === action.playerId) {
+        if(owner && (action.playerId === undefined ||
+          owner.id === action.playerId)) {
           const view = observation(s,seat);
           const intent = selector(view,catalog);
           if(intent) {
