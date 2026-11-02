@@ -150,6 +150,16 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false)
       gameDecisionTraceSha256:digest,
       publicAcceptedActions,
       sourceAttackDetails,
+      physicalCustody:game.physicalZoneIntegrity?{
+        observedRoots:game.physicalZoneIntegrity.rootActionsChecked,
+        abnormalRootActions:game.physicalZoneIntegrity.actionsWithAnomaly,
+        abnormalSettledRoots:game.physicalZoneIntegrity.settledRootsWithAnomaly,
+        firstSettledAnomaly:game.physicalZoneIntegrity.firstSettledRootAnomaly?{
+          actionOrdinal:game.physicalZoneIntegrity.firstSettledRootAnomaly.actionOrdinal,
+          turn:game.physicalZoneIntegrity.firstSettledRootAnomaly.turn,
+          action:game.physicalZoneIntegrity.firstSettledRootAnomaly.actionType
+        }:null
+      }:null,
       sourceCopiedAttackSelections:(components.chooseAttack?.selections??[])
         .filter(choice=>choice.seat===sourceSeat),
       sourceOwnerVstarObservations:ownerVstarObservations,
