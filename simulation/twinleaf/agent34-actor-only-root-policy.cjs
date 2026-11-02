@@ -710,7 +710,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT41_NATIVE_TOOL_ATTACH_DEV==='true'),
     nativePlumeriaChoiceOptIn:deps.nativePlumeriaChoice===true,
     nativePlumeriaPaymentConservationOptIn:
-      deps.nativePlumeriaPaymentConservation===true,
+      deps.nativePlumeriaPaymentConservation===true||
+      process.env.AGENT38_NATIVE_PLUMERIA_PAYMENT_CONSERVATION_DEV==='true',
     nativeZeroCostDenialChoiceOptIn:deps.nativeZeroCostDenialChoice===true,
     losslessNativeRootJoinOptIn:deps.losslessNativeRootJoin===true,
     registeredToolEnergyCeilingOptIn:deps.registeredToolEnergyCeiling===true,
