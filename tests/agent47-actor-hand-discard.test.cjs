@@ -35,7 +35,7 @@ test('detached actor-only hand-discard menu and deterministic choice',()=>{
   const first=observed(state);
   state.players[1].hand=make('Z','W');
   assert.deepEqual(observed(state),first);
-  assert.equal(VERSION,'agent47-actor-hand-discard-v1-bounded');
+  assert.equal(VERSION,'agent47-actor-hand-discard-v2-nine-source-dragon-payload');
   assert.deepEqual(first.prompt.menu,[['A'],['B']]);
   assert.deepEqual(chooseActorHandDiscard(first),{printings:['A']});
 });
