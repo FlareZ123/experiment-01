@@ -80,7 +80,7 @@ test('exact marginal one-slot opportunities and two-slot interaction', () => {
 });
 
 test('a registered full-60 fourth-Shake-for-Quick swap retains printing and gains access', () => {
-  const lines = shake4Quick2.cards.map(c => c.cardId + ':' + c.count + '\\n').sort().join('');
+  const lines = shake4Quick2.cards.map(c => c.cardId + ':' + c.count + '\n').sort().join('');
   const hash = createHash('sha256').update(lines, 'utf8').digest('hex');
   assert.equal(hash, '5cd6b0fc7781e1a5a3b29f5a23654750295af89bdc63621f235fbd0c56701fd0');
   assert.equal(hash, shake4Quick2.deck_identity_sha256);
