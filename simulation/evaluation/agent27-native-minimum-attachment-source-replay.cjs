@@ -4,6 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {sourceCanaryDisposition}=require('./agent27-source-profile-disposition.cjs');
+const {followingOpponentSourcePass}=require('./agent27-source-followup-pass.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
 const {withActorOnlyRootPolicy,buildActorCardCatalog}=
@@ -47,12 +48,9 @@ function withAbortSafeDealWitness(work,sourceSeat=0){
     // returned a choice. The opponent-private and undealt deck zones never
     // enter the live actor policy.
     const state=this.state;
-    if(this===root&&action?.constructor?.name==='PassTurnAction'&&
-      state.players?.[1-sourceSeat]?.id===action.clientId){
-      const anchor=nativeMinimumAttachActionReceipts.findLast(row=>
-        row.nativeStoreActionAccepted===true&&
-        row.actorSeat===sourceSeat&&
-        row.globalTurn+1===state.turn);
+    if(this===root){
+      const anchor=followingOpponentSourcePass(state,action,sourceSeat,
+        nativeMinimumAttachActionReceipts);
       if(anchor){
         let probe;
         try{
