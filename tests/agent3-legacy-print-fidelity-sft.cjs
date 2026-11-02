@@ -54,6 +54,7 @@ const crossPrintPairs = [
   ['Super Rod', 'neo1-103', 'sv2-188'],
   ['Great Ball', 'ex16-77', 'sv2-183'],
   ['Rare Candy', 'ex2-88', 'sv1-191'],
+  ['PlusPower', 'base1-84', 'bw1-96'],
 ];
 for (const [name, oldId, modernId] of crossPrintPairs) {
   const old = get(oldId);
@@ -68,6 +69,17 @@ for (const [name, oldId, modernId] of crossPrintPairs) {
   console.log(`  OLD    ${printedEffect(old).slice(0, 230)}`);
   console.log(`  MODERN ${printedEffect(modern).slice(0, 230)}`);
 }
+
+// Literal difference is not functional difference. The Play! Pokémon
+// reprint guidance uses Copycat as a qualifying wording variant.
+const oldCopycat = get('ex15-73');
+const modernCopycat = get('swsh7-143');
+assert.equal(oldCopycat.legalities?.expanded, 'Legal');
+assert.equal(modernCopycat.legalities?.expanded, 'Legal');
+assert.notEqual(printedEffect(oldCopycat), printedEffect(modernCopycat));
+assert.match(printedEffect(oldCopycat), /Shuffle your hand into your deck/);
+assert.match(printedEffect(modernCopycat), /Shuffle your hand into your deck/);
+console.log('COPYCAT NEGATIVE CONTROL: different wording; same shuffle-then-opponent-hand-count draw semantics.');
 
 const a = get('sm10-81');
 const b = get('g1-RC11');
