@@ -134,7 +134,7 @@ test('post-search physical Mewtwo bench is observed only after owner chose play'
 test('actor-visible funded Mewtwo Bench audits held Escape Rope without policy feedback',()=>{
   const store=new Store(),owner=store.state.players[0];
   owner.hand.cards=[pokemon('Escape Rope BST')];
-  owner.bench[1].cards=[pokemon(CORE)];
+  owner.bench[1]=slot(CORE);
   owner.bench[1].energies={cards:[pokemon('Psychic Energy MEE')]};
   owner.active.energies={cards:[]};
   owner.retreatedTurn=0;
