@@ -25,6 +25,12 @@ The author describes the archetype's proposed matchup plan against Regidrago as 
 
 The author weighs different first-turn lock options and says Klefki was preferred in the construction reasoning because it affects Latias ex and Tapu Lele-GX; this **does not establish the final printed card quantity**. The note's descriptions of Dedenne-GX, Carmine and Regidrago's setup are in part *opposing-deck analysis*. They must **not** be imported as alleged cards in rank25's 60. The page also discusses environmental assumptions about Regidrago share (roughly half) as the author's pre-event expectation; they are not observed event proportions.
 
+## Quantified danger of borrowing a different source 60
+
+The **two already authenticated Alolan Raichu original 60s** are rank **4 Shu Hosoda** and rank **17 Yuya Yamano** in [the repository's printed-roster JSON](full-decklists.json). Comparing complete card-name multisets (summing the smaller per-card-name count across the two 60s) yields exactly **40 common physical slots**, hence **20 substitutions out of 60**, affecting **22 card names**. This is a reproducible count derived from the two complete public decks, **not** an assertion about rank25.
+
+Examples: rank4 plays **2 Dedenne-GX, 2 Crobat V, 4 Quick Ball, 3 Sky Field and 1 Forest Seal Stone**; rank17 plays **4 Unown, 4 Battle VIP Pass, 4 Rescue Carrier, 1 PokéStop and 1 Marshadow**, and plays none of those five named rank4 packages (other than cards listed separately). Both lists carry **1 Klefki**, **1 Gengar & Mimikyu-GX**, **3 Electrode-GX**, **2 Alolan Raichu**, and **4 each of Reversal, Counter and Unit Energy LPM**. An action policy built around the rank4 Dedenne/Crobat/Quick Ball/Sky Field engine does **not** automatically transfer to rank17's Unown/VIP/Carrier engine. Rank25's unrecovered list could be either, a hybrid, or another design. Its own author's first-person strategy discussion alone cannot identify its actual printed package.
+
 ## Implication for the fixed-60 benchmark
 
 1. Keep rank25 labelled **missing original roster**, even if its tactical outline is available. A top-four Alolan Raichu list is a potential *surrogate policy-development fixture only*, with independent fingerprint and explicit exclusion from the exact rank25 denominator.
