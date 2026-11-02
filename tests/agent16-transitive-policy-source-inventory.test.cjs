@@ -3,7 +3,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {scanPolicySourceClosure,gitBlobHash}=require(
+const {scanPolicySourceClosure,gitBlobHash,auditCheckedSourcePins}=require(
   '../simulation/evaluation/agent16-transitive-policy-source-inventory.cjs');
 const inventory=require(
   '../simulation/evaluation/agent42-strict-switch-inventory-v1.json');
@@ -98,6 +98,41 @@ test('sorted module paths and content-addressed closure digest are reproducible'
   }
   assert.equal(gitBlobHash(Buffer.from('hello')),
     'b6fc4c620b67d95f953a5c1c1230aaab5db5a1b0');
+});
+
+test('historic six-root pins are diagnosed independently of key inventory',()=>{
+  const closure=scanPolicySourceClosure(repoRoot,roots);
+  const current=roots.map(p=>{
+    const found=closure.records.find(record=>record.path===p);
+    return {path:p,gitBlobSha:found.gitBlobSha};
+  });
+  const exact=auditCheckedSourcePins(current,closure);
+  assert.equal(exact.allRootPinsExact,true);
+  assert.equal(exact.matched,roots.length);
+  assert.deepEqual(exact.mismatches,[]);
+  const altered=current.map((entry,i)=>i===0?{
+    ...entry,gitBlobSha:'0'.repeat(40)}:entry);
+  const drift=auditCheckedSourcePins(altered,closure);
+  assert.equal(drift.allRootPinsExact,false);
+  assert.equal(drift.mismatches.length,1);
+  assert.equal(drift.mismatches[0].path,roots[0]);
+  const absent=auditCheckedSourcePins([
+    ...current,{path:'simulation/evaluation/unknown-release-root.cjs',
+      gitBlobSha:'0'.repeat(40)}],closure);
+  assert.equal(absent.allRootPinsExact,false);
+  assert.equal(absent.missing.length,1);
+  const registered=auditCheckedSourcePins(inventory.checkedSources,closure);
+  console.log('AGENT16_REGISTERED_ROOT_PIN_AUDIT '+JSON.stringify({
+    registered:registered.registered,
+    matched:registered.matched,
+    drifted:registered.mismatches.map(v=>v.path),
+    missing:registered.missing.map(v=>v.path),
+    allRootPinsExact:registered.allRootPinsExact,
+    qualification:registered.qualification
+  }));
+  assert.equal(registered.registered,roots.length);
+  assert.equal(registered.matched+registered.mismatches.length+
+    registered.missing.length,roots.length);
 });
 
 test('no source root outside repository may be scanned',()=>{
