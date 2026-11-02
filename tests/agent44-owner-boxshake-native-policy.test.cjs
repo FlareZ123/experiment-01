@@ -73,8 +73,8 @@ test('opponent decision receives settled first-turn Tool Garbodor witness',()=>{
   const stages=new Map([[0,{stage:'complete',toolName:'Float Stone'}]]);
   const audit={opponentContinuations:[]};
   const phase={PLAYER_TURN:1};
-  const source={bench:[slot('Garbodor','Float Stone')]};
-  const opponent={bench:[slot('Mew',null)]};
+  const source={active:slot(null,null),bench:[slot('Garbodor','Float Stone')]};
+  const opponent={active:slot('Mew',null),bench:[slot('Mew',null)]};
   const state={players:[source,opponent],turn:2,activePlayer:1,phase:1};
   witnessOpponentTurn(stages,audit,state,null,phase);
   assert.deepEqual(audit.opponentContinuations,[{
@@ -88,8 +88,8 @@ test('pending prompt and own turn never count as opponent continuation',()=>{
   const stages=new Map([[1,{stage:'complete',toolName:'Float Stone'}]]);
   const audit={opponentContinuations:[]};
   const phase={PLAYER_TURN:1};
-  const state={players:[{bench:[slot('Mew',null)]},
-    {bench:[slot('Garbodor','Float Stone')]}],
+  const state={players:[{active:slot('Mew',null),bench:[slot('Mew',null)]},
+    {active:slot(null,null),bench:[slot('Garbodor','Float Stone')]}],
     turn:2,activePlayer:1,phase:1};
   witnessOpponentTurn(stages,audit,state,null,phase);
   state.activePlayer=0;
@@ -101,8 +101,8 @@ test('pending prompt and own turn never count as opponent continuation',()=>{
 test('unsettled Tool attachment can never satisfy native completion witness',()=>{
   const stages=new Map([[0,{stage:'complete',toolName:'Float Stone'}]]);
   const audit={opponentContinuations:[]};
-  const state={players:[{bench:[slot('Garbodor',null)]},
-    {bench:[slot('Mew',null)]}],turn:2,activePlayer:1,phase:1};
+  const state={players:[{active:slot(null,null),bench:[slot('Garbodor',null)]},
+    {active:slot('Mew',null),bench:[slot('Mew',null)]}],turn:2,activePlayer:1,phase:1};
   witnessOpponentTurn(stages,audit,state,null,{PLAYER_TURN:1});
   assert.equal(audit.opponentContinuations[0].equippedGarbodor,false);
 });
