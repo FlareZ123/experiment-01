@@ -14,11 +14,11 @@ const load=name=>require(path.join(output,name));
  * @param {0|1} seat Actual attack-owning physical seat.
  * @param {'Tapu Lele-GX GRI'|'Shadow Rider Calyrex VMAX CRE'|'Shadow Rider Calyrex V CRE'} attackerPrinting
  * @param {'Mimikyu PAL'|'Mimikyu GRI'} defenderPrinting
- * @param {boolean} poweredGhostEye Opposing PAL has two Psychic, GX owner only two.
+ * @param {boolean} sourceCapturePair PAL has two source-legal Capture Energy; GX owner two Psychic.
  * @returns {object} Genuine Store damage and KO/Prize receipts.
  */
-function runArm(seat,attackerPrinting,defenderPrinting,poweredGhostEye=false){
-  assert.ok(!poweredGhostEye ||
+function runArm(seat,attackerPrinting,defenderPrinting,sourceCapturePair=false){
+  assert.ok(!sourceCapturePair ||
     (attackerPrinting==='Tapu Lele-GX GRI'&&defenderPrinting==='Mimikyu PAL'));
   const manager=initializeCards();
   let nextId=0;
@@ -42,7 +42,7 @@ function runArm(seat,attackerPrinting,defenderPrinting,poweredGhostEye=false){
   attacker.name='reference physical attacker';
   const physicalAttacker=make(attackerPrinting);
   attacker.active.cards.push(physicalAttacker);
-  const attackerEnergyCount=poweredGhostEye?2:4;
+  const attackerEnergyCount=sourceCapturePair?2:4;
   for(let i=0;i<attackerEnergyCount;i++){
     const energy=make('Psychic Energy SVE');
     attacker.active.cards.push(energy);
@@ -53,9 +53,9 @@ function runArm(seat,attackerPrinting,defenderPrinting,poweredGhostEye=false){
   defender.name='original printed Mimikyu source wall';
   const physicalDefender=make(defenderPrinting);
   defender.active.cards.push(physicalDefender);
-  if(poweredGhostEye){
+  if(sourceCapturePair){
     for(let i=0;i<2;i++){
-      const energy=make('Psychic Energy SVE');
+      const energy=make('Capture Energy RCL');
       defender.active.cards.push(energy);
       defender.active.energies.cards.push(energy);
     }
@@ -128,7 +128,7 @@ function runArm(seat,attackerPrinting,defenderPrinting,poweredGhostEye=false){
   return {sourceRankPrintings: defenderPrinting==='Mimikyu PAL'?[3,7]:[1,30],
     seat,attackerPrinting,defenderPrinting,attackerAttack:attack,
     ownAttachedPsychicEnergy:attackerEnergyCount,
-    sourceAttachedPsychicEnergy:poweredGhostEye?2:0,
+    sourceAttachedCaptureEnergy:sourceCapturePair?2:0,
     expectedSourceMimikyuPrizeLoss:predicted,prizeGain,
     damageOnSurvivingMimikyu:wallStillActive?defender.active.damage:null,
     damageOnSourceBench: fallback.damage,
@@ -153,7 +153,7 @@ function run(){
   assert.equal(arms.length,14);
   return {schema:'agent21-source-print-safeguard-v-gx-actual-store-v1',
     enginePin:ENGINE_SHA,stagedFourTotalPsychicEnergy:true,
-    poweredGhostEyeCounterlineTested:true,actualStoreAttack:true,
+    sourceLegalCaptureEnergyCounterlineTested:true,actualStoreAttack:true,
     countedCounterPlacementDistinctFromAttackDamage:true,
     realSourceMimikyuPrintings:['Mimikyu PAL','Mimikyu GRI'],
     actualSourceFull60Games:0,competitiveQualifiedGames:0,arms};
