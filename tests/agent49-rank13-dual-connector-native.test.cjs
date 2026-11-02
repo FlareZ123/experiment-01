@@ -18,6 +18,9 @@ const {PlayCardAction,PlayerType,SlotType}=
   native('game/store/actions/play-card-action');
 const {ResolvePromptAction}=
   native('game/store/actions/resolve-prompt-action');
+const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+const {withOwnerTreasurePromptContinuation}=
+  require('../simulation/twinleaf/agent49-mysterious-treasure-prompt-continuation.cjs');
 const registered=decks.find(d=>d.rank===13).cards.flatMap(c=>
   Array(c.count).fill(c.name+' '+c.printing.set));
 
@@ -156,4 +159,56 @@ for(const seat of [0,1])test('rank13 two paid Items three target-order branches 
   console.log('AGENT49_DUAL_CONNECTOR_NATIVE',
     JSON.stringify({quickFirst,treasureFirstV,treasureFirstStar,
       competitiveQualifiedGames:0,stagedOriginalSixty:false}));
+});
+
+for(const seat of [0,1])test('owner K1 Treasure VSTAR-first policy + paid Quick Ball V seat '+seat,()=>{
+  const {x,targets}=prepared(seat);
+  const option={initialLiveStore:x.store,earlyRegistered:true,
+    preferVstarIfQuickBallRemaining:true,
+    ownRegisteredSixtiesBySeat:{[seat]:registered}};
+  const {audit}=withOwnerTreasurePromptContinuation(()=>{
+    const itemIndex=x.owner.hand.cards.findIndex(c=>
+      c.fullName==='Mysterious Treasure FLI');
+    x.store.dispatch(new PlayCardAction(x.owner.id,itemIndex,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0}));
+    for(let i=0;i<16;i++){
+      const prompt=x.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      let answer=null;
+      if(prompt.constructor.name==='ChooseCardsPrompt'){
+        const bot={client:{id:x.owner.id}};
+        const action=SimpleTacticsAi.prototype.decodeNextAction.call(
+          bot,x.state);
+        assert.ok(action instanceof ResolvePromptAction);
+        x.store.dispatch(action);
+        continue;
+      }else if(prompt.constructor.name==='ShuffleDeckPrompt')
+        answer=deckPermutation(x.owner.deck.cards.length,seededRandom(600+seat));
+      else assert.ok(['ShowCardsPrompt','WaitPrompt'].includes(
+        prompt.constructor.name));
+      x.store.dispatch(new ResolvePromptAction(prompt.id,answer));
+    }
+    assert.equal(x.store.hasPrompts(),false);
+  },option);
+  assert.equal(audit.completedPhysicalChains,1);
+  assert.equal(audit.deferredVstarChoices,1);
+  assert.equal(audit.nativeItemFinalized,1);
+  assert.equal(audit.failedOrRejectedReplies,0);
+  assert.ok(x.owner.hand.cards.includes(targets.STAR));
+  assert.ok(x.owner.deck.cards.includes(targets.V));
+  const next=chooseRegidragoDonorQuickBall(actorObservation(x.state,seat));
+  assert.equal(next?.printing,'Quick Ball FST');
+  assert.equal(next?.donorPrinting,'Dragapult ex TWM');
+  playPaidItem(x,'Quick Ball FST','Dragapult ex TWM',
+    'Regidrago V SIT',700+seat);
+  const index=x.owner.hand.cards.indexOf(targets.V);
+  x.store.dispatch(new PlayCardAction(x.owner.id,index,{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}));
+  assert.strictEqual(x.owner.bench[1].getPokemonCard(),targets.V);
+  assert.ok(x.owner.hand.cards.includes(targets.STAR));
+  assert.equal(x.store.hasPrompts(),false);
+  assert.equal(audit.competitiveQualifiedGames,0);
+  console.log('AGENT49_DEFERRED_K1_NATIVE',
+    JSON.stringify({seat,selectedStar:true,paidQuickBall:true,
+      benchedV:true,stagedOriginalSixty:false}));
 });
