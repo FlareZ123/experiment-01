@@ -112,6 +112,32 @@ contains richer public attack-funding/nominal-KO predicates. Combine its
 conjunctions with this **same physically frozen rank-11 cohort** rather
 than counting additional isolated held-Guzma root totals.
 
+## 2 November follow-up: absolutely no invested Benched attackers in the reachable positions
+
+**A second, matched, genuine pinned Store replay is completed and independently source-checkable.** [Compiled manual CI 41370546414](https://github.com/FlareZ123/experiment-01/actions/runs/41370546414), head `338eecef1736ef368c8b6306e405fce04da2fc78`, **passed** the extended pure tests and all 16 native exact original-source arms. [Complete JSON artifact 13109410317](https://github.com/FlareZ123/experiment-01/actions/runs/41370546414/artifacts/13109410317), archive SHA-256 `101efadc6079eee5d2a3e49cd55c2da3e6d68296b66948dce386f52d810513c6`, inner JSON SHA-256 `1a22600fda79221d2757862cda1aaf165458770fb6361c35846504be971c0773`. Root-action/deal/outcome digest **exactly** `4c2981a904eb939ba32301038514ef269d7c8a07d883b5c90bae903dfbc82216` again. No treatment or change of decision happened; 10 original engine terminals, six capped games and zero competitive-qualified games remain.
+
+The same read-only Store observer now counts face-up physical **Energy cards** attached to acting owner's Active and occupied Benched Pokémon. Every genuine held-Guzma first-root or Pass receipt was classified with no ambiguity. These are *card counts*, **not typed Energy units or attack-payability certification**.
+
+| Held-Guzma, owner actual root position | First owner root | Accepted Pass |
+| --- | ---: | ---: |
+| Either Bench absent | 67 | 24 |
+| Both Benches occupied, **zero Energy cards attached to owner's Bench** | **255** | **122** |
+| Both occupied, at least one Benched Energy card | **0** | **0** |
+| Unobserved Energy or geometry | 0 | 0 |
+| **Total** | **322** | **146** |
+
+This is the major omitted explanatory variable behind the original 255/122 physical-geometry counts. **All 255/255** and **122/122** instances with both Benches populated had no Benched Energy investment. Thus the previously proposed interpretation that the bot routinely missed immediate, already-charged *own-Bench* Guzma pivot attackers in these particular games is unsupported. That does **not** establish that playing Guzma was always bad: gusting may trap/KO with an indirect line, a zero-cost Benched attack may be usable, an attached Energy may be moved or accelerated, a free-retreat pivot may exist, or discarding and setup may enable an attack afterward. All of those require actual root→prompt→payment→effect continuation. If the Active is invested, a Guzma forced own-switch can easily sacrifice immediate attack pressure.
+
+In the **190** original-source first roots with both Benches populated, active-attached Energy count was `0:28, 1:40, 2:63, 3:30, 4:16, 5:12, 6:1`, while own Benched Energy was **zero throughout**. Therefore **162/190** source held-Guzma first roots (correlated observations) would move an at-least-one-Energy Active off the field while promoting an Energy-less Bench Pokémon if both switch effects fully resolve. The candidate-side 65 first roots similarly all had Benched Energy zero, with 54/65 showing an invested Active. This is a concrete board-state opportunity-cost screen, never an assertion of tactical dominance or later attack payability.
+
+**Distinctive actual source Pass details:** The existing exact owner-only native `sourceOwnerPostPassMobility` records match the same retained source-owner turns. At the 100 held-Guzma original-source Passes with both Benches, source Active was Mega Absol ex **60** times, Latias ex **31** times, Oranguru V **4**, Trubbish **2**, Crobat V **2**, Tapu Lele-GX **1**. Mega Absol's 60 Passes split **18 without Active Energy / 42 with one attached**. The 31 Latias with 3–7 attached cards belong to **only two correlated printed-deck trajectories**, the same rank11 seed group against distinct candidates, and must not count as 31 independent games. The original printed rank11 60 has **8 Basic Darkness, zero Psychic and zero Special Energy**; Latias ex's Psychic-cost Eon Blade is not paid by ordinary attached Darkness alone. This supports investigating earlier Energy recipient and deck-specific move-payability decisions, while leaving unknown modifying card effects and successful alternative lines open.
+
+### Decision-policy bottleneck and forward test
+
+The shared canonical root policy `simulation/twinleaf/agent34-actor-only-root-policy.cjs` has a default Basic Energy action: if no explicit `energyRecipientFrontier` option is set, it returns `attach-basic-energy` with no Bench target, and native conversion routes the default to the Active. The frozen v2 campaign did **not** enable that frontier. Existing `simulation/twinleaf/agent44-actor-energy-recipient.cjs` can instead consider visible eligible Bench and Active attacks, attached Basic/Special Energy and public reductions; it is a **default-off development heuristic**, currently not certified to improve legal paper decisions or matches. Its own approximations may favor a nominal but strategically poor move, so further instrumentation and full counterfactual Store settlement are required.
+
+These native findings require shifting the next experiment to **two-seat Basic Energy recipient selection and its interaction with switching and Supporter contention**. Compare unchanged original full-60 rank11 games on identical preregistered physical deals, first with current canonical target and then with a symmetric, actor-only, bounded Energy-recipient frontier. Preserve same initial deal, both seats, action/prompt traces, actual physical targets, 260-action caps, exceptions, subsequent opponent pressure, source attack funding and every whole-game paper-fidelity veto. Do not infer win-rate superiority from engine terminals. Parallel work by Agent32 on **different authentic original rank11 trajectories** observed 33 repeated payable three-Darkness `Claw of Darkness` alternatives to dead `Terminal Period` attacks, so it would be incorrect to generalize our unpowered-Bench result into *all rank11 turns or all valid attacks*.
+
 ## Next falsification and release gate
 
 Run one actor-only, original-native-root conjunction census distinguishing
