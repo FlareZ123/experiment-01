@@ -1337,6 +1337,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       case 'retreat-emergency-floatstone':
         action=new RetreatAction(ownerId,intent.benchIndex);
         break;
+      case 'free-retreat':
       case 'paid-retreat':
       case 'skyliner-rondo-retreat':
         action=new RetreatAction(ownerId,intent.benchIndex);
