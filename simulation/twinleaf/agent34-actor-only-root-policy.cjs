@@ -1517,7 +1517,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.nativeRootAcceptances.push({...choice,accepted:true,
           publicTransitionWitnessed:witnessed,
           publicZonesChanged,turnOrPhaseChanged,
-          nativePhysicalEffect:physical,before,after});
+          nativePhysicalEffect:farewellPending?'pending-animation-prompt':physical,
+          before,after});
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
