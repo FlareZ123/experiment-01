@@ -50,9 +50,12 @@ function boxShakeOpponentReplyPacket(game,audit,sourceSeat){
   const temporalValid=Number.isSafeInteger(sourceTurn)&&
     Number.isSafeInteger(firstOpponentTurn)&&
     firstOpponentTurn===sourceTurn+1;
-  const settled=Boolean(sourceBoxRoot&&sourceShakeRoot&&
-    sourceToolRoot&&reply?.equippedGarbodor&&
-    temporalValid&&opponentRoots.length>0);
+  const sourceActionOrderValid=Boolean(sourceBoxRoot&&sourceShakeRoot&&
+    sourceToolRoot&&
+    sourceBoxRoot.actionOrdinal<sourceToolRoot.actionOrdinal&&
+    sourceToolRoot.actionOrdinal<sourceShakeRoot.actionOrdinal);
+  const settled=Boolean(sourceActionOrderValid&&
+    reply?.equippedGarbodor&&temporalValid&&opponentRoots.length>0);
   return {
     version:VERSION,sourceSeat,
     nativeOfferObserved:Boolean(offer),
@@ -60,10 +63,7 @@ function boxShakeOpponentReplyPacket(game,audit,sourceSeat){
     sourceBoxRootOrdinal:sourceBoxRoot?.actionOrdinal??null,
     sourceShakeRootOrdinal:sourceShakeRoot?.actionOrdinal??null,
     sourceToolRootOrdinal:sourceToolRoot?.actionOrdinal??null,
-    sourceActionOrderValid:Boolean(sourceBoxRoot&&sourceShakeRoot&&
-      sourceToolRoot&&
-      sourceBoxRoot.actionOrdinal<sourceToolRoot.actionOrdinal&&
-      sourceToolRoot.actionOrdinal<sourceShakeRoot.actionOrdinal),
+    sourceActionOrderValid,
     nativeOpposingActorBoundaryObserved:Boolean(reply),
     equippedGarbodorAtOpposingBoundary:Boolean(reply?.equippedGarbodor),
     opponentRootCount:opponentRoots.length,
