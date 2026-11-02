@@ -36,6 +36,9 @@ jobs:
       - name: Test owner-only natural Clefairy root retreat and negative cases
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-rank30-actor-rondo-retreat.test.cjs
+      - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -59,6 +62,17 @@ jobs:
         with:
           name: agent6-rank30-actor-rondo-native
           path: agent6-rank30-actor-rondo-native.json
+          if-no-files-found: warn
+          retention-days: 15
+      - name: Exact original rank30 canonical owner-root Skyliner Rondo native contrast
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/evaluation/agent6-rank30-canonical-skyliner-rondo-native.cjs > agent6-rank30-canonical-skyliner-rondo-native.json
+      - name: Archive canonical root accepted retreat and full source attack reply
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank30-canonical-skyliner-rondo-native
+          path: agent6-rank30-canonical-skyliner-rondo-native.json
           if-no-files-found: warn
           retention-days: 15
       - name: Archive all native original rank30 funded Rondo fork outcomes and errors
