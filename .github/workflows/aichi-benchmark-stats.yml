@@ -782,11 +782,20 @@ jobs:
         run: npm run compile
       - name: Execute four registered rank5 native canary arms without claiming competitive qualification
         run: node simulation/evaluation/agent18-rank5-selected-canary.cjs > agent18-rank5-selected-canary-native.json
+      - name: Regress the sole natural-evolution policy change on exactly the previously observed physical deals
+        run: node --test tests/agent18-rank5-natural-evolution-v2.test.cjs
+      - name: Execute four retrospective rank5 native natural-evolution treatment arms
+        run: node simulation/evaluation/agent18-rank5-natural-evolution-v2.cjs > agent18-rank5-evolution-retrospective.json
+      - name: Require exact registered source-deal pairing for the single-option contrast
+        run: >-
+          node -e "const a=require('node:assert/strict'),x=require('./agent18-rank5-selected-canary-native.json'),y=require('./agent18-rank5-evolution-retrospective.json');a.equal(x.attempted,4);a.equal(y.attempted,4);a.equal(x.registeredDeckFingerprintsMatched,true);a.equal(y.registeredDeckFingerprintsMatched,true);const t=r=>r.rows.map(v=>[v.trial.id,v.sourceDealFingerprint]);a.deepEqual(t(x),t(y));console.log('RANK5_NATURAL_EVOLUTION_PAIR',JSON.stringify({baseline:x.armDispositions,treatment:y.armDispositions,qualifiedGames:0}));"
       - name: Preserve all registered attempts, failures and disposition vetoes
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent18-rank5-selected-both-seat-development
-          path: agent18-rank5-selected-canary-native.json
+          path: |
+            agent18-rank5-selected-canary-native.json
+            agent18-rank5-evolution-retrospective.json
           if-no-files-found: warn
           retention-days: 15
