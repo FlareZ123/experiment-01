@@ -16,7 +16,7 @@ const PRINTING='Sidney FST 241';
  * @param {'legal-two'|'illegal-pokemon-and-basic-energy'|'mixed-illegal'|'no-target'} mode
  * @returns {object} Real prompt validator, dispatch and owner zone receipts.
  */
-function probeSidney(seat,mode){
+function probeSidney(seat,mode,printing=PRINTING){
   assert.ok([0,1].includes(seat));
   assert.ok(['legal-two','illegal-pokemon-and-basic-energy',
     'mixed-illegal','no-target'].includes(mode));
@@ -27,7 +27,7 @@ function probeSidney(seat,mode){
   const f=stagedPainfulSpoons(seat);
   f.source.active.cards.splice(0,1,f.card('Iron Thorns ex TWM'));
   f.opponent.active.cards.splice(0,1,f.card('Mew V FST'));
-  const sidney=f.card(PRINTING);
+  const sidney=f.card(printing);
   f.source.hand.cards.push(sidney);
   const opponentHand=[
     f.card('Mew V FST'),
@@ -48,7 +48,7 @@ function probeSidney(seat,mode){
     p.message==='CHOOSE_CARD_TO_DISCARD');
   assert.ok(prompt,'Expected actual Sidney opponent-hand ChooseCardsPrompt');
   const selections={
-    'legal-two':[opponentHand[2],opponentHand[3]],
+    'legal-two':printing==='Team Skull Grunt SUM'?\n      [opponentHand[1],opponentHand[2]]:[opponentHand[2],opponentHand[3]],
     'illegal-pokemon-and-basic-energy':[opponentHand[0],opponentHand[1]],
     'mixed-illegal':[opponentHand[5],opponentHand[4]],
     'no-target':[]
@@ -63,7 +63,7 @@ function probeSidney(seat,mode){
   try{f.store.dispatch(new ResolvePromptAction(prompt.id,reply));}
   catch(e){error=String(e?.message??e);}
   return {
-    sourceRank:24,seat,mode,printing:PRINTING,
+    sourceRank:24,seat,mode,printing,
     originalFieldRanksWithPrinting:[6,24,29],
     nativeBoundaries,validatorAccepted,error,before,
     after:{opponentHand:f.opponent.hand.cards.length,
@@ -83,4 +83,4 @@ if(require.main===module){
       'mixed-illegal','no-target'])
       console.log('AGENT12_SIDNEY_NATIVE '+JSON.stringify(probeSidney(seat,mode)));
 }
-module.exports={PRINTING,probeSidney};
+/** @param {0|1} seat @param {string} mode */\nfunction probeTeamSkull(seat,mode){\n  return probeSidney(seat,mode,'Team Skull Grunt SUM');\n}\nmodule.exports={PRINTING,probeSidney,probeTeamSkull};
