@@ -28,6 +28,7 @@ function publicOwnerBoard(player){
   return {
     activePrinting:active?.fullName??null,
     activeEnergy:(player.active.energies?.cards??[]).map(c=>c.fullName),
+    activeTools:player.active.tools.map(c=>c.fullName),
     bench
   };
 }
@@ -86,7 +87,6 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         actionAttack:actionType==='AttackAction'?action.name:null,
         ...board,
         attachedBasicEnergyCards:basicEnergyCards,
-        activeTools:(owner.active.tools?.cards??[]).map(card=>card.fullName),
         heldMobility
       });
     }
