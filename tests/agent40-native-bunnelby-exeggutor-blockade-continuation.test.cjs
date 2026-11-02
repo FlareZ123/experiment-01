@@ -19,6 +19,8 @@ const {withBunnelbyEvolutionLine}=
   require('../simulation/twinleaf/bunnelby-evolution-policy.cjs');
 const {withBunnelbyBarrageConsent}=
   require('../simulation/twinleaf/agent40-bunnelby-barrage-consent.cjs');
+const {resolveManifestFile}=
+  require('../simulation/twinleaf/resolve-field.cjs');
 const challenge=require('../results/als/agent18-exeggutor-vileplume-native-v2.json');
 
 const OUTPUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
@@ -84,8 +86,30 @@ function staged(seat){
     PowerType:native('game/store/card/pokemon-types').PowerType
   };
   const catalog=buildActorCardCatalog(manager.getAllCards(),types);
-  const ownRegisteredSixty=challenge.cards.flatMap(row=>
-    Array(row.count).fill(row.name+' '+row.printing.set));
+  // Public 'Grand Tree' is 'Great Tree SCR' in the pinned CardManager.
+  // Derive native-registered printings from the original rank2 source 60,
+  // then apply only the challenger v2 published physical copy delta.
+  const source=resolveManifestFile(path.resolve(__dirname,
+    '../results/aichi-2026/full-decklists.json'),{
+      allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+    }).decks.find(row=>row.rank===2);
+  assert.ok(source?.playableUnderEngine);
+  const ownRegisteredSixty=[...source.cardIds];
+  /** @param {string} printing @param {number} quantity */
+  const removeCopies=(printing,quantity)=>{
+    for(let count=0;count<quantity;count++){
+      const index=ownRegisteredSixty.indexOf(printing);
+      assert.ok(index>=0,'Original source missing '+printing);
+      ownRegisteredSixty.splice(index,1);
+    }
+  };
+  removeCopies('Lillipup CEC',2);
+  removeCopies('Herdier SUM',2);
+  removeCopies('Stoutland BCR',1);
+  ownRegisteredSixty.push('Exeggcute PLF','Exeggcute VIV',
+    'Exeggutor PLF','Exeggutor PLF',JET);
+  assert.equal(challenge.schema,
+    'agent18-exeggutor-vileplume-v2-native-implemented-60');
   assert.equal(ownRegisteredSixty.length,60);
   assert.equal(ownRegisteredSixty.filter(p=>p===JET).length,3);
   assert.equal(ownRegisteredSixty.filter(p=>p==='Exeggutor PLF').length,2);
