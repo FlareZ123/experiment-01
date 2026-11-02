@@ -23,3 +23,5 @@ function stage(seat){
   c.id=nextId++;
   return c;
  };
+ const owner=new Player(),foe=new Player();
+ owner.id=501;foe.id=502;
