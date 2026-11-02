@@ -1,0 +1,59 @@
+{
+  "schema": "agent10-rank9-source-funding-bilateral-retreat-factorial-v1",
+  "registeredAtUtc": "2026-11-02T16:50:00Z",
+  "aim": "Test whether owned Mega Absol staged funding and general public-paid Retreat interact to advance genuine original-source attacks without changing any source/candidate 60 or hidden zones",
+  "source": "Original authenticated rank9 Shun Ito original printed 60",
+  "opposingFixedCandidates": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "originalPhysicalSeats": [
+    "A",
+    "B"
+  ],
+  "seedGroups": [
+    {
+      "candidateSlot": "A",
+      "seed": 3060075246
+    },
+    {
+      "candidateSlot": "B",
+      "seed": 690229661
+    }
+  ],
+  "registeredTrialsPerArm": 4,
+  "arms": [
+    {
+      "label": "control",
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorFlexiblePaidRetreatRoot": false
+    },
+    {
+      "label": "funding",
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorFlexiblePaidRetreatRoot": false
+    },
+    {
+      "label": "retreat",
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorFlexiblePaidRetreatRoot": true
+    },
+    {
+      "label": "interaction",
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorFlexiblePaidRetreatRoot": true
+    }
+  ],
+  "policy": "frozen agent41 bilateral-v2 actor-only known-dead baseline, modified only listed options",
+  "decisiveResults": [
+    "exact full initial physical deal parity across all arms",
+    "earliest real source Claw declared",
+    "real paid Retreat and ChoiceEnergyPrompt status",
+    "actual Prize progression per settled source attack",
+    "opponent first subsequent root",
+    "per-arm native ending/cap",
+    "orig actor versus candidate asymmetry"
+  ],
+  "competitiveQualifiedGames": 0,
+  "caveat": "Retrospectively used original four deals. Need separate prospective seeds, qualified paper payment, complete legal implementations, skilled two-seat policy and official time."
+}
