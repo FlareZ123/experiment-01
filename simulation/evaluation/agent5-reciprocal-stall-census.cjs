@@ -1,13 +1,17 @@
 'use strict';
 
-const VERSION='agent5-reciprocal-stall-census-v1';
+const VERSION='agent5-reciprocal-stall-census-v2';
 
 /**
  * Distinguish a settled Prize change from unchanged or missing Store evidence.
+ * Unfinished prompt chains or episode-crossing replays cannot establish a
+ * Prize movement, even if a future packet retains before/after arrays.
  * @param {object|undefined} attack Native attack-settlement row.
  * @returns {boolean|null} True for a Prize movement, null if unverified.
  */
 function prizeMovement(attack){
+  if(attack?.settledPromptChain!==true ||
+      attack?.settlementCrossesClockReset===true)return null;
   const before=attack?.prizesBefore,after=attack?.prizesAfter;
   if(!Array.isArray(before)||!Array.isArray(after)||
       before.length!==2||after.length!==2)return null;
