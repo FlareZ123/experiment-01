@@ -54,7 +54,8 @@ function stage(seat) {
   owner.active.cards.push(mega);
   owner.bench[0].cards.push(card('Voltorb ROS'), card('Electrode-GX CES'));
   owner.bench[1].cards.push(card('Unown AOR'));
-  opponent.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+  // Rank-10 original Regidrago V is a 220-HP neutral-Weakness attack recipient.
+  opponent.active.cards.push(card('Regidrago V SIT'));
   opponent.hand.cards.push(card('Fog Crystal CRE'));
 
   const energy = [
