@@ -5,6 +5,8 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const native=require('./agent37-rank5-fusion-mobility-prospective.cjs');
 const {witness}=require('./agent9-rank5-quickball-payment-pair.cjs');
+const {withCrobatRetreatFeeCustody}=
+  require('../twinleaf/agent9-retreat-fee-custody.cjs');
 
 const VERSION='agent9-rank5-crobat-dce-mew-paid-retreat-pair-v1';
 const REGISTRATION='results/aichi-2026/registrations/agent9-rank5-crobat-dce-mew-retreat-pair-20261102.json';
@@ -57,17 +59,23 @@ function nativeRetreatAudit(entry){
 }
 
 /** Execute 16 controlled native Store attempts with paired source physical deals. */
-function run(){
+function run({observePhysicalRetreatFee=false}={}){
+  assert.equal(typeof observePhysicalRetreatFee,'boolean');
   const bytes=fs.readFileSync(path.join(ROOT,REGISTRATION)),reg=JSON.parse(bytes);
   assert.equal(reg.nativeAttempts,16);
   assert.equal(reg.zeroPostOutcomeExclusions,true);
   const before=process.env.AGENT8_ACTOR_QUICK_BALL_DEV;
-  let control,treatment;
+  let control,treatment,feeAudit=null;
   try{
     process.env.AGENT8_ACTOR_QUICK_BALL_DEV='false';
     control=native.run({quickBallScope:'source',actorHandDiscard:true});
-    treatment=native.run({quickBallScope:'source',actorHandDiscard:true,
-      sourceCrobatDceMewRetreat:true});
+    const executeTreatment=()=>native.run({quickBallScope:'source',
+      actorHandDiscard:true,sourceCrobatDceMewRetreat:true});
+    if(observePhysicalRetreatFee){
+      const watched=withCrobatRetreatFeeCustody(executeTreatment);
+      treatment=watched.result;
+      feeAudit=watched.audit;
+    }else treatment=executeTreatment();
   }finally{
     if(before===undefined)delete process.env.AGENT8_ACTOR_QUICK_BALL_DEV;
     else process.env.AGENT8_ACTOR_QUICK_BALL_DEV=before;
@@ -99,8 +107,12 @@ function run(){
     nativeAttemptCount:16,matchedPhysicalPairs:blocks.filter(x=>
       x.fullPhysicalDealPair==='EXACT_MATCH').length,
     competitiveQualifiedGames:0,certifiedWinRate:null,
+    physicalRetreatFeeObserverOptIn:observePhysicalRetreatFee,
+    physicalRetreatFeeAudit:feeAudit,
     blocks,raw:{control,treatment}};
 }
 
-if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module)process.stdout.write(JSON.stringify(run({
+  observePhysicalRetreatFee:process.env.AGENT9_RETREAT_FEE_CUSTODY_DEV==='true'
+}),null,2)+'\n');
 module.exports={VERSION,REGISTRATION,nativeRetreatAudit,run};
