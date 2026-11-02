@@ -69,6 +69,20 @@ Rank6's initial-seven numerator is **19,656,896** of **56,156,680** conditional 
 
 This Prize-risk guarantee is solely conditional on the stated source construction, hand observation and random Prize placement, *before other card effects or losses*. Remaining in a deck does not guarantee timely search access. Some higher-copy cards such as VS Seeker or Guzma can still be tactically invaluable. No outcome or discard strategy is inferred from this subset. The new source-driven combinatorial column is checked by an independent exhaustive toy-deck test.
 
+
+## Same-hand counterexample: exact K0 Prize replacement for two payment choices
+
+Consider this **hypothetical**, source-compatible initial seven-card hand (all names present in rank6): Iron Thorns ex, Plumeria, Guzma, Crushing Hammer, VS Seeker, Thunder Mountain Prism Star, and Double Colorless Energy. Assume Plumeria is played and the remaining 53 physical cards are randomly divided into six unknown Prizes and 47 deck cards, with no other moves.
+
+- If the two discarded cards are **Guzma (three in source 60) and Crushing Hammer (four in source 60)**, each has zero same-printing copies left in that hand, yet their unobserved copies number two and three. Their joint physical replacement survival is exactly
+  **[C(53,6) - C(51,4) - C(50,3) + C(48,1)] / C(53,6)**
+  = **22,688,028 / 22,957,480 = 98.82629975%**.
+- If the two discarded cards are **Thunder Mountain Prism Star (one in source 60) and Double Colorless Energy (one in source 60)**, both original singleton resources are absent after payment, so their same-printing replacement probability is **0%**.
+
+Both payments fail the current rule of retaining every last *hand-held* printing. The exact random-Prize model can distinguish their very different *physical replacement risk*. It cannot decide whether sacrificing the relevant Guzma or Crushing Hammer is actually wise. A live state may have made a singleton already useful or a globally duplicated card essential, and search timing remains unknown.
+
+The above calculation is inclusion-exclusion over two disjoint printing-loss events. For a paid printing with `u` unobserved copies and zero physical copies remaining in hand after payment, the probability of losing every duplicate to six random Prizes is `C(53-u,6-u)/C(53,6)` (zero when `u>6`). The intersection event with two distinct printings uses their summed unseen copies. This is a hand-specific exact K0 risk, unlike the earlier unconditional sampled-hand opportunity rates.
+
 ## Implication and limits
 
 The last-printing payment heuristic is a particularly restrictive approximation to state-dependent discard value. Among Basic-valid openings with Plumeria held, at least **96.86%** fail its *hand-only* no-erasure test before public opposing attached Energy, actual Supporter quota, locks, native prompt restrictions, hand changes or opponent matchup are considered. The one-draw percentage still fails in more than **93.45%** of those conditioned states.
