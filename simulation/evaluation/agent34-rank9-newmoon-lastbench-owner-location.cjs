@@ -43,7 +43,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
   assert.equal(typeof original?.value,'function');
   const originalStores=new WeakMap();
   let liveStoreCount=0,originalStoreDispatches=0;
-  const matches=[];
+  const matches=[],searches=[];
   function observed(action,...args){
     if(action?.constructor?.name==='AddPlayerAction'&&
        !originalStores.has(this)){
@@ -55,6 +55,31 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
     originalStoreDispatches++;
     const state=this.state;
     let before=null;
+    if(action?.constructor?.name==='ResolvePromptAction'&&
+       state?.turn===23&&Array.isArray(action.result)){
+      const pending=state.prompts?.find(p=>
+        p.id===action.id&&p.result===undefined);
+      const seat=state.players.findIndex(p=>p.id===pending?.playerId);
+      const owner=state.players[seat];
+      const requested=action.result.map(card=>card?.fullName??null);
+      if(seat===0&&pending?.constructor?.name==='ChooseCardsPrompt'&&
+         pending.cards===owner.deck&&requested.includes(TARGET)){
+        const alternative=owner.deck.cards.find(card=>card.fullName===CORE);
+        searches.push({
+          storeRunIndex:live.run,originalDispatchOrdinal:root,
+          globalTurn:state.turn,ownerSeat:seat,
+          promptId:pending.id,promptClass:pending.constructor.name,
+          promptOwnerDeck:true,
+          originalChosenPrintings:requested,
+          candidateAlternative:alternative?.fullName??null,
+          candidateInOwnerDeck:!!alternative,
+          nativePromptValidatesAlternative:alternative?
+            pending.validate([alternative]):false,
+          ownerPrivateCoreLocations:ownerZoneCounts(owner),
+          observerOnly:true
+        });
+      }
+    }
     if(action?.constructor?.name==='PlayCardAction'&&
       state?.turn===23&&Array.isArray(state?.players)){
       const seat=state.players.findIndex(p=>
@@ -99,7 +124,7 @@ function withOwnerLastBenchReadOnlyAudit(execute,deps={Store}){
     return {result,audit:{version:VERSION,
       originalStores:liveStoreCount,originalStoreDispatches,
       matchingOriginalRootCount:matches.length,
-      events:matches,
+      events:matches,searchPromptEvents:searches,
       gameQualifyingEvidence:false,
       paperComplete:false,
       observerIsReadOnly:true
