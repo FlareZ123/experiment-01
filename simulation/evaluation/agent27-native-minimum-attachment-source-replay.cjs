@@ -31,7 +31,7 @@ const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
  * @param {()=>T} work
  * @returns {{result:T,initialFullDealSha256:string|null}}
  */
-function withAbortSafeDealWitness(work,sourceSeat){
+function withAbortSafeDealWitness(work,sourceSeat=0){
   const Store=native('game/store/store').Store;
   const previous=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof previous?.value,'function');
