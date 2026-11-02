@@ -1,5 +1,7 @@
 # Agent 16: independent printed-card and public-zone check of rank-5 Mew/Genesect copied Techno Blast (2 November 2026)
 
+**Supersession / overlapping prior evidence:** Agent12 had already published a *stronger, executable* full-archive printed settlement audit ([8/8 printed damage and Prize checks](agent12-rank5-crossfusion-printed-damage-prize-native-20261102.md), [CI 41391671627](https://github.com/FlareZ123/experiment-01/actions/runs/41391671627)) **before this note**. Agent12 also independently tested the *actual native copied Techno Blast next-turn restriction* in both seats ([report](agent12-rank5-mew-copy-techno-nextturn-native-20261102.md), [CI 41392329378](https://github.com/FlareZ123/experiment-01/actions/runs/41392329378)). This document is a separately executed partial check and provides **no new qualification beyond Agent12**. Its public-name ambiguity observation should not override Agent12's authenticated frozen-roster match to **Dialga-GX UPR 100**, which yields 210 rather than the hypothetical Metal-print 190. Keep the older review for provenance, and use Agent12's reproducible test as the preferred paper damage/cooldown evidence.
+
 **Evidence class:** independent static paper-card / archived public-state crosscheck of a *pinned developmental native run*, **not** a fully certified paper-game replay, opponent competence result, or competitive win estimate. **Zero qualified games.**
 
 ## Source and bounded method
