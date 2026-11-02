@@ -56,7 +56,8 @@ function probe(mode,sourceSeat,{repair=false,effectRepair=false,
   const equippedAirBalloon=mode.includes('-airballoon');
   const equippedFuryBelt=mode.includes('-furybelt');
   const equippedStealthyHood=mode.includes('-stealthyhood');
-  assert.ok(!attackFollowup||(effectRepair&&equippedStealthyHood));
+  assert.ok(!attackFollowup||(effectRepair&&
+    (equippedStealthyHood||equippedFloatStone)));
   assert.ok(!opponentReply||attackFollowup);
   const opponentBenchJammer=mode.endsWith('-bench-jammer');
   const opponentToolJammer=(mode.endsWith('-jammer')||
@@ -443,25 +444,33 @@ function runRepair(){
     qualifiedCompetitiveGames:0};
 }
 function runPairedJammerTurnCounterfactual(){
-  const rows=['thorns-stealthyhood','thorns-stealthyhood-jammer']
-    .flatMap(mode=>[0,1].map(seat=>probe(mode,seat,{
+  // Float Stone is in the authenticated rank-30 source sixty; Hood is a
+  // separate mechanical contrast, not an original rank-30 deck inclusion.
+  const pairs=[
+    ['thorns-float','thorns-float-jammer'],
+    ['thorns-stealthyhood','thorns-stealthyhood-jammer']
+  ];
+  const rows=pairs.flatMap(modes=>modes.flatMap(mode=>
+    [0,1].map(seat=>probe(mode,seat,{
       effectRepair:true,nativeEndOpponentTurn:true,
       nativePlayJammer:mode.endsWith('-jammer'),
       opponentPassOnly:!mode.endsWith('-jammer'),
-      attackFollowup:true,opponentReply:true})));
+      attackFollowup:true,opponentReply:true}))));
   const failures=rows.flatMap(row=>Object.entries(row.checks)
     .filter(([,passes])=>!passes)
     .map(([check])=>({mode:row.mode,seat:row.sourceSeat,check})));
-  const rootFingerprints=Object.fromEntries([0,1].map(seat=>[
-    String(seat),rows.filter(r=>r.sourceSeat===seat).map(r=>
-      r.nativeJammerPlayReceipt.initialRootFingerprint)
-  ]));
-  for(const [seat,hashes] of Object.entries(rootFingerprints)){
-    if(hashes.length!==2||hashes[0]!==hashes[1])
-      failures.push({mode:'paired-root-mismatch',seat,hashes});
+  const rootFingerprints={};
+  for(const modes of pairs)for(const seat of [0,1]){
+    const key=modes[0]+':seat'+seat;
+    const hashes=modes.map(mode=>rows.find(r=>r.mode===mode&&
+      r.sourceSeat===seat).nativeJammerPlayReceipt.initialRootFingerprint);
+    rootFingerprints[key]=hashes;
+    if(hashes[0]!==hashes[1])
+      failures.push({mode:'paired-root-mismatch',seat,hashes,
+        control:modes[0],treatment:modes[1]});
   }
   return {version:VERSION,pairedJammerTurnCounterfactual:true,
-    rootFingerprints,
+    pairModes:pairs,rootFingerprints,
     rows,stagedNativeCases:rows.length,failures,
     failedChecks:failures.length,qualifiedCompetitiveGames:0};
 }
