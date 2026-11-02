@@ -5,10 +5,15 @@ const path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
 
-const VERSION='agent47-actor-hand-discard-v1-bounded';
+const VERSION='agent47-actor-hand-discard-v2-nine-source-dragon-payload';
+/* Source-printed copyable Dragon donors used across the nine authenticated
+ * Regidrago sixties; this only affects the opt-in pre-attack payload policy.
+ * For direct-ready Apex discard, the native physical prompt is authoritative.
+ */
 const APEX_PAYLOAD_PRINTINGS=new Set([
   'Dragapult ex TWM','Dialga-GX UPR','Mega Dragonite ex ASC',
-  'Noivern ex PAL','Kyurem SFA','Regidrago V SIT'
+  'Noivern ex PAL','Kyurem SFA','Hisuian Goodra VSTAR LOR',
+  'Koraidon ex TEF','Salamence ex JTG','Regidrago V SIT'
 ]);
 const MESSAGE='CHOOSE_CARD_TO_DISCARD';
 
