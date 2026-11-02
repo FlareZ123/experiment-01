@@ -33,6 +33,9 @@ jobs:
           python scripts/workflow_dispatch_preflight.py
       - name: Test exact actor-owner Psychic recipient choice and default-off gate
         run: node --test tests/agent7-rondo-psychic-bench-stage.test.cjs
+      - name: Test owner-only natural Clefairy root retreat and negative cases
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-rank30-actor-rondo-retreat.test.cjs
       - name: Check out pinned original Twinleaf revision
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned server dependencies
@@ -47,6 +50,17 @@ jobs:
       - name: Retro original rank30 paid Clefairy actual source retreat and Rondo native fork
         if: inputs.agent6_rank30_rondo
         run: node simulation/evaluation/agent6-rank30-funded-clefairy-retreat-native.cjs > agent6-rank30-funded-clefairy-retreat-native.json
+      - name: Original rank30 actor-chosen retreat and Rondo native counterfactual
+        if: inputs.agent6_rank30_rondo
+        run: node simulation/evaluation/agent6-rank30-actor-rondo-native.cjs > agent6-rank30-actor-rondo-native.json
+      - name: Archive native rank30 actor-root choice, accepted Store action and reply
+        if: always() && inputs.agent6_rank30_rondo
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-rank30-actor-rondo-native
+          path: agent6-rank30-actor-rondo-native.json
+          if-no-files-found: warn
+          retention-days: 15
       - name: Archive all native original rank30 funded Rondo fork outcomes and errors
         if: always() && inputs.agent6_rank30_rondo
         uses: actions/upload-artifact@v4
