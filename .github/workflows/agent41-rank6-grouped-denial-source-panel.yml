@@ -241,6 +241,9 @@ jobs:
       - name: Replay source-owned native paralysis failure and corrected pass on identical deal
         if: ${{ inputs.test_native_scripted_condition_repair }}
         run: node simulation/evaluation/agent38-native-scripted-condition-recovery-pair.cjs > agent38-native-scripted-condition-recovery.json
+      - name: Regress deterministic native AttackAction inventory
+        if: ${{ inputs.audit_native_scripted_attack_conditions }}
+        run: node --test tests/agent38-native-attack-inventory.test.cjs
       - name: Inventory scripted native AttackAction condition-token coverage
         if: ${{ inputs.audit_native_scripted_attack_conditions }}
         run: node scripts/agent38-native-scripted-attack-condition-inventory.cjs > agent38-native-attack-condition-inventory.json
