@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 
 const VERSION='agent26-aichi-may2026-paper-clock-adjudicator-v1';
 const STAGES=new Set(['swiss','top32','final']);
-const PHASES=new Set(['cutoff','extension']);
+const PHASES=new Set(['cutoff','extension','tiebreak']);
 
 /**
  * Evaluate the *stated* Japanese CL Aichi May 2026 25/35-minute
@@ -20,7 +20,7 @@ const PHASES=new Set(['cutoff','extension']);
  *
  * @param {{
  *   stage:'swiss'|'top32'|'final',
- *   phase:'cutoff'|'extension',
+ *   phase:'cutoff'|'extension'|'tiebreak',
  *   firstPlayerSeat:0|1,
  *   lastCompletedTurnSeat:0|1|null,
  *   prizeRemaining:[number,number],
@@ -50,7 +50,7 @@ function adjudicateMay2026AichiTime(state){
   const base={version:VERSION,officialClockMinutes:stage==='final'?35:25,
     stage,phase,requiredFinalSeat:1-firstPlayerSeat,winner:null,requiresExtension:false,
     actorActionAllowed:false,competitiveGameQualified:false,
-    paperClockMeasured:false,postCutoffCheckupAllowed:false};
+    paperClockMeasured:false,postCutoffCheckupAllowed:phase!=='cutoff'};
   // Ordinary paper wins/ties terminate immediately, even before the
   // second-starting player's final turn has been reached.
   if(naturalOutcome==='tie')return stage==='swiss'?
@@ -66,6 +66,13 @@ function adjudicateMay2026AichiTime(state){
       actorActionAllowed:true};
   }
   if(stage==='swiss')return {...base,status:'SWISS_BOTH_LOSS'};
+  if(phase==='tiebreak'){
+    const [a,b]=prizeRemaining;
+    if(a!==b)return {...base,status:'PAPER_TIEBREAKER_PRIZE_LEAD_WIN',
+      winner:a<b?0:1};
+    return {...base,status:'PAPER_TIEBREAKER_CONTINUE',
+      actorActionAllowed:true};
+  }
   const [a,b]=prizeRemaining;
   if(a!==b&&Math.min(a,b)<=2)return {
     ...base,status:'KNOCKOUT_PAPER_TIME_WIN',winner:a<b?0:1};
