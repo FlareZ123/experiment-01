@@ -21,12 +21,14 @@ class NativeScoredBot {
   }
 }
 
-function runFixture({replayPolicy=(_seat,work)=>({result:work()})}={}) {
+function runFixture({replayPolicy=(_seat,work)=>({result:work()}),
+  entryOnly=false}={}) {
   const source={
     turn:3,activePlayer:0,prompts:[],beforeScoreMutation:0,
     players:[{id:101,hand:{cards:[]},deck:{cards:['hidden-A','hidden-B']}}]
   };
-  let authenticCalls=0,complete=false;
+  let authenticCalls=0,complete=false,clones=0;
+  const countClones=state=>{clones++;return structuredClone(state);};
   const options={tactics:[],promptResolvers:[],scores:{},arbiter:{}};
   const headless={runMatch() {
     const bot=new NativeScoredBot({id:101},options);
@@ -44,9 +46,10 @@ function runFixture({replayPolicy=(_seat,work)=>({result:work()})}={}) {
     return result;
   };
   const result=withPostgameRootOrderProbe(
-    NativeScoredBot,execute,structuredClone,
+    NativeScoredBot,execute,countClones,
     {turn:3,seat:0,firstFiniteScoredRoot:true,
       nativeTapeSameWorld:true,nativeTapeFirstFiniteScore:true,
+      nativeTapeEntryOnly:entryOnly,
       makeRandom:()=>()=>0.5},
     {headless,replayPolicy,compare:()=>{throw Error('No hidden contrast');}}
   );
@@ -54,7 +57,7 @@ function runFixture({replayPolicy=(_seat,work)=>({result:work()})}={}) {
   assert.equal(complete,true);
   assert.strictEqual(headless.runMatch,base);
   assert.strictEqual(NativeScoredBot.prototype.decodeNextAction,native);
-  return {result,source};
+  return {result,source,clones};
 }
 
 test('first native finite score replays full authentic tape from decode entry',()=>{
@@ -85,4 +88,15 @@ test('first native scored tape refuses changed detached policy at same root',()=
   assert.equal(event.nativeSameWorldTape.selectedActionMatched,false);
   assert.equal(event.nativeSameWorldTape.sameWorldDecisionParityQualified,false);
   assert.equal(event.counterfactualCompared,false);
+});
+
+test('entry-only source finite-score probe skips redundant deep clone under real RNG',()=>{
+  const traditional=runFixture();
+  const entryOnly=runFixture({entryOnly:true});
+  assert.equal(entryOnly.clones+1,traditional.clones);
+  assert.equal(entryOnly.result.events[0].nativeSameWorldTape
+    .sameWorldDecisionParityQualified,true);
+  assert.equal(entryOnly.result.events[0]
+    .sourceStateChangedBeforeFirstScore,true);
+  assert.deepEqual(entryOnly.result.result,traditional.result.result);
 });
