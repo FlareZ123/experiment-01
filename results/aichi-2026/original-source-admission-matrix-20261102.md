@@ -18,7 +18,7 @@
 | 2 | Takahiro Ando · Vileplume Control | `dcf96da30eac` | 36-arm native attempted | Baby-Doll Eyes / Stardust / Burrow observed; lock control unqualified |
 | 3 | Haruto Miki · Snorlax Stall | `83b572db9a53` | Nine-rank scout registered | Source-specific competence not certified |
 | 4 | Shu Hosoda · Raichu Electrode Combo | `c17423030daa` | Nine-rank scout registered | Source-specific competence not certified |
-| 5 | Yamato Nakano · Mew Genesect | `a66f9b785b7f` | 36-arm native attempted | ZERO source attacks in four native arms |
+| 5 | Yamato Nakano · Mew Genesect | `a66f9b785b7f` | 36-arm cohort; later pinned v3.1 | Initial cohort: zero source attacks in four arms. [Later pinned v3.1](agent13-rank5-v31-corrected-root-native-16arm-20261102.md): eight native-settled copied attacks in three of eight treatment attempts. Paper and opponent competence still unqualified. |
 | 6 | Kazuma Kashi · Iron Thorns | `9c479091770e` | Nine-rank scout registered | Source-specific competence not certified |
 | 7 | Hiroto Fuji · Snorlax Stall | `522c1d4d7120` | Nine-rank scout registered | Source-specific competence not certified |
 | 8 | Yusuke Kobayashi · Absol Garbodor | `6d955f821a0a` | No cited cohort | No characteristic line witnessed in cited study |
