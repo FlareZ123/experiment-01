@@ -1,0 +1,41 @@
+name: Frozen bilateral source-policy release canary
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-rank6-four-arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out the exact run revision
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Select pinned Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fail-closed profile and archive regression suite
+        run: node --test tests/agent20-frozen-canary.test.cjs
+      - name: Check out pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run one frozen configuration with two physical seats and both fixed 60s
+        run: node simulation/evaluation/agent20-frozen-rank6-canary-v1.cjs
+      - name: Preserve immutable selection and every attempt, including failed disposition
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent20-frozen-rank6-release-disposition
+          path: agent20-frozen-rank6-canary-v1-output.json
+          if-no-files-found: warn
+          retention-days: 30
