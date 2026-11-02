@@ -23,6 +23,11 @@ on:
         type: boolean
         default: false
         required: false
+      source13_paper_evolution_factorial:
+        description: Run retrospective rank13 donor evolution panel with reversible paper Celestial Roar correction
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -64,6 +69,15 @@ jobs:
       - name: Verify owner-visible source Regidrago VSTAR opportunity witness
         if: ${{ inputs.source13_evolution_factorial }}
         run: node --test tests/agent8-rank13-vstar-owner-opportunity.test.cjs
+      - name: Verify exact Regidrago donor and held VSTAR opening DP
+        if: ${{ inputs.source13_paper_evolution_factorial }}
+        run: node --test tests/agent8-rank13-vstar-opening-dp.test.cjs
+      - name: Retrospective original-rank13 four-arm donor by corrected paper Celestial Roar
+        if: ${{ inputs.source13_paper_evolution_factorial }}
+        env:
+          AGENT8_RANK13_PAPER_CORRECTION: 'true'
+          AGENT8_RANK13_FACTORIAL_JSON: agent8-original13-donor-evolution-paper-correct-native.json
+        run: node simulation/evaluation/agent8-rank13-donor-evolution-factorial-native.cjs
       - name: Retrospective original-rank13 four-arm donor by two-seat evolution diagnostic
         if: ${{ inputs.source13_evolution_factorial }}
         env:
@@ -87,5 +101,6 @@ jobs:
             agent8-rank15-effective-aor-item-fresh-native-summary.json
             agent8-original13-donor-paired-native.json
             agent8-original13-donor-evolution-factorial-native.json
+            agent8-original13-donor-evolution-paper-correct-native.json
           if-no-files-found: warn
           retention-days: 30
