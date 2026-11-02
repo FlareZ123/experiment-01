@@ -212,6 +212,8 @@ jobs:
         run: node --test tests/agent12-rank5-printed-techno-blast-calibration.test.cjs
       - name: Regress raw native rank5 release status without replaying frozen outcomes
         run: node --test --test-name-pattern="actual engine dispositions" tests/agent13-v3-rank5-release.test.cjs
+      - name: Regress native rank5 zero-attack frontier without source-hidden inference
+        run: node --test tests/agent37-rank5-native-zero-attack-frontier.test.cjs
       - name: Retrieve unchanged archived native rank5 v3.1 original 16 arms
         if: ${{ inputs.agent12_rank5_printed_native_replay }}
         uses: actions/download-artifact@v4
@@ -225,6 +227,18 @@ jobs:
         run: |
           node simulation/evaluation/agent12-rank5-printed-techno-blast-calibration.cjs agent12-rank5-archive/agent13-rank5-v31-native-16arm.json > agent12-rank5-native-printed-calibration.json
           node -e "const a=require('node:assert/strict');const r=require('./agent12-rank5-native-printed-calibration.json');console.log(JSON.stringify({version:r.version,sourceOriginalRank:r.sourceOriginalRank,sourcePrintedAttackEvents:r.sourcePrintedAttackEvents,consistent:r.baselinePaperOutcomesConsistent,knockouts:r.printedTargetKnockouts,damages:r.printedTargetDamageWithoutKnockout,prizes:r.printedPrizesTaken,unverifiedWins:r.competitivelyQualifiedGames},null,2));a.equal(r.sourcePrintedAttackEvents,8);a.equal(r.baselinePaperOutcomesConsistent,8);a.equal(r.printedTargetKnockouts,7);a.equal(r.printedTargetDamageWithoutKnockout,1);a.equal(r.printedPrizesTaken,13);a.equal(r.competitivelyQualifiedGames,0);"
+      - name: Summarize archived native rank5 zero-attack root frontier
+        if: ${{ inputs.agent12_rank5_printed_native_replay }}
+        run: |
+          node scripts/agent37-rank5-native-zero-attack-frontier.cjs agent12-rank5-archive/agent13-rank5-v31-native-16arm.json > agent37-rank5-zero-attack-frontier.json
+          node -e "const r=require('./agent37-rank5-zero-attack-frontier.json');console.log(JSON.stringify({schema:r.schema,attempts:r.nativeArchivedAttemptCount,integratedNoAttacks:r.integratedZeroDeclaredAttackCount,integratedPositive:r.integratedPositiveAttackCount,unknown:r.integratedUnknownAttackCount,zeroAttackSourceRootTypes:r.noAttackRows.map(x=>({trialId:x.trialId,types:x.sourceRootTypes,tail:x.sourceRootTail})),qualification:r.competitiveQualifiedGames},null,2))"
+      - name: Retain rank5 original zero-attack root frontier
+        if: ${{ inputs.agent12_rank5_printed_native_replay }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent37-rank5-zero-attack-frontier
+          path: agent37-rank5-zero-attack-frontier.json
+          retention-days: 30
       - name: Regress bounded owner-only root action contention without changing decisions
         id: agent16_policy_inventory
         continue-on-error: true
