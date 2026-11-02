@@ -201,7 +201,7 @@ jobs:
           const r=require('./agent34-rank9-lastbench-ownlocation.json');
           console.log(JSON.stringify({schema:r.version,attempted:r.attempted,
           complete:r.complete,rootCount:r.audit.matchingOriginalRootCount,
-          stores:r.audit.originalStores,events:r.audit.events,
+          stores:r.audit.originalStores,events:r.audit.events,searches:r.audit.searchPromptEvents,
           competitiveQualifiedGames:r.competitiveQualifiedGames}));}"
       - name: Preserve source-deal owner-zone receipts after choice
         if: always()
