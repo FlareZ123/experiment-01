@@ -140,9 +140,34 @@ reinstates the source-registered Supporter proposal wrapper after the fair
 shuffle hook and restores them in reverse order. The original Store,
 frozen source tape and full strict decision parity requirements are
 unmodified. Compiled follow-up run
-[41426375437](https://github.com/FlareZ123/experiment-01/actions/runs/41426375437)
-was dispatched on head `14aa58a5...` with both opt-in original-game
-hooks; verify its original JSON and 4/4 parity before claiming closure.
+[41426375437](https://github.com/FlareZ123/experiment-01/actions/runs/41426375437),
+head `14aa58a5dfad687dfec03439b2e5a3f9c5c14399`, **SUCCEEDED**;
+original full four-arm JSON artifact **13132217713**. All four original
+physical Store control/probe matches remained noninterfering and authenticated.
+Every original and recreated first-finite-scored decision selected the same
+action, consumed the complete exactly recorded random tape, preserved the
+source State and entered with an identical physical clone:
+**4/4 strict scored decision same-world parity, 0/4 vetoes**.
+The three prior fair-shuffle RNG mismatches and the separate rank6 champion
+Supporter proposal mismatch were resolved by restoring both original-game
+research hooks. Source/replay shuffle implementations matched by SHA and
+numerical deck length; RNG source/replay call totals were 40/40, 40/40,
+5/5 and 41/41, by historical arm. The original four games remain
+**development fixtures**, with **0 competitively qualified matches**.
+
+A new fail-closed `agent23-native-scored-fair-parity-gate.cjs` requires
+four authenticated first finite scores, exact 4/4 tape and selected-action
+parity, valid original Store controls and zero competitive claim whenever
+both replay hooks are explicitly requested. Its pure adversarial tests
+and conditional manual CI step were committed after 414263's head and
+are being checked in a further compiled scan.
+
+The next [compiled bounded-scored concealed-world scan
+41427012776](https://github.com/FlareZ123/experiment-01/actions/runs/41427012776)
+adds genuine disjoint two-card opponent-hand/deck counterfactuals on these
+finite-scored roots, while preserving both exact source-game hooks and both
+fail-closed native gates. This is a diagnostic of action sensitivity within
+a bounded sample, independent of the competitive field goal.
 
 ## Scoped falsification procedure
 
