@@ -62,3 +62,23 @@ A future original-source rank-25 opponent driver, after its exact registered 60 
 The tests require original-store physical receipts, effective Ability status, accepted root/prompt/effect, player-private information discipline, and both actual starting seats, as specified by the [central action-chain release gate](../../communications/broadcast/20261101T2242Z_critic_end_to_end_action_fidelity_gate.md). The five-card count is a screening tool, not itself an executable replacement for a rank-25 opponent list.
 
 **Status unaffected:** 29/32 exact originals; no competitively qualified games, no certified fixed 60, and no demonstrated 99.5% performance.
+
+## Exact opening-hand opportunity in the two published Raichu lists
+
+The authenticated **rank-4** and **rank-17** Raichu source sixties each actually include **one Klefki SVI 96** and **13 starting-eligible Basic Pokémon**, independently verified by stage from the supplied catalog and by summing their precisely printed roster entries. In particular, both counts include Basic `Ditto Prism Star LOT 154`; evolved `Electrode-GX` and `Alolan Raichu` are excluded.
+
+For either source's unconditioned single seven-card hand, the chance that the unique Klefki is present is exactly `7/60 = 11.6666667%`. Because Klefki itself is a Basic, every such hand is valid. Conditional on receiving a valid first seven with at least one of the thirteen Basics:
+
+```text
+P(valid initial seven) = 1 - C(47, 7) / C(60, 7)
+                       = 83.7155949976%
+
+P(Klefki in first seven | valid initial seven)
+                       = (7 / 60) / (1 - C(47,7) / C(60,7))
+                       = 1365378 / 9797437
+                       = 13.9360732812%
+```
+
+This is an **exact initial-hand *option* to choose Active Klefki at setup**, conditional on a valid opener, *before opening seven selection and before Prize placement*. If the owner chooses another Basic Active, the held Klefki cannot silently take the Active position at setup. A later legal Item, Ability, retreat, or other switch could reach an Active Klefki even without direct opening possession; a policy might rationally choose a different Basic even when Klefki is held. Opponent mulligan bonus cards, starting turn priority, Prize recovery, actual attacking plan, and all alternative Klefki access paths are deliberately excluded. These are **not** opening-lock success rates or bounds on overall ability-lock uptime.
+
+Rank 25's authentic card counts are unpublished, so the 13.936% **must not be assigned to kume**. It quantifies only the two exact public rank-4 and rank-17 one-Klefki inventories, providing a repeatable source-aware test baseline.
