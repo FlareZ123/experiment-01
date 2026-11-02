@@ -1,0 +1,297 @@
+{
+  "schema": "agent44-rank8-original-32-flexible-native-result-index-v1",
+  "sourceRank": 8,
+  "headSha": "707f7bb53b6d78aa7d5604774b5b6e0ede4979cd",
+  "workflowRunId": 41407960444,
+  "workflowJobId": 125154210094,
+  "artifactId": 13124965916,
+  "artifactZipSha256": "c7da15b174dba1038e1c9e4c09a2aea12d6f2047efa8c3fee1a3642da90426a4",
+  "historicalSelection": "original known positive, excluded from new cohort",
+  "historical": {
+    "attempted": 1,
+    "noOffer": 0,
+    "completedEvolutions": 1,
+    "offeredIncomplete": 0,
+    "nativeErrors": 0
+  },
+  "freshSourceIndices": [
+    272,
+    303
+  ],
+  "fresh": {
+    "attempted": 32,
+    "noOffer": 29,
+    "completedEvolutions": 2,
+    "offeredIncomplete": 1,
+    "nativeErrors": 0
+  },
+  "rows": [
+    {
+      "trial": "retrospective-original-positive",
+      "seat": 0,
+      "status": "NATIVE_FIRSTTURN_SHAKE_EVOLUTION_OBSERVED",
+      "offers": 1,
+      "complete": 1,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:272",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:273",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:274",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:275",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:276",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:277",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:278",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:279",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:280",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:281",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:282",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:283",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:284",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:285",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:286",
+      "seat": 0,
+      "status": "NATIVE_FIRSTTURN_SHAKE_EVOLUTION_OBSERVED",
+      "offers": 1,
+      "complete": 1,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:287",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:288",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:289",
+      "seat": 1,
+      "status": "OFFERED_INCOMPLETE_OR_ABORTED",
+      "offers": 1,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:290",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:291",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:292",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:293",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:294",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:295",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:296",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:297",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:298",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:299",
+      "seat": 1,
+      "status": "NATIVE_FIRSTTURN_SHAKE_EVOLUTION_OBSERVED",
+      "offers": 1,
+      "complete": 1,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:300",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:301",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:302",
+      "seat": 0,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    },
+    {
+      "trial": "rank8-original-box-k0:303",
+      "seat": 1,
+      "status": "NOT_ENCOUNTERED",
+      "offers": 0,
+      "complete": 0,
+      "error": null
+    }
+  ],
+  "nativeQualifiedGames": 0,
+  "fieldWinRateQualified": false,
+  "caveat": "This index records CI-printed per-trial public status only. Full native raw audit in run artifact. Results are native development, not competitive wins. The one seed214648959 known positive is retrospective."
+}
