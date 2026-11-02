@@ -38,6 +38,9 @@ test('transitive source closure captures every reviewed policy key and audits re
   assert.equal(Object.values(x.computedRequireShapeCounts)
     .reduce((sum,n)=>sum+n,0),
   x.unparsedRequires.reduce((sum,r)=>sum+r.count,0));
+  assert.equal(Object.values(x.pathJoinFirstArgumentCounts)
+    .reduce((sum,n)=>sum+n,0),
+  x.computedRequireShapeCounts['path.join']);
   if(additional.length){
     console.log('UNREVIEWED_POLICY_KEYS '+JSON.stringify(additional.map(key=>({
       key,sources:x.records.filter(record=>record.keys.includes(key))
