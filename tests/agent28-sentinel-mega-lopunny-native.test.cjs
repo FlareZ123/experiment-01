@@ -39,8 +39,23 @@ function stage(seat,retreatIntoMega,energyCount=1){
   const opponent=new Player();opponent.id=202;opponent.name='defender';
   owner.bench=Array.from({length:5},()=>new PokemonCardList());
   opponent.bench=Array.from({length:5},()=>new PokemonCardList());
-  const bunny=make('Buneary PFL');
-  const mega=make('Mega Lopunny ex PFL');
+  /**
+   * Source display shorthand such as "Buneary PFL" is not necessarily the
+   * registered Twinleaf fullName. Match the printed set/collector identity.
+   * @param {string} name
+   * @param {string} set
+   * @param {string} number
+   */
+  const makeExact=(name,set,number)=>{
+    const hits=manager.getAllCards().filter(c=>c.name===name&&
+      String(c.set).toUpperCase()===set&&
+      String(c.setNumber)===number);
+    assert.equal(hits.length,1,
+      'Expected exactly one native source printing '+name+' '+set+' '+number);
+    return make(hits[0].fullName);
+  };
+  const bunny=makeExact('Buneary','PFL','83');
+  const mega=makeExact('Mega Lopunny ex','PFL','84');
   const current=retreatIntoMega?owner.bench[0]:owner.active;
   current.cards.push(bunny,mega);
   for(let i=0;i<energyCount;i++){
