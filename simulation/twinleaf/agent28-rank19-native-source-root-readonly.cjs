@@ -83,6 +83,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
       session.records.push({
         actionOrdinalWithinSourceGame:session.records.length,
         turn:state.turn,
+        retreatedTurn:owner.retreatedTurn,
         actionType,
         actionAttack:actionType==='AttackAction'?action.name:null,
         ...board,
@@ -137,6 +138,7 @@ function withRank19NativePublicActiveReadOnly(run,deps={}){
         fundedHoOhMobilitySamples:fundedWhileHoOh.slice(0,20).map(r=>({
           turn:r.turn,action:r.actionType,
           hand:r.heldMobility,activeTools:r.activeTools,
+          activeEnergy:r.activeEnergy,retreatedTurn:r.retreatedTurn,
           benchRaging:r.bench.filter(p=>p?.printing===RAGING)
         })),
         sourceRagingBenchSamples:bench.slice(0,16).map(r=>({
