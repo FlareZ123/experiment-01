@@ -46,6 +46,15 @@ test('immutable printed 60 inventories and singleton DCE are sourced from repo',
     assert.equal(result.contenders[label].basic, basics, label);
     assert.equal(result.contenders[label].evolutions, evolutions, label);
   }
+  for (const [label, expected] of [
+    ['rank1-champion', 0.3750679602308215],
+    ['hood-v1', 0.3750679602308215],
+    ['temple-v1', 0.339457050798159],
+    ['new-moon-v1', 0.2746278939309139]
+  ]) {
+    assert.ok(Math.abs(result.contenders[label].soloAfterAllRank26MulliganBonuses -
+      expected) < 1e-12, label);
+  }
   assert.equal(result.rank26DceInitiallyPrizedUnconditional, 0.1);
   assert.ok(Math.abs(result.rank26DceInitiallyPrizedGivenValidOpening -
     0.10077777379917645) < 1e-12);
