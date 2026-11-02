@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const VERSION = 'agent41-rank5-quickball-seven-opening-duplicate-v2';
+const VERSION = 'agent41-rank5-quickball-seven-opening-duplicate-v3';
 const BASIC_NAMES = new Set([
   'Mew V', 'Genesect V', 'Dedenne-GX', 'Crobat V', "Lillie's Clefairy ex"
 ]);
@@ -159,5 +159,57 @@ function conditionalDcePrizeExposure(openings, sourceDceCopies=4) {
   };
 }
 
+
+
+/**
+ * Separate the categories supplying the original Quick Ball duplicate:
+ * Trainer (excluding Quick Ball), Pokémon, or Energy. This deliberately
+ * measures physical options, never a player's strategic discard preference.
+ *
+ * @param {{name:string,count:number,category:string,printing?:object}[]} cards
+ * @returns {object}
+ */
+function openingDuplicateCategories(cards) {
+  assert.ok(Array.isArray(cards));
+  let states=new Map([[JSON.stringify([0,0,0,0,0,0]),1]]);
+  for(const row of cards){
+    assert.ok(['Pokémon','Trainer','Energy'].includes(row.category));
+    const next=new Map();
+    for(const [key,ways] of states){
+      const [n,q,b,t,p,e]=JSON.parse(key);
+      for(let k=0;k<=Math.min(row.count,7-n);k++){
+        const tuple=[
+          n+k,Number(Boolean(q||row.name==='Quick Ball'&&k>0)),
+          Number(Boolean(b||BASIC_NAMES.has(row.name)&&k>0)),
+          Number(Boolean(t||row.category==='Trainer'&&
+            row.name!=='Quick Ball'&&k>=2)),
+          Number(Boolean(p||row.category==='Pokémon'&&k>=2)),
+          Number(Boolean(e||row.category==='Energy'&&k>=2))
+        ];
+        const nk=JSON.stringify(tuple);
+        next.set(nk,(next.get(nk)??0)+ways*choose(row.count,k));
+      }
+    }
+    states=next;
+  }
+  const groups={trainerOnly:0,pokemonOnly:0,energyOnly:0,
+    trainerPokemon:0,trainerEnergy:0,pokemonEnergy:0,allThree:0};
+  let eligible=0;
+  for(const [key,ways] of states){
+    const [n,q,b,t,p,e]=JSON.parse(key);
+    if(n!==7||!q||!b||(!t&&!p&&!e))continue;
+    eligible+=ways;
+    const kind=t?(p?(e?'allThree':'trainerPokemon'):
+      (e?'trainerEnergy':'trainerOnly')):
+      (p?(e?'pokemonEnergy':'pokemonOnly'):'energyOnly');
+    groups[kind]+=ways;
+  }
+  return {version:VERSION,eligible,groups,
+    withTrainerDuplicate:groups.trainerOnly+groups.trainerPokemon+
+      groups.trainerEnergy+groups.allThree,
+    withoutTrainerDuplicate:groups.pokemonOnly+groups.energyOnly+
+      groups.pokemonEnergy};
+}
+
 module.exports={VERSION,BASIC_NAMES,choose,openingCounts,sourceRank5,
-  conditionalDcePrizeExposure};
+  conditionalDcePrizeExposure,openingDuplicateCategories};
