@@ -158,6 +158,7 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeScoreTrace===true?{nativeScoreTrace:true}:{}),
     ...(scope.nativeTapeSameWorld===true?{nativeTapeSameWorld:true}:{}),
     ...(scope.nativeTapeFirstFiniteScore===true?{nativeTapeFirstFiniteScore:true}:{}),
+    ...(scope.nativeTapeEntryOnly===true?{nativeTapeEntryOnly:true}:{}),
     ...(scope.nativeTapeHiddenOrderContrast===true?
       {nativeTapeHiddenOrderContrast:true}:{}),
     ...(scope.nativeTapeHiddenOpponentHandContrast===true?
@@ -326,7 +327,8 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
 function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   replayCommonPolicy=false,isolateReplayPolicyPerWorld=false,
   nativeScoreTrace=false,nativeTapeSameWorld=false,
-  nativeTapeFirstFiniteScore=false,nativeTapeHiddenOrderContrast=false,
+  nativeTapeFirstFiniteScore=false,nativeTapeEntryOnly=false,
+  nativeTapeHiddenOrderContrast=false,
   nativeTapeHiddenOpponentHandContrast=false,
   nativeTapeBoundedOpponentHiddenHand=false,
   nativeTapeBoundedDoubleExchange=false,
@@ -337,6 +339,9 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeScoreTrace,'boolean');
   assert.equal(typeof nativeTapeSameWorld,'boolean');
   assert.equal(typeof nativeTapeFirstFiniteScore,'boolean');
+  assert.equal(typeof nativeTapeEntryOnly,'boolean');
+  assert.ok(!nativeTapeEntryOnly||nativeTapeFirstFiniteScore,
+    'Entry-only diagnostic requires scored authentic tape');
   assert.ok(!nativeTapeFirstFiniteScore||
     (nativeTapeSameWorld&&firstFiniteScoredRoot),
     'Finite-scored tape needs authentic native tape and scored root');
@@ -405,6 +410,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
     ()=>seededRandom((trial.seed^0x5a17b9ef)>>>0),
     {firstFiniteScoredRoot,replayCommonPolicy,isolateReplayPolicyPerWorld,
       nativeScoreTrace,nativeTapeSameWorld,nativeTapeFirstFiniteScore,
+      nativeTapeEntryOnly,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
       nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange,
       nativeTapeHandPrizeContrast}
@@ -471,6 +477,8 @@ if(require.main===module) {
     nativeTapeSameWorld:process.env.AGENT50_NATIVE_TAPE_SAME_WORLD==='true',
     nativeTapeFirstFiniteScore:
       process.env.AGENT50_NATIVE_TAPE_FIRST_FINITE_SCORE==='true',
+    nativeTapeEntryOnly:
+      process.env.AGENT23_NATIVE_FINITE_ENTRY_ONLY==='true',
     nativeTapeHiddenOrderContrast:
       process.env.AGENT50_NATIVE_TAPE_HIDDEN_DECK_ORDER==='true',
     nativeTapeHiddenOpponentHandContrast:
