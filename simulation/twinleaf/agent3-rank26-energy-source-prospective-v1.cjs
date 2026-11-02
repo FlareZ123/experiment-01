@@ -7,7 +7,7 @@ const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {initializeCards}=require('./headless.cjs');
 const {runWithResearchProfile,RANK26_PROPAGATION_PROFILE}=
   require('./policy-profiles.cjs');
-const {withRank26SourceCompressor}=
+const {withRank26SourceSetup}=
   require('./agent3-rank26-energy-setup.cjs');
 const {withDealFingerprint}=
   require('./rank26-natural-pre-koko-cologne-cohort.cjs');
@@ -80,7 +80,7 @@ function run(){
       const control=withDealFingerprint(()=>
         runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE));
       const treatment=withDealFingerprint(()=>
-        withRank26SourceCompressor(seat,()=>
+        withRank26SourceSetup(seat,()=>
           runWithResearchProfile(request,RANK26_PROPAGATION_PROFILE)));
       const left=summarize(control,seat,seed,a,b);
       const right=summarize(treatment,seat,seed,a,b);
@@ -135,5 +135,11 @@ function run(){
 }
 
 module.exports={run,BASE,REPEATS};
-if(require.main===module)
-  process.stdout.write(JSON.stringify(run(),null,2)+'\n');
+if(require.main===module){
+  const outcome=run();
+  process.stdout.write(JSON.stringify(outcome,null,2)+'\n');
+  if(outcome.summary.errors.length||outcome.summary.physicalMatch!==24||
+     outcome.summary.physicalUnverified>0||
+     outcome.summary.physicalMismatch>0)
+    process.exitCode=1;
+}
