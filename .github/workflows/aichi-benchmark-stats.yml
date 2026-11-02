@@ -156,8 +156,8 @@ jobs:
         run: node --test tests/rank19-adp-direct-gx-opening.test.cjs
       - name: Regress original native generic fallback prompt stage and owner accounting
         run: node --test tests/agent50-empty-discard-getlost-causal-census.test.cjs tests/agent50-generic-prompt-fallback-census.test.cjs tests/agent50-native-prompt-before-attack-diff.test.cjs tests/agent50-source-group-sign-sensitivity.test.cjs
-      - name: Audit deck-name incidence without merging printing mechanics
-        run: node --test tests/aichi-source-incidence.test.cjs
+      - name: Audit deck-name incidence and VIP hand-entry provenance
+        run: node --test tests/aichi-source-incidence.test.cjs tests/agent9-vip-bench-entry-provenance.test.cjs
       - name: Attest all 32 original rank and archetype identities with exact published printing inventories
         run: node --test tests/agent13-source-identity-gate.test.cjs
       - name: Fail closed on skipped native printed-card fixtures before competitive release
