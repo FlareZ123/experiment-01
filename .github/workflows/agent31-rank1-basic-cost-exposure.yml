@@ -20,7 +20,7 @@ jobs:
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate public text-bearing and variable printed Basic cost observer
-        run: node --test tests/agent31-guzma-bench-cost-exposure.test.cjs
+        run: node --test tests/agent31-guzma-bench-cost-exposure.test.cjs tests/agent31-rank1-basic-cost-exposure-pair.test.cjs
       - name: Install exact pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
