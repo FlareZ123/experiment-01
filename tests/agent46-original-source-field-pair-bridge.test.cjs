@@ -14,6 +14,7 @@ const digest='a'.repeat(64);
 /** @param {number} rank @param {0|1} seat @param {string} id */
 function pair(rank,seat,id){
   return {pairId:id,roundId:'round-0',rank,candidateSeat:seat,
+    originalSourcePrintDigest:'b'.repeat(64),
     referenceTrialId:'reference-'+id,challengerTrialId:'challenger-'+id};
 }
 /** @param {ReturnType<typeof pair>} registration */
@@ -28,6 +29,10 @@ function arms(registration){
       verifiedFirstTurn:true,nativeWinnerSeat:registration.candidateSeat,
       finished:true,qualifiesForCompetitiveInference:true}
   ];
+}
+/** @param {ReturnType<typeof pair>} p */
+function admitted(p){
+  return [{rank:p.rank,printed60Sha256:p.originalSourcePrintDigest,physicalCards:60}];
 }
 /** @param {ReturnType<typeof pair>[]} registration @param {object[]} observations @param {object} [opts] */
 function check(registration,observations,opts={}){
@@ -85,7 +90,8 @@ test('different source setup cannot silently become favorable matched contrast',
   const p=pair(6,1,'shifted-source');
   const observed=arms(p);
   observed[1].sourceDealFingerprint='b'.repeat(64);
-  const d=check([p],observed,{qualify:()=> 'QUALIFIED_WIN'});
+  const d=check([p],observed,{authenticatedOriginalPrints:admitted(p),
+    qualify:()=> 'QUALIFIED_WIN'});
   assert.equal(d.matchedSourcePairs,0);
   assert.equal(anytimePairedFieldDelta({candidateOrdinal:1,cells:d.cells}).unmatchedPairs,1);
 });
@@ -93,6 +99,7 @@ test('different source setup cannot silently become favorable matched contrast',
 test('independent qualification callback is explicit, never inferred',()=>{
   const p=pair(1,0,'hypothetical-complete');
   const d=check([p],arms(p),{
+    authenticatedOriginalPrints:admitted(p),
     qualify:arm=>arm.candidateId===challengerId?
       'QUALIFIED_WIN':'QUALIFIED_NONWIN'
   });
@@ -106,7 +113,8 @@ test('independent qualification callback is explicit, never inferred',()=>{
 
 test('unknown paper qualification labels fail closed',()=>{
   const p=pair(6,0,'invalid-qualifier');
-  assert.throws(()=>check([p],arms(p),{qualify:()=> 'NATIVE_ENGINE_WIN'}),
+  assert.throws(()=>check([p],arms(p),{
+    authenticatedOriginalPrints:admitted(p),qualify:()=> 'NATIVE_ENGINE_WIN'}),
     /Independent auditor/);
 });
 
@@ -130,7 +138,8 @@ test('missing first-turn receipt invalidates source pairing and qualified label'
   const p=pair(8,0,'bad-receipt');
   const observed=arms(p);
   observed[0].verifiedFirstTurn=false;
-  const r=check([p],observed,{qualify:()=> 'QUALIFIED_WIN'});
+  const r=check([p],observed,{
+    authenticatedOriginalPrints:admitted(p),qualify:()=> 'QUALIFIED_WIN'});
   assert.equal(r.invalidSourceReceipts,1);
   assert.equal(r.matchedSourcePairs,0);
   assert.equal(r.cells[7][0].referenceStatus,'CENSORED');
@@ -151,4 +160,34 @@ test('copying a different candidate ID is forbidden',()=>{
   const observed=arms(p);
   observed[1].candidateId='hood-shadow-rider-v1';
   assert.throws(()=>check([p],observed),/misidentified observed/);
+});
+
+test('missing original printed 60 forbids qualified game promotion',()=>{
+  const p=pair(25,0,'no-original-25');
+  const withCallback={qualify:()=> 'QUALIFIED_WIN'};
+  assert.throws(()=>check([p],arms(p),withCallback),/Expected distinct fixed/);
+  const d=check([p],arms(p),{
+    authenticatedOriginalPrints:admitted(pair(6,0,'known-rank6')),
+    ...withCallback
+  });
+  assert.equal(d.unadmittedOriginalPrintPairs,1);
+  assert.equal(d.cells[24][0].referenceStatus,'CENSORED');
+  assert.equal(d.cells[24][0].challengerStatus,'CENSORED');
+  assert.equal(d.matchedSourcePairs,1);
+});
+
+test('wrong original 60 digest and invalid roster refuse paper qualification',()=>{
+  const p=pair(6,0,'wrong-printing');
+  const wrong=[{rank:6,printed60Sha256:'a'.repeat(64),physicalCards:60}];
+  const d=check([p],arms(p),{
+    authenticatedOriginalPrints:wrong,qualify:()=> 'QUALIFIED_WIN'
+  });
+  assert.equal(d.unadmittedOriginalPrintPairs,1);
+  assert.equal(d.cells[5][0].challengerStatus,'CENSORED');
+  assert.throws(()=>check([p],arms(p),{
+    authenticatedOriginalPrints:[...admitted(p),...admitted(p)]
+  }),/Invalid or repeated/);
+  assert.throws(()=>check([p],arms(p),{
+    authenticatedOriginalPrints:[{rank:6,printed60Sha256:'a',physicalCards:60}]
+  }),/Invalid or repeated/);
 });
