@@ -45,6 +45,7 @@ function resolveArchive(archive){
  */
 function sourcePairReceipts(rows){
   const groups=new Map();
+  const EXPECTED=new Set(['champion-reference','new-moon-lockbreaker-v1']);
   for(const row of rows){
     const t=row?.trial;
     if(!t||!Number.isInteger(t.rank)||!Number.isInteger(t.repeat)||
@@ -57,6 +58,9 @@ function sourcePairReceipts(rows){
   return [...groups].map(([pairId,attempts])=>{
     const ids=attempts.map(r=>r.trial.id);
     const present=attempts.length===2&&
+      attempts.every(r=>EXPECTED.has(r.trial.candidateId)&&
+        r.trial.id===[r.trial.rank,r.trial.repeat,
+          r.trial.candidateSlot,r.trial.candidateId].join(':'))&&
       new Set(attempts.map(r=>r.trial.candidateId)).size===2;
     const correctlySeated=present&&attempts.every(r=>
       r.verifiedFirstTurn===true &&
@@ -109,7 +113,7 @@ function firstSourceTurnReceipt(row){
     firstTurn,sourceSeat:seat,nativeRootCount:roots.length,
     characteristicRootSelected:firstTurnObserved?selected:null,
     characteristicAssessment:rank16Characteristic?
-      'RANK16_ITCY_POLLEN_OR_BOOST_SHAKE_FIRST_TURN':'NOT_ASSESSED',
+      'RANK16_ITCHY_POLLEN_OR_BOOST_SHAKE_FIRST_TURN':'NOT_ASSESSED',
     heldBoostShake:firstTurnObserved&&rank16Characteristic?heldShake:null,
     legalOpportunityQualified:false,
     paperEffectQualified:false,
@@ -126,6 +130,7 @@ function firstSourceTurnReceipt(row){
 function correctNativeArchive(archive){
   const {rows,expected,registrySource}=resolveArchive(archive);
   const expectedSet=new Set(expected),seen=new Set(),duplicates=[];
+  const duplicateRegisteredIds=expected.filter((id,i)=>expected.indexOf(id)!==i);
   const unexpected=[];
   const dispositions={},perAttempt=[];
   for(const row of rows){
@@ -155,6 +160,7 @@ function correctNativeArchive(archive){
     schema:'agent41-readonly-native-release-correction-v1',
     registrySource,registeredAttempts:expected.length,
     observedAttempts:rows.length,missing,unexpected,duplicates,
+    duplicateRegisteredIds,
     nativeDispositionCounts:dispositions,sourcePairStatusCounts:groups,
     sourcePairs:pairs,perAttempt,
     originalSourceFirstTurnAttendance:{
@@ -167,7 +173,8 @@ function correctNativeArchive(archive){
     },
     registrationIdentityFullyVerified:registrySource===
       'ORIGINAL_PRECOMMITTED_SEEDS'&&missing.length===0&&
-      duplicates.length===0&&unexpected.length===0,
+      duplicates.length===0&&unexpected.length===0&&
+      duplicateRegisteredIds.length===0,
     competitivelyQualifiedPaperGames:0,
     paperWinRateCertified:false
   };
