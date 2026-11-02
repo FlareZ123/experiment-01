@@ -42,6 +42,9 @@ jobs:
       - name: Verify reversible Active Tool Jammer ToolEffect blocker
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-tool-jammer-tool-effect-guard.test.cjs
+      - name: Regress public Stealthy Hood versus opposing Active Initialization
+        if: inputs.agent6_rank30_rondo
+        run: node --test tests/agent6-skyliner-hood-vs-thorns-frontier.test.cjs
       - name: Test canonical owner-public Skyliner Rondo option and default-off behavior
         if: inputs.agent6_rank30_rondo
         run: node --test tests/agent6-owner-public-skyliner-rondo-frontier.test.cjs
