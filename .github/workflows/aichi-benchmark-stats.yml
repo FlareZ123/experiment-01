@@ -124,6 +124,8 @@ jobs:
           node-version: '22'
       - name: Check original rank6/24/29 Plumeria printing-safe versus copy-access combinatorics
         run: node --test tests/agent38-rank6-lastprinting-earlyhand.test.cjs tests/agent38-k0-payment-replacement.test.cjs
+      - name: Verify four original hard-cluster source identity and no false admission
+        run: node --test tests/agent38-hardcluster-source-lineage-supplement.test.cjs
       - name: Audit five source-printing-specific Temple Lightning attack gates
         run: |
           node --test tests/agent17-temple-five-lightning-originals.test.cjs tests/agent17-temple-raichu-counterline.test.cjs
