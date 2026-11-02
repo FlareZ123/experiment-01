@@ -1,0 +1,106 @@
+{
+  "schema": "agent7-rank6-two-seat-lillie-pass-controlled-prospective-v1",
+  "registeredAtUtc": "2026-11-02T16:31:00Z",
+  "sourceRank": 6,
+  "sourceReference": "Aichi Open League 2026 authenticated rank6 original printed sixty",
+  "sourceFrozenProfile": "simulation/evaluation/agent20-frozen-rank6-canary-v1.json",
+  "sourceFrozenProfileSha256": "6ff3ee325098cfc68253928a9dd5370da52c9cc64b86a4435be2b07a0d392dc6",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "physicalCandidateSlots": [
+    "A",
+    "B"
+  ],
+  "controls": [
+    "unchanged selected v1 candidate bot policy",
+    "same policy with one owner-visible held Lillie Pass rescue added for candidate only"
+  ],
+  "policyIntervention": "When the existing selected candidate bot returns PassTurnAction at an owner root, and its actor-only owner hand holds Lillie's Determination M1L with Supporter available, no Supporter-lock and deck positive, choose native PlayCardAction for that owned Supporter. Reevaluate on later actual candidate Pass roots with identical owner-only rule. Never inspect opponent hidden hand, deck or Prizes, and never intervene in source actor.",
+  "seedSampling": "four secure-uniform 32-bit seeds drawn before first prospective play, two seeds per fixed candidate physical seat, each source seed shared between the two fixed candidate sixties and between unchanged-policy control and Lillie treatment",
+  "maxPerCondition": 8,
+  "expectedTotalNativeGames": 16,
+  "predeclaredPrimaryOutcomes": [
+    "first actual candidate Pass with held Lillie, availability and intervention ordinal",
+    "native treatment Lillie Store acceptance and completed printed draw physical effect",
+    "exact source initial physical deal pair matching across conditions",
+    "native status, source attacks/Prize and real opponent reply turns"
+  ],
+  "predeclaredRestrictions": [
+    "No claim of independent performance at rank6 beyond 4 physical seed cohorts",
+    "No use of terminal counts as paper or competitive game wins",
+    "No post-observation seed selection or replacing failed runs",
+    "Hold candidate and source printed sixties constant across arms",
+    "All code changes are research-owned, reversible, and excluded from pinned vendor",
+    "Keep source actor decisions free of the candidate-only intervention"
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "repeat": 70,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1005903886,
+      "id": "6:70:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 70,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1005903886,
+      "id": "6:70:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 71,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1855410067,
+      "id": "6:71:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 71,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1855410067,
+      "id": "6:71:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 72,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2335986362,
+      "id": "6:72:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 72,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2335986362,
+      "id": "6:72:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 73,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4153138373,
+      "id": "6:73:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 73,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4153138373,
+      "id": "6:73:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "competitiveGameQualified": false
+}
