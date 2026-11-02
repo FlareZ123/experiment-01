@@ -20,9 +20,12 @@ test('source Mega Lopunny paper printing and native registration remain separate
   const manager=initializeCards();
   const required=['Buneary PFL','Mega Lopunny ex PFL']
     .map(name=>({name,registered:!!manager.getCardByName(name)}));
-  const related=[...new Set(manager.getAllCards()
+  const related=manager.getAllCards()
     .filter(card=>/Buneary|Lopunny/i.test(card.name))
-    .map(card=>card.name))].sort();
+    .map(card=>({name:card.name,fullName:card.fullName,
+      set:card.set,number:card.setNumber,
+      attackNames:(card.attacks??[]).map(a=>a.name)}))
+    .sort((a,b)=>a.fullName.localeCompare(b.fullName));
   console.log('SENTINEL_NATIVE_PRINTING_COVERAGE',JSON.stringify({
     sourceCardIds:[bunny.id,mega.id],required,related,
     nativeAttackFixturePossible:required.every(row=>row.registered),
