@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank26_prerequisite_census:
+        description: 'Optional retrospective owner-only first-turn prerequisite census'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -66,5 +71,17 @@ jobs:
         with:
           name: agent3-rank26-natural-pre-koko-original-source
           path: agent3-rank26-natural-pre-koko-cohort.json
+          if-no-files-found: warn
+          retention-days: 15
+
+      - name: Read-only retrospective source-visible opportunity census
+        if: inputs.rank26_prerequisite_census
+        run: node simulation/twinleaf/rank26-prerequisite-census-v12.cjs > agent3-rank26-source-gates-v12.json
+      - name: Archive all retrospective source-visible gate reads and failed attempts
+        if: always() && inputs.rank26_prerequisite_census
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-source-gates-v12
+          path: agent3-rank26-source-gates-v12.json
           if-no-files-found: warn
           retention-days: 15
