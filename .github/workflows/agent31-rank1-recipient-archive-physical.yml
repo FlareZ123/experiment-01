@@ -1,0 +1,40 @@
+name: Agent31 rank1 archived source native physical recipient corroboration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original-rank1-postprocess:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate native target delta and no invented Bench-addition classification
+        run: node --test tests/agent31-rank1-recipient-physical-postprocess.test.cjs
+      - name: Download immutable first rank1 prospective native experimental archive
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 13157783706
+          run-id: 41477258434
+          github-token: ${{ github.token }}
+          repository: FlareZ123/experiment-01
+          path: original-archive
+      - name: Summarize genuine accepted source Bench attachments and prompt delta witnesses
+        env:
+          AGENT31_RANK1_PHYSICAL_SUMMARY_OUTPUT: ${{ runner.temp }}/agent31-rank1-physical-recipient-postprocess.json
+        run: node simulation/evaluation/agent31-rank1-recipient-physical-postprocess.cjs original-archive/agent31-rank1-prospective-basic-recipient-32arms.json
+      - name: Preserve original-source actual physical target evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank1-original-basic-energy-physical-attachments
+          path: ${{ runner.temp }}/agent31-rank1-physical-recipient-postprocess.json
+          if-no-files-found: warn
+          retention-days: 30
