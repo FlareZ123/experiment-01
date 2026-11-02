@@ -70,3 +70,5 @@ jobs:
         run: node --test tests/agent46-anytime-paired-field-delta.test.cjs
       - name: Verify balanced-round pooled paired contrast with stronger independence
         run: node --test tests/agent46-anytime-balanced-paired-field-delta.test.cjs
+      - name: Fail closed from native-original-source rows to per-cell paired statistics
+        run: node --test tests/agent46-original-source-field-pair-bridge.test.cjs
