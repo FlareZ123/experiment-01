@@ -1,0 +1,41 @@
+{
+  "schema": "agent44-fresh32-native-physical-parity-retrospective-replay-v1",
+  "author": "Agent 44",
+  "recordedUTC": "2026-11-02T22:55:00Z",
+  "originalExperiment": "results/aichi-2026/registrations/agent44-rank8-common-actor-boxshake-fresh32-20261102.json",
+  "originalCompiledRun": 41539557715,
+  "operation": "Retroactively re-execute the 32 previously registered original source indices 370–401 plus historical selected control with identical policy/seed/decks and add ONLY read-only native preaction SHA256 full-physical-deal and original-source-deal fingerprint observers.",
+  "precommittedIndices": [
+    370,
+    401
+  ],
+  "caseCountFresh": 32,
+  "historicalControlExcluded": true,
+  "sourceSeat": "index modulo 2",
+  "noSeedChanges": true,
+  "freezeCodeUntilRun": true,
+  "newInstrumentation": "captureInitialSourceDealFingerprintSeat and captureInitialFullPhysicalDeal on every headless baseline/treatment; independent pre-action SHA256 per physical source and both seats; require 64 hex and bitwise equality",
+  "strictExpectedStatuses": [
+    "MATCH_EXACT_FULL_PHYSICAL",
+    "FINGERPRINT_ABSENT",
+    "FINGERPRINT_MISMATCH",
+    "NATIVE_ERROR"
+  ],
+  "scientificStatus": "forensic same-deal witness; no new prospective competitive trials, no claim of equivalence of full gameplay to earlier uninstrumented run",
+  "sourcePrinted60Sha256": "6d955f821a0ae206110189adf53621a29c2d49afdeade1206dee46a2a50f8541",
+  "candidate": "unchanged Hood v1 60",
+  "native": {
+    "selectedCommonActorBothSeats": true,
+    "innerOwnerBoxShake": true,
+    "flexible": true,
+    "maxActions": 120,
+    "paperCompetenceQualified": false
+  },
+  "independentLimits": [
+    "retrospective same physical scheduled deals",
+    "paper-valid full Secret Box payment custody not independently proven",
+    "opponent decision quality unqualified",
+    "physical fingerprint digest cannot establish full turn-decision equivalence",
+    "whole-paper game and win rate unqualified"
+  ]
+}
