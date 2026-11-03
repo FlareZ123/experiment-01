@@ -1,0 +1,23 @@
+name: Agent1 original Raichu source printing regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent1-raichu-printed-openers
+  cancel-in-progress: false
+
+jobs:
+  pure-source-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original rank4 and rank17 printed predecessors
+        run: node --test tests/agent1-rank17-raichu-printed-openers.test.cjs tests/agent42-raichu-printing-sensitivity.test.cjs tests/aichi-electrode-observer-contrast.test.cjs
