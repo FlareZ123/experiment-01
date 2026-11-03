@@ -55,3 +55,18 @@ A shared seed and a matched first-player choice remain necessary recorded contex
 When same-seed candidate arms have divergent source fingerprints, archive both raw attempts and mark their cross-candidate game comparison `UNPAIRED_SOURCE_DEAL` rather than treating them as a controlled physical pair. If the source physical hash is missing after an abort, mark `UNKNOWN` unless independent count-and-digest-conserved native evidence supports a separately labeled posthoc classification. The existing frozen selected-v2 release and its original failed acceptance gate remain unchanged.
 
 There are currently 29/32 authenticated original Top 32 printed sixties, zero competitively qualified games and no demonstrated 99.5% field win rate. This contribution improves methodological rigor only.
+
+
+## Exact extension: independent repeated shared-position redraws
+
+The preceding 10.56037887669% concerns a **single** 7-card attempt. A separate model keeps sampling a fresh, independent, uniformly random seven-position subset at each round, coupled by position across the two fixed candidates within the round. Each candidate stops when it has a legal Basic-containing seven and retains that hand. If their first legal round differs, their total mulligan counts differ.
+
+Write `D=C(60,7)`, `q=C(41,7)/D` (both fail a given round), and `x=40784914/D` (exactly one fails that round). The two candidates have identical mulligan counts precisely if there are zero or more *jointly invalid* rounds followed immediately by a *jointly valid* round. Summing that geometric series gives the exact count-disagreement probability `x/(1-q)`, equivalently
+
+`40,784,914 / 363,724,980 = 11.213118769021584%`.
+
+Under maximally nested Basic positions (14 of 17), the same repeated-redraw model yields
+
+`21,300,566 / 353,982,806 = 6.017401308469203%`.
+
+This is a different and stronger mathematical prediction from one-round divergence, with the **additional independence-of-rounds assumption**. The actual engine's PRNG stream, opponent-specific setup, selected Basics, subsequent shuffles, public mulligan compensation, and source deck fingerprint can break correspondence to this idealized model. No tournament inference is justified. A fifth pure regression was added and passed locally with the same authentic printed-card database fixture; this extension still has no compiled native CI witness.
