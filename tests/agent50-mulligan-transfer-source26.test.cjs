@@ -22,7 +22,7 @@ function card(id){
 /** @param {Array<object>} rows @returns {number} */
 function manifestBasics(rows){
   assert.equal(rows.reduce((n,x)=>n+x.count,0),60);
-  return rows.reduce((n,x)=>n+(card(x.id||x.cardId).subtypes.includes('Basic')?x.count:0),0);
+  return rows.reduce((n,x)=>{const printing=card(x.id||x.cardId);return n+(printing.supertype==='Pokémon'&&printing.subtypes.includes('Basic')?x.count:0);},0);
 }
 
 /** @param {number} rank @returns {number} */
