@@ -134,6 +134,63 @@ test('naturally benched Trubbish distinguishes alternate starter from forced Act
     challenger.hybridUnionConditionalValid);
 });
 
+test('second Float Stone retained after Shake: independent nine-card ordered physical census',()=>{
+  const physical=['t','t','a','s','f','f','g','b','o'];
+  const expected=exactOneDrawCounts({t:2,a:1,s:1,f:2,g:1,b:1,o:1,
+    seenSize:4,prizes:1});
+  const observed={eligible:0,spare:0,benchSpare:0};
+  for(let i=0;i<9;i++)for(let j=i+1;j<9;j++)
+    for(let k=j+1;k<9;k++){
+      const starting=[i,j,k];
+      const initial=new Set(starting);
+      if(!starting.some(n=>['t','b'].includes(physical[n])))continue;
+      for(let draw=0;draw<9;draw++){
+        if(initial.has(draw))continue;
+        const seen=[...starting,draw].map(n=>physical[n]);
+        const t=seen.filter(x=>x==='t').length;
+        const f=seen.filter(x=>x==='f').length;
+        const bench=starting.some(n=>physical[n]==='b')||t>=2;
+        for(let prize=0;prize<9;prize++){
+          if(initial.has(prize)||prize===draw)continue;
+          const inDeck=physical.filter((_,n)=>!initial.has(n)&&
+            n!==draw&&n!==prize);
+          const available=x=>seen.includes(x)||inDeck.includes(x);
+          const direct=t>0&&seen.includes('s')&&f>=2&&
+            inDeck.includes('g');
+          const arven=t>0&&seen.includes('a')&&f>=1&&
+            inDeck.includes('g')&&available('s')&&
+            (f>=2||inDeck.includes('f'));
+          const opportunity=direct||arven;
+          observed.eligible++;
+          observed.spare+=Number(opportunity);
+          observed.benchSpare+=Number(bench&&opportunity);
+        }
+      }
+    }
+  assert.equal(expected.spareToolUnionNumerator,String(observed.spare));
+  assert.equal(expected.benchSpareToolUnionNumerator,
+    String(observed.benchSpare));
+  assert.ok(expected.spareToolUnionNumerator!=='0');
+  assert.ok(expected.benchSpareToolUnionNumerator!=='0');
+});
+
+test('original and challenger exact held spare Tool rates are constrained',()=>{
+  const original=analyzeOneDrawSixty(fullSixty(2,0,2,3,2,9),11);
+  const newDeck=analyzeOneDrawSixty(fullSixty(3,3,3,4,2,9),12);
+  assert.ok(Math.abs(original.spareToolUnionConditionalValid-
+    0.0017940189240892531)<1e-13);
+  assert.ok(Math.abs(newDeck.spareToolUnionConditionalValid-
+    0.05416308093994997)<1e-13);
+  assert.ok(Math.abs(original.benchSpareToolUnionConditionalValid-
+    0.0009527159151081564)<1e-13);
+  assert.ok(Math.abs(newDeck.benchSpareToolUnionConditionalValid-
+    0.03446069869482231)<1e-13);
+  assert.equal(newDeck.spareToolUnionNumerator,'18267689855558547');
+  assert.equal(newDeck.benchSpareToolUnionNumerator,'11622628274429301');
+  assert.ok(newDeck.benchSpareToolUnionConditionalValid<
+    newDeck.benchHybridUnionConditionalValid);
+});
+
 test('missing or already Prized Garbodor cannot satisfy direct or Arven route',()=>{
   const bad=analyzeOneDrawSixty(fullSixty(3,3,3,4,0,9),12);
   assert.equal(bad.unionNumerator,'0');
