@@ -176,6 +176,13 @@ function rootPhysicalSnapshot(state,seat,intent){
       targetPokemonPrinting:
         owner.bench[intent.benchIndex]?.getPokemonCard()?.fullName??null,
       retreatedTurn:owner.retreatedTurn,
+      // Witness-only physical identities. They are never supplied to the
+      // owner policy; same-printing Pokemon need real-instance swap evidence.
+      ...(intent.kind==='retreat-emergency-floatstone'?{
+        activePokemonPhysicalId:owner.active.getPokemonCard()?.id??null,
+        targetPokemonPhysicalId:
+          owner.bench[intent.benchIndex]?.getPokemonCard()?.id??null
+      }:{}),
       publicSkylinerPresent:[owner.active,...owner.bench].some(slot=>
         slot?.getPokemonCard()?.powers?.some(power=>
           power.name==='Skyliner')===true)
@@ -291,9 +298,15 @@ function rootPhysicalWitness(intent,before,after,GamePhase){
   if(intent.kind==='retreat-emergency-floatstone'){
     // A zero-cost Float Stone retreat must move the exact selected Benched
     // Pokemon, while the former Active occupies the vacated Bench slot.
+    const samePrinting=before.activePokemonPrinting===intent.printing;
+    const physicalSwap=Number.isSafeInteger(before.activePokemonPhysicalId)&&
+      Number.isSafeInteger(before.targetPokemonPhysicalId)&&
+      before.activePokemonPhysicalId!==before.targetPokemonPhysicalId&&
+      after.activePokemonPhysicalId===before.targetPokemonPhysicalId&&
+      after.targetPokemonPhysicalId===before.activePokemonPhysicalId;
     return before.activePokemonPrinting!==null&&
       before.targetPokemonPrinting===intent.printing&&
-      before.activePokemonPrinting!==intent.printing&&
+      (samePrinting?physicalSwap:true)&&
       after.activePokemonPrinting===intent.printing&&
       after.targetPokemonPrinting===before.activePokemonPrinting&&
       after.retreatedTurn===before.turn?
