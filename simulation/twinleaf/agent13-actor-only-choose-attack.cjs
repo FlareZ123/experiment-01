@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'),path=require('node:path');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {assertValidPromptAction}=require('./prompt-integrity.cjs');
+const {preferFasterNominalCopy}=require('./agent8-public-flat-copy-turns.cjs');
 const VERSION='agent13-actor-only-copied-attack-choice-v4-public-gx-lock';
 
 /**
@@ -107,6 +108,11 @@ function chooseActorCopiedAttack(input,options={}){
     picked=eligible.find(x=>x.printing==='Genesect V FST'&&
       x.attackName==='Techno Blast')??picked;
   }
+  if(options.preferFasterNominalCopy===true&&picked){
+    const upgraded=preferFasterNominalCopy(input,picked);
+    if(upgraded)picked=eligible.find(x=>x.sourceIndex===upgraded.sourceIndex&&
+      x.attackIndex===upgraded.attackIndex)??picked;
+  }
   if(picked)return {sourceIndex:picked.sourceIndex,
     attackIndex:picked.attackIndex};
   if(input.prompt.allowCancel)return {sourceIndex:null,attackIndex:null};
@@ -140,6 +146,7 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
   const preferRank13DragapultPhantomDive=deps.preferRank13DragapultPhantomDive===true;
+  const preferPublicFlatCopy=deps.preferPublicFlatCopy===true;
   const rank13SourceSeat=deps.rank13SourceSeat??null;
   assert.ok(!preferRank13DragapultPhantomDive||
     rank13SourceSeat===0||rank13SourceSeat===1);
@@ -147,11 +154,13 @@ function withActorOnlyChooseAttack(run,deps={}){
     (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
     (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':'')+
     (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':'')+
-    (preferRank13DragapultPhantomDive?'+agent8-rank13-phantom-dive-v1':''),
+    (preferRank13DragapultPhantomDive?'+agent8-rank13-phantom-dive-v1':'')+
+    (preferPublicFlatCopy?'+agent8-public-flat-copy-turns-v1':''),
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
     preferMewGenesectTechnoBlast,
     preferRank13DragapultPhantomDive,rank13SourceSeat,
+    preferPublicFlatCopy,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -171,7 +180,8 @@ function withActorOnlyChooseAttack(run,deps={}){
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage,
         preferMewGenesectTechnoBlast,
-        preferRank13DragapultPhantomDive,rank13SourceSeat});
+        preferRank13DragapultPhantomDive,rank13SourceSeat,
+        preferFasterNominalCopy:preferPublicFlatCopy});
     const controlIntent=preferZeroHandPrintedDamage?
       chooseActorCopiedAttack(input,{preferGengarPoltergeist}):null;
     const prompt=state.prompts.find(p=>p.result===undefined);
