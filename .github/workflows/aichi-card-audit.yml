@@ -85,6 +85,16 @@ jobs:
           node -e "const x=require('./scripts/aichi-initialization-potential-census.cjs').run();console.log(JSON.stringify({published:x.published,noTarget:x.noTarget,evolutionOnly:x.evolutionOnly,basicPossible:x.basicPossible.length}))"
       - name: Verify exact owner-hand Trainer discard contention without native games
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent27-original-field-trainer-payment-coverage.test.cjs tests/agent27-owner-trainer-payment-observer.test.cjs tests/agent27-source-trainer-cardtext-cost-audit.test.cjs
+      - name: Verify all 29 original Basic-conditioned first-turn Item and Trainer holdings
+        run: |
+          node --test tests/2026-11/agent17-field-firstturn-trainer-access.test.cjs
+          node scripts/agent17-field-firstturn-trainer-access.cjs > agent17-field-firstturn-trainer-access.json
+          node -e "const r=require('./agent17-field-firstturn-trainer-access.json'); console.log(JSON.stringify({version:r.version,sourceManifestSha256:r.sourceManifestSha256,copiesByType:r.copiesByType,rows:r.rows.map(x=>({rank:x.rank,basics:x.basicCopies,item:x.Item,supporter:x.Supporter,first7ItemPercent:Number((100*x.firstSeven.anyItem.probability).toFixed(5)),first8ItemPercent:Number((100*x.firstEight.anyItem.probability).toFixed(5)),first7TrainerPercent:Number((100*x.firstSeven.anyTrainer.probability).toFixed(5))}))},null,2))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent17-original29-opening-trainer-holdings
+          path: agent17-field-firstturn-trainer-access.json
+          retention-days: 30
       - name: Verify source rank13 dual search connector opening arithmetic
         run: |
           node --test tests/agent49-rank13-dual-connector-openers.test.cjs
