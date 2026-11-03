@@ -53,10 +53,12 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
   source.bench.push(blocked);
   defender.active.cards.push(printed('Mimikyu PAL'));
   const sourceDeckDce=printed('Double Colorless Energy SUM');
-  if(energyAvailable)source.deck.cards.push(sourceDeckDce);
-  for(const cardName of ['Quick Ball FST','Ultra Ball MEG',
-    'Battle VIP Pass FST','Special Charge STS'])
+  for(const cardName of ['Quick Ball FST','Ultra Ball MEG'])
     source.deck.cards.push(printed(cardName));
+  if(energyAvailable)source.deck.cards.push(sourceDeckDce);
+  for(const cardName of ['Battle VIP Pass FST','Special Charge STS'])
+    source.deck.cards.push(printed(cardName));
+  const sourceDeckOrderBefore=source.deck.cards.map(c=>c.id);
   for(const player of [source,defender]){
     for(let i=0;i<6;i++){
       const prize=new CardList();
@@ -125,6 +127,12 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
   assert.equal(source.active.energies.cards.some(c=>c.id===paidDce.id),true);
   assert.equal(source.prizes.filter(p=>p.cards.length).length,prizesBefore);
   assert.equal(defender.active.damage,0);
+  const sourceDeckOrderAfter=source.deck.cards.map(c=>c.id);
+  const nativeShufflePromptSeen=trace.some(x=>x.kind==='ShuffleDeckPrompt');
+  const expectedAfterSearch=sourceDeckOrderBefore.filter(
+    id=>!energyAvailable||id!==sourceDeckDce.id);
+  const nativeDeckRemainderOrderPreserved=
+    JSON.stringify(sourceDeckOrderAfter)===JSON.stringify(expectedAfterSearch);
   const chosen=source.bench[recipientIndex];
   const dceOnRecipient=chosen.energies.cards.some(c=>c.id===sourceDeckDce.id);
   assert.equal(dceOnRecipient,energyAvailable);
@@ -137,6 +145,9 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
     copyChosen:'Mew V FST / Energy Mix',
     attachedExactDeckDceToRecipient:dceOnRecipient,
     originalAttackingDceRetained:true,
+    nativeShufflePromptSeen,nativeDeckRemainderOrderPreserved,
+    sourceDeckOrderBefore,sourceDeckOrderAfter,
+    nativePrintedShuffleSettled:false,
     nonFusionRecipientRejectedByPromptValidate:sawNonFusionBlock,
     sourcePrintedEnergyMixTargetLegal:recipientIndex!==2,
     nativePaperInvalidAttachmentAccepted:
