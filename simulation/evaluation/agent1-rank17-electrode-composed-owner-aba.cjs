@@ -180,6 +180,12 @@ function run(){
       sourceLinePartialOneToFourEnergyRoots:add('lineWithOneToFourDiscardEnergyRoots'),
       sourceLineFullFivePlusEnergyRoots:add('lineWithFivePlusDiscardEnergyRoots'),
       sourcePhysicallyNecessaryLineRoots:add('physicalNecessaryRoots'),
+      sourceGeneralBombRecipientRoots:add('generalBombSourceRecipientRoots'),
+      sourceGeneralBombDualBoardRoots:add('generalBombSourceElectrodeRecipientCoPresentRoots'),
+      sourceGeneralBombZeroDiscardRoots:add('generalBombZeroDiscardRoots'),
+      sourceGeneralBombPartialOneToFourRoots:add('generalBombPartialOneToFourDiscardRoots'),
+      sourceGeneralBombFullFivePlusRoots:add('generalBombFullFivePlusDiscardRoots'),
+      sourceGeneralBombPhysicalPrerequisiteRoots:add('generalBombPhysicallyNecessaryRoots'),
       policySelectedExtraEnergyBombRoots:add('sourceAbilityRootsActuallySelected'),
       competitiveQualifiedGames:0,
       qualification:'NO: source-specific development bridge, generic prompt fallbacks, 25-minute clock absent'
