@@ -3,6 +3,11 @@ name: Agent 3 paper counterfactual smoke
 on:
   workflow_dispatch:
     inputs:
+      rank26_full_v3_native:
+        description: 'Full 24-deal retrospective source rank26 broad-versus-live Store observer contrast'
+        required: false
+        type: boolean
+        default: false
       rank26_root_v3_native:
         description: 'Recheck 6 archived original-source rank26 native root receipts, manual only'
         required: false
@@ -14,7 +19,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -43,9 +48,9 @@ jobs:
             tests/agent3-rank26-alternative-basic-starter.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native }}
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@v4
       - name: Checkout pinned Twinleaf source
@@ -64,15 +69,36 @@ jobs:
       - name: Test real-root-only receipts against rejected and speculative Store calls
         run: node --test tests/agent3-compressor-root-provenance-v3.test.cjs
       - name: Replay three previously observed source-first deals with both historical policy arms
+        if: ${{ inputs.rank26_root_v3_native }}
         run: node simulation/twinleaf/agent3-rank26-root-provenance-v3-selected.cjs
       - name: Print bounded original native root, payment and speculative clone lineage summary
+        if: ${{ inputs.rank26_root_v3_native }}
         run: |
           node -e "const a=require('node:assert/strict');const r=require('./agent3-rank26-root-provenance-v3.json');a.equal(r.summary.total,6);a.equal(r.summary.identicalRoots,6);for(const c of r.cases)console.log('SOURCE_ROOT_V3',JSON.stringify({repeat:c.repeat,slot:c.slot,seat:c.seat,arm:c.arm,rootMatch:c.expected===c.actual,error:c.error,sourceFirst:c.sourceFirst,acceptedFirstTurnCardPlays:c.sourceActions.filter(x=>x.action==='PlayCardAction').map(x=>x.card),realCompressorPlays:c.actualFirstTurnCompressorPlays,selectedRootCompressor:c.receiptAudit?.selectedSourcePlays,acceptedRootCompressor:c.receiptAudit?.acceptedSourcePlays,linkedPrompts:c.receiptAudit?.linkedPromptsIssued,positiveSettlements:c.receiptAudit?.positiveLinkedSettlements,speculativeDispatches:c.receiptAudit?.ignoredSpeculativeDispatches,receipts:c.receiptAudit?.receipts.map(y=>({turn:y.globalTurn,minimumMet:y.paperMinimumMet,card:y.sourceCard?.id,moved:y.physicallyMoved.map(z=>({id:z.id,name:z.name}))}))}));"
       - name: Archive all six root receipts, including negative and errored attempts
-        if: ${{ always() }}
+        if: ${{ always() && inputs.rank26_root_v3_native }}
         uses: actions/upload-artifact@v4
         with:
           name: agent3-rank26-original-source-root-receipts-v3
           path: agent3-rank26-root-provenance-v3.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Confirm syntax of full retrospective root-bound source replay
+        if: ${{ inputs.rank26_full_v3_native }}
+        run: node --check simulation/twinleaf/agent3-rank26-compressor-v3-full-retrospective.cjs
+      - name: Reproduce all 24 original physical source deals with both historical policies and both independent observers
+        if: ${{ inputs.rank26_full_v3_native }}
+        run: node simulation/twinleaf/agent3-rank26-compressor-v3-full-retrospective.cjs
+      - name: Report old clone-inclusive receipts versus live-root settlements on identical source deals
+        if: ${{ inputs.rank26_full_v3_native }}
+        run: |
+          node -e "const a=require('node:assert/strict');const r=require('./agent3-rank26-compressor-v3-full-retrospective.json');a.equal(r.summary.sourceDeals,24);a.equal(r.summary.nativeAttempts,48);console.log('RANK26_NATIVE_FULL_REPLAY_SUMMARY',JSON.stringify(r.summary));for(const c of r.deals.filter(x=>x.arms.every(y=>y.sourceFirst)))console.log('RANK26_FIRST_SOURCE_DEAL',JSON.stringify({repeat:c.repeat,seat:c.seat,slot:c.slot,paired:c.physicalPair,arms:c.arms.map(y=>({policy:y.arm,firstTurnRealPlays:y.originalSourceFirstTurnBattleCompressorPlays,oldObserverPositives:y.oldSpeculativeObserver.positiveResolutions,liveRootPositives:y.actualStoreV3.positiveSettlements,simulatedDispatchesIgnored:y.actualStoreV3.simulatedDispatchesIgnored,actualRealMoves:y.actualStoreV3.receipts.map(q=>q.moved.map(z=>z.name))}))}));"
+      - name: Archive every original rank26 source-deal attempt and both observers
+        if: ${{ always() && inputs.rank26_full_v3_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-full-original-source-root-v3
+          path: agent3-rank26-compressor-v3-full-retrospective.json
           if-no-files-found: warn
           retention-days: 14
