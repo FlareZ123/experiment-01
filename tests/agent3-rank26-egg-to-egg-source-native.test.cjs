@@ -12,7 +12,7 @@ const {installDamagePumpSingleSourceHook}=require(
 const ROOT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 const load=rel=>require(path.join(ROOT,rel));
 const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
-const {PlayCardAction}=load('game/store/actions/play-card-action');
+const {PlayCardAction,PlayerType,SlotType}=load('game/store/actions/play-card-action');
 const {ResolvePromptAction}=load('game/store/actions/resolve-prompt-action');
 
 /** @param {0|1} seat @param {boolean} withDefenderBench */
@@ -75,8 +75,8 @@ function probe(seat,options,withDefenderBench=false){
       assert.equal(second.id,pending.id);
       assert.equal(pending.validate(second.result,f.state),true);
       assert.deepEqual(second.result,[{
-        from:{player:3,slot:5,index:4},
-        to:{player:3,slot:5,index:3}
+        from:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:4},
+        to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:3}
       }]);
       // Leave genuine Store prompt unresolved: native engine KO, recipient
       // Prize selection and payment custody are separate pending gates.
