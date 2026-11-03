@@ -48,6 +48,20 @@ For a genuine staged `Apex Dragon` declared by `Regidrago VSTAR SIT` with Grass/
 
 The opponent deck includes the one automatic card draw on its next turn. This is a real vendor `AttackAction` → `ChooseAttackPrompt` → `ResolvePromptAction` → effect transaction, followed by normal turn progression. The hook is demonstrated to affect **copied** attack delegation correctly as well as direct Mega attacking. All 10 observed cases pass, **zero competitively qualified games**.
 
+## Native Mega Evolution turn-rule comparison
+
+The separate **real native `PlayCardAction`** six-arm test was added after the copied-donor proof: a prior-turn `Charizard-EX FLF` starts in the Active Spot, the owner plays the FLF69 Mega from hand onto that exact evolution target during native global turn 4, and the Store resolves the action. Both attacker seats are tested for the original first implementation, the generated duplicate, and the original while the paper Wild Blaze hook is installed.
+
+**[Compiled manual CI run 41575194665](https://github.com/FlareZ123/experiment-01/actions/runs/41575194665), source head `a723c02e427bfa0d06862f9439435b3018ab578b`: all 16 native tests passed, including six real Mega evolution cases.** The native log confirms:
+
+| FLF69 implementation | Seat 0 turn after evolution | Seat 1 turn after evolution | Printed Mega no-Spirit-Link rule |
+| --- | ---: | ---: | --- |
+| Original `M Charizard EX FLF` | 5 | 5 | Preserved |
+| Generated duplicate `M Charizard-EX FLF 69` | 4 | 4 | **Violated** |
+| Original + Wild Blaze paper hook | 5 | 5 | Preserved |
+
+This directly confirms the previously source-reviewed omission in the duplicate: it permits ordinary Mega Evolution without ending the turn. Consequently **neither native class is paper-faithful without a correction**: the original requires an own-deck Wild Blaze repair; the duplicate requires a Mega evolution rule repair. The tested original-class Wild Blaze hook repairs its known attack defect while preserving real native Mega play on both seats. These staged Store cases exclude natural deck setup and do not test Spirit Link exceptions.
+
 ## Limits and next acceptance gate
 
 The initial test board is physically staged rather than reached through a valid opening hand, natural evolution, discard engines, actual opponent decisions, or a 25-minute paper clock. Printed damage/owner-deck-custody validation is local to this effect. It does not certify other card effects, an end-to-end `Apex Dragon` line, deck legality, strength or win rate. If copying succeeds under the corrected hook, the candidate evaluator must enable the hook in its **predeclared symmetric policy** and verify both owner cost and opponent continuation on fully original source sixties; leave unpatched comparisons unqualified and do not change the immutable candidate cardlist.
