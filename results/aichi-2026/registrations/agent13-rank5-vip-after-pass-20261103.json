@@ -1,0 +1,60 @@
+{
+  "schema": "agent13-rank5-shared-vip-afterpass-native-same-deal-v1",
+  "registeredAtUtc": "2026-11-03T04:14:05Z",
+  "purpose": "Test whether owner-only Battle VIP Pass root after a native Pass improves original rank5 source setup on identical joint-v1 physical deals, preserving negative unsupported/no-op arms",
+  "retrospective": true,
+  "baselineJointV1BlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "nativeRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "actorCompositionGitBlobSha": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+  "ownerVipAfterPassAdapterGitBlobSha": "aeda10268b16d0fcb34a52856d0d5067f08fcdac",
+  "nativeEngineGitRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 5,
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "registeredSourceGroups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 0,
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 1,
+      "seed": 561933954
+    }
+  ],
+  "modes": [
+    {
+      "id": "joint_v1_control",
+      "ownerVipAfterPassEnvironment": false
+    },
+    {
+      "id": "symmetric_vip_after_pass",
+      "ownerVipAfterPassEnvironment": true
+    }
+  ],
+  "registeredAttempts": 8,
+  "maxActions": 260,
+  "interventionMechanism": "Only AGENT9_BATTLE_VIP_AFTER_PASS_DEV is toggled within a synchronous per-mode scoped and finally-restored environment; shared canonical actor policy invokes the existing both-seat adapter. All other 92 options and pinned executable bytes remain unchanged.",
+  "comparisonRule": "Require four exact same-candidate source physical fingerprints across control/treatment before any same-deal result; compare historical transport baseline only if exact provenance and ledger fingerprint match",
+  "predeclaredMechanics": [
+    "owner-first-turn Battle VIP in hand and initial native pass opportunity",
+    "live selected root accepted or rejected by pinned Store",
+    "genuine native ChooseCardsPrompt owned-deck selection and Bench zone receipt",
+    "source Mew VMAX evolution, copied Techno Blast selection and settled Cross Fusion Strike",
+    "subsequent opponent action, native terminal/cap/error"
+  ],
+  "paperQualificationRequired": false,
+  "expectedCompetitiveGamesQualified": 0,
+  "unknowns": [
+    "Actual paper reason for any failed/unsupported original root",
+    "Source gameplay competence outside bounded VIP interaction",
+    "Paper match clock and strategic opponent quality"
+  ],
+  "no99_5Claim": true
+}
