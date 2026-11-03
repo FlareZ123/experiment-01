@@ -89,3 +89,57 @@ test('full source Bench does not independently disqualify normal Retreat',()=>{
   const [x]=inspectSourceGuzmaFinisher(fixture());
   assert.equal(x.ownBenchFull,true);
 });
+
+/** @returns {object} Same-source game continuation with persisted, verified Tapu Bench. */
+function persistentFixture(){
+  const x=fixture();
+  x.rootActionLedger=x.rootActionLedger.filter(e=>e.actionOrdinal!==7);
+  for(const r of x.rootActionLedger){
+    if(r.turnBefore===42)r.turnBefore=46;
+    else if(r.turnBefore===43)r.turnBefore=47;
+    else if(r.turnBefore===44)r.turnBefore=48;
+  }
+  x.nativeAcceptedTargetSidecar.events=[];
+  x.sourceOwnerPostPassMobility.observations[0].globalTurn=48;
+  x.sourceAttackSettlement.attacks=[{
+    actionOrdinal:4,turnBefore:46,attackName:'Cross Fusion Strike',
+    prizesAfter:[4,2],publicBoardAfter:[{
+      bench:[{name:'Tapu Lele-GX',damage:0,toolCards:[]}]
+    },{bench:[]}]
+  }];
+  return x;
+}
+
+test('persistent public Bench target and pure opponent pass witnesses later terminal window',()=>{
+  const {inspectPersistentTapuFinishers}=require('../scripts/agent9-rank5-guzma-finisher-natural.cjs');
+  const [x]=inspectPersistentTapuFinishers(persistentFixture());
+  assert.ok(x);assert.equal(x.sourceTurn,48);
+  assert.equal(x.sourceRemainingPrizes,2);assert.equal(x.originalHeldGuzma,2);
+  assert.equal(x.candidateTapuBenchIndex,0);
+  assert.equal(x.candidateTurnHadOnlyPassAndPrompts,true);
+  assert.equal(x.executedInNativeStore,false);
+});
+
+test('persistent Tapu must be present in the actual source attack public board receipt',()=>{
+  const {inspectPersistentTapuFinishers}=require('../scripts/agent9-rank5-guzma-finisher-natural.cjs');
+  const x=persistentFixture();x.sourceAttackSettlement.attacks[0].publicBoardAfter[0].bench=[];
+  assert.deepEqual(inspectPersistentTapuFinishers(x),[]);
+});
+
+test('persisted Tapu receiving Tool has no certified bare target',()=>{
+  const {inspectPersistentTapuFinishers}=require('../scripts/agent9-rank5-guzma-finisher-natural.cjs');
+  const x=persistentFixture();x.sourceAttackSettlement.attacks[0].publicBoardAfter[0].bench[0].toolCards=['Fighting Fury Belt'];
+  assert.deepEqual(inspectPersistentTapuFinishers(x),[]);
+});
+
+test('opponent intervening nonpass action invalidates persistence assumption',()=>{
+  const {inspectPersistentTapuFinishers}=require('../scripts/agent9-rank5-guzma-finisher-natural.cjs');
+  const x=persistentFixture();x.rootActionLedger.push({turnBefore:47,playerSlot:0,action:'PlayCardAction'});
+  assert.deepEqual(inspectPersistentTapuFinishers(x),[]);
+});
+
+test('persistent snapshot without copied Techno attack does not qualify cooldown',()=>{
+  const {inspectPersistentTapuFinishers}=require('../scripts/agent9-rank5-guzma-finisher-natural.cjs');
+  const x=persistentFixture();x.rootActionLedger[1].attackChoice.attackName='Max Miracle';
+  assert.deepEqual(inspectPersistentTapuFinishers(x),[]);
+});
