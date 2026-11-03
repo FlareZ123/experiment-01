@@ -53,8 +53,15 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withActorOwnerSingleSearch)):null;
   const defaultRoot=require('../twinleaf/agent34-actor-only-root-policy.cjs')
     .withActorOnlyRootPolicy;
-  const root=adapters.root??(options.nativeOwnerTrainerFallback===true?
-    work=>defaultRoot(work,{nativeOwnerTrainerFallback:true}):defaultRoot);
+  const root=adapters.root??(
+    options.nativeOwnerTrainerFallback===true||
+    options.ownerElectrodeBombCensus===true?
+      work=>defaultRoot(work,{
+        ...(options.nativeOwnerTrainerFallback===true?
+          {nativeOwnerTrainerFallback:true}:{}),
+        ...(options.ownerElectrodeBombCensus===true?
+          {rank17ElectrodeBombCensus:true}:{})
+      }):defaultRoot);
   const fog = adapters.fog ??
     require('../twinleaf/agent9-fog-actor-prompt.cjs')
       .withActorFogCrystalPrompt;
@@ -371,6 +378,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerGenericTrainerFrontierOptIn:options.ownerGenericTrainerFrontier===true,
+    ...(options.ownerElectrodeBombCensus===true?{
+      ownerElectrodeBombCensusOptIn:true,
+      ownerElectrodeBombCensusAudit:rootAudit.rank17ElectrodeBombCensus
+    }:{}),
     ...(options.nativeOwnerTrainerFallback===true?{
       nativeOwnerTrainerFallbackOptIn:true,
       nativeOwnerTrainerFallbackAudit:rootAudit.nativeOwnerTrainerFallback
