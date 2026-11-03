@@ -1459,6 +1459,13 @@ function runDevelopment({
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             genericFallbackAttribution:actorGenericFallbackAttribution,
             ownerGenericTrainerFrontier,nativeOwnerTrainerFallback,
+            // A selected frontier always retains the independent owner-only
+            // printed temporal, payment, Prize and target negative evidence.
+            // It remains read-only; historical frontier-off v2 is unchanged.
+            ownerPaperNecessity:ownerGenericTrainerFrontier,
+            ...(ownerGenericTrainerFrontier?{
+              ownerTrainerRegisteredSixties:[request.deckA,request.deckB]
+            }:{}),
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
             ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
