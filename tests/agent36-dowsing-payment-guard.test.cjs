@@ -229,3 +229,40 @@ test('native target cancellation closes submitted Dowsing with unpaid paper cost
     'RECOVERY_CLOSED_WITHOUT_PHYSICAL_COST');
   assert.deepEqual(f.owner.hand.cards,[f.one,f.two]);
 });
+
+class AddPlayerAction {}
+
+test('scoped v4 guard ignores auxiliary Store actions and fails closed on two registered trials',()=>{
+  const original=FakeStore.prototype.dispatch;
+  const first=fixture(),auxiliary=fixture(),second=fixture();
+  for(const group of [first,auxiliary,second])
+    group.owner.hand.cards.splice(2,1);
+  let trial='rank26-source-seat-0';
+  const observed=withDowsingMachinePaperPaymentGuard(()=>{
+    // Before the physical registered AddPlayerAction, even a matching
+    // printed source root in a cloned Store is excluded from this gate.
+    assert.equal(auxiliary.store.dispatch(
+      new PlayCardAction(auxiliary.owner.id,0)),true);
+    first.store.dispatch(new AddPlayerAction());
+    assert.throws(()=>first.store.dispatch(
+      new PlayCardAction(first.owner.id,0)),
+    /PAPER_ROOT_INVALID:DOWSING_NEEDS_TWO_OTHER_HAND_CARDS/);
+    // An auxiliary clone remains out of scope after live registration.
+    assert.equal(auxiliary.store.dispatch(
+      new PlayCardAction(auxiliary.owner.id,0)),true);
+    trial='rank26-source-seat-1';
+    second.store.dispatch(new AddPlayerAction());
+    assert.throws(()=>second.store.dispatch(
+      new PlayCardAction(second.owner.id,0)),
+    /PAPER_ROOT_INVALID:DOWSING_NEEDS_TWO_OTHER_HAND_CARDS/);
+  },{Store:FakeStore,requireLiveStore:true,currentTrialId:()=>trial});
+  assert.equal(observed.audit.liveStoreRequired,true);
+  assert.equal(observed.audit.liveSourceTrialCount,2);
+  assert.equal(observed.audit.excludedAuxiliaryDispatches,2);
+  assert.equal(observed.audit.inspectedRoots,2);
+  assert.equal(observed.audit.invalidRoots,2);
+  assert.equal(auxiliary.store.nativeCalls,2);
+  assert.equal(first.store.nativeCalls,1);
+  assert.equal(second.store.nativeCalls,1);
+  assert.strictEqual(FakeStore.prototype.dispatch,original);
+});
