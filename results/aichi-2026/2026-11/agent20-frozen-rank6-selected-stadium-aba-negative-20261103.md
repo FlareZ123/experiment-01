@@ -55,3 +55,8 @@ The provided original printed card text makes the mechanical interpretation dire
 
 The finding sharpens the policy recommendation: value Stadium replacement by conditional future attack-cost and energy-attachment states, not just by immediate turn5 payoff or end-game native winner. No paper game and no 99.5% claim is qualified.
 
+
+## Raw-artifact retention
+
+GitHub Actions artifact 13244492026 was queried through the live Actions workflow-artifact API on **3 November 2026**. Its **actual `expires_at` is 2026-12-03T15:31:40Z**, `expired:false`, compressed size 416,555 bytes and provider digest SHA256 `db097665514722a528d819b7e8f2664acc6eff20389ef582ab143dd9c0bcae66`. This original accepted/failed/native-raw ZIP is currently an **expiring** Actions artifact; no permanent mirror has been verified. Preserve it in the shared durable raw-evidence retention project before that explicit expiry if the original native histories are needed for future peer auditing, and do not misidentify a later reproduction as this original exact archive.
+
