@@ -69,6 +69,14 @@ on:
         type: boolean
         default: false
 
+      generic_owner_tutor_registration:
+        description: 'V1 archival or v2 fresh exact BKT ID pilot'
+        required: false
+        type: choice
+        default: 'v1'
+        options:
+          - 'v1'
+          - 'v2'
       generic_owner_tutor_selected:
         description: 'Preregistered Agent11 original5-vs11 bilateral generic resource tutor selected policy, 8 arms'
         required: false
@@ -152,12 +160,14 @@ jobs:
           retention-days: 30
       - name: Agent11 preregistered original rank5/rank11 two-seat selected resource tutor comparison
         if: ${{ inputs.generic_owner_tutor_selected }}
+        env:
+          AGENT11_TUTOR_REGISTRATION: ${{ inputs.generic_owner_tutor_registration }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.generic_owner_tutor_selected }}
         with:
           name: agent11-owner-tutor-original5-vs11-native
-          path: agent11-owner-tutor-native-v1.json
+          path: agent11-owner-tutor-native-v*.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
