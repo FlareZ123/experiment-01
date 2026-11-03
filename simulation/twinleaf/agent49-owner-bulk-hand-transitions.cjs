@@ -36,7 +36,7 @@ const BULK_HAND_PRINTS = Object.freeze({
   })
 });
 
-const VERSION='agent49-owner-bulk-hand-transform-v1';
+const VERSION='agent49-owner-bulk-hand-transform-v2-sevenprint-dewguard-unknown';
 
 /**
  * Describe the complete compulsory remaining-hand transition of one printed
