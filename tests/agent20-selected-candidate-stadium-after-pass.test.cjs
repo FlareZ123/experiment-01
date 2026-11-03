@@ -2,7 +2,8 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {withCandidateStadiumAfterSelectedPass}=require(
+const {withCandidateStadiumAfterSelectedPass,
+  withRegisteredCandidateStadiumPanel}=require(
   '../simulation/twinleaf/agent20-selected-candidate-stadium-after-pass.cjs');
 
 class TrainerCard{
@@ -127,4 +128,22 @@ test('rejected Store action remains error, with observer restored',()=>{
    s.dispatch(bot.decodeNextAction(s.state));
  },trial('A'),{...deps,store:{Store:RejectStore}}),/paper-blocked/);
  assert.equal(Store.prototype.dispatch,original);
+});
+
+test('registered panel binds precisely four frozen actor compositions and restores export',()=>{
+ const original=()=>null;
+ const root={withActorOnlyRootPolicy:original};
+ const inputs=['A','A','B','B'].map((slot,i)=>({
+   id:'6:'+i+':'+slot+':reference',candidateSlot:slot
+ }));
+ const got=withRegisteredCandidateStadiumPanel(()=>{
+   return inputs.map((x,i)=>root.withActorOnlyRootPolicy(
+     ()=>({result:i}),{actorOnly:true}));
+ },inputs,{root,runTrial:(inner,trial)=>({
+   result:inner(),audit:{trialId:trial.id}
+ })});
+ assert.equal(got.audit.rootCompositions,4);
+ assert.deepEqual(got.audit.interventions.map(x=>x.trialId),
+   inputs.map(x=>x.id));
+ assert.strictEqual(root.withActorOnlyRootPolicy,original);
 });
