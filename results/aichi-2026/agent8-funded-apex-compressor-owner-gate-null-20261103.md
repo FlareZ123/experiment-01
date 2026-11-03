@@ -42,6 +42,20 @@ Each row is one *physical deal*, using the treatment's actual live owner-root ob
 
 **Paired controls:** both physical opening deals were identical in the three arms for their respective group, both repeated-control action traces matched, all six native attempts returned, zero treatment Compressor items were played, and the source's copied-attack choice counts remained [6,6,6] and [4,4,4] across the registered three-arm sequences. Native reported winners remained [1,1,1] and [0,0,0] respectively. These are unqualified engine outcomes.
 
+## Exact native reason a Dragon payload arrived first
+
+I independently downloaded artifact **13267320151**, verified that the ZIP's actual SHA256 matches the CI upload digest, and decoded its original native JSON. The `treasureNativeAudit` receipt array establishes **one completed physical Mysterious Treasure FLI cost-and-target chain per physical source deal**, with `physicalCostDiscards=1`, `physicalTargetRetrievals=1`, `completedPhysicalChains=1`, and `failedOrRejectedReplies=0` in both.
+
+| Historical source deal | Accepted original Mysterious Treasure action | Paid Dragon discarded from actual hand | Physical search target retrieved from source deck | Subsequent source copied attack |
+| --- | --- | --- | --- | --- |
+| 3588534981 (source seat 1) | Global turn **13** | **Noivern ex PAL** | **Dragapult ex TWM** | Apex Dragon copying Noivern at turns 13, 15, 17, 19, 21 and 23 |
+| 1571178812 (source seat 0) | Global turn **8** | **Salamence ex JTG** | **Regidrago VSTAR SIT** | Apex Dragon copying Salamence at turns 8, 10, 12 and 14 |
+
+Both raw receipts include the real native owner `cost` prompt, actual physical discard, owner `deck-hit` prompt, actual target retrieval and final native Item finalization. The public Dragon discard timelines independently show Noivern first appearing on turn13 for the first deal and Salamence appearing on turn8 for the second. All printed names above are sourced from the raw native archive, not inferred from the classifier. The native `sourceNativeCopiedAttackChoices` list confirms the copied attacks were selected; this does **not** by itself establish full paper-legal attacks, Prize payoff, opponent competence or time-limited game results.
+
+**Strategic interpretation (conditional on these two trajectories):** Mysterious Treasure served two setup functions with one Item: discard a copyable attack donor **and** retrieve a useful Pokémon. It therefore made the narrowly proposed *missing-payload* Compressor intervention redundant by the time the later setup gates overlapped. This is a concrete example of connector opportunity and timing, with no proof that Mysterious Treasure universally dominates Battle Compressor or that earlier Compressor use would have been worse in unseen states.
+
+
 ## Interpretation and next experiment
 
 The proposed after-Pass Compressor branch was **never offered a simultaneous owner-visible prerequisite conjunction** in the two previously selected trajectories. The zero activation cannot be attributed to a canonical actor chooser preferring another action at a valid trigger in this specific dataset: there was no valid preflight trigger to compete over. The prior English description of seed 3588534981 as a held-Compressor/funded-VSTAR/missing-payload case was a **temporal conflation**: its component conditions happened at different roots, or a payload was already present by the time Compressor was held.
