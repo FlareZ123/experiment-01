@@ -46,7 +46,7 @@ function fixture(){
       publicDiscardPostconditionVerified:false
     };
     const newer={
-      ...common,rootActionLedger:[...samePrefix,
+      ...common,trial:{...common.trial},rootActionLedger:[...samePrefix,
         event(ordinal,seat,'PlayCardAction','Quick Ball',turn)],
       nativeQuickBallOwnerTransactions:{rows:[paid]}
     };
