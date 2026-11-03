@@ -1,0 +1,31 @@
+{
+  "schema": "agent1-original-rank17-compressor-printed-opening-transport-v1",
+  "registeredAtUtc": "2026-11-03T06:03:43Z",
+  "drawProcedure": "Local Python secrets.randbits(32) independently drawn before native outcomes",
+  "hypothesis": "The corrected original rank-17 Pikachu XY predecessor enables a previously excluded owner-held early Battle Compressor tactic, producing genuine native Trainer plays and potentially discard Energy for later Electrode-GX.",
+  "sourceRank": 17,
+  "referenceRank": 1,
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "originalPrintingFingerprint": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36bd115f539f6401",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedGroups": [2443530385,1246820961,2647505399,3029174418],
+  "sourceSeats": [0,1],
+  "modes": ["source-compressor-absent","source-compressor-enabled"],
+  "controlPaperMinimumOneDiscard": true,
+  "actorNaturalEvolutionBothModes": true,
+  "sharedNativeSettings": {
+    "maxActions": 180,
+    "strictPromptValidation": true,
+    "captureInitialFullPhysicalDeal": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true
+  },
+  "treatmentOnlyNativeSetting": "rank4RaichuCompressorSeat set to original rank-17 source seat; developmental source policy, not symmetric competitive policy",
+  "expectedAttempts": 16,
+  "expectedSourceSeatGroups": 8,
+  "preregisteredUnknownOutcome": true,
+  "predeclaredAnalysis": "Preserve every native attempt, error, action cap, terminal and actual starting seat. Count accepted original-source Battle Compressor PlayCardAction roots, never proposed but unaccepted actions. Compare source root counts only where initial physical deals and actual starters match. Zero eligible openings are retained as negative coverage.",
+  "qualificationVetoes": ["source-only policy not symmetric","full paper payment and attack effects unverified","29 of 32 original opponents available","opponent policy and 25-minute paper clock unqualified"],
+  "competitiveGameQualified": false
+}
