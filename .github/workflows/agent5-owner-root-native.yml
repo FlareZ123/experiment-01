@@ -77,11 +77,7 @@ on:
         options:
           - 'v1'
           - 'v2'
-      agent11_tutor_known_dead_attack:
-        description: 'Retrospective both-seat existing known-dead printed attack chooser combined with Agent11 tutor v2; unqualified'
-        required: false
-        type: boolean
-        default: false
+          - 'v2-known-dead-retro'
       agent11_tutor_attack_trace_replay:
         description: 'Read-only retrospective tutor v2 native attack/Prize trace replay, development only; adds no games'
         required: false
@@ -267,9 +263,9 @@ jobs:
       - name: Agent11 preregistered original rank5/rank11 two-seat selected resource tutor comparison
         if: ${{ inputs.generic_owner_tutor_selected }}
         env:
-          AGENT11_TUTOR_REGISTRATION: ${{ inputs.generic_owner_tutor_registration }}
+          AGENT11_TUTOR_REGISTRATION: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-retro' && 'v2' || inputs.generic_owner_tutor_registration }}
           AGENT11_TUTOR_ATTACK_TRACE_REPLAY: ${{ inputs.agent11_tutor_attack_trace_replay }}
-          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.agent11_tutor_known_dead_attack }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-retro' }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
       - name: Audit public Terminal Period targets on two original source deals
         if: ${{ inputs.generic_owner_tutor_selected }}
