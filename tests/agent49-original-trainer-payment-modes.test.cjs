@@ -113,3 +113,6 @@ test('Dowsing Machine requires two OTHER cards regardless of ACE SPEC status',()
   assert.equal(second.variants[0].physicalPaymentWays,'1');
   assert.equal(second.variants[0].paperTargetVerified,undefined);
 });
+
+// Shared manual-only census also exercises print-verified whole-hand effects.
+require('./agent49-owner-bulk-hand-transitions.test.cjs');
