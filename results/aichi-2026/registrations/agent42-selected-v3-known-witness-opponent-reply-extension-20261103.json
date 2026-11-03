@@ -1,0 +1,32 @@
+{
+  "schema": "agent42-v3-known-witness-meaningful-opponent-reply-extension-v1",
+  "registeredAtUtc": "2026-11-03T21:12:32.183Z",
+  "priorRegistration": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "priorRegistrationGitBlob": "8b7f7dfd271937fc613d277f03941dda663734ff",
+  "priorPositiveNativeRun": 41718782033,
+  "priorPositiveArtifact": 13270503827,
+  "originalSourceRank": 1,
+  "seed": 1122744069,
+  "trialId": "1:420:A:new-moon-lockbreaker-v1",
+  "candidateSlot": "A",
+  "originalSourceSeat": 1,
+  "baselineActionCap": 180,
+  "extendedActionCap": 240,
+  "totalNativeAttempts": 3,
+  "modes": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "onlyTreatmentDifferenceFromPriorRun": "nativeRootActionLimit 180 to 240, applied symmetrically to every mode without changing any actor choice, physical decklist, registered opening or printed effects",
+  "purpose": "First real post-Max-Geist opponent nonprompt action after previously settled attack root174, plus at least one native source follow-through where possible",
+  "previousPositiveRoots": "172 physical Float Stone BKT, 173 Retreat, 174 settled Max Geist and opponent promotion; previous archive censored at accepted root179",
+  "expectedContract": [
+    "same genuine physical source/candidate initial deal within all three extended arms",
+    "identical A/B/A controls until each begins policy-determined different line",
+    "physically settled Tool/retreat/attack and real original opponent nonprompt root after attack if observed",
+    "preserve all roots and public custody even if native ends in engine-error",
+    "native postattack action is not proof of competent counterplay",
+    "retrospective posthoc sample, no competitive paper-game inference"
+  ]
+}
