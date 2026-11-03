@@ -23,7 +23,7 @@ const {saveResult} =
 
 const PIN = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BASE=20261110;
-const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>122+i));
+const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>20+i));
 const CAP=120;
 const digest=cards=>crypto.createHash('sha256')
   .update(JSON.stringify(cards)).digest('hex');
@@ -171,7 +171,7 @@ function run() {
     registration:'results/aichi-2026/registrations/agent47-rank26-natural-unownless-owner-24-paired-20261103.md',
     engine:PIN,sourceRank:26,opponentRank:6,
     sourceDigest:digest(source),opponentDigest:digest(opponent),
-    seedBase:BASE,repeats:[122,133],seats:[0,1],cap:CAP,
+    seedBase:BASE,repeats:[20,31],seats:[0,1],cap:CAP,
     nativeAttempts:48,originalPhysicalPairs:24,
     controlPolicy:RANK26_PROPAGATION_PROFILE,
     treatmentPolicy:'rank26-owner-early-compressor-one-L-two-Eggs + one-L Cologne + fifth Egg donor + Egg recovery over unchanged rank26 propagation-v3',
