@@ -11,6 +11,7 @@ on:
         options:
           - ditto
           - compressor
+          - compressor-census
 
 permissions:
   contents: read
