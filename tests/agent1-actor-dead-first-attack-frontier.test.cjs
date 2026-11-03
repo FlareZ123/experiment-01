@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {chooseKnownDeadLeadingAttack,VERSION}=
+const {chooseKnownDeadLeadingAttack,diagnoseKnownDeadLeadingAttack,VERSION}=
   require('../simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs');
 const {chooseActorRootIntent}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
@@ -83,4 +83,44 @@ test('opponent concealed hand count is not an attack-selector input',()=>{
   a.opponentPublic.handCount=0;b.opponentPublic.handCount=8;
   assert.deepEqual(chooseKnownDeadLeadingAttack(a,[terminal,claw]),
     chooseKnownDeadLeadingAttack(b,[terminal,claw]));
+});
+
+test('two-Darkness only-payable Terminal Period is diagnosed without fabricating Claw',()=>{
+  const v=view();
+  v.ownPublic.active.energies=[
+    'Darkness Energy MEE','Darkness Energy MEE'
+  ];
+  const warning=diagnoseKnownDeadLeadingAttack(v,[terminal]);
+  assert.deepEqual(warning,{
+    attackName:'Terminal Period',
+    reason:'Terminal Period requires exactly six public damage counters',
+    payableClaw:false
+  });
+  assert.equal(chooseKnownDeadLeadingAttack(v,[terminal]),null);
+  assert.equal(chooseActorRootIntent(v,catalog).attackName,'Terminal Period');
+});
+test('known-dead warning recognizes later payable Claw but does not promise payoff',()=>{
+  const v=view();
+  assert.equal(diagnoseKnownDeadLeadingAttack(v,[terminal,claw])
+    ?.payableClaw,true);
+  assert.equal(diagnoseKnownDeadLeadingAttack(v,[terminal])?.payableClaw,false);
+});
+test('warning is fail-closed for exact-six, missing damage and different print',()=>{
+  const v=view();
+  v.opponentPublic.active.damage=60;
+  assert.equal(diagnoseKnownDeadLeadingAttack(v,[terminal]),null);
+  delete v.opponentPublic.active.damage;
+  assert.equal(diagnoseKnownDeadLeadingAttack(v,[terminal]),null);
+  v.opponentPublic.active.damage=0;
+  v.ownPublic.active.printing='Mega Absol ex MEG';
+  assert.equal(diagnoseKnownDeadLeadingAttack(v,[terminal]),null);
+});
+test('warning is invariant to opponent concealed hand and prizes',()=>{
+  const a=view(),b=view();
+  a.opponentPublic.handCount=0;
+  b.opponentPublic.handCount=9;
+  a.opponentPublic.prizes=['secret'];
+  b.opponentPublic.prizes=['different'];
+  assert.deepEqual(diagnoseKnownDeadLeadingAttack(a,[terminal]),
+    diagnoseKnownDeadLeadingAttack(b,[terminal]));
 });
