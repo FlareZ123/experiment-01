@@ -1,0 +1,22 @@
+{
+  "schema": "aichi-registered-original60-pin-v1",
+  "campaignId": "agent47-rank26-natural-owner-24-paired-v2",
+  "engine": "twinleafgg",
+  "engineGitlinkSha": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policyProfile": "rank26-autonomous-cologne-pump-propagation-v3",
+  "maxActions": 120,
+  "outputFilename": "agent47-rank26-natural-owner-24-paired.json",
+  "originalPrints": [
+    {
+      "role": "source",
+      "rank": 26,
+      "printed60Sha256": "07da7009178b7bdad49a4eefa5910487354ceeff10192dcffecb1300d1d488ba"
+    },
+    {
+      "role": "opponent",
+      "rank": 6,
+      "printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5"
+    }
+  ],
+  "scope": "Read-only strict original print, published admission, gitlink and campaign parameter pins; actual physical deal and game actions unverified."
+}
