@@ -48,7 +48,7 @@ test('counts original source-only Trainer roots; darkness native receipt exclude
         declared:{ownerHandPrinting:'Darkness Energy MEE'},
         publicBoardChanges:[{seat:0,before:{energies:[]},
           after:{energies:['Darkness Energy MEE']}}]}
-    ],
+    ]},
     finished:false,endReason:'action-limit'
   };
   const a=extractSourceRoots(row,1);
