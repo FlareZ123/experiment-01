@@ -12,7 +12,7 @@ const {verifyNativeHistoricalControls}=
  * and their failures in the artifact; this gate only controls CI acceptance.
  *
  * @param {object} packet Original four-arm native Store audit JSON.
- * @param {{zone:'deck'|'prizes',swapSize:1|2}} expected Explicit workflow mode.
+ * @param {{zone:'deck'|'prizes',swapSize:1|2,numericScores?:boolean}} expected Explicit workflow mode.
  * @returns {object} Authenticated developmental coverage counts.
  */
 function verifyNativeBoundedContrast(packet,expected){
@@ -20,6 +20,7 @@ function verifyNativeBoundedContrast(packet,expected){
   assert.ok(expected&&['deck','prizes'].includes(expected.zone));
   assert.ok(expected.swapSize===1||expected.swapSize===2);
   let attempted=0,successful=0,distinct=0,failed=0,reversals=0;
+  let scored=0,scoreChanges=0,scoreOnlyChanges=0;
   for(const row of packet.rows){
     const scan=row.diagnostic?.nativeOpponentHiddenHandContrast;
     assert.ok(scan&&typeof scan==='object',
@@ -55,6 +56,29 @@ function verifyNativeBoundedContrast(packet,expected){
       row.trialId+': bounded native playback failures');
     assert.equal(scan.contrastExecutable,
       scan.successfulExchangePaths>0,row.trialId);
+    if(expected.numericScores===true){
+      assert.equal(scan.scoreTraceEnabled,true,row.trialId);
+      assert.equal(scan.scoreTraceBaselineFinite,true,row.trialId);
+      assert.equal(scan.scoreTraceExecutable,
+        scan.successfulExchangePaths>0,row.trialId);
+      assert.equal(scan.scoreTraceComparisonCount,
+        scan.successfulExchangePaths,row.trialId);
+      for(const key of ['scoreTraceComparisonCount','scoreTraceChanges',
+        'scoreOnlyChanges']){
+        assert.ok(Number.isSafeInteger(scan[key])&&scan[key]>=0,
+          row.trialId+': missing '+key);
+      }
+      assert.ok(scan.scoreTraceChanges<=scan.scoreTraceComparisonCount,
+        row.trialId+': changes exceed numerical comparisons');
+      assert.ok(scan.scoreOnlyChanges<=scan.scoreTraceChanges,
+        row.trialId+': score-only cases exceed all score changes');
+      assert.equal(scan.cases.filter(x=>x.executable===true&&
+        typeof x.scoreTraceChanged==='boolean').length,
+        scan.successfulExchangePaths,row.trialId);
+      scored+=scan.scoreTraceComparisonCount;
+      scoreChanges+=scan.scoreTraceChanges;
+      scoreOnlyChanges+=scan.scoreOnlyChanges;
+    }
     attempted+=scan.attemptedExchangePaths;
     successful+=scan.successfulExchangePaths;
     distinct+=scan.successfulDistinctOpponentHandCompositions;
@@ -70,6 +94,11 @@ function verifyNativeBoundedContrast(packet,expected){
     attempted,successful,failed,
     successfulDistinctHandCompositions:distinct,
     actionReversals:reversals,
+    numericScoresRequested:expected.numericScores===true,
+    ...(expected.numericScores===true?{
+      numericScoreWorldsCompared:scored,
+      numericalScoreTraceChanges:scoreChanges,
+      scoreOnlyChanges}:{}),
     competitiveGameQualified:false
   };
 }
@@ -79,7 +108,8 @@ if(require.main===module){
   assert.ok(file,'Provide original native Store audit JSON file');
   const expected={
     zone:process.env.AGENT23_EXPECT_PRIZES==='true'?'prizes':'deck',
-    swapSize:process.env.AGENT23_EXPECT_DOUBLE==='true'?2:1
+    swapSize:process.env.AGENT23_EXPECT_DOUBLE==='true'?2:1,
+    numericScores:process.env.AGENT23_EXPECT_NUMERIC_SCORE==='true'
   };
   const packet=JSON.parse(fs.readFileSync(file,'utf8'));
   console.log('AGENT23_NATIVE_CONTRAST_GATE',JSON.stringify(
