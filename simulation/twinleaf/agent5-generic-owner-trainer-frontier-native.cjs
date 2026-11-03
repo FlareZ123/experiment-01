@@ -68,6 +68,10 @@ function run(){
         allCards:manager.getAllCards(),seats:[0,1],maxRoots:90,
         ownerHandPaymentContentionOptIn:
           process.env.AGENT27_TRAINER_PAYMENT_AUDIT==='true',
+        ownerPaperNecessityOptIn:
+          process.env.AGENT15_RECOVERY_NATIVE_OBSERVE==='true',
+        ownerDiscardRecoveryTargetOptIn:
+          process.env.AGENT15_RECOVERY_NATIVE_OBSERVE==='true',
         recordPublicStadiumSnapshot:
           process.env.AGENT7_STADIUM_PUBLIC_SNAPSHOT==='true'
       });
