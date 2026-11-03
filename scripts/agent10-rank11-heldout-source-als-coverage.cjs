@@ -51,6 +51,9 @@ function extractSourceRoots(row,sourceSeat) {
   const firstTurns=[...new Set(roots
     .map(r=>r.turnBefore)
     .filter(n=>Number.isSafeInteger(n)))].sort((a,b)=>a-b).slice(0,2);
+  const passRoots=roots.filter(r=>r.action==='PassTurnAction');
+  const actorTaggedPassRoots=passRoots.filter(r=>
+    Number.isSafeInteger(r.actorPolicyDecisionOrdinal));
   const issued=roots.filter(r=>r.action==='PlayCardAction');
   const trainerRootEvents=issued.flatMap(r=>{
     const trainer=originalTrainerRoot(r.card);
@@ -80,6 +83,8 @@ function extractSourceRoots(row,sourceSeat) {
     firstTwoOriginalSourceTurns:firstTurns,
     actualSourceRootCount:roots.length,
     sourceSelectedCardRoots:issued.length,
+    sourcePassRoots:passRoots.length,
+    sourceActorTaggedPassRoots:actorTaggedPassRoots.length,
     sourceUnclassifiedCardRoots:issued
       .filter(r=>originalTrainerRoot(r.card)===null)
       .map(r=>({turn:r.turnBefore,card:r.card??null})),
@@ -131,11 +136,15 @@ function inspect(archive) {
     const counts={Supporter:0,Item:0,Tool:0,Stadium:0};
     const perCard={};
     let sourceRootCount=0;
+    let sourcePassRoots=0;
+    let sourceActorTaggedPassRoots=0;
     let firstTwoTurnTrainerEvents=0;
     let darknessPhysicalAttachments=0;
     let nativeCensors=0;
     for(const row of selected){
       sourceRootCount+=row.native.actualSourceRootCount;
+      sourcePassRoots+=row.native.sourcePassRoots;
+      sourceActorTaggedPassRoots+=row.native.sourceActorTaggedPassRoots;
       firstTwoTurnTrainerEvents+=row.native.firstTwoSourceTurnTrainerRoots.length;
       darknessPhysicalAttachments+=row.native.darknessPhysicalAttachments;
       nativeCensors+=Number(row.native.nativeDisposition==='action-limit');
@@ -147,6 +156,8 @@ function inspect(archive) {
     aggregate[factor]={
       sourceContexts:selected.length,
       originalSourceRootActions:sourceRootCount,
+      sourcePassRoots,
+      sourceActorTaggedPassRoots,
       sourceTrainerRootEventsByCategory:counts,
       sourceTrainerRootEventsByCard:perCard,
       contextsWithSourceTrainerRoot:selected.filter(r=>
