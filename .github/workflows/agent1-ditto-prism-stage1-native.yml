@@ -1,0 +1,36 @@
+name: Agent1 pinned Ditto Prism Stage1 Native
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent1-ditto-prism-stage1-native
+  cancel-in-progress: false
+jobs:
+  pinned-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Initialize exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Ditto Prism original Stage1 Alolan Raichu and Electrode native actions
+        run: node simulation/twinleaf/agent1-ditto-prism-stage1-native.cjs > agent1-ditto-prism-stage1.json
+      - name: Require two actual source-owner evolutions
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent1-ditto-prism-stage1.json');a.equal(r.attempted,2);a.equal(r.nativeConfirmedEvolutionPaths,2);a.equal(r.qualifiedCompetitiveGames,0);console.log(JSON.stringify(r.observed))"
+      - name: Archive native original stage choices including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-ditto-prism-stage1-native
+          path: agent1-ditto-prism-stage1.json
+          if-no-files-found: warn
