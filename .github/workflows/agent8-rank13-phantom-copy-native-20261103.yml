@@ -11,6 +11,7 @@ on:
         options:
           - retrospective
           - prospective
+          - pure-only
 
 permissions:
   contents: read
@@ -25,24 +26,32 @@ jobs:
         with:
           node-version: '22'
       - name: Validate prospective registration before engine checkout
-        if: ${{ inputs.study == 'prospective' }}
+        if: ${{ inputs.study == 'prospective' || inputs.study == 'pure-only' }}
         run: node simulation/evaluation/agent8-rank13-public-copy-preflight.cjs
+      - name: Precompile public native seam and archive auditor regression
+        run: node --test tests/agent8-public-flat-copy-turns.test.cjs tests/agent8-public-flat-copy-native-seam.test.cjs tests/agent8-rank13-public-copy-native-audit.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
       - name: Restore pinned Twinleaf
+        if: ${{ inputs.study != 'pure-only' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native engine dependencies
+        if: ${{ inputs.study != 'pure-only' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
+        if: ${{ inputs.study != 'pure-only' }}
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify public source Apex attack root
+        if: ${{ inputs.study != 'pure-only' }}
         run: node --test tests/agent8-rank13-source-apex-attack-frontier.test.cjs
       - name: Verify source-only offered native Phantom choice
+        if: ${{ inputs.study != 'pure-only' }}
         run: node --test tests/agent8-rank13-native-copy-choice.test.cjs
       - name: Verify public flat copied-attack heuristic
+        if: ${{ inputs.study != 'pure-only' }}
         run: node --test tests/agent8-public-flat-copy-turns.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
       - name: Compare physical source Noivern versus Dragapult copied attack
-        if: ${{ inputs.study != 'prospective' }}
+        if: ${{ inputs.study == 'retrospective' }}
         env:
           AGENT8_PHANTOM_CHOICE_JSON: agent8-original13-phantom-copy-native.json
         run: node simulation/evaluation/agent8-rank13-phantom-dive-choice-native.cjs
@@ -52,7 +61,7 @@ jobs:
           AGENT8_PUBLIC_COPY_RESULT_JSON: agent8-rank13-public-copy-native.json
         run: node simulation/evaluation/agent8-rank13-public-copy-prospective-native.cjs
       - name: Upload full native source attack settlements
-        if: always()
+        if: ${{ always() && inputs.study != 'pure-only' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent8-rank13-phantom-dive-native-comparison
