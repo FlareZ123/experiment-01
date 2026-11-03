@@ -7,6 +7,11 @@ on:
         required: false
         type: boolean
         default: false
+      generic_trainer_parity:
+        description: 'Run immutable original 5-vs-11 two-seat read-only generic Trainer frontier A/B/A parity'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -42,3 +47,14 @@ jobs:
         with:
           name: agent29-rank9-real-owner-compressor-retrospective
           path: agent29-rank9-compressor-retro.json
+      - name: Native original-rank5/rank11 canonical policy read-only Trainer census A/B/A
+        if: ${{ inputs.generic_trainer_parity }}
+        run: node simulation/twinleaf/agent29-bilateral-trainer-frontier-parity-native.cjs
+      - name: Preserve same-deal native Trainer frontier noninterference evidence
+        if: ${{ always() && inputs.generic_trainer_parity }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-native-two-seat-generic-trainer-parity
+          path: agent29-generic-trainer-native-parity.json
+          if-no-files-found: warn
+          retention-days: 30
