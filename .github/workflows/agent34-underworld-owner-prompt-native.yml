@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      heldout_floatstone:
+        description: Pre-registered eight new both-seat original rank1 Float Stone seed groups
+        type: boolean
+        default: false
       posthoc_floatstone:
         description: Two previously observed rank1 source B-seat Float Stone rescue pairs
         type: boolean
@@ -52,6 +56,19 @@ jobs:
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
         run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs
+      - name: Held-out rank1 Float Stone preregistration and paired native A/B
+        if: ${{ inputs.heldout_floatstone }}
+        env:
+          AGENT31_HELDOUT_FLOATSTONE_OUTPUT: agent31-rank1-heldout-floatstone.json
+        run: node simulation/evaluation/agent31-rank1-heldout-floatstone-native-pair.cjs
+      - name: Archive raw held-out rank1 Float Stone pairs even on native failure
+        if: ${{ always() && inputs.heldout_floatstone }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-heldout-rank1-floatstone-pairs
+          path: agent31-rank1-heldout-floatstone.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Original rank1 Float Stone rescue source B-seat retrospective
         if: ${{ inputs.posthoc_floatstone }}
         env:
