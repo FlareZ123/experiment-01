@@ -24,3 +24,5 @@ jobs:
           node-version: '22'
       - name: Verify exact Apex Alchemy Japanese 60-card print mapping and negative cases
         run: node --test tests/agent2-apex-jp-print-audit.test.cjs
+      - name: Verify dated SM12a Basic Energy alternatives for all 60 physical slots
+        run: node --test tests/agent2-apex-sm12a-release.test.cjs
