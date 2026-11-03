@@ -1,0 +1,44 @@
+{
+  "schema": "agent1-rank17-original-prospective-ditto-dynamic-root-v1",
+  "registeredAt": "2026-11-03T01:04:00Z",
+  "generatedBy": "local Python secrets.randbits(32), eight independent values drawn before any native outcomes",
+  "question": "Does an opt-in actor-owned native public Ditto Stage1 permission enable accepted Stage1 actions and altered source continuation against the unchanged champion reference when rank17 original is in both physical seats?",
+  "sourceRank": 17,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "opponentRank": 1,
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seedGroups": [
+    3229196246,
+    916776960,
+    2799355661,
+    257511150,
+    4200160278,
+    1080091772,
+    2412366613,
+    3430630746
+  ],
+  "sourceSeats": [
+    0,
+    1
+  ],
+  "control": {
+    "naturalEvolutionRoot": true,
+    "dittoStage1Root": false
+  },
+  "treatment": {
+    "naturalEvolutionRoot": true,
+    "dittoStage1Root": true
+  },
+  "bothArmsNativeOptions": {
+    "maxActions": 240,
+    "strictPromptValidation": true,
+    "captureInitialFullPhysicalDeal": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true
+  },
+  "expectedPairs": 16,
+  "expectedNativeArms": 32,
+  "qualification": "All outcomes are development-only even if the engine declares a winner. Generic prompt fallback, unverified paper semantics and source policy still veto game win qualification.",
+  "lateSelectionProhibited": true
+}
