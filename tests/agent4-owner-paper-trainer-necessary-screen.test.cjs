@@ -7,6 +7,8 @@ const {
 }=require('../simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs');
 const {classifyNativeTrainerAfterPass}=
   require('../simulation/twinleaf/agent50-native-owner-trainer-pass-bridge.cjs');
+const {createOwnerTurnLedger}=
+  require('../simulation/twinleaf/agent4-owner-turn-ledger.cjs');
 
 class PlayCardAction{
   /** @param {number} handIndex */
@@ -36,20 +38,47 @@ function row(view,handIndex,offered=true){
   };
 }
 
-test('exact FST printed VIP turn veto is independent of stale native offers',()=>{
+test('witnessed second owner turn rules out exact FST VIP despite native offers',()=>{
   assert.match(VERSION,/agent4/);
-  for(const turn of [3,4,7,13]){
+  for(const turn of [2,3,4,7,13]){
+    const ledger=createOwnerTurnLedger();
+    ledger.observe(owner([VIP],1));
     const v=owner([VIP],turn);
-    const gate=printedTrainerTurnScreen(v,VIP);
-    assert.equal(gate.blocker,'battle-vip-pass-first-turn-expired');
-    assert.equal(gate.positivelyCertified,false);
-    const result=screenOwnerTrainerPaperNecessity(v,[row(v,0,true)]);
+    const proof=ledger.observe(v);
+    if(turn===2)assert.equal(proof.distinctObservedOwnerTurns,2);
+    const gate=printedTrainerTurnScreen(v,VIP,proof);
+    assert.equal(gate.blocker,'battle-vip-pass-first-owner-turn-expired');
+    assert.equal(gate.ineligibilityProven,true);
+    const result=screenOwnerTrainerPaperNecessity(
+      v,[row(v,0,true)],proof);
     assert.equal(result.enumeratorOfferedCopies,1);
     assert.equal(result.provenNecessaryConditionFailures,1);
     assert.equal(result.rows[0].paperPlayable,false);
     assert.deepEqual(result.rows[0].necessaryBlockers,
-      ['printed-temporal:battle-vip-pass-first-turn-expired']);
+      ['printed-temporal:battle-vip-pass-first-owner-turn-expired']);
   }
+});
+
+test('global turn alone never proves a skipped owner has had a first turn',()=>{
+  const ledger=createOwnerTurnLedger();
+  const seat0First={...owner([VIP],1),actorSeat:0};
+  const seat0Second={...owner([VIP],2),actorSeat:0};
+  const seat1First=owner([VIP],3);
+  const first=ledger.observe(seat0First);
+  const second=ledger.observe(seat0Second);
+  const delayed=ledger.observe(seat1First);
+  assert.equal(first.provenPastFirstOwnerTurn,false);
+  assert.equal(second.provenPastFirstOwnerTurn,true);
+  assert.equal(delayed.provenPastFirstOwnerTurn,false);
+  assert.equal(printedTrainerTurnScreen(
+    seat0Second,VIP,second).ineligibilityProven,true);
+  const unresolved=screenOwnerTrainerPaperNecessity(
+    seat1First,[row(seat1First,0)],delayed);
+  assert.equal(unresolved.rows[0].paperPlayable,null);
+  assert.equal(unresolved.rows[0].printedTemporalConservativeDecline,true);
+  assert.equal(unresolved.conservativeTemporalDeclines,1);
+  assert.equal(unresolved.provenNecessaryConditionFailures,0);
+  assert.equal(unresolved.rows[0].printedTemporalBlocker,null);
 });
 
 test('turns 1 and 2 are unresolved, never paper-playable certificates',()=>{
@@ -90,9 +119,9 @@ test('each independent necessary blocker is retained with explicit unknowns',()=
   rows[0].publicBlocker='public-item-lock';
   const r=screenOwnerTrainerPaperNecessity(v,rows);
   assert.deepEqual(r.rows[0].necessaryBlockers,[
-    'generic-public:public-item-lock',
-    'printed-temporal:battle-vip-pass-first-turn-expired'
+    'generic-public:public-item-lock'
   ]);
+  assert.equal(r.rows[0].printedTemporalConservativeDecline,true);
   assert.equal(r.rows[1].paperPlayable,null);
   assert.equal(r.rows[1].nativeEnumeratorOffered,false);
   assert.equal(r.provenNecessaryConditionFailures,1);
@@ -130,17 +159,42 @@ test('owner hand integrity and opponent hidden-info invariance',()=>{
     {...a,decisionKind:'owner-prompt'},VIP),/owner-root/);
 });
 
-test('generic fallback rejects late VIP offered by native bot',()=>{
+test('generic fallback distinguishes unknown late VIP from proven expiry',()=>{
   const catalog=new Map([[VIP,{name:'Battle VIP Pass',type:'Item'}]]);
   const late=owner([VIP],5);
-  const denied=classifyNativeTrainerAfterPass(
+  const unknown=classifyNativeTrainerAfterPass(
     late,new PlayCardAction(0),catalog,PlayCardAction);
+  assert.equal(unknown.selected,false);
+  assert.equal(unknown.reason,'unverified-first-turn-order-decline');
+  assert.equal(unknown.paperPlayable,null);
+  const ledger=createOwnerTurnLedger();
+  ledger.observe(owner([VIP],2));
+  const proof=ledger.observe(late);
+  const denied=classifyNativeTrainerAfterPass(
+    late,new PlayCardAction(0),catalog,PlayCardAction,proof);
   assert.equal(denied.selected,false);
   assert.equal(denied.reason,'printed-temporal-rule-block');
   assert.equal(denied.printedTemporalBlocker,
-    'battle-vip-pass-first-turn-expired');
+    'battle-vip-pass-first-owner-turn-expired');
+  assert.equal(denied.paperPlayable,false);
   const opening=classifyNativeTrainerAfterPass(
     owner([VIP],2),new PlayCardAction(0),catalog,PlayCardAction);
   assert.equal(opening.selected,true);
   assert.equal(opening.unresolvedPaperTarget,true);
+});
+
+test('owner turn ledger ignores repeats and prevents dishonest receipt cross-seat',()=>{
+  const ledger=createOwnerTurnLedger();
+  const at4=owner([VIP],4);
+  const first=ledger.observe(at4);
+  const repeat=ledger.observe(at4);
+  assert.equal(first.provenPastFirstOwnerTurn,false);
+  assert.equal(repeat.distinctObservedOwnerTurns,1);
+  assert.equal(ledger.snapshot().distinctObservedTurns[1],1);
+  const second=ledger.observe(owner([VIP],6));
+  assert.equal(second.distinctObservedOwnerTurns,2);
+  const wrongSeat={...second,actorSeat:0};
+  assert.throws(()=>printedTrainerTurnScreen(
+    owner([VIP],6),VIP,wrongSeat),/Expected values/);
+  assert.throws(()=>ledger.observe(owner([VIP],2)),/moved backward/);
 });
