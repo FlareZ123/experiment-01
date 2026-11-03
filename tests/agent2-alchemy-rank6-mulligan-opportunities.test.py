@@ -35,6 +35,15 @@ class MulliganOpeningRegression(unittest.TestCase):
         self.assertIsNone(result["bonusAtLeastOne"])
         self.assertAlmostEqual(result["all"]["eitherLockRegidrago"]["v0"], 0.3961163033359953, delta=0.012)
         self.assertAlmostEqual(result["all"]["eitherLockRegidrago"]["v1"], 0.3551466201819768, delta=0.012)
+        # Exact combinatorial first-eight no-bonus positional evidence:
+        # v0 24.10999655%, v1 25.51807637%. Broad access reverses sign.
+        self.assertAlmostEqual(result["all"]["positionedEitherLockRegidrago"]["v0"], 0.24109996554324095, delta=0.012)
+        self.assertAlmostEqual(result["all"]["positionedEitherLockRegidrago"]["v1"], 0.2551807636708804, delta=0.012)
+        for version in ("v0","v1"):
+            self.assertAlmostEqual(
+                result["all"]["positionedEitherLockRegidrago"][version]+
+                result["all"]["unpositionedBudewOnlyRegidrago"][version],
+                result["all"]["eitherLockRegidrago"][version],places=14)
 
     def test_four_basic_source_mulligan_race(self):
         result = study.simulate(ROOT, trials=8000, seed=3805)
