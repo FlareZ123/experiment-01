@@ -147,3 +147,17 @@ A complete read of **all 25 matched physical-deal native pairs** identifies exac
 | Rank11, `11:300:B` | 3→3 | 0→0 | 22→27 | cap→cap |
 
 The **Basic Energy drop to zero** occurs only in the adverse native reversal among these five first-candidate-VIP contrasts, while another candidate-owned VIP context turns a cap into a native candidate winner. Each context uses the frozen exact candidate 60, original printed opponent 60, same actual physical initial-deal fingerprint within modes and same starter. The specific `5:300:A` mechanism is therefore a focused *falsifier of monotone access*, while the contrast panel shows why it cannot justify a general rule to remove VIP from the deck or disable it universally. Different original source archetypes, historical seed selection, finite caps and inadequate playing policies prevent treatment-effect or win-rate estimation.
+
+
+## Earlier payoff missing: Latias Eon Blade's exact 200 damage precedes the Motivate recycling advantage
+
+The owner Basic Energy shortage also blocked an **earlier independent Prize-pressure line**. The raw native `candidateAttackSettlement.attacks` and its public physical defender board before/after record:
+
+| Candidate global turn | Frozen-v1 damage to original source Active Mew VMAX | Selected-v2 damage |
+| --- | --- | --- |
+| **14** | Latias ex **Eon Blade**, **0→200** damage | **No candidate attack** |
+| **18** | Squawkabilly ex **Motivate**, **200→220** | Motivate, **0→20** |
+| **20** | Squawkabilly ex **Motivate**, **220→240** | Motivate, **20→40** |
+| **22** | Galarian Articuno V **Psyray**, KO of 240-damaged **Mew VMAX** and physical candidate Prizes **6→3** | Duskull **Future Sight**, Mew VMAX still **40 damaged**, candidate Prizes **6→6** |
+
+Every stated damage number is the **native public board before/after** its actual settled attack, and the Prize delta is the native same-attack completed transition. This separates **two** lost payoffs from the candidate's reduced Basic Psychic access: (i) no early Latias Eon Blade 200-damage preparation, and (ii) no two-Energy Motivate recovery for the later Articuno follow-up. In the baseline, Articuno's Psyray deals enough additional damage to Knock Out the already 240-damaged three-Prize Mew VMAX; selected Future Sight provides no direct damage to that target. This precise attack-to-Prize mechanism explains much of the changed native terminal trajectory. It still says nothing definitive about a human player's response to such an early Energy or attacker configuration.
