@@ -12,9 +12,10 @@ const OUTPUT = path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output'
  * @param {number} bottom Bottom-player location tag in Twinleaf.
  * @param {number} bench Bench location tag.
  * @param {number} remainingOpponentPrizes Number of unclaimed opposing Prizes.
+ * @param {boolean} [allowEggToEggFifthKo=false] Explicitly allow an Egg donor for exactly the fifth self-KO.
  * @returns {object[]|null} One or two moves, never a game-losing sixth self-KO.
  */
-function exeggcutePumpMoves(player, bottom, bench, remainingOpponentPrizes) {
+function exeggcutePumpMoves(player, bottom, bench, remainingOpponentPrizes, allowEggToEggFifthKo=false) {
   const slots=player.bench;
   const eggs=slots.map((slot,index)=>({slot,index}))
     .filter(row=>row.slot.getPokemonCard()?.name==='Exeggcute' &&
@@ -26,11 +27,19 @@ function exeggcutePumpMoves(player, bottom, bench, remainingOpponentPrizes) {
       row.slot.damage>=10);
   const two=eggs.length>=2 && remainingOpponentPrizes>=3
     ? donors.find(row=>row.slot.damage>=20) : null;
-  const donor=two ?? donors[0];
+  // A second damaged 30-HP Egg can donate one counter to the first Egg.
+  // The option is disabled in existing profiles and cannot manufacture an
+  // earlier double KO or override an available non-Egg donor.
+  const eggDonor=allowEggToEggFifthKo===true &&
+    remainingOpponentPrizes===2 && donors.length===0 &&
+    eggs.length===2 && eggs.every(row=>row.slot.damage===20)
+      ? eggs[1] : null;
+  const donor=two ?? donors[0] ?? eggDonor;
   if(!donor)return null;
   const count=two?2:1;
   const from={player:bottom,slot:bench,index:donor.index};
-  return eggs.slice(0,count).map(row=>({
+  const targets=donor===eggDonor ? [eggs[0]] : eggs.slice(0,count);
+  return targets.map(row=>({
     from, to:{player:bottom,slot:bench,index:row.index}
   }));
 }
@@ -62,7 +71,7 @@ function eligiblePumpTurn(state,player,seat,phase) {
  * @template T
  * @param {0|1} sourceSeat
  * @param {()=>T} execute
- * @param {{requireOpponentSoloActive?:boolean}} [options] Prospective opt-in gate only.
+ * @param {{requireOpponentSoloActive?:boolean,allowEggToEggFifthKo?:boolean}} [options] Prospective opt-in gates.
  * @returns {{result:T,policyAudit:object}}
  */
 function withRank26ExeggcutePump(sourceSeat,execute,options={}) {
@@ -99,33 +108,45 @@ function withRank26ExeggcutePump(sourceSeat,execute,options={}) {
     }
     const remainingOpponentPrizes=state.players[1-sourceSeat].prizes
       .filter(slot=>slot.cards.length>0).length;
+    const eggOption=options.allowEggToEggFifthKo===true &&
+      !opponentHasLiveBench(state,sourceSeat);
     const moves=exeggcutePumpMoves(
-      own,PlayerType.BOTTOM_PLAYER,SlotType.BENCH,remainingOpponentPrizes);
+      own,PlayerType.BOTTOM_PLAYER,SlotType.BENCH,
+      remainingOpponentPrizes,eggOption);
     if(!moves)return original.call(this,state);
+    const eggFifthKo=own.bench[moves[0].from.index]
+      .getPokemonCard()?.name==='Exeggcute';
+    const kind=eggFifthKo?'egg-to-egg-fifth-KO':
+      'single-source-exeggcute-KO';
     if(pending){
       if(pending.constructor.name!=='MoveDamagePrompt'||
          pending.playerId!==id||!pending.validate(moves,state)){
         return original.call(this,state);
       }
       events.push({turn:state.turn,action:'ResolvePromptAction',
-        kind:'single-source-exeggcute-KO',counterTransfers:moves.length});
+        kind,counterTransfers:moves.length});
       return new ResolvePromptAction(pending.id,moves);
     }
     const index=own.hand.cards.findIndex(card=>card.name==='Damage Pump');
     if(index===-1)return original.call(this,state);
     events.push({turn:state.turn,action:'PlayCardAction',
       card:own.hand.cards[index].fullName,
-      kind:'ready-exeggcute-KO',counterTransfers:moves.length});
+      kind:eggFifthKo?'ready-egg-to-egg-fifth-KO':'ready-exeggcute-KO',
+      counterTransfers:moves.length});
     return new PlayCardAction(id,index,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     });
   };
   try{
     return {result:execute(),policyAudit:{
-      version:options.requireOpponentSoloActive===true?
-        'rank26-single-source-pump-solo-public-board-v2':
-        'rank26-single-source-pump-v1',
+      version:options.allowEggToEggFifthKo===true?
+        'rank26-egg-to-egg-fifth-KO-optin-v3':
+        options.requireOpponentSoloActive===true?
+          'rank26-single-source-pump-solo-public-board-v2':
+          'rank26-single-source-pump-v1',
       sourceSeat,actions:events,
+      ...(options.allowEggToEggFifthKo===true?
+        {eggToEggFifthKoOptIn:true}:{}),
       ...(options.requireOpponentSoloActive===true?{vetoes}:{}),
       qualifiedForCompetitiveInference:false
     }};
