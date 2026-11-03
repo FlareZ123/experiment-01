@@ -1,0 +1,41 @@
+name: Agent26 frozen original Store Sky Field public-board receipt
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-owner-stadium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize unchanged pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Confirm frozen Sky Field audit syntax and expected source files
+        run: |
+          node --check simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
+          node --check simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
+          test -f results/aichi-2026/full-decklists.json
+      - name: Capture real owner public Stadium at four pre-registered Sky Field omissions
+        run: node simulation/evaluation/agent26-skyfield-owner-stadium-native-receipt.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agent26-frozen-skyfield-public-native-original5-11
+          path: agent26-frozen-skyfield-live-own-stadium-native-receipt.json
+          if-no-files-found: warn
+          retention-days: 14
