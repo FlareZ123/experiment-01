@@ -107,6 +107,8 @@ jobs:
           node --test tests/agent2-alchemy-quickbudew-first8.test.cjs
           node tests/agent2-alchemy-attacker-lock-joint-first8.test.cjs
           node --test tests/agent2-alchemy-positioned-lock-physical.test.cjs
+          python tests/agent2-alchemy-rank6-mulligan-opportunities.test.py
+          python tests/agent2-alchemy-known29-mulligan-field.test.py
       - name: Check opt-in fifth-KO Egg donor against default, Prize and public Bench gates
         run: node --test tests/agent50-rank26-egg-donor-policy-gate.test.cjs
       - name: Check rank26 original paper-line zero-Unown Damage Pump donors
