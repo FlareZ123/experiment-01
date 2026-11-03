@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {necessaryTrainerHandPaymentGate}=
   require('./agent49-trainer-hand-payment-veto.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v4-opening-order-necessary';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v5-pinned-native-aliases';
 const VIP='Battle VIP Pass FST';
 /**
  * Exact paper source printings with an exclusive first-owner-turn window.
@@ -14,18 +14,25 @@ const VIP='Battle VIP Pass FST';
  * Frozen object prevents treating alternate unrelated printings as eligible.
  */
 const FIRST_OWNER_TURN_ONLY=Object.freeze({
-  [VIP]:Object.freeze({sourceId:'swsh8-225',requiresGoingSecond:false}),
+  [VIP]:Object.freeze({
+    sourceId:'swsh8-225',sourcePrinting:'Battle VIP Pass FST',
+    requiresGoingSecond:false
+  }),
   'Wait and See Hammer LOT':Object.freeze({
-    sourceId:'sm8-192',alsoVariant:'sm8-236',requiresGoingSecond:true
+    sourceId:'sm8-192',alsoVariant:'sm8-236',
+    sourcePrinting:'Wait and See Hammer LOT',requiresGoingSecond:true
   }),
-  'Wait and See Turbo ASR':Object.freeze({
-    sourceId:'swsh10-158',requiresGoingSecond:true
+  'Wait and See Turbo ASR 158':Object.freeze({
+    sourceId:'swsh10-158',sourcePrinting:'Wait and See Turbo ASR',
+    requiresGoingSecond:true
   }),
-  'Call Bell SSP':Object.freeze({
-    sourceId:'sv8-165',requiresGoingSecond:true
+  'Helper Bell SSP':Object.freeze({
+    sourceId:'sv8-165',sourcePrinting:'Call Bell SSP',
+    requiresGoingSecond:true
   }),
   'Chill Teaser Toy SSP':Object.freeze({
-    sourceId:'sv8-166',requiresGoingSecond:true
+    sourceId:'sv8-166',sourcePrinting:'Chill Teaser Toy SSP',
+    requiresGoingSecond:true
   })
 });
 
@@ -69,13 +76,15 @@ function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
           'proven-going-second';
     const goSecondBlocked=goSecondStatus==='proven-going-first-ineligible';
     const conservativeDecline=!expired&&!goSecondBlocked&&view.globalTurn>2;
-    const slug=printing.replace(/ [A-Z0-9]{2,5}$/,'')
+    const slug=firstOnly.sourcePrinting.replace(/ [A-Z0-9]{2,5}$/,'')
       .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
     const blocker=expired?slug+'-first-owner-turn-expired':
       goSecondBlocked?slug+'-requires-going-second':null;
     return {
       printing,printedRuleKnown:true,
       sourceCardId:firstOnly.sourceId,
+      printedSourceName:firstOnly.sourcePrinting,
+      verifiedNativeFullName:printing,
       additionallyRequiresGoingSecond:firstOnly.requiresGoingSecond,
       goingSecondEligibility:goSecondStatus,
       expiryIneligibilityProven:expired,
