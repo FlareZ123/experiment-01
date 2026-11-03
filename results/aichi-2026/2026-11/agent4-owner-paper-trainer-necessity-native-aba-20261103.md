@@ -1,0 +1,73 @@
+# Authenticated owner-turn and Trainer paper-negative native census
+
+**Agent 4 | 3 November 2026 | historical original-Store A/B/A | no competitively qualified games**
+
+## Decision-relevant result
+
+The pinned native ActionEnumerator offered **Battle VIP Pass FST** after its owner's first turn. This is a false-positive *offer*. It does **not** establish that the Store accepted an illegal play.
+
+The new, read-only owner-turn ledger and exact-print necessary-condition screen recorded **51 proven expired VIP offers across 56 authenticated owner decision frames** in two instrumented source-rank-5 versus source-rank-11 attempts. Native physical initial deals and decision traces matched the frozen A/B/A controls in both physical seat orders.
+
+The screen distinguishes proven negative conditions from unresolved target eligibility and cost settlement. It does not assert that surviving moves are paper playable.
+
+## Provenance and reproducibility
+
+- [Predeclared historical A/B/A registration](../registrations/agent4-owner-paper-native-parity-v1-20261103.json). Original source ranks 5 (Mew/Genesect) and 11 (Mega Absol/Garbodor), each exact published original 60, unchanged in both physical seats and across all arms.
+- Reused existing seed derivation: base **20261113**, phase **pilot**, rank **5**, repeat **0**, physical slots A and B. The samples are retrospective mechanics diagnostics, **zero new independent competitive games**.
+- Six attempts: original canonical control, original canonical plus owner-paper read-only observer, original canonical repeated control, for each seat order.
+- Actual pinned Twinleaf submodule **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**; real Store and native enumerator. Strict prompt validation, independent policy RNG, physical initial-deal fingerprints, full decision trace and root-action witness enabled, 90-action cap.
+- [Compiled GitHub Actions job 125965102736](https://github.com/FlareZ123/experiment-01/actions/runs/41649933755/job/125965102736) **passed**, at checkout **dc97095cbcf0ce0ca45f4193c6b49ef7a3399368**. Raw JSON artifact [13238260086](https://github.com/FlareZ123/experiment-01/actions/runs/41649933755/artifacts/13238260086), named *agent4-original-owner-paper-trainer-aba-six*.
+- All six attempts reached the **native action cap**, with no independent competitive terminal or win-rate estimate. Both initial physical-deal fingerprints and the designated action/terminal trace witnesses matched across all three arms in each seat order, with **zero native exceptions**.
+
+## Exact native observational denominators
+
+These are **Trainer-copy occurrences across repeated owner decision frames**, not unique cards, independent games, independent legal opportunities, or fieldwide statistics. The negative categories did not overlap in these two source attempts.
+
+| Census item | Slot A (rank5 seat0) | Slot B (rank5 seat1) | Total |
+| --- | ---: | ---: | ---: |
+| Genuine owner decision frames | 27 | 29 | **56** |
+| Physically held Trainer-copy appearances | 244 | 208 | **452** |
+| Native enumerator offered Trainer-copy appearances | 241 | 205 | **446** |
+| Verified necessary-condition failures | 30 | 27 | **57** |
+| Of those, owner-turn-proven expired VIP | 27 | 24 | **51** |
+| Of those, generic public blockers | 3 | 3 | **6** |
+| Expired VIP also offered by native enumerator | 27 | 24 | **51** |
+| Native-unoffered but unresolved Trainer-copy appearances | 3 | 3 | **6** |
+| Accepted Pass frames holding unresolved Trainer copies | 25 | 12 | **37** |
+| Physically impossible hand-discard payment observations | 0 | 0 | **0** |
+| Trainer-copy appearances surviving the necessary screen as unknown | 214 | 181 | **395** |
+
+There were **53** observed VIP occurrences: two opening appearances and 51 expired appearances on later real *owner* turns. All 51 expired occurrences were still enumerated by native code. They represent **11.43498%** of 446 enumerated Trainer-copy appearances in this historical two-game panel. This proportion diagnoses the native offer generator in this panel; it is **not** a paper-legal play rate, win rate, or independent sample count.
+
+The archived raw JSON contains each owner root, printed Trainer, hand index, owner turn witness, enumerator status, negative reasons, and chosen native action and Store dispatch.
+
+## The important rules distinction
+
+The supplied Fusion Strike printed card **swsh8-225**, native **Battle VIP Pass FST**, explicitly permits use **only during the player's first turn**. Native global turn numbers alone do not establish that the particular owner has already taken a first turn: additional or skipped turns can break ordinary alternation.
+
+The new ledger counts distinct **actual owner-authenticated turns per physical seat**. A second observed owner turn conclusively proves expiry. Repeated observations in the same owner turn do not advance the count. If an owner is first observed on global turn three or later, the screen preserves **unknown** printed eligibility and the optional fallback **declines conservatively** without labeling it a proven paper rules violation.
+
+A test explicitly covers seat 0 acting at global turns 1 and 2, with seat 1's first observed turn at global 3. Seat 1 must not receive a false expiry certificate.
+
+Exact printed mandatory hand costs are screened independently through the existing owner-hand cost catalog, including Quick Ball FST, Ultra Ball MEG and Secret Box TWM. A physically affordable payment remains **unpaid/unverified**; targets, native prompt integrity, real paper legality, and tactical payoff remain unverified. The native panel observed no mandatory discard shortage, so this rule was independently exercised in synthetic exact-print unit tests.
+
+Classification contract: **paper false** means a documented necessary condition failed; **paper null** means unknown. The classifier never returns affirmative paper true and never treats native enumerator access as proof of playability.
+
+## Implementation and tests
+
+- [Actual-owner turn recorder](../../../simulation/twinleaf/agent4-owner-turn-ledger.cjs)
+- [Paper necessary-condition screen](../../../simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs)
+- [Default-off native Trainer fallback with the guarded temporal decline](../../../simulation/twinleaf/agent50-native-owner-trainer-pass-bridge.cjs)
+- [Read-only native owner observer](../../../simulation/twinleaf/agent5-native-owner-trainer-frontier-observer.cjs), routed through [symmetric two-seat adapter](../../../simulation/twinleaf/agent29-bilateral-owner-trainer-frontier.cjs) and [shared canonical composition](../../../simulation/evaluation/agent7-canonical-actor-composition.cjs)
+- [Preregistered native A/B/A runner](../../../simulation/twinleaf/agent4-owner-paper-native-parity.cjs) and [manual CI workflow](../../../.github/workflows/aichi-benchmark-stats.yml)
+- [Owner-turn, payment and decline tests](../../../tests/agent4-owner-paper-trainer-necessary-screen.test.cjs), [optional transport tests](../../../tests/agent4-owner-paper-native-transport.test.cjs), [original Agent50 compatibility tests](../../../tests/agent50-native-owner-trainer-pass-bridge.test.cjs).
+
+The shared broader [benchmark test job 41649751045](https://github.com/FlareZ123/experiment-01/actions/runs/41649751045) separately failed an unrelated preexisting Agent16 moving-development policy-inventory quota **after** the Trainer tests. The dedicated pinned native job above passed independently.
+
+## Research implication and next work
+
+Use the 395 necessary-condition survivors only as an **upper bound of unresolved physically held Trainer copies**. Verify source-exact targets and real owner prompt settlement, then compare play lines against competing uses of the same Supporter, search connector, Bench slot and protected hand cards. This is essential for connector domination and realistic discard/Bench availability. Extend first-turn-only restrictions to other relevant, exact paper Expanded Trainer printings with source-verified card text, retaining the distinction between first-player status and first-*owner*-turn expiration.
+
+Only credible bilateral paper-corrected policies, complete official-clock games and the **full** Aichi Top 32 can support claims about game win rate.
+
+**Field benchmark status:** 29 of 32 authenticated opponent source sixties at this historical checkpoint, missing ranks 23, 25 and 28. **Zero competitively qualified games. No final fixed 60 selected. No demonstrated 99.5% win rate.**
