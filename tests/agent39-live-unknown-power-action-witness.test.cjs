@@ -75,3 +75,18 @@ test('restores Store on exceptions and ignores non-public target fields',()=>{
   },{Store:FakeStore}),/outside Store/);
   assert.strictEqual(FakeStore.prototype.dispatch,original);
 });
+
+test('a second independent source game resets the genuine Store index',()=>{
+  const first=new FakeStore(),second=new FakeStore();
+  const out=withLiveUnknownPowerActionWitness(()=>{
+    first.dispatch(new AddPlayerAction(101));
+    assert.throws(()=>first.dispatch(new UseAbilityAction(101,'Underworld Door',
+      {player:0,slot:1,index:2})),/UNKNOWN_POWER/);
+    second.dispatch(new AddPlayerAction(101));
+    assert.throws(()=>second.dispatch(new UseAbilityAction(101,'Underworld Door',
+      {player:0,slot:1,index:1})),/UNKNOWN_POWER/);
+  },{Store:FakeStore});
+  assert.equal(out.audit.liveGameCount,2);
+  assert.deepEqual(out.audit.abilityActions.map(x=>x.liveGameIndex),[0,1]);
+  assert.deepEqual(out.audit.abilityActions.map(x=>x.ordinal),[2,2]);
+});
