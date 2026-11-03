@@ -51,3 +51,23 @@ Source exact printed sixty is known, but paper gameplay source policy is still u
 | **Total** | **43** | **0** | **0** | **0** | **0** |
 
 This proves the experimental hook **does see the real source owner's terminal Pass** rather than being masked by canonical actor root ordering. Native root acceptance is zero because **the bridge's own eligibility gate returns no proposal** in these actual sampled Passes. The original stage and the target source game share the same original printed card list, but the gate's conservative early-turn timing and other present-state conjunctions may have excluded late but otherwise viable original source opportunities. A subsequent read-only audit is measuring actual held Item and independently failing conditions, preserving every source Pass and physical root.
+
+## Actual zero-cause diagnosis: 19 are timing-gated; nine lack both board pieces
+
+The fourth [compiled native CI 41617144991](https://github.com/FlareZ123/experiment-01/actions/runs/41617144991) **passed** all 56 native CES48 regression tests and eight paired original-source developmental game attempts. All four physical full-game deal fingerprints matched, all source 43 actual Pass roots were observed, and all owner-root audits were populated. Complete raw [artifact 13221174937](https://github.com/FlareZ123/experiment-01/actions/runs/41617144991/artifacts/13221174937) preserves every game; the job stderr prints each owner-hand, public board, discard, deck count and Prize state at up to 30 **actually observed Pass decisions**, with no hidden-zone query or inferred native Store action.
+
+| Source seat / candidate | Actual Passes | Physically holding Battle Compressor | Held after turn 12 | Holding Item and meeting **all other** public gates | Selected Item roots |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| B / champion reference | 9 | 3 | 3 | 3 | 0 |
+| B / New Moon | 21 | 16 | 16 | 16 | 0 |
+| A / champion reference | 7 | 5 | 1 | 0 | 0 |
+| A / New Moon | 6 | 4 | 0 | 0 | 0 |
+| **Total** | **43** | **28** | **20** | **19** | **0** |
+
+**Evidence-backed explanation:** All 19 Passes with an in-play Mega Absol and Voltorb/Electrode, owner-held Battle Compressor, source own deck containing at least three cards, no public Item lock, fewer than three own discarded Energy and opponent at least three Prize cards remaining occur at **global turn 16 or later**. Their only disqualifying test was the experimental `globalTurn<=12` cutoff. These are the same **19** owner-held Compressor / Electrode-in-play observations that previously motivated the investigation. Of the other **nine** owner-held Compressor Passes, both source Mega Absol and Voltorb/Electrode were missing from the source's public in-play board. The seed/physical-seat split matters: owner source seat A held the Compressor on global turns **5, 7, 9, 11** without those Pokémon in play, despite 41–44 cards remaining in source deck. (One later 21-turn row had source one Energy in discard and opponent four Prizes; board remained missing.)
+
+**Research consequence:** The conservative v1 bridge was tested correctly and simply covered none of the historical source opportunities. A late-window source-Item bridge may immediately find 19 previously observed opponent/source resource opportunities, but **executing it would be a newly expanded developmental policy**, with severe card-trade and tactical opportunity-cost uncertainty. In source seat A, improving early owner-Pokémon search/placement is a separate prerequisite; allowing the Item alone cannot create the missing Mega/Voltorb board. The owner should evaluate Item search contention, source attachment paths and paid Retreat alternatives before treating a late Combo as strategically good.
+
+The observed public conditional eligibility is **not a claim of native `canPlay` acceptance** for a late root, because the v1 policy intentionally stopped before calling that native check. It is also not proof that Battle Compressor was better than the alternative use of the owner's only copy, or that the source deck actually had three required Energy cards available at search time. Those remain direct next tests.
+
+No selected competitive policy was changed in this final observation: all 43 baseline source Pass outcomes remain the original native decisions, with **0 new real Compressor roots, 0 source Energy moved by the bridge, 0 competitively qualified games**. The adversarial original deck benchmark remains open.
