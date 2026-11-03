@@ -33,6 +33,10 @@ const BULK_HAND_PRINTS = Object.freeze({
   'Iono PAL': Object.freeze({
     sourceId:'sv2-185',moveTo:'deck-bottom',drawFromOwnPrizes:true,
     drawOnlyIfEitherPlayerMoved:true,affectsOpponentHand:true
+  }),
+  'Roxanne ASR':Object.freeze({
+    sourceId:'swsh10-150',moveTo:'deck',baseDraw:6,
+    affectsOpponentHand:true,opponentPrizesAtMost:3
   })
 });
 
@@ -80,6 +84,11 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
   assert.ok(prizeCount===undefined||prizeCount===null||
     (Number.isSafeInteger(prizeCount)&&prizeCount>=0&&prizeCount<=6));
   const hasPublicPrizeCount=Number.isSafeInteger(prizeCount);
+  const opponentPrizes=view.opponentPublic?.prizeCount;
+  const publicOpponentPrizesKnown=Number.isSafeInteger(opponentPrizes);
+  const conditionalPrizeUseEligible=rule.opponentPrizesAtMost===undefined?
+    null:publicOpponentPrizesKnown?
+      opponentPrizes<=rule.opponentPrizesAtMost:null;
   const opponentHandCount=rule.drawOnlyIfEitherPlayerMoved?
     view.opponentPublic?.handCount:undefined;
   const opponentPublicCountKnown=rule.drawOnlyIfEitherPlayerMoved===true&&
@@ -102,6 +111,9 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     protectedMovedIndices:moved.filter(c=>c.protected).map(c=>c.handIndex),
     protectedMovedCount:moved.filter(c=>c.protected).length,
     drawnCardCountRequested:draw,
+    sourceRequiresOpponentPrizeThreshold:rule.opponentPrizesAtMost??null,
+    conditionalPrizeUseEligible,
+    sourcePrerequisiteFails:conditionalPrizeUseEligible===false,
     conditionalDrawTriggered:drawTriggered,
     affectsOpponentHand:Boolean(rule.affectsOpponentHand),
     opponentPublicHandCountKnown:opponentPublicCountKnown,
