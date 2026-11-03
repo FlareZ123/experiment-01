@@ -17,6 +17,7 @@ on:
           - postprompt-custody
           - generic-special-energy
           - generic-energy-effects
+          - electrode-opportunity
 
 permissions:
   contents: read
@@ -163,6 +164,20 @@ jobs:
         with:
           name: agent1-rank17-original-electro-rain-public-effect
           path: agent1-rank17-electro-rain-settlement-retrospective.json
+          if-no-files-found: warn
+
+      - name: Freeze exact rank17 Electrode owner-root native A/B/A before dispatch
+        if: ${{ github.event.inputs.experiment == 'electrode-opportunity' }}
+        run: node --test tests/agent1-rank17-electrode-native-registration.test.cjs tests/agent1-rank17-electrode-owner-necessity.test.cjs tests/agent1-rank17-electrode-census.test.cjs tests/agent1-rank17-electrode-actor-integration.test.cjs
+      - name: Execute all twelve preregistered identical-control native owner-turn census arms
+        if: ${{ github.event.inputs.experiment == 'electrode-opportunity' }}
+        run: node simulation/evaluation/agent1-rank17-electrode-owner-native-aba.cjs
+      - name: Archive every original rank17 owner census native attempt and error
+        if: ${{ always() && github.event.inputs.experiment == 'electrode-opportunity' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-electrode-owner-census-aba-native
+          path: agent1-rank17-electrode-owner-aba-native.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
