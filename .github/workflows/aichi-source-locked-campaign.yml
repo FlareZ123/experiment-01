@@ -897,3 +897,23 @@ jobs:
             rank11-autonomous-comparison.json
             newmoon-rank11-real-blower-response.json
           retention-days: 14
+
+      - name: Validate four unseen original rank11 source deal headway registration
+        if: ${{ inputs.trial_ids == 'agent10-rank11-heldout-headway-4seed' }}
+        run: |
+          node --check simulation/evaluation/agent10-rank11-heldout-headway-4seed.cjs
+          node --test tests/agent10-rank11-heldout-headway-4seed.test.cjs tests/agent10-active-mega-claw-over-bench.test.cjs
+      - name: Execute 24 frozen native original rank11 games under three equal-seat policies
+        if: ${{ inputs.trial_ids == 'agent10-rank11-heldout-headway-4seed' }}
+        run: node simulation/evaluation/agent10-rank11-heldout-headway-4seed.cjs > agent10-rank11-heldout-headway-4seed.json
+      - name: Summarize all prospective rank11 source policy outcomes and physical parity
+        if: ${{ inputs.trial_ids == 'agent10-rank11-heldout-headway-4seed' }}
+        run: |
+          node -e "const r=require('./agent10-rank11-heldout-headway-4seed.json');console.log(JSON.stringify({schema:r.schema,nativeAttempts:r.actualNativeAttempts,withinCandidatePhysicalParity:r.withinCandidateFactorPhysicalParity,crossCandidateSourceParity:r.crossCandidateSourceParity,qualified:r.competitiveQualifiedGames},null,2));for(const x of r.records)console.log(JSON.stringify({id:x.trialId,firstClaw:Object.fromEntries(Object.entries(x.cases).map(([k,v])=>[k,v.source.firstClaw])),status:Object.fromEntries(Object.entries(x.cases).map(([k,v])=>[k,v.native])),integrity:x.integrity}))"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent10-rank11-heldout-headway-4seed' }}
+        with:
+          name: agent10-rank11-heldout-headway-4seed-native
+          path: agent10-rank11-heldout-headway-4seed.json
+          if-no-files-found: warn
+          retention-days: 14
