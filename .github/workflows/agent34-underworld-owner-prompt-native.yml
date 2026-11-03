@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent42_rank1_independent_heldout:
+        description: Eight entirely new rank1 source seeds across both seats, two fixed candidates, selected-v3 A/B/A cap240
+        type: boolean
+        default: false
       agent42_v3_reply_extension_v2:
         description: Registered v2 intact two-candidate original rank1 A-seat 240-root A/B/A source reply
         type: boolean
@@ -118,6 +122,22 @@ jobs:
         with:
           name: agent42-selected-v3-native-240root-reply-v2-six
           path: agent42-v3-known-witness-240root-reply-six-native.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Verify sealed fresh rank1 source seeds, printed 60s and paper paid attack detection
+        if: ${{ inputs.agent42_rank1_independent_heldout }}
+        run: |
+          node --test tests/agent42-selected-v3-rank1-independent-heldout.test.cjs
+          node simulation/evaluation/agent42-selected-v3-rank1-independent-heldout.cjs --preflight
+      - name: Run eight fresh independent source seed groups in both seats with full selected-v3 A/B/A
+        if: ${{ inputs.agent42_rank1_independent_heldout }}
+        run: node simulation/evaluation/agent42-selected-v3-rank1-independent-heldout.cjs
+      - name: Archive all 48 independent source attempts and exact accepted physical decision histories
+        if: ${{ always() && inputs.agent42_rank1_independent_heldout }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-selected-v3-rank1-8fresh-groups-48-native
+          path: agent42-selected-v3-rank1-prospective-48-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Preregistered rank5 and11 same-deal Float Stone portability A/B
