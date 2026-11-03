@@ -24,6 +24,18 @@ All 8 original-source Terminal Period attacks and the first Claw precede the for
 
 **Lillie physical witness:** real `ShuffleDeckPrompt` was resolved after native Supporter selection; the T32 board then had Gengar & Mimikyu-GX on the New Moon Bench, with seven cards left in the owner's hand at Pass. The source still retained its powered Active Mega Absol and selected **AttackAction** at T33. The extra Bench Pokémon and new hand did not yield an observed attack or Prize rescue before the native source win.
 
+## Why Lillie's four attacks lost faster than the five-attack control
+
+The card pool's **Gengar & Mimikyu-GX (Team Up 53)** carries the printed **TAG TEAM three-Prize KO rule**. The accepted Lillie line put this 240-HP Pokémon onto New Moon's Bench on T32 with no attached Energy. After the T33 Claw knocked out Unown, this newly Benched TAG TEAM was promoted. The original source's next **Claw of Darkness T35** knocked out that Gengar & Mimikyu-GX, and the native Prize state changed **`[6,4] → [6,1]`**, a **three-Prize swing**. At T37, another Claw took the final Prize.
+
+Compare the settled per-Claw source Prize gains:
+
+- **observe:** `[1,1,2,1,1]` (T31, T33, T35, T37, T39). The two-Prize victim at T35 was Squawkabilly ex.
+- **catcher:** `[1]` (T31); the ensuing turn-33 source pass and action cap make later payoff **censored**, never a win.
+- **lillie:** `[1,1,3,1]` (T31, T33, T35, T37). The three-Prize victim at T35 was Gengar & Mimikyu-GX.
+
+Every native Claw had a one-card opponent-hand `ChooseCardsPrompt` (minimum 1, maximum 1, one actual selected card) and a settled Prize transition. This is a concrete **Prize-liability regression**: a Supporter that native-played and drew cards also caused the autonomous policy to expose a three-Prize target without an attack payoff. A planner that scores only draw volume, card access, accepted Supporters or fewer opponent attacks would misrank this line.
+
 ## Hidden weakness of the pre-fork source-policy evidence: eight legal zero-payoff Terminal Period attacks
 
 The supplied card database identifies **Mega Absol ex M1L 86**, whose **Terminal Period** attack knocks out the opposing Active Pokémon **only if it already has exactly six damage counters** (60 damage). The frozen native archive separately records source Terminal Period at **T15, T17, T19, T21, T23, T25, T27 and T29**, each against **Klefki with 0 damage** before and after. The source attacker had **two Darkness Energy** attached, sufficient for Terminal Period but below the three Energy needed for Claw of Darkness. Every one of those eight attack declarations left both Prize counts at `[6,6]`.
