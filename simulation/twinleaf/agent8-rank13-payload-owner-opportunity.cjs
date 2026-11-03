@@ -38,6 +38,9 @@ function observeRank13PayloadOwnerOpportunity(actor){
   return {
     turn:actor.globalTurn,decisionKind:actor.decisionKind,
     regidragoOnBoard,regidragoVstarActive,
+    templeOfSinnohPublicInPlay:[...(own.stadium??[]),
+      ...(actor.opponentPublic?.stadium??[])].some(p=>
+        p.startsWith('Temple of Sinnoh ')),
     activePrinting:own.active?.printing??null,
     activeAttachedEnergyPrintings:[...(own.active?.energies??[])],
     regidragoPublicSlots:[own.active,...own.bench]
