@@ -1,0 +1,15 @@
+{
+  "schema": "agent1-rank17-ditto-admission-digest-clarification-v1",
+  "reason": "First dispatched action run 41557539100 failed in printed-source preflight before any native game arm, because a legacy rank17 research digest was mistaken for the canonical field printingFingerprint digest.",
+  "originalPreOutcomeRegistration": "results/aichi-2026/registrations/agent1-rank17-ditto-prism-prospective-20261103.json",
+  "originalPreOutcomeRegistrationBlob": "c06aafd44cd1097b1cd5a6c42fab62d0d3c3aeae",
+  "unchangedLegacyPrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "priorFrozenSourceRegistration": "results/aichi-2026/registrations/agent1-rank17-prospective-evolution-policy-20261102.json",
+  "priorFrozenSourceRegistrationBlob": "eece76ee90a3a898ba346fecf1e5fe3b089b4a4d",
+  "canonicalAttestFieldPrintingFingerprintSha256": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36bd115f539f6401",
+  "canonicalFunction": "simulation/evaluation/agent13-source-identity-gate.cjs printingFingerprint(cards)",
+  "preservation": "Original 8 seeds, 16 pairs, 32 native arms, opponent/candidate, policies, engine pin unchanged. No native outcome was observed before this correction.",
+  "firstFailedPreflightRun": "https://github.com/FlareZ123/experiment-01/actions/runs/41557539100",
+  "nativeGamesBeforeAddendum": 0,
+  "competitiveQualifiedGames": 0
+}
