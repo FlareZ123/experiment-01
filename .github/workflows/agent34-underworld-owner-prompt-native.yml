@@ -34,3 +34,8 @@ jobs:
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
         run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs
+      - name: Retrospective rank1 source prompt paired native replay
+        if: ${{ inputs.posthoc_rank1 }}
+        env:
+          AGENT34_OWNER_UNDERWORLD_POSTHOC_OUTPUT: agent34-underworld-owner-posthoc.json
+        run: node simulation/evaluation/agent34-rank1-underworld-owner-prompt-posthoc-development.cjs
