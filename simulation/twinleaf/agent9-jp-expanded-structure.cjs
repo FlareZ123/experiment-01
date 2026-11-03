@@ -86,7 +86,6 @@ function screenOneSourceDeck(deck,prints){
   let size=0,knownAceSpecCopies=0,knownRadiantCopies=0;
   let knownBasicCopies=0,matchedCopies=0,unmatchedCopies=0;
   const seenPrismNames=new Map();
-  const cardDetails=[];
   for(const c of deck.cards){
     assert.ok(Number.isSafeInteger(c.count)&&c.count>0);
     assert.ok(typeof c.name==='string'&&c.name.length>0);
@@ -111,9 +110,7 @@ function screenOneSourceDeck(deck,prints){
     const subtypes=card?.subtypes??[];
     if(subtypes.includes('ACE SPEC'))knownAceSpecCopies+=c.count;
     if(subtypes.includes('Radiant'))knownRadiantCopies+=c.count;
-    if(c.category==='Energy'&&BASIC_ENERGIES.has(c.name)){
-      knownBasicCopies+=c.count;
-    }else if(c.category==='Pokémon'&&subtypes.includes('Basic')){
+    if(c.category==='Pokémon'&&subtypes.includes('Basic')){
       knownBasicCopies+=c.count;
     }
     if(subtypes.includes('Prism Star')||c.name.includes('♢')){
@@ -138,9 +135,6 @@ function screenOneSourceDeck(deck,prints){
         }
       }
     }
-    cardDetails.push({printing,copies:c.count,metadataKnown:known,
-      aceSpecKnown:subtypes.includes('ACE SPEC'),
-      radiantKnown:subtypes.includes('Radiant')});
   }
   if(size!==60)violations.push({kind:'deck-size',observed:size,required:60});
   for(const [name,count] of byName){
