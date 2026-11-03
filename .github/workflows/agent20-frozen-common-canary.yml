@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Fail-closed profile and archive regression suite
-        run: node --test tests/agent20-frozen-canary.test.cjs tests/agent20-frozen-physical-pair-audit.test.cjs tests/agent20-ghala-natural-custody-replay.test.cjs
+        run: node --test tests/agent20-frozen-canary.test.cjs tests/agent20-frozen-physical-pair-audit.test.cjs tests/agent20-ghala-natural-custody-replay.test.cjs tests/agent20-ghala-native-cost-to-payoff-attestor.test.cjs
       - name: Check out pinned Twinleaf engine
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine dependencies
