@@ -23,7 +23,7 @@ function printedHandDiscardModes(rules){
   const text=rules.join(' ').replace(/\s+/g,' ').toLowerCase();
   const optional=/may discard 2 other cards from your hand/.test(text);
   const triple=/discard 3 other cards from your hand/.test(text);
-  const double=/discard 2 (?:other )?cards from your hand/.test(text);
+  const double=!optional&&/discard 2 (?:other )?cards from your hand/.test(text);
   const single=/discard (?:another|a) card from your hand/.test(text);
   const found=[optional,triple,double,single].filter(Boolean).length;
   assert.ok(found<=1,'Ambiguous hand-discard text must be reviewed');
