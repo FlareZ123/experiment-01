@@ -91,3 +91,25 @@ test('opt-in owner-root census observes four-card partial opportunity without ch
   assert.equal(audit.competitivelyQualifiedGames,0);
   assert.equal(enabled.audit.competitiveGameQualified,false);
 });
+
+test('canonical option exposes only the opted-in root census without modifying result',()=>{
+  const {withCanonicalActorOnlyPolicy}=require(
+    '../simulation/evaluation/agent7-canonical-actor-composition.cjs');
+  const cumulative={version:'unit-electrode',ownerRootDecisions:4,
+    physicalNecessaryRoots:2,competitivelyQualifiedGames:0};
+  const fake=(audit={})=>run=>({result:run(),audit});
+  const adapters={
+    root:fake({version:'root',selectedRootDecisions:4,
+      rank17ElectrodeBombCensus:cumulative}),
+    fog:fake({version:'fog'}),select:fake({version:'select'}),
+    option:fake({version:'select-option'}),attack:fake({version:'attack'})
+  };
+  const noCensus=withCanonicalActorOnlyPolicy(()=>({value:9}),adapters);
+  const withCensus=withCanonicalActorOnlyPolicy(
+    ()=>({value:9}),adapters,{ownerElectrodeBombCensus:true});
+  assert.deepEqual(noCensus.result,withCensus.result);
+  assert.equal(noCensus.audit.ownerElectrodeBombCensusAudit,undefined);
+  assert.strictEqual(withCensus.audit.ownerElectrodeBombCensusAudit,cumulative);
+  assert.equal(withCensus.audit.ownerElectrodeBombCensusOptIn,true);
+  assert.equal(withCensus.audit.qualification.competitiveGames,0);
+});
