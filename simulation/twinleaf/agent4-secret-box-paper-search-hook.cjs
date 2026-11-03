@@ -71,6 +71,7 @@ function withPaperSecretBoxSearchCategory(run,deps={}){
       audit.ignoredAuxiliary++;
       return before.value.call(this,action,...rest);
     }
+    let paperValidSourceSearch=false;
     if(type==='ResolvePromptAction'){
       const prompt=this.state?.prompts?.find(p=>
         p.id===action.id&&p.result===undefined);
@@ -86,10 +87,12 @@ function withPaperSecretBoxSearchCategory(run,deps={}){
           audit.vetoReasons[negative]=(audit.vetoReasons[negative]??0)+1;
           throw Error('PAPER_SECRET_BOX_SEARCH_INVALID:'+negative);
         }
-        audit.acceptedSearches++;
+        paperValidSourceSearch=true;
       }
     }
-    return before.value.call(this,action,...rest);
+    const result=before.value.call(this,action,...rest);
+    if(paperValidSourceSearch)audit.acceptedSearches++;
+    return result;
   }
   Object.defineProperty(Store.prototype,'dispatch',{...before,value:dispatch});
   try{return {result:run(),audit};}
