@@ -112,3 +112,18 @@ jobs:
           path: agent10-heldout-native-independent-audit.json
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Census native original rank11 selected Trainer roots across all 24 frozen attempts
+        if: ${{ inputs.audit_mode == 'heldout-active-headway-20261103' }}
+        run: |
+          node --check scripts/agent10-rank11-heldout-source-als-coverage.cjs
+          node --test tests/agent10-rank11-heldout-source-als-coverage.test.cjs
+          node scripts/agent10-rank11-heldout-source-als-coverage.cjs heldout-native/agent10-rank11-heldout-headway-4seed.json > agent10-heldout-source-trainer-coverage.json
+          node -e "const r=require('./agent10-heldout-source-trainer-coverage.json');console.log(JSON.stringify({schema:r.schema,originalSeedGroups:r.originalTrialGroups,coverage:r.aggregate,qualified:r.qualifiedCompetitiveGames},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.audit_mode == 'heldout-active-headway-20261103' }}
+        with:
+          name: agent10-rank11-heldout-source-trainer-root-census
+          path: agent10-heldout-source-trainer-coverage.json
+          if-no-files-found: warn
+          retention-days: 14
