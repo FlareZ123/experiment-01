@@ -60,6 +60,11 @@ jobs:
           node --test tests/agent32-adp-first-gx-physical-window.test.cjs tests/agent32-adp-switch-first-gx-physical-window.test.cjs
           node simulation/evaluation/agent32-adp-first-gx-physical-window.cjs
           node simulation/evaluation/agent32-adp-switch-first-gx-physical-window.cjs
+      - name: Verify original-29 printed Basic subtypes and simultaneous mulligan offer arithmetic
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-adp-field-mulligan-offers.test.cjs
+          node simulation/evaluation/agent32-adp-field-mulligan-offers.cjs
       - name: Verify rank2 physical TM source access under simultaneous original opponent mulligans
         if: ${{ always() && !cancelled() }}
         run: |
