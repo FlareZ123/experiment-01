@@ -83,6 +83,36 @@ function auditTwelveArmArchive(data){
       .map(x=>({ordinal:x.actionOrdinal,turn:x.turnBefore}));
     const sourceAttackCount=raw=>raw.rootActionLedger.filter(x=>
       x.playerSlot===source&&x.action==='AttackAction').length;
+    // Positive public board receipt plus owner-held resources only.
+    // This is an *opportunity witness*, never a claim that a move is legal
+    // or that all its omitted status and competing effects are satisfied.
+    const confirmedDceBench=(b.actorOnlyDecisionCoverage
+      ?.detailedComponentAudits?.root?.nativeRootAcceptances??[])
+      .filter(x=>x.seat===source&&x.accepted===true&&
+        x.kind==='attach-special-energy'&&
+        x.intent?.printing==='Double Colorless Energy SUM'&&
+        x.intent?.slot==='bench'&&Number.isInteger(x.intent?.index));
+    const heldPasses=b.sourceOwnerPostPassMobility?.observations??[];
+    const ownerVisibleLateGuzmaAttackCandidates=heldPasses.flatMap(pass=>{
+      if(!pass?.mobilityHeld||pass.mobilityHeld.Guzma<1||
+        pass.activeEnergyCards?.length!==0||
+        !Array.isArray(pass.benchNames))return [];
+      return confirmedDceBench.filter(x=>x.globalTurn===pass.globalTurn&&
+        pass.benchNames[x.intent.index]==='Mew VMAX')
+        .map(x=>({
+          sourceSeat:source,turn:pass.globalTurn,ownerPassOrdinal:pass.ordinal,
+          activeName:pass.activeName,activeEnergyCount:0,
+          activeToolCount:pass.activeToolCards?.length??null,
+          heldGuzma:pass.mobilityHeld.Guzma,
+          heldFloatStone:pass.mobilityHeld['Float Stone']??0,
+          candidateMewBenchIndex:x.intent.index,
+          candidateMewBenchName:pass.benchNames[x.intent.index],
+          ownerBenchCount:pass.benchNames.length,
+          opponentBenchCount:x.before?.benchCounts?.[1-source]??null,
+          sourceDceBenchNativeAccepted:true,
+          attackOrSupporterPlayabilityProven:false
+        }));
+    });
     comparisons.push({
       trialId:a.trial.id,sourceSeat:source,
       sameOriginalSourcePhysicalDeal:sourcePair,
@@ -91,6 +121,7 @@ function auditTwelveArmArchive(data){
       sourceDceAttachmentsControl:ownDce(a),
       sourceDceAttachmentsTreatment:ownDce(b),
       sourceQuickBallNativePaymentEvents:qb,
+      ownerVisibleLateGuzmaAttackCandidates,
       sourceAttackRootsControl:sourceAttackCount(a),
       sourceAttackRootsTreatment:sourceAttackCount(b),
       controlNativeEndReason:a.endReason,
