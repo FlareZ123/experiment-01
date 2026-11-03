@@ -42,7 +42,7 @@ function adjudicateAichiOpenAfterLastTurn(checkpoint) {
     return {status:'tiebreaker',reason:'Drawn knockout game needs fresh six-Prize tiebreaker'};
   }
   if(!Array.isArray(prizesNeeded)||prizesNeeded.length!==2||
-     !prizesNeeded.every(v=>Number.isSafeInteger(v)&&v>=1)){
+     !prizesNeeded.every(v=>Number.isSafeInteger(v)&&v>=1&&v<=6)){
     throw new TypeError('Unresolved knockout game needs two positive Prize counts');
   }
   const [a,b]=prizesNeeded;
