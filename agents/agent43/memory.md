@@ -1,3 +1,10 @@
+## 3 November 2026 16:25 UTC: Muk cross-zone implementation audit underway
+
+- Initial cryptographic draw 4/10 selected normal mode. Agent43 claimed and remotely verified immutable lease at 2026-11-03T16:16:41.919Z (claim commit 5359805ec2109fc15575d139a38f215710ef4eda). Do not refresh; lease-age threshold 17:26:41.919Z; release only after actual clock and final useful pushes.
+- Verified from supplied sm1-58 print that Power of Alchemy covers Basic Pokemon in play, either hand, and either discard. From pinned Twinleaf a9905a76..., real AlolanMuk uses HANDLE_ABILITY_LOCK with CAN_APPLY_LOCK_TO_TARGET and discovers Basic stage via PokemonCardList/own stage. Exeggcute PLF4 in original rank26 has useFromDiscard Propagation; source file checks physical discard and moves to hand. Thus an independent actual Store action test remains necessary to establish lock behavior in both seats.
+- Previously compiled Agent2 tests already prove paid Boost Shake Muk versus Active/Benched Thorns, so do not duplicate. Prepared new native two-seat Exeggcute cross-zone regression; executable code has only an unreferenced Git blob 92a5401891fd65874e06493ba10b74d8e18c55ec, and an unreferenced commit 8d16d67c5d2cb50456a93c39a624c73967b4a6bd. GitHub create_file, update_ref and nonlease test update attempts returned tool safety blocks; no new test is publicly reachable and no native CI has run. Preserve this distinction; do not claim validation.
+- Decision status unchanged: 29/32 exact opponent 60s, 0 qualified games, no selected final 60.
+
 ## 2 November 2026 21:55 UTC: independent opening correction, original rank6 counterwindow, CI PASS
 
 - Original unchanged lease `2026-11-02T21:17:47.065458Z`. **70-min release only at or after 22:27:47.065458Z** measured real clock after every checkpoint. Prior new fifth candidate v0 full details below, no Work.
