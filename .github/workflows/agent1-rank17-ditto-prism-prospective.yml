@@ -18,6 +18,7 @@ on:
           - generic-special-energy
           - generic-energy-effects
           - electrode-opportunity
+          - electrode-composed
 
 permissions:
   contents: read
@@ -178,6 +179,20 @@ jobs:
         with:
           name: agent1-rank17-electrode-owner-census-aba-native
           path: agent1-rank17-electrode-owner-aba-native.json
+          if-no-files-found: warn
+
+      - name: Verify exact 48-arm prospective rank17 composed ability opportunity cohort
+        if: ${{ github.event.inputs.experiment == 'electrode-composed' }}
+        run: node --test tests/agent1-rank17-electrode-composed-registration.test.cjs tests/agent1-rank17-electrode-owner-necessity.test.cjs tests/agent1-rank17-electrode-census.test.cjs tests/agent1-rank17-electrode-actor-integration.test.cjs
+      - name: Run all 48 original-source composed owner controls and read-only A/B/A observations
+        if: ${{ github.event.inputs.experiment == 'electrode-composed' }}
+        run: node simulation/evaluation/agent1-rank17-electrode-composed-owner-aba.cjs
+      - name: Preserve all original rank17 composed native owner attempts and failure details
+        if: ${{ always() && github.event.inputs.experiment == 'electrode-composed' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-electrode-composed-owner-aba
+          path: agent1-rank17-electrode-composed-owner-aba.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
