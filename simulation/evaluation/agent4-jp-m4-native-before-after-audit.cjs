@@ -50,7 +50,8 @@ function auditNativeJapaneseM4(original,modified){
     assert.equal(a.attempts.length,3);
     assert.equal(b.attempts.length,3);
     for(let j=0;j<3;j++){
-      assert.equal(a.attempts[j].nativeStatus,b.attempts[j].nativeStatus);
+      assert.equal(a.attempts[j].status,b.attempts[j].status);
+      assert.equal(a.attempts[j].error,b.attempts[j].error);
     }
     const rootsA=a.attempts[1].paperCensus.paperOwnerRoots;
     const rootsB=b.attempts[1].paperCensus.paperOwnerRoots;
