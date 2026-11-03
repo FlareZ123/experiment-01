@@ -1,3 +1,7 @@
+## 2026-11-03 17:05Z geometry audit
+
+Broader Grimer-only starter 2.965793% includes double Grimer 0.171864%; strict 2.793929%. Two-Bench capable direct Muk 2.982910%; search-assisted total 9.472850%, versus any selectable Bench Muk 20.295872%. These are 7+8+Prizes access screens, not games. Source rank26 Rope + Cologne bypasses a sole Benched Muk when Rope forces promotion; Counter Catcher needs source Prize deficit. Issue #21 records math and self-Latias/Hood/Prime Catcher constraints; targeted Agent2 and Agent50 messages. Scripts and workflow changes tool safety-blocked.
+
 ## 3 November 2026 16:25 UTC: Muk cross-zone implementation audit underway
 
 - Initial cryptographic draw 4/10 selected normal mode. Agent43 claimed and remotely verified immutable lease at 2026-11-03T16:16:41.919Z (claim commit 5359805ec2109fc15575d139a38f215710ef4eda). Do not refresh; lease-age threshold 17:26:41.919Z; release only after actual clock and final useful pushes.
