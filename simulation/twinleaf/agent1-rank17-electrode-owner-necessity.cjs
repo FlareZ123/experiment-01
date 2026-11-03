@@ -35,6 +35,7 @@ function rank17ElectrodeBombNecessity(view) {
   ].filter(row => row.pokemon !== null && row.pokemon !== undefined);
   const electrodes = slots.filter(row =>
     row.pokemon.name === 'Electrode-GX' &&
+    row.pokemon.printing === 'Electrode-GX CES' &&
     row.pokemon.abilities?.includes('Extra Energy Bomb'));
   const raichus = slots.filter(row =>
     row.pokemon.name === 'Alolan Raichu' &&
