@@ -188,3 +188,27 @@ test('nested error causes expose abort audit without conflating other errors',()
     originalError.nativeSourceCompressorRootAudit);
   assert.equal(sourceCompressorAbortAudit(new Error('unrelated')),null);
 });
+
+test('printed one-to-three Item discard bounds override native prompt max',()=>{
+  for(const amount of [0,1,3,4]){
+    const live=new Store(0);
+    const deck=live.state.players[0].deck.cards;
+    while(deck.length<4)deck.push(card('Basic Energy',100+deck.length));
+    const observed=observe(0,()=>{
+      live.dispatch(new AddPlayerAction(101));
+      live.dispatch(new AddPlayerAction(202));
+      live.dispatch(new PlayCardAction(101));
+      const prompt=live.state.prompts[0];
+      prompt.options={min:0,max:4};
+      live.dispatch(new ResolvePromptAction(11,deck.slice(0,amount)));
+    },{StoreClass:Store});
+    assert.equal(observed.audit.receipts.length,1);
+    const receipt=observed.audit.receipts[0];
+    assert.equal(receipt.physicallyMoved.length,amount);
+    assert.equal(receipt.paperMinimumMet,amount>=1&&amount<=3);
+    assert.equal(receipt.printedMinimum,1);
+    assert.equal(receipt.printedMaximum,3);
+    assert.equal(receipt.nativePromptMinimum,0);
+    assert.equal(receipt.nativePromptMaximum,4);
+  }
+});
