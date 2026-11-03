@@ -655,6 +655,7 @@ function withActorOnlyRootPolicy(run,deps={}){
   const original=Object.getOwnPropertyDescriptor(SimpleTacticsAi.prototype,'decodeNextAction');
   assert.equal(typeof original?.value,'function');
   const typedDecisions=new WeakMap();
+  const nativeTrainerFallbackActions=new WeakMap();
   const typedSeekerReplies=new WeakMap();
   const ownerSeekerPending=new Map();
   const typedEriReplies=new WeakMap();
@@ -666,7 +667,15 @@ function withActorOnlyRootPolicy(run,deps={}){
   const genesectDrawUsedTurnBySeat=new Map();
   const engineGamePhase=()=>deps.GamePhase??
     require(path.join(base,'game/store/state/state')).GamePhase;
-  let nativeStore=null,catalog=null,actualGamesSeen=0;
+  let nativeStore=null,catalog=null,trainerCatalog=null,actualGamesSeen=0;
+  const getNativeTrainerCatalog=deps.getNativeTrainerCatalog??(()=>{
+    const {CardManager}=require(path.join(base,'game/cards/card-manager'));
+    const {TrainerCard}=require(path.join(base,'game/store/card/trainer-card'));
+    const {TrainerType}=require(path.join(base,'game/store/card/card-types'));
+    return require('./agent5-generic-owner-trainer-opportunity.cjs')
+      .trainerPrintCatalog(CardManager.getInstance().getAllCards(),
+        {TrainerCard,TrainerType});
+  });
   const audit={
     version:VERSION,origin:'detached-actor-observation',
     energyFrontierOptIn:deps.energyFrontier??
@@ -870,6 +879,17 @@ function withActorOnlyRootPolicy(run,deps={}){
     ownerRootIntents:[],competitiveGameQualified:false,
     note:'Only roots are actor-only. Every native prompt fallback makes the full game unqualified.'
   };
+  if(deps.nativeOwnerTrainerFallback===true){
+    const bridge=require('./agent50-native-owner-trainer-pass-bridge.cjs');
+    audit.version+='+'+bridge.VERSION;
+    audit.nativeOwnerTrainerFallback={
+      attemptedUnsupportedPasses:0,selectedNativeTrainerRoots:0,
+      acceptedNativeTrainerRoots:0,rejectedNativeTrainerRoots:0,
+      declinedByReason:{},receipts:[],receiptsOmitted:0,
+      nativePolicyMayUseHiddenInformation:true,
+      paperPaymentVerified:false,competitiveGameQualified:false
+    };
+  }
   // The opt-in diagnostic must leave the default JSON audit shape intact.
   if(!audit.eriRevealRootOptIn){
     delete audit.eriRevealRootOptIn;
@@ -1370,6 +1390,32 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    // Experimental, symmetrical fallback at genuinely unsupported owner
+    // roots only. Unlike the actor policy, native Tactics may inspect hidden
+    // information. Every selected root remains competitively unqualified.
+    if(audit.nativeOwnerTrainerFallback&&intent.kind==='pass'&&
+       intent.reason==='no-supported-owner-visible-root'){
+      const bridge=require('./agent50-native-owner-trainer-pass-bridge.cjs');
+      const stats=audit.nativeOwnerTrainerFallback;
+      stats.attemptedUnsupportedPasses++;
+      if(trainerCatalog===null)trainerCatalog=getNativeTrainerCatalog();
+      const nativeAction=original.value.call(this,state);
+      const proposal=bridge.classifyNativeTrainerAfterPass(
+        view,nativeAction,trainerCatalog,PlayCardAction);
+      if(proposal.selected){
+        stats.selectedNativeTrainerRoots++;
+        const receipt={seat,globalTurn:view.globalTurn,
+          printing:proposal.printing,handIndex:proposal.handIndex,
+          type:proposal.type,nativeDispatch:'not-dispatched',
+          paperPaymentVerified:false,cardSpecificLegal:false};
+        if(stats.receipts.length<40)stats.receipts.push(receipt);
+        else stats.receiptsOmitted++;
+        nativeTrainerFallbackActions.set(nativeAction,receipt);
+        return nativeAction;
+      }
+      stats.declinedByReason[proposal.reason]=
+        (stats.declinedByReason[proposal.reason]??0)+1;
+    }
     if(intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1)
       audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
@@ -1617,7 +1663,22 @@ function withActorOnlyRootPolicy(run,deps={}){
       return result;
     }
     const choice=this===nativeStore?typedDecisions.get(action):undefined;
-    if(!choice)return beforeDispatch.value.apply(this,[action,...args]);
+    if(!choice){
+      const fallback=this===nativeStore?
+        nativeTrainerFallbackActions.get(action):undefined;
+      if(!fallback)return beforeDispatch.value.apply(this,[action,...args]);
+      try{
+        const result=beforeDispatch.value.apply(this,[action,...args]);
+        fallback.nativeDispatch='native-accepted';
+        audit.nativeOwnerTrainerFallback.acceptedNativeTrainerRoots++;
+        return result;
+      }catch(error){
+        fallback.nativeDispatch='native-rejected';
+        fallback.nativeError=String(error?.message||error).slice(0,240);
+        audit.nativeOwnerTrainerFallback.rejectedNativeTrainerRoots++;
+        throw error;
+      }
+    }
     const before=publicDispatchState(this);
     const ownerBefore=before===null?null:
       rootPhysicalSnapshot(this.state,choice.seat,choice.intent);
