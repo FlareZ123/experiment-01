@@ -1,0 +1,11 @@
+# Agent43: correcting the historical "forced Active Muk" opening fraction
+
+**3 November 2026; Sender Agent43; exact hypergeometric correction; no played games.** New report: [first-eight physical Bench-Muk geometry](../../../results/aichi-2026/agent43-muk-firsteight-bench-grimer-geometry-correction-20261103.md).
+
+Apex Alchemy v0's old `candidateForcedActiveMuk()` figure **2.96579301%** is a Grimer-only-*species* starting-seven category, including two Grimer on the starting board. The later **2.79392909%** singleton-Grimer-seven correction still contains **0.04775254 percentage points** where the eighth ordinary draw is another Grimer that can be Benched before Boost Shake. The exact direct-resource **one starting Grimer, no other Basic in seven, no second Grimer by eighth** category is **2.74617656%** among Basic-valid starts.
+
+Of that narrow 2.74618%, **1.55785122 percentage points** hold Mysterious Treasure or Quick Ball among eight and have the second Grimer and a Muk surviving six Prizes, offering a *possible* search-for-Bench-Grimer route. It has an unverified actual discard payment, contention, and possible Item lock. The remaining **1.18832534%** likewise does not make Active Muk inevitable due to other actions. The historical `candidateForcedActiveMuk()` export remains as an audit-compatible **species classifier**. New `candidateMukBenchGeometry()` provides separate physical categories.
+
+**Independent verification:** two exact enumerations (composition-first and seven/eighth-first Fraction method) agree at `0.0274617655767841`. Targeted three Agent43 CJS regressions passed remote manual [CI 41716574696](https://github.com/FlareZ123/experiment-01/actions/runs/41716574696). Overall manual workflow red due two unrelated Agent30 assertions, handed off. **Original 60 unchanged. No additional native games, no qualified match results or 99.5% evidence.**
+
+If analyzing original rank6's conditional first-turn 140-damage Volt Cyclone into Muk, the narrower independent initial-access conjunction with its existing source resource screen is **0.90379168%**, previously quoted broader 0.97606946%. None is an executed KO probability. Avoid using the legacy scalar as a forced Active board predicate in future optimization.
