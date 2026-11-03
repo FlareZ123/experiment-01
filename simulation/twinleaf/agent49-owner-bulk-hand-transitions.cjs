@@ -130,10 +130,19 @@ function summarizeOwnerBulkHandTransitions(view,rows,
   protectedIndices=new Set()){
   assert.ok(Array.isArray(rows));
   const seen=new Set();
+  const heldTrainerIndices=new Set(rows.map(row=>row.handIndex));
   const transitions=rows.map(row=>{
     assert.ok(!seen.has(row.handIndex));
     seen.add(row.handIndex);
-    return ownerBulkHandTransition(view,row,protectedIndices);
+    const transition=ownerBulkHandTransition(view,row,protectedIndices);
+    if(!transition.knownBulkHandEffect)return transition;
+    const competing=transition.movedHandCopies.filter(card=>
+      heldTrainerIndices.has(card.handIndex));
+    return {...transition,
+      displacedHeldTrainerIndices:competing.map(card=>card.handIndex),
+      displacedHeldTrainerCopies:competing.length,
+      losingOriginalHeldTrainerOptions:true
+    };
   }).filter(row=>row.knownBulkHandEffect);
   return {
     version:VERSION,actorSeat:view.actorSeat,globalTurn:view.globalTurn,
@@ -148,6 +157,8 @@ function summarizeOwnerBulkHandTransitions(view,rows,
       (n,x)=>n+x.movedHandCount,0),
     summedProtectedCopiesExposedAcrossAlternatives:transitions.reduce(
       (n,x)=>n+x.protectedMovedCount,0),
+    summedCompetingTrainerCopiesDisplacedAcrossAlternatives:
+      transitions.reduce((n,x)=>n+x.displacedHeldTrainerCopies,0),
     countsAreCompetingHypotheticalAlternatives:true,
     settledZoneTransitionsCertified:false,
     competitiveGameQualified:false,
