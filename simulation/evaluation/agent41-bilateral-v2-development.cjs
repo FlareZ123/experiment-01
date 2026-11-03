@@ -1054,6 +1054,7 @@ function runDevelopment({
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
+  actorUnderworldActiveFundingPriority=false,
   actorUnderworldDoorPromptOwner=false,
   sourceCrobatDceMewRetreat=false,
   actorFarewellLetterRoot=false,
@@ -1136,6 +1137,9 @@ function runDevelopment({
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
     'Underworld Door must use the same actor-only policy in both seats');
+  assert.ok(!actorUnderworldActiveFundingPriority||
+    (actorUnderworldDoorRoot&&actorOnlyComposition),
+    'Active Psychic priority requires symmetric Underworld root');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
@@ -1377,6 +1381,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldDoorRoot?{
                 underworldDoorRoot:true
+              }:{}),
+              ...(actorUnderworldActiveFundingPriority?{
+                underworldActiveFundingPriority:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
