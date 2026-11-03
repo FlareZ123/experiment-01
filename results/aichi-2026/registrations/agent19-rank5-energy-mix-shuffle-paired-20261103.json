@@ -1,0 +1,101 @@
+{
+  "schema": "agent19-rank5-energy-mix-shuffle-source-dealt-ab-v1",
+  "registrationTimeUTC": "2026-11-03T14:49:13Z",
+  "method": "Fresh uniformly independent CSPRNG UInt32 seeds, registered before all native outcomes; four physically distinct groups, both candidate seat placements, one fixed champion-reference 60, authentic original rank5 Mew Genesect 60. Modes differ only the default-off MewV Energy Mix printed shuffle hook; both share target guard.",
+  "originalSourceRank": 5,
+  "originalSourceArchetype": "Mew Genesect",
+  "candidateId": "champion-reference",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "frozenPolicyProfileGitBlobSha": "a79e7977cb224928068968934bbcfa9c9410e20a",
+  "originalRunnerGitBlobSha": "6ec3e59c5a36552c6b894aa3b6a5c87e68a88e0a",
+  "pinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "policyBase": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "policySourceCopyFlags": {
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorNaturalEvolutionRoot": true
+  },
+  "nativeRootActionLimit": 260,
+  "modeNames": [
+    "guarded-target-control",
+    "guarded-target-plus-paper-shuffle"
+  ],
+  "randomGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1079885934
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 4199436142
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1752371020
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 4274692256
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1079885934,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 4199436142,
+      "candidateId": "champion-reference",
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 1752371020,
+      "candidateId": "champion-reference",
+      "id": "5:1:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 4274692256,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    }
+  ],
+  "expectedNativeAttempts": 8,
+  "expectedSourceOriginalPrinted60": true,
+  "expectedCandidatePrinted60": true,
+  "expectedSourceDealPairGroups": 4,
+  "preserveEveryAttempt": true,
+  "treatmentDefaultOffOutsideExperiment": true,
+  "futureEligibilityConstraints": [
+    "Both seats actually native attempted",
+    "All root-cap and native exceptions retained",
+    "Same full original source and fixed candidate 60 in every arm",
+    "Owner physical pre-swap starting fingerprint checked per pair",
+    "Native shuffle can change future draws; measure actual behavior",
+    "Do not infer game win or competitive qualification from success",
+    "Paper opponent and clock, hidden information and 32-field gates remain unqualified"
+  ],
+  "nativeOutcomeUnobservedAtRegistration": true,
+  "competitiveQualifiedGames": 0
+}
