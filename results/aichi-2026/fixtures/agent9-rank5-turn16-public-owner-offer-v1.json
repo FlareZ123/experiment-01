@@ -1,0 +1,148 @@
+{
+  "schema": "agent9-rank5-turn16-original-owner-public-fixture-v1",
+  "source": {
+    "runId": 41658633698,
+    "artifactId": 13240534314,
+    "head": "5a676e43607650f21883e9ca53280e5044ba70cb",
+    "vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "zipSha256": "232b245989660ac107ceda91a4074819ff9e96913f2c076dbb6fd68915f30db0",
+    "jsonSha256": "c1da10aec0dd221f7387eb129453ca9ebc88f9834907f1be89cf56b16216bde0"
+  },
+  "physical": {
+    "seed": 465442104,
+    "repeat": 1,
+    "slot": "B",
+    "firstTurnSeat": 0,
+    "rankBySeat": [
+      11,
+      5
+    ],
+    "dealSha256": "27ca31d2d51f0dcb4513dbc7627c1e970d93440dfe30cda5b4cfa6ab4d0d4835",
+    "printedSixtyHashes": [
+      "ca1a7ce02983c438146f30bf01f303cf8210836f9e442e0d21a2513850ffcb18",
+      "3467f7297dac361df88c17893811a5b8f41d2ad9a469a13b8881f629bce1c193"
+    ],
+    "matchedAllThree": true,
+    "duplicateControlsEqual": true
+  },
+  "owner": {
+    "seat": 1,
+    "turn": 16,
+    "rootActionOrdinal": 60,
+    "selectedControlAction": "PassTurnAction",
+    "hand": [
+      "Karen XYP",
+      "Escape Rope BST",
+      "Special Charge STS",
+      "Mew VMAX FST",
+      "Quick Ball FST",
+      "Quick Ball FST",
+      "Ultra Ball MEG",
+      "Secret Box TWM",
+      "Path to the Peak CRE",
+      "Special Red Card M4",
+      "VS Seeker PHF",
+      "Pokemon Ranger STS",
+      "Ultra Ball MEG",
+      "Trainers' Mail ROS"
+    ],
+    "prizesRemaining": 6,
+    "deckCount": 38,
+    "active": "Dedenne-GX",
+    "activeEnergy": [],
+    "bench": [
+      "Genesect V"
+    ],
+    "stadium": [],
+    "opponentPrizesRemaining": 6,
+    "opponentActive": "Mega Absol ex",
+    "opponentActiveEnergy": [
+      "Darkness Energy"
+    ],
+    "opponentBench": [
+      "Latias ex",
+      "Trubbish"
+    ],
+    "opponentStadium": []
+  },
+  "nativeOffers": [
+    [
+      "Karen XYP",
+      true
+    ],
+    [
+      "Escape Rope BST",
+      true
+    ],
+    [
+      "Special Charge STS",
+      true
+    ],
+    [
+      "Quick Ball FST",
+      true
+    ],
+    [
+      "Quick Ball FST",
+      true
+    ],
+    [
+      "Ultra Ball MEG",
+      true
+    ],
+    [
+      "Secret Box TWM",
+      true
+    ],
+    [
+      "Path to the Peak CRE",
+      true
+    ],
+    [
+      "Special Red Card M4",
+      true
+    ],
+    [
+      "VS Seeker PHF",
+      true
+    ],
+    [
+      "Pokemon Ranger STS",
+      true
+    ],
+    [
+      "Ultra Ball MEG",
+      false
+    ],
+    [
+      "Trainers' Mail ROS",
+      false
+    ]
+  ],
+  "offerStatusObservedPostgame": true,
+  "treatment": {
+    "rootAction": "PlayCardAction",
+    "printing": "Trainers' Mail ROS",
+    "handIndex": 13,
+    "storeAccepted": true,
+    "ownerPromptAccepted": true,
+    "promptChosen": "Float Stone BKT",
+    "cardSettledInHand": true,
+    "eligibleOtherTrainerLowerBound": 17,
+    "opponentNextRoot": "PassTurnAction",
+    "ownerTurn18Root": "PassTurnAction",
+    "nativeOutcome": "action-capped"
+  },
+  "control": {
+    "ownerTurn18Root": "PlayCardAction",
+    "ownerTurn18Card": "Crobat V",
+    "nativeOutcome": "action-capped"
+  },
+  "limits": {
+    "artifactProjection": true,
+    "containsHiddenDeckOrder": false,
+    "wholePolicyOwnerSafeCertified": false,
+    "paperGameQualified": false,
+    "competitivelyQualifiedGames": 0
+  }
+}
