@@ -117,6 +117,41 @@ function census(mobility,opening){
   };
 }
 
+/**
+ * Condition a mixed set of target cards on the same legal opening. A Prized
+ * Basic target removes one potential Basic from the allowed hand and must be
+ * distinguished from an ordinary Trainer/Energy target. The published
+ * three-name mobility model is the special case targetBasicCount=0.
+ * @param {number} basicCount Total printed Basic Pokemon copies.
+ * @param {number} basicTargets Number of those Basics being tracked.
+ * @param {number} nonBasicTargets Disjoint Trainer/Energy cards tracked.
+ * @param {{deckSize?:number,handSize?:number,prizeSize?:number}} [sizes]
+ */
+function mixedTargetPrizeCollapse(basicCount,basicTargets,nonBasicTargets,
+  sizes={}){
+  const N=sizes.deckSize??60,h=sizes.handSize??7,p=sizes.prizeSize??6;
+  assert.ok([N,h,p,basicCount,basicTargets,nonBasicTargets]
+    .every(Number.isSafeInteger));
+  assert.ok(N>0&&h>0&&p>=0&&h+p<=N);
+  assert.ok(basicCount>0&&basicCount<=N&&
+    basicTargets>=0&&basicTargets<=basicCount&&
+    nonBasicTargets>=0&&nonBasicTargets<=N-basicCount);
+  const m=basicTargets+nonBasicTargets;
+  const valid=choose(N,h)-choose(N-basicCount,h);
+  const denom=valid*choose(N-h,p);
+  const num=m>p?0n:
+    (choose(N-m,h)-choose(N-basicCount-nonBasicTargets,h))*
+      choose(N-h-m,p-m);
+  assert.ok(valid>0n&&num>=0n&&num<=denom);
+  return {basicCount,basicTargets,nonBasicTargets,totalTargets:m,
+    exactNumerator:num.toString(),exactDenominator:denom.toString(),
+    conditionalOnValidSeven:Number(num)/Number(denom),
+    unconditionalOnOpening:m>p?0:
+      Number(choose(p,m))/Number(choose(N,m)),
+    premise:'All explicitly tracked physical target cards are among initial Prizes',
+    gameplayOrEscapeProbability:false,competitiveGameQualified:false};
+}
+
 /** @returns {object} Exact original-source authenticated 29-deck census. */
 function auditPinnedSources(){
   const mobility=auditPinnedRoster();
@@ -138,4 +173,4 @@ if(require.main===module){
 }
 
 module.exports={VERSION,RESOURCE_NAMES,namedMobilityPrizeCollapse,
-  census,auditPinnedSources};
+  census,auditPinnedSources,mixedTargetPrizeCollapse};
