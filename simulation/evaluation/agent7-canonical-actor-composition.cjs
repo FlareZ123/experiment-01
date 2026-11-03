@@ -120,6 +120,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       }:{}),
       ...(options.ownerPaperNecessity===true?{
         ownerPaperNecessity:true
+      }:{}),
+      ...(options.ownerTrainerPublicPrizeScreen===true?{
+        ownerPublicPrizeScreen:true
       }:{})
     });
     assert.ok(observed?.audit,'Generic Trainer frontier must expose audit');
