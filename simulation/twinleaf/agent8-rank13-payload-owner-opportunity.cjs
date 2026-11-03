@@ -38,6 +38,16 @@ function observeRank13PayloadOwnerOpportunity(actor){
   return {
     turn:actor.globalTurn,decisionKind:actor.decisionKind,
     regidragoOnBoard,regidragoVstarActive,
+    activePrinting:own.active?.printing??null,
+    activeAttachedEnergyPrintings:[...(own.active?.energies??[])],
+    regidragoPublicSlots:[own.active,...own.bench]
+      .map((pokemon,i)=>({pokemon,i}))
+      .filter(x=>x.pokemon?.printing==='Regidrago V SIT'||
+        x.pokemon?.printing==='Regidrago VSTAR SIT')
+      .map(x=>({position:x.i===0?'active':'bench',
+        benchIndex:x.i===0?null:x.i-1,
+        printing:x.pokemon.printing,
+        energyPrintings:[...(x.pokemon.energies??[])]})),
     eligiblePublicDragonDiscard:[...publiclyDiscarded],
     heldDragonPrintings:[...heldDragons],
     handCounts:counts,
