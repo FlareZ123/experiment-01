@@ -43,9 +43,10 @@ function preregistered(){
  * @param {object} row Native Store source game.
  * @returns {object}
  */
-function followthrough(row){
+function followthrough(row,source=1){
+ assert.ok(source===0||source===1,'Native physical source seat required');
  const ledger=row.rootActionLedger??[];
- const source=1,opponent=0;
+ const opponent=1-source;
  const physicallyPaid=(row.sourceAttackSettlement?.attacks??[])
   .filter(x=>x.actionName==='AttackAction'||x.attackName==='Max Geist')
   .filter(x=>x.attackName==='Max Geist'&&
