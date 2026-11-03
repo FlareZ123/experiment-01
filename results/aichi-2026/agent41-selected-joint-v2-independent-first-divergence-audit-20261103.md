@@ -26,6 +26,23 @@ Across the selected policy's native ledgers there were **20** total `Battle VIP 
 
 The archived selected `sourceCopiedAttackChoices.selectedGenesectTechnoBlast` sums are **32** for source rank 5 versus **19** in the control, exactly matching CI's source summary. The paired difference is **+13 copied-attack selections on these particular mixed exposed/fresh conditions**, not a game-win estimate or a guarantee of a favorable marginal effect on future deals.
 
+## Source rank-5 copied-attack immediate native payoffs
+
+A second read-only join matched each rank-5 source `sourceCopiedAttackChoices.records[]` with qualification `GENESECT_TECHNO_BLAST_SELECTED` to the **same** `sourceNativeAttackSettlements[].actionOrdinal` using `attackRootOrdinal`. For each matching settled attack, compare `prizesBefore[sourceSeat]` to `prizesAfter[sourceSeat]` at the end of that exact native prompt chain. This is a native board and Prize observation, **not** an independent paper damage-rules certificate.
+
+| Mechanistic observation | Joint-v1 control | Selected-v2 |
+| --- | ---: | ---: |
+| Copy selection joined to native-settled attack | 19 | 32 |
+| Source Prize count reduced on that attack | 18 | 30 |
+| No immediate source Prize reduction | 1 | 2 |
+| Single-Prize reductions | 9 | 21 |
+| Two-Prize reductions | 9 | 9 |
+| Sum of such per-attack Prize decreases across all separately restarted trials | 27 | 39 |
+
+Every one of the **two selected-v2 zero-Prize** attack rows nevertheless shows the opposing Active's public damage increasing **0→210** in the same native settlement. They are `5:100:A:champion-reference`, global turn 51, **Trevenant & Dusknoir-GX**; and `5:101:B:new-moon-lockbreaker-v1`, global turn 59, **Gengar & Mimikyu-GX**. The latter is also the single zero-Prize baseline row. The native turn-51 target was already a high-HP Tag Team and may survive 210 damage. No zero-Prize row should be mislabeled an attack that failed or did nothing.
+
+These **39 and 27 Prize decreases are sums across restarted, nonindependent developmental trials**, not one game or a matchup score. This audit verifies selected attack menu choice, native attack settlement, and immediate scoreboard or damage outcome. It leaves hidden-information fairness, exact attack-effect fidelity, rule-box protection, advanced damage rules, potential opponent response, and match clock outside its scope. In particular, a native 210-damage record cannot be presumed paper-valid without the relevant independent rule and effect test.
+
 ## Failed reporter gate and recovered abort-sidecar evidence
 
 **Correction from a deeper read of the same untouched original ZIP:** the release's top-level `matchedSourcePhysicalDeals=25/26` and `allControlsMatched=false` remain the actual reporter status, but the native-abort sidecar **does preserve the 26th source fingerprint and the 43 accepted actions preceding failure**. The affected context is fresh rank-6 **`6:300:A:champion-reference`**, seed **3738819225**; both modes fail `UseAbilityAction: UNKNOWN_POWER` on action ordinal 43, acting seat 0, global turn 8. In **both** `modes[].native.rows[].nativeAbortEvidence.sourceDealFingerprint`, the original source is seat 1 and SHA256 is **`1180bb8d34c5364ce202e23f94eebc5e3c0d83381b85bc2991ba1e002f70a0a7`**. Both abort evidence records also store a **43-action identical `rootActionLedger`**, independently reporting the same digest **`75c90e10e1178b30a2579cfa689498b4f3e6a65389883ed615662fadec8edf97`** and matching setup-first-seat evidence. Thus **26/26 original source physical fingerprints match across the two modes when the abort sidecar is included**. The official aggregator still correctly fails its top-level gate because this aborted arm lacks normal completed-row fields; a recovered prefix is not a full settled native match. These are within-candidate *mode* comparisons; never relabel them as cross-candidate original-source deal matches.
