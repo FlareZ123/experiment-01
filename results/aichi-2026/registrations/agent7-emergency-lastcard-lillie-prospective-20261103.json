@@ -1,0 +1,171 @@
+{
+  "schema": "agent7-symmetric-owner-last-card-lillie-early-terminal-prospective-v1",
+  "registeredAtUtc": "2026-11-03T03:11:39.058Z",
+  "registeredBeforeAnyTrialExecution": true,
+  "originalSourceRank": 6,
+  "originalOpponentPrintingRoster": "results/aichi-2026/full-decklists.json",
+  "unchangedOriginalFrozenProfile": "simulation/evaluation/agent20-frozen-rank6-canary-v1.json",
+  "originalFrozenProfileSha256": "6ff3ee325098cfc68253928a9dd5370da52c9cc64b86a4435be2b07a0d392dc6",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "policyVariants": [
+    "Control: exact unchanged frozen 86-option bilateral policy",
+    "Treatment: same baseline plus identical owner-visible emergency Lillie before selected Attack/Pass in EITHER physical actor seat when deck count exactly one, Lillie held, Supporter unused and playable, shuffle replenishes at least one future draw"
+  ],
+  "policyAppliedIdenticallyToBothOwners": true,
+  "sameOriginalSourceSixtyAcrossArms": true,
+  "sameCandidateSixtyAcrossArms": true,
+  "expectedIndependentPhysicalSourceSeedCohorts": 8,
+  "expectedNativeGamesPerArm": 16,
+  "expectedTotalNativeGames": 32,
+  "seedDraw": "secrets.randbits(32) uniform secure random, eight unique source seeds drawn once before any prospective Store match, four per physical candidate seat, two fixed candidate sixties per seed",
+  "actualFirstPlayerDeterminedInNativeGame": true,
+  "predeclaredPrimaryMeasures": [
+    "original source and full physical initial-deal fingerprint match within control/treatment",
+    "genuine Store accepted owner last-card Lillie in each physical seat, identity, root preemption, hand/deck and actual printed effect prompt receipts",
+    "native terminal predicate and Prize disposition for every arm",
+    "actual source attack/candidate response and action caps",
+    "all rejected Store actions and missing opportunities",
+    "nonmonotonic winner/disposition changes under the same physical deal"
+  ],
+  "predeclaredInterpretation": [
+    "Actual source seed independently sampled; two different candidate lists on one seed are correlated",
+    "This is a source-policy development study, not tournament-competent paper games",
+    "No claim to reach 99.5 percent, no result aggregation as field win estimate",
+    "A no-trigger trial is retained as a zero-opportunity observation",
+    "A native engine win remains unqualified even if a late deckout is averted"
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "repeat": 110,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1129584550,
+      "id": "6:110:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 110,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1129584550,
+      "id": "6:110:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 111,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1562531993,
+      "id": "6:111:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 111,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1562531993,
+      "id": "6:111:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 112,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2677662423,
+      "id": "6:112:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 112,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2677662423,
+      "id": "6:112:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 113,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1887665999,
+      "id": "6:113:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 113,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1887665999,
+      "id": "6:113:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 114,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2470349624,
+      "id": "6:114:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 114,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2470349624,
+      "id": "6:114:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 115,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 969662438,
+      "id": "6:115:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 115,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 969662438,
+      "id": "6:115:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 116,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1375895578,
+      "id": "6:116:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 116,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1375895578,
+      "id": "6:116:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 117,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3038562754,
+      "id": "6:117:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 117,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3038562754,
+      "id": "6:117:B:new-moon-lockbreaker-v1"
+    }
+  ]
+}
