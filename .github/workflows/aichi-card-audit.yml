@@ -285,16 +285,19 @@ jobs:
       - name: Verify 29 printed-60 denominators and four independent negative-paper families
         run: node --test tests/agent35-field-trainer-negative-family-coverage.test.cjs tests/agent35-vs-seeker-discard-target-certificate.test.cjs
       - name: Verify registered discard-recovery paper-negative rules and physical printing ambiguity
-        run: node --test tests/owner-public-discard-target-necessary.test.cjs tests/agent15-discard-target-source-census.test.cjs
+        run: node --test tests/owner-public-discard-target-necessary.test.cjs tests/agent15-discard-target-source-census.test.cjs tests/agent15-first-root-recovery-no-target.test.cjs
       - name: Preserve machine-readable source name-set incidence and uncovered priorities
         run: node scripts/agent35-field-trainer-negative-family-coverage.cjs > agent35-original29-trainer-negative-gates.json
       - name: Preserve five recovery-family field incidence and ambiguous-print metadata
         run: node scripts/agent15-discard-target-source-census.cjs > agent15-discard-target-source-census.json
+      - name: Preserve authenticated source first-root recovery item no-target opening bound
+        run: node scripts/agent15-first-root-recovery-no-target.cjs > agent15-first-root-recovery-no-target.json
       - uses: actions/upload-artifact@v4
         with:
           name: agent35-original29-trainer-negative-gate-census
           path: |
             agent35-original29-trainer-negative-gates.json
             agent15-discard-target-source-census.json
+            agent15-first-root-recovery-no-target.json
           if-no-files-found: error
           retention-days: 30
