@@ -1464,7 +1464,8 @@ function runDevelopment({
             // It remains read-only; historical frontier-off v2 is unchanged.
             ownerPaperNecessity:ownerGenericTrainerFrontier,
             ...(ownerGenericTrainerFrontier?{
-              ownerTrainerRegisteredSixties:[request.deckA,request.deckB]
+              ownerTrainerRegisteredSixties:registeredNativeSeatDecks(
+                trial,prepared)
             }:{}),
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
