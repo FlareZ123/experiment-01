@@ -12,6 +12,17 @@ const {withPaperPromptPortfolio}=
 const {withPrintedVoltDonorPreference,VERSION}=
   require('./agent45-volt-donor-printed-cost-hook.cjs');
 
+class ControlledFirstEnergyResolver {
+  /** @param {object} state @param {object} prompt @returns {object[]} */
+  getPromptResult(state,prompt){
+    const owner=state.players.find(p=>p.id===prompt.playerId);
+    const first=owner.active.energies.cards[0];
+    const index=owner.bench.findIndex(x=>x.getPokemonCard());
+    const {SlotType}=native('game/store/actions/play-card-action');
+    return [{card:first,to:{player:prompt.playerType,slot:SlotType.BENCH,index}}];
+  }
+}
+
 const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=p=>require(path.join(root,p));
 
@@ -53,17 +64,14 @@ function sourceState(sourceSeat){
 function runSeatArm(seat,preferPrintedCost){
   const scene=sourceState(seat);
   const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
-  const {AttachEnergyPromptResolver}=native(
-    'simple-bot/prompt-resolver/attach-energy-prompt-resolver');
-  const beforeMethod=AttachEnergyPromptResolver.prototype.getPromptResult;
+  const beforeMethod=ControlledFirstEnergyResolver.prototype.getPromptResult;
   const beforeReduce=scene.attacker.constructor.prototype.reduceEffect;
   const beforeDispatch=native('game/store/store').Store.prototype.dispatch;
   const guard=withPaperPromptPortfolio(()=>{
     const effect=()=>{
       const prompt=generatePrompt(scene);
-      const originalNativeResolver=Object.create(
-        AttachEnergyPromptResolver.prototype);
-      const choice=originalNativeResolver.getPromptResult(scene.state,prompt);
+      const controlledResolver=new ControlledFirstEnergyResolver();
+      const choice=controlledResolver.getPromptResult(scene.state,prompt);
       assert.equal(prompt.options.min,1);
       assert.equal(prompt.options.max,1);
       assert.equal(prompt.options.allowCancel,false);
@@ -84,10 +92,15 @@ function runSeatArm(seat,preferPrintedCost){
           scene.opponent.active.energies.cards.map(x=>x.name),[]),
         paperPromptPhysicallySettled:true};
     };
-    return preferPrintedCost?withPrintedVoltDonorPreference(effect,{seat}):
+    return preferPrintedCost?withPrintedVoltDonorPreference(effect,{seat},{
+      Store:native('game/store/store').Store,
+      IronThornsex:scene.attacker.constructor,
+      AttachEnergyPromptResolver:ControlledFirstEnergyResolver,
+      ...native('game/store/actions/play-card-action')
+    }):
       {result:effect(),audit:null};
   });
-  assert.strictEqual(AttachEnergyPromptResolver.prototype.getPromptResult,
+  assert.strictEqual(ControlledFirstEnergyResolver.prototype.getPromptResult,
     beforeMethod);
   assert.strictEqual(scene.attacker.constructor.prototype.reduceEffect,
     beforeReduce);
@@ -111,7 +124,7 @@ function runSeatArm(seat,preferPrintedCost){
     assert.equal(actual.nativePrintedCostPayable,false);
   }
   return {sourceSeat:seat,preferPrintedCost,mode:preferPrintedCost?
-    'owner-paper-cost-preserving-donor':'generic-native-first-donor',
+    'owner-paper-cost-preserving-donor':'controlled-first-energy-donor',
     ...actual,
     paperPromptVerdict:'PAPER_PROMPT_VERIFIED_BOUND_ONE_CARD_TRANSFER',
     activeAfterPaidPotential:actual.nativePrintedCostPayable,
@@ -124,7 +137,8 @@ function run(){
     cases.push(runSeatArm(seat,false),runSeatArm(seat,true));
   }
   return {version:VERSION,setup:'prepared-pinned-Store-after-attack-printed-TWM77',
-    cases,realStore:true,fullOriginal60:false,completeNativeAttack:false,
+    cases,realStore:true,firstDonorPolicy:'controlled-first-energy-fixture',
+    realSimpleBotResolverUsed:false,fullOriginal60:false,completeNativeAttack:false,
     nativeFullGames:0,competitivelyQualifiedGames:0};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
