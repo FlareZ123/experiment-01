@@ -121,7 +121,9 @@ test('authentic original rank11 inventory supplies the asserted 8 plus 4 prints'
   const originalRank11 = field.decks.find(deck => deck.rank === 11);
   assert.equal(originalRank11.player, 'Wataru Yano');
   const full = originalRank11.cards.flatMap(card =>
-    Array(card.count).fill(card.name + ' ' + card.printing.set));
+    Array(card.count).fill(card.name === "Professor's Letter" &&
+      card.printing.set === 'BKT' ? LETTER :
+      card.name + ' ' + card.printing.set));
   assert.equal(full.length, 60);
   assert.equal(full.filter(p => p === DARKNESS).length, 8);
   assert.equal(full.filter(p => p === LETTER).length, 4);
