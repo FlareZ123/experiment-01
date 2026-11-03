@@ -1,0 +1,38 @@
+{
+  "schema": "agent1-rank17-real-owner-bomb-frontier-after-compressor-v1",
+  "registeredUtc": "2026-11-03T06:58:15Z",
+  "method": "Retrospective state analysis of previously exposed original physical source pairs; source selection is based on known Compressor plays and later original Stage1 root labels, so no population estimates.",
+  "sourceOriginalRegistration": "results/aichi-2026/registrations/agent1-rank17-actor-compressor-bridge-prospective-20261103.json",
+  "priorRun": 41592173354,
+  "priorArtifactId": 13210837476,
+  "nativeTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalPrintedSourceRank": 17,
+  "opponentOriginalPrintedRank": 1,
+  "selectedPairs": [
+    {
+      "seed": 2208314832,
+      "sourceSeat": 1,
+      "cohort": "fresh-registered-before-prior-outcomes"
+    },
+    {
+      "seed": 4010383176,
+      "sourceSeat": 1,
+      "cohort": "fresh-registered-before-prior-outcomes"
+    },
+    {
+      "seed": 1246820961,
+      "sourceSeat": 0,
+      "cohort": "previously-favorable-positive-control"
+    }
+  ],
+  "modes": [
+    "actor-only-original-pass",
+    "actor-only-source-compressor-native-bridge"
+  ],
+  "expectedNativeAttempts": 6,
+  "policyChanges": "None relative to 41592173354. Only original source owner public board/own discard/Prize-count observer at actually selected Store roots, with exact root ledger parity.",
+  "useExistingHelper": "simulation/twinleaf/agent10-rank9-extra-energy-bomb-owner-frontier.cjs#rank9BombOwnerSnapshot",
+  "concreteQuestion": "Does any original source native Store root after Compressor payment have an evolved Electrode-GX, a face-up non-GX recipient such as Alolan Raichu, and a physical owner discard Energy pool sufficient for plausible Bomb? What are owner/opponent public Prize counts?",
+  "limits": "Necessary public board/discard geometry only. No claim of actual Ability permission, native canPlay, mandatory payment, attachment target legality, damage, opponent response, or competitive win.",
+  "competitiveQualifiedGames": 0
+}
