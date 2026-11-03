@@ -1,0 +1,1146 @@
+{
+  "schema": "agent2-apex-alchemy-jp-crosswalk-v2",
+  "as_of": "2026-11-03",
+  "historical_event": "2026-05-10 Aichi Open League",
+  "event_official_source": "https://www.pokemon-card.com/info/005445.html",
+  "restriction": "Japanese-language cards only; Expanded sixty-card six-Prize event",
+  "banned_snapshot": "results/legality/japan-expanded-aichi-2026.json",
+  "objective": "Preregister named print alternatives for two previously frozen English-ID decks. Candidate contents and counts have not changed.",
+  "evidence_method": "Original v1 official Japanese printing map, substituting two specifically numbered, publisher-dated SM12a Basic Energy identities. All original English proxy 60s and their sha256 remain unchanged.",
+  "qualification_status": "candidate JP print manifest research; card-by-card full effect equivalence, release date and print restrictions, game simulability, paper tournament legality, and physical registration remain UNVERIFIED",
+  "caveats": [
+    "Do not treat 34 official publisher URLs as equivalent to an event-submittable Japanese 60; verify all Japanese effects including icon types and any later errata and prohibited identities.",
+    "Publisher Japanese text can contain icon elements omitted by text extraction; compare card art or official full rule source before technical effect claims.",
+    "Some Japanese variants with changed illustrations use the same card name; no 4-copy name violation or ACE SPEC name aggregation can be proven from a crosswalk alone.",
+    "No native game wins are established. These registrations are not promoted over existing nominees; the 99.5% target has no supporting game evidence.",
+    "SM12a 202/173 Grass and 203/173 Fire are precisely numbered 2019 Japanese publisher record variants chosen instead of previously proposed Championship 2025 promotional printings. This is an identity substitution of basic Energy printing only.",
+    "Publisher product release and basic Energy typing are necessary evidence, not a definitive historical Aichi tournament admission certificate."
+  ],
+  "number_of_mapped_english_identities": 34,
+  "registered_candidates": {
+    "v0": {
+      "source_manifest": "results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json",
+      "deck_identity_sha256": "21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769",
+      "total_cards": 60,
+      "unique_english_identities": 34,
+      "official_japanese_records_suggested": 34,
+      "japanese_slots_suggested": 60,
+      "prints": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "english_proxy": {
+            "name": "Regidrago V",
+            "cardId": "swsh12-135",
+            "set": "SIT",
+            "number": "135"
+          },
+          "japanese_name": "レジドラゴV",
+          "japanese_print": {
+            "set": "S12",
+            "number": "076/098"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/42168"
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "english_proxy": {
+            "name": "Regidrago VSTAR",
+            "cardId": "swsh12-136",
+            "set": "SIT",
+            "number": "136"
+          },
+          "japanese_name": "レジドラゴVSTAR",
+          "japanese_print": {
+            "set": "S12",
+            "number": "077/098"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/42169"
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "english_proxy": {
+            "name": "Alolan Grimer",
+            "cardId": "sm1-57",
+            "set": "SUM",
+            "number": "57"
+          },
+          "japanese_name": "アローラ ベトベター",
+          "japanese_print": {
+            "set": "SM1M",
+            "number": "022/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33086"
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "english_proxy": {
+            "name": "Alolan Muk",
+            "cardId": "sm1-58",
+            "set": "SUM",
+            "number": "58"
+          },
+          "japanese_name": "アローラ ベトベトン",
+          "japanese_print": {
+            "set": "SM1M",
+            "number": "023/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33087"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Dragapult ex",
+            "cardId": "sv6-130",
+            "set": "TWM",
+            "number": "130"
+          },
+          "japanese_name": "ドラパルトex",
+          "japanese_print": {
+            "set": "SV6",
+            "number": "081/101"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45772"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Dialga-GX",
+            "cardId": "sm5-100",
+            "set": "UPR",
+            "number": "100"
+          },
+          "japanese_name": "ディアルガGX",
+          "japanese_print": {
+            "set": "SM5S",
+            "number": "045/066"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34427"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Hisuian Goodra VSTAR",
+            "cardId": "swsh11-136",
+            "set": "LOR",
+            "number": "136"
+          },
+          "japanese_name": "ヒスイ ヌメルゴンVSTAR",
+          "japanese_print": {
+            "set": "S10a",
+            "number": "057/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/41576"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Noivern ex",
+            "cardId": "sv2-153",
+            "set": "PAL",
+            "number": "153"
+          },
+          "japanese_name": "オンバーンex",
+          "japanese_print": {
+            "set": "SV2D",
+            "number": "058/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/43194"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Kyurem",
+            "cardId": "sv6pt5-47",
+            "set": "SFA",
+            "number": "47"
+          },
+          "japanese_name": "キュレム",
+          "japanese_print": {
+            "set": "SV6a",
+            "number": "047/064"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45922"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Koraidon ex",
+            "cardId": "sv5-120",
+            "set": "TEF",
+            "number": "120"
+          },
+          "japanese_name": "コライドンex",
+          "japanese_print": {
+            "set": "SVHK",
+            "number": "012/053"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45300"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Tapu Lele-GX",
+            "cardId": "sm2-60",
+            "set": "GRI",
+            "number": "60"
+          },
+          "japanese_name": "カプ・テテフGX",
+          "japanese_print": {
+            "set": "SM2L",
+            "number": "022/050"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33438"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Latias ex",
+            "cardId": "sv8-76",
+            "set": "SSP",
+            "number": "76"
+          },
+          "japanese_name": "ラティアスex",
+          "japanese_print": {
+            "set": "SV7a",
+            "number": "019/064"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46248"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Budew",
+            "cardId": "me2pt5-16",
+            "set": "ASC",
+            "number": "16"
+          },
+          "japanese_name": "スボミー",
+          "japanese_print": {
+            "set": "SV8a",
+            "number": "001/187"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46849"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Professor's Research",
+            "cardId": "sv9-155",
+            "set": "JTG",
+            "number": "155"
+          },
+          "japanese_name": "博士の研究",
+          "japanese_print": {
+            "set": "SVF",
+            "number": "030/038"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/44064"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Guzma",
+            "cardId": "sm3-115",
+            "set": "BUS",
+            "number": "115"
+          },
+          "japanese_name": "グズマ",
+          "japanese_print": {
+            "set": "SM3N",
+            "number": "049/051"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33963"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Carmine",
+            "cardId": "sv6-145",
+            "set": "TWM",
+            "number": "145"
+          },
+          "japanese_name": "ゼイユ",
+          "japanese_print": {
+            "set": "SV6",
+            "number": "097/101"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45788"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Iono",
+            "cardId": "sv2-185",
+            "set": "PAL",
+            "number": "185"
+          },
+          "japanese_name": "ナンジャモ",
+          "japanese_print": {
+            "set": "SV2D",
+            "number": "069/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/43205"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Crispin",
+            "cardId": "sv7-133",
+            "set": "SCR",
+            "number": "133"
+          },
+          "japanese_name": "アカマツ",
+          "japanese_print": {
+            "set": "SV7",
+            "number": "123/102"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46171"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Raihan",
+            "cardId": "swsh7-152",
+            "set": "EVS",
+            "number": "152"
+          },
+          "japanese_name": "キバナ",
+          "japanese_print": {
+            "set": "S7D",
+            "number": "063/067"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/39732"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Faba",
+            "cardId": "sm8-173",
+            "set": "LOT",
+            "number": "173"
+          },
+          "japanese_name": "ザオボー",
+          "japanese_print": {
+            "set": "SM8",
+            "number": "089/095"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/35381"
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "english_proxy": {
+            "name": "Mysterious Treasure",
+            "cardId": "sm6-113",
+            "set": "FLI",
+            "number": "113"
+          },
+          "japanese_name": "ミステリートレジャー",
+          "japanese_print": {
+            "set": "SM6",
+            "number": "083/094"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34757"
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "english_proxy": {
+            "name": "Quick Ball",
+            "cardId": "swsh8-237",
+            "set": "FST",
+            "number": "237"
+          },
+          "japanese_name": "クイックボール",
+          "japanese_print": {
+            "set": "S1H",
+            "number": "052/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37722"
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "english_proxy": {
+            "name": "Boost Shake",
+            "cardId": "swsh7-142",
+            "set": "EVS",
+            "number": "142"
+          },
+          "japanese_name": "ぐんぐんシェイク",
+          "japanese_print": {
+            "set": "S6a",
+            "number": "060/069"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/39644"
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "english_proxy": {
+            "name": "VS Seeker",
+            "cardId": "xy4-109",
+            "set": "PHF",
+            "number": "109"
+          },
+          "japanese_name": "バトルサーチャー",
+          "japanese_print": {
+            "set": "XY",
+            "number": "026/048"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37416"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Battle Compressor Team Flare Gear",
+            "cardId": "xy4-92",
+            "set": "PHF",
+            "number": "92"
+          },
+          "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+          "japanese_print": {
+            "set": "XY4",
+            "number": "079/088"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/30550"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Hisuian Heavy Ball",
+            "cardId": "swsh10-146",
+            "set": "ASR",
+            "number": "146"
+          },
+          "japanese_name": "ヒスイのヘビーボール",
+          "japanese_print": {
+            "set": "S10P",
+            "number": "062/067"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/41490"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Field Blower",
+            "cardId": "sm2-125",
+            "set": "GRI",
+            "number": "125"
+          },
+          "japanese_name": "フィールドブロアー",
+          "japanese_print": {
+            "set": "SM4p",
+            "number": "093/114"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34321"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Prime Catcher",
+            "cardId": "sv5-157",
+            "set": "TEF",
+            "number": "157"
+          },
+          "japanese_name": "プライムキャッチャー",
+          "japanese_print": {
+            "set": "SV5M",
+            "number": "062/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45279"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Float Stone",
+            "cardId": "xy8-137",
+            "set": "BKT",
+            "number": "137"
+          },
+          "japanese_name": "かるいし",
+          "japanese_print": {
+            "set": "XY8-Bb",
+            "number": "054/059"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/31363"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Stealthy Hood",
+            "cardId": "sm10-186",
+            "set": "UNB",
+            "number": "186"
+          },
+          "japanese_name": "隠密フード",
+          "japanese_print": {
+            "set": "SM9a",
+            "number": "046/055"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36191"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Giant Hearth",
+            "cardId": "sm11-197",
+            "set": "UNM",
+            "number": "197"
+          },
+          "japanese_name": "巨大なカマド",
+          "japanese_print": {
+            "set": "SM10a",
+            "number": "050/054"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36590"
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "english_proxy": {
+            "name": "Double Dragon Energy",
+            "cardId": "xy6-97",
+            "set": "ROS",
+            "number": "97"
+          },
+          "japanese_name": "ダブルドラゴンエネルギー",
+          "japanese_print": {
+            "set": "XY6-B",
+            "number": "078/078"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/30933"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "english_proxy": {
+            "name": "Basic Grass Energy",
+            "cardId": "sve-1",
+            "set": "SVE",
+            "number": "1"
+          },
+          "japanese_name": "基本草エネルギー",
+          "japanese_print": {
+            "set": "SM12a",
+            "number": "202/173"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37470"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "english_proxy": {
+            "name": "Basic Fire Energy",
+            "cardId": "sve-2",
+            "set": "SVE",
+            "number": "2"
+          },
+          "japanese_name": "基本炎エネルギー",
+          "japanese_print": {
+            "set": "SM12a",
+            "number": "203/173"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37471"
+        }
+      ]
+    },
+    "v1": {
+      "source_manifest": "results/aichi-2026/agent2-apex-alchemy-shake4-quick2-v1.json",
+      "deck_identity_sha256": "5cd6b0fc7781e1a5a3b29f5a23654750295af89bdc63621f235fbd0c56701fd0",
+      "total_cards": 60,
+      "unique_english_identities": 34,
+      "official_japanese_records_suggested": 34,
+      "japanese_slots_suggested": 60,
+      "prints": [
+        {
+          "category": "Pokémon",
+          "count": 4,
+          "english_proxy": {
+            "name": "Regidrago V",
+            "cardId": "swsh12-135",
+            "set": "SIT",
+            "number": "135"
+          },
+          "japanese_name": "レジドラゴV",
+          "japanese_print": {
+            "set": "S12",
+            "number": "076/098"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/42168"
+        },
+        {
+          "category": "Pokémon",
+          "count": 3,
+          "english_proxy": {
+            "name": "Regidrago VSTAR",
+            "cardId": "swsh12-136",
+            "set": "SIT",
+            "number": "136"
+          },
+          "japanese_name": "レジドラゴVSTAR",
+          "japanese_print": {
+            "set": "S12",
+            "number": "077/098"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/42169"
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "english_proxy": {
+            "name": "Alolan Grimer",
+            "cardId": "sm1-57",
+            "set": "SUM",
+            "number": "57"
+          },
+          "japanese_name": "アローラ ベトベター",
+          "japanese_print": {
+            "set": "SM1M",
+            "number": "022/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33086"
+        },
+        {
+          "category": "Pokémon",
+          "count": 2,
+          "english_proxy": {
+            "name": "Alolan Muk",
+            "cardId": "sm1-58",
+            "set": "SUM",
+            "number": "58"
+          },
+          "japanese_name": "アローラ ベトベトン",
+          "japanese_print": {
+            "set": "SM1M",
+            "number": "023/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33087"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Dragapult ex",
+            "cardId": "sv6-130",
+            "set": "TWM",
+            "number": "130"
+          },
+          "japanese_name": "ドラパルトex",
+          "japanese_print": {
+            "set": "SV6",
+            "number": "081/101"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45772"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Dialga-GX",
+            "cardId": "sm5-100",
+            "set": "UPR",
+            "number": "100"
+          },
+          "japanese_name": "ディアルガGX",
+          "japanese_print": {
+            "set": "SM5S",
+            "number": "045/066"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34427"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Hisuian Goodra VSTAR",
+            "cardId": "swsh11-136",
+            "set": "LOR",
+            "number": "136"
+          },
+          "japanese_name": "ヒスイ ヌメルゴンVSTAR",
+          "japanese_print": {
+            "set": "S10a",
+            "number": "057/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/41576"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Noivern ex",
+            "cardId": "sv2-153",
+            "set": "PAL",
+            "number": "153"
+          },
+          "japanese_name": "オンバーンex",
+          "japanese_print": {
+            "set": "SV2D",
+            "number": "058/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/43194"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Kyurem",
+            "cardId": "sv6pt5-47",
+            "set": "SFA",
+            "number": "47"
+          },
+          "japanese_name": "キュレム",
+          "japanese_print": {
+            "set": "SV6a",
+            "number": "047/064"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45922"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Koraidon ex",
+            "cardId": "sv5-120",
+            "set": "TEF",
+            "number": "120"
+          },
+          "japanese_name": "コライドンex",
+          "japanese_print": {
+            "set": "SVHK",
+            "number": "012/053"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45300"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Tapu Lele-GX",
+            "cardId": "sm2-60",
+            "set": "GRI",
+            "number": "60"
+          },
+          "japanese_name": "カプ・テテフGX",
+          "japanese_print": {
+            "set": "SM2L",
+            "number": "022/050"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33438"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Latias ex",
+            "cardId": "sv8-76",
+            "set": "SSP",
+            "number": "76"
+          },
+          "japanese_name": "ラティアスex",
+          "japanese_print": {
+            "set": "SV7a",
+            "number": "019/064"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46248"
+        },
+        {
+          "category": "Pokémon",
+          "count": 1,
+          "english_proxy": {
+            "name": "Budew",
+            "cardId": "me2pt5-16",
+            "set": "ASC",
+            "number": "16"
+          },
+          "japanese_name": "スボミー",
+          "japanese_print": {
+            "set": "SV8a",
+            "number": "001/187"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46849"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Professor's Research",
+            "cardId": "sv9-155",
+            "set": "JTG",
+            "number": "155"
+          },
+          "japanese_name": "博士の研究",
+          "japanese_print": {
+            "set": "SVF",
+            "number": "030/038"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/44064"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Guzma",
+            "cardId": "sm3-115",
+            "set": "BUS",
+            "number": "115"
+          },
+          "japanese_name": "グズマ",
+          "japanese_print": {
+            "set": "SM3N",
+            "number": "049/051"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/33963"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Carmine",
+            "cardId": "sv6-145",
+            "set": "TWM",
+            "number": "145"
+          },
+          "japanese_name": "ゼイユ",
+          "japanese_print": {
+            "set": "SV6",
+            "number": "097/101"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45788"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Iono",
+            "cardId": "sv2-185",
+            "set": "PAL",
+            "number": "185"
+          },
+          "japanese_name": "ナンジャモ",
+          "japanese_print": {
+            "set": "SV2D",
+            "number": "069/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/43205"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Crispin",
+            "cardId": "sv7-133",
+            "set": "SCR",
+            "number": "133"
+          },
+          "japanese_name": "アカマツ",
+          "japanese_print": {
+            "set": "SV7",
+            "number": "123/102"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/46171"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Raihan",
+            "cardId": "swsh7-152",
+            "set": "EVS",
+            "number": "152"
+          },
+          "japanese_name": "キバナ",
+          "japanese_print": {
+            "set": "S7D",
+            "number": "063/067"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/39732"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Faba",
+            "cardId": "sm8-173",
+            "set": "LOT",
+            "number": "173"
+          },
+          "japanese_name": "ザオボー",
+          "japanese_print": {
+            "set": "SM8",
+            "number": "089/095"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/35381"
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "english_proxy": {
+            "name": "Mysterious Treasure",
+            "cardId": "sm6-113",
+            "set": "FLI",
+            "number": "113"
+          },
+          "japanese_name": "ミステリートレジャー",
+          "japanese_print": {
+            "set": "SM6",
+            "number": "083/094"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34757"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Quick Ball",
+            "cardId": "swsh8-237",
+            "set": "FST",
+            "number": "237"
+          },
+          "japanese_name": "クイックボール",
+          "japanese_print": {
+            "set": "S1H",
+            "number": "052/060"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37722"
+        },
+        {
+          "category": "Trainer",
+          "count": 4,
+          "english_proxy": {
+            "name": "Boost Shake",
+            "cardId": "swsh7-142",
+            "set": "EVS",
+            "number": "142"
+          },
+          "japanese_name": "ぐんぐんシェイク",
+          "japanese_print": {
+            "set": "S6a",
+            "number": "060/069"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/39644"
+        },
+        {
+          "category": "Trainer",
+          "count": 3,
+          "english_proxy": {
+            "name": "VS Seeker",
+            "cardId": "xy4-109",
+            "set": "PHF",
+            "number": "109"
+          },
+          "japanese_name": "バトルサーチャー",
+          "japanese_print": {
+            "set": "XY",
+            "number": "026/048"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37416"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Battle Compressor Team Flare Gear",
+            "cardId": "xy4-92",
+            "set": "PHF",
+            "number": "92"
+          },
+          "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+          "japanese_print": {
+            "set": "XY4",
+            "number": "079/088"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/30550"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Hisuian Heavy Ball",
+            "cardId": "swsh10-146",
+            "set": "ASR",
+            "number": "146"
+          },
+          "japanese_name": "ヒスイのヘビーボール",
+          "japanese_print": {
+            "set": "S10P",
+            "number": "062/067"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/41490"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Field Blower",
+            "cardId": "sm2-125",
+            "set": "GRI",
+            "number": "125"
+          },
+          "japanese_name": "フィールドブロアー",
+          "japanese_print": {
+            "set": "SM4p",
+            "number": "093/114"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/34321"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Prime Catcher",
+            "cardId": "sv5-157",
+            "set": "TEF",
+            "number": "157"
+          },
+          "japanese_name": "プライムキャッチャー",
+          "japanese_print": {
+            "set": "SV5M",
+            "number": "062/071"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/45279"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Float Stone",
+            "cardId": "xy8-137",
+            "set": "BKT",
+            "number": "137"
+          },
+          "japanese_name": "かるいし",
+          "japanese_print": {
+            "set": "XY8-Bb",
+            "number": "054/059"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/31363"
+        },
+        {
+          "category": "Trainer",
+          "count": 1,
+          "english_proxy": {
+            "name": "Stealthy Hood",
+            "cardId": "sm10-186",
+            "set": "UNB",
+            "number": "186"
+          },
+          "japanese_name": "隠密フード",
+          "japanese_print": {
+            "set": "SM9a",
+            "number": "046/055"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36191"
+        },
+        {
+          "category": "Trainer",
+          "count": 2,
+          "english_proxy": {
+            "name": "Giant Hearth",
+            "cardId": "sm11-197",
+            "set": "UNM",
+            "number": "197"
+          },
+          "japanese_name": "巨大なカマド",
+          "japanese_print": {
+            "set": "SM10a",
+            "number": "050/054"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/36590"
+        },
+        {
+          "category": "Energy",
+          "count": 4,
+          "english_proxy": {
+            "name": "Double Dragon Energy",
+            "cardId": "xy6-97",
+            "set": "ROS",
+            "number": "97"
+          },
+          "japanese_name": "ダブルドラゴンエネルギー",
+          "japanese_print": {
+            "set": "XY6-B",
+            "number": "078/078"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/30933"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "english_proxy": {
+            "name": "Basic Grass Energy",
+            "cardId": "sve-1",
+            "set": "SVE",
+            "number": "1"
+          },
+          "japanese_name": "基本草エネルギー",
+          "japanese_print": {
+            "set": "SM12a",
+            "number": "202/173"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37470"
+        },
+        {
+          "category": "Energy",
+          "count": 3,
+          "english_proxy": {
+            "name": "Basic Fire Energy",
+            "cardId": "sve-2",
+            "set": "SVE",
+            "number": "2"
+          },
+          "japanese_name": "基本炎エネルギー",
+          "japanese_print": {
+            "set": "SM12a",
+            "number": "203/173"
+          },
+          "official_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37471"
+        }
+      ]
+    }
+  },
+  "print_selection_delta_from_v1": {
+    "sve-1": {
+      "v1_japanese_print": "SV-P 202/SV-P",
+      "v2_japanese_print": "SM12a 202/173",
+      "v2_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37470"
+    },
+    "sve-2": {
+      "v1_japanese_print": "SV-P 203/SV-P",
+      "v2_japanese_print": "SM12a 203/173",
+      "v2_card_url": "https://www.pokemon-card.com/card-search/details.php/card/37471"
+    },
+    "publisher_dated_product_source": "https://www.pokemon-card.com/ex/sm12a/index.html",
+    "publisher_dated_product_release_date": "2019-10-04",
+    "affected_physical_slots_per_candidate": 6,
+    "qualification_limit": "Card record + dated product provenance only; official event paper eligibility, errata, match wins remain uncertified."
+  }
+}
