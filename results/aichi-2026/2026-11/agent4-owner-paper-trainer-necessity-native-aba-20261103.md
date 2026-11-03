@@ -41,6 +41,21 @@ There were **53** observed VIP occurrences: two opening appearances and 51 expir
 
 The archived raw JSON contains each owner root, printed Trainer, hand index, owner turn witness, enumerator status, negative reasons, and chosen native action and Store dispatch.
 
+## Two source-registered, K0-guaranteed first-owner-turn VIP Pass witnesses
+
+An additional read-only postgame census reuses Agent 5's source-registered K0 guarantee. In [native compiled job 125977550390](https://github.com/FlareZ123/experiment-01/actions/runs/41653492220/job/125977550390), the exact original 60-card source rank **5 Mew/Genesect** had Battle VIP Pass FST in hand, no public Item-lock blocker, at least one open Bench slot and **at least four Basic Pokémon cards necessarily remaining in its own deck**, even if all six unknown Prizes were Basics. The canonical owner policy chose **PassTurnAction**, and the genuine Store accepted the Pass in each case.
+
+| Frozen native seat order | Source rank5 physical seat | Actual owner first turn | Observed root | Known registered Basic copies | Conservative minimum Basic still in deck | Native decision |
+| --- | --- | --- | ---: | ---: | ---: | --- |
+| A | 0 | global turn 1 | 0 | 11 | **4** | Accepted Pass |
+| B | 1 | global turn 2 | 3 | 11 | **4** | Accepted Pass |
+
+Each physically different seed arrangement was repeated three times in the A/B/A compatibility protocol, with matching original hands and full physical initial deals. The table represents **two original owner game states**, rather than six independent missed opportunities.
+
+This is a stronger and more specifically grounded signal than the broad 37 Pass frames holding *unresolved* Trainer copies: a paper-printed first-turn-only Item was held while there was provable Basic deck inventory and a Bench opening. The registered deck and K0 bound support the search-target existence. **No native Battle VIP Pass dispatch, choice of one or two Basic Pokémon, actual Bench placement, best competing Supporter/Item line, opponent response or win-rate effect was tested.** The control may have been strategically inferior, but a completed counterfactual must establish any gain. The earlier raw report used 51 disqualified *late* VIP offers; these two authentic *first-owner-turn* VIP Passes are distinct witnesses and must not be combined with late false offers.
+
+The extended A/B/A runner saves source-registered target certificates in its postgame owner-private paper census, behind the same default-off option. Verified source first-turn validity here additionally relies on the actual owner's first-turn ledger and its observed genuine opening state. Both A/B/A physical and action witnesses remained exactly equal; all six Store attempts still reached their action cap.
+
 ## The important rules distinction
 
 The supplied Fusion Strike printed card **swsh8-225**, native **Battle VIP Pass FST**, explicitly permits use **only during the player's first turn**. Native global turn numbers alone do not establish that the particular owner has already taken a first turn: additional or skipped turns can break ordinary alternation.
