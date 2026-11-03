@@ -192,6 +192,11 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
   }
+  if(options.fundedVmaxFloatStoneRoot===true){
+    const mobility=require('./agent31-shadow-rider-funded-bench-floatstone.cjs')
+      .chooseFundedShadowRiderFloatStone(view,catalog);
+    if(mobility)return mobility;
+  }
   if(options.underworldDoorRoot===true){
     const underworld=require('./agent31-underworld-door-owner-frontier.cjs')
       .chooseUnderworldDoorRoot(
@@ -700,6 +705,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
+    fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
+    fundedVmaxFloatStoneRootSelected:0,
     underworldActiveFundingPriorityOptIn:
       deps.underworldActiveFundingPriority===true,
     underworldActiveFundingPrioritySelected:0,
@@ -1250,6 +1257,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
+      fundedVmaxFloatStoneRoot:audit.fundedVmaxFloatStoneRootOptIn===true,
       underworldActiveFundingPriority:
         audit.underworldActiveFundingPriorityOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
@@ -1446,6 +1454,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
+    if(intent.source==='agent31-shadow-rider-funded-bench-floatstone-v1')
+      audit.fundedVmaxFloatStoneRootSelected++;
     if(intent.singleHeldPsychicContestedByUnderworld===true)
       audit.underworldActiveFundingPrioritySelected++;
     if(intent.source==='rank13-dragon-donor')
