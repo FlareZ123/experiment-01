@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {chooseTutorPromptCards,withOwnerResourceTutorAfterPass}=require(
   '../simulation/twinleaf/agent11-native-owner-resource-tutor-after-pass.cjs');
-const VIP='Battle VIP Pass FST',LETTER="Professor's Letter BKT";
+const VIP='Battle VIP Pass FST',LETTER="Professors Letter BKT";
 const BASIC='Mega Absol ex MEG',ENERGY='Darkness Energy MEE';
 const registered=[...Array(12).fill(BASIC),...Array(10).fill(ENERGY),
   ...Array(4).fill(VIP),...Array(4).fill(LETTER),...Array(30).fill('Other')];
