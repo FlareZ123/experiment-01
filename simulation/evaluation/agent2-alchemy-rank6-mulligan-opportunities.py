@@ -43,7 +43,8 @@ def input_decks(root: Path):
         ("Budew", 1), ("Regidrago V", 4)])
     assert all(c0[name] == 1 for name in OTHER_BASICS)
     classify = lambda name: CLASS_NAMES.index(name) if name in CLASS_NAMES else (7 if name in OTHER_BASICS else 8)
-    v0 = np.array([classify(name) for name in cards[0]],dtype=np.int8)
+    # Canonical category ordering makes RNG seeds independent of manifest row order.
+    v0 = np.array(sorted(classify(name) for name in cards[0]),dtype=np.int8)
     v1 = v0.copy()
     v1[np.flatnonzero(v0 == 4)[-1]] = 2
     assert Counter(v1) == Counter(classify(name) for name in cards[1])
