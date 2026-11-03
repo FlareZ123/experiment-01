@@ -14,6 +14,8 @@ const {PokemonCardList}=native('game/store/state/pokemon-card-list');
 const {GamePhase}=native('game/store/state/state');
 const {Format}=native('game/store/card/card-types');
 const {AttackAction}=native('game/store/actions/game-actions');
+const {PlayCardAction,PlayerType,SlotType}=
+  native('game/store/actions/play-card-action');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 
 const original=planAichi(26,{
@@ -48,7 +50,8 @@ function stage(seat){
   const dce=cardBySourcePrefix('Double Colorless Energy');
   const tool=cardBySourcePrefix('Technical Machine: Crisis Punch');
   source.active.cards.push(melo);
-  source.active.energies.cards.push(lightning,dce);
+  source.active.energies.cards.push(lightning);
+  source.hand.cards.push(dce); // Perform actual legal manual attachment below.
   source.active.tools.push(tool);
   source.bench[0].cards.push(cardBySourcePrefix('Squawkabilly ex'));
   const defending=normalCard('Shadow Rider Calyrex V CRE');
@@ -91,6 +94,13 @@ for(const seat of [0,1]){
         toolName:x.tool.fullName,toolAttacks:x.tool.attacks?.map(a=>a.name),
         printedAbility,toolHasAttack}));
     assert.equal(toolHasAttack,true,'original printed TM must expose Crisis Punch');
+    const energyHandIndex=x.source.hand.cards.indexOf(x.dce);
+    assert.ok(energyHandIndex>=0);
+    x.store.dispatch(new PlayCardAction(x.source.id,energyHandIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(x.source.active.energies.cards.includes(x.dce),
+      'normal DCE attachment must settle before the attack');
     const attackAction=new AttackAction(x.source.id,'Crisis Punch');
     console.log('AGENT50_MELOETTA_ATTACK_PRESTATE',JSON.stringify({
       seat,initial,
