@@ -87,7 +87,7 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
     const isAddPlayer=action?.constructor?.name==='AddPlayerAction';
     const isUnderworld=this===liveStore&&
       action?.constructor?.name==='UseAbilityAction'&&
-      action.abilityName==='Underworld Door'&&
+      action.name==='Underworld Door'&&
       Number.isSafeInteger(stateBefore?.activePlayer);
     const record=proposed.get(action);
     let result;
