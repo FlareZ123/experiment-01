@@ -17,6 +17,8 @@ assert.ok(['v1','v2'].includes(REGISTRATION_VERSION));
 const REGISTRATION=path.join(ROOT,'results/aichi-2026/registrations/agent11-owner-resource-tutor-bilateral-'+REGISTRATION_VERSION+'.json');
 const sha256=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+// Opt-in read-only retrospective v2 replay. Never silently mutate frozen v2 receipts.
+const ATTACK_TRACE_REPLAY=process.env.AGENT11_TUTOR_ATTACK_TRACE_REPLAY==='true';
 
 /**
  * Frozen two-seat, two-independent-seed physical-deal development A/B design.
@@ -55,6 +57,9 @@ function run(){
       isolatePolicyRandomness:true,
       captureDecisionTrace:true,
       captureInitialFullPhysicalDeal:true,
+      capturePublicAttackTransitions:ATTACK_TRACE_REPLAY,
+      captureFinalPublicBoard:ATTACK_TRACE_REPLAY,
+      captureNativeAbortEvidence:ATTACK_TRACE_REPLAY,
       label:'agent11-owner-tutor-'+arm.id
     };
     let tutorAudit=null,actorAudit=null,game=null,error=null;
@@ -86,6 +91,15 @@ function run(){
       rootActionLedger:game?.rootActionLedger??null,
       rootActionLedgerSha:game?sha256(game.rootActionLedger??[]):null,
       decisionTraceSha:game?sha256(game.decisionTrace??[]):null,
+      ...(ATTACK_TRACE_REPLAY?{
+        publicAttackTransitions:game?.publicAttackTransitions??null,
+        attackTrace:game?.attackTrace??null,
+        attackDeclarationTrace:game?.attackDeclarationTrace??null,
+        finalPublicBoard:game?.finalPublicBoard??null,
+        prizesRemaining:game?.prizesRemaining??null,
+        source11AttackDeclarations:game?.attackDeclarationTrace?.filter(row=>
+          row.seat!==arm.rank5Seat)??null,
+      }:{}),
       actorAudit,tutorAudit,
       paperGameQualified:false
     });
@@ -109,6 +123,8 @@ function run(){
     });
   }
   return {schema:registered.schema,engine:PIN,
+    ...(ATTACK_TRACE_REPLAY?{attackTraceReplay:'read-only-retrospective-v2-source-payoff-audit-v1',
+      historicalV2RootAuditComparisonRequired:true}:{}),
     runGitSha:process.env.GITHUB_SHA??null,
     codeVersion:BRIDGE_VERSION,
     registrationSha256:sha256(registered),
@@ -142,7 +158,8 @@ if(require.main===module){
     'agent11-owner-tutor-native-'+REGISTRATION_VERSION+'.json');
   saveResult(destination,result);
   process.stdout.write('AGENT11_OWNER_TUTOR_NATIVE '+JSON.stringify({
-    engine:result.engine,observedArms:result.observedArms,
+    engine:result.engine,attackTraceReplay:result.attackTraceReplay??null,
+    enginePinStillFrozen:result.engine===PIN,observedArms:result.observedArms,
     nativeErrors:result.nativeErrors,nativeCaps:result.nativeCaps,
     nativeTerminals:result.nativeTerminals,
     physicalMatched:result.sourcePhysicalParityMatched,
