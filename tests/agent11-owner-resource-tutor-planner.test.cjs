@@ -44,6 +44,23 @@ const play={kind:'pass',reason:'no-supported-owner-visible-root'};
 const plan=(v,roster=original,incumbent=play)=>
   planOwnerResourceTutors(v,catalog,roster,incumbent);
 
+test('resource tutor exact-print keys match published original rank11 sixty',()=>{
+  const manifest=require('../results/aichi-2026/full-decklists.json');
+  const authentic=manifest.decks.find(d=>d.rank===11);
+  assert.ok(authentic);
+  const row=authentic.cards.find(c=>c.name==="Professor's Letter");
+  assert.equal(row?.count,4);
+  assert.equal(row?.printing.set,'BKT');
+  assert.ok(Object.hasOwn(require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs').TARGETS,
+    "Professor's Letter BKT"));
+  assert.ok(!Object.hasOwn(require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs').TARGETS,
+    'Professors Letter BKT'));
+  const expected=authentic.cards.flatMap(c=>
+    Array(c.count).fill(c.name+' '+c.printing.set)).sort();
+  assert.deepEqual([...original].sort(),expected,
+    'Pure resource-tutor fixture must use authentic original exact printed60');
+});
+
 test('registered rank11 printed roster and exact two-K0-lower-bounds',()=>{
   assert.equal(original.length,60);
   const v=view();
