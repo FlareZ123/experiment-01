@@ -1,0 +1,54 @@
+{
+  "schema": "agent1-rank17-electrode-bomb-real-owner-census-registration-v1",
+  "registeredAtUtc": "2026-11-03T15:29:00Z",
+  "status": "immutable-before-native-run",
+  "hypothesis": "The canonical symmetric actor can develop exact original rank17 Electrode-GX CES48 and Alolan Raichu UNM57 without necessarily producing discarded Energy, so a zero observed Extra Energy Bomb count may have a paper-opportunity denominator of zero. Report every physical owner state, including 1-4-card partial opportunities, and do not infer policy weakness from absence alone.",
+  "sourceOriginalRank": 17,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "opponentOriginalRank": 1,
+  "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceNativePolicy": "canonical actor composition, explicit naturalEvolutionRoot:true both physical seats, same in all arms",
+  "observerVersion": "agent1-rank17-electrode-owner-census-v1",
+  "arms": [
+    "canonical-control",
+    "canonical-readonly-observer",
+    "canonical-control-repeat"
+  ],
+  "sourceSeatByGroup": [
+    0,
+    1,
+    0,
+    1
+  ],
+  "nativeSeedsByGroup": [
+    3536421031,
+    728459147,
+    1920663973,
+    2066611947
+  ],
+  "nativeMaxActionsPerArm": 140,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "matching": "All three same physical group must have identical initial full physical deal, source/candidate hashes, root action ledger and complete native decision traces; repeats are not independent games",
+  "registeredDisposition": "Every attempted arm, failure, action cap, native terminal, trace and audit is archived. Count actual observer positive prerequisites separately from full five and zero.",
+  "mainOutcomes": [
+    "allGroupABATraceParity",
+    "actualOwnerRootCount",
+    "sourceElectrodeAndRaichuCopresence",
+    "sourceDiscardEnergyCountsZeroVs1To4Vs5plus",
+    "physicalNecessaryRoots",
+    "publicAbilitySuppressionClues",
+    "chosenRootIntentKinds"
+  ],
+  "exclusions": [
+    "No deck swaps or winner optimization",
+    "No native action selection by observer",
+    "No claim of paper legality or full source competence",
+    "No use of candidate hidden cards in root decision",
+    "No 25-minute clock adjudication",
+    "No qualified matches or 99.5 win-rate inference"
+  ]
+}
