@@ -4,8 +4,31 @@ const assert=require('node:assert/strict');
 const {necessaryTrainerHandPaymentGate}=
   require('./agent49-trainer-hand-payment-veto.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v2-owner-turn-provenance';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v3-five-printed-first-turn-only';
 const VIP='Battle VIP Pass FST';
+/**
+ * Exact paper source printings with an exclusive first-owner-turn window.
+ * Source identifiers are from the supplied English card database; native
+ * fullName uses the set's PTCGO code. Additional going-second restrictions
+ * exist on four printings but are deliberately left unverified here.
+ * Frozen object prevents treating alternate unrelated printings as eligible.
+ */
+const FIRST_OWNER_TURN_ONLY=Object.freeze({
+  [VIP]:Object.freeze({sourceId:'swsh8-225',requiresGoingSecond:false}),
+  'Wait and See Hammer LOT':Object.freeze({
+    sourceId:'sm8-192',alsoVariant:'sm8-236',requiresGoingSecond:true
+  }),
+  'Wait and See Turbo ASR':Object.freeze({
+    sourceId:'swsh10-158',requiresGoingSecond:true
+  }),
+  'Call Bell SSP':Object.freeze({
+    sourceId:'sv8-165',requiresGoingSecond:true
+  }),
+  'Chill Teaser Toy SSP':Object.freeze({
+    sourceId:'sv8-166',requiresGoingSecond:true
+  })
+});
+
 
 /**
  * Verify a printed first-OWNER-turn restriction against witnessed real owner
@@ -32,15 +55,22 @@ function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
     assert.equal(ownerTurnReceipt.provenPastFirstOwnerTurn,
       ownerTurnReceipt.distinctObservedOwnerTurns>=2);
   }
-  if(printing===VIP){
+  const firstOnly=Object.hasOwn(FIRST_OWNER_TURN_ONLY,printing)?
+    FIRST_OWNER_TURN_ONLY[printing]:null;
+  if(firstOnly){
     const expired=ownerTurnReceipt?.provenPastFirstOwnerTurn===true;
     const conservativeDecline=!expired&&view.globalTurn>2;
+    const slug=printing.toLowerCase().replace(/[^a-z0-9]+/g,'-')
+      .replace(/-+$/,'');
     return {
       printing,printedRuleKnown:true,
+      sourceCardId:firstOnly.sourceId,
+      additionallyRequiresGoingSecond:firstOnly.requiresGoingSecond,
+      goingSecondEligibility:'unverified',
       status:expired?'blocked':
         conservativeDecline?'unresolved-owner-turn-history':
           'unresolved-opening-turn',
-      blocker:expired?'battle-vip-pass-first-owner-turn-expired':null,
+      blocker:expired?slug+'-first-owner-turn-expired':null,
       conservativeDecline,
       ineligibilityProven:expired,
       positivelyCertified:false
@@ -128,5 +158,6 @@ function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
 }
 
 module.exports={
-  VERSION,VIP,printedTrainerTurnScreen,screenOwnerTrainerPaperNecessity
+  VERSION,VIP,FIRST_OWNER_TURN_ONLY,printedTrainerTurnScreen,
+  screenOwnerTrainerPaperNecessity
 };
