@@ -41,6 +41,9 @@ jobs:
         env:
           AGENT34_OWNER_UNDERWORLD_POSTHOC_OUTPUT: agent34-underworld-owner-posthoc.json
         run: node simulation/evaluation/agent34-rank1-underworld-owner-prompt-posthoc-development.cjs
+      - name: Audit real native source attack conversion
+        if: ${{ inputs.posthoc_rank1 }}
+        run: node simulation/evaluation/agent34-underworld-native-attack-conversion-report.cjs
       - name: Preserve matched historical native raw records
         if: ${{ inputs.posthoc_rank1 }}
         uses: actions/upload-artifact@v4
