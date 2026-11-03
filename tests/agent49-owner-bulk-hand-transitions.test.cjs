@@ -75,6 +75,9 @@ test('all-other-hand discards include every protected owner singleton',()=>{
   assert.deepEqual(result.movedHandCopies.map(x=>x.handIndex),[1,2,3]);
   assert.equal(result.drawnCardCountRequested,5);
   assert.equal(result.effectIsNotActivationPayment,true);
+  assert.equal(result.unmarkedHandCardStrategicValue,'unassessed');
+  assert.equal(result.protectedMarkersAreSelectiveRatherThanComplete,true);
+  assert.equal(result.sourceSupporterIndexWasMarkedProtected,false);
   assert.equal(result.paperPlayabilityCertified,false);
   assert.equal(result.physicalZoneTransitionUnverified,true);
   assert.equal(hand.length,4);
