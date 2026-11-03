@@ -1,0 +1,115 @@
+{
+  "schema": "agent10-rank11-original-source-eight-physical-deal-prospective-replication-v1",
+  "registeredAtUtc": "2026-11-03T00:49:34.709924Z",
+  "sourceRng": "Python secrets.randbits(32) exactly once for each listed physical group, drawn before any native attempts",
+  "question": "Does an actor-visible, print-specific Mega Absol staged funding proposal from the rank11 source repeatedly change action/Prize lines on genuinely new original source deals and both physical seats?",
+  "origin": "Source original printed rank11 Absol Garbodor 60 as authenticated in full-decklists.json; fixed candidate 60s champion-reference and New Moon v1",
+  "sourceRank": 11,
+  "seedGroups": [
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3967716054
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3137836609
+    },
+    {
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "seed": 3715598968
+    },
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "seed": 74751968
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1729312511
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1690022697
+    },
+    {
+      "rank": 11,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "seed": 659434129
+    },
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "seed": 1800616448
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trialIds": [
+    "11:0:A:champion-reference",
+    "11:0:A:new-moon-lockbreaker-v1",
+    "11:1:A:champion-reference",
+    "11:1:A:new-moon-lockbreaker-v1",
+    "11:2:A:champion-reference",
+    "11:2:A:new-moon-lockbreaker-v1",
+    "11:3:A:champion-reference",
+    "11:3:A:new-moon-lockbreaker-v1",
+    "11:0:B:champion-reference",
+    "11:0:B:new-moon-lockbreaker-v1",
+    "11:1:B:champion-reference",
+    "11:1:B:new-moon-lockbreaker-v1",
+    "11:2:B:champion-reference",
+    "11:2:B:new-moon-lockbreaker-v1",
+    "11:3:B:champion-reference",
+    "11:3:B:new-moon-lockbreaker-v1"
+  ],
+  "totalIndependentOriginalSeedGroups": 8,
+  "pairsPerSeedGroup": 2,
+  "trialsPerPolicy": 16,
+  "policies": {
+    "control": {
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorFlexiblePaidRetreatRoot": false
+    },
+    "fundingOnly": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorFlexiblePaidRetreatRoot": false
+    }
+  },
+  "totalNativeAttempts": 32,
+  "exactOriginalPrinted60": true,
+  "originalSeedGroupsDisjointFromParentPilot": true,
+  "researchQuestionSources": [
+    "results/aichi-2026/agent10-prospective-five-rank-funding-mobility-40-native-20261103.md",
+    "results/aichi-2026/agent10-rank9-retreat-two-physical-fee-routes-native-20261103.md"
+  ],
+  "requiredMetrics": [
+    "original source/candidate 60 SHA256",
+    "full both-player physical initial deal parity across policies",
+    "actual starter seat",
+    "first different Store root",
+    "first owner Darkness recipient and subsequent attack",
+    "source real Claw and Motivate counts",
+    "KO and Prize settlement and next opponent action",
+    "all native errors and 260-action censors",
+    "source/seat/seed groups, no pseudoreplication"
+  ],
+  "preregisteredSelectionNote": "Fresh eight new rank11 source seed groups not selected by event, status, turn, winner, observed hand, or matchup outcome",
+  "unitOfReplication": "independent original source seed group and original seat; the two different candidate lists sharing each group are separate candidate matchups, not independent source-seed replications",
+  "qualifiedGames": 0,
+  "competitivelyQualifiedWinRateClaim": "none"
+}
