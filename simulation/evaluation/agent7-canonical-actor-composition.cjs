@@ -90,6 +90,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let guzmaPromptAudit = null;
   let ownerDonorAudit = null;
   let ownerSupporterOpportunityAudit = null;
+  let ownerTrainerFrontierAudit = null;
   let ownerShuffleSupporterAudit = null;
   let ownerHammerAfterPassAudit = null;
   let ownerRank9CompressorAudit = null;
@@ -105,11 +106,23 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   // The last-installed handler must see root Pass AND all three Plumeria
   // prompts before lower-priority prompt handlers can consume them.
   const plumeriaAfterPassOptIn=options.ownerPlumeriaAfterPass===true;
+  // Reuse the existing generic owner-hand Trainer frontier on BOTH seats.
+  // It is read-only and installed closest to the actual native decision.
+  const runWithTrainerFrontier=()=>{
+    if(options.ownerGenericTrainerFrontier!==true)return execute();
+    const adapter=adapters.trainerFrontier??
+      require('../twinleaf/agent29-bilateral-owner-trainer-frontier.cjs')
+        .withBilateralOwnerTrainerFrontier;
+    const observed=adapter(execute);
+    assert.ok(observed?.audit,'Generic Trainer frontier must expose audit');
+    ownerTrainerFrontierAudit=observed.audit;
+    return observed.result;
+  };
   const runWithNativeFlarePrompt=()=>{
-    if(options.sameRootNativeFreeFlareChoice!==true)return execute();
+    if(options.sameRootNativeFreeFlareChoice!==true)return runWithTrainerFrontier();
     const bridge=require('../twinleaf/agent41-same-root-native-flare-prompt.cjs')
       .withNativeActorFlarePrompt;
-    const selected=bridge(execute);
+    const selected=bridge(runWithTrainerFrontier);
     ownerNativeFlarePromptAudit=selected.audit;
     return selected.result;
   };
@@ -264,6 +277,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     'Enabled owner donor root must return its actual canonical audit');
   if(supporterOpportunityOptIn)assert.ok(ownerSupporterOpportunityAudit,
     'Enabled owner Supporter audit must have observed the live executor');
+  if(options.ownerGenericTrainerFrontier===true)assert.ok(ownerTrainerFrontierAudit,
+    'Enabled generic Trainer frontier must return a two-seat audit');
   if(hammerAfterPassOptIn)assert.ok(ownerHammerAfterPassAudit,
     'Enabled owner Hammer requires genuine native audit');
   if(plumeriaOpportunityOptIn)assert.ok(ownerPlumeriaOpportunityAudit,
@@ -312,6 +327,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (vipAfterPassOptIn?'+'+require('../twinleaf/agent9-battle-vip-owner-after-pass.cjs').VERSION:'')+
       (ownerVipBeforeAttackAudit?'+'+ownerVipBeforeAttackAudit.version:'')+
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
+      (options.ownerGenericTrainerFrontier===true?
+        '+agent29-bilateral-generic-trainer-frontier-transport-v1':'')+
       (plumeriaAfterPassOptIn?'+'+ownerPlumeriaAfterPassAudit.version:'')+
       (ownerNativeFlarePromptAudit?'+'+ownerNativeFlarePromptAudit.version:'')+
       (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
@@ -324,6 +341,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     sparseOwnerSearchOptIn:sparseOwnerSearch,
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
+    ownerGenericTrainerFrontierOptIn:options.ownerGenericTrainerFrontier===true,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
     ownerPlumeriaAfterPassOptIn:plumeriaAfterPassOptIn,
     ownerNativeFlarePromptOptIn:options.sameRootNativeFreeFlareChoice===true,
@@ -473,6 +491,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerDonorAudit,
     guzmaPromptAudit,
     ownerSupporterOpportunityAudit,
+    ownerTrainerFrontierAudit,
     ownerPlumeriaOpportunityAudit,
     ownerPlumeriaAfterPassAudit,
     ownerNativeFlarePromptAudit,
@@ -496,6 +515,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       root: rootAudit,
       ...(supporterOpportunityOptIn?{
         ownerSupporterOpportunity:ownerSupporterOpportunityAudit
+      }:{}),
+      ...(ownerTrainerFrontierAudit?{
+        ownerGenericTrainerFrontier:ownerTrainerFrontierAudit
       }:{}),
       ...(plumeriaOpportunityOptIn?{
         ownerPlumeriaOpportunity:ownerPlumeriaOpportunityAudit
