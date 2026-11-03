@@ -31,6 +31,8 @@ jobs:
         run: npm run compile
       - name: Verify native PokéStop Stadium alternative under source rank2 and rank15 locks
         run: node simulation/twinleaf/agent25-vileplume-pokestop-native-stadium.cjs > agent25-vileplume-pokestop-native-stadium.json
+      - name: Print staged neutral and original-source lock differential
+        run: node -e "const x=require('./agent25-vileplume-pokestop-native-stadium.json'); console.log(JSON.stringify(x.rows.map(r=>({rank:r.sourceRank,seat:r.candidateSeat,preReject:r.probeBlockedActions,stadium:r.genuineStoreStadiumSettled,itemDenied:r.genuineStoreItemDenied,supporterDenied:r.genuineStoreSupporterDenied,shuppetRestored:r.abilityRestoredOnSilentLabReplacement}))))"
       - name: Archive four staged real Stadium actions and lock rejection controls
         if: always()
         uses: actions/upload-artifact@v4
