@@ -1,60 +1,32 @@
 'use strict';
 
-const assert=require('node:assert/strict');
-const path=require('node:path');
-const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const {withNumericShufflePromptValidation}=
+  require('./agent33-shuffle-prompt-numeric-validation.cjs');
 
 /**
- * Correct a specific pinned Twinleaf ShuffleDeckPrompt validator defect:
- * its `result.slice().sort()` compares integer card indices as strings,
- * making any shuffle of >= 11 cards fail. Do not edit the vendor submodule.
- *
- * This temporarily patches only the explicit passed class's prototype and
- * restores it in finally, even if the native Store or caller throws.
- * It does not manipulate a deck, a shuffle result, or either actor's state.
- *
+ * Compatibility adapter for the Agent43 owner-selected Muk study. Delegates
+ * the pinned numeric shuffle bug to Agent33's already independently native-
+ * verified and reversible research hook, avoiding a second implementation.
  * @template T
- * @param {()=>T} work Synchronous native research operation.
- * @param {{ShuffleDeckPrompt?:Function}} [types] Pinned type or test double.
- * @returns {{result:T,audit:{version:string,correctedValidations:number,
- * rejectedValidations:number,restored:boolean}}}
+ * @param {()=>T} work Synchronous pinned native research operation.
+ * @param {{ShuffleDeckPrompt?:Function}} [types] Exact pinned class or test double.
+ * @returns {{result:T,audit:object}}
  */
 function withNumericShuffleIndexValidation(work,types={}) {
-  assert.equal(typeof work,'function');
-  const ShuffleDeckPrompt=types.ShuffleDeckPrompt??
-    require(path.join(ROOT,'game/store/prompts/shuffle-prompt')).ShuffleDeckPrompt;
-  const proto=ShuffleDeckPrompt.prototype;
-  const original=proto.validate;
-  assert.equal(typeof original,'function');
-  // Fail loudly if a new vendor revision changes the implementation;
-  // otherwise a compatibility hook could obscure an upstream fix.
-  assert.ok(original.toString().includes('.sort()'),
-    'Pinned lexicographic shuffle validator no longer matches: re-audit hook');
-  const audit={version:'agent43-twinleaf-a9905-numeric-shuffle-validation-v1',
-    correctedValidations:0,rejectedValidations:0,restored:false};
-  proto.validate=function(result,state) {
-    const player=state.players.find(p=>p.id===this.getPerspectivePlayerId());
-    if(!Array.isArray(result)||!player||
-       result.length!==player.deck.cards.length) {
-      audit.rejectedValidations++;
-      return false;
+  const run=withNumericShufflePromptValidation(work,types);
+  return {
+    result:run.result,
+    audit:{
+      version:'agent43-adapter-to-agent33-numeric-shuffle-v2',
+      underlying:run.audit.version,
+      correctedValidations:run.audit.correctedAccepted,
+      rejectedValidations:run.audit.correctedRejected,
+      rawRejectedCorrected:run.audit.rawRejectedCorrected,
+      // Agent33's synchronous helper has completed its finally and has
+      // restored the original prototype by the time it returns.
+      restored:true
     }
-    const sorted=result.slice().sort((a,b)=>a-b);
-    for(let i=0;i<sorted.length;i++) {
-      if(sorted[i]!==i) {
-        audit.rejectedValidations++;
-        return false;
-      }
-    }
-    audit.correctedValidations++;
-    return true;
   };
-  try {
-    return {result:work(),audit};
-  }finally{
-    proto.validate=original;
-    audit.restored=true;
-  }
 }
 
 module.exports={withNumericShuffleIndexValidation};
