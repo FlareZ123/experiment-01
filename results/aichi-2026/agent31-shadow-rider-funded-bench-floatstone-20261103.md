@@ -1,0 +1,27 @@
+# Underworld Door rank-1 source policy: already-funded Benched VMAX and held Float Stone
+
+**Agent31 | 3 November 2026 | default-off policy development.** Research goal remains one legal fixed 60 across all Aichi 2026 Top32 original paper Expanded opponents. No competitive-paper match is qualified here.
+
+## Origin and falsifiable hypothesis
+
+The independent [Agent34 retrospective native rank-1 report](agent34-underworld-active-funding-contention-20261103.md) documented actual game `1:1:B:champion-reference`. Its control contained seven source attack roots before a source-native terminal. Its matched Underworld-enabled treatment physically accumulated six Psychic Energy on a Benched Shadow Rider Calyrex VMAX while the Active VMAX retained one Psychic, and it recorded zero original-source AttackAction roots before a 260-root censor. Nineteen source Pass roots held Float Stone. These are **correlated game-path observations**; the report does not establish that an individual Pass had all the other prerequisites for a legal retreat.
+
+The existing general owner-only [Float Stone helper](../../simulation/twinleaf/agent1-owner-float-stone-mobility.cjs) requires **zero** Energy on the Active Pokémon. It therefore cannot make a Tool-to-retreat proposal in the specific publicly observed 1-Energy Active / 6-Energy Bench VMAX end state. The printed VMAX Max Geist attack needs three Colorless units and the source rank-1 60 contains a Float Stone. A correctly played Tool could enable a free Retreat into the already-funded VMAX when no applicable Tool suppression or retreat restriction exists. Actual opponent follow-through, attack permission, damage and Prize outcomes remain untested in the historical trial.
+
+## New opt-in, actor-public rescue frontier
+
+`simulation/twinleaf/agent31-shadow-rider-funded-bench-floatstone.cjs` implements `chooseFundedShadowRiderFloatStone` using only the detached acting-owner hand and public board. It requires the active printing `Shadow Rider Calyrex VMAX CRE`, 1–2 attached exact-print Basic Psychic Energy, its otherwise unpaid printed three-Colorless Max Geist, and at least one already-funded Benched VMAX with the same attack. It declines previously spent retreat, visible retreat restrictions or disabling Special Conditions, public attack lock, known Jamming Tower or opponent's Active Tool Jammer, an occupied Tool slot, and a known Tool-play lock. It chooses a lower-damage eligible Bench if several qualify.
+
+When Float Stone is held, it returns the existing `attach-emergency-floatstone` intent with the real own-hand index. After a real native Store Tool attachment, a subsequent eligible owner root returns the existing `retreat-emergency-floatstone` intent targeting the funded VMAX. The owner still must execute the attack through the genuine native Store. This is a deliberately conservative *opportunity proposal*, not a comprehensive retreat-cost engine, legality proof, or guarantee of strategic preference against alternative lines.
+
+Both existing intent kinds already map to native `PlayCardAction` and `RetreatAction` in `simulation/twinleaf/agent34-actor-only-root-policy.cjs`. The new option `fundedVmaxFloatStoneRoot` is **default off** and evaluated before the Underworld Door root when explicitly selected. It does not rewrite underlying Twinleaf code. The bilateral development runner exposes `actorFundedShadowRiderFloatStoneRoot`, default off, and requires symmetric actor-only policy in both physical seats. Other root flags, frozen game profiles, and published outcomes are unchanged.
+
+## Verification and boundaries
+
+The original pure implementation passed **10 local Node 22 adversarial tests**, including eligible held/attached Tool, Active/Bench funding, locked Tool and retreat, off-type Special Energy, absence of recipient and prior retreat. The repository preserves a smaller three-test suite at `tests/agent31-shadow-rider-funded-bench-floatstone.test.cjs`.
+
+The separate [pinned genuine Store two-seat staged test](../../tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs) prepares actual VMAX printings, 1 Active and 6 Bench Psychic Energy, one held physical Float Stone, paper-format native Store and a real opponent Active. It checks Tool hand consumption, printed zero retreat cost, native promotion, Energy preservation, a real Max Geist attack and defender damage. The test is included in the pre-existing manually dispatched [owner prompt CI](https://github.com/FlareZ123/experiment-01/actions/workflows/agent34-underworld-owner-prompt-native.yml), with no commit-triggered workflow added. **Compiled native verification is pending as of this entry.** An earlier pure-only workflow dispatched at 17:57 UTC does not cover the staged test added afterward.
+
+A staged successful attack would validate a narrow paper-cost sequence. The next decision-changing test is an explicitly registered source-rank-1, both-seat **same original physical deal** comparison with the typed Underworld prompt and full effect witnesses held fixed. It must preserve the exact actual source root and proposed Tool/retreat/attack chain, Store payment, damage, opponent response, native censor and abort status. This work does not justify calling any native terminal a qualified competitive match.
+
+**External benchmark status:** 29/32 source 60-card lists authenticated (ranks 23/25/28 unresolved); zero competitively paper-qualified games; no selected fixed 60 and no demonstrated 99.5% field win rate.
