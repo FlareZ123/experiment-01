@@ -1,0 +1,48 @@
+{
+  "schema": "agent14-rank11-native-catcher-plus-symmetric-held-guzma-falsification-v1",
+  "registeredAtUtc": "2026-11-03T05:59:00Z",
+  "researchClass": "Retrospective prior exposed original source seed; direct held Supporter answer to native Counter Catcher; no independent generalization",
+  "priorBaselineCI": 41585051181,
+  "priorCounterCatcherArtifact": 13208060321,
+  "priorFloatStoneFalsificationCI": 41586122921,
+  "originalSourceRank": 11,
+  "sourceSeed": 2171744612,
+  "sourcePhysicalFingerprint": "9729f263853796e3774f787075edfbea1742dfa225c91bfdf030718f90f4bdee",
+  "sourceActuallyFirstSeat": 1,
+  "nativeEngineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "jointProfile": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+  "jointProfileBlob": "8cd0c4b0734d3223d5c8c1f705f3af651f815c02",
+  "frozenCounterCatcherResponse": "simulation/twinleaf/agent14-behind-counter-response-native.cjs",
+  "frozenCounterCatcherResponseBlob": "0699c949c9cd7950607e7c7a8739a3dcc86b3e4f",
+  "nativeHeldGuzmaSelector": "simulation/twinleaf/agent2-held-guzma-mobility-frontier.cjs",
+  "treatment": "Existing Actor34 heldGuzmaMobility=true for both seats with FloatStone option unchanged false; unchanged registered Counter Catcher intervention from previous original source replay",
+  "trials": [
+    {
+      "rank": 11,
+      "repeat": 416,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "champion-reference",
+      "id": "11:416:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 416,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:416:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "requiredReceipts": [
+    "Same original physical source and starter",
+    "First genuine source Claw T31",
+    "Counter Catcher accepted T32 with actual native Pokémon target",
+    "Source T33 held Guzma native Store canPlay and prompt continuation",
+    "Own physical Active/Bench switch",
+    "Funded Claw resumption or explicit failure category"
+  ],
+  "comparativeInterpretation": "Counter Catcher plus a Supporter escape branch compared with exact same previous baseline and Counter Catcher-only game, no new source-deal information",
+  "competitiveGameQualified": false,
+  "expectedAttempts": 2
+}
