@@ -1,0 +1,106 @@
+{
+  "schema": "agent13-rank5-quickball-out-of-sample-first-exposure-v1",
+  "registeredAtUtc": "2026-11-03T04:37:20Z",
+  "purpose": "First held-out, independent native physical-source seed sample to assess how often adding the existing restrictive symmetric Quick Ball actor root plus cost/search handlers changes original rank5 source attack competence under the already successful bilateral first-turn VIP after-Pass policy",
+  "randomization": "Eight independently RNG drawn 32-bit positive native seed integers, one for each of four repeats per candidate physical seat; each seed is reused only to match unchanged candidate printed sixties between control and treatment, never to choose an outcome",
+  "seedGroups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 0,
+      "seed": 312859839
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 1,
+      "seed": 2611248863
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 2,
+      "seed": 2279216022
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 3,
+      "seed": 3856624973
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 0,
+      "seed": 4236942449
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 1,
+      "seed": 651734433
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 2,
+      "seed": 285344053
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 3,
+      "seed": 3179396564
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "ranks": [
+    5
+  ],
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedBaseProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "pinnedBaseRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "existingQuickBallRunnerGitBlobSha": "cd86735d0c26ebb2696bf7c1c6966fc4f5ca7593",
+  "existingVipRunnerGitBlobSha": "95e78ba838366c534a3745405430d214655a966b",
+  "pinnedVendorRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "modes": [
+    {
+      "id": "vip_only_outsample_control",
+      "vipAfterPass": true,
+      "quickBallRoot": false,
+      "ownerSearch": false,
+      "ownerDiscard": false
+    },
+    {
+      "id": "vip_and_quickball_full_outsample",
+      "vipAfterPass": true,
+      "quickBallRoot": true,
+      "ownerSearch": true,
+      "ownerDiscard": true
+    }
+  ],
+  "unseenNativeSourceDeals": 16,
+  "expectedAttempts": 32,
+  "cap": 260,
+  "outcomes": [
+    "native original rank5 source copied Techno Blast declarations",
+    "settled attack count and opponent next-turn response",
+    "first Mew VMAX evolutionary turn",
+    "native owner Quick Ball and BVIP accepted roots",
+    "owner physical DCE as a paid item cost",
+    "source actual physical fingerprint",
+    "game terminal, action cap or error"
+  ],
+  "aggregation": "Report by candidate print60 and source/candidate physical seat, retain all successes and failures and per-source-pair differences, no pseudoreplicate 32 'games' win denominator",
+  "negativeControls": "When Quick Ball missing or unsupported keep exact same ledger; require original source physical fingerprint equality before paired score",
+  "qualification": {
+    "paperRule": false,
+    "competentFullPolicy": false,
+    "paperClock": false,
+    "competitiveWinRate": false,
+    "target995": false
+  }
+}
