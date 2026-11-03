@@ -34,3 +34,14 @@ An opposing Pokémon on the Bench destroys the simple one-attack/no-Pokémon-lef
 The currently published [rank26 Exeggcute Pump source hook](../../simulation/twinleaf/rank26-exeggcute-pump-policy.cjs) intentionally filters its Damage Pump donor choices to **non-Exeggcute** Pokémon. It would miss this new ready-to-use third Pump. A scoped opt-in experiment should test an **Egg-to-Egg** third-Pump source-root choice against a genuine pinned native Store with exact original list, paper-valid cost/payment, Prize receipts, Koko's two-target attachment and the final attack. As a prospective game research step, compare untouched source physical deals against a registered unlocked defender and retain all failures. Do not infer source first-turn win probability from this conditional proof.
 
 The original rank26 adversary consequently has a weaker **required extra-Basic access gate** than suggested by the earlier three-Unown witness. The Agent50 [ADP/Alchemy solo-opening comparison](agent50-mulligan-transfer-falsifier-20261103.md) remains an *opening exposure* statistic only; source completion probability is UNKNOWN. The field still has 29/32 authenticated originals, zero competitively qualified games and no demonstrated 99.5% fixed-deck win rate.
+
+
+## Exact static Prize-collision counterexample for the three-Unown construction
+
+The source has **four Unown AOR30**, two distinguished physical Exeggcute, singleton Meloetta and singleton Tapu Koko. Condition on the **four core physical cards** all remaining outside the original six Prizes. The six Prizes are then sampled from 56 cards, four of which are Unown. The chance that **at least two Unown are Prized** is
+
+`[C(4,2)C(52,4)+C(4,3)C(52,3)+C(4,4)C(52,2)]/C(56,6) = 5.2792071660%`.
+
+On this event, only two or fewer distinct Unown are outside Prizes. The earlier **specific three-Unown donor construction** cannot directly access three distinct Unown from the deck/hand; the new zero-Unown construction is not blocked by that particular Prize configuration. The chance all four core cards are unprized is `C(56,6)/C(60,6) = 64.8540404196%`, and the chance of their conjunction with at least two Unown Prized is **3.4237791493% of all unconditioned six-Prize configurations**.
+
+This is a strictly bounded **card-location collision witness**. It is not the success-probability difference between actual policies, even under this event: source Heavy Ball/Ticket could recover Prized Unown, an Unown could be recycled through other routes, the new line has other draw/search/activation requirements, and neither line may be playable in the same opening. Basic-valid hand conditioning, matchup effects, and first-turn assembly are excluded. Exact BigInt regression is in the linked paper-ledger SFT.
