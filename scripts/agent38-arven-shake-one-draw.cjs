@@ -38,7 +38,7 @@ function exactOneDrawCounts(q) {
   const basicCount=t+b;
   const basicValid=(choose(N,setupSize)-choose(N-basicCount,setupSize))*
     BigInt(N-seenSize+1)*prizeWays;
-  let direct=0n,arven=0n,union=0n;
+  let direct=0n,arven=0n,union=0n,hybridArven=0n,hybridUnion=0n;
   for(let ht=1;ht<=Math.min(t,seenSize);ht++){
     for(let ha=0;ha<=Math.min(a,seenSize-ht);ha++){
       for(let hs=0;hs<=Math.min(s,seenSize-ht-ha);hs++){
@@ -92,6 +92,29 @@ function exactOneDrawCounts(q) {
               direct+=weight*directWays;
               arven+=weight*arvenWays;
               union+=weight*(directWays+arvenWays-bothWays);
+
+              // Broader same-60 assisted line: Arven obtains any *missing*
+              // member(s) of Shake/Stone. If one is already held, search
+              // for the other type; type-restricted deck searches may
+              // select fewer cards under the supplied paper rules.
+              let hybridWays=0n;
+              if(ha>0){
+                const required=[remaining[2]];
+                if(hs===0)required.push(remaining[0]);
+                if(hf===0)required.push(remaining[1]);
+                for(let mask=0;mask<(1<<required.length);mask++){
+                  let absent=0,selected=0;
+                  for(let i=0;i<required.length;i++)if(mask&(1<<i)){
+                    absent+=required[i];selected++;
+                  }
+                  const term=choose(rest-absent,prizes-absent);
+                  hybridWays+=selected%2?-term:term;
+                }
+              }
+              hybridArven+=weight*hybridWays;
+              // When both Shake and Stone are held, hybridWays includes
+              // the entire direct line if Arven is also held.
+              hybridUnion+=weight*(ha>0?hybridWays:directWays);
             }
           }
         }
@@ -100,18 +123,25 @@ function exactOneDrawCounts(q) {
   }
   assert.ok(basicValid>=0n&&basicValid<=denominator);
   assert.ok(union>=direct&&union>=arven&&union<=direct+arven);
+  assert.ok(hybridUnion>=union&&hybridUnion>=direct&&hybridArven>=arven);
   const numerical=n=>Number(n)/Number(denominator);
   return {
     denominator:String(denominator),validOpeningNumerator:String(basicValid),
     directNumerator:String(direct),arvenNumerator:String(arven),
     unionNumerator:String(union),
+    hybridArvenNumerator:String(hybridArven),
+    hybridUnionNumerator:String(hybridUnion),
     basicValidProbability:numerical(basicValid),
     directAndValidProbability:numerical(direct),
     arvenAndValidProbability:numerical(arven),
     unionAndValidProbability:numerical(union),
+    hybridArvenAndValidProbability:numerical(hybridArven),
+    hybridUnionAndValidProbability:numerical(hybridUnion),
     directConditionalValid:Number(direct)/Number(basicValid),
     arvenConditionalValid:Number(arven)/Number(basicValid),
-    unionConditionalValid:Number(union)/Number(basicValid)
+    unionConditionalValid:Number(union)/Number(basicValid),
+    hybridArvenConditionalValid:Number(hybridArven)/Number(basicValid),
+    hybridUnionConditionalValid:Number(hybridUnion)/Number(basicValid)
   };
 }
 
