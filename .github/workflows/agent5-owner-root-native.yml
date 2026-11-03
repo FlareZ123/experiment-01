@@ -97,6 +97,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent9_native_trainer_scorer:
+        description: 'Read-only full-bot scorer-call census across 4 original rank5/11 Trainer fallback physical cohorts, zero qualified games'
+        required: false
+        type: boolean
+        default: false
       agent27_owner_payment_aba:
         description: 'Read-only exact owner-hand discard affordability on original 5/11 historic A/B/A'
         required: false
@@ -153,6 +158,17 @@ jobs:
         run: node --test tests/agent9-native-fallback-hidden-order-counterexample.test.cjs
       - name: Falsify generic Trainer fallback with exact original rank-5 printed 60
         run: node --test tests/agent9-rank5-mail-native-fallback-hidden-order.test.cjs
+      - name: Observe real owner native Trainer delegated scorer calls on four registered source deal cohorts
+        if: ${{ inputs.agent9_native_trainer_scorer }}
+        run: node simulation/twinleaf/agent9-native-trainer-realroot-score-census.cjs
+      - name: Preserve complete original-deal real native scorer census with zero competitive games
+        if: ${{ always() && inputs.agent9_native_trainer_scorer }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-original-source-native-trainer-scorer-v1
+          path: agent9-native-trainer-realroot-score-census.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Preregistered actual Store generic native Trainer fallback across rank5/rank11 A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node simulation/twinleaf/agent50-generic-owner-native-trainer-paired-v1.cjs
