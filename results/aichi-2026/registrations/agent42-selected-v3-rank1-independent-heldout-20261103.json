@@ -1,0 +1,191 @@
+{
+  "schema": "agent42-prospective-selected-v3-rank1-240root-A-B-A-20261103-v1",
+  "registeredBeforeFirstNativeAttempt": true,
+  "registrationTimestampUtc": "2026-11-03T21:22:26.332Z",
+  "objective": "Independent original-rank1 Shadow Rider physical-source propensity for combined selected-v3 to execute paid Float Stone root and obtain meaningful opponent reply in complete genuine Store attempts, not a field win-rate or candidate-deck optimization measure",
+  "priorDevelopmentRun": 41718782033,
+  "priorHistoricalPositiveSeed": 1122744069,
+  "priorNativeCapExtensionRun": 41720765658,
+  "originalAichiSourceRank": 1,
+  "originalPaperSourceSixtyUnchanged": true,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "printedCandidateSixtiesUnchanged": true,
+  "sourceRoleSymmetricBothPhysicalSeats": true,
+  "modeOrder": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "commonPolicyFrom": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "commonPolicyRegistrationBlob": "8b7f7dfd271937fc613d277f03941dda663734ff",
+  "pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "onlyModeDifferences": "Exactly same two selected-v3 flags ownerGenericTrainerFrontier and actorFundedShadowRiderFloatStoneRoot, set false/false control and true/true selected. No change to original 60s, candidate 60s or other actor decision policy within A/B/A.",
+  "actionCap": 240,
+  "seedsMethod": "Python secrets.randbits(32) repeated until eight unique 32-bit values not among the previously observed original Agent31 heldout and earlier selected-v3 trial seeds; four independent groups per original physical seat. Eight groups each include two fixed candidates and three A/B/A arms.",
+  "previouslyExcludedSeeds": "Historical positive 1122744069 and other 7 Agent31 heldout and 8 distinct selected-v3 original seeds; 16 excluded unique seed values",
+  "seeds": {
+    "A": [
+      3907438536,
+      2096412288,
+      884910343,
+      261773699
+    ],
+    "B": [
+      939422527,
+      2127929784,
+      2065669026,
+      875650124
+    ]
+  },
+  "trials": [
+    {
+      "id": "1:430:A:champion-reference",
+      "rank": 1,
+      "repeat": 430,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3907438536
+    },
+    {
+      "id": "1:430:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 430,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3907438536
+    },
+    {
+      "id": "1:431:A:champion-reference",
+      "rank": 1,
+      "repeat": 431,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2096412288
+    },
+    {
+      "id": "1:431:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 431,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2096412288
+    },
+    {
+      "id": "1:432:A:champion-reference",
+      "rank": 1,
+      "repeat": 432,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 884910343
+    },
+    {
+      "id": "1:432:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 432,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 884910343
+    },
+    {
+      "id": "1:433:A:champion-reference",
+      "rank": 1,
+      "repeat": 433,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 261773699
+    },
+    {
+      "id": "1:433:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 433,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 261773699
+    },
+    {
+      "id": "1:430:B:champion-reference",
+      "rank": 1,
+      "repeat": 430,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 939422527
+    },
+    {
+      "id": "1:430:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 430,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 939422527
+    },
+    {
+      "id": "1:431:B:champion-reference",
+      "rank": 1,
+      "repeat": 431,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2127929784
+    },
+    {
+      "id": "1:431:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 431,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2127929784
+    },
+    {
+      "id": "1:432:B:champion-reference",
+      "rank": 1,
+      "repeat": 432,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2065669026
+    },
+    {
+      "id": "1:432:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 432,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2065669026
+    },
+    {
+      "id": "1:433:B:champion-reference",
+      "rank": 1,
+      "repeat": 433,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 875650124
+    },
+    {
+      "id": "1:433:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 433,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 875650124
+    }
+  ],
+  "independentSeedGroups": 8,
+  "physicalContexts": 16,
+  "nativeAttempts": 48,
+  "primaryMetrics": [
+    "same full physical initial deal in all A/B/A arms per original trial",
+    "repeated control exact accepted root hash equality",
+    "selected native funded Float Stone intentions",
+    "source physically accepted Float Stone→retreat→settled Max Geist chains",
+    "first opponent nonprompt root after paid Max Geist, without equating this with competent counterplay",
+    "source native terminal/censor/engine error outcomes by exact original rank1 trial and candidate"
+  ],
+  "safeguards": [
+    "Prospective independent seed report only; no post-selection of advantageous seeds.",
+    "Judge full Aichi field coverage only after exact original 60s exist for all 32.",
+    "Never promote native termini to qualified paper games or competitive win rates.",
+    "Report all aborts, exact seed groups, policy flags, engine pin and both candidate identities.",
+    "Source rank1 policy evidence cannot substitute for candidate win-rate evidence."
+  ]
+}
