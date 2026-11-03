@@ -1,0 +1,143 @@
+{
+  "schema": "agent10-rank11-prospective-active-headway-4seed-symmetric-factors-v1",
+  "registeredAtUtc": "2026-11-03T07:29:55.711899Z",
+  "preregisteredBeforeNative": true,
+  "question": "Across four genuinely unseen original rank11 source seed groups, both original physical seats and two fixed candidates, how does Active Mega headway change source root decisions and first paid Claw onset compared with control and staged-Bench funding?",
+  "source": "Original authenticated paper-expanded rank11 Yano Absol/Garbodor printed 60 from results/aichi-2026/full-decklists.json",
+  "sourceRng": "Python secrets.randbits(32), four independent calls before any native games",
+  "seedGroups": [
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 315928076
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 2452233625
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2391404889
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1710881260
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trialRows": [
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 315928076,
+      "candidateId": "champion-reference",
+      "id": "11:0:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 315928076,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 2452233625,
+      "candidateId": "champion-reference",
+      "id": "11:1:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 2452233625,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2391404889,
+      "candidateId": "champion-reference",
+      "id": "11:0:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 2391404889,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1710881260,
+      "candidateId": "champion-reference",
+      "id": "11:1:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1710881260,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:1:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "originalSeedGroups": 4,
+  "twoCandidatesPerGroup": 2,
+  "casesPerFactor": 8,
+  "factors": {
+    "control": {
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorActiveMegaClawPriorityRoot": false
+    },
+    "staged": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorActiveMegaClawPriorityRoot": false
+    },
+    "activeHeadway": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorActiveMegaClawPriorityRoot": true
+    }
+  },
+  "totalNativeAttempts": 24,
+  "actionCap": 260,
+  "factorMatchedPhysicalDecksAndStarterRequired": true,
+  "crossCandidatePhysicalDealEqualityMustBeAudited": true,
+  "allAttemptsIncluded": true,
+  "winnerStatus": "native engine only; 25-minute clock, full paper legality and expert opponent competence unqualified",
+  "primaryOutcomes": [
+    "first settled original source Claw turn",
+    "whether first Claw exists before cap",
+    "source legal owner-visible Energy recipient",
+    "source active versus bench allocation",
+    "source accepted AttackAction, settlement and Prizes",
+    "opponent continuation",
+    "changed native roots",
+    "all errors and 260-action censors",
+    "full physical and initial starter parity across factors and across candidates"
+  ],
+  "statisticalUnit": "original source seed group and source seat; candidate contexts reuse seed but not independent trials",
+  "preregistrationCaveat": "Earlier post-observation seeds 1800616448 and 4096421492 are excluded. Four fresh seed groups are a small exploratory replication, not a field-win-rate estimator.",
+  "qualifiedGames": 0,
+  "targetFieldSize": 32,
+  "claim99Point5Percent": false
+}
