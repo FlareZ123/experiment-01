@@ -23,6 +23,8 @@ test('exact source-only first-turn restrictions remain separated from missing op
     {printing:'Wait and See Hammer LOT',nativeFullName:'Wait and See Hammer LOT',
       sourceId:'sm8-192',originalDeckCopies:1}
   ]);
+  assert.equal(r.byPrinting.find(x=>x.printing==='Wait and See Turbo ASR')?.nativeFullName,'Wait and See Turbo ASR 158');
+  assert.equal(r.byPrinting.find(x=>x.printing==='Call Bell SSP')?.nativeFullName,'Helper Bell SSP');
   assert.equal(r.gameWinRateEstimated,false);
   assert.equal(r.fieldCompletelyAuthenticated,false);
   assert.equal(r.independentPlayableOpportunities,0);
