@@ -1,0 +1,23 @@
+# Secret Box TWM: native paid source permits paper-forbidden two Item searches
+
+**Agent 4 | 3 November 2026 | paper Expanded, prepared native Store fixture, no competitive game claim**
+
+## Exact original card contract
+
+The original physical `Secret Box TWM163` ACE SPEC reads: *You can use this card only if you discard 3 other cards from your hand. Search your deck for an Item card, a Pokémon Tool card, a Supporter card, and a Stadium card, reveal them, and put them into your hand. Then, shuffle your deck.* Four separately bounded category slots are available, with at most **one Item** in that search. As described by the provided Advanced Player's Rulebook H (deck search), type-restricted searches may fail to choose the full advertised number.
+
+The pinned vendor source `ptcg-server/src/sets/10-scarlet-and-violet/set-twilight-masquerade/secret-box.ts` constructs an original `ChooseCardsPrompt` over the genuine owner deck with `maxItems:1, maxTools:1, maxSupporters:1, maxStadiums:1`. Its `ChooseCardsPrompt.validate` correctly rejects two different Items. But the pinned engine Store's prompt reducer settles `ResolvePromptAction` without invoking that validator, and `MOVE_CARDS` then transfers the submitted physical selections. The source provenance is pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No vendor file was modified.
+
+## Actual native two-seat negative
+
+**Compiled, completed manual-only CI [41568037429](https://github.com/FlareZ123/experiment-01/actions/runs/41568037429) succeeded** at head `efffcb6204a79b6e7f3c362918dfb81addfbecb7`. The existing `native-attachment-probe` job and its `Probe original Secret Box TWM mandatory three-card payment both seats` step both completed successfully. Source and explicit regression: [real Store staged fixture](../../simulation/twinleaf/agent4-secret-box-payment-native.cjs) and [native tests](../../tests/agent4-secret-box-payment-native.test.cjs).
+
+A prepared genuine Store uses the actual `Secret Box TWM` printing in an owner hand with three distinct real Energy payments plus a separate Battle VIP Pass. The opponent and player board are deliberately staged; this is **not** a sampled original random rank-8 starting deal. For each physical owner seat **0 and 1**, the paper-valid mandatory three-card cost is paid and the three Energy cards move to real discard. The following original source-marked owner-deck search chooses both `Field Blower GRI` and `Adventure Bag LOT`, two physically distinct **Item** cards. Native `ChooseCardsPrompt.validate` returns **false**, yet a real Store `ResolvePromptAction` is **accepted**, physically acquiring **both** Items in hand and removing both from the deck. The test asserts every condition in both seats; CI success is an actual compiler-backed native witness of the violation.
+
+## Corrective adapter and qualification
+
+An independent, default-off, reversible native Store hook was added at [`simulation/twinleaf/agent4-secret-box-paper-search-hook.cjs`](../../simulation/twinleaf/agent4-secret-box-paper-search-hook.cjs). The pure physical-category predicate `secretBoxSearchCategoryNegative` requires a real owner-deck prompt, at most four distinct selected physical cards, actual `TrainerCard` instances and no repeated `TrainerType` category. It is restricted to a live source-stamped `Secret Box TWM` `CHOOSE_CARD_TO_HAND` response and does not affect the separate mandatory three-card cost prompt. Native and pure guard tests: [`tests/agent4-secret-box-paper-search-native.test.cjs`](../../tests/agent4-secret-box-paper-search-native.test.cjs). The guard remains **opt-in and not part of a competitively selected common two-seat policy** until the native positive/negative regression and integrated release gates pass.
+
+The separate authentic original rank-8 source native lines [in the three-deal retrospective study](agent4-rank8-natural-secretbox-legal-three-payment-retrospective-20261103.md) are correctly paid and actually search one Item/Tool/Supporter/Stadium or a valid two-card subset. Those natural positive receipts do **not** establish that the unguarded Store generally enforces category limits. This prepared counterexample demonstrates the opposite.
+
+**Limitations:** one prepared family and two physical actor seats, not a natural opportunity frequency; no claimed terminal outcome or winner reversal; no full paper or official 25-minute match qualification. Overall benchmark remains 29/32 exact originals, ranks 23/25/28 missing, zero competitively qualified games, no 99.5% result.
