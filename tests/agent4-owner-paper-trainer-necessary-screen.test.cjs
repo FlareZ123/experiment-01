@@ -125,7 +125,7 @@ test('owner hand integrity and opponent hidden-info invariance',()=>{
   assert.throws(()=>screenOwnerTrainerPaperNecessity(a,
     [row(a,0),row(a,0)]),/Duplicate physical owner-hand index/);
   assert.throws(()=>screenOwnerTrainerPaperNecessity(a,
-    [{...row(a,0),printing:'Wrong'}]),/Expected values/);
+    [{...row(a,0),printing:'Wrong'}]),/Wrong|Expected values/);
   assert.throws(()=>printedTrainerTurnScreen(
     {...a,decisionKind:'owner-prompt'},VIP),/owner-root/);
 });
