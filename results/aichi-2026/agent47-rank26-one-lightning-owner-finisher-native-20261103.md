@@ -8,7 +8,7 @@
 
 The native `SimpleTacticsAi.decodeNextAction` with source-only opt-in [finisher helper](../../simulation/twinleaf/agent47-rank26-conditional-finisher-policy.cjs) and [existing one-Lightning Cologne policy](../../simulation/twinleaf/rank26-cologne-opener.cjs) **actually selects source Store actions**, in the following order after the existing published source setup's Meloetta/Koko Bench:
 
-1. Play one original held Canceling Cologne against the original rank6 Active Iron Thorns ex's Ability lock, using existing owner-visible Coliseum guard.
+1. Play one original held Canceling Cologne against the original rank6 Active Iron Thorns ex's Ability lock, using existing owner-visible Cologne guard.
 2. Select Koko Prism Star's original Dance of the Ancients Ability and **pay its native AttachEnergyPrompt with exactly one original Basic Lightning**, moving it from source discard onto Benched Meloetta.
 3. Perform the actual original Double Colorless Energy manual attachment, original Technical Machine: Crisis Punch Tool attachment, held original Escape Rope play and source ChoosePokemonPrompt selection to promote Meloetta.
 4. Declare a genuine first-global-turn native `AttackAction('Crisis Punch')`. After neutral WaitPrompt resolution, the native sole Iron Thorns Active is Knocked Out and `GamePhase.FINISHED` reports the source seat as winner.
