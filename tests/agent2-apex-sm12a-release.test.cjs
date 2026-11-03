@@ -56,7 +56,7 @@ test('all 29 selected Japanese products have publisher pre-event dates',()=>{
  assert.equal(bySet.get('SM12a').official_product_released_date_source,
   'https://www.pokemon-card.com/ex/sm12a/index.html');
  for(const row of dates.records){
-  assert.match(row.original_publisher_release_date,/^\\d{4}-\\d{2}-\\d{2}$/);
+  assert.match(row.original_publisher_release_date,/^\d{4}-\d{2}-\d{2}$/);
   assert.ok(row.original_publisher_release_date<dates.event_date);
   assert.equal(row.pre_event_product_release_witness,true);
  }
