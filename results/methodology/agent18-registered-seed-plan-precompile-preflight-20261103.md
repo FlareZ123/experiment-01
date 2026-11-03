@@ -37,3 +37,15 @@ Use this pure validator as a shared typed seed-plan preflight for prospective tw
 These full list fingerprints are Agent48's normalized *transcribed original-print source inventory* identities. They differ from live physical-deal digests and do not prove that every Japanese tournament printing or native reducer is paper-valid.
 
 **Limit:** The source/gitlink manifest checks registered constants and the original print inventory; an unrelated runner could use different runtime parameters unless it consumes the same metadata. This is a compile-budget and input-identity gate, not proof of actual in-game source ownership, action selection, payment, clean continuation or any competitive game result. No new native game was produced by these pure CI runs. The original 29/32 opponent roster and zero qualified games remain unchanged.
+
+## Third stage: reviewed SHA256 prevents posthoc valid-but-different seeds
+
+**3 November 2026, 09:36 UTC.** A green seed-domain checker still admitted a possible validity-preserving posthoc change, such as substituting repeat indices 40–51 for the registered 20–31 while keeping 24 pairs, 48 arms and disjoint v3 seeds. To prevent this, the independently versioned [original-source native pin contract](../aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json) now explicitly retains the exact *prospectively registered* JSON-compressed seed-plan SHA256:
+
+`01e61c378b90c91a039d9da62e9708ef5b003b8e7caf554df83daaab6e8bf4b9`
+
+The [joined campaign validator](../../scripts/aichi-registered-campaign-preflight.cjs) compares that expected hash to the actual validated seed-plan digest **after** verifying domain and uniqueness. This makes any seed-plan edit, even an otherwise legal one that leaves all denominators unchanged, require an explicit reviewed change to the independently stored original-source pin. The native [rank26 original runner](../../simulation/twinleaf/agent47-rank26-prospective-natural-owner-24.cjs) independently enforces the same hash equality when imported directly outside the workflow. Test cases now explicitly reject a valid reversed repeat order, a valid alternative 40–51 cohort and a one-unit change in the base seed, while still rejecting a hash/rank mismatch if an altered digest were explicitly approved.
+
+[Manual CI 41612219844](https://github.com/FlareZ123/experiment-01/actions/runs/41612219844) passed all **30 pure tests** in the precompile step plus the original and joined source/seed input contract CLI, with native compilation skipped. The subsequently added direct-runner SHA invariant is syntax-checked by the existing workflow on the next verification run. These checks do **not** cryptographically prevent two coordinated, reviewed file changes, and do **not** attest data from games. They make changed benchmark inputs reviewable and prevent accidental/isolated valid posthoc reselection, a different failure mode from the previously caught invalid 122–133 seed IDs.
+
+**Benchmark remains 29/32 originals, no competitively qualified games, no selected strongest fixed 60, and no demonstrated 99.5% win rate.**
