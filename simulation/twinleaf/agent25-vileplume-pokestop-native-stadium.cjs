@@ -116,7 +116,19 @@ function runArm(sourceRank,candidateSeat){
   const stadiumTarget={player:PlayerType.ANY,
     slot:SlotType.BOARD,index:0};
   play(pokestop,stadiumTarget);
-  assert.equal(sourceStadium(),'PokéStop PGO');
+  const stadiumAfterPlay=sourceStadium();
+  assert.equal(stadiumAfterPlay,'PokéStop PGO',
+    'Accepted native PlayCardAction did not persist Stadium: '+
+    JSON.stringify({
+      sourceRank,candidateSeat,
+      ownerStadium:owner.stadium.cards.map(x=>x.fullName),
+      sourceStadium:source.stadium.cards.map(x=>x.fullName),
+      ownerHand:owner.hand.cards.map(x=>x.fullName),
+      ownerStadiumPlayedTurn:owner.stadiumPlayedTurn,
+      phase:state.phase,turn:state.turn,
+      prompts:state.prompts.map(x=>x.constructor.name),
+      recentLogs:state.logs.slice(-4)
+    }));
   assert.equal(owner.hand.cards.includes(pokestop),false);
   assert.equal(owner.stadiumPlayedTurn,4);
   assert.equal(shuppetBlocked(),false,
