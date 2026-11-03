@@ -83,7 +83,7 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     Number.isSafeInteger(opponentHandCount)&&opponentHandCount>=0;
   const drawTriggered=!rule.drawOnlyIfEitherPlayerMoved?true:
     moved.length>0?true:
-      opponentPublicCountKnown?opponentHandCount>0:null;
+      opponentPublicCountKnown&&opponentHandCount===0?false:null;
   const baseDraw=rule.drawFromOwnPrizes?
     hasPublicPrizeCount?prizeCount:null:
     rule.sixRemainingPrizesDraw===undefined?rule.baseDraw:
