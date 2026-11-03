@@ -8,7 +8,7 @@
   "opponentOriginalRank": 1,
   "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
   "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-  "sourceNativePolicy": "canonical actor composition, explicit naturalEvolutionRoot:true both physical seats, same in all arms",
+  "sourceNativePolicy": "canonical actor composition, explicit symmetric naturalEvolutionRoot:true and specialEnergyRoot:true, same in all three arms",
   "observerVersion": "agent1-rank17-electrode-owner-census-v1",
   "arms": [
     "canonical-control",
@@ -50,5 +50,10 @@
     "No use of candidate hidden cards in root decision",
     "No 25-minute clock adjudication",
     "No qualified matches or 99.5 win-rate inference"
-  ]
+  ],
+  "nativeRootOptions": {
+    "naturalEvolutionRoot": true,
+    "specialEnergyRoot": true
+  },
+  "amendedBeforeFirstNativeRunUtc": "2026-11-03T15:31:00Z"
 }
