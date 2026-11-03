@@ -917,3 +917,19 @@ jobs:
           path: agent10-rank11-heldout-headway-4seed.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Check historical rank6 rejected typed Ability source fixture (Agent39)
+        if: ${{ inputs.trial_ids == 'agent39-rank6-original-typed-ability' }}
+        run: |
+          node --check simulation/twinleaf/agent39-live-unknown-power-action-witness.cjs
+          node --check simulation/evaluation/agent39-rank6-original-unknown-power-native.cjs
+          node --test tests/agent39-live-unknown-power-action-witness.test.cjs tests/agent39-rank6-original-unknown-power-native.test.cjs
+      - name: Observe original rank6 300A native rejected Ability with full source seed
+        if: ${{ inputs.trial_ids == 'agent39-rank6-original-typed-ability' }}
+        run: node simulation/evaluation/agent39-rank6-original-unknown-power-native.cjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent39-rank6-original-typed-ability' }}
+        with:
+          name: agent39-rank6-original-rejected-typed-ability
+          path: agent39-rank6-original-unknown-power-native.json
+          if-no-files-found: warn
+          retention-days: 14
