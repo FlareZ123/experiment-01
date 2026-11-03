@@ -1,0 +1,49 @@
+name: Agent4 fixed bilateral v3 paper and funded Float Stone release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selected-bilateral-48:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 34dc846a2b5faf3a70a2bd3ed7df2e8b2732e6ec
+      - name: Pin immutable registered repository snapshot
+        run: |
+          test "$(git rev-parse HEAD)" = "34dc846a2b5faf3a70a2bd3ed7df2e8b2732e6ec"
+          git status --short
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate frozen registration and paper/seat closure before native match
+        run: |
+          node --check simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs
+          node --test tests/agent4-selected-v3-paper-funded-release.test.cjs tests/agent4-bilateral-paper-frontier-closure.test.cjs tests/agent4-owner-paper-composite-necessary.test.cjs
+      - name: Initialize exact previously committed Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Certify pinned engine revision
+        run: node -e "const a=require('node:assert/strict'),c=require('node:child_process');a.equal(c.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned original Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 48 preregistered physical-context same-deal A/B/A native attempts
+        run: node simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs
+      - name: Preserve full control, selected and repeated-control native records even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-selected-v3-paper-funded-all-48-attempts
+          path: agent4-selected-v3-paper-funded-native-48.json
+          if-no-files-found: warn
+          retention-days: 21
