@@ -1,0 +1,447 @@
+{
+  "schema": "agent2-apex-japanese-set-release-provenance-v1",
+  "updated_utc": "2026-11-03",
+  "event_date": "2026-05-10",
+  "candidate_crosswalk": "results/legality/agent2-apex-alchemy-jp-crosswalk-v1.json",
+  "methodology": "Each distinct official Japanese printed expansion mark was matched with the original publisher's product release announcement, including set-specific product names. This verifies commercial first release of 28 of 29 named product families before the historical event.",
+  "interpretation": "Evidence of pre-event Japanese product publication for 28 set families (32 printed card identities). The six physically selected 2025 Championship promo Basic Energy copies lack directly corroborated release day; no claim of full Japanese paper legality.",
+  "evidence_class": "publisher historical product release dates with exact URL, direct print record for two undated promos",
+  "coverage": {
+    "distinct_expansion_families": 29,
+    "dated_publisher_product_families": 28,
+    "pre_event_dated_identity_rows": 32,
+    "pre_event_dated_physical_slots_v0": 54,
+    "pre_event_dated_physical_slots_v1": 54,
+    "undated_promo_family": [
+      "SV-P"
+    ],
+    "total_physical_slots_v0": 60,
+    "total_physical_slots_v1": 60
+  },
+  "records": [
+    {
+      "expansion_code": "S12",
+      "official_product_name": "Paradigm Trigger",
+      "original_publisher_release_date": "2022-10-21",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/s12/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Regidrago V",
+        "Regidrago VSTAR"
+      ],
+      "registered_physical_card_slots_v0": 7,
+      "registered_physical_card_slots_v1": 7,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM1M",
+      "official_product_name": "Collection Moon",
+      "original_publisher_release_date": "2016-12-09",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm1.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Alolan Grimer",
+        "Alolan Muk"
+      ],
+      "registered_physical_card_slots_v0": 4,
+      "registered_physical_card_slots_v1": 4,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV6",
+      "official_product_name": "Mask of Change",
+      "original_publisher_release_date": "2024-04-26",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/sv6/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Dragapult ex",
+        "Carmine"
+      ],
+      "registered_physical_card_slots_v0": 2,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM5S",
+      "official_product_name": "Ultra Sun",
+      "original_publisher_release_date": "2017-12-08",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm5.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Dialga-GX"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "S10a",
+      "official_product_name": "Dark Phantasma",
+      "original_publisher_release_date": "2022-05-13",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/s/s10a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Hisuian Goodra VSTAR"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV2D",
+      "official_product_name": "Clay Burst",
+      "original_publisher_release_date": "2023-04-14",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sv/sv2.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Noivern ex",
+        "Iono"
+      ],
+      "registered_physical_card_slots_v0": 2,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV6a",
+      "official_product_name": "Night Wanderer",
+      "original_publisher_release_date": "2024-06-07",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sv/sv6a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Kyurem"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SVHK",
+      "official_product_name": "Ancient Koraidon ex deck and build",
+      "original_publisher_release_date": "2024-01-26",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sv/svh.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Koraidon ex"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM2L",
+      "official_product_name": "Alolan Moonlight",
+      "original_publisher_release_date": "2017-03-17",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm2.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Tapu Lele-GX"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV7a",
+      "official_product_name": "Paradise Dragona",
+      "original_publisher_release_date": "2024-09-13",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sv/sv7a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Latias ex"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV8a",
+      "official_product_name": "Terastal Festival ex",
+      "original_publisher_release_date": "2024-12-06",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/sv8a/",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Budew"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SVF",
+      "official_product_name": "Deck Build Box Ruler of the Black Flame",
+      "original_publisher_release_date": "2023-07-28",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/sv3/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Professor's Research"
+      ],
+      "registered_physical_card_slots_v0": 2,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM3N",
+      "official_product_name": "Darkness that Consumes Light",
+      "original_publisher_release_date": "2017-06-16",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm3.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Guzma"
+      ],
+      "registered_physical_card_slots_v0": 2,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV7",
+      "official_product_name": "Stellar Miracle",
+      "original_publisher_release_date": "2024-07-19",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/sv7/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Crispin"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "S7D",
+      "official_product_name": "Skyscraping Perfection",
+      "original_publisher_release_date": "2021-07-09",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/s/s7.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Raihan"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM8",
+      "official_product_name": "Super-Burst Impact",
+      "original_publisher_release_date": "2018-09-07",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm8.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Faba"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM6",
+      "official_product_name": "Forbidden Light",
+      "original_publisher_release_date": "2018-03-02",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm6.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Mysterious Treasure"
+      ],
+      "registered_physical_card_slots_v0": 4,
+      "registered_physical_card_slots_v1": 4,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "S1H",
+      "official_product_name": "Sword and Shield packs",
+      "original_publisher_release_date": "2019-12-06",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/s1/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Quick Ball"
+      ],
+      "registered_physical_card_slots_v0": 3,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "S6a",
+      "official_product_name": "Eevee Heroes",
+      "original_publisher_release_date": "2021-05-28",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/s/s6a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Boost Shake"
+      ],
+      "registered_physical_card_slots_v0": 3,
+      "registered_physical_card_slots_v1": 4,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "XY",
+      "official_product_name": "BW XY Expanded Regulation Box",
+      "original_publisher_release_date": "2019-10-04",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/xy/extra.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "VS Seeker"
+      ],
+      "registered_physical_card_slots_v0": 3,
+      "registered_physical_card_slots_v1": 3,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "XY4",
+      "official_product_name": "Phantom Gate",
+      "original_publisher_release_date": "2014-09-13",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/xy/xy4.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Battle Compressor Team Flare Gear"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "S10P",
+      "official_product_name": "Space Juggler",
+      "original_publisher_release_date": "2022-04-08",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/s10/index.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Hisuian Heavy Ball"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM4p",
+      "official_product_name": "GX Battle Boost",
+      "original_publisher_release_date": "2017-10-20",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm4p.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Field Blower"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV5M",
+      "official_product_name": "Cyber Judge",
+      "original_publisher_release_date": "2024-01-26",
+      "official_product_released_date_source": "https://www.pokemon-card.com/ex/sv5/",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Prime Catcher"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "XY8-Bb",
+      "official_product_name": "Blue Shock",
+      "original_publisher_release_date": "2015-09-26",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/xy/xy8.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Float Stone"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM9a",
+      "official_product_name": "Night Unison",
+      "original_publisher_release_date": "2019-01-11",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm9a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Stealthy Hood"
+      ],
+      "registered_physical_card_slots_v0": 1,
+      "registered_physical_card_slots_v1": 1,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SM10a",
+      "official_product_name": "GG End",
+      "original_publisher_release_date": "2019-04-05",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/sm/sm10a.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Giant Hearth"
+      ],
+      "registered_physical_card_slots_v0": 2,
+      "registered_physical_card_slots_v1": 2,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "XY6-B",
+      "official_product_name": "Emerald Break",
+      "original_publisher_release_date": "2015-03-14",
+      "official_product_released_date_source": "https://www.pokemon-card.com/products/xy/xy6.html",
+      "provenance_confidence": "publisher stated historical product release day",
+      "caveat": "product release day corroborates set being commercially available; physical print eligibility, later errata and event ban policy remain separate.",
+      "registered_english_card_names": [
+        "Double Dragon Energy"
+      ],
+      "registered_physical_card_slots_v0": 4,
+      "registered_physical_card_slots_v1": 4,
+      "pre_event_product_release_witness": true
+    },
+    {
+      "expansion_code": "SV-P",
+      "official_product_name": "Pokémon Card Game Championship Series 2025 promotional Basic Energy 202/SV-P and 203/SV-P",
+      "original_publisher_release_date": null,
+      "official_product_released_date_source": null,
+      "primary_publisher_print_provenance": [
+        "https://www.pokemon-card.com/card-search/details.php/card/46296",
+        "https://www.pokemon-card.com/card-search/details.php/card/46297"
+      ],
+      "provenance_confidence": "publisher official individual card identity shows event series 2025; specific distribution date unverified",
+      "caveat": "Year in event series title is evidence of association, not a direct date. Exact earliest release/award date and tournament eligibility of these special promo prints remain open.",
+      "registered_english_card_names": [
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "registered_physical_card_slots_v0": 6,
+      "registered_physical_card_slots_v1": 6,
+      "pre_event_product_release_witness": null
+    }
+  ],
+  "qualified_competitive_games": 0,
+  "eligibility_proven": false,
+  "outstanding": [
+    "Confirm exact first distribution day for Japanese SV-P 202/SV-P and 203/SV-P",
+    "Determine if the chosen promo Energy is physically usable in event, or nominate numbered mass-production alternative",
+    "Audit latest event-time errata and complete icon-level card semantics",
+    "Reconcile any card-specific tournament exclusions beyond the frozen historical ban snapshot",
+    "No native full games; incomplete 29/32 Aichi original field"
+  ]
+}
