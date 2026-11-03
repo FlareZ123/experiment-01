@@ -62,7 +62,7 @@ test('source mechanic: Roxie draw 3 per discarded Koffing; Radiant moves counter
   const roxie=look('sm12-205');
   const koffing=look('sm12-76');
   const radiant=look('swsh12-59');
-  assert(roxie.rules.some(s=>s.includes('draw 3 cards for each card')));
+  assert(roxie.rules.some(s=>s.includes('Draw 3 cards for each card')));
   assert(koffing.abilities.some(a=>a.text.includes('after the effect of Roxie')));
   assert(radiant.abilities.some(a=>a.text.includes('move up to 2 damage counters')));
 });
