@@ -44,6 +44,45 @@ function chooseFundedApexCompressor(view) {
     paperPaymentUnverified:true, competingUsesNotRanked:true};
 }
 
+
+/**
+ * Independent, owner-information-safe necessary-condition diagnostic.
+ * Each true flag is observed independently; the first failed gate is a
+ * sequential bottleneck label, never a claim that later gates are impossible.
+ * This inspects neither hidden deck contents nor face-down Prize identities.
+ *
+ * @param {object} view Authenticated acting-player observation.
+ * @returns {{firstBlockingGate:string|null,flags:object,
+ *   itemInHandCount:number,activePrinting:string|null,
+ *   publicAttachedEnergy:string[],publicDragonDiscardCount:number}}
+ */
+function diagnoseFundedApexCompressor(view) {
+  assert.equal(view?.decisionKind, 'owner-root');
+  const owner=view.ownPublic;
+  const required=ownerApexPublicGates(
+    observeRank13PayloadOwnerOpportunity(view));
+  const itemInHandCount=view.ownHand.filter(x=>x===ITEM).length;
+  const flags={
+    heldCompressor:itemInHandCount>0,
+    deckNonempty:owner.deckCount>0,
+    itemNotLocked:view.ownTurnResources.itemPlayLocked!==true&&
+      owner.publicTurnRestrictions?.itemPlayLocked!==true,
+    vstarActive:required.activeRegidragoVstar,
+    apexColoredCostPossiblyFunded:
+      required.printedColoredApexCostPossiblySatisfied,
+    publicDragonPayloadMissing:!required.publicDragonDiscardPayload
+  };
+  return {
+    firstBlockingGate:Object.keys(flags).find(key=>!flags[key])??null,
+    flags,itemInHandCount,
+    activePrinting:owner.active?.printing??null,
+    publicAttachedEnergy:[...(owner.active?.energies??[])],
+    publicDragonDiscardCount:
+      observeRank13PayloadOwnerOpportunity(view)
+        .eligiblePublicDragonDiscard.length
+  };
+}
+
 /**
  * The actual native owner-deck prompt legally exposes the owner deck at
  * this moment. Select up to three distinct copyable Dragon printings.
@@ -110,6 +149,10 @@ function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
     afterPassRootCount:0,eligibleAfterPassCount:0,
     eligibleAtAnyLiveOwnerRootCount:0,
     sameRootCompetingActions:[],
+    ownerRootsAudited:0,
+    independentPositiveGateCounts:{},
+    firstBlockingGateCounts:{},
+    ownerRootGateSamples:[],
     attemptedItems:0,acceptedItems:0,rejectedItems:0,
     ownerDeckPromptsAnswered:0,physicalDragonMoved:0,
     missingEligibleDonorPrompts:0,
@@ -148,7 +191,23 @@ function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
     let intent=null;
     if (!prompt) {
       const view=observe(state,seat);
+      const diagnostic=diagnoseFundedApexCompressor(view);
+      audit.ownerRootsAudited++;
+      for(const [gate,met] of Object.entries(diagnostic.flags))
+        if(met) audit.independentPositiveGateCounts[gate]=
+          (audit.independentPositiveGateCounts[gate]??0)+1;
+      const reason=diagnostic.firstBlockingGate??'all-visible-gates-met';
+      audit.firstBlockingGateCounts[reason]=
+        (audit.firstBlockingGateCounts[reason]??0)+1;
+      if(audit.ownerRootGateSamples.length<100)
+        audit.ownerRootGateSamples.push({
+          turn:state.turn,
+          previousAction:previous?.constructor?.name??null,
+          ...diagnostic
+        });
       intent=chooseFundedApexCompressor(view);
+      assert.equal(Boolean(intent),diagnostic.firstBlockingGate===null,
+        'Necessary-condition diagnosis diverged from owner intent');
       if (intent) {
         audit.eligibleAtAnyLiveOwnerRootCount++;
         if (audit.sameRootCompetingActions.length<40)
@@ -233,5 +292,5 @@ function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
   }
 }
 module.exports = {VERSION, ITEM, DONOR_PRIORITY,
-  chooseFundedApexCompressor,chooseActualOwnerDeckDonors,
-  withFundedApexCompressorAfterPass};
+  chooseFundedApexCompressor,diagnoseFundedApexCompressor,
+  chooseActualOwnerDeckDonors,withFundedApexCompressorAfterPass};
