@@ -1,0 +1,79 @@
+{
+  "schema": "agent41-original6v9-two-seat-supporter-proposer-factorial-v1",
+  "registeredAtUtc": "2026-11-03T23:24:00Z",
+  "design": "posthoc exploratory causal attribution using previously observed fully original physical seeds; not fresh confirmation or strength ranking",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "inheritedExactResearchHead": "509634ebc7a423486db7c7120f9c6df5a292d815",
+  "exactOriginalPhysicalRoster": [
+    {
+      "seat": 0,
+      "rank": 9
+    },
+    {
+      "seat": 1,
+      "rank": 6
+    }
+  ],
+  "maxActions": 90,
+  "testData": [
+    {
+      "seed": 1192664073,
+      "kind": "historicalB",
+      "originalFullDealSha256": "b9398dd0e9f4b93085cf1fb36595b17df72e602b3f8e69636c005b43929f2a9a",
+      "archivedControlFullRootSha256": "c52fbfac2d56f2e79c7f055e954ff8ef63003a55d4e3cf7e80ae036a4fcdab66",
+      "archivedBothFullRootSha256": "621dfd7aaeebfcbf98689f8d7f32ad8af1521af376122826fae47e838f33f4a4",
+      "priorNativeOwnerFirstDivergence": "rank9 seat0 turn2 PassTurnAction -> PlayCardAction Guzma",
+      "priorControlAttack": "rank9 seat0 turn4 Horror House-GX",
+      "priorTwoSeatOutcome": "No attack through selected native turn8 cap"
+    },
+    {
+      "seed": 4056743630,
+      "kind": "freshPreviouslyRegisteredB",
+      "originalFullDealSha256": "8296e0974ac083a2f16da567294e8c6d3922ac7f769916095410cd2c09004283",
+      "archivedControlFullRootSha256": "624230a2e49a894c72eead4abe7e70df7d0524fd518bce6cfafaebbbf670e0f6",
+      "archivedBothFullRootSha256": "2e5427002ae9357819168b71153371a08f44cd22d6d7b8f3d304138645fb6989"
+    }
+  ],
+  "armOrder": [
+    {
+      "id": "neither-native-control",
+      "allowedSeats": []
+    },
+    {
+      "id": "rank9-only-correct",
+      "allowedSeats": [
+        0
+      ]
+    },
+    {
+      "id": "rank6-only-correct",
+      "allowedSeats": [
+        1
+      ]
+    },
+    {
+      "id": "both-correct",
+      "allowedSeats": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "neither-native-repeat",
+      "allowedSeats": []
+    }
+  ],
+  "controls": {
+    "allArmsExactOriginal60BothSeats": true,
+    "sameSeedFullInitialPhysicalDealMustMatch": true,
+    "controlRepeatEntireRootAndDecisionTraceMustMatch": true,
+    "controlAndBothExistingArchivedRootShaMustMatch": true,
+    "allVariantsNativeStoreMustResolvePrompts": true,
+    "recordedAllActionsAndErrors": true,
+    "discloseAllCensoredAt90": true,
+    "zeroCompetitivelyQualifiedGames": true
+  },
+  "primaryQuestion": "Does correcting the rank9 seat0 proposed Guzma quota alone remove the authentic turn4 Horror House-GX opportunity, does rank6 seat1 responsive Guzma alone do so, or is an interaction needed?",
+  "secondaryQuestion": "Preserve actual opponent response and a comparison under identical full observed early global turn windows, without claiming later-game causal independence.",
+  "limitations": "Two previously seen seeds deliberately selected for a mechanism, not prospective strength data. Native short caps, incomplete official-prompt legality, weak original bot decisions and missing entire Top32 competitive coverage. No new deck candidate."
+}
