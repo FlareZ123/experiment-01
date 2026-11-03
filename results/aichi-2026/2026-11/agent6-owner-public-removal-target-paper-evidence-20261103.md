@@ -14,7 +14,7 @@ Added [the exact-printing, public-target classifier](../../../simulation/twinlea
 
 The supported fixed source printings are tied to supplied English card-database IDs:
 
-| Native exact printing | Source card ID | Public target category | Other hand cards physically required | Destination |
+| Native exact printing | Source card ID | Printed target category, subject to protections | Other hand cards physically required | Printed effect destination |
 | --- | --- | --- | ---: | --- |
 | Field Blower GRI | `sm2-125` | Up to 2 Tools/Stadium cards | 0 | Discard |
 | Lost Vacuum LOR | `swsh11-162` | Exactly 1 Tool or Stadium | 1 | Lost Zone |
@@ -26,6 +26,24 @@ The certifier reads only an authenticated, detached `actorObservation` owner-roo
 The optional pure `withPublicRemovalTargetEvidence(view,census)` overlays Agent4's already-negative-only paper census **without mutating its original data or changing the native policy**. Printed target or physical payment failures set `paperPlayable:false`; surviving cases remain `paperPlayable:null`. The previously unverified target marker becomes either `public-target-present` or `proven-no-public-target`. This is an upper-bound denominator refinement, not a positive certification. It explicitly leaves the role of other lock effects, actual target and prompt acceptance, discard-cost strategic desirability, effects on Tools, payment custody, settlement and attack payoff unresolved.
 
 The actor-visible `Tool Jammer BST` attached to an opposing Iron Thorns is included as a viable *target category* for Field Blower, unlike the Garbodor-only current common candidate selector. This certifies no ability to draw or retain Field Blower in a real game.
+
+## Source-card correction: five Prism Star Stadiums protect themselves from Item effects
+
+After the original thirteen target tests and their preliminary report, an explicit audit of the supplied English card database found an important previously missed printed protection. All five Prism Star Stadiums include the line **prevent all effects of an Item or Supporter played from hand done to that Stadium**:
+
+| Protected Stadium printing | Supplied source ID | Printed Item-protection status |
+| --- | --- | --- |
+| Heat Factory LOT | `sm8-178` | Protected |
+| Life Forest LOT | `sm8-180` | Protected |
+| Thunder Mountain LOT | `sm8-191` | Protected |
+| Black Market TEU | `sm9-134` | Protected |
+| Wondrous Labyrinth TEU | `sm9-158` | Protected |
+
+The official Pokémon TCG rulebook's Prism Star appendix separately states that when a Prism Star card would enter the discard pile, it goes to the **Lost Zone** instead. See the [official expanded-era rules](https://assets.pokemon.com/assets/cms2/pdf/trading-card-game/rulebook/pal_rulebook_en.pdf). In normal paper play, Field Blower or Lost Vacuum played from hand cannot affect those protected Stadiums. The earlier provisional pure test using **Thunder Mountain LOT as a removable Field Blower Stadium** was incorrect, and has been replaced by the ordinary **Path to the Peak CRE** Stadium case. Any readers using the first version of this report or test must adopt this correction.
+
+The [v2 public-target classifier](../../../simulation/twinleaf/agent6-public-removal-target-certificate.cjs), commits `49807528008043b15f25551f92255c15b88a2124` and `b32712c1c604ff92707ea9091c91b16580f9c9eb`, now recognizes these five **exact printing-specific protections** and holds them in a separate `protectedStadiums` observation. They are excluded from ordinary Item-removable `targets`. However, a separate effect might negate the Stadium's protective text, which our detached public snapshot does not fully adjudicate. A board with **only** a protected Prism Stadium therefore remains `protected-prism-star-stadium-effect-unresolved`, rather than a falsely certified legal Item removal or an unjustified impossible Item play. If there is another eligible Tool, that Tool remains a candidate. Tool Scrapper still proves no target on any Stadium-only board because it only affects Tools, regardless of Stadium protection.
+
+The overlay now reports `prism-star-stadium-protection-unresolved` instead of `public-target-present` or `proven-no-public-target` when this is the sole nominal target. This is a material **correction** to the earlier model, preserving the negative/unknown-only evidence contract. Printed effects such as Field Blower's `discard` describe the attempted action; final destination modifiers such as the Prism Star Lost Zone rule remain a separate unresolved custody question.
 
 ## Original 29-field relevance
 
