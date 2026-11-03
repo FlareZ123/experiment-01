@@ -326,3 +326,143 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+/**
+ * Source-printed Counter Catcher picks opposing Benched Muk directly,
+ * even when opponent has another Bench option. Printed Prize prerequisite
+ * is tested as an explicit negative control.
+ * @param {0|1} seat Original rank26 owner seat.
+ * @param {boolean} sourceBehind Source has more Prizes remaining.
+ */
+function catcherCologneContinuation(seat,sourceBehind) {
+  const {Store}=native('game/store/store');
+  const {State,GamePhase}=native('game/store/state/state');
+  const {Player}=native('game/store/state/player');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+  const {CardList}=native('game/store/state/card-list');
+  const {GameSettings}=native('game/core/game-settings');
+  const {Format}=native('game/store/card/card-types');
+  const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
+  const {UseAbilityAction}=native('game/store/actions/game-actions');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const manager=initializeCards();
+  let physical=470000+seat*100;
+  /** @param {string} name */
+  function card(name) {
+    const x=manager.getCardByName(name);
+    assert.ok(x,'Missing printed native card '+name);
+    x.id=physical++;
+    return x;
+  }
+  const source=new Player(),opponent=new Player();
+  source.id=seat===0?101:202;
+  opponent.id=seat===0?202:101;
+  source.active.cards.push(card('Meloetta ex SV11B'));
+  opponent.active.cards.push(card('Regidrago V SIT'));
+  const egg=card('Exeggcute PLF');
+  source.discard.cards.push(egg);
+  source.hand.cards.push(card('Counter Catcher PAR'),card('Canceling Cologne ASR'));
+  const muk=new PokemonCardList();
+  muk.cards.push(card('Alolan Grimer SUM'),card('Alolan Muk SUM'));
+  muk.pokemonPlayedTurn=1;
+  const other=new PokemonCardList();
+  other.cards.push(card('Lunatone OBF'));
+  opponent.bench.push(muk,other);
+  for(const player of [source,opponent]){
+    for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy SVE'));
+    const numberOfPrizes=player===opponent&&sourceBehind?5:6;
+    for(let i=0;i<numberOfPrizes;i++){
+      const prize=new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+  }
+  const state=new State(),settings=new GameSettings();
+  settings.format=Format.EXPANDED;
+  state.gameSettings=settings;state.rules=settings.rules;
+  state.turn=3;state.phase=GamePhase.PLAYER_TURN;state.activePlayer=seat;
+  state.players=seat===0?[source,opponent]:[opponent,source];
+  const store=new Store({onStateChange(){}});
+  store.state=state;
+  const initialBlocked=Boolean(IS_ABILITY_BLOCKED(store,state,source,egg,egg.powers[0]));
+  assert.equal(initialBlocked,true);
+  const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
+  const originalActiveId=opponent.active.getPokemonCard()?.id;
+  const catcher=source.hand.cards[0];
+  const nativeCanPlay=catcher.canPlay(store,state,source);
+  if(!sourceBehind){
+    let rejection=null;
+    try{store.dispatch(new PlayCardAction(source.id,0,target));}
+    catch(e){rejection=String(e.message);}
+    return {
+      seat,sourceBehind,nativeCanPlay,rejection,
+      catcherHeld:source.hand.cards.includes(catcher),
+      originalActiveId,finalActiveId:opponent.active.getPokemonCard()?.id,
+      mukStillBenched:opponent.bench.includes(muk),
+      pending:store.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
+    };
+  }
+  assert.equal(nativeCanPlay,true);
+  store.dispatch(new PlayCardAction(source.id,0,target));
+  const pending=store.state.prompts.find(p=>p.result===undefined);
+  assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt',
+    'Paid Counter Catcher must offer source the target Bench Pokémon');
+  assert.equal(pending.playerId,source.id);
+  assert.ok(pending.validate([muk],store.state));
+  const mukPhysicalId=muk.getPokemonCard()?.id;
+  store.dispatch(new ResolvePromptAction(pending.id,[muk]));
+  assert.equal(opponent.active.getPokemonCard()?.id,mukPhysicalId);
+  assert.equal(source.discard.cards.some(c=>c.fullName==='Counter Catcher PAR'),true);
+  const cologneIndex=source.hand.cards.findIndex(c=>c.fullName==='Canceling Cologne ASR');
+  assert.ok(cologneIndex>=0);
+  store.dispatch(new PlayCardAction(source.id,cologneIndex,target));
+  assert.equal(source.discard.cards.some(c=>c.fullName==='Canceling Cologne ASR'),true);
+  const afterBlocked=Boolean(IS_ABILITY_BLOCKED(store,store.state,source,egg,egg.powers[0]));
+  let error=null;
+  try{
+    store.dispatch(new UseAbilityAction(source.id,'Propagation',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.DISCARD,
+      index:source.discard.cards.indexOf(egg)
+    }));
+  }catch(e){error=String(e.message);}
+  return {
+    seat,sourceBehind,nativeCanPlay,afterBlocked,error,
+    originalActiveId,mukPhysicalId,finalActiveId:opponent.active.getPokemonCard()?.id,
+    sourcePrizeCount:source.prizes.length,opponentPrizeCount:opponent.prizes.length,
+    mukStillBenched:opponent.bench.includes(muk),
+    catcherDiscarded:source.discard.cards.some(c=>c.fullName==='Counter Catcher PAR'),
+    cologneDiscarded:source.discard.cards.some(c=>c.fullName==='Canceling Cologne ASR'),
+    eggInHand:source.hand.cards.some(c=>c.fullName==='Exeggcute PLF'),
+    eggInDiscard:source.discard.cards.some(c=>c.fullName==='Exeggcute PLF'),
+    pending:store.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
+  };
+}
+for(const seat of [0,1]){
+  for(const sourceBehind of [true,false]){
+    test('source Counter Catcher+Cologne vs Muk from Bench seat '+seat+
+      ' behind='+sourceBehind,()=>{
+      const row=catcherCologneContinuation(seat,sourceBehind);
+      console.log('AGENT43_MUK_CATCHER_COLOGNE',JSON.stringify(row));
+      if(sourceBehind){
+        assert.equal(row.nativeCanPlay,true);
+        assert.equal(row.afterBlocked,false);
+        assert.equal(row.error,null);
+        assert.equal(row.finalActiveId,row.mukPhysicalId);
+        assert.equal(row.mukStillBenched,false);
+        assert.equal(row.catcherDiscarded,true);
+        assert.equal(row.cologneDiscarded,true);
+        assert.equal(row.eggInHand,true);
+        assert.equal(row.eggInDiscard,false);
+      }else{
+        assert.equal(row.nativeCanPlay,false);
+        assert.equal(row.catcherHeld,true);
+        assert.equal(row.finalActiveId,row.originalActiveId);
+        assert.equal(row.mukStillBenched,true);
+      }
+      assert.deepEqual(row.pending,[]);
+    });
+  }
+}
