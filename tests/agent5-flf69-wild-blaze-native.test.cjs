@@ -425,3 +425,84 @@ for(const seat of [0,1]){
     assert.equal(r.turn,4);
   });
 }
+
+
+/**
+ * Check the exact runtime reducer objects and property ownership because
+ * source-level class inheritance did NOT make FLF108 share FLF69's reducer
+ * prototype. A scoped experimental correction must leave both native card
+ * classes exactly as they were before a trial.
+ */
+test('dual-FLF native hook exactly restores original and inherited descriptors',()=>{
+  const cards=initializeCards();
+  const ids=['M Charizard EX FLF','M Charizard EX4 FLF'];
+  const records=ids.map(name=>{
+    const card=cards.getCardByName(name);
+    assert.ok(card);
+    const proto=Object.getPrototypeOf(card);
+    return {name,proto,
+      beforeOwn:Object.getOwnPropertyDescriptor(proto,'reduceEffect'),
+      beforeReducer:proto.reduceEffect};
+  });
+  assert.notStrictEqual(records[0].proto,records[1].proto);
+  assert.equal(records[0].beforeOwn?.value,records[0].beforeReducer,
+    'FLF69 native own reducer must be present at the pinned revision');
+  assert.equal(records[1].beforeOwn,undefined,
+    'FLF108 gold native reducer is inherited before correction');
+
+  const hook=installFlf69WildBlazePaperHook();
+  try{
+    for(const r of records){
+      assert.notStrictEqual(r.proto.reduceEffect,r.beforeReducer,
+        r.name+' reducer must actually be corrected');
+      assert.equal(typeof Object.getOwnPropertyDescriptor(r.proto,
+        'reduceEffect')?.value,'function');
+    }
+    assert.deepEqual(hook.evidence().correctedByPrinting,
+      {'69':0,'108':0});
+    assert.deepEqual(hook.evidence().coveredPrintingIds,
+      ['xy2-69','xy2-108']);
+  }finally{
+    hook.restore();
+  }
+  for(const r of records){
+    assert.deepEqual(Object.getOwnPropertyDescriptor(r.proto,'reduceEffect'),
+      r.beforeOwn,r.name+' native property descriptor must be restored');
+    assert.strictEqual(r.proto.reduceEffect,r.beforeReducer,
+      r.name+' resolved native method must be exactly the original');
+  }
+});
+
+/** Nesting guarantees scoped adapter composition does not leak FLF reducers. */
+test('dual-FLF hook supports nested independent trials and ordered restoration',()=>{
+  const cards=initializeCards();
+  const goldProto=Object.getPrototypeOf(cards.getCardByName('M Charizard EX4 FLF'));
+  const original=goldProto.reduceEffect;
+  const outer=installFlf69WildBlazePaperHook();
+  try{
+    const outerReducer=goldProto.reduceEffect;
+    const inner=installFlf69WildBlazePaperHook();
+    try{
+      assert.notStrictEqual(goldProto.reduceEffect,outerReducer);
+      const r=attack(0,'M Charizard EX4 FLF');
+      assert.equal(r.ownerDeck,5);
+      assert.equal(r.opponentDeck,9);
+      assert.deepEqual(inner.evidence().correctedByPrinting,
+        {'69':0,'108':1});
+      assert.deepEqual(outer.evidence().correctedByPrinting,
+        {'69':0,'108':0});
+    }finally{
+      inner.restore();
+    }
+    assert.strictEqual(goldProto.reduceEffect,outerReducer);
+    const second=attack(1,'M Charizard EX4 FLF');
+    assert.equal(second.ownerDiscard,5);
+    assert.deepEqual(outer.evidence().correctedByPrinting,
+      {'69':0,'108':1});
+  }finally{
+    outer.restore();
+  }
+  assert.strictEqual(goldProto.reduceEffect,original);
+  assert.equal(Object.prototype.hasOwnProperty.call(goldProto,'reduceEffect'),
+    false,'Inherited gold reducer must not be left shadowed by hook');
+});
