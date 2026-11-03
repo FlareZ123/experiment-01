@@ -26,6 +26,10 @@ const {withOwnerTreasurePromptContinuation}=
   require('./agent49-mysterious-treasure-prompt-continuation.cjs');
 const {withActorOnlyChooseAttack}=
   require('./agent13-actor-only-choose-attack.cjs');
+const {withFundedApexCompressorAfterPass}=
+  require('./agent8-funded-apex-compressor-owner-bridge.cjs');
+const {installBattleCompressorMinimumHook}=
+  require('./battle-compressor-minimum-hook.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION_PATH=path.join(ROOT,
@@ -72,7 +76,8 @@ function registration(){
  */
 function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
   paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false,
-  apexEnabled=false,phantomEnabled=false){
+  apexEnabled=false,phantomEnabled=false,compressorEnabled=false,
+  compressorMinimumEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -153,19 +158,31 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
     }:{})
   };
   try{
-    let treasureAudit=null;
+    let treasureAudit=null,compressorAudit=null;
+    const sourceCompressor=()=>{
+      if(!compressorEnabled)return runMatch(request);
+      const wrapped=withFundedApexCompressorAfterPass(
+        ()=>runMatch(request),sourceSeat);
+      compressorAudit=wrapped.audit;
+      return wrapped.result;
+    };
     const native=()=>{
-      if(!treasureEnabled)return runMatch(request);
-      const wrapped=withOwnerTreasurePromptContinuation(()=>runMatch(request));
+      if(!treasureEnabled)return sourceCompressor();
+      const wrapped=withOwnerTreasurePromptContinuation(sourceCompressor);
       treasureAudit=wrapped.audit;
       return wrapped.result;
     };
     const run=()=>withCanonicalActorOnlyPolicy(native,
       adapters,{ownerSingleSearch:true,actorHandDiscard:true});
+    const nativeRun=()=>{
+      if(!compressorMinimumEnabled)return run();
+      const restore=installBattleCompressorMinimumHook();
+      try{return run();}finally{restore();}
+    };
     const corrected=paperCelestialEnabled?
-      withMinimumAttachEnergySelection(()=>withPaperCelestialRoarEnergy(run)):
-      null;
-    const actual=corrected?corrected.result.result:run();
+      withMinimumAttachEnergySelection(
+        ()=>withPaperCelestialRoarEnergy(nativeRun)):null;
+    const actual=corrected?corrected.result.result:nativeRun();
     const game=actual.result,components=actual.audit.detailedComponentAudits;
     assert.equal(game.seed,trial.seed);
     assert.equal(game.engine,'twinleafgg/'+PIN);
@@ -202,6 +219,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
       paperCelestialEnabled,treasureEnabled,ddeEnabled,apexEnabled,phantomEnabled,
+      compressorEnabled,compressorMinimumEnabled,nativeCompressorAudit:compressorAudit,
       paperCelestialAudit:corrected?.result.audit??null,
       nativeMinimumAttachAudit:corrected?.audit??null,
       treasureNativeAudit:treasureAudit,
@@ -313,7 +331,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
     };
   }catch(error){
     return{status:'native-aborted',donorRootEnabled,naturalEvolutionEnabled,
-      paperCelestialEnabled,
+      paperCelestialEnabled,compressorEnabled,compressorMinimumEnabled,
       error:String(error?.stack??error).slice(0,1100),
       censored:true,competitiveGameQualified:false};
   }
