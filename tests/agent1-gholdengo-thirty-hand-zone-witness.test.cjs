@@ -182,3 +182,48 @@ test("normal evolution and Supporter restrictions prohibit shortcuts",()=>{
  assert.throws(()=>roxie(s),/one Supporter/);
  assert.ok(s.hand.length<30);
 });
+
+/**
+ * Count uniformly shuffled six-Prize placements AFTER an accepted seven-card
+ * opening containing at least one of the six Basic Pokémon (4 Gimmighoul,
+ * 2 Exeggcute). This accounts for mulligan conditioning. The seven distinct
+ * singleton Energy types are not among those six Basic Pokémon.
+ * @param {number} n
+ * @param {number} k
+ * @returns {bigint}
+ */
+function choose(n,k){
+ if(k<0||k>n)return 0n;
+ let value=1n;
+ for(let i=1;i<=k;i++)value=value*BigInt(n-k+i)/BigInt(i);
+ return value;
+}
+
+test("mulligan-conditioned exact ACE/Special-Energy Prize collapse",()=>{
+ const basicCount=6,singletonTypes=7,otherCount=47;
+ const validInitial=choose(60,7)-choose(60-basicCount,7);
+ let weightedNoPrizedSingleton=0n;
+ for(let a=0;a<=singletonTypes;a++){
+  for(let b=1;b<=basicCount;b++){
+   const other=7-a-b;
+   const initialWays=choose(singletonTypes,a)*choose(basicCount,b)*
+     choose(otherCount,other);
+   // A singleton already in the opening hand cannot be Prized. Remaining
+   // non-singletons among the 53 undealt cards = 53 - (7 - a) = 46 + a.
+   weightedNoPrizedSingleton+=initialWays*choose(46+a,6);
+  }
+ }
+ const noSingletonPrized=Number(weightedNoPrizedSingleton)/
+   Number(validInitial*choose(53,6));
+ assert.ok(Math.abs(noSingletonPrized-0.4536122210550233)<1e-12);
+ // An ACE SPEC has one physical copy. If it wasn't in the initial seven,
+ // its conditional probability of being among six of the 53 undealt is 6/53.
+ let aceAbsentInitialWays=0n;
+ for(let basics=1;basics<=basicCount;basics++){
+  aceAbsentInitialWays+=choose(basicCount,basics)*
+    choose(53,7-basics);
+ }
+ const acePrized=Number(aceAbsentInitialWays*6n)/
+   Number(validInitial*53n);
+ assert.ok(Math.abs(acePrized-0.1012428890254701)<1e-12);
+});
