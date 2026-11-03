@@ -37,6 +37,21 @@ jobs:
         run: node --test tests/agent5-flf69-resolver-paper-custody.native.test.cjs
       - name: Prove exact FLF69 Wild Blaze owner deck effect against duplicate native implementation
         run: node --test tests/agent5-flf69-wild-blaze-native.test.cjs
+      - name: Screen all native text for wrong recipient of top-deck discard effects
+        if: ${{ inputs.flf69_native_only }}
+        run: node simulation/evaluation/agent5-native-top-deck-owner-screen.cjs > agent5-native-topdeck-owner-screen.json
+      - name: Report source-code owner-destination discrepancies without treating them as game results
+        if: ${{ inputs.flf69_native_only }}
+        run: |
+          node -e "const r=require('./agent5-native-topdeck-owner-screen.json');console.log('TOP_DECK_OWNER_STATIC_SCREEN',JSON.stringify({nativeInstances:r.nativeInstances,topdeckTextInstances:r.topdeckTextInstances,ownerTextWrongRecipient:r.flaggedOwnerTextOppositeReducer.map(x=>({fullName:x.fullName,set:x.set,number:x.number,print:x.printedOwnerTopDiscard})),opponentTextOwnRecipient:r.flaggedOpponentTextOwnerReducer.map(x=>({fullName:x.fullName,set:x.set,number:x.number,print:x.printedOpponentTopDiscard}))}))"
+      - name: Archive source-code text-to-deck-custody risk screen
+        if: ${{ inputs.flf69_native_only }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-native-top-deck-owner-screen
+          path: agent5-native-topdeck-owner-screen.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Census duplicate native implementations among 29 original sixty prints and fixed fifth candidate
         if: ${{ inputs.flf69_native_only }}
         run: node simulation/evaluation/agent5-original-native-identity-duplicate-census.cjs > agent5-original-native-exact-duplicate-census.json
