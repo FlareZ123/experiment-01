@@ -63,6 +63,7 @@ class AttachEnergyPrompt {
       result[0].to.slot===SlotType.BENCH&&result[0].to.index===0;
   }
 }
+class AddPlayerAction {}
 class ResolvePromptAction{
   /** @param {number} id @param {object[]} result */
   constructor(id,result){this.id=id;this.result=result;}
@@ -86,6 +87,7 @@ class MockStore {
   constructor(state){this.state=state;}
   /** @param {object} action */
   dispatch(action){
+    if(action instanceof AddPlayerAction)return;
     const pending=this.state.prompts.find(p=>p.id===action.id);
     assert.equal(pending.validate(action.result),true);
     const seat=this.state.players.findIndex(p=>p.id===pending.playerId);
@@ -149,4 +151,26 @@ test('unmarked prompt is left entirely to original resolver',()=>{
   assert.equal(witness.result,speed);
   assert.equal(witness.audit.markedSourcePrompts,0);
   assert.equal(witness.audit.nativeValidAlternativesSelected,0);
+});
+
+test('each native Store in a multi-game replay has its own accepted donor receipt',()=>{
+  const witness=withPrintedVoltDonorPreference(()=>{
+    for(let i=0;i<2;i++){
+      const {owner,state}=board();
+      const store=new MockStore(state);
+      store.dispatch(new AddPlayerAction());
+      const card=new MockIronThornsex();
+      card.reduceEffect(store,state,new AfterAttackEffect(owner,card.attacks[0]));
+      const prompt=state.prompts[0];
+      const chosen=new MockResolver().getPromptResult(state,prompt);
+      store.dispatch(new ResolvePromptAction(prompt.id,chosen));
+    }
+  },{seat:0},{Store:MockStore,IronThornsex:MockIronThornsex,
+    AttachEnergyPromptResolver:MockResolver,PlayerType,SlotType});
+  assert.equal(witness.audit.nativeAcceptedSelectedMoves,2);
+  assert.equal(witness.audit.liveStoreDetected,true);
+  assert.deepEqual(witness.audit.acceptedPhysicalTransferReceipts.map(x=>
+    x.genuineLiveStore),[true,true]);
+  assert.deepEqual(witness.audit.acceptedPhysicalTransferReceipts.map(x=>
+    x.printedCostStillPayable),[true,true]);
 });
