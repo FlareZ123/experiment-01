@@ -170,6 +170,8 @@ jobs:
         run: node --test tests/agent9-rank5-mail-native-fallback-hidden-order.test.cjs
       - name: Assert original accepted Trainer scorer attribution keeps ambiguous matches unqualified
         run: node --test tests/agent9-native-trainer-scorer-attribution.test.cjs
+      - name: Check native-free owner-source Mail proposer for hidden-order-safe count-only choice
+        run: node --test tests/agent9-owner-mail-after-pass-planner.test.cjs
       - name: Observe real owner native Trainer delegated scorer calls on four registered source deal cohorts
         if: ${{ inputs.agent9_native_trainer_scorer }}
         run: node simulation/twinleaf/agent9-native-trainer-realroot-score-census.cjs
