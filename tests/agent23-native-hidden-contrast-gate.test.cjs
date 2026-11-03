@@ -87,3 +87,54 @@ test('a mode mismatch cannot reuse a success receipt from a different zone',()=>
   assert.throws(()=>verifyNativeBoundedContrast(packet(),
     {zone:'deck',swapSize:1}));
 });
+
+/** @param {object} row A synthetic successful native contrast row. */
+function scored(row){
+  const copy=structuredClone(row);
+  copy.scoreTraceEnabled=true;
+  copy.scoreTraceBaselineFinite=true;
+  copy.scoreTraceComparisonCount=copy.successfulExchangePaths;
+  copy.scoreTraceChanges=copy.successfulExchangePaths;
+  copy.scoreOnlyChanges=copy.successfulExchangePaths;
+  copy.scoreTraceExecutable=copy.successfulExchangePaths>0;
+  copy.cases=copy.cases.map(x=>({...x,scoreTraceChanged:x.executable}));
+  return copy;
+}
+
+test('requested scored mode counts read-only score-only changes separately',()=>{
+  const source=packet(Array.from({length:4},()=>scored(scan())));
+  const result=verifyNativeBoundedContrast(source,{
+    ...expected,numericScores:true
+  });
+  assert.equal(result.authenticatedHistoricalArms,4);
+  assert.equal(result.actionReversals,0);
+  assert.equal(result.numericScoresRequested,true);
+  assert.equal(result.numericScoreWorldsCompared,8);
+  assert.equal(result.numericalScoreTraceChanges,8);
+  assert.equal(result.scoreOnlyChanges,8);
+  assert.equal(result.competitiveGameQualified,false);
+});
+
+test('requested scored mode rejects missing numerical telemetry',()=>{
+  const selected=packet([
+    scored(scan()),scan(),scored(scan()),scored(scan())
+  ]);
+  assert.throws(()=>verifyNativeBoundedContrast(selected,{
+    ...expected,numericScores:true
+  }),/scoreTraceEnabled/);
+  const dishonest=packet(Array.from({length:4},()=>scored(scan())));
+  dishonest.rows[0].diagnostic.nativeOpponentHiddenHandContrast
+    .scoreTraceComparisonCount=0;
+  assert.throws(()=>verifyNativeBoundedContrast(dishonest,{
+    ...expected,numericScores:true
+  }),/scoreTraceComparisonCount/);
+});
+
+test('a requested scored mode tolerates an honest empty opportunity stratum',()=>{
+  const empty=scored(scan({eligible:0,success:0}));
+  const result=verifyNativeBoundedContrast(packet([
+    scored(scan()),empty,empty,empty
+  ]),{...expected,numericScores:true});
+  assert.equal(result.numericScoreWorldsCompared,2);
+  assert.equal(result.numericalScoreTraceChanges,2);
+});
