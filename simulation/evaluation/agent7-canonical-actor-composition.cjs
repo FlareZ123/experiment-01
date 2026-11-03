@@ -262,9 +262,26 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerVipBeforeAttackAudit=selected.audit;
     return selected.result;
   });
-  const genericWrapped = genericFallbackAttribution?genericFallback(runRoot):null;
-  const rooted = genericFallbackAttribution?genericWrapped.result:runRoot();
+  // The opt-in source-stamped typed owner prompt is installed outside the
+  // root chooser. Root may delegate a later AttachEnergyPrompt to this
+  // handler after its actual Store-confirmed Underworld Door root.
+  let ownerUnderworldPromptAudit=null;
+  const runRootWithUnderworldPrompt=()=>{
+    if(options.ownerUnderworldPromptContinuation!==true)return runRoot();
+    const selected=require('../twinleaf/agent34-actor-typed-energy-prompt.cjs')
+      .withActorUnderworldPromptContinuation(runRoot);
+    assert.ok(selected?.audit&&typeof selected.audit==='object');
+    ownerUnderworldPromptAudit=selected.audit;
+    return selected.result;
+  };
+  const genericWrapped = genericFallbackAttribution?
+    genericFallback(runRootWithUnderworldPrompt):null;
+  const rooted = genericFallbackAttribution?
+    genericWrapped.result:runRootWithUnderworldPrompt();
   const genericFallbackAudit = genericFallbackAttribution?genericWrapped.audit:null;
+  if(options.ownerUnderworldPromptContinuation===true)
+    assert.ok(ownerUnderworldPromptAudit,
+      'Enabled owner Underworld Energy prompt adapter did not execute');
   if(actorChoosePokemon)assert.ok(pokemonAudit,
     'Actor ChoosePokemon option requires an executed adapter');
   if(options.guzmaOwnerPromptContinuation===true)assert.ok(guzmaPromptAudit,
@@ -333,6 +350,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       (plumeriaOpportunityOptIn?'+agent4-plumeria-owner-opportunity-v1':'')+
       (options.ownerGenericTrainerFrontier===true?
         '+agent29-bilateral-generic-trainer-frontier-transport-v1':'')+
+      (ownerUnderworldPromptAudit?'+'+ownerUnderworldPromptAudit.version:'')+
       (plumeriaAfterPassOptIn?'+'+ownerPlumeriaAfterPassAudit.version:'')+
       (ownerNativeFlarePromptAudit?'+'+ownerNativeFlarePromptAudit.version:'')+
       (hammerAfterPassOptIn?'+agent29-hammer-after-pass-v1':'')+
@@ -346,6 +364,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerGenericTrainerFrontierOptIn:options.ownerGenericTrainerFrontier===true,
+    ownerUnderworldPromptContinuationOptIn:
+      options.ownerUnderworldPromptContinuation===true,
+    ownerUnderworldPromptAudit,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
     ownerPlumeriaAfterPassOptIn:plumeriaAfterPassOptIn,
     ownerNativeFlarePromptOptIn:options.sameRootNativeFreeFlareChoice===true,
@@ -365,6 +386,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(ownerVipBeforeAttackAudit?['OwnerAttackContendedVipFirstTurn']:[]),
       ...(options.guzmaOwnerPromptContinuation===true?['GuzmaOwnBenchPrompt']:[]),
       ...(actorChoosePokemon?['ChoosePokemonPrompt']:[]),
+      ...(ownerUnderworldPromptAudit?['SourceStampedTypedEnergyPrompt']:[]),
       'ChooseAttackPrompt', 'SelectOptionPrompt', 'SelectPrompt',
       'FogCrystalRootAndOwnerDeckSearch',
       ...(ownerSingleSearch?['ActorOwnerSingleSearchPrompt']:[]),
@@ -375,6 +397,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ],
     componentVersions: {
       root: rootAudit.version ?? null,
+      ...(ownerUnderworldPromptAudit?{
+        underworldEnergyPrompt:ownerUnderworldPromptAudit.version}:{}),
       ...(vipAfterPassOptIn?{vipAfterPass:ownerVipAfterPassAudit.version??null}:{}),
       ...(ownerVipBeforeAttackAudit?{vipBeforeAttack:ownerVipBeforeAttackAudit.version??null}:{}),
       ...(plumeriaAfterPassOptIn?{
