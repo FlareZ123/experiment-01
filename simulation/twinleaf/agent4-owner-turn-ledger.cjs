@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent4-authenticated-owner-turn-observer-v1';
+const VERSION='agent4-authenticated-owner-turn-observer-v2-opening-order';
 
 /**
  * Construct a per-game ledger from actual live, owner-authenticated turn
@@ -19,12 +19,19 @@ const VERSION='agent4-authenticated-owner-turn-observer-v1';
  */
 function createOwnerTurnLedger(){
   const lastSeen=[null,null],distinctObserved=[0,0];
+  let firstSeatSeenAtGlobalTurnOne=null;
   return {
     observe(view){
       assert.equal(view?.decisionKind,'owner-root');
       const seat=view.actorSeat,turn=view.globalTurn;
       assert.ok(seat===0||seat===1);
       assert.ok(Number.isSafeInteger(turn)&&turn>=1);
+      if(turn===1){
+        assert.ok(firstSeatSeenAtGlobalTurnOne===null||
+          firstSeatSeenAtGlobalTurnOne===seat,
+          'Contradictory real first-player seat observations');
+        firstSeatSeenAtGlobalTurnOne=seat;
+      }
       const previous=lastSeen[seat];
       assert.ok(previous===null||turn>=previous,
         'Owner live-turn clock moved backward');
@@ -35,6 +42,9 @@ function createOwnerTurnLedger(){
       return Object.freeze({
         version:VERSION,actorSeat:seat,globalTurn:turn,
         distinctObservedOwnerTurns:distinctObserved[seat],
+        openingFirstSeat:firstSeatSeenAtGlobalTurnOne,
+        openingSeatProof:firstSeatSeenAtGlobalTurnOne===null?
+          'unobserved':'observed-real-owner-root-global-turn-one',
         provenPastFirstOwnerTurn:distinctObserved[seat]>=2,
         fullyObservedSinceSetup:false,
         provenance:'genuine-live-owner-root-clock-only'
@@ -43,6 +53,7 @@ function createOwnerTurnLedger(){
     snapshot(){
       return {
         version:VERSION,lastObservedTurns:[...lastSeen],
+        openingFirstSeat:firstSeatSeenAtGlobalTurnOne,
         distinctObservedTurns:[...distinctObserved],
         opponentConcealedInformationUsed:false,
         knownPaperLegalActions:false
