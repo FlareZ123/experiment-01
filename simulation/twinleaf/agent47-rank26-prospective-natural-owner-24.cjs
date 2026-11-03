@@ -28,6 +28,8 @@ const SEED_PLAN=
 const SEED_PREFLIGHT=preflightRegisteredSeedPlan(SEED_PLAN);
 const SOURCE_PINS=
   require('../../results/aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json');
+assert.equal(SEED_PREFLIGHT.manifestSha256,SOURCE_PINS.seedPlanSha256,
+  'rank26 natural runner seed manifest differs from independently registered pin');
 const SOURCE_RANK=SOURCE_PINS.originalPrints.find(x=>x.role==='source').rank;
 const OPPONENT_RANK=SOURCE_PINS.originalPrints.find(x=>x.role==='opponent').rank;
 assert.equal(SEED_PLAN.campaignId,SOURCE_PINS.campaignId);
