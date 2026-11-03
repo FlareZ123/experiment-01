@@ -2,6 +2,11 @@ name: Actor-only mandatory hand-discard regression
 on:
   workflow_dispatch:
     inputs:
+      meloetta_crisis_native:
+        description: Four-case both-seat original rank26 Crisis Punch DCE live-Store payment and KO isolation
+        required: false
+        type: boolean
+        default: false
       native_apex_store:
         description: Opt in bounded original rank20 staged native Store physical Ultra Ball discard fork
         required: false
@@ -64,14 +69,17 @@ jobs:
       - name: Pure and original-Store adapter injection tests
         run: node --test tests/agent47-actor-hand-discard.test.cjs tests/agent47-actor-hand-discard-negative.test.cjs tests/agent47-canonical-hand-discard-integration.test.cjs tests/agent47-hand-subset-ultraball.test.cjs tests/agent7-native-fallback-paircheck.test.cjs tests/agent47-apex-discard-frontier.test.cjs tests/agent47-apex-discard-adapter.test.cjs tests/agent47-rank20-first-eight-co-visibility.test.cjs tests/agent47-rank20-apex-natural-audit.test.cjs tests/agent47-minimum-attach-energy-hook.test.cjs tests/physical-card-ledger.test.cjs tests/agent47-preapex-payload-opportunity.test.cjs tests/agent47-rank26-opening-bench-coverage.test.cjs tests/agent47-frozen-v1-native-status-derived.test.cjs tests/agent47-prospective-lillie-hand-balance.test.cjs
       - name: Fetch exact pinned Twinleaf for opt-in source native verification
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native }}
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install and compile pinned native Store
-        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 }}
+        if: ${{ inputs.native_apex_store || inputs.natural_source20_audit || inputs.minimum_attach_replay || inputs.celestial_special_native || inputs.physical_zone_natural || inputs.physical_loss_lineage || inputs.preapex_natural || inputs.strict_physical60 || inputs.meloetta_crisis_native }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Rank26 original firstturn Meloetta Tool Energy payment and terminal, both seats
+        if: ${{ inputs.meloetta_crisis_native }}
+        run: node --test tests/agent47-rank26-crisis-energy-native.test.cjs
       - name: Native original rank20 physical Ultra Ball baseline, alternative, and hold for both seats
         if: ${{ inputs.native_apex_store }}
         run: node simulation/twinleaf/agent47-apex-ultraball-original-store.cjs > agent47-apex-source20-native.json
@@ -88,13 +96,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Native fail-closed settled original 60-card gate, 2 broken and 1 conserved case
-        if: ${{ inputs.strict_physical60 }}
+        if: ${{ inputs.strict_physical60 || inputs.meloetta_crisis_native }}
         run: node simulation/twinleaf/agent47-strict-physical60-native-3case.cjs > agent47-strict-physical60.json
       - name: Print original game settled-root failure and intact control witnesses
-        if: ${{ inputs.strict_physical60 }}
+        if: ${{ inputs.strict_physical60 || inputs.meloetta_crisis_native }}
         run: node -e "const r=require('./agent47-strict-physical60.json');console.log('AGENT47_STRICT_PHYSICAL60_NATIVE',JSON.stringify(r.checks.map(x=>({case:x.case,status:x.status,first:x.firstViolation}))));"
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.strict_physical60 }}
+        if: ${{ always() && inputs.strict_physical60 || inputs.meloetta_crisis_native }}
         with:
           name: agent47-strict-original60-3case
           path: agent47-strict-physical60.json
