@@ -1,0 +1,47 @@
+{
+  "schema": "agent7-original5v11-skyfield-own-stadium-pass-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T20:07:00Z",
+  "trialType": "strict retrospective exact physical source root and comparator; zero competitive games",
+  "originalRanks": [
+    5,
+    11
+  ],
+  "original60Source": "results/aichi-2026/full-decklists.json",
+  "pin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceOriginalArchive": "https://github.com/FlareZ123/experiment-01/actions/runs/41647174699",
+  "sourceOriginalArchiveArtifactId": 13235374002,
+  "seedPlan": {
+    "base": 20261113,
+    "phase": "pilot",
+    "primaryRank": 5,
+    "repeat": 0,
+    "slot": "A",
+    "seed": 912174767
+  },
+  "sourceFixture": {
+    "id": "rank5-sky-field-seat0",
+    "slot": "A",
+    "primaryRankSeat": 0,
+    "sourceRank": 5,
+    "sourceSeat": 0,
+    "sourceTurn": 7,
+    "sourceOriginal": "Path to the Peak CRE",
+    "ownerHeldReplacement": "Sky Field ROS",
+    "heldPhysicalHandIndex": 7,
+    "previousSourcePhysicalDealSha256": "65c87abb4eb03985598acf3306a5169bb82a6b8a8fd021b630cb5c0f2318886a"
+  },
+  "arms": [
+    "native-control",
+    "single-exact-source-owner-skyfield-after-native-pass",
+    "native-control-repeat"
+  ],
+  "maxActions": 90,
+  "expectedGate": "Native Pass at owner turn7, owner holds Sky Field hand index7, own current Path to Peak, no quota or lock blocker, printed names differ",
+  "observations": [
+    "full original unchanged 60 and physical deal fingerprint, all three control/action roots",
+    "first Store-action divergence and exact accepted Stadium replacement",
+    "owner and opposing public Active, Bench, Stadium, attached Energy and Prize transitions",
+    "new Bench occupancy, draw/attack use, full opponent continuation and conservative adverse outcome"
+  ],
+  "powerLimitation": "Reuses known source state; no causal strength generalization, zero competitively qualified games. The alternative could be strategically inferior because Path to Peak remains valuable."
+}
