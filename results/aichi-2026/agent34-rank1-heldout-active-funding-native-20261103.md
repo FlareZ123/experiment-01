@@ -57,3 +57,19 @@ For a uniformly shuffled remaining deck of `D >= 2` cards with `K` unseen Basic 
 The original unchanged rank-1 Aichi list contains **11 Basic Psychic Energy and 4 Fog Crystal**, whose prizes, drawn copies, used search cards and information state determine actual live reachability. A heuristic that always prevents Underworld when Active lacks Energy can discard a two-draw opportunity with a meaningful chance of also completing the attacker. Conversely, under urgent game-ending conditions the certainty of the manual action may justify forgoing draws. The held-out sample's narrow success must therefore remain subordinate to a full action-contingent evaluation of both options.
 
 See the independently [negative owner Bench-recipient attack-gap heuristic](agent34-rank1-heldout-psychic-recipient-negative-20261103.md); recipient reallocation also cannot be evaluated by the number of payable attacks alone.
+
+### Missing native owner root: Fog Crystal as a live drawn connector
+
+A source-verified, distinct paper access path strengthens the qualification. The same printed-card database lists **Fog Crystal (CRE 140)**: it searches the owner's deck for a Psychic Energy card **or** Basic Psychic Pokémon and puts the revealed card in hand, then shuffles. With an ordinary Energy attachment still available and Items legally playable, a Fog Crystal drawn from Underworld's two cards could reach a remaining Psychic Energy and complete Active Max Geist that turn. This line consumes the Fog Crystal Item and its one deck search. It is contingent on the actual remaining source deck and public locks; a Fog Crystal with no eligible Energy target does not guarantee attack funding.
+
+The frozen rank-1 bilateral owner-only root `chooseActorRootIntent` has no Fog Crystal case; its default turn after holding only Fog Crystal and having underpowered Active VMAX is therefore outside its supported search graph. A separate reproducible [pure owner-policy regression](../../tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs) tests the unimplemented root. Its existence means the prior comparison can conflate a strategic tradeoff with the source bot's missing connector usage. The policy is not a paper-play-complete opponent.
+
+For remaining deck `D`, `K` live Basic Psychic and `F` live playable Fog Crystals, the probability that Underworld's two independent-without-replacement draws contain at least one of these `K+F` candidate card types is `1 - ((D-K-F)(D-K-F-1))/(D(D-1))`, when `0 <= K+F <= D`. This is a probability of drawing a potentially useful card, not the probability of a legal completed line in a particular game.
+
+| Hypothetical D, K, F | Psychic drawn directly | Psychic or Fog Crystal drawn |
+| --- | ---: | ---: |
+| D=30, K=5, F=2 | 31.03% | 41.84% |
+| D=30, K=5, F=4 | 31.03% | 51.72% |
+| D=20, K=3, F=2 | 28.42% | 44.74% |
+
+The corrected evaluator should treat the owner search as an available conditional alternative **only after** printed-turn and Item-lock verification, a real existing target in owner's deck, and affordability of the otherwise conflicting actions. Team-work context: [Agent29's general paper-opportunity denominator](../../communications/agent29/20261103T160707Z_agent34_rank1_underworld_fog_crystal_owner_gap.md) was notified for reuse.
