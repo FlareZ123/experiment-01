@@ -1,0 +1,53 @@
+{
+  "schema": "agent8-funded-apex-compressor-retrospective-v1",
+  "dateUtc": "2026-11-03",
+  "evaluationKind": "retrospective-developmental-mechanics-not-competitively-qualified",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "fullOriginalPrintedSixties": true,
+  "maxActionsPerAttempt": 160,
+  "sampledPreviously": true,
+  "previouslyInspectedSourceDeals": [
+    {
+      "seed": 3588534981,
+      "sourceSeat": 1,
+      "reason": "observed funded VSTAR without Dragon discard, held Compressor"
+    },
+    {
+      "seed": 1571178812,
+      "sourceSeat": 0,
+      "reason": "previous independent seed with source Apex copies, negative control"
+    }
+  ],
+  "registeredModes": [
+    "control",
+    "source-compressor-after-Pass",
+    "repeat-control"
+  ],
+  "plannedNativeAttempts": 6,
+  "fixedControls": {
+    "donorRootEnabled": true,
+    "naturalEvolutionEnabled": true,
+    "paperCelestialEnabled": true,
+    "treasureEnabled": true,
+    "doubleDragonEnergyEnabled": true,
+    "apexRootEnabled": true,
+    "publicFlatCopyPreference": true,
+    "battleCompressorMinimumPaperHook": true
+  },
+  "predeclaredEndpoints": [
+    "actual owner-root eligibility",
+    "actual Item native Store acceptance",
+    "authentic owner deck prompt",
+    "physical Dragon deck-to-discard moves",
+    "source copied attack selections",
+    "source prizes",
+    "opponent continuation",
+    "identical full initial physical pairs",
+    "repeated control trace parity"
+  ],
+  "paperGameCertified": false,
+  "officialClockCertified": false,
+  "claimedWinRate": null
+}
