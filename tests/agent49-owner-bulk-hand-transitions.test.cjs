@@ -16,7 +16,8 @@ const COPIES=Object.freeze({
   "Lillie's Determination MEG":[19,16,'deck',6],
   'N FCO':[8,7,'deck',undefined],
   'Marnie SSH':[16,13,'deck-bottom',5],
-  'Iono PAL':[11,10,'deck-bottom',undefined]
+  'Iono PAL':[11,10,'deck-bottom',undefined],
+  'Roxanne ASR':[2,2,'deck',6]
 });
 
 /** @param {string[]} hand @param {number|null} prizeCount */
@@ -39,7 +40,7 @@ function rows(hand,indices){
   }));
 }
 
-test('all seven print-verified full-hand Supporters occur in exactly 29 sources',()=>{
+test('all eight print-verified full-hand Supporters occur in exactly 29 sources',()=>{
   assert.equal(roster.decks.length,29);
   const all=roster.decks.flatMap(d=>d.cards.filter(
     c=>c.category==='Trainer').map(c=>({
@@ -59,9 +60,9 @@ test('all seven print-verified full-hand Supporters occur in exactly 29 sources'
     totalCopies+=copies;
     totalRows+=matched.length;
   }
-  assert.equal(totalCopies,87);
-  assert.equal(totalRows,67);
-  assert.equal(Object.keys(BULK_HAND_PRINTS).length,7);
+  assert.equal(totalCopies,89);
+  assert.equal(totalRows,69);
+  assert.equal(Object.keys(BULK_HAND_PRINTS).length,8);
 });
 
 test('all-other-hand discards include every protected owner singleton',()=>{
@@ -209,4 +210,27 @@ test('seven-print owner census tracks bottom of deck separately',()=>{
   assert.equal(s.shuffleEntireHandCandidates,3);
   assert.equal(s.bottomOfDeckHandCandidates,2);
   assert.equal(s.summedOtherHandCopiesExposedAcrossAlternatives,12);
+});
+
+test('Roxanne uses only public opponent Prize threshold for negative admission',()=>{
+  const hand=['Roxanne ASR','Other Trainer'];
+  const row=rows(hand,[0])[0];
+  const base=view(hand,6);
+  const eligible=ownerBulkHandTransition({
+    ...base,opponentPublic:{prizeCount:3,handCount:4}},row);
+  const early=ownerBulkHandTransition({
+    ...base,opponentPublic:{prizeCount:4,handCount:4}},row);
+  const unknown=ownerBulkHandTransition({
+    ...base,opponentPublic:{handCount:4}},row);
+  assert.equal(eligible.destination,'deck');
+  assert.equal(eligible.sourceRequiresOpponentPrizeThreshold,3);
+  assert.equal(eligible.conditionalPrizeUseEligible,true);
+  assert.equal(eligible.sourcePrerequisiteFails,false);
+  assert.equal(eligible.drawnCardCountRequested,6);
+  assert.equal(early.conditionalPrizeUseEligible,false);
+  assert.equal(early.sourcePrerequisiteFails,true);
+  assert.equal(unknown.conditionalPrizeUseEligible,null);
+  assert.equal(unknown.sourcePrerequisiteFails,false);
+  assert.equal(eligible.paperPlayabilityCertified,false);
+  assert.equal(early.opponentConcealedUsed,false);
 });
