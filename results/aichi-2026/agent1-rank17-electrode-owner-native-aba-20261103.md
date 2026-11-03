@@ -33,6 +33,15 @@ This is a **read-only source setup census**, not a deck-optimization trial. The 
 | Selected Extra Energy Bomb Ability roots | **0** |
 | Competitively qualified paper games | **0** |
 
+The raw artifact's complete observer samples show the **19 Electrode-visible roots occur in 18 distinct owner turns across two of the four deals**. Every one of those 19 roots had **zero physical discarded Energy cards**, and none had Alolan Raichu. The actor selected **Pass** at 18 of the 19 roots and **Bench Basic** at the other. The source root-action ledger shows **zero Battle Compressor plays** across all four observer arms, despite the original roster holding four copies. This precisely identifies a disconnected discard/recipient/setup policy in the tested implementation, rather than evidence about a playable rank17 deck's ultimate strength. Source-roster Compressor membership was verified independently against the original printed 60.
+
+| Physical-deal group | Rank17 physical seat | Owner roots (both players) | Electrode-visible roots | Alolan Raichu-visible roots |
+| --- | ---: | ---: | ---: | ---: |
+| 0 | 0 | 52 | 0 | 0 |
+| 1 | 1 | 45 | 6 | 0 |
+| 2 | 0 | 45 | 13 | 0 |
+| 3 | 1 | 19 | 0 | 0 |
+
 The 161 owner-root decisions are repeated **within-game decision points**, not 161 independent turns or games. The actual independent physical-deal denominator here is **four**. An observed Electrode-GX state on 19 roots does not establish legal Ability use or a complete Raichu attack line. Because **no Alolan Raichu was in play in these four observer arms**, zero selected Extra Energy Bomb actions cannot be attributed to a missed mechanically available *Raichu-line* opportunity in this particular experiment. The possibility of a different eligible recipient for the Ability is deliberately outside this source-line screen.
 
 The result is compatible with the previous eight-arm native natural-evolution experiment, which did observe original Stage1 Alolan Raichu in some **different** source deals. It is also consistent with ongoing source-development weakness. It provides **no evidence that the Ability is universally unavailable** or that the current root policy is competent.
