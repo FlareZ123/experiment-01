@@ -92,6 +92,7 @@ test('native score-only leak is detected despite all selected actions matching',
 
 test('constant native candidate scores certify only compared fixture worlds',()=>{
   const {root,args}=prepare({scoreMode:'constant'});
+  const original=fingerprint(root);
   const result=compareNativeOpponentHiddenHandBounded(args,{
     targetZone:'prizes',swapSize:2
   });
@@ -103,7 +104,7 @@ test('constant native candidate scores certify only compared fixture worlds',()=
   assert.equal(result.firstScoreTraceDifference,null);
   assert.equal(result.scoreTraceExecutable,true);
   assert.deepEqual(result.cases.map(x=>x.scoreTraceChanged),[false,false]);
-  assert.equal(fingerprint(root),JSON.stringify(root));
+  assert.equal(fingerprint(root),original);
 });
 
 test('missing native numerical evaluations cannot certify score invariance',()=>{
