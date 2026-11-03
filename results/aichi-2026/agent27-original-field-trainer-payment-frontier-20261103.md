@@ -24,6 +24,12 @@ The original 29 complete printed sixties contain **1,035 Trainer copies**. Exact
 
 These are *printed card inventory counts*, not drawn-hand frequencies, independent decisions or evidence that each card has a legal target. The remaining 804 are **unknown to this limited classification**, rather than known to require discards. Printed 60s and ranks are read from `results/aichi-2026/full-decklists.json` at runtime, with 60-card conservation, rank uniqueness and manifest SHA256 built into `scripts/agent27-original-field-trainer-payment-coverage.cjs`. Ranks **23, 25 and 28** remain unauthenticated; zero decks were filled with proxies.
 
+## Bundled card-text source verification (follow-up)
+
+The additional pure [source-text audit 41634397490](https://github.com/FlareZ123/experiment-01/actions/runs/41634397490) **passed** at `abda89dfb8daf08f92d5b5dacff2dc2ed516ce55`. It resolves all eight supported source printings against `resources/sets/en.json` and the exact `resources/cards/en/<set-id>.json` source rules, including alternative artwork card numbers, then asserts all variants agree with the selected mandatory / optional / no-hand-discard count. This independently checks our explicit physical discard cost claims against the bundled printed card database, while retaining separate target/turn/prompt uncertainty. Source file: [`scripts/agent27-source-trainer-cardtext-cost-audit.cjs`](../../scripts/agent27-source-trainer-cardtext-cost-audit.cjs), [regression](../../tests/agent27-source-trainer-cardtext-cost-audit.test.cjs). An initial test run failed on a pure classifier ambiguity: the optional Guzma & Hala two-discard phrase also matched the generic mandatory-two regex. That case was corrected by excluding recognized optional text from the mandatory pattern, then the full card audit passed. Neither run changes any game decisions.
+
+[Original rank5/rank11 actual owner-root native A/B/A](agent27-owner-payment-native-aba-source5-11-20261103.md) subsequently found 39/39 generically unblocked paid variants physically affordable in 50 correlated roots and eight Pass roots holding at least one of them, with unchanged actual native trace. All remain unqualified.
+
 ## Payment certificate and examples
 
 `simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs` exports:
