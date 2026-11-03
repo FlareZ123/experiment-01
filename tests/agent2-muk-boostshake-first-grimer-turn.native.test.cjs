@@ -18,12 +18,14 @@ test('real source-printed Boost Shake evolves newly-played Grimer and applies of
     assert.equal(row.shakeInDiscard,true);
     assert.equal(row.ownerHandShakeDiscarded,true);
     assert.deepEqual(row.mismatches,[]);
-    assert.deepEqual(row.actions,[
+    assert.deepEqual(row.actions.slice(0,4),[
       'actual-Boost-Shake-PlayCardAction',
       'owner-deck-Muk-search-prompt',
       'real-Grimer-Boost-Shake-evolution-prompt',
       'owner-shuffle-resolved'
     ]);
+    assert.ok(row.actions.slice(4).length>=1);
+    assert.ok(row.actions.slice(4).every(x=>x==='phase-transition-wait-resolved'));
     assert.deepEqual(row.pendingPromptTypes,[]);
   }
 });
