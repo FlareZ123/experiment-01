@@ -290,12 +290,18 @@ jobs:
       - name: Assert original turn parity and all four Stadium controls
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent7-stadium-printed-name-native.json');a.equal(r.attempted,4);a.equal(r.passed,4);a.ok(r.rows.every(x=>x.originalTurnPreserved));console.log(JSON.stringify({attempted:r.attempted,passed:r.passed,rows:r.rows.map(x=>({seat:x.seat,scenario:x.scenario,nativeOffered:x.nativeOffered,storeAccepted:x.actualStoreAccepted}))}));"
+      - name: Pure registered original-source Stadium owner-visible paper name and quota gates
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
+        run: node --test tests/agent7-owner-stadium-pass-bridge.test.cjs
       - name: Native owner Prism Star and ordinary Stadium displacement in both physical seats
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/twinleaf/agent7-own-stadium-prism-displacement-native.cjs > agent7-own-stadium-prism-displacement-native.json
       - name: Certify own Prism Lost Zone and ordinary discard receipt for four native arms
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent7-own-stadium-prism-displacement-native.json');a.equal(r.attempted,4);a.equal(r.passed,4);a.ok(r.rows.every(x=>x.success&&x.directStorePlayAccepted&&!x.nativeEnumeratorOffered&&x.sameTurnPreserved));console.log(JSON.stringify({attempted:r.attempted,passed:r.passed,rows:r.rows.map(x=>({seat:x.seat,scenario:x.scenario,zone:x.previousStadiumDestination}))}));"
+      - name: Retrospective original rank6 and rank9 source-owned Stadium Pass selection A/B/A
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
+        run: node simulation/evaluation/agent7-original6v9-stadium-selected-retrospective.cjs > agent7-original6v9-stadium-selected-retrospective.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
         with:
@@ -303,6 +309,7 @@ jobs:
           path: |
             agent7-stadium-printed-name-native.json
             agent7-own-stadium-prism-displacement-native.json
+            agent7-original6v9-stadium-selected-retrospective.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
