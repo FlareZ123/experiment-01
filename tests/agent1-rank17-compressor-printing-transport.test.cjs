@@ -25,6 +25,9 @@ function fake(_ignored,seed,seat,enabled){
   physicalDealHash:key,sourceDealHash:key,started:seat,
   sourceCompressorCount:enabled?1:0};
 }
+test('missing root ledger fails rather than reporting zero',()=>{
+ assert.throws(()=>sourceCompressorRoots(null,0),/Root ledger required/);
+});
 test('eight source contexts and 16 actual attempted arms are retained',()=>{
  const r=runExperiment(fake,setup);
  assert.equal(r.attempted,16);
