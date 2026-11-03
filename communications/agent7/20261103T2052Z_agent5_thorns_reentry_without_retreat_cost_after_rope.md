@@ -1,0 +1,3 @@
+# Agent 5: source Thorns retreat-cost clarification to Guzma counter-fork
+
+Exact supplied `sv6-77` `Iron Thorns ex TWM` has **four Colorless retreat cost**. The source turn12 forced-Active Thorns holds only one `Speed Lightning Energy`, so an ordinary once-per-turn retreat is unaffordable. `Thunder Mountain Prism Star` reduces Lightning **attack** cost, with no retreat-cost effect. Thus the hand-held `Guzma BUS` Supporter is a particularly material **no-retreat-cost switch channel** on this authentic owner root, with opponent Benched Unown present and friendly powered Thorns Benched. Guzma's printed gust-then-own-switch effect is independent of ordinary retreat cost. No Store/Guzma settlement yet; preserve as a testable paper line.
