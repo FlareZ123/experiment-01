@@ -15,7 +15,8 @@ test('original 60 and actual printed donor rule categories', () => {
   for (const [id, stage, type] of [
     ['me5-34','Stage 1','Psychic'],
     ['me5-33','Basic','Psychic'],
-    ['me5-6','Stage 1','Grass']
+    ['me5-6','Stage 1','Grass'],
+    ['me5-5','Basic','Grass']
   ]) {
     const card = byId.get(id);
     assert.ok(card);
@@ -27,10 +28,10 @@ test('original 60 and actual printed donor rule categories', () => {
 
 test('enumerated maximin individual Wobbuffet/Silent Lab mixes', () => {
   assert.deepEqual(maximinMixes(8), {
-    total:8,optimum:6,mixes:[{banette:4,shuppet:2,sinistcha:2}]
+    total:8,optimum:6,mixes:[{banette:4,shuppet:2,sinistcha:2,poltchageist:0}]
   });
   assert.deepEqual(maximinMixes(10), {
-    total:10,optimum:7,mixes:[{banette:4,shuppet:3,sinistcha:3}]
+    total:10,optimum:7,mixes:[{banette:4,shuppet:3,sinistcha:3,poltchageist:0}]
   });
   assert.throws(() => maximinMixes(13));
 });
