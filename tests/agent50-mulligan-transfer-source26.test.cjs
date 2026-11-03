@@ -101,3 +101,40 @@ test('rank26 source-first solo Active survives optional bonus draws',()=>{
   assert.equal(basics.reduce((n,x)=>n+x.count,0),7);
   for(const row of basics)assert.ok(Number(card(row.id).hp)<=280,row.name);
 });
+
+test('equal-weight original 29 ranks candidate bonus asymmetry',()=>{
+  const audit=require('../results/aichi-2026/opening-hand-audit.json');
+  assert.equal(audit.decks.length,29);
+  const originalRanks=field.decks.map(d=>d.rank).sort((a,b)=>a-b);
+  assert.deepEqual(audit.decks.map(d=>d.rank).sort((a,b)=>a-b),originalRanks);
+  const basicCounts=audit.decks.map(d=>{
+    assert.equal(d.unresolved_pokemon.length,0);
+    assert.ok(Number.isInteger(d.basic_count_known));
+    return d.basic_count_known;
+  });
+  const mean=(candidateBasics)=>{
+    const rows=basicCounts.map(sourceCount=>transfer(candidateBasics,sourceCount));
+    const avg=key=>rows.reduce((a,b)=>a+b[key],0)/rows.length;
+    const candidateReceived=avg('candidateExpected'),sourceReceived=avg('sourceExpected');
+    return {
+      candidateOne:avg('candidateOne'),sourceOne:avg('sourceOne'),
+      candidateReceived,sourceReceived,net: candidateReceived-sourceReceived
+    };
+  };
+  const a=mean(7),b=mean(12),reference=mean(14),newMoon=mean(17);
+  close(a.candidateOne,0.1439448732);
+  close(a.sourceOne,0.3416691081);
+  close(a.candidateReceived,0.2386327448);
+  close(a.sourceReceived,0.5686149720);
+  close(a.net,-0.3299822273);
+  close(b.candidateOne,0.1796223153);
+  close(b.sourceOne,0.1564022924);
+  close(b.candidateReceived,0.2919340055);
+  close(b.sourceReceived,0.1932435328);
+  close(b.net,0.0986904727);
+  close(reference.net,0.1733565235);
+  close(newMoon.net,0.2432118312);
+  console.log(JSON.stringify({field:'29 known original ranks only',
+    candidateADP7:a,candidateApexAlchemy12:b,reference14:reference,newMoon17:newMoon,
+    qualification:'setup offers, not game strength or all32'},null,2));
+});
