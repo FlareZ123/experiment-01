@@ -71,7 +71,8 @@ function run(){
         const first=game?.firstTurnSlot===seat;
         const actions=(game?.decisionTrace??[]).filter(a=>
           a.playerSlot===seat&&a.turnBefore===1);
-        const receiptItems=(audit?.receipts??[]).flatMap(r=>r.physicallyMoved??[]);
+        const receiptItems=(audit?.receipts??[]).filter(r=>r.globalTurn===1)
+          .flatMap(r=>r.physicallyMoved??[]);
         const uniqueIds=name=>[...new Set(receiptItems.filter(c=>c.name===name)
           .map(c=>c.id))];
         arms.push({
