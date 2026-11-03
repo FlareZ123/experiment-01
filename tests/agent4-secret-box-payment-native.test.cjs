@@ -114,3 +114,24 @@ test('native Secret Box illegal zero cost can expose all four searchable categor
     assert.equal(guarded.audit.vetoedPayments,1);
   }
 });
+
+test('paid native Secret Box search accepts paper-forbidden two different Items on both seats',()=>{
+  for(const seat of [0,1]){
+    const trial=probeSecretBoxPayment(seat,'three','two-items');
+    console.log('AGENT4_SECRET_BOX_TWO_ITEMS_NATIVE '+JSON.stringify(trial));
+    assert.equal(trial.rootError,null);
+    assert.equal(trial.paymentError,null);
+    assert.equal(trial.paymentSettled,true);
+    assert.equal(trial.energyADiscarded,true);
+    assert.equal(trial.energyBDiscarded,true);
+    assert.equal(trial.energyCDiscarded,true);
+    assert.equal(trial.continuation[0].message,'CHOOSE_CARD_TO_HAND');
+    assert.equal(trial.continuation[0].nativeValidatorAccepted,false);
+    assert.deepEqual(trial.continuation[0].selected,
+      ['Field Blower GRI','Adventure Bag LOT']);
+    assert.equal(trial.continuation[0].error,null);
+    assert.equal(trial.targetLocations[0].inHand,true);
+    assert.equal(trial.extraItemLocation.inHand,true);
+    assert.equal(trial.extraItemLocation.inDeck,false);
+  }
+});
