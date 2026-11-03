@@ -39,7 +39,8 @@ test('K0 guaranteed-Basic bound subtracts every potentially prized Basic',()=>{
   const c=guaranteedOwnDeckBasics(ownerView(),registered,basics);
   assert.deepEqual(c,{
     basicRegistered:8,basicVisibleOutsideDeck:2,
-    possibleBasicPrized:6,minimumBasicStillInDeck:0
+    possibleBasicPrized:6,minimumBasicStillInDeck:0,
+    exactVisibleBasicCopiesReconcile:true
   });
   assert.equal(certifyFirstTurnBattleVip(ownerView(),registered,basics),
     null,'No proof of an unprized Basic if all six unknown Prize might contain it');
@@ -67,7 +68,7 @@ test('one open Bench slot is sufficient; empty or locked Bench prevents certific
   const cert=certifyFirstTurnBattleVip(almost,strong,basics);
   assert.equal(cert,null,
     '5 extra visible Basic copies invalidate the known 9-Basic conservation witness');
-  const much=[...Array(16).fill(BASIC),...Array(44).fill(ENERGY)];
+  const much=[...Array(16).fill(BASIC),OTHER,...Array(43).fill(ENERGY)];
   const cert2=certifyFirstTurnBattleVip(almost,much,basics);
   assert.equal(cert2.publicEmptyBenchSlots,1);
   assert.equal(certifyFirstTurnBattleVip({...almost,ownPublic:{
@@ -76,7 +77,7 @@ test('one open Bench slot is sufficient; empty or locked Bench prevents certific
 });
 
 test('first owner-turn Item lock and no deck prohibit certification',()=>{
-  const strong=[...Array(16).fill(BASIC),...Array(44).fill(ENERGY)];
+  const strong=[...Array(16).fill(BASIC),OTHER,...Array(43).fill(ENERGY)];
   assert.equal(certifyFirstTurnBattleVip(ownerView({globalTurn:3}),strong,basics),
     null);
   const locked=ownerView();
@@ -88,7 +89,7 @@ test('first owner-turn Item lock and no deck prohibit certification',()=>{
 });
 
 test('opponent hidden hand and Prize identities are outside the certificate',()=>{
-  const strong=[...Array(16).fill(BASIC),...Array(44).fill(ENERGY)];
+  const strong=[...Array(16).fill(BASIC),OTHER,...Array(43).fill(ENERGY)];
   const a=certifyFirstTurnBattleVip(ownerView(),strong,basics);
   const b=certifyFirstTurnBattleVip(ownerView({
     opponentPublic:{
@@ -100,4 +101,14 @@ test('opponent hidden hand and Prize identities are outside the certificate',()=
   assert.deepEqual(a,b);
   assert.equal(JSON.stringify(b).includes('DIFFERENT'),false);
   assert.equal(JSON.stringify(b).includes('CENSORED'),false);
+});
+
+
+test('K0 does not certify impossible visible printing multiplicities',()=>{
+  const bad=[...Array(16).fill(BASIC),...Array(44).fill(ENERGY)];
+  const v=ownerView();
+  const q=guaranteedOwnDeckBasics(v,bad,basics);
+  assert.equal(q.exactVisibleBasicCopiesReconcile,false);
+  assert.equal(q.minimumBasicStillInDeck,0);
+  assert.equal(certifyFirstTurnBattleVip(v,bad,basics),null);
 });
