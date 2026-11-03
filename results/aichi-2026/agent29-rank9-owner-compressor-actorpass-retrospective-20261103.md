@@ -37,3 +37,17 @@ A follow-up native run now adds per-arm counts of actual Passes, policy eligibil
 ## Qualification
 
 Source exact printed sixty is known, but paper gameplay source policy is still unqualified. The generic opponent does not demonstrate independent competent strategy. The native run does not observe a competitive-paper 25-minute event clock, many card effects are incomplete, and three Aichi Top32 original lists remain unauthenticated. **No fixed best 60, zero qualified full games and no verified 99.5% win rate**. The value is a reproducible owner-root integration mechanism and a falsifiable test of whether it executes on actual source decisions.
+
+## Per-root provenance check of the first v1 zero, independently rerun
+
+[Third compiled native CI 41616548763](https://github.com/FlareZ123/experiment-01/actions/runs/41616548763) succeeded at research head `c6821f3d0f4b1e79d3c94e0b4e5512bcaa5bc81a`, native **56/56** tests passing, and published [complete raw eight-game artifact 13221547727](https://github.com/FlareZ123/experiment-01/actions/runs/41616548763/artifacts/13221547727). It reports **true** for both all identical physical deal fingerprints and all four real source owner-policy audit receipts. The actual live source Pass decision counts (post-actor, source side only) were:
+
+| Original full-60 candidate, physical source seat | Actual source Passes seen inside new adapter | Eligible Passes | Native Item proposals | Native Item accepted | Source physical Energy moved |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Champion reference, source B | 9 | 0 | 0 | 0 | 0 |
+| New Moon Lockbreaker, source B | 21 | 0 | 0 | 0 | 0 |
+| Champion reference, source A | 7 | 0 | 0 | 0 | 0 |
+| New Moon Lockbreaker, source A | 6 | 0 | 0 | 0 | 0 |
+| **Total** | **43** | **0** | **0** | **0** | **0** |
+
+This proves the experimental hook **does see the real source owner's terminal Pass** rather than being masked by canonical actor root ordering. Native root acceptance is zero because **the bridge's own eligibility gate returns no proposal** in these actual sampled Passes. The original stage and the target source game share the same original printed card list, but the gate's conservative early-turn timing and other present-state conjunctions may have excluded late but otherwise viable original source opportunities. A subsequent read-only audit is measuring actual held Item and independently failing conditions, preserving every source Pass and physical root.
