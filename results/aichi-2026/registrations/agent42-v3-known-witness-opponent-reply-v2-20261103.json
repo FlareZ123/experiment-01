@@ -1,0 +1,52 @@
+{
+  "schema": "agent42-v3-known-witness-240root-counterreply-two-candidates-v2",
+  "preregisteredAtUtc": "2026-11-03T21:18:12.393Z",
+  "reasonForV2": "Original v1 one-candidate registered subset failed runner's intact two-candidate group invariant before native experiments. This v2 adds the registered untouched champion-reference candidate in exactly the same physical source rank, seed and seat, maintaining the original v3 symmetric group contract. Neither v1 failure nor historical positive contributes to independent win rate.",
+  "previousFailedWorkflowRun": 41719942681,
+  "previousFailedRegistration": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-opponent-reply-extension-20261103.json",
+  "previousFailedRegistrationGitBlob": "b70ce79ab3c295e0e2142f4fb47fd9ff0125fefd",
+  "firstSuccessfulTransportRun": 41718782033,
+  "firstSuccessfulTransportArtifact": 13270503827,
+  "originalTransportRegistration": "results/aichi-2026/registrations/agent42-selected-v3-known-witness-retrospective-20261103.json",
+  "originalTransportRegistrationGitBlob": "8b7f7dfd271937fc613d277f03941dda663734ff",
+  "sourceRank": 1,
+  "originalSourceSeat": 1,
+  "physicalCandidateSlot": "A",
+  "physicalSeed": 1122744069,
+  "originalCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "trials": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 420,
+      "seed": 1122744069,
+      "candidateId": "champion-reference",
+      "id": "1:420:A:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 420,
+      "seed": 1122744069,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:420:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "modeOrder": [
+    "corrected-bilateral-control-a",
+    "selected-v3-paper-plus-funded-mobility",
+    "corrected-bilateral-control-b"
+  ],
+  "cap180Historical": true,
+  "extendedNativeActionCap": 240,
+  "expectedAttempts": 6,
+  "sourcePrintedSixtyUnchanged": true,
+  "candidatePrintedSixtiesUnchanged": true,
+  "sourceDecisionPolicyFromOriginalTransportUnchangedExceptNativeCap": true,
+  "evidenceClass": "retro posthoc from already positive seed, policy integration correctness only",
+  "stopRules": "Native terminal may occur before cap. Opponent action after source settled chain must be genuine non-prompt Store root, not promotion prompt. All raw aborts and incomplete attempts retained.",
+  "noCompetitiveWinClaims": true
+}
