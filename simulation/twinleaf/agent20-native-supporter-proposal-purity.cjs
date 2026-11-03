@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const VERSION='agent20-native-supporter-proposal-purity-bilateral-v1';
+const VERSION='agent20-native-supporter-proposal-purity-bilateral-real-dispatch-v2';
 
 /**
  * Remove exactly one malformed native bot *proposal* side effect.
@@ -40,6 +40,9 @@ function withPureNativeSupporterProposal(play,deps){
     dispatchedPreviouslyRestoredActions:0,
     acceptedPreviouslyRestoredActions:0,
     rejectedPreviouslyRestoredActions:0,
+    speculativeDispatchesOfRestoredActions:0,
+    speculativeAcceptedRestoredActions:0,
+    speculativeRejectedRestoredActions:0,
     previouslyRestoredProposals:[],
     attemptedDispatches:[],
     competitiveQualifiedGames:0,
@@ -79,28 +82,40 @@ function withPureNativeSupporterProposal(play,deps){
   }
   function trackedDispatch(action,...args){
     const receipt=receipts.get(action);
-    if(receipt)audit.dispatchedPreviouslyRestoredActions++;
+    // The native bot probes a proposal in a cloned Simulator Store before
+    // submitting the same Action to the real game Store. Only the real
+    // Store may count as an accepted physical action. This distinction is
+    // essential: a previous v1 audit counted every successful probe twice.
+    const real=live===this;
+    if(receipt){
+      if(real)audit.dispatchedPreviouslyRestoredActions++;
+      else audit.speculativeDispatchesOfRestoredActions++;
+    }
     let output;
     try{
       output=oldDispatch.value.call(this,action,...args);
     }catch(error){
-      if(receipt){
+      if(receipt&&real){
         receipt.dispatch='native-rejected';
         receipt.error=String(error?.message??error);
         audit.rejectedPreviouslyRestoredActions++;
+      }else if(receipt){
+        audit.speculativeRejectedRestoredActions++;
       }
       throw error;
     }
     if(!live&&action?.constructor?.name==='AddPlayerAction'&&
       this.state.players?.length===1&&
       this.state.players[0].id===101)live=this;
-    if(receipt){
-      receipt.dispatch='native-accepted';
+    if(receipt&&real){
+      receipt.dispatch='real-native-Store-accepted';
       receipt.supporterTurnAfterNativeStore=
         this.state.players[receipt.seat]?.supporterTurn??null;
       receipt.newOwnerResolvingSupporter=
         this.state.players[receipt.seat]?.supporter.cards.map(c=>c.fullName)??[];
       audit.acceptedPreviouslyRestoredActions++;
+    }else if(receipt){
+      audit.speculativeAcceptedRestoredActions++;
     }
     return output;
   }
