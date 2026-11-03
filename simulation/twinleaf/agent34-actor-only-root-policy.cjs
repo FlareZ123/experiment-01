@@ -439,6 +439,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseForcedGuzmaNominalKo(view,catalog);
     if(gust)return gust;
   }
+  if(options.rank13SourceApexRoot===true){
+    const apex=require('./agent8-rank13-source-apex-attack-frontier.cjs')
+      .choosePublicApexRoot(view,catalog);
+    if(apex)return apex;
+  }
   const active=own.active,restrictions=active?.publicRestrictions;
   const locked=own.publicTurnRestrictions?.attackLockTurnsRemaining>0||
     restrictions?.cannotAttackNextTurn===true||
@@ -733,6 +738,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
     rank13DdeEnergyRootOptIn:deps.rank13DdeEnergyRoot===true,
     rank13DdeEnergyOwnerSeat:deps.rank13DdeEnergyOwnerSeat??null,
+    rank13SourceApexRootOptIn:deps.rank13SourceApexRoot===true,
+    rank13SourceApexRootOwnerSeat:deps.rank13SourceApexRootOwnerSeat??null,
     regidragoDonorQuickBallOwnerSeat:
       deps.regidragoDonorQuickBallOwnerSeat??null,
     printedGxRootOptIn:deps.printedGxRoot??
@@ -1225,6 +1232,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       rank13DdeEnergyRoot:actorSpecialEnergyEnabled(
         audit.rank13DdeEnergyRootOptIn,
         audit.rank13DdeEnergyOwnerSeat,seat),
+      rank13SourceApexRoot:actorSpecialEnergyEnabled(
+        audit.rank13SourceApexRootOptIn,
+        audit.rank13SourceApexRootOwnerSeat,seat),
       publicContextSpecialEnergy:actorSpecialEnergyEnabled(
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
