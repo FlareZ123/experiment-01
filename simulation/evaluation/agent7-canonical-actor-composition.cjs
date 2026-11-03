@@ -117,6 +117,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const observed=adapter(execute,{
       ...(options.ownerTrainerRegisteredSixties?{
         ownRegisteredSixties:options.ownerTrainerRegisteredSixties
+      }:{}),
+      ...(options.ownerPaperNecessity===true?{
+        ownerPaperNecessity:true
       }:{})
     });
     assert.ok(observed?.audit,'Generic Trainer frontier must expose audit');
