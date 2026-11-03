@@ -10,10 +10,10 @@ test('original 29 source Trainer inventory is conserved and cost coverage bounde
   assert.equal(a.originalSourceDecks,29);
   assert.deepEqual(a.missingOriginalRanks,[23,25,28]);
   assert.equal(a.totalTrainerCopies,1035);
-  assert.equal(a.coveredCopies,231);
+  assert.equal(a.coveredCopies,259);
   assert.deepEqual(a.modeTotals,{
-    mandatoryDiscard:143,optionalEnhancedDiscard:13,
-    knownNoDiscard:75,unknownPayment:804
+    mandatoryDiscard:164,optionalEnhancedDiscard:20,
+    knownNoDiscard:75,unknownPayment:776
   });
   assert.equal(a.sourceRows.reduce((sum,x)=>sum+x.trainerCopies,0),1035);
   assert.equal(a.printingRows.reduce((sum,x)=>sum+x.copies,0),1035);
@@ -39,7 +39,7 @@ test('source printings remain distinct and exact-cost groups match roster',()=>{
   }
   assert.equal(by.get('VS Seeker PHF')?.mode,'unknownPayment');
   assert.equal(a.sourceRows.filter(r=>
-    r.mandatoryDiscard+r.optionalEnhancedDiscard+r.knownNoDiscard>0).length,28);
+    r.mandatoryDiscard+r.optionalEnhancedDiscard+r.knownNoDiscard>0).length,29);
 });
 
 test('incomplete deck and duplicate rank fail closed',()=>{
