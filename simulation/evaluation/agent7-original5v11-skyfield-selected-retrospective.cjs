@@ -9,6 +9,8 @@ const { trainerPrintCatalog } =
   require('../twinleaf/agent5-generic-owner-trainer-opportunity.cjs');
 const { withSelectedSourceStadium, digestResult } =
   require('./agent7-original6v9-stadium-selected-retrospective.cjs');
+const { auditSourceImpact } =
+  require('./agent7-stadium-source-impact-receipt.cjs');
 const REGISTRATION =
   require('../../results/aichi-2026/registrations/agent7-original5v11-skyfield-pass-retro-20261103.json');
 const OUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -93,6 +95,9 @@ function run() {
     nativeTraceSha256: [digest(first), digest(selectedGame), digest(replay)],
     nativeSelectedRoots: selected.result?.audit?.selectedRoots ?? null,
     nativeSelectedStore: selected.result?.audit?.selectedNativeStore ?? null,
+    firstDivergenceAndReply: first && selectedGame &&
+      selected.result?.audit ?
+      auditSourceImpact(fixture,first,selectedGame,selected.result.audit):null,
     selectedAudit: selected.result?.audit ?? null,
     controlTrace: first?.rootActionLedger ?? null,
     selectedTrace: selectedGame?.rootActionLedger ?? null,
