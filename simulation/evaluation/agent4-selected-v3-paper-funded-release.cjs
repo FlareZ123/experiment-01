@@ -201,9 +201,13 @@ function runRelease(deps={}){
         .ownerTrainerFrontierAudit?.ownerPaperNecessityOptIn!==true).length:
       observedRows.filter(r=>r.actorOnlyDecisionCoverage
         .ownerTrainerFrontierAudit?.ownerPaperNecessityOptIn===true).length;
+    const decisionPolicy={...options};
+    delete decisionPolicy.registeredFrameName;
+    delete decisionPolicy.registeredTrials;
     modes.push({
       id:mode.id,
       effectiveOptionSha256:sha(options),
+      decisionPolicySha256:sha(decisionPolicy),
       selectedObserver:mode.ownerGenericTrainerFrontier,
       fundedFloatStone:mode.actorFundedShadowRiderFloatStoneRoot,
       inspectedActorRows:observedRows.length,
@@ -272,7 +276,7 @@ if(require.main===module){
   writeAtomicLocked(OUTPUT,result);
   process.stdout.write('AGENT4_SELECTED_V3 '+JSON.stringify({
     verdict:result.verdict,
-    modeHash:result.modes.map(m=>({id:m.id,sha:m.effectiveOptionSha256,
+    modeHash:result.modes.map(m=>({id:m.id,sha:m.decisionPolicySha256,
       inspected:m.inspectedActorRows,incorrectlyWired:m.mismatchedOwnerPaperAuditRows}))
   })+'\n');
   if(!result.verdict.acceptedDevelopmentRelease)process.exitCode=1;
