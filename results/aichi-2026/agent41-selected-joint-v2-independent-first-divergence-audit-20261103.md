@@ -26,6 +26,26 @@ Across the selected policy's native ledgers there were **20** total `Battle VIP 
 
 The archived selected `sourceCopiedAttackChoices.selectedGenesectTechnoBlast` sums are **32** for source rank 5 versus **19** in the control, exactly matching CI's source summary. The paired difference is **+13 copied-attack selections on these particular mixed exposed/fresh conditions**, not a game-win estimate or a guarantee of a favorable marginal effect on future deals.
 
+## Rank-5 original-source Trainer coverage remains a critical competence gap
+
+Independent census of **every original-source `PlayCardAction` in all 14 rank5 native contexts per mode**, joined to the exact original [rank5 60-card roster](full-decklists.json), whose category totals are **14 Pokémon / 42 Trainers / four Energy**:
+
+| Actual source actions (14 contexts per mode) | Joint-v1 control | Selected-v2 |
+| --- | ---: | ---: |
+| All original-source `PlayCardAction` actions | 96 | 106 |
+| Source Trainer actions | **0** | **6** |
+| `Battle VIP Pass FST` source Trainer actions | 0 | **6** |
+| Every other Trainer combined, including Quick Ball, Trainers' Mail and Supporters | **0** | **0** |
+| Source first-own-turn terminal Pass with a held Battle VIP Pass | **6** | **0** |
+| Source first-own-turn terminal Pass with a held Quick Ball | **8** | **8** |
+| Source first-own-turn terminal Pass with a held Trainers' Mail | **8** | **8** |
+
+The first-own-turn inventory is read from each native row's **owner-visible `sourceFirstOwnedAffordances.terminalPassOwnHand.resources`**, not guessed from starting probabilities, card pool, or opposing concealed cards. In the selected policy, every rank5 first-own-turn terminal Pass that held VIP in the baseline was converted into a source VIP action; this achieved a narrow intended action-class coverage gain. Yet each policy mode left **eight rank5 source contexts** ending that own first turn with a physical Quick Ball and **eight** with Trainers' Mail still in hand. Some observations are the two candidate roster arms of the same seed and **must not** be treated as independent opening-hand trials.
+
+**A targeted future-policy hypothesis** is blind, owner-only Trainers' Mail play after otherwise Pass, followed by genuine *prompt-authorized* visibility into the top four cards and native choice. The existing [hidden-source Trainers' Mail information-set counterexample](../../simulation/twinleaf/hidden-source-trainers-mail.cjs) demonstrates that the pinned generic bot's Item decision can vary with concealed own-deck order before the Item is actually played. Simply delegating a new source Trainer route to this stock tactic risks hidden-information cheating. A sound policy must choose whether to play Mail without looking at its concealed top-four card identities, then consume only the Store's actual revealed prompt and honor card legality, Item locks and applicable action windows.
+
+This owner-first Pass census **does not establish that Quick Ball was tactically affordable** (discard cost and DCI matter), that every Mail would have found a useful Trainer, or that a modified policy improves wins. The correct prospective test is an opt-in native same-deal source-owned Mail selection at the 8 observed First-Pass opportunities, preserving control action prefixes, prompt authorization, real physical hand/deck/discard changes, cross-seat symmetry and opponent continuation. An Item-level opportunity is a narrower claim than a source-competent game.
+
 ## Source rank-5 copied-attack immediate native payoffs
 
 A second read-only join matched each rank-5 source `sourceCopiedAttackChoices.records[]` with qualification `GENESECT_TECHNO_BLAST_SELECTED` to the **same** `sourceNativeAttackSettlements[].actionOrdinal` using `attackRootOrdinal`. For each matching settled attack, compare `prizesBefore[sourceSeat]` to `prizesAfter[sourceSeat]` at the end of that exact native prompt chain. This is a native board and Prize observation, **not** an independent paper damage-rules certificate.
