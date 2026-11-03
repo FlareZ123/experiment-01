@@ -83,7 +83,7 @@ function inspectProfile(){
   }
   assert.deepEqual([...groups.keys()].sort(),['11:0:A','11:1:B','5:0:A','5:1:B']);
   const unexpected=Object.keys(process.env).filter(k=>
-    /^(AGENT|AICHI|TWINLEAF|PAPER)_/.test(k));
+    /^(AGENT[0-9]+_|AICHI_|TWINLEAF_|PAPER_)/.test(k));
   assert.deepEqual(unexpected,[],
     'Source-visible ambient research flags were not preapproved');
   assert.deepEqual(profile.injectedResearchEnvironment,
