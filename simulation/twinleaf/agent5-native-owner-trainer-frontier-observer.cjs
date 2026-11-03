@@ -5,7 +5,8 @@ const {actorObservation}=require('./actor-observation-contract.cjs');
 const {ownerTrainerOpportunity,trainerPrintCatalog,VERSION:FRONTIER_VERSION}=
   require('./agent5-generic-owner-trainer-opportunity.cjs');
 
-const VERSION='agent5-owner-turn-trainer-native-readonly-v1';
+const {certifyFirstTurnBattleVip}=require('./agent5-owner-firstturn-basic-search-k0.cjs');
+const VERSION='agent5-owner-turn-trainer-native-readonly-v2-k0-vip';
 
 /**
  * Observe a shared, genuinely live owner root before the existing bot decides.
