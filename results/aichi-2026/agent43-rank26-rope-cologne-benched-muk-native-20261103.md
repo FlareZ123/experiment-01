@@ -39,6 +39,27 @@ The new CJS numerical regressions **passed** in the [manual global field gate ru
 
 The exact joint **0.04020%** is not the overall chance to have a counterline. It omits three Order Pad and four Trainers' Mail, any card searching/drawing, source Egg discard establishment, opponent mulligans, conditional source choice to play Rope, candidate choice to use Shake or put extra Basics on Bench, source going second, resources surviving later turns, locks on Items, and attack/KO consequences. Existing [Agent2 source Cologne access result](../statistics/agent2-rank26-mail-pad-cologne-joint-20261103.md) already finds far broader conditional singleton Cologne access once Pad/Mail are modeled. **No general probability of countering Muk, claiming a Prize or winning a game follows from the narrow product.**
 
+## Follow-up: source Counter Catcher removes the two-Bench Rope escape when behind
+
+**Same-day staged extension, compiled native both physical seats.** The exact authenticated original rank26 60 also contains a singleton **Counter Catcher PAR160**. It has a paper prerequisite: source must have **more Prize cards remaining** than the opponent. Once playable it selects **a specific opposing Benched Pokémon** to switch Active, whereas Escape Rope delegates the promotion choice to the opposing player.
+
+To distinguish these mechanics, PR22 now tests original source physical hand Counter Catcher PAR plus Canceling Cologne ASR, original discard Exeggcute PLF, opponent active Regidrago V and **two opposing Bench targets** Alolan Muk SUM plus Lunatone OBF. Source prizes were deliberately staged to 6, opponent prizes to 5 in positive arms; equal 6–6 in negative controls. Both physical seats were executed using the pinned native Store.
+
+| Source physical seat | Prize state | Native Catcher status | Real staged consequence |
+| --- | --- | --- | --- |
+| 0 | Source 6, opponent 5 | Playable | Source chooses physical Muk from two Bench targets; Catcher and Cologne consumed; Egg Propagation accepted |
+| 1 | Source 6, opponent 5 | Playable | Same physical promotion, paid Items, and Egg in hand |
+| 0 | Both 6 | `canPlay` throws `CANNOT_PLAY_THIS_CARD` | Fail closed before an illegal dispatch, Muk stays on Bench |
+| 1 | Both 6 | `canPlay` throws `CANNOT_PLAY_THIS_CARD` | Fail closed before an illegal dispatch, Muk stays on Bench |
+
+The negative cases exposed a notable **engine-harness trap**. A deliberately attempted illegal `PlayCardAction` could remove the held Catcher before throwing. The corrected policy/test checks the native Item's eligibility first and does **not** mutate native State with a known-invalid move. This is a necessary distinction for any fully autonomous bot evaluating options. It also means no claim is made that Twinleaf's rejected-action state is safe to continue playing.
+
+The final [manual CI 41721108710](https://github.com/FlareZ123/experiment-01/actions/runs/41721108710) **passed 21/21 native test cases**, including the prior 13 baseline cases, the four real Rope/Cologne cases and all four new Catcher/Cologne Prize-gated cases. Exact research-branch head `c87fd123e9a54ccbbb9486292676fe510517190b`, unmerged [draft PR22](https://github.com/FlareZ123/experiment-01/pull/22). Zero actual natural games and zero qualified matchup outcomes.
+
+**Strategic consequence:** a second opposing Bench target protects a Benched Muk from *forced promotion by Escape Rope* only while the opponent chooses a different target. It does not protect Muk against **direct Counter Catcher selection** after source falls behind on Prizes. At the original 6–6 opening immediately after opponent's first-turn Boost Shake, Counter Catcher is unavailable. Later rank26 line assessment must condition on both Prize status and source's ability to pay, search, and sequence a Catcher and Cologne. The two-Item physical staging is **not** evidence of actual source-policy selection or a matchup win.
+
+---
+
 ## Decision impact and caveat
 
 Sole Bench Muk is **conditionally exposed** to a two-Item escape from its own suppression, while an additional Benched Pokémon permits the opponent to avoid promoting Muk. The existence of additional Bench Pokémon also consumes scarce Bench slots and may create other gust/disruption liabilities. An optimizer must represent opposing target choice, physical Item custody, and downstream owner Ability activation rather than score generic Escape Rope/Cologne access as a uniform lock answer.
