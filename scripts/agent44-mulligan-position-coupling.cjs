@@ -68,6 +68,34 @@ function auditBasicOpeningAsymmetry(left, right, handSize = 7) {
 }
 
 /**
+ * In an idealized repeated-mulligan experiment, both candidate hands use the
+ * same new uniform position sample on each independent round until their own
+ * first Basic-valid hand. Their mulligan counts disagree exactly when an XOR
+ * occurs before the first joint-invalid chain reaches a joint-valid round.
+ * This models marginal opening-redraw coupling, not native setup RNG.
+ * @param {boolean[]} left
+ * @param {boolean[]} right
+ * @param {number} [handSize]
+ * @returns {object}
+ */
+function auditRepeatedBasicOpeningAsymmetry(left, right, handSize = 7) {
+  const first = auditBasicOpeningAsymmetry(left, right, handSize);
+  const numerator = BigInt(first.discordantMulliganNumerator);
+  const denominator = BigInt(first.denominator) -
+    BigInt(first.simultaneousMulliganNumerator);
+  assert.ok(denominator > 0n);
+  return {
+    schema: 'agent44-idealized-repeated-mulligan-coupling-v1',
+    countDisagreementNumerator: numerator.toString(),
+    countDisagreementDenominator: denominator.toString(),
+    countDisagreementProbability: Number(numerator) / Number(denominator),
+    eachRoundIndependent: true,
+    commonPositionSampleWithinRound: true,
+    nativeSetupCertified: false
+  };
+}
+
+/**
  * Generate an ordered Basic mask using only a card's checked database stage.
  * Each input is a resolved English-proxy card ID/count entry; no unknown
  * printings or stages are silently interpreted as non-Basic.
@@ -164,5 +192,5 @@ function benchmarkMasks(repoRoot) {
 
 module.exports = {
   combinations, auditBasicOpeningAsymmetry,
-  maskForResolvedCards, benchmarkMasks
+  auditRepeatedBasicOpeningAsymmetry, maskForResolvedCards, benchmarkMasks
 };
