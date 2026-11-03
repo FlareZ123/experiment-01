@@ -24,6 +24,12 @@ All 8 original-source Terminal Period attacks and the first Claw precede the for
 
 **Lillie physical witness:** real `ShuffleDeckPrompt` was resolved after native Supporter selection; the T32 board then had Gengar & Mimikyu-GX on the New Moon Bench, with seven cards left in the owner's hand at Pass. The source still retained its powered Active Mega Absol and selected **AttackAction** at T33. The extra Bench Pokémon and new hand did not yield an observed attack or Prize rescue before the native source win.
 
+## Hidden weakness of the pre-fork source-policy evidence: eight legal zero-payoff Terminal Period attacks
+
+The supplied card database identifies **Mega Absol ex M1L 86**, whose **Terminal Period** attack knocks out the opposing Active Pokémon **only if it already has exactly six damage counters** (60 damage). The frozen native archive separately records source Terminal Period at **T15, T17, T19, T21, T23, T25, T27 and T29**, each against **Klefki with 0 damage** before and after. The source attacker had **two Darkness Energy** attached, sufficient for Terminal Period but below the three Energy needed for Claw of Darkness. Every one of those eight attack declarations left both Prize counts at `[6,6]`.
+
+This is a definitive **zero immediate damage and Prize payoff** for those eight settled attacks. Because Claw of Darkness was unavailable on the observed two-Energy board, the mere choice to use Terminal Period is **not itself proof of a tactical misplay**. However, spending eight turns at that state without improving the required Energy count is a serious source-policy competence diagnostic. The native trace's eight accepted attack declarations must **never** be advertised as eight damaging or strategically consequential attacks. The independently rerun auditor now verifies all eight target/board/Prize nonchanges in all three arms.
+
 ## Interpretation and limitations
 
 1. The printed Counter Catcher Prize condition **6 > 5** and opponent Bench presence were visible and valid at the fork, and the native prompt selected the observed target. Full paper legality still requires independent confirmation of any persistent lock effects and payment, and the native Store is known to accept certain paper-invalid interactions elsewhere.
