@@ -4,7 +4,10 @@ const assert=require('node:assert/strict');
 const {ownerTrainerDiscardContention,VERSION:FRONTIER_VERSION}=
   require('./agent27-owner-trainer-discard-contention.cjs');
 
-const VERSION='agent27-native-owner-hand-payment-summary-v1';
+const {summarizeOwnerBulkHandTransitions}=
+  require('./agent49-owner-bulk-hand-transitions.cjs');
+
+const VERSION='agent27-native-owner-hand-payment-summary-v2-bulk-options';
 
 /**
  * Compact diagnostic for an actual actor-root observation. Counts are
@@ -20,6 +23,8 @@ function summarizeOwnerHandPayment(view,trainerRows,
   protectedIndices=new Set()){
   const full=ownerTrainerDiscardContention(view,trainerRows,protectedIndices);
   const covered=full.rows.filter(row=>row.costKnown);
+  const bulk=summarizeOwnerBulkHandTransitions(
+    view,trainerRows,protectedIndices);
   const variants=covered.flatMap(row=>row.variants.map(v=>({
     handIndex:row.handIndex,printing:row.printing,
     type:row.type,publicBlocker:row.publicBlocker,
@@ -51,7 +56,7 @@ function summarizeOwnerHandPayment(view,trainerRows,
     paidVariantsUnblocked:paid.length,
     physicallyAffordablePaidVariants:paidAffordable.length,
     physicallyUnaffordablePaidVariants:paidUnaffordable.length,
-    supportedPairs:full.pairs.length,
+    supportedPairs:full.pairs.length,\n    printVerifiedBulkHandTrainerCopies:bulk.knownBulkHandTrainerCopies,\n    bulkDiscardHandAlternatives:bulk.discardEntireHandCandidates,\n    bulkShuffleHandAlternatives:bulk.shuffleEntireHandCandidates,\n    bulkHandTransitions:bulk.rows,
     blockedPairs:full.pairs.filter(p=>p.genericBlocker!==null).length,
     sameHandContestedPaidPairs:contested.length,
     coveredCopyCosts:variants,
@@ -76,8 +81,8 @@ function summarizeOwnerHandPayment(view,trainerRows,
 function summarizeNativePaymentRoots(roots){
   assert.ok(Array.isArray(roots));
   const bySeat={0:{roots:0,supported:0,paid:0,affordable:0,
-    unaffordable:0,contested:0},1:{roots:0,supported:0,paid:0,
-    affordable:0,unaffordable:0,contested:0}};
+    unaffordable:0,contested:0,bulk:0},1:{roots:0,supported:0,paid:0,
+    affordable:0,unaffordable:0,contested:0,bulk:0}};
   for(const root of roots){
     const r=root.ownerPaymentSummary;
     if(!r)continue;
@@ -89,6 +94,7 @@ function summarizeNativePaymentRoots(roots){
     c.affordable+=r.physicallyAffordablePaidVariants;
     c.unaffordable+=r.physicallyUnaffordablePaidVariants;
     c.contested+=r.sameHandContestedPaidPairs;
+    c.bulk+=r.printVerifiedBulkHandTrainerCopies??0;
   }
   return {version:VERSION,bySeat,
     auditedRoots:bySeat[0].roots+bySeat[1].roots,
