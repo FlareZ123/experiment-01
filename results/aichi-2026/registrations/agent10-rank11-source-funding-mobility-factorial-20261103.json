@@ -12,6 +12,8 @@
   "sharedOriginalSeed": 4096421492,
   "pairs": [
     {
+      "rank": 11,
+      "repeat": 0,
       "id": "11:0:B:champion-reference",
       "seed": 4096421492,
       "sourceSeat": 0,
@@ -19,6 +21,8 @@
       "candidateId": "champion-reference"
     },
     {
+      "rank": 11,
+      "repeat": 0,
       "id": "11:0:B:new-moon-lockbreaker-v1",
       "seed": 4096421492,
       "sourceSeat": 0,
