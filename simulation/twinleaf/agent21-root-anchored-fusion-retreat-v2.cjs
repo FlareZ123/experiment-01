@@ -42,6 +42,8 @@ function withRootAnchoredFusionMewRetreat(execute,deps={}) {
   };
   const observe=deps.observe??
     require('./actor-observation-contract.cjs').actorObservation;
+  const rootActionReceipt=deps.rootActionReceipt??
+    require('./agent34-actor-only-root-policy.cjs').actorNativeActionReceipt;
   const choose=deps.choose??((view,known)=>
     chooseStrandedFusionMewRetreat(view,known)??
     chooseCrobatDceMewRetreat(view,known));
@@ -57,6 +59,7 @@ function withRootAnchoredFusionMewRetreat(execute,deps={}) {
     version:VERSION,developmentOnly:true,ownerNeutral:true,
     anchoredStores:0,auxiliaryPassesUnchanged:0,
     anchoredPassesSeen:0,eligibleOffers:0,
+    originalBotPassRootTagged:0,originalBotPassRootUntagged:0,
     nativeReplacementReturns:0,nativeRejectedReplacements:0,
     exactPhysicalFeeAndPromotion:0,unverifiedPhysicalFees:0,
     pendingAtEnd:0,records:[],
@@ -106,6 +109,9 @@ function withRootAnchoredFusionMewRetreat(execute,deps={}) {
     const receipt={
       stage:'post-settlement',game:gameOrdinal.get(store),
       seat:before.seat,turn:before.turn,
+      originalBotPassRootOrdinal:before.botRootOrdinal,
+      originalBotPolicyDecisionOrdinal:before.botPolicyDecisionOrdinal,
+      originalBotRootTagged:before.botRootTagged,
       status:verified?'EXACT_FEE_AND_PROMOTION':
         'PHYSICAL_FEE_OR_POSITION_UNVERIFIED',
       ownerIdentity,promoted,outgoingBenched,feeInDiscard,
@@ -145,12 +151,28 @@ function withRootAnchoredFusionMewRetreat(execute,deps={}) {
           assert.ok(Number.isSafeInteger(intent.benchIndex));
           const before=capture(owner,intent.benchIndex,this);
           if(before) {
+            const rootTag=rootActionReceipt(action);
+            const botRootTagged=rootTag?.seat===seat&&
+              rootTag?.kind==='pass'&&
+              Number.isSafeInteger(rootTag.nativeStoreActionOrdinal)&&
+              rootTag.nativeStoreActionOrdinal>=0&&
+              Number.isSafeInteger(rootTag.policyDecisionOrdinal);
+            before.botRootTagged=botRootTagged;
+            before.botRootOrdinal=botRootTagged?
+              rootTag.nativeStoreActionOrdinal:null;
+            before.botPolicyDecisionOrdinal=botRootTagged?
+              rootTag.policyDecisionOrdinal:null;
+            if(botRootTagged)audit.originalBotPassRootTagged++;
+            else audit.originalBotPassRootUntagged++;
             const replacement=new RetreatAction(owner.id,intent.benchIndex);
             audit.eligibleOffers++;
             add({stage:'selected-proposal',game:gameOrdinal.get(this),
               seat,turn:s.turn,from:before.fromPokemon.fullName,
               to:before.toPokemon.fullName,
               paymentPrinting:before.feeCard.fullName,
+              originalBotPassRootOrdinal:before.botRootOrdinal,
+              originalBotPolicyDecisionOrdinal:before.botPolicyDecisionOrdinal,
+              originalBotRootTagged:botRootTagged,
               selectedRootLedgerJoinVerified:false});
             pending.set(this,before);
             try {
