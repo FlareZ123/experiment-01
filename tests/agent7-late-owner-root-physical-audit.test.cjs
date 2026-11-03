@@ -15,6 +15,9 @@ class PlayCardAction{
 class ResolvePromptAction{
   constructor(id){this.id=id;}
 }
+class AttackAction{
+  constructor(clientId){this.clientId=clientId;}
+}
 class Store{
   constructor(state){this.state=state;this.calls=0;}
   dispatch(action){
@@ -124,4 +127,23 @@ test('requires exact count of real game instances and restores',()=>{
   assert.throws(()=>withLateOwnerRootPhysicalAudit(()=>null,[trial],{Store}),
     /Every registered trial/);
   assert.strictEqual(Store.prototype.dispatch,prior);
+});
+
+test('late Attack cloned Lillie outcome is observational and owner-only',()=>{
+  const st=new Store(state(1,40));
+  let calls=0;
+  const output=withLateOwnerRootPhysicalAudit(()=>{
+    st.dispatch(new AddPlayerAction());
+    st.dispatch(new AttackAction('owner'));
+  },[trial],{Store,probe:(nativeState,seat)=>{
+    calls++;
+    assert.strictEqual(nativeState,st.state);
+    assert.equal(seat,0);
+    return {outcome:'NATIVE_LILLIE_SETTLED'};
+  }});
+  assert.equal(calls,1);
+  assert.equal(st.calls,2);
+  const e=output.audit.rows[0].lateRootEvents[0];
+  assert.equal(e.nativeAccepted,true);
+  assert.equal(e.detachedLillieBeforeAttack.outcome,'NATIVE_LILLIE_SETTLED');
 });
