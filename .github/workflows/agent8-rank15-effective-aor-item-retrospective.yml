@@ -28,6 +28,11 @@ on:
         type: boolean
         default: false
         required: false
+      source13_treasure_transport:
+        description: Reuse fixed eight rank13 physical deals for native Mysterious Treasure root plus paper-paid prompt transport
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -76,11 +81,16 @@ jobs:
         if: ${{ inputs.source13_paper_evolution_factorial }}
         run: node --test tests/agent47-minimum-attach-energy-hook.test.cjs
       - name: Verify owner-only original Regidrago payload-access conditions
-        if: ${{ inputs.source13_paper_evolution_factorial }}
+        if: ${{ inputs.source13_paper_evolution_factorial || inputs.source13_treasure_transport }}
         run: node --test tests/agent8-rank13-payload-owner-opportunity.test.cjs
       - name: Validate passive native copied-attack prompt ledger
-        if: ${{ inputs.source13_paper_evolution_factorial }}
+        if: ${{ inputs.source13_paper_evolution_factorial || inputs.source13_treasure_transport }}
         run: node --test tests/agent8-native-copied-attack-choice-ledger.test.cjs
+      - name: Replay original-rank13 Mysterious Treasure root and native cost/search comparison
+        if: ${{ inputs.source13_treasure_transport }}
+        env:
+          AGENT8_RANK13_TREASURE_REPORT: agent8-original13-treasure-native-transport.json
+        run: node simulation/evaluation/agent8-rank13-treasure-native-transport.cjs
       - name: Retrospective original-rank13 four-arm donor by corrected paper Celestial Roar
         if: ${{ inputs.source13_paper_evolution_factorial }}
         env:
@@ -111,5 +121,6 @@ jobs:
             agent8-original13-donor-paired-native.json
             agent8-original13-donor-evolution-factorial-native.json
             agent8-original13-donor-evolution-paper-correct-native.json
+            agent8-original13-treasure-native-transport.json
           if-no-files-found: warn
           retention-days: 30
