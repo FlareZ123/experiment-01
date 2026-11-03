@@ -133,6 +133,54 @@ function candidateMukBenchGeometry() {
 }
 
 /**
+ * Independent source rank26 paper-hand access to the actual singleton
+ * Escape Rope and Canceling Cologne in the first eight cards.
+ * No Order Pad, Trainers' Mail, other draws or opponent mulligan bonus.
+ * @returns {{basicValid:number,heldPairUnconditional:number,heldPairAmongBasicValid:number}}
+ */
+function rank26DirectRopeCologneAccess() {
+  const basicValid = 1 - choose(48, 7) / choose(60, 7);
+  let heldPairUnconditional = 0;
+  eachEight([12, 1, 1, 46], ([basic, rope, cologne], p8) => {
+    if (!rope || !cologne || basic === 0) return;
+    const initialSevenValid = basic === 1 ? 7 / 8 : 1;
+    heldPairUnconditional += p8 * initialSevenValid;
+  });
+  return {
+    basicValid,
+    heldPairUnconditional,
+    heldPairAmongBasicValid: heldPairUnconditional / basicValid
+  };
+}
+
+/**
+ * A physically selectable one-Grimer Bench setup, deliberately excluding
+ * any naturally held extra Basic in the initial seven or eighth draw.
+ * One non-Grimer Basic starts Active, one Grimer starts on the Bench.
+ * Direct Boost Shake is in first eight, an Alolan Muk survives six Prizes.
+ * This does not claim a player would choose the setup or find all payments.
+ * @returns {{basicValid:number,soleBenchedGrimerUnconditional:number,soleBenchedGrimerAmongBasicValid:number}}
+ */
+function candidateDirectSoleBenchMukAccess() {
+  const basicValid = 1 - choose(48, 7) / choose(60, 7);
+  let soleBenchedGrimerUnconditional = 0;
+  // Grimer, Muk, Shake, other Basic, non-Basic remainder.
+  eachEight([2, 2, 3, 10, 43], ([grimer, muk, shake, otherBasic], p8) => {
+    if (grimer !== 1 || otherBasic !== 1 || shake === 0 || muk === 2) return;
+    // One of the six non-Basics must occupy eighth-draw position:
+    // exactly two Basics, one of each kind, were in the first seven.
+    const nonBasicEighthWeight = 6 / 8;
+    const mukSurvivesPrizes = 1 - allPrized(2 - muk);
+    soleBenchedGrimerUnconditional += p8 * nonBasicEighthWeight * mukSurvivesPrizes;
+  });
+  return {
+    basicValid,
+    soleBenchedGrimerUnconditional,
+    soleBenchedGrimerAmongBasicValid: soleBenchedGrimerUnconditional / basicValid
+  };
+}
+
+/**
  * Optimistic opening-screen for the unchanged original Aichi rank-6
  * Iron Thorns 60: four only Basics, two Guzma & Hala, two Tag Call,
  * singleton Double Colorless Energy and Thunder Mountain Prism Star.
@@ -168,4 +216,4 @@ function rank6GuzmaHalaVoltWindow() {
   };
 }
 
-module.exports = { candidateForcedActiveMuk, candidateMukBenchGeometry, rank6GuzmaHalaVoltWindow };
+module.exports = { candidateForcedActiveMuk, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow };
