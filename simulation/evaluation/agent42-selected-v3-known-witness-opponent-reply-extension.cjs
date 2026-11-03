@@ -62,10 +62,10 @@ function followthrough(row,source=1){
   const settled=physicallyPaid.some(x=>x.actionOrdinal===c.actionOrdinal);
   const targets=row.nativeAcceptedTargetSidecar?.events??[];
   const tool=targets.some(e=>e.rootActionOrdinal===a.actionOrdinal&&
-    e.action==='PlayCardAction'&&e.storeAccepted===true&&
+    e.playerSlot===source&&e.action==='PlayCardAction'&&e.storeAccepted===true&&
     e.declared?.ownerHandPrinting==='Float Stone BKT');
   const retreat=targets.some(e=>e.rootActionOrdinal===b.actionOrdinal&&
-    e.action==='RetreatAction'&&e.storeAccepted===true);
+    e.playerSlot===source&&e.action==='RetreatAction'&&e.storeAccepted===true);
   const opponentReply=ledger.find(x=>x.actionOrdinal>c.actionOrdinal&&
     x.playerSlot===opponent&&x.action!=='ResolvePromptAction')??null;
   const sourceNext=ledger.find(x=>x.actionOrdinal>c.actionOrdinal&&
