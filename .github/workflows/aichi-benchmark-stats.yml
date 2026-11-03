@@ -194,7 +194,9 @@ jobs:
       - name: Regress independent same-root offers without synthetic-hold denominator inflation
         run: node --test tests/agent7-same-root-independent-opportunity.test.cjs
       - name: Verify independent source-deal and real native-opportunity receipt integrity
-        run: node --test tests/agent48-decision-opportunity-receipt.test.cjs
+        run: |
+          node --test tests/agent48-decision-opportunity-receipt.test.cjs
+          node --test tests/agent41-native-attempt-disposition.test.cjs
       - name: Regress rank22 Wally first-turn direct prize-aware physical access
         run: node --test tests/agent48-rank22-wally-direct.test.cjs
       - name: Check exact rank22 Wally or Wonder Tag disjoint access and Prize accounting
