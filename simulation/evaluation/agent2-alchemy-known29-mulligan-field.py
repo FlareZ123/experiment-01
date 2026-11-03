@@ -19,7 +19,8 @@ BASICS_BY_RANK = {
     20:14,21:14,22:12,24:4,26:12,27:15,29:4,30:16,31:15,32:13,
 }
 METRICS = ("mukRegidrago", "budewRegidrago", "eitherLockRegidrago",
-           "budewDirectStartRegidrago")
+           "budewDirectStartRegidrago", "positionedEitherLockRegidrago",
+           "unpositionedBudewOnlyRegidrago")
 
 
 def source_strata(root: Path) -> Counter:
@@ -86,7 +87,7 @@ def run(root: Path, trials_per_stratum: int = 40000, seed: int = 20261103):
         "sourcesExcluded": [23, 25, 28],
         "sourceBasicCountsByRank": BASICS_BY_RANK,
         "strata": rows, "equalRankField": field,
-        "disclaimer": "Opening resource access only; all bonuses drawn; no native actions, games or win rate."
+        "disclaimer": "Opening access only; positioning forbids unpriced Budew pivots; all bonuses drawn. No native actions, paid searches, games or win rate."
     }
 
 
