@@ -3,8 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  VERSION,REMOVAL_PRINTINGS,removalTargetCertificate,
-  withPublicRemovalTargetEvidence
+  VERSION,REMOVAL_PRINTINGS,PROTECTED_PRISM_STADIUMS,
+  removalTargetCertificate,withPublicRemovalTargetEvidence
 }=require('../simulation/twinleaf/agent6-public-removal-target-certificate.cjs');
 
 /** Owner-visible board only; no deck, Prize identity, or opposing hand. */
@@ -25,7 +25,7 @@ function view(hand=['Field Blower GRI'],options={}){
 }
 
 test('exact source printing database and native alias register four rule identities',()=>{
-  assert.equal(VERSION,'agent6-owner-public-removal-target-certificate-v1');
+  assert.equal(VERSION,'agent6-owner-public-removal-target-certificate-v2');
   assert.deepEqual(Object.keys(REMOVAL_PRINTINGS),[
     'Field Blower GRI','Lost Vacuum LOR',
     'Tool Scrapper RCL','Tool Scrapper DRX'
@@ -66,16 +66,82 @@ test('Tool Scrapper sees Tools but correctly excludes a Stadium-only board',()=>
   assert.equal(yes.targets[0].side,'own');
 });
 
-test('Field Blower can use a Stadium as the only public target',()=>{
+test('Field Blower can use an ordinary Stadium as the only public target',()=>{
   const v=view();
   v.ownPublic.active.tools=[];
   v.opponentPublic.active.tools=[];
-  v.opponentPublic.stadium=['Thunder Mountain LOT'];
+  v.opponentPublic.stadium=['Path to the Peak CRE'];
   const c=removalTargetCertificate(v,0);
   assert.equal(c.eligibleTargetCount,1);
   assert.equal(c.targets[0].targetClass,'stadium');
   assert.equal(c.targets[0].side,'opponent');
   assert.equal(c.publiclyProvenBlocker,null);
+  assert.equal(c.protectedStadiums.length,0);
+});
+
+test('five printed Prism Star Stadiums resist direct Item effects',()=>{
+  assert.deepEqual(PROTECTED_PRISM_STADIUMS,{
+    'Heat Factory LOT':'sm8-178',
+    'Life Forest LOT':'sm8-180',
+    'Thunder Mountain LOT':'sm8-191',
+    'Black Market TEU':'sm9-134',
+    'Wondrous Labyrinth TEU':'sm9-158'
+  });
+  for(const [printing,sourceId] of
+    Object.entries(PROTECTED_PRISM_STADIUMS)){
+    for(const item of ['Field Blower GRI','Lost Vacuum LOR']){
+      const hand=item==='Lost Vacuum LOR'?
+        [item,'Psychic Energy MEE']:[item];
+      const v=view(hand);
+      v.ownPublic.active.tools=[];
+      v.opponentPublic.active.tools=[];
+      v.opponentPublic.stadium=[printing];
+      const cert=removalTargetCertificate(v,0);
+      assert.equal(cert.eligibleTargetCount,0);
+      assert.equal(cert.protectedStadiums.length,1);
+      assert.equal(cert.protectedStadiums[0].sourceId,sourceId);
+      assert.equal(cert.protectedStadiums[0].printing,printing);
+      assert.equal(cert.printedProtectionSuppressionUnverified,true);
+      assert.equal(cert.publiclyProvenBlocker,null);
+      assert.deepEqual(cert.blockers,[]);
+      assert.equal(cert.status,
+        'protected-prism-star-stadium-effect-unresolved');
+      assert.equal(cert.finalTargetDestinationCertified,false);
+      const overlay=withPublicRemovalTargetEvidence(v,{
+        actorSeat:0,globalTurn:5,rows:[{
+          handIndex:0,printing:item,paperPlayable:null,
+          necessaryBlockers:[]
+        }]
+      });
+      assert.equal(overlay.rows[0].paperPlayable,null);
+      assert.equal(overlay.rows[0].exactTargetEligibility,
+        'prism-star-stadium-protection-unresolved');
+    }
+  }
+});
+
+test('an ordinary Tool remains a target alongside protected Prism Star Stadium',()=>{
+  const v=view();
+  v.opponentPublic.stadium=['Thunder Mountain LOT'];
+  const cert=removalTargetCertificate(v,0);
+  assert.equal(cert.eligibleTargetCount,2);
+  assert.equal(cert.protectedStadiums.length,1);
+  assert.equal(cert.status,'public-target-and-physical-cost-present-unresolved');
+  assert.deepEqual(cert.targets.map(x=>x.printing),[
+    'Float Stone BKT','Tool Jammer BST'
+  ]);
+});
+
+test('Tool Scrapper still proves no Tool target on Stadium-only board',()=>{
+  const v=view(['Tool Scrapper RCL']);
+  v.ownPublic.active.tools=[];
+  v.opponentPublic.active.tools=[];
+  v.opponentPublic.stadium=['Thunder Mountain LOT'];
+  const cert=removalTargetCertificate(v,0);
+  assert.equal(cert.eligibleTargetCount,0);
+  assert.equal(cert.protectedStadiums.length,0);
+  assert.deepEqual(cert.blockers,['no-public-removal-target']);
+  assert.equal(cert.status,'necessary-condition-failed');
 });
 
 test('Lost Vacuum independently checks mandatory other-hand payment',()=>{
