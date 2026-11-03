@@ -32,3 +32,9 @@ test('both unchanged candidate 60s expose only three Basic Ability copies',()=>{
  }
  assert.equal(x.sourceRank26MinusOwnBasicAbilityCopies,8);
 });
+
+test('Meloetta and Kyurem conditional Ability text guard',()=>{
+ const {printedCard}=require('../scripts/agent2-rank26-basic-ability-exposure.cjs');
+ assert.match(printedCard(root,'zsv10pt5-44').abilities[0].text,/If you go first/);
+ assert.match(printedCard(root,'sv6pt5-47').abilities[0].text,/Colress/);
+});
