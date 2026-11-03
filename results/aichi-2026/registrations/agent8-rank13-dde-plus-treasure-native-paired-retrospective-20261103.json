@@ -1,0 +1,52 @@
+{
+  "schema": "agent8-rank13-owner-ddenergy-plus-treasure-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T04:54:41.989Z",
+  "originalRegistration": "results/aichi-2026/registrations/agent8-rank13-donor-native-paired-20261102.json",
+  "paperSourceRank": 13,
+  "paperOpponentRank": 1,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalObservedSeedGroups": [
+    {
+      "sourceSeat": 0,
+      "seed": 1626632453
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1478863204
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2621207203
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 603372370
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2295622320
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 455806637
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 299991154
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 160440262
+    }
+  ],
+  "arms": [
+    "common actor + physical Mysterious Treasure root and prompt continuation",
+    "same + source-seat-only Double Dragon Energy to public Regidrago receiver intent"
+  ],
+  "maxActions": 160,
+  "matchedProperties": "Identical physical original source/opponent sixties, seed, source seat, Treasure native two-prompt policy, common evolution, owner search, actor hand discard, paper Celestial Roar correction, minimum Energy prompt correction, bot deterministic isolation",
+  "treatment": "Default-off rank13 Double Dragon Energy actor root; actual native Store decides legality and physical target",
+  "reporting": "All 16 attempted full native arms; matched full/source physical fingerprints, real DDE hand-to-attach native acceptance and owner-public Regidrago energy, actual copyable Dragon discard and native copied attack choice, terminal censor and all exceptions",
+  "evidenceStatus": "Previously observed physical seeds, retrospective policy mechanics demonstration only; no independent match or competitive win-rate inference"
+}
