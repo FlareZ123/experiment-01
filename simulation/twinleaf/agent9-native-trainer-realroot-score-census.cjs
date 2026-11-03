@@ -13,6 +13,57 @@ const {withNativeTrainerScoreObserver,VERSION}=
 const sha=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 
 /**
+ * Join actual native-accepted fallback receipts to actual native scorer roots.
+ * Conservatively mark repeated identical (seat, turn, printing, hand index)
+ * native proposals ambiguous, rather than guessing which one was selected.
+ * All other delegated native roots stay visible in the raw scorer audit.
+ *
+ * @param {object} scoreAudit Read-only original live-native-score census.
+ * @param {object[]} receipts Native fallback selection and Store receipts.
+ * @returns {object} Exact or ambiguity-preserving scorer attribution.
+ */
+function correlateAcceptedTrainers(scoreAudit,receipts){
+  assert.ok(Array.isArray(scoreAudit?.roots));
+  assert.ok(Array.isArray(receipts));
+  const accepted=receipts.filter(r=>r.nativeDispatch==='native-accepted');
+  const rows=accepted.map(receipt=>{
+    const matches=scoreAudit.roots.filter(root=>
+      root.class==='PlayCardAction'&&
+      root.seat===receipt.seat&&
+      root.globalTurn===receipt.globalTurn&&
+      root.handIndex===receipt.handIndex&&
+      root.proposedPrinting===receipt.printing);
+    const scoring=matches.map(root=>
+      root.evaluateActionCalls+root.getStateScoreCalls>0);
+    return {
+      seat:receipt.seat,globalTurn:receipt.globalTurn,
+      printing:receipt.printing,handIndex:receipt.handIndex,
+      nativeAccepted:true,
+      matchingNativeDelegations:matches.length,
+      exactOneToOne:matches.length===1,
+      scorerCallsConfirmed:matches.length===1?scoring[0]:null,
+      scorerCallsPossible:scoring.some(Boolean),
+      evaluateActionCalls:matches.length===1?
+        matches[0].evaluateActionCalls:null,
+      getStateScoreCalls:matches.length===1?
+        matches[0].getStateScoreCalls:null,
+      hiddenOrderCausallyChangedThisActionProven:false
+    };
+  });
+  return {
+    acceptedTrainerRoots:rows.length,
+    exactOneToOneRows:rows.filter(row=>row.exactOneToOne).length,
+    ambiguousOrUnmatchedRows:rows.filter(row=>!row.exactOneToOne).length,
+    acceptedTrainersWithScoringConfirmed:rows.filter(row=>
+      row.scorerCallsConfirmed===true).length,
+    acceptedTrainersWithoutScoringConfirmed:rows.filter(row=>
+      row.scorerCallsConfirmed===false).length,
+    hiddenOrderCausalityAtAcceptedRootEstablished:false,
+    rows
+  };
+}
+
+/**
  * Original, previously registered four A/B/A source-deal cohorts. This is a
  * reread of the same registered 5-vs-11 treatment policy in native Store,
  * with a read-only scorer hook. No selected card, seed, 60 or policy changes.
@@ -49,6 +100,11 @@ function run(){
       };
       const baseline=attempt(request,true);
       const observed=withNativeTrainerScoreObserver(()=>attempt(request,true));
+      const acceptedTrainerAttribution=correlateAcceptedTrainers(
+        observed.audit,baseline.summary?.fallbackReceipts??[]);
+      assert.equal(acceptedTrainerAttribution.acceptedTrainerRoots,
+        baseline.summary?.nativeTrainerRootsAccepted??0,
+        'Selection receipt census does not match real accepted Trainers');
       assert.deepStrictEqual(observed.result,baseline,
         'Read-only native scorer observer changed actual registered game evidence');
       assert.ok(observed.audit.realOwnerNativeDelegations>=
@@ -63,6 +119,7 @@ function run(){
         nativeStatus:baseline.runStatus,
         nativeBridgeAttempts:baseline.summary?.nativeBridgeAttempts??null,
         acceptedNativeTrainers:baseline.summary?.nativeTrainerRootsAccepted??null,
+        acceptedTrainerAttribution,
         delegateAudit:observed.audit,
         sourceGameCompetenceCertified:false
       });
@@ -83,6 +140,12 @@ function run(){
     tacticGetStateScoreCalls:sum('tacticGetStateScoreCalls'),
     nativeAcceptedTrainers:rows.reduce((n,row)=>n+
       (row.acceptedNativeTrainers??0),0),
+    acceptedTrainersWithScoringConfirmed:rows.reduce((n,row)=>n+
+      row.acceptedTrainerAttribution.acceptedTrainersWithScoringConfirmed,0),
+    acceptedTrainersWithoutScoringConfirmed:rows.reduce((n,row)=>n+
+      row.acceptedTrainerAttribution.acceptedTrainersWithoutScoringConfirmed,0),
+    acceptedTrainerAttributionsAmbiguous:rows.reduce((n,row)=>n+
+      row.acceptedTrainerAttribution.ambiguousOrUnmatchedRows,0),
     causalInformationLeakAtSpecificSourceRootProven:false,
     paperLegalGamesQualified:0,opponentPolicyCompetenceCertified:false,
     selectedFixed60:null,credible99point5:null,rows
@@ -96,6 +159,9 @@ if(require.main===module){
       pairedArms:output.pairedArms,
       authenticDelegations:output.authenticDelegations,
       nativeAcceptedTrainers:output.nativeAcceptedTrainers,
+      acceptedWithScoring:output.acceptedTrainersWithScoringConfirmed,
+      acceptedWithoutScoring:output.acceptedTrainersWithoutScoringConfirmed,
+      acceptedAmbiguous:output.acceptedTrainerAttributionsAmbiguous,
       scorerRootCount:output.delegationsWithAnyScorerCalls,
       scoreCalls:output.tacticGetStateScoreCalls,
       evaluateCalls:output.tacticEvaluateActionCalls,
@@ -104,4 +170,4 @@ if(require.main===module){
   require('node:fs').writeFileSync('agent9-native-trainer-realroot-score-census.json',
     JSON.stringify(output,null,2)+'\n');
 }
-module.exports={run};
+module.exports={run,correlateAcceptedTrainers};
