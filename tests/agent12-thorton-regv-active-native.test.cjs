@@ -18,6 +18,8 @@ for(const seat of [0,1]){
     assert.equal(r.after.ddeRemains,false);
     assert.equal(r.after.damage,0);
     assert.equal(r.after.pokemonPlayedTurn,0);
+    assert.equal(r.before.specialConditions.length,1);
+    assert.equal(r.after.specialConditions.length,0);
     assert.ok(r.after.discard.includes('Double Dragon Energy ROS'));
   });
 
@@ -36,6 +38,7 @@ for(const seat of [0,1]){
     assert.equal(r.after.ddeRemains,true);
     assert.equal(r.after.damage,60);
     assert.equal(r.after.pokemonPlayedTurn,1);
+    assert.deepEqual(r.after.specialConditions,r.before.specialConditions);
     assert.equal(r.after.thortonInDiscard,true);
     assert.equal(r.after.thortonInSupporter,false);
     assert.equal(r.after.discard.includes('Double Dragon Energy ROS'),false);
