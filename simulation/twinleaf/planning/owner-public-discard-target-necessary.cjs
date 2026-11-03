@@ -95,7 +95,8 @@ function loadBundledPublicPrintMetadata(resourceRoot){
  * Recognize historical set-code aliases present in the original Aichi printed
  * manifest, without claiming print identity for unresolved modern promos.
  * Public English database has PR-BLW/PR-XY/PR-SM; source/native manifests
- * spell the corresponding promo families BWP/XYP/SMP.
+ * spell the corresponding promo families BWP/XYP/SMP. The original source
+ * also uses ♢ instead of the database's ◇ for Prism Star Pokémon.
  * @param {Map<string,object>} index Original public name + set metadata.
  */
 function withSourcePromoAliases(index){
@@ -113,6 +114,17 @@ function withSourcePromoAliases(index){
     const prior=result.get(key);
     assert.ok(!prior||JSON.stringify(prior)===JSON.stringify(entry),
       'A promo alias collides with different public card metadata');
+    result.set(key,entry);
+  }
+  // The original Limitless display prints the Prism Star marker as ♢,
+  // while the bundled English card source prints ◇. Preserve both labels
+  // for genuine public print identity; the rest of each name stays exact.
+  for(const [printing,entry] of [...result]){
+    if(!printing.includes('◇'))continue;
+    const key=printing.replaceAll('◇','♢');
+    const prior=result.get(key);
+    assert.ok(!prior||JSON.stringify(prior)===JSON.stringify(entry),
+      'Prism Star display alias collides with different public metadata');
     result.set(key,entry);
   }
   return result;
