@@ -1,0 +1,94 @@
+{
+  "schema": "agent37-archived-native-rank11-t32-owner-public-custody-v1",
+  "provenance": {
+    "runId": 41581276542,
+    "artifactId": 13205777405,
+    "artifactZipSha256": "f6ba811b89cb0055d72270306aad59ccdc46bb22e0fad831b2ba84d60f463b0b",
+    "sourceTrial": "11:0:A:new-moon-lockbreaker-v1",
+    "seed": 2171744612,
+    "sourceSeat": 1,
+    "candidateSeat": 0,
+    "actualSourceAttackOrdinal": 139,
+    "actualCandidatePassOrdinal": 147,
+    "observedTurn": 32,
+    "prizeCountsTime": "immediately after native source Claw root 139, no intervening Prize effects",
+    "cardNames": "Native printed display identities for the hand, public Pokemon names for board"
+  },
+  "ownerView": {
+    "decisionKind": "owner-root",
+    "ownHand": [
+      "Mysterious Treasure FLI",
+      "Forest Seal Stone SIT",
+      "Powerglass SFA",
+      "Ace Trainer AOR",
+      "Field Blower GRI",
+      "Lillie's Determination M1L",
+      "Mysterious Treasure FLI",
+      "Hisuian Heavy Ball ASR",
+      "Rescue Carrier EVS",
+      "Counter Catcher PAR",
+      "Sky Field ROS",
+      "Canceling Cologne ASR",
+      "Path to the Peak CRE",
+      "Mewtwo & Mew-GX UNM"
+    ],
+    "ownPublic": {
+      "active": {
+        "name": "Unown",
+        "energies": []
+      },
+      "bench": [
+        {
+          "name": "Squawkabilly ex",
+          "energies": []
+        },
+        {
+          "name": "Duskull",
+          "energies": []
+        },
+        {
+          "name": "Duskull",
+          "energies": []
+        },
+        {
+          "name": "Lillie's Clefairy ex",
+          "energies": []
+        },
+        {
+          "name": "Galarian Articuno V",
+          "energies": []
+        }
+      ],
+      "stadium": [],
+      "prizeCount": 6
+    },
+    "opponentPublic": {
+      "active": {
+        "name": "Mega Absol ex",
+        "energies": [
+          "Darkness Energy",
+          "Darkness Energy",
+          "Darkness Energy"
+        ],
+        "damage": 80
+      },
+      "bench": [
+        {
+          "name": "Squawkabilly ex",
+          "energies": []
+        },
+        {
+          "name": "Oranguru V",
+          "energies": []
+        },
+        {
+          "name": "Mega Absol ex",
+          "energies": []
+        }
+      ],
+      "stadium": [],
+      "prizeCount": 5
+    }
+  },
+  "caveat": "Read-only bounded projection from actual native action/pass snapshots. Not an independently resurrected native Store, a K1 deck view, proof of Item/Supporter canPlay, successful target choice, or qualified game."
+}
