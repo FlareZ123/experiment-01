@@ -17,6 +17,7 @@ on:
           - crossrank-rejected-one-root
           - newmoon-first-vip-archive-16
           - canonical-20261029-source-pairs
+          - heldout-active-headway-20261103
       archived_run:
         description: GitHub Actions run containing rank11 source regression and campaign reports
         required: true
@@ -39,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch reproducible prior-run artifact
-        if: ${{ inputs.audit_mode != 'prospective-exposure-complete-v1' && inputs.audit_mode != 'canonical-20261029-source-pairs' }}
+        if: ${{ inputs.audit_mode != 'prospective-exposure-complete-v1' && inputs.audit_mode != 'canonical-20261029-source-pairs' && inputs.audit_mode != 'heldout-active-headway-20261103' }}
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN_ID: ${{ inputs.archived_run }}
@@ -92,3 +93,22 @@ jobs:
       - name: Print authentic first-turn VIP selection evidence
         if: ${{ inputs.audit_mode == 'first-vip-source-v1' }}
         run: node -e "const x=require('./rank11-newmoon-first-vip-counterfactual.json');console.log(JSON.stringify({seed:x.seed,originalOpening:x.baseline.audit.opening,control:x.baseline.audit.events,counterfactual:x.alternative.audit.events,firstActions:x.alternative.firstActions.map(a=>({turn:a.turnBefore,action:a.action,card:a.card}))},null,2))"
+
+      - name: Download immutable Agent10 heldout original rank11 source native archive
+        if: ${{ inputs.audit_mode == 'heldout-active-headway-20261103' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 41597727878 --repo "$GITHUB_REPOSITORY" --name "agent10-rank11-heldout-headway-4seed-native" --dir heldout-native
+      - name: Independently audit 24 original source receipts, full physical pairing and Claw onset
+        if: ${{ inputs.audit_mode == 'heldout-active-headway-20261103' }}
+        run: |
+          node --test tests/agent10-rank11-heldout-native-custody-audit.test.cjs
+          node scripts/agent10-rank11-heldout-native-custody-audit.cjs heldout-native/agent10-rank11-heldout-headway-4seed.json > agent10-heldout-native-independent-audit.json
+          node -e "const r=require('./agent10-heldout-native-independent-audit.json');console.log(JSON.stringify({schema:r.schema,attempts:r.actualNativeAttempts,withinContextPhysicalPairs:r.verifiedWithinCandidatePhysicalComparisons,crossCandidateSourcePairs:r.verifiedCrossCandidateSourceComparisons,summary:r.dispositions,sourceSeed:r.keyFreshSource.sourceSeed,firstClaw:Object.fromEntries(Object.entries(r.keyFreshSource.factors).map(([k,v])=>[k,v.firstClaw])),receipts:Object.fromEntries(Object.entries(r.keyFreshSource.factors).map(([k,v])=>[k,{firstSourceDarkness:v.acceptedOriginalSourceDarknessEnergy.slice(0,4),claws:v.settledClawEvidence}]))},null,2))"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.audit_mode == 'heldout-active-headway-20261103' }}
+        with:
+          name: agent10-rank11-heldout-independent-native-custody-audit
+          path: agent10-heldout-native-independent-audit.json
+          if-no-files-found: warn
+          retention-days: 14
