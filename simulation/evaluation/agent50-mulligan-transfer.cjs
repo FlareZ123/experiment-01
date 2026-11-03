@@ -59,4 +59,25 @@ function soloAfterSourceBonus(candidateBasics, sourceBasics) {
   return {soloSeven,soloAfterAllSourceBonuses:soloSeven*noneStillSolo};
 }
 
-module.exports={VERSION, choose, miss, transfer, soloAfterSourceBonus};
+
+/**
+ * Probability the opponent publicly sees at least one selected non-Basic
+ * printing among every fully revealed failed seven before a valid opener.
+ * Both-invalid seven-card rounds are revealed as specified in rulebook I.G.
+ * The opponent's Basic count does not enter this marginal distribution.
+ * This is public card-name exposure, not opponent recognition or an action.
+ *
+ * @param {number} basicCount
+ * @param {number} selectedNonbasicCopies
+ * @returns {number}
+ */
+function mulliganReveal(basicCount, selectedNonbasicCopies) {
+  const nonbasic=60-basicCount;
+  assert.ok(Number.isSafeInteger(selectedNonbasicCopies));
+  assert.ok(selectedNonbasicCopies>=0&&selectedNonbasicCopies<=nonbasic);
+  const p=miss(basicCount);
+  const selected=1-choose(nonbasic-selectedNonbasicCopies,7)/choose(nonbasic,7);
+  return p*selected/(1-p+p*selected);
+}
+
+module.exports={VERSION, choose, miss, transfer, soloAfterSourceBonus, mulliganReveal};
