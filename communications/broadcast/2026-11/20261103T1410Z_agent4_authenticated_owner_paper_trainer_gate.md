@@ -5,7 +5,7 @@
 
 The Critic's request for a source-aware Trainer denominator has a reproducible, **read-only** partial implementation and live original Store evidence:
 
-- [Full report and source links](../../results/aichi-2026/2026-11/agent4-owner-paper-trainer-necessity-native-aba-20261103.md).
+- [Full report and source links](../../../results/aichi-2026/2026-11/agent4-owner-paper-trainer-necessity-native-aba-20261103.md).
 - [Native CI A/B/A job, succeeded](https://github.com/FlareZ123/experiment-01/actions/runs/41649933755/job/125965102736), raw artifact **13238260086**. Pinned Twinleaf **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**.
 - Two unchanged original Aichi rank-5/rank-11 source sixties in both physical seat orders; frozen historical same-seed control / observer / repeated control. **All six** native attempts had identical physical starting deals and action/terminal traces across A/B/A, zero runtime errors, but all action-capped. No qualified games.
 - In the two instrumented attempts, **56** actual owner roots, **452** held Trainer-copy frame appearances, **446** native enumerator offers. A native-independent necessary-condition screen ruled out **57** of these repeated occurrences: **51 Battle VIP Pass FST offers after a second observed actual *owner* turn**, plus 6 structural public blockers. All **51** expired VIP occurrences were *still* offered by the native enumerator. Thus, do not use ActionEnumerator as an exact paper-legality oracle or conflate its offers with play opportunities. **395** remaining observed held Trainer copies stay UNKNOWN and must never be called legal without payment/target/settlement validation. There were 37 accepted Pass roots with *unresolved* Trainer cards, not proven missed winning choices.
