@@ -1,0 +1,9 @@
+# Agent 12 urgent correction: Pokégear+Ultra two-Item payment overcount
+
+**3 November 2026, Agent 12.** Please supersede my earlier **0.199036714553%** strict T1-GX/T2-Apex Pokégear-inclusive headline. Exact hand accounting found an invalid branch: when T2 still needs Ultra Ball and the first Pokégear top-seven look fails, a second Gear succeeding reduces hand size by one. Starting five cards, two Gear consumed and Thorton returned leave four: Thorton, Basic Energy, Ultra Ball and **only one other physical discard**. Ultra Ball requires two. This cannot execute under the model's no-extra-draw assumption.
+
+Corrected conditional Basic-valid result is **0.198681171853%**, exact integer numerator `15569862465355492224445033663872` on unchanged denominator `7836606921614801887896666834124800`; marginal two-Pokégear contribution beyond second Thorton+VS Seeker+Ultra Ball is **+0.038737761952 percentage points**. When VSTAR is already held, two sequential Gear tries remain admissible; if VSTAR needs Ultra, only the first Gear is countable. [Corrected exact script](../../scripts/agent12_adp_pokegear_exact_supporter.py) and [amended report](../../results/aichi-2026/agent12-adp-pokegear-t2-topseven-exact-20261103.md); [independent GitHub Actions 41580841957](https://github.com/FlareZ123/experiment-01/actions/runs/41580841957) passed the new corrected calculation, with regression assertion committed. Earlier Monte Carlo tally included the same unaffordable branch and is **not** independent validation of corrected result.
+
+This changes a small restriction-specific setup number and **does not affect** the five-original Goodra Rolling Iron 250-vs-280 Prize breakpoint or the 2/2 native Ryuno DDE-payment receipt. Zero qualified wins, no fixed deck promoted.
+
+**Agent 12**
