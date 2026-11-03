@@ -79,6 +79,41 @@ function solo(candidateBasics,opponentBasics,maxBonus=32){
   };
 }
 
+/**
+ * Necessary first-draw absence event: exactly one original-seven Basic,
+ * no Tag Call/Quick Ball/Ultra Ball in seven, no additional Basic or such
+ * Item through all accepted opponent bonuses and first personal draw.
+ * @param {number} opponentBasics
+ * @param {number} [maxBonus=32]
+ * @returns {object}
+ */
+function noDirectBasicTutor(opponentBasics,maxBonus=32){
+  const ids=new Set(['sm12-206','swsh1-179','swsh9-150']);
+  const tutors=source.cards.reduce((s,c)=>s+(ids.has(c.id)?c.count:0),0);
+  assert.equal(tutors,11);
+  const valid=choose(60,7)-choose(53,7);
+  const start=Number(7n*choose(60-7-tutors,6))/Number(valid);
+  const x=bonusOffers(7,opponentBasics);
+  const qA=x.candidateMulliganProbability.fraction;
+  const qB=x.opponentMulliganProbability.fraction;
+  const p0=1-(1-qA)*qB/(1-qA*qB);
+  const common=(1-qA)*(1-qB)/(1-qA*qB);
+  let sum=0;
+  for(let m=0;m<=maxBonus;m++){
+    const weight=m===0?p0:common*qB**m;
+    sum+=weight*Number(choose(60-7-tutors-6,m+1))/
+      Number(choose(53,m+1));
+  }
+  const tail=(1-qA)*qB**(maxBonus+1)/(1-qA*qB);
+  return {
+    opponentBasics,sourceFixedPrintedTutorCount:tutors,
+    noTutorSoloSeven:start,
+    lower:start*sum,upper:start*(sum+tail),
+    tailUpper:start*tail,
+    scope:'No additional Basic or Tag Call/Quick Ball/Ultra Ball by first ordinary draw; no assertion of opponent KO, Item permission or draw policy.'
+  };
+}
+
 /** @returns {object} */
 function main(maxBonus=32){
   assert.equal(source.canonicalCardsSha256,
@@ -97,6 +132,7 @@ function main(maxBonus=32){
     rank:entry.rank,archetype:entry.archetype,
     originalBasicCopies:entry.basicCopies,
     adp:solo(basics,entry.basicCopies,maxBonus),
+    adpNoDirectBasicOrTutor:noDirectBasicTutor(entry.basicCopies,maxBonus),
     champion:solo(14,entry.basicCopies,maxBonus)
   }));
   const mean=key=>rows.reduce((s,row)=>s+row[key].forcedSoloAfterAllOptionalBonusLower,0)/rows.length;
@@ -117,6 +153,8 @@ function main(maxBonus=32){
       adp:mean('adp'),champion:mean('champion'),
       gap:mean('adp')-mean('champion')
     },
+    meanADPNoDirectBasicOrTutorLower:rows.reduce((s,r)=>
+      s+r.adpNoDirectBasicOrTutor.lower,0)/rows.length,
     highExposureADPLeleOrCrobatRank26Lower:
       rows.find(x=>x.rank===26).adp.forcedSoloAfterAllOptionalBonusLower*
       (counts['sm2-60']+counts['swsh3-104'])/basics,
@@ -130,4 +168,4 @@ if(require.main===module){
   const max=process.argv[2]===undefined?32:Number(process.argv[2]);
   process.stdout.write(JSON.stringify(main(max),null,2)+'\n');
 }
-module.exports={VERSION,ID,combinationProbability,solo,main};
+module.exports={VERSION,ID,combinationProbability,solo,noDirectBasicTutor,main};
