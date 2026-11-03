@@ -222,8 +222,20 @@ for (const seat of [0, 1]) {
         } catch (error) {
           attackError = error.message;
         }
+        const pendingBefore = x.state.prompts
+          .filter(p => p.result === undefined).map(p => p.constructor.name);
+        let settledPrompts = [];
+        let settlementError = null;
+        if (attackError === null) {
+          try {
+            settledPrompts = settle(x);
+          } catch (error) {
+            settlementError = error.message;
+          }
+        }
         const record = {seat, orphanLightningView, preflight,
-          attachment, payment, attackError,
+          attachment, payment, attackError, pendingBefore,
+          settledPrompts, settlementError,
           sourcePrizes: x.source.getPrizeLeft(),
           opponentActiveAfter: x.opponent.active.getPokemonCard()?.fullName ?? null,
           opponentPhase: x.state.phase};
@@ -231,6 +243,7 @@ for (const seat of [0, 1]) {
         if (!orphanLightningView) {
           assert.equal(attackError, null,
             'real Energy card must be attached in both native physical views');
+          assert.equal(settlementError, null);
           assert.equal(x.opponent.active.getPokemonCard() ?? null, null);
         }
       }
