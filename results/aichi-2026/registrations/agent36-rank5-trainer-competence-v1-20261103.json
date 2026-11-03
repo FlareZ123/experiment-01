@@ -1,0 +1,144 @@
+{
+  "schema": "agent36-rank5-trainer-competence-registered-physical-seed-pair-v1",
+  "registeredAtUtc": "2026-11-03T01:52:00Z",
+  "sourceRank": 5,
+  "sourcePlayer": "Yamato Nakano",
+  "sourceArchetype": "Mew Genesect",
+  "originalSource60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceAdmissionLedgerGitBlobSha": "62abf0d96542eb04b2e2500e8b7b10d5e3e94225",
+  "vendorPinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seedDrawMethod": "Python secrets.randbits(32) before any native outcomes",
+  "registeredGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1317054731
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 934981813
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 605984504
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 1577802316
+    }
+  ],
+  "sourceCodeBlobShas": {
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "b6a9187852eff24638d1ecf6f54960ab7911ca3d",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/twinleaf/agent13-actor-only-choose-attack.cjs": "05b54513fd637c4eee134d5f48d43c446d107f7d",
+    "scripts/agent9-rank5-original-trainer-source-plays.cjs": "43679e74b8147ca2a331faa4c977d0d336f28459",
+    "simulation/evaluation/agent41-frozen-bilateral-development-v2.json": "a79e7977cb224928068968934bbcfa9c9410e20a"
+  },
+  "perModeArms": 8,
+  "totalExpectedArms": 16,
+  "actionCapPerArm": 120,
+  "modes": {
+    "baseline": {
+      "description": "Integrated v3.1 copied attack plus common two-seat source payment and discard policy",
+      "options": {
+        "actorOnlyComposition": true,
+        "mandatoryOptionFallback": true,
+        "paperSupporterQuota": true,
+        "paperFullBenchCallForFamily": true,
+        "paperSameTargetAttachEnergy": true,
+        "nativePressureWindows": true,
+        "nativeAcceptedTargets": true,
+        "physicalZoneGate": true,
+        "sameRootProposalChoice": true,
+        "sameRootChoiceApply": true,
+        "sameRootProbeAll": false,
+        "losslessNativeRootJoin": true,
+        "nativePlumeriaChoice": true,
+        "nativeZeroCostDenialChoice": true,
+        "teamFlareGruntDenialRoot": true,
+        "actorPlumeriaAfterPass": true,
+        "nativeToolAttachRoot": true,
+        "registeredToolEnergyCeiling": true,
+        "nativePublicMulliganRevealsAudit": true,
+        "nativeSetupCompensationAudit": true,
+        "nativeSetupCoinChoiceReceipt": true,
+        "bilateralPublicContextSpecialEnergy": true,
+        "actorNaturalEvolutionRoot": true,
+        "actorMewGenesectTechnoBlast": true,
+        "actorOnlySingleSearch": true,
+        "actorHandDiscard": true,
+        "paperQuickBallPayment": true,
+        "sharedPaperPaymentPortfolio": true,
+        "nativeRootActionLimit": 120
+      }
+    },
+    "sourceTrainerComposite": {
+      "description": "Baseline plus source Quick Ball, owner VIP before attack and both-seat Genesect Fusion draw",
+      "options": {
+        "actorOnlyComposition": true,
+        "mandatoryOptionFallback": true,
+        "paperSupporterQuota": true,
+        "paperFullBenchCallForFamily": true,
+        "paperSameTargetAttachEnergy": true,
+        "nativePressureWindows": true,
+        "nativeAcceptedTargets": true,
+        "physicalZoneGate": true,
+        "sameRootProposalChoice": true,
+        "sameRootChoiceApply": true,
+        "sameRootProbeAll": false,
+        "losslessNativeRootJoin": true,
+        "nativePlumeriaChoice": true,
+        "nativeZeroCostDenialChoice": true,
+        "teamFlareGruntDenialRoot": true,
+        "actorPlumeriaAfterPass": true,
+        "nativeToolAttachRoot": true,
+        "registeredToolEnergyCeiling": true,
+        "nativePublicMulliganRevealsAudit": true,
+        "nativeSetupCompensationAudit": true,
+        "nativeSetupCoinChoiceReceipt": true,
+        "bilateralPublicContextSpecialEnergy": true,
+        "actorNaturalEvolutionRoot": true,
+        "actorMewGenesectTechnoBlast": true,
+        "actorOnlySingleSearch": true,
+        "actorHandDiscard": true,
+        "paperQuickBallPayment": true,
+        "sharedPaperPaymentPortfolio": true,
+        "nativeRootActionLimit": 120,
+        "sourceScopedQuickBallRoot": true,
+        "actorVipBeforeAttack": true,
+        "actorGenesectFusionDrawRoot": true
+      }
+    }
+  },
+  "primaryOutcomes": [
+    "actual source accepted Trainer PlayCardActions",
+    "actual source Trainer identity and native sidecar",
+    "native Genesect Ability and attack declarations",
+    "matched source-deal fingerprint",
+    "candidate root reply and native prompt legality"
+  ],
+  "qualification": {
+    "competitiveGames": 0,
+    "wholePaperEffects": false,
+    "adversaryCompetence": false,
+    "eventClock": false,
+    "missingRank60": [
+      23,
+      25,
+      28
+    ]
+  }
+}
