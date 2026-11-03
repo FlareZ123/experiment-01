@@ -24,6 +24,8 @@ const {withMinimumAttachEnergySelection}=
   require('./agent47-minimum-attach-energy-hook.cjs');
 const {withOwnerTreasurePromptContinuation}=
   require('./agent49-mysterious-treasure-prompt-continuation.cjs');
+const {withActorOnlyChooseAttack}=
+  require('./agent13-actor-only-choose-attack.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION_PATH=path.join(ROOT,
@@ -69,7 +71,8 @@ function registration(){
  * @returns {object}
  */
 function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
-  paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false,apexEnabled=false){
+  paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false,
+  apexEnabled=false,phantomEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -142,7 +145,12 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       rank13SourceApexRoot:apexEnabled,
       rank13SourceApexRootOwnerSeat:sourceSeat
     }),
-    ...source13QuickBallActorAdapters(sourceSeat)
+    ...source13QuickBallActorAdapters(sourceSeat),
+    ...(phantomEnabled?{
+      attack:work=>withActorOnlyChooseAttack(work,{
+        preferRank13DragapultPhantomDive:true,rank13SourceSeat:sourceSeat
+      })
+    }:{})
   };
   try{
     let treasureAudit=null;
@@ -193,7 +201,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       game.decisionTrace??[])).digest('hex');
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
-      paperCelestialEnabled,treasureEnabled,ddeEnabled,apexEnabled,
+      paperCelestialEnabled,treasureEnabled,ddeEnabled,apexEnabled,phantomEnabled,
       paperCelestialAudit:corrected?.result.audit??null,
       nativeMinimumAttachAudit:corrected?.audit??null,
       treasureNativeAudit:treasureAudit,
