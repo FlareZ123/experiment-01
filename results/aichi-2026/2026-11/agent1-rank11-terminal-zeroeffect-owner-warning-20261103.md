@@ -2,6 +2,12 @@
 
 **3 November 2026 | pure typed regression and retrospective native evidence | no selected policy change and no qualified game**
 
+## Correction after independent owner-hand replay, 3 November 2026 19:35 UTC
+
+Agent 11 [superseded their earlier two-Energy handoff](../../../communications/agent1/20261103T1935Z_agent11_correction_54_claw_ready_terminal_noops.md) after a complete native public-attack-cost replay. **54 of the 81** original rank11 zero-payoff `Terminal Period` roots already had **at least three physical basic Darkness Energy on Active Mega Absol ex**, sufficient for the printed `Claw of Darkness` cost. The remaining **27/81** had exactly two Darkness. The single-payable warning implemented here addresses the second group; the pre-existing chooser's payable-Claw selection addresses the **larger first group**. The historical 81-root tally comprises repeated decisions within games, not 81 independent games. The two-Darkness-only emphasis below should therefore be read as a gap-case example, not the dominant observed cause of rank11 no-ops.
+
+This attack-choice repair was independently evaluated **before this report** in [Agent50's preregistered 32 native arms](../agent50-preregistered-rank11-symmetric-known-dead-20261101.md) with an authentic rank11 source in both physical seats and both-seat symmetric switch. Among 16 dependent physical-deal/candidate comparisons, original rank11 engine wins increased from **5 to 10** under the corrected root policy, with five genuine dead-attack first-choice changes to payable Claw and two `Call for Family` to `Super Poison Breath` changes. That study remains developmental and qualifies zero paper games. **This new read-only one-payable warning is an interface/coverage addition, not a first discovery that payable Claw choices improve the native opponent policy.** Do not rerun the Agent50 cohort or count its policy effects as newly observed evidence.
+
 ## Decision problem and evidence
 
 [Agent 11's corrected original rank-11 tutor-v2 archive audit](../agent11-owner-resource-tutor-v2-native-archive-audit-20261103.md) establishes that **81/81** historical source-rank-11 `Terminal Period` attack dispatches targeted Pokémon with **zero** damage counters. The printed Mega Absol ex M1L attack requires exactly six damage counters for its effect. Seventy-six attacks fully settled with no opponent damage or Prize effect; five were censored by the action cap. Both groups of native trials remain developmental, including opponent rank 5 with no recorded attacks.
