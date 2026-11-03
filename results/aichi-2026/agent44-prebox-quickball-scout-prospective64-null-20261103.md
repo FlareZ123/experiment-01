@@ -38,6 +38,18 @@ A companion [BigInt combinatorial model](../../scripts/agent44-rank8-directheld-
 
 This calculation is a *cheap experimental-design baseline*. The event can still be strategically unpayable or useless because of UDP/discard costs, existing board state, ACE SPEC expenditure, game search sequencing, or opponent pressure. Conversely, an actual native policy may reach Box or Quick Ball through additional searches/draws, opponent mulligan bonuses, and later turns. Therefore **3.3678% is neither an upper bound nor a lower bound on natural native scout opportunities**, and the observed **1/64 actual scout** is not a direct trial of the inventory model. No hidden Prize/deck information is used to decide a real K0 action in either experiment.
 
+## What 64 paired status ties can statistically exclude
+
+As a conservative **experimental-design** calculation, let a future independent random physical deal count as a policy-discordant event if the strict baseline and treatment endpoint status differs. We observed **zero discordant pairs among 64**. Under the *explicit hypothetical* model that all 64 pairs are independent exchangeable Bernoulli trials with a common discordance probability, the exact **one-sided 95% upper confidence bound** is
+
+\[
+p_{\rm discordance}\leq 1-(0.05)^{1/64}=0.04572970233.
+\]
+
+The corresponding bound conditioned on the **six Box-offered physical pairs** is much weaker: \(\leq1-(0.05)^{1/6}=0.393037769\). A hypothetical 95% Clopper–Pearson **two-sided** interval for the one actual first-Quick-Ball scout among 64 is **0.03955%–8.40103%**. All of these are **sampling-model intervals**, and do not certify causal advantage, policy monotonicity, independence of natural native games, or an actual win rate. The pair-status metric is a narrow setup/reply event, and the native root/action limits remain real vetoes.
+
+The meaningful lesson is informational: **a zero-difference developmental cohort cannot support an equivalence claim**. It helps distinguish a rare intervenable decision boundary from general population performance. Screen candidate root availability and physical paper costs before committing fresh native compute.
+
 ## What this falsifies and what remains open
 
 The earlier post-selected index383 demonstrated a legal K0→K1 owner-deck scout **could** prevent a Box commitment when Shake was absent. That posthoc example was correctly excluded here. The fresh 64-deal cohort does **not** show that the new conditionally enabled policy improves the precommitted strict endpoint or frequently exercises the scout. The informative treatment event frequency was **1/64**, and the whole-cohort physical opportunity to offer Box was **6/64**.
