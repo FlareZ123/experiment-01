@@ -1,0 +1,77 @@
+{
+  "schema": "agent13-rank5-joint-v1-same-deal-component-ablation-v1",
+  "registeredAtUtc": "2026-11-03T04:02:00Z",
+  "purpose": "Retrospective exact physical-source-deal transport: owner single-search and actor hand-discard independent attribution; no competitive-rate estimation",
+  "baseline": "agent41-joint-original-source-rank5-rank11-v1",
+  "baselineProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "baselineRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 5,
+  "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "sourceRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceSeatGroups": [
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 0,
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 1,
+      "seed": 561933954
+    }
+  ],
+  "modes": [
+    {
+      "id": "joint_v1_control",
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": false
+    },
+    {
+      "id": "search_only",
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": false
+    },
+    {
+      "id": "discard_only",
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": true
+    },
+    {
+      "id": "search_and_discard",
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": true
+    }
+  ],
+  "registeredAttempts": 16,
+  "maxNativeRootActions": 260,
+  "sourcePairing": "Same candidate ID, registered seed, physical seat and exact source-deal fingerprint across all four modes; each candidate must be evaluated as a separate pairing, never paired on seed alone",
+  "predeclaredOutcomes": [
+    "ENGINE_TERMINAL_UNQUALIFIED",
+    "CENSORED",
+    "NATIVE_ERROR",
+    "UNVERIFIED"
+  ],
+  "keyOutcomes": [
+    "source_Mew_VMAX_natural_evolution_roots",
+    "source_owner_Genesect_Techno_Blast_prompt_selections",
+    "source_Cross_Fusion_Strike_native_declarations_and_settlement",
+    "source_root_pass_vs_payable_search_or_discard",
+    "owner_zone_payment_and_resource_recipient",
+    "opponent_continuation"
+  ],
+  "interpretationLimitations": [
+    "Retrospectively reused joint-v1 seeds; no new independent win denominator",
+    "Shared symmetric policy changes both players' decisions; a changed outcome alone does not assign source-side causality",
+    "Source-native attack count not a qualified tournament game; paper rules, informed opposition and time adjudication remain uncensored requirements",
+    "All attempted native results and physical mismatch events retained, including errors, action caps and zero-attacks"
+  ],
+  "paperCompetitiveGamesQualified": 0,
+  "target995Demonstrated": false
+}
