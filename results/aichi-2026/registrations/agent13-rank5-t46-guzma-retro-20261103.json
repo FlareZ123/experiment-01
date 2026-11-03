@@ -1,0 +1,51 @@
+{
+  "schema": "agent13-rank5-newmoon-t46-guzma-retrospective-selected-native-twoarm-v1",
+  "registeredAtUtc": "2026-11-03T23:28:00Z",
+  "purpose": "Retrospectively test one owner-visible exact physical T46 DCE-funded Mew VMAX + held Guzma mobility proposal against an unchanged control on the original rank5 New Moon sample; no competitive-game or field-win inference",
+  "sourceTrial": {
+    "rank": 5,
+    "candidateSlot": "B",
+    "repeat": 1,
+    "seed": 561933954,
+    "candidateId": "new-moon-lockbreaker-v1",
+    "id": "5:1:B:new-moon-lockbreaker-v1"
+  },
+  "sourceOriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "existingFrozenBaselineProfileBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "unchangedOriginalRunnerBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "historicalMatchedBaselineArtifactId": 13204966625,
+  "historicalSourcePassWitness": {
+    "globalTurn": 46,
+    "sourceSeat": 0,
+    "rootOrdinal": 254,
+    "acceptedDceBenchIndex": 1,
+    "active": "Genesect V",
+    "funded": "Mew VMAX",
+    "copyDonor": "Genesect V",
+    "heldGuzma": 2,
+    "opponentActive": "Solrock"
+  },
+  "modes": [
+    {
+      "id": "control_full_owner_quickball",
+      "retroGuzma": false
+    },
+    {
+      "id": "retrospective_dce_copy_guzma",
+      "retroGuzma": true
+    }
+  ],
+  "commonSettings": {
+    "ownerVipAfterPass": true,
+    "quickBallRoot": true,
+    "ownerSingleSearch": true,
+    "actorHandDiscard": true,
+    "actorGuzmaPromptContinuation": true,
+    "rootActionCap": 340
+  },
+  "intervention": "Only env AGENT13_DCE_FUSION_GUZMA_RETRO_DEV differs between modes. Default-off extra last-chance root policy and agreed Guzma owner-target prompt policy present in BOTH code paths. Same registered source+candidate fixed 60s and seed, no hand/board injection. Verify actual initial physical source and candidate equality postrun, compare first different root and native accepted physical transition, attack settlement and adverse opponent response.",
+  "expectedNativeAttempts": 2,
+  "resultsAdmittedAsCompetitiveGames": false,
+  "limits": "Retrospective one selected deal, same game seed does not force same later RNG after intervention; genuine Store and printed card handling must be validated. Any terminal, error, cap or no intervention remains in denominator."
+}
