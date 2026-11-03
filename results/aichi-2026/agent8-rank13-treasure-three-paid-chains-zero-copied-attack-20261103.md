@@ -38,6 +38,16 @@ Both arms ended in identical per-seed native winner/censor class and final six-P
 
 These are **three fully paid Item -> hand-discard -> owner-deck-selected target -> physical receipt chains** across two fixed source deals, with zero rejected native continuation replies. They establish genuine source-access mechanics; none demonstrates copied-attack effects or improved competitive strength.
 
+## Separate owner-public Energy and Active gates
+
+Passive native CI [41580282671](https://github.com/FlareZ123/experiment-01/actions/runs/41580282671) (artifact 13205441575; ZIP SHA-256 `499001311dc6b9735cf89477c161c69916307fd87cc08e09d80ca17903f9d845`) returned all 16 attempts, with all 8 paired original physical starting deals matching. The replay added only passive owner-visible Active and Energy fields.
+
+For seed `603372370`, Regidrago VSTAR was on Bench slot 3 with **zero attached Energy** on each owner turn 14 to 26; Tapu Lele-GX was Active with Grass and Fire Energy. Even after the two paid Dragon discards, both Active promotion and attacker funding remained missing.
+
+For seed `2295622320`, Regidrago VSTAR was Active. The control gained a second Grass Energy by turn 18 and declared four Apex Dragons with no discarded Dragon. The intervention retained one Grass and two Fire Energy through turn 24, and declared no Apex. The changed draw and decision sequence cannot be attributed to Bench consumption alone.
+
+The printed Apex cost is two Grass and one Fire. The exact source 60 also includes three Double Dragon Energy; any general attack-readiness model must handle its two multicolored units and Temple of Sinnoh.
+
 ## What the result changes
 
 The earlier [34 declaration / zero discarded Dragon finding](agent8-rank13-apex-dragon-public-discard-zero-payload-20261103.md) already established that selected attacks were blocked by missing Dragon payloads. This paired transport demonstrates a second boundary: **successfully supplying payloads can still fail to produce a copied attack when the correct attacker remains on the Bench**. When a search brings a new Pokémon to hand and the bot then plays it to the Bench, it can also consume later positioning and allocation opportunities. In the other positive deal, the Treasure search retrieved a would-be attack source *into hand*, where Apex Dragon cannot copy it.
