@@ -1,0 +1,178 @@
+{
+  "schema": "agent31-heldout-rank1-floatstone-20261103-v1",
+  "registeredUtc": "2026-11-03T18:13:40.324Z",
+  "registeredBeforeAnyNativeOutcomeForTheseSeeds": true,
+  "seedMethod": "Python secrets.randbelow(2**32), eight independent uniform unique 32-bit integers, excluding the previously observed eight Agent34 source seeds and sixteen Agent34 active-priority held-out seeds; four per physical candidate seat",
+  "originalRank": 1,
+  "originalArchetype": "Shadow Rider Calyrex",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "opponentOriginalPrintedSixtyUnchanged": true,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": [
+      1122744069,
+      3088848747,
+      305615282,
+      76580997
+    ],
+    "B": [
+      1929773419,
+      2745353818,
+      3143130084,
+      76115361
+    ]
+  },
+  "candidatePhysicalSeats": [
+    "A",
+    "B"
+  ],
+  "independentSeedGroups": 8,
+  "registeredArmsPerPolicy": 16,
+  "totalNativeAttempts": 32,
+  "trials": [
+    {
+      "id": "1:0:A:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1122744069
+    },
+    {
+      "id": "1:0:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1122744069
+    },
+    {
+      "id": "1:1:A:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3088848747
+    },
+    {
+      "id": "1:1:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3088848747
+    },
+    {
+      "id": "1:2:A:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 305615282
+    },
+    {
+      "id": "1:2:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 305615282
+    },
+    {
+      "id": "1:3:A:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 76580997
+    },
+    {
+      "id": "1:3:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 76580997
+    },
+    {
+      "id": "1:0:B:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1929773419
+    },
+    {
+      "id": "1:0:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1929773419
+    },
+    {
+      "id": "1:1:B:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2745353818
+    },
+    {
+      "id": "1:1:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2745353818
+    },
+    {
+      "id": "1:2:B:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3143130084
+    },
+    {
+      "id": "1:2:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3143130084
+    },
+    {
+      "id": "1:3:B:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 76115361
+    },
+    {
+      "id": "1:3:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 76115361
+    }
+  ],
+  "frozenCommonPolicySource": "results/aichi-2026/registrations/agent31-rank1-prospective-basic-recipient-20261102.json/frozenCommonPolicy",
+  "frozenCommonPolicyExtras": {
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorOnlyComposition": true,
+    "paperPsychicRecipientCompatibilityHookBothArms": true,
+    "actorUnderworldDoorRootBothArms": true,
+    "actorUnderworldDoorPromptOwnerBothArms": true
+  },
+  "singleCausalDifference": "actorFundedShadowRiderFloatStoneRoot false versus true on both physical seats, same original source and two candidate printed 60s, genuine same initial physical deals, same first-player and native prompt hooks; original source rank1 only",
+  "primaryNativeOutcome": "Original source physically settled Max Geist attacks and complete Float Stone→RetreatAction→Max Geist chain, source pass/censoring and native outcome",
+  "secondaryOutcomes": "Source actual Tool and retreat Store acceptance, source root attack counts, candidate response, full physical deal fingerprints, engine errors, and zero qualified paper games",
+  "qualification": "Fresh original rank1 seed groups registered after one retrospective rescue. This is a confirmatory native-development policy probe and does not qualify paper competitive games or any field win-rate estimate."
+}
