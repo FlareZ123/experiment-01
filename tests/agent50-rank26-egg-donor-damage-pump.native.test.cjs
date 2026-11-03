@@ -112,6 +112,25 @@ function perform(x) {
         'real native prompt must accept one physical original donor');
       x.store.dispatch(new ResolvePromptAction(p.id,transfers));
       paid=true;
+    }else if(p.constructor.name==='ChoosePrizePrompt'){
+      assert.equal(p.playerId,x.defender.id,
+        'self-KO awards a genuine opponent-owned Prize choice');
+      const first=x.defender.prizes.findIndex(slot=>slot.cards.length>0);
+      assert.ok(first>=0);
+      const decoded=[
+        {tag:'number',value:first},
+        {tag:'array',value:[first]},
+        {tag:'selected-prize',value:[x.defender.prizes[first]]}
+      ].filter(row=>{
+        try{return p.validate(row.value,x.state)===true;}
+        catch{return false;}
+      });
+      assert.ok(decoded.length>0,JSON.stringify({
+        kind:p.constructor.name,promptKeys:Object.keys(p),
+        options:p.options??null,first,
+        validator:String(p.validate).slice(0,1000)
+      }));
+      x.store.dispatch(new ResolvePromptAction(p.id,decoded[0].value));
     }else if(p.constructor.name==='WaitPrompt'){
       x.store.dispatch(new ResolvePromptAction(p.id,null));
     }else throw new Error('Unexpected native Damage Pump prompt '+p.constructor.name);
