@@ -20,17 +20,19 @@ The original source's hidden opening is compared through its preexisting SHA256 
 | Source-only recovered from authenticated treatment error | **3/16** |
 | Verified source-fingerprint differences | **0/16** |
 | Treatment attempts aborted at strict `AttachEnergyPrompt` validation | **3/16** |
+| SHA-authenticated original-source Underworld Door root attempts, including aborted rows | **35** |
 | Native original-source Underworld Door effects with completed physical payment + two-card draw + source marker | **32** |
+| Root attempts followed by strict Energy prompt failure, with no completed effect | **3** |
 | Above physically complete effects in an ultimately aborted trial | **4** |
 | Competitive paper games qualified | **0** |
 
 The three source-only, failed full pairs are:
 
-- `1:3:A:new-moon-lockbreaker-v1`: original-source physical digest recovered from a 227-root cryptographically checked native-abort ledger. The same failed trial previously completed **four** native source Underworld effects.
-- `1:0:B:champion-reference`: original-source physical digest recovered from a 64-root checked native-abort ledger; zero source Underworld effects in that failed attempt.
-- `1:0:B:new-moon-lockbreaker-v1`: original-source physical digest recovered from a 75-root checked native-abort ledger; zero source Underworld effects in that failed attempt.
+- `1:3:A:new-moon-lockbreaker-v1`: original-source physical digest recovered from a 227-root cryptographically checked native-abort ledger. The native-abort ledger certifies **five original-source Underworld Door roots**, of which **four** already fully physically settled before the final failed prompt.
+- `1:0:B:champion-reference`: original-source physical digest recovered from a 64-root checked native-abort ledger; **one Underworld Door root** immediately preceded the failed prompt, and **zero** were physically settled.
+- `1:0:B:new-moon-lockbreaker-v1`: original-source physical digest recovered from a 75-root checked native-abort ledger; **one Underworld Door root** immediately preceded the failed prompt, and **zero** were physically settled.
 
-All three treatment rows had explicit `engine-error`, `failureStage=strict-prompt-validation` and `pendingPrompt=AttachEnergyPrompt`. The preserved error evidence does **not** identify the exact causal card or show that the Underworld recipient compatibility hook caused these failures, especially in two trials with zero selected Underworld roots.
+All three treatment rows had explicit `engine-error`, `failureStage=strict-prompt-validation` and `pendingPrompt=AttachEnergyPrompt`. **Each cryptographically checked native root ledger ends with an original-source `UseAbilityAction` for Underworld Door, followed by the prompt-opening `ResolvePromptAction` and then the strict prompt failure.** The successful-row summary omitted the failed roots, so its earlier 28-root count was incomplete. The 35-root count reconciles **32 completed physical effects and three interrupted attempts** across both source seats. The archived error is redacted at the individual assignment level; its evidence strongly localizes the failing line to Underworld's Energy prompt, while the exact invalid energy/recipient and the contribution of the opt-in compatibility hook remain unverified.
 
 ## Interpretation and release consequence
 
