@@ -3,6 +3,11 @@ name: Agent7 prospective rank6 two-seat candidate Lillie after Pass
 on:
   workflow_dispatch:
     inputs:
+      emergency_lillie_native_panel:
+        description: Registered all-owner last-card Lillie policy match
+        type: boolean
+        default: false
+        required: false
       deckout_late_owner_roots:
         description: Read-only two-trial historical late owner-root audit
         type: boolean
@@ -26,7 +31,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test candidate-only actor intervention and reversible root proxy
-        run: node --test tests/agent7-prospective-candidate-lillie-after-pass.test.cjs tests/agent7-native-terminal-physical-predicates.test.cjs tests/agent7-late-owner-root-physical-audit.test.cjs
+        run: node --test tests/agent7-prospective-candidate-lillie-after-pass.test.cjs tests/agent7-native-terminal-physical-predicates.test.cjs tests/agent7-late-owner-root-physical-audit.test.cjs tests/agent7-owner-emergency-lillie-native.test.cjs
       - name: Check out pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned engine dependencies
@@ -35,11 +40,33 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Historical same-deal emergency Supporter development
+        if: ${{ inputs.emergency_lillie_native_panel && !inputs.deckout_late_owner_roots }}
+        run: node simulation/evaluation/agent7-emergency-lastcard-lillie-prospective.cjs --historical
+      - name: Preserve retrospective historical causal policy development
+        if: ${{ always() && inputs.emergency_lillie_native_panel && !inputs.deckout_late_owner_roots }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-emergency-lastcard-lillie-retrospective-original
+          path: agent7-emergency-lastcard-lillie-original-seed-development.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Fresh preregistered symmetric owner policy matched panel
+        if: ${{ inputs.emergency_lillie_native_panel && !inputs.deckout_late_owner_roots }}
+        run: node simulation/evaluation/agent7-emergency-lastcard-lillie-prospective.cjs
+      - name: Archive every fresh registered control and treatment action
+        if: ${{ always() && inputs.emergency_lillie_native_panel && !inputs.deckout_late_owner_roots }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent7-emergency-lastcard-lillie-matched-native-prospective
+          path: agent7-emergency-lastcard-lillie-prospective-results.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Read-only late candidate owner roots at the historical deckout
-        if: ${{ inputs.deckout_late_owner_roots }}
+        if: ${{ inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         run: node simulation/evaluation/agent7-rank6-deckout-late-owner-roots-retrospective.cjs
       - name: Preserve original-seed late root audit
-        if: ${{ always() && inputs.deckout_late_owner_roots }}
+        if: ${{ always() && inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank6-deckout-late-owner-roots-readonly
@@ -47,13 +74,13 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Run all registered native source pairs without seed reselection
-        if: ${{ !inputs.deckout_late_owner_roots }}
+        if: ${{ !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         run: node simulation/evaluation/agent7-rank6-lillie-prospective-paired.cjs
       - name: Retrospectively inspect coheld owner hand at an already observed Lillie cost
-        if: ${{ !inputs.deckout_late_owner_roots }}
+        if: ${{ !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         run: node simulation/evaluation/agent7-rank6-lillie-dci-hand-development.cjs
       - name: Archive separate owner-hand posthoc diagnosis
-        if: ${{ always() && !inputs.deckout_late_owner_roots }}
+        if: ${{ always() && !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank6-lillie-coheld-hand-development
@@ -61,10 +88,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Revisit original no-six-Prize engine terminals to audit native loss predicates
-        if: ${{ !inputs.deckout_late_owner_roots }}
+        if: ${{ !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         run: node simulation/evaluation/agent7-rank6-terminal-physical-diagnostic.cjs
       - name: Preserve separately the native terminal physics study
-        if: ${{ always() && !inputs.deckout_late_owner_roots }}
+        if: ${{ always() && !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-native-no-six-prize-physical-terminal
@@ -72,10 +99,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Observe source-owner physical Guzma Hala payment across registered rank6 control deals
-        if: ${{ !inputs.deckout_late_owner_roots }}
+        if: ${{ !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         run: node simulation/evaluation/agent7-rank6-control-ghala-physical-custody-replay.cjs
       - name: Preserve read-only original-source payment receipt census
-        if: ${{ always() && !inputs.deckout_late_owner_roots }}
+        if: ${{ always() && !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank6-control-source-ghala-native-physical-payments
@@ -83,7 +110,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
       - name: Archive full control and treatment with failed dispositions
-        if: ${{ always() && !inputs.deckout_late_owner_roots }}
+        if: ${{ always() && !inputs.deckout_late_owner_roots && !inputs.emergency_lillie_native_panel }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank6-lillie-prospective-control-treatment
