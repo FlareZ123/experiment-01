@@ -81,6 +81,8 @@ jobs:
       - name: Fail-fast registered original-source seed plan before native compilation
         run: |
           node --check simulation/twinleaf/agent47-rank26-prospective-natural-owner-24.cjs
+          node --test tests/aichi-registered-original60-preflight.test.cjs
+          node scripts/aichi-registered-original60-preflight.cjs results/aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json
           node --test tests/aichi-registered-seed-preflight.test.cjs
           node scripts/aichi-registered-seed-preflight.cjs results/aichi-2026/registrations/agent47-rank26-natural-owner-seed-plan-v2.json
       - name: Validate natural source physical audit module syntax
