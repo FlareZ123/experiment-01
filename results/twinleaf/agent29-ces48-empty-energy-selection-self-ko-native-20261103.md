@@ -35,3 +35,26 @@ The actual native Store can count an Ability self-KO and two-Prize penalty **wit
 This adds a distinct negative example to earlier CES48 audits: [forbidden old GX/EX target acceptance](../aichi-2026/agent45-electrode-bomb-forbidden-gx-native-two-seat-20261102.md), [mandatory five-card payment](../aichi-2026/agent29-rank9-electrode-modern-ex-native-chain-20261102.md), and the [three-/four-card partial Bomb native fixture](../../tests/agent2-rank9-partial-bomb-native.test.cjs). Those separate paths address the recipient and shortfall dimensions.
 
 **Scope remains unchanged:** 29/32 authenticated original Aichi Top32 printed 60s, missing 23/25/28, zero competitively qualified games, no selected best fixed 60 and no demonstrated 99.5% win rate. This study is a scoped rule-fidelity and policy-evidence gate.
+
+## Independent stock-bot resolver selection after native Ability activation (09:29 UTC)
+
+The preceding empty payment was a deliberately selected response that native `validate([])` erroneously accepted. A subsequent **read-only policy-choice probe**, now part of the same test file, explicitly invoked the unmodified pinned `SimpleTacticsAi.decodeNextAction` **after** the genuine native CES48 Ability root had opened its native prompt. It then genuinely dispatched that **bot-selected** `ResolvePromptAction` on a new stock Store and independently measured attached Energy/KO/Prize state.
+
+[Compiled manual CI 41611263470](https://github.com/FlareZ123/experiment-01/actions/runs/41611263470), research head `1f9c4dad65d1c997ecafef7fc5c0be7bf4de8c7d`, **54/54 native tests passed** (four new stock-bot cases beyond the eight original payment controls).
+
+| Stock native seat | Available original Prism Energy | Stock resolver selected | Actually attached | Knock Out and opposing Prizes |
+| ---: | ---: | ---: | ---: | --- |
+| 0 | 1 | 1 | 1 | yes; +2 |
+| 0 | 3 | **2** | **2** | yes; +2 |
+| 1 | 1 | 1 | 1 | yes; +2 |
+| 1 | 3 | **2** | **2** | yes; +2 |
+
+The two out of three selection is accepted by native Store, despite the printed mandatory maximum-card payment interpretation already implemented by the paper hook. The native SimpleTacticsAi source `AttachEnergyPromptResolver.getPromptResult` builds scored **prefixes** of one, two, etc. available Energy cards and chooses the highest-scoring prefix; it can therefore select fewer than the available count even when the printed effect calls for five and exactly three are physically available. These are actual selected bot prompt roots, **conditional on our explicit activation of the Ability**. The tests do **not** show that the stock root policy autonomously chooses Electrode's Ability from an unprompted natural rank-9 hand and board. The zero-card selected route remains a tested *native acceptance vulnerability*, while the two-out-of-three route is an **observed stock bot policy/cardinal payment discrepancy**.
+
+## Field scope and frozen shared-profile integration gate
+
+The original printed [Aichi field collection](../aichi-2026/full-decklists.json) contains original **Electrode-GX CES48** in **three** verified opposing 60s: **rank 4 (three copies), rank 9 (two), and rank 17 (three)**, eight physical copies across the three distinct opponents. This does not imply the other 26 registered original printed decks run CES48, and the rank-25 original Raichu list is still missing.
+
+The native [headless driver](../../simulation/twinleaf/headless.cjs) installs the existing correction **only** when `request.electrodeGXEnergyCorrection===true`. The frozen [Agent41 bilateral registration](../aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json) does not include that flag, and its [bilateral development request](../../simulation/evaluation/agent41-bilateral-v2-development.cjs) only inherits `registration.frozenFlags` without adding a CES48 flag. Therefore **that frozen request does not activate the CES48 correction** when later used for rank-4/9/17 development; for those prior trials the missing hook is a specific conditional paper-fidelity risk, separate from general hidden-state and clock limitations. This is a **static configuration finding**. No paper-invalid natural CES48 root in the frozen field archives was claimed.
+
+A new frozen rank-4/9/17 competitive release should either opt into the paper-correction hook and independently witness full legal recipient/payment/Prize settlement on actual selected Store roots, or explicitly classify any CES48 activation as unqualified until independently verified. Historical developer runs should retain their exact flags for reproducibility; do not silently alter frozen experiments.
