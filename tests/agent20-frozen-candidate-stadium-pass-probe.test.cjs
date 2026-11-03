@@ -43,7 +43,7 @@ class FakeStore{
       for(const player of [owner,enemy]){
         for(const removed of player.stadium.cards.splice(0)){
           if(removed.fullName==='Thunder Mountain Prism Star LOT')
-            player.lostZone.cards.push(removed);
+            player.lostzone.cards.push(removed);
           else player.discard.cards.push(removed);
         }
       }
@@ -57,7 +57,7 @@ class FakeStore{
 function player(id,hand=[],stadiums=[]){
   return {
     id,hand:{cards:hand},stadium:{cards:stadiums},
-    discard:{cards:[]},lostZone:{cards:[]},deck:{cards:[]},
+    discard:{cards:[]},lostzone:{cards:[]},deck:{cards:[]},
     stadiumPlayedTurn:0,cannotPlayStadiumCards:false
   };
 }
