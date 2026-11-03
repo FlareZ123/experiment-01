@@ -1,0 +1,50 @@
+{
+  "schema": "agent5-source-battle-compressor-pass-public-opportunity-registration-v1",
+  "registeredUtc": "2026-11-03T18:36:13.692Z",
+  "objective": "Check whether archived original rank9 turn1 native Pass while holding Battle Compressor PHF92 has a positive current owner deck count, an open Item play channel, and an exact printed discard-choice that changes state. Preserve negative results, errors and action caps.",
+  "priorReadOnlyEvidence": {
+    "report": "results/aichi-2026/agent5-rank6-v9-generic-owner-trainer-readonly-aba-20261103.md",
+    "artifactId": 13224855758,
+    "priorRun": 41622589780,
+    "originalRankPair": [
+      6,
+      9
+    ],
+    "firstArrangement": {
+      "primaryRankSeat": 0,
+      "seed": 3858002039,
+      "sourceSeat": 1,
+      "rootOrdinal": 1,
+      "globalTurn": 1,
+      "chosen": "PassTurnAction",
+      "heldPrint": "Battle Compressor PHF",
+      "ownerHeldHandIndex": 2
+    },
+    "sourcePrint": "xy4-92",
+    "cardText": "Search your deck for up to 3 cards and discard them. Shuffle your deck afterward."
+  },
+  "runContract": {
+    "workflow": ".github/workflows/agent5-owner-root-native.yml",
+    "inputs": {
+      "generic_trainer_frontier": true,
+      "generic_trainer_rank_pair": "6_9",
+      "agent7_stadium_public_snapshot": true
+    },
+    "engine": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "seed": "deriveSlotSeeds(20261114,'pilot',6,0)",
+    "arms": "control, owner-only read-only observer, repeated control",
+    "maxActions": 90
+  },
+  "predeclaredPaperGate": {
+    "observedRank9OriginalOwnerTurn": 1,
+    "observedSelectedRoot": "PassTurnAction",
+    "heldItem": "Battle Compressor PHF",
+    "publicItemLock": false,
+    "deckCountStrictlyPositive": true,
+    "noOtherCardSpecificPlayRestriction": true,
+    "oneDeckCardCanBeSelectedAndDiscarded": true,
+    "claimIfPass": "legal-alternate-Item-play-witness-only; usefulness not established"
+  },
+  "failurePolicy": "Retain full A/B/A statuses, naturally capped games, missing/mismatched public snapshots and all dispatch errors. Do not change bot. No game win inference.",
+  "qualifiedGamesClaim": 0
+}
