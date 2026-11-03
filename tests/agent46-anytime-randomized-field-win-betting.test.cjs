@@ -121,3 +121,29 @@ test('candidate familywise ordinal and lower precommitted benchmark',()=>{
   const low=check(games(128),{targetRate:.5});
   assert.equal(low.decision,'EVIDENCE_RANDOMIZED_FIELD_RATE_EXCEEDS_TARGET');
 });
+
+test('adversarial seed-grinding falsifies an unverified randomization assertion',()=>{
+  // Entire 32-cell paper field: ranks 1..16 always win, ranks 17..32
+  // always lose. True equal-cell success rate is exactly 0.5.
+  // An experimenter who learns the future assignment and grinds seeds
+  // can choose this one, with its first seven cells in 1..16.
+  const seed='0'.repeat(62)+'6b';
+  const a=games(7).map((row,i)=>{
+    const cell=assignedCell(seed,i,'RANK');
+    assert.ok(cell<16,'Deliberately selected favorable source assignment');
+    return {...row,cell,rank:cell+1,status:'QUALIFIED_WIN'};
+  });
+  const r=check(a,{randomSeed:seed,
+    precommittedSeedDigest:createHash('sha256')
+      .update(Buffer.from(seed,'hex')).digest('hex'),
+    externalRegistrationId:'not-a-real-timestamped-external-registration',
+    targetRate:0.5});
+  assert.equal(r.decision,'EVIDENCE_RANDOMIZED_FIELD_RATE_EXCEEDS_TARGET');
+  assert.ok(r.eValue>40);
+  assert.equal(r.randomizationExternallyVerified,false);
+  assert.equal(r.statisticalAssumptionsExternallyVerified,false);
+  assert.equal(r.competitiveQualified,false);
+  // This synthetic apparent rejection is INVALID evidence about the
+  // true p=0.5 field: the deliberately selected seed violates the
+  // conditional-uniformity assumption. A digest cannot detect this.
+});
