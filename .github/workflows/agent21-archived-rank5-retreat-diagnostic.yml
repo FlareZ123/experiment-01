@@ -1,6 +1,15 @@
 name: Agent 21 historical rank5 stranded Mew source native diagnostic
 on:
   workflow_dispatch:
+    inputs:
+      policy_variant:
+        description: 'Known-seed replay policy, old v1 or root-anchored exact-fee v2'
+        type: choice
+        required: true
+        default: historical-v1
+        options:
+          - historical-v1
+          - root-anchored-v2
 
 permissions:
   contents: read
@@ -18,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test bounded owner-only root and prototype-restoration contract
-        run: node --test tests/agent21-owner-stranded-mew-native-pass-retreat.test.cjs
+        run: node --test tests/agent21-owner-stranded-mew-native-pass-retreat.test.cjs tests/agent21-retreat-receipt-provenance-counterexample.test.cjs tests/agent21-root-anchored-fusion-retreat-v2.test.cjs
       - name: Restore pinned original vendor Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native dependencies
@@ -27,12 +36,21 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Replay known historical eight seeds with source Pass-retreat diagnostics
-        run: node simulation/evaluation/agent21-stranded-mew-pinned-archive-replay.cjs > agent21-stranded-mew-historical-native-replay.json
+      - name: Replay one selected retrospective policy against the same historical eight seeds
+        run: |
+          if [ "${{ inputs.policy_variant }}" = 'root-anchored-v2' ]; then
+            node simulation/evaluation/agent21-root-anchored-mew-historical-diagnostic.cjs > agent21-stranded-mew-historical-native-replay.json
+          else
+            node simulation/evaluation/agent21-stranded-mew-pinned-archive-replay.cjs > agent21-stranded-mew-historical-native-replay.json
+          fi
       - name: Show bounded genuine source geometry and native custody outcome
         if: always()
         run: |
           node -e "const fs=require('node:fs');if(!fs.existsSync('agent21-stranded-mew-historical-native-replay.json')){console.log('DIAGNOSTIC_NO_OUTPUT');process.exit(0)}const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8'));const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,seedsIndependent:x.independentlyProspective,rows:x.trialCount,nativePass:a.nativePassActionsSeen,ownerPass:a.ownerMatchedPassActions,offers:a.eligibleOwnerOffers,dispatches:a.dispatchedRetreatActions,settlements:a.nativeSettledPromotions,nearMisses:a.geometryNearMisses,samples:a.geometryNearMissSamples,sourceTrials:x.summary},null,2));"
+      - name: Show v2 root and physical fee disposition if selected
+        if: ${{ inputs.policy_variant == 'root-anchored-v2' }}
+        run: |
+          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a.anchoredStores,auxiliaryPassesUnchanged:a.auxiliaryPassesUnchanged,anchoredPassesSeen:a.anchoredPassesSeen,eligibleOffers:a.eligibleOffers,exactPhysicalFeeAndPromotion:a.exactPhysicalFeeAndPromotion,unverifiedPhysicalFees:a.unverifiedPhysicalFees,nativeRejectedReplacements:a.nativeRejectedReplacements,pendingAtEnd:a.pendingAtEnd,rootJoinVerified:a.verifiedSelectedRootLedgerJoin,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
       - name: Preserve every original Store native replay row and owner-only root receipt
         if: always()
         uses: actions/upload-artifact@v4
