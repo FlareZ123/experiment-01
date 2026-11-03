@@ -36,6 +36,10 @@ Compare the settled per-Claw source Prize gains:
 
 Every native Claw had a one-card opponent-hand `ChooseCardsPrompt` (minimum 1, maximum 1, one actual selected card) and a settled Prize transition. This is a concrete **Prize-liability regression**: a Supporter that native-played and drew cards also caused the autonomous policy to expose a three-Prize target without an attack payoff. A planner that scores only draw volume, card access, accepted Supporters or fewer opponent attacks would misrank this line.
 
+## Prize-chain follow-up: Lillie's four attacks accelerated the source victory
+
+Printed Gengar & Mimikyu-GX (Team Up 53) yields **three Prizes** when Knocked Out. Lillie's native-accepted draw line placed it on the New Moon Bench at T32 with no Energy. The source knocked out Unown with Claw T33, then the promoted Gengar & Mimikyu-GX with Claw T35: exact Prize state **[6,4] to [6,1]**, a three-Prize KO. T37 took the final Prize. The comparison has distinct per-Claw source Prize gains: observe **[1,1,2,1,1]** (T31–39); Catcher **[1]** (later game censored at action cap); Lillie **[1,1,3,1]** (T31–37). Each actual Claw had a native one-card opponent-hand ChooseCardsPrompt with one selected card. This is an observed **three-Prize Bench liability caused by an otherwise successful draw play**, and shows why fewer opponent attacks or more accepted Trainers is a poor proxy for game performance. No competitive result follows.
+
 ## Hidden weakness of the pre-fork source-policy evidence: eight legal zero-payoff Terminal Period attacks
 
 The supplied card database identifies **Mega Absol ex M1L 86**, whose **Terminal Period** attack knocks out the opposing Active Pokémon **only if it already has exactly six damage counters** (60 damage). The frozen native archive separately records source Terminal Period at **T15, T17, T19, T21, T23, T25, T27 and T29**, each against **Klefki with 0 damage** before and after. The source attacker had **two Darkness Energy** attached, sufficient for Terminal Period but below the three Energy needed for Claw of Darkness. Every one of those eight attack declarations left both Prize counts at `[6,6]`.
