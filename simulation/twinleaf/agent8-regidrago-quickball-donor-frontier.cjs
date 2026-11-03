@@ -5,6 +5,10 @@ const VERSION='agent8-rank13-quickball-evolved-dragon-donor-v1';
 const QUICK_BALLS=new Set(['Quick Ball FST','Quick Ball SSH']);
 const REGIDRAGO_V='Regidrago V SIT';
 // This is a source-13 hypothesis, not a general Dragon discard valuation.
+const {ownerApexPublicGates}=
+  require('../evaluation/agent8-rank13-apex-public-conjunction.cjs');
+const {observeRank13PayloadOwnerOpportunity}=
+  require('./agent8-rank13-payload-owner-opportunity.cjs');
 const EVOLVED_DONORS=new Set([
   'Salamence ex JTG','Dragapult ex TWM','Noivern ex PAL'
 ]);
@@ -22,6 +26,10 @@ const EVOLVED_DONORS=new Set([
  */
 function chooseRegidragoDonorQuickBall(view){
   assert.equal(view?.decisionKind,'owner-root');
+  if(process.env.AGENT8_ESTABLISHED_QUICKBALL_DEV==='true'){
+    const established=chooseEstablishedRegidragoQuickBall(view);
+    if(established)return established;
+  }
   const hand=view.ownHand,own=view.ownPublic,r=view.ownTurnResources;
   if(!Array.isArray(hand)||!Array.isArray(own?.bench)||
      own.bench.every(slot=>slot!==null)||!(own.deckCount>0)||
@@ -46,6 +54,36 @@ function chooseRegidragoDonorQuickBall(view){
     source:'rank13-dragon-donor'};
 }
 
+
+
+/**
+ * Owner-observable later-turn Quick Ball donor cost, usable only when an
+ * already Active Regidrago VSTAR has necessary visible Apex Energy but no
+ * Dragon donor in its physical discard. This does not infer hidden deck or
+ * Prize contents and does not guarantee a playable search target.
+ * @param {object} actor Detached acting owner's ordinary-turn observation.
+ * @returns {object|null} Native-neutral play intent.
+ */
+function chooseEstablishedRegidragoQuickBall(actor){
+  assert.equal(actor?.decisionKind,'owner-root');
+  const own=actor.ownPublic,r=actor.ownTurnResources;
+  if(own?.active?.printing!=='Regidrago VSTAR SIT'||r?.itemPlayLocked===true||
+      r?.pokemonPlayLocked===true||!(own.deckCount>0)||
+      own.bench.every(slot=>slot!==null))return null;
+  const quick=actor.ownHand.findIndex(p=>QUICK_BALLS.has(p));
+  const donor=actor.ownHand.find(p=>EVOLVED_DONORS.has(p));
+  if(quick<0||!donor)return null;
+  const publicApex=ownerApexPublicGates(
+    observeRank13PayloadOwnerOpportunity(actor));
+  if(!publicApex.printedColoredApexCostPossiblySatisfied||
+      publicApex.publicDragonDiscardPayload)return null;
+  return {
+    kind:'play-quick-ball',handIndex:quick,printing:actor.ownHand[quick],
+    donorPrinting:donor,desiredTarget:null,
+    source:'rank13-established-donor',ownerVisible:true,
+    actualNativePaymentAndSearchUnverified:true
+  };
+}
 
 /**
  * The pinned Quick Ball reducer leaves its publicly played Item in the
@@ -73,10 +111,14 @@ function chooseRegidragoQuickBallDiscard(input){
      input.prompt?.message!=='CHOOSE_CARD_TO_DISCARD'||
      input.prompt?.requiredCount!==1)return null;
   const own=input.actor.ownPublic;
-  if(input.actor.ownHand.includes(REGIDRAGO_V)||
-     [own.active,...own.bench].some(slot=>
-       slot?.printing===REGIDRAGO_V||
-       slot?.printing==='Regidrago VSTAR SIT'))return null;
+  const alreadyEstablished=input.actor.ownHand.includes(REGIDRAGO_V)||
+    [own.active,...own.bench].some(slot=>
+      slot?.printing===REGIDRAGO_V||
+      slot?.printing==='Regidrago VSTAR SIT');
+  if(alreadyEstablished&&
+     !(process.env.AGENT8_ESTABLISHED_QUICKBALL_DEV==='true'&&
+       own.active?.printing==='Regidrago VSTAR SIT'&&
+       own.discard?.every(p=>!EVOLVED_DONORS.has(p))))return null;
   const donor=input.actor.ownHand.find(name=>
     EVOLVED_DONORS.has(name)&&
     input.prompt.menu.some(bundle=>bundle.length===1&&bundle[0]===name));
@@ -95,11 +137,14 @@ function chooseRegidragoQuickBallSearch(input){
      input.prompt?.source!=='own-deck'||
      !['CHOOSE_CARD_TO_HAND','CHOOSE_CARD_FROM_DECK',
        'SEARCH_DECK_FOR_CARD'].includes(input.prompt?.message))return null;
+  if(process.env.AGENT8_ESTABLISHED_QUICKBALL_DEV==='true'&&
+     input.actor.ownPublic.active?.printing==='Regidrago VSTAR SIT')return null;
   const found=input.prompt.offered?.find(row=>
     row.printing===REGIDRAGO_V&&row.selectableAlone);
   return found?{indices:[found.index]}:null;
 }
 
 module.exports={VERSION,QUICK_BALLS,REGIDRAGO_V,EVOLVED_DONORS,
+  chooseEstablishedRegidragoQuickBall,
   chooseRegidragoDonorQuickBall,activeQuickBallPrompt,
   chooseRegidragoQuickBallDiscard,chooseRegidragoQuickBallSearch};
