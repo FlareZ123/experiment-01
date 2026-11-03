@@ -135,7 +135,7 @@ function detachedStadiumAtPass(state,ownerSeat,deps={}){
         copiedEnemy.stadium.cards.map(c=>c.fullName);
       evidence.nativeSourcePrismStarDisposal=originals.some(c=>
         c.fullName==='Thunder Mountain Prism Star LOT')?{
-          ownerLostZone:copiedEnemy.lostZone.cards.filter(c=>
+          ownerLostZone:copiedEnemy.lostzone.cards.filter(c=>
             c.fullName==='Thunder Mountain Prism Star LOT').length,
           ownerDiscard:copiedEnemy.discard.cards.filter(c=>
             c.fullName==='Thunder Mountain Prism Star LOT').length
