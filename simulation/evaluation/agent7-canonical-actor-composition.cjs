@@ -92,6 +92,7 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   let ownerSupporterOpportunityAudit = null;
   let ownerShuffleSupporterAudit = null;
   let ownerHammerAfterPassAudit = null;
+  let ownerRank9CompressorAudit = null;
   let ownerVipAfterPassAudit = null;
   let ownerVipBeforeAttackAudit = null;
   let ownerPlumeriaOpportunityAudit = null;
@@ -138,14 +139,27 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     ownerHammerAfterPassAudit=selected.audit;
     return selected.result;
   };
+  // Default-off original rank9 after-Pass Item proposal. This is nested
+  // inside the actor root, so the latter's terminal Pass cannot mask it.
+  // The owner-deck Energy decision occurs only at the actual source prompt.
+  const runWithRank9Compressor=()=>{
+    if(options.rank9CompressorOwnerSeat===undefined)
+      return runWithHammer();
+    assert.ok([0,1].includes(options.rank9CompressorOwnerSeat));
+    const selected=require('../twinleaf/agent29-rank9-compressor-owner-bridge.cjs')
+      .withRank9CompressorAfterPass(runWithHammer,
+        options.rank9CompressorOwnerSeat);
+    ownerRank9CompressorAudit=selected.audit;
+    return selected.result;
+  };
   const plumeriaOpportunityOptIn=options.ownerPlumeriaOpportunity===true||
     process.env.AGENT4_PLUMERIA_OPPORTUNITY_DEV==='true';
   const runWithPlumeriaOpportunity=()=>{
-    if(!plumeriaOpportunityOptIn)return runWithHammer();
+    if(!plumeriaOpportunityOptIn)return runWithRank9Compressor();
     const observer=adapters.plumeriaOpportunity??
       require('../twinleaf/agent4-plumeria-opportunity.cjs')
         .withPlumeriaOwnerOpportunity;
-    const observed=observer(runWithHammer);
+    const observed=observer(runWithRank9Compressor);
     ownerPlumeriaOpportunityAudit=observed.audit;
     return observed.result;
   };
