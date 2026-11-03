@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {necessaryTrainerHandPaymentGate}=
   require('./agent49-trainer-hand-payment-veto.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v3-five-printed-first-turn-only';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v4-opening-order-necessary';
 const VIP='Battle VIP Pass FST';
 /**
  * Exact paper source printings with an exclusive first-owner-turn window.
@@ -54,25 +54,37 @@ function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
     assert.equal(ownerTurnReceipt.globalTurn,view.globalTurn);
     assert.equal(ownerTurnReceipt.provenPastFirstOwnerTurn,
       ownerTurnReceipt.distinctObservedOwnerTurns>=2);
+    assert.ok(ownerTurnReceipt.openingFirstSeat===null||
+      ownerTurnReceipt.openingFirstSeat===0||
+      ownerTurnReceipt.openingFirstSeat===1);
   }
   const firstOnly=Object.hasOwn(FIRST_OWNER_TURN_ONLY,printing)?
     FIRST_OWNER_TURN_ONLY[printing]:null;
   if(firstOnly){
     const expired=ownerTurnReceipt?.provenPastFirstOwnerTurn===true;
-    const conservativeDecline=!expired&&view.globalTurn>2;
+    const openingFirstSeat=ownerTurnReceipt?.openingFirstSeat??null;
+    const goSecondStatus=!firstOnly.requiresGoingSecond?'not-required':
+      openingFirstSeat===null?'unverified':
+        openingFirstSeat===view.actorSeat?'proven-going-first-ineligible':
+          'proven-going-second';
+    const goSecondBlocked=goSecondStatus==='proven-going-first-ineligible';
+    const conservativeDecline=!expired&&!goSecondBlocked&&view.globalTurn>2;
     const slug=printing.replace(/ [A-Z0-9]{2,5}$/,'')
       .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
+    const blocker=expired?slug+'-first-owner-turn-expired':
+      goSecondBlocked?slug+'-requires-going-second':null;
     return {
       printing,printedRuleKnown:true,
       sourceCardId:firstOnly.sourceId,
       additionallyRequiresGoingSecond:firstOnly.requiresGoingSecond,
-      goingSecondEligibility:'unverified',
-      status:expired?'blocked':
+      goingSecondEligibility:goSecondStatus,
+      expiryIneligibilityProven:expired,
+      status:blocker?'blocked':
         conservativeDecline?'unresolved-owner-turn-history':
           'unresolved-opening-turn',
-      blocker:expired?slug+'-first-owner-turn-expired':null,
+      blocker,
       conservativeDecline,
-      ineligibilityProven:expired,
+      ineligibilityProven:expired||goSecondBlocked,
       positivelyCertified:false
     };
   }
@@ -124,6 +136,8 @@ function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
       printedTemporalBlocker:temporal.blocker,
       printedTemporalConservativeDecline:temporal.conservativeDecline,
       printedTemporalIneligibilityProven:temporal.ineligibilityProven,
+      printedOwnerTurnExpiryProven:temporal.expiryIneligibilityProven??false,
+      printedGoingSecondEligibility:temporal.goingSecondEligibility??null,
       printedMandatoryHandCostKnown:payment.knownPrintedCost,
       printedMandatoryHandPayment:
         payment.blocked?'physically-impossible':
