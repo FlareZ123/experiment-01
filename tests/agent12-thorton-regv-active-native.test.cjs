@@ -16,6 +16,8 @@ for(const seat of [0,1]){
     assert.equal(r.after.adpActive,true);
     assert.equal(r.after.regVInDiscard,true);
     assert.equal(r.after.ddeRemains,false);
+    assert.equal(r.after.damage,0);
+    assert.equal(r.after.pokemonPlayedTurn,0);
     assert.ok(r.after.discard.includes('Double Dragon Energy ROS'));
   });
 
@@ -32,6 +34,8 @@ for(const seat of [0,1]){
     assert.equal(r.after.adpActive,true);
     assert.equal(r.after.regVInDiscard,true);
     assert.equal(r.after.ddeRemains,true);
+    assert.equal(r.after.damage,60);
+    assert.equal(r.after.pokemonPlayedTurn,1);
     assert.equal(r.after.thortonInDiscard,true);
     assert.equal(r.after.thortonInSupporter,false);
     assert.equal(r.after.discard.includes('Double Dragon Energy ROS'),false);
@@ -59,5 +63,8 @@ for(const seat of [0,1]){
     assert.equal(r.after.adpActive,false);
     assert.equal(r.after.regVInDiscard,false);
     assert.equal(r.after.active,'Regidrago VSTAR SIT');
+    assert.ok(r.pending.includes('ChoosePokemonPrompt'));
+    assert.equal(r.after.sourceSupporterTurn,1);
+    assert.equal(r.after.thortonInSupporter,true);
   });
 }
