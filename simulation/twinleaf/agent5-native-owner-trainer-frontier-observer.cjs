@@ -62,9 +62,11 @@ function withNativeOwnerTrainerFrontier(work,deps){
   const recoveryHelper=deps.ownerDiscardRecoveryTargetOptIn===true?
     require('./planning/owner-public-discard-target-necessary.cjs'):null;
   const recoveryPrints=recoveryHelper?
-    recoveryHelper.withSourcePromoAliases(
-      recoveryHelper.loadBundledPublicPrintMetadata(
-        require('node:path').resolve(__dirname,'../../resources'))):null;
+    require('./planning/owner-external-mee-basic-energy-metadata.cjs')
+      .withVerifiedMEEBasicEnergyPrintings(
+        recoveryHelper.withSourcePromoAliases(
+          recoveryHelper.loadBundledPublicPrintMetadata(
+            require('node:path').resolve(__dirname,'../../resources')))):null;
   let live=null,matched=0,exceptions=0,truncated=0;
   const observedBySeat=[0,0];
 
@@ -215,6 +217,7 @@ function withNativeOwnerTrainerFrontier(work,deps){
           sum+(root.ownerPaperNecessity?.provenNecessaryConditionFailures??0),0),
         ...(recoveryPrints?{
           ownerDiscardRecoveryTargetOptIn:true,
+          supplementalExternalMEEBasicEnergyMetadata:true,
           registeredRecoveryCopyObservations:roots.reduce((sum,root)=>
             sum+(root.ownerPaperNecessity?.registeredHeldDiscardRecoveryCopies??0),0),
           newlyProvenRecoveryTargetFailures:roots.reduce((sum,root)=>
