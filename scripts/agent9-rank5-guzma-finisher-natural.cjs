@@ -117,4 +117,98 @@ function auditArchive(archive) {
     witnessedOpportunities:result};
 }
 
-module.exports={inspectSourceGuzmaFinisher,auditArchive};
+/**
+ * Additional late-game opportunity: the opposing Tapu is already on the
+ * public Bench at the prior attack settlement and the opponent subsequently
+ * only passed. The archived snapshots expose its absence of Tools, but not
+ * a certified live legal action menu on the source turn.
+ * @param {object} row Genuine native original source row.
+ * @returns {object[]} Unexecuted, owner/public evidence only.
+ */
+function inspectPersistentTapuFinishers(row) {
+  const seat=row.sourceSeat, opponent=1-seat;
+  assert.ok(seat===0||seat===1);
+  const roots=row.rootActionLedger;
+  const observations=row.sourceOwnerPostPassMobility?.observations;
+  const settlements=row.sourceAttackSettlement?.attacks;
+  assert.ok(Array.isArray(roots)&&Array.isArray(observations)&&
+    Array.isArray(settlements));
+  const results=[];
+  for(const pass of observations){
+    const turn=pass.globalTurn;
+    if(!(pass.mobilityHeld?.Guzma>=1&&pass.activeName==='Mew VMAX'&&
+      pass.activeEnergyCards?.includes('Double Colorless Energy')&&
+      pass.benchNames?.includes('Mew VMAX')&&
+      pass.benchNames?.includes('Genesect V')))continue;
+    const prior=settlements.find(e=>e.turnBefore===turn-2&&
+      e.attackName==='Cross Fusion Strike'&&
+      e.prizesAfter?.[seat]===2&&
+      Array.isArray(e.publicBoardAfter?.[opponent]?.bench));
+    if(!prior)continue;
+    const selectedCopy=roots.some(e=>e.playerSlot===seat&&
+      e.actionOrdinal===prior.actionOrdinal&&
+      e.action==='AttackAction'&&
+      roots.some(choice=>choice.initiatingRootActionOrdinal===e.actionOrdinal&&
+        choice.pendingPrompt==='ChooseAttackPrompt'&&
+        choice.attackChoice?.printing==='Genesect V FST'&&
+        choice.attackChoice?.attackName==='Techno Blast'));
+    if(!selectedCopy)continue;
+    const opponentActs=roots.filter(e=>e.playerSlot===opponent&&
+      e.turnBefore===turn-1);
+    if(!opponentActs.some(e=>e.action==='PassTurnAction')||
+      opponentActs.some(e=>e.action!=='PassTurnAction'&&
+        e.action!=='ResolvePromptAction'))continue;
+    const sourceActs=roots.filter(e=>e.playerSlot===seat&&
+      e.turnBefore===turn);
+    if(!sourceActs.some(e=>e.action==='PassTurnAction'&&
+      e.actionOrdinal===pass.ordinal)||
+      sourceActs.some(e=>e.action!=='PassTurnAction'&&
+        e.action!=='ResolvePromptAction'))continue;
+    const targets=prior.publicBoardAfter[opponent].bench;
+    const index=targets.findIndex(t=>t.name==='Tapu Lele-GX'&&
+      t.damage===0&&t.toolCards?.length===0);
+    if(index<0)continue;
+    results.push({sourceSeat:seat,sourceTurn:turn,
+      sourcePassRoot:pass.ordinal,previousCopiedAttackRoot:prior.actionOrdinal,
+      sourceRemainingPrizes:2,originalHeldGuzma:pass.mobilityHeld.Guzma,
+      sourceFundedMew:true,spareBenchedMew:true,benchGenesectDonor:true,
+      candidateTapuBenchIndex:index,targetPrintedHp:170,targetPrizeValue:2,
+      originalOpposingPass:opponentActs.find(e=>e.action==='PassTurnAction').actionOrdinal,
+      sourcePublicBoardSnapshot:'sourceAttackSettlement.publicBoardAfter',
+      candidateTurnHadOnlyPassAndPrompts:true,
+      possibleImmediatePrizeCompletion:true,executedInNativeStore:false,
+      competitivelyQualified:false});
+  }
+  return results;
+}
+
+/**
+ * Separate independent initial deals from repeated policy-label observations.
+ * @param {object} archive Full original pinned native archival JSON.
+ * @returns {object}
+ */
+function auditPersistentArchive(archive){
+  assert.equal(archive.sourcePrinted60Sha256,SOURCE_SHA256);
+  assert.equal(archive.nativeAttemptCount,32);
+  const observed=[];
+  for(const mode of archive.modeOrder){
+    for(const scope of SCOPES){
+      const arms=archive.rawArms[scope].modes[mode].attempts;
+      assert.equal(arms.length,4);
+      for(const arm of arms){
+        for(const found of inspectPersistentTapuFinishers(arm.rawNativeRow)){
+          observed.push({mode,scope,trialId:arm.trial.id,
+            physicalSourceDeal:arm.rawNativeRow.sourceDealFingerprint,...found});
+        }
+      }
+    }
+  }
+  const distinctScopeTurn=new Set(observed.map(e=>
+    [e.scope,e.trialId,e.sourceTurn].join('|')));
+  return {attemptsInspected:32,nativeOpportunities:observed.length,
+    distinctScopeTrialTurns:distinctScopeTurn.size,
+    modeDuplications:observed.length-distinctScopeTurn.size,
+    executedAlternativeFinisherCount:0,observed};
+}
+
+module.exports={inspectSourceGuzmaFinisher,inspectPersistentTapuFinishers,auditArchive,auditPersistentArchive};
