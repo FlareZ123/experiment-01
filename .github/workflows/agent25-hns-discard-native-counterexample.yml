@@ -29,6 +29,16 @@ jobs:
       - name: Compile pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify native PokéStop Stadium alternative under source rank2 and rank15 locks
+        run: node simulation/twinleaf/agent25-vileplume-pokestop-native-stadium.cjs > agent25-vileplume-pokestop-native-stadium.json
+      - name: Archive four staged real Stadium actions and lock rejection controls
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent25-vileplume-pokestop-native-stadium
+          path: agent25-vileplume-pokestop-native-stadium.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Compare original and reversible paper HNS attack resolution on both physical seats
         run: node simulation/twinleaf/agent25-hns-discard-native-counterexample.cjs > agent25-hns-original-store-counterexample.json
       - name: Archive native action and after-attack prompts, all arms
