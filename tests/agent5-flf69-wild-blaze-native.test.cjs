@@ -16,6 +16,9 @@ const {Format}=native('game/store/card/card-types');
 const {AttackAction}=native('game/store/actions/game-actions');
 const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
 
+const {installFlf69WildBlazePaperHook}=
+  require('../simulation/twinleaf/flf69-wild-blaze-paper-hook.cjs');
+
 const variants=[
   {name:'M Charizard EX FLF',own:10,other:5},
   {name:'M Charizard-EX FLF 69',own:5,other:10}
@@ -114,4 +117,26 @@ for(const v of variants){
       console.log('AGENT5_FLF69_NATIVE_ATTACK',JSON.stringify(r));
     });
   }
+}
+
+for(const seat of [0,1]){
+  test('opt-in patched original FLF69 discards only its own top five seat '+seat,()=>{
+    const hook=installFlf69WildBlazePaperHook();
+    try{
+      const r=attack(seat,'M Charizard EX FLF');
+      assert.equal(r.damage,300);
+      assert.equal(r.ownerDeck,5);
+      assert.equal(r.opponentDeck,9,
+        'Opponent draws one card at the beginning of its next turn');
+      assert.equal(r.ownerDiscard,5);
+      assert.equal(r.opponentDiscard,0);
+      assert.equal(hook.evidence().correctedWildBlazeEffects,1);
+      assert.equal(hook.evidence().megaEvolutionReducerPreserved,true);
+      console.log('AGENT5_FLF69_CORRECTED_NATIVE_ATTACK',JSON.stringify({
+        ...r,correction:hook.evidence()
+      }));
+    }finally{
+      hook.restore();
+    }
+  });
 }
