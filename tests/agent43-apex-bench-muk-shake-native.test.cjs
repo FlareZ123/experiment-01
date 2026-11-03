@@ -108,6 +108,15 @@ for(const seat of [0,1]){
       for(let i=0;i<3;i++){
         const action=bot.decodeNextAction(store.state);
         assert.ok(action instanceof ResolvePromptAction);
+        const pending=store.state.prompts.find(p=>p.result===undefined);
+        console.log('AGENT43_SHAKE_SELECTED_PROMPT',JSON.stringify({
+          seat,index:i,promptType:pending?.constructor?.name,
+          promptOwner:pending?.playerId??null,
+          resultIsArray:Array.isArray(action.result),
+          resultCount:Array.isArray(action.result)?action.result.length:null
+        }));
+        assert.ok(Array.isArray(action.result),
+          'Owned search/evolution/shuffle must return a validated native array');
         roots.push(action.constructor.name);
         store.dispatch(action);
       }
