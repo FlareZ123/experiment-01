@@ -28,6 +28,16 @@
 
 The full CI job printed the per-row status, offered and physical-payment counts, genuine scouts and owner-K1 reason. The archived artifact contains richer original ledgers; the abbreviated log-derived summary above is independently reproducible from that run's `agent44-canonical-boxshake-native.json` object and the reporter invocation in the job log. It is not an estimate of whole-game wins.
 
+## Cheap exact source-inventory diagnostic (independent of the native result)
+
+A companion [BigInt combinatorial model](../../scripts/agent44-rank8-directheld-k0-scout-window.cjs) with [three passing local Node 22 tests](../../tests/agent44-rank8-directheld-k0-scout-window.test.cjs) counts a deliberately narrow direct-held information window in the authenticated original rank8 sixty. The deck has **1 Secret Box, 4 Quick Ball, 2 Basic Trubbish, 8 other Basic Pokémon and 45 other cards**. Condition on a valid **initial seven-card hand with at least one Basic**, one following top-deck draw and **no other actions or extra draws**. The resulting eight-card physical inventory must contain Box and at least one Quick Ball while containing zero Trubbish. The exact event probabilities are:
+
+- Before conditioning on the Basic requirement: **4.308679%**.
+- Conditional on a valid initial seven: **3.36778344%**, corresponding to **2.15538 expected event inventories in 64 independent hands**.
+- Under this **inventory-only Bernoulli** approximation, 0 or 1 such inventories in 64 is not surprising (probability about **36.064%**). This probability does not represent an empirically measured source strategy outcome.
+
+This calculation is a *cheap experimental-design baseline*. The event can still be strategically unpayable or useless because of UDP/discard costs, existing board state, ACE SPEC expenditure, game search sequencing, or opponent pressure. Conversely, an actual native policy may reach Box or Quick Ball through additional searches/draws, opponent mulligan bonuses, and later turns. Therefore **3.3678% is neither an upper bound nor a lower bound on natural native scout opportunities**, and the observed **1/64 actual scout** is not a direct trial of the inventory model. No hidden Prize/deck information is used to decide a real K0 action in either experiment.
+
 ## What this falsifies and what remains open
 
 The earlier post-selected index383 demonstrated a legal K0→K1 owner-deck scout **could** prevent a Box commitment when Shake was absent. That posthoc example was correctly excluded here. The fresh 64-deal cohort does **not** show that the new conditionally enabled policy improves the precommitted strict endpoint or frequently exercises the scout. The informative treatment event frequency was **1/64**, and the whole-cohort physical opportunity to offer Box was **6/64**.
