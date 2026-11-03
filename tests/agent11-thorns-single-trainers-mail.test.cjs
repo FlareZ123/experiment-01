@@ -3,8 +3,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const roster = require('../results/aichi-2026/full-decklists.json');
+const opening = require('../results/aichi-2026/opening-hand-audit.json');
 const { exactAccess } = require('../scripts/agent11-thorns-first-volt-access.cjs');
-const { singleMailAccess } = require('../scripts/agent11-thorns-single-trainers-mail.cjs');
+const { singleMailAccess, withMaxMulliganBonuses } =
+  require('../scripts/agent11-thorns-single-trainers-mail.cjs');
 
 const fixtures = [
   { rank:6, d:1, mail:3, base:9177359393312555306400n,
@@ -44,3 +46,41 @@ for (const f of fixtures) {
     assert.ok(m.allHeldMailNumerator < m.allHeldMailDenominator);
   });
 }
+
+test('maximum optional source mulligan gains preserve original printed starter eligibility', () => {
+  const expected = [
+    [1,3,14,0.340461748781253,0.386951612740452,0.390985903535151],
+    [1,3,17,0.339266119714949,0.385690860179358,0.389697376451883],
+    [3,4,14,0.394208147926194,0.460780246163052,0.469459691450095],
+    [3,4,17,0.392794664602379,0.459302324778017,0.467926989400031],
+    [1,2,14,0.340461748781253,0.373321137882786,0.374725143104723],
+    [1,2,17,0.339266119714949,0.372068871017311,0.373462697102659]
+  ];
+  for (const [d,m,b,base,one,all] of expected) {
+    const r = withMaxMulliganBonuses(d,m,b);
+    assert.ok(Math.abs(r.withoutMail-base)<1e-12);
+    assert.ok(Math.abs(r.oneMail-one)<1e-12);
+    assert.ok(Math.abs(r.allHeldMail-all)<1e-12);
+    assert.ok(r.omittedMass<1e-12);
+  }
+});
+
+test('entire 29-authenticated-opponent field has all-Mail physically bounded line access', () => {
+  assert.equal(opening.decks.length,29);
+  assert.deepEqual(opening.decks.map(d=>d.rank),roster.decks.map(d=>d.rank));
+  assert.ok(opening.decks.every(d=>d.unresolved_pokemon.length===0));
+  const basics=opening.decks.map(d=>d.basic_count_known);
+  const expected = [
+    [1,3,0.39085247045,0.39497308318],
+    [3,4,0.46530117042,0.47414225016],
+    [1,2,0.37721809858,0.37865449481]
+  ];
+  for (const [d,m,one,all] of expected) {
+    const cache=new Map();
+    for(const b of new Set(basics))cache.set(b,withMaxMulliganBonuses(d,m,b));
+    const avg=key=>basics.reduce((v,b)=>v+cache.get(b)[key],0)/basics.length;
+    assert.ok(Math.abs(avg('oneMail')-one)<1e-10);
+    assert.ok(Math.abs(avg('allHeldMail')-all)<1e-10);
+    assert.ok(Math.max(...[...cache.values()].map(v=>v.omittedMass))<6e-10);
+  }
+});
