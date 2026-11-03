@@ -281,6 +281,12 @@ assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0, 4) - 0.4572047432473605) < 2
 const candidateBounds = bounds('candidate', 20);
 const sourceBounds = bounds('source', 20);
 const combinedAccessBounds = combinedCandidateAccess(30);
+const jointHammer=jointTwoRouteSeen(2,30);
+const jointCostless=jointTwoRouteSeen(4,30);
+const jointAll=jointTwoRouteSeen(8,30);
+assert.ok(jointHammer.lower>0.1021664&&jointHammer.upper<0.1021665);
+assert.ok(jointCostless.lower>0.1792144&&jointCostless.upper<0.1792145);
+assert.ok(jointAll.lower>0.2792460&&jointAll.upper<0.2792462);
 assert.ok(combinedAccessBounds.lower > 0.381149 && combinedAccessBounds.upper < 0.381151);
 const jointNoCost = jointPhysicalOpportunity(4, 20);
 const jointAllRemoval = jointPhysicalOpportunity(8, 20);
