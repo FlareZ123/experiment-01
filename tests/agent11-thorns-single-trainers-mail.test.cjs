@@ -8,11 +8,14 @@ const { singleMailAccess } = require('../scripts/agent11-thorns-single-trainers-
 
 const fixtures = [
   { rank:6, d:1, mail:3, base:9177359393312555306400n,
-    rescued:1258962115066913136000n, total:10436321508379468442400n },
+    rescued:1258962115066913136000n, total:10436321508379468442400n,
+    allNum:280786541516936143210972545004800n, allDen:723434486475301475249684509200000n },
   { rank:24, d:3, mail:4, base:10624357699798492261920n,
-    rescued:1804502105745057789840n, total:12428859805543550051760n },
+    rescued:1804502105745057789840n, total:12428859805543550051760n,
+    allNum:55020028179047314754322617632568694400n, allDen:118053656675472071238619766633802000000n },
   { rank:29, d:1, mail:2, base:9177359393312555306400n,
-    rescued:889212398430828122640n, total:10066571791743383429040n }
+    rescued:889212398430828122640n, total:10066571791743383429040n,
+    allNum:1648838222304359712638968560n, allDen:4433216818183665626434320000n }
 ];
 
 for (const f of fixtures) {
@@ -34,5 +37,10 @@ for (const f of fixtures) {
     assert.equal(old.available * m.denominator,m.base * old.denominator);
     assert.equal(m.base + m.mailRescue,m.total);
     assert.ok(m.total < m.denominator);
+    assert.equal(m.allHeldMailNumerator,f.allNum);
+    assert.equal(m.allHeldMailDenominator,f.allDen);
+    assert.ok(m.allHeldMailNumerator * m.denominator >=
+      m.total * m.allHeldMailDenominator);
+    assert.ok(m.allHeldMailNumerator < m.allHeldMailDenominator);
   });
 }
