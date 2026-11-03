@@ -124,6 +124,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent15_recovery_native_observer:
+        description: 'Read-only original5-vs11 owner-hand discard-recovery target negatives, no action changes'
+        required: false
+        type: boolean
+        default: false
       agent27_owner_payment_aba:
         description: 'Read-only exact owner-hand discard affordability on original 5/11 historic A/B/A'
         required: false
@@ -228,6 +233,7 @@ jobs:
         env:
           AGENT5_TRAINER_CENSUS_RANK_PAIR: ${{ inputs.generic_trainer_rank_pair }}
           AGENT7_STADIUM_PUBLIC_SNAPSHOT: ${{ inputs.agent7_stadium_public_snapshot }}
+          AGENT15_RECOVERY_NATIVE_OBSERVE: ${{ inputs.agent15_recovery_native_observer }}
         run: node simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.generic_trainer_frontier }}
