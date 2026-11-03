@@ -43,6 +43,26 @@ The equal-field difference is about **30.60046715 percentage points**. Against o
 
 Among all Basic-valid original seven-card hands that still produce a forced solo ADP v2 board after accepted bonuses against rank26, the unique starting Basic is exchangeable among the fixed seven printings. A sole **Tapu Lele-GX or Crobat V** starter accounts for two of the seven possible Basic identity copies. Thus the joint conditional chance of opening with **only** Tapu Lele-GX or Crobat V available before either player acts is **19.449976879%**. The remaining lone-Basic cases can be ADP (two of seven copies) or Regidrago V (three of seven). This percentage is a physical opponent-target exposure. It does not show rank26 can Knock Out either Pokémon, that no own-turn Bench card can be found, or that a game ends early.
 
+## Narrow first-personal-turn natural Bench connector counter-screen
+
+A forced **solo board at setup** can be repaired on the player's first turn if the pilot draws a different Basic or can legally play a search Item. The actual fixed ADP v2 contains **four Tag Call**, **three Quick Ball** and **four Ultra Ball**. This is **eleven physical Basic-tutor Item copies**. A separate exact, pessimistic *absence* event requires:
+
+- The Basic-valid initial seven contained **exactly one Basic** and **none** of the eleven Item printings.
+- Every opponent-mulligan bonus card accepted, plus the player's one ordinary first-turn draw, contains **no other Basic and none of these eleven Items**.
+
+For seven Basics and eleven relevant Items, the exact original-seven probability of one Basic with zero such Items is **7 × C(42,6) / [C(60,7) − C(53,7)]**, or approximately **15.8234484%**. With m opponent bonus cards, the conditional probability of no additional Basic or those Items in the next m+1 cards is **C(36,m+1)/C(53,m+1)**. Weight it by the same source-specific exact simultaneous-mulligan probabilities used above and bound the m≥33 remainder. The machine implementation is the exported `noDirectBasicTutor` within the [forced-solo source model](../../simulation/evaluation/agent32-adp-forced-solo-opening-originals.cjs).
+
+| Original opponent | Chance of this narrow no-direct-Basic/tutor event |
+| --- | ---: |
+| Rank 6 Iron Thorns, four Basics | **7.9243117%** |
+| Rank 26 Meloetta, twelve Basics | **10.2468514%** |
+| Rank 1 Shadow Rider, fourteen Basics | **10.4057331%** |
+| Equal rank average, all 29 originals | **10.0758441%** |
+
+This event's meaning is strictly that **none of the specified immediate cards is visible**. Having one of the eleven Items does not prove a Bench rescue: Quick Ball and Ultra Ball require discards, Tag Call must have a searchable TAG TEAM Basic, and opponents may impose Item restrictions. Conversely, other legal effects may produce a Basic despite absence of these particular Items. The result explains why the **68% forced-solo setup figure should never be portrayed as a 68% unrescuable first-turn position or a donk rate.**
+
+This refinement was verified by two additional deterministic source-bound tests. The original import-error test failure and a later floating-point boundary assertion failure were corrected; final [GitHub Actions 41557972309](https://github.com/FlareZ123/experiment-01/actions/runs/41557972309) **SUCCESS** with all eight forced-solo plus direct-Item tests passing. The mathematical interval is exact before JS floating-point rounding, and the assertions explicitly permit that rounding.
+
 ## Evidence and reproduction
 
 - [Exact all-original forced-solo evaluator](../../simulation/evaluation/agent32-adp-forced-solo-opening-originals.cjs) computes physical Basic distributions and source-specific bonus-draw corrections with published hypergeometric formulae.
