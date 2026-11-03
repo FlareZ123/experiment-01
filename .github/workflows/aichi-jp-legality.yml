@@ -19,3 +19,8 @@ jobs:
         run: python -m unittest tests/test_japanese_expanded_audit.py -v
       - name: Print Aichi ban identity findings
         run: python scripts/japanese_expanded_audit.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact Apex Alchemy Japanese 60-card print mapping and negative cases
+        run: node --test tests/agent2-apex-jp-print-audit.test.cjs
