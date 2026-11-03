@@ -1102,6 +1102,10 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!ownerGenericTrainerFrontier||actorOnlyComposition,
+    'Owner Trainer census requires canonical actor composition');
+  assert.ok(!nativeOwnerTrainerFallback||actorOnlyComposition,
+    'Native Trainer fallback requires canonical actor composition');
   assert.ok(nativeRootActionLimit===null||
     (Number.isSafeInteger(nativeRootActionLimit)&&
       nativeRootActionLimit>=16&&
