@@ -1,0 +1,62 @@
+{
+  "schema": "agent49-generic-native-trainer-after-unsupported-pass-original-r5-r11-v1",
+  "owner": "Agent 49",
+  "preregisteredAt": "2026-11-03",
+  "prospective": true,
+  "branch": "main",
+  "simulator": "Twinleaf pinned Store",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourceRanks": [
+    5,
+    11
+  ],
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "sourceDeckSelection": "planAichi(5) own original source 60 and original rank11 opponent 60; documented equivalent Basic Energy/Japanese promotion hooks only",
+  "seeds": [
+    3280147331,
+    2186770930
+  ],
+  "primarySourceSeats": [
+    0,
+    1
+  ],
+  "arms": [
+    "control-no-native-Trainer-after-pass",
+    "treatment-native-Trainer-after-pass-with-Agent49-necessary-hand-payment-veto"
+  ],
+  "expectedNativeArms": 8,
+  "expectedMatchedPhysicalPairs": 4,
+  "maxActions": 140,
+  "selectedPolicy": {
+    "naturalEvolutionRoot": true,
+    "publicContextSpecialEnergy": true,
+    "nativeOwnerTrainerFallback": "false in control, true in treatment",
+    "symmetricBothSeats": true,
+    "allOtherOptions": "the runner's unchanged explicit/default actor policy"
+  },
+  "binding": {
+    "runner": "simulation/evaluation/agent49-general-trainer-fallback-native-pilot.cjs",
+    "runnerCreationCommit": "1c6f0a9fde1ce1c1d4db9bc0ed02a62e4af80016",
+    "sourceEnergyAndTrainerPaymentInfrastructure": "Agent49 shared 29-source and Agent27 original printed costs",
+    "useNativeSimpleTacticsAiAfterPass": true,
+    "nativeSimpleTacticsMayReadHiddenInformation": true,
+    "strictPromptValidation": true,
+    "isolatedPolicyRandomness": true,
+    "exactPhysicalDealFingerprintRequired": true
+  },
+  "censoring": "Keep every 8 registered arm, error, action cap, and Native Store failure. No replacement seeds or post-hoc additions.",
+  "summaryOutcomes": [
+    "completePairs",
+    "physicallyMatchedPairs",
+    "native accepted Trainer fallback roots",
+    "native payment vetoes",
+    "native root PlayCard/Pass counts",
+    "root errors",
+    "native caps"
+  ],
+  "competitiveQualificationAllowed": false,
+  "officialGameClockImplemented": false,
+  "controllerPolicyFullyOwnerSafe": false,
+  "expectedCompetitiveGames": 0,
+  "fixedDeckWinRateEstimate": null
+}
