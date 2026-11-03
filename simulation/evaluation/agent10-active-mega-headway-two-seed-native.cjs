@@ -25,8 +25,8 @@ function run(){
         allowAdditionalOriginalSourceRanks:true,
         registeredFrameName:VERSION+'-'+name
       });
-      assert.equal(arms[name].attempted,2);
-      assert.equal(arms[name].rows.length,2);
+      assert.equal(arms[name].attempted,4);
+      assert.equal(arms[name].rows.length,4);
     }
   }finally{
     for(const [k,v] of Object.entries(old)){
