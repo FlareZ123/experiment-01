@@ -93,6 +93,8 @@ jobs:
         run: node --test tests/agent46-anytime-absolute-field-win-betting.test.cjs
       - name: Verify preregistered independently randomized one-game field betting
         run: node --test tests/agent46-anytime-randomized-field-win-betting.test.cjs
+      - name: Verify anytime adaptively selected opponent-cell field envelope
+        run: node --test tests/agent46-anytime-adaptive-field-envelope.test.cjs
       - name: Verify candidate Apex Alchemy exact fixed60, Basic-valid access and source counterwindow
         run: |
           node --test tests/agent43-apex-alchemy-sft.test.cjs
