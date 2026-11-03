@@ -35,6 +35,18 @@ In `1:420:A:new-moon-lockbreaker-v1`, the control and selected-v3 histories have
 
 The native `nativeAcceptedTargetSidecar` independently records the physically accepted attachment and retirement/transfers. `sourceAttackSettlement.attacks` independently witnesses Max Geist settlement and a public post-attack Active change. No source-action reconstruction or synthetic favorable fixture is needed for these claims.
 
+## Cross-profile exact prefix comparison with the older Agent31 native archive
+
+A further independent control audits this integrated policy against the **original earlier 32-attempt isolated Float Stone run**, rather than comparing only internal A/B/A controls. The [archived Agent31 run 41692878040](https://github.com/FlareZ123/experiment-01/actions/runs/41692878040) artifact **13259355162** was independently downloaded and ZIP hash-verified against its published digest `7e063f78b81c736fd58f2410d0bcb455b3fa4568e951d294d8ea502e922a4822`; the raw JSON SHA-256 matches `8ecc190e93d98f201f9d4ba9cb78b96e4b78b9e758ace174cea3631b826abe7b`.
+
+For the earlier exact source `1:0:A:new-moon-lockbreaker-v1` and this new `1:420:A:new-moon-lockbreaker-v1`, the original/source physical opening fingerprints are **bit-for-bit identical**:
+- Original-source deal `041b1ce5981ceca975c5572eda9a9abdabc590857feeb6d298f8fd7ed1643cc8`.
+- Entire physical both-player deal `f38b29f428883ec11d1562e641b42ba528b92df3fd79d1fc5209a7221dd99f5e`.
+
+Even more strongly, comparing **every actual native root object** in the two archives finds the integrated control's entire first 180 accepted roots exactly equal to the old isolated-control's first 180, and the integrated selected policy's first 180 accepted roots exactly equal to the old isolated-rescue's first 180, including turn, actor, printed card, prompt and action ordinals. The respective JSON canonical compact prefix SHA-256 values are `650617fedeb59a817f31773f623741c7ec3f85fb604620f475f8f0d09dd896a5` and `a4a6929bb6209c774b952c614567d5ebececd00c425c945945a20b583b845539`.
+
+This proves **trace-level transport of the source interaction in this one historical state** despite enlarged selected-v3 policy configuration. The old Agent31 archive independently completed its treatment source native game at root 190 (global turn 38), and its control at root 238 (turn 48). The current 180-action registration still **censors before either ending**; those older endpoints cannot be silently attributed to the newly integrated run. A separately preregistered extension is required to check them in the new environment.
+
 ## Critical censor and remaining evidence gap
 
 **Every attempt stops at exactly the registered 180-root cap** in this specific successful case; the selected attacker used Max Geist at root 174 and spent roots 175–179 settling the attack and KO/promotions. **No later opponent non-prompt root** occurs before the cap. Thus the observer sees an opponent's real promotion prompt, while **meaningful opponent counterplay has not occurred** in this archive. It would be incorrect to infer that the tactic withstands an opponent reply, completes the match, or improves a competitive win rate.
