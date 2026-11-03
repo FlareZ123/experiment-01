@@ -60,6 +60,27 @@ function resolveManifest(manifest, options = {}) {
           name = ancientTrait[0].fullName;
           reason = 'verified-prc60-omega-barrier-disambiguation';
         }
+      } else if (row.status === 'ambiguous-exact' &&
+          item.name === 'M Charizard-EX' && item.printing.set === 'FLF' &&
+          String(item.printing.number) === '69') {
+        // The pinned Twinleaf revision registers two implementations under
+        // the same original FLF #69 print identity. The auto-generated
+        // duplicate ('M Charizard-EX FLF 69') omits the original Mega
+        // evolution turn-ending rule. Select the fully implemented original
+        // exact-print class only after verifying its printed Wild Blaze data.
+        const native = row.exact.filter(candidate =>
+          candidate.fullName === 'M Charizard EX FLF');
+        if (native.length === 1) {
+          const card = manager.getCardByName(native[0].fullName);
+          if (card.set === 'FLF' && String(card.setNumber) === '69' &&
+              card.hp === 230 &&
+              card.attacks.some(attack => attack.name === 'Wild Blaze' &&
+                attack.damage === 300 &&
+                /Discard the top 5 cards of your deck/.test(attack.text))) {
+            name = native[0].fullName;
+            reason = 'verified-flf69-canonical-native-implementation';
+          }
+        }
       } else if (allowEquivalentBasicEnergies && item.category === 'Energy') {
         const candidates = row.alternatives
           .filter(card => card.set.toUpperCase() === String(item.printing.set).toUpperCase())
