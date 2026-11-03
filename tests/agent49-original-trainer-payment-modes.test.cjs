@@ -115,4 +115,5 @@ test('Dowsing Machine requires two OTHER cards regardless of ACE SPEC status',()
 });
 
 // Shared manual-only census also exercises print-verified whole-hand effects.
+require('./agent49-original-bulk-hand-source-text.test.cjs');
 require('./agent49-owner-bulk-hand-transitions.test.cjs');
