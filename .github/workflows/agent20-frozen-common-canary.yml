@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' }}
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-18option-ablation-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -135,4 +135,30 @@ jobs:
             agent13-rank5-transport-compact.json
             results/aichi-2026/registrations/agent13-rank5-joint-transport-20261103.json
           if-no-files-found: warn
+          retention-days: 30
+
+  rank5-joint-18option-ablation:
+    if: github.ref == 'refs/heads/agent13-rank5-joint-18option-ablation-20261103'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/agent13-rank5-18option-ablation-20261103.test.cjs
+      - run: node simulation/evaluation/agent13-rank5-18option-ablation-20261103.cjs --inspect-only
+      - run: git submodule update --init --depth=1 vendor/twinleaf
+      - run: npm ci --no-audit --no-fund
+        working-directory: vendor/twinleaf/ptcg-server
+      - run: npm run compile
+        working-directory: vendor/twinleaf/ptcg-server
+      - run: node simulation/evaluation/agent13-rank5-18option-ablation-20261103.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-rank5-joint-18option-8arm
+          path: |
+            agent13-rank5-joint-18option-native-8arm.json
+            results/aichi-2026/registrations/agent13-rank5-18option-ablation-20261103.json
           retention-days: 30
