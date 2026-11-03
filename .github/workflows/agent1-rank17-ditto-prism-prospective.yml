@@ -19,8 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Confirm source manifest and preregistered original source identities
-        run: node -e "const a=require('node:assert/strict');const p=require('./simulation/evaluation/agent1-rank17-ditto-prism-prospective.cjs').preflight();a.equal(p.registered.expectedNativeArms,32);a.equal(p.sourceOriginal.cards.length,60);console.log('RANK17_SOURCE_FROZEN',p.registered.sourcePrinted60Sha256)"
       - name: Initialize exact pinned Twinleaf
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native server
@@ -29,6 +27,8 @@ jobs:
       - name: Compile pinned Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Confirm source manifest and preregistered original source identities
+        run: node -e "const a=require('node:assert/strict');const p=require('./simulation/evaluation/agent1-rank17-ditto-prism-prospective.cjs').preflight();a.equal(p.registered.expectedNativeArms,32);a.equal(p.sourceOriginal.cards.length,60);console.log('RANK17_SOURCE_FROZEN',p.registered.sourcePrinted60Sha256)"
       - name: Run all registered two-seat source-original control and Ditto root arms
         run: node simulation/evaluation/agent1-rank17-ditto-prism-prospective.cjs > agent1-rank17-ditto-original-pairs.json
       - name: Verify registered identity, paired physical openings and labelled coverage
