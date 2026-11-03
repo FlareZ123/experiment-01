@@ -96,3 +96,23 @@ test('opponent hand and face-down Prize identities do not affect detached certif
   const y=removalTargetCertificate(actorObservation(b.state,0),0);
   assert.deepEqual(x,y);
 });
+
+test('real detached public Prism Stadium remains protected, including symbol alias',()=>{
+  for(const [seat,stadium] of [
+    [0,'Thunder Mountain LOT'],[1,'Thunder Mountain ◇ LOT']
+  ]){
+    const setup=source(seat);
+    setup.owner.active.tools=[];
+    setup.opponent.active.tools=[];
+    setup.opponent.stadium.cards=[card(stadium)];
+    const view=actorObservation(setup.state,seat);
+    assert.equal(view.opponentPublic.stadium[0],stadium);
+    const proof=removalTargetCertificate(view,0);
+    assert.equal(proof.eligibleTargetCount,0);
+    assert.equal(proof.protectedStadiums.length,1);
+    assert.equal(proof.protectedStadiums[0].sourceId,'sm8-191');
+    assert.deepEqual(proof.blockers,[]);
+    assert.equal(proof.paperPlayableCertified,false);
+    assert.equal(proof.status,'protected-prism-star-stadium-effect-unresolved');
+  }
+});
