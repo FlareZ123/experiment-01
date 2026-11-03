@@ -84,10 +84,11 @@ function fixture(seat,mode) {
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.DISCARD,index:0
     }));
   }catch(e){error=String(e.message);}
+  const settledSource=store.state.players[seat];
   return {seat,mode,observed,error,
-    eggInDiscard:source.discard.cards.includes(egg),
-    eggInHand:source.hand.cards.includes(egg),
-    pendingPrompts:state.prompts.filter(p=>p.result===undefined)
+    eggInDiscard:settledSource.discard.cards.some(c=>c.fullName===egg.fullName),
+    eggInHand:settledSource.hand.cards.some(c=>c.fullName===egg.fullName),
+    pendingPrompts:store.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name)};
 }
 
