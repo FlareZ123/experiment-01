@@ -1,0 +1,67 @@
+{
+  "schema": "agent14-post-claw-original-rank11-replay-v1",
+  "createdAtUtc": "2026-11-03T05:36:00Z",
+  "identity": "Agent14",
+  "qualification": "Retrospective original-source deal development; zero competitive-qualified games",
+  "researchQuestion": "On the actual original rank11 source seed with the New Moon candidate late-response failure, do independent symmetric owner-visible Counter Catcher and Lillie interventions reach a native paper-valid root, settle a meaningful effect, and alter the opponent's following turn?",
+  "originalSourceRank": 11,
+  "originalSourcePrintedSixty": "results/aichi-2026/full-decklists.json",
+  "unchangedCandidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "previouslyObservedOriginalSeed": 2171744612,
+  "retrospectivelySelected": true,
+  "nativeTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "existingFrozenJointV2": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+  "existingFrozenJointV2Blob": "8cd0c4b0734d3223d5c8c1f705f3af651f815c02",
+  "nativePolicyAdapter": "simulation/twinleaf/agent14-behind-counter-response-native.cjs",
+  "audit": "simulation/evaluation/agent14-post-claw-response-opportunity.cjs",
+  "symmetricSelectedVipAfterPass": true,
+  "symmetricSelectedOriginalPolicy": true,
+  "modes": [
+    {
+      "id": "observe",
+      "changesNativeChoice": false
+    },
+    {
+      "id": "catcher",
+      "changesNativeChoice": true
+    },
+    {
+      "id": "lillie",
+      "changesNativeChoice": true
+    }
+  ],
+  "trials": [
+    {
+      "rank": 11,
+      "repeat": 414,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "champion-reference",
+      "id": "11:414:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 414,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:414:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "expectedModes": 3,
+  "expectedAttempts": 6,
+  "comparisonUnits": "Within the same candidate fixed-60, same native actual original-source deal and starter across control/treatment modes; cross-candidate source physical pairing only if exact fingerprints match",
+  "gates": [
+    "Native Store canPlay before proposal",
+    "Actual Store acceptance and prompt target",
+    "Physical hand/discard/Active/Bench transition",
+    "Source settled printed Claw, candidate reply and source follow-through",
+    "All six attempted rows including aborts/caps",
+    "Native source-deal fingerprint and start-seat exact parity",
+    "No whole-paper game qualification without opponent policy and 25-minute clock"
+  ],
+  "noFutureWinClaim": true
+}
