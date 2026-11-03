@@ -1,0 +1,57 @@
+{
+  "schema": "agent14-rank11-native-catcher-plus-symmetric-floatstone-falsification-v1",
+  "registeredAtUtc": "2026-11-03T05:47:00Z",
+  "identity": "Agent14",
+  "experimentClass": "Retrospective single-known-seed native causal fork; no competitive-game qualification",
+  "priorSourceRunId": 41585051181,
+  "priorSourceArtifactId": 13208060321,
+  "priorSourceReport": "results/aichi-2026/agent14-rank11-postclaw-six-native-finding-20261103.md",
+  "sourceRank": 11,
+  "previousSeed": 2171744612,
+  "sourcePhysicalDealFingerprint": "9729f263853796e3774f787075edfbea1742dfa225c91bfdf030718f90f4bdee",
+  "actualOriginalSourceStarterSeat": 1,
+  "frozenPriorProfile": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+  "frozenPriorProfileBlob": "8cd0c4b0734d3223d5c8c1f705f3af651f815c02",
+  "frozenNativeResponseModule": "simulation/twinleaf/agent14-behind-counter-response-native.cjs",
+  "frozenNativeResponseBlob": "0699c949c9cd7950607e7c7a8739a3dcc86b3e4f",
+  "floatStoneSelector": "simulation/twinleaf/agent1-owner-float-stone-mobility.cjs",
+  "paperTool": "Float Stone BKT",
+  "fixedEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "changesVsPriorCatcher": "Only Agent34 floatStoneMobility=true for both seats (owner seat null), preserving exact previously registered native Counter Catcher treatment, original source decks, candidate inventories, mode and source seed",
+  "trials": [
+    {
+      "rank": 11,
+      "repeat": 415,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "champion-reference",
+      "id": "11:415:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 415,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:415:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "hypotheses": [
+    "Source's originally unpowered Squawkabilly Active following the native Counter Catcher may receive held Float Stone and retreat to the originally powered Mega Absol Bench.",
+    "If the real engine settles that tool plus retreat, Claw of Darkness can resume in a subsequent turn; a 260-action cap caused by bot inaction is invalid competition evidence."
+  ],
+  "successWitnesses": [
+    "Exact source initial physical-deal fingerprint and starter parity",
+    "First settled source Claw T31 and genuine Counter Catcher T32",
+    "Real Source Float Stone PlayCardAction and source RetreatAction after T32",
+    "Source Active and Bench physical board mutation",
+    "Source subsequent funded Claw or explicit obstruction",
+    "Preserve all native error/cap/negative outcomes"
+  ],
+  "qualification": {
+    "competitiveGameQualified": false,
+    "twentyFiveMinutePaperClockCertified": false,
+    "opponentDecisionStrengthCertified": false
+  },
+  "expectedAttempts": 2
+}
