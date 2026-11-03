@@ -37,7 +37,7 @@ test('no qualifying owner Energy or Bench target declines without inventing',()=
 
 class AddPlayerAction{}
 class UseAbilityAction{
-  constructor(clientId,abilityName,target){Object.assign(this,{clientId,abilityName,target});}
+  constructor(clientId,name,target){Object.assign(this,{clientId,name,target});}
 }
 class ResolvePromptAction{
   constructor(id,result){Object.assign(this,{id,result});}
@@ -85,7 +85,7 @@ class FakeStore{
     if(action instanceof AddPlayerAction)return true;
     if(action instanceof UseAbilityAction){
       assert.equal(action.clientId,owner.id);
-      assert.equal(action.abilityName,'Underworld Door');
+      assert.equal(action.name,'Underworld Door');
       state.prompts=[new WaitPrompt(this.pendingId++,owner.id)];
       return true;
     }
