@@ -1,6 +1,6 @@
 {
   "schema": "agent13-rank5-joint-v1-same-deal-component-ablation-v1",
-  "registeredAtUtc": "2026-11-03T04:02:00Z",
+  "registeredAtUtc": "2026-11-03T04:00:57.105667Z",
   "purpose": "Retrospective exact physical-source-deal transport: owner single-search and actor hand-discard independent attribution; no competitive-rate estimation",
   "baseline": "agent41-joint-original-source-rank5-rank11-v1",
   "baselineProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
