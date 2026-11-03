@@ -14,7 +14,8 @@ const VERSION='agent34-source-stamped-owner-typed-energy-prompt-v1';
  *
  * @param {object} view Frozen detached actor-only owner-prompt observation.
  * @param {{energyPrintingPrefix:string,requiredRecipientType:number,
- *   preferredBenchIndex?:number}} spec Source-printed conservative contract.
+ *   preferredBenchIndex?:number,colorlessEnergyType?:number,
+ *   publicAttackGapRecipient?:boolean}} spec Source-printed conservative contract.
  * @returns {Array<{energyPrinting:string,benchIndex:number}>}
  */
 function typedOwnerEnergyCandidates(view,spec){
@@ -29,7 +30,13 @@ function typedOwnerEnergyCandidates(view,spec){
     pokemon?.printed?.types?.includes(spec.requiredRecipientType)?
       [index]:[]);
   const pref=spec.preferredBenchIndex;
-  targets.sort((a,b)=>(a===pref?-1:0)-(b===pref?-1:0)||a-b);
+  if(spec.publicAttackGapRecipient===true){
+    const ranked=require('./agent34-owner-psychic-bench-recipient.cjs')
+      .rankOwnerPsychicBenchRecipients(view,spec,targets);
+    targets.splice(0,targets.length,...ranked);
+  }else{
+    targets.sort((a,b)=>(a===pref?-1:0)-(b===pref?-1:0)||a-b);
+  }
   return energies.flatMap(energyPrinting=>targets.map(benchIndex=>({
     energyPrinting,benchIndex
   })));
@@ -75,7 +82,11 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
   let liveStore=deps.stagedStore??null;
   const pendingByOwner=new Map();
   const proposed=new WeakMap();
-  const audit={version:VERSION,enabled:true,
+  const publicAttackGapRecipient=deps.publicAttackGapRecipient===true;
+  const audit={version:VERSION+(publicAttackGapRecipient?
+    '+agent34-public-attack-gap-recipient-v1':''),enabled:true,
+    publicAttackGapRecipientOptIn:publicAttackGapRecipient,
+    prioritizedTargetProposals:0,prioritizedTargetNativeAccepted:0,
     sourceUnderworldRootsAccepted:0,
     sourceMatchedEnergyPrompts:0,sourcePromptProposals:0,
     sourcePromptNativeAccepted:0,sourcePromptNativeRejected:0,
@@ -117,6 +128,8 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
     }
     if(record&&this===liveStore){
       audit.sourcePromptNativeAccepted++;
+      if(record.prioritizedComparedWithSource)
+        audit.prioritizedTargetNativeAccepted++;
       pendingByOwner.delete(record.ownerId);
       if(audit.proposalRows.length<40)audit.proposalRows.push({
         ...record,accepted:true
@@ -141,7 +154,11 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
     const candidates=typedOwnerEnergyCandidates(view,{
       energyPrintingPrefix:'Psychic Energy ',
       requiredRecipientType:CardType.PSYCHIC,
-      preferredBenchIndex:tracked.preferredBenchIndex
+      preferredBenchIndex:tracked.preferredBenchIndex,
+      ...(publicAttackGapRecipient?{
+        colorlessEnergyType:CardType.COLORLESS,
+        publicAttackGapRecipient:true
+      }:{})
     });
     for(const candidate of candidates){
       const card=pending.cardList?.cards?.find(c=>
@@ -156,10 +173,14 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
       const answer=[{card,to}];
       if(pending.validate(answer)!==true)continue;
       const action=new ResolvePromptAction(pending.id,answer);
+      const prioritizedComparedWithSource=publicAttackGapRecipient&&
+        candidate.benchIndex!==tracked.preferredBenchIndex;
       proposed.set(action,{ownerId:owner.id,seat,turn:state.turn,
         promptId:pending.id,energyPrinting:card.fullName,
-        benchIndex:candidate.benchIndex});
+        benchIndex:candidate.benchIndex,
+        prioritizedComparedWithSource});
       audit.sourcePromptProposals++;
+      if(prioritizedComparedWithSource)audit.prioritizedTargetProposals++;
       return action;
     }
     audit.sourcePromptNoValidCandidate++;
