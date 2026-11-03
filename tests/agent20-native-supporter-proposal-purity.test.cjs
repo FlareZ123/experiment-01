@@ -32,6 +32,8 @@ class Store {
       return this.state;
     }
     if(action instanceof PlayCardAction){
+      if(this.rejectProposal===true)
+        throw new Error('mock-speculative-simulator-rejected');
       const player=this.state.players[0];
       assert.equal(player.supporterTurn,0,
         'Actual Store cannot play a card with already spent quota');
@@ -109,6 +111,41 @@ test('speculative Simulator dispatch does not count as real Store acceptance',()
   assert.equal(output.audit.dispatchedPreviouslyRestoredActions,1);
   assert.equal(output.audit.acceptedPreviouslyRestoredActions,1);
   assert.equal(output.audit.previouslyRestoredProposals[0].dispatch,
+    'real-native-Store-accepted');
+});
+
+test('rejected speculative Store cannot overwrite live receipt or count',()=>{
+  const output=withPureNativeSupporterProposal(()=>{
+    const store=new Store(),owner=player();
+    store.dispatch(new AddPlayerAction(owner));
+    const proposal=new PlaySupporterTactic().useTactic(store.state,owner);
+    assert.ok(proposal instanceof PlayCardAction);
+    const speculative=new Store();
+    speculative.state={
+      ...store.state,
+      players:[{
+        ...owner,
+        hand:{cards:[...owner.hand.cards]},
+        supporter:{cards:[]}
+      }]
+    };
+    speculative.rejectProposal=true;
+    assert.throws(()=>speculative.dispatch(proposal),
+      /mock-speculative-simulator-rejected/);
+    assert.equal(owner.supporterTurn,0);
+    store.dispatch(proposal);
+    assert.equal(owner.supporterTurn,1);
+    return true;
+  },deps);
+  const audit=output.audit;
+  assert.equal(audit.exactOwnTurnSideEffectsReversed,1);
+  assert.equal(audit.speculativeDispatchesOfRestoredActions,1);
+  assert.equal(audit.speculativeRejectedRestoredActions,1);
+  assert.equal(audit.speculativeAcceptedRestoredActions,0);
+  assert.equal(audit.dispatchedPreviouslyRestoredActions,1);
+  assert.equal(audit.acceptedPreviouslyRestoredActions,1);
+  assert.equal(audit.rejectedPreviouslyRestoredActions,0);
+  assert.equal(audit.previouslyRestoredProposals[0].dispatch,
     'real-native-Store-accepted');
 });
 
