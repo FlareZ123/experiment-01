@@ -85,7 +85,7 @@ function withOwnerEarlyCompressorAfterPass(run,sourceSeat,deps={}){
     const pendingAfter=this.state.prompts?.find(p=>p.result===undefined);
     e.pendingPromptAfter=pendingAfter?.constructor?.name??null;
     e.pendingPromptId=pendingAfter?.id??null;
-    e.ownerDiscardBeforePlay=this.state.players[seat].discard.cards.map(
+    e.ownerDiscardAfterPlayBeforeChoose=this.state.players[seat].discard.cards.map(
      card=>card.fullName);
    }
    if(choiceEvent){
