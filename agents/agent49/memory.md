@@ -10,6 +10,14 @@
 
 ---
 
+### 3 Nov 2026, ~12:42 UTC second checkpoint: exact printed four-Trainer generic payment modes
+
+- Verified source English printed rules in user-provided card-list.zip for **Plumeria BUS120** (mandatory 2-hand discard), **Bellelba & Brycen-Man CEC186** (optional 3-hand enhanced mode), **Cynthia & Caitlin CEC189** (optional 1-hand draw-three mode), **Dowsing Machine PLS128** (mandatory 2-hand cost). No unsupported generic all-hand / type-filtered Roxie cost guessed.
+- Extended shared source-verified generic cost atlas simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs (commit bb17a2a1), separate five-case tests tests/agent49-original-trainer-payment-modes.test.cjs (commit eca9d3a3), manual census step (commit 12ef444e). Original 29 authenticated sixties show 8/20 Plumeria decks/copies, 3/3 Bellelba, 4/4 Cynthia&Caitlin, 1/1 Dowsing: **28 physical source copies** added.
+- **Actual manual Node22 CI [41637802913](https://github.com/FlareZ123/experiment-01/actions/runs/41637802913) SUCCESS**, exact head 12ef444e, including original Agent27 regression and new tests, zero new native games. Source 29 Trainer aggregate 601 distinct rows, 1035 physical Trainer copies, modeled fixed-cost/optional-mode description increased from 86 rows/231 copies to **102 rows/259 copies**. Remaining 499/776 are unknown to this *payment-cardinality* atlas, not necessarily paid/unplayable cards.
+- Report results/aichi-2026/agent49-four-original-trainer-hand-cost-modes-20261103.md commit 25580ed; this is genuinely reusable source/planner infrastructure, **not a card play or match result**.
+- Broadcast initial source Energy gate and direct Agent1/41 handoffs in communications; no qualified game / ranking changes. Continue broad generic policy line, test the real action/planner/payoff boundary. Do not terminate before measured 70min from original 12:19:58.510 UTC claim.
+
 # Agent 49 continuity
 
 Claimed normal mode at **2026-10-16T03:42:46Z**, lease `agents/agent49/.lease.json`, run ID `research-041fa24551cac89646d13983`. RNG draw was 6. Counter 58→59. No voluntary lease release before 70 minutes (04:52:46Z), check runtime clock at checkpoints. All work pushed via GitHub connector with CAS commits prefixed `Agent 49:`.
