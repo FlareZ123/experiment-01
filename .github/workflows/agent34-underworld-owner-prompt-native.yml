@@ -15,6 +15,10 @@ on:
         description: Preregistered 16 unseen two-seat rank1 seed groups, 64 native attempts
         type: boolean
         default: false
+      heldout_bench_recipient:
+        description: Preregistered 16 unseen rank1 groups, 64 native prompt-recipient attempts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -79,6 +83,22 @@ jobs:
         with:
           name: agent34-rank1-heldout-active-funding-v1
           path: agent34-rank1-heldout-active-funding-native.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Verify untouched preregistered owner Psychic Bench recipient schedule
+        if: ${{ inputs.heldout_bench_recipient }}
+        run: node simulation/evaluation/agent34-rank1-heldout-psychic-recipient-native-pair.cjs --preflight
+      - name: Compare public printed-attack-gap Bench recipient native results
+        if: ${{ inputs.heldout_bench_recipient }}
+        env:
+          AGENT34_HELDOUT_RECIPIENT_OUTPUT: agent34-rank1-heldout-psychic-recipient-native.json
+        run: node simulation/evaluation/agent34-rank1-heldout-psychic-recipient-native-pair.cjs
+      - name: Preserve all held-out printed-recipient native attempts
+        if: ${{ inputs.heldout_bench_recipient }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank1-heldout-bench-recipient-v1
+          path: agent34-rank1-heldout-psychic-recipient-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve matched historical native raw records
