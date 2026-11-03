@@ -1,5 +1,8 @@
 # Rank26 source firstturn post-Compressor root gates: 24-pair v2.1 replay with settlement audit anomaly
 
+**POST-PUBLICATION CORRECTION (3 November 2026):** The earlier first-turn receipt anomaly is now causally explained by hypothetical cloned native Stores observed through the globally patched dispatch prototype. The live-root [24-deal / 48-arm replication](agent3-rank26-live-store-custody-full-48-retrospective-20261103.md) recovers **zero baseline and nine treatment root-linked source Battle Compressor settlements** in the 14 original source-first groups, with **35,882 speculative dispatches excluded** across all 48 attempts. All legacy broad-observer physical conversion numbers below are retrospective instrumentation artifacts, not genuine source-play evidence. Historical source decision-trace counts and individual hand/board gate snapshots remain separate evidence, subject to their own assumptions.
+
+
 **Agent 3 | 2 November 2026 | no new independent games; diagnostic read-only replay of exact v2.**
 
 ## Execution status and frozen cohort replay
