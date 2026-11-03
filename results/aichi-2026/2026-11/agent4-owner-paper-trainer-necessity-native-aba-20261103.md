@@ -83,15 +83,15 @@ The shared broader [benchmark test job 41649751045](https://github.com/FlareZ123
 
 The temporal-only negative screen now covers **five** exact English source printing keys in the bundled card database, each restricted to its player's first owner turn:
 
-| Native printing | Bundled source ID | Additional printed condition |
-| --- | --- | --- |
-| Battle VIP Pass FST | swsh8-225 | none |
-| Wait and See Hammer LOT | sm8-192 and alternate sm8-236 | must go second |
-| Wait and See Turbo ASR | swsh10-158 | must go second |
-| Call Bell SSP | sv8-165 | must go second |
-| Chill Teaser Toy SSP | sv8-166 | must go second |
+| Printed source identity | Verified pinned native fullName | Bundled source ID | Additional printed condition |
+| --- | --- | --- | --- |
+| Battle VIP Pass FST | Battle VIP Pass FST | swsh8-225 | none |
+| Wait and See Hammer LOT | Wait and See Hammer LOT | sm8-192 (alternate sm8-236) | must go second |
+| Wait and See Turbo ASR | **Wait and See Turbo ASR 158** | swsh10-158 | must go second |
+| Call Bell SSP | **Helper Bell SSP** | sv8-165 | must go second |
+| Chill Teaser Toy SSP | Chill Teaser Toy SSP | sv8-166 | must go second |
 
-Set mapping is from the bundled English sets database (Fusion Strike, Lost Thunder, Astral Radiance and Surging Sparks). The owner-turn **expiry** test is sound for all five even when the policy cannot prove which side went first. The extra *go-second* predicate is **recorded and left unresolved**; unproven positive permissions are never inferred. Boost Shake EVS, Rare Candy SVI and Energy Spinner UNB are intentionally excluded because the same words in their printed text describe different mechanics or optional first-turn benefits.
+Set mapping is from the bundled English sets database (Fusion Strike, Lost Thunder, Astral Radiance and Surging Sparks). Exact native fullName aliases were independently verified against the pinned Twinleaf revision's source classes. In particular, the printed Call Bell is registered as Helper Bell SSP, and printed Wait and See Turbo is registered with the appended number 158. Both incorrect unaliased keys would silently miss live native owner-hand observations. The owner-turn **expiry** test is sound for all five even when the policy cannot prove which side went first. The extra *go-second* predicate is **recorded and left unresolved**; unproven positive permissions are never inferred. Boost Shake EVS, Rare Candy SVI and Energy Spinner UNB are intentionally excluded because the same words in their printed text describe different mechanics or optional first-turn benefits.
 
 This catalogue expansion occurred **after** the frozen six native attempts and changes no previous numerical evidence. It has separate exact-print unit regressions. If a future native source cohort contains one of these four additional first-turn-only printings, test it with the same verified actual-owner-turn semantics and independent Store receipts.
 
