@@ -1,6 +1,8 @@
 'use strict';
 
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 
 const VERSION='owner-public-discard-target-necessary-v1';
 
@@ -22,8 +24,15 @@ const RULES=Object.freeze({
  * @returns {boolean|null} Eligible, ineligible, or unresolved.
  */
 function targetMatch(card,target){
+  if(Array.isArray(card?.variants)){
+    if(card.variants.length===0)return null;
+    const claims=card.variants.map(variant=>targetMatch(variant,target));
+    return claims.every(value=>value===true)?true:
+      claims.every(value=>value===false)?false:null;
+  }
   if(!card||!Array.isArray(card.subtypes)||
     !['Pokémon','Trainer','Energy'].includes(card.supertype))return null;
+  if(card.subtypes.length===0&&card.supertype!=='Pokémon')return null;
   const pokemon=card.supertype==='Pokémon';
   const trainer=card.supertype==='Trainer';
   const energy=card.supertype==='Energy';
@@ -38,6 +47,47 @@ function targetMatch(card,target){
     return hp<=90;
   }
   assert.fail('Unregistered public-discard target family');
+}
+
+
+/**
+ * Build a conservative name + set-code index from published English metadata.
+ * Different collector-number cards often share the native fullName. Keep all
+ * differing variants so a >90 HP and <=90 HP collision remains UNKNOWN.
+ * @param {object[]} sets Public bundled sets/en.json records.
+ * @param {{setId:string,cards:object[]}[]} cardSets Public cards/en/*.json.
+ */
+function buildPublicPrintMetadata(sets,cardSets){
+  assert.ok(Array.isArray(sets)&&Array.isArray(cardSets));
+  const codes=new Map(sets.map(s=>[s.id,s.ptcgoCode]));
+  const metadata=new Map();
+  for(const {setId,cards} of cardSets){
+    const code=codes.get(setId);
+    if(typeof code!=='string'||code.length===0)continue;
+    assert.ok(Array.isArray(cards));
+    for(const card of cards){
+      assert.ok(typeof card.name==='string'&&card.name.length>0);
+      const printing=card.name+' '+code;
+      const variant={supertype:card.supertype,
+        subtypes:card.subtypes??[],hp:card.hp??null};
+      const entry=metadata.get(printing)??{variants:[]};
+      if(!entry.variants.some(v=>JSON.stringify(v)===JSON.stringify(variant)))
+        entry.variants.push(variant);
+      metadata.set(printing,entry);
+    }
+  }
+  return metadata;
+}
+
+/** @param {string} resourceRoot Repository's resources/ directory. */
+function loadBundledPublicPrintMetadata(resourceRoot){
+  assert.equal(typeof resourceRoot,'string');
+  const sets=JSON.parse(fs.readFileSync(path.join(resourceRoot,'sets','en.json'),'utf8'));
+  const dir=path.join(resourceRoot,'cards','en');
+  const cardSets=fs.readdirSync(dir).filter(f=>f.endsWith('.json'))
+    .sort().map(file=>({setId:file.slice(0,-5),
+      cards:JSON.parse(fs.readFileSync(path.join(dir,file),'utf8'))}));
+  return buildPublicPrintMetadata(sets,cardSets);
 }
 
 /**
@@ -87,4 +137,5 @@ function publicDiscardTargetNecessary(view,trainer,publicPrints){
   };
 }
 
-module.exports={VERSION,RULES,targetMatch,publicDiscardTargetNecessary};
+module.exports={VERSION,RULES,targetMatch,buildPublicPrintMetadata,
+  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary};
