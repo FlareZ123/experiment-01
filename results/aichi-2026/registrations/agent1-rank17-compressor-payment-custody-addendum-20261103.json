@@ -1,0 +1,15 @@
+{
+  "schema": "agent1-rank17-compressor-native-payment-custody-observation-v1",
+  "registeredUtc": "2026-11-03T06:46:15Z",
+  "source": "results/aichi-2026/registrations/agent1-rank17-actor-compressor-bridge-prospective-20261103.json",
+  "priorKnownRun": 41591371975,
+  "priorKnownArtifact": 13209864119,
+  "priorSeen": "All 38 arms/19 pairs physically match; four native Store-accepted Compressor Item plays in exposed three known-positive contexts, two in fresh contexts; all six open ChooseCards and ShuffleDeck prompts, no source attack/Ability roots.",
+  "repeatPreviouslySeenGroupsOnly": true,
+  "noNewSeedSampling": true,
+  "readOnlyObserverAdditionalData": "On each actual source-owned Compressor native Item root, record immediate source discard identities, pending owner ChooseCardsPrompt id, the selected source native ResolvePromptAction card printing results, and the owner's own discard immediately after ChooseCards/ShuffleDeck prompt settlement. Never read opponent hidden hand or prize and never select cards in the observer.",
+  "engineAndNativeDecisionChanges": "none",
+  "goal": "Verify exact physical source-deck Energy or other cards were selected and placed in owner discard rather than inferring from prompt root labels.",
+  "expectedNativeAttempts": 38,
+  "competitiveQualifiedGames": 0
+}
