@@ -23,9 +23,10 @@ BUCKETS = (
     {"xy4-109"},  # VS Seeker to recover the first Thorton on T2
     {"swsh12-136"},  # Regidrago VSTAR
     {"swsh12pt5-152", "swsh12pt5-153"},  # Basic Grass/Fire Energy
+    {"swsh9-150"},  # Ultra Ball as a T2 VSTAR search connector
     {"xy2-69"},  # M Charizard-EX (Wild Blaze)
 )
-A, R, B, D, C, T, S, V, E, M, X = range(11)
+A, R, B, D, C, T, S, V, E, U, M, X = range(12)
 
 
 def load_counts(path=CANDIDATE):
@@ -37,7 +38,7 @@ def load_counts(path=CANDIDATE):
     ).encode("utf-8")
     digest = hashlib.sha256(canonical).hexdigest()
     assert digest == manifest["canonicalCardsSha256"] == EXPECTED_SHA, digest
-    result = [0] * 11
+    result = [0] * 12
     for row in cards:
         group = next(
             (i for i, identities in enumerate(BUCKETS) if row["id"] in identities),
@@ -45,7 +46,7 @@ def load_counts(path=CANDIDATE):
         )
         result[group] += row["count"]
     assert sum(result) == 60
-    assert tuple(result) == (2, 3, 2, 4, 4, 4, 1, 3, 7, 1, 29)
+    assert tuple(result) == (2, 3, 2, 4, 4, 4, 1, 3, 7, 4, 1, 25)
     return tuple(result)
 
 
@@ -63,18 +64,38 @@ def choose(n, k):
     return comb(n, k) if 0 <= k <= n else 0
 
 
-def prize_options(deck_size, n_prize, remainder):
-    """Inclusion-exclusion: at least one deck A, R and M after the six Prizes."""
-    required_groups = [remainder[A], remainder[R], remainder[M]]
+def prize_options(deck_size, n_prize, remainder, groups=(A, R, M)):
+    """Joint Prize subsets leaving one of each required group unprized."""
+    required_groups = [remainder[k] for k in groups]
     if min(required_groups) == 0:
         return 0
     total = 0
-    for mask in range(8):
-        forced = sum(required_groups[i] for i in range(3) if mask & (1 << i))
+    for mask in range(1 << len(required_groups)):
+        forced = sum(required_groups[i] for i in range(len(required_groups)) if mask & (1 << i))
         total += (-1 if mask.bit_count() % 2 else 1) * choose(
             deck_size - forced, n_prize - forced
         )
     return total
+
+
+def valid_second_draw_count(remainder, draw_group, needs_vstar_search):
+    """Count Prize subsets times legitimate post-Compressor T2 draw objects.
+
+    The draw comes after Compressor removes one each of A, R and M.
+    For a draw in a Compressor group, subtract that removed one per
+    qualifying Prize subset. A searched VSTAR must also be in the deck.
+    """
+    if remainder[draw_group] == 0:
+        return 0
+    requirements = (A, R, M, V) if needs_vstar_search else (A, R, M)
+    reserved_requirements = tuple(k for k in requirements if k != draw_group)
+    weighted = remainder[draw_group] * prize_options(
+        51, 6, remainder, reserved_requirements
+    )
+    if draw_group in (A, R, M):
+        weighted -= prize_options(52, 6, remainder, requirements)
+    assert weighted >= 0
+    return weighted
 
 
 def analyze():
@@ -83,6 +104,7 @@ def analyze():
     t1_weight = 0
     t1_t2_weight = 0
     t1_t2_with_seeker_weight = 0
+    t1_t2_with_ultraball_weight = 0
     for seven in compositions(7, counts):
         opening_weight = 1
         for n, h in zip(counts, seven):
@@ -144,6 +166,35 @@ def analyze():
                 seeker_draw_options = 0
             t1_t2_with_seeker_weight += weight * seeker_draw_options
 
+            # Expanded physically payable T2 route:
+            # second Thorton or VS Seeker, Basic Energy, then VSTAR held
+            # or Ultra Ball searching a surviving deck VSTAR. After
+            # spending the initial Active, DDE, Compressor, and first
+            # Thorton, exactly five hand cards remain after the T2 draw.
+            # Keeping Supporter access, Basic Energy and Ultra Ball
+            # therefore leaves two physical discard objects. Strategic
+            # willingness to discard them is a separate constraint.
+            for draw_group in range(len(counts)):
+                if deck_after_eight[draw_group] == 0:
+                    continue
+                t2_seen = first_eight.copy()
+                t2_seen[draw_group] += 1
+                if not (t2_seen[T] >= 2 or t2_seen[S] >= 1):
+                    continue
+                if t2_seen[E] == 0:
+                    continue
+                if t2_seen[V] >= 1:
+                    needs_search = False
+                elif t2_seen[U] >= 1:
+                    needs_search = True
+                else:
+                    continue
+                t1_t2_with_ultraball_weight += (
+                    weight * valid_second_draw_count(
+                        deck_after_eight, draw_group, needs_search
+                    )
+                )
+
     valid_seven = choose(60, 7) - choose(53, 7)
     t1_denominator = valid_seven * 53 * choose(52, 6)
     t2_denominator = t1_denominator * 43
@@ -152,6 +203,7 @@ def analyze():
     assert t1_denominator == 250397245379590400
     assert t1_t2_weight == 5390833234048416
     assert t1_t2_with_seeker_weight == 8163343558830768
+    assert t1_t2_with_ultraball_weight == 17221237379951920
     assert t2_denominator == 10767081551322387200
 
     print("fixed_candidate_sha", EXPECTED_SHA)
@@ -163,6 +215,9 @@ def analyze():
     print("t1_t2_with_seeker_numerator", t1_t2_with_seeker_weight)
     print("t1_t2_with_seeker_probability", t1_t2_with_seeker_weight / t2_denominator)
     print("vs_seeker_absolute_gain", (t1_t2_with_seeker_weight - t1_t2_weight) / t2_denominator)
+    print("t1_t2_with_ultraball_numerator", t1_t2_with_ultraball_weight)
+    print("t1_t2_with_ultraball_probability", t1_t2_with_ultraball_weight / t2_denominator)
+    print("ultraball_absolute_gain", (t1_t2_with_ultraball_weight - t1_t2_with_seeker_weight) / t2_denominator)
     print("t1_t2_conditional_probability", t1_t2_weight / t2_denominator)
     print("strict_followthrough_given_t1", t1_t2_weight / t2_denominator / (t1_weight / t1_denominator))
 
