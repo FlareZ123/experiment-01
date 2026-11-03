@@ -5,7 +5,11 @@ const {createHash}=require('node:crypto');
 const {FIRST_OWNER_TURN_ONLY}=
   require('../twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs');
 
-const VERSION='agent4-aichi-source-first-owner-turn-trainer-incidence-v1';
+const VERSION='agent4-aichi-source-first-owner-turn-trainer-incidence-v2-native-translation';
+const SOURCE_TO_NATIVE=new Map(Object.entries(FIRST_OWNER_TURN_ONLY)
+  .map(([nativeFullName,metadata])=>[
+    metadata.sourcePrinting,{...metadata,nativeFullName}
+  ]));
 
 /**
  * Source-only incidence of exact printings with first-owner-turn restrictions.
@@ -30,13 +34,17 @@ function firstOwnerTurnSourceIncidence(manifest){
   const rows=known.map(deck=>{
     const relevant=deck.cards.filter(c=>{
       const printing=c.name+' '+c.printing?.set;
-      return Object.hasOwn(FIRST_OWNER_TURN_ONLY,printing);
-    }).map(card=>({
-      printing:card.name+' '+card.printing.set,
-      sourceId:FIRST_OWNER_TURN_ONLY[card.name+' '+card.printing.set].sourceId,
-      originalPrintingNumber:card.printing.number,
-      count:card.count
-    })).sort((a,b)=>a.printing.localeCompare(b.printing));
+      return SOURCE_TO_NATIVE.has(printing);
+    }).map(card=>{
+      const printing=card.name+' '+card.printing.set;
+      const match=SOURCE_TO_NATIVE.get(printing);
+      return {
+        printing,nativeFullName:match.nativeFullName,
+        sourceId:match.sourceId,
+        originalPrintingNumber:card.printing.number,
+        count:card.count
+      };
+    }).sort((a,b)=>a.printing.localeCompare(b.printing));
     return {
       rank:deck.rank,archetype:deck.archetype,
       copies:relevant.reduce((s,c)=>s+c.count,0),
@@ -44,10 +52,10 @@ function firstOwnerTurnSourceIncidence(manifest){
     };
   }).filter(row=>row.copies>0).sort((a,b)=>a.rank-b.rank);
   const missingRanks=Array.from({length:32},(_,i)=>i+1).filter(x=>!seen.has(x));
-  const byPrinting=Object.keys(FIRST_OWNER_TURN_ONLY).sort()
-    .map(printing=>({
-      printing,
-      sourceId:FIRST_OWNER_TURN_ONLY[printing].sourceId,
+  const byPrinting=[...SOURCE_TO_NATIVE].sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([printing,meta])=>({
+      printing,nativeFullName:meta.nativeFullName,
+      sourceId:meta.sourceId,
       originalDeckCopies:rows.reduce((sum,row)=>sum+
         row.restrictedPrintings.filter(x=>x.printing===printing)
           .reduce((s,c)=>s+c.count,0),0)
@@ -69,4 +77,4 @@ function firstOwnerTurnSourceIncidence(manifest){
   };
 }
 
-module.exports={VERSION,firstOwnerTurnSourceIncidence};
+module.exports={VERSION,SOURCE_TO_NATIVE,firstOwnerTurnSourceIncidence};
