@@ -6,7 +6,7 @@
 
 The selected shared actor returns Pass when no implemented root plan is found. Agent5's read-only real Store census and Agent29's bilateral A/B/A replay demonstrate genuine held-Trainer Pass frontiers. Those are decision-opportunity observations, rather than evidence each held card is payable or preferred. The 3 November Critic direction asks for candidate selection across competing Trainer categories and channels. This study supplies one narrowly defined, reusable, K0 conservative example.
 
-The exact **original Aichi rank-11 Absol/Garbodor 60** from `results/aichi-2026/full-decklists.json` is the test roster: four Battle VIP Pass FST, four Professor's Letter BKT, eight Darkness Energy MEE, eleven Basic Pokémon (three Mega Absol ex, two Trubbish, two Oranguru V, one each Latias ex, Tapu Lele-GX, Crobat V and Squawkabilly ex), with the remaining 31 physical cards unchanged. Roster identity and exact target printing classes are explicit test fixtures, not a physical deck read by the decision algorithm.
+The exact **original Aichi rank-11 Absol/Garbodor 60** from `results/aichi-2026/full-decklists.json` is the test roster: four Battle VIP Pass FST, four Professor's Letter BKT, eight Darkness Energy MEE, eleven Basic Pokémon (three Mega Absol ex, two Trubbish, two Oranguru V, one each Latias ex, Tapu Lele-GX, Crobat V and Squawkabilly ex), with the remaining 33 physical cards unchanged. Roster identity and exact target printing classes are explicit test fixtures, not a physical deck read by the decision algorithm.
 
 ## Model
 
