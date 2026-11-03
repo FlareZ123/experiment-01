@@ -10,6 +10,7 @@ test('negative paper census counts exact blocker families and unknown held copie
   const certificate={
     ownerPaperNecessityOptIn:true,
     roots:[{
+      chosen:{action:'PassTurnAction'},
       ownerPaperNecessity:{
         heldTrainerCopies:3,provenNecessaryConditionFailures:2,
         remainingUnresolvedCopies:1,rows:[
@@ -23,8 +24,9 @@ test('negative paper census counts exact blocker families and unknown held copie
     }]
   };
   assert.deepEqual(paperRootCensus(certificate),{
-    decisionFrames:1,heldCopies:3,necessaryFailures:2,
-    unresolvedCopies:1,
+    decisionFrames:1,framesWithNecessaryFailure:1,
+    framesWithPrintedFailure:1,passFrames:1,passWithBlockedHeldCard:1,
+    heldCopies:3,necessaryFailures:2,unresolvedCopies:1,
     blockerCounts:{'printed-prize':1,'printed-removal-target':1}
   });
   assert.equal(paperRootCensus(null).decisionFrames,0);
@@ -142,6 +144,11 @@ test('all-intact A/B/A actually executing actor attestation qualifies developmen
     '1:2:A:champion-reference');
   assert.equal(out.paperCensus.necessaryFailures,16);
   assert.equal(out.paperCensus.unresolvedCopies,16);
+  assert.equal(out.paperCensus.decisionFrames,16);
+  assert.equal(out.paperCensus.framesWithNecessaryFailure,16);
+  assert.equal(out.paperCensus.framesWithPrintedFailure,16);
+  assert.equal(out.paperCensus.passFrames,0);
+  assert.equal(out.paperCensus.passWithBlockedHeldCard,0);
   assert.equal(out.paperCensus.blockerCounts['printed-temporal'],16);
   assert.ok(out.modes.every(x=>x.runtimePolicyStatus===
     'OBSERVED_CLOSURE_CONSISTENT'));
