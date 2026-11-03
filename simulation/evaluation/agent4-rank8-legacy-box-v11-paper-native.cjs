@@ -16,7 +16,7 @@ const {secretBoxPaymentNegative}=
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 
-const VERSION='agent4-rank8-retrospective-source-vip-box-v11-physical-custody-v2';
+const VERSION='agent4-rank8-retrospective-source-vip-box-v11-physical-payment-search-v3';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
 /** @param {unknown} item */
@@ -41,7 +41,9 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
   const audit={liveStores:0,sourceOwnedPrompts:0,otherPrompts:0,
     sourceAccepted:0,sourceRejected:0,
     paperInvalidNativeAccepted:0,paidPhysicalThreeCardReceipts:0,
-    unverifiedPhysicalCustody:0,observations:[]};
+    unverifiedPhysicalCustody:0,observations:[],
+    sourceSearchPrompts:0,sourceSearchAcquisitions:0,
+    sourceSearchObservations:[]};
   let live=null;
   function dispatch(action,...args){
     if(!live&&action?.constructor?.name==='AddPlayerAction'){
@@ -54,6 +56,47 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
     const qualifies=prompt?.constructor?.name==='ChooseCardsPrompt'&&
       prompt?.sourceCard?.fullName==='Secret Box TWM'&&
       prompt?.message==='CHOOSE_CARD_TO_DISCARD';
+    const sourceSearch=prompt?.constructor?.name==='ChooseCardsPrompt'&&
+      prompt?.sourceCard?.fullName==='Secret Box TWM'&&
+      prompt?.message==='CHOOSE_CARD_TO_HAND';
+    if(sourceSearch){
+      const owner=this.state.players.find(p=>p.id===prompt.playerId);
+      const sourceOwned=owner===this.state.players[sourceSeat];
+      const selection=Array.isArray(action.result)?action.result:[];
+      const beforeDeck=[...(owner?.deck?.cards??[])];
+      const beforeHand=new Set(owner?.hand?.cards??[]);
+      const promptOnOwnDeck=prompt.cards===owner?.deck;
+      let thrown=null,result;
+      try{result=descriptor.value.call(this,action,...args);}
+      catch(error){thrown=error;}
+      const accepted=thrown===null&&prompt.result!==undefined;
+      const afterDeck=new Set(owner?.deck?.cards??[]);
+      const afterHand=new Set(owner?.hand?.cards??[]);
+      const physicallyAcquired=selection.filter(card=>
+        beforeDeck.includes(card)&&!beforeHand.has(card)&&
+        !afterDeck.has(card)&&afterHand.has(card)).length;
+      const receipt=accepted&&promptOnOwnDeck&&selection.length>0&&
+        physicallyAcquired===selection.length&&
+        new Set(selection).size===selection.length;
+      if(sourceOwned){
+        audit.sourceSearchPrompts++;
+        if(receipt)audit.sourceSearchAcquisitions++;
+        audit.sourceSearchObservations.push({
+          selectedPrintings:selection.map(card=>card?.fullName??null),
+          selectedConstructors:selection.map(card=>
+            card?.constructor?.name??null),
+          selectedCount:selection.length,nativeAccepted:accepted,
+          ownerDeckPrompt:promptOnOwnDeck,
+          physicalAcquiredCount:physicallyAcquired,
+          physicalAcquisitionStatus:receipt?'PHYSICAL_SEARCH_ACQUIRED':'UNVERIFIED',
+          ownerDeckBefore:beforeDeck.length,ownerDeckAfter:afterDeck.size,
+          ownerHandBefore:beforeHand.size,ownerHandAfter:afterHand.size,
+          nativeError:thrown?String(thrown.message??thrown):null
+        });
+      }
+      if(thrown)throw thrown;
+      return result;
+    }
     if(!qualifies)return descriptor.value.call(this,action,...args);
     const owner=this.state.players.find(p=>p.id===prompt.playerId);
     const sourceOwned=owner===this.state.players[sourceSeat];
@@ -241,6 +284,10 @@ function run(){
       n+(r.control.rawPaymentAudit?.paidPhysicalThreeCardReceipts??0),0),
     guardedSourcePhysicalThreeCardReceipts:rows.reduce((n,r)=>
       n+(r.treatment.rawPaymentAudit?.paidPhysicalThreeCardReceipts??0),0),
+    originalSourcePhysicalSearchReceipts:rows.reduce((n,r)=>
+      n+(r.control.rawPaymentAudit?.sourceSearchAcquisitions??0),0),
+    guardedSourcePhysicalSearchReceipts:rows.reduce((n,r)=>
+      n+(r.treatment.rawPaymentAudit?.sourceSearchAcquisitions??0),0),
     v11VetoedSourceOrOtherPayments:rows.reduce((n,r)=>
       n+(r.treatment.paperAudit?.vetoedBeforeDispatch??0),0),
     rows,competitiveQualifiedGames:0,
