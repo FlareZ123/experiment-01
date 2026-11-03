@@ -7,7 +7,7 @@ const PRINTS=Object.freeze({
  'Unown':{set:'AOR',number:'30',id:'xy7-30'},
  'Exeggcute':{set:'PLF',number:'4',id:'bw9-4'},
  'Meloetta ex':{set:'BLK',number:'44',id:'zsv10pt5-44'},
- 'Tapu Koko ◇':{set:'TEU',number:'51',id:'sm9-51'},
+ 'Tapu Koko ♢':{set:'TEU',number:'51',id:'sm9-51',printedName:'Tapu Koko ◇'},
  'Bunnelby':{set:'PRC',number:'121',id:'xy5-121'},
  'Squawkabilly ex':{set:'PAL',number:'169',id:'sv2-169'},
  'Crobat V':{set:'DAA',number:'104',id:'swsh3-104'},
@@ -53,7 +53,7 @@ function rank26Exposure(original,root){
   assert.equal(item.printing.set,source.set);
   assert.equal(item.printing.number,source.number);
   const print=printedCard(root,source.id);
-  assert.equal(print.name,item.name);
+  assert.equal(print.name,source.printedName??item.name);
   assert.ok(print.subtypes.includes('Basic'),source.id+' not Basic');
   assert.equal(item.count>0,true);
   basicCopies+=item.count;
