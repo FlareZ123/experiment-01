@@ -38,6 +38,20 @@ A hand containing Regidrago V and VSTAR together is markedly more common than a 
 
 The result does **not** say only one in 400 games can attack by the second own turn. Those other cards and subsequent random exposures can create the same lines from many hands excluded here. The denominator consists of physical opening hands rather than independent games; the probabilities are exact for the source card multiplicities and assumptions, not empirical simulator win rates.
 
+## Controlled one-slot access sensitivity (static only)
+
+To measure how strongly the *opening co-occurrence* depends on Battle Compressor density, I also enumerated virtual 60-card category exchanges. Only the Compressor category changes, between zero and four copies, with the compensating count taken from the anonymous 28-card "other" bucket. The original 11 Basics, VSTAR count, Quick Ball, all donors, and Energy counts remain unchanged. The swapped "other" card may in reality be a critical Tutor, Supporter or tactical card. These scenarios are **not complete proposed decks** and cannot establish that adding Compressor improves gameplay.
+
+| Compressor copies | V + VSTAR + either discard route | Above + 2-attachment Energy | Share of Basic-valid opens |
+| ---: | ---: | ---: | ---: |
+| 0 | 2,326,131 | 116,748 | 0.038876% |
+| 1 | 6,148,852 | 440,670 | 0.146740% |
+| **2 (original)** | **9,687,014** | **751,044** | **0.250093%** |
+| 3 | 12,956,743 | 1,048,158 | 0.349030% |
+| 4 | 15,973,547 | 1,332,300 | 0.443647% |
+
+The third Compressor increases this narrowly defined opening event by **297,114 of 300,306,336 possible valid opening hands**, approximately **0.098937 percentage points**. Its true deck value also depends on how frequently the sacrificed card helps search, draw, attach Energy, disrupt the opponent, or recover from lock. The decreasing marginal opening return from copies three and four illustrates why a connector's raw access frequency cannot decide deck optimization by itself. The exact category calculations have regression tests and retain the same physical-hand denominator.
+
 ## Reproduction and next work
 
 [BigInt category enumeration](../../simulation/evaluation/agent8-rank13-opening-conjunction-dp.cjs) reads the unchanged original source-60 registration and fails closed if the assumed key physical counts change. It enumerates all category count vectors of size seven, weighting each by the product of exact binomial coefficients. [Pure Node regression tests](../../tests/agent8-rank13-opening-conjunction-dp.test.cjs) assert the category partition, the complete event lattice, the union identity and count invariants. No native engine or new CI workload is required for this calculation.
