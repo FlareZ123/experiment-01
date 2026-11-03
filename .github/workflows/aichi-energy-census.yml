@@ -20,7 +20,7 @@ jobs:
       - name: Regress original-source same-name split-printings with set-code disambiguation
         run: node --test tests/agent21-mixed-original-printing-census.test.cjs
       - name: Verify exact original rank9 Compressor to Bomb direct early resource window
-        run: node --test tests/agent29-rank9-direct-compressor-bomb-opportunity.test.cjs
+        run: node --test tests/agent29-rank9-direct-compressor-bomb-opportunity.test.cjs tests/agent29-rank9-compressor-owner-bridge.test.cjs
       - name: Verify attached-Energy Trainer threat inventory
         run: node --test tests/aichi-attached-energy-threat-inventory.test.cjs
       - name: Verify exact Shadow Rider Hood natural access
