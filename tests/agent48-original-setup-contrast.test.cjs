@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
-const {summarizeOriginalSourceSetup,compareOriginalSourceSetup}=
+const {summarizeOriginalSourceSetup,compareOriginalSourceSetup,
+  censusOriginalSourceSetup}=
   require('../simulation/evaluation/agent48-original-setup-contrast.cjs');
 
 const hash=s=>createHash('sha256').update(s).digest('hex');
@@ -84,4 +85,30 @@ test('public setup summary excludes revealed printings',()=>{
   assert.equal(summary.mulligansBySeat[0],1);
   assert.equal(summary.sourceSeat,1);
   assert.equal(summary.competitiveGameQualified,false);
+});
+
+
+test('paired setup census partitions matched source openings by mulligan covariance',()=>{
+  const p=sample(first);
+  const q=sample(second);
+  const census=censusOriginalSourceSetup([p,q]);
+  assert.equal(census.groups,1);
+  assert.equal(census.pairedComparisonsWithKnownSetupAndDigest,1);
+  assert.equal(census.sameMulliganVector.groups,1);
+  assert.equal(census.sameMulliganVector.physicalOpeningMatched,1);
+  assert.equal(census.differentMulliganVector.groups,0);
+  assert.equal(census.causalOriginEstablished,false);
+});
+
+test('paired setup census retains incompatible seeded mulligan as unmatched source position',()=>{
+  const p=sample(first);
+  const q=sample(second,'different-original-source');
+  q.initialSetupCompensation.mulligans=[0,0];
+  q.initialSetupCompensation.bonusDrawn=[0,0];
+  const census=censusOriginalSourceSetup([p,q]);
+  assert.equal(census.sameMulliganVector.groups,0);
+  assert.equal(census.differentMulliganVector.groups,1);
+  assert.equal(census.differentMulliganVector.physicalOpeningMismatched,1);
+  assert.equal(census.differentMulliganVector.sameCompensation,0);
+  assert.equal(census.competitiveGameQualified,false);
 });
