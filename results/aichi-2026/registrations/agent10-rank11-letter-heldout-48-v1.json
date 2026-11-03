@@ -1,0 +1,55 @@
+{
+  "schema": "agent10-original-rank11-letter-fresh-unseen-bilateral-v1",
+  "registeredAtUtc": "2026-11-03T21:17:39.183Z",
+  "selection": "six fresh independent uniformly sampled 32-bit seeds using Python secrets.randbelow(2**32) on 2026-11-03; distinct; none deliberately selected for a Letter opening",
+  "previousObservedNaturalSeeds": [
+    1417228605,
+    4210336107
+  ],
+  "seeds": [
+    1251889207,
+    3454725892,
+    4084843723,
+    589013353,
+    3988763506,
+    2536679911
+  ],
+  "originalSourceRank": 11,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "candidateSlots": [
+    "A",
+    "B"
+  ],
+  "modes": [
+    "control",
+    "tutor-after-pass"
+  ],
+  "registeredContexts": 24,
+  "registeredAttempts": 48,
+  "maxNativeActions": 180,
+  "sourceSixty": "results/aichi-2026/full-decklists.json rank11 Wataru Yano",
+  "candidateSixties": "unchanged champion original rank1 and unchanged New Moon builder",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "tutorPolicy": "existing Agent11 owner-only native resource Tutor with physical prompt/transfer settlement when canonical actor chooses Pass; applies symmetrically to both real native seats",
+  "baselinePolicy": "existing canonical actor with first-turn VIP and typed owner prompt corrections; no experimental tutor",
+  "predeclaredQuestions": [
+    "For fresh independent physical source deals, how often does a genuine native Letter search get selected and settle?",
+    "Does treatment change actual completed native Prize outcomes against each unchanged candidate, with paired initial physical-deal parity?",
+    "Which treatment arms differ in exact chosen source actions, and what does the opposing actor do in response?"
+  ],
+  "requiredEvidence": [
+    "full initial physical deal SHA identity for each control-treatment pair",
+    "original source physical-deal SHA from hidden zones stored postgame only",
+    "actual owner Item and search prompt receipts",
+    "native source physical Energy attachments",
+    "opponent replies and AttackAction settlements",
+    "terminal, cap, error and Prize count"
+  ],
+  "competitionQualified": false,
+  "winRateProjectionAllowed": false,
+  "predeclaredCensoring": "Every native error/cap remains in denominator; no confidence extrapolation from native wins",
+  "runMode": "development-only; prospective fresh seeds, no selected source physical deal at registration"
+}
