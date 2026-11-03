@@ -1,0 +1,74 @@
+{
+  "schema": "agent7-original6v9-own-stadium-pass-retrospective-v1",
+  "registrationDateUtc": "2026-11-03T19:52:00Z",
+  "registrationType": "retrospective source-deal reused from Agent5 exact prior original games",
+  "originalRanks": [
+    6,
+    9
+  ],
+  "original60Source": "results/aichi-2026/full-decklists.json",
+  "vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourcePolicy": "pinned native SimpleTacticsAi in all arms, one source Stadium override only in intervention",
+  "physicalSeedPlan": {
+    "seedBase": 20261114,
+    "phase": "pilot",
+    "primaryRank": 6,
+    "repeat": 0,
+    "slots": {
+      "A": 3858002039,
+      "B": 1192664073
+    }
+  },
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "registeredCases": [
+    {
+      "id": "rank6-seat0",
+      "slot": "A",
+      "primaryRankSeat": 0,
+      "sourceRank": 6,
+      "sourceSeat": 0,
+      "sourceTurn": 10,
+      "sourceOriginal": "Wondrous Labyrinth Prism Star TEU",
+      "ownerHeldReplacement": "Thunder Mountain Prism Star LOT",
+      "heldPhysicalHandIndex": 7,
+      "previousSourcePhysicalDealSha256": "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e"
+    },
+    {
+      "id": "rank9-seat0",
+      "slot": "B",
+      "primaryRankSeat": 1,
+      "sourceRank": 9,
+      "sourceSeat": 0,
+      "sourceTurn": 8,
+      "sourceOriginal": "PokéStop PGO",
+      "ownerHeldReplacement": "Silent Lab PRC",
+      "heldPhysicalHandIndex": 8,
+      "previousSourcePhysicalDealSha256": "b9398dd0e9f4b93085cf1fb36595b17df72e602b3f8e69636c005b43929f2a9a"
+    }
+  ],
+  "arms": [
+    "native-control",
+    "single-owner-physical-stadium-replacement-after-native-pass",
+    "native-repeat-control"
+  ],
+  "activationCriteria": [
+    "genuine actor seat 0 and registered global turn",
+    "native bot proposes PassTurnAction",
+    "own public Stadium exactly matches registered original printing",
+    "physical own hand holds registered replacement printing",
+    "public lock false and owner Stadium play quota available",
+    "the printed names of the two registered Stadiums differ"
+  ],
+  "observables": [
+    "exact actual initial physical deal, first player, setup/mulligan information",
+    "every attempted and selected eligible root including misses",
+    "native enumerator omission and alternative positive paper rules",
+    "original native action versus intervention and first selected divergence",
+    "native Store acceptance/rejection and owner public zone transfer including Lost Zone",
+    "attacks, opponent response and Prize settlement after first divergence",
+    "complete source and opponent root action records, action caps and errors"
+  ],
+  "interpretation": "Retrospective exact seeds and one-source-root intervention are development-only. All three arms must be counted including errors and no-trigger. An accepted Stadium action, additional attack, or engine terminal cannot be scored as competitive game strength. No selected fixed60 or 99.5% claim.",
+  "qualifiedGames": 0
+}
