@@ -71,7 +71,8 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
   const beforeDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof before?.value,'function');
   assert.equal(typeof beforeDispatch?.value,'function');
-  let liveStore=null;
+  // An explicitly injected staged Store is test-only; real games bind via AddPlayerAction.
+  let liveStore=deps.stagedStore??null;
   const pendingByOwner=new Map();
   const proposed=new WeakMap();
   const audit={version:VERSION,enabled:true,
