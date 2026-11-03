@@ -222,9 +222,12 @@ function actorNativeReceiptCoverage(audit) {
     'More dispatches than selected actor root decisions');
   assert.ok(retained<=dispatched,'More retained receipts than dispatches');
   const ordinals=new Set();
+  let retainedAccepted=0,retainedRejected=0;
   for(const receipt of audit.nativeRootAcceptances){
     assert.ok(receipt.accepted===true||receipt.accepted===false,
       'Unclassified native root dispatch result');
+    if(receipt.accepted)retainedAccepted++;
+    else retainedRejected++;
     assert.ok(Number.isSafeInteger(receipt.policyDecisionOrdinal)&&
       receipt.policyDecisionOrdinal>=1&&
       receipt.policyDecisionOrdinal<=audit.selectedRootDecisions,
@@ -233,14 +236,25 @@ function actorNativeReceiptCoverage(audit) {
       'Duplicate native policy decision ordinal');
     ordinals.add(receipt.policyDecisionOrdinal);
   }
+  assert.ok(retainedAccepted<=audit.acceptedActorRoots,
+    'Retained accepted native receipts exceed accepted dispatches');
+  assert.ok(retainedRejected<=audit.rejectedActorRoots,
+    'Retained rejected native receipts exceed rejected dispatches');
   const missing=dispatched-retained;
+  const missingAccepted=audit.acceptedActorRoots-retainedAccepted;
+  const missingRejected=audit.rejectedActorRoots-retainedRejected;
+  assert.equal(missingAccepted+missingRejected,missing,
+    'Native acceptance/rejection accounting contradicts dispatch totals');
   const selectedWithoutDispatch=audit.selectedRootDecisions-dispatched;
   const status=missing>0?'NATIVE_ROOT_WITNESSES_TRUNCATED':
     selectedWithoutDispatch>0?'ACTOR_SELECTION_WITHOUT_DISPATCH':
     'COMPLETE_POLICY_CLOCK_ONLY';
   return {status,selectedActorRoots:audit.selectedRootDecisions,
     dispatchedActorRoots:dispatched,retainedNativeReceipts:retained,
-    missingNativeReceipts:missing,selectedWithoutDispatch,
+    retainedAcceptedNativeReceipts:retainedAccepted,
+    retainedRejectedNativeReceipts:retainedRejected,
+    missingNativeReceipts:missing,missingAcceptedNativeReceipts:missingAccepted,
+    missingRejectedNativeReceipts:missingRejected,selectedWithoutDispatch,
     nativeActionOrdinalBound:false,competitiveQualifiedGames:0};
 }
 
