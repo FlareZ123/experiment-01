@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {actorObservation} = require('./actor-observation-contract.cjs');
 const {publicBoth} = require('./agent7-opponent-escape-rope-after-pass.cjs');
 
-const VERSION = 'agent20-original6v9-guzma-after-rope-selected-v1';
+const VERSION = 'agent20-original6v9-guzma-postdecode-rollback-v3';
 
 /**
  * One historical genuine owner-root alternative after the already selected
@@ -35,6 +35,7 @@ function withRank6GuzmaAfterRope(play,deps) {
     registeredSource:registration.schema,
     observedNativePassAtRegisteredRoot:0,
     paperPreflightEligible:0,selected:0,accepted:0,rejected:0,
+    exactlyReversedNativeQuotaProposalSideEffects:0,
     candidateRoots:[],selectedReceipt:null,followingStoreActions:[],
     competitiveQualifiedGames:0
   };
@@ -46,7 +47,9 @@ function withRank6GuzmaAfterRope(play,deps) {
       state.phase===GamePhase.PLAYER_TURN&&
       !state.prompts.some(p=>p.result===undefined);
     if(!genuine)return formerAi.value.call(this,state,...args);
+    const supporterTurnBeforeNativeDecoder=owner.supporterTurn;
     const original=formerAi.value.call(this,state,...args);
+    const supporterTurnAfterNativeDecoder=owner.supporterTurn;
     if(state.turn!==target.turn ||
       original?.constructor?.name!=='PassTurnAction')return original;
     audit.observedNativePassAtRegisteredRoot++;
@@ -61,23 +64,28 @@ function withRank6GuzmaAfterRope(play,deps) {
     const ropeSettled=view.opponentPublic.discard.includes(
       registration.prerequisite.rank9Turn11Rope);
     const supporterTurnRaw=view.ownTurnResources.supporterPlayedTurn;
-    const supporterUnused=supporterTurnRaw===0;
-    // Diagnostic v2: historical turn-12 source ledger has NO owner Supporter
-    // PlayCardAction, yet the v1 strict native field preflight refused.
-    // Preserve the raw value and test genuine Store disposition without
-    // promoting this conditional attempt to paper-legal certification.
+    const supporterUnusedBeforeDecoder=supporterTurnBeforeNativeDecoder===0;
+    const nativeProposerMutatedQuota=
+      supporterUnusedBeforeDecoder&&
+      supporterTurnAfterNativeDecoder===view.globalTurn&&
+      supporterTurnRaw===view.globalTurn;
     const probeEligible=handIndex>=0&&funded&&opposite&&ropeSettled&&
       view.ownTurnResources.supporterPlayLocked===false;
-    const eligible=Boolean(probeEligible);
+    // V3 predeclared paper correction: only one real source owner Pass whose
+    // own native bot changes the zero quota to the current turn index while
+    // proposing an action. A nonzero pre-decode count is never overridden.
+    const eligible=Boolean(probeEligible&&nativeProposerMutatedQuota);
     const candidate={
       turn:view.globalTurn,seat,handIndex,
       nativeChoice:'PassTurnAction',
+      supporterTurnBeforeNativeDecoder,supporterTurnAfterNativeDecoder,
       supporterTurnRaw,
-      nativeQuotaUnambiguouslyUnused:supporterUnused,
-      paperQuotaStatus:supporterUnused?'native-count-zero':
-        'native-count-disagrees-with-registered-no-supporter-turn12-ledger',
-      diagnosticProbeDespiteUnverifiedNativeQuota:!supporterUnused&&eligible,
-      supporterQuotaUnused:supporterUnused,
+      nativeQuotaUnambiguouslyUnusedBeforeDecoder:
+        supporterUnusedBeforeDecoder,
+      proposalMutationExactlyProven:nativeProposerMutatedQuota,
+      paperQuotaStatus:nativeProposerMutatedQuota?
+        'zero-before-native-decode-and-mutated-to-current-turn':
+        'native-proposal-mutation-not-proven-do-not-rollback',
       supporterLocked:view.ownTurnResources.supporterPlayLocked,
       ropeSettled,
       fundedBenchEnergies:funded?.energies??null,
@@ -87,6 +95,11 @@ function withRank6GuzmaAfterRope(play,deps) {
     audit.candidateRoots.push(candidate);
     if(!eligible||audit.selected!==0)return original;
     audit.paperPreflightEligible++;
+    // Restore only the exact field changed by the current unaccepted native
+    // proposal. The forthcoming real Store remains free to reject Guzma.
+    owner.supporterTurn=supporterTurnBeforeNativeDecoder;
+    audit.exactlyReversedNativeQuotaProposalSideEffects++;
+    candidate.restoredLiveSupporterTurn=owner.supporterTurn;
     const action=new PlayCardAction(owner.id,handIndex,{
       player:PlayerType.ANY,slot:SlotType.BOARD,index:0
     });
@@ -94,8 +107,11 @@ function withRank6GuzmaAfterRope(play,deps) {
     candidate.selected=true;
     const receipt={
       turn:view.globalTurn,seat,printing:target.heldPhysicalSupporter,
-      supporterTurnRaw,paperQuotaNativeCountZero:supporterUnused,
-      paperQuotaUnqualifiedUntilIndependentReconciliation:!supporterUnused,
+      supporterTurnBeforeNativeDecoder,supporterTurnAfterNativeDecoder,
+      restoredSupporterTurn:owner.supporterTurn,
+      nativeMutatingProposalSideEffectReverted:true,
+      paperLegalityScope:
+        'single-actor turn12 printed action; real Store and prompt settlement required',
       physicalHandIndex:handIndex,
       priorNativeChoice:'PassTurnAction',
       selectedChoice:'PlayCardAction',
