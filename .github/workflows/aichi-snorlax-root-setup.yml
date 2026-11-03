@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      source_rank5_shuffle_pair:
+        description: 'Run independently preregistered eight original-rank5 source-dealt paper Energy Mix A/B native attempts'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,6 +56,12 @@ jobs:
         run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs tests/agent19-energy-mix-custody-audit.test.cjs tests/agent19-energy-mix-shuffle-hook.test.cjs
       - name: Probe native copied Energy Mix DCE custody and forbidden recipient
         run: node simulation/twinleaf/agent19-mew-energy-mix-native.cjs > aichi-rank5-mew-energy-mix.json
+      - name: Execute preregistered original-rank5 paired Energy Mix paper-shuffle developmental cohort
+        if: ${{ inputs.source_rank5_shuffle_pair }}
+        run: |
+          node --check simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs
+          node simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs --inspect-only
+          node simulation/evaluation/agent19-rank5-energy-mix-shuffle-paired-native.cjs > agent19-rank5-energy-mix-shuffle-pair-summary.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
         run: node --test tests/snorlax-zero-energy-arceus-counterexample.test.cjs
       - name: Record native single-attachment attack and sole-Pokemon board
@@ -71,4 +82,6 @@ jobs:
             aichi-snorlax-zero-energy-threat.json
             aichi-rank5-mew-one-attachment.json
             aichi-rank5-mew-energy-mix.json
+            agent19-rank5-energy-mix-shuffle-pair-summary.json
+            agent19-rank5-energy-mix-shuffle-source-paired-native.json
           if-no-files-found: warn
