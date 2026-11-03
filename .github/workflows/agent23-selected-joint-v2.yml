@@ -1,0 +1,43 @@
+name: Agent23 frozen symmetric joint v2 rank5 rank11 rank6 native release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selected-original-source-52:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate independent preregistration, symmetric policy and denominator
+        run: node --test tests/agent23-selected-joint-v2-release.test.cjs tests/agent22-source-copy-choice-audit.test.cjs
+      - name: Initialize pinned Twinleaf submodule only
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Pin exact submodule revision
+        run: node -e "const assert=require('node:assert/strict');const cp=require('node:child_process');const commit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim();assert.equal(commit,'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');console.log('PINNED_TWINLEAF',commit)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute frozen 52 native attempts, both symmetric policies and source printings
+        run: node simulation/evaluation/agent23-selected-joint-v2-release.cjs
+      - name: Fail closed on source deal or context fidelity
+        run: node -e "const assert=require('node:assert/strict');const r=require('./agent23-selected-joint-v2-native-52arm.json');assert.equal(r.attemptCount,52);assert.equal(r.candidateContexts,26);assert.equal(r.matchedSourcePhysicalDeals,26);assert.equal(r.allControlsMatched,true);assert.equal(r.competitivelyQualifiedGames,0);for(const m of r.modes)assert.equal(m.rows.length,26);console.log('SELECTED_JOINT_V2_GATE',JSON.stringify({attemptCount:r.attemptCount,matchedPhysical:r.matchedSourcePhysicalDeals,vip:r.modes.map(m=>m.rows.reduce((n,x)=>n+x.sourceVipCount,0)),nativeErrors:r.modes.map(m=>m.rows.filter(x=>x.nativeError).length),nativeStatus:r.modes.map(m=>m.rows.reduce((a,x)=>(a[x.nativeStatus??'null']=(a[x.nativeStatus??'null']??0)+1,a),{})),techno:r.modes.map(m=>m.rows.filter(x=>x.trialId.startsWith('5:')).reduce((n,x)=>n+(x.sourceCopiedAttackChoices?.selectedGenesectTechnoBlast??0),0)),competitiveGames:0}))"
+      - name: Preserve all native controls, failures and censored caps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent23-frozen-symmetric-joint-v2-52-native
+          path: agent23-selected-joint-v2-native-52arm.json
+          if-no-files-found: warn
+          retention-days: 21
