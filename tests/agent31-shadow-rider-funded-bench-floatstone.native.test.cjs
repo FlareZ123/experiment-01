@@ -94,7 +94,12 @@ for(const seat of [0,1])test('native Funded VMAX Float Stone rescue seat '+seat,
     'retreat-emergency-floatstone');
   const second=choose(afterTool,catalog);
   assert.equal(second?.kind,'retreat-emergency-floatstone');
+  const witness=require('../simulation/twinleaf/agent5-owner-root-slice.cjs');
+  const beforeRetreat=witness.rootPhysicalSnapshot(x.state,seat,second);
   x.store.dispatch(new RetreatAction(x.owner.id,second.benchIndex));
+  const afterRetreat=witness.rootPhysicalSnapshot(x.state,seat,second);
+  assert.equal(witness.rootPhysicalWitness(second,beforeRetreat,afterRetreat,GamePhase),
+    'confirmed-public-effect');
   assert.equal(x.owner.active.getPokemonCard()?.fullName,
     'Shadow Rider Calyrex VMAX CRE');
   assert.equal(x.owner.active.energies.cards.length,6);
