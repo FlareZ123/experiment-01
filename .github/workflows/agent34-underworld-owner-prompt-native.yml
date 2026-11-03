@@ -27,7 +27,7 @@ jobs:
       - name: Verify pure source evidence integrity and owner-typed prompt
         run: node --test tests/agent34-fresh-underworld-abort-pair-audit.test.cjs tests/agent34-actor-typed-energy-prompt.test.cjs
       - name: Independent conversion accounting pure unit regressions
-        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs
+        run: node --test tests/agent34-underworld-native-attack-conversion-audit.test.cjs tests/agent34-underworld-active-funding-priority.test.cjs
       - name: Install exact pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
