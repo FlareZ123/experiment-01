@@ -19,7 +19,7 @@ const VIP='Battle VIP Pass FST';
  * @param {string[]} ownRegisteredSixty This owner's exact printed 60.
  * @param {Set<string>} basicPrintings Public native Basic Pokémon catalog.
  * @returns {{minimumBasicStillInDeck:number,basicRegistered:number,
- *   basicVisibleOutsideDeck:number,possibleBasicPrized:number}}
+ *   basicVisibleOutsideDeck:number,possibleBasicPrized:number,exactVisibleBasicCopiesReconcile:boolean}}
  */
 function guaranteedOwnDeckBasics(view,ownRegisteredSixty,basicPrintings){
   assert.equal(view?.decisionKind,'owner-root');
@@ -36,14 +36,28 @@ function guaranteedOwnDeckBasics(view,ownRegisteredSixty,basicPrintings){
         ...(slot.tools??[])
       ])
   ];
-  const registered=ownRegisteredSixty.reduce((sum,name)=>sum+basic(name),0);
-  const outside=visible.reduce((sum,name)=>sum+basic(name),0);
+  const registeredCopies=new Map();
+  for(const name of ownRegisteredSixty){
+    if(basic(name))
+      registeredCopies.set(name,(registeredCopies.get(name)??0)+1);
+  }
+  const visibleCopies=new Map();
+  for(const name of visible){
+    if(basic(name))
+      visibleCopies.set(name,(visibleCopies.get(name)??0)+1);
+  }
+  const conservationValid=[...visibleCopies].every(([name,copies])=>
+    copies<=(registeredCopies.get(name)??0));
+  const registered=[...registeredCopies.values()].reduce((sum,n)=>sum+n,0);
+  const outside=[...visibleCopies.values()].reduce((sum,n)=>sum+n,0);
   const possiblePrized=own.prizeCount;
   return {
-    minimumBasicStillInDeck:Math.max(0,registered-outside-possiblePrized),
+    minimumBasicStillInDeck:conservationValid?
+      Math.max(0,registered-outside-possiblePrized):0,
     basicRegistered:registered,
     basicVisibleOutsideDeck:outside,
-    possibleBasicPrized:possiblePrized
+    possibleBasicPrized:possiblePrized,
+    exactVisibleBasicCopiesReconcile:conservationValid
   };
 }
 
