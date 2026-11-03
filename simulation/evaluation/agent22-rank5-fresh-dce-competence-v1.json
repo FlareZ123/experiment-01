@@ -1,0 +1,134 @@
+{
+  "schema": "agent22-rank5-fresh-mew-dce-mobility-competence-v1",
+  "registeredAtUtc": "2026-11-03T04:21:47.718103Z",
+  "seedGeneration": "Python secrets.randbelow(2**32), four independent uniform 32-bit samples, before native execution",
+  "freshness": "No source game states from these four seed groups were reviewed before registration",
+  "candidateNames": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "sourceRank": 5,
+  "sourcePlayer": "Yamato Nakano",
+  "originalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedNativeEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "pinnedJointSelectedProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "pinnedRootRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "pinnedOriginalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "randomGroups": [
+    {
+      "candidateSeat": "A",
+      "repeat": 0,
+      "seed": 1671807160
+    },
+    {
+      "candidateSeat": "B",
+      "repeat": 0,
+      "seed": 1606870827
+    },
+    {
+      "candidateSeat": "A",
+      "repeat": 1,
+      "seed": 3850175175
+    },
+    {
+      "candidateSeat": "B",
+      "repeat": 1,
+      "seed": 36879703
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 1671807160,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "candidateId": "champion-reference",
+      "id": "5:0:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "seed": 1606870827,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "candidateId": "champion-reference",
+      "id": "5:1:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "seed": 3850175175,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 36879703,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "control": {
+    "name": "full-selected-joint92",
+    "description": "exact historical selected92 code and options, with same cap and admission",
+    "dceMewMobilityRoot": true
+  },
+  "ablation": {
+    "name": "dce-mew-mobility-disabled",
+    "description": "turn off only actorDceMewMobilityRoot, retaining all other 91 options",
+    "dceMewMobilityRoot": false
+  },
+  "nativeRootActionLimit": 260,
+  "registeredFrameName": "agent22-rank5-fresh-source-mew-dce-v1-common-frame",
+  "registeredGroupCount": 4,
+  "registeredTrialCount": 8,
+  "registeredModes": 2,
+  "expectedNativeAttempts": 16,
+  "registeredEndpoints": [
+    "all eight identical original source physical initial deals and actual starters across policy arms",
+    "raw action-cap/native-terminal/abort states for all attempts",
+    "physical owner DCE Genesect/Mew bench opportunity (not inferred from attack alone)",
+    "native settled original-source Cross Fusion Strike count",
+    "first native root divergence with original actor seat and printable public context",
+    "subsequent consequential opponent return as diagnostic only"
+  ],
+  "preselectedPolicyVersionsImmutable": true,
+  "paperRuleFullComplianceAudited": false,
+  "opponentStrategicCompetenceAudited": false,
+  "officialPaperClockAudited": false,
+  "competitiveQualifiedGames": 0
+}
