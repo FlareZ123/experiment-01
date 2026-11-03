@@ -14,6 +14,7 @@ on:
           - pure-only
           - retrospective-established
           - prospective-established
+          - retrospective-compressor
 
 permissions:
   contents: read
@@ -36,6 +37,9 @@ jobs:
       - name: Validate new source-owner 24-pair registered seed plan
         if: ${{ inputs.study == 'prospective-established' }}
         run: node simulation/evaluation/agent8-established-quickball-prospective-preflight.cjs
+      - name: Preflight original source Regidrago Compressor retrospective registration
+        if: ${{ inputs.study == 'retrospective-compressor' }}
+        run: node -e "require('./simulation/evaluation/agent8-funded-apex-compressor-retrospective-native.cjs').preflight()"
       - name: Precompile public native seam and archive auditor regression
         run: node --test tests/agent8-public-flat-copy-turns.test.cjs tests/agent8-public-flat-copy-native-seam.test.cjs tests/agent8-rank13-public-copy-native-audit.test.cjs tests/agent8-established-regidrago-quickball.test.cjs tests/agent8-rank13-opening-conjunction-dp.test.cjs tests/agent8-funded-apex-compressor-owner-bridge.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
       - name: Restore pinned Twinleaf
@@ -78,6 +82,11 @@ jobs:
         env:
           AGENT8_ESTABLISHED_PROSPECTIVE_JSON: agent8-established-quickball-prospective-native.json
         run: node simulation/evaluation/agent8-established-quickball-prospective-native.cjs
+      - name: Run original source funded Apex Compressor native A/B/A
+        if: ${{ inputs.study == 'retrospective-compressor' }}
+        env:
+          AGENT8_FUNDED_COMPRESSOR_JSON: agent8-funded-apex-compressor-retrospective-native.json
+        run: node simulation/evaluation/agent8-funded-apex-compressor-retrospective-native.cjs
       - name: Upload full native source attack settlements
         if: ${{ always() && inputs.study != 'pure-only' }}
         uses: actions/upload-artifact@v4
@@ -88,5 +97,6 @@ jobs:
             agent8-rank13-public-copy-native.json
             agent8-established-quickball-native.json
             agent8-established-quickball-prospective-native.json
+            agent8-funded-apex-compressor-retrospective-native.json
           if-no-files-found: warn
           retention-days: 30
