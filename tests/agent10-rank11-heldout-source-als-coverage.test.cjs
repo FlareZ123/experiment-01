@@ -34,7 +34,9 @@ test('counts original source-only Trainer roots; darkness native receipt exclude
         card:'Dark Patch ASR',actionOrdinal:19},
       {playerSlot:1,turnBefore:3,action:'AttackAction',
         attack:'Claw of Darkness'},
-      {playerSlot:1,turnBefore:5,action:'PlayCardAction',card:'Fog Crystal'}
+      {playerSlot:1,turnBefore:5,action:'PlayCardAction',card:'Fog Crystal'},
+      {playerSlot:1,turnBefore:5,action:'PassTurnAction',
+        actorPolicyDecisionOrdinal:39,actionOrdinal:35}
     ],
     nativeAcceptedTargetSidecar:{events:[
       {playerSlot:1,storeAccepted:true,
@@ -60,6 +62,8 @@ test('counts original source-only Trainer roots; darkness native receipt exclude
   assert.equal(a.sourceAttackRoots.length,1);
   assert.deepEqual(a.firstTwoOriginalSourceTurns,[1,3]);
   assert.equal(a.sourceUnclassifiedCardRoots.length,1);
+  assert.equal(a.sourcePassRoots,1);
+  assert.equal(a.sourceActorTaggedPassRoots,1);
 });
 
 test('all twenty-four archived rows required, and no cross-factor source sixty drift',()=>{
@@ -78,6 +82,7 @@ test('all twenty-four archived rows required, and no cross-factor source sixty d
   assert.equal(result.rows.length,24);
   assert.equal(result.aggregate.control.sourceContexts,8);
   assert.equal(result.aggregate.activeHeadway.contextsWithSourceTrainerRoot,0);
+  assert.equal(result.aggregate.activeHeadway.sourcePassRoots,0);
   archive.rawFactors.activeHeadway.rows[3].sourceDeckFingerprint='wrong60';
   assert.throws(()=>inspect(archive),/AssertionError|falsy|expression/);
 });
