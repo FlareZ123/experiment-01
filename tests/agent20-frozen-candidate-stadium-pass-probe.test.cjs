@@ -191,3 +191,23 @@ test('observer restores Store descriptor after native failures',()=>{
   },trials,{store:{Store:FakeStore},probe:()=>null}),/Inner game failed/);
   assert.equal(FakeStore.prototype.dispatch,original);
 });
+
+test('detached core dispatcher bypasses auxiliary live-only hook counters',()=>{
+  const old=Object.getOwnPropertyDescriptor(FakeStore.prototype,'dispatch');
+  let touched=0;
+  Object.defineProperty(FakeStore.prototype,'dispatch',{
+    ...old,value:function wrappedForCounter(action){
+      touched++;
+      return old.value.call(this,action);
+    }
+  });
+  try{
+    const result=detachedStadiumAtPass(state(),0,{
+      ...deps,coreDispatch:old.value
+    });
+    assert.equal(result.nativeCounterfactualAcceptedReplacements,1);
+    assert.equal(touched,0,'No original Store instrumentation is touched');
+  }finally{
+    Object.defineProperty(FakeStore.prototype,'dispatch',old);
+  }
+});
