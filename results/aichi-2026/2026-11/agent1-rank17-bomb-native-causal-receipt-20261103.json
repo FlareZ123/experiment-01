@@ -1,0 +1,102 @@
+{
+  "schema": "agent1-original-rank17-bomb-retrospective-native-two-arm-receipt-v1",
+  "evidenceClass": "NATIVE_STORE_SINGLE_POSTSELECTED_PHYSICAL_DEAL",
+  "createdAtUtc": "2026-11-03T19:42:00Z",
+  "registration": "results/aichi-2026/registrations/agent1-rank17-bomb-native-positive-retrospective-20261103.json",
+  "workflowRun": 41704918964,
+  "workflowHead": "a1a262902b01cb3836328b30af4deae3b06ab6e2",
+  "artifactId": 13263833605,
+  "rawZipSha256": "af18d71e9188d749dd994d4deba651362ffced3e50f514180721050c92c7fc28",
+  "rawJsonSha256": "33c518f82448bfcd0d31dddc990731db0642585dc2d7763e0884d23b33afb8e4",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 17,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "referenceRank": 1,
+  "referencePrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "seed": 2128426800,
+  "sourceSeat": 1,
+  "matchedFullPhysicalOpening": true,
+  "identicalNativeRootsBeforeDivergence": 83,
+  "registeredArms": 2,
+  "nativeErrorArms": 0,
+  "firstDivergence": {
+    "ordinal": 83,
+    "globalTurn": 20,
+    "owner": 1,
+    "control": "PassTurnAction",
+    "treatment": "UseAbilityAction:Extra Energy Bomb"
+  },
+  "opportunity": {
+    "electrode": "Electrode-GX CES",
+    "sourceZone": "active",
+    "recipient": "Unown AOR",
+    "recipientZone": "bench",
+    "sourceDiscardBefore": [
+      "Reversal Energy PAL",
+      "Counter Energy CIN",
+      "Unit Energy LPM UPR",
+      "Battle Compressor PHF"
+    ],
+    "eligiblePhysicalSpecialEnergyCards": 3
+  },
+  "treatmentEffects": {
+    "abilityNativeAccepted": 1,
+    "nativeAbilityRejected": 0,
+    "prompt": "AttachEnergyPrompt",
+    "transferredFromDiscard": [
+      "Reversal Energy PAL",
+      "Counter Energy CIN",
+      "Unit Energy LPM UPR"
+    ],
+    "unownAttachedEnergyBefore": [
+      "Counter Energy CIN"
+    ],
+    "unownAttachedEnergyAfter": [
+      "Counter Energy CIN",
+      "Reversal Energy PAL",
+      "Counter Energy CIN",
+      "Unit Energy LPM UPR"
+    ],
+    "originalElectrodeAndVoltorbInDiscardAfter": true,
+    "opponentPrizeCountBefore": 6,
+    "opponentPrizeCountAfterBomb": 4,
+    "sourcePromotedActive": "Unown AOR",
+    "sourceSubsequentAttacks": [
+      {
+        "turn": 20,
+        "name": "Hidden Power"
+      },
+      {
+        "turn": 22,
+        "name": "Hidden Power"
+      }
+    ],
+    "opponentReply": {
+      "turn": 23,
+      "attack": "Full Moon Rondo",
+      "newOpponentPrizeCount": 3
+    },
+    "nativeFinished": true,
+    "nativeWinnerSeat": 0,
+    "nativeActions": 108
+  },
+  "controlEffects": {
+    "sourceTurn20Action": "PassTurnAction",
+    "sourceAttackAtTurn26": "Hidden Power",
+    "nativeFinished": true,
+    "nativeWinnerSeat": 0,
+    "nativeActions": 124
+  },
+  "conclusion": "Real native ability selection/settlement and meaningful effect, but both arms lost; the intervention advanced the opponent by two Prize cards and provided only a weak Unown attack line in the postselected deal.",
+  "selectedPolicyOrDeckImprovementDemonstrated": false,
+  "competitiveQualifiedGames": 0,
+  "winRateInference": "NONE",
+  "limitations": [
+    "Retrospective positive source seed selected after original study",
+    "Source-only early Compressor bridge held identically across arms",
+    "UseAbilityAction forced only after ordinary Pass, not a release-quality joint policy",
+    "Engine results not independently paper-qualified and no official tournament match clock",
+    "Single deal cannot estimate any matchup win rate",
+    "Potentially different future policies/opponent choices may change outcome"
+  ]
+}
