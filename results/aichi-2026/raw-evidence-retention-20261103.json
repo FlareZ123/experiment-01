@@ -20,7 +20,13 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/rank5-v31-native-16arm-13115652707.zip",
       "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
       "releaseAssetId": 706062798,
-      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
+      "runHeadSha": "88c4711ecc07e0ea28e6a467cc90396fc95675c6",
+      "workflowPath": ".github/workflows/agent41-flexible-special-originals.yml",
+      "registrationPath": "results/aichi-2026/registrations/agent13-rank5-v31-corrected-root-20261102.json",
+      "policyProfilePath": "simulation/evaluation/agent13-v31-rank5-policy-profile-20261102.json",
+      "policyProfileGitBlob": "14195053fbe11c2f6e35dae994c1cf8e0a73cc33",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     },
     {
       "key": "selected-joint-v2-native-52",
@@ -34,7 +40,12 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/selected-joint-v2-native-52-13206810193.zip",
       "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
       "releaseAssetId": 706062854,
-      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
+      "runHeadSha": "9182f48c12c26d1fa966c8a504541b6faef83f9a",
+      "workflowPath": ".github/workflows/agent23-selected-joint-v2.yml",
+      "registrationPath": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+      "policyProfilePath": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     },
     {
       "key": "rank5-rank11-joint-native-v1",
@@ -48,7 +59,13 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/rank5-rank11-joint-native-v1-13197729125.zip",
       "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
       "releaseAssetId": 706062887,
-      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
+      "runHeadSha": "20d095b3126a767ac60b40f048fa4579b3a04c99",
+      "workflowPath": ".github/workflows/agent20-frozen-common-canary.yml",
+      "registrationPath": "simulation/evaluation/agent41-joint-source-r5-r11-v1.json",
+      "policyProfilePath": "simulation/evaluation/agent41-joint-source-r5-r11-v1.json",
+      "policyProfileGitBlob": "f6ba98e6a259daa835397689799dc35550a1c14d",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     },
     {
       "key": "generic-trainer-aba-v1",
@@ -62,7 +79,13 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/generic-trainer-aba-v1-13230633884.zip",
       "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
       "releaseAssetId": 706062928,
-      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
+      "runHeadSha": "ec7e8ca350a789497c43ecb037e0a9e11ab3aca7",
+      "workflowPath": ".github/workflows/agent5-owner-root-native.yml",
+      "registrationPath": "results/aichi-2026/registrations/agent50-owner-native-trainer-fallback-v1-20261103.json",
+      "policyProfilePath": "results/aichi-2026/registrations/agent50-owner-native-trainer-fallback-v1-20261103.json",
+      "registrationSha256": "69847fda0f6b1b3de62513f70e71fc64f5f10c69fd71f9aae02072ce5b3df4f5",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     },
     {
       "key": "agent6-fieldblower-native-fourarm",
@@ -76,7 +99,12 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/agent6-fieldblower-native-fourarm-13241071172.zip",
       "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
       "releaseAssetId": 706062958,
-      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
+      "runHeadSha": "39d9a7aa0d60aacd3c673c45b6895f7ccad83990",
+      "workflowPath": ".github/workflows/agent7-rank30-source-psychic-staging.yml",
+      "registrationPath": "results/aichi-2026/registrations/agent6-rank30-fieldblower-paid-counterline-four-20261102.json",
+      "policyProfilePath": "simulation/twinleaf/agent6-skyliner-public-suppression-native.cjs",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
