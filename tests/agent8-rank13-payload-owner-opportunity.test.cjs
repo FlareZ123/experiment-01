@@ -16,6 +16,9 @@ test('recognizes held Compressor and missing public Dragon with Regidrago presen
   assert.equal(r.handCounts.battleCompressor,1);
   assert.deepEqual(r.heldDragonPrintings,['Dragapult ex TWM']);
   assert.equal(r.regidragoVstarActive,true);
+  assert.equal(r.activePrinting,'Regidrago VSTAR SIT');
+  assert.deepEqual(r.regidragoPublicSlots,[{position:'active',benchIndex:null,
+    printing:'Regidrago VSTAR SIT',energyPrintings:[]}]);
   assert.equal(r.sourceOwnerOnly,true);
 });
 test('public Dragon payload removes the missing-payload flag',()=>{
