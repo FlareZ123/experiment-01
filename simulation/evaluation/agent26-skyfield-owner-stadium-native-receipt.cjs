@@ -110,13 +110,16 @@ function collect(){
       ownSkyFieldHandIndices:cap.handSkyFieldIndices
     };
   });
-  const target=joined.filter(x=>
+  const held=joined.filter(x=>x.heldSkyFieldCopies>0);
+  const target=held.filter(x=>
     x.source5Seat===0&&x.ownerSeat===0&&
-    x.heldSkyFieldCopies>0&&x.nativeOfferedSkyField===false);
+    x.nativeOfferedSkyField===false);
   const expected=[7,9,11,13];
-  assert.deepEqual(target.map(x=>x.globalTurn),expected);
-  assert.deepEqual(target.map(x=>x.rootOrdinal),[14,17,19,21]);
-  assert.ok(target.every(x=>x.selectedRoot==='PassTurnAction'));
+  const exactFrozenTargetReproduced=
+    JSON.stringify(target.map(x=>x.globalTurn))===JSON.stringify(expected)&&
+    JSON.stringify(target.map(x=>x.rootOrdinal))===
+      JSON.stringify([14,17,19,21])&&
+    target.every(x=>x.selectedRoot==='PassTurnAction');
   const ownStadiumAtTarget=target.map(x=>x.ownerStadium);
   return {
     version:VERSION,
@@ -127,6 +130,9 @@ function collect(){
     verifiedAgent5FullPhysicalAndDecisionABAPairs:
       archived.summary.fullGameTraceMatchedABA,
     liveOwnerEnumRootsJoined:captures.length,
+    skyFieldHeldAllObservedRoots:held,
+    expectedFrozenOmissions:{source5Seat:0,rootOrdinals:[14,17,19,21],globalTurns:expected},
+    exactFrozenTargetReproduced,
     skyFieldMissedRealRootCount:target.length,
     skyFieldUnlistedPublicStadiumRows:target,
     ownerHasStadiumForEveryOmission:
@@ -150,6 +156,8 @@ if(require.main===module){
     JSON.stringify({
       roots:result.liveOwnerEnumRootsJoined,
       missed:result.skyFieldMissedRealRootCount,
+      reproduced:result.exactFrozenTargetReproduced,
+      heldRows:result.skyFieldHeldAllObservedRoots,
       hasOwnStadiumAll:result.ownerHasStadiumForEveryOmission,
       ownStadiums:result.ownerOwnStadiumIdentitiesAtOmissions,
       qualification:result.qualification
