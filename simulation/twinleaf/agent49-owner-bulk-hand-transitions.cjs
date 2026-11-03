@@ -77,9 +77,19 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
   assert.ok(prizeCount===undefined||prizeCount===null||
     (Number.isSafeInteger(prizeCount)&&prizeCount>=0&&prizeCount<=6));
   const hasPublicPrizeCount=Number.isSafeInteger(prizeCount);
-  const draw=rule.sixRemainingPrizesDraw===undefined?rule.baseDraw:
-    hasPublicPrizeCount?
-      prizeCount===6?rule.sixRemainingPrizesDraw:rule.baseDraw:null;
+  const opponentHandCount=view.opponentPublic?.handCount;
+  const opponentPublicCountKnown=Number.isSafeInteger(opponentHandCount)&&
+    opponentHandCount>=0;
+  const drawTriggered=!rule.drawOnlyIfEitherPlayerMoved?true:
+    moved.length>0?true:
+      opponentPublicCountKnown?opponentHandCount>0:null;
+  const baseDraw=rule.drawFromOwnPrizes?
+    hasPublicPrizeCount?prizeCount:null:
+    rule.sixRemainingPrizesDraw===undefined?rule.baseDraw:
+      hasPublicPrizeCount?
+        prizeCount===6?rule.sixRemainingPrizesDraw:rule.baseDraw:null;
+  const draw=drawTriggered===false?0:
+    drawTriggered===true?baseDraw:null;
   return {
     ...common,status:'printed-bulk-transition-observed',
     destination:rule.moveTo,
@@ -88,6 +98,9 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     protectedMovedIndices:moved.filter(c=>c.protected).map(c=>c.handIndex),
     protectedMovedCount:moved.filter(c=>c.protected).length,
     drawnCardCountRequested:draw,
+    conditionalDrawTriggered:drawTriggered,
+    affectsOpponentHand:Boolean(rule.affectsOpponentHand),
+    opponentPublicHandCountKnown:opponentPublicCountKnown,
     conditionalPrizeDrawCount:
       rule.sixRemainingPrizesDraw===undefined?null:{
         remainingPrizeCountForBonus:6,
@@ -96,7 +109,8 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
       },
     actualDrawnCardsUnknown:true,
     physicalZoneTransitionUnverified:true,
-    returnedToDeckRatherThanDiscard:rule.moveTo==='deck'
+    returnedToDeckRatherThanDiscard:rule.moveTo!=='discard',
+    specificDeckDestination:rule.moveTo
   };
 }
 
@@ -123,7 +137,9 @@ function summarizeOwnerBulkHandTransitions(view,rows,
     discardEntireHandCandidates:transitions.filter(x=>
       x.destination==='discard').length,
     shuffleEntireHandCandidates:transitions.filter(x=>
-      x.destination==='deck').length,
+      x.destination!=='discard').length,
+    bottomOfDeckHandCandidates:transitions.filter(x=>
+      x.destination==='deck-bottom').length,
     summedOtherHandCopiesExposedAcrossAlternatives:transitions.reduce(
       (n,x)=>n+x.movedHandCount,0),
     summedProtectedCopiesExposedAcrossAlternatives:transitions.reduce(
