@@ -1,0 +1,38 @@
+name: Agent4 Japanese M4 native paper before-after frozen Store audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  jp-source-m4-original-archive-attestation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Check strict source-aware archive auditor
+        run: node --check simulation/evaluation/agent4-jp-m4-native-before-after-audit.cjs
+      - name: Retrieve original frozen v6 and matched v7 same-seed Store archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 41693495660 -R FlareZ123/experiment-01 -n agent4-original-owner-paper-trainer-aba-six -D original-v6
+          gh run download 41701394356 -R FlareZ123/experiment-01 -n agent4-original-owner-paper-trainer-aba-six -D original-v7
+      - name: Verify all six complete physical deals and complete action traces plus only M4 paper delta
+        run: |
+          node simulation/evaluation/agent4-jp-m4-native-before-after-audit.cjs original-v6/agent4-owner-paper-native-parity.json original-v7/agent4-owner-paper-native-parity.json
+          node -e "const a=require('node:assert/strict'),f=require('node:fs');const {auditNativeJapaneseM4}=require('./simulation/evaluation/agent4-jp-m4-native-before-after-audit.cjs');const old=JSON.parse(f.readFileSync('original-v6/agent4-owner-paper-native-parity.json','utf8'));const fresh=JSON.parse(f.readFileSync('original-v7/agent4-owner-paper-native-parity.json','utf8'));const r=auditNativeJapaneseM4(old,fresh);a.equal(r.changed.length,1);a.equal(r.changed[0].printing,'Special Red Card M4');a.equal(r.changed[0].nativeEnumeratorOffered,true);a.equal(r.changed[0].selectedAction.action,'PassTurnAction');a.equal(r.observedTotals.before.proven,60);a.equal(r.observedTotals.after.proven,61);a.equal(r.paperGameQualified,false);require('./simulation/evaluation/agent23-selected-joint-v2-release.cjs').writeAtomicLocked('agent4-japanese-m4-native-before-after.json',r);console.log('AGENT4_NATIVE_JP_M4_BEFORE_AFTER_VERIFIED')"
+      - name: Preserve independently reproduced provenance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-jp-m4-native-six-arm-source-delta
+          path: agent4-japanese-m4-native-before-after.json
+          if-no-files-found: warn
+          retention-days: 21
