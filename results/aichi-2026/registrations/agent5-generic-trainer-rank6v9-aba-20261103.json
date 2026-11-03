@@ -7,7 +7,7 @@
     6,
     9
   ],
-  "deckSource": "results/aichi-2026/source-manifest.json resolved via planAichi, exact published 60s",
+  "deckSource": "results/aichi-2026/full-decklists.json resolved via simulation/evaluation/aichi-pilot.cjs::planAichi, exact published 60s",
   "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
   "deterministicSeedContract": {
     "base": 20261114,
