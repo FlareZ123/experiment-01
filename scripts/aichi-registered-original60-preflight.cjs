@@ -62,6 +62,8 @@ function preflightOriginalSourcePins(pins,inputs={}) {
   assert.ok(typeof pins.campaignId==='string' && pins.campaignId.length>0);
   assert.equal(pins.engine,'twinleafgg');
   assert.match(pins.engineGitlinkSha,/^[0-9a-f]{40}$/);
+  assert.match(pins.seedPlanSha256,/^[0-9a-f]{64}$/,
+    'frozen seed plan must have reviewed independent SHA256');
   assert.ok(Number.isInteger(pins.maxActions) && pins.maxActions>0);
   assert.match(pins.outputFilename,/^[a-z0-9][a-z0-9-]*\.json$/);
   assert.ok(typeof pins.policyProfile==='string' && pins.policyProfile.length>0);
