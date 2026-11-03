@@ -1,0 +1,90 @@
+{
+  "schema": "agent7-actor-funded-stadium-symmetric-original-8group-pilot-v1",
+  "registrationDateUtc": "2026-11-03T20:13:00Z",
+  "method": "Same original printed 60s, native controls around one symmetric actor-owned conditional Stadium candidate; unchanged native AI all other actions",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalRankPairs": [
+    [
+      6,
+      9
+    ],
+    [
+      5,
+      11
+    ]
+  ],
+  "seedGroups": [
+    {
+      "kind": "historic",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "seedBase": 20261114,
+      "slots": {
+        "A": 3858002039,
+        "B": 1192664073
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "historic",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "seedBase": 20261113,
+      "slots": {
+        "A": 912174767,
+        "B": 1914651848
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "fresh-preselected",
+      "primaryRank": 6,
+      "otherRank": 9,
+      "seedBase": 20261118,
+      "slots": {
+        "A": 809028196,
+        "B": 4056743630
+      },
+      "repeat": 0
+    },
+    {
+      "kind": "fresh-preselected",
+      "primaryRank": 5,
+      "otherRank": 11,
+      "seedBase": 20261119,
+      "slots": {
+        "A": 2020989066,
+        "B": 1458038047
+      },
+      "repeat": 0
+    }
+  ],
+  "sourceFrames": "8 physical seat/seed groups, each exactly 3 native arms (control, single owner-visible active attack-funded Stadium, repeated control) = 24 attempted bounded games",
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "policyRules": {
+    "source": "simulation/twinleaf/agent7-funded-stadium-attack-planner.cjs",
+    "type": "actor-visible printed attack payability delta",
+    "when": "unmodified native bot proposes Pass on a genuine owner turn",
+    "positiveOnly": "one held Stadium known to modify Lightning attack cost and turns a >=80 printed damage Active attack from unpayable under modeled current Stadium to payable under replacement",
+    "selectedActionsPerGame": 1,
+    "supportedStadiumCostModifiers": [
+      "Wondrous Labyrinth Prism Star",
+      "Thunder Mountain Prism Star"
+    ],
+    "twoSeatSymmetry": true,
+    "hiddenOpponentInformation": false,
+    "stillUnverified": "negative effect of replacing Stadium, other attack cost modifiers, opponent damage immunity, tempo and all enemy continuations"
+  },
+  "admissionChecks": [
+    "identical complete initial physical deal in every A/B/A group and registered exact seed identity",
+    "bit-for-bit repeated control root ledger parity",
+    "genuine typed Store acceptance and new public Stadium custody for each actually selected action",
+    "first native action divergence is the selected physically owned paper-differently-named Stadium, no unobserved earlier changes",
+    "original opponent native actual response preserved",
+    "no completed official paper games or broader matchup win-rate claims"
+  ],
+  "noDrawnRootSelection": true,
+  "noWinRateQualifiedGames": 0
+}
