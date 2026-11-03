@@ -73,6 +73,29 @@ function pairedPhysical(a,b) {
   };
 }
 
+/**
+ * @param {object[]} baseline Native post-choice public roots
+ * @param {object[]} candidate Native post-choice public roots
+ */
+function firstNativeRootDifference(baseline,candidate) {
+  const n=Math.min(baseline.length,candidate.length);
+  let i=0;
+  while(i<n&&JSON.stringify(baseline[i])===JSON.stringify(candidate[i]))i++;
+  if(i===n&&baseline.length===candidate.length)return null;
+  /** @param {object|undefined} row */
+  const compact=row=>row?{
+    sourceSlot:row.playerSlot??null,
+    globalTurn:row.turnBefore??null,
+    ordinal:row.actionOrdinal??null,
+    action:row.action??null,
+    card:row.card??null,
+    attack:row.attack??null,
+    declaredTarget:row.target??null
+  }:null;
+  return {rootIndex:i,control:compact(baseline[i]),
+    alternative:compact(candidate[i])};
+}
+
 /** @param {object} x Parsed native run output */
 function inspect(x) {
   assert.equal(x.schema, 'agent10-rank11-heldout-headway-4seed-v1');
@@ -97,8 +120,12 @@ function inspect(x) {
         'Within-context exact physical pairing failed for '+tr.id+' '+name);
       factors[name] = examineSource(row,sourceSeat);
     }
+    const rootDifferenceFromControl=Object.fromEntries(names.map(name=>[
+      name,firstNativeRootDifference(control.rootActionLedger??[],
+        x.rawFactors[name].rows[i].rootActionLedger??[])
+    ]));
     result.push({id:tr.id,sourceSeed:tr.seed,sourceSeat,
-      candidateId:tr.candidateId,factors});
+      candidateId:tr.candidateId,factors,rootDifferenceFromControl});
   }
   for(let i=0;i<registration.trialRows.length;i+=2) {
     for(const factor of names) {
@@ -139,7 +166,8 @@ function inspect(x) {
     allCrossCandidateSourcePaired:perfectCrossCandidate,
     dispositions,
     keyFreshSource:{id:target.id,sourceSeed:target.sourceSeed,
-      sourceSeat:target.sourceSeat,factors:target.factors},
+      sourceSeat:target.sourceSeat,factors:target.factors,
+      rootDifferenceFromControl:target.rootDifferenceFromControl},
     crossCandidate,
     allContextFirstClaws:result.map(r => ({
       id:r.id,sourceSeat:r.sourceSeat,
@@ -158,4 +186,4 @@ if(require.main===module) {
   const report=inspect(x);
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
-module.exports={VERSION,examineSource,pairedPhysical,inspect};
+module.exports={VERSION,examineSource,pairedPhysical,firstNativeRootDifference,inspect};
