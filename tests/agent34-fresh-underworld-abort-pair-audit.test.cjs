@@ -18,7 +18,8 @@ function fixture(){
       rank:1,repeat:Math.floor(i%8/2),candidateSlot,candidateId,seed:100+i};
     const row={trial,sourceDealFingerprint:hash('source'+i),
       fullPhysicalDealFingerprint:hash('full'+i),actualStarterSeat:0,
-      finished:true,winner:0};
+      rootActionLedger:[],rootActionCount:0,
+      rootActionLedgerSha256:hash('[]'),finished:true,winner:0};
     control.push({...row});treatment.push({...row});
     pairs.push({trialId:trial.id,fullySettledSourceEffects:0});
   }
@@ -31,12 +32,15 @@ function fixture(){
 
 function makeAbort(archive,index){
   const row=archive.treatment.rows[index];
-  const roots=[{action:'PassTurnAction',turnBefore:1,playerSlot:0}];
   const sourceSeat=row.trial.candidateSlot==='A'?1:0;
+  const roots=[1,3,5].flatMap(turnBefore=>[
+    {action:'UseAbilityAction',ability:'Underworld Door',playerSlot:sourceSeat,turnBefore},
+    {action:'ResolvePromptAction',playerSlot:sourceSeat,turnBefore}
+  ]);
   archive.treatment.rows[index]={trial:row.trial,status:'engine-error',
     nativeAbortEvidence:{schema:'headless-native-abort-public-v1',
       sourceDealFingerprint:{seat:sourceSeat,digestSha256:row.sourceDealFingerprint},
-      rootActionLedger:roots,rootActionCount:1,actionOrdinal:1,
+      rootActionLedger:roots,rootActionCount:6,actionOrdinal:6,
       rootActionLedgerSha256:hash(JSON.stringify(roots)),
       failureStage:'strict-prompt-validation',pendingPrompt:'AttachEnergyPrompt'}};
 }
@@ -45,6 +49,7 @@ test('all 16 complete registered control/treatment physical pairs certify',()=>{
   const r=auditFreshUnderworldArchive(fixture());
   assert.equal(r.status,'ARCHIVE_STRICT_PAIR_GATE_PASSED');
   assert.equal(r.totals.verifiedOriginalSourcePairs,16);
+  assert.equal(r.totals.authenticatedOriginalSourceUnderworldRoots,0);
   assert.equal(r.totals.strictFullPairMatches,16);
   assert.equal(r.totals.competitivelyQualifiedGames,0);
 });
@@ -59,6 +64,8 @@ test('one authentic root-ledger abort only restores source pairing',()=>{
   assert.equal(r.totals.strictFullPairMatches,15);
   assert.equal(r.totals.sourceOnlyAbortMatches,1);
   assert.equal(r.totals.sourceEffectsInAbortedRows,2);
+  assert.equal(r.totals.authenticatedOriginalSourceUnderworldRoots,3);
+  assert.equal(r.totals.nativeErrorAfterSourceUnderworldRoot,1);
   assert.equal(r.rows[8].firstPlayerBothVerified,false);
   assert.equal(r.rows[8].fullPhysicalPairVerified,false);
 });
