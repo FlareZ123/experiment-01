@@ -1,0 +1,54 @@
+{
+  "schema": "agent22-rank5-genesect-physical-dce-payment-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T04:14:20Z",
+  "researchType": "read-only actual original Store physical custody; historical selected matched deals; no independent sample",
+  "sourcePrinting": "Yamato Nakano original rank5 Mew/Genesect",
+  "rank5OriginalPrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "pinnedEngine": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "pinnedJointProfileBlob": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "pinnedSourceRosterBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedRunnerBlob": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3062107528,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 3062107528,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "registeredFrameName": "agent22-rank5-same-code-option-shape-transport-v1-common-physical-frame",
+  "expectedNativeAttempts": 2,
+  "preObservedOnlySourceDeal": {
+    "sha256": "d22b760a106875c5c27b5d7d03807ddef2bb8793dd3ac92599e6f6d13b04f485",
+    "actualSourceSeat": 0,
+    "actualStarterSeat": 0,
+    "historicalReferenceRun": 41575101335,
+    "historicalRootLedgerSha256": {
+      "5:1:B:champion-reference": "e22f49d8ee106ed598c33571e83744bd8b4625843b5d1c690651b8b4cfe07425",
+      "5:1:B:new-moon-lockbreaker-v1": "cc709f12c2c230bd7ef7710db5146022526f9582f67d6d76acdc986b1b43027f"
+    }
+  },
+  "paymentEvidenceRequirements": [
+    "genuine Store accepted original source RetreatAction from Genesect V with exactly one original physical Double Colorless Energy",
+    "original DCE card object appears in owner's physical discard after Store resolution",
+    "the exact DCE physical object disappears from active and Bench Energy/attachment indexes",
+    "original Mew VMAX card object becomes Active, original Genesect V appears Benched",
+    "native retreat quota consumed for this turn",
+    "observer patch restores original Store dispatch and reproduces prior action ledger SHA256 for both cases"
+  ],
+  "sourcePolicyOptions": "unchanged selected joint92; observer is detached and never supplied to actor",
+  "paperRuleAuditQualified": false,
+  "opponentStrategicCompetenceQualified": false,
+  "paperClockQualified": false,
+  "competitiveQualifiedGames": 0
+}
