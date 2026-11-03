@@ -16,7 +16,7 @@ const {secretBoxPaymentNegative}=
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 
-const VERSION='agent4-rank8-retrospective-source-vip-box-v11-cost-contrast-v1';
+const VERSION='agent4-rank8-retrospective-source-vip-box-v11-physical-custody-v2';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
 /** @param {unknown} item */
@@ -40,7 +40,8 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
   assert.equal(typeof descriptor?.value,'function');
   const audit={liveStores:0,sourceOwnedPrompts:0,otherPrompts:0,
     sourceAccepted:0,sourceRejected:0,
-    paperInvalidNativeAccepted:0,observations:[]};
+    paperInvalidNativeAccepted:0,paidPhysicalThreeCardReceipts:0,
+    unverifiedPhysicalCustody:0,observations:[]};
   let live=null;
   function dispatch(action,...args){
     if(!live&&action?.constructor?.name==='AddPlayerAction'){
@@ -57,16 +58,33 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
     const owner=this.state.players.find(p=>p.id===prompt.playerId);
     const sourceOwned=owner===this.state.players[sourceSeat];
     const reason=secretBoxPaymentNegative(prompt,action.result,owner);
+    const selected=Array.isArray(action.result)?action.result:[];
+    const beforeHand=[...(owner?.hand?.cards??[])];
+    const beforeDiscard=new Set(owner?.discard?.cards??[]);
     let thrown=null,result;
     try {result=descriptor.value.call(this,action,...args);}
     catch(error){thrown=error;}
     const accepted=thrown===null&&prompt.result!==undefined;
+    const afterHand=new Set(owner?.hand?.cards??[]);
+    const afterDiscard=new Set(owner?.discard?.cards??[]);
+    const paidPhysicalCards=selected.filter(card=>
+      beforeHand.includes(card)&&!beforeDiscard.has(card)&&
+      !afterHand.has(card)&&afterDiscard.has(card)).length;
+    const physicalThreeCardCustody=accepted&&reason===null&&
+      selected.length===3&&paidPhysicalCards===3;
     audit[sourceOwned?'sourceOwnedPrompts':'otherPrompts']++;
     if(sourceOwned){
       if(accepted)audit.sourceAccepted++;else audit.sourceRejected++;
       if(accepted&&reason!==null)audit.paperInvalidNativeAccepted++;
+      if(physicalThreeCardCustody)audit.paidPhysicalThreeCardReceipts++;
+      else audit.unverifiedPhysicalCustody++;
     }
-    audit.observations.push({sourceOwned,selectedCount:
+    audit.observations.push({sourceOwned,
+      handCountBefore:beforeHand.length,handCountAfter:afterHand.size,
+      discardCountBefore:beforeDiscard.size,discardCountAfter:afterDiscard.size,
+      paidPhysicalCards,
+      physicalCustodyStatus:physicalThreeCardCustody?
+        'PAID_THREE_PHYSICAL_CARDS':'UNVERIFIED',selectedCount:
       Array.isArray(action.result)?action.result.length:null,
       physicalPaymentValid:reason===null,paperNegativeReason:reason,
       nativeAccepted:accepted,
@@ -219,6 +237,10 @@ function run(){
       1:rows.filter(x=>x.sourceSeat===1).length},
     paperInvalidOriginalSourcePaymentsAccepted:rows.reduce((n,r)=>
       n+(r.control.rawPaymentAudit?.paperInvalidNativeAccepted??0),0),
+    originalSourcePhysicalThreeCardReceipts:rows.reduce((n,r)=>
+      n+(r.control.rawPaymentAudit?.paidPhysicalThreeCardReceipts??0),0),
+    guardedSourcePhysicalThreeCardReceipts:rows.reduce((n,r)=>
+      n+(r.treatment.rawPaymentAudit?.paidPhysicalThreeCardReceipts??0),0),
     v11VetoedSourceOrOtherPayments:rows.reduce((n,r)=>
       n+(r.treatment.paperAudit?.vetoedBeforeDispatch??0),0),
     rows,competitiveQualifiedGames:0,
