@@ -33,6 +33,8 @@ jobs:
         run: npm run compile
       - name: Fingerprint original FLF69 Mega Charizard exact-print native ambiguity
         run: node --test tests/agent50-agent5-flf69-identity-probe.native.test.cjs
+      - name: Fail closed on FLF69 imported native attack semantics until paper hook installed
+        run: node --test tests/agent5-flf69-resolver-paper-custody.native.test.cjs
       - name: Prove exact FLF69 Wild Blaze owner deck effect against duplicate native implementation
         run: node --test tests/agent5-flf69-wild-blaze-native.test.cjs
       - name: Census duplicate native implementations among 29 original sixty prints and fixed fifth candidate
