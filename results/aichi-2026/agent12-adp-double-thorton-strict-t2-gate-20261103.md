@@ -51,3 +51,20 @@ The alternate T1 Thorton bridge can broaden access beyond starting ADP, but **a 
 Next decisive experiment: on identical original-source physical deals, trace the selected owner T1 Thorton/GX root, T2 returned Supporter access, VSTAR search/evolution, Basic attachment, copy payload in discard, complete opponent response, and veto causes. Include actual rank6 Energy removal and rank8 Temple cases, and compare with the already registered direct ADP/Tag Call-Switch paths. Preserve failure/root denominators and frozen profile identity before assessing candidate strength.
 
 **Field status:** 29/32 original sixties authenticated, ranks 23/25/28 missing, zero competitively qualified games, no selected strongest fixed 60 and no demonstrated 99.5% win rate.
+
+
+## Exact registered-deck extension: the one VS Seeker recovers the T1 Thorton
+
+The v2 fixed 60 contains **VS Seeker XY4 109 ×1**. After T1 Thorton resolves and is discarded, a T2 VS Seeker can return it to hand, provided Items remain playable. This is a legitimate second route to the *same* T2 Supporter and does not require two naturally held Thorton copies. The identical opening, triple-target Compressor, DDE, natural-draw, six-Prize and VSTAR/Basic Energy assumptions remain. On T2 the Supporter access predicate changes to **at least two total Thorton seen OR at least one Thorton and the singleton VS Seeker seen** among the first nine cards, while at least one Thorton is required by T1.
+
+The manifest-locked Python enumerator now distinguishes VS Seeker (one copy) from the other 29 cards. Its new disjoint physical-card bucket sequence is `[ADP2, RegV3, otherBasics2, DDE4, Compressor4, Thorton4, VSSeeker1, VSTAR3, BasicEnergy7, MCharizard1, other29]`. When T2 Supporter access is the **only** missing category, the single T2 draw may be a Thorton *or* VS Seeker, and we count both physical target groups without double counting. All cases retain the 43-card post-Compressor T2 draw deck.
+
+| Identical strict physical T1 setup and T2 target | Probability conditional on Basic-valid seven |
+| --- | ---: |
+| T2 second physical Thorton only (previous result) | **0.050067729202%** |
+| T2 second Thorton **or VS Seeker** recovering the spent T1 Thorton | **0.075817606841%** |
+| Absolute contribution from the existing singleton VS Seeker | **+0.025749877639 percentage points** |
+
+With VS Seeker permitted, the exact numerator is `8,163,343,558,830,768` on the same denominator `10,767,081,551,322,387,200`; relative to the strict second-Thorton route this is **1.514300889×**. Conditional on the T1 triple-target setup, the more inclusive direct-hand T2 completion fraction is **2.661285205939%**. A separately seeded physical 1,000,000-shuffle check (seed `7115005`) obtained 601,407 Basic-valid openings, 17,090 strict T1 opportunities, 289 second-Thorton completions and **453 completions with VS Seeker**, i.e. an empirical **0.07532337%** among valid starts against exact **0.07581761%**.
+
+This demonstrates a material native *retrieval channel* within the unchanged deck, while preserving the very low no-extra-search T2 conversion rate. It does not account for Item lock on VS Seeker, Tool/Energy denial, T2 VSTAR tutors or active-spot survival. No deck alteration is recommended from these isolated probabilities.
