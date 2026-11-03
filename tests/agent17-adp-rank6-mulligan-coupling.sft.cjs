@@ -195,15 +195,79 @@ function jointPhysicalOpportunity(removerCopies, maxBonus) {
   return { lower, upper: lower + tail, tail };
 }
 
+// Non-ADP Basic starts can use Tag Call to obtain ADP and Guzma & Hala,
+// then Switch ADP Active after Guzma & Hala searches Double Dragon Energy.
+const bridgeGroups = [
+  adp, otherBasic, tag, count('sv1-194'), hala, dde,
+  60 - (adp + otherBasic + tag + count('sv1-194') + hala + dde)
+];
+assert.deepEqual(bridgeGroups, [2, 5, 4, 2, 3, 4, 40]);
+const bridgeStates = new Map();
+allocations(bridgeGroups, 7, (initial, openingWays) => {
+  if (initial[0] || !initial[1]) return;
+  const remaining = bridgeGroups.map((number, i) => number - initial[i]);
+  allocations(remaining, 6, (prizes, prizeWays) => {
+    if ([0, 4, 5].some((i) => bridgeGroups[i] - prizes[i] === 0)) return;
+    const heldTag = Boolean(initial[2]);
+    const heldSwitch = Boolean(initial[3]);
+    const tagInDeck = remaining[2] - prizes[2];
+    const switchInDeck = remaining[3] - prizes[3];
+    const key = [heldTag ? 1 : 0, heldSwitch ? 1 : 0, tagInDeck, switchInDeck].join(':');
+    bridgeStates.set(key, (bridgeStates.get(key) || 0n) + openingWays * prizeWays);
+  });
+});
+assert.equal(bridgeStates.size, 45);
+const bridgeTotal = candidateValidSeven * choose(53, 6);
+
+/** @param {number} bonus @returns {number} */
+function bridgePhysicalRoute(bonus) {
+  const n = bonus + 1;
+  const denominator = Number(choose(47, n));
+  /** @param {number} countRemaining @returns {number} */
+  function notDrawn(countRemaining) {
+    return Number(choose(47 - countRemaining, n)) / denominator;
+  }
+  let weightedProbability = 0;
+  for (const [key, ways] of bridgeStates) {
+    const [heldTag, heldSwitch, tagInDeck, switchInDeck] = key.split(':').map(Number);
+    let chance;
+    if (heldTag && heldSwitch) chance = 1;
+    else if (heldTag) chance = 1 - notDrawn(switchInDeck);
+    else if (heldSwitch) chance = 1 - notDrawn(tagInDeck);
+    else {
+      chance = 1 - notDrawn(tagInDeck) - notDrawn(switchInDeck) +
+        notDrawn(tagInDeck + switchInDeck);
+    }
+    weightedProbability += Number(ways) * chance;
+  }
+  return weightedProbability / Number(bridgeTotal);
+}
+
+/** @param {number} maxBonus @returns {{lower:number,upper:number,tail:number}} */
+function combinedCandidateAccess(maxBonus) {
+  let lower = 0;
+  for (let d = 0; d <= maxBonus; d += 1) {
+    lower += bonusMass(d, 'candidate') *
+      (candidatePhysicalRoute(d) + bridgePhysicalRoute(d));
+  }
+  const tail = omittedTail(maxBonus, 'candidate');
+  return { lower, upper: lower + tail, tail };
+}
+
 assert.ok(Math.abs(qCandidate - 0.39912045076768693) < 1e-14);
 assert.ok(Math.abs(qSource - 0.6005003742553344) < 1e-14);
 assert.ok(Math.abs(candidatePhysicalRoute(0) - 0.289936530125) < 2e-12);
 assert.ok(Math.abs(candidatePhysicalRoute(1) - 0.30655579098) < 2e-10);
 assert.ok(Math.abs(candidatePhysicalRoute(2) - 0.31991716256) < 2e-10);
+assert.ok(Math.abs(bridgePhysicalRoute(0) - 0.05673530423352952) < 2e-12);
+assert.ok(Math.abs(bridgePhysicalRoute(1) - 0.07176536843977568) < 2e-10);
+assert.ok(Math.abs(bridgePhysicalRoute(2) - 0.08783971026506839) < 2e-10);
 assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0) - 0.7198924574568) < 2e-12);
 assert.ok(Math.abs(sourceRemoverSeenBySecondTurn(0, 4) - 0.4572047432473605) < 2e-12);
 const candidateBounds = bounds('candidate', 20);
 const sourceBounds = bounds('source', 20);
+const combinedAccessBounds = combinedCandidateAccess(30);
+assert.ok(combinedAccessBounds.lower > 0.381149 && combinedAccessBounds.upper < 0.381151);
 const jointNoCost = jointPhysicalOpportunity(4, 20);
 const jointAllRemoval = jointPhysicalOpportunity(8, 20);
 let costlessBoundLower = 0;
@@ -239,6 +303,12 @@ console.log(JSON.stringify({
   status: 'PASS',
   candidateIdentity: candidate.canonicalCardsSha256,
   baselineCandidateT1RoutePercent: 100 * candidatePhysicalRoute(0),
+  baselineTagCallSwitchBridgePercent: 100 * bridgePhysicalRoute(0),
+  basicValidTwoRouteNoBonusUnionPercent:
+    100 * (candidatePhysicalRoute(0) + bridgePhysicalRoute(0)),
+  basicValidTwoRouteWithAllMulliganBonusPercentBounds: [
+    100 * combinedAccessBounds.lower, 100 * combinedAccessBounds.upper
+  ],
   candidateBonusChancePercent: 100 * pCandidateBonus,
   candidateWithAllOptionalMulliganBonusPercentBounds: [
     100 * candidateBounds.lower, 100 * candidateBounds.upper
