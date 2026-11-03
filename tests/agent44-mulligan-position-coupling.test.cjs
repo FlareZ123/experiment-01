@@ -4,7 +4,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {
-  combinations, auditBasicOpeningAsymmetry, benchmarkMasks
+  combinations, auditBasicOpeningAsymmetry,
+  auditRepeatedBasicOpeningAsymmetry, benchmarkMasks
 } = require('../scripts/agent44-mulligan-position-coupling.cjs');
 
 /** @param {number} n @param {number} k @returns {number[][]} */
@@ -73,4 +74,22 @@ test('fully nested Basic masks give attainable minimum for 14 versus 17',()=>{
     String(combinations(46,7)-combinations(43,7)));
   assert.ok(Math.abs(result.discordantMulliganProbability -
     0.05515324790140995)<1e-14);
+});
+
+test('independent repeated common rounds have exact count-disagreement rate',()=>{
+  const masks=benchmarkMasks(path.resolve(__dirname,'..'));
+  const original=auditRepeatedBasicOpeningAsymmetry(
+    masks.reference,masks.newMoon);
+  assert.equal(original.countDisagreementNumerator,'40784914');
+  assert.equal(original.countDisagreementDenominator,'363724980');
+  assert.ok(Math.abs(original.countDisagreementProbability-
+    0.11213118769021584)<1e-14);
+  const nested=auditRepeatedBasicOpeningAsymmetry(
+    Array.from({length:60},(_,i)=>i<14),
+    Array.from({length:60},(_,i)=>i<17));
+  assert.equal(nested.countDisagreementNumerator,'21300566');
+  assert.equal(nested.countDisagreementDenominator,'353982806');
+  assert.ok(Math.abs(nested.countDisagreementProbability-
+    0.06017401308469203)<1e-14);
+  assert.equal(original.nativeSetupCertified,false);
 });
