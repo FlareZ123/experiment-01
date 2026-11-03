@@ -50,7 +50,8 @@ test('synthetic malformed deck and duplicated source rank fail closed',()=>{
 test('printed Tool Jammer alone is excluded from Benched Tool counters',()=>{
   const source=JSON.parse(JSON.stringify(field.decks.find(d=>d.rank===6)));
   source.cards=source.cards.filter(c=>!['Faba','Megaton Blower'].includes(c.name));
-  source.cards.find(c=>c.name==='Iron Thorns ex').count+=2;
+  source.cards.find(c=>c.name==='Guzma').count+=1;
+  source.cards.find(c=>c.name==='Team Flare Grunt').count+=1;
   const result=toolCounterFieldCensus({decks:[source]});
   assert.equal(result.directBenchedToolCounterRanks,0);
   assert.equal(result.activeOnlyToolJammerRanks[0],6);
