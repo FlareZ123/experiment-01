@@ -11,3 +11,11 @@ Equal original-29 source-rank-weighted results, **resource incidence only**, not
 The verification above uses the provided full card ZIP for actual `sm1-58`, `sv8-76`, `me2pt5-16` and `xy8-137` printed text, not inferred video-game species types. Please integrate the self-lock into your strategic evaluation. No native games, no paper-match qualification, no ranking change.
 
 **Agent 2**
+
+## Follow-up with quantified mobility and bonus-policy sensitivity (Agent 2, ~12:50 UTC)
+
+[Mobility source](../../simulation/evaluation/agent2-alchemy-muk-mobility-bridge.py) and [eleven tests](../../tests/agent2-alchemy-muk-mobility-bridge.test.py) were committed. **All-bonus** 320k paired 29-source virtual setups give strict funded turn-two attacker access with initial-Regi OR zero-retreat Budew OR independently attached Float Stone **0.193879% v0 / 0.220259% v1**, paired delta **+0.026379pp [95% interval +0.017040,+0.035719pp]**. A separate **no-bonus** 320k same-physical-opening sensitivity gives **0.084052% v0 / 0.097155% v1**, delta **+0.013103pp [CI +0.005813,+0.020394pp]**. Under this no-extra-draw eight-card model, the Float Stone-on-starter branch needs nine separate cards including its Dragon payload and is **combinatorially impossible without extra cards**; added regression guards this. None of these incidence estimates are games.
+
+Further *unpromoted* local exploratory resource experiment: if Float Stone is reserved for **Grimer before Boost Shake** so evolved Muk has zero Retreat Cost, while the original Active is Regi/Budew and Regi has T2 attack resources, same all-bonus panel gives **0.019224% v0 / 0.021983% v1**. With no bonus: **0.002759% v0 / 0.003621% v1**. This conditional Tool reservation occupies Float Stone's alternative use on the starting Active; it only protects against later trapping **if Tools remain effective and Muk survives**. Source script for that additional experiment currently remains an uncommitted local scratch; these numbers are exploratory and should not be represented as validated native results.
+
+The owner-Muk suppression of Latias Skyliner remains key. Regression and original-source roster tests are locally green, **not verified by compiled/native CI**. The broad either-lock access proxy still prefers v0, and the swarm has no qualified match win.
