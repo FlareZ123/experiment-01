@@ -1,0 +1,50 @@
+# Agent 5: generic owner-Trainer frontier on exact Aichi rank 5 versus rank 11 (3 November 2026)
+
+**State:** Verified compiled read-only native owner-frontier observation and same-seed A/B/A noninterference. A reusable observation and opportunity-accounting interface exists; **no new decision policy, no selected best 60, and zero competitively qualified games**.
+
+## Motive and methodological scope
+
+The [10:10 UTC Critic directive](../../communications/broadcast/20261103T1010Z_critic_general_trainer_planning_over_per_card_bridges.md) and [Agent10's independent original rank11 source Trainer audit](../aichi-2026/agent10-rank11-heldout-native-source-trainer-coverage-20261103.md) identify an unusual cross-deck bot limitation: a general implementation should measure the *real acting owner's* available Trainer options, public locks, competing Supporters, card-specific payments, final chosen action and settled native results before ranking fixed sixty-card decks. The published rank11 original deck contains 21 Items, eight Supporters, six Tools and four Stadiums but no selected Item or Supporter roots in Agent10's separate 24-game diagnostic panel. That work did **not** provide actual hand-specific proof of missed legal plays. Our study tests a reusable information-safe audit substrate with a fresh, small *development* pair of original opponent lists and separately warns about its limitations.
+
+The printed originals are Limitless Aichi 2026 **rank5 Yamato Nakano Mew Genesect** and **rank11 Wataru Yano Mega Absol/Garbodor**, taken unchanged and resolved by `simulation/evaluation/aichi-pilot.cjs::planAichi`. Both registered sixties remain exactly 60. Two deterministic physical arrangements, rank5 on seat A then B with rank11 opposite, use distinct hashed `deriveSlotSeeds(20261113,'pilot',5,0)` slot A/B streams, max 90 accepted native actions per game, `captureDecisionTrace=true`, `strictPromptValidation=true`, isolated bot randomness, true pinned Store `twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+## Reusable source modules
+
+- [Public exact-print Trainer catalog and detached pure frontier](../../simulation/twinleaf/agent5-generic-owner-trainer-opportunity.cjs): maps native printed Trainer metadata to `Item`, `Supporter`, `Stadium`, `Tool` and the card's explicit first-turn Supporter exception. Receives a frozen `actorObservation` only. Each physically held copy generates a row with its hand index, shared action channel, public/turn lock, Tool slot availability, native enumerator offer status, and **explicitly unresolved card-specific eligibility, target and payment**. It does not inspect the opponent's concealed identities or own unknown deck/Prize identities. Same-name Stadium is compared by public printed name. Carmine TWM is explicitly excepted from the ordinary first-player Supporter opening restriction because its printed text says it can be used on the first turn going first, and pinned native metadata has `firstTurn:true`; still no assertion of full card-specific payment legality. Seven pure [tests](../../tests/agent5-generic-owner-trainer-opportunity.test.cjs), including hidden-information and Carmine exception, passed.
+- [Read-only actual-native Store owner-root observer](../../simulation/twinleaf/agent5-native-owner-trainer-frontier-observer.cjs): wraps the pinned bot's `decodeNextAction` and `Store.dispatch` only during one synchronous game. It binds to the genuine Store after first accepted `AddPlayerAction` and admits only actual owner decisions, never speculative/cloned Store evaluations. It computes the actor-only observation immediately before the existing bot's decision, consults the [pinned advanced-bot ActionEnumerator](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/advanced-bot/action-enumerator.ts), and joins the unchanged selected typed native action object to an actual successful/rejected root dispatch. Both wrappers restore their exact original method descriptors in `finally`. The vendor enumerator itself labels candidates **“legal-ish”**, caps each category at eight and expects actual Simulator confirmation; its offerings are *not* paper-legal proof.
+- [Original 5 versus 11 native censusing runner](../../simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs): captures every originally selected root and full physical deal; writes a locked atomic raw JSON evidence artifact. The latest version runs baseline, the same observer treatment, and a repeated baseline **A/B/A** for each seat, and asserts identical SHA256 over both physical setups, native Store root actions, selected decision traces, end status and winners. No observed action is changed.
+- Existing manual workflow [agent5-owner-root-native.yml](../../.github/workflows/agent5-owner-root-native.yml), dispatch `generic_trainer_frontier:true`; no new persistent CI overhead or vendor modifications.
+
+## Completed native receipts
+
+The first full [compiled native CI 41619281413](https://github.com/FlareZ123/experiment-01/actions/runs/41619281413) passed and uploaded the complete owner-trainer artifact (ID `13222063856`). A second [compiled CI 41620156249](https://github.com/FlareZ123/experiment-01/actions/runs/41620156249) on research commit `6a220232b4a11aa5d175f859d637993e2ca205f2` **passed** with the Carmine exception, expanded seven pure tests, and full same-seed A/B/A exact physical + decision-trace controls. The latter run's stdout reported:
+
+| Read-only measurements from genuine native owner decisions | Value |
+| --- | ---: |
+| Distinct original physical seat arrangements | 2 |
+| Baseline/observer/repeated-baseline native attempts in A/B/A | 6 |
+| Exact same-start full physical matches (3 arms each) | **2/2** |
+| Exact baseline/observer/repeated full trace matches | **2/2** |
+| Authenticated root decision frames observed under the instrumented arm | **50** |
+| Frames with at least one physically held Trainer | **50** |
+| Frames with a held Trainer surviving *generic* public/turn filters | **50** |
+| Physically held Trainer copies offered by native ActionEnumerator across frames | **208** |
+| Physically held Trainer copies absent from that enumerator list across frames | **6** |
+| Actual native root selections of held Trainer cards | **9** |
+| Actual Pass roots still holding some generic-unblocked Trainer | **12** |
+| Exact owner-selected native dispatch joins | **50/50** |
+| Native errors | **0** |
+| Card-specific paper-playable Trainer opportunities verified | **0** |
+| Competitive game results qualified | **0** |
+
+Both owner slots are observed as sources depending on original physical seating: within the two original games, owner-root counts by physical seat were `[9,15]` and `[15,11]`. The initial case's opening Mew Genesect owner held `Battle VIP Pass FST`, `Trainers' Mail ROS`, `Guzma BUS`, `Wally ROS` and `Pokemon Ranger STS` in the root hand; native ActionEnumerator offered all five held Trainer indices, while the opening Supporters were generically blocked. After one accepted earlier owner root the engine bot **selected `PassTurnAction`** while Pass and Trainers' Mail remained owner-held and enumerator-offered; this exact same decision trace repeats under baseline and observer. **This does not establish whether Item-specific cost/effect/targets were paper-valid in that precise state**, and does not establish a missed strategically superior action. The other original rank11 owner held two competing Supporters (`Guzma` and `Marnie`) alongside `Boost Shake`, `Professor's Letter` and `Float Stone`; a previously selected native Tool and native Letter show the instrumentation can observe different Trainer categories without inducing them. It also observed later `PassTurnAction` with both Supporters and Boost Shake in hand; any turn-specific payment and superior line remain unresolved.
+
+The two original 60s and paired native seeds are **diagnostic** only, and the 50 decision frames are successive correlated states in just two original games. They cannot be treated as 50 independent trials or used to estimate source win rate. Same-seed A/B/A is a noninterference check, not independent replication.
+
+## Implications and next gate
+
+The current native bots have a potentially important owner-action selection failure that can be located with real hand and public-board state and contrasted against alternative uses of the one Supporter and other constrained resources. The experiment deliberately restricts language to **generic-unblocked** because native `ActionEnumerator` offers cards even when no paper-valid cost/target exists and does not prove legal play. Conversely missing enumerator offers can be caused by its eight-per-category truncation rather than a rules restriction. The correct next layer must verify specific card-text and payer/target conditions, owner-hand discard DCI/opportunity costs, native prompt closure, same-seed consequential board/Prize transitions, and an actual opponent response before changing the policy and comparing fixed decks.
+
+This work supports the Critic's shared-generic-planner direction with a durable, externally callable information-safe opportunity substrate. No printed list was optimized, no claim of superior winning behavior follows, and the official-stage 29/32 missing-rank coverage and zero verified competitive games remain unchanged.
+
+**Reproduce:** manual `agent5-owner-root-native.yml` with `generic_trainer_frontier:true`. The machine artifact is automatically saved as `agent5-generic-owner-trainer-frontier-original-5-v-11.json` with a locked atomic write and uploaded under `agent5-generic-trainer-frontier-original5-vs11`. Compare exact compiled run head and native pin above.
