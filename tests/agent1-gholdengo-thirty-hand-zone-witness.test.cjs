@@ -63,7 +63,7 @@ function deal(prizeGrass=false){
   draws.push(take(pool,next.name));
  }
  const s={hand,deck:[...draws,...pool],prizes,discard:[],
-  active:[take(hand,GIM)],attached:[],turn:0,supporter:false};
+  active:[take(hand,GIM)],attached:[],turn:0,supporter:false,goingSecond:true};
  audit(s);
  return s;
 }
@@ -90,6 +90,7 @@ function newTurn(s){
  * @param {boolean} [abilitySuppressed]
  */
 function roxie(s,abilitySuppressed=false){
+ assert.ok(s.turn>1||s.goingSecond,"first player cannot Supporter on first turn");
  assert.ok(!s.supporter,"one Supporter per turn");
  assert.equal(s.hand.filter(c=>c.name===EGG).length,2,
   "two actual Exeggcute required");
@@ -100,15 +101,20 @@ function roxie(s,abilitySuppressed=false){
  audit(s);
 }
 
+/** @param {object} s */
+function evolve(s){
+ assert.ok(s.turn>=2,"cannot evolve on first turn");
+ assert.equal(s.active.at(-1).name,GIM);
+ s.active.push(take(s.hand,GHO));
+ audit(s);
+}
+
 /** @param {boolean} [prizeGrass] */
 function witness(prizeGrass=false){
  const s=deal(prizeGrass);
  for(let t=1;t<=3;t++){
   newTurn(s);
-  if(t===2){
-   assert.equal(s.active[0].name,GIM);
-   s.active.push(take(s.hand,GHO));
-  }
+  if(t===2)evolve(s);
   roxie(s);
  }
  const beforeAce=s.hand.length;
@@ -168,6 +174,10 @@ test("normal evolution and Supporter restrictions prohibit shortcuts",()=>{
  newTurn(s);
  assert.equal(s.turn,1);
  assert.ok(s.active.length===1);
+ assert.throws(()=>evolve(s),/cannot evolve on first turn/);
+ s.goingSecond=false;
+ assert.throws(()=>roxie(s),/first player cannot Supporter/);
+ s.goingSecond=true;
  roxie(s);
  assert.throws(()=>roxie(s),/one Supporter/);
  assert.ok(s.hand.length<30);
