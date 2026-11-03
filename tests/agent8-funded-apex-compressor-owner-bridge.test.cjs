@@ -48,5 +48,5 @@ test('owner-deck donor choice uses actual offered physical cards',()=>{
   assert.deepEqual(chooseActualOwnerDeckDonors(menu,own).map(x=>x.id),
     [3,5,4]);
   assert.throws(()=>chooseActualOwnerDeckDonors(
-    {cards:{cards:own.deck.cards}},own),/strictEqual/);
+    {cards:{cards:own.deck.cards}},own),/reference-equal/);
 });
