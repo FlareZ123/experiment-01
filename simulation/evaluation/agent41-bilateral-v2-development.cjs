@@ -1059,6 +1059,7 @@ function runDevelopment({
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
   actorRank9MegaAbsolFundingRoot=false,
+  actorActiveMegaClawPriorityRoot=false,
   actorRank9SpecialPaidRetreatSource=false,
   actorFlexiblePaidRetreatRoot=false,
   actorChargedPromotion=false,sourceFloatStoneMobility=false,
