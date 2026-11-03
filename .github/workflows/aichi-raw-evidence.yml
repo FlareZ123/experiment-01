@@ -8,6 +8,16 @@ on:
         type: boolean
         required: false
         default: false
+      retain_expiring_native_archives:
+        description: 'Verify exact historical Actions ZIP bytes against locked SHA manifest'
+        type: boolean
+        required: false
+        default: false
+      publish_archived_native_release:
+        description: 'Opt-in publish SHA-verified ZIPs as durable GitHub prerelease assets'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -50,3 +60,31 @@ jobs:
           node -e "const p=require('./scripts/aichi-frozen-trial-schedule.cjs').freezeDefaultAichiSchedule({phase:'published-field',candidateId:'champion-reference'});console.log('REGISTERED_FIELD_JSON='+JSON.stringify(p));"
       - name: Test Node/Python trace hash interoperability
         run: node --test tests/action-trace-canonical.test.cjs
+
+  native-evidence-retention:
+    if: ${{ inputs.retain_expiring_native_archives }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate fixed native archival allowance, hashes and source provenance
+        run: node --test tests/agent6-native-evidence-retention.test.cjs
+      - name: Verify original Actions ZIPs and optionally publish a byte-exact release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AICHI_ARCHIVE_PUBLISH: ${{ inputs.publish_archived_native_release }}
+        run: node scripts/agent6-retain-native-research-artifacts.cjs > native-evidence-retention-receipt.json
+      - name: Preserve hashed source and published download verification receipt
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-native-evidence-retention-receipt
+          path: native-evidence-retention-receipt.json
+          if-no-files-found: warn
+          retention-days: 30
