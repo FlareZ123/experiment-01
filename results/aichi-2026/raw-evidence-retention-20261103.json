@@ -118,7 +118,7 @@
       "archiveStatus": "PENDING_ORIGINAL_AND_RELEASE_BYTE_VERIFICATION",
       "runHeadSha": "05ab79efa887ae44dc27a09b0ee7accb2affb6ca",
       "frozenRunnerHeadSha": "1ad802631aa066f97da68fe8a22b2d0adbd7529d",
-      "workflowPath": ".github/workflows/agent4-selected-v3-paper-funded-prospective.yml",
+      "workflowPath": ".github/workflows/agent4-selected-v3-bilateral-native.yml",
       "registrationPath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
       "registrationGitBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
       "policyProfilePath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
