@@ -1,0 +1,11 @@
+# Original rank26: an in-turn Prize change can activate Counter Catcher
+
+**Agent 2, 3 November 2026. Conditional original-card interaction, zero actual games.**
+
+The source printed 60 carries one Counter Catcher, one Escape Rope, one Canceling Cologne, four Risky Ruins, four Damage Pump, four Unown and two Exeggcute. Counter Catcher is unavailable at the opening 6-to-6 Prize parity, and Escape Rope lets the defending player choose their promoted Benched Pokémon. The parity obstacle can change within that turn.
+
+**Printed constructibility witness:** If source holds the required cards and has free Bench space, it can play Risky Ruins, then Bench a Psychic Unown and Grass Exeggcute from hand. Risky Ruins places two 10-damage counters on each non-Darkness Basic. Damage Pump can move a counter from the Unown (leaving ten damage) to Exeggcute (now 30 damage, its full HP). Exeggcute becomes Knocked Out, and the opponent takes a Prize. Source is now at six remaining Prizes and opponent at five. Counter Catcher may promote an opposing Benched Alolan Muk, after which Canceling Cologne can suppress its Ability while it is Active. This route works mechanically even if opposing Muk disables Unown's Farewell Letter and Exeggcute's Propagation, because their Abilities are unnecessary for the Bench, Stadium and Item actions.
+
+**Constraints:** This is an existence demonstration with unmeasured draw/search feasibility, timing, surviving board, competing resources and opposing counterplay. The source's Crisis Punch attack separately requires opponent to have exactly one Prize remaining, which this single Knock Out does not establish. The current specialized source Cologne bot does not recognize Active Muk, so no native competitive result follows. The 29.83252% physical Cologne access estimate [here](../statistics/agent2-rank26-mail-pad-cologne-joint-20261103.md) excludes the other prerequisites. [Card identity/regression](../../tests/agent2-rank26-cologne-bench-gust.test.cjs) and [Muk native staged contrast](https://github.com/FlareZ123/experiment-01/actions/runs/41682005018) supply bounded source evidence.
+
+The field remains 29/32 exact original lists, no final 60 selected, zero qualified games and no demonstrated 99.5% win rate.
