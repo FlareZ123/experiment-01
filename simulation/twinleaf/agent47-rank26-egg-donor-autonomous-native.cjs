@@ -37,7 +37,10 @@ function runSeat(seat) {
         withEggDonorRecovery(seat,() => {
           const source = f.own;
           const opponent = f.opponent;
-          const actor = {client:{id:source.id}};
+          const actor = Object.create(SimpleTacticsAi.prototype);
+          actor.client = {id:source.id};
+          actor.tactics = [];
+          actor.resolvers = [];
           const actions = [], prizeReceipts = [];
           for(let i=0;i<64;i++) {
             if(opponent.getPrizeLeft()===1) break;
@@ -60,7 +63,15 @@ function runSeat(seat) {
               actor,f.state);
             const type = action?.constructor.name;
             assert.ok(['PlayCardAction','ResolvePromptAction','UseAbilityAction']
-              .includes(type),'Unmanaged source action: '+type);
+              .includes(type),'Unmanaged source action: '+type+' '+JSON.stringify({
+                opponentPrizes:opponent.getPrizeLeft(),
+                pending:pending?.constructor.name??null,
+                sourceHand:source.hand.cards.map(c=>c.name),
+                sourceDiscardEggs:source.discard.cards.filter(c=>
+                  c.name==='Exeggcute').length,
+                sourceBench:source.bench.map(slot=>({name:slot.getPokemonCard()?.name,
+                  damage:slot.damage}))
+              }));
             const held = type === 'PlayCardAction'
               ? source.hand.cards[action.handIndex]?.name ?? null : null;
             const activeDiscard = source.discard.cards.filter(c =>
