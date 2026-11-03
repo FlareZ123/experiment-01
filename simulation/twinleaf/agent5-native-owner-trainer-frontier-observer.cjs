@@ -30,11 +30,21 @@ const VERSION='agent5-owner-turn-trainer-native-readonly-v2-k0-vip';
 function withNativeOwnerTrainerFrontier(work,deps){
   assert.equal(typeof work,'function');
   const {Store,SimpleTacticsAi,GamePhase,ActionEnumerator,
-    TrainerCard,TrainerType,allCards,PlayCardAction}=deps;
+    TrainerCard,TrainerType,allCards,PlayCardAction,
+    PokemonCard,Stage}=deps;
   const seats=deps.seats??[0,1],maxRoots=deps.maxRoots??72;
   assert.ok(seats.length>0&&seats.every(s=>s===0||s===1));
   assert.ok(Number.isInteger(maxRoots)&&maxRoots>0);
   const catalog=trainerPrintCatalog(allCards,{TrainerCard,TrainerType});
+  const basics=PokemonCard&&Stage?new Set(allCards.filter(card=>
+    card instanceof PokemonCard&&card.stage===Stage.BASIC)
+    .map(card=>card.fullName)):null;
+  if(deps.ownRegisteredSixties){
+    assert.ok(Array.isArray(deps.ownRegisteredSixties)&&
+      deps.ownRegisteredSixties.length===2&&
+      deps.ownRegisteredSixties.every(deck=>deck.length===60));
+    assert.ok(basics instanceof Set);
+  }
   const protoStore=Store.prototype,protoAi=SimpleTacticsAi.prototype;
   const priorStore=Object.getOwnPropertyDescriptor(protoStore,'dispatch');
   const priorAi=Object.getOwnPropertyDescriptor(protoAi,'decodeNextAction');
