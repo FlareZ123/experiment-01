@@ -61,10 +61,19 @@ function source13Buckets(source) {
  * least one Basic. Enumerates multinomial category take counts with BigInt
  * binomial weights. These are co-occurrences, not executable turn plans.
  * @param {{cards:Array<{name:string,count:number}>}} source
+ * @param {{compressorCopies?:number}} [options] Hypothetical exchange with an
+ *   unspecified non-Basic, non-resource 'other' slot. This is only a static
+ *   opening-access sensitivity, never a verified card swap or deck strength.
  * @returns {{counts:Record<string,bigint>,conditionalRates:Record<string,number>}}
  */
-function exactOpeningConjunctions(source) {
+function exactOpeningConjunctions(source, options = {}) {
   const totals = source13Buckets(source);
+  if (options.compressorCopies !== undefined) {
+    const copies = options.compressorCopies;
+    assert.ok(Number.isSafeInteger(copies) && copies >= 0 && copies <= 4);
+    totals[9] += totals[2] - copies;
+    totals[2] = copies;
+  }
   const counts = Object.fromEntries([
     'all', 'basicLegal', 'regvAndVstar', 'regvVstarCompressor',
     'regvVstarQuickballDonor', 'regvVstarBothRoutes',
