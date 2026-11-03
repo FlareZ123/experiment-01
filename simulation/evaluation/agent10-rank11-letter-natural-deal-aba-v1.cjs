@@ -116,6 +116,8 @@ function run(){
         sourceDealMatchesHistoric:Boolean(game?.initialSourceDealFingerprint?.digestSha256?.startsWith(context.historicalSourceDealPrefix)),
         actualGameFinished:game?.finished===true,
         actualNativeWinner:game?.finished?game.winner:null,
+        actualNativeFinalPrizesRemaining:game?.prizesRemaining??null,
+        nativeEndReason:game?.endReason??null,
         sourceNativeAttackCount:sourceRoots.filter(x=>
           x.action==='AttackAction').length,
         sourceNativeLetterPlayCount:sourceRoots.filter(x=>
@@ -126,6 +128,11 @@ function run(){
           /Darkness Energy/.test(x.card??'')).length,
         sourceNativeAttackNames:sourceRoots.filter(x=>
           x.action==='AttackAction').map(x=>x.attack??null),
+        sourcePrizesFromSettledNativeAttacks:(game?.publicAttackTransitions??[])
+          .filter(x=>x.triggerPlayerSlot===sourceSeat)
+          .reduce((n,x)=>n+Math.max(0,
+            (x.beforePrizesRemaining?.[sourceSeat]??0)-
+            (x.settled?.prizesRemaining?.[sourceSeat]??0)),0),
         sourceSelectedRootActions:sourceRoots,
         rootActionLedgerSha:game?checksum(roots):null,
         fullRootActionLedger:roots,
