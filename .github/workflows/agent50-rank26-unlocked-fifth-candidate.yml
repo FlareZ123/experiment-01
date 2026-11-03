@@ -42,6 +42,10 @@ jobs:
         if: ${{ inputs.flf69_native_only }}
         run: |
           node -e "const a=require('node:assert/strict');const r=require('./agent5-original-native-exact-duplicate-census.json');a.equal(r.sourceOriginalDecks,29);a.equal(r.knownCandidateFlf69NativeDualCount,2);a.equal(r.competitiveQualifiedGames,0);console.log('EXACT_NATIVE_DUPLICATE_CENSUS',JSON.stringify({summary:r.counters,unmatched:r.originalUnmatchedPrintings,rows:r.duplicatePrintings.map(x=>({name:x.name,set:x.set,number:x.number,ranks:x.originalRanks,candidate:x.candidateV2,nativeCount:x.nativeCount,differentReducer:x.differingReducer,differentText:x.differingText}))}))"
+      - name: Expose strict-name unmatched exact original and candidate printing keys for alias reconciliation
+        if: ${{ inputs.flf69_native_only }}
+        run: |
+          node -e "const r=require('./agent5-original-native-exact-duplicate-census.json');console.log('UNMATCHED_NATIVE_ORIGINAL_PRINT_KEYS',JSON.stringify(r.unmatchedExactIdentity.map(x=>({name:x.name,set:x.set,number:x.number,sourceRanks:x.references.filter(y=>y.source==='aichi-original').map(y=>y.rank),candidate:x.references.some(y=>y.source==='agent5-adp-thorton-v2')}))))"
       - name: Archive all exact native duplicate fingerprints without competitive claims
         if: ${{ inputs.flf69_native_only }}
         uses: actions/upload-artifact@v4
