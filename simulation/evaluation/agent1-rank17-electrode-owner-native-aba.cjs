@@ -182,6 +182,12 @@ function run(){
       observedPartialOneToFourLineRoots:sum('lineWithOneToFourDiscardEnergyRoots'),
       observedFullFivePlusLineRoots:sum('lineWithFivePlusDiscardEnergyRoots'),
       observedPhysicalPrerequisiteRoots:sum('physicalNecessaryRoots'),
+      observedGeneralBombRecipientRoots:sum('generalBombSourceRecipientRoots'),
+      observedGeneralBombCoPresentRoots:sum('generalBombSourceElectrodeRecipientCoPresentRoots'),
+      observedGeneralBombZeroDiscardRoots:sum('generalBombZeroDiscardRoots'),
+      observedGeneralBombPartialOneToFourRoots:sum('generalBombPartialOneToFourDiscardRoots'),
+      observedGeneralBombFullFivePlusRoots:sum('generalBombFullFivePlusDiscardRoots'),
+      observedGeneralBombPhysicalPrerequisiteRoots:sum('generalBombPhysicallyNecessaryRoots'),
       selectedNativeAbilityRoots:sum('sourceAbilityRootsActuallySelected'),
       competitiveQualifiedGames:0,
       performanceInference:'NONE: read-only repeated roots and native-unqualified play'
