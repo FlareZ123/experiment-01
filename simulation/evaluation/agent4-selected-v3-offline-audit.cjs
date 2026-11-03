@@ -11,12 +11,17 @@ const VERSION='agent4-selected-v3-independent-offline-native-attestation-v1';
  * 48-attempt source artifact. No native Store or bot action is selected.
  *
  * @param {object} root Selected physical owner-paper frontier audit.
- * @returns {{decisionFrames:number,heldCopies:number,necessaryFailures:number,
- *   unresolvedCopies:number,blockerCounts:Record<string,number>}}
+ * @returns {{decisionFrames:number,framesWithNecessaryFailure:number,
+ *   framesWithPrintedFailure:number,passFrames:number,passWithBlockedHeldCard:number,
+ *   heldCopies:number,necessaryFailures:number,unresolvedCopies:number,
+ *   blockerCounts:Record<string,number>}}
  */
 function paperRootCensus(root){
   const out={
-    decisionFrames:0,heldCopies:0,necessaryFailures:0,unresolvedCopies:0,
+    decisionFrames:0,framesWithNecessaryFailure:0,
+    framesWithPrintedFailure:0,passFrames:0,
+    passWithBlockedHeldCard:0,
+    heldCopies:0,necessaryFailures:0,unresolvedCopies:0,
     blockerCounts:{}
   };
   if(root?.ownerPaperNecessityOptIn!==true)return out;
@@ -25,6 +30,14 @@ function paperRootCensus(root){
     const screen=observed.ownerPaperNecessity;
     assert.ok(screen&&Array.isArray(screen.rows));
     out.decisionFrames++;
+    const hasNegative=screen.provenNecessaryConditionFailures>0;
+    const hasPrinted=screen.rows.some(copy=>
+      (copy.necessaryBlockers??[]).some(b=>b.startsWith('printed-')));
+    const wasPass=observed.chosen?.action==='PassTurnAction';
+    if(hasNegative)out.framesWithNecessaryFailure++;
+    if(hasPrinted)out.framesWithPrintedFailure++;
+    if(wasPass)out.passFrames++;
+    if(wasPass&&hasNegative)out.passWithBlockedHeldCard++;
     out.heldCopies+=screen.heldTrainerCopies;
     out.necessaryFailures+=screen.provenNecessaryConditionFailures;
     out.unresolvedCopies+=screen.remainingUnresolvedCopies;
@@ -147,14 +160,18 @@ function auditRelease(archive){
     });
   }
   const paper={
-    decisionFrames:0,heldCopies:0,necessaryFailures:0,unresolvedCopies:0,
+    decisionFrames:0,framesWithNecessaryFailure:0,
+    framesWithPrintedFailure:0,passFrames:0,passWithBlockedHeldCard:0,
+    heldCopies:0,necessaryFailures:0,unresolvedCopies:0,
     blockerCounts:{}
   };
   for(const row of b.fullNative.rows){
     const census=paperRootCensus(row.actorOnlyDecisionCoverage?.
       ownerTrainerFrontierAudit);
-    for(const key of ['decisionFrames','heldCopies','necessaryFailures',
-      'unresolvedCopies'])paper[key]+=census[key];
+    for(const key of ['decisionFrames','framesWithNecessaryFailure',
+      'framesWithPrintedFailure','passFrames','passWithBlockedHeldCard',
+      'heldCopies','necessaryFailures','unresolvedCopies'])
+      paper[key]+=census[key];
     for(const [key,value] of Object.entries(census.blockerCounts))
       paper.blockerCounts[key]=(paper.blockerCounts[key]??0)+value;
   }
