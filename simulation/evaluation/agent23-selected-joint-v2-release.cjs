@@ -10,7 +10,7 @@ const {auditSourceCopiedAttacks}=
 
 const ROOT=path.resolve(__dirname,'../..');
 const MANIFEST='simulation/evaluation/agent23-selected-joint-v2-manifest.json';
-const PINNED_MANIFEST_BLOB='437012d7cd0e5a5600a102c2b3f480d7ea3c9538';
+const PINNED_MANIFEST_BLOB='8cd0c4b0734d3223d5c8c1f705f3af651f815c02';
 const OUTPUT='agent23-selected-joint-v2-native-52arm.json';
 const VIP_ENV='AGENT9_BATTLE_VIP_AFTER_PASS_DEV';
 const PAYMENT_ENV='AGENT4_NATIVE_PAYMENT_RECEIPT_DEV';
