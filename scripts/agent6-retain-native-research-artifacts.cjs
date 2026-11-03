@@ -135,6 +135,11 @@ async function verifyPublishedAsset(asset,source,token){
   assert.equal(asset.size,source.sizeBytes);
   assert.equal(asset.digest,'sha256:'+source.sha256);
   assert.equal(asset.state,'uploaded');
+  if(Number.isSafeInteger(source.releaseAssetId))
+    assert.equal(asset.id,source.releaseAssetId,
+      'Published asset identity differs from frozen original release');
+  if(source.durableUrl)
+    assert.equal(asset.browser_download_url,source.durableUrl);
   assert.equal(asset.browser_download_url,
     'https://github.com/'+archivePlan.repository+'/releases/download/'+
     RELEASE_TAG+'/'+source.assetName);
@@ -190,17 +195,50 @@ async function ensureAsset(release,token,source,bytes){
 }
 
 /**
- * Two-stage archival: first verify all source ZIPs, then draft/upload/publish.
- * The initial dry run has no release mutation. Publication is only triggered
- * by the explicitly authorized manual workflow flag.
+ * Independently re-download every release ZIP even after the historical
+ * GitHub Actions artifact has expired. This never mutates a release or
+ * retrieves original Actions archive bytes.
  *
- * @param {boolean} publish
+ * @param {string} token Authentication to resolve release and private assets.
+ * @returns {Promise<object>} Exact checked mirror receipt.
+ */
+async function verifyReleaseOnly(token){
+  const published=await existingRelease(token);
+  assert.ok(published,'Original research release does not exist');
+  assert.equal(published.draft,false);
+  assert.equal(published.tag_name,RELEASE_TAG);
+  assert.equal(published.id,archivePlan.verification.releaseId);
+  assert.ok(Array.isArray(published.assets));
+  const independentlyVerified=[];
+  for(const artifact of archivePlan.artifacts){
+    const asset=published.assets.find(a=>a.name===artifact.assetName);
+    assert.ok(asset,'Original research ZIP missing from release');
+    independentlyVerified.push(await verifyPublishedAsset(asset,artifact,token));
+  }
+  return {schema:archivePlan.schema,
+    mode:'post-expiry-independent-mirror-verification',
+    releasePublished:true,releaseTag:RELEASE_TAG,releaseUrl:published.html_url,
+    originalsNeeded:false,originalArtifactExpiryIrrelevant:true,
+    independentlyVerified,verifiedPublishedZipCount:independentlyVerified.length,
+    competitivelyQualifiedGames:0};
+}
+
+/**
+ * Two-stage archival: first verify all source ZIPs, then draft/upload/publish.
+ * Verify-only instead checks release assets by byte hash without accessing
+ * original Actions artifacts, including after their actual retention expiry.
+ *
+ * @param {boolean} publish Explicit opt-in publication.
+ * @param {boolean} verifyOnly Existing release re-download after retention.
  * @returns {Promise<object>}
  */
-async function execute(publish=false){
+async function execute(publish=false,verifyOnly=false){
   const token=process.env.GITHUB_TOKEN;
   assert.ok(typeof token==='string'&&token.length>10);
   assert.equal(process.env.GITHUB_REPOSITORY,archivePlan.repository);
+  assert.ok(!(publish&&verifyOnly),
+    'Publishing and release-only verification are exclusive operations');
+  if(verifyOnly)return verifyReleaseOnly(token);
   const originals=[];
   for(const artifact of archivePlan.artifacts){
     const bytes=await originalArtifact(artifact,token);
@@ -262,10 +300,12 @@ async function execute(publish=false){
 }
 
 if(require.main===module){
-  execute(process.env.AICHI_ARCHIVE_PUBLISH==='true').then(result=>
+  execute(process.env.AICHI_ARCHIVE_PUBLISH==='true',
+    process.env.AICHI_ARCHIVE_VERIFY_RELEASE_ONLY==='true').then(result=>
     process.stdout.write(JSON.stringify(result,null,2)+'\n'),
   error=>{process.stderr.write(String(error?.stack??error)+'\n');
     process.exitCode=1;});
 }
 
-module.exports={RELEASE_TAG,archivePlan,validatePlan,sha256,execute};
+module.exports={RELEASE_TAG,archivePlan,validatePlan,sha256,
+  verifyReleaseOnly,execute};
