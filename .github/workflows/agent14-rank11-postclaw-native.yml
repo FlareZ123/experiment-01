@@ -1,0 +1,43 @@
+name: Agent14 original rank11 post-Claw six-arm native response
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-six:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify immutable registration
+        run: node -e "require('./simulation/evaluation/agent14-original-rank11-postclaw-six-native.cjs').preflight();console.log('REGISTERED')"
+      - name: Test pure owner-response contracts
+        run: node --test tests/agent14-post-claw-response-opportunity.test.cjs tests/agent14-behind-counter-response-native.test.cjs
+      - name: Initialize frozen Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Verify vendor revision
+        run: node -e "const a=require('node:assert/strict');const cp=require('node:child_process');a.equal(cp.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute registered symmetric original-source reply control and two treatments
+        run: node simulation/evaluation/agent14-original-rank11-postclaw-six-native.cjs
+      - name: Archive all attempted native states including rejected rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-original-rank11-postclaw-six-native
+          path: agent14-original-rank11-postclaw-native-six.json
+          if-no-files-found: warn
+          retention-days: 21
