@@ -75,11 +75,22 @@ test('native analogue T46 Mew with DCE and copied attack cannot be proposed',()=
   assert.equal(attackFunding(view.ownPublic.bench[1],CATALOG),null);
 });
 
-test('fixing only the Special Energy blind spot leaves copy attack invisible',()=>{
+test('Basic-only ablation still misses ready copy and favors unfunded Max Miracle',()=>{
   const view=sourceTurn46();
   view.ownPublic.bench[1].energies=[METAL_BASIC,METAL_BASIC];
-  assert.equal(chooseHeldGuzmaMobility(view,CATALOG),null);
-  assert.equal(attackFunding(view.ownPublic.bench[1],CATALOG),null);
+  assert.equal(eligibleDamagingAttack(
+    view.ownPublic.bench[1],view.ownPublic.bench[1].attacks[0],CATALOG),
+    false);
+  assert.deepEqual(attackFunding(view.ownPublic.bench[1],CATALOG),{
+    minMissing:2,minColored:2
+  });
+  // The existing heuristic would offer a Guzma line for an entirely
+  // different, still unfunded printed Psychic attack. This is not a
+  // proof that it sees or can execute Cross Fusion Strike.
+  assert.deepEqual(chooseHeldGuzmaMobility(view,CATALOG),{
+    kind:'play-held-guzma-mobility',handIndex:0,
+    printing:'Guzma BUS',benchIndex:1,anticipatedMissing:2
+  });
 });
 
 test('fixing only the copying damage blind spot still rejects Special Energy',()=>{
