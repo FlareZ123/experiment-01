@@ -69,18 +69,18 @@ def opening_opportunities(held:np.ndarray, prized:np.ndarray,initial:np.ndarray)
     return bool(M),bool(B),bool(V),bool(MV),bool(BV),bool(MV or BV),bool(directActive)
 
 
-def two_actor_bonus_probabilities():
+def two_actor_bonus_probabilities(source_basic:int=SOURCE_BASIC):
     p_candidate=1-math.comb(60-CANDIDATE_BASIC,7)/math.comb(60,7)
-    p_source=1-math.comb(60-SOURCE_BASIC,7)/math.comb(60,7)
+    p_source=1-math.comb(60-source_basic,7)/math.comb(60,7)
     mutual_failure=(1-p_candidate)*(1-p_source)
     bonus_any=p_candidate*(1-p_source)/(1-mutual_failure)
     return p_candidate,p_source,bonus_any
 
 
-def simulate(root:Path, trials:int=300000, seed:int=SEED):
+def simulate(root:Path, trials:int=300000, seed:int=SEED, source_basic:int=SOURCE_BASIC):
     decks,v0,v1=input_decks(root)
     rng=np.random.default_rng(seed)
-    p_candidate,p_source,bonus_any=two_actor_bonus_probabilities()
+    p_candidate,p_source,bonus_any=two_actor_bonus_probabilities(source_basic)
     counts=np.zeros((7,2),dtype=np.int64)
     bonus_counts=np.zeros((7,2),dtype=np.int64)
     paired=np.zeros((7,3),dtype=np.int64)
@@ -110,12 +110,14 @@ def simulate(root:Path, trials:int=300000, seed:int=SEED):
                 bonus_paired[i,1+int(right)-int(left)]+=1
     completed=trials-censored
     def rows(values,deltas,n):
+        if n==0:
+            return None
         summary={}
         for i,key in enumerate(METRICS):
             mean=(values[i]/n).tolist()
             delta=(deltas[i,2]-deltas[i,0])/n
             d2=(deltas[i,0]+deltas[i,2])/n
-            se=math.sqrt((d2-delta*delta)/(n-1))
+            se=math.sqrt((d2-delta*delta)/(n-1)) if n>1 else 0.0
             summary[key]={"v0":mean[0],"v1":mean[1],"difference":delta,
                 "discordant":{"v0Only":int(deltas[i,0]),"v1Only":int(deltas[i,2])},
                 "paired95CI":[delta-1.959963984540054*se,delta+1.959963984540054*se]}
@@ -123,7 +125,7 @@ def simulate(root:Path, trials:int=300000, seed:int=SEED):
     return {"kind":"rank6-iron-thorns-ex-mulligan-paired-idealized-opening",
       "seat":"candidate going first/second access, not actual attack",
       "seed":seed,"attempted":trials,"censored":censored,"completed":completed,
-      "source":"rank6 original four Iron Thorns ex; no source attack modeled",
+      "source":"original rank6 four-Basic source" if source_basic==4 else "synthetic Basic-count control; no native source", "sourceBasicCount":source_basic,
       "candidateV0Hash":decks[0]["deck_identity_sha256"],
       "candidateV1Hash":decks[1]["deck_identity_sha256"],
       "mulligan":{"candidateValidSeven":p_candidate,"rank6ValidSeven":p_source,
