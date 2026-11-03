@@ -66,7 +66,7 @@ function withRank9RetreatPhysicalCustody(execute, deps = {}) {
         const identityReceipt = benchElectrode && 
           afterOwner.active.getPokemonCard()?.fullName === 'Mega Absol ex M1L' &&
           pending.energy.length === 2 &&
-          held.length === 1 && held[0].fullName === 'Darkness Energy' &&
+          held.length === 1 && held[0].fullName.startsWith('Darkness Energy') &&
           discarded.length === 1 && discarded[0].fullName === 'Prism Energy ASC' &&
           unaccounted.length === 0 &&
           addedToDiscard.length === 1 &&
