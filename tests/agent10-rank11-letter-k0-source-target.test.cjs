@@ -115,3 +115,26 @@ test('K0 bound remains safe when previously played owner turns are observed', ()
   assert.equal(certifyRank11LetterTwoDarkness(a, original)
     .alternativeActionsCompared, false);
 });
+
+test('authentic original rank11 inventory supplies the asserted 8 plus 4 prints', () => {
+  const field = require('../results/aichi-2026/full-decklists.json');
+  const originalRank11 = field.decks.find(deck => deck.rank === 11);
+  assert.equal(originalRank11.player, 'Wataru Yano');
+  const full = originalRank11.cards.flatMap(card =>
+    Array(card.count).fill(card.name + ' ' + card.printing.set));
+  assert.equal(full.length, 60);
+  assert.equal(full.filter(p => p === DARKNESS).length, 8);
+  assert.equal(full.filter(p => p === LETTER).length, 4);
+  const proof = certifyRank11LetterTwoDarkness(view(), full);
+  assert.equal(proof.guaranteedTwoTargets, true);
+  assert.equal(proof.sourceInventoryAuthenticationRequired, true);
+});
+
+test('an impossible target lower bound greater than deck size is unresolved', () => {
+  const v = view();
+  v.ownPublic.deckCount = 1;
+  const bound = ownPrintedDeckLowerBound(v, original, DARKNESS);
+  assert.equal(bound.physicallyConsistent, false);
+  assert.equal(bound.guaranteedDeckCopies, 0);
+  assert.equal(certifyRank11LetterTwoDarkness(v, original), null);
+});
