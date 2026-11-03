@@ -47,11 +47,17 @@ function probeSwap(seat,mode='basic',guarded=false){
   }
   f.source.active.cards.push(dde);
   f.source.active.energies.cards.push(dde);
+  // Nontrivial original board history must survive an in-play swap.
+  // Current Store turn is 3, original Active entered on turn 1.
+  f.source.active.damage=60;
+  f.source.active.pokemonPlayedTurn=1;
   f.source.discard.cards.push(adp);
   f.source.hand.cards.push(thorton);
 
   const before={
     active:f.source.active.getPokemonCard()?.fullName,
+    damage:f.source.active.damage,
+    pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
     activeCards:f.source.active.cards.map(c=>c.fullName),
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
     sourceSupporterTurn:f.source.supporterTurn,
@@ -96,6 +102,8 @@ function probeSwap(seat,mode='basic',guarded=false){
 
   const after={
     active:f.source.active.getPokemonCard()?.fullName,
+    damage:f.source.active.damage,
+    pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
     activeCards:f.source.active.cards.map(c=>c.fullName),
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
     sourceSupporterTurn:f.source.supporterTurn,
