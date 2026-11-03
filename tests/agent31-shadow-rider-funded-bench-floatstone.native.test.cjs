@@ -71,6 +71,11 @@ function stage(seat){
 for(const seat of [0,1])test('native Funded VMAX Float Stone rescue seat '+seat,()=>{
   const x=stage(seat),catalog=publicCatalog();
   const before=actorObservation(x.state,seat);
+  const rootSelect=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs')
+    .chooseActorRootIntent;
+  const fromWrapper=rootSelect(before,catalog,
+    {fundedVmaxFloatStoneRoot:true});
+  assert.equal(fromWrapper?.kind,'attach-emergency-floatstone');
   const first=choose(before,catalog);
   assert.equal(first?.kind,'attach-emergency-floatstone');
   assert.equal(first.handIndex,0);
@@ -83,7 +88,11 @@ for(const seat of [0,1])test('native Funded VMAX Float Stone rescue seat '+seat,
   const cost=new CheckRetreatCostEffect(x.owner);
   x.store.reduceEffect(x.state,cost);
   assert.equal(cost.cost.length,0);
-  const second=choose(actorObservation(x.state,seat),catalog);
+  const afterTool=actorObservation(x.state,seat);
+  assert.equal(rootSelect(afterTool,catalog,
+    {fundedVmaxFloatStoneRoot:true}).kind,
+    'retreat-emergency-floatstone');
+  const second=choose(afterTool,catalog);
   assert.equal(second?.kind,'retreat-emergency-floatstone');
   x.store.dispatch(new RetreatAction(x.owner.id,second.benchIndex));
   assert.equal(x.owner.active.getPokemonCard()?.fullName,
