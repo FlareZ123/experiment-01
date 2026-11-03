@@ -86,7 +86,7 @@ function verifySeat(seat){
     assert.ok(!live.opponent.active.energies.cards.includes(live.energy));
     assert.ok(live.opponent.bench[0].energies.cards.includes(live.energy));
     return {promptId:prompt.id,physicalEnergyTransferred:true};
-  });
+  },{liveStore:live.store});
   assert.equal(load('game/store/store').Store.prototype.dispatch,beforeProto);
   assert.equal(live.attacker.constructor.prototype.reduceEffect,beforeReduce);
   assert.equal(observed.audit.sourceMarkedPromptCount,1);
@@ -120,7 +120,7 @@ function verifyNoBenchSeat(seat){
     assert.equal(scene.state.prompts.length,0);
     assert.equal(scene.opponent.active.energies.cards.length,startingEnergy);
     return true;
-  });
+  },{liveStore:scene.store});
   assert.equal(witnessed.result,true);
   assert.equal(witnessed.audit.sourceMarkedPromptCount,0);
   assert.equal(witnessed.audit.resolutionCount,0);
