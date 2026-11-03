@@ -129,7 +129,8 @@ function run(){
         sourceNativeAttackNames:sourceRoots.filter(x=>
           x.action==='AttackAction').map(x=>x.attack??null),
         sourcePrizesFromSettledNativeAttacks:(game?.publicAttackTransitions??[])
-          .filter(x=>x.triggerPlayerSlot===sourceSeat)
+          .filter(x=>x.triggerPlayerSlot===sourceSeat&&
+            Array.isArray(x.settled?.prizesRemaining))
           .reduce((n,x)=>n+Math.max(0,
             (x.beforePrizesRemaining?.[sourceSeat]??0)-
             (x.settled?.prizesRemaining?.[sourceSeat]??0)),0),
