@@ -12,6 +12,8 @@ const {withSourceCompressorRootProvenance}=
   require('./agent3-compressor-root-provenance-v3.cjs');
 const {ownerCompressorPrompt}=
   require('./agent3-compressor-discard-settlement.cjs');
+const {saveResult}=
+  require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
 
 const SOURCE_SEAT=1;
 const SEED=4195563994;
@@ -135,6 +137,8 @@ function run(){
 module.exports={run,withNativeAbortAfterPaidPrompt};
 if(require.main===module){
   const result=run();
+  saveResult(path.resolve(process.cwd(),
+    'agent3-rank26-native-deliberate-abort-custody.json'),result);
   process.stdout.write('AGENT3_NATIVE_ABORT_CUSTODY '+
     JSON.stringify(result)+'\n');
 }
