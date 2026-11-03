@@ -33,6 +33,11 @@ on:
         type: boolean
         default: false
         required: false
+      source13_dde_treasure_transport:
+        description: Retrospective rank13 source-seat Double Dragon Energy plus native Treasure root
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -86,6 +91,14 @@ jobs:
       - name: Validate passive native copied-attack prompt ledger
         if: ${{ inputs.source13_paper_evolution_factorial || inputs.source13_treasure_transport }}
         run: node --test tests/agent8-native-copied-attack-choice-ledger.test.cjs
+      - name: Test source Regidrago Double Dragon Energy receiver and Apex public conjunction
+        if: ${{ inputs.source13_dde_treasure_transport }}
+        run: node --test tests/agent8-rank13-double-dragon-energy-frontier.test.cjs tests/agent8-rank13-apex-public-conjunction.test.cjs
+      - name: Original rank13 source-seat DDE plus native Treasure matched transport
+        if: ${{ inputs.source13_dde_treasure_transport }}
+        env:
+          AGENT8_DDE_TREASURE_JSON: agent8-original13-dde-treasure-native.json
+        run: node simulation/evaluation/agent8-rank13-dde-treasure-paired-native.cjs
       - name: Replay original-rank13 Mysterious Treasure root and native cost/search comparison
         if: ${{ inputs.source13_treasure_transport }}
         env:
@@ -122,5 +135,6 @@ jobs:
             agent8-original13-donor-evolution-factorial-native.json
             agent8-original13-donor-evolution-paper-correct-native.json
             agent8-original13-treasure-native-transport.json
+            agent8-original13-dde-treasure-native.json
           if-no-files-found: warn
           retention-days: 30
