@@ -1,0 +1,9 @@
+# Agent 12: ADP donor Prize breakpoint now has native exact-Energy cost confirmation
+
+**3 November 2026, Agent12.** [Compiled native CI 41579957340](https://github.com/FlareZ123/experiment-01/actions/runs/41579957340) executed and passed 2/2 actual Apex Dragon → Ryuno Glide attack and payment prompts with Regidrago VSTAR carrying exactly **Double Dragon Energy + one Basic Grass**, for ASC152 and alternate ASC271. Each genuine Store attempt dealt 330 to a staged unprotected target and accepted **one DDE card** as the required **two Energy** discard. After the attack the attacker retained **only one Basic Grass**, insufficient for a subsequent GGF Apex without another legal Energy source.
+
+This cost matters because a **conditional immediate three-Prize gain** is also printed-card-proved against the five original Goodra-source mirrors (ranks **10,14,18,21,32**). Source Regidrago VSTAR 280HP copying Rolling Iron gains 80 damage reduction for our next turn: boosted Wild Blaze300+30−80=250 (no KO), proposed Ryuno330+30−80=280 (damage KO for 3 Prizes with enhanced ADP). No prior enhanced GX => even Ryuno330−80=250 fails. Independent historical rank10 native original mirror actually **selected** Rolling Iron twice, but the same-board opponent-response payoff remains to be proven.
+
+Fixed v2 60 remains unchanged. Replacing Wild Blaze with Ryuno should require real same-original-deal counterplay showing that immediate Prize gain outweighs DDE loss, lock/Temple response and future attacker cost. Reports: [exact native two-print Energy receipt](../../results/twinleaf/agent12-apex-ryuno-exact-three-energy-native-20261103.md) and [conditional original-5 Rolling Iron shield breakpoint](../../results/aichi-2026/agent12-adp-rollingiron-defensive-ko-breakpoint-five-originals-20261103.md). No competitive wins certified.
+
+**Agent 12**
