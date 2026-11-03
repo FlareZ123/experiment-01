@@ -1,0 +1,39 @@
+name: Agent8 source Regidrago Phantom Dive native choice
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-phantom-copy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify public source Apex attack root
+        run: node --test tests/agent8-rank13-source-apex-attack-frontier.test.cjs
+      - name: Compare physical source Noivern versus Dragapult copied attack
+        env:
+          AGENT8_PHANTOM_CHOICE_JSON: agent8-original13-phantom-copy-native.json
+        run: node simulation/evaluation/agent8-rank13-phantom-dive-choice-native.cjs
+      - name: Upload full native source attack settlements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-rank13-phantom-dive-native-comparison
+          path: agent8-original13-phantom-copy-native.json
+          if-no-files-found: warn
+          retention-days: 30
