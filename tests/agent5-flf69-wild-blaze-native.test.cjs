@@ -219,6 +219,10 @@ function copiedWildBlaze(seat,corrected,printing='M Charizard EX FLF'){
       hookEffects:hook?.evidence().correctedWildBlazeEffects??0,
       competitiveQualified:false
     };
+    if(printing==='M Charizard EX4 FLF'&&corrected)
+      console.log('AGENT5_FLF108_COPY_HOOK_PROTOTYPE',JSON.stringify({
+        ...flf108PrototypeDiagnostic(),result,hook:hook?.evidence()
+      }));
     assert.equal(result.damage,300);
     assert.equal(result.ownerDeck,corrected?5:10);
     assert.equal(result.opponentDeck,corrected?9:4);
@@ -352,6 +356,32 @@ for(const seat of [0,1]){
  * Mega Evolution turn ending and Spirit Link preservation.
  * Staged mechanics only: no natural games or competitive evidence.
  */
+/**
+ * Diagnostic for independently registered FLF108 gold variant.
+ * Review actual prototype ancestry before assuming a base-class patch covers
+ * every reprint instance.
+ * @returns {object}
+ */
+function flf108PrototypeDiagnostic(){
+  const cards=initializeCards();
+  const base=cards.getCardByName('M Charizard EX FLF');
+  const gold=cards.getCardByName('M Charizard EX4 FLF');
+  assert.ok(base&&gold);
+  const baseProto=Object.getPrototypeOf(base);
+  const chain=[];
+  for(let proto=Object.getPrototypeOf(gold);
+    proto&&proto!==Object.prototype&&chain.length<8;
+    proto=Object.getPrototypeOf(proto)){
+    chain.push({
+      constructor:proto.constructor?.name??null,
+      hasOwnReducer:Object.prototype.hasOwnProperty.call(proto,'reduceEffect'),
+      sameAsPrimaryReducerPrototype:proto===baseProto,
+      reducerIsPrimaryFunction:proto.reduceEffect===baseProto.reduceEffect
+    });
+  }
+  return {base:base.constructor.name,gold:gold.constructor.name,chain};
+}
+
 for(const seat of [0,1]){
   test('FLF108 inherited native Wild Blaze wrong-deck baseline seat '+seat,()=>{
     const r=attack(seat,'M Charizard EX4 FLF');
@@ -366,6 +396,9 @@ for(const seat of [0,1]){
     const hook=installFlf69WildBlazePaperHook();
     try{
       const r=attack(seat,'M Charizard EX4 FLF');
+      console.log('AGENT5_FLF108_HOOK_PROTOTYPE',JSON.stringify({
+        ...flf108PrototypeDiagnostic(),result:r,hook:hook.evidence()
+      }));
       assert.equal(r.damage,300);
       assert.equal(r.ownerDeck,5);
       assert.equal(r.opponentDeck,9);
