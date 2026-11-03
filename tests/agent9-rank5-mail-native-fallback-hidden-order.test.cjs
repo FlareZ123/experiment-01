@@ -157,8 +157,10 @@ test('coupled seeded policy RNG: original rank-5 Mail decision can change with c
   assert.ok(contrasts.every(row=>
     row.signatures.every(x=>['PlayCardAction','PassTurnAction'].includes(x))),
     'Unexpected actual pinned native action in coupled RNG test');
+  assert.deepStrictEqual(actorObservation(a.state,0),actorObservation(b.state,0),
+    'The pinned speculative native test mutated the public/own observable state');
   process.stdout.write('AGENT9_SOURCE_RANK5_COUPLED_POLICY_TAPE '+
     JSON.stringify({pairedTapes:seeds.length,
       reversalCount:contrasts.filter(x=>x.changed).length,
-      contrasts,competitiveGamesQualified:0})+'\\n');
+      contrasts,competitiveGamesQualified:0})+'\n');
 });
