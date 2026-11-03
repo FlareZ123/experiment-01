@@ -91,6 +91,17 @@ test('transitive source closure captures every reviewed policy key and audits re
       record.path===review.firstVerifiedSource&&record.keys.includes(key)),
     'Evening reviewed source location changed '+key);
   }
+  const newest=inventory.reviewedNewEnvironmentKeys20261103;
+  assert.equal(Object.keys(newest).length,4);
+  for(const [key,review] of Object.entries(newest)){
+    assert.ok(direct.has(key),'Unregistered November 3 reviewed flag '+key);
+    assert.ok(['actor-opt-in','auditor-opt-in'].includes(review.kind),
+      'Invalid new flag category '+key);
+    assert.ok(review.sourceInterpretation.length>35);
+    assert.ok(x.records.some(record=>record.path===review.firstVerifiedSource&&
+      record.keys.includes(key)),
+      'November 3 reviewed flag must be present in verified source '+key);
+  }
   assert.ok(additional.length<=3,
     'Additional unreviewed policy keys require an inventory refresh');
   assert.equal(x.envKeys.length,inventory.keyCount+additional.length);
