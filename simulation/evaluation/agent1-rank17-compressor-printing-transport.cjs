@@ -34,7 +34,8 @@ function preflight(){
 }
 /** Count genuine accepted native source PlayCardAction rather than mere proposals. */
 function sourceCompressorRoots(rows,seat){
- return (rows??[]).filter(x=>x.playerSlot===seat&&
+ assert.ok(Array.isArray(rows),'Root ledger required');
+ return rows.filter(x=>x.playerSlot===seat&&
    x.action==='PlayCardAction'&&typeof x.card==='string'&&
    x.card.startsWith('Battle Compressor '));
 }
@@ -47,13 +48,14 @@ function nativeArm(setup,seed,seat,enabled){
  try{
   const {result:g,audit:a}=withActorOnlyRootPolicy(()=>runMatch({
    deckA,deckB,seed,maxActions:180,strictPromptValidation:true,
-   captureInitialFullPhysicalDeal:true,
+   captureInitialFullPhysicalDeal:true,captureDecisionTrace:true,
    battleCompressorPositiveSelectionCorrection:true,
    electrodeGXEnergyCorrection:true,electroRainDamageCorrection:true,
    ...(enabled?{rank4RaichuCompressorSeat:seat}:{}),
    label:'rank17-printed-compressor-'+(enabled?'on':'off')
   }),{naturalEvolutionRoot:true});
-  const sourceRoots=(g.rootActionLedger??[]).filter(x=>x.playerSlot===seat);
+  assert.ok(Array.isArray(g.rootActionLedger),'Capture native root ledger');
+  const sourceRoots=g.rootActionLedger.filter(x=>x.playerSlot===seat);
   const compressor=sourceCompressorRoots(sourceRoots,seat);
   return {...id,error:null,started:g.firstTurnSlot,
    physicalDealHash:hash(g.initialFullPhysicalDealFingerprint),
