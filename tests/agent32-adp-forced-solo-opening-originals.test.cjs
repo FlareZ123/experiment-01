@@ -4,7 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {choose}=require('../simulation/evaluation/agent5-adp-thorton-prize-availability.cjs');
 const {
-  VERSION,combinationProbability,solo,main
+  VERSION,combinationProbability,solo,noDirectBasicTutor,main
 }=require('../simulation/evaluation/agent32-adp-forced-solo-opening-originals.cjs');
 
 /** @param {number} a @param {number} b */
@@ -82,4 +82,25 @@ test('equal-rank original field remains far more often forced solo under seven B
     assert.ok(r.adp.forcedSoloAfterAllOptionalBonusLower>
       r.champion.forcedSoloAfterAllOptionalBonusUpper);
   }
+});
+
+test('rank26 no extra Basic or one of eleven Basic-search Items by first draw',()=>{
+  const v=noDirectBasicTutor(12,32);
+  assert.equal(v.sourceFixedPrintedTutorCount,11);
+  assert.ok(v.lower<=0.10246851384076638);
+  assert.ok(v.upper>=0.10246851384076638);
+  assert.ok(v.upper-v.lower<1e-12);
+  assert.ok(v.upper<solo(7,12,32).forcedSoloAfterAllOptionalBonusLower);
+});
+
+test('original four-Basic mulligans give more rescue opportunities on Item screen',()=>{
+  const rank6=noDirectBasicTutor(4,32);
+  const rank26=noDirectBasicTutor(12,32);
+  assert.ok(rank6.lower<rank26.lower);
+  assert.ok(rank6.lower<=0.07924311681257783);
+  assert.ok(rank6.upper>=0.07924311681257783);
+  assert.ok(rank6.upper-rank6.lower<2e-8);
+  const x=main(32);
+  assert.ok(Math.abs(x.meanADPNoDirectBasicOrTutorLower-
+    0.10075844144925436)<1e-10);
 });
