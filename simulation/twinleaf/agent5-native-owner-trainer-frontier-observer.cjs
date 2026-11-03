@@ -54,8 +54,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
   const nativeEnumerator=new ActionEnumerator();
   assert.equal(typeof nativeEnumerator.enumerate,'function');
   const roots=[],dispatchByAction=new WeakMap();
+  assert.ok(deps.ownerDiscardRecoveryTargetOptIn!==true ||
+    deps.ownerPaperNecessityOptIn===true,
+    'Recovery target annotation requires the owner paper-necessity observer');
   const ownerTurnLedger=deps.ownerPaperNecessityOptIn===true?
     require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
+  const recoveryPrints=deps.ownerDiscardRecoveryTargetOptIn===true?
+    require('./planning/owner-public-discard-target-necessary.cjs')
+      .loadBundledPublicPrintMetadata(require('node:path')
+        .resolve(__dirname,'../../resources')):null;
   let live=null,matched=0,exceptions=0,truncated=0;
   const observedBySeat=[0,0];
 
@@ -106,10 +113,14 @@ function withNativeOwnerTrainerFrontier(work,deps){
     const publicPrizeScreen=deps.ownerPublicPrizeScreenOptIn===true?
       require('../evaluation/agent30-public-prize-trainer-necessary.cjs')
         .screenOwnerTrainerPrizePrerequisites(view,frontier.rows):null;
-    const paperScreen=ownerTurnReceipt?
+    const basePaperScreen=ownerTurnReceipt?
       require('./agent4-owner-paper-trainer-necessary-screen.cjs')
         .screenOwnerTrainerPaperNecessity(
           view,frontier.rows,ownerTurnReceipt):null;
+    const paperScreen=recoveryPrints?
+      require('./planning/owner-public-discard-target-necessary.cjs')
+        .augmentPaperNecessityWithDiscardTargets(
+          view,basePaperScreen,recoveryPrints):basePaperScreen;
     // In the opt-in audit, a second observed owner turn independently
     // invalidates the historical global-turn-only first-turn VIP certificate.
     const k0GuaranteedVip=deps.ownRegisteredSixties&&
@@ -196,6 +207,14 @@ function withNativeOwnerTrainerFrontier(work,deps){
         observedOwnerTurnLedger:ownerTurnLedger.snapshot(),
         ownerPaperNecessaryFailures:roots.reduce((sum,root)=>
           sum+(root.ownerPaperNecessity?.provenNecessaryConditionFailures??0),0),
+        ...(recoveryPrints?{
+          ownerDiscardRecoveryTargetOptIn:true,
+          registeredRecoveryCopyObservations:roots.reduce((sum,root)=>
+            sum+(root.ownerPaperNecessity?.registeredHeldDiscardRecoveryCopies??0),0),
+          newlyProvenRecoveryTargetFailures:roots.reduce((sum,root)=>
+            sum+(root.ownerPaperNecessity?.newlyProvenPublicDiscardTargetFailures??0),0),
+          paperPlayableRecoveryActionsCertified:false
+        }:{}),
         ownerPaperUncertainTemporalDeclines:roots.reduce((sum,root)=>
           sum+(root.ownerPaperNecessity?.conservativeTemporalDeclines??0),0),
         paperLegalTrainerMoveSetCertified:false
