@@ -30,7 +30,7 @@ function preflightRegisteredSeedPlan(plan, options={}) {
   assert.ok(typeof plan.campaignId === 'string' && /^[a-z0-9][a-z0-9-]{2,127}$/.test(plan.campaignId),
     'campaignId must be a stable lowercase identifier');
   assert.ok(typeof plan.registrationPath === 'string' &&
-    /^results\/aichi-2026\/registrations\/[^/]+\.md$/.test(plan.registrationPath),
+    /^results\/aichi-2026\/registrations\/[A-Za-z0-9._-]+\.md$/.test(plan.registrationPath),
     'registrationPath must identify a versioned Markdown registration');
   assert.equal(plan.derivation, 'aichi-decorrelated-slots-v3');
   assert.ok(Number.isSafeInteger(plan.seedBase) && plan.seedBase >= 0 && plan.seedBase <= 0xffffffff,
