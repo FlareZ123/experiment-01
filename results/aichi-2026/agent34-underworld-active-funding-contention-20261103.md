@@ -1,0 +1,33 @@
+# Rank-1 original Underworld Door: first-choice contest between Active funding and Bench draw
+
+**Agent 34 | 3 November 2026 | native paired historical diagnostic and opt-in developmental correction.**
+
+## Evidence custody
+
+The source is the complete unchanged [32-attempt matched retrospective owner-prompt archive](https://github.com/FlareZ123/experiment-01/actions/runs/41626916012/artifacts/13226536909) from manual CI [41626916012](https://github.com/FlareZ123/experiment-01/actions/runs/41626916012), repo head `1f854e57c6592477e7e104fc69ab417b87f627a6`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Downloaded ZIP SHA256 `1380904f2e9dd448a5957ad6af0d8f2029722570030081964b020f970c9b3130`; contained JSON SHA256 `de8bfc1a9b84af81a3106a56e3d7996a371e26e2d708ba0a7ef544d395749f11` (24,129,191 bytes). It reuses the earlier eight inspected source seed groups, two candidate printings and both physical seats, so it is **retrospective development**. The [original prompt and conversion report](agent34-rank1-underworld-owner-prompt-native-conversion-20261103.md) preserves native outcome counts and complete physical initial-deal parity.
+
+For each of the 16 paired attempts, compare identical-index `control.rows[i].rootActionLedger` and `treatment.rows[i].rootActionLedger` entries using `playerSlot, action, card, ability, attack, pendingPrompt`. This compact signature deliberately excludes later effect timings and hidden deck information. Each pair has exactly matched source and candidate physical initial deals and verified first player.
+
+**Independent first-decision audit:** Thirteen of the 16 pairs have an initial differing root; the other three have no differing root at the recorded sequence. **Every one of the 13 first differences** is the same actor seat's control `PlayCardAction` for `Psychic Energy` against treatment `UseAbilityAction` for `Underworld Door`. Ten first differences belong to the original rank-1 seat; three belong to the candidate seat. This identifies an **action-allocation contest** in the first branching position. It does not prove that the choice alone caused any eventual engine terminal, because subsequent hands, boards, opposing decisions and action-cap exposure diverge.
+
+## Severe same-deal source-sequence counterexample
+
+In exact trial `1:1:B:champion-reference` (original rank-1 source seat 0), the first differing native root is **action ordinal 69, global turn 11**: a manually played Psychic Energy becomes Underworld Door. The ordinary manual Psychic attachments on the control's Active VMAX subsequently occur at turns **11, 17 and 21**, physically going from **zero to three** attached Psychic cards. Control first used Max Geist at turn 21 and accumulated **seven source AttackAction roots** before an original-source native terminal.
+
+The treatment completed **eight original-source Underworld Door actions**, with two typed native Psychic attachments to Bench slot 0 and six to Bench slot 3; these are physical native Bench attachments, not attacks. Its original source made only **one normal Psychic attachment to the Active VMAX** (turn 31, zero to one Energy) before the 260-native-action cap. Final publicly observed source board contained an Active VMAX with one Psychic and another VMAX on the Bench with six Psychic. The source made **zero AttackAction roots** in this treatment. The owner Pass sidecar recorded **19 Pass roots while Float Stone was held**; this records hand and public board opportunity without certifying tool-play or retreat legality. Both source outcomes remain unqualified for competitive paper play.
+
+Across all 16 original-source trials, accepted ordinary Psychic-to-Active `PlayCardAction` events fell from **36** in control to **30** with Underworld enabled, while source Underworld actions rose from zero to **42**. Source AttackAction roots fell from **117 to 101**. Those totals reflect correlated altered game trajectories; they cannot be interpreted as game win-rate or independent card effects.
+
+The card database's `Shadow Rider Calyrex VMAX` printed `Underworld Door` says to attach a Psychic Energy from hand to a **Benched Psychic** Pokémon, followed by a two-card draw. Its `Max Geist` has a three-Colorless attack cost and increases damage based on Psychic Energy attached across the board. Therefore using the final held Psychic on the Ability can postpone Active funding even while accumulating damage potential elsewhere.
+
+## Reversible policy experiment
+
+Added `simulation/twinleaf/agent34-underworld-active-funding-priority.cjs` and test `tests/agent34-underworld-active-funding-priority.test.cjs`. The opt-in `actorUnderworldActiveFundingPriority` activates **only after** the existing owner-only Underworld root helper has verified a structurally available unspent source and recipient. It prioritizes normal manual Psychic attachment to Active **Shadow Rider Calyrex VMAX CRE** with printed three-Colorless Max Geist when the player holds exactly one Basic Psychic, Active has fewer than three known Basic Psychic cards, and the ordinary attachment is unspent and not publicly blocked. Existing Underworld choices are unchanged when any precondition fails. Real native Store remains the authority for legality. The guard uses acting-owner hand and public board, does not expose opponent hidden cards, and is default-off in all historical baselines. Bilateral runner requires an identical root option for both physical seats.
+
+The target hypothesis is stronger attack-conversion with fewer stranded Active attackers at the cost of some Ability draw/Bench acceleration. This is a hypothesis, pending actual same-deal native replay and independently qualified held-out original-source games. Even a favorable retrospective native result does not certify a strong competitive deck.
+
+## Release and qualification constraints
+
+The comparison targets unchanged original source and candidate 60s under the frozen development runner. Card and policy differences are only developmental; no deck is selected. No event in these archives qualifies as a competitive paper match, and no win-rate estimate is licensed. The standing original field remains **29 of 32 authenticated original printings**, with ranks 23, 25 and 28 still missing.
+
+The existing manual-only [owner-prompt CI](https://github.com/FlareZ123/experiment-01/actions/workflows/agent34-underworld-owner-prompt-native.yml) runs the pure priority tests and native Store prompt tests and has a separate opt-in `posthoc_active_funding` full paired trial. Its output must retain all 16 registered attempts and native failure/censor status.
