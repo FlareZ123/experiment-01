@@ -7,6 +7,10 @@ on:
         description: Retrospective owner typed prompt rank1 development
         type: boolean
         default: false
+      posthoc_active_funding:
+        description: Retrospective Active Psychic priority on the same 16 historical pairs
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -44,6 +48,19 @@ jobs:
       - name: Audit real native source attack conversion
         if: ${{ inputs.posthoc_rank1 }}
         run: node simulation/evaluation/agent34-underworld-native-attack-conversion-report.cjs
+      - name: Retrospective original-source Active Psychic contention pair
+        if: ${{ inputs.posthoc_active_funding }}
+        env:
+          AGENT34_ACTIVE_PRIORITY_OUTPUT: agent34-underworld-active-funding-posthoc.json
+        run: node simulation/evaluation/agent34-rank1-active-funding-posthoc-development.cjs
+      - name: Preserve Active funding retrospective native raw records
+        if: ${{ inputs.posthoc_active_funding }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-underworld-active-funding-posthoc-rank1
+          path: agent34-underworld-active-funding-posthoc.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve matched historical native raw records
         if: ${{ inputs.posthoc_rank1 }}
         uses: actions/upload-artifact@v4
