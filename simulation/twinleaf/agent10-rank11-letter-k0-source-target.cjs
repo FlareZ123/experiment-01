@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 
 const VERSION = 'agent10-rank11-letter-k0-source-target-v1';
-const LETTER = "Professor's Letter BKT";
+const LETTER = 'Professors Letter BKT';
 const DARKNESS = 'Darkness Energy MEE';
 
 /**
