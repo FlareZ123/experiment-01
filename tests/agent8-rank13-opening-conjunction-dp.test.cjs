@@ -40,3 +40,21 @@ test('source change must not be silently treated as original', () => {
   copy.cards.find(row => row.name === 'VS Seeker').count++;
   assert.throws(() => source13Buckets(copy), /Source-13 printing changed/);
 });
+
+test('virtual replacement-only Compressor sensitivity is exact and monotone', () => {
+  const denominator=300306336n;
+  const expected=[
+    [0,2326131n,116748n],
+    [1,6148852n,440670n],
+    [2,9687014n,751044n],
+    [3,12956743n,1048158n],
+    [4,15973547n,1332300n]
+  ];
+  for(const [copies,either,energy] of expected){
+    const {counts}=exactOpeningConjunctions(source,{compressorCopies:copies});
+    assert.equal(counts.basicLegal,denominator);
+    assert.equal(counts.regvVstarEitherRoute,either);
+    assert.equal(counts.eitherRouteWithTwoAttachmentEnergy,energy);
+  }
+  assert.throws(()=>exactOpeningConjunctions(source,{compressorCopies:5}));
+});
