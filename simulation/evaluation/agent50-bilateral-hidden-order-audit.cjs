@@ -171,7 +171,9 @@ function auditDevelopmentArm(trial,execute,probe,Bot,clone,makeRandom,scope={}) 
     ...(scope.nativeTapeBoundedDoubleExchange===true?
       {nativeTapeBoundedDoubleExchange:true}:{}),
     ...(scope.nativeTapeHandPrizeContrast===true?
-      {nativeTapeHandPrizeContrast:true}:{})};
+      {nativeTapeHandPrizeContrast:true}:{}),
+    ...(scope.nativeTapeNumericScoreContrast===true?
+      {nativeTapeNumericScoreContrast:true}:{})};
   let control;
   try {
     control=execute();
@@ -337,7 +339,8 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   nativeTapeHiddenOpponentHandContrast=false,
   nativeTapeBoundedOpponentHiddenHand=false,
   nativeTapeBoundedDoubleExchange=false,
-  nativeTapeHandPrizeContrast=false}={}) {
+  nativeTapeHandPrizeContrast=false,
+  nativeTapeNumericScoreContrast=false}={}) {
   assert.equal(typeof firstFiniteScoredRoot,'boolean');
   assert.equal(typeof replayCommonPolicy,'boolean');
   assert.equal(typeof isolateReplayPolicyPerWorld,'boolean');
@@ -366,6 +369,10 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
   assert.equal(typeof nativeTapeBoundedOpponentHiddenHand,'boolean');
   assert.equal(typeof nativeTapeBoundedDoubleExchange,'boolean');
   assert.equal(typeof nativeTapeHandPrizeContrast,'boolean');
+  assert.equal(typeof nativeTapeNumericScoreContrast,'boolean');
+  assert.ok(!nativeTapeNumericScoreContrast||
+    (nativeTapeBoundedOpponentHiddenHand&&nativeTapeFirstFiniteScore),
+    'Numeric score contrast needs native bounded first-finite replay');
   assert.ok(!nativeTapeHandPrizeContrast||nativeTapeBoundedOpponentHiddenHand,
     'Hand-Prize contrast requires bounded native tape mode');
   assert.ok(!nativeTapeBoundedDoubleExchange||nativeTapeBoundedOpponentHiddenHand,
@@ -428,7 +435,7 @@ function runHistoricalDevelopmentAudit({firstFiniteScoredRoot=false,
       nativeTapeFairReplayHooks,nativeTapeSupporterReplayHook,
       nativeTapeHiddenOrderContrast,nativeTapeHiddenOpponentHandContrast,
       nativeTapeBoundedOpponentHiddenHand,nativeTapeBoundedDoubleExchange,
-      nativeTapeHandPrizeContrast}
+      nativeTapeHandPrizeContrast,nativeTapeNumericScoreContrast}
   ));
   return {
     schema:nativeTapeHandPrizeContrast&&nativeTapeBoundedDoubleExchange?
@@ -509,7 +516,9 @@ if(require.main===module) {
     nativeTapeBoundedDoubleExchange:
       process.env.AGENT23_NATIVE_BOUNDED_DOUBLE_SWAP_DEV==='true',
     nativeTapeHandPrizeContrast:
-      process.env.AGENT23_NATIVE_OPPONENT_PRIZE_TAPE==='true'
+      process.env.AGENT23_NATIVE_OPPONENT_PRIZE_TAPE==='true',
+    nativeTapeNumericScoreContrast:
+      process.env.AGENT23_NATIVE_NUMERIC_SCORE_CONTRAST==='true'
   }),null,2)+'\n');
 }
 module.exports={candidateDevelopmentTarget,comparisonProjection,
