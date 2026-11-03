@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {planOwnerResourceTutors,guaranteedK0DeckTargets}=require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs');
 
 const VIP='Battle VIP Pass FST';
-const LETTER="Professor\'s Letter BKT";
+const LETTER='Professors Letter BKT';
 const DARK='Darkness Energy MEE';
 const BASICS=['Mega Absol ex MEG','Trubbish FST','Oranguru V ASR',
   'Latias ex SSP','Tapu Lele-GX GRI','Crobat V DAA','Squawkabilly ex PAL'];
@@ -44,21 +44,24 @@ const play={kind:'pass',reason:'no-supported-owner-visible-root'};
 const plan=(v,roster=original,incumbent=play)=>
   planOwnerResourceTutors(v,catalog,roster,incumbent);
 
-test('resource tutor exact-print keys match published original rank11 sixty',()=>{
+test('resource tutor native fullName matches original rank11 through documented alias',()=>{
   const manifest=require('../results/aichi-2026/full-decklists.json');
   const authentic=manifest.decks.find(d=>d.rank===11);
   assert.ok(authentic);
-  const row=authentic.cards.find(c=>c.name==="Professor's Letter");
-  assert.equal(row?.count,4);
-  assert.equal(row?.printing.set,'BKT');
-  assert.ok(Object.hasOwn(require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs').TARGETS,
-    "Professor's Letter BKT"));
-  assert.ok(!Object.hasOwn(require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs').TARGETS,
-    'Professors Letter BKT'));
-  const expected=authentic.cards.flatMap(c=>
-    Array(c.count).fill(c.name+' '+c.printing.set)).sort();
+  const printed=authentic.cards.find(c=>c.name==="Professor's Letter");
+  assert.equal(printed?.count,4);
+  assert.equal(printed?.printing.set,'BKT');
+  assert.equal(LETTER,'Professors Letter BKT',
+    'Pinned engine normalized fullName omits the printed apostrophe');
+  const {TARGETS}=require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs');
+  assert.ok(Object.hasOwn(TARGETS,LETTER));
+  const expected=authentic.cards.flatMap(card=>{
+    const nativeName=card.name==="Professor's Letter"?
+      'Professors Letter':card.name;
+    return Array(card.count).fill(nativeName+' '+card.printing.set);
+  }).sort();
   assert.deepEqual([...original].sort(),expected,
-    'Pure resource-tutor fixture must use authentic original exact printed60');
+    'Pure tutor fixture must match engine-resolved source original60');
 });
 
 test('registered rank11 printed roster and exact two-K0-lower-bounds',()=>{
