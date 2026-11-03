@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      crossrank_floatstone:
+        description: Preregistered rank5+11 source original versus fixed candidate Float Stone A/B
+        type: boolean
+        default: false
       heldout_floatstone:
         description: Pre-registered eight new both-seat original rank1 Float Stone seed groups
         type: boolean
@@ -56,6 +60,19 @@ jobs:
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
         run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs
+      - name: Preregistered rank5 and11 same-deal Float Stone portability A/B
+        if: ${{ inputs.crossrank_floatstone }}
+        env:
+          AGENT31_CROSSRANK_FLOATSTONE_OUTPUT: agent31-crossrank-floatstone.json
+        run: node simulation/evaluation/agent31-crossrank5-11-floatstone-transfer.cjs
+      - name: Archive rank5 and11 source policy transfer raw evidence
+        if: ${{ always() && inputs.crossrank_floatstone }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-rank5-rank11-crossrank-floatstone
+          path: agent31-crossrank-floatstone.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Held-out rank1 Float Stone preregistration and paired native A/B
         if: ${{ inputs.heldout_floatstone }}
         env:
