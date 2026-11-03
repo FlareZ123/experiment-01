@@ -1,0 +1,37 @@
+{
+  "schema": "agent1-rank17-compressor-postprompt-retrospective-v1",
+  "registeredUtc": "2026-11-03T11:30:00Z",
+  "question": "Does owner-selected Battle Compressor actually cause source-deck physical objects to enter the source discard after its legal owner-deck ChooseCardsPrompt, in the two already-known native source roots?",
+  "source": "results/aichi-2026/full-decklists.json",
+  "originalSourceRank": 17,
+  "opponentReferenceRank": 1,
+  "sourceOriginalFingerprint": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36bd115f539f6401",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "priorObservedNativeRun": 41591371975,
+  "sourcePhysicalSeeds": [
+    2208314832,
+    4010383176
+  ],
+  "sourceSeat": 1,
+  "cohort": "retrospective-positive-only-no-independent-rate-or-unbiased-effect",
+  "eachSeedModes": [
+    "original-actor-control",
+    "original-actor-bridge-with-read-only-postprompt-custody"
+  ],
+  "expectedNativeArms": 4,
+  "expectedMatchedPairs": 2,
+  "nativeBudget": 180,
+  "nativeControls": {
+    "battleCompressorPositiveSelectionCorrection": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true,
+    "actorNaturalEvolutionRoot": true,
+    "rank4RaichuCompressorSeat": 1,
+    "strictPromptValidation": true
+  },
+  "primaryReceipt": "actual original owner-deck ChooseCardsPrompt matched to native selected Battle Compressor root, list of selected physical card objects, pre/post owner deck/discard counts and object identity membership, prompt validate output",
+  "expectedTwoNativePlayOpportunitiesKnownInHistoricalRun": true,
+  "transportRisk": "Shared native actor policy and downstream code may have changed since initial archive; report negative/no-op/error faithfully.",
+  "paperLimits": "An accepted Store prompt and identity movement are bounded local paper-payment evidence, not verification of all game effects, player decisions or official 25 minute clock.",
+  "competitivelyQualifiedGame": false
+}
