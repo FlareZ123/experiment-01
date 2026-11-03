@@ -55,5 +55,6 @@ test('conditional all-Prized location risk differs by singleton vs doubleton', (
   assert.equal(allUnseenCopiesPrized(1, 0).probability, 0.1);
   assert.ok(Math.abs(allUnseenCopiesPrized(2, 0).probability -
     15 / 1770) < 1e-15);
+  assert.equal(allUnseenCopiesPrized(1, 54).probability, 1);
   assert.throws(() => allUnseenCopiesPrized(0), /at least one/);
 });
