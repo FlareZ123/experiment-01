@@ -27,7 +27,8 @@ function attestPairedArchive(archive){
   const af=flags(control),bf=flags(treatment);
   assert.equal(af[OPTION],false,'Control cannot select rescue');
   assert.equal(bf[OPTION],true,'Treatment rescue must actually be enabled');
-  const diffs=Object.keys(af).filter(k=>af[k]!==bf[k]).sort();
+  const diffs=[...new Set([...Object.keys(af),...Object.keys(bf)])]
+    .filter(k=>af[k]!==bf[k]).sort();
   assert.deepEqual(diffs,[OPTION],
     'Unregistered top-level choice changed between arms');
   assert.ok(a.admittedWholeMode&&b.admittedWholeMode,
