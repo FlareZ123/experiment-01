@@ -1,6 +1,6 @@
 # A prospectively randomized one-game-per-step field test for the fixed 60
 
-**Agent 46 | 3 November 2026 | mathematical methodology, 12/12 local pure Node regressions, no paper-qualified Aichi games.**
+**Agent 46 | 3 November 2026 | mathematical methodology, 13/13 local pure Node regressions, no paper-qualified Aichi games.**
 
 ## Why this differs from the existing complete-field-round test
 
@@ -28,6 +28,12 @@ The code uses Node's stable SHA-256 implementation to derive the field assignmen
 
 **Critical online-testing condition:** The randomization service must keep the seed hidden from anyone deciding whether to continue an experiment, reveal only the current selected cell before that game's setup, and disclose the seed afterward for the assignment audit. If the experimenter knows the full future rank schedule, the next cell is predictable conditional on that information. Then the per-game conditional expectation identity used for optional-stopping validity need not hold under a heterogeneous field. The mathematical proof assumes genuinely conditionally uniform draws; a SHA-256 schedule supplies only a computational pseudorandom approximation, contingent on protected seed secrecy, unbiased generation and appropriate external audit. Predeclaring a fixed sample size avoids one optional-stopping channel but does not compensate for fraudulent seed selection or unqualified games.
 
+### Explicit seed-grinding negative control
+
+A new regression contains a synthetic **32-rank field** in which ranks 1–16 deterministically win and ranks 17–32 deterministically lose. The genuine equal-cell field rate is exactly **0.50**, so `H0:p≤0.50` is true. The experimenter tries sequential integer seeds until finding seed `000…006b` (hex 107), whose first seven scheduled rank indices are **0,3,5,3,8,8,9**, all in the winning half. Submitting those seven synthetic complete wins with that seed and a self-chosen faux external-registration ID yields e≈**45.138573**, which mechanically exceeds the familywise threshold 40, despite the null being true.
+
+The [negative-control test](../../tests/agent46-anytime-randomized-field-win-betting.test.cjs) intentionally asserts this apparent positive result to show that **a SHA-256 digest and a registration ID string cannot establish that a seed was sampled before outcomes or without cherry-picking**. The return object now always includes `randomizationExternallyVerified:false` and `statisticalAssumptionsExternallyVerified:false`, even when synthetic arithmetic crosses the decision threshold. This counterexample is an **invalid experiment by construction**, and is no evidence of a Pokémon deck's strength. It is a direct falsification of treating the present interface as a stand-alone 99.5% certification gate.
+
 A field-mean claim does not establish 99.5% strength in **every** matchup individually. Randomized samples can contain unequal rank counts; the resulting analysis targets the declared equally weighted field distribution. No rank-specific simultaneous lower bounds are produced.
 
 ## Synthetic numerical controls and current observations
@@ -38,7 +44,7 @@ A field-mean claim does not establish 99.5% strength in **every** matchup indivi
 | 1,024 independent randomized wins, zero nonwins | 46.702028 | 40 | Rejects field-wide ≤99.5% null |
 | 1,023 wins plus one nonwin or one censored event in 1,024 trials | below 40 | 40 | Insufficient |
 
-All are **fabricated positive/negative controls**, not observations of an actual deck. Randomized rank counts are generally unequal, in contrast with the exact 32 games per rank in the earlier 1,024-game full-round example. The [12 pure regression tests](../../tests/agent46-anytime-randomized-field-win-betting.test.cjs) pass locally on Node 22, including a missing source 23/25/28 veto, wrong print, altered assignment, skipped trial, duplicated physical setup, fake native win, 64/128-cell seat/starter tampering and prospective familywise test allocation. The test is registered in the existing manual-only [global statistical CI](../../.github/workflows/aichi-global-field-gate.yml); a green remote run has not yet been established as of this report.
+All are **fabricated positive/negative controls**, not observations of an actual deck. Randomized rank counts are generally unequal, in contrast with the exact 32 games per rank in the earlier 1,024-game full-round example. The [13 pure regression tests](../../tests/agent46-anytime-randomized-field-win-betting.test.cjs) pass locally on Node 22, including a missing source 23/25/28 veto, wrong print, altered assignment, skipped trial, duplicated physical setup, fake native win, 64/128-cell seat/starter tampering and prospective familywise test allocation. The test is registered in the existing manual-only [global statistical CI](../../.github/workflows/aichi-global-field-gate.yml); a green remote run has not yet been established as of this report.
 
 As of this report, only 29 of the 32 original printed Aichi Top 32 lists are authenticated (ranks 23,25,28 missing). **Zero** original-source matches have fully qualified competitive paper-game outcomes. This method cannot generate evidence for the actual 99.5% objective without an authenticated source list, competent symmetric two-seat original opponent policy, full paper cost/payment/outcome audit and official match-clock evaluation.
 
