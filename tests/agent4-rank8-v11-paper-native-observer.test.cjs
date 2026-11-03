@@ -209,7 +209,7 @@ test('read-only public opponent attack receipt only follows paid actual source B
     source.active=publicSlot('Mega Absol ex MEG',0);
     source.bench=[publicSlot('Garbodor LTR',0,[],['Float Stone BKT'])];
     source.bench[0].getPokemonCard=()=>({fullName:'Garbodor LTR',name:'Garbodor'});
-    opponent.active=publicSlot('Lillie\\'s Clefairy ex JTG',0,
+    opponent.active=publicSlot("Lillie's Clefairy ex JTG",0,
       ['Psychic Energy MEE','Psychic Energy MEE']);
     opponent.bench=[];
     for(const player of players)player.prizes=[{cards:[{}]},{cards:[{}]}];
