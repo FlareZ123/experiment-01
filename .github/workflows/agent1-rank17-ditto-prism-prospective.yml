@@ -77,3 +77,14 @@ jobs:
       - name: Run read-only owner-visible source opener pure regressions
         if: ${{ github.event.inputs.experiment == 'compressor-census' }}
         run: node --test tests/agent1-rank17-compressor-opportunity-census.test.cjs tests/agent1-rank17-compressor-printing-transport.test.cjs
+
+      - name: Reobserve identical rank17 native original source opportunities
+        if: ${{ github.event.inputs.experiment == 'compressor-census' }}
+        run: node simulation/evaluation/agent1-rank17-compressor-opening-census.cjs
+      - name: Preserve complete original source early-turn native root census
+        if: ${{ always() && github.event.inputs.experiment == 'compressor-census' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-early-compressor-owner-census
+          path: agent1-rank17-compressor-opening-census.json
+          if-no-files-found: warn
