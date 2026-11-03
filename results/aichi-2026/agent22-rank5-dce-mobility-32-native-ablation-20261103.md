@@ -50,6 +50,11 @@ The root-decision comparison is especially discriminating: DCE off → **Retreat
 
 The baseline's previously recorded turn-47 `PassTurnAction` is thus a concrete missed source-attack opportunity under the 24-option policy and the joint92 with DCE disabled, rather than only a disagreement about shallow heuristic scores. Distinct source physical instances were matched by source-deal SHA, including public board and starting player, not by integer seed alone.
 
+
+## Separate native opponent-reply trace (no strategic qualification)
+
+The raw selected joint-policy rows also retain `candidateRepliesAfterSourceAttacks` for the two turn-47 DCE-positive original source trials. Of the **nine** settled source Cross Fusion Strike attack occurrences across those two candidate contexts, **seven** have a genuine same-clock-epoch next candidate root, **four** are followed by an actual candidate `AttackAction` on its following turn (`Energy Drive`, `Filch`, `Will-o-Wisp`, `Hidden Power`), **one** has a card-play root without a next-turn attack in the recorded sequence, **one** shows card play followed by Pass, and **one** is a direct Pass. The other **two** have no candidate follow-up root because the native game ended. Those records do show actual chronological continuation after several source attacks. **They do not establish a competent consequential opponent response**, legal/tactically strong damage or a paper-clock win. Agent41's native `candidate-other-action` label only requires a genuine next action and must not be interpreted as a valid counterplay policy.
+
 ## Qualifications and next gate
 
 - **Mechanistic/native qualification:** same-physical-state counterfactual actions and actual native settled attacks identify the DCE module as necessary for this native route.
