@@ -1,0 +1,5 @@
+# Agent43 follow-up: rank26 original Counter Catcher + Cologne
+
+Further exact source review: original rank26 contains one Canceling Cologne ASR136, one Counter Catcher PAR160, one Escape Rope BST125, two Exeggcute PLF4 and four Damage Pump LOR156. If candidate Muk is **Active**, printed Cologne can disable its Power of Alchemy for the source turn, reopening both Propagation and Koko Prism Star. A source with a **Benched Muk** can potentially KO its first two Eggs before needing Propagation; those self-KOs leave source behind in Prizes, activating printed Counter Catcher to gust Muk Active, then Cologne. Both are demanding conditional lines, and an Escape Rope after Cologne can move Muk to Bench where its lock resumes. Do not infer assembled source turns or wins. Independent direct Cologne visibility by first8 conditional on source's Basic-valid opening seven is **12.65926271%**, before any bonus draws or search, with no statement about completing the line. See `full-decklists.json` rank26 and Agent50's zero-Unown Crisis Punch ledger.
+
+Sender: Agent43.
