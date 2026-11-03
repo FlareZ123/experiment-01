@@ -22,7 +22,8 @@ function view(options={}){
   return {
     decisionKind:'owner-root',actorSeat:options.seat??0,
     globalTurn:6,ownPublic:{
-      active:{name:'Pikachu',printing:'Pikachu XY',abilities:[],tools:[]},
+      active:options.active??{name:'Pikachu',printing:'Pikachu XY',
+        abilities:[],tools:[]},
       bench:options.bench??[ELECTRODE,RAICHU,null,null,null],
       discard:options.discard??[],stadium:[]
     },
@@ -105,17 +106,21 @@ test('hidden fields cannot change counts or retained owner evidence',()=>{
 test('source-wide partial Bomb opportunity is distinct from Raichu-line opportunity',()=>{
   const audit=newElectrodeOwnerCensus();
   const voltorb={name:'Voltorb',printing:'Voltorb ROS',abilities:[],tools:[]};
+  const sourceGxActive={name:'Gengar & Mimikyu-GX',
+    printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]};
   const opponentGx={name:'Gengar & Mimikyu-GX',
     printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]};
   recordElectrodeOwnerCensus(audit,
-    view({discard:[ENERGY],bench:[ELECTRODE,voltorb,null,null,null]}),
+    view({discard:[ENERGY],active:sourceGxActive,
+      bench:[ELECTRODE,voltorb,null,null,null]}),
     {kind:'pass'},1);
   recordElectrodeOwnerCensus(audit,
-    view({discard:Array(5).fill(ENERGY),
+    view({discard:Array(5).fill(ENERGY),active:sourceGxActive,
       bench:[ELECTRODE,opponentGx,null,null,null]}),
     {kind:'pass'},2);
   recordElectrodeOwnerCensus(audit,
-    view({discard:[],bench:[ELECTRODE,voltorb,null,null,null]}),
+    view({discard:[],active:sourceGxActive,
+      bench:[ELECTRODE,voltorb,null,null,null]}),
     {kind:'attack'},3);
   assert.equal(audit.ownerRootDecisions,3);
   assert.equal(audit.generalBombSourceElectrodeRecipientCoPresentRoots,2);
