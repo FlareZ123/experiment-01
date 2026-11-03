@@ -44,13 +44,13 @@ jobs:
             node simulation/evaluation/agent21-stranded-mew-pinned-archive-replay.cjs > agent21-stranded-mew-historical-native-replay.json
           fi
       - name: Show bounded genuine source geometry and native custody outcome
-        if: always()
+        if: ${{ inputs.policy_variant == 'historical-v1' }}
         run: |
           node -e "const fs=require('node:fs');if(!fs.existsSync('agent21-stranded-mew-historical-native-replay.json')){console.log('DIAGNOSTIC_NO_OUTPUT');process.exit(0)}const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8'));const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,seedsIndependent:x.independentlyProspective,rows:x.trialCount,nativePass:a.nativePassActionsSeen,ownerPass:a.ownerMatchedPassActions,offers:a.eligibleOwnerOffers,dispatches:a.dispatchedRetreatActions,settlements:a.nativeSettledPromotions,nearMisses:a.geometryNearMisses,samples:a.geometryNearMissSamples,sourceTrials:x.summary},null,2));"
       - name: Show v2 root and physical fee disposition if selected
         if: ${{ inputs.policy_variant == 'root-anchored-v2' }}
         run: |
-          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a.anchoredStores,auxiliaryPassesUnchanged:a.auxiliaryPassesUnchanged,anchoredPassesSeen:a.anchoredPassesSeen,eligibleOffers:a.eligibleOffers,exactPhysicalFeeAndPromotion:a.exactPhysicalFeeAndPromotion,unverifiedPhysicalFees:a.unverifiedPhysicalFees,nativeRejectedReplacements:a.nativeRejectedReplacements,pendingAtEnd:a.pendingAtEnd,rootJoinVerified:a.verifiedSelectedRootLedgerJoin,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
+          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a?.anchoredStores??null,auxiliaryPassesUnchanged:a?.auxiliaryPassesUnchanged??null,anchoredPassesSeen:a?.anchoredPassesSeen??null,eligibleOffers:a?.eligibleOffers??null,exactPhysicalFeeAndPromotion:a?.exactPhysicalFeeAndPromotion??null,unverifiedPhysicalFees:a?.unverifiedPhysicalFees??null,nativeRejectedReplacements:a?.nativeRejectedReplacements??null,pendingAtEnd:a?.pendingAtEnd??null,rootJoinVerified:a?.verifiedSelectedRootLedgerJoin??false,codeDrift:x.codeProvenance?.changedCodeCells, batchError:x.batchError,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
       - name: Preserve every original Store native replay row and owner-only root receipt
         if: always()
         uses: actions/upload-artifact@v4
