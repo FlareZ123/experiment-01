@@ -4,41 +4,53 @@ const assert=require('node:assert/strict');
 const {necessaryTrainerHandPaymentGate}=
   require('./agent49-trainer-hand-payment-veto.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v1';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v2-owner-turn-provenance';
 const VIP='Battle VIP Pass FST';
 
 /**
- * Independently screen one exact printed Trainer for a known negative
- * turn restriction. Searching for a card and playing it are distinct:
- * a late VIP is a legal possible search result, but is unusable from hand.
+ * Verify a printed first-OWNER-turn restriction against witnessed real owner
+ * turns. A global turn above two does not prove both players had a first
+ * turn, because additional/skipped turns can break ordinary alternation.
+ * When the authentic live-turn record is incomplete, decline uncertain late
+ * offers as policy, without falsely classifying them as paper illegal.
  *
- * The ordinary game begins with global turns 1 and 2, one per owner.
- * A global turn > 2 necessarily comes after both opening turns. Within
- * turns 1 and 2 this routine intentionally declines to certify turn
- * eligibility, since the complete turn-ownership ledger is unavailable.
- *
- * @param {{decisionKind:string,globalTurn:number}} view
- * @param {string} printing Exact native fullName, including set suffix.
- * @returns {{printing:string,status:string,blocker:string|null,
- *   positivelyCertified:boolean,printedRuleKnown:boolean}}
+ * @param {{decisionKind:string,actorSeat:number,globalTurn:number}} view
+ * @param {string} printing Exact native fullName.
+ * @param {object|null} [ownerTurnReceipt] Witness from per-game ledger.
+ * @returns {object} Independent negative certificate or explicit unknown.
  */
-function printedTrainerTurnScreen(view,printing){
+function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(Number.isSafeInteger(view.globalTurn)&&view.globalTurn>=1);
   assert.equal(typeof printing,'string');
+  if(ownerTurnReceipt!==null){
+    const {VERSION:LEDGER_VERSION}=
+      require('./agent4-owner-turn-ledger.cjs');
+    assert.equal(ownerTurnReceipt.version,LEDGER_VERSION);
+    assert.equal(ownerTurnReceipt.actorSeat,view.actorSeat);
+    assert.equal(ownerTurnReceipt.globalTurn,view.globalTurn);
+    assert.equal(ownerTurnReceipt.provenPastFirstOwnerTurn,
+      ownerTurnReceipt.distinctObservedOwnerTurns>=2);
+  }
   if(printing===VIP){
-    const expired=view.globalTurn>2;
+    const expired=ownerTurnReceipt?.provenPastFirstOwnerTurn===true;
+    const conservativeDecline=!expired&&view.globalTurn>2;
     return {
       printing,printedRuleKnown:true,
-      status:expired?'blocked':'unresolved-opening-turn',
-      blocker:expired?'battle-vip-pass-first-turn-expired':null,
+      status:expired?'blocked':
+        conservativeDecline?'unresolved-owner-turn-history':
+          'unresolved-opening-turn',
+      blocker:expired?'battle-vip-pass-first-owner-turn-expired':null,
+      conservativeDecline,
+      ineligibilityProven:expired,
       positivelyCertified:false
     };
   }
   return {
     printing,printedRuleKnown:false,
     status:'unmodeled-print-specific-turn-rule',
-    blocker:null,positivelyCertified:false
+    blocker:null,conservativeDecline:false,
+    ineligibilityProven:false,positivelyCertified:false
   };
 }
 
@@ -50,9 +62,10 @@ function printedTrainerTurnScreen(view,printing){
  *
  * @param {object} view Detached owner-only actor observation.
  * @param {object[]} rows Agent5 actual-owner generic frontier rows.
+ * @param {object|null} [ownerTurnReceipt] Real live-owner turn witness.
  * @returns {object} Owner-private, read-only necessary-condition screen.
  */
-function screenOwnerTrainerPaperNecessity(view,rows){
+function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(Array.isArray(view.ownHand));
   assert.ok(Array.isArray(rows));
@@ -63,7 +76,7 @@ function screenOwnerTrainerPaperNecessity(view,rows){
     assert.equal(row.printing,view.ownHand[row.handIndex]);
     assert.ok(!seen.has(row.handIndex),'Duplicate physical owner-hand index');
     seen.add(row.handIndex);
-    const temporal=printedTrainerTurnScreen(view,row.printing);
+    const temporal=printedTrainerTurnScreen(view,row.printing,ownerTurnReceipt);
     const payment=necessaryTrainerHandPaymentGate(view,row);
     const publicBlocker=row.publicBlocker??null;
     const blockers=[
@@ -79,6 +92,8 @@ function screenOwnerTrainerPaperNecessity(view,rows){
       genericPublicBlocker:publicBlocker,
       printedTemporalStatus:temporal.status,
       printedTemporalBlocker:temporal.blocker,
+      printedTemporalConservativeDecline:temporal.conservativeDecline,
+      printedTemporalIneligibilityProven:temporal.ineligibilityProven,
       printedMandatoryHandCostKnown:payment.knownPrintedCost,
       printedMandatoryHandPayment:
         payment.blocked?'physically-impossible':
@@ -101,6 +116,8 @@ function screenOwnerTrainerPaperNecessity(view,rows){
     enumeratorOfferedCopies:examined.filter(
       row=>row.nativeEnumeratorOffered===true).length,
     provenNecessaryConditionFailures:ruledOut,
+    conservativeTemporalDeclines:examined.filter(row=>
+      row.printedTemporalConservativeDecline).length,
     remainingUnresolvedCopies:examined.length-ruledOut,
     allRemainingArePaperLegal:false,
     independentOfNativeEnumerator:true,
