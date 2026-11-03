@@ -1,0 +1,36 @@
+{
+  "schema": "agent7-historic-original6v9-opponent-escape-rope-after-stadium-v1",
+  "registeredAtUtc": "2026-11-03T20:31:00Z",
+  "sourceRankPair": [
+    6,
+    9
+  ],
+  "seed": 3858002039,
+  "primaryRankSeat": 0,
+  "exactPreviousSourcePhysicalSha256": "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e",
+  "sourceStadium": {
+    "ownerSeat": 0,
+    "turn": 10,
+    "handIndex": 7,
+    "previous": "Wondrous Labyrinth Prism Star TEU",
+    "replacement": "Thunder Mountain Prism Star LOT"
+  },
+  "opponentCounter": {
+    "seat": 1,
+    "turn": 11,
+    "originalNativeAction": "PassTurnAction",
+    "heldItem": "Escape Rope BST",
+    "previousObservedActionOrdinal": 73,
+    "requiredOwnBenchAtLeast": 1,
+    "requiredOpponentBenchAtLeast": 1,
+    "publicItemLock": false
+  },
+  "arms": [
+    "selected-rank6-stadium-native-opponent-control",
+    "selected-rank6-stadium-and-one-opponent-escape-rope",
+    "selected-rank6-stadium-native-opponent-repeat-control"
+  ],
+  "maxActions": 90,
+  "interpretation": "Strict retrospective original-source opponent counter at one known unplayed Item. Native Store and prompts may reject or produce different choices. No opponent-competence guarantee, actual paper clock, full field or qualified game wins. Retain all errors and adverse changes.",
+  "claimBoundary": "Assess selected turn11 physical counter's first divergence, active dislocation, response Guzma/retreat, KOs and Prizes; do not claim Escape Rope is optimal."
+}
