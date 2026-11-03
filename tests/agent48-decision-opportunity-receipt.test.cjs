@@ -184,3 +184,51 @@ test('native probe completeness is choice-level within one physical root',()=>{
     row('a1',1,owner(),[{kind:'pass',nativeCanPlay:false}])
   ]),/Native canPlay positive requires a structural offer/);
 });
+
+
+test('capped native evidence preserves separate accepted and rejected missing totals',()=>{
+  const result=actorNativeReceiptCoverage({
+    selectedRootDecisions:70,
+    acceptedActorRoots:67,
+    rejectedActorRoots:3,
+    nativeRootAcceptances:[
+      ...Array.from({length:61},(_,i)=>({
+        accepted:true,policyDecisionOrdinal:i+1
+      })),
+      ...Array.from({length:3},(_,i)=>({
+        accepted:false,policyDecisionOrdinal:i+62
+      }))
+    ]
+  });
+  assert.equal(result.status,'NATIVE_ROOT_WITNESSES_TRUNCATED');
+  assert.equal(result.retainedAcceptedNativeReceipts,61);
+  assert.equal(result.retainedRejectedNativeReceipts,3);
+  assert.equal(result.missingAcceptedNativeReceipts,6);
+  assert.equal(result.missingRejectedNativeReceipts,0);
+  assert.equal(result.missingNativeReceipts,6);
+});
+
+test('complete native receipt audit rejects mislabeled accepted and rejected dispatches',()=>{
+  const retained=[
+    {accepted:true,policyDecisionOrdinal:1},
+    {accepted:false,policyDecisionOrdinal:2}
+  ];
+  assert.throws(()=>actorNativeReceiptCoverage({
+    selectedRootDecisions:2,acceptedActorRoots:2,rejectedActorRoots:0,
+    nativeRootAcceptances:retained
+  }),/Retained rejected native receipts exceed rejected dispatches/);
+  assert.throws(()=>actorNativeReceiptCoverage({
+    selectedRootDecisions:2,acceptedActorRoots:0,rejectedActorRoots:2,
+    nativeRootAcceptances:retained
+  }),/Retained accepted native receipts exceed accepted dispatches/);
+});
+
+test('truncated native receipt audit rejects a false retained result even if total count fits',()=>{
+  const receipts=Array.from({length:64},(_,i)=>({
+    accepted:false,policyDecisionOrdinal:i+1
+  }));
+  assert.throws(()=>actorNativeReceiptCoverage({
+    selectedRootDecisions:80,acceptedActorRoots:79,rejectedActorRoots:1,
+    nativeRootAcceptances:receipts
+  }),/Retained rejected native receipts exceed rejected dispatches/);
+});
