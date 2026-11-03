@@ -34,10 +34,11 @@ function assignedCell(seed,index,layout){
  * This avoids the complete 32/64/128-cell round and independence across
  * cells within that round assumed by the existing balanced e-process.
  *
- * External auditors MUST verify truly random unground seed selection,
- * prospective public commitment, fresh noninterfering game draws,
+ * External auditors MUST verify unbiased independent seed selection,
+ * a prospective public commitment, secrecy of the seed during trials,
+ * one-at-a-time assignment disclosure, and fresh game draws,
  * printed60 legitimacy, owner information, both-player decision quality,
- * actual paper outcomes and clock. A digest does not prove a fair seed.
+ * actual paper outcomes and clock. A digest does not prove a fair seed or conditional uniformity.
  *
  * @typedef {'QUALIFIED_WIN'|'QUALIFIED_NONWIN'|'CENSORED'} Status
  * @typedef {{trialIndex:number,gameId:string,cell:number,rank:number,
