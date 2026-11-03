@@ -66,7 +66,8 @@ test('catalog reads public Trainer class metadata and exact print names',()=>{
   ];
   const result=trainerPrintCatalog(list,types);
   assert.equal(result.size,4);
-  assert.deepEqual(result.get(TOOL),{name:'Float Stone',type:'Tool'});
+  assert.deepEqual(result.get(TOOL),{
+    name:'Float Stone',type:'Tool',firstTurnSupporterException:false});
   assert.equal(result.has('Iron Thorns ex TWM'),false);
 });
 
@@ -144,4 +145,20 @@ test('opponent concealed contents and unknown nontrainer cards are never consult
 test('frontier rejects prompt-state masquerading as owner root',()=>{
   assert.throws(()=>ownerTrainerOpportunity(view({decisionKind:'owner-prompt'}),
     catalog),/owner-root/);
+});
+
+
+test('printed first-turn Supporter exception overrides generic global-turn veto',()=>{
+  const special=new Map(catalog);
+  special.set(SUPPORT,{...catalog.get(SUPPORT),
+    firstTurnSupporterException:true});
+  const candidate=view({globalTurn:1});
+  const f=ownerTrainerOpportunity(candidate,special);
+  assert.equal(f.rows.find(row=>row.printing===SUPPORT).publicBlocker,null,
+    'Carmine-style first-turn exception is not vetoed by ordinary rule');
+  assert.equal(f.rows.find(row=>row.printing===SECOND).publicBlocker,
+    'first-player-opening-supporter-rule');
+  assert.equal(f.rows.find(row=>row.printing===SUPPORT).paperEligibility,
+    'unresolved-card-specific',
+    'No endorsement of payable Carmine hand discard without evaluating cards');
 });
