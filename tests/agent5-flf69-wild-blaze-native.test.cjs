@@ -106,7 +106,8 @@ for(const v of variants){
       const r=attack(seat,v.name);
       assert.equal(r.damage,300,'Both variants must settle the actual 300 damage');
       assert.equal(r.ownerDeck,v.own,'Actual native owner deck transition');
-      assert.equal(r.opponentDeck,v.other,'Actual native opponent deck transition');
+      assert.equal(r.opponentDeck,v.other-1,
+        'Opponent draws exactly one card at the start of its next turn');
       assert.equal(r.ownerDiscard,10-v.own,'Exact own top-five discard count');
       assert.equal(r.opponentDiscard,10-v.other,'Exact opponent top-five discard count');
       assert.equal(r.turn,5,'Native attack ends the attacking turn');
