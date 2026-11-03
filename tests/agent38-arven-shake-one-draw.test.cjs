@@ -14,7 +14,7 @@ const {exactOneDrawCounts,analyzeOneDrawSixty}=
 function physicalToyCensus(){
   const cards=['t','t','a','s','f','g','b','o'];
   const counts={denominator:0,valid:0,direct:0,arven:0,union:0,
-    hybridArven:0,hybridUnion:0};
+    hybridArven:0,hybridUnion:0,benchNarrow:0,benchHybrid:0};
   for(let i=0;i<8;i++)for(let j=i+1;j<8;j++)
     for(let k=j+1;k<8;k++){
       const seven=new Set([i,j,k]);
@@ -42,6 +42,12 @@ function physicalToyCensus(){
             (has('s')||retained('s'))&&(has('f')||retained('f'));
           counts.hybridArven+=Number(hybrid);
           counts.hybridUnion+=Number(direct||hybrid);
+          // The first-three Active can be chosen as a non-Trubbish Basic,
+          // or a second Trubbish observed by the first draw can be benched.
+          const bench=starting.includes('b')||
+            visible.filter(x=>x==='t').length>=2;
+          counts.benchNarrow+=Number(bench&&(direct||arven));
+          counts.benchHybrid+=Number(bench&&(direct||hybrid));
         }
       }
     }
@@ -77,6 +83,8 @@ test('8-card toy enumerator crosschecks all exact weighted counts',()=>{
   assert.equal(model.unionNumerator,String(census.union));
   assert.equal(model.hybridArvenNumerator,String(census.hybridArven));
   assert.equal(model.hybridUnionNumerator,String(census.hybridUnion));
+  assert.equal(model.benchNarrowUnionNumerator,String(census.benchNarrow));
+  assert.equal(model.benchHybridUnionNumerator,String(census.benchHybrid));
 });
 
 test('normal turn draw preserves exact valid opening seven denominator',()=>{
@@ -111,6 +119,19 @@ test('hybrid Arven searches only missing Item or Tool components',()=>{
   assert.ok(x.hybridArvenConditionalValid>x.arvenConditionalValid);
   assert.ok(x.hybridUnionConditionalValid<
     x.directConditionalValid+x.hybridArvenConditionalValid);
+});
+
+test('naturally benched Trubbish distinguishes alternate starter from forced Active',()=>{
+  const src=analyzeOneDrawSixty(fullSixty(2,0,2,3,2,9),11);
+  const challenger=analyzeOneDrawSixty(fullSixty(3,3,3,4,2,9),12);
+  assert.ok(Math.abs(src.benchHybridUnionConditionalValid-
+    0.011779976746806699)<1e-13);
+  assert.ok(Math.abs(challenger.benchHybridUnionConditionalValid-
+    0.11496088007901561)<1e-13);
+  assert.equal(challenger.benchHybridUnionNumerator,
+    '38773084292118487');
+  assert.ok(challenger.benchHybridUnionConditionalValid<
+    challenger.hybridUnionConditionalValid);
 });
 
 test('missing or already Prized Garbodor cannot satisfy direct or Arven route',()=>{
