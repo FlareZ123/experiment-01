@@ -60,8 +60,9 @@ function allUnseenCopiesPrized(copies, observed = 8,
   assert.ok(Number.isSafeInteger(observed) && observed >= 0);
   assert.ok(Number.isSafeInteger(deckSize) && deckSize > 0);
   assert.ok(Number.isSafeInteger(prizes) && prizes >= 0);
-  assert.ok(deckSize - observed >= prizes + copies,
-    'Remaining unseen cards must include Prizes and target copies');
+  assert.ok(deckSize - observed >= prizes &&
+    deckSize - observed >= copies,
+    'Remaining unseen cards must fit Prizes and target copies');
   return rational(choose(prizes, copies),
     choose(deckSize - observed, copies));
 }
