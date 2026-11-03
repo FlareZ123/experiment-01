@@ -87,6 +87,19 @@ The independent full-row audit found an opposing-sign prospective counterexample
 
 The rank5 New Moon fresh context under its separately registered seed **1399343237** has the opposite change in its original source's copied Techno Blast count (**2→4**) following a **candidate-owned** VIP. These controlled observations show how a symmetric selected policy changes subsequent game trajectories through the *candidate's* actions in different directions. The source's Claw disappearance is **not** proof of a broken attack implementation or a weaker source decision rule: the opponent may have changed board composition, threat timing, or the number of remaining decisions before the engineering cap. Equally, an increased source attack count is not a game-win advantage. Both rank11 arms are capped, tactically incomplete, and not paper-qualified.
 
+## Reusable pure archive verifier and exact source reproducibility
+
+The audit is now reproducible without additional native compilation. The read-only CommonJS [two-axis audit module](../../simulation/evaluation/agent41-joint-v2-archive-audit.cjs), blob SHA `eb241b7c8d5e9b96c24e798f12d5e7dbcef65254`, exports `auditJointV2Archive(archive)` over the original deserialized 52-arm artifact. It explicitly distinguishes **cross-policy same candidate** from **cross-candidate same mode** physical provenance, recovers source custody and action prefixes from `nativeAbortEvidence`, and hardcodes **zero qualified games**. It reads only its supplied archive and writes nothing.
+
+The pure [eight-case Node test](../../tests/agent41-joint-v2-archive-audit.test.cjs) ran successfully under **Node v22.16.0** against the identical tested module bytes. Cases cover first divergent VIP, diagnostic-only ordinals, abort-sidecar source custody, identical abort prefix, cross-candidate mismatch, recovered abort match without promoting completion, absent witness fail-closed, and unexpected first action classification. I also executed the exact tested module against all **70,653,701 bytes** of the preserved archive JSON after atomic extraction. Actual returned diagnostics:
+
+- `sourceMatchedAcrossModes=26`, `sourceUnknownAcrossModes=0`, `fullySettledMatchedAcrossModes=25`.
+- Action classes: `IDENTICAL_FULL=12`, `IDENTICAL_UNTIL_ABORT=1`, `SELECTED_VIP_INSTEAD_OF_PASS=13`; first changed actors eight original and five candidate.
+- `crossCandidateSourcePairs=26` (**13 per mode**), `crossCandidateMatched=24` (**12 per mode**), `crossCandidateUnknown=0`; sole mismatched group `5:101:A:198157155` appears in each mode.
+- `competitiveGameQualified=false`, `paperQualifiedGames=0`.
+
+The code is a **developmental retrospective analyzer** for this registered archive schema. It makes no promises about future native runner structures, unsupported card effects, or engine correctness.
+
 ## Decision, follow-through and limits
 
 **Retain selected-v2 as a mechanistic developmental comparison.** The first-divergence audit supports that its early action intervention activated where expected in 13 full contexts and recovers the 26th pair's equal opening fingerprints and identical 43-action prefix, while preserving the official failed release gate. It cannot validate later effect causality, card-payment fidelity, paper legality, source or candidate intelligence, or a final deck choice.
