@@ -361,6 +361,14 @@ console.log(JSON.stringify({
     [100*jointCostless.lower,100*jointCostless.upper],
   rank6BilateralTwoRouteWithAllEightRemoversSeenPercentBounds:
     [100*jointAll.lower,100*jointAll.upper],
+  rank6OriginalDeterministicRemovalPrintings: 10,
+  rank6OriginalAdditionalCrushingHammerCoinFlipPrintings: 4,
+  rank6TwoRouteWithItemOnlyGuaranteedSpecialEnergyAnswerPercentBounds:
+    [100*jointItems.lower,100*jointItems.upper],
+  rank6TwoRouteWithFiveNoDiscardCostDeterministicAnswersPercentBounds:
+    [100*jointFiveNoDiscard.lower,100*jointFiveNoDiscard.upper],
+  rank6TwoRouteWithTenDeterministicAnswersSeenPercentBounds:
+    [100*jointTenDeterministic.lower,100*jointTenDeterministic.upper],
   tailMass: { candidate: candidateBounds.tail, source: sourceBounds.tail },
   interpretation: 'Physical hand and unprized opportunity only; no native games or actual source Energy-removal payment observed'
 }, null, 2));
