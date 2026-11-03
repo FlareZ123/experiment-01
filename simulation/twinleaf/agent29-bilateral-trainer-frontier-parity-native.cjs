@@ -11,7 +11,7 @@ const {withCanonicalActorOnlyPolicy}=
 const {saveResult}=
   require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
 
-const VERSION='agent29-generic-trainer-frontier-native-a-b-readonly-v1';
+const VERSION='agent29-generic-trainer-frontier-native-a-b-readonly-v2';
 const ENGINE_PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const MAX_ACTIONS=90;
 const REGISTERED={
@@ -71,21 +71,32 @@ function run(){
       captureInitialFullPhysicalDeal:true
     };
     const canonical=()=>withCanonicalActorOnlyPolicy(
-      ()=>runMatch(request),{},{}).result;
+      ()=>runMatch(request),{},{genericFallbackAttribution:true});
     const instrumented=()=>withCanonicalActorOnlyPolicy(
       ()=>runMatch(request),{},{
-        ownerGenericTrainerFrontier:true
+        ownerGenericTrainerFrontier:true,genericFallbackAttribution:true
       });
     const control=canonical();
     const observed=instrumented();
     const repeated=canonical();
-    const controlEvidence=witness(control);
+    const controlEvidence=witness(control.result);
     const observedEvidence=witness(observed.result);
-    const repeatedEvidence=witness(repeated);
+    const repeatedEvidence=witness(repeated.result);
     const digest=[controlEvidence,observedEvidence,repeatedEvidence]
       .map(hash);
     const allEqual=digest[0]===digest[1]&&digest[1]===digest[2];
     const summary=observed.audit.ownerTrainerFrontierAudit?.summary;
+    const originalGeneric=observed.audit.detailedComponentAudits?.genericFallback;
+    assert.ok(originalGeneric&&originalGeneric.bySeat,
+      'Observe actual native generic fallback exposure separately');
+    const gamePhase=require(path.resolve(__dirname,
+      '../../vendor/twinleaf/ptcg-server/output/game/store/state/state'))
+      .GamePhase;
+    const nativeOwnerTurnFallbacks=(originalGeneric.boundedRecords??[])
+      .filter(row=>row.decisionKind==='owner-root-or-setup'&&
+        row.phase===gamePhase.PLAYER_TURN);
+    assert.equal(nativeOwnerTurnFallbacks.length,0,
+      'Canonical root should fully own every actual turn decision');
     assert.ok(summary);
     assert.equal(summary.version,
       'agent29-bilateral-generic-trainer-frontier-transport-v1');
@@ -99,13 +110,17 @@ function run(){
       observedTraceDigest:digest[1],
       repeatedControlTraceDigest:digest[2],
       sameDealAndActionsAcrossABA:allEqual,
-      originalRank5SourceStartedFirst:control.firstTurnSlot===physicalSlot,
+      originalRank5SourceStartedFirst:control.result.firstTurnSlot===physicalSlot,
       fullPhysicalDealSha256:
-        control.initialFullPhysicalDealFingerprint?.digestSha256??null,
+        control.result.initialFullPhysicalDealFingerprint?.digestSha256??null,
       observerSummary:summary,
-      controlFinished:control.finished,
+      canonicalSelectedRoots:observed.audit.detailedComponentAudits?.root?.selectedRootDecisions??null,
+      nativeGenericDecoderCalls:originalGeneric.liveGenericDecodes,
+      nativeGenericFallbackBySeat:originalGeneric.bySeat,
+      nativeOwnerTurnFallbackSampleCount:nativeOwnerTurnFallbacks.length,
+      controlFinished:control.result.finished,
       observedFinished:observed.result.finished,
-      controlNativeWinner:control.winner??null,
+      controlNativeWinner:control.result.winner??null,
       observedNativeWinner:observed.result.winner??null
     });
     assert.ok(allEqual,
