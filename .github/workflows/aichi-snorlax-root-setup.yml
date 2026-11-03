@@ -55,6 +55,8 @@ jobs:
         run: node --test tests/agent19-rank5-mew-dce-snorlax-native.test.cjs
       - name: Archive genuine original rank5 Cross Fusion Strike native prompt trace
         run: node simulation/twinleaf/agent19-rank5-mew-dce-snorlax-native.cjs > aichi-rank5-mew-one-attachment.json
+      - name: Probe native copied Energy Mix DCE custody and forbidden recipient
+        run: node simulation/twinleaf/agent19-mew-energy-mix-native.cjs > aichi-rank5-mew-energy-mix.json
       - name: Archive actual setup selection roots
         if: always()
         uses: actions/upload-artifact@v4
@@ -66,4 +68,5 @@ jobs:
             aichi-snorlax-threat-aware-prospective.json
             aichi-snorlax-zero-energy-threat.json
             aichi-rank5-mew-one-attachment.json
+            aichi-rank5-mew-energy-mix.json
           if-no-files-found: warn
