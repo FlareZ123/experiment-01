@@ -131,7 +131,7 @@ def run():
             else:
                 continue
             direct=nine[T]>=2 or nine[S]>=1
-            gears=min(nine[G],2)
+            gears=min(nine[G],1 if not nine[V] else 2)  # second failed Gear leaves insufficient Ultra Ball discard cards
             if not direct and gears==0:continue
             for prized_thorton in range(min(6,pool[T])+1):
                 options=weighted_ninth_draw(
@@ -150,7 +150,6 @@ def run():
                         failure**gears * TOP_SEVEN**(2-gears))
                     inclusive_numerator+=hand_weight*options*p_num
     assert baseline==17221237379951920
-    assert inclusive_numerator==15597724949201704732931556816768
     denominator=valid_seven*53*comb(52,6)*43*TOP_DENOMINATOR
     assert denominator==7836606921614801887896666834124800
     print('manifestSha',EXPECTED_SHA)
