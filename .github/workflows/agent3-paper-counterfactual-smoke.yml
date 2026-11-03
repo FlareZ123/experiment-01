@@ -2,12 +2,19 @@ name: Agent 3 paper counterfactual smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      rank26_root_v3_native:
+        description: 'Recheck 6 archived original-source rank26 native root receipts, manual only'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   verify:
+    if: ${{ !inputs.rank26_root_v3_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -34,3 +41,35 @@ jobs:
             tests/agent3-rank26-donk-prize-witness-upper.test.cjs \
             tests/agent3-rank26-dowsing-pump-branches.test.cjs \
             tests/agent3-rank26-alternative-basic-starter.test.cjs
+
+  rank26-root-v3-native:
+    if: ${{ inputs.rank26_root_v3_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned Twinleaf packages
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf game
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test real-root-only receipts against rejected and speculative Store calls
+        run: node --test tests/agent3-compressor-root-provenance-v3.test.cjs
+      - name: Replay three previously observed source-first deals with both historical policy arms
+        run: node simulation/twinleaf/agent3-rank26-root-provenance-v3-selected.cjs
+      - name: Archive all six root receipts, including negative and errored attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-original-source-root-receipts-v3
+          path: agent3-rank26-root-provenance-v3.json
+          if-no-files-found: warn
+          retention-days: 14
