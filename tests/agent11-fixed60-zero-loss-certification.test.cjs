@@ -3,7 +3,8 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
-  allWinLowerBound,zeroLossRequirements,conservativeUnbalancedAllWinBound
+  allWinLowerBound,zeroLossRequirements,conservativeUnbalancedAllWinBound,
+  binaryKL,heterogeneousFieldLowerBound,balancedGamesForLossBudget
 }=require('../scripts/agent11-fixed60-zero-loss-certification.cjs');
 
 test('one-sided 95 percent zero-loss whole-field average boundary',()=>{
@@ -53,4 +54,34 @@ test('unbalanced registered source cells cannot count easy-only extra games',()=
   assert.throws(()=>conservativeUnbalancedAllWinBound([640,0]),RangeError);
   assert.throws(()=>conservativeUnbalancedAllWinBound([]),RangeError);
   assert.throws(()=>zeroLossRequirements(0.995,0.05,0),RangeError);
+});
+
+test('nonidentical-stratum KL bound is exact for all wins and valid with losses',()=>{
+  const r0=heterogeneousFieldLowerBound(640,640);
+  assert.ok(Math.abs(r0-allWinLowerBound(128,5))<1e-14);
+  assert.equal(heterogeneousFieldLowerBound(0,640),0);
+  assert.ok(binaryKL(1,0.995)>0);
+  assert.ok(binaryKL(0.999,0.995)>0);
+  assert.throws(()=>heterogeneousFieldLowerBound(641,640),RangeError);
+});
+
+test('precommitted balanced designs tolerate one, two and three observed losses',()=>{
+  const expected=[[0,5,640],[1,9,1152],[2,12,1536],[3,15,1920]];
+  for(const [losses,n,trials] of expected) {
+    const got=balancedGamesForLossBudget(losses);
+    assert.equal(got.perStratum,n);
+    assert.equal(got.totalTrials,trials);
+    assert.ok(got.lowerBound>=0.995);
+    const priorTrials=(n-1)*128;
+    if(priorTrials>losses)
+      assert.ok(heterogeneousFieldLowerBound(priorTrials-losses,priorTrials)<0.995);
+  }
+});
+
+test('stratum-heterogeneous Bernoulli concentration uses real sample counts',()=>{
+  const n=1152, wins=1151, q=wins/n, threshold=Math.log(20)/n;
+  const l=heterogeneousFieldLowerBound(wins,n);
+  assert.ok(l>0.995);
+  assert.ok(Math.abs(binaryKL(q,l)-threshold)<1e-11);
+  assert.throws(()=>balancedGamesForLossBudget(-1),RangeError);
 });
