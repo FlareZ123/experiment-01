@@ -70,6 +70,14 @@ An **earlier Agent14 report** already published the initial six-arm native resul
 
 Any interpretation of a long-term source lock from the uncorrected Catcher branch is therefore **experimentally falsified** on the identical original source context. Next work should integrate genuine two-seat mobility into the selected common policy, rather than resimulate the same already-verified special case.
 
+## Exact root-divergence audit of existing remedial replay
+
+The independent [cross-artifact native auditor](../../scripts/aichi-rank11-catcher-floatstone-cross-artifact-audit.cjs) compares the original Catcher mode artifact **13208060321** (raw SHA-256 `6f334b4f540b8b73be3e70c7d41b3c23afabd91030bdad0c4d264bc5b7c78a79`) with the already-completed symmetric Float Stone rescue artifact **13207494822** (raw SHA-256 `62f3acb40e865d3cb01660191f73ec31557d9e4b868ec47066c06a27f06df1f9`). It requires complete **two-player** physical-deal equality, the original 2171744612 seed, identical actual start seats and **identical first 152 native root ledger entries**.
+
+The first native action difference is **ordinal 152 on source T33**: uncorrected policy chose PassTurnAction; corrected symmetric policy chose **PlayCardAction(Float Stone)**. The next source actions are **RetreatAction** (153) and **AttackAction Claw of Darkness** (154). The attached Float Stone remained on now-Benched Squawkabilly ex, while the three-Darkness Mega Absol ex returned Active. The T33 Claw resolved the native hand-discard and KO chain, changing source Prizes from 5 to 4. Subsequent Claws on T35, T37 and T39 produced the source's native six-Prize terminal, restoring the same five total Claw turns as the un-gusted control.
+
+This is the reproducible first decision difference and actual consequent board transition, a particularly strong falsification of the supposed source lock. The result still represents **one retrospectively selected original physical deal** and **zero paper-competitive-qualified games**.
+
 ## Decision-relevant next action
 
 Send this verified fork to the shared policy integration stewards as a **positive native control** for generic owner-turn option comparison: on the same owner-visible T32 state, recognize both affordable options, compare their strategic opportunity costs, select one, settle the correct native prompt and payments, and track the opponent's immediate response. Keep the baseline and the Lillie negative control, plus the capped Counter Catcher trace. Test transfer on preregistered independent physical deals before promoting anything to the immutable bilateral release. Do **not** make rank-11-specific forced-Catcher logic the general integration.
