@@ -9,6 +9,8 @@ const {registration,executeOne,writeRegisteredReport}=
   require('../twinleaf/agent8-rank13-donor-paired-original-native.cjs');
 const {sourceSummary}=
   require('./agent8-rank13-treasure-native-transport.cjs');
+const {ownerApexPublicGates}=
+  require('./agent8-rank13-apex-public-conjunction.cjs');
 
 const VERSION='agent8-funded-apex-compressor-retrospective-native-v1';
 const REGISTER=path.resolve(__dirname,
@@ -121,6 +123,16 @@ if(require.main===module){
         fullPhysicalParity:x.allSameFullPhysical,
         repeatedControlParity:x.repeatControlIdentical,
         compressor:x.arms[1].nativeCompressorAudit,
+        publicSourceRootCompressorWindows:x.arms.map(arm=>
+          (arm.sourceOwnerPayloadAccessRoots??[])
+            .filter(v=>v.regidragoVstarActive&&
+              (v.handCounts?.battleCompressor??0)>0&&
+              v.eligiblePublicDragonDiscard.length===0&&
+              ownerApexPublicGates(v).printedColoredApexCostPossiblySatisfied)
+            .map(v=>({turn:v.turn,itemLock:v.itemPlayLocked,
+              compressorHeld:v.handCounts.battleCompressor,
+              energy:v.activeAttachedEnergyPrintings,
+              temple:v.templeOfSinnohPublicInPlay}))),
         copiedChoices:x.summaries.map(s=>
           s.sourceNativeCopiedChoices?.length??null),
         nativeWinners:x.summaries.map(s=>s.winner)
