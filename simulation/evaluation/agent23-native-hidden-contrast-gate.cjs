@@ -57,8 +57,10 @@ function verifyNativeBoundedContrast(packet,expected){
     assert.equal(scan.contrastExecutable,
       scan.successfulExchangePaths>0,row.trialId);
     if(expected.numericScores===true){
-      assert.equal(scan.scoreTraceEnabled,true,row.trialId);
-      assert.equal(scan.scoreTraceBaselineFinite,true,row.trialId);
+      assert.equal(scan.scoreTraceEnabled,true,
+        row.trialId+': scoreTraceEnabled');
+      assert.equal(scan.scoreTraceBaselineFinite,true,
+        row.trialId+': scoreTraceBaselineFinite');
       assert.equal(scan.scoreTraceExecutable,
         scan.successfulExchangePaths>0,row.trialId);
       assert.equal(scan.scoreTraceComparisonCount,
