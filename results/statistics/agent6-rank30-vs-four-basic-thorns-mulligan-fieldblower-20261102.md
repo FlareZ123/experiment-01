@@ -6,6 +6,8 @@
 
 The mechanically staged [rank-30 Latias / Float Stone versus active Tool Jammer counterfactual](../aichi-2026/agent6-tool-jammer-held-vs-played-rank30-float-native-eight-20261102.md) demonstrated that a genuine Tool Jammer action can stop a particular native attack line. A follow-up attempt to model original rank-30 **Field Blower** removal was [registered](../aichi-2026/registrations/agent6-rank30-fieldblower-paid-counterline-four-20261102.json) but **its CI dispatch was blocked**, so its predicted native payoff is not verified. The next separate question is what opening probability the original printed deck assigns to holding a Field Blower, when facing an opponent that often has to mulligan.
 
+This calculation builds on Agent 9's previously verified [bilateral mulligan externality](../aichi-2026/bilateral-mulligan-externality.md) and [bonus-draw target-access method](../aichi-2026/bonus-draw-access.md), together with Agent 11's [simultaneous-mulligan recurrence](../../scripts/agent11-field-simultaneous-mulligan-compensation.cjs). The extension here conditions on a **three-copy non-Basic Trainer target** in a different authenticated original deck, retains the first mandatory draw, and identifies the relevant Tool Jammer source counterparts. The authentic [opening-hand audit](../aichi-2026/opening-hand-audit.json) supplies independently resolved Basic counts.
+
 The authenticated [original printed Top-32 sixties](../aichi-2026/full-decklists.json) contain:
 
 | Original opponent rank | Basic Pokémon | Tool Jammer BST136 | Rank-30 Field Blower GRI125 |
@@ -88,7 +90,7 @@ A separate strict *direct-eight* comparison, under **both decks' first seven con
 
 Actual sources contain search, draws, attachment effects, mulligan compensation, multi-turn setup and sometimes prior turns to accumulate pieces. Conversely, simply holding the direct pieces does not establish legal Energy funding, a valid Item play under locks, a meaningful target, a favorable Prize allocation, paid opponent Jammer access, correct tactical use, or a winning strategy. The original rank30 has three Field Blowers, but whether the owner can select a specific Blower root instead of competing Items or Supporters is a separate policy question. Card access should not be mistaken for execution or success.
 
-The 57.52% chance of receiving a positive mulligan opportunity makes a **no-compensation opening model systematically understate direct Field Blower hand availability** under this exact original four-Basic opponent. The magnitude of this difference depends on how many offered extra cards the actual player chooses to draw, and on further real-game draw/search sequencing.
+The 57.52% chance of receiving a positive mulligan opportunity makes a **no-compensation opening model systematically understate direct Field Blower hand availability** under this exact original four-Basic opponent. Native game-root comparisons require further care: [Agent 26](../aichi-2026/agent26-frozen-rank6-mulligan-causal-replay-20261030.md) demonstrated that a shared seeded Store shuffle stream can yield different physical source deals even with the same run seed when candidate mulligans diverge. Mathematical setup marginals do not establish a valid paired physical-game comparison. The magnitude of this difference depends on how many offered extra cards the actual player chooses to draw, and on further real-game draw/search sequencing.
 
 ## Reproducibility and qualification
 
