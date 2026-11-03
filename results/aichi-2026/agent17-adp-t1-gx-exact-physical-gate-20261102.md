@@ -141,7 +141,17 @@ With the candidate's **full two-route** T1 physical enhanced-GX event (ADP Activ
 | --- | ---: |
 | Candidate two-route GX is accessible and source sees **Enhanced Hammer ×2** | **10.21664589%–10.21664868%** |
 | Candidate two-route GX is accessible and source sees **Enhanced Hammer ×2 or Team Flare Grunt ×2** | **17.92144269%–17.92144761%** |
-| Candidate two-route GX is accessible and source sees **any of eight** removers including Plumeria | **27.92460552%–27.92461327%** |
+| Candidate two-route GX is accessible and source sees **the original eight-card core subset** including Plumeria | **27.92460552%–27.92461327%** |
+
+The subsequent independent full-inventory correction adds source-original **Megaton Blower and Faba** to that eight-card core. Under the same exact all-bonus, two-candidate-route joint setup model:
+
+| Expanded source-original answer category, by source T2 | Joint physical event |
+| --- | ---: |
+| Candidate GX two-route access + source sees Enhanced Hammer ×2 **or Megaton Blower ×1** (three Special-Energy-clearing Items) | **14.34511149%–14.34511541%** |
+| Candidate GX two-route access + source sees those Items **or Team Flare Grunt ×2** (five no-hand-discard-cost answers) | **21.01164549%–21.01165128%** |
+| Candidate GX two-route access + source sees **any of the ten deterministic Special Energy answers** | **31.02695354%–31.02696218%** |
+
+This supersedes the eight-card set as a full deterministic-answer inventory. It still cannot establish that an Item is playable or a Supporter is free on that turn. Megaton's Stadium discard can interfere with the opponent's own Thunder Mountain; Team Flare Grunt/Faba can prevent same-turn Guzma & Hala; Plumeria consumes two source hand cards. The four Crushing Hammer coin-flip Items are **not** included among the ten deterministic answers.
 
 These joint rates include source original Basic-valid seven composition and two ordinary source draws; the candidate's two mutually exclusive opening-Active routes are integrated with the shared relative mulligan counts. They do not assume unconditional source/candidate independence or equate a seen Trainer with a playable one. **An original-source decision, legally paid Energy removal, and the candidate's next-turn response remain to be observed in the common native policy.** When the opponent also needs to play Guzma & Hala to power Volt Cyclone, the Enhanced Hammer branch may offer a particularly useful paper-payable counter because its Item action leaves that Supporter opportunity intact. The literal 10.2166% is still an access-conjunction probability, not the frequency of actually successful energy denial.
 
