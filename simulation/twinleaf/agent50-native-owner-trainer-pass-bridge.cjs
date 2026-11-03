@@ -36,6 +36,17 @@ function classifyNativeTrainerAfterPass(view,action,trainerCatalog,PlayCardActio
   if(row.publicBlocker)
     return {selected:false,reason:'generic-public-rule-block',
       printing,type:row.type,publicBlocker:row.publicBlocker};
+  // An explicit fixed-cardinality payment that cannot be made from this
+  // physical owner hand cannot produce a paper-legal Trainer resolution.
+  // A payable or unmodeled cost stays unresolved at every other gate.
+  const payment=require('./agent49-trainer-hand-payment-veto.cjs')
+    .necessaryTrainerHandPaymentGate(view,row);
+  if(payment.blocked)
+    return {selected:false,reason:payment.reason,
+      printing,type:row.type,handIndex:index,
+      physicalOtherCards:view.ownHand.length-1,
+      knownPaymentModes:payment.modeReceipts.map(m=>m.requiredDiscards),
+      paperPaymentVerified:false};
   return {selected:true,reason:'native-proposed-generic-unblocked-trainer',
     printing,type:row.type,handIndex:index,
     unresolvedPaperPayment:true,unresolvedPaperTarget:true,
