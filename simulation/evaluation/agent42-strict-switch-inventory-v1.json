@@ -28,7 +28,7 @@
       "gitBlobSha": "edfc1a5376086c0a6995482a88185c4c1faa5663"
     }
   ],
-  "keyCount": 123,
+  "keyCount": 127,
   "keys": [
     "AGENT10_BASIC_ENERGY_FRONTIER_DEV",
     "AGENT10_RAICHU_KO_BREAKPOINT_DEV",
@@ -130,6 +130,7 @@
     "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV",
     "AGENT4_PLUMERIA_OPPORTUNITY_DEV",
     "AGENT50_ERI_REVEAL_DEV",
+    "AGENT50_NATIVE_TRAINER_PASS_FALLBACK_DEV",
     "AGENT50_STRANDED_MARNIE_DEV",
     "AGENT5_COMMON_COMPRESSOR_DEV",
     "AGENT5_COMPR_LATE14_DEV",
@@ -141,6 +142,7 @@
     "AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV",
     "AGENT7_NATIVE_GENERIC_FALLBACK_DEV",
     "AGENT7_NATIVE_SUPPORTER_CANPLAY_DEV",
+    "AGENT7_OWNER_GENERIC_TRAINER_FRONTIER_DEV",
     "AGENT7_OWNER_SUPPORTER_AUDIT_DEV",
     "AGENT7_PASS_ATTACK_PROBE_TURN",
     "AGENT7_POSITIVE_ATTACK_OVER_PASS_DEV",
@@ -151,6 +153,8 @@
     "AGENT7_THORNS_EMPTY_BENCH_ATTACK_DEV",
     "AGENT8_ACTOR_CHOOSE_POKEMON_DEV",
     "AGENT8_ACTOR_QUICK_BALL_DEV",
+    "AGENT8_ESTABLISHED_QUICKBALL_DEV",
+    "AGENT8_PUBLIC_FLAT_COPY_DEV",
     "AGENT9_BATTLE_VIP_AFTER_PASS_DEV",
     "GITHUB_SHA"
   ],
@@ -266,6 +270,28 @@
       "kind": "auditor-opt-in",
       "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
       "sourceInterpretation": "literal true enables native Quick Ball owner transaction audit"
+    }
+  },
+  "reviewedNewEnvironmentKeys20261103": {
+    "AGENT50_NATIVE_TRAINER_PASS_FALLBACK_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true enables otherwise default-off native Trainer after-Pass fallback; underlying native tactics may inspect concealed data and outcomes are competitively unqualified"
+    },
+    "AGENT7_OWNER_GENERIC_TRAINER_FRONTIER_DEV": {
+      "kind": "auditor-opt-in",
+      "firstVerifiedSource": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+      "sourceInterpretation": "literal true enables default-off two-seat read-only held Trainer and native enum opportunity audit; does not establish paper playable action counts"
+    },
+    "AGENT8_ESTABLISHED_QUICKBALL_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent8-regidrago-quickball-donor-frontier.cjs",
+      "sourceInterpretation": "literal true enables additional established Regidrago Quick Ball root, discard and search branch; paper custody settlement still requires native verification"
+    },
+    "AGENT8_PUBLIC_FLAT_COPY_DEV": {
+      "kind": "actor-opt-in",
+      "firstVerifiedSource": "simulation/twinleaf/agent13-actor-only-choose-attack.cjs",
+      "sourceInterpretation": "literal true enables opt-in public-context flat copied-attack decision mode in owner attack-choice adapter; does not certify damage or payoff"
     }
   }
 }
