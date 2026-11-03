@@ -37,6 +37,42 @@ test('actual API expiry dates and digest bytes match signed historical provenanc
     '903dcfc0e7971c79b24969dc00c3098cfa6f1d70c7b260816d78c47c1324ecf0');
 });
 
+test('published ZIPs retain exact original sha256, revision, and release asset ID',()=>{
+  const actual=archivePlan.artifacts.map(x=>[
+    x.sha256,x.runHeadSha,x.releaseAssetId
+  ]);
+  assert.deepEqual(actual,[
+    [
+      '62201010d3930bfa47ae7927fe960b22ff38fba1aa053a53b419bc0a3aaab69d',
+      '88c4711ecc07e0ea28e6a467cc90396fc95675c6',706062798
+    ],
+    [
+      '9f4b1d249a7d46d5f3f352e651b7400d83fcb3711cfe37af6d9cd3337fe84b73',
+      '9182f48c12c26d1fa966c8a504541b6faef83f9a',706062854
+    ],
+    [
+      '089266b50a3559807eccb5892317558c63694fec43bd393ecc1eb3dc169c84f5',
+      '20d095b3126a767ac60b40f048fa4579b3a04c99',706062887
+    ],
+    [
+      'cff9bc28a739b667bc3648b274fa1318c4bf7cba7ba71cb9166af1ba2a874c5b',
+      'ec7e8ca350a789497c43ecb037e0a9e11ab3aca7',706062928
+    ],
+    [
+      '903dcfc0e7971c79b24969dc00c3098cfa6f1d70c7b260816d78c47c1324ecf0',
+      '39d9a7aa0d60aacd3c673c45b6895f7ccad83990',706062958
+    ]
+  ]);
+  assert.equal(archivePlan.verification.releaseId,432867141);
+  for(const item of archivePlan.artifacts){
+    assert.equal(item.durableUrl,
+      'https://github.com/FlareZ123/experiment-01/releases/download/'+
+      RELEASE_TAG+'/'+item.assetName);
+    assert.equal(item.pinnedTwinleafCommit,
+      'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
+  }
+});
+
 test('content hashing is byte-sensitive, and invalid publication plans fail closed',()=>{
   assert.equal(sha256(Buffer.from('abc')),
     'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
