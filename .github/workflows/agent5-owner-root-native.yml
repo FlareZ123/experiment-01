@@ -69,6 +69,11 @@ on:
         type: boolean
         default: false
 
+      generic_owner_tutor_selected:
+        description: 'Preregistered Agent11 original5-vs11 bilateral generic resource tutor selected policy, 8 arms'
+        required: false
+        type: boolean
+        default: false
       generic_trainer_frontier:
         description: Bounded read-only original-rank true-owner Trainer opportunity A/B/A
         required: false
@@ -98,6 +103,9 @@ jobs:
         run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent5-reactive-attachment-guard.test.cjs tests/agent5-aichi-open-time-adjudication.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-steven-physical-lineage.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs tests/agent12-nightwatch-paper-random-chooser.test.cjs tests/agent12-nightwatch-native-nonce-reconcile.test.cjs tests/agent12-nightwatch-zone-summary.test.cjs
       - name: Generic owner-hand Trainer category and shared-action opportunity tests
         run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs
+      - name: Verify reusable K0 Trainer arbitration and native-like Store adapter
+        if: ${{ inputs.generic_owner_tutor_selected }}
+        run: node --test tests/agent11-owner-resource-tutor-planner.test.cjs tests/agent11-native-owner-resource-tutor-after-pass.test.cjs
       - name: Pure owner-only Marshadow source lockbreak sequence and defensive veto contracts
         if: ${{ inputs.forced_active_marshadow_policy }}
         run: node --test tests/agent5-owner-visible-marshadow-chain-policy.test.cjs
@@ -122,6 +130,16 @@ jobs:
         with:
           name: agent5-generic-trainer-frontier-original5-vs11
           path: agent5-generic-owner-trainer-frontier-original-*.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Agent11 preregistered original rank5/rank11 two-seat selected resource tutor comparison
+        if: ${{ inputs.generic_owner_tutor_selected }}
+        run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.generic_owner_tutor_selected }}
+        with:
+          name: agent11-owner-tutor-original5-vs11-native
+          path: agent11-owner-tutor-native-v1.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
