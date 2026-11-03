@@ -32,12 +32,18 @@ All three original source configurations share a weighted allocation denominator
 
 A second computation allows the source to take **every maximum optional bonus card** from its opponent's mulligans. In each simultaneous opening process, let X be the first Basic-valid seven-attempt index for the four-Basic source, and Y for the opposing deck. The source can draw K=max(0,Y−X) extra cards. X and Y are independent geometric variables with respective valid-seven parameters pS and pO; the exact joint process gives P(K=0)=1−pS(1−pO)/(pS+pO−pS pO), and for k≥1, P(K=k)=pS pO(1−pO)^k/(pS+pO−pS pO).
 
-For each K, the enumerator recomputes the entire physical hand/Prize allocation for H=8+K held cards, weighting each unordered H-card hand with B Basics by C(H,7)−C(H−B,7) valid initial-seven placements. The resulting mixture includes **20 maximum-bonus levels**, with ignored total mass below `4.13e-19` for the fourteen-Basic opponent and below `9.39e-24` for the seventeen-Basic opponent. It does not count actual bonus acceptance or any further effect-driven draws.
+For each K, the enumerator recomputes the entire physical hand/Prize allocation for H=8+K held cards, weighting each unordered H-card hand with B Basics by C(H,7)−C(H−B,7) valid initial-seven placements. The resulting mixture includes **all bonus counts from 0 through 40**, with ignored total mass below `4.13e-19` for the fourteen-Basic opponent and below `9.39e-24` for the seventeen-Basic opponent. It does not count actual bonus acceptance or any further effect-driven draws.
 
 | Source original | Opponent 14-Basic rank-1 Shadow Rider (all bonuses) | Opponent 17-Basic frozen New Moon (all bonuses) | No bonuses |
 | --- | ---: | ---: | ---: |
 | Rank 6 / 29 (1 DCE) | **34.04617488%** | **33.92661197%** | 33.78150571% |
 | Rank 24 (3 DCE) | **39.42081479%** | **39.27946646%** | 39.10785063% |
+
+### Entire 29-original-source Basic-count envelope
+
+Using all **29 authenticated original opponents'** verified Basic counts from [opening-hand-audit.json](../aichi-2026/opening-hand-audit.json) (each opponent rank weighted equally, without claiming that these are meaningful game matchups), the average available first-turn named line with **all maximum optional mulligan bonus draws** is **34.42256003%** for the rank6/29 one-DCE structure and **39.86370726%** for rank24's three-DCE structure. The corresponding no-bonus numbers are **33.78150571%** and **39.10785063%**. The first-turn physical-opportunity differences are **+0.64105432 percentage points** and **+0.75585663 percentage points** respectively.
+
+The verified 29 Basic counts comprise six each with 11 or 14 Basics, four with 15, three each with 4, 12, 13 or 16, and one with 10. The hardest combinatorial tails are three source-versus-four-Basic Thorns mirrors: each conditional K≥41 mass is under **5.19e-10**. The aggregate values are truncated lower sums with a sub-billionth probability upper bound on omitted cases; those extreme bonus counts may also raise deck-exhaustion questions. All original-printing identities, opponent rank counts and the field average are asserted in the source-locked tests. These percentages measure owner paper-card opportunity only and cannot rank the candidate decks.
 
 Thus the extra maximum original-source opportunity afforded by the reference opponent relative to New Moon is **0.11956291 percentage points** for rank6/29 and **0.14134833 percentage points** for rank24. This is a candidate-list-dependent opponent-resource effect, not a matched-deal or win-rate comparison. The core [model](../../scripts/agent11-thorns-first-volt-access.cjs) and [tests](../../tests/agent11-thorns-first-volt-access.test.cjs) now also assert all four mixed probabilities. The formulas were independently implemented in Python and numerically reproduced by a separate local Node.js run.
 
