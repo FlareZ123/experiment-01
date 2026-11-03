@@ -71,6 +71,13 @@ function chooseActorCopiedAttack(input,options={}){
   // An opt-in Poltergeist hypothesis can prefer the printed donor. The
   // opponent hand *count* is public; the identities of its cards are not.
   let picked=eligible[0]??null;
+  if(options.preferRank13DragapultPhantomDive===true&&
+     input.actor.actorSeat===options.rank13SourceSeat&&
+     input.actor.ownPublic.active?.printing==='Regidrago VSTAR SIT'){
+    picked=eligible.find(candidate=>
+      candidate.printing==='Dragapult ex TWM'&&
+      candidate.attackName==='Phantom Dive')??picked;
+  }
   if(options.preferGengarPoltergeist===true){
     picked=eligible.find(candidate=>
       candidate.printing==='Gengar & Mimikyu-GX TEU'&&
@@ -132,13 +139,19 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferGengarPoltergeist=deps.preferGengarPoltergeist===true;
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
+  const preferRank13DragapultPhantomDive=deps.preferRank13DragapultPhantomDive===true;
+  const rank13SourceSeat=deps.rank13SourceSeat??null;
+  assert.ok(!preferRank13DragapultPhantomDive||
+    rank13SourceSeat===0||rank13SourceSeat===1);
   const audit={version:VERSION+
     (preferGengarPoltergeist?'+agent13-gengar-poltergeist-first-v1':'')+
     (preferZeroHandPrintedDamage?'+agent50-zero-hand-poltergeist-v1':'')+
-    (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':''),
+    (preferMewGenesectTechnoBlast?'+agent48-mew-genesect-donor-v1':'')+
+    (preferRank13DragapultPhantomDive?'+agent8-rank13-phantom-dive-v1':''),
     origin:'detached owner ChooseAttack menu',
     preferGengarPoltergeist,preferZeroHandPrintedDamage,
     preferMewGenesectTechnoBlast,
+    preferRank13DragapultPhantomDive,rank13SourceSeat,
     menus:0,selected:0,nativeStores:0,accepted:0,rejected:0,
     nativeFallbacks:0,nonLiveSpeculativeFallbacks:0,
     selections:[],competitiveGameQualified:false};
@@ -157,7 +170,8 @@ function withActorOnlyChooseAttack(run,deps={}){
     audit.menus++;
     const intent=chooseActorCopiedAttack(input,
       {preferGengarPoltergeist,preferZeroHandPrintedDamage,
-        preferMewGenesectTechnoBlast});
+        preferMewGenesectTechnoBlast,
+        preferRank13DragapultPhantomDive,rank13SourceSeat});
     const controlIntent=preferZeroHandPrintedDamage?
       chooseActorCopiedAttack(input,{preferGengarPoltergeist}):null;
     const prompt=state.prompts.find(p=>p.result===undefined);
