@@ -50,7 +50,7 @@ function decisionOpportunityReceipt(records, options = {}) {
   const limit=options.sampleLimit??8;
   assert.ok(Number.isSafeInteger(limit)&&limit>=0);
   const allRoots=new Set(),deals=new Set(),trials=new Set();
-  const pairDeals=new Map(),pairTrialIds=new Map();
+  const pairDeals=new Map(),pairTrialIds=new Map(),trialPairIds=new Map();
   const configs=new Set(),arms=new Map();
   const total={ownerRoots:0,rootsWithOffers:0,nativePlayableWindows:0,
     chosenWindows:0,acceptedWindows:0,settledWindows:0,
@@ -70,10 +70,14 @@ function decisionOpportunityReceipt(records, options = {}) {
     const rootKey=JSON.stringify([trialId,seat,rootOrdinal]);
     assert.ok(!allRoots.has(rootKey),'Repeated physical decision root');
     allRoots.add(rootKey);trials.add(trialId);deals.add(sourceDealFingerprint);
-    if(record.pairedComparisonId!==undefined){
-      assert.ok(typeof record.pairedComparisonId==='string'&&
-        record.pairedComparisonId.length>0);
-      const key=record.pairedComparisonId;
+    const comparisonId=record.pairedComparisonId??null;
+    assert.ok(!trialPairIds.has(trialId)||
+      trialPairIds.get(trialId)===comparisonId,
+      'One physical trial cannot change its paired comparison ID');
+    trialPairIds.set(trialId,comparisonId);
+    if(comparisonId!==null){
+      assert.ok(typeof comparisonId==='string'&&comparisonId.length>0);
+      const key=comparisonId;
       const old=pairDeals.get(key);
       if(old!==undefined)assert.equal(old,sourceDealFingerprint,
         'A paired comparison cannot span different source deals');
@@ -168,12 +172,16 @@ function decisionOpportunityReceipt(records, options = {}) {
         arm.nativePositiveExamples.push(positiveWitness);
     }
   }
+  for(const [pairId,ids] of pairTrialIds){
+    assert.ok(ids.size<=2,
+      'One paired comparison cannot contain more than two distinct trials: '+pairId);
+  }
   return {version:VERSION,qualification:{publicHistorySufficiency:
       'UNVERIFIED',nativeOutcomeBinding:'REQUIRES_STORE_LEDGER',
       competitiveQualifiedGames:0},
     independentSourceDeals:deals.size,physicalTrials:trials.size,
     pairedComparisons:[...pairTrialIds.values()].filter(
-      ids=>ids.size>=2).length,
+      ids=>ids.size===2).length,
     unpairedComparisonRegistrations:[...pairTrialIds.values()].filter(
       ids=>ids.size<2).length,
     uniqueObservedConfigurations:configs.size,
