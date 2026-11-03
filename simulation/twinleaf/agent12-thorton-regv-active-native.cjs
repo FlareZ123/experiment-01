@@ -112,6 +112,7 @@ function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
     damage:f.source.active.damage,
     pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
     activeCards:f.source.active.cards.map(c=>c.fullName),
+    bench0:f.source.bench[0].getPokemonCard()?.fullName??null,
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
     sourceSupporterTurn:f.source.supporterTurn,
     supporterZone:f.source.supporter.cards.map(c=>c.fullName),
