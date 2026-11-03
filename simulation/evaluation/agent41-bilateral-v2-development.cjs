@@ -382,6 +382,7 @@ function executeDevelopment(trial,candidates,{
   rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
   rank11ExclusiveOpening=false,
+  paperRank9ElectrodeGXCorrection=false,
   losslessNativeRootJoin=false,registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
@@ -457,7 +458,8 @@ function executeDevelopment(trial,candidates,{
     captureNativeAbortEvidence:true,
     // Offline post-failure owner-card identity; never supplied to either bot.
     captureRejectedActionEvidence:nativeRejectedActionEvidence,
-    paperTerminalAttackKoCorrection:paperTerminalAttackKo
+    paperTerminalAttackKoCorrection:paperTerminalAttackKo,
+    electrodeGXEnergyCorrection:paperRank9ElectrodeGXCorrection
   };
   let ownerCompressorAudit=null;
   let garbotoxinWindowAudit=null;
@@ -1058,6 +1060,8 @@ function runDevelopment({
   actorPlumeriaAfterPass=false,
   actorGuzmaPromptContinuation=false,actorGuzmaNominalGust=false,
   actorRank9SpecialFundedGuzma=false,
+  actorRank9CompressorOwnerBridge=false,
+  paperRank9ElectrodeGXCorrection=false,
   actorRank9MegaAbsolFundingRoot=false,
   actorActiveMegaClawPriorityRoot=false,
   actorRank9SpecialPaidRetreatSource=false,
@@ -1134,6 +1138,9 @@ function runDevelopment({
     'Charged promotion requires actor-only composition and ChoosePokemon');
   assert.ok(!actorActiveMegaClawPriorityRoot||actorRank9MegaAbsolFundingRoot,
     'Active Mega priority needs existing staged funding');
+  assert.ok(!actorRank9CompressorOwnerBridge||
+    (actorOnlyComposition&&paperRank9ElectrodeGXCorrection),
+    'Rank9 source Compressor bridge requires actor-only policy and paper-correct CES48');
   assert.ok(!actorRank9MegaAbsolFundingRoot||actorOnlyComposition,
     'Rank9 Mega Absol staging requires the common actor-only root');
   assert.ok(!actorRank9SpecialFundedGuzma||
@@ -1294,7 +1301,7 @@ function runDevelopment({
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
-        rank11ExclusiveOpening,
+        rank11ExclusiveOpening,paperRank9ElectrodeGXCorrection,
         registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
@@ -1320,6 +1327,7 @@ function runDevelopment({
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
+          !actorRank9CompressorOwnerBridge&&
           !actorRank9SpecialPaidRetreatSource&&
           !actorFlexiblePaidRetreatRoot&&
           !candidateOnlyKnownDeadRoot&&!bilateralKnownDeadAttackRoot)?{}:
@@ -1432,6 +1440,9 @@ function runDevelopment({
             guzmaOwnerPromptContinuation:actorGuzmaPromptContinuation,
             guzmaNominalGust:actorGuzmaNominalGust,
             rank9SpecialFundedGuzma:actorRank9SpecialFundedGuzma,
+            ...(actorRank9CompressorOwnerBridge?{
+              rank9CompressorOwnerSeat:1-(trial.candidateSlot==='A'?0:1)
+            }:{}),
             ...((anyTurnCompressorPayload||earlyBenchedCompressorPayload)?{
               ownerDonorSetup:{seat:trial.candidateSlot==='A'?0:1,
                 setup:earlyBenchedCompressorPayload?
