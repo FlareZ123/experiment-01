@@ -120,6 +120,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
         require('./agent27-owner-trainer-payment-observer.cjs')
           .summarizeOwnerHandPayment(view,frontier.rows);
     }
+    if(deps.recordPublicStadiumSnapshot===true){
+      root.ownerVisibleStadiumContext={
+        ownerStadium:[...view.ownPublic.stadium],
+        opponentStadium:[...view.opponentPublic.stadium],
+        ownerStadiumPlayedTurn:view.ownTurnResources.stadiumPlayedTurn,
+        ownerStadiumPlayLocked:view.ownTurnResources.stadiumPlayLocked,
+        ownerDeckCount:view.ownPublic.deckCount
+      };
+    }
     roots.push(root);
     observedBySeat[seat]++;
     const action=priorAi.value.call(this,state,...args);
