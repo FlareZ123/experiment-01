@@ -146,3 +146,31 @@ test('optimistic and pessimistic additive-only ties expose regret bounds',()=>{
   near(r.expectedWorstTiedAdditiveChoiceUtility,0);
   near(r.expectedWorstTiedAdditiveRegret,10);
 });
+
+test('rank7 Basic-and-Steven opening conditional target survival',()=>{
+  const C=(n,k)=>{
+    if(k<0||k>n)return 0n;
+    let v=1n;
+    const m=Math.min(k,n-k);
+    for(let i=1;i<=m;i++)v=v*BigInt(n-m+i)/BigInt(i);
+    return v;
+  };
+  // Source rank7 has twelve Basic Pokemon, four Steven, three VS Seeker,
+  // two Capture Energy, three Counter Catcher and thirty-six other cards.
+  let valid=0n,allVsPrized=0n,allCapturePrized=0n,bothPrized=0n;
+  for(let b=1;b<=7;b++)for(let s=1;s<=7-b;s++)
+  for(let v=0;v<=3;v++)for(let c=0;c<=2;c++){
+    const f=7-b-s-v-c;
+    if(f<0||f>39)continue;
+    const w=C(12,b)*C(4,s)*C(3,v)*C(2,c)*C(39,f);
+    valid+=w;
+    if(v===0)allVsPrized+=w*C(50,3);
+    if(c===0)allCapturePrized+=w*C(51,4);
+    if(v===0&&c===0)bothPrized+=w*C(48,1);
+  }
+  const validP=Number(valid)/Number(C(60,7));
+  const retainedP=1-Number(allVsPrized+allCapturePrized-bothPrized)/
+    Number(valid*C(53,6));
+  near(validP,0.30807582629539626);
+  near(retainedP,0.9904976609540354);
+});
