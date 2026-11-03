@@ -55,6 +55,9 @@ const to={player:types.PlayerType.BOTTOM_PLAYER,slot:types.SlotType.BENCH,index:
 test('exact one attached Energy and occupied own Bench',()=>{
   const f=fixture(),prompt=new AttachEnergyPrompt(f.owner.id,f.owner.active);
   assert.equal(verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types).valid,true);
+  prompt.validate=()=>false;
+  assert.equal(verdictVoltCyclone(f.state,prompt,[{card:f.energy,to}],types).valid,true,
+    'native validation disagreement must not become a paper-invalid claim');
   for(const bad of [null,[],[{card:{superType:3},to}],
     [{card:f.energy,to:{...to,index:1}}],
     [{card:f.energy,to:{...to,player:2}}],
@@ -78,7 +81,7 @@ for(const seat of [0,1])test('Store veto before mutation and valid settlement, o
     assert.equal(f.owner.bench[0].cards.includes(f.energy),true);
     store.dispatch(new OtherAction());
     return true;
-  },{Store,IronThornsex,types});
+  },{Store,IronThornsex,types,liveStore:store});
   assert.equal(result.result,true);
   assert.equal(result.audit.sourceMarkedPromptCount,1);
   assert.equal(result.audit.paperInvalidVetoed,1);
@@ -90,7 +93,8 @@ test('unattributed prompt remains explicitly unverified',()=>{
   const f=fixture(),store=new Store(f.state);
   f.state.prompts.push(new AttachEnergyPrompt(f.owner.id,f.owner.active));
   const out=withPaperPromptPortfolio(()=>store.dispatch(
-    new ResolvePromptAction(1,[{card:f.energy,to}])),{Store,IronThornsex,types});
+    new ResolvePromptAction(1,[{card:f.energy,to}])),{Store,IronThornsex,types,
+      liveStore:store});
   assert.equal(out.audit.paperUnverified,1);
   assert.equal(out.audit.paperVerifiedNativeAccepted,0);
 });
@@ -112,12 +116,56 @@ test('live Store denominator excludes accepted auxiliary clone with same id',()=
   assert.equal(result.result,true);
   assert.equal(result.audit.liveStoreObserved,true);
   assert.equal(result.audit.resolutionCount,2);
-  assert.equal(result.audit.paperVerifiedNativeAccepted,2);
+  assert.equal(result.audit.paperVerifiedNativeAccepted,1);
+  assert.equal(result.audit.livePaperVerifiedNativeAccepted,1);
   assert.equal(result.audit.liveResolutionCount,1);
   assert.equal(result.audit.livePaperVerifiedNativeAccepted,1);
   assert.equal(result.audit.auxiliaryResolutionCount,1);
   assert.equal(result.audit.sourceMarkedPromptCountByScope.live,1);
-  assert.equal(result.audit.sourceMarkedPromptCountByScope.auxiliary,1);
+  assert.equal(result.audit.sourceMarkedPromptCountByScope.auxiliary,0);
+  assert.equal(result.audit.sourceMarkedPromptCount,1);
   assert.deepEqual(result.audit.events.map(e=>e.storeScope),
     ['live','auxiliary']);
+  assert.deepEqual(result.audit.events.map(e=>e.status),
+    ['PAPER_PROMPT_VERIFIED','AUXILIARY_NOT_SCREENED']);
+});
+
+test('speculative invalid prompt cannot veto or contaminate live paper counts',()=>{
+  const live=fixture(0),aux=fixture(1);
+  const realStore=new Store(live.state),clone=new Store(aux.state);
+  const realCard=new IronThornsex(),cloneCard=new IronThornsex();
+  const previous=Store.prototype.dispatch;
+  const out=withPaperPromptPortfolio(()=>{
+    cloneCard.reduceEffect(clone,aux.state,
+      new AfterAttackEffect(aux.owner,cloneCard.attacks[0]));
+    clone.dispatch(new ResolvePromptAction(1,[]));
+    realCard.reduceEffect(realStore,live.state,
+      new AfterAttackEffect(live.owner,realCard.attacks[0]));
+    assert.throws(()=>realStore.dispatch(new ResolvePromptAction(1,[])),
+      /PAPER_PROMPT_INVALID/);
+    realStore.dispatch(new ResolvePromptAction(1,[{card:live.energy,to}]));
+    return true;
+  },{Store,IronThornsex,types,liveStore:realStore});
+  assert.equal(out.result,true);
+  assert.equal(out.audit.sourceMarkedPromptCount,1);
+  assert.equal(out.audit.paperInvalidVetoed,1);
+  assert.equal(out.audit.paperVerifiedNativeAccepted,1);
+  assert.equal(out.audit.auxiliaryResolutionCount,1);
+  assert.equal(out.audit.liveResolutionCount,2);
+  assert.equal(out.audit.events[0].status,'AUXILIARY_NOT_SCREENED');
+  assert.equal(aux.owner.active.cards.includes(aux.energy),true);
+  assert.equal(live.owner.bench[0].cards.includes(live.energy),true);
+  assert.strictEqual(Store.prototype.dispatch,previous);
+});
+
+test('missing live identity cannot certify a staged prompt',()=>{
+  const f=fixture(),store=new Store(f.state),card=new IronThornsex();
+  const out=withPaperPromptPortfolio(()=>{
+    card.reduceEffect(store,f.state,new AfterAttackEffect(f.owner,card.attacks[0]));
+    store.dispatch(new ResolvePromptAction(1,[]));
+  },{Store,IronThornsex,types});
+  assert.equal(out.audit.liveStoreObserved,false);
+  assert.equal(out.audit.paperVerifiedNativeAccepted,0);
+  assert.equal(out.audit.paperInvalidVetoed,0);
+  assert.equal(out.audit.unattributedResolutionCount,1);
 });
