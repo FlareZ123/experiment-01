@@ -10,7 +10,7 @@
   "sourceRunner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
   "runnerBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
   "sourceRoster": "results/aichi-2026/full-decklists.json",
-  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3bfa692200",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
   "referenceJointProfileBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
   "actorOnlyVipAdapter": "simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs",
   "actorOnlyVipAdapterBlobSha": "aeda10268b16d0fcb34a52856d0d5067f08fcdac",
@@ -465,5 +465,14 @@
       25,
       28
     ]
-  }
+  },
+  "preexecutionCorrections": [
+    {
+      "utc": "2026-11-03T05:04:00Z",
+      "type": "source-roster-Git-blob-transcription",
+      "previous": "ae773f6201d7aa69d31914dbfee66f3bfa692200",
+      "corrected": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+      "reason": "Frozen preflight pure test in Actions 41581604368 rejected this transcription. Zero native trials reached. No roster contents, source policy, seed group or selected option changed."
+    }
+  ]
 }
