@@ -123,6 +123,8 @@ function withPublicRemovalTargetEvidence(view,census){
   assert.ok(Array.isArray(census.rows));
   const rows=census.rows.map(row=>{
     const cert=removalTargetCertificate(view,row.handIndex);
+    assert.equal(row.printing,cert.printing,
+      'Paper source row must match authenticated physical owner hand index');
     if(!cert.printedRuleKnown)return {...row};
     const targetBlocked=cert.blockers.length>0;
     const priorBlockers=row.necessaryBlockers??[];
