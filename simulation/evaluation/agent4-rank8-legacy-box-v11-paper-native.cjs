@@ -13,10 +13,12 @@ const {withPaperPromptContractPortfolio,VERSION:PAPER_VERSION}=
   require('../twinleaf/agent41-paper-prompt-contract-portfolio.cjs');
 const {secretBoxPaymentNegative}=
   require('../twinleaf/agent4-secret-box-paper-payment-hook.cjs');
+const {withPaperSecretBoxSearchCategory,VERSION:SEARCH_VERSION}=
+  require('../twinleaf/agent4-secret-box-paper-search-hook.cjs');
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 
-const VERSION='agent4-rank8-retrospective-source-vip-box-v11-physical-payment-search-v3';
+const VERSION='agent4-rank8-retrospective-source-vip-box-v11-and-search-guard-v4';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
 /** @param {unknown} item */
@@ -183,7 +185,7 @@ function run(){
         label:'agent4-rank8-retrospective-v11-'+t.trial
       };
       const record={guarded,status:null,error:null,sourceK0:null,
-        paperAudit:null,rawPaymentAudit:null,sourceBoxRoots:[],
+        paperAudit:null,searchPaperAudit:null,rawPaymentAudit:null,sourceBoxRoots:[],
         sourceShakeRoots:[],sourceVipRoots:[],sourceBoxPolicy:null,
         sourceVipPolicy:null,sourceActualFirst:null,
         initialDeckHashes:null,firstTurnSlot:null,
@@ -195,17 +197,22 @@ function run(){
             const doMatch=()=>commonSymmetricPolicy(()=>
               runMatch(request),true,true);
             return guarded?
-              withPaperPromptContractPortfolio(doMatch,{
-                requireLiveStore:true,
-                currentTrialId:()=>t.trial+':paper-v11'
-              }):{result:doMatch(),audit:null};
+              withPaperPromptContractPortfolio(()=>
+                withPaperSecretBoxSearchCategory(doMatch,{
+                  requireLiveStore:true,
+                  currentTrialId:()=>t.trial+':search-v1'
+                }),{
+                  requireLiveStore:true,
+                  currentTrialId:()=>t.trial+':paper-v11'
+                }):{result:doMatch(),audit:null};
           }));
         const {result:paper, audit:watch}=observed.result;
-        const played=paper.result;
+        const played=guarded?paper.result.result:paper.result;
         const game=played.result;
         record.status='COMPLETED_NATIVE_ATTEMPT';
         record.sourceK0=observed.sourceK0;
         record.paperAudit=paper.audit;
+        record.searchPaperAudit=guarded?paper.result.audit:null;
         record.rawPaymentAudit=watch;
         record.initialDeckHashes=game.deckHashes;
         record.firstTurnSlot=game.firstTurnSlot;
@@ -273,7 +280,8 @@ function run(){
     candidateId:'hood-shadow-rider-original-60',
     sourcePrintedSixtyDigest:source.deckHash??null,
     sourcePolicy:'same-owner-visible-canonical-plus-native-vip-first-box-shake',
-    onlyPaperDifference:'default-off v11 Secret Box physical three-card payment veto',
+    onlyPaperDifference:'default-off v11 mandatory payment plus separate source-marked one-per-category native search guard',
+    sourceSearchGuardVersion:SEARCH_VERSION,
     commonPaperPortfolioVersion:PAPER_VERSION,
     trials:rows.length,nativeAttempts:rows.length*2,
     sourceSeatCounts:{0:rows.filter(x=>x.sourceSeat===0).length,
@@ -290,6 +298,10 @@ function run(){
       n+(r.treatment.rawPaymentAudit?.sourceSearchAcquisitions??0),0),
     v11VetoedSourceOrOtherPayments:rows.reduce((n,r)=>
       n+(r.treatment.paperAudit?.vetoedBeforeDispatch??0),0),
+    sourceSearchGuardedValidResponses:rows.reduce((n,r)=>
+      n+(r.treatment.searchPaperAudit?.acceptedSearches??0),0),
+    sourceSearchGuardVetoes:rows.reduce((n,r)=>
+      n+(r.treatment.searchPaperAudit?.vetoedSearches??0),0),
     rows,competitiveQualifiedGames:0,
     interpretation:'Retrospectively selected only three exposed source deals. Neither independent prospective source rate nor qualified game or real win rate.'};
 }
