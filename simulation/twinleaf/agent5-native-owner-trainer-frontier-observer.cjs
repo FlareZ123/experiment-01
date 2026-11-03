@@ -112,6 +112,14 @@ function withNativeOwnerTrainerFrontier(work,deps){
       chosen:null,dispatch:'not-attempted',
       policyIsReadOnly:true,competitiveGameQualified:false
     };
+    // Development-only owner-hand payment overlay. The original native root
+    // and all choices remain untouched. This witness is archived after play;
+    // never disclose these owner-private hand counts to the other actor.
+    if(deps.ownerHandPaymentContentionOptIn===true){
+      root.ownerPaymentSummary=
+        require('./agent27-owner-trainer-payment-observer.cjs')
+          .summarizeOwnerHandPayment(view,frontier.rows);
+    }
     roots.push(root);
     observedBySeat[seat]++;
     const action=priorAi.value.call(this,state,...args);
