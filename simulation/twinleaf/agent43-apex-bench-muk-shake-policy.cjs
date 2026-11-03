@@ -86,7 +86,11 @@ function withApexBenchMukShake(execute) {
       }
       return original.call(this,state);
     }
-    if(pending.playerId!==owner.id)return original.call(this,state);
+    // A ShuffleDeckPrompt can carry no owner id even though it is the
+    // native continuation of this actor's authorized deck search.
+    if(pending.playerId!==owner.id &&
+       !(flow.stage==='shuffle'&&pending.constructor?.name==='ShuffleDeckPrompt'))
+      return original.call(this,state);
     if(flow.stage==='muk-search'&&
        pending.constructor?.name==='ChooseCardsPrompt') {
       if(pending.cards!==owner.deck) {
