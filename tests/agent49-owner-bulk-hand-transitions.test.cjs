@@ -169,7 +169,7 @@ test('N uses owner Prize count and returns every other held card into deck',()=>
   assert.equal(result.opponentConcealedUsed,false);
 });
 
-test('Marnie and Iono require at least one moved hand card for draws',()=>{
+test('Marnie and Iono require actual moved cards; opponent count alone is insufficient',()=>{
   for(const [printing,ownPrizes,expected] of [
     ['Marnie SSH',4,5],['Iono PAL',2,2]
   ]){
@@ -183,8 +183,9 @@ test('Marnie and Iono require at least one moved hand card for draws',()=>{
     const unknown=ownerBulkHandTransition(unknownOpponent,row);
     assert.equal(empty.conditionalDrawTriggered,false);
     assert.equal(empty.drawnCardCountRequested,0);
-    assert.equal(held.conditionalDrawTriggered,true);
-    assert.equal(held.drawnCardCountRequested,expected);
+    assert.equal(held.conditionalDrawTriggered,null,
+      'Public opponent hand count cannot rule out Dew Guard protection');
+    assert.equal(held.drawnCardCountRequested,null);
     assert.equal(unknown.conditionalDrawTriggered,null);
     assert.equal(unknown.drawnCardCountRequested,null);
     assert.equal(held.specificDeckDestination,'deck-bottom');
@@ -192,6 +193,7 @@ test('Marnie and Iono require at least one moved hand card for draws',()=>{
     const ownTwo=ownerBulkHandTransition(
       {...lone,ownHand:Object.freeze([printing,'Energy']),
         opponentPublic:{}},row);
+    assert.equal(ownTwo.conditionalDrawTriggered,true);
     assert.equal(ownTwo.drawnCardCountRequested,expected);
   }
 });
