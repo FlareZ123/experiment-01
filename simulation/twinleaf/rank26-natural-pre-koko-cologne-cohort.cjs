@@ -12,6 +12,8 @@ const {withRank26CologneOpener}=
   require('./rank26-cologne-opener.cjs');
 const {createFullPhysicalDealObserver}=
   require('../evaluation/full-physical-deal-fingerprint.cjs');
+const {sourceCompressorAbortAudit}=
+  require('./agent3-compressor-root-provenance-v3.cjs');
 
 const ENGINE='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
@@ -35,6 +37,7 @@ function withDealFingerprint(call){
   const observer=createFullPhysicalDealObserver();
   let root=null;
   let error=null;
+  let abortSourceCompressorAudit=null;
   let result=null;
   const observe=function(action,...args){
     if(!root&&action?.constructor?.name==='AddPlayerAction'&&
@@ -46,8 +49,14 @@ function withDealFingerprint(call){
   Store.prototype.dispatch=observe;
   try{
     try{result=call();}
-    catch(e){error=String(e?.stack||e).slice(0,3000);}
-    return {result,error,physicalRoot:observer.result(),
+    catch(e){
+      error=String(e?.stack||e).slice(0,3000);
+      // Keep causal native source receipts when the enclosed game aborts.
+      // Error text alone irreversibly loses the physical settlement witness.
+      abortSourceCompressorAudit=sourceCompressorAbortAudit(e);
+    }
+    return {result,error,abortSourceCompressorAudit,
+      physicalRoot:observer.result(),
       liveRootIdentified:root!==null};
   }finally{
     assert.equal(Store.prototype.dispatch,observe);
