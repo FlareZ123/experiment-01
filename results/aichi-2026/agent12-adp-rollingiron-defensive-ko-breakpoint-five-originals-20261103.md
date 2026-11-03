@@ -63,3 +63,8 @@ The conditional KO is a **joint** damage-threshold interaction of the proposed D
 | Ryuno Glide | 330−80 = 250, no KO | **330+30−80 = 280, KO, 3 Prizes** |
 
 Neither the extra donor damage alone nor the GX's 30 damage on Wild Blaze alone crosses this shield at full HP. **Both together** create the damage KO and one extra Prize. The exact combo condition explains why source-specific attack effects and archetype-line-specific sequences must remain joined in candidate optimization; a card-level isolated average score could miss this discrete cross-term. The result is conditional on actual full HP and the shield not being removed through switching, and does not establish its frequency.
+
+
+## Exact minimum-Energy native cost has now been tested
+
+An independent successful [pinned-native exact-resource receipt](../twinleaf/agent12-apex-ryuno-exact-three-energy-native-20261103.md), [CI 41579957340](https://github.com/FlareZ123/experiment-01/actions/runs/41579957340), exercises the *real* `AttackAction('Apex Dragon')` with only **one Double Dragon Energy and one Basic Grass attached**. On **both** ASC152 and ASC271 printings the native prompt permits the one physical DDE card to satisfy the copied Ryuno Glide's mandatory two-Energy discard; after 330 native damage on the separate unprotected staged target, **only Basic Grass remains attached**. This removes the previously untested minimum-Energy payment uncertainty but confirms a real cost to immediately repeating Apex. The 80-protected original-source 280-HP board and subsequent matchup exchange are still paper-conditional and not part of that staged Store test.
