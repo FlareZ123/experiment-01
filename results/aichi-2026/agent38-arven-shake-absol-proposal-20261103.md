@@ -104,3 +104,20 @@ Under this model the challenger going-second union event also has an uncondition
 An [independent six-test suite](../../tests/agent38-arven-shake-one-draw.test.cjs) exhaustively enumerates an eight-physical-card toy with ordered starting cards, separate draw and Prize removal, verifies the exact valid-opening denominator, checks the known rank-11 and challenger counts, and rejects an absent-Garbodor result. All six passed against the original fetched source in an isolated V8-compatible test harness, with a Node `assert` and `test` shim. **These six were not executed under a Node runner or compiled Twinleaf CI**. The prior seven-card test suite did run under local Node 22; both programs are intended for Node 22.
 
 **This model remains a resource-exposure ceiling for the specified narrow two-root line.** It does not certify Arven is the best Supporter, that Trubbish has an open Bench, that Item/Tool play is legal under opponent locks, that native selected actions follow this line, that Garbotoxin remains operative when the opponent can act, or that an early lock improves wins. Prize recovery, other tutors, opponent-mulligan bonuses and additional draw engines can also create lines outside these probabilities. The two model percentages are distinct estimands and must not be conflated.
+
+
+### Held-component Arven hybrids: explicit refinement
+
+The initial "Arven" event in both tables requires Shake, Float Stone and Garbodor **all in the remaining deck**. This is intentionally narrower than the real card's flexibility: if Shake is already in hand, Arven may search just the missing Float Stone; if Stone is held, Arven may search the missing Shake. The source rulebook permits selecting fewer than the stated number of cards in type-restricted deck searches, so these hybrid lines are legitimate *resource* opportunities when the held components and remaining deck permit them.
+
+I extended the same exact eight-visible-card, Basic-valid-seven and six-Prize combinatorics to count **Arven-assisted hybrid** states (Trubbish+Arven observed, Garbodor available in deck, and every missing Shake or Stone accessible in deck) and then form the union with independently held Shake+Stone when Arven is absent. The full unrestricted-within-this-three-component resource event is:
+
+| Going-second first turn, conditional on Basic-valid seven | Original rank-11 60 | Challenger 60 |
+| --- | ---: | ---: |
+| Narrow all-three-in-deck Arven route | 0% | 13.024510% |
+| Arven including held-Item or held-Tool hybrid | 0% | **13.130234%** |
+| Direct Shake+Stone OR either eligible Arven route | **1.938316%** | **16.755733%** |
+
+The hybrid union numerator is **56,512,392,832,556,911** over the same total hand-draw-Prize denominator **416,717,869,162,795,200**; conditioning uses the independently counted Basic-valid initial-seven numerator **337,271,985,613,442,880**. The extension changes the narrow union estimate from 16.679734% to **16.755733%**, a **0.075999 percentage-point** increase in this resource-only experiment.
+
+An updated [seven-test one-draw suite](../../tests/agent38-arven-shake-one-draw.test.cjs) includes an **independent ordered physical toy census of both hybrid and narrow lines**, ensuring no duplicate union reward. All seven passed when original source/test files fetched from GitHub were executed in an isolated V8-compatible harness; a compiled Node/Twinleaf run is still absent. This refinement does not address the possible self-lock cost of Garbotoxin, actual first-turn selection, opposing Item lock or opponent counterplay.
