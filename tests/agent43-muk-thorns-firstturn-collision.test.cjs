@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const roster = require('../results/aichi-2026/full-decklists.json');
-const { candidateForcedActiveMuk, rank6GuzmaHalaVoltWindow } =
+const { candidateForcedActiveMuk, candidateMukBenchGeometry, rank6GuzmaHalaVoltWindow } =
   require('../simulation/evaluation/agent43-muk-thorns-firstturn-collision.cjs');
 
 /** @param {number} actual @param {number} expected */
@@ -30,6 +30,23 @@ near(candidate.forcedGrimerActive, 0.06798254158677426);
 near(candidate.directForcedMukUnconditional, 0.024003743836991415);
 near(candidate.directForcedMukAmongBasicValid, 0.029657930128668096);
 
+// Strict position classification differs from the historical Grimer-only
+// species category: an eighth-drawn Grimer can be Benched before Shake.
+const geometry = candidateMukBenchGeometry();
+near(geometry.basicValid, candidate.basicValid);
+near(geometry.sevenSingleGrimerDirectAmongBasicValid, 0.027939290944717383);
+near(geometry.eighthSecondGrimerBenchAmongBasicValid, 0.00047752536793325853);
+near(geometry.noNaturalSecondGrimerByEightAmongBasicValid, 0.027461765576784123);
+near(geometry.secondGrimerSearchOpportunityAmongBasicValid, 0.015578512181126982);
+near(geometry.noDemonstratedSecondGrimerAccessAmongBasicValid, 0.011883253395657152);
+near(
+  geometry.sevenSingleGrimerDirectAmongBasicValid
+    - geometry.eighthSecondGrimerBenchAmongBasicValid,
+  geometry.noNaturalSecondGrimerByEightAmongBasicValid
+);
+assert.ok(geometry.secondGrimerSearchOpportunityAmongBasicValid
+  < geometry.noNaturalSecondGrimerByEightAmongBasicValid);
+
 const source = rank6GuzmaHalaVoltWindow();
 near(source.sourceBasicValid, 0.3994996257446656);
 near(source.sourceOpportunityUnconditional, 0.1314789606712864);
@@ -42,8 +59,15 @@ console.log(JSON.stringify({
   status: 'PASS',
   scope: 'combinatorial opening access only; independently shuffled Basic-valid seven; no opponent mulligan bonus draws',
   forcedGrimerValidPercent: candidate.forcedGrimerActive / candidate.basicValid * 100,
-  candidateDirectMukForcedActiveValidPercent: candidate.directForcedMukAmongBasicValid * 100,
+  candidateHistoricalGrimerOnlySpeciesValidPercent: candidate.directForcedMukAmongBasicValid * 100,
+  candidateNoNaturallyHeldBenchGrimerByEighthPercent:
+    geometry.noNaturalSecondGrimerByEightAmongBasicValid * 100,
+  potentialSecondGrimerSearchPercent: geometry.secondGrimerSearchOpportunityAmongBasicValid * 100,
+  caveat: 'Potential search requires real affordable discard payment; non-search mobility remains unmodeled.',
   sourcePotentialVoltLineValidPercent: source.sourceOpportunityAmongBasicValid * 100,
-  independentOpportunityCollisionPercent: independentOpportunityCollision * 100,
+  historicalBroadOpportunityCollisionPercent: independentOpportunityCollision * 100,
+  narrowerNoNaturalBenchGrimerCollisionPercent:
+    geometry.noNaturalSecondGrimerByEightAmongBasicValid
+      * source.sourceOpportunityAmongBasicValid * 100,
   strongCaveat: 'Does not model Guzma & Hala discard payment, actual native action chain, opponent optimal policy, game result or win rate.'
 }, null, 2));
