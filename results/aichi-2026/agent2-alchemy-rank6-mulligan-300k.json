@@ -1,0 +1,22 @@
+{
+ "schema":"agent2-alchemy-rank6-mulligan-300k-raw-counts-v1",
+ "seed":20261103,"attempted":300000,"completed":300000,"censored":0,
+ "v0":"21846db95f88d5d5abc6ee3876b3522732092e27ca5e7485948f354d8468a769",
+ "v1":"5cd6b0fc7781e1a5a3b29f5a23654750295af89bdc63621f235fbd0c56701fd0",
+ "candidateValidSeven":0.8093533072892635,
+ "sourceValidSeven":0.3994996257446656,
+ "candidateBonusOfferProbability":0.5488513367202532,
+ "expectedCandidateMaximumBonus":1.3738469358943621,
+ "bonusCountBins":[135252,65539,39847,23473,14364,8561,5188,7776],
+ "columns":{"allV0V1":"ordered counts","bonusPositiveV0V1":"ordered counts","v0OnlyV1Only":"paired discordant counts"},
+ "metrics":{
+  "muk":[[75267,88241],[48040,56178],[4339,17313]],
+  "budew":[[138904,114941],[82898,68918],[23963,0]],
+  "regidrago":[[262499,254964],[149041,145341],[7535,0]],
+  "mukRegidrago":[[59644,68125],[40096,45693],[4929,13410]],
+  "budewRegidrago":[[114754,92502],[71721,58319],[22252,0]],
+  "eitherLockRegidrago":[[142853,130551],[89585,82753],[13642,1340]],
+  "budewDirectStartRegidrago":[[36157,34764],[20738,20056],[1393,0]]
+ },
+ "note":"Opening access counts with maximum optional opponent-mulligan bonus draws. Not games or wins. Runner reconstructs full output and sampling intervals."
+}
