@@ -1132,6 +1132,8 @@ function runDevelopment({
     'Mega Absol VIP targeting requires native both-seat VIP before Attack');
   assert.ok(!actorChargedPromotion||(actorOnlyComposition&&actorChoosePokemon),
     'Charged promotion requires actor-only composition and ChoosePokemon');
+  assert.ok(!actorActiveMegaClawPriorityRoot||actorRank9MegaAbsolFundingRoot,
+    'Active Mega priority needs existing staged funding');
   assert.ok(!actorRank9MegaAbsolFundingRoot||actorOnlyComposition,
     'Rank9 Mega Absol staging requires the common actor-only root');
   assert.ok(!actorRank9SpecialFundedGuzma||
