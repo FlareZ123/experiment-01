@@ -75,6 +75,12 @@ jobs:
         run: |
           node --test tests/agent32-adp-one-slot-first-gx-sensitivity.test.cjs
           node simulation/evaluation/agent32-adp-one-slot-first-gx-sensitivity.cjs
+      - name: Verify actual original mulligan bonus cards in exact ADP first-GX screen
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-adp-mulligan-bonus-firstgx.test.cjs
+          node simulation/evaluation/agent32-adp-mulligan-bonus-firstgx.cjs 32 > agent32-adp-mulligan-bonus-firstgx.json
+          node -e "const r=require('./agent32-adp-mulligan-bonus-firstgx.json'); console.log(JSON.stringify({version:r.version,source:r.fixedSourceSha,base:r.baseAccess.percent,mean:r.equalOriginalMean,rank6:r.rows.find(x=>x.rank===6),rank1:r.rows.find(x=>x.rank===1)}))"
       - name: Verify rank2 physical TM source access under simultaneous original opponent mulligans
         if: ${{ always() && !cancelled() }}
         run: |
