@@ -44,13 +44,41 @@ test('all rank26 Pokémon attacks lack a targeted opposing Bench gust',()=>{
  }
 });
 
-test('source first turn Prize parity leaves Counter Catcher unplayable',()=>{
+test('initial Prize parity is a temporary Catcher gate only',()=>{
  const sourcePrizes=6,opponentPrizes=6;
  assert.equal(sourcePrizes>opponentPrizes,false);
+ assert.equal(sourcePrizes>(opponentPrizes-1),true);
  // Escape Rope allows defender to retain Benched Muk if an alternative
  // Bench Pokémon is available; if Muk is the only Bench, it is forced Active.
  const canKeepMukOnBench=otherBenchedCount=>otherBenchedCount>=1;
  assert.equal(canKeepMukOnBench(0),false);
  assert.equal(canKeepMukOnBench(1),true);
  assert.equal(canKeepMukOnBench(2),true);
+});
+
+test('source contains a legal printed non-Darkness self-KO gate for Catcher',()=>{
+ assert.equal(n('Risky Ruins'),4);
+ assert.equal(n('Damage Pump'),4);
+ assert.equal(n('Unown'),4);
+ assert.equal(n('Exeggcute'),2);
+ const ruins=printedCard(root,'me1-127');
+ const pump=printedCard(root,'swsh11-156');
+ const egg=printedCard(root,'bw9-4');
+ const unown=printedCard(root,'xy7-30');
+ const crisis=printedCard(root,'sv4pt5-90');
+ assert.match(ruins.rules[0],/Basic non-Darkness Pokémon/);
+ assert.match(ruins.rules[0],/2 damage counters/);
+ assert.match(pump.rules[0],/Move up to 2 damage counters/);
+ assert.equal(egg.hp,'30');
+ assert.deepEqual(egg.types,['Grass']);
+ assert.deepEqual(unown.types,['Psychic']);
+ // Two separately Benched non-Darkness Basics each receive 20 damage.
+ // Moving one counter from Unown to the 30-HP Egg makes Egg be KO'd.
+ const eggDamage=20+10,unownDamage=20-10;
+ assert.equal(eggDamage>=Number(egg.hp),true);
+ assert.ok(unownDamage<Number(unown.hp));
+ // Opponent now has five Prizes, source still has six: Catcher is live.
+ assert.ok(6>5);
+ // Crisis Punch requires the *fifth* self-KO, not just this first.
+ assert.match(crisis.attacks[0].text,/exactly 1 Prize card remaining/);
 });
