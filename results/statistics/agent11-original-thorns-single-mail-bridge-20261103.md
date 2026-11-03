@@ -30,6 +30,29 @@ The original physical eight may contain several Trainers' Mail. A separate exact
 
 Exact all-Mail weighted success numerators / denominators: rank6 `280786541516936143210972545004800 / 723434486475301475249684509200000`; rank24 `55020028179047314754322617632568694400 / 118053656675472071238619766633802000000`; rank29 `1648838222304359712638968560 / 4433216818183665626434320000`. [The same source-locked tests](../../tests/agent11-thorns-single-trainers-mail.test.cjs) now assert all three additional exact totals. The calculation was independently replicated by a second Python combinatorial enumerator and local Node.js execution. The practical benefit of even four Mail remains conditional on having the copies in hand, unblocked Item use and acceptable enhanced G&H discard costs.
 
+## Coupled full simultaneous mulligan compensation and the original field
+
+Under independent simultaneous mulligans, a source with four only Basic Pokémon takes up to `K=max(0,Y−X)` optional bonus cards, where `X` and `Y` are the source and opponent's first valid-seven attempt numbers. For every particular bonus `K`, the exact model now reweights physical `8+K` cards held and six Prizes. Trainers' Mail peeks from a `46−K`-card deck, shuffling between unsuccessful peeks. The following physical probabilities assume the source **takes every offered bonus card**.
+
+| Original | Opponent's starting Basic count | Without Mail | One Mail | Every held Mail |
+| --- | ---: | ---: | ---: | ---: |
+| Rank 6 (1 DCE, 3 Mail) | Champion Shadow Rider: 14 | 34.04617488% | 38.69516127% | **39.09859035%** |
+| Rank 6 (1 DCE, 3 Mail) | New Moon: 17 | 33.92661197% | 38.56908602% | **38.96973765%** |
+| Rank 24 (3 DCE, 4 Mail) | Champion Shadow Rider: 14 | 39.42081479% | 46.07802462% | **46.94596915%** |
+| Rank 24 (3 DCE, 4 Mail) | New Moon: 17 | 39.27946646% | 45.93023248% | **46.79269894%** |
+| Rank 29 (1 DCE, 2 Mail) | Champion Shadow Rider: 14 | 34.04617488% | 37.33211379% | **37.47251431%** |
+| Rank 29 (1 DCE, 2 Mail) | New Moon: 17 | 33.92661197% | 37.20688710% | **37.34626971%** |
+
+Equally weighting all **29 authenticated original** opposing printed-60 Basic counts in [the source census](../aichi-2026/opening-hand-audit.json), all-maximum-mulligan-bonus first-Volt access is:
+
+| Source | No Mail | At most one Mail | All naturally held Mail |
+| --- | ---: | ---: | ---: |
+| Rank 6 | 34.42256003% | 39.08524704% | **39.49730832%** |
+| Rank 24 | 39.86370726% | 46.53011704% | **47.41422502%** |
+| Rank 29 | 34.42256003% | 37.72180986% | **37.86544948%** |
+
+The low-Basic extreme is an Iron Thorns mirror, which allows a long mulligan bonus tail. The truncated calculation includes K=0 through 40; the unmodeled tail is **below 5.19e-10** for every authenticated opposing original. These field percentages describe three original source archetype-line *opportunity baselines* with equally weighted opposing Basic counts, not head-to-head game records. Opponent lock, effects, DCI, field matchup selection, actual receipt of the free draws, and source bot competence remain outside the model.
+
 ## Proof and reproducibility
 
 [BigInt exact code](../../scripts/agent11-thorns-single-trainers-mail.cjs) enumerates all relevant eight-card hand and six-Prize compositions, preserving the initial-seven valid-Basic weight. It classifies a failed no-Mail line as rescued when one of `g` acceptable Trainer cards occurs in the next four of the remaining **46** deck cards. The exact hit fraction is `1−C(46−g,4)/C(46,4)`. If G&H is deck-resident, `g` counts available G&H and Tag Call; when DCE is held and Thunder Mountain missing, a deck-resident Mountain also counts. Other top-four cards cannot complete the specified route. This case disjunction avoids double counting.
