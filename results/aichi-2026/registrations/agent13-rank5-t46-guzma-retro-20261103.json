@@ -47,5 +47,13 @@
   "intervention": "Only env AGENT13_DCE_FUSION_GUZMA_RETRO_DEV differs between modes. Default-off extra last-chance root policy and agreed Guzma owner-target prompt policy present in BOTH code paths. Same registered source+candidate fixed 60s and seed, no hand/board injection. Verify actual initial physical source and candidate equality postrun, compare first different root and native accepted physical transition, attack settlement and adverse opponent response.",
   "expectedNativeAttempts": 2,
   "resultsAdmittedAsCompetitiveGames": false,
-  "limits": "Retrospective one selected deal, same game seed does not force same later RNG after intervention; genuine Store and printed card handling must be validated. Any terminal, error, cap or no intervention remains in denominator."
+  "limits": "Retrospective one selected deal, same game seed does not force same later RNG after intervention; genuine Store and printed card handling must be validated. Any terminal, error, cap or no intervention remains in denominator.",
+  "branchOnlyRootCeilingFork": {
+    "path": "results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json",
+    "field": "maxRootActions",
+    "originalValue": 260,
+    "branchValue": 340,
+    "branchForkBlobSha": "ab81eedab1eee00c238e21d50c70d666dcdf8ac3",
+    "rationale": "The unchanged native runner asserts <= registration.maxRootActions. Retrospective source T46 occurs near action254 of original 260-action cap, and a legal Guzma switch, copied attack and opposing counterplay need more room. Branch-only fork changes exactly this ceiling; original historical registration on main and all printed deck/seed/policy options stay unchanged. Use only explicitly registeredTrials in runner to avoid unrelated original scheduledArms pin."
+  }
 }
