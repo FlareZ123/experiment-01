@@ -9,13 +9,13 @@ const native=relative=>require(path.join(base,relative));
  * Prepared native Store, using original Aichi rank-5 printings for the Mew
  * line. This is a constructed board, not a 60-card source-dealt match.
  * @param {0|1} attackingSeat
- * @param {0|1} recipientIndex Benched Genesect V or Mew V.
+ * @param {0|1|2} recipientIndex Benched Genesect V, Mew V or non-Fusion Crobat.
  * @param {boolean} energyAvailable Whether a second DCE remains in deck.
  * @returns {object}
  */
 function trial(attackingSeat,recipientIndex,energyAvailable){
   assert.ok(attackingSeat===0||attackingSeat===1);
-  assert.ok(recipientIndex===0||recipientIndex===1);
+  assert.ok([0,1,2].includes(recipientIndex));
   assert.equal(typeof energyAvailable,'boolean');
   const catalog=initializeCards();
   let nextId=10000;
@@ -100,8 +100,8 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
         const unallowed=[{card,to:{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:2}}];
         sawNonFusionBlock=prompt.validate(unallowed)===false;
-        assert.equal(sawNonFusionBlock,true,
-          'Native prompt must reject non-Fusion Crobat recipient');
+        assert.equal(sawNonFusionBlock,false,
+          'Pinned AttachEnergyPrompt.validate lacks blockedTo check');
         selection=[{card,to:{
           player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,
           index:recipientIndex}}];
@@ -137,7 +137,10 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
     copyChosen:'Mew V FST / Energy Mix',
     attachedExactDeckDceToRecipient:dceOnRecipient,
     originalAttackingDceRetained:true,
-    nonFusionRecipientRejected:sawNonFusionBlock,
+    nonFusionRecipientRejectedByPromptValidate:sawNonFusionBlock,
+    sourcePrintedEnergyMixTargetLegal:recipientIndex!==2,
+    nativePaperInvalidAttachmentAccepted:
+      energyAvailable&&recipientIndex===2&&dceOnRecipient,
     prizesTaken:0,trace,preparedBoard:true,sourceDealt:false,
     paperQualified:false,competitiveQualifiedGames:0};
 }
@@ -145,12 +148,13 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
 function run(){
   const arms=[];
   for(const seat of [0,1])
-    for(const index of [0,1])
+    for(const index of [0,1,2])
       for(const available of [false,true])
         arms.push(trial(seat,index,available));
   return {schema:'agent19-mew-vmax-copy-energy-mix-custody-native-v1',
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     physicalSourceDecksUnchanged:false,
+    note:'Pinned Store stage includes deliberately invalid non-Fusion recipient to test a paper-validity veto.',
     competitiveQualifiedGames:0,arms};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
