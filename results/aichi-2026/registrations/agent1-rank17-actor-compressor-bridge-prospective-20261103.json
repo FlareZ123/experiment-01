@@ -1,0 +1,66 @@
+{
+  "schema": "agent1-rank17-actor-compressor-bridge-prospective-v1",
+  "registeredUtc": "2026-11-03T06:35:35Z",
+  "question": "Can the original rank17 source play a native held Battle Compressor when a read-only actor-owned pass interception permits the existing hidden-by-actor native source tactic in actual Store roots?",
+  "referenceSource": "results/aichi-2026/full-decklists.json",
+  "sourceOriginalRank": 17,
+  "opponentOriginalRank": 1,
+  "sourceOriginalFingerprint": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36bd115f539f6401",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "previouslyExposedNativeRuns": [
+    41588655921,
+    41590060324
+  ],
+  "retrospectivePositiveControl": [
+    {
+      "seed": 2443530385,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 1246820961,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 3029174418,
+      "sourceSeat": 0
+    }
+  ],
+  "retrospectivePositiveControlSelectedAfterViewingSourceOwnerHands": true,
+  "prospectiveSeedGroups": [
+    725554645,
+    1648575463,
+    1505670861,
+    2143415530,
+    1965282964,
+    2208314832,
+    194900276,
+    4010383176
+  ],
+  "prospectiveSourceSeats": [
+    0,
+    1
+  ],
+  "newProspectiveSeedsRandomlyGeneratedBeforeOutcomes": true,
+  "modes": [
+    "pass-through-actor-no-bridge",
+    "actor-early-pass-to-compressor-bridge"
+  ],
+  "baseBothModes": {
+    "maxActions": 180,
+    "strictPromptValidation": true,
+    "captureDecisionTrace": true,
+    "captureInitialFullPhysicalDeal": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true,
+    "actorNaturalEvolutionRoot": true,
+    "rank4RaichuCompressorSeat": "original source seat"
+  },
+  "experimentalDifference": "Only the treatment applies withOwnerEarlyCompressorAfterPass after actor-only root selection, prechecking actual owner hand, original stage-setup predecessor, native canPlay and an actual selected Pass, then dispatching genuine PlayCardAction. Existing native owner deck prompt resolver stays identical in both arms.",
+  "expectedFreshPairs": 16,
+  "expectedRetrospectivePositivePairs": 3,
+  "expectedTotalNativeArms": 38,
+  "comparator": "Require matching original full physical startup digest, engine revision and source 60; preserve native root actions, selected actor passes, physical discard and prompt outcome where visible; report every error and cap.",
+  "inferentialLimit": "Three deliberately positive retrospective source roots are controls for pipeline reachability. Fresh eight-seed, two-seat pairs are prospective but not power-calibrated. Source-only intervention, generic prompts, paper lock matrix and full 25-minute play competence unqualified.",
+  "competitiveGameQualified": false
+}
