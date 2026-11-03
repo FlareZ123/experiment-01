@@ -1,0 +1,50 @@
+{
+  "schema": "agent30-public-prize-original5-26-registered-native-v1",
+  "registeredAtUtc": "2026-11-03T14:48:00Z",
+  "sourceManifest": "results/aichi-2026/full-decklists.json",
+  "originalPrinted60Sha256ByRank": {
+    "5": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "26": "07da7009178b63868ef21047982955663ac855bfcd15006e30541d4f90e55e4c"
+  },
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRanks": [
+    5,
+    26
+  ],
+  "seedProtocol": "deriveSlotSeeds(base,phase,rank,repeat)",
+  "seedBase": 20261130,
+  "phase": "pilot",
+  "rankSeedKey": 5,
+  "repeats": [
+    0,
+    1
+  ],
+  "source5PhysicalSeats": [
+    0,
+    1
+  ],
+  "armsPerCohort": [
+    "canonical-control",
+    "canonical+read-only-public-prize-screen",
+    "canonical-repeat-control"
+  ],
+  "maxActionsPerNativeAttempt": 90,
+  "totalPhysicalDealGroups": 4,
+  "totalNativeAttempts": 12,
+  "priorRegisteredEvidenceUsedForPilot": false,
+  "predeclaredSelectionRule": "all four cohorts and all twelve attempts regardless of observed Prize-blocked cards, Store errors, caps or native terminals",
+  "treatmentEffect": "owner-visible original-source public Prize-card negative certificates; action-selection policy unchanged",
+  "gameplayAndPaperQualified": false,
+  "independentCompetitiveGames": 0,
+  "targetPositiveObservation": "authentic owner root with physical print Counter Catcher PAR or Special Red Card CRI held at publicly unsatisfied Prize state, and exact count recorded",
+  "knownSourceCards": {
+    "5": {
+      "Special Red Card CRI": 2
+    },
+    "26": {
+      "Counter Catcher PAR": 1,
+      "Special Red Card CRI": 1
+    }
+  },
+  "interpretationLimits": "Repeated owner-root appearances are autocorrelated, cards in hand may remain unseen, no paper-paid action or strategic win certified."
+}
