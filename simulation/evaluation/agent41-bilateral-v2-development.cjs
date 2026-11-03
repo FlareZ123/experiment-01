@@ -1833,6 +1833,7 @@ if(require.main===module){
       process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL?
         Number(process.env.AGENT23_NATIVE_INPUT_TAPE_ORDINAL):null,
     actorOnlyComposition:process.env.AGENT7_CANONICAL_ACTOR_POLICY_DEV==='true',
+    ownerGenericTrainerFrontier:process.env.AGENT7_OWNER_GENERIC_TRAINER_FRONTIER_DEV==='true',
     actorMewGenesectTechnoBlast:
       process.env.AGENT13_MEW_GENES_COPY_DEV==='true',
     actorDceMewMobilityRoot:
