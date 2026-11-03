@@ -209,3 +209,120 @@ for(const seat of [0,1]){
     });
   }
 }
+
+
+/**
+ * Staged paper response: source plays its physical Escape Rope, opponent
+ * chooses a real Bench target, then source pays Canceling Cologne and
+ * attempts discard-pile Propagation. Requires no opponent hidden cards.
+ * @param {0|1} seat
+ * @param {boolean} additionalBench Another actual opposing Bench choice.
+ */
+function ropeCologneContinuation(seat,additionalBench) {
+  const {Store}=native('game/store/store');
+  const {State,GamePhase}=native('game/store/state/state');
+  const {Player}=native('game/store/state/player');
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+  const {CardList}=native('game/store/state/card-list');
+  const {GameSettings}=native('game/core/game-settings');
+  const {Format}=native('game/store/card/card-types');
+  const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
+  const {UseAbilityAction}=native('game/store/actions/game-actions');
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+  const manager=initializeCards();
+  let physical=460000+seat*100;
+  /** @param {string} name */
+  function card(name) {
+    const instance=manager.getCardByName(name);
+    assert.ok(instance,'Missing pinned printing '+name);
+    instance.id=physical++;
+    return instance;
+  }
+  const source=new Player(),opponent=new Player();
+  source.id=seat===0?101:202;
+  opponent.id=seat===0?202:101;
+  source.active.cards.push(card('Meloetta ex SV11B'));
+  opponent.active.cards.push(card('Regidrago V SIT'));
+  const egg=card('Exeggcute PLF');
+  source.discard.cards.push(egg);
+  source.hand.cards.push(card('Escape Rope BST'),card('Canceling Cologne ASR'));
+  const mukBench=new PokemonCardList();
+  mukBench.cards.push(card('Alolan Grimer SUM'),card('Alolan Muk SUM'));
+  mukBench.pokemonPlayedTurn=1;
+  opponent.bench.push(mukBench);
+  if(additionalBench){
+    const other=new PokemonCardList();
+    other.cards.push(card('Lunatone OBF'));
+    opponent.bench.push(other);
+  }
+  for(const player of [source,opponent]){
+    for(let i=0;i<8;i++)player.deck.cards.push(card('Psychic Energy SVE'));
+    for(let i=0;i<6;i++){
+      const prize=new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      player.prizes.push(prize);
+    }
+  }
+  const state=new State(),settings=new GameSettings();
+  settings.format=Format.EXPANDED;
+  state.gameSettings=settings;state.rules=settings.rules;
+  state.turn=3;state.phase=GamePhase.PLAYER_TURN;state.activePlayer=seat;
+  state.players=seat===0?[source,opponent]:[opponent,source];
+  const store=new Store({onStateChange(){}});
+  store.state=state;
+  const initialBlocked=Boolean(IS_ABILITY_BLOCKED(store,state,source,egg,egg.powers[0]));
+  assert.equal(initialBlocked,true);
+  const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
+  store.dispatch(new PlayCardAction(source.id,0,target));
+  const pending=store.state.prompts.find(p=>p.result===undefined);
+  assert.equal(pending?.constructor?.name,'ChoosePokemonPrompt',
+    'Native Rope must ask opponent to choose a Benched Pokémon');
+  assert.equal(pending.playerId,opponent.id);
+  const chosen=opponent.bench[additionalBench?1:0];
+  assert.ok(pending.validate([chosen],store.state),'Chosen target must be native legal');
+  const chosenPhysicalId=chosen.getPokemonCard().id;
+  store.dispatch(new ResolvePromptAction(pending.id,[chosen]));
+  assert.equal(opponent.active.getPokemonCard()?.id,chosenPhysicalId);
+  assert.equal(source.active.getPokemonCard()?.fullName,'Meloetta ex SV11B');
+  assert.equal(source.discard.cards.some(c=>c.fullName==='Escape Rope BST'),true);
+  const cologneIndex=source.hand.cards.findIndex(c=>c.fullName==='Canceling Cologne ASR');
+  assert.ok(cologneIndex>=0);
+  store.dispatch(new PlayCardAction(source.id,cologneIndex,target));
+  assert.equal(source.discard.cards.some(c=>c.fullName==='Canceling Cologne ASR'),true);
+  const afterBlocked=Boolean(IS_ABILITY_BLOCKED(store,store.state,source,egg,egg.powers[0]));
+  let error=null;
+  try{
+    store.dispatch(new UseAbilityAction(source.id,'Propagation',{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.DISCARD,
+      index:source.discard.cards.indexOf(egg)
+    }));
+  }catch(e){error=String(e.message);}
+  return {
+    seat,additionalBench,initialBlocked,afterBlocked,error,
+    chosenPhysicalId,activeOpponent:opponent.active.getPokemonCard()?.fullName,
+    mukOnBench:opponent.bench.some(x=>x.getPokemonCard()?.fullName==='Alolan Muk SUM'),
+    ropeDiscarded:source.discard.cards.some(c=>c.fullName==='Escape Rope BST'),
+    cologneDiscarded:source.discard.cards.some(c=>c.fullName==='Canceling Cologne ASR'),
+    eggInHand:source.hand.cards.some(c=>c.fullName==='Exeggcute PLF'),
+    eggInDiscard:source.discard.cards.some(c=>c.fullName==='Exeggcute PLF'),
+    unresolved:store.state.prompts.filter(p=>p.result===undefined).map(p=>p.constructor.name)
+  };
+}
+for(const seat of [0,1]){
+  for(const additionalBench of [false,true]){
+    test('actual Rope then Cologne against '+(additionalBench?'two-choice':'sole')+
+      ' Bench Muk seat '+seat,()=>{
+      const row=ropeCologneContinuation(seat,additionalBench);
+      console.log('AGENT43_MUK_ROPE_COLOGNE',JSON.stringify(row));
+      assert.equal(row.afterBlocked,additionalBench);
+      assert.equal(row.eggInHand,!additionalBench);
+      assert.equal(row.eggInDiscard,additionalBench);
+      assert.equal(row.error,additionalBench?'UNKNOWN_POWER':null);
+      assert.equal(row.ropeDiscarded,true);
+      assert.equal(row.cologneDiscarded,true);
+      assert.deepEqual(row.unresolved,[]);
+    });
+  }
+}
