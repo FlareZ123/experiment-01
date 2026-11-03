@@ -1,0 +1,119 @@
+{
+  "schema": "agent13-rank5-joint-additional-optin-ablation-preregister-v1",
+  "registeredAtUtc": "2026-11-03T04:34:40Z",
+  "objective": "Within identical 92-option runner and same original rank5 source physical deals, isolate simultaneous effects of 18 new true decision/audit options present in joint-v1 and absent from historical v3.1 explicit 24-key policy",
+  "historicalV31ProfileGitBlobSha": "14195053fbe11c2f6e35dae994c1cf8e0a73cc33",
+  "historicalV31ProfileRef": "agent13-rank5-v31-corrected-root-20261102",
+  "historicalV31SelectedExplicitOptions": {
+    "actorOnlyComposition": true,
+    "mandatoryOptionFallback": true,
+    "paperSupporterQuota": true,
+    "paperFullBenchCallForFamily": true,
+    "paperSameTargetAttachEnergy": true,
+    "nativePressureWindows": true,
+    "nativeAcceptedTargets": true,
+    "physicalZoneGate": true,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootProbeAll": false,
+    "losslessNativeRootJoin": true,
+    "nativePlumeriaChoice": true,
+    "nativeZeroCostDenialChoice": true,
+    "teamFlareGruntDenialRoot": true,
+    "actorPlumeriaAfterPass": true,
+    "nativeToolAttachRoot": true,
+    "registeredToolEnergyCeiling": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "nativeSetupCompensationAudit": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "bilateralPublicContextSpecialEnergy": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorMewGenesectTechnoBlast": true
+  },
+  "jointProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "jointCanonicalRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "jointOptionCount": 92,
+  "historicalExplicitOptionCount": 24,
+  "additionalTrueOptionCount": 19,
+  "additionalTrueOptions": [
+    "actorActiveMegaClawPriorityRoot",
+    "actorChargedPromotion",
+    "actorChoosePokemon",
+    "actorDceMewMobilityRoot",
+    "actorFlexiblePaidRetreatRoot",
+    "actorGenesectFusionDrawRoot",
+    "actorGuzmaPromptContinuation",
+    "actorRank9MegaAbsolFundingRoot",
+    "actorUnderworldDoorRoot",
+    "actorVipBeforeAttack",
+    "actorVipMegaAbsolTarget",
+    "allowAdditionalOriginalSourceRanks",
+    "bilateralBasicEnergyRecipientFrontier",
+    "bilateralKnownDeadAttackRoot",
+    "nativeQuickBallOwnerTransactionAudit",
+    "paperQuickBallPayment",
+    "paperSecretBoxPayment",
+    "rank11ExclusiveOpening",
+    "sharedPaperPaymentPortfolio"
+  ],
+  "cutModeFalseOptions": [
+    "actorActiveMegaClawPriorityRoot",
+    "actorChargedPromotion",
+    "actorChoosePokemon",
+    "actorDceMewMobilityRoot",
+    "actorFlexiblePaidRetreatRoot",
+    "actorGenesectFusionDrawRoot",
+    "actorGuzmaPromptContinuation",
+    "actorRank9MegaAbsolFundingRoot",
+    "actorUnderworldDoorRoot",
+    "actorVipBeforeAttack",
+    "actorVipMegaAbsolTarget",
+    "bilateralBasicEnergyRecipientFrontier",
+    "bilateralKnownDeadAttackRoot",
+    "nativeQuickBallOwnerTransactionAudit",
+    "paperQuickBallPayment",
+    "paperSecretBoxPayment",
+    "rank11ExclusiveOpening",
+    "sharedPaperPaymentPortfolio"
+  ],
+  "unchangedAdmissionFlag": "allowAdditionalOriginalSourceRanks",
+  "reasonToKeepAdmission": "Same new runner needs original rank5 source admission; this flag is treated as data admission rather than an archetype policy decision",
+  "sourceRank": 5,
+  "originalSourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "trials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "modes": [
+    {
+      "id": "joint_v1_all_92",
+      "cut": false
+    },
+    {
+      "id": "joint_v1_minus_18_nonadmission_true",
+      "cut": true
+    }
+  ],
+  "expectedNativeAttempts": 8,
+  "rootCap": 260,
+  "pairing": "For each candidate and physical source seed, compare authenticated source deal fingerprints; no inference from seed equality alone",
+  "inference": "Policy bundle effect on same native runner; not reproduction of historical v3.1 legacy binary or original historical seed field",
+  "censored": true,
+  "competitiveQualifiedGames": 0,
+  "target995Demonstrated": false
+}
