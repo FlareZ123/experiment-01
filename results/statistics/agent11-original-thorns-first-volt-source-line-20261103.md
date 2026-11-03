@@ -22,6 +22,22 @@ The line qualifies if (1) Thunder Mountain is held or remains in deck, (2) at le
 
 These are **conditional valid-opening-seven percentages**, calculated over all six-Prize joint allocations. The 'needs Guzma & Hala' category excludes hands holding both attack-enabling cards and includes single- and dual-search cases.
 
+## Partition of every no-bonus physical opening
+
+The same exact allocation is fully partitioned by the **first binding failure**, before allowing any additional Trainer lookahead or draw. Check Mountain availability first, then whether any DCE survives outside Prizes, then immediate held G&H/Tag Call connectivity. The categories are mutually exclusive and sum to 100% of Basic-valid first-seven openings.
+
+| Disjoint physical category | Rank 6 / 29 (1 DCE) | Rank 24 (3 DCE) |
+| --- | ---: | ---: |
+| Thunder Mountain Prized | 10.14180484% | 10.14180484% |
+| Mountain accessible, all DCE Prized | 9.26997634% | 0.05774412% |
+| Both resources accessible, at least one missing from hand, **no held G&H or live Tag Call bridge** | 46.80671311% | 50.69260041% |
+| Both attack resources already held | 1.27835513% | 3.49974770% |
+| Supporter route via **G&H already held** | 18.18819389% | 19.93803995% |
+| Supporter route via **held Tag Call to an unprized G&H** | 14.31495668% | 15.67006298% |
+| **Total** | **100%** | **100%** |
+
+The connector-failure row can be helped by additional Trainers' Mail, other draws and other tactical action lines absent from this model, and it should **not** be interpreted as a deck-wide permanent dead-hand frequency. The near-elimination of all-DCE-Prized failures from one copy to three copies yields a much smaller gain in full line access because immediate Supporter/Tag Call connectivity becomes the binding limitation. This is a direct **access-vs-execution** distinction: even the 33.78–39.11% accessible subspace still requires the source policy to select the correct line, pay the full two-card cost, and face the opponent.
+
 ## Exact computation and reproducibility
 
 [Source-locked BigInt test](../../tests/agent11-thorns-first-volt-access.test.cjs) asserts the original 60 and relevant printed card counts of ranks 6, 24 and 29, plus the derived integer counts. [Exact enumerator](../../scripts/agent11-thorns-first-volt-access.cjs) enumerates eight-card hand category multiplicities and marginalizes the six Prizes, counting the remaining Basics, Tag Calls and irrelevant cards by Vandermonde aggregation. An eight-card hand with one Basic is assigned weight 7; with at least two Basics weight 8. This excludes the cases where its only Basic was the eighth drawn card, which would have made the original first seven invalid.
