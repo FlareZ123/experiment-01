@@ -72,6 +72,21 @@ In the **fresh** original-rank-5 source seed **1399343237**, candidate physical 
 
 Of the **six fresh candidate contexts**, three had identical complete ledgers, two first diverged at a candidate VIP, and the sixth had an **identical 43-action prefix preserved in abort sidecar data** before both modes reached the same native error. The fresh rank-11 New Moon context's candidate-side VIP also altered its subsequent native sequence without establishing a qualified attack or win. The fresh rank-6 New Moon context was fully identical in both modes.
 
+## Symmetric intervention can also suppress original-source attack opportunities
+
+The independent full-row audit found an opposing-sign prospective counterexample in fresh **original rank11**, seed **1475692704**, trial `11:300:B:new-moon-lockbreaker-v1`. Its original source physical digest matches between modes and across both candidate sixties. The **first changed action** is a **candidate-owned Battle VIP Pass replacing candidate Pass at global turn 1**. The **original rank11 source plays zero VIP in both modes**.
+
+| Actual native rank11 source trace against the same fixed New Moon 60 | Joint-v1 control | Selected-v2 |
+| --- | ---: | ---: |
+| Source `Call for Family` settled attacks | 6 | 7 |
+| Source `Terminal Period` settled attacks | 9 | 3 |
+| Source `Claw of Darkness` settled attacks | **4** | **0** |
+| Original source Prize cards remaining at 260-action cap | **2** | **6** |
+| Candidate Prize cards remaining at 260-action cap | **5** | **3** |
+| Native outcome | Action-capped | Action-capped |
+
+The rank5 New Moon fresh context under its separately registered seed **1399343237** has the opposite change in its original source's copied Techno Blast count (**2→4**) following a **candidate-owned** VIP. These controlled observations show how a symmetric selected policy changes subsequent game trajectories through the *candidate's* actions in different directions. The source's Claw disappearance is **not** proof of a broken attack implementation or a weaker source decision rule: the opponent may have changed board composition, threat timing, or the number of remaining decisions before the engineering cap. Equally, an increased source attack count is not a game-win advantage. Both rank11 arms are capped, tactically incomplete, and not paper-qualified.
+
 ## Decision, follow-through and limits
 
 **Retain selected-v2 as a mechanistic developmental comparison.** The first-divergence audit supports that its early action intervention activated where expected in 13 full contexts and recovers the 26th pair's equal opening fingerprints and identical 43-action prefix, while preserving the official failed release gate. It cannot validate later effect causality, card-payment fidelity, paper legality, source or candidate intelligence, or a final deck choice.
