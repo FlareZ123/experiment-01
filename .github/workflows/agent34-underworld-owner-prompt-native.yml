@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent42_v3_reply_extension:
+        description: Frozen historical rank1 source paid Max Geist original physical opponent first reply under 240-root A/B/A
+        type: boolean
+        default: false
       agent42_v3_transport:
         description: Historical rank1 already-positive Float Stone seed in frozen selected-v3 combined policy, four contexts x A/B/A
         type: boolean
@@ -78,6 +82,22 @@ jobs:
         with:
           name: agent42-selected-v3-known-witness-retrospective-12
           path: agent42-selected-v3-known-witness-transport-native-12.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate 240-root historical source-paid opponent reply preregistration and false-positive tests
+        if: ${{ inputs.agent42_v3_reply_extension }}
+        run: |
+          node --test tests/agent42-v3-witness-opponent-reply-extension.test.cjs
+          node simulation/evaluation/agent42-selected-v3-known-witness-opponent-reply-extension.cjs --preflight
+      - name: Continue physical source witness through first actual opponent reply with identical both-seat decision policy
+        if: ${{ inputs.agent42_v3_reply_extension }}
+        run: node simulation/evaluation/agent42-selected-v3-known-witness-opponent-reply-extension.cjs
+      - name: Preserve three 240-root A/B/A native attempts, physical source and real opponent action
+        if: ${{ always() && inputs.agent42_v3_reply_extension }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent42-selected-v3-240root-source-opponent-reply-3
+          path: agent42-selected-v3-known-witness-opponent-reply-240root-3attempts.json
           if-no-files-found: warn
           retention-days: 30
       - name: Preregistered rank5 and11 same-deal Float Stone portability A/B
