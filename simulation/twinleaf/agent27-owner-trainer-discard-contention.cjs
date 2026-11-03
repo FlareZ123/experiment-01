@@ -42,6 +42,9 @@ register('Battle VIP Pass',['FST'],[{mode:'no-discard',discards:0}]);
 register("Trainers' Mail",['ROS'],[{mode:'no-discard',discards:0}]);
 register("Professor's Letter",['XY','BKT'],
   [{mode:'no-discard',discards:0}]);
+// Pinned Twinleaf uses an apostrophe-free fullName for the same source card.
+register('Professors Letter',['XY','BKT'],
+  [{mode:'no-discard',discards:0}]);
 register('Energy Search',['BCR','SSH','SVI','CRZ'],
   [{mode:'no-discard',discards:0}]);
 
