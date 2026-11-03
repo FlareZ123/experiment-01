@@ -18,7 +18,7 @@ const {withPaperSecretBoxSearchCategory,VERSION:SEARCH_VERSION}=
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 
-const VERSION='agent4-rank8-retrospective-source-vip-box-v11-and-search-guard-v4';
+const VERSION='agent4-rank8-retrospective-source-vip-box-v11-and-search-guard-public-counterattack-v5';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
 /** @param {unknown} item */
@@ -45,7 +45,7 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
     paperInvalidNativeAccepted:0,paidPhysicalThreeCardReceipts:0,
     unverifiedPhysicalCustody:0,observations:[],
     sourceSearchPrompts:0,sourceSearchAcquisitions:0,
-    sourceSearchObservations:[]};
+    sourceSearchObservations:[],opponentPublicAttackReceipts:[]};
   let live=null;
   function dispatch(action,...args){
     if(!live&&action?.constructor?.name==='AddPlayerAction'){
@@ -96,6 +96,46 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
           nativeError:thrown?String(thrown.message??thrown):null
         });
       }
+      if(thrown)throw thrown;
+      return result;
+    }
+    const isOpposingAttack=live===this&&
+      action?.constructor?.name==='AttackAction'&&
+      this.state?.activePlayer===1-sourceSeat&&
+      audit.sourceAccepted>0&&audit.opponentPublicAttackReceipts.length<3;
+    if(isOpposingAttack){
+      const snapshot=()=>{
+        const source=this.state.players[sourceSeat];
+        const opponent=this.state.players[1-sourceSeat];
+        const publicSlot=slot=>({
+          pokemon:slot?.getPokemonCard?.()?.fullName??null,
+          damage:slot?.damage??null,hp:slot?.hp??null,
+          energyPrintings:slot?.energies?.cards?.map(c=>c.fullName)??[],
+          toolPrintings:slot?.tools?.map(c=>c.fullName)??[]
+        });
+        return {
+          turn:this.state.turn,
+          sourceActive:publicSlot(source.active),
+          opponentActive:publicSlot(opponent.active),
+          toolGarbodorBoard:[source.active,...source.bench]
+            .filter(slot=>slot?.getPokemonCard?.()?.name==='Garbodor')
+            .map(publicSlot),
+          sourcePrizeCount:source.prizes?.reduce((n,x)=>
+            n+(x.cards?.length??0),0)??null,
+          opponentPrizeCount:opponent.prizes?.reduce((n,x)=>
+            n+(x.cards?.length??0),0)??null
+        };
+      };
+      const before=snapshot();
+      let thrown=null,result;
+      try{result=descriptor.value.call(this,action,...args);}
+      catch(error){thrown=error;}
+      audit.opponentPublicAttackReceipts.push({
+        sourceSeat,opponentSeat:1-sourceSeat,
+        declaredAttack:action.name,
+        nativeError:thrown?String(thrown.message??thrown):null,
+        before,after:snapshot()
+      });
       if(thrown)throw thrown;
       return result;
     }
@@ -185,7 +225,8 @@ function run(){
         label:'agent4-rank8-retrospective-v11-'+t.trial
       };
       const record={guarded,status:null,error:null,sourceK0:null,
-        paperAudit:null,searchPaperAudit:null,rawPaymentAudit:null,sourceBoxRoots:[],
+        paperAudit:null,searchPaperAudit:null,rawPaymentAudit:null,
+        opponentPublicAttackReceipts:[],sourceBoxRoots:[],
         sourceShakeRoots:[],sourceVipRoots:[],sourceBoxPolicy:null,
         sourceVipPolicy:null,sourceActualFirst:null,
         initialDeckHashes:null,firstTurnSlot:null,
@@ -214,6 +255,7 @@ function run(){
         record.paperAudit=paper.audit;
         record.searchPaperAudit=guarded?paper.result.audit:null;
         record.rawPaymentAudit=watch;
+        record.opponentPublicAttackReceipts=watch.opponentPublicAttackReceipts;
         record.initialDeckHashes=game.deckHashes;
         record.firstTurnSlot=game.firstTurnSlot;
         record.sourceActualFirst=game.firstTurnSlot===t.sourceSeat;
