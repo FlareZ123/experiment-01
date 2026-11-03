@@ -1,0 +1,47 @@
+{
+  "schema": "agent8-rank13-phantom-dive-native-copy-choice-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T05:12:07.244Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "exactOriginalSixties": "results/aichi-2026/full-decklists.json",
+  "preselectedPreviouslyObservedSeedGroups": [
+    {
+      "sourceSeat": 0,
+      "seed": 1626632453
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1478863204
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2621207203
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 603372370
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2295622320
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 455806637
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 299991154
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 160440262
+    }
+  ],
+  "control": "same source DDE and native Treasure and explicit all-public-gates Apex Action as treatment of earlier experiment; generic first eligible copied-attack chooser",
+  "treatment": "identical with owner source-seat-only native offered Dragapult ex TWM Phantom Dive copied attack choice if present, otherwise unchanged generic choice",
+  "metric": "Physical source-owner copy selection, actual public after-prompt damage counter changes and Prize transitions, eventual opponent response; matching source and full physical starting deals, all native aborts and censor",
+  "competitivelyQualifiedGames": 0,
+  "limitation": "Retrospective sample selected after seeing previous games, no prospective independent win-rate inference."
+}
