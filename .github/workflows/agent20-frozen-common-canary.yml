@@ -110,7 +110,7 @@ jobs:
       - name: Verify old immutable selected joint baseline and new factorial preregistration
         run: |
           node --check simulation/evaluation/agent2-joint-source-transport-v1.cjs
-          node --test tests/agent41-joint-source-r5-r11-v1.test.cjs
+          node --test tests/agent41-joint-source-r5-r11-v1.test.cjs tests/agent2-joint-source-transport-v1.test.cjs
           node simulation/evaluation/agent2-joint-source-transport-v1.cjs --inspect-only > agent2-transport-preflight.json
       - name: Install frozen native dependencies
         working-directory: vendor/twinleaf/ptcg-server
