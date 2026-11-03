@@ -44,7 +44,8 @@ class Store{
   }
 }
 function fixture(){
-  const players=[0,1].map(id=>({id,hand:{cards:[]},discard:{cards:[]},deck:{cards:[]}}));
+  const players=[0,1].map(id=>({id,hand:{cards:[]},discard:{cards:[]},
+    deck:{cards:[]},active:{getPokemonCard:()=>null},bench:[]}));
   const store=new Store(players);
   return {players,store};
 }
