@@ -2,7 +2,8 @@
 
 const assert=require('node:assert/strict');
 const source=require('../../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json');
-const {choose,bonusOffers,originalBasicCounts}=
+const {choose}=require('./agent5-adp-thorton-prize-availability.cjs');
+const {bonusOffers,originalBasicCounts}=
   require('./agent32-adp-field-mulligan-offers.cjs');
 
 const VERSION='agent32-original29-forced-solo-setup-bonus-v1';
