@@ -38,6 +38,21 @@ register('Guzma & Hala',['CEC'],[
   {mode:'stadium-only',discards:0},
   {mode:'enhanced-tool-energy',discards:2}
 ], 'Supporter');
+// Distinct original printed Supporter/ACE SPEC hand-payment modes, read
+// directly from their English set/collector texts. These are physical costs,
+// never proof of paper-playable targets or value.
+register('Plumeria',['BUS'],
+  [{mode:'required-energy-denial',discards:2}], 'Supporter');
+register('Bellelba & Brycen-Man',['CEC'],[
+  {mode:'ordinary-top-deck-discard',discards:0},
+  {mode:'enhanced-three-bench-discard',discards:3}
+], 'Supporter');
+register('Cynthia & Caitlin',['CEC'],[
+  {mode:'ordinary-supporter-retrieval',discards:0},
+  {mode:'optional-draw-three',discards:1}
+], 'Supporter');
+register('Dowsing Machine',['PLS'],
+  [{mode:'required-trainer-retrieval',discards:2}]);
 register('Battle VIP Pass',['FST'],[{mode:'no-discard',discards:0}]);
 register("Trainers' Mail",['ROS'],[{mode:'no-discard',discards:0}]);
 register("Professor's Letter",['XY','BKT'],
