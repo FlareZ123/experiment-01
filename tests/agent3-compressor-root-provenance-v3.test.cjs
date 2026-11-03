@@ -3,6 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {withSourceCompressorRootProvenance:observe}=
  require('../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+const {withSourceCompressorSettlementAudit:legacyObserve}=
+ require('../simulation/twinleaf/agent3-compressor-discard-settlement.cjs');
 class AddPlayerAction{constructor(clientId){this.clientId=clientId;}}
 class PlayCardAction{constructor(id,handIndex=0){this.id=id;this.handIndex=handIndex;}}
 class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
@@ -67,4 +69,22 @@ test('speculative clone, unmatched prompt, and rejected action cannot fake real 
   store.dispatch({fail:true});
  },{StoreClass:Store}),/rejected/);
  assert.strictEqual(Store.prototype.dispatch,before);
+});
+
+test('legacy broad observer fabricates positive receipt from a speculative Store clone',()=>{
+ const store=new Store(0);
+ const original=Store.prototype.dispatch;
+ const nested=legacyObserve(0,()=>observe(0,()=>{
+  store.dispatch(new AddPlayerAction(101));
+  store.dispatch(new AddPlayerAction(202));
+  const speculative=new Store(0);
+  play(speculative,101);
+ },{StoreClass:Store}),{StoreClass:Store});
+ assert.equal(nested.audit.acceptedPositiveResolutions,1);
+ assert.equal(nested.audit.physicalMovedCopies,1);
+ assert.equal(nested.result.audit.liveRootIdentified,true);
+ assert.equal(nested.result.audit.ignoredSpeculativeDispatches,2);
+ assert.equal(nested.result.audit.acceptedSourcePlays,0);
+ assert.equal(nested.result.audit.positiveLinkedSettlements,0);
+ assert.strictEqual(Store.prototype.dispatch,original);
 });
