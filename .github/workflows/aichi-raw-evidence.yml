@@ -65,6 +65,8 @@ jobs:
           node -e "const p=require('./scripts/aichi-frozen-trial-schedule.cjs').freezeDefaultAichiSchedule({phase:'published-field',candidateId:'champion-reference'});console.log('REGISTERED_FIELD_JSON='+JSON.stringify(p));"
       - name: Test Node/Python trace hash interoperability
         run: node --test tests/action-trace-canonical.test.cjs
+      - name: Test rank11 source owner Letter-frontier source-custody invariants
+        run: node --test tests/agent10-selected-v3-rank11-letter-frontier.test.cjs
 
   native-evidence-retention:
     if: ${{ inputs.retain_expiring_native_archives || inputs.verify_native_release_only }}
