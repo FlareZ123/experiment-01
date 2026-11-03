@@ -69,7 +69,7 @@ function registration(){
  * @returns {object}
  */
 function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
-  paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false){
+  paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false,apexEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -137,7 +137,9 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       naturalEvolutionRoot:naturalEvolutionEnabled,
       mysteriousTreasureRoot:treasureEnabled,
       rank13DdeEnergyRoot:ddeEnabled,
-      rank13DdeEnergyOwnerSeat:sourceSeat
+      rank13DdeEnergyOwnerSeat:sourceSeat,
+      rank13SourceApexRoot:apexEnabled,
+      rank13SourceApexRootOwnerSeat:sourceSeat
     }),
     ...source13QuickBallActorAdapters(sourceSeat)
   };
@@ -190,7 +192,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       game.decisionTrace??[])).digest('hex');
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
-      paperCelestialEnabled,treasureEnabled,ddeEnabled,
+      paperCelestialEnabled,treasureEnabled,ddeEnabled,apexEnabled,
       paperCelestialAudit:corrected?.result.audit??null,
       nativeMinimumAttachAudit:corrected?.audit??null,
       treasureNativeAudit:treasureAudit,
@@ -235,6 +237,14 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
         donorIntents:root.regidragoDonorQuickBallIntentCount,
         donorNativeAccepted:root.regidragoDonorQuickBallNativeAccepted,
         donorNativeRejected:root.regidragoDonorQuickBallNativeRejected,
+        apexRootIntentsSample:root.ownerRootIntents.filter(row=>
+          row.intent?.source?.startsWith('agent8-owner-root-publicly-payable-regidrago-apex'))
+          .slice(0,20),
+        apexNativeAcceptances:root.nativeRootAcceptances.filter(row=>
+          row.intent?.source?.startsWith('agent8-owner-root-publicly-payable-regidrago-apex'))
+          .map(row=>({seat:row.seat,turn:row.globalTurn,
+            accepted:row.accepted,nativePhysicalEffect:row.nativePhysicalEffect,
+            publicZonesChanged:row.publicZonesChanged})).slice(0,20),
         ddeIntentsSample:root.ownerRootIntents.filter(row=>
           row.intent?.source?.startsWith('agent8-rank13-owned-regidrago-double-dragon-energy'))
           .slice(0,20),
