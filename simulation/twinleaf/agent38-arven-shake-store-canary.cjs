@@ -105,10 +105,11 @@ function probeArvenShake(candidateSeat){
   }
   function drainAdministrative(){
     let count=0;
-    while(pending()&&['WaitPrompt','ShuffleDeckPrompt'].includes(
-      pending().constructor.name)){
+    while(pending()&&['WaitPrompt','ShuffleDeckPrompt','ShowCardsPrompt']
+      .includes(pending().constructor.name)){
       const p=pending();
       const value=p.constructor.name==='WaitPrompt'?null:
+        p.constructor.name==='ShowCardsPrompt'?true:
         Array.from({length:candidate.deck.cards.length},(_,index)=>index);
       store.dispatch(new ResolvePromptAction(p.id,value));
       count++;
