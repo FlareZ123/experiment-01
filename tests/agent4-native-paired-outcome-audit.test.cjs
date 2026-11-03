@@ -42,6 +42,9 @@ test('a matched same-deal native candidate winner reversal is explicitly adverse
   assert.deepEqual(result.nativeDispositions.map(x => ({...x})),
     [{'candidate-win': 1}, {'source-win': 1}]);
   assert.equal(result.certifiedWinRate, null);
+  assert.equal(result.estimand,
+    'within-the-same-candidate-deck-two-policy-mechanistic-contrast');
+  assert.equal(result.unconditionalCrossCandidateWinRateQualified, false);
 });
 
 test('unknown physical setup is excluded from all paired winner contrasts', () => {
