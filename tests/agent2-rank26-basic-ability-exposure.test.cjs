@@ -19,7 +19,7 @@ test('rank26 exact source has seven Basic Ability classes in 11 of 12 copies',()
  assert.equal(x.qualifiedCompetitiveGames,0);
  assert.deepEqual(x.abilityRows.filter(x=>x.basicAbilityNames.length)
    .map(x=>x.name),
-   ['Unown','Exeggcute','Meloetta ex','Tapu Koko ◇',
+   ['Unown','Exeggcute','Meloetta ex','Tapu Koko ♢',
      'Squawkabilly ex','Crobat V','Dedenne-GX']);
  assert.equal(x.abilityRows.find(x=>x.name==='Unown').copies,4);
  assert.equal(x.abilityRows.find(x=>x.name==='Exeggcute').copies,2);
