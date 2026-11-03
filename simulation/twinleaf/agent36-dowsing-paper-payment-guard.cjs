@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent36-dowsing-pls128-transaction-custody-v3';
+const VERSION = 'agent36-dowsing-pls128-transaction-custody-v4-live-store-scoped';
 const PRINTING = 'Dowsing Machine PLS';
 
 /**
@@ -43,7 +43,8 @@ function dowsingPaymentNegative(prompt, answer, owner) {
  *
  * @template T
  * @param {()=>T} run Synchronous native test or full game.
- * @param {{Store?:Function}} [deps] Store injection in isolated tests.
+ * @param {{Store?:Function,requireLiveStore?:boolean,
+ *  currentTrialId?:()=>string|null}} [deps] Store injection and actual-game isolation.
  * @returns {{result:T,audit:object}}
  */
 function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
@@ -54,9 +55,15 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
   const previous = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
   assert.equal(typeof previous?.value, 'function');
   const pendingByStore = new Map();
+  const liveOnly = deps.requireLiveStore === true;
+  const trialKey = () => deps.currentTrialId?.() ?? '__single__';
+  const liveByTrial = new Map();
+  const isLive = store => !liveOnly || liveByTrial.get(trialKey()) === store;
   const audit = {
     schema: VERSION, printing: PRINTING, defaultEnabled: false,
     scope: 'Source-stamped PLS128 mandatory two-other-card physical payment only',
+    liveStoreRequired: liveOnly, liveSourceTrialCount: 0,
+    excludedAuxiliaryDispatches: 0,
     inspectedRoots: 0, invalidRoots: 0, inspectedPayments: 0,
     invalidPayments: 0, acceptedPayments: 0,
     settledPhysicalPayments: 0, unsettledPhysicalPayments: 0,
@@ -93,6 +100,15 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
 
   function dispatched(action, ...args) {
     const actionType = action?.constructor?.name;
+    if (liveOnly && actionType === 'AddPlayerAction' &&
+        !liveByTrial.has(trialKey())) {
+      liveByTrial.set(trialKey(), this);
+      audit.liveSourceTrialCount++;
+    }
+    if (!isLive(this)) {
+      audit.excludedAuxiliaryDispatches++;
+      return previous.value.call(this, action, ...args);
+    }
     if (actionType === 'PlayCardAction') {
       const owner = this.state?.players?.find(p => p.id === action.id);
       const played = owner?.hand?.cards?.[action.handIndex];
@@ -120,6 +136,7 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
     const owner = this.state?.players?.find(p => p.id === before.playerId);
     const reason = dowsingPaymentNegative(before, action.result, owner);
     const event = {
+      trialId: trialKey(),
       seat: this.state?.players?.indexOf(owner) ?? -1,
       submittedCount: Array.isArray(action.result) ? action.result.length : null,
       reason, nativeAccepted: false, physicallySettled: false,
