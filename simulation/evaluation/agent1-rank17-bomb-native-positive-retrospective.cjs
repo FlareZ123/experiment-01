@@ -129,7 +129,7 @@ function run(){
     summary:{
       explicitlyRetrospectiveSourceDeals:1,attemptedNativeArms:2,
       nativeErrorArms:[control,treatment].filter(x=>x.error!==null).length,
-      initialPhysicalDealMatched,
+      initialPhysicalDealMatched:initialPhysicalMatched,
       identicalGameplayWitness:complete&&
         sha(control.nativeWitness)===sha(treatment.nativeWitness),
       originalSourceCompressorAcceptedControl:
