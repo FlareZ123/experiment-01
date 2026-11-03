@@ -1,0 +1,68 @@
+{
+  "schema": "agent10-rank11-letter-natural-deal-native-aba-v1",
+  "preregisteredAtUtc": "2026-11-03T20:55:55.576Z",
+  "objective": "Retrospective, source-owned same natural v3 physical-opening seeds: prove real native paid Letter search and Energy custody/attack follow-through versus matched A/B/A baseline.",
+  "sourceFromExistingFrozenV3Manifest": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
+  "originalV3ArtifactId": 13260514792,
+  "originalV3SourceZipSha256": "303d11947c39c7572b4302fef8666ab744491e9db745dd8ffadc55b1631c0850",
+  "originalV3Provenance": "results/aichi-2026/2026-11/agent4-selected-v3-paper-funded-prospective-48-native-20261103.md",
+  "exactOriginalSourceRank": 11,
+  "originalRank11LetterNativeFullName": "Professors Letter BKT",
+  "originalRegisteredDarknessEnergy": 8,
+  "originalRegisteredLetter": 4,
+  "candidateSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "nativeCap": 180,
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "experimentalPolicy": "canonical bilateral actor-only + v3 shared VIP/prompt runtime; opt-in existing Agent11 owner-only resource-tutor after root Pass",
+  "differenceFromHistoricalV3": "This is a separate restricted canonical actor policy, not v3 selected policy. Verify complete physical deal identity in A/B/A and do not merge root ledgers into the original v3 preregistered panel.",
+  "contexts": [
+    {
+      "id": "11:401:A:champion-reference",
+      "rank": 11,
+      "repeat": 401,
+      "seed": 1417228605,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "historicalSourceDealPrefix": "4ac2d076d69be8ab"
+    },
+    {
+      "id": "11:401:A:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 401,
+      "seed": 1417228605,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "historicalSourceDealPrefix": "4ac2d076d69be8ab"
+    },
+    {
+      "id": "11:402:B:champion-reference",
+      "rank": 11,
+      "repeat": 402,
+      "seed": 4210336107,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "historicalSourceDealPrefix": "a4ce707056ab157d"
+    },
+    {
+      "id": "11:402:B:new-moon-lockbreaker-v1",
+      "rank": 11,
+      "repeat": 402,
+      "seed": 4210336107,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "historicalSourceDealPrefix": "a4ce707056ab157d"
+    }
+  ],
+  "modes": [
+    "control-a",
+    "tutor-after-pass",
+    "control-b"
+  ],
+  "predeclaredArms": 12,
+  "releaseGate": "All 12 native attempted, A/B/A paired physical starting deals and repeat controls equal; treatment must show accepted and physically settled Letter plus a non-Item downstream action under genuine Store, or report negative result.",
+  "unsafeForCompetitiveInference": true,
+  "competitivelyQualifiedGames": 0
+}
