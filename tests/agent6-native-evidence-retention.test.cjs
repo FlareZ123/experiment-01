@@ -10,8 +10,8 @@ test('manifest is a frozen eight-artifact reproducible preservation plan',()=>{
   assert.equal(validatePlan(archivePlan),archivePlan);
   assert.equal(archivePlan.artifacts.length,8);
   assert.equal(archivePlan.publicationOfReleaseDoesNotCertifyGames,true);
-  assert.equal(archivePlan.releaseStatus,'MIRRORED_SEVEN_EIGHTH_PENDING');
-  assert.equal(archivePlan.verification.verifiedZips,7);
+  assert.equal(archivePlan.releaseStatus,'MIRRORED_EIGHT_RELEASE_DOWNLOAD_SHA_VERIFIED');
+  assert.equal(archivePlan.verification.verifiedZips,8);
   assert.equal(archivePlan.releaseImmutable,false);
 });
 
@@ -81,7 +81,7 @@ test('published ZIPs retain exact original sha256, revision, and release asset I
     ],
     [
       '1e5e7a1af7bc73a469906ce37e73604a4c573472978a4e9ee40feb15492eed65',
-      '7cb63d74794128209e89f7072a059d1d1dd903ce',undefined
+      '7cb63d74794128209e89f7072a059d1d1dd903ce',707113028
     ]
   ]);
   assert.equal(archivePlan.verification.releaseId,432867141);
