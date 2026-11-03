@@ -184,6 +184,14 @@ function withRootAnchoredFusionMewRetreat(execute,deps={}) {
       audit.unverifiedPhysicalFees-audit.nativeRejectedReplacements;
     assert.ok(audit.pendingAtEnd>=0);
     return {result,audit};
+  }catch(error){
+    if(error && typeof error==='object'){
+      error.agent21RootAnchoredAudit={...audit,
+        pendingAtFailure:audit.eligibleOffers-
+          audit.exactPhysicalFeeAndPromotion-
+          audit.unverifiedPhysicalFees-audit.nativeRejectedReplacements};
+    }
+    throw error;
   }finally {
     assert.strictEqual(Store.prototype.dispatch,intercept);
     Object.defineProperty(Store.prototype,'dispatch',descriptor);
