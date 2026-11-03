@@ -72,6 +72,8 @@ function preflightOriginalSourcePins(pins,inputs={}) {
   for(const row of pins.originalPrints){
     assert.ok(Number.isInteger(row.rank) && row.rank>=1 && row.rank<=32);
     assert.match(row.printed60Sha256,/^[a-f0-9]{64}$/);
+    assert.match(row.nativeOrderedSha256,/^[a-f0-9]{64}$/,
+      'historically replayed ordered native 60 requires an explicit pin');
     assert.ok(!expectedRanks.has(row.rank),'repeated original source rank');
     expectedRanks.add(row.rank);
     assert.ok(row.role==='source'||row.role==='opponent');
