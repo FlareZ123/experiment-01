@@ -36,6 +36,7 @@ for(const [name,edit] of [
   ['opponent Tool',f=>{f.opponentPublic.active.tools.push('Tool X');}],
   ['another own Pokemon',f=>{f.ownPublic.bench[0]={printing:'Marshadow UNB',tools:[]};}],
   ['another foe Pokemon',f=>{f.opponentPublic.bench[1]={printing:THORNS,tools:[]};}],
+  ['missing source power',f=>{f.ownPublic.bench[1].abilities=[];}],
   ['missing initialization print',f=>{f.opponentPublic.active.abilities=[];}]
 ])test('declines ambiguous '+name,()=>{
   const f=fixture();edit(f);
