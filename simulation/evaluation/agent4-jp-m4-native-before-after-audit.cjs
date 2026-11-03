@@ -40,7 +40,7 @@ function auditNativeJapaneseM4(original,modified){
     assert.equal(a.seed,b.seed);
     assert.equal(a.slot,b.slot);
     assert.equal(a.rank5Seat,b.rank5Seat);
-    assert.equal(a.originalDeckSha256,b.originalDeckSha256);
+    assert.deepEqual(a.originalDeckSha256,b.originalDeckSha256);
     assert.deepEqual(a.physicalSha256,b.physicalSha256);
     assert.deepEqual(a.traceSha256,b.traceSha256);
     assert.equal(a.allPhysicalDealMatched,true);
