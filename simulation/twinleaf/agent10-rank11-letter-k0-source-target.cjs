@@ -42,7 +42,9 @@ function ownPrintedDeckLowerBound(view, registeredSixty, printing) {
   ];
   const originalCopies = registeredSixty.filter(x => x === printing).length;
   const visibleCopies = outside.filter(x => x === printing).length;
-  const conservationValid = visibleCopies <= originalCopies;
+  const mustStillExist = originalCopies - visibleCopies - owner.prizeCount;
+  const conservationValid = visibleCopies <= originalCopies &&
+    mustStillExist <= owner.deckCount;
   return {
     printing, originalCopies, visibleOutsideDeckCopies: visibleCopies,
     maxUnseenPrizedCopies: owner.prizeCount,
@@ -81,7 +83,7 @@ function certifyRank11LetterTwoDarkness(view, registeredSixty) {
     bound.guaranteedDeckCopies < 2) return null;
 
   return {
-    version: VERSION, sourceInventoryAuthenticatedByCaller: true,
+    version: VERSION, sourceInventoryAuthenticationRequired: true,
     searchPrinting: LETTER, handIndex, targetPrinting: DARKNESS,
     guaranteedTwoTargets: true, targetBound: bound,
     printedItemCost: 'no additional hand discard',
