@@ -32,6 +32,11 @@ function paperCensus(audit){
     printedTemporalProvenBlocked:0,
     conservativeTemporalUnknown:0,
     printedMandatoryHandPaymentImpossible:0,
+    printedPrizeRuleObservedCopies:0,
+    printedPrizeProvenBlockedCopies:0,
+    printedRemovalRuleObservedCopies:0,
+    printedRemovalTargetProvenBlockedCopies:0,
+    multipleIndependentPaperBlockersCopies:0,
     remainingUnresolvedCopies:0,
     offeredButProvenBlocked:0,
     notOfferedYetUnresolved:0,
@@ -81,6 +86,16 @@ function paperCensus(audit){
         c.conservativeTemporalUnknown++;
       if(x.printedMandatoryHandPayment==='physically-impossible')
         c.printedMandatoryHandPaymentImpossible++;
+      if(x.printedPrizeCertificate?.knownPrintedPrerequisite===true)
+        c.printedPrizeRuleObservedCopies++;
+      if(x.removalTargetCertificate?.printedRuleKnown===true)
+        c.printedRemovalRuleObservedCopies++;
+      const blockers=x.necessaryBlockers??[];
+      if(blockers.some(b=>b.startsWith('printed-prize:')))
+        c.printedPrizeProvenBlockedCopies++;
+      if(blockers.some(b=>b.startsWith('printed-removal-target:')))
+        c.printedRemovalTargetProvenBlockedCopies++;
+      if(blockers.length>1)c.multipleIndependentPaperBlockersCopies++;
       if(x.nativeEnumeratorOffered&&x.paperPlayable===false)
         c.offeredButProvenBlocked++;
       if(x.nativeEnumeratorOffered===false&&x.paperPlayable===null)
