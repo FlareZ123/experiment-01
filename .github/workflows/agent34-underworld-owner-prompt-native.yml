@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      posthoc_floatstone:
+        description: Two previously observed rank1 source B-seat Float Stone rescue pairs
+        type: boolean
+        default: false
       posthoc_rank1:
         description: Retrospective owner typed prompt rank1 development
         type: boolean
@@ -48,6 +52,19 @@ jobs:
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
         run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs
+      - name: Original rank1 Float Stone rescue source B-seat retrospective
+        if: ${{ inputs.posthoc_floatstone }}
+        env:
+          AGENT31_FLOAT_STONE_PAIR_OUTPUT: agent31-rank1-floatstone-retro.json
+        run: node simulation/evaluation/agent31-underworld-floatstone-original-pair.cjs
+      - name: Preserve original rank1 Float Stone pair raw evidence even on failure
+        if: ${{ always() && inputs.posthoc_floatstone }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent31-original-rank1-floatstone-retrospective
+          path: agent31-rank1-floatstone-retro.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Retrospective rank1 source prompt paired native replay
         if: ${{ inputs.posthoc_rank1 }}
         env:
