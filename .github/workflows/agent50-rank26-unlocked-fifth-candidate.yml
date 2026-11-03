@@ -47,8 +47,7 @@ jobs:
         run: |
           node -e "const r=require('./agent50-rank26-owner-root-access-v22.json');if(r.competitiveGames!==0||r.candidates.length!==2||r.authenticatedSourceDecks!==29)throw Error('Original rank26 data contract changed');for(const c of r.candidates){if(c.status==='NATIVE_EXACT_SIXTY_READY'&&c.attemptedArms!==24)throw Error('Incomplete source seat panel: '+c.id);console.log('CANDIDATE_NATIVE_RANK26',JSON.stringify(c))}console.log('TOTAL_DEVELOPMENT_ARMS',r.attempts.length)"
       - name: Archive every candidate resolver error and all original-source attempted arms
-        if: ${{ ! inputs.flf69_native_only }}
-        if: always()
+        if: ${{ always() && ! inputs.flf69_native_only }}
         uses: actions/upload-artifact@v4
         with:
           name: agent50-rank26-owner-root-access-original-v22
