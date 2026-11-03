@@ -1,0 +1,65 @@
+{
+  "schema": "agent10-original-rank11-historical-source-funding-by-mobility-four-arm-v1",
+  "registrationStatus": "post-observation diagnostic; two changed source deals preselected from the 20-pair prospective experiment; NOT a new prospective efficacy cohort",
+  "sourceStudy": "results/aichi-2026/agent10-prospective-five-rank-funding-mobility-40-native-20261103.md",
+  "parentRegistration": "results/aichi-2026/registrations/agent10-prospective-5rank-resource-retreat-20261102.json",
+  "sourceOriginalRank": 11,
+  "sourcePrinted60From": "results/aichi-2026/full-decklists.json",
+  "sourceNativeSeat": 0,
+  "candidateNativeSeat": 1,
+  "candidateSlot": "B",
+  "firstPlayerSeat": 0,
+  "sharedOriginalSeed": 4096421492,
+  "pairs": [
+    {
+      "id": "11:0:B:champion-reference",
+      "seed": 4096421492,
+      "sourceSeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference"
+    },
+    {
+      "id": "11:0:B:new-moon-lockbreaker-v1",
+      "seed": 4096421492,
+      "sourceSeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1"
+    }
+  ],
+  "factors": {
+    "control": {
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorFlexiblePaidRetreatRoot": false
+    },
+    "funding": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorFlexiblePaidRetreatRoot": false
+    },
+    "mobility": {
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorFlexiblePaidRetreatRoot": true
+    },
+    "combined": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorFlexiblePaidRetreatRoot": true
+    }
+  },
+  "attemptsPerFactor": 2,
+  "totalNativeAttempts": 8,
+  "frozenPolicies": "agent41 v2 profile + agent10 known-dead-attack baseline from original prospective comparison",
+  "requiredChecks": [
+    "exact source and candidate deck identity",
+    "full two-player physical deal parity",
+    "accepted actual owner Darkness Energy recipient on native turn 15",
+    "source Motivate before payoff and Claw afterward",
+    "source Prize changes and opponent continuation",
+    "actual paid Retreat count",
+    "all error and capped outcomes"
+  ],
+  "originalExpectedFirstDelta": [
+    "15: source owner Darkness Energy recipient",
+    "16+: retained Active Squawkabilly Motivate versus funded Mega Absol Claw"
+  ],
+  "competitiveQualifiedGames": 0,
+  "winRateClaim": "none"
+}
