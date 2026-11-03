@@ -27,20 +27,20 @@ jobs:
         run: npm run compile
       - name: Fingerprint original FLF69 Mega Charizard exact-print native ambiguity
         run: node --test tests/agent50-agent5-flf69-identity-probe.native.test.cjs
-      - name: Check preregistered alias-v2 pilot syntax
-        run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native-v2.cjs
+      - name: Check registered read-only v2.2 owner-root replay syntax
+        run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-owner-root-v22.cjs
       - name: Check actual original rank26 physical donor and Egg-to-Egg Damage Pump prompt on both seats
         run: node --test tests/agent50-rank26-egg-donor-damage-pump.native.test.cjs
-      - name: Execute registered exact-id literal-name alias-v2 candidate source seeds
-        run: node simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native-v2.cjs > agent50-rank26-original-unlocked-alias-v2.json
-      - name: Report all resolver exclusions and source-owned firstturn counts
+      - name: Replay identical source seeds with read-only real owner hand and Bench counters
+        run: node simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-owner-root-v22.cjs > agent50-rank26-owner-root-access-v22.json
+      - name: Report same-seed source owner held-Item access and action selection
         run: |
-          node -e "const r=require('./agent50-rank26-original-unlocked-alias-v2.json');if(r.competitiveGames!==0||r.candidates.length!==2||r.authenticatedSourceDecks!==29)throw Error('Original rank26 data contract changed');for(const c of r.candidates){if(c.status==='NATIVE_EXACT_SIXTY_READY'&&c.attemptedArms!==24)throw Error('Incomplete source seat panel: '+c.id);console.log('CANDIDATE_NATIVE_RANK26',JSON.stringify(c))}console.log('TOTAL_DEVELOPMENT_ARMS',r.attempts.length)"
+          node -e "const r=require('./agent50-rank26-owner-root-access-v22.json');if(r.competitiveGames!==0||r.candidates.length!==2||r.authenticatedSourceDecks!==29)throw Error('Original rank26 data contract changed');for(const c of r.candidates){if(c.status==='NATIVE_EXACT_SIXTY_READY'&&c.attemptedArms!==24)throw Error('Incomplete source seat panel: '+c.id);console.log('CANDIDATE_NATIVE_RANK26',JSON.stringify(c))}console.log('TOTAL_DEVELOPMENT_ARMS',r.attempts.length)"
       - name: Archive every candidate resolver error and all original-source attempted arms
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent50-rank26-unlocked-fifth-candidate-original-v2
-          path: agent50-rank26-original-unlocked-alias-v2.json
+          name: agent50-rank26-owner-root-access-original-v22
+          path: agent50-rank26-owner-root-access-v22.json
           if-no-files-found: warn
           retention-days: 14
