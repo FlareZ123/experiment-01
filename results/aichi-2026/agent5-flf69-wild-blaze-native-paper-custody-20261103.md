@@ -62,6 +62,12 @@ The separate **real native `PlayCardAction`** six-arm test was added after the c
 
 This directly confirms the previously source-reviewed omission in the duplicate: it permits ordinary Mega Evolution without ending the turn. Consequently **neither native class is paper-faithful without a correction**: the original requires an own-deck Wild Blaze repair; the duplicate requires a Mega evolution rule repair. The tested original-class Wild Blaze hook repairs its known attack defect while preserving real native Mega play on both seats. These staged Store cases exclude natural deck setup and do not test Spirit Link exceptions.
 
+## Tested Charizard Spirit Link exemption
+
+In [completed native CI 41575659387](https://github.com/FlareZ123/experiment-01/actions/runs/41575659387), source head `e9fc3379eb49d16805cbee94fb5a9475fccd9ae2`, the extended suite passed **20/20**. Four further real `PlayCardAction` Mega Evolution cases physically attached authentic `Charizard Spirit Link EVO` to Charizard-EX before evolving it. On both native seats, with the Wild Blaze repair disabled and enabled, the original FLF69 implementation correctly **kept the owner's turn at turn 4** under the Tool's rule. Without Spirit Link, the same class ended turn 4 and advanced to turn 5, also in both seats. The duplicate class's unprotected turn-ending defect remains demonstrated.
+
+This is stronger evidence that the opt-in paper attack patch preserves both the original Mega Evolution rule and its genuine Spirit Link exception. The full native execution coverage is **20 cases**: four baseline direct attack; two corrected direct attack; four copy-delegated Apex/Wild Blaze; six ordinary Mega evolution; four Tool-protected Mega evolution. No Tool lock, Tool-removal sequence, natural opening or paper clock is modeled by these staged cases.
+
 ## Limits and next acceptance gate
 
 The initial test board is physically staged rather than reached through a valid opening hand, natural evolution, discard engines, actual opponent decisions, or a 25-minute paper clock. Printed damage/owner-deck-custody validation is local to this effect. It does not certify other card effects, an end-to-end `Apex Dragon` line, deck legality, strength or win rate. If copying succeeds under the corrected hook, the candidate evaluator must enable the hook in its **predeclared symmetric policy** and verify both owner cost and opponent continuation on fully original source sixties; leave unpatched comparisons unqualified and do not change the immutable candidate cardlist.
