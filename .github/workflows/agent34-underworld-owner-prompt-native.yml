@@ -11,6 +11,10 @@ on:
         description: Retrospective Active Psychic priority on the same 16 historical pairs
         type: boolean
         default: false
+      heldout_active_funding:
+        description: Preregistered 16 unseen two-seat rank1 seed groups, 64 native attempts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -59,6 +63,22 @@ jobs:
         with:
           name: agent34-underworld-active-funding-posthoc-rank1
           path: agent34-underworld-active-funding-posthoc.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate immutable held-out source trial registration
+        if: ${{ inputs.heldout_active_funding }}
+        run: node simulation/evaluation/agent34-rank1-heldout-active-funding-native-pair.cjs --preflight
+      - name: Run 16 fresh registered seed groups across both native seats
+        if: ${{ inputs.heldout_active_funding }}
+        env:
+          AGENT34_HELDOUT_PRIORITY_OUTPUT: agent34-rank1-heldout-active-funding-native.json
+        run: node simulation/evaluation/agent34-rank1-heldout-active-funding-native-pair.cjs
+      - name: Preserve every held-out native attempt and complete source trial
+        if: ${{ inputs.heldout_active_funding }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent34-rank1-heldout-active-funding-v1
+          path: agent34-rank1-heldout-active-funding-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Preserve matched historical native raw records
