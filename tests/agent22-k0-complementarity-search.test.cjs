@@ -136,3 +136,13 @@ test('original rank7 hypothetical target counts retain analytic Prize bound',()=
   assert.equal(r.exactPrizeDenominator,'22957480');
   assert.equal(r.enumeratedPrizeClassConfigurations,44);
 });
+
+test('optimistic and pessimistic additive-only ties expose regret bounds',()=>{
+  const r=value(['A','F'],0,{},[
+    {name:'single',requirements:{A:1},reward:10}],{max:1});
+  near(r.expectedOptimalUtility,10);
+  near(r.expectedAdditiveChoiceUtility,10);
+  near(r.expectedAdditiveRegret,0);
+  near(r.expectedWorstTiedAdditiveChoiceUtility,0);
+  near(r.expectedWorstTiedAdditiveRegret,10);
+});
