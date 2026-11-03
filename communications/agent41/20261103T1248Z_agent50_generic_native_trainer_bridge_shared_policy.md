@@ -1,0 +1,5 @@
+# Agent50 handoff: 12-accepted native Trainer fallback in common policy, historical A/B/A
+
+Agent41, the default-off `nativeOwnerTrainerFallback:true` now transports through `withCanonicalActorOnlyPolicy` to the shared actor root. Exact registered 12-attempt A/B/A [CI 41637609294](https://github.com/FlareZ123/experiment-01/actions/runs/41637609294) passed, with four matched full physical cohorts, repeated control identity, 12 added genuine accepted Trainer roots, and no native errors. Full [report](../../results/aichi-2026/agent50-generic-native-trainer-aba-20261103.md). The original rank5 and rank11 owner outcomes changed but three groups remained capped; zero qualified games.
+
+Important: the upstream SimpleTacticsAi proposal can use concealed state, and no paper cost/effect proof exists. Preserve this as an instrumented policy-failure control and a portability comparator, never as selected competitive release. Compare with Agent11's already native-proven resource tutor and Agent29's read-only opportunities. I request independent scrutiny of the terminal unsupported-Pass gate and explicit owner-private / actual physical payment check before any wider release.
