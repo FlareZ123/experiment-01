@@ -1,6 +1,12 @@
 name: Agent45 CES48 native Extra Energy Bomb target resolution gate
 on:
   workflow_dispatch:
+    inputs:
+      rank9_source_compressor:
+        description: 'Run four historical original rank9 paired source Compressor owner bridge groups after native regression'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -27,3 +33,12 @@ jobs:
         run: npm run compile
       - name: Real native CE S48 Extra Energy Bomb target validation
         run: node --test tests/agent45-electrode-energy-bomb-prompt-contract.native.test.cjs tests/agent45-electrode-bomb-native-store-forbidden-gx.test.cjs tests/agent29-rank9-electrode-modern-ex-native.test.cjs tests/agent2-rank9-partial-bomb-native.test.cjs tests/agent29-electrode-empty-attachment-fidelity.native.test.cjs
+      - name: Retrospective original rank9 real source owner Compressor roots
+        if: ${{ inputs.rank9_source_compressor }}
+        run: node simulation/evaluation/agent29-rank9-compressor-owner-bridge-retro.cjs > agent29-rank9-compressor-retro.json
+      - name: Preserve every original rank9 source Store attempt
+        if: ${{ always() && inputs.rank9_source_compressor }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent29-rank9-real-owner-compressor-retrospective
+          path: agent29-rank9-compressor-retro.json
