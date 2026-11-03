@@ -70,6 +70,12 @@ function arm(setup,seed,seat,enabled){
       nativeOwnerTrainerFallback:enabled
     });
     const game=trial.result;
+    assert.equal(game.engine,setup.reg.enginePin,
+      'Pinned original native engine must remain immutable');
+    assert.equal(sha(deckA),id.deckAHash,
+      'Original source deck A may not be mutated by trial');
+    assert.equal(sha(deckB),id.deckBHash,
+      'Original source deck B may not be mutated by trial');
     assert.ok(Array.isArray(game.rootActionLedger));
     assert.ok(typeof game.initialFullPhysicalDealFingerprint?.digestSha256===
       'string'&&
@@ -151,7 +157,7 @@ function experiment(execute=arm, setup=preflight()){
       })),
     pairs,competitivelyQualifiedGames:0,estimatedWinRate:null,
     paperPlayerPolicyQualified:false,
-    sourcePrintCardsRemainedUnchanged:true
+    sourceSixtyUnmodifiedAfterPlan:true
   };
 }
 
