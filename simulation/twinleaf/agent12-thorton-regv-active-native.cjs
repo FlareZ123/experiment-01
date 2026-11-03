@@ -39,7 +39,12 @@ function probeSwap(seat,mode='basic',guarded=false){
   const dde=f.card('Double Dragon Energy ROS');
   const thorton=f.card(PRINT);
   f.source.active.cards.splice(0,1,regV);
-  if(regVStar)f.source.active.cards.push(regVStar);
+  if(regVStar){
+    f.source.active.cards.push(regVStar);
+    // Leave a legal alternative Basic on Bench so an evolved Active is
+    // specifically tested as a blocked TARGET, not just a canPlay veto.
+    f.source.bench[0].cards.push(f.card('Regidrago V SIT'));
+  }
   f.source.active.cards.push(dde);
   f.source.active.energies.cards.push(dde);
   f.source.discard.cards.push(adp);
