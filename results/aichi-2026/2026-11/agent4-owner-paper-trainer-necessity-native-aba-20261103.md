@@ -95,6 +95,18 @@ Set mapping is from the bundled English sets database (Fusion Strike, Lost Thund
 
 This catalogue expansion occurred **after** the frozen six native attempts and changes no previous numerical evidence. It has separate exact-print unit regressions. If a future native source cohort contains one of these four additional first-turn-only printings, test it with the same verified actual-owner-turn semantics and independent Store receipts.
 
+## Full authenticated source-field incidence
+
+A separate [exact source-print first-turn-only incidence function](../../../simulation/evaluation/agent4-first-owner-turn-field-incidence.cjs), with [frozen-manifest regression cases](../../../tests/agent4-first-owner-turn-field-incidence.test.cjs), scanned all **29 authenticated original paper Aichi Top-32 60-card source lists** without inventing any of the three missing lists (ranks **23, 25 and 28**).
+
+- **15 of 29** known original source decks contain at least one first-turn-restricted Item from the five-print source catalog.
+- **43** original source-deck physical copies match: **42 Battle VIP Pass FST**, **one Wait and See Hammer LOT** (source rank 19).
+- Source ranks with at least one matching print: **4, 5, 8, 9, 10, 11, 13, 16, 17, 18, 19, 22, 26, 30, 31**.
+- No known originals among those 29 contain the other three listed first-turn-only printings. The missing three opponents remain explicitly **unknown**.
+- The incidence counts concern **registered copies inside original 60s**. They do not measure frequency of drawing the Item, its successful physical play, deck optimization strength, or win rate.
+
+The exact source-to-native mapping is essential here: published source **Call Bell SSP** maps to native **Helper Bell SSP**, and published **Wait and See Turbo ASR** maps to native **Wait and See Turbo ASR 158**. The field scan uses the printed source identity while the live root screen uses verified native fullName. A source-name concatenation rule would have missed those two native keys. Source mutation and inconsistent copy totals are rejected by the regression gate.
+
 ## Research implication and next work
 
 Use the 395 necessary-condition survivors only as an **upper bound of unresolved physically held Trainer copies**. Verify source-exact targets and real owner prompt settlement, then compare play lines against competing uses of the same Supporter, search connector, Bench slot and protected hand cards. This is essential for connector domination and realistic discard/Bench availability. Validate remaining printed going-second restrictions with authenticated public opening-order evidence, and add source-exact target and prompt continuation before treating the broader first-turn-only catalog as a playable action set.
