@@ -204,8 +204,8 @@ test('source-exact five first-owner-turn-only Trainer printings are covered',()=
   const sources={
     'Battle VIP Pass FST':'swsh8-225',
     'Wait and See Hammer LOT':'sm8-192',
-    'Wait and See Turbo ASR':'swsh10-158',
-    'Call Bell SSP':'sv8-165',
+    'Wait and See Turbo ASR 158':'swsh10-158',
+    'Helper Bell SSP':'sv8-165',
     'Chill Teaser Toy SSP':'sv8-166'
   };
   assert.deepEqual(Object.keys(FIRST_OWNER_TURN_ONLY).sort(),
@@ -217,6 +217,7 @@ test('source-exact five first-owner-turn-only Trainer printings are covered',()=
     const proof=ledger.observe(secondTurn);
     const screened=printedTrainerTurnScreen(secondTurn,printing,proof);
     assert.equal(screened.sourceCardId,source);
+    assert.equal(screened.verifiedNativeFullName,printing);
     assert.equal(screened.status,'blocked');
     assert.equal(screened.ineligibilityProven,true);
     assert.match(screened.blocker,/first-owner-turn-expired$/);
@@ -253,7 +254,7 @@ test('native fallback declines another source-printed first-turn-only Item',()=>
 });
 
 test('owner-authenticated opening order rules out going-second-only Item for first seat',()=>{
-  const printing='Call Bell SSP',ledger=createOwnerTurnLedger();
+  const printing='Helper Bell SSP',ledger=createOwnerTurnLedger();
   const first={...owner([printing],1),actorSeat:0};
   const receipt=ledger.observe(first);
   assert.equal(receipt.openingFirstSeat,0);
@@ -294,4 +295,26 @@ test('unobserved opening order never gives a false first-seat certificate',()=>{
   assert.equal(r.blocker,null);
   assert.equal(r.conservativeDecline,true);
   assert.equal(r.ineligibilityProven,false);
+});
+
+test('source print spelling must be translated to verified native fullName before rule checks',()=>{
+  const nativeTurbo='Wait and See Turbo ASR 158';
+  const nativeCallBell='Helper Bell SSP';
+  assert.equal(FIRST_OWNER_TURN_ONLY[nativeTurbo].sourcePrinting,
+    'Wait and See Turbo ASR');
+  assert.equal(FIRST_OWNER_TURN_ONLY[nativeCallBell].sourcePrinting,
+    'Call Bell SSP');
+  for(const [original,native] of [
+    ['Wait and See Turbo ASR',nativeTurbo],
+    ['Call Bell SSP',nativeCallBell]
+  ]){
+    const receipt=createOwnerTurnLedger();
+    receipt.observe(owner([native],1));
+    const r=printedTrainerTurnScreen(owner([native],3),native,
+      receipt.observe(owner([native],3)));
+    assert.equal(r.ineligibilityProven,true);
+    assert.equal(r.printedSourceName,original);
+    assert.equal(printedTrainerTurnScreen(owner([original],3),original)
+      .printedRuleKnown,false);
+  }
 });
