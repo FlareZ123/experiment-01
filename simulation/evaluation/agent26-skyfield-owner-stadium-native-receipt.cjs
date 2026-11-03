@@ -121,8 +121,23 @@ function collect(){
       JSON.stringify([14,17,19,21])&&
     target.every(x=>x.selectedRoot==='PassTurnAction');
   const ownStadiumAtTarget=target.map(x=>x.ownerStadium);
+  const frozenOriginalPhysical=[
+    {source5Seat:0,seed:912174767,
+      digest:'65c87abb4eb03985598acf3306a5169bb82a6b8a8fd021b630cb5c0f2318886a'},
+    {source5Seat:1,seed:1914651848,
+      digest:'3d8e3e1dec9027aec38ab2015b06bd4294fd9ed3c3c2dbf1dadec928433361d4'}
+  ];
+  const nowPhysical=archived.rows.map(row=>({
+    source5Seat:row.primaryRankSeat??row.source5Seat,
+    seed:row.seed,
+    digest:row.initialFullPhysicalDealDigest
+  }));
+  const originalPhysicalDealDigestsMatched=
+    JSON.stringify(frozenOriginalPhysical)===JSON.stringify(nowPhysical);
   return {
-    version:VERSION,
+    frozenOriginalPhysicalDealDigests:frozenOriginalPhysical,
+    currentPublicNativePhysicalDealDigests:nowPhysical,
+    originalPhysicalDealDigestsMatched,    version:VERSION,
     pinnedEngine:'twinleafgg/'+PIN,
     observedExistingOriginalAichiPrintRanks:[5,11],
     noChangedGameOrDeckPolicy:true,
@@ -136,7 +151,7 @@ function collect(){
     skyFieldMissedRealRootCount:target.length,
     skyFieldUnlistedPublicStadiumRows:target,
     ownerHasStadiumForEveryOmission:
-      target.every(x=>x.ownerStadium.length>0),
+      target.length>0&&target.every(x=>x.ownerStadium.length>0),
     ownerOwnStadiumIdentitiesAtOmissions:ownStadiumAtTarget,
     qualification:{
       publicStateSnapshotOnly:true,
@@ -157,6 +172,7 @@ if(require.main===module){
       roots:result.liveOwnerEnumRootsJoined,
       missed:result.skyFieldMissedRealRootCount,
       reproduced:result.exactFrozenTargetReproduced,
+      originalPhysicalDealsMatched:result.originalPhysicalDealDigestsMatched,
       heldRows:result.skyFieldHeldAllObservedRoots,
       hasOwnStadiumAll:result.ownerHasStadiumForEveryOmission,
       ownStadiums:result.ownerOwnStadiumIdentitiesAtOmissions,
