@@ -2,7 +2,19 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent6-owner-public-removal-target-certificate-v1';
+const VERSION='agent6-owner-public-removal-target-certificate-v2';
+
+// These five Prism Star Stadium printings all have printed text protecting the
+// Stadium from Items and Supporters played from hand. If another effect
+// suppresses that text, this pure public snapshot alone cannot prove it.
+// IDs were checked against the supplied English source card database.
+const PROTECTED_PRISM_STADIUMS=Object.freeze({
+  'Heat Factory LOT':'sm8-178',
+  'Life Forest LOT':'sm8-180',
+  'Thunder Mountain LOT':'sm8-191',
+  'Black Market TEU':'sm9-134',
+  'Wondrous Labyrinth TEU':'sm9-158'
+});
 
 /**
  * Exact source card identities and their printed target families.
@@ -60,6 +72,7 @@ function removalTargetCertificate(view,handIndex){
 
   assert.ok(view.ownPublic&&view.opponentPublic&&view.ownTurnResources);
   const targets=[];
+  const protectedStadiums=[];
   for(const [side,board] of [
     ['own',view.ownPublic],['opponent',view.opponentPublic]]){
     const slots=[['active',0,board.active],
@@ -73,8 +86,17 @@ function removalTargetCertificate(view,handIndex){
     if(rule.family==='tool-or-stadium'){
       for(const [stadiumIndex,stadiumPrinting] of
         (board.stadium??[]).entries()){
-        targets.push({side,zone:'stadium',stadiumIndex,
-          printing:stadiumPrinting,targetClass:'stadium'});
+        const normalized=stadiumPrinting.replace(' ◇','');
+        const target={side,zone:'stadium',stadiumIndex,
+          printing:stadiumPrinting,targetClass:'stadium'};
+        if(Object.hasOwn(PROTECTED_PRISM_STADIUMS,normalized)){
+          protectedStadiums.push({...target,
+            sourceId:PROTECTED_PRISM_STADIUMS[normalized],
+            protection:'Item-Supporter-effect-prevention-while-active',
+            suppressionOfPrintedProtectionUnverified:true});
+        }else{
+          targets.push(target);
+        }
       }
     }
   }
@@ -87,7 +109,8 @@ function removalTargetCertificate(view,handIndex){
   const boardInconsistent=stadiumCount>1;
   const blockers=[
     ...(publicItemLocked?['observed-public-item-lock']:[]),
-    ...(!targets.length?['no-public-removal-target']:[]),
+    ...(!targets.length&&!protectedStadiums.length?
+      ['no-public-removal-target']:[]),
     ...(!handCostPayable?['mandatory-other-hand-card-unavailable']:[]),
     ...(boardInconsistent?['multiple-stadium-zones-inconsistent']:[])
   ];
@@ -98,10 +121,14 @@ function removalTargetCertificate(view,handIndex){
     otherHandCount,handCostPayable,
     publicItemLocked,stadiumCount,boardInconsistent,
     targets,eligibleTargetCount:targets.length,
+    protectedStadiums,printedProtectionSuppressionUnverified:
+      protectedStadiums.length>0,
+    finalTargetDestinationCertified:false,
     publiclyProvenBlocker:blockers.length?blockers[0]:null,
     blockers,
     status:blockers.length?'necessary-condition-failed':
-      'public-target-and-physical-cost-present-unresolved',
+      targets.length?'public-target-and-physical-cost-present-unresolved':
+      'protected-prism-star-stadium-effect-unresolved',
     // Choice targets are public and physically present. Effects, other locks,
     // in-hand discard desirability, prompt semantics and subsequent settlement
     // still require separate checks under an authentic Store action.
@@ -132,7 +159,8 @@ function withPublicRemovalTargetEvidence(view,census){
       .filter(x=>!priorBlockers.includes(x));
     return {...row,
       exactTargetEligibility:cert.eligibleTargetCount>0?
-        'public-target-present':'proven-no-public-target',
+        'public-target-present':cert.protectedStadiums.length?
+        'prism-star-stadium-protection-unresolved':'proven-no-public-target',
       removalTargetCertificate:cert,
       necessaryBlockers:[...priorBlockers,...added],
       paperPlayable:targetBlocked?false:row.paperPlayable};
@@ -145,5 +173,5 @@ function withPublicRemovalTargetEvidence(view,census){
     allRemainingArePaperLegal:false};
 }
 
-module.exports={VERSION,REMOVAL_PRINTINGS,
+module.exports={VERSION,REMOVAL_PRINTINGS,PROTECTED_PRISM_STADIUMS,
   removalTargetCertificate,withPublicRemovalTargetEvidence};
