@@ -16,11 +16,11 @@ const native=name=>require(path.join(OUTPUT,name));
  * the opponent board's chosen placement is still synthetic. No real match
  * or competent opposing turn is simulated. The Stadium play is genuine.
  *
- * @param {2|15} sourceRank
+ * @param {0|2|15} sourceRank
  * @param {0|1} candidateSeat
  */
 function runArm(sourceRank,candidateSeat){
-  assert.ok([2,15].includes(sourceRank));
+  assert.ok([0,2,15].includes(sourceRank));
   assert.ok([0,1].includes(candidateSeat));
   assert.deepEqual(sourceLockSources().map(x=>x.rank),[2,15]);
   assert.equal(candidateChannels().stadiumDiscardOutlet.count,1);
@@ -58,10 +58,13 @@ function runArm(sourceRank,candidateSeat){
   owner.discard.cards.push(shuppet);
 
   source.active.cards.push(card(sourceRank===2?
-    'Stoutland BCR':'Shadow Rider Calyrex V CRE'));
-  const vile=new PokemonCardList();
-  vile.cards.push(card('Vileplume AOR'));
-  source.bench.push(vile);
+    'Stoutland BCR':sourceRank===15?
+    'Shadow Rider Calyrex V CRE':'Pidgey MEW'));
+  if(sourceRank!==0){
+    const vile=new PokemonCardList();
+    vile.cards.push(card('Vileplume AOR'));
+    source.bench.push(vile);
+  }
   if(sourceRank===15)source.stadium.cards.push(card('Silent Lab PRC'));
 
   for(const player of [owner,source]){
@@ -96,12 +99,15 @@ function runArm(sourceRank,candidateSeat){
 
   // Genuine attempt: Vileplume's lock must prohibit all Item plays.
   const initialHand=[...owner.hand.cards];
-  let itemDenied=false;
-  try{play(compressor);}
-  catch(e){itemDenied=/CANNOT_PLAY_THIS_CARD/.test(String(e?.message??e));}
-  assert.equal(itemDenied,true,'AOR Item-lock native preflight must reject Compressor');
-  assert.deepEqual(owner.hand.cards,initialHand,
-    'Denied item must not be spent or reorder the candidate hand');
+  let itemDenied=null;
+  if(sourceRank!==0){
+    itemDenied=false;
+    try{play(compressor);}
+    catch(e){itemDenied=/CANNOT_PLAY_THIS_CARD/.test(String(e?.message??e));}
+    assert.equal(itemDenied,true,'AOR Item-lock native preflight must reject Compressor');
+    assert.deepEqual(owner.hand.cards,initialHand,
+      'Denied item must not be spent or reorder the candidate hand');
+  }
 
   let supporterDenied=null;
   if(sourceRank===2){
@@ -121,6 +127,9 @@ function runArm(sourceRank,candidateSeat){
     'Accepted native PlayCardAction did not persist Stadium: '+
     JSON.stringify({
       sourceRank,candidateSeat,
+      pokestopClass:pokestop.constructor.name,
+      pokestopTrainerType:pokestop.trainerType,
+      pokestopReduceEffectType:typeof pokestop.reduceEffect,
       ownerStadium:owner.stadium.cards.map(x=>x.fullName),
       sourceStadium:source.stadium.cards.map(x=>x.fullName),
       ownerHand:owner.hand.cards.map(x=>x.fullName),
@@ -161,10 +170,10 @@ function runArm(sourceRank,candidateSeat){
 }
 function run(){
   const rows=[];
-  for(const sourceRank of [2,15])
+  for(const sourceRank of [0,2,15])
     for(const candidateSeat of [0,1])
       rows.push(runArm(sourceRank,candidateSeat));
-  assert.equal(rows.length,4);
+  assert.equal(rows.length,6);
   return {enginePin:PIN,rows,
     allStagedNativeStadiumActionsPassed:true,
     originalSixtySourceDecisionPolicyTested:false,
