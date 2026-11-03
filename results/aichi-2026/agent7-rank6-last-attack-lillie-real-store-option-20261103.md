@@ -22,6 +22,10 @@ The candidate's own deck first reached **zero** at the immediately following tur
 
 The existing [detached native Lillie probe](../../simulation/twinleaf/agent7-frozen-candidate-lillie-pass-clone.cjs) was invoked **before** the genuine selected turn40 AttackAction, against a deep-cloned Store. The root's physically held Lillie was native-accepted; its `WaitPrompt → ShuffleDeckPrompt → WaitPrompt` chain resolved fully on **the same global turn40**. The selected physical Lillie left the owner's hand and entered its discard, the Supporter allowance became **1**, the resulting hand became **8**, and the resulting deck became **26**. This matches exact printed-draw bookkeeping: (1+34-1-8=26). The original genuine Store then continued with its unchanged AttackAction.
 
+## Why the deck was depleted
+
+The original complete candidate root ledger contains **12 consecutive Filch AttackActions**, on global turns **18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38 and 40**; the source used no attacks. The authentic candidate rank1 sixty includes Mimikyu GRI58, whose printed Filch attack costs one Colorless and instructs the player to **draw two cards** (attached card database `cards/en/sm2.json`, card ID `sm2-58`). Repeated draw-only attacks explain the rapid depletion. A late Lillie replenishment supplies another draw window, but continued Filch choices may deplete it again. A competent policy must evaluate whether to attack with Filch, change Active Pokémon or conserve the deck, using actual native/paper rules. None of these follow-up tactics has been verified in the present original Store game.
+
 ## Reproduction and parity
 
 The following two independently executed manually dispatched compiled runs preserved both original full native root ledgers:
