@@ -56,7 +56,8 @@ function attack(seat,printing){
   const mega=get(printing);
   assert.equal(mega.name,'M Charizard-EX');
   assert.equal(mega.set,'FLF');
-  assert.equal(String(mega.setNumber),'69');
+  assert.equal(String(mega.setNumber),
+    printing==='M Charizard EX4 FLF'?'108':'69');
   assert.equal(mega.attacks[0].name,'Wild Blaze');
   assert.equal(mega.attacks[0].damage,300);
   owner.active.cards.push(mega);
@@ -149,8 +150,9 @@ for(const seat of [0,1]){
  *
  * @param {0|1} seat
  * @param {boolean} corrected
+ * @param {string} [printing]
  */
-function copiedWildBlaze(seat,corrected){
+function copiedWildBlaze(seat,corrected,printing='M Charizard EX FLF'){
   const cards=initializeCards();
   const {clearCopyAttackSessionsForTests}=
     native('game/store/prefabs/copy-attack-delegation');
@@ -173,7 +175,7 @@ function copiedWildBlaze(seat,corrected){
       assert.ok(result,'Missing required native printing '+name);
       return result;
     };
-    const donor=card('M Charizard EX FLF');
+    const donor=card(printing);
     owner.active.cards.push(card('Regidrago VSTAR SIT'));
     for(const energyName of ['Grass Energy SVE','Grass Energy SVE',
       'Fire Energy SVE']){
@@ -197,7 +199,7 @@ function copiedWildBlaze(seat,corrected){
       p.constructor.name==='ChooseAttackPrompt'&&p.result===undefined);
     assert.ok(prompt,'Native Apex Dragon must offer a Dragon donor');
     assert.ok(prompt.cards.includes(donor),
-      'Original FLF69 printing must be in owner-visible copied attack menu');
+      'Selected donor printing must be in owner-visible copied attack menu');
     store.dispatch(new ResolvePromptAction(prompt.id,donor.attacks[0]));
     for(let step=0;step<30&&store.hasPrompts();step++){
       const pending=state.prompts.find(p=>p.result===undefined);
@@ -207,7 +209,8 @@ function copiedWildBlaze(seat,corrected){
     }
     assert.equal(store.hasPrompts(),false);
     const result={
-      seat,corrected,declared:'Apex Dragon',chosen:'Wild Blaze',
+      seat,corrected,donorPrinting:printing,
+      declared:'Apex Dragon',chosen:'Wild Blaze',
       damage:opponent.active.damage,
       ownerDeck:owner.deck.cards.length,
       opponentDeck:opponent.deck.cards.length,
@@ -312,7 +315,7 @@ function evolveMega(seat,printing,corrected,spiritLink=false){
     };
     console.log('AGENT5_FLF69_MEGA_EVOLUTION',JSON.stringify(r));
     // Both source and corrected original must retain the printed Mega turn end.
-    if(printing==='M Charizard EX FLF')
+    if(['M Charizard EX FLF','M Charizard EX4 FLF'].includes(printing))
       assert.equal(r.turn,spiritLink?4:5,
         'Original Mega reducer must respect printed Spirit Link turn exception');
     return r;
@@ -339,4 +342,53 @@ for(const seat of [0,1]){
       evolveMega(seat,'M Charizard EX FLF',corrected,true);
     });
   }
+}
+
+
+/**
+ * FLF #108 secret rare inherits the exact FLF #69 native class reducer.
+ * Its printed xy2-108 Wild Blaze has the same own-top-five requirement.
+ * Exercise both real native seats, direct and Regidrago-copy attacks,
+ * Mega Evolution turn ending and Spirit Link preservation.
+ * Staged mechanics only: no natural games or competitive evidence.
+ */
+for(const seat of [0,1]){
+  test('FLF108 inherited native Wild Blaze wrong-deck baseline seat '+seat,()=>{
+    const r=attack(seat,'M Charizard EX4 FLF');
+    assert.equal(r.damage,300);
+    assert.equal(r.ownerDeck,10);
+    assert.equal(r.opponentDeck,4);
+    assert.equal(r.ownerDiscard,0);
+    assert.equal(r.opponentDiscard,5);
+    console.log('AGENT5_FLF108_BASELINE',JSON.stringify(r));
+  });
+  test('FLF108 inherited paper hook direct own-deck payment seat '+seat,()=>{
+    const hook=installFlf69WildBlazePaperHook();
+    try{
+      const r=attack(seat,'M Charizard EX4 FLF');
+      assert.equal(r.damage,300);
+      assert.equal(r.ownerDeck,5);
+      assert.equal(r.opponentDeck,9);
+      assert.equal(r.ownerDiscard,5);
+      assert.equal(r.opponentDiscard,0);
+      assert.equal(hook.evidence().correctedWildBlazeEffects,1);
+      console.log('AGENT5_FLF108_PATCHED_DIRECT',JSON.stringify(r));
+    }finally{
+      hook.restore();
+    }
+  });
+  for(const corrected of [false,true]){
+    test('FLF108 native copied Apex donor correction '+corrected+
+      ' seat '+seat,()=>{
+      copiedWildBlaze(seat,corrected,'M Charizard EX4 FLF');
+    });
+  }
+  test('FLF108 inherited Mega turn end with hook seat '+seat,()=>{
+    const r=evolveMega(seat,'M Charizard EX4 FLF',true);
+    assert.equal(r.turn,5);
+  });
+  test('FLF108 Spirit Link Mega-turn exemption with hook seat '+seat,()=>{
+    const r=evolveMega(seat,'M Charizard EX4 FLF',true,true);
+    assert.equal(r.turn,4);
+  });
 }
