@@ -29,8 +29,18 @@ The existing manual-only [Actions run 41686700992](https://github.com/FlareZ123/
 
 Files: [guard](../../simulation/twinleaf/agent39-paper-prompt-portfolio.cjs), [Store-model tests](../../tests/agent39-paper-prompt-portfolio.test.cjs), [real Store fixture](../../simulation/twinleaf/agent39-volt-cyclone-paper-native.cjs), [canonical development runner](../../simulation/evaluation/agent41-bilateral-v2-development.cjs). Commits: `99063c2` guard, `3a2ecfd` tests, `2e259bd` staged fixture, `bbea29a` version-label correction.
 
+## Same-head guard-off/on native noninterference for v3, completed
+
+The existing [manual run 41687562652](https://github.com/FlareZ123/experiment-01/actions/runs/41687562652) **SUCCESS**, research head `9b726b36d3a4e8321eb7e5f7c8a29c3dfe18ad6c`, exercised the existing four historical original rank6/rank11 native arms with the v3 paper guard disabled/enabled, pairing **eight physical game executions into four counterfactual comparisons**. Its exact regression step **"Exact same-head original four-arm Store prompt guard noninterference A/B" passed** in compiled pinned Twinleaf.
+
+The machine-printed summary established `fullyNoninterferingFourArms:true`, `matchingSourceDealAll:true`, `realLivePromptRootAgreement:true`; each of the **four** pairs had `fullyIdenticalExceptObserver:true`. Within each pair: complete initial physical deal, original source-deal fingerprint, actual first player, native root-action SHA256, native prompt-choice digest, final public-board hash, Prize state, winner, completion/cap status, action/turn counts and source attack-settlement digest were identical.
+
+The single source-exposed New Moon rank6 arm contained **five** genuine native accepted original Iron Thorns ex TWM Volt Cyclone attack-parent prompts, with **five** positively checked live replies; its source-parent reconciliation returned `LIVE_PRINTED_SOURCE_PROMPTS_MATCHED`. Under v3 `rawAllStoreVerifiedEvents=5`, `checkedOtherStoreOrUnattributedEvents=0`. This corrects the former v2 **10 raw all-Store checked** observations from five real source roots plus five cloned-store duplicates, without retrospectively altering earlier archives. The source turn:seat histogram is `4:1,6:1,26:1,28:1,34:1`, one each. The three other historical arms had no source Volt roots to verify. The five prompts are correlated within **one** physical development game.
+
+This verifies **no action-level interference observed in the four selected pair comparisons**; it does not establish full printed attack or game paper legality. All eight native runs remain development-only, with **zero competitively qualified games** and no independent win-rate evidence.
+
 ## Open admission requirements
 
-The same-head guard-off/on physical-action noninterference comparison should be independently re-established for v3 and linked here; do not inherit the earlier v2 pair result. Verify source attack-parent linkage and actual prompt settlement through genuine live root logs; v3's pure staged proof alone does not prove these after the wrapper change. Any future positive paper claim requires original printed geometry and zone transitions, with other prompt families left explicitly unverified.
+Future guard integration must test independent new source roots and both physical seats under a competitively competent information-set-safe policy; this historical selected four-pair cohort covers a narrow printed contract. Any future positive paper claim requires original printed geometry and zone transitions, with other prompt families left explicitly unverified.
 
 Across the field, the decision board remains **29/32 authenticated original printed 60s** with ranks **23, 25, 28** missing; **zero competitively qualified games** and no selected fixed 60 or demonstrated 99.5% game win rate.
