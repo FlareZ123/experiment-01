@@ -65,7 +65,9 @@ function run(){
         Store,SimpleTacticsAi,GamePhase,ActionEnumerator,
         TrainerCard,TrainerType,PlayCardAction,PokemonCard,Stage,
         ownRegisteredSixties:[deckA,deckB],
-        allCards:manager.getAllCards(),seats:[0,1],maxRoots:90
+        allCards:manager.getAllCards(),seats:[0,1],maxRoots:90,
+        ownerHandPaymentContentionOptIn:
+          process.env.AGENT27_TRAINER_PAYMENT_AUDIT==='true'
       });
     const replay=runMatch(request);
     assert.equal(control.engine,PIN);
