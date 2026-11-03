@@ -140,4 +140,52 @@ function withCandidateStadiumAfterSelectedPass(execute,trial,deps={}){
   }
 }
 
-module.exports={VERSION,withCandidateStadiumAfterSelectedPass};
+/**
+ * Scope the treatment to the original runDevelopment actor-only root seam.
+ * Own implementation because later Agent7 implementation did not exist in
+ * this immutable source branch. Restore all descriptors after a single run.
+ *
+ * @template T
+ * @param {()=>T} execute Original frozen four-arm development run.
+ * @param {object[]} trials Original registered ordered four arms.
+ * @param {object} [deps] Pure-test root/module seams.
+ * @returns {{result:T,audit:object}}
+ */
+function withRegisteredCandidateStadiumPanel(execute,trials,deps={}){
+  assert.equal(typeof execute,'function');
+  assert.ok(Array.isArray(trials)&&trials.length===4);
+  const root=deps.root??require('./agent34-actor-only-root-policy.cjs');
+  const original=Object.getOwnPropertyDescriptor(root,'withActorOnlyRootPolicy');
+  assert.equal(typeof original?.value,'function');
+  const runner=deps.runTrial??withCandidateStadiumAfterSelectedPass;
+  const interventions=[];
+  let index=0;
+  function adapter(underlying,options){
+    assert.ok(index<trials.length,'Extra canonical actor composition');
+    const trial=trials[index++];
+    return original.value.call(root,()=>{
+      const outcome=runner(underlying,trial);
+      interventions.push(outcome.audit);
+      return outcome.result;
+    },options);
+  }
+  Object.defineProperty(root,'withActorOnlyRootPolicy',
+    {...original,value:adapter});
+  try{
+    const result=execute();
+    assert.equal(index,trials.length,'Missing canonical actor composition');
+    return {result,audit:{
+      version:VERSION,rootCompositions:index,
+      registeredTrialIds:trials.map(x=>x.id),
+      interventions,competitiveQualifiedGames:0
+    }};
+  }finally{
+    assert.strictEqual(root.withActorOnlyRootPolicy,adapter);
+    Object.defineProperty(root,'withActorOnlyRootPolicy',original);
+  }
+}
+
+module.exports={
+  VERSION,withCandidateStadiumAfterSelectedPass,
+  withRegisteredCandidateStadiumPanel
+};
