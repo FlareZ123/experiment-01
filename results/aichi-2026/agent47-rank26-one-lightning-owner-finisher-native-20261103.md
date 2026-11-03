@@ -19,6 +19,12 @@ The policy's seven deliberate owner actions are audited as `use-koko-one-lightni
 
 [Manual CI 41607406033](https://github.com/FlareZ123/experiment-01/actions/runs/41607406033), triggered **after** per-input `if` conditions were repaired, **passed the owner-finisher step in both source seats**, with **all other rank26 native experiments and strict-physical60 steps correctly skipped**. [Clean isolated raw artifact 13217870348](https://github.com/FlareZ123/experiment-01/actions/runs/41607406033/artifacts/13217870348), SHA256 `f44114eae948ec85b22dd34c46bfed24fed5a8b3dc858b7dbbe77cd034df1fd6`. This validates that the exact opt-in manual gate now executes only the designated native source finisher, and independently reproduces the same terminal claims.
 
+## Guarded Cologne prerequisite reproduced before lease release
+
+A final owner-policy safety review identified that selecting Koko purely because there was one Lightning in the source discard could propose an impossible Ability under live Iron Thorns Initialization if Cologne was never played. At [commit `2928d428`](https://github.com/FlareZ123/experiment-01/commit/2928d428c5eaa6a5d74f88efbfa25764e854342b), this opt-in finisher now records an original `PlayCardAction(Canceling Cologne)` actually selected by the same source decision session before proposing Koko. A Cologne merely seen in discard does not qualify as a prior paid root. The continuing native Store then determines whether that action resolves; a rejected action cannot advance the same run.
+
+[Independent guarded manual CI 41608117946](https://github.com/FlareZ123/experiment-01/actions/runs/41608117946) **passed both original source seats**, with the finisher step successful and no unrelated experiment failures. The earlier conditional staged proof and native terminal remain reproducible under this stricter owner-only condition.
+
 ## Setup and limitations
 
 The [two-seat native test runner](../../simulation/twinleaf/agent47-rank26-isolated-owner-finisher-native.cjs) intentionally starts at a **synthetic terminal window**, with a Squawkabilly Active and MEL/Koko/Eggs Benched under Risky Ruins. It takes five original opponent Prizes from their exact printed Prize zones into their own hand, leaving them at exactly one Prize, *without* reconstructing preceding Knock Outs. It also relocates source-owned original Cologne, DCE, TM, Rope and one Lightning from source owner reserve zones into source hand/discard. The input state is declared synthetic, and never treated as an authentic initially shuffled root.
