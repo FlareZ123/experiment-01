@@ -1,0 +1,315 @@
+{
+  "schema": "agent34-heldout-rank1-underworld-bench-recipient-gap-20261103-v1",
+  "registeredUtc": "2026-11-03T15:49:50.318052Z",
+  "registeredBeforeNativeOutcomesForTheseSeeds": true,
+  "seedMethod": "Python secrets.randbelow(2**32), 16 unique uniformly sampled integers, eight per candidate physical seat",
+  "originalRank": 1,
+  "originalArchetype": "Shadow Rider Calyrex",
+  "originalRosterGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "opponentOriginalPrintedSixtyUnchanged": true,
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "seeds": {
+    "A": [
+      1465027393,
+      3961196099,
+      3328181253,
+      2284546087,
+      4184826682,
+      1325985890,
+      1328946145,
+      3611769458
+    ],
+    "B": [
+      2612951253,
+      1273597801,
+      2846245029,
+      1597067687,
+      2996166618,
+      3532844563,
+      1226092920,
+      4202392411
+    ]
+  },
+  "candidatePhysicalSeats": [
+    "A",
+    "B"
+  ],
+  "independentSeedGroups": 16,
+  "registeredArmsPerPolicy": 32,
+  "totalNativeAttempts": 64,
+  "trials": [
+    {
+      "id": "1:0:A:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1465027393
+    },
+    {
+      "id": "1:0:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1465027393
+    },
+    {
+      "id": "1:1:A:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3961196099
+    },
+    {
+      "id": "1:1:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3961196099
+    },
+    {
+      "id": "1:2:A:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3328181253
+    },
+    {
+      "id": "1:2:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3328181253
+    },
+    {
+      "id": "1:3:A:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 2284546087
+    },
+    {
+      "id": "1:3:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2284546087
+    },
+    {
+      "id": "1:4:A:champion-reference",
+      "rank": 1,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 4184826682
+    },
+    {
+      "id": "1:4:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 4,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4184826682
+    },
+    {
+      "id": "1:5:A:champion-reference",
+      "rank": 1,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1325985890
+    },
+    {
+      "id": "1:5:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 5,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1325985890
+    },
+    {
+      "id": "1:6:A:champion-reference",
+      "rank": 1,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 1328946145
+    },
+    {
+      "id": "1:6:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 6,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1328946145
+    },
+    {
+      "id": "1:7:A:champion-reference",
+      "rank": 1,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 3611769458
+    },
+    {
+      "id": "1:7:A:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 7,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3611769458
+    },
+    {
+      "id": "1:0:B:champion-reference",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2612951253
+    },
+    {
+      "id": "1:0:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2612951253
+    },
+    {
+      "id": "1:1:B:champion-reference",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1273597801
+    },
+    {
+      "id": "1:1:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1273597801
+    },
+    {
+      "id": "1:2:B:champion-reference",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2846245029
+    },
+    {
+      "id": "1:2:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2846245029
+    },
+    {
+      "id": "1:3:B:champion-reference",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1597067687
+    },
+    {
+      "id": "1:3:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1597067687
+    },
+    {
+      "id": "1:4:B:champion-reference",
+      "rank": 1,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 2996166618
+    },
+    {
+      "id": "1:4:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 4,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 2996166618
+    },
+    {
+      "id": "1:5:B:champion-reference",
+      "rank": 1,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3532844563
+    },
+    {
+      "id": "1:5:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 5,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3532844563
+    },
+    {
+      "id": "1:6:B:champion-reference",
+      "rank": 1,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1226092920
+    },
+    {
+      "id": "1:6:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 6,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1226092920
+    },
+    {
+      "id": "1:7:B:champion-reference",
+      "rank": 1,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 4202392411
+    },
+    {
+      "id": "1:7:B:new-moon-lockbreaker-v1",
+      "rank": 1,
+      "repeat": 7,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 4202392411
+    }
+  ],
+  "frozenCommonPolicySource": "results/aichi-2026/registrations/agent31-rank1-prospective-basic-recipient-20261102.json/frozenCommonPolicy",
+  "frozenCommonPolicyExtras": {
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "actorOnlyComposition": true,
+    "paperPsychicRecipientCompatibilityHookBothArms": true,
+    "actorUnderworldDoorRootBothArms": true,
+    "actorUnderworldDoorPromptOwnerBothArms": true,
+    "actorUnderworldActiveFundingPriorityBothArms": false
+  },
+  "singleCausalDifference": "actorUnderworldAttackGapRecipient false (source-preferred typed Psychic Bench target) versus true (owner-public attack-gap ranked typed Psychic Bench targets), symmetric on actual seats, independent of Active manual funding policy",
+  "primaryNativeOutcome": "real pinned Store-accepted Underworld Bench recipient indices and Energy public board changes, plus original-source attacks",
+  "secondaryOutcomes": "native winner/censorship, same physical starting deals, owner-native prompt acceptance vs rejected, printed-Psychic targeting and attack-conversion opportunity",
+  "qualification": "Fresh-seed developmental same-policy native comparison; neither arm qualifies paper games, complete all-32 opponent field or actual competitive deck wins."
+}
