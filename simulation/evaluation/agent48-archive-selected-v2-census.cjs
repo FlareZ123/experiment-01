@@ -1,7 +1,7 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {auditAbortedOriginalSourcePair}=
+const {inspectAbortSource,auditAbortedOriginalSourcePair}=
   require('./agent48-aborted-source-pair-posthoc.cjs');
 
 const DIGEST=/^[a-f0-9]{64}$/;
@@ -12,9 +12,11 @@ const ORIGINAL_ABORTED_TRIAL='6:300:A:champion-reference';
  * deals inside one mode. Equal seed is only a registration fact.
  *
  * @param {object[]} rows All original-source native rows for one policy mode.
+ * @param {{recoverNativeAborts?:boolean}} [options] Optional extra,
+ *   explicitly retrospective native abort evidence; never game success.
  * @returns {object} Postgame first-turn source-deal evidence.
  */
-function censusCrossCandidateSourceDeals(rows){
+function censusCrossCandidateSourceDeals(rows,options={}){
   assert.ok(Array.isArray(rows));
   const groups=new Map();
   for(const row of rows){
@@ -44,19 +46,36 @@ function censusCrossCandidateSourceDeals(rows){
     const champion=byId['champion-reference'];
     const challenger=byId['new-moon-lockbreaker-v1'];
     assert.ok(champion&&challenger);
-    const a=champion.sourceDealFingerprint;
-    const b=challenger.sourceDealFingerprint;
-    const digestKnown=typeof a==='string'&&DIGEST.test(a)&&
-      typeof b==='string'&&DIGEST.test(b);
-    const starterKnown=champion.verifiedFirstTurn===true&&
-      challenger.verifiedFirstTurn===true&&
-      [0,1].includes(champion.actualStarterSeat)&&
-      [0,1].includes(challenger.actualStarterSeat);
+    /** @param {object} row */
+    const evidence=row=>{
+      const sourceSeat=row.trial.candidateSlot==='A'?1:0;
+      const direct=typeof row.sourceDealFingerprint==='string'&&
+        DIGEST.test(row.sourceDealFingerprint)?
+        row.sourceDealFingerprint:null;
+      const directStarter=row.verifiedFirstTurn===true&&
+        [0,1].includes(row.actualStarterSeat)?row.actualStarterSeat:null;
+      if(!options.recoverNativeAborts||
+         (direct!==null&&directStarter!==null)){
+        return {digest:direct,starter:directStarter,recoveredFromAbort:false};
+      }
+      const abort=inspectAbortSource(row,sourceSeat);
+      return {
+        digest:direct??abort.digest,
+        starter:directStarter??abort.starter,
+        recoveredFromAbort:direct===null&&abort.digest!==null
+      };
+    };
+    const a=evidence(champion),b=evidence(challenger);
+    const digestKnown=a.digest!==null&&b.digest!==null;
+    const starterKnown=a.starter!==null&&b.starter!==null;
     records.push({
       groupId,rank:group.rank,
-      digestKnown,originalSourcePhysicalMatch:digestKnown&&a===b,
+      digestKnown,
+      originalSourcePhysicalMatch:digestKnown&&a.digest===b.digest,
+      recoveredAbortSideDigest:a.recoveredFromAbort||
+        b.recoveredFromAbort,
       starterKnown,firstTurnSeatMatch:starterKnown&&
-        champion.actualStarterSeat===challenger.actualStarterSeat,
+        a.starter===b.starter,
       sameSeed:champion.trial.seed===challenger.trial.seed,
       competitiveGameQualified:false
     });
@@ -69,6 +88,8 @@ function censusCrossCandidateSourceDeals(rows){
     sourceDigestMismatched:records.filter(x=>
       x.digestKnown&&!x.originalSourcePhysicalMatch).length,
     sourceDigestUnknown:records.filter(x=>!x.digestKnown).length,
+    groupsWithRecoveredAbortSideDigest:records.filter(x=>
+      x.recoveredAbortSideDigest).length,
     starterCompared:records.filter(x=>x.starterKnown).length,
     starterMatched:records.filter(x=>x.firstTurnSeatMatch).length,
     pairedCandidatePhysicalContrastSupported:records.every(x=>
@@ -122,6 +143,12 @@ function auditSelectedV2Archive(archive){
     crossCandidateOriginalSourceDeals:{
       baseline:censusCrossCandidateSourceDeals(native[0]),
       selected:censusCrossCandidateSourceDeals(native[1])
+    },
+    crossCandidateOriginalSourceDealsIncludingVerifiedAborts:{
+      baseline:censusCrossCandidateSourceDeals(native[0],
+        {recoverNativeAborts:true}),
+      selected:censusCrossCandidateSourceDeals(native[1],
+        {recoverNativeAborts:true})
     },
     originalReleaseAcceptanceUnchanged:true,
     competitiveGameQualified:false
