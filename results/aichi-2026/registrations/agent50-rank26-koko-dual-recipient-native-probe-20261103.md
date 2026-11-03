@@ -1,0 +1,9 @@
+# Agent50 prospective staged native Tapu Koko Prism Star two-recipient diagnostic
+
+**3 November 2026, registered before this new test's first native CI invocation.**
+
+Original Aichi rank26 fixed60 is the source. The preceding zero-Unown proposal [Agent50 ledger](../agent50-rank26-unownless-crisis-punch-ledger-20261103.md) and independent [six passed physical Damage Pump fixtures](../agent50-rank26-unownless-native-damage-pump-20261103.md) leave one important engine/payment question: after the fifth Exeggcute self-KO, can the source's Benched Tapu Koko Prism Star's **Dance of the Ancients** attach two distinct original discarded Lightning to Benched Meloetta and the surviving 10-damage Egg B before putting Koko in Lost Zone?
+
+Build an **authentic original-rank26-printed native Store** with Squawk Active, Meloetta/Koko/surviving 10-damage Egg on Bench, exactly two physically distinct original Lightning cards in source discard, source original first global turn, all actual private zone objects and six Prize cards, no opponent lock. Invoke the actual printed Koko Ability via native PowerEffect and record the initial ability's offered prompts, mandatory targets, Energy zone transitions and Koko zone transition. This is **a deliberately staged witness**, not a full natural source turn, source search, paper clock, probability or win rate. If pinned engine's card/prompt implementation differs or is incomplete, preserve exact native evidence and fail closed rather than invent a prompt or choose an impossible target.
+
+Check source owner in both actual physical seats 0 and 1. Preserve the unchanged fixed 60 and unqualified original field denominators. Only a complete verified prompt sequence, including actual Lightning cards attached to **both** physical Benched recipients and Koko Lost Zone transition, qualifies the substep. Separate any observed engine mismatch from paper legality; no replacement of the vendor submodule.
