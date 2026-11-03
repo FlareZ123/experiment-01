@@ -36,3 +36,22 @@ The source's **genuine selected original turn1 root11** in both source-seat-B ga
 The clear next test is one **precommitted general owner policy** comparing all paper-payable Stadium, Lillie, attack, setup and resource-conservation lines using owner-visible public state across both physical seats and original source ranks 5/6/11, then testing genuine selected actions and opponent reactions. A generic unconditional Stadium-after-Pass rule would not be justified by these four original games.
 
 **Global field qualification remains 29/32 printed original 60s authenticated (missing ranks 23,25,28), zero paper-competitive qualified games, no selected fixed final 60, and no demonstrated 99.5% win rate.**
+
+## Additional resolved tactical mechanism: Stadium forces a later one-turn attack interruption
+
+A closer read of the **same compiled A/B/A artifact 13244492026** reveals a strategically material difference masked by the equal aggregate native AttackAction counts and same winners. Both selected Stadium interventions eventually **delayed an original-source Volt Cyclone by one full source turn**. The original source was able to attack on turn5 after the counter-Stadium, but the attack cost interruption surfaced on **turn17**, after previous attacks had moved attached Energy to the Bench.
+
+| Source native state | Champion control → Stadium treatment | New Moon control → Stadium treatment |
+| --- | --- | --- |
+| Global turn17, original source Active | Iron Thorns ex with **two Speed Lightning Energy** attached in both conditions | Same two attached Speed Lightning in both conditions |
+| Global turn17 Stadium | Original **Thunder Mountain Prism Star** in control; absent in treatment | Original Thunder Mountain in control; absent in treatment |
+| Global turn17 native root chosen | **Volt Cyclone** ordinal87 → **Pass** ordinal88 | **Volt Cyclone** ordinal96 → **Pass** ordinal97 |
+| Global turn19 treated source | Attaches **Capture Energy** ordinal94, then **Volt Cyclone** ordinal98 | Attaches Capture Energy ordinal109, then Volt Cyclone ordinal113 |
+| Final native winner | Source → Source | Source → Source |
+
+These pre-attack and post-Pass public board states are preserved in the source's existing native `sourceAttackSettlement.attacks[].publicBoardBefore` and `sourceOwnerPostPassMobility.observations[]` fields, with exact root ordinals and turns in `rootActionLedger`. The baseline turn17 attack public board shows **two** attached Speed Lightning Energy and **Thunder Mountain** in play. The treated turn17 actual Pass public board shows the **same two Energy** and **no Stadium**, with two Benched Iron Thorns ex. The treated turn19 native attack public board shows **three cards** attached to the Active: Speed Lightning, Speed Lightning, Capture Energy, with the original Stadium still absent.
+
+The provided original printed card text makes the mechanical interpretation direct: Iron Thorns ex Volt Cyclone costs `Lightning + Colorless + Colorless` (three units). Two attached Speed Lightning cards supply two Lightning (also satisfying Colorless symbols). Thunder Mountain's one-Lightning attack reduction makes the two Energy sufficient under control; removing Thunder Mountain leaves **one insufficient Energy unit** at turn17. After a new Capture Energy attaches on turn19, the source has a third Energy unit and may attack again. The actual native roots agree with the printed-cost calculation. This is **conditional attack-denial value realized later**, despite the lack of a changed native winner. The study does not compare strategic opportunities the candidate might have taken during that extra turn.
+
+The finding sharpens the policy recommendation: value Stadium replacement by conditional future attack-cost and energy-attachment states, not just by immediate turn5 payoff or end-game native winner. No paper game and no 99.5% claim is qualified.
+
