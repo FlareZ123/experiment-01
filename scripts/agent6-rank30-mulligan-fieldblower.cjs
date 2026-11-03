@@ -2,18 +2,13 @@
 
 const assert=require('node:assert/strict');
 const field=require('../results/aichi-2026/full-decklists.json');
+const opening=require('../results/aichi-2026/opening-hand-audit.json');
 
 const DECK=60;
 const OPENING=7;
 const PRIZES=6;
 const MAX_EXTRA=DECK-OPENING-PRIZES-1;
 const RANKS=[6,24,29];
-const BASIC_NAMES=new Set([
-  "Lillie's Clefairy ex",'Unown','Latias ex','Tapu Lele-GX',
-  'Dedenne-GX','Squawkabilly ex','Crobat V','Fezandipiti ex',
-  'Empoleon V','Mimikyu','Dialga-GX','Minior'
-]);
-
 /** @param {number} n @param {number} k @returns {bigint} */
 function choose(n,k){
   if(k<0||k>n)return 0n;
@@ -67,11 +62,14 @@ function count(deck,name){
 function run(){
   const rank30=field.decks.find(d=>d.rank===30);
   assert.ok(rank30);
-  assert.ok(rank30.cards.filter(c=>c.category==='Pokémon')
-    .every(c=>BASIC_NAMES.has(c.name)),
-  'The sixteen rank-30 Pokémon used as opening Basics must remain Basic');
-  const sourceBasics=rank30.cards.filter(c=>c.category==='Pokémon')
-    .reduce((n,c)=>n+c.count,0);
+  assert.equal(opening.fully_resolved,29);
+  const sourceAudit=opening.decks.find(d=>d.rank===30);
+  assert.ok(sourceAudit);
+  assert.deepEqual(sourceAudit.unresolved_pokemon,[]);
+  const sourceBasics=sourceAudit.basic_count_known;
+  assert.equal(rank30.cards.filter(c=>c.category==='Pokémon')
+    .reduce((n,c)=>n+c.count,0),sourceBasics,
+  'Shared audit confirms all sixteen original rank-30 Pokémon are Basic');
   const blowerCount=count(rank30,'Field Blower');
   const floatCount=count(rank30,'Float Stone');
   const latiasCount=count(rank30,'Latias ex');
@@ -82,8 +80,12 @@ function run(){
   const thorns=RANKS.map(rank=>{
     const source=field.decks.find(d=>d.rank===rank);
     assert.ok(source);
-    const basics=source.cards.filter(c=>c.category==='Pokémon')
-      .reduce((n,c)=>n+c.count,0);
+    const sourceAudit=opening.decks.find(d=>d.rank===rank);
+    assert.ok(sourceAudit);
+    assert.deepEqual(sourceAudit.unresolved_pokemon,[]);
+    const basics=sourceAudit.basic_count_known;
+    assert.equal(source.cards.filter(c=>c.category==='Pokémon')
+      .reduce((n,c)=>n+c.count,0),basics);
     const jammer=count(source,'Tool Jammer');
     assert.equal(count(source,'Iron Thorns ex'),4);
     assert.deepEqual([basics,jammer],[4,1]);
@@ -132,7 +134,7 @@ function run(){
   return {
     schema:'agent6-original-rank30-vs-thorns-setup-mulligan-access-v1',
     assumptions:[
-      'Both players use original authenticated 60-card printing counts',
+      'Both players use original authenticated 60-card printing counts and the independent resolved Basic-opening audit',
       'Independent shuffled source/opponent decks',
       'Each opening seven must include a Basic; simultaneous mulligans do not award a bonus',
       'Rank30 takes all offered compensating cards and mandatory first draw',
