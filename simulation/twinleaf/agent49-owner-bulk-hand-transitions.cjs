@@ -110,7 +110,9 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     movedHandCount:moved.length,
     protectedMovedIndices:moved.filter(c=>c.protected).map(c=>c.handIndex),
     protectedMovedCount:moved.filter(c=>c.protected).length,
-    drawnCardCountRequested:draw,
+    drawnCardCountRequested:rule.opponentPrizesAtMost===undefined?
+      draw:conditionalPrizeUseEligible===true?draw:null,
+    printedDrawIfAdmissible:draw,
     sourceRequiresOpponentPrizeThreshold:rule.opponentPrizesAtMost??null,
     conditionalPrizeUseEligible,
     sourcePrerequisiteFails:conditionalPrizeUseEligible===false,
