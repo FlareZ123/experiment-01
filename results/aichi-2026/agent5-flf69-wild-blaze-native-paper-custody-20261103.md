@@ -33,7 +33,20 @@ The baseline four native direct attacks (two implementations × two seats) passe
 
 `simulation/twinleaf/flf69-wild-blaze-paper-hook.cjs` installs a **temporary, opt-in, reversible** `reduceEffect` wrapper on the pinned native `M Charizard EX FLF` class prototype. Only when the genuine native `WAS_ATTACK_USED(effect,0,this)` predicate holds, it invokes the already vendor-supplied `DISCARD_TOP_X_CARDS_FROM_YOUR_DECK(..., effect.player, 5, this, effect)`; all other events delegate to the preserved original reducer, including its Mega Evolution end-of-turn rule. Tests restore the exact old prototype function. No vendor/submodule files are changed, and the normal simulation policy remains unaffected unless the hook is expressly installed.
 
-Native two-seat positive tests of the patched direct attack passed in [compiled manual CI 41574195113](https://github.com/FlareZ123/experiment-01/actions/runs/41574195113) at source head `9c7791178791b4330b9d1209e0d83d9f55b590cc` (step-level evidence verified). Additional actual `Apex Dragon` copied-donor tests were subsequently added in the same regression: an evolved Regidrago VSTAR is staged with Grass/Grass/Fire, exact FLF69 donor in its owner's discard, and a real `ChooseAttackPrompt` chooses `Wild Blaze`. These tests distinguish copying and prompt handling from direct Mega attacking. Their results require a separate native workflow run before claiming native copied-donor repair.
+Native two-seat positive tests of the patched direct attack passed in [compiled manual CI 41574195113](https://github.com/FlareZ123/experiment-01/actions/runs/41574195113) at source head `9c7791178791b4330b9d1209e0d83d9f55b590cc` (step-level evidence verified).
+
+### Actual copied Apex Dragon attack, decisive native comparison
+
+In [completed compiled manual CI 41574684521](https://github.com/FlareZ123/experiment-01/actions/runs/41574684521) at exact source head `319a60b0bed64a8608266ba85b38496821064e3f`, **all ten FLF69 native tests passed** (4 direct unpatched + 2 patched direct + 4 copied donor), independently verified from the successful job log. The workflow used `flf69_native_only:true` to skip the unrelated expensive rank26 24-arm rereplay.
+
+For a genuine staged `Apex Dragon` declared by `Regidrago VSTAR SIT` with Grass/Grass/Fire attached, one owner-discard `M Charizard EX FLF` is eligible in the actual `ChooseAttackPrompt`; resolving its `Wild Blaze` makes the opposing Shadow Rider VMAX take **300 native damage**. The four copied-donor tests (two physical seats × native hook off/on) reproduced the original's wrong-side mill and the opt-in correction:
+
+| Copied-donor effect | Owner deck | Opponent deck | Owner discard | Opponent discard | Damage | Hook hit |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Unpatched, either seat | 10 | 4 | 1 donor | 5 | 300 | 0 |
+| Paper-corrected, either seat | 5 | 9 | 6 = donor + five milled | 0 | 300 | 1 |
+
+The opponent deck includes the one automatic card draw on its next turn. This is a real vendor `AttackAction` → `ChooseAttackPrompt` → `ResolvePromptAction` → effect transaction, followed by normal turn progression. The hook is demonstrated to affect **copied** attack delegation correctly as well as direct Mega attacking. All 10 observed cases pass, **zero competitively qualified games**.
 
 ## Limits and next acceptance gate
 
