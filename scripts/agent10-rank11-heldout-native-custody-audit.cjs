@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const registration = require('../results/aichi-2026/registrations/agent10-rank11-heldout-headway-4seed-20261103.json');
+const {classifyAcceptedTarget} = require('../simulation/evaluation/agent10-native-declared-target-census.cjs');
 
 const VERSION = 'agent10-rank11-heldout-native-custody-audit-v1';
 
@@ -113,7 +114,8 @@ function acceptedSourceTargets(row,sourceSeat) {
       turn:e.turnBefore??null,
       printing:e.declared?.ownerHandPrinting??null,
       acceptedTarget:e.declared.target,
-      physicalBoardDelta:e.publicBoardChanges??[]
+      physicalBoardDelta:e.publicBoardChanges??[],
+      nativePublicRecipientClassification:classifyAcceptedTarget(e)
     }));
 }
 
@@ -231,10 +233,19 @@ function inspect(x) {
     sameRootDifferentNativeTargetContexts:
       result.flatMap(r=>names.filter(name=>
         r.rootDifferenceFromControl[name]===null&&
-        !r.acceptedTargetParityFromControl[name].identical).map(name=>({
-          id:r.id,factor:name,
-          targetDifference:r.acceptedTargetParityFromControl[name]
-        }))),
+        !r.acceptedTargetParityFromControl[name].identical).map(name=>{
+          const d=r.acceptedTargetParityFromControl[name];
+          const confirmedDifferentPublicBoardRecipients=Boolean(
+            d.control?.nativePublicRecipientClassification?.category===
+              'declared-own-slot-public-delta-confirmed'&&
+            d.alternative?.nativePublicRecipientClassification?.category===
+              'declared-own-slot-public-delta-confirmed'&&
+            JSON.stringify(d.control.physicalBoardDelta)!==
+              JSON.stringify(d.alternative.physicalBoardDelta));
+          return {id:r.id,factor:name,
+            confirmedDifferentPublicBoardRecipients,
+            targetDifference:d};
+        })),
     crossCandidate,
     allContextFirstClaws:result.map(r => ({
       id:r.id,sourceSeat:r.sourceSeat,
