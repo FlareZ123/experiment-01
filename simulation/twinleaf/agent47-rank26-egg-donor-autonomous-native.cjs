@@ -104,13 +104,13 @@ function runSeat(seat) {
     assert.equal(pump.actions.length,6);
     assert.equal(pump.actions.filter(a=>a.kind==='egg-to-egg-fifth-KO'
       ||a.kind==='ready-egg-to-egg-fifth-KO').length,2);
-    assert.equal(recovery.actions.length,6,
-      'first four Propagation/re-Bench actions before the final 2-Prize root');
+    assert.equal(recovery.actions.length,4,
+      'first two Propagation/re-Bench pairs before the final 2-Prize root');
     assert.equal(bridge.actions.length,4,
       'the two Egg donor recovery Propagation/re-Bench actions');
     assert.deepEqual(raw.prizeReceipts.map(x=>x.opposingPrizesAfter),[4,2,1]);
-    assert.equal(raw.actions.length,16,
-      '3 Pump plays, 3 Pump responses, 4 Propagation and 4 Bench plus two extra root choices');
+    assert.equal(raw.actions.length,14,
+      '3 Pump plays, 3 Pump responses, 4 Propagation and 4 Bench actions');
     return {
       seat,originalSource60:true,sourceUnownInPlay:0,
       realSourceOwnerActions:raw.actions,
