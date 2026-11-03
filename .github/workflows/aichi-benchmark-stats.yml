@@ -167,6 +167,8 @@ jobs:
           node scripts/agent17-temple-five-lightning-originals.cjs > agent17-temple-five-originals.json
           node -e "const r=require('./agent17-temple-five-originals.json');if(JSON.stringify(r.focalLightningRanks)!=='[4,6,17,24,29]'||r.competitivelyQualifiedGames!==0)throw Error('Original Temple gate mismatch');console.log(JSON.stringify({allSpecial:r.sevenAllSpecial,focal:r.focalLightningRanks,qualified:r.competitivelyQualifiedGames}))"
           node -e "const r=require('./agent17-temple-raichu-counterline.json');if(JSON.stringify(r.sourceOriginals.map(x=>x.rank))!=='[4,17]'||r.competitivelyQualifiedGames!==0)throw Error('Raichu counterline paper screen mismatch');console.log(JSON.stringify({counterRankIds:r.sourceOriginals.map(x=>x.rank),nativeWitness:r.isNaturalGameWitness}))"
+      - name: Check original rank6 same-turn printed Item Energy answer plus Volt Cyclone physical access
+        run: python scripts/agent17_rank6_item_disrupt_attack.py
       - name: Verify Agent17 strict post-Compressor T2 Regidrago physical hand and Prize event
         run: python scripts/agent17_adp_turn2_physical.py
       - name: Verify Agent17 fixed ADP v2 exact T1 GX Prize and source-rank6 mutual-mulligan gate
