@@ -126,7 +126,7 @@ test('equal-weight original 29 ranks candidate bonus asymmetry',()=>{
   assert.ok(Math.abs(a.sourceOne-0.3416691081)<1e-9);
   assert.ok(Math.abs(a.candidateReceived-0.2386327448)<1e-9);
   assert.ok(Math.abs(a.sourceReceived-0.5686149720)<1e-9);
-  assert.ok(Math.abs(a.net--0.3299822273)<1e-9);
+  assert.ok(Math.abs(a.net-(-0.3299822273))<1e-9);
   assert.ok(Math.abs(b.candidateOne-0.1796223153)<1e-9);
   assert.ok(Math.abs(b.sourceOne-0.1564022924)<1e-9);
   assert.ok(Math.abs(b.candidateReceived-0.2919340055)<1e-9);
