@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const {planOwnerResourceTutors,guaranteedK0DeckTargets}=require('../simulation/twinleaf/agent11-owner-resource-tutor-planner.cjs');
 
 const VIP='Battle VIP Pass FST';
-const LETTER="Professor's Letter BKT";
+const LETTER="Professors Letter BKT";
 const DARK='Darkness Energy MEE';
 const BASICS=['Mega Absol ex MEG','Trubbish FST','Oranguru V ASR',
   'Latias ex SSP','Tapu Lele-GX GRI','Crobat V DAA','Squawkabilly ex PAL'];
