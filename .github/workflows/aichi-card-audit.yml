@@ -19,6 +19,10 @@ on:
         description: 'Opt-in immutable ADP strict two-turn and original-29 HP threshold verification, no gameplay'
         type: boolean
         default: false
+      agent35_trainer_gate_only:
+        description: 'Pure 29-original four-family Trainer necessary-rule incidence audit, no engine compilation'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -63,7 +67,7 @@ jobs:
           node tests/agent12-adp-goodra-rollingiron-ryuno-damage-threshold.sft.cjs
 
   card-coverage:
-    if: ${{ !inputs.native_print_release_census && !inputs.agent12_adp_strict_screen }}
+    if: ${{ !inputs.native_print_release_census && !inputs.agent12_adp_strict_screen && !inputs.agent35_trainer_gate_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -265,4 +269,26 @@ jobs:
           name: agent49-original-native-print-coverage
           path: agent49-pinned-source-native-print-coverage.json
           if-no-files-found: warn
+          retention-days: 30
+
+  agent35-trainer-negative-gate:
+    if: ${{ inputs.agent35_trainer_gate_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify 29 printed-60 denominators and four independent negative-paper families
+        run: node --test tests/agent35-field-trainer-negative-family-coverage.test.cjs
+      - name: Preserve machine-readable source name-set incidence and uncovered priorities
+        run: node scripts/agent35-field-trainer-negative-family-coverage.cjs > agent35-original29-trainer-negative-gates.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent35-original29-trainer-negative-gate-census
+          path: agent35-original29-trainer-negative-gates.json
+          if-no-files-found: error
           retention-days: 30
