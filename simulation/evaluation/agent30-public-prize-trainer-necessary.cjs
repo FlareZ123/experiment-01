@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 
-const VERSION = 'agent30-public-prize-trainer-necessary-v1';
+const VERSION = 'agent30-public-prize-trainer-necessary-v2-jp-m4-native-prize-alias';
 const PRINT_RULES = Object.freeze({
   'Counter Catcher PAR': Object.freeze({
     id: 'sv4-160', type: 'Item', rule: 'own-prizes-greater'
@@ -12,6 +12,13 @@ const PRINT_RULES = Object.freeze({
   }),
   'Special Red Card CRI': Object.freeze({
     id: 'me4-82', type: 'Item', rule: 'opponent-prizes-at-most-3'
+  }),
+  // Original 10 May 2026 Japanese paper event: M4 Ninja Spinner #072
+  // (released 13 March), rather than the 22 May English CRI printing.
+  // The printed Prize prerequisite matches; the remaining card effect text
+  // and native settlement are deliberately outside this negative-only proof.
+  'Special Red Card M4': Object.freeze({
+    id: 'jp/M4/72', type: 'Item', rule: 'opponent-prizes-at-most-3'
   })
 });
 
