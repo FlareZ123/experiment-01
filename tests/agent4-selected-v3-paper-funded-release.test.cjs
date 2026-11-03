@@ -18,7 +18,10 @@ test('immutable new v3 registration is eight independent two-seat original-sourc
   const base=effectiveOptions(m,m.modes[0]);
   const selected=effectiveOptions(m,m.modes[1]);
   const repeat=effectiveOptions(m,m.modes[2]);
-  assert.deepEqual(base,repeat);
+  const {registeredFrameName:controlRunLabel,...controlPolicy}=base;
+  const {registeredFrameName:repeatRunLabel,...repeatPolicy}=repeat;
+  assert.notEqual(controlRunLabel,repeatRunLabel);
+  assert.deepEqual(controlPolicy,repeatPolicy);
   assert.equal(base.actorUnderworldDoorPromptOwner,true);
   assert.equal(base.ownerGenericTrainerFrontier,false);
   assert.equal(selected.ownerGenericTrainerFrontier,true);
