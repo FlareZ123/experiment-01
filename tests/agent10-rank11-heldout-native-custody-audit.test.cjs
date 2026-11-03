@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {examineSource,pairedPhysical,inspect}=
+const {examineSource,pairedPhysical,firstNativeRootDifference,inspect}=
   require('../scripts/agent10-rank11-heldout-native-custody-audit.cjs');
 const reg=require('../results/aichi-2026/registrations/agent10-rank11-heldout-headway-4seed-20261103.json');
 
@@ -46,6 +46,21 @@ test('source deal must match physically and cannot be inferred from identical so
   const b={...a,sourceDealFingerprint:'source-2'};
   assert.equal(pairedPhysical(a,b).sameSourceSixty,true);
   assert.equal(pairedPhysical(a,b).sameSourceDeal,false);
+});
+
+test('native first-root difference distinguishes same-root and recipient divergence',()=>{
+  const control=[
+    {playerSlot:1,turnBefore:1,action:'PlayCardAction',card:'Darkness Energy'},
+    {playerSlot:1,turnBefore:17,action:'PlayCardAction',
+      card:'Darkness Energy MEE',target:{slot:'active',index:0}}
+  ];
+  const staged=[control[0],{...control[1],target:{slot:'bench',index:3}}];
+  const changed=firstNativeRootDifference(control,staged);
+  assert.equal(changed.rootIndex,1);
+  assert.equal(changed.control.globalTurn,17);
+  assert.equal(changed.control.declaredTarget.slot,'active');
+  assert.equal(changed.alternative.declaredTarget.slot,'bench');
+  assert.equal(firstNativeRootDifference(control,control),null);
 });
 
 test('whole archive integrity gate retains all 24 attempts and rejects physically mismatched rows',()=>{
