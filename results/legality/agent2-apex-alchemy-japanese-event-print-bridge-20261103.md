@@ -85,6 +85,10 @@ The **only changed slots** are Quick Ball 3→2 and Boost Shake 3→4 (v0→v1).
 **Strategic status.** Previous paid-resource opening tests do not select v1 over v0: v1 improves narrowly funded Muk/Regidrago lines while v0 has better broader either-lock setup access. This printing crosswalk does not decide which of the two, if either, is worth nominating as the single best fixed deck. **99.5% is still an unverified aspiration.**
 
 
+## Primary Japanese mechanic comparison screen
+
+The separately preserved [34-card core-effect reading](agent2-apex-alchemy-japanese-core-mechanics-v1.json) pairs every exact numbered Japanese publisher page with a concise mechanical fingerprint of its English source identity. The key text of all 34 is consistent at **primary-effect summary** level. **Seventeen entries retain caveats involving icon-dependent types/costs or source extraction**, and conditional resolution requires the official rulebook. This is a human review artifact. It expressly does **not** establish complete Japanese/English card-text equivalence, historical printing eligibility, errata or competitive strength.
+
 ## Reproducible integrity test and CI
 
 The [source-bound necessary-condition audit](../../scripts/agent2-apex-jp-print-audit.cjs) recomputes the canonical SHA-256 of **both independently registered** 60s and checks every English card name, printing, category and count against its crosswalk row. It also checks all mapped Japanese URLs have the official publisher's card-detail shape, that Japanese print identity is unchanged across v0/v1, historical banned-Trainer names and unresolved matching banned-Pokémon identities, the Japanese named-card four-of limits, the Prime Catcher ACE SPEC, 20/30/10 category totals, and exactly the registered Quick Ball versus Boost Shake swap.
