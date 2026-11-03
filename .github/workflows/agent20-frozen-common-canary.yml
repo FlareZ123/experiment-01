@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' }}
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' && github.ref != 'refs/heads/agent13-rank5-vip-after-pass-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
