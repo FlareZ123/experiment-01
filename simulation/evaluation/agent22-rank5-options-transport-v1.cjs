@@ -121,7 +121,7 @@ function execute(){
     for(const mode of registration.policyModes){
       const raw=runDevelopment({...mode.options,
         registeredTrials:registration.registeredTrials,
-        registeredFrameName:registration.schema+'-'+mode.name});
+        registeredFrameName:registration.schema+'-common-physical-frame'});
       assert.ok(Array.isArray(raw.rows));
       // Retain all attempted native rows, including error and action-cap rows.
       rawModes.push({mode:mode.name,raw,
