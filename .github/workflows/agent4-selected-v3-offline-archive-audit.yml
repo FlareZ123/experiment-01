@@ -1,0 +1,36 @@
+name: Agent4 independently attest archived 48 native A/B/A attempts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect-immutable-v3-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+      - name: Validate strict offline runtime and abort witness semantics
+        run: node --test tests/agent4-selected-v3-offline-audit.test.cjs
+      - name: Download exact earlier archival artifact by workflow run and name
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 41697026672 -R FlareZ123/experiment-01 -n agent4-selected-v3-paper-funded-all-48-attempts -D .
+      - name: Independent 48-attempt three-arm actor runtime + paper attestation
+        run: |
+          node simulation/evaluation/agent4-selected-v3-offline-audit.cjs agent4-selected-v3-paper-funded-native-48.json
+          node -e "const a=require('node:assert/strict'),f=require('node:fs'),v=require('./simulation/evaluation/agent4-selected-v3-offline-audit.cjs').auditRelease(JSON.parse(f.readFileSync('agent4-selected-v3-paper-funded-native-48.json','utf8')));a.equal(v.allAttempts,48);a.equal(v.intactRootComparisons,14);a.equal(v.identicalFullPhysicalAmongIntact,14);a.equal(v.exactSelectedAndControlIntactTraces,14);a.equal(v.exactControlRepeatIntactTraces,14);a.equal(v.abortsWithIdenticalSourceAndAcceptedTrace,2);a.equal(v.paperCensus.decisionFrames,688);a.equal(v.paperCensus.necessaryFailures,527);a.equal(v.paperCensus.unresolvedCopies,5495);a.ok(v.modes.every(m=>m.runtimeMissingRows===2&&m.vipEnvironmentObserved===true));a.equal(v.releaseQualified,false);a.equal(v.competitivePaperGamesQualified,0);require('./simulation/evaluation/agent23-selected-joint-v2-release.cjs').writeAtomicLocked('agent4-selected-v3-offline-actor-attestation.json',v);console.log('AGENT4_V3_ARCHIVE_REPRODUCTION_VERIFIED')"
+      - name: Preserve complete independent runtime and paper attestation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-selected-v3-independent-runtime-paper-attestation
+          path: agent4-selected-v3-offline-actor-attestation.json
+          if-no-files-found: warn
+          retention-days: 21
