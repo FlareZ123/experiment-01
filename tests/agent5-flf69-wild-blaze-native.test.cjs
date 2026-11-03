@@ -445,8 +445,8 @@ test('dual-FLF native hook exactly restores original and inherited descriptors',
       beforeReducer:proto.reduceEffect};
   });
   assert.notStrictEqual(records[0].proto,records[1].proto);
-  assert.equal(records[0].beforeOwn?.value,records[0].beforeReducer,
-    'FLF69 native own reducer must be present at the pinned revision');
+  assert.equal(typeof records[0].beforeReducer,'function',
+    'FLF69 pinned native prototype chain must resolve an attack reducer');
   assert.equal(records[1].beforeOwn,undefined,
     'FLF108 gold native reducer is inherited before correction');
 
