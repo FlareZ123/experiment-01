@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Fingerprint original FLF69 Mega Charizard exact-print native ambiguity
+        run: node --test tests/agent50-agent5-flf69-identity-probe.native.test.cjs
       - name: Check preregistered alias-v2 pilot syntax
         run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native-v2.cjs
       - name: Check actual original rank26 physical donor and Egg-to-Egg Damage Pump prompt on both seats
