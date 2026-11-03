@@ -78,6 +78,7 @@ on:
           - 'v1'
           - 'v2'
           - 'v2-known-dead-retro'
+          - 'v2-known-dead-mew-retro'
       agent11_tutor_attack_trace_replay:
         description: 'Read-only retrospective tutor v2 native attack/Prize trace replay, development only; adds no games'
         required: false
@@ -263,9 +264,13 @@ jobs:
       - name: Agent11 preregistered original rank5/rank11 two-seat selected resource tutor comparison
         if: ${{ inputs.generic_owner_tutor_selected }}
         env:
-          AGENT11_TUTOR_REGISTRATION: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-retro' && 'v2' || inputs.generic_owner_tutor_registration }}
+          AGENT11_TUTOR_REGISTRATION: ${{ startsWith(inputs.generic_owner_tutor_registration, 'v2-known-dead') && 'v2' || inputs.generic_owner_tutor_registration }}
           AGENT11_TUTOR_ATTACK_TRACE_REPLAY: ${{ inputs.agent11_tutor_attack_trace_replay }}
-          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-retro' }}
+          AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ startsWith(inputs.generic_owner_tutor_registration, 'v2-known-dead') }}
+          AGENT11_SYMMETRIC_MEW_COMPETENCE: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' }}
+          AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' }}
+          AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' }}
+          AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
       - name: Audit public Terminal Period targets on two original source deals
         if: ${{ inputs.generic_owner_tutor_selected }}
