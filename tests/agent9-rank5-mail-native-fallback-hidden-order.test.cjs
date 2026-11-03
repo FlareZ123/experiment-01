@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const test=require('node:test');
 const path=require('node:path');
 const {fixture}=require('../simulation/twinleaf/hidden-deck-order-audit.cjs');
-const {initializeCards}=require('../simulation/twinleaf/headless.cjs');
+const {initializeCards,seededRandom}=require('../simulation/twinleaf/headless.cjs');
 const {resolveManifestFile}=
   require('../simulation/twinleaf/resolve-field.cjs');
 const {actorObservation}=
@@ -121,4 +121,44 @@ test('original rank-5 source 60: Trainer Mail full-bot and fallback are conceale
   assert.equal(selected[1].reason,'native-did-not-propose-play-card');
   // No actual Store action is dispatched in this deliberately injected root.
   assert.equal(selected[0].unqualifiedNativeDecision,true);
+});
+
+
+test('coupled seeded policy RNG: original rank-5 Mail decision can change with concealed deck order',()=>{
+  const a=sourceRank5MailFixture(true);
+  const b=sourceRank5MailFixture(false);
+  const views=[a,b].map(row=>actorObservation(row.state,0));
+  assert.deepStrictEqual(views[0],views[1]);
+  const definitions=engine('simple-bot/simple-bot-definitions');
+  const {SimpleTacticsAi}=engine('simple-bot/simple-tactics-ai');
+  const options={tactics:definitions.allSimpleTactics,
+    promptResolvers:definitions.allPromptResolvers,
+    scores:definitions.defaultStateScores,
+    arbiter:definitions.defaultArbiterOptions};
+  const seeds=Array.from({length:16},(_,i)=>i+1);
+  const contrasts=[];
+  for(const seed of seeds){
+    const signatures=[a,b].map(row=>{
+      const bot=new SimpleTacticsAi({id:101},options,null);
+      const previous=Math.random;
+      Math.random=seededRandom(seed);
+      try{
+        const action=bot.decodeNextAction(row.state);
+        return action?.constructor?.name??'NoAction';
+      }finally{
+        Math.random=previous;
+      }
+    });
+    contrasts.push({policyRngSeed:seed,signatures,
+      changed:signatures[0]!==signatures[1]});
+  }
+  assert.ok(contrasts.some(row=>row.changed),
+    'Concealed-world action reversal did not survive any matched 1..16 RNG tape');
+  assert.ok(contrasts.every(row=>
+    row.signatures.every(x=>['PlayCardAction','PassTurnAction'].includes(x))),
+    'Unexpected actual pinned native action in coupled RNG test');
+  process.stdout.write('AGENT9_SOURCE_RANK5_COUPLED_POLICY_TAPE '+
+    JSON.stringify({pairedTapes:seeds.length,
+      reversalCount:contrasts.filter(x=>x.changed).length,
+      contrasts,competitiveGamesQualified:0})+'\\n');
 });
