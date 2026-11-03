@@ -122,7 +122,8 @@
       "registrationPath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
       "registrationGitBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
       "policyProfilePath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
-      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/selected-v3-paper-funded-48-13260514792.zip"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
