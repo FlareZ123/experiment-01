@@ -96,7 +96,10 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
   const proposalByAction=new WeakMap();
   const promptByAction=new WeakMap();
   const audit={version:VERSION,sourceSeat,
-    actualPasses:0,eligiblePasses:0,proposedCompressor:0,
+    actualPasses:0,heldItemPasses:0,
+    beforeTurnLimitOtherwiseEligible:0,heldLatePasses:0,
+    observedHeldPasses:[],
+    eligiblePasses:0,proposedCompressor:0,
     nativeAcceptedCompressor:0,nativeRejectedCompressor:0,
     ownerDeckPromptDecisions:0,
     nativeSettledDeckToDiscard:0,
@@ -128,7 +131,29 @@ function withRank9CompressorAfterPass(run,sourceSeat,deps={}){
     }
     if(previous?.constructor?.name!=='PassTurnAction'||waiting)return previous;
     audit.actualPasses++;
-    const choice=chooseRank9CompressorAfterPass(observation(state,sourceSeat));
+    const view=observation(state,sourceSeat);
+    if(view.ownHand.includes(ITEM)){
+      audit.heldItemPasses++;
+      const own=view.ownPublic;
+      const board=[own.active,...own.bench];
+      const picture={
+        turn:view.globalTurn,
+        deckCount:own.deckCount,
+        megaPresent:board.some(sourceMega),
+        voltorbPresent:board.some(sourceVoltorb),
+        itemLocked:view.ownTurnResources.itemPlayLocked===true,
+        ownDiscardEnergy:own.discard.filter(sourceEnergy).length,
+        opponentPrizes:view.opponentPublic.prizeCount
+      };
+      if(view.globalTurn>12)audit.heldLatePasses++;
+      if(picture.deckCount>=3&&picture.megaPresent&&
+        picture.voltorbPresent&&!picture.itemLocked&&
+        picture.ownDiscardEnergy<3&&picture.opponentPrizes>2)
+        audit.beforeTurnLimitOtherwiseEligible++;
+      if(audit.observedHeldPasses.length<30)
+        audit.observedHeldPasses.push(picture);
+    }
+    const choice=chooseRank9CompressorAfterPass(view);
     if(!choice)return previous;
     audit.eligiblePasses++;
     const physical=source.hand.cards[choice.handIndex];
