@@ -18,5 +18,6 @@
       "printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5"
     }
   ],
-  "scope": "Read-only strict original print, published admission, gitlink and campaign parameter pins; actual physical deal and game actions unverified."
+  "scope": "Read-only strict original print, published admission, gitlink and campaign parameter pins; actual physical deal and game actions unverified.",
+  "seedPlanSha256": "01e61c378b90c91a039d9da62e9708ef5b003b8e7caf554df83daaab6e8bf4b9"
 }
