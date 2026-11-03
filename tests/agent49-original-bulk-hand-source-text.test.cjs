@@ -43,3 +43,5 @@ test('paper conditional bottom-deck draw text stays intact',()=>{
     assert.equal(BULK_HAND_PRINTS[printing].moveTo,'deck-bottom');
   }
 });
+
+require('./agent49-bulk-competing-held-trainer.test.cjs');
