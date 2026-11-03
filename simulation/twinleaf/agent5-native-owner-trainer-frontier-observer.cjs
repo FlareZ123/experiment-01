@@ -24,7 +24,8 @@ const VERSION='agent5-owner-turn-trainer-native-readonly-v2-k0-vip';
  * @param {{Store:Function,SimpleTacticsAi:Function,GamePhase:object,
  *    ActionEnumerator:Function,TrainerCard:Function,TrainerType:object,
  *    allCards:object[],PlayCardAction:Function,
- *    seats?:(0|1)[],maxRoots?:number}} deps Actual pinned classes.
+ *    seats?:(0|1)[],maxRoots?:number,
+ *    ownerPaperNecessityOptIn?:boolean}} deps Actual pinned classes.
  * @returns {{result:T,audit:object}}
  */
 function withNativeOwnerTrainerFrontier(work,deps){
@@ -53,6 +54,8 @@ function withNativeOwnerTrainerFrontier(work,deps){
   const nativeEnumerator=new ActionEnumerator();
   assert.equal(typeof nativeEnumerator.enumerate,'function');
   const roots=[],dispatchByAction=new WeakMap();
+  const ownerTurnLedger=deps.ownerPaperNecessityOptIn===true?
+    require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
   let live=null,matched=0,exceptions=0,truncated=0;
   const observedBySeat=[0,0];
 
@@ -99,7 +102,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
         offered.add(choice.handIndex);
     }
     const frontier=ownerTrainerOpportunity(view,catalog,offered);
-    const k0GuaranteedVip=deps.ownRegisteredSixties?
+    const ownerTurnReceipt=ownerTurnLedger?ownerTurnLedger.observe(view):null;
+    const paperScreen=ownerTurnReceipt?
+      require('./agent4-owner-paper-trainer-necessary-screen.cjs')
+        .screenOwnerTrainerPaperNecessity(
+          view,frontier.rows,ownerTurnReceipt):null;
+    // In the opt-in audit, a second observed owner turn independently
+    // invalidates the historical global-turn-only first-turn VIP certificate.
+    const k0GuaranteedVip=deps.ownRegisteredSixties&&
+      ownerTurnReceipt?.provenPastFirstOwnerTurn!==true?
       certifyFirstTurnBattleVip(view,deps.ownRegisteredSixties[seat],basics):null;
     const root={
       ordinal:roots.length,seat,turn:view.globalTurn,
@@ -112,6 +123,10 @@ function withNativeOwnerTrainerFrontier(work,deps){
       chosen:null,dispatch:'not-attempted',
       policyIsReadOnly:true,competitiveGameQualified:false
     };
+    if(paperScreen){
+      root.ownerPaperNecessity=paperScreen;
+      root.ownerTurnReceipt=ownerTurnReceipt;
+    }
     // Development-only owner-hand payment overlay. The original native root
     // and all choices remain untouched. This witness is archived after play;
     // never disclose these owner-private hand counts to the other actor.
@@ -166,6 +181,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
       chosenActionsNativeAccepted:matched,
       chosenActionsNativeRejected:exceptions,
       observedBySeat,
+      ...(ownerTurnLedger?{
+        ownerPaperNecessityOptIn:true,
+        observedOwnerTurnLedger:ownerTurnLedger.snapshot(),
+        ownerPaperNecessaryFailures:roots.reduce((sum,root)=>
+          sum+(root.ownerPaperNecessity?.provenNecessaryConditionFailures??0),0),
+        ownerPaperUncertainTemporalDeclines:roots.reduce((sum,root)=>
+          sum+(root.ownerPaperNecessity?.conservativeTemporalDeclines??0),0),
+        paperLegalTrainerMoveSetCertified:false
+      }:{}),
       nativeActionEnumeratorIsPaperLegal:false,
       cardSpecificPaymentOrEffectsProven:false,
       k0GuaranteedVipPassCount:roots.filter(root=>
