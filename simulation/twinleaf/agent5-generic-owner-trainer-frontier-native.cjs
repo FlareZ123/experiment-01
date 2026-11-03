@@ -160,7 +160,7 @@ if(require.main===module){
   const result=run();
   saveResult(path.resolve(process.cwd(),
     'agent5-generic-owner-trainer-frontier-original-'+
-      rankPair.replace('_','-v-')+'.json'),result);
+      result.registeredOriginalRanks.join('-v-')+'.json'),result);
   process.stdout.write('AGENT5_GENERIC_TRAINER_FRONTIER '+
     JSON.stringify({ranks:result.registeredOriginalRanks,...result.summary})+'\n');
   const examples=result.rows.flatMap(row=>row.frontiers.roots
