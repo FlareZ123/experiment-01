@@ -42,6 +42,7 @@ jobs:
         run: |
           python scripts/agent12_adp_double_thorton_strict_chain.py
           python scripts/agent12_adp_pokegear_exact_supporter.py
+          python scripts/agent12_adp_t1_gear_t2_exact.py
       - name: Verify original-29 printed HP thresholds and Goodra Rolling Iron defensive exception
         run: |
           node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
