@@ -21,18 +21,20 @@ const VERSION='agent12-staged-two-turn-thorton-gx-apex-chain-native-v1';
  * that staging still belong to the Store, including both Supporters.
  *
  * @param {0|1} seat Physical owner seat.
+ * @param {'ko'|'survive'} defender Whether the printed 330 damage KOs.
  * @param {boolean} corrected Whether scoped paper Thorton hook is active.
  * @returns {object} Native receipt for two own turns and opponent pass.
  */
-function probe(seat,corrected=true){
+function probe(seat,corrected=true,defender='ko'){
   assert.ok(seat===0||seat===1);
+  assert.ok(defender==='ko'||defender==='survive');
   if(corrected)
-    return withPaperThortonSwap(()=>probeCore(seat,true));
-  return probeCore(seat,false);
+    return withPaperThortonSwap(()=>probeCore(seat,true,defender));
+  return probeCore(seat,false,defender);
 }
 
-/** @param {0|1} seat @param {boolean} corrected */
-function probeCore(seat,corrected){
+/** @param {0|1} seat @param {boolean} corrected @param {'ko'|'survive'} defender */
+function probeCore(seat,corrected,defender){
   const {PlayCardAction,PlayerType,SlotType}=
     native('game/store/actions/play-card-action');
   const {AttackAction,PassTurnAction}=
@@ -41,6 +43,10 @@ function probeCore(seat,corrected){
     native('game/store/actions/resolve-prompt-action');
 
   const f=stagedPainfulSpoons(seat);
+  if(defender==='survive'){
+    f.opponent.active.cards.splice(0,1,f.card('Mega Venusaur ex MEG'));
+    f.opponent.active.damage=0;
+  }
   f.state.turn=2; // First owner turn going second; original turn1 was opponent.
   f.state.activePlayer=seat;
   const regi=f.card('Regidrago V SIT');
@@ -191,7 +197,7 @@ function probeCore(seat,corrected){
     hook.restore();
   }
 
-  return {version:VERSION,seat,corrected,enginePin:
+  return {version:VERSION,seat,corrected,defender,enginePin:
     'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     constructedPriorDiscard:true,sourceFull60Dealt:false,
     originalOpponentFull60:false,qualifiedGames:0,
