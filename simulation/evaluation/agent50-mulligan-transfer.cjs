@@ -76,6 +76,7 @@ function mulliganReveal(basicCount, selectedNonbasicCopies) {
   assert.ok(Number.isSafeInteger(selectedNonbasicCopies));
   assert.ok(selectedNonbasicCopies>=0&&selectedNonbasicCopies<=nonbasic);
   const p=miss(basicCount);
+  if(p===0)return 0;
   const selected=1-choose(nonbasic-selectedNonbasicCopies,7)/choose(nonbasic,7);
   return p*selected/(1-p+p*selected);
 }
