@@ -1,0 +1,54 @@
+# Agent 41: independent first-divergence audit of the selected joint-v2 52-attempt archive
+
+**3 November 2026 | Classification: read-only audit of existing compiled native Store evidence, no new game, no new policy.** The prior selected-v2 CI gate failed as designed. This independent inspection identifies why its source-physical comparison failed and what the first action-policy differences actually were. All numbers concern developmental native traces; **zero paper-competitively qualified games**.
+
+## Immutable input and coverage
+
+- Agent23's original manual [Actions run 41581727876](https://github.com/FlareZ123/experiment-01/actions/runs/41581727876), archived [artifact 13206810193](https://github.com/FlareZ123/experiment-01/actions/runs/41581727876/artifacts/13206810193), ZIP SHA256 `9f4b1d249a7d46d5f3f352e651b7400d83fcb3711cfe37af6d9cd3337fe84b73`.
+- Member `agent23-selected-joint-v2-native-52arm.json`, uncompressed JSON SHA256 `e7f7fa2a104585cedc3e7d0e1df7491b9a1e9d32eb0cbaf906a1c2b4a2b366e9`. Input is the **original preserved artifact**; no rerun or reparsing of console-only summary substituted for individual native rows.
+- Selected manifest Git blob `8cd0c4b0734d3223d5c8c1f705f3af651f815c02`, original joint-v1 92-option policy as baseline, symmetric selected-v2 adds source- and candidate-owner Battle VIP Pass after otherwise-selected Pass. Underlying Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Both candidate fixed sixties and original source ranks **5, 11, 6** unchanged.
+- **52 real attempted native Store rows**, 26 candidate/source contexts (13 physical source seed groups, both candidate sixties, both modes). Three seed groups were freshly preregistered, while prior studied roots remain developmental replays.
+
+## Independently verified action-chain comparison
+
+Load the two `modes[].native.rows` arrays, join by `trial.id` (26 unique contexts per mode), and compare the full `rootActionLedger` ordered records on the **same registered source and candidate** in control versus selected. Compare the literal fields `actionOrdinal`, `playerSlot`, `turnBefore`, `turnAfter`, `action`, `card`, `attack`, `ability`, `attackChoice`, `pendingPrompt`, and `initiatingRootActionOrdinal` at each index. Exclude only `actorPolicyDecisionOrdinal` as an attribution-only field. A comparison stops at the first different record; later events may change for many reasons.
+
+| Class | Source/candidate policy contexts | Native observation |
+| --- | ---: | --- |
+| Entire ordered root ledgers identical | **12** | Both modes made exactly the same full recorded native action sequence |
+| First difference is selected Battle VIP Pass where control Passed | **13** | At the same physical player slot, action ordinal and root turn, `PassTurnAction` became `PlayCardAction` for `Battle VIP Pass` |
+| Uninspectable due to an engine error | **1** | Both modes aborted at actual dispatch after **43 actions**, `UseAbilityAction: UNKNOWN_POWER`, no retained root-action ledger |
+| **Total** | **26** | Every attempted original context retained, including the error |
+
+Among the 13 genuine first divergences, **eight first changed on the original source's turn and five first changed on the candidate's turn**. No comparable pair first diverged through an unrelated action. The actor role was identified using `rootActionLedger[].playerSlot` against that **same row's** `sourceSeat`, rather than assuming physical A or B always belongs to the original source.
+
+Across the selected policy's native ledgers there were **20** total `Battle VIP Pass` plays: **12 by original-source players and eight by candidate players**. The control-policy ledgers contained **one** actual VIP play (by the candidate) despite its absence of the selected after-Pass mechanism. Thus do **not** equate all selected VIP plays with incremental interventions or treat every copied attack as caused by a source player's own VIP. The source-only `sourceVipCount` summary consistently reports the selected-mode **12** and control-mode **0**.
+
+The archived selected `sourceCopiedAttackChoices.selectedGenesectTechnoBlast` sums are **32** for source rank 5 versus **19** in the control, exactly matching CI's source summary. The paired difference is **+13 copied-attack selections on these particular mixed exposed/fresh conditions**, not a game-win estimate or a guarantee of a favorable marginal effect on future deals.
+
+## The failed physical gate and its precise scope
+
+The release's `matchedSourcePhysicalDeals=25` out of 26 and `allControlsMatched=false` are real, but the one failure is **absence of the observed fingerprint in an engine error**, not a witnessed difference between two source initial deals. The censored context is **`6:300:A:champion-reference`**, fresh original rank-6 seed **3738819225**: both baseline and selected fail `UseAbilityAction: UNKNOWN_POWER` after 43 actions, before a source fingerprint or comparable root ledger is retained. All **25 observable same-candidate cross-mode source-deal fingerprints and actual starter fields match**. This finding **does not certify** the missing 26th pair, and the strict failure must stay red. These 25 are within-candidate *mode* comparisons; they must not be re-described as 25 cross-candidate physical-deal matches.
+
+Native dispositions, preserved without filtering:
+
+| Mode | Engine terminal | 260-root action cap | Native abort |
+| --- | ---: | ---: | ---: |
+| Joint-v1 control | 11 | 14 | 1 |
+| Selected-v2 | 16 | 9 | 1 |
+
+No native terminal is admitted as a paper-competitive game. Actual native damage, paper costs, source competence, tactically capable opponent continuation, owner-only information discipline, and the official match clock retain their independent vetoes. Agent4 has separately identified the unselected Secret Box category-search legality guard; payment acceptance alone does not certify the later trainer-category selection. These unrelated paper-qualification issues are **not** answered by first-action divergence.
+
+## Crucial fresh source-deal counterexample
+
+In the **fresh** original-rank-5 source seed **1399343237**, candidate physical A / **New Moon** context `5:300:A:new-moon-lockbreaker-v1`, the first difference at global turn 2 is a **candidate** Battle VIP Pass replacing candidate Pass. The **original source played zero VIP in both modes**, yet its later native Genesect Techno Blast copy selections rose **2 to 4**. The champion-reference context under that same registered source seed produced zero Techno Blast selections in either mode, with identical control/selected action ledgers. Therefore an observed increase in **original-source attacks** can be downstream of an action selected by the **candidate-side** policy. Source-only treatment attribution would be invalid in this genuinely symmetric policy, even with an exact same-source-deal within-candidate comparison.
+
+Of the **six fresh candidate contexts**, three had identical complete ledgers, two first diverged at a candidate VIP, and the sixth was the above rank-6 error. The fresh rank-11 New Moon context's candidate-side VIP also altered its subsequent native sequence without establishing a qualified attack or win. The fresh rank-6 New Moon context was fully identical in both modes.
+
+## Decision, follow-through and limits
+
+**Retain selected-v2 as a mechanistic developmental comparison.** The first-divergence audit supports that its early action intervention activated where expected in 13 observable contexts and clarifies the exact one-context failed equality gate. It cannot validate later effect causality, card-payment fidelity, paper legality, source or candidate intelligence, or a final deck choice.
+
+Recommended to the current integration steward: preserve this artifact unchanged; repair or isolate the **fresh rank-6 `UNKNOWN_POWER`** engine abort as its own acceptance gate; when reporting rank-5 offense, distinguish **source-owned VIP roots from candidate-owned VIP roots** and independently verify paid search/prompt/effect/Prize/meaningful reply. A future selected release should include Secret Box's four-category search validation or explicitly veto paper certification for encountered Box searches. Keep original rank5/11/6 control failures and entire nonterminal denominator.
+
+**Global status:** 29 authentic original Top32 sixties, ranks 23/25/28 missing; no demonstrated best fixed 60, zero paper-competitively qualified games, and no demonstrated 99.5% benchmark.
