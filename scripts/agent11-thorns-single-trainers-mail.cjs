@@ -7,18 +7,24 @@ const { choose } = require('./agent11-thorns-first-volt-access.cjs');
  * four-Iron-Thorns opening. All Prizes and eight-card hands are physical.
  * Trainer's Mail may find a deck G&H; a Tag Call when G&H remains in deck;
  * or a missing Thunder Mountain directly if DCE is already held.
- * Only the FIRST held Mail is permitted; no additional search/draw/bonus.
+ * Both first-Mail and all-held-Mail optional sequential peeks are measured.
+ * On a missed top-four peek the player may select no Trainer, shuffle, then
+ * try another held Mail. Each independent redraw again samples a 46-card deck.
+ * No extra draw, mulligan bonus, or other search is modeled.
  *
  * @param {1|3} d Double Colorless Energy copies
  * @param {2|3|4} mailCopies Trainers' Mail copies
- * @returns {{denominator:bigint,base:bigint,mailRescue:bigint,total:bigint}}
+ * @returns {{denominator:bigint,base:bigint,mailRescue:bigint,total:bigint,allHeldMailNumerator:bigint,allHeldMailDenominator:bigint,allHeldMailRescueNumerator:bigint}}
  */
 function singleMailAccess(d, mailCopies) {
   const rest = 51 - d - mailCopies;
   const topFourWays = choose(46, 4);
+  const maxPeekScale = topFourWays ** BigInt(mailCopies - 1);
+  const fullPeekScale = topFourWays ** BigInt(mailCopies);
   let denominator = 0n;
   let base = 0n;
   let mailRescue = 0n;
+  let allHeldMailRescueNumerator = 0n;
   for (let b = 1; b <= 4; b++) {
     const startWeight = b === 1 ? 7n : 8n;
     for (let tag = 0; tag <= 2; tag++) {
@@ -56,7 +62,12 @@ function singleMailAccess(d, mailCopies) {
                       if (mail === 0) continue;
                       const goodTopCards = (ghDeck > 0 ? ghDeck + tagDeck : 0)
                         + (energy > 0 && mountain === 0 ? 1-pm : 0);
-                      mailRescue += ways * (topFourWays - choose(46-goodTopCards,4));
+                      const misses = choose(46-goodTopCards, 4);
+                      mailRescue += ways * (topFourWays - misses);
+                      allHeldMailRescueNumerator += ways * (
+                        fullPeekScale - misses ** BigInt(mail) *
+                        topFourWays ** BigInt(mailCopies - mail)
+                      );
                     }
                   }
                 }
@@ -67,7 +78,12 @@ function singleMailAccess(d, mailCopies) {
       }
     }
   }
-  return { denominator, base, mailRescue, total:base+mailRescue };
+  return {
+    denominator, base, mailRescue, total:base+mailRescue,
+    allHeldMailNumerator: base * maxPeekScale + allHeldMailRescueNumerator,
+    allHeldMailDenominator: denominator * maxPeekScale,
+    allHeldMailRescueNumerator
+  };
 }
 
 module.exports = { singleMailAccess };
