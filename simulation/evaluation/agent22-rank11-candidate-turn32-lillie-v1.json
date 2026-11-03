@@ -1,0 +1,64 @@
+{
+  "schema": "agent22-rank11-candidate-turn32-lillie-causal-v1",
+  "registeredAtUtc": "2026-11-03T05:16:00Z",
+  "purpose": "Falsify late-game candidate Pass competence in exact original rank11 native Claw sequence, keeping source actor unchanged",
+  "status": "preexecution-selected-causal-development; seed already exposed; not heldout",
+  "repositoryBranch": "agent22-rank11-lillie-reply-v1",
+  "selectedParentCommit": "2c076ee99d12d54c925a87f438bf01abf095d2de",
+  "parentSelectedManifestGitBlob": "0edd83b34e19838a9e33b3f8cf833fb22673294c",
+  "sourceRunnerGitBlob": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "sourcePrintedRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "candidateOnlyLillieAdapterGitBlob": "4095b8384bca1ee8a022265c4efe4512287c883e",
+  "printedLillieChooserGitBlob": "eaf36fdc6963da2b87138ab05c0f1ccbbfdf29dd",
+  "nativeLillieSettlementGitBlob": "1b21a3581b0910379fa67ae8cda9b023e2d79680",
+  "policy": {
+    "control": "unchanged 92-option joint-v1 + both-seat first-own-turn VIP after Pass from Agent22 prereg selected parent",
+    "treatment": "control plus Lillie's Determination M1L when candidate-only would Pass on exact global turn 32; no source policy change",
+    "supporterQuota": "Native and owner-observation checks must permit",
+    "nativeDecisions": "Store must accept Lillie play, prompt and printed shuffle/draw before causal conclusion",
+    "candidateSlot": "A",
+    "sourceSeat": 1,
+    "rank": 11,
+    "globalTurn": 32,
+    "sourceAfterAttack": "first Claw of Darkness at turn31 in already observed original-source New Moon arm",
+    "allowCounterCatcherRoot": false,
+    "allowUnconditionalQuickBallRoot": false,
+    "replayedSeedPreviouslyObserved": true,
+    "physicalFullDeckFingerprintRequired": true,
+    "requireSameOriginalSourceFirstTurnActions": true
+  },
+  "registeredTrials": [
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "champion-reference",
+      "id": "11:0:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 2171744612,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "registeredModes": [
+    "frozen-selected-control",
+    "candidate-only-turn32-lillie-after-pass"
+  ],
+  "scheduledNativeAttempts": 4,
+  "requireNativeActualStarter": true,
+  "retainAbortCensors": true,
+  "competitiveQualifiedGames": 0,
+  "knownCompetenceVetoes": [
+    "Opponent own actor hidden-info safety unqualified",
+    "Candidate source 60 original but only two fixed candidates",
+    "No verified 25-minute paper clock",
+    "Model may contain unsupported genuine card effects",
+    "Seed selected after witnessing source Claw, so cannot be independent strength sample"
+  ]
+}

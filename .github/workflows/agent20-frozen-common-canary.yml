@@ -8,13 +8,18 @@ on:
         required: false
         type: boolean
         default: false
+      rank11_turn32_lillie_v1:
+        description: 'Run Agent22 rank11 candidate turn32 owner Lillie causal gate'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ inputs.selected_joint_vip_v2 != true && github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
+    if: ${{ inputs.selected_joint_vip_v2 != true && inputs.rank11_turn32_lillie_v1 != true && github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -100,7 +105,7 @@ jobs:
           retention-days: 30
 
   agent22-selected-joint-vip-v2:
-    if: ${{ inputs.selected_joint_vip_v2 == true }}
+    if: ${{ inputs.selected_joint_vip_v2 == true && inputs.rank11_turn32_lillie_v1 != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -135,5 +140,42 @@ jobs:
         with:
           name: agent22-selected-joint-vip-v2-all-original-native-attempts
           path: agent22-joint-vip-v2-output.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent22-rank11-candidate-turn32-lillie:
+    if: ${{ inputs.rank11_turn32_lillie_v1 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout preregistered native development revision
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source pins and native candidate rescue test seams
+        run: |
+          node --check simulation/evaluation/agent22-rank11-candidate-turn32-lillie-v1.cjs
+          node --test tests/agent12-actor-only-lillie-after-pass.test.cjs tests/agent7-prospective-candidate-lillie-after-pass.test.cjs tests/agent24-native-lillie-settlement-audit.test.cjs
+      - name: Initialize exact pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Inspect exact pre-outcome original rank11 source and candidate registration
+        run: node simulation/evaluation/agent22-rank11-candidate-turn32-lillie-v1.cjs --inspect-only
+      - name: Execute exact same physical seed baseline and candidate-only turn32 Lillie
+        run: node simulation/evaluation/agent22-rank11-candidate-turn32-lillie-v1.cjs
+      - name: Preserve every original source trial and payment audit
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-rank11-candidate-turn32-lillie-both-original-sixties
+          path: agent22-rank11-candidate-turn32-lillie-v1-output.json
           if-no-files-found: warn
           retention-days: 30
