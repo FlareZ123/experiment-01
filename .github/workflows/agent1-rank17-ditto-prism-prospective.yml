@@ -12,6 +12,7 @@ on:
           - ditto
           - compressor
           - compressor-census
+          - compressor-bridge
 
 permissions:
   contents: read
