@@ -79,9 +79,9 @@ function createElectrodeOpportunityObserver() {
         heldEscapeRope&&prizeTradeWindow;
       const basicRaichu=benchNames.some(name=>
         name==='Pikachu LOR'||name==='Pikachu XY'||
-        name==='Ditto ♢ LOT')||
+        name==='Ditto Prism Star LOT')||
         activeName==='Pikachu LOR'||activeName==='Pikachu XY'||
-        activeName==='Ditto ♢ LOT';
+        activeName==='Ditto Prism Star LOT';
       const basicElectrode=benchNames.includes('Voltorb ROS')||
         activeName==='Voltorb ROS';
       const position=positionBySeat[seat];
