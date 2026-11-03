@@ -19,11 +19,12 @@ const VERSION='agent12-thorton-active-regidrago-paper-stage-v1';
  * @param {0|1} seat Source seat.
  * @param {'basic'|'evolved'} mode Source current Active stage.
  * @param {boolean} guarded Reversible paper Thorton hook in effect.
+ * @param {boolean} retryLegal After invalid evolved target, retry legal Basic Bench.
  * @returns {object} Native root, prompt, card-zone and Supporter receipts.
  */
-function probeSwap(seat,mode='basic',guarded=false){
+function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
   if(guarded){
-    const receipt=withPaperThortonSwap(()=>probeSwap(seat,mode,false));
+    const receipt=withPaperThortonSwap(()=>probeSwap(seat,mode,false,retryLegal));
     return {...receipt,guarded:true};
   }
   assert.ok(seat===0||seat===1);
@@ -59,6 +60,7 @@ function probeSwap(seat,mode='basic',guarded=false){
     damage:f.source.active.damage,
     pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
     activeCards:f.source.active.cards.map(c=>c.fullName),
+    bench0:f.source.bench[0].getPokemonCard()?.fullName??null,
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
     sourceSupporterTurn:f.source.supporterTurn,
     supporterZone:f.source.supporter.cards.map(c=>c.fullName),
@@ -96,6 +98,11 @@ function probeSwap(seat,mode='basic',guarded=false){
   const targetPrompt=pending('ChoosePokemonPrompt');
   const targetChoice=targetPrompt?
     resolve(targetPrompt,[f.source.active]):null;
+  // A rejected evolved target must leave the same pending ChoosePokemon
+  // prompt live, so its owner can correct the selection to a legal Bench
+  // Basic. This is an actual native re-selection, not a fresh script state.
+  const retryTarget=retryLegal&&mode==='evolved'&&targetChoice?.error?
+    resolve(pending('ChoosePokemonPrompt'),[f.source.bench[0]]):null;
   const cardPrompt=pending('ChooseCardsPrompt');
   const cardChoice=cardPrompt?
     resolve(cardPrompt,[adp]):null;
@@ -124,7 +131,7 @@ function probeSwap(seat,mode='basic',guarded=false){
     before,after,playError,
     targetPromptFound:Boolean(targetPrompt),
     cardPromptFound:Boolean(cardPrompt),
-    targetChoice,cardChoice,receipts,
+    targetChoice,retryTarget,cardChoice,receipts,
     pending:f.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name)
   };
