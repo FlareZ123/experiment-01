@@ -1261,6 +1261,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
       rank9SpecialFundedGuzma:audit.rank9SpecialFundedGuzmaOptIn,
       rank9MegaAbsolFundingRoot:audit.rank9MegaAbsolFundingOptIn,
+      activeMegaClawPriorityRoot:audit.activeMegaClawPriorityOptIn,
       forcedGuzmaNominalKo:audit.forcedGuzmaNominalKoOptIn,
       finalPrizeGuzma:audit.finalPrizeGuzmaOptIn,
       prizeTradeGuzma:audit.prizeTradeGuzmaOptIn,
