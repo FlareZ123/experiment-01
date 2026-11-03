@@ -506,6 +506,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
       ...(ownerNativeFlarePromptAudit?{
         ownerNativeFlarePrompt:ownerNativeFlarePromptAudit
       }:{}),
+      ...(ownerRank9CompressorAudit?{
+        ownerRank9Compressor:ownerRank9CompressorAudit
+      }:{}),
       ...(hammerAfterPassOptIn?{
         ownerHammerAfterPass:ownerHammerAfterPassAudit
       }:{}),
