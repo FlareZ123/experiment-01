@@ -1,0 +1,15 @@
+name: Agent14 original Aichi source mobility census
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobility-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate all original printed sixties, exact names and negative controls
+        run: node --test tests/agent14-authenticated-mobility-roster-audit.test.cjs
+      - name: Report actual source mobility coverage
+        run: node -e "const x=require('./simulation/evaluation/agent14-authenticated-mobility-roster-audit.cjs').auditPinnedRoster();console.log('MOBILITY_FIELD',JSON.stringify({total:x.originalCompleteSixties,coverage:x.anyCoreMobility,byFamily:x.byFamily.map(v=>[v.name,v.originalListsContaining,v.aggregatePrintedCopies]),paperQualified:x.paperGameQualified}))"
