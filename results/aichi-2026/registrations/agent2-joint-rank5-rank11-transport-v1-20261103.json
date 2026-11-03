@@ -1,0 +1,84 @@
+{
+  "schema": "agent2-joint-selected-rank5-rank11-owner-action-transport-v1",
+  "preregisteredAtUtc": "2026-11-03T03:33:18.336Z",
+  "researchBranch": "agent2-r5-r11-joint-transport-20261103",
+  "immutableParentBranch": "agent41-joint-source-r5-r11-v1-20261103",
+  "immutableParentGitCommit": "20d095b3126a767ac60b40f048fa4579b3a04c99",
+  "parentProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "rosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3bfa692200",
+  "comparisonType": "post-observation same physical original source/candidate deals; bilateral symmetric components; developmental, not independent performance",
+  "registeredTrialIds": [
+    "5:0:A:champion-reference",
+    "5:0:A:new-moon-lockbreaker-v1",
+    "5:1:B:champion-reference",
+    "5:1:B:new-moon-lockbreaker-v1",
+    "11:0:A:champion-reference",
+    "11:0:A:new-moon-lockbreaker-v1",
+    "11:1:B:champion-reference",
+    "11:1:B:new-moon-lockbreaker-v1"
+  ],
+  "registeredSeedGroups": [
+    {
+      "sourceRank": 5,
+      "candidateSlot": "A",
+      "seed": 3423099534
+    },
+    {
+      "sourceRank": 5,
+      "candidateSlot": "B",
+      "seed": 561933954
+    },
+    {
+      "sourceRank": 11,
+      "candidateSlot": "A",
+      "seed": 3792269394
+    },
+    {
+      "sourceRank": 11,
+      "candidateSlot": "B",
+      "seed": 2632620962
+    }
+  ],
+  "factors": {
+    "baseline": {
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": false
+    },
+    "searchOnly": {
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": false
+    },
+    "discardOnly": {
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": true
+    },
+    "searchAndDiscard": {
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": true
+    }
+  },
+  "registeredNativeAttemptCount": 32,
+  "expectedGroups": 4,
+  "expectedCandidates": 2,
+  "physicalDealEqualityRequired": true,
+  "sourceOpponentsUnchanged": true,
+  "candidatePrintedSixtiesUnchanged": true,
+  "zeroPaperQualifyingGames": true,
+  "predeclaredPrimaryReadouts": [
+    "full physical deal and starter parity within each fixed candidate arm",
+    "original owner first selected root difference relative to same-deal baseline",
+    "native source paid Quick Ball resource/zone evidence",
+    "original source accepted attack roots and fully settled source attack results",
+    "first genuine source-to-opponent next-root continuation",
+    "opponent source offensive competence and censor/error counts"
+  ],
+  "negativeControls": [
+    "reject unmatched physical deal or changed original source/candidate deck printing",
+    "reject Item search payments absent owner discard custody",
+    "reject missing attack settlement or opponent reply as full chain",
+    "reject native terminal as competitive win"
+  ],
+  "competitiveQualifiedGames": 0,
+  "winRateClaim": "none"
+}
