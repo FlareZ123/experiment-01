@@ -735,6 +735,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    rank17ElectrodeBombCensusOptIn:deps.rank17ElectrodeBombCensus===true,
     dittoStage1RootOptIn:deps.dittoStage1Root===true,
     farewellLetterRootOptIn:deps.farewellLetterRoot===true,
     mysteriousTreasureRootOptIn:deps.mysteriousTreasureRoot??
@@ -1072,6 +1073,11 @@ function withActorOnlyRootPolicy(run,deps={}){
     audit.version+='+agent49-public-potential-ko-v2';
   if(audit.knownDeadAttackRootOptIn)
     audit.version+='+agent1-known-dead-leading-attack-v1';
+  if(audit.rank17ElectrodeBombCensusOptIn){
+    const observer=require('./agent1-rank17-electrode-census.cjs');
+    audit.version+='+'+observer.VERSION;
+    audit.rank17ElectrodeBombCensus=observer.newElectrodeOwnerCensus();
+  }else delete audit.rank17ElectrodeBombCensusOptIn;
   if(audit.farewellLetterRootOptIn){
     audit.version+='+'+require('./agent14-owner-farewell-letter.cjs').VERSION;
     audit.farewellLetterReceipts=[];
@@ -1394,6 +1400,10 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(audit.rank17ElectrodeBombCensusOptIn)
+      require('./agent1-rank17-electrode-census.cjs')
+        .recordElectrodeOwnerCensus(audit.rank17ElectrodeBombCensus,
+          view,intent,audit.selectedRootDecisions+1);
     // Experimental, symmetrical fallback at genuinely unsupported owner
     // roots only. Unlike the actor policy, native Tactics may inspect hidden
     // information. Every selected root remains competitively unqualified.
