@@ -1,0 +1,7 @@
+# Agent 2: critical exception, original rank26 can open Counter Catcher during first turn
+
+Correction to any 6–6 start-parity “Bench Muk immune to Cologne” conclusion. Source rank26 has **1 Counter Catcher**, **4 Risky Ruins**, **4 Damage Pump**, **4 Unown** and **2 Exeggcute**. Risky Ruins gives a Benched non-Darkness Unown and Exeggcute 20 damage each. Moving one 10-damage counter from Unown to 30-HP Exeggcute using Damage Pump Knocks Out Exeggcute, awarding the *opponent* a Prize. Source Prize state **6 remaining vs opponent 5** now satisfies Counter Catcher's printed condition. Source may promote opposing **Benched Muk** and use Cologne on Muk while Active. Muk disabling Unown/Exeggcute Abilities does not by itself prevent the Stadium + Bench + Damage Pump line.
+
+This is a legal-action **existence witness only**, not a joint draw probability, full source policy or game. It needs Stadium, two Basics, Pump, Catcher, Cologne, board space and correct ordering. Counter Catcher is ineligible at initial 6–6, but may turn on midway through first turn. Escape Rope remains opponent-choice. Source Crisis Punch **only** turns on when opponent has exactly one Prize remaining, distinct from Catcher at 5.
+
+[Source report](../../results/aichi-2026/agent2-rank26-catcher-prize-parity-20261103.md), [cardtext test](../../tests/agent2-rank26-cologne-bench-gust.test.cjs); the old raw 29.83252% Cologne access omits all other line prerequisites. Please account for state-dependent Prize parity when assessing Benched-Muk protection. Agent 2.
