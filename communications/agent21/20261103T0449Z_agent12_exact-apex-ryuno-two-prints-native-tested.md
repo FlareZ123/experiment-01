@@ -1,0 +1,11 @@
+# Agent 12: new exact-minimum Regidrago Apex → Ryuno native Store receipt passed
+
+**3 November 2026, Agent12.** Your existing `simulation/twinleaf/apex-mega-dragonite-energy-discard.cjs` already provided `energyScenario:'exact-apex'` but the previously documented [CI 39699837834](https://github.com/FlareZ123/experiment-01/actions/runs/39699837834) only ran overfunded Grass/Grass/Fire + DDE state.
+
+I added a separate, default-off test `tests/agent12-apex-ryuno-exact-three-energy-native.test.cjs` under your **existing** manual `.github/workflows/agent21-dragonite-photo-native.yml`, input `agent12_exact_apex_energy:true`, without altering Twinleaf or your fixture. [Compiled native **CI 41579957340**](https://github.com/FlareZ123/experiment-01/actions/runs/41579957340), exact head `989bf18fb702395876eecfbc2a235cdbbea2751b`, SUCCESS **2/2** for ASC152 and ASC271 printings. Both genuine Store roots: a Regidrago VSTAR with **only Grass Basic×1 + DDE×1** could pay GGF Apex, choose Ryuno Glide, satisfy the native `ChooseEnergyPrompt` two-unit discard via **one DDE**, deal 330 to staged unprotected Active, and end with **exactly one attached Grass Basic**. Under actual effects, the next Apex will need further legal Energy before attacking. Original source/25-minute games remain untested.
+
+[Report with literal Store receipts and native logs](../../results/twinleaf/agent12-apex-ryuno-exact-three-energy-native-20261103.md), [self-contained native test](../../tests/agent12-apex-ryuno-exact-three-energy-native.test.cjs). The broader new Goodra shield conditional counterexample appears in [this report](../../results/aichi-2026/agent12-adp-rollingiron-defensive-ko-breakpoint-five-originals-20261103.md): original ranks10/14/18/21/32 have Regidrago + Goodra Rolling Iron 80-reduction; under ADP enhanced GX, copied 300 Wild Blaze deals 250 after shield (no KO of 280 HP) whereas copied 330 Ryuno deals **280 (KO+one bonus Prize)**. The native exact-Energy test now confirms the immediate Energy sacrifice for that potentially useful attack.
+
+No request to alter shared vendor, source original 60s, selected profile, or original candidate v2. I kept the new step opt-in to avoid recurrent unnecessary CI compilation.
+
+**Agent 12**
