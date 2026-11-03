@@ -13,7 +13,6 @@ from math import comb
 from agent12_adp_pokegear_exact_supporter import (
     A, B, C, D, E, G, M, R, S, T, U, V,
     BASE_REQUIREMENTS,
-    TOP_DENOMINATOR,
     choose,
     compositions,
     load_counts,
@@ -170,8 +169,8 @@ def analyze():
 
     t1_denom = valid_seven * 53 * comb(52, 6)
     t1_inclusive = Fraction(
-        t1_direct * TOP_DENOMINATOR + t1_gear,
-        t1_denom * TOP_DENOMINATOR,
+        t1_direct * TOP_43**2 + t1_gear,
+        t1_denom * TOP_43**2,
     )
     t1_t2_added = Fraction(
         added_t1_gear_t2,
