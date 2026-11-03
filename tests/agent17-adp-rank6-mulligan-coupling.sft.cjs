@@ -254,6 +254,20 @@ function combinedCandidateAccess(maxBonus) {
   return { lower, upper: lower + tail, tail };
 }
 
+/** @param {number} n @param {number} maxBonus */
+function jointTwoRouteSeen(n, maxBonus) {
+  const common=(1-qCandidate)*(1-qSource)/(1-qCandidate*qSource);
+  const c0=candidatePhysicalRoute(0)+bridgePhysicalRoute(0);
+  const s0=sourceRemoverSeenBySecondTurn(0,n);
+  let lower=common*c0*s0;
+  for(let d=1;d<=maxBonus;d+=1) {
+    lower+=common*qSource**d*(candidatePhysicalRoute(d)+bridgePhysicalRoute(d))*s0;
+    lower+=common*qCandidate**d*c0*sourceRemoverSeenBySecondTurn(d,n);
+  }
+  const tail=omittedTail(maxBonus,'candidate')*s0+omittedTail(maxBonus,'source')*c0;
+  return {lower,upper:lower+tail};
+}
+
 assert.ok(Math.abs(qCandidate - 0.39912045076768693) < 1e-14);
 assert.ok(Math.abs(qSource - 0.6005003742553344) < 1e-14);
 assert.ok(Math.abs(candidatePhysicalRoute(0) - 0.289936530125) < 2e-12);
