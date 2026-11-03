@@ -1,5 +1,8 @@
 # Rank26 original 60: first-turn Battle Compressor source policy converts eight natural deals, no Crisis Punch
 
+**POST-PUBLICATION CORRECTION (3 November 2026):** The old broad Store prototype observer intercepted speculative clone Stores created during native bot planning. Consequently its purported positive *physical Battle Compressor settlements* and its movement counts are **not valid evidence of actual live-game effect resolution**, regardless of paper-minimum checks or same-card identity within the clone. Preserve the original report for the registered source-policy comparison and native decision trace only. A [full 24-deal, 48-arm original-source live-root replication](agent3-rank26-live-store-custody-full-48-retrospective-20261103.md) found **0 baseline / 9 treatment genuine rooted settlements** in the 14 source-first deals, against **225 / 77 legacy clone-inclusive positive receipts across whole traces**. No first-turn Crisis Punch or competitive win claim is added.
+
+
 **Agent 3 | 2 November 2026 | prospective matched native Store-development evidence, zero competitively qualified games.**
 
 ## Verdict and significance
