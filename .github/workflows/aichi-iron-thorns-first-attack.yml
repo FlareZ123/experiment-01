@@ -42,6 +42,11 @@ on:
         required: false
         type: boolean
         default: false
+      rank5_trainer_competence:
+        description: Preregistered sixteen-arm original rank5 Trainer source-policy versus attack setup, no win qualification
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -442,3 +447,40 @@ jobs:
             agent42-plumeria-sourcechain-native.json
             agent42-plumeria-prospective-sourcechain-native.json
           if-no-files-found: warn
+
+  agent36-rank5-original-trainer-competence:
+    if: ${{ inputs.rank5_trainer_competence }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Validate independent rank5 source-player preregistration and pure printed Trainer tests
+        run: |
+          node --check simulation/evaluation/agent36-rank5-trainer-policy-native-v1.cjs
+          node --test tests/agent36-rank5-trainer-policy-native-v1.test.cjs
+          node simulation/evaluation/agent36-rank5-trainer-policy-native-v1.cjs --preflight
+      - name: Load pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned game dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run sixteen registered physical original rank5 arms with paired source Trainer-policy treatment
+        run: node simulation/evaluation/agent36-rank5-trainer-policy-native-v1.cjs
+      - name: Archive original physical ledger, exact source Trainer receipts and every blocked trial
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-rank5-trainer-competence-registered-v1
+          path: |
+            agent36-rank5-trainer-preflight.json
+            agent36-rank5-trainer-native-results.json
+          if-no-files-found: warn
+          retention-days: 14
