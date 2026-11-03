@@ -28,6 +28,6 @@ jobs:
       - name: Audit Lillie empty-deck pure policy predicate
         run: node --test tests/agent12-lillie-deckzero-opportunity.test.cjs tests/agent12-rank6-deckzero-pass-observer.test.cjs tests/agent12-rank6-deckzero-historical.native.test.cjs
       - name: Probe actual pinned both-seat Thorton Regidrago-to-ADP swap and evolved-target rejection
-        run: node --test tests/agent12-thorton-regv-active-native.test.cjs
+        run: node --test tests/agent12-thorton-regv-active-native.test.cjs tests/agent12-thorton-adp-regv-evolution-native.test.cjs
       - name: Run Bellelba three-card cost and Sidney eligible-type native cases
         run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs tests/agent12-sidney-opponent-hand-native.test.cjs tests/agent12-team-skull-grunt-native.test.cjs tests/agent12-opponent-hand-discard-guarded-native.test.cjs
