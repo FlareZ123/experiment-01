@@ -31,7 +31,9 @@ function run(){
    const game=arm==='treatment'?wrapped?.result?.result:wrapped?.result;
    const actions=(game?.decisionTrace??[]).filter(x=>x.turnBefore===1&&x.playerSlot===seat);
    out.push({repeat,slot,seat,seed,arm,expected,actual:native.physicalRoot?.digestSha256,
-    error:native.error,sourceFirst:game?.firstTurnSlot===seat,
+    error:native.error,
+    abortSourceCompressorAudit:native.abortSourceCompressorAudit??null,
+    sourceFirst:game?.firstTurnSlot===seat,
     actualFirstTurnCompressorPlays:actions.filter(x=>x.action==='PlayCardAction'&&x.card==='Battle Compressor').length,
     sourceActions:actions.map(x=>({action:x.action,card:x.card??null,ordinal:x.actionOrdinal})),
     nativeTerminal:game?.finished===true,receiptAudit:wrapped?.audit,
