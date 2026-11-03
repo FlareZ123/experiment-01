@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const path=require('node:path');
 
-const VERSION='agent39-paper-prompt-portfolio-v2-live-store-attribution';
+const VERSION='agent39-paper-prompt-portfolio-v3-live-only-enforcement';
 const PRINTING='Iron Thorns ex TWM';
 
 /**
@@ -38,8 +38,7 @@ function verdictVoltCyclone(state,prompt,result,types){
      !Array.isArray(owner.bench[to.index]?.cards)||
      owner.bench[to.index].cards.length===0)
     return {valid:false,reason:'recipient-not-occupied-own-bench'};
-  if(typeof prompt.validate!=='function'||prompt.validate(result)!==true)
-    return {valid:false,reason:'native-additional-contract-rejected'};
+  // Native validator disagreement is separate from independent printed geometry.
   return {valid:true,reason:'printed-one-active-energy-to-own-bench'};
 }
 
@@ -51,7 +50,9 @@ function verdictVoltCyclone(state,prompt,result,types){
  *
  * @template T
  * @param {()=>T} run Synchronous native Store game.
- * @param {{Store?:Function,IronThornsex?:Function,types?:object}} [deps]
+ * @param {{Store?:Function,IronThornsex?:Function,types?:object,
+ *  liveStore?:object}} [deps] An explicit genuine Store for staged fixtures;
+ *  ordinary native games discover it at the first AddPlayerAction.
  * @returns {{result:T,audit:object}}
  */
 function withPaperPromptPortfolio(run,deps={}){
@@ -72,7 +73,8 @@ function withPaperPromptPortfolio(run,deps={}){
   const attributed=new WeakSet();
   const storeIds=new WeakMap();
   let nextStoreId=0;
-  let liveStore=null;
+  let liveStore=deps.liveStore??null;
+  if(liveStore!==null)assert.ok(liveStore instanceof Store);
   const scopeOf=store=>liveStore===null?'unattributed':
     store===liveStore?'live':'auxiliary';
   const storeId=store=>{
@@ -81,7 +83,7 @@ function withPaperPromptPortfolio(run,deps={}){
   };
   const audit={schema:VERSION,contractPrintings:[PRINTING],
     provenance:'all-Store dispatch attempts separated from genuine live Store',
-    liveStoreObserved:false,allStoreDispatchAttempts:true,
+    liveStoreObserved:liveStore!==null,allStoreDispatchAttempts:true,
     liveResolutionCount:0,livePaperVerifiedNativeAccepted:0,
     livePaperInvalidVetoed:0,livePaperUnverified:0,
     liveNativeRejectedAfterPreflight:0,
@@ -96,7 +98,7 @@ function withPaperPromptPortfolio(run,deps={}){
       effect.attack===this.attacks?.[0];
     const prior=relevant?new Set(state.prompts):null;
     const outcome=r.value.call(this,store,state,effect);
-    if(relevant){
+    if(relevant&&scopeOf(store)==='live'){
       for(const prompt of state.prompts){
         if(!prior.has(prompt)&&prompt?.constructor?.name==='AttachEnergyPrompt'&&
            prompt.playerId===effect.player?.id){
@@ -120,6 +122,17 @@ function withPaperPromptPortfolio(run,deps={}){
     if(storeScope==='live')audit.liveResolutionCount++;
     else if(storeScope==='auxiliary')audit.auxiliaryResolutionCount++;
     else audit.unattributedResolutionCount++;
+    audit.resolutionCount++;
+    if(storeScope!=='live'){
+      // Bot scoring may dispatch against a cloned Store. Never veto,
+      // independently certify, or source-stamp that speculative reply.
+      const entry={storeOrdinal:ordinal,storeScope,
+        status:'AUXILIARY_NOT_SCREENED',nativeAccepted:false};
+      audit.events.push(entry);
+      const output=d.value.call(this,action,...args);
+      entry.nativeAccepted=true;
+      return output;
+    }
     const prompt=this.state.prompts?.find(p=>p.id===action.id&&
       p.result===undefined);
     const marked=prompt&&attributed.has(prompt);
@@ -135,7 +148,6 @@ function withPaperPromptPortfolio(run,deps={}){
       count:Array.isArray(action.result)?action.result.length:null,
       reason:paper?.reason??'no-independent-printed-contract',
       nativeAccepted:false};
-    audit.resolutionCount++;
     if(status==='PAPER_PROMPT_UNVERIFIED'){
       audit.paperUnverified++;
       if(storeScope==='live')audit.livePaperUnverified++;
