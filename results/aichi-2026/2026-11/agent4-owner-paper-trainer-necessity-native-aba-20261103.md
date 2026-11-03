@@ -56,6 +56,14 @@ This is a stronger and more specifically grounded signal than the broad 37 Pass 
 
 The extended A/B/A runner saves source-registered target certificates in its postgame owner-private paper census, behind the same default-off option. Verified source first-turn validity here additionally relies on the actual owner's first-turn ledger and its observed genuine opening state. Both A/B/A physical and action witnesses remained exactly equal; all six Store attempts still reached their action cap.
 
+## Pinned native source mechanism: type-only Item enumeration
+
+The exact pinned engine source [advanced-bot/action-enumerator.ts](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/advanced-bot/action-enumerator.ts) explains the observed false positive directly. In `playItemActions`, the enumerator loops through the owner's hand, accepts each card identified as an Item Trainer, creates a `PlayCardAction` and stops after its generic per-action-type candidate cap of **8**. The branch contains **no individual Item `canPlay` check**. The enumerator itself labels its output *legal-ish* and states that later simulation is responsible for checking validity.
+
+The same pinned engine [Battle VIP Pass FST source](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-fusion-strike/battle-vip-pass.ts) **does implement** a turn check in its own `canPlay` and reducer. Consequently the observed 51 late VIP **enumerator proposals** are a general enumerator-level overapproximation, without establishing any later illegal Store acceptance. This mechanism applies broadly to other Item-specific costs/conditions, although this study only measured the documented specific negatives.
+
+The evidence is distinct: the source code demonstrates the implementation omission, while the two source-owned real Store traces demonstrate repeated false Item proposals in practice. For future owner-only selection logic, apply source-specific necessary conditions and actual Store/target/custody receipts before declaring an action paper playable; the enumerator's move-menu membership alone carries no such certification.
+
 ## The important rules distinction
 
 The supplied Fusion Strike printed card **swsh8-225**, native **Battle VIP Pass FST**, explicitly permits use **only during the player's first turn**. Native global turn numbers alone do not establish that the particular owner has already taken a first turn: additional or skipped turns can break ordinary alternation.
