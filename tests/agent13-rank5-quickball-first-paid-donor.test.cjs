@@ -98,8 +98,9 @@ test('independent inclusion-exclusion sum confirms exact DCE donor count',()=>{
       for(let dce=2;dce<=4;dce++)
         for(let basic=1;basic<=11;basic++){
           const other=7-vip-qb-dce-basic;
-          result+=choose(3,vip)*choose(4,qb)*choose(4,dce)*
-            choose(11,basic)*choose(38,other);
+          if(other>=0&&other<=38)
+            result+=choose(3,vip)*choose(4,qb)*choose(4,dce)*
+              choose(11,basic)*choose(38,other);
         }
   assert.equal(result,4652384);
 });
