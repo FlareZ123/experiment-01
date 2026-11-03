@@ -15,6 +15,8 @@ jobs:
         run: node --test scripts/test-aichi-energy-audit.cjs
       - name: Gate original source Special Energy print/config coverage without claiming native games
         run: node --test tests/agent49-original-source-energy-admission.test.cjs
+      - name: Check four exact original-source Trainer hand-cost modes and shared quotas
+        run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent49-original-trainer-payment-modes.test.cjs
       - name: Verify optional owner-only Marshadow Stadium-channel counter decision contracts
         run: node --test tests/agent5-owner-visible-marshadow-chain-policy.test.cjs
       - name: Verify canonical original-field printing-distance and k-center coverage
