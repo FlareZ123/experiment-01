@@ -5,7 +5,8 @@ const test=require('node:test');
 const path=require('node:path');
 const {
   RULES,targetMatch,buildPublicPrintMetadata,
-  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary
+  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary,
+  augmentPaperNecessityWithDiscardTargets
 }=require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
 const source=Object.keys(RULES);
@@ -132,4 +133,39 @@ test('bundled database preserves real HP collision and five source cards',()=>{
   assert.equal(targetMatch(index.get('VS Seeker PHF'),'supporter'),false);
   for(const printing of source)
     assert.equal(index.has(printing),true,printing);
+});
+
+
+test('existing five-family owner paper screen keeps its facts and adds negative',()=>{
+  const v=view('VS Seeker PHF',['Battle Compressor PHF']);
+  v.ownHand.push('Float Stone BKT');
+  const original={version:'existing-paper-v1',negativeProofFamilies:['generic-public'],
+    rows:[
+      {handIndex:0,printing:'VS Seeker PHF',paperPlayable:null,
+        necessaryBlockers:[]},
+      {handIndex:2,printing:'Float Stone BKT',paperPlayable:false,
+        necessaryBlockers:['generic-public:no-slot']}
+    ]};
+  const result=augmentPaperNecessityWithDiscardTargets(v,original,meta);
+  assert.equal(result.registeredHeldDiscardRecoveryCopies,1);
+  assert.equal(result.newlyProvenPublicDiscardTargetFailures,1);
+  assert.equal(result.provenNecessaryConditionFailures,2);
+  assert.equal(result.rows[0].paperPlayable,false);
+  assert.deepEqual(result.rows[0].necessaryBlockers,
+    ['printed-discard-target:proven-no-public-discard-target']);
+  assert.equal(result.rows[1].paperPlayable,false);
+  assert.deepEqual(original.rows[0].necessaryBlockers,[]);
+  assert.equal(original.rows[0].paperPlayable,null);
+  assert.equal(result.allRemainingArePaperLegal,false);
+  assert.equal(result.selectedOrDispatchedAction,false);
+});
+
+test('unknown target metadata never blocks another unqualified Trainer',()=>{
+  const v=view('VS Seeker PHF',['mystery-card']);
+  const base={version:'v1',rows:[{handIndex:0,
+    printing:'VS Seeker PHF',necessaryBlockers:[],paperPlayable:null}]};
+  const result=augmentPaperNecessityWithDiscardTargets(v,base,meta);
+  assert.equal(result.newlyProvenPublicDiscardTargetFailures,0);
+  assert.equal(result.rows[0].paperPlayable,null);
+  assert.deepEqual(result.rows[0].necessaryBlockers,[]);
 });
