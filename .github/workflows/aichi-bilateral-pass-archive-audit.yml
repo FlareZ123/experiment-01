@@ -15,6 +15,7 @@ on:
           - bilateral-pass
           - charged-promotion-pair
           - floatstone-pair
+          - volt-donor-debt
         default: bilateral-pass
 
 permissions:
@@ -63,6 +64,27 @@ jobs:
         run: |
           node --test tests/agent1-owner-float-stone-mobility.test.cjs
           node -e "const assert=require('node:assert/strict');const p=require('./agent1-floatstone-native-pair.json');assert.equal(p.pairs.length,4);assert.equal(p.competitiveQualifiedGames,0);for(let i=0;i<4;i++){const a=p.baseline.rows[i],b=p.treatment.rows[i],c=a.actorOnlyDecisionCoverage?.detailedComponentAudits?.root,t=b.actorOnlyDecisionCoverage?.detailedComponentAudits?.root;assert.equal(c?.floatStoneMobilityOptIn,false);assert.equal(t?.floatStoneMobilityOptIn,true);assert.equal(t.floatStoneMobilityOwnerSeat,b.sourceSeat);assert.match(t.version,/floatstone-mobility/);console.log('SOURCE_FLOAT_AUDIT',JSON.stringify({id:b.trial.id,sourceSeat:b.sourceSeat,installed:t.floatStoneMobilityOptIn,sourceScoped:t.floatStoneMobilityOwnerSeat===b.sourceSeat,baseRoot:c.version,variantRoot:t.version,selectedEquip:t.typedIntentCounts['attach-emergency-floatstone']??0,selectedRetreat:t.typedIntentCounts['retreat-emergency-floatstone']??0,identicalRoot:p.pairs[i].identicalRootLedger,heldFloatPasses:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Float Stone']>0).length,heldEscapePasses:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Escape Rope']>0).length,heldGuzmaPasses:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Guzma']>0).length,unpoweredHeldEscape:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Escape Rope']>0&&x.activeEnergyCards?.length===0).length,unpoweredHeldGuzma:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.mobilityHeld?.['Guzma']>0&&x.activeEnergyCards?.length===0).length,unpoweredPassNames:(a.sourceOwnerPostPassMobility?.observations??[]).filter(x=>x.activeEnergyCards?.length===0).map(x=>x.activeName).slice(0,12)}));}console.log('ARCHIVE_ONLY_ZERO_COMPETITIVE',p.competitiveQualifiedGames)"
+      - name: Verify printed-cost Volt Cyclone owner-donor debt model
+        if: ${{ inputs.audit_type == 'volt-donor-debt' }}
+        run: node --test tests/agent45-volt-cyclone-donor-debt.test.cjs
+      - name: Retrieve unchanged original rank6 source archive from the prior native run
+        if: ${{ inputs.audit_type == 'volt-donor-debt' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent41-rank6-grouped-denial-48-native-arm-census
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+      - name: Produce original-source observed donor-debt report
+        if: ${{ inputs.audit_type == 'volt-donor-debt' }}
+        run: |
+          node -e "const fs=require('node:fs');const audit=require('./simulation/evaluation/agent45-volt-cyclone-donor-debt.cjs');const original=require('./agent41-frozen-bilateral-development-v2-native.json');const r=audit.auditRank6VoltDonorDebt(original);fs.writeFileSync('agent45-volt-donor-debt-result.json',JSON.stringify(r,null,2)+'\\n');console.log(JSON.stringify(r,null,2));if(r.unknown!==0||r.settledVoltAttacks!==50||r.benched!==27||r.solo!==23)process.exitCode=1"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.audit_type == 'volt-donor-debt' }}
+        with:
+          name: agent45-frozen-v2-donor-debt-audit
+          path: agent45-volt-donor-debt-result.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Test and report bounded candidate Pass evidence
         if: ${{ inputs.audit_type == 'bilateral-pass' }}
         run: |
