@@ -26,3 +26,20 @@ for(const seat of [0,1]){
     });
   }
 }
+
+for(const seat of [0,1]){
+  test('Same-turn Active ADP Thorton inherits evolution lock; native raw false permission, seat '+seat,()=>{
+    const raw=probe(seat,false,3);
+    const fixed=probe(seat,true,3);
+    console.log('NATIVE_THORTON_SAME_TURN_EVOLVE '+JSON.stringify({raw,fixed}));
+    assert.equal(raw.swapped.originalPlayedTurn,0);
+    assert.equal(raw.after.vstarFromHand,true);
+    assert.equal(raw.evolveError,null);
+    assert.equal(fixed.swapped.originalPlayedTurn,3);
+    assert.ok(fixed.evolveError);
+    assert.equal(fixed.after.vstarFromHand,false);
+    assert.equal(fixed.after.vstarStillHeld,true);
+    assert.equal(fixed.after.attachedEnergy.includes('Double Dragon Energy ROS'),true);
+    assert.equal(fixed.qualifiedGames,0);
+  });
+}
