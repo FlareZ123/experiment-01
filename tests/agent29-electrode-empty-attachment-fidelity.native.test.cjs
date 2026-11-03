@@ -200,3 +200,133 @@ for(const seat of /** @type {const} */ ([0,1])){
     });
   }
 }
+
+/**
+ * Reproduce the previously missing source Trainer-to-Ability-to-attack chain
+ * using genuine card actions rather than injecting discarded Energy.
+ * The board and hands are deliberately staged with legal original rank-9
+ * card identities. No naturally dealt 60-card source or opponent policy here.
+ * @param {0|1} seat
+ */
+function compressorToBombToClaw(seat){
+  const release=installElectrodeGXEnergyHook();
+  try{
+    const s=freshStore(seat,1);
+    const manager=initializeCards();
+    /** @param {string} print */
+    const card=print=>{
+      const c=manager.getCardByName(print);
+      assert.ok(c,'missing compiled '+print);
+      c.id=serial++;
+      return c;
+    };
+    const initialPrism=s.energy[0];
+    const removed=s.owner.discard.cards.splice(
+      s.owner.discard.cards.indexOf(initialPrism),1);
+    assert.strictEqual(removed[0],initialPrism);
+    const fourSourcePrism=[initialPrism,...Array.from({length:3},
+      ()=>card('Prism Energy ASC'))];
+    s.owner.deck.cards.push(...fourSourcePrism);
+    s.owner.hand.cards.push(card('Battle Compressor PHF'));
+    const fog=card('Fog Crystal CRE');
+    s.opponent.hand.cards.push(fog);
+    assert.equal(s.owner.discard.cards.length,0);
+    assert.equal(s.owner.active.energies.cards.length,0);
+    assert.equal(s.owner.deck.cards.filter(c=>c.fullName==='Prism Energy ASC').length,4);
+
+    const {PlayCardAction}=native('game/store/actions/play-card-action');
+    s.store.dispatch(new PlayCardAction(s.owner.id,0,{
+      player:PlayerType.ANY,slot:SlotType.BOARD,index:0
+    }));
+    for(let i=0;i<8;i++){
+      const wait=s.state.prompts.find(p=>p.result===undefined&&
+        p.constructor.name==='WaitPrompt');
+      if(!wait)break;
+      s.store.dispatch(new ResolvePromptAction(wait.id,null));
+    }
+    const compressPrompt=s.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='ChooseCardsPrompt');
+    assert.ok(compressPrompt,'Battle Compressor must ask for native deck cards');
+    assert.equal(compressPrompt.playerId,s.owner.id);
+    assert.strictEqual(compressPrompt.cards,s.owner.deck);
+    const chosen=compressPrompt.cards.cards.filter(c=>
+      fourSourcePrism.includes(c)).slice(0,3);
+    assert.equal(chosen.length,3);
+    assert.equal(compressPrompt.validate(chosen,s.state),true);
+    s.store.dispatch(new ResolvePromptAction(compressPrompt.id,chosen));
+    for(let i=0;i<16;i++){
+      const pending=s.state.prompts.find(p=>p.result===undefined);
+      if(!pending)break;
+      let reply;
+      if(pending.constructor.name==='WaitPrompt')reply=null;
+      else if(pending.constructor.name==='ShuffleDeckPrompt'){
+        assert.equal(pending.playerId,s.owner.id);
+        reply=Array.from({length:s.owner.deck.cards.length},(_,i)=>i);
+      }else throw new Error('Unexpected Compressor prompt '+pending.constructor.name);
+      assert.equal(pending.validate(reply,s.state),true);
+      s.store.dispatch(new ResolvePromptAction(pending.id,reply));
+    }
+    assert.equal(s.state.prompts.some(p=>p.result===undefined),false);
+    assert.equal(chosen.every(c=>s.owner.discard.cards.includes(c)),true);
+    assert.equal(s.owner.deck.cards.some(c=>chosen.includes(c)),false);
+    assert.equal(s.owner.discard.cards.some(c=>
+      c.fullName==='Battle Compressor PHF'),true);
+
+    const bomb=openBomb(s);
+    assert.equal(bomb.options.min,3);
+    const to={player:PlayerType.BOTTOM_PLAYER,
+      slot:SlotType.ACTIVE,index:0};
+    const transfers=bomb.decode(chosen.map(card=>({
+      to,index:bomb.cardList.cards.indexOf(card)
+    })),s.state);
+    assert.equal(bomb.validate(transfers,s.state),true);
+    s.store.dispatch(new ResolvePromptAction(bomb.id,transfers));
+    settleKo(s);
+    assert.equal(chosen.every(c=>s.owner.active.energies.cards.includes(c)),true);
+    assert.equal(s.owner.active.energies.cards.length,3);
+    assert.equal(s.owner.getPrizeLeft(),6);
+
+    const {AttackAction}=native('game/store/actions/game-actions');
+    s.store.dispatch(new AttackAction(s.owner.id,'Claw of Darkness'));
+    for(let i=0;i<8;i++){
+      const wait=s.state.prompts.find(p=>p.result===undefined&&
+        p.constructor.name==='WaitPrompt');
+      if(!wait)break;
+      s.store.dispatch(new ResolvePromptAction(wait.id,null));
+    }
+    const discardPrompt=s.state.prompts.find(p=>p.result===undefined&&
+      p.constructor.name==='ChooseCardsPrompt');
+    assert.ok(discardPrompt,'Claw must prompt for opponent hand discard');
+    assert.equal(discardPrompt.playerId,s.owner.id);
+    const index=s.opponent.hand.cards.indexOf(fog);
+    assert.ok(index>=0);
+    const discarded=discardPrompt.decode([index]);
+    assert.equal(discardPrompt.validate(discarded,s.state),true);
+    s.store.dispatch(new ResolvePromptAction(discardPrompt.id,discarded));
+    for(let i=0;i<8&&s.opponent.active.damage<200;i++){
+      const wait=s.state.prompts.find(p=>p.result===undefined&&
+        p.constructor.name==='WaitPrompt');
+      assert.ok(wait,'Claw damage requires attack animation continuation');
+      s.store.dispatch(new ResolvePromptAction(wait.id,null));
+    }
+    assert.equal(s.opponent.active.damage,200);
+    assert.equal(s.opponent.discard.cards.includes(fog),true);
+    assert.equal(s.opponent.getPrizeLeft(),4);
+    assert.equal(s.owner.active.getPokemonCard().set,'MEG');
+    assert.equal(s.owner.deck.cards.filter(c=>c.fullName==='Prism Energy ASC').length,1);
+    return {seat,paidCompressor:1,discardedPrism:3,
+      bombPhysicalAttachments:3,opponentPrizesForElectrode:2,
+      actualAttack:'Claw of Darkness',attackDamage:200,
+      opponentHandCardsDiscarded:1,
+      paperFullGameQualified:false,competitivelyQualifiedGames:0};
+  }finally{release();}
+}
+
+for(const seat of /** @type {const} */ ([0,1])){
+  test('Real original-rank9 Compressor -> CES48 -> funded Claw native seat '+seat,
+    ()=>{
+      const result=compressorToBombToClaw(seat);
+      console.log('AGENT29_RANK9_COMPRESSOR_BOMB_CLAW_NATIVE',
+        JSON.stringify(result));
+    });
+}
