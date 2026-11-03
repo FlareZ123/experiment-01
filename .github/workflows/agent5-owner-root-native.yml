@@ -107,6 +107,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent9_owner_mail_native:
+        description: 'Historical original rank5/11 read-only controls vs symmetric owner-count-only Mail selection, 12 native attempts, developmental'
+        required: false
+        type: boolean
+        default: false
       agent9_native_trainer_scorer:
         description: 'Read-only full-bot scorer-call census across 4 original rank5/11 Trainer fallback physical cohorts, zero qualified games'
         required: false
@@ -172,6 +177,17 @@ jobs:
         run: node --test tests/agent9-native-trainer-scorer-attribution.test.cjs
       - name: Check native-free owner-source Mail proposer for hidden-order-safe count-only choice
         run: node --test tests/agent9-owner-mail-after-pass-planner.test.cjs
+      - name: Reproduce matched original rank5 and rank11 native owner-only Mail after-Pass developmental source controls
+        if: ${{ inputs.agent9_owner_mail_native }}
+        run: node simulation/twinleaf/agent9-owner-mail-paired-original-source.cjs
+      - name: Preserve complete historical original source Mail after-Pass A-B-A diagnostic
+        if: ${{ always() && inputs.agent9_owner_mail_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-owner-mail-original-source-v1
+          path: agent9-owner-mail-original-source-v1.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Observe real owner native Trainer delegated scorer calls on four registered source deal cohorts
         if: ${{ inputs.agent9_native_trainer_scorer }}
         run: node simulation/twinleaf/agent9-native-trainer-realroot-score-census.cjs
