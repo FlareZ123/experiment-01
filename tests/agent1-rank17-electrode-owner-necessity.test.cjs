@@ -134,12 +134,16 @@ test('source original eligible recipients derive from eight exact native printin
   assert.ok(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.includes('Ditto Prism Star LOT'));
   assert.equal(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.includes('Electrode-GX CES'),false);
 });
+const sourceGxActive={name:'Gengar & Mimikyu-GX',
+  printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]};
+
 test('native visible Voltorb or Squawkabilly ex can be source Bomb recipients without Raichu',()=>{
   for(const recipient of [
     {name:'Voltorb',printing:'Voltorb ROS',abilities:[],tools:[]},
     {name:'Squawkabilly ex',printing:'Squawkabilly ex PAL',abilities:[],tools:[]}
   ]){
     const r=rank17ElectrodeBombNecessity(view([energy[0]],{
+      active:sourceGxActive,
       bench:[electrode,recipient,null,null,null]
     }));
     assert.equal(r.generalBombNecessaryConditionsMet,true);
@@ -153,6 +157,7 @@ test('native visible Voltorb or Squawkabilly ex can be source Bomb recipients wi
 });
 test('source GX recipients cannot fund Bomb while source non-GX recipients can',()=>{
   const noRecipient=rank17ElectrodeBombNecessity(view([energy[0]],{
+    active:sourceGxActive,
     bench:[electrode,{name:'Gengar & Mimikyu-GX',
       printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]},
       null,null,null]
@@ -161,6 +166,7 @@ test('source GX recipients cannot fund Bomb while source non-GX recipients can',
   assert.deepEqual(noRecipient.generalBombPhysicalBlockers,
     ['no-source-non-gx-ex-recipient-in-play']);
   const yesRecipient=rank17ElectrodeBombNecessity(view([energy[0]],{
+    active:sourceGxActive,
     bench:[electrode,{name:'Unown',printing:'Unown AOR',abilities:[],tools:[]},
       null,null,null]
   }));
@@ -170,11 +176,13 @@ test('general source Bomb refuses zero discarded Energy or unknown recipient',()
   const goodRecipient={name:'Marshadow',printing:'Marshadow UNB',
     abilities:[],tools:[]};
   const zero=rank17ElectrodeBombNecessity(view([],{
+    active:sourceGxActive,
     bench:[electrode,goodRecipient,null,null,null]
   }));
   assert.deepEqual(zero.generalBombPhysicalBlockers,
     ['no-source-discarded-energy-card']);
   const unknown=rank17ElectrodeBombNecessity(view([energy[0]],{
+    active:sourceGxActive,
     bench:[electrode,{name:'Unknown',printing:'Unknown XYZ',
       abilities:[],tools:[]},null,null,null]
   }));
