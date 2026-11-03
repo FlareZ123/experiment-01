@@ -92,3 +92,47 @@ jobs:
             simulation/evaluation/agent41-joint-source-r5-r11-v1.json
           if-no-files-found: warn
           retention-days: 30
+
+  rank5-joint-same-deal-transport:
+    if: github.ref == 'refs/heads/agent13-rank5-joint-transport-20261103'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out exact preregistered experiment branch
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Select pinned Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect immutable registration, test independent ablations, and check syntax
+        run: |
+          node --check simulation/evaluation/agent13-rank5-joint-transport-20261103.cjs
+          node --test tests/agent13-rank5-joint-transport-20261103.test.cjs
+          node simulation/evaluation/agent13-rank5-joint-transport-20261103.cjs --inspect-only > agent13-rank5-transport-preflight.json
+      - name: Check out pinned upstream Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install native engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all 16 registered native Store attempts without selection on outcomes
+        run: node simulation/evaluation/agent13-rank5-joint-transport-20261103.cjs > agent13-rank5-transport-compact.json
+      - name: Audit output denominator and original-source physical matching
+        run: |
+          node -e "const a=require('node:assert/strict');const x=require('./agent13-rank5-joint-transport-16arm.json');a.equal(x.attempts,16);a.equal(x.comparisons.length,4);a.equal(x.paperCompetitiveGamesQualified,0);console.log('RANK5_TRANSPORT',JSON.stringify({attempts:x.attempts,sameDeal:x.physicalVerifiedComparisons,rows:x.comparisons.map(r=>({id:r.trial.id,physical:r.physicalStatus,arms:r.evidence.map(e=>({mode:e.mode,attacks:e.sourceAttackDeclarations,copy:e.sourceOwnerTechnoBlastCopies.length,evolutions:e.sourceMewVmaxRoots.length,status:e.nativeStatus||e.endReason}))}))}));"
+      - name: Retain all native rows, exact prior registration, errors and caps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-rank5-joint-transport-16arm
+          path: |
+            agent13-rank5-joint-transport-16arm.json
+            agent13-rank5-transport-preflight.json
+            agent13-rank5-transport-compact.json
+            results/aichi-2026/registrations/agent13-rank5-joint-transport-20261103.json
+          if-no-files-found: warn
+          retention-days: 30
