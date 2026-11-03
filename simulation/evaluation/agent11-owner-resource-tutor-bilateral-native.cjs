@@ -12,7 +12,9 @@ const {withOwnerResourceTutorAfterPass,VERSION:BRIDGE_VERSION}=
   require('../twinleaf/agent11-native-owner-resource-tutor-after-pass.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
-const REGISTRATION=path.join(ROOT,'results/aichi-2026/registrations/agent11-owner-resource-tutor-bilateral-v1.json');
+const REGISTRATION_VERSION=process.env.AGENT11_TUTOR_REGISTRATION??'v1';
+assert.ok(['v1','v2'].includes(REGISTRATION_VERSION));
+const REGISTRATION=path.join(ROOT,'results/aichi-2026/registrations/agent11-owner-resource-tutor-bilateral-'+REGISTRATION_VERSION+'.json');
 const sha256=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
@@ -25,8 +27,8 @@ const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  */
 function run(){
   const registered=JSON.parse(fs.readFileSync(REGISTRATION,'utf8'));
-  assert.equal(registered.schema,'agent11-owner-resource-tutor-bilateral-v1');
-  assert.equal(registered.arms.length,8);
+  assert.equal(registered.schema,'agent11-owner-resource-tutor-bilateral-'+REGISTRATION_VERSION);
+  assert.equal(registered.arms.length,registered.predeclaredArms??8);
   assert.deepEqual(registered.modes,['control','resource-tutor']);
   assert.deepEqual(registered.sourceRanks,[5,11]);
   const manager=initializeCards();
@@ -39,6 +41,10 @@ function run(){
   const original11=original.opponents.find(d=>d.rank===11)?.cards;
   assert.equal(original5?.length,60);
   assert.equal(original11?.length,60);
+  const nativeSource11Letter=original11.filter(x=>x==='Professors Letter BKT').length;
+  const nativeSource11Vip=original11.filter(x=>x==='Battle VIP Pass FST').length;
+  assert.equal(nativeSource11Letter,4,'Original rank11 BKT #146 must resolve to pinned exact native fullName');
+  assert.equal(nativeSource11Vip,4);
   const resultRows=[];
   for(const arm of registered.arms){
     const deckA=arm.rank5Seat===0?original5:original11;
@@ -107,12 +113,19 @@ function run(){
     codeVersion:BRIDGE_VERSION,
     registrationSha256:sha256(registered),
     originalRanks:[5,11],originalDeckCounts:[original5.length,original11.length],
+    nativeSource11Letter,nativeSource11Vip,
     scheduledArms:registered.arms.length,observedArms:resultRows.length,
     nativeErrors:resultRows.filter(r=>r.nativeStatus==='native-error').length,
     nativeCaps:resultRows.filter(r=>r.nativeStatus==='native-capped').length,
     nativeTerminals:resultRows.filter(r=>r.nativeStatus==='native-terminal').length,
     sourcePhysicalParityMatched:pairLedger.filter(p=>p.physicalParityProven).length,
     sourcePhysicalPairs:pairLedger.length,
+    selectedPassRootCount:resultRows.filter(r=>r.mode==='resource-tutor')
+      .reduce((n,row)=>n+(row.tutorAudit?.passRootsObserved??0),0),
+    selectedHeldTutorOpportunities:resultRows.filter(r=>r.mode==='resource-tutor')
+      .reduce((n,row)=>n+(row.tutorAudit?.registeredOpportunities??0),0),
+    selectedProposedItems:resultRows.filter(r=>r.mode==='resource-tutor')
+      .reduce((n,row)=>n+(row.tutorAudit?.proposedItems??0),0),
     selectedAcceptedItems:resultRows.filter(r=>r.mode==='resource-tutor')
       .reduce((n,row)=>n+(row.tutorAudit?.acceptedItems??0),0),
     selectedSettledPhysicalTargets:resultRows.filter(r=>r.mode==='resource-tutor')
@@ -125,7 +138,8 @@ function run(){
 
 if(require.main===module){
   const result=run();
-  const destination=path.resolve(process.cwd(),'agent11-owner-tutor-native-v1.json');
+  const destination=path.resolve(process.cwd(),
+    'agent11-owner-tutor-native-'+REGISTRATION_VERSION+'.json');
   saveResult(destination,result);
   process.stdout.write('AGENT11_OWNER_TUTOR_NATIVE '+JSON.stringify({
     engine:result.engine,observedArms:result.observedArms,
@@ -133,10 +147,22 @@ if(require.main===module){
     nativeTerminals:result.nativeTerminals,
     physicalMatched:result.sourcePhysicalParityMatched,
     physicalPairs:result.sourcePhysicalPairs,
+    nativeSource11Letter:result.nativeSource11Letter,
+    tutorPassRoots:result.selectedPassRootCount,
+    heldTutorOpportunities:result.selectedHeldTutorOpportunities,
+    tutorProposals:result.selectedProposedItems,
     nativeAcceptedItems:result.selectedAcceptedItems,
     nativeSettledTargets:result.selectedSettledPhysicalTargets,
     errorArms:result.rows.filter(r=>r.error).map(r=>({id:r.id,error:r.error})),
-    competitiveQualifiedGames:result.competitiveQualifiedGames
+    competitiveQualifiedGames:result.competitiveQualifiedGames,
+    chosenDetails:result.rows.filter(r=>r.mode==='resource-tutor').map(r=>({
+      id:r.id,status:r.nativeStatus,pass:r.tutorAudit?.passRootsObserved??null,
+      opportunities:r.tutorAudit?.registeredOpportunities??null,
+      proposed:r.tutorAudit?.proposedItems??null,
+      accepted:r.tutorAudit?.acceptedItems??null,
+      prompts:r.tutorAudit?.acceptedPrompts??null,
+      moved:r.tutorAudit?.physicalTargetsSettled??null
+    }))
   })+'\n');
 }
 module.exports={run};
