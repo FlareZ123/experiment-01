@@ -90,6 +90,34 @@ function loadBundledPublicPrintMetadata(resourceRoot){
   return buildPublicPrintMetadata(sets,cardSets);
 }
 
+
+/**
+ * Recognize historical set-code aliases present in the original Aichi printed
+ * manifest, without claiming print identity for unresolved modern promos.
+ * Public English database has PR-BLW/PR-XY/PR-SM; source/native manifests
+ * spell the corresponding promo families BWP/XYP/SMP.
+ * @param {Map<string,object>} index Original public name + set metadata.
+ */
+function withSourcePromoAliases(index){
+  assert.ok(index instanceof Map);
+  const codes=Object.freeze({
+    'PR-BLW':'BWP','PR-XY':'XYP','PR-SM':'SMP'
+  });
+  const result=new Map(index);
+  for(const [printing,entry] of index){
+    const split=printing.lastIndexOf(' ');
+    if(split<0)continue;
+    const alias=codes[printing.slice(split+1)];
+    if(!alias)continue;
+    const key=printing.slice(0,split+1)+alias;
+    const prior=result.get(key);
+    assert.ok(!prior||JSON.stringify(prior)===JSON.stringify(entry),
+      'A promo alias collides with different public card metadata');
+    result.set(key,entry);
+  }
+  return result;
+}
+
 /**
  * A read-only, paper-negative certificate for common discard-recovery Items.
  * Every unknown discarded printing prevents a false no-target certificate.
@@ -181,5 +209,6 @@ function augmentPaperNecessityWithDiscardTargets(view,base,publicPrints){
 }
 
 module.exports={VERSION,RULES,targetMatch,buildPublicPrintMetadata,
+  withSourcePromoAliases,
   loadBundledPublicPrintMetadata,publicDiscardTargetNecessary,
   augmentPaperNecessityWithDiscardTargets};
