@@ -26,7 +26,7 @@ function validatePlan(plan){
   assert.equal(plan.repository,'FlareZ123/experiment-01');
   assert.equal(plan.releaseTag,RELEASE_TAG);
   assert.equal(plan.publicationOfReleaseDoesNotCertifyGames,true);
-  assert.equal(plan.artifacts.length,6);
+  assert.equal(plan.artifacts.length,7);
   const ids=new Set(),names=new Set();
   for(const a of plan.artifacts){
     assert.ok(Number.isSafeInteger(a.runId)&&a.runId>0);
