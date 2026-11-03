@@ -94,9 +94,13 @@ function ownerHandDiscardPareto(input) {
   /** True when group A structurally weakly improves B in all dimensions. */
   function dominates(a,b) {
     const x=a.vector,y=b.vector;
+    // An objective donor printing may have a uniquely decisive attack.
+    // Coverage must be set inclusion, not a scalar donor-count comparison.
+    const coversAllTargets = b.distinctDesiredTargets.every(target =>
+      a.distinctDesiredTargets.includes(target));
     const notWorse =
       x.protectedSacrificed<=y.protectedSacrificed &&
-      x.distinctDesiredDiscardPrintings>=y.distinctDesiredDiscardPrintings &&
+      coversAllTargets &&
       x.deadCardsSpent>=y.deadCardsSpent &&
       BigInt(x.nextUnprotectedPaymentWays)>=
         BigInt(y.nextUnprotectedPaymentWays);
