@@ -66,29 +66,37 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
       const {owner:source,prompt}=pending;
       const beforeDeck=[...source.deck.cards];
       const beforeDiscard=[...source.discard.cards];
-      const result=original.call(this,action,...args);
-      const moved=movedDeckCards(beforeDeck,beforeDiscard,
-        source.deck.cards,source.discard.cards);
-      // XY Phantom Forces 92 prints "up to 3" for an Item: 1..3.
-      // Native prompt bounds are diagnostics, never the paper-rule oracle.
-      const printedMinimum=1,printedMaximum=3;
-      const paperMinimumMet=moved.length>=printedMinimum&&
-        moved.length<=printedMaximum;
-      receipts.push({
-        globalTurn:this.state.turn,sourceSeat:seat,
-        exactLiveStore:true,sourcePlayPhysicallyTracked:true,
-        sourceCard:{name:pending.sourceCard.name,
-          id:pending.sourceCard.id,
-          fullName:pending.sourceCard.fullName},
-        sameIssuedPrompt:true,paperMinimumMet,
-        printedMinimum,printedMaximum,
-        nativePromptMinimum:prompt.options?.min??null,
-        nativePromptMaximum:prompt.options?.max??null,
-        physicallyMoved:moved.map(c=>({
-          name:c.name,id:c.id,fullName:c.fullName
-        }))
-      });
-      pending=null;
+      let result,dispatchReturned=false;
+      try {
+        result=original.call(this,action,...args);
+        dispatchReturned=true;
+      } finally {
+        // A reducer can throw after altering physical zones. Retain such
+        // movements as aborted evidence, never as accepted paper payment.
+        const moved=movedDeckCards(beforeDeck,beforeDiscard,
+          source.deck.cards,source.discard.cards);
+        // XY Phantom Forces 92 prints "up to 3" for an Item: 1..3.
+        // Native prompt bounds are diagnostics, never the paper-rule oracle.
+        const printedMinimum=1,printedMaximum=3;
+        const paperMinimumMet=dispatchReturned&&
+          moved.length>=printedMinimum&&moved.length<=printedMaximum;
+        receipts.push({
+          globalTurn:this.state.turn,sourceSeat:seat,
+          exactLiveStore:true,sourcePlayPhysicallyTracked:true,
+          sourceCard:{name:pending.sourceCard.name,
+            id:pending.sourceCard.id,
+            fullName:pending.sourceCard.fullName},
+          sameIssuedPrompt:true,nativeDispatchReturned:dispatchReturned,
+          physicalMovementDuringFailedDispatch:!dispatchReturned&&moved.length>0,
+          paperMinimumMet,printedMinimum,printedMaximum,
+          nativePromptMinimum:prompt.options?.min??null,
+          nativePromptMaximum:prompt.options?.max??null,
+          physicallyMoved:moved.map(c=>({
+            name:c.name,id:c.id,fullName:c.fullName
+          }))
+        });
+        pending=null;
+      }
       return result;
     }
     return original.call(this,action,...args);
@@ -106,6 +114,7 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
       acceptedSourcePlays,linkedPromptsIssued,
       unresolvedLinkedPrompt:pending!==null,
       positiveLinkedSettlements:receipts.filter(r=>r.paperMinimumMet).length,
+      failedPromptDispatches:receipts.filter(r=>r.nativeDispatchReturned===false).length,
       receipts:[...receipts],competitivelyQualified:false
     };
   }
