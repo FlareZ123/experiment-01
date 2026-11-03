@@ -77,7 +77,8 @@ function run(){
       assert.equal(game.engine,PIN);
     }catch(e){
       error={name:e?.name??null,message:String(e?.message??e).slice(0,1000),
-        nativeAuditAttached:Boolean(e?.nativeAudit)};
+        nativeAuditAttached:Boolean(e?.nativeAudit),
+        ...(ATTACK_TRACE_REPLAY?{nativeAbortEvidence:e?.nativeAbortEvidence??null}:{})};
     }
     resultRows.push({
       ...arm,engine:PIN,
@@ -98,7 +99,7 @@ function run(){
         finalPublicBoard:game?.finalPublicBoard??null,
         prizesRemaining:game?.prizesRemaining??null,
         source11AttackDeclarations:game?.attackDeclarationTrace?.filter(row=>
-          row.seat!==arm.rank5Seat)??null,
+          row.playerSlot!==arm.rank5Seat)??null,
       }:{}),
       actorAudit,tutorAudit,
       paperGameQualified:false
