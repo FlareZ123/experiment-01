@@ -26,6 +26,8 @@ function inspectFile(archiveFile){
     physicalMatched:mode.sourceDigestMatched,
     physicalMismatched:mode.sourceDigestMismatched,
     physicalUnknown:mode.sourceDigestUnknown,
+    groupsWithRecoveredAbortSideDigest:
+      mode.groupsWithRecoveredAbortSideDigest,
     starterCompared:mode.starterCompared,
     starterMatched:mode.starterMatched,
     candidatePhysicalContrastSupported:
@@ -46,6 +48,10 @@ function inspectFile(archiveFile){
     crossCandidate:{
       baseline:summarize(audit.crossCandidateOriginalSourceDeals.baseline),
       selected:summarize(audit.crossCandidateOriginalSourceDeals.selected)
+    },
+    crossCandidateIncludingVerifiedAbortDigests:{
+      baseline:summarize(audit.crossCandidateOriginalSourceDealsIncludingVerifiedAborts.baseline),
+      selected:summarize(audit.crossCandidateOriginalSourceDealsIncludingVerifiedAborts.selected)
     },
     originalReleaseAcceptanceUnchanged:true,
     gameWinsQualified:0
