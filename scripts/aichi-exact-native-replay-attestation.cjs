@@ -63,7 +63,7 @@ function attestExactNativeReplay(reference,replay){
     casesSha256:digest(reference.cases),
     summarySha256:digest(reference.summary),
     exactReplay:true,
-    nativeGamesReplayed:reference.nativeAttempts,
+    archivedNativeAttemptsCompared:reference.nativeAttempts,
     competitivelyQualifiedGames:0,
     paperEffectsVerified:false,
     realMatchClockVerified:false
