@@ -129,7 +129,9 @@ function anytimeRandomizedFieldWinBetting(config){
     decision:logEValue>=logThreshold?
       'EVIDENCE_RANDOMIZED_FIELD_RATE_EXCEEDS_TARGET':'INSUFFICIENT_INFORMATION',
     competitiveQualified:false,
-    qualification:'Mathematical evidence only. Independent third-party verification of random seed and original qualified paper matches is mandatory; native wins do not qualify.'};
+    randomizationExternallyVerified:false,
+    statisticalAssumptionsExternallyVerified:false,
+    qualification:'Conditional mathematical result only. Independent third-party verification of prospective unbiased secret randomization, complete source roster and original qualified paper matches is mandatory; seed grinding and native wins never qualify.'};
 }
 
 module.exports={VERSION,PROTOCOL,assignedCell,anytimeRandomizedFieldWinBetting};
