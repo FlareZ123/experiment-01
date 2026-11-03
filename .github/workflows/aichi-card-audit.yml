@@ -45,8 +45,10 @@ jobs:
           python scripts/agent12_adp_t1_gear_t2_exact.py
       - name: Independently validate fixed ADP T1 Gear route with three million physical shuffled sixties
         run: python scripts/agent12_adp_t1_gear_t2_montecarlo.py
-      - name: Verify R-starter Thorton Compressor donor conservation and exact T2 chance
-        run: python scripts/agent12_adp_regv_starter_compressor_donor_exact.py
+      - name: Verify R-starter donor conservation and exact first-and-second Pokégear extensions
+        run: |
+          python scripts/agent12_adp_regv_starter_compressor_donor_exact.py
+          python scripts/agent12_adp_regv_starter_t1_t2_gear_exact.py
       - name: Crosscheck R-starter donor route on three million independently shuffled decks
         run: python scripts/agent12_adp_regv_starter_donor_physical.py
       - name: Verify original-29 printed HP thresholds and Goodra Rolling Iron defensive exception
