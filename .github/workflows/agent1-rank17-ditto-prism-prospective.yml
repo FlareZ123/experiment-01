@@ -15,6 +15,7 @@ on:
           - compressor-bridge
           - bridge-archive
           - postprompt-custody
+          - generic-special-energy
 
 permissions:
   contents: read
@@ -127,6 +128,23 @@ jobs:
         with:
           name: agent1-rank17-original-compressor-postprompt-native
           path: agent1-rank17-compressor-postprompt-native.json
+          if-no-files-found: warn
+
+      - name: Verify prospectively frozen four source seed groups and both real seats
+        if: ${{ github.event.inputs.experiment == 'generic-special-energy' }}
+        run: node -e "const x=require('./simulation/evaluation/agent1-rank17-generic-special-energy-prospective.cjs').preflight();console.log('GENERIC_ENERGY_FROZEN',JSON.stringify({seeds:x.reg.seeds,seats:x.reg.sourceSeats}))"
+      - name: Regress eight actual source physical pair accounting and generic default-off behavior
+        if: ${{ github.event.inputs.experiment == 'generic-special-energy' }}
+        run: node --test tests/agent1-rank17-generic-special-energy-prospective.test.cjs
+      - name: Run prospectively selected original rank17 both-seat symmetric public-context Energy ablation
+        if: ${{ github.event.inputs.experiment == 'generic-special-energy' }}
+        run: node simulation/evaluation/agent1-rank17-generic-special-energy-prospective.cjs
+      - name: Preserve all 16 original Store arms, matched physical starters and native source Energy and attack roots
+        if: ${{ always() && github.event.inputs.experiment == 'generic-special-energy' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-symmetric-generic-special-energy-native
+          path: agent1-rank17-generic-special-energy-prospective.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
