@@ -1,0 +1,356 @@
+{
+  "schema": "agent4-v3-selected-bilateral-paper-frontier-funded-floatstone-prospective-v1",
+  "status": "predeclared selected developmental v3 bilateral policy, not full paper-legal game qualification",
+  "date": "2026-11-03",
+  "owner": "Agent 4",
+  "preregisteredAtUtc": "2026-11-03T18:38:00.065798Z",
+  "intent": "Select one deterministic, symmetric v3 treatment by combining an existing native paid Float Stone rescue with the existing owner-paper-negative Trainer frontier; compare against matched actor-owned v2-root control under the same corrected typed Underworld prompt and paper recipient hook in all arms.",
+  "sourceOriginalScope": "unchanged published exact 60 printings at Aichi ranks 1,5,6,11; both fixed candidate 60s unchanged; 29/32 original field lists authenticated overall",
+  "noClaim": "all development; zero qualified paper games, no field win-rate or final fixed60 selection",
+  "pinnedTwinleafRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "frozenInputs": {
+    "sourceRunner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+    "sourceRunnerBlobSha": "b457267feb58d9e35a7bb5e33f57660f5096fcb2",
+    "sourceRoster": "results/aichi-2026/full-decklists.json",
+    "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "baselineProfile": "simulation/evaluation/agent23-selected-joint-v2-manifest.json",
+    "baselineProfileBlobSha": "8cd0c4b0734d3223d5c8c1f705f3af651f815c02",
+    "fundedFloatStoneSource": "simulation/twinleaf/agent31-shadow-rider-funded-bench-floatstone.cjs",
+    "fundedFloatStoneBlobSha": "d031235302044c9cf3f03e501c2c3976217180b1",
+    "paperOwnerNecessary": "simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs",
+    "paperOwnerNecessaryBlobSha": "a43104628a117c5f689e0fb41fac7fff34b60d78",
+    "canonicalActorComposition": "simulation/evaluation/agent7-canonical-actor-composition.cjs",
+    "canonicalActorCompositionBlobSha": "cdd373d4db367401d454f87f05fc63176c10f313"
+  },
+  "commonPolicy": {
+    "compressorPayload": false,
+    "opportunityAudit": false,
+    "lateCompressorPayload": false,
+    "anyTurnCompressorPayload": false,
+    "earlyBenchedCompressorPayload": false,
+    "mandatoryOptionFallback": true,
+    "nativePressureWindows": true,
+    "sourceFirstRetrospective": false,
+    "paperSupporterQuota": true,
+    "paperCologneQuota": false,
+    "paperFullBenchCallForFamily": true,
+    "paperSupporterComparisonTrace": false,
+    "paperSameTargetAttachEnergy": true,
+    "paperPromptPortfolio": false,
+    "sharedPaperPaymentPortfolio": true,
+    "paperQuickBallPayment": true,
+    "paperSecretBoxPayment": true,
+    "nativeOwnerSupporterOpportunity": false,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "physicalZoneGate": true,
+    "nativeRejectedActionEvidence": false,
+    "actorNativeAorItemLock": false,
+    "proposalStateAudit": false,
+    "nativeProposalValidationAudit": false,
+    "nativeProposalTapeOrdinal": null,
+    "nativeOpponentHiddenReadAudit": false,
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": false,
+    "actorGenericFallbackAttribution": false,
+    "actorHandDiscard": false,
+    "actorChoosePokemon": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorUnderworldDoorRoot": true,
+    "sourceCrobatDceMewRetreat": false,
+    "actorFarewellLetterRoot": false,
+    "actorVipBeforeAttack": true,
+    "actorVipMegaAbsolTarget": true,
+    "actorPlumeriaAfterPass": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorGuzmaNominalGust": false,
+    "actorRank9SpecialFundedGuzma": false,
+    "actorRank9MegaAbsolFundingRoot": true,
+    "actorActiveMegaClawPriorityRoot": true,
+    "actorRank9SpecialPaidRetreatSource": false,
+    "actorFlexiblePaidRetreatRoot": true,
+    "actorChargedPromotion": true,
+    "sourceFloatStoneMobility": false,
+    "nativeActionInputWitness": false,
+    "nativeActionInputTapeOrdinal": null,
+    "nativeAcceptedTargets": true,
+    "nativeQuickBallOwnerTransactionAudit": true,
+    "paperTerminalAttackKo": false,
+    "nativeRootActionLimit": 180,
+    "nativeFirstTurnPublicBoard": false,
+    "rank6K1AlternativeEnergy": false,
+    "rank6ScriptedSpecialConditionGuard": false,
+    "rank11SourceSupporterPassRescue": false,
+    "rank11ExclusiveOpening": true,
+    "sourceScopedSpecialEnergyRoot": false,
+    "candidateScopedSpecialEnergyRoot": false,
+    "bilateralSpecialEnergyRoot": false,
+    "sourceScopedQuickBallRoot": false,
+    "candidateScopedQuickBallRoot": false,
+    "bilateralPublicContextSpecialEnergy": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "bilateralConservativeShuffleRoot": false,
+    "bilateralEnergyContest": false,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootProbeAll": false,
+    "sameRootPublicEventReceipt": false,
+    "nativeToolAttachRoot": true,
+    "nativePlumeriaChoice": true,
+    "teamFlareGruntDenialRoot": true,
+    "nativeZeroCostDenialChoice": true,
+    "losslessNativeRootJoin": true,
+    "registeredToolEnergyCeiling": true,
+    "nativeCoheldDenialCanPlay": false,
+    "sameRootPassAttackProbeGlobalTurn": null,
+    "sameRootPublicNoBenchTerminal": false,
+    "sameRootPositiveAttackOverPass": false,
+    "sameRootThornsEmptyBench": false,
+    "candidateOnlyKnownDeadRoot": false,
+    "bilateralKnownDeadAttackRoot": true,
+    "registeredTrials": null,
+    "registeredFrameName": "agent4-v3-paper-native-registered-20261103",
+    "allowAdditionalOriginalSourceRanks": true,
+    "actorUnderworldDoorPromptOwner": true,
+    "actorFundedShadowRiderFloatStoneRoot": false,
+    "ownerGenericTrainerFrontier": false
+  },
+  "modes": [
+    {
+      "id": "corrected-bilateral-control-a",
+      "ownerVipAfterPass": true,
+      "ownerGenericTrainerFrontier": false,
+      "actorFundedShadowRiderFloatStoneRoot": false
+    },
+    {
+      "id": "selected-v3-paper-plus-funded-mobility",
+      "ownerVipAfterPass": true,
+      "ownerGenericTrainerFrontier": true,
+      "actorFundedShadowRiderFloatStoneRoot": true
+    },
+    {
+      "id": "corrected-bilateral-control-b",
+      "ownerVipAfterPass": true,
+      "ownerGenericTrainerFrontier": false,
+      "actorFundedShadowRiderFloatStoneRoot": false
+    }
+  ],
+  "commonRuntimeHooks": {
+    "AGENT9_BATTLE_VIP_AFTER_PASS_DEV": true,
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": true,
+    "AGENT2_HELD_GUZMA_MOBILITY_DEV": true,
+    "underworldDoorPaperPsychicRecipientHookBothSeats": true
+  },
+  "seedConstruction": "Eight independently drawn 32-bit seeds from secrets.randbits(32), recorded before new native attempts, not selected by result",
+  "groups": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 2221685906
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1370756324
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 3861396669
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1127207733
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 582147744
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 2765516960
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 1417228605
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 4210336107
+    }
+  ],
+  "registeredTrials": [
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 2221685906,
+      "candidateId": "champion-reference",
+      "id": "1:401:A:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 2221685906,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:401:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1370756324,
+      "candidateId": "champion-reference",
+      "id": "1:402:B:champion-reference"
+    },
+    {
+      "rank": 1,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1370756324,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "1:402:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 3861396669,
+      "candidateId": "champion-reference",
+      "id": "5:401:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 3861396669,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:401:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1127207733,
+      "candidateId": "champion-reference",
+      "id": "5:402:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 1127207733,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:402:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 582147744,
+      "candidateId": "champion-reference",
+      "id": "6:401:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 582147744,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:401:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 2765516960,
+      "candidateId": "champion-reference",
+      "id": "6:402:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 2765516960,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:402:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 1417228605,
+      "candidateId": "champion-reference",
+      "id": "11:401:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "A",
+      "repeat": 401,
+      "seed": 1417228605,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:401:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 4210336107,
+      "candidateId": "champion-reference",
+      "id": "11:402:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "candidateSlot": "B",
+      "repeat": 402,
+      "seed": 4210336107,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:402:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "expectedGroups": 8,
+  "expectedContexts": 16,
+  "expectedNativeAttempts": 48,
+  "nativeActionCap": 180,
+  "selectedPaperFrontierMeaning": "The existing ownerGenericTrainerFrontier flag selects the already-composed paper-necessity observer; positive eligibility stays UNKNOWN, policy actions themselves unchanged by observer",
+  "qualification": {
+    "paperGameQualified": false,
+    "opponentPolicyCompetenceVerified": false,
+    "paperClockMeasured": false,
+    "competitiveWinRate": null,
+    "fixedSingleSixtySelected": false,
+    "fullTop32Coverage": false,
+    "missingOriginalRanks": [
+      23,
+      25,
+      28
+    ]
+  },
+  "hardGates": [
+    "frozen source hash and original printed decks",
+    "actual native pinned Store, two physical seats and two fixed unchanged candidate sixties",
+    "A/B/A equal full original physical deals, starter and identical original-control decision trace",
+    "real Store acts, paid Tool, Retreat and Attack receipts with prompt closure",
+    "v3 ownerPaperNecessity active on every genuine owner root, read-only and no paper-positive claims",
+    "retain all native engine aborts and caps with correct denominator",
+    "no native terminal promoted to paper win"
+  ]
+}
