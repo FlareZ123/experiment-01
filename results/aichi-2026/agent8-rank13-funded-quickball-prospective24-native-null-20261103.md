@@ -38,6 +38,10 @@ A read-only audit of all archived source-owner root snapshots found **eight of t
 
 This explains the null outcome with an intersection of necessary board, Energy, public discard, and hand resources. Observing these conditions **at different times in a single game** would give a misleading apparent opportunity. It also shows that availability of a powerful discard connector in hand is insufficient: the relevant exact connector must be present when the tactical line can be paid.
 
+## Sampling uncertainty (developmental exposure only)
+
+Treating the 24 independently sampled engine source-deal seeds as Bernoulli trials under this **fixed pinned simulator and weak opponent policy**, the exact two-sided 95% Clopper–Pearson interval for at least one source native copied-attack menu is **7.13%–42.15%** (`5/24`). For the observed incremental late Quick Ball trigger `0/24`, the exact two-sided 95% interval is **0%–14.25%** (one-sided 95% upper bound **11.73%**). Those wide intervals quantify how limited this sample is for rare-action exposure. They **do not** estimate actual paper Expanded win rate, predict stronger opponents, or imply that either policy increases game-winning probability.
+
 ## Updated decision
 
 The [retrospective preselected deal 2686109268](agent8-rank13-funded-quickball-native-copy-terminal-20261103.md) remains an excellent verified native **mechanics witness**: a genuinely owned Quick Ball discarded Dragapult and immediately exposed real Apex copies, with terminal board-out against a weak bot. This newly independent sample shows **no measured incremental source-copy opportunity across 24 prospective physical games**. The intervention is still a narrow late-turn tactic rather than evidence of a generally stronger or optimally modified deck.
