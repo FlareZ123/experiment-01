@@ -2,6 +2,11 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 
 on:
   workflow_dispatch:
+    inputs:
+      posthoc_rank1:
+        description: Retrospective owner typed prompt rank1 development
+        type: boolean
+        default: false
 
 permissions:
   contents: read
