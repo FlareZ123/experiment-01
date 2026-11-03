@@ -12,6 +12,7 @@ on:
           - retrospective
           - prospective
           - pure-only
+          - retrospective-established
 
 permissions:
   contents: read
@@ -28,8 +29,11 @@ jobs:
       - name: Validate prospective registration before engine checkout
         if: ${{ inputs.study == 'prospective' || inputs.study == 'pure-only' }}
         run: node simulation/evaluation/agent8-rank13-public-copy-preflight.cjs
+      - name: Validate retrospectively selected funded-VSTAR seed plan
+        if: ${{ inputs.study == 'retrospective-established' }}
+        run: node simulation/evaluation/agent8-established-quickball-preflight.cjs
       - name: Precompile public native seam and archive auditor regression
-        run: node --test tests/agent8-public-flat-copy-turns.test.cjs tests/agent8-public-flat-copy-native-seam.test.cjs tests/agent8-rank13-public-copy-native-audit.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
+        run: node --test tests/agent8-public-flat-copy-turns.test.cjs tests/agent8-public-flat-copy-native-seam.test.cjs tests/agent8-rank13-public-copy-native-audit.test.cjs tests/agent8-established-regidrago-quickball.test.cjs tests/agent13-actor-only-choose-attack.test.cjs
       - name: Restore pinned Twinleaf
         if: ${{ inputs.study != 'pure-only' }}
         run: git submodule update --init --depth=1 vendor/twinleaf
@@ -60,6 +64,11 @@ jobs:
         env:
           AGENT8_PUBLIC_COPY_RESULT_JSON: agent8-rank13-public-copy-native.json
         run: node simulation/evaluation/agent8-rank13-public-copy-prospective-native.cjs
+      - name: Run retrospectively registered established Quick Ball owner root
+        if: ${{ inputs.study == 'retrospective-established' }}
+        env:
+          AGENT8_ESTABLISHED_QUICKBALL_RESULT_JSON: agent8-established-quickball-native.json
+        run: node simulation/evaluation/agent8-established-quickball-retrospective-native.cjs
       - name: Upload full native source attack settlements
         if: ${{ always() && inputs.study != 'pure-only' }}
         uses: actions/upload-artifact@v4
@@ -68,5 +77,6 @@ jobs:
           path: |
             agent8-original13-phantom-copy-native.json
             agent8-rank13-public-copy-native.json
+            agent8-established-quickball-native.json
           if-no-files-found: warn
           retention-days: 30
