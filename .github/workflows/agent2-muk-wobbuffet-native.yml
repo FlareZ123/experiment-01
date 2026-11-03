@@ -33,6 +33,10 @@ jobs:
         run: node simulation/twinleaf/agent2-muk-wobbuffet-boostshake.cjs > agent2-muk-wobbuffet-boostshake.json
       - name: Test printed Boost Shake native prompts and official lock cascade
         run: node --test tests/agent2-muk-boostshake-first-grimer-turn.native.test.cjs
+      - name: Capture paid Boost Shake Muk versus active and benched Iron Thorns ex
+        run: node simulation/twinleaf/agent2-muk-thorns-boostshake.cjs > agent2-muk-thorns-boostshake.json
+      - name: Test completed Item custody and Initialization restoration on both seats
+        run: node --test tests/agent2-muk-thorns-boostshake-first-grimer-turn.native.test.cjs
       - name: Archive explicit raw native outcomes including mismatches
         if: always()
         uses: actions/upload-artifact@v4
@@ -41,5 +45,6 @@ jobs:
           path: |
             agent2-muk-wobbuffet-native.json
             agent2-muk-wobbuffet-boostshake.json
+            agent2-muk-thorns-boostshake.json
           if-no-files-found: warn
           retention-days: 14
