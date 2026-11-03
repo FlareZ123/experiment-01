@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v3-retrospective.json');
+const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-historical-seed-replay-20261103.json');
 const profile=require('./agent41-frozen-bilateral-development-v2.json');
 const {classifyNativeAttempt}=require('./agent41-native-attempt-disposition.cjs');
 const {auditOriginalEnergyMixShuffleLineages}=
@@ -15,8 +15,8 @@ const {withPaperAttachEnergyBlockedTo}=
 
 const ROOT=path.resolve(__dirname,'../..');
 const OUTPUT=path.join(ROOT,'agent19-rank5-energy-mix-shuffle-source-paired-native.json');
-const VERSION='agent19-rank5-energy-mix-source-deal-guarded-shuffle-ab-v3-retrospective';
-const REGISTRATION_BLOB='712d8de7a1399299e3c95785d1adaa268aa22545';
+const VERSION='agent19-rank5-energy-mix-historical-seeds-retrospective-v4';
+const REGISTRATION_BLOB='9e2285e246bc2354f0d45d5a4d9f12ae3330d2f1';
 
 /** @param {Buffer} bytes @returns {string} */
 function gitBlob(bytes){
@@ -56,17 +56,17 @@ function diagnostic(row){
 /** Immutable registration before any native match. */
 function inspect(){
   const registrationPath=path.join(ROOT,
-    'results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v3-retrospective.json');
+    'results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-historical-seed-replay-20261103.json');
   assert.equal(gitBlob(fs.readFileSync(registrationPath)),REGISTRATION_BLOB);
   assert.equal(registration.schema,
-    'agent19-rank5-energy-mix-shuffle-source-dealt-ab-v3-retrospective');
+    'agent19-rank5-energy-mix-shuffle-historical-seed-retrospective-v4');
   assert.deepEqual(registration.modeNames,
     ['guarded-target-control','guarded-target-plus-paper-shuffle']);
   assert.equal(registration.expectedNativeAttempts,16);
   assert.equal(registration.registeredTrials.length,8);
   assert.equal(registration.randomGroups.length,4);
   assert.equal(new Set(registration.randomGroups.map(x=>x.seed)).size,4);
-  assert.equal(registration.unknownV3NativeResultsWhenRegistered,true);
+  assert.equal(registration.newReplayNativeOutcomesUnobservedAtRegistration,true);
   assert.equal(gitBlob(fs.readFileSync(path.join(ROOT,
     'simulation/evaluation/agent41-frozen-bilateral-development-v2.json'))),
     registration.frozenPolicyProfileGitBlobSha);
@@ -222,7 +222,8 @@ function run(){
     competitivelyQualifiedGames:0,
     anyWinRateClaim:false,
     retrospectivePolicySelection:true,
-    preregisteredBeforeCurrentV3NativeOutcomes:true};
+    historicalOutcomeSeedSelection:true,
+    preregisteredBeforeCurrentReplayNativeOutcomes:true};
   const result={schema:VERSION,registration,preflight,
     policyOptions:options,
     summary,matched,
