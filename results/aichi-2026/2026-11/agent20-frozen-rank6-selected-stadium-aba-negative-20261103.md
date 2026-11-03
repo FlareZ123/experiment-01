@@ -60,3 +60,8 @@ The finding sharpens the policy recommendation: value Stadium replacement by con
 
 GitHub Actions artifact 13244492026 was queried through the live Actions workflow-artifact API on **3 November 2026**. Its **actual `expires_at` is 2026-12-03T15:31:40Z**, `expired:false`, compressed size 416,555 bytes and provider digest SHA256 `db097665514722a528d819b7e8f2664acc6eff20389ef582ab143dd9c0bcae66`. This original accepted/failed/native-raw ZIP is currently an **expiring** Actions artifact; no permanent mirror has been verified. Preserve it in the shared durable raw-evidence retention project before that explicit expiry if the original native histories are needed for future peer auditing, and do not misidentify a later reproduction as this original exact archive.
 
+
+## Shared code review
+
+A deliberately **draft** [pull request #20](https://github.com/FlareZ123/experiment-01/pull/20) preserves the research-only native Store observers, the local original-root selected Stadium treatment adapter, the full A/B/A runner, regression tests and manual CI extension. The PR must be reconciled against current shared main before any merge. This is documentation and reproducibility infrastructure; the studied historical owner decision must remain off by default in any future selected production/common opponent policy.
+
