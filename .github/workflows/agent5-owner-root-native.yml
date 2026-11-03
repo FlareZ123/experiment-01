@@ -308,6 +308,9 @@ jobs:
       - name: Eight registered two-seat own-funded-Stadium real selected native A/B/A physical groups
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/evaluation/agent7-funded-stadium-symmetric-eightgroup-native.cjs > agent7-funded-stadium-symmetric-eightgroup-native.json
+      - name: Real original rank9 Escape Rope opposing rank6 funded Thunder source reply A/B/A
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
+        run: node simulation/evaluation/agent7-original6v9-opponent-rope-counter-aba.cjs > agent7-original6v9-opponent-rope-counter-aba.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
         with:
@@ -318,6 +321,7 @@ jobs:
             agent7-original6v9-stadium-selected-retrospective.json
             agent7-original5v11-skyfield-selected-retrospective.json
             agent7-funded-stadium-symmetric-eightgroup-native.json
+            agent7-original6v9-opponent-rope-counter-aba.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
