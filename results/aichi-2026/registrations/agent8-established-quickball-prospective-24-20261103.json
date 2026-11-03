@@ -1,0 +1,111 @@
+{
+  "schema": "agent8-established-quickball-prospective-native-v1",
+  "registeredAtUtc": "2026-11-03T09:51:40Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "originalSixties": "results/aichi-2026/full-decklists.json",
+  "sourceSeedGroups": [
+    {
+      "sourceSeat": 0,
+      "seed": 3263947528
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 701769507
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1571178812
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2666048912
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1956036261
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 3927151010
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2937628318
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 4275295091
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2163162789
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 3349554870
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2385583987
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 353510339
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2024807000
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 290390022
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 1439419874
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3201080372
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3984153919
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3832927924
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 1083975127
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3860242062
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3350391659
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 1319101026
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3588534981
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 1178172596
+    }
+  ],
+  "expectedNativeAttempts": 48,
+  "control": "shared original owner-public root/prompt policies, established Quick Ball disabled",
+  "treatment": "identical original sixties and owner-public policies, established Quick Ball enabled for source owner",
+  "endpoint": "physical source games with actual native copied-Apex selection; retain every paired attempt, caps, errors, and damage/Prize ledger",
+  "qualification": "developmental, no paper clock, weak native opponent, 0 qualified games"
+}
