@@ -20,6 +20,18 @@ The previous separately calculated **Muk** and **Budew** opening opportunities a
 
 **Decision:** The intuitive claim that a fourth Shake automatically makes the opening lock package more consistent fails under the broader *either-option* access proxy: the probability of seeing **neither** idealized line grows by 3.6891 percentage points. This does not prove v0 has a higher game win rate, since Muk and Budew have different conditional value, timing and costs. Retain v1 as a falsification challenger. Do not promote it on the Muk-only marginal.
 
+## Seat-dependent screening implication
+
+The [official Pokémon TCG basic rulebook](https://www.pokemon.com/static-assets/content-assets/cms2/pdf/trading-card-game/rulebook/par_rulebook_en.pdf) specifies that the starting player ordinarily cannot attack on the game's first turn. Budew's printed **Itchy Pollen** has no exception. The printed **Boost Shake** Item expressly permits first-turn evolution but ends the turn. Thus a one-turn access screen must at least distinguish who takes the first turn:
+
+| Hypothetical first-turn lock access | v0 | v1 | v1 minus v0 |
+| --- | ---: | ---: | ---: |
+| Going **first**: Muk/Shake opportunity (Budew attack unavailable) | 20.12400842% | 23.76699105% | **+3.64298263 pp** |
+| Going **second**: either Muk/Shake or Budew attack opportunity | 51.79476939% | 48.10564588% | **-3.68912351 pp** |
+| Artificial 50:50 first/second opportunity mixture | 35.95938891% | 35.93631847% | **-0.02307044 pp** |
+
+This artificial **seat-adjusted access-only mixture is almost tied**. The exact break-even share of *going-first* contexts, for this one crude equally valued opportunity indicator alone, is **50.31464960%**. This is not a recommendation to play first or second, a player-specific choice probability, or a win rate: real seating preference is strategic, and a legal Budew attack requires promotion and sometimes Energy to Retreat. A stronger policy must assign different opponent-dependent values and actual payability to each turn-specific line.
+
 ## Exact method, dependency and conflict boundary
 
 We enumerate **eight seen cards**, distinguishing the eighth-card turn draw from the actual initial seven, followed by the **six distinct face-down Prizes** among the unseen 52 cards. Fixed disjoint categories, in order, are: 2 Grimer, 2 Muk, 3/4 Shake, 4 Mysterious Treasure, 3/2 Quick Ball, 1 Budew, 9 other Basic Pokémon, and 36 remaining cards. Each eight-card category state has integer multiplicity `product C(population_i, seen_i)`. Condition on an actual legal opening seven by summing over the identity of the eighth card with multiplicity `seen_i`; this retains the necessary non-Grimer Basic starter distinction. Prize counts for unseen Grimer, Muk and Budew are enumerated **jointly**, with the remaining Prize slots drawn from all other unseen cards. The common exact integer denominator is `8*C(60,8)*C(52,6) = 416717869162795200`; the Basic-valid numerator is `337271985613442880` in both lists.
