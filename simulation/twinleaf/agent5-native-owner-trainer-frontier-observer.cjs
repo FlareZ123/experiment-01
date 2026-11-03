@@ -136,6 +136,10 @@ function withNativeOwnerTrainerFrontier(work,deps){
       trainers:frontier.rows,
       guaranteedK0FirstTurnVip:k0GuaranteedVip,
       nativeOfferedHandIndices:[...offered].sort((a,b)=>a-b),
+      ...(recoveryPrints?{
+        ownerPublicDiscardPrintings:[...view.ownPublic.discard],
+        recoveryInputIsPublicOnly:true
+      }:{}),
       chosen:null,dispatch:'not-attempted',
       policyIsReadOnly:true,competitiveGameQualified:false
     };
@@ -215,6 +219,9 @@ function withNativeOwnerTrainerFrontier(work,deps){
             sum+(root.ownerPaperNecessity?.registeredHeldDiscardRecoveryCopies??0),0),
           newlyProvenRecoveryTargetFailures:roots.reduce((sum,root)=>
             sum+(root.ownerPaperNecessity?.newlyProvenPublicDiscardTargetFailures??0),0),
+          unresolvedRecoveryTargetMetadataCopies:roots.reduce((sum,root)=>
+            sum+(root.ownerPaperNecessity?.rows??[]).reduce((n,row)=>
+              n+(row.publicDiscardTargetNecessity?.unknownMetadataIndices?.length??0),0),0),
           paperPlayableRecoveryActionsCertified:false
         }:{}),
         ownerPaperUncertainTemporalDeclines:roots.reduce((sum,root)=>
