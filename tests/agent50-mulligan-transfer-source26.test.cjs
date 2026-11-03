@@ -33,7 +33,8 @@ function sourceBasics(rank){
   return deck.cards.filter(x=>x.category==='Pokémon').reduce((n,x)=>{
     const matching=sets.filter(s=>s.ptcgoCode===x.printing.set);
     
-    const printing=card((matching[0]?.id||x.printing.set.toLowerCase())+'-'+x.printing.number);
+    const number=x.printing.set==='SMP'?'SM'+x.printing.number:x.printing.number;
+    const printing=card((matching[0]?.id||x.printing.set.toLowerCase())+'-'+number);
     return n+(printing.subtypes.includes('Basic')?x.count:0);
   },0);
 }
