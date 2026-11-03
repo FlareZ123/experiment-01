@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -51,5 +52,43 @@ jobs:
         with:
           name: agent20-frozen-rank6-release-disposition
           path: agent20-frozen-rank6-canary-v1-output.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent41-joint-rank5-rank11:
+    if: ${{ github.ref == 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out the exact selected release branch
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Load the independently pinned native Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify registration, exact code blobs, all options and native engine pin
+        run: |
+          node --check simulation/evaluation/agent41-joint-source-r5-r11-v1.cjs
+          node --test tests/agent41-joint-source-r5-r11-v1.test.cjs tests/agent41-rank6-source-chain-native-audit.test.cjs
+          node simulation/evaluation/agent41-joint-source-r5-r11-v1.cjs --inspect-only
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all eight original-source joint-policy native attempts
+        run: node simulation/evaluation/agent41-joint-source-r5-r11-v1.cjs
+      - name: Retain selected registration and all genuine native outcomes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-rank5-rank11-joint-source-native-v1
+          path: |
+            agent41-joint-source-r5-r11-v1-output.json
+            simulation/evaluation/agent41-joint-source-r5-r11-v1.json
           if-no-files-found: warn
           retention-days: 30
