@@ -119,6 +119,7 @@ jobs:
           node --check scripts/agent10-rank11-heldout-source-als-coverage.cjs
           node --test tests/agent10-rank11-heldout-source-als-coverage.test.cjs
           node --test tests/agent10-rank11-original-opening-trainer-access-exact.test.cjs
+          node --test tests/agent10-rank11-letter-k0-source-target.test.cjs
           node simulation/evaluation/agent10-rank11-original-opening-trainer-access-exact.cjs
           node scripts/agent10-rank11-heldout-source-als-coverage.cjs heldout-native/agent10-rank11-heldout-headway-4seed.json > agent10-heldout-source-trainer-coverage.json
           node -e "const r=require('./agent10-heldout-source-trainer-coverage.json');console.log(JSON.stringify({schema:r.schema,originalSeedGroups:r.originalTrialGroups,coverage:r.aggregate,qualified:r.qualifiedCompetitiveGames},null,2))"
