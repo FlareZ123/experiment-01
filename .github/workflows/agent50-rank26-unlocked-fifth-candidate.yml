@@ -1,7 +1,7 @@
 name: Agent50 original rank26 versus two fixed structural candidates
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: read
