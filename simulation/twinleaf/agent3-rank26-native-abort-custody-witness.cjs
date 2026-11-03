@@ -83,7 +83,6 @@ function run(){
   const originalOpponent=field.opponents.find(x=>x.rank===6)?.cards;
   assert.equal(originalSource.length,60);
   assert.equal(originalOpponent?.length,60);
-  let injected=false;
   const request={
     deckA:originalOpponent,deckB:originalSource,
     rank26SourceSeat:SOURCE_SEAT,seed:SEED,maxActions:120,
@@ -91,44 +90,65 @@ function run(){
     captureDecisionTrace:true,battleCompressorPositiveSelectionCorrection:true,
     forestSealSearchCorrection:true,leleEntryAbilityLockCorrection:true,
     entryDrawLockCorrection:true,
-    label:'agent3-native-original-source-deliberate-abort-v1'
+    label:'agent3-native-original-source-deliberate-abort-v2'
   };
-  const observed=withDealFingerprint(()=>
-    withSourceCompressorRootProvenance(SOURCE_SEAT,()=>
-      withNativeAbortAfterPaidPrompt(SOURCE_SEAT,()=>
-        withRank26SourceSetup(SOURCE_SEAT,()=>
-          runWithResearchProfile(request,PROFILE)),
-        ()=>{injected=true;}
-      )));
-  assert.equal(injected,true,
-    'The fault must be induced by a genuine settled source prompt');
-  assert.equal(observed.result,null,
-    'The intentionally aborted game cannot return as a completed game');
-  assert.ok(observed.error?.includes(ERROR_TAG),
-    'The actual native error must survive the enclosing fingerprint wrapper');
-  assert.equal(observed.physicalRoot?.digestSha256,HISTORICAL_PHYSICAL_ROOT,
-    'Intentional abort must use the exact previously audited original deal');
-  const audit=observed.abortSourceCompressorAudit;
-  assert.equal(audit?.executionDisposition,'NATIVE_ABORT');
-  assert.equal(audit?.observationIsPartial,true);
-  assert.equal(audit?.sourceSeat,SOURCE_SEAT);
-  assert.equal(audit?.liveRootIdentified,true);
-  assert.equal(audit?.selectedSourcePlays,1);
-  assert.equal(audit?.acceptedSourcePlays,1);
-  assert.equal(audit?.linkedPromptsIssued,1);
-  assert.equal(audit?.positiveLinkedSettlements,1);
-  assert.equal(audit?.unresolvedLinkedPrompt,false);
-  assert.equal(audit?.receipts.length,1);
-  assert.ok(audit.receipts[0].physicallyMoved.length>=1,
-    'One or more original source cards must physically move deck to discard');
-  assert.equal(audit.competitivelyQualified,false);
+  const outcomes=[];
+  // Both arrangements use the same actual physical opening. In the first,
+  // the prompt receipt is recorded before a downstream hook throws. In the
+  // second, the native hook throws after actual movement but before the
+  // source observer's delegated dispatch returns.
+  for(const placement of ['outside-observer-dispatch',
+    'inside-observer-dispatch']){
+    let injected=false;
+    const runNative=()=>withRank26SourceSetup(SOURCE_SEAT,()=>
+      runWithResearchProfile(request,PROFILE));
+    const onTrigger=()=>{injected=true;};
+    const executed=placement==='outside-observer-dispatch'?
+      ()=>withSourceCompressorRootProvenance(SOURCE_SEAT,()=>
+        withNativeAbortAfterPaidPrompt(SOURCE_SEAT,runNative,onTrigger)):
+      ()=>withNativeAbortAfterPaidPrompt(SOURCE_SEAT,()=>
+        withSourceCompressorRootProvenance(SOURCE_SEAT,runNative),onTrigger);
+    const observed=withDealFingerprint(executed);
+    assert.equal(injected,true,
+      'The fault must be induced by a genuine settled source prompt');
+    assert.equal(observed.result,null,
+      'A deliberately aborted execution cannot return as a finished game');
+    assert.ok(observed.error?.includes(ERROR_TAG),
+      'The actual native error must survive the outer physical-deal wrapper');
+    assert.equal(observed.physicalRoot?.digestSha256,HISTORICAL_PHYSICAL_ROOT,
+      'Each injected arm must use the exact original physical deal');
+    const audit=observed.abortSourceCompressorAudit;
+    const failed=placement==='inside-observer-dispatch';
+    assert.equal(audit?.executionDisposition,'NATIVE_ABORT');
+    assert.equal(audit?.observationIsPartial,true);
+    assert.equal(audit?.sourceSeat,SOURCE_SEAT);
+    assert.equal(audit?.liveRootIdentified,true);
+    assert.equal(audit?.selectedSourcePlays,1);
+    assert.equal(audit?.acceptedSourcePlays,1);
+    assert.equal(audit?.linkedPromptsIssued,1);
+    assert.equal(audit?.positiveLinkedSettlements,failed?0:1);
+    assert.equal(audit?.failedPromptDispatches,failed?1:0);
+    assert.equal(audit?.unresolvedLinkedPrompt,false);
+    assert.equal(audit?.receipts.length,1);
+    assert.equal(audit?.receipts[0].nativeDispatchReturned,!failed);
+    assert.equal(audit?.receipts[0].paperMinimumMet,!failed);
+    assert.equal(audit?.receipts[0].physicalMovementDuringFailedDispatch,failed);
+    assert.equal(audit?.receipts[0].physicallyMoved.length,3);
+    assert.equal(audit?.competitivelyQualified,false);
+    outcomes.push({
+      placement,observedPhysicalRoot:observed.physicalRoot.digestSha256,
+      sourceRootAudit:audit,deliberatelyAborted:true,
+      failedDelegatedDispatchAfterPhysicalMovement:failed,
+      competitiveQualified:false
+    });
+  }
   return {
-    schema:'agent3-rank26-native-deliberate-abort-custody-v1',
+    schema:'agent3-rank26-native-deliberate-abort-custody-v2',
     sourceRank:26,opponentRank:6,sourceSeat:SOURCE_SEAT,seed:SEED,
     exactHistoricalPhysicalRoot:HISTORICAL_PHYSICAL_ROOT,
-    observedPhysicalRoot:observed.physicalRoot.digestSha256,
-    deliberatelyAborted:true,sourceRootAudit:audit,
-    nativeSourceActionActuallySettled:true,
+    identicalOriginalPhysicalRoots:outcomes.every(x=>
+      x.observedPhysicalRoot===HISTORICAL_PHYSICAL_ROOT),
+    faultInjectionCases:outcomes.length,cases:outcomes,
     releaseQualification:'DEVELOPMENT_CAUSAL_ABORT_ONLY',
     competitiveQualifiedGames:0
   };
