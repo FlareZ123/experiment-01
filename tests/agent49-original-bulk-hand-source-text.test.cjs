@@ -14,10 +14,11 @@ const EXPECTED={
   "Lillie's Determination MEG":['me1',"Lillie's Determination",'Shuffle your hand into your deck. Then, draw 6 cards. If you have exactly 6 Prize cards remaining, draw 8 cards instead.'],
   'N FCO':['xy10','N','Each player shuffles his or her hand into his or her deck. Then, each player draws a card for each of his or her remaining Prize cards.'],
   'Marnie SSH':['swsh1','Marnie','Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, you draw 5 cards, and your opponent draws 4 cards.'],
-  'Iono PAL':['sv2','Iono','Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, each player draws a card for each of their remaining Prize cards.']
+  'Iono PAL':['sv2','Iono','Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, each player draws a card for each of their remaining Prize cards.'],
+  'Roxanne ASR':['swsh10','Roxanne','You can use this card only if your opponent has 3 or fewer Prize cards remaining. Each player shuffles their hand into their deck. Then, you draw 6 cards, and your opponent draws 2 cards.']
 };
 
-test('seven exact printings have supported types and source text',()=>{
+test('eight exact printings have supported types and source text',()=>{
   assert.deepEqual(Object.keys(EXPECTED).sort(),
     Object.keys(BULK_HAND_PRINTS).sort());
   for(const [printing,[set,name,fragment]] of Object.entries(EXPECTED)){
