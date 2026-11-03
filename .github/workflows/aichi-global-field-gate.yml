@@ -112,4 +112,4 @@ jobs:
       - name: Verify ADP v2 versus rank26 source optional mulligan donation
         run: node --test tests/agent50-mulligan-transfer-source26.test.cjs
       - name: Verify original-source public Prize prerequisite and two-seat opt-in transport
-        run: node --test tests/agent30-public-prize-trainer-necessary.test.cjs tests/agent30-prize-native-frontier-transport.test.cjs tests/agent30-prior-opponent-ko-trainer-necessary.test.cjs
+        run: node --test tests/agent30-public-prize-trainer-necessary.test.cjs tests/agent30-prize-native-frontier-transport.test.cjs tests/agent30-prior-opponent-ko-trainer-necessary.test.cjs tests/agent30-public-prize-opening-physical-exposure.test.cjs
