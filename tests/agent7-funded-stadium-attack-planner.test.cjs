@@ -106,8 +106,10 @@ test('native CardType costs keep type-constrained Energy distinct',()=>{
   assert.deepEqual(costUnderStadium([types.LIGHTNING,types.COLORLESS],
     [types.LIGHTNING],'Thunder Mountain Prism Star',types),
     [types.COLORLESS]);
+  assert.deepEqual(costUnderStadium([types.LIGHTNING],
+    [types.LIGHTNING],'Silent Lab',types),[types.LIGHTNING]);
   assert.equal(costUnderStadium([types.LIGHTNING],
-    [types.LIGHTNING],'Silent Lab',types),null);
+    [types.LIGHTNING],'Unknown Stadium',types),null);
 });
 
 test('hidden opponent hand and deck are never inspected by chooser',()=>{
