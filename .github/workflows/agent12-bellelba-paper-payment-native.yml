@@ -26,6 +26,6 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Audit Lillie empty-deck pure policy predicate
-        run: node --test tests/agent12-lillie-deckzero-opportunity.test.cjs
+        run: node --test tests/agent12-lillie-deckzero-opportunity.test.cjs tests/agent12-rank6-deckzero-pass-observer.test.cjs
       - name: Run Bellelba three-card cost and Sidney eligible-type native cases
         run: node --test tests/agent12-bellelba-optional-payment-native.test.cjs tests/agent12-bellelba-optional-guarded-native.test.cjs tests/agent12-sidney-opponent-hand-native.test.cjs tests/agent12-team-skull-grunt-native.test.cjs tests/agent12-opponent-hand-discard-guarded-native.test.cjs
