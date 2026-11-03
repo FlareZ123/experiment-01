@@ -77,7 +77,7 @@ Classification contract: **paper false** means a documented necessary condition 
 - [Preregistered native A/B/A runner](../../../simulation/twinleaf/agent4-owner-paper-native-parity.cjs) and [manual CI workflow](../../../.github/workflows/aichi-benchmark-stats.yml)
 - [Owner-turn, payment and decline tests](../../../tests/agent4-owner-paper-trainer-necessary-screen.test.cjs), [optional transport tests](../../../tests/agent4-owner-paper-native-transport.test.cjs), [original Agent50 compatibility tests](../../../tests/agent50-native-owner-trainer-pass-bridge.test.cjs).
 
-The shared broader [benchmark test job 41649751045](https://github.com/FlareZ123/experiment-01/actions/runs/41649751045) separately failed an unrelated preexisting Agent16 moving-development policy-inventory quota **after** the Trainer tests. The dedicated pinned native job above passed independently.
+The shared broader [benchmark test job 41649751045](https://github.com/FlareZ123/experiment-01/actions/runs/41649751045) initially failed the Agent16 moving-development switch inventory after the Trainer tests. Four previously unreviewed, default-off policy flags were source-audited and registered, preserving all six historical source pins. The full moving-development [benchmark regression job 41655718883](https://github.com/FlareZ123/experiment-01/actions/runs/41655718883) later **passed**, including the new read-only paper census, five-print exact-native alias tests and original source-field incidence tests. Historical static root hashes remain a distinct release verification gate; this success is developmental.
 
 ## Follow-up exact-print source expansion (after the frozen A/B/A)
 
