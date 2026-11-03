@@ -97,3 +97,31 @@ test('independent frozen rank6 raw rows recover four native terminals',()=>{
   assert.deepEqual(outcomes.map(x=>x.kind),Array(4).fill('ENGINE_TERMINAL'));
   assert.ok(outcomes.every(x=>!x.competitivelyQualified));
 });
+
+
+test('only actual engine-game-end marker can establish native terminal status',()=>{
+  for(const reason of ['unknown-end','bot-shutdown','native-reset','action-limit']){
+    const outcome=classifyNativeAttempt({
+      finished:true,endReason:reason,winner:1
+    });
+    assert.equal(outcome.kind,'CONFLICTING_NATIVE_FIELDS',reason);
+    assert.equal(outcome.winner,null);
+    assert.equal(outcome.competitivelyQualified,false);
+  }
+  assert.equal(classifyNativeAttempt({
+    finished:true,endReason:'engine-game-end',winner:1
+  }).kind,'ENGINE_TERMINAL');
+});
+
+test('an unrecognized unfinished run reason cannot silently look like an ordinary cap',()=>{
+  for(const reason of ['arbitrary-reason','bot-abandoned']){
+    const outcome=classifyNativeAttempt({
+      finished:false,endReason:reason,winner:null
+    });
+    assert.equal(outcome.kind,'CONFLICTING_NATIVE_FIELDS');
+    assert.equal(outcome.competitivelyQualified,false);
+  }
+  assert.equal(classifyNativeAttempt({
+    finished:false,endReason:'action-limit'
+  }).kind,'ACTION_CAP');
+});
