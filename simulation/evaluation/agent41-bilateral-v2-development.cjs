@@ -1053,6 +1053,7 @@ function runDevelopment({
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
+  actorUnderworldDoorPromptOwner=false,
   sourceCrobatDceMewRetreat=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
@@ -1130,6 +1131,8 @@ function runDevelopment({
     'Genesect Fusion draw must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorRoot||actorOnlyComposition,
     'Underworld Door must use the same actor-only policy in both seats');
+  assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
+    'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1432,6 +1435,7 @@ function runDevelopment({
             genericFallbackAttribution:actorGenericFallbackAttribution,
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
+            ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
