@@ -84,7 +84,7 @@ jobs:
           node --test tests/aichi-initialization-potential-census.test.cjs
           node -e "const x=require('./scripts/aichi-initialization-potential-census.cjs').run();console.log(JSON.stringify({published:x.published,noTarget:x.noTarget,evolutionOnly:x.evolutionOnly,basicPossible:x.basicPossible.length}))"
       - name: Verify exact owner-hand Trainer discard contention without native games
-        run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent27-original-field-trainer-payment-coverage.test.cjs
+        run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent27-original-field-trainer-payment-coverage.test.cjs tests/agent27-owner-trainer-payment-observer.test.cjs tests/agent27-source-trainer-cardtext-cost-audit.test.cjs
       - name: Verify source rank13 dual search connector opening arithmetic
         run: |
           node --test tests/agent49-rank13-dual-connector-openers.test.cjs
