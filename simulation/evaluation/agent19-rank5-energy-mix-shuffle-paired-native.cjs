@@ -63,7 +63,7 @@ function inspect(){
   assert.equal(registration.registeredTrials.length,8);
   assert.equal(registration.randomGroups.length,4);
   assert.equal(new Set(registration.randomGroups.map(x=>x.seed)).size,4);
-  assert.equal(registration.nativeOutcomeUnobservedAtRegistration,true);
+  assert.equal(registration.unknownNativeResultsWhenRegistered,true);
   assert.equal(gitBlob(fs.readFileSync(path.join(ROOT,
     'simulation/evaluation/agent41-frozen-bilateral-development-v2.json'))),
     registration.frozenPolicyProfileGitBlobSha);
