@@ -6,6 +6,7 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {initializeCards,runMatch}=require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
+const {saveResult}=require('../twinleaf/agent3-rank26-compressor-settlement-prospective-v2.cjs');
 const {withCanonicalActorOnlyPolicy}=require('./agent7-canonical-actor-composition.cjs');
 const {withOwnerResourceTutorAfterPass,VERSION:BRIDGE_VERSION}=
   require('../twinleaf/agent11-native-owner-resource-tutor-after-pass.cjs');
@@ -125,7 +126,7 @@ function run(){
 if(require.main===module){
   const result=run();
   const destination=path.resolve(process.cwd(),'agent11-owner-tutor-native-v1.json');
-  fs.writeFileSync(destination,JSON.stringify(result,null,2));
+  saveResult(destination,result);
   process.stdout.write('AGENT11_OWNER_TUTOR_NATIVE '+JSON.stringify({
     engine:result.engine,observedArms:result.observedArms,
     nativeErrors:result.nativeErrors,nativeCaps:result.nativeCaps,
