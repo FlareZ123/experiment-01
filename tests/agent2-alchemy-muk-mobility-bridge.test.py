@@ -53,6 +53,25 @@ class MobilityCases(unittest.TestCase):
         _,decks,_=M.BASE.input_decks(ROOT)
         self.assertEqual(sum(x!=y for x,y in zip(*decks)),1)
 
+    def test_no_bonus_float_cardinality_and_control(self):
+        # A non-Regidrago, non-Budew starter with zero retreat from Float Stone
+        # needs nine distinct T1 physical objects in this no-extra-draw line:
+        # starter, Grimer, Regi V, Regi VSTAR, Shake, first DDE,
+        # second compatible Energy, Float Stone, paid Dragon-discard donor/Item.
+        roles = ('starter', 'Grimer', 'Regidrago V', 'Regidrago VSTAR',
+                 'Boost Shake', 'first Energy', 'second Energy', 'Float Stone',
+                 'Dragon payload discard')
+        self.assertEqual(len(set(roles)),9)
+        self.assertGreater(len(roles),8)
+        no_bonus=M.run(ROOT,trials=64,seed=31337,bonus_policy='none')
+        for row in no_bonus['strata']:
+            for candidate in ('v0','v1'):
+                self.assertEqual(row['metrics']['floatOtherActive'][candidate],0.)
+        self.assertEqual(M.run(ROOT,trials=64,seed=31337),
+                         M.run(ROOT,trials=64,seed=31337,bonus_policy='all'))
+        with self.assertRaisesRegex(ValueError,'bonus_policy'):
+            M.run(ROOT,trials=64,bonus_policy='unsupported')
+
     def test_seeded_mobility_monotonicity(self):
         a=M.run(ROOT,trials=64,seed=31337)
         self.assertEqual(a,M.run(ROOT,trials=64,seed=31337))
