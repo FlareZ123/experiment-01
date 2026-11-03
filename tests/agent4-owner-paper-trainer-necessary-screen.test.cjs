@@ -93,7 +93,7 @@ test('each independent necessary blocker is retained with explicit unknowns',()=
     'generic-public:public-item-lock',
     'printed-temporal:battle-vip-pass-first-turn-expired'
   ]);
-  assert.equal(r.rows[1].paperPlayable,true===false?false:null);
+  assert.equal(r.rows[1].paperPlayable,null);
   assert.equal(r.rows[1].nativeEnumeratorOffered,false);
   assert.equal(r.provenNecessaryConditionFailures,1);
   assert.equal(r.rows[1].exactTargetEligibility,'unverified');
