@@ -81,3 +81,37 @@ test('unavailable Prize counts and protected Prism Stadium preserve unknown',()=
     'prism-star-stadium-protection-unresolved');
   assert.ok(report.rows.every(r=>r.paperPlayable===null));
 });
+
+test('29 authenticated originals contain 70 exact-printing copies in the three rule families',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const raw=JSON.parse(fs.readFileSync(path.join(__dirname,
+    '../results/aichi-2026/full-decklists.json'),'utf8'));
+  assert.equal(raw.decks.length,29);
+  const families={
+    temporal:[['Battle VIP Pass','FST'],['Wait and See Hammer','LOT'],
+      ['Wait and See Turbo','ASR'],['Call Bell','SSP'],
+      ['Chill Teaser Toy','SSP']],
+    prize:[['Counter Catcher','PAR'],['Roxanne','ASR'],
+      ['Special Red Card','CRI']],
+    removal:[['Field Blower','GRI'],['Lost Vacuum','LOR'],
+      ['Tool Scrapper','RCL'],['Tool Scrapper','DRX']]
+  };
+  const union=new Set();
+  const found=Object.fromEntries(Object.entries(families).map(([family,printings])=>{
+    let copies=0;
+    for(const deck of raw.decks){
+      const n=deck.cards.filter(card=>printings.some(([name,set])=>
+        card.name===name&&card.printing.set===set))
+        .reduce((sum,card)=>sum+card.count,0);
+      if(n){union.add(Number(deck.rank));copies+=n;}
+    }
+    return [family,copies];
+  }));
+  assert.deepEqual(found,{temporal:43,prize:15,removal:12});
+  assert.equal(Object.values(found).reduce((sum,n)=>sum+n,0),70);
+  assert.equal(union.size,23);
+  assert.deepEqual([...union].sort((a,b)=>a-b),[
+    1,3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,21,22,26,29,30,31,32
+  ]);
+});
