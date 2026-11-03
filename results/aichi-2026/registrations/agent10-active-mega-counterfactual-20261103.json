@@ -1,0 +1,45 @@
+{
+  "schema": "agent10-posthoc-active-mega-self-headway-v1",
+  "registeredAtUtc": "2026-11-03T01:10:05Z",
+  "postObservationDiagnostics": true,
+  "notes": "Fix identified preexisting Active Mega Energy diversion in prospective seed1800616448 while preserving previously observed Squawk -> Benched Mega line seed4096421492. Both deliberately selected AFTER observation; never count as prospective win evidence.",
+  "originalRank11Printed60": true,
+  "trialRows": [
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:3:B:new-moon-lockbreaker-v1",
+      "seed": 1800616448
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:B:new-moon-lockbreaker-v1",
+      "seed": 4096421492
+    }
+  ],
+  "factors": {
+    "control": {
+      "actorRank9MegaAbsolFundingRoot": false,
+      "actorActiveMegaClawPriorityRoot": false
+    },
+    "staged": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorActiveMegaClawPriorityRoot": false
+    },
+    "activeHeadway": {
+      "actorRank9MegaAbsolFundingRoot": true,
+      "actorActiveMegaClawPriorityRoot": true
+    }
+  },
+  "candidateSixtiesUnchanged": true,
+  "sourceSixtyUnchanged": true,
+  "samePhysicalSeedsAndStarterRequired": true,
+  "totalNativeAttempts": 6,
+  "competitiveQualifiedGames": 0,
+  "winRateClaim": "none"
+}
