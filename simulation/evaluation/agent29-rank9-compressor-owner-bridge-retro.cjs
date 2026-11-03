@@ -44,9 +44,9 @@ function run(){
       assert.ok(b);
       assert.equal(a.trial.id,b.trial.id);
       assert.equal(a.trial.seed,b.trial.seed);
-      const da=a.initialFullPhysicalDealFingerprint?.digestSha256??null;
-      const db=b.initialFullPhysicalDealFingerprint?.digestSha256??null;
-      const audit=b.actorOnlyDecisionCoverage?.components
+      const da=a.fullPhysicalDealFingerprint??null;
+      const db=b.fullPhysicalDealFingerprint??null;
+      const audit=b.actorOnlyDecisionCoverage?.detailedComponentAudits
         ?.ownerRank9Compressor??null;
       return {id:a.trial.id,seat:b.sourceSeat,
         fullPhysicalDealEqual:!!da&&da===db,
