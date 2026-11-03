@@ -29,4 +29,4 @@ jobs:
           repository: ${{ github.repository }}
           path: native-archive
       - name: Inspect only digest and native starter parity from raw historical rows
-        run: node scripts/agent48-inspect-selected-v2-archive.cjs native-archive/agent23-selected-joint-v2-native-52arm.json
+        run: node scripts/agent48-inspect-selected-v2-archive.cjs native-archive/agent23-frozen-symmetric-joint-v2-52-native/agent23-selected-joint-v2-native-52arm.json
