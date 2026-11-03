@@ -40,6 +40,7 @@ function exactOneDrawCounts(q) {
     BigInt(N-seenSize+1)*prizeWays;
   let direct=0n,arven=0n,union=0n,hybridArven=0n,hybridUnion=0n;
   let benchNarrowUnion=0n,benchHybridUnion=0n;
+  let spareToolUnion=0n,benchSpareToolUnion=0n;
   for(let ht=1;ht<=Math.min(t,seenSize);ht++){
     for(let ha=0;ha<=Math.min(a,seenSize-ht);ha++){
       for(let hs=0;hs<=Math.min(s,seenSize-ht-ha);hs++){
@@ -127,6 +128,33 @@ function exactOneDrawCounts(q) {
               const broaderUnionWays=ha>0?hybridWays:directWays;
               hybridUnion+=weight*broaderUnionWays;
               benchHybridUnion+=benchWeight*broaderUnionWays;
+
+              // On the turn-end board, one Float Stone must be attached
+              // and a distinct second Stone must still be physically
+              // held as a retool option after one opposing Tool removal.
+              // When exactly one Stone was initially held, Arven searches
+              // the second from deck; when >=2 were held, it may search
+              // Shake if missing and retain a spare held Stone.
+              const directSpareWays=hs>0&&hf>=2?deckHasG:0n;
+              let arvenSpareWays=0n;
+              if(ha>0&&hf>=1){
+                const required=[remaining[2]];
+                if(hs===0)required.push(remaining[0]);
+                if(hf===1)required.push(remaining[1]);
+                for(let mask=0;mask<(1<<required.length);mask++){
+                  let requiredAllPrized=0,selected=0;
+                  for(let i=0;i<required.length;i++)if(mask&(1<<i)){
+                    requiredAllPrized+=required[i];selected++;
+                  }
+                  const term=choose(rest-requiredAllPrized,
+                    prizes-requiredAllPrized);
+                  arvenSpareWays+=selected%2?-term:term;
+                }
+              }
+              const spareWays=ha>0?arvenSpareWays:directSpareWays;
+              assert.ok(spareWays>=0n&&spareWays<=broaderUnionWays);
+              spareToolUnion+=weight*spareWays;
+              benchSpareToolUnion+=benchWeight*spareWays;
             }
           }
         }
@@ -138,6 +166,9 @@ function exactOneDrawCounts(q) {
   assert.ok(hybridUnion>=union&&hybridUnion>=direct&&hybridArven>=arven);
   assert.ok(benchNarrowUnion<=union&&benchHybridUnion<=hybridUnion&&
     benchHybridUnion>=benchNarrowUnion);
+  assert.ok(spareToolUnion<=hybridUnion&&
+    benchSpareToolUnion<=spareToolUnion&&
+    benchSpareToolUnion<=benchHybridUnion);
   const numerical=n=>Number(n)/Number(denominator);
   return {
     denominator:String(denominator),validOpeningNumerator:String(basicValid),
@@ -147,6 +178,8 @@ function exactOneDrawCounts(q) {
     hybridUnionNumerator:String(hybridUnion),
     benchNarrowUnionNumerator:String(benchNarrowUnion),
     benchHybridUnionNumerator:String(benchHybridUnion),
+    spareToolUnionNumerator:String(spareToolUnion),
+    benchSpareToolUnionNumerator:String(benchSpareToolUnion),
     basicValidProbability:numerical(basicValid),
     directAndValidProbability:numerical(direct),
     arvenAndValidProbability:numerical(arven),
@@ -155,13 +188,17 @@ function exactOneDrawCounts(q) {
     hybridUnionAndValidProbability:numerical(hybridUnion),
     benchNarrowUnionAndValidProbability:numerical(benchNarrowUnion),
     benchHybridUnionAndValidProbability:numerical(benchHybridUnion),
+    spareToolUnionAndValidProbability:numerical(spareToolUnion),
+    benchSpareToolUnionAndValidProbability:numerical(benchSpareToolUnion),
     directConditionalValid:Number(direct)/Number(basicValid),
     arvenConditionalValid:Number(arven)/Number(basicValid),
     unionConditionalValid:Number(union)/Number(basicValid),
     hybridArvenConditionalValid:Number(hybridArven)/Number(basicValid),
     hybridUnionConditionalValid:Number(hybridUnion)/Number(basicValid),
     benchNarrowUnionConditionalValid:Number(benchNarrowUnion)/Number(basicValid),
-    benchHybridUnionConditionalValid:Number(benchHybridUnion)/Number(basicValid)
+    benchHybridUnionConditionalValid:Number(benchHybridUnion)/Number(basicValid),
+    spareToolUnionConditionalValid:Number(spareToolUnion)/Number(basicValid),
+    benchSpareToolUnionConditionalValid:Number(benchSpareToolUnion)/Number(basicValid)
   };
 }
 
