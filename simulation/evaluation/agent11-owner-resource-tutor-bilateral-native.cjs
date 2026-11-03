@@ -96,6 +96,12 @@ function run(){
         publicAttackTransitions:game?.publicAttackTransitions??null,
         attackTrace:game?.attackTrace??null,
         attackDeclarationTrace:game?.attackDeclarationTrace??null,
+        source11OwnerDecisionHands:game?.decisionTrace?.filter(row=>
+          row.playerSlot!==arm.rank5Seat&&
+          ['AttackAction','PassTurnAction','PlayCardAction'].includes(row.action))
+          .map(row=>({actionOrdinal:row.actionOrdinal,turnBefore:row.turnBefore,
+            action:row.action,card:row.card??null,attack:row.attack??null,
+            ownHandPrintings:row.decisionHandBefore?.ownHandPrintings??null}))??null,
         finalPublicBoard:game?.finalPublicBoard??null,
         prizesRemaining:game?.prizesRemaining??null,
         source11AttackDeclarations:game?.attackDeclarationTrace?.filter(row=>
