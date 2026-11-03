@@ -1,0 +1,32 @@
+name: Agent48 read-only archived selected joint v2 source parity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  archived-native-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate posthoc native abort and source-pair audit
+        run: |
+          node --test tests/agent48-aborted-source-pair-posthoc.test.cjs
+          node --test tests/agent48-archive-selected-v2-census.test.cjs
+      - name: Retrieve existing immutable 52-attempt native archive
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '13206810193'
+          run-id: '41581727876'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          path: native-archive
+      - name: Inspect only digest and native starter parity from raw historical rows
+        run: node scripts/agent48-inspect-selected-v2-archive.cjs native-archive/agent23-selected-joint-v2-native-52arm.json
