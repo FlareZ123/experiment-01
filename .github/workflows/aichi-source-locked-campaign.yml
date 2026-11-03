@@ -673,13 +673,16 @@ jobs:
         run: |
           node --check simulation/evaluation/agent10-rank9-funding-retreat-factorial.cjs
           node --test tests/agent10-flexible-paid-retreat-frontier.test.cjs
+          node --check simulation/twinleaf/agent10-rank9-retreat-payment-custody-v2.cjs
+          node --check simulation/evaluation/agent10-rank9-retreat-payment-custody-factorial-v2.cjs
+          node --test tests/agent10-rank9-retreat-payment-custody-v2.test.cjs
       - name: Execute exact source and two-seat paid Retreat four-arm factorial
         if: ${{ inputs.trial_ids == 'agent10-rank9-funding-retreat-factorial' }}
-        run: node simulation/evaluation/agent10-rank9-funding-retreat-factorial.cjs > agent10-rank9-funding-retreat-factorial.json
+        run: node simulation/evaluation/agent10-rank9-retreat-payment-custody-factorial-v2.cjs > agent10-rank9-retreat-custody-factorial-v2.json
       - name: Print source Claw onset and paid Retreat by factor
         if: ${{ inputs.trial_ids == 'agent10-rank9-funding-retreat-factorial' }}
         run: |
-          node -e "const a=require('./agent10-rank9-funding-retreat-factorial.json');console.log('count',a.totalNativeTrialCount,'deals',a.allPhysicalDealsAndOriginalDecksEqual);for(const p of a.comparisons)console.log(JSON.stringify({id:p.id,arms:Object.fromEntries(Object.entries(p.arms).map(([k,v])=>[k,{firstClawTurn:v.source.firstClawTurn,sourceRetreats:v.source.retreatRoots,actions:v.nativeFinal.actionCount,winner:v.nativeFinal.winner}]))}))"
+          node -e "const a=require('./agent10-rank9-retreat-custody-factorial-v2.json');console.log('count',a.totalNativeTrialCount,'sameDeals',a.samePrintedDeckAndFullDealAcrossFactors,'paidReferences',a.sourceFeeWitness.exactPhysicalPaymentCount,'qualified',a.competitiveQualifiedGames);console.log(JSON.stringify(a.sourceFeeWitness.receipts))"
       - name: Test owner-public Special-powered paid Retreat across generic printings
         if: ${{ inputs.trial_ids == 'agent10-flexible-retreat-bilateral-v1' }}
         run: |
@@ -799,7 +802,7 @@ jobs:
             agent10-rank9-known-dead-claw-native.json
             agent10-rank9-retreat-custody-native.json
             agent10-flexible-retreat-bilateral.json
-            agent10-rank9-funding-retreat-factorial.json
+            agent10-rank9-retreat-custody-factorial-v2.json
             agent10-prospective-5rank-resource-retreat.json
             agent17-rank5-vip-retro-native.json
             agent17-rank5-vip-evolve-retro-native.json
