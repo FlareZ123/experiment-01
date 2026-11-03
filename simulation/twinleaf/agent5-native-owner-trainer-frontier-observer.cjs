@@ -99,12 +99,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
         offered.add(choice.handIndex);
     }
     const frontier=ownerTrainerOpportunity(view,catalog,offered);
+    const k0GuaranteedVip=deps.ownRegisteredSixties?
+      certifyFirstTurnBattleVip(view,deps.ownRegisteredSixties[seat],basics):null;
     const root={
       ordinal:roots.length,seat,turn:view.globalTurn,
       observedOwnerHandTrainerCopies:frontier.handTrainerCopies,
       unresolvedGenericOpportunities:frontier.unblockedGenericTrainerCopies,
       competingChannels:frontier.channels,
       trainers:frontier.rows,
+      guaranteedK0FirstTurnVip:k0GuaranteedVip,
       nativeOfferedHandIndices:[...offered].sort((a,b)=>a-b),
       chosen:null,dispatch:'not-attempted',
       policyIsReadOnly:true,competitiveGameQualified:false
@@ -125,6 +128,8 @@ function withNativeOwnerTrainerFrontier(work,deps){
       };
       dispatchByAction.set(action,root);
     }
+    root.guaranteedK0VipPassed=k0GuaranteedVip!==null&&
+      action?.constructor?.name==='PassTurnAction';
     return action;
   }
   Object.defineProperty(protoStore,'dispatch',{
@@ -146,6 +151,8 @@ function withNativeOwnerTrainerFrontier(work,deps){
       observedBySeat,
       nativeActionEnumeratorIsPaperLegal:false,
       cardSpecificPaymentOrEffectsProven:false,
+      k0GuaranteedVipPassCount:roots.filter(root=>
+        root.guaranteedK0VipPassed===true).length,
       competitiveGameQualified:false,
       roots
     }};
