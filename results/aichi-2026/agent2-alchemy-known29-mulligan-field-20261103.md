@@ -21,6 +21,10 @@ The two immutable candidate 60s remain [Agent43 Apex Alchemy v0](agent43-apex-al
 
 For the emphasized **either lock + Regidrago** outcome, the weighted paired-difference 95% Monte Carlo interval is **[−4.2020, −4.0376] percentage points**. This is a sampling interval for the stated mathematical resource predicate and fixed sampling design. It cannot establish the real-game advantage of either 60.
 
+### Does the optional mulligan-bonus decision explain the candidate gap?
+
+The independent **exact no-bonus** opening census on these same 60s reports broad either-lock+Regidrago access **39.6116% v0 versus 35.5147% v1**, a difference of **−4.09697pp**. The known29 source-weighted **all-bonuses-drawn** census reports **41.5883% versus 37.4684%**, difference **−4.11983pp**. The full bonus policy therefore increases absolute incidence by approximately **1.9766pp** for v0 and **1.9538pp** for v1; the *difference between candidate gaps* is only **−0.02286pp**. This compares two endpoints of optional bonus acceptance on an idealized resource predicate. It does **not** prove that every intermediate bonus-acceptance policy preserves that candidate gap, or that either endpoint produces real gameplay value.
+
 ### All eight source Basic-count strata
 
 Each distinct Basic count uses **40,000 paired candidate openings**, both candidate 60s sharing the same shuffled physical positions and source bonus count. The number of source ranks in that stratum supplies its equal-rank field weight. These samples are repeated virtual initial setups, **not 320,000 matches**.
