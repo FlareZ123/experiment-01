@@ -819,7 +819,7 @@ function executeDevelopment(trial,candidates,{
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
-      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
+      (paperPromptPortfolio?'+'+require('../twinleaf/agent39-paper-prompt-portfolio.cjs').VERSION:'')+
       (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v11-source-payment-opt-in':'')+
       (paperQuickBallPayment?'+agent4-paper-quickball-v3-live-store-cost':'')+
       (paperSecretBoxPayment?'+agent4-paper-secretbox-twm-three-cost-v1-live-store':'')+
@@ -1645,7 +1645,7 @@ function runDevelopment({
       (paperCologneQuota?'+agent48-paper-cologne-same-turn-guard-v1':'')+
       (paperFullBenchCallForFamily?'+agent38-paper-fullbench-trubbish-fst-v1':'')+
       (paperSameTargetAttachEnergy?'+bot-same-target-energy-selection-v1':'')+
-      (paperPromptPortfolio?'+agent39-paper-prompt-portfolio-v2-live-store-attribution':'')+
+      (paperPromptPortfolio?'+'+require('../twinleaf/agent39-paper-prompt-portfolio.cjs').VERSION:'')+
       (sharedPaperPaymentPortfolio?'+agent41-paper-prompt-v11-source-payment-opt-in':'')+
       (paperQuickBallPayment?'+agent4-paper-quickball-v3-live-store-cost':'')+
       (paperSecretBoxPayment?'+agent4-paper-secretbox-twm-three-cost-v1-live-store':'')+
