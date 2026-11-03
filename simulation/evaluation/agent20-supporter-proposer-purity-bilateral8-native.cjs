@@ -2,7 +2,6 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
 const {runMatch,initializeCards}=
   require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
@@ -85,14 +84,13 @@ function runGroup(group,slot,p,o,deps){
 function run(){
   initializeCards();
   const {Store}=native('game/store/store');
-  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {PlaySupporterTactic}=
     native('simple-bot/simple-tactics/play-supporter-tactic');
   const {PlayCardAction}=native('game/store/actions/play-card-action');
   const {TrainerCard}=native('game/store/card/trainer-card');
   const {TrainerType}=native('game/store/card/card-types');
   const {GamePhase}=native('game/store/state/state');
-  const deps={Store,SimpleTacticsAi,PlaySupporterTactic,
+  const deps={Store,PlaySupporterTactic,
     PlayCardAction,TrainerCard,TrainerType,GamePhase};
   const rows=[];
   for(const group of REG.seedGroups){
