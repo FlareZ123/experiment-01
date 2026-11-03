@@ -50,6 +50,21 @@ The corresponding bound conditioned on the **six Box-offered physical pairs** is
 
 The meaningful lesson is informational: **a zero-difference developmental cohort cannot support an equivalence claim**. It helps distinguish a rare intervenable decision boundary from general population performance. Screen candidate root availability and physical paper costs before committing fresh native compute.
 
+## Cross-source K0 information value: exact singleton-versus-doubleton Shake risk
+
+The authenticated original source rosters show the four Aichi Absol/Garbodor decks use meaningfully different Shake counts:
+
+| Original source | Printed Boost Shake count | Relevant K0 all-copies-Prized chance given none of those copies among eight observed cards |
+| --- | ---: | ---: |
+| Rank 8, Yusuke Kobayashi | **1** | \(6/52=11.5384615\%\) |
+| Rank 11, Wataru Yano | **2** | \(\binom{6}{2}/\binom{52}{2}=1.13122172\%\) |
+| Rank 16, Takumi Matsumoto | **2** | \(1.13122172\%\) |
+| Rank 22, Haruya Mori | **0** | N/A: this source has no printed Boost Shake |
+
+This table is a **card-location calculation conditional on a specific observer state**: eight physical cards have been seen with *no Shake among them*, six Prizes remain face down, and the player has not looked through the deck. Exchangeability among the other 52 unobserved cards gives the exact fractions. In a rank-8 singleton source, a pre-Box owner deck search can reveal that the sole Shake is inaccessible with a probability **10.2 times** the chance that both doubleton Shakes are Prized under the same conditional information. Before observing any cards, the corresponding fully-Prized probabilities are **10%** and **0.84745763%**.
+
+**Important scope:** Seeing Shake already in hand changes whether searching it is necessary and whether a Box line makes sense. Being Prized is only one failure mode, and alternative evolution or recovery lines, payment, opponent pressure and card identities are unmodeled. The rank-8 experiment tests one player's real Quick Ball-first option; transferring its expected information value to the other printed source ranks without accounting for their Shake counts is unjustified. These location probabilities are **not** probabilities of a missed setup, native action, or game loss. The [exact K0 location helper and tests](../../scripts/agent44-rank8-directheld-k0-scout-window.cjs) preserve the derivation without simulator dependence.
+
 ## What this falsifies and what remains open
 
 The earlier post-selected index383 demonstrated a legal K0→K1 owner-deck scout **could** prevent a Box commitment when Shake was absent. That posthoc example was correctly excluded here. The fresh 64-deal cohort does **not** show that the new conditionally enabled policy improves the precommitted strict endpoint or frequently exercises the scout. The informative treatment event frequency was **1/64**, and the whole-cohort physical opportunity to offer Box was **6/64**.
