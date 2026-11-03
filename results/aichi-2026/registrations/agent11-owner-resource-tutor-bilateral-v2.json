@@ -1,0 +1,263 @@
+{
+  "schema": "agent11-owner-resource-tutor-bilateral-v2",
+  "registeredAtUtc": "2026-11-03T12:12:00Z",
+  "priorV1Archive": "results/aichi-2026/registrations/agent11-owner-resource-tutor-bilateral-v1.json",
+  "purpose": "Fresh original printed60 native A/B after discovered BKT reducer fullName mismatch in v1; no outcome-based seed selection",
+  "sourceRanks": [
+    5,
+    11
+  ],
+  "originalRosterSource": "results/aichi-2026/full-decklists.json",
+  "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "exactNativeLetterPrinting": "Professors Letter BKT",
+  "sourcePrintIdentity": "Professor's Letter BKT 146",
+  "seeds": [
+    11312101,
+    11312102,
+    11312103,
+    11312104,
+    11312105,
+    11312106,
+    11312107,
+    11312108
+  ],
+  "modes": [
+    "control",
+    "resource-tutor"
+  ],
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "predeclaredArms": 32,
+  "prospectiveFromV2Registration": true,
+  "experimentalStatus": "Development-only K0 owner action selector, paper and actual reply qualifications open",
+  "competitiveQualifiedGames": 0,
+  "arms": [
+    {
+      "id": "seed11312101-rank5seat0-control",
+      "seed": 11312101,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312101-rank5seat0-resource-tutor",
+      "seed": 11312101,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312101-rank5seat1-control",
+      "seed": 11312101,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312101-rank5seat1-resource-tutor",
+      "seed": 11312101,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312102-rank5seat0-control",
+      "seed": 11312102,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312102-rank5seat0-resource-tutor",
+      "seed": 11312102,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312102-rank5seat1-control",
+      "seed": 11312102,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312102-rank5seat1-resource-tutor",
+      "seed": 11312102,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312103-rank5seat0-control",
+      "seed": 11312103,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312103-rank5seat0-resource-tutor",
+      "seed": 11312103,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312103-rank5seat1-control",
+      "seed": 11312103,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312103-rank5seat1-resource-tutor",
+      "seed": 11312103,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312104-rank5seat0-control",
+      "seed": 11312104,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312104-rank5seat0-resource-tutor",
+      "seed": 11312104,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312104-rank5seat1-control",
+      "seed": 11312104,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312104-rank5seat1-resource-tutor",
+      "seed": 11312104,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312105-rank5seat0-control",
+      "seed": 11312105,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312105-rank5seat0-resource-tutor",
+      "seed": 11312105,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312105-rank5seat1-control",
+      "seed": 11312105,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312105-rank5seat1-resource-tutor",
+      "seed": 11312105,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312106-rank5seat0-control",
+      "seed": 11312106,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312106-rank5seat0-resource-tutor",
+      "seed": 11312106,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312106-rank5seat1-control",
+      "seed": 11312106,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312106-rank5seat1-resource-tutor",
+      "seed": 11312106,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312107-rank5seat0-control",
+      "seed": 11312107,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312107-rank5seat0-resource-tutor",
+      "seed": 11312107,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312107-rank5seat1-control",
+      "seed": 11312107,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312107-rank5seat1-resource-tutor",
+      "seed": 11312107,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312108-rank5seat0-control",
+      "seed": 11312108,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312108-rank5seat0-resource-tutor",
+      "seed": 11312108,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312108-rank5seat1-control",
+      "seed": 11312108,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312108-rank5seat1-resource-tutor",
+      "seed": 11312108,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    }
+  ]
+}
