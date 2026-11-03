@@ -1,0 +1,88 @@
+{
+  "schema": "agent37-original-rank11-t32-staged-fork-protocol-v1",
+  "status": "registered-development-protocol-no-runs-executed",
+  "objective": "Assess actual original rank11 candidate-response omissions under exact physical native Store, not qualify competitive game",
+  "source": {
+    "nativeCI": 41581276542,
+    "artifact": 13205777405,
+    "artifactSha256": "f6ba811b89cb0055d72270306aad59ccdc46bb22e0fad831b2ba84d60f463b0b",
+    "opponentRank": 11,
+    "originalOpponent": "Mega Absol ex source",
+    "candidate": "new-moon-lockbreaker-v1",
+    "seed": 2171744612,
+    "sourceSeat": 1,
+    "candidateSeat": 0,
+    "precedingSourceClawOrdinal": 139,
+    "firstCandidateInterventionRoot": 146,
+    "subsequentCandidateInterventionRoot": 147,
+    "priorAcceptedRootCount": 145,
+    "initialSourcePrizeRemain": 5,
+    "initialCandidatePrizeRemain": 6,
+    "ownerPublicFixture": "results/aichi-2026/fixtures/agent37-rank11-t32-owner-public-pass.json"
+  },
+  "invariants": [
+    "Reproduce native original physical deal, full accepted action-prefix and both unchanged legal sixties",
+    "No hidden opponent hand, unknown deck order or face-down Prize identities enter actor choice",
+    "At every intervention, require genuine current Store canPlay before native action dispatch",
+    "Follow and validate all mandatory native prompts, physical cards, per-turn Supporter and Stadium quotas, VSTAR marker",
+    "Record all failed branches, censored roots, disconnected prompts and aborted games",
+    "Use identical opponent policy with preserved PRNG/deal for paired alternatives; new policy options are development tests only",
+    "No outcome qualifies the 99.5-percent claim without all-opponent paper-legality, full-game policy and field coverage gates"
+  ],
+  "forks": [
+    {
+      "id": "control-authentic-squawk-pass",
+      "startOrdinal": 146,
+      "intervention": "none",
+      "expectedAcceptedSequence": [
+        "PlayCardAction Squawkabilly ex",
+        "PassTurnAction"
+      ],
+      "control": true
+    },
+    {
+      "id": "bench-mewtwo-instead-squawk",
+      "startOrdinal": 146,
+      "intervention": "offer original hand Mewtwo & Mew-GX UNM as fifth Basic before selecting Squawkabilly",
+      "canPlayRequired": true
+    },
+    {
+      "id": "sky-field-after-squawk",
+      "startOrdinal": 147,
+      "intervention": "offer held Sky Field ROS and inspect resulting Bench capacity, with optional Basic Mewtwo placement",
+      "canPlayRequired": true
+    },
+    {
+      "id": "forest-seal-search-prior-shuffle",
+      "startOrdinal": 147,
+      "intervention": "attach Forest Seal Stone SIT to actual Benched Galarian Articuno V, verify VSTAR unused and enabled, genuine deck target choice; evaluate manual Energy attach if search succeeds",
+      "canPlayRequired": true
+    },
+    {
+      "id": "lillie-six-prizes-eight-draw",
+      "startOrdinal": 147,
+      "intervention": "play held Lillie's Determination M1L after comparing pre-shuffle on-board commitments; check legal native shuffle and eight-card draw",
+      "canPlayRequired": true
+    },
+    {
+      "id": "ace-trainer-behind-prize-disruption",
+      "startOrdinal": 147,
+      "intervention": "play held Ace Trainer AOR and verify printed behind Prize condition, both hands shuffled, owner six/opponent three physical cards",
+      "canPlayRequired": true
+    },
+    {
+      "id": "counter-catcher-target-comparison",
+      "startOrdinal": 147,
+      "intervention": "play held Counter Catcher PAR after native Item canPlay, enumerate legal target choices and record tactical opponent reply",
+      "canPlayRequired": true
+    }
+  ],
+  "exclusions": [
+    "Active Unown Farewell Letter at T32 is illegal: its printed Ability works only from Bench",
+    "Playing both Sky Field and Path to the Peak in the same turn exceeds one Stadium play",
+    "Playing both Lillie's Determination and Ace Trainer in the same turn exceeds one Supporter play",
+    "Do not assume a Forest Seal Stone search target exists or a VSTAR Power remains unused"
+  ],
+  "reportedResults": null,
+  "competitivelyQualifiedGames": 0
+}
