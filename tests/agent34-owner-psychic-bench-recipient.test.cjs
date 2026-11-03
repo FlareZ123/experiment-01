@@ -85,5 +85,5 @@ test('missing printed attacks preserve stable old source tie-break',()=>{
 test('prompt-ready adapter rejects absent native colorless type rather than guessing',()=>{
   assert.throws(()=>rankOwnerPsychicBenchRecipients(game(),{
     requiredRecipientType:5,preferredBenchIndex:0
-  },[0,1,2]),/truthy|true/);
+  },[0,1,2]),/falsy value|assert\.ok/);
 });
