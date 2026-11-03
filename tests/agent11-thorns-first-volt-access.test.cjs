@@ -44,6 +44,20 @@ for (const [rank, data] of sourceCounts) {
     assert.equal(a.direct, data.direct);
     assert.equal(a.supporter, data.numerator - data.direct);
     assert.equal(a.direct + a.supporter, a.available);
+    assert.equal(a.ghHand + a.tagBridge, a.supporter);
+    assert.equal(a.mountainPrized + a.dcePrized + a.noConnector + a.available, a.denominator);
+    assert.equal(a.mountainPrized, 16883938028477520n);
+    if (data.d === 1) {
+      assert.equal(a.dcePrized, 15432529870059120n);
+      assert.equal(a.noConnector, 77923176036441120n);
+      assert.equal(a.ghHand, 30279456521539680n);
+      assert.equal(a.tagBridge, 23831344166239680n);
+    } else {
+      assert.equal(a.dcePrized, 96131628494720n);
+      assert.equal(a.noConnector, 84392348083894928n);
+      assert.equal(a.ghHand, 33192576312800240n);
+      assert.equal(a.tagBridge, 26087306599817232n);
+    }
   });
 }
 
