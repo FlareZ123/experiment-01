@@ -66,12 +66,12 @@ test('direct algebra and independent mulligan-pair summation agree',()=>{
 });
 test('registered rank-26 donation contrast remains opportunity-only',()=>{
   const a=transfer(7,12),b=transfer(12,12);
-  close(a.sourceOne,0.34963341055673314);
-  close(a.sourceTwo,0.13954584442484708);
-  close(a.sourceExpected,0.5818693796509244);
-  close(b.sourceOne,0.16012028914865803);
-  close(b.sourceTwo,0.030526403562078485);
-  close(b.sourceExpected,0.19783731987819125);
+  assert.ok(Math.abs(a.sourceOne-0.34963341055673314)<1e-9);
+  assert.ok(Math.abs(a.sourceTwo-0.13954584442484708)<1e-9);
+  assert.ok(Math.abs(a.sourceExpected-0.5818693796509244)<1e-9);
+  assert.ok(Math.abs(b.sourceOne-0.16012028914865803)<1e-9);
+  assert.ok(Math.abs(b.sourceTwo-0.030526403562078485)<1e-9);
+  assert.ok(Math.abs(b.sourceExpected-0.19783731987819125)<1e-9);
   const opening=(7/60)/(1-miss(12));
   const observed=(x)=>opening+(1-opening)*x.sourceExpected/53;
   close(observed(a),0.15354412205972623);
@@ -122,18 +122,18 @@ test('equal-weight original 29 ranks candidate bonus asymmetry',()=>{
     };
   };
   const a=mean(7),b=mean(12),reference=mean(14),newMoon=mean(17);
-  close(a.candidateOne,0.1439448732);
-  close(a.sourceOne,0.3416691081);
-  close(a.candidateReceived,0.2386327448);
-  close(a.sourceReceived,0.5686149720);
-  close(a.net,-0.3299822273);
-  close(b.candidateOne,0.1796223153);
-  close(b.sourceOne,0.1564022924);
-  close(b.candidateReceived,0.2919340055);
-  close(b.sourceReceived,0.1932435328);
-  close(b.net,0.0986904727);
-  close(reference.net,0.1733565235);
-  close(newMoon.net,0.2432118312);
+  assert.ok(Math.abs(a.candidateOne-0.1439448732)<1e-9);
+  assert.ok(Math.abs(a.sourceOne-0.3416691081)<1e-9);
+  assert.ok(Math.abs(a.candidateReceived-0.2386327448)<1e-9);
+  assert.ok(Math.abs(a.sourceReceived-0.5686149720)<1e-9);
+  assert.ok(Math.abs(a.net--0.3299822273)<1e-9);
+  assert.ok(Math.abs(b.candidateOne-0.1796223153)<1e-9);
+  assert.ok(Math.abs(b.sourceOne-0.1564022924)<1e-9);
+  assert.ok(Math.abs(b.candidateReceived-0.2919340055)<1e-9);
+  assert.ok(Math.abs(b.sourceReceived-0.1932435328)<1e-9);
+  assert.ok(Math.abs(b.net-0.0986904727)<1e-9);
+  assert.ok(Math.abs(reference.net-0.1733565235)<1e-9);
+  assert.ok(Math.abs(newMoon.net-0.2432118312)<1e-9);
   console.log(JSON.stringify({field:'29 known original ranks only',
     candidateADP7:a,candidateApexAlchemy12:b,reference14:reference,newMoon17:newMoon,
     qualification:'setup offers, not game strength or all32'},null,2));
