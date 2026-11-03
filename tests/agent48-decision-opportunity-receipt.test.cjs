@@ -232,3 +232,33 @@ test('truncated native receipt audit rejects a false retained result even if tot
     nativeRootAcceptances:receipts
   }),/Retained rejected native receipts exceed rejected dispatches/);
 });
+
+
+test('repeated roots of one physical trial retain one registered pair ID',()=>{
+  const a=row('a1',1),a2=row('a1',2),b=row('a2',1);
+  a.pairedComparisonId=a2.pairedComparisonId=b.pairedComparisonId='p';
+  b.sourceDealFingerprint=a.sourceDealFingerprint;
+  const result=decisionOpportunityReceipt([a,b,a2]);
+  assert.equal(result.physicalTrials,2);
+  assert.equal(result.pairedComparisons,1);
+  assert.equal(result.ownerRoots,3);
+  a2.pairedComparisonId='other-pair';
+  assert.throws(()=>decisionOpportunityReceipt([a,b,a2]),
+    /One physical trial cannot change its paired comparison ID/);
+});
+
+test('a physical trial cannot silently drop or add a pair label mid-trace',()=>{
+  const tagged=row('a1',1);tagged.pairedComparisonId='p';
+  const untagged=row('a1',2);
+  assert.throws(()=>decisionOpportunityReceipt([tagged,untagged]),
+    /One physical trial cannot change its paired comparison ID/);
+  assert.throws(()=>decisionOpportunityReceipt([untagged,tagged]),
+    /One physical trial cannot change its paired comparison ID/);
+});
+
+test('three distinct physical arms cannot masquerade as one two-arm pair',()=>{
+  const rows=[row('a1',1),row('a2',1),row('a3',1)];
+  for(const r of rows)r.pairedComparisonId='one-pair';
+  assert.throws(()=>decisionOpportunityReceipt(rows),
+    /cannot contain more than two distinct trials/);
+});
