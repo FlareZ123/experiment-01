@@ -1,6 +1,6 @@
 'use strict';
 
-const { choose } = require('./agent11-thorns-first-volt-access.cjs');
+const { choose, bonusProbability } = require('./agent11-thorns-first-volt-access.cjs');
 
 /**
  * Enumerate one natural Trainers' Mail top-four rescue on the original
@@ -10,15 +10,19 @@ const { choose } = require('./agent11-thorns-first-volt-access.cjs');
  * Both first-Mail and all-held-Mail optional sequential peeks are measured.
  * On a missed top-four peek the player may select no Trainer, shuffle, then
  * try another held Mail. Each independent redraw again samples a 46-card deck.
- * No extra draw, mulligan bonus, or other search is modeled.
+ * Extra opponent-mulligan bonus draws are an explicit optional input, not
+ * a hidden source of draws; no effect-driven card drawing/search is modeled.
  *
  * @param {1|3} d Double Colorless Energy copies
  * @param {2|3|4} mailCopies Trainers' Mail copies
+ * @param {number} bonusDraws Number of maximum optional mulligan draws taken
  * @returns {{denominator:bigint,base:bigint,mailRescue:bigint,total:bigint,allHeldMailNumerator:bigint,allHeldMailDenominator:bigint,allHeldMailRescueNumerator:bigint}}
  */
-function singleMailAccess(d, mailCopies) {
+function singleMailAccess(d, mailCopies, bonusDraws = 0) {
   const rest = 51 - d - mailCopies;
-  const topFourWays = choose(46, 4);
+  const handSize = 8 + bonusDraws;
+  const deckSize = 46 - bonusDraws;
+  const topFourWays = choose(deckSize, 4);
   const maxPeekScale = topFourWays ** BigInt(mailCopies - 1);
   const fullPeekScale = topFourWays ** BigInt(mailCopies);
   let denominator = 0n;
@@ -26,13 +30,13 @@ function singleMailAccess(d, mailCopies) {
   let mailRescue = 0n;
   let allHeldMailRescueNumerator = 0n;
   for (let b = 1; b <= 4; b++) {
-    const startWeight = b === 1 ? 7n : 8n;
+    const startWeight = choose(handSize, 7) - choose(handSize - b, 7);
     for (let tag = 0; tag <= 2; tag++) {
       for (let gh = 0; gh <= 2; gh++) {
         for (let mountain = 0; mountain <= 1; mountain++) {
           for (let energy = 0; energy <= d; energy++) {
             for (let mail = 0; mail <= mailCopies; mail++) {
-              const otherHand = 8 - b - tag - gh - mountain - energy - mail;
+              const otherHand = handSize - b - tag - gh - mountain - energy - mail;
               if (otherHand < 0 || otherHand > rest) continue;
               const handWays = startWeight * choose(4,b) * choose(2,tag)
                 * choose(2,gh) * choose(1,mountain) * choose(d,energy)
@@ -62,7 +66,7 @@ function singleMailAccess(d, mailCopies) {
                       if (mail === 0) continue;
                       const goodTopCards = (ghDeck > 0 ? ghDeck + tagDeck : 0)
                         + (energy > 0 && mountain === 0 ? 1-pm : 0);
-                      const misses = choose(46-goodTopCards, 4);
+                      const misses = choose(deckSize - goodTopCards, 4);
                       mailRescue += ways * (topFourWays - misses);
                       allHeldMailRescueNumerator += ways * (
                         fullPeekScale - misses ** BigInt(mail) *
@@ -86,4 +90,29 @@ function singleMailAccess(d, mailCopies) {
   };
 }
 
-module.exports = { singleMailAccess };
+/**
+ * Physical source first-Volt named-line access under independent simultaneous
+ * mulligans for an original source with 4 Basics and an opponent with a known
+ * total Basic count. Source takes every offered bonus draw; each truncated
+ * tail probability is recorded separately.
+ *
+ * @param {1|3} d
+ * @param {2|3|4} mailCopies
+ * @param {number} opposingBasics
+ * @param {number} maximumBonus
+ * @returns {{withoutMail:number,oneMail:number,allHeldMail:number,omittedMass:number}}
+ */
+function withMaxMulliganBonuses(d, mailCopies, opposingBasics, maximumBonus=40) {
+  let withoutMail=0, oneMail=0, allHeldMail=0, checkedMass=0;
+  for(let k=0;k<=maximumBonus;k++) {
+    const m=singleMailAccess(d,mailCopies,k);
+    const weight=bonusProbability(opposingBasics,k);
+    checkedMass+=weight;
+    withoutMail+=weight*Number(m.base)/Number(m.denominator);
+    oneMail+=weight*Number(m.total)/Number(m.denominator);
+    allHeldMail+=weight*Number(m.allHeldMailNumerator)/Number(m.allHeldMailDenominator);
+  }
+  return {withoutMail,oneMail,allHeldMail,omittedMass:1-checkedMass};
+}
+
+module.exports = { singleMailAccess, withMaxMulliganBonuses };
