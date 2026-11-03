@@ -10,7 +10,6 @@ const {withLiveUnknownPowerActionWitness,VERSION}=
   require('../twinleaf/agent39-live-unknown-power-action-witness.cjs');
 
 const PROFILE=path.resolve(__dirname,'agent23-selected-joint-v2-manifest.json');
-const PROFILE_SHA256='8cd0c4b0734d3223d5c8c1f705f3af651f815c02';
 const ARCHIVED_SOURCE_SHA='1180bb8d34c5364ce202e23f94eebc5e3c0d83381b85bc2991ba1e002f70a0a7';
 const ARCHIVED_PREFIX_SHA='75c90e10e1178b30a2579cfa689498b4f3e6a65389883ed615662fadec8edf97';
 
@@ -38,9 +37,10 @@ function selectedOriginalRank6Plan(){
  * report equality as evidence rather than calling this a verbatim replay.
  *
  * @param {(options:object)=>object} [runDevelopment] Inject in pure tests.
+ * @param {{Store?:Function}} [deps] Actual Store is loaded from pinned output.
  */
 function runTypedRank6Forensic(runDevelopment=
-  require('./agent41-bilateral-v2-development.cjs').runDevelopment){
+  require('./agent41-bilateral-v2-development.cjs').runDevelopment,deps={}){
   const {manifest,trials,manifestSha256}=selectedOriginalRank6Plan();
   const modes=[];
   for(const mode of manifest.modes){
@@ -49,7 +49,7 @@ function runTypedRank6Forensic(runDevelopment=
         ...manifest.policyOptions,
         registeredTrials:trials,
         registeredFrameName:'agent23-selected-joint-v2-'+mode.id
-      })));
+      }),deps));
     const native=observed.result;
     assert.equal(native.rows.length,2);
     assert.deepEqual(native.rows.map(x=>x.trial.id),
