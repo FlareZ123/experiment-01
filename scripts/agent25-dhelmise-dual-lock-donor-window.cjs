@@ -22,8 +22,8 @@ function printedMix() {
 }
 
 /**
- * Exhaustive mix optimizer over a four-copy limit for each known HNS
- * printing. The criterion is surviving the worse of an active Wobbuffet
+ * Exhaustive mix optimizer over the four ME5 HNS printings, with
+ * a four-copy limit each. The criterion is surviving the worse of an active Wobbuffet
  * and an active Silent Lab individually. This is a donor-count objective.
  * @param {number} total
  */
@@ -33,14 +33,18 @@ function maximinMixes(total) {
   const mixes = [];
   for (let banette = 0; banette <= 4; banette++) {
     for (let shuppet = 0; shuppet <= 4; shuppet++) {
-      const sinistcha = total - banette - shuppet;
-      if (sinistcha < 0 || sinistcha > 4) continue;
-      const worst = Math.min(banette + shuppet, banette + sinistcha);
-      if (worst > optimum) {
-        optimum = worst;
-        mixes.length = 0;
+      for (let sinistcha = 0; sinistcha <= 4; sinistcha++) {
+        const poltchageist = total - banette - shuppet - sinistcha;
+        if (poltchageist < 0 || poltchageist > 4) continue;
+        const worst = Math.min(banette + shuppet, banette + sinistcha);
+        if (worst > optimum) {
+          optimum = worst;
+          mixes.length = 0;
+        }
+        if (worst === optimum) mixes.push({
+          banette, shuppet, sinistcha, poltchageist
+        });
       }
-      if (worst === optimum) mixes.push({banette, shuppet, sinistcha});
     }
   }
   return {total, optimum, mixes};
