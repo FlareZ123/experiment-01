@@ -19,6 +19,7 @@ on:
           - generic-energy-effects
           - electrode-opportunity
           - electrode-composed
+          - electrode-mechanism
 
 permissions:
   contents: read
@@ -193,6 +194,20 @@ jobs:
         with:
           name: agent1-rank17-electrode-composed-owner-aba
           path: agent1-rank17-electrode-composed-owner-aba.json
+          if-no-files-found: warn
+
+      - name: Verify disclosed source-positive rank17 one-deal Bomb ability native probe registration
+        if: ${{ github.event.inputs.experiment == 'electrode-mechanism' }}
+        run: node --test tests/agent1-rank17-bomb-native-positive-retrospective.test.cjs tests/agent1-rank17-electrode-owner-necessity.test.cjs
+      - name: Run original-source native Bomb after-Pass ability and physical self-KO counterfactual
+        if: ${{ github.event.inputs.experiment == 'electrode-mechanism' }}
+        run: node simulation/evaluation/agent1-rank17-bomb-native-positive-retrospective.cjs
+      - name: Archive original-source Bomb native mechanism control and experimental action
+        if: ${{ always() && github.event.inputs.experiment == 'electrode-mechanism' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-bomb-native-mechanism-positive-retrospective
+          path: agent1-rank17-bomb-native-positive-retrospective.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
