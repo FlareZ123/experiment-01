@@ -155,3 +155,48 @@ for(const seat of /** @type {const} */ ([0,1])){
     });
   }
 }
+
+/**
+ * The actual stock SimpleTacticsAi prompt resolver also has a zero-card
+ * candidate when min=0. This development probe observes which actual native
+ * ResolvePromptAction it chooses after CES48 has already been activated.
+ * It does not claim the stock bot would autonomously activate this Ability.
+ */
+function stockBotForOwner(ownerId){
+  const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
+  const definitions=native('simple-bot/simple-bot-definitions');
+  const {BotFlipMode,BotShuffleMode}=native('game/bots/bot-arbiter');
+  return new SimpleTacticsAi({id:ownerId},{
+    tactics:definitions.allSimpleTactics,
+    promptResolvers:definitions.allPromptResolvers,
+    scores:definitions.defaultStateScores,
+    arbiter:{flipMode:BotFlipMode.RANDOM,shuffleMode:BotShuffleMode.RANDOM}
+  },null);
+}
+
+for(const seat of /** @type {const} */ ([0,1])){
+  for(const count of /** @type {const} */ ([1,3])){
+    test('Observe stock native CES48 prompt policy after activation, seat '+
+      seat+' available '+count,()=>{
+      const s=freshStore(seat,count);
+      const prompt=openBomb(s);
+      const bot=stockBotForOwner(s.owner.id);
+      const action=bot.decodeNextAction(s.state);
+      assert.ok(action instanceof ResolvePromptAction);
+      assert.ok(Array.isArray(action.result));
+      const selected=action.result.length;
+      assert.equal(prompt.validate(action.result,s.state),true);
+      s.store.dispatch(action);
+      settleKo(s);
+      const attached=s.owner.active.energies.cards.filter(c=>
+        s.energy.includes(c)).length;
+      assert.equal(attached,selected);
+      console.log('AGENT29_CES48_STOCK_PROMPT_POLICY',JSON.stringify({
+        seat,availableEnergy:count,selected,attached,
+        stockWouldSelectPaperInvalidZero:selected===0,
+        opponentPrizesTaken:2,notAutonomousAbilityActivation:true,
+        competitivelyQualifiedGames:0
+      }));
+    });
+  }
+}
