@@ -79,3 +79,18 @@ For balance, the native terminal transition matrix is more favorable to the sele
 | **Action limit** | **5** | 0 | 9 |
 
 The selected feature therefore converted **five** formerly capped native trajectories into candidate-native engine wins and **one** formerly candidate-native win into a source-native win. This describes **native row classifications**, with historical panels, deeply biased 260-action censoring, unqualified game mechanics and only three genuinely fresh registered source seed groups. Do not treat it as a rate estimate, win-rate improvement or deck ranking. For a release, both the selected positive conversions and the one fully terminated adverse source-deal counterexample need actual opponent-quality and paper-clock assessment.
+
+
+## Redundant search-channel control: Telepathic Psychic Energy establishes the same five-Pokémon Bench
+
+The candidate's search receipts reveal an additional opportunity-cost mechanism. The provided card archive prints `Telepathic Psychic Energy ME3 88`: when attached from the hand to a Psychic Pokémon, search up to two Basic Psychic Pokémon and Bench them. This is an existing owner-deck Pokémon access channel in the fixed New Moon 60.
+
+| Actual native owner-deck search | Frozen v1 baseline | Selected VIP v2 |
+| --- | --- | --- |
+| Global candidate turn 2, first candidate turn | No VIP | **Battle VIP Pass** searches **Duskull VIV + Galarian Articuno V CRE** at prompt ordinal 12 |
+| Global candidate turn 4 | `Telepathic Psychic Energy` searches **two Duskull VIV** at ordinal 19 | `Telepathic Psychic Energy` searches **one Duskull VIV** at ordinal 24 |
+| Global candidate turn 6 | `Telepathic Psychic Energy` searches **Galarian Articuno V CRE** at ordinal 30 | No corresponding source-deck card search |
+
+At **each observed original source attack before the first candidate KO** (global turns **11, 13, 15, 17**), *both* modes' candidate **Active is Latias ex** and their entire Benches have the **identical multiset of Pokémon names**: Squawkabilly ex, two Duskull, Klefki, Galarian Articuno V. At source turn **21**, after Latias has been KO'd, both have the identical Bench-name multiset: two Duskull, Klefki, Galarian Articuno V, Unown. The slot order and Energy distributions **differ**. This is direct public-board evidence that the extra early VIP did **not** yield an additional lasting distinct Basic Pokémon among these first two decisive attacks; the already-available Telepathic Psychic Energy access route populated the same eventual board without that early VIP.
+
+This matters for card-choice optimization because raw `Battle VIP Pass` plays and early Bench additions are **proxy metrics**: their marginal payoff depends on existing connectors and what happens to funding, promotion, and Prize conversions. The verified native terminal regression comes with **same Pokémon names available and different Energy**, the strongest observed support for this resource-allocation mechanism. The printed cards' ability to search does not by itself prove which alternative actions should be played; the root, Energy and opponent-policy choices remain conditional and the paper qualification gate remains red.
