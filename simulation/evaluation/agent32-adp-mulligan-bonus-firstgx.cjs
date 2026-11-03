@@ -11,7 +11,7 @@ const KEYS=[
   'swsh1-179','sm12-193','xy6-97','__other__'
 ];
 const BASIC=new Set(['sm12-156','swsh12-135','sm2-60','swsh3-104']);
-const PAS=[0n];
+const PAS=[[1n]];
 for(let n=1;n<=60;n++){
   const prior=PAS[n-1],row=Array(n+1).fill(1n);
   for(let k=1;k<n;k++)row[k]=prior[k-1]+prior[k];
