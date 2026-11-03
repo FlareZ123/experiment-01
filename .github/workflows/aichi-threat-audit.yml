@@ -39,6 +39,8 @@ jobs:
         run: node --test tests/agent25-dhelmise-donor-count-frontier.test.cjs
       - name: Verify exact first-turn Dhelmise conditional Wobbuffet and Silent Lab donor loss
         run: node --test tests/agent25-dhelmise-lock-conditioned-opening.test.cjs
+      - name: Verify joint discard-Ability lock bound and 8/10 donor mix maximin
+        run: node --test tests/agent25-dhelmise-dual-lock-donor-window.test.cjs
       - name: Verify owner-visible Dhelmise Compressor donor priority and refusal cases
         run: node --test tests/agent25-dhelmise-compressor-donors.test.cjs
       - name: Verify exact ordinary Basic plus Telepathic Psychic HNS opener versus narrow Clefairy line
