@@ -10,6 +10,8 @@ const {withBilateralCommonCandidatePolicy,POLICY_VERSION}=
   require('./agent41-bilateral-common-policy.cjs');
 const {candidateAttackSettlement}=
   require('./agent37-candidate-attack-settlement.cjs');
+const {auditCrossCandidateSourcePair}=
+  require('./agent44-cross-candidate-source-pair-status.cjs');
 const {withNativePaperSupporterDiscipline,VERSION:PAPER_SUPPORTER_VERSION}=
   require('../twinleaf/agent41-paper-supporter-discipline.cjs');
 const {withCancelingCologneOncePerTurnHook}=
@@ -1771,13 +1773,10 @@ function runDevelopment({
       assert.ok(first&&second);
       return {
         pairId:key,
-        sameSourcePhysicalDeal:Boolean(first.sourceDealFingerprint &&
-          first.sourceDealFingerprint===second.sourceDealFingerprint),
+        ...auditCrossCandidateSourcePair(first,second),
         sourceDealFingerprints:[
           first.sourceDealFingerprint??null,second.sourceDealFingerprint??null
         ],
-        sameActualStarter:Boolean(first.verifiedFirstTurn&&second.verifiedFirstTurn &&
-          first.actualStarterSeat===second.actualStarterSeat),
         candidateFollowupStatuses:[first.candidateFollowupStatus??null,
           second.candidateFollowupStatus??null],
         // Different fixed 60s are not a same-deck policy A/B, irrespective
