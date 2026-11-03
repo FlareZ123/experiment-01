@@ -1,0 +1,46 @@
+name: Native bilateral Supporter proposal-purity pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-bilateral-purity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Research-only proposer purity and restore tests
+        run: node --test tests/agent20-native-supporter-proposal-purity.test.cjs
+      - name: Check out exact pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native server
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Reproduce exact original rank6 no-actual-Supporter decoder 0-to-12 rollback three-arm proof
+        run: node simulation/evaluation/agent20-rank6-guzma-counterreply-native.cjs > agent20-rank6-guzma-counterreply-native.json
+      - name: Execute eight preregistered real bilateral original-sixty A/B/A groups
+        run: node simulation/evaluation/agent20-supporter-proposer-purity-bilateral8-native.cjs > agent20-supporter-proposer-purity-bilateral8-native.json
+      - name: Summarize native source provenance without win-rate claims
+        if: ${{ always() }}
+        run: |
+          if [ -f agent20-supporter-proposer-purity-bilateral8-native.json ]; then
+            node -e "const x=require('./agent20-supporter-proposer-purity-bilateral8-native.json'); console.log(JSON.stringify({schema:x.schema,groups:x.attemptedPhysicalGroups,attempts:x.attemptedNativeGames,sourceParity:x.sameInitialFullDealGroups,controlParity:x.repeatedControlExactGroups,actualStoreAccepted:x.totalAcceptedNativeProposerSupporters,qualified:x.competitiveQualifiedGames}));"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: agent20-eightgroup-bilateral-native-supporter-purity
+          path: |
+            agent20-rank6-guzma-counterreply-native.json
+            agent20-supporter-proposer-purity-bilateral8-native.json
+          if-no-files-found: warn
+          retention-days: 30

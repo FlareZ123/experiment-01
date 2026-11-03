@@ -1,0 +1,69 @@
+{
+  "schema": "agent20-rank6-original-guzma-after-rope-quota-diagnostic-v2",
+  "registeredAtUtc": "2026-11-03T22:31:00Z",
+  "source": {
+    "ranks": [
+      6,
+      9
+    ],
+    "seat6": 0,
+    "seat9": 1,
+    "seed": 3858002039,
+    "physicalDealSha256": "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e",
+    "vendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "prerequisite": {
+    "sourceTurn10Stadium": "Thunder Mountain Prism Star LOT",
+    "previous": "Wondrous Labyrinth Prism Star TEU",
+    "sourceStadiumOwnerSeat": 0,
+    "rank9Turn11Rope": "Escape Rope BST",
+    "rank9RopeOwnerSeat": 1,
+    "rank9RopeTurn": 11
+  },
+  "intervention": {
+    "turn": 12,
+    "seat": 0,
+    "requiredPreviousNativeAction": "PassTurnAction",
+    "heldPhysicalSupporter": "Guzma BUS",
+    "requiredSupporterQuotaUnused": true,
+    "requiredOwnBench": true,
+    "requiredOpponentBench": true,
+    "expectedFundedBenchEnergyNames": [
+      "Capture Energy RCL",
+      "Speed Lightning Energy RCL"
+    ],
+    "expectedOpponentBench": "Unown AOR",
+    "expectedSourceAttack": "Volt Cyclone"
+  },
+  "arms": [
+    "stadium-plus-rope-native-source-control",
+    "stadium-plus-rope-select-one-source-guzma",
+    "stadium-plus-rope-native-source-control-repeat"
+  ],
+  "maxActions": 130,
+  "primaryMetric": "Whether selected Guzma prompt resolves into funded Active Iron Thorns and settled Volt Cyclone / opponent Prize with opponent continuation",
+  "qualification": "V2 fails closed on measured supporter quota disagreement. A Store-accepted Guzma is not alone sufficient for paper legal proof; explicit discrepancy and original historical no-supporter-ledger evidence required.",
+  "adversarialAmendment": {
+    "priorAttempt": {
+      "run": 41730452843,
+      "artifact": 13278000253,
+      "observedSameDeal": true,
+      "observedPassTurn12": true,
+      "storeAcceptedGuzma": 0,
+      "reason": "original strict owner supporterTurn===0 guard returned false; raw numeric value never recorded; no paper claim",
+      "rawZipSha256": "3fdee97813502a7be3561698555241ad6e5ef425d6ed5138a6ef33bead203591"
+    },
+    "newDiagnostic": "Record actual raw supporterTurn; attempt PlayCardAction despite observed nonzero/unknown native field only because prior complete same-physical turn12 native root ledger contains no Supporter PlayCardAction, and original rank6 registered printed hand has Guzma. Native Store acceptance is uncertain and receives explicit red paper-quota flag until reconciled. No release/prize/game claims from failed attempt.",
+    "sourceTurn12OriginalLedger": [
+      78,
+      79,
+      80
+    ],
+    "sourceTurn12OriginalRootLabels": [
+      "ResolvePromptAction WaitPrompt",
+      "PassTurnAction",
+      "ResolvePromptAction WaitPrompt"
+    ],
+    "v2DivergenceExpected": "At source turn12 native Pass ordinal79, after real preceding original turn10 Thunder and rank9 turn11 Rope."
+  }
+}
