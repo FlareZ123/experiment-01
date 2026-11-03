@@ -176,8 +176,15 @@ if(require.main===module){
   const file=process.argv[2];
   assert.ok(file,'Expected previously archived native JSON file');
   const source=JSON.parse(fs.readFileSync(file,'utf8'));
+  const result=summarizeArchive(source);
+  require('../twinleaf/agent3-rank26-compressor-settlement-prospective-v2.cjs')
+    .saveResult(require('node:path').resolve(process.cwd(),
+      'agent50-native-trainer-hand-custody.json'),result);
   process.stdout.write('AGENT50_NATIVE_TRAINER_HAND_CUSTODY '+
-    JSON.stringify(summarizeArchive(source))+'\n');
+    JSON.stringify({rootCount:result.costedRootsObserved,
+      completeOwnerHandChains:result.exactOwnerHandPromptChains,
+      unresolvedChains:result.unresolvedChains,
+      byPrinting:result.byPrinting,qualifiedGames:result.qualifiedPaperGames})+'\n');
 }
 
 module.exports={
