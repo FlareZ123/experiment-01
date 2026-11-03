@@ -116,11 +116,13 @@ test('actor root converts authenticated owner Ditto into actual native PlayCardA
     weakness:[],resistance:[],attacks:[],powers:[]
   };
   const empty=()=>({cards:[],damage:0,specialConditions:[],
-    tools:[],energies:{cards:[]},getPokemonCard(){return null;}});
+    tools:[],energies:{cards:[]},getPokemonCard(){return null;},
+    getPokemons(){return this.cards;}});
   const occupied=card=>({
     cards:[card],damage:0,specialConditions:[],tools:[],
     energies:{cards:[]},pokemonPlayedTurn:1,
-    getPokemonCard(){return this.cards[this.cards.length-1];}
+    getPokemonCard(){return this.cards[this.cards.length-1];},
+    getPokemons(){return this.cards;}
   });
   const player=(id,active,hand)=>({
     id,active,bench:Array.from({length:5},empty),
