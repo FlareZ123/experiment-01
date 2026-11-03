@@ -38,6 +38,12 @@ A local read-only Python JSON audit decoded both archived ZIP members, compared 
 | 5 vs 11 | fresh preselected | B | 1 | 2 | 1 | 1 |
 | **Total** | | | **38** | **76** | **38** | **38** |
 
+### Printed Supporter and one-per-turn source check
+
+Independently read every English card-file JSON in the supplied complete card database (180 ZIP entries in total, card records under `cards/en/*.json`), selected all `supertype:'Trainer'` records containing subtype `'Supporter'`, and compared their normalized names with every treatment `PlayCardAction` in the eight full Store root ledgers. This finds **38 matching physical Supporter card-play actions** and **zero additional unclassified Supporter plays**. The 38 actual Play roots all correspond to the 38 v2 restored receipts. Grouped by `(physical seat, native global turn)`, **zero cases have two Supporter Play roots on the same turn** within the observed episodes. Unicode accent normalization resolves the single `Pokemon Ranger` / `Pokémon Ranger` naming discrepancy; it does not change card identities.
+
+This supports the **necessary paper one-Supporter-per-turn** condition for the 38 observed roots. It cannot certify the full printed Supporter payment/target/effect, legal Stadium/Item context, optimal tactical choice, original Japanese print status or independent matchup-game result.
+
 ## Mechanism and repair
 
 Pinned `SimpleTacticsAi.isValidAction` builds a cloned `Simulator` whose distinct `Store.dispatch` sees **the same exact Action instance** before the action is ever sent to the live Store. Agent20's v1 `Store.prototype.dispatch` wrapper found receipts by `WeakMap<Action,Receipt>` with no Store identity check, causing the speculative successful validation and real Store acceptance to both increment the same counter. Agent20's v2 tests and code distinguish real `this===live` dispatch from speculative dispatch and preserve distinct counters. See [the pinned source audit](agent41-pinned-native-proposal-mutation-and-speculative-dispatch-20261103.md) and [Agent20's native single-root prerequisite](../aichi-2026/2026-11/agent20-original6v9-guzma-native-supporter-quota-rollback-20261103.md).
