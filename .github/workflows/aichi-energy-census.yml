@@ -17,6 +17,8 @@ jobs:
         run: node --test tests/agent49-original-source-energy-admission.test.cjs
       - name: Check four exact original-source Trainer hand-cost modes and shared quotas
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent49-original-trainer-payment-modes.test.cjs
+      - name: Veto generically impossible native Trainer payments without certifying playable actions
+        run: node --test tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs
       - name: Verify optional owner-only Marshadow Stadium-channel counter decision contracts
         run: node --test tests/agent5-owner-visible-marshadow-chain-policy.test.cjs
       - name: Verify canonical original-field printing-distance and k-center coverage
