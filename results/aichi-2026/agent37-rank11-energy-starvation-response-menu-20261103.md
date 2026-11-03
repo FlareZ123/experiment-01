@@ -27,3 +27,9 @@ This reveals a different missing policy dimension from hand-size-only draw metri
 Assumed deck size and K are **hypothetical**. This table does not include costs, revealed Prize information, future turns, opposing response, dominance by a precise VSTAR search, or the chance the deck contains a useful attacker. It only shows why a low-hand-only draw heuristic can miss a meaningful action when an unpowered board is about to lose.
 
 **Priority for the native same-source fork:** inspect real T32 Store `canPlay` for Lillie, Ace Trainer, and Forest Seal Stone, with authenticated owner VSTAR use marker; use already available Counter Catcher as a tempo comparison. Separate an optional search being accessible from the exact Energy being available, the legality and the actual impact on the following source attack. Keep the control Pass and all censored/failed arms. No qualified winner can be inferred. Field coverage still 29/32, competitive game qualification zero.
+
+
+## Frozen-policy gating clarification from the original raw trial
+
+The exact trial `11:0:A:new-moon-lockbreaker-v1` records `actorOnlyDecisionCoverage.ownerShuffleSupporterRootOptIn=false` and `ownerSupporterOpportunityOptIn=false`. It also records `ownerCompressorPayloadOptIn=false`, `ownerCompressorLate14OptIn=false`, `ownerCompressorAnyTurnOptIn=false`, and `ownerCompressorBenchedOptIn=false`. Thus the frozen evaluated policy had **not enabled** these owner shuffle/compressor response pathways at all. The conservative three-card-hand rule in the existing independent shuffle module would be an additional barrier **if its module were enabled**, but cannot be claimed as the sole or actual reason for this archived Pass. The demonstrated result is missing policy coverage under the archived frozen options. Native legality and tactical benefit of any newly enabled action remain unknown.
+
