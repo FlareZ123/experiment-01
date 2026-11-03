@@ -392,13 +392,18 @@ function catcherCologneContinuation(seat,sourceBehind) {
   const target={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const originalActiveId=opponent.active.getPokemonCard()?.id;
   const catcher=source.hand.cards[0];
-  const nativeCanPlay=catcher.canPlay(store,state,source);
+  // The native Item's printed eligibility check throws instead of
+  // returning false for invalid public Prize counts.
+  let nativeCanPlay=false;
+  let nativeEligibilityError=null;
+  try{nativeCanPlay=catcher.canPlay(store,state,source);}
+  catch(e){nativeEligibilityError=String(e.message);}
   if(!sourceBehind){
     let rejection=null;
     try{store.dispatch(new PlayCardAction(source.id,0,target));}
     catch(e){rejection=String(e.message);}
     return {
-      seat,sourceBehind,nativeCanPlay,rejection,
+      seat,sourceBehind,nativeCanPlay,nativeEligibilityError,rejection,
       catcherHeld:source.hand.cards.includes(catcher),
       originalActiveId,finalActiveId:opponent.active.getPokemonCard()?.id,
       mukStillBenched:opponent.bench.includes(muk),
@@ -429,7 +434,7 @@ function catcherCologneContinuation(seat,sourceBehind) {
     }));
   }catch(e){error=String(e.message);}
   return {
-    seat,sourceBehind,nativeCanPlay,afterBlocked,error,
+    seat,sourceBehind,nativeCanPlay,nativeEligibilityError,afterBlocked,error,
     originalActiveId,mukPhysicalId,finalActiveId:opponent.active.getPokemonCard()?.id,
     sourcePrizeCount:source.prizes.length,opponentPrizeCount:opponent.prizes.length,
     mukStillBenched:opponent.bench.includes(muk),
@@ -458,6 +463,8 @@ for(const seat of [0,1]){
         assert.equal(row.eggInDiscard,false);
       }else{
         assert.equal(row.nativeCanPlay,false);
+        assert.equal(row.nativeEligibilityError,'CANNOT_PLAY_THIS_CARD');
+        assert.equal(row.rejection,'CANNOT_PLAY_THIS_CARD');
         assert.equal(row.catcherHeld,true);
         assert.equal(row.finalActiveId,row.originalActiveId);
         assert.equal(row.mukStillBenched,true);
