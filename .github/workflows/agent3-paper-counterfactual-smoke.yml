@@ -46,7 +46,8 @@ jobs:
             tests/agent3-rank26-donk-prize-witness-upper.test.cjs \
             tests/agent3-rank26-dowsing-pump-branches.test.cjs \
             tests/agent3-rank26-alternative-basic-starter.test.cjs \
-            tests/agent3-compressor-root-provenance-v3.test.cjs
+            tests/agent3-compressor-root-provenance-v3.test.cjs \
+            tests/aichi-open-adjudication.test.cjs
 
   rank26-root-v3-native:
     if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native }}
