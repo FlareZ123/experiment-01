@@ -283,7 +283,9 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
   const runRootWithUnderworldPrompt=()=>{
     if(options.ownerUnderworldPromptContinuation!==true)return runRoot();
     const selected=require('../twinleaf/agent34-actor-typed-energy-prompt.cjs')
-      .withActorUnderworldPromptContinuation(runRoot);
+      .withActorUnderworldPromptContinuation(runRoot,{
+        publicAttackGapRecipient:options.ownerUnderworldAttackGapRecipient===true
+      });
     assert.ok(selected?.audit&&typeof selected.audit==='object');
     ownerUnderworldPromptAudit=selected.audit;
     return selected.result;
@@ -388,6 +390,8 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     }:{}),
     ownerUnderworldPromptContinuationOptIn:
       options.ownerUnderworldPromptContinuation===true,
+    ownerUnderworldAttackGapRecipientOptIn:
+      options.ownerUnderworldAttackGapRecipient===true,
     ownerUnderworldPromptAudit,
     ownerPlumeriaOpportunityOptIn:plumeriaOpportunityOptIn,
     ownerPlumeriaAfterPassOptIn:plumeriaAfterPassOptIn,
