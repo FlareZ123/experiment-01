@@ -69,10 +69,11 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
       const result=original.call(this,action,...args);
       const moved=movedDeckCards(beforeDeck,beforeDiscard,
         source.deck.cards,source.discard.cards);
-      const minimum=Math.max(1,prompt.options?.min??0);
-      const maximum=prompt.options?.max??3;
-      const paperMinimumMet=moved.length>=minimum&&
-        moved.length<=maximum;
+      // XY Phantom Forces 92 prints "up to 3" for an Item: 1..3.
+      // Native prompt bounds are diagnostics, never the paper-rule oracle.
+      const printedMinimum=1,printedMaximum=3;
+      const paperMinimumMet=moved.length>=printedMinimum&&
+        moved.length<=printedMaximum;
       receipts.push({
         globalTurn:this.state.turn,sourceSeat:seat,
         exactLiveStore:true,sourcePlayPhysicallyTracked:true,
@@ -80,6 +81,9 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
           id:pending.sourceCard.id,
           fullName:pending.sourceCard.fullName},
         sameIssuedPrompt:true,paperMinimumMet,
+        printedMinimum,printedMaximum,
+        nativePromptMinimum:prompt.options?.min??null,
+        nativePromptMaximum:prompt.options?.max??null,
         physicallyMoved:moved.map(c=>({
           name:c.name,id:c.id,fullName:c.fullName
         }))
