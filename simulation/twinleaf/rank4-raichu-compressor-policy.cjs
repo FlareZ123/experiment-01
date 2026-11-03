@@ -6,7 +6,7 @@ const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const engine=name=>require(path.join(output,name));
 const ENERGY_PRINTS=['Reversal Energy PAL','Counter Energy CIN','Unit Energy LPM UPR'];
 const SETUP_POKEMON=new Set([
-  'Pikachu LOR','Voltorb ROS','Ditto Prism Star LOT',
+  'Pikachu LOR','Pikachu XY','Voltorb ROS','Ditto Prism Star LOT',
   'Alolan Raichu UNM','Electrode-GX CES'
 ]);
 
