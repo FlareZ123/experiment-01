@@ -10,6 +10,8 @@ const {PROFILE_BLOB,REGISTRATION_BLOB}=
   require('./agent21-single-profile-rank5-canary.cjs');
 const {withRootAnchoredFusionMewRetreat,VERSION:HOOK_VERSION}=
   require('../twinleaf/agent21-root-anchored-fusion-retreat-v2.cjs');
+const {reconcileBotPassToStoreRetreat}=
+  require('./agent21-root-alias-action-join.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const PROFILE_PATH=
@@ -116,9 +118,12 @@ function replay(deps={}) {
       competitivelyQualified:false
     };
   });
+  const botPassToStoreRetreatJoin=
+    reconcileBotPassToStoreRetreat(result?.rows??[],audit);
   return {
     schema:VERSION,
     experimentalHookVersion:HOOK_VERSION,
+    botPassToStoreRetreatJoin,
     priorRegisteredProfileBlob:PROFILE_BLOB,
     priorRegisteredTrialBlob:REGISTRATION_BLOB,
     pinnedVendorRevision:profile.pinnedVendorRevision,
