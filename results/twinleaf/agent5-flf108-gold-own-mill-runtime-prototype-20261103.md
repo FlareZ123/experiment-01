@@ -29,7 +29,7 @@ A second [native diagnostic CI 41616381975](https://github.com/FlareZ123/experim
 | Unpatched Regidrago copied Wild Blaze, either seat | 10 | 4 | 1 donor | 5 | 300 |
 | Patched Regidrago copied Wild Blaze, either seat | **5** | **9** | **6** including donor | **0** | 300 |
 
-The opponent deck loses its normal one-card start-of-next-turn draw in these numbers (initially 10, then 9 without the wrong-side five-card mill). All native copied-donor cases resolved the actual `AttackAction('Apex Dragon')`, `ChooseAttackPrompt`, `ResolvePromptAction`, damage and game advancement. The patched hook reports `correctedByPrinting:{'69':0,'108':1}` for #108 alone, as verified in both seats.
+These counts include the opponent's normal one-card start-of-next-turn draw: initial 10 becomes 9 in corrected cases, or 4 after incorrect five-card opponent milling. All native copied-donor cases resolved the actual `AttackAction('Apex Dragon')`, `ChooseAttackPrompt`, `ResolvePromptAction`, damage and game advancement. The patched hook reports `correctedByPrinting:{'69':0,'108':1}` for #108 alone, as verified in both seats.
 
 Gold #108 inherits the original ordinary Mega Evolution turn-ending behavior: direct native `PlayCardAction` causes global turn **4 → 5** without Spirit Link, and stays on turn **4** with a genuine attached `Charizard Spirit Link EVO`. Both patched gold tests passed on both physical seats; the original #69 analogues remain passing. The suite restored each temporary prototype patch in `finally`.
 
