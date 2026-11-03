@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Test bounded owner-only root and prototype-restoration contract
-        run: node --test tests/agent21-owner-stranded-mew-native-pass-retreat.test.cjs tests/agent21-retreat-receipt-provenance-counterexample.test.cjs tests/agent21-root-anchored-fusion-retreat-v2.test.cjs
+        run: node --test tests/agent21-owner-stranded-mew-native-pass-retreat.test.cjs tests/agent21-retreat-receipt-provenance-counterexample.test.cjs tests/agent21-root-anchored-fusion-retreat-v2.test.cjs tests/agent21-root-alias-action-join.test.cjs
       - name: Restore pinned original vendor Store
         run: git submodule update --init --depth=1 vendor/twinleaf
       - name: Install pinned native dependencies
@@ -50,7 +50,7 @@ jobs:
       - name: Show v2 root and physical fee disposition if selected
         if: ${{ inputs.policy_variant == 'root-anchored-v2' }}
         run: |
-          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a?.anchoredStores??null,auxiliaryPassesUnchanged:a?.auxiliaryPassesUnchanged??null,anchoredPassesSeen:a?.anchoredPassesSeen??null,eligibleOffers:a?.eligibleOffers??null,exactPhysicalFeeAndPromotion:a?.exactPhysicalFeeAndPromotion??null,unverifiedPhysicalFees:a?.unverifiedPhysicalFees??null,nativeRejectedReplacements:a?.nativeRejectedReplacements??null,pendingAtEnd:a?.pendingAtEnd??null,rootJoinVerified:a?.verifiedSelectedRootLedgerJoin??false,codeDrift:x.codeProvenance?.changedCodeCells, batchError:x.batchError,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
+          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a?.anchoredStores??null,auxiliaryPassesUnchanged:a?.auxiliaryPassesUnchanged??null,anchoredPassesSeen:a?.anchoredPassesSeen??null,eligibleOffers:a?.eligibleOffers??null,exactPhysicalFeeAndPromotion:a?.exactPhysicalFeeAndPromotion??null,unverifiedPhysicalFees:a?.unverifiedPhysicalFees??null,nativeRejectedReplacements:a?.nativeRejectedReplacements??null,pendingAtEnd:a?.pendingAtEnd??null,rootJoinVerified:a?.verifiedSelectedRootLedgerJoin??false,strictRootJoins:x.botPassToStoreRetreatJoin?.exactBotPassToStoreRetreatJoins,strictRootUnverified:x.botPassToStoreRetreatJoin?.unsettledOrUnverified,strictJoinDetails:x.botPassToStoreRetreatJoin?.joins,codeDrift:x.codeProvenance?.changedCodeCells, batchError:x.batchError,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
       - name: Preserve every original Store native replay row and owner-only root receipt
         if: always()
         uses: actions/upload-artifact@v4
