@@ -187,3 +187,18 @@ test('historical source promo set aliases retain verified public types',()=>{
   assert.equal(aliased.size>=original.size,true);
   assert.equal(original.size,16475,'Alias preparation must not mutate catalog');
 });
+
+
+test('source Prism Star ♢ and English database ◇ classify the same public Basic',()=>{
+  const canonical=loadBundledPublicPrintMetadata(
+    path.join(__dirname,'../resources'));
+  const source=withSourcePromoAliases(canonical);
+  assert.equal(canonical.has('Ditto ♢ LOT'),false);
+  assert.equal(targetMatch(source.get('Ditto ♢ LOT'),
+    'pokemon-or-basic-energy'),true);
+  assert.equal(targetMatch(source.get('Tapu Koko ♢ TEU'),
+    'pokemon-or-basic-energy'),true);
+  assert.deepEqual(source.get('Ditto ♢ LOT'),canonical.get('Ditto ◇ LOT'));
+  assert.deepEqual(source.get('Tapu Koko ♢ TEU'),
+    canonical.get('Tapu Koko ◇ TEU'));
+});
