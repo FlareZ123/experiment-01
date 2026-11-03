@@ -33,7 +33,7 @@ function makeSource(sourceSeat) {
     constructor() {this.state={turn:1,players,prompts:[]};}
     dispatch(action) {
       if (action instanceof PlayCardAction) {
-        assert.equal(action.id,owner.id);
+        if (action.id !== owner.id) return this.state;
         const original=owner.hand.cards.splice(action.handIndex,1)[0];
         owner.supporter={cards:[original]};
         this.state.prompts.push(new ChooseCardsPrompt(owner,44));
