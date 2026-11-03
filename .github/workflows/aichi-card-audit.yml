@@ -42,8 +42,10 @@ jobs:
         run: |
           python scripts/agent12_adp_double_thorton_strict_chain.py
           python scripts/agent12_adp_pokegear_exact_supporter.py
-      - name: Verify original-29 printed HP thresholds for Wild Blaze and Ryuno Glide
-        run: node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
+      - name: Verify original-29 printed HP thresholds and Goodra Rolling Iron defensive exception
+        run: |
+          node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
+          node tests/agent12-adp-goodra-rollingiron-ryuno-damage-threshold.sft.cjs
 
   card-coverage:
     if: ${{ !inputs.native_print_release_census && !inputs.agent12_adp_strict_screen }}
