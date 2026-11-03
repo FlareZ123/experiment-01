@@ -2,12 +2,19 @@ name: Frozen bilateral source-policy release canary
 
 on:
   workflow_dispatch:
+    inputs:
+      selected_joint_vip_v2:
+        description: 'Run Agent22 selected joint VIP source-policy gate instead of frozen rank6'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   frozen-rank6-four-arm:
+    if: ${{ inputs.selected_joint_vip_v2 != true }}
     if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -90,5 +97,44 @@ jobs:
           path: |
             agent41-joint-source-r5-r11-v1-output.json
             simulation/evaluation/agent41-joint-source-r5-r11-v1.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent22-selected-joint-vip-v2:
+    if: ${{ inputs.selected_joint_vip_v2 == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout exact preregistered release revision
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Pin Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure source fingerprint and frozen-registration checks
+        run: |
+          node --check simulation/evaluation/agent22-joint-vip-selected-v2.cjs
+          node --test tests/agent22-joint-vip-selected-v2.test.cjs tests/agent22-source-copy-choice-audit.test.cjs
+          node simulation/evaluation/agent22-joint-vip-selected-v2.cjs --inspect-only
+      - name: Fetch pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Preserve paper-cost and first-turn VIP component positive-negative tests
+        run: node --test tests/agent4-secret-box-payment-native.test.cjs tests/agent9-battle-vip-owner-after-pass.test.cjs
+      - name: Run selected joint rank5 rank11 rank6 and fresh source-panel policy
+        run: node simulation/evaluation/agent22-joint-vip-selected-v2.cjs
+      - name: Retain every selected cohort including failures and native caps
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-selected-joint-vip-v2-all-original-native-attempts
+          path: agent22-joint-vip-v2-output.json
           if-no-files-found: warn
           retention-days: 30

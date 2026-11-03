@@ -1,0 +1,7 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const mod=require('../simulation/evaluation/agent22-joint-vip-selected-v2.cjs');
+test('frozen registration and candidate symmetry',()=>{const {m,base}=mod.validateRegistration();assert.equal(m.registeredNativeAttempts,28);assert.equal(m.registeredSourceGroups,14);assert.equal(m.selectedPolicy.symmetricBothSeats,true);assert.equal(base.policyOptions.actorDceMewMobilityRoot,true);});
+test('both selected environment toggles restore even on thrown error',()=>{assert.throws(()=>mod.withSelectedEnvironment(()=>{assert.equal(process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV,'true');assert.equal(process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV,'true');throw Error('fixture');}),/fixture/);assert.equal(process.env.AGENT9_BATTLE_VIP_AFTER_PASS_DEV,undefined);assert.equal(process.env.AGENT4_NATIVE_PAYMENT_RECEIPT_DEV,undefined);});
+test('source physical-deal matching refuses unmatched source card inventories',()=>{const {m}=mod.validateRegistration();const c=m.cohorts[0];const rows=c.registeredTrials.map(t=>({id:t.id,sourceDealFingerprint:'s'+t.rank+':'+t.repeat,actualStarterSeat:1,verifiedFirstTurn:true}));assert.ok(mod.physicalPairs(c,rows).every(p=>p.physicalSourcePairStatus==='EXACT_SOURCE_DEAL_MATCH'));rows[1].sourceDealFingerprint='changed';assert.equal(mod.physicalPairs(c,rows)[0].physicalSourcePairStatus,'UNVERIFIED_OR_DIFFERENT');});
