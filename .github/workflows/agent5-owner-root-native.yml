@@ -77,6 +77,11 @@ on:
         options:
           - 'v1'
           - 'v2'
+      agent11_tutor_attack_trace_replay:
+        description: 'Read-only retrospective tutor v2 native attack/Prize trace replay, development only; adds no games'
+        required: false
+        type: boolean
+        default: false
       generic_owner_tutor_selected:
         description: 'Preregistered Agent11 original5-vs11 bilateral generic resource tutor selected policy, 8 arms'
         required: false
@@ -256,6 +261,7 @@ jobs:
         if: ${{ inputs.generic_owner_tutor_selected }}
         env:
           AGENT11_TUTOR_REGISTRATION: ${{ inputs.generic_owner_tutor_registration }}
+          AGENT11_TUTOR_ATTACK_TRACE_REPLAY: ${{ inputs.agent11_tutor_attack_trace_replay }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
       - name: Audit public Terminal Period targets on two original source deals
         if: ${{ inputs.generic_owner_tutor_selected }}
