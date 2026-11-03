@@ -149,6 +149,8 @@ jobs:
           npm run compile
       - name: Verify exact Night Watch printed randomness vs pinned vendor selection
         run: node --test tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs
+      - name: Verify native generic Trainer fallback inherits concealed-order decision reversal
+        run: node --test tests/agent9-native-fallback-hidden-order-counterexample.test.cjs
       - name: Preregistered actual Store generic native Trainer fallback across rank5/rank11 A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node simulation/twinleaf/agent50-generic-owner-native-trainer-paired-v1.cjs
