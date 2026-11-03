@@ -89,3 +89,10 @@ jobs:
           name: agent1-rank17-early-compressor-owner-census
           path: agent1-rank17-compressor-opening-census.json
           if-no-files-found: warn
+
+      - name: Verify prospective and known-positive original rank17 physical source registration
+        if: ${{ github.event.inputs.experiment == 'compressor-bridge' }}
+        run: node -e "const x=require('./simulation/evaluation/agent1-rank17-actor-compressor-bridge-prospective.cjs').preflight();console.log('BRIDGE_FROZEN',JSON.stringify({seeds:x.reg.prospectiveSeedGroups,retrospective:x.reg.retrospectivePositiveControl.length}))"
+      - name: Regress actor-only early native Battle Compressor bridge and native comparator
+        if: ${{ github.event.inputs.experiment == 'compressor-bridge' }}
+        run: node --test tests/agent1-raichu-actor-compressor-bridge.test.cjs tests/agent1-rank17-actor-compressor-bridge-prospective.test.cjs
