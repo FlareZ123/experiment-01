@@ -26,10 +26,17 @@ const {preflightRegisteredSeedPlan}=
 const SEED_PLAN=
   require('../../results/aichi-2026/registrations/agent47-rank26-natural-owner-seed-plan-v2.json');
 const SEED_PREFLIGHT=preflightRegisteredSeedPlan(SEED_PLAN);
-const PIN = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const SOURCE_PINS=
+  require('../../results/aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json');
+const SOURCE_RANK=SOURCE_PINS.originalPrints.find(x=>x.role==='source').rank;
+const OPPONENT_RANK=SOURCE_PINS.originalPrints.find(x=>x.role==='opponent').rank;
+assert.equal(SEED_PLAN.campaignId,SOURCE_PINS.campaignId);
+assert.equal(SEED_PLAN.rank,SOURCE_RANK);
+assert.equal(SOURCE_PINS.policyProfile,RANK26_PROPAGATION_PROFILE);
+const PIN='twinleafgg/'+SOURCE_PINS.engineGitlinkSha;
 const BASE=SEED_PLAN.seedBase;
 const REPEATS=Object.freeze([...SEED_PLAN.repeats]);
-const CAP=120;
+const CAP=SOURCE_PINS.maxActions;
 const digest=cards=>crypto.createHash('sha256')
   .update(JSON.stringify(cards)).digest('hex');
 
@@ -122,16 +129,17 @@ function describe(observation,seat,seed,a,b,opted) {
 /** Registered full denominator, no source or outcome selection. */
 function run() {
   initializeCards();
-  const planned=planAichi(26,{
+  const planned=planAichi(SOURCE_RANK,{
     allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true});
   const source=planned.candidate.cards;
-  const opponent=planned.opponents.find(d=>d.rank===6)?.cards;
+  const opponent=planned.opponents.find(d=>d.rank===OPPONENT_RANK)?.cards;
   assert.equal(source.length,60);
   assert.equal(opponent?.length,60);
   const cases=[],seedsSeen=new Set();
   for(const repeat of REPEATS){
-    const seeds=deriveSlotSeeds(BASE,'pilot',26,repeat);
-    for(const [slot,seat,seed] of [['A',0,seeds.A],['B',1,seeds.B]]){
+    const seeds=deriveSlotSeeds(BASE,SEED_PLAN.phase,SEED_PLAN.rank,repeat);
+    for(const [seat,slot] of SEED_PLAN.slots.entries()){
+      const seed=seeds[slot];
       assert.ok(Number.isSafeInteger(seed)&&seed>0&&!seedsSeen.has(seed));
       seedsSeen.add(seed);
       const a=seat===0?source:opponent;
@@ -173,14 +181,16 @@ function run() {
   const first=cases.filter(c=>c.control.actualSourceFirst===true);
   return {
     schema:'agent47-rank26-preregistered-natural-owner-24-paired-v1',
-    registration:'results/aichi-2026/registrations/agent47-rank26-natural-unownless-owner-24-paired-20261103.md',
-    engine:PIN,sourceRank:26,opponentRank:6,
+    registration:SEED_PLAN.registrationPath,
+    engine:PIN,sourceRank:SOURCE_RANK,opponentRank:OPPONENT_RANK,
+    sourcePrintedSha256:SOURCE_PINS.originalPrints.find(x=>x.role==='source').printed60Sha256,
+    opponentPrintedSha256:SOURCE_PINS.originalPrints.find(x=>x.role==='opponent').printed60Sha256,
     sourceDigest:digest(source),opponentDigest:digest(opponent),
     seedPlanManifestSha256:SEED_PREFLIGHT.manifestSha256,
     seedBase:BASE,repeats:[REPEATS[0],REPEATS.at(-1)],seats:[0,1],cap:CAP,
     nativeAttempts:SEED_PREFLIGHT.summary.nativeAttempts,
     originalPhysicalPairs:SEED_PREFLIGHT.summary.physicalPairs,
-    controlPolicy:RANK26_PROPAGATION_PROFILE,
+    controlPolicy:SOURCE_PINS.policyProfile,
     treatmentPolicy:'rank26-owner-early-compressor-one-L-two-Eggs + one-L Cologne + fifth Egg donor + Egg recovery over unchanged rank26 propagation-v3',
     summary:{
       pairs:cases.length,
@@ -229,13 +239,13 @@ function run() {
 if(require.main===module) {
   const result=run();
   const target=path.resolve(process.cwd(),
-    'agent47-rank26-natural-owner-24-paired.json');
+    SOURCE_PINS.outputFilename);
   saveResult(target,result);
   process.stdout.write('AGENT47_RANK26_NATURAL_OWNER_24 '+
     JSON.stringify(result.summary)+'\n');
   if(result.summary.pairs!==SEED_PREFLIGHT.summary.physicalPairs||
      result.summary.nativeAttempts!==SEED_PREFLIGHT.summary.nativeAttempts||
-     result.summary.physicalMatched!==24||
+     result.summary.physicalMatched!==SEED_PREFLIGHT.summary.physicalPairs||
      result.summary.physicalMismatched!==0||
      result.summary.physicalUnverified!==0||
      result.summary.nativeErrors.length)
