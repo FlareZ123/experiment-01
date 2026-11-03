@@ -172,6 +172,10 @@ function withPostgameRootOrderProbe(
   assert.ok(target.nativeTapeHandPrizeContrast!==true||
     target.nativeTapeBoundedOpponentHiddenHand===true,
     'Face-down Prize swaps require bounded native tape mode');
+  assert.ok(target.nativeTapeNumericScoreContrast!==true||
+    (target.nativeTapeBoundedOpponentHiddenHand===true&&
+      target.nativeTapeFirstFiniteScore===true),
+    'Native numerical score contrast needs bounded first-finite tape');
   const headless=dependencies.headless??require('../twinleaf/headless.cjs');
   const compare=dependencies.compare??compareHiddenDeckOrders;
   const signature=dependencies.signature??actionSignature;
@@ -531,7 +535,9 @@ function withPostgameRootOrderProbe(
             actionSignature:value=>value&&typeof value.type==='string'&&
               typeof value.data==='string'?value:signature(value),
             fingerprint:state=>stateGraphFingerprint(state).digest,
-            actorView
+            actorView,
+            ...(target.nativeTapeNumericScoreContrast===true?
+              {replayScoreTraceSink:replayTacticObservation}:{})
           });
         }else hiddenOpponentHandContrast={
           contrastExecutable:false,

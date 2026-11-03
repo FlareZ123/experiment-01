@@ -89,6 +89,22 @@ function compareNativeOpponentHiddenHandBounded(args,
   const {initial,ownerView}=validateNativeRoot(args);
   const {parity,root,seat,tape,cloneState,replayDecision,
     actionSignature,fingerprint,actorView}=args;
+  const scoreSink=args.replayScoreTraceSink??null;
+  if(scoreSink)assert.ok(Array.isArray(scoreSink.evaluations),
+    'Native numerical scorer must expose its existing evaluation ledger');
+  /** Only already-observed owner tactic scores; never run extra choices. */
+  function projectScores(evaluations){
+    return evaluations.map(({tactic,actionType,handIndex,finiteScore,
+      score,undefinedScore,threw})=>({tactic,actionType,handIndex,
+      finiteScore,score,undefinedScore,threw}));
+  }
+  /** Capture the additive read-only evaluation suffix of one native replay. */
+  function replayWithScores(world){
+    const first=scoreSink?.evaluations.length??0;
+    const playback=replayPolicyRandomTape(tape,()=>replayDecision(world));
+    return {playback,scores:scoreSink?
+      projectScores(scoreSink.evaluations.slice(first)):null};
+  }
   const opponent=root.players[1-seat];
   const originalPool=targetZone==='prizes'?
     hiddenHandPrizeFingerprint(opponent):hiddenZoneFingerprint(opponent);
@@ -98,6 +114,7 @@ function compareNativeOpponentHiddenHandBounded(args,
     (swapSize===2?selectBoundedDoubleExchanges:
       selectBoundedHiddenExchanges)(opponent.hand.cards,opponent.deck.cards,limit);
   const successfulCompositions=new Set();
+  const scoredCases=[];
   // Composition keys never enter the archived native case ledger. The
   // release evidence records counts, including paths that failed replay.
   function handCompositionKey(exchange){
@@ -152,6 +169,10 @@ function compareNativeOpponentHiddenHandBounded(args,
     selectedActionChanged:false,contrastExecutable:false,
     baselineReplayStable:false,firstActionReversal:null,
     cases:[],counterfactualAction:null,
+    scoreTraceEnabled:scoreSink!==null,
+    scoreTraceBaselineFinite:null,scoreTraceExecutable:false,
+    scoreTraceComparisonCount:0,scoreTraceChanges:0,
+    scoreOnlyChanges:0,firstScoreTraceDifference:null,
     opponentRevealHistoryAuthenticated:false,
     ownerK0K1HistoryAuthenticated:false,
     informationSetLeakQualified:false,
@@ -248,8 +269,12 @@ function compareNativeOpponentHiddenHandBounded(args,
         assert.deepStrictEqual(actorView(world,seat),ownerView,
           'Alternate hidden world changed the owner-visible observation');
         record.actorObservationMatched=true;
-        const playback=replayPolicyRandomTape(tape,()=>replayDecision(world));
+        const {playback,scores}=replayWithScores(world);
         record.consumed=playback.consumed;
+        if(scoreSink){
+          record.scoreTraceEvaluationCount=scores.length;
+          scoredCases.push({record,scores});
+        }
         const decision=actionSignature(playback.result);
         record.actionChanged=!isDeepStrictEqual(decision,parity.actualAction);
         record.executable=true;
@@ -279,9 +304,33 @@ function compareNativeOpponentHiddenHandBounded(args,
     // worlds. A native tape consumed on a different candidate path is a veto.
     const baseline=cloneState(root);
     assertSourceEquivalent(baseline);
-    const replay=replayPolicyRandomTape(tape,()=>replayDecision(baseline));
+    const {playback:replay,scores:baselineScores}=replayWithScores(baseline);
     report.baselineReplayStable=isDeepStrictEqual(
       actionSignature(replay.result),parity.actualAction);
+    if(scoreSink){
+      report.scoreTraceBaselineFinite=baselineScores.some(x=>x.finiteScore);
+      if(!report.scoreTraceBaselineFinite){
+        report.error='Original-world replay did not observe a finite candidate score';
+      }else{
+        for(const {record,scores} of scoredCases){
+          const changed=!isDeepStrictEqual(scores,baselineScores);
+          record.scoreTraceChanged=changed;
+          report.scoreTraceComparisonCount++;
+          if(!changed)continue;
+          report.scoreTraceChanges++;
+          if(record.actionChanged===false)report.scoreOnlyChanges++;
+          if(report.firstScoreTraceDifference)continue;
+          const discrepancy=baselineScores.findIndex((x,i)=>
+            !isDeepStrictEqual(x,scores[i]));
+          const first=discrepancy>=0?discrepancy:baselineScores.length;
+          report.firstScoreTraceDifference={index:first,
+            original:baselineScores[first]??null,
+            alternate:scores[first]??null,
+            baselineScoreCount:baselineScores.length,
+            alternateScoreCount:scores.length};
+        }
+      }
+    }
     report.successfulDistinctOpponentHandCompositions=
       successfulCompositions.size;
     if(!report.baselineReplayStable){
@@ -304,6 +353,9 @@ function compareNativeOpponentHiddenHandBounded(args,
       report.baselineReplayStable&&
       report.successfulExchangePaths>0&&
       report.failedExchangePaths===0&&report.error===null;
+    report.scoreTraceExecutable=report.contrastExecutable&&
+      report.scoreTraceEnabled&&report.scoreTraceBaselineFinite===true&&
+      report.scoreTraceComparisonCount===report.successfulExchangePaths;
     report.selectedActionChanged=report.contrastExecutable&&
       report.actionReversals>0;
     report.counterfactualAction=report.contrastExecutable?
