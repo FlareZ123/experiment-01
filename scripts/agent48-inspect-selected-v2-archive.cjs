@@ -6,6 +6,8 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {auditSelectedV2Archive}=
   require('../simulation/evaluation/agent48-archive-selected-v2-census.cjs');
+const {compareOriginalSourceSetup}=
+  require('../simulation/evaluation/agent48-original-setup-contrast.cjs');
 
 /**
  * Analyze a previously archived immutable source release in read-only mode.
@@ -52,6 +54,11 @@ function inspectFile(archiveFile){
     crossCandidateIncludingVerifiedAbortDigests:{
       baseline:summarize(audit.crossCandidateOriginalSourceDealsIncludingVerifiedAborts.baseline),
       selected:summarize(audit.crossCandidateOriginalSourceDealsIncludingVerifiedAborts.selected)
+    },
+    originalSetupControls:{
+      rank5MismatchedSeedGroup:archive.modes.map(mode=>({
+        mode:mode.id,...compareOriginalSourceSetup(mode.native.rows,'5:101:A')
+      }))
     },
     originalReleaseAcceptanceUnchanged:true,
     gameWinsQualified:0
