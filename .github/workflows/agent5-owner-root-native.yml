@@ -87,6 +87,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent30_public_prize_source5_26:
+        description: 'Four preregistered original source5 versus source26 read-only native A/B/A cohorts'
+        required: false
+        type: boolean
+        default: false
       agent30_public_prize_native:
         description: 'Historical original5-vs11 owner-visible public Prize Trainer veto A/B/A, no qualified games'
         required: false
