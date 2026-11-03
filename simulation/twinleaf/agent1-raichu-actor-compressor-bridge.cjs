@@ -64,6 +64,15 @@ function withOwnerEarlyCompressorAfterPass(run,sourceSeat,deps={}){
    nativeStore=this;
   const e=this===nativeStore?attempted.get(action):null;
   const seat=e?.seat??null;
+  const pending=this===nativeStore?this.state.prompts?.find(
+   prompt=>prompt.result===undefined):null;
+  const choiceEvent=pending?.constructor?.name==='ChooseCardsPrompt'&&
+   action?.constructor?.name==='ResolvePromptAction'?
+   audit.events.find(ev=>ev.pendingPromptId===pending.id&&
+    ev.storeAccepted===true&&ev.choiceResolved!==true):null;
+  const choicePrintings=choiceEvent?
+   (Array.isArray(action.result)?action.result.map(card=>
+    card?.fullName??card?.name??String(card)):null):null;
   const before=seat===null?null:this.state.players[seat].discard.cards.filter(
    c=>c.name==='Battle Compressor').length;
   try{
@@ -73,8 +82,19 @@ function withOwnerEarlyCompressorAfterPass(run,sourceSeat,deps={}){
     e.ownerDiscardCountAfter=this.state.players[seat].discard.cards.filter(
      c=>c.name==='Battle Compressor').length;
     e.genuineOwnerDiscardObserved=e.ownerDiscardCountAfter>before;
-    e.pendingPromptAfter=this.state.prompts?.find(p=>p.result===undefined)?
-     this.state.prompts.find(p=>p.result===undefined).constructor.name:null;
+    const pendingAfter=this.state.prompts?.find(p=>p.result===undefined);
+    e.pendingPromptAfter=pendingAfter?.constructor?.name??null;
+    e.pendingPromptId=pendingAfter?.id??null;
+    e.ownerDiscardBeforePlay=this.state.players[seat].discard.cards.map(
+     card=>card.fullName);
+   }
+   if(choiceEvent){
+    const ownerDiscard=this.state.players[choiceEvent.seat].discard.cards;
+    choiceEvent.choiceResolved=true;
+    choiceEvent.chosenNativeCards=choicePrintings;
+    choiceEvent.ownerDiscardAfterChoice=ownerDiscard.map(c=>c.fullName);
+    choiceEvent.chosenCardsInOwnerDiscard=choicePrintings?.every(name=>
+     ownerDiscard.some(c=>c.fullName===name))??null;
    }
    return outcome;
   }catch(error){
