@@ -31,6 +31,8 @@ function detachedStadiumAtPass(state,ownerSeat,deps={}){
     native('game/store/card/trainer-card');
   const {TrainerType}=deps.types??
     native('game/store/card/card-types');
+  const coreDispatch=deps.coreDispatch??Store.prototype.dispatch;
+  assert.equal(typeof coreDispatch,'function');
   const owner=state.players[ownerSeat];
   const enemy=state.players[1-ownerSeat];
   assert.ok(Array.isArray(owner?.hand?.cards)&&
@@ -74,6 +76,7 @@ function detachedStadiumAtPass(state,ownerSeat,deps={}){
       onNativeStoreClone:true,
       nativeRootAccepted:false,promptsSettled:false,
       originalLiveStoreMutated:false,nativeError:null,
+      detachedNativeCoreDispatchOnly:true,
       replacedPreviousSourceStadium:false,
       exactNewStadiumPhysicalCustody:false,
       nativeSourcePrismStarDisposal:'not-evaluated',
@@ -95,7 +98,7 @@ function detachedStadiumAtPass(state,ownerSeat,deps={}){
     const previousRandom=Math.random;
     Math.random=()=>0.5;
     try {
-      clone.dispatch(new PlayCardAction(copiedOwner.id,candidate.index,{
+      coreDispatch.call(clone,new PlayCardAction(copiedOwner.id,candidate.index,{
         player:PlayerType.ANY,slot:SlotType.BOARD,index:0
       }));
       evidence.nativeRootAccepted=true;
@@ -118,7 +121,7 @@ function detachedStadiumAtPass(state,ownerSeat,deps={}){
           evidence.unhandledNativePrompt=kind??'UNKNOWN_PROMPT';
           break;
         }
-        clone.dispatch(new ResolvePromptAction(pending.id,answer));
+        coreDispatch.call(clone,new ResolvePromptAction(pending.id,answer));
       }
       evidence.promptsSettled=clone.state.prompts.every(p=>
         p.result!==undefined);
@@ -178,7 +181,13 @@ function withFrozenCandidateStadiumPassProbe(execute,trials,deps={}){
   assert.equal(typeof execute,'function');
   assert.ok(Array.isArray(trials)&&trials.length===4);
   const {Store}=deps.store??native('game/store/store');
-  const probe=deps.probe??detachedStadiumAtPass;
+  // Capture the pre-run observer dispatcher here, before the frozen native
+  // workload installs its per-game physical-payment instrumentation. Clone
+  // actions bypass those live-only instrumentation counters while the true
+  // game dispatch still runs through every registered guard.
+  const probe=deps.probe??((state,seat)=>detachedStadiumAtPass(state,seat,{
+    coreDispatch:old.value
+  }));
   const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof old?.value,'function');
   const nativeStores=new WeakMap();
