@@ -185,11 +185,11 @@ function withFrozenCandidateStadiumPassProbe(execute,trials,deps={}){
   // workload installs its per-game physical-payment instrumentation. Clone
   // actions bypass those live-only instrumentation counters while the true
   // game dispatch still runs through every registered guard.
+  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof old?.value,'function');
   const probe=deps.probe??((state,seat)=>detachedStadiumAtPass(state,seat,{
     coreDispatch:old.value
   }));
-  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
-  assert.equal(typeof old?.value,'function');
   const nativeStores=new WeakMap();
   const events=[];
   let games=0;
