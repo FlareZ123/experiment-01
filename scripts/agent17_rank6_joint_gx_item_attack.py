@@ -103,3 +103,40 @@ def candidate_switch_bridge(bonus: int) -> float:
             hit=1-untouched(tag_left)-untouched(switch_left)+untouched(tag_left+switch_left)
         numerator+=ways*hit
     return numerator/(VALID7*c(53,6))
+
+def bilateral(max_bonus: int = 30) -> dict:
+    """Couple the independent conditional printed decks by mutual mulligan extras."""
+    qc=c(53,7)/c(60,7)
+    qs=c(56,7)/c(60,7)
+    common=(1-qc)*(1-qs)/(1-qc*qs)
+    c0=candidate_adp_active(0)+candidate_switch_bridge(0)
+    source_num,source_den=source_opportunity(0)
+    s0=source_num/source_den
+    joint=common*c0*s0
+    for d in range(1,max_bonus+1):
+        cd=candidate_adp_active(d)+candidate_switch_bridge(d)
+        source_num,source_den=source_opportunity(d)
+        sd=source_num/source_den
+        joint+=common*qs**d*cd*s0 + common*qc**d*c0*sd
+    candidate_tail=(1-qc)*qs**(max_bonus+1)/(1-qc*qs)
+    source_tail=(1-qs)*qc**(max_bonus+1)/(1-qc*qs)
+    tail=candidate_tail*s0 + source_tail*c0
+    return {
+        "candidate_t1_two_route_no_bonus_percent":100*c0,
+        "source_item_and_attack_no_bonus_percent":100*s0,
+        "bilateral_joint_full_bonus_lower_percent":100*joint,
+        "bilateral_joint_full_bonus_upper_percent":100*(joint+tail),
+        "geometric_omitted_tail":tail,
+        "qualified_games":0
+    }
+
+
+if __name__ == "__main__":
+    import json
+    result=bilateral(30)
+    assert abs(result["candidate_t1_two_route_no_bonus_percent"]-34.66718343588455)<1e-8
+    assert abs(result["source_item_and_attack_no_bonus_percent"]-12.607272492641695)<1e-8
+    assert abs(result["bilateral_joint_full_bonus_lower_percent"]-5.15825103784946)<1e-8
+    assert result["bilateral_joint_full_bonus_upper_percent"]-result["bilateral_joint_full_bonus_lower_percent"]<0.000002
+    print(json.dumps({"status":"PASS","original_source_rank":6,
+        "evidence_kind":"physical hand/Prize access without payment or actions",**result},indent=2))
