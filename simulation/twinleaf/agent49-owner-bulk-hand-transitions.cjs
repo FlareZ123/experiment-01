@@ -21,6 +21,18 @@ const BULK_HAND_PRINTS = Object.freeze({
   "Lillie's Determination MEG": Object.freeze({
     sourceId:'me1-119',moveTo:'deck',baseDraw:6,
     sixRemainingPrizesDraw:8
+  }),
+  'N FCO': Object.freeze({
+    sourceId:'xy10-105',moveTo:'deck',drawFromOwnPrizes:true,
+    affectsOpponentHand:true
+  }),
+  'Marnie SSH': Object.freeze({
+    sourceId:'swsh1-169',moveTo:'deck-bottom',baseDraw:5,
+    drawOnlyIfEitherPlayerMoved:true,affectsOpponentHand:true
+  }),
+  'Iono PAL': Object.freeze({
+    sourceId:'sv2-185',moveTo:'deck-bottom',drawFromOwnPrizes:true,
+    drawOnlyIfEitherPlayerMoved:true,affectsOpponentHand:true
   })
 });
 
