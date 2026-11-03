@@ -53,7 +53,7 @@ jobs:
         if: ${{ !inputs.native_only }}
         run: node simulation/twinleaf/snorlax-threat-aware-prospective.cjs > aichi-snorlax-threat-aware-prospective.json
       - name: Test copied Energy Mix root-to-public-custody and paper target guard
-        run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs tests/agent19-energy-mix-custody-audit.test.cjs tests/agent19-energy-mix-shuffle-hook.test.cjs
+        run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs tests/agent19-energy-mix-custody-audit.test.cjs tests/agent19-energy-mix-shuffle-hook.test.cjs tests/agent19-original-energy-mix-shuffle-lineage-audit.test.cjs
       - name: Probe native copied Energy Mix DCE custody and forbidden recipient
         run: node simulation/twinleaf/agent19-mew-energy-mix-native.cjs > aichi-rank5-mew-energy-mix.json
       - name: Execute preregistered original-rank5 paired Energy Mix paper-shuffle developmental cohort
