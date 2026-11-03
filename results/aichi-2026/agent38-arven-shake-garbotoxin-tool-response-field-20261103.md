@@ -82,9 +82,7 @@ The high Tool-answer incidence is a **candidate risk and prioritized adversarial
 
 A further [exact conditional counter-visibility model](../../scripts/agent38-early-tool-answer-visibility.cjs) evaluates a narrower, reproducible source-policy question. Suppose the opponent starts first and receives the ordinary initial seven, first-turn draw and next-turn draw, with no other draw, search or deck modifications. The candidate attempts a turn-one-going-second Garbotoxin lock between the opponent's two personal turns. For a source carrying `c` of the four exact Tool-removal printings and `b` Basic Pokémon, the model computes
 
-[
-P(\text{at least one removal card physically seen in nine cards}\mid\text{valid initial seven}).
-]
+`P(at least one removal card physically seen in nine cards | Basic-valid initial seven)`.
 
 The conditioning matters: the first seven must contain a Basic, and every eligible Tool-removal card is a Trainer, so the two classes are disjoint. Six initially assigned Prizes do not change the marginal ordinary-draw distribution absent any intervening card movement; they remain explicitly outside the card set physically seen. The calculation counts the direct card's presence by that observation horizon, regardless of whether the opponent already spent/discarded it or can play it.
 
@@ -98,7 +96,7 @@ The conditioning matters: the first seven must contain a Basic, and every eligib
 | 29, Iron Thorns | 4 | 3 | **36.481460%** |
 | 30, Lillie's Clefairy | 16 | 3 | **38.185218%** |
 
-The Basic counts above are individually grounded in these seven original source Pokémon rows and their printed stages from the supplied card corpus. Other 22 original sources are **not** assigned guessed Basic counts by the checker. Values are a deliberately restrictive natural-draw exposure diagnostic and **neither upper nor lower bounds on actual legal counterplay**, because additional draw/search, discarded hands, hidden Prizes, Item locks, Supporter contention, Prize changes and ongoing setup alter which Tool-removal card can be used.
+The Basic counts above are individually grounded in these seven original source Pokémon rows and their printed stages from the supplied card corpus. Other 22 original sources are **not** assigned guessed Basic counts by the checker. Values are a deliberately restrictive natural-draw exposure diagnostic and **not bounds on actual legal counterplay**, because additional draw/search, discarded hands, hidden Prizes, Item locks, Supporter contention, Prize changes and ongoing setup alter which Tool-removal card can be used.
 
 The [four exact regressions](../../tests/agent38-early-tool-answer-visibility.test.cjs) include a separately enumerated eight-card physical toy with ordered initial hand and draws, boundary cases with all/zero answer cards, all seven original printed-source sentinels, and malformed input rejection. A discovered impossible-edge issue (the no-answer physical pool could be smaller than the requested draw count) was fixed in [the checker](../../scripts/agent38-early-tool-answer-visibility.cjs) and re-tested: **4/4 passed in the V8 source-fetched harness**. These are independent of the 13 previously recorded source/position tests. No complete native match was run.
 
