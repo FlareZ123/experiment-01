@@ -132,6 +132,16 @@ function runCase(input){
   assert.equal(shuffle.validate(sequence,state),true);
   store.dispatch(new ResolvePromptAction(shuffle.id,sequence));
   actions.push('owner-shuffle-resolved');
+  // Boost Shake ends the turn. Native phase transitions expose silent WaitPrompts;
+  // settle them so the Item's deferred cleanup completes before custody checks.
+  for(let i=0;i<4;i++){
+    const pending=state.prompts.find(p=>p.result===undefined);
+    if(!pending)break;
+    assert.equal(pending.constructor.name,'WaitPrompt');
+    assert.equal(pending.validate(null,state),true);
+    store.dispatch(new ResolvePromptAction(pending.id,null));
+    actions.push('phase-transition-wait-resolved');
+  }
 
   const after={
     wob:observedPower(source,wob,'Bide Barricade'),
