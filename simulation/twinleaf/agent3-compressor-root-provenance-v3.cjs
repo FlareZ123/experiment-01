@@ -89,20 +89,57 @@ function withSourceCompressorRootProvenance(seat,execute,dependencies={}) {
     }
     return original.call(this,action,...args);
   }
-  StoreClass.prototype.dispatch=observe;
-  try {
-    const result=execute();
-    return {result,audit:{
+  /**
+   * Snapshot evidence even if the native runner throws before a normal return.
+   * An accepted play can lack a resolved prompt when an attempt aborts.
+   * @returns {object}
+   */
+  function audit(){
+    return {
       schema:'agent3-live-root-compressor-provenance-v3',
       sourceSeat:seat,liveRootIdentified:root!==null,
       ignoredSpeculativeDispatches,selectedSourcePlays,
       acceptedSourcePlays,linkedPromptsIssued,
+      unresolvedLinkedPrompt:pending!==null,
       positiveLinkedSettlements:receipts.filter(r=>r.paperMinimumMet).length,
-      receipts,competitivelyQualified:false
-    }};
+      receipts:[...receipts],competitivelyQualified:false
+    };
+  }
+  StoreClass.prototype.dispatch=observe;
+  try {
+    const result=execute();
+    return {result,audit:audit()};
+  } catch(error) {
+    // Preserve abort-side custody without converting the attempt into a win
+    // or masking the original exception. Outer runners must retain this field.
+    if(error&&typeof error==='object'&&
+       !Object.hasOwn(error,'nativeSourceCompressorRootAudit')){
+      error.nativeSourceCompressorRootAudit={
+        ...audit(),observationIsPartial:true,
+        executionDisposition:'NATIVE_ABORT',
+        nativeErrorName:error.constructor?.name??'Error'
+      };
+    }
+    throw error;
   } finally {
     assert.strictEqual(StoreClass.prototype.dispatch,observe);
     StoreClass.prototype.dispatch=original;
   }
 }
-module.exports={withSourceCompressorRootProvenance};
+/**
+ * Extract the first source-root custody witness through nested error causes.
+ * @param {unknown} error
+ * @returns {object|null}
+ */
+function sourceCompressorAbortAudit(error){
+  const visited=new Set();
+  for(let current=error,depth=0;current&&typeof current==='object'&&
+    depth<12&&!visited.has(current);current=current.cause,depth++){
+    visited.add(current);
+    const audit=current.nativeSourceCompressorRootAudit;
+    if(audit?.schema==='agent3-live-root-compressor-provenance-v3')
+      return audit;
+  }
+  return null;
+}
+module.exports={withSourceCompressorRootProvenance,sourceCompressorAbortAudit};
