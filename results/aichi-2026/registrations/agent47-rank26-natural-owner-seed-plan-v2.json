@@ -1,0 +1,35 @@
+{
+  "schema": "aichi-registered-seed-plan-v1",
+  "campaignId": "agent47-rank26-natural-owner-24-paired-v2",
+  "registrationPath": "results/aichi-2026/registrations/agent47-rank26-natural-unownless-owner-24-paired-20261103.md",
+  "derivation": "aichi-decorrelated-slots-v3",
+  "seedBase": 20261110,
+  "phase": "pilot",
+  "rank": 26,
+  "repeats": [
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "slots": [
+    "A",
+    "B"
+  ],
+  "arms": [
+    "control",
+    "selected"
+  ],
+  "expectedPhysicalPairs": 24,
+  "expectedNativeAttempts": 48,
+  "requirePhysicalDealParity": true,
+  "qualificationNote": "Executable seed identity only; this file does not validate actual physical deals or paper competition."
+}
