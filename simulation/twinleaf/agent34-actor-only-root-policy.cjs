@@ -1128,6 +1128,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.strandedMarnieRootOptIn)
     audit.version+='+'+
       require('./agent50-stranded-marnie-frontier.cjs').VERSION;
+  const ownerTurnLedger=audit.nativeOwnerTrainerFallback?
+    require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
   function wrapped(state){
     // A bot may evaluate hypothetical cloned States in its own tactics.
     // Never make an actor-root policy decision against such a speculative
@@ -1192,6 +1194,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
     }
     const view=observe(state,seat);
+    const ownerTurnReceipt=ownerTurnLedger?
+      ownerTurnLedger.observe(view):null;
     if(audit.nativeCoheldDenialCanPlayOptIn){
       const witness=require('./agent41-native-coheld-denial-canplay.cjs')
         .inspectNativeCoheldDenialCanPlay(
@@ -1401,7 +1405,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       if(trainerCatalog===null)trainerCatalog=getNativeTrainerCatalog();
       const nativeAction=original.value.call(this,state);
       const proposal=bridge.classifyNativeTrainerAfterPass(
-        view,nativeAction,trainerCatalog,PlayCardAction);
+        view,nativeAction,trainerCatalog,PlayCardAction,ownerTurnReceipt);
       if(proposal.selected){
         stats.selectedNativeTrainerRoots++;
         const receipt={seat,globalTurn:view.globalTurn,
