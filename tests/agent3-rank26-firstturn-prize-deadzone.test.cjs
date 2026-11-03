@@ -72,6 +72,27 @@ test('source rank26 print identities and Basic count are exact',()=>{
     assert.deepEqual([row.printing.set,row.printing.number],[set,number]);
   }
 });
+test('printed source-card effects preserve the no-alternate-resource proof',()=>{
+  /** @param {string} set @param {string} id */
+  const card=(set,id)=>{
+    const row=require('../resources/cards/en/'+set+'.json').find(x=>x.id===id);
+    assert.ok(row,id);return row;
+  };
+  const ticket=card('sv9','sv9-156');
+  assert.match(ticket.rules[0],/Prize cards.*bottom of your deck/);
+  const heavy=card('swsh10','swsh10-146');
+  assert.match(heavy.rules[0],/Basic Pok(?:é|e)mon/);
+  const koko=card('sm9','sm9-51');
+  assert.match(koko.abilities[0].text,/choose 2 of your Benched Pok(?:é|e)mon/);
+  assert.match(koko.abilities[0].text,/a Lightning Energy card.*each of them/);
+  const melo=card('zsv10pt5','zsv10pt5-44');
+  assert.match(melo.abilities[0].text,/If you go first.*first turn/);
+  const crisis=card('sv4pt5','sv4pt5-90').attacks[0];
+  assert.deepEqual(crisis.cost,['Colorless','Colorless','Colorless']);
+  assert.equal(crisis.damage,'280');
+  assert.match(crisis.text,/exactly 1 Prize card remaining/);
+});
+
 test('exact conditioned Prize-union probabilities, no duplicated masks',()=>{
   const v=calculate();
   assert.deepEqual(v.conditional,[8787403607887n,896999961737880n]);
