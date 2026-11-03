@@ -146,7 +146,8 @@ function withActorOnlyChooseAttack(run,deps={}){
   const preferZeroHandPrintedDamage=deps.preferZeroHandPrintedDamage===true;
   const preferMewGenesectTechnoBlast=deps.preferMewGenesectTechnoBlast===true;
   const preferRank13DragapultPhantomDive=deps.preferRank13DragapultPhantomDive===true;
-  const preferPublicFlatCopy=deps.preferPublicFlatCopy===true;
+  const preferPublicFlatCopy=deps.preferPublicFlatCopy===true||
+    process.env.AGENT8_PUBLIC_FLAT_COPY_DEV==='true';
   const rank13SourceSeat=deps.rank13SourceSeat??null;
   assert.ok(!preferRank13DragapultPhantomDive||
     rank13SourceSeat===0||rank13SourceSeat===1);
