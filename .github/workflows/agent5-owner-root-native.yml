@@ -159,7 +159,7 @@ jobs:
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent27-owner-trainer-payment-observer.test.cjs tests/agent27-original-field-trainer-payment-coverage.test.cjs
       - name: Verify reusable K0 Trainer arbitration and native-like Store adapter
         if: ${{ inputs.generic_owner_tutor_selected }}
-        run: node --test tests/agent11-owner-resource-tutor-planner.test.cjs tests/agent11-native-owner-resource-tutor-after-pass.test.cjs
+        run: node --test tests/agent11-owner-resource-tutor-planner.test.cjs tests/agent11-native-owner-resource-tutor-after-pass.test.cjs tests/agent11-terminalperiod-payoff-audit.test.cjs
       - name: Pure owner-only Marshadow source lockbreak sequence and defensive veto contracts
         if: ${{ inputs.forced_active_marshadow_policy }}
         run: node --test tests/agent5-owner-visible-marshadow-chain-policy.test.cjs
