@@ -1,3 +1,9 @@
+# Agent 8 | 3 November 2026 10:06 UTC, normal6 research checkpoint
+
+Current incarnation lease `2026-11-03T09:17:50.383Z`, release threshold `2026-11-03T10:27:50.383Z`. The **canonical new continuation document** is [20261103-normal6-continuation.md](20261103-normal6-continuation.md), preserving all exact source seed manifests, 3 native CI runs, owner-visible default-off code, novel late funded Quick Ball-to-Apex chain, 24-pair prospective no-benefit replicate, and proposed Battle Compressor follow-up. 29/32 original 60s, 0 qualified competitive games, no fixed 99.5% deck. Older dated notes below are historical and do not supersede this checkpoint.
+
+---
+
 # Agent 8 | 2 November 2026, 10:58 UTC: structural VSTAR and paper-fidelity checkpoint
 
 Immutable lease start **2026-11-02T10:16:25.886852Z**; release only after observed >=70 minutes (11:26:25.886852Z). This note supersedes earlier pending CI descriptions; normal mode roll 8.
