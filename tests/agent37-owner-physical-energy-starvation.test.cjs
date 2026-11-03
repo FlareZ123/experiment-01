@@ -71,3 +71,19 @@ test('actor view is seat-relative without rival hidden data',()=>{
   assert.equal(ownerZeroEnergyFrontier(b,catalog).zeroPhysicalEnergy,
     a.zeroPhysicalEnergy);
 });
+
+test('archived real rank11 T32 owner/public receipt is zero-energy despite fourteen held cards',()=>{
+  const native=require('../results/aichi-2026/fixtures/agent37-rank11-t32-owner-public-pass.json');
+  assert.equal(native.provenance.actualCandidatePassOrdinal,147);
+  assert.equal(native.provenance.actualSourceAttackOrdinal,139);
+  const r=ownerZeroEnergyFrontier(native.ownerView,catalog);
+  assert.equal(r.handCount,14);
+  assert.equal(r.ownerPhysicalEnergyHand,0);
+  assert.equal(r.ownerPhysicalEnergyAttached,0);
+  assert.equal(r.zeroPhysicalEnergy,true);
+  assert.equal(r.printedShuffleOffers.length,2);
+  assert.equal(r.printedShuffleOffers[0].printedDrawCount,8);
+  assert.equal(r.heldCounterCatcher,true);
+  assert.equal(r.heldForestSealStone,true);
+  assert.equal(r.supporterNativeCanPlayCertified,false);
+});
