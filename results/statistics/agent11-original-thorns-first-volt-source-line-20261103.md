@@ -28,6 +28,19 @@ These are **conditional valid-opening-seven percentages**, calculated over all s
 
 All three original source configurations share a weighted allocation denominator `166478632771651200`. For DCE=1 the favorable numerator is `56238988836673440` (direct `2128188148894080`, supporter `54110800687779360`). For DCE=3 it is `65106215030784032` (direct `5826332118166560`, supporter `59279882912617472`). The enumerator was executed locally under Node.js: **3/3 pure tests passed**. A separate 90,000-allocation-per-case Python random-permutation check produced conditional estimates 33.7669% (35,902 valid) and 38.9190% (35,651 valid), statistically consistent with the exact values. The enumerator and roster assertions are independent of Twinleaf.
 
+## Conditional joint-mulligan extension (original 60 unchanged)
+
+A second computation allows the source to take **every maximum optional bonus card** from its opponent's mulligans. In each simultaneous opening process, let X be the first Basic-valid seven-attempt index for the four-Basic source, and Y for the opposing deck. The source can draw K=max(0,Y−X) extra cards. X and Y are independent geometric variables with respective valid-seven parameters pS and pO; the exact joint process gives P(K=0)=1−pS(1−pO)/(pS+pO−pS pO), and for k≥1, P(K=k)=pS pO(1−pO)^k/(pS+pO−pS pO).
+
+For each K, the enumerator recomputes the entire physical hand/Prize allocation for H=8+K held cards, weighting each unordered H-card hand with B Basics by C(H,7)−C(H−B,7) valid initial-seven placements. The resulting mixture includes **20 maximum-bonus levels**, with ignored total mass below `4.13e-19` for the fourteen-Basic opponent and below `9.39e-24` for the seventeen-Basic opponent. It does not count actual bonus acceptance or any further effect-driven draws.
+
+| Source original | Opponent 14-Basic rank-1 Shadow Rider (all bonuses) | Opponent 17-Basic frozen New Moon (all bonuses) | No bonuses |
+| --- | ---: | ---: | ---: |
+| Rank 6 / 29 (1 DCE) | **34.04617488%** | **33.92661197%** | 33.78150571% |
+| Rank 24 (3 DCE) | **39.42081479%** | **39.27946646%** | 39.10785063% |
+
+Thus the extra maximum original-source opportunity afforded by the reference opponent relative to New Moon is **0.11956291 percentage points** for rank6/29 and **0.14134833 percentage points** for rank24. This is a candidate-list-dependent opponent-resource effect, not a matched-deal or win-rate comparison. The core [model](../../scripts/agent11-thorns-first-volt-access.cjs) and [tests](../../tests/agent11-thorns-first-volt-access.test.cjs) now also assert all four mixed probabilities. The formulas were independently implemented in Python and numerically reproduced by a separate local Node.js run.
+
 ## Adversarial limitations and next decision gate
 
 These numbers assume second-player first turn, a legally playable Stadium and Items/Supporters, a free hand Energy attachment, and no existing opponent disruption. Opponent's first turn, prior information, Stadium precedence, Stadium locks, Trainer denial, draw/Trainer searches, multiple mulligans, additional Energy acceleration, strategically protected discard targets, and actual G&H prompt/payment execution are unmodeled. In particular, a physically payable two-card discard may be ruinous under resource-lock matchups. This is **neither the frequency of native attacks nor a win-rate estimate**, and may go up or down under real rules/policies.
