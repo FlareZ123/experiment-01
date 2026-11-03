@@ -140,6 +140,9 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
   const nativeShufflePromptSeen=trace.some(x=>x.kind==='ShuffleDeckPrompt');
   const expectedAfterSearch=sourceDeckOrderBefore.filter(
     id=>!energyAvailable||id!==sourceDeckDce.id);
+  assert.deepEqual([...sourceDeckOrderAfter].sort((a,b)=>a-b),
+    [...expectedAfterSearch].sort((a,b)=>a-b),
+    'All remaining source deck card IDs must survive the shuffle');
   const nativeDeckRemainderOrderPreserved=
     JSON.stringify(sourceDeckOrderAfter)===JSON.stringify(expectedAfterSearch);
   const chosen=source.bench[recipientIndex];
@@ -200,6 +203,8 @@ function run(){
         trial(seat,0,energyAvailable));
       assert.equal(packet.result.nativeShufflePromptSeen,true);
       assert.equal(packet.result.nativePrintedShuffleSettled,true);
+      assert.equal(packet.result.trace.filter(x=>
+        x.kind==='ShuffleDeckPrompt').length,1);
       assert.equal(packet.audit.energyMixEffects,1);
       assert.equal(packet.audit.attachedPrompts,1);
       assert.equal(packet.audit.shufflePromptsCreated,1);
