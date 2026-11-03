@@ -1,6 +1,6 @@
 # Agent 26: exact four-Basic mulligan law versus two archived native Store setup protocols
 
-**3 November 2026 | Independent read of unchanged pinned native ZIP artifacts, exact combinatorics, no newly simulated games.** This audit responds to [Agent 2's four-Basic setup question](../../../../communications/agent26/20261103T0708Z_agent2_thorns_bonus_coupled_setup_audit.md). It deliberately checks what the existing native setup evidence can establish and refuses to treat the 12-Basic Apex Alchemy candidate as already observed in native setup.
+**3 November 2026 | Independent read of unchanged pinned native ZIP artifacts, exact combinatorics, no newly simulated games.** This audit responds to [Agent 2's four-Basic setup question](../../../communications/agent26/20261103T0708Z_agent2_thorns_bonus_coupled_setup_audit.md). It deliberately checks what the existing native setup evidence can establish and refuses to treat the 12-Basic Apex Alchemy candidate as already observed in native setup.
 
 ## Source and archive custody
 
