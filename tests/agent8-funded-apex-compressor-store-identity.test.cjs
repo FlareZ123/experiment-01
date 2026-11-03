@@ -87,6 +87,13 @@ test('genuine Store passes and donor prompts settle; clones cannot masquerade',(
  assert.equal(out.audit.observedLiveNativeStore,true);
  assert.equal(out.audit.afterPassRootCount,1);
  assert.equal(out.audit.eligibleAtAnyLiveOwnerRootCount,1);
+ assert.equal(out.audit.ownerRootsAudited,1);
+ assert.equal(out.audit.independentPositiveGateCounts.heldCompressor,1);
+ assert.equal(out.audit.independentPositiveGateCounts.vstarActive,1);
+ assert.equal(out.audit.firstBlockingGateCounts['all-visible-gates-met'],1);
+ assert.equal(out.audit.ownerRootGateSamples.length,1);
+ assert.equal(out.audit.ownerRootGateSamples[0].itemInHandCount,1);
+ assert.equal(out.audit.ownerRootGateSamples[0].firstBlockingGate,null);
  assert.equal(out.audit.sameRootCompetingActions[0].previousAction,'PassTurnAction');
  assert.equal(out.audit.acceptedItems,1);
  assert.equal(out.audit.ownerDeckPromptsAnswered,1);
