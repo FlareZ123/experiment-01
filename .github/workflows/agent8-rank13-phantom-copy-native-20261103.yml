@@ -25,6 +25,8 @@ jobs:
         run: npm run compile
       - name: Verify public source Apex attack root
         run: node --test tests/agent8-rank13-source-apex-attack-frontier.test.cjs
+      - name: Verify source-only offered native Phantom choice
+        run: node --test tests/agent8-rank13-native-copy-choice.test.cjs
       - name: Compare physical source Noivern versus Dragapult copied attack
         env:
           AGENT8_PHANTOM_CHOICE_JSON: agent8-original13-phantom-copy-native.json
