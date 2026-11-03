@@ -4,12 +4,6 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {initializeCards,runMatch}=require('./headless.cjs');
-const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
-const {withCanonicalActorOnlyPolicy}=
-  require('../evaluation/agent7-canonical-actor-composition.cjs');
-const {saveResult}=
-  require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
 
 const VERSION='agent4-authenticated-paper-trainer-frontier-native-aba-v1';
 const ENGINE_PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -145,6 +139,9 @@ function witness(result){
 
 /** One real Store attempt, with errors retained rather than silently dropped. */
 function attempt(request,instrumented){
+  const {runMatch}=require('./headless.cjs');
+  const {withCanonicalActorOnlyPolicy}=
+    require('../evaluation/agent7-canonical-actor-composition.cjs');
   const record={instrumented,status:'not-attempted',error:null,
     native:null,paperCensus:null};
   try{
@@ -181,7 +178,10 @@ function attempt(request,instrumented){
 
 /** Historical exact deal read-only compatibility check, never performance. */
 function run(){
+  const {initializeCards}=require('./headless.cjs');
   const {planAichi}=require('../evaluation/aichi-pilot.cjs');
+  const {deriveSlotSeeds}=
+    require('../../scripts/aichi-decorrelated-seeds.cjs');
   assert.equal(registration.schema,
     'agent4-owner-paper-opportunity-native-registration-v1');
   assert.deepEqual(registration.originalSourceRanks,[5,11]);
@@ -249,6 +249,8 @@ function run(){
 }
 
 if(require.main===module){
+  const {saveResult}=
+    require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
   const result=run();
   saveResult(path.resolve(process.cwd(),
     'agent4-owner-paper-native-parity.json'),result);
