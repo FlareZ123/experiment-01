@@ -54,11 +54,9 @@ function run(){
     assert.equal(b.trial.id,trial.id);
     assert.equal(z.trial.id,trial.id);
     const dealMatch=a.sourceDealFingerprint===b.sourceDealFingerprint;
-    const physicalAll=(
-      a.initialFullPhysicalDealDigest??a.initialFullPhysicalDealFingerprint
-    )===(
-      b.initialFullPhysicalDealDigest??b.initialFullPhysicalDealFingerprint
-    );
+    const physicalAll=typeof a.fullPhysicalDealFingerprint==='string'&&
+      a.fullPhysicalDealFingerprint.length===64&&
+      a.fullPhysicalDealFingerprint===b.fullPhysicalDealFingerprint;
     const audit=wrapped.audit.interventions[i];
     assert.equal(audit.trialId,trial.id);
     return {
@@ -68,9 +66,9 @@ function run(){
       exactSourcePhysicalDealMatch:dealMatch,
       originalSourcePhysicalDealFingerprint:a.sourceDealFingerprint,
       sameFullPhysicalDealDigest:physicalAll,
-      originalStatus:a.status??null,treatmentStatus:b.status??null,
-      originalNativeWinnerSeat:a.nativeWinnerSeat??null,
-      treatmentNativeWinnerSeat:b.nativeWinnerSeat??null,
+      originalStatus:a.endReason??null,treatmentStatus:b.endReason??null,
+      originalNativeWinnerSeat:a.winner??null,
+      treatmentNativeWinnerSeat:b.winner??null,
       originalFinish:a.finished??null,
       treatmentFinish:b.finished??null,
       originalRootActionCount:a.rootActionLedger?.length??0,
