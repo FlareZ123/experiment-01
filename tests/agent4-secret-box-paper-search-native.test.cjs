@@ -19,7 +19,7 @@ function pure(){
 
 test('pure Secret Box search paper category, identity, and maximum',()=>{
   const {owner,prompt,deck}=pure();
-  const all=deck.cards;
+  const all=[...deck.cards];
   assert.equal(secretBoxSearchCategoryNegative(prompt,all,owner,types),null);
   assert.equal(secretBoxSearchCategoryNegative(prompt,[],owner,types),null);
   assert.equal(secretBoxSearchCategoryNegative(prompt,[all[0]],owner,types),null);
