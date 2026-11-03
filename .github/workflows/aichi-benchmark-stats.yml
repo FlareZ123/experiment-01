@@ -125,6 +125,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent4_owner_paper_native_aba:
+        description: 'Historical read-only 6-arm real Store owner-paper necessary-condition census; no qualified games'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -975,5 +980,42 @@ jobs:
         with:
           name: agent39-rank16-quickbridge-source-partition-${{ inputs.agent39_rank16_quickbridge_partition }}
           path: agent39-rank16-quickbridge-native.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  agent4-paper-owner-native:
+    if: ${{ inputs.agent4_owner_paper_native_aba }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout original pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Precompile owner-turn paper-negative and immutable historical pair
+        run: |
+          node --check simulation/twinleaf/agent4-owner-turn-ledger.cjs
+          node --check simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs
+          node --check simulation/twinleaf/agent4-owner-paper-native-parity.cjs
+          node --check simulation/twinleaf/agent5-native-owner-trainer-frontier-observer.cjs
+          node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent4-owner-paper-native-transport.test.cjs
+      - name: Install original pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute frozen exact rank5 versus rank11 real owner paper-opportunity A/B/A
+        run: node simulation/twinleaf/agent4-owner-paper-native-parity.cjs
+      - name: Preserve all six original Store attempts and paper status denominators
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent4-original-owner-paper-trainer-aba-six
+          path: agent4-owner-paper-native-parity.json
           retention-days: 30
           if-no-files-found: warn
