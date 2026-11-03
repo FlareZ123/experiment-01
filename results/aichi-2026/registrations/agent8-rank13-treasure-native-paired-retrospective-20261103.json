@@ -1,0 +1,67 @@
+{
+  "schema": "agent8-rank13-original-treasure-preselected-eight-deal-transport-v1",
+  "registeredAtUtc": "2026-11-03T04:38:56.010Z",
+  "originalRegistration": "results/aichi-2026/registrations/agent8-rank13-donor-native-paired-20261102.json",
+  "sourceOriginalRank": 13,
+  "opponentOriginalRank": 1,
+  "fixedOriginalSixties": "results/aichi-2026/full-decklists.json",
+  "upstreamTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceSeedMatrix": [
+    {
+      "seed": 1626632453,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 1478863204,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 2621207203,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 603372370,
+      "sourceSeat": 0
+    },
+    {
+      "seed": 2295622320,
+      "sourceSeat": 1
+    },
+    {
+      "seed": 455806637,
+      "sourceSeat": 1
+    },
+    {
+      "seed": 299991154,
+      "sourceSeat": 1
+    },
+    {
+      "seed": 160440262,
+      "sourceSeat": 1
+    }
+  ],
+  "preregistrationType": "Retrospective fixed-seed protocol, all eight seeds previously observed, not a fresh independent holdout",
+  "arms": [
+    {
+      "id": "control",
+      "nativeTreasure": false
+    },
+    {
+      "id": "intervention",
+      "nativeTreasure": true
+    }
+  ],
+  "otherPolicyOptions": {
+    "sourceDonorQuickBall": false,
+    "naturalEvolutionSymmetric": true,
+    "ownerSingleSearchSymmetric": true,
+    "actorHandDiscardSymmetric": true,
+    "paperCelestialCorrectionSymmetric": true,
+    "boundedMandatoryAttachmentSymmetric": true,
+    "nativeTreasureTwoPromptBridgeSymmetric": true
+  },
+  "intervention": "Existing Agent49 Mysterious Treasure owner-visible root and actual native physical two-prompt cost/search continuation, selected as one bundle",
+  "inspect": "Exact physical pair, selected source Treasure, genuine hand-to-discard cost, retrieved deck target, later genuine source copied attack prompt, source Prize and opponent response; include no opportunities, errors, caps",
+  "inferentialStatus": "Post-observation mechanics transport only; cannot count source wins or qualified competitive games",
+  "acceptedQualifyingGames": 0
+}
