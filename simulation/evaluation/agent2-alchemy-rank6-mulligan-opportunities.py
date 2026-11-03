@@ -23,7 +23,8 @@ CLASS_NAMES = (
     "Quick Ball", "Budew", "Regidrago V",
 )
 OTHER_BASICS = {"Koraidon ex", "Tapu Lele-GX", "Latias ex", "Dialga-GX", "Kyurem"}
-METRICS = ("muk", "budew", "regidrago", "mukRegidrago", "budewRegidrago", "eitherLockRegidrago", "budewDirectStartRegidrago")
+METRICS = ("muk", "budew", "regidrago", "mukRegidrago", "budewRegidrago", "eitherLockRegidrago", "budewDirectStartRegidrago",
+    "positionedEitherLockRegidrago", "unpositionedBudewOnlyRegidrago")
 
 
 def input_decks(root: Path):
@@ -67,7 +68,12 @@ def opening_opportunities(held:np.ndarray, prized:np.ndarray,initial:np.ndarray)
     MV=M and V and (grimer>0 or regi>0 or search>=2)
     BV=B and V and (budew>0 or regi>0 or (quick>0 and search>=2))
     directActive=np.any(initial==5) and V
-    return bool(M),bool(B),bool(V),bool(MV),bool(BV),bool(MV or BV),bool(directActive)
+    # A fetched or just-drawn Budew does not become the Active Pokemon for free.
+    # This is the restrictive no-pivot positional subset; paid Switch/retreat
+    # opportunities are outside this opening-resource predicate.
+    positioned=MV or directActive
+    benchOnly=(MV or BV) and not positioned
+    return bool(M),bool(B),bool(V),bool(MV),bool(BV),bool(MV or BV),bool(directActive),bool(positioned),bool(benchOnly)
 
 
 def two_actor_bonus_probabilities(source_basic:int=SOURCE_BASIC):
@@ -82,10 +88,10 @@ def simulate(root:Path, trials:int=300000, seed:int=SEED, source_basic:int=SOURC
     decks,v0,v1=input_decks(root)
     rng=np.random.default_rng(seed)
     p_candidate,p_source,bonus_any=two_actor_bonus_probabilities(source_basic)
-    counts=np.zeros((7,2),dtype=np.int64)
-    bonus_counts=np.zeros((7,2),dtype=np.int64)
-    paired=np.zeros((7,3),dtype=np.int64)
-    bonus_paired=np.zeros((7,3),dtype=np.int64)
+    counts=np.zeros((len(METRICS),2),dtype=np.int64)
+    bonus_counts=np.zeros((len(METRICS),2),dtype=np.int64)
+    paired=np.zeros((len(METRICS),3),dtype=np.int64)
+    bonus_paired=np.zeros((len(METRICS),3),dtype=np.int64)
     bonus_hist=np.zeros(8,dtype=np.int64)
     censored=0
     for trial in range(trials):
