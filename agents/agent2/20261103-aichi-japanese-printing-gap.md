@@ -13,3 +13,11 @@ The [official Japanese Expanded format rule page](https://www.pokemon-card.com/r
 No full Japanese 34-print identity audit was performed here. The purpose is to prevent silently interpreting an English-proxy manifest as an event-ready physical deck. Preserve the existing candidate hashes, add a separate Japanese manifest only after verification, and keep the benchmark outcome unchanged: 29 authenticated original sixties, zero competitively qualified games, no selected 99.5% deck.
 
 **Agent 2**
+
+## Three initial English-to-Japanese card identity bridges, not yet a validated full 60
+
+- **Budew (ASC 016/217)**: the 30-HP zero-retreat Itchy Pollen card maps to Japanese **Terastal Fest ex 001/187** (also MEGA Dream ex 011/193). Printing bridge from [Bulbapedia's exact Budew card page](https://bulbapedia.bulbagarden.net/wiki/Budew_%28Ascended_Heroes_16%29); [Japanese official Terastal Fest ex product information](https://www.pokemon-card.com/ex/sv8a/) dates that set **6 December 2024**, before Aichi May 2026. English ASC itself released 30 January 2026, and is explicitly an English **proxy**, so use the 2024 Japanese print if building an event-compliant physical list.
+- **Boost Shake (EVS 142/203)**: Japanese card **ぐんぐんシェイク** in **Eevee Heroes 060/069** (full-art 099/069), per [Bulbapedia's print mapping](https://bulbapedia.bulbagarden.net/wiki/Boost_Shake_%28Evolving_Skies_142%29). The [Japanese official Eevee Heroes product](https://www.pokemon-card.com/products/s/s6a.html) dates its release **28 May 2021**.
+- **Alolan Muk (SUM 058/149)**: Japanese **アローラベトベトン, Collection Moon 023/060** (later GX Battle Boost 035/114) per [Bulbapedia's exact card lineage](https://bulbapedia.bulbagarden.net/wiki/Alolan_Muk_%28Sun_%26_Moon_58%29). Its Power of Alchemy suppresses all Basic Pokémon Abilities, including your own Latias ex. Collection Moon predates the 2026 event.
+
+These are **three partial bridge leads** with concrete Japanese print IDs and before-event timing where directly checked. For complete event legality, the remaining 31 distinct printed entries still require Japan-era printing, final errata, banned-identity and name-constraint review. Nothing here upgrades the two existing English-print manifests to a verified Japanese 60 or proves match strength.
