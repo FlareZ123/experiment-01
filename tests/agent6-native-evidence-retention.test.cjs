@@ -10,7 +10,9 @@ test('manifest is a frozen five-artifact reproducible preservation plan',()=>{
   assert.equal(validatePlan(archivePlan),archivePlan);
   assert.equal(archivePlan.artifacts.length,5);
   assert.equal(archivePlan.publicationOfReleaseDoesNotCertifyGames,true);
-  assert.equal(archivePlan.releaseStatus,'RAW_ARCHIVE_AT_RISK');
+  assert.equal(archivePlan.releaseStatus,'MIRRORED_RELEASE_DOWNLOAD_SHA_VERIFIED');
+  assert.equal(archivePlan.verification.verifiedZips,5);
+  assert.equal(archivePlan.releaseImmutable,false);
 });
 
 test('all original metadata names IDs and archived source report identifiers distinct',()=>{
