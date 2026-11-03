@@ -22,6 +22,8 @@ const {withPaperCelestialRoarEnergy}=
   require('./agent47-celestial-roar-paper-energy-hook.cjs');
 const {withMinimumAttachEnergySelection}=
   require('./agent47-minimum-attach-energy-hook.cjs');
+const {withOwnerTreasurePromptContinuation}=
+  require('./agent49-mysterious-treasure-prompt-continuation.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION_PATH=path.join(ROOT,
@@ -67,7 +69,7 @@ function registration(){
  * @returns {object}
  */
 function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
-  paperCelestialEnabled=false){
+  paperCelestialEnabled=false,treasureEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -132,12 +134,20 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       observe:observedRoot,
       regidragoDonorQuickBallRoot:donorRootEnabled,
       regidragoDonorQuickBallOwnerSeat:sourceSeat,
-      naturalEvolutionRoot:naturalEvolutionEnabled
+      naturalEvolutionRoot:naturalEvolutionEnabled,
+      mysteriousTreasureRoot:treasureEnabled
     }),
     ...source13QuickBallActorAdapters(sourceSeat)
   };
   try{
-    const run=()=>withCanonicalActorOnlyPolicy(()=>runMatch(request),
+    let treasureAudit=null;
+    const native=()=>{
+      if(!treasureEnabled)return runMatch(request);
+      const wrapped=withOwnerTreasurePromptContinuation(()=>runMatch(request));
+      treasureAudit=wrapped.audit;
+      return wrapped.result;
+    };
+    const run=()=>withCanonicalActorOnlyPolicy(native,
       adapters,{ownerSingleSearch:true,actorHandDiscard:true});
     const corrected=paperCelestialEnabled?
       withMinimumAttachEnergySelection(()=>withPaperCelestialRoarEnergy(run)):
@@ -178,9 +188,10 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       game.decisionTrace??[])).digest('hex');
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
-      paperCelestialEnabled,
+      paperCelestialEnabled,treasureEnabled,
       paperCelestialAudit:corrected?.result.audit??null,
       nativeMinimumAttachAudit:corrected?.audit??null,
+      treasureNativeAudit:treasureAudit,
       actualFirstSeat:game.firstTurnSlot,
       gameFinished:game.finished===true,
       nativeActionCount:game.actions,
