@@ -20,8 +20,8 @@ test('exact source-only first-turn restrictions remain separated from missing op
   assert.deepEqual(r.byPrinting.filter(x=>x.originalDeckCopies>0),[
     {printing:'Battle VIP Pass FST',nativeFullName:'Battle VIP Pass FST',
       sourceId:'swsh8-225',originalDeckCopies:42},
-    {printing:'Wait and See Hammer LOT',sourceId:'sm8-192',
-      originalDeckCopies:1}
+    {printing:'Wait and See Hammer LOT',nativeFullName:'Wait and See Hammer LOT',
+      sourceId:'sm8-192',originalDeckCopies:1}
   ]);
   assert.equal(r.gameWinRateEstimated,false);
   assert.equal(r.fieldCompletelyAuthenticated,false);
