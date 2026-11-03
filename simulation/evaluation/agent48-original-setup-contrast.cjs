@@ -113,4 +113,54 @@ function compareOriginalSourceSetup(rows,groupId){
   };
 }
 
-module.exports={SCHEMA,summarizeOriginalSourceSetup,compareOriginalSourceSetup};
+/**
+ * Census all registered cross-candidate source groups with actual setup
+ * counts and native physical-opening parity. This is a retrospective
+ * observational table; no randomization, causal effect or game wins implied.
+ * @param {object[]} rows All actual native rows in one archived policy mode.
+ * @returns {object} Count-only original-source setup comparison.
+ */
+function censusOriginalSourceSetup(rows){
+  assert.ok(Array.isArray(rows));
+  const groups=new Set(rows.map(row=>{
+    const t=row?.trial;
+    assert.ok(t&&[5,6,11].includes(t.rank));
+    assert.ok(Number.isSafeInteger(t.repeat)&&t.repeat>=0);
+    assert.ok(['A','B'].includes(t.candidateSlot));
+    return [t.rank,t.repeat,t.candidateSlot].join(':');
+  }));
+  const comparisons=[...groups].map(id=>compareOriginalSourceSetup(rows,id));
+  const known=comparisons.filter(x=>x.publicSetupKnown&&
+    x.physicalSourceDigestKnown);
+  const sameMulligan=known.filter(x=>x.sameMulliganCounts===true);
+  const differentMulligan=known.filter(x=>x.sameMulliganCounts===false);
+  const summary=cohort=>({
+    groups:cohort.length,
+    physicalOpeningMatched:cohort.filter(x=>x.physicalSourceDealMatch===true)
+      .length,
+    physicalOpeningMismatched:cohort.filter(x=>x.physicalSourceDealMatch===false)
+      .length,
+    sameCompensation:cohort.filter(x=>x.sameBonusDrawnCounts===true).length
+  });
+  return {
+    schema:'agent48-real-native-setup-opening-census-v1',
+    groups:groups.size,
+    pairedComparisonsWithKnownSetupAndDigest:known.length,
+    sameMulliganVector:summary(sameMulligan),
+    differentMulliganVector:summary(differentMulligan),
+    insufficientSetupOrSourceDigest:comparisons.length-known.length,
+    comparisons:comparisons.map(x=>({
+      groupId:x.groupId,publicSetupKnown:x.publicSetupKnown,
+      sameMulliganCounts:x.sameMulliganCounts,
+      sameBonusDrawnCounts:x.sameBonusDrawnCounts,
+      physicalSourceDigestKnown:x.physicalSourceDigestKnown,
+      physicalSourceDealMatch:x.physicalSourceDealMatch,
+      sameNativeStarter:x.sameNativeStarter
+    })),
+    causalOriginEstablished:false,
+    competitiveGameQualified:false
+  };
+}
+
+module.exports={SCHEMA,summarizeOriginalSourceSetup,compareOriginalSourceSetup,
+  censusOriginalSourceSetup};
