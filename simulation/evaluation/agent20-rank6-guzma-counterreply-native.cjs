@@ -18,7 +18,7 @@ const {withRank6GuzmaAfterRope}=
 const {nativeFirstDifference,digest}=
   require('./agent7-funded-stadium-symmetric-eightgroup-native.cjs');
 const REGISTRATION=
-  require('../../results/aichi-2026/registrations/agent20-rank6-guzma-counterreply-20261103.json');
+  require('../../results/aichi-2026/registrations/agent20-rank6-guzma-quota-diagnostic-v2-20261103.json');
 const OUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(OUT,name));
 
