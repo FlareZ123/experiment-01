@@ -37,6 +37,7 @@ test('public native full-name classifier covers all types and rejects conflictin
   const cards=[
     new FakeTrainer(VS_SEEKER,kinds.ITEM),
     new FakeTrainer('Guzma BUS',kinds.SUPPORTER),
+    new FakeTrainer('Raihan EVS',kinds.SUPPORTER),
     {fullName:'Psychic Energy MEE'},
     {fullName:'Regidrago V EVS'}
   ];
