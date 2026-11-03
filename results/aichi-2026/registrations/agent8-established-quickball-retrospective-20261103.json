@@ -1,0 +1,23 @@
+{
+  "schema": "agent8-established-quickball-retrospective-native-v1",
+  "registeredAtUtc": "2026-11-03T09:47:00Z",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "originalPrintedSixties": "results/aichi-2026/full-decklists.json",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "previouslyObservedSourceSeedGroups": [
+    {
+      "sourceSeat": 1,
+      "seed": 2686109268
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1481213574
+    }
+  ],
+  "expectedNativeAttempts": 4,
+  "control": "existing symmetric owner resources and copied-attack priority, standard early-only donor Quick Ball root; no funded established VSTAR donor Quick Ball",
+  "treatment": "identical, source owner after Active funded VSTAR and no public payload may play held Quick Ball and pay by discarding held evolved Dragon through genuine native prompt, generic owner Basic search",
+  "recordedOutcomes": "typed Quick Ball root selected, physical one-card hand-to-discard payment, native Basic owner search/shuffle, public Dragon in discard, copied attack menu, actual opponent board and Prize changes, Store errors/censor",
+  "limitations": "Intentionally retrospective selected after natural owner-opportunity observation. Zero qualified competitive games. Testing source mechanic only; no win-rate inference."
+}
