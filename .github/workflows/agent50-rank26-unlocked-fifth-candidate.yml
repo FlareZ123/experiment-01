@@ -1,0 +1,41 @@
+name: Agent50 original rank26 versus two fixed structural candidates
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-first-fifth-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine once
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Check preregistered pilot syntax
+        run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native.cjs
+      - name: Execute all exact candidate supported preregistered source seeds
+        run: node simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native.cjs > agent50-rank26-original-unlocked-v1.json
+      - name: Report all resolver exclusions and source-owned firstturn counts
+        run: node -e "const r=require('./agent50-rank26-original-unlocked-v1.json');if(r.competitiveGames!==0||r.candidates.length!==2||r.authenticatedSourceDecks!==29)throw Error('Original rank26 data contract changed');for(const c of r.candidates){if(c.status==='NATIVE_EXACT_SIXTY_READY'&&c.attemptedArms!==24)throw Error('Incomplete source seat panel: '+c.id);console.log('CANDIDATE_NATIVE_RANK26',JSON.stringify(c))}console.log('TOTAL_DEVELOPMENT_ARMS',r.attempts.length)"
+      - name: Archive every candidate resolver error and all original-source attempted arms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-rank26-unlocked-fifth-candidate-original-v1
+          path: agent50-rank26-original-unlocked-v1.json
+          if-no-files-found: warn
+          retention-days: 14
