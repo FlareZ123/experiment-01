@@ -6,7 +6,7 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {auditSelectedV2Archive}=
   require('../simulation/evaluation/agent48-archive-selected-v2-census.cjs');
-const {compareOriginalSourceSetup}=
+const {compareOriginalSourceSetup,censusOriginalSourceSetup}=
   require('../simulation/evaluation/agent48-original-setup-contrast.cjs');
 
 /**
@@ -58,6 +58,9 @@ function inspectFile(archiveFile){
     originalSetupControls:{
       rank5MismatchedSeedGroup:archive.modes.map(mode=>({
         mode:mode.id,...compareOriginalSourceSetup(mode.native.rows,'5:101:A')
+      })),
+      allOriginalSourceSeedGroups:archive.modes.map(mode=>({
+        mode:mode.id,...censusOriginalSourceSetup(mode.native.rows)
       }))
     },
     originalReleaseAcceptanceUnchanged:true,
