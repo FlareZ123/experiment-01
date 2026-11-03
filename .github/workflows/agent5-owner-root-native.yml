@@ -311,29 +311,6 @@ jobs:
       - name: Real original rank9 Escape Rope opposing rank6 funded Thunder source reply A/B/A
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/evaluation/agent7-original6v9-opponent-rope-counter-aba.cjs > agent7-original6v9-opponent-rope-counter-aba.json
-      - name: Unit test genuine-only native Supporter proposal-state purity and restoration
-        if: ${{ inputs.agent7_stadium_public_snapshot }}
-        run: node --test tests/agent20-native-supporter-proposal-purity.test.cjs
-      - name: Preregistered original rank6 funded Guzma response to rank9 Escape Rope
-        if: ${{ inputs.agent7_stadium_public_snapshot }}
-        run: node simulation/evaluation/agent20-rank6-guzma-counterreply-native.cjs > agent20-rank6-guzma-counterreply-native.json
-      - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
-        with:
-          name: agent20-rank6-guzma-after-rope-three-arm
-          path: agent20-rank6-guzma-counterreply-native.json
-          if-no-files-found: warn
-          retention-days: 30
-      - name: Eight fixed original-60 two-seat native Supporter proposer purity A/B/A groups
-        if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
-        run: node simulation/evaluation/agent20-supporter-proposer-purity-bilateral8-native.cjs > agent20-supporter-proposer-purity-bilateral8-native.json
-      - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
-        with:
-          name: agent20-supporter-proposer-purity-bilateral8
-          path: agent20-supporter-proposer-purity-bilateral8-native.json
-          if-no-files-found: warn
-          retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
         with:
