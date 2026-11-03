@@ -61,7 +61,7 @@ jobs:
       - name: Count all bilateral v2 attempts independently of observed pressure
         run: node --test tests/agent2-bilateral-unconditional-census.test.cjs tests/agent2-pressure-ledger-alignment.test.cjs
       - name: Audit rank31 Roxie and Radiant source accessibility
-        run: node --test tests/agent15-rank31-roxie-radiant-triad.test.cjs tests/agent15-rank31-roxie-fog-crystal-bridge.test.cjs
+        run: node --test tests/agent15-rank31-roxie-radiant-triad.test.cjs tests/agent15-rank31-roxie-fog-crystal-bridge.test.cjs tests/agent15-rank31-roxie-wondertag-fog-chain.test.cjs
       - name: Validate fifth fixed60 v2 Field Blower answer to Temple and Garbotoxin
         run: node --test tests/agent5-adp-thorton-regidrago-v2.test.cjs
       - name: Verify exact valid-opening conditioned prize collapse for ADP Thorton chain
