@@ -94,7 +94,7 @@ function recordElectrodeOwnerCensus(audit,view,chosenIntent,decisionOrdinal) {
         physicalNecessaryConditionsMet:screen.physicalNecessaryConditionsMet,
         visibleAbilitySuppressionClues:screen.visibleAbilitySuppressionClues,
         paperLegality:'UNVERIFIED',
-        nativeAbilityAccepted:false
+        nativeAbilityAcceptance:'NOT_OBSERVED_BY_READONLY_CHECK'
       });
     }else audit.samplesTruncated++;
   }
