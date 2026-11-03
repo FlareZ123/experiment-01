@@ -87,8 +87,8 @@ test('equal-rank original field remains far more often forced solo under seven B
 test('rank26 no extra Basic or one of eleven Basic-search Items by first draw',()=>{
   const v=noDirectBasicTutor(12,32);
   assert.equal(v.sourceFixedPrintedTutorCount,11);
-  assert.ok(v.lower<=0.10246851384076638);
-  assert.ok(v.upper>=0.10246851384076638);
+  assert.ok(Math.abs(v.lower-0.10246851384076638)<1e-12);
+  assert.ok(Math.abs(v.upper-0.10246851384076638)<1e-12);
   assert.ok(v.upper-v.lower<1e-12);
   assert.ok(v.upper<solo(7,12,32).forcedSoloAfterAllOptionalBonusLower);
 });
