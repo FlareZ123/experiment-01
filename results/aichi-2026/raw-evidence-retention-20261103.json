@@ -3,10 +3,10 @@
   "repository": "FlareZ123/experiment-01",
   "observedAtUtc": "2026-11-03T15:12:00Z",
   "releaseTag": "aichi-native-evidence-2026-11-03",
-  "releaseStatus": "SIX_VERIFIED_SEVENTH_PENDING",
+  "releaseStatus": "MIRRORED_SEVEN_RELEASE_DOWNLOAD_SHA_VERIFIED",
   "releaseUrl": "https://github.com/FlareZ123/experiment-01/releases/tag/aichi-native-evidence-2026-11-03",
   "publicationOfReleaseDoesNotCertifyGames": true,
-  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Seven-archive source plan now contains Agent7's 3 November original rank6v9 stadium/attack/Prize natural-deal ZIP, pending independently verified append; previously published six remain intact.",
+  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Agent7's original rank6v9 natural-deal Stadium, settled attack and Prize ZIP is now byte-verified and appended as the seventh asset; previous six unchanged.",
   "artifacts": [
     {
       "key": "rank5-v31-native-16arm",
@@ -136,26 +136,26 @@
       "sha256": "596f242b3c235a503fde53c61ff825b9799b97d31d9e0ad600741e6daaf4b816",
       "expiresAtUtc": "2026-12-03T19:56:34Z",
       "report": "results/aichi-2026/agent7-original6v9-selected-stadium-first-divergence-20261103.md",
-      "archiveStatus": "PENDING_BYTE_EXACT_SOURCE_VERIFICATION",
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
       "runHeadSha": "f1ed63894837fc0835d8f0d8dfdf4b77d84db278",
       "workflowPath": ".github/workflows/agent5-owner-root-native.yml",
       "registrationPath": "results/aichi-2026/registrations/agent7-original6v9-own-stadium-pass-retro-20261103.json",
       "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/original-rank6v9-stadium-13266395809.zip",
-      "releaseAssetId": null,
-      "durableVerifiedAtUtc": null
+      "releaseAssetId": 707086508,
+      "durableVerifiedAtUtc": "2026-11-03T21:03:52.938Z"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
-  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T20:36:57.817Z",
+  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T21:03:52.938Z",
   "releaseImmutable": false,
   "verification": {
-    "workflowRunId": 41713740020,
-    "workflowHead": "d24ad619d3852550c722a1df65f623e7ece0b3c9",
+    "workflowRunId": 41718167027,
+    "workflowHead": "cff252cb04311adfccd7d6460d8507b9143a991e",
     "releaseId": 432867141,
     "downloadedAllOriginalZipsBeforePublish": true,
     "verifiedAllReleaseAssetsByIndependentDownload": true,
-    "verifiedZips": 6,
+    "verifiedZips": 7,
     "competitivelyQualifiedGames": 0
   }
 }
