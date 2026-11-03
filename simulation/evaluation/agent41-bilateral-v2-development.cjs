@@ -1056,6 +1056,7 @@ function runDevelopment({
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
   actorUnderworldDoorPromptOwner=false,
+  actorUnderworldAttackGapRecipient=false,
   sourceCrobatDceMewRetreat=false,
   actorFarewellLetterRoot=false,
   actorVipBeforeAttack=false,
@@ -1142,6 +1143,10 @@ function runDevelopment({
     'Active Psychic priority requires symmetric Underworld root');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
+  assert.ok(!actorUnderworldAttackGapRecipient||
+    (actorUnderworldDoorRoot&&actorUnderworldDoorPromptOwner&&
+     actorOnlyComposition),
+    'Bench recipient arbitration requires the same owner-only Underworld root and prompt both seats');
   assert.ok(!actorVipBeforeAttack||actorOnlyComposition,
     'Native source/VIP attack contention requires both-seat actor-only roots');
   assert.ok(!actorVipMegaAbsolTarget||(actorVipBeforeAttack&&actorOnlyComposition),
@@ -1449,6 +1454,7 @@ function runDevelopment({
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
             ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
+            ownerUnderworldAttackGapRecipient:actorUnderworldAttackGapRecipient,
             ownerPlumeriaAfterPass:actorPlumeriaAfterPass,
             ownerVipBeforeAttack:actorVipBeforeAttack,
             ownerVipMegaAbsolTarget:actorVipMegaAbsolTarget,
