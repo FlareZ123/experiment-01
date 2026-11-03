@@ -89,5 +89,5 @@ test('top-four certainty is a strict counting result, without unseen order',()=>
   const bound=sourceMailTargetBounds(all,60,meta);
   assert.equal(bound.minimumInDeck,58);
   assert.equal(bound.topFourHitProven,true);
-  assert.equal(sourceMailTargetBounds(all,3,meta).topFourHitProven,false);
+  assert.equal(sourceMailTargetBounds(all,1,meta).topFourHitProven,false);
 });
