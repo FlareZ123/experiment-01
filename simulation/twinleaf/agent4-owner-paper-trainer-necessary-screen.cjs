@@ -60,8 +60,8 @@ function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
   if(firstOnly){
     const expired=ownerTurnReceipt?.provenPastFirstOwnerTurn===true;
     const conservativeDecline=!expired&&view.globalTurn>2;
-    const slug=printing.toLowerCase().replace(/[^a-z0-9]+/g,'-')
-      .replace(/-+$/,'');
+    const slug=printing.replace(/ [A-Z0-9]{2,5}$/,'')
+      .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
     return {
       printing,printedRuleKnown:true,
       sourceCardId:firstOnly.sourceId,
