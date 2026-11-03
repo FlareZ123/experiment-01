@@ -33,3 +33,17 @@ This now **verifies the exact selected Secret Box mandatory three-card *payment 
 ### Corrected strict public source continuation in the recompiled v2 archive
 
 The corrected v2 native archive also retains the working `agent44-boxshake-opponent-reply-packet` result. The **index 756** line has `strictPublicContinuationAccepted:true`, ordered native source Secret Box / Tool / Boost Shake, an equipped Garbodor at the next opposing-turn boundary, and **two genuine next-opponent public roots**. This agrees with Agent 7's separately audited original 128-deal positive index 756 and was invariant under guard off/on at the identical original source deal. Indices **683 and 694** report `strictPublicContinuationAccepted:false` and zero qualifying opponent roots, rather than qualifying incomplete lines. Thus there is **one native immediate-opponent-root continuity witness** paired with verified three-card owner payment on this selected dataset, *still no independently assessed opponent decision competence, fully validated search payload or paper-match certification*.
+
+## Owner deck-to-hand search proof, native v3
+
+**Compiled workflow [41567363695](https://github.com/FlareZ123/experiment-01/actions/runs/41567363695), success**, at revision `5cb20b5b6c3ef5d82336d18ca950248fbcb0cf16`. Archived artifact **13198654663**, ZIP SHA256 `a1ea260a3ec4a501c03fa4226a6e2efbde4e61999a1fd2da511fa031a61b3670`, native schema `agent4-rank8-retrospective-source-vip-box-v11-physical-payment-search-v3`. Two additional pure observer tests checked physical owner-deck transfer and the negative case where a native-accepted response fails to acquire its card. Existing original-source roots/deals remain identical under v11 on/off.
+
+All **six** original-source Secret Box payment/search sequences returned `PAID_THREE_PHYSICAL_CARDS` and `PHYSICAL_SEARCH_ACQUIRED`. At the native source-marked **own-deck** `CHOOSE_CARD_TO_HAND` prompt, before/after card-object custody proves:
+
+| Original source index | Selected original printed Trainer cards | Source deck count | Source hand count | Acquired physical cards |
+| --- | --- | --- | --- | ---: |
+| 683 | Crispin SCR (Supporter); Adventure Bag LOT (Item); Float Stone BKT (Tool); Temple of Sinnoh ASR (Stadium) | 45→41 | 2→6 | 4 |
+| 694 | Crispin SCR (Supporter); Adventure Bag LOT (Item); Float Stone BKT (Tool); Temple of Sinnoh ASR (Stadium) | 45→41 | 2→6 | 4 |
+| 756 | Boost Shake EVS (Item); Float Stone BKT (Tool) | 45→43 | 2→4 | 2 |
+
+These rows occur **twice each** under identical root/zone traces, v11 cost guard off/on. Every selected physical object was inside the source owner's preselection deck, absent from its prior hand, removed from deck and newly present in hand immediately after real native dispatch. Selected printings satisfy the printed maximum one per permitted Trainer category as classified by their printed card identities. This closes the specific source's chosen Secret Box owner search transfer, in addition to the compulsory three-card cost, **on these three previously selected real source lines**. It does not show the native Store rejects arbitrary illegal category selections, nor does it resolve the independent paper timing, opponent decisions, full game or tournament clock. An attempted future generalization must test adversarial invalid searches against the actual Store.
