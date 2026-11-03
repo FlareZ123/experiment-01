@@ -14,6 +14,8 @@ const {withActorOnlyRootPolicy}=
   require('./agent34-actor-only-root-policy.cjs');
 const {source13QuickBallActorAdapters}=
   require('./agent8-rank13-donor-actor-adapters.cjs');
+const {nativeCopiedAttackChoiceLedger}=
+  require('../evaluation/agent8-native-copied-attack-choice-ledger.cjs');
 const {withPaperCelestialRoarEnergy}=
   require('./agent47-celestial-roar-paper-energy-hook.cjs');
 const {withMinimumAttachEnergySelection}=
@@ -191,6 +193,8 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       }:null,
       sourceCopiedAttackSelections:(components.chooseAttack?.selections??[])
         .filter(choice=>choice.seat===sourceSeat),
+      sourceNativeCopiedAttackChoices:
+        nativeCopiedAttackChoiceLedger(trace,sourceSeat),
       sourceOwnerVstarObservations:ownerVstarObservations,
       sourceOwnerDragonDiscardTimeline:sourceDragonDiscardTimeline,
       sourceOwnerEligibleVstarRootTurns:[...new Set(ownerVstarObservations
