@@ -161,3 +161,17 @@ The owner Basic Energy shortage also blocked an **earlier independent Prize-pres
 | **22** | Galarian Articuno V **Psyray**, KO of 240-damaged **Mew VMAX** and physical candidate Prizes **6→3** | Duskull **Future Sight**, Mew VMAX still **40 damaged**, candidate Prizes **6→6** |
 
 Every stated damage number is the **native public board before/after** its actual settled attack, and the Prize delta is the native same-attack completed transition. This separates **two** lost payoffs from the candidate's reduced Basic Psychic access: (i) no early Latias Eon Blade 200-damage preparation, and (ii) no two-Energy Motivate recovery for the later Articuno follow-up. In the baseline, Articuno's Psyray deals enough additional damage to Knock Out the already 240-damaged three-Prize Mew VMAX; selected Future Sight provides no direct damage to that target. This precise attack-to-Prize mechanism explains much of the changed native terminal trajectory. It still says nothing definitive about a human player's response to such an early Energy or attacker configuration.
+
+
+## Positive counterpart: another matched rank5 source deal accelerates Basic Energy and Articuno wins natively
+
+The **`5:100:B:new-moon-lockbreaker-v1`** row in the full five-contrast table is a particularly useful opposite-sign case. Here the New Moon candidate physically occupies **seat 1 and goes first**, starting **Active Galarian Articuno V** in both modes. Baseline first-turn policy eventually passed after using Fog Crystal/Duskull; selected v2 instead played **two native-accepted Battle VIP Pass roots** at global turn **1**, root ordinals **19 and 23**. Its real owner-deck prompt at ordinal **20** selected **Duskull VIV and Gengar & Mimikyu-GX TEU**; the next VIP prompt at ordinal **24** selected **Klefki SVI**. These additions are source-printed Basics, physically accepted by the Store.
+
+**Actual Basic Psychic Energy manual attachment roots, same fixed candidate 60:**
+
+- Frozen baseline: global turns **13, 21, 27** (root ordinals **70, 97, 121**).
+- Selected v2: global turns **3, 11, 21** (root ordinals **44, 76, 109**).
+
+At selected global turn **21**, candidate's Active Articuno has **three physically attached Basic Psychic Energy** and uses its first settled `Psyray`; successive `Psyray` attacks on global turns **23, 27 and 31** take **two native source Prizes each**, exhausting the candidate's six Prizes, with native winner the **candidate**. In the baseline, candidate makes **zero native attacks** during the whole 260-action-capped attempt, which is censored rather than a native loss.
+
+This genuine same-candidate, same-physical-deal, opposite-sign anecdote reinforces the release constraint: access interventions can change **when** Basic Energy is encountered and manually attached, which matters more than simply counting Bench search hits. Both extremes are very late in global turns, sampled from historic selected cases and driven by a bot without certified human-level play or paper-clock realism. They must be evaluated as source-specific native trajectories, not estimated competitive match probabilities.
