@@ -151,11 +151,31 @@ function run(){
     for(const index of [0,1,2])
       for(const available of [false,true])
         arms.push(trial(seat,index,available));
-  return {schema:'agent19-mew-vmax-copy-energy-mix-custody-native-v1',
+  const {withPaperAttachEnergyBlockedTo}=
+    require('./agent19-paper-attach-energy-target-guard.cjs');
+  const guarded=[];
+  for(const seat of [0,1]){
+    const paid=withPaperAttachEnergyBlockedTo(()=>trial(seat,0,true));
+    assert.equal(paid.result.attachedExactDeckDceToRecipient,true);
+    assert.equal(paid.audit.rejected,0);
+    let rejection=null;
+    try {
+      withPaperAttachEnergyBlockedTo(()=>trial(seat,2,true));
+    } catch(error){
+      rejection=error;
+    }
+    assert.equal(rejection?.code,'PAPER_ATTACH_ENERGY_BLOCKED_TO');
+    assert.equal(rejection.paperAttachBlockedToAudit.rejected,1);
+    guarded.push({seat,legalFusionRecipientNativeAccepted:true,
+      illegalNonFusionRecipientNativeBlocked:true,
+      guardErrorCode:rejection.code,
+      qualifiedCompetitiveGames:0});
+  }
+  return {schema:'agent19-mew-vmax-copy-energy-mix-custody-native-v2',
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     physicalSourceDecksUnchanged:false,
-    note:'Pinned Store stage includes deliberately invalid non-Fusion recipient to test a paper-validity veto.',
-    competitiveQualifiedGames:0,arms};
+    note:'Constructed physical Board; opt-in guard corrects native illegal non-Fusion Energy Mix recipient.',
+    competitiveQualifiedGames:0,arms,guarded};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={trial,run};
