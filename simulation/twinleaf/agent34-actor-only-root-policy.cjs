@@ -209,6 +209,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseTreasureRootIntent(view,catalog);
     if(item)return item;
   }
+  if(options.rank13DdeEnergyRoot===true){
+    const funding=require('./agent8-rank13-double-dragon-energy-frontier.cjs')
+      .chooseRank13DoubleDragonRoot(view);
+    if(funding)return funding;
+  }
   if(options.regidragoDonorQuickBallRoot===true){
     const donor=require('./agent8-regidrago-quickball-donor-frontier.cjs')
       .chooseRegidragoDonorQuickBall(view);
@@ -726,6 +731,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT8_ACTOR_QUICK_BALL_DEV==='true'),
     quickBallRootOwnerSeat:deps.quickBallRootOwnerSeat??null,
     regidragoDonorQuickBallRootOptIn:deps.regidragoDonorQuickBallRoot===true,
+    rank13DdeEnergyRootOptIn:deps.rank13DdeEnergyRoot===true,
+    rank13DdeEnergyOwnerSeat:deps.rank13DdeEnergyOwnerSeat??null,
     regidragoDonorQuickBallOwnerSeat:
       deps.regidragoDonorQuickBallOwnerSeat??null,
     printedGxRootOptIn:deps.printedGxRoot??
@@ -1215,6 +1222,9 @@ function withActorOnlyRootPolicy(run,deps={}){
       thornsSoloEnergyRetention:audit.thornsSoloEnergyRetentionOptIn===true,
       specialEnergyRoot:actorSpecialEnergyEnabled(
         audit.specialEnergyRootOptIn,audit.specialEnergyRootOwnerSeat,seat),
+      rank13DdeEnergyRoot:actorSpecialEnergyEnabled(
+        audit.rank13DdeEnergyRootOptIn,
+        audit.rank13DdeEnergyOwnerSeat,seat),
       publicContextSpecialEnergy:actorSpecialEnergyEnabled(
         audit.publicContextSpecialEnergyOptIn,
         audit.specialEnergyRootOwnerSeat,seat),
