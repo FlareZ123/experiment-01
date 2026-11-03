@@ -1,0 +1,41 @@
+name: Agent10 original rank11 first-turn Letter natural-deal A/B/A
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genuine-native-12:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source custody and reusable owner-only paid Tutor contracts
+        run: |
+          node --check simulation/evaluation/agent10-rank11-letter-natural-deal-aba-v1.cjs
+          node --test tests/agent10-selected-v3-rank11-letter-frontier.test.cjs tests/agent11-owner-resource-tutor-planner.test.cjs tests/agent11-native-owner-resource-tutor-after-pass.test.cjs
+      - name: Check out the exact pinned upstream simulator
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Require frozen simulator revision
+        run: node -e "const a=require('node:assert/strict'),c=require('node:child_process');a.equal(c.execFileSync('git',['rev-parse','HEAD'],{cwd:'vendor/twinleaf',encoding:'utf8'}).trim(),'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05')"
+      - name: Install upstream native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 12 preregistered natural rank11 original-source native A/B/A attempts
+        run: node simulation/evaluation/agent10-rank11-letter-natural-deal-aba-v1.cjs
+      - name: Retain exact control, treatment and repeat complete native rows even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent10-natural-rank11-letter-source-aba-12
+          path: agent10-rank11-letter-natural-deal-aba-v1.json
+          if-no-files-found: warn
+          retention-days: 30
