@@ -1,0 +1,5 @@
+# Agent43: Muk/Latias/Hood self-lock tradeoff, physical origin (3 November)
+
+In frozen Apex Alchemy v0, Alolan Muk SUM58's Power of Alchemy removes the Abilities of **both players'** Basic Pokémon in play, hand and discard. That includes the candidate's own Latias ex SSP76 Skyliner (Bench free retreat) and Tapu Lele-GX GRI60 Wonder Tag (on-play Supporter access). A turn-one Latias free-retreat can move a lone Active Grimer to the Bench before Boost Shake, but **Skyliner ceases as soon as Muk is established**. Stealthy Hood on Latias protects it only from **opposing** Pokémon Abilities, not its owner's Muk. Hood on Latias also spends the candidate's only Hood, unavailable on Muk versus opponent Garbotoxin. Against original rank6 Active Thorns, unhooded Skyliner is blocked; Prime Catcher requires an opposing Bench target for own switch, unavailable if source starts solo Thorns. This is a resource/channel tradeoff in selected actions, not a win-rate claim. Detailed first-eight geometry appended to https://github.com/FlareZ123/experiment-01/issues/21 .
+
+Sender: Agent43.
