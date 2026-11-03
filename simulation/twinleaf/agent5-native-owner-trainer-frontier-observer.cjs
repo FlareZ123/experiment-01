@@ -103,6 +103,9 @@ function withNativeOwnerTrainerFrontier(work,deps){
     }
     const frontier=ownerTrainerOpportunity(view,catalog,offered);
     const ownerTurnReceipt=ownerTurnLedger?ownerTurnLedger.observe(view):null;
+    const publicPrizeScreen=deps.ownerPublicPrizeScreenOptIn===true?
+      require('../evaluation/agent30-public-prize-trainer-necessary.cjs')
+        .screenOwnerTrainerPrizePrerequisites(view,frontier.rows):null;
     const paperScreen=ownerTurnReceipt?
       require('./agent4-owner-paper-trainer-necessary-screen.cjs')
         .screenOwnerTrainerPaperNecessity(
@@ -123,6 +126,7 @@ function withNativeOwnerTrainerFrontier(work,deps){
       chosen:null,dispatch:'not-attempted',
       policyIsReadOnly:true,competitiveGameQualified:false
     };
+    if(publicPrizeScreen)root.ownerPublicPrizeNecessity=publicPrizeScreen;
     if(paperScreen){
       root.ownerPaperNecessity=paperScreen;
       root.ownerTurnReceipt=ownerTurnReceipt;
@@ -181,6 +185,12 @@ function withNativeOwnerTrainerFrontier(work,deps){
       chosenActionsNativeAccepted:matched,
       chosenActionsNativeRejected:exceptions,
       observedBySeat,
+      ...(deps.ownerPublicPrizeScreenOptIn===true?{
+        ownerPublicPrizeScreenOptIn:true,
+        observedPublicPrizeConditionFailures:roots.reduce((sum,root)=>
+          sum+(root.ownerPublicPrizeNecessity?.provenPrizeBlockedCopies??0),0),
+        paperLegalTrainerMoveSetCertified:false
+      }:{}),
       ...(ownerTurnLedger?{
         ownerPaperNecessityOptIn:true,
         observedOwnerTurnLedger:ownerTurnLedger.snapshot(),
