@@ -52,6 +52,35 @@ function preflight() {
   return m;
 }
 
+/**
+ * Match both printed name and original set, allowing only orthographic
+ * variation such as Dedenne-GX versus Dedenne GX in the native recorder.
+ * Different printings are never silently collapsed.
+ * @param {string} text Printed identity with source set.
+ * @returns {string}
+ */
+function printingKey(text) {
+  return text.normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9]+/g,'').toLowerCase();
+}
+
+/** @returns {Map<string,string>} Original registered source names and categories. */
+function sourcePrintingTypes() {
+  const roster=JSON.parse(fs.readFileSync(path.join(ROOT,
+    'results/aichi-2026/full-decklists.json'),'utf8'));
+  const rank5=roster.decks.find(d=>d.rank===5);
+  assert.ok(rank5);
+  const types=new Map();
+  for(const card of rank5.cards) {
+    const key=printingKey(card.name+' '+card.printing.set);
+    assert.ok(!types.has(key),'Registered source printing collision');
+    assert.ok(['Pokémon','Trainer','Energy'].includes(card.category));
+    types.set(key,card.category);
+  }
+  assert.equal(rank5.cards.reduce((n,card)=>n+card.count,0),60);
+  return types;
+}
+
 /** @param {object} raw Genuine original source native Store row. */
 function classifySourceRow(raw) {
   const seat = raw.trial?.candidateSlot === 'A' ? 1 : 0;
@@ -69,14 +98,24 @@ function classifySourceRow(raw) {
   };
   try {
     const plays = sourceTrainerPlaysFromNativeRow(raw);
-    assert.equal(plays.sourceClassCounts.unknown, 0,
-      'Unrecognized original printed-card identity');
-    const trainerCount = plays.totalSourcePlayCards -
-      plays.sourceClassCounts.pokemon - plays.sourceClassCounts.energy;
+    const original=sourcePrintingTypes();
+    const counts={pokemon:0,energy:0,trainer:0};
+    const unmatched=[];
+    for(const [printing,n] of Object.entries(plays.sourcePrintings)) {
+      const category=original.get(printingKey(printing));
+      if(category==='Pokémon')counts.pokemon+=n;
+      else if(category==='Energy')counts.energy+=n;
+      else if(category==='Trainer')counts.trainer+=n;
+      else unmatched.push(printing);
+    }
+    assert.deepEqual(unmatched,[],
+      'Unrecognized source printing, require independent physical review');
+    assert.equal(counts.pokemon+counts.trainer+counts.energy,
+      plays.totalSourcePlayCards);
     return {...base, nativeCardPlaysCertified: true,
-      acceptedSourceTrainerPlays: trainerCount,
+      acceptedSourceTrainerPlays: counts.trainer,
       sourcePrintings: plays.sourcePrintings,
-      sourceCardClassCounts: {...plays.sourceClassCounts, trainer: trainerCount},
+      sourceCardClassCounts: counts,
       candidateAcceptedFogCrystal: plays.candidateAcceptedFogCrystal};
   } catch (error) {
     return {...base, nativeCardPlaysCertified: false,
@@ -139,8 +178,9 @@ function run(deps = {}) {
       };
     } catch (error) {
       modes[name] = {
-        count: {attempted: 8, sourceClassified: 0,
-          unclassifiedOrAborted: 8, acceptedOriginalSourceTrainerPlays: null,
+        count: {scheduled: 8, nativeAttemptsVerified: null,
+          sourceClassified: 0, unclassifiedOrAborted: 8,
+          acceptedOriginalSourceTrainerPlays: null,
           paperCompetitiveGames: 0,
           batchError: String(error?.stack ?? error)},
         raw: null
