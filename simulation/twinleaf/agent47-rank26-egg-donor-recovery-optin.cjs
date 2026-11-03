@@ -11,14 +11,15 @@ const OUTPUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output
  *
  * @param {object} state
  * @param {0|1} seat
+ * @param {number} playerTurnPhase Native GamePhase.PLAYER_TURN, supplied by adapter.
  * @returns {{kind:'bench'|'propagate',index:number,benchIndex:number}|null}
  */
-function eggDonorRecoveryChoice(state, seat) {
+function eggDonorRecoveryChoice(state, seat, playerTurnPhase) {
   if (![0, 1].includes(seat)) return null;
   const own = state.players[seat];
   const opponent = state.players[1-seat];
   if (!own || !opponent || state.turn !== 1 ||
-      state.activePlayer !== seat || state.phase !== 3 ||
+      state.activePlayer !== seat || state.phase !== playerTurnPhase ||
       state.prompts.some(p => p.result === undefined) ||
       opponent.prizes.filter(p => p.cards.length > 0).length !== 2 ||
       opponent.bench.some(slot => slot.getPokemonCard()) ||
@@ -73,7 +74,7 @@ function withEggDonorRecovery(seat, execute) {
   SimpleTacticsAi.prototype.decodeNextAction = function donorRecovery(state) {
     if (state.phase !== GamePhase.PLAYER_TURN || this.client?.id !== id)
       return original.call(this,state);
-    const choice = eggDonorRecoveryChoice(state,seat);
+    const choice = eggDonorRecoveryChoice(state,seat,GamePhase.PLAYER_TURN);
     if (!choice) return original.call(this,state);
     const location = {player:PlayerType.BOTTOM_PLAYER,
       slot:choice.kind === 'bench' ? SlotType.BENCH : SlotType.DISCARD,
