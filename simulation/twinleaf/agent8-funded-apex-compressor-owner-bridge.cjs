@@ -108,6 +108,8 @@ function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
   const audit = {
     version:VERSION,sourceSeat,observedLiveNativeStore:false,
     afterPassRootCount:0,eligibleAfterPassCount:0,
+    eligibleAtAnyLiveOwnerRootCount:0,
+    sameRootCompetingActions:[],
     attemptedItems:0,acceptedItems:0,rejectedItems:0,
     ownerDeckPromptsAnswered:0,physicalDragonMoved:0,
     missingEligibleDonorPrompts:0,
@@ -143,11 +145,24 @@ function withFundedApexCompressorAfterPass(work, sourceSeat, deps = {}) {
       audit.ownerDeckPromptsAnswered++;
       return answer;
     }
+    let intent=null;
+    if (!prompt) {
+      const view=observe(state,seat);
+      intent=chooseFundedApexCompressor(view);
+      if (intent) {
+        audit.eligibleAtAnyLiveOwnerRootCount++;
+        if (audit.sameRootCompetingActions.length<40)
+          audit.sameRootCompetingActions.push({
+            turn:state.turn,previousAction:previous?.constructor?.name??null,
+            previousCard:previous?.constructor?.name==='PlayCardAction'?
+              owner.hand.cards[previous.handIndex]?.fullName??null:null,
+            wouldChooseItemOnlyAfterPass:true
+          });
+      }
+    }
     if (prompt || previous?.constructor?.name !== 'PassTurnAction')
       return previous;
     audit.afterPassRootCount++;
-    const view = observe(state, seat);
-    const intent = chooseFundedApexCompressor(view);
     if (!intent) return previous;
     audit.eligibleAfterPassCount++;
     assert.equal(owner.hand.cards[intent.handIndex]?.fullName, ITEM);
