@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rank17ElectrodeBombNecessity,ENERGY_PRINTINGS,PRINTED_CARDS} =
+const {rank17ElectrodeBombNecessity,ENERGY_PRINTINGS,PRINTED_CARDS,SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS} =
   require('../simulation/twinleaf/agent1-rank17-electrode-owner-necessity.cjs');
 const source = require('../results/aichi-2026/full-decklists.json');
 
@@ -121,4 +121,63 @@ test('actor-visible data is sufficient; hidden deck or Prize identities are unus
     opponentDeck:['unknown'],ownerPrizeCards:['hidden']};
   assert.deepEqual(rank17ElectrodeBombNecessity(a),
     rank17ElectrodeBombNecessity(b));
+});
+
+test('source original eligible recipients derive from eight exact native printings',()=>{
+  const rank17=source.decks.find(row=>row.rank===17);
+  const names=rank17.cards.filter(c=>c.category==='Pokémon').map(c=>c.name);
+  assert.deepEqual(names.filter(x=>/GX|EX$/.test(x)).sort(),
+    ['Electrode-GX','Gengar & Mimikyu-GX']);
+  assert.equal(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.length,8);
+  assert.ok(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.includes('Squawkabilly ex PAL'),
+    'SV-era Pokémon ex is distinct from BW/XY era Pokémon-EX');
+  assert.ok(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.includes('Ditto Prism Star LOT'));
+  assert.equal(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS.includes('Electrode-GX CES'),false);
+});
+test('native visible Voltorb or Squawkabilly ex can be source Bomb recipients without Raichu',()=>{
+  for(const recipient of [
+    {name:'Voltorb',printing:'Voltorb ROS',abilities:[],tools:[]},
+    {name:'Squawkabilly ex',printing:'Squawkabilly ex PAL',abilities:[],tools:[]}
+  ]){
+    const r=rank17ElectrodeBombNecessity(view([energy[0]],{
+      bench:[electrode,recipient,null,null,null]
+    }));
+    assert.equal(r.generalBombNecessaryConditionsMet,true);
+    assert.equal(r.physicalNecessaryConditionsMet,false,
+      'Original downstream Raichu line remains absent');
+    assert.deepEqual(r.generalBombPhysicalBlockers,[]);
+    assert.equal(r.generalBombSourceRecipientPositions.length,1);
+    assert.equal(r.maxPhysicalCardsTransferable,1);
+    assert.equal(r.paperLegality,'UNVERIFIED');
+  }
+});
+test('source GX recipients cannot fund Bomb while source non-GX recipients can',()=>{
+  const noRecipient=rank17ElectrodeBombNecessity(view([energy[0]],{
+    bench:[electrode,{name:'Gengar & Mimikyu-GX',
+      printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]},
+      null,null,null]
+  }));
+  assert.equal(noRecipient.generalBombNecessaryConditionsMet,false);
+  assert.deepEqual(noRecipient.generalBombPhysicalBlockers,
+    ['no-source-non-gx-ex-recipient-in-play']);
+  const yesRecipient=rank17ElectrodeBombNecessity(view([energy[0]],{
+    bench:[electrode,{name:'Unown',printing:'Unown AOR',abilities:[],tools:[]},
+      null,null,null]
+  }));
+  assert.equal(yesRecipient.generalBombNecessaryConditionsMet,true);
+});
+test('general source Bomb refuses zero discarded Energy or unknown recipient',()=>{
+  const goodRecipient={name:'Marshadow',printing:'Marshadow UNB',
+    abilities:[],tools:[]};
+  const zero=rank17ElectrodeBombNecessity(view([],{
+    bench:[electrode,goodRecipient,null,null,null]
+  }));
+  assert.deepEqual(zero.generalBombPhysicalBlockers,
+    ['no-source-discarded-energy-card']);
+  const unknown=rank17ElectrodeBombNecessity(view([energy[0]],{
+    bench:[electrode,{name:'Unknown',printing:'Unknown XYZ',
+      abilities:[],tools:[]},null,null,null]
+  }));
+  assert.deepEqual(unknown.generalBombPhysicalBlockers,
+    ['no-source-non-gx-ex-recipient-in-play']);
 });
