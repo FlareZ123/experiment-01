@@ -10,6 +10,8 @@ const {writeAtomicLocked}=
   require('./agent20-frozen-rank6-canary-v1.cjs');
 const {withLateOwnerRootPhysicalAudit,VERSION}=
   require('../twinleaf/agent7-late-owner-root-physical-audit.cjs');
+const {detachedLillieAtPass}=
+  require('../twinleaf/agent7-frozen-candidate-lillie-pass-clone.cjs');
 
 const root=path.resolve(__dirname,'../..');
 const REG='results/aichi-2026/registrations/agent7-lillie-pass-rank6-prospective-20261102.json';
@@ -30,7 +32,8 @@ function run(){
   assert.equal(trials.length,2);
   const observed=withLateOwnerRootPhysicalAudit(()=>runDevelopment({
     ...frozen.policyOptions,registeredTrials:trials,registeredFrameName:REG
-  }),trials,{minTurn:16,deckThreshold:8});
+  }),trials,{minTurn:16,deckThreshold:8,probe:detachedLillieAtPass,
+    probeMaxDeck:1});
   assert.equal(observed.result.rows.length,2);
   const summaries=observed.result.rows.map((r,i)=>{
     const audit=observed.audit.rows[i];
@@ -60,6 +63,14 @@ function run(){
         heldLillieCount:e.heldLillieCount
       })),
       firstRealDeckZeroDispatch:audit.candidateDeckZeroFirstDispatch,
+      detachedSameRootLillieBeforeAttack:events.filter(e=>
+        e.detachedLillieBeforeAttack).map(e=>({
+          storeOrdinal:e.storeOrdinal,globalTurn:e.globalTurn,
+          originalNativeAction:e.actionKind,
+          originalOwnerHandSize:e.ownerHandCount,
+          originalOwnerDeckCount:e.ownerDeckCount,
+          receipt:e.detachedLillieBeforeAttack
+        })),
       lastObservedLateCandidateOwnerRoot:events.at(-1)??null,
       physicalOwnerRootAudit:audit,
       paperEligibleRescueProven:false,
@@ -95,6 +106,7 @@ if(require.main===module){
       id:r.trialId,roots:r.lateCandidateNativeRootCount,
       latePasses:r.lateCandidatePassRootCount,
       heldLillieRoots:r.lateCandidateOwnerRootsWithHeldLillie,
+      detachedLillie:r.detachedSameRootLillieBeforeAttack,
       firstDeckZero:r.firstRealDeckZeroDispatch,
       lastRoot:r.lastObservedLateCandidateOwnerRoot?.actionKind??null
     })),
