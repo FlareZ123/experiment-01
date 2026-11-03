@@ -77,12 +77,14 @@ test('already powered Active, consumed attachment, and missed source abstain',()
   const absent=state();
   assert.equal(chooseUnderworldActiveFundingPriority(absent,C).kind,
     'attach-basic-energy');
-  assert.notEqual(chooseActorRootIntent(absent,C,{
+  const natural=chooseActorRootIntent(absent,C,{
     underworldDoorRoot:true,underworldActiveFundingPriority:true,
     underworldMarkerReceipt:{activeUnspent:false,
       benchUnspent:[false,false,false,false,false]}
-  }).kind,'attach-basic-energy',
-    'No valid Underworld source means no special priority intervention');
+  });
+  assert.equal(natural.kind,'attach-basic-energy');
+  assert.equal(natural.singleHeldPsychicContestedByUnderworld,undefined,
+    'Without a verified Underworld root, only the generic Energy plan runs');
 });
 
 test('active status, non-source Active, and unknown special Energy abstain',()=>{
