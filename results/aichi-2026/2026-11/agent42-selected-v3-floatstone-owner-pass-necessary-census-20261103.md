@@ -21,7 +21,7 @@ The census reads **only** the `selected-v3-paper-plus-funded-mobility` `fullNati
 ## Observed necessary-condition funnel
 
 | Original source rank | Intact selected contexts with source-Pass records | Native source Pass snapshots | Pass snapshots holding Float Stone | Held Stone + Benched VMAX | Held Stone + Active VMAX |
-| --- | ---: | ---: | ---: | ---: |
+| --- | ---: | ---: | ---: | ---: | ---: |
 | 1 | 4 | 47 | 26 | **18** | **0** |
 | 5 | 4 | 58 | 20 | 0 | **0** |
 | 6 | 2 (two additional source contexts aborted) | 33 | 0 | 0 | **0** |
