@@ -1,6 +1,12 @@
 name: Aichi published-field Energy census
 on:
   workflow_dispatch:
+    inputs:
+      agent49_original_trainer_native:
+        description: 'Bounded preregistered rank5/11 symmetric original Trainer fallback native policy diagnostic'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   energy-census:
@@ -51,3 +57,51 @@ jobs:
             energy-census.json
             aichi-stadium-response.json
             attached-energy-threat-inventory.json
+
+  generic-owner-trainer-native:
+    if: ${{ inputs.agent49_original_trainer_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize exact original Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned server dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify prospective paired-deal denominator and generic payment veto contracts
+        run: node --test tests/agent49-general-trainer-native-pilot.test.cjs tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs
+      - name: Run eight preregistered original rank5/11 two-seat matched native arms
+        run: node simulation/evaluation/agent49-general-trainer-fallback-native-pilot.cjs > agent49-generic-trainer-native-summary.txt
+      - name: Summarize every native attempt including caps and failures
+        run: >-
+          node -e "const a=require('node:assert/strict');
+          const r=require('./agent49-generic-trainer-fallback-native.json');
+          a.equal(r.attemptedArms,8);a.equal(r.registeredPhysicalPairs,4);
+          a.equal(r.competitivelyQualifiedGames,0);
+          console.log('AGENT49_ORIGINAL_TRAINER_NATIVE',JSON.stringify({
+          matched:r.physicallyMatchedPairs,complete:r.completePairs,
+          controlPlays:r.controlNativeRootPlayCards,
+          treatedPlays:r.treatmentNativeRootPlayCards,
+          proposed:r.treatmentNativeTrainerFallbackRoots,
+          accepted:r.treatmentNativeTrainerAcceptedRoots,
+          knownPaidVetoes:r.treatmentKnownPaymentVetoes,
+          nativeAborts:r.aborts.length,qualified:0}));"
+      - name: Preserve full raw paired native original-root dispositions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent49-original-generic-trainer-paired-native
+          path: |
+            agent49-generic-trainer-fallback-native.json
+            agent49-generic-trainer-native-summary.txt
+          retention-days: 30
+          if-no-files-found: warn
