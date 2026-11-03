@@ -7,7 +7,7 @@ const field=require('../results/aichi-2026/full-decklists.json');
 const adp=require('../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json');
 const alchemy=require('../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json');
 const sets=require('../resources/sets/en.json');
-const {choose,miss,transfer,soloAfterSourceBonus}=require('../simulation/evaluation/agent50-mulligan-transfer.cjs');
+const {choose,miss,transfer,soloAfterSourceBonus,mulliganReveal}=require('../simulation/evaluation/agent50-mulligan-transfer.cjs');
 const cache=new Map();
 
 /** @param {string} id @returns {object} */
@@ -137,4 +137,29 @@ test('equal-weight original 29 ranks candidate bonus asymmetry',()=>{
   console.log(JSON.stringify({field:'29 known original ranks only',
     candidateADP7:a,candidateApexAlchemy12:b,reference14:reference,newMoon17:newMoon,
     qualification:'setup offers, not game strength or all32'},null,2));
+});
+
+test('real frozen nonBasic families disclosed by candidate mulligan failures',()=>{
+  const count=(deck,name)=>deck.cards
+    .filter(row=>row.name===name).reduce((n,row)=>n+row.count,0);
+  assert.equal(count(adp,'Thorton'),4);
+  assert.equal(count(adp,'Tag Call'),4);
+  assert.equal(count(alchemy,'Boost Shake'),3);
+  assert.equal(count(alchemy,'Alolan Muk'),2);
+  const single=mulliganReveal(7,4);
+  const either=mulliganReveal(7,8);
+  const both=2*single-either;
+  const alchemyFamily=mulliganReveal(12,5);
+  close(single,0.22724294435133066);
+  close(either,0.3191160449881802);
+  close(both,0.13536984371448113);
+  close(alchemyFamily,0.11696883944131456);
+  close(mulliganReveal(4,8),0.5063964993450207);
+  close(mulliganReveal(60,0),0);
+  console.log(JSON.stringify({
+    adpThortonOrTagCallPublic: either,
+    adpBothFamiliesAcrossReveals:both,
+    alchemyBoostShakeOrMukPublic:alchemyFamily,
+    qualification:'public invalid seven exposures only; no opponent recognition policy or winning inference'
+  },null,2));
 });
