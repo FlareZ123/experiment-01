@@ -113,6 +113,8 @@ jobs:
         run: node --test tests/agent4-secret-box-payment-native.test.cjs
       - name: Test source-marked Secret Box owner-deck category guard on paid original TWM both seats
         run: node --test tests/agent4-secret-box-paper-search-native.test.cjs
+      - name: Verify first-turn Wally ROS native same-turn Trubbish to Tool Garbodor in both seats
+        run: node --test tests/agent4-wally-first-turn-garbotoxin-native.test.cjs
       - name: Check common v11 Secret Box physical-root paper guard both seats
         run: node --test tests/agent4-shared-secretbox-v11-paper.test.cjs
       - name: Reproduce common v11 original source-stamped Secret Box payment and root in pinned Store both seats
