@@ -9,7 +9,7 @@ const energy = [
   'Reversal Energy PAL','Counter Energy CIN','Unit Energy LPM UPR'
 ];
 const electrode = {
-  name:'Electrode-GX',printing:'Electrode GX CES',
+  name:'Electrode-GX',printing:'Electrode-GX CES',
   abilities:['Extra Energy Bomb'],tools:[]
 };
 const raichu = {
@@ -85,6 +85,14 @@ test('missing Stage 1 Electrode means no Extra Energy Bomb source line',()=>{
   }));
   assert.equal(r.physicalNecessaryConditionsMet,false);
   assert.ok(r.physicalBlockers.includes('no-source-electrode-gx-in-play'));
+});
+
+test('an unrelated Electrode-GX printing does not count as CES48 source Ability',()=>{
+  const r=rank17ElectrodeBombNecessity(view(energy.concat(energy),{
+    bench:[{...electrode,printing:'Electrode-GX OTHER'},raichu,null,null,null]
+  }));
+  assert.equal(r.physicalNecessaryConditionsMet,false);
+  assert.deepEqual(r.physicalBlockers,['no-source-electrode-gx-in-play']);
 });
 
 test('missing Alolan Raichu is a line constraint, not a proof of Ability illegality',()=>{
