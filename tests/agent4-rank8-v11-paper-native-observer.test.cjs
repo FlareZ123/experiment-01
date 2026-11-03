@@ -23,12 +23,21 @@ class Store{
     if(action instanceof AddPlayerAction)return true;
     const p=this.state.prompts.find(x=>
       x.id===action.id&&x.result===undefined);
-    if(p)p.result=action.result;
+    if(p){
+      p.result=action.result;
+      if(this.applyPhysicalPayment&&p.message==='CHOOSE_CARD_TO_DISCARD'){
+        const owner=this.state.players.find(x=>x.id===p.playerId);
+        for(const card of action.result){
+          const index=owner.hand.cards.indexOf(card);
+          if(index>=0){owner.hand.cards.splice(index,1);owner.discard.cards.push(card);}
+        }
+      }
+    }
     return true;
   }
 }
 function fixture(){
-  const players=[0,1].map(id=>({id,hand:{cards:[]}}));
+  const players=[0,1].map(id=>({id,hand:{cards:[]},discard:{cards:[]}}));
   const store=new Store(players);
   return {players,store};
 }
@@ -98,4 +107,41 @@ test('native Store hook restored when underlying game throws',()=>{
   }),/expected simulated native abort/);
   assert.deepEqual(Object.getOwnPropertyDescriptor(
     Store.prototype,'dispatch'),before);
+});
+
+test('physical three-card transfer is counted only when all three cards move to owner discard',()=>{
+  for(const seat of [0,1]){
+    const {store,players}=fixture();
+    const trio=Array.from({length:3},(_,i)=>({id:i+1}));
+    const source=players[seat];
+    source.hand.cards.push(...trio);
+    store.applyPhysicalPayment=true;
+    store.state.prompts.push(new ChooseCardsPrompt(16,source));
+    const observed=withSourceBoxPaymentObserver(Store,seat,()=>{
+      store.dispatch(new AddPlayerAction());
+      return store.dispatch(new ResolvePromptAction(16,trio));
+    });
+    assert.equal(observed.audit.paidPhysicalThreeCardReceipts,1);
+    assert.equal(observed.audit.unverifiedPhysicalCustody,0);
+    assert.equal(observed.audit.observations[0].paidPhysicalCards,3);
+    assert.equal(observed.audit.observations[0].physicalCustodyStatus,
+      'PAID_THREE_PHYSICAL_CARDS');
+    assert.equal(source.hand.cards.length,0);
+    assert.equal(source.discard.cards.length,3);
+  }
+});
+
+test('accepted resolution without a physical transfer remains unverified',()=>{
+  const {store,players}=fixture();
+  const trio=[{id:1},{id:2},{id:3}];
+  players[0].hand.cards.push(...trio);
+  store.state.prompts.push(new ChooseCardsPrompt(18,players[0]));
+  const observed=withSourceBoxPaymentObserver(Store,0,()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new ResolvePromptAction(18,trio));
+  });
+  assert.equal(observed.audit.sourceAccepted,1);
+  assert.equal(observed.audit.paidPhysicalThreeCardReceipts,0);
+  assert.equal(observed.audit.unverifiedPhysicalCustody,1);
+  assert.equal(observed.audit.observations[0].physicalCustodyStatus,'UNVERIFIED');
 });
