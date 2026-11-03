@@ -126,6 +126,12 @@ function runCase(input){
   assert.equal(target.validate([grimerSlot],state),true);
   store.dispatch(new ResolvePromptAction(target.id,[grimerSlot]));
   actions.push('real-Grimer-Boost-Shake-evolution-prompt');
+  const shuffle=state.prompts.find(p=>p.result===undefined);
+  assert.equal(shuffle?.constructor.name,'ShuffleDeckPrompt');
+  const sequence=owner.deck.cards.map((_,i)=>i);
+  assert.equal(shuffle.validate(sequence,state),true);
+  store.dispatch(new ResolvePromptAction(shuffle.id,sequence));
+  actions.push('owner-shuffle-resolved');
 
   const after={
     wob:observedPower(source,wob,'Bide Barricade'),
