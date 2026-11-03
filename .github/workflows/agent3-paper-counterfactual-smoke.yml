@@ -65,6 +65,9 @@ jobs:
         run: node --test tests/agent3-compressor-root-provenance-v3.test.cjs
       - name: Replay three previously observed source-first deals with both historical policy arms
         run: node simulation/twinleaf/agent3-rank26-root-provenance-v3-selected.cjs
+      - name: Print bounded original native root, payment and speculative clone lineage summary
+        run: |
+          node -e "const a=require('node:assert/strict');const r=require('./agent3-rank26-root-provenance-v3.json');a.equal(r.summary.total,6);a.equal(r.summary.identicalRoots,6);for(const c of r.cases)console.log('SOURCE_ROOT_V3',JSON.stringify({repeat:c.repeat,slot:c.slot,seat:c.seat,arm:c.arm,rootMatch:c.expected===c.actual,error:c.error,sourceFirst:c.sourceFirst,acceptedFirstTurnCardPlays:c.sourceActions.filter(x=>x.action==='PlayCardAction').map(x=>x.card),realCompressorPlays:c.actualFirstTurnCompressorPlays,selectedRootCompressor:c.receiptAudit?.selectedSourcePlays,acceptedRootCompressor:c.receiptAudit?.acceptedSourcePlays,linkedPrompts:c.receiptAudit?.linkedPromptsIssued,positiveSettlements:c.receiptAudit?.positiveLinkedSettlements,speculativeDispatches:c.receiptAudit?.ignoredSpeculativeDispatches,receipts:c.receiptAudit?.receipts.map(y=>({turn:y.globalTurn,minimumMet:y.paperMinimumMet,card:y.sourceCard?.id,moved:y.physicallyMoved.map(z=>({id:z.id,name:z.name}))}))}));"
       - name: Archive all six root receipts, including negative and errored attempts
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
