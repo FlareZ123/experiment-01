@@ -36,7 +36,7 @@ let nextId = 470000;
  * @param {0|1} seat
  * @param {boolean} withLightning
  */
-function stage(seat, withLightning) {
+function stage(seat, withLightning, orphanLightningView = false) {
   const registry = initializeCards();
   const original = name => {
     const matches = [...new Set(printed.filter(full =>
@@ -76,7 +76,7 @@ function stage(seat, withLightning) {
   const crisis = original('Technical Machine: Crisis Punch');
   source.active.cards.push(meloetta);
   if (withLightning) {
-    source.active.cards.push(lightning);
+    if (!orphanLightningView) source.active.cards.push(lightning);
     source.active.energies.cards.push(lightning);
   }
   source.active.tools.push(crisis);
@@ -197,4 +197,43 @@ for (const seat of [0, 1]) {
         'the one native opponent V KO must award source 2 Prizes');
     });
   }
+}
+
+/**
+ * Retrospective causal ablation of the older isolated fixture. A Lightning
+ * present in energies.cards but absent from active.cards is an invalid physical
+ * board, retained here strictly as a diagnostic negative control.
+ * Each attempted AttackAction runs in a fresh Store and is never retried after
+ * native rejection. Compare first-turn DCE without pre-check and with pre-check.
+ */
+for (const seat of [0, 1]) {
+  test('rank26 firstturn native physical zone and preflight ablation seat ' + seat, () => {
+    for (const orphanLightningView of [false, true]) {
+      for (const preflight of [false, true]) {
+        const x = stage(seat, true, orphanLightningView);
+        x.store.dispatch(new PlayCardAction(x.source.id, 0, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }));
+        const attachment = snapshot(x);
+        const payment = preflight ? checkPayment(x) : null;
+        let attackError = null;
+        try {
+          x.store.dispatch(new AttackAction(x.source.id, 'Crisis Punch'));
+        } catch (error) {
+          attackError = error.message;
+        }
+        const record = {seat, orphanLightningView, preflight,
+          attachment, payment, attackError,
+          sourcePrizes: x.source.getPrizeLeft(),
+          opponentActiveAfter: x.opponent.active.getPokemonCard()?.fullName ?? null,
+          opponentPhase: x.state.phase};
+        console.log('AGENT47_CRISIS_ABLATION', JSON.stringify(record));
+        if (!orphanLightningView) {
+          assert.equal(attackError, null,
+            'real Energy card must be attached in both native physical views');
+          assert.equal(x.opponent.active.getPokemonCard() ?? null, null);
+        }
+      }
+    }
+  });
 }
