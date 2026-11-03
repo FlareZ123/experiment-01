@@ -127,25 +127,32 @@ function runNaturalCustodyReplay() {
   const {withGuzmaHalaOwnerZoneLineage} =
     require('../twinleaf/agent7-ghala-owner-zone-lineage.cjs');
   const bytes = fs.readFileSync(path.join(ROOT,OBSERVER_PATH));
-  const observer = withGuzmaHalaOwnerZoneLineage(runFrozenCanary,{
-    liveOnly:true
-  });
+  const profile = JSON.parse(fs.readFileSync(path.join(__dirname,
+    'agent20-frozen-rank6-canary-v1.json'),'utf8'));
+  const {withFrozenCandidateStadiumPassProbe} =
+    require('../twinleaf/agent20-frozen-candidate-stadium-pass-probe.cjs');
+  const observer = withGuzmaHalaOwnerZoneLineage(() =>
+    withFrozenCandidateStadiumPassProbe(runFrozenCanary,
+      profile.registeredTrials),{liveOnly:true});
+  const frozen = observer.result.result;
+  const stadiumPassAudit = observer.result.audit;
   // Persist the canonical historical archive for the existing source-pair
   // auditor; there is precisely one native execution, shared by both files.
   writeAtomicLocked(HISTORICAL_OUTPUT,
-    JSON.stringify(observer.result,null,2)+'\n');
-  const evidence = buildEvidence(observer.result, observer.audit);
+    JSON.stringify(frozen,null,2)+'\n');
+  const evidence = buildEvidence(frozen, observer.audit);
   const nativeChain = require('./agent20-ghala-native-cost-to-payoff-attestor.cjs')
-    .attestHistoricalFourArmReplay(observer.result,evidence);
+    .attestHistoricalFourArmReplay(frozen,evidence);
   return {
     schema:VERSION,
-    frozenProfileSha256:observer.result.profileSha256,
-    historicalFrozenDisposition:observer.result.releaseDisposition,
-    historicalFrozenRuntime:observer.result.runtime,
+    frozenProfileSha256:frozen.profileSha256,
+    historicalFrozenDisposition:frozen.releaseDisposition,
+    historicalFrozenRuntime:frozen.runtime,
     nativeObserverBlobSha:gitBlobSha(bytes),
     nativeObserverSha256:createHash('sha256').update(bytes).digest('hex'),
     naturalCustodyEvidence:evidence,
     nativeCostToPayoffChainEvidence:nativeChain,
+    candidateStadiumPassCounterfactualEvidence:stadiumPassAudit,
     historicalOriginalNativeArchive:HISTORICAL_OUTPUT.split(path.sep).pop(),
     wholeGamePaperQualified:false,
     competitiveGameQualified:false
@@ -175,6 +182,9 @@ if (require.main === module) {
       output.naturalCustodyEvidence?.witnessedNaturalSourceTwoCardZoneMovements ?? 0,
     nativeCostToPayoffChains:
       output.nativeCostToPayoffChainEvidence?.sourceCostToNativePayoffChains ?? 0,
+    candidatePassStadiumWitnesses:
+      output.candidateStadiumPassCounterfactualEvidence?.events?.filter(e =>
+        e.detached?.nativeCounterfactualAcceptedReplacements>0).length ?? 0,
     allPaperQualified:false,
     competitiveGameQualified:false,
     error:output.error ?? null
