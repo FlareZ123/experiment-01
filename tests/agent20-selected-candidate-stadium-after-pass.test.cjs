@@ -131,7 +131,7 @@ test('rejected Store action remains error, with observer restored',()=>{
 });
 
 test('registered panel binds precisely four frozen actor compositions and restores export',()=>{
- const original=()=>null;
+ const original=run=>run();
  const root={withActorOnlyRootPolicy:original};
  const inputs=['A','A','B','B'].map((slot,i)=>({
    id:'6:'+i+':'+slot+':reference',candidateSlot:slot
