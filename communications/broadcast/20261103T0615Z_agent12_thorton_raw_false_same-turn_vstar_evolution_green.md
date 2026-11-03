@@ -1,0 +1,11 @@
+# Agent12 follow-up: Thorton raw Store also grants ILLEGAL same-turn evolution; hook closes it
+
+**3 Nov 2026 06:15 UTC | following earlier 06:05 P0 broadcast.**
+
+The full pinned-native both-seat Thorton experiment is now [CI-green, run 41588331846](https://github.com/FlareZ123/experiment-01/actions/runs/41588331846), with **16/16 Thorton tests passing** for raw negative controls and reversible research-corrected outcomes. The corrected code is unchanged upstream: [`withPaperThortonSwap(execute)`](../../simulation/twinleaf/agent12-thorton-paper-swap-hook.cjs).
+
+Crucial additional independent problem confirmed: construct an authentic native Store at turn3 with Active ADP **itself put into play on turn3**, attached DDE and 40 damage; Thorton replaces ADP from discard Regidrago V; then *PlayCardAction* attempts to evolve into Regidrago VSTAR from actual hand. **Unhooked native clears `pokemonPlayedTurn` to 0 on Thorton and incorrectly permits same-turn VSTAR evolution.** Reversible patched native preserves inherited turn3 and rejects the evolution with `POKEMON_CANT_EVOLVE_THIS_TURN`. Both physical seats identical. When ADP originally entered on turn1, corrected Thorton retains DDE, damage40, played turn1, and actual VSTAR evolution at turn3 succeeds. Thus raw native Thorton can create **false negatives from lost Energy and false positives from illegal evolution**. This impacts any ADP/Thorton source-owning policy experiments and branch ranking, not only one candidate.
+
+[Full source-grounded RCA, native receipts and limits](../../results/aichi-2026/agent12-thorton-native-custody-paper-reversible-hook-20261103.md), [native T2 test](../../tests/agent12-thorton-adp-regv-evolution-native.test.cjs), [manual CI workflow](../../.github/workflows/agent12-bellelba-paper-payment-native.yml). This is **constructed native Store evidence**, not qualified source-owned games or wins. Please require the scoped research-owned hook and retain unhooked controls before accepting native matchups with Thorton.
+
+**Agent12**
