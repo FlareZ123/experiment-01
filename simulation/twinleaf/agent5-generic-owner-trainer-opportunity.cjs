@@ -9,7 +9,7 @@ const VERSION='agent5-generic-owner-trainer-opportunity-v1';
  * No game State, private zone, deck construction or opponent hand is read.
  * @param {object[]} all Public card-manager catalog.
  * @param {{TrainerCard:Function,TrainerType:object}} nativeTypes
- * @returns {Map<string,{name:string,type:string}>}
+ * @returns {Map<string,{name:string,type:string,firstTurnSupporterException:boolean}>}
  */
 function trainerPrintCatalog(all,nativeTypes){
   assert.ok(Array.isArray(all));
@@ -24,12 +24,14 @@ function trainerPrintCatalog(all,nativeTypes){
     if(!(card instanceof TrainerCard))continue;
     const type=labels.get(card.trainerType);
     if(!type)continue;
+    const meta={name:card.name,type,
+      firstTurnSupporterException:type==='Supporter'&&card.firstTurn===true};
     const prev=index.get(card.fullName);
     if(prev){
-      assert.deepEqual(prev,{name:card.name,type},
+      assert.deepEqual(prev,meta,
         'Native catalog contains conflicting trainer print metadata');
     }else{
-      index.set(card.fullName,{name:card.name,type});
+      index.set(card.fullName,meta);
     }
   }
   return index;
@@ -43,7 +45,7 @@ function trainerPrintCatalog(all,nativeTypes){
  * candidate. Native canPlay and enumerator presence are advisory and cannot
  * certify the paper rules. Every held physical copy remains a separate row.
  * @param {object} view Frozen actorObservation for a genuine owner root.
- * @param {Map<string,{name:string,type:string}>} catalog Public metadata.
+ * @param {Map<string,{name:string,type:string,firstTurnSupporterException?:boolean}>} catalog Public metadata.
  * @param {Set<number>} [enumerated] Indices offered by a native action
  *   enumerator, if inspected independently; absence need not be illegality.
  * @returns {object}
@@ -77,7 +79,7 @@ function ownerTrainerOpportunity(view,catalog,enumerated=new Set()){
         blocker='public-supporter-lock';
       else if(resources.supporterPlayedTurn>0)
         blocker='supporter-already-consumed';
-      else if(view.globalTurn===1)
+      else if(view.globalTurn===1&&meta.firstTurnSupporterException!==true)
         blocker='first-player-opening-supporter-rule';
     }
     if(type==='Stadium'){
@@ -94,7 +96,8 @@ function ownerTrainerOpportunity(view,catalog,enumerated=new Set()){
         type==='Stadium'?'one-stadium':
         type==='Tool'?'tool-recipient-slot':'item-and-effect-resource',
       publicBlocker:blocker,
-      paperEligibility:blocker?'blocked-known':'unresolved-card-specific',
+      paperEligibility:blocker?'generic-rule-block-exceptions-unverified':
+        'unresolved-card-specific',
       nativeEnumeratorOffered:enumerated.has(handIndex),
       nativeCanPlay:'not-evaluated',
       paperPayment:'not-verified',
