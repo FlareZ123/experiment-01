@@ -69,7 +69,7 @@ function withPrintedVoltDonorPreference(run,options,deps={}){
 
   const marked=new WeakSet();
   const chosenResults=new WeakMap();
-  let liveStore=null;
+  const initializedStores=new WeakSet();
   const audit={
     version:VERSION,ownerSeat:seat,markedSourcePrompts:0,
     eligibleOwnerPromptChoices:0,
@@ -159,8 +159,8 @@ function withPrintedVoltDonorPreference(run,options,deps={}){
   }
 
   function dispatch(action,...args){
-    if(liveStore===null&&action?.constructor?.name==='AddPlayerAction'){
-      liveStore=this;
+    if(action?.constructor?.name==='AddPlayerAction'){
+      initializedStores.add(this);
       audit.liveStoreDetected=true;
     }
     const details=action?.constructor?.name==='ResolvePromptAction'?
@@ -177,7 +177,7 @@ function withPrintedVoltDonorPreference(run,options,deps={}){
       audit.nativeAcceptedSelectedMoves++;
       audit.acceptedPhysicalTransferReceipts.push({
         ...details,physical:details.physical.fullName,
-        genuineLiveStore:this===liveStore,
+        genuineLiveStore:initializedStores.has(this),
         sourceHadCardBefore:beforeSource,
         movedFromActive:removed,receivedOnBench:received,
         printedCostStillPayable:canPayVoltCost(
