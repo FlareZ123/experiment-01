@@ -120,7 +120,7 @@ jobs:
       - name: Pure actor-root intent tests
         run: node --test tests/agent5-owner-root-slice.test.cjs tests/agent5-special-energy-bench-witness.test.cjs tests/agent5-owner-root-wrapper.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-owner-root-arbitration.test.cjs tests/agent5-public-attachment-reaction.test.cjs tests/agent5-reactive-attachment-guard.test.cjs tests/agent5-aichi-open-time-adjudication.test.cjs tests/agent35-potential-two-prize-attack-veto.test.cjs tests/agent10-original-printing-energy-flags.test.cjs tests/agent42-prospective-source-root-audit.test.cjs tests/agent42-visible-printed-prize-finisher.test.cjs tests/agent41-arbitration-version-composition.test.cjs tests/agent5-rank6-directline-paired-census.test.cjs tests/agent22-sparse-owner-bundles.test.cjs tests/agent22-sparse-owner-search-adapter.test.cjs tests/agent22-actor-marginal-search-value.test.cjs tests/agent22-k0-search-bundle-value.test.cjs tests/agent22-steven-followthrough.test.cjs tests/agent22-steven-physical-lineage.test.cjs tests/agent22-live-owner-turn-observer.test.cjs tests/agent22-numeric-shuffle-validation-hook.test.cjs tests/agent12-native-campinggear-after-pass.test.cjs tests/agent12-campinggear-prompt-paper-hook.test.cjs tests/agent12-paper-prompt-disposition-observer.test.cjs tests/agent12-nightwatch-paper-random-chooser.test.cjs tests/agent12-nightwatch-native-nonce-reconcile.test.cjs tests/agent12-nightwatch-zone-summary.test.cjs
       - name: Generic owner-hand Trainer category and shared-action opportunity tests
-        run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs
+        run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs tests/agent50-native-trainer-owner-hand-payment-posthoc.test.cjs
       - name: Precompile immutable registration and seed-identity contract for generic native Trainer A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node --test tests/agent50-generic-native-trainer-registration.test.cjs
@@ -147,11 +147,16 @@ jobs:
       - name: Preregistered actual Store generic native Trainer fallback across rank5/rank11 A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node simulation/twinleaf/agent50-generic-owner-native-trainer-paired-v1.cjs
+      - name: Re-audit the exact archived true-owner native Trainer prompt hand-custody chain
+        if: ${{ inputs.agent50_generic_native_trainer_aba }}
+        run: node simulation/evaluation/agent50-native-trainer-owner-hand-payment-posthoc.cjs agent50-generic-owner-native-trainer-paired-v1.json
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.agent50_generic_native_trainer_aba }}
         with:
           name: agent50-generic-native-trainer-aba-v1
-          path: agent50-generic-owner-native-trainer-paired-v1.json
+          path: |
+            agent50-generic-owner-native-trainer-paired-v1.json
+            agent50-native-trainer-hand-custody.json
           if-no-files-found: warn
           retention-days: 30
       - name: Bounded genuine owner-root Trainer frontier for preregistered original printed ranks
