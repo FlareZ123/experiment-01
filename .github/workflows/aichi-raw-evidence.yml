@@ -67,6 +67,8 @@ jobs:
         run: node --test tests/action-trace-canonical.test.cjs
       - name: Test rank11 source owner Letter-frontier source-custody invariants
         run: node --test tests/agent10-selected-v3-rank11-letter-frontier.test.cjs
+      - name: Test archived rank11 Letter Store source-deal and six-Prize postgame evidence invariants
+        run: node --test tests/agent10-audit-rank11-letter-aba-native.test.cjs
 
   native-evidence-retention:
     if: ${{ inputs.retain_expiring_native_archives || inputs.verify_native_release_only }}
