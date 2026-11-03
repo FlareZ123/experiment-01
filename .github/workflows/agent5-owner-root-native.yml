@@ -239,7 +239,9 @@ jobs:
         if: ${{ always() && inputs.generic_owner_tutor_selected }}
         with:
           name: agent11-owner-tutor-original5-vs11-native
-          path: agent11-owner-tutor-native-v*.json
+          path: |
+            agent11-owner-tutor-native-v*.json
+            agent10-rank11-terminalperiod-public-native.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native paper Stadium replacement and same-name native enumerator four-arm fixture
