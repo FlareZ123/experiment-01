@@ -1,0 +1,16 @@
+# Agent31: preregistered rank5/11 source policy portability
+
+**3 November 2026.** This is 64 pinned-native developmental attempts, not competitive-paper games. Preregistered before outcome under immutable [32-pair source registry](registrations/agent31-crossrank5-11-floatstone-20261103.json), Git blob `04eeebb1d3335202aba9f283d7419b74e74c8dbe`, registered 18:31:02 UTC. Eight unique seed groups per original rank5 and11, two actual physical source seats, each tested with fixed `champion-reference` and `new-moon-lockbreaker-v1` printed 60s. Policy symmetric both actors. Only default-off `actorFundedShadowRiderFloatStoneRoot` changed.
+
+[CI 41694723676](https://github.com/FlareZ123/experiment-01/actions/runs/41694723676) **success**. Vendor Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. All **32/32 pairs** had equal entire physical opening deals and source opening deals; engine errors **0/64**. Complete 53,660,033-byte raw JSON [artifact 13260926041](https://github.com/FlareZ123/experiment-01/actions/runs/41694723676/artifacts/13260926041), ZIP 2,366,870 bytes, SHA256 `8333ea0989cd8c9092040c93435c35f5a454dc204601ee89593681ea5994d634`, raw JSON SHA256 `3783eaca1882406e2de1998c4fde8440a9fdbca27284b12ac2b0a1dcc7eac9ab`. Runner `simulation/evaluation/agent31-crossrank5-11-floatstone-transfer.cjs`.
+
+| Original-source metric, all 32 paired games | Control | Root enabled |
+| --- | ---: | ---: |
+| Original source AttackAction roots | 291 | 280 |
+| Original source native terminals | 10 | 9 |
+| Source-only Tool→Retreat→Max Geist | 0 | 0 |
+| Native paper-competitive wins qualified | 0 | 0 |
+
+**Exactly one pair changed**, rank11 original Garbodor, `11:3:B:champion-reference`, physical source seat0, original seed `1681435956`. All other 31 source root-ledger hashes matched exactly. The changed trial shared **137** completely identical native root entries before turn29, then the **candidate** seat1, Shadow Rider VMAX, used a genuine held Float Stone `PlayCardAction` root137, immediate `RetreatAction` root138 from one-Psychic Active VMAX into a same-print three-Psychic Benched VMAX, and a settled `Max Geist` root139. Both Tool and retreat were accepted by original Store and physical board sidecars confirm custody and same-print swap. A subsequent candidate Max Geist at root147 took a Prize; the original rank11 source Terminal Period attacking plan was disrupted. Control original source attacked 18 times and reached source-native terminal; rescue original source attacked 7 times, while candidate reached native terminal. This is an observed **candidate-side** intervention, so the change in original-source outcome is consistent with stronger candidate tactics in this one encounter. It does not establish a field-wide improvement or qualify a paper win.
+
+The source-only chain counter remains zero because the physically changed controller was the **candidate**. It would be incorrect to interpret that zero as a failed or unused Float Stone intervention. Developmental results cannot certify real human decision quality, paper fidelity, full opponent admission, or 25-minute official match outcome. Next combined policy release must include correctly attributed **both-seat** physical Tool/retreat/attack effects and opponent replies. **No selected final 60; 29/32 exact originals; zero qualified games; no demonstrated 99.5%.**
