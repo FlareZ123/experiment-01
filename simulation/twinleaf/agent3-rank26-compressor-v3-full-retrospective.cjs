@@ -79,7 +79,9 @@ function run() {
         arms.push({
           arm,physicalRoot:observed.physicalRoot?.digestSha256??null,
           liveRootIdentified:observed.liveRootIdentified,
-          error:observed.error,sourceFirst:game?.firstTurnSlot===seat,
+          error:observed.error,
+          abortSourceCompressorAudit:observed.abortSourceCompressorAudit??null,
+          sourceFirst:game?.firstTurnSlot===seat,
           originalSourcePlayCards:actions.filter(x=>x.action==='PlayCardAction').map(x=>x.card),
           originalSourceFirstTurnBattleCompressorPlays:actions.filter(x=>
             x.action==='PlayCardAction' && x.card==='Battle Compressor').length,
