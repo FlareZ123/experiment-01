@@ -4,6 +4,11 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const path = require('node:path');
 const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
+const {planAichi} = require('../simulation/evaluation/aichi-pilot.cjs');
+const sourceFullNames=planAichi(26,{
+  allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
+}).candidate.cards;
+assert.ok(sourceFullNames?.length===60,'original rank26 must resolve all 60 in native Store');
 const load = name => require(path.resolve(__dirname,
   '../vendor/twinleaf/ptcg-server/output',name));
 const {Store} = load('game/store/store');
@@ -35,11 +40,22 @@ function stage(seat,variant) {
   const defender=new Player();defender.id=202;
   source.bench=Array.from({length:5},()=>new PokemonCardList());
   defender.bench=Array.from({length:5},()=>new PokemonCardList());
-  source.active.cards.push(make('Squawkabilly ex PAL'));
+  source.active.cards.push(make(
+    [...new Set(sourceFullNames.filter(name=>name.startsWith('Squawkabilly ex ')))][0]
+  ));
   defender.active.cards.push(make('Shadow Rider Calyrex V CRE'));
-  const melo=make('Meloetta ex BLK');
-  const koko=make('Tapu Koko ◇ TEU');
-  const a=make('Exeggcute PLF'),b=make('Exeggcute PLF');
+  // Use only native names admitted by the original printed-60 resolver.
+  // Original BLK and TEU set labels are not necessarily Twinleaf fullName tokens.
+  const sourceCard=label=>{
+    const sourceMatches=[...new Set(sourceFullNames.filter(name=>
+      name.startsWith(label+' ') || name===label))];
+    assert.equal(sourceMatches.length,1,'expected one original source printing for '+label+
+      ' but saw '+JSON.stringify(sourceMatches));
+    return make(sourceMatches[0]);
+  };
+  const melo=sourceCard('Meloetta ex');
+  const koko=sourceCard('Tapu Koko');
+  const a=sourceCard('Exeggcute'),b=sourceCard('Exeggcute');
   for(const [slot,c] of [[0,melo],[1,koko],[2,a],[3,b]]){
     source.bench[slot].cards.push(c);
   }
@@ -47,7 +63,7 @@ function stage(seat,variant) {
   source.bench[1].damage=variant==='koko-two'?20:0;
   source.bench[2].damage=20;
   source.bench[3].damage=20;
-  const pump=make('Damage Pump LOR');
+  const pump=sourceCard('Damage Pump');
   source.hand.cards.push(pump);
   // Six source Prizes; opponent already took 0/2/4 on the intended line.
   const opponentRemaining=variant==='melo-two'?6:variant==='koko-two'?4:2;
