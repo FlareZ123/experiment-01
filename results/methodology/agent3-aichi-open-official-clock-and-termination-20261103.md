@@ -24,6 +24,10 @@ The official condition is stated in terms of the **number of Prize cards needed 
 
 The event text does **not** simply award the game to whoever has taken more Prizes on a random action limit. The threshold, permissible final turn and omission of last checkup are substantive gameplay properties.
 
+## Read-only downstream classifier, verified in CI
+
+The source-derived end-of-time **postclosing checkpoint** classifier is implemented as [aichi-open-adjudication.cjs](../../simulation/evaluation/aichi-open-adjudication.cjs) with [six regression tests](../../tests/aichi-open-adjudication.test.cjs). [Manual pure CI run 41599830227](https://github.com/FlareZ123/experiment-01/actions/runs/41599830227) passed **71/71** tests, including the six new official timing cases. The helper accepts an externally verified completed last turn and normal result; it **does not** establish the clock's elapsed physical minutes or simulate overtime.
+
 ## Implications for the deck-optimization benchmark
 
 The repository's current `maxActions` cutoff is a **simulation truncation**, not a calibrated 25-minute official clock. Real time depends on decisions, shuffles, search actions and physical procedures, none of which has been validated from native action count. Under official Open Swiss adjudication, a stalled or lock-based game that fails to finish within the prescribed last turn becomes **two losses**. The corresponding Top32 game can instead enter **Prize-based overtime**.
