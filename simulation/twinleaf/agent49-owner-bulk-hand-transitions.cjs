@@ -67,7 +67,10 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     readOnly:true,ownerHandOnly:true,opponentConcealedUsed:false,
     effectIsNotActivationPayment:true,
     paperPlayabilityCertified:false,nativeSettlementCertified:false,
-    strategicBenefitCertified:false
+    strategicBenefitCertified:false,
+    unmarkedHandCardStrategicValue:'unassessed',
+    protectedMarkersAreSelectiveRatherThanComplete:true,
+    sourceSupporterIndexWasMarkedProtected:protectedIndices.has(row.handIndex)
   };
   if(!rule)return {...common,status:'unmodeled-printing'};
   assert.equal(row.type,'Supporter','Bulk source printing must be a Supporter');
