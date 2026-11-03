@@ -16,6 +16,13 @@ function newElectrodeOwnerCensus() {
     electrodeInPlayRoots:0,
     raichuRecipientInPlayRoots:0,
     lineCoPresentRoots:0,
+    generalBombSourceRecipientRoots:0,
+    generalBombSourceElectrodeRecipientCoPresentRoots:0,
+    generalBombZeroDiscardRoots:0,
+    generalBombPartialOneToFourDiscardRoots:0,
+    generalBombFullFivePlusDiscardRoots:0,
+    generalBombPhysicallyNecessaryRoots:0,
+    generalBombPositiveRootIntentKinds:{},
     lineWithZeroDiscardEnergyRoots:0,
     lineWithOneToFourDiscardEnergyRoots:0,
     lineWithFivePlusDiscardEnergyRoots:0,
@@ -58,10 +65,25 @@ function recordElectrodeOwnerCensus(audit,view,chosenIntent,decisionOrdinal) {
   const screen=rank17ElectrodeBombNecessity(view);
   const electrodePresent=screen.electrodePositions.length>0;
   const recipientPresent=screen.raichuPositions.length>0;
+  const generalRecipientPresent=screen.generalBombSourceRecipientPositions.length>0;
   audit.ownerRootDecisions++;
   audit.bySeat[view.actorSeat].ownerRoots++;
   if(electrodePresent)audit.electrodeInPlayRoots++;
   if(recipientPresent)audit.raichuRecipientInPlayRoots++;
+  if(generalRecipientPresent)audit.generalBombSourceRecipientRoots++;
+  if(electrodePresent&&generalRecipientPresent){
+    audit.generalBombSourceElectrodeRecipientCoPresentRoots++;
+    if(screen.physicalDiscardEnergyCards===0)
+      audit.generalBombZeroDiscardRoots++;
+    else if(screen.physicalDiscardEnergyCards<5)
+      audit.generalBombPartialOneToFourDiscardRoots++;
+    else audit.generalBombFullFivePlusDiscardRoots++;
+  }
+  if(screen.generalBombNecessaryConditionsMet){
+    audit.generalBombPhysicallyNecessaryRoots++;
+    audit.generalBombPositiveRootIntentKinds[chosenIntent.kind]=
+      (audit.generalBombPositiveRootIntentKinds[chosenIntent.kind]??0)+1;
+  }
   if(electrodePresent&&recipientPresent){
     audit.lineCoPresentRoots++;
     if(screen.physicalDiscardEnergyCards===0)
@@ -89,6 +111,10 @@ function recordElectrodeOwnerCensus(audit,view,chosenIntent,decisionOrdinal) {
         chosenIntentKind:chosenIntent.kind,
         electrodePositions:screen.electrodePositions,
         raichuPositions:screen.raichuPositions,
+        generalBombSourceRecipientPositions:
+          screen.generalBombSourceRecipientPositions,
+        generalBombNecessaryConditionsMet:
+          screen.generalBombNecessaryConditionsMet,
         physicalDiscardEnergyCards:screen.physicalDiscardEnergyCards,
         maxPhysicalCardsTransferable:screen.maxPhysicalCardsTransferable,
         physicalNecessaryConditionsMet:screen.physicalNecessaryConditionsMet,
