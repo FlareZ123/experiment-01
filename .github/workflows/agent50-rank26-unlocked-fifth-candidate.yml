@@ -27,6 +27,8 @@ jobs:
         run: npm run compile
       - name: Fingerprint original FLF69 Mega Charizard exact-print native ambiguity
         run: node --test tests/agent50-agent5-flf69-identity-probe.native.test.cjs
+      - name: Prove exact FLF69 Wild Blaze owner deck effect against duplicate native implementation
+        run: node --test tests/agent5-flf69-wild-blaze-native.test.cjs
       - name: Check registered read-only v2.2 owner-root replay syntax
         run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-owner-root-v22.cjs
       - name: Check actual original rank26 physical donor and Egg-to-Egg Damage Pump prompt on both seats
