@@ -34,6 +34,7 @@ function withRank26ConditionalFinisher(seat,execute) {
     slot:SlotType.BENCH,index});
   const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
   const events=[];
+  let nativeCologneSelected=false;
   SimpleTacticsAi.prototype.decodeNextAction=function rank26Finisher(state){
     const own=state.players[seat],opp=state.players[1-seat];
     const activeOpponent=opp?.active.getPokemonCard();
@@ -74,8 +75,17 @@ function withRank26ConditionalFinisher(seat,execute) {
         c.name==='Lightning Energy').length;
       if(meloIndex>=0&&kokoIndex>=0&&readyLightnings>0) {
         if(held('Canceling Cologne')>=0) {
-          return original.call(this,state);
+          const selected=original.call(this,state);
+          if(selected?.constructor.name==='PlayCardAction' &&
+            own.hand.cards[selected.handIndex]?.name==='Canceling Cologne'){
+            nativeCologneSelected=true;
+          }
+          return selected;
         }
+        // Only select Koko after this same owner-visible policy session
+        // selected a genuine original Cologne action accepted by the Store.
+        // Never infer suppression from a Cologne merely in the discard pile.
+        if(!nativeCologneSelected)return original.call(this,state);
         action=new UseAbilityAction(sourceId,
           'Dance of the Ancients',bench(kokoIndex));
         kind='use-koko-one-lightning';
