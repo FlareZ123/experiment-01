@@ -55,8 +55,14 @@ function classifyNativeAttempt(row) {
     'Explicit registration/precheck rejection');
   if (isAbort)return result('NATIVE_ABORT',
     'Explicit runner abort/error; ordinary run outcomes have no status');
-  if (finished===true&&endReason!==null)return result('ENGINE_TERMINAL',
-    'Runner finished with an explicit native end reason');
+  if (finished===true&&endReason!==null&&
+      endReason!=='engine-game-end')return result('CONFLICTING_NATIVE_FIELDS',
+    'Completed runner used a nonterminal native end reason');
+  if (finished===false&&endReason!==null&&
+      endReason!=='action-limit')return result('CONFLICTING_NATIVE_FIELDS',
+    'Unfinished runner used an unrecognized native end reason');
+  if (finished===true&&endReason==='engine-game-end')return result('ENGINE_TERMINAL',
+    'Runner finished with the actual engine-game-end marker');
   if (finished===true)return result('UNVERIFIED',
     'Finished flag exists but native end reason is missing');
   if (finished===false&&endReason==='action-limit')return result('ACTION_CAP',
