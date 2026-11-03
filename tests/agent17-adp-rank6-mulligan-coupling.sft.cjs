@@ -348,6 +348,12 @@ console.log(JSON.stringify({
   bilateralCandidateGXAndSourceAnyRemoverSeenPercentBounds: [
     100 * jointAllRemoval.lower, 100 * jointAllRemoval.upper
   ],
+  rank6BilateralTwoRouteWithEnhancedHammerSeenPercentBounds:
+    [100*jointHammer.lower,100*jointHammer.upper],
+  rank6BilateralTwoRouteWithFourNoCostRemoversSeenPercentBounds:
+    [100*jointCostless.lower,100*jointCostless.upper],
+  rank6BilateralTwoRouteWithAllEightRemoversSeenPercentBounds:
+    [100*jointAll.lower,100*jointAll.upper],
   tailMass: { candidate: candidateBounds.tail, source: sourceBounds.tail },
   interpretation: 'Physical hand and unprized opportunity only; no native games or actual source Energy-removal payment observed'
 }, null, 2));
