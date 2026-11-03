@@ -32,4 +32,31 @@ function transfer(candidateBasics, sourceBasics) {
   };
 }
 
-module.exports={VERSION, choose, miss, transfer};
+
+/**
+ * Probability an initially Basic-valid candidate has only its Active Pokemon
+ * after accepting every optional bonus draw from the original source's
+ * mulligans and Benching every bonus Basic. No turns have been played.
+ * Source/prize order is marginalized over the actual disjoint random deal.
+ *
+ * @param {number} candidateBasics
+ * @param {number} sourceBasics
+ * @returns {{soloSeven:number, soloAfterAllSourceBonuses:number}}
+ */
+function soloAfterSourceBonus(candidateBasics, sourceBasics) {
+  const p=miss(candidateBasics), q=miss(sourceBasics);
+  const numerator=candidateBasics*choose(60-candidateBasics,6);
+  const denominator=choose(60,7)-choose(60-candidateBasics,7);
+  const soloSeven=numerator/denominator;
+  if(soloSeven===0)return {soloSeven,soloAfterAllSourceBonuses:0};
+  const d=1-p*q;
+  let noneStillSolo=1-q*(1-p)/d;
+  for(let k=1;k<=47;k++){
+    const probability=k<47?(1-p)*(1-q)*q**k/d:(1-p)*q**47/d;
+    const avoid=choose(54-candidateBasics,k)/choose(53,k);
+    noneStillSolo+=probability*avoid;
+  }
+  return {soloSeven,soloAfterAllSourceBonuses:soloSeven*noneStillSolo};
+}
+
+module.exports={VERSION, choose, miss, transfer, soloAfterSourceBonus};
