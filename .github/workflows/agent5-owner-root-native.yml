@@ -3,11 +3,6 @@ name: Actor-only root slice native development
 on:
   workflow_dispatch:
     inputs:
-      agent20_rank6_guzma_reply:
-        description: 'One preregistered original 6v9 turn12 Guzma after opponent Escape Rope A/B/A, developmental'
-        required: false
-        type: boolean
-        default: false
       native_search_only:
         description: Run bounded native rank-7 owner-search gate without full-game replay
         required: false
@@ -317,10 +312,10 @@ jobs:
         if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/evaluation/agent7-original6v9-opponent-rope-counter-aba.cjs > agent7-original6v9-opponent-rope-counter-aba.json
       - name: Preregistered original rank6 funded Guzma response to rank9 Escape Rope
-        if: ${{ inputs.agent20_rank6_guzma_reply }}
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/evaluation/agent20-rank6-guzma-counterreply-native.cjs > agent20-rank6-guzma-counterreply-native.json
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.agent20_rank6_guzma_reply }}
+        if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
         with:
           name: agent20-rank6-guzma-after-rope-three-arm
           path: agent20-rank6-guzma-counterreply-native.json
