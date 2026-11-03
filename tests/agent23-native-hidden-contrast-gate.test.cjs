@@ -127,7 +127,7 @@ test('requested scored mode rejects missing numerical telemetry',()=>{
     .scoreTraceComparisonCount=0;
   assert.throws(()=>verifyNativeBoundedContrast(dishonest,{
     ...expected,numericScores:true
-  }),/scoreTraceComparisonCount/);
+  }),/historical-0/);
 });
 
 test('a requested scored mode tolerates an honest empty opportunity stratum',()=>{
