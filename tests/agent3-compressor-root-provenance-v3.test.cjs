@@ -212,3 +212,66 @@ test('printed one-to-three Item discard bounds override native prompt max',()=>{
     assert.equal(receipt.nativePromptMaximum,4);
   }
 });
+
+test('failed native prompt dispatch preserves physical movement without credit',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const original=Store.prototype.dispatch;
+  const error=new Error('failed after owner deck movement');
+  Store.prototype.dispatch=function(action,...args){
+    const result=original.call(this,action,...args);
+    if(action instanceof ResolvePromptAction)throw error;
+    return result;
+  };
+  try{
+    const live=new Store(0);
+    assert.throws(()=>observe(0,()=>{
+      live.dispatch(new AddPlayerAction(101));
+      live.dispatch(new AddPlayerAction(202));
+      play(live,101);
+    },{StoreClass:Store}),thrown=>{
+      assert.strictEqual(thrown,error);
+      const audit=sourceCompressorAbortAudit(thrown);
+      assert.equal(audit?.selectedSourcePlays,1);
+      assert.equal(audit?.acceptedSourcePlays,1);
+      assert.equal(audit?.linkedPromptsIssued,1);
+      assert.equal(audit?.unresolvedLinkedPrompt,false);
+      assert.equal(audit?.failedPromptDispatches,1);
+      assert.equal(audit?.positiveLinkedSettlements,0);
+      assert.equal(audit?.receipts.length,1);
+      assert.equal(audit?.receipts[0].nativeDispatchReturned,false);
+      assert.equal(audit?.receipts[0].physicalMovementDuringFailedDispatch,true);
+      assert.equal(audit?.receipts[0].paperMinimumMet,false);
+      assert.equal(audit?.receipts[0].physicallyMoved.length,1);
+      return true;
+    });
+    assert.notStrictEqual(Store.prototype.dispatch,original,
+      'inside the test the injected dispatcher remains installed');
+  }finally{
+    Store.prototype.dispatch=original;
+  }
+});
+
+test('failed native prompt with no movement remains an explicit zero receipt',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const live=new Store(1);
+  const previous=Store.prototype.dispatch;
+  assert.throws(()=>observe(1,()=>{
+    live.dispatch(new AddPlayerAction(101));
+    live.dispatch(new AddPlayerAction(202));
+    live.dispatch(new PlayCardAction(202));
+    const invalid=new ResolvePromptAction(11,[]);
+    invalid.fail=true;
+    live.dispatch(invalid);
+  },{StoreClass:Store}),error=>{
+    const audit=sourceCompressorAbortAudit(error);
+    assert.equal(audit?.failedPromptDispatches,1);
+    assert.equal(audit?.positiveLinkedSettlements,0);
+    assert.equal(audit?.receipts[0].nativeDispatchReturned,false);
+    assert.equal(audit?.receipts[0].physicalMovementDuringFailedDispatch,false);
+    assert.deepEqual(audit?.receipts[0].physicallyMoved,[]);
+    return true;
+  });
+  assert.strictEqual(Store.prototype.dispatch,previous);
+});
