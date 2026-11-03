@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      verify_native_release_only:
+        description: 'Re-download release assets and verify SHA without expiring source artifacts'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -62,7 +67,7 @@ jobs:
         run: node --test tests/action-trace-canonical.test.cjs
 
   native-evidence-retention:
-    if: ${{ inputs.retain_expiring_native_archives }}
+    if: ${{ inputs.retain_expiring_native_archives || inputs.verify_native_release_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -75,10 +80,11 @@ jobs:
           node-version: '22'
       - name: Validate fixed native archival allowance, hashes and source provenance
         run: node --test tests/agent6-native-evidence-retention.test.cjs
-      - name: Verify original Actions ZIPs and optionally publish a byte-exact release
+      - name: Verify byte-exact historical ZIPs or recheck the durable mirror
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AICHI_ARCHIVE_PUBLISH: ${{ inputs.publish_archived_native_release }}
+          AICHI_ARCHIVE_VERIFY_RELEASE_ONLY: ${{ inputs.verify_native_release_only }}
         run: node scripts/agent6-retain-native-research-artifacts.cjs > native-evidence-retention-receipt.json
       - name: Preserve hashed source and published download verification receipt
         if: ${{ always() && !cancelled() }}
