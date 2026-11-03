@@ -12,7 +12,7 @@ This exercise measures **co-occurrence in the initial seven cards only**. It can
 
 The [original rank13 Hiromu Sasaki 60](full-decklists.json) contains 11 Basic Pokémon, comprising four Regidrago V and seven other Basics; three Regidrago VSTAR; two Battle Compressor; three Quick Ball; three singleton evolved Dragon donor cards (Salamence ex, Dragapult ex and Noivern ex); three Double Dragon Energy; four basic Grass Energy; three basic Fire Energy; and 28 remaining cards. The categories partition all 60 physical cards.
 
-All frequencies are conditioned on a Basic-valid opening seven, so the denominator is \`C(60,7) - C(49,7) = 300,306,336\` unordered physical hands.
+All frequencies are conditioned on a Basic-valid opening seven, so the denominator is `C(60,7) - C(49,7) = 300,306,336` unordered physical hands.
 
 A *discard route* means holding at least one Battle Compressor, or simultaneously holding Quick Ball and an evolved Dragon donor. Holding Quick Ball and an evolved donor is a potential discard payment, with Basic target and alternative-value conditions unresolved. A *two-manual-attachment energy package* means either two or more Double Dragon Energy, or at least one Double Dragon Energy plus at least one Grass or Fire Energy. This gives a nominal route to Grass/Grass/Fire with two Energy cards, subject to the Double Dragon restrictions and suppressing effects. The extra category *three-basic package* requires two Grass and one Fire with no two-attachment package. It requires three ordinary attachments unless an additional acceleration effect applies.
 
@@ -30,7 +30,7 @@ A *discard route* means holding at least one Battle Compressor, or simultaneousl
 | Previous route conjunction and three-basic-only energy package | 21,672 | 0.007217% |
 | Previous route conjunction and any complete printed colored package | **772,716** | **0.257309%** |
 
-The union was independently checked by inclusion-exclusion: \`7,625,861 + 2,326,131 - 264,978 = 9,687,014\`.
+The union was independently checked by inclusion-exclusion: `7,625,861 + 2,326,131 - 264,978 = 9,687,014`.
 
 ## Interpretation
 
