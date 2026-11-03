@@ -1,0 +1,46 @@
+{
+  "schema": "agent8-rank13-public-flat-copy-prospective-native-v1",
+  "registeredAtUtc": "2026-11-03T09:26:45Z",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "exactOriginalSixties": "results/aichi-2026/full-decklists.json",
+  "trialMatrix": [
+    {
+      "sourceSeat": 0,
+      "seed": 3514406934
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1481213574
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2381994580
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 164764065
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 598414670
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2686109268
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 1137696397
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 3196311524
+    }
+  ],
+  "expectedNativeAttempts": 16,
+  "control": "existing source-owner pay/copy root, default first eligible copied attack",
+  "treatment": "identical owner roots and payments, symmetric opt-in printed flat damage KO-turn choice",
+  "limitations": "Independent seed registration before execution. Developmental native games with unqualified bot policy and no paper match clock; 0 competitively qualified games."
+}
