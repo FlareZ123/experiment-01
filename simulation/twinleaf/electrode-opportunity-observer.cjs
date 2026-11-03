@@ -78,8 +78,10 @@ function createElectrodeOpportunityObserver() {
       const pivotResourceWindow=benchStageOnePair&&readyDiscard&&
         heldEscapeRope&&prizeTradeWindow;
       const basicRaichu=benchNames.some(name=>
-        name==='Pikachu LOR'||name==='Ditto ♢ LOT')||
-        activeName==='Pikachu LOR'||activeName==='Ditto ♢ LOT';
+        name==='Pikachu LOR'||name==='Pikachu XY'||
+        name==='Ditto ♢ LOT')||
+        activeName==='Pikachu LOR'||activeName==='Pikachu XY'||
+        activeName==='Ditto ♢ LOT';
       const basicElectrode=benchNames.includes('Voltorb ROS')||
         activeName==='Voltorb ROS';
       const position=positionBySeat[seat];
