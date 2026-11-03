@@ -39,6 +39,7 @@ function exactOneDrawCounts(q) {
   const basicValid=(choose(N,setupSize)-choose(N-basicCount,setupSize))*
     BigInt(N-seenSize+1)*prizeWays;
   let direct=0n,arven=0n,union=0n,hybridArven=0n,hybridUnion=0n;
+  let benchNarrowUnion=0n,benchHybridUnion=0n;
   for(let ht=1;ht<=Math.min(t,seenSize);ht++){
     for(let ha=0;ha<=Math.min(a,seenSize-ht);ha++){
       for(let hs=0;hs<=Math.min(s,seenSize-ht-ha);hs++){
@@ -55,6 +56,13 @@ function exactOneDrawCounts(q) {
                 choose(s,hs)*choose(f,hf)*choose(g,hg)*
                 choose(b,hb)*choose(o,ho);
               const weight=handWays*BigInt(validDrawPositions);
+              // A starting Active must be selected from the first seven.
+              // A different Trubbish is naturally Benched by the action
+              // turn iff the eight seen cards hold two Trubbish, or the
+              // first seven include another non-Trubbish Basic.
+              const benchDrawPositions=ht>=2?validDrawPositions:
+                hb>=2?seenSize:hb===1?seenSize-1:0;
+              const benchWeight=handWays*BigInt(benchDrawPositions);
               const remaining=[s-hs,f-hf,g-hg];
               const deckHasG=prizeWays-
                 choose(rest-remaining[2],prizes-remaining[2]);
@@ -91,7 +99,9 @@ function exactOneDrawCounts(q) {
               }
               direct+=weight*directWays;
               arven+=weight*arvenWays;
-              union+=weight*(directWays+arvenWays-bothWays);
+              const narrowUnionWays=directWays+arvenWays-bothWays;
+              union+=weight*narrowUnionWays;
+              benchNarrowUnion+=benchWeight*narrowUnionWays;
 
               // Broader same-60 assisted line: Arven obtains any *missing*
               // member(s) of Shake/Stone. If one is already held, search
@@ -114,7 +124,9 @@ function exactOneDrawCounts(q) {
               hybridArven+=weight*hybridWays;
               // When both Shake and Stone are held, hybridWays includes
               // the entire direct line if Arven is also held.
-              hybridUnion+=weight*(ha>0?hybridWays:directWays);
+              const broaderUnionWays=ha>0?hybridWays:directWays;
+              hybridUnion+=weight*broaderUnionWays;
+              benchHybridUnion+=benchWeight*broaderUnionWays;
             }
           }
         }
@@ -124,6 +136,8 @@ function exactOneDrawCounts(q) {
   assert.ok(basicValid>=0n&&basicValid<=denominator);
   assert.ok(union>=direct&&union>=arven&&union<=direct+arven);
   assert.ok(hybridUnion>=union&&hybridUnion>=direct&&hybridArven>=arven);
+  assert.ok(benchNarrowUnion<=union&&benchHybridUnion<=hybridUnion&&
+    benchHybridUnion>=benchNarrowUnion);
   const numerical=n=>Number(n)/Number(denominator);
   return {
     denominator:String(denominator),validOpeningNumerator:String(basicValid),
@@ -131,17 +145,23 @@ function exactOneDrawCounts(q) {
     unionNumerator:String(union),
     hybridArvenNumerator:String(hybridArven),
     hybridUnionNumerator:String(hybridUnion),
+    benchNarrowUnionNumerator:String(benchNarrowUnion),
+    benchHybridUnionNumerator:String(benchHybridUnion),
     basicValidProbability:numerical(basicValid),
     directAndValidProbability:numerical(direct),
     arvenAndValidProbability:numerical(arven),
     unionAndValidProbability:numerical(union),
     hybridArvenAndValidProbability:numerical(hybridArven),
     hybridUnionAndValidProbability:numerical(hybridUnion),
+    benchNarrowUnionAndValidProbability:numerical(benchNarrowUnion),
+    benchHybridUnionAndValidProbability:numerical(benchHybridUnion),
     directConditionalValid:Number(direct)/Number(basicValid),
     arvenConditionalValid:Number(arven)/Number(basicValid),
     unionConditionalValid:Number(union)/Number(basicValid),
     hybridArvenConditionalValid:Number(hybridArven)/Number(basicValid),
-    hybridUnionConditionalValid:Number(hybridUnion)/Number(basicValid)
+    hybridUnionConditionalValid:Number(hybridUnion)/Number(basicValid),
+    benchNarrowUnionConditionalValid:Number(benchNarrowUnion)/Number(basicValid),
+    benchHybridUnionConditionalValid:Number(benchHybridUnion)/Number(basicValid)
   };
 }
 
