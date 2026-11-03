@@ -59,10 +59,12 @@ function withNativeOwnerTrainerFrontier(work,deps){
     'Recovery target annotation requires the owner paper-necessity observer');
   const ownerTurnLedger=deps.ownerPaperNecessityOptIn===true?
     require('./agent4-owner-turn-ledger.cjs').createOwnerTurnLedger():null;
-  const recoveryPrints=deps.ownerDiscardRecoveryTargetOptIn===true?
-    require('./planning/owner-public-discard-target-necessary.cjs')
-      .loadBundledPublicPrintMetadata(require('node:path')
-        .resolve(__dirname,'../../resources')):null;
+  const recoveryHelper=deps.ownerDiscardRecoveryTargetOptIn===true?
+    require('./planning/owner-public-discard-target-necessary.cjs'):null;
+  const recoveryPrints=recoveryHelper?
+    recoveryHelper.withSourcePromoAliases(
+      recoveryHelper.loadBundledPublicPrintMetadata(
+        require('node:path').resolve(__dirname,'../../resources'))):null;
   let live=null,matched=0,exceptions=0,truncated=0;
   const observedBySeat=[0,0];
 
