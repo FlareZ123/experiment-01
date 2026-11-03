@@ -2,7 +2,8 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
-  chooseFundedApexCompressor,chooseActualOwnerDeckDonors,ITEM
+  chooseFundedApexCompressor,diagnoseFundedApexCompressor,
+  chooseActualOwnerDeckDonors,ITEM
 }=require('../simulation/twinleaf/agent8-funded-apex-compressor-owner-bridge.cjs');
 
 function root(){
@@ -35,6 +36,40 @@ test('funded owner Apex requires a real missing donor channel',()=>{
     const candidate=structuredClone(v);modify(candidate);
     assert.equal(chooseFundedApexCompressor(candidate),null);
   }
+});
+
+test('necessary owner gates expose independent evidence and first failure',()=>{
+  const control=root();
+  const full=diagnoseFundedApexCompressor(control);
+  assert.equal(full.firstBlockingGate,null);
+  assert.deepEqual(Object.values(full.flags),[true,true,true,true,true,true]);
+  assert.equal(full.itemInHandCount,1);
+  assert.deepEqual(full.publicAttachedEnergy,
+    ['Double Dragon Energy ROS','Double Dragon Energy ROS']);
+  const cases=[
+    ['heldCompressor',x=>{x.ownHand=[];}],
+    ['deckNonempty',x=>{x.ownPublic.deckCount=0;}],
+    ['itemNotLocked',x=>{x.ownTurnResources.itemPlayLocked=true;}],
+    ['vstarActive',x=>{x.ownPublic.active.printing='Regidrago V SIT';}],
+    ['apexColoredCostPossiblyFunded',
+      x=>{x.ownPublic.active.energies=['Double Dragon Energy ROS'];}],
+    ['publicDragonPayloadMissing',
+      x=>{x.ownPublic.discard=['Dragapult ex TWM'];}]
+  ];
+  for(const [reason,mutate] of cases){
+    const candidate=structuredClone(control);mutate(candidate);
+    const observed=diagnoseFundedApexCompressor(candidate);
+    assert.equal(observed.firstBlockingGate,reason);
+    assert.equal(observed.flags[reason],false);
+    assert.equal(chooseFundedApexCompressor(candidate),null);
+  }
+  const multiple=structuredClone(control);
+  multiple.ownHand=[];
+  multiple.ownPublic.active.printing='Regidrago V SIT';
+  const both=diagnoseFundedApexCompressor(multiple);
+  assert.equal(both.firstBlockingGate,'heldCompressor');
+  assert.equal(both.flags.vstarActive,false);
+  assert.equal(both.flags.deckNonempty,true);
 });
 
 test('owner-deck donor choice uses actual offered physical cards',()=>{
