@@ -2,6 +2,11 @@ name: Agent21 source-photo Dragonite printed attack receipt
 
 on:
   workflow_dispatch:
+    inputs:
+      agent12_exact_apex_energy:
+        description: 'Also verify 1 DDE plus 1 Basic Grass exact Apex Ryuno Energy payment, two ASC printings'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,6 +33,9 @@ jobs:
           npm run compile
       - name: Compare regular ASC152 and exact photograph ASC271 native source-board
         run: node simulation/twinleaf/agent21-asc271-source-board-receipt.cjs > agent21-asc271-source-board-native.json
+      - name: Verify strict one Double Dragon plus one Basic Grass Apex copied Ryuno
+        if: ${{ inputs.agent12_exact_apex_energy }}
+        run: node --test tests/agent12-apex-ryuno-exact-three-energy-native.test.cjs
       - name: Summarize machine-readable Store receipt
         run: node -e "const r=require('./agent21-asc271-source-board-native.json'); console.log(JSON.stringify({sourcePrint:r.sourceJapanesePrint,nativeKey:r.sourceNativeKey,oneDdeEffectCompleted:r.exactPhotoPrint.oneDdeEffectCompleted,discardContainsDoubleDragon:r.exactPhotoPrint.discardContainsDoubleDragon,qualifiedCompetitiveGames:r.qualifiedCompetitiveGames},null,2))"
       - name: Preserve native exact source-board artifact
