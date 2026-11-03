@@ -14,6 +14,7 @@ on:
           - compressor-census
           - compressor-bridge
           - bridge-archive
+          - postprompt-custody
 
 permissions:
   contents: read
@@ -108,6 +109,24 @@ jobs:
         with:
           name: agent1-rank17-original-actor-compressor-bridge
           path: agent1-rank17-actor-compressor-bridge-prospective.json
+          if-no-files-found: warn
+
+
+      - name: Preflight frozen retrospective post-prompt rank17 owner-source study
+        if: ${{ github.event.inputs.experiment == 'postprompt-custody' }}
+        run: node -e "const r=require('./simulation/evaluation/agent1-rank17-compressor-postprompt-native.cjs').preflight();console.log('SOURCE_CUSTODY_FROZEN',JSON.stringify(r.registered.sourcePhysicalSeeds))"
+      - name: Test original source-prompt card identity and matched native pair accounting
+        if: ${{ github.event.inputs.experiment == 'postprompt-custody' }}
+        run: node --test tests/agent1-compressor-prompt-custody.test.cjs tests/agent1-rank17-compressor-postprompt-native.test.cjs
+      - name: Replay two disclosed native rank17 Compressor source physical openings with read-only custody
+        if: ${{ github.event.inputs.experiment == 'postprompt-custody' }}
+        run: node simulation/evaluation/agent1-rank17-compressor-postprompt-native.cjs
+      - name: Preserve all four original Store paths and physical-selection audit evidence
+        if: ${{ always() && github.event.inputs.experiment == 'postprompt-custody' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-original-compressor-postprompt-native
+          path: agent1-rank17-compressor-postprompt-native.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
