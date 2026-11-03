@@ -27,6 +27,8 @@ jobs:
         run: npm run compile
       - name: Check preregistered pilot syntax
         run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native.cjs
+      - name: Check actual original rank26 physical donor and Egg-to-Egg Damage Pump prompt on both seats
+        run: node --test tests/agent50-rank26-egg-donor-damage-pump.native.test.cjs
       - name: Execute all exact candidate supported preregistered source seeds
         run: node simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-native.cjs > agent50-rank26-original-unlocked-v1.json
       - name: Report all resolver exclusions and source-owned firstturn counts
