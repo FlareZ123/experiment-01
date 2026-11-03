@@ -1,0 +1,469 @@
+{
+  "schema": "agent23-selected-joint-symmetric-vip-v2",
+  "status": "preregistered selected symmetric development policy; paper and competitive qualification not claimed",
+  "date": "2026-11-03",
+  "owner": "Agent 23",
+  "leaseClaimedAt": "2026-11-03T04:27:08.778024Z",
+  "branch": "agent23-joint-selection-20261103",
+  "selectionReason": "Keep exact joint-v1 92-option owner-visible root and payment architecture, specifically retain DCE Mew mobility and rank11 Mega funding. Enable existing owner-only first-turn Battle VIP Pass after otherwise-selected Pass on BOTH seats. Avoid global Quick Ball root. Frozen v1 is the matched negative control.",
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRunner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "runnerBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "sourceRosterBlobSha": "ae773f6201d7aa69d31914dbfee66f3bfa692200",
+  "referenceJointProfileBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "actorOnlyVipAdapter": "simulation/twinleaf/agent9-battle-vip-owner-after-pass.cjs",
+  "actorOnlyVipAdapterBlobSha": "aeda10268b16d0fcb34a52856d0d5067f08fcdac",
+  "policyOptions": {
+    "compressorPayload": false,
+    "opportunityAudit": false,
+    "lateCompressorPayload": false,
+    "anyTurnCompressorPayload": false,
+    "earlyBenchedCompressorPayload": false,
+    "mandatoryOptionFallback": true,
+    "nativePressureWindows": true,
+    "sourceFirstRetrospective": false,
+    "paperSupporterQuota": true,
+    "paperCologneQuota": false,
+    "paperFullBenchCallForFamily": true,
+    "paperSupporterComparisonTrace": false,
+    "paperSameTargetAttachEnergy": true,
+    "paperPromptPortfolio": false,
+    "sharedPaperPaymentPortfolio": true,
+    "paperQuickBallPayment": true,
+    "paperSecretBoxPayment": true,
+    "nativeOwnerSupporterOpportunity": false,
+    "nativeSetupCompensationAudit": true,
+    "nativePublicMulliganRevealsAudit": true,
+    "nativeSetupCoinChoiceReceipt": true,
+    "physicalZoneGate": true,
+    "nativeRejectedActionEvidence": false,
+    "actorNativeAorItemLock": false,
+    "proposalStateAudit": false,
+    "nativeProposalValidationAudit": false,
+    "nativeProposalTapeOrdinal": null,
+    "nativeOpponentHiddenReadAudit": false,
+    "actorOnlyComposition": true,
+    "actorOnlySingleSearch": false,
+    "actorGenericFallbackAttribution": false,
+    "actorHandDiscard": false,
+    "actorChoosePokemon": true,
+    "actorNaturalEvolutionRoot": true,
+    "actorMewGenesectTechnoBlast": true,
+    "actorDceMewMobilityRoot": true,
+    "actorGenesectFusionDrawRoot": true,
+    "actorUnderworldDoorRoot": true,
+    "sourceCrobatDceMewRetreat": false,
+    "actorFarewellLetterRoot": false,
+    "actorVipBeforeAttack": true,
+    "actorVipMegaAbsolTarget": true,
+    "actorPlumeriaAfterPass": true,
+    "actorGuzmaPromptContinuation": true,
+    "actorGuzmaNominalGust": false,
+    "actorRank9SpecialFundedGuzma": false,
+    "actorRank9MegaAbsolFundingRoot": true,
+    "actorActiveMegaClawPriorityRoot": true,
+    "actorRank9SpecialPaidRetreatSource": false,
+    "actorFlexiblePaidRetreatRoot": true,
+    "actorChargedPromotion": true,
+    "sourceFloatStoneMobility": false,
+    "nativeActionInputWitness": false,
+    "nativeActionInputTapeOrdinal": null,
+    "nativeAcceptedTargets": true,
+    "nativeQuickBallOwnerTransactionAudit": true,
+    "paperTerminalAttackKo": false,
+    "nativeRootActionLimit": 260,
+    "nativeFirstTurnPublicBoard": false,
+    "rank6K1AlternativeEnergy": false,
+    "rank6ScriptedSpecialConditionGuard": false,
+    "rank11SourceSupporterPassRescue": false,
+    "rank11ExclusiveOpening": true,
+    "sourceScopedSpecialEnergyRoot": false,
+    "candidateScopedSpecialEnergyRoot": false,
+    "bilateralSpecialEnergyRoot": false,
+    "sourceScopedQuickBallRoot": false,
+    "candidateScopedQuickBallRoot": false,
+    "bilateralPublicContextSpecialEnergy": true,
+    "bilateralBasicEnergyRecipientFrontier": true,
+    "bilateralConservativeShuffleRoot": false,
+    "bilateralEnergyContest": false,
+    "sameRootProposalChoice": true,
+    "sameRootChoiceApply": true,
+    "sameRootProbeAll": false,
+    "sameRootPublicEventReceipt": false,
+    "nativeToolAttachRoot": true,
+    "nativePlumeriaChoice": true,
+    "teamFlareGruntDenialRoot": true,
+    "nativeZeroCostDenialChoice": true,
+    "losslessNativeRootJoin": true,
+    "registeredToolEnergyCeiling": true,
+    "nativeCoheldDenialCanPlay": false,
+    "sameRootPassAttackProbeGlobalTurn": null,
+    "sameRootPublicNoBenchTerminal": false,
+    "sameRootPositiveAttackOverPass": false,
+    "sameRootThornsEmptyBench": false,
+    "candidateOnlyKnownDeadRoot": false,
+    "bilateralKnownDeadAttackRoot": true,
+    "registeredTrials": null,
+    "registeredFrameName": "agent41-joint-original-r5-r11-prospective-v1",
+    "allowAdditionalOriginalSourceRanks": true
+  },
+  "modes": [
+    {
+      "id": "joint-v1-control",
+      "ownerVipAfterPass": false
+    },
+    {
+      "id": "selected-v2-symmetric-vip",
+      "ownerVipAfterPass": true
+    }
+  ],
+  "injectedResearchEnvironment": {
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": "true",
+    "AGENT9_BATTLE_VIP_AFTER_PASS_DEV": "true only selected mode; absent in v1 control"
+  },
+  "registeredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 734170394,
+      "candidateId": "champion-reference",
+      "id": "5:100:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 734170394,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:100:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "B",
+      "seed": 1297346081,
+      "candidateId": "champion-reference",
+      "id": "5:100:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "B",
+      "seed": 1297346081,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:100:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "A",
+      "seed": 198157155,
+      "candidateId": "champion-reference",
+      "id": "5:101:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "A",
+      "seed": 198157155,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:101:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 3062107528,
+      "candidateId": "champion-reference",
+      "id": "5:101:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 3062107528,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:101:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3792269394,
+      "candidateId": "champion-reference",
+      "id": "11:0:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3792269394,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2632620962,
+      "candidateId": "champion-reference",
+      "id": "11:1:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2632620962,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:1:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 201,
+      "candidateSlot": "B",
+      "seed": 4096421492,
+      "candidateId": "champion-reference",
+      "id": "11:201:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 201,
+      "candidateSlot": "B",
+      "seed": 4096421492,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:201:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 407516727,
+      "candidateId": "champion-reference",
+      "id": "6:0:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 407516727,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 1399343237,
+      "candidateId": "champion-reference",
+      "id": "5:300:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 1399343237,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:300:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 300,
+      "candidateSlot": "B",
+      "seed": 1475692704,
+      "candidateId": "champion-reference",
+      "id": "11:300:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 300,
+      "candidateSlot": "B",
+      "seed": 1475692704,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:300:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 3738819225,
+      "candidateId": "champion-reference",
+      "id": "6:300:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 3738819225,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:300:A:new-moon-lockbreaker-v1"
+    }
+  ],
+  "groupProvenance": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534,
+      "origin": "joint-v1-historical"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954,
+      "origin": "joint-v1-historical"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 734170394,
+      "origin": "rank5-v31-historical-renumbered"
+    },
+    {
+      "rank": 5,
+      "repeat": 100,
+      "candidateSlot": "B",
+      "seed": 1297346081,
+      "origin": "rank5-v31-historical-renumbered"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "A",
+      "seed": 198157155,
+      "origin": "rank5-v31-historical-renumbered"
+    },
+    {
+      "rank": 5,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 3062107528,
+      "origin": "rank5-v31-historical-renumbered"
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3792269394,
+      "origin": "joint-v1-historical"
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 2632620962,
+      "origin": "joint-v1-historical"
+    },
+    {
+      "rank": 11,
+      "repeat": 201,
+      "candidateSlot": "B",
+      "seed": 4096421492,
+      "origin": "agent10-historical-funding-proof"
+    },
+    {
+      "rank": 6,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 407516727,
+      "origin": "agent41-historical-r6-canary"
+    },
+    {
+      "rank": 5,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 1399343237,
+      "origin": "new-random-seed-20261103"
+    },
+    {
+      "rank": 11,
+      "repeat": 300,
+      "candidateSlot": "B",
+      "seed": 1475692704,
+      "origin": "new-random-seed-20261103"
+    },
+    {
+      "rank": 6,
+      "repeat": 300,
+      "candidateSlot": "A",
+      "seed": 3738819225,
+      "origin": "new-random-seed-20261103"
+    }
+  ],
+  "expectedGroups": 13,
+  "expectedContexts": 26,
+  "expectedAttempts": 52,
+  "uniqueFreshSourceSeedGroups": 3,
+  "gates": {
+    "requireSourceSameDealPerMode": true,
+    "requireSourceStarterSamePerMode": true,
+    "requireCompleteTwoCandidatePanels": true,
+    "requireOneChosenPolicyForBothSeats": true,
+    "requireSourceAttackCopiedChoiceClassification": true,
+    "requirePhysicalPaymentAndPrizeAudit": true,
+    "retainFullNativeRootStatusAndCaps": true,
+    "preserveOriginalJointV1Control": true,
+    "sourceRank11FundedClawWitnessRequired": true,
+    "sourceRank6ItemAbilityDenialAndRetreatWitnessRequired": true,
+    "retainSecretBoxZeroDiscardVetoFromExistingEvidence": true,
+    "retainQuickBallDominatedOpportunityCostFromExistingEvidence": true,
+    "paperClockMeasured": false,
+    "fullRuleFidelity": false,
+    "opponentCompetenceVerified": false
+  },
+  "expectedAllSourceRanks": [
+    5,
+    11,
+    6
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "qualification": {
+    "paperQualified": false,
+    "competitiveGameQualified": false,
+    "fieldWinRateCertified": false,
+    "original60Coverage": 29,
+    "originalMissingRanks": [
+      23,
+      25,
+      28
+    ]
+  }
+}
