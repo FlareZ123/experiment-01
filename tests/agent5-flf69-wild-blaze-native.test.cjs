@@ -239,3 +239,88 @@ for(const seat of [0,1]){
     });
   }
 }
+
+/**
+ * Separate real native PlayCardAction for the Mega Evolution rule. The
+ * legitimate Charizard-EX was already in the Active Spot on an earlier turn.
+ * This resolves a normal Mega card from hand and observes whether the turn
+ * automatically ends without a Spirit Link.
+ *
+ * @param {0|1} seat
+ * @param {string} printing
+ * @param {boolean} corrected
+ */
+function evolveMega(seat,printing,corrected){
+  const cards=initializeCards();
+  const hook=corrected?installFlf69WildBlazePaperHook():null;
+  const {PlayCardAction,PlayerType,SlotType}=
+    native('game/store/actions/play-card-action');
+  try{
+    const store=new Store({onStateChange(){}});
+    const state=store.state;
+    state.gameSettings.format=Format.EXPANDED;
+    state.phase=GamePhase.PLAYER_TURN;
+    state.turn=4;
+    state.activePlayer=seat;
+    const owner=new Player(),opponent=new Player();
+    owner.id=101;owner.name='Mega evolution owner';
+    opponent.id=202;opponent.name='Opposing Active';
+    state.players=seat===0?[owner,opponent]:[opponent,owner];
+    const charizard=cards.getCardByName('Charizard-EX FLF');
+    const mega=cards.getCardByName(printing);
+    assert.ok(charizard&&mega);
+    owner.active.cards.push(charizard);
+    owner.active.pokemonPlayedTurn=2;
+    owner.hand.cards.push(mega);
+    opponent.active.cards.push(cards.getCardByName('Shadow Rider Calyrex V CRE'));
+    for(const player of state.players){
+      player.prizes=Array.from({length:6},()=>{
+        const prize=new CardList();
+        prize.cards.push(cards.getCardByName('Exeggcute PLF'));
+        return prize;
+      });
+      for(let i=0;i<10;i++)
+        player.deck.cards.push(cards.getCardByName('Exeggcute PLF'));
+    }
+    let target=null;
+    owner.forEachPokemon(PlayerType.BOTTOM_PLAYER,(_slot,pokemon,t)=>{
+      if(pokemon===charizard)target=t;
+    });
+    assert.ok(target);
+    assert.equal(target.slot,SlotType.ACTIVE);
+    store.dispatch(new PlayCardAction(owner.id,0,target));
+    for(let step=0;step<20&&store.hasPrompts();step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending);
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(store.hasPrompts(),false);
+    assert.equal(owner.active.getPokemonCard()?.fullName,printing,
+      'The native PlayCardAction should actually evolve the prior Charizard');
+    const r={
+      seat,printing,corrected,turn:state.turn,
+      activePokemon:owner.active.getPokemonCard()?.fullName,
+      ownerHand:owner.hand.cards.length,
+      competitiveQualified:false
+    };
+    console.log('AGENT5_FLF69_MEGA_EVOLUTION',JSON.stringify(r));
+    // Both source and corrected original must retain the printed Mega turn end.
+    if(printing==='M Charizard EX FLF')
+      assert.equal(r.turn,5,'Original Mega reducer must end the evolution turn');
+    return r;
+  }finally{
+    if(hook)hook.restore();
+  }
+}
+
+for(const seat of [0,1]){
+  for(const printing of ['M Charizard EX FLF','M Charizard-EX FLF 69']){
+    test('native actual Mega evolution '+printing+' seat '+seat,()=>{
+      evolveMega(seat,printing,false);
+    });
+  }
+  test('native original paper-hook preserves Mega evolution seat '+seat,()=>{
+    evolveMega(seat,'M Charizard EX FLF',true);
+  });
+}
