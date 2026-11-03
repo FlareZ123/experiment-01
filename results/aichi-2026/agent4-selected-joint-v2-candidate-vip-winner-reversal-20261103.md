@@ -66,3 +66,16 @@ A deeper comparison of the **actual public board at original rank5's turns 11, 1
 The Energy-resource divergence is already visible before turn 18: at original source's global **turn 11**, the baseline candidate's Active **Latias ex** has `Telepathic Psychic Energy` plus one Basic `Psychic Energy`, while selected VIP's Latias has **zero Energy** and its **Klefki** has one Telepathic Psychic Energy. This establishes that the symmetric VIP option altered or interacted with **earlier Energy allocation**, in addition to changing Bench access. It does **not** isolate the complete causality of each subsequent native card decision.
 
 **Experimental recommendation:** the next controlled native diagnostic should register the exact owner-side public Energy/discard inventory and selected native attachment target at the *first energy-state divergence*, then preserve whether `Motivate` had accessible Basic discard Energy and why an Articuno transfer was or was not proposed. A policy change that increases search access but prevents a two-Energy acceleration and funded attacker promotion can decisively worsen the observed native outcome.
+
+
+## Complete paired native disposition transitions (25 physically certified contexts)
+
+For balance, the native terminal transition matrix is more favorable to the selected candidate than the single negative example alone would suggest. On the **25 matched source-deal and starter pairs**, map each actual engine winner to the candidate/source physical seat and keep action caps separate:
+
+| Frozen v1 native outcome | Selected v2 candidate-native win | Selected v2 source-native win | Selected v2 cap |
+| --- | ---: | ---: | ---: |
+| **Candidate-native win** | 2 | **1** (the rank5/New Moon reversal) | 0 |
+| **Source-native win** | 0 | 8 | 0 |
+| **Action limit** | **5** | 0 | 9 |
+
+The selected feature therefore converted **five** formerly capped native trajectories into candidate-native engine wins and **one** formerly candidate-native win into a source-native win. This describes **native row classifications**, with historical panels, deeply biased 260-action censoring, unqualified game mechanics and only three genuinely fresh registered source seed groups. Do not treat it as a rate estimate, win-rate improvement or deck ranking. For a release, both the selected positive conversions and the one fully terminated adverse source-deal counterexample need actual opponent-quality and paper-clock assessment.
