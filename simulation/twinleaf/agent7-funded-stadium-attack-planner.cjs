@@ -6,7 +6,9 @@ const VERSION = 'agent7-owner-funded-attack-stadium-paper-preflight-v1';
 const MIN_DAMAGE = 80;
 
 /**
- * Only two paper-verified source Stadium attack-cost modifiers are modeled.
+ * Two source Prism Star modifiers and Psychic-only Dimension Valley are
+ * modeled. Four verified control/Bench/draw Stadiums have zero *direct*
+ * printed attack-cost modification. Unknown other Stadiums are unresolved.
  * The printed game uses full native CardType enum values supplied by caller.
  * Unknown costs and unsupported candidate Stadiums receive no positive
  * feasibility certificate.
@@ -28,9 +30,16 @@ function costUnderStadium(printedCost, pokemonTypes, stadiumName, types) {
       pokemonTypes.includes(types.LIGHTNING)) {
     const first = cost.indexOf(types.LIGHTNING);
     if (first >= 0) cost.splice(first, 1);
+  } else if (stadiumName === 'Dimension Valley' &&
+      pokemonTypes.includes(types.PSYCHIC)) {
+    const first = cost.indexOf(types.COLORLESS);
+    if (first >= 0) cost.splice(first, 1);
   } else if (stadiumName !== null &&
       !['Wondrous Labyrinth Prism Star',
-        'Thunder Mountain Prism Star'].includes(stadiumName)) {
+        'Thunder Mountain Prism Star','Dimension Valley',
+        'Path to the Peak','Sky Field','PokéStop','Silent Lab']
+        .includes(stadiumName)) {
+    // Unknown printed Stadium text could modify the attack cost.
     return null;
   }
   return cost;
