@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { choose, exactAccess, bonusProbability, withMaxMulliganBonuses } = require('../scripts/agent11-thorns-first-volt-access.cjs');
 const field = require('../results/aichi-2026/full-decklists.json');
+const opening = require('../results/aichi-2026/opening-hand-audit.json');
 
 test('integer combinatorics boundaries', () => {
   assert.equal(choose(60, 0), 1n);
@@ -72,5 +73,21 @@ test('reference fourteen-Basic and New Moon seventeen-Basic all-bonus openings',
     const got = withMaxMulliganBonuses(d, opposingBasics);
     assert.ok(Math.abs(got.probability - target) < 1e-12);
     assert.ok(got.omittedMass < 1e-15);
+  }
+});
+
+test('equal-rank original 29 opponent Basic counts imply bounded physical opportunity', () => {
+  assert.equal(opening.decks.length, 29);
+  assert.ok(opening.decks.every(d => d.unresolved_pokemon.length === 0));
+  assert.deepEqual(opening.decks.map(d => d.rank),
+    field.decks.map(d => d.rank));
+  const basics = opening.decks.map(d => d.basic_count_known);
+  const expected = [[1, 0.344225600289], [3, 0.398637072598]];
+  for (const [d, target] of expected) {
+    const cache = new Map();
+    for (const b of new Set(basics)) cache.set(b, withMaxMulliganBonuses(d, b));
+    const average = basics.reduce((sum, b) => sum + cache.get(b).probability, 0) / basics.length;
+    assert.ok(Math.abs(average - target) < 1e-10);
+    assert.ok(Math.max(...[...cache.values()].map(x => x.omittedMass)) < 6e-10);
   }
 });
