@@ -46,6 +46,13 @@ function preflight(){
   assert.equal(registration.pinnedVendor,base.pinnedVendor);
   assert.equal(registration.expectedNativeAttempts,2);
   assert.equal(registration.commonSettings.rootActionCap,340);
+  const branchedCeilingPath=
+    'results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json';
+  const branchCeiling=fs.readFileSync(path.join(ROOT,branchedCeilingPath));
+  assert.equal(gitBlobHash(branchCeiling),
+    registration.branchOnlyRootCeilingFork.branchForkBlobSha,
+    'Only the disclosed branch-local native root cap fork is permitted');
+  assert.equal(JSON.parse(branchCeiling.toString('utf8')).maxRootActions,340);
   assert.deepEqual(registration.modes.map(x=>[x.id,x.retroGuzma]),[
     ['control_full_owner_quickball',false],
     ['retrospective_dce_copy_guzma',true]
