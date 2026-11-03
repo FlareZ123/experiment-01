@@ -25,3 +25,8 @@ A real game can alter damage, Resistance, damage prevention and HP. The existing
 **Do not change the fixed candidate based on this narrow threshold result.** It is a falsifier for one speculative damage-only rationale and helps focus proposed payload replacements on actual board-dependent payoffs or resource savings.
 
 **Benchmark status:** 29/32 authenticated source 60s, zero qualified competitive games, no verified 99.5% result.
+
+
+## Executed independent CI reproduction
+
+**SUCCESS:** Manual opt-in GitHub Actions [run 41578974062](https://github.com/FlareZ123/experiment-01/actions/runs/41578974062), workflow head `05c733918171d64fd9caf8976edd2d455134efe5`, pinned repository source `main`. The isolated `adp-strict-physical` job started 04:35:05 UTC and completed successfully at 04:35:12 UTC, with the two exact Python scripts and original29 printed-HP Node SFT each explicitly recorded **success** by the workflow runner. Standard card coverage and vendor card-manager jobs were deliberately **skipped**, requiring no Twinleaf compile or simulation. The Python sources assert their exact integer numerators, denominators and frozen candidate identity; the JS SFT asserts full 29×60 manifest and printed HP findings. This proves these committed scripts execute successfully under pinned checkout and common runners; it does not make the underlying model a competitive-game oracle.
