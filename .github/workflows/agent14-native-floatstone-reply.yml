@@ -1,0 +1,37 @@
+name: Agent14 floatstone mobility response validation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-two:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate registration
+        run: node -e "require('./simulation/evaluation/agent14-native-floatstone-reply-falsification.cjs').preflight()"
+      - name: Regression
+        run: node --test tests/agent14-native-floatstone-reply-falsification.test.cjs
+      - name: Pinned submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute paired native falsification
+        run: node simulation/evaluation/agent14-native-floatstone-reply-falsification.cjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-rank11-native-catcher-floatstone-two
+          path: agent14-rank11-native-floatstone-return-two.json
+          if-no-files-found: warn
+          retention-days: 21
