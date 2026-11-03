@@ -1,0 +1,102 @@
+{
+  "schema": "agent7-joint-v1-original-rank5-same-deal-2x2-transport-v1",
+  "registeredAtUtc": "2026-11-03T03:26:07.349Z",
+  "precommittedBeforeAnyTransportNativeExecution": true,
+  "sourceOriginalRank": 5,
+  "jointBaselineBranch": "agent41-joint-source-r5-r11-v1-20261103",
+  "jointSelectedProfile": "simulation/evaluation/agent41-joint-source-r5-r11-v1.json",
+  "jointSelectedProfileGitBlob": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "originalPinnedTwinleaf": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourceSixty": "Aichi original tournament rank5 Mew/Genesect, unchanged exact original registered printings",
+  "candidateSixties": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "historicalJointV1SourceSeeds": [
+    3423099534,
+    561933954
+  ],
+  "historicalJointV1RegisteredTrials": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534,
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954,
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference"
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "originalHistoricalControlRootLedgers": {
+    "5:0:A:champion-reference": "74c6ec9097909853a54d40b933df24d46d698d808ec24b0d873431a4616ef645",
+    "5:0:A:new-moon-lockbreaker-v1": "41cbea39800a5fa9164febc4baa43501fba9296dda5e2af0f5068dc21f09f643",
+    "5:1:B:champion-reference": "056df4ae7542978febdfa66065f13fce3695e2d8d524213d0b9051ba1f049b8c",
+    "5:1:B:new-moon-lockbreaker-v1": "ceb175b13ecc39b48c55a7fbfa057813ddd28bd970ba91c3ef174822cfb0c59f"
+  },
+  "policyArms": [
+    {
+      "name": "joint-v1-identical-baseline",
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": false
+    },
+    {
+      "name": "owner-single-search-only",
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": false
+    },
+    {
+      "name": "owner-hand-discard-only",
+      "actorOnlySingleSearch": false,
+      "actorHandDiscard": true
+    },
+    {
+      "name": "owner-single-search-and-hand-discard",
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": true
+    }
+  ],
+  "identicalSymmetricToggleBothPlayerSeats": true,
+  "expectedNativeTotalMatches": 16,
+  "expectedIndependentOriginalPhysicalSeedGroups": 2,
+  "knownSourcePolicyWitness": "Agent13 earlier v3.1 different physical seed registered 8 settled Cross Fusion Strike across 3/8 source games; not matched control",
+  "predeclaredEvidence": [
+    "baseline entire rootActionLedger SHA must match already archived joint-v1 source for each named trial",
+    "all 16 matches retain same original printed source and both original fixed candidate 60s",
+    "source and full initial physical deals verified equal for each same named trial across four policy arms",
+    "source genuine owner Quick Ball root, payment eligibility and actual discard, source DCE recipient, Mew evolution, copied Genesect donor, settled Cross Fusion Strike with Prize change and candidate next root",
+    "native terminal/cap/abort retained, not conflated with qualified win",
+    "positive and negative opportunity counted by eligible state, proposal, selected native action, payable prompt and follow-up, not nominal feature toggle",
+    "genuine owner-only decisions applied symmetrically, all source hidden cards excluded"
+  ],
+  "researchLimits": [
+    "Retrospective identical physical source seeds from joint-v1; no independent validation population",
+    "Observed control seeds will not estimate performance or statistical strength",
+    "Investigates only rank5 and exactly two original source physical deals, no rank11 yet",
+    "Requires separate later rank11 positive Boost Shake, Claw and paper-cost gate",
+    "Even a source native attack remains paper and competitive unqualified"
+  ],
+  "competitiveQualifiedGames": 0
+}
