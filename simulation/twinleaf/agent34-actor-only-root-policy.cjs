@@ -185,6 +185,13 @@ function chooseActorRootIntent(view,catalog,options={}){
       .chooseNaturalEvolutionIntent(view,catalog);
     if(evolution)return evolution;
   }
+  // Optional owner-public Ditto Prism permission after the native board check.
+  if(options.dittoStage1Root===true){
+    const ditto=require('./agent1-ditto-prism-actor-evolution.cjs')
+      .chooseDittoStage1EvolutionIntent(
+        view,catalog,options.dittoStage1Receipt??null);
+    if(ditto)return ditto;
+  }
   if(options.underworldDoorRoot===true){
     const underworld=require('./agent31-underworld-door-owner-frontier.cjs')
       .chooseUnderworldDoorRoot(
@@ -704,6 +711,7 @@ function withActorOnlyRootPolicy(run,deps={}){
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
       (process.env.AGENT1_NATURAL_EVOLUTION_ROOT_DEV==='true'),
+    dittoStage1RootOptIn:deps.dittoStage1Root===true,
     farewellLetterRootOptIn:deps.farewellLetterRoot===true,
     mysteriousTreasureRootOptIn:deps.mysteriousTreasureRoot??
       (process.env.AGENT49_MYSTERIOUS_TREASURE_ROOT_DEV==='true'),
@@ -948,6 +956,8 @@ function withActorOnlyRootPolicy(run,deps={}){
   }
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
+  if(audit.dittoStage1RootOptIn)
+    audit.version+='+'+require('./agent1-ditto-prism-actor-evolution.cjs').VERSION;
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.thornsSoloEnergyRetentionOptIn){
@@ -1222,6 +1232,10 @@ function withActorOnlyRootPolicy(run,deps={}){
       knownDeadAttackRoot:actorSpecialEnergyEnabled(
         audit.knownDeadAttackRootOptIn,audit.knownDeadAttackRootOwnerSeat,seat),
       naturalEvolutionRoot:audit.naturalEvolutionRootOptIn,
+      dittoStage1Root:audit.dittoStage1RootOptIn,
+      dittoStage1Receipt:audit.dittoStage1RootOptIn?
+        require('./agent1-ditto-prism-actor-evolution.cjs')
+          .ownerDittoStage1Receipt(state.players[seat],catalog.stages):undefined,
       farewellLetterRoot:audit.farewellLetterRootOptIn,
       mysteriousTreasureRoot:audit.mysteriousTreasureRootOptIn,
       mysteriousTreasureEarlyRegistered:
