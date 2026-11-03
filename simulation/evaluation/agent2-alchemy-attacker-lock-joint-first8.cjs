@@ -36,7 +36,10 @@ function attackerLockFirstEight({shake, quick}) {
     'eitherLockWithRegidrago', 'eitherLockAndRegidrago',
     'bothAlternativesWithRegidrago',
     'mukRegidragoConnectorCollision', 'budewRegidragoConnectorCollision',
-    'eitherLockRegidragoConnectorCollision'
+    'eitherLockRegidragoConnectorCollision',
+    'positionedEitherLockWithRegidrago',
+    'positionedBothAlternativesWithRegidrago',
+    'unpositionedBudewOnlyAccessWithRegidrago'
   ];
   /** @type {Record<string,bigint>} */
   const count = Object.fromEntries(categories.map(k => [k, 0n]));
@@ -97,6 +100,19 @@ function attackerLockFirstEight({shake, quick}) {
                 count.budewInitiallyActiveWithRegidrago += weight;
               }
               if (eitherLockWithRegidrago) count.eitherLockWithRegidrago += weight;
+              // No free switch is assumed. A physically held or searched Budew
+              // cannot use Itchy Pollen from the Bench on turn one. This branch
+              // admits only Budew genuinely in the opening seven, selected as
+              // Active at setup, or a Muk line whose setup can occupy Bench.
+              const positionedBudew = budewInitiallyActive && regidrago;
+              const positionedEither = mukWithRegidrago || positionedBudew;
+              if (positionedEither) count.positionedEitherLockWithRegidrago += weight;
+              if (mukWithRegidrago && positionedBudew) {
+                count.positionedBothAlternativesWithRegidrago += weight;
+              }
+              if (eitherLockWithRegidrago && !positionedEither) {
+                count.unpositionedBudewOnlyAccessWithRegidrago += weight;
+              }
               if ((muk || budew) && regidrago) count.eitherLockAndRegidrago += weight;
               if (mukWithRegidrago && budewWithRegidrago) {
                 count.bothAlternativesWithRegidrago += weight;
