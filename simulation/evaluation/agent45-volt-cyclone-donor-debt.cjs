@@ -90,7 +90,7 @@ function classifyVoltDonorDebt(attack, seat) {
   if (payable === null) return {status:'PRINTED_COST_UNKNOWN'};
   if (before.bench.length === 0) {
     if (initial.length !== remaining.length ||
-        oneRemovedCard(initial, remaining) !== null) {
+        initial.slice().sort().join('|') !== remaining.slice().sort().join('|')) {
       return {status:'SOLO_ENERGY_CHANGED'};
     }
     return {
