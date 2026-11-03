@@ -94,7 +94,7 @@ def simulate(root:Path, trials:int=300000, seed:int=SEED):
             if np.any((first7==0)|(first7==5)|(first7==6)|(first7==7)):
                 break
         bonus=int(rng.geometric(p_source)) if rng.random()<bonus_any else 0
-        if bonus>45:
+        if bonus>46:
             censored+=1
             continue
         bonus_hist[min(bonus,7)]+=1
