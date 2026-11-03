@@ -51,9 +51,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
         .withSparseActorOwnerSearch:
       require('../twinleaf/agent41-actor-owner-single-search.cjs')
         .withActorOwnerSingleSearch)):null;
-  const root = adapters.root ??
-    require('../twinleaf/agent34-actor-only-root-policy.cjs')
-      .withActorOnlyRootPolicy;
+  const defaultRoot=require('../twinleaf/agent34-actor-only-root-policy.cjs')
+    .withActorOnlyRootPolicy;
+  const root=adapters.root??(options.nativeOwnerTrainerFallback===true?
+    work=>defaultRoot(work,{nativeOwnerTrainerFallback:true}):defaultRoot);
   const fog = adapters.fog ??
     require('../twinleaf/agent9-fog-actor-prompt.cjs')
       .withActorFogCrystalPrompt;
@@ -364,6 +365,10 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     actorHandDiscardOptIn:Boolean(handDiscard),
     ownerSupporterOpportunityOptIn:supporterOpportunityOptIn,
     ownerGenericTrainerFrontierOptIn:options.ownerGenericTrainerFrontier===true,
+    ...(options.nativeOwnerTrainerFallback===true?{
+      nativeOwnerTrainerFallbackOptIn:true,
+      nativeOwnerTrainerFallbackAudit:rootAudit.nativeOwnerTrainerFallback
+    }:{}),
     ownerUnderworldPromptContinuationOptIn:
       options.ownerUnderworldPromptContinuation===true,
     ownerUnderworldPromptAudit,
