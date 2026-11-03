@@ -50,4 +50,6 @@ test('Reject malformed game results or missing knockout Prize counts',()=>{
   assert.throws(()=>adjudicate({stage:'top32',normal:'in-progress'}),/Prize counts/);
   assert.throws(()=>adjudicate({stage:'top32',normal:'in-progress',prizesNeeded:[0,1]}),/Prize counts/);
   assert.throws(()=>adjudicate({stage:'top32',normal:'in-progress',prizesNeeded:[2]}),/Prize counts/);
+  assert.throws(()=>adjudicate({stage:'top32',normal:'in-progress',prizesNeeded:[7,4]}),/Prize counts/);
+  assert.throws(()=>adjudicate({stage:'final',normal:'in-progress',prizesNeeded:[1,7]}),/Prize counts/);
 });
