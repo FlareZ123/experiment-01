@@ -24,9 +24,9 @@ function row(reply){
  if(reply)roots.push({actionOrdinal:181,playerSlot:0,action:reply,turnBefore:37});
  return {rootActionLedger:roots,
   nativeAcceptedTargetSidecar:{events:[
-   {rootActionOrdinal:172,action:'PlayCardAction',storeAccepted:true,
+   {rootActionOrdinal:172,playerSlot:1,action:'PlayCardAction',storeAccepted:true,
     declared:{ownerHandPrinting:'Float Stone BKT'}},
-   {rootActionOrdinal:173,action:'RetreatAction',storeAccepted:true}
+   {rootActionOrdinal:173,playerSlot:1,action:'RetreatAction',storeAccepted:true}
   ]},
   sourceAttackSettlement:{attacks:[
    {actionOrdinal:174,attackName:'Max Geist',settledPromptChain:true}
@@ -48,4 +48,20 @@ test('missing physical attachment receipt blocks the certified chain',()=>{
  const x=row('PassTurnAction');
  x.nativeAcceptedTargetSidecar.events=[];
  assert.equal(followthrough(x).chains[0].toolPhysicallyAccepted,false);
+});
+
+test('opponent root audit is symmetric in physical seat 0 and seat 1',()=>{
+ const x=row('AttackAction');
+ x.rootActionLedger=x.rootActionLedger.map(a=>({
+  ...a,playerSlot:1-a.playerSlot
+ }));
+ x.nativeAcceptedTargetSidecar.events=x.nativeAcceptedTargetSidecar.events.map(a=>({
+  ...a,playerSlot:0
+ }));
+ const r=followthrough(x,0);
+ assert.equal(r.chains.length,1);
+ assert.equal(r.chains[0].sourceSeat,0);
+ assert.equal(r.chains[0].toolPhysicallyAccepted,true);
+ assert.equal(r.chains[0].retreatPhysicallyAccepted,true);
+ assert.equal(r.chains[0].opponentFirstNonPrompt.action,'AttackAction');
 });
