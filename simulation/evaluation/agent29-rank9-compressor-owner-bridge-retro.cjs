@@ -80,6 +80,17 @@ function run(){
 if(require.main===module){
   const data=run();
   process.stdout.write(JSON.stringify(data,null,2)+'\n');
+  process.stderr.write('AGENT29_RANK9_SOURCE_BRIDGE_AUDITS '+
+    JSON.stringify(data.pairs.map(p=>({id:p.id,seat:p.seat,
+      matched:p.fullPhysicalDealEqual,
+      actualPasses:p.rootAudit?.actualPasses??null,
+      eligiblePasses:p.rootAudit?.eligiblePasses??null,
+      proposed:p.rootAudit?.proposedCompressor??null,
+      accepted:p.rootAudit?.nativeAcceptedCompressor??null,
+      nativeRejected:p.rootAudit?.nativeRejectedCompressor??null,
+      prompts:p.rootAudit?.ownerDeckPromptDecisions??null,
+      energyMoved:p.rootAudit?.nativeSettledDeckToDiscard??null,
+      example:p.rootAudit?.events?.[0]??null})))+'\\n');
   process.stderr.write('AGENT29_RANK9_SOURCE_COMPRESSOR '+
     JSON.stringify({matched:data.allDealsMatch,audited:data.allAudited,
       accepted:data.totalAcceptedCompressorRoots,
