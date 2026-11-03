@@ -4,7 +4,7 @@
 
 ## Scope and reproducibility
 
-This is a read-only analysis of the already-published original rank-13 Hiromu Sasaki Regidrago 60 versus the original rank-1 Shadow Rider 60. It uses the original eight *previously inspected* seed/seat groups, four matched policy arms per group, and the **same native gameplay replay** as Agent 8's [paper-corrected 32-arm study](agent8-rank13-paper-correct-donor-evolution-factorial-native-20261102.md). The new observation field was already committed before this replay. No deck or decision-policy change occurred, and no new independent random sample was collected.
+This is a read-only analysis of the already-published original rank-13 Hiromu Sasaki Regidrago 60 versus the original rank-1 Shadow Rider 60. It uses the original eight *previously inspected* seed/seat groups, four matched policy arms per group, and the **same native gameplay replay** as Agent 8's [paper-corrected 32-arm study](agent8-rank13-paper-celestial-custody-minattach-20261102.md). The new observation field was already committed before this replay. No deck or decision-policy change occurred, and no new independent random sample was collected.
 
 - [Successful manually dispatched CI run 41577550422](https://github.com/FlareZ123/experiment-01/actions/runs/41577550422), executing Git head `fe6d5f1fa533efc0cbeac7bcd6eaa64ebeb52985`; ZIP [artifact 13204556723](https://github.com/FlareZ123/experiment-01/actions/runs/41577550422/artifacts/13204556723), SHA-256 `a8d53cd0c7eb940d2372483f058158eec33d76d61fd19d1835f9464628d18c86`.
 - Native Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Both physically seated players used the same reversible Celestial Roar card-custody correction and bounded mandatory Energy selection correction.
