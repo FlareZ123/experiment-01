@@ -63,3 +63,32 @@ test('opt-in runs generic two-seat observer closest to native game, after all de
   assert.equal(out.audit.qualification.competitiveGames,0);
   assert.ok(out.audit.version.includes('agent29-bilateral-generic-trainer-frontier'));
 });
+
+
+test('optional own-registered sixties are transported intact and only under enabled observer',()=>{
+  const events=[],deckA=Object.freeze(Array(60).fill('Own A')),
+    deckB=Object.freeze(Array(60).fill('Own B'));
+  let witnessed=0;
+  const adaptersLocal=adapters(events);
+  adaptersLocal.trainerFrontier=(execute,options)=>{
+    witnessed++;
+    assert.strictEqual(options.ownRegisteredSixties[0],deckA);
+    assert.strictEqual(options.ownRegisteredSixties[1],deckB);
+    return fake('trainer',events,{roots:[],summary:{
+      independentCompetitiveGames:0
+    }})(execute);
+  };
+  const control=withCanonicalActorOnlyPolicy(()=>35,adaptersLocal,{
+    ownerTrainerRegisteredSixties:[deckA,deckB]
+  });
+  assert.equal(control.result,35);
+  assert.equal(witnessed,0);
+  const observed=withCanonicalActorOnlyPolicy(()=>36,adaptersLocal,{
+    ownerGenericTrainerFrontier:true,
+    ownerTrainerRegisteredSixties:[deckA,deckB]
+  });
+  assert.equal(observed.result,36);
+  assert.equal(witnessed,1);
+  assert.equal(observed.audit.ownerTrainerFrontierAudit.summary
+    .independentCompetitiveGames,0);
+});
