@@ -70,10 +70,13 @@ test('registered A/B/A preserves distinct effective policy hashes and true paper
   assert.equal(r.verdict.matchingPhysicalContextPairs,16);
   assert.equal(r.verdict.matchingControlReplays,16);
   assert.equal(r.verdict.attempts,48);
-  assert.equal(r.modes[0].effectiveOptionSha256,
-    r.modes[2].effectiveOptionSha256.replace(
-      r.modes[2].effectiveOptionSha256,
-      r.modes[0].effectiveOptionSha256));
+  assert.equal(r.modes[0].decisionPolicySha256,
+    r.modes[2].decisionPolicySha256);
+  assert.notEqual(r.modes[0].decisionPolicySha256,
+    r.modes[1].decisionPolicySha256);
+  assert.notEqual(r.modes[0].effectiveOptionSha256,
+    r.modes[2].effectiveOptionSha256,
+    'run provenance labels are deliberately distinct');
   assert.equal(r.modes[1].rows[0].selectedFundedFloatStoneIntents,1);
   assert.equal(r.verdict.competitivelyQualifiedGames,0);
 });
