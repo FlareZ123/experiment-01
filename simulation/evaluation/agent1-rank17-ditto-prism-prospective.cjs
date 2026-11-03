@@ -46,9 +46,20 @@ function preflight(){
     registered.sourceRoster),'utf8'));
   const source=manifest.decks.find(row=>row.rank===17);
   assert.ok(source);
+  // A pre-native hash clarification preserves the earlier registration:
+  // its legacy digest was not this canonical, row-order-independent hash.
+  const admission=JSON.parse(fs.readFileSync(path.join(ROOT,
+    'results/aichi-2026/registrations/agent1-rank17-ditto-hash-admission-addendum-20261103.json'),'utf8'));
+  assert.equal(admission.originalPreOutcomeRegistrationBlob,
+    'c06aafd44cd1097b1cd5a6c42fab62d0d3c3aeae');
+  assert.equal(admission.nativeGamesBeforeAddendum,0);
+  const previous=JSON.parse(fs.readFileSync(path.join(ROOT,
+    admission.priorFrozenSourceRegistration),'utf8'));
+  assert.equal(registered.sourcePrinted60Sha256,
+    previous.sourcePrinted60Sha256,'Legacy source digest changed');
   assert.equal(printingFingerprint(source.cards),
-    registered.sourcePrinted60Sha256,
-    'Original rank17 printed source identity drift');
+    admission.canonicalAttestFieldPrintingFingerprintSha256,
+    'Original rank17 canonical source printing identity drift');
   const plan=planAichi(1,SETTINGS);
   const sourceOriginal=plan.opponents.find(row=>row.rank===17);
   assert.equal(sourceOriginal?.status,'ready');
