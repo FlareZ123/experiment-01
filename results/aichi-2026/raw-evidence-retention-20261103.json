@@ -3,10 +3,10 @@
   "repository": "FlareZ123/experiment-01",
   "observedAtUtc": "2026-11-03T15:12:00Z",
   "releaseTag": "aichi-native-evidence-2026-11-03",
-  "releaseStatus": "RAW_ARCHIVE_AT_RISK",
-  "releaseUrl": null,
+  "releaseStatus": "MIRRORED_RELEASE_DOWNLOAD_SHA_VERIFIED",
+  "releaseUrl": "https://github.com/FlareZ123/experiment-01/releases/tag/aichi-native-evidence-2026-11-03",
   "publicationOfReleaseDoesNotCertifyGames": true,
-  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes.",
+  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified.",
   "artifacts": [
     {
       "key": "rank5-v31-native-16arm",
@@ -17,8 +17,10 @@
       "sha256": "62201010d3930bfa47ae7927fe960b22ff38fba1aa053a53b419bc0a3aaab69d",
       "expiresAtUtc": "2026-11-22T04:20:43Z",
       "report": "results/aichi-2026/agent13-rank5-v31-corrected-root-native-16arm-20261102.md",
-      "durableUrl": null,
-      "durableVerifiedAtUtc": null
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/rank5-v31-native-16arm-13115652707.zip",
+      "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
+      "releaseAssetId": 706062798,
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
     },
     {
       "key": "selected-joint-v2-native-52",
@@ -29,8 +31,10 @@
       "sha256": "9f4b1d249a7d46d5f3f352e651b7400d83fcb3711cfe37af6d9cd3337fe84b73",
       "expiresAtUtc": "2026-11-24T05:12:41Z",
       "report": "results/aichi-2026/agent23-selected-joint-v2-symmetric-vip-52-native-20261103.md",
-      "durableUrl": null,
-      "durableVerifiedAtUtc": null
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/selected-joint-v2-native-52-13206810193.zip",
+      "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
+      "releaseAssetId": 706062854,
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
     },
     {
       "key": "rank5-rank11-joint-native-v1",
@@ -41,8 +45,10 @@
       "sha256": "089266b50a3559807eccb5892317558c63694fec43bd393ecc1eb3dc169c84f5",
       "expiresAtUtc": "2026-12-03T02:14:25Z",
       "report": "results/aichi-2026/agent41-rank5-rank11-selected-joint-native-study-20261103.md",
-      "durableUrl": null,
-      "durableVerifiedAtUtc": null
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/rank5-rank11-joint-native-v1-13197729125.zip",
+      "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
+      "releaseAssetId": 706062887,
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
     },
     {
       "key": "generic-trainer-aba-v1",
@@ -53,8 +59,10 @@
       "sha256": "cff9bc28a739b667bc3648b274fa1318c4bf7cba7ba71cb9166af1ba2a874c5b",
       "expiresAtUtc": "2026-12-03T12:42:16Z",
       "report": "results/aichi-2026/agent50-generic-native-trainer-aba-20261103.md",
-      "durableUrl": null,
-      "durableVerifiedAtUtc": null
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/generic-trainer-aba-v1-13230633884.zip",
+      "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
+      "releaseAssetId": 706062928,
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
     },
     {
       "key": "agent6-fieldblower-native-fourarm",
@@ -65,8 +73,22 @@
       "sha256": "903dcfc0e7971c79b24969dc00c3098cfa6f1d70c7b260816d78c47c1324ecf0",
       "expiresAtUtc": "2026-11-18T14:52:13Z",
       "report": "results/aichi-2026/2026-11/agent6-rank30-fieldblower-paid-jammer-native-paired-four-20261103.md",
-      "durableUrl": null,
-      "durableVerifiedAtUtc": null
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/agent6-fieldblower-native-fourarm-13241071172.zip",
+      "durableVerifiedAtUtc": "2026-11-03T15:21:24Z",
+      "releaseAssetId": 706062958,
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED"
     }
-  ]
+  ],
+  "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
+  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T15:21:24Z",
+  "releaseImmutable": false,
+  "verification": {
+    "workflowRunId": 41662952540,
+    "workflowHead": "20276882c5475c5e8930f6894765dfbf432327ab",
+    "releaseId": 432867141,
+    "downloadedAllOriginalZipsBeforePublish": true,
+    "verifiedAllReleaseAssetsByIndependentDownload": true,
+    "verifiedZips": 5,
+    "competitivelyQualifiedGames": 0
+  }
 }
