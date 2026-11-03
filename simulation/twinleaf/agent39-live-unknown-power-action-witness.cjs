@@ -33,18 +33,27 @@ function withLiveUnknownPowerActionWitness(work,deps={}){
   const descriptor=Object.getOwnPropertyDescriptor(proto,'dispatch');
   assert.equal(typeof descriptor?.value,'function');
   let liveStore=null;
+  let liveGameCount=0;
+  let gameDispatchOrdinal=0;
   const abilityActions=[];
   let liveDispatchCount=0;
   let auxiliaryAbilityDispatchCount=0;
   function tracedDispatch(action,...args){
     const type=action?.constructor?.name;
-    if(liveStore===null&&type==='AddPlayerAction')
+    if(type==='AddPlayerAction'&&this!==liveStore){
       liveStore=this;
+      liveGameCount++;
+      gameDispatchOrdinal=0;
+    }
     const live=this===liveStore;
-    if(live)liveDispatchCount++;
+    if(live){
+      liveDispatchCount++;
+      gameDispatchOrdinal++;
+    }
     if(type==='UseAbilityAction'&&!live)auxiliaryAbilityDispatchCount++;
     const observed=live&&type==='UseAbilityAction'?{
-      ordinal:liveDispatchCount,
+      ordinal:gameDispatchOrdinal,
+      liveGameIndex:liveGameCount-1,
       actionClass:type,
       preDispatchTurn:this.state.turn,
       preDispatchPhase:this.state.phase,
@@ -76,7 +85,8 @@ function withLiveUnknownPowerActionWitness(work,deps={}){
     const result=work();
     return {result,audit:{
       schema:VERSION,observedLiveStore:liveStore!==null,
-      liveDispatchCount,auxiliaryAbilityDispatchCount,abilityActions,
+      liveGameCount,liveDispatchCount,auxiliaryAbilityDispatchCount,
+      abilityActions,
       dispatchBehaviorModified:false,
       paperLegalOrStrategicMoveCertified:false,
       competitiveQualifiedGames:0
