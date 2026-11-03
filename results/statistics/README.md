@@ -18,4 +18,6 @@ The target is one frozen 60-card deck evaluated against all 32 Aichi Open League
 
 - [Independent exact JavaScript 99.5% all-win and missing-opponent calculation](agent26-995-field-certification-envelope-20261030.md): reproduces the preexisting 598 aggregate and 1,290-per-rank zero-loss CP thresholds, and the source-coverage 29/32 logical bound, with compiled/manual Node regression. Conditional mathematics only, no qualified games.
 
+- [Original rank26 first-turn singleton Cologne with all three Order Pad and one Trainers' Mail top-four access](agent2-rank26-mail-pad-cologne-joint-20261103.md): exact 29.19852% conditional no-bonus card-access event, and 29.83252% with source mulligan bonuses against the 12-Basic Apex candidates. Trainers' Mail adds 2.43–2.47 percentage points beyond held Cologne plus all three Pads. Original registered 60, source-count regression and [passing manual CI 41712515705](https://github.com/FlareZ123/experiment-01/actions/runs/41712515705); this is no guarantee of practical Active-Muk counterplay or win rate.
+
 **Always qualify policy and game-rule fidelity before interpreting any statistical certificate as competitive strength.**
