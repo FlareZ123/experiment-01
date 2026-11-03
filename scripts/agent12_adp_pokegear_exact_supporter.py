@@ -150,6 +150,7 @@ def run():
                         failure**gears * TOP_SEVEN**(2-gears))
                     inclusive_numerator+=hand_weight*options*p_num
     assert baseline==17221237379951920
+    assert inclusive_numerator==15569862465355492224445033663872
     denominator=valid_seven*53*comb(52,6)*43*TOP_DENOMINATOR
     assert denominator==7836606921614801887896666834124800
     print('manifestSha',EXPECTED_SHA)
