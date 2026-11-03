@@ -78,9 +78,9 @@ for(const seat of [0,1]){
       seat,before,power:dance.name,
       offers:offered.map(p=>({
         kind:p.constructor.name,playerId:p.playerId,
-        optionKeys:Object.keys(p.options??{}),
-        optionTypes:Object.fromEntries(Object.entries(p.options??{}).map(
-          ([k,v])=>[k,Array.isArray(v)?'array':typeof v]))
+        options:p.options,
+        validateSignature:String(p.validate).slice(0,1600),
+        decodeSignature:String(p.decode).slice(0,1600)
       })),
       meloEnergy:x.source.bench[0].energies.cards.length,
       eggEnergy:x.source.bench[1].energies.cards.length,
