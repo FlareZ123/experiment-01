@@ -1,0 +1,48 @@
+{
+  "schema": "agent1-rank17-source-bomb-ability-retrospective-native-v1",
+  "registeredAtUtc": "2026-11-03T15:57:00Z",
+  "cohort": "RETROSPECTIVE positive source owner-root from independently archived run 41668094303",
+  "sourceOriginalRank": 17,
+  "opponentOriginalRank": 1,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourcePhysicalSeat": 1,
+  "seed": 2128426800,
+  "nativeActionCap": 180,
+  "reasonForSelection": "Original source got one real Battle Compressor on T2, then 3 discarded Special Energy, Electrode-GX CES48 and source Unown AOR co-present at four later owner roots, 3 existing actor Pass intents. Selected after observing these states; not a new prospective sample.",
+  "arms": [
+    "same-deal-composed-owner-control",
+    "same-deal-composed-owner-source-bomb-afterpass-ability-probe"
+  ],
+  "sourceOwnerPolicy": "both seats naturalEvolutionRoot and publicContextSpecialEnergy; rank17 source-only known native-canPlay Battle Compressor bridge; same in both arms; one extra experimental source Bomb root after remaining Pass in probe",
+  "abilityTrigger": {
+    "decisionKind": "owner-root",
+    "seat": 1,
+    "onlyAfterSourceAcceptedPass": true,
+    "exactSourcePrinting": "Electrode-GX CES",
+    "ability": "Extra Energy Bomb",
+    "minPhysicallyDiscardedEnergyCards": 3,
+    "requireNonGXEXSourceRecipient": true,
+    "requireZeroRecognizedPublicAbilitySuppressionClues": true,
+    "oncePerMatch": true
+  },
+  "essentialEvidence": [
+    "same full physical starting deal",
+    "actual owner's source-only root proposal",
+    "native Store accepted UseAbilityAction",
+    "owner AttachEnergyPrompt physical card selection",
+    "exact resolved source energy recipients",
+    "Electrode-GX self-KO",
+    "opponent Prize count before and after",
+    "real opponent reply",
+    "native errors and censored arms"
+  ],
+  "limitations": [
+    "Mechanism stress test, chosen after earlier positive physical context",
+    "not policy improvement or competitive game",
+    "no 99.5% claim",
+    "does not guarantee the intentionally forced self-KO is strategically good",
+    "exact card text plus current native hook must be cross-checked"
+  ]
+}
