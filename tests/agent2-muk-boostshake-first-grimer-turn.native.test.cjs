@@ -21,7 +21,9 @@ test('real source-printed Boost Shake evolves newly-played Grimer and applies of
     assert.deepEqual(row.actions,[
       'actual-Boost-Shake-PlayCardAction',
       'owner-deck-Muk-search-prompt',
-      'real-Grimer-Boost-Shake-evolution-prompt'
+      'real-Grimer-Boost-Shake-evolution-prompt',
+      'owner-shuffle-resolved'
     ]);
+    assert.deepEqual(row.pendingPromptTypes,[]);
   }
 });
