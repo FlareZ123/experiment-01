@@ -77,7 +77,7 @@ function collect(){
   assert.equal(archived.summary.rootDecisionsObserved,captures.length);
 
   const roots=archived.rows.flatMap(row=>row.frontiers.roots.map(root=>({
-    source5Seat:row.source5Seat,
+    source5Seat:row.primaryRankSeat??row.source5Seat,
     ordinal:root.ordinal,ownerSeat:root.seat,globalTurn:root.turn,
     root,sourceSeed:row.seed
   })));
