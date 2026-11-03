@@ -159,3 +159,28 @@ test('opposing Bench survives even if identical conditional attack settles',()=>
   assert.equal(r.opponentPrizes,1);
   assert.equal(r.trace.at(-1).damage,280);
 });
+
+
+test('strict unprized core permits Unown-free sequence when three-Unown construction is Prized out',()=>{
+  const choose=(n,k)=>{
+    let v=1n;
+    for(let i=1;i<=k;i++)v=v*BigInt(n-i+1)/BigInt(i);
+    return v;
+  };
+  // Four distinguished physical required cores: Meloetta, Koko, Egg A/B.
+  // Given those four absent from the 6 prizes, 4 Unown occupy the 56 residual cards.
+  const conditionalUnownCollision=Number([2,3,4].reduce((sum,k)=>
+    sum+choose(4,k)*choose(52,6-k),0n))/Number(choose(56,6));
+  const fourCoreUnprized=Number(choose(56,6))/Number(choose(60,6));
+  assert.ok(Math.abs(conditionalUnownCollision-0.052792071659996186)<1e-12);
+  assert.ok(Math.abs(fourCoreUnprized-0.6485404041957612)<1e-12);
+  assert.ok(Math.abs(fourCoreUnprized*conditionalUnownCollision-
+    0.03423779149270556)<1e-12);
+  console.log('AGENT50_RANK26_SOURCE_PRIZE_COLLISION',JSON.stringify({
+    allFourCoreUnprized:fourCoreUnprized,
+    unownTwoOrMorePrizedGivenCoreUnprized:conditionalUnownCollision,
+    unconditionalCoreUnprizedAndUnownTwoOrMorePrized:
+      fourCoreUnprized*conditionalUnownCollision,
+    evidence:'static unconditioned six-Prize allocation only; Heavy Ball and Ticket rescue excluded'
+  }));
+});
