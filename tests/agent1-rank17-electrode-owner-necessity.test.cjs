@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {rank17ElectrodeBombNecessity,ENERGY_PRINTINGS,REQUIRED_CARDS} =
+const {rank17ElectrodeBombNecessity,ENERGY_PRINTINGS,PRINTED_CARDS} =
   require('../simulation/twinleaf/agent1-rank17-electrode-owner-necessity.cjs');
 const source = require('../results/aichi-2026/full-decklists.json');
 
@@ -42,7 +42,7 @@ test('original rank17 deck prints exactly twelve Special Energy cards',()=>{
   assert.deepEqual(energyCards.map(card=>[card.name,card.count]).sort(),
     [['Counter Energy',4],['Reversal Energy',4],['Unit Energy LPM',4]]);
   assert.deepEqual([...ENERGY_PRINTINGS].sort(),energy.slice().sort());
-  assert.equal(REQUIRED_CARDS,5);
+  assert.equal(PRINTED_CARDS,5);
   assert.equal(rank17.cards.filter(card=>card.name==='Electrode-GX')
     .reduce((sum,card)=>sum+card.count,0),3);
 });
@@ -53,20 +53,30 @@ test('five physical Special Energy cards satisfy ONLY source line prerequisites'
   ]));
   assert.equal(r.physicalNecessaryConditionsMet,true);
   assert.equal(r.physicalDiscardEnergyCards,5);
+  assert.equal(r.maxPhysicalCardsTransferable,5);
+  assert.equal(r.fullFiveCardFundingAvailable,true);
   assert.equal(r.paperLegality,'UNVERIFIED');
   assert.equal(r.fivePhysicalCardTransfersVerified,false);
   assert.equal(r.competitiveGameQualified,false);
   assert.deepEqual(r.physicalBlockers,[]);
 });
 
-test('four physical Special Energy cards fail, even if they could provide more than five Energy units',()=>{
+test('four physical Energy cards allow a partial transfer and self-KO, but not full-five funding',()=>{
   const r=rank17ElectrodeBombNecessity(view([
     energy[0],energy[0],energy[1],energy[2]
   ]));
+  assert.equal(r.physicalNecessaryConditionsMet,true);
+  assert.equal(r.maxPhysicalCardsTransferable,4);
+  assert.equal(r.fullFiveCardFundingAvailable,false);
+  assert.deepEqual(r.physicalBlockers,[]);
+  assert.equal(r.paperLegality,'UNVERIFIED');
+});
+
+test('zero discarded Energy cards cannot activate the effect meaningfully',()=>{
+  const r=rank17ElectrodeBombNecessity(view([]));
   assert.equal(r.physicalNecessaryConditionsMet,false);
-  assert.deepEqual(r.physicalBlockers,[
-    'fewer-than-five-discarded-physical-energy-cards'
-  ]);
+  assert.deepEqual(r.physicalBlockers,
+    ['no-discarded-energy-card-for-effective-transfer']);
 });
 
 test('missing Stage 1 Electrode means no Extra Energy Bomb source line',()=>{
