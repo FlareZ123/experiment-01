@@ -3,7 +3,8 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const {
-  VIP,VERSION,printedTrainerTurnScreen,screenOwnerTrainerPaperNecessity
+  VIP,VERSION,FIRST_OWNER_TURN_ONLY,
+  printedTrainerTurnScreen,screenOwnerTrainerPaperNecessity
 }=require('../simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs');
 const {classifyNativeTrainerAfterPass}=
   require('../simulation/twinleaf/agent50-native-owner-trainer-pass-bridge.cjs');
@@ -197,4 +198,55 @@ test('owner turn ledger ignores repeats and prevents dishonest receipt cross-sea
   assert.throws(()=>printedTrainerTurnScreen(
     owner([VIP],6),VIP,wrongSeat),/Expected values/);
   assert.throws(()=>ledger.observe(owner([VIP],2)),/moved backward/);
+});
+
+test('source-exact five first-owner-turn-only Trainer printings are covered',()=>{
+  const sources={
+    'Battle VIP Pass FST':'swsh8-225',
+    'Wait and See Hammer LOT':'sm8-192',
+    'Wait and See Turbo ASR':'swsh10-158',
+    'Call Bell SSP':'sv8-165',
+    'Chill Teaser Toy SSP':'sv8-166'
+  };
+  assert.deepEqual(Object.keys(FIRST_OWNER_TURN_ONLY).sort(),
+    Object.keys(sources).sort());
+  for(const [printing,source] of Object.entries(sources)){
+    const ledger=createOwnerTurnLedger();
+    ledger.observe(owner([printing],1));
+    const secondTurn=owner([printing],3);
+    const proof=ledger.observe(secondTurn);
+    const screened=printedTrainerTurnScreen(secondTurn,printing,proof);
+    assert.equal(screened.sourceCardId,source);
+    assert.equal(screened.status,'blocked');
+    assert.equal(screened.ineligibilityProven,true);
+    assert.match(screened.blocker,/first-owner-turn-expired$/);
+    if(printing!==VIP){
+      assert.equal(screened.additionallyRequiresGoingSecond,true);
+      assert.equal(screened.goingSecondEligibility,'unverified');
+    }
+    const noHistory=printedTrainerTurnScreen(secondTurn,printing);
+    assert.equal(noHistory.blocker,null);
+    assert.equal(noHistory.conservativeDecline,true);
+  }
+  for(const printing of ['Boost Shake EVS','Energy Spinner UNB',
+    "Grimsley's Move PFL",'Rare Candy SVI']){
+    assert.equal(printedTrainerTurnScreen(
+      owner([printing],5),printing).printedRuleKnown,false);
+  }
+});
+
+test('native fallback declines another source-printed first-turn-only Item',()=>{
+  const printing='Wait and See Hammer LOT';
+  const catalog=new Map([[printing,{name:'Wait and See Hammer',
+    type:'Item'}]]);
+  const v=owner([printing],5);
+  const ledger=createOwnerTurnLedger();
+  ledger.observe(owner([printing],1));
+  const proof=ledger.observe(v);
+  const denied=classifyNativeTrainerAfterPass(
+    v,new PlayCardAction(0),catalog,PlayCardAction,proof);
+  assert.equal(denied.selected,false);
+  assert.equal(denied.reason,'printed-temporal-rule-block');
+  assert.equal(denied.printedTemporalBlocker,
+    'wait-and-see-hammer-first-owner-turn-expired');
 });
