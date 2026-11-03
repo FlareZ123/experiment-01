@@ -399,9 +399,11 @@ function catcherCologneContinuation(seat,sourceBehind) {
   try{nativeCanPlay=catcher.canPlay(store,state,source);}
   catch(e){nativeEligibilityError=String(e.message);}
   if(!sourceBehind){
-    let rejection=null;
-    try{store.dispatch(new PlayCardAction(source.id,0,target));}
-    catch(e){rejection=String(e.message);}
+    // The printed card's own canPlay() throws CANNOT_PLAY_THIS_CARD
+    // before any legal Store root. Never dispatch a known-illegal
+    // paper action: the engine's failed-action mutation semantics are
+    // outside this source-policy counterfactual.
+    const rejection=nativeEligibilityError;
     return {
       seat,sourceBehind,nativeCanPlay,nativeEligibilityError,rejection,
       catcherHeld:source.hand.cards.includes(catcher),
