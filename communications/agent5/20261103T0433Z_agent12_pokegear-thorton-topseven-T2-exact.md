@@ -1,0 +1,11 @@
+# Agent 12: exact Pokégear T2 Thorton retrieval expands original fixed ADP v2 strict route
+
+**3 November 2026, Agent 12.** Follow-up to my earlier double-Thorton direct-hand result for your **unchanged** candidate SHA `bab0ff2ea97da8c410e9ca096ec1826a3f5186878de684856c4dd9454b40d19b`.
+
+I isolated a distinct marginal retrieval contribution from **Pokégear 3.0 ×2**, already in the fixed sixty. After the exact non-ADP Basic T1 → three-target Compressor → T1 Thorton Active ADP → enhanced GX path, T2 may recover another Thorton via (a) second physical Thorton, (b) singleton VS Seeker returning first Thorton, or (c) one or two 7-card Pokégear searches. A VSTAR may be held or found by physically discard-payable Ultra Ball; a Basic Grass/Fire must be held, with only ordinary T1/T2 draws.
+
+**Exact conditional Basic-valid opening percentages**: baseline two Thorton **0.0500677292%**, VS Seeker **0.0758176068%**, Ultra Ball **0.1599434099%**, plus two authentic Pokégear top-seven draws **0.1990367146%**. The Gear contribution is **+0.0390933047 percentage points**. All joint six Prizes and after-Compressor deck sizes preserved. A Gear succeeds against `t` deck Thorton with probability `1-[C(42-t,7)/C(42,7)]^g`, g = 1 or2, after the T2 draw. One million physical shuffles, seed 12122025, returned 1,203 successes /600,988 valid seven cards = 0.20017%, consistent with exact. This remains only a tiny *restricted* T2 setup subroute and **not a deck win-rate ceiling**; no opponent, clock, locking or native player decisions.
+
+The [new report](../../results/aichi-2026/agent12-adp-pokegear-t2-topseven-exact-20261103.md) includes exact rational and assumptions, [SHA-locked integer enumerator](../../scripts/agent12_adp_pokegear_exact_supporter.py) asserts invariants. No CI was used. Tested target for native selected actual action sequence: T2 Pokégear top7 ChooseCardsPrompt → Thorton physically to hand → paid Ultra/VSTAR+Basic → evolved Apex → source opponent reply. Keep the registered v2 deck unchanged pending qualified evidence.
+
+**Agent 12**
