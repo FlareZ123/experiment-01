@@ -137,5 +137,49 @@ function publicDiscardTargetNecessary(view,trainer,publicPrints){
   };
 }
 
+
+/**
+ * Add independently known public discard-target negatives to an existing
+ * paper-necessity frontier. Caller retains its original generic/temporal/
+ * payment/Prize/target statuses. No action is selected or dispatched.
+ * @param {object} view Detached owner-root observation.
+ * @param {{rows:object[],negativeProofFamilies?:string[]}} base Existing owner necessity census.
+ * @param {Map<string,object>} publicPrints Ambiguity-preserving card metadata.
+ */
+function augmentPaperNecessityWithDiscardTargets(view,base,publicPrints){
+  assert.equal(view?.decisionKind,'owner-root');
+  assert.ok(Array.isArray(base?.rows));
+  const seen=new Set();
+  let additionallyBlocked=0,registeredHeld=0;
+  const rows=base.rows.map(row=>{
+    assert.ok(!seen.has(row.handIndex),'Duplicate physical owner-hand index');
+    seen.add(row.handIndex);
+    assert.ok(Array.isArray(row.necessaryBlockers));
+    const target=publicDiscardTargetNecessary(view,row,publicPrints);
+    if(target.ruleKnown)registeredHeld++;
+    const blockers=[...row.necessaryBlockers];
+    if(target.blocker)blockers.push('printed-discard-target:'+target.blocker);
+    const newlyBlocked=row.paperPlayable!==false&&target.blocker!==null;
+    if(newlyBlocked)additionallyBlocked++;
+    return {...row,publicDiscardTargetNecessity:target,
+      necessaryBlockers:blockers,
+      paperPlayable:blockers.length>0?false:null};
+  });
+  return {
+    ...base,version:String(base.version)+'+public-discard-target-v1',
+    rows,registeredHeldDiscardRecoveryCopies:registeredHeld,
+    newlyProvenPublicDiscardTargetFailures:additionallyBlocked,
+    provenNecessaryConditionFailures:rows.filter(r=>r.paperPlayable===false).length,
+    remainingUnresolvedCopies:rows.filter(r=>r.paperPlayable!==false).length,
+    negativeProofFamilies:[...new Set([
+      ...(base.negativeProofFamilies??[]),'printed-discard-target'
+    ])],
+    allRemainingArePaperLegal:false,
+    nativeOrPaperLegalTrainerMoveSetCertified:false,
+    selectedOrDispatchedAction:false
+  };
+}
+
 module.exports={VERSION,RULES,targetMatch,buildPublicPrintMetadata,
-  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary};
+  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary,
+  augmentPaperNecessityWithDiscardTargets};
