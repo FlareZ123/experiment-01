@@ -41,6 +41,32 @@ function rational(numerator, denominator) {
 }
 
 /**
+ * Conditional all-copies-Prized probability after a purely observed hand
+ * whose cards include none of the specific Shake copies, before first
+ * deck search. Exchangeability among the still-hidden cards is required.
+ * This is a card-location fact, not a chance of losing the game or
+ * failing the full setup line.
+ *
+ * @param {number} copies Count of target copies in the original printed 60.
+ * @param {number} [observed] Physically observed cards, none targets.
+ * @param {number} [deckSize] Initial deck size.
+ * @param {number} [prizes] Face-down Prize cards.
+ * @returns {{numerator:string,denominator:string,probability:number}}
+ */
+function allUnseenCopiesPrized(copies, observed = 8,
+  deckSize = 60, prizes = 6) {
+  assert.ok(Number.isSafeInteger(copies) && copies >= 1,
+    'Copies must be at least one; zero-copy source has no such line');
+  assert.ok(Number.isSafeInteger(observed) && observed >= 0);
+  assert.ok(Number.isSafeInteger(deckSize) && deckSize > 0);
+  assert.ok(Number.isSafeInteger(prizes) && prizes >= 0);
+  assert.ok(deckSize - observed >= prizes + copies,
+    'Remaining unseen cards must include Prizes and target copies');
+  return rational(choose(prizes, copies),
+    choose(deckSize - observed, copies));
+}
+
+/**
  * Count the exact, deliberately narrow direct-held early information window.
  * Assumes an exchangeable 60, valid initial seven-card hand containing a Basic,
  * one next-turn draw, no mulligan bonus, and no intervening draw/search.
@@ -119,5 +145,5 @@ function run(rosterPath = path.resolve(__dirname,
 if (require.main === module) {
   process.stdout.write(JSON.stringify(run(), null, 2) + '\n');
 }
-module.exports = {BASIC_NAMES, choose, exactDirectHeldWindow,
-  countFromPrintedSource, run};
+module.exports = {BASIC_NAMES, choose, allUnseenCopiesPrized,
+  exactDirectHeldWindow, countFromPrintedSource, run};
