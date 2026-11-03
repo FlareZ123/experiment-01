@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -51,6 +51,8 @@ jobs:
           python scripts/agent12_adp_regv_starter_t1_t2_gear_exact.py
       - name: Crosscheck R-starter donor route on three million independently shuffled decks
         run: python scripts/agent12_adp_regv_starter_donor_physical.py
+      - name: Independently check R-starter two-turn Gear routes and physical Ultra payments
+        run: python scripts/agent12_adp_regv_starter_t1_t2_gear_physical.py
       - name: Verify original-29 printed HP thresholds and Goodra Rolling Iron defensive exception
         run: |
           node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
