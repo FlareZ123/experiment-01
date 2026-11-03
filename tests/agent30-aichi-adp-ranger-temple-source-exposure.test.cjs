@@ -118,6 +118,87 @@ for(const row of rangerRows){
     (100*conditional).toFixed(9)+'%');
 }
 
+
+/**
+ * More realistic source-owned going-FIRST first-turn Ranger prefetch:
+ * one non-Lele Basic in initial seven is chosen as Active. Source's
+ * first eight (opening seven plus T1 draw) then may have (1) Ranger
+ * directly, (2) Lele already held + unprized Ranger searchable by
+ * benching Lele and Wonder Tag, or (3) one Quick Ball/Mysterious
+ * Treasure held with both Lele and Ranger unprized in deck, Item
+ * discards a physical spare card, retrieves Lele, then Wonder Tag
+ * retrieves Ranger to hand for source's T2 Supporter.
+ * Items are source legal on going-first first turn; opponent ADP cannot
+ * yet have used GX; no source T1 Supporter play is attempted.
+ * This is optional source action ACCESS, not played attack/counter rate.
+ *
+ * @param {number} basicPokemon
+ * @param {number} leleCopies
+ * @param {number} tutorCopies
+ * @returns {{held:number,lele:number,tutor:number,combined:number}}
+ */
+function prefetchRanger(basicPokemon,leleCopies,tutorCopies){
+  const n=[1,leleCopies,tutorCopies,basicPokemon-leleCopies,
+    60-(1+tutorCopies+basicPokemon)];
+  const seen=Array(4).fill(0),den=choose(60,8),pDen=choose(52,6);
+  const result={held:0,lele:0,tutor:0,combined:0};
+  /** @param {number} i @param {number} left @param {number} ways */
+  function enumeration(i,left,ways){
+    if(i<4){
+      for(let x=0;x<=Math.min(left,n[i]);x++){
+        seen[i]=x;
+        enumeration(i+1,left-x,ways*choose(n[i],x));
+      }
+      return;
+    }
+    if(left<0||left>n[4])return;
+    const [ranger,lele,tutor,otherBasics]=seen;
+    if(!otherBasics)return;
+    // Require one non-Lele Basic among *initial seven*, not the draw.
+    const mass=ways*choose(n[4],left)/den*
+      (otherBasics===1?7/8:1);
+    let key,possible;
+    if(ranger){
+      key='held';possible=1;
+    }else if(lele){
+      key='lele';possible=46/52; // singleton Ranger unprized
+    }else if(tutor){
+      key='tutor';
+      const l=leleCopies-lele;
+      possible=1-
+        choose(52-l,6-l)/pDen-choose(51,5)/pDen+
+        choose(51-l,5-l)/pDen;
+    }else return;
+    const p=mass*possible;
+    result[key]+=p;
+    result.combined+=p;
+  }
+  enumeration(0,8,1);
+  const pLegal=1-choose(60-basicPokemon,7)/choose(60,7);
+  return Object.fromEntries(Object.entries(result)
+    .map(([k,v])=>[k,v/pLegal]));
+}
+
+const originalRangerConnector={
+  4:{basics:13,lele:1,tutors:4,combined:0.47141143285293424},
+  18:{basics:16,lele:2,tutors:7,combined:0.6668724867228175},
+  32:{basics:13,lele:1,tutors:7,combined:0.5915923350975525}
+};
+for(const [rankKey,ref] of Object.entries(originalRangerConnector)){
+  const rank=Number(rankKey),source=original.decks.find(d=>d.rank===rank);
+  const lele=copies(source,'Tapu Lele-GX');
+  const tutors=copies(source,'Quick Ball')+copies(source,'Mysterious Treasure');
+  assert.equal(lele,ref.lele);
+  assert.equal(tutors,ref.tutors);
+  const value=prefetchRanger(ref.basics,lele,tutors);
+  assert.ok(Math.abs(value.combined-ref.combined)<1e-12,'prefetch '+rank);
+  console.log('PREFETCH-ANTI-ADP',rank,
+    'Ranger held '+(100*value.held).toFixed(8)+'%',
+    'Lele held '+(100*value.lele).toFixed(8)+'%',
+    'Item->Lele '+(100*value.tutor).toFixed(8)+'%',
+    'TOTAL '+(100*value.combined).toFixed(8)+'%');
+}
+
 console.log('PASS: 5 singleton Pokemon Ranger counters, paper card exact',
   'printing STS104, 3 missing original source lists left unassigned.');
-module.exports={census,copies};
+module.exports={census,copies,prefetchRanger};
