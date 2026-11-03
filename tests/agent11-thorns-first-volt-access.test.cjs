@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { choose, exactAccess } = require('../scripts/agent11-thorns-first-volt-access.cjs');
+const { choose, exactAccess, bonusProbability, withMaxMulliganBonuses } = require('../scripts/agent11-thorns-first-volt-access.cjs');
 const field = require('../results/aichi-2026/full-decklists.json');
 
 test('integer combinatorics boundaries', () => {
@@ -45,3 +45,32 @@ for (const [rank, data] of sourceCounts) {
     assert.equal(a.direct + a.supporter, a.available);
   });
 }
+
+test('bonus-zero extension equals original eight-card hand model', () => {
+  const original = exactAccess(1);
+  const extended = exactAccess(1, 0);
+  assert.deepEqual(extended, original);
+});
+
+test('source/opponent independent geometric mulligan differences sum to one', () => {
+  for (const basics of [14, 17]) {
+    const got = Array.from({ length: 21 }, (_, k) => bonusProbability(basics, k))
+      .reduce((a, b) => a + b, 0);
+    const omitted = withMaxMulliganBonuses(1, basics).omittedMass;
+    assert.ok(Math.abs(got + omitted - 1) < 1e-12);
+  }
+});
+
+test('reference fourteen-Basic and New Moon seventeen-Basic all-bonus openings', () => {
+  const expected = [
+    [1, 14, 0.34046174878125296],
+    [1, 17, 0.3392661197149487],
+    [3, 14, 0.39420814792619385],
+    [3, 17, 0.39279466460237933]
+  ];
+  for (const [d, opposingBasics, target] of expected) {
+    const got = withMaxMulliganBonuses(d, opposingBasics);
+    assert.ok(Math.abs(got.probability - target) < 1e-12);
+    assert.ok(got.omittedMass < 1e-15);
+  }
+});
