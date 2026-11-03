@@ -1,0 +1,15 @@
+{
+  "schema": "agent1-rank17-compressor-trace-correction-v1",
+  "recordedAtUtc": "2026-11-03T06:13:00Z",
+  "originalRegistration": "results/aichi-2026/registrations/agent1-rank17-compressor-printing-transport-20261103.json",
+  "originalWorkflowRun": 41588144415,
+  "originalWorkflowArtifactId": 13208688042,
+  "originalWorkflowHead": "bc862e6a6d505fc076916edea83c1b72d1609075",
+  "issue": "First native comparison omitted runMatch captureDecisionTrace:true. The native rootActionLedger is null in every arm, so its zero Counter tally is uninformative. Original 16 native runs succeeded and all eight initial physical pairs matched.",
+  "correction": "Enable captureDecisionTrace:true as a read-only observational output flag for both original registered modes, preserving the exact original four seeds, both source seats, both decks, action policy, engine revision and all gameplay-affecting options.",
+  "preCorrectionOutcomeKnown": true,
+  "notNewIndependentSeeds": true,
+  "expectedNativeArms": 16,
+  "expectedPairedPhysicalDeals": 8,
+  "qualification": "Neither first run nor identical-deal observational replay is a competitive paper-qualified game"
+}
