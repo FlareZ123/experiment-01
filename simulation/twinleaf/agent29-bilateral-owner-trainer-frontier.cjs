@@ -66,6 +66,7 @@ function trainerFrontierSummary(audit){
     rootsOmittedDueToCap:audit.rootsOmittedDueToCap,
     nativeCatalogPrintings:audit.nativePrintedTrainerClasses,
     k0GuaranteedVipPasses:audit.k0GuaranteedVipPassCount??null,
+    publicPrizeNecessaryFailures:audit.observedPublicPrizeConditionFailures??null,
     k0FirstTurnVipExamples:audit.roots.filter(root=>
       root.guaranteedK0VipPassed===true).slice(0,8).map(root=>({
         seat:root.seat,turn:root.turn,
@@ -91,7 +92,8 @@ function trainerFrontierSummary(audit){
  * @template T
  * @param {()=>T} execute Actual synchronous headless game.
  * @param {{maxRoots?:number,observer?:Function,nativeDeps?:object,
- *   ownRegisteredSixties?:string[][],ownerPaperNecessity?:boolean}} options
+ *   ownRegisteredSixties?:string[][],ownerPaperNecessity?:boolean,
+ *   ownerPublicPrizeScreen?:boolean}} options
  *   Injectable pure test seam; normal execution loads the pinned revision.
  * @returns {{result:T,audit:object}}
  */
@@ -125,6 +127,9 @@ function withBilateralOwnerTrainerFrontier(execute,options={}){
     }:{}),
     ...(options.ownerPaperNecessity===true?{
       ownerPaperNecessityOptIn:true
+    }:{}),
+    ...(options.ownerPublicPrizeScreen===true?{
+      ownerPublicPrizeScreenOptIn:true
     }:{})});
   assert.ok(observed?.audit);
   const summary=trainerFrontierSummary(observed.audit);
