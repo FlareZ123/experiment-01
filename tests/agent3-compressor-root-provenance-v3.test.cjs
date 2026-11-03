@@ -88,3 +88,103 @@ test('legacy broad observer fabricates positive receipt from a speculative Store
  assert.equal(nested.result.audit.positiveLinkedSettlements,0);
  assert.strictEqual(Store.prototype.dispatch,original);
 });
+
+test('abort-side evidence remains partial and preserves actual root custody',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const original=Store.prototype.dispatch;
+  for(const seat of [0,1]){
+    const live=new Store(seat);
+    const failure=new Error('intentional native abort after a paid prompt');
+    let thrown=null;
+    try{
+      observe(seat,()=>{
+        live.dispatch(new AddPlayerAction(101));
+        live.dispatch(new AddPlayerAction(202));
+        play(live,seat===0?101:202);
+        throw failure;
+      },{StoreClass:Store});
+    }catch(error){thrown=error;}
+    assert.strictEqual(thrown,failure);
+    const audit=sourceCompressorAbortAudit(thrown);
+    assert.equal(audit?.executionDisposition,'NATIVE_ABORT');
+    assert.equal(audit?.observationIsPartial,true);
+    assert.equal(audit?.sourceSeat,seat);
+    assert.equal(audit?.selectedSourcePlays,1);
+    assert.equal(audit?.acceptedSourcePlays,1);
+    assert.equal(audit?.linkedPromptsIssued,1);
+    assert.equal(audit?.unresolvedLinkedPrompt,false);
+    assert.equal(audit?.positiveLinkedSettlements,1);
+    assert.equal(audit?.receipts.length,1);
+    assert.equal(audit?.competitivelyQualified,false);
+    assert.strictEqual(Store.prototype.dispatch,original);
+  }
+});
+
+test('rejected owner root has selected but no accepted receipt at abort',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const live=new Store(0);
+  const original=Store.prototype.dispatch;
+  const failed=new PlayCardAction(101);
+  failed.fail=true;
+  assert.throws(()=>observe(0,()=>{
+    live.dispatch(new AddPlayerAction(101));
+    live.dispatch(new AddPlayerAction(202));
+    live.dispatch(failed);
+  },{StoreClass:Store}),error=>{
+    const audit=sourceCompressorAbortAudit(error);
+    assert.equal(error.message,'rejected');
+    assert.equal(audit?.selectedSourcePlays,1);
+    assert.equal(audit?.acceptedSourcePlays,0);
+    assert.equal(audit?.linkedPromptsIssued,0);
+    assert.equal(audit?.positiveLinkedSettlements,0);
+    assert.equal(audit?.unresolvedLinkedPrompt,false);
+    return true;
+  });
+  assert.strictEqual(Store.prototype.dispatch,original);
+});
+
+test('unsettled live prompt and clone-only settlement remain distinct on abort',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const original=Store.prototype.dispatch;
+  for(const cloneOnly of [false,true]){
+    const live=new Store(0);
+    const failure=new Error('test abort');
+    assert.throws(()=>observe(0,()=>{
+      live.dispatch(new AddPlayerAction(101));
+      live.dispatch(new AddPlayerAction(202));
+      if(cloneOnly)play(new Store(0),101);
+      else live.dispatch(new PlayCardAction(101));
+      throw failure;
+    },{StoreClass:Store}),error=>{
+      assert.strictEqual(error,failure);
+      const audit=sourceCompressorAbortAudit(error);
+      assert.equal(audit?.unresolvedLinkedPrompt,!cloneOnly);
+      assert.equal(audit?.linkedPromptsIssued,cloneOnly?0:1);
+      assert.equal(audit?.positiveLinkedSettlements,0);
+      assert.equal(audit?.ignoredSpeculativeDispatches,cloneOnly?2:0);
+      return true;
+    });
+    assert.strictEqual(Store.prototype.dispatch,original);
+  }
+});
+
+test('nested error causes expose abort audit without conflating other errors',()=>{
+  const {sourceCompressorAbortAudit}=require(
+    '../simulation/twinleaf/agent3-compressor-root-provenance-v3.cjs');
+  const live=new Store(0);
+  let originalError;
+  try{
+    observe(0,()=>{
+      live.dispatch(new AddPlayerAction(101));
+      throw new Error('source failure');
+    },{StoreClass:Store});
+  }catch(error){originalError=error;}
+  assert.ok(originalError);
+  assert.strictEqual(sourceCompressorAbortAudit(
+    new Error('outer wrapper',{cause:originalError})),
+    originalError.nativeSourceCompressorRootAudit);
+  assert.equal(sourceCompressorAbortAudit(new Error('unrelated')),null);
+});
