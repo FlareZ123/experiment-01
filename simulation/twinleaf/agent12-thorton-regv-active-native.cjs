@@ -5,6 +5,8 @@ const path=require('node:path');
 const {stagedPainfulSpoons}=
   require('./agent4-rank31-alakazam-movesource-native.cjs');
 
+const {withPaperThortonSwap}=require('./agent12-thorton-paper-swap-hook.cjs');
+
 const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=name=>require(path.join(ROOT,name));
 const PRINT='Thorton LOR';
@@ -16,9 +18,14 @@ const VERSION='agent12-thorton-active-regidrago-paper-stage-v1';
  * while their initial game state is constructed and explicitly unqualified.
  * @param {0|1} seat Source seat.
  * @param {'basic'|'evolved'} mode Source current Active stage.
+ * @param {boolean} guarded Reversible paper Thorton hook in effect.
  * @returns {object} Native root, prompt, card-zone and Supporter receipts.
  */
-function probeSwap(seat,mode='basic'){
+function probeSwap(seat,mode='basic',guarded=false){
+  if(guarded){
+    const receipt=withPaperThortonSwap(()=>probeSwap(seat,mode,false));
+    return {...receipt,guarded:true};
+  }
   assert.ok(seat===0||seat===1);
   assert.ok(['basic','evolved'].includes(mode));
   const {PlayCardAction,PlayerType,SlotType}=
@@ -97,7 +104,7 @@ function probeSwap(seat,mode='basic'){
     ddeRemains:f.source.active.energies.cards.includes(dde)
   };
   return {
-    version:VERSION,seat,mode,
+    version:VERSION,seat,mode,guarded:false,
     nativePinnedRevision:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     constructedState:true,qualifiedPaperGame:false,
     paperTargetAllowed:mode==='basic',
