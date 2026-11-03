@@ -140,3 +140,102 @@ for(const seat of [0,1]){
     }
   });
 }
+
+/**
+ * Candidate-relevant copied payload: Regidrago VSTAR actually declares Apex
+ * Dragon and selects exact FLF69 Wild Blaze from its OWN discard pile.
+ * This is an actual native attack with a staged board, not a normal 60-card
+ * game's natural deck access or a competitive matchup.
+ *
+ * @param {0|1} seat
+ * @param {boolean} corrected
+ */
+function copiedWildBlaze(seat,corrected){
+  const cards=initializeCards();
+  const {clearCopyAttackSessionsForTests}=
+    native('game/store/prefabs/copy-attack-delegation');
+  clearCopyAttackSessionsForTests();
+  const hook=corrected?installFlf69WildBlazePaperHook():null;
+  try{
+    const store=new Store({onStateChange(){}});
+    const state=store.state;
+    state.gameSettings.format=Format.EXPANDED;
+    state.phase=GamePhase.PLAYER_TURN;
+    state.turn=4;
+    state.activePlayer=seat;
+    const owner=new Player(),opponent=new Player();
+    owner.id=101;owner.name='Regidrago donor owner';
+    opponent.id=202;opponent.name='Apex target';
+    state.players=seat===0?[owner,opponent]:[opponent,owner];
+    /** @param {string} name */
+    const card=name=>{
+      const result=cards.getCardByName(name);
+      assert.ok(result,'Missing required native printing '+name);
+      return result;
+    };
+    const donor=card('M Charizard EX FLF');
+    owner.active.cards.push(card('Regidrago VSTAR SIT'));
+    for(const energyName of ['Grass Energy SVE','Grass Energy SVE',
+      'Fire Energy SVE']){
+      const energy=card(energyName);
+      owner.active.cards.push(energy);
+      owner.active.energies.cards.push(energy);
+    }
+    owner.discard.cards.push(donor);
+    opponent.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+    assert.ok(opponent.active.getPokemonCard().hp>300);
+    for(const player of state.players){
+      player.prizes=Array.from({length:6},()=>{
+        const prize=new CardList();
+        prize.cards.push(card('Exeggcute PLF'));
+        return prize;
+      });
+      for(let i=0;i<10;i++)player.deck.cards.push(card('Exeggcute PLF'));
+    }
+    store.dispatch(new AttackAction(owner.id,'Apex Dragon'));
+    const prompt=state.prompts.find(p=>
+      p.constructor.name==='ChooseAttackPrompt'&&p.result===undefined);
+    assert.ok(prompt,'Native Apex Dragon must offer a Dragon donor');
+    assert.ok(prompt.cards.includes(donor),
+      'Original FLF69 printing must be in owner-visible copied attack menu');
+    store.dispatch(new ResolvePromptAction(prompt.id,donor.attacks[0]));
+    for(let step=0;step<30&&store.hasPrompts();step++){
+      const pending=state.prompts.find(p=>p.result===undefined);
+      assert.ok(pending);
+      assert.equal(pending.constructor.name,'WaitPrompt');
+      store.dispatch(new ResolvePromptAction(pending.id,null));
+    }
+    assert.equal(store.hasPrompts(),false);
+    const result={
+      seat,corrected,declared:'Apex Dragon',chosen:'Wild Blaze',
+      damage:opponent.active.damage,
+      ownerDeck:owner.deck.cards.length,
+      opponentDeck:opponent.deck.cards.length,
+      ownerDiscard:owner.discard.cards.length,
+      opponentDiscard:opponent.discard.cards.length,
+      hookEffects:hook?.evidence().correctedWildBlazeEffects??0,
+      competitiveQualified:false
+    };
+    assert.equal(result.damage,300);
+    assert.equal(result.ownerDeck,corrected?5:10);
+    assert.equal(result.opponentDeck,corrected?9:4);
+    assert.equal(result.ownerDiscard,corrected?6:1,
+      'Original FLF69 donor remains in discard alongside corrected own milling');
+    assert.equal(result.opponentDiscard,corrected?0:5);
+    if(corrected)assert.equal(result.hookEffects,1);
+    console.log('AGENT5_APEX_FLF69_COPY',JSON.stringify(result));
+    return result;
+  }finally{
+    if(hook)hook.restore();
+    clearCopyAttackSessionsForTests();
+  }
+}
+
+for(const seat of [0,1]){
+  for(const corrected of [false,true]){
+    test('native Apex Dragon Wild Blaze donor seat '+seat+
+      ' paper correction '+corrected,()=>{
+      copiedWildBlaze(seat,corrected);
+    });
+  }
+}
