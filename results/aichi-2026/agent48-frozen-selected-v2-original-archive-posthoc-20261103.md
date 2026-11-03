@@ -63,6 +63,25 @@ Thus, the **rank6 `6:300:A` original source initial physical deal actually match
 
 This second confirmation closes all 13 **initial original-source physical opening comparison identities** for the frozen sample without rerunning any games. It does not repair a game ending in `UNKNOWN_POWER`, guarantee later game state parity or provide any new competitive game. The archival analyst emits both ordinary-source-only and explicitly recovered posthoc ledgers so their evidence thresholds cannot be confused.
 
+## Real native setup mechanism for the physically mismatched rank5 group
+
+The follow-up **read-only** [CI 41596704477](https://github.com/FlareZ123/experiment-01/actions/runs/41596704477), exact head `25596607e83099907b86394f9fc54a2882c1a114`, completed successfully with five additional public setup-count regression tests. It reread the same archived 52 original native attempts and the same JSON SHA-256. The [public-count-only source setup auditor](../../simulation/evaluation/agent48-original-setup-contrast.cjs) preserved native setup mulligan counts, bonus-card compensation, opponent-public mulligan reveal counts and genuine first-player seats. It deliberately excluded individual revealed card identities, concealed hand/deck/Prize values and live policy input.
+
+For `5:101:A`, the original native setup reports the following **identical table in both joint-v1 control and selected-v2 policy modes**:
+
+| Real native setup event | Champion-reference candidate | New Moon candidate |
+| --- | --- | --- |
+| Candidate seat 0 opening mulligans | **1** | **0** |
+| Original-source seat 1 opening mulligans | 0 | 0 |
+| Bonus-card compensation drawn by original source | **1** | **0** |
+| Opponent-visible candidate mulligan hands | **1** | **0** |
+| Real verified first player | Source seat **1** | Source seat **1** |
+| Original-source physical opening digest across candidates | Different | Different |
+
+The first-turn source physical position includes the *ordered hand, deck, Prizes, board, discard and other zones* in its fingerprint. The additional source compensation draw changes this physical position through an actual rules-defined setup action, explaining why `5:101:A` cannot be treated as a fixed identical source deal across the two candidate printed 60s. The observation does **not** prove that bonus draw was the exclusive reason for every underlying PRNG ordering difference, nor does it establish a tournament outcome. Within either candidate list, the same real setup counts occurred in control and treatment, preserving the separately validated within-candidate comparison.
+
+The practical design consequence is stronger than a generic seed-mismatch warning: a physically equal source opening may be impossible for naturally dealt two-candidate contrasts when the two candidate decks induce different mulligan counts and hence different opponent compensation. Prospective comparisons need an explicitly declared strategy for the resulting nonexchangeable opening states, such as analyzing naturally coupled RNG seeds with setup covariates, conditioning on observable comparable setups, or reporting unmatched groups transparently. None of these methods alone produces paper-qualified game-win evidence.
+
 ## Consequences for the single-deck decision
 
 - Preserve each within-candidate control/selected comparison, including the negative rank11 `Claw of Darkness` 4→0 response trajectory, under its own physical-deal proof.
