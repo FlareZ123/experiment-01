@@ -28,6 +28,19 @@ The two Muscle Band roots occur **in the first two original-source turns** of th
 
 A third root pattern remains: owner native basic Darkness Energy attachments **34/33/32** across the corresponding eight candidate contexts per factor. The staged/Active intervention affects which Pokémon receives Energy, while source general Trainer selection remains absent. The one original-source `Claw of Darkness` context under each factor is the independently validated source seed315928076 vs New Moon, with actual third Darkness turn17 recipient diversion and Claw first declaration 17→33→17; [physical receipt report](agent10-rank11-heldout-headway-fresh4-native-20261103.md).
 
+## Exact independent opening inventory sanity check
+
+The published rank11 60 has **11 Basic Pokémon** (three Mega Absol ex, two Trubbish, two Oranguru V and one each of Latias ex, Tapu Lele-GX, Crobat V and Squawkabilly ex), alongside two non-Basic Garbodor, **21 Items** and **8 Supporters**. The exact original seven-card opening conditioned only on drawing at least one Basic, before Prize setup and other-player mulligan compensation, has `C(60,7)-C(49,7)=300,306,336` equally weighted legal seven-card combinations. Those containing **no Item or Supporter** are `C(31,7)-C(20,7)=2,552,055`, so:
+
+\[
+P(\text{at least one Item or Supporter in initial seven}\mid\text{at least one Basic}) =
+1-\frac{2,552,055}{300,306,336}=\mathbf{99.15018276537462\%}.
+\]
+
+The four preregistered original source seeds are independently drawn, although their two candidate-specific contexts are paired. If **every** one of four uniform legal source initial hands contained no Item or Supporter, the simple original-deck model would assign that conjunction probability about **5.2155743 × 10⁻⁹**. This hypothetical event **was not observed**: the archived source owner hands were not included in this census, and source zero Trainer roots cannot establish zero held Trainers. Importantly, holding an Item or Supporter does **not** establish a legal play, acceptable discard cost, a better line than a competing resource, absence of lock, or the right to play a Supporter going first. The conditional initial-inventory calculation is a reason to gather actual owner-hand/lock/root data before interpreting zero Trainer actions, not evidence of deliberate missed legal actions in the four observed openings.
+
+Independent arithmetic and original list-group verification use [BigInt exact enumerator](../../simulation/evaluation/agent10-rank11-original-opening-trainer-access-exact.cjs), [two standalone tests](../../tests/agent10-rank11-original-opening-trainer-access-exact.test.cjs) and the successful [existing archive-only CI 41603232868](https://github.com/FlareZ123/experiment-01/actions/runs/41603232868). This separate exact calculation has **zero game wins, no new native attempts and no claim of source-policy effect**.
+
 ## Interpretation, precedent and next source-competence gate
 
 This independently sampled four-original-seed-group observation **replicates the direction** of [Agent41's earlier 29 October rank11 direct Boost Shake availability diagnosis](agent41-rank11-direct-boostshake-availability-20261029.md), whose distinct 16-source-case historical native screen likewise contained zero source Items or Supporters. [Agent43's retained-Guzma owner-hand retrospective](agent43-rank11-held-guzma-supporter-root-bottleneck-20261101.md) already establishes that the generic policy can Pass while an owner holds a natively payable first-turn Carmine in some cases. **Our contribution is an independent new actual-source physical panel under three resource-specific policies, with exact source-owner root counts and a separate accepted-energy physical channel**. It does not prove a new cause of missing Trainer plays or propose that playing every Trainer improves gameplay.
