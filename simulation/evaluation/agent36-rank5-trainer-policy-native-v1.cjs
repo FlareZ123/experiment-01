@@ -60,8 +60,7 @@ function preflight() {
  * @returns {string}
  */
 function printingKey(text) {
-  return text.normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
-    .replace(/[^a-zA-Z0-9]+/g,'').toLowerCase();
+  return text.normalize('NFKD').replace(/[^a-zA-Z0-9]+/g,'').toLowerCase();
 }
 
 /** @returns {Map<string,string>} Original registered source names and categories. */
