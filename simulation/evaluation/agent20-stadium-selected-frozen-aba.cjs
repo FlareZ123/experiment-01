@@ -8,10 +8,8 @@ const {
   runFrozenCanary,writeAtomicLocked
 }=require('./agent20-frozen-rank6-canary-v1.cjs');
 const {
-  withRegisteredCandidateLilliePanel
-}=require('../twinleaf/agent7-prospective-candidate-lillie-after-pass.cjs');
-const {
-  VERSION,withCandidateStadiumAfterSelectedPass
+  VERSION,withCandidateStadiumAfterSelectedPass,
+  withRegisteredCandidateStadiumPanel
 }=require('../twinleaf/agent20-selected-candidate-stadium-after-pass.cjs');
 
 const ROOT=path.resolve(__dirname,'../..');
@@ -30,7 +28,7 @@ function run(){
   const registered=JSON.parse(originalBytes).registeredTrials;
   assert.equal(registered.length,4);
   const before=runFrozenCanary();
-  const wrapped=withRegisteredCandidateLilliePanel(
+  const wrapped=withRegisteredCandidateStadiumPanel(
     runFrozenCanary,registered,{
       runTrial:withCandidateStadiumAfterSelectedPass
     });
