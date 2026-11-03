@@ -228,6 +228,9 @@ test('Roxanne uses only public opponent Prize threshold for negative admission',
   assert.equal(eligible.sourcePrerequisiteFails,false);
   assert.equal(eligible.drawnCardCountRequested,6);
   assert.equal(early.conditionalPrizeUseEligible,false);
+  assert.equal(early.drawnCardCountRequested,null);
+  assert.equal(early.printedDrawIfAdmissible,6);
+  assert.equal(unknown.drawnCardCountRequested,null);
   assert.equal(early.sourcePrerequisiteFails,true);
   assert.equal(unknown.conditionalPrizeUseEligible,null);
   assert.equal(unknown.sourcePrerequisiteFails,false);
