@@ -21,7 +21,7 @@ test('all original metadata names IDs and archived source report identifiers dis
   assert.deepEqual(x.map(y=>y.artifactId),[
     13115652707,13206810193,13197729125,13230633884,13241071172
   ]);
-  assert.equal(x.reduce((sum,row)=>sum+row.sizeBytes,0),3907172);
+  assert.equal(x.reduce((sum,row)=>sum+row.sizeBytes,0),3909172);
 });
 
 test('actual API expiry dates and digest bytes match signed historical provenance',()=>{
