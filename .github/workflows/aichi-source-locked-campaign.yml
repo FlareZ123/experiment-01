@@ -172,6 +172,22 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test pure optional source Volt physical donor preference
+        if: ${{ inputs.trial_ids == 'agent45-volt-donor-native-v1' }}
+        run: |
+          node --check simulation/twinleaf/agent45-volt-donor-printed-cost-hook.cjs
+          node --check simulation/twinleaf/agent45-volt-donor-native-staged.cjs
+          node --test tests/agent45-volt-donor-printed-cost-hook.test.cjs tests/agent45-volt-cyclone-donor-debt.test.cjs
+      - name: Verify paper-guarded native source Volt donation in both physical seats
+        if: ${{ inputs.trial_ids == 'agent45-volt-donor-native-v1' }}
+        run: node simulation/twinleaf/agent45-volt-donor-native-staged.cjs > agent45-volt-donor-native-staged.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.trial_ids == 'agent45-volt-donor-native-v1' }}
+        with:
+          name: agent45-two-seat-paper-guarded-volt-donor
+          path: agent45-volt-donor-native-staged.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify prepared rank29 Peonia source-print optional 1/2/3 Prize native prompts on both physical seats
         if: ${{ inputs.trial_ids == 'agent39-peonia-native-v1' }}
         run: |
