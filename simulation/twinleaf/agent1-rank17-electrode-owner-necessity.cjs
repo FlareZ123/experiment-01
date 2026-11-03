@@ -17,7 +17,8 @@ const PRINTED_CARDS = 5;
  * target, transfer, self-KO, Prize and opponent-response verification.
  *
  * Reversal/Counter/Unit Energy may provide multiple Energy UNITS, but
- * each physical card counts once. Under general number-shortage and E-20\n * rules, attaching 1-4 when fewer than 5 exist still triggers self-KO.
+ * each physical card counts once. Under general number-shortage and E-20
+ * rules, attaching 1-4 when fewer than 5 exist still triggers self-KO.
  *
  * @param {object} view Actual actorObservation for a source owner root.
  * @returns {object} Detached diagnostic with explicit qualification veto.
