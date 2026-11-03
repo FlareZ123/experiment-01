@@ -73,7 +73,8 @@ function ownerHandDiscardPareto(input) {
       deadCardsSpent:selected.filter(i=>deadIndices.has(i)).length,
       nextUnprotectedPaymentWays:futureWays.toString()
     };
-    const key=JSON.stringify(vector);
+    // Keep discrete tactical donor identities distinct even at equal counts.
+    const key=JSON.stringify({vector,targets:[...distinctTargets].sort()});
     const group=counts.get(key);
     if(group){
       group.equivalentPhysicalPayments++;
