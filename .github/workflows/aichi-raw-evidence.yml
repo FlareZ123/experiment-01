@@ -23,6 +23,11 @@ on:
         type: boolean
         required: false
         default: false
+      audit_selected_v3_blower_roots:
+        description: 'Opt-in byte-checked original selected-v3 Field Blower native owner-root audit'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -69,6 +74,26 @@ jobs:
         run: node --test tests/agent10-selected-v3-rank11-letter-frontier.test.cjs
       - name: Test archived rank11 Letter Store source-deal and six-Prize postgame evidence invariants
         run: node --test tests/agent10-audit-rank11-letter-aba-native.test.cjs
+      - name: Test source-native Field Blower held-root audit denominator and action binding
+        run: node --test tests/agent6-selected-v3-fieldblower-root-audit.test.cjs
+      - name: Recheck original selected-v3 ZIP and audit each held Field Blower owner root
+        if: inputs.audit_selected_v3_blower_roots
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download aichi-native-evidence-2026-11-03 --pattern 'selected-v3-paper-funded-48-13260514792.zip' --dir .
+          node -e "const assert=require('node:assert/strict');const fs=require('node:fs');const crypto=require('node:crypto');const p='selected-v3-paper-funded-48-13260514792.zip';assert.equal(crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),'303d11947c39c7572b4302fef8666ab744491e9db745dd8ffadc55b1631c0850');"
+          python -c "import zipfile; z=zipfile.ZipFile('selected-v3-paper-funded-48-13260514792.zip'); assert z.namelist()==['agent4-selected-v3-paper-funded-native-48.json']; z.extractall('.')"
+          node scripts/agent6-selected-v3-fieldblower-root-audit.cjs agent4-selected-v3-paper-funded-native-48.json > agent6-selected-v3-fieldblower-root-audit.json
+          node -e "const assert=require('node:assert/strict');const r=require('./agent6-selected-v3-fieldblower-root-audit.json');assert.deepEqual(r.totals,{originalAttemptRows:16,rowsWithLiveRootLedger:14,rowsWithoutLiveRootLedger:2,nativeOwnerRootsChecked:688,heldPhysicalCopyRootObservations:259,missingPublicTargetCopyRoots:215,positivePublicTargetCopyRoots:44,positiveDistinctNativeRoots:23,positiveDistinctOwnerTurns:18,positiveDistinctTrials:1,positiveActorSelectedFieldBlower:0,nativeFieldBlowerPlaysAllIntactTrials:0});assert.equal(r.positivePublicTargetIdentities.length,1);assert.equal(r.positivePublicTargetIdentities[0].printing,'Muscle Band XY');console.log('SOURCE_ZIP_HASH_AND_688_NATIVE_OWNER_ROOTS_VERIFIED');"
+      - name: Archive selected-v3 source-native removal frontier evidence
+        if: ${{ always() && inputs.audit_selected_v3_blower_roots }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent6-selected-v3-source-blower-native-root-audit
+          path: agent6-selected-v3-fieldblower-root-audit.json
+          if-no-files-found: warn
+          retention-days: 30
 
   native-evidence-retention:
     if: ${{ inputs.retain_expiring_native_archives || inputs.verify_native_release_only }}
