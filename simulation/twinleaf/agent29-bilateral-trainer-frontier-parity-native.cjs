@@ -112,7 +112,7 @@ function run(){
       observedTraceDigest:digest[1],
       repeatedControlTraceDigest:digest[2],
       sameDealAndActionsAcrossABA:allEqual,
-      originalRank5SourceStartedFirst:control.result.firstTurnSlot===physicalSlot,
+      originalRank5SourceStartedFirst:control.result.firstTurnSlot===source5Seat,
       fullPhysicalDealSha256:
         control.result.initialFullPhysicalDealFingerprint?.digestSha256??null,
       observerSummary:summary,
