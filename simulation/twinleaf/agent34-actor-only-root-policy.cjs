@@ -196,7 +196,14 @@ function chooseActorRootIntent(view,catalog,options={}){
     const underworld=require('./agent31-underworld-door-owner-frontier.cjs')
       .chooseUnderworldDoorRoot(
         view,catalog,options.underworldMarkerReceipt);
-    if(underworld)return underworld;
+    if(underworld){
+      if(options.underworldActiveFundingPriority===true){
+        const active=require('./agent34-underworld-active-funding-priority.cjs')
+          .chooseUnderworldActiveFundingPriority(view,catalog);
+        if(active)return active;
+      }
+      return underworld;
+    }
   }
   if(options.mysteriousTreasureEarlyRegistered===true){
     const early=require('./agent49-registered-treasure-early-setup.cjs')
@@ -693,6 +700,9 @@ function withActorOnlyRootPolicy(run,deps={}){
     crobatDceMewRetreatOwnerSeat:deps.crobatDceMewRetreatOwnerSeat??null,
     genesectFusionDrawOptIn:deps.genesectFusionDraw===true,
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
+    underworldActiveFundingPriorityOptIn:
+      deps.underworldActiveFundingPriority===true,
+    underworldActiveFundingPrioritySelected:0,
     underworldDoorRootSelected:0,
     genesectFusionNativeAccepted:0,
     genesectFusionNativeConfirmed:0,
@@ -1240,6 +1250,8 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.crobatDceMewRetreatOwnerSeat,seat),
       genesectFusionDraw:audit.genesectFusionDrawOptIn===true,
       underworldDoorRoot:audit.underworldDoorRootOptIn===true,
+      underworldActiveFundingPriority:
+        audit.underworldActiveFundingPriorityOptIn===true,
       underworldMarkerReceipt:audit.underworldDoorRootOptIn?
         require('./agent31-underworld-door-owner-frontier.cjs')
           .ownerUnderworldMarkerReceipt(state.players[seat]):undefined,
@@ -1434,6 +1446,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
+    if(intent.singleHeldPsychicContestedByUnderworld===true)
+      audit.underworldActiveFundingPrioritySelected++;
     if(intent.source==='rank13-dragon-donor')
       audit.regidragoDonorQuickBallIntentCount++;
     if(audit.ownerArbitrationCensusOptIn){
