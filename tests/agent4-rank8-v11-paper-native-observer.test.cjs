@@ -25,6 +25,13 @@ class Store{
       x.id===action.id&&x.result===undefined);
     if(p){
       p.result=action.result;
+      if(this.applyPhysicalSearch&&p.message==='CHOOSE_CARD_TO_HAND'){
+        const owner=this.state.players.find(x=>x.id===p.playerId);
+        for(const card of action.result){
+          const index=owner.deck.cards.indexOf(card);
+          if(index>=0){owner.deck.cards.splice(index,1);owner.hand.cards.push(card);}
+        }
+      }
       if(this.applyPhysicalPayment&&p.message==='CHOOSE_CARD_TO_DISCARD'){
         const owner=this.state.players.find(x=>x.id===p.playerId);
         for(const card of action.result){
@@ -37,7 +44,7 @@ class Store{
   }
 }
 function fixture(){
-  const players=[0,1].map(id=>({id,hand:{cards:[]},discard:{cards:[]}}));
+  const players=[0,1].map(id=>({id,hand:{cards:[]},discard:{cards:[]},deck:{cards:[]}}));
   const store=new Store(players);
   return {players,store};
 }
@@ -144,4 +151,44 @@ test('accepted resolution without a physical transfer remains unverified',()=>{
   assert.equal(observed.audit.paidPhysicalThreeCardReceipts,0);
   assert.equal(observed.audit.unverifiedPhysicalCustody,1);
   assert.equal(observed.audit.observations[0].physicalCustodyStatus,'UNVERIFIED');
+});
+
+test('source-owned native Secret Box search verifies each real owner-deck to hand transfer',()=>{
+  for(const seat of [0,1]){
+    const {store,players}=fixture();
+    const owner=players[seat];
+    const selected=[{fullName:'Boost Shake EVS'},{fullName:'Float Stone BKT'}];
+    owner.deck.cards.push(...selected);
+    const p=new ChooseCardsPrompt(21,owner,'CHOOSE_CARD_TO_HAND');
+    p.cards=owner.deck;
+    store.state.prompts.push(p);
+    store.applyPhysicalSearch=true;
+    const observed=withSourceBoxPaymentObserver(Store,seat,()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(new ResolvePromptAction(21,selected));
+    });
+    assert.equal(observed.audit.sourceOwnedPrompts,0);
+    assert.equal(observed.audit.sourceSearchPrompts,1);
+    assert.equal(observed.audit.sourceSearchAcquisitions,1);
+    assert.equal(observed.audit.sourceSearchObservations[0].ownerDeckPrompt,true);
+    assert.equal(observed.audit.sourceSearchObservations[0].physicalAcquiredCount,2);
+    assert.deepEqual(observed.audit.sourceSearchObservations[0].selectedPrintings,
+      ['Boost Shake EVS','Float Stone BKT']);
+  }
+});
+
+test('native accepted search without physical acquisition remains unverified',()=>{
+  const {store,players}=fixture();
+  const owner=players[1],card={fullName:'Boost Shake EVS'};
+  owner.deck.cards.push(card);
+  const p=new ChooseCardsPrompt(22,owner,'CHOOSE_CARD_TO_HAND');
+  p.cards=owner.deck;
+  store.state.prompts.push(p);
+  const observed=withSourceBoxPaymentObserver(Store,1,()=>{
+    store.dispatch(new AddPlayerAction());
+    store.dispatch(new ResolvePromptAction(22,[card]));
+  });
+  assert.equal(observed.audit.sourceSearchPrompts,1);
+  assert.equal(observed.audit.sourceSearchAcquisitions,0);
+  assert.equal(observed.audit.sourceSearchObservations[0].physicalAcquisitionStatus,'UNVERIFIED');
 });
