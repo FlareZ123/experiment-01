@@ -2,7 +2,6 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
 const {runMatch,initializeCards}=require('../twinleaf/headless.cjs');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {deriveSlotSeeds}=
