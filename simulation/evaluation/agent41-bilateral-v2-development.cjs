@@ -1048,6 +1048,7 @@ function runDevelopment({
   nativeRejectedActionEvidence=false,actorNativeAorItemLock=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
+  ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
   actorNaturalEvolutionRoot=false,actorMewGenesectTechnoBlast=false,
