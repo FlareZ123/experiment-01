@@ -1,0 +1,49 @@
+{
+  "schema": "agent8-rank13-fully-public-apex-root-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T05:04:46.415Z",
+  "priorFullEvidence": "results/aichi-2026/agent8-rank13-double-dragon-three-gates-pass-bottleneck-20261103.md",
+  "nativeEnginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceRank": 13,
+  "opponentRank": 1,
+  "sourceFull60": "results/aichi-2026/full-decklists.json",
+  "trials": [
+    {
+      "sourceSeat": 0,
+      "seed": 1626632453
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 1478863204
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 2621207203
+    },
+    {
+      "sourceSeat": 0,
+      "seed": 603372370
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 2295622320
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 455806637
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 299991154
+    },
+    {
+      "sourceSeat": 1,
+      "seed": 160440262
+    }
+  ],
+  "control": "both seats native Mysterious Treasure genuine cost/search, symmetric actor natural evolution, owner prompt, paper Celestial Roar and bounded attach patches; source DDE receiver ON; source Apex priority OFF",
+  "treatment": "identical with owner-public three-gate exact Apex AttackAction priority ON for rank13 source seat only",
+  "intent": "Test whether attack-decision actor, rather than physical resources, blocks copied attack after all printed prerequisites are satisfied. Native Store and actual copied attack prompt/effects are required.",
+  "analysis": "Report actual verified native source attack-copy selection, copied effect and damage/KO/Prize and following opponent actions, all failures, rejected native actions, exact original fingerprints, censor/terminals",
+  "selection": "Previously observed exact physical seeds and outcomes; retrospective causal mechanics test with no prospective generalization.",
+  "qualifiedCompetitiveGames": 0
+}
