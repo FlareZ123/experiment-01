@@ -17,6 +17,17 @@ The original two-axis proxy counted early **Alolan Muk via Boost Shake** and **B
 
 These probabilities are conditional on a Basic in the **actual initial seven**, exactly **80.93533073%** for either fixed 60. A “both alternatives” entry means the player could choose *either* lock with Regidrago, under separate mutually exclusive lines, without claiming that both locks can be activated in one turn.
 
+### Mobility-free Budew opening: a narrower, attainable geometry
+
+The Budew resource line above includes a Budew drawn as the eighth card or found by Quick Ball after setup. Those cards must still **become Active** before an Itchy Pollen attack; the existing access census does not supply a Switch, free Retreat, Guzma or another legal transition. A stricter diagnostic counts only configurations where the singleton Budew appears among the **actual first seven** and can be chosen as Active during setup.
+
+| Direct Active Budew setup resource | v0 | v1 | v1 minus v0 |
+| --- | ---: | ---: | ---: |
+| Budew in actual initial seven (valid Basic hand) | 14.41480076% | 14.41480076% | 0 pp |
+| Budew in actual initial seven **and Regidrago V directly held or independently searchable** | **11.30340285%** | **10.78491572%** | **-0.51848714 pp** |
+
+This is still an idealized physical-resource screen, since a held Quick Ball/Treasure must actually be payable, and setting up Budew Active does not guarantee the opponent leaves the attack usable. It shows that much of the earlier Budew+Regidrago **32.03% / 25.39%** counts non-starting Budew branches for which active mobility remains unproven. The exact code and tests now expose `budewInitiallyActive` and `budewInitiallyActiveWithRegidrago` as separate metrics, explicitly checking the identity of the eighth card instead of treating all first-eight Pokémon as setup options.
+
 ### Turn-order interpretation
 
 Budew's **Itchy Pollen** is an attack, so the player going first cannot use it on their first turn under the ordinary first-turn attack rule. **Boost Shake** is playable to evolve on that first turn and ends the turn. With those mechanics in view, a deliberately coarse, equal-weight opportunity screen is:
