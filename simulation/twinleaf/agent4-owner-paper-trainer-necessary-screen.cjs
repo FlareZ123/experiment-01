@@ -8,7 +8,7 @@ const {PRINT_RULES:PRIZE_RULES,publicPrizeTrainerPrerequisite}=
 const {REMOVAL_PRINTINGS,removalTargetCertificate}=
   require('./agent6-public-removal-target-certificate.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v6-prize-removal-composition';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v7-jp-m4-prize-printing';
 const VIP='Battle VIP Pass FST';
 /**
  * Exact paper source printings with an exclusive first-owner-turn window.
