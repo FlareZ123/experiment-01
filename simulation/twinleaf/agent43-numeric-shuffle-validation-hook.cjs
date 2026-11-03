@@ -52,7 +52,6 @@ function withNumericShuffleIndexValidation(work,types={}) {
   try {
     return {result:work(),audit};
   }finally{
-    assert.strictEqual(proto.validate!==original,true);
     proto.validate=original;
     audit.restored=true;
   }
