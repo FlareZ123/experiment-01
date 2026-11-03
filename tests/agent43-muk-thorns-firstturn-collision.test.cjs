@@ -53,9 +53,8 @@ assert.equal(sourceRank26.cards.reduce((n, row) => n + row.count, 0), 60);
 const source26Copies = (name) => sourceRank26.cards
   .filter((row) => row.name === name).reduce((n, row) => n + row.count, 0);
 assert.deepEqual({
-  basics: sourceRank26.cards.filter((row) => row.category === 'Pokémon'
-    && (row.supertype === 'Pokémon' || true)
-    && !('evolvesFrom' in row)).reduce((n, row) => n + row.count, 0),
+  basics: sourceRank26.cards.filter((row) => row.category === 'Pokémon')
+    .reduce((n, row) => n + row.count, 0),
   rope: source26Copies('Escape Rope'),
   cologne: source26Copies('Canceling Cologne')
 }, { basics: 12, rope: 1, cologne: 1 });
