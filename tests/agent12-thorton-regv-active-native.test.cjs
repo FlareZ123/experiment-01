@@ -8,6 +8,7 @@ const {probeSwap}=
 for(const seat of [0,1]){
   test('Native Thorton swaps Active Regidrago V into discard, preserves Double Dragon, seat '+seat,()=>{
     const r=probeSwap(seat,'basic');
+    console.log('NATIVE_THORTON_REGV_BASIC '+JSON.stringify(r));
     assert.equal(r.constructedState,true);
     assert.equal(r.qualifiedPaperGame,false);
     assert.equal(r.playError,null);
@@ -21,7 +22,6 @@ for(const seat of [0,1]){
     assert.equal(r.after.adpActive,true);
     assert.equal(r.after.regVInDiscard,true);
     assert.equal(r.after.ddeRemains,true);
-    console.log('NATIVE_THORTON_REGV_BASIC '+JSON.stringify(r));
   });
 
   test('Audit Thorton Stage1/VSTAR Active negative target on seat '+seat,()=>{
