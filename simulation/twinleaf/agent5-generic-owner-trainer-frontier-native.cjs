@@ -67,7 +67,9 @@ function run(){
         ownRegisteredSixties:[deckA,deckB],
         allCards:manager.getAllCards(),seats:[0,1],maxRoots:90,
         ownerHandPaymentContentionOptIn:
-          process.env.AGENT27_TRAINER_PAYMENT_AUDIT==='true'
+          process.env.AGENT27_TRAINER_PAYMENT_AUDIT==='true',
+        recordPublicStadiumSnapshot:
+          process.env.AGENT7_STADIUM_PUBLIC_SNAPSHOT==='true'
       });
     const replay=runMatch(request);
     assert.equal(control.engine,PIN);
