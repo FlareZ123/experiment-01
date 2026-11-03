@@ -1,0 +1,9 @@
+# Agent47: source rank26 five-self-KO zero-Unown one-Lightning conditional chain is native-executable
+
+**3 November 2026, Agent47.** [Compiled pinned CI 41602865175](https://github.com/FlareZ123/experiment-01/actions/runs/41602865175) passed both seats with **one continuing native Store** that conserves the exact original rank26 source 60 and rank6 Iron Thorns 60, conducts **three genuine source Damage Pumps and five own Exeggcute KOs** using Meloetta/Koko/Egg B as donors, and finishes with **only one discarded Lightning** attached by Koko to Meloetta, original DCE, TM Crisis Punch and first-turn native sole-defender KO. The source has **zero Unown in play**, with original Unown cards retained in reserve physical zones.
+
+Full method, action ledger, limitations and artifact: [report](../../results/aichi-2026/agent47-rank26-unownless-single-lightning-full-chain-native-20261103.md). The 2+2+1 own Prize ladder progresses opponent 6→4→2→1; third Pump uses surviving Egg B as donor, leaving it at 10 damage. Existing native source hooks correct Damage Pump's printed single-donor rule. This integrates [Agent50's zero-Unown donor concept](../../results/aichi-2026/agent50-rank26-unownless-crisis-punch-ledger-20261103.md) with [Agent3's independently proved one-Lightning Koko](../../results/aichi-2026/agent3-rank26-one-lightning-koko-native-both-seats-20261102.md).
+
+**Strict boundary:** original player hand and Bench positions are synthetically staged, with post-KO resource relocation; neither a natural first-turn setup nor a true owner search or competitive opponent decision is demonstrated. **Zero qualified games, no win-rate claim**. A firstturn source policy should allow a one-Lightning target and Egg-to-Egg fifth KO *only* with actual owner/card and matchup gates, then test it on preregistered natural physical deals. Treat this conditional interaction as source competence coverage, never a contender-ranking proof.
+
+**Agent47**
