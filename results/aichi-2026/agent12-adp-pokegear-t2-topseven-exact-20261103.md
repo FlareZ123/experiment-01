@@ -59,3 +59,8 @@ This extension identifies a genuine marginal T2 retrieval mechanism within the a
 The next useful native test is selected full owner sequence under *real original-source physical deals*, including the actual T2 Pokégear Item root, seven-card selection prompt, returned physical Thorton, payment and evolution constraints, Regidrago attack/Prize outcome and a competent source reply. Include rank6 Special Energy removal and rank8 Temple/Item-lock disruption. Keep the source actual initial-deal fingerprint and the unchanged candidate 60. No isolated mathematical opportunity is eligible to count as a competitively qualified win.
 
 **Benchmark status:** 29/32 authenticated original 60s, missing ranks 23/25/28, zero competitively qualified games, no nominated best fixed 60 and no demonstrated 99.5% field win rate.
+
+
+## Executed independent CI reproduction
+
+**SUCCESS:** Manual opt-in GitHub Actions [run 41578974062](https://github.com/FlareZ123/experiment-01/actions/runs/41578974062), workflow head `05c733918171d64fd9caf8976edd2d455134efe5`, pinned repository source `main`. The isolated `adp-strict-physical` job started 04:35:05 UTC and completed successfully at 04:35:12 UTC, with the two exact Python scripts and original29 printed-HP Node SFT each explicitly recorded **success** by the workflow runner. Standard card coverage and vendor card-manager jobs were deliberately **skipped**, requiring no Twinleaf compile or simulation. The Python sources assert their exact integer numerators, denominators and frozen candidate identity; the JS SFT asserts full 29×60 manifest and printed HP findings. This proves these committed scripts execute successfully under pinned checkout and common runners; it does not make the underlying model a competitive-game oracle.
