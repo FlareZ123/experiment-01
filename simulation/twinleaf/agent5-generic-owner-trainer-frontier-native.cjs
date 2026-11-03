@@ -118,5 +118,15 @@ if(require.main===module){
     'agent5-generic-owner-trainer-frontier-original-5-v-11.json'),result);
   process.stdout.write('AGENT5_GENERIC_TRAINER_FRONTIER '+
     JSON.stringify(result.summary)+'\n');
+  const examples=result.rows.flatMap(row=>row.frontiers.roots
+    .filter(root=>root.observedOwnerHandTrainerCopies>0)
+    .slice(0,6).map(root=>({
+      source5Seat:row.source5Seat,seat:root.seat,turn:root.turn,
+      chosen:root.chosen,dispatch:root.dispatch,
+      available:root.trainers.map(t=>({printing:t.printing,type:t.type,
+        blocker:t.publicBlocker,offered:t.nativeEnumeratorOffered}))
+    })));
+  process.stdout.write('AGENT5_GENERIC_TRAINER_EXAMPLES '+
+    JSON.stringify(examples)+'\n');
 }
 module.exports={run};
