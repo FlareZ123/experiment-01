@@ -7,7 +7,7 @@ const ENERGY_PRINTINGS = Object.freeze([
   'Counter Energy CIN',
   'Unit Energy LPM UPR'
 ]);
-const REQUIRED_CARDS = 5;
+const PRINTED_CARDS = 5;
 
 /**
  * Check a source-rank-17 Extra Energy Bomb -> Alolan Raichu line against
@@ -17,7 +17,7 @@ const REQUIRED_CARDS = 5;
  * target, transfer, self-KO, Prize and opponent-response verification.
  *
  * Reversal/Counter/Unit Energy may provide multiple Energy UNITS, but
- * each physical card counts exactly once toward the printed five CARDS.
+ * each physical card counts once. Under general number-shortage and E-20\n * rules, attaching 1-4 when fewer than 5 exist still triggers self-KO.
  *
  * @param {object} view Actual actorObservation for a source owner root.
  * @returns {object} Detached diagnostic with explicit qualification veto.
@@ -45,8 +45,8 @@ function rank17ElectrodeBombNecessity(view) {
     printing => [printing, availableEnergyCards.filter(p => p === printing).length]));
   const blockers = [];
   if(electrodes.length === 0) blockers.push('no-source-electrode-gx-in-play');
-  if(availableEnergyCards.length < REQUIRED_CARDS)
-    blockers.push('fewer-than-five-discarded-physical-energy-cards');
+  if(availableEnergyCards.length === 0)
+    blockers.push('no-discarded-energy-card-for-effective-transfer');
   if(raichus.length === 0)
     blockers.push('no-source-alolan-raichu-unm-recipient-in-play');
 
@@ -79,7 +79,9 @@ function rank17ElectrodeBombNecessity(view) {
     raichuPositions: raichus.map(({position,index,pokemon}) =>
       ({position,index,printing:pokemon.printing})),
     physicalDiscardEnergyCards: availableEnergyCards.length,
-    printedRequiredEnergyCards: REQUIRED_CARDS,
+    printedNominalEnergyCards: PRINTED_CARDS,
+    maxPhysicalCardsTransferable: Math.min(PRINTED_CARDS,availableEnergyCards.length),
+    fullFiveCardFundingAvailable: availableEnergyCards.length >= PRINTED_CARDS,
     discardedEnergyByPrinting: energyByPrinting,
     physicalNecessaryConditionsMet: blockers.length === 0,
     physicalBlockers: blockers,
@@ -93,5 +95,5 @@ function rank17ElectrodeBombNecessity(view) {
   };
 }
 
-module.exports = { VERSION, ENERGY_PRINTINGS, REQUIRED_CARDS,
+module.exports = { VERSION, ENERGY_PRINTINGS, PRINTED_CARDS,
   rank17ElectrodeBombNecessity };
