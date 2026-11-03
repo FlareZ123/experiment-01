@@ -7,7 +7,7 @@ const field=require('../results/aichi-2026/full-decklists.json');
 const adp=require('../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json');
 const alchemy=require('../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json');
 const sets=require('../resources/sets/en.json');
-const {choose,miss,transfer}=require('../simulation/evaluation/agent50-mulligan-transfer.cjs');
+const {choose,miss,transfer,soloAfterSourceBonus}=require('../simulation/evaluation/agent50-mulligan-transfer.cjs');
 const cache=new Map();
 
 /** @param {string} id @returns {object} */
@@ -79,4 +79,24 @@ test('registered rank-26 donation contrast remains opportunity-only',()=>{
   console.log(JSON.stringify({rank26SourceBasics:12,agent5:a,agent43:b,
     singletonMeloettaSeenIfAllBonusTaken:{agent5:observed(a),agent43:observed(b)},
     qualification:'opening only, no native games, no game-win inference'},null,2));
+});
+
+test('rank26 source-first solo Active survives optional bonus draws',()=>{
+  const tested=[[7,0.6924920315030554,0.6807491907649441],
+    [12,0.4711087012154489,0.4526058717205819],
+    [14,0.3941763347511427,0.37506796023082156],
+    [17,0.2927817855650311,0.27462789393091397]];
+  for(const [basics,opening,postBonus] of tested){
+    const actual=soloAfterSourceBonus(basics,sourceBasics(26));
+    close(actual.soloSeven,opening);
+    close(actual.soloAfterAllSourceBonuses,postBonus);
+    assert.ok(actual.soloAfterAllSourceBonuses<=actual.soloSeven);
+  }
+  const adp=soloAfterSourceBonus(manifestBasics(require('../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json').cards),12);
+  const alchemy=soloAfterSourceBonus(manifestBasics(require('../results/aichi-2026/agent43-apex-alchemy-paper-expanded-v0.json').cards),12);
+  assert.ok(adp.soloAfterAllSourceBonuses>alchemy.soloAfterAllSourceBonuses);
+  const basics=require('../results/aichi-2026/candidates/agent5-adp-thorton-regidrago-60-v2.json').cards
+    .filter(x=>{const p=card(x.id);return p.supertype==='Pokémon'&&p.subtypes.includes('Basic');});
+  assert.equal(basics.reduce((n,x)=>n+x.count,0),7);
+  for(const row of basics)assert.ok(Number(card(row.id).hp)<=280,row.name);
 });
