@@ -222,7 +222,8 @@ test('source-exact five first-owner-turn-only Trainer printings are covered',()=
     assert.match(screened.blocker,/first-owner-turn-expired$/);
     if(printing!==VIP){
       assert.equal(screened.additionallyRequiresGoingSecond,true);
-      assert.equal(screened.goingSecondEligibility,'unverified');
+      assert.equal(screened.goingSecondEligibility,
+        'proven-going-first-ineligible');
     }
     const noHistory=printedTrainerTurnScreen(secondTurn,printing);
     assert.equal(noHistory.blocker,null);
@@ -249,4 +250,48 @@ test('native fallback declines another source-printed first-turn-only Item',()=>
   assert.equal(denied.reason,'printed-temporal-rule-block');
   assert.equal(denied.printedTemporalBlocker,
     'wait-and-see-hammer-first-owner-turn-expired');
+});
+
+test('owner-authenticated opening order rules out going-second-only Item for first seat',()=>{
+  const printing='Call Bell SSP',ledger=createOwnerTurnLedger();
+  const first={...owner([printing],1),actorSeat:0};
+  const receipt=ledger.observe(first);
+  assert.equal(receipt.openingFirstSeat,0);
+  assert.equal(receipt.openingSeatProof,
+    'observed-real-owner-root-global-turn-one');
+  const disqualified=printedTrainerTurnScreen(first,printing,receipt);
+  assert.equal(disqualified.expiryIneligibilityProven,false);
+  assert.equal(disqualified.goingSecondEligibility,
+    'proven-going-first-ineligible');
+  assert.equal(disqualified.blocker,'call-bell-requires-going-second');
+  assert.equal(disqualified.ineligibilityProven,true);
+  const proven=screenOwnerTrainerPaperNecessity(first,[row(first,0)],receipt);
+  assert.equal(proven.rows[0].paperPlayable,false);
+  assert.deepEqual(proven.rows[0].necessaryBlockers,
+    ['printed-temporal:call-bell-requires-going-second']);
+
+  const secondSeatFirst=owner([printing],2);
+  const otherProof=ledger.observe(secondSeatFirst);
+  assert.equal(otherProof.openingFirstSeat,0);
+  assert.equal(otherProof.provenPastFirstOwnerTurn,false);
+  const conditional=printedTrainerTurnScreen(
+    secondSeatFirst,printing,otherProof);
+  assert.equal(conditional.goingSecondEligibility,'proven-going-second');
+  assert.equal(conditional.blocker,null);
+  assert.equal(conditional.ineligibilityProven,false);
+  assert.equal(screenOwnerTrainerPaperNecessity(
+    secondSeatFirst,[row(secondSeatFirst,0)],otherProof)
+    .rows[0].paperPlayable,null);
+});
+
+test('unobserved opening order never gives a false first-seat certificate',()=>{
+  const printing='Chill Teaser Toy SSP';
+  const ledger=createOwnerTurnLedger(),delayed=owner([printing],5);
+  const observation=ledger.observe(delayed);
+  assert.equal(observation.openingFirstSeat,null);
+  const r=printedTrainerTurnScreen(delayed,printing,observation);
+  assert.equal(r.goingSecondEligibility,'unverified');
+  assert.equal(r.blocker,null);
+  assert.equal(r.conservativeDecline,true);
+  assert.equal(r.ineligibilityProven,false);
 });
