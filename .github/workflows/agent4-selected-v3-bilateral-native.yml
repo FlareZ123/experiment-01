@@ -13,16 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 34dc846a2b5faf3a70a2bd3ed7df2e8b2732e6ec
+          ref: 1ad802631aa066f97da68fe8a22b2d0adbd7529d
       - name: Pin immutable registered repository snapshot
         run: |
-          test "$(git rev-parse HEAD)" = "34dc846a2b5faf3a70a2bd3ed7df2e8b2732e6ec"
+          test "$(git rev-parse HEAD)" = "1ad802631aa066f97da68fe8a22b2d0adbd7529d"
           git status --short
       - uses: actions/setup-node@v4
         with:
           node-version: '20.19.0'
-          cache: npm
-          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
       - name: Validate frozen registration and paper/seat closure before native match
         run: |
           node --check simulation/evaluation/agent4-selected-v3-paper-funded-release.cjs
