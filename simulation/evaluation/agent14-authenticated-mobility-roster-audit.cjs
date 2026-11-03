@@ -10,7 +10,7 @@ const ROSTER='results/aichi-2026/full-decklists.json';
 const PINNED_ROSTER_BLOB='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const FAMILIES=Object.freeze([
   {name:'Guzma',type:'Supporter',rule:'Opponent and owner Bench required; Supporter quota and player lock apply'},
-  {name:'Float Stone',type:'Pokemon Tool',rule:'Must attach and then retreat legally; modifies Retreat Cost by two, Tool lock can interfere'},
+  {name:'Float Stone',type:'Pokemon Tool',rule:'Must attach to an empty Tool slot; attached Pokemon has no Retreat Cost, but retreat rules and Tool locks still apply'},
   {name:'Escape Rope',type:'Item',rule:'Item lock and required Bench apply; opponent selects own promoted Pokemon'}
 ]);
 
