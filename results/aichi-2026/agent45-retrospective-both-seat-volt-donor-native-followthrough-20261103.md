@@ -1,0 +1,35 @@
+# Agent 45: retained attack and two-Prize swing from native Rank 6 Volt donor choice
+
+**3 November 2026 | read-only audit of pre-registered retrospective same-deal native A/B | zero competitively qualified games.**
+
+## Test and provenance
+
+The already-committed [eight-trial registration](registrations/agent45-retrospective-rank6-volt-donor-both-seats-v1.json) selected rank-6 source repeat 2/3 in both candidate slots, against the *unchanged* rank-1 Shadow Rider reference and New Moon Lockbreaker v1 60-card lists. The original opponent was the authentic Aichi rank-6 Iron Thorns ex printed 60 in every arm. Selection was explicitly **retrospective**, targeting two previously observed bad physical donor choices; this is neither held-out sampling nor a win-rate estimator.
+
+[Manual GitHub Actions CI 41564029296](https://github.com/FlareZ123/experiment-01/actions/runs/41564029296) **SUCCESS**, checkout `4d74d882af8d7af8aa126b632624baf728d1ae90`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, raw ZIP artifact **13197993706**, name `agent45-rank6-retrospective-both-seat-native-donor-pair`. Exact raw ZIP contains `agent45-retrospective-volt-donor-native-pair.json` (20,281,396 uncompressed bytes) and `agent45-donor-fork-summary.json`; latter printed 8 matched old physical source openings, 8 control/treatment matching physical openings, 8 matching observed starting seats, and 6 identical whole native root ledgers.
+
+The source policy was the pinned Agent41 frozen bilateral v2 with the paper prompt portfolio enabled identically in both arms. Only the treatment selected a different *source-owned* physical Energy card in a genuine marked Iron Thorns ex Volt Cyclone AttachEnergyPrompt when this preserved the printed LCC attack cost. The original bench recipient was held fixed. Both policies ran with 260 native-action cap; all eight controls and eight treatments retained full original source-deal fingerprints. Of the 16 attempts, each condition had **5 action-limit censored** and **3 native engine-game-end**. No original error rows, and no attempt is certified as a competitive paper game.
+
+## Native outcomes
+
+| Exact source trial | Native control | Native donor treatment | Verified relevant change |
+| --- | --- | --- | --- |
+| `6:2:B:champion-reference` | 3 settled source Volt Cyclones (turns 14, 30, 38); source 4 Prize cards remaining at 260-action censor | 4 settled source Volt Cyclones (turns 14, 30, 38, **40**); source **2** Prizes remaining at censor | The extra turn-40 attack settled and took 2 Prizes, source Prize vector `[4,6] -> [2,6]`. Root prefix equal 173; trajectories diverged afterward |
+| `6:3:B:new-moon-lockbreaker-v1` | 6 settled source Volt Cyclones (turns 5, 7, 9, 17, 53, 55); native source game end turn **55**, `[0,6]` Prizes | 6 settled source Volt Cyclones (turns 5, 7, 9, 17, **19**, 53); native source game end turn **53**, `[0,6]` Prizes | Additional immediate turn-19 attack settled without a Prize, replacing a later source attack; final native terminal occurs two turns earlier. Root prefix equal 121 |
+| Other six source trials, including both physical source seats | Combined 10 settled source Volt Cyclones | Combined 10 settled source Volt Cyclones | All six have byte-identical accepted native root ledgers and matched source fingerprints |
+
+Both alternative receipts selected a physical **Spiky Energy JTG** instead of native **Speed Lightning Energy** from an Active with `Speed Lightning + Spiky + Double Colorless`, leaving `Speed Lightning + Double Colorless` attached. Both alternative choices passed native `AttachEnergyPrompt.validate` and native `ResolvePromptAction`, and public state shows actual Spiky movement Active-to-Bench while retaining enough printed Energy for Volt Cyclone. The run's hook audits each report `nativeAcceptedSelectedMoves=2` in aggregate and zero rejections. The first two next-own-turn paid attacks are more causally persuasive than a static cost heuristic, but do **not** establish strategic universal superiority.
+
+**Original frozen versus treatment is a selected-case demonstration.** The later native game states are allowed to diverge after the donor correction. In the Shadow Rider comparator the extra attack changed Prizes, though both lines were action-censored, so there is no certified match outcome. In the New Moon comparator native winner/Prizes agreed; the improvement was earlier attack availability and earlier native termination, not a new win. Taken together the count of settled attacks is 19 control versus 20 treatment because a later attack in New Moon control has no treatment counterpart. Both bots remain unqualified and neither evidence stream accounts for the required 25-minute tournament clock.
+
+## Audit flag defect and correction
+
+**Important independent audit correction after the raw CI run:** archived `acceptedPhysicalTransferReceipts[].genuineLiveStore` is `false` for both selected moves, despite native accepted physical transfer. Inspection of `simulation/twinleaf/agent45-volt-donor-printed-cost-hook.cjs` found a receipt bookkeeping bug: `liveStore` captured only the *first* `AddPlayerAction` Store across the runner's eight separate matches, then compared every later Store instance with the first. This is a false-negative *identity flag*, and does not negate the separately logged actual native `ResolvePromptAction` and successful physical transfer checks.
+
+Corrective research code commit [`2d518415`](https://github.com/FlareZ123/experiment-01/commit/2d51841599ae19a3fb00acb3fbbd843d646dbf51) now registers each independently initialized Store in a `WeakSet`; regression [`5d636bf2`](https://github.com/FlareZ123/experiment-01/commit/5d636bf28a70e30b94f0ba9c1847c551b1800fe6) tests **two** independent mock Store instances. This is an instrumentation correction, not a gameplay-policy change; **the full native retrospective has not yet been rerun on the corrected audit code**. Do not rewrite the historical raw receipt flag, assert it was `true`, or claim the new test CI-verified without a subsequent run.
+
+## Next decision-changing work
+
+A prospective, immutable **common bilateral** release should include the favorable Rank 6 case as an attack-continuation positive control, checking both-seat native Store acceptance and independently paper-valid physical donor. It must also measure donor opportunity and costs on previously unseen rank-6 openings rather than selecting two known failures. Opponent turns, physical source-deal parity, accepted Energy prompts, complete next attack and Prize effects, all failure/censor rows and both source/player policies must remain visible. Compare preserving current Active attack cost against effects of retaining Spiky Energy on the Active or powering the Bench; more successful attacks alone cannot prove match strength.
+
+The field still has only **29/32** exact original printed 60s, ranks **23/25/28** missing, **zero qualified competitive games**, no fixed selected 60, and no credible 99.5% win-rate claim.
