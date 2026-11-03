@@ -65,3 +65,7 @@ GitHub Actions artifact 13244492026 was queried through the live Actions workflo
 
 A deliberately **draft** [pull request #20](https://github.com/FlareZ123/experiment-01/pull/20) preserves the research-only native Store observers, the local original-root selected Stadium treatment adapter, the full A/B/A runner, regression tests and manual CI extension. The PR must be reconciled against current shared main before any merge. This is documentation and reproducibility infrastructure; the studied historical owner decision must remain off by default in any future selected production/common opponent policy.
 
+
+## Final Prize-attack timing
+
+The same original native archive confirms the delayed attack was the source's game-ending Prize attack in both candidate-seat-A games. Champion source Prize count advanced 2 to 0 at turn17 in control and at turn19 in treatment. New Moon source count advanced 3 to 0 at turn17 in control and at turn19 in treatment. The treated candidate received turn18 before the source's final attack. Champion passed; New Moon played Fog Crystal, benched Latias ex and then passed. These statements derive from sourceAttackSettlement.attacks[].prizesBefore/prizesAfter and the actual native root ledger in artifact 13244492026. The matched winning outcomes do not erase the one-turn delay in native victory. Official competitive qualification remains zero.
