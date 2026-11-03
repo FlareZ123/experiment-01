@@ -21,9 +21,14 @@ const {withEggDonorRecovery} =
 const {saveResult} =
   require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
 
+const {preflightRegisteredSeedPlan}=
+  require('../../scripts/aichi-registered-seed-preflight.cjs');
+const SEED_PLAN=
+  require('../../results/aichi-2026/registrations/agent47-rank26-natural-owner-seed-plan-v2.json');
+const SEED_PREFLIGHT=preflightRegisteredSeedPlan(SEED_PLAN);
 const PIN = 'twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const BASE=20261110;
-const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>20+i));
+const BASE=SEED_PLAN.seedBase;
+const REPEATS=Object.freeze([...SEED_PLAN.repeats]);
 const CAP=120;
 const digest=cards=>crypto.createHash('sha256')
   .update(JSON.stringify(cards)).digest('hex');
@@ -171,8 +176,10 @@ function run() {
     registration:'results/aichi-2026/registrations/agent47-rank26-natural-unownless-owner-24-paired-20261103.md',
     engine:PIN,sourceRank:26,opponentRank:6,
     sourceDigest:digest(source),opponentDigest:digest(opponent),
-    seedBase:BASE,repeats:[20,31],seats:[0,1],cap:CAP,
-    nativeAttempts:48,originalPhysicalPairs:24,
+    seedPlanManifestSha256:SEED_PREFLIGHT.manifestSha256,
+    seedBase:BASE,repeats:[REPEATS[0],REPEATS.at(-1)],seats:[0,1],cap:CAP,
+    nativeAttempts:SEED_PREFLIGHT.summary.nativeAttempts,
+    originalPhysicalPairs:SEED_PREFLIGHT.summary.physicalPairs,
     controlPolicy:RANK26_PROPAGATION_PROFILE,
     treatmentPolicy:'rank26-owner-early-compressor-one-L-two-Eggs + one-L Cologne + fifth Egg donor + Egg recovery over unchanged rank26 propagation-v3',
     summary:{
@@ -226,7 +233,8 @@ if(require.main===module) {
   saveResult(target,result);
   process.stdout.write('AGENT47_RANK26_NATURAL_OWNER_24 '+
     JSON.stringify(result.summary)+'\n');
-  if(result.summary.pairs!==24||result.summary.nativeAttempts!==48||
+  if(result.summary.pairs!==SEED_PREFLIGHT.summary.physicalPairs||
+     result.summary.nativeAttempts!==SEED_PREFLIGHT.summary.nativeAttempts||
      result.summary.physicalMatched!==24||
      result.summary.physicalMismatched!==0||
      result.summary.physicalUnverified!==0||
