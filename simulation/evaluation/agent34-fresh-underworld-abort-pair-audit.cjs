@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const {createHash}=require('node:crypto');
 
-const VERSION='agent34-fresh-underworld-abort-pair-audit-v1';
+const VERSION='agent34-fresh-underworld-abort-pair-audit-v2';
 const REGISTRATION_BLOB='1af4f729c0101483a2295e0df22b9070a8510417';
 const SHA256=/^[a-f0-9]{64}$/;
 
@@ -48,6 +48,35 @@ function auditedSourceDigest(row,sourceSeat){
   };
   return {digest:e.sourceDealFingerprint.digestSha256,
     reason:'native-abort-root-ledger-verified'};
+}
+
+/**
+ * Count real source-owned Underworld Door roots only on a SHA-authenticated
+ * successful or aborted native action ledger. This recovers pre-error roots
+ * missing from normal successful-game rows without claiming their settlement.
+ * @param {object} row A stored native result row.
+ * @param {0|1} sourceSeat Physical seat belonging to the original source.
+ * @param {object} digestEvidence auditedSourceDigest's result.
+ * @returns {number|null}
+ */
+function authenticatedSourceAbilityRoots(row,sourceSeat,digestEvidence){
+  const nativeError=row?.status==='engine-error';
+  const roots=nativeError?
+    row.nativeAbortEvidence?.rootActionLedger:row?.rootActionLedger;
+  const expectedCount=nativeError?
+    row.nativeAbortEvidence?.rootActionCount:row?.rootActionCount;
+  const registeredHash=nativeError?
+    row.nativeAbortEvidence?.rootActionLedgerSha256:
+    row?.rootActionLedgerSha256;
+  if(!Array.isArray(roots)||roots.length!==expectedCount||
+    !validHash(registeredHash)||createHash('sha256')
+      .update(JSON.stringify(roots)).digest('hex')!==registeredHash||
+    (nativeError&&digestEvidence.reason!=='native-abort-root-ledger-verified'))
+    return null;
+  return roots.filter(root=>
+    root.playerSlot===sourceSeat&&
+    root.action==='UseAbilityAction'&&
+    root.ability==='Underworld Door').length;
 }
 
 /**
@@ -99,6 +128,12 @@ function auditFreshUnderworldArchive(archive){
       control.actualStarterSeat===treatment.actualStarterSeat;
     const strictPair=sourceSame&&completeSame&&startSame;
     const treatmentNativeError=treatment.status==='engine-error';
+    const confirmedRoots=authenticatedSourceAbilityRoots(treatment,sourceSeat,b);
+    const errorRoots=treatmentNativeError?
+      treatment.nativeAbortEvidence?.rootActionLedger??[]:[];
+    const lastRootUnderworld=errorRoots.slice(-3).some(root=>
+      root.playerSlot===sourceSeat&&
+      root.action==='UseAbilityAction'&&root.ability==='Underworld Door');
     const status=strictPair?'STRICT_FULL_PAIR_MATCH':
       sourceKnown&&!sourceSame?'VERIFIED_SOURCE_DEAL_MISMATCH':
       sourceSame&&treatmentNativeError&&!completeKnown?
@@ -107,6 +142,9 @@ function auditFreshUnderworldArchive(archive){
         'SOURCE_DEAL_UNVERIFIED';
     assert.ok(Number.isSafeInteger(pair.fullySettledSourceEffects)&&
       pair.fullySettledSourceEffects>=0);
+    if(confirmedRoots!==null)
+      assert.ok(pair.fullySettledSourceEffects<=confirmedRoots,
+        'Physical settlements cannot exceed authenticated source roots');
     rows.push({trialId:trial.id,sourceSeat,status,
       controlStatus:control.status??(control.finished?'native-terminal':'censored'),
       treatmentStatus:treatment.status??
@@ -121,6 +159,8 @@ function auditFreshUnderworldArchive(archive){
         treatment.nativeAbortEvidence?.pendingPrompt??null:null,
       errorStage:treatmentNativeError?
         treatment.nativeAbortEvidence?.failureStage??null:null,
+      authenticatedSourceUnderworldRoots:confirmedRoots,
+      nativeErrorFollowsSourceUnderworldRoot:lastRootUnderworld,
       fullySettledSourceAbilityEffects:pair.fullySettledSourceEffects,
       competitivelyQualified:false});
   }
@@ -133,6 +173,11 @@ function auditFreshUnderworldArchive(archive){
     sourceOnlyAbortMatches:count(row=>row.status==='SOURCE_ONLY_NATIVE_ABORT_MATCH'),
     unverifiedSourcePairs:count(row=>!row.sourceDigestVerified),
     treatmentNativeErrors:count(row=>row.nativeTreatmentError),
+    nativeErrorAfterSourceUnderworldRoot:count(row=>
+      row.nativeTreatmentError&&row.nativeErrorFollowsSourceUnderworldRoot),
+    authenticatedOriginalSourceUnderworldRoots:rows.every(row=>
+      row.authenticatedSourceUnderworldRoots!==null)?
+      rows.reduce((n,row)=>n+row.authenticatedSourceUnderworldRoots,0):null,
     fullySettledOriginalSourceEffects:rows.reduce((n,row)=>
       n+row.fullySettledSourceAbilityEffects,0),
     sourceEffectsInAbortedRows:rows.filter(row=>row.nativeTreatmentError)
@@ -153,4 +198,4 @@ function auditFreshUnderworldArchive(archive){
 }
 
 module.exports={VERSION,REGISTRATION_BLOB,auditedSourceDigest,
-  auditFreshUnderworldArchive};
+  authenticatedSourceAbilityRoots,auditFreshUnderworldArchive};
