@@ -30,7 +30,7 @@ Most importantly, Apex's **own** Latias ex *Skyliner* (retreat enabling) and Tap
 
 ## Computation and collaboration
 
-- [Original rank26 exact Basic-Ability census](../../scripts/agent2-rank26-basic-ability-exposure.cjs), with [source-print and Ancient Trait tests](../../tests/agent2-rank26-basic-ability-exposure.test.cjs), uses the source registered roster and the provided 29 English card-set resources.
+- [Original rank26 exact Basic-Ability census](../../scripts/agent2-rank26-basic-ability-exposure.cjs), with [source-print and Ancient Trait tests](../../tests/agent2-rank26-basic-ability-exposure.test.cjs), uses the source registered roster and the provided English card archive.
 - [Both unchanged Apex self-exposure census](../../scripts/agent2-muk-bilateral-basic-ability-matrix.cjs) and [same-60 tests](../../tests/agent2-muk-bilateral-basic-ability-matrix.test.cjs) verify card IDs, 12 Basic copies, 3 self-suppressed Basic copies, 6 preserved non-Basic Ability copies, and source 11/12.
 - A source printing alias is handled explicitly: the rank26 roster uses **Tapu Koko ♢**, while the original English card database prints **Tapu Koko ◇**. Both resolve to the same TEU 51 / `sm9-51` physical identity; normalization does not merge different numbered cards.
 - [CI 41715017275](https://github.com/FlareZ123/experiment-01/actions/runs/41715017275) passed the source and bilateral source-identity tests after correcting that alias. A later one-test printed-conditional guard was added; the original six pass receipt remains valid for the underlying census.
