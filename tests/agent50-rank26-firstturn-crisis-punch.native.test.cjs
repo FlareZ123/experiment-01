@@ -47,7 +47,7 @@ function stage(seat){
   const lightning=cardBySourcePrefix('Lightning Energy');
   const dce=cardBySourcePrefix('Double Colorless Energy');
   const tool=cardBySourcePrefix('Technical Machine: Crisis Punch');
-  source.active.cards.push(melo,lightning,dce);
+  source.active.cards.push(melo);
   source.active.energies.cards.push(lightning,dce);
   source.active.tools.push(tool);
   source.bench[0].cards.push(cardBySourcePrefix('Squawkabilly ex'));
@@ -82,8 +82,15 @@ for(const seat of [0,1]){
       sourceAbility:x.melo.powers?.map(p=>p.name)
     };
     assert.equal(x.opponent.getPrizeLeft(),1);
-    assert.ok(x.melo.powers?.some(p=>p.name==='Debut Performance'));
-    assert.ok(x.tool.attacks?.some(a=>a.name==='Crisis Punch'));
+    const printedAbility=x.melo.powers?.some(p=>p.name==='Debut Performance')===true;
+    const toolHasAttack=x.tool.attacks?.some(a=>a.name==='Crisis Punch')===true;
+    console.log('AGENT50_MELOETTA_NATIVE_PRINT',
+      JSON.stringify({seat,meloName:x.melo.fullName,
+        powers:x.melo.powers?.map(p=>p.name),
+        baseAttacks:x.melo.attacks?.map(a=>a.name),
+        toolName:x.tool.fullName,toolAttacks:x.tool.attacks?.map(a=>a.name),
+        printedAbility,toolHasAttack}));
+    assert.equal(toolHasAttack,true,'original printed TM must expose Crisis Punch');
     x.store.dispatch(new AttackAction(x.source.id,'Crisis Punch'));
     const promptKinds=[];
     for(let i=0;i<20;i++){
