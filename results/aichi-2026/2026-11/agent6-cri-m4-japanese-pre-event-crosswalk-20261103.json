@@ -1,0 +1,80 @@
+{
+  "schema": "agent6-aichi-may2026-japanese-m4-vs-english-cri-display-v1",
+  "created": "2026-11-03",
+  "tournament": {
+    "name": "CL Aichi Open League 2026",
+    "date": "2026-05-10",
+    "url": "https://www.limitlesstcg.com/tournaments/566/decklists"
+  },
+  "englishDisplaySet": {
+    "code": "CRI",
+    "name": "Chaos Rising",
+    "releaseDate": "2026-05-22",
+    "dateSource": "https://cardworldtcg.com/cards/me4-56?lang=en"
+  },
+  "japaneseAvailableSet": {
+    "code": "M4",
+    "name": "Ninja Spinner",
+    "releaseDate": "2026-03-13",
+    "officialDateSource": "https://www.pokemon-card.com/ex/m4/"
+  },
+  "sourceRoster": "results/aichi-2026/full-decklists.json",
+  "observations": [
+    {
+      "rank": 5,
+      "player": "Yamato Nakano",
+      "sourceName": "Special Red Card",
+      "count": 2,
+      "englishDisplay": {
+        "set": "CRI",
+        "number": "82"
+      },
+      "japaneseMatching": {
+        "set": "M4",
+        "number": "72",
+        "officialCardUrl": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all"
+      },
+      "crosswalkSource": "https://limitlesstcg.com/cards/CRI/82"
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "sourceName": "Trubbish",
+      "count": 2,
+      "englishDisplay": {
+        "set": "CRI",
+        "number": "56"
+      },
+      "japaneseMatching": {
+        "set": "M4",
+        "number": "54",
+        "officialCardUrl": "https://www.pokemon-card.com/card-search/details.php/card/50138"
+      },
+      "crosswalkSource": "https://limitlesstcg.com/cards/CRI/56"
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "sourceName": "Special Red Card",
+      "count": 1,
+      "englishDisplay": {
+        "set": "CRI",
+        "number": "82"
+      },
+      "japaneseMatching": {
+        "set": "M4",
+        "number": "72",
+        "officialCardUrl": "https://www.pokemon-card.com/card-search/details.php/card/50156/regu/all"
+      },
+      "crosswalkSource": "https://limitlesstcg.com/cards/CRI/82"
+    }
+  ],
+  "summary": {
+    "sourceRows": 3,
+    "sourceCopies": 5,
+    "rankCount": 3,
+    "firstJapaneseReleasePrecedesTournament": true,
+    "englishDisplayReleaseFollowsTournament": true
+  },
+  "interpretation": "Curated printing identity/date crosswalk only. Does not identify physically played Japanese printings, certify bans/legality/card-effect parity, enable Native Twinleaf aliases, or amend the frozen source roster."
+}
