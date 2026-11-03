@@ -70,6 +70,11 @@ jobs:
         run: |
           node --test tests/agent32-adp-vs-champion-mulligan-delta.test.cjs
           node simulation/evaluation/agent32-adp-vs-champion-mulligan-delta.cjs
+      - name: Verify ADP fixed-v2 hypothetical one-slot access and source-29 mulligan gradient
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-adp-one-slot-first-gx-sensitivity.test.cjs
+          node simulation/evaluation/agent32-adp-one-slot-first-gx-sensitivity.cjs
       - name: Verify rank2 physical TM source access under simultaneous original opponent mulligans
         if: ${{ always() && !cancelled() }}
         run: |
