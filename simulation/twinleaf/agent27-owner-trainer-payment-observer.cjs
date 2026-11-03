@@ -7,7 +7,7 @@ const {ownerTrainerDiscardContention,VERSION:FRONTIER_VERSION}=
 const {summarizeOwnerBulkHandTransitions}=
   require('./agent49-owner-bulk-hand-transitions.cjs');
 
-const VERSION='agent27-native-owner-hand-payment-summary-v2-bulk-options';
+const VERSION='agent27-native-owner-hand-payment-summary-v3-bulk-sevenprint';
 
 /**
  * Compact diagnostic for an actual actor-root observation. Counts are
