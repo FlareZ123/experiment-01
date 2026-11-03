@@ -59,6 +59,11 @@ function withGuzmaOwnerPromptContinuation(execute,deps={}){
     native('game/store/actions/resolve-prompt-action').ResolvePromptAction;
   const observe=deps.observe??actorObservation;
   const choosePlan=deps.choosePlan??((view,catalog)=>{
+    if(process.env.AGENT13_DCE_FUSION_GUZMA_RETRO_DEV==='true'){
+      const funded=require('./agent13-dce-fusion-copy-guzma-frontier.cjs')
+        .chooseDceFusionCopyGuzma(view,catalog);
+      if(funded)return funded;
+    }
     if(deps.rank9SpecialFundedGuzma===true){
       const special=require('./agent2-rank9-special-guzma-frontier.cjs')
         .chooseRank9SpecialFundedGuzma(view,catalog);
