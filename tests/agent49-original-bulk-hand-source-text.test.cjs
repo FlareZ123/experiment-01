@@ -8,13 +8,13 @@ const {BULK_HAND_PRINTS}=
   require('../simulation/twinleaf/agent49-owner-bulk-hand-transitions.cjs');
 
 const EXPECTED={
-  'Carmine TWM':['sv6','Carmine','Discard your hand and draw 5 cards'],
-  "Professor's Research JTG":['sv9',"Professor's Research",'Discard your hand and draw 7 cards'],
-  'Professor Sycamore BKP':['xy9','Professor Sycamore','Discard your hand and draw 7 cards'],
-  "Lillie's Determination MEG":['me1',"Lillie's Determination",'Shuffle your hand into your deck'],
-  'N FCO':['xy10','N','Each player shuffles his or her hand into his or her deck'],
-  'Marnie SSH':['swsh1','Marnie','bottom of their deck'],
-  'Iono PAL':['sv2','Iono','bottom of their deck']
+  'Carmine TWM':['sv6','Carmine','If you go first, you may use this card during your first turn.    Discard your hand and draw 5 cards.'],
+  "Professor's Research JTG":['sv9',"Professor's Research",'Discard your hand and draw 7 cards.'],
+  'Professor Sycamore BKP':['xy9','Professor Sycamore','Discard your hand and draw 7 cards.'],
+  "Lillie's Determination MEG":['me1',"Lillie's Determination",'Shuffle your hand into your deck. Then, draw 6 cards. If you have exactly 6 Prize cards remaining, draw 8 cards instead.'],
+  'N FCO':['xy10','N','Each player shuffles his or her hand into his or her deck. Then, each player draws a card for each of his or her remaining Prize cards.'],
+  'Marnie SSH':['swsh1','Marnie','Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, you draw 5 cards, and your opponent draws 4 cards.'],
+  'Iono PAL':['sv2','Iono','Each player shuffles their hand and puts it on the bottom of their deck. If either player put any cards on the bottom of their deck in this way, each player draws a card for each of their remaining Prize cards.']
 };
 
 test('seven exact printings have supported types and source text',()=>{
@@ -28,7 +28,7 @@ test('seven exact printings have supported types and source text',()=>{
     assert.equal(source.name,name);
     assert.equal(source.supertype,'Trainer');
     assert.ok(source.subtypes.includes('Supporter'));
-    assert.ok(source.rules.some(rule=>rule.includes(fragment)),
+    assert.ok(source.rules.some(rule=>rule===fragment),
       printing+' printed effect differs from model');
   }
 });
