@@ -120,3 +120,62 @@ test('core-mechanics publisher source notes stay pinned to the 34 Japanese ident
   }
   assert.equal(notes.competitive_qualified_games,0);
 });
+
+
+test('publisher 28-family historical chronology and six 2025 promo slots remain traceable',()=>{
+  const dates=json('results/legality/agent2-apex-alchemy-jp-release-chronology-v1.json');
+  const event=dates.event_date;
+  assert.equal(dates.schema,'agent2-apex-japanese-set-release-provenance-v1');
+  assert.equal(event,'2026-05-10');
+  const byCode=new Map(dates.records.map(r=>[r.expansion_code,r]));
+  assert.equal(dates.records.length,29);
+  assert.equal(byCode.size,29);
+  for(const label of ['v0','v1']){
+    let slots=0;
+    for(const c of CROSS.registered_candidates[label].prints){
+      const r=byCode.get(c.japanese_print.set);
+      assert.ok(r,'Unknown Japanese printing expansion');
+      assert.ok(r.registered_english_card_names.includes(c.english_proxy.name));
+      slots+=c.count;
+    }
+    assert.equal(slots,60);
+    assert.equal(dates.coverage['total_physical_slots_'+label],60);
+    assert.equal(dates.coverage['pre_event_dated_physical_slots_'+label],54);
+    assert.equal(dates.coverage['pre_event_distribution_supported_slots_'+label],60);
+  }
+  const published=dates.records.filter(r=>r.original_publisher_release_date!==null);
+  assert.equal(published.length,28);
+  for(const r of published){
+    assert.match(r.original_publisher_release_date,/^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(r.original_publisher_release_date<event,'Published after Aichi event');
+    assert.equal(r.pre_event_product_release_witness,true);
+    assert.equal(new URL(r.official_product_released_date_source).hostname,
+      'www.pokemon-card.com');
+  }
+  const promo=byCode.get('SV-P');
+  assert.equal(promo.original_publisher_release_date,null);
+  assert.equal(promo.pre_event_product_release_witness,null);
+  assert.equal(promo.pre_event_distribution_evidenced_by_triangulation,true);
+  assert.equal(promo.earliest_publisher_award_event_date,'2024-09-22');
+  assert.equal(promo.earliest_numbered_card_release_day_confirmed,false);
+  assert.equal(new URL(promo.primary_publisher_award_announcement).hostname,
+    'www.pokemon-card.com');
+  assert.deepEqual(dates.coverage.undated_promo_family,['SV-P']);
+  assert.equal(dates.eligibility_proven,false);
+  assert.equal(dates.qualified_competitive_games,0);
+});
+
+test('historical print chronology cannot be silently postdated or misassign card slots',()=>{
+  const dates=json('results/legality/agent2-apex-alchemy-jp-release-chronology-v1.json');
+  const wrong=structuredClone(dates);
+  const v0=CROSS.registered_candidates.v0.prints;
+  wrong.records.find(r=>r.expansion_code==='S12').original_publisher_release_date='2026-12-31';
+  assert.ok(wrong.records.some(r=>r.original_publisher_release_date!==null &&
+    r.original_publisher_release_date>=wrong.event_date));
+  assert.equal(v0.reduce((n,c)=>n+c.count,0),60);
+  const assigned=new Set(wrong.records.flatMap(r=>r.registered_english_card_names));
+  assert.equal(assigned.size,34);
+  wrong.records.find(r=>r.expansion_code==='S12').registered_english_card_names=[];
+  const reassigned=new Set(wrong.records.flatMap(r=>r.registered_english_card_names));
+  assert.ok(reassigned.size<34,'Detect lost Japanese card identity mapping');
+});
