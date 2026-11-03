@@ -127,9 +127,10 @@ async function existingRelease(token){
  * comparison. The release must already be published to expose this URL.
  * @param {object} asset GitHub release asset.
  * @param {object} source Frozen original artifact.
+ * @param {string} token GitHub Actions token for private-release fallback.
  * @returns {Promise<object>}
  */
-async function verifyPublishedAsset(asset,source){
+async function verifyPublishedAsset(asset,source,token){
   assert.equal(asset.name,source.assetName);
   assert.equal(asset.size,source.sizeBytes);
   assert.equal(asset.digest,'sha256:'+source.sha256);
@@ -137,8 +138,16 @@ async function verifyPublishedAsset(asset,source){
   assert.equal(asset.browser_download_url,
     'https://github.com/'+archivePlan.repository+'/releases/download/'+
     RELEASE_TAG+'/'+source.assetName);
-  const response=await fetch(asset.browser_download_url);
-  assert.ok(response.ok,'Published asset HTTP '+response.status);
+  let response=await fetch(asset.browser_download_url);
+  if(!response.ok){
+    // In a private repository, the anonymous browser URL may be unavailable.
+    // An authenticated release-asset octet-stream request is the documented
+    // alternative. Never replace independent bytes with metadata alone.
+    response=await request(API+'/repos/'+archivePlan.repository+
+      '/releases/assets/'+asset.id,{
+        headers:headers(token,'application/octet-stream')
+      });
+  }
   const bytes=Buffer.from(await response.arrayBuffer());
   assert.equal(bytes.length,source.sizeBytes);
   assert.equal(sha256(bytes),source.sha256,
@@ -237,7 +246,7 @@ async function execute(publish=false){
   const independentlyVerified=[];
   for(const artifact of archivePlan.artifacts){
     const asset=assetMap.find(a=>a.name===artifact.assetName);
-    independentlyVerified.push(await verifyPublishedAsset(asset,artifact));
+    independentlyVerified.push(await verifyPublishedAsset(asset,artifact,token));
   }
   return {schema:archivePlan.schema,mode:'published-and-downloaded',
     releasePublished:true,releaseTag:RELEASE_TAG,releaseUrl:release.html_url,
