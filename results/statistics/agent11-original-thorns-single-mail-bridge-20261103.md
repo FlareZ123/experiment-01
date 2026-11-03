@@ -18,6 +18,18 @@ The [prior exact no-Mail event](agent11-original-thorns-first-volt-source-line-2
 
 The probabilities are conditional on the source's first seven containing an eligible Basic. They are exact *physical access* events under a restricted action model; they do not assert actual attack frequency, a strategically acceptable two-card G&H discard, Item-lock freedom in a particular real match, or victory.
 
+## Exhausting naturally held Mail copies: diminishing incremental reach
+
+The original physical eight may contain several Trainers' Mail. A separate exact extension considers **all naturally held copies**, played sequentially on missed searches. On each miss the owner declines to take an irrelevant Trainer, shuffles the same 46-card deck, and may use another held Mail. With `h` held Mail and `g` eligible deck targets, the repeated failure probability is `[C(46-g,4)/C(46,4)]^h`. No new Mail is fetched, no favorable fixed deck order is assumed, and physical Prize and hand allocations remain fully enumerated.
+
+| Original rank | At most one held Mail | All naturally held Mail | Additional reach from second and later Mail |
+| --- | ---: | ---: | ---: |
+| 6 | 38.41569666% | **38.81298815%** | +0.39729149 pp |
+| 24 | 45.75015323% | **46.60594998%** | +0.85579675 pp |
+| 29 | 37.05466223% | **37.19281709%** | +0.13815486 pp |
+
+Exact all-Mail weighted success numerators / denominators: rank6 `280786541516936143210972545004800 / 723434486475301475249684509200000`; rank24 `55020028179047314754322617632568694400 / 118053656675472071238619766633802000000`; rank29 `1648838222304359712638968560 / 4433216818183665626434320000`. [The same source-locked tests](../../tests/agent11-thorns-single-trainers-mail.test.cjs) now assert all three additional exact totals. The calculation was independently replicated by a second Python combinatorial enumerator and local Node.js execution. The practical benefit of even four Mail remains conditional on having the copies in hand, unblocked Item use and acceptable enhanced G&H discard costs.
+
 ## Proof and reproducibility
 
 [BigInt exact code](../../scripts/agent11-thorns-single-trainers-mail.cjs) enumerates all relevant eight-card hand and six-Prize compositions, preserving the initial-seven valid-Basic weight. It classifies a failed no-Mail line as rescued when one of `g` acceptable Trainer cards occurs in the next four of the remaining **46** deck cards. The exact hit fraction is `1−C(46−g,4)/C(46,4)`. If G&H is deck-resident, `g` counts available G&H and Tag Call; when DCE is held and Thunder Mountain missing, a deck-resident Mountain also counts. Other top-four cards cannot complete the specified route. This case disjunction avoids double counting.
