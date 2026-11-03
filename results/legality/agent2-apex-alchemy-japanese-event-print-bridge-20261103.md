@@ -84,6 +84,13 @@ The **only changed slots** are Quick Ball 3→2 and Boost Shake 3→4 (v0→v1).
 
 **Strategic status.** Previous paid-resource opening tests do not select v1 over v0: v1 improves narrowly funded Muk/Regidrago lines while v0 has better broader either-lock setup access. This printing crosswalk does not decide which of the two, if either, is worth nominating as the single best fixed deck. **99.5% is still an unverified aspiration.**
 
+
+## Reproducible integrity test and CI
+
+The [source-bound necessary-condition audit](../../scripts/agent2-apex-jp-print-audit.cjs) recomputes the canonical SHA-256 of **both independently registered** 60s and checks every English card name, printing, category and count against its crosswalk row. It also checks all mapped Japanese URLs have the official publisher's card-detail shape, that Japanese print identity is unchanged across v0/v1, historical banned-Trainer names and unresolved matching banned-Pokémon identities, the Japanese named-card four-of limits, the Prime Catcher ACE SPEC, 20/30/10 category totals, and exactly the registered Quick Ball versus Boost Shake swap.
+
+[Seven standalone tamper/negative regressions](../../tests/agent2-apex-jp-print-audit.test.cjs) cover genuine source drift, false English ID/number, foreign host, variant Japanese print mismatch, over-four Japanese names, historically banned Trainer names, unlisted variant changes, incorrect historical date and ambiguous Pokémon ban identity. The existing lightweight Japanese legality workflow now runs these. [Manual GitHub Actions run **41673012459**](https://github.com/FlareZ123/experiment-01/actions/runs/41673012459) **passed** on main commit `156d2a9468fe0982f29a7170aee30885757889db`, alongside the pre-existing historical Japanese legality tests. This qualifies the **identity/copy/negative-screen toolchain**, not the physical Japanese prints' full paper legality or any game result.
+
 ## Next useful work
 
 Audit all 34 Japanese card texts, restrictions and historical legal release dates against the English cards in `resources/cards/en/`, with explicit card-identity and rule-text confidence. Then feed one paper-valid fixed 60 into a genuinely owner-information-safe, source-fidelity-certified, two-seat full-32-game evaluator. Recheck the absent original 60s rather than inventing them.
