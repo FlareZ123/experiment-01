@@ -72,3 +72,50 @@ test('trials must agree with claimed registered IDs',()=>{
   const other=row(b);other.trial.id='malformed-id';
   assert.throws(()=>censusCrossCandidateSourceDeals([row(a),other]));
 });
+
+
+/** Read-only native exception evidence in the same shape as the pinned Store. */
+function aborted(candidateId){
+  const x=row(candidateId);
+  x.status='engine-error';
+  x.sourceDealFingerprint=null;
+  x.verifiedFirstTurn=undefined;
+  x.actualStarterSeat=null;
+  const roots=[{actionOrdinal:0,action:'ResolvePromptAction'}];
+  x.nativeAbortEvidence={
+    schema:'headless-native-abort-public-v1',
+    failureStage:'store-dispatch',
+    sourceDealFingerprint:{seat:1,digestSha256:digest('physical-A')},
+    rootActionCount:1,actionOrdinal:1,rootActionLedger:roots,
+    rootActionLedgerSha256:digest(JSON.stringify(roots))
+  };
+  x.nativeSetupCoinChoiceReceipt={
+    status:'consistent-accepted-native-setup-and-first-draw',
+    firstSetupOnly:true,nativeFirstDrawVerified:true,
+    firstSeatFromVerifiedDraw:0,firstSeatFromAcceptedSetup:0
+  };
+  return x;
+}
+
+test('read-only abort evidence can separately recover censored cross-candidate source and starter parity',()=>{
+  const plain=censusCrossCandidateSourceDeals([aborted(a),row(b)]);
+  assert.equal(plain.sourceDigestUnknown,1);
+  assert.equal(plain.pairedCandidatePhysicalContrastSupported,false);
+  const recovered=censusCrossCandidateSourceDeals(
+    [aborted(a),row(b)],{recoverNativeAborts:true});
+  assert.equal(recovered.sourceDigestCompared,1);
+  assert.equal(recovered.sourceDigestMatched,1);
+  assert.equal(recovered.groupsWithRecoveredAbortSideDigest,1);
+  assert.equal(recovered.starterMatched,1);
+  assert.equal(recovered.pairedCandidatePhysicalContrastSupported,true);
+});
+
+test('invalid archived abort Store root ledger cannot create a synthetic source pair',()=>{
+  const x=aborted(a);
+  x.nativeAbortEvidence.rootActionLedgerSha256=digest('tampered');
+  const recovered=censusCrossCandidateSourceDeals(
+    [x,row(b)],{recoverNativeAborts:true});
+  assert.equal(recovered.sourceDigestUnknown,1);
+  assert.equal(recovered.groupsWithRecoveredAbortSideDigest,0);
+  assert.equal(recovered.pairedCandidatePhysicalContrastSupported,false);
+});
