@@ -956,8 +956,11 @@ function withActorOnlyRootPolicy(run,deps={}){
   }
   if(audit.floatStoneMobilityOptIn)
     audit.version+='+agent1-owner-public-floatstone-mobility-v1';
-  if(audit.dittoStage1RootOptIn)
+  if(audit.dittoStage1RootOptIn){
     audit.version+='+'+require('./agent1-ditto-prism-actor-evolution.cjs').VERSION;
+    audit.dittoStage1={selected:0,accepted:0,rejected:0,
+      physicallyConfirmed:0,records:[]};
+  }
   if(audit.specialEnergyRootOwnerSeat!==null)
     audit.version+='+agent49-source-seat-special-v1';
   if(audit.thornsSoloEnergyRetentionOptIn){
@@ -1340,6 +1343,8 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1)
+      audit.dittoStage1.selected++;
     if(intent.kind==='use-underworld-door')
       audit.underworldDoorRootSelected++;
     if(intent.source==='rank13-dragon-donor')
@@ -1705,6 +1710,14 @@ function withActorOnlyRootPolicy(run,deps={}){
         }
       }
       audit.acceptedActorRoots++;
+      if(choice.intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1){
+        const d=audit.dittoStage1;
+        d.accepted++;
+        if(physical==='confirmed-public-effect')d.physicallyConfirmed++;
+        d.records.push({seat:choice.seat,globalTurn:choice.globalTurn,
+          printing:choice.intent.printing,slot:choice.intent.slot,
+          index:choice.intent.index,physical});
+      }
       if(choice.kind==='use-genesect-fusion-draw'){
         genesectDrawUsedTurnBySeat.set(choice.seat,choice.globalTurn);
         audit.genesectFusionNativeAccepted++;
@@ -1734,6 +1747,8 @@ function withActorOnlyRootPolicy(run,deps={}){
       return result;
     }catch(error){
       audit.rejectedActorRoots++;
+      if(choice.intent.sourceAbility==='Almighty Evolution'&&audit.dittoStage1)
+        audit.dittoStage1.rejected++;
       if(choice.intent.source==='rank13-dragon-donor')
         audit.regidragoDonorQuickBallNativeRejected++;
       if(audit.losslessNativeRootJoinOptIn){
