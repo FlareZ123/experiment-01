@@ -13,7 +13,7 @@ const {sourceRootGates}=require('./agent3-rank26-post-compressor-gate-v21.cjs');
 const ENGINE='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const ROOT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const BASE=20261103;
-const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>100+i));
+const REPEATS=Object.freeze(Array.from({length:12},(_,i)=>60+i));
 const MAX_ACTIONS=120;
 const OPTIONS=Object.freeze({
   allowEquivalentBasicEnergies:true,allowJapanesePromoHooks:true
@@ -204,7 +204,7 @@ function run(){
           forestSealSearchCorrection:true,
           leleEntryAbilityLockCorrection:true,
           entryDrawLockCorrection:true,
-          label:'agent50-unlocked-alias-v2-rank26-'+row.entry.id+'-'+repeat+'-'+slot
+          label:'agent50-unlocked-alias-v21-rank26-'+row.entry.id+'-'+repeat+'-'+slot
         },RANK26_PROPAGATION_PROFILE));
         attempts.push({candidate:row.entry.id,sourceSeat:seat,seed,repeat,
           slot,sourceDeckHash:digest(sourceCards),
@@ -229,7 +229,7 @@ function run(){
       sourceFirstCompressor:first.reduce((n,x)=>n+x.sourceFirstCompressor,0),
       nativeErrors:cells.filter(x=>x.nativeError).length};
   });
-  return {schema:'agent50-original-rank26-unlocked-fifth-candidate-native-v2',
+  return {schema:'agent50-original-rank26-unlocked-fifth-candidate-native-v2.1',
     preRegistration:'results/aichi-2026/registrations/agent50-unlocked-rank26-fifth-candidate-alias-v2-20261103.md',
     originalSourceRank:26,originalSourceDeckHash:digest(sourceCards),
     authenticatedSourceDecks:29,missingSourceRanks:[23,25,28],
