@@ -7,11 +7,12 @@ const {sourceCompressorRoots,runExperiment}=
 test('only genuine owner-root Compressor plays count',()=>{
  const roots=[
   {playerSlot:1,action:'PlayCardAction',card:'Battle Compressor PHF'},
+  {playerSlot:0,action:'PlayCardAction',card:'Battle Compressor'},
   {playerSlot:0,action:'PlayCardAction',card:'Battle Compressor PHF'},
   {playerSlot:0,action:'PassTurnAction',card:'Battle Compressor PHF'},
   {playerSlot:0,action:'PlayCardAction',card:'Counter Catcher PAR'}
  ];
- assert.equal(sourceCompressorRoots(roots,0).length,1);
+ assert.equal(sourceCompressorRoots(roots,0).length,2);
  assert.equal(sourceCompressorRoots(roots,1).length,1);
 });
 const setup={reg:{schema:'pure-fixture',
