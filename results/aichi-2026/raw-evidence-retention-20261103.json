@@ -3,10 +3,10 @@
   "repository": "FlareZ123/experiment-01",
   "observedAtUtc": "2026-11-03T15:12:00Z",
   "releaseTag": "aichi-native-evidence-2026-11-03",
-  "releaseStatus": "FIVE_MIRRORED_SIXTH_PENDING",
+  "releaseStatus": "MIRRORED_SIX_RELEASE_DOWNLOAD_SHA_VERIFIED",
   "releaseUrl": "https://github.com/FlareZ123/experiment-01/releases/tag/aichi-native-evidence-2026-11-03",
   "publicationOfReleaseDoesNotCertifyGames": true,
-  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. New selected-v3 48-attempt ZIP is registered pending actual independent original ZIP and published release byte verification; existing five SHA-verified assets remain untouched.",
+  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched.",
   "artifacts": [
     {
       "key": "rank5-v31-native-16arm",
@@ -115,7 +115,7 @@
       "sha256": "303d11947c39c7572b4302fef8666ab744491e9db745dd8ffadc55b1631c0850",
       "expiresAtUtc": "2026-11-24T18:51:22Z",
       "report": "results/aichi-2026/2026-11/agent4-selected-v3-paper-funded-prospective-48-native-20261103.md",
-      "archiveStatus": "PENDING_ORIGINAL_AND_RELEASE_BYTE_VERIFICATION",
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
       "runHeadSha": "05ab79efa887ae44dc27a09b0ee7accb2affb6ca",
       "frozenRunnerHeadSha": "1ad802631aa066f97da68fe8a22b2d0adbd7529d",
       "workflowPath": ".github/workflows/agent4-selected-v3-bilateral-native.yml",
@@ -123,19 +123,21 @@
       "registrationGitBlob": "5a6c877ceee571f2f48bfbba83d50c913d7da9b2",
       "policyProfilePath": "simulation/evaluation/agent4-selected-v3-paper-funded-manifest.json",
       "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/selected-v3-paper-funded-48-13260514792.zip"
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/selected-v3-paper-funded-48-13260514792.zip",
+      "releaseAssetId": 707003121,
+      "durableVerifiedAtUtc": "2026-11-03T20:36:57.817Z"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
-  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T15:21:24Z",
+  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T20:36:57.817Z",
   "releaseImmutable": false,
   "verification": {
-    "workflowRunId": 41662952540,
-    "workflowHead": "20276882c5475c5e8930f6894765dfbf432327ab",
+    "workflowRunId": 41713740020,
+    "workflowHead": "d24ad619d3852550c722a1df65f623e7ece0b3c9",
     "releaseId": 432867141,
     "downloadedAllOriginalZipsBeforePublish": true,
     "verifiedAllReleaseAssetsByIndependentDownload": true,
-    "verifiedZips": 5,
+    "verifiedZips": 6,
     "competitivelyQualifiedGames": 0
   }
 }
