@@ -5,7 +5,6 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {initializeCards,runMatch}=require('./headless.cjs');
-const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
 const {withCanonicalActorOnlyPolicy}=
   require('../evaluation/agent7-canonical-actor-composition.cjs');
@@ -182,6 +181,7 @@ function attempt(request,instrumented){
 
 /** Historical exact deal read-only compatibility check, never performance. */
 function run(){
+  const {planAichi}=require('../evaluation/aichi-pilot.cjs');
   assert.equal(registration.schema,
     'agent4-owner-paper-opportunity-native-registration-v1');
   assert.deepEqual(registration.originalSourceRanks,[5,11]);
