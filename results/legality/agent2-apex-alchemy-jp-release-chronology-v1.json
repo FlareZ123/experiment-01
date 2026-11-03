@@ -4,7 +4,7 @@
   "event_date": "2026-05-10",
   "candidate_crosswalk": "results/legality/agent2-apex-alchemy-jp-crosswalk-v1.json",
   "methodology": "Each distinct official Japanese printed expansion mark was matched with the original publisher's product release announcement, including set-specific product names. This verifies commercial first release of 28 of 29 named product families before the historical event.",
-  "interpretation": "Evidence of pre-event Japanese product publication for 28 set families (32 printed card identities). The six physically selected 2025 Championship promo Basic Energy copies lack directly corroborated release day; no claim of full Japanese paper legality.",
+  "interpretation": "There are publisher-dated pre-event products for 28 set families covering 54 cards, and triangulated publisher-event/print identity evidence for six 2025 Championship Promo Basic Energy cards. All 60 identities have evidence of pre-May-2026 publication. The exact first day of print 202/SV-P and 203/SV-P distribution remains unconfirmed, and full tournament legality is not proven.",
   "evidence_class": "publisher historical product release dates with exact URL, direct print record for two undated promos",
   "coverage": {
     "distinct_expansion_families": 29,
@@ -16,7 +16,10 @@
       "SV-P"
     ],
     "total_physical_slots_v0": 60,
-    "total_physical_slots_v1": 60
+    "total_physical_slots_v1": 60,
+    "pre_event_distribution_evidence_with_direct_card_identity_but_indirect_event_number_join": true,
+    "pre_event_distribution_supported_slots_v0": 60,
+    "pre_event_distribution_supported_slots_v1": 60
   },
   "records": [
     {
@@ -424,7 +427,7 @@
         "https://www.pokemon-card.com/card-search/details.php/card/46296",
         "https://www.pokemon-card.com/card-search/details.php/card/46297"
       ],
-      "provenance_confidence": "publisher official individual card identity shows event series 2025; specific distribution date unverified",
+      "provenance_confidence": "Pre-event publisher random Basic Energy promo awards plus independent exact-number print-to-event reference; exact first 202/203 award day remains unverified",
       "caveat": "Year in event series title is evidence of association, not a direct date. Exact earliest release/award date and tournament eligibility of these special promo prints remain open.",
       "registered_english_card_names": [
         "Basic Grass Energy",
@@ -432,13 +435,21 @@
       ],
       "registered_physical_card_slots_v0": 6,
       "registered_physical_card_slots_v1": 6,
-      "pre_event_product_release_witness": null
+      "pre_event_product_release_witness": null,
+      "primary_publisher_award_schedule": "https://www.pokemon-card.com/info/004566.html",
+      "primary_publisher_award_announcement": "https://www.pokemon-card.com/info/004611.html",
+      "primary_publisher_followup_event": "https://www.pokemon-card.com/info/004733.html",
+      "secondary_exact_number_award_cross_reference": "https://bulbapedia.bulbagarden.net/wiki/SV-P",
+      "source_equivalence": "Publisher exact printed cards identify 202/SV-P and 203/SV-P as Championship Series 2025. The publisher's 2024 Tokyo side-event award notice specifies random Basic Energy promo cards among eight types. An independent exact-number card catalog names those numbered cards as Champions League 2025 participation prizes.",
+      "pre_event_distribution_evidenced_by_triangulation": true,
+      "earliest_publisher_award_event_date": "2024-09-22",
+      "earliest_numbered_card_release_day_confirmed": false
     }
   ],
   "qualified_competitive_games": 0,
   "eligibility_proven": false,
   "outstanding": [
-    "Confirm exact first distribution day for Japanese SV-P 202/SV-P and 203/SV-P",
+    "Confirm exact first award day of SV-P 202/SV-P and 203/SV-P; publisher confirms 2024-2025 Championship Basic Energy prize pool while independent catalog ties exact numbers to that pool",
     "Determine if the chosen promo Energy is physically usable in event, or nominate numbered mass-production alternative",
     "Audit latest event-time errata and complete icon-level card semantics",
     "Reconcile any card-specific tournament exclusions beyond the frozen historical ban snapshot",
