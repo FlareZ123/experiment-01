@@ -26,7 +26,7 @@ function validatePlan(plan){
   assert.equal(plan.repository,'FlareZ123/experiment-01');
   assert.equal(plan.releaseTag,RELEASE_TAG);
   assert.equal(plan.publicationOfReleaseDoesNotCertifyGames,true);
-  assert.equal(plan.artifacts.length,5);
+  assert.equal(plan.artifacts.length,6);
   const ids=new Set(),names=new Set();
   for(const a of plan.artifacts){
     assert.ok(Number.isSafeInteger(a.runId)&&a.runId>0);
@@ -177,8 +177,12 @@ async function ensureAsset(release,token,source,bytes){
     assert.equal(existing.state,'uploaded');
     return existing;
   }
-  assert.equal(release.draft,true,
-    'Published release is immutable for missing archive assets');
+  if(!release.draft){
+    // A published GitHub prerelease accepts additional assets. Guard the exact
+    // existing release identity and append only a genuinely missing filename.
+    assert.equal(release.id,archivePlan.verification.releaseId);
+    assert.equal(release.prerelease,true);
+  }
   const url='https://uploads.github.com/repos/'+archivePlan.repository+
     '/releases/'+release.id+'/assets?name='+
     encodeURIComponent(source.assetName);
@@ -260,7 +264,7 @@ async function execute(publish=false,verifyOnly=false){
       headers:{...headers(token),'Content-Type':'application/json'},
       body:JSON.stringify({tag_name:RELEASE_TAG,target_commitish:'main',
         name:'Aichi 2026 unqualified native research evidence',
-        body:'Byte-for-byte archive of five historical GitHub Actions ZIPs. '+
+        body:'Byte-for-byte archive of pinned historical GitHub Actions ZIPs. '+
           'Frozen manifest: results/aichi-2026/raw-evidence-retention-20261103.json. '+
           'This release contains unqualified experimental and policy evidence; '+
           'it establishes no competitive match win or 99.5% claim.',
