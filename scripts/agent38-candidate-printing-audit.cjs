@@ -61,9 +61,17 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
     return {name,count,category,printing,
       state:'printing-not-matched-in-existing-set-corpus',matchedIds:[]};
   });
-  const noMoreThanFour=manifest.cards.filter(card=>
-    card.category!=='Energy'||card.name!=='Darkness Energy'
-  ).every(card=>card.count<=4);
+  const basicEnergyNames=new Set([
+    'Grass Energy','Fire Energy','Water Energy','Lightning Energy',
+    'Psychic Energy','Fighting Energy','Darkness Energy','Metal Energy',
+    'Fairy Energy'
+  ]);
+  const byName=new Map();
+  for(const card of manifest.cards){
+    if(card.category==='Energy'&&basicEnergyNames.has(card.name))continue;
+    byName.set(card.name,(byName.get(card.name)??0)+card.count);
+  }
+  const noMoreThanFour=[...byName.values()].every(count=>count<=4);
   const aceSpecRows=rows.filter(row=>row.matchedIds.some(
     match=>match.subtypes.includes('ACE SPEC')));
   const totalAceSpec=aceSpecRows.reduce((n,c)=>n+c.count,0);
