@@ -109,25 +109,25 @@ jobs:
       - name: Verify frozen common-physical rank5 transport preregistration and code
         run: |
           node --check simulation/evaluation/agent22-rank5-options-transport-v1.cjs
-          node --check simulation/evaluation/agent22-rank5-genesect-fee-custody-v1.cjs
+          node --check simulation/evaluation/agent22-rank5-fresh-dce-competence-v1.cjs
           node --test tests/agent22-genesect-dce-retreat-custody.test.cjs
           node simulation/evaluation/agent22-rank5-options-transport-v1.cjs --inspect-only
-          node simulation/evaluation/agent22-rank5-genesect-fee-custody-v1.cjs --inspect-only
+          node simulation/evaluation/agent22-rank5-fresh-dce-competence-v1.cjs --inspect-only
       - name: Install pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Replay two original physical Genesect DCE retreat payment witnesses
-        run: node simulation/evaluation/agent22-rank5-genesect-fee-custody-v1.cjs
+      - name: Run sixteen fresh independently registered original rank5 DCE mobility source trials
+        run: node simulation/evaluation/agent22-rank5-fresh-dce-competence-v1.cjs
       - name: Preserve original native attempts and the frozen input
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent22-rank5-genesect-exact-fee-2-native
+          name: agent22-rank5-fresh-dce-source-16-native
           path: |
-            agent22-rank5-genesect-fee-custody-v1-output.json
-            simulation/evaluation/agent22-rank5-genesect-fee-custody-v1.json
+            agent22-rank5-fresh-dce-competence-v1-output.json
+            simulation/evaluation/agent22-rank5-fresh-dce-competence-v1.json
           if-no-files-found: warn
           retention-days: 30
