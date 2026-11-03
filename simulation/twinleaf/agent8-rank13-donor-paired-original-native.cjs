@@ -69,7 +69,7 @@ function registration(){
  * @returns {object}
  */
 function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
-  paperCelestialEnabled=false,treasureEnabled=false){
+  paperCelestialEnabled=false,treasureEnabled=false,ddeEnabled=false){
   const source=byRank.get(13).cardIds,opponent=byRank.get(1).cardIds;
   const sourceSeat=trial.sourceSeat;
   const request={
@@ -135,7 +135,9 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       regidragoDonorQuickBallRoot:donorRootEnabled,
       regidragoDonorQuickBallOwnerSeat:sourceSeat,
       naturalEvolutionRoot:naturalEvolutionEnabled,
-      mysteriousTreasureRoot:treasureEnabled
+      mysteriousTreasureRoot:treasureEnabled,
+      rank13DdeEnergyRoot:ddeEnabled,
+      rank13DdeEnergyOwnerSeat:sourceSeat
     }),
     ...source13QuickBallActorAdapters(sourceSeat)
   };
@@ -188,7 +190,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
       game.decisionTrace??[])).digest('hex');
     return{
       status:'native-returned',donorRootEnabled,naturalEvolutionEnabled,
-      paperCelestialEnabled,treasureEnabled,
+      paperCelestialEnabled,treasureEnabled,ddeEnabled,
       paperCelestialAudit:corrected?.result.audit??null,
       nativeMinimumAttachAudit:corrected?.audit??null,
       treasureNativeAudit:treasureAudit,
@@ -233,6 +235,15 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
         donorIntents:root.regidragoDonorQuickBallIntentCount,
         donorNativeAccepted:root.regidragoDonorQuickBallNativeAccepted,
         donorNativeRejected:root.regidragoDonorQuickBallNativeRejected,
+        ddeIntentsSample:root.ownerRootIntents.filter(row=>
+          row.intent?.source?.startsWith('agent8-rank13-owned-regidrago-double-dragon-energy'))
+          .slice(0,20),
+        ddeNativeAcceptanceSample:root.nativeRootAcceptances.filter(row=>
+          row.intent?.source?.startsWith('agent8-rank13-owned-regidrago-double-dragon-energy'))
+          .map(row=>({seat:row.seat,turn:row.globalTurn,
+            kind:row.kind,accepted:row.accepted,
+            nativePhysicalEffect:row.nativePhysicalEffect,
+            publicZonesChanged:row.publicZonesChanged})).slice(0,20),
         donorIntentsSample:root.ownerRootIntents.filter(row=>
           row.intent?.source==='rank13-dragon-donor').slice(0,8),
         donorNativeAcceptanceSample:root.nativeRootAcceptances.filter(row=>
