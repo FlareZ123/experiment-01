@@ -83,6 +83,7 @@ jobs:
           node --check simulation/twinleaf/agent47-rank26-prospective-natural-owner-24.cjs
           node --test tests/aichi-registered-original60-preflight.test.cjs
           node --test tests/aichi-registered-campaign-preflight.test.cjs
+          node --test tests/aichi-exact-native-replay-attestation.test.cjs
           node scripts/aichi-registered-campaign-preflight.cjs results/aichi-2026/registrations/agent47-rank26-natural-owner-seed-plan-v2.json results/aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json
           node scripts/aichi-registered-original60-preflight.cjs results/aichi-2026/registrations/agent47-rank26-original-source-native-pins-v1.json
           node --test tests/aichi-registered-seed-preflight.test.cjs
