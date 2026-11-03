@@ -87,7 +87,9 @@ def mobility_witness(held: list[str], prized: list[str], initial: list[str],
     return bool(direct),bool(budew),bool(float_other),bool(direct or budew or float_other),bool(latias_suppression)
 
 
-def run(root: Path, trials: int = 40000, seed: int = 20261103):
+def run(root: Path, trials: int = 40000, seed: int = 20261103, bonus_policy: str = 'all'):
+    if bonus_policy not in ('all', 'none'):
+        raise ValueError('bonus_policy must be all or none')
     manifests,decks,inventory = BASE.input_decks(root)
     source_strata = BASE.source_basics(root)
     if trials < 2 or sum(source_strata.values()) != 29:
@@ -106,7 +108,7 @@ def run(root: Path, trials: int = 40000, seed: int = 20261103):
                 if any(x in BASE.BASICS for x in first):
                     break
             bonus=int(rng.geometric(source_valid)) if rng.random() < bonus_offer else 0
-            bonus=min(bonus,46)
+            bonus=min(bonus,46) if bonus_policy == 'all' else 0
             observed=list(order[:7])+list(order[13:14+bonus])
             out=[mobility_witness([deck[i] for i in observed],
                  [deck[i] for i in order[7:13]], [deck[i] for i in order[:7]],counts)
@@ -138,7 +140,7 @@ def run(root: Path, trials: int = 40000, seed: int = 20261103):
     return {'study':'agent2-muk-apex-paid-starter-mobility-v1',
             'candidateV0Sha256':manifests[0]['deck_identity_sha256'],
             'candidateV1Sha256':manifests[1]['deck_identity_sha256'],
-            'seed':seed,'trialsPerBasicStratum':trials,
+            'seed':seed,'bonusPolicy':bonus_policy,'trialsPerBasicStratum':trials,
             'totalPairedSetups':len(source_strata)*trials,'knownOriginalRanks':29,
             'excludedOriginalRanks':[23,25,28],
             'sources':'original 29 rank Basic-count strata, candidate full 60, all offered bonus draws',
