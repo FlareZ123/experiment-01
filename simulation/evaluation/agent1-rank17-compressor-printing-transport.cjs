@@ -37,7 +37,7 @@ function sourceCompressorRoots(rows,seat){
  assert.ok(Array.isArray(rows),'Root ledger required');
  return rows.filter(x=>x.playerSlot===seat&&
    x.action==='PlayCardAction'&&typeof x.card==='string'&&
-   x.card.startsWith('Battle Compressor '));
+   (x.card==='Battle Compressor'||x.card.startsWith('Battle Compressor ')));
 }
 /** @param {object} setup Frozen plan and original 60. */
 function nativeArm(setup,seed,seat,enabled){
