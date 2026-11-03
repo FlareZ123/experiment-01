@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const VERSION = 'agent11-owner-resource-tutor-planner-v1';
 const TARGETS = Object.freeze({
   'Battle VIP Pass FST': Object.freeze({family:'Basic',capacity:2,window:'first-owner-turn'}),
-  "Professors Letter BKT": Object.freeze({family:'Basic Energy',capacity:2,window:'any-turn'}),
+  "Professor\'s Letter BKT": Object.freeze({family:'Basic Energy',capacity:2,window:'any-turn'}),
   'Energy Search SVI': Object.freeze({family:'Basic Energy',capacity:1,window:'any-turn'}),
   'Energy Search SSH': Object.freeze({family:'Basic Energy',capacity:1,window:'any-turn'})
 });
