@@ -70,8 +70,9 @@ test('same root sequence can conceal a different physically accepted source targ
       action:'PlayCardAction',card:'Darkness Energy MEE'}],
     nativeAcceptedTargetSidecar:{events:[{
       playerSlot:1,turnBefore:19,rootActionOrdinal:75,storeAccepted:true,
-      declared:{ownerHandPrinting:'Darkness Energy MEE',target:{
-        player:2,slot,index:slot==='active'?0:3
+      declared:{kind:'play-card',status:'captured',
+        ownerHandPrinting:'Darkness Energy MEE',target:{
+        player:2,slot:slot==='active'?1:2,index:slot==='active'?0:3
       }},
       visibility:'public-after-dispatch',
       publicBoardChanges:[{seat:1,position:slot,index:slot==='active'?0:3}]
@@ -85,8 +86,8 @@ test('same root sequence can conceal a different physically accepted source targ
     acceptedSourceTargets(ctrl,1),acceptedSourceTargets(changed,1));
   assert.equal(c.identical,false);
   assert.equal(c.firstDifferentIndex,0);
-  assert.equal(c.control.acceptedTarget.slot,'active');
-  assert.equal(c.alternative.acceptedTarget.slot,'bench');
+  assert.equal(c.control.acceptedTarget.slot,1);
+  assert.equal(c.alternative.acceptedTarget.slot,2);
   assert.equal(c.control.nativePublicRecipientClassification.category,
     'declared-own-slot-public-delta-confirmed');
   assert.equal(c.alternative.nativePublicRecipientClassification.category,
