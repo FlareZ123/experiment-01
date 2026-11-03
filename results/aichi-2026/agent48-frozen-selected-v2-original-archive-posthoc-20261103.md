@@ -46,6 +46,23 @@ The `6:300:A` cross-candidate group was still marked `physicalUnknown` under the
 
 All other 11 observed groups matched their source-deal fingerprints across candidates in both modes. The matched/not-matched counts here are properties of archived initial physical source positions, not estimates of game strength, causal policy benefits or a representative independent cohort.
 
+## Separate complete posthoc cross-candidate census from native abort-side custody
+
+A second independent, read-only archival run [41596127865](https://github.com/FlareZ123/experiment-01/actions/runs/41596127865), **SUCCESS** at exact research head `49ca25e4be30b9e3062554838d0b19e53d1eeb1c`, re-downloaded the same original immutable 52-attempt artifact (the JSON SHA-256 remained `e7f7fa2a104585cedc3e7d0e1df7491b9a1e9d32eb0cbaf906a1c2b4a2b366e9`). Sixteen pure audit cases passed. Its optional posthoc mode now applies the exact validated native-abort source fingerprint to the historically censored **cross-candidate** rank6 group `6:300:A`. It leaves the success-row-only summary and frozen experiment unchanged.
+
+| Distinct comparison and evidence level | Joint-v1 control | Selected-v2 VIP |
+| --- | ---: | ---: |
+| Registered cross-candidate source seed groups | 13 | 13 |
+| Source groups with either original successful-row or independently verified abort-side physical digest and starter | **13/13** | **13/13** |
+| Cross-candidate source opening physically matched, with verified same starter | **12/13** | **12/13** |
+| Cross-candidate source opening **mismatched** (`5:101:A`) | **1/13** | **1/13** |
+| Unknown source-opening parity after permitted posthoc recovery | **0/13** | **0/13** |
+| Source groups requiring the abort-side digest recovery (`6:300:A`) | 1 | 1 |
+
+Thus, the **rank6 `6:300:A` original source initial physical deal actually matches across the two candidate decks in each mode**, as well as across the baseline/selected modes for the aborted champion-reference context. This conclusion depends on the direct, count-and-digest-conserved native abort-side Store evidence plus the accepted native coin, player choice and first draw for the originally failed row. It is a **retrospective, narrower source-opening parity finding**. The original registration's 25/26 full-row successful provenance remains an explicitly failed gate, and the candidate-vs-candidate `5:101:A` mismatched initial source opening is still genuine in *both* modes.
+
+This second confirmation closes all 13 **initial original-source physical opening comparison identities** for the frozen sample without rerunning any games. It does not repair a game ending in `UNKNOWN_POWER`, guarantee later game state parity or provide any new competitive game. The archival analyst emits both ordinary-source-only and explicitly recovered posthoc ledgers so their evidence thresholds cannot be confused.
+
 ## Consequences for the single-deck decision
 
 - Preserve each within-candidate control/selected comparison, including the negative rank11 `Claw of Darkness` 4→0 response trajectory, under its own physical-deal proof.
