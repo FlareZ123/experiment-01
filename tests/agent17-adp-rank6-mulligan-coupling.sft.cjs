@@ -106,7 +106,8 @@ assert.deepEqual(sourceRank6.cards.filter((card) => card.category === 'Pokémon'
   .map(({ name, count }) => ({ name, count })),
   [{ name: 'Iron Thorns ex', count: 4 }]);
 for (const [name, countExpected] of [
-  ['Plumeria', 4], ['Team Flare Grunt', 2], ['Enhanced Hammer', 2]
+  ['Plumeria', 4], ['Team Flare Grunt', 2], ['Enhanced Hammer', 2],
+  ['Megaton Blower', 1], ['Faba', 1], ['Crushing Hammer', 4]
 ]) {
   assert.equal(sourceRank6.cards.find((card) => card.name === name).count, countExpected);
 }
@@ -284,6 +285,12 @@ const combinedAccessBounds = combinedCandidateAccess(30);
 const jointHammer=jointTwoRouteSeen(2,30);
 const jointCostless=jointTwoRouteSeen(4,30);
 const jointAll=jointTwoRouteSeen(8,30);
+const jointItems=jointTwoRouteSeen(3,30);
+const jointFiveNoDiscard=jointTwoRouteSeen(5,30);
+const jointTenDeterministic=jointTwoRouteSeen(10,30);
+assert.ok(jointItems.lower>0.143451&&jointItems.upper<0.143452);
+assert.ok(jointFiveNoDiscard.lower>0.210116&&jointFiveNoDiscard.upper<0.210117);
+assert.ok(jointTenDeterministic.lower>0.310269&&jointTenDeterministic.upper<0.310270);
 assert.ok(jointHammer.lower>0.1021664&&jointHammer.upper<0.1021665);
 assert.ok(jointCostless.lower>0.1792144&&jointCostless.upper<0.1792145);
 assert.ok(jointAll.lower>0.2792460&&jointAll.upper<0.2792462);
