@@ -1434,6 +1434,7 @@ function runDevelopment({
           {ownerSingleSearch:actorOnlySingleSearch,
             preferMewGenesectTechnoBlast:actorMewGenesectTechnoBlast,
             genericFallbackAttribution:actorGenericFallbackAttribution,
+            ownerGenericTrainerFrontier,nativeOwnerTrainerFallback,
             nativeAorItemLock:actorNativeAorItemLock,
             actorHandDiscard,actorChoosePokemon,
             ownerUnderworldPromptContinuation:actorUnderworldDoorPromptOwner,
