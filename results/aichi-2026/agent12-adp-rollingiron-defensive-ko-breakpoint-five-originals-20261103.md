@@ -51,3 +51,15 @@ For deciding whether Dragonite deserves a fixed-v2 replacement or a distinct new
 ## Existing independent native evidence for source attack selection
 
 This conditional board should not be dismissed as purely an invented opponent decision. The independent [rank-10 original-versus-original native mirror audit](agent2-rank10-mirror-source-prompt-exposure.md) at [compiled run 39039228475](https://github.com/FlareZ123/experiment-01/actions/runs/39039228475) recorded **five genuine Apex Dragon declarations** in one original-source game, including **two prompts that offered the attacks Jet Headbutt, Phantom Dive and Rolling Iron and selected Rolling Iron both times**. Those source games were developer-policy mirrors, and the report did not independently verify the ensuing 80-reduction state or opportunity to counterattack with the proposed donor. This is narrow evidence that an actual source bot **has selected Rolling Iron in native gameplay**, while the board-specific 250/280 and three-Prize payoff remains a paper-conditional attack comparison needing a genuine Store sequence and competent opposing actions.
+
+
+## Nonlinear dependency: the 30-damage donor improvement only crosses the shield when paired with enhanced GX
+
+The conditional KO is a **joint** damage-threshold interaction of the proposed Dragonite donor **and** an earlier enhanced ADP-GX effect. Against the same undamaged 280-HP Rolling Iron-protected Regidrago VSTAR:
+
+| Attacking donor | Enhanced ADP GX absent | Enhanced ADP GX active |
+| --- | ---: | ---: |
+| Wild Blaze | 300−80 = 220, no KO | 300+30−80 = 250, no KO |
+| Ryuno Glide | 330−80 = 250, no KO | **330+30−80 = 280, KO, 3 Prizes** |
+
+Neither the extra donor damage alone nor the GX's 30 damage on Wild Blaze alone crosses this shield at full HP. **Both together** create the damage KO and one extra Prize. The exact combo condition explains why source-specific attack effects and archetype-line-specific sequences must remain joined in candidate optimization; a card-level isolated average score could miss this discrete cross-term. The result is conditional on actual full HP and the shield not being removed through switching, and does not establish its frequency.
