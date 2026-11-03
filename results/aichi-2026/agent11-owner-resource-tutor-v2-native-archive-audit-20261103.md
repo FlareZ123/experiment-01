@@ -18,6 +18,24 @@ Of the **14 fully observable, first-turn/initial-physical-deal-matched pairs**, 
 
 Native VIP selected roots occurred on global turns 1 (three) and 2 (eight); the second player's first turn can be global turn 2. Native Letter roots occurred on turns 1 (two), 2 (two) and 14 (one). Each is compatible with the bridge's intended window checks; this audit does not replace an independent paper-legality oracle.
 
+## Second independent replay: already-payable Claw and untapped owner-hand decisions
+
+[Read-only owner-hand replay CI 41702514462](https://github.com/FlareZ123/experiment-01/actions/runs/41702514462) completed successfully from source head `3d0efe5d93b450ba3aaeff512cb2b941d5a1e366` with [artifact 13264916087](https://github.com/FlareZ123/experiment-01/actions/runs/41702514462/artifacts/13264916087), ZIP SHA256 `60bf0503ca7b903e9fdbba455a1e97c4c1e66f49d5f8c2d3fb470b46717068a8`. All **32/32** old-vs-replay arm statuses, original physical-deal digests, `rootActionLedgerSha`, `decisionTraceSha`, first-turn seats and tutor audits matched exactly. The additional owner-only decision-hand postgame observations were not inputs to either actor.
+
+The archived source rank11 `Terminal Period` entries can be split by actual **public basic Darkness Energy attached to the Active Mega Absol** immediately before each attack. The alternate exact printed `Claw of Darkness` costs `Darkness, Darkness, Colorless` and does 200 printed damage. Three or more attached basic Darkness pay that printed cost; modifiers, locks and Store effects remain to be checked by the genuine game rules.
+
+| Original rank11 physical attack root | Historical control | Resource-tutor selected |
+| --- | ---: | ---: |
+| Terminal Period with only **2** Darkness Energy | 10 | 17 |
+| Terminal Period with **3 or more** Darkness Energy | **22** | **32** |
+| Total Terminal Period roots at undamaged target | **32** | **49** |
+| Nominally payable 200-damage Claw ignored | **22** | **32** |
+| Owner hand also held at least one Carmine/Marnie/Guzma | **31** | **45** |
+
+**54/81** source rank11 roots therefore used a demonstrably conditional-no-op `Terminal Period` **despite satisfying Claw's printed Energy cost**. This demonstrates a severe attack-selection problem independent of the two-Energy funding deficit in the other 27. In both high-attack-count matched cases at rank5 seat1, source rank11 acquired its third Darkness Energy on turn 9 or turn 13 and still repeatedly selected Terminal Period: seed `11312103` had **5/8** and seed `11312108` **4/9** such already-funded no-op attack choices. The other source-hand Supporters are observed opportunities, **not** certified currently legal or strategically preferable actions.
+
+This failure already has a partial **default-off remedy** in the shared `simulation/twinleaf/agent1-actor-dead-first-attack-frontier.cjs` and `knownDeadAttackRoot` option in `simulation/twinleaf/agent34-actor-only-root-policy.cjs`. More importantly, Agent50 independently executed a **preregistered, fresh, both-seat 32-attempt original rank11 source study** [CI 41340503240](https://github.com/FlareZ123/experiment-01/actions/runs/41340503240), [full report](agent50-preregistered-rank11-symmetric-known-dead-20261101.md): repairing known-dead attack choice increased original source native engine wins from **5 to 10** across **16 dependent identical-deal candidate comparisons**, with **zero paper-qualified games**. That existing work establishes a stronger prospective causal sensitivity than re-running this single effect correction on our retrospectively observed 32 tutor arms. Avoid redundant recapitulation. The *unresolved interaction* is whether actual owner Trainer access, paid Energy setup and a symmetric, condition-aware attack chooser jointly improve **paper-valid source and opponent line completion** across the field.
+
 ## Exact matched-pair native AttackAction counts
 
 Count each recorded `AttackAction` in `rows[].rootActionLedger` for the original **rank-11 source seat**, which is seat `1-rank5Seat`. These are **recorded native actions within a capped horizon**. The ledger does not contain resolved damage, attack text, Prize deltas or corresponding opponent counterplay quality.
