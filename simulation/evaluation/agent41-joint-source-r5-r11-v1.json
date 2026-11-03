@@ -186,5 +186,24 @@
     "Genuine paper payment, game effect, decision competence and 25-minute clock unqualified",
     "Ranks23/25/28 original source sixties missing",
     "Observed native game winners are not competitive outcome claims"
-  ]
+  ],
+  "pinnedSourceFiles": {
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+    "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "b6a9187852eff24638d1ecf6f54960ab7911ca3d",
+    "simulation/twinleaf/agent13-actor-only-choose-attack.cjs": "05b54513fd637c4eee134d5f48d43c446d107f7d",
+    "simulation/twinleaf/agent10-battle-vip-before-attack.cjs": "cfb2597c718517d1e2fe6b1b6c2caa52adaf5667",
+    "simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs": "fa1180aaa1fd5a49aa5ab309c00495523af194fa",
+    "simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs": "6e7a1af7cf7a49d2451710f326124c8ea12a7386",
+    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "8f1b50ecbf8faad81d975afd4d0b0280026bf416",
+    "simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs": "143e29377585171dff5e7c0e78319975be43a93f",
+    "simulation/twinleaf/actor-observation-contract.cjs": "8b1bf37fa42a3019f76678e5fb31f04bccc64d9d",
+    "simulation/twinleaf/headless.cjs": "1690ea77ce92c9694b6e04da6dcf6159bae64160",
+    "results/aichi-2026/full-decklists.json": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  },
+  "injectedResearchEnvironment": {
+    "AGENT4_NATIVE_PAYMENT_RECEIPT_DEV": "true"
+  },
+  "environmentGuard": "Reject unexpected AGENT* and AICHI* source-visible flags before study"
 }
