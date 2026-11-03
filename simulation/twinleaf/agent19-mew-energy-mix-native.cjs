@@ -1,8 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
-const {randomInt}=require('node:crypto');
 const path=require('node:path');
-const {initializeCards}=require('./headless.cjs');
+const {initializeCards,seededRandom,deckPermutation}=require('./headless.cjs');
 const base=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 const native=relative=>require(path.join(base,relative));
 
@@ -113,11 +112,9 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
       sawEnergy=true;
     }else if(kind==='ShuffleDeckPrompt'){
       const count=source.deck.cards.length;
-      selection=Array.from({length:count},(_,i)=>i);
-      for(let i=count-1;i>0;i--){
-        const j=randomInt(i+1);
-        [selection[i],selection[j]]=[selection[j],selection[i]];
-      }
+      const seed=97153+attackingSeat*32+recipientIndex*8+
+        Number(energyAvailable);
+      selection=deckPermutation(count,seededRandom(seed));
       assert.equal(prompt.validate(selection,store.state),true);
     }else if(kind==='WaitPrompt'){
       selection=null;
@@ -217,11 +214,34 @@ function run(){
         shuffleAudit:packet.audit,competitiveQualifiedGames:0
       });
     }
-  return {schema:'agent19-mew-vmax-copy-energy-mix-custody-native-v3',
+  const composedGuardAndShuffle=[];
+  for(const seat of [0,1]){
+    const both=withPaperAttachEnergyBlockedTo(()=>
+      withPaperMewEnergyMixShuffle(()=>trial(seat,0,true)));
+    assert.equal(both.result.result.nativeShufflePromptSeen,true);
+    assert.equal(both.result.result.attachedExactDeckDceToRecipient,true);
+    assert.equal(both.result.audit.shufflePromptsSettled,1);
+    assert.equal(both.audit.inspected,1);
+    assert.equal(both.audit.rejected,0);
+    let rejected;
+    try{
+      withPaperAttachEnergyBlockedTo(()=>
+        withPaperMewEnergyMixShuffle(()=>trial(seat,2,true)));
+    }catch(error){rejected=error;}
+    assert.equal(rejected?.code,'PAPER_ATTACH_ENERGY_BLOCKED_TO');
+    assert.equal(rejected.paperAttachBlockedToAudit.rejected,1);
+    composedGuardAndShuffle.push({attackingSeat:seat,
+      acceptedFusionTargetShuffleSettled:true,
+      blockedNonFusionTargetBeforeTransfer:true,
+      bothHooksRestoredAfterRejection:true,
+      competitiveQualifiedGames:0});
+  }
+  return {schema:'agent19-mew-vmax-copy-energy-mix-custody-native-v4',
     enginePin:'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
     physicalSourceDecksUnchanged:false,
     note:'Constructed physical Board; opt-in guard corrects native illegal non-Fusion Energy Mix recipient.',
-    competitiveQualifiedGames:0,arms,guarded,correctedShuffle};
+    competitiveQualifiedGames:0,arms,guarded,correctedShuffle,
+    composedGuardAndShuffle};
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={trial,run};
