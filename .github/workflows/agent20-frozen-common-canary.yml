@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' && github.ref != 'refs/heads/agent13-rank5-vip-after-pass-20261103' && github.ref != 'refs/heads/agent13-rank5-vip-quickball-20261103' }}
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent13-rank5-joint-transport-20261103' && github.ref != 'refs/heads/agent13-rank5-vip-after-pass-20261103' && github.ref != 'refs/heads/agent13-rank5-vip-quickball-20261103' && github.ref != 'refs/heads/agent13-rank5-guzma-t46-retro-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -187,4 +187,47 @@ jobs:
           path: |
             agent13-rank5-vip-quickball-12arm.json
             results/aichi-2026/registrations/agent13-rank5-vip-quickball-20261103.json
+          retention-days: 30
+
+  rank5-guzma-t46-same-physical-retro:
+    if: github.ref == 'refs/heads/agent13-rank5-guzma-t46-retro-20261103'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out exact preregistered native replay revision
+        uses: actions/checkout@v4
+      - name: Select pinned node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fail-closed preflight and pure actor exact-bounded tests
+        run: |
+          node --check simulation/evaluation/agent13-rank5-guzma-t46-retro-20261103.cjs
+          node --check simulation/twinleaf/agent13-dce-fusion-copy-guzma-frontier.cjs
+          node --test tests/agent13-rank5-guzma-t46-retro-20261103.test.cjs tests/agent13-dce-fusion-copy-guzma-frontier.test.cjs
+          node simulation/evaluation/agent13-rank5-guzma-t46-retro-20261103.cjs --inspect-only > agent13-guzma-t46-inspect.json
+      - name: Check out actually pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run two same-physical rank5 vs New Moon native attempts
+        run: node simulation/evaluation/agent13-rank5-guzma-t46-retro-20261103.cjs > agent13-guzma-t46-compact.json
+      - name: Check exact A/B provenance but retain all dispositions
+        run: |
+          node -e "const a=require('node:assert/strict'),x=require('./agent13-rank5-guzma-t46-twoarm.json');a.equal(x.registeredAttempts,2);a.equal(x.modes.length,2);a.equal(x.qualifiedCompetitiveGames,0);console.log('Guzma selected root A/B',JSON.stringify({exactSource:x.sourcePhysicalMatched,exactBoth:x.completeBothPlayersPhysicalMatched,arms:x.modes.map(m=>({mode:m.id,sourceGuzma:m.witness.sourceGuzmaRoots.length,sourceAttacks:m.witness.sourceAttackRoots.length,end:m.witness.nativeEndReason}))}));"
+      - name: Preserve full native histories, branch registration and errors
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent13-rank5-t46-guzma-same-deal-native-v1
+          path: |
+            agent13-rank5-guzma-t46-twoarm.json
+            agent13-guzma-t46-inspect.json
+            agent13-guzma-t46-compact.json
+            results/aichi-2026/registrations/agent13-rank5-t46-guzma-retro-20261103.json
+          if-no-files-found: warn
           retention-days: 30
