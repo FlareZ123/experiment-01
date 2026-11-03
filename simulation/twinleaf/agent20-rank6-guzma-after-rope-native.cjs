@@ -60,13 +60,23 @@ function withRank6GuzmaAfterRope(play,deps) {
       p.printing===target.expectedOpponentBench);
     const ropeSettled=view.opponentPublic.discard.includes(
       registration.prerequisite.rank9Turn11Rope);
-    const supporterUnused=
-      view.ownTurnResources.supporterPlayedTurn===0;
-    const eligible=handIndex>=0&&funded&&opposite&&ropeSettled&&
-      supporterUnused&&view.ownTurnResources.supporterPlayLocked===false;
+    const supporterTurnRaw=view.ownTurnResources.supporterPlayedTurn;
+    const supporterUnused=supporterTurnRaw===0;
+    // Diagnostic v2: historical turn-12 source ledger has NO owner Supporter
+    // PlayCardAction, yet the v1 strict native field preflight refused.
+    // Preserve the raw value and test genuine Store disposition without
+    // promoting this conditional attempt to paper-legal certification.
+    const probeEligible=handIndex>=0&&funded&&opposite&&ropeSettled&&
+      view.ownTurnResources.supporterPlayLocked===false;
+    const eligible=Boolean(probeEligible);
     const candidate={
       turn:view.globalTurn,seat,handIndex,
       nativeChoice:'PassTurnAction',
+      supporterTurnRaw,
+      nativeQuotaUnambiguouslyUnused:supporterUnused,
+      paperQuotaStatus:supporterUnused?'native-count-zero':
+        'native-count-disagrees-with-registered-no-supporter-turn12-ledger',
+      diagnosticProbeDespiteUnverifiedNativeQuota:!supporterUnused&&eligible,
       supporterQuotaUnused:supporterUnused,
       supporterLocked:view.ownTurnResources.supporterPlayLocked,
       ropeSettled,
@@ -84,6 +94,8 @@ function withRank6GuzmaAfterRope(play,deps) {
     candidate.selected=true;
     const receipt={
       turn:view.globalTurn,seat,printing:target.heldPhysicalSupporter,
+      supporterTurnRaw,paperQuotaNativeCountZero:supporterUnused,
+      paperQuotaUnqualifiedUntilIndependentReconciliation:!supporterUnused,
       physicalHandIndex:handIndex,
       priorNativeChoice:'PassTurnAction',
       selectedChoice:'PlayCardAction',
