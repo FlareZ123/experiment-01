@@ -61,6 +61,8 @@ test('different complete decks prevent false original-deal pairing', () => {
   const b = row('different-decks', {sourceDeckFingerprint: 'other-deck',
     winner: 1});
   assert.equal(samePhysicalSetup(a, b), false);
+  assert.equal(samePhysicalSetup(row('a', {candidateDeckFingerprint: undefined}),
+    row('a', {candidateDeckFingerprint: undefined})), false);
   const result = auditPairedNativeOutcomes(archive([a], [b]));
   assert.equal(result.adverseCandidateReversals.length, 0);
   assert.equal(result.unmatchedPairs.length, 1);
@@ -75,6 +77,8 @@ test('native winner and ledger classifications preserve caps and exact first cho
     selected: {action: 'PlayCardAction', card: 'Battle VIP Pass'}
   });
   assert.equal(firstChangedRoot([], []), null);
+  assert.equal(firstChangedRoot([{action: 'Same', ordinal: 1}],
+    [{ordinal: 1, action: 'Same'}]), null);
   assert.throws(() => classifyNativeRow(row('invalid', {winner: 7})),
     /Finished native game must have a classified winner/);
 });
