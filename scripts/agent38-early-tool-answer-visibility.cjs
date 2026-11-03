@@ -27,7 +27,8 @@ function seenAnswerConditionalValidOpening(q){
   assert.ok(validInitial>0n);
   const expected=validInitial*choose(N-h,d);
   const noAnswerValidInitial=choose(N-C,h)-choose(N-B-C,h);
-  const noAnswerAnyDraws=noAnswerValidInitial*choose(N-C-h,d);
+  const noAnswerAnyDraws=(N-C-h<d?0n:
+    noAnswerValidInitial*choose(N-C-h,d));
   const withAnswer=expected-noAnswerAnyDraws;
   assert.ok(withAnswer>=0n&&withAnswer<=expected);
   return {
