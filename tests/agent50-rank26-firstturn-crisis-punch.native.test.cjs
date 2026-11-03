@@ -91,7 +91,19 @@ for(const seat of [0,1]){
         toolName:x.tool.fullName,toolAttacks:x.tool.attacks?.map(a=>a.name),
         printedAbility,toolHasAttack}));
     assert.equal(toolHasAttack,true,'original printed TM must expose Crisis Punch');
-    x.store.dispatch(new AttackAction(x.source.id,'Crisis Punch'));
+    const attackAction=new AttackAction(x.source.id,'Crisis Punch');
+    console.log('AGENT50_MELOETTA_ATTACK_PRESTATE',JSON.stringify({
+      seat,initial,
+      actionKeys:Object.keys(attackAction),
+      actionCtor:String(AttackAction).slice(0,1100),
+      dceProvides:x.dce.provides,
+      lightningProvides:x.lightning.provides,
+      activeCardIds:x.source.active.cards.map(c=>c.fullName),
+      activeEnergyCards:x.source.active.energies.cards.map(c=>c.fullName),
+      toolAttached:x.source.active.tools.includes(x.tool),
+      nativeAttack:x.tool.attacks?.find(a=>a.name==='Crisis Punch')
+    }));
+    x.store.dispatch(attackAction);
     const promptKinds=[];
     for(let i=0;i<20;i++){
       const p=x.state.prompts.find(p=>p.result===undefined);
