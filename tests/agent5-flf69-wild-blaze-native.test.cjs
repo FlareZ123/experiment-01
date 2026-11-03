@@ -250,7 +250,7 @@ for(const seat of [0,1]){
  * @param {string} printing
  * @param {boolean} corrected
  */
-function evolveMega(seat,printing,corrected){
+function evolveMega(seat,printing,corrected,spiritLink=false){
   const cards=initializeCards();
   const hook=corrected?installFlf69WildBlazePaperHook():null;
   const {PlayCardAction,PlayerType,SlotType}=
@@ -271,6 +271,12 @@ function evolveMega(seat,printing,corrected){
     assert.ok(charizard&&mega);
     owner.active.cards.push(charizard);
     owner.active.pokemonPlayedTurn=2;
+    if(spiritLink){
+      const link=cards.getCardByName('Charizard Spirit Link EVO');
+      assert.ok(link,'Pinned native Spirit Link exists');
+      owner.active.cards.push(link);
+      owner.active.tools.push(link);
+    }
     owner.hand.cards.push(mega);
     opponent.active.cards.push(cards.getCardByName('Shadow Rider Calyrex V CRE'));
     for(const player of state.players){
@@ -299,7 +305,7 @@ function evolveMega(seat,printing,corrected){
     assert.equal(owner.active.getPokemonCard()?.fullName,printing,
       'The native PlayCardAction should actually evolve the prior Charizard');
     const r={
-      seat,printing,corrected,turn:state.turn,
+      seat,printing,corrected,spiritLink,turn:state.turn,
       activePokemon:owner.active.getPokemonCard()?.fullName,
       ownerHand:owner.hand.cards.length,
       competitiveQualified:false
@@ -307,7 +313,8 @@ function evolveMega(seat,printing,corrected){
     console.log('AGENT5_FLF69_MEGA_EVOLUTION',JSON.stringify(r));
     // Both source and corrected original must retain the printed Mega turn end.
     if(printing==='M Charizard EX FLF')
-      assert.equal(r.turn,5,'Original Mega reducer must end the evolution turn');
+      assert.equal(r.turn,spiritLink?4:5,
+        'Original Mega reducer must respect printed Spirit Link turn exception');
     return r;
   }finally{
     if(hook)hook.restore();
@@ -323,4 +330,13 @@ for(const seat of [0,1]){
   test('native original paper-hook preserves Mega evolution seat '+seat,()=>{
     evolveMega(seat,'M Charizard EX FLF',true);
   });
+}
+
+for(const seat of [0,1]){
+  for(const corrected of [false,true]){
+    test('original FLF69 Spirit Link Mega evolution exception seat '+seat+
+      ' corrected '+corrected,()=>{
+      evolveMega(seat,'M Charizard EX FLF',corrected,true);
+    });
+  }
 }
