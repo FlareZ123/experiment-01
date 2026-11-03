@@ -23,6 +23,8 @@ jobs:
         run: node --test tests/agent35-original-supporter-opening-census.test.cjs
       - name: Emit original-field Supporter opening census
         run: node scripts/agent35-original-supporter-opening-census.cjs > original-supporter-opening.json
+      - name: Verify exact rank26 all-Pad and Mail counter access
+        run: node --test tests/agent2-rank26-mail-pad-joint.test.cjs
       - name: Upload machine-readable source-weighted result
         uses: actions/upload-artifact@v4
         with:
