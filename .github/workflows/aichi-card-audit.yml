@@ -81,6 +81,12 @@ jobs:
           node --test tests/agent32-adp-mulligan-bonus-firstgx.test.cjs
           node simulation/evaluation/agent32-adp-mulligan-bonus-firstgx.cjs 32 > agent32-adp-mulligan-bonus-firstgx.json
           node -e "const r=require('./agent32-adp-mulligan-bonus-firstgx.json'); console.log(JSON.stringify({version:r.version,source:r.fixedSourceSha,base:r.baseAccess.percent,mean:r.equalOriginalMean,rank6:r.rows.find(x=>x.rank===6),rank1:r.rows.find(x=>x.rank===1)}))"
+      - name: Verify fixed ADP and champion forced solo opening against original29
+        if: ${{ always() && !cancelled() }}
+        run: |
+          node --test tests/agent32-adp-forced-solo-opening-originals.test.cjs
+          node simulation/evaluation/agent32-adp-forced-solo-opening-originals.cjs 32 > agent32-forced-solo.json
+          node -e "const x=require('./agent32-forced-solo.json'); console.log(JSON.stringify({version:x.version,mean:x.equalOriginalMeanLower,rank26:x.rows.find(r=>r.rank===26),rank6:x.rows.find(r=>r.rank===6)}))"
       - name: Verify rank2 physical TM source access under simultaneous original opponent mulligans
         if: ${{ always() && !cancelled() }}
         run: |
