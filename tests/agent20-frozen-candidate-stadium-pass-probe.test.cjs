@@ -93,7 +93,8 @@ test('detached genuine Stadium replacement has physical card and Prism custody',
   assert.deepEqual(arm.nativeSourcePrismStarDisposal,{
     ownerLostZone:1,ownerDiscard:0
   });
-  assert.deepEqual(live,before,'Actual source game state must remain unchanged');
+  assert.deepEqual(structuredClone(live),before,
+    'Actual source game state must remain unchanged');
   assert.equal(result.competitiveGameQualified,false);
 });
 
@@ -144,7 +145,7 @@ test('Store rejection is preserved as a native negative and original state remai
   assert.equal(got.nativeCounterfactualAcceptedReplacements,0);
   assert.equal(got.attempts[0].nativeRootAccepted,false);
   assert.match(got.attempts[0].nativeError,/Native-Store-incompatible/);
-  assert.deepEqual(live,prior);
+  assert.deepEqual(structuredClone(live),prior);
 });
 
 test('observer only targets actual registered candidate-A turn-four Pass roots',()=>{
