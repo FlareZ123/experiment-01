@@ -199,6 +199,19 @@ jobs:
           path: agent11-owner-tutor-native-v*.json
           if-no-files-found: warn
           retention-days: 30
+      - name: Native paper Stadium replacement and same-name native enumerator four-arm fixture
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
+        run: node simulation/twinleaf/agent7-stadium-printed-name-native.cjs > agent7-stadium-printed-name-native.json
+      - name: Assert original turn parity and all four Stadium controls
+        if: ${{ inputs.agent7_stadium_public_snapshot }}
+        run: node -e "const a=require('node:assert/strict');const r=require('./agent7-stadium-printed-name-native.json');a.equal(r.attempted,4);a.equal(r.passed,4);a.ok(r.rows.every(x=>x.originalTurnPreserved));console.log(JSON.stringify({attempted:r.attempted,passed:r.passed,rows:r.rows.map(x=>({seat:x.seat,scenario:x.scenario,nativeOffered:x.nativeOffered,storeAccepted:x.actualStoreAccepted}))}));"
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent7_stadium_public_snapshot }}
+        with:
+          name: agent7-stadium-paper-name-native-four-arm
+          path: agent7-stadium-printed-name-native.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
         run: node simulation/twinleaf/agent5-thunder-mountain-native-gate.cjs > agent5-thunder-mountain-native-gate.json
       - name: Native Marshadow UNB Resetting Hole counterstage against source Thorns Stadium
