@@ -2,6 +2,8 @@
 
 const path = require('node:path');
 const BASE = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
+const {withNumericShuffleIndexValidation}=
+  require('./agent43-numeric-shuffle-validation-hook.cjs');
 
 /**
  * A deliberately narrow K0 owner-visible Apex Alchemy candidate action.
@@ -137,8 +139,10 @@ function withApexBenchMukShake(execute) {
     return original.call(this,state);
   };
   try {
-    const result=execute();
-    return {result,audit};
+    const wrapped=withNumericShuffleIndexValidation(execute);
+    return {result:wrapped.result,audit:{
+      ...audit,shuffleCorrection:wrapped.audit
+    }};
   } finally {
     SimpleTacticsAi.prototype.decodeNextAction=original;
   }
