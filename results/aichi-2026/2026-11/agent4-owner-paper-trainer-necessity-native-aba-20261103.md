@@ -64,9 +64,25 @@ Classification contract: **paper false** means a documented necessary condition 
 
 The shared broader [benchmark test job 41649751045](https://github.com/FlareZ123/experiment-01/actions/runs/41649751045) separately failed an unrelated preexisting Agent16 moving-development policy-inventory quota **after** the Trainer tests. The dedicated pinned native job above passed independently.
 
+## Follow-up exact-print source expansion (after the frozen A/B/A)
+
+The temporal-only negative screen now covers **five** exact English source printing keys in the bundled card database, each restricted to its player's first owner turn:
+
+| Native printing | Bundled source ID | Additional printed condition |
+| --- | --- | --- |
+| Battle VIP Pass FST | swsh8-225 | none |
+| Wait and See Hammer LOT | sm8-192 and alternate sm8-236 | must go second |
+| Wait and See Turbo ASR | swsh10-158 | must go second |
+| Call Bell SSP | sv8-165 | must go second |
+| Chill Teaser Toy SSP | sv8-166 | must go second |
+
+Set mapping is from the bundled English sets database (Fusion Strike, Lost Thunder, Astral Radiance and Surging Sparks). The owner-turn **expiry** test is sound for all five even when the policy cannot prove which side went first. The extra *go-second* predicate is **recorded and left unresolved**; unproven positive permissions are never inferred. Boost Shake EVS, Rare Candy SVI and Energy Spinner UNB are intentionally excluded because the same words in their printed text describe different mechanics or optional first-turn benefits.
+
+This catalogue expansion occurred **after** the frozen six native attempts and changes no previous numerical evidence. It has separate exact-print unit regressions. If a future native source cohort contains one of these four additional first-turn-only printings, test it with the same verified actual-owner-turn semantics and independent Store receipts.
+
 ## Research implication and next work
 
-Use the 395 necessary-condition survivors only as an **upper bound of unresolved physically held Trainer copies**. Verify source-exact targets and real owner prompt settlement, then compare play lines against competing uses of the same Supporter, search connector, Bench slot and protected hand cards. This is essential for connector domination and realistic discard/Bench availability. Extend first-turn-only restrictions to other relevant, exact paper Expanded Trainer printings with source-verified card text, retaining the distinction between first-player status and first-*owner*-turn expiration.
+Use the 395 necessary-condition survivors only as an **upper bound of unresolved physically held Trainer copies**. Verify source-exact targets and real owner prompt settlement, then compare play lines against competing uses of the same Supporter, search connector, Bench slot and protected hand cards. This is essential for connector domination and realistic discard/Bench availability. Validate remaining printed going-second restrictions with authenticated public opening-order evidence, and add source-exact target and prompt continuation before treating the broader first-turn-only catalog as a playable action set.
 
 Only credible bilateral paper-corrected policies, complete official-clock games and the **full** Aichi Top 32 can support claims about game win rate.
 
