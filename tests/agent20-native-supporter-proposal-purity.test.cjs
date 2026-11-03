@@ -80,6 +80,38 @@ test('only genuine owner proposal is reset before Store validation',()=>{
   assert.equal(Store.prototype.dispatch,originalDispatch);
 });
 
+test('speculative Simulator dispatch does not count as real Store acceptance',()=>{
+  const output=withPureNativeSupporterProposal(()=>{
+    const store=new Store(),owner=player();
+    store.dispatch(new AddPlayerAction(owner));
+    const proposal=new PlaySupporterTactic().useTactic(store.state,owner);
+    assert.ok(proposal instanceof PlayCardAction);
+    assert.equal(owner.supporterTurn,0);
+    const simulated=new Store();
+    simulated.state={
+      ...store.state,
+      players:[{
+        ...owner,
+        hand:{cards:[...owner.hand.cards]},
+        supporter:{cards:[]}
+      }]
+    };
+    simulated.dispatch(proposal);
+    assert.equal(simulated.state.players[0].supporterTurn,1);
+    assert.equal(owner.supporterTurn,0);
+    store.dispatch(proposal);
+    assert.equal(owner.supporterTurn,1);
+    return true;
+  },deps);
+  assert.equal(output.audit.exactOwnTurnSideEffectsReversed,1);
+  assert.equal(output.audit.speculativeDispatchesOfRestoredActions,1);
+  assert.equal(output.audit.speculativeAcceptedRestoredActions,1);
+  assert.equal(output.audit.dispatchedPreviouslyRestoredActions,1);
+  assert.equal(output.audit.acceptedPreviouslyRestoredActions,1);
+  assert.equal(output.audit.previouslyRestoredProposals[0].dispatch,
+    'real-native-Store-accepted');
+});
+
 test('no global rewrite of simulated state or already spent owner quota',()=>{
   const output=withPureNativeSupporterProposal(()=>{
     const store=new Store(),owner=player();
