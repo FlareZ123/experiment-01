@@ -18,7 +18,7 @@ const {withPaperSecretBoxSearchCategory,VERSION:SEARCH_VERSION}=
 const {boxShakeOpponentReplyPacket}=
   require('./agent44-boxshake-opponent-reply-packet.cjs');
 
-const VERSION='agent4-rank8-retrospective-source-vip-box-v11-and-search-guard-public-counterattack-v5';
+const VERSION='agent4-rank8-retrospective-source-vip-box-v11-source-K1-wally-counterattack-v6';
 const POSITIVE_INDICES=Object.freeze([683,694,756]);
 const ROOT=path.resolve(__dirname,'../..');
 /** @param {unknown} item */
@@ -89,6 +89,12 @@ function withSourceBoxPaymentObserver(Store,sourceSeat,run){
             card?.constructor?.name??null),
           selectedCount:selection.length,nativeAccepted:accepted,
           ownerDeckPrompt:promptOnOwnDeck,
+          ownerDeckGarbodorCount:beforeDeck.filter(c=>c.name==='Garbodor').length,
+          ownerDeckBoostShakeCount:beforeDeck.filter(c=>c.name==='Boost Shake').length,
+          ownerDeckWallyCount:beforeDeck.filter(c=>c.name==='Wally').length,
+          ownerHandWallyCount:[...beforeHand].filter(c=>c.name==='Wally').length,
+          ownerBoardTrubbishCount:[owner.active,...owner.bench]
+            .filter(slot=>slot.getPokemonCard?.()?.name==='Trubbish').length,
           physicalAcquiredCount:physicallyAcquired,
           physicalAcquisitionStatus:receipt?'PHYSICAL_SEARCH_ACQUIRED':'UNVERIFIED',
           ownerDeckBefore:beforeDeck.length,ownerDeckAfter:afterDeck.size,
