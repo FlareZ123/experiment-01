@@ -60,3 +60,23 @@ test('simultaneous locks leave only four Banette at 8/10/12 donors', () => {
   assert.throws(() => jointLockWindow(1));
   assert.throws(() => jointLockWindow(5));
 });
+
+
+test('combined Wobbuffet/Silent Lab is absent from all 29 authenticated opposing 60s', () => {
+  const field = require('../results/aichi-2026/full-decklists.json');
+  assert.equal(field.published_deck_count, 29);
+  assert.deepEqual(field.missing_full_lists.map(x => x.rank), [23,25,28]);
+  const wobbuffetRanks = [], silentLabRanks = [], combined = [];
+  for (const deck of field.decks) {
+    const wobb = deck.cards.some(card => card.name === 'Wobbuffet' &&
+      card.printing?.set === 'PHF');
+    const lab = deck.cards.some(card => card.name === 'Silent Lab' &&
+      card.printing?.set === 'PRC');
+    if (wobb) wobbuffetRanks.push(deck.rank);
+    if (lab) silentLabRanks.push(deck.rank);
+    if (wobb && lab) combined.push(deck.rank);
+  }
+  assert.deepEqual(wobbuffetRanks, [7,10,21]);
+  assert.deepEqual(silentLabRanks, [9,13,15,32]);
+  assert.deepEqual(combined, []);
+});
