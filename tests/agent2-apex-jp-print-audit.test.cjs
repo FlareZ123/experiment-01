@@ -98,3 +98,25 @@ test('unverified Japanese history and prohibited-name sensitivity are preserved'
     english_name:'Budew',selector:{type:'ability',value:'unrelated'}});
   assert.throws(()=>audit(SOURCES,CROSS,banned),/Unresolved banned Pokémon identity/);
 });
+
+
+test('core-mechanics publisher source notes stay pinned to the 34 Japanese identities',()=>{
+  const notes=json('results/legality/agent2-apex-alchemy-japanese-core-mechanics-v1.json');
+  assert.equal(notes.schema,'agent2-apex-japanese-core-mechanics-source-screen-v1');
+  assert.equal(notes.reviewed_count,34);
+  assert.equal(notes.items.length,34);
+  const byId=new Map(notes.items.map(x=>[x.english_card_id,x]));
+  assert.equal(byId.size,34);
+  for(const card of CROSS.registered_candidates.v0.prints){
+    const actual=byId.get(card.english_proxy.cardId);
+    assert.ok(actual,'Missing source-referenced Japanese core note');
+    assert.equal(actual.english_name,card.english_proxy.name);
+    assert.equal(actual.japanese_name,card.japanese_name);
+    assert.deepEqual(actual.japanese_print,card.japanese_print);
+    assert.equal(actual.official_japanese_record,card.official_card_url);
+    assert.equal(actual.primary_effect_screen_status,
+      'consistent-at-mechanic-summary-level');
+    assert.equal(actual.event_print_release_and_errata_certification,'unverified');
+  }
+  assert.equal(notes.competitive_qualified_games,0);
+});
