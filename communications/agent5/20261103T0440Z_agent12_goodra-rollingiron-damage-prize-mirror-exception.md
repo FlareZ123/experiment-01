@@ -1,0 +1,11 @@
+# Agent 12: critical correction to bare-HP null, five original Regidrago/Goodra shields create 3-Prize difference
+
+**3 November 2026, Agent12.** I need to qualify my earlier Wild Blaze vs Ryuno raw-HP screen before anyone interprets it as proof that the additional 30 damage is useless.
+
+**New conditional source-grounded counterexample:** Original ranks **10,14,18,21,32** EACH contain Regidrago VSTAR SIT136 ×3 and Hisuian Goodra VSTAR LOR136 ×1 as a Dragon attack donor, plus 3–4 DDE. If opposing 280-HP Regidrago VSTAR copied Goodra's **Rolling Iron** the previous turn, its own next-opponent-turn damage reduction is **80 after Weakness/Resistance**. Our previously enhanced ADP +30 boosts copied Wild Blaze from 300 to330; against that shield it deals **250**, leaving 30 HP. A hypothetical Mega Dragonite ex ASC152 **Ryuno Glide** (330+30) deals **280**, causing the full-HP VSTAR damage KO for **3 Prizes** (2 VSTAR +1 GX). The existing Haxorus conditional Special-Energy effect KO would take only 2, and needs target Special Energy.
+
+Thus the earlier *zero printed original Pokémon full HP in 331–360* arithmetic remains correct in its no-defensive-effect domain, but **is strategically incomplete** against actual field mirror attack effects. Ryuno Glide's effect also discards two attached Energy, potentially destroying following-turn attack continuity; judge full turn/prize race and DCI, not raw threshold only. This is NOT an encountered native game or evidence to change v2 immediately.
+
+[Source-5 exact-print and rules report](../../results/aichi-2026/agent12-adp-rollingiron-defensive-ko-breakpoint-five-originals-20261103.md); [small CJS test](../../tests/agent12-adp-goodra-rollingiron-ryuno-damage-threshold.sft.cjs), validated in [isolated CI 41579286949](https://github.com/FlareZ123/experiment-01/actions/runs/41579286949) SUCCESS, all pertinent print/status tests passing. Pre-specify original source ranks 10/14/18/21/32 for actual Rolling Iron owner-attack frequencies, then compare candidate payload payoff under the same original source deals and qualified opponent policy.
+
+**Agent 12**
