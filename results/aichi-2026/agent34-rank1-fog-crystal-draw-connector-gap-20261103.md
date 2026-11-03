@@ -1,60 +1,48 @@
-# Rank-1 Shadow Rider: missing Fog Crystal owner root biases Underworld decisions
+# CORRECTED: rank-1 Fog Crystal inner root gap does not describe the complete canonical playing policy
 
-**Agent 34 | 3 November 2026 | source-card-text and pure owner-policy counterexample; no simulated game-performance claim.**
+**Agent 34 | 3 November 2026 | correction verified against complete native archives at 16:16 UTC.** The early version of this report incorrectly generalized a genuine *inner root helper* test to the full bilateral source policy. That broader conclusion has been **retracted**. Keep this record as a worked example of why isolated policy unit tests must be reconciled with the entire wrapper composition and actual Store evidence.
 
-## Printed facts
+## Exact distinction and correction
 
-The authenticated original rank-1 Aichi Shadow Rider printed 60 contains **11 Basic Psychic Energy (MEE 13)** and **4 Fog Crystal (CRE 140)**. This is directly taken from `results/aichi-2026/full-decklists.json` and checked against the user's supplied full card-list ZIP `cards/en/swsh6.json`. The same card source states:
+The isolated function `chooseActorRootIntent` in `simulation/twinleaf/agent34-actor-only-root-policy.cjs` has no Fog Crystal case. In a constructed owner-only state with Fog Crystal in hand, Active Shadow Rider VMAX 2 Psychic attached, no other eligible root, calling **that pure function alone** returns `{kind:'pass',reason:'no-supported-owner-visible-root'}`. The regression `tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs` correctly verifies this narrow unit behavior; [CI 41670734878](https://github.com/FlareZ123/experiment-01/actions/runs/41670734878) passed.
 
-- `Shadow Rider Calyrex VMAX CRE 75` **Underworld Door:** once per turn, attach a Psychic Energy from hand to a Benched Psychic Pokémon. If that happens, draw two cards.
-- Its printed **Max Geist:** requires three Colorless Energy, does 10 plus 30 for every Psychic Energy attached to all of the player's Pokémon.
-- `Fog Crystal CRE 140` can search the deck for a Psychic Energy card or a Basic Psychic Pokémon, reveal it, put it into hand, and shuffle. It is an Item.
+**However, the frozen rank-1 canonical bilateral experiment DID have Fog Crystal handling.** `simulation/evaluation/agent7-canonical-actor-composition.cjs`, lines 65–67, unconditionally chooses `simulation/twinleaf/agent9-fog-actor-prompt.cjs` as its default Fog adapter. Lines 253–270 install `runFog` **inside** the actor-only root wrapper, so the Fog decoder sees live owner Item/play prompts before falling back to the inner root. The actual archived `actorOnlyDecisionCoverage.componentVersions.fog` confirms `agent9-fog-crystal-owner-prompt-v2-live-state` throughout both held-out A/B arms. The frozen common registration's lack of a flag is irrelevant because the canonical Fog wrapper is on by default.
 
-These are printed source facts; later card effects, lock status, tournament legality, prizes and type-changing effects must still be evaluated individually.
+**Independently recomputed complete-archive native counters (32 native attempts per arm, BOTH seats):**
 
-## Pure owner-policy counterexample
+| Rank-1 held-out experiment | Control | Treatment |
+| --- | ---: | ---: |
+| Active funding: genuine accepted Fog Crystal Item roots | **127** | **125** |
+| Active funding: genuine accepted owner-deck Fog searches | **127** | **125** |
+| Active funding: later native plays of exact searched Card object | **108** | **109** |
+| Bench recipient ranking: genuine accepted Fog Crystal Item roots | **146** | **149** |
+| Bench recipient ranking: genuine accepted owner-deck Fog searches | **146** | **149** |
+| Bench recipient ranking: later native plays of exact searched Card object | **116** | **119** |
+| Native rejected Fog choices (both studies, both arms) | **0** | **0** |
 
-`simulation/twinleaf/agent34-actor-only-root-policy.cjs` contains no Fog Crystal case or item-to-Psychic retrieval adapter. With active original-source VMAX holding exactly **two** Basic Psychic, another eligible Benched VMAX, an owner hand holding only `Fog Crystal CRE`, owner ordinary Energy still unspent, no public Item lock, unspent Underworld source marker, and no other viable proposal, calling `chooseActorRootIntent` returns:
+Those events are native accepted actions, not competitive-paper game certifications. They **disprove** the earlier assertion that these full native source cohorts could not exploit Fog Crystal search. The old report's speculation that manual Active funding's observed advantage was caused by missing native Fog Crystal *access* has no support and is withdrawn.
 
-```json
-{"kind":"pass","reason":"no-supported-owner-visible-root"}
-```
+Primary evidence: complete unchanged run [41665994134](https://github.com/FlareZ123/experiment-01/actions/runs/41665994134), artifact `13244978023`, archive JSON SHA256 `2cdca617d36f4ec329c73f763b3fd3835ef7fafbbb36743a3eb06a00a8536999`; and recipient run [41668208095](https://github.com/FlareZ123/experiment-01/actions/runs/41668208095), artifact `13247446109`, archive JSON SHA256 `086c0274bcdd42c79163b0a98ffb50a7f4f48223c8f56d26bb51cf66735caa1a`. Both complete attempts had original and candidate source physical initial deal parity within each paired arm.
 
-This is checked in the **actual project policy code**, independent of any synthetic card effect or fake win rate, by `tests/agent34-rank1-fog-crystal-recovery-gap.test.cjs`. The same Active with a held Basic Psychic and no available Underworld source produces a typed Basic Psychic attachment, as a control. Opponent concealed hand/deck/Prize getters in a separate test throw if read, confirming this minimal distinction needs only owner/public information. Regression CI [41670734878](https://github.com/FlareZ123/experiment-01/actions/runs/41670734878) **PASS**, pinned exact Twinleaf native compile and unrelated Underworld tests PASS too.
+## What remains worth evaluating
 
-The counterexample is a **paper-plausible search opportunity**, not a claim that every historical Pass held a usable Fog Crystal. The owner might have no Psychic in deck or could face Item lock despite the crafted example's absent blocker. A complete real game source qualification must observe physical held Fog, public locks and available deck search targets with appropriate information provenance.
+The original rank-1 exact printed60 contains **11 Basic Psychic MEE and 4 Fog Crystal CRE**, verified from `results/aichi-2026/full-decklists.json` and supplied card pool `cards/en/swsh6.json`. Underworld Door attaches one held Psychic to a Benched Psychic then draws two. Fog Crystal can search for a Basic Psychic Pokémon or Psychic Energy card.
 
-## Correct conditional two-card-draw comparison
+The **already-used** Agent9 `chooseFogPrinting` selects a search-eligible Basic Psychic Pokémon before Psychic Energy when there is Bench space. This is a real, documented *policy selection order*. It can create a plausible contest between Bench expansion and funding an underpowered Active VMAX. Whether any live rank-1 source owner prompt actually presented a better Psychic Energy alternative, and whether an altered choice would improve source attacks, Prizes or reply, requires **fresh owner-prompt/K1 physical target evidence**. Do not claim a strategic mistake from choice priority alone.
 
-For an owner with Active VMAX at two Psychic, one held Psychic, unused ordinary attachment, and an actual unspent playable Underworld:
+Under a uniformly shuffled remaining own deck of D cards with K Basic Psychic and F Fog Crystal, two-card Underworld raw draw probabilities remain the correct elementary combinatorial identities:
 
-- **Manual first:** attach to Active, paying the printed three-Colorless Max Geist cost now, without spending the Underworld once-per-source Ability. This guarantees Energy *cost*, subject to other attack prohibitions.
-- **Underworld first:** attach the held Psychic to an eligible Psychic Bench, draw two. When those cards include a Basic Psychic, manual attach to Active and attack. When they contain a usable Fog Crystal and a deck-remaining Psychic, play Fog Crystal and search Energy before the unused manual attachment. Other search/draw connectors can add further pathways. If all fail, Active remains underpowered for the current attack.
+`P(draw >=1 Psychic) = 1 - ((D-K)(D-K-1))/(D(D-1))`
 
-With a uniform remaining deck of `D` cards containing `K` Psychic Energy and `F` Fog Crystal, the probability of at least one Psychic or Fog within the two raw draws is:
+`P(draw >=1 Psychic OR Fog) = 1 - ((D-K-F)(D-K-F-1))/(D(D-1))`, for D>=2 and valid counts.
 
-`1 - ((D - K - F) * (D - K - F - 1)) / (D * (D - 1))`, subject to `D >= 2` and `0 <= K+F <= D`.
+For D=30, K=5, F=2, these are 31.03% and 41.84% respectively. These probabilities describe drawing card categories, not actual paper-valid ability chains; Fog still requires legal Item play, a live own deck target and a strategically acceptable search choice. In the **full canonical native policy**, the actual Fog action and prompt are already modeled and used, so this model is relevant only to alternative **target-selection quality**, not to missing basic Fog functionality.
 
-Examples:
+## Implications for shared policy
 
-| Hypothetical deck `D` | Psychic `K` | Fog `F` | Direct Psychic in 2 draws | Psychic or Fog in 2 draws |
-| ---: | ---: | ---: | ---: | ---: |
-| 30 | 5 | 2 | 31.03% | 41.84% |
-| 30 | 5 | 4 | 31.03% | 51.72% |
-| 20 | 3 | 2 | 28.42% | 44.74% |
+- Keep the distinct last-Psychic Active manual funding option `actorUnderworldActiveFundingPriority` **default OFF** until strategic benefits over other already available searches, ability draws and opponent replies are substantiated. The 32-pair held-out study's immediate Active Psychic -> accepted AttackAction witness is still genuine, as are its aggregate results, **375 -> 378** source AttackAction roots and identical source-native terminal outcomes.
+- The broad Bench-recipient printed-attack-gap option `actorUnderworldAttackGapRecipient` had a negative held-out outcome profile (**184 -> 183** source AttackAction roots, source-native terminals **10 -> 8**, censored **8 -> 11**) and remains default OFF.
+- **Do not integrate new Fog Crystal Item code in an effort to fix this false missing-Fog conclusion.** Reuse the existing Agent9 handler and test alternative owner-visible selected search targets if there is a defensible decision hypothesis.
+- No complete Aichi benchmark is qualified: still 29 authenticated original printed 60s of 32, no selected strongest final 60, zero qualified competitive paper games, and no evidence of 99.5% game win rate.
 
-The last column describes drawn card types, not successful paper legal attacks. Fog's branch requires a live Psychic remaining in deck and an Item play/valid target under actual rules. An Underworld-first successful branch may receive extra Bench Energy and card advantage while still attacking; a failed branch may forfeit an immediate attack. Exact posterior K/F information changes after a K1 deck search, Prize knowledge and previous actions.
-
-## Consequence for common opponent and deck evaluation
-
-Our [fresh 32-pair native last-Psychic Active-funding study](agent34-rank1-heldout-active-funding-native-20261103.md) found one real same-turn Active manual attachment enabling attack and **three extra** original-source AttackActions overall, without an increase in native source terminals. The root policy's lack of Fog search may be responsible for some apparent treatment advantages. This is a **missing connector/policy fidelity** problem, not evidence that the single human paper optimal choice has been established.
-
-The distinct broad [Bench-recipient printed-attack-gap heuristic](agent34-rank1-heldout-psychic-recipient-negative-20261103.md) had a negative native outcome profile and remains disabled. Both proposals remain **default OFF**. Shared policy steward Agent23 and generic Trainer-opportunity researcher Agent29 received direct reproducible evidence. Before integrating, require paper-valid owner search, exact resources, opponent response and matched ongoing opportunities. The Aichi field still lacks full 60s for ranks 23/25/28 and has zero qualified competitive-paper game wins.
-
-## Existing reusable adapter discovered: do not reimplement Fog prompts
-
-The repository **already contains** a separately implemented, default-off **`simulation/twinleaf/agent9-fog-actor-prompt.cjs`** with `withActorFogCrystalPrompt`. Its [20 October pinned-native proof](../twinleaf/agent9-fog-crystal-actor-native-20261020.md) observed 12 accepted Fog Item roots, 12 accepted authentic owner-deck `ChooseCardsPrompt` selections, and nine later plays of the exact physically searched Card object in four historical rank-6/rank-11 source-dealt games. The source confirms its native admission and partial follow-through; the trials still do not certify competitive paper gameplay.
-
-The important scope distinction is that this separate Agent9 adapter **is absent from the frozen rank-1 shared owner-only policy configuration tested here**. The report's missed Fog search is specific to that active experiment configuration, not a claim that no Fog support exists anywhere in the repository. Future integration should **reuse** this audited prompt handler with the shared acting-owner root, preserve its owner-deck prompt information boundary and actual Card-object custody, and compare alternative target choices. Notably, its `chooseFogPrinting` currently prefers an eligible Basic Psychic Pokémon when the Bench has room; for a Max Geist Active lacking a final Psychic Energy, that preference can conflict with immediate attack funding. This resource contention must be measured before enabling the adapter as an unconditional root.
-
-This discovered implementation was reported to the general Trainer research rather than duplicating it as a new one-card handler.
+This report expressly corrects earlier Agent34 communications to Agent23 and Agent29 sent between 16:07 and 16:14 UTC.
