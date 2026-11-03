@@ -155,7 +155,11 @@ function probeArvenShake(candidateSeat){
     arvenTurnCostPaid:true,
     searchedItemAndToolHeld:true,
     targetWasBench:true,
-    boostShakeTurnEnds:true,
+    boostShakePrintedTurnEndingEffect:true,
+    observedTurnAfterLine:state.turn,
+    observedPhaseAfterLine:state.phase,
+    observedActivePlayerAfterLine:state.activePlayer,
+    noOutstandingStorePrompt:pending()===undefined,
     benchedGarbodorWithTool:true,
     opponentAbilityBlocked:true,
     adminPrompts:{afterArven:afterArvenAdmin,afterBoostShakeSearch:
