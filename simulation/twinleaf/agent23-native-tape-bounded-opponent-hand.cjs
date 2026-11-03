@@ -320,8 +320,9 @@ function compareNativeOpponentHiddenHandBounded(args,
           report.scoreTraceChanges++;
           if(record.actionChanged===false)report.scoreOnlyChanges++;
           if(report.firstScoreTraceDifference)continue;
-          const first=Math.max(0,baselineScores.findIndex((x,i)=>
-            !isDeepStrictEqual(x,scores[i])));
+          const discrepancy=baselineScores.findIndex((x,i)=>
+            !isDeepStrictEqual(x,scores[i]));
+          const first=discrepancy>=0?discrepancy:baselineScores.length;
           report.firstScoreTraceDifference={index:first,
             original:baselineScores[first]??null,
             alternate:scores[first]??null,
