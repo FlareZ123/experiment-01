@@ -12,7 +12,7 @@ const native=name=>require(path.join(output,name));
  * this fixture never claims a natural 60-card game.
  * @param {0|1} [seat]
  * @param {'zero'|'three'} [payment]
- * @param {'none'|'four'} [searchMode] Optional real own-deck search selection
+ * @param {'none'|'four'|'two-items'} [searchMode] Optional real own-deck search selection
  * @returns {object}
  */
 function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
@@ -33,6 +33,8 @@ function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
     f.card('Crispin SCR'),f.card('Sky Field ROS')
   ];
   f.source.hand.cards.push(energyA,energyB,energyC,pass,box);
+  const extraItem=f.card('Adventure Bag LOT');
+  if(searchMode==='two-items')f.source.deck.cards.push(extraItem);
   f.source.deck.cards.push(...targets);
   const pending=()=>f.state.prompts.find(p=>p.result===undefined);
   let rootError=null;
@@ -67,7 +69,9 @@ function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
     let reply;
     if(type==='ChooseCardsPrompt'){
       // Search from a private own deck may legally fail each category.
-      reply=searchMode==='four'?targets:(p.validate([],f.state)?[]:
+      reply=searchMode==='four'?targets:
+        searchMode==='two-items'?[targets[0],extraItem]:
+        (p.validate([],f.state)?[]:
         [p.cards.cards.find(card=>p.validate([card],f.state))].filter(Boolean));
     }else if(type==='ShowCardsPrompt')reply=true;
     else if(type==='ShuffleDeckPrompt')
@@ -94,6 +98,9 @@ function probeSecretBoxPayment(seat=0,payment='zero',searchMode='none'){
     boxInDiscard:f.source.discard.cards.includes(box),
     pendingPrompts:f.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name),
+    extraItemLocation:{printing:extraItem.fullName,
+      inHand:f.source.hand.cards.includes(extraItem),
+      inDeck:f.source.deck.cards.includes(extraItem)},
     targetLocations:targets.map(card=>({
       printing:card.fullName,inHand:f.source.hand.cards.includes(card),
       inDeck:f.source.deck.cards.includes(card)})),
