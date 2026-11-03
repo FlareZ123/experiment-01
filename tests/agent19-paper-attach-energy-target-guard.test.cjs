@@ -30,9 +30,9 @@ const assign=to=>({card:dce,to});
 test('paper blocked-to guard rejects illegal attachment before native dispatch',()=>{
   const store=new FakeStore(new AttachEnergyPrompt(55,[crobat]));
   const result=withPaperAttachEnergyBlockedTo(()=>{
-    const error=assert.throws(()=>store.dispatch(
-      new ResolvePromptAction(55,[assign(crobat)])));
-    assert.equal(error.code,'PAPER_ATTACH_ENERGY_BLOCKED_TO');
+    assert.throws(()=>store.dispatch(
+      new ResolvePromptAction(55,[assign(crobat)])),
+    {code:'PAPER_ATTACH_ENERGY_BLOCKED_TO'});
     assert.equal(store.nativeDispatches.length,0);
     assert.equal(store.dispatch(new ResolvePromptAction(
       55,[assign(genesect)])),'native-accepted');
