@@ -96,6 +96,50 @@ function firstNativeRootDifference(baseline,candidate) {
     alternative:compact(candidate[i])};
 }
 
+/**
+ * Project only actually Store-accepted owner target-bearing decisions, keeping
+ * the public board deltas and the original chronological native ordinal.
+ * The paper ownership and whole-game fidelity of these native receipts remain
+ * distinct, externally unqualified questions.
+ * @param {object} row
+ * @param {0|1} sourceSeat
+ */
+function acceptedSourceTargets(row,sourceSeat) {
+  return (row.nativeAcceptedTargetSidecar?.events??[])
+    .filter(e=>e.playerSlot===sourceSeat&&e.storeAccepted===true&&
+      e.declared?.target!==null&&e.declared?.target!==undefined)
+    .map(e=>({
+      nativeRootOrdinal:e.rootActionOrdinal??null,
+      turn:e.turnBefore??null,
+      printing:e.declared?.ownerHandPrinting??null,
+      acceptedTarget:e.declared.target,
+      physicalBoardDelta:e.publicBoardChanges??[]
+    }));
+}
+
+/**
+ * @param {object[]} left
+ * @param {object[]} right
+ */
+function compareAcceptedTargetSequence(left,right) {
+  const n=Math.min(left.length,right.length);
+  for(let i=0;i<n;i++) {
+    if(JSON.stringify(left[i])!==JSON.stringify(right[i])) {
+      return {identical:false,firstDifferentIndex:i,
+        control:left[i]??null,alternative:right[i]??null,
+        countControl:left.length,countAlternative:right.length};
+    }
+  }
+  if(left.length!==right.length)return {
+    identical:false,firstDifferentIndex:n,
+    control:left[n]??null,alternative:right[n]??null,
+    countControl:left.length,countAlternative:right.length
+  };
+  return {identical:true,firstDifferentIndex:null,
+    control:null,alternative:null,
+    countControl:left.length,countAlternative:right.length};
+}
+
 /** @param {object} x Parsed native run output */
 function inspect(x) {
   assert.equal(x.schema, 'agent10-rank11-heldout-headway-4seed-v1');
@@ -124,8 +168,14 @@ function inspect(x) {
       name,firstNativeRootDifference(control.rootActionLedger??[],
         x.rawFactors[name].rows[i].rootActionLedger??[])
     ]));
+    const acceptedTargetParityFromControl=Object.fromEntries(names.map(name=>[
+      name,compareAcceptedTargetSequence(
+        acceptedSourceTargets(control,sourceSeat),
+        acceptedSourceTargets(x.rawFactors[name].rows[i],sourceSeat))
+    ]));
     result.push({id:tr.id,sourceSeed:tr.seed,sourceSeat,
-      candidateId:tr.candidateId,factors,rootDifferenceFromControl});
+      candidateId:tr.candidateId,factors,rootDifferenceFromControl,
+      acceptedTargetParityFromControl});
   }
   for(let i=0;i<registration.trialRows.length;i+=2) {
     for(const factor of names) {
@@ -167,7 +217,24 @@ function inspect(x) {
     dispositions,
     keyFreshSource:{id:target.id,sourceSeed:target.sourceSeed,
       sourceSeat:target.sourceSeat,factors:target.factors,
-      rootDifferenceFromControl:target.rootDifferenceFromControl},
+      rootDifferenceFromControl:target.rootDifferenceFromControl,
+      acceptedTargetParityFromControl:target.acceptedTargetParityFromControl},
+    allContextRootVsAcceptedTargetParity:result.map(r=>({
+      id:r.id,sourceSeed:r.sourceSeed,sourceSeat:r.sourceSeat,
+      factors:Object.fromEntries(names.map(name=>[name,{
+        nativeRootEqual:r.rootDifferenceFromControl[name]===null,
+        ownerAcceptedTargetEqual:r.acceptedTargetParityFromControl[name].identical,
+        firstTargetDifference:r.acceptedTargetParityFromControl[name].identical?
+          null:r.acceptedTargetParityFromControl[name]
+      }]))
+    })),
+    sameRootDifferentNativeTargetContexts:
+      result.flatMap(r=>names.filter(name=>
+        r.rootDifferenceFromControl[name]===null&&
+        !r.acceptedTargetParityFromControl[name].identical).map(name=>({
+          id:r.id,factor:name,
+          targetDifference:r.acceptedTargetParityFromControl[name]
+        }))),
     crossCandidate,
     allContextFirstClaws:result.map(r => ({
       id:r.id,sourceSeat:r.sourceSeat,
@@ -186,4 +253,4 @@ if(require.main===module) {
   const report=inspect(x);
   process.stdout.write(JSON.stringify(report,null,2)+'\n');
 }
-module.exports={VERSION,examineSource,pairedPhysical,firstNativeRootDifference,inspect};
+module.exports={VERSION,examineSource,pairedPhysical,firstNativeRootDifference,acceptedSourceTargets,compareAcceptedTargetSequence,inspect};
