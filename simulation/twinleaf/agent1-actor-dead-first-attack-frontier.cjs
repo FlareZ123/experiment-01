@@ -6,6 +6,38 @@ const {chooseGirafarigAttackWhenDiscardEmpty}=
 const VERSION='agent1-actor-known-dead-leading-attack-v2-trubbish-fullbench';
 
 /**
+ * Read-only diagnosis of an authenticated attack's currently false printed
+ * target condition. A warning never itself chooses Pass or spends a resource.
+ * It remains valid when only one attack is payable, so a setup planner can
+ * compare physically available Trainer/Energy/retreat alternatives.
+ *
+ * This does not prove that any alternative action is paper-legal, and the
+ * caller must not interpret a known-dead attack as a forced loss.
+ *
+ * @param {object} view Detached owner-public observation
+ * @param {object[]} payable Printed and cost-payable attacks in their order
+ * @returns {{attackName:string,reason:string,payableClaw:boolean}|null}
+ */
+function diagnoseKnownDeadLeadingAttack(view,payable){
+  assert.equal(view.decisionKind,'owner-root');
+  assert.ok(Array.isArray(payable));
+  const active=view.ownPublic?.active;
+  const defender=view.opponentPublic?.active;
+  const first=payable[0];
+  if(active?.printing!=='Mega Absol ex M1L'||
+     first?.name!=='Terminal Period'||first.damage!==0||
+     !Number.isSafeInteger(defender?.damage)||
+     defender.damage<0||defender.damage===60)return null;
+  return {
+    attackName:'Terminal Period',
+    reason:'Terminal Period requires exactly six public damage counters',
+    payableClaw:payable.some(a=>a.name==='Claw of Darkness'&&
+      a.damage===200&&(a.damageCalculation===undefined||
+        a.damageCalculation===null))
+  };
+}
+
+/**
  * When the opponent's *public* state proves that the first printed payable
  * attack cannot perform its declared objective, prefer a later payable
  * deterministic damage attack. The caller must supply a list already checked
@@ -27,18 +59,11 @@ function chooseKnownDeadLeadingAttack(view,payable){
   if(!active||!defender||payable.length<2)return null;
   const first=payable[0];
 
-  if(active.printing==='Mega Absol ex M1L'&&
-     first.name==='Terminal Period'&&first.damage===0&&
-     Number.isSafeInteger(defender.damage)&&
-     defender.damage>=0&&defender.damage!==60){
-    const alternative=payable.find(a=>a.name==='Claw of Darkness'&&
-      a.damage===200&&(a.damageCalculation===undefined||
-        a.damageCalculation===null));
-    if(alternative)return {
-      attackName:alternative.name,
-      reason:'Terminal Period requires exactly six public damage counters'
-    };
-  }
+  const terminalWarning=diagnoseKnownDeadLeadingAttack(view,payable);
+  if(terminalWarning?.payableClaw)return {
+    attackName:'Claw of Darkness',
+    reason:terminalWarning.reason
+  };
 
   // Original Aichi rank-11 Trubbish FST: with every Bench slot occupied,
   // Call for Family cannot put a Basic Pokemon into play. The separately
@@ -64,4 +89,4 @@ function chooseKnownDeadLeadingAttack(view,payable){
   };
 }
 
-module.exports={VERSION,chooseKnownDeadLeadingAttack};
+module.exports={VERSION,chooseKnownDeadLeadingAttack,diagnoseKnownDeadLeadingAttack};
