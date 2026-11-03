@@ -74,3 +74,11 @@ For transparency, the **equal-list-weight** arithmetic mean of the 29 per-origin
 A symmetric opponent decision policy should include Prize-aware mobility access and actual alternative routes, particularly in singleton source builds. The fact that some names are Prized is only one possible limitation. For rank11 specifically, a six-card named-resource total makes complete initial Prize collapse extraordinarily rare, and the observed T33 failure came from **ignoring a genuinely held Float Stone**, as independently proved by the previously completed [native same-deal rescue](agent14-rank11-postclaw-six-native-result-20261103.md). It would be wrong to attribute that native stall to Prize scarcity.
 
 The benchmark remains **29/32 authenticated original printed decks, zero competitively qualified games, no selected fixed 60, and no demonstrated 99.5% win rate**. Additional Prize-collapsed states should be treated as coverage fixtures for a more competent opponent policy, never as automatic wins.
+
+## Named-card scope and alternate routes in the two singleton lists
+
+The pinned rank7 list also has **Jet Energy PAL 190**, which can switch a Benched Energy recipient Active, and **Gladion CIN 95**, which can retrieve a face-down Prize card when played from hand. Conditional on its legal opening, the probability that all three specific cards, **Guzma, Jet Energy and Gladion**, are Prized is **0.059817754%**. The 10.077777% single-Guzma event is therefore a poor surrogate for actual inability to move.
+
+The pinned rank31 list also has **Basic Latias ex SSP 76** with the Skyliner no-Retreat-Cost Ability for Basic Pokémon, and **two Hisuian Heavy Ball ASR 146** that can recover a Prized Basic. Conditional on its legal opening, **Escape Rope and Latias ex both Prized** is **0.837904577%**; those two plus both Heavy Balls Prized is **0.003080162%**. These are initial availability events, with all actual play and lock prerequisites still unresolved.
+
+The [mixed Basic/Trainer exact function](../../simulation/evaluation/agent14-mobility-prize-collapse.cjs) separately counts Basic targets removed into Prizes. Its rank31 single-Basic Latias event is **9.824147%**, versus **10.058618%** for the single non-Basic Escape Rope. Conditioning on a Basic-valid hand moves those probabilities in opposite directions. Neither is a game-win rate.
