@@ -101,7 +101,12 @@ function withActorUnderworldPromptContinuation(execute,deps={}){
       }
       throw error;
     }
-    if(isAddPlayer)liveStore=this;
+    if(isAddPlayer){
+      // A pinned headless cohort reuses owner IDs between physical games.
+      // Never carry a source-root promise into the next Store.
+      liveStore=this;
+      pendingByOwner.clear();
+    }
     if(isUnderworld){
       const seat=stateBefore.activePlayer,owner=stateBefore.players[seat];
       if(action.clientId===owner.id){
