@@ -18,10 +18,13 @@ const native=name=>require(path.join(OUTPUT,name));
  *
  * @param {0|2|15} sourceRank
  * @param {0|1} candidateSeat
+ * @param {{probeBlockedActions?:boolean}} [options]
  */
-function runArm(sourceRank,candidateSeat){
+function runArm(sourceRank,candidateSeat,options={}){
   assert.ok([0,2,15].includes(sourceRank));
   assert.ok([0,1].includes(candidateSeat));
+  const probeBlockedActions=options.probeBlockedActions??true;
+  assert.equal(typeof probeBlockedActions,'boolean');
   assert.deepEqual(sourceLockSources().map(x=>x.rank),[2,15]);
   assert.equal(candidateChannels().stadiumDiscardOutlet.count,1);
   const {Store}=native('game/store/store');
@@ -88,7 +91,7 @@ function runArm(sourceRank,candidateSeat){
   const before={stadium:sourceStadium(),
     shuppetAbilityBlocked:shuppetBlocked(),
     candidateHand:owner.hand.cards.map(x=>x.fullName),
-    ownerItemLockPotential:true,
+    ownerItemLockPotential:sourceRank!==0,
     ownerSupporterLockPotential:sourceRank===2};
 
   function play(target,location){
@@ -100,7 +103,7 @@ function runArm(sourceRank,candidateSeat){
   // Genuine attempt: Vileplume's lock must prohibit all Item plays.
   const initialHand=[...owner.hand.cards];
   let itemDenied=null;
-  if(sourceRank!==0){
+  if(sourceRank!==0&&probeBlockedActions){
     itemDenied=false;
     try{play(compressor);}
     catch(e){itemDenied=/CANNOT_PLAY_THIS_CARD/.test(String(e?.message??e));}
@@ -110,7 +113,7 @@ function runArm(sourceRank,candidateSeat){
   }
 
   let supporterDenied=null;
-  if(sourceRank===2){
+  if(sourceRank===2&&probeBlockedActions){
     supporterDenied=false;
     try{play(arven);}
     catch(e){supporterDenied=/CANNOT_PLAY_THIS_CARD/.test(String(e?.message??e));}
@@ -121,61 +124,64 @@ function runArm(sourceRank,candidateSeat){
 
   const stadiumTarget={player:PlayerType.ANY,
     slot:SlotType.BOARD,index:0};
-  play(pokestop,stadiumTarget);
-  const stadiumAfterPlay=sourceStadium();
-  assert.equal(stadiumAfterPlay,'PokéStop PGO',
-    'Accepted native PlayCardAction did not persist Stadium: '+
-    JSON.stringify({
-      sourceRank,candidateSeat,
-      pokestopClass:pokestop.constructor.name,
-      pokestopTrainerType:pokestop.trainerType,
-      pokestopReduceEffectType:typeof pokestop.reduceEffect,
-      ownerStadium:owner.stadium.cards.map(x=>x.fullName),
-      sourceStadium:source.stadium.cards.map(x=>x.fullName),
-      ownerHand:owner.hand.cards.map(x=>x.fullName),
-      ownerStadiumPlayedTurn:owner.stadiumPlayedTurn,
-      phase:state.phase,turn:state.turn,
-      prompts:state.prompts.map(x=>x.constructor.name),
-      recentLogs:state.logs.slice(-4)
-    }));
-  assert.equal(owner.hand.cards.includes(pokestop),false);
-  assert.equal(owner.stadiumPlayedTurn,4);
-  assert.equal(shuppetBlocked(),false,
-    'Basic Shuppet discard Ability should return after replacing Silent Lab');
+  let stadiumError=null;
+  try{play(pokestop,stadiumTarget);}
+  catch(error){stadiumError=String(error?.message??error);}
+  const actualStadium=sourceStadium();
+  const stadiumSettled=actualStadium==='PokéStop PGO' &&
+    owner.hand.cards.includes(pokestop)===false &&
+    owner.stadiumPlayedTurn===state.turn;
+  if(sourceRank===0)
+    assert.equal(stadiumSettled,true,'Neutral Stadium control must settle');
 
-  const after={stadium:sourceStadium(),
-    shuppetAbilityBlocked:shuppetBlocked(),
+  const after={
+    stadium:actualStadium,shuppetAbilityBlocked:shuppetBlocked(),
     stadiumPlayedTurn:owner.stadiumPlayedTurn,
     candidateHand:owner.hand.cards.map(x=>x.fullName),
-    sourceStadiumAfter:source.stadium.cards.map(x=>x.fullName)};
+    sourceStadiumAfter:source.stadium.cards.map(x=>x.fullName),
+    ownerStadiumAfter:owner.stadium.cards.map(x=>x.fullName),
+    prompts:state.prompts.map(x=>x.constructor.name),
+    recentLogs:state.logs.slice(-4)
+  };
   if(sourceRank===15){
     assert.equal(before.stadium,'Silent Lab PRC');
     assert.equal(before.shuppetAbilityBlocked,true);
-    assert.equal(source.stadium.cards.length,0);
+    if(stadiumSettled) {
+      assert.equal(after.shuppetAbilityBlocked,false);
+      assert.equal(source.stadium.cards.length,0);
+    }
   }else{
     assert.equal(before.stadium,null);
     assert.equal(before.shuppetAbilityBlocked,false);
   }
 
   return {
-    sourceRank,candidateSeat,enginePin:PIN,
+    sourceRank,candidateSeat,probeBlockedActions,enginePin:PIN,
     artificialConstructedLockBoard:true,
     genuineStoreItemDenied:itemDenied,
     genuineStoreSupporterDenied:supporterDenied,
-    genuineStoreStadiumPlayed:true,
-    abilityRestoredOnSilentLabReplacement:sourceRank===15,
+    stadiumPlayError:stadiumError,
+    genuineStoreStadiumSettled:stadiumSettled,
+    expectedPaperStadiumPlayable:true,
+    nativeNoOpWithoutThrownError:!stadiumSettled&&!stadiumError,
+    nativeDiscrepancyRequiresCardImplementationReview:!stadiumSettled,
+    abilityRestoredOnSilentLabReplacement:sourceRank===15&&stadiumSettled,
+    pokestopClass:pokestop.constructor.name,
+    pokestopTrainerType:pokestop.trainerType,
     before,after,stadiumEffectUsed:false,
     ownerDeckPhysicalSixty:false,competitivelyQualifiedGames:0
   };
 }
 function run(){
   const rows=[];
-  for(const sourceRank of [0,2,15])
-    for(const candidateSeat of [0,1])
-      rows.push(runArm(sourceRank,candidateSeat));
-  assert.equal(rows.length,6);
+  for(const candidateSeat of [0,1])
+    rows.push(runArm(0,candidateSeat,{probeBlockedActions:false}));
+  for(const sourceRank of [2,15])for(const candidateSeat of [0,1])
+    for(const probeBlockedActions of [false,true])
+      rows.push(runArm(sourceRank,candidateSeat,{probeBlockedActions}));
+  assert.equal(rows.length,10);
   return {enginePin:PIN,rows,
-    allStagedNativeStadiumActionsPassed:true,
+    allStagedNativeStadiumActionsPassed:rows.every(x=>x.genuineStoreStadiumSettled),
     originalSixtySourceDecisionPolicyTested:false,
     competitiveQualifiedGames:0};
 }
