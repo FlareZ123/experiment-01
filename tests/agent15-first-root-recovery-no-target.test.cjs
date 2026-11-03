@@ -5,7 +5,7 @@ const test=require('node:test');
 const path=require('node:path');
 const {
   VERSION,recoveryHeldAfterOneDraw,
-  sourceBasicCopyCensus,sourceFieldFirstRecoveryWindow
+  sourceBasicCopyCensus,sourceFieldFirstRecoveryWindow,run
 }=require('../scripts/agent15-first-root-recovery-no-target.cjs');
 const {loadBundledPublicPrintMetadata,withSourcePromoAliases}=
   require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
@@ -87,4 +87,21 @@ test('two mocked physical original 60s preserve rank and aggregate held items',(
   assert.throws(()=>sourceFieldFirstRecoveryWindow({decks:[
     {rank:5,archetype:'mock',cards},{rank:5,archetype:'mock',cards}
   ]},index));
+});
+
+
+test('all 29 actual original sources resolve Basic stage, including Prism glyphs',()=>{
+  const r=run(path.join(__dirname,'..'));
+  assert.equal(r.authenticatedOriginals,29);
+  assert.equal(r.sourceRecoveryCopySum,96);
+  assert.equal(r.sourcesWithUnresolvedBasicCopies,0);
+  const fifth=r.rows.find(x=>x.rank===5);
+  const eleventh=r.rows.find(x=>x.rank===11);
+  assert.deepEqual([fifth.basics,fifth.recoveryItemCopies],[11,4]);
+  assert.deepEqual([eleventh.basics,eleventh.recoveryItemCopies],[11,2]);
+  assert.equal(fifth.opening.conditionalOnBasicValidSeven.numerator,
+    '6775884588');
+  assert.equal(eleventh.opening.conditionalOnBasicValidSeven.numerator,
+    '3789323769');
+  assert.equal(r.qualifiedGames,0);
 });
