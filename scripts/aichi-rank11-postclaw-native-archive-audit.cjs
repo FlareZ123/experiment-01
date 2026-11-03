@@ -61,6 +61,16 @@ function auditNative(archive) {
     assert.equal(claws.length, SOURCE_CLAWS[i]);
     assert.equal(terminal.length, SOURCE_TERMINAL[i]);
     assert.ok(claws.every(a => a.settledPromptChain === true));
+    // Terminal Period KOs only a target with *exactly six* damage
+    // counters. Here all eight real public targets had zero, so counting
+    // these eight declarations as damaging attacks would be unsound.
+    assert.ok(terminal.every(a => a.settledPromptChain === true &&
+      a.publicBoardBefore[0].active.name === 'Klefki' &&
+      a.publicBoardBefore[0].active.damage === 0 &&
+      a.publicBoardAfter[0].active.damage === 0 &&
+      a.publicBoardBefore[1].active.energyCards.length === 2 &&
+      a.prizesBefore[0] === a.prizesAfter[0] &&
+      a.prizesBefore[1] === a.prizesAfter[1]));
     const reply = row.candidateRepliesAfterSourceAttacks.find(
       a => a.sourceAttackName === 'Claw of Darkness');
     assert.ok(reply);
