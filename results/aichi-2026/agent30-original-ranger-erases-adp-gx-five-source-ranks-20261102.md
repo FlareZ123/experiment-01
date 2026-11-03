@@ -47,3 +47,26 @@ A high-value, naturally sourced first responder would be original **rank5 Mew/Ge
 ## Reproducibility
 
 [Standalone CommonJS original-source census SFT](../../tests/agent30-aichi-adp-ranger-temple-source-exposure.test.cjs) loads `full-decklists.json` unchanged, asserts 29 distinct complete 60-card decks, preserves ranks23/25/28 as missing, checks Ranger one-copy exact English printing `STS 104` in ranks4/5/7/18/32, and checks each five Energy-denial source-name rank set and the 16-rank union. Executed in fresh V8 against fetched original public roster; **all assertions passed**. This audit does not require or fabricate a native game engine result, access to a paid decklist, or a new candidate 60.
+
+
+## First owner-legal Ranger reply: exact early direct draw probability
+
+To measure a real opponent **turn after** the candidate's going-second T1 ADP GX, the opponent must have taken the **first turn going first**. Under the ordinary setup they see seven initial cards, draw once on their first turn and once on their second turn. Ranger is **one non-Basic card** in their original fixed 60, so a physically drawn Ranger in these **nine** cards has already arrived by the natural owner turn-two reply window, provided the player preserved it. Prior to that window it may have been shuffled into the deck, discarded, or removed in some real state; the screen does not model such actions.
+
+The supplied English card ZIP was independently used to resolve actual Basic subtypes of all five complete original Ranger decklists, with **Basic counts 13, 11, 12, 16, 13** at ranks 4, 5, 7, 18, 32. The reproducible [source SFT](../../tests/agent30-aichi-adp-ranger-temple-source-exposure.test.cjs) now asserts those exact original-print counts and computes the direct Ranger-in-first-nine conditional probabilities.
+
+| Source original rank | Printed Basic count | Ranger in natural first nine, conditional Basic-valid first seven |
+| ---: | ---: | ---: |
+| 4 Raichu/Electrode | 13 | **14.395978890%** |
+| 5 Mew/Genesect | 11 | **14.279109467%** |
+| 7 Snorlax Stall | 12 | **14.338892271%** |
+| 18 Regidrago | 16 | **14.550320646%** |
+| 32 Regidrago | 13 | **14.395978890%** |
+
+**Exact derivation.** For a 60 containing `B` Basic Pokémon and one non-Basic Ranger, condition on opening seven having at least one Basic:
+
+`P(valid) = 1 - C(60-B,7)/C(60,7)`.
+
+The chance that Ranger is in one of the **first seven** and the remaining six include a Basic is `7/60 × [1 - C(59-B,6)/C(59,6)]`. The chance Ranger is the **eighth or ninth** card and the original first seven include a Basic is `2/60 × [1 - C(59-B,7)/C(59,7)]`. Sum those mutually exclusive numerators and divide by `P(valid)`. The rank-specific values were calculated independently with Python and asserted in a fresh V8 execution against the authentic 29-original roster. This exact check correctly preserves the live-card premise that the source must have a playable Basic in its opening seven; it **does not** substitute an arbitrary hand for the source.
+
+The early **direct-draw** chance is thus roughly **14.28–14.55%** across the five sources. This is neither an actual Ranger-play rate nor the maximum plausible retrieval rate. VS Seeker, Tapu Lele, deck search, opponent mulligan bonus draws, Ranger Prize risk, earlier actions and Supporter competition alter actual play. It is a useful bounded *natural opening opportunity* to add to a native two-seat source-policy audit. A source's seven-card Basic-valid Ranger distribution must not be compared to the candidate's independently conditioned ADP opening setup without modeling both players' correlated mulligan redraw opportunities and card/turn order.
