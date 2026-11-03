@@ -72,7 +72,6 @@ function census(input){
   const rows=[];
   const unmatched=[];
   const counters={
-    originalPrints:0,candidatePrints:0,
     exactUniqueRequested:allRequests.length,
     exactClassDuplicated:0,
     duplicateWithDifferentReducerHash:0,
