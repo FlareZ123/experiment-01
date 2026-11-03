@@ -47,7 +47,7 @@ function runCase(input){
   const owner=new Player(),source=new Player();
   owner.id=101;source.id=202;
   owner.name='Apex Alchemy staged challenger';
-  source.name='Original rank7 Iron Thorns source printing';
+  source.name='Staged Iron Thorns ex TWM original-rank6-like source';
   owner.active.cards.push(card('Regidrago V SIT'));
   const grimer=card('Alolan Grimer SUM'),muk=card('Alolan Muk SUM');
   const grimerSlot=new PokemonCardList();
