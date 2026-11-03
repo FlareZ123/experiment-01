@@ -20,15 +20,15 @@ The census reads **only** the `selected-v3-paper-plus-funded-mobility` `fullNati
 
 ## Observed necessary-condition funnel
 
-| Original source rank | Intact selected contexts with source-Pass records | Native source Pass snapshots | Pass snapshots physically holding ≥1 Float Stone | Held Float Stone + Active Shadow Rider VMAX |
+| Original source rank | Intact selected contexts with source-Pass records | Native source Pass snapshots | Pass snapshots holding Float Stone | Held Stone + Benched VMAX | Held Stone + Active VMAX |
 | --- | ---: | ---: | ---: | ---: |
-| 1 | 4 | 47 | 26 | **0** |
-| 5 | 4 | 58 | 20 | **0** |
-| 6 | 2 (two additional source contexts aborted) | 33 | 0 | **0** |
-| 11 | 4 | 49 | 29 | **0** |
-| **Total** | **14 intact** | **187** | **75** | **0** |
+| 1 | 4 | 47 | 26 | **18** | **0** |
+| 5 | 4 | 58 | 20 | 0 | **0** |
+| 6 | 2 (two additional source contexts aborted) | 33 | 0 | 0 | **0** |
+| 11 | 4 | 49 | 29 | 0 | **0** |
+| **Total** | **14 intact** | **187** | **75** | **18** | **0** |
 
-At these 187 exact original-source Pass roots, **the sampled Active Pokémon was never Shadow Rider Calyrex VMAX**, including **75 Pass snapshots holding at least one Float Stone**. The 75 observations occur in **six distinct registered contexts**, with the same held physical resources sometimes observed repeatedly on successive turns. They are **dependent longitudinal observations**, not 75 independent playable opportunities.
+At these 187 exact original-source Pass roots, **the sampled Active Pokémon was never Shadow Rider Calyrex VMAX**, including **75 Pass snapshots holding at least one Float Stone**. The 75 observations occur in **six distinct registered contexts**, with the same held physical resources sometimes observed repeatedly on successive turns. In **18** repeated rank-1 Pass snapshots, the source simultaneously held Float Stone, had a **Benched Shadow Rider VMAX**, and had an unrelated Active Lillie's Clefairy ex with no Tool. These 18 are confined to two registered physical trial contexts; the Pass observer does **not** record the Bench's Energy, so they **do not certify a funded or profitable pivot**. They identify a specifically different, general Active-to-Bench mobility question for separate paper-legal research. They are **dependent longitudinal observations**, not 75 independent playable opportunities.
 
 Across the 75 held-Tool source-Pass observations, the Active species were `Lillie's Clefairy ex` (27), `Tapu Lele-GX` (22), `Genesect V` (19), `Mega Absol ex` (3), `Crobat V` (2), `Trubbish` (1), and `Garbodor` (1). The printed active-type requirement fails in every such snapshot. This alone rules out the specialized *funded VMAX-to-VMAX* rescue at each of those precise Pass decisions, regardless of unknown Bench funding or cost details.
 
