@@ -2,6 +2,7 @@
 
 const assert=require('node:assert/strict');
 const path=require('node:path');
+const {createHash}=require('node:crypto');
 const {initializeCards,runMatch}=require('./headless.cjs');
 const {planAichi}=require('../evaluation/aichi-pilot.cjs');
 const {deriveSlotSeeds}=require('../../scripts/aichi-decorrelated-seeds.cjs');
@@ -49,15 +50,42 @@ function run(){
       deckA,deckB,seed,
       maxActions:90,strictPromptValidation:true,
       isolatePolicyRandomness:true,captureDecisionTrace:true,
+      captureInitialFullPhysicalDeal:true,
       label:'agent5-generic-trainer-frontier-original-5-vs-11-'+slot
     };
+    const control=runMatch(request);
     const observed=withNativeOwnerTrainerFrontier(
       ()=>runMatch(request),{
         Store,SimpleTacticsAi,GamePhase,ActionEnumerator,
         TrainerCard,TrainerType,PlayCardAction,
         allCards:manager.getAllCards(),seats:[0,1],maxRoots:90
       });
+    const replay=runMatch(request);
+    assert.equal(control.engine,PIN);
     assert.equal(observed.result.engine,PIN);
+    assert.equal(replay.engine,PIN);
+    const digest=game=>createHash('sha256').update(JSON.stringify({
+      deckHashes:game.deckHashes,
+      firstTurnSlot:game.firstTurnSlot,
+      fullDeal:game.initialFullPhysicalDealFingerprint,
+      decisionTrace:game.decisionTrace,
+      rootActionLedger:game.rootActionLedger,
+      finished:game.finished,winner:game.winner
+    })).digest('hex');
+    const parity={
+      control:digest(control),observed:digest(observed.result),
+      repeatedControl:digest(replay)
+    };
+    assert.equal(parity.control,parity.observed,
+      'Read-only Trainer frontier changed same-seed game or decisions');
+    assert.equal(parity.control,parity.repeatedControl,
+      'Repeated native control changed same-seed game or decisions');
+    const fullRoot=control.initialFullPhysicalDealFingerprint?.digestSha256;
+    assert.ok(typeof fullRoot==='string'&&fullRoot.length===64,
+      'Same-seed physical root fingerprint must exist');
+    assert.equal(fullRoot,
+      observed.result.initialFullPhysicalDealFingerprint?.digestSha256);
+    assert.equal(fullRoot,replay.initialFullPhysicalDealFingerprint?.digestSha256);
     const a=observed.audit;
     assert.equal(a.observedAuthenticStore,true);
     const rootActions=observed.result.decisionTrace??[];
@@ -65,6 +93,8 @@ function run(){
     rows.push({
       source5Seat:seat,physicalSlot:slot,seed,
       fullDeckCounts:[deckA.length,deckB.length],
+      sameSeedThreeArmParity:parity,
+      initialFullPhysicalDealDigest:fullRoot,
       completed:censored?false:true,
       nativeWinner:censored?null:observed.result.winner,
       capped:censored,
@@ -87,10 +117,13 @@ function run(){
     registeredOriginalRanks:[5,11],
     sameSixtyBothSeats:true,
     noDeckSubstitution:true,
-    simulatedGames:rows.length,
+    simulatedGames:rows.length*3,
+    tripleReplayPerSeat:true,
     competitiveQualifiedGames:0,
     summary:{
       rootDecisionsObserved:full.length,
+      fullPhysicalMatchedABA:rows.length,
+      fullGameTraceMatchedABA:rows.length,
       rootsHoldingTrainer:full.filter(root=>root.observedOwnerHandTrainerCopies>0).length,
       rootsWithUnblockedGenericTrainer:genericUnblocked.length,
       nativeActionEnumeratorOfferedTrainerCopies:
