@@ -1,0 +1,71 @@
+{
+  "schema": "agent1-rank17-composed-owner-ability-opportunity-aba-registration-v1",
+  "registeredAtUtc": "2026-11-03T15:39:00Z",
+  "status": "frozen-pre-native",
+  "sourceOriginalRank": 17,
+  "sourcePrinted60Sha256": "331861e47dd979a8d206bb3a7cdfb07768fa28a080fd1b11e4b01c1611ea61ae",
+  "opponentOriginalRank": 1,
+  "opponentPrinted60Sha256": "159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090",
+  "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "cohort": "fresh-independent-prospective-seeds",
+  "seeds": [
+    1523304803,
+    375363988,
+    2128426800,
+    1788683046,
+    1150092985,
+    1205137347,
+    1332353683,
+    2150778830
+  ],
+  "sourcePhysicalSeats": [
+    0,
+    1
+  ],
+  "arms": [
+    "composed-owner-control",
+    "composed-owner-readonly-observer",
+    "composed-owner-control-repeat"
+  ],
+  "independentPhysicalDeals": 16,
+  "totalNativeArms": 48,
+  "nativePolicy": {
+    "bothSeats": {
+      "naturalEvolutionRoot": true,
+      "publicContextSpecialEnergy": true
+    },
+    "rank17SourceOnly": "previously validated native canPlay-qualified Battle Compressor after accepted owner root Pass",
+    "opponent": "same symmetric ordinary actor, no source-specific Item bridge",
+    "ownerCensus": "agent1-rank17-electrode-owner-census-v1, default-off except observer",
+    "notes": "The source-specific Battle Compressor adapter changes source action choice compared to an unbridged generic actor, but remains identical in all three observer A/B/A arms. It is not proof of unbiased common tournament opponent competence."
+  },
+  "nativeActionCap": 180,
+  "nativeFlags": {
+    "strictPromptValidation": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "captureInitialFullPhysicalDeal": true,
+    "battleCompressorPositiveSelectionCorrection": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true,
+    "rank4RaichuCompressorSeat": "exact source physical seat"
+  },
+  "mainOutcomes": [
+    "all48ArmCensusWithoutDroppingFailures",
+    "16of16ABATraceParity",
+    "actualSourceCompressorNativeRootAcceptance",
+    "physicalSpecialEnergyInSourceDiscard",
+    "ElectrodeAndRaichuCoPresentOwnerRoots",
+    "partialOneToFourCardBombFunding",
+    "fullFiveOrMoreCardBombFunding",
+    "selectedAbilityActionAndPrizesIfAny"
+  ],
+  "exclusions": [
+    "No candidate deck changes",
+    "No observer action mutation",
+    "No win-rate estimate",
+    "Do not count repeated roots as independent games or turns",
+    "No paper clock",
+    "No comprehensive action/energy/Prize legality or independent opposing policy validation"
+  ]
+}
