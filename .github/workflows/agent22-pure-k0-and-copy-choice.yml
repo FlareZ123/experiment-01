@@ -1,0 +1,23 @@
+name: Agent 22 pure K0 and copied-attack choice regression
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-agent22:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute exact K0 and copied-attack provenance unit regressions
+        run: |
+          node --test tests/agent22-k0-complementarity-search.test.cjs
+          node --test tests/agent22-source-copy-choice-audit.test.cjs
