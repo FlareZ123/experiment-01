@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const {isDeepStrictEqual} = require('node:util');
 
 const BASELINE = 'joint-v1-control';
 const SELECTED = 'selected-v2-symmetric-vip';
@@ -38,7 +39,11 @@ function samePhysicalSetup(a, b) {
     a.actualStarterSeat === b.actualStarterSeat &&
     a.candidateSeat === b.candidateSeat &&
     a.sourceSeat === b.sourceSeat &&
+    typeof a.sourceDeckFingerprint === 'string' &&
+    a.sourceDeckFingerprint.length > 0 &&
     a.sourceDeckFingerprint === b.sourceDeckFingerprint &&
+    typeof a.candidateDeckFingerprint === 'string' &&
+    a.candidateDeckFingerprint.length > 0 &&
     a.candidateDeckFingerprint === b.candidateDeckFingerprint;
 }
 
@@ -52,7 +57,7 @@ function firstChangedRoot(before, after) {
   assert.ok(Array.isArray(before) && Array.isArray(after));
   const n = Math.max(before.length, after.length);
   for (let i = 0; i < n; i++) {
-    if (JSON.stringify(before[i]) !== JSON.stringify(after[i])) {
+    if (!isDeepStrictEqual(before[i], after[i])) {
       return {index: i, baseline: before[i] ?? null, selected: after[i] ?? null};
     }
   }
