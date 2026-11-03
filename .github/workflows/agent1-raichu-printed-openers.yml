@@ -20,4 +20,4 @@ jobs:
         with:
           node-version: '22'
       - name: Verify original rank4 and rank17 printed predecessors
-        run: node --test tests/agent1-rank17-raichu-printed-openers.test.cjs tests/agent1-ditto-prism-actor-evolution.test.cjs tests/agent42-raichu-printing-sensitivity.test.cjs tests/aichi-electrode-observer-contrast.test.cjs
+        run: node --test tests/agent1-rank17-raichu-printed-openers.test.cjs tests/agent1-ditto-prism-actor-evolution.test.cjs tests/agent42-raichu-printing-sensitivity.test.cjs tests/aichi-electrode-observer-contrast.test.cjs tests/agent1-raichu-actor-compressor-bridge.test.cjs tests/agent1-rank17-actor-compressor-bridge-prospective.test.cjs tests/agent1-rank17-compressor-opportunity-census.test.cjs tests/agent1-rank17-compressor-printing-transport.test.cjs
