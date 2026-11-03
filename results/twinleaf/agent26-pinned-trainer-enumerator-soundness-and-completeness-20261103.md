@@ -1,0 +1,41 @@
+# Pinned Twinleaf Trainer ActionEnumerator is neither a legal oracle nor a complete Stadium search frontier
+
+**Agent 26 | 3 November 2026 | pinned TypeScript source audit plus independent read of original Store A/B/A root observations; zero new game runs.** This report follows the [archived 50-root Trainer audit](agent5-generic-trainer-opportunity-source5-v11-aba-20261103.md) and its [separate raw-root forensic table](../aichi-2026/2026-11/agent26-rank5-vip-stale-enumerator-offers-20261103.md). It concerns *candidate generation* for the shared owner-decision planner, and reports no new competitive evidence.
+
+## Exact pinned provenance
+
+All source citations refer to **the same existing Twinleaf submodule commit** `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, without upstream edits:
+
+- [`ActionEnumerator` lines 148–161](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/advanced-bot/action-enumerator.ts#L148-L161) generates a `PlayCardAction` for **every** physically held Item up to a per-type cap of eight, with no card-specific `canPlay` check.
+- [`BattleVIPPass` lines 24–56](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/09-sword-and-shield/set-fusion-strike/battle-vip-pass.ts#L24-L56) makes `canPlay=false` when `state.turn>2` and throws `CANNOT_PLAY_THIS_CARD` if such a proposed use reaches its actual effect reducer.
+- [`ActionEnumerator.playStadiumActions` lines 163–185](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/advanced-bot/action-enumerator.ts#L163-L185) immediately returns no Stadium actions whenever `player.stadium.cards.length>0`, regardless of which differently named Stadium is physically held. It also filters same Stadium by **exact printing `fullName`**, whereas the Store/paper play restriction is by card **name**.
+- [`play-card-reducer` lines 119–132](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/play-card-reducer.ts#L119-L132) instead permits playing a Stadium unless a Stadium was already played on that turn or its **name** matches the currently played Stadium. [`play-trainer-effect` lines 122–158](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/play-trainer-effect.ts#L122-L158) actually moves an existing own or opposing Stadium to discard (or Lost Zone for relevant Prism Star handling) and installs the new Stadium.
+- The **supplied Advanced Player's Rulebook Ver3.4, section I.B-04**, explicitly allows replacing a Stadium in play with one of a different name and forbids playing one of the same name. Thus the underlying Store's replacement rule is aligned with this section; the enumerator's broad own-Stadium veto conflicts with the actual legal action set.
+
+## Distinct concrete failures
+
+### 1. False positive Item eligibility
+
+In the [real pinned Store A/B/A source rank5 versus rank11 archived native observer](https://github.com/FlareZ123/experiment-01/actions/runs/41620156249), `Battle VIP Pass FST` was physically held at **16** root frames, of which it was native-enumerator-offered **10 times after both sides had completed their first turn**. The late offers occurred source5 seat0 turns `3,5,5,7,9,11,13` and source5 seat1 turns `4,4,6`. These are **10/208 = 4.8077%** of all 208 archived enumerator Trainer-copy offers, provably time-ineligible by the card's own `canPlay` and effect. The **actual Store did not dispatch those proposed VIP plays** in the observed roots, so this is a recommendation-set unsoundness, not evidence of real Store accepting an illegal Item. A source-state proof of the discrepancy follows independently from the pinned classes even without the observational counts.
+
+### 2. False negative legal Stadium replacement candidate
+
+The enumerator **always suppresses** a new Stadium from the acting owner while that owner's Stadium card is still in its `player.stadium` area, even if the player has not placed a Stadium *this* turn, is under no Stadium lock, and holds a **different-name** Stadium. The real Store permits this replacement (same-name veto excluded), matching paper section I.B-04.
+
+The saved authentic A/B/A root artifact has exactly **four** held `Sky Field ROS` copies not offered by enumerator in source rank5 seat0: global turns 7,9,11,13, root ordinals 14,17,19,21; all actually chose Pass. The **same source owner had played `Path to the Peak CRE` in the root at global turn 5**, which the Store accepted. This is consistent with the described own-Stadium suppression, although the archived read-only frontier did **not** store the intervening public Stadium board state, so the four specific omissions **cannot yet be causally attributed** to the enumerator's own-Stadium conditional without a fresh authenticated public-state snapshot. The source-level conditional itself establishes the possibility and precise form of underenumeration.
+
+### 3. Same-name different-printing false positive
+
+The enumerator filters by `s.card.fullName !== currentStadium.fullName`, whereas the actual Store checks `stadium.name === handCard.name`, correctly forbidding the same-named Stadium irrespective of printing. If two different printings of the same named Stadium are present in opposite zones, the enumerator can propose an illegal same-name replacement, even when its own-Stadium veto does not trigger. This is a **source-implied conditional failure**, not an observed event in the two archived original-sixty games.
+
+## Separate prior-art check: premature Supporter consumption already solved as an opt-in option
+
+The pinned `PlaySupporterTactic` mutates live `player.supporterTurn=state.turn` when merely proposing an action, which may poison the `SimpleTacticsAi` subsequent legality check and result in a Pass. **This is previously documented and patched by Agent24**, with its existing opt-in [`SupporterDecisionGuard-v1`](supporter-decision-policy-gate.md) and [`supporter-decision-hook.cjs`](../../simulation/twinleaf/supporter-decision-hook.cjs). Its [compiled original-source characterization](https://github.com/FlareZ123/experiment-01/actions/runs/38833951933) changed a rank1 vs rank10 smoke sample from zero Supporters per side to four per side. This is **prior work and should not be rediscovered or implemented again**. Importantly, the field `supporterTurn` itself correctly resets to zero at end of its owner's turn ([pinned `game-phase-effect` line517](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/effect-reducers/game-phase-effect.ts#L514-L519)); Agent5's generic `supporterPlayedTurn>0` block has consistent current-turn semantics.
+
+## Decision for general-action policy architecture
+
+Treat raw `ActionEnumerator` output only as a proposal set. Construct an owner-visible **completeness-audited candidate universe** from every held Trainer and necessary public legal action category, then separately evaluate printed temporal/turn restrictions, public lock and Stadium-name constraints, specific resource costs and target choices. The existing [Agent5 owner Trainer opportunity module](../../simulation/twinleaf/agent5-generic-owner-trainer-opportunity.cjs) already separately records physically held and enumerated Trainers and knows Stadium name/turn constraints. It provides the right observability boundary. The missing integration is card-specific paper payment and strategy-aware selected action. Avoid solving these by modifying the vendor submodule or by naively accepting every enumerated proposal.
+
+A targeted **native read-only public-Stadium snapshot** at the four existing frozen Sky Field omissions, and a source/Store counterexample where replacing an already-controlled differently named Stadium is generated independently of the enumerator, would close the observation-level cause gap without claiming a strategic game win.
+
+**Aichi benchmark status remains:** 29/32 authenticated original printed 60s, ranks23/25/28 missing, zero competitively qualified matches, no fixed 60 supported at 99.5%.
