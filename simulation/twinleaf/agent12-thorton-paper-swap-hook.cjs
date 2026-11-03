@@ -36,11 +36,18 @@ function withPaperThortonSwap(execute){
     native('game/store/prompts/choose-cards-prompt');
   const {GameMessage}=native('game/game-message');
   const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
+  const {Store}=native('game/store/store');
+  const {ResolvePromptAction}=
+    native('game/store/actions/resolve-prompt-action');
   const proto=Thorton.prototype;
   const oldReduce=Object.getOwnPropertyDescriptor(proto,'reduceEffect');
   const oldCanPlay=Object.getOwnPropertyDescriptor(proto,'canPlay');
+  const oldDispatch=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
   assert.equal(typeof oldReduce?.value,'function');
   assert.equal(typeof oldCanPlay?.value,'function');
+  assert.equal(typeof oldDispatch?.value,'function');
+  const targetPrompts=new WeakMap();
+  const donorPrompts=new WeakMap();
 
   const eligibleOwnSlots=player=>[
     player.active,...player.bench
@@ -52,6 +59,35 @@ function withPaperThortonSwap(execute){
   function paperCanPlay(_store,_state,player){
     return player.supporterTurn===0&&
       deckBasicAvailable(player)&&eligibleOwnSlots(player).length>0;
+  }
+
+  // Guard prompt replies BEFORE native Store commits their result. Rejecting
+  // only inside the prompt callback would consume the prompt, strand the
+  // played Supporter and deny the owner a chance to choose a legal Basic.
+  function paperDispatch(action,...args){
+    if(action instanceof ResolvePromptAction){
+      const prompt=this.state.prompts.find(p=>
+        p.id===action.id&&p.result===undefined);
+      if(prompt&&targetPrompts.has(prompt)){
+        const owner=targetPrompts.get(prompt);
+        const answer=action.result;
+        if(!Array.isArray(answer)||answer.length!==1||
+          !eligibleOwnSlots(owner).includes(answer[0])||
+          prompt.validate(answer,this.state)!==true)
+          throw Error('PAPER_THORTON_TARGET_MUST_BE_BASIC');
+      }
+      if(prompt&&donorPrompts.has(prompt)){
+        const owner=donorPrompts.get(prompt);
+        const answer=action.result;
+        if(!Array.isArray(answer)||answer.length!==1||
+          !(answer[0] instanceof PokemonCard)||
+          answer[0].stage!==Stage.BASIC||
+          !owner.discard.cards.includes(answer[0])||
+          prompt.validate(answer,this.state)!==true)
+          throw Error('PAPER_THORTON_DISCARD_BASIC_SELECTION_INVALID');
+      }
+    }
+    return oldDispatch.value.call(this,action,...args);
   }
 
   function paperReduce(store,state,effect){
@@ -75,27 +111,29 @@ function withPaperThortonSwap(execute){
           slot:SlotType.BENCH,index});
     });
 
+    const chooseTarget=new ChoosePokemonPrompt(
+      player.id,GameMessage.CHOOSE_POKEMON_TO_DAMAGE,
+      PlayerType.BOTTOM_PLAYER,[SlotType.ACTIVE,SlotType.BENCH],
+      {min:1,max:1,allowCancel:false,blocked}
+    );
+    targetPrompts.set(chooseTarget,player);
     return store.prompt(
-      state,
-      new ChoosePokemonPrompt(
-        player.id,GameMessage.CHOOSE_POKEMON_TO_DAMAGE,
-        PlayerType.BOTTOM_PLAYER,[SlotType.ACTIVE,SlotType.BENCH],
-        {min:1,max:1,allowCancel:false,blocked}
-      ),
+      state,chooseTarget,
       selected=>{
         const targets=selected??[];
         const target=targets[0];
         if(targets.length!==1||!eligibleOwnSlots(player).includes(target))
           throw Error('PAPER_THORTON_TARGET_MUST_BE_BASIC');
         const outgoing=target.getPokemonCard();
+        const chooseDonor=new ChooseCardsPrompt(
+          player,GameMessage.CHOOSE_CARD_TO_PUT_ONTO_BENCH,
+          player.discard,
+          {superType:SuperType.POKEMON,stage:Stage.BASIC},
+          {min:1,max:1,allowCancel:false}
+        );
+        donorPrompts.set(chooseDonor,player);
         return store.prompt(
-          state,
-          new ChooseCardsPrompt(
-            player,GameMessage.CHOOSE_CARD_TO_PUT_ONTO_BENCH,
-            player.discard,
-            {superType:SuperType.POKEMON,stage:Stage.BASIC},
-            {min:1,max:1,allowCancel:false}
-          ),
+          state,chooseDonor,
           selectedCards=>{
             const cards=selectedCards??[];
             const incoming=cards[0];
@@ -124,10 +162,14 @@ function withPaperThortonSwap(execute){
 
   Object.defineProperty(proto,'canPlay',{...oldCanPlay,value:paperCanPlay});
   Object.defineProperty(proto,'reduceEffect',{...oldReduce,value:paperReduce});
+  Object.defineProperty(Store.prototype,'dispatch',
+    {...oldDispatch,value:paperDispatch});
   try{return execute();}
   finally{
     assert.strictEqual(proto.canPlay,paperCanPlay);
     assert.strictEqual(proto.reduceEffect,paperReduce);
+    assert.strictEqual(Store.prototype.dispatch,paperDispatch);
+    Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
     Object.defineProperty(proto,'reduceEffect',oldReduce);
     Object.defineProperty(proto,'canPlay',oldCanPlay);
   }
