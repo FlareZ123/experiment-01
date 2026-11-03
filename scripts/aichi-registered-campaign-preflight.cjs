@@ -22,6 +22,8 @@ function preflightCampaign(seedPlan,originalPins,inputs={}){
   const originals=preflightOriginalSourcePins(originalPins,inputs);
   assert.equal(seed.campaignId,originals.campaignId,
     'independent source and seed manifests refer to different campaigns');
+  assert.equal(seed.manifestSha256,originalPins.seedPlanSha256,
+    'seed plan differs from independently registered frozen manifest digest');
   const source=originals.sourcePrints.find(row=>row.role==='source');
   assert.ok(source,'original source role required');
   assert.equal(seedPlan.rank,source.rank,
