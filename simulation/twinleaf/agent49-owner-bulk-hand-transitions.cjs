@@ -77,9 +77,10 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
   assert.ok(prizeCount===undefined||prizeCount===null||
     (Number.isSafeInteger(prizeCount)&&prizeCount>=0&&prizeCount<=6));
   const hasPublicPrizeCount=Number.isSafeInteger(prizeCount);
-  const opponentHandCount=view.opponentPublic?.handCount;
-  const opponentPublicCountKnown=Number.isSafeInteger(opponentHandCount)&&
-    opponentHandCount>=0;
+  const opponentHandCount=rule.drawOnlyIfEitherPlayerMoved?
+    view.opponentPublic?.handCount:undefined;
+  const opponentPublicCountKnown=rule.drawOnlyIfEitherPlayerMoved===true&&
+    Number.isSafeInteger(opponentHandCount)&&opponentHandCount>=0;
   const drawTriggered=!rule.drawOnlyIfEitherPlayerMoved?true:
     moved.length>0?true:
       opponentPublicCountKnown?opponentHandCount>0:null;
