@@ -89,7 +89,7 @@ function withNativeTrainerScoreObserver(execute){
       const row={
         seat,globalTurn:view.globalTurn,
         class:action?.constructor?.name??null,
-        proposedPrinting,
+        handIndex:index,proposedPrinting,
         evaluateActionCalls:deltaEvaluate,
         getStateScoreCalls:deltaScore,
         actorViewObtainedAfterDecision:true,
