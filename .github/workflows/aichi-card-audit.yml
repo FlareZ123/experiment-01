@@ -68,6 +68,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Verify original English display release chronology without paper-legality inference
+        if: ${{ always() && !cancelled() }}
+        run: node --test tests/agent6-original-field-english-release-chronology.test.cjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
