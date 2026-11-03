@@ -9,9 +9,25 @@
       "rank": 11,
       "repeat": 3,
       "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "11:3:B:champion-reference",
+      "seed": 1800616448
+    },
+    {
+      "rank": 11,
+      "repeat": 3,
+      "candidateSlot": "B",
       "candidateId": "new-moon-lockbreaker-v1",
       "id": "11:3:B:new-moon-lockbreaker-v1",
       "seed": 1800616448
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "11:0:B:champion-reference",
+      "seed": 4096421492
     },
     {
       "rank": 11,
@@ -39,7 +55,7 @@
   "candidateSixtiesUnchanged": true,
   "sourceSixtyUnchanged": true,
   "samePhysicalSeedsAndStarterRequired": true,
-  "totalNativeAttempts": 6,
+  "totalNativeAttempts": 12,
   "competitiveQualifiedGames": 0,
   "winRateClaim": "none"
 }
