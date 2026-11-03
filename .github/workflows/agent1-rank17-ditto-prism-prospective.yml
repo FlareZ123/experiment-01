@@ -16,6 +16,7 @@ on:
           - bridge-archive
           - postprompt-custody
           - generic-special-energy
+          - generic-energy-effects
 
 permissions:
   contents: read
@@ -145,6 +146,23 @@ jobs:
         with:
           name: agent1-rank17-symmetric-generic-special-energy-native
           path: agent1-rank17-generic-special-energy-prospective.json
+          if-no-files-found: warn
+
+      - name: Preflight disclosed original rank17 positive Electro Rain native physical source
+        if: ${{ github.event.inputs.experiment == 'generic-energy-effects' }}
+        run: node -e "const r=require('./simulation/evaluation/agent1-rank17-electro-rain-settlement-retrospective.cjs').preflight();console.log('RETRO_RAIN_FROZEN',r.registered.previousSourceElectroRainEvent.seed)"
+      - name: Regress documented original positive selection and native error visibility
+        if: ${{ github.event.inputs.experiment == 'generic-energy-effects' }}
+        run: node --test tests/agent1-rank17-electro-rain-settlement-retrospective.test.cjs
+      - name: Reobserve one prior source Electro Rain with original Store public-board effect telemetry
+        if: ${{ github.event.inputs.experiment == 'generic-energy-effects' }}
+        run: node simulation/evaluation/agent1-rank17-electro-rain-settlement-retrospective.cjs
+      - name: Preserve both native physical arms and original Electro Rain public before/after effect trace
+        if: ${{ always() && github.event.inputs.experiment == 'generic-energy-effects' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-original-electro-rain-public-effect
+          path: agent1-rank17-electro-rain-settlement-retrospective.json
           if-no-files-found: warn
 
   source-archived-bridge-audit:
