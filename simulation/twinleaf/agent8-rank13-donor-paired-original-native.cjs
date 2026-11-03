@@ -7,6 +7,8 @@ const {initializeCards,runMatch}=require('./headless.cjs');
 const {actorObservation}=require('./actor-observation-contract.cjs');
 const {observeRank13VstarOpportunity}=
   require('./agent8-rank13-vstar-owner-opportunity.cjs');
+const {observeRank13PayloadOwnerOpportunity}=
+  require('./agent8-rank13-payload-owner-opportunity.cjs');
 const {resolveManifestFile}=require('./resolve-field.cjs');
 const {withCanonicalActorOnlyPolicy}=
   require('../evaluation/agent7-canonical-actor-composition.cjs');
@@ -88,11 +90,20 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
   ]);
   const sourceDragonDiscardTimeline=[];
   const sourceDragonDiscardKeys=new Set();
+  const sourceOwnerPayloadAccessRoots=[];
+  const sourceOwnerPayloadAccessKeys=new Set();
   const ownerVstarObservations=[];
   const ownerVstarKeys=new Set();
   const observedRoot=(state,seat)=>{
     const actor=actorObservation(state,seat);
     if(seat===sourceSeat){
+      const access=observeRank13PayloadOwnerOpportunity(actor);
+      const accessKey=JSON.stringify(access);
+      if(!sourceOwnerPayloadAccessKeys.has(accessKey)){
+        sourceOwnerPayloadAccessKeys.add(accessKey);
+        if(sourceOwnerPayloadAccessRoots.length<250)
+          sourceOwnerPayloadAccessRoots.push(access);
+      }
       const present=(actor.ownPublic.discard??[])
         .filter(printing=>sourceDragonDonors.has(printing));
       const donorReceipt={turn:actor.globalTurn,
@@ -197,6 +208,7 @@ function executeOne(trial,byRank,donorRootEnabled,naturalEvolutionEnabled=false,
         nativeCopiedAttackChoiceLedger(trace,sourceSeat),
       sourceOwnerVstarObservations:ownerVstarObservations,
       sourceOwnerDragonDiscardTimeline:sourceDragonDiscardTimeline,
+      sourceOwnerPayloadAccessRoots,
       sourceOwnerEligibleVstarRootTurns:[...new Set(ownerVstarObservations
         .filter(row=>row.ordinaryVstarRootLegal).map(row=>row.turn))],
       deckHashes:game.deckHashes,
