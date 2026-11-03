@@ -227,3 +227,22 @@ test("mulligan-conditioned exact ACE/Special-Energy Prize collapse",()=>{
    Number(validInitial*53n);
  assert.ok(Math.abs(acePrized-0.1012428890254701)<1e-12);
 });
+
+
+test("full one-line opening, Prize and draw script is astronomically rare",()=>{
+  // All terms are conditional on a uniformly random physical 60. The initial
+  // seven must contain exactly 1/4 Gimmighoul, both 2/2 Exeggcute, 3/4 Roxie
+  // and 1/1 ACE SPEC; all six Prizes must be Fire from the remaining 15.
+  // With that start/Prize selection, 29 of 47 deck cards are non-Energy,
+  // including 3 Gholdengo. First topdeck is any Gholdengo, then the next
+  // 20 needed Roxie/turn draws are all non-Energy.
+  const pSeven=Number(choose(4,1)*choose(2,2)*choose(4,3))/
+    Number(choose(60,7));
+  const pPrize=Number(choose(15,6))/Number(choose(53,6));
+  const pDraw=3/47*Number(choose(28,20))/Number(choose(46,20));
+  const pJoint=pSeven*pPrize*pDraw;
+  assert.ok(pJoint>3.19e-19 && pJoint<3.20e-19);
+  const pLegalOpening=1-Number(choose(54,7))/Number(choose(60,7));
+  assert.ok(pJoint/pLegalOpening>5.89e-19 &&
+    pJoint/pLegalOpening<5.91e-19);
+});
