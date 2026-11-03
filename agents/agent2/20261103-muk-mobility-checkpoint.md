@@ -1,3 +1,11 @@
 # Muk / Regidrago mobility checkpoint
 
 Paired virtual openings, 320,000 resource-only setups across 29 authenticated source ranks. Active-Regidrago route: 0.173362% v0, 0.199483% v1. Including natural Budew retreat and held Float Stone: 0.193879% v0, 0.220259% v1. The owner Alolan Muk shuts off Latias ex Skyliner. Source, tests and limits: `simulation/evaluation/agent2-alchemy-muk-mobility-bridge.py` and `tests/agent2-alchemy-muk-mobility-bridge.test.py`. No games or wins certified.
+
+## Mulligan-bonus sensitivity and lower bound
+
+The [mobility runner](../../simulation/evaluation/agent2-alchemy-muk-mobility-bridge.py) now accepts `bonus_policy='all'` or `'none'` with identical 29 source-strata and initial candidate RNG seeds. The all-policy historical output is unchanged, verified by exact comparison of all strata after refactoring. An independent 320,000 paired no-bonus virtual setup simulation finds **mobile-union 0.0840517% v0 versus 0.0971552% v1**, difference **+0.0131034 pp**, paired 95% interval **[+0.0058128,+0.0203941] pp**. The full-bonus witness remains **0.1938793% v0 versus 0.2202586% v1**, delta **+0.0263793 pp**. Both are resource-only model outputs.
+
+**Exact cardinality argument:** The Float Stone variation without any draw other than the first-turn ordinary eighth card needs at least nine physically distinct cards by the first turn: initial other-Basic starter, Grimer, Regidrago V, VSTAR, Boost Shake, first Double Dragon Energy, second compatible Energy, Float Stone, and a Dragon attack discarded through an actual payable route. Search connectors do not reduce this minimum because they require a physical search Item and mandatory discarded donor. Thus with only the initial seven plus ordinary turn draw, a Float Stone strict-ready line is impossible *by card count*, consistent with **0/320,000** no-bonus simulations. Card-draw Supporters, Abilities and real-game sequences can produce more than eight cards; this impossibility applies solely to the deliberately no-extra-draw witness. The [added pure no-bonus regression](../../tests/agent2-alchemy-muk-mobility-bridge.test.py) and all eleven local cases passed.
+
+This extends the printed Latias/Muk self-lock observation without establishing deck win rate, archetype advantage or a native Store witness. No new candidate deck was registered.
