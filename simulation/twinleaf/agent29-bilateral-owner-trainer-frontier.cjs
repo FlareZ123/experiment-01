@@ -65,6 +65,14 @@ function trainerFrontierSummary(audit){
     observedRootCount:audit.roots.length,
     rootsOmittedDueToCap:audit.rootsOmittedDueToCap,
     nativeCatalogPrintings:audit.nativePrintedTrainerClasses,
+    k0GuaranteedVipPasses:audit.k0GuaranteedVipPassCount??null,
+    k0FirstTurnVipExamples:audit.roots.filter(root=>
+      root.guaranteedK0VipPassed===true).slice(0,8).map(root=>({
+        seat:root.seat,turn:root.turn,
+        certificate:root.guaranteedK0FirstTurnVip,
+        actualAction:root.chosen?.action,
+        nativeDispatch:root.dispatch
+      })),
     examples,
     rootLedgerSha256:createHash('sha256')
       .update(JSON.stringify(audit.roots)).digest('hex'),
@@ -82,7 +90,8 @@ function trainerFrontierSummary(audit){
  *
  * @template T
  * @param {()=>T} execute Actual synchronous headless game.
- * @param {{maxRoots?:number,observer?:Function,nativeDeps?:object}} options
+ * @param {{maxRoots?:number,observer?:Function,nativeDeps?:object,
+ *   ownRegisteredSixties?:string[][]}} options
  *   Injectable pure test seam; normal execution loads the pinned revision.
  * @returns {{result:T,audit:object}}
  */
@@ -103,12 +112,17 @@ function withBilateralOwnerTrainerFrontier(execute,options={}){
       GamePhase:native('game/store/state/state').GamePhase,
       ActionEnumerator:native('advanced-bot/action-enumerator').ActionEnumerator,
       TrainerCard:native('game/store/card/trainer-card').TrainerCard,
+      PokemonCard:native('game/store/card/pokemon-card').PokemonCard,
       TrainerType:native('game/store/card/card-types').TrainerType,
+      Stage:native('game/store/card/card-types').Stage,
       PlayCardAction:native('game/store/actions/play-card-action').PlayCardAction,
       allCards:manager.getAllCards()
     };
   })();
-  const observed=observer(execute,{...nativeDeps,seats:[0,1],maxRoots});
+  const observed=observer(execute,{...nativeDeps,seats:[0,1],maxRoots,
+    ...(options.ownRegisteredSixties?{
+      ownRegisteredSixties:options.ownRegisteredSixties
+    }:{})});
   assert.ok(observed?.audit);
   const summary=trainerFrontierSummary(observed.audit);
   return {result:observed.result,audit:{...observed.audit,
