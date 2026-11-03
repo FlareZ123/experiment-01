@@ -25,15 +25,17 @@ function choose(n, k) {
  * eight-card hand if enhanced search is needed, even after playing Tag Call.
  * This says nothing about the strategic desirability of those discards.
  *
- * The unordered eight-card hand has weight 7 when exactly one Basic is
- * present because it appeared in the starting seven with probability 7/8.
- * Otherwise a hand with 2+ Basics has weight 8.
+ * For a hand of size H=8+bonusDraws, its numerator multiplier is
+ * C(H,7)-C(H-Basics,7), counting starting-seven placements with a Basic.
+ * For H=8 this gives weights 7 (one Basic) or 8 (two or more Basics).
  *
  * @param {1 | 3} doubleColorlessCopies
+ * @param {number} bonusDraws Maximum optional opponent-mulligan bonus cards actually drawn
  * @returns {{denominator:bigint,available:bigint,direct:bigint,supporter:bigint}}
  */
-function exactAccess(doubleColorlessCopies) {
+function exactAccess(doubleColorlessCopies, bonusDraws = 0) {
   const d = doubleColorlessCopies;
+  const handSize = 8 + bonusDraws;
   const others = 51 - d;
   let denominator = 0n;
   let available = 0n;
@@ -41,12 +43,12 @@ function exactAccess(doubleColorlessCopies) {
   let supporter = 0n;
 
   for (let b = 1; b <= 4; b++) {
-    const startWeight = b === 1 ? 7n : 8n;
+    const startWeight = choose(handSize, 7) - choose(handSize - b, 7);
     for (let tag = 0; tag <= 2; tag++) {
       for (let gh = 0; gh <= 2; gh++) {
         for (let mountain = 0; mountain <= 1; mountain++) {
           for (let energy = 0; energy <= d; energy++) {
-            const otherHand = 8 - b - tag - gh - mountain - energy;
+            const otherHand = handSize - b - tag - gh - mountain - energy;
             if (otherHand < 0 || otherHand > others) continue;
             const handWays = startWeight * choose(4, b) * choose(2, tag)
               * choose(2, gh) * choose(1, mountain) * choose(d, energy)
@@ -81,4 +83,44 @@ function exactAccess(doubleColorlessCopies) {
   return { denominator, available, direct, supporter };
 }
 
-module.exports = { choose, exactAccess };
+/**
+ * Source receives max(0, Y-X) optional bonus draws. X/Y are independent
+ * geometric counts of valid opening seven attempts for source/opponent.
+ * Source has 4 Basics; opponent has opposingBasics.
+ * @param {number} opposingBasics
+ * @param {number} k
+ * @returns {number}
+ */
+function bonusProbability(opposingBasics, k) {
+  const pSource = 1 - Number(choose(56, 7)) / Number(choose(60, 7));
+  const pOpponent = 1 - Number(choose(60 - opposingBasics, 7)) / Number(choose(60, 7));
+  const denominator = pSource + pOpponent - pSource * pOpponent;
+  if (k === 0) return 1 - pSource * (1 - pOpponent) / denominator;
+  return pSource * pOpponent * (1 - pOpponent) ** k / denominator;
+}
+
+/**
+ * Exactly enumerates conditional physical access for each bonus count and
+ * mixes over the simultaneous two-player mulligan process. Ignores strategic
+ * choices to decline any bonus draw; assumes the owner takes all available.
+ *
+ * @param {1 | 3} doubleColorlessCopies
+ * @param {number} opposingBasics
+ * @param {number} maximumBonus
+ * @returns {{probability:number,omittedMass:number}}
+ */
+function withMaxMulliganBonuses(doubleColorlessCopies, opposingBasics, maximumBonus = 20) {
+  const pSource = 1 - Number(choose(56, 7)) / Number(choose(60, 7));
+  const pOpponent = 1 - Number(choose(60 - opposingBasics, 7)) / Number(choose(60, 7));
+  const denominator = pSource + pOpponent - pSource * pOpponent;
+  let probability = 0;
+  for (let k = 0; k <= maximumBonus; k++) {
+    const counts = exactAccess(doubleColorlessCopies, k);
+    probability += bonusProbability(opposingBasics, k)
+      * Number(counts.available) / Number(counts.denominator);
+  }
+  const omittedMass = pSource * (1 - pOpponent) ** (maximumBonus + 1) / denominator;
+  return { probability, omittedMass };
+}
+
+module.exports = { choose, exactAccess, bonusProbability, withMaxMulliganBonuses };
