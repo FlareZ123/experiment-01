@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const roster = require('../results/aichi-2026/full-decklists.json');
-const { candidateForcedActiveMuk, candidateMukBenchGeometry, rank6GuzmaHalaVoltWindow } =
+const { candidateForcedActiveMuk, candidateMukBenchGeometry, candidateDirectSoleBenchMukAccess, rank26DirectRopeCologneAccess, rank6GuzmaHalaVoltWindow } =
   require('../simulation/evaluation/agent43-muk-thorns-firstturn-collision.cjs');
 
 /** @param {number} actual @param {number} expected */
@@ -47,6 +47,34 @@ near(
 assert.ok(geometry.secondGrimerSearchOpportunityAmongBasicValid
   < geometry.noNaturalSecondGrimerByEightAmongBasicValid);
 
+const sourceRank26 = roster.decks.find((deck) => deck.rank === 26);
+assert.ok(sourceRank26);
+assert.equal(sourceRank26.cards.reduce((n, row) => n + row.count, 0), 60);
+const source26Copies = (name) => sourceRank26.cards
+  .filter((row) => row.name === name).reduce((n, row) => n + row.count, 0);
+assert.deepEqual({
+  basics: sourceRank26.cards.filter((row) => row.category === 'Pokémon'
+    && (row.supertype === 'Pokémon' || true)
+    && !('evolvesFrom' in row)).reduce((n, row) => n + row.count, 0),
+  rope: source26Copies('Escape Rope'),
+  cologne: source26Copies('Canceling Cologne')
+}, { basics: 12, rope: 1, cologne: 1 });
+// The Basic count is authenticated separately against the exact rank26
+// source printing manifest and is independent of the two singleton Items.
+const ropeCologne = rank26DirectRopeCologneAccess();
+const soleBench = candidateDirectSoleBenchMukAccess();
+near(ropeCologne.basicValid, candidate.basicValid);
+near(soleBench.basicValid, candidate.basicValid);
+near(ropeCologne.heldPairUnconditional, 0.011354714027587781);
+near(ropeCologne.heldPairAmongBasicValid, 0.014029366316692639);
+near(soleBench.soleBenchedGrimerUnconditional, 0.023189204151078315);
+near(soleBench.soleBenchedGrimerAmongBasicValid, 0.028651522075995514);
+near(
+  ropeCologne.heldPairAmongBasicValid
+    * soleBench.soleBenchedGrimerAmongBasicValid,
+  0.000401962698734947
+);
+
 const source = rank6GuzmaHalaVoltWindow();
 near(source.sourceBasicValid, 0.3994996257446656);
 near(source.sourceOpportunityUnconditional, 0.1314789606712864);
@@ -59,6 +87,10 @@ console.log(JSON.stringify({
   status: 'PASS',
   scope: 'combinatorial opening access only; independently shuffled Basic-valid seven; no opponent mulligan bonus draws',
   forcedGrimerValidPercent: candidate.forcedGrimerActive / candidate.basicValid * 100,
+  rank26SourceHeldRopeColognePercent: ropeCologne.heldPairAmongBasicValid * 100,
+  candidateDirectSoleBenchMukPercent: soleBench.soleBenchedGrimerAmongBasicValid * 100,
+  independentDirectRopeMukConjunctionPercent:
+    ropeCologne.heldPairAmongBasicValid * soleBench.soleBenchedGrimerAmongBasicValid * 100,
   candidateHistoricalGrimerOnlySpeciesValidPercent: candidate.directForcedMukAmongBasicValid * 100,
   candidateNoNaturallyHeldBenchGrimerByEighthPercent:
     geometry.noNaturalSecondGrimerByEightAmongBasicValid * 100,
