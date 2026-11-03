@@ -52,6 +52,23 @@ for(const seat of [0,1]){
     assert.equal(r.after.regVInDiscard,true);
   });
 
+  test('Reversible hook lets same Thorton prompt retry legal Basic Bench, seat '+seat,()=>{
+    const r=probeSwap(seat,'evolved',true,true);
+    console.log('NATIVE_THORTON_RETRY_LEGAL_BENCH '+JSON.stringify(r));
+    assert.equal(r.targetChoice.validatorAccepted,false);
+    assert.match(r.targetChoice.error,/PAPER_THORTON_TARGET_MUST_BE_BASIC/);
+    assert.equal(r.targetChoice.settled,false);
+    assert.equal(r.retryTarget?.validatorAccepted,true);
+    assert.equal(r.retryTarget?.error,null);
+    assert.equal(r.cardChoice?.validatorAccepted,true);
+    assert.equal(r.cardChoice?.error,null);
+    assert.equal(r.after.active,'Regidrago VSTAR SIT');
+    assert.equal(r.after.bench0,'Arceus & Dialga & Palkia GX CEC');
+    assert.equal(r.after.ddeRemains,true);
+    assert.equal(r.after.thortonInDiscard,true);
+    assert.equal(r.after.thortonInSupporter,false);
+  });
+
   test('Reversible paper hook rejects evolved Active target, seat '+seat,()=>{
     const r=probeSwap(seat,'evolved',true);
     console.log('NATIVE_THORTON_GUARDED_EVOLVED '+JSON.stringify(r));
