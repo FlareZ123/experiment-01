@@ -19,7 +19,8 @@ const ROOT_KINDS=new Set([
  * @template T
  * @param {()=>T} execute Synchronous historical native replay.
  * @param {object[]} trials Ordered, already-registered native trials.
- * @param {{Store?:Function,minTurn?:number,deckThreshold?:number}} [deps]
+ * @param {{Store?:Function,minTurn?:number,deckThreshold?:number,
+ *   probe?:(state:object,seat:0|1)=>object,probeMaxDeck?:number}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withLateOwnerRootPhysicalAudit(execute,trials,deps={}){
@@ -95,6 +96,16 @@ function withLateOwnerRootPhysicalAudit(execute,trials,deps={}){
         nativeAccepted:false,nativeError:null
       };
       row.observedOwnerRoots++;
+      if(typeof deps.probe==='function'&&kind==='AttackAction'&&
+         deck<=(deps.probeMaxDeck??1)&&event.heldLillieCount>0){
+        try{
+          event.detachedLillieBeforeAttack=deps.probe(state,row.candidateSeat);
+        }catch(error){
+          event.detachedLillieBeforeAttack={
+            outcome:'DETACHED_PROBE_ERROR',error:String(error?.message??error)
+          };
+        }
+      }
       if(row.lateRootEvents.length<256)row.lateRootEvents.push(event);
       else row.rootSnapshotTruncated=true;
     }
