@@ -2,6 +2,15 @@ name: Agent1 original rank17 Ditto Prism Stage1 prospective native
 
 on:
   workflow_dispatch:
+    inputs:
+      experiment:
+        description: 'Select the original-source paired native experiment'
+        required: true
+        type: choice
+        default: ditto
+        options:
+          - ditto
+          - compressor
 
 permissions:
   contents: read
@@ -28,15 +37,36 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Confirm source manifest and preregistered original source identities
+        if: ${{ github.event.inputs.experiment != 'compressor' }}
         run: node -e "const a=require('node:assert/strict');const p=require('./simulation/evaluation/agent1-rank17-ditto-prism-prospective.cjs').preflight();a.equal(p.registered.expectedNativeArms,32);a.equal(p.sourceOriginal.cards.length,60);console.log('RANK17_SOURCE_FROZEN',p.registered.sourcePrinted60Sha256)"
       - name: Run all registered two-seat source-original control and Ditto root arms
+        if: ${{ github.event.inputs.experiment != 'compressor' }}
         run: node simulation/evaluation/agent1-rank17-ditto-prism-prospective.cjs > agent1-rank17-ditto-original-pairs.json
       - name: Verify registered identity, paired physical openings and labelled coverage
+        if: ${{ github.event.inputs.experiment != 'compressor' }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-rank17-ditto-original-pairs.json');a.equal(r.attemptedNativeArms,32);a.equal(r.pairs.length,16);a.ok(r.completePairs>0,'No native pair completed; inspect archived failures');a.equal(r.identicalPhysicalOpeningPairs,r.completePairs);a.equal(r.competitiveQualifiedGames,0);console.log('RANK17_DITTO_NATIVE',JSON.stringify({attempted:r.attemptedNativeArms,completePairs:r.completePairs,nativeErrorArms:r.nativeErrorArms,sameOpening:r.identicalPhysicalOpeningPairs,selected:r.treatmentDittoSelected,accepted:r.treatmentDittoNativeAccepted,confirmed:r.treatmentDittoPhysicallyConfirmed,rows:r.pairs.map(p=>({seed:p.seed,seat:p.sourceSeat,matched:p.samePhysicalOpening,ditto:p.difference?.treatmentAcceptedDittoStage1??null,sourceEvolutionDelta:p.difference?.sourceNativeEvolutions??null,error:p.control.nativeError?.slice(0,100)??p.treatment.nativeError?.slice(0,100)??null}))}))"
       - name: Archive every preregistered original 60 outcome and exception
+        if: ${{ github.event.inputs.experiment != 'compressor' }}
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent1-rank17-original-ditto-prospective
           path: agent1-rank17-ditto-original-pairs.json
+          if-no-files-found: warn
+
+      - name: Validate frozen rank17 Compressor original-sixty source and native plan
+        if: ${{ github.event.inputs.experiment == 'compressor' }}
+        run: node -e "const x=require('./simulation/evaluation/agent1-rank17-compressor-printing-transport.cjs').preflight();console.log('COMPRESSOR_FROZEN',JSON.stringify({seeds:x.reg.seedGroups,sourceSeats:x.reg.sourceSeats,sourceCards:x.source.cards.length}))"
+      - name: Pure registered matching, original source classification and failure-veto tests
+        if: ${{ github.event.inputs.experiment == 'compressor' }}
+        run: node --test tests/agent1-rank17-compressor-printing-transport.test.cjs tests/agent1-rank17-raichu-printed-openers.test.cjs
+      - name: Original rank17 printed Compressor real native matched pairs
+        if: ${{ github.event.inputs.experiment == 'compressor' }}
+        run: node simulation/evaluation/agent1-rank17-compressor-printing-transport.cjs
+      - name: Retain complete native Compressor root ledgers and every registered error
+        if: ${{ always() && github.event.inputs.experiment == 'compressor' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-printed-compressor-transport
+          path: agent1-rank17-compressor-printing-transport.json
           if-no-files-found: warn
