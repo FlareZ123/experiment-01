@@ -243,9 +243,15 @@ async function execute(publish=false){
     release=await response.json();
   }
   assert.equal(release.draft,false);
+  // Draft asset URLs use an ephemeral "untagged-..." path and are stale after
+  // publication. Re-fetch the published release to verify canonical URLs.
+  const published=await existingRelease(token);
+  assert.equal(published?.draft,false);
+  assert.equal(published.tag_name,RELEASE_TAG);
   const independentlyVerified=[];
   for(const artifact of archivePlan.artifacts){
-    const asset=assetMap.find(a=>a.name===artifact.assetName);
+    const asset=published.assets.find(a=>a.name===artifact.assetName);
+    assert.ok(asset,'Published release is missing an original artifact');
     independentlyVerified.push(await verifyPublishedAsset(asset,artifact,token));
   }
   return {schema:archivePlan.schema,mode:'published-and-downloaded',
