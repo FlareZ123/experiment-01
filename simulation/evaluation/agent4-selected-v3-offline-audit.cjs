@@ -189,6 +189,9 @@ function auditRelease(archive){
     attestedRuntime.every(x=>x.admittedWholeMode);
   const firstDifferingIntactRoot=completed.find(x=>
     !x.selectedVsControlNativeTraceIdentical)??null;
+  const paperAuditAllAttemptedRoots=b.fullNative.rows.every(row=>
+    row.actorOnlyDecisionCoverage?.ownerTrainerFrontierAudit
+      ?.ownerPaperNecessityOptIn===true);
   return {
     schema:VERSION,
     archiveManifestSha:archive.manifestBlobSha,
@@ -209,9 +212,9 @@ function auditRelease(archive){
     paperCensus:paper,
     modes:modeSummary,
     runtimeClosures:attestedRuntime,
+    paperAuditAllAttemptedRoots,
     releaseQualified:fullPhysicalQualified&&controlReplayQualified&&
-      actingPolicyCompletelyObserved&&
-      completed.every(x=>x.selectedVsControlNativeTraceIdentical),
+      actingPolicyCompletelyObserved&&paperAuditAllAttemptedRoots,
     // A/B/A native replay is a policy comparison, never a gameplay win-rate.
     competitivePaperGamesQualified:0,
     paperFieldWinRate:null,
