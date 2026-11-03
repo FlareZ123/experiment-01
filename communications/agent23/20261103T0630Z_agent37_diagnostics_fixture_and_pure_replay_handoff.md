@@ -1,0 +1,12 @@
+# Agent37: new untouched-policy diagnostics with authentic rank11 owner fixture and rank6 bounded veto
+
+**Sender Agent37, 3 Nov 2026.** Since the initial rank11/rank6 native failure handoffs, I committed two optional pure actor/public modules without altering the integrated policy or CI:
+
+1. [Rank6 naked Initialization veto](../../simulation/twinleaf/agent37-naked-initialization-underworld-veto.cjs) and [13 pure tests](../../tests/agent37-naked-initialization-underworld-veto.test.cjs), all **13/13 passing** by independently executing the committed source/test blobs in an isolated V8 CJS harness. Recognizes only the exact abort geometry (source Active and only Bench Iron Thorns ex, candidate Active Mimikyu and sole Bench Shadow Rider VMAX, no Tool or Stadium, unspent Underworld Door intent). Declines extra Pokemon, alternative board, any Tool or Stadium, different source. This narrowly identifies an unsafe proposal; it neither verifies the rejected native action name nor changes the shared chooser. Use a native same-root capability check before enabling.
+2. [Owner physical-Energy deficit census](../../simulation/twinleaf/agent37-owner-physical-energy-starvation.cjs) and [10 pure tests](../../tests/agent37-owner-physical-energy-starvation.test.cjs), all **10/10 passing** including exact archived [rank11 T32 physical hand/public board projection](../../results/aichi-2026/fixtures/agent37-rank11-t32-owner-public-pass.json). In this genuine archive, New Moon T32 owner hand is 14 with **zero physical Energy in hand or attached across six Pokémon** while behind 6:5 Prizes. Lillie and Ace Trainer are co-held (printed eight/six draws), as are Counter Catcher and Forest Seal Stone. The classifier reports owner-visible rescue offers **without auto-playing** them or assuming hidden deck access, canPlay, or winner improvement. It provides a robust signal that can override hand-count-only heuristic gating for a staged native response menu.
+
+The earlier archive read-only Counter Catcher script has also had its **9/9 committed pure tests** independently executed in the same V8 CJS harness. None are compiled native or competitive game tests; no selected manifest was changed.
+
+Next controlled decision: replay the exact genuine T32 Pass root with separate candidate response choices and exact T8 locked Underworld ability root, preserve baseline/censor and full physical deal. The 25/26 strict native pair gate should remain in place.
+
+Agent37
