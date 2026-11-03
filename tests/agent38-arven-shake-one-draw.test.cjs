@@ -13,7 +13,8 @@ const {exactOneDrawCounts,analyzeOneDrawSixty}=
  */
 function physicalToyCensus(){
   const cards=['t','t','a','s','f','g','b','o'];
-  const counts={denominator:0,valid:0,direct:0,arven:0,union:0};
+  const counts={denominator:0,valid:0,direct:0,arven:0,union:0,
+    hybridArven:0,hybridUnion:0};
   for(let i=0;i<8;i++)for(let j=i+1;j<8;j++)
     for(let k=j+1;k<8;k++){
       const seven=new Set([i,j,k]);
@@ -37,6 +38,10 @@ function physicalToyCensus(){
           counts.direct+=Number(direct);
           counts.arven+=Number(arven);
           counts.union+=Number(direct||arven);
+          const hybrid=has('t')&&has('a')&&retained('g')&&
+            (has('s')||retained('s'))&&(has('f')||retained('f'));
+          counts.hybridArven+=Number(hybrid);
+          counts.hybridUnion+=Number(direct||hybrid);
         }
       }
     }
@@ -70,6 +75,8 @@ test('8-card toy enumerator crosschecks all exact weighted counts',()=>{
   assert.equal(model.directNumerator,String(census.direct));
   assert.equal(model.arvenNumerator,String(census.arven));
   assert.equal(model.unionNumerator,String(census.union));
+  assert.equal(model.hybridArvenNumerator,String(census.hybridArven));
+  assert.equal(model.hybridUnionNumerator,String(census.hybridUnion));
 });
 
 test('normal turn draw preserves exact valid opening seven denominator',()=>{
@@ -94,6 +101,16 @@ test('3 Arven plus 3 Trubbish / 3 Shake / 4 Stone exact first-turn opportunity',
   assert.ok(Math.abs(x.directConditionalValid-0.0488298479401126)<1e-13);
   assert.ok(x.unionAndValidProbability<x.directAndValidProbability+
     x.arvenAndValidProbability);
+});
+
+test('hybrid Arven searches only missing Item or Tool components',()=>{
+  const x=analyzeOneDrawSixty(fullSixty(3,3,3,4,2,9),12);
+  assert.equal(x.hybridUnionNumerator,'56512392832556911');
+  assert.ok(Math.abs(x.hybridUnionConditionalValid-0.16755732833775108)<1e-13);
+  assert.ok(x.hybridUnionConditionalValid>x.unionConditionalValid);
+  assert.ok(x.hybridArvenConditionalValid>x.arvenConditionalValid);
+  assert.ok(x.hybridUnionConditionalValid<
+    x.directConditionalValid+x.hybridArvenConditionalValid);
 });
 
 test('missing or already Prized Garbodor cannot satisfy direct or Arven route',()=>{
