@@ -1,0 +1,72 @@
+{
+  "schema": "agent13-ranked-five-vip-quickball-native-twelvearm-prereg-v1",
+  "registeredAtUtc": "2026-11-03T04:24:05Z",
+  "purpose": "Evaluate independent enabled actor-only Quick Ball root and native owner prompt payment under previously validated bilateral first-turn VIP after-Pass policy, preserving exact original rank5 source physical-deal identity",
+  "fieldRank": 5,
+  "originalPrintedSource60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+  "baseProfileGitBlobSha": "f6ba98e6a259daa835397689799dc35550a1c14d",
+  "baseRunnerGitBlobSha": "15171b5112492d20f0de5b3fdf5f3a6423fee1a4",
+  "canonicalActorGitBlobSha": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+  "quickBallRootAdapterGitBlobSha": "d687cc353b731f56e785be9cf55ef55fc197e4a3",
+  "quickBallOwnerSearchGitBlobSha": "d92b05bfea1fdf79f1589635196912d70b2cf7e6",
+  "quickBallOwnerDiscardGitBlobSha": "ce2b8ca134a9fc8d1d6413e89c82923a6bb6f053",
+  "vipAdapterGitBlobSha": "aeda10268b16d0fcb34a52856d0d5067f08fcdac",
+  "pinnedVendor": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "sourceGroups": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "seed": 561933954
+    }
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "modes": [
+    {
+      "id": "vip_only_control",
+      "vipAfterPass": true,
+      "quickBallRoot": false,
+      "ownerSingleSearch": false,
+      "actorHandDiscard": false
+    },
+    {
+      "id": "vip_plus_quickball_root",
+      "vipAfterPass": true,
+      "quickBallRoot": true,
+      "ownerSingleSearch": false,
+      "actorHandDiscard": false
+    },
+    {
+      "id": "vip_plus_quickball_full_owner_prompt",
+      "vipAfterPass": true,
+      "quickBallRoot": true,
+      "ownerSingleSearch": true,
+      "actorHandDiscard": true
+    }
+  ],
+  "expectedNativeAttempts": 12,
+  "rootCap": 260,
+  "environmentScoping": "AGENT9_BATTLE_VIP_AFTER_PASS_DEV=true for all three modes, plus AGENT8_ACTOR_QUICK_BALL_DEV=true for the last two, both restored synchronously in finally; same registered 92-option profile otherwise. Quick Ball root has default ownerSeat:null and is therefore symmetric on both physical seats.",
+  "method": "Full native Store attempt per mode/candidate/seed. Require same physical fingerprint for any same-deal comparison. Record first source Quick Ball root, owner-cost discard selection, native payment/search recipient, VIP Bench change, copied attack and source response. Retain all native errors and action caps. No winner inference.",
+  "predeclaredOutcomes": [
+    "ROOT_NOT_PROPOSED",
+    "ROOT_SELECTED_NO_OWNER_COST",
+    "ROOT_SELECTED_PAID_SEARCHED",
+    "NATIVE_ERROR",
+    "CENSORED",
+    "ENGINE_TERMINAL_UNQUALIFIED",
+    "UNVERIFIED"
+  ],
+  "negativeControl": "Quick Ball only under original conservative redundant-other-printing guard; this experiment does not widen existing DCI/paper payment criteria.",
+  "competitiveGamesQualified": 0,
+  "target995Verified": false
+}
