@@ -2,6 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {readFileSync}=require('node:fs');
+const {createHash}=require('node:crypto');
 const path=require('node:path');
 const {preflightCampaign,preflightCampaignFiles}=
   require('../scripts/aichi-registered-campaign-preflight.cjs');
@@ -37,8 +38,10 @@ test('different campaign IDs fail before native compile',()=>{
     /different campaigns/);
 });
 
-test('seed hash rank and original source rank cannot diverge silently',()=>{
-  assert.throws(()=>preflightCampaign({...seed,rank:25},pins,fixture),
+test('seed hash rank and original source rank cannot diverge even with a reapproved digest',()=>{
+  const changed={...seed,rank:25};
+  const digest=createHash('sha256').update(JSON.stringify(changed)).digest('hex');
+  assert.throws(()=>preflightCampaign(changed,{...pins,seedPlanSha256:digest},fixture),
     /hash rank disagrees/);
 });
 
@@ -47,4 +50,27 @@ test('mutated original rank26 source pin rejected before any attempt',()=>{
   bad.originalPrints[0].printed60Sha256='f'.repeat(64);
   assert.throws(()=>preflightCampaign(seed,bad,fixture),
     /printed source drifted/);
+});
+
+test('valid but posthoc shuffled seed-index order fails immutable registered digest',()=>{
+  const changed={...seed,repeats:[...seed.repeats].reverse()};
+  assert.throws(()=>preflightCampaign(changed,pins,fixture),
+    /independently registered frozen manifest digest/);
+});
+
+test('valid but posthoc reselected 12 repeat indices fail reviewed digest',()=>{
+  const changed={...seed,repeats:Array.from({length:12},(_,i)=>40+i)};
+  assert.throws(()=>preflightCampaign(changed,pins,fixture),
+    /independently registered frozen manifest digest/);
+});
+
+test('same range but changed registered seed base fails reviewed digest',()=>{
+  const changed={...seed,seedBase:seed.seedBase+1};
+  assert.throws(()=>preflightCampaign(changed,pins,fixture),
+    /independently registered frozen manifest digest/);
+});
+
+test('seed-plan SHA256 is independently fixed and matches actual registered JSON',()=>{
+  const digest=createHash('sha256').update(JSON.stringify(seed)).digest('hex');
+  assert.equal(digest,pins.seedPlanSha256);
 });
