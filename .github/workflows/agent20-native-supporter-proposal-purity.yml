@@ -25,6 +25,8 @@ jobs:
       - name: Compile pinned native server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Reproduce exact original rank6 no-actual-Supporter decoder 0-to-12 rollback three-arm proof
+        run: node simulation/evaluation/agent20-rank6-guzma-counterreply-native.cjs > agent20-rank6-guzma-counterreply-native.json
       - name: Execute eight preregistered real bilateral original-sixty A/B/A groups
         run: node simulation/evaluation/agent20-supporter-proposer-purity-bilateral8-native.cjs > agent20-supporter-proposer-purity-bilateral8-native.json
       - name: Summarize native source provenance without win-rate claims
@@ -37,6 +39,8 @@ jobs:
         if: ${{ always() }}
         with:
           name: agent20-eightgroup-bilateral-native-supporter-purity
-          path: agent20-supporter-proposer-purity-bilateral8-native.json
+          path: |
+            agent20-rank6-guzma-counterreply-native.json
+            agent20-supporter-proposer-purity-bilateral8-native.json
           if-no-files-found: warn
           retention-days: 30
