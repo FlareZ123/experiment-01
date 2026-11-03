@@ -151,6 +151,8 @@ jobs:
         run: node --test tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs
       - name: Verify native generic Trainer fallback inherits concealed-order decision reversal
         run: node --test tests/agent9-native-fallback-hidden-order-counterexample.test.cjs
+      - name: Falsify generic Trainer fallback with exact original rank-5 printed 60
+        run: node --test tests/agent9-rank5-mail-native-fallback-hidden-order.test.cjs
       - name: Preregistered actual Store generic native Trainer fallback across rank5/rank11 A/B/A
         if: ${{ inputs.agent50_generic_native_trainer_aba }}
         run: node simulation/twinleaf/agent50-generic-owner-native-trainer-paired-v1.cjs
