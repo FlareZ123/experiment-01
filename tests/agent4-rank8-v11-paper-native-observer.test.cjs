@@ -192,3 +192,49 @@ test('native accepted search without physical acquisition remains unverified',()
   assert.equal(observed.audit.sourceSearchAcquisitions,0);
   assert.equal(observed.audit.sourceSearchObservations[0].physicalAcquisitionStatus,'UNVERIFIED');
 });
+
+class AttackAction{
+  constructor(name){this.name=name;}
+}
+test('read-only public opponent attack receipt only follows paid actual source Box',()=>{
+  for(const sourceSeat of [0,1]){
+    const {store,players}=fixture();
+    const source=players[sourceSeat],opponent=players[1-sourceSeat];
+    const publicSlot=(fullName,damage,energies=[],tools=[])=>({
+      damage,hp:300,
+      energies:{cards:energies.map(fullName=>({fullName}))},
+      tools:tools.map(fullName=>({fullName})),
+      getPokemonCard:()=>({fullName,name:fullName.split(' ').at(0)})
+    });
+    source.active=publicSlot('Mega Absol ex MEG',0);
+    source.bench=[publicSlot('Garbodor LTR',0,[],['Float Stone BKT'])];
+    source.bench[0].getPokemonCard=()=>({fullName:'Garbodor LTR',name:'Garbodor'});
+    opponent.active=publicSlot('Lillie\\'s Clefairy ex JTG',0,
+      ['Psychic Energy MEE','Psychic Energy MEE']);
+    opponent.bench=[];
+    for(const player of players)player.prizes=[{cards:[{}]},{cards:[{}]}];
+    store.state.activePlayer=1-sourceSeat;
+    store.state.turn=3;
+    const pay=[{id:1},{id:2},{id:3}];
+    source.hand.cards.push(...pay);
+    store.applyPhysicalPayment=true;
+    store.state.prompts.push(new ChooseCardsPrompt(31,source));
+    const observed=withSourceBoxPaymentObserver(Store,sourceSeat,()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(new ResolvePromptAction(31,pay));
+      store.dispatch(new AttackAction('Full Moon Rondo'));
+    });
+    assert.equal(observed.audit.sourceAccepted,1);
+    assert.equal(observed.audit.opponentPublicAttackReceipts.length,1);
+    const reply=observed.audit.opponentPublicAttackReceipts[0];
+    assert.equal(reply.declaredAttack,'Full Moon Rondo');
+    assert.equal(reply.before.turn,3);
+    assert.equal(reply.before.sourceActive.pokemon,'Mega Absol ex MEG');
+    assert.equal(reply.before.toolGarbodorBoard[0].pokemon,'Garbodor LTR');
+    assert.deepEqual(reply.before.toolGarbodorBoard[0].toolPrintings,
+      ['Float Stone BKT']);
+    assert.deepEqual(reply.before.opponentActive.energyPrintings,
+      ['Psychic Energy MEE','Psychic Energy MEE']);
+    assert.equal(reply.nativeError,null);
+  }
+});
