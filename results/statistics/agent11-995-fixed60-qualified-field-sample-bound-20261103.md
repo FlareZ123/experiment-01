@@ -25,6 +25,21 @@ For target `p0=0.995`, `alpha=0.05`:
 
 The [source-locked zero-loss design calculator](../../scripts/agent11-fixed60-zero-loss-certification.cjs) and its [five-case executable tests](../../tests/agent11-fixed60-zero-loss-certification.test.cjs) assert the exact threshold, the balanced design, the stronger Bonferroni question, the AM-GM inequality, and the conservative handling of unequal sample sizes. A separate Python `math.log` calculation verified the boundary values to machine precision.
 
+## If the frozen policy loses some games: a valid heterogeneous-field KL method
+
+For any fixed, independently sampled, equal-cell design, the arithmetic mean of *unequal* true cell probabilities remains estimable with a conservative Bernoulli-KL upper-tail inequality. The derivation uses an exponential moment: for each `t≥0`, `product(1-p_i+p_i*exp(t))^n ≤ (1-pbar+pbar*exp(t))^(n*S)` by AM-GM. Optimizing over `t` bounds `P(sample win fraction ≥ q)` by `exp(−N*D(q || pbar))` whenever `q>pbar`, with `D(q||p)=q*ln(q/p)+(1−q)*ln((1−q)/(1−p))`. On observed wins `w` out of `N` qualified balanced games, invert `N*D(w/N||L)=ln(20)` on `L<w/N` to obtain a conservative one-sided 95% lower confidence bound. The formula specializes to the preceding exact all-win bound when `w=N`.
+
+This permits a **prospectively planned loss budget**, avoiding selective post hoc game removal:
+
+| Maximum observed losses | Minimum balanced games per rank×seat×order cell | Total qualified games at 128 equal cells | Statistical result if losses do not exceed allowance |
+| --- | ---: | ---: | --- |
+| 0 | 5 | **640** | One-sided 95% lower field mean at least 99.5% |
+| 1 | 9 | **1,152** | Ditto, via conservative KL bound |
+| 2 | 12 | **1,536** | Ditto |
+| 3 | 15 | **1,920** | Ditto |
+
+The [calculation module](../../scripts/agent11-fixed60-zero-loss-certification.cjs) exports `binaryKL`, `heterogeneousFieldLowerBound`, and `balancedGamesForLossBudget`, verified by [additional boundary tests](../../tests/agent11-fixed60-zero-loss-certification.test.cjs). These are *mathematically sufficient* sample sizes under declared assumptions, not sample-size promises or claims the current simulator can produce credible games at such volume. More than the allowed losses require a larger registered or conservatively analyzed study. The interpretation remains invalid for adaptive stopping or reusing earlier games to choose the candidate.
+
 ## Why this does not immediately establish a path to 99.5%
 
 The 640-game condition is only a **best-case zero-loss threshold**. At a true average of exactly 99.5% with identical cell probabilities, observing 640 wins without one loss has probability just **4.04363249%**. Even if every cell really has a 99.9% win probability, the chance of that perfect sample is about **52.71236049%**. More matches and a nonzero-loss statistical method are necessary for realistic study power.
