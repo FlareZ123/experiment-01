@@ -93,3 +93,45 @@ test('observer restores both original native prototypes on exception',()=>{
  assert.strictEqual(Bot.prototype.decodeNextAction,decode);
  assert.strictEqual(Store.prototype.dispatch,dispatch);
 });
+
+test('native ChooseCards result maps to actual owner discard after prompt',()=>{
+ class ChooseCardsPrompt{
+  constructor(){this.id='owner-choice';this.result=undefined;}
+ }
+ class ResolvePromptAction{
+  constructor(result){this.result=result;}
+ }
+ class PromptStore extends Store{
+  dispatch(action){
+   if(action instanceof PlayCardAction){
+    this.state.prompts=[new ChooseCardsPrompt()];
+    return action;
+   }
+   if(action instanceof ResolvePromptAction){
+    this.state.players[1].discard.cards.push(...action.result);
+    this.state.prompts=[];
+    return action;
+   }
+   return action;
+  }
+ }
+ const localDeps={...deps,Store:PromptStore};
+ const state=game(),store=new PromptStore(state);
+ const selected={name:'Reversal Energy',fullName:'Reversal Energy PAL'};
+ const output=withOwnerEarlyCompressorAfterPass(()=>{
+  store.dispatch(new AddPlayerAction());
+  const play=new Bot(20).decodeNextAction(state);
+  store.dispatch(play);
+  store.dispatch(new ResolvePromptAction([selected]));
+  return play;
+ },1,localDeps);
+ assert.ok(output.result instanceof PlayCardAction);
+ assert.equal(output.audit.accepted,1);
+ assert.equal(output.audit.events[0].pendingPromptId,'owner-choice');
+ assert.equal(output.audit.events[0].choiceResolved,true);
+ assert.deepEqual(output.audit.events[0].chosenNativeCards,
+  ['Reversal Energy PAL']);
+ assert.deepEqual(output.audit.events[0].ownerDiscardAfterChoice,
+  ['Reversal Energy PAL']);
+ assert.equal(output.audit.events[0].chosenCardsInOwnerDiscard,true);
+});
