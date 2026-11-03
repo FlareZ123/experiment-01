@@ -1,0 +1,497 @@
+{
+  "schema": "agent2-apex-japanese-core-mechanics-source-screen-v1",
+  "prepared_utc": "2026-11-03",
+  "event_date": "2026-05-10",
+  "japanese_print_crosswalk": "results/legality/agent2-apex-alchemy-jp-crosswalk-v1.json",
+  "primary_japanese_source": "https://www.pokemon-card.com/card-search/",
+  "english_card_text_source": "resources/cards/en/ and supplied card-list.zip, matched by original English ID",
+  "methodology": "Inspect exact numbered official Japanese publisher card page and original English card database to compare important printed functions. Publisher HTML can omit card icons. These are prose mechanic summaries, not full card-text translations.",
+  "status": "34 publisher print identities screened for primary mechanical agreement; full icon-level, chronology, errata and event approval remain unverified",
+  "semantic_risks": [
+    "Exact attack Energy-cost icon counts not all visually crosschecked",
+    "Energy-type restrictions can be invisible in extracted Japanese HTML",
+    "Trigger timing and conditional follow-on effects require official rules",
+    "Later errata and tournament restrictions are separate checks",
+    "Selected physical Japanese print provenance does not prove source card ownership or an achieved win"
+  ],
+  "reviewed_count": 34,
+  "items": [
+    {
+      "english_card_id": "swsh12-135",
+      "english_name": "Regidrago V",
+      "japanese_name": "レジドラゴV",
+      "japanese_print": {
+        "set": "S12",
+        "number": "076/098"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/42168",
+      "primary_mechanic_alignment_screen": "Celestial Roar mills top 3 and attaches Energy among those cards; Dragon Laser damages Active 130 and Bench 30",
+      "unresolved_review_caveat": "attack costs and types shown as icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh12-136",
+      "english_name": "Regidrago VSTAR",
+      "japanese_name": "レジドラゴVSTAR",
+      "japanese_print": {
+        "set": "S12",
+        "number": "077/098"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/42169",
+      "primary_mechanic_alignment_screen": "Apex Dragon uses one attack printed on a Dragon Pokémon in the discard; Legacy Star discards top 7 and recovers up to 2 cards once per game",
+      "unresolved_review_caveat": "Dragon filter type is an icon; full attack Energy costs require print-image verification",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm1-57",
+      "english_name": "Alolan Grimer",
+      "japanese_name": "アローラ ベトベター",
+      "japanese_print": {
+        "set": "SM1M",
+        "number": "022/060"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/33086",
+      "primary_mechanic_alignment_screen": "80 HP Basic Alolan Grimer with Super Poison Breath coin Poison and Pound 40",
+      "unresolved_review_caveat": "attack cost uses Psychic icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm1-58",
+      "english_name": "Alolan Muk",
+      "japanese_name": "アローラ ベトベトン",
+      "japanese_print": {
+        "set": "SM1M",
+        "number": "023/060"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/33087",
+      "primary_mechanic_alignment_screen": "Power of Alchemy removes all Basic Pokémon Abilities in play, hands, discard piles for both players; Crunch 90 can discard an opponent's attached Energy on heads",
+      "unresolved_review_caveat": "attack cost uses Psychic icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv6-130",
+      "english_name": "Dragapult ex",
+      "japanese_name": "ドラパルトex",
+      "japanese_print": {
+        "set": "SV6",
+        "number": "081/101"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/45772",
+      "primary_mechanic_alignment_screen": "Dragapult ex 320 HP with Phantom Dive 200 Active and six damage counters distributed over opponent's Bench",
+      "unresolved_review_caveat": "energy costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm5-100",
+      "english_name": "Dialga-GX",
+      "japanese_name": "ディアルガGX",
+      "japanese_print": {
+        "set": "SM5S",
+        "number": "045/066"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/34427",
+      "primary_mechanic_alignment_screen": "Dialga-GX Timeless-GX 150 gives an additional own turn after current turn ends, subject to one GX attack per game",
+      "unresolved_review_caveat": "GX attack cost uses type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh11-136",
+      "english_name": "Hisuian Goodra VSTAR",
+      "japanese_name": "ヒスイ ヌメルゴンVSTAR",
+      "japanese_print": {
+        "set": "S10a",
+        "number": "057/071"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/41576",
+      "primary_mechanic_alignment_screen": "Hisuian Goodra VSTAR Rolling Iron 200 reduces damage received next opponent turn by 80; Moisture Star heals all once per game",
+      "unresolved_review_caveat": "attack costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv2-153",
+      "english_name": "Noivern ex",
+      "japanese_name": "オンバーンex",
+      "japanese_print": {
+        "set": "SV2D",
+        "number": "058/071"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/43194",
+      "primary_mechanic_alignment_screen": "Noivern ex Covert Flight 70 prevents Basic Pokémon attack damage next opponent turn; Dominating Echo 140 denies hand-played Special Energy and Stadium on their next turn",
+      "unresolved_review_caveat": "attack costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv6pt5-47",
+      "english_name": "Kyurem",
+      "japanese_name": "キュレム",
+      "japanese_print": {
+        "set": "SV6a",
+        "number": "047/064"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/45922",
+      "primary_mechanic_alignment_screen": "Kyurem Plasma Bane checks opponent discard for a name containing Colress and reduces Trifrost to one Colorless Energy; Trifrost discards all attached Energy to deal 110 each to three opposing Pokémon",
+      "unresolved_review_caveat": "Kyurem cost uses printed Water, Metal and Colorless icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv5-120",
+      "english_name": "Koraidon ex",
+      "japanese_name": "コライドンex",
+      "japanese_print": {
+        "set": "SVHK",
+        "number": "012/053"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/45300",
+      "primary_mechanic_alignment_screen": "Koraidon ex Retribution Strike 20 plus 10 per own damage counter; Kaiser Tackle 280 with self-inflicted 60 damage",
+      "unresolved_review_caveat": "attack costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm2-60",
+      "english_name": "Tapu Lele-GX",
+      "japanese_name": "カプ・テテフGX",
+      "japanese_print": {
+        "set": "SM2L",
+        "number": "022/050"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/33438",
+      "primary_mechanic_alignment_screen": "Tapu Lele-GX Wonder Tag searches one Supporter when placed from hand onto Bench; Energy Drive counts both Active Energy; Tapu Cure-GX heals two Benched Pokémon",
+      "unresolved_review_caveat": "attack costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv8-76",
+      "english_name": "Latias ex",
+      "japanese_name": "ラティアスex",
+      "japanese_print": {
+        "set": "SV7a",
+        "number": "019/064"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/46248",
+      "primary_mechanic_alignment_screen": "Latias ex Skyliner makes own Basic Pokémon have no Retreat Cost; Eon Blade 200 prevents Latias attacking next own turn",
+      "unresolved_review_caveat": "attack costs use type icons",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "me2pt5-16",
+      "english_name": "Budew",
+      "japanese_name": "スボミー",
+      "japanese_print": {
+        "set": "SV8a",
+        "number": "001/187"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/46849",
+      "primary_mechanic_alignment_screen": "Budew Itchy Pollen 10 prevents opponent playing Items from hand in their next turn",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv9-155",
+      "english_name": "Professor's Research",
+      "japanese_name": "博士の研究",
+      "japanese_print": {
+        "set": "SVF",
+        "number": "030/038"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/44064",
+      "primary_mechanic_alignment_screen": "Professor's Research discards the entire hand and draws seven",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm3-115",
+      "english_name": "Guzma",
+      "japanese_name": "グズマ",
+      "japanese_print": {
+        "set": "SM3N",
+        "number": "049/051"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/33963",
+      "primary_mechanic_alignment_screen": "Guzma selects opponent Benched Pokémon to gust, then switches own Active with own Bench",
+      "unresolved_review_caveat": "opponent Bench/own Bench legality and conditional resolution need rules, not only card text",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv6-145",
+      "english_name": "Carmine",
+      "japanese_name": "ゼイユ",
+      "japanese_print": {
+        "set": "SV6",
+        "number": "097/101"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/45788",
+      "primary_mechanic_alignment_screen": "Carmine is playable by first player on their first turn; discard own hand then draw five",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv2-185",
+      "english_name": "Iono",
+      "japanese_name": "ナンジャモ",
+      "japanese_print": {
+        "set": "SV2D",
+        "number": "069/071"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/43205",
+      "primary_mechanic_alignment_screen": "Iono places both hands at bottom of each respective deck and draws each player's remaining Prize-card count",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv7-133",
+      "english_name": "Crispin",
+      "japanese_name": "アカマツ",
+      "japanese_print": {
+        "set": "SV7",
+        "number": "123/102"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/46171",
+      "primary_mechanic_alignment_screen": "Crispin searches up to two different-type Basic Energy, puts one in hand, attaches the other to own Pokémon",
+      "unresolved_review_caveat": "Basic Energy type icons do not appear in extracted Japanese text",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh7-152",
+      "english_name": "Raihan",
+      "japanese_name": "キバナ",
+      "japanese_print": {
+        "set": "S7D",
+        "number": "063/067"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/39732",
+      "primary_mechanic_alignment_screen": "Raihan requires own Pokémon Knocked Out previous opponent turn; attaches Basic Energy from discard and then can search one arbitrary deck card",
+      "unresolved_review_caveat": "Basic Energy type icons not essential",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm8-173",
+      "english_name": "Faba",
+      "japanese_name": "ザオボー",
+      "japanese_print": {
+        "set": "SM8",
+        "number": "089/095"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/35381",
+      "primary_mechanic_alignment_screen": "Faba Lost Zones one attached opposing Pokémon Tool/Special Energy or in-play Stadium",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm6-113",
+      "english_name": "Mysterious Treasure",
+      "japanese_name": "ミステリートレジャー",
+      "japanese_print": {
+        "set": "SM6",
+        "number": "083/094"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/34757",
+      "primary_mechanic_alignment_screen": "Mysterious Treasure discards one owner hand card to search a Psychic or Dragon Pokémon",
+      "unresolved_review_caveat": "Psychic and Dragon eligibility are icon-based; checked image",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh8-237",
+      "english_name": "Quick Ball",
+      "japanese_name": "クイックボール",
+      "japanese_print": {
+        "set": "S1H",
+        "number": "052/060"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/37722",
+      "primary_mechanic_alignment_screen": "Quick Ball discards one owner hand card to search a Basic Pokémon",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh7-142",
+      "english_name": "Boost Shake",
+      "japanese_name": "ぐんぐんシェイク",
+      "japanese_print": {
+        "set": "S6a",
+        "number": "060/069"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/39644",
+      "primary_mechanic_alignment_screen": "Boost Shake searches and evolves one owned Pokémon from deck, including new Basic or first-turn condition, then ends the own turn",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "xy4-109",
+      "english_name": "VS Seeker",
+      "japanese_name": "バトルサーチャー",
+      "japanese_print": {
+        "set": "XY",
+        "number": "026/048"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/37416",
+      "primary_mechanic_alignment_screen": "VS Seeker takes one Supporter card from discard into hand",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "xy4-92",
+      "english_name": "Battle Compressor Team Flare Gear",
+      "japanese_name": "バトルコンプレッサー（フレア団ギア）",
+      "japanese_print": {
+        "set": "XY4",
+        "number": "079/088"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/30550",
+      "primary_mechanic_alignment_screen": "Battle Compressor puts up to three arbitrary chosen owner deck cards into own discard and shuffles",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "swsh10-146",
+      "english_name": "Hisuian Heavy Ball",
+      "japanese_name": "ヒスイのヘビーボール",
+      "japanese_print": {
+        "set": "S10P",
+        "number": "062/067"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/41490",
+      "primary_mechanic_alignment_screen": "Hisuian Heavy Ball reveals own facedown Prizes, exchanges one Basic Pokémon found with itself and returns mixed facedown Prizes",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm2-125",
+      "english_name": "Field Blower",
+      "japanese_name": "フィールドブロアー",
+      "japanese_print": {
+        "set": "SM4p",
+        "number": "093/114"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/34321",
+      "primary_mechanic_alignment_screen": "Field Blower discards up to two in-play Pokémon Tools or Stadiums",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sv5-157",
+      "english_name": "Prime Catcher",
+      "japanese_name": "プライムキャッチャー",
+      "japanese_print": {
+        "set": "SV5M",
+        "number": "062/071"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/45279",
+      "primary_mechanic_alignment_screen": "Prime Catcher ACE SPEC gusts opponent Benched to Active, then switches own Active to own Benched",
+      "unresolved_review_caveat": "conditional resolutions, and no-op Bench cases, require rules interpretation",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "xy8-137",
+      "english_name": "Float Stone",
+      "japanese_name": "かるいし",
+      "japanese_print": {
+        "set": "XY8-Bb",
+        "number": "054/059"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/31363",
+      "primary_mechanic_alignment_screen": "Float Stone makes attached Pokémon have no Retreat Cost",
+      "unresolved_review_caveat": "none",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm10-186",
+      "english_name": "Stealthy Hood",
+      "japanese_name": "隠密フード",
+      "japanese_print": {
+        "set": "SM9a",
+        "number": "046/055"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/36191",
+      "primary_mechanic_alignment_screen": "Stealthy Hood protects attached Pokémon from effects of opponent's Pokémon Abilities",
+      "unresolved_review_caveat": "wording explicitly opponent-owned Abilities, not own Alolan Muk",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sm11-197",
+      "english_name": "Giant Hearth",
+      "japanese_name": "巨大なカマド",
+      "japanese_print": {
+        "set": "SM10a",
+        "number": "050/054"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/36590",
+      "primary_mechanic_alignment_screen": "Giant Hearth lets each player discard one hand card once per turn to search up to two Fire Energy cards",
+      "unresolved_review_caveat": "Fire icon not shown in publisher plain text extraction",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "xy6-97",
+      "english_name": "Double Dragon Energy",
+      "japanese_name": "ダブルドラゴンエネルギー",
+      "japanese_print": {
+        "set": "XY6-B",
+        "number": "078/078"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/30933",
+      "primary_mechanic_alignment_screen": "Double Dragon Energy is attachable to Dragon Pokémon only and supplies two of every type of Energy; discard if on non-Dragon",
+      "unresolved_review_caveat": "Dragon attachment restriction is an icon; verified Japanese card image",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sve-1",
+      "english_name": "Basic Grass Energy",
+      "japanese_name": "基本草エネルギー",
+      "japanese_print": {
+        "set": "SV-P",
+        "number": "202/SV-P"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/46296",
+      "primary_mechanic_alignment_screen": "Japanese Basic Grass Energy type printing record, 2025 championship series",
+      "unresolved_review_caveat": "no rules text; type established by Japanese name",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    },
+    {
+      "english_card_id": "sve-2",
+      "english_name": "Basic Fire Energy",
+      "japanese_name": "基本炎エネルギー",
+      "japanese_print": {
+        "set": "SV-P",
+        "number": "203/SV-P"
+      },
+      "official_japanese_record": "https://www.pokemon-card.com/card-search/details.php/card/46297",
+      "primary_mechanic_alignment_screen": "Japanese Basic Fire Energy type printing record, 2025 championship series",
+      "unresolved_review_caveat": "no rules text; type established by Japanese name",
+      "primary_effect_screen_status": "consistent-at-mechanic-summary-level",
+      "event_print_release_and_errata_certification": "unverified"
+    }
+  ],
+  "competitive_qualified_games": 0
+}
