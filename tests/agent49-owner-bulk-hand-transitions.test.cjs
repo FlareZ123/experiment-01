@@ -13,7 +13,10 @@ const COPIES=Object.freeze({
   'Carmine TWM':[15,12,'discard',5],
   "Professor's Research JTG":[11,5,'discard',7],
   'Professor Sycamore BKP':[7,4,'discard',7],
-  "Lillie's Determination MEG":[19,16,'deck',6]
+  "Lillie's Determination MEG":[19,16,'deck',6],
+  'N FCO':[8,7,'deck',undefined],
+  'Marnie SSH':[16,13,'deck-bottom',5],
+  'Iono PAL':[11,10,'deck-bottom',undefined]
 });
 
 /** @param {string[]} hand @param {number|null} prizeCount */
@@ -36,7 +39,7 @@ function rows(hand,indices){
   }));
 }
 
-test('all four print-verified full-hand Supporters occur in exactly 29 sources',()=>{
+test('all seven print-verified full-hand Supporters occur in exactly 29 sources',()=>{
   assert.equal(roster.decks.length,29);
   const all=roster.decks.flatMap(d=>d.cards.filter(
     c=>c.category==='Trainer').map(c=>({
@@ -56,9 +59,9 @@ test('all four print-verified full-hand Supporters occur in exactly 29 sources',
     totalCopies+=copies;
     totalRows+=matched.length;
   }
-  assert.equal(totalCopies,52);
-  assert.equal(totalRows,37);
-  assert.equal(Object.keys(BULK_HAND_PRINTS).length,4);
+  assert.equal(totalCopies,87);
+  assert.equal(totalRows,67);
+  assert.equal(Object.keys(BULK_HAND_PRINTS).length,7);
 });
 
 test('all-other-hand discards include every protected owner singleton',()=>{
@@ -153,4 +156,52 @@ test('opponent concealed changes cannot affect any owner bulk hand receipt',()=>
   assert.deepEqual(a,b);
   assert.equal(a.rows[0].opponentConcealedUsed,false);
   assert.deepEqual(v.ownHand,hand);
+});
+
+test('N uses owner Prize count and returns every other held card into deck',()=>{
+  const hand=['N FCO','Valuable Pokémon','Other'];
+  const result=ownerBulkHandTransition(view(hand,3),rows(hand,[0])[0],
+    new Set([1]));
+  assert.equal(result.destination,'deck');
+  assert.equal(result.drawnCardCountRequested,3);
+  assert.equal(result.protectedMovedCount,1);
+  assert.equal(result.affectsOpponentHand,true);
+  assert.equal(result.opponentConcealedUsed,false);
+});
+
+test('Marnie and Iono require at least one moved hand card for draws',()=>{
+  for(const [printing,ownPrizes,expected] of [
+    ['Marnie SSH',4,5],['Iono PAL',2,2]
+  ]){
+    const lone=view([printing],ownPrizes);
+    const row=rows(lone.ownHand,[0])[0];
+    const emptyOpponent={...lone,opponentPublic:{handCount:0}};
+    const heldOpponent={...lone,opponentPublic:{handCount:3}};
+    const unknownOpponent={...lone,opponentPublic:{}};
+    const empty=ownerBulkHandTransition(emptyOpponent,row);
+    const held=ownerBulkHandTransition(heldOpponent,row);
+    const unknown=ownerBulkHandTransition(unknownOpponent,row);
+    assert.equal(empty.conditionalDrawTriggered,false);
+    assert.equal(empty.drawnCardCountRequested,0);
+    assert.equal(held.conditionalDrawTriggered,true);
+    assert.equal(held.drawnCardCountRequested,expected);
+    assert.equal(unknown.conditionalDrawTriggered,null);
+    assert.equal(unknown.drawnCardCountRequested,null);
+    assert.equal(held.specificDeckDestination,'deck-bottom');
+    assert.equal(held.opponentConcealedUsed,false);
+    const ownTwo=ownerBulkHandTransition(
+      {...lone,ownHand:Object.freeze([printing,'Energy']),
+        opponentPublic:{}},row);
+    assert.equal(ownTwo.drawnCardCountRequested,expected);
+  }
+});
+
+test('seven-print owner census tracks bottom of deck separately',()=>{
+  const hand=['Iono PAL','Carmine TWM','Marnie SSH','N FCO'];
+  const s=summarizeOwnerBulkHandTransitions(view(hand),rows(hand,[0,1,2,3]));
+  assert.equal(s.knownBulkHandTrainerCopies,4);
+  assert.equal(s.discardEntireHandCandidates,1);
+  assert.equal(s.shuffleEntireHandCandidates,3);
+  assert.equal(s.bottomOfDeckHandCandidates,2);
+  assert.equal(s.summedOtherHandCopiesExposedAcrossAlternatives,12);
 });
