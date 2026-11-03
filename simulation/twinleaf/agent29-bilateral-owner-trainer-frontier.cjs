@@ -91,7 +91,7 @@ function trainerFrontierSummary(audit){
  * @template T
  * @param {()=>T} execute Actual synchronous headless game.
  * @param {{maxRoots?:number,observer?:Function,nativeDeps?:object,
- *   ownRegisteredSixties?:string[][]}} options
+ *   ownRegisteredSixties?:string[][],ownerPaperNecessity?:boolean}} options
  *   Injectable pure test seam; normal execution loads the pinned revision.
  * @returns {{result:T,audit:object}}
  */
@@ -122,6 +122,9 @@ function withBilateralOwnerTrainerFrontier(execute,options={}){
   const observed=observer(execute,{...nativeDeps,seats:[0,1],maxRoots,
     ...(options.ownRegisteredSixties?{
       ownRegisteredSixties:options.ownRegisteredSixties
+    }:{}),
+    ...(options.ownerPaperNecessity===true?{
+      ownerPaperNecessityOptIn:true
     }:{})});
   assert.ok(observed?.audit);
   const summary=trainerFrontierSummary(observed.audit);
