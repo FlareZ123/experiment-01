@@ -3,9 +3,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v2.json');
+const registration=require('../../results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v3-retrospective.json');
 const profile=require('./agent41-frozen-bilateral-development-v2.json');
 const {classifyNativeAttempt}=require('./agent41-native-attempt-disposition.cjs');
+const {auditOriginalEnergyMixShuffleLineages}=
+  require('./agent19-original-energy-mix-shuffle-lineage-audit.cjs');
 const {withPaperMewEnergyMixShuffle}=
   require('../twinleaf/agent19-energy-mix-shuffle-hook.cjs');
 const {withPaperAttachEnergyBlockedTo}=
@@ -13,8 +15,8 @@ const {withPaperAttachEnergyBlockedTo}=
 
 const ROOT=path.resolve(__dirname,'../..');
 const OUTPUT=path.join(ROOT,'agent19-rank5-energy-mix-shuffle-source-paired-native.json');
-const VERSION='agent19-rank5-energy-mix-source-deal-guarded-shuffle-ab-v2';
-const REGISTRATION_BLOB='404f467e3eb743d44555f4a973bc9c3cf33aa35e';
+const VERSION='agent19-rank5-energy-mix-source-deal-guarded-shuffle-ab-v3-retrospective';
+const REGISTRATION_BLOB='712d8de7a1399299e3c95785d1adaa268aa22545';
 
 /** @param {Buffer} bytes @returns {string} */
 function gitBlob(bytes){
@@ -45,6 +47,7 @@ function diagnostic(row){
     rootActionCount:row?.rootActionLedger?.length??0,
     rootActionDigest:row?.rootActionLedgerSha256??null,
     sourcePromptSidecarCount:row?.nativeAcceptedEnergyPromptSidecar?.events?.length??null,
+    sourceEnergyMixLineage:auditOriginalEnergyMixShuffleLineages(row),
     paperQualified:false,
     competitivelyQualified:false
   };
@@ -53,17 +56,17 @@ function diagnostic(row){
 /** Immutable registration before any native match. */
 function inspect(){
   const registrationPath=path.join(ROOT,
-    'results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v2.json');
+    'results/aichi-2026/registrations/agent19-rank5-energy-mix-shuffle-paired-20261103-v3-retrospective.json');
   assert.equal(gitBlob(fs.readFileSync(registrationPath)),REGISTRATION_BLOB);
   assert.equal(registration.schema,
-    'agent19-rank5-energy-mix-shuffle-source-dealt-ab-v2');
+    'agent19-rank5-energy-mix-shuffle-source-dealt-ab-v3-retrospective');
   assert.deepEqual(registration.modeNames,
     ['guarded-target-control','guarded-target-plus-paper-shuffle']);
   assert.equal(registration.expectedNativeAttempts,16);
   assert.equal(registration.registeredTrials.length,8);
   assert.equal(registration.randomGroups.length,4);
   assert.equal(new Set(registration.randomGroups.map(x=>x.seed)).size,4);
-  assert.equal(registration.unknownNativeResultsWhenRegistered,true);
+  assert.equal(registration.unknownV3NativeResultsWhenRegistered,true);
   assert.equal(gitBlob(fs.readFileSync(path.join(ROOT,
     'simulation/evaluation/agent41-frozen-bilateral-development-v2.json'))),
     registration.frozenPolicyProfileGitBlobSha);
@@ -199,6 +202,16 @@ function run(){
       shufflePromptsSettled:m.shuffleAudit?.shufflePromptsSettled??0,
       sourceCopySettlements:m.diagnostics.reduce((n,x)=>
         n+x.sourceCrossFusionSettled,0),
+      sourceEnergyMixChoices:m.diagnostics.reduce((n,x)=>
+        n+(x.sourceEnergyMixLineage.observedChoices??0),0),
+      sourceEnergyMixAttachPrompts:m.diagnostics.reduce((n,x)=>
+        n+(x.sourceEnergyMixLineage.withPhysicalAttachPrompt??0),0),
+      sourceEnergyMixMissingShuffles:m.diagnostics.reduce((n,x)=>
+        n+(x.sourceEnergyMixLineage.missingPrintedShuffle??0),0),
+      sourceEnergyMixSettledShuffles:m.diagnostics.reduce((n,x)=>
+        n+(x.sourceEnergyMixLineage.withPrintedShuffleAfterAttach??0),0),
+      sourceEnergyMixUnobservableRows:m.diagnostics.filter(x=>
+        x.sourceEnergyMixLineage.status==='UNOBSERVABLE').length,
       dispositions:m.diagnostics.reduce((counts,x)=>{
         counts[x.nativeDisposition]=(counts[x.nativeDisposition]??0)+1;
         return counts;
@@ -207,7 +220,9 @@ function run(){
     publishedPrintedSourceRank:5,
     paperQualified:false,
     competitivelyQualifiedGames:0,
-    anyWinRateClaim:false};
+    anyWinRateClaim:false,
+    retrospectivePolicySelection:true,
+    preregisteredBeforeCurrentV3NativeOutcomes:true};
   const result={schema:VERSION,registration,preflight,
     policyOptions:options,
     summary,matched,
