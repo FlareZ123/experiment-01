@@ -5,7 +5,8 @@ const test=require('node:test');
 const path=require('node:path');
 const {
   RULES,targetMatch,buildPublicPrintMetadata,
-  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary,
+  loadBundledPublicPrintMetadata,withSourcePromoAliases,
+  publicDiscardTargetNecessary,
   augmentPaperNecessityWithDiscardTargets
 }=require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
@@ -168,4 +169,21 @@ test('unknown target metadata never blocks another unqualified Trainer',()=>{
   assert.equal(result.newlyProvenPublicDiscardTargetFailures,0);
   assert.equal(result.rows[0].paperPlayable,null);
   assert.deepEqual(result.rows[0].necessaryBlockers,[]);
+});
+
+
+test('historical source promo set aliases retain verified public types',()=>{
+  const original=loadBundledPublicPrintMetadata(
+    path.join(__dirname,'../resources'));
+  const aliased=withSourcePromoAliases(original);
+  assert.equal(original.has('Karen XYP'),false);
+  assert.equal(targetMatch(aliased.get('Karen XYP'),'supporter'),true);
+  assert.equal(targetMatch(aliased.get('Regirock XYP'),
+    'pokemon-or-basic-energy'),true);
+  assert.equal(targetMatch(aliased.get('Tropical Beach BWP'),'supporter'),false);
+  assert.deepEqual(aliased.get('Karen XYP'),original.get('Karen PR-XY'));
+  assert.equal(targetMatch(aliased.get('Palace Book SMP'),'supporter'),null,
+    'A source promo absent from this English database remains unresolved');
+  assert.equal(aliased.size>=original.size,true);
+  assert.equal(original.size,16475,'Alias preparation must not mutate catalog');
 });
