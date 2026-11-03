@@ -127,6 +127,17 @@ function withSourcePromoAliases(index){
       'Prism Star display alias collides with different public metadata');
     result.set(key,entry);
   }
+  // Pinned native CardManager omits the apostrophe in Professor's Letter.
+  // Preserve this exact English source Item identity for both printed sets.
+  for(const set of ['XY','BKT']){
+    const correct=result.get("Professor's Letter "+set);
+    if(!correct)continue;
+    const alias='Professors Letter '+set;
+    const prior=result.get(alias);
+    assert.ok(!prior||JSON.stringify(prior)===JSON.stringify(correct),
+      'Native Letter display alias collides with different metadata');
+    result.set(alias,correct);
+  }
   return result;
 }
 
