@@ -250,6 +250,8 @@ jobs:
         run: node --test tests/agent13-source-identity-gate.test.cjs
       - name: Fail closed on skipped native printed-card fixtures before competitive release
         run: node --test tests/agent49-native-print-release-gate.test.cjs
+      - name: Verify independent paper Trainer necessary-condition and authenticated owner-turn screens
+        run: node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs
       - name: Require both original physical seats and one frozen candidate 60 in native-release intake
         run: node --test tests/agent33-native-print-release-gate.test.cjs
       - name: Check default-off owner-visible Tropical Beach last-chance decision and deck conservation
