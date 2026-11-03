@@ -118,7 +118,8 @@ function chooseRegidragoQuickBallDiscard(input){
   if(alreadyEstablished&&
      !(process.env.AGENT8_ESTABLISHED_QUICKBALL_DEV==='true'&&
        own.active?.printing==='Regidrago VSTAR SIT'&&
-       own.discard?.every(p=>!EVOLVED_DONORS.has(p))))return null;
+       !ownerApexPublicGates(observeRank13PayloadOwnerOpportunity(
+         input.actor)).publicDragonDiscardPayload))return null;
   const donor=input.actor.ownHand.find(name=>
     EVOLVED_DONORS.has(name)&&
     input.prompt.menu.some(bundle=>bundle.length===1&&bundle[0]===name));
