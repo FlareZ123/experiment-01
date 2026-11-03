@@ -258,7 +258,7 @@ jobs:
       - name: Fail closed on skipped native printed-card fixtures before competitive release
         run: node --test tests/agent49-native-print-release-gate.test.cjs
       - name: Verify independent paper Trainer necessary-condition and authenticated owner-turn screens
-        run: node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent4-owner-paper-composite-necessary.test.cjs tests/agent4-bilateral-paper-frontier-closure.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent4-owner-paper-native-transport.test.cjs tests/agent4-owner-paper-native-census.test.cjs
+        run: node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent4-owner-paper-composite-necessary.test.cjs tests/agent4-bilateral-paper-frontier-closure.test.cjs tests/agent4-selected-v3-paper-funded-release.test.cjs tests/agent4-selected-v3-offline-audit.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent4-owner-paper-native-transport.test.cjs tests/agent4-owner-paper-native-census.test.cjs
       - name: Audit original published 60s for exact first-owner-turn-only Trainer incidence
         run: node --test tests/agent4-first-owner-turn-field-incidence.test.cjs
       - name: Require both original physical seats and one frozen candidate 60 in native-release intake
@@ -1006,7 +1006,7 @@ jobs:
           node --check simulation/twinleaf/agent4-owner-paper-trainer-necessary-screen.cjs
           node --check simulation/twinleaf/agent4-owner-paper-native-parity.cjs
           node --check simulation/twinleaf/agent5-native-owner-trainer-frontier-observer.cjs
-          node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent4-owner-paper-composite-necessary.test.cjs tests/agent4-bilateral-paper-frontier-closure.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent4-owner-paper-native-transport.test.cjs tests/agent4-owner-paper-native-census.test.cjs
+          node --test tests/agent4-owner-paper-trainer-necessary-screen.test.cjs tests/agent4-owner-paper-composite-necessary.test.cjs tests/agent4-bilateral-paper-frontier-closure.test.cjs tests/agent4-selected-v3-paper-funded-release.test.cjs tests/agent4-selected-v3-offline-audit.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent4-owner-paper-native-transport.test.cjs tests/agent4-owner-paper-native-census.test.cjs
       - name: Install original pinned native Store
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
