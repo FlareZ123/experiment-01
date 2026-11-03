@@ -128,7 +128,7 @@ function trial(attackingSeat,recipientIndex,energyAvailable){
   const chosen=source.bench[recipientIndex];
   const dceOnRecipient=chosen.energies.cards.some(c=>c.id===sourceDeckDce.id);
   assert.equal(dceOnRecipient,energyAvailable);
-  assert.equal(source.deck.cards.some(c=>c.id===sourceDeckDce.id),!energyAvailable);
+  assert.equal(source.deck.cards.some(c=>c.id===sourceDeckDce.id),false);
   assert.equal(source.discard.cards.some(c=>c.id===sourceDeckDce.id),false);
   for(const [index,board] of source.bench.entries())
     if(index!==recipientIndex)
