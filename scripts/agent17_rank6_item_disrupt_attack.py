@@ -25,20 +25,21 @@ def c(n: int, k: int) -> int:
     return comb(n, k) if 0 <= k <= n else 0
 
 
-def prizes(deck: list[int], needed: list[int]) -> int:
-    """Allowed six-Prize subsets of the 51 cards after first nine."""
+def prizes(deck: list[int], needed: list[int], remaining_total: int) -> int:
+    """Allowed six-Prize subsets after the initial seven and all modeled draws."""
     if any(deck[i] == 0 for i in needed):
         return 0
     result = 0
     for mask in range(1 << len(needed)):
         excluded = sum(deck[needed[i]] for i in range(len(needed)) if mask & (1 << i))
-        result += (-1 if mask.bit_count() % 2 else 1) * c(51 - excluded, 6 - excluded)
+        result += (-1 if mask.bit_count() % 2 else 1) * c(remaining_total - excluded, 6 - excluded)
     return result
 
 
-def enumerate_physical() -> tuple[int, int]:
+def enumerate_physical(bonus: int = 0) -> tuple[int, int]:
+    draws = 2 + bonus
     valid = c(60, 7) - c(56, 7)
-    denominator = valid * c(53, 2) * c(51, 6)
+    denominator = valid * c(53, draws) * c(53 - draws, 6)
     numerator = 0
     for first in product(*(range(min(n, 7) + 1) for n in GROUPS[:-1])):
         last = 7 - sum(first)
@@ -49,8 +50,8 @@ def enumerate_physical() -> tuple[int, int]:
         for a, b in zip(GROUPS, seven):
             first_ways *= c(a, b)
         available = [a - b for a, b in zip(GROUPS, seven)]
-        for extra in product(*(range(min(n, 2) + 1) for n in available[:-1])):
-            other = 2 - sum(extra)
+        for extra in product(*(range(min(n, draws) + 1) for n in available[:-1])):
+            other = draws - sum(extra)
             if not 0 <= other <= available[-1]:
                 continue
             drawn = list(extra) + [other]
@@ -69,7 +70,7 @@ def enumerate_physical() -> tuple[int, int]:
             ways = first_ways
             for a, b in zip(available, drawn):
                 ways *= c(a, b)
-            numerator += ways * prizes(remaining, needed)
+            numerator += ways * prizes(remaining, needed, 53 - draws)
     return numerator, denominator
 
 
@@ -77,10 +78,30 @@ if __name__ == "__main__":
     numerator, denominator = enumerate_physical()
     assert numerator == 482733542137566326
     assert denominator == 3829008553747977600
+    q_candidate = c(53, 7) / c(60, 7)
+    q_source = c(56, 7) / c(60, 7)
+    conditional = 0.0
+    rows = []
+    for bonus in range(16):
+        good, total = enumerate_physical(bonus)
+        mass = ((1 - q_candidate) / (1 - q_candidate * q_source)
+                if bonus == 0 else
+                (1 - q_candidate) * (1 - q_source) * q_candidate ** bonus /
+                (1 - q_candidate * q_source))
+        conditional += mass * good / total
+        rows.append((bonus, 100 * good / total))
+    tail = (1 - q_source) * q_candidate ** 16 / (1 - q_candidate * q_source)
+    assert abs(conditional - 0.13625497380194732) < 1e-12
+    assert tail < 2.19e-7
+    assert abs(rows[1][1] - 15.457331173573) < 1e-9
     print(json.dumps({
         "status": "PASS",
         "original_source_rank": 6,
         "probability_percent": numerator / denominator * 100,
+        "full_bonus_mulligan_percent_lower": 100 * conditional,
+        "full_bonus_mulligan_percent_upper": 100 * (conditional + tail),
+        "mulligan_tail_mass": tail,
+        "bonus_count_probabilities_first_four": rows[:4],
         "event": "Item Hammer/Megaton seen + original G&H/Tag Call or held DCE/Mountain for Volt Cyclone",
         "qualified_games": 0
     }, indent=2))
