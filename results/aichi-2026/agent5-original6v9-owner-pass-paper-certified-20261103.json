@@ -1,0 +1,350 @@
+{
+  "schema": "agent5-owner-pass-card-text-certified-source6v9-ledger-v1",
+  "source": {
+    "originalRankPair": [
+      6,
+      9
+    ],
+    "distinctPhysicalDeals": 2,
+    "physicalDealDigests": [
+      "0f71b28f9fb0d50bf5d27ac102e9f8265a1ae3dc547ef6c1dc9adc1aa661f42e",
+      "b9398dd0e9f4b93085cf1fb36595b17df72e602b3f8e69636c005b43929f2a9a"
+    ],
+    "pin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "registration": "results/aichi-2026/registrations/agent5-rank9-battle-compressor-paper-opportunity-observation-20261103.json",
+    "workflowRunId": 41695444985,
+    "rawArtifactId": 13262225437,
+    "archiveSha256": "cf49c6f3ca014d0fff22f9a297c612d3c05a14e602fd8e969f125026345060d6",
+    "armIdentity": "control/observer/repeated-control, exact complete physical and root trace A/B/A",
+    "nativeActionCap": 90,
+    "allOriginalDistinctGamesCensored": true
+  },
+  "keys": {
+    "row": [
+      "physicalArrangement",
+      "rootOrdinal",
+      "realOwnerSeat",
+      "globalTurn",
+      "evidence"
+    ],
+    "B": [
+      "Battle Compressor PHF",
+      "exact physical own-hand index",
+      "public own deck count (>0); Item restriction null"
+    ],
+    "S": [
+      "held named Stadium replacement",
+      "exact physical own-hand index",
+      "previous different-name owned Stadium; public quota unused and lock false"
+    ],
+    "original6Opponent": "original rank9",
+    "original9Opponent": "original rank6"
+  },
+  "summary": {
+    "selectedNativeAcceptedPassRoots": 31,
+    "withGenericUnblockedHeldTrainer": 30,
+    "cardTextAndPublicRuleCertifiedPassRoots": 20,
+    "paperUnprovenPassRoots": 11,
+    "physicalBattleCompressorItemCandidateFrames": 16,
+    "physicalNamedStadiumCandidateFrames": 9,
+    "totalCardTextCertifiedCandidateAppearances": 25,
+    "nativeEnumeratedCertifiedAppearances": 16,
+    "nativeUnenumeratedCertifiedAppearances": 9,
+    "independentlySampledGames": 2,
+    "competitiveQualifiedGames": 0,
+    "candidateStrategicImprovementDemonstrated": false
+  },
+  "certifiedFrames": [
+    [
+      0,
+      1,
+      1,
+      1,
+      [
+        [
+          "B",
+          2,
+          45
+        ]
+      ]
+    ],
+    [
+      0,
+      8,
+      1,
+      3,
+      [
+        [
+          "B",
+          2,
+          44
+        ]
+      ]
+    ],
+    [
+      0,
+      11,
+      1,
+      5,
+      [
+        [
+          "B",
+          2,
+          43
+        ]
+      ]
+    ],
+    [
+      0,
+      16,
+      1,
+      7,
+      [
+        [
+          "B",
+          2,
+          42
+        ]
+      ]
+    ],
+    [
+      0,
+      20,
+      1,
+      9,
+      [
+        [
+          "B",
+          2,
+          41
+        ]
+      ]
+    ],
+    [
+      0,
+      21,
+      0,
+      10,
+      [
+        [
+          "S",
+          7,
+          "Wondrous Labyrinth Prism Star TEU"
+        ]
+      ]
+    ],
+    [
+      0,
+      22,
+      1,
+      11,
+      [
+        [
+          "B",
+          2,
+          40
+        ]
+      ]
+    ],
+    [
+      0,
+      23,
+      0,
+      12,
+      [
+        [
+          "S",
+          7,
+          "Wondrous Labyrinth Prism Star TEU"
+        ]
+      ]
+    ],
+    [
+      0,
+      25,
+      1,
+      13,
+      [
+        [
+          "B",
+          2,
+          39
+        ]
+      ]
+    ],
+    [
+      0,
+      27,
+      0,
+      14,
+      [
+        [
+          "S",
+          7,
+          "Wondrous Labyrinth Prism Star TEU"
+        ]
+      ]
+    ],
+    [
+      0,
+      29,
+      1,
+      15,
+      [
+        [
+          "B",
+          2,
+          38
+        ]
+      ]
+    ],
+    [
+      0,
+      31,
+      0,
+      16,
+      [
+        [
+          "S",
+          7,
+          "Wondrous Labyrinth Prism Star TEU"
+        ]
+      ]
+    ],
+    [
+      0,
+      32,
+      1,
+      17,
+      [
+        [
+          "B",
+          2,
+          37
+        ]
+      ]
+    ],
+    [
+      1,
+      6,
+      0,
+      2,
+      [
+        [
+          "B",
+          1,
+          42
+        ]
+      ]
+    ],
+    [
+      1,
+      14,
+      0,
+      6,
+      [
+        [
+          "B",
+          1,
+          37
+        ]
+      ]
+    ],
+    [
+      1,
+      19,
+      0,
+      8,
+      [
+        [
+          "B",
+          1,
+          33
+        ],
+        [
+          "S",
+          8,
+          "PokéStop PGO"
+        ]
+      ]
+    ],
+    [
+      1,
+      22,
+      0,
+      10,
+      [
+        [
+          "B",
+          1,
+          32
+        ],
+        [
+          "S",
+          8,
+          "PokéStop PGO"
+        ]
+      ]
+    ],
+    [
+      1,
+      25,
+      0,
+      12,
+      [
+        [
+          "B",
+          1,
+          31
+        ],
+        [
+          "S",
+          8,
+          "PokéStop PGO"
+        ]
+      ]
+    ],
+    [
+      1,
+      28,
+      0,
+      14,
+      [
+        [
+          "B",
+          1,
+          30
+        ],
+        [
+          "S",
+          8,
+          "PokéStop PGO"
+        ]
+      ]
+    ],
+    [
+      1,
+      31,
+      0,
+      16,
+      [
+        [
+          "B",
+          1,
+          29
+        ],
+        [
+          "S",
+          8,
+          "PokéStop PGO"
+        ]
+      ]
+    ]
+  ],
+  "caveats": [
+    "Physical cards are repeatedly observed across turns and thus row counts are correlated",
+    "Printed legality from limited known card families and public restrictions is a necessary action-availability finding, not strategic choice dominance",
+    "Stadium prism-star zone transition and replacement action settlement not tested at original genuine roots",
+    "All other generic Trainer types, including target/payment-dependent ones, remain unproven without further checks"
+  ]
+}
