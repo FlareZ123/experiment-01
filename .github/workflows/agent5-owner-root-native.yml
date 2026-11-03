@@ -87,6 +87,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent7_stadium_public_snapshot:
+        description: Read only owner public Stadium zones on observed Trainer roots
+        required: false
+        type: boolean
+        default: false
       agent50_generic_native_trainer_aba:
         description: Preregistered four-deal symmetric generic Trainer Pass bridge A/B/A, developmental
         required: false
@@ -163,6 +168,7 @@ jobs:
         if: ${{ inputs.generic_trainer_frontier }}
         env:
           AGENT5_TRAINER_CENSUS_RANK_PAIR: ${{ inputs.generic_trainer_rank_pair }}
+          AGENT7_STADIUM_PUBLIC_SNAPSHOT: ${{ inputs.agent7_stadium_public_snapshot }}
         run: node simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.generic_trainer_frontier }}
