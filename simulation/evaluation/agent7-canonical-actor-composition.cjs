@@ -113,7 +113,11 @@ function withCanonicalActorOnlyPolicy(execute, adapters = {}, options = {}) {
     const adapter=adapters.trainerFrontier??
       require('../twinleaf/agent29-bilateral-owner-trainer-frontier.cjs')
         .withBilateralOwnerTrainerFrontier;
-    const observed=adapter(execute);
+    const observed=adapter(execute,{
+      ...(options.ownerTrainerRegisteredSixties?{
+        ownRegisteredSixties:options.ownerTrainerRegisteredSixties
+      }:{})
+    });
     assert.ok(observed?.audit,'Generic Trainer frontier must expose audit');
     ownerTrainerFrontierAudit=observed.audit;
     return observed.result;
