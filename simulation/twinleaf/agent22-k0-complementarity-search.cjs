@@ -61,7 +61,7 @@ function valueK0ComplementarySearch(input) {
     .map(line => line.reward));
   const prized = Array(groups.length).fill(0);
   let waysCheck = 0n, configurations = 0, optimumEV = 0, additiveEV = 0,
-    regretEV = 0, feasibleLineProbability = 0, selectedLineProbability = 0,
+    regretEV = 0, worstTieRegretEV = 0, worstTieAdditiveEV = 0, feasibleLineProbability = 0, selectedLineProbability = 0,
     optimumCardsEV = 0, additiveCardsEV = 0;
 
   function evaluate(assigned, ways) {
@@ -89,7 +89,7 @@ function valueK0ComplementarySearch(input) {
       }
       return missing <= input.maxCards;
     });
-    let optimum = null, additive = null;
+    let optimum = null, additive = null, additiveWorst = null;
     const picks = Array(groups.length).fill(0);
     function visit(i, used, standalone) {
       if (i < groups.length) {
@@ -114,15 +114,24 @@ function valueK0ComplementarySearch(input) {
           (Math.abs(combined-optimum.combined)<=1e-10 && chosen<optimum.chosen))
           optimum=candidate;
         if(additive===null || solo>additive.solo+1e-10 ||
-          (Math.abs(solo-additive.solo)<=1e-10 && chosen<additive.chosen))
+          (Math.abs(solo-additive.solo)<=1e-10 && chosen<additive.chosen)) {
           additive=candidate;
+          additiveWorst=candidate;
+        } else if(Math.abs(solo-additive.solo)<=1e-10 && chosen===additive.chosen) {
+          // An additive scorer has no preference among these bundles.
+          // Bound its regret over every tied, equally economical selection.
+          if(combined>additive.combined+1e-10)additive=candidate;
+          if(combined<additiveWorst.combined-1e-10)additiveWorst=candidate;
+        }
       }
     }
     visit(0,0,0);
-    assert.ok(optimum && additive);
+    assert.ok(optimum && additive && additiveWorst);
     const p=Number(multiplicity)/Number(denominator);
     optimumEV+=p*optimum.combined;
     additiveEV+=p*additive.combined;
+    worstTieAdditiveEV+=p*additiveWorst.combined;
+    worstTieRegretEV+=p*(optimum.combined-additiveWorst.combined);
     regretEV+=p*(optimum.combined-additive.combined);
     feasibleLineProbability+=p*Number(feasible);
     selectedLineProbability+=p*Number(optimum.lineDelta>0);
@@ -138,10 +147,12 @@ function valueK0ComplementarySearch(input) {
   }
   assign(0,0,1n);
   assert.equal(waysCheck,denominator,'Prize categories must partition every physical allocation');
-  assert.ok(regretEV>=-1e-8);
+  assert.ok(regretEV>=-1e-8 && worstTieRegretEV>=regretEV-1e-8);
   return {version:VERSION,expectedOptimalUtility:optimumEV,
     expectedAdditiveChoiceUtility:additiveEV,
     expectedAdditiveRegret:regretEV,
+    expectedWorstTiedAdditiveChoiceUtility:worstTieAdditiveEV,
+    expectedWorstTiedAdditiveRegret:worstTieRegretEV,
     probabilityLinePhysicallyCompletable:feasibleLineProbability,
     probabilityOptimalChoiceCompletesNewLine:selectedLineProbability,
     expectedOptimalCardsChosen:optimumCardsEV,
