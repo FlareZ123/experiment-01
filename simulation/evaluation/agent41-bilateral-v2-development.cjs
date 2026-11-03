@@ -1034,6 +1034,31 @@ function scopedSpecialEnergyActorSeat(scope,candidateSlot){
   return scope==='candidate'?candidateSeat:1-candidateSeat;
 }
 
+/**
+ * Preserve the actual printed sixty in each physical native seat for the
+ * existing owner-only Trainer frontier. This metadata is supplied only to
+ * a postgame read-only observer, never to the opposing decision policy.
+ *
+ * @param {{candidateId:string,candidateSlot:'A'|'B',rank:number}} trial
+ * @param {Map<string,{plan:object}>} prepared Verified source plans.
+ * @returns {string[][]} Two exact ordered native deck printing arrays.
+ */
+function registeredNativeSeatDecks(trial,prepared){
+  assert.ok(prepared instanceof Map);
+  assert.ok(trial?.candidateSlot==='A'||trial?.candidateSlot==='B');
+  const plan=prepared.get(trial.candidateId)?.plan;
+  assert.ok(plan&&Array.isArray(plan.opponents));
+  const candidate=plan.candidate?.cards;
+  const source=plan.opponents.find(row=>row.rank===trial.rank)?.cards;
+  assert.equal(candidate?.length,60);
+  assert.equal(source?.length,60);
+  const decks=trial.candidateSlot==='A'?
+    [candidate,source]:[source,candidate];
+  assert.ok(decks.every(deck=>deck.every(
+    printing=>typeof printing==='string'&&printing.length>0)));
+  return decks.map(deck=>[...deck]);
+}
+
 /** @returns {object} */
 function runDevelopment({
   compressorPayload=false,opportunityAudit=false,lateCompressorPayload=false,
@@ -1932,4 +1957,5 @@ module.exports={developmentTrials,sourceFirstPressureTrials,
   commonPayloadOption,firstPostSourceDecision,
   sourceLineReplyPacket,candidatePostChoicePassEvidence,
   candidateRepliesAfterSourceAttacks,scopedSpecialEnergyActorSeat,
-  executeDevelopment,runDevelopment,classifyNativeAbort};
+  executeDevelopment,runDevelopment,registeredNativeSeatDecks,
+  classifyNativeAbort};
