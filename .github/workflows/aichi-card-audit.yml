@@ -87,7 +87,7 @@ jobs:
         run: node --test tests/agent27-owner-trainer-discard-contention.test.cjs tests/agent27-original-field-trainer-payment-coverage.test.cjs tests/agent27-owner-trainer-payment-observer.test.cjs tests/agent27-source-trainer-cardtext-cost-audit.test.cjs
       - name: Verify owner-public Tool and Stadium removal targets against printed paper costs
         if: ${{ always() && !cancelled() }}
-        run: node --test tests/agent6-public-removal-target-certificate.test.cjs
+        run: node --test tests/agent6-public-removal-target-certificate.test.cjs tests/agent6-actor-observation-removal-contract.test.cjs
       - name: Verify all 29 original Basic-conditioned first-turn Item and Trainer holdings
         run: |
           node --test tests/2026-11/agent17-field-firstturn-trainer-access.test.cjs
