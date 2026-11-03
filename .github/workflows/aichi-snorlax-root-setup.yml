@@ -47,8 +47,8 @@ jobs:
       - name: Run fresh preregistered source-policy treatment cohort
         if: ${{ !inputs.native_only }}
         run: node simulation/twinleaf/snorlax-threat-aware-prospective.cjs > aichi-snorlax-threat-aware-prospective.json
-      - name: Test reversible paper AttachEnergyPrompt target guard
-        run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs
+      - name: Test copied Energy Mix root-to-public-custody and paper target guard
+        run: node --test tests/agent19-paper-attach-energy-target-guard.test.cjs tests/agent19-energy-mix-custody-audit.test.cjs
       - name: Probe native copied Energy Mix DCE custody and forbidden recipient
         run: node simulation/twinleaf/agent19-mew-energy-mix-native.cjs > aichi-rank5-mew-energy-mix.json
       - name: Assert latent zero-Energy attacking threat in pinned Store
