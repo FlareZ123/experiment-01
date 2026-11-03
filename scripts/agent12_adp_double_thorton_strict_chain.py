@@ -20,11 +20,12 @@ BUCKETS = (
     {"xy6-97"},  # Double Dragon Energy
     {"xy4-92"},  # Battle Compressor
     {"swsh11-167"},  # Thorton
+    {"xy4-109"},  # VS Seeker to recover the first Thorton on T2
     {"swsh12-136"},  # Regidrago VSTAR
     {"swsh12pt5-152", "swsh12pt5-153"},  # Basic Grass/Fire Energy
     {"xy2-69"},  # M Charizard-EX (Wild Blaze)
 )
-A, R, B, D, C, T, V, E, M, X = range(10)
+A, R, B, D, C, T, S, V, E, M, X = range(11)
 
 
 def load_counts(path=CANDIDATE):
@@ -36,7 +37,7 @@ def load_counts(path=CANDIDATE):
     ).encode("utf-8")
     digest = hashlib.sha256(canonical).hexdigest()
     assert digest == manifest["canonicalCardsSha256"] == EXPECTED_SHA, digest
-    result = [0] * 10
+    result = [0] * 11
     for row in cards:
         group = next(
             (i for i, identities in enumerate(BUCKETS) if row["id"] in identities),
@@ -44,7 +45,7 @@ def load_counts(path=CANDIDATE):
         )
         result[group] += row["count"]
     assert sum(result) == 60
-    assert tuple(result) == (2, 3, 2, 4, 4, 4, 3, 7, 1, 30)
+    assert tuple(result) == (2, 3, 2, 4, 4, 4, 1, 3, 7, 1, 29)
     return tuple(result)
 
 
@@ -81,6 +82,7 @@ def analyze():
     valid_seven_weight = 0
     t1_weight = 0
     t1_t2_weight = 0
+    t1_t2_with_seeker_weight = 0
     for seven in compositions(7, counts):
         opening_weight = 1
         for n, h in zip(counts, seven):
@@ -121,6 +123,27 @@ def analyze():
                 second_draw_options = 0
             t1_t2_weight += weight * second_draw_options
 
+            # VS Seeker can retrieve the already-used T1 Thorton for T2.
+            missing_with_seeker = []
+            if first_eight[T] < 2 and first_eight[S] < 1:
+                missing_with_seeker.append("supporter")
+            if first_eight[V] < 1:
+                missing_with_seeker.append(V)
+            if first_eight[E] < 1:
+                missing_with_seeker.append(E)
+            if not missing_with_seeker:
+                seeker_draw_options = 43 * valid_prize_sets
+            elif len(missing_with_seeker) == 1:
+                k = missing_with_seeker[0]
+                needed = (
+                    deck_after_eight[T] + deck_after_eight[S]
+                    if k == "supporter" else deck_after_eight[k]
+                )
+                seeker_draw_options = needed * prize_options(51, 6, deck_after_eight)
+            else:
+                seeker_draw_options = 0
+            t1_t2_with_seeker_weight += weight * seeker_draw_options
+
     valid_seven = choose(60, 7) - choose(53, 7)
     t1_denominator = valid_seven * 53 * choose(52, 6)
     t2_denominator = t1_denominator * 43
@@ -128,6 +151,7 @@ def analyze():
     assert t1_weight == 7133590891308288
     assert t1_denominator == 250397245379590400
     assert t1_t2_weight == 5390833234048416
+    assert t1_t2_with_seeker_weight == 8163343558830768
     assert t2_denominator == 10767081551322387200
 
     print("fixed_candidate_sha", EXPECTED_SHA)
@@ -136,6 +160,9 @@ def analyze():
     print("t1_conditional_probability", t1_weight / t1_denominator)
     print("t1_t2_numerator", t1_t2_weight)
     print("t1_t2_denominator", t2_denominator)
+    print("t1_t2_with_seeker_numerator", t1_t2_with_seeker_weight)
+    print("t1_t2_with_seeker_probability", t1_t2_with_seeker_weight / t2_denominator)
+    print("vs_seeker_absolute_gain", (t1_t2_with_seeker_weight - t1_t2_weight) / t2_denominator)
     print("t1_t2_conditional_probability", t1_t2_weight / t2_denominator)
     print("strict_followthrough_given_t1", t1_t2_weight / t2_denominator / (t1_weight / t1_denominator))
 
