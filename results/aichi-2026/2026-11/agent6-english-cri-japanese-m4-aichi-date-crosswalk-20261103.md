@@ -16,6 +16,12 @@ The frozen [29-original-list source roster](../full-decklists.json) includes **f
 
 The previously documented **rank-5/rank-26 Special Red Card** discrepancy was identified by Agent 4 in [the prospective selected-v3 report](agent4-selected-v3-paper-funded-prospective-48-native-20261103.md); the added **rank-16 2× Trubbish CRI #56 → M4 #54** counterpart is the useful extension.
 
+## Full original-field English-display chronology census
+
+The new [read-only 29-deck release-date screen](../../../scripts/agent6-original-field-english-release-chronology.cjs) joins source printing set codes against the supplied `resources/sets/en.json` English release registry and preserves ambiguities rather than inventing dates. Among **989 distinct source card rows representing 1,740 physical copies**, it resolves dates for **932 rows** (856 unique set-code matches and 76 multi-set matches with identical dates). The remaining **57 rows / 151 copies** lack compatible English-set-code metadata: **BWP 5 rows / 7 copies; MEE 35 / 120; SMP 4 / 7; SP 4 / 5; XYP 9 / 12**. These remain explicitly unclassified by this timing method. No multi-code date conflicts are presently detected.
+
+Within the date-resolved rows, exactly **three rows / five physical copies**, the `CRI` source cards listed above, have an English expansion release after May 10. The [strict source-locked regression](../../../tests/agent6-original-field-english-release-chronology.test.cjs) checks these rows plus the 57 unresolved-date count. The first release date for a promo family can precede an individual printing, so even resolved set dates are **screening metadata rather than proof of physical historical availability**. Japanese original-print equivalence must be corroborated separately card by card.
+
 ## Reproducibility and scope
 
 The [machine-readable three-row crosswalk](agent6-cri-m4-japanese-pre-event-crosswalk-20261103.json) holds the frozen roster source rank/name/quantity, both printing identifiers, publication dates, and source URLs. This is a **non-mutating audit**. It neither replaces the English-display `CRI` identifiers in `full-decklists.json` nor silently remaps Twinleaf card IDs. Any native implementation or engine equivalence check still needs the exact card semantics, original Japanese-format bans, and supported native printing identity separately verified.
