@@ -309,6 +309,11 @@ function chooseActorRootIntent(view,catalog,options={}){
   if(options.rank9MegaAbsolFundingRoot===true){
     const staged=require('./agent2-rank9-mega-absol-funding.cjs')
       .chooseMegaAbsolStagedFunding(view,catalog);
+    if(staged&&options.activeMegaClawPriorityRoot===true){
+      const better=require('./agent10-active-mega-claw-over-bench.cjs')
+        .chooseActiveMegaClawOverBenchedMega(view,catalog,staged);
+      if(better)return better;
+    }
     if(staged)return staged;
   }
   if(own.active&&!r.energyPlayLocked&&r.energyPlayedTurn!==view.globalTurn){
