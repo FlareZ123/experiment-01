@@ -134,3 +134,47 @@ test('archive admission fails on missing trial and incomplete counterpart',()=>{
   data2.modes[2].native.rows.pop();
   assert.throws(()=>auditTwelveArmArchive(data2));
 });
+
+test('accepted same-turn Bench DCE plus held Guzma is a scoped opportunity only',()=>{
+  const data=fixture();
+  const row=data.modes[2].native.rows[3];
+  row.actorOnlyDecisionCoverage={detailedComponentAudits:{root:{
+    nativeRootAcceptances:[{
+      seat:0,accepted:true,globalTurn:46,kind:'attach-special-energy',
+      intent:{printing:'Double Colorless Energy SUM',slot:'bench',index:1},
+      before:{benchCounts:[5,5]}
+    }]
+  }}};
+  row.sourceOwnerPostPassMobility={observations:[{
+    ordinal:254,globalTurn:46,activeName:'Genesect V',
+    activeEnergyCards:[],activeToolCards:[],
+    benchNames:['Genesect V','Mew VMAX','Crobat V','Dedenne-GX',
+      'Genesect V'],
+    mobilityHeld:{Guzma:2,'Float Stone':1}
+  }]};
+  const report=auditTwelveArmArchive(data);
+  assert.deepEqual(report.comparisons[3]
+    .ownerVisibleLateGuzmaAttackCandidates,[{
+    sourceSeat:0,turn:46,ownerPassOrdinal:254,
+    activeName:'Genesect V',activeEnergyCount:0,
+    activeToolCount:0,heldGuzma:2,heldFloatStone:1,
+    candidateMewBenchIndex:1,candidateMewBenchName:'Mew VMAX',
+    ownerBenchCount:5,opponentBenchCount:5,
+    sourceDceBenchNativeAccepted:true,
+    attackOrSupporterPlayabilityProven:false
+  }]);
+  assert.equal(report.comparisons[0]
+    .ownerVisibleLateGuzmaAttackCandidates.length,0);
+  // No Bench Mew at the accepted target, no surfaced candidate.
+  row.sourceOwnerPostPassMobility.observations[0]
+    .benchNames[1]='Genesect V';
+  assert.equal(auditTwelveArmArchive(data).comparisons[3]
+    .ownerVisibleLateGuzmaAttackCandidates.length,0);
+  // Even a proper Benched Mew cannot trigger without owner-held Guzma.
+  row.sourceOwnerPostPassMobility.observations[0]
+    .benchNames[1]='Mew VMAX';
+  row.sourceOwnerPostPassMobility.observations[0]
+    .mobilityHeld.Guzma=0;
+  assert.equal(auditTwelveArmArchive(data).comparisons[3]
+    .ownerVisibleLateGuzmaAttackCandidates.length,0);
+});
