@@ -71,6 +71,22 @@ P(open 1 of 4 Gimmighoul, both of 2 Exeggcute,
 
 This is roughly one such exact composition per **24 million** uniform initial seven-card hands. Under that particular opening, all six chosen Prize cards being Fire Energy has additional conditional probability **0.00021801173299508482**; the intentionally selected ensuing non-Energy draws make the full exhibited sequence rarer still. These values measure **one illustrative hand-script event only**, not a win rate, not an upper bound on *all* hand-30 routes, and not a Monte Carlo estimate of the archetype's strength.
 
+## Exact mulligan-conditioned one-of Prize exposure
+
+An additional **pure BigInt combinatorial test** enumerates the uniformly random accepted initial seven and subsequent six Prizes for this particular, mechanically fragile 60. It conditions on a valid seven containing at least one of the six Basic Pokémon (four Gimmighoul, two Exeggcute). The seven distinct singleton Basic Energy types used by the maximum nine-type `Energy Search Pro` step are Grass, Water, Lightning, Psychic, Fighting, Darkness, and Fairy. Their identities never overlap those six Basic Pokémon.
+
+For (a) singleton-Energy copies, (b) Basic Pokémon and (7-a-b) other cards in the seven, the exact number of accepted initial hands in that category is `C(7,a) × C(6,b) × C(47,7-a-b)`, with `b>=1`. The remaining deck contains `46+a` non-singleton-Energy cards among 53, so the conditional probability that all six Prizes avoid these seven singleton types is `C(46+a,6)/C(53,6)`. Summing over `a=0..7, b=1..6`, weighting by the count of hands, then dividing by the total valid initial-hand combinations gives:
+
+| Exact event, conditioned on a seven-card hand with at least one of six Basics | Probability |
+| --- | ---: |
+| No one-of type among six Prizes | **45.3612221055%** |
+| At least one of the seven singleton types Prized | **54.6387778945%** |
+| The sole ACE SPEC Energy Search Pro itself Prized | **10.1242889025%** |
+
+These are **different, overlapping events** and must not be added. The 54.64% figure is an obstruction to the *specific maximum-nine-type ACE SPEC route from an otherwise untouched deck before taking Prizes*. A deck could recover Prized cards, include multiple Basic Energy of each type, have a smaller prior hand discrepancy, use other draw/recursion, or win through a different attack, so this is **not an upper bound on Gholdengo Celebration frequency or deck win rate**. The ACE SPEC 10.12% similarly concerns availability in the initial 54-card field prior to Prize recovery.
+
+The exact test was appended to [the existing pure witness](../../../tests/agent1-gholdengo-thirty-hand-zone-witness.test.cjs) at [commit da385221](https://github.com/FlareZ123/experiment-01/commit/da385221b981112323907ee379aa15245c596f27). [Manual CI 41711099198](https://github.com/FlareZ123/experiment-01/actions/runs/41711099198), head `da385221b981112323907ee379aa15245c596f27`, completed **SUCCESS, 45/45 pure tests passed**, and reverified the historical rank17 native Compressor archive digest. No new native game was executed. Prior [manual CI 41710656843](https://github.com/FlareZ123/experiment-01/actions/runs/41710656843) also passed the reinforced first-turn Supporter and evolution guards.
+
 ## Test and next gates
 
 - [Manual CI 41709978571](https://github.com/FlareZ123/experiment-01/actions/runs/41709978571), head `c99b192895e631611ff8bb300dcfcea61e798a8a`, completed **SUCCESS**: the existing cheap archived bridge audit's pure Node test step passed **44/44**, including five new physical Gholdengo test cases. The separately archived rank17 Compressor digest was also checked, **without** rerunning any new native Pokémon games.
