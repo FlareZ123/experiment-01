@@ -125,7 +125,7 @@ function surveyFieldTrainerGates(source,gates={
       sorted.filter(x=>x.families.length>0).length,
     knownPaymentModeCopies:knownPaymentCopies,
     positiveDiscardOptionCopies,
-    unavoidableHandDiscardCopies,
+    unavoidableHandDiscardCopies:unavoidableDiscardCopies,
     printedTurnWindowCopies:temporalCopies,
     publicPrizePrerequisiteCopies:prizeCopies,
     publicRemovalTargetCopies:targetCopies,
