@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {examineSource,pairedPhysical,firstNativeRootDifference,inspect}=
+const {examineSource,pairedPhysical,firstNativeRootDifference,acceptedSourceTargets,compareAcceptedTargetSequence,inspect}=
   require('../scripts/agent10-rank11-heldout-native-custody-audit.cjs');
 const reg=require('../results/aichi-2026/registrations/agent10-rank11-heldout-headway-4seed-20261103.json');
 
@@ -61,6 +61,32 @@ test('native first-root difference distinguishes same-root and recipient diverge
   assert.equal(changed.control.declaredTarget.slot,'active');
   assert.equal(changed.alternative.declaredTarget.slot,'bench');
   assert.equal(firstNativeRootDifference(control,control),null);
+});
+
+test('same root sequence can conceal a different physically accepted source target',()=>{
+  const mk=slot=>({
+    rootActionLedger:[{playerSlot:1,turnBefore:19,
+      action:'PlayCardAction',card:'Darkness Energy MEE'}],
+    nativeAcceptedTargetSidecar:{events:[{
+      playerSlot:1,turnBefore:19,rootActionOrdinal:75,storeAccepted:true,
+      declared:{ownerHandPrinting:'Darkness Energy MEE',target:{
+        player:2,slot,index:slot==='active'?0:3
+      }},
+      publicBoardChanges:[{seat:1,position:slot}]
+    }]}
+  });
+  const ctrl=mk('active'),changed=mk('bench');
+  assert.equal(firstNativeRootDifference(ctrl.rootActionLedger,
+    changed.rootActionLedger),null);
+  const c=compareAcceptedTargetSequence(
+    acceptedSourceTargets(ctrl,1),acceptedSourceTargets(changed,1));
+  assert.equal(c.identical,false);
+  assert.equal(c.firstDifferentIndex,0);
+  assert.equal(c.control.acceptedTarget.slot,'active');
+  assert.equal(c.alternative.acceptedTarget.slot,'bench');
+  const same=compareAcceptedTargetSequence(
+    acceptedSourceTargets(ctrl,1),acceptedSourceTargets(ctrl,1));
+  assert.equal(same.identical,true);
 });
 
 test('whole archive integrity gate retains all 24 attempts and rejects physically mismatched rows',()=>{
