@@ -1,0 +1,124 @@
+{
+  "schema": "agent2-joint-r5-r11-frozen-v2-quickball-root-transport-v1",
+  "preRegisteredUtc": "2026-11-03T03:48:27.811Z",
+  "researchBranch": "agent2-r5-r11-quickball-root-transport-20261103",
+  "baseRevision": "2e7797c2ee2d2e95e82cb3999302e8a89e4bf55c",
+  "v2SelectedManifestGitBlob": "d4d61ef880bc94f1a2f832666257f4c06b6594c1",
+  "nativePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "printedOriginalSourceRosterSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceRunner": "simulation/evaluation/agent41-bilateral-v2-development.cjs",
+  "pinnedSourceFiles": {
+    "simulation/evaluation/agent41-bilateral-v2-development.cjs": "9c40dc80b7cb823466857752a7752922dbb9b2a4",
+    "simulation/evaluation/agent41-bilateral-common-policy.cjs": "d372ff7c0b9f0e759fa191b69d647e287be0f360",
+    "simulation/evaluation/agent7-canonical-actor-composition.cjs": "d8ea957e2c7dc74bb23974863db6a7a51d39366f",
+    "simulation/twinleaf/agent34-actor-only-root-policy.cjs": "b6a9187852eff24638d1ecf6f54960ab7911ca3d",
+    "simulation/twinleaf/agent13-actor-only-choose-attack.cjs": "05b54513fd637c4eee134d5f48d43c446d107f7d",
+    "simulation/twinleaf/agent10-battle-vip-before-attack.cjs": "cfb2597c718517d1e2fe6b1b6c2caa52adaf5667",
+    "simulation/twinleaf/agent4-quick-ball-paper-payment-hook.cjs": "fa1180aaa1fd5a49aa5ab309c00495523af194fa",
+    "simulation/twinleaf/agent4-secret-box-paper-payment-hook.cjs": "6e7a1af7cf7a49d2451710f326124c8ea12a7386",
+    "simulation/twinleaf/agent41-paper-prompt-contract-portfolio.cjs": "8f1b50ecbf8faad81d975afd4d0b0280026bf416",
+    "simulation/twinleaf/agent8-actor-only-choose-pokemon.cjs": "143e29377585171dff5e7c0e78319975be43a93f",
+    "simulation/twinleaf/actor-observation-contract.cjs": "8b1bf37fa42a3019f76678e5fb31f04bccc64d9d",
+    "simulation/twinleaf/headless.cjs": "1690ea77ce92c9694b6e04da6dcf6159bae64160",
+    "results/aichi-2026/full-decklists.json": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  },
+  "trialRows": [
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "5:0:A:champion-reference",
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:0:A:new-moon-lockbreaker-v1",
+      "seed": 3423099534
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "5:1:B:champion-reference",
+      "seed": 561933954
+    },
+    {
+      "rank": 5,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "5:1:B:new-moon-lockbreaker-v1",
+      "seed": 561933954
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "id": "11:0:A:champion-reference",
+      "seed": 3792269394
+    },
+    {
+      "rank": 11,
+      "repeat": 0,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:0:A:new-moon-lockbreaker-v1",
+      "seed": 3792269394
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "id": "11:1:B:champion-reference",
+      "seed": 2632620962
+    },
+    {
+      "rank": 11,
+      "repeat": 1,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:1:B:new-moon-lockbreaker-v1",
+      "seed": 2632620962
+    }
+  ],
+  "factorFlags": {
+    "rootOff": {
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": true,
+      "bilateralQuickBallRoot": false
+    },
+    "rootOn": {
+      "actorOnlySingleSearch": true,
+      "actorHandDiscard": true,
+      "bilateralQuickBallRoot": true
+    }
+  },
+  "trialCount": 8,
+  "factorCount": 2,
+  "nativeAttempts": 16,
+  "decision": "Compare owner-only search+discard ON in both arms. Sole changed newer v2 runner policy option is bilateralQuickBallRoot, on previously observed old v1 source seed groups. Neither arm is prospective.",
+  "samePhysicalDealsWithinCandidateMandatory": true,
+  "sameSourceCandidatePrintedSixtiesMandatory": true,
+  "researchPrevious": "results/aichi-2026/agent2-joint-r5-r11-search-discard-32arm-transport-native-20261103.md",
+  "successCriteria": [
+    "same full two-player physical deal fingerprint and starter in each rootOn/off pair",
+    "actual source Quick Ball root with owner hand discard and deck-search postconditions",
+    "original rank5 native settled Cross Fusion Strike and rank11 settled Claw attack actions",
+    "source attack to actual next candidate root observable",
+    "native terminal/censor/errors retained",
+    "rejected/unsupported actions do not enter competitive win denominators"
+  ],
+  "qualification": {
+    "competitiveGames": 0,
+    "sourceCompetenceUnverified": true,
+    "officialClockUnverified": true,
+    "winRateClaim": "none"
+  }
+}
