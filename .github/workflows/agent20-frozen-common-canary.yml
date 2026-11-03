@@ -109,22 +109,24 @@ jobs:
       - name: Verify frozen common-physical rank5 transport preregistration and code
         run: |
           node --check simulation/evaluation/agent22-rank5-options-transport-v1.cjs
+          node --check simulation/evaluation/agent22-rank5-mobility-ablation-v1.cjs
           node simulation/evaluation/agent22-rank5-options-transport-v1.cjs --inspect-only
+          node simulation/evaluation/agent22-rank5-mobility-ablation-v1.cjs --inspect-only
       - name: Install pinned engine dependencies
         working-directory: vendor/twinleaf/ptcg-server
         run: npm ci --no-audit --no-fund
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Execute all sixteen registered original rank5 native attempts
-        run: node simulation/evaluation/agent22-rank5-options-transport-v1.cjs
+      - name: Execute all thirty-two registered rank5 paid-retreat ablation attempts
+        run: node simulation/evaluation/agent22-rank5-mobility-ablation-v1.cjs
       - name: Preserve original native attempts and the frozen input
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: agent22-rank5-transport-same-code-16-native
+          name: agent22-rank5-paid-retreat-32-native
           path: |
-            agent22-rank5-options-transport-v1-output.json
-            simulation/evaluation/agent22-rank5-options-transport-v1.json
+            agent22-rank5-mobility-ablation-v1-output.json
+            simulation/evaluation/agent22-rank5-mobility-ablation-v1.json
           if-no-files-found: warn
           retention-days: 30
