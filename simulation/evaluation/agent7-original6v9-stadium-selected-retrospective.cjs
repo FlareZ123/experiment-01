@@ -12,6 +12,8 @@ const { trainerPrintCatalog } =
   require('../twinleaf/agent5-generic-owner-trainer-opportunity.cjs');
 const { chooseOwnerStadiumAfterPass, VERSION: BRIDGE_VERSION } =
   require('../twinleaf/agent7-owner-stadium-pass-bridge.cjs');
+const { auditSourceImpact } =
+  require('./agent7-stadium-source-impact-receipt.cjs');
 
 const REGISTRATION = require('../../results/aichi-2026/registrations/agent7-original6v9-own-stadium-pass-retro-20261103.json');
 const OUT = path.resolve(__dirname, '../../vendor/twinleaf/ptcg-server/output');
@@ -298,6 +300,9 @@ function run() {
       fixtureId: fixture.id, seed: request.seed, sourceRank: fixture.sourceRank,
       sourceSeat: fixture.sourceSeat, primaryRankSeat: fixture.primaryRankSeat,
       initialRegistration: fixture, parity,
+      firstDivergenceAndReply: control && selected &&
+        intervention.payload?.audit ?
+        auditSourceImpact(fixture,control,selected,intervention.payload.audit):null,
       controls: {
         first: { status: original.status, error: original.error ?? null,
           result: compact(control) },
@@ -328,6 +333,8 @@ function run() {
       sum + (r.selected.audit?.selectedRoots ?? 0), 0),
     nativeStadiumAccepted: rows.reduce((sum, r) =>
       sum + (r.selected.audit?.selectedNativeStore === 'accepted' ? 1 : 0), 0),
+    exactFirstDivergenceStoreActions:rows.filter(r =>
+      r.firstDivergenceAndReply?.firstActualSourceDivergence===true).length,
     originalSourceGames: rows.length,
     competitiveQualifiedGames: 0,
     strengthInference: 'not-available; selected root change only, no competent policy qualification',
