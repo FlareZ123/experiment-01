@@ -70,10 +70,18 @@ on:
         default: false
 
       generic_trainer_frontier:
-        description: Bounded two-seat original ranks5/11 live Store owner Trainer opportunity audit, read-only
+        description: Bounded read-only original-rank true-owner Trainer opportunity A/B/A
         required: false
         type: boolean
         default: false
+      generic_trainer_rank_pair:
+        description: Fixed preregistered original printed-60 pair
+        required: false
+        type: choice
+        default: '5_11'
+        options:
+          - '5_11'
+          - '6_9'
 permissions:
   contents: read
 
@@ -104,14 +112,16 @@ jobs:
           npm run compile
       - name: Verify exact Night Watch printed randomness vs pinned vendor selection
         run: node --test tests/agent12-nightwatch-printed-random-vendor-gap.test.cjs
-      - name: Bounded genuine owner-root Trainer frontier for original rank5 vs rank11 both seats
+      - name: Bounded genuine owner-root Trainer frontier for preregistered original printed ranks
         if: ${{ inputs.generic_trainer_frontier }}
+        env:
+          AGENT5_TRAINER_CENSUS_RANK_PAIR: ${{ inputs.generic_trainer_rank_pair }}
         run: node simulation/twinleaf/agent5-generic-owner-trainer-frontier-native.cjs
       - uses: actions/upload-artifact@v4
         if: ${{ always() && inputs.generic_trainer_frontier }}
         with:
           name: agent5-generic-trainer-frontier-original5-vs11
-          path: agent5-generic-owner-trainer-frontier-original-5-v-11.json
+          path: agent5-generic-owner-trainer-frontier-original-*.json
           if-no-files-found: warn
           retention-days: 30
       - name: Native staged Iron Thorns Stadium root in both seats
