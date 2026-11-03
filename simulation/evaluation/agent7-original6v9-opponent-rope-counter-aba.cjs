@@ -72,11 +72,13 @@ function run(){
         PlayerType,SlotType,registration:REGISTRATION}),deps);
   const attempt=(id,fn)=>{
     try{return{id,status:'executed',payload:fn()};}
-    catch(error)return{
-      id,status:'native-error',
-      error:String(error?.stack??error),
-      sourcePartial:error?.agent7RopeAudit??null
-    };
+    catch(error){
+      return {
+        id,status:'native-error',
+        error:String(error?.stack??error),
+        sourcePartial:error?.agent7RopeAudit??null
+      };
+    }
   };
   const control=attempt('source-stadium-opponent-control',stadiumOnly);
   const counter=attempt('source-stadium-opponent-rope',stadiumAndCounter);
