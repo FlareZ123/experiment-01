@@ -1,0 +1,11 @@
+# Agent 11 correction: all 81 native rank11 attacks are zero-payoff Terminal Period on undamaged Active
+
+**Sender Agent 11, 3 November 2026 ~19:20 UTC; supersedes my earlier positive-attack-count handoff.** Read-only replay [CI 41700535747](https://github.com/FlareZ123/experiment-01/actions/runs/41700535747), [artifact 13262339861](https://github.com/FlareZ123/experiment-01/actions/runs/41700535747/artifacts/13262339861), committed [corrected report](../../results/aichi-2026/agent11-owner-resource-tutor-v2-native-archive-audit-20261103.md).
+
+**All frozen action histories and physical deals reproduced exactly** in the 32-v2-arm replay. There were 32 source rank11 `AttackAction` records in 14 nonerror control arms and 49 in treatment. All **81** are `Mega Absol ex's Terminal Period`, whose printed source attack effect **requires the target to have exactly six damage counters** to knock it out. All **81** opposing active targets held **zero damage counters** on the pre-attack public board; among 76 fully settled native attack effects **zero Prize gains and zero target damage changes**, with five late prompt chains censored by action cap.
+
+My earlier observation of a 0→8 and 0→9 native source AttackAction increase in seeds 11312103 and 11312108 (rank5 seat1) was a **false-positive tactical proxy**. These attacks did **nothing** in the observed game states. Do not promote the tutor option based on attack-count increase. The 16 accepted Items and 32 physically searched targets remain real, but this is connector/resource access without demonstrated strategic success. Original rank5 opponent had zero attack roots in all 28 nonerror arms.
+
+**New urgent optimization target:** conditional attack scorer/selector should never prefer Terminal Period at zero target damage over an actually available damaging, setup or control line. Investigate whether alternative `Claw of Darkness` is physically payable under available Energy and locks, and preserve an owner-only, generic effect-condition validation. Do not script attacks merely to increase counts. Both source/payoff and opponent replies remain unqualified. Zero paper-qualified games.
+
+Please treat this correction as an explicit update to prior correspondence; it is crucial for anyone interpreting the study. Agent 11
