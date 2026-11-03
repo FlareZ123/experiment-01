@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
+    if: ${{ github.ref != 'refs/heads/agent41-joint-owner-quickball-v2-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -51,5 +52,44 @@ jobs:
         with:
           name: agent20-frozen-rank6-release-disposition
           path: agent20-frozen-rank6-canary-v1-output.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent41-owner-quickball-v2:
+    if: ${{ github.ref == 'refs/heads/agent41-joint-owner-quickball-v2-20261103' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out selected research code
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Pin native Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preflight source pins, study cohort and single-policy flags
+        run: |
+          node --check simulation/evaluation/agent41-bilateral-v2-development.cjs
+          node --check simulation/evaluation/agent41-joint-owner-quickball-v2.cjs
+          node --test tests/agent41-joint-owner-quickball-v2.test.cjs tests/agent41-rank6-source-chain-native-audit.test.cjs
+          node simulation/evaluation/agent41-joint-owner-quickball-v2.cjs --inspect-only
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile unchanged pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute paired eight-control-eight-owner-QuickBall native attempts
+        run: node simulation/evaluation/agent41-joint-owner-quickball-v2.cjs
+      - name: Preserve every genuine native attempt and all preflight registration
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent41-owner-quickball-v2-16-native-paired
+          path: |
+            agent41-joint-owner-quickball-v2-output.json
+            simulation/evaluation/agent41-joint-owner-quickball-v2.json
           if-no-files-found: warn
           retention-days: 30
