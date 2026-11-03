@@ -23,15 +23,20 @@ const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  * @returns {object}
  */
 function run(){
+  const rankPair=process.env.AGENT5_TRAINER_CENSUS_RANK_PAIR??'5_11';
+  assert.ok(['5_11','6_9'].includes(rankPair),
+    'Only preregistered original-rank pairs may run');
+  const [primaryRank,otherRank]=rankPair.split('_').map(Number);
+  const seedBase=rankPair==='5_11'?20261113:20261114;
   const manager=initializeCards();
-  const original=planAichi(5,{
+  const original=planAichi(primaryRank,{
     allowEquivalentBasicEnergies:true,
     allowJapanesePromoHooks:true
   });
-  const five=original.candidate.cards;
-  const eleven=original.opponents.find(x=>x.rank===11)?.cards;
-  assert.equal(five?.length,60,'Original rank5 must resolve to 60');
-  assert.equal(eleven?.length,60,'Original rank11 must resolve to 60');
+  const primary=original.candidate.cards;
+  const secondary=original.opponents.find(x=>x.rank===otherRank)?.cards;
+  assert.equal(primary?.length,60,'Original primary rank must resolve to 60');
+  assert.equal(secondary?.length,60,'Original second rank must resolve to 60');
   const {Store}=native('game/store/store');
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {GamePhase}=native('game/store/state/state');
@@ -41,18 +46,18 @@ function run(){
   const {ActionEnumerator}=native('advanced-bot/action-enumerator');
   const {PlayCardAction}=native('game/store/actions/play-card-action');
 
-  const seeding=deriveSlotSeeds(20261113,'pilot',5,0);
+  const seeding=deriveSlotSeeds(seedBase,'pilot',primaryRank,0);
   const rows=[];
   for(const [seat,slot] of /** @type {const} */ (['A','B']).entries()){
     const seed=seeding[slot];
-    const deckA=seat===0?five:eleven;
-    const deckB=seat===0?eleven:five;
+    const deckA=seat===0?primary:secondary;
+    const deckB=seat===0?secondary:primary;
     const request={
       deckA,deckB,seed,
       maxActions:90,strictPromptValidation:true,
       isolatePolicyRandomness:true,captureDecisionTrace:true,
       captureInitialFullPhysicalDeal:true,
-      label:'agent5-generic-trainer-frontier-original-5-vs-11-'+slot
+      label:'agent5-generic-trainer-frontier-original-'+rankPair+'-'+slot
     };
     const control=runMatch(request);
     const observed=withNativeOwnerTrainerFrontier(
@@ -93,7 +98,7 @@ function run(){
     const rootActions=observed.result.decisionTrace??[];
     const censored=observed.result.finished!==true;
     rows.push({
-      source5Seat:seat,physicalSlot:slot,seed,
+      primaryRankSeat:seat,physicalSlot:slot,seed,
       fullDeckCounts:[deckA.length,deckB.length],
       sameSeedThreeArmParity:parity,
       initialFullPhysicalDealDigest:fullRoot,
@@ -114,9 +119,9 @@ function run(){
     root.unresolvedGenericOpportunities>0);
   const allTrainers=full.flatMap(root=>root.trainers);
   const result={
-    schema:'agent5-readonly-generic-trainer-opportunity-original-5-v-11-v1',
-    engine:PIN,seedPlan:{base:20261113,phase:'pilot',rank:5,repeat:0},
-    registeredOriginalRanks:[5,11],
+    schema:'agent5-readonly-generic-trainer-opportunity-original-'+rankPair+'-v2',
+    engine:PIN,seedPlan:{base:seedBase,phase:'pilot',rank:primaryRank,repeat:0},
+    registeredOriginalRanks:[primaryRank,otherRank],
     sameSixtyBothSeats:true,
     noDeckSubstitution:true,
     simulatedGames:rows.length*3,
@@ -154,13 +159,14 @@ function run(){
 if(require.main===module){
   const result=run();
   saveResult(path.resolve(process.cwd(),
-    'agent5-generic-owner-trainer-frontier-original-5-v-11.json'),result);
+    'agent5-generic-owner-trainer-frontier-original-'+
+      rankPair.replace('_','-v-')+'.json'),result);
   process.stdout.write('AGENT5_GENERIC_TRAINER_FRONTIER '+
-    JSON.stringify(result.summary)+'\n');
+    JSON.stringify({ranks:result.registeredOriginalRanks,...result.summary})+'\n');
   const examples=result.rows.flatMap(row=>row.frontiers.roots
     .filter(root=>root.observedOwnerHandTrainerCopies>0)
     .slice(0,6).map(root=>({
-      source5Seat:row.source5Seat,seat:root.seat,turn:root.turn,
+      primaryRankSeat:row.primaryRankSeat,seat:root.seat,turn:root.turn,
       chosen:root.chosen,dispatch:root.dispatch,
       available:root.trainers.map(t=>({printing:t.printing,type:t.type,
         blocker:t.publicBlocker,offered:t.nativeEnumeratorOffered}))
