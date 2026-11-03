@@ -87,6 +87,11 @@ on:
         required: false
         type: boolean
         default: false
+      agent30_public_prize_native:
+        description: 'Historical original5-vs11 owner-visible public Prize Trainer veto A/B/A, no qualified games'
+        required: false
+        type: boolean
+        default: false
       agent7_stadium_public_snapshot:
         description: Read only owner public Stadium zones on observed Trainer roots
         required: false
@@ -195,6 +200,21 @@ jobs:
         with:
           name: agent5-generic-trainer-frontier-original5-vs11
           path: agent5-generic-owner-trainer-frontier-original-*.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Validate exact public Prize veto transport and pinned runner syntax
+        if: ${{ inputs.agent30_public_prize_native }}
+        run: |
+          node --check simulation/twinleaf/agent30-public-prize-owner-native-aba.cjs
+          node --test tests/agent30-public-prize-trainer-necessary.test.cjs tests/agent30-prize-native-frontier-transport.test.cjs
+      - name: Replay original rank5 versus rank11 owner-public Prize gate in read-only A/B/A
+        if: ${{ inputs.agent30_public_prize_native }}
+        run: node simulation/twinleaf/agent30-public-prize-owner-native-aba.cjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && inputs.agent30_public_prize_native }}
+        with:
+          name: agent30-original5-11-public-prize-native-parity
+          path: agent30-original5-11-public-prize-native-parity.json
           if-no-files-found: warn
           retention-days: 30
       - name: Reuse exact original rank5/rank11 physical A/B/A for read-only owner-hand cost overlay
