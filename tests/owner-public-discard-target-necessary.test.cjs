@@ -9,6 +9,9 @@ const {
   publicDiscardTargetNecessary,
   augmentPaperNecessityWithDiscardTargets
 }=require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
+const {
+  SOURCES,TYPES,withVerifiedMEEBasicEnergyPrintings
+}=require('../simulation/twinleaf/planning/owner-external-mee-basic-energy-metadata.cjs');
 
 const source=Object.keys(RULES);
 const meta=new Map([
@@ -201,4 +204,38 @@ test('source Prism Star ♢ and English database ◇ classify the same public Ba
   assert.deepEqual(source.get('Ditto ♢ LOT'),canonical.get('Ditto ◇ LOT'));
   assert.deepEqual(source.get('Tapu Koko ♢ TEU'),
     canonical.get('Tapu Koko ◇ TEU'));
+});
+
+
+test('external MEE Basic source remains explicit and never mutates bundled data',()=>{
+  assert.equal(SOURCES.length,2);
+  assert.deepEqual(TYPES,['Grass','Fire','Water','Lightning',
+    'Psychic','Fighting','Darkness','Metal']);
+  const raw=loadBundledPublicPrintMetadata(path.join(__dirname,'../resources'));
+  assert.equal(raw.has('Darkness Energy MEE'),false);
+  const enhanced=withVerifiedMEEBasicEnergyPrintings(
+    withSourcePromoAliases(raw));
+  assert.equal(raw.has('Darkness Energy MEE'),false);
+  for(const type of TYPES){
+    assert.equal(targetMatch(enhanced.get(type+' Energy MEE'),
+      'pokemon-or-basic-energy'),true);
+    assert.equal(targetMatch(enhanced.get(type+' Energy MEE'),
+      'special-energy'),false);
+  }
+  assert.equal(targetMatch(enhanced.get('Professors Letter BKT'),
+    'pokemon-or-basic-energy'),false);
+});
+
+test('real archived Super Rod discard becomes a known Basic Energy target',()=>{
+  const raw=loadBundledPublicPrintMetadata(path.join(__dirname,'../resources'));
+  const index=withVerifiedMEEBasicEnergyPrintings(
+    withSourcePromoAliases(raw));
+  const discard=['Professors Letter BKT','Darkness Energy MEE'];
+  const rod=check('Super Rod PAL',discard,index);
+  assert.deepEqual(rod.eligibleTargetIndices,[1]);
+  assert.deepEqual(rod.unknownMetadataIndices,[]);
+  assert.equal(rod.paperPlayable,null,'positive target cannot certify full play');
+  const seeker=check('VS Seeker PHF',discard,index);
+  assert.equal(seeker.paperPlayable,false);
+  assert.equal(seeker.blocker,'proven-no-public-discard-target');
 });
