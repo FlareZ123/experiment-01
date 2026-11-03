@@ -1,0 +1,290 @@
+{
+  "rank": 0,
+  "player": "Agent 38 research candidate",
+  "archetype": "Mega Absol ex / Arven-Boost Shake Garbotoxin",
+  "label": "Arven Shake Absol v1: fixed 60-card original-source experimental challenger",
+  "based_on": {
+    "event": "CL Aichi Open League, 2026-05-10",
+    "original_rank": 11,
+    "original_player": "Wataru Yano",
+    "original_archetype": "Absol Garbodor"
+  },
+  "category_counts": {
+    "Pokémon": 14,
+    "Trainer": 38,
+    "Energy": 8
+  },
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "name": "Mega Absol ex",
+      "printing": {
+        "set": "MEG",
+        "number": "86",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "name": "Trubbish",
+      "printing": {
+        "set": "FST",
+        "number": "168",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Garbodor",
+      "printing": {
+        "set": "BKP",
+        "number": "57",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 2,
+      "name": "Oranguru V",
+      "printing": {
+        "set": "ASR",
+        "number": "133",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Latias ex",
+      "printing": {
+        "set": "SSP",
+        "number": "76",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "printing": {
+        "set": "GRI",
+        "number": "60",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Crobat V",
+      "printing": {
+        "set": "DAA",
+        "number": "104",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "printing": {
+        "set": "PAL",
+        "number": "169",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Carmine",
+      "printing": {
+        "set": "TWM",
+        "number": "145",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Marnie",
+      "printing": {
+        "set": "SSH",
+        "number": "169",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Battle VIP Pass",
+      "printing": {
+        "set": "FST",
+        "number": "225",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Quick Ball",
+      "printing": {
+        "set": "FST",
+        "number": "237",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Professor's Letter",
+      "printing": {
+        "set": "BKT",
+        "number": "146",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Dark Patch",
+      "printing": {
+        "set": "ASR",
+        "number": "139",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Boost Shake",
+      "printing": {
+        "set": "EVS",
+        "number": "142",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Escape Rope",
+      "printing": {
+        "set": "BST",
+        "number": "125",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Super Rod",
+      "printing": {
+        "set": "PAL",
+        "number": "188",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Secret Box",
+      "printing": {
+        "set": "TWM",
+        "number": "163",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Float Stone",
+      "printing": {
+        "set": "BKT",
+        "number": "137",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "printing": {
+        "set": "SIT",
+        "number": "156",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Muscle Band",
+      "printing": {
+        "set": "XY",
+        "number": "121",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Shopping Center",
+      "printing": {
+        "set": "EVS",
+        "number": "157",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Temple of Sinnoh",
+      "printing": {
+        "set": "ASR",
+        "number": "155",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Energy",
+      "count": 8,
+      "name": "Darkness Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      }
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Arven",
+      "printing": {
+        "set": "SVI",
+        "number": "166",
+        "language": "en"
+      }
+    }
+  ],
+  "verification": "Source printings inherited from published Aichi rank11; Arven SVI 166 is added. Not a comprehensive Japanese physical-print or gameplay legality certificate."
+}
