@@ -82,6 +82,20 @@ The first-turn source physical position includes the *ordered hand, deck, Prizes
 
 The practical design consequence is stronger than a generic seed-mismatch warning: a physically equal source opening may be impossible for naturally dealt two-candidate contrasts when the two candidate decks induce different mulligan counts and hence different opponent compensation. Prospective comparisons need an explicitly declared strategy for the resulting nonexchangeable opening states, such as analyzing naturally coupled RNG seeds with setup covariates, conditioning on observable comparable setups, or reporting unmatched groups transparently. None of these methods alone produces paper-qualified game-win evidence.
 
+## Whole-cohort setup-count covariance in the existing native archive
+
+[CI 41596995224](https://github.com/FlareZ123/experiment-01/actions/runs/41596995224), exact head `06674b804df04496d1fcb87fce6a057aa91e678a`, **SUCCESS**, applied a new [read-only same-seed setup cohort census](../../simulation/evaluation/agent48-original-setup-contrast.cjs) to all original fixed-candidate source groups under each policy. It used the identical original native archive, verified public setup-count and source-opening digest fields, and passed seven pure setup regression tests. The conservative all-cohort method classifies the aborted rank6 champion-reference setup counts as unknown; it does **not** impute any missing setup details from an abort-side digest.
+
+| Original cross-candidate setup cohort | Joint-v1 control | Selected-v2 VIP |
+| --- | ---: | ---: |
+| Total registered seed groups | 13 | 13 |
+| Both public setup counts and ordinary source-opening fingerprints established | 12 | 12 |
+| **Equal native mulligan counts, source physical opening matched** | **11/11** | **11/11** |
+| **Different native mulligan counts, source physical opening mismatched** | **1/1** | **1/1** |
+| Unknown ordinary setup count or fingerprint from native abort | 1 | 1 |
+
+There were **no observed groups** among the 12 established per mode where equal mulligan counts accompanied a different source opening, or differing mulligan counts accompanied a physically equal source opening. The one mismatch was exactly `5:101:A`, independently witnessed in both modes. The source-deal matching criterion is a SHA-256 digest of all original-source initial card positions and the setup counts are real native Store events. This is a **small, nonrandom, partially repeated developmental cohort**; the perfect alignment among the observed cases cannot establish a universal physical RNG coupling theorem. Different candidate lists, opening Basic distributions and compensation choices create legitimate setup-state differences that must be preserved in future paired deck analyses.
+
 ## Consequences for the single-deck decision
 
 - Preserve each within-candidate control/selected comparison, including the negative rank11 `Claw of Darkness` 4→0 response trajectory, under its own physical-deal proof.
