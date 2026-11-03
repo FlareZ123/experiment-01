@@ -3,10 +3,10 @@
   "repository": "FlareZ123/experiment-01",
   "observedAtUtc": "2026-11-03T15:12:00Z",
   "releaseTag": "aichi-native-evidence-2026-11-03",
-  "releaseStatus": "MIRRORED_SEVEN_RELEASE_DOWNLOAD_SHA_VERIFIED",
+  "releaseStatus": "MIRRORED_SEVEN_EIGHTH_PENDING",
   "releaseUrl": "https://github.com/FlareZ123/experiment-01/releases/tag/aichi-native-evidence-2026-11-03",
   "publicationOfReleaseDoesNotCertifyGames": true,
-  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Agent7's original rank6v9 natural-deal Stadium, settled attack and Prize ZIP is now byte-verified and appended as the seventh asset; previous six unchanged.",
+  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Agent7's original rank6v9 natural-deal Stadium, settled attack and Prize ZIP is now byte-verified and appended as the seventh asset; previous six unchanged. Agent10 rank11 Letter native A/B/A 12-attempt original full ZIP registered as pending eighth release asset after observed source First/K0, physical owner Item settlement, six native Prizes and genuine engine terminal reversal. Seven established assets remain immutable by digest, not by platform guarantee.",
   "artifacts": [
     {
       "key": "rank5-v31-native-16arm",
@@ -144,6 +144,22 @@
       "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/original-rank6v9-stadium-13266395809.zip",
       "releaseAssetId": 707086508,
       "durableVerifiedAtUtc": "2026-11-03T21:03:52.938Z"
+    },
+    {
+      "key": "agent10-original-rank11-letter-natural-aba",
+      "runId": 41718346785,
+      "artifactId": 13269629991,
+      "assetName": "agent10-rank11-letter-aba-12-13269629991.zip",
+      "sizeBytes": 71705,
+      "sha256": "1e5e7a1af7bc73a469906ce37e73604a4c573472978a4e9ee40feb15492eed65",
+      "expiresAtUtc": "2026-12-03T21:07:09Z",
+      "report": "results/aichi-2026/2026-11/agent10-rank11-letter-natural-aba-paid-prize-followthrough-20261103.md",
+      "archiveStatus": "PENDING_ORIGINAL_AND_RELEASE_BYTE_VERIFICATION",
+      "runHeadSha": "7cb63d74794128209e89f7072a059d1d1dd903ce",
+      "workflowPath": ".github/workflows/agent10-rank11-letter-natural-aba.yml",
+      "registrationPath": "results/aichi-2026/registrations/agent10-rank11-letter-natural-deal-aba-v1.json",
+      "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/agent10-rank11-letter-aba-12-13269629991.zip"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
