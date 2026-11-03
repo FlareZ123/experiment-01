@@ -32,7 +32,8 @@ function attackerLockFirstEight({shake, quick}) {
   const denominator = 8n * choose(60, 8) * choose(52, 6);
   const categories = [
     'valid', 'muk', 'budew', 'eitherLock', 'regidrago', 'mukWithRegidrago',
-    'budewWithRegidrago', 'eitherLockWithRegidrago', 'eitherLockAndRegidrago',
+    'budewWithRegidrago', 'budewInitiallyActive', 'budewInitiallyActiveWithRegidrago',
+    'eitherLockWithRegidrago', 'eitherLockAndRegidrago',
     'bothAlternativesWithRegidrago',
     'mukRegidragoConnectorCollision', 'budewRegidragoConnectorCollision',
     'eitherLockRegidragoConnectorCollision'
@@ -88,6 +89,13 @@ function attackerLockFirstEight({shake, quick}) {
               if (regidrago) count.regidrago += weight;
               if (mukWithRegidrago) count.mukWithRegidrago += weight;
               if (budewWithRegidrago) count.budewWithRegidrago += weight;
+              // An opening-seven Budew can be declared Active at setup.
+              // Budew fetched by Quick Ball or drawn as card eight cannot.
+              const budewInitiallyActive = b > 0 && eighth !== 5;
+              if (budewInitiallyActive) count.budewInitiallyActive += weight;
+              if (budewInitiallyActive && regidrago) {
+                count.budewInitiallyActiveWithRegidrago += weight;
+              }
               if (eitherLockWithRegidrago) count.eitherLockWithRegidrago += weight;
               if ((muk || budew) && regidrago) count.eitherLockAndRegidrago += weight;
               if (mukWithRegidrago && budewWithRegidrago) {
