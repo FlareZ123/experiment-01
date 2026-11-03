@@ -179,3 +179,13 @@ test('invalid hand index or owner-root boundary fails closed',()=>{
   v.decisionKind='owner-prompt';
   assert.throws(()=>removalTargetCertificate(v,0));
 });
+
+test('public target overlay rejects source rows with a mismatched owner index',()=>{
+  const v=view(['Field Blower GRI']);
+  const census={actorSeat:0,globalTurn:5,rows:[{
+    handIndex:0,printing:'Lost Vacuum LOR',
+    paperPlayable:null,necessaryBlockers:[]
+  }]};
+  assert.throws(()=>withPublicRemovalTargetEvidence(v,census),
+    /authenticated physical owner hand index/);
+});
