@@ -11,7 +11,7 @@ const {withCanonicalActorOnlyPolicy}=
 const {saveResult}=
   require('./agent3-rank26-compressor-settlement-prospective-v2.cjs');
 
-const VERSION='agent29-generic-trainer-frontier-native-a-b-readonly-v2';
+const VERSION='agent29-generic-trainer-frontier-native-a-b-readonly-v3';
 const ENGINE_PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const MAX_ACTIONS=90;
 const REGISTERED={
@@ -74,7 +74,9 @@ function run(){
       ()=>runMatch(request),{},{genericFallbackAttribution:true});
     const instrumented=()=>withCanonicalActorOnlyPolicy(
       ()=>runMatch(request),{},{
-        ownerGenericTrainerFrontier:true,genericFallbackAttribution:true
+        ownerGenericTrainerFrontier:true,
+        ownerTrainerRegisteredSixties:[request.deckA,request.deckB],
+        genericFallbackAttribution:true
       });
     const control=canonical();
     const observed=instrumented();
@@ -118,6 +120,8 @@ function run(){
       nativeGenericDecoderCalls:originalGeneric.liveGenericDecodes,
       nativeGenericFallbackBySeat:originalGeneric.bySeat,
       nativeOwnerTurnFallbackSampleCount:nativeOwnerTurnFallbacks.length,
+      k0GuaranteedVipPasses:summary.k0GuaranteedVipPasses,
+      k0FirstTurnVipExamples:summary.k0FirstTurnVipExamples,
       controlFinished:control.result.finished,
       observedFinished:observed.result.finished,
       controlNativeWinner:control.result.winner??null,
@@ -132,6 +136,8 @@ function run(){
     totalPhysicalDealGroups:rows.length,totalNativeAttempts:rows.length*3,
     allThreeWayTraceParity:rows.every(r=>r.sameDealAndActionsAcrossABA),
     observerAppliedToBothPhysicalSeats:true,
+    k0VipCertifiedPasses:rows.reduce((sum,row)=>
+      sum+(row.k0GuaranteedVipPasses??0),0),
     nativeActionEnumeratorPaperLegal:false,
     paperPaymentsVerified:false,
     independentlyCompetentOpponent:false,
@@ -149,6 +155,10 @@ if(require.main===module){
       attempts:result.totalNativeAttempts,
       bySeat:result.rows.map(r=>({
         slot:r.physicalSlot,roots:r.observerSummary.observedRootCount,
+        nativeGenericDecodes:r.nativeGenericDecoderCalls,
+        nativeOwnerTurnFallbackSamples:r.nativeOwnerTurnFallbackSampleCount,
+        k0VipPasses:r.k0GuaranteedVipPasses,
+        k0VipExamples:r.k0FirstTurnVipExamples,
         bySeat:r.observerSummary.bySeat,
         passExamples:r.observerSummary.examples.slice(0,5)
       }))})+'\n');
