@@ -32,6 +32,19 @@ At these 187 exact original-source Pass roots, **the sampled Active Pokémon was
 
 Across the 75 held-Tool source-Pass observations, the Active species were `Lillie's Clefairy ex` (27), `Tapu Lele-GX` (22), `Genesect V` (19), `Mega Absol ex` (3), `Crobat V` (2), `Trubbish` (1), and `Garbodor` (1). The printed active-type requirement fails in every such snapshot. This alone rules out the specialized *funded VMAX-to-VMAX* rescue at each of those precise Pass decisions, regardless of unknown Bench funding or cost details.
 
+## Independent source Bench-energy chronology for the 18 near misses
+
+The two rank-1 source-seat-0 records also preserve accepted public Energy attachment deltas in `nativeAcceptedEnergyPromptSidecar.events` and `nativeAcceptedTargetSidecar.events`. These are independent physical post-Store board changes, whereas the Pass audit itself only records Bench identities. Joining those source-seat events by genuine global turn gives the following narrower result:
+
+| Original ranked trial, physical source seat 0 | Float Stone held + Benched VMAX Pass turns | Native Underworld Door physical Bench Psychic additions | First observed three-Psychic Bench moment |
+| --- | --- | --- | --- |
+| `1:402:B:champion-reference` | 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31 | 17: 0→1; 25: 1→2; 33: 2→3 | Turn **33**, later than all 12 held-Tool Pass samples |
+| `1:402:B:new-moon-lockbreaker-v1` | 9, 11, 13, 15, 17, 19 | 17: 0→1; 19: 1→2; 21: 2→3; 27: 3→4 | Turn **21**, later than all 6 held-Tool Pass samples |
+
+The accepted root-target sidecars in both cases show the original source's ordinary Energy attachments going to its **Active Clefairy** before that first third Bench Energy, rather than independently funding the Benched VMAX. These recorded public transitions therefore give an additional reason the **immediate funded Max Geist pivot** was unavailable at the 18 held-Tool Pass snapshots. The public sidecar represents observed Store transitions, and this is an **ex post event reconstruction**, not an audited complete absence of every conceivable alternative Energy source or a causal replay. It does, however, locate the actual **activation-window mismatch**: the source retained Float Stone while building Bench power, then crossed the three-Psychic threshold **after** the observed held-Pass window ended.
+
+A stronger owner-policy test should record the **entire source-turn predecision public board and hand**, including chosen Tool target, retirement of the existing Active, exact attacker funding and subsequent accepted attack. Otherwise an analyzer that sees a held Tool and a Benched VMAX could incorrectly count all 18 as realistic immediately payoff-bearing opportunities.
+
 ## Interpretation and next integrated test
 
 This is a **registered-population negative necessary-condition observation** for source **Pass roots**, consistent with selected-v3 observing zero funded Float Stone intervention. It does **not** prove there was never a qualifying Active VMAX at *any earlier owner root* before an attack, switch, or other game-state transition. Nor does it establish what the actor would choose in a genuinely eligible source decision. The remaining policy-level causes (early-chooser preemption, physical Bench funding, Tool lock, turn quota, or tactical comparison) require root-by-root owner-visible positive evidence.
