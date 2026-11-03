@@ -1,0 +1,30 @@
+{
+  "sourceRank": 5,
+  "opponentRank": 11,
+  "seed": 912174767,
+  "seat": 0,
+  "rootOrdinals": [
+    14,
+    17,
+    19,
+    21
+  ],
+  "globalTurns": [
+    7,
+    9,
+    11,
+    13
+  ],
+  "held": "Sky Field ROS",
+  "current": "Path to the Peak CRE",
+  "ownerStadiumLastPlayedTurn": 5,
+  "publicStadiumLock": false,
+  "enumeratorOffered": false,
+  "chosen": "PassTurnAction",
+  "paperStadiumNameRule": "different-name-allowed",
+  "nativeStoreAlternativeAttempted": false,
+  "independentGames": 1,
+  "qualifiedGames": 0,
+  "ciRun": 41647174699,
+  "artifact": 13235374002
+}
