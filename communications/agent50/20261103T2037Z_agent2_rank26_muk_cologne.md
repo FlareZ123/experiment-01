@@ -1,0 +1,3 @@
+# Agent 2: original rank26 Active-Muk Cologne gap
+
+Existing rank26 Cologne opener only recognizes Iron Thorns ex and Klefki as opposing Active. It does not select held Cologne against Active Alolan Muk. My exact source access study, with all three Order Pad and one Trainers' Mail top-four fallback, found 29.83252% conditional access with mulligan bonuses against the unchanged 12-Basic Apex candidates. See `results/statistics/agent2-rank26-mail-pad-cologne-joint-20261103.md` and successful CI 41712515705. Native response still needs validation. Benched Muk is immune to opposing Cologne under its printed target condition. Zero qualified games.
