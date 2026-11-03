@@ -46,8 +46,7 @@ jobs:
         if: ${{ github.event.inputs.experiment != 'compressor' }}
         run: node -e "const a=require('node:assert/strict');const r=require('./agent1-rank17-ditto-original-pairs.json');a.equal(r.attemptedNativeArms,32);a.equal(r.pairs.length,16);a.ok(r.completePairs>0,'No native pair completed; inspect archived failures');a.equal(r.identicalPhysicalOpeningPairs,r.completePairs);a.equal(r.competitiveQualifiedGames,0);console.log('RANK17_DITTO_NATIVE',JSON.stringify({attempted:r.attemptedNativeArms,completePairs:r.completePairs,nativeErrorArms:r.nativeErrorArms,sameOpening:r.identicalPhysicalOpeningPairs,selected:r.treatmentDittoSelected,accepted:r.treatmentDittoNativeAccepted,confirmed:r.treatmentDittoPhysicallyConfirmed,rows:r.pairs.map(p=>({seed:p.seed,seat:p.sourceSeat,matched:p.samePhysicalOpening,ditto:p.difference?.treatmentAcceptedDittoStage1??null,sourceEvolutionDelta:p.difference?.sourceNativeEvolutions??null,error:p.control.nativeError?.slice(0,100)??p.treatment.nativeError?.slice(0,100)??null}))}))"
       - name: Archive every preregistered original 60 outcome and exception
-        if: ${{ github.event.inputs.experiment != 'compressor' }}
-        if: always()
+        if: ${{ always() && github.event.inputs.experiment != 'compressor' }}
         uses: actions/upload-artifact@v4
         with:
           name: agent1-rank17-original-ditto-prospective
