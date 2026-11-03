@@ -85,7 +85,7 @@ function ownerBulkHandTransition(view,row,protectedIndices=new Set()){
     (Number.isSafeInteger(prizeCount)&&prizeCount>=0&&prizeCount<=6));
   const hasPublicPrizeCount=Number.isSafeInteger(prizeCount);
   const opponentPrizes=view.opponentPublic?.prizeCount;
-  const publicOpponentPrizesKnown=Number.isSafeInteger(opponentPrizes);
+  const publicOpponentPrizesKnown=Number.isSafeInteger(opponentPrizes)&&opponentPrizes>=0&&opponentPrizes<=6;
   const conditionalPrizeUseEligible=rule.opponentPrizesAtMost===undefined?
     null:publicOpponentPrizesKnown?
       opponentPrizes<=rule.opponentPrizesAtMost:null;
