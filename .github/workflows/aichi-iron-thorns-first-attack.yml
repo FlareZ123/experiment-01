@@ -149,7 +149,7 @@ jobs:
             rank6-rejected-stadium-state.json
           if-no-files-found: warn
   test:
-    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold && !inputs.rank6_plumeria_sourcechain_pair && !inputs.rank6_plumeria_prospective }}
+    if: ${{ !inputs.policy_smoke_only && !inputs.native_energy_probe && !inputs.astral_native_source_probe && !inputs.canonical_paper_v10_smoke && !inputs.rank31_roxie_owner_supporter_diagnostic && !inputs.rank31_roxie_koffing_owner_cohold && !inputs.rank6_plumeria_sourcechain_pair && !inputs.rank6_plumeria_prospective && !inputs.rank5_trainer_competence }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
