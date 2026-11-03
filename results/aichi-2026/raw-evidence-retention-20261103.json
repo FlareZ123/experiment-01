@@ -3,10 +3,10 @@
   "repository": "FlareZ123/experiment-01",
   "observedAtUtc": "2026-11-03T15:12:00Z",
   "releaseTag": "aichi-native-evidence-2026-11-03",
-  "releaseStatus": "MIRRORED_SEVEN_EIGHTH_PENDING",
+  "releaseStatus": "MIRRORED_EIGHT_RELEASE_DOWNLOAD_SHA_VERIFIED",
   "releaseUrl": "https://github.com/FlareZ123/experiment-01/releases/tag/aichi-native-evidence-2026-11-03",
   "publicationOfReleaseDoesNotCertifyGames": true,
-  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Agent7's original rank6v9 natural-deal Stadium, settled attack and Prize ZIP is now byte-verified and appended as the seventh asset; previous six unchanged. Agent10 rank11 Letter native A/B/A 12-attempt original full ZIP registered as pending eighth release asset after observed source First/K0, physical owner Item settlement, six native Prizes and genuine engine terminal reversal. Seven established assets remain immutable by digest, not by platform guarantee.",
+  "notes": "Five exact original GitHub Actions ZIP archives, pinned to the recorded API SHA-256. Original ZIP assets are retained as-is; no new experiment, no full-game win validation. Publication must be confirmed with independent asset download/hashes before status changes. The GitHub release is NOT repository-immutable (API immutable:false); signed SHA digests and independent re-download protect detection of any later replacement. Retention has no published expiry. No paper legality or competitive win is certified. The selected-v3 original 48-attempt ZIP was appended as the sixth asset. Its source and release bytes were independently SHA-256 checked in CI 41713740020; original five assets remained untouched. Agent7's original rank6v9 natural-deal Stadium, settled attack and Prize ZIP is now byte-verified and appended as the seventh asset; previous six unchanged. Agent10 rank11 Letter native A/B/A 12-attempt original full ZIP retained as byte-exact eighth release asset after observed source First/K0, physical owner Item settlement, six native Prizes and genuine engine terminal reversal. All eight original ZIPs and published ZIPs passed full SHA-256 re-download validation in CI 41719657258. Previous seven preserved unchanged; GitHub immutable:false requires future re-verification.",
   "artifacts": [
     {
       "key": "rank5-v31-native-16arm",
@@ -154,24 +154,26 @@
       "sha256": "1e5e7a1af7bc73a469906ce37e73604a4c573472978a4e9ee40feb15492eed65",
       "expiresAtUtc": "2026-12-03T21:07:09Z",
       "report": "results/aichi-2026/2026-11/agent10-rank11-letter-natural-aba-paid-prize-followthrough-20261103.md",
-      "archiveStatus": "PENDING_ORIGINAL_AND_RELEASE_BYTE_VERIFICATION",
+      "archiveStatus": "MIRRORED_BYTE_EXACT_VERIFIED",
       "runHeadSha": "7cb63d74794128209e89f7072a059d1d1dd903ce",
       "workflowPath": ".github/workflows/agent10-rank11-letter-natural-aba.yml",
       "registrationPath": "results/aichi-2026/registrations/agent10-rank11-letter-natural-deal-aba-v1.json",
       "pinnedTwinleafCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/agent10-rank11-letter-aba-12-13269629991.zip"
+      "durableUrl": "https://github.com/FlareZ123/experiment-01/releases/download/aichi-native-evidence-2026-11-03/agent10-rank11-letter-aba-12-13269629991.zip",
+      "releaseAssetId": 707113028,
+      "durableVerifiedAtUtc": "2026-11-03T21:13:18.994Z"
     }
   ],
   "releasePublishedAtUtc": "2026-11-03T15:20:16Z",
-  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T21:03:52.938Z",
+  "releaseAssetDownloadVerifiedAtUtc": "2026-11-03T21:13:18.994Z",
   "releaseImmutable": false,
   "verification": {
-    "workflowRunId": 41718167027,
-    "workflowHead": "cff252cb04311adfccd7d6460d8507b9143a991e",
+    "workflowRunId": 41719657258,
+    "workflowHead": "abcd6756d1f94f59ceccfaf6a759aabcf64c7aff",
     "releaseId": 432867141,
     "downloadedAllOriginalZipsBeforePublish": true,
     "verifiedAllReleaseAssetsByIndependentDownload": true,
-    "verifiedZips": 7,
+    "verifiedZips": 8,
     "competitivelyQualifiedGames": 0
   }
 }
