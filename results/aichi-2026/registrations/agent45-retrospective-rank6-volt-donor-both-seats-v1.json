@@ -1,0 +1,103 @@
+{
+  "schema": "agent45-retrospective-rank6-volt-donor-both-seats-v1",
+  "registeredUtc": "2026-11-03T02:03:00Z",
+  "purpose": "Confirm or falsify after-attack choice in genuine source-printed native full original 60 with exactly matched original source physical deals; compare independent both-seat original source arms under two fixed frozen-v2 development policies.",
+  "selection": "Deliberately replay known rank6 v2 historical natural donor witnesses B repeats2 and3 and both matching A source-seat controls. This is retrospective and contains no held-out samples, so do not infer game-win rates.",
+  "sourceArchiveRunId": 41279242584,
+  "sourceArchiveArtifactId": 13072623187,
+  "sourceArchiveZipSha256": "cb23422028015e88d8d701d5d6ffe46de137bdcf22abfe4e5e80abe20a33bd4b",
+  "frozenProfile": "simulation/evaluation/agent41-frozen-bilateral-development-v2.json",
+  "sourceRank": 6,
+  "registeredTrials": [
+    {
+      "id": "6:2:A:champion-reference",
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 951799926
+    },
+    {
+      "id": "6:2:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 951799926
+    },
+    {
+      "id": "6:2:B:champion-reference",
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 1098823904
+    },
+    {
+      "id": "6:2:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 2,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 1098823904
+    },
+    {
+      "id": "6:3:A:champion-reference",
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "champion-reference",
+      "seed": 46853744
+    },
+    {
+      "id": "6:3:A:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "A",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 46853744
+    },
+    {
+      "id": "6:3:B:champion-reference",
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "champion-reference",
+      "seed": 3724748000
+    },
+    {
+      "id": "6:3:B:new-moon-lockbreaker-v1",
+      "rank": 6,
+      "repeat": 3,
+      "candidateSlot": "B",
+      "candidateId": "new-moon-lockbreaker-v1",
+      "seed": 3724748000
+    }
+  ],
+  "bothPhysicalSourceSeats": true,
+  "armsPerPolicy": 8,
+  "policyArms": [
+    "original-v2-native-donor",
+    "same-v2-owner-voltdonor-payability"
+  ],
+  "independentPaperPromptGuardForBoth": true,
+  "maxNativeActionsPerGame": 260,
+  "allFailureCensorIncluded": true,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "intendedComparisons": [
+    "same original physical deal",
+    "same actual first player",
+    "same frozen deck printings and action-policy options",
+    "different source-owned Volt donor only when alternate immediate printed cost is payable",
+    "true native opponent continuation and source follow-up"
+  ],
+  "limitations": [
+    "Retrospective seeds deliberately selected after observing source decision defects",
+    "Prior archived original-v2 policy cannot be re-certified when current code changes",
+    "Paper prompt guard addresses one source transfer only",
+    "Opponent bot, paper clock and whole-game information safety unqualified",
+    "29 of 32 source original sixties authenticated, missing ranks23/25/28",
+    "No competitive game outcomes or win inference"
+  ],
+  "competitiveQualifiedGames": 0
+}
