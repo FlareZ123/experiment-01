@@ -33,6 +33,7 @@ function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
     native('game/store/actions/play-card-action');
   const {ResolvePromptAction}=
     native('game/store/actions/resolve-prompt-action');
+  const {SpecialCondition}=native('game/store/card/card-types');
   const f=stagedPainfulSpoons(seat);
   const regV=f.card('Regidrago V SIT');
   const regVStar=mode==='evolved'?f.card('Regidrago VSTAR SIT'):null;
@@ -52,6 +53,7 @@ function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
   // Current Store turn is 3, original Active entered on turn 1.
   f.source.active.damage=60;
   f.source.active.pokemonPlayedTurn=1;
+  f.source.active.specialConditions=[SpecialCondition.POISONED];
   f.source.discard.cards.push(adp);
   f.source.hand.cards.push(thorton);
 
@@ -59,6 +61,7 @@ function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
     active:f.source.active.getPokemonCard()?.fullName,
     damage:f.source.active.damage,
     pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
+    specialConditions:[...f.source.active.specialConditions],
     activeCards:f.source.active.cards.map(c=>c.fullName),
     bench0:f.source.bench[0].getPokemonCard()?.fullName??null,
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
@@ -111,6 +114,7 @@ function probeSwap(seat,mode='basic',guarded=false,retryLegal=false){
     active:f.source.active.getPokemonCard()?.fullName,
     damage:f.source.active.damage,
     pokemonPlayedTurn:f.source.active.pokemonPlayedTurn,
+    specialConditions:[...f.source.active.specialConditions],
     activeCards:f.source.active.cards.map(c=>c.fullName),
     bench0:f.source.bench[0].getPokemonCard()?.fullName??null,
     activeAttachedEnergy:f.source.active.energies.cards.map(c=>c.fullName),
