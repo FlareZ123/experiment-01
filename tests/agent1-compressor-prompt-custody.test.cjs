@@ -94,7 +94,7 @@ test('read-only wrapper restores original Store on native error', () => {
     ()=>{throw Error('native crash');},0,{Store}),/native crash/);
   assert.equal(Store.prototype.dispatch,original);
 });
-test('source-owned observer ignores opponent's physically played Item', () => {
+test('source-owned observer ignores a foreign physical Item', () => {
   const {Store,owner}=makeSource(1);
   const output=withOwnerCompressorPromptCustody(() => {
     const store=new Store();
