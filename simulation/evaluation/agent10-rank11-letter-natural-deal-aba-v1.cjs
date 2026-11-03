@@ -81,6 +81,7 @@ function run(){
         maxActions:manifest.nativeCap,strictPromptValidation:true,
         isolatePolicyRandomness:true,captureDecisionTrace:true,
         captureInitialFullPhysicalDeal:true,
+        captureInitialSourceDealFingerprintSeat:sourceSeat,
         capturePublicAttackTransitions:true,captureFinalPublicBoard:true,
         captureNativeAbortEvidence:true,
         label:'agent10-letter-'+context.id+':'+mode};
@@ -111,6 +112,8 @@ function run(){
         initialFullPhysicalDealDigest:
           game?.initialFullPhysicalDealFingerprint?.digestSha256??null,
         firstTurnSeat:game?.firstTurnSlot??null,
+        sourceDealDigest:game?.initialSourceDealFingerprint?.digestSha256??null,
+        sourceDealMatchesHistoric:Boolean(game?.initialSourceDealFingerprint?.digestSha256?.startsWith(context.historicalSourceDealPrefix)),
         actualGameFinished:game?.finished===true,
         actualNativeWinner:game?.finished?game.winner:null,
         sourceNativeAttackCount:sourceRoots.filter(x=>
