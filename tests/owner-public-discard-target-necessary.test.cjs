@@ -2,8 +2,10 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
+const path=require('node:path');
 const {
-  RULES,targetMatch,publicDiscardTargetNecessary
+  RULES,targetMatch,buildPublicPrintMetadata,
+  loadBundledPublicPrintMetadata,publicDiscardTargetNecessary
 }=require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
 const source=Object.keys(RULES);
@@ -101,4 +103,33 @@ test('concealed opponent state is not consulted or serialized',()=>{
   const second=publicDiscardTargetNecessary(b,{handIndex:0,printing:source[0]},meta);
   assert.deepEqual(first,second);
   assert.equal(JSON.stringify(first).includes('SENSITIVE_OPPONENT_CARD'),false);
+});
+
+
+test('same-name same-set HP threshold conflicts are unresolved, not guessed',()=>{
+  const index=buildPublicPrintMetadata(
+    [{id:'bw1',ptcgoCode:'BLW'}],[{setId:'bw1',cards:[
+      {name:'Bouffalant',supertype:'Pokémon',subtypes:['Basic'],hp:'90'},
+      {name:'Bouffalant',supertype:'Pokémon',subtypes:['Basic'],hp:'100'},
+      {name:'Bouffalant',supertype:'Pokémon',subtypes:['Basic'],hp:'90'}
+    ]}]);
+  assert.equal(index.get('Bouffalant BLW').variants.length,2);
+  assert.equal(targetMatch(index.get('Bouffalant BLW'),'pokemon-hp-90'),null);
+  assert.equal(targetMatch(index.get('Bouffalant BLW'),
+    'pokemon-or-basic-energy'),true);
+  const ambiguous=check('Rescue Carrier EVS',['Bouffalant BLW'],index);
+  assert.equal(ambiguous.paperPlayable,null);
+  assert.deepEqual(ambiguous.unknownMetadataIndices,[0]);
+  assert.equal(targetMatch({supertype:'Trainer',subtypes:[]},'supporter'),null);
+  assert.equal(targetMatch({supertype:'Energy',subtypes:[]},'special-energy'),null);
+});
+
+test('bundled database preserves real HP collision and five source cards',()=>{
+  const index=loadBundledPublicPrintMetadata(
+    path.join(__dirname,'../resources'));
+  assert.equal(targetMatch(index.get('Bouffalant BLW'),'pokemon-hp-90'),null);
+  assert.equal(targetMatch(index.get('Guzma BUS'),'supporter'),true);
+  assert.equal(targetMatch(index.get('VS Seeker PHF'),'supporter'),false);
+  for(const printing of source)
+    assert.equal(index.has(printing),true,printing);
 });
