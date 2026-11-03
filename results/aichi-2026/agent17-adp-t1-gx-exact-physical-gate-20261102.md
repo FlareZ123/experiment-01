@@ -81,6 +81,25 @@ These figures are conditional on the **candidate's Basic-valid starting seven** 
 
 This route directly addresses the fixed proposal's **ADP-Active opening geometry** without inventing a different 60 or treating Tag Call as a free universal connector. It also heightens the importance of the original rank6 source's Energy-removal window and of capturing realistic two-card Guzma & Hala payment when evaluating natural GX success. The 34.667% no-bonus union is a valid concrete lower subset of physical T1 access under the stated uncontested, willing-discard model. Other paths involving Quick Ball, Ultra Ball, direct Switch from a drawn ADP without Tag Call, and extra Supporter/draw resources remain outside the two-route count, so this is **not** a global upper bound.
 
+## Physical two-turn payoff: source-aware resource bottleneck, strict no-bonus route
+
+The previous large early-GX probabilities say nothing about whether the candidate follows its T1 Altered Creation-GX with an actual T2 Apex Dragon attack. An independent exact strict-hand screen now quantifies a particularly reproducible **T1 enhanced GX → Battle Compressor → T2 Thorton/VSTAR/Basic-Energy** chain on the same unchanged v2 60.
+
+The event requires: (1) ADP chosen Active from the initial seven; (2) at least one Battle Compressor XY4 92 held by T1, enabling a genuine deck search that discards **one Regidrago V and the single M Charizard-EX Wild Blaze Dragon** while both survive the physical six Prizes and are still in the deck; (3) DDE already held in the first eight or reachable through physically held Guzma & Hala / held Tag Call→Guzma & Hala; (4) Thorton SWSH11 167, Regidrago VSTAR SWSH12 136, and a Basic Grass/Fire Energy all held by T2, using only one subsequent ordinary draw after Compressor's search-induced shuffle; (5) no other hand/draw/search, no bonus setup cards, no opponent disruption and no supporting Ability. A single T2 draw can complete at most one missing card category. This intentionally excludes paths via Ultra Ball, Quick Ball, VS Seeker, Pokégear, additional Supporter draw or a T2 freshly found piece.
+
+The exact calculation partitions the 60 into `[ADP2,DDE4,TagCall4,G&H3,Thorton4,VSTAR3,BasicEnergy7,Compressor4,RegV3,Charizard1,other25]` and enumerates the real Basic-valid seven, one T1 draw, and all six Prize allocations by inclusion-exclusion. Crucially, after T1 hand and six Prizes the searchable deck contains **46 cards**; Compressor discards RegV and Charizard and shuffles, leaving **44 cards** for the ordinary T2 draw. If all three required T2 categories are already held, every post-Compressor draw qualifies. If exactly one category is missing, the count weights each eligible unprized physical target card among those 44. If two or three are missing, a single ordinary draw cannot complete them.
+
+| Strict T1 DDE access channel | Probability of complete physical two-turn event, conditional Basic-valid seven |
+| --- | ---: |
+| DDE held by T1 | **0.22460442%** |
+| No held DDE, held Guzma & Hala reaches DDE | **0.13681933%** |
+| Neither held, Tag Call reaches Guzma & Hala then DDE | **0.14578746%** |
+| **Union, with Battle Compressor and full T2 hand resources** | **0.50721122%** |
+
+Exact scaled numerator `55881889003296496` divided by `11017478796701977600`. Reproducible source-card-count BigInt [enumerator](../../scripts/agent17_adp_turn2_physical.py) asserts the exact integers, reads the unchanged registered manifest and outputs all three route fractions. A separately seeded 800,000-permutation Monte Carlo with physically correct post-Compressor removal and reshuffle estimated **0.5142% conditional Basic-valid seven**, compatible with the enumerated result.
+
+**Interpretation:** 0.5072% is an intentionally restrictive *path subset*, and is neither a complete setup rate nor an upper bound on how often skilled play can execute the line. It does show that a deck whose T1 GX is comparatively accessible can still have a severe T2 connector/hand acquisition problem under simple natural-draw play. The two-card G&H discard, Ultra Ball discard, T2 Supporter Thorton opportunity cost, pre-GX hand preservation, source-original DDE removal, damage, original-source attacks, Clock and match outcome remain separate. A strong actor policy must turn additional Ball/Seeker/Pokégear routes into physically selected, payable, settled T2 attacks, and prospective native tests need to report failed-turn denominators instead of inferring T2 payoff from T1 access.
+
 ## Actual mutual mulligan bonus-draw asymmetry
 
 The preceding two opening numbers are **no-mulligan-extra baselines**. The candidate contains seven Basic Pokémon, while the exact original rank6 contains four. A complete simultaneous setup permits both players to mulligan together when both have invalid opening sevens. Once one player receives a Basic-valid seven, the player who continues to mulligan creates optional bonus draws for the already-valid opponent. The players' final Basic-valid seven-card hand compositions are independent of how many failed shuffles preceded them, but their bonus-draw counts are coupled.
