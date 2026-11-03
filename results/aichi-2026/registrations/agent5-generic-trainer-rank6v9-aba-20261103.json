@@ -1,0 +1,49 @@
+{
+  "schema": "agent5-generic-trainer-owner-frontier-portability-preregistration-v1",
+  "registeredUtc": "2026-11-03T10:47:00Z",
+  "status": "preregistered-before-native-6-v-9-execution",
+  "objective": "Read-only generic first-party owner Trainer opportunity portability, same-seed control/instrumented/control, paper-legal value unproven",
+  "pairedOriginalAichiRanks": [
+    6,
+    9
+  ],
+  "deckSource": "results/aichi-2026/source-manifest.json resolved via planAichi, exact published 60s",
+  "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "deterministicSeedContract": {
+    "base": 20261114,
+    "deriveSlotSeedsArgs": [
+      20261114,
+      "pilot",
+      6,
+      0
+    ],
+    "physicalSourcePrimarySeatOrder": [
+      0,
+      1
+    ],
+    "candidateSlotOrder": [
+      "A",
+      "B"
+    ]
+  },
+  "matchRequest": {
+    "maxActions": 90,
+    "strictPromptValidation": true,
+    "isolatePolicyRandomness": true,
+    "captureDecisionTrace": true,
+    "captureInitialFullPhysicalDeal": true
+  },
+  "armOrder": [
+    "baseline",
+    "read-only true-owner Trainer observer",
+    "repeated-baseline"
+  ],
+  "identityGate": "Same exact printed deck 60 per actor and identical full physical setup SHA + full chosen native action trace SHA across all three arms per seat; any failure retained rather than cherry-picked",
+  "interpretability": "No source policy intervention, no strength inference, no paper-paid Trainer proof, zero competitive game qualifications",
+  "previousDevelopmentRankPair": [
+    5,
+    11
+  ],
+  "noAdaptiveSeedSelection": true,
+  "note": "Only the second source pair changes. This registration fixes it prior to native evaluation; the first pair 5/11 was exploratory development."
+}
