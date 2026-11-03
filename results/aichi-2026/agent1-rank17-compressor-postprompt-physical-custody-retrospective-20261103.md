@@ -27,6 +27,12 @@ For each:
 
 This establishes a **bounded, exact physically paid native Item discard effect**, supported by the pinned printed card and actual native Store transition. It is an independent post-prompt witness on two preselected previously positive starts. It is **not** a new unbiased frequency estimate, nor proof that discarding these three Energy cards maximizes the source's strategy.
 
+## Structural native decision-policy bottleneck, independently visible in older complete root archive
+
+The original [38-arm source-root archive](https://github.com/FlareZ123/experiment-01/actions/runs/41591371975/artifacts/13209864119) exposes an important constraint on interpreting native winners. Summing **all 38 arms** separately by actual actor seat, the rank17 source has **2,015 total native Store root actions**: **1,324 `ResolvePromptAction`**, **551 `PassTurnAction`**, **140 `PlayCardAction`**, and **zero `AttackAction`**. Across the same complete native root ledgers, the unchanged rank1 opponent has **372 `AttackAction`** entries. The engine clearly records AttackAction elsewhere in the same experiment, so this zero is a real observed source-action selection deficiency.
+
+This shows why the control/treatment native winner labels cannot measure rank17 source deck strength: the source never selected any attack in any of these 38 native games. It **does not establish** that the source possessed enough Energy, an eligible Active attacker, and a legal attack at any specific Pass root. Confirming such an attack opportunity needs owner-visible native preflight and attack-cost/lock checks. The generic Trainer policy project should also qualify native attack and Electrode-GX power sequencing before anyone reports source competitive performance.
+
 ## Outcomes and remaining gaps
 
 **Four original Store arms, two matched physical pairs, two confirmed nonempty source-owned card transfer events, zero qualified competitive games.** The two control and treatment arms each ended with native `engine-game-end` and winner label `0` under the bounded actor-only policies. Neither pair changed its native winner label. The recorded source original rank17 was seat1; winner 0 is the **other seat**, so these outcomes supply no evidence that inserting Compressor improves the source's competitiveness.
