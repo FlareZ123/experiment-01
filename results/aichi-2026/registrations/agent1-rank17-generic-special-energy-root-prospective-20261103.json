@@ -1,0 +1,49 @@
+{
+  "schema": "agent1-rank17-public-context-special-energy-prospective-v1",
+  "registeredAt": "2026-11-03T11:55:00Z",
+  "researchQuestion": "Does existing generic both-seat owner-visible public-context special Energy decision policy restore actual native manual attachments or attacks for original rank17, compared with actor-only without that option?",
+  "sourceRank": 17,
+  "referenceRank": 1,
+  "sourcePrinted60Fingerprint": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36ed8c20f0",
+  "note": "Authoritative source fingerprint checked in prior registries; registration must be compared to frozen source manifest, not inferred from rank.",
+  "seeds": [
+    2781263540,
+    3213416555,
+    3668291815,
+    3239786043
+  ],
+  "sourceSeats": [
+    0,
+    1
+  ],
+  "cohort": "prospective-only; random seeds drawn and frozen before any outcome",
+  "expectedSourcePhysicalGroups": 8,
+  "expectedNativeArms": 16,
+  "nativeMaxActions": 180,
+  "controlPolicy": {
+    "naturalEvolutionRoot": true,
+    "publicContextSpecialEnergy": false
+  },
+  "treatmentPolicy": {
+    "naturalEvolutionRoot": true,
+    "publicContextSpecialEnergy": true
+  },
+  "symmetricBothActorPolicy": true,
+  "sourceOnlyBridge": false,
+  "otherNativeOptions": {
+    "battleCompressorPositiveSelectionCorrection": true,
+    "electrodeGXEnergyCorrection": true,
+    "electroRainDamageCorrection": true,
+    "rank4RaichuCompressorSeat": "original source seat",
+    "strictPromptValidation": true
+  },
+  "outcomes": [
+    "actual physical deck deal matching",
+    "actual source native Energy PlayCardAction by printing",
+    "source AttackAction",
+    "error and action-cap status",
+    "source-versus-reference possible policy asymmetry"
+  ],
+  "limitations": "Engine root acceptances are not alone proof of effects or paper match wins; dynamic Reversal/Counter Energy Prize conditions and opponent play remain to validate.",
+  "competitivelyQualifiedGames": 0
+}
