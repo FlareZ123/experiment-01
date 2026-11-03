@@ -1,0 +1,58 @@
+{
+  "schema": "agent4-owner-paper-opportunity-native-registration-v1",
+  "timestampUtc": "2026-11-03T14:00:00Z",
+  "design": "retrospective historical exact-original two-seat A/B/A read-only instrument compatibility",
+  "originalSourceRanks": [
+    5,
+    11
+  ],
+  "originalSourceListRequirement": "authenticated original printed 60; each remains unchanged",
+  "candidateDeckSelected": false,
+  "physicalSeatOrders": [
+    {
+      "slot": "A",
+      "rank5Seat": 0
+    },
+    {
+      "slot": "B",
+      "rank5Seat": 1
+    }
+  ],
+  "seeds": {
+    "algorithm": "deriveSlotSeeds",
+    "base": 20261113,
+    "phase": "pilot",
+    "rank": 5,
+    "repeat": 0,
+    "previouslyUsed": true
+  },
+  "arms": [
+    "same-canonical-no-paper-observer",
+    "same-canonical-plus-read-only-paper-observer",
+    "same-canonical-no-paper-observer-repeat"
+  ],
+  "plannedNativeAttempts": 6,
+  "nativeActionCap": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureInitialFullPhysicalDeal": true,
+  "captureDecisionTrace": true,
+  "canonicalGenericFallbackAttribution": true,
+  "nativeOwnerTrainerFallback": false,
+  "ownerTrainerPaperScreenDefaultOff": true,
+  "rejectionAndErrorCapture": "all attempts retained even on abort",
+  "qualification": {
+    "paperTargetAndCostSettlementVerified": false,
+    "opponentCompetenceVerified": false,
+    "officialPaperClockVerified": false,
+    "independentCompetitiveGames": 0,
+    "winRateInferenceAllowed": false
+  },
+  "acceptanceGates": [
+    "identical physical initial full deal fingerprints within all A/B/A",
+    "identical decision trace/root action ledger/terminal dispositions within all A/B/A",
+    "both real physical seats represented",
+    "paper negative rows show genuine own-turn proof or explicit temporal uncertainty",
+    "every observed negative remains separate from unverified payable/targetable/beneficial status"
+  ]
+}
