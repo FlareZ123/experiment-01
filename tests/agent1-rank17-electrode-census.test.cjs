@@ -101,3 +101,29 @@ test('hidden fields cannot change counts or retained owner evidence',()=>{
     {kind:'pass'},1);
   assert.deepEqual(b,a);
 });
+
+test('source-wide partial Bomb opportunity is distinct from Raichu-line opportunity',()=>{
+  const audit=newElectrodeOwnerCensus();
+  const voltorb={name:'Voltorb',printing:'Voltorb ROS',abilities:[],tools:[]};
+  const opponentGx={name:'Gengar & Mimikyu-GX',
+    printing:'Gengar & Mimikyu-GX TEU',abilities:[],tools:[]};
+  recordElectrodeOwnerCensus(audit,
+    view({discard:[ENERGY],bench:[ELECTRODE,voltorb,null,null,null]}),
+    {kind:'pass'},1);
+  recordElectrodeOwnerCensus(audit,
+    view({discard:Array(5).fill(ENERGY),
+      bench:[ELECTRODE,opponentGx,null,null,null]}),
+    {kind:'pass'},2);
+  recordElectrodeOwnerCensus(audit,
+    view({discard:[],bench:[ELECTRODE,voltorb,null,null,null]}),
+    {kind:'attack'},3);
+  assert.equal(audit.ownerRootDecisions,3);
+  assert.equal(audit.generalBombSourceElectrodeRecipientCoPresentRoots,2);
+  assert.equal(audit.generalBombPartialOneToFourDiscardRoots,1);
+  assert.equal(audit.generalBombFullFivePlusDiscardRoots,0);
+  assert.equal(audit.generalBombZeroDiscardRoots,1);
+  assert.equal(audit.generalBombPhysicallyNecessaryRoots,1);
+  assert.deepEqual(audit.generalBombPositiveRootIntentKinds,{pass:1});
+  assert.equal(audit.physicalNecessaryRoots,0);
+  assert.equal(audit.competitivelyQualifiedGames,0);
+});
