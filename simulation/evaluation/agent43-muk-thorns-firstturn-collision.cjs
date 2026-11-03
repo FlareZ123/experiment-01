@@ -33,7 +33,9 @@ function allPrized(n) {
  * Necessary direct-Muk line where the only Basic(s) in initial seven
  * were Alolan Grimer; after first draw and six Prizes, a Muk remains
  * searchable by Boost Shake. This conditional opening is vulnerable
- * to a follow-up opponent attacking the Active Muk.
+ * to a follow-up opponent attacking the Active Muk only if no
+ * Benched Grimer is established. This is a legacy broad species-only
+ * classifier, NOT a forced-Active-Muk probability.
  *
  * @returns {{basicValid:number,forcedGrimerActive:number,directForcedMukUnconditional:number,directForcedMukAmongBasicValid:number}}
  */
@@ -62,6 +64,71 @@ function candidateForcedActiveMuk() {
     forcedGrimerActive,
     directForcedMukUnconditional,
     directForcedMukAmongBasicValid: directForcedMukUnconditional / basicValid
+  };
+}
+
+/**
+ * Separate true opening-seven single-Grimer geometry from the broader
+ * historical "Grimer-only species" classifier. The eighth card may itself
+ * be another Grimer, allowing a fresh Benched Grimer before Boost Shake.
+ * A held Mysterious Treasure or Quick Ball can potentially search for
+ * that second Grimer, but affordability and play legality remain untested.
+ *
+ * These are access probabilities, never game outcomes or forced decisions.
+ *
+ * @returns {{
+ *  basicValid:number,
+ *  sevenSingleGrimerDirectAmongBasicValid:number,
+ *  eighthSecondGrimerBenchAmongBasicValid:number,
+ *  noNaturalSecondGrimerByEightAmongBasicValid:number,
+ *  secondGrimerSearchOpportunityAmongBasicValid:number,
+ *  noDemonstratedSecondGrimerAccessAmongBasicValid:number
+ * }}
+ */
+function candidateMukBenchGeometry() {
+  // Grimer, Muk, Boost Shake, Mysterious Treasure, Quick Ball,
+  // other Basics, remaining filler. All seven categories total 60.
+  const sizes = [2, 2, 3, 4, 3, 10, 36];
+  const basicValid = 1 - choose(48, 7) / choose(60, 7);
+  let sevenSingle = 0;
+  let secondFromEighth = 0;
+  let noNaturalSecond = 0;
+  let searchableSecond = 0;
+
+  eachEight(sizes, ([grimer, muk, shake, treasure, quick, otherBasic], p8) => {
+    if (shake === 0 || grimer === 0 || muk === 2) return;
+    const mukLeft = 2 - muk;
+    const mukAvailable = 1 - allPrized(mukLeft);
+
+    // Eight-card multivariate hypergeometric composition is symmetric:
+    // a named eighth-card category has weight count / 8.
+    const oneByEightWeight = grimer === 1 && otherBasic === 0 ? 7 / 8
+      : grimer === 1 && otherBasic === 1 ? 1 / 8
+        : 0;
+    const secondGrimerEighthWeight = grimer === 2 && otherBasic === 0 ? 2 / 8 : 0;
+    const oneInSevenWeight = oneByEightWeight + secondGrimerEighthWeight;
+
+    sevenSingle += p8 * oneInSevenWeight * mukAvailable;
+    secondFromEighth += p8 * secondGrimerEighthWeight * mukAvailable;
+    noNaturalSecond += p8 * oneByEightWeight * mukAvailable;
+
+    if (oneByEightWeight > 0 && treasure + quick > 0) {
+      // The other physical Grimer and at least one Muk must both survive
+      // the six Prize cards among the 52 cards outside the first eight.
+      const bothInDeck = 1 - allPrized(mukLeft)
+        - allPrized(1) + allPrized(mukLeft + 1);
+      searchableSecond += p8 * oneByEightWeight * bothInDeck;
+    }
+  });
+
+  return {
+    basicValid,
+    sevenSingleGrimerDirectAmongBasicValid: sevenSingle / basicValid,
+    eighthSecondGrimerBenchAmongBasicValid: secondFromEighth / basicValid,
+    noNaturalSecondGrimerByEightAmongBasicValid: noNaturalSecond / basicValid,
+    secondGrimerSearchOpportunityAmongBasicValid: searchableSecond / basicValid,
+    noDemonstratedSecondGrimerAccessAmongBasicValid:
+      (noNaturalSecond - searchableSecond) / basicValid
   };
 }
 
@@ -101,4 +168,4 @@ function rank6GuzmaHalaVoltWindow() {
   };
 }
 
-module.exports = { candidateForcedActiveMuk, rank6GuzmaHalaVoltWindow };
+module.exports = { candidateForcedActiveMuk, candidateMukBenchGeometry, rank6GuzmaHalaVoltWindow };
