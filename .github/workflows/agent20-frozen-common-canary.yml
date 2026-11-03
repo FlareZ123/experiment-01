@@ -14,8 +14,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ inputs.selected_joint_vip_v2 != true }}
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
+    if: ${{ inputs.selected_joint_vip_v2 != true && github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
