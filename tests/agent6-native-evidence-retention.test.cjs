@@ -5,25 +5,25 @@ const assert=require('node:assert/strict');
 const {archivePlan,validatePlan,sha256,RELEASE_TAG}=
   require('../scripts/agent6-retain-native-research-artifacts.cjs');
 
-test('manifest is a frozen seven-artifact reproducible preservation plan',()=>{
+test('manifest is a frozen eight-artifact reproducible preservation plan',()=>{
   assert.equal(RELEASE_TAG,'aichi-native-evidence-2026-11-03');
   assert.equal(validatePlan(archivePlan),archivePlan);
-  assert.equal(archivePlan.artifacts.length,7);
+  assert.equal(archivePlan.artifacts.length,8);
   assert.equal(archivePlan.publicationOfReleaseDoesNotCertifyGames,true);
-  assert.equal(archivePlan.releaseStatus,'MIRRORED_SEVEN_RELEASE_DOWNLOAD_SHA_VERIFIED');
+  assert.equal(archivePlan.releaseStatus,'MIRRORED_SEVEN_EIGHTH_PENDING');
   assert.equal(archivePlan.verification.verifiedZips,7);
   assert.equal(archivePlan.releaseImmutable,false);
 });
 
 test('all original metadata names IDs and archived source report identifiers distinct',()=>{
   const x=archivePlan.artifacts;
-  assert.equal(new Set(x.map(y=>y.artifactId)).size,7);
-  assert.equal(new Set(x.map(y=>y.assetName)).size,7);
-  assert.equal(new Set(x.map(y=>y.report)).size,7);
+  assert.equal(new Set(x.map(y=>y.artifactId)).size,8);
+  assert.equal(new Set(x.map(y=>y.assetName)).size,8);
+  assert.equal(new Set(x.map(y=>y.report)).size,8);
   assert.deepEqual(x.map(y=>y.artifactId),[
-    13115652707,13206810193,13197729125,13230633884,13241071172,13260514792,13266395809
+    13115652707,13206810193,13197729125,13230633884,13241071172,13260514792,13266395809,13269629991
   ]);
-  assert.equal(x.reduce((sum,row)=>sum+row.sizeBytes,0),6804921);
+  assert.equal(x.reduce((sum,row)=>sum+row.sizeBytes,0),6876626);
 });
 
 test('actual API expiry dates and digest bytes match signed historical provenance',()=>{
@@ -35,12 +35,15 @@ test('actual API expiry dates and digest bytes match signed historical provenanc
   assert.equal(byId.get(13230633884).expiresAtUtc,'2026-12-03T12:42:16Z');
   assert.equal(byId.get(13260514792).expiresAtUtc,'2026-11-24T18:51:22Z');
   assert.equal(byId.get(13266395809).expiresAtUtc,'2026-12-03T19:56:34Z');
+  assert.equal(byId.get(13269629991).expiresAtUtc,'2026-12-03T21:07:09Z');
   assert.equal(byId.get(13241071172).sha256,
     '903dcfc0e7971c79b24969dc00c3098cfa6f1d70c7b260816d78c47c1324ecf0');
   assert.equal(byId.get(13260514792).sha256,
     '303d11947c39c7572b4302fef8666ab744491e9db745dd8ffadc55b1631c0850');
   assert.equal(byId.get(13266395809).sha256,
     '596f242b3c235a503fde53c61ff825b9799b97d31d9e0ad600741e6daaf4b816');
+  assert.equal(byId.get(13269629991).sha256,
+    '1e5e7a1af7bc73a469906ce37e73604a4c573472978a4e9ee40feb15492eed65');
 });
 
 test('published ZIPs retain exact original sha256, revision, and release asset ID',()=>{
@@ -75,6 +78,10 @@ test('published ZIPs retain exact original sha256, revision, and release asset I
     [
       '596f242b3c235a503fde53c61ff825b9799b97d31d9e0ad600741e6daaf4b816',
       'f1ed63894837fc0835d8f0d8dfdf4b77d84db278',707086508
+    ],
+    [
+      '1e5e7a1af7bc73a469906ce37e73604a4c573472978a4e9ee40feb15492eed65',
+      '7cb63d74794128209e89f7072a059d1d1dd903ce',undefined
     ]
   ]);
   assert.equal(archivePlan.verification.releaseId,432867141);
