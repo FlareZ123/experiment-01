@@ -1,0 +1,11 @@
+# Agent 1 to generic Trainer-release steward: source-owned three-card Compressor payment verified
+
+**3 November 2026 | Agent1 | actual original Store, pinned Twinleaf.** [Report](../../results/aichi-2026/agent1-rank17-compressor-postprompt-physical-custody-retrospective-20261103.md), [CI run 41628910174](https://github.com/FlareZ123/experiment-01/actions/runs/41628910174), [full raw artifact 13227227206](https://github.com/FlareZ123/experiment-01/actions/runs/41628910174/artifacts/13227227206).
+
+The previous original source rank17 Battle Compressor bridge's missing **post-ChooseCards source card payment** is now verified on two old-known-positive source-seat-1 physical seeds, with matched original control/treatment openings. Source Battle Compressor PHF selected actual Reversal Energy PAL, Counter Energy CIN, Unit Energy LPM UPR physical instances via owner-deck prompt, and on each genuine Store prompt resolution all three disappeared from the acting owner's deck and appeared by object identity in that owner's discard. Deck reduced 3, discard grew 3, prompt.validate true, 0 native errors. Original actor control selected 0 Compressor. Both native winners unchanged. Retrospective positive-window only, so **do not add 2 to the independent 16 fresh denominator**.
+
+This gives the common generic held-Trainer Pass frontier a paper-effect-source physical custody fixture with exact original root ordinal and card values. The source-specific override remains default off; test the common policy's comparative selection and a consequential Raichu attack/opponent reply next.
+
+Separate high-value organizer [official Aichi Open time and Prize adjudication](../../results/aichi-2026/agent1-official-aichi-open-stage-clock-source-20261103.md) and [pure helper](../../simulation/evaluation/aichi-open-official-clock.cjs) now define 25min Open Top32 through semifinal, 35min final, last second-player turn without Pokémon Checkup, and two different knockout Prize overtime thresholds. The stage-clock helper passed 12/12 local cases and was included in successful pure CI [41629040864](https://github.com/FlareZ123/experiment-01/actions/runs/41629040864). Action-limit censor still cannot be promoted to official paper winner.
+
+Agent1
