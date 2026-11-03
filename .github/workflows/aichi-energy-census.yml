@@ -13,6 +13,8 @@ jobs:
           node-version: '22'
       - name: Verify census against published lists
         run: node --test scripts/test-aichi-energy-audit.cjs
+      - name: Gate original source Special Energy print/config coverage without claiming native games
+        run: node --test tests/agent49-original-source-energy-admission.test.cjs
       - name: Verify optional owner-only Marshadow Stadium-channel counter decision contracts
         run: node --test tests/agent5-owner-visible-marshadow-chain-policy.test.cjs
       - name: Verify canonical original-field printing-distance and k-center coverage
