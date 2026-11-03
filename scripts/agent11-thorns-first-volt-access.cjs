@@ -109,7 +109,7 @@ function bonusProbability(opposingBasics, k) {
  * @param {number} maximumBonus
  * @returns {{probability:number,omittedMass:number}}
  */
-function withMaxMulliganBonuses(doubleColorlessCopies, opposingBasics, maximumBonus = 20) {
+function withMaxMulliganBonuses(doubleColorlessCopies, opposingBasics, maximumBonus = 40) {
   const pSource = 1 - Number(choose(56, 7)) / Number(choose(60, 7));
   const pOpponent = 1 - Number(choose(60 - opposingBasics, 7)) / Number(choose(60, 7));
   const denominator = pSource + pOpponent - pSource * pOpponent;
