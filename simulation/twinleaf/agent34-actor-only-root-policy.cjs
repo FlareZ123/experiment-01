@@ -748,6 +748,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
     rank9SpecialFundedGuzmaOptIn:deps.rank9SpecialFundedGuzma===true,
     rank9MegaAbsolFundingOptIn:deps.rank9MegaAbsolFundingRoot===true,
+    activeMegaClawPriorityOptIn:deps.activeMegaClawPriorityRoot===true,
     forcedGuzmaNominalKoOptIn:deps.forcedGuzmaNominalKo===true||
       process.env.AGENT31_GUZMA_FORCED_KO_DEV==='true',
     finalPrizeGuzmaOptIn:deps.finalPrizeGuzma===true||
