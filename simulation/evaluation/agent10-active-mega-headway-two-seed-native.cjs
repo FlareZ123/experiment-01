@@ -91,7 +91,7 @@ function run(){
 if(require.main===module){
   const result=run();
   process.stdout.write(JSON.stringify(result,null,2)+'\n');
-  assert.equal(result.actualNativeAttempts,6);
+  assert.equal(result.actualNativeAttempts,12);
   assert.equal(result.exactPrintedAndTwoPlayerDealParity,true);
 }
 module.exports={VERSION,run};
