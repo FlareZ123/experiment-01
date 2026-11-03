@@ -19,6 +19,7 @@ const sha256=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 // Opt-in read-only retrospective v2 replay. Never silently mutate frozen v2 receipts.
 const ATTACK_TRACE_REPLAY=process.env.AGENT11_TUTOR_ATTACK_TRACE_REPLAY==='true';
+const SYMMETRIC_KNOWN_DEAD=process.env.AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV==='true';
 
 /**
  * Frozen two-seat, two-independent-seed physical-deal development A/B design.
@@ -131,7 +132,10 @@ function run(){
   }
   return {schema:registered.schema,engine:PIN,
     ...(ATTACK_TRACE_REPLAY?{attackTraceReplay:'read-only-retrospective-v2-source-payoff-audit-v1',
-      historicalV2RootAuditComparisonRequired:true}:{}),
+      historicalV2RootAuditComparisonRequired:!SYMMETRIC_KNOWN_DEAD}:{}),
+    ...(SYMMETRIC_KNOWN_DEAD?{
+      experimentalSymmetricKnownDeadActorRoot:'AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV=true',
+      retrospectiveIntervention:true,competitiveQualifiedGames:0}:{}),
     runGitSha:process.env.GITHUB_SHA??null,
     codeVersion:BRIDGE_VERSION,
     registrationSha256:sha256(registered),
