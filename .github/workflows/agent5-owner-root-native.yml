@@ -182,6 +182,8 @@ jobs:
         run: node --test tests/agent9-native-trainer-scorer-attribution.test.cjs
       - name: Check native-free owner-source Mail proposer for hidden-order-safe count-only choice
         run: node --test tests/agent9-owner-mail-after-pass-planner.test.cjs
+      - name: Test authentic source rank5 paper Prize veto and Mail offer gap
+        run: node --test tests/agent9-rank5-turn16-original-prize-mail-fixture.test.cjs
       - name: Reproduce matched original rank5 and rank11 native owner-only Mail after-Pass developmental source controls
         if: ${{ inputs.agent9_owner_mail_native }}
         run: node simulation/twinleaf/agent9-owner-mail-paired-original-source.cjs
