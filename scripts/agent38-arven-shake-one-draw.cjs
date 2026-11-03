@@ -34,7 +34,11 @@ function exactOneDrawCounts(q) {
   const prizeWays=choose(rest,prizes);
   const denominator=choose(N,seenSize)*prizeWays*BigInt(seenSize);
   assert.ok(denominator>0n);
-  let basicValid=0n,direct=0n,arven=0n,union=0n;
+  const setupSize=seenSize-1;
+  const basicCount=t+b;
+  const basicValid=(choose(N,setupSize)-choose(N-basicCount,setupSize))*
+    BigInt(N-seenSize+1)*prizeWays;
+  let direct=0n,arven=0n,union=0n;
   for(let ht=1;ht<=Math.min(t,seenSize);ht++){
     for(let ha=0;ha<=Math.min(a,seenSize-ht);ha++){
       for(let hs=0;hs<=Math.min(s,seenSize-ht-ha);hs++){
@@ -51,7 +55,6 @@ function exactOneDrawCounts(q) {
                 choose(s,hs)*choose(f,hf)*choose(g,hg)*
                 choose(b,hb)*choose(o,ho);
               const weight=handWays*BigInt(validDrawPositions);
-              basicValid+=weight*prizeWays;
               const remaining=[s-hs,f-hf,g-hg];
               const deckHasG=prizeWays-
                 choose(rest-remaining[2],prizes-remaining[2]);
