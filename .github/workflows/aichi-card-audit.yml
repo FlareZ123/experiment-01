@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -53,6 +53,10 @@ jobs:
         run: python scripts/agent12_adp_regv_starter_donor_physical.py
       - name: Independently check R-starter two-turn Gear routes and physical Ultra payments
         run: python scripts/agent12_adp_regv_starter_t1_t2_gear_physical.py
+      - name: Verify disjoint ADP-held Quick Ball to Tapu Lele to Thorton exact probabilities
+        run: python scripts/agent12_adp_regv_held_adp_quickball_lele_exact.py
+      - name: Independently sample two million ADP-held Quick Ball to Tapu Lele physical deals
+        run: python scripts/agent12_adp_regv_held_adp_quickball_lele_physical.py
       - name: Verify original-29 printed HP thresholds and Goodra Rolling Iron defensive exception
         run: |
           node tests/agent12-adp-wildblaze-ryunoglide-original29-hp-gap.sft.cjs
