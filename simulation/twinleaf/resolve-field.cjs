@@ -63,11 +63,14 @@ function resolveManifest(manifest, options = {}) {
       } else if (row.status === 'ambiguous-exact' &&
           item.name === 'M Charizard-EX' && item.printing.set === 'FLF' &&
           String(item.printing.number) === '69') {
-        // The pinned Twinleaf revision registers two implementations under
-        // the same original FLF #69 print identity. The auto-generated
-        // duplicate ('M Charizard-EX FLF 69') omits the original Mega
-        // evolution turn-ending rule. Select the fully implemented original
-        // exact-print class only after verifying its printed Wild Blaze data.
+        // The pinned Twinleaf revision registers two incorrect reducers for
+        // original FLF #69. The auto-generated duplicate omits the printed
+        // Mega evolution turn-end rule. This original Mega reducer DOES
+        // end that turn but incorrectly mills the OPPONENT's deck on Wild
+        // Blaze. Choosing its exact metadata identity does not certify the
+        // effect: native match execution must explicitly install the
+        // reversible research-only flf69-wild-blaze-paper-hook.cjs, then
+        // restore it after the game. See the Agent5 2026-11-03 native report.
         const native = row.exact.filter(candidate =>
           candidate.fullName === 'M Charizard EX FLF');
         if (native.length === 1) {
@@ -78,7 +81,7 @@ function resolveManifest(manifest, options = {}) {
                 attack.damage === 300 &&
                 /Discard the top 5 cards of your deck/.test(attack.text))) {
             name = native[0].fullName;
-            reason = 'verified-flf69-canonical-native-implementation';
+            reason = 'flf69-original-mega-reducer-requires-own-deck-wild-blaze-hook';
           }
         }
       } else if (allowEquivalentBasicEnergies && item.category === 'Energy') {
