@@ -1057,6 +1057,7 @@ function runDevelopment({
   actorDceMewMobilityRoot=false,actorGenesectFusionDrawRoot=false,
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
+  actorFundedShadowRiderFloatStoneRoot=false,
   actorUnderworldDoorPromptOwner=false,
   actorUnderworldAttackGapRecipient=false,
   sourceCrobatDceMewRetreat=false,
@@ -1143,6 +1144,8 @@ function runDevelopment({
   assert.ok(!actorUnderworldActiveFundingPriority||
     (actorUnderworldDoorRoot&&actorOnlyComposition),
     'Active Psychic priority requires symmetric Underworld root');
+  assert.ok(!actorFundedShadowRiderFloatStoneRoot||actorOnlyComposition,
+    'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorUnderworldAttackGapRecipient||
@@ -1342,7 +1345,7 @@ function runDevelopment({
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
-          !actorUnderworldDoorRoot&&
+          !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -1391,6 +1394,9 @@ function runDevelopment({
               }:{}),
               ...(actorUnderworldActiveFundingPriority?{
                 underworldActiveFundingPriority:true
+              }:{}),
+              ...(actorFundedShadowRiderFloatStoneRoot?{
+                fundedVmaxFloatStoneRoot:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
@@ -1741,6 +1747,8 @@ function runDevelopment({
       actorOnlyComposition&&actorGuzmaPromptContinuation&&actorGuzmaNominalGust,
     actorChargedPromotionOptIn:actorOnlyComposition&&actorChargedPromotion,
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
+    actorFundedShadowRiderFloatStoneRootOptIn:
+      actorOnlyComposition&&actorFundedShadowRiderFloatStoneRoot,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
