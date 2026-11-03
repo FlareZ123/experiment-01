@@ -27,6 +27,8 @@ test('catalog distinguishes BW/older Quick Ball from FST discard Quick Ball',()=
   assert.equal(COST_BY_PRINT.get('Secret Box TWM').options[0].discards,3);
   assert.equal(COST_BY_PRINT.get('Ultra Ball MEG').options[0].discards,2);
   assert.equal(COST_BY_PRINT.get("Trainers' Mail ROS").options[0].discards,0);
+  assert.equal(COST_BY_PRINT.get("Professor's Letter BKT").options[0].discards,0);
+  assert.equal(COST_BY_PRINT.get('Professors Letter BKT').options[0].discards,0);
   assert.ok(VERSION.startsWith('agent27-owner-trainer'));
 });
 
