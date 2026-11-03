@@ -589,6 +589,11 @@ function chooseActorRootIntent(view,catalog,options={}){
       .choosePlayersCeremonyLastChance(view);
     if(ceremony)return ceremony;
   }
+  if(options.dceFusionCopyGuzma===true){
+    const funded=require('./agent13-dce-fusion-copy-guzma-frontier.cjs')
+      .chooseDceFusionCopyGuzma(view,catalog);
+    if(funded)return funded;
+  }
   return {kind:'pass',reason:'no-supported-owner-visible-root'};
 }
 
@@ -746,6 +751,8 @@ function withActorOnlyRootPolicy(run,deps={}){
     floatStoneMobilityOwnerSeat:deps.floatStoneMobilityOwnerSeat??null,
     heldGuzmaMobilityOptIn:deps.heldGuzmaMobility??
       (process.env.AGENT2_HELD_GUZMA_MOBILITY_DEV==='true'),
+    dceFusionCopyGuzmaOptIn:
+      process.env.AGENT13_DCE_FUSION_GUZMA_RETRO_DEV==='true',
     rank9SpecialFundedGuzmaOptIn:deps.rank9SpecialFundedGuzma===true,
     rank9MegaAbsolFundingOptIn:deps.rank9MegaAbsolFundingRoot===true,
     activeMegaClawPriorityOptIn:deps.activeMegaClawPriorityRoot===true,
@@ -1259,6 +1266,7 @@ function withActorOnlyRootPolicy(run,deps={}){
         audit.floatStoneMobilityOptIn,
         audit.floatStoneMobilityOwnerSeat,seat),
       heldGuzmaMobility:audit.heldGuzmaMobilityOptIn,
+      dceFusionCopyGuzma:audit.dceFusionCopyGuzmaOptIn,
       rank9SpecialFundedGuzma:audit.rank9SpecialFundedGuzmaOptIn,
       rank9MegaAbsolFundingRoot:audit.rank9MegaAbsolFundingOptIn,
       activeMegaClawPriorityRoot:audit.activeMegaClawPriorityOptIn,
