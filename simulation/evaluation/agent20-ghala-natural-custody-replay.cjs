@@ -135,6 +135,8 @@ function runNaturalCustodyReplay() {
   writeAtomicLocked(HISTORICAL_OUTPUT,
     JSON.stringify(observer.result,null,2)+'\n');
   const evidence = buildEvidence(observer.result, observer.audit);
+  const nativeChain = require('./agent20-ghala-native-cost-to-payoff-attestor.cjs')
+    .attestHistoricalFourArmReplay(observer.result,evidence);
   return {
     schema:VERSION,
     frozenProfileSha256:observer.result.profileSha256,
@@ -143,6 +145,7 @@ function runNaturalCustodyReplay() {
     nativeObserverBlobSha:gitBlobSha(bytes),
     nativeObserverSha256:createHash('sha256').update(bytes).digest('hex'),
     naturalCustodyEvidence:evidence,
+    nativeCostToPayoffChainEvidence:nativeChain,
     historicalOriginalNativeArchive:HISTORICAL_OUTPUT.split(path.sep).pop(),
     wholeGamePaperQualified:false,
     competitiveGameQualified:false
@@ -170,6 +173,8 @@ if (require.main === module) {
     sourcePaymentPrompts:output.naturalCustodyEvidence?.sourcePaymentPrompts ?? 0,
     physicalTwoCardSourceCustody:
       output.naturalCustodyEvidence?.witnessedNaturalSourceTwoCardZoneMovements ?? 0,
+    nativeCostToPayoffChains:
+      output.nativeCostToPayoffChainEvidence?.sourceCostToNativePayoffChains ?? 0,
     allPaperQualified:false,
     competitiveGameQualified:false,
     error:output.error ?? null
