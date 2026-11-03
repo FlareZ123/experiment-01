@@ -47,6 +47,9 @@ function withApexBenchMukShake(execute) {
   function fail(seat,state,reason) {
     flows.set(seat,{stage:'failed'});
     audit.failures.push({seat,turn:state.turn,reason});
+    // Temporary bounded diagnostic until native prompt branch is qualified.
+    process.stdout.write('AGENT43_MUK_OWNER_POLICY_FAILURE '+
+      JSON.stringify({seat,turn:state.turn,reason})+'\n');
   }
   SimpleTacticsAi.prototype.decodeNextAction = function(state) {
     const seat=state.players.findIndex(p=>p.id===this.client?.id);
