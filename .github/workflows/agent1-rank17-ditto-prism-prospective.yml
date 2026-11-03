@@ -13,6 +13,7 @@ on:
           - compressor
           - compressor-census
           - compressor-bridge
+          - bridge-archive
 
 permissions:
   contents: read
@@ -23,6 +24,7 @@ concurrency:
 
 jobs:
   source-native:
+    if: ${{ github.event.inputs.experiment != 'bridge-archive' }}
     runs-on: ubuntu-latest
     timeout-minutes: 16
     steps:
@@ -107,3 +109,25 @@ jobs:
           name: agent1-rank17-original-actor-compressor-bridge
           path: agent1-rank17-actor-compressor-bridge-prospective.json
           if-no-files-found: warn
+
+  source-archived-bridge-audit:
+    if: ${{ github.event.inputs.experiment == 'bridge-archive' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regress native-only source receipt accounting and rejection cases
+        run: node --test tests/agent1-archived-compressor-receipt-gate.test.cjs
+      - name: Fetch previously archived 38 original native Store attempts without replaying
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '13209864119'
+          run-id: '41591371975'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          path: immutable-archive
+      - name: Verify exact historical raw SHA256, all original physical pairs and source prompt roots
+        run: node scripts/agent1-audit-archived-compressor-bridge.cjs immutable-archive/agent1-rank17-original-actor-compressor-bridge/agent1-rank17-actor-compressor-bridge-prospective.json
