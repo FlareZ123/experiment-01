@@ -65,8 +65,11 @@ function firstChangedRoot(before, after) {
 }
 
 /**
- * Posthoc selected-policy audit; preserves every simulated terminal, cap and
- * error while refusing to compare win classes on missing physical setups.
+ * Posthoc fixed-candidate policy contrast; preserves every native terminal,
+ * cap and error while refusing winner comparisons on missing physical setups.
+ * Matching opponent source draws across DIFFERENT candidate printed sixties
+ * can condition away deck-specific mulligan bonus draws. Therefore never use
+ * these matched-subset rows to estimate an unconditional deck-choice win rate.
  * It makes no paper-legal-game or match-strength claim.
  * @param {object} archive Two-mode original native joint-v2 artifact.
  * @returns {object} Deterministic paired-native disposition audit.
@@ -108,6 +111,8 @@ function auditPairedNativeOutcomes(archive) {
   }
   return {
     schema: 'agent4-matched-physical-native-disposition-audit-v1',
+    estimand: 'within-the-same-candidate-deck-two-policy-mechanistic-contrast',
+    unconditionalCrossCandidateWinRateQualified: false,
     modes: [BASELINE, SELECTED],
     totalNativeAttempts: baseline.length + selected.length,
     attemptedPairs: baseline.length,
