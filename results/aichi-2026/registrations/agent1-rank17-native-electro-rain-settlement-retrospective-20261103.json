@@ -1,0 +1,38 @@
+{
+  "schema": "agent1-rank17-native-electro-rain-settlement-retrospective-v1",
+  "registeredAtUtc": "2026-11-03T12:04:00Z",
+  "origin": "One specific treatment source attack previously seen in 16-arm prospective generic Special Energy study",
+  "priorRunId": 41631694743,
+  "priorRawArtifactId": 13228716955,
+  "previousSourceElectroRainEvent": {
+    "seed": 3239786043,
+    "sourceSeat": 0,
+    "previousNativeSourceElectroRainCount": 1
+  },
+  "explicitlyRetrospectivePositiveSelection": true,
+  "sourceRank": 17,
+  "referenceRank": 1,
+  "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "originalSourcePrintingSha": "49ec5104403de2bc176cd59b1d58861636a5b72d759e42ce36bd115f539f6401",
+  "policyControl": {
+    "naturalEvolutionRoot": true,
+    "publicContextSpecialEnergy": false
+  },
+  "policyTreatment": {
+    "naturalEvolutionRoot": true,
+    "publicContextSpecialEnergy": true
+  },
+  "registeredArms": 2,
+  "sameNativeConditions": "Exactly those in the 16-arm prospective predecessor, adding only passive public attack transition, native physical zone and Electrode opportunity receipts",
+  "paperLimits": "Known previously positive source game; no unbiased attack frequency, no winning game, no guarantee damage effect or energy pay is paper correct.",
+  "desiredEvidence": [
+    "source AttackAction Electro Rain",
+    "same physical initial deal",
+    "actual Store logged attack declaration",
+    "public board before/after resolution",
+    "prompt settlement and target HP/damage deltas",
+    "native physical zone ledger",
+    "source-owned Electrode opportunity state"
+  ],
+  "certifiedWinRate": null
+}
