@@ -10,14 +10,17 @@
     {
       "role": "source",
       "rank": 26,
-      "printed60Sha256": "07da7009178b63868ef21047982955663ac855bfcd15006e30541d4f90e55e4c"
+      "printed60Sha256": "07da7009178b63868ef21047982955663ac855bfcd15006e30541d4f90e55e4c",
+      "nativeOrderedSha256": "e0d1b02d134aa142a4289493b6990a304e2983219508de99d793c09c99359f00"
     },
     {
       "role": "opponent",
       "rank": 6,
-      "printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5"
+      "printed60Sha256": "9c479091770e7e682624d4f86f6de0c7f85a9723adcf7877539012dfbc0295e5",
+      "nativeOrderedSha256": "b50e4cf27c449653cf9c61e4e830b7a3d61f9b1c7e42a7dfd2d781a1c6e6895a"
     }
   ],
   "scope": "Read-only strict original print, published admission, gitlink and campaign parameter pins; actual physical deal and game actions unverified.",
-  "seedPlanSha256": "01e61c378b90c91a039d9da62e9708ef5b003b8e7caf554df83daaab6e8bf4b9"
+  "seedPlanSha256": "01e61c378b90c91a039d9da62e9708ef5b003b8e7caf554df83daaab6e8bf4b9",
+  "nativeOrderedPinProvenance": "Original registered full native archive Actions 41606206597 artifact 13217401650; exact read-only replay Actions 41612953132 artifact 13220770393, all 24 full physical case records identical. These IDs reflect the selected native resolver mappings, not paper printing identity."
 }
