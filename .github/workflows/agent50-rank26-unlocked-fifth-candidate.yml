@@ -35,6 +35,21 @@ jobs:
         run: node --test tests/agent50-agent5-flf69-identity-probe.native.test.cjs
       - name: Prove exact FLF69 Wild Blaze owner deck effect against duplicate native implementation
         run: node --test tests/agent5-flf69-wild-blaze-native.test.cjs
+      - name: Census duplicate native implementations among 29 original sixty prints and fixed fifth candidate
+        if: ${{ inputs.flf69_native_only }}
+        run: node simulation/evaluation/agent5-original-native-identity-duplicate-census.cjs > agent5-original-native-exact-duplicate-census.json
+      - name: Report affected original printings and candidate exact-name duplicate risks
+        if: ${{ inputs.flf69_native_only }}
+        run: |
+          node -e "const a=require('node:assert/strict');const r=require('./agent5-original-native-exact-duplicate-census.json');a.equal(r.sourceOriginalDecks,29);a.equal(r.knownCandidateFlf69NativeDualCount,2);a.equal(r.competitiveQualifiedGames,0);console.log('EXACT_NATIVE_DUPLICATE_CENSUS',JSON.stringify({summary:r.counters,unmatched:r.originalUnmatchedPrintings,rows:r.duplicatePrintings.map(x=>({name:x.name,set:x.set,number:x.number,ranks:x.originalRanks,candidate:x.candidateV2,nativeCount:x.nativeCount,differentReducer:x.differingReducer,differentText:x.differingText}))}))"
+      - name: Archive all exact native duplicate fingerprints without competitive claims
+        if: ${{ inputs.flf69_native_only }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-original-native-exact-identity-duplicate-census
+          path: agent5-original-native-exact-duplicate-census.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Check registered read-only v2.2 owner-root replay syntax
         run: node --check simulation/twinleaf/agent50-rank26-unlocked-fifth-candidate-owner-root-v22.cjs
       - name: Check actual original rank26 physical donor and Egg-to-Egg Damage Pump prompt on both seats
