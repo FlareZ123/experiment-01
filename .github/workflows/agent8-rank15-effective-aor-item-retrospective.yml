@@ -75,6 +75,9 @@ jobs:
       - name: Verify bounded physical multi-Energy mandatory assignment policy
         if: ${{ inputs.source13_paper_evolution_factorial }}
         run: node --test tests/agent47-minimum-attach-energy-hook.test.cjs
+      - name: Verify owner-only original Regidrago payload-access conditions
+        if: ${{ inputs.source13_paper_evolution_factorial }}
+        run: node --test tests/agent8-rank13-payload-owner-opportunity.test.cjs
       - name: Validate passive native copied-attack prompt ledger
         if: ${{ inputs.source13_paper_evolution_factorial }}
         run: node --test tests/agent8-native-copied-attack-choice-ledger.test.cjs
