@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const {ownerTrainerOpportunity}=require('./agent5-generic-owner-trainer-opportunity.cjs');
 
-const VERSION='agent50-native-owner-trainer-pass-bridge-v2-printed-temporal-negative';
+const VERSION='agent50-native-owner-trainer-pass-bridge-v3-proven-owner-turn-negative';
 
 /**
  * Inspect a native bot's proposed root after a detached actor-only policy
@@ -16,9 +16,11 @@ const VERSION='agent50-native-owner-trainer-pass-bridge-v2-printed-temporal-nega
  * @param {object|null} action Native root proposal from the existing bot.
  * @param {Map<string,object>} trainerCatalog Public printed Trainer metadata.
  * @param {Function} PlayCardAction Pinned native action class.
+ * @param {object|null} [ownerTurnReceipt] Actual per-game real-turn witness.
  * @returns {object} Deterministic, detached acceptance decision and reason.
  */
-function classifyNativeTrainerAfterPass(view,action,trainerCatalog,PlayCardAction){
+function classifyNativeTrainerAfterPass(view,action,trainerCatalog,PlayCardAction,
+  ownerTurnReceipt=null){
   assert.equal(view?.decisionKind,'owner-root');
   assert.ok(trainerCatalog instanceof Map);
   assert.equal(typeof PlayCardAction,'function');
@@ -36,14 +38,20 @@ function classifyNativeTrainerAfterPass(view,action,trainerCatalog,PlayCardActio
   if(row.publicBlocker)
     return {selected:false,reason:'generic-public-rule-block',
       printing,type:row.type,publicBlocker:row.publicBlocker};
-  // Native ActionEnumerator may offer Battle VIP Pass on later turns.
-  // Printed exact-turn veto is independent of native canPlay/Store acceptance.
+  // Native ActionEnumerator may offer an expired VIP. Distinguish proven
+  // late-owner-turn illegality from incomplete turn history; neither offer
+  // is promoted to a PlayCardAction. Unknown is not called paper-illegal.
   const temporal=require('./agent4-owner-paper-trainer-necessary-screen.cjs')
-    .printedTrainerTurnScreen(view,printing);
+    .printedTrainerTurnScreen(view,printing,ownerTurnReceipt);
   if(temporal.blocker)
     return {selected:false,reason:'printed-temporal-rule-block',
       printing,type:row.type,handIndex:index,
       printedTemporalBlocker:temporal.blocker,paperPlayable:false};
+  if(temporal.conservativeDecline)
+    return {selected:false,reason:'unverified-first-turn-order-decline',
+      printing,type:row.type,handIndex:index,
+      printedTemporalBlocker:null,paperPlayable:null,
+      ownerTurnHistoryIncomplete:true};
   // An explicit fixed-cardinality payment that cannot be made from this
   // physical owner hand cannot produce a paper-legal Trainer resolution.
   // A payable or unmodeled cost stays unresolved at every other gate.
