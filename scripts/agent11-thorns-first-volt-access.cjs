@@ -31,7 +31,7 @@ function choose(n, k) {
  *
  * @param {1 | 3} doubleColorlessCopies
  * @param {number} bonusDraws Maximum optional opponent-mulligan bonus cards actually drawn
- * @returns {{denominator:bigint,available:bigint,direct:bigint,supporter:bigint}}
+ * @returns {{denominator:bigint,available:bigint,direct:bigint,supporter:bigint,mountainPrized:bigint,dcePrized:bigint,noConnector:bigint,ghHand:bigint,tagBridge:bigint}}
  */
 function exactAccess(doubleColorlessCopies, bonusDraws = 0) {
   const d = doubleColorlessCopies;
@@ -41,6 +41,11 @@ function exactAccess(doubleColorlessCopies, bonusDraws = 0) {
   let available = 0n;
   let direct = 0n;
   let supporter = 0n;
+  let mountainPrized = 0n;
+  let dcePrized = 0n;
+  let noConnector = 0n;
+  let ghHand = 0n;
+  let tagBridge = 0n;
 
   for (let b = 1; b <= 4; b++) {
     const startWeight = choose(handSize, 7) - choose(handSize - b, 7);
@@ -67,11 +72,17 @@ function exactAccess(doubleColorlessCopies, bonusDraws = 0) {
                   const energyAvailable = energy > 0 || d - energy - pe > 0;
                   const bothHeld = mountain > 0 && energy > 0;
                   const ghAccessible = gh > 0 || (tag > 0 && 2 - gh - pg > 0);
-                  if (mountainAvailable && energyAvailable && (bothHeld || ghAccessible)) {
+                  if (!mountainAvailable) mountainPrized += ways;
+                  else if (!energyAvailable) dcePrized += ways;
+                  else if (bothHeld) {
                     available += ways;
-                    if (bothHeld) direct += ways;
-                    else supporter += ways;
-                  }
+                    direct += ways;
+                  } else if (ghAccessible) {
+                    available += ways;
+                    supporter += ways;
+                    if (gh > 0) ghHand += ways;
+                    else tagBridge += ways;
+                  } else noConnector += ways;
                 }
               }
             }
@@ -80,7 +91,7 @@ function exactAccess(doubleColorlessCopies, bonusDraws = 0) {
       }
     }
   }
-  return { denominator, available, direct, supporter };
+  return { denominator, available, direct, supporter, mountainPrized, dcePrized, noConnector, ghHand, tagBridge };
 }
 
 /**
