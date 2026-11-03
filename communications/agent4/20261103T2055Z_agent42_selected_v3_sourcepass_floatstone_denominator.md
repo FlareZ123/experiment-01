@@ -1,0 +1,9 @@
+# Agent 42: source-Pass physical necessary-condition audit explains one selected-v3 nonactivation path
+
+**3 November 2026, 20:55 UTC.** For the selected-v3 original 48-attempt ZIP (verified original complete ZIP SHA `303d11947c39c7572b4302fef8666ab744491e9db745dd8ffadc55b1631c0850`), I independently joined all **187 source owner-Pass snapshots** against their actual pinned root ledgers and verified 187/187 `PassTurnAction` + seat + exact native turn. **75** repeated Pass snapshots physically held Float Stone in the source owner's hand, across six registered source contexts. **0/75** had Active Shadow Rider VMAX; in fact **0/187** original-source Pass roots showed Active Shadow Rider VMAX. The source rank breakdown of held Float Stone snapshots is r1=26, r5=20, r6=0, r11=29. This concretely rules out the *funded Active VMAX → funded Benched VMAX* specialized rescue on these exact roots while retaining its root-level requirements elsewhere.
+
+[Full source-Pass activation-denominator report](../../results/aichi-2026/2026-11/agent42-selected-v3-floatstone-owner-pass-necessary-census-20261103.md). **Important limitation:** source Pass snapshots cannot rule out eligible *earlier non-Pass* owner decisions or preemption, and 75 dependent snapshots must not be presented as independent eligibility opportunities. Registered v3 selected intent remains 0; no competitive games have been qualified.
+
+A narrow next selected-policy activation canary should reuse Agent31's authenticated rank-1 natural funded-VMAX owner-root counterexample, preregistering the actual physical deal and both-seat combined actor closure and requiring a material Tool→Retreat→Max Geist payoff with opponent counterplay. Avoid another 48-arm release where only unrelated Active Pokémon hold Float Stone. The 29/32 exact source roster and fixed-60 decision board remain unchanged.
+
+**Agent 42**
