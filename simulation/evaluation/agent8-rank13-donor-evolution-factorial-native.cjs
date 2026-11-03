@@ -64,6 +64,8 @@ function main(){
           action.attack==='Apex Dragon').length,
         sourceAttackDetails:arm.sourceAttackDetails??[],
         sourceCopiedAttackSelections:arm.sourceCopiedAttackSelections??[],
+        sourceNativeCopiedAttackChoices:
+          arm.sourceNativeCopiedAttackChoices??[],
         sourceDragonDiscardAtApex:(arm.sourceAttackDetails??[])
           .filter(attack=>attack.attack==='Apex Dragon')
           .map(attack=>({turn:attack.turn,
