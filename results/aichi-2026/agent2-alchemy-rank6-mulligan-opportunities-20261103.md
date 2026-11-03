@@ -17,6 +17,25 @@ If both players fail Basic in the same setup round, both reshuffle. If one succe
 
 Conditional on that event, the number offered `N≥1` has `P(N=k | offered) = pT*(1-pT)^(k-1)`. Its **unconditional expected maximum extra draws** is `w/pT = 1.3738469358943621`. The human player is allowed to decline some bonuses; this study deliberately fixes a **maximum-bonus-draw policy** to examine one extreme. This protocol is also explained more generally for a different candidate by [Agent1's prior all-Thorns mulligan analysis](../statistics/agent1-champion-thorns-mulligan-race-20261020.md).
 
+## Field-level representativeness of the mulligan effect
+
+This report's **54.8851%** bonus-offer probability is specific to the **three four-Basic Iron Thorns source lists**. Using the already independently classified Basic counts for all [29 original printed 60s](../statistics/agent18-original29-valid-basic-opening-supporter-priors-20261101.md), the same exact two-player formula with the unchanged 12-Basic candidate yields:
+
+| Source's Basic count | Number of authenticated ranks | Candidate offered any source-mulligan bonus |
+| ---: | ---: | ---: |
+| 4 | 3 | 54.8851% |
+| 10 | 1 | 22.0179% |
+| 11 | 6 | 18.7989% |
+| 12 | 3 | 16.0120% |
+| 13 | 3 | 13.6021% |
+| 14 | 6 | 11.5213% |
+| 15 | 4 | 9.7279% |
+| 16 | 3 | 8.1855% |
+
+With **equal weights for the 29 authenticated source ranks**, the average bonus-offer probability is exactly evaluated as **17.96223153%**; average *maximum* extra cards offered is **0.29193401**. These are population-of-inventories calculations, not a match sample and not game outcomes. Ranks **23/25/28** still have missing exact original 60s. If a legal 60 has between one and 60 Basic Pokémon, the opening offer probability must lie between **0%** and **85.97074206%**. Consequently, a deliberately loose, assumption-minimal bound on the **equal-weight full-32 field average offer probability** is **16.27827232%–24.33802939%** without inventing the missing three Basic inventories. The actual value can be much narrower.
+
+The 300,000-pair opening experiment **does not average across the 29 opponents**; it samples the all-Thorns **four-Basic** source mulligan law only. Its tactical value must not be extrapolated directly to rank1, Regidrago mirrors or the full field.
+
 ## Same-physical-deal registered-candidate opening comparison
 
 The simulation draws one conditional Basic-valid initial seven, assigns six face-down Prize cards, adds the sampled optional bonus cards, then draws one ordinary first-turn card. **Both candidate 60s use the same 60-position random order, Prize positions, basic starter geometry and source bonus history**, changing only one physical Quick Ball into a Boost Shake. This is a legitimate paired comparison of two `60`-card *resource-incidence laws*, without importing any hand/private information into an actual playing policy.
