@@ -1,0 +1,39 @@
+name: Agent8 rank13 public Apex native transport
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-public-apex:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Build pinned game engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Test public Apex source-only actor intent
+        run: node --test tests/agent8-rank13-apex-public-conjunction.test.cjs tests/agent8-rank13-source-apex-attack-frontier.test.cjs
+      - name: Execute matched retrospective original rank13 Apex policy comparison
+        env:
+          AGENT8_APEX_GATES_JSON: agent8-original13-apex-native-declaration.json
+        run: node simulation/evaluation/agent8-rank13-apex-ready-root-paired-native.cjs
+      - name: Preserve original native evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent8-rank13-apex-three-gates-native
+          path: agent8-original13-apex-native-declaration.json
+          if-no-files-found: warn
+          retention-days: 30
