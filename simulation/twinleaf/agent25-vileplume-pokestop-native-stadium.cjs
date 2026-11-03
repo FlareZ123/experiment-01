@@ -60,12 +60,17 @@ function runArm(sourceRank,candidateSeat,options={}){
   const shuppet=card('Shuppet M5');
   owner.discard.cards.push(shuppet);
 
-  source.active.cards.push(card(sourceRank===2?
-    'Stoutland BCR':sourceRank===15?
-    'Shadow Rider Calyrex V CRE':'Pidgey MEW'));
+  if(sourceRank===2){
+    source.active.cards.push(card('Lillipup CEC'),card('Herdier SUM'),
+      card('Stoutland BCR'));
+  }else source.active.cards.push(card(sourceRank===15?
+    'Bunnelby PRC':'Pidgey MEW'));
+  source.active.pokemonPlayedTurn=1;
   if(sourceRank!==0){
     const vile=new PokemonCardList();
-    vile.cards.push(card('Vileplume AOR'));
+    vile.cards.push(card('Oddish UNB'),card('Gloom UNB'),
+      card('Vileplume AOR'));
+    vile.pokemonPlayedTurn=1;
     source.bench.push(vile);
   }
   if(sourceRank===15)source.stadium.cards.push(card('Silent Lab PRC'));
