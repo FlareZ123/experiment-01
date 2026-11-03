@@ -12,6 +12,8 @@ const {Player}=native('game/store/state/player');
 const {CardList}=native('game/store/state/card-list');
 const {PokemonCardList}=native('game/store/state/pokemon-card-list');
 const {PowerEffect}=native('game/store/effects/game-effects');
+const {ResolvePromptAction}=native('game/store/actions/resolve-prompt-action');
+const {PlayerType,SlotType}=native('game/store/actions/play-card-action');
 const {GamePhase}=native('game/store/state/state');
 const {Format}=native('game/store/card/card-types');
 const sourceFullNames=planAichi(26,{
@@ -89,7 +91,36 @@ for(const seat of [0,1]){
       actualSourceOnePrize:x.defender.getPrizeLeft()===1,
       nativeGameQualified:false
     }));
-    assert.ok(offered.length>0||x.source.lostzone.cards.includes(x.koko),
-      'must find an authentic native ability prompt or completed source Ability');
+    assert.equal(offered.length,1,'expected a single native Energy assignment prompt');
+    const prompt=offered[0];
+    assert.equal(prompt.constructor.name,'AttachEnergyPrompt');
+    assert.equal(prompt.options.differentTargets,true,
+      'Koko must attach to two different Benched physical recipients');
+    const assignments=[
+      {index:0,card:x.lightning[0],
+        to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:0}},
+      {index:1,card:x.lightning[1],
+        to:{player:PlayerType.BOTTOM_PLAYER,slot:SlotType.BENCH,index:1}}
+    ];
+    assert.equal(prompt.validate(assignments,x.state),true,
+      'native dual-recipient physical assignment must validate');
+    x.store.dispatch(new ResolvePromptAction(prompt.id,assignments));
+    const actual={
+      meloEnergy:x.source.bench[0].energies.cards.map(c=>c.fullName),
+      eggEnergy:x.source.bench[1].energies.cards.map(c=>c.fullName),
+      remainingLightningInDiscard:x.source.discard.cards
+        .filter(c=>c.name==='Lightning Energy').length,
+      kokoInLostZone:x.source.lostzone.cards.includes(x.koko),
+      kokoStillOnBench:x.source.bench.some(s=>s.getPokemonCard()===x.koko),
+      pending:x.state.prompts.filter(p=>p.result===undefined)
+        .map(p=>p.constructor.name)
+    };
+    console.log('AGENT50_KOKO_SETTLED_NATIVE',JSON.stringify({seat,actual}));
+    assert.ok(x.source.bench[0].energies.cards.includes(x.lightning[0]));
+    assert.ok(x.source.bench[1].energies.cards.includes(x.lightning[1]));
+    assert.equal(actual.remainingLightningInDiscard,0);
+    assert.equal(actual.kokoInLostZone,true);
+    assert.equal(actual.kokoStillOnBench,false);
+    assert.deepEqual(actual.pending,[]);
   });
 }
