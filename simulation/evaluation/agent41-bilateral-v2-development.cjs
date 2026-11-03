@@ -1076,6 +1076,7 @@ function runDevelopment({
   candidateScopedSpecialEnergyRoot=false,
   bilateralSpecialEnergyRoot=false,
   sourceScopedQuickBallRoot=false,candidateScopedQuickBallRoot=false,
+  bilateralQuickBallRoot=false,
   bilateralPublicContextSpecialEnergy=false,
   bilateralBasicEnergyRecipientFrontier=false,
   bilateralConservativeShuffleRoot=false,
@@ -1105,6 +1106,10 @@ function runDevelopment({
     'Quick Ball transaction proof requires the native accepted-target sidecar');
   assert.ok(!(sourceScopedQuickBallRoot&&candidateScopedQuickBallRoot),
     'Quick Ball source and candidate scope probes are exclusive');
+  assert.ok(!bilateralQuickBallRoot||
+    (actorOnlyComposition&&!sourceScopedQuickBallRoot&&
+      !candidateScopedQuickBallRoot),
+    'Bilateral Quick Ball requires identical both-seat root selection');
   assert.ok((!sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot)||
     actorOnlyComposition,'Scoped Quick Ball requires actor-only policy');
   assert.ok(!(paperPromptPortfolio&&sharedPaperPaymentPortfolio),
@@ -1314,6 +1319,7 @@ function runDevelopment({
           !bilateralBasicEnergyRecipientFrontier&&
           !sourceFloatStoneMobility&&!sameRootProposalChoice&&
           !sourceScopedQuickBallRoot&&!candidateScopedQuickBallRoot&&
+          !bilateralQuickBallRoot&&
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&
@@ -1339,11 +1345,12 @@ function runDevelopment({
                 mobilityAwareRecipient:true
               }:{}),
               ...conservativeSupporterRootOptions,
-              ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot?{
+              ...(sourceScopedQuickBallRoot||candidateScopedQuickBallRoot||bilateralQuickBallRoot?{
                 quickBallRoot:true,
-                quickBallRootOwnerSeat:sourceScopedQuickBallRoot?
-                  1-(trial.candidateSlot==='A'?0:1):
-                  (trial.candidateSlot==='A'?0:1)
+                quickBallRootOwnerSeat:bilateralQuickBallRoot?null:
+                  (sourceScopedQuickBallRoot?
+                    1-(trial.candidateSlot==='A'?0:1):
+                    (trial.candidateSlot==='A'?0:1))
               }:{}),
               ...(actorNaturalEvolutionRoot?{
                 naturalEvolutionRoot:true
@@ -1724,6 +1731,7 @@ function runDevelopment({
     rank11SourceSupporterPassRescueOptIn:rank11SourceSupporterPassRescue,
     sourceScopedSpecialEnergyRootOptIn:sourceScopedSpecialEnergyRoot,
     candidateScopedSpecialEnergyRootOptIn:candidateScopedSpecialEnergyRoot,
+    bilateralQuickBallRootOptIn:bilateralQuickBallRoot,
     retrospectiveSeedProvenance:sourceFirstRetrospective?{
       6:{seed:407516727,seat:'B',selection:'reversed physical source seat'},
       11:{seed:482443328,seat:'B',selection:'post-observed source success'}
