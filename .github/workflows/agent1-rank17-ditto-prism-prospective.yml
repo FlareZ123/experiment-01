@@ -96,3 +96,14 @@ jobs:
       - name: Regress actor-only early native Battle Compressor bridge and native comparator
         if: ${{ github.event.inputs.experiment == 'compressor-bridge' }}
         run: node --test tests/agent1-raichu-actor-compressor-bridge.test.cjs tests/agent1-rank17-actor-compressor-bridge-prospective.test.cjs
+
+      - name: Run all registered native original rank17 actor-bridge matched physical deals
+        if: ${{ github.event.inputs.experiment == 'compressor-bridge' }}
+        run: node simulation/evaluation/agent1-rank17-actor-compressor-bridge-prospective.cjs
+      - name: Preserve all positive-control and prospective source native roots
+        if: ${{ always() && github.event.inputs.experiment == 'compressor-bridge' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent1-rank17-original-actor-compressor-bridge
+          path: agent1-rank17-actor-compressor-bridge-prospective.json
+          if-no-files-found: warn
