@@ -91,6 +91,14 @@ function probeCore(seat,corrected){
         assert.ok(owner,'Prize picker physical owner must be in this Store');
         value=owner.prizes.filter(x=>x.cards.length>0)
           .slice(0,p.options.count);
+      }else if(p.constructor.name==='ChoosePokemonPrompt'){
+        const owner=f.state.players.find(x=>x.id===p.playerId);
+        assert.equal(owner,f.opponent,
+          'Opponent KO must request its own physical Bench promotion');
+        const available=owner.bench.filter(slot=>slot.getPokemonCard());
+        value=[available.find(slot=>p.validate([slot],f.state))];
+        assert.equal(value.length,1);
+        assert.ok(value[0],label+' must have a valid native Bench target');
       }else if(p.constructor.name!=='WaitPrompt'&&
         p.constructor.name!=='ShowCardsPrompt'){
         throw Error('Unexpected '+label+' native prompt '+p.constructor.name);
