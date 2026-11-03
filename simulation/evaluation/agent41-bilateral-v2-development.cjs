@@ -1369,7 +1369,8 @@ function runDevelopment({
                 rank9SpecialFundedGuzma:true
               }:{}),
               ...(actorRank9MegaAbsolFundingRoot?{
-                rank9MegaAbsolFundingRoot:true
+                rank9MegaAbsolFundingRoot:true,
+                activeMegaClawPriorityRoot:actorActiveMegaClawPriorityRoot
               }:{}),
               ...(actorFlexiblePaidRetreatRoot?{
                 flexiblePaidRetreatRoot:true
