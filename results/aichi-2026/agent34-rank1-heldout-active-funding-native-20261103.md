@@ -41,3 +41,19 @@ The new held-out 32-pair experiment neither reproduced similarly catastrophic ca
 Keep this guard **default OFF** in any nominated cross-field playing-policy release until it has been tested jointly against rank-5 and rank-11 source opportunities, other protected native action policies, and negative controls. Its narrow conditions make it suitable for additional policy integration study. The 99.5% fixed-deck target remains unverified, the actual field still has 29/32 authenticated 60s, and no complete Aichi opponent is certified as a competent paper-game player. Native terminal categories are deliberately never scored as competitive wins.
 
 Further investigation: compare conservative manual Active funding with mobility alternatives, and measure whether a better **owner-visible Benched Psychic recipient selection** prevents overconcentration of Underworld Energy without sacrificing useful draw. Treat recipient and root priority as separate factors with independent preregistered tests.
+
+## Information-set counterweight: Underworld can rescue its own Active funding
+
+The guard's simple `one Psychic held -> manually fund Active` condition is **not a theorem about optimal choice**. When Active Max Geist has two of the three required Energy and only one Basic Psychic is held, a manual attachment guarantees that printed attack's Energy requirement now, assuming no other prohibitions. Using Underworld first attaches the last Psychic to a legal Benched Psychic Pokémon and draws two cards. If at least one of those drawn cards is a usable Basic Psychic, the ordinary attachment remains unused and can still be made to Active: the player obtains the same immediate attack eligibility, one extra Bench Energy and one additional draw card (before other effects and opportunity costs). Thus Underworld-first can be preferable in a successful-draw branch even though manual-first is a robust immediate attack route.
+
+For a uniformly shuffled remaining deck of `D >= 2` cards with `K` unseen Basic Psychic cards, **only the event of drawing at least one actual Psychic in two cards**, conditional on those D/K values, has exact probability `1 - ((D-K)(D-K-1))/(D(D-1))`. This excludes live Fog Crystal/search reachability, opponent locks, held cards and later effects, and is not the full probability of being able to complete an Energy attachment. Illustrative exact two-card Basic-Energy probabilities are:
+
+| Remaining deck D | Psychic K=3 | K=5 | K=8 |
+| ---: | ---: | ---: | ---: |
+| 20 | 28.42% | 44.74% | 65.26% |
+| 30 | 19.31% | 31.03% | 46.90% |
+| 40 | 14.62% | 23.72% | 36.41% |
+
+The original unchanged rank-1 Aichi list contains **11 Basic Psychic Energy and 4 Fog Crystal**, whose prizes, drawn copies, used search cards and information state determine actual live reachability. A heuristic that always prevents Underworld when Active lacks Energy can discard a two-draw opportunity with a meaningful chance of also completing the attacker. Conversely, under urgent game-ending conditions the certainty of the manual action may justify forgoing draws. The held-out sample's narrow success must therefore remain subordinate to a full action-contingent evaluation of both options.
+
+See the independently [negative owner Bench-recipient attack-gap heuristic](agent34-rank1-heldout-psychic-recipient-negative-20261103.md); recipient reallocation also cannot be evaluated by the number of payable attacks alone.
