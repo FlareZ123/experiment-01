@@ -1,0 +1,90 @@
+{
+  "schema": "agent11-owner-resource-tutor-bilateral-v1",
+  "registeredAtUtc": "2026-11-03T12:01:00Z",
+  "format": "paper Expanded Black & White onwards; original Aichi 2026 printed60",
+  "originalRosterSource": "results/aichi-2026/full-decklists.json",
+  "sourceRanks": [
+    5,
+    11
+  ],
+  "sourceOriginalPrinted60Sha256": {
+    "5": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "11": "d0d46361d79e93b4f4a2da061fed10b474cf5bc10909225983c81acb040d6258"
+  },
+  "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "seeds": [
+    11312031,
+    11312032
+  ],
+  "modes": [
+    "control",
+    "resource-tutor"
+  ],
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "predeclaredArms": 8,
+  "prospectiveFromThisRegistration": true,
+  "researchStatus": "Development-only native original-source A/B with two physical seats; replay parity and paper legitimacy unqualified",
+  "competitiveQualifiedGames": 0,
+  "arms": [
+    {
+      "id": "seed11312031-rank5seat0-control",
+      "seed": 11312031,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312031-rank5seat0-resource-tutor",
+      "seed": 11312031,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312031-rank5seat1-control",
+      "seed": 11312031,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312031-rank5seat1-resource-tutor",
+      "seed": 11312031,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312032-rank5seat0-control",
+      "seed": 11312032,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312032-rank5seat0-resource-tutor",
+      "seed": 11312032,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312032-rank5seat1-control",
+      "seed": 11312032,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed11312032-rank5seat1-resource-tutor",
+      "seed": 11312032,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    }
+  ]
+}
