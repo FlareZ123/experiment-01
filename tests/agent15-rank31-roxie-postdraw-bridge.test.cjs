@@ -48,7 +48,7 @@ test('Roxie draw-three optionality counts a physical Radiant or fresh Fog',()=>{
     assert.equal(Number(group.allThreeCardSubsets),n);
     assert(Number(group.favorableThreeCardSubsets)>=3);
     assert(Number(group.favorableThreeCardSubsets)<=n);
-    if(F===0)assert.equal(Number(group.favorableThreeCardSubsets),D*(D-1)/2);
+    if(F===0)assert.equal(Number(group.favorableThreeCardSubsets),(D-1)*(D-2)/2);
   }
 });
 
