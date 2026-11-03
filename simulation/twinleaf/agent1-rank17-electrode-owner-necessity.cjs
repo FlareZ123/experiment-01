@@ -9,6 +9,17 @@ const ENERGY_PRINTINGS = Object.freeze([
 ]);
 const PRINTED_CARDS = 5;
 
+// Exact native printings from the authenticated original rank17 source.
+// Electrode-GX and Gengar & Mimikyu-GX are excluded as printed Pokémon-GX.
+// Scarlet & Violet Pokémon ex are mechanically distinct from BW/XY Pokémon-EX.
+// This includes the source Squawkabilly ex as a potential recipient; the
+// real native Ability prompt must still confirm legality and settlement.
+const SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS = Object.freeze([
+  'Unown AOR','Voltorb ROS','Pikachu XY','Alolan Raichu UNM',
+  'Squawkabilly ex PAL','Marshadow UNB','Klefki SVI',
+  'Ditto Prism Star LOT'
+]);
+
 /**
  * Check a source-rank-17 Extra Energy Bomb -> Alolan Raichu line against
  * only the acting player's detached public board and public discard.
@@ -40,6 +51,9 @@ function rank17ElectrodeBombNecessity(view) {
   const raichus = slots.filter(row =>
     row.pokemon.name === 'Alolan Raichu' &&
     row.pokemon.printing === 'Alolan Raichu UNM');
+  const sourceRecipientPrintings = new Set(SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS);
+  const sourceEligibleRecipients = slots.filter(row =>
+    sourceRecipientPrintings.has(row.pokemon.printing));
   const energySet = new Set(ENERGY_PRINTINGS);
   const availableEnergyCards = own.discard.filter(printing =>
     energySet.has(printing));
@@ -51,6 +65,13 @@ function rank17ElectrodeBombNecessity(view) {
     blockers.push('no-discarded-energy-card-for-effective-transfer');
   if(raichus.length === 0)
     blockers.push('no-source-alolan-raichu-unm-recipient-in-play');
+  const generalBombBlockers = [];
+  if(electrodes.length === 0)
+    generalBombBlockers.push('no-source-electrode-gx-in-play');
+  if(availableEnergyCards.length === 0)
+    generalBombBlockers.push('no-source-discarded-energy-card');
+  if(sourceEligibleRecipients.length === 0)
+    generalBombBlockers.push('no-source-non-gx-ex-recipient-in-play');
 
   // Report plausible public locks for human/native follow-up. Their full
   // applicability depends on other card effects, so this does not claim
@@ -80,6 +101,11 @@ function rank17ElectrodeBombNecessity(view) {
       ({position,index,printing:pokemon.printing})),
     raichuPositions: raichus.map(({position,index,pokemon}) =>
       ({position,index,printing:pokemon.printing})),
+    generalBombSourceRecipientPositions:
+      sourceEligibleRecipients.map(({position,index,pokemon}) =>
+        ({position,index,printing:pokemon.printing})),
+    generalBombNecessaryConditionsMet:generalBombBlockers.length === 0,
+    generalBombPhysicalBlockers:generalBombBlockers,
     physicalDiscardEnergyCards: availableEnergyCards.length,
     printedNominalEnergyCards: PRINTED_CARDS,
     maxPhysicalCardsTransferable: Math.min(PRINTED_CARDS,availableEnergyCards.length),
@@ -98,4 +124,5 @@ function rank17ElectrodeBombNecessity(view) {
 }
 
 module.exports = { VERSION, ENERGY_PRINTINGS, PRINTED_CARDS,
+  SOURCE_ELIGIBLE_RECIPIENT_PRINTINGS,
   rank17ElectrodeBombNecessity };
