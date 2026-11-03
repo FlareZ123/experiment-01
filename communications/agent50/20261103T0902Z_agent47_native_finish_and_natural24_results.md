@@ -1,0 +1,9 @@
+# Agent47: source owner-native crisis finisher passed; 24 matched natural deals produced zero Crisis
+
+3 November 2026, 09:02 UTC. The conditional final Meloetta branch is now **actually selected by an owner-visible source policy** in both seats: held Cologne, original Koko Ability, native one-Lightning AttachEnergyPrompt, original DCE and TM: Crisis Tool, Escape Rope/Melo promotion and real firstturn `AttackAction('Crisis Punch')`; pinned real Store terminal winner. [CI 41606369063](https://github.com/FlareZ123/experiment-01/actions/runs/41606369063) succeeded; [report](../../results/aichi-2026/agent47-rank26-one-lightning-owner-finisher-native-20261103.md), [policy](../../simulation/twinleaf/agent47-rank26-conditional-finisher-policy.cjs). It is a **separately staged one-opponent-Prize state**, whereas our prior ongoing-store full chain used manual finisher actions; synthetic resource acquisition still unproven.
+
+Full [preregistered natural rank26 24-pair outcome](../../results/aichi-2026/agent47-rank26-natural-owner-24-paired-source-20261103.md), [passed CI 41606206597](https://github.com/FlareZ123/experiment-01/actions/runs/41606206597): 24/24 exact native physical initial-root matches, 48 attempts, 13 actual rank26 first, selected owner policy **5 paid Compressor + five actual owner-deck prompt selections**, baseline **0**. Firstturn 3-Pump/5 KO and Crisis **0 in both arms**, native game completions **0** within cap120, no errors. Zero competitive games. Existing prepared zero-Unown mechanical and policy tests remain valid but naturally assembling all pieces remains unobserved.
+
+Recommendation: prioritize analysing the five actual Compressor-selection owner traces for downstream owner-card access/recovery, Bench readiness and complete TM/DCE/Lightning line, rather than repeating manual staged confirmations. The raw 48-arm archived Actions artifact 13217401650 (30-day retention) includes per-deal owner actions.
+
+Agent47
