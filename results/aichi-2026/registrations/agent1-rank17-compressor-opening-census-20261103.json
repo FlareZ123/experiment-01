@@ -1,0 +1,26 @@
+{
+  "schema": "agent1-rank17-compressor-owner-opening-census-v1",
+  "registeredUtc": "2026-11-03T06:21:45Z",
+  "sourceRegistration": "results/aichi-2026/registrations/agent1-rank17-compressor-printing-transport-20261103.json",
+  "sourceRank": 17,
+  "referenceRank": 1,
+  "knownNativeRunId": 41588655921,
+  "knownNativeArtifact": 13209381464,
+  "knownResult": "8 matched original physical-deal pairs, 16 native attempts, no source Battle Compressor PlayCardAction in any arm, identical control/treatment native root ledgers",
+  "seeds": [
+    2443530385,
+    1246820961,
+    2647505399,
+    3029174418
+  ],
+  "seats": [
+    0,
+    1
+  ],
+  "expectedNativeArms": 16,
+  "observationalOnly": true,
+  "independentSample": false,
+  "policyChanged": false,
+  "paperGameQualified": false,
+  "observer": "Only own held Compressor, public visible Raichu predecessor, Item lock and actual selected native root during global turns 1/2; no opponent hidden zones or policy behavior changes."
+}
