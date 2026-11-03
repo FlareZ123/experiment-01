@@ -10,8 +10,12 @@ const {
 function snapshot(){
   return {
     rootsOmittedDueToCap:2,nativePrintedTrainerClasses:918,
+    k0GuaranteedVipPassCount:1,
     roots:[
       {seat:0,turn:3,chosen:{action:'PassTurnAction',trainer:null},
+        guaranteedK0VipPassed:true,
+        guaranteedK0FirstTurnVip:{printing:'Battle VIP Pass FST',
+          minimumBasicStillInDeck:2},
         dispatch:'native-accepted',trainers:[
           {printing:'Battle Compressor PHF',type:'Item',
             publicBlocker:null,nativeEnumeratorOffered:true},
@@ -46,6 +50,12 @@ test('two-seat Trainer opportunity accounting separates held, generic-unblocked,
   assert.equal(s.observedRootCount,4);
   assert.equal(s.rootsOmittedDueToCap,2);
   assert.equal(s.nativeCatalogPrintings,918);
+  assert.equal(s.k0GuaranteedVipPasses,1);
+  assert.deepEqual(s.k0FirstTurnVipExamples,[{
+    seat:0,turn:3,
+    certificate:{printing:'Battle VIP Pass FST',minimumBasicStillInDeck:2},
+    actualAction:'PassTurnAction',nativeDispatch:'native-accepted'
+  }]);
   assert.deepEqual(s.bySeat[0],{
     observedRoots:2,rootsHoldingTrainers:2,
     rootsWithUnblockedTrainer:2,acceptedPassWithUnblockedTrainer:1,
@@ -84,9 +94,13 @@ test('native observer transport includes both physical seats and returns origina
       assert.deepEqual(deps.seats,[0,1]);
       assert.equal(deps.maxRoots,40);
       assert.equal(deps.typedNativeDep,42);
+      assert.equal(deps.ownRegisteredSixties[0].length,60);
+      assert.equal(deps.ownRegisteredSixties[1].length,60);
       return {result:run(),audit:rows};
     },
-    nativeDeps:{typedNativeDep:42}
+    nativeDeps:{typedNativeDep:42},
+    ownRegisteredSixties:[Array(60).fill('First Sixty'),
+      Array(60).fill('Second Sixty')]
   });
   assert.equal(called,1);
   assert.strictEqual(observed.result,original);
