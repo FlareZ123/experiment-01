@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent2-r5-r11-joint-transport-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -90,5 +90,48 @@ jobs:
           path: |
             agent41-joint-source-r5-r11-v1-output.json
             simulation/evaluation/agent41-joint-source-r5-r11-v1.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent2-joint-r5-r11-transport:
+    if: ${{ github.ref == 'refs/heads/agent2-r5-r11-joint-transport-20261103' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact preregistered source-transport branch
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Check out pinned Twinleaf engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify old immutable selected joint baseline and new factorial preregistration
+        run: |
+          node --check simulation/evaluation/agent2-joint-source-transport-v1.cjs
+          node --test tests/agent41-joint-source-r5-r11-v1.test.cjs
+          node simulation/evaluation/agent2-joint-source-transport-v1.cjs --inspect-only > agent2-transport-preflight.json
+      - name: Install frozen native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile frozen native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute 32 genuine matched source-policy native attempts
+        run: node simulation/evaluation/agent2-joint-source-transport-v1.cjs
+      - name: Preserve all completed native factors and exact matched-deal comparison
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-r5-r11-joint-owner-transport-factorial
+          path: |
+            agent2-transport-preflight.json
+            agent2-joint-transport-baseline.json
+            agent2-joint-transport-searchOnly.json
+            agent2-joint-transport-discardOnly.json
+            agent2-joint-transport-searchAndDiscard.json
+            agent2-joint-transport-v1-summary.json
+            results/aichi-2026/registrations/agent2-joint-rank5-rank11-transport-v1-20261103.json
           if-no-files-found: warn
           retention-days: 30
