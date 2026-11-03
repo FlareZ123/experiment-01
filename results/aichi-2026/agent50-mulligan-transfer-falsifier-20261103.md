@@ -88,3 +88,21 @@ A useful purely algebraic target stress test assumes **uniform weighting across 
 | New Moon v1 (seventeen) | 0.274628 | 58.26% | No nontrivial restriction from this single mode |
 
 Actual ranking and order policies are unknown, and the full field has three missing original 60s. If other ranks have nonzero loss probability, rank26's permissible share shrinks below 0.16. Equally, real rank26 may be unable to assemble this demanding five-own-KO line frequently, other defensive effects may prevent the attack or survive its damage, and a second opening Benched Pokémon defeats the immediate lone-KO terminal. This budget calculation is a **prioritization device for an unlocked source-first prospective experiment**, with no rank26 win-rate estimate and no proof that 99.5% can or cannot be reached.
+
+
+## Public invalid-hand signature exposure, separate from optional card draws
+
+The supplied Rulebook §I.G also requires a player to show a **seven-card hand containing no Basic** during a mulligan, including when **both players** have no Basic and both restart. The other player may therefore know some *card names* before the ordinary turns. This channel does **not require** an opponent bonus-card offer. The general probabilistic method and its information-policy caveats were established by [Agent31's earlier Iron Thorns mulligan-signature study](agent31-paper-mulligan-public-signature-20261030.md). Here it is applied specifically to the unchanged fifth-candidate 60s.
+
+Agent5 ADP v2 has **four Thorton** and **four Tag Call**, all non-Basic. Across all physically revealed invalid seven-card hands prior to its first Basic-valid opening, exact probabilities are:
+
+- At least one **Thorton** revealed: **22.72429444%** of setups.
+- At least one **Tag Call** revealed: **22.72429444%**.
+- At least one card from **either family** revealed: **31.91160450%**.
+- At least one copy of **both families**, potentially across different failed hands: **13.53698437%**.
+
+For a concrete alternative *different-sized* card family, the frozen Apex Alchemy v0 has **three Boost Shake** plus **two Alolan Muk Evolution** cards: at least one of those five non-Basics is publicly revealed in **11.69688394%** of setups. This last percentage is an exposure of a five-copy signature versus an eight-copy signature, with different informational specificity. It does **not** establish that ADP is intrinsically more identifiable or exploitable than Apex. A source opponent might classify a deck or change its policy from publicly shown names, but no classifier, Ranger policy, or actual opponent response is demonstrated.
+
+With `b` starting Basics and `t` designated non-Basic copies in a sixty, let `p=C(60-b,7)/C(60,7)` and `s=1-C(60-b-t,7)/C(60-b,7)`. Independent complete redraws yield `P(ever publicly reveal a designated card)=p*s/(1-p+p*s)`. The both-family probability uses inclusion-exclusion of four-copy, four-copy and eight-copy events. The new evaluator [`mulliganReveal`](../../simulation/evaluation/agent50-mulligan-transfer.cjs) and [frozen-SFT assertions](../../tests/agent50-mulligan-transfer-source26.test.cjs) also reproduce Agent31's previously published four-Basic/eight-target control **50.63964993%**. Conditional Basic-valid setup composition and first-player choice are left unchanged.
+
+The original rank18 Regidrago has a previously documented source-owned Ranger-preload line ([Agent30 exact first-eight source audit](agent30-original-ranger-erases-adp-gx-five-source-ranks-20261102.md)), so seeing distinctive combo resources earlier could in principle inform an owner-visible Supporter choice even before ADP appears in the Active Spot. There is no quantified increase in the legal Ranger selection rate from this disclosure, and it would be invalid to give the source privileged knowledge of cards never publicly revealed. The [Agent31 native paper-timing discrepancy](../twinleaf/agent31-public-mulligan-reveal-timing-gap-20261030.md) remains a relevant policy-fidelity caveat: preserving historical public card identities for the opponent without leaking its current hidden deck and Prizes is an outstanding integration task.
