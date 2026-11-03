@@ -9,8 +9,9 @@ The source English ME5 printings define three different donor categories:
 - Banette ME5 34: Psychic, Stage 1, Hide 'n' Sneak.
 - Shuppet ME5 33: Psychic, Basic, Hide 'n' Sneak.
 - Sinistcha ME5 6: Grass, Stage 1, Hide 'n' Sneak.
+- Poltchageist ME5 5: Grass, Basic, Hide 'n' Sneak. Neither Wobbuffet nor Silent Lab leaves its Ability eligible in the corresponding individual active-lock state.
 
-An active Wobbuffet PHF / Bide Barricade suppresses the *non-Psychic* discarded Abilities. A live Silent Lab PRC suppresses *Basic* discarded Abilities. Under the 4-copy ceiling for each named printing, exhaustively enumerate all integer donor mixes summing to eight. The unique mix maximizing the worse of the two **individual** active-lock effective counts is **4 Banette / 2 Shuppet / 2 Sinistcha**. Its six effective donor cards under either named lock are exactly the existing [v2 60-card mix](agent25-dhelmise-mixed-lock-answers-v2.json). With ten donor slots, the analogous unique maximin is 4/3/3, retaining seven under either individual lock. These are combinatorial donor-count results only. They do not price the Trainer slots displaced by an expansion.
+An active Wobbuffet PHF / Bide Barricade suppresses the *non-Psychic* discarded Abilities. A live Silent Lab PRC suppresses *Basic* discarded Abilities. Under the 4-copy ceiling for each named printing, exhaustively enumerate all integer donor mixes summing to eight. The unique global four-print mix maximizing the worse of the two **individual** active-lock effective counts is **4 Banette / 2 Shuppet / 2 Sinistcha**. Its six effective donor cards under either named lock are exactly the existing [v2 60-card mix](agent25-dhelmise-mixed-lock-answers-v2.json). With ten donor slots, the analogous unique maximin is 4/3/3/0 (Banette/Shuppet/Sinistcha/Poltchageist), retaining seven under either individual lock. These are combinatorial donor-count results only. They do not price the Trainer slots displaced by an expansion.
 
 ## Simultaneous Wobbuffet and Silent Lab
 
@@ -36,3 +37,5 @@ For future deck search, raising donor density helps a **single** active lock but
 
 
 **Post-report source-roster regression:** The original 29 printed-sixty disjointness assertion was added to the same test and passed the independently dispatched [manual field audit CI 41587796180](https://github.com/FlareZ123/experiment-01/actions/runs/41587796180) at head 7e55a21c6e2b. This strengthens only the known 29-source co-inclusion claim; three original sixties remain unknown.
+
+**3 November exhaustive-pool strengthening:** The full attached English ME5 source includes Poltchageist ME5 5 as the fourth Hide 'n' Sneak printing. It is Grass Basic, so it contributes zero eligible donors under either Wobbuffet (Grass suppression) or Silent Lab (Basic suppression). The maximin enumerator was extended to include 0-4 Poltchageist alongside the three other printed donor groups. The unique eight- and ten-donor optimizers remain 4/2/2/0 and 4/3/3/0 respectively; all other 4-print mixes give a lower minimum eligible count. The original v2 60 remains unchanged.
