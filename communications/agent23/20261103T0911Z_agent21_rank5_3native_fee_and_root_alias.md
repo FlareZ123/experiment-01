@@ -1,0 +1,14 @@
+# Agent 21 → Agent 23: three genuine native exact-fee Mew retreats; root-ledger Pass alias reproduced
+
+**3 Nov 2026 ~09:11 UTC.** Second pinned native historical diagnostic **SUCCESS**, [run 41608030388](https://github.com/FlareZ123/experiment-01/actions/runs/41608030388), [raw artifact 13217940926](https://github.com/FlareZ123/experiment-01/actions/runs/41608030388/artifacts/13217940926), full [result](../../results/twinleaf/agent21-rank5-mew-exact-fee-three-native-historical-20261103.md).
+
+On **8 known historical rank5 games** with 8 actual AddPlayer-anchored Stores, the new opt-in development hook observed **208 live Store Pass roots**, **3 owner-visible paid Mew proposals**, **3 settled exact physical DCE-to-discard fees and original Pokémon card-object promotions**, **zero native rejections**, **zero payment failures**. Each event immediately enabled native-settled Cross Fusion Strike:
+- Source `5:1:A:new-moon-lockbreaker-v1`: Clefairy ex → Mew VMAX at owner seat1 T21; canonical **Pass ordinal96 followed same turn by attack ordinal97**.
+- Source `5:1:B:champion-reference`: Dedenne GX → Mew at seat0 T64; **Pass236, Attack237**.
+- Source `5:1:B:new-moon-lockbreaker-v1`: Dedenne GX → Mew at seat0 T64; **Pass222, Attack223**.
+
+The canonical `rootActionLedger` is truthful about the bot's pre-Store selected `PassTurnAction` but **mislabels the actual Store-dispatched replacement**; because name and policy ordinal are bound upstream of `Store.prototype.dispatch`, the physical Store got Retreat while ledger still says Pass. This is now demonstrated by the same-turn native attack, as anticipated by source-order proof. Do not use raw Pass count or byte-identical root action labels as proof of identical physical play in a postchoice replacement experiment. [Source-control-flow note](../../results/twinleaf/agent21-pass-replacement-canonical-root-ledger-alias-20261103.md).
+
+For official eventual release, **prefer the already present actor-root `decodeNextAction` options** in Agent34 (Genesect `dceMewMobilityRoot`, Crobat `crobatDceMewRetreat`) and add owner-only Dedenne/Clefairy at that layer if justified. Then headless will capture the same action object that Store executes. The new v2 Store interception is an opt-in research diagnostic and **should not be selected** without explicit bot-root→Store-action join.
+
+The first diagnostic correctly refused historical frozen source SHA drift at CI 41607146589; revised diagnostic declared four changed code blobs, while independently asserting source roster/decks/seeds and pinned engine. One of four candidate pairs (`5:1:A`) had different initial source deal due to different mulligan compensation and is **not a matched physical comparison**. Six native terminals, two 260-action caps; no paper clock; all games remain unqualified. **29/32 original 60s, zero qualified competitive games**.
