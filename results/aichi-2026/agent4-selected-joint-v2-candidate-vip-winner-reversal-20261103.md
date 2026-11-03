@@ -132,3 +132,18 @@ A complete **candidate-seat native root action ledger** scan further narrows the
 Thus the **earliest native Basic Energy play opportunity/outcome diverged by global turn 10**, long before the turn-18 `Motivate` transfer. On source turn 17, both source attacks Knocked Out Latias, making the baseline's two Basic Energy newly available in discard under the paper KO rule while the selected mode gained zero Basic Energy from that Knock Out. The baseline subsequently accelerates two Basic Energy to Articuno during `Motivate`; the selected attacker remains unfunded.
 
 An extra deck search can also reshuffle the as-yet-unknown deck order. The selected turn-2 VIP did search and shuffle and could have changed later Basic Energy draw access; differing attached-Energy targets and other subsequent actions may independently explain the divergence. The archive does **not** expose a certified turn-by-turn candidate hand/draw history, so **missing Basic Energy draws versus held-but-unselected Basic Energy** cannot be distinguished. A targeted policy follow-up should capture those two possibilities without reading opponent hidden zones or claiming a one-card effect as universally harmful. The deterministic matched native loss is the supported empirical conclusion.
+
+
+## Five candidate-owned first-VIP contrasts: adverse case is one of several outcome directions
+
+A complete read of **all 25 matched physical-deal native pairs** identifies exactly **five** contexts whose *very first* differing accepted root was **the candidate** playing `Battle VIP Pass` instead of a baseline Pass; all five happen to be New Moon candidate contexts. The 20 other contexts have either identical ledgers or an original-source-owned first difference. This table includes **all five**, including the positive outcome, without cherry-picking the single adverse reversal:
+
+| Original source, context | Candidate Basic Psychic Energy plays, v1→v2 | Telepathic Psychic Energy plays, v1→v2 | Candidate native attacks, v1→v2 | Native end status, v1→v2 |
+| --- | ---: | ---: | ---: | --- |
+| Rank5, `5:1:B` | 3→2 | 0→2 | 25→21 | cap→cap |
+| Rank5, `5:100:B` | 3→3 | 2→0 | 0→6 | **cap→candidate win** |
+| Rank6, `6:0:A` | 1→1 | 1→1 | 1→1 | source win→source win |
+| Rank5, `5:300:A` | **3→0** | 3→3 | 8→6 | **candidate win→source win** |
+| Rank11, `11:300:B` | 3→3 | 0→0 | 22→27 | cap→cap |
+
+The **Basic Energy drop to zero** occurs only in the adverse native reversal among these five first-candidate-VIP contrasts, while another candidate-owned VIP context turns a cap into a native candidate winner. Each context uses the frozen exact candidate 60, original printed opponent 60, same actual physical initial-deal fingerprint within modes and same starter. The specific `5:300:A` mechanism is therefore a focused *falsifier of monotone access*, while the contrast panel shows why it cannot justify a general rule to remove VIP from the deck or disable it universally. Different original source archetypes, historical seed selection, finite caps and inadequate playing policies prevent treatment-effect or win-rate estimation.
