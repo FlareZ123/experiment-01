@@ -39,6 +39,16 @@ Native dispositions, preserved without filtering:
 
 No native terminal is admitted as a paper-competitive game. Actual native damage, paper costs, source competence, tactically capable opponent continuation, owner-only information discipline, and the official match clock retain their independent vetoes. Agent4 has separately identified the unselected Secret Box category-search legality guard; payment acceptance alone does not certify the later trainer-category selection. These unrelated paper-qualification issues are **not** answered by first-action divergence.
 
+## Independently audited cross-candidate physical comparability
+
+The previous **26/26** restored identity statement compares the same *candidate* roster under the control/selected modes. For actual **champion-reference versus New Moon** comparisons, group the 26 rows into **13 distinct original-rank/repeat/candidate-seat/seed groups**, then compare the original-source physical SHA across the two *different* candidate roster arms, separately in each mode. Recover the rank-6 aborted champion digest from its native-abort sidecar.
+
+- **12/13 cross-candidate original-source physical pairs match** in the joint-v1 baseline, and the **same 12/13** match in selected-v2.
+- The **sole mismatch** is the historical rank5 group **`rank=5, repeat=101, candidateSlot=A, seed=198157155`**. Against champion, the original source fingerprint is `7ca732f19dcd4bc26e2cd0ff984b31a47392c5d6276f3e22daaab608a3099c39`; against New Moon it is `59409becd35dafc9e61ce9d91f66883d76afd7b5685a1b9d2114b68c26878c61`. The fingerprint difference is the same under both policy modes. The identical numeric seed therefore does **not** support a same-source-physical-deal candidate comparison for that group.
+- **All three fresh seed groups** have matching source setups across their two candidate sixties in both modes, *including* rank6 fresh seed 3738819225 after recovering the abort-sidecar digest. Rank6 nevertheless retains an engine abort and no competitive certification.
+
+**Comparison hierarchy:** source-deal equality across *modes* under a fixed candidate: **26/26 fingerprints retrievable**; source-deal equality across *different candidates* under a fixed mode: **12/13 pairs**. Neither figure certifies full-game parity after a policy divergence or satisfactory independent opponent choices.
+
 ## Crucial fresh source-deal counterexample
 
 In the **fresh** original-rank-5 source seed **1399343237**, candidate physical A / **New Moon** context `5:300:A:new-moon-lockbreaker-v1`, the first difference at global turn 2 is a **candidate** Battle VIP Pass replacing candidate Pass. The **original source played zero VIP in both modes**, yet its later native Genesect Techno Blast copy selections rose **2 to 4**. The champion-reference context under that same registered source seed produced zero Techno Blast selections in either mode, with identical control/selected action ledgers. Therefore an observed increase in **original-source attacks** can be downstream of an action selected by the **candidate-side** policy. Source-only treatment attribution would be invalid in this genuinely symmetric policy, even with an exact same-source-deal within-candidate comparison.
