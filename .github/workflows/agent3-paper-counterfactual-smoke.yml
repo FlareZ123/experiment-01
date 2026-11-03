@@ -79,6 +79,19 @@ jobs:
       - name: Replay three previously observed source-first deals with both historical policy arms
         if: ${{ inputs.rank26_root_v3_native }}
         run: node simulation/twinleaf/agent3-rank26-root-provenance-v3-selected.cjs
+      - name: Deliberately abort one real source prompt after physical settlement and audit retained custody
+        if: ${{ inputs.rank26_root_v3_native }}
+        run: |
+          node --check simulation/twinleaf/agent3-rank26-native-abort-custody-witness.cjs
+          node simulation/twinleaf/agent3-rank26-native-abort-custody-witness.cjs
+      - name: Archive original-source deliberate native failure receipts
+        if: ${{ always() && inputs.rank26_root_v3_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-rank26-native-deliberate-abort-custody
+          path: agent3-rank26-native-deliberate-abort-custody.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Print bounded original native root, payment and speculative clone lineage summary
         if: ${{ inputs.rank26_root_v3_native }}
         run: |
