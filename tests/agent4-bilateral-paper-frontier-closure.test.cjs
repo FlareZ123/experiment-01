@@ -52,6 +52,6 @@ test('current bilateral code binds chosen frontier to existing negative-only obs
     '../simulation/evaluation/agent41-bilateral-v2-development.cjs'),'utf8');
   assert.match(source,/ownerGenericTrainerFrontier,nativeOwnerTrainerFallback,/);
   assert.match(source,/ownerPaperNecessity:ownerGenericTrainerFrontier,/);
-  assert.match(source,/ownerTrainerRegisteredSixties:registeredNativeSeatDecks\\(\\s*trial,prepared\\)/);
+  assert.match(source,/ownerTrainerRegisteredSixties:registeredNativeSeatDecks\(\s*trial,prepared\)/);
   assert.equal(source.includes('ownerPaperNecessity=false,'),false);
 });
