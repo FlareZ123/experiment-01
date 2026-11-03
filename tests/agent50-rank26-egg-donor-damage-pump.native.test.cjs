@@ -115,22 +115,12 @@ function perform(x) {
     }else if(p.constructor.name==='ChoosePrizePrompt'){
       assert.equal(p.playerId,x.defender.id,
         'self-KO awards a genuine opponent-owned Prize choice');
-      const first=x.defender.prizes.findIndex(slot=>slot.cards.length>0);
-      assert.ok(first>=0);
-      const decoded=[
-        {tag:'number',value:first},
-        {tag:'array',value:[first]},
-        {tag:'selected-prize',value:[x.defender.prizes[first]]}
-      ].filter(row=>{
-        try{return p.validate(row.value,x.state)===true;}
-        catch{return false;}
-      });
-      assert.ok(decoded.length>0,JSON.stringify({
-        kind:p.constructor.name,promptKeys:Object.keys(p),
-        options:p.options??null,first,
-        validator:String(p.validate).slice(0,1000)
-      }));
-      x.store.dispatch(new ResolvePromptAction(p.id,decoded[0].value));
+      const nonempty=x.defender.prizes.filter(slot=>slot.cards.length>0);
+      const required=Math.min(p.options.count,nonempty.length);
+      const choice=nonempty.slice(0,required);
+      assert.equal(p.validate(choice,x.state),true,
+        'native Prize picker must accept exact number of physical opponent Prize slots');
+      x.store.dispatch(new ResolvePromptAction(p.id,choice));
     }else if(p.constructor.name==='WaitPrompt'){
       x.store.dispatch(new ResolvePromptAction(p.id,null));
     }else throw new Error('Unexpected native Damage Pump prompt '+p.constructor.name);
@@ -146,13 +136,13 @@ for(const seat of [0,1]){
       const x=stage(seat,variant);
       const {seen,transfers}=perform(x);
       const doubled=variant!=='egg-one';
-      assert.equal(x.source.bench[2].getPokemonCard(),null,
+      assert.equal(x.source.bench[2].getPokemonCard()??null,null,
         'first recipient Exeggcute at 30 damage should KO');
       assert.equal(x.source.discard.cards.includes(x.a),true);
       assert.equal(x.defender.getPrizeLeft(),x.opponentRemaining-(doubled?2:1),
         'only actual 30-HP self-KOs award opponent prizes');
       if(doubled){
-        assert.equal(x.source.bench[3].getPokemonCard(),null);
+        assert.equal(x.source.bench[3].getPokemonCard()??null,null);
         assert.ok(x.source.discard.cards.includes(x.b));
       }else{
         assert.strictEqual(x.source.bench[3].getPokemonCard(),x.b);
