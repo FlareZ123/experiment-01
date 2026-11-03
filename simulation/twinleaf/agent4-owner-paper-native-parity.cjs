@@ -46,7 +46,7 @@ function paperCensus(audit){
     selectedTrainerRootAccepted:0
   });
   const bySeat={0:counts(),1:counts()};
-  const vipExamples=[],paperOwnerRoots=[];
+  const vipExamples=[],paperOwnerRoots=[],guaranteedTargetPasses=[];
   for(const root of audit.roots){
     assert.ok(root.seat===0||root.seat===1);
     assert.equal(root.ownerTurnReceipt.actorSeat,root.seat);
@@ -61,6 +61,21 @@ function paperCensus(audit){
     c.remainingUnresolvedCopies+=p.remainingUnresolvedCopies;
     if(root.chosen?.trainer&&root.dispatch==='native-accepted')
       c.selectedTrainerRootAccepted++;
+    const certifiedVip=root.guaranteedK0FirstTurnVip??null;
+    if(certifiedVip&&root.chosen?.action==='PassTurnAction'&&
+      root.dispatch==='native-accepted'){
+      assert.equal(root.ownerTurnReceipt.provenPastFirstOwnerTurn,false);
+      assert.equal(certifiedVip.printing,'Battle VIP Pass FST');
+      guaranteedTargetPasses.push({
+        seat:root.seat,turn:root.turn,ordinal:root.ordinal,
+        ownerTurnReceipt:root.ownerTurnReceipt,
+        certificate:certifiedVip,
+        chosenAction:root.chosen.action,
+        nativeDispatch:root.dispatch,
+        paperSettlementNotVerified:true,
+        allCompetingOptionsNotEvaluated:true
+      });
+    }
     const unresolved=p.rows.filter(x=>x.paperPlayable===null);
     if(root.chosen?.action==='PassTurnAction'&&
       root.dispatch==='native-accepted'&&unresolved.length)
@@ -95,6 +110,7 @@ function paperCensus(audit){
       ordinal:root.ordinal,seat:root.seat,turn:root.turn,
       ownerTurnReceipt:root.ownerTurnReceipt,
       ownerPaperNecessity:p,
+      guaranteedK0FirstTurnVip:certifiedVip,
       selectedNativeAction:root.chosen,
       nativeDispatch:root.dispatch,
       nativeError:root.error??null,
@@ -104,6 +120,8 @@ function paperCensus(audit){
   return {
     version:VERSION,
     bySeat,vipExamples,paperOwnerRoots,
+    guaranteedTargetPasses,
+    guaranteedTargetPassCount:guaranteedTargetPasses.length,
     nativeEnumeratorIsNotPaperLegality:true,
     confirmedPaperLegalAvailableMoves:0,
     paperTargetAndCustodyVerified:false,
@@ -246,7 +264,8 @@ if(require.main===module){
         physicalMatched:group.allPhysicalDealMatched,
         actionMatched:group.allActionTraceMatched,
         paper:group.attempts[1].paperCensus?.bySeat??null,
-        vip:group.attempts[1].paperCensus?.vipExamples??[]
+        vip:group.attempts[1].paperCensus?.vipExamples??[],
+        K0VipPasses:group.attempts[1].paperCensus?.guaranteedTargetPasses??[]
       }))
     })+'\n');
   if(!result.allPhysicalAndDecisionParity||result.allAttempted!==6||
