@@ -52,6 +52,7 @@ jobs:
             tests/agent3-rank26-dowsing-pump-branches.test.cjs \
             tests/agent3-rank26-alternative-basic-starter.test.cjs \
             tests/agent3-compressor-root-provenance-v3.test.cjs \
+            tests/agent3-observed-policy-closure.test.cjs \
             tests/aichi-open-adjudication.test.cjs \
             tests/agent3-rank26-one-lightning-two-egg-chooser.test.cjs
 
