@@ -68,3 +68,20 @@ The manifest-locked Python enumerator now distinguishes VS Seeker (one copy) fro
 With VS Seeker permitted, the exact numerator is `8,163,343,558,830,768` on the same denominator `10,767,081,551,322,387,200`; relative to the strict second-Thorton route this is **1.514300889×**. Conditional on the T1 triple-target setup, the more inclusive direct-hand T2 completion fraction is **2.661285205939%**. A separately seeded physical 1,000,000-shuffle check (seed `7115005`) obtained 601,407 Basic-valid openings, 17,090 strict T1 opportunities, 289 second-Thorton completions and **453 completions with VS Seeker**, i.e. an empirical **0.07532337%** among valid starts against exact **0.07581761%**.
 
 This demonstrates a material native *retrieval channel* within the unchanged deck, while preserving the very low no-extra-search T2 conversion rate. It does not account for Item lock on VS Seeker, Tool/Energy denial, T2 VSTAR tutors or active-spot survival. No deck alteration is recommended from these isolated probabilities.
+
+
+## Existing Ultra Ball: third exact direct-hand T2 channel
+
+The fixed v2 list also contains **Ultra Ball SWSH9 150 ×4**, which can search Regidrago VSTAR when none is held, provided a VSTAR survives in the deck and the two-card discard can be paid. With only the defined first-turn Compressor, Thorton and DDE attachment played and one original Active Basic removed from the opening hand, T2 begins with exactly five physical hand cards after its natural draw. If the required T2 Supporter or VS Seeker, Basic Grass/Fire and Ultra Ball are among those five, **two other physical cards are available to discard**. Their strategic discardability is unproven. Item lock or opponent interference remains excluded.
+
+The SHA-locked Python enumerator now separates Ultra Ball ×4 and searches the actual post-Prize deck for VSTAR. It requires all three original Compressor targets to survive in the deck and, when Ultra Ball must search, an additional searchable VSTAR. Its T2 draw counting subtracts the specific Compressor target removed from each of the three target categories; a previously discarded card cannot also be a natural draw.
+
+| T2 route after same strict T1 GX | Basic-valid opening probability |
+| --- | ---: |
+| Second Thorton and held VSTAR/Basic Energy | **0.050067729202%** |
+| Second Thorton **or VS Seeker** and held VSTAR/Basic Energy | **0.075817606841%** |
+| Above Supporter recovery, held VSTAR **or physically payable Ultra Ball search**, held Basic Energy | **0.159943409900%** |
+
+The all-channel numerator is `17,221,237,379,951,920` with unchanged denominator `10,767,081,551,322,387,200`. The Ultra Ball extension adds **0.084125803059 percentage points** above the VS Seeker route. The complete three-channel strict T2 event occurs in **5.61419766%** of the strict T1 opening subset, with all draw/search exclusions unchanged.
+
+Independent 1,200,000-game physical permutation simulation (random seed `12122023`) observed 721,076 Basic-valid opening hands, 20,437 qualifying T1 starts and 1,132 complete T2 hands using the three channels: empirical **0.15698761%**, consistent with the exact 0.15994341%. This was local computation without Actions spend. All results are physical opportunity predicates; paper usability, discard desirability, actual owner choices, full opponent continuation and qualified games remain unproven.
