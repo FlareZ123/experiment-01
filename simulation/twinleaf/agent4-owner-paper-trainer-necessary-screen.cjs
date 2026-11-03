@@ -3,8 +3,12 @@
 const assert=require('node:assert/strict');
 const {necessaryTrainerHandPaymentGate}=
   require('./agent49-trainer-hand-payment-veto.cjs');
+const {PRINT_RULES:PRIZE_RULES,publicPrizeTrainerPrerequisite}=
+  require('../evaluation/agent30-public-prize-trainer-necessary.cjs');
+const {REMOVAL_PRINTINGS,removalTargetCertificate}=
+  require('./agent6-public-removal-target-certificate.cjs');
 
-const VERSION='agent4-owner-paper-trainer-necessary-screen-v5-pinned-native-aliases';
+const VERSION='agent4-owner-paper-trainer-necessary-screen-v6-prize-removal-composition';
 const VIP='Battle VIP Pass FST';
 /**
  * Exact paper source printings with an exclusive first-owner-turn window.
@@ -107,7 +111,8 @@ function printedTrainerTurnScreen(view,printing,ownerTurnReceipt=null){
 
 /**
  * Separate physically held/enum-offered, generic-public, printed-temporal,
- * mandatory owner-hand payment and unresolved target/settlement states.
+ * mandatory owner-hand payment, exact public Prize predicates, and public
+ * removal-target evidence, with unresolved payment/settlement states.
  * This is a negative-certificate upper-bound census, never a list of
  * paper-legal available moves. Each repeated held-copy/root is retained.
  *
@@ -130,10 +135,22 @@ function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
     const temporal=printedTrainerTurnScreen(view,row.printing,ownerTurnReceipt);
     const payment=necessaryTrainerHandPaymentGate(view,row);
     const publicBlocker=row.publicBlocker??null;
+    const knownPrizeRule=Object.hasOwn(PRIZE_RULES,row.printing);
+    const publicPrizeCountsAvailable=
+      Number.isSafeInteger(view.ownPublic?.prizeCount)&&
+      Number.isSafeInteger(view.opponentPublic?.prizeCount);
+    // Native actorObservation supplies public counts. Pure legacy fixtures
+    // lacking those counts remain UNKNOWN rather than a fabricated veto.
+    const prize=knownPrizeRule&&publicPrizeCountsAvailable?
+      publicPrizeTrainerPrerequisite(view,row):null;
+    const removal=Object.hasOwn(REMOVAL_PRINTINGS,row.printing)?
+      removalTargetCertificate(view,row.handIndex):null;
     const blockers=[
       ...(publicBlocker?['generic-public:'+publicBlocker]:[]),
       ...(temporal.blocker?['printed-temporal:'+temporal.blocker]:[]),
-      ...(payment.blocked?['printed-hand-payment:'+payment.reason]:[])
+      ...(payment.blocked?['printed-hand-payment:'+payment.reason]:[]),
+      ...(prize?.blocked?['printed-prize:'+prize.reason]:[]),
+      ...(removal?.blockers??[]).map(x=>'printed-removal-target:'+x)
     ];
     return {
       handIndex:row.handIndex,printing:row.printing,type:row.type,
@@ -153,7 +170,17 @@ function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
           payment.knownPrintedCost?'physically-possible-unpaid':
             'unmodeled-printing',
       printedHandPaymentModes:payment.modeReceipts,
-      exactTargetEligibility:'unverified',
+      printedPrizePrerequisite:!knownPrizeRule?'not-modeled':
+        !publicPrizeCountsAvailable?'public-prize-count-unavailable':
+        prize.blocked?'proven-ineligible':
+          'public-prize-predicate-satisfied-other-conditions-unknown',
+      printedPrizeCertificate:prize,
+      exactTargetEligibility:removal?
+        removal.eligibleTargetCount>0?'public-target-present':
+        removal.protectedStadiums.length>0?
+          'prism-star-stadium-protection-unresolved':
+          'proven-no-public-target':'unverified',
+      removalTargetCertificate:removal,
       nativeStoreAcceptance:'unverified',
       physicalCustodySettlement:'unverified',
       discreteStrategicBenefit:'unassessed',
@@ -175,6 +202,10 @@ function screenOwnerTrainerPaperNecessity(view,rows,ownerTurnReceipt=null){
     allRemainingArePaperLegal:false,
     independentOfNativeEnumerator:true,
     opponentConcealedInformationUsed:false,
+    negativeProofFamilies:['generic-public','printed-temporal',
+      'printed-hand-payment','printed-prize','printed-removal-target'],
+    publicPrizePredicatePositiveIsNotPaperLegality:true,
+    publicTargetPositiveIsNotPaperLegality:true,
     gameCompetenceOrWinRateCertified:false,
     rows:examined
   };
