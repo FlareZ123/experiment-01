@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   frozen-rank6-four-arm:
-    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' }}
+    if: ${{ github.ref != 'refs/heads/agent41-joint-source-r5-r11-v1-20261103' && github.ref != 'refs/heads/agent22-rank5-options-transport-20261103' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -90,5 +90,41 @@ jobs:
           path: |
             agent41-joint-source-r5-r11-v1-output.json
             simulation/evaluation/agent41-joint-source-r5-r11-v1.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent22-rank5-options-transport:
+    if: ${{ github.ref == 'refs/heads/agent22-rank5-options-transport-20261103' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Load registered pinned native engine
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify frozen common-physical rank5 transport preregistration and code
+        run: |
+          node --check simulation/evaluation/agent22-rank5-options-transport-v1.cjs
+          node simulation/evaluation/agent22-rank5-options-transport-v1.cjs --inspect-only
+      - name: Install pinned engine dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Execute all sixteen registered original rank5 native attempts
+        run: node simulation/evaluation/agent22-rank5-options-transport-v1.cjs
+      - name: Preserve original native attempts and the frozen input
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-rank5-transport-same-code-16-native
+          path: |
+            agent22-rank5-options-transport-v1-output.json
+            simulation/evaluation/agent22-rank5-options-transport-v1.json
           if-no-files-found: warn
           retention-days: 30
