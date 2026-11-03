@@ -36,7 +36,8 @@ function run(){
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
   const {GamePhase}=native('game/store/state/state');
   const {TrainerCard}=native('game/store/card/trainer-card');
-  const {TrainerType}=native('game/store/card/card-types');
+  const {PokemonCard}=native('game/store/card/pokemon-card');
+  const {TrainerType,Stage}=native('game/store/card/card-types');
   const {ActionEnumerator}=native('advanced-bot/action-enumerator');
   const {PlayCardAction}=native('game/store/actions/play-card-action');
 
@@ -57,7 +58,8 @@ function run(){
     const observed=withNativeOwnerTrainerFrontier(
       ()=>runMatch(request),{
         Store,SimpleTacticsAi,GamePhase,ActionEnumerator,
-        TrainerCard,TrainerType,PlayCardAction,
+        TrainerCard,TrainerType,PlayCardAction,PokemonCard,Stage,
+        ownRegisteredSixties:[deckA,deckB],
         allCards:manager.getAllCards(),seats:[0,1],maxRoots:90
       });
     const replay=runMatch(request);
@@ -124,6 +126,10 @@ function run(){
       rootDecisionsObserved:full.length,
       fullPhysicalMatchedABA:rows.length,
       fullGameTraceMatchedABA:rows.length,
+      firstOwnerTurnVipK0CertifiedPasses:full.filter(root=>
+        root.guaranteedK0VipPassed===true).length,
+      firstOwnerTurnVipK0CertifiedOffers:full.filter(root=>
+        root.guaranteedK0FirstTurnVip!==null).length,
       rootsHoldingTrainer:full.filter(root=>root.observedOwnerHandTrainerCopies>0).length,
       rootsWithUnblockedGenericTrainer:genericUnblocked.length,
       nativeActionEnumeratorOfferedTrainerCopies:
