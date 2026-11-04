@@ -375,3 +375,137 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+// Source-compatible rank3 subset, synthetic two-card opposing deck.
+// The treatment now has a direct native terminal consequence from the
+// printed double-Burrow line. The original 60s and the opponent's earlier
+// play history are intentionally NOT claimed to be reconstructed.
+const {GameWinner}=native('game/store/state/state');
+const {PassTurnAction}=native('game/store/actions/game-actions');
+const {actorObservation}=
+  require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {publicCatalog}=
+  require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
+const {chooseBunnelbyImminentDeckoutFloat}=
+  require('../simulation/twinleaf/agent2-bunnelby-deckout-float-frontier.cjs');
+const {chooseGenericFundedFloatStone}=
+  require('../simulation/twinleaf/agent14-generic-funded-floatstone-frontier.cjs');
+
+/** @param {0|1} seat */
+function stagedOpposingTwoCardDeck(seat){
+  const s=stageFundedRank3Bunnelby(seat);
+  while(s.foe.deck.cards.length>2){
+    const c=s.foe.deck.cards[0];
+    s.foe.deck.moveCardTo(c,s.foe.discard);
+  }
+  assert.equal(s.foe.deck.cards.length,2);
+  assert.equal(s.foe.discard.cards.length,8);
+  return s;
+}
+/** @param {object} s */
+function settleSimpleWaits(s){
+  const types=[];
+  for(let i=0;i<12;i++){
+    const p=s.state.prompts.find(x=>x.result===undefined);
+    if(!p)break;
+    assert.equal(p.constructor.name,'WaitPrompt',
+      'Unexpected owner choice in deterministic native phase transition');
+    types.push(p.constructor.name);
+    s.store.dispatch(new ResolvePromptAction(p.id,null));
+  }
+  assert.equal(s.store.hasPrompts(),false);
+  return types;
+}
+
+for(const seat of [0,1]){
+  test('rank3 Float double Burrow produces real two-card deckout terminal seat '+seat,()=>{
+    const control=stagedOpposingTwoCardDeck(seat);
+    const trial=stagedOpposingTwoCardDeck(seat);
+    assert.equal(control.fullPhysicalFingerprint,trial.fullPhysicalFingerprint);
+    assert.deepEqual(control.foe.deck.cards.map(c=>c.fullName),
+      trial.foe.deck.cards.map(c=>c.fullName));
+    assert.equal(chooseBaseline(control).result,undefined);
+    const catalog=publicCatalog();
+    const view=actorObservation(trial.state,seat);
+    assert.equal(view.opponentPublic.deckCount,2);
+    const deckoutIntent=chooseBunnelbyImminentDeckoutFloat(view,catalog);
+    assert.ok(deckoutIntent,'Visible printed two-Burrow terminal must be proposed');
+    assert.equal(deckoutIntent.kind,'attach-emergency-floatstone');
+    assert.equal(deckoutIntent.handIndex,1);
+    assert.equal(deckoutIntent.targetAttackName,'Burrow');
+    const generic=chooseGenericFundedFloatStone(view,catalog);
+    assert.equal(generic,null,
+      'Existing damage-gated mobility planner omits this zero-damage attack');
+
+    // Control stays on the unfunded-retreat Snorlax. Passing the turn
+    // cannot cause two Burrow discards and lets the opponent draw one.
+    control.store.dispatch(new PassTurnAction(control.owner.id));
+    const controlWaits=settleSimpleWaits(control);
+    assert.equal(control.state.winner,GameWinner.NONE);
+    assert.equal(control.foe.deck.cards.length,1);
+    assert.equal(control.foe.discard.cards.length,8);
+    assert.equal(control.foe.hand.cards.length,1);
+
+    const action=chooseSelected(trial).result.result;
+    assert.ok(action instanceof PlayCardAction);
+    assert.equal(action.handIndex,deckoutIntent.handIndex);
+    trial.store.dispatch(action);
+    const freeCost=new CheckRetreatCostEffect(trial.owner);
+    trial.store.reduceEffect(trial.state,freeCost);
+    assert.equal(freeCost.cost.length,0);
+    trial.store.dispatch(new RetreatAction(trial.owner.id,0));
+    assert.equal(trial.owner.active.getPokemonCard().fullName,'Bunnelby PRC');
+    trial.store.dispatch(new AttackAction(trial.owner.id,'Burrow'));
+    assert.equal(trial.foe.discard.cards.length,9);
+
+    const nativeChoices=[];
+    const {GameMessage}=native('game/game-message');
+    for(let j=0;j<15;j++){
+      const p=trial.state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      const name=p.constructor.name;
+      nativeChoices.push(name);
+      if(name==='WaitPrompt'){
+        trial.store.dispatch(new ResolvePromptAction(p.id,null));
+      }else if(name==='ConfirmPrompt'){
+        assert.equal(p.playerId,trial.owner.id);
+        assert.equal(p.message,GameMessage.WANT_TO_USE_ABILITY);
+        trial.store.dispatch(new ResolvePromptAction(p.id,true));
+      }else if(name==='ChooseAttackPrompt'){
+        assert.equal(p.playerId,trial.owner.id);
+        assert.equal(p.cards[0].fullName,'Bunnelby PRC');
+        const chosen=p.cards[0].attacks.find(a=>a.name==='Burrow');
+        assert.equal(p.validate(chosen),true);
+        trial.store.dispatch(new ResolvePromptAction(p.id,chosen));
+      }else{
+        assert.fail('Unrecognized native terminal prompt '+name);
+      }
+    }
+    assert.equal(trial.store.hasPrompts(),false);
+    assert.equal(trial.foe.discard.cards.length,10);
+    assert.equal(trial.foe.deck.cards.length,0);
+    assert.equal(trial.state.phase,GamePhase.FINISHED);
+    assert.equal(trial.state.winner,seat);
+    assert.equal(nativeChoices.filter(x=>x==='ChooseAttackPrompt').length,1);
+    assert.equal(nativeChoices.filter(x=>x==='ConfirmPrompt').length,1);
+    console.log('AGENT2_RANK3_FLOAT_DOUBLE_BURROW_TERMINAL',JSON.stringify({
+      physicalSeat:seat,
+      inputFingerprint:trial.fullPhysicalFingerprint,
+      opponentDeckAtBranch:2,
+      controlKind:'FSS-first-HOLD-then-PassTurn',
+      controlRemainingDeck:control.foe.deck.cards.length,
+      controlWinner:control.state.winner,
+      controlNormalDraw:control.foe.hand.cards.length,
+      treatment:'Float free retreat, Burrow, Omega Barrage Burrow',
+      cardsGenuinelyDiscardedByBurrow:2,
+      opponentDeckAtTerminal:trial.foe.deck.cards.length,
+      nativeTerminalWinner:trial.state.winner,
+      nativeFinishedPhase:trial.state.phase,
+      rootIntent:deckoutIntent.kind,
+      damageOnlyMobilityIntent:generic,
+      controlWaits,nativeChoices,
+      originalFullSixtyReconstructed:false,
+      competitiveGamesQualified:0
+    }));
+  });
+}
