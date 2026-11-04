@@ -38,7 +38,7 @@ function printedHandDiscardModes(rules){
   if(single)return [1];
   // 'from your discard pile into your hand' is a recovery effect, not a
   // discard FROM hand. Preserve review for unidentified actual hand discards.
-  const withoutDiscardPile=text.replace(/discard pile/g,'discard-zone');
+  const withoutDiscardPile=text.replace(/discard pile/g,'spent-zone');
   assert.ok(!/discard.{0,50}(?:your )?hand/.test(withoutDiscardPile),
     'Unknown discard-from-hand text needs human review');
   return [0];
