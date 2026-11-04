@@ -99,7 +99,8 @@ function runJoinedIssue25V4(deps = {}) {
   assert.equal(typeof attackLayer, 'function');
   const selected = runSymmetricIssue25V1({
     runner: deps.runner ?? runDevelopment,
-    layers: {...deps.layers, firstBlockedPromptEnvelope: attackLayer}
+    layers: {...deps.layers, firstBlockedPromptEnvelope: attackLayer},
+    registeredTrialIds: deps.registeredTrialIds
   });
   const attack = selected.diagnostic.audit?.firstBlockedPromptEnvelope ?? null;
   const manifest = {
