@@ -42,3 +42,7 @@ jobs:
         run: node --test tests/agent50-owner-public-acknowledgements.test.cjs
       - name: Issue25 native owner mulligan and wait prompt next fallback boundary
         run: node --test tests/agent50-issue25-owner-public-ack-quarantine.native.test.cjs
+      - name: Issue25 pure owner mandatory ShowCards private-zone boundary
+        run: node --test tests/agent50-owner-mandatory-showcards.test.cjs
+      - name: Issue25 native owner ShowCards next gate with direct source deal receipts
+        run: node --test tests/agent50-issue25-owner-showcards-quarantine.native.test.cjs
