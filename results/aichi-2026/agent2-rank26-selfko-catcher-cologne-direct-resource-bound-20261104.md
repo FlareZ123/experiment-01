@@ -4,7 +4,7 @@
 
 ## Source-derived opportunity and rule reasoning
 
-The authenticated [original 60](full-decklists.json) contains exactly: one `Meloetta ex BLK44`, four `Unown AOR30`, two `Exeggcute PLF4`, four `Risky Ruins MEG127`, four `Damage Pump LOR156`, one `Counter Catcher PAR160`, and one `Canceling Cologne ASR136`. All these rows retain the original source's printed set/collector labels. The bundled card pool's corresponding records are `sv11b-44` for Meloetta if present in later English catalogue, `xy7-30`, `bw9-4`, `me1-127`, `swsh11-156`, `sv4-160`, and `swsh10-136`. The relevant verified texts are:
+The authenticated [original 60](full-decklists.json) contains exactly: one `Meloetta ex BLK44`, four `Unown AOR30`, two `Exeggcute PLF4`, four `Risky Ruins MEG127`, four `Damage Pump LOR156`, one `Counter Catcher PAR160`, and one `Canceling Cologne ASR136`. All these rows retain the original source's printed set/collector labels. The bundled English convenience card pool identifies the checked Unown, Egg, Stadium, Pump, Catcher and Cologne as `xy7-30`, `bw9-4`, `me1-127`, `swsh11-156`, `sv4-160`, and `swsh10-136`; these IDs are lookup keys rather than proof of Japanese-event card-print legality. The relevant verified texts are:
 
 - Risky Ruins: newly Benched Basic non-Darkness Pokémon receives **two 10-damage counters** during its player's turn.
 - Unown AOR30: Basic Psychic, **60 HP**. Its Farewell Letter self-discard explicitly says it is **not a Knock Out** and therefore does not create the needed Prize disparity.
