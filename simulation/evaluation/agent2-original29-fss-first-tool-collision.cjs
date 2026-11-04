@@ -109,7 +109,7 @@ function exactOpeningCollision(counts){
       const remaining=7-f-t;
       const factor=choose(fss,f)*choose(otherTool,t)*
         BigInt(f)*SCALE/BigInt(f+t);
-      any+=factor*choose(60-fss-otherTool,remaining);
+      any+=factor*(choose(60-fss-otherTool,remaining)-choose(rest,remaining));
       for(let b=1;b<=Math.min(nonV,remaining);b++)
         noV+=factor*choose(nonV,b)*choose(rest,remaining-b);
     }
