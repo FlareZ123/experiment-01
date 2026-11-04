@@ -28,6 +28,18 @@ The second prompt has an empty physical offered pool despite native min 2, and p
 
 Third previously observed fallback: `OrderCardsPrompt` / `CHOOSE_CARDS_ORDER` on seat1 turn9; this source is outside the scope of the own-hand discard A/B, and is separately addressed by source-specific Future Sight work.
 
+## Independently matched accepted attack roots, compiled native CI
+
+A final run after fixing the public root-ledger projection proved the exact **accepted attack names** immediately before each unsupported prompt, under the frozen four trials and both arms. [CI 41870721788](https://github.com/FlareZ123/experiment-01/actions/runs/41870721788) **SUCCESS**, test source commit `9f481589c7776f5e9fb5886eaafbc3dd9d6ae8fe`.
+
+| Historical attempt | Last real accepted attack before failing native prompt | Prompt interpretation |
+| --- | --- | --- |
+| rank6 / champion-reference, 37 roots | `Night Watch` | Physical candidates are opposing-hand cards, rather than owner-hand payment; exact-source reducer shape in pinned `Trevenant & Dusknoir-GX SMP 217` |
+| rank11 / champion-reference, 17 roots | `Get Lost` | Choose from opponent's discard zone, empty eligible pool and cancelable native prompt; the exact source is `Girafarig LOT` |
+| rank11 / New Moon, 42 roots | `Future Sight` | Owner sees an exact bounded deck-order prompt, separately source-covered by Agent30/Agent36 |
+
+This accepted root ledger is **positive attack-name association**, not a full paper-semantics certificate or independent source-provenance for every native prompt. The read-only source-zone observations and pinned card reducers provide independent corroboration. The previously proposed zero-card Night Watch hypothesis is explicitly rejected: pinned `Trevenant & Dusknoir-GX` source returns early when opponent hand has zero cards and would not generate the empty, cancelable Get Lost prompt.
+
 ## Decision
 
 **Do not widen generic hand-discard handling on message text alone.** Require positive source identification and legitimate physical-zone membership. A source-specific Night Watch owner policy must select opaque opposing-hand positions with genuine randomization and prove Store movement; a cancelable empty offer must be traced to its originating printed card and checked against cancel semantics. Either improvement needs a new registered comparison and explicit failure/cap retention.
