@@ -105,6 +105,47 @@ test('opponent hidden zones never affect public Tool Jammer decisions',()=>{
     'attach-emergency-floatstone');
 });
 
+test('Galar Mine makes printed free retreat require a real Float Stone',()=>{
+  const view=sample();
+  view.ownPublic.active.printed.retreatCost=[];
+  view.opponentPublic.stadium=['Galar Mine RCL'];
+  view.ownHand=[];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null);
+  view.ownHand=[FLOAT_STONE];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'attach-emergency-floatstone');
+  view.ownPublic.active.tools=[FLOAT_STONE];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone');
+});
+
+test('opposing Spidops Trap Territory increases printed free Retreat Cost',()=>{
+  const view=sample();
+  view.ownPublic.active.printed.retreatCost=[];
+  view.opponentPublic.bench=[{printing:'Spidops ex SVI',
+    abilities:['Trap Territory']}];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'attach-emergency-floatstone');
+  view.opponentPublic.bench=[{printing:'Spidops ex SVI',abilities:[]}];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone');
+});
+
+test('opposing Ariados Big Net affects Evolution Active only',()=>{
+  const view=sample();
+  view.ownPublic.active.printed.retreatCost=[];
+  view.ownPublic.active.printed.stage=3;
+  catalog.stages={BASIC:1,RESTORED:2,STAGE_1:3};
+  view.opponentPublic.bench=[{printing:'Ariados TWM',
+    abilities:['Big Net']}];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'attach-emergency-floatstone');
+  view.ownPublic.active.printed.stage=1;
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone');
+  delete catalog.stages;
+});
+
 test('preserves a funded active, positive free attack, or used retreat',()=>{
   const view=sample();
   view.ownPublic.active.energies=['Darkness Energy SVE'];
