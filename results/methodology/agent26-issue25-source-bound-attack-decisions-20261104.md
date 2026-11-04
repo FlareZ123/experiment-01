@@ -1,0 +1,42 @@
+# Source-bound ATTACK prompt resolution: Night Watch, Get Lost and their typed continuation
+
+**Agent 26 | 4 November 2026 | developmental four-arm original-source CI | zero competitive games.**
+
+## Why this belongs in Issue #25
+
+The common bilateral development runner had two previously source-attributed blocked `ChooseCardsPrompt` instances: **Trevenant & Dusknoir-GX SMP Night Watch** at rank-6/champion-reference source seat 0, turn 5, and **Girafarig LOT Get Lost** at rank-11/champion-reference source seat 1, turn 3. [Agent 30's printed-source observer](../../simulation/twinleaf/agent30-attack-printed-choice-provenance.cjs) proved both exact card reducers and their public/private zone origins without reading concealed card identities.
+
+The pinned [Night Watch reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx.ts) requests random two **opponent-hand** cards, then a mandatory reveal and owner deck shuffle. The pinned [Get Lost reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/sets/08-sun-and-moon/set-lost-thunder/girafarig.ts) requests two cards from the **public opponent discard** even when fewer than two exist. The supplied Advanced Player's Rulebook section II.A directs selecting as many as possible when a fixed number exceeds the available objects. The existing [Agent29 exact-print Get Lost paper hook](../../simulation/twinleaf/agent29-girafarig-getlost-paper-hook.cjs) corrects that lower-cardinality prompt.
+
+## Executable change and safety boundary
+
+[Developmental v3 source-bound owner decision bridge](../../simulation/twinleaf/agent26-origin-bound-attack-choices.cjs) reversibly stamps native prompts only inside the printed card's actual attack reducer, checking attack identity, original printed name, exact opponent zone, owner, and prompt shape. It makes these choices:
+
+1. **Night Watch:** uniformly sample opaque physical hand **positions**, using the already tested [Agent12 rejection-sampled source](../../simulation/twinleaf/agent12-nightwatch-paper-random-chooser.cjs), a precommitted deterministic seed and source prompt nonce. No card printing or hidden identity is used to select.
+2. **Get Lost:** select the first two references in the publicly known opposing discard, or all zero/one available cards **only when the separate paper-correcting hook has made the native prompt mandatory with exactly that cardinality**. The selection is a legal neutral developmental policy, with no assertion that it is tactically optimal.
+3. **Night Watch reveal:** source-stamped mandatory ATTACK-phase `ShowCardsPrompt` gets a true acknowledgement without reading the revealed card identities.
+4. **Night Watch shuffle:** the bridge contains a source-marked independent uniform shuffle if a caller sends that prompt to `decodeNextAction`. **Important runtime distinction:** the [current headless runner](../../simulation/twinleaf/headless.cjs) itself resolves `ShuffleDeckPrompt` before calling either seat's bot, using its seeded `deckPermutation`. Thus a marked shuffle in the bridge's audit is **not** evidence that the bridge's shuffle decision executed in this runner.
+
+Unsupported prompts delegate to the outer [Agent4 raw-State-decoder quarantine](../../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs). This guarantees only that the original unsafe native decoder is not invoked in observed branches; the whole candidate decision policy remains unqualified for hidden-information safety and game strength.
+
+[Pure two-seat contract tests](../../tests/agent26-origin-bound-attack-choices.test.cjs) cover opaque hidden-hand reorder invariance, exact source identity, Get Lost with zero-card corrected discard, mandatory reveal and prompted shuffle with a native-like injected constructor. These pure tests passed in the pinned [original-source CI #41777010464](https://github.com/FlareZ123/experiment-01/actions/runs/41777010464).
+
+## Actual original-source evidence across the frozen four arms
+
+The [four-arm native canary](../../tests/agent26-issue25-two-source-attack-choices.native.test.cjs) composes the existing owner-only starting Pokémon, public ACK, mandatory ShowCards and Future Sight policies with the Agent29 Get Lost paper hook and this bridge. It uses the unchanged historical `6:0:A` and `11:2:B` champion/New Moon original registered sixties, seeds, physical seats, actor-only development mode and **48 native roots per attempt**.
+
+| Run / behavior | Actual recorded evidence |
+| --- | --- |
+| [CI 41776063742, v1](https://github.com/FlareZ123/experiment-01/actions/runs/41776063742) | Original printed Night Watch selected two positions `[0,4]` in an actual five-card opposing hand. Champion rank-6 then failed closed at attack-phase `ShowCardsPrompt`. Original Get Lost arrived with opposing discard **0**, still native min 2/max 2, and correctly declined rather than fabricating two choices. Canary expected both and therefore failed. |
+| [CI 41776473419, v2](https://github.com/FlareZ123/experiment-01/actions/runs/41776473419) | **Green** compiled/manual CI. Original Get Lost selected **zero** real public-discard references at turns **3, 5, 7** under the Agent29 source correction, with the rank-11 champion arm progressing to 48 capped roots, turn 9. Night Watch made one real two-card position choice, then failed closed at the mandatory reveal. Four original attempts retained; 0 qualified games. |
+| [CI 41777010464, v3](https://github.com/FlareZ123/experiment-01/actions/runs/41777010464) | All **four** original runs now **returned** at root 48. Rank-6 champion progressed to turn 7, with **two** genuine Night Watch two-position choices and a source-stamped `ShowCardsPrompt` that the bridge actually acknowledged. Rank-11 champion progressed to turn 9, with **three** native Get Lost zero-card selections. Future Sight remained source-marked once. **Zero** calls to the unsafe native decoder. The CI job was red because its new test incorrectly required the bridge's *own* ShuffleDeckPrompt handler to fire, although the headless loop directly dispatches shuffle before bot selection. This incorrect test expectation was removed in the later commit; that revision is not yet attested by a compiled run. |
+
+At v3, the actual two rank-6 source decks have the same exposed source-deal digest `2ce05954cf7a87661c3dc42c242ec6c10f8c9caa9a4a60c0d3580f23613744d1`, and both rank-11 arms have `9bc69d70743d1c2d0e1406076a817309a0ae1fd73a68da3c27e1e76900d2b5f5`, *under this frozen input-order and seed protocol only*. All attempts are historic/post-observation and 48-action-censored. There is **no unbiased new win-rate denominator**.
+
+## Important next gate, with explicit limitations
+
+The corrected native canary now checks the rank-6 champion's actual post-Store `rootActionLedger` for a turn-5 owner `ShowCardsPrompt` and opponent `ShuffleDeckPrompt` rather than confusing headless auto-dispatch with bot intervention. **This exact final assertion still requires CI verification.** For complete Night Watch physical paper settlement, independently verify selected references leave the opponent's hand, arrive in its deck, and remain there after the shuffle; the current aggregate root proof does not by itself certify all zone transitions.
+
+All four original arms remained **unfinished** and capped at 48 roots. Some apparent progress comes from resolving previously blocked prompts and says nothing about competent choice of ATTACK roots. Get Lost repeatedly attacking an empty discard is a *decision-quality warning*, not a competitive success. The starting-Basic policy was Agent50's greedy development comparator only, not an appointed shared canonical setup contract. No fixed 60 is promoted, no final bilateral policy is selected, and no full paper-legal/25-minute-clock/32-opponent win is claimed.
+
+**Integration request:** the Issue #25 steward can adopt the exact-print handlers as a narrow dependency after selecting one actually running symmetric two-seat profile, then require an owner-observation and native Store transition ledger. Keep the existing quarantined unsafe fallback, source printing provenance and headless RNG provenance explicit. Do not create an additional workflow; the tests were added to the existing manual [Agent30 Future Sight native workflow](../../.github/workflows/agent30-viv-future-sight-native.yml).
