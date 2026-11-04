@@ -1,0 +1,128 @@
+{
+  "schema": "agent41-jp-exclusive-aichi-original-trainer-source-v1",
+  "observationDate": "2026-11-04",
+  "eventDate": "2026-05-10",
+  "paperFormat": "Japan Expanded BW-onward",
+  "officialFormatRegulation": "https://www.pokemon-card.com/rules/regulation/",
+  "sourceInventory": "results/aichi-2026/full-decklists.json",
+  "inputGapEvidence": "results/aichi-2026/agent3-original29-printing-gap-20261104.json",
+  "resolvedSourceIdentitiesCount": 0,
+  "verifiedOfficialCardIdentityCount": 3,
+  "unresolvedLocalCorpusPrintingCount": 3,
+  "totalOriginalPhysicalCopies": 14,
+  "proofScope": "Official Japanese name and card effect validated; no local English printing, native game effect, or blanket paper legality certificate",
+  "entries": [
+    {
+      "sourceName": "Palace Belt",
+      "sourceSet": "BWP",
+      "sourceNumber": "153",
+      "sourceLanguage": "en",
+      "officialJapaneseName": "殿堂ベルト",
+      "officialCardId": 28213,
+      "officialPrintingMark": "153 / BW-P",
+      "officialUrl": "https://www.pokemon-card.com/card-search/details.php/card/28213/regu/all",
+      "modernTrainerKind": "Pokemon Tool",
+      "semantics": {
+        "trigger": "at-owner-turn-start",
+        "precondition": "Tool attached to owner's Active Pokemon",
+        "replaceNormalDrawCount": 2,
+        "turnEndsFromEffect": false,
+        "activatedChoice": false
+      },
+      "ranks": [
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 29,
+          "count": 2
+        }
+      ],
+      "originalCopies": 3,
+      "localExactEnglishPrintingAvailable": false,
+      "paperNote": "Original BW-era text also bears a historical Goods footer, but modern printed card category is Pokemon Tool, not an Item"
+    },
+    {
+      "sourceName": "Palace Book",
+      "sourceSet": "SMP",
+      "sourceNumber": "NAN25",
+      "sourceLanguage": "en",
+      "officialJapaneseName": "殿堂の書",
+      "officialCardId": 34382,
+      "officialPrintingMark": "SM-P (unnumbered official printed header)",
+      "officialUrl": "https://www.pokemon-card.com/card-search/details.php/card/34382/regu/all",
+      "indexAliasEvidence": "https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en",
+      "modernTrainerKind": "Item",
+      "semantics": {
+        "trigger": "on-card-play",
+        "drawCardCount": 3,
+        "turnEndsFromEffect": true,
+        "activatedChoice": false
+      },
+      "ranks": [
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 7,
+          "count": 3
+        },
+        {
+          "rank": 24,
+          "count": 2
+        }
+      ],
+      "originalCopies": 6,
+      "localExactEnglishPrintingAvailable": false,
+      "paperNote": "NAN25 is a third-party card-index ID, not a numeric collector number displayed in the official card header"
+    },
+    {
+      "sourceName": "Player's Ceremony",
+      "sourceSet": "SP",
+      "sourceNumber": "127",
+      "sourceLanguage": "en",
+      "officialJapaneseName": "プレイヤーズセレモニー",
+      "officialCardId": 38633,
+      "officialPrintingMark": "127 / S-P",
+      "officialUrl": "https://www.pokemon-card.com/card-search/details.php/card/38633/regu/XY",
+      "modernTrainerKind": "Stadium",
+      "semantics": {
+        "trigger": "optional Stadium effect during each player's own turn",
+        "drawCardCount": 2,
+        "turnEndsFromEffect": true,
+        "activatedChoice": true,
+        "usesPerPlayerTurn": 1
+      },
+      "ranks": [
+        {
+          "rank": 3,
+          "count": 1
+        },
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 24,
+          "count": 2
+        },
+        {
+          "rank": 29,
+          "count": 1
+        }
+      ],
+      "originalCopies": 5,
+      "localExactEnglishPrintingAvailable": false,
+      "paperNote": "Effect can be activated by either player while Stadium remains in play; using it ends the acting player's turn"
+    }
+  ],
+  "gate": {
+    "officialCardTextVerified": true,
+    "originalNameCountInventoryPreviouslyAuthenticated": true,
+    "localExactPrintingResolved": false,
+    "simulatorPaperCorrectnessVerified": false,
+    "competitiveGamesQualified": 0
+  }
+}
