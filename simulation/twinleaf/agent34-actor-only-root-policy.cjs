@@ -720,6 +720,13 @@ function withActorOnlyRootPolicy(run,deps={}){
     underworldDoorRootOptIn:deps.underworldDoorRoot===true,
     fundedVmaxFloatStoneRootOptIn:deps.fundedVmaxFloatStoneRoot===true,
     fundedVmaxFloatStoneRootSelected:0,
+    genericFundedFloatStoneAuditOptIn:deps.genericFundedFloatStoneAudit===true,
+    genericFundedFloatStoneAudit:{
+      ownerRoots:0,ownerHeldToolRoots:0,ownerAttachedToolRoots:0,
+      partiallyFundedActiveRoots:0,currentlyEligibleRoots:0,
+      eligibleBySeat:[0,0],declinedWhileToolHeld:0,
+      selectedAsNativeIntent:0,eligibleSamples:[]
+    },
     underworldActiveFundingPriorityOptIn:
       deps.underworldActiveFundingPriority===true,
     underworldActiveFundingPrioritySelected:0,
@@ -1234,6 +1241,37 @@ function withActorOnlyRootPolicy(run,deps={}){
       }
     }
     const view=observe(state,seat);
+    let genericFundedObservation=null;
+    if(audit.genericFundedFloatStoneAuditOptIn){
+      const census=audit.genericFundedFloatStoneAudit;
+      census.ownerRoots++;
+      const held=view.ownHand.includes('Float Stone BKT');
+      const attached=view.ownPublic.active?.tools?.includes(
+        'Float Stone BKT')===true;
+      const activeEnergy=view.ownPublic.active?.energies??[];
+      const partiallyFunded=activeEnergy.length>0;
+      if(held)census.ownerHeldToolRoots++;
+      if(attached)census.ownerAttachedToolRoots++;
+      if(partiallyFunded)census.partiallyFundedActiveRoots++;
+      genericFundedObservation=require(
+        './agent14-generic-funded-floatstone-frontier.cjs')
+          .chooseGenericFundedFloatStone(view,catalog);
+      if(genericFundedObservation!==null){
+        census.currentlyEligibleRoots++;
+        census.eligibleBySeat[seat]++;
+        if(census.eligibleSamples.length<32)census.eligibleSamples.push({
+          globalTurn:view.globalTurn,seat,
+          active:view.ownPublic.active?.printing??null,
+          activeEnergyCards:activeEnergy.length,
+          ownHandCount:view.ownHand.length,
+          benchTarget:genericFundedObservation.printing,
+          targetAttack:genericFundedObservation.targetAttackName,
+          kind:genericFundedObservation.kind,
+          projectedPrintedDamage:
+            genericFundedObservation.projectedPrintedDamage
+        });
+      }else if(held||attached)census.declinedWhileToolHeld++;
+    }
     const ownerTurnReceipt=ownerTurnLedger?
       ownerTurnLedger.observe(view):null;
     if(audit.nativeCoheldDenialCanPlayOptIn){
@@ -1438,6 +1476,12 @@ function withActorOnlyRootPolicy(run,deps={}){
           audit.selectedRootDecisions+1);
     }
     const intent=arbitration?.intent??sameRoot?.intent??firstIntent;
+    if(audit.genericFundedFloatStoneAuditOptIn&&
+        genericFundedObservation!==null&&
+        intent.kind===genericFundedObservation.kind&&
+        intent.source===genericFundedObservation.source){
+      audit.genericFundedFloatStoneAudit.selectedAsNativeIntent++;
+    }
     if(audit.rank17ElectrodeBombCensusOptIn)
       require('./agent1-rank17-electrode-census.cjs')
         .recordElectrodeOwnerCensus(audit.rank17ElectrodeBombCensus,
