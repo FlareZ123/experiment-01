@@ -3,6 +3,11 @@ name: Agent 3 paper counterfactual smoke
 on:
   workflow_dispatch:
     inputs:
+      issue25_owner_hand_discard_native:
+        description: 'Historic four original rank6/11 source A/B with existing owner-hand discard bridge, zero competitive games'
+        required: false
+        type: boolean
+        default: false
       rank26_paper_one_lightning_native:
         description: 'Preregistered 24 new original source deals, old two-Lightning versus paper one-Lightning two-Egg'
         required: false
@@ -29,7 +34,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -73,7 +78,7 @@ jobs:
             tests/agent3-registered-attempt-reconciliation.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -93,6 +98,11 @@ jobs:
         run: npm run compile
       - name: Test real-root-only receipts and one-Lightning source choice
         run: node --test tests/agent3-compressor-root-provenance-v3.test.cjs tests/agent3-rank26-one-lightning-two-egg-chooser.test.cjs
+      - name: Compare selected historical Issue25 owner-hand discard bridge on same four native deals
+        if: ${{ inputs.issue25_owner_hand_discard_native }}
+        run: |
+          node --check tests/agent3-issue25-owner-hand-discard-bridge.native.test.cjs
+          node --test tests/agent3-issue25-owner-hand-discard-bridge.native.test.cjs
       - name: Reproduce 48 precommitted new source setup A/B/A physical contexts
         if: ${{ inputs.source_marginal_setup_native }}
         run: |
