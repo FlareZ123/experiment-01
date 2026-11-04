@@ -16,10 +16,11 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
  * @param {{manifest:object,diagnostic:object,rawDevelopment:object|null}} execution
  * @returns {object}
  */
-function buildReceipt(execution) {
+function buildReceipt(execution, options={}) {
   const {manifest, diagnostic, rawDevelopment} = execution;
-  assert.equal(manifest.policyEntryPoint,
-    'simulation/evaluation/agent1-issue25-joined-two-seat-attacks-v4.cjs');
+  const expectedEntry=options.policyEntryPoint??
+    'simulation/evaluation/agent1-issue25-joined-two-seat-attacks-v4.cjs';
+  assert.equal(manifest.policyEntryPoint,expectedEntry);
   assert.ok(Array.isArray(diagnostic.registered));
   assert.ok(Array.isArray(diagnostic.attemptedRows));
   const rawRows = rawDevelopment?.rows ?? [];
@@ -81,6 +82,7 @@ function buildReceipt(execution) {
     observedSelectedAttackLayers: {
       futureSight: diagnostic.sourceStampedFutureSight ?? null,
       nightWatch: diagnostic.sourceStampedNightWatch ?? null,
+      getLostPublicDiscard: diagnostic.sourceStampedGetLost ?? null,
       printingAttribution: diagnostic.printedAttackOrigins ?? null,
       firstPromptEnvelope:
         diagnostic.audit?.firstBlockedPromptEnvelope ?? null
@@ -118,15 +120,17 @@ function buildReceipt(execution) {
  * @param {string} directory
  * @returns {{file:string,sha256:string,bytes:number}}
  */
-function writeReceipt(execution, directory) {
-  const content = JSON.stringify(buildReceipt(execution), null, 2) + '\n';
+function writeReceipt(execution, directory, options={}) {
+  const prefix=options.prefix??'issue25-joined-v4';
+  assert.ok(['issue25-joined-v4','issue25-joined-v5'].includes(prefix));
+  const content = JSON.stringify(buildReceipt(execution, options), null, 2) + '\n';
   const bytes = Buffer.from(content);
   assert.ok(bytes.length <= 8*1024*1024, 'Native archive exceeded 8 MiB');
   fs.mkdirSync(directory, {recursive:true});
-  const lock = path.join(directory, '.agent1-issue25-v4.lock');
+  const lock = path.join(directory, '.agent1-' + prefix + '.lock');
   const fd = fs.openSync(lock, 'wx');
-  const file = path.join(directory, 'issue25-joined-v4.json');
-  const digestFile = path.join(directory, 'issue25-joined-v4.sha256');
+  const file = path.join(directory, prefix + '.json');
+  const digestFile = path.join(directory, prefix + '.sha256');
   const tmp = file + '.' + process.pid + '.tmp';
   const digestTmp = digestFile + '.' + process.pid + '.tmp';
   const digest = sha256(bytes);
@@ -134,7 +138,7 @@ function writeReceipt(execution, directory) {
     fs.writeFileSync(tmp, bytes, {flag:'wx'});
     fs.renameSync(tmp, file);
     fs.writeFileSync(digestTmp,
-      digest + '  issue25-joined-v4.json\n', {flag:'wx'});
+      digest + '  ' + prefix + '.json\n', {flag:'wx'});
     fs.renameSync(digestTmp, digestFile);
   } finally {
     if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
