@@ -936,8 +936,9 @@ function executeDevelopment(trial,candidates,{
     ...(nativePublicMulliganRevealsAudit?{
       initialPublicMulliganReveals:game.initialPublicMulliganReveals??null}:{}),
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
-    // This second digest ignores irrelevant hand ordering but retains
-    // distinct card printings and duplicate counts in the physical multiset.
+    // This second digest ignores hand ordering and keeps duplicate native
+    // card.fullName values. Native fullName need not encode collector-number
+    // artwork variants, so this is a name/set multiset, not paper print proof.
     sourceFirstOwnHandMultisetSha256:ownerFirst?
       sha256(ownerFirst.slice().sort()):null,
     candidateFirstOwnHandSha256:candidateOwnerFirst?
