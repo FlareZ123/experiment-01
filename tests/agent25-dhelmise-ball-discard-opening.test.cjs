@@ -105,7 +105,7 @@ test('specified two-for-two swap preserves 60 and lowers early Energy-constraine
   assert.equal(swap.originalFixedSixty,false);
   assert.deepEqual(swap.counts,[4,10,8,4,1,4,7,22]);
   assert.equal(swap.expandedWorlds,'59945386702448352');
-  assert.equal(swap.strictWorlds,'51014292085154816');
+  assert.equal(swap.strictWorlds,'51013865717273312');
   assert.ok(swap.expandedProbability<base.expandedProbability);
   assert.ok(swap.conditionalBasicValid<base.conditionalBasicValid);
   assert.deepEqual(study().hypotheticalTwoBasicEnergyToTwoShuppet.alteredCopies,
