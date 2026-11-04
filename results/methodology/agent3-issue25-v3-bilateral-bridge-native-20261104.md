@@ -10,11 +10,11 @@ The composition uses existing `runNightWatchFutureSightIssue25V3` with a single 
 
 | Source rank, contender | Accepted roots | Native result from first diagnostic | Resource wrapper installed on both actual seats |
 | --- | ---: | --- | --- |
-| Rank6, champion | 41 | No explicit error, final terminal detail pending readback | Yes, `agent36-identical-two-seat-resource-wrapper-v1` |
+| Rank6, champion | 41 | Native terminal finished=true, winner=seat0, endReason=engine-game-end; **development only** | Yes, `agent36-identical-two-seat-resource-wrapper-v1` |
 | Rank6, New Moon | 48 | Unfinished native 48-root cap | Yes |
 | Rank11, champion | 17 | Engine error at unresolved source Get Lost | No, did not reach resource wrapper |
 | Rank11, New Moon | 48 | Unfinished native 48-root cap | Yes |
 
 **Direct native attack effects:** Night Watch source reducer invoked twice, both physically selected two opponent-hand cards without reading names, both accepted by actual Store and physically moved into opponent deck, and both source-marked ShowCards acknowledgements accepted. Exactly one Duskull Future Sight source-neutral top-four reorder was handled; no raw State generic decoder invoked. This is actual *combined runtime execution*, improving on separate v1 and v3 runs. It does not demonstrate strategy competence, paper fidelity across other cards, full role symmetry on every action or any Aichi game win.
 
-Current extra diagnostic CI run 41876241119 was dispatched to distinguish `finished`/`winner`/`endReason` for rank6 champion root41. No terminal or winner claim should be made until that readback. All previously reported competitive qualified games remain **zero** and 29/32 exact original sources authenticated.
+**Verified follow-up CI [41876241119](https://github.com/FlareZ123/experiment-01/actions/runs/41876241119) SUCCESS** records original rank6 champion `finished:true`, engine seat winner `0`, `endReason:engine-game-end`, after 41 accepted roots. Its actual candidate occupied seat 0, but this is an **engine-only developmental termination** under incomplete source and paper fidelity. It is **excluded from qualified field win counts**. Rank6 New Moon and rank11 New Moon each `finished:false, endReason:action-limit` at 48. Rank11 champion `engine-error` at 17. All previously reported competitive qualified games remain **zero** and 29/32 exact original sources authenticated.
