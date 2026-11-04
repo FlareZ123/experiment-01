@@ -192,6 +192,13 @@ function chooseActorRootIntent(view,catalog,options={}){
         view,catalog,options.dittoStage1Receipt??null);
     if(ditto)return ditto;
   }
+  // Source-independent counterpart to the frozen rank1 VMAX-specific line.
+  // This is strictly opt-in and uses only the detached acting owner's view.
+  if(options.genericFundedFloatStoneRoot===true){
+    const mobility=require('./agent14-generic-funded-floatstone-frontier.cjs')
+      .chooseGenericFundedFloatStone(view,catalog);
+    if(mobility)return mobility;
+  }
   if(options.fundedVmaxFloatStoneRoot===true){
     const mobility=require('./agent31-shadow-rider-funded-bench-floatstone.cjs')
       .chooseFundedShadowRiderFloatStone(view,catalog);
