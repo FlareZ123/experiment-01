@@ -49,7 +49,8 @@ function stage(seat,kind){
   attach(owner.active,1);
   attach(owner.bench[0],absol?3:2);
   owner.hand.cards.push(card('Float Stone BKT'));
-  foe.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
+  // Printed Grass Weakness avoids an incidental Darkness Weakness KO.
+  foe.active.cards.push(card('Mega Absol ex M1L'));
   foe.bench=Array.from({length:5},()=>new PokemonCardList());
   for(let i=0;i<3;i++)foe.bench[i].cards.push(card('Pidgey MEW'));
   for(const p of [owner,foe]){
@@ -65,7 +66,9 @@ function stage(seat,kind){
   state.activePlayer=seat;state.turn=11;
   state.phase=GamePhase.PLAYER_TURN;
   state.gameSettings.format=Format.EXPANDED;
-  return {store,state,owner,foe,seat,active,bench,kind};
+  return {store,state,owner,foe,seat,
+    active:owner.active.getPokemonCard().fullName,
+    bench:owner.bench[0].getPokemonCard().fullName,kind};
 }
 
 for(const kind of ['absol','clefairy'])for(const seat of [0,1])
@@ -110,6 +113,13 @@ for(const kind of ['absol','clefairy'])for(const seat of [0,1])
       assert.equal(x.store.hasPrompts(),false);
     }
     const dealt=x.foe.active.damage-beforeDamage;
+    const pending=x.state.prompts.filter(p=>p.result===undefined)
+      .map(p=>p.constructor.name);
+    console.log('AGENT14_GENERIC_FUNDED_PENDING',JSON.stringify({
+      kind,seat,attack,dealt,pending,
+      foeActive:x.foe.active.getPokemonCard()?.fullName,
+      foeDiscard:x.foe.discard.cards.map(c=>c.fullName)
+    }));
     assert.ok(dealt>=80);
     console.log('AGENT14_GENERIC_FUNDED_NATIVE',JSON.stringify({
       kind,seat,attack,damage:dealt,
