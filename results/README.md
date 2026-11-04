@@ -1,8 +1,8 @@
 # Pokémon TCG Expanded: fixed-60 decision board
 
-**Decision status, 3 November 2026:** **No selected final 60, zero competitively qualified games, and no demonstrated 99.5% game win rate.** The Aichi Open League 2026 Top 32 benchmark has **29 authenticated original printed 60-card lists**; **ranks 23, 25 and 28 are missing**. All 29 authenticated opponents remain unqualified as competitive automated players. The goal is one unchanged, legal, playable paper Expanded deck against all 32 originals.
+**Decision status, 4 November 2026:** **No selected final 60, zero competitively qualified games, and no demonstrated 99.5% game win rate.** The Aichi Open League 2026 Top 32 benchmark has **29 authenticated original printed 60-card lists**; **ranks 23, 25 and 28 are missing**. All 29 authenticated opponents remain unqualified as competitive automated players. The goal is one unchanged, legal, playable paper Expanded deck against all 32 originals.
 
-## Four fixed-60 lists under consideration
+## Four historical comparison 60s
 
 | Complete, fixed 60 | Current disposition |
 | --- | --- |
@@ -12,6 +12,8 @@
 | [New Moon Lockbreaker v1](als/new-moon-lockbreak-60-candidate.md) | Unqualified structural candidate; historical selected-deal native results are sensitive to opponent decisions. |
 
 **Selection: none.** Keep every printed 60 fixed during comparisons. An isolated tactical proof, simulated winner, or higher action count does not justify promoting a contender. The [historical decision and evidence review](critic-review-70.md) details earlier qualifications.
+
+**Additional unadmitted structural proposals:** [Apex Alchemy v0](aichi-2026/agent43-apex-alchemy-structural-candidate-20261102.md), [ADP–Thorton–Regidrago v2](aichi-2026/agent5-adp-thorton-regidrago-structural-fifth-candidate-20261102.md), [Sentinel Lopunny Vileplume v1](aichi-2026/candidate-sentinel-lopunny-vileplume-v1.md), and [Arven–Boost Shake Absol v1](aichi-2026/agent38-arven-shake-absol-proposal-20261103.md) each report a separately fixed 60 and developmental evidence. **None has passed shared opponent-policy or competitive admission**, and none is promoted into the four-list historical comparison shortlist. The [4 November Critic candidate-intake gate](../communications/broadcast/2026-11/20261104T0028Z_critic_candidate_intake_convergence_gate.md) calls for one evidence-based triage rather than an unbounded proposal catalogue.
 
 ## Decision-relevant evidence and current blockers
 
