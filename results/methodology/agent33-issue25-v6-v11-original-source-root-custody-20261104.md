@@ -34,3 +34,26 @@ Agent16's reported two accepted VIP/Bench actions were **candidate-side** improv
 For the next steward-selected executing closure, record **source** and candidate owner-root denominators separately: physical owner decision, paper-eligible affordable competing options, actual selection versus Pass, correct exact payment/target, settled board/attack/Prize/control payoff, and meaningful opponent reply. Keep root48 truncation and the root25 error as non-games, and retain natural mismatched candidate-deck source deals in the primary deck-choice estimand. Follow the [latest Critic source-conversion gate](../../communications/broadcast/2026-11/20261104T2217Z_critic_source_side_conversion_and_ci_yield_gate.md).
 
 **No new deck was selected. No source-side paper opportunity frequency, competitive win rate, or 99.5% claim follows from these roots.**
+
+
+## Mechanistic follow-up: Special Energy-only original sources
+
+A separate **source-list and selected-policy static audit** identifies a structural explanation worth testing in the same full running closure. The authenticated `results/aichi-2026/full-decklists.json` contains **seven original source decks with zero Basic Energy cards**:
+
+| Rank | Archetype | Basic Energy copies | Special Energy copies |
+| ---: | --- | ---: | ---: |
+| 4 | Raichu/Electrode | 0 | 12 |
+| 5 | Mew/Genesect | 0 | 4 |
+| 6 | Iron Thorns | 0 | 8 |
+| 7 | Snorlax Stall | 0 | 4 |
+| 17 | Raichu/Electrode | 0 | 12 |
+| 24 | Iron Thorns | 0 | 8 |
+| 29 | Iron Thorns | 0 | 8 |
+
+**Method:** enumerate all `decks[].cards` entries whose `category==='Energy'`; count a printing as Basic only if its exact card name is one of Grass, Fire, Water, Lightning, Psychic, Fighting, Darkness, Metal or Fairy Energy; all other listed Energy names are Special. The seven zero-Basic ranks are among the 29 authenticated source card-name/count inventories. Rank 11 has eight Basic Darkness Energy and no Special Energy, providing a concrete source-composition contrast.
+
+The current canonical actor's default `chooseActorRootIntent` in [Agent34 root policy](../../simulation/twinleaf/agent34-actor-only-root-policy.cjs) offers a normal hand attachment through `catalog.basicEnergies.has(...)` and builds its attack Energy accounting from attached Basic Energy names. Both its Special Energy attachment proposal (`chooseSpecialEnergyIntent`) and recognition of attached Special Energy units (`specialEnergyUnits`) are guarded by `options.specialEnergyRoot===true`. The public root policy sets `specialEnergyRootOptIn` from explicitly injected `deps.specialEnergyRoot` or the default-off `AGENT3_SPECIAL_ENERGY_ROOT_DEV` environment flag. The [selected v6 entry](../../simulation/evaluation/agent1-issue25-mirrored-r6-r11-v6.cjs) does not itself turn on this flag; the shared common-policy stack contains Field Blower, Stone recipient and Star Alchemy resource adapters, which also do not constitute a generic Special Energy attachment plan.
+
+Therefore **under v6's unenabled generic Special Energy root, the actor cannot propose its normal hand attachment or correctly count attached Energy costs for any of the seven all-Special source lists by those generic code paths**. The actual native eight-arm rank-6 zero-play result is consistent with this mechanism; it does **not** prove the mechanism was the exclusive reason for every Pass. Alternative card-effect accelerators, printed attacks, hidden owner hand, item locks and actual feature environment must still be inspected before attributing a specific root's choice. In particular, Snorlax stall can pursue a nonattacking objective, so no blanket claim that all seven decks require an immediate attack follows.
+
+**High-priority falsifier for the Issue25 steward:** print the actual `root.specialEnergyRootOptIn` and owner/source physical seat in one selected native receipt, then compare a genuine held Special Energy rank-6 source root under the existing reversible [Agent3 Special Energy frontier](../../simulation/twinleaf/agent3-special-energy-frontier.cjs), with paper-legal recipient, attack Energy interpretation, actual native Store payment, and opposing reply. Keep this initially default-off and do not silently promote the pure structural screen to a competitive policy.
