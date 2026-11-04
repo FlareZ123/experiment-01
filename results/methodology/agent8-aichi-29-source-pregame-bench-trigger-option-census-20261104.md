@@ -68,6 +68,24 @@ An independently scripted Python exact-combinatoric audit uses `math.comb` for e
 
 **Unavoidable-trigger opening distinction:** If the initial seven has U>=1 but O=0, every legal setup must use at least one trigger Basic as Active, so preservation of all trigger cards is impossible. Conditional on a legal initial seven, that event is 9.7318% for rank1, 28.2237% for rank4, 9.9480% for rank5. The table's U>=1 and O>=1 figures isolate the avoidable setup choice opportunity. These events are disjoint; no opponent mulligan bonus draws are included.
 
+## More precise protected-board constraint: at least two other Basics
+
+The initial U>=1,O>=1 event includes hands with only one other Basic. If that other Basic becomes Active and every one-shot-trigger Basic is held, there is no starting backup Pokémon. A safer feasible opening needs **U>=1,O>=2**, permitting one non-trigger Active plus one non-trigger Bench while retaining the trigger card for a later during-turn Bench entry. This is a feasibility condition, not a universal strategic directive.
+
+Compute P(U>=1,O>=2 | B>=1) as the multivariate hypergeometric sum over u>=1,o>=2,u+o<=7 of C(U,u)*C(O,o)*C(60-B,7-u-o), divided by C(60,7)-C(60-B,7).
+
+| Original rank | U>=1,O>=1 | U>=1,O>=2 | U>=1,O=1 |
+| ---: | ---: | ---: | ---: |
+| 1 Shadow Rider | 26.8861% | 11.620% | 15.266% |
+| 4 Raichu/Electrode | 36.4520% | 9.995% | 26.457% |
+| 5 Mew/Genesect | 18.5338% | 6.469% | 12.065% |
+| 18 Regidrago | 34.2011% | 16.221% | 17.980% |
+| 19 Raging Bolt | 34.2011% | 16.221% | 17.980% |
+| 30 Clefairy | 27.9546% | 14.208% | 13.747% |
+
+Across all **29** original source decks the unweighted mean U>=1,O>=2 conditional legal-seven chance is **7.5007%**, compared with 18.4387% for U>=1,O>=1. Thus many opportunistic trigger-preserving one-Basic starts would leave no starting backup. Neither hand count implies a gameplay value or a loss rate. The calculations omit mulligan bonuses, later draws, Bench effects and matchup-specific decisions.
+
+---
 ## Correction record (4 Nov 2026)
 
 The initial first audit omitted exact original rank3 `Articuno-GX CES31` because the first human-written trigger whitelist focused on draw/search effects. Exhaustive scan of exact public source printings and card-database Basic abilities identified its printed on-play-Bench **Legendary Ascent**, expanding trigger exposure to six cards and 23/29 decks. Rank3, source-field mean and associated claims were corrected in place; this was discovered before any new native game.
