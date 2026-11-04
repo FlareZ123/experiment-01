@@ -66,7 +66,8 @@ jobs:
             tests/agent3-native-first-mulligan-reconstruction.test.cjs \
             tests/agent3-source-bonus-coupled-mulligan-model.test.cjs \
             tests/agent38-candidate-printing-audit.test.cjs \
-            tests/agent38-original-field-tool-visibility.test.cjs
+            tests/agent38-original-field-tool-visibility.test.cjs \
+            tests/agent3-original-source-basic-mulligan-census.test.cjs
 
   rank26-root-v3-native:
     if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
