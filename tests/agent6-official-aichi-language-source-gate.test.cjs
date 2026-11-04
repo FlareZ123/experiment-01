@@ -2,13 +2,21 @@
 
 const assert=require('node:assert/strict');
 const test=require('node:test');
+const fs=require('node:fs');
+const path=require('node:path');
 const {
-  EVENT,sourcePrinted60Sha256,attestOfficialAichiLanguage,
+  EVENT,gitBlobSha1,sourcePrinted60Sha256,attestOfficialAichiLanguage,
   attestRepositoryOfficialAichiLanguage
 }=require('../simulation/evaluation/agent6-official-aichi-language-source-gate.cjs');
 
 test('complete 29-original source admission SHA aligns with official only-Japanese rule',()=>{
   const result=attestRepositoryOfficialAichiLanguage();
+  const originalSource=fs.readFileSync(path.resolve(__dirname,
+    '../results/aichi-2026/full-decklists.json'));
+  assert.equal(gitBlobSha1(originalSource),
+    'ae773f6201d7aa69d31914dbfee66f3ba692200');
+  assert.notEqual(gitBlobSha1(Buffer.concat([originalSource,Buffer.from(' ')])),
+    gitBlobSha1(originalSource));
   assert.equal(EVENT.date,'2026-05-10');
   assert.equal(EVENT.requiredPhysicalCardLanguage,'ja');
   assert.equal(EVENT.officialRuleText,'日本語のカードのみ使用可能。');
