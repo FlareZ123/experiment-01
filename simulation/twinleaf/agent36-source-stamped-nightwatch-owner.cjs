@@ -35,6 +35,7 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   const {AddPlayerAction}=engine('game/store/actions/add-player-action');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   const {GameMessage}=engine('game/game-message');
+  const {ShowCardsPrompt}=engine('game/store/prompts/show-cards-prompt');
   const sourceDescriptor=Object.getOwnPropertyDescriptor(
     TrevenantDusknoirGX.prototype,'reduceEffect');
   const botDescriptor=Object.getOwnPropertyDescriptor(
@@ -45,11 +46,14 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   assert.equal(typeof botDescriptor?.value,'function');
   assert.equal(typeof dispatchDescriptor?.value,'function');
   const sourced=new WeakMap(),selected=new WeakMap();
+  const followupShowCards=new WeakMap(),ownedShowCardAck=new WeakMap();
   let liveStore=null;
   const audit={version:VERSION,preGameCommittedSeed:seed,
     sourceReducerInvocations:0,sourcePromptMarks:0,
     realStoreSelectedActions:0,acceptedDispatches:0,
     verifiedPhysicalHandDeckMovements:0,notYetVerifiedMovements:0,
+    markedSourceFollowupShowCards:0,ownerSourceShowCardsActions:0,
+    nativeAcceptedSourceShowCardsAcks:0,
     delegatedUnmarkedPrompts:0,delegatedDetachedStates:0,
     policyCardIdentityReads:0,originalNativeDecoderExecutedByHook:false,
     ownerSafeWholePolicyCertified:false,competitiveGamesQualified:0,
@@ -87,6 +91,16 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     const actor=state.players.find(player=>player.id===actorId);
     const prompt=state.prompts.find(p=>
       p.playerId===actorId&&p.result===undefined);
+    const ackSource=prompt?followupShowCards.get(prompt):null;
+    if(ackSource?.actorId===actorId&&
+       prompt instanceof ShowCardsPrompt&&
+       prompt.options?.allowCancel===false&&
+       prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
+      const action=new ResolvePromptAction(prompt.id,true);
+      ownedShowCardAck.set(action,ackSource);
+      audit.ownerSourceShowCardsActions++;
+      return action;
+    }
     if(!prompt||sourced.get(prompt)!==actorId||
        !nightWatchLikeShape(state,actor,prompt)||
        prompt.message!==GameMessage.CHOOSE_CARD_TO_DISCARD){
@@ -112,8 +126,17 @@ function withSourceStampedNightWatchOwner(run,deps={}){
   function dispatch(action,...args){
     if(action instanceof AddPlayerAction&&!liveStore)liveStore=this;
     const chosen=selected.get(action);
+    const ack=ownedShowCardAck.get(action);
+    if(ack&&this===liveStore){
+      assert.ok(this.state.prompts.some(p=>p.id===action.id&&
+        followupShowCards.get(p)===ack));
+      const result=dispatchDescriptor.value.apply(this,[action,...args]);
+      audit.nativeAcceptedSourceShowCardsAcks++;
+      return result;
+    }
     if(!chosen||this!==liveStore)
       return dispatchDescriptor.value.apply(this,[action,...args]);
+    const pendingBefore=new Set(this.state.prompts);
     const other=this.state.players.find(p=>p.id!==chosen.actorId);
     assert.ok(other&&chosen.prompt.cards===other.hand);
     const beforeHand=other.hand.cards.length;
@@ -122,6 +145,16 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     const allInHand=refs.every(card=>other.hand.cards.includes(card));
     const result=dispatchDescriptor.value.apply(this,[action,...args]);
     audit.acceptedDispatches++;
+    for(const prompt of this.state.prompts){
+      if(!pendingBefore.has(prompt)&&
+         prompt instanceof ShowCardsPrompt&&
+         prompt.playerId===chosen.actorId&&
+         prompt.options?.allowCancel===false&&
+         prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT){
+        followupShowCards.set(prompt,{actorId:chosen.actorId});
+        audit.markedSourceFollowupShowCards++;
+      }
+    }
     const receipt={
       ownerSeat:chosen.ownerSeat,turn:chosen.turn,
       selectedPhysicalPositions:[...chosen.indices],
