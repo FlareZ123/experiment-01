@@ -165,3 +165,82 @@ test('same-shaped unmarked native prompt cannot bypass the inherited decoder qua
   assert.equal(res.audit.realStoreSelectedActions,0);
   assert.equal(res.audit.delegatedUnmarkedPrompts,1);
 });
+
+test('opt-in sequential native Stores receive independent keyed Night Watch streams and physical custody',()=>{
+  const x=fakeEngine();
+  const res=withSourceStampedNightWatchOwner(()=>{
+    for(let game=0;game<2;game++){
+      const actor={id:'actor',hand:{cards:[]},deck:{cards:[]}};
+      const opponent={id:'opponent',hand:{
+        cards:Array.from({length:5},(_,i)=>({game,i}))},deck:{cards:[]}};
+      const state={players:[actor,opponent],turn:5,prompts:[]};
+      const store=new x.Store(state);
+      store.dispatch(new x.AddPlayerAction());
+      const source=new x.TrevenantDusknoirGX();
+      source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+      const bot=new x.SimpleTacticsAi(actor.id);
+      const selected=bot.decodeNextAction(state);
+      assert.ok(selected instanceof x.ResolvePromptAction);
+      store.dispatch(selected);
+      const shown=bot.decodeNextAction(state);
+      assert.equal(shown.result,true);
+      store.dispatch(shown);
+      assert.equal(opponent.hand.cards.length,3);
+      assert.equal(opponent.deck.cards.length,2);
+    }
+    return 'two-native-games';
+  },{
+    committedSeed:'a-private-precommitted-run-seed',
+    followSequentialNativeStores:true,
+    perNativeStoreEntropy:true,
+    engine:x.engine
+  });
+  assert.equal(res.result,'two-native-games');
+  assert.equal(res.audit.followSequentialNativeStores,true);
+  assert.equal(res.audit.perNativeStoreEntropy,true);
+  assert.equal(res.audit.registeredNativeStoreCount,2);
+  assert.equal(res.audit.sourcePromptMarks,2);
+  assert.equal(res.audit.realStoreSelectedActions,2);
+  assert.equal(res.audit.acceptedDispatches,2);
+  assert.equal(res.audit.verifiedPhysicalHandDeckMovements,2);
+  assert.equal(res.audit.nativeAcceptedSourceShowCardsAcks,2);
+  assert.deepEqual(res.audit.receipts.map(x=>x.nativeStoreOrdinal),[1,2]);
+  assert.deepEqual(res.audit.perStoreSeedCommitments.map(x=>x.ordinal),[1,2]);
+  assert.match(res.audit.perStoreSeedCommitments[0].sha256,/^[a-f0-9]{64}$/);
+  assert.notEqual(res.audit.perStoreSeedCommitments[0].sha256,
+    res.audit.perStoreSeedCommitments[1].sha256);
+  assert.equal(res.audit.policyCardIdentityReads,0);
+  assert.equal(res.audit.competitiveGamesQualified,0);
+});
+
+test('legacy v3 default leaves later distinct Store roots unhandled, isolated from v4 opt-in',()=>{
+  const x=fakeEngine();
+  const res=withSourceStampedNightWatchOwner(()=>{
+    for(let game=0;game<2;game++){
+      const actor={id:'actor',hand:{cards:[]},deck:{cards:[]}};
+      const opponent={id:'opponent',hand:{
+        cards:Array.from({length:3},()=>({}))},deck:{cards:[]}};
+      const state={players:[actor,opponent],turn:5,prompts:[]};
+      const store=new x.Store(state);
+      store.dispatch(new x.AddPlayerAction());
+      const source=new x.TrevenantDusknoirGX();
+      source.reduceEffect(store,state,new x.AttackEffect(actor,source.attacks[0]));
+      const bot=new x.SimpleTacticsAi(actor.id);
+      if(game===0){
+        const selected=bot.decodeNextAction(state);
+        store.dispatch(selected);
+        const ack=bot.decodeNextAction(state);
+        store.dispatch(ack);
+      }else{
+        assert.throws(()=>bot.decodeNextAction(state),
+          /unsafe inherited decoder blocked/);
+      }
+    }
+    return 'legacy-boundary';
+  },{committedSeed:'historical-v3-seed',engine:x.engine});
+  assert.equal(res.result,'legacy-boundary');
+  assert.equal(res.audit.followSequentialNativeStores,false);
+  assert.equal(res.audit.perNativeStoreEntropy,false);
+  assert.equal(res.audit.realStoreSelectedActions,1);
+  assert.ok(res.audit.delegatedDetachedStates>=1);
+});
