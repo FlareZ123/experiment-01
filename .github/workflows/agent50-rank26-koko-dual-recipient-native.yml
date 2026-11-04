@@ -146,7 +146,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Assert joined v4 really selects symmetric two-seat resources and source-printed handlers
-        run: node --test tests/agent1-issue25-joined-two-seat-attacks-v4.test.cjs tests/agent1-issue25-v4-public-receipt.test.cjs tests/agent36-source-stamped-nightwatch-owner.test.cjs
+        run: node --test tests/agent1-issue25-joined-two-seat-attacks-v4.test.cjs tests/agent1-issue25-v4-public-receipt.test.cjs tests/agent36-source-stamped-nightwatch-owner.test.cjs tests/agent36-source-stamped-getlost-owner.test.cjs tests/agent1-issue25-joined-three-attacks-v5.test.cjs
       - name: Execute selected joined v4 four original arms and archive every native outcome
         env:
           ISSUE25_V4_RECEIPT_DIR: artifacts/issue25-joined-v4
@@ -157,5 +157,17 @@ jobs:
         with:
           name: issue25-joined-v4-executed-${{ github.run_id }}
           path: artifacts/issue25-joined-v4/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Execute joined v5 additional source-locked public Get Lost in four native Store arms
+        env:
+          ISSUE25_V5_RECEIPT_DIR: artifacts/issue25-joined-v5
+        run: node --test tests/agent1-issue25-joined-three-attacks-v5.native.test.cjs
+      - name: Preserve joined v5 native public Store ledger, including aborts and caps
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-joined-v5-executed-${{ github.run_id }}
+          path: artifacts/issue25-joined-v5/
           if-no-files-found: warn
           retention-days: 30
