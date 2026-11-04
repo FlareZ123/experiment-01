@@ -66,8 +66,27 @@ function auditBilateralOriginalSourceArt(
     const advertised=sourcePairById.get(pairId);
     assert.ok(advertised,'No common runner pair receipt for '+pairId);
     const evaluated=auditCrossCandidateSourcePair(first,second);
-    assert.equal(advertised.sourceDealStatus,evaluated.sourceDealStatus);
-    assert.equal(advertised.actualStarterStatus,evaluated.actualStarterStatus);
+    // Historical sourcePairs report boolean witnesses, while later common
+    // runners may publish the richer three-state parity strings. Verify the
+    // actual recorded form without upgrading legacy false to a proven mismatch.
+    if(typeof advertised.sourceDealStatus==='string'){
+      assert.equal(advertised.sourceDealStatus,evaluated.sourceDealStatus);
+    }else{
+      assert.equal(advertised.sameSourcePhysicalDeal,
+        evaluated.sameSourcePhysicalDeal);
+    }
+    if(typeof advertised.actualStarterStatus==='string'){
+      assert.equal(advertised.actualStarterStatus,
+        evaluated.actualStarterStatus);
+    }else{
+      assert.equal(advertised.sameActualStarter,
+        evaluated.sameActualStarter);
+    }
+    if(Array.isArray(advertised.sourceDealFingerprints)){
+      assert.deepEqual(advertised.sourceDealFingerprints,[
+        first.sourceDealFingerprint??null,second.sourceDealFingerprint??null
+      ],'Frozen sourcePairs physical digests differ from actual rows');
+    }
     const bothPhysical=physicalDigest(first.sourceDealFingerprint)&&
       physicalDigest(second.sourceDealFingerprint);
     const bothStarter=verifiedStarter(first)!==null &&
