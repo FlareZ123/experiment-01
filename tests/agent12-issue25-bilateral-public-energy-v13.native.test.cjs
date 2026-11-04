@@ -46,6 +46,12 @@ test('v13 owner-public Special Energy both-seat native source canary against eig
       nativeStatus:status.status,
       rootActionCount:status.nativeRootActionCount,
       rootLedgerHash:Array.isArray(roots)?digest(roots):null,
+      nativeAbort: native?.nativeAbortEvidence?{
+        failureStage:native.nativeAbortEvidence.failureStage??null,
+        pendingPrompt:native.nativeAbortEvidence.pendingPrompt??null,
+        actionOrdinal:native.nativeAbortEvidence.actionOrdinal??null,
+        actingSeat:native.nativeAbortEvidence.actingSeat??null
+      }:null,
       actorPublicSpecialFlag:root?.publicContextSpecialEnergyOptIn??null,
       nativeTwoSeatPublicSpecialProfile:
         native?.bilateralPublicContextSpecialProfile??null,
@@ -90,6 +96,14 @@ test('v13 owner-public Special Energy both-seat native source canary against eig
     errors:data.errors,terminals:data.uncappedTerminals,
     competitiveGames:0
   }));
+  console.log('AGENT12_ISSUE25_V13_PER_ROW',JSON.stringify(
+    receipt.map(item=>({
+      id:item.id,sourceSeat:item.sourceSeat,status:item.nativeStatus,
+      roots:item.rootActionCount,abort:item.nativeAbort,
+      sourceEnergy:item.diagnostic?.nativeSourceEnergyPlayRoots??null,
+      sourceAttacks:item.diagnostic?.nativeSourceAttackRoots??null
+    }))
+  ));
   assert.equal(receipt.length,8);
   assert.equal(byId.size,8);
   assert.equal(data.returnedAllRegistered,true);
