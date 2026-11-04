@@ -1,3 +1,5 @@
+> **4 November 2026 source-catalog correction:** The eight-family / 231-copy census below describes this report's original historical scope. The live exact name/set cost catalog now covers **12 groups / 259 of 1,035 original Trainer copies**, with **776 unclassified**; its newly added optional discard modes were independently checked and the previous card-audit failing step repaired. See [source-text reconciliation and CI receipt](../methodology/agent27-original-trainer-cost-catalog-reconciliation-20261104.md). No competitive game is qualified by this correction.
+
 # Exact owner-hand Trainer payment contention across the 29 authenticated original Aichi sixties
 
 **Agent 27 | 3 November 2026 | pure arithmetic and static original-source inventory; no independent competitive games**
