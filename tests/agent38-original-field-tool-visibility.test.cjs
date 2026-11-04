@@ -38,15 +38,18 @@ test('original rank11 source resolves exactly eleven starting Basics',()=>{
   assert.equal(row.probabilitySeenInNine,0);
 });
 
-test('rank1 published Shadow Rider original has 14 verified Basics',()=>{
+test('rank1 original SMP217 promo absence correctly blocks corpus-stage resolution',()=>{
   const result=originalFieldToolAnswerVisibility({
     ...original,decks:original.decks.filter(deck=>deck.rank===1)
   });
   const row=result.rows[0];
-  assert.equal(row.status,'resolved-corpus-basic-stage');
-  assert.equal(row.basicCount,14);
+  assert.equal(row.status,'unknown-pokemon-stage');
   assert.equal(row.directAnswerCount,1);
-  assert.ok(Math.abs(row.probabilitySeenInNine-0.1445028731)<1e-9);
+  assert.ok(row.unresolvedPrintedPokemon.some(entry=>
+    entry.name==='Trevenant & Dusknoir-GX'&&entry.printing.set==='SMP'&&
+    String(entry.printing.number)==='217'&&
+    entry.lookupState==='set-absent-from-bundled-corpus'));
+  assert.equal(Object.hasOwn(row,'basicCount'),false);
 });
 
 test('unknown Pokémon printing remains fail-closed instead of being guessed',()=>{
