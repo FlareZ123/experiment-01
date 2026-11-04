@@ -34,7 +34,7 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
     // name in that existing bundled file; never infer a promo stage by name.
     const indexed=sets.filter(s=>s.ptcgoCode===printing.set);
     const promo=printing.set==='SMP' &&
-      /^\\d+$/.test(String(printing.number)) ?
+      /^\d+$/.test(String(printing.number)) ?
       [{id:'smp',promoPrefix:'SM'}]:[];
     const setCandidates=indexed.length?indexed:promo;
     if(!setCandidates.length){
