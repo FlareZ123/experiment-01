@@ -101,3 +101,34 @@ test('visual attack wait cannot silently handle other animations',()=>{
       {SimpleTacticsAi:Bot}),{code:CODE});
   }
 });
+
+test('exact native silent deck-shuffle wait is owner-only and opt-in',()=>{
+  const bot=new Bot(3);
+  const phase={...deps.GamePhase,PLAYER_TURN:2};
+  const s=fixture(3,2,'Deck shuffle animation',false);
+  assert.throws(()=>withNativeRawStateFallbackQuarantine(
+    ()=>withOwnerNonvisualPhaseWait(
+      ()=>bot.decodeNextAction(s),{...deps,GamePhase:phase}),
+    {SimpleTacticsAi:Bot}),{code:CODE});
+  const {result,audit}=withOwnerNonvisualPhaseWait(
+    ()=>bot.decodeNextAction(s),{...deps,GamePhase:phase,
+      allowDeckShuffleWait:true});
+  assert.deepEqual(result,new ResolvePromptAction(19,null));
+  assert.equal(audit.deckShuffleWaitHandled,1);
+  assert.equal(audit.records[0].exactDeckShuffleAnimation,true);
+});
+test('shuffle wait different phase, message or owner stays quarantined',()=>{
+  const bot=new Bot(3),phase={...deps.GamePhase,PLAYER_TURN:2};
+  for(const s of [
+    fixture(3,8,'Deck shuffle animation',false),
+    fixture(3,2,'Deck shuffle animation',true),
+    fixture(3,2,'Other animation',false),
+    fixture(7,2,'Deck shuffle animation',false)
+  ]){
+    assert.throws(()=>withNativeRawStateFallbackQuarantine(
+      ()=>withOwnerNonvisualPhaseWait(
+        ()=>bot.decodeNextAction(s),
+        {...deps,GamePhase:phase,allowDeckShuffleWait:true}),
+      {SimpleTacticsAi:Bot}),{code:CODE});
+  }
+});
