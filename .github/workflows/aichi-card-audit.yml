@@ -223,6 +223,16 @@ jobs:
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
       - name: Verify exact 35-row MEE post-event artwork to real pre-event native Basic Energy identities
         run: node simulation/evaluation/agent22-pinned-may-energy-proxy-native.cjs
+      - name: Validate frozen Arven Shake Absol printed 60 resolves with an explicit native MEE Darkness pre-event alias
+        run: node simulation/evaluation/agent22-arven-shake-native-print-preflight.cjs
+      - name: Preserve candidate print-alias preflight evidence separately from game strength
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-arven-shake-native-print-preflight
+          path: agent22-arven-shake-native-print-preflight.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Preserve pinned native-energy artwork crosswalk and type evidence
         if: always()
         uses: actions/upload-artifact@v4
