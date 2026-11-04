@@ -3,6 +3,8 @@
 const assert=require('node:assert/strict');
 const {publicSpecialAttackPayable}=
   require('./agent17-public-context-special-energy.cjs');
+const {publicSkylinerSuppressionReason}=
+  require('./agent6-skyliner-ability-suppression-guard.cjs');
 
 const VERSION='agent2-bunnelby-imminent-deckout-float-owner-v1';
 const FLOAT='Float Stone BKT';
@@ -42,6 +44,17 @@ function chooseBunnelbyImminentDeckoutFloat(view,catalog){
       active.specialConditions?.some(x=>
         x===catalog.specialConditions?.ASLEEP||
         x===catalog.specialConditions?.PARALYZED))
+    return null;
+
+  // Latias ex's public Skyliner already makes Basic Active retreat free.
+  // Do not consume the unique Float when its proposed mobility is redundant.
+  // If a recognized public lock suppresses Skyliner, retain the candidate.
+  const skylinerPresent=[own.active,...(own.bench??[])].some(p=>
+    p?.printing==='Latias ex SSP'&&
+    p.abilities?.includes('Skyliner'));
+  if(skylinerPresent&&
+      active.printed?.stage===catalog.stages?.BASIC&&
+      publicSkylinerSuppressionReason(view)===null)
     return null;
 
   const stadium=[...(own.stadium??[]),...(opp.stadium??[])];
