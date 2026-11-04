@@ -63,6 +63,48 @@ test('cannot assert Tool mobility under known public Jamming Tower',()=>{
   assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null);
 });
 
+test('public opponent Active Tool Jammer prevents Float Stone mobility even when Store accepts it',()=>{
+  const view=sample();
+  view.opponentPublic.active={tools:['Tool Jammer BST']};
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null,
+    'do not equip a Float Stone that cannot grant free retreat');
+  view.ownPublic.active.tools=[FLOAT_STONE];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null,
+    'already attached Float Stone remains suppressed on paper');
+  view.opponentPublic.active.tools=[];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone');
+});
+
+test('Tool Jammer only functions on opponent Active; printed free retreat survives',()=>{
+  const view=sample();
+  view.opponentPublic.active={tools:[]};
+  view.opponentPublic.bench=[{tools:['Tool Jammer BST']}];
+  view.ownPublic.active.tools=[FLOAT_STONE];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone',
+    'Jammer on the opponent Bench has no effect');
+  view.opponentPublic.active.tools=['Tool Jammer BST'];
+  view.ownPublic.active.printed.retreatCost=[];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'retreat-emergency-floatstone',
+    'printed zero Retreat Cost is unaffected by Tool suppression');
+});
+
+test('opponent hidden zones never affect public Tool Jammer decisions',()=>{
+  const view=sample();
+  const inaccessible=new Proxy({},{get(){throw Error('hidden data read');}});
+  view.opponentPublic.active={tools:['Tool Jammer BST']};
+  view.opponentPublic.hand=inaccessible;
+  view.opponentPublic.prizes=inaccessible;
+  view.opponentPublic.deck=inaccessible;
+  view.ownPublic.prizes=inaccessible;
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog),null);
+  view.opponentPublic.active.tools=[];
+  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+    'attach-emergency-floatstone');
+});
+
 test('preserves a funded active, positive free attack, or used retreat',()=>{
   const view=sample();
   view.ownPublic.active.energies=['Darkness Energy SVE'];
