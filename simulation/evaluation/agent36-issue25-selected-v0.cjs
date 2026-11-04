@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
+const {execFileSync}=require('node:child_process');
 const {developmentTrials,runDevelopment}=
   require('./agent41-bilateral-v2-development.cjs');
 const {withGoFirstChoice}=
@@ -54,6 +55,54 @@ function hashRegisteredFile(relativePath){
   const file=path.join(ROOT,relativePath);
   return {path:relativePath,sha256:createHash('sha256')
     .update(fs.readFileSync(file)).digest('hex')};
+}
+
+/**
+ * This is an actual Git observation of the running checkout, independent
+ * of declared manifest SHA or the expected submodule gitlink.
+ * Failure is UNKNOWN and never silently transformed into the expected SHA.
+ * @param {string} relativePath
+ * @returns {string|null}
+ */
+function observedGitRevision(relativePath){
+  try{
+    const sha=execFileSync('git',[
+      '-C',path.join(ROOT,relativePath),'rev-parse','HEAD'
+    ],{encoding:'utf8'}).trim();
+    return /^[a-f0-9]{40}$/.test(sha)?sha:null;
+  }catch(error){
+    return null;
+  }
+}
+
+/**
+ * Exact identity reconciliation. Aborted, capped and failed trials must
+ * retain their registered ID and count as attempted only once.
+ * @param {string[]} expected
+ * @param {(string|null)[]} actual
+ */
+function reconcileRegisteredAttempts(expected,actual){
+  assert.ok(Array.isArray(expected)&&Array.isArray(actual));
+  const expectedSet=new Set(expected),actualSet=new Set(actual);
+  const duplicates=values=>{
+    const seen=new Set(),double=new Set();
+    for(const value of values){
+      if(seen.has(value))double.add(value);
+      seen.add(value);
+    }
+    return [...double];
+  };
+  const duplicateExpected=duplicates(expected);
+  const duplicateReturned=duplicates(actual);
+  const missing=expected.filter(id=>!actualSet.has(id));
+  const unexpected=actual.filter(id=>!expectedSet.has(id));
+  const exactUniqueMatch=expected.length===actual.length&&
+    duplicateExpected.length===0&&duplicateReturned.length===0&&
+    missing.length===0&&unexpected.length===0;
+  return {expectedCount:expected.length,returnedCount:actual.length,
+    uniqueExpectedCount:expectedSet.size,
+    uniqueReturnedCount:actualSet.size,duplicateExpected,
+    duplicateReturned,missing,unexpected,exactUniqueMatch};
 }
 
 /**
@@ -127,6 +176,18 @@ function runSelectedIssue25V0(injected={}){
     nativeAbortProvenance:row.nativeAbortProvenance??null
   }));
   const quarantine=audit.nativeRawStateQuarantine;
+  const registeredAttemptReconciliation=reconcileRegisteredAttempts(
+    expected,statuses.map(row=>row.id));
+  const expectedTwinleaf=
+    'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+  const observedTwinleaf=observedGitRevision('vendor/twinleaf');
+  const observedRepository=observedGitRevision('.');
+  const envGitSha=process.env.GITHUB_SHA??null;
+  const runtimeGitAttestationStatus=
+    !observedTwinleaf||!observedRepository?'UNRESOLVED':
+    observedTwinleaf!==expectedTwinleaf||
+      (envGitSha!==null&&observedRepository!==envGitSha)?
+      'MISMATCH':'VERIFIED';
   const manifest={
     version:VERSION,profile:'fixed-48-action-historical-development-v0',
     policyEntryPoint:CODE_PATHS[0],
@@ -139,13 +200,17 @@ function runSelectedIssue25V0(injected={}){
     selectedGoFirstChoices:[false,false],
     actorOnlyComposition:true,nativeRootActionLimit:48,
     firstNativeFallback:'fail-closed',
-    actorPolicyAppliedToBothSeats:true,
+    outerOwnerPromptWrappersSelectedForBothSeats:true,
+    fullDecisionPolicySymmetryCertified:false,
     originalSourceRanks:[6,11],
     originalSourceRegistration:'agent41-crossrank-r6-r11-v1-20261019',
     historicalOnly:true,
-    expectedPinnedTwinleafGitlink:
-      'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-    ciRepositoryRevision:process.env.GITHUB_SHA??null,
+    expectedPinnedTwinleafGitlink:expectedTwinleaf,
+    observedTwinleafGitCommit:observedTwinleaf,
+    observedRepositoryGitCommit:observedRepository,
+    ciRepositoryRevision:envGitSha,
+    runtimeGitAttestationStatus,
+    runtimeInputHashScope:'direct-selected-modules-and-deck-inputs',
     resolvedSourceAndPolicyHashes:CODE_PATHS.map(hashRegisteredFile),
     knownStructuralVetoes:{
       sourceRankSpecificNativeScripts:true,
@@ -162,7 +227,9 @@ function runSelectedIssue25V0(injected={}){
   const diagnostic={
     schema:VERSION,registered:expected,
     attemptedRows:statuses,
-    allRegisteredAttemptsReturned:rows.length===expected.length,
+    allRegisteredAttemptsReturned:
+      registeredAttemptReconciliation.exactUniqueMatch,
+    registeredAttemptReconciliation,
     audit,
     rawDecoderExecuted:
       quarantine?.originalNativeDecoderExecuted??null,
@@ -177,4 +244,5 @@ function runSelectedIssue25V0(injected={}){
   return {manifest,diagnostic,rawDevelopment:development};
 }
 module.exports={VERSION,SELECTED_OUTER_TO_INNER,CODE_PATHS,
-  hashRegisteredFile,runSelectedIssue25V0};
+  hashRegisteredFile,observedGitRevision,reconcileRegisteredAttempts,
+  runSelectedIssue25V0};
