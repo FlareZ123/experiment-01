@@ -147,6 +147,8 @@ jobs:
         run: node simulation/twinleaf/hood-vs-thorns.cjs
       - name: Test Megaton Blower Tool removal and compatibility hook
         run: node simulation/twinleaf/megaton-blower-fixture.cjs
+      - name: Verify both-seat Megaton Store Item dispatch and no-target behavior
+        run: node --test tests/agent1-megaton-store-dispatch.pinned.test.cjs
       - name: Test protected Underworld Door attachment and draw
         run: node simulation/twinleaf/underworld-door-action.cjs
       - name: Test Canceling Cologne restores Climactic Gate prompt
