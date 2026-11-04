@@ -91,6 +91,22 @@ for(const actorSeat of [0,1]){
         assert.equal(answer.id,prompt.id);
         assert.deepEqual(answer.result,f.selected.slice(0,expectedCount));
         f.store.dispatch(answer);
+        if(available>0)console.log('AGENT9_GETLOST_STAGE_DIAGNOSTIC',
+          JSON.stringify({seat:actorSeat,available,
+            liveStateSame:f.store.state===f.state,
+            liveOppSame:f.store.state.players.includes(f.opponent),
+            liveOppZones:f.store.state.players.find(p=>p.id===f.opponent.id)&&{
+              discard:f.store.state.players.find(p=>p.id===f.opponent.id)
+                .discard.cards.map(c=>c.fullName),
+              lostzone:f.store.state.players.find(p=>p.id===f.opponent.id)
+                .lostzone.cards.map(c=>c.fullName),
+              deck:f.store.state.players.find(p=>p.id===f.opponent.id)
+                .deck.cards.map(c=>c.fullName)
+            },
+            fixtureOppZones:{discard:f.opponent.discard.cards.map(c=>c.fullName),
+              lostzone:f.opponent.lostzone.cards.map(c=>c.fullName)},
+            promptCount:f.state.prompts.length,
+            gamePhase:f.state.phase}));
         assert.equal(f.opponent.discard.cards.length,
           available-expectedCount);
         assert.equal(f.opponent.lostzone.cards.length,expectedCount);
