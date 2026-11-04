@@ -8,7 +8,7 @@ const {COST_BY_PRINT}=
   require('../simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs');
 
 const ROOT=path.resolve(__dirname,'..');
-const VERSION='agent27-source-trainer-cardtext-cost-audit-v1';
+const VERSION='agent27-source-trainer-cardtext-cost-audit-v2-expanded-nohand';
 
 /**
  * Verify actual bundled printed card rules for each cost-covered printing
@@ -36,7 +36,10 @@ function printedHandDiscardModes(rules){
   if(triple)return [3];
   if(double)return [2];
   if(single)return [1];
-  assert.ok(!/discard.{0,50}(?:your )?hand/.test(text),
+  // 'from your discard pile into your hand' is a recovery effect, not a
+  // discard FROM hand. Preserve review for unidentified actual hand discards.
+  const withoutDiscardPile=text.replace(/discard pile/g,'discard-zone');
+  assert.ok(!/discard.{0,50}(?:your )?hand/.test(withoutDiscardPile),
     'Unknown discard-from-hand text needs human review');
   return [0];
 }
@@ -91,13 +94,13 @@ function auditBundledSourceCardText(root=ROOT){
       verifiedAllVariants:true});
   }
   const coveredCopies=records.reduce((s,r)=>s+r.copies,0);
-  assert.equal(coveredCopies,259);
+  assert.equal(coveredCopies,754);
   return {version:VERSION,sourceManifestSha256:
     crypto.createHash('sha256').update(manifestBytes).digest('hex'),
     originalDecks:manifest.decks.length,
     verifiedExactSourcePrintings:records.length,
     verifiedOriginalTrainerCopies:coveredCopies,
-    originalUnverifiedTrainerCopies:776,
+    originalUnverifiedTrainerCopies:281,
     sourceCardTextVerified:true,
     paperTargetsAndNativePaymentUnverified:true,
     qualifiedCompetitiveGames:0,records};
