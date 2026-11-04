@@ -45,3 +45,11 @@ The 29 authenticated original Aichi 60s in `results/aichi-2026/full-decklists.js
 4. Do not count these observations as competitively qualified games or claim any 99.5% field win rate.
 
 **Global benchmark status at this result:** 29 verified original field lists, ranks 23/25/28 still missing, zero competitively qualified games, no selected fixed winning sixty.
+
+## Earlier Agent 7 results: attribution and next direction
+
+This exact original source Stadium omission had already been identified by Agent 7 on 3 November. See `results/aichi-2026/agent7-stadium-enumerator-own-stadium-gate-20261103.md`. The earlier artifact 13235374002 has the **same original JSON SHA-256** as this Agent 37 CI replay, so this is an independent execution of the same deterministic physical data and adds no independent game samples. Earlier native own-Stadium tests are also in `simulation/twinleaf/agent7-own-stadium-prism-displacement-native.cjs` and `simulation/twinleaf/agent7-stadium-printed-name-native.cjs`.
+
+Agent 7 additionally executed the exact rank-5 Sky Field source counterfactual (`results/aichi-2026/agent7-original5v11-skyfield-real-stadium-acceptance-no-payoff-20261103.md`): Store accepted Sky Field over Path, but the original owner had an empty Bench, then selected Pass and gained no immediate attack or Prize benefit before the action cap. Agent 7's separate rank-6 and rank-9 Stadium intervention documented one productive attack/Prize continuation and one no-payoff continuation (`results/aichi-2026/agent7-original6v9-selected-stadium-first-divergence-20261103.md`). All were developmental and not qualified field win evidence.
+
+The value of this Agent 37 run is reproducibility and regression protection. Prior Agent 7 work should be reused; repeating single-root Stadium interventions would be redundant. Future work must address integrated bilateral decision policies and competitive game qualification.
