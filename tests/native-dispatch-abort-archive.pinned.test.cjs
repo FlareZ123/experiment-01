@@ -43,7 +43,7 @@ test('a rejected real Store dispatch retains source deal and accepted public roo
         deckA:cards,deckB:cards,
         seed:471144321,maxActions:180,
         captureDecisionTrace:true,captureNativeAbortEvidence:true,
-        captureInitialSourceDealFingerprintSeat:0
+        captureInitialSourceDealFingerprintSeat:0,captureInitialFullPhysicalDeal:true
       });
     }catch(error){failure=error;}
   }finally{
@@ -57,6 +57,9 @@ test('a rejected real Store dispatch retains source deal and accepted public roo
   assert.equal(receipt.errorMessage,sentinel);
   assert.equal(receipt.sourceDealFingerprint.seat,0);
   assert.match(receipt.sourceDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
+    'initial-full-physical-deal-sha256-v1');
+  assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
   assert.ok(receipt.actionOrdinal>0,'No accepted native Store roots');
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.ok(receipt.preDispatchPublic.turn>=2);
@@ -99,7 +102,7 @@ test('real bot decoder exception preserves prior roots without leaking its detai
     try{
       runMatch({deckA:cards,deckB:cards,seed:471144321,maxActions:180,
         captureDecisionTrace:true,captureNativeAbortEvidence:true,
-        captureInitialSourceDealFingerprintSeat:0});
+        captureInitialSourceDealFingerprintSeat:0,captureInitialFullPhysicalDeal:true});
     }catch(error){failure=error;}
   }finally{
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',
@@ -115,6 +118,9 @@ test('real bot decoder exception preserves prior roots without leaking its detai
   assert.match(receipt.redactedMessageDigest,/^[0-9a-f]{64}$/);
   assert.equal(JSON.stringify(receipt).includes(concealedSentinel),false);
   assert.match(receipt.sourceDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
+    'initial-full-physical-deal-sha256-v1');
+  assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
   assert.ok(receipt.actionOrdinal>0);
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.equal(Store.prototype.dispatch,originalDispatch.value);
@@ -151,7 +157,7 @@ test('strict validation of a real native prompt retains accepted history',()=>{
     try{
       runMatch({deckA:cards,deckB:cards,seed:471144321,maxActions:300,
         strictPromptValidation:true,captureDecisionTrace:true,
-        captureNativeAbortEvidence:true,captureInitialSourceDealFingerprintSeat:0});
+        captureNativeAbortEvidence:true,captureInitialSourceDealFingerprintSeat:0,captureInitialFullPhysicalDeal:true});
     }catch(error){failure=error;}
   }finally{
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',oldDecode);
@@ -164,6 +170,9 @@ test('strict validation of a real native prompt retains accepted history',()=>{
   assert.ok(receipt.pendingPrompt);
   assert.match(receipt.redactedMessageDigest,/^[0-9a-f]{64}$/);
   assert.match(receipt.sourceDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
+    'initial-full-physical-deal-sha256-v1');
+  assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
   assert.ok(receipt.actionOrdinal>0);
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.equal(Store.prototype.dispatch,oldStore.value);

@@ -137,3 +137,21 @@ test('Store dispatch aborts retain their original public engine category',()=>{
   assert.match(published.error,/NO_BENCH_SLOTS_AVAILABLE/);
   assert.equal(published.nativeAbortEvidence,error.nativeAbortEvidence);
 });
+
+test('preserves and validates complete physical-deal identity on real abort receipt',()=>{
+  const input=sample();
+  input.fullDeal={schema:'initial-full-physical-deal-sha256-v1',
+    digestSha256:'b'.repeat(64)};
+  const output=nativeDispatchAbortEvidence(input);
+  assert.deepEqual(output.fullPhysicalDealFingerprint,input.fullDeal);
+  input.fullDeal.digestSha256='not-a-digest';
+  assert.throws(()=>nativeDispatchAbortEvidence(input));
+  input.fullDeal.digestSha256='b'.repeat(64);
+  input.fullDeal.schema='unrecognized';
+  assert.throws(()=>nativeDispatchAbortEvidence(input));
+});
+
+test('absent full-deal observer stays absent on abort',()=>{
+  const output=nativeDispatchAbortEvidence(sample());
+  assert.equal(Object.hasOwn(output,'fullPhysicalDealFingerprint'),false);
+});
