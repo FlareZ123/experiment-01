@@ -266,3 +266,66 @@ test('scoped v4 guard ignores auxiliary Store actions and fails closed on two re
   assert.equal(second.store.nativeCalls,1);
   assert.strictEqual(FakeStore.prototype.dispatch,original);
 });
+
+
+const PRISM_TAG = 73;
+class PrismDelayedPaymentStore extends DelayedPaymentStore {
+  dispatch(action) {
+    const result = super.dispatch(action);
+    if (action?.constructor?.name === 'ResolvePromptAction') {
+      const prompt = this.state.prompts.find(p => p.id === action.id);
+      if (prompt?.message === 'CHOOSE_CARD_TO_HAND') {
+        const owner = this.state.players.find(p => p.id === prompt.playerId);
+        for (const card of this.state.stagedPayment) {
+          if (!card.tags?.includes(PRISM_TAG)) continue;
+          owner.discard.cards.splice(owner.discard.cards.indexOf(card), 1);
+          owner.lostzone.cards.push(card);
+        }
+      }
+    }
+    return result;
+  }
+}
+
+test('two-card Dowsing fee settles with one Prism Star in its paper-mandated Lost Zone', () => {
+  const f = fixture();
+  const target = {fullName:'Battle VIP Pass FST'};
+  f.owner.hand.cards.shift();
+  f.two.tags = [PRISM_TAG];
+  f.owner.lostzone = {cards:[]};
+  f.owner.discard.cards.push(target);
+  f.state.prompts.push(new ChooseCardsPrompt(60, f.owner));
+  const audit = withDowsingMachinePaperPaymentGuard(() => {
+    const store = new PrismDelayedPaymentStore(f.state);
+    store.dispatch(new ResolvePromptAction(60, [f.one, f.two]));
+    store.dispatch(new ResolvePromptAction(61, [target]));
+  }, {Store:PrismDelayedPaymentStore, prismStarTag:PRISM_TAG}).audit;
+  assert.equal(audit.settledPhysicalPayments, 1);
+  assert.equal(audit.unsettledPhysicalPayments, 0);
+  assert.deepEqual(f.owner.discard.cards, [f.one]);
+  assert.deepEqual(f.owner.lostzone.cards, [f.two]);
+  assert.deepEqual(audit.sourceStampedPayments[0].paymentCustody.map(x =>
+    [x.expectedDestination, x.actualDestination, x.paidCorrectly]),
+    [['discard','discard',true],['lostzone','lostzone',true]]);
+});
+
+test('Dowsing fee auditor rejects an incorrectly discarded Prism Star even if Store accepted it', () => {
+  const f = fixture();
+  const target = {fullName:'Battle VIP Pass FST'};
+  f.owner.hand.cards.shift();
+  f.two.tags = [PRISM_TAG];
+  f.owner.lostzone = {cards:[]};
+  f.owner.discard.cards.push(target);
+  f.state.prompts.push(new ChooseCardsPrompt(60, f.owner));
+  const audit = withDowsingMachinePaperPaymentGuard(() => {
+    const store = new DelayedPaymentStore(f.state);
+    store.dispatch(new ResolvePromptAction(60, [f.one, f.two]));
+    store.dispatch(new ResolvePromptAction(61, [target]));
+  }, {Store:DelayedPaymentStore, prismStarTag:PRISM_TAG}).audit;
+  assert.equal(audit.settledPhysicalPayments, 0);
+  assert.equal(audit.unsettledPhysicalPayments, 1);
+  assert.equal(audit.sourceStampedPayments[0].closureReason,
+    'RECOVERY_CLOSED_WITHOUT_PHYSICAL_COST');
+  assert.deepEqual(audit.sourceStampedPayments[0].paymentCustody.map(x =>
+    x.paidCorrectly), [true, false]);
+});
