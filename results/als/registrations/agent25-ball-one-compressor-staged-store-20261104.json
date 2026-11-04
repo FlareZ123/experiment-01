@@ -1,0 +1,77 @@
+{
+  "version": "agent25-one-ball-one-compressor-staged-native-store-v1-precommit",
+  "dateUTC": "2026-11-04",
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "candidateBlobSha": "a87ad796a7d222dcea6f7a6c90218cbb1cafdde9",
+  "vendorPinned": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "intent": "Falsify the nominal Ball discard + one Compressor four-HNS setup using actual pinned native Store payment and damage",
+  "protocol": "Staged public midgame state only; deliberately not a 60-card natural initial deal or competent opponent",
+  "arms": [
+    {
+      "seat": 0,
+      "payment": "Shuppet M5",
+      "expectedSourceDonors": 4,
+      "expectedAttackDamage": 170
+    },
+    {
+      "seat": 0,
+      "payment": "Grass Energy MEE",
+      "expectedSourceDonors": 3,
+      "expectedAttackDamage": 30
+    },
+    {
+      "seat": 1,
+      "payment": "Shuppet M5",
+      "expectedSourceDonors": 4,
+      "expectedAttackDamage": 170
+    },
+    {
+      "seat": 1,
+      "payment": "Grass Energy MEE",
+      "expectedSourceDonors": 3,
+      "expectedAttackDamage": 30
+    }
+  ],
+  "initialState": {
+    "globalTurn": 3,
+    "ownerActive": "Dhelmise M5",
+    "ownerAttachedEnergy": "Psychic Energy SVE",
+    "ownerHand": [
+      "Quick Ball SSH",
+      "Battle Compressor PHF",
+      "payment variable"
+    ],
+    "ownerDeck": [
+      "Banette M5",
+      "Banette M5",
+      "Banette M5",
+      "Dhelmise M5",
+      "Psychic Energy SVE",
+      "Psychic Energy SVE",
+      "Psychic Energy SVE"
+    ],
+    "opponentActive": "Shadow Rider Calyrex V CRE",
+    "opponentActiveStartingDamage": 10,
+    "existingOtherOwnerPrizes": 6
+  },
+  "orderedNativeRoots": [
+    "PlayCardAction Quick Ball",
+    "Resolve printed discard hand cost",
+    "Resolve Basic owner deck search",
+    "PlayCardAction Battle Compressor",
+    "Resolve owner-deck discard three Banette",
+    "AttackAction Vengeful Anchor"
+  ],
+  "requiredReceipts": [
+    "native source card printing and actor seat",
+    "physical donor identity from hand payment",
+    "three physical Banette moved deck->discard",
+    "actual Store-accepted PlayCard and prompt settlements",
+    "AttackAction postdamage",
+    "owner deck and discard local identity custody",
+    "all failure and rejection reasons"
+  ],
+  "noMatchOutcome": true,
+  "zeroQualifiedGames": true,
+  "noUnqualifiedWinRate": true
+}
