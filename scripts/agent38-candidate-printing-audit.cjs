@@ -28,7 +28,15 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
   let foundCopies=0;
   const rows=manifest.cards.map(row=>{
     const {name,count,category,printing}=row;
-    const setCandidates=sets.filter(s=>s.ptcgoCode===printing.set);
+    // The bundled collection includes Sun & Moon promo card records at
+    // cards/en/smp.json with native IDs such as smp-SM217, even though
+    // sets/en.json has no ptcgoCode SMP entry. Resolve the exact card and
+    // name in that existing bundled file; never infer a promo stage by name.
+    const indexed=sets.filter(s=>s.ptcgoCode===printing.set);
+    const promo=printing.set==='SMP' &&
+      /^\\d+$/.test(String(printing.number)) ?
+      [{id:'smp',promoPrefix:'SM'}]:[];
+    const setCandidates=indexed.length?indexed:promo;
     if(!setCandidates.length){
       return {name,count,category,printing,
         state:'set-absent-from-bundled-corpus',matchedIds:[]};
@@ -40,7 +48,8 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
       if(!memo.has(set.id))
         memo.set(set.id,JSON.parse(fs.readFileSync(location,'utf8')));
       const cards=memo.get(set.id);
-      const id=set.id+'-'+String(printing.number);
+      const id=set.id+'-'+(set.promoPrefix||'')+
+        String(printing.number);
       for(const card of cards){
         if(card.id===id&&card.name===name&&
             ((category==='Pokémon'&&card.supertype==='Pokémon')||
