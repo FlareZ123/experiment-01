@@ -320,7 +320,7 @@ jobs:
         run: node --test tests/owner-public-discard-target-necessary.test.cjs tests/agent15-discard-target-source-census.test.cjs tests/agent15-first-root-recovery-no-target.test.cjs tests/agent15-japanese-only-promo-metadata.test.cjs tests/agent15-public-exact-print-identity.test.cjs
       - name: Preserve machine-readable source name-set incidence and uncovered priorities
         run: node scripts/agent35-field-trainer-negative-family-coverage.cjs > agent35-original29-trainer-negative-gates.json
-      - name: Preserve five recovery-family field incidence and ambiguous-print metadata
+      - name: Preserve six recovery-family field incidence and ambiguous-print metadata
         run: node scripts/agent15-discard-target-source-census.cjs > agent15-discard-target-source-census.json
       - name: Preserve authenticated source first-root recovery item no-target opening bound
         run: node scripts/agent15-first-root-recovery-no-target.cjs > agent15-first-root-recovery-no-target.json
