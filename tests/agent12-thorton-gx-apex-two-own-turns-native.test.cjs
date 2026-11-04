@@ -17,7 +17,7 @@ for(const seat of [0,1]){
     assert.equal(ko.after.usedGx,true);
     assert.equal(survive.after.usedGx,true);
     assert.equal(ko.after.sourcePrizes,3,'Two-Prize opponent plus enhanced GX bonus');
-    assert.equal(survive.after.sourcePrizes,6,'Surviving 380HP target awards zero Prizes');
+    assert.equal(survive.after.sourcePrizes,6,'Surviving 340HP Eternatus VMAX awards zero Prizes');
     assert.equal(survive.after.opponentActiveDamage,330,
       'Enhanced GX must add 30 damage to the 300 printed attack');
     assert.equal(ko.after.sourceDeck,6,
