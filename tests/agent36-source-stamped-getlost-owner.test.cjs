@@ -4,7 +4,7 @@ const test=require('node:test');
 const {withSourceStampedGetLostOwner}=
   require('../simulation/twinleaf/agent36-source-stamped-getlost-owner.cjs');
 
-function mock(){
+function mock({destination='none'}={}){
   class AddPlayerAction{}
   class ResolvePromptAction{constructor(id,result){this.id=id;this.result=result;}}
   class ChooseCardsPrompt{
@@ -28,9 +28,14 @@ function mock(){
         const p=this.state.prompts.find(x=>x.id===action.id);
         assert.ok(p);
         assert.equal(p.validate(action.result),true);
+        const opponent=this.state.players.find(player=>
+          player.discard===p.cards);
+        assert.ok(opponent);
         for(const c of action.result){
           const i=p.cards.cards.indexOf(c);
           p.cards.cards.splice(i,1);
+          if(destination==='lostzone')opponent.lostzone.cards.push(c);
+          if(destination==='hand')opponent.hand.cards.push(c);
         }
         p.result=action.result;
         this.cb(action.result);
@@ -166,4 +171,70 @@ test('Get Lost one-Store v1 default remains unchanged for historical receipts',(
   assert.equal(out.result,'baseline');
   assert.equal(out.audit.followSequentialNativeStores,false);
   assert.equal(out.audit.actualOwnerSelections,1);
+});
+
+test('Get Lost destination audit distinguishes real Lost Zone from disappearance',()=>{
+  for(const destination of ['lostzone','hand','none']){
+    const x=mock({destination});
+    const actor={id:'owner'};
+    const first={visible:'a'},second={visible:'b'};
+    const opponent={id:'enemy',
+      discard:{cards:[first,second]},lostzone:{cards:[]},hand:{cards:[]}};
+    const state={turn:3,players:[actor,opponent],prompts:[]};
+    const out=withSourceStampedGetLostOwner(()=>{
+      const store=new x.Store(state);
+      store.dispatch(new x.AddPlayerAction());
+      const source=new x.Girafarig();
+      source.reduceEffect(store,state,
+        new x.AttackEffect(actor,source.attacks[0]));
+      const action=new x.SimpleTacticsAi(actor.id).decodeNextAction(state);
+      assert.ok(action instanceof x.ResolvePromptAction);
+      assert.deepEqual(action.result,[first,second]);
+      store.dispatch(action);
+      return true;
+    },{engine:x.engine});
+    assert.equal(out.result,true);
+    assert.equal(opponent.discard.cards.length,0);
+    assert.equal(out.audit.acceptedStoreActions,1);
+    assert.equal(out.audit.postDispatchPublicDiscardDepletions,1,
+      'Public discard depletion alone is insufficient destination proof');
+    const trueMovement=destination==='lostzone';
+    assert.equal(out.audit.postDispatchExactLostZoneTransfers,
+      trueMovement?1:0);
+    assert.equal(out.audit.postDispatchLostZoneTransferUnverified,
+      trueMovement?0:1);
+    assert.equal(out.audit.selectedEvents[0].lostZoneBefore,0);
+    assert.equal(out.audit.selectedEvents[0].lostZoneAfter,
+      trueMovement?2:0);
+    assert.equal(out.audit.selectedEvents[0].exactLostZoneTransferConfirmed,
+      trueMovement);
+    assert.deepEqual(opponent.lostzone.cards,
+      trueMovement?[first,second]:[]);
+    assert.equal(out.audit.competitiveGamesQualified,0);
+  }
+});
+
+test('zero-card Get Lost acceptance never counts as a positive Lost Zone transfer',()=>{
+  const x=mock({destination:'lostzone'});
+  const actor={id:'owner'};
+  const opponent={id:'enemy',discard:{cards:[]},
+    lostzone:{cards:[]},hand:{cards:[]}};
+  const state={turn:3,players:[actor,opponent],prompts:[]};
+  const out=withSourceStampedGetLostOwner(()=>{
+    const store=new x.Store(state);
+    store.dispatch(new x.AddPlayerAction());
+    const source=new x.Girafarig();
+    source.reduceEffect(store,state,
+      new x.AttackEffect(actor,source.attacks[0]));
+    const action=new x.SimpleTacticsAi(actor.id).decodeNextAction(state);
+    assert.deepEqual(action.result,[]);
+    store.dispatch(action);
+    return true;
+  },{engine:x.engine});
+  assert.equal(out.audit.acceptedStoreActions,1);
+  assert.equal(out.audit.postDispatchPublicDiscardDepletions,0);
+  assert.equal(out.audit.postDispatchExactLostZoneTransfers,0);
+  assert.equal(out.audit.postDispatchLostZoneTransferUnverified,0);
+  assert.equal(out.audit.selectedEvents[0].exactLostZoneTransferConfirmed,
+    false);
 });
