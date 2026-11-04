@@ -44,8 +44,9 @@ test('rank24 DCE bench creates another Active-v-Bench funding conflict',()=>{
     [SPEED,DCE,CAPTURE],[DCE],[],canPayVoltCost);
   assert.equal(x.nonDominatedFundingConflict,true);
   assert.deepEqual(x.candidates.map(v=>[
-    v.donorName,v.activeCostPayable,v.benchCostPayable]),[
-    [SPEED,false,true],[DCE,false,false],[CAPTURE,true,false]
+    v.donorName,v.activeCostPayable,v.benchCostPayable,
+    v.paretoEfficientForPrintedPayment]),[
+    [SPEED,false,true,true],[DCE,false,false,false],[CAPTURE,true,false,true]
   ]);
 });
 
