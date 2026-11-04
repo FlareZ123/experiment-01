@@ -12,7 +12,7 @@ const {loadBundledPublicPrintMetadata}=require(
 
 const resourceRoot=path.join(__dirname,'../resources');
 
-test('source rank and exact 60 validation, five printed families',()=>{
+test('source rank and exact 60 validation, six printed families',()=>{
   const cards=[{category:'Trainer',name:'VS Seeker',
     printing:{set:'PHF'},count:2},
     {category:'Trainer',name:'Super Rod',printing:{set:'PAL'},count:1},
@@ -27,9 +27,9 @@ test('source rank and exact 60 validation, five printed families',()=>{
     {rank:4,cards},{rank:4,cards}]}));
 });
 
-test('five card text predicates have exact source IDs and Item class',()=>{
+test('six card text predicates have exact source IDs and Item class',()=>{
   const receipts=verifyRecoveryPrints(resourceRoot);
-  assert.equal(receipts.length,5);
+  assert.equal(receipts.length,6);
   assert.ok(receipts.every(r=>r.verifiedFromBundledEnglish));
 });
 
@@ -48,7 +48,7 @@ test('complete public database preserves HP-90 ambiguity quantitatively',()=>{
 test('source-wide name+set coverage reports unresolved original source printings',()=>{
   const result=run(path.join(__dirname,'..'));
   assert.equal(result.incidence.authenticatedSourceDecks,29);
-  assert.equal(result.incidence.registeredPhysicalTrainerCopies,96);
+  assert.equal(result.incidence.registeredPhysicalTrainerCopies,111);
   const coverage=result.enrichedPublicMetadataSourceCoverage;
   assert.equal(coverage.registeredOriginalSourceCardCopies,1740);
   assert.equal(coverage.nameSetUnrepresentedCopies,14);
