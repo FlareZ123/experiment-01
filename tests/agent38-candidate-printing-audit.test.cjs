@@ -132,3 +132,32 @@ test('unindexed bundled XY promos match exact Basic and Supporter identities',()
   assert.equal(unknown.state,'printing-not-matched-in-existing-set-corpus');
   assert.equal(unknown.matchedIds.length,0);
 });
+
+test('Prism Star source glyph variants resolve only exact printed Prism Star Pokémon',()=>{
+  for(const [rank,name,id] of [
+    [4,'Ditto ♢','sm8-154'],[8,'Tapu Koko ♢','sm9-51']
+  ]){
+    const original=originals.decks.find(deck=>deck.rank===rank);
+    const result=auditPrintedSixty(original);
+    const prism=result.rows.find(row=>row.name===name);
+    assert.equal(prism.state,'exact-bundled-printing');
+    assert.equal(prism.matchedIds.length,1);
+    assert.equal(prism.matchedIds[0].id,id);
+    assert.ok(prism.matchedIds[0].subtypes.includes('Prism Star'));
+    assert.ok(prism.matchedIds[0].subtypes.includes('Basic'));
+    assert.equal(prism.matchedIds[0].printedExpandedFlag,'Legal');
+
+    const spoof=JSON.parse(JSON.stringify(original));
+    spoof.cards.find(row=>row.name===name).name=name.replace(' ♢',' ♡');
+    const rejected=auditPrintedSixty(spoof).rows
+      .find(row=>row.name.endsWith(' ♡'));
+    assert.equal(rejected.state,'printing-not-matched-in-existing-set-corpus');
+    assert.equal(rejected.matchedIds.length,0);
+
+    const falseStage=JSON.parse(JSON.stringify(original));
+    falseStage.cards.find(row=>row.name===name).printing.number='999';
+    const missing=auditPrintedSixty(falseStage).rows
+      .find(row=>row.name===name);
+    assert.equal(missing.state,'printing-not-matched-in-existing-set-corpus');
+  }
+});
