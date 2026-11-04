@@ -64,6 +64,20 @@ E[\text{maximum offer to B}]=\frac{p_Aq_B}{q_A(1-p_Ap_B)}.
 
 Exchange A and B for the other direction. The supplied Advanced Player's Rulebook I.G confirms both-no-Basic resets, asymmetrical solo mulligans, the opponent's right to draw *up to* the number of relevant mulligans, and the right to Bench newly drawn Basics during setup. The results here use the offers and never presume the receiver takes all optional cards.
 
+## Exact public compensation histogram for native policy calibration
+
+The [same mathematical module](../../simulation/evaluation/agent1-original-field-mulligan-bonus.cjs) now exposes **exactBonusMultiplicity(candidateBasics, opponentBasics, maxCount)**, which yields the entire mutually exclusive discrete distribution of optional bonus card **offers**, with an explicit geometric tail. Set A=candidate, B=original opponent, pA and pB as above. The exact mass that **neither** is offered cards is qA qB / (1 - pA pB); for each integer j ≥ 1:
+
+\[
+P(\text{opponent offered exactly }j)=\frac{q_Aq_Bp_A^j}{1-p_Ap_B},
+\qquad
+P(\text{candidate offered exactly }j)=\frac{q_Aq_Bp_B^j}{1-p_Ap_B}.
+\]
+
+This is a more discriminating **read-only calibration target** for the already-implemented native setup compensation observer than merely checking the average offered count. Against rank 1 with 14 Basics, the seven-Basic ADP candidate produces exact hypothetical rates: **54.7911% neither offered**, **21.8682% rank1 offered exactly one**, **8.7281% rank1 offered exactly two**, **3.4835% rank1 offered exactly three**, and **7.5935% ADP offered exactly one**. Both-sided simultaneous bonus entitlement is impossible in a single completed setup. These are offered count masses before the receiver's optional draw choice.
+
+The [extended regression](../../tests/agent1-original-field-mulligan-bonus.test.cjs) checks the exact category masses, sums all geometric tails to one, tests both-seat symmetry for 25 pairs of Basic counts, and verifies every event's consistency with the earlier at-least-one expressions. [Manual CI 41782800996](https://github.com/FlareZ123/experiment-01/actions/runs/41782800996) completed **SUCCESS**. No additional native match was run, and no private card identity is required for an empirical setup-receipt comparison.
+
 ## Specific matchup examples
 
 Against **rank 1 Shadow Rider Calyrex**, with **14** original Basics, the seven-Basic ADP list offers rank 1 at least one extra card in **36.3937%** of setups, versus rank 1 offering ADP at least one in **8.8152%**. Expected maximum offers are **0.605674 to rank 1** and **0.102335 to ADP**.
