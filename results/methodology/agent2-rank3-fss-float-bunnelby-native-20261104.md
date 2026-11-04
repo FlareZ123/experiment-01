@@ -63,3 +63,20 @@ The [paired native terminal regression](../../tests/agent2-fss-float-actual-stor
 **Verified latest CI:** [GitHub Actions run 41911882216](https://github.com/FlareZ123/experiment-01/actions/runs/41911882216), repository HEAD `bf01e3e1d80853bb3e294ceec1ad99afe5d883f0`, vendor pin unchanged `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. **17/17 pure tests** including the new [eight-condition owner-view regression matrix](../../tests/agent2-bunnelby-deckout-float-frontier.test.cjs) and **20/20 compiled native tests** passed, 0 failures. Exact terminal result and both physical seats printed under `AGENT2_RANK3_FLOAT_DOUBLE_BURROW_TERMINAL`; the earlier single/double-Burrow receipts also remain. [Native ZIP artifact 13362927247](https://github.com/FlareZ123/experiment-01/actions/runs/41911882216/artifacts/13362927247), provider SHA-256 digest `46cc3e54dc8c8f566dbd698f76e1996f43262f865a241ddc716abca80d06c2fc`.
 
 **Research interpretation:** A public, zero-damage attack can directly change a game terminal state, illustrating how an 80-damage cutoff misses an available high-impact tactic. The paired comparison is **one synthetic tactical state tested on two seats**, not two qualifying games, not a statistically representative natural source deal, not a demonstrated matchup advantage, and not a general policy-selection proof. It warrants an opt-in future integration test under the canonical owner-only, bilateral, alternate-actions and genuine opposing-policy gates.
+
+
+## Exact opening-seven frequency bound for the specific pair
+
+The previous [original-29 deck census](agent2-original29-fss-first-tool-starvation-20261104.md) counted **any alternate Tool**, producing a **1.1923%** rank-3 legal-opening-seven fraction for FSS-first, another Tool and no Basic V. Our rank-3 **Float-specific** prerequisite is narrower. Rank 3 has **one FSS, one Float, two other Tools, ten non-V Basics, one Basic V, and 45 cards from all other categories**. With seven physically randomized starting cards, require FSS and Float in the hand, at least one non-V Basic, no Basic V, and FSS preceding every held Tool in hand order. Its exact conditional probability among valid starting sevens is:
+
+\[
+\frac{\displaystyle\sum_{u=0}^{2}\sum_{b=1}^{10}
+\binom{2}{u}\binom{10}{b}\binom{45}{7-2-u-b}\frac{1}{2+u}}
+{\binom{60}{7}-\binom{49}{7}}
+=\frac{152673}{36400768}
+\approx0.004194224693281197
+\]
+
+Here \(u\) counts other Tools, \(b\) held non-V Basics; out-of-range binomial coefficients are zero. The first-tool factor is \(1/(2+u)\), since FSS is uniquely first among FSS, Float and the \(u\) additional Tools in a uniformly ordered hand. Independently verified with exact integer/rational `math.comb` and `fractions.Fraction`, this is **0.4194224693% of valid opening sevens**. The unconditioned probability is **0.3261340449% of all shuffled sevens**.
+
+**This frequency applies only to that exact first-seven event**, before Mulligan repeats, extra draws, Item searches, Prize-card inspection or later turn changes. It is neither an upper nor a lower bound on the chance of the late-game Bunnelby/Float opportunity. The constructed terminal witness demands additional late-game board setup and an opponent deck count of at most two; no occurrence frequency or matchup-win improvement has been estimated from opening combinatorics alone.
