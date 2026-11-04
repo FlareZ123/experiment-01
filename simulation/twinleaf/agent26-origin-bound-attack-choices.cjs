@@ -5,7 +5,7 @@ const path=require('node:path');
 const {sampleUniformPositions}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent26-origin-bound-attack-choices-v1';
+const VERSION='agent26-origin-bound-attack-choices-v2';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -75,7 +75,9 @@ function withOwnerOriginBoundAttackChoices(run,options){
           if(prompt instanceof ChooseCardsPrompt&&
              prompt.message===GameMessage.CHOOSE_CARD_TO_DISCARD&&
              prompt.playerId===ownerId&&prompt.cards===expectedZone&&
-             prompt.options?.allowCancel===definition.allowCancel&&
+             (prompt.options?.allowCancel===definition.allowCancel||
+              (definition.kind==='get-lost'&&
+               prompt.options?.allowCancel===false))&&
              (prompt.options?.isSecret===true)===definition.secret&&
              prompt.options?.min>=0&&prompt.options?.max<=2&&
              Object.keys(prompt.filter??{}).length===0){
@@ -121,12 +123,15 @@ function withOwnerOriginBoundAttackChoices(run,options){
         String(prompt.id)]);
       positions=sampleUniformPositions(n,k,options.committedSeed,nonce);
     }else{
-      // Separate source-level paper correction is required below two.
-      if(n<2||prompt.options.min!==2||prompt.options.max!==2){
+      // Agent29's separately installed exact-print paper fix changes the
+      // native min=2 on a 0/1-card discard into a mandatory available count.
+      // An unfixed short-zone prompt must still fail closed.
+      if(prompt.options.min!==k||prompt.options.max!==k||
+         (n<2&&prompt.options.allowCancel!==false)){
         audit.declined.push({kind:'get-lost',reason:'needs-paper-count-hook'});
         return oldAi.value.call(this,state);
       }
-      positions=[0,1];
+      positions=Array.from({length:k},(_,i)=>i);
     }
     const choices=positions.map(index=>zone.cards[index]);
     assert.equal(prompt.validate(choices),true,
