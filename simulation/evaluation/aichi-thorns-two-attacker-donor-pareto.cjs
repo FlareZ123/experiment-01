@@ -40,6 +40,16 @@ function twoAttackerDonorPareto(active,bench,stadiums,canPay){
       benchCostPayable:paid(recipientAfter)
     };
   });
+  // Pareto efficiency is scoped to the two printed-cost booleans.
+  // Duplicated physical donors can share one nondominated outcome.
+  for(const c of candidates){
+    const dominated=candidates.some(other=>
+      (!c.activeCostPayable||other.activeCostPayable)&&
+      (!c.benchCostPayable||other.benchCostPayable)&&
+      (other.activeCostPayable!==c.activeCostPayable||
+       other.benchCostPayable!==c.benchCostPayable));
+    c.paretoEfficientForPrintedPayment=!dominated;
+  }
   const someActivePayable=candidates.some(c=>c.activeCostPayable);
   const someBenchPayable=candidates.some(c=>c.benchCostPayable);
   const someBothPayable=candidates.some(c=>
