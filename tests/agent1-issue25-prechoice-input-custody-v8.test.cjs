@@ -44,7 +44,9 @@ function fixture(mode){
           physicalOwnerSeat:seat,
           ownerHandCount:7,ownerDeckCount:47,ownerPrizeCount:6,
           opaquePhysicalPrechoiceInputHmacSha256:
-            digest('synthetic-opaque-physical-'+trial.id+'-'+seat)
+            digest('synthetic-opaque-physical-'+trial.id+'-'+seat),
+          opaquePreRunRequestHmacSha256:
+            digest('synthetic-public-run-request-'+trial.id)
         })))
       }
     },
@@ -68,6 +70,8 @@ test('same exact registered native Store owner inputs still cannot certify treat
   assert.equal(compared.constraints.allBeforeTreatmentInputsObserved,true);
   assert.equal(compared.constraints.trialPairedInputMatches,16);
   assert.equal(compared.constraints.trialPairedInputMismatches,0);
+  assert.equal(compared.constraints.matchedNativePreRunRequests,16);
+  assert.equal(compared.constraints.nativeRegisteredRequestParityObserved,true);
   assert.equal(compared.constraints.sameRegisteredTrialIdentityAndDeckPrintings,true);
   assert.equal(compared.constraints.sameObservedPinnedEngine,true);
   assert.equal(compared.constraints.declaredSingleOpeningWrapperContrast,true);
@@ -143,4 +147,17 @@ test('registered owner equality is resilient to actual Store creation order',()=
   assert.equal(result.constraints.nativeStoreTrialLinkVerified,true);
   assert.equal(result.constraints.trialPairedInputMatches,16);
   assert.equal(result.constraints.prechoiceInputParityObserved,true);
+});
+
+test('same registered private hand with changed native 60/seed/flags request fails request parity',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[5]
+    .opaquePreRunRequestHmacSha256=digest('altered-public-decks-or-options');
+  const comparison=comparePrechoiceCustodyV8(a,b);
+  assert.equal(comparison.constraints.nativeStoreTrialLinkVerified,true);
+  assert.equal(comparison.constraints.prechoiceInputParityObserved,true);
+  assert.equal(comparison.constraints.matchedNativePreRunRequests,15);
+  assert.equal(comparison.constraints.nativeRegisteredRequestParityObserved,false);
+  assert.equal(comparison.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
+    'UNRESOLVED');
 });
