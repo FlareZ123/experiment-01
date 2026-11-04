@@ -1,0 +1,43 @@
+name: Agent5 native rank1 genuine t37 counterplay A B A with Ace Trainer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-rank1-four-arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify historical-deal runner syntax and pure archive join contracts
+        run: |
+          node --check simulation/twinleaf/agent5-rank1-ace-trap-native-fork.cjs
+          node --check simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs
+          node --test tests/agent5-rank1-ace-trap-archive-join.test.cjs
+      - name: Checkout unchanged pinned Twinleaf revision
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Install and compile pinned native Store
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Validate immutable registration, tournament identity, engine hash
+        run: node simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs --preflight
+      - name: Run original 60 same-deal physical owner t37 control two-Item plus Ace Trainer control
+        run: node simulation/evaluation/agent5-rank1-ace-trap-afterpass-native.cjs
+      - name: Preserve full outcomes and failed native receipts with source counterreply
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent5-rank1-t37-countercatcher-fieldblower-ace-trainer-4arms
+          path: agent5-rank1-twoitem-ace-trap-native-fourarms.json
+          if-no-files-found: warn
+          retention-days: 30
