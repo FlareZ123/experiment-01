@@ -346,8 +346,12 @@ for(const seat of [0,1]){
         assert.equal(p.playerId,s.owner.id);
         assert.equal(p.message,GameMessage.CHOOSE_ATTACK_TO_COPY);
         assert.equal(p.cards[0].fullName,'Bunnelby PRC');
-        s.store.dispatch(new ResolvePromptAction(p.id,
-          {index:0,attack:'Burrow'}));
+        // Store takes the *decoded Attack object*, unlike the serialized
+        // remote-client {index, attack} answer accepted by prompt.decode.
+        const selected=p.cards[0].attacks.find(a=>a.name==='Burrow');
+        assert.ok(selected);
+        assert.equal(p.validate(selected),true);
+        s.store.dispatch(new ResolvePromptAction(p.id,selected));
       }else{
         assert.fail('Unknown source-owner Omega Barrage prompt '+kind);
       }
