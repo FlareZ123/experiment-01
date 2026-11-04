@@ -34,11 +34,16 @@ jobs:
       - name: Native Store attached Float, actual retreat, both seats
         shell: bash
         run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs tests/agent2-tool-score-card-identity-blind.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
+      - name: Passively audit exact rank3 vs rank1 original sixty source roots, both seats
+        shell: bash
+        run: node simulation/evaluation/agent2-rank3-original-fss-float-census.cjs | tee agent2-rank3-original-natural-fss-census.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent2-fss-first-tool-rank3-staged-store
-          path: agent2-fss-native-rank3-stdout.txt
+          path: |
+            agent2-fss-native-rank3-stdout.txt
+            agent2-rank3-original-natural-fss-census.json
           if-no-files-found: warn
           retention-days: 14
