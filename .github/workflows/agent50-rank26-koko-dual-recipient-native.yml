@@ -42,6 +42,8 @@ jobs:
         run: node --test tests/agent50-setup-bench-occupancy-tradeoff.test.cjs
       - name: Issue25 opt-in owner-only preserved-Bench-entry opening comparison with pinned validator
         run: node --test tests/agent50-owner-preserve-turn-entry-setup.test.cjs tests/agent50-owner-preserve-turn-entry-setup.native.test.cjs
+      - name: Six exact pinned printed in-turn entry Ability setup owner prompt validation
+        run: node --test tests/agent50-owner-entry-six-pinned-classes.native.test.cjs
       - name: Issue25 opt-in owner-entry-priority real Store pair and pure noninterference
         env:
           AGENT50_ENTRY_RECEIPT_DIR: artifacts/agent50-entry-priority
