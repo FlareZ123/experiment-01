@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {SOURCE,choose,countRequiredInSeven,analyze}=require(
+const {SOURCE,choose,countRequiredInSeven,analyze,
+  analyzeAlternativeBasicStarter}=require(
   '../simulation/evaluation/agent2-rank26-selfko-first8.cjs');
 const source=require('../results/aichi-2026/full-decklists.json').decks
   .find(deck=>deck.rank===26);
@@ -54,4 +55,19 @@ test('valid-seven conditioned exact probability and no claimed game',()=>{
   assert.ok(Math.abs(a.conditionalBasicValidProbability-
     2.5960627194324006e-6)<1e-17);
   assert.equal(a.gamesPlayed,0);
+});
+
+test('all six other source Basics can serve as initial Active starter',()=>{
+  const r=analyzeAlternativeBasicStarter();
+  assert.equal(r.starterGroupCopies,6);
+  assert.equal(r.neutralCopies,38);
+  assert.equal(r.allSevenCategoryEightSubsets,'34944');
+  assert.equal(r.weightedSuccessfulEightSubsets,'30816');
+  assert.equal(r.exactNumerator,'246528');
+  assert.equal(r.exactDenominator,'20468966760');
+  assert.ok(Math.abs(r.unconditionalProbability-
+    1.2043988487086683e-5)<1e-18);
+  assert.ok(Math.abs(r.conditionalBasicValidProbability-
+    1.4881002373889297e-5)<1e-18);
+  assert.equal(r.competitiveGamesQualified,0);
 });
