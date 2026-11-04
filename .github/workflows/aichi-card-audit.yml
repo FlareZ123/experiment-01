@@ -80,6 +80,8 @@ jobs:
           python-version: '3.12'
       - name: Install file lock library
         run: python -m pip install filelock
+      - name: Independently verify 29-rank historical-art crosswalk and source identity
+        run: node --test tests/agent17-may2026-future-energy-print-audit.test.cjs tests/agent22-aichi-source-print-crosswalk.test.cjs
       - name: Audit card identifiers
         run: python scripts/aichi_card_audit.py
       - name: Verify attack-granting Tool source resolver
