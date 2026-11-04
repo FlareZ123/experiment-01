@@ -26,3 +26,23 @@ jobs:
         run: node --test tests/agent2-apex-jp-print-audit.test.cjs
       - name: Verify dated SM12a Basic Energy alternatives for all 60 physical slots
         run: node --test tests/agent2-apex-sm12a-release.test.cjs
+      - name: Verify Japanese Expanded exact-print structural vetoes
+        run: node --test tests/agent9-jp-expanded-structure.test.cjs
+      - name: Audit all 29 original printed sixties against dated Japanese structural conditions
+        run: node scripts/agent9-jp-expanded-source-audit.cjs > agent9-jp-expanded-source-audit.json
+      - name: Print source-29 negative-screen summary
+        run: >-
+          node -e "const a=require('./agent9-jp-expanded-source-audit.json');
+          console.log(JSON.stringify({authenticated:a.authenticatedDeckRows,
+          missing:a.missingOriginalDecks,definiteViolations:a.observedDefiniteViolationDecks,
+          unresolvedEnglishMetadataDecks:a.observedUnresolvedMetadataDecks,
+          noPaperLegalityCertificates:a.paperLegalityCertifiedDecks===0,
+          perRank:a.perRank}));"
+      - name: Preserve original-29 exact-print unresolved and negative audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent9-aichi-japanese-structural-source29
+          path: agent9-jp-expanded-source-audit.json
+          if-no-files-found: warn
+          retention-days: 30
