@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const fs=require('node:fs');
 const {combinations}=require('../simulation/twinleaf/agent27-owner-trainer-discard-contention.cjs');
-const {RULES,loadBundledPublicPrintMetadata,withSourcePromoAliases}=
+const {RULES,loadBundledPublicPrintMetadata,withSourceDisplayAliases}=
   require('../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
 
 const VERSION='agent15-source-recovery-before-first-action-v1';
@@ -124,7 +124,7 @@ function sourceFieldFirstRecoveryWindow(field,metadata){
 
 function run(repoRoot=path.resolve(__dirname,'..')){
   const resourceRoot=path.join(repoRoot,'resources');
-  const index=withSourcePromoAliases(loadBundledPublicPrintMetadata(
+  const index=withSourceDisplayAliases(loadBundledPublicPrintMetadata(
     resourceRoot));
   const field=JSON.parse(fs.readFileSync(
     path.join(repoRoot,'results','aichi-2026','full-decklists.json'),'utf8'));
