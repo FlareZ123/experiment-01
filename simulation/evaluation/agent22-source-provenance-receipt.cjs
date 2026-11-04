@@ -55,12 +55,10 @@ function sourceProvenanceReceipt(
   }
   const aliases=nativePlan?.substitutions??[];
   assert.ok(Array.isArray(aliases));
-  const matchedAliases=new Set();
   const mappings=scoped.map(entry=>{
     const found=aliases.filter(alias=>sameTranscribedRow(entry,alias));
     assert.ok(found.length<=1,'Ambiguous resolver substitution for source art');
     const observed=found[0]??null;
-    if(observed) matchedAliases.add(observed);
     const aliasesAvailable=Boolean(nativePlan);
     return {
       name:entry.name,count:entry.count,
