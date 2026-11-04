@@ -138,8 +138,25 @@ function withSourcePromoAliases(index){
       'Native Letter display alias collides with different metadata');
     result.set(alias,correct);
   }
+  // Source archive prints these exact collector numbers with shorter names.
+  // English database retains the Team Flare Gear suffix and spelled-out
+  // Lightning/Psychic/Metal names. Verified ids: xy4-92/102/106, sm5-138.
+  for(const [alias,canonical] of [
+    ['Battle Compressor PHF','Battle Compressor Team Flare Gear PHF'],
+    ['Robo Substitute PHF','Robo Substitute Team Flare Gear PHF'],
+    ['Target Whistle PHF','Target Whistle Team Flare Gear PHF'],
+    ['Unit Energy LPM UPR','Unit Energy LightningPsychicMetal UPR']
+  ]){
+    const source=result.get(canonical);
+    assert.ok(source,'Missing bundled source for verified public display alias');
+    const prior=result.get(alias);
+    assert.ok(!prior||JSON.stringify(prior)===JSON.stringify(source),
+      'Public shortened-name alias collides with other metadata');
+    result.set(alias,source);
+  }
   return result;
 }
+const withSourceDisplayAliases=withSourcePromoAliases;
 
 /**
  * A read-only, paper-negative certificate for common discard-recovery Items.
@@ -232,6 +249,6 @@ function augmentPaperNecessityWithDiscardTargets(view,base,publicPrints){
 }
 
 module.exports={VERSION,RULES,targetMatch,buildPublicPrintMetadata,
-  withSourcePromoAliases,
+  withSourcePromoAliases,withSourceDisplayAliases,
   loadBundledPublicPrintMetadata,publicDiscardTargetNecessary,
   augmentPaperNecessityWithDiscardTargets};
