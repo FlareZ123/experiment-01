@@ -71,6 +71,62 @@ function stage(seat){
   return {source,opponent,melo,lightning,dce,tool,defending,store,state,seat};
 }
 
+/**
+ * Negative control for first-turn attack permission. Meloetta has moved to
+ * the Bench, so its printed Live Debut cannot authorize the Active Squawk.
+ * Test before AND after the positive Meloetta cases to detect accidental
+ * mutation of the shared Technical Machine attack-permission flag.
+ * @param {0|1} seat
+ * @param {'before-melo'|'after-melo'} phase
+ */
+function registerSquawkFirstTurnVeto(seat,phase){
+  test('original Squawk first-turn Crisis Punch veto '+phase+' seat '+seat,()=>{
+    const x=stage(seat);
+    const melo=x.source.active.cards.pop();
+    const squawk=x.source.bench[0].cards.pop();
+    assert.strictEqual(melo,x.melo);
+    assert.equal(squawk.fullName,'Squawkabilly ex PAL');
+    x.source.active.cards.push(squawk);
+    x.source.bench[0].cards.push(melo);
+    assert.equal(x.source.active.getPokemonCard(),squawk);
+    assert.equal(x.source.bench[0].getPokemonCard(),melo);
+    assert.equal(x.state.rules.attackFirstTurn,false);
+    const toolAttack=x.tool.attacks.find(attack=>attack.name==='Crisis Punch');
+    assert.ok(toolAttack);
+    const canUseBefore=toolAttack.canUseOnFirstTurn??null;
+    const handIndex=x.source.hand.cards.indexOf(x.dce);
+    assert.ok(handIndex>=0);
+    x.store.dispatch(new PlayCardAction(x.source.id,handIndex,{
+      player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
+    }));
+    assert.ok(x.source.active.energies.cards.includes(x.dce));
+    let caught=null;
+    try{
+      x.store.dispatch(new AttackAction(x.source.id,'Crisis Punch'));
+    }catch(error){
+      caught=error?.message??String(error);
+    }
+    const evidence={seat,phase,canUseBefore,
+      canUseAfter:toolAttack.canUseOnFirstTurn??null,
+      caught,
+      active:x.source.active.getPokemonCard()?.fullName??null,
+      meloOnBench:x.source.bench[0].getPokemonCard()?.fullName??null,
+      opponentActive:x.opponent.active.getPokemonCard()?.fullName??null,
+      opponentDiscard:x.opponent.discard.cards.map(card=>card.fullName),
+      sourcePrizeLeft:x.source.getPrizeLeft(),
+      nativePhase:x.state.phase,nativeWinner:x.state.winner};
+    console.log('AGENT50_FIRSTTURN_SQUAWK_NEGATIVE_V3',JSON.stringify(evidence));
+    assert.equal(caught,'CANNOT_ATTACK_ON_FIRST_TURN',
+      'a non-Meloetta Active must not inherit Live Debut permission');
+    assert.equal(x.source.getPrizeLeft(),6);
+    assert.equal(x.opponent.active.getPokemonCard(),x.defending);
+    assert.equal(x.opponent.discard.cards.includes(x.defending),false);
+    assert.equal(x.state.phase,GamePhase.PLAYER_TURN);
+  });
+}
+
+for(const seat of [0,1])registerSquawkFirstTurnVeto(seat,'before-melo');
+
 for(const seat of [0,1]){
   test('original Meloetta first global turn Tool Crisis Punch native seat '+seat,()=>{
     const x=stage(seat);
@@ -133,7 +189,7 @@ for(const seat of [0,1]){
     const out={
       seat,initial,after:{opponentDamage:x.opponent.active.damage,
         opponentActive:x.opponent.active.getPokemonCard()?.fullName??null,
-        opponentLostAllPokemon:![x.opponent.active.getPokemonCard()]&&
+        opponentLostAllPokemon:!x.opponent.active.getPokemonCard()&&
           !x.opponent.bench.some(s=>s.getPokemonCard()),
         sourcePrizeLeft:x.source.getPrizeLeft(),
         opponentPrizeLeft:x.opponent.getPrizeLeft(),
@@ -187,3 +243,5 @@ for(const seat of [0,1]){
       'no unresolved native prompt may be counted as a settled terminal');
   });
 }
+
+for(const seat of [0,1])registerSquawkFirstTurnVeto(seat,'after-melo');
