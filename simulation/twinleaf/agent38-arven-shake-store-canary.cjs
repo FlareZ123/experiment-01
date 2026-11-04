@@ -83,6 +83,8 @@ function probeArvenShake(candidateSeat){
   const audit={candidateSeat,source:'staged owner visible hand/deck, no deal',
     cardIdentity:{arven:arven.fullName,shake:shake.fullName,
       stone:stone.fullName,garbodor:garb.fullName},
+    physicalCardIds:{trubbish:trub.id,arven:arven.id,
+      shake:shake.id,stone:stone.id,garbodor:garb.id},
     steps:[]};
 
   /** @param {string} label @param {any} selected @param {object} target */
@@ -90,7 +92,8 @@ function probeArvenShake(candidateSeat){
     const index=candidate.hand.cards.indexOf(selected);
     assert.ok(index>=0,label+': physical card not in acting hand');
     store.dispatch(new PlayCardAction(candidate.id,index,target));
-    audit.steps.push({label,action:'PlayCardAction',card:selected.fullName,
+    audit.steps.push({label,action:'PlayCardAction',
+      card:selected.fullName,physicalId:selected.id,
       target:{...target}});
   }
   /** @param {string} label @param {any[]} selection @param {string} promptName */
@@ -100,8 +103,10 @@ function probeArvenShake(candidateSeat){
     assert.equal(p.validate(selection,state),true,label+': invalid physical choice');
     store.dispatch(new ResolvePromptAction(p.id,selection));
     audit.steps.push({label,action:'ResolvePromptAction',
-      prompt:promptName,selected:selection.map(x=>x.fullName||
-        x.getPokemonCard?.()?.fullName||null)});
+      prompt:promptName,selected:selection.map(x=>({
+        name:x.fullName||x.getPokemonCard?.()?.fullName||null,
+        physicalId:x.id??x.getPokemonCard?.()?.id??null
+      }))});
   }
   function drainAdministrative(){
     let count=0;
@@ -163,6 +168,18 @@ function probeArvenShake(candidateSeat){
     noOutstandingStorePrompt:pending()===undefined,
     benchedGarbodorWithTool:true,
     opponentAbilityBlocked:true,
+    physicalCustodyAfterLine:{
+      activeName:candidate.active.getPokemonCard()?.fullName,
+      benchedEvolutionName:candidate.bench[0].getPokemonCard()?.fullName,
+      benchedEvolutionPhysicalId:candidate.bench[0].getPokemonCard()?.id,
+      benchedBasicPhysicalId:trub.id,
+      benchedToolName:stone.fullName,
+      benchedToolPhysicalId:candidate.bench[0].tools[0]?.id,
+      searchedItemStillInHand:candidate.hand.cards.includes(shake),
+      searchedToolStillInHand:candidate.hand.cards.includes(stone),
+      searchedEvolutionStillInDeck:candidate.deck.cards.includes(garb),
+      supporterQuotaObserved:candidate.supporterTurn
+    },
     adminPrompts:{afterArven:afterArvenAdmin,afterBoostShakeSearch:
       afterSearchAdmin,afterEvolution:afterEvolutionAdmin},
     qualification:'Staged native Store mechanics canary only; no competitive games'};
