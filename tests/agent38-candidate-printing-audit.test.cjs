@@ -106,3 +106,29 @@ test('unindexed SMP promo uses only exact existing bundled card identity',()=>{
   assert.equal(rejected.state,'printing-not-matched-in-existing-set-corpus');
   assert.equal(rejected.matchedIds.length,0);
 });
+
+test('unindexed bundled XY promos match exact Basic and Supporter identities',()=>{
+  const rank2=originals.decks.find(deck=>deck.rank===2);
+  const rank3=originals.decks.find(deck=>deck.rank===3);
+  const a=auditPrintedSixty(rank2).rows;
+  const b=auditPrintedSixty(rank3).rows;
+  for(const [rows,name,id,subtype] of [
+    [a,'Jirachi','xyp-XY67','Basic'],
+    [a,'Karen','xyp-XY177','Supporter'],
+    [b,'Regirock','xyp-XY49','Basic']
+  ]){
+    const match=rows.find(row=>row.name===name);
+    assert.equal(match.state,'exact-bundled-printing',id);
+    assert.equal(match.matchedIds.length,1,id);
+    assert.equal(match.matchedIds[0].id,id);
+    assert.ok(match.matchedIds[0].subtypes.includes(subtype),id);
+    assert.equal(match.matchedIds[0].printedExpandedFlag,'Legal',id);
+  }
+
+  const forged=JSON.parse(JSON.stringify(rank3));
+  forged.cards.find(row=>row.name==='Regirock').printing.number='999';
+  const unknown=auditPrintedSixty(forged).rows
+    .find(row=>row.name==='Regirock');
+  assert.equal(unknown.state,'printing-not-matched-in-existing-set-corpus');
+  assert.equal(unknown.matchedIds.length,0);
+});
