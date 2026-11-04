@@ -81,6 +81,7 @@ jobs:
             tests/agent3-source-bonus-field-32-bound.test.cjs \
             tests/agent3-original29-print-gap-census.test.cjs \
             tests/agent3-registered-attempt-reconciliation.test.cjs \
+            tests/agent3-issue25-native-source-decision-census.test.cjs \
             tests/agent3-gitlink-worktree-attestation.test.cjs \
             tests/agent3-native-root-disposition.test.cjs
 
