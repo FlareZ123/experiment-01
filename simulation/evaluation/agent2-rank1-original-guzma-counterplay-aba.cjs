@@ -189,6 +189,25 @@ function runArm(arm,cards){
         x.attackName!=='Filch').map(x=>x.attackName),
       registeredRootTurn3ActualSourceActions:game.rootActionLedger.filter(x=>
         x.turnBefore===3),
+      originalRank3OwnerMeaningfulRootTimeline:game.rootActionLedger.filter(x=>
+        x.playerSlot===SOURCE_SEAT&&
+        ['PlayCardAction','AttackAction','RetreatAction','PassTurnAction']
+          .includes(x.action)),
+      originalRank1OwnerMeaningfulRootTimeline:game.rootActionLedger.filter(x=>
+        x.playerSlot===OPPONENT_SEAT&&
+        ['PlayCardAction','AttackAction','RetreatAction','PassTurnAction']
+          .includes(x.action)),
+      originalSourcePassBoardTimeline:(game.decisionTrace??[]).filter(x=>
+        x.playerSlot===SOURCE_SEAT&&x.action==='PassTurnAction'&&
+        x.turnBefore>=INTERVENTION_TURN
+      ).map(x=>({
+        globalTurn:x.turnBefore,
+        sourceActive:x.publicBoardBeforePass?.[SOURCE_SEAT]?.active??null,
+        sourceBench:x.publicBoardBeforePass?.[SOURCE_SEAT]?.bench??[],
+        rank1Active:x.publicBoardBeforePass?.[OPPONENT_SEAT]?.active??null,
+        remainingPrizes:x.prizesAfter,
+        remainingDeckCards:x.decksAfter
+      })),
       actualFinalPublicBoard:game.finalPublicBoard??null,
       terminalTransition:game.terminalTransition??null,
       tacticalAudit,competitivelyQualified:false
