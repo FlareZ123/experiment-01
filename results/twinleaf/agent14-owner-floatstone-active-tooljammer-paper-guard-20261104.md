@@ -34,6 +34,12 @@ The added `knownRetreatIncrease(view,catalog)` predicate reads the public Stadiu
 
 [Source revision ab814024](https://github.com/FlareZ123/experiment-01/commit/ab8140241361611c3d2f13b39f7ee6d50eefe869) and [new pure tests 340c650b](https://github.com/FlareZ123/experiment-01/commit/340c650b4fca569b6d837c8a01adedd6c8ab2a70), with an isolated stage-enum fixture correction [3ffc950f](https://github.com/FlareZ123/experiment-01/commit/3ffc950f1e423cc4261d5d08117df99f2cdcf088). Existing manual workflow was re-dispatched after these commits, with results to be recorded separately.
 
+## Original-field exposure, inventory only
+
+A direct count over the repository's 29 authenticated original card-name/count sixties (`results/aichi-2026/full-decklists.json`) gives **24 Float Stone copies across 12 original decks** (ranks 1, 3, 5, 8, 9, 11, 15, 16, 19, 22, 26, 30) and **five Tool Jammer copies across five** (ranks 3, 6, 7, 24, 29). There are **59 directed different-deck rank pairs** where the first original source contains any Float Stone and its opposing source contains any Tool Jammer: 12×5 minus the rank-3 self-pair = 59 of 29×28 possible ordered distinct-source pairs, or **7.2660%** of such pairings under *uniform ordered-pair weighting*. This number only measures **inventory co-presence across opponents**, never draw/access probability, Tool attachment, board position, effect activation, chance of paper-invalid action, or game impact.
+
+The same 29 original decks contain **zero Galar Mine, zero Spidops ex and zero Ariados copies** by exact card name. The v3 extra-modifier guard therefore addresses possible candidate lists, other paper Expanded matchups or the three unknown originals; it is not represented as a demonstrated additional observed Top29 matchup defect. Authentic source deck totals remain 29/32.
+
 ## Integration boundaries
 
 This is a narrow downstream planner fix against a preexisting independently demonstrated paper-negative control. It does **not** mean the selected Issue #25 v0/v1/v2/v3 policy executes this mobility helper, nor does it establish any whole-policy symmetry, hidden-information noninterference, source-game competence, legal payment, match clock, terminal accuracy or qualified win rate. Integrators should explicitly select and hash the helper before treating the guard as part of an executing release.
