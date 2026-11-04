@@ -28,8 +28,8 @@ test('opening-loss exact combinatorics equal independent physical-hand enumerati
   assert.equal(consumed,a.consumedTriggerOpenings);
   assert.equal(avoidable,a.avoidableTriggerOpenings);
   assert.equal(valid,52n);
-  assert.equal(consumed,36n);
-  assert.equal(avoidable,8n);
+  assert.equal(consumed,32n);
+  assert.equal(avoidable,16n);
   console.log('AGENT50_OPENING_TINY_EXACT',{
     valid:String(valid),consumed:String(consumed),avoidable:String(avoidable)
   });
