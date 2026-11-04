@@ -71,7 +71,7 @@ function withOwnerEntryPriorityOpening(run,deps={}){
       input.actor.ownHandTurnEntrySupport[item.index]===true);
     const chosen=choice.handIndices[0];
     inputSelections.push({
-      seat:input.actor.seat??null,
+      seat:input.actor.actorSeat??input.actor.seat??null,
       validEligibleBasics:options.length,
       eligibleTurnEntrySupports:eligibleSupports.length,
       chosenEntrySupport:
