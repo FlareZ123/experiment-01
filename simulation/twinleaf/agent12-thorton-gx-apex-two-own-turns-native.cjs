@@ -44,7 +44,8 @@ function probeCore(seat,corrected,defender){
 
   const f=stagedPainfulSpoons(seat);
   if(defender==='survive'){
-    f.opponent.active.cards.splice(0,1,f.card('Mega Venusaur ex MEG'));
+    f.opponent.active.cards.splice(0,1,
+      f.card('Eternatus V DAA'),f.card('Eternatus VMAX DAA'));
     f.opponent.active.damage=0;
   }
   f.state.turn=2; // First owner turn going second; original turn1 was opponent.
