@@ -58,7 +58,8 @@ test('native eight-arm same-process physical prechoice inputs, honest trial link
   assert.equal(comparison.sameEightPreregisteredIDs.length,8);
   assert.equal(comparison.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
-  assert.equal(comparison.constraints.nativeStoreTrialLinkVerified,false);
+  assert.equal(comparison.constraints.nativeStoreTrialLinkVerified,true);
+  assert.equal(comparison.constraints.prechoiceInputParityObserved,true);
   assert.equal(comparison.constraints.competitiveGamesQualified,0);
   assert.equal(comparison.constraints.releaseQualified,false);
 });
