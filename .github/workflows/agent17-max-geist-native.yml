@@ -1,0 +1,49 @@
+name: Agent 17 rank1 Max Geist native damage-breakpoint proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rank1-scaling-typed-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify source-locked printed scaling and owner-root contracts
+        run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
+      - name: Install pinned simulator dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile unchanged pinned simulator
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Compare actual Store Max Geist control and marginal Basic attachment
+        run: node simulation/twinleaf/agent17-max-geist-native-breakpoint.cjs > agent17-max-geist-native-breakpoint.json
+      - name: Require exactly one extra native KO and two actual Prizes in constructed fixture
+        run: >-
+          node -e "const a=require('node:assert/strict');
+          const x=require('./agent17-max-geist-native-breakpoint.json');
+          a.equal(x.competitiveQualifiedGames,0);
+          a.equal(x.control.opponentRegidragoKO,false);
+          a.equal(x.control.prizesTaken,0);
+          a.equal(x.treatment.opponentRegidragoKO,true);
+          a.equal(x.treatment.prizesTaken,2);
+          console.log(JSON.stringify({control:x.control,treatment:x.treatment},null,2));"
+      - name: Retain native Store result and prompt ledger even on partial failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-max-geist-staged-native
+          path: agent17-max-geist-native-breakpoint.json
+          if-no-files-found: warn
+          retention-days: 30
