@@ -141,3 +141,51 @@ test('detached speculative non-Store state never contributes to physical provena
   assert.equal(receipt.audit.firstOwnerSetupInputsObserved,1);
   assert.equal(receipt.audit.exactNativeStoreRootsRecorded,1);
 });
+
+test('registered headless trial label is carried into genuine Store setup and restored',()=>{
+  const n=mockNative();
+  const registered='6:100:A:champion-reference';
+  const label='agent41-bilateral-v2-common-policy-development-'+registered;
+  const headless={
+    runMatch(options){
+      assert.equal(options.label,label);
+      const people=[n.owner(11,'source'),n.owner(22,'candidate')];
+      const state={players:people,turn:0,phase:1,prompts:[]};
+      const store=new n.Store(state);
+      store.dispatch(new n.AddPlayerAction());
+      for(const person of people){
+        state.prompts=[new n.ChooseCardsPrompt(person)];
+        new n.SimpleTacticsAi(person.id).decodeNextAction(state);
+      }
+      return true;
+    }
+  };
+  const original=headless.runMatch;
+  const output=withSetupPrechoicePrivateFingerprint(
+    ()=>headless.runMatch({label}),
+    {engine:n.engine,headless,expectedTrialIds:[registered]}
+  );
+  assert.equal(output.result,true);
+  assert.equal(headless.runMatch,original);
+  assert.equal(output.audit.registeredNativeTrialLabelWitnessSelected,true);
+  assert.equal(output.audit.firstOwnerSetupInputsObserved,2);
+  assert.deepEqual(output.audit.events.map(e=>e.registeredNativeTrialId),
+    [registered,registered]);
+  assert.equal(output.audit.privateFingerprintSessionId.length,32);
+  assert.equal(output.audit.fingerprintSecretPublished,false);
+});
+
+test('an unregistered native Store label fails closed and restores runner hook',()=>{
+  const n=mockNative();
+  const headless={runMatch:()=>true};
+  const original=headless.runMatch;
+  assert.throws(()=>withSetupPrechoicePrivateFingerprint(
+    ()=>headless.runMatch({
+      label:'agent41-bilateral-v2-common-policy-development-wrong-trial'
+    }),{
+      engine:n.engine,headless,
+      expectedTrialIds:['6:100:A:champion-reference']
+    }
+  ),/not a registered trial/);
+  assert.equal(headless.runMatch,original);
+});
