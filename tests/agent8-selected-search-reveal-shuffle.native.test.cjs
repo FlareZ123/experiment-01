@@ -71,6 +71,16 @@ function probe(printing,choice,seat,repaired){
         throw Error('Unexpected native prompt '+prompt.constructor.name+
           ' '+String(prompt.message));
       }
+      if(prompt.constructor.name==='ShuffleDeckPrompt'){
+        console.log('AGENT8_SHUFFLE_VALIDATION_DIAGNOSTIC',
+          JSON.stringify({printing,seat,choice,repaired,
+            promptOwner:prompt.playerId,perspective:prompt.getPerspectivePlayerId(),
+            playerIds:state.players.map(p=>p.id),
+            actorDeck:actor.deck.cards.length,
+            promptOwnerDeck:state.players.find(
+              p=>p.id===prompt.getPerspectivePlayerId())?.deck.cards.length??null,
+            answer,validation:prompt.validate(answer,state)}));
+      }
       assert.equal(prompt.validate(answer,state),true,
         prompt.constructor.name+' rejects selected test input');
       store.dispatch(new ResolvePromptAction(prompt.id,answer));
