@@ -81,3 +81,35 @@ test('a Basic-mask calculation rejects malformed or incomplete roster',()=>{
     evolvedNames:['Missing'],expectedBasics:0
   }),assert.AssertionError);
 });
+
+test('every Pokémon in both exact 60s has the expected database Basic stage',()=>{
+  const source=require('../results/aichi-2026/full-decklists.json')
+    .decks.find(row=>row.rank===1).cards.filter(row=>row.category==='Pokémon');
+  const moon=require('../results/als/new-moon-lockbreak-english-proxy-60.json')
+    .entries.filter(row=>row.type==='Pokémon');
+  const sourceSet={
+    CRE:'swsh6',JTG:'sv9',GRI:'sm2',SMP:'smp',
+    SSP:'sv8',UPR:'sm5',LOT:'sm8',UNB:'sm10',CRZ:'swsh12pt5'
+  };
+  for(const row of source){
+    const set=sourceSet[row.printing.set];
+    assert.ok(set);
+    const number=row.printing.set==='SMP'?'SM'+row.printing.number:
+      row.printing.number;
+    const id=set+'-'+number;
+    const card=require('../resources/cards/en/'+set+'.json')
+      .find(x=>x.id===id);
+    assert.equal(card?.name,row.name,id);
+    assert.equal(card.subtypes.includes('Basic'),
+      row.name!=='Shadow Rider Calyrex VMAX',id);
+  }
+  for(const row of moon){
+    const id=row.english_proxy_card_id;
+    const set=id.split('-')[0];
+    const card=require('../resources/cards/en/'+set+'.json')
+      .find(x=>x.id===id);
+    assert.equal(card?.name,row.english_database_name,id);
+    assert.equal(card.subtypes.includes('Basic'),
+      row.name_en!=='Dusclops',id);
+  }
+});
