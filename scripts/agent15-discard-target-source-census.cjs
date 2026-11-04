@@ -87,6 +87,60 @@ function publicSourceNameSetCoverage(field,metadata){
   };
 }
 
+
+/**
+ * Determine how many original Aichi name+set copies encounter ambiguous
+ * public English metadata. This is source identity evidence, not a claim
+ * that a real native card is ambiguous once its collector key is retained.
+ * The passed metadata map is the unmodified English convenience pool.
+ *
+ * @param {object} field 29 original source printed 60s.
+ * @param {Map<string,{variants:object[]}>} rawEnglish Public name+set data.
+ */
+function originalSourceNameSetAmbiguityCensus(field,rawEnglish){
+  assert.ok(Array.isArray(field?.decks)&&rawEnglish instanceof Map);
+  const byPrinting=new Map();
+  for(const deck of field.decks){
+    assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
+    for(const card of deck.cards){
+      const printing=card.name+' '+card.printing.set;
+      const variants=rawEnglish.get(printing)?.variants??[];
+      if(variants.length<2)continue;
+      const entry=byPrinting.get(printing)??{
+        printing,sourceCopies:0,ranks:[],
+        sourceCollectorKeys:[],publicVariantCount:variants.length,
+        subtypesDisagree:false,hp90ThresholdDisagrees:false};
+      entry.sourceCopies+=card.count;
+      entry.ranks.push(deck.rank);
+      const number=String(card.printing.number);
+      if(!entry.sourceCollectorKeys.includes(number))
+        entry.sourceCollectorKeys.push(number);
+      const classKeys=new Set(variants.map(v=>
+        v.supertype+':'+JSON.stringify(v.subtypes??[])));
+      entry.subtypesDisagree=classKeys.size>1;
+      const hpStates=new Set(variants.map(v=>{
+        if(v.supertype!=='Pokémon')return false;
+        const hp=Number(v.hp);
+        return Number.isSafeInteger(hp)&&hp>0?hp<=90:null;
+      }));
+      entry.hp90ThresholdDisagrees=hpStates.size>1;
+      byPrinting.set(printing,entry);
+    }
+  }
+  const rows=[...byPrinting.values()].sort((a,b)=>
+    b.sourceCopies-a.sourceCopies||a.printing.localeCompare(b.printing));
+  return {originalSourcePhysicalCards:field.decks.length*60,
+    ambiguousEnglishNameSetSourceCopies:rows.reduce((n,r)=>
+      n+r.sourceCopies,0),
+    distinctAmbiguousOriginalNameSetKeys:rows.length,
+    subtypeConflictingSourceCopies:rows.filter(r=>r.subtypesDisagree)
+      .reduce((n,r)=>n+r.sourceCopies,0),
+    hp90ConflictingSourceCopies:rows.filter(r=>r.hp90ThresholdDisagrees)
+      .reduce((n,r)=>n+r.sourceCopies,0),
+    rows,sourcePrintCollectorsPreserved:true,
+    originalJapaneseExactPrintFidelityCertified:false};
+}
+
 /** Verify each exact source ID and effect phrase against resources/cards/en. */
 function verifyRecoveryPrints(resourceRoot){
   const patterns={
@@ -129,6 +183,8 @@ function run(repoRoot=path.resolve(__dirname,'..')){
     source:field.source,
     incidence:sourceRecoveryCensus(field),
     metadata:metadataCollisionCensus(bundled),
+    originalSourceNameSetAmbiguities:
+      originalSourceNameSetAmbiguityCensus(field,bundled),
     enrichedPublicMetadataSourceCoverage:
       publicSourceNameSetCoverage(field,externallyEnriched),
     japaneseOnlyPromoPublicMetadataCoverage:
@@ -148,4 +204,5 @@ function run(repoRoot=path.resolve(__dirname,'..')){
 }
 if(require.main===module)process.stdout.write(JSON.stringify(run(),null,2)+'\n');
 module.exports={sourceRecoveryCensus,metadataCollisionCensus,
-  publicSourceNameSetCoverage,verifyRecoveryPrints,run};
+  publicSourceNameSetCoverage,originalSourceNameSetAmbiguityCensus,
+  verifyRecoveryPrints,run};
