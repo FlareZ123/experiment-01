@@ -81,6 +81,11 @@ test('native source VIP summary never publishes owner-private hand details',()=>
     actorOnlyDecisionCoverage:{detailedComponentAudits:{ownerVipAfterPass:{
       originalPassRoots:2,
       acceptedItems:1,acceptedSearches:1,bySeat:{0:{items:1}},
+      selectedBasics:2,nativeBenchConfirmed:1,
+      examples:[{kind:'vip-search',accepted:true,
+        seat:0,turn:1,printings:['Duskull SFA','Crobat V DAA'],
+        nativeBenchConfirmed:true,benchBefore:1,benchAfter:3,
+        deckBefore:46,deckAfter:44}],
       privateHand:['Darkness Energy','Battle VIP Pass'],
       passOpportunities:[{heldVip:true,ownerHandContents:['secret']}]
     }}}
@@ -88,6 +93,10 @@ test('native source VIP summary never publishes owner-private hand details',()=>
   const out=nativeVipOutcome(row);
   assert.equal(out.policyRecorded,true);
   assert.equal(out.acceptedItems,1);
+  assert.equal(out.selectedBasicCopies,2);
+  assert.equal(out.confirmedNonemptySearches,1);
+  assert.deepEqual(out.publicBenchTransitions[0].publiclyBenchedPrintings,
+    ['Duskull SFA','Crobat V DAA']);
   assert.equal(out.rootActionCount,2);
   assert.equal(JSON.stringify(out).includes('secret'),false);
   assert.equal(JSON.stringify(out).includes('Darkness Energy'),false);
