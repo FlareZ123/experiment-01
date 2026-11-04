@@ -5,7 +5,7 @@ const path=require('node:path');
 const {sampleUniformPositions}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent26-origin-bound-attack-choices-v2';
+const VERSION='agent26-origin-bound-attack-choices-v3';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -32,6 +32,8 @@ function withOwnerOriginBoundAttackChoices(run,options){
     'sets/08-sun-and-moon/set-sun-and-moon-promos/trevenant-dusknoir-gx');
   const {Girafarig}=engine('sets/08-sun-and-moon/set-lost-thunder/girafarig');
   const {ChooseCardsPrompt}=engine('game/store/prompts/choose-cards-prompt');
+  const {ShowCardsPrompt}=engine('game/store/prompts/show-cards-prompt');
+  const {ShuffleDeckPrompt}=engine('game/store/prompts/shuffle-prompt');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   const {GameMessage}=engine('game/game-message');
   const definitions=[
@@ -51,8 +53,9 @@ function withOwnerOriginBoundAttackChoices(run,options){
     assert.equal(d.configurable,true);
   }
   const origins=new WeakMap();
+  const followups=new WeakMap();
   const audit={version:VERSION,printedSourceInvocations:[],
-    markedPrompts:[],selected:[],declined:[],
+    markedPrompts:[],selected:[],markedFollowups:[],resolvedFollowups:[],declined:[],
     privateCardIdentityInspectedForPolicy:false,
     sourceQualifiedCompetitiveGames:0};
 
@@ -85,6 +88,24 @@ function withOwnerOriginBoundAttackChoices(run,options){
             audit.markedPrompts.push({printing:definition.printing,
               kind:definition.kind,sourceTurn});
           }
+          // The printed Night Watch callback issues these two mandatory
+          // messages only after the genuine selected-hand Store prompt.
+          // Keep their exact source origin in a WeakMap; no speculative
+          // generic prompt is eligible for this actor-side closure.
+          if(definition.kind==='night-watch'){
+            const isReveal=prompt instanceof ShowCardsPrompt&&
+              prompt.playerId===ownerId&&
+              prompt.message===GameMessage.CARDS_SHOWED_BY_THE_OPPONENT&&
+              prompt.options?.allowCancel===false&&
+              Array.isArray(prompt.cards)&&prompt.cards.length<=2;
+            const isShuffle=prompt instanceof ShuffleDeckPrompt&&
+              prompt.playerId===opposing.id;
+            if(isReveal||isShuffle){
+              const kind=isReveal?'night-watch-reveal':'night-watch-shuffle';
+              followups.set(prompt,{kind,ownerId:prompt.playerId,sourceTurn});
+              audit.markedFollowups.push({kind,sourceTurn});
+            }
+          }
           return target.prompt(nextState,prompt,callback);
         };
         const value=Reflect.get(target,property,target);
@@ -98,6 +119,35 @@ function withOwnerOriginBoundAttackChoices(run,options){
     const actorId=this.client?.id;
     const prompt=state?.prompts?.find(p=>
       p.playerId===actorId&&p.result===undefined)??null;
+    const follow=prompt?followups.get(prompt):null;
+    if(follow&&follow.ownerId===actorId){
+      const seat=state.players.findIndex(p=>p.id===actorId);
+      if(!Number.isSafeInteger(state.turn)||state.turn<0||seat<0)
+        return oldAi.value.call(this,state);
+      let result;
+      if(follow.kind==='night-watch-reveal'){
+        if(!(prompt instanceof ShowCardsPrompt)||
+           prompt.message!==GameMessage.CARDS_SHOWED_BY_THE_OPPONENT||
+           prompt.options?.allowCancel!==false)
+          return oldAi.value.call(this,state);
+        result=true;
+      }else if(follow.kind==='night-watch-shuffle'){
+        const owner=state.players[seat];
+        if(!(prompt instanceof ShuffleDeckPrompt)||
+           !Array.isArray(owner?.deck?.cards))
+          return oldAi.value.call(this,state);
+        const n=owner.deck.cards.length;
+        const nonce=JSON.stringify(['printed-night-watch-shuffle',
+          follow.sourceTurn,state.turn,String(actorId),String(prompt.id)]);
+        result=sampleUniformPositions(n,n,options.committedSeed,nonce);
+        assert.equal(prompt.validate(result,state),true,
+          'Night Watch source-printed opponent shuffle rejected');
+      }else return oldAi.value.call(this,state);
+      audit.resolvedFollowups.push({kind:follow.kind,actorSeat:seat,
+        turn:state.turn,resultCount:Array.isArray(result)?result.length:null,
+        hiddenCardIdentitiesInspected:false});
+      return new ResolvePromptAction(prompt.id,result);
+    }
     const origin=prompt?origins.get(prompt):null;
     if(!origin||origin.ownerId!==actorId)
       return oldAi.value.call(this,state);
