@@ -37,8 +37,11 @@ function fixture(mode){
       actualNativePrechoicePhysicalInputs:{
         exactNativeStoreRootsRecorded:8,
         firstOwnerSetupInputsObserved:16,
+        registeredNativeTrialLabelWitnessSelected:true,
+        privateFingerprintSessionId:'same-private-module-session',
         events:trials.flatMap((trial,i)=>[0,1].map(seat=>({
-          nativeStoreOrdinal:i+1,physicalOwnerSeat:seat,
+          nativeStoreOrdinal:i+1,registeredNativeTrialId:trial.id,
+          physicalOwnerSeat:seat,
           ownerHandCount:7,ownerDeckCount:47,ownerPrizeCount:6,
           opaquePhysicalPrechoiceInputHmacSha256:
             digest('synthetic-opaque-physical-'+trial.id+'-'+seat)
@@ -58,20 +61,19 @@ function fixture(mode){
   };
 }
 
-test('same source deck, seed, seats, engine and index-only prechoice hash still cannot certify causal attribution',()=>{
+test('same exact registered native Store owner inputs still cannot certify treatment isolation',()=>{
   const baseline=fixture('baseline');
   const challenger=fixture('protected');
   const compared=comparePrechoiceCustodyV8(baseline,challenger);
   assert.equal(compared.constraints.allBeforeTreatmentInputsObserved,true);
-  assert.equal(compared.constraints.ordinalIndexedInputMatches,16);
-  assert.equal(compared.constraints.ordinalIndexedInputMismatches,0);
+  assert.equal(compared.constraints.trialPairedInputMatches,16);
+  assert.equal(compared.constraints.trialPairedInputMismatches,0);
   assert.equal(compared.constraints.sameRegisteredTrialIdentityAndDeckPrintings,true);
   assert.equal(compared.constraints.sameObservedPinnedEngine,true);
   assert.equal(compared.constraints.declaredSingleOpeningWrapperContrast,true);
-  assert.equal(compared.constraints.nativeStoreTrialLinkVerified,false);
+  assert.equal(compared.constraints.nativeStoreTrialLinkVerified,true);
   assert.equal(compared.constraints.actualNonTreatmentExecutingClosureVerified,false);
-  assert.equal(compared.constraints.prechoiceInputParityObserved,
-    'UNRESOLVED-ordinal-trial-join');
+  assert.equal(compared.constraints.prechoiceInputParityObserved,true);
   assert.equal(compared.constraints.canAttributePostTreatmentDifferenceToOpeningSelection,
     'UNRESOLVED');
   assert.equal(compared.constraints.competitiveGamesQualified,0);
@@ -82,7 +84,7 @@ test('same source deck, seed, seats, engine and index-only prechoice hash still 
       .opaquePhysicalPrechoiceInputHmacSha256));
 });
 
-test('same indexed prechoice inputs do not rescue wrong trial seed or source printing',()=>{
+test('same registered prechoice inputs do not rescue wrong trial seed or printing',()=>{
   const a=fixture('baseline'),b=fixture('protected');
   b.rawDevelopment.rows[0].trial.seed++;
   b.rawDevelopment.rows[1].sourceDeckFingerprint=digest('wrong-printing');
@@ -95,7 +97,7 @@ test('same indexed prechoice inputs do not rescue wrong trial seed or source pri
     'UNRESOLVED');
 });
 
-test('same opaque index pairing with different executing source/candidate seats is not admitted',()=>{
+test('same opaque trial pairing with different executing source/candidate seats is not admitted',()=>{
   const a=fixture('baseline'),b=fixture('protected');
   b.rawDevelopment.rows[2].sourceSeat=1-b.rawDevelopment.rows[2].sourceSeat;
   const comparison=comparePrechoiceCustodyV8(a,b);
@@ -113,5 +115,32 @@ test('missing Store owner capture and duplicated owner capture fail closed',()=>
     ...duplicate.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
   });
   assert.throws(()=>comparePrechoiceCustodyV8(a,duplicate),
-    /duplicate physical owner prechoice input/);
+    /duplicate registered native trial owner prechoice input/);
+});
+
+test('missing native trial label or a different process private-HMAC session is unresolved',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  b.diagnostic.actualNativePrechoicePhysicalInputs.events[0]
+    .registeredNativeTrialId=null;
+  const missing=comparePrechoiceCustodyV8(a,b);
+  assert.equal(missing.constraints.nativeStoreTrialLinkVerified,false);
+  assert.equal(missing.constraints.prechoiceInputParityObserved,'UNRESOLVED');
+  const c=fixture('protected');
+  c.diagnostic.actualNativePrechoicePhysicalInputs.privateFingerprintSessionId=
+    'another-process-secret';
+  const different=comparePrechoiceCustodyV8(a,c);
+  assert.equal(different.constraints.nativeStoreTrialLinkVerified,true);
+  assert.equal(different.constraints.prechoiceInputParityObserved,'UNRESOLVED');
+  assert.equal(different.prechoiceInputObservers.samePrivateHashSession,false);
+});
+
+test('registered owner equality is resilient to actual Store creation order',()=>{
+  const a=fixture('baseline'),b=fixture('protected');
+  // The challenger creates Stores in reverse order; label identity remains.
+  for(const event of b.diagnostic.actualNativePrechoicePhysicalInputs.events)
+    event.nativeStoreOrdinal=9-event.nativeStoreOrdinal;
+  const result=comparePrechoiceCustodyV8(a,b);
+  assert.equal(result.constraints.nativeStoreTrialLinkVerified,true);
+  assert.equal(result.constraints.trialPairedInputMatches,16);
+  assert.equal(result.constraints.prechoiceInputParityObserved,true);
 });
