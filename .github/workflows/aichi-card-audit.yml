@@ -218,6 +218,16 @@ jobs:
         run: npm run compile
       - name: Run original source exact-native-printing census
         run: node simulation/evaluation/agent49-pinned-source-print-census.cjs
+      - name: Verify exact 35-row MEE post-event artwork to real pre-event native Basic Energy identities
+        run: node simulation/evaluation/agent22-pinned-may-energy-proxy-native.cjs
+      - name: Preserve pinned native-energy artwork crosswalk and type evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent22-may-energy-native-proxy
+          path: agent22-native-energy-print-proxy.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Calculate original Regidrago seven-card Treasure donor opportunity exactly
         run: node simulation/evaluation/agent49-regidrago-treasure-openers.cjs
       - name: Bounded four original Regidrago versus Calyrex source feasibility matches
