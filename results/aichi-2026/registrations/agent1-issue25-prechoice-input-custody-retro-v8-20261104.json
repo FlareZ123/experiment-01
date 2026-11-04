@@ -1,0 +1,21 @@
+{
+  "schema": "agent1-issue25-actual-prechoice-input-custody-retrospective-v8",
+  "committedAtUtc": "2026-11-04T19:27:30Z",
+  "status": "RETROSPECTIVE-DIAGNOSTIC-ONLY",
+  "reason": "Protected Basic setup deliberately changed post-policy first-turn zone fingerprints on 2/8 mirrors. Reobserve the randomized own hand/deck/Prize input before owner CHOOSE_STARTING_POKEMONS decisions to avoid conditioning causal comparisons on the treatment itself.",
+  "previousRegistration": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "previousOpeningContrastRegistration": "results/aichi-2026/registrations/agent1-issue25-protected-opening-v7-20261104.json",
+  "frozenArms": "exact same eight rank6/rank11×A/B×candidate IDs and previous integer seeds, no seed or result filtering",
+  "treatmentOnly": "Agent50 setup Basic selection policy, all other source-independent resource and source-stamped attack owners identical",
+  "hashing": "At first genuine setup owner min1 CHOOSE_STARTING_POKEMONS prompt in each actual native Store, digest own ordered hand, deck, prize slot positions. No raw card names persisted, no decisions made by observer.",
+  "anticipatedTests": [
+    "16 owner pre-choice inputs across eight source-ranked native Store games, per profile",
+    "for each original arm and physical seat compare opaque pretreatment fingerprints across both opening policies",
+    "keep post-treatment original source and full physical board fingerprints separately",
+    "record physical support retention and root action aborts as descriptive effects, zero competitive game claims",
+    "opposite candidate decklists sharing a seed still require separate physical pair verification"
+  ],
+  "historicalNativeResultAlreadyObserved": true,
+  "noFreshWinRateDenominator": true,
+  "competitivelyQualifiedGames": 0
+}
