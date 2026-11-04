@@ -106,3 +106,39 @@ test('unknown source rank and duplicate ids are vetoed',()=>{
   assert.throws(()=>auditBilateralOriginalSourceArt(
     same.run,source,same.plans),/Duplicate game-result trial/u);
 });
+
+test('legacy archived sourcePairs boolean witnesses remain auditable',()=>{
+  const {run,plans}=fixture(digestA,digestB);
+  const pair=run.sourcePairs[0];
+  delete pair.sourceDealStatus;
+  delete pair.actualStarterStatus;
+  pair.sameSourcePhysicalDeal=false;
+  pair.sameActualStarter=true;
+  pair.sourceDealFingerprints=[digestA,digestB];
+  const actual=auditBilateralOriginalSourceArt(run,source,plans);
+  assert.equal(actual.sourceOpeningPairs[0].sourceOpeningStatus,
+    'UNPAIRED_SOURCE_DEAL');
+  assert.equal(actual.sourceOpeningPairs[0].physicalPairObserved,true);
+  pair.sameSourcePhysicalDeal=true;
+  assert.throws(()=>auditBilateralOriginalSourceArt(run,source,plans),
+    /Expected values/u);
+  pair.sameSourcePhysicalDeal=false;
+  pair.sourceDealFingerprints[0]=digestB;
+  assert.throws(()=>auditBilateralOriginalSourceArt(run,source,plans),
+    /Frozen sourcePairs physical digests/u);
+});
+
+test('historical missing abort-side fingerprints are reported unknown',()=>{
+  const {run,plans}=fixture(digestA,null);
+  const pair=run.sourcePairs[0];
+  delete pair.sourceDealStatus;
+  delete pair.actualStarterStatus;
+  pair.sameSourcePhysicalDeal=false;
+  pair.sameActualStarter=true;
+  pair.sourceDealFingerprints=[digestA,null];
+  const audit=auditBilateralOriginalSourceArt(run,source,plans);
+  assert.equal(audit.sourceOpeningPairs[0].sourceOpeningStatus,'UNKNOWN');
+  assert.equal(audit.sourceOpeningPairs[0].physicalPairObserved,false);
+  assert.equal(audit.sourceInputProvenanceReceipts[0]
+    .originalSourceProvenance.native_physical_deal_match,'not-compared');
+});
