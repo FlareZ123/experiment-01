@@ -32,7 +32,7 @@ jobs:
         run: npm run compile
       - name: Quarantine inherited bot decoder in pinned original rank5 both seats
         if: ${{ inputs.quarantine_smoke_only }}
-        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs tests/agent4-owner-setup-confirm.test.cjs tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs tests/agent4-owner-wait-progress.test.cjs tests/agent4-owner-setup-wait-native.test.cjs
+        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs tests/agent4-owner-setup-confirm.test.cjs tests/agent4-owner-setup-confirm-native.test.cjs tests/agent4-owner-setup-starting-pokemon.test.cjs tests/agent4-owner-setup-starting-pokemon-native.test.cjs tests/agent4-owner-wait-progress.test.cjs tests/agent4-owner-setup-wait-native.test.cjs tests/agent4-owner-modal-acknowledgements.test.cjs tests/agent4-owner-modal-acknowledgements-native.test.cjs
       - name: Registered two-seat full original source rank5 8-attempt ALS comparison
         if: ${{ !inputs.quarantine_smoke_only }}
         run: node simulation/evaluation/agent4-rank5-special-energy-root-prospective.cjs > agent4-rank5-special-energy-root-prospective.json
