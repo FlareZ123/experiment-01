@@ -65,3 +65,8 @@ jobs:
         run: node --test tests/agent36-issue25-printed-futuresight-v2.test.cjs
       - name: Issue25 original historical v2 source-stamped native ATTACK continuation
         run: node --test tests/agent36-issue25-printed-futuresight-v2.native.test.cjs
+
+      - name: Issue25 source-printed Night Watch owner physical random native Store negative/positive SFT
+        run: node --test tests/agent36-source-stamped-nightwatch-owner.test.cjs
+      - name: Issue25 selected v3 two source-stamped ATTACK owner native 48-root original closure
+        run: node --test tests/agent36-issue25-nightwatch-futuresight-v3.test.cjs tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs
