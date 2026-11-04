@@ -4,6 +4,10 @@
 
 The frozen original 29-rank manifest identifies missing full list **rank 25: Kazuki Kumegawa, Raichu Electrode Combo**. A May 14, 2026 article by the likely player nickname **kume** is available on [note.com](https://note.com/kume_pokeca/n/n6cfd126f5774), titled **「CL愛知2026エクストラ ベスト32 アロライワンショット」**. The [Pokekameshi tournament roundup for Top32](https://pokekameshi.com/cl2026aichidec-extra/2/) independently links the note beside **kume**, explicitly describing his Best32 Alolan Raichu one-shot deck. The author's free note says **25th in Swiss** with a 7–1 record, then lost first elimination game to **Mega Absol/Garbodor**. The dated match account links this plausible alias to the known original rank/strategy; exact personal identity of the player has not been independently authenticated from a registration document, so avoid stronger attribution.
 
+## Archived primary-photo review
+
+A public May 10 photograph from [archived workflow 39423764978](https://github.com/FlareZ123/experiment-01/actions/runs/39423764978) was inspected on 4 November. The image shows an **Open League 25 badge**, restaurant food and event sleeves. Archived photo `rank25-kume-photo-1.jpg` SHA-256: `0f854fa2da1b0da1a54a32f7c92b2630148f93aac2dea3db897c2a403381a3b6`. It supports the reported finish and supplies **no original 60-card list**.
+
 ## Relevant freely published strategic detail
 
 The author reports choosing Alolan Raichu one-shot as a Regidrago counter rather than adding further Regidrago mirror games. The accessible analysis highlights **early Klefki or Wobbuffet lock**, **Gengar & Mimikyu-GX** as a time-buying option, and the subsequent **Alolan Raichu one-shot** attack plan. It discusses the risk of opposing Regidrago VSTAR attacking on its second turn, opposing Latias ex mobility, Ability lock, and Item lock. These are player-reported matchup hypotheses, not validated game states or observed attacks in a machine-readable register. The author records these Swiss round matchups in accessible text: Regidrago W/W/L/W/W, Lightning toolbox W, Roaring Moon W, and ADP Dragonite W; Top32 Mega Absol/Garbodor loss. Treat these as the author's report.
