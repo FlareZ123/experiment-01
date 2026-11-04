@@ -1,0 +1,500 @@
+{
+  "schema": "agent11-owner-resource-tutor-bilateral-v3",
+  "registeredAtUtc": "2026-11-04T19:25:50.861435Z",
+  "registrationStatus": "frozen before new-seed CI dispatch",
+  "author": "Agent 11",
+  "hypothesis": "Adding symmetric printed Mew/Genesect donor and trainer policy increases settled prize-bearing source continuation, and blank Cross Fusion Strike remains a major unqualified proxy",
+  "baseline": "existing known-dead source-attack root and owner resource tutor, symmetric in both physical seats",
+  "treatment": "independently enable symmetric Mew VMAX evolution/DCE/context-special energy/Fusion draw/copied Techno Blast options in every tested native arm; tutor remains A/B arm factor",
+  "scope": "paper Expanded original rank5 versus rank11, source printed 60s unchanged; Twinleaf developmental only",
+  "sourceRanks": [
+    5,
+    11
+  ],
+  "originalRosterSource": "results/aichi-2026/full-decklists.json",
+  "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "exactNativeLetterPrinting": "Professors Letter BKT",
+  "seedGeneration": "Python secrets.randbelow(750000000)+1000000000, 16 unique numbers drawn before publication, sorted; no postgame seed selection",
+  "seeds": [
+    1034931601,
+    1048631782,
+    1175002309,
+    1195808980,
+    1204511580,
+    1220641906,
+    1236471893,
+    1255637227,
+    1298160030,
+    1419406795,
+    1511799401,
+    1555511594,
+    1565256860,
+    1591350664,
+    1654750787,
+    1701097128
+  ],
+  "modes": [
+    "control",
+    "resource-tutor"
+  ],
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "predeclaredArms": 64,
+  "experimentalSymmetricMewCompetence": true,
+  "experimentalSymmetricKnownDead": true,
+  "competitiveQualifiedGames": 0,
+  "limitations": "No control without Mew policy in this v3 cohort, no opponent qualification, native decision limitations remain, 90-action cap censoring; independent new-seed cohort validates generality of exact-retro observation but cannot establish win rate",
+  "arms": [
+    {
+      "id": "seed1034931601-rank5seat0-control",
+      "seed": 1034931601,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1034931601-rank5seat0-resource-tutor",
+      "seed": 1034931601,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1034931601-rank5seat1-control",
+      "seed": 1034931601,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1034931601-rank5seat1-resource-tutor",
+      "seed": 1034931601,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1048631782-rank5seat0-control",
+      "seed": 1048631782,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1048631782-rank5seat0-resource-tutor",
+      "seed": 1048631782,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1048631782-rank5seat1-control",
+      "seed": 1048631782,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1048631782-rank5seat1-resource-tutor",
+      "seed": 1048631782,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1175002309-rank5seat0-control",
+      "seed": 1175002309,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1175002309-rank5seat0-resource-tutor",
+      "seed": 1175002309,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1175002309-rank5seat1-control",
+      "seed": 1175002309,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1175002309-rank5seat1-resource-tutor",
+      "seed": 1175002309,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1195808980-rank5seat0-control",
+      "seed": 1195808980,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1195808980-rank5seat0-resource-tutor",
+      "seed": 1195808980,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1195808980-rank5seat1-control",
+      "seed": 1195808980,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1195808980-rank5seat1-resource-tutor",
+      "seed": 1195808980,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1204511580-rank5seat0-control",
+      "seed": 1204511580,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1204511580-rank5seat0-resource-tutor",
+      "seed": 1204511580,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1204511580-rank5seat1-control",
+      "seed": 1204511580,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1204511580-rank5seat1-resource-tutor",
+      "seed": 1204511580,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1220641906-rank5seat0-control",
+      "seed": 1220641906,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1220641906-rank5seat0-resource-tutor",
+      "seed": 1220641906,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1220641906-rank5seat1-control",
+      "seed": 1220641906,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1220641906-rank5seat1-resource-tutor",
+      "seed": 1220641906,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1236471893-rank5seat0-control",
+      "seed": 1236471893,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1236471893-rank5seat0-resource-tutor",
+      "seed": 1236471893,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1236471893-rank5seat1-control",
+      "seed": 1236471893,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1236471893-rank5seat1-resource-tutor",
+      "seed": 1236471893,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1255637227-rank5seat0-control",
+      "seed": 1255637227,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1255637227-rank5seat0-resource-tutor",
+      "seed": 1255637227,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1255637227-rank5seat1-control",
+      "seed": 1255637227,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1255637227-rank5seat1-resource-tutor",
+      "seed": 1255637227,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1298160030-rank5seat0-control",
+      "seed": 1298160030,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1298160030-rank5seat0-resource-tutor",
+      "seed": 1298160030,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1298160030-rank5seat1-control",
+      "seed": 1298160030,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1298160030-rank5seat1-resource-tutor",
+      "seed": 1298160030,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1419406795-rank5seat0-control",
+      "seed": 1419406795,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1419406795-rank5seat0-resource-tutor",
+      "seed": 1419406795,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1419406795-rank5seat1-control",
+      "seed": 1419406795,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1419406795-rank5seat1-resource-tutor",
+      "seed": 1419406795,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1511799401-rank5seat0-control",
+      "seed": 1511799401,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1511799401-rank5seat0-resource-tutor",
+      "seed": 1511799401,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1511799401-rank5seat1-control",
+      "seed": 1511799401,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1511799401-rank5seat1-resource-tutor",
+      "seed": 1511799401,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1555511594-rank5seat0-control",
+      "seed": 1555511594,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1555511594-rank5seat0-resource-tutor",
+      "seed": 1555511594,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1555511594-rank5seat1-control",
+      "seed": 1555511594,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1555511594-rank5seat1-resource-tutor",
+      "seed": 1555511594,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1565256860-rank5seat0-control",
+      "seed": 1565256860,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1565256860-rank5seat0-resource-tutor",
+      "seed": 1565256860,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1565256860-rank5seat1-control",
+      "seed": 1565256860,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1565256860-rank5seat1-resource-tutor",
+      "seed": 1565256860,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1591350664-rank5seat0-control",
+      "seed": 1591350664,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1591350664-rank5seat0-resource-tutor",
+      "seed": 1591350664,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1591350664-rank5seat1-control",
+      "seed": 1591350664,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1591350664-rank5seat1-resource-tutor",
+      "seed": 1591350664,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1654750787-rank5seat0-control",
+      "seed": 1654750787,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1654750787-rank5seat0-resource-tutor",
+      "seed": 1654750787,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1654750787-rank5seat1-control",
+      "seed": 1654750787,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1654750787-rank5seat1-resource-tutor",
+      "seed": 1654750787,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1701097128-rank5seat0-control",
+      "seed": 1701097128,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1701097128-rank5seat0-resource-tutor",
+      "seed": 1701097128,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1701097128-rank5seat1-control",
+      "seed": 1701097128,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1701097128-rank5seat1-resource-tutor",
+      "seed": 1701097128,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    }
+  ]
+}
