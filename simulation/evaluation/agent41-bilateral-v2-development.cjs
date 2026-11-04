@@ -380,6 +380,7 @@ function executeDevelopment(trial,candidates,{
   nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
   nativeRootActionLimit=null,nativeFirstTurnPublicBoard=false,
+  nativeAllOwnerPassFrontier=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
@@ -998,6 +999,11 @@ function executeDevelopment(trial,candidates,{
         row.modeResultIsNull===true).length,
       competitiveDecisionQualified:false
     },
+    ...(nativeAllOwnerPassFrontier?{
+      nativeAllOwnerPassFrontier:
+        require('./agent31-bilateral-all-owner-pass-evidence.cjs')
+          .auditAllOwnerPasses(game.decisionTrace,rootTrace,trial,sourceSeat)
+    }:{}),
     candidatePostChoicePassProbe:passEvidence.summary,
     candidatePassProbeSamples:passEvidence.samples,
     candidatePerfectionPassSamples:passEvidence.perfectionSamples,
@@ -1153,6 +1159,7 @@ function runDevelopment({
   nativeQuickBallOwnerTransactionAudit=false,
   paperTerminalAttackKo=false,
   nativeRootActionLimit=null,nativeFirstTurnPublicBoard=false,
+  nativeAllOwnerPassFrontier=false,
   rank6K1AlternativeEnergy=false,
   rank6ScriptedSpecialConditionGuard=false,
   rank11SourceSupporterPassRescue=false,
@@ -1400,6 +1407,7 @@ function runDevelopment({
         nativeAcceptedTargets,nativeQuickBallOwnerTransactionAudit,
         losslessNativeRootJoin,
         nativeRootActionLimit,nativeFirstTurnPublicBoard,
+        nativeAllOwnerPassFrontier,
         nativeActionInputTapeOrdinal,paperTerminalAttackKo,
         rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
@@ -1869,6 +1877,7 @@ function runDevelopment({
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
     sourceIndependentCommonPolicyOptIn:sourceIndependentCommonPolicy,
+    nativeAllOwnerPassFrontierOptIn:nativeAllOwnerPassFrontier,
     registeredTrialFrame:registeredTrials!==null?registeredFrameName:null,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
     rank6ScriptedSpecialConditionGuardOptIn:rank6ScriptedSpecialConditionGuard,
