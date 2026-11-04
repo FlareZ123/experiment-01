@@ -95,6 +95,7 @@ function withOwnerStartingPokemon(run,deps={}){
     physicallyPlacedActiveConfirmed:0,
     physicallyPlacedActiveMissing:0,
     bonusDeclinePhysicalZonesPreserved:0,
+    bonusDeclinePermitsSubsequentTurnDraw:true,
     bySeat:{0:0,1:0},
     events:[],nativeScoringUsed:false,
     competitivePaperGamesQualified:0
@@ -187,8 +188,14 @@ function withOwnerStartingPokemon(run,deps={}){
         else audit.physicallyPlacedActiveMissing++;
       }else{
         audit.acceptedBonusDecline++;
-        assert.ok(sameCards(owner.hand.cards,saved.beforeHand),
-          'Bonus Bench decline unexpectedly changed own hand');
+        // The last setup prompt may immediately begin the first turn and
+        // legitimately append a drawn card. Every preexisting owner-hand
+        // card must still be present in the same relative order.
+        let kept=0;
+        for(const card of owner.hand.cards)
+          if(card===saved.beforeHand[kept])kept++;
+        assert.equal(kept,saved.beforeHand.length,
+          'Bonus Bench decline consumed a preexisting own-hand card');
         assert.ok(sameCards(owner.active.cards,saved.beforeActive),
           'Bonus Bench decline unexpectedly changed Active');
         assert.equal(owner.bench.length,saved.beforeBench.length);
