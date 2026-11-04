@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      guzma_counter_aba:
+        description: 'Run exact original rank1 held Guzma anti-Bunnelby true-prompt A B A'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -56,40 +61,44 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run every exact source-print and first-Tool pure invariant
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs tests/agent2-bunnelby-deckout-float-frontier.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs tests/agent2-tool-score-card-identity-blind.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
       - name: Passively audit exact rank3 vs rank1 original sixty source roots, both seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-census.cjs | tee agent2-rank3-original-natural-fss-census.json
       - name: Prospective disjoint original rank3 full-60 source exposure, 32 seeds-seats
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-fresh.cjs | tee agent2-rank3-original-fresh-32.json
       - name: Trace one frozen native original-source Burrow continuation
-        if: ${{ inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-natural-burrow-settlement.cjs | tee agent2-rank3-natural-burrow-settlement.json
       - name: Match original source Omega second Burrow A B A under same deal
-        if: ${{ inputs.omega_aba && !inputs.burrow_only && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ inputs.omega_aba && !inputs.burrow_only && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-omega-burrow-aba.cjs | tee agent2-rank3-original-omega-aba.json
       - name: Stress test original rank1 conservative Filch refusal A B A
-        if: ${{ inputs.anti_filch_aba && !inputs.burrow_only && !inputs.omega_aba && !inputs.second_terminal && !inputs.owner_guzma_audit }}
+        if: ${{ inputs.anti_filch_aba && !inputs.burrow_only && !inputs.omega_aba && !inputs.second_terminal && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-anti-filch-aba.cjs | tee agent2-rank3-original-anti-filch-aba.json
       - name: Inspect second independent native original rank3 source winning mechanism
-        if: ${{ inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.owner_guzma_audit }}
+        if: ${{ inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.owner_guzma_audit && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-second-native-terminal-source-trace.cjs | tee agent2-rank3-second-source-native-terminal.json
       - name: Audit rank1 own-hand Guzma potential without changing actual Store roots
-        if: ${{ inputs.owner_guzma_audit && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal }}
+        if: ${{ inputs.owner_guzma_audit && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.second_terminal && !inputs.guzma_counter_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank1-original-guzma-owner-hand-audit.cjs | tee agent2-rank1-original-guzma-hand-windows.json
+      - name: Test exact rank1 owner held Guzma native Snorlax gust A B A
+        if: ${{ inputs.guzma_counter_aba && !inputs.owner_guzma_audit && !inputs.second_terminal && !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
+        shell: bash
+        run: node simulation/evaluation/agent2-rank1-original-guzma-counterplay-aba.cjs | tee agent2-rank1-original-guzma-counterplay-aba.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -104,5 +113,6 @@ jobs:
             agent2-rank3-original-anti-filch-aba.json
             agent2-rank3-second-source-native-terminal.json
             agent2-rank1-original-guzma-hand-windows.json
+            agent2-rank1-original-guzma-counterplay-aba.json
           if-no-files-found: warn
           retention-days: 14
