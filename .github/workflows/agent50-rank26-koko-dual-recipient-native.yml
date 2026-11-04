@@ -171,3 +171,17 @@ jobs:
           path: artifacts/issue25-joined-v5/
           if-no-files-found: warn
           retention-days: 30
+      - name: Verify precommitted mirrored rank6/rank11 seat-factor registration and raw receipt
+        run: node --test tests/agent1-issue25-mirrored-r6-r11-v6.test.cjs
+      - name: Execute same symmetric three-attack policy on preregistered eight-arm mirrored native panel
+        env:
+          ISSUE25_V6_RECEIPT_DIR: artifacts/issue25-mirrored-v6
+        run: node --test tests/agent1-issue25-mirrored-r6-r11-v6.native.test.cjs
+      - name: Retain full eight-arm mirrored-native failures and physical fingerprint custody
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-mirrored-v6-executed-${{ github.run_id }}
+          path: artifacts/issue25-mirrored-v6/
+          if-no-files-found: warn
+          retention-days: 30
