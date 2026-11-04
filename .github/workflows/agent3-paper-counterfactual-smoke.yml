@@ -8,6 +8,11 @@ on:
         required: false
         type: boolean
         default: false
+      source_marginal_setup_native:
+        description: 'Registered 48 source physical setup groups, A/B/A, no games'
+        required: false
+        type: boolean
+        default: false
       rank26_full_v3_native:
         description: 'Full 24-deal retrospective source rank26 broad-versus-live Store observer contrast'
         required: false
@@ -24,7 +29,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -58,7 +63,7 @@ jobs:
             tests/agent3-marginal-coupled-field-delta.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -78,6 +83,20 @@ jobs:
         run: npm run compile
       - name: Test real-root-only receipts and one-Lightning source choice
         run: node --test tests/agent3-compressor-root-provenance-v3.test.cjs tests/agent3-rank26-one-lightning-two-egg-chooser.test.cjs
+      - name: Reproduce 48 precommitted new source setup A/B/A physical contexts
+        if: ${{ inputs.source_marginal_setup_native }}
+        run: |
+          node --check simulation/evaluation/agent3-source-setup-audit.cjs
+          node simulation/evaluation/agent3-source-setup-audit.cjs
+      - name: Archive all 144 setup-only native attempts including errors and repeated controls
+        if: ${{ always() && inputs.source_marginal_setup_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent3-48-source-marginal-setup-aba-native
+          path: agent3-source-setup-audit.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Replay three previously observed source-first deals with both historical policy arms
         if: ${{ inputs.rank26_root_v3_native }}
         run: node simulation/twinleaf/agent3-rank26-root-provenance-v3-selected.cjs
