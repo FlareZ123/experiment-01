@@ -28,6 +28,8 @@ const VERSION='agent21-first-native-owner-decoder-quarantine-panel-v1';
  * @returns {object} Bounded non-secret first-blocker evidence.
  */
 function runFirstOwnerDecoderPanel(deps={}) {
+  assert.ok(deps.ownerAttackVisualWait!==true || deps.ownerPhaseWait===true,
+    'Attack animation acknowledgement requires the phase-wait handler');
   const preflight=deps.preflight??diagnosticPreflight;
   const runner=deps.runner??
     require('./agent41-bilateral-v2-development.cjs').runDevelopment;
@@ -147,6 +149,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     exactOwnerSetupConfirmEnabled:deps.ownerSetupConfirm===true,
     exactOwnerStartingBasicsEnabled:deps.ownerSetupBasics===true,
     exactOwnerPhaseWaitEnabled:deps.ownerPhaseWait===true,
+    exactOwnerAttackVisualWaitEnabled:deps.ownerAttackVisualWait===true,
     exactOwnerShowCardsAckEnabled:deps.ownerShowCardsAck===true,
     sourceRank:5,
     independentProspective:false,
