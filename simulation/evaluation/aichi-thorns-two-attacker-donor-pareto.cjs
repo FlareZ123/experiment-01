@@ -37,7 +37,11 @@ function twoAttackerDonorPareto(active,bench,stadiums,canPay){
     return {
       donorName,donorIndex,sourceAfter,recipientAfter,
       activeCostPayable:paid(sourceAfter),
-      benchCostPayable:paid(recipientAfter)
+      benchCostPayable:paid(recipientAfter),
+      activeSpikyRetaliationConditionalOnTakingAttackDamage:
+        sourceAfter.includes('Spiky Energy'),
+      benchSpikyRetaliationOnlyIfPromoted:
+        recipientAfter.includes('Spiky Energy')
     };
   });
   // Pareto efficiency is scoped to the two printed-cost booleans.
