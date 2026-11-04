@@ -3,6 +3,7 @@
 const assert=require('node:assert/strict');
 const test=require('node:test');
 const path=require('node:path');
+const fs=require('node:fs');
 const {
   RULES,targetMatch,buildPublicPrintMetadata,
   loadBundledPublicPrintMetadata,withSourcePromoAliases,withSourceDisplayAliases,
@@ -222,6 +223,32 @@ test('source Prism Star ♢ and English database ◇ classify the same public Ba
     canonical.get('Tapu Koko ◇ TEU'));
 });
 
+
+test('pinned native M1L display of source MEG/86 Absol preserves Pokémon class only',()=>{
+  const sourceCard=JSON.parse(fs.readFileSync(path.join(__dirname,
+    '../resources/cards/en/me1.json'),'utf8'))
+    .find(card=>card.id==='me1-86');
+  assert.equal(sourceCard.name,'Mega Absol ex');
+  assert.equal(sourceCard.supertype,'Pokémon');
+  assert.deepEqual(sourceCard.subtypes,['Basic','MEGA','ex']);
+  const raw=loadBundledPublicPrintMetadata(path.join(__dirname,'../resources'));
+  assert.equal(raw.has('Mega Absol ex M1L'),false);
+  const aliased=withSourceDisplayAliases(raw);
+  assert.deepEqual(aliased.get('Mega Absol ex M1L'),
+    raw.get('Mega Absol ex MEG'));
+  const enhanced=withVerifiedMEEBasicEnergyPrintings(aliased);
+  const source9=['VS Seeker PHF','Darkness Energy MEE','Mega Absol ex M1L'];
+  const stretcher=check('Rescue Stretcher GRI',source9,enhanced);
+  assert.equal(stretcher.paperPlayable,null);
+  assert.equal(stretcher.status,'public-target-exists-other-conditions-unknown');
+  assert.deepEqual(stretcher.eligibleTargetIndices,[2]);
+  assert.deepEqual(stretcher.unknownMetadataIndices,[]);
+  const carrier=check('Rescue Carrier EVS',['Mega Absol ex M1L'],enhanced);
+  assert.equal(carrier.paperPlayable,false,'MEG/86 Absol is above HP 90');
+  assert.equal(aliased.has('Mega Absol ex MEG'),true);
+  assert.equal(raw.has('Mega Absol ex M1L'),false,
+    'Native source-display alias must not mutate English catalog');
+});
 
 test('external MEE Basic source remains explicit and never mutates bundled data',()=>{
   assert.equal(SOURCES.length,2);
