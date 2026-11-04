@@ -24,6 +24,8 @@ function runMaxGeistNativeBreakpoint(beforeAttackAttachment) {
   const {PokemonCardList} = load('game/store/state/pokemon-card-list');
   const {CardList} = load('game/store/state/card-list');
   const {CardType,SpecialCondition} = load('game/store/card/card-types');
+  assert.equal(CardType.COLORLESS,9,'Pinned native Colorless enum drift');
+  assert.equal(CardType.PSYCHIC,5,'Pinned native Psychic enum drift');
   const {PlayCardAction,PlayerType,SlotType} =
     load('game/store/actions/play-card-action');
   const {AttackAction} = load('game/store/actions/game-actions');
