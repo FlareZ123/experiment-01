@@ -10,6 +10,7 @@ on:
         options:
           - rank11-replay
           - generic-funded-floatstone
+          - generic-field-matched
 permissions:
   contents: read
 jobs:
@@ -25,8 +26,11 @@ jobs:
         if: inputs.experiment == 'rank11-replay'
         run: node --test tests/agent14-native-floatstone-reply-falsification.test.cjs
       - name: Pure generic owner-policy regression
-        if: inputs.experiment == 'generic-funded-floatstone'
+        if: inputs.experiment == 'generic-funded-floatstone' || inputs.experiment == 'generic-field-matched'
         run: node --test tests/agent14-generic-funded-floatstone-frontier.test.cjs
+      - name: Preflight sealed prospective trial IDs
+        if: inputs.experiment == 'generic-field-matched'
+        run: node -e "const trials=require('./simulation/evaluation/agent14-prospective-generic-funded-floatstone.cjs').registeredTrials(); console.log('REGISTERED_IDS',JSON.stringify(trials.map(t=>t.id)))"
       - name: Pinned submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
       - uses: actions/setup-node@v4
@@ -46,6 +50,19 @@ jobs:
       - name: Real two-seat multi-family generic funded mobility
         if: inputs.experiment == 'generic-funded-floatstone'
         run: node --test tests/agent14-generic-funded-floatstone-frontier.native.test.cjs
+      - name: Prospective real original-source matched baseline and generic mobility
+        if: inputs.experiment == 'generic-field-matched'
+        run: node simulation/evaluation/agent14-prospective-generic-funded-floatstone.cjs
+      - name: Archive all real original-source attempts, including aborts
+        if: always() && inputs.experiment == 'generic-field-matched'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-prospective-generic-funded-floatstone
+          path: |
+            agent14-prospective-generic-funded-floatstone.json
+            agent14-prospective-generic-funded-floatstone.json.sha256
+          if-no-files-found: error
+          retention-days: 21
       - if: always() && inputs.experiment == 'rank11-replay'
         uses: actions/upload-artifact@v4
         with:
