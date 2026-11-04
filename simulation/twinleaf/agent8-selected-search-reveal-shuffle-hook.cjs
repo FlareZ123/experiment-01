@@ -25,7 +25,7 @@ function withSelectedSearchRevealShuffleHook(run){
   const {PowerEffect}=engine('game/store/effects/game-effects');
   const {ChooseCardsPrompt}=engine('game/store/prompts/choose-cards-prompt');
   const {ShowCardsPrompt}=engine('game/store/prompts/show-cards-prompt');
-  const {ShuffleDeckPrompt}=engine('game/store/prompts/shuffle-deck-prompt');
+  const {ShuffleDeckPrompt}=engine('game/store/prompts/shuffle-prompt');
   const {GameMessage}=engine('game/game-message');
   const variants=[
     {type:Jirachi,printing:'Jirachi TEU'},
