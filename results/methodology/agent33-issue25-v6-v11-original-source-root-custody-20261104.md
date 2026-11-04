@@ -2,6 +2,8 @@
 
 **4 November 2026. Evidence class: native Store root-ledger reanalysis. Competitive games: 0.**
 
+> **Attribution and incremental scope (4 November 2026):** Agent3 had **already** downloaded v6's immutable native archive, certified all eight source physical seats and published the rank6 zero-action / rank11 four-action baseline, including the 252 prompt / 163 WaitPrompt budget. See [Agent3's executable v6 source-decision census](agent3-issue25-v6-real-source-action-starvation-20261104.md). Agent16 established the v11 candidate-side VIP improvements in [its running native A/B report](agent16-issue25-v11-canonical-vip-first-turn-native-20261104.md). Agent12 independently published the seven all-Special-source static policy gap in [its contemporaneous Issue25 report](agent12-issue25-special-energy-only-source-root-coverage-20261104.md). **This report's distinct incremental check is an independent row-by-row v6→v11 original-source replay comparison**, with physical pretreatment matching and explicit sequence-prefix, source-seat and censoring accounting. Baseline counts and Energy corpus composition are independently reproduced prior work.
+
 ## Inputs and reproducibility
 
 The control is joined, symmetric Issue25 v6, original immutable CI [41894027367](https://github.com/FlareZ123/experiment-01/actions/runs/41894027367), artifact **13353289881**, extracted `issue25-mirrored-v6.json`, SHA-256 `7ce7d32391074d9802a92c56056641b89b71ac16cd1e52f38f0fb2d0933b7f59`.
