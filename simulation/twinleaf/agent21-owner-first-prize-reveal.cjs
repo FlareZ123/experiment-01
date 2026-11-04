@@ -80,12 +80,16 @@ function withOwnerFirstPrizeReveal(run,deps={}) {
       }
     }
     audit.delegated++;
-    if(prompt&&audit.delegatedPromptMetadata.length<8){
+    if(prompt){
       const seat=state.players?.findIndex(p=>p?.id===actorId)??-1;
       const ownZone=actor&&prompt.cards===actor.hand?'own-hand':
         actor&&prompt.cards===actor.deck?'own-deck':
         actor&&prompt.cards===actor.discard?'own-discard':'other-or-not-applicable';
       const options=prompt.options;
+      if(audit.delegatedPromptMetadata.length===8){
+        audit.delegatedPromptMetadata.shift();
+        audit.delegatedPromptMetadataOmitted++;
+      }
       audit.delegatedPromptMetadata.push({
         seat,turn:state.turn,phase:state.phase,
         promptKind:prompt.constructor?.name??null,
@@ -96,7 +100,7 @@ function withOwnerFirstPrizeReveal(run,deps={}) {
         min:options?.min??null,max:options?.max??null,
         blockedCount:Array.isArray(options?.blocked)?options.blocked.length:null
       });
-    }else if(prompt)audit.delegatedPromptMetadataOmitted++;
+    }
     return prev.value.call(this,state);
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{...prev,value:decide});
