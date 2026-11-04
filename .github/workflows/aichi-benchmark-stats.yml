@@ -185,6 +185,7 @@ jobs:
       - name: Verify exact Sentinel stage-and-Gladion Prize collapse after valid Basic opener
         run: node --test tests/agent46-sentinel-setup-conditional-prize-collapse.test.cjs
       - name: Verify Issue25 machine-readable native receipt schema and atomic SHA custody
+        if: always()
         run: |
           node --test tests/agent46-issue25-native-public-artifact.test.cjs
           node --test tests/agent10-issue25-receipt-independent-audit.test.cjs
