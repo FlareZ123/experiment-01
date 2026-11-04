@@ -5,7 +5,7 @@ const {
   COST_BY_PRINT, ownerTrainerDiscardContention
 } = require('./agent27-owner-trainer-discard-contention.cjs');
 
-const VERSION = 'agent49-generic-trainer-necessary-hand-payment-v1';
+const VERSION = 'agent49-generic-trainer-necessary-hand-payment-v2-native-tool-bridge';
 
 /**
  * Determine whether every exact-print known owner-hand payment mode fails
@@ -38,9 +38,11 @@ function necessaryTrainerHandPaymentGate(view,trainer,
       modeReceipts:[],paperPlayable:null
     };
   }
-  // A mismatch signals a broken exact-print Trainer catalog. Never silently
-  // adapt a Supporter cost to a Tool or Item action.
-  assert.equal(trainer.type,definition.type,
+  // Native TrainerType.TOOL is surfaced as "Tool" in Agent5's generic
+  // frontier; the sourced paper cost registry calls the same class
+  // "Pokémon Tool". Keep other type mismatches as hard failures.
+  const paperType=trainer.type==='Tool'?'Pokémon Tool':trainer.type;
+  assert.equal(paperType,definition.type,
     'Public Trainer class differs from exact registered print cost');
   const full=ownerTrainerDiscardContention(view,[trainer],protectedIndices);
   const modes=full.rows[0].variants;
