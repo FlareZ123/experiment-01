@@ -20,6 +20,8 @@ function summarizeArchive(result){
   const statuses={},rootChoice={budewAttack:0,boostShake:0,
     otherAttack:0,passWithoutAttack:0,unknown:0};
   let sourceFirst=0,sourceSecond=0,sourceFingerprintPaired=0;
+  let liveFirstHandRows=0,liveHandPairsMatching=0;
+  const liveHandPairsMismatched=[],liveHandPairsUnavailable=[];
   const pairs=new Map(),rows=[];
   for(const r of result.allNativeDevelopmentRows){
     const status=r.status??(r.finished===true?'engine-terminal':
@@ -48,6 +50,12 @@ function summarizeArchive(result){
       trialId:r.trial.id,candidateId:r.trial.candidateId,
       sourceSeat:r.sourceSeat,sourceActuallyFirst:r.sourceActuallyFirst,
       actualStarterSeat:r.actualStarterSeat,sourceDeal:r.sourceDealFingerprint,
+      firstLiveHandProtocol:r.sourceFirstOwnHandProtocol??null,
+      firstLiveHandSha256:r.sourceFirstOwnHandProtocol===
+        'first-live-owner-hand-prebot-v1'?r.sourceFirstOwnHandSha256:null,
+      firstLiveHandActionOrdinal:r.sourceFirstOwnHandFirstActionOrdinal??null,
+      legacyFirstObservedHandSha256:r.sourceLegacyFirstObservedHandSha256??null,
+      legacyFirstObservedTurn:r.sourceLegacyFirstObservedHandTurn??null,
       status,engineFinished:r.finished??null,
       engineEndReason:r.endReason??null,
       actions:r.actionCount??null,
@@ -74,6 +82,13 @@ function summarizeArchive(result){
     const equal=group[0].sourceDealFingerprint===group[1].sourceDealFingerprint;
     if(equal)sourceFingerprintPaired++;
     else differences.push(key);
+    const hands=group.map(row=>row.sourceFirstOwnHandProtocol===
+      'first-live-owner-hand-prebot-v1'?row.sourceFirstOwnHandSha256:null);
+    liveFirstHandRows+=hands.filter(x=>typeof x==='string').length;
+    if(hands.every(x=>typeof x==='string')){
+      if(hands[0]===hands[1])liveHandPairsMatching++;
+      else liveHandPairsMismatched.push(key);
+    }else liveHandPairsUnavailable.push(key);
   }
   return {
     version:'agent16-original-rank16-native-archive-honesty-summary-v1',
@@ -82,9 +97,14 @@ function summarizeArchive(result){
     statuses,sourceFirst,sourceSecond,
     sourceDealPairsMatching:sourceFingerprintPaired,
     sourceDealPairsMismatched:differences.length,
-    mismatchedGroupIds:differences,rootChoice,rows,
+    mismatchedGroupIds:differences,
+    liveFirstHandShaAvailableRows:liveFirstHandRows,
+    liveFirstHandPairsMatching:liveHandPairsMatching,
+    liveFirstHandPairsMismatched:liveHandPairsMismatched,
+    liveFirstHandPairsUnavailable:liveHandPairsUnavailable,
+    rootChoice,rows,
     qualifiedGames:0,
-    caveat:'The two candidates are distinct fixed 60s, so source physical deals can differ even under the same seed. A first-turn pass or ordinary attack is not proof that an alternative Budew or Shake action was legal. No first-turn Active or full owner hand transcript was captured and no paper clock was validated.'
+    caveat:'Distinct candidate decks can change source deals under the same seed. A matching first-live-hand SHA does not certify a matching deck or Prize layout. A held Shake and a passive first-turn action do not establish paper-legal or strategically superior lock play. Earlier archives lack prebot hand evidence. No paper clock was validated.'
   };
 }
 
