@@ -161,3 +161,75 @@ test('Prism Star source glyph variants resolve only exact printed Prism Star Pok
     assert.equal(missing.state,'printing-not-matched-in-existing-set-corpus');
   }
 });
+
+test('original Team Flare Gear labels resolve only three exact source PHF printings',()=>{
+  const examples=[
+    [1,'Battle Compressor','xy4-92'],
+    [7,'Robo Substitute','xy4-102'],
+    [7,'Target Whistle','xy4-106']
+  ];
+  for(const [rank,name,id] of examples){
+    const orig=originals.decks.find(row=>row.rank===rank);
+    const source=auditPrintedSixty(orig).rows.find(row=>row.name===name);
+    assert.equal(source.state,'exact-bundled-printing',name);
+    assert.equal(source.matchedIds.length,1,name);
+    assert.equal(source.matchedIds[0].id,id,name);
+    assert.ok(source.matchedIds[0].subtypes.includes('Item'));
+    const fake=JSON.parse(JSON.stringify(orig));
+    fake.cards.find(row=>row.name===name).printing.number='999';
+    assert.equal(auditPrintedSixty(fake).rows.find(row=>row.name===name)
+      .state,'printing-not-matched-in-existing-set-corpus');
+  }
+});
+
+test('source Prism Stadium Unicode glyphs need exact matching printed Prism subtype',()=>{
+  const specimens=[
+    [6,'Thunder Mountain ♢','sm8-191'],
+    [6,'Wondrous Labyrinth ♢','sm9-158']
+  ];
+  for(const [rank,name,id] of specimens){
+    const orig=originals.decks.find(row=>row.rank===rank);
+    const card=auditPrintedSixty(orig).rows.find(row=>row.name===name);
+    assert.equal(card.state,'exact-bundled-printing',name);
+    assert.equal(card.matchedIds.length,1,name);
+    assert.equal(card.matchedIds[0].id,id,name);
+    assert.ok(card.matchedIds[0].subtypes.includes('Prism Star'));
+    assert.ok(card.matchedIds[0].subtypes.includes('Stadium'));
+    const forged=JSON.parse(JSON.stringify(orig));
+    forged.cards.find(row=>row.name===name).name=name.replace(' ♢',' ♡');
+    assert.equal(auditPrintedSixty(forged).rows
+      .find(row=>row.name.endsWith(' ♡')).state,
+      'printing-not-matched-in-existing-set-corpus');
+  }
+});
+
+test('original BW promo Tropical Beach gets exact local promo, unknown Palace Belt stays unresolved',()=>{
+  const orig=originals.decks.find(row=>row.rank===3);
+  const beach=auditPrintedSixty(orig).rows.find(row=>row.name==='Tropical Beach');
+  assert.equal(beach.state,'exact-bundled-printing');
+  assert.equal(beach.matchedIds.length,1);
+  assert.equal(beach.matchedIds[0].id,'bwp-BW50');
+  assert.ok(beach.matchedIds[0].subtypes.includes('Stadium'));
+  const fake=JSON.parse(JSON.stringify(orig));
+  fake.cards.find(row=>row.name==='Tropical Beach').printing.number='51';
+  assert.equal(auditPrintedSixty(fake).rows
+    .find(row=>row.name==='Tropical Beach').state,
+    'printing-not-matched-in-existing-set-corpus');
+  const thorn=originals.decks.find(row=>row.rank===6);
+  const palace=auditPrintedSixty(thorn).rows.find(row=>row.name==='Palace Belt');
+  assert.equal(palace.state,'printing-not-matched-in-existing-set-corpus');
+});
+
+test('source UPR Unit Energy abbreviation resolves exact local Energy card',()=>{
+  const orig=originals.decks.find(row=>row.rank===4);
+  const match=auditPrintedSixty(orig).rows.find(row=>row.name==='Unit Energy LPM');
+  assert.equal(match.state,'exact-bundled-printing');
+  assert.equal(match.matchedIds.length,1);
+  assert.equal(match.matchedIds[0].id,'sm5-138');
+  assert.ok(match.matchedIds[0].subtypes.includes('Special'));
+  const fake=JSON.parse(JSON.stringify(orig));
+  fake.cards.find(row=>row.name==='Unit Energy LPM').name='Unit Energy LPP';
+  assert.equal(auditPrintedSixty(fake).rows
+    .find(row=>row.name==='Unit Energy LPP').state,
+    'printing-not-matched-in-existing-set-corpus');
+});
