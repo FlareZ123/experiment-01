@@ -21,6 +21,17 @@ function nativeVipOutcome(row){
     rejectedSearches:audit?.rejectedSearches??null,
     nativeBenchConfirmed:audit?.nativeBenchConfirmed??null,
     nativeBenchUnconfirmed:audit?.nativeBenchUnconfirmed??null,
+    selectedBasicCopies:audit?.selectedBasics??null,
+    confirmedNonemptySearches:audit?.nativeBenchConfirmed??null,
+    publicBenchTransitions:(audit?.examples??[])
+      .filter(event=>event.kind==='vip-search'&&event.accepted===true)
+      .map(event=>({
+        seat:event.seat,turn:event.turn,
+        publiclyBenchedPrintings:event.printings,
+        physicalSettled:event.nativeBenchConfirmed===true,
+        benchBefore:event.benchBefore,benchAfter:event.benchAfter,
+        deckBefore:event.deckBefore,deckAfter:event.deckAfter
+      })),
     unresolvedOwnerSearches:audit?.unresolvedOwnerSearches??null,
     bySeat:audit?.bySeat??null,
     rootActionCount:row.rootActionLedger?.length??
