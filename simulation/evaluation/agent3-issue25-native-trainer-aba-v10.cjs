@@ -133,6 +133,19 @@ function summarizeArm(run,registration,armId){
         raw.initializationWindowAudit?.candidateTurn2
           ?.nativePowerChecks?.filter(x=>x.blocked===true)
           .map(x=>({printing:x.printing,powerName:x.powerName}))??null,
+      nativeFailureStage:raw.nativeAbortEvidence?.failureStage??
+        receipt.abortFailureStage??null,
+      nativeErrorSanitized:typeof raw.error==='string'?
+        raw.error.slice(0,1700):null,
+      nativeFallbackAbortDiagnostics:
+        raw.nativeGenericFallbackAbortEvidence?{
+          attemptedUnsupportedPasses:
+            raw.nativeGenericFallbackAbortEvidence.attemptedUnsupportedPasses??
+            null,
+          acceptedNativeTrainerRoots:
+            raw.nativeGenericFallbackAbortEvidence.acceptedNativeTrainerRoots??
+            null
+        }:null,
       nativeFinished:receipt.finished,
       nativeWinner:receipt.finished===true?receipt.finalNativeWinner:null,
       nativePostStorePhysicalGameQualified:false,
@@ -188,9 +201,13 @@ function comparePanel(arms,registration,baseline){
       x.sourceDealFingerprint===c.sourceDealFingerprint);
     const sameFirstPlayer=[c,t,replay].every(x=>
       x.actualFirstPlayer===c.actualFirstPlayer);
-    const samePrintedSixties=[c,t,replay].every(x=>
-      x.sourceDeckFingerprint===c.sourceDeckFingerprint&&
-      x.candidateDeckFingerprint===c.candidateDeckFingerprint);
+    const eachPrintingObserved=[c,t,replay].every(x=>
+      typeof x.sourceDeckFingerprint==='string'&&
+      typeof x.candidateDeckFingerprint==='string');
+    const samePrintedSixties=eachPrintingObserved?
+      [c,t,replay].every(x=>
+        x.sourceDeckFingerprint===c.sourceDeckFingerprint&&
+        x.candidateDeckFingerprint===c.candidateDeckFingerprint):null;
     const baselineReplayMatch=
       c.sourceDealFingerprint===orig.sourceDealFingerprint&&
       c.fullPhysicalDealFingerprint===orig.fullPhysicalDealFingerprint&&
@@ -239,7 +256,7 @@ function comparePanel(arms,registration,baseline){
     return {
       id,sourceRank:Number(id.split(':')[0]),
       physicalInputEqual,sourcePhysicalEqual,sameFirstPlayer,
-      samePrintedSixties,baselineReplayMatch,
+      samePrintedSixties,eachPrintingObserved,baselineReplayMatch,
       repeatedControlIdentical,
       firstPublicActionDifference:firstDifference(),
       nativeSourceNonPassDelta:
@@ -264,7 +281,9 @@ function comparePanel(arms,registration,baseline){
     groupCount:groups.length,
     physicalMatchGroups:total(g=>g.physicalInputEqual),
     sourcePhysicalMatchGroups:total(g=>g.sourcePhysicalEqual),
-    printedSixtiesMatchGroups:total(g=>g.samePrintedSixties),
+    printedSixtiesMatchGroups:total(g=>g.samePrintedSixties===true),
+    printedSixtiesNotAttestedGroups:total(g=>g.samePrintedSixties===null),
+    printedSixtiesContradictionGroups:total(g=>g.samePrintedSixties===false),
     exactInitialStarterMatchGroups:total(g=>g.sameFirstPlayer),
     originalV6ControlReproducedGroups:total(g=>g.baselineReplayMatch),
     repeatControlPublicRootReproducedGroups:
