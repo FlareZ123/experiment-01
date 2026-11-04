@@ -1,0 +1,81 @@
+'use strict';
+
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {developmentTrials,runDevelopment}=
+  require('../simulation/evaluation/agent41-bilateral-v2-development.cjs');
+const {withGoFirstChoice}=
+  require('../simulation/twinleaf/agent6-go-first-choice.cjs');
+const {withOwnerStartingBasicChoice}=
+  require('../simulation/twinleaf/agent50-owner-starting-basic-choice.cjs');
+const {withOwnerPublicAcknowledgements}=
+  require('../simulation/twinleaf/agent50-owner-public-acknowledgements.cjs');
+const {withOwnerMandatoryShowCards}=
+  require('../simulation/twinleaf/agent50-owner-mandatory-showcards.cjs');
+const {withOwnerFutureSightNeutralOrder}=
+  require('../simulation/twinleaf/agent30-owner-futuresight-neutral-order.cjs');
+const {withOwnerOriginBoundAttackChoices}=
+  require('../simulation/twinleaf/agent26-origin-bound-attack-choices.cjs');
+const {CODE,withNativeRawStateFallbackQuarantine:quarantine}=
+  require('../simulation/twinleaf/agent4-raw-state-native-fallback-quarantine.cjs');
+
+/**
+ * Historical original-source four-arm compatibility canary. Source 60s,
+ * seeds, hands, starting seats and policy registration are unchanged.
+ * Selection records are proposals until independently tied to a true
+ * Store settlement and physical zone/Prize consequence.
+ */
+test('Issue25 exact-source Night Watch and Get Lost owner choices reach native Store',()=>{
+  assert.equal(developmentTrials().length,4);
+  let developed=null,choices=null,ordering=null,guard=null,blocked=null;
+  try{
+    const out=quarantine(()=>withGoFirstChoice([false,false],()=>
+      withOwnerStartingBasicChoice(()=>withOwnerPublicAcknowledgements(()=>
+        withOwnerMandatoryShowCards(()=>{
+          const attacks=withOwnerOriginBoundAttackChoices(()=>{
+            const future=withOwnerFutureSightNeutralOrder(()=>{
+              developed=runDevelopment({
+                actorOnlyComposition:true,nativeRootActionLimit:48});
+              return developed;
+            });
+            ordering=future.audit;
+            return future.result;
+          },{committedSeed:'agent26-origin-bound-v1-20261104-frozen'});
+          choices=attacks.audit;
+          return attacks.result;
+        }).result).result).result).result,{maxRecords:16});
+    guard=out.audit;
+  }catch(error){
+    blocked=error;
+    guard=error.nativeRawStateFallbackQuarantine??null;
+    choices=error.agent26OriginBoundAttackChoices??choices;
+  }
+  const rows=developed?.rows??[];
+  console.log('AGENT26_ISSUE25_EXACT_PRINT_CHOICES',JSON.stringify({
+    registeredArms:developmentTrials().map(r=>r.id),
+    attempts:rows.map(r=>({
+      id:r.trial?.id??r.id??null,
+      status:r.status??'returned',turn:r.turns??null,
+      roots:r.rootActionCount??null,
+      sourceDealFingerprint:r.sourceDealFingerprint??null
+    })),
+    sourceChoiceAudit:choices,
+    futureSightMarks:ordering?.markedOrderPrompts??null,
+    genericQuarantine:guard,
+    nextFailureCode:blocked?.code??null,
+    completedPaperQualifiedGames:0
+  }));
+  assert.equal(rows.length,4);
+  assert.ok(choices,'selected source-print choice audit must be preserved');
+  assert.ok(guard,'raw-state quarantine must remain active');
+  assert.equal(guard.originalNativeDecoderExecuted,false);
+  const kinds=choices.selected.map(e=>e.kind);
+  assert.ok(kinds.includes('night-watch'),'expected printed Night Watch');
+  assert.ok(kinds.includes('get-lost'),'expected printed Get Lost');
+  assert.ok(choices.selected.every(e=>e.privateCardIdentitiesExposed===false));
+  assert.ok(choices.printedSourceInvocations.length>=2);
+  assert.ok(ordering?.ownerPromptSelections>=1);
+  if(guard.rawStateFallbackCalls>0)
+    assert.equal(blocked?.code,CODE);
+  else assert.equal(blocked,null);
+});
