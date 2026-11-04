@@ -87,11 +87,13 @@ test('first genuine owner setup prompt captures hashed private prechoice hand+de
     assert.equal(e.ownerDeckCount,53);
     assert.equal(e.ownerPrizeCount,0);
     assert.equal(e.globalTurnAtCapture,0);
-    assert.match(e.opaquePhysicalPrechoiceInputSha256,/^[0-9a-f]{64}$/);
+    assert.match(e.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
   }
   const printed=JSON.stringify(out.audit);
   assert.ok(!printed.includes('SECRET_HAND'));
   assert.ok(!printed.includes('SECRET_DECK'));
+  assert.equal(out.audit.fingerprintSecretPublished,false);
+  assert.equal(out.audit.comparableOnlyInsideOneNodeProcess,true);
   assert.equal(out.audit.policyChoiceActionsIssued,0);
   assert.equal(out.audit.qualifiesMatchedCompetitiveGames,false);
 });
@@ -116,7 +118,7 @@ test('same physical pre-choice input is stable under distinct downstream setup c
       return treatment;
     },{engine:n.engine});
     observed.push(receipt.audit.events.map(e=>
-      e.opaquePhysicalPrechoiceInputSha256));
+      e.opaquePhysicalPrechoiceInputHmacSha256));
   }
   assert.deepEqual(observed[0],observed[1],
     'A setup-policy intervention must not redefine its own pretreatment baseline');
