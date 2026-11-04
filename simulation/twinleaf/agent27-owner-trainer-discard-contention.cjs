@@ -63,6 +63,57 @@ register('Professors Letter',['XY','BKT'],
 register('Energy Search',['BCR','SSH','SVI','CRZ'],
   [{mode:'no-discard',discards:0}]);
 
+// Source-card-text corroborated ORIGINAL Aichi printings with zero additional
+// owner-hand card discards when played. A zero payment NEVER means that a card
+// has a legal target, can be played under locks, preserves the owner's hand,
+// avoids a Tool/Bench/Supporter quota, or has a worthwhile strategic effect.
+// Whole-hand shufflers/discarders remain outside this fixed-cardinality catalog.
+const noHandDiscardPrintings=[
+  ['VS Seeker','PHF','Item'],
+  ['Guzma','BUS','Supporter'],
+  ['Hisuian Heavy Ball','ASR','Item'],
+  ['Float Stone','BKT','Pokémon Tool'],
+  ['Muscle Band','XY','Pokémon Tool'],
+  ['Sky Field','ROS','Stadium'],
+  ['Rescue Carrier','EVS','Item'],
+  ['Rescue Stretcher','GRI','Item'],
+  ['Raihan','EVS','Supporter'],
+  ['Tag Call','CEC','Item'],
+  ['Forest Seal Stone','SIT','Pokémon Tool'],
+  ['Dark Patch','ASR','Item'],
+  ['Field Blower','GRI','Item'],
+  ['Lusamine','CIN','Supporter'],
+  ['Escape Rope','BST','Item'],
+  ['Super Rod','PAL','Item'],
+  ['Enhanced Hammer','TWM','Item'],
+  ['Counter Catcher','PAR','Item'],
+  ['Megaton Blower','SSP','Item'],
+  ['Crispin','SCR','Supporter'],
+  ['Team Flare Grunt','XY','Supporter'],
+  ['Temple of Sinnoh','ASR','Stadium'],
+  ['Fog Crystal','CRE','Item'],
+  ['Faba','LOT','Supporter'],
+  ['Path to the Peak','CRE','Stadium'],
+  ['Crushing Hammer','POR','Item'],
+  ['Night Stretcher','ASC','Item'],
+  ['Stealthy Hood','UNB','Pokémon Tool'],
+  ['Nest Ball','SVI','Item'],
+  ['Parallel City','BKT','Stadium'],
+  ['Gladion','CIN','Supporter'],
+  ['Artazon','PAL','Stadium'],
+  ['Arven','OBF','Supporter'],
+  ['Boost Shake','EVS','Item'],
+  ['Silent Lab','PRC','Stadium'],
+  ['Buddy-Buddy Poffin','TEF','Item'],
+  ['Technical Machine: Evolution','PAR','Pokémon Tool'],
+  ['Camping Gear','BST','Item'],
+  ['Echoing Horn','CRE','Item'],
+  ['Handheld Fan','TWM','Pokémon Tool'],
+  ["Steven's Resolve",'CES','Supporter']
+];
+for(const [name,set,type] of noHandDiscardPrintings)
+  register(name,[set],[{mode:'no-owner-hand-discard-payment',discards:0}],type);
+
 /** @param {number} n @param {number} k @returns {bigint} */
 function combinations(n,k) {
   assert.ok(Number.isSafeInteger(n) && n >= 0);
