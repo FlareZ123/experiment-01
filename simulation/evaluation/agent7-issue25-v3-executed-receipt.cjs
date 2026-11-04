@@ -17,8 +17,15 @@ const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
  * @returns {object}
  */
 function executionRow(status,raw){
+  const abort=raw?.nativeAbortEvidence??null;
   const actions=raw?.rootActionLedger??
-    raw?.nativePublicRootArchive?.rootActionLedger??null;
+    raw?.nativePublicRootArchive?.rootActionLedger??
+    abort?.rootActionLedger??null;
+  const computedLedgerDigest=Array.isArray(actions)?
+    sha256(Buffer.from(JSON.stringify(actions))):null;
+  const engineReportedLedgerDigest=
+    raw?.rootActionLedgerSha256??
+    abort?.rootActionLedgerSha256??null;
   return {
     ...status,
     actualRawTrialId:raw?.trial?.id??raw?.id??null,
@@ -27,6 +34,15 @@ function executionRow(status,raw){
     publicRootActions:Array.isArray(actions)?actions.slice(0,128):null,
     publicRootActionsTruncated:
       Array.isArray(actions)?actions.length>128:null,
+    publicRootLedgerSha256Computed:computedLedgerDigest,
+    publicRootLedgerSha256Reported:engineReportedLedgerDigest,
+    publicRootLedgerDigestConsistent:computedLedgerDigest===null?
+      null:engineReportedLedgerDigest===null?
+        'UNVERIFIED':engineReportedLedgerDigest===computedLedgerDigest,
+    abortFailureStage:abort?.failureStage??null,
+    abortActionOrdinal:abort?.actionOrdinal??null,
+    abortActionName:abort?.actionName??null,
+    abortPendingPrompt:abort?.pendingPrompt??null,
     actualSourceDeckFingerprint:raw?.sourceDeckFingerprint??null,
     actualCandidateDeckFingerprint:raw?.candidateDeckFingerprint??null,
     actualFirstPlayer:raw?.actualStarterSeat??status.actualStarterSeat??null,
@@ -80,6 +96,10 @@ function buildReceipt(executed){
     diagnostic.registeredAttemptReconciliation?.exactUniqueMatch===true&&
     diagnostic.rawRowIdentityReconciliation?.exactlyReconciled===true;
   const observedGit=manifest.runtimeGitAttestationStatus==='VERIFIED';
+  const engineLedgerParity=rows.every(row=>
+    row.publicRootLedgerDigestConsistent===true||
+    row.publicRootLedgerDigestConsistent==='UNVERIFIED'||
+    row.publicRootLedgerDigestConsistent===null);
   const attemptIds=rows.map(row=>row.id);
   return {
     schema:VERSION,
@@ -119,6 +139,7 @@ function buildReceipt(executed){
     gate:{
       observedCodeAndVendor:observedGit?'PASS':'UNRESOLVED',
       exactTrialIdentity:reconciled?'PASS':'FAIL',
+      observedPublicRootLedgerDigest:engineLedgerParity?'PASS':'FAIL',
       completeReturnedFourArmLedger:rows.length===4&&reconciled?
         'PASS':'FAIL',
       fullPolicyBothSeatSymmetry:manifest.fullDecisionPolicySymmetryCertified?
