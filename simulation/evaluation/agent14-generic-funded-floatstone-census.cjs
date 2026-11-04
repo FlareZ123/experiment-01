@@ -85,12 +85,11 @@ function run(){
       .runDevelopment(options);
     assert.equal(observed.attempted,12);
     const sections=observed.rows.map(row=>{
-      const census=row.actorOnlyDecisionCoverage
-        ?.genericFundedFloatStoneAudit;
-      assert.ok(census,'missing actor owner-root census');
-      assert.equal(
-        row.actorOnlyDecisionCoverage?.genericFundedFloatStoneAuditOptIn,
-        true);
+      const rootAudit=row.actorOnlyDecisionCoverage
+        ?.detailedComponentAudits?.root;
+      const census=rootAudit?.genericFundedFloatStoneAudit;
+      assert.ok(census,'missing nested canonical actor-root census');
+      assert.equal(rootAudit?.genericFundedFloatStoneAuditOptIn,true);
       return {
         id:row.trial.id,
         sourceSeat:row.sourceSeat,candidateSeat:row.candidateSeat,
