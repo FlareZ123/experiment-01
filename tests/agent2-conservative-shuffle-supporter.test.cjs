@@ -106,6 +106,11 @@ test('offer order is invariant to forbidden opponent-private and deck-order data
     enumerateConservativeShuffleSupporterOffers(b));
 });
 
+test('unsupported shuffle family remains null even when opponent has hand cards',()=>{
+  const v=view(['Marnie SSH']);
+  assert.equal(printedShuffleDrawCounts(v,'unknown'),null);
+});
+
 test('Marnie and Iono draw condition fails if neither remaining hand has a card',()=>{
   const empty=view(['Iono PAL'],{
     opponentPublic:{handCount:0,deckCount:30,prizeCount:2}
