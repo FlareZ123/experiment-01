@@ -57,15 +57,16 @@ function probe(printing,choice,seat,repaired){
       const prompt=state.prompts.find(p=>p.result===undefined);
       if(!prompt)break;
       let answer;
+      let physicalBefore=null;
       if(prompt.constructor.name==='ChooseCardsPrompt'&&
          prompt.message==='CHOOSE_CARD_TO_HAND')
         answer=choice==='hit'?[hit]:[];
       else if(prompt.constructor.name==='ShowCardsPrompt')
         answer=true;
       else if(prompt.constructor.name==='ShuffleDeckPrompt'){
-        const before=[...actor.deck.cards];
-        answer=Array.from({length:before.length},(_,j)=>before.length-j-1);
-        permutationChanged=before.length>1;
+        physicalBefore=[...actor.deck.cards];
+        answer=Array.from({length:physicalBefore.length},
+          (_,j)=>physicalBefore.length-j-1);
       }else{
         throw Error('Unexpected native prompt '+prompt.constructor.name+
           ' '+String(prompt.message));
@@ -73,6 +74,11 @@ function probe(printing,choice,seat,repaired){
       assert.equal(prompt.validate(answer,state),true,
         prompt.constructor.name+' rejects selected test input');
       store.dispatch(new ResolvePromptAction(prompt.id,answer));
+      if(physicalBefore){
+        assert.equal(physicalBefore.length,actor.deck.cards.length);
+        permutationChanged=physicalBefore.some(
+          (card,index)=>actor.deck.cards[index]!==card);
+      }
       events.push({prompt:prompt.constructor.name,message:prompt.message,
         answerSize:Array.isArray(answer)?answer.length:null,
         validated:true,turnAfter:state.turn});
