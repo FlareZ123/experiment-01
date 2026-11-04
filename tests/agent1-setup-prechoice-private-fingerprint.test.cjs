@@ -162,7 +162,9 @@ test('registered headless trial label is carried into genuine Store setup and re
   };
   const original=headless.runMatch;
   const output=withSetupPrechoicePrivateFingerprint(
-    ()=>headless.runMatch({label}),
+    ()=>headless.runMatch({label,seed:19,
+      deckA:Array(60).fill('Psychic Energy SVE'),
+      deckB:Array(60).fill('Darkness Energy SVE')}),
     {engine:n.engine,headless,expectedTrialIds:[registered]}
   );
   assert.equal(output.result,true);
@@ -172,6 +174,10 @@ test('registered headless trial label is carried into genuine Store setup and re
   assert.deepEqual(output.audit.events.map(e=>e.registeredNativeTrialId),
     [registered,registered]);
   assert.equal(output.audit.privateFingerprintSessionId.length,32);
+  assert.match(output.audit.events[0].opaquePreRunRequestHmacSha256,
+    /^[0-9a-f]{64}$/);
+  assert.equal(output.audit.events[0].opaquePreRunRequestHmacSha256,
+    output.audit.events[1].opaquePreRunRequestHmacSha256);
   assert.equal(output.audit.fingerprintSecretPublished,false);
 });
 
