@@ -34,6 +34,9 @@ jobs:
       - name: Verify native Jirachi and Mew selected-search reveals and scoped shuffles in both seats
         run: node --test tests/agent8-selected-search-reveal-shuffle.native.test.cjs
 
+      - name: Verify original Aichi rank1 Lele Wonder Tag zero-search shuffle in both physical seats
+        run: node --test tests/agent8-wonder-tag-zero-shuffle.native.test.cjs
+
       - name: Check opt-in Forest Seal Stone one-card search correction
         run: node --test tests/forest-seal-search-hook.test.cjs
 
