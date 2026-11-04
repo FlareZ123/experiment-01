@@ -57,3 +57,5 @@ jobs:
         run: node --test tests/agent36-issue25-selected-v0.test.cjs
       - name: Issue25 selected v0 actual four-arm pinned native policy and hash closure
         run: node --test tests/agent36-issue25-selected-v0.native.test.cjs
+      - name: Issue25 opt-in source-independent both-seat resource policy pure contract
+        run: node --test tests/agent36-bilateral-two-seat-common-policy.test.cjs

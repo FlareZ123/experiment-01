@@ -385,6 +385,7 @@ function executeDevelopment(trial,candidates,{
   rank11SourceSupporterPassRescue=false,
   rank11ExclusiveOpening=false,
   paperRank9ElectrodeGXCorrection=false,
+  sourceIndependentCommonPolicy=false,
   losslessNativeRootJoin=false,registeredTrial=false
 }={}){
   if(initializationWindow)assert.equal(trial.rank,6,
@@ -648,12 +649,22 @@ function executeDevelopment(trial,candidates,{
     ownerSupporterOpportunityAudit=observed.audit;
     return observed.result;
   };
-  const common=()=>withBilateralCommonCandidatePolicy(candidateSeat,
-    runWithOwnerSupporterOpportunity);
+  const common=()=>sourceIndependentCommonPolicy?
+    require('./agent36-bilateral-two-seat-common-policy.cjs')
+      .withIdenticalTwoSeatCommonPolicy(runWithOwnerSupporterOpportunity):
+    withBilateralCommonCandidatePolicy(candidateSeat,
+      runWithOwnerSupporterOpportunity);
   let game,sourceAudit,commonAudit;
   let sourceSupporterRescueAudit=null;
   let sourceExclusiveOpeningAudit=null;
-  if(trial.rank===11){
+  if(sourceIndependentCommonPolicy){
+    // Independent development gate: no rank-conditioned opponent script.
+    // The same three resource adapters run for both real physical seats.
+    const played=common();
+    sourceAudit=null;
+    commonAudit=played.policyAudit;
+    game=played.result;
+  }else if(trial.rank===11){
     const runSource=rank11SourceSupporterPassRescue?()=>{
       const r=require('../twinleaf/agent41-rank11-source-pass-supporter.cjs')
         .withRank11SourcePassSupporter(sourceSeat,common);
@@ -1110,6 +1121,7 @@ function runDevelopment({
   nativeRejectedActionEvidence=false,actorNativeAorItemLock=false,
   proposalStateAudit=false,nativeProposalValidationAudit=false,nativeProposalTapeOrdinal=null,
   nativeOpponentHiddenReadAudit=false,actorOnlyComposition=false,
+  sourceIndependentCommonPolicy=false,
   ownerGenericTrainerFrontier=false,nativeOwnerTrainerFallback=false,
   actorOnlySingleSearch=false,actorGenericFallbackAttribution=false,
   actorHandDiscard=false,actorChoosePokemon=false,
@@ -1167,6 +1179,8 @@ function runDevelopment({
   allowAdditionalOriginalSourceRanks=false
 }={}){
   assertManifest();
+  assert.ok(!sourceIndependentCommonPolicy||actorOnlyComposition,
+    'Two-seat source-independent resource gate requires actor-only base policy');
   assert.ok(!ownerGenericTrainerFrontier||actorOnlyComposition,
     'Owner Trainer census requires canonical actor composition');
   assert.ok(!nativeOwnerTrainerFallback||actorOnlyComposition,
@@ -1384,6 +1398,7 @@ function runDevelopment({
         rank6K1AlternativeEnergy,rank6ScriptedSpecialConditionGuard,
         rank11SourceSupporterPassRescue,
         rank11ExclusiveOpening,paperRank9ElectrodeGXCorrection,
+        sourceIndependentCommonPolicy,
         registeredTrial:registeredTrials!==null,
         // An opt-in observational package, with each native Store observer
         // applicable to its own opposing source archetype only.
@@ -1835,6 +1850,7 @@ function runDevelopment({
     nativeSupporterQuotaQualified:paperSupporterQuota?
       rows.every(row=>row.nativeSupporterQuotaQualified===true):'unverified',
     sourceFirstRetrospective,
+    sourceIndependentCommonPolicyOptIn:sourceIndependentCommonPolicy,
     registeredTrialFrame:registeredTrials!==null?registeredFrameName:null,
     rank6K1AlternativeEnergyOptIn:rank6K1AlternativeEnergy,
     rank6ScriptedSpecialConditionGuardOptIn:rank6ScriptedSpecialConditionGuard,
