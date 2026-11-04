@@ -48,6 +48,8 @@ jobs:
         env:
           AGENT50_ENTRY_RECEIPT_DIR: artifacts/agent50-entry-priority
         run: node --test tests/agent50-owner-entry-priority-single-basic.test.cjs tests/agent50-owner-entry-priority-original5.native.test.cjs
+      - name: Three original4 source-hand native entry-preserving multi-Basic Store placements
+        run: node --test tests/agent50-owner-protected-multibasic-store.native.test.cjs
       - name: Preregistered original4 32 hands owner priority actual Store acceptance
         env:
           AGENT50_ENTRY_RANK4_RECEIPT_DIR: artifacts/agent50-rank4-priority
