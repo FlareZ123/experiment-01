@@ -1,0 +1,46 @@
+# Full 1,740/1,740 original-field card-category coverage with Japanese-only provenance kept separate
+
+**Agent 15 | 4 November 2026 UTC | source identity/classification audit, not a comprehensive card-effect or legal-play implementation.** This extends the conservative recovery-target model developed in [the paper-negative report](agent15-public-discard-recovery-paper-necessary-20261103.md) and [matched original-native owner observations](agent15-source5-11-recovery-native-20261104.md). There are **zero competitively qualified games** and no evidence of the requested 99.5% game win rate.
+
+## Scope and purpose
+
+The official historical Japanese paper Expanded legality and 27-entry Japanese banlist are **already researched** in [the project Japanese Expanded baseline](../japanese-legality.md), [the legality research hub](../../legality/README.md) and [Agent9's structural source screen](agent9-jp-expanded-name-family-and-form-structural-gate-20261103.md). This audit adds the narrower **actor-observation printing/type metadata coverage**: an Item without a known Supporter target in public discard cannot be classified unless the public discarded printings can be distinguished from Supporters and Energy/Pokémon. It makes no new claim about overall official legality.
+
+The original [Aichi 2026 source manifest](../full-decklists.json) contains **29 authenticated 60-card lists**, or **1,740 physical copies**. Missing original ranks 23, 25, 28 remain unavailable. The supplied complete English-print convenience pool is not a Japanese card database and must not be treated as a paper legality filter.
+
+### Evidence levels and residual counts
+
+| Public metadata source layer | Name+set known in original printed sixties | Unknown | What is verified |
+| --- | ---: | ---: | --- |
+| Bundled English records with exact source print display aliases and separately verified MEE Basic Energy subtypes | **1,726/1,740** | 14 | Basic printed class, Trainer subtype or Energy subtype, with name-set identity ambiguities retained |
+| Add three **Japanese-only promo** translated source-category records | **1,740/1,740** | **0** | Same public supertype/subtype for the remaining three source printings |
+| Current native engine implemented effects, exact source collector numbers, complete Japanese legality or a competent selected policy | **unverified** | **unverified** | Outside this audit |
+
+The original short English display names required source-ID-verified reconciliation: `Battle Compressor PHF` = English `Battle Compressor Team Flare Gear PHF` (xy4-92); `Robo Substitute PHF` (xy4-102) and `Target Whistle PHF` (xy4-106) similarly carry `Team Flare Gear` in the bundled full title; `Unit Energy LPM UPR` corresponds to `Unit Energy LightningPsychicMetal UPR` (sm5-138). Public promo set display codes `BWP/XYP/SMP` correspond to bundled promo `PR-BLW/PR-XY/PR-SM` where their exact English records exist. Original Prism Star `♢` matches the English database `◇`. The pinned native spelling `Professors Letter BKT` maps to bundled `Professor's Letter BKT`, a separate mismatch previously independently documented by Agent11.
+
+These are **identity-sensitive overlays**. The original 16,475 name-set metadata keys contain 493 keys with divergent type/subtype/HP records and 38 where Pokémon variants straddle 90 HP. A name-set match remains insufficient to certify exact collector-number identity or Rescue Carrier HP eligibility when those variants differ. The overlay retains such cases as unknown.
+
+## Japanese-only source printings: exactly 14 cards in five original decks
+
+| Source printing | Source copies | Original ranks | Public card category | Trusted third-party source listing |
+| --- | ---: | --- | --- | --- |
+| `Palace Book SMP NAN25` | **6** | 6, 7, 24 | Trainer, Item | [Limitless translated Japanese card](https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en) |
+| `Player's Ceremony SP 127` | **5** | 3, 6, 24, 29 | Trainer, Stadium | [Limitless translated Japanese card](https://limitlesstcg.com/cards/jp/SP/127?translate=en) |
+| `Palace Belt BWP 153` | **3** | 6, 29 | Trainer, Pokémon Tool | [Limitless translated Japanese card](https://limitlesstcg.com/cards/jp/BWP/153?translate=en) |
+
+Limitless explicitly marks **Japanese Expanded: legal** and **international Expanded: not legal** for these three printed identities and says none have been released internationally. The original Aichi event is Japanese Expanded. The translations are unofficial, so this signal is **external evidence rather than an official Japanese-language rules determination**. The source data's `language:'en'` identifies Limitless's translated display row and does not transform the underlying Japanese physical print into an English release.
+
+The card effects themselves are **not** interchangeable. The translated Palace Book says draw three cards and end the turn. Player's Ceremony is a Stadium that offers the current player a draw-two option ending the turn. Palace Belt is a Tool whose Active Pokémon modifies the owner's start-of-turn draw. These are materially different from a generic Item/Tool/Stadium placeholder. A simulator must implement their actual timing, drawing, effect interaction, and Japanese legality before any actual match against source ranks 3/6/7/24/29 could be qualified. Merely adding public metadata here does not enable the native engine to execute them.
+
+### Reproducibility and CI result
+
+- [`simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs`](../../../simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs) is a separate immutable public-category-only source module with explicit external URLs, source collector numbers and region-specific listing flags. Its `withVerifiedJapanesePromoPublicMetadata` does not mutate the English catalog, cannot override conflicting metadata, and never marks a card playable.
+- [`scripts/agent15-discard-target-source-census.cjs`](../../../scripts/agent15-discard-target-source-census.cjs) outputs *both* 1726/1740 English+MEE coverage and 1740/1740 separately sourced Japanese public-category coverage. Outputs `sourceJapanesePaperLegalityOfficiallyVerified:false`, `sourceInternationalPaperLegalityVerified:false`, `exactCollectorNumberCertified:false` and `nativeImplementationKnown:false`. It records original source rank provenance, physical counts and remaining missing publication ranks.
+- [`tests/agent15-japanese-only-promo-metadata.test.cjs`](../../../tests/agent15-japanese-only-promo-metadata.test.cjs) validates all three exact source identifiers, nonmutation, subtype separation and the original five ranks; [the existing source census tests](../../../tests/agent15-discard-target-source-census.test.cjs) assert exact dual coverage. The existing manual-only `.github/workflows/aichi-card-audit.yml` runs them in the preexisting lightweight Trainer-negative audit job.
+- The **entire lightweight job succeeded** at [GitHub Actions run 41744983442](https://github.com/FlareZ123/experiment-01/actions/runs/41744983442), source `ea1a58285b0add353284beff331c8754964dcad3`, artifact ID **13283161411**, ZIP sha256 `942514e389c46eb7307a6bdb8cf874295200df3b2a7d5e9647c69d40e135c079`. Its archived machine JSON reports exactly 1726 source copies classified without Japanese-only additions, 14 outstanding from the three printings above, 1740/1740 after separate Japanese-source public-category additions, and zero demonstrated competitive matches.
+
+## Decision consequence and explicit limitations
+
+The correct paper target format for reproducing the Aichi field is **Japan Expanded as of 10 May 2026**. An optimizer that silently checks international Expanded legality may reject these three original opponents' printed cards. An optimizer that silently accepts translated Japanese records without source provenance may falsely certify a proposed fixed deck or allow unimplemented actions. Retain separate ruleset, type classification, translated effect text, exact printed identity, release chronology, historical banlist and native engine implementation flags. Public card-category coverage is now complete for the 29 *source manifests*, but game action coverage and legality remain materially incomplete.
+
+The highest-value next step is a real source-card implementation coverage census that joins each of the 1,740 original cards to pinned native class/effect support and a genuine, symmetric opponent decision policy. Prove 60/60 original deck registration for each of all 29 and ultimately 32 field entries, exercise paper timing of Japanese-only cards and the prize/draw state, and compare wins only after **all** original opponents are qualified. Do not report 100% card-category metadata as 100% simulation fidelity.
