@@ -70,3 +70,34 @@ test('safe wait is resolved first and next native decision is still fail-closed'
     return true;
   });
 });
+
+test('exact visual ATTACK animation null is opt-in and owner-only',()=>{
+  const original=Bot.prototype.decodeNextAction;
+  const bot=new Bot(7),state=fixture(7,3,'Attack animation',true);
+  assert.throws(()=>withNativeRawStateFallbackQuarantine(
+    ()=>withOwnerNonvisualPhaseWait(()=>bot.decodeNextAction(state),deps),
+    {SimpleTacticsAi:Bot}),{code:CODE});
+  const {result,audit}=withOwnerNonvisualPhaseWait(
+    ()=>bot.decodeNextAction(state),
+    {...deps,GamePhase:{...deps.GamePhase,ATTACK:3},
+      allowVisualAttackWait:true});
+  assert.deepEqual(result,new ResolvePromptAction(19,null));
+  assert.equal(audit.visualAttackWaitHandled,1);
+  assert.equal(audit.records[0].exactVisualAttackAnimation,true);
+  assert.strictEqual(Bot.prototype.decodeNextAction,original);
+});
+test('visual attack wait cannot silently handle other animations',()=>{
+  const bot=new Bot(3);
+  for(const state of [
+    fixture(3,3,'Different animation',true),
+    fixture(3,8,'Attack animation',true),
+    fixture(3,3,'Attack animation',false),
+    fixture(7,3,'Attack animation',true)
+  ]){
+    assert.throws(()=>withNativeRawStateFallbackQuarantine(
+      ()=>withOwnerNonvisualPhaseWait(()=>bot.decodeNextAction(state),
+        {...deps,GamePhase:{...deps.GamePhase,ATTACK:3},
+          allowVisualAttackWait:true}),
+      {SimpleTacticsAi:Bot}),{code:CODE});
+  }
+});
