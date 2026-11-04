@@ -69,15 +69,16 @@ test('read-only v6 replay returns complete eight identities with zero qualified 
 
 test('all fields of an authentic exact frozen native replay pass A/A',()=>{
   const native=fakeNative();
+  const expected=structuredClone(prereg);
   for(let i=0;i<8;i++){
-    const base=prereg.baselineRecordedRows[i],raw=native.rawDevelopment.rows[i];
+    const base=expected.baselineRecordedRows[i],raw=native.rawDevelopment.rows[i];
     const a=[{actionOrdinal:0,action:'PassTurnAction',
       playerSlot:base.actualSourceSeat,turnBefore:1,turnAfter:2}];
     raw.rootActionLedger=a;
     base.publicRootLedgerSha256=sha(a);
     base.nativeRootCount=1;
   }
-  const got=auditReadOnlyReplay(native,prereg);
+  const got=auditReadOnlyReplay(native,expected);
   assert.equal(got.gates.completeOriginalNativeParity,true);
   assert.ok(got.rows.every(row=>row.allBaselineNativeFieldsEqual));
   assert.equal(got.gates.gameResultsCompetitivelyQualified,false);
