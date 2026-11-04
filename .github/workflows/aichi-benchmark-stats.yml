@@ -159,6 +159,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Regress Agent17 printed scaling KO owner-only selection (synthetic, no native games)
+        run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
       - name: Verify rank17 owner-public Electrode opportunity and no-action-change observer
         run: node --test tests/agent1-rank17-electrode-owner-necessity.test.cjs tests/agent1-rank17-electrode-census.test.cjs tests/agent1-rank17-electrode-actor-integration.test.cjs
       - name: Verify fifth fixed 60 structural candidate manifest and source transformation
