@@ -2,6 +2,11 @@ name: Agent7 prospective rank6 starter seat coverage
 
 on:
   workflow_dispatch:
+    inputs:
+      agent27_rope_counter:
+        description: 'Opt in exact registered rank6/rank9 Escape Rope A/B/A counter instead of starter matrix'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,10 +32,22 @@ jobs:
       - name: Compile pinned simulator
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Execute registered original rank6 and rank9 opposing Escape Rope counter A/B/A
+        if: ${{ inputs.agent27_rope_counter }}
+        run: node simulation/evaluation/agent7-original6v9-opponent-rope-counter-aba.cjs > agent27-original6v9-opponent-rope-aba.json
+      - name: Preserve exact rank6/rank9 opponent counter, errors and three-arm native traces
+        if: ${{ inputs.agent27_rope_counter && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent27-original6v9-opponent-rope-aba
+          path: agent27-original6v9-opponent-rope-aba.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Run all preregistered actual original rank6 setup and first-turn cohorts
+        if: ${{ !inputs.agent27_rope_counter }}
         run: node simulation/evaluation/agent7-rank6-prospective-starter-seat.cjs
       - name: Archive every attempt including native errors and starter verification
-        if: ${{ always() }}
+        if: ${{ !inputs.agent27_rope_counter && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: agent7-rank6-prospective-starter-seat-matrix
