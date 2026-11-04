@@ -49,3 +49,25 @@ The concrete implication for current research is that **mechanistic source compe
 ## Reproduction arithmetic
 
 The exact calculations can be reproduced with `ceil(log(0.05)/log(0.995))=598` for the i.i.d. all-win field-mixture gate and `ceil(log(0.05/32)/log(0.995))=1290` for each opponent under the simultaneous Bonferroni condition. The powers displayed above were checked with a numerical Python interpreter. The mathematical derivation uses the exact all-success binomial tail and AM–GM only, and does not assume anything about any particular Pokémon card or deck matchup.
+
+
+## 4 November addendum: finite predeclared candidate selection requires family-wise adjustment
+
+The preceding 640-all-win 64-cell certificate presumes exactly **one frozen deck/policy pair selected before evaluating the confirmatory panel**. If investigators plan to test and potentially choose among **K prospectively fixed distinct candidates using these same confirmatory panels**, the corresponding Bonferroni family-wise sufficient criterion is stricter. If null candidate j has uniformly weighted full-field win probability at most 0.995, the probability its N balanced independent games all win is at most \`0.995^N\` by the same AM–GM inequality. The probability **any** of K null candidates passes an all-win test is at most \`K * 0.995^N\` by the union bound. This bound does **not** assume independence between candidates' outcomes, although trials within a fixed source/seat cell must be independent and policies frozen.
+
+For a 95% family-wise one-sided certificate of the selected all-win candidate, pre-register N=64m clean attempts per candidate actually used for selection, with m chosen so \`K * 0.995^(64m) <= 0.05\`. A candidate that fails its all-win panel cannot be rescued by dropping it from K posthoc. This does **not** require the other candidates' panels to all win. The candidate universe K and any selection rule must be frozen in advance.
+
+| Predeclared selectable candidate count K | Required all-win games per 64-cell source/seat cell | Total all-win games required for a successful selected candidate | Maximum workload if all K receive full panels |
+| ---: | ---: | ---: | ---: |
+| 1 | 10 | 640 | 640 |
+| 2 | 12 | 768 | 1,536 |
+| 4 | 14 | 896 | 3,584 |
+| 8 | 16 | 1,024 | 8,192 |
+| 16 | 18 | 1,152 | 18,432 |
+| 50 | 22 | 1,408 | 70,400 |
+
+For the four historical comparison decks, **896/896 valid completed wins** in the selected candidate's full balanced panel would supply a sufficient family-wise statistical gate if those **exact four** deck/policy candidates and complete panel design were prospectively fixed. The corresponding null upper bound is \`4 * 0.995^896 = 0.044827068574\`; the conservative family-wise adjusted one-sided lower bound is \`(0.05/4)^(1/896)=0.995121285053\`.
+
+An alternative **cleaner design** uses development data to select one fixed 60 first and tests it just once on a genuinely untouched confirmatory panel, in which case **K=1** and 640 all-win balanced games suffice for the same statistical claim. If new decks, parameters or owner decision policies are introduced after seeing confirmatory results, the original K and bound do not automatically cover the adaptation; use fresh held-out independent confirmation or an explicitly valid sequential multiple-testing method. Prior simulation results are not retroactively competitive evidence.
+
+[Reproducible finite-K CommonJS calculator](../../simulation/evaluation/agent10-fixed-candidate-familywise-zero-loss.cjs) and [seven pure regression tests](../../tests/agent10-fixed-candidate-familywise-zero-loss.test.cjs) pin the figures. The calculations are hypothetical confidence thresholds only: there are still **0 competitively qualified games**, just **29 authenticated original opponent 60s**, and no demonstrated 99.5% deck.
