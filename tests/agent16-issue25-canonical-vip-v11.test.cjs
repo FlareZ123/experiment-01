@@ -29,10 +29,10 @@ test('scope inner native VIP flag over unchanged eight original trial IDs',()=>{
           candidateSeat:trial.candidateSlot==='A'?0:1,
           finished:false,rootActionLedger:[],
           actorOnlyDecisionCoverage:{
-            ownerVipAfterPass:{
+            detailedComponentAudits:{ownerVipAfterPass:{
               originalPassRoots:1,acceptedItems:1,acceptedSearches:1,
               bySeat:{0:{items:1},1:{items:0}}
-            }
+            }}
           }
         }))
       };
@@ -78,12 +78,12 @@ test('native source VIP summary never publishes owner-private hand details',()=>
   const row={
     trial:{id:'rank:repeat:slot:contender'},
     rootActionLedger:[{},{}],
-    actorOnlyDecisionCoverage:{ownerVipAfterPass:{
+    actorOnlyDecisionCoverage:{detailedComponentAudits:{ownerVipAfterPass:{
       originalPassRoots:2,
       acceptedItems:1,acceptedSearches:1,bySeat:{0:{items:1}},
       privateHand:['Darkness Energy','Battle VIP Pass'],
       passOpportunities:[{heldVip:true,ownerHandContents:['secret']}]
-    }}
+    }}}
   };
   const out=nativeVipOutcome(row);
   assert.equal(out.policyRecorded,true);
