@@ -5,6 +5,8 @@ const path = require('node:path');
 const {initializeCards} = require('../simulation/twinleaf/headless.cjs');
 const {installMegatonBlowerHook} =
   require('../simulation/twinleaf/megaton-blower-hook.cjs');
+const {withMegatonNoEffectRootGuard} =
+  require('../simulation/twinleaf/agent1-megaton-no-effect-root-guard.cjs');
 
 const root = path.resolve(__dirname, '../vendor/twinleaf/ptcg-server/output');
 const engine = name => require(path.join(root, name));
@@ -130,9 +132,48 @@ test('observe pinned Store Megaton with no Tool, Special Energy, or Stadium targ
     const corrected = probe(seat, false, true);
     console.log('AGENT1_MEGATON_STORE_NO_TARGET ' +
       JSON.stringify({raw, corrected}));
+    assert.equal(raw.storeAccepted, true);
+    assert.equal(corrected.storeAccepted, true);
+    assert.equal(raw.discardHasMegaton, true);
+    assert.equal(corrected.discardHasMegaton, true);
     assert.equal(raw.ownToolPreserved, true);
     assert.equal(corrected.ownToolPreserved, true);
     assert.deepEqual(raw.enemyTools, [0, 0]);
     assert.deepEqual(corrected.enemyTools, [0, 0]);
+  }
+});
+
+test('paper zero-effect guard vetoes Item before state mutation on both seats', () => {
+  for (const seat of [0, 1]) {
+    const {result, audit} = withMegatonNoEffectRootGuard(() =>
+      probe(seat, false, false));
+    console.log('AGENT1_MEGATON_ZERO_EFFECT_GUARD ' +
+      JSON.stringify({result, audit}));
+    assert.equal(result.storeAccepted, false);
+    assert.match(result.error, /PAPER_MEGATON_NO_EFFECT_TARGET/);
+    assert.equal(result.handHasMegaton, true);
+    assert.equal(result.discardHasMegaton, false);
+    assert.deepEqual(result.enemyTools, [0, 0]);
+    assert.deepEqual(result.opposingDiscard, []);
+    assert.deepEqual(result.ownDiscard, []);
+    assert.deepEqual(result.unresolvedPrompts, []);
+    assert.equal(audit.inspectedMegatonActions, 1);
+    assert.equal(audit.rejectedProvenNoEffect, 1);
+  }
+});
+
+test('paper guard does not suppress target-bearing native corrected Megaton', () => {
+  for (const seat of [0, 1]) {
+    const {result, audit} = withMegatonNoEffectRootGuard(() =>
+      probe(seat, true, true));
+    console.log('AGENT1_MEGATON_TARGET_GUARD ' +
+      JSON.stringify({result, audit}));
+    assert.equal(result.storeAccepted, true);
+    assert.deepEqual(result.enemyTools, [0, 0]);
+    assert.equal(result.enemySpecialCards, 0);
+    assert.equal(result.stadiumCards, 0);
+    assert.equal(result.discardHasMegaton, true);
+    assert.equal(audit.inspectedMegatonActions, 1);
+    assert.equal(audit.rejectedProvenNoEffect, 0);
   }
 });
