@@ -53,8 +53,26 @@ function buildReceipt(executed){
   assert.ok(Array.isArray(diagnostic?.registered));
   assert.ok(Array.isArray(diagnostic?.attemptedRows));
   const rawRows=Array.isArray(rawDevelopment?.rows)?rawDevelopment.rows:[];
-  const rows=diagnostic.attemptedRows.map((status,i)=>
-    executionRow(status,rawRows[i]??null));
+  // Join by authenticated trial identity, never by list position. Aborted
+  // native arms and asynchronous result collectors may reorder their rows.
+  const rawById=new Map();
+  const rawIdentityConflicts=[];
+  for(const raw of rawRows){
+    const nested=raw?.trial?.id??null;
+    const flat=raw?.id??null;
+    if(nested!==null&&flat!==null&&nested!==flat){
+      rawIdentityConflicts.push({nested,flat});
+      continue;
+    }
+    const id=nested??flat;
+    if(typeof id!=='string')continue;
+    if(rawById.has(id)){
+      rawIdentityConflicts.push({duplicateId:id});
+      rawById.set(id,null);
+    }else rawById.set(id,raw);
+  }
+  const rows=diagnostic.attemptedRows.map(status=>
+    executionRow(status,rawById.get(status.id)??null));
   const reconciled=diagnostic.registeredAttemptReconciliation
     ?.exactUniqueMatch===true&&
     diagnostic.rawRowIdentityReconciliation?.exactlyReconciled===true;
@@ -71,6 +89,7 @@ function buildReceipt(executed){
       observedTwinleafGitCommit:manifest.observedTwinleafGitCommit??null,
       observedLoadedResearchModuleDigest:
         manifest.observedLoadedResearchModuleDigest??null,
+      receiptProducerSha256:sha256(fs.readFileSync(__filename)),
       concealedZonePolicy:
         'Only fingerprints of physical deals; no private deck order or concealed hands',
       printedSourceDecksEmbedded:false,
@@ -82,6 +101,7 @@ function buildReceipt(executed){
       actualReturnedIds:attemptIds,
       exactIdReconciliation:diagnostic.registeredAttemptReconciliation??null,
       rawRowReconciliation:diagnostic.rawRowIdentityReconciliation??null,
+      receiptRawJoinIdentityConflicts:rawIdentityConflicts,
       registeredAttemptsReturned:diagnostic.allRegisteredAttemptsReturned===true
     },
     attempts:rows,
