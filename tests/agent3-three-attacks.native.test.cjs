@@ -23,7 +23,7 @@ test('frozen four native attempts',()=>{
   lost:getLost}));
  assert.equal(rows.length,4);
  assert.equal(out.rawDevelopment.sourceIndependentCommonPolicyOptIn,true);
- assert.equal(out.diagnostic.rawStateDecoderExecuted,false);
+ assert.equal(out.diagnostic.rawDecoderExecuted,false);
  assert.ok(getLost?.acceptedStoreActions>=1);
  assert.equal(out.manifest.releaseQualified,false);
 });
