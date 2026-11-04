@@ -93,7 +93,8 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
     e.kind==='night-watch'&&e.physicalTransferConfirmed===true));
   assert.ok(choices.nativeZoneEvents.some(e=>
     e.kind==='get-lost'&&e.selectedCount===0&&
-    e.physicalTransferConfirmed===true));
+    e.zeroCardNoopConfirmed===true&&
+    e.physicalTransferConfirmed===false));
   assert.ok(choices.nativeZoneEvents.some(e=>
     e.kind==='night-watch-shuffle'&&
     e.numericPermutationValidated===true&&
