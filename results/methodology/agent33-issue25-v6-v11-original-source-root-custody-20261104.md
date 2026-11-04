@@ -68,3 +68,26 @@ Enumerating the same 29 archived source 60s gives **24 original decks with Speci
 The unsupported source ranks are **2, 4, 7, 9, 10, 12, 13, 14, 15, 17, 18, 19, 20, 21, 27, 30, 31, 32**. Representative omissions include `Double Dragon Energy ROS` (many Regidrago lists), `Reversal Energy PAL`, `Counter Energy CIN`, `Unit Energy LPM UPR` (ranks 4 and 17), `Jet Energy PAL` and `Recycle Energy UNM` (rank 7), and `Telepathic Psychic Energy POR` (ranks 9, 30, 31). Rank 4 and rank 17 each contain **12/12 Special Energy copies unsupported** by this bounded recognizer. Rank 7 has two recognized Capture and two unsupported other Special Energy copies.
 
 **Implication for release design:** a blanket `AGENT3_SPECIAL_ENERGY_ROOT_DEV=true` switch would change the original v6 policy, but would leave major source archetypes mechanically underrepresented, including all three listed Raichu/Electrode Special Energy types and Double Dragon Energy. Add paper-checked exact-printing modules and real Store positive/negative receipts only where the currently selected policy needs them; preserve Temple of Sinnoh, conditional energy semantics, recipient ownership and true printed attacks. Do not equate a simplistic numerical unit count with full Special Energy card effects.
+
+
+### Paper-fidelity design cases, independently checked as an abstract Energy-capacity model
+
+The supplied card pool's printed rules establish a stricter target than a fixed `number[]` of Energy symbols per card. A useful Energy cost representation is a **capacitated assignment**: each attached Energy card has an effective per-card capacity (1/2/3), a context-dependent set of types it can provide, and separate on-attachment/continuous/replacement effects. Match each printed attack-cost symbol to one permitted capacity unit, treating a Colorless cost as accepting any Energy type. Each capacity unit may satisfy one cost symbol, never two. Conditional supply is evaluated from public Pokémon stage/rule box, Prize counts and active Stadium. A small independent `networkx.maximum_flow_value` capacity-matching model passed all 11 prescribed logical cases below; **it is not a Twinleaf executable, integrated player policy or paper-complete test**.
+
+| Source card / context | Printed-cost check | Expected |
+| --- | --- | --- |
+| Speed Lightning (RCL 173) + Double Colorless (SUM 136) | Iron Thorns `[Lightning,Colorless,Colorless]` | Payable |
+| Double Colorless + live Thunder Mountain (LOT 191), removing one Lightning cost | Iron Thorns `[Colorless,Colorless]` | Payable |
+| Speed Lightning + Double Colorless under Temple of Sinnoh (ASR 155) | Iron Thorns `[Lightning,Colorless,Colorless]` | Not payable |
+| Double Dragon (ROS 97) attached to an eligible Dragon | Two distinct colored symbols | Payable |
+| Same lone Double Dragon | Three Energy symbols | Not payable |
+| Reversal (PAL 192), eligible non-Rule-Box Evolution, behind on Prizes | Three distinct colored symbols | Payable |
+| Reversal when not behind on Prizes | Three colored symbols | Not payable |
+| Counter (CIN 100), eligible Pokémon, behind on Prizes | Two distinct colored symbols | Payable |
+| Unit LPM (UPR 138) | Two distinct Lightning/Psychic symbols | Not payable |
+| Unit LPM | One Psychic symbol | Payable |
+| Jet (PAL 190) | One Colorless symbol | Payable for cost only |
+
+**Printed text checked from the supplied card pool:** `sv2-192` Reversal (conditioned three Energy), `sm4-100` Counter (conditioned two Energy), `sm5-138` Unit Lightning/Psychic/Metal (one Energy at a time), `xy6-97` Double Dragon (Dragon-only two Energy), `sv2-190` Jet (switch upon Bench attachment), `sm11-212` Recycle (special return-to-hand replacement), `swsh10-155` Temple (Special Energy become Colorless and lose other effects), `swsh2-173` Speed Lightning (on-attachment draw two), `swsh2-171` Capture (on-attachment Basic search), and `sv9-159` Spiky (damage-counter retaliation). Exact card-text conditions must be mirrored in any native test. The separate side effects of Jet, Recycle, Capture, Speed Lightning, Spiky and Temple are outside the capacity model. Legacy unit names are identified through original set/number to avoid guessing aliases.
+
+For the steward, these fixtures give concrete **positive and negative** controls before a special-Energy-enabled common policy can fairly evaluate rank4/5/6/7/17/24/29 original sources or the 18 print-unsupported opponent lists.
