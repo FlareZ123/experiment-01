@@ -135,15 +135,14 @@ test('opposing Ariados Big Net affects Evolution Active only',()=>{
   const view=sample();
   view.ownPublic.active.printed.retreatCost=[];
   view.ownPublic.active.printed.stage=3;
-  catalog.stages={BASIC:1,RESTORED:2,STAGE_1:3};
+  const localCatalog={...catalog,stages:{BASIC:1,RESTORED:2,STAGE_1:3}};
   view.opponentPublic.bench=[{printing:'Ariados TWM',
     abilities:['Big Net']}];
-  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+  assert.equal(chooseOwnerFloatStoneMobility(view,localCatalog)?.kind,
     'attach-emergency-floatstone');
   view.ownPublic.active.printed.stage=1;
-  assert.equal(chooseOwnerFloatStoneMobility(view,catalog)?.kind,
+  assert.equal(chooseOwnerFloatStoneMobility(view,localCatalog)?.kind,
     'retreat-emergency-floatstone');
-  delete catalog.stages;
 });
 
 test('preserves a funded active, positive free attack, or used retreat',()=>{
