@@ -41,7 +41,7 @@ const native=p=>require(path.resolve(__dirname,
  */
 function withRank1ConservativeFilch(execute){
   const {SimpleTacticsAi}=native('simple-bot/simple-tactics-ai');
-  const {PassTurnAction}=native('game/store/actions/pass-turn-action');
+  const {PassTurnAction}=native('game/store/actions/game-actions');
   const original=SimpleTacticsAi.prototype.decodeNextAction;
   const audit={feature:'rank1-conservative-public-own-deck-avoid-Filch-v1',
     sourceSeat:SOURCE_SEAT,opponentSeat:OPPONENT_SEAT,
