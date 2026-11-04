@@ -37,7 +37,7 @@ jobs:
       - name: Issue25 pure owner-only starting Basic setup contract
         run: node --test tests/agent50-owner-starting-basic-choice.test.cjs
       - name: Original 29 source opening on-Bench Ability exact physical exposure
-        run: node --test tests/agent50-opening-bench-trigger-exposure.test.cjs
+        run: node --test tests/agent50-opening-bench-trigger-exposure.test.cjs tests/agent50-structural-candidate-opening-exposure.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
       - name: Issue25 pure owner public prompt acknowledgements contract
