@@ -118,12 +118,30 @@ function run(repoRoot=path.resolve(__dirname,'..')){
   const externallyEnriched=
     require('../simulation/twinleaf/planning/owner-external-mee-basic-energy-metadata.cjs')
       .withVerifiedMEEBasicEnergyPrintings(withSourceDisplayAliases(bundled));
-  return {schema:'agent15-discard-public-target-source-census-v2-field-metadata',
+  const japaneseSources=require(
+    '../simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs');
+  const japanPublicIndex=japaneseSources.withVerifiedJapanesePromoPublicMetadata(
+    externallyEnriched);
+  const jpRows=field.decks.flatMap(deck=>
+    japaneseSources.JapaneseOnlyPromoReceipts(deck.cards).map(
+      item=>({...item,rank:deck.rank})));
+  return {schema:'agent15-discard-public-target-source-census-v3-jp-format',
     source:field.source,
     incidence:sourceRecoveryCensus(field),
     metadata:metadataCollisionCensus(bundled),
     enrichedPublicMetadataSourceCoverage:
       publicSourceNameSetCoverage(field,externallyEnriched),
+    japaneseOnlyPromoPublicMetadataCoverage:
+      publicSourceNameSetCoverage(field,japanPublicIndex),
+    japaneseOnlyPromoReceipts:jpRows,
+    japaneseOnlyPromoCopies:jpRows.reduce((n,row)=>n+row.count,0),
+    japaneseOnlyPromoDistinctOriginals:[...new Set(
+      jpRows.map(row=>row.rank))].sort((a,b)=>a-b),
+    internationalExpandedEligibilityForTheseThreeSourcePromos:
+      'listed-not-legal',
+    japaneseExpandedEligibilityForTheseThreeSourcePromos:'listed-legal',
+    sourceInternationalPaperLegalityVerified:false,
+    sourceJapanesePaperLegalityOfficiallyVerified:false,
     supplementalMEEExternalProvenance:true,
     sourceRuleReceipts:verifyRecoveryPrints(resourceRoot),
     selectedFixed60:null,qualifiedGames:0,winRate99point5Verified:false};
