@@ -41,7 +41,8 @@ function printedCard(row,context){
       context.cache.set(setId,cards);
     }
     const id=prefix+number;
-    found.push(...cards.filter(card=>card.id===id&&card.name===row.name));
+    found.push(...cards.filter(card=>card.id===id&&card.name.replaceAll('♢','◇')===
+      row.name.replaceAll('♢','◇')));
   }
   assert.equal(found.length,1,'Unresolved original source printing '+row.name+
     ' '+set+' '+number);
@@ -129,7 +130,9 @@ function analyzeOriginal29(){
   assert.equal(roster.decks.length,29);
   const context={root:ROOT,sets,cache:new Map()};
   const rows=roster.decks.map(deck=>{
-    const counts=printedOpeningCounts(deck,context);
+    const counts=deck.cards.some(c=>c.name==='Forest Seal Stone')?
+      printedOpeningCounts(deck,context):{rank:deck.rank,fss:0,otherTool:0,
+        basic:0,vBasic:0,nonVBasic:0,otherToolNames:[]};
     return {...counts,probabilities:exactOpeningCollision(counts)};
   });
   return {version:VERSION,source:'results/aichi-2026/full-decklists.json',
