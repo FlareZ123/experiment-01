@@ -71,6 +71,12 @@ For the new ten-donor, eight-Energy physical population, the unrestricted favora
 
 **What this can decide:** the ten-donor substitution is a worse choice *for this precise early resource event*, and the Wobbuffet/Silent Lab cases require separate conditional classifications. It does **not** establish that the whole swapped deck is weaker: extra Shuppet can alter Bench access, evolution setup, later draws, discard utility, damage resilience, and opponent counterplay. Nor is either lock assumed to be active in the observed population. A comparison between actual decks still needs a shared legal decision policy and matching source games.
 
+## External construction sanity check: stronger draw/discard engines are out of scope
+
+The Pokémon Company published a [Hide 'n' Sneak Dhelmise strategy article](https://www.pokemon.com/uk/features/pokemon-tcg-building-and-playing-a-hide-n-sneak-deck) describing a deck with **four Shuppet, four Banette, two Sinistcha, seven Energy, four Ultra Ball**, and additional tools including Gwynn and Poké Pad. Its cited deck uses a materially different discard/search engine from this preexisting experimental 60, which has four Battle Compressor, one Brilliant Blender and seven one-discard Ball Items. The official article is contemporary construction context and has no claim of viability against the Aichi 2026 Top 32.
+
+This is a useful warning against reading the two-Energy-for-two-Shuppet *first-eight* regression as a universal donor ceiling. A full deck with repeatable draw, two-card discard Items, and later-turn setups may value donor density differently. Evaluating that claim requires an exact second printed 60 with its actual connecting cards, source-specific opponent decisions, and full match evidence. **The exact numerators in this report remain valid only for the specified fixed 60 or the explicit two-card counterfactual.**
+
 ## Verification and limitations
 
 - Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [ten Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The tests also verify the unchanged [complete printed 60](agent25-dhelmise-mixed-lock-answers-v2.json) against the model's named card groups and 14 Basic Pokémon. The exact program reproduces both historical narrower probabilities before adding Ball routes.
