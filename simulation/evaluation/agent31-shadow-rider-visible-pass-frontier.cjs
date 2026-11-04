@@ -90,7 +90,8 @@ function auditPairedPasses(archive) {
   const results = {};
   for (const arm of ['base', 'rescue']) {
     const trials = [], positive = [];
-    let observedPassSnapshots = 0, withStone = 0;
+    let observedPassSnapshots = 0, withStone = 0, candidatePassRoots = 0;
+    const byOriginalRank = {};
     for (let index = 0; index < archive.rows.length; index++) {
       const row = archive[arm].rows[index];
       assert.equal(row.trial.id, archive.rows[index].id);
@@ -98,6 +99,14 @@ function auditPairedPasses(archive) {
         assert.ok(!ids.has(row.trial.id));
         ids.add(row.trial.id);
       }
+      const rank = String(row.trial.rank ?? row.trial.id.split(':')[0]);
+      const passRoots = new Set((row.rootActionLedger ?? []).filter(root =>
+        root.playerSlot === row.candidateSeat &&
+        root.action === 'PassTurnAction').map(root => root.actionOrdinal));
+      candidatePassRoots += passRoots.size;
+      byOriginalRank[rank] ??= {candidatePassRoots:0,capturedPasses:0,visiblePasses:0};
+      byOriginalRank[rank].candidatePassRoots += passRoots.size;
+      const alreadyCaptured = new Set();
       const reference = archive.base.rows[index];
       assert.equal(row.sourceDealFingerprint, reference.sourceDealFingerprint);
       assert.equal(row.fullPhysicalDealFingerprint,
@@ -106,12 +115,17 @@ function auditPairedPasses(archive) {
       for (const event of row.candidateRepliesAfterSourceAttacks ?? []) {
         const pass = event.candidateReplyTurnFinalPass;
         if (!pass) continue;
+        assert.ok(passRoots.has(pass.ordinal), 'Captured Pass missing native root');
+        assert.ok(!alreadyCaptured.has(pass.ordinal), 'Duplicate Pass capture');
+        alreadyCaptured.add(pass.ordinal);
         observedPassSnapshots++;
+        byOriginalRank[rank].capturedPasses++;
         const held = (pass.ownerHandAfterDecision ?? []).some(card =>
           /^Float Stone(?: |$)/.test(card));
         withStone += Number(held);
         const match = visibleFundedVmaxPass(row, pass);
         if (match) {
+          byOriginalRank[rank].visiblePasses++;
           positive.push(match);
           observed++;
         }
@@ -119,7 +133,9 @@ function auditPairedPasses(archive) {
       if (observed) trials.push({trialId:row.trial.id,passCount:observed});
     }
     results[arm] = {
-      observedPassSnapshots, passSnapshotsHoldingStone:withStone,
+      candidatePassRoots, observedPassSnapshots,
+      unobservedCandidatePassRoots:candidatePassRoots-observedPassSnapshots,
+      byOriginalRank, passSnapshotsHoldingStone:withStone,
       visibleFundedVmaxPasses:positive.length,
       distinctTrialsWithVisibleOpportunity:trials.length,
       trials, positive
