@@ -39,12 +39,13 @@ function physicalCopies(player){
     ...player.prizes.flatMap(slot=>slot.cards)];
 }
 
-/** @param {0|1} sourceSeat */
-function runSeat(sourceSeat){
+/** @param {0|1} sourceSeat @param {{prepare?:(f:object)=>object,afterKO?:(f:object,staged:object)=>object}} [options] */
+function runSeat(sourceSeat,options={}){
   const f=fixture(sourceSeat);
   assert.equal(f.own.stadium.cards[0]?.name,'Risky Ruins');
   const unown=restoreToOwnerHand(f.own,0,'Unown');
   const egg=restoreToOwnerHand(f.own,3,'Exeggcute');
+  const staged=options.prepare?.(f)??null;
   const ownBefore=physicalCopies(f.own).map(card=>card.id).sort();
   const oppBefore=physicalCopies(f.opponent).map(card=>card.id).sort();
   assert.equal(ownBefore.length,60);
@@ -96,6 +97,7 @@ function runSeat(sourceSeat){
     assert.equal(prizeAfter,5);
     assert.equal(f.own.getPrizeLeft(),6);
   }finally{restore();}
+  const continuation=options.afterKO?.(f,staged)??null;
   assert.deepEqual(physicalCopies(f.own).map(card=>card.id).sort(),ownBefore);
   assert.deepEqual(physicalCopies(f.opponent).map(card=>card.id).sort(),oppBefore);
   return {sourceSeat,sourceOriginal60Conserved:true,
@@ -104,7 +106,8 @@ function runSeat(sourceSeat){
     nativeDamagePumpMovedCounters:1,
     eggKnockedOut:true,opponentPrizesBefore:prizeBefore,
     opponentPrizesAfter:prizeAfter,
-    basicValidOpeningSimulated:false,competitiveGamesQualified:0};
+    basicValidOpeningSimulated:false,competitiveGamesQualified:0,
+    ...(continuation===null?{}:{continuation})};
 }
 
 for(const sourceSeat of [0,1]){
@@ -114,4 +117,97 @@ for(const sourceSeat of [0,1]){
   });
 }
 
-module.exports={runSeat,restoreToOwnerHand,physicalCopies};
+
+/**
+ * Stage real original-source cards in hand and one original opponent
+ * Iron Thorns on Bench before the executed source turn. Staging is
+ * explicit, with all physical original-60 copies conserved.
+ * @param {object} f
+ * @returns {object}
+ */
+function preparePaidCounterResources(f){
+  const take=originalName=>{
+    const index=f.own.deck.cards.findIndex(card=>card.name===originalName);
+    assert.ok(index>=0,'Source original deck missing '+originalName);
+    const [card]=f.own.deck.cards.splice(index,1);
+    f.own.hand.cards.push(card);
+    return card;
+  };
+  const catcher=take('Counter Catcher');
+  const cologne=take('Canceling Cologne');
+  const index=f.opponent.hand.cards.findIndex(card=>
+    card.name==='Iron Thorns ex');
+  assert.ok(index>=0);
+  const [secondThorns]=f.opponent.hand.cards.splice(index,1);
+  const {PokemonCardList}=native('game/store/state/pokemon-card-list');
+  const opposingBench=new PokemonCardList();
+  opposingBench.cards.push(secondThorns);
+  f.opponent.bench.push(opposingBench);
+  return {catcher,cologne,opposingBench,secondThorns};
+}
+
+/**
+ * Confirm that the *same staged original-source turn* changes Prize parity,
+ * pays the now-live Counter Catcher and Cologne, and returns the Egg from
+ * discard. Original opponent rank 6 Thorns is used as the target, so this is
+ * a physical Prize/gust/ability control, not a Muk-vs-Cologne interaction.
+ * @param {object} f
+ * @param {object} staged
+ * @returns {object}
+ */
+function resolvePaidCounterAfterSelfKO(f,staged){
+  assert.equal(f.own.getPrizeLeft(),6);
+  assert.equal(f.opponent.getPrizeLeft(),5);
+  assert.equal(staged.catcher.canPlay(f.store,f.state,f.own),true);
+  const board={player:PlayerType.ANY,slot:SlotType.BOARD,index:0};
+  const catcherIndex=f.own.hand.cards.indexOf(staged.catcher);
+  assert.ok(catcherIndex>=0);
+  f.store.dispatch(new PlayCardAction(f.own.id,catcherIndex,board));
+  const prompt=f.state.prompts.find(p=>p.result===undefined);
+  assert.equal(prompt?.constructor.name,'ChoosePokemonPrompt');
+  assert.equal(prompt.playerId,f.own.id);
+  assert.equal(prompt.validate([staged.opposingBench],f.state),true);
+  f.store.dispatch(new ResolvePromptAction(prompt.id,[staged.opposingBench]));
+  assert.equal(f.opponent.active.getPokemonCard(),staged.secondThorns);
+  assert.ok(f.own.discard.cards.includes(staged.catcher));
+  const cologneIndex=f.own.hand.cards.indexOf(staged.cologne);
+  assert.ok(cologneIndex>=0);
+  f.store.dispatch(new PlayCardAction(f.own.id,cologneIndex,board));
+  assert.ok(f.own.discard.cards.includes(staged.cologne));
+  const {IS_ABILITY_BLOCKED}=native('game/store/prefabs/prefabs');
+  const power=staged.secondThorns.powers.find(p=>
+    p.name==='Initialization');
+  assert.ok(power);
+  assert.equal(Boolean(IS_ABILITY_BLOCKED(f.store,f.state,
+    f.opponent,staged.secondThorns,power)),true);
+  const egg=f.own.discard.cards.find(card=>card.name==='Exeggcute');
+  assert.ok(egg);
+  const {UseAbilityAction}=native('game/store/actions/game-actions');
+  f.store.dispatch(new UseAbilityAction(f.own.id,'Propagation',{
+    player:PlayerType.BOTTOM_PLAYER,slot:SlotType.DISCARD,
+    index:f.own.discard.cards.indexOf(egg)
+  }));
+  assert.ok(f.own.hand.cards.includes(egg));
+  assert.equal(f.own.getPrizeLeft(),6);
+  assert.equal(f.opponent.getPrizeLeft(),5);
+  assert.deepEqual(f.state.prompts.filter(p=>p.result===undefined),[]);
+  return {sourcePrizes:6,opponentPrizes:5,
+    paidCounterCatcher:true,sourceChosenGust:true,
+    paidCancelingCologne:true,activeInitializationDisabled:true,
+    physicalEggRecovered:true,unresolvedPrompts:0};
+}
+
+for(const sourceSeat of [0,1]){
+  test('single staged real-turn self-KO to paid Catcher Cologne seat '+sourceSeat,()=>{
+    const result=runSeat(sourceSeat,{
+      prepare:preparePaidCounterResources,
+      afterKO:resolvePaidCounterAfterSelfKO
+    });
+    assert.equal(result.continuation.paidCounterCatcher,true);
+    console.log('AGENT2_RANK26_RISKY_CATCHER_COLOGNE',
+      JSON.stringify(result));
+  });
+}
+
+module.exports={runSeat,restoreToOwnerHand,physicalCopies,
+  preparePaidCounterResources,resolvePaidCounterAfterSelfKO};
