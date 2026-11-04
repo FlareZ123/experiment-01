@@ -10,10 +10,10 @@ test('original 29 source Trainer inventory is conserved and cost coverage bounde
   assert.equal(a.originalSourceDecks,29);
   assert.deepEqual(a.missingOriginalRanks,[23,25,28]);
   assert.equal(a.totalTrainerCopies,1035);
-  assert.equal(a.coveredCopies,754);
+  assert.equal(a.coveredCopies,809);
   assert.deepEqual(a.modeTotals,{
     mandatoryDiscard:164,optionalEnhancedDiscard:20,
-    knownNoDiscard:570,unknownPayment:281
+    knownNoDiscard:625,unknownPayment:226
   });
   assert.equal(a.sourceRows.reduce((sum,x)=>sum+x.trainerCopies,0),1035);
   assert.equal(a.printingRows.reduce((sum,x)=>sum+x.copies,0),1035);
@@ -31,6 +31,10 @@ test('source printings remain distinct and exact-cost groups match roster',()=>{
     ['Secret Box TWM',10,'mandatoryDiscard'],
     ['Guzma & Hala CEC',13,'optionalEnhancedDiscard'],
     ['Battle VIP Pass FST',42,'knownNoDiscard'],
+    ['Battle Compressor PHF',33,'knownNoDiscard'],
+    ['Karen XYP',8,'knownNoDiscard'],
+    ['Tropical Beach BWP',4,'knownNoDiscard'],
+    ['Thunder Mountain ♢ LOT',3,'knownNoDiscard'],
     ["Trainers' Mail ROS",29,'knownNoDiscard'],
     ["Professor's Letter BKT",4,'knownNoDiscard']
   ]){
