@@ -1131,6 +1131,7 @@ function runDevelopment({
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
   actorGenericFundedFloatStoneRoot=false,
+  actorGenericFundedFloatStoneCensus=false,
   actorUnderworldDoorPromptOwner=false,
   actorUnderworldAttackGapRecipient=false,
   sourceCrobatDceMewRetreat=false,
@@ -1223,6 +1224,8 @@ function runDevelopment({
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
   assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
     'Generic funded Float Stone must use the same actor-only policy in both seats');
+  assert.ok(!actorGenericFundedFloatStoneCensus||actorOnlyComposition,
+    'Float Stone census must observe the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorUnderworldAttackGapRecipient||
@@ -1425,6 +1428,7 @@ function runDevelopment({
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
           !actorGenericFundedFloatStoneRoot&&
+          !actorGenericFundedFloatStoneCensus&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -1479,6 +1483,9 @@ function runDevelopment({
               }:{}),
               ...(actorGenericFundedFloatStoneRoot?{
                 genericFundedFloatStoneRoot:true
+              }:{}),
+              ...(actorGenericFundedFloatStoneCensus?{
+                genericFundedFloatStoneAudit:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
@@ -1846,6 +1853,8 @@ function runDevelopment({
       actorOnlyComposition&&actorFundedShadowRiderFloatStoneRoot,
     actorGenericFundedFloatStoneRootOptIn:
       actorOnlyComposition&&actorGenericFundedFloatStoneRoot,
+    actorGenericFundedFloatStoneCensusOptIn:
+      actorOnlyComposition&&actorGenericFundedFloatStoneCensus,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
