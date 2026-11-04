@@ -1,0 +1,71 @@
+{
+  "schema": "agent16-issue25-v6-plus-owner-vip-retrospective-physical-v1",
+  "createdUTC": "2026-11-04T20:21:00Z",
+  "design": "Retrospective, one frozen owner-root Battle VIP Pass after Pass handler. Same eight registered original source rank 6/11 trial IDs, both candidate 60s and both physical original seats. No new held-out competitive games.",
+  "sourceControlRun": "41894027367",
+  "sourceControlArtifactId": "13353289881",
+  "sourceControlRawSha256": "7ce7d32391074d9802a92c56056641b89b71ac16cd1e52f38f0fb2d0933b7f59",
+  "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "referencePolicy": "agent1-issue25-preregistered-mirrored-r6-r11-v6-development",
+  "testPolicy": "agent16-issue25-mirrored-original-v6-plus-owner-vip-after-pass-v10",
+  "maxAcceptedStoreRoots": 48,
+  "competitivelyQualifiedGames": 0,
+  "referenceAttempts": [
+    {
+      "id": "6:100:A:champion-reference",
+      "sourceDealFingerprint": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "fullPhysicalDealFingerprint": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "6:100:A:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "fullPhysicalDealFingerprint": "308eac3dfc4eb8b52214233be88b6e48884f36b5d829a9030c52f43dc6fbc1cc",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceDealFingerprint": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "fullPhysicalDealFingerprint": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "509bc6e44713a30eb38ddfd59efb20540f9f3a6cac37d9d9f4c19fe2adf0faee",
+      "fullPhysicalDealFingerprint": "86e4d2d417f403c864c0279bb6ed9955e7f133cc39f932cd7832d7dffc420c6c",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "11:102:A:champion-reference",
+      "sourceDealFingerprint": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "fullPhysicalDealFingerprint": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "storeRootCount": 25,
+      "status": "engine-error"
+    },
+    {
+      "id": "11:102:A:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "fullPhysicalDealFingerprint": "940516606859cd569ebdd53177e5997222799005a75182ebc04af018af064260",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "11:103:B:champion-reference",
+      "sourceDealFingerprint": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "fullPhysicalDealFingerprint": "c6438223d1df290c826264dc1c11652b00cdfedc50dcac92bcf4bcd43b6e2f04",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    },
+    {
+      "id": "11:103:B:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "fullPhysicalDealFingerprint": "beb9e704c9a77dfb2538cfdb5cf5747393b2560c613159ee270aad760d573679",
+      "storeRootCount": 48,
+      "status": "returned-unqualified"
+    }
+  ]
+}
