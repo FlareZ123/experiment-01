@@ -26,9 +26,10 @@ card action, prompt or payment. No common-profile selection has been altered.
 
 ## Reproduction and result
 
-[Six isolated CJS tests](../../tests/agent4-raw-state-native-fallback-quarantine.test.cjs)
+[Six isolated CJS tests](../../tests/agent4-raw-state-native-fallback-quarantine.test.cjs) and a [separate adapter-ordering test](../../tests/agent4-native-raw-state-quarantine-layering.test.cjs)
 were executed with Node 22.16.0 on a local development fixture on
-4 November 2026: **6/6 PASS**. Fixtures cover both physical actor seats and
+4 November 2026: **7/7 PASS**, including the nested guard-before-actor
+composition needed to permit owner-safe roots and block delegated roots. Fixtures cover both physical actor seats and
 two concealed-card orders; the inherited method's hidden-card read count
 remains zero. They also cover swallowed errors, bounded prompt metadata,
 unrelated Store exceptions and restoration of the original prototype method.
