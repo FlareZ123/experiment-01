@@ -47,13 +47,14 @@ function withRank1AceTrapFork(execute,mode,deps={}){
   assert.equal(typeof aiDescriptor?.value,'function');
   assert.equal(typeof dispatchDescriptor?.value,'function');
 
-  let live=null,stage=0,initialProposed=false,initialEligible=false;
+  let live=null,stage=0,storeCount=0,initialProposed=false,initialEligible=false;
   const proposals=new WeakMap();
   const audit={
     version:VERSION,mode,onlyHistoricalTrial:true,
     candidateSeat:0,sourceSeat:1,requiredTurn:37,
     eligibleOriginalPasses:0,unqualifiedStoreAttempts:0,
     selectedItemCount:0,storeAccepted:0,storeRejected:0,
+    gameStoresSeen:0,selectedSecondCandidateStore:false,
     targetedPromptAccepted:0,requiredTargetAbsent:0,
     skippedNativeNonpass:0,proposalPurityObserved:[],
     stageAfterRun:0,events:[],sourceHiddenHandUsedByPolicy:false,
@@ -178,9 +179,18 @@ function withRank1AceTrapFork(execute,mode,deps={}){
     return itemAction(state,PRINT.blower,'blower');
   }
   function dispatch(action,...args){
-    if(!live&&action?.constructor?.name==='AddPlayerAction'&&
+    if(action?.constructor?.name==='AddPlayerAction'&&
        this.state.players?.length===1&&
-       this.state.players[0].id===101)live=this;
+       this.state.players[0].id===101){
+      storeCount++;
+      audit.gameStoresSeen=storeCount;
+      if(storeCount===2){
+        // Preregistered pair order: champion reference, then target New Moon.
+        // A separate actual Store is used for each complete candidate trial.
+        live=this;
+        audit.selectedSecondCandidateStore=true;
+      }
+    }
     const paid=proposals.get(action);
     try{
       const result=dispatchDescriptor.value.call(this,action,...args);
