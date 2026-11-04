@@ -12,9 +12,10 @@ const PRINTING='Dowsing Machine PLS';
  * The board is a staged test fixture and is not an original dealt 60.
  * @param {0|1} seat Physical owner seat.
  * @param {0|1|2} count Payment cards sent to the real prompt.
+ * @param {{prismStarCost?:boolean}} [options] Substitute a non-rank26 Prism Star payment card.
  * @returns {object} Source-visible physical zones and native replies.
  */
-function probeDowsingPayment(seat,count){
+function probeDowsingPayment(seat,count,options={}){
   assert.ok(seat===0||seat===1);
   assert.ok([0,1,2].includes(count));
   const {PlayCardAction,PlayerType,SlotType}=
@@ -23,7 +24,8 @@ function probeDowsingPayment(seat,count){
     native('game/store/actions/resolve-prompt-action');
   const f=stagedPainfulSpoons(seat);
   const lightning=f.card('Lightning Energy MEE');
-  const colorless=f.card('Double Colorless Energy SUM');
+  const colorless=f.card(options.prismStarCost ?
+    'Wondrous Labyrinth Prism Star TEU' : 'Double Colorless Energy SUM');
   const machine=f.card(PRINTING);
   const target=f.card('Battle VIP Pass FST');
   f.source.hand.cards.push(lightning,colorless,machine);
@@ -71,7 +73,9 @@ function probeDowsingPayment(seat,count){
     }
   }
   return {
-    scope:'Prepared real pinned native Store; rank26 original printing, not a dealt match',
+    scope:options.prismStarCost ?
+      'Prepared real pinned Store; source PLS printing with added Prism Star, not rank26 original 60' :
+      'Prepared real pinned native Store; rank26 original printing, not a dealt match',
     sourceRank:26,seat,count,printing:PRINTING,
     firstPromptFound:Boolean(payment),
     nativePaymentPromptSourceCard:payment?.sourceCard?.fullName??null,
@@ -84,6 +88,9 @@ function probeDowsingPayment(seat,count){
     targetStillInDiscard:f.source.discard.cards.includes(target),
     paymentDiscarded:[lightning,colorless].map(card=>
       f.source.discard.cards.includes(card)),
+    paymentLostZone:[lightning,colorless].map(card=>
+      f.source.lostzone.cards.includes(card)),
+    prismStarCost:options.prismStarCost===true,
     paymentHeld:[lightning,colorless].map(card=>
       f.source.hand.cards.includes(card)),
     dowsingInHand:f.source.hand.cards.includes(machine),
