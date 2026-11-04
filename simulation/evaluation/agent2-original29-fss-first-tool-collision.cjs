@@ -50,6 +50,23 @@ function printedCard(row,context){
 }
 
 /**
+ * Build the complete printed Tool-name vocabulary from the bundled card pool.
+ * This avoids treating non-Tool historical promo Trainers as unresolved cards.
+ * @param {string} root Repository root.
+ * @returns {Set<string>}
+ */
+function toolNameIndex(root){
+  const folder=path.join(root,'resources/cards/en'),names=new Set();
+  for(const file of fs.readdirSync(folder).filter(f=>f.endsWith('.json'))){
+    const cards=JSON.parse(fs.readFileSync(path.join(folder,file),'utf8'));
+    for(const card of cards)if(card.supertype==='Trainer'&&
+      card.subtypes?.includes('Pokémon Tool'))
+      names.add(card.name.replaceAll('♢','◇'));
+  }
+  return names;
+}
+
+/**
  * Count physically disjoint opening-seven categories.
  * A Pokémon V is a Basic with V subtype in this exact database; VMAX and
  * VSTAR are evolutions and must not be counted as opening Basics.
@@ -61,7 +78,8 @@ function printedOpeningCounts(deck,context){
   const otherToolNames=[];
   assert.equal(deck.cards.reduce((n,c)=>n+c.count,0),60);
   for(const row of deck.cards){
-    if(row.category==='Energy')continue;
+    if(row.category==='Energy'||(row.category==='Trainer'&&
+      !context.toolNames.has(row.name.replaceAll('♢','◇'))))continue;
     const card=printedCard(row,context);
     if(row.category==='Pokémon'){
       assert.equal(card.supertype,'Pokémon');
@@ -128,7 +146,8 @@ function analyzeOriginal29(){
   const roster=require('../../results/aichi-2026/full-decklists.json');
   const sets=require('../../resources/sets/en.json');
   assert.equal(roster.decks.length,29);
-  const context={root:ROOT,sets,cache:new Map()};
+  const context={root:ROOT,sets,cache:new Map(),
+    toolNames:toolNameIndex(ROOT)};
   const rows=roster.decks.map(deck=>{
     const counts=deck.cards.some(c=>c.name==='Forest Seal Stone')?
       printedOpeningCounts(deck,context):{rank:deck.rank,fss:0,otherTool:0,
@@ -145,5 +164,5 @@ function analyzeOriginal29(){
 }
 if(require.main===module)process.stdout.write(
   JSON.stringify(analyzeOriginal29(),null,2)+'\n');
-module.exports={VERSION,choose,printedCard,printedOpeningCounts,
+module.exports={VERSION,choose,printedCard,toolNameIndex,printedOpeningCounts,
   exactOpeningCollision,analyzeOriginal29};
