@@ -248,15 +248,17 @@ jobs:
         run: node --test tests/agent20-issue25-inner-prize-recovery-v12.test.cjs
       - name: Verify owner Prize, source promotion, and real Store count custody hooks
         run: node --test tests/agent20-issue25-inner-prize-promotion-v13.test.cjs tests/agent20-native-prize-zone-custody.test.cjs tests/agent20-issue25-prize-custody-v14.test.cjs
-      - name: Execute eight original same-full-deal native Prize and promotion count custody
+      - name: Check pure 8-row read-only source owner Trainer parity and fallback
+        run: node --test tests/agent20-issue25-v15-8row-owner-trainer-observer.test.cjs
+      - name: Execute original eight same-deal v14 Prize and promotion A/A plus native source owner Trainer read-only census
         env:
-          AGENT20_ISSUE25_PRIZE_DIR: artifacts/agent20-inner-prize-v14
-        run: node --test tests/agent20-issue25-prize-custody-v14.native.test.cjs
+          AGENT20_ISSUE25_PRIZE_DIR: artifacts/agent20-inner-prize-v15
+        run: node --test tests/agent20-issue25-v15-8row-owner-trainer-observer.native.test.cjs
       - name: Preserve all eight native outcomes, aborts, hook audits and SHA256
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent20-inner-prize-v14-${{ github.run_id }}
-          path: artifacts/agent20-inner-prize-v14/
+          name: agent20-inner-prize-v15-${{ github.run_id }}
+          path: artifacts/agent20-inner-prize-v15/
           if-no-files-found: warn
           retention-days: 30
