@@ -50,7 +50,7 @@ test('native eight-arm same-process physical prechoice inputs, honest trial link
       originalAndContenderPrintingDigestsMatched:
         row.originalAndContenderPrintingDigestsMatched,
       physicalSeatsAndFirstPlayerMatched:row.physicalSeatsAndFirstPlayerMatched,
-      indexPairedInputMatches:row.ownerSeats.map(s=>s.indexPairedPrechoiceInputEqual),
+      registeredTrialInputMatches:row.ownerSeats.map(s=>s.trialPairedPrechoiceInputEqual),
       sourceDealPostTreatmentEqual:row.postTreatmentSourcePhysicalDigestEqual
     })),
     archive
