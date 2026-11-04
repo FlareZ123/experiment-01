@@ -560,7 +560,13 @@ function chooseActorRootIntent(view,catalog,options={}){
           require('./agent49-actor-potential-knockout.cjs')
             .choosePotentialKnockout(view,payable):payable[0];
       assert.ok(chosen,'Known-dead attack selector must choose a payable attack');
-      return {kind:'attack',attackName:chosen.name};
+      const first={kind:'attack',attackName:chosen.name};
+      if(options.printedScalingBasicKoBeforeAttack===true){
+        const better=require('./agent17-printed-scaling-basic-ko.cjs')
+          .choosePrintedScalingBasicKoAttachment(view,catalog,first);
+        if(better)return better;
+      }
+      return first;
     }
   }
   if(options.perfectionRoot===true&&view.globalTurn!==1&&
@@ -748,6 +754,7 @@ function withActorOnlyRootPolicy(run,deps={}){
       (process.env.AGENT40_BUS_POSITION_DEV==='true'),
     raichuKoBreakpointBeforeAttackOptIn:deps.raichuKoBreakpointBeforeAttack??
       (process.env.AGENT10_RAICHU_KO_BREAKPOINT_DEV==='true'),
+    printedScalingBasicKoBeforeAttackOptIn:deps.printedScalingBasicKoBeforeAttack===true,
     specialEnergyRootOwnerSeat:deps.specialEnergyRootOwnerSeat??null,
     contestedEnergyRootOptIn:deps.contestedEnergyRoot===true,
     naturalEvolutionRootOptIn:deps.naturalEvolutionRoot??
@@ -1074,6 +1081,9 @@ function withActorOnlyRootPolicy(run,deps={}){
   if(audit.raichuKoBreakpointBeforeAttackOptIn)
     audit.version+='+'+
       require('./agent10-raichu-damage-breakpoint-before-attack.cjs').VERSION;
+  if(audit.printedScalingBasicKoBeforeAttackOptIn)
+    audit.version+='+'+
+      require('./agent17-printed-scaling-basic-ko.cjs').VERSION;
   if(audit.teamFlareGruntDenialRootOptIn)
     audit.version+='+'+
       require('./agent1-owner-team-flare-grunt-denial.cjs').VERSION;
@@ -1299,6 +1309,7 @@ function withActorOnlyRootPolicy(run,deps={}){
           .publicFusionUsageAtRoot(state,seat)
       }:{}),
       raichuKoBreakpointBeforeAttack:audit.raichuKoBreakpointBeforeAttackOptIn,
+      printedScalingBasicKoBeforeAttack:audit.printedScalingBasicKoBeforeAttackOptIn,
       jetBenchSwitchRoot:audit.jetBenchSwitchRootOptIn,
       bunnelbyTmJetRoot:audit.bunnelbyTmJetRootOptIn,
       busLockPositionRoot:audit.busLockPositionRootOptIn,
