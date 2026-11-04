@@ -13,7 +13,8 @@
     "engine": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
     "bounded": true,
     "noPolicyChange": true,
-    "fullGameOutcomeQualified": false
+    "fullGameOutcomeQualified": false,
+    "gameplayProxyDidNotClaimHistoricalEnergyArtwork": true
   },
   "source": {
     "sourceManifest": "results/aichi-2026/full-decklists.json",
@@ -21,10 +22,14 @@
       6,
       9
     ],
-    "originalSourcedExact60BothSeats": true,
+    "originalSourcedExact60BothSeats": false,
     "seedBase": 20261114,
     "firstSeed": 3858002039,
-    "secondSeed": 1192664073
+    "secondSeed": 1192664073,
+    "originalSourcedExact60BothSeatsExplanation": "29 benchmark source ranks authenticate card names and counts; physical art identities are not fully authenticated; rank9 has 2 post-event MEE Darkness artwork annotations per Agent17 chronology audit.",
+    "sourceNamesAndCountsAuthenticatedBothRanks": true,
+    "rank9PosteventBasicArtAnnotationCopies": 2,
+    "actualPhysicalMay2026ArtUnproven": true
   },
   "firstRootAudit": {
     "physicalDealArms": 2,
@@ -146,6 +151,7 @@
     "The native enumerator's offers are not paper-legal moves.",
     "The read-only screen never executed the proposed Rescue Stretcher.",
     "No game completed within the 90-action cap; no win rate or policy payoff inferred.",
-    "Unknown public print identity is preserved as UNKNOWN rather than incorrectly vetoed."
+    "Unknown public print identity is preserved as UNKNOWN rather than incorrectly vetoed.",
+    "Rank9 contains 2 post-event MEE Darkness Energy artwork annotations in the archived source printing metadata; full May 2026 physical art identities cannot be inferred, although card name and count remain source-supported."
   ]
 }
