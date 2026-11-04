@@ -3,6 +3,10 @@ name: Agent 34 pinned native Underworld owner Energy-prompt regression
 on:
   workflow_dispatch:
     inputs:
+      agent17_max_geist_native:
+        description: Original rank1 constructed payable Max Geist vs fourth Psychic native Store threshold
+        type: boolean
+        default: false
       agent42_rank1_independent_heldout:
         description: Eight entirely new rank1 source seeds across both seats, two fixed candidates, selected-v3 A/B/A cap240
         type: boolean
@@ -76,6 +80,20 @@ jobs:
         run: npm run compile
       - name: Verify actual Store both-seat paper-paid Underworld recipient and draw
         run: node --test tests/agent34-actor-typed-energy-prompt.native.test.cjs tests/agent31-shadow-rider-funded-bench-floatstone.native.test.cjs
+      - name: Verify original rank1 printed scaling pure owner-choice and source archive
+        if: ${{ inputs.agent17_max_geist_native }}
+        run: node --test tests/agent17-printed-scaling-basic-ko.test.cjs
+      - name: Execute staged actual Store rank1 Max Geist control vs fourth Basic Energy
+        if: ${{ inputs.agent17_max_geist_native }}
+        run: node simulation/twinleaf/agent17-max-geist-native-breakpoint.cjs > agent17-max-geist-native-breakpoint.json
+      - name: Preserve staged Max Geist Store result without qualification claims
+        if: ${{ always() && inputs.agent17_max_geist_native }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent17-max-geist-staged-store-two-arms
+          path: agent17-max-geist-native-breakpoint.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Validate historical natural original rank1 selected-v3 transport registration
         if: ${{ inputs.agent42_v3_transport }}
         run: |
