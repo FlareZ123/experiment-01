@@ -17,6 +17,7 @@ on:
           - first-owner-with-showcards
           - first-owner-with-attack-visual-wait
           - first-owner-with-prize-choice
+          - first-owner-with-prizes-and-shuffle
 
 permissions:
   contents: read
@@ -45,7 +46,9 @@ jobs:
         run: npm run compile
       - name: Replay one selected retrospective policy against the same historical eight seeds
         run: |
-          if [ "${{ inputs.policy_variant }}" = 'first-owner-with-prize-choice' ]; then
+          if [ "${{ inputs.policy_variant }}" = 'first-owner-with-prizes-and-shuffle' ]; then
+            node simulation/evaluation/agent21-first-owner-native-quarantine-panel.cjs --owner-setup-confirm --owner-setup-basics --owner-phase-wait --owner-showcards-ack --owner-attack-visual-wait --owner-prize-choice --owner-deck-shuffle-wait > agent21-first-owner-native-quarantine.json
+          elif [ "${{ inputs.policy_variant }}" = 'first-owner-with-prize-choice' ]; then
             node simulation/evaluation/agent21-first-owner-native-quarantine-panel.cjs --owner-setup-confirm --owner-setup-basics --owner-phase-wait --owner-showcards-ack --owner-attack-visual-wait --owner-prize-choice > agent21-first-owner-native-quarantine.json
           elif [ "${{ inputs.policy_variant }}" = 'first-owner-with-attack-visual-wait' ]; then
             node simulation/evaluation/agent21-first-owner-native-quarantine-panel.cjs --owner-setup-confirm --owner-setup-basics --owner-phase-wait --owner-showcards-ack --owner-attack-visual-wait > agent21-first-owner-native-quarantine.json
@@ -73,9 +76,9 @@ jobs:
         run: |
           node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-stranded-mew-historical-native-replay.json','utf8')); const a=x.hookAudit;console.log(JSON.stringify({schema:x.schema,trialCount:x.trialCount,anchoredStores:a?.anchoredStores??null,auxiliaryPassesUnchanged:a?.auxiliaryPassesUnchanged??null,anchoredPassesSeen:a?.anchoredPassesSeen??null,eligibleOffers:a?.eligibleOffers??null,exactPhysicalFeeAndPromotion:a?.exactPhysicalFeeAndPromotion??null,unverifiedPhysicalFees:a?.unverifiedPhysicalFees??null,nativeRejectedReplacements:a?.nativeRejectedReplacements??null,pendingAtEnd:a?.pendingAtEnd??null,rootJoinVerified:a?.verifiedSelectedRootLedgerJoin??false,strictRootJoins:x.botPassToStoreRetreatJoin?.exactBotPassToStoreRetreatJoins,strictRootUnverified:x.botPassToStoreRetreatJoin?.unsettledOrUnverified,strictJoinDetails:x.botPassToStoreRetreatJoin?.joins,codeDrift:x.codeProvenance?.changedCodeCells, batchError:x.batchError,competitivelyQualifiedGames:x.competitivelyQualifiedGames},null,2));"
       - name: Show first real native owner-decoder quarantine boundary
-        if: ${{ inputs.policy_variant == 'first-owner-quarantine' || inputs.policy_variant == 'first-owner-with-setup-confirm' || inputs.policy_variant == 'first-owner-with-setup-basics' || inputs.policy_variant == 'first-owner-with-setup-phase-wait' || inputs.policy_variant == 'first-owner-with-showcards' || inputs.policy_variant == 'first-owner-with-attack-visual-wait' || inputs.policy_variant == 'first-owner-with-prize-choice' }}
+        if: ${{ inputs.policy_variant == 'first-owner-quarantine' || inputs.policy_variant == 'first-owner-with-setup-confirm' || inputs.policy_variant == 'first-owner-with-setup-basics' || inputs.policy_variant == 'first-owner-with-setup-phase-wait' || inputs.policy_variant == 'first-owner-with-showcards' || inputs.policy_variant == 'first-owner-with-attack-visual-wait' || inputs.policy_variant == 'first-owner-with-prize-choice' || inputs.policy_variant == 'first-owner-with-prizes-and-shuffle' }}
         run: |
-          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-first-owner-native-quarantine.json','utf8'));console.log(JSON.stringify({schema:x.schema,attempts:x.attempts.map(a=>({trialId:a.trialId,sourceSeat:a.sourceSeat,status:a.status,calls:a.rawStateFallbackCalls,ownerGoFirstHandled:a.ownerGoFirstHandled,ownerStartingBasicSelections:a.ownerStartingBasicSelections,ownerWaits:a.ownerNonvisualWaitsHandled,ownerShowCards:a.ownerShowCardsAcknowledged,attackVisualWaits:a.ownerAttackVisualWaits,ownerPrizeChoices:a.ownerPrizeChoices,first:a.firstBlockedDecision})),competitiveGames:x.competitivelyQualifiedGames},null,2))"
+          node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('agent21-first-owner-native-quarantine.json','utf8'));console.log(JSON.stringify({schema:x.schema,attempts:x.attempts.map(a=>({trialId:a.trialId,sourceSeat:a.sourceSeat,status:a.status,calls:a.rawStateFallbackCalls,ownerGoFirstHandled:a.ownerGoFirstHandled,ownerStartingBasicSelections:a.ownerStartingBasicSelections,ownerWaits:a.ownerNonvisualWaitsHandled,ownerShowCards:a.ownerShowCardsAcknowledged,attackVisualWaits:a.ownerAttackVisualWaits,ownerPrizeChoices:a.ownerPrizeChoices,deckShuffleWaits:a.ownerDeckShuffleWaits,first:a.firstBlockedDecision})),competitiveGames:x.competitivelyQualifiedGames},null,2))"
       - name: Preserve every original Store native replay row and owner-only root receipt
         if: always()
         uses: actions/upload-artifact@v4
