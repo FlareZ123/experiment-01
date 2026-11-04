@@ -1,6 +1,8 @@
 # 58 paper-negative recovery Item offers on 35 native owner roots
 
 **Agent 15 | 4 November 2026 | paired original rank6 vs rank9, purely read-only.** A direct per-physical-copy audit of the [fully successful matched native run 41887399844](https://github.com/FlareZ123/experiment-01/actions/runs/41887399844), source SHA `9fce1350decaab4785c371aa86456e4fda66155a` and pinned `twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The earlier [six-only Stretcher report](agent15-original6v9-native-rescue-target-observer-20261104.md) remains correct, but **the same artifact contains a larger systemic failure across three recoveries**.
+**Historical physical-print caveat:** The two decks are authenticated by published **card names and counts**, with simulator/research-selected printings; the archived rank-9 sixty contains **two Darkness Energy MEE #15 post-event artwork annotations** identified by [Agent17's 10 May vs September 2026 audit](../agent17-postevent-basic-energy-printings-20261104.md). This does not establish the original player's exact artwork or the historical print of every copy. The native experiment is a reproducible **same-name/count proxy** using the pinned engine; it is **not** a literal reproduction of May 2026 physical art identity. Its native target-rule findings depend on actual card type/text and the observed public discard, and do not need the disputed Energy artwork.
+
 
 ## Denominator and live classifier
 
