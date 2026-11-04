@@ -1,0 +1,51 @@
+{
+  "schema": "agent3-source-marginal-native-setup-registration-v1",
+  "registeredAtUtc": "2026-11-04T01:52:00Z",
+  "question": "Does a per-seat-shuffle native Store setup preserve exact A/B/A physical source reproducibility while permitting candidate-dependent mulligan compensation and legitimately different original source openings?",
+  "sourceRosterGitBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceRanks": [
+    5,
+    6
+  ],
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "armOrder": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1",
+    "champion-reference"
+  ],
+  "sourceSeats": [
+    "source seat 1 for A",
+    "source seat 0 for B"
+  ],
+  "repeats": [
+    0,
+    11
+  ],
+  "seedDerivation": {
+    "function": "deriveSlotSeeds",
+    "version": "aichi-decorrelated-slots-v3",
+    "seedBase": 20261104,
+    "phase": "published-field",
+    "sourceRanks": [
+      5,
+      6
+    ],
+    "repeatStart": 0,
+    "repeatEndInclusive": 11,
+    "slots": [
+      "A",
+      "B"
+    ]
+  },
+  "registeredIndependentPhysicalSourceContexts": 48,
+  "registeredNativeSetupAttempts": 144,
+  "pinnedVendorGitRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "setupOverride": "simulation/evaluation/agent26-per-seat-setup-shuffle-streams.cjs",
+  "runner": "simulation/evaluation/agent3-source-setup-audit.cjs",
+  "expectedDenominatorTreatment": "Every registered source context and three attempts included; any error or missing physical receipt fails all-setup gate",
+  "qualification": "Setup-only, zero games. Deterministic hashed 32-bit seeds do not independently certify ideal random marginals. Paper semantics and post-turn play policy not tested.",
+  "scopeBoundary": "Do not infer full-field results or upgrade the previously archived 5:101:A mismatched source comparison. This is a new developmental coupling protocol."
+}
