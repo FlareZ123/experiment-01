@@ -24,6 +24,8 @@ test('pinned native same eight original paper source 60s symmetric owner Support
   console.log('AGENT20_ISSUE25_V16_SUPPORTER',JSON.stringify({
     schema:result.schema,
     allPhysicalMatched:result.sourceAndCompletePhysicalDealsMatched,
+    controlOption:result.actualNativeRunnerReportedControlFlag,
+    treatmentOption:result.actualNativeRunnerReportedTreatmentFlag,
     changedRows:result.changedNativeRootsInRows,
     firstSourceChange:result.firstChangedRootOriginalSourceCount,
     sourceNewPlayCardRows:result.sourcePlayerNewPlayCardsObserved,
@@ -39,6 +41,7 @@ test('pinned native same eight original paper source 60s symmetric owner Support
   }));
   assert.equal(result.schema,VERSION);
   assert.equal(result.rows.length,8);
+  assert.equal(result.treatmentOptionReachedNativeRunner,true);
   assert.equal(result.sourceAndCompletePhysicalDealsMatched,true);
   assert.equal(result.qualifiedGames,0);
 });
