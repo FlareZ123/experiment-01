@@ -1,0 +1,163 @@
+{
+  "schema": "agent3-original29-ideal-opening-basic-census-snapshot-v1",
+  "source": "results/aichi-2026/full-decklists.json",
+  "code": "scripts/agent3-original-source-basic-mulligan-census.cjs",
+  "ciRun": "https://github.com/FlareZ123/experiment-01/actions/runs/41773113494",
+  "ciHead": "1827119f4022a9dc306b17960f9041182856ae6b",
+  "exactKnownOriginalSource60s": 29,
+  "missingOriginalCompleteSources": [
+    23,
+    25,
+    28
+  ],
+  "formula": "q=choose(60-basics,7)/choose(60,7)",
+  "stochasticAssumption": "ideal uniform without-replacement initial seven; neither real shuffle RNG nor match policy certified",
+  "competitiveQualifiedGames": 0,
+  "ranks": [
+    {
+      "rank": 1,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 2,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 3,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 4,
+      "basics": 13,
+      "q": 0.1628440500237541
+    },
+    {
+      "rank": 5,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 6,
+      "basics": 4,
+      "q": 0.6005003742553344
+    },
+    {
+      "rank": 7,
+      "basics": 12,
+      "q": 0.1906466927107365
+    },
+    {
+      "rank": 8,
+      "basics": 10,
+      "q": 0.2586292342975108
+    },
+    {
+      "rank": 9,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 10,
+      "basics": 15,
+      "q": 0.11750079465173746
+    },
+    {
+      "rank": 11,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 12,
+      "basics": 15,
+      "q": 0.11750079465173746
+    },
+    {
+      "rank": 13,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 14,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 15,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 16,
+      "basics": 11,
+      "q": 0.22242114149585926
+    },
+    {
+      "rank": 17,
+      "basics": 13,
+      "q": 0.1628440500237541
+    },
+    {
+      "rank": 18,
+      "basics": 16,
+      "q": 0.0992228932614672
+    },
+    {
+      "rank": 19,
+      "basics": 16,
+      "q": 0.0992228932614672
+    },
+    {
+      "rank": 20,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 21,
+      "basics": 14,
+      "q": 0.1385906808712801
+    },
+    {
+      "rank": 22,
+      "basics": 12,
+      "q": 0.1906466927107365
+    },
+    {
+      "rank": 24,
+      "basics": 4,
+      "q": 0.6005003742553344
+    },
+    {
+      "rank": 26,
+      "basics": 12,
+      "q": 0.1906466927107365
+    },
+    {
+      "rank": 27,
+      "basics": 15,
+      "q": 0.11750079465173746
+    },
+    {
+      "rank": 29,
+      "basics": 4,
+      "q": 0.6005003742553344
+    },
+    {
+      "rank": 30,
+      "basics": 16,
+      "q": 0.0992228932614672
+    },
+    {
+      "rank": 31,
+      "basics": 15,
+      "q": 0.11750079465173746
+    },
+    {
+      "rank": 32,
+      "basics": 13,
+      "q": 0.1628440500237541
+    }
+  ]
+}
