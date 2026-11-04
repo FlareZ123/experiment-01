@@ -151,6 +151,7 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       assert.ok(Number.isSafeInteger(event.nativeStoreOrdinal)&&
         event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=8);
       assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
+      assert.match(event.opaquePreRunRequestHmacSha256,/^[0-9a-f]{64}$/);
       const id=event.registeredNativeTrialId;
       if(typeof id!=='string'||!ids.includes(id)){
         unknown.push({ordinal:event.nativeStoreOrdinal,seat:event.physicalOwnerSeat});
@@ -205,6 +206,10 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
           first&&second?
           first.opaquePhysicalPrechoiceInputHmacSha256===
           second.opaquePhysicalPrechoiceInputHmacSha256:null,
+        identicalNativePreRunRequest:
+          first&&second?
+          first.opaquePreRunRequestHmacSha256===
+          second.opaquePreRunRequestHmacSha256:null,
         samePhysicalHandCounts:
           first&&second?first.ownerHandCount===second.ownerHandCount:null,
         samePhysicalDeckCounts:
@@ -263,10 +268,14 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     s.trialPairedPrechoiceInputEqual===true).length;
   const beforeTreatmentMismatches=seats.filter(s=>
     s.trialPairedPrechoiceInputEqual===false).length;
+  const matchingNativeRequests=seats.filter(s=>
+    s.identicalNativePreRunRequest===true).length;
   const nativeStoreTrialLinkVerified=a.exactTrialStoreJoin&&b.exactTrialStoreJoin&&
     allBeforeTreatmentInputsObserved;
   const prechoiceInputParityObserved=nativeStoreTrialLinkVerified&&
     samePrivateHashSession?(beforeTreatmentMismatches===0):'UNRESOLVED';
+  const nativeRegisteredRequestParityObserved=nativeStoreTrialLinkVerified&&
+    samePrivateHashSession?(matchingNativeRequests===16):'UNRESOLVED';
   const postTreatmentSourceDigestMismatches=rows.filter(row=>
     row.postTreatmentSourcePhysicalDigestEqual===false).length;
   const registeredTrialsAndPrintingsMatched=ar.complete&&br.complete&&
@@ -313,6 +322,8 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       allBeforeTreatmentInputsObserved,
       trialPairedInputMatches:beforeTreatmentMatches,
       trialPairedInputMismatches:beforeTreatmentMismatches,
+      matchedNativePreRunRequests:matchingNativeRequests,
+      nativeRegisteredRequestParityObserved,
       postTreatmentSourceDigestMismatches,
       sameRegisteredTrialIdentityAndDeckPrintings:
         registeredTrialsAndPrintingsMatched,
