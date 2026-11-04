@@ -23,7 +23,7 @@ const VERSION='agent21-first-native-owner-decoder-quarantine-panel-v1';
  * @param {{preflight?:Function,runner?:Function,quarantine?:Function,
  *   ownerSetup?:Function,ownerSetupConfirm?:boolean,
  *   ownerStarting?:Function,ownerSetupBasics?:boolean,
- *   pinNative?:boolean}} [deps] Controlled pure-test seams.
+ *   ownerWait?:Function,ownerPhaseWait?:boolean,pinNative?:boolean}} [deps] Controlled pure-test seams.
  * @returns {object} Bounded non-secret first-blocker evidence.
  */
 function runFirstOwnerDecoderPanel(deps={}) {
@@ -35,6 +35,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
     .withOwnerSetupGoFirstConfirm;
   const ownerStarting=deps.ownerStarting??require('../twinleaf/agent21-owner-setup-starting-basics.cjs')
     .withOwnerSetupStartingBasics;
+  const ownerWait=deps.ownerWait??require('../twinleaf/agent21-owner-nonvisual-phase-wait.cjs')
+    .withOwnerNonvisualPhaseWait;
   const {profile,trials,codeProvenance}=preflight(deps.pinNative!==false);
   const grouped=['A','B'].map(slot=>trials.filter(t=>
     t.candidateSlot===slot && t.repeat===0));
@@ -50,7 +52,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     let status='NO_RAW_DECODER_CALL_OBSERVED_UNQUALIFIED';
     let returnedRows=0;
     let errorName=null,errorMessage=null,ownerSetupAudit=null;
-    let ownerStartingAudit=null;
+    let ownerStartingAudit=null,ownerWaitAudit=null;
     try {
       const execute=()=>runner({
         ...profile.selectedPolicyOptions,
@@ -59,9 +61,15 @@ function runFirstOwnerDecoderPanel(deps={}) {
           profile.allowAdditionalOriginalSourceRanks
       });
       const wrapped=guard(()=>{
+        const withWait=()=>{
+          if(deps.ownerPhaseWait!==true)return execute();
+          const installed=ownerWait(execute);
+          ownerWaitAudit=installed.audit;
+          return installed.result;
+        };
         const withBasics=()=>{
-          if(deps.ownerSetupBasics!==true)return execute();
-          const installed=ownerStarting(execute);
+          if(deps.ownerSetupBasics!==true)return withWait();
+          const installed=ownerStarting(withWait);
           ownerStartingAudit=installed.audit;
           return installed.result;
         };
@@ -78,6 +86,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
       audit=error?.nativeRawStateFallbackQuarantine??null;
       ownerSetupAudit=error?.agent21OwnerGoFirstAudit??ownerSetupAudit;
       ownerStartingAudit=error?.agent21OwnerStartingAudit??ownerStartingAudit;
+      ownerWaitAudit=error?.agent21OwnerWaitAudit??ownerWaitAudit;
       status=error?.code===CODE?
         CODE:'OTHER_NATIVE_OR_PREFLIGHT_ERROR';
       errorName=error?.name??null;
@@ -96,6 +105,10 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerStartingBasicSelections:ownerStartingAudit?.setupBasicSelections??null,
       ownerStartingBySeat:ownerStartingAudit?.bySeat??null,
       ownerStartingDecisions:ownerStartingAudit?.records??[],
+      ownerPhaseWaitEnabled:deps.ownerPhaseWait===true,
+      ownerNonvisualWaitsHandled:ownerWaitAudit?.nativePendingWaitHandled??null,
+      ownerNonvisualWaitBySeat:ownerWaitAudit?.bySeat??null,
+      ownerWaitDecisions:ownerWaitAudit?.records??[],
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
@@ -116,6 +129,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     actualSelectedCommonPolicyRelease:false,
     exactOwnerSetupConfirmEnabled:deps.ownerSetupConfirm===true,
     exactOwnerStartingBasicsEnabled:deps.ownerSetupBasics===true,
+    exactOwnerPhaseWaitEnabled:deps.ownerPhaseWait===true,
     sourceRank:5,
     independentProspective:false,
     priorRegisteredProfileBlob:
@@ -136,7 +150,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
 if(require.main===module)
   process.stdout.write(JSON.stringify(runFirstOwnerDecoderPanel({
     ownerSetupConfirm:process.argv.includes('--owner-setup-confirm'),
-    ownerSetupBasics:process.argv.includes('--owner-setup-basics')
+    ownerSetupBasics:process.argv.includes('--owner-setup-basics'),
+    ownerPhaseWait:process.argv.includes('--owner-phase-wait')
   }),null,2)+'\n');
 
 module.exports={VERSION,runFirstOwnerDecoderPanel};
