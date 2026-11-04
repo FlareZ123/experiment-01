@@ -11,6 +11,8 @@ test('original 29 lists contain 14 Japanese-only promo copies in five ranks',()=
   assert.deepEqual(report.knownMissingOriginalRanks,[23,25,28]);
   assert.equal(report.originalSourceRows,9);
   assert.equal(report.originalSourceCopies,14);
+  assert.deepEqual(report.allOriginalSourceLanguageTokenRows,{en:989});
+  assert.deepEqual(report.allOriginalSourceLanguageTokenCopies,{en:1740});
   assert.deepEqual(report.affectedRanks,[3,6,7,24,29]);
   assert.deepEqual(report.byIdentity.map(x=>({
     name:x.name,rows:x.originalSourceRows,copies:x.copies,ranks:x.sourceRanks
@@ -38,6 +40,8 @@ test('source language and source card identities are preserved without mutation'
   assert.equal(JSON.stringify(field),before);
   assert.equal(report.originalSourceCopies,4);
   assert.equal(report.originalSourceRows,3);
+  assert.deepEqual(report.allOriginalSourceLanguageTokenRows,{en:3,ja:1});
+  assert.deepEqual(report.allOriginalSourceLanguageTokenCopies,{en:6,ja:1});
   assert.deepEqual(report.provenance.map(x=>x.sourceLanguageToken),['en','en','ja']);
   assert.deepEqual(report.byIdentity.map(x=>x.copies),[1,3,0]);
   assert.equal(report.byIdentity[1].englishDatabaseNamePresent,true);
@@ -51,5 +55,5 @@ test('reject missing source set and invalid target quantity',()=>{
     name:"Player's Ceremony",count:0,
     printing:{set:'SP',number:'127',language:'en'}
   }]}],missing_full_lists:[]};
-  assert.throws(()=>auditJapaneseOnlyPromos(field,new Set()),/Invalid source rank or quantity/);
+  assert.throws(()=>auditJapaneseOnlyPromos(field,new Set()),/Invalid source rank, quantity, or language annotation/);
 });
