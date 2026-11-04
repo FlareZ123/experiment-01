@@ -4,6 +4,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {planAichi}=require('./aichi-pilot.cjs');
 const {runMatch}=require('../twinleaf/headless.cjs');
+const {withOwnerHnsQuickBallCost}=
+  require('../twinleaf/agent25-owner-quickball-hns-cost.cjs');
 const {withCorrectedHnsDiscardAbilityCount,VERSION:HOOK_VERSION,pin}=
   require('../twinleaf/agent25-hns-discard-ability-lock-paper-hook.cjs');
 
@@ -50,8 +52,11 @@ function toPrintedManifest(){
 const describeError=error=>String(error?.stack||error?.message||error);
 
 /** Run exactly six pre-registered native bounded trials when the 60 resolves. */
-function run({donorCompressor=false}={}){
+function run({donorCompressor=false,ballDonorCost=false}={}){
   assert.equal(typeof donorCompressor,'boolean');
+  assert.equal(typeof ballDonorCost,'boolean');
+  assert.ok(!ballDonorCost||donorCompressor,
+    'Quick Ball donor payment extension requires same owner Compressor base');
   assert.equal(pin,registration.enginePin);
   const rows=toPrintedManifest();
   const aliasAudit=candidate.cards.flatMap((source,i)=>{
@@ -117,13 +122,18 @@ function run({donorCompressor=false}={}){
         deckB:seat===1?plan.candidate.cards:opponent.cards,
         seed:registration.seedsByRank[rank],
         maxActions:registration.maximumRootActions,
-        label:'agent25-preregistered-'+(donorCompressor?'compressor-policy':'baseline')+'-'+key,
+        label:'agent25-preregistered-'+(ballDonorCost?'compressor-ball-donor':(donorCompressor?'compressor-policy':'baseline'))+'-'+key,
         ...registration.options,
         ...(donorCompressor?{dhelmiseDonorCompressorSeat:seat}:{}),
         captureStartingBoard:true,captureFinalPublicBoard:true
       };
       try{
-        const wrapped=withCorrectedHnsDiscardAbilityCount(()=>runMatch(request));
+        const execution=()=>withCorrectedHnsDiscardAbilityCount(()=>
+          runMatch(request));
+        const selected=ballDonorCost?
+          withOwnerHnsQuickBallCost(seat,execution):
+          {result:execution(),audit:null};
+        const wrapped=selected.result;
         const game=wrapped.result;
         attempts.push({key,rank,candidateSeat:seat,status:game.finished?
           'untimed-engine-terminal':'root-action-cap',
@@ -134,6 +144,7 @@ function run({donorCompressor=false}={}){
           prizesRemaining:game.prizesRemaining,
           startingBoard:game.initialBoardAtFirstTurn??null,
           hnsHookAudit:wrapped.audit,
+          ownerBallDonorAudit:selected.audit,
           physicalZoneIntegrity:game.physicalZoneIntegrity??null,
           attackDeclarationsBySeat:(game.attackDeclarationTrace||[]).reduce(
             (acc,row)=>{const s=row.playerSlot??row.seat;
@@ -154,8 +165,11 @@ function run({donorCompressor=false}={}){
     candidate:registration.candidate,
     originalSourceRanks:registration.sourceRanks,
     seedsByRank:registration.seedsByRank,
-    policy:donorCompressor?'Twinleaf SimpleTacticsAi + DhelmiseHnsOwnerCompressor-v1 candidate seat':'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards',
-    donorCompressorPolicy:donorCompressor,
+    policy:ballDonorCost?
+      'DhelmiseHnsOwnerCompressor-v1 + owner-only paid Quick Ball HNS preference candidate seat':
+      (donorCompressor?'Twinleaf SimpleTacticsAi + DhelmiseHnsOwnerCompressor-v1 candidate seat':
+        'Twinleaf SimpleTacticsAi plus explicitly registered default-off guards'),
+    donorCompressorPolicy:donorCompressor,ballDonorCostPolicy:ballDonorCost,
     paperHnsHookVersion:HOOK_VERSION,
     printing,attempts,competitivelyQualifiedGames:0,
     noClockModel:true,postAichiNewCardCandidate:true};
