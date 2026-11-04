@@ -34,3 +34,7 @@ jobs:
 
       - name: Issue25 owner-safe setup coin choice native test
         run: node --test tests/agent50-issue25-owner-go-second-quarantine.native.test.cjs
+      - name: Issue25 pure owner-only starting Basic setup contract
+        run: node --test tests/agent50-owner-starting-basic-choice.test.cjs
+      - name: Issue25 native owner-hand starting Basic next fallback boundary
+        run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
