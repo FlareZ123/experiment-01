@@ -21,6 +21,8 @@ test('Issue25 selected v0 actually runs four real native historical arms on both
   assert.deepEqual(diagnostic.registeredAttemptReconciliation.unexpected,[]);
   assert.deepEqual(diagnostic.registeredAttemptReconciliation.duplicateReturned,[]);
   assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
+  assert.ok(manifest.observedLoadedResearchModuleDigest.moduleCount>=10);
+  assert.match(manifest.observedLoadedResearchModuleDigest.sha256,/^[a-f0-9]{64}$/);
   assert.equal(manifest.observedTwinleafGitCommit,
     manifest.expectedPinnedTwinleafGitlink);
   assert.match(manifest.observedRepositoryGitCommit,/^[a-f0-9]{40}$/);
