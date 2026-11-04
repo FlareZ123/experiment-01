@@ -89,7 +89,7 @@ test('same registered prechoice inputs do not rescue wrong trial seed or printin
   b.rawDevelopment.rows[0].trial.seed++;
   b.rawDevelopment.rows[1].sourceDeckFingerprint=digest('wrong-printing');
   const comparison=comparePrechoiceCustodyV8(a,b);
-  assert.equal(comparison.constraints.ordinalIndexedInputMatches,16);
+  assert.equal(comparison.constraints.trialPairedInputMatches,16);
   assert.equal(comparison.constraints.sameRegisteredTrialIdentityAndDeckPrintings,false);
   assert.equal(comparison.pairedRows[0].registeredTrialIdentityMatched,false);
   assert.equal(comparison.pairedRows[1].originalAndContenderPrintingDigestsMatched,false);
