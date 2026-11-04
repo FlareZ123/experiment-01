@@ -5,11 +5,15 @@ const path=require('node:path');
 const {createHash}=require('node:crypto');
 const {stagedPainfulSpoons}=
   require('../twinleaf/agent4-rank31-alakazam-movesource-native.cjs');
+const {installSupporterDecisionHook}=
+  require('../twinleaf/supporter-decision-hook.cjs');
+const {installOwnDeckDeterminizationHook}=
+  require('../twinleaf/own-deck-determinization-hook.cjs');
 
 const output=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} id @returns {any} */
 const native=id=>require(path.join(output,id));
-const VERSION='agent36-raw-simple-tactics-hidden-owner-deck-order-diagnostic-v2-proposal-purity-contrast';
+const VERSION='agent36-raw-simple-tactics-hidden-owner-deck-order-diagnostic-v3-existing-hooks-composition';
 
 /** @param {readonly string[]} cards @returns {string} */
 function multisetHash(cards){
@@ -24,7 +28,7 @@ function multisetHash(cards){
  * This is a staged 60-card owner configuration, not a historical deal.
  * @param {0|1} seat
  * @param {'evolution-top'|'energy-top'} top
- * @param {{pureSupporterProposal?:boolean}} [options]
+ * @param {{pureSupporterProposal?:boolean,sampleOwnDeck?:boolean}} [options]
  */
 function probeOwnHiddenDeckOrder(seat,top,options={}){
   assert.ok(seat===0||seat===1);
@@ -83,27 +87,27 @@ function probeOwnHiddenDeckOrder(seat,top,options={}){
     arbiter:definitions.defaultArbiterOptions
   },null);
   const supporterBefore=f.source.supporterTurn;
-  const {PlaySupporterTactic}=native('simple-bot/simple-tactics/play-supporter-tactic');
-  const proto=PlaySupporterTactic.prototype;
-  const original=Object.getOwnPropertyDescriptor(proto,'useTactic');
+  assert.ok(!options.sampleOwnDeck||options.pureSupporterProposal,
+    'Sampling arm requires established side-effect-free Supporter proposal');
+  const originalDeckOrder=f.source.deck.cards.slice();
+  const restoreProposal=options.pureSupporterProposal?
+    installSupporterDecisionHook():null;
+  const restoreSampling=options.sampleOwnDeck?
+    installOwnDeckDeterminizationHook({seed:20261016,samples:12,
+      assumeNoKnownDeckOrder:true,assumeDeckContentsKnown:true,
+      isolateGameState:true,assumeIndexBasedAction:true}):null;
   let action;
-  if(options.pureSupporterProposal){
-    function restoredSupporterTactic(state,player){
-      const prior=player.supporterTurn;
-      try { return original.value.call(this,state,player); }
-      finally {player.supporterTurn=prior;}
-    }
-    Object.defineProperty(proto,'useTactic',
-      {...original,value:restoredSupporterTactic});
-    try {action=bot.decodeNextAction(f.state);}
-    finally {
-      assert.strictEqual(proto.useTactic,restoredSupporterTactic);
-      Object.defineProperty(proto,'useTactic',original);
-    }
-  }else action=bot.decodeNextAction(f.state);
+  try {action=bot.decodeNextAction(f.state);}
+  finally {
+    restoreSampling?.();
+    restoreProposal?.();
+  }
+  assert.deepEqual(f.source.deck.cards,originalDeckOrder,
+    'Speculative action scoring may not mutate authoritative deck order');
   return {
     version:VERSION,seat,top,ownerZoneCount,
     pureSupporterProposal:options.pureSupporterProposal===true,
+    sampledK1OwnerDeck:options.sampleOwnDeck===true,
     observation,ownerDeckMultiset,ownerDeckTopSeven,
     nativeDefaultAction:action?.constructor?.name??null,
     nativeDefaultCard:action?.constructor?.name==='PlayCardAction'?
@@ -115,15 +119,17 @@ function probeOwnHiddenDeckOrder(seat,top,options={}){
   };
 }
 if(require.main===module){
-  for(const seat of [0,1])for(const pureSupporterProposal of [false,true]){
-    const high=probeOwnHiddenDeckOrder(seat,'evolution-top',
-      {pureSupporterProposal});
-    const low=probeOwnHiddenDeckOrder(seat,'energy-top',
-      {pureSupporterProposal});
+  for(const seat of [0,1])for(const policy of [
+    {},{pureSupporterProposal:true},
+    {pureSupporterProposal:true,sampleOwnDeck:true}]){
+    const high=probeOwnHiddenDeckOrder(seat,'evolution-top',policy);
+    const low=probeOwnHiddenDeckOrder(seat,'energy-top',policy);
     assert.deepEqual(high.observation,low.observation);
     assert.equal(high.ownerDeckMultiset,low.ownerDeckMultiset);
     console.log('AGENT36_HIDDEN_DECK_ORDER_NATIVE '+JSON.stringify({
-      seat,pureSupporterProposal,sameOwnerVisibleObservation:true,
+      seat,pureSupporterProposal:policy.pureSupporterProposal===true,
+      sampledK1OwnerDeck:policy.sampleOwnDeck===true,
+      sameOwnerVisibleObservation:true,
       sameOwnerDeckPhysicalMultiset:true,
       highAction:high.nativeDefaultAction,
       highCard:high.nativeDefaultCard,
