@@ -31,3 +31,6 @@ jobs:
         run: node --test tests/agent50-rank26-firstturn-crisis-punch.native.test.cjs
       - name: Issue25 existing bilateral common-policy native fallback quarantine diagnostic
         run: node --test tests/agent50-issue25-common-runner-quarantine.native.test.cjs
+
+      - name: Issue25 owner-safe setup coin choice native test
+        run: node --test tests/agent50-issue25-owner-go-second-quarantine.native.test.cjs
