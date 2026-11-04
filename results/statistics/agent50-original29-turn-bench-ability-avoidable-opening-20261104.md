@@ -67,6 +67,23 @@ The identical printed-card predicate and exact valid-seven denominator also appl
 
 This extension reinforces that the opening decision can bias proposed candidate play as well as original opposition; the four rows are distinct fixed 60s and are not combined into a 29-opponent win-rate calculation. Reproduce with [candidate printed-ID/trigger resolver](../../simulation/evaluation/agent50-structural-candidate-opening-exposure.cjs) and [independent two-part candidate regression](../../tests/agent50-structural-candidate-opening-exposure.test.cjs).
 
+## Exact initial Bench occupancy cost of preserving entry supports
+
+The same physical seven-card model quantifies a critical structural counterweight to any unconditional support-preserving opening choice. For each hand let `T` be recognized hand-to-Bench trigger Basics and `R` all other eligible Basics. Under the current all-Basics setup, initial Benched Pokémon number `min(5,T+R-1)`. Under the **separate optional preservation proposal** that places every available ordinary Basic (one Active plus up to five ordinary Benched Basics) and holds all optional entry-trigger Basics, initial Benched number `min(5,max(R-1,0))`. These formulas include all-seven-Basic opening hands with the native six-selection cap.
+
+| Exact physical valid-seven measure | Greedy selected setup | Protected multi-Basic proposal |
+| --- | ---: | ---: |
+| Probability at least one Pokémon initially Benched, equal-rank mean across 29 originals | **52.9827025454%** | **40.8913682471%** |
+| Expected initially Benched Pokémon, equal-rank mean | **0.7631133185** | **0.5471040505** |
+
+Thus preservation creates an **additional 12.0913342984%** of valid seven-card openings with only an Active Pokémon at the end of setup, even though greedy would have established a Bench. It also reduces expected initial Bench occupancy by **0.2160092680 Pokémon** per original valid seven. These are physical setup counts, with no native game played and no opponent attack assigned. An eligible Basic held for a later Ability might be Benched normally during the player's first turn; the precise donk exposure must be evaluated under actual turn order, attack legality, redraws and real opponent decisions.
+
+Of the earlier **18.4379338784%** avoidable trigger-consumption events, **10.9379198477 percentage points** have only one ordinary Basic, leaving this particular preservation proposal **solo Active** at initial setup. The remaining **7.5000140307 percentage points** have at least two ordinary Basics and retain a protected entry trigger alongside another initial Benched Pokémon. Rank 4 is extreme: the proposed setup creates an additional solo-Active situation in **34.7541393641%** of its valid seven-card openings. These subgroups preserve the initial `T+R<=6` conservative event boundary, and their sum equals the original avoidable-trigger frequency.
+
+For the four separately proposed structural candidates, the additional solo-Active physical probability is Apex Alchemy **6.0258089690%**, ADP Thorton Regidrago **14.2334367991%**, Sentinel Lopunny Vileplume **0%**, and Arven Shake Absol **12.1263180493%**.
+
+[Exact full finite-population Bench occupancy model](../../simulation/evaluation/agent50-setup-bench-occupancy-tradeoff.cjs) and [toy brute-force / original29 / candidate4 regressions](../../tests/agent50-setup-bench-occupancy-tradeoff.test.cjs) preserve all categories. In particular, the single-Active Agent4-backed alternative `agent50-owner-entry-priority-single-basic.cjs` would produce **no initial Benched Pokémon by construction**; its tradeoff can be larger than the multi-Basic proposal quantified here. Neither alternative should be promoted automatically.
+
 ## Implication and follow-through
 
 The **selected** Issue #25 v3 setup may spend hand-held Tapu Lele-GX, Crobat V, Dedenne-GX or similar in the pre-turn setup, preventing their printed entry Abilities later. This materially affects policy expressiveness and can bias source-versus-candidate comparison: any policy claiming competent original opponents must account for the owner-visible option to retain those cards for a turn. Agent 4's single-Basic/optional-Bench-decline strategy and Agent 5's ADP counterexample show competing options, but this report makes **no unilateral change to the running frozen v3 selected policy**. An integration steward should preregister one explicit comparison under matched **physical** opening hands, owner-only observations, real Store settlements and paired original-source outcomes before changing the shared policy.
