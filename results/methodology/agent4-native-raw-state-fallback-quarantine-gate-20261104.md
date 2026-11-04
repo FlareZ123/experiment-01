@@ -79,6 +79,38 @@ normal Store dispatch. It is intentionally limited to turn 0 setup.
 As of this report update, its further pinned Store test is queued or
 unverified; do not treat it as accepted native integration yet.
 
+## Owner setup progression, same pinned engine
+
+[CI 41765449413](https://github.com/FlareZ123/experiment-01/actions/runs/41765449413):
+**17/17 passing** pure and real native tests. A narrow, owner-observation
+setup `ConfirmPrompt` adapter submitted `false`, the same response as the
+pinned native bot's resolver. The real Store accepted one `GO_FIRST=false`
+choice in both fixed rank5/rank1 physical seating arrangements and the first
+remaining native fallback shifted to `ChooseCardsPrompt` (setup phase 1,
+turn 0, seat 0). The coin winner's default choice to go second is a
+**development baseline**, not verified optimal turn-order strategy.
+
+[CI 41766060930](https://github.com/FlareZ123/experiment-01/actions/runs/41766060930):
+**22/22 passing**, with the source-specific setup
+[`one-Basic` owner selector](../../simulation/twinleaf/agent4-owner-setup-starting-pokemon.cjs).
+The pinned Store accepted two owner-hand `CHOOSE_STARTING_POKEMONS`
+prompts and physically placed one selected Basic in each owner's Active
+Spot, with no original native scorer execution. This deliberately leaves
+Bench slots unused, so setup strategy and competitive strength remain
+unqualified. Next first original native fallback in both seats was a
+`WaitPrompt` at **turn 1, phase 8 (DRAW), responding seat 1**.
+
+A bounded [WaitPrompt mechanical adapter](../../simulation/twinleaf/agent4-owner-wait-progress.cjs)
+with a null response now has pure/native tests registered in the existing
+rank5 smoke-only CI workflow. Its true Store acceptance and next-stage
+interface were not yet verified at the moment of this report update.
+
+These traces reveal an important distinction: the initial missing
+owner-decision surfaces are setup and engine-animation prompts. Establishing
+that they can be handled without the inherited scorer is necessary for
+safe progress to actual turn roots, but gameplay quality must be judged
+separately. The first staged proof does not qualify a full game.
+
 ## Integration handoff
 
 **Owner:** [Issue #25](https://github.com/FlareZ123/experiment-01/issues/25),
