@@ -284,7 +284,12 @@ for(const seat of [0,1]){
     console.log('AGENT2_RANK3_BURROW_NATIVE_CHRONOLOGY',
       JSON.stringify({seat,deckBefore,chronology}));
     assert.equal(trial.store.hasPrompts(),false);
-    assert.equal(trial.foe.deck.cards.length,deckBefore-1);
+    // The first minus-one is Burrow's discard. The subsequent minus-one
+    // occurs at the opponent's ordinary next-turn draw. The complete zone
+    // accounting must distinguish those two unrelated transitions.
+    assert.equal(trial.foe.discard.cards.length,1);
+    assert.equal(trial.foe.hand.cards.length,1);
+    assert.equal(trial.foe.deck.cards.length,deckBefore-2);
     console.log('AGENT2_RANK3_NECESSARY_FLOAT_BURROW',JSON.stringify({
       rank:3,seat,fullPhysicalFingerprint:trial.fullPhysicalFingerprint,
       sourcePrinting:['Snorlax PGO','Bunnelby PRC',
@@ -295,7 +300,9 @@ for(const seat of [0,1]){
       actualStoreFloatAccepted:true,actualFreeRetreatAccepted:true,
       discardedCaptureEnergy:0,retainedCaptureEnergyOnSnorlax:2,
       settledAttack:'Burrow',
-      actualOpponentDeckCardsDiscarded:deckBefore-trial.foe.deck.cards.length,
+      actualOpponentDeckCardsDiscarded:trial.foe.discard.cards.length,
+      ordinaryOpponentTurnDrawnCards:trial.foe.hand.cards.length,
+      totalOpponentDeckDecrease:deckBefore-trial.foe.deck.cards.length,
       acknowledgements:acknowledged,qualifyingGames:0,
       resultKind:'constructed-native-tactical-counterfactual'
     }));
