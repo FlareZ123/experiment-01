@@ -1,0 +1,143 @@
+'use strict';
+
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {createHash}=require('node:crypto');
+
+const VERSION='agent1-actual-native-owner-prechoice-private-fingerprint-v1';
+const root=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
+const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
+
+/**
+ * Read a physical owner's *pre-setup-choice* private randomized positions at
+ * their first genuine CHOOSE_STARTING_POKEMONS prompt. This differs from the
+ * later post-policy first-stable-turn-1 digest: selecting different Active and
+ * Benched cards is the treatment, so a post-treatment fingerprint MUST differ
+ * when the opening policy actually changes a setup placement.
+ *
+ * The only persistent output is a SHA-256 of own hand/deck/Prize positions;
+ * all raw card printings are immediately discarded. Never use this observer
+ * for a gameplay choice, retrospective seed selection or prize inference.
+ *
+ * @template T
+ * @param {()=>T} run Synchronous pinned native Store experiment.
+ * @param {{engine?:(s:string)=>object,maxEvents?:number}} [deps]
+ * @returns {{result:T,audit:object}}
+ */
+function withSetupPrechoicePrivateFingerprint(run,deps={}){
+  assert.equal(typeof run,'function');
+  const load=deps.engine??(file=>require(path.join(root,file)));
+  const {SimpleTacticsAi}=load('simple-bot/simple-tactics-ai');
+  const {Store}=load('game/store/store');
+  const {AddPlayerAction}=load('game/store/actions/add-player-action');
+  const {ChooseCardsPrompt}=load('game/store/prompts/choose-cards-prompt');
+  const {GameMessage}=load('game/game-message');
+  const {GamePhase}=load('game/store/state/state');
+  const priorBot=Object.getOwnPropertyDescriptor(
+    SimpleTacticsAi.prototype,'decodeNextAction');
+  const priorStore=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  assert.equal(typeof priorBot?.value,'function');
+  assert.equal(typeof priorStore?.value,'function');
+  assert.equal(priorBot.configurable,true);
+  assert.equal(priorStore.configurable,true);
+  const maxEvents=deps.maxEvents??40;
+  assert.ok(Number.isSafeInteger(maxEvents)&&maxEvents>=16);
+  const stores=new WeakMap();
+  let lastRealStore=null;
+  let storeCount=0;
+  const audit={
+    version:VERSION,
+    exactNativeStoreRootsRecorded:0,
+    firstOwnerSetupInputsObserved:0,
+    duplicateOwnerPromptsOmitted:0,
+    events:[],
+    eventLimit:maxEvents,
+    hiddenCardNamesOrOrderPublished:false,
+    policyChoiceActionsIssued:0,
+    qualifiesFullPaperRandomness:false,
+    qualifiesMatchedCompetitiveGames:false
+  };
+  const names=zone=>{
+    assert.ok(Array.isArray(zone?.cards),
+      'Pre-choice private zone must have physical cards array');
+    return zone.cards.map(card=>{
+      assert.equal(typeof card?.fullName,'string');
+      return card.fullName;
+    });
+  };
+  function dispatch(action,...args){
+    if(action instanceof AddPlayerAction&&!stores.has(this)){
+      const info={ordinal:++storeCount,seenSeats:new Set()};
+      stores.set(this,info);
+      audit.exactNativeStoreRootsRecorded=storeCount;
+    }
+    if(action instanceof AddPlayerAction)lastRealStore=this;
+    return priorStore.value.apply(this,[action,...args]);
+  }
+  function decode(state){
+    const real=lastRealStore;
+    const info=real?stores.get(real):null;
+    if(info&&state===real.state&&state.turn===0&&
+       state.phase===GamePhase.SETUP){
+      const ownerSeat=state.players?.findIndex(p=>
+        p.id===this.client?.id)??-1;
+      const owner=(ownerSeat===0||ownerSeat===1)?
+        state.players[ownerSeat]:null;
+      const prompt=state.prompts?.find(p=>
+        p.result===undefined&&p.playerId===owner?.id)??null;
+      if(owner&&prompt instanceof ChooseCardsPrompt&&
+        prompt.message===GameMessage.CHOOSE_STARTING_POKEMONS&&
+        prompt.cards===owner.hand&&prompt.options?.min===1){
+        if(info.seenSeats.has(ownerSeat)){
+          audit.duplicateOwnerPromptsOmitted++;
+        }else{
+          info.seenSeats.add(ownerSeat);
+          const hand=names(owner.hand);
+          const deck=names(owner.deck);
+          const prizes=owner.prizes.map(slot=>names(slot));
+          const physicalPositions=JSON.stringify({
+            hand,deck,prizes
+          });
+          audit.firstOwnerSetupInputsObserved++;
+          if(audit.events.length<maxEvents)audit.events.push({
+            nativeStoreOrdinal:info.ordinal,
+            physicalOwnerSeat:ownerSeat,
+            firstBeforeAnyOwnerSetupChoice:true,
+            ownerHandCount:hand.length,
+            ownerDeckCount:deck.length,
+            ownerPrizeCount:prizes.reduce((sum,slot)=>sum+slot.length,0),
+            opaquePhysicalPrechoiceInputSha256:sha256(physicalPositions),
+            globalTurnAtCapture:state.turn,
+            noPolicyChoiceOrHiddenNamesPublished:true
+          });
+        }
+      }
+    }
+    return priorBot.value.call(this,state);
+  }
+  Object.defineProperty(Store.prototype,'dispatch',{
+    ...priorStore,value:dispatch
+  });
+  Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
+    ...priorBot,value:decode
+  });
+  try{
+    const result=run();
+    return {result,audit};
+  }catch(error){
+    if(error&&typeof error==='object')
+      error.setupPrechoiceFingerprintAudit={
+        ...audit,events:audit.events.map(event=>({...event})),
+        aborted:true
+      };
+    throw error;
+  }finally{
+    assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,decode);
+    Object.defineProperty(SimpleTacticsAi.prototype,
+      'decodeNextAction',priorBot);
+    assert.strictEqual(Store.prototype.dispatch,dispatch);
+    Object.defineProperty(Store.prototype,'dispatch',priorStore);
+  }
+}
+
+module.exports={VERSION,withSetupPrechoicePrivateFingerprint};
