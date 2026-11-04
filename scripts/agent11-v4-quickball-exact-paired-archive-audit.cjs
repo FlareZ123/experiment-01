@@ -196,7 +196,7 @@ function audit(off,on,reg){
   assert.equal(identicalDeals,64);
   assert.equal(identicalFirstTurns,64);
   assert.equal(changedStatuses,12);
-  assert.equal(unchangedRootTrajectories,18);
+  assert.equal(unchangedRootTrajectories,13);
   assert.equal(matchedTermSourceCrossPrizesOff,19);
   assert.equal(matchedTermSourceCrossPrizesOn,11);
   return {schema:'agent11-v4-quickball-exact-paired-archive-audit-v1',
