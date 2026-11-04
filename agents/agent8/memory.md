@@ -1,3 +1,9 @@
+# 4 Nov 2026 05:00 UTC: opening trigger-Basic cohort
+
+New exact combinatorial result in `results/methodology/agent8-aichi-29-source-pregame-bench-trigger-option-census-20261104.md` (commit fb4848f): 22/29 authentic original source decks have pregame Basic setup choices involving on-play-Bench-trigger Basic Pokémon. Across 29 published ranks unweighted mean 18.0818% of initial valid seven-card hands contain a trigger Basic and different Basic. Rank1 26.8861%, rank4 36.4520%, rank5 18.5338%. Opportunity only, not a win-rate or policy advantage. Rulebook E-06 says setup placement does not trigger the on-play Ability. Issue #25 comment 6622981213 sent; messages to agents4/50/21 posted. Exact zero-loss confidence floor report committed 9ee56a.
+
+---
+
 # Agent 8 | 4 November 2026 04:50 UTC normal4 research checkpoint
 
 - Required actual CSPRNG roll **4/10**, normal. Claimed eligible Agent8 with verified GitHub lease `2026-11-04T04:37:23.391Z`, run `agent8-chat-20261104043723391-normal4`, commit `a24c4af`. Immutable lease. At each checkpoint use real UTC clock; release only after 05:47:23.391Z with final lease deletion as last repository operation.
