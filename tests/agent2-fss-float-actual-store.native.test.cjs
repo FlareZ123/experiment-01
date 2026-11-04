@@ -102,6 +102,10 @@ for(const seat of [0,1]){
   test('authentic rank3 print, real Store FSS-first Float recovery seat '+seat,()=>{
     const baseline=stage(seat);
     const beforePrototype=AttachToolTactic.prototype.useTactic;
+    const untreatedRetreatCost=new CheckRetreatCostEffect(baseline.owner);
+    baseline.store.reduceEffect(baseline.state,untreatedRetreatCost);
+    assert.equal(untreatedRetreatCost.cost.length,4,
+      'Printed Snorlax PGO has four retreat units and no Skyliner source');
     const control=chooseBaseline(baseline);
     assert.equal(control.result,undefined);
     assert.equal(control.audit.events[0].kind,'hold');
@@ -136,7 +140,9 @@ for(const seat of [0,1]){
       seat,sourceOriginalRank:3,physicalStateFingerprint:
         treatment.physicalStateFingerprint,
       control:'FSS-first-hold',selected:'Float Stone BKT attach',
-      actualNativeStoreAcceptance:true,paidRetreatCost:cost.cost.length,
+      actualNativeStoreAcceptance:true,
+      untreatedRetreatCost:untreatedRetreatCost.cost.length,
+      treatedRetreatCost:cost.cost.length,
       switchAccepted:true,remainingHandStone:true,
       competitiveQualifiedGames:0
     }));
