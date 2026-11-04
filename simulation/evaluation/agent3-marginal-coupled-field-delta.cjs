@@ -31,7 +31,7 @@ const STATUSES = new Set([WIN, NONWIN, CENSORED]);
  *
  * @typedef {'QUALIFIED_WIN'|'QUALIFIED_NONWIN'|'CENSORED'} Status
  * @typedef {{pairId:string,roundId:string,
- *   referenceFingerprint:string,challengerFingerprint:string,
+ *   referenceFingerprint:string|null,challengerFingerprint:string|null,
  *   referenceStatus:Status,challengerStatus:Status}} Pair
  * @param {{candidateOrdinal:number,cells:Pair[][],alpha?:number,
  *   targetDelta?:number,independentAcrossCells:true,
@@ -64,6 +64,7 @@ function marginalCoupledFieldDelta(config) {
   let censoredPairs=0;
   let differingSourceOpenings=0;
   let matchingSourceOpenings=0;
+  let unknownSourceOpenings=0;
   let fullyObservedMismatches=0;
   for(let round=0;round<n;round++) {
     const roundId=cells[0][round]?.roundId;
@@ -73,10 +74,15 @@ function marginalCoupledFieldDelta(config) {
     seenRounds.add(roundId);
     for(let cell=0;cell<cells.length;cell++) {
       const p=cells[cell][round];
+      const referenceFingerprintValid=
+        (typeof p?.referenceFingerprint==='string'&&!!p.referenceFingerprint)||
+        (p?.referenceFingerprint===null&&p.referenceStatus===CENSORED);
+      const challengerFingerprintValid=
+        (typeof p?.challengerFingerprint==='string'&&!!p.challengerFingerprint)||
+        (p?.challengerFingerprint===null&&p.challengerStatus===CENSORED);
       if(!p || p.roundId!==roundId ||
          typeof p.pairId!=='string'||!p.pairId||seenPairs.has(p.pairId) ||
-         typeof p.referenceFingerprint!=='string'||!p.referenceFingerprint ||
-         typeof p.challengerFingerprint!=='string'||!p.challengerFingerprint ||
+         !referenceFingerprintValid||!challengerFingerprintValid ||
          !STATUSES.has(p.referenceStatus)||!STATUSES.has(p.challengerStatus)) {
         throw new TypeError('Invalid, duplicated or unaligned registered pair in cell '+(cell+1));
       }
@@ -89,7 +95,9 @@ function marginalCoupledFieldDelta(config) {
       sumUpper+=chalHi-refLo;
       const censored=p.referenceStatus===CENSORED||p.challengerStatus===CENSORED;
       if(censored)censoredPairs++;
-      if(p.referenceFingerprint===p.challengerFingerprint)matchingSourceOpenings++;
+      if(p.referenceFingerprint===null||p.challengerFingerprint===null){
+        unknownSourceOpenings++;
+      } else if(p.referenceFingerprint===p.challengerFingerprint)matchingSourceOpenings++;
       else {
         differingSourceOpenings++;
         if(!censored)fullyObservedMismatches++;
@@ -109,7 +117,7 @@ function marginalCoupledFieldDelta(config) {
     version:VERSION,method:'UNCONDITIONAL_COUPLED_FIELD_MARGINAL_MEAN',
     candidateOrdinal,alpha,targetDelta,cellCount:cells.length,completedRounds:n,
     registeredPairs:N,censoredPairs,differingSourceOpenings,
-    matchingSourceOpenings,fullyObservedMismatches,
+    matchingSourceOpenings,unknownSourceOpenings,fullyObservedMismatches,
     observedLower,observedUpper,radius,lowerFieldDelta,upperFieldDelta,
     decision:lowerFieldDelta>targetDelta?'IMPROVEMENT_ABOVE_TARGET':
       upperFieldDelta<targetDelta?'UNDERPERFORMANCE_BELOW_TARGET':
