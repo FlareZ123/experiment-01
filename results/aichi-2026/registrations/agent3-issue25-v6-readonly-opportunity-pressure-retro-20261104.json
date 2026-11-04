@@ -1,0 +1,102 @@
+{
+  "schema": "agent3-issue25-v6-readonly-opportunity-pressure-replay-v1",
+  "studyKind": "RETROSPECTIVE_READ_ONLY_NATIVE_DIAGNOSTIC",
+  "registeredAtUtc": "2026-11-04T19:57:00Z",
+  "baselineNativeRunId": 41894027367,
+  "baselineArchiveArtifactId": 13353289881,
+  "baselineZipSha256": "7f8f8ab3f95f6cc7eb17ec12d5d37ff666924216a007b934ccaf662b4e905178",
+  "baselineJsonSha256": "7ce7d32391074d9802a92c56056641b89b71ac16cd1e52f38f0fb2d0933b7f59",
+  "baselineTrialRegistration": "results/aichi-2026/registrations/agent1-issue25-mirrored-r6-r11-20261104.json",
+  "immutableOriginalRankSeatContenderSeedSet": true,
+  "additionalRunnerObserverOptions": {
+    "ownerGenericTrainerFrontier": true,
+    "nativePressureWindows": true
+  },
+  "actorRootPolicyAndNamedThreeAttackSelection": "UNCHANGED_FROM_V6",
+  "acceptedRootDealAndDispositionParityRequired": "REQUIRE_EXACT_EIGHT_IF_REPLAY_FOR_COMPARISON",
+  "baselineRecordedRows": [
+    {
+      "id": "6:100:A:champion-reference",
+      "sourceDealFingerprint": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "fullPhysicalDealFingerprint": "026961dcb9da821bca397e59293c4705662708f56e53e5be70f2967911aa7370",
+      "publicRootLedgerSha256": "e611f66dcfa3418286f51e2aa96d0c4a9c78dff21a7a565fc194eedbc144d1ce",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 1,
+      "actualFirstPlayer": 1
+    },
+    {
+      "id": "6:100:A:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "700f0f6e1fa884906c79cf2275741f036d212428fae01c8f2c132dc9ada086b2",
+      "fullPhysicalDealFingerprint": "308eac3dfc4eb8b52214233be88b6e48884f36b5d829a9030c52f43dc6fbc1cc",
+      "publicRootLedgerSha256": "00879a2081b3ff9e7295af4bc258f29622d2e24b74ad7de267c50b0c99dceee6",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 1,
+      "actualFirstPlayer": 1
+    },
+    {
+      "id": "6:101:B:champion-reference",
+      "sourceDealFingerprint": "04be1f33cf67365affd0c8b95c32b5346093f78ef21fc8a43a23febcac1e2fae",
+      "fullPhysicalDealFingerprint": "73366340afa6309d501589f80cf3fd732aebb7d0088d38e510781365f8384861",
+      "publicRootLedgerSha256": "d8921fcb1ab313e09c8523488f328769fc971e106b7cfd3aae8d7c0ba3dab222",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 0,
+      "actualFirstPlayer": 1
+    },
+    {
+      "id": "6:101:B:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "509bc6e44713a30eb38ddfd59efb20540f9f3a6cac37d9d9f4c19fe2adf0faee",
+      "fullPhysicalDealFingerprint": "86e4d2d417f403c864c0279bb6ed9955e7f133cc39f932cd7832d7dffc420c6c",
+      "publicRootLedgerSha256": "accfa034fe866caa304163d68fe1befa08c512f4037e45b2b784813ccc8987f2",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 0,
+      "actualFirstPlayer": 1
+    },
+    {
+      "id": "11:102:A:champion-reference",
+      "sourceDealFingerprint": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "fullPhysicalDealFingerprint": "89a6801d09b95b8847f71296dc6532ae0fd772b9ca11c4cd8b482abb0144da48",
+      "publicRootLedgerSha256": "cc0dda2132cc711d04d5aa04f3cfa8e4da5c5e4bea64acfe6373bf14cf014009",
+      "nativeRootCount": 25,
+      "status": "engine-error",
+      "actualSourceSeat": 1,
+      "actualFirstPlayer": 0
+    },
+    {
+      "id": "11:102:A:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "98e08e93b944cfadfc5edb730a62976f505058169bbcc496dfebc9442732c7ba",
+      "fullPhysicalDealFingerprint": "940516606859cd569ebdd53177e5997222799005a75182ebc04af018af064260",
+      "publicRootLedgerSha256": "a797a6ed291868a409301f5e65a72119f1b82a0e38c6148b077e4c62f3f543c8",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 1,
+      "actualFirstPlayer": 0
+    },
+    {
+      "id": "11:103:B:champion-reference",
+      "sourceDealFingerprint": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "fullPhysicalDealFingerprint": "c6438223d1df290c826264dc1c11652b00cdfedc50dcac92bcf4bcd43b6e2f04",
+      "publicRootLedgerSha256": "3f3f502ec8af093044b3930c4cbfc58b1135fe134440bbac57c63ccd70d47610",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 0,
+      "actualFirstPlayer": 1
+    },
+    {
+      "id": "11:103:B:new-moon-lockbreaker-v1",
+      "sourceDealFingerprint": "2f33b58ccbb4985dfd07617f43198ff0ba336899fa88af9f36ca8a0f017b3fa0",
+      "fullPhysicalDealFingerprint": "beb9e704c9a77dfb2538cfdb5cf5747393b2560c613159ee270aad760d573679",
+      "publicRootLedgerSha256": "2f558e81d8c6e59bf2041cea8d61e1701659b433d6efe67d920def58e0d1bfb9",
+      "nativeRootCount": 48,
+      "status": "returned-unqualified",
+      "actualSourceSeat": 0,
+      "actualFirstPlayer": 1
+    }
+  ],
+  "publicReleasePurpose": "Owner-visible legal-ish Trainer opportunity and passive rank6 pressure; unqualified native development only",
+  "competitiveGamesQualified": 0,
+  "full32FieldQualified": false
+}
