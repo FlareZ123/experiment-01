@@ -24,7 +24,7 @@ test('real owner-view projection preserves repeated paid printings separately',(
   assert.equal(r.paperTargetVerified,false);
 });
 test('unknown Trainer stays unknown and no hidden cards are read',()=>{
-  const [v,rows]=fixture(['VS Seeker PHF','Secret Box TWM','A','B'],[0,1]);
+  const [v,rows]=fixture(['Unknown Trainer FOO','Secret Box TWM','A','B'],[0,1]);
   const r=summarizeOwnerHandPayment(v,rows);
   assert.equal(r.heldTrainerCopies,2);
   assert.equal(r.supportedTrainerCopies,1);
@@ -50,4 +50,15 @@ test('exact native root correlation is reported per genuine physical seat',()=>{
   assert.equal(x.bySeat[1].contested,1);
   assert.equal(x.bySeat[0].roots,0);
   assert.equal(x.qualifiedCompetitiveGames,0);
+});
+
+test('verified VS Seeker PHF has zero owner-hand discard cost only',()=>{
+  const [v,rows]=fixture(['VS Seeker PHF','Secret Box TWM','A','B'],[0,1]);
+  const r=summarizeOwnerHandPayment(v,rows);
+  assert.equal(r.supportedTrainerCopies,2);
+  assert.equal(r.unsupportedTrainerCopies,0);
+  assert.equal(r.coveredCopyCosts.find(x=>x.printing==='VS Seeker PHF')
+    .discards,0);
+  assert.equal(r.paperTargetVerified,false);
+  assert.equal(r.gamePerformanceQualified,false);
 });
