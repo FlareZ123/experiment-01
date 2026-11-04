@@ -44,10 +44,10 @@ function writeReceipt(row){
   fs.mkdirSync(directory,{recursive:true});
   const name='original5-source-seat'+row.sourceSeat+'.json';
   const filename=path.resolve(directory,name);
-  const payload=JSON.stringify(row,null,2)+'\\n';
+  const payload=JSON.stringify(row,null,2)+'\n';
   const digest=createHash('sha256').update(payload).digest('hex');
   writeAtomicLocked(filename,payload);
-  writeAtomicLocked(filename+'.sha256',digest+'  '+name+'\\n');
+  writeAtomicLocked(filename+'.sha256',digest+'  '+name+'\n');
 }
 
 for(const sourceSeat of [0,1]){
