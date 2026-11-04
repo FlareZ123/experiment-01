@@ -56,6 +56,12 @@ Thunder Mountain removes the Lightning-specific part of the cost so every donor 
 
 The rank-specific sensitivity at exactly three attached copies converges in these four- and five-copy subset counts. A blanket card-name priority remains fragile because the safe donor set changes with the precise physical attachment multiset and visible Stadium.
 
+## Neutral uniform-donor counterfactual for the three-card subsets
+
+The pure enumerator also counts *physically unsafe donor-card choices that have a safe alternative in the same initially payable three-Energy subset*. Across the 52 initially payable combinations and three physical donor positions each, Ranks 6/29 contain **30 avoidably unsafe physical donor positions out of 156**; Rank 24 contains **54 out of 156**.
+
+If a deliberately naïve hypothetical policy sampled one of the three attached physical Energy cards with equal probability, its immediate *avoidable printed-cost loss* on a uniformly sampled initially payable physical three-card subset would be **30/156 = 19.23077%** in Ranks 6/29 and **54/156 = 34.61538%** in Rank 24. This random-choice policy has not been run in Twinleaf, and the native default bot has **not** been shown to select uniformly. These ratios quantify the importance of a locally informed choice under a precisely defined artificial baseline; they are **not observed bad-choice rates, empirical opponent weakness, probabilities of a real match turning, or prospective improvements**. The tactical cost of moving any specific Special Energy to the Bench is independent of the printed-cost classifier.
+
 ## Exact first-eight physical visibility sanity check
 
 The conditional donor percentages above can look deceptively large if interpreted as likely early-game board states. An independent [exact first-eight opening enumerator](../../simulation/evaluation/aichi-thorns-first8-donor-resource.cjs) and [five passing local regression tests](../../tests/agent45-aichi-thorns-first8-donor-resource.test.cjs) apply each authenticated source's **four starting Basic Pokémon, eight Special Energy, and 48 other cards** to a fresh legal seven-card starting hand followed by one ordinary draw, with six Prizes exchangeable under the uniform shuffle. The computation excludes opponent mulligan bonus draws, all search/draw effects, attachments, and subsequent play.
