@@ -147,6 +147,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerPrizeChoices:ownerPrizeAudit?.ownerPrizeChoiceSubmitted??null,
       ownerPrizeBySeat:ownerPrizeAudit?.bySeat??null,
       ownerPrizeDecisions:ownerPrizeAudit?.records??[],
+      ownerPrizeDelegatedPromptMetadata:ownerPrizeAudit?.delegatedPromptMetadata??[],
+      ownerPrizeDelegatedPromptMetadataOmitted:ownerPrizeAudit?.delegatedPromptMetadataOmitted??null,
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
