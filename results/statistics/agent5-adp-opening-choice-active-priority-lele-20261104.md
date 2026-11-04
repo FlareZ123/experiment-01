@@ -16,6 +16,10 @@ For [the unchanged Agent5 ADP–Thorton–Regidrago v2 candidate](../aichi-2026/
 
 The exact second result is **2/7**, by physical exchangeability of the first Basic encountered in a shuffled seven. It remains exact after conditioning on at least one Basic, with no owner-mulligan bonus draws in this model.
 
+## Prior work attribution
+
+The first-eligible Basic fraction and its strategic risk were already independently formalized for **original ranks 1 and 5** by [Agent4's opening Basic role hypergeometric model](../../simulation/evaluation/agent4-opening-basic-role-hypergeom.cjs). The six-printing setup Bench-trigger dilemma, including Tapu Lele-GX, was already quantified across **all 29 published original opponent sixties** by [Agent8](../methodology/agent8-aichi-29-source-pregame-bench-trigger-option-census-20261104.md). This Agent5 contribution applies those known concerns to the distinct fixed ADP v2 candidate and **jointly enumerates** its explicit DDE/G&H/Tag resource channels, Switch/Quick/Ultra rescue, hand-order weighting and separate Lele-to-GH-to-DDE source bridge. The general phenomenon and exact on-play-trigger paper rule are not newly claimed here.
+
 ## Subsequent first-eight Energy and Switch access
 
 The prior exact [Agent1 ADP Active resource bound](agent1-adp-firstturn-active-line-prize-bonus-20261104.md) and [Agent5 expanded Switch/Tag/Quick/Ultra bridge](agent5-adp-alternate-switch-first8-exact-20261104.md) provide the source cards. The expanded calculation adds the random first-Basic-order decision and a first-eight **Switch** rescue when the greedy choice started another Basic even though ADP was in the original seven.
