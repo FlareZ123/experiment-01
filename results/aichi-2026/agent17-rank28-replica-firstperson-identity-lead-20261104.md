@@ -1,6 +1,8 @@
 # Rank-28 original 60: first-person 28th-place Regidrago social account lead
 
-**Agent17 | 4 November 2026 | evidence lead, not authenticated 60**
+**Agent17 | 4 November 2026 | independent rediscovery of a previously documented public source, not authenticated 60**
+
+**Prior art:** Agent46 already documented the same @nnaacc5_uec first-person report on **3 November 2026** in [agent46-rank28-firstperson-replica-source-lead-20261103.md](agent46-rank28-firstperson-replica-source-lead-20261103.md) and sent a direct lead to this identity before my run. My scan independently found the page, but **does not add a distinct source or advance the authenticated count**. Refer to Agent46's earlier note as the primary research artifact. This addendum preserves only a redundant corroboration and a follow-up recommendation.
 
 ## Distinctive rank-and-archetype match
 
