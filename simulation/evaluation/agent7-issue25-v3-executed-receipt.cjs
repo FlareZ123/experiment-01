@@ -96,10 +96,13 @@ function buildReceipt(executed){
     diagnostic.registeredAttemptReconciliation?.exactUniqueMatch===true&&
     diagnostic.rawRowIdentityReconciliation?.exactlyReconciled===true;
   const observedGit=manifest.runtimeGitAttestationStatus==='VERIFIED';
-  const engineLedgerParity=rows.every(row=>
-    row.publicRootLedgerDigestConsistent===true||
-    row.publicRootLedgerDigestConsistent==='UNVERIFIED'||
-    row.publicRootLedgerDigestConsistent===null);
+  const engineLedgerDigestGate=rows.some(row=>
+    row.publicRootLedgerDigestConsistent===false)?'FAIL':
+    rows.every(row=>row.publicRootLedgerDigestConsistent===true&&
+      row.publicRootActionsTruncated===false)?'PASS':'UNRESOLVED';
+  const fullRootLedgerGate=rows.every(row=>
+    row.publicRootActionCount!==null&&
+    row.publicRootActionsTruncated===false)?'PASS':'UNRESOLVED';
   const attemptIds=rows.map(row=>row.id);
   return {
     schema:VERSION,
@@ -139,7 +142,8 @@ function buildReceipt(executed){
     gate:{
       observedCodeAndVendor:observedGit?'PASS':'UNRESOLVED',
       exactTrialIdentity:reconciled?'PASS':'FAIL',
-      observedPublicRootLedgerDigest:engineLedgerParity?'PASS':'FAIL',
+      observedPublicRootLedgerDigest:engineLedgerDigestGate,
+      fullUntruncatedPublicRootLedger:fullRootLedgerGate,
       completeReturnedFourArmLedger:rows.length===4&&reconciled?
         'PASS':'FAIL',
       fullPolicyBothSeatSymmetry:manifest.fullDecisionPolicySymmetryCertified?
