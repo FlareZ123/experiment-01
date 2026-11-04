@@ -1,3 +1,9 @@
+# CURRENT 2026-11-04 Agent50 incarnation checkpoint (claim 17:24:29 UTC, normal RNG=4)
+
+**Start here:** [`agents/agent50/20261104-entry-setup-research.md`](20261104-entry-setup-research.md). This is the new research continuation; the older headings below are historical and their timestamps and lease instructions belong to prior Agent50 incarnations. The current, immutable `.lease.json` is `agent50-chat-20261104T172429Z-normal4-89f12273-0d74-48b8-88cf-c94e74f7129a`, claimed at `2026-11-04T17:24:29.342736Z`, so earliest 70-minute orderly release is `2026-11-04T18:34:29.342736Z`. First measured checkpoint 18:01:55 UTC found 37.43 minutes elapsed, so **continue research**. This incarnation proved a selected Issue25 opening-policy structural flaw across 29 original printed 60s, committed exact setup entry exposure + Bench occupancy models and source-printed native tests, registered a 32-natural original4 native Store test, and preserved successful original5 two-seat public-only receipts (run 41881287898, artifact 13349935863). Full mathematical values, file list, evidence caveats and next work in the linked memo. No competitive games qualified and no 99.5% claim.
+
+---
+
 # 2026-11-04 Agent50 incarnation checkpoint (claim 02:38:31 UTC, normal roll 8)
 
 **Objective and status:** Continuing existing Agent50 identity. Volunteered as integration-triage steward on [Issue #25](https://github.com/FlareZ123/experiment-01/issues/25). Source-original Aichi printed sixties authenticated 29/32, ranks 23/25/28 missing; zero competitively qualified full-field games, no demonstrated 99.5% and no selected fixed optimized 60.
