@@ -49,8 +49,9 @@ function stage(seat){
   const lightning=cardBySourcePrefix('Lightning Energy');
   const dce=cardBySourcePrefix('Double Colorless Energy');
   const tool=cardBySourcePrefix('Technical Machine: Crisis Punch');
-  source.active.cards.push(melo);
+  source.active.cards.push(melo,lightning);
   source.active.energies.cards.push(lightning);
+  assert.ok(source.active.cards.includes(lightning));
   source.hand.cards.push(dce); // Perform actual legal manual attachment below.
   source.active.tools.push(tool);
   source.bench[0].cards.push(cardBySourcePrefix('Squawkabilly ex'));
@@ -82,7 +83,9 @@ function stage(seat){
 function registerSquawkFirstTurnVeto(seat,phase){
   test('original Squawk first-turn Crisis Punch veto '+phase+' seat '+seat,()=>{
     const x=stage(seat);
-    const melo=x.source.active.cards.pop();
+    const meloIndex=x.source.active.cards.indexOf(x.melo);
+    assert.ok(meloIndex>=0);
+    const melo=x.source.active.cards.splice(meloIndex,1)[0];
     const squawk=x.source.bench[0].cards.pop();
     assert.strictEqual(melo,x.melo);
     assert.equal(squawk.fullName,'Squawkabilly ex PAL');
@@ -100,6 +103,8 @@ function registerSquawkFirstTurnVeto(seat,phase){
       player:PlayerType.BOTTOM_PLAYER,slot:SlotType.ACTIVE,index:0
     }));
     assert.ok(x.source.active.energies.cards.includes(x.dce));
+    assert.ok(x.source.active.cards.includes(x.dce));
+    assert.ok(x.source.active.cards.includes(x.lightning));
     let caught=null;
     try{
       x.store.dispatch(new AttackAction(x.source.id,'Crisis Punch'));
@@ -157,6 +162,8 @@ for(const seat of [0,1]){
     }));
     assert.ok(x.source.active.energies.cards.includes(x.dce),
       'normal DCE attachment must settle before the attack');
+    assert.ok(x.source.active.cards.includes(x.dce));
+    assert.ok(x.source.active.cards.includes(x.lightning));
     const attackAction=new AttackAction(x.source.id,'Crisis Punch');
     console.log('AGENT50_MELOETTA_ATTACK_PRESTATE',JSON.stringify({
       seat,initial,
