@@ -41,6 +41,8 @@ jobs:
       - name: Issue25 opt-in owner-only preserved-Bench-entry opening comparison with pinned validator
         run: node --test tests/agent50-owner-preserve-turn-entry-setup.test.cjs tests/agent50-owner-preserve-turn-entry-setup.native.test.cjs
       - name: Issue25 opt-in owner-entry-priority real Store pair and pure noninterference
+        env:
+          AGENT50_ENTRY_RECEIPT_DIR: artifacts/agent50-entry-priority
         run: node --test tests/agent50-owner-entry-priority-single-basic.test.cjs tests/agent50-owner-entry-priority-original5.native.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
@@ -85,4 +87,12 @@ jobs:
           name: issue25-v3-executed-${{ github.run_id }}
           path: artifacts/issue25-v3/
           if-no-files-found: error
+          retention-days: 30
+      - name: Preserve original rank5 two-seat owner-entry-priority native Store receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-owner-entry-priority-${{ github.run_id }}
+          path: artifacts/agent50-entry-priority/
+          if-no-files-found: warn
           retention-days: 30
