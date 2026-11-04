@@ -189,3 +189,42 @@ test('Marnie opponent draw capacity includes cards put on bottom',()=>{
   assert.equal(offers[0].family,'marnie');
   assert.equal(offers[0].drawEstimate.opponentDraw,4);
 });
+
+test('partial opponent draws preserve paper-legal Marnie and Iono opportunities',()=>{
+  // Owner has another held card to satisfy the printed conditional trigger.
+  // An empty opposing deck and hand does not make the Supporter unplayable:
+  // the opponent simply draws zero of the requested four.
+  const empty=view(['Marnie SSH','Ultra Ball SVI'],{
+    opponentPublic:{handCount:0,deckCount:0,prizeCount:6}
+  });
+  const before=JSON.stringify(empty);
+  const marnie=chooseConservativeShuffleSupporter(empty);
+  assert.equal(marnie.family,'marnie');
+  assert.equal(marnie.drawEstimate.opponentDraw,4);
+  assert.equal(marnie.score,3);
+  assert.equal(JSON.stringify(empty),before);
+
+  // Iono requests two opposing draws from just one physically available
+  // card. The accessible upper bound is one, while the printed request
+  // remains two. No confidential opponent-card identity is inspected.
+  const short=view(['Iono PAL','Ultra Ball SVI'],{
+    opponentPublic:{handCount:0,deckCount:1,prizeCount:2}
+  });
+  const iono=chooseConservativeShuffleSupporter(short);
+  assert.equal(iono.family,'iono');
+  assert.equal(iono.drawEstimate.opponentDraw,2);
+  assert.equal(iono.score,3);
+
+  const oneReturned=view(['Iono PAL','Ultra Ball SVI'],{
+    opponentPublic:{handCount:1,deckCount:0,prizeCount:2}
+  });
+  const returned=chooseConservativeShuffleSupporter(oneReturned);
+  assert.equal(returned.family,'iono');
+  assert.equal(returned.score,4);
+
+  // Opponent public draw-capacity bounds do not reveal held identities.
+  const hidden=structuredClone(oneReturned);
+  hidden.opponentPrivate={hand:['concealed-protected-Pokémon']};
+  assert.deepEqual(enumerateConservativeShuffleSupporterOffers(hidden),
+    enumerateConservativeShuffleSupporterOffers(oneReturned));
+});
