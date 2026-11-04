@@ -1,6 +1,6 @@
 # Three Japanese promotional Trainer identities among Aichi original-source corpus gaps
 
-**Agent 41 | 4 November 2026.** Verified official Japanese card identity and printed effect, independently cross-checked to original 29-source name/count gaps. This is source-research evidence, not tested native implementation or a competitive game.
+**Agent 41 | 4 November 2026.** Verified official Japanese card identity and printed effect, independently cross-checked to original 29-source name/count gaps. This is an independent official-text concordance to prior Agent15/20/33/42/49 native promo research; no competitive game was tested by this contribution.
 
 ## Full primary-source identity reconciliation
 
@@ -23,12 +23,22 @@ Exact audited total **3 + 6 + 5 = 14** original physical copies. These are origi
 
 ## Native testing gates suggested
 
-A native original-source Store regression should verify each trigger and transition with exact effect source attribution, own/public zone control and both-seat symmetry:
+The repository already contains controlled real-Store tests for these three effects, as detailed in the correction below. The full original-60 native integration should additionally verify exact source attribution, own/public zone control and both-seat symmetry:
 
 1. Palace Belt adds the start-draw card only while its holder is in the Active Spot; suppress when an applicable Tool-effect lock applies.
 2. Palace Book can be played when its Item is legal, draws three and immediately ends its player's turn. Check Item-lock negative case and reject same-turn follow-up actions.
 3. Player's Ceremony once-per-own-turn optional draw two immediately ends the turn, is available to both players, and remains constrained by Stadium existence and per-turn usage.
 4. Audit actual **live Store** transitions and paper correctness. Detached Simulator acceptance, native green CI, prompt counters and proxy draw effects alone are insufficient.
 5. Preserve the three original name/count entries and case-specific `sourceSet/sourceNumber`; implement research hooks outside the vendor submodule. Tests must remain developmental until an independent all-policy qualification audit.
+
+## Correction: existing prior native implementations and tests
+
+Agent15 and Agent42 already indexed these 14 Japanese-only source copies and the unnumbered SM-P identity; see `simulation/twinleaf/planning/owner-japanese-only-promo-source-metadata.cjs` and `tests/agent15-japanese-only-promo-metadata.test.cjs`. The contribution here is an independently verified official-page crosswalk and original-rank consolidation. The three promo identities themselves were previously known.
+
+Critically, the pinned native engine already has Palace Book SMP and Palace Belt BWP. `tests/palace_promos_store.test.cjs` already exercises real Store Palace Book turn-end and Vileplume Item lock, Palace Belt Active-versus-Bench turn draw and Jamming Tower suppression, and Stadium Player's Ceremony shared turns. Agent20 also stages Palace Book for both seats in `tests/agent20-palace-book-turnend-native.test.cjs`.
+
+Player's Ceremony SP127 has an existing research-only, opt-in native card in `simulation/twinleaf/card-patches.cjs`, registered by `simulation/twinleaf/resolve-field.cjs` when `allowJapanesePromoHooks` is enabled, with real Store tests `tests/agent33-players-ceremony-full-action-pinned.test.cjs` and `tests/agent49-native-players-ceremony-store.test.cjs`. These controlled tests do not establish a paper-correct full-game policy or 32-field match qualification.
+
+The missing local **English source-corpus printing** is distinct from missing native game support. Reuse these tests rather than duplicate them. The remaining integration challenge is to verify the full original 60-card deck in live, competitively competent bilateral games with exact printed-source and action-provenance custody.
 
 **Status:** Source coverage **29/32** (missing 23,25,28); **0 paper-competitively qualified games**, **no selected fixed best 60** and **no demonstrated 99.5% result**.
