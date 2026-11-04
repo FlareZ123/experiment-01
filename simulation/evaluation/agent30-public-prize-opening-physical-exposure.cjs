@@ -66,7 +66,10 @@ function analyze(root=path.resolve(__dirname,'../..')){
   const totals=Object.fromEntries(Object.keys(PRINT_RULES).map(name=>
     [name,rows.reduce((n,row)=>n+(row.byPrinting[name]??0),0)]));
   assert.deepEqual(totals,{
-    'Counter Catcher PAR':10,'Roxanne ASR':2,'Special Red Card CRI':3
+    'Counter Catcher PAR':10,'Roxanne ASR':2,'Special Red Card CRI':3,
+    // Japanese event-date M4 is a recognized rule alias with zero direct
+    // copies in the original English-proxy source 60s.
+    'Special Red Card M4':0
   });
   const ranksWithCopies=rows.filter(row=>row.publicPrizeGatedPhysicalCopies>0)
     .map(row=>row.rank);
