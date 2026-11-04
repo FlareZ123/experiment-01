@@ -116,7 +116,7 @@ function decide(s,allowFloat){
   });
 }
 for(const seat of [0,1]){
-  test('rank11 pinned Store FSS-first mobility restores paid attacker seat '+seat,()=>{
+  test('rank11 pinned Store Float permits paid attacker but Skyline confounds causality seat '+seat,()=>{
     const control=constructedRank11(seat);
     const original=AttachToolTactic.prototype.useTactic;
     const old=decide(control,false);
@@ -162,7 +162,8 @@ for(const seat of [0,1]){
       baseline:'FSS-first-HOLD',intervention:'Float Stone BKT',
       floatAccepted:true,retreatAccepted:true,attacker:trial.benchedAttacker.fullName,
       selectedAttack:'Claw of Darkness',actualDamage:dealt,
-      pendingPrompts:pending,consequentialPaidAttack:true,
+      pendingPrompts:pending,actualAttackAfterFloat:true,
+      skylinerFreeRetreatConfound:true,exclusiveToTreatment:false,
       paperWinnerQualified:false,competitiveGamesQualified:0
     }));
   });
@@ -236,5 +237,43 @@ for(const seat of [0,1]){
       actualPaidAttackDamage:dealt,source:GENERIC_VERSION,
       completeGameQualified:false
     }));
+  });
+
+  test('untreated rank11 native Skyliner permits the same funded pivot without Float seat '+seat,()=>{
+    const root=constructedRank11(seat);
+    const latias=root.owner.active.getPokemonCard();
+    assert.ok(latias.powers.some(p=>p.name==='Skyliner'),
+      'Expected the actual Latias ex SSP Skyliner Ability');
+    assert.deepEqual(root.owner.hand.cards,[root.stone,root.float]);
+    const before=new CheckRetreatCostEffect(root.owner);
+    root.store.reduceEffect(root.state,before);
+    console.log('AGENT2_SKYLINER_UNTREATED_RETREAT_CHECK',
+      JSON.stringify({rank:11,seat,active:latias.fullName,
+        ability:'Skyliner',nativeCost:before.cost.length,
+        heldTools:root.owner.hand.cards.map(c=>c.fullName),
+        floatPlayed:false,competitiveGamesQualified:0}));
+    assert.deepEqual(before.cost,[],
+      'Native paper-rule discrepancy: Basic Latias with Skyliner should have free Retreat');
+    root.store.dispatch(new RetreatAction(root.owner.id,0));
+    assert.equal(root.owner.active.getPokemonCard(),root.benchedAttacker);
+    assert.equal(root.owner.bench[0].getPokemonCard(),latias);
+    assert.equal(root.owner.active.tools.length,0);
+    assert.deepEqual(root.owner.hand.cards,[root.stone,root.float]);
+    const beforeDamage=root.foe.active.damage;
+    root.store.dispatch(new AttackAction(root.owner.id,'Claw of Darkness'));
+    for(let j=0;j<6;j++){
+      const prompt=root.state.prompts.find(p=>p.result===undefined);
+      if(!prompt)break;
+      assert.equal(prompt.constructor.name,'WaitPrompt');
+      root.store.dispatch(new ResolvePromptAction(prompt.id,null));
+    }
+    assert.equal(root.store.hasPrompts(),false);
+    const dealt=root.foe.active.damage-beforeDamage;
+    assert.equal(dealt,200);
+    console.log('AGENT2_SKYLINER_UNTREATED_CAUSAL_NEGATIVE',
+      JSON.stringify({seat,rank:11,firstTool:'Forest Seal Stone SIT',
+        alternateTool:'Float Stone BKT',nativeFreeRetreat:true,
+        actualNoFloatPaidAttackDamage:dealt,
+        paidAttackRequiresFloat:false,competitiveGamesQualified:0}));
   });
 }
