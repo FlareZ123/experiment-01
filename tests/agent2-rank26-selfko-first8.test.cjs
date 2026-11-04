@@ -3,7 +3,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {SOURCE,choose,countRequiredInSeven,analyze}=require(
   '../simulation/evaluation/agent2-rank26-selfko-first8.cjs');
-const source=require('../results/aichi-2026/full-decklists.json').decks['26'];
+const source=require('../results/aichi-2026/full-decklists.json').decks
+  .find(deck=>deck.rank===26);
 
 test('all six required printed source categories and Meloetta match original 60',()=>{
   assert.equal(source.rank,26);
