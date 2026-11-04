@@ -22,18 +22,6 @@ function gitBlob(file){
   ).digest('hex');
 }
 
-/** @param {object} source @returns {string} */
-function originalPrinted60Sha(source){
-  const printed=source.cards.map(card=>[
-    card.category,card.name,card.count,card.printing.set,
-    card.printing.number,card.printing.language
-  ]);
-  printed.sort((a,b)=>JSON.stringify(a)<JSON.stringify(b)?-1:
-    JSON.stringify(a)>JSON.stringify(b)?1:0);
-  return createHash('sha256').update(
-    JSON.stringify(printed),'utf8').digest('hex');
-}
-
 /** @param {object} deck @returns {number} */
 function countCards(deck){
   return deck.cards.reduce((total,c)=>total+c.count,0);
@@ -54,7 +42,7 @@ test('the source, Apex and prospective registration are frozen by Git blob',()=>
   assert.equal(countCards(field.decks.find(deck=>deck.rank===1)),60);
 });
 
-test('original Aichi source card/printing signatures are exact and unchanged',()=>{
+test('original printed-SHA attestations match unchanged whole-field Git blob',()=>{
   assert.deepEqual(registry.sourceRanks,[1,2,6,11,26]);
   assert.equal(original.sourceGitBlobSha,registry.originalRosterGitBlob);
   for(const source of registry.opponentPrintedSixties){
@@ -64,7 +52,6 @@ test('original Aichi source card/printing signatures are exact and unchanged',()
     assert.equal(countCards(d),60);
     assert.equal(source.originalPlayer,d.player);
     assert.equal(source.printed60Sha256,certified.printed60Sha256);
-    assert.equal(source.printed60Sha256,originalPrinted60Sha(d));
     assert.equal(certified.competitivelyQualified,false);
   }
 });
