@@ -69,4 +69,14 @@ jobs:
       - name: Issue25 source-printed Night Watch owner physical random native Store negative/positive SFT
         run: node --test tests/agent36-source-stamped-nightwatch-owner.test.cjs
       - name: Issue25 selected v3 two source-stamped ATTACK owner native 48-root original closure
+        env:
+          ISSUE25_RECEIPT_DIR: artifacts/issue25-v3
         run: node --test tests/agent36-issue25-nightwatch-futuresight-v3.test.cjs tests/agent36-issue25-nightwatch-futuresight-v3.native.test.cjs
+      - name: Preserve selected Issue25 v3 actual native evidence, including failed attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v3-executed-${{ github.run_id }}
+          path: artifacts/issue25-v3/
+          if-no-files-found: error
+          retention-days: 30
