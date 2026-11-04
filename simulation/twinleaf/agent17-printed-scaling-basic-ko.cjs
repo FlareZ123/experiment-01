@@ -3,11 +3,11 @@
 const assert = require('node:assert/strict');
 
 const VERSION = 'agent17-printed-scaling-basic-ko-v1';
-const BASIC_TYPES = 'Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy';
-const SCALING = new RegExp(
-  '^This attack does ([1-9][0-9]*) more damage for each (' +
-  BASIC_TYPES + ') Energy attached to all of your Pokémon\\.'
-);
+const ENERGY_CODES = Object.freeze({
+  G:'Grass', R:'Fire', W:'Water', L:'Lightning', P:'Psychic',
+  F:'Fighting', D:'Darkness', M:'Metal', Y:'Fairy'
+});
+const SCALING = /^This attack does ([1-9][0-9]*) more damage for each (Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy|\[[GRWLPFDMY]\]) Energy attached to all of your Pokémon\.$/;
 
 /**
  * Recognize a single, public, printed additive damage formula. Other attack
@@ -22,7 +22,9 @@ function printedAllPokemonEnergyScaling(attack) {
   if (!match) return null;
   const damagePerUnit = Number(match[1]);
   if (!Number.isSafeInteger(damagePerUnit) || damagePerUnit <= 0) return null;
-  return {energyType:match[2],damagePerUnit,baseDamage:attack.damage};
+  const energyType=match[2].startsWith('[')?
+    ENERGY_CODES[match[2][1]]:match[2];
+  return {energyType,damagePerUnit,baseDamage:attack.damage};
 }
 
 /**
