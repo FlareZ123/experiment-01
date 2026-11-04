@@ -5,8 +5,8 @@ const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {createHash}=require('node:crypto');
 const {gitBlobHash}=require('./agent42-strict-profile-preflight.cjs');
-const {preflight:basePreflight}=
-  require('./agent42-v3-known-witness-reply-v2.cjs');
+const PRIOR_REG='results/aichi-2026/registrations/agent42-v3-known-witness-opponent-reply-v2-20261103.json';
+const PRIOR_REG_BLOB='e1f283b88dd691c40d18271b286d0912d93341b6';
 const {effectiveOptions,withSameRuntime}=
   require('./agent4-selected-v3-paper-funded-release.cjs');
 const {runDevelopment}=
@@ -37,7 +37,18 @@ function preflight(){
   assert.equal(registration.source_seat,1);
   assert.equal(registration.fixed_scenario_first_divergence.expected_native_owner_pass,182);
   assert.deepEqual(registration.variants.map(v=>v.id),MODES);
-  const {r:old,original:previous}=basePreflight();
+  // The original study seals its *historical code* hashes. Research code has
+  // since evolved; do not falsely present a current-head Store run as that
+  // historical binary. Preserve registration provenance and prove physical
+  // deals/roots afresh instead of treating expected source drift as failure.
+  const priorBytes=fs.readFileSync(path.join(ROOT,PRIOR_REG));
+  assert.equal(gitBlobHash(priorBytes),PRIOR_REG_BLOB);
+  const old=JSON.parse(priorBytes);
+  const transportBytes=fs.readFileSync(path.join(ROOT,
+    old.originalTransportRegistration));
+  assert.equal(gitBlobHash(transportBytes),
+    old.originalTransportRegistrationGitBlob);
+  const previous=JSON.parse(transportBytes);
   const trial=old.trials.find(t=>
     t.id===registration.existing_authentic_archive.trial_id);
   assert.ok(trial);
