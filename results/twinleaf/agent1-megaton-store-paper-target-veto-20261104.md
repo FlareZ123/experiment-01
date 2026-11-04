@@ -44,6 +44,17 @@ A third manually dispatched [**CI 41767235473**](https://github.com/FlareZ123/ex
 
 This exposes a second-order, causal *option-set difference*: vendor Megaton's missed Tool removal changes the legality of an independent subsequent Item. It demonstrates material tactical distortion **without** claiming that the initially chosen Megaton or either possible Switch was optimal. The observed direction is board-dependent; removing the Tool from Garbodor may restore a lock that restricts the acting player itself. This native fixture provides no natural original rank6/13/20 response frequency and still does not qualify games.
 
+## Two-action ordering: alternative reachable line changes the conclusion
+
+[**CI 41768026064**](https://github.com/FlareZ123/experiment-01/actions/runs/41768026064), head `2fa628306634d9fdb33cb48bfa7a18fdb96aae86`, **SUCCESS**. The two-seat native `AGENT1_MEGATON_ACTION_ORDER` witness adds a second legitimate Benched attacker, `Regidrago V SIT`. Under **the same** corrected Megaton effect and paper no-effect guard, it compares two physical action orders with genuine Store action and target-prompt resolution:
+
+| Action sequence, both seats | Physical outcome |
+| --- | --- |
+| `Megaton -> Switch` | Megaton removes opposing Float Stone; Vileplume Item lock resumes; Switch is **rejected**, remains in hand; Bunnelby remains Active |
+| `Switch -> Megaton` | Switch is **accepted first**, its `ChoosePokemonPrompt` selects Regidrago V as new Active, then Megaton removes Float Stone and Vileplume lock resumes; both Items leave hand; Regidrago V stays Active |
+
+Both sequences end with the opposing Float Stone in its discard, and there are no unresolved prompts in either tested seat. This is an executable **sequencing and opportunity-cost** result: the prior Megaton-first rejection does *not* prove the player could never use both Items that turn. A strong owner policy must account for the action order and for any reason why switching to Regidrago beforehand might itself be strategically undesirable. Source decks, opening deals, K0 information, game-clock decisions and opponent replies remain untested in this staged branch.
+
 ## Practical consequences and limits
 
 - Do not treat unpatched native opponent refusal to remove Garbotoxin-enabling Tools as evidence that `Megaton Blower` is ineffective against such locks. In the 29 authenticated originals, ten copies would otherwise lose that potential removal in the pinned implementation.
