@@ -55,6 +55,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
   const priorRun=headless?Object.getOwnPropertyDescriptor(headless,'runMatch'):null;
   if(headless)assert.equal(typeof priorRun?.value,'function');
   let activeTrialId=null;
+  let activePreRunRequestHmac=null;
   let activeNativeRun=false;
   const labelPrefix='agent41-bilateral-v2-common-policy-development-';
   function observeHeadlessMatch(options,...args){
@@ -63,10 +64,21 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     assert.ok(options.label.startsWith(labelPrefix));
     const id=options.label.slice(labelPrefix.length);
     assert.ok(idSet.has(id),'Native Store label is not a registered trial');
+    assert.ok(Array.isArray(options.deckA)&&options.deckA.length===60);
+    assert.ok(Array.isArray(options.deckB)&&options.deckB.length===60);
+    assert.ok(Number.isSafeInteger(options.seed)&&options.seed>=0&&
+      options.seed<=0xffffffff);
+    const serializedRequest=JSON.stringify(options);
+    assert.equal(typeof serializedRequest,'string');
     activeTrialId=id;
+    activePreRunRequestHmac=privateFingerprint(serializedRequest);
     activeNativeRun=true;
     try{return priorRun.value.apply(this,[options,...args]);}
-    finally{activeNativeRun=false;activeTrialId=null;}
+    finally{
+      activeNativeRun=false;
+      activeTrialId=null;
+      activePreRunRequestHmac=null;
+    }
   }
   assert.ok(Number.isSafeInteger(maxEvents)&&maxEvents>=16);
   const stores=new WeakMap();
@@ -81,6 +93,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
     eventLimit:maxEvents,
     privateFingerprintSessionId:processSessionId,
     registeredNativeTrialLabelWitnessSelected:idSet!==null,
+    preRunRequestScope:'HMAC of own public runMatch request, including registered seed, deck A/B native printings and all JSON-serializable research options',
     hiddenCardNamesOrOrderPublished:false,
     fingerprintScheme:'HMAC-SHA256; secret unique to process, never serialized',
     comparableOnlyInsideOneNodeProcess:true,
@@ -100,7 +113,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
   function dispatch(action,...args){
     if(action instanceof AddPlayerAction&&!stores.has(this)){
       const info={ordinal:++storeCount,seenSeats:new Set(),
-        trialId:activeTrialId};
+        trialId:activeTrialId,preRunRequestHmac:activePreRunRequestHmac};
       stores.set(this,info);
       audit.exactNativeStoreRootsRecorded=storeCount;
     }
@@ -135,6 +148,7 @@ function withSetupPrechoicePrivateFingerprint(run,deps={}){
           if(audit.events.length<maxEvents)audit.events.push({
             nativeStoreOrdinal:info.ordinal,
             registeredNativeTrialId:info.trialId,
+            opaquePreRunRequestHmacSha256:info.preRunRequestHmac,
             physicalOwnerSeat:ownerSeat,
             firstBeforeAnyOwnerSetupChoice:true,
             ownerHandCount:hand.length,
