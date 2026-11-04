@@ -61,7 +61,8 @@ jobs:
             tests/aichi-open-adjudication.test.cjs \
             tests/agent3-rank26-one-lightning-two-egg-chooser.test.cjs \
             tests/agent3-marginal-coupled-field-delta.test.cjs \
-            tests/agent3-attested-marginal-field-delta.test.cjs
+            tests/agent3-attested-marginal-field-delta.test.cjs \
+            tests/agent3-coupled-opening-input-order.test.cjs
 
   rank26-root-v3-native:
     if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
