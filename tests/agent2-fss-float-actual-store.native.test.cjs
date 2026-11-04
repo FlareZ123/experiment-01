@@ -257,6 +257,8 @@ for(const seat of [0,1]){
     // This avoids an invented owner choice and preserves a one-Burrow receipt.
     assert.equal(trial.foe.deck.cards.length,deckBefore-1);
     const acknowledged=[];
+    const chronology=[{step:'after-Burrow-Store',deck:trial.foe.deck.cards.length,
+      discard:trial.foe.discard.cards.length,phase:trial.state.phase}];
     for(let j=0;j<8;j++){
       const prompt=trial.state.prompts.find(p=>p.result===undefined);
       if(!prompt)break;
@@ -270,9 +272,17 @@ for(const seat of [0,1]){
           'Only the printed optional Omega Barrage second attack is declined');
       }
       acknowledged.push(kind);
+      chronology.push({step:'before-'+kind,
+        deck:trial.foe.deck.cards.length,discard:trial.foe.discard.cards.length,
+        phase:trial.state.phase});
       trial.store.dispatch(new ResolvePromptAction(prompt.id,
         kind==='ConfirmPrompt'?false:null));
+      chronology.push({step:'after-'+kind,
+        deck:trial.foe.deck.cards.length,discard:trial.foe.discard.cards.length,
+        phase:trial.state.phase});
     }
+    console.log('AGENT2_RANK3_BURROW_NATIVE_CHRONOLOGY',
+      JSON.stringify({seat,deckBefore,chronology}));
     assert.equal(trial.store.hasPrompts(),false);
     assert.equal(trial.foe.deck.cards.length,deckBefore-1);
     console.log('AGENT2_RANK3_NECESSARY_FLOAT_BURROW',JSON.stringify({
