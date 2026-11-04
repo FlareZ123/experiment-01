@@ -2,7 +2,9 @@
 
 const {createHash}=require('node:crypto');
 const {initializeCards}=require('../twinleaf/headless.cjs');
-const {originals,runOne,ROOT_LIMIT}=
+const {originals}=
+  require('./agent41-rank3-arbitration-original-store.cjs');
+const {runOne,ROOT_LIMIT}=
   require('./agent2-rank3-original-fss-float-census.cjs');
 
 const VERSION='agent2-rank3-original-fss-float-fresh-32-v1';
