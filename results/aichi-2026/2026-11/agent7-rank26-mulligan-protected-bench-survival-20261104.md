@@ -59,17 +59,17 @@ The rank26 opponent's mulligans reduce both absolute lone-Active rates, but the 
 | --- | ---: | ---: |
 | 4 Raichu Electrode Combo (`B=13,T=6`) | 34.7541393641 pp | **34.7963769188 pp** |
 | 16 Absol Garbodor (`B=11,T=4`) | 25.0154162582 pp | **25.1189687609 pp** |
-| 1 Shadow Rider (`B=14,T=3`) | 16.551053037? pp | **16.2814457606 pp** |
+| 1 Shadow Rider (`B=14,T=3`) | 16.5510530409 pp | **16.2814457606 pp** |
 | 26 Meloetta Donk (`B=12,T=2`) | 12.1263180493 pp | **12.0085950424 pp** |
 
-The pre-bonus rank1 value should be read from the executed BigInt source rather than the rounded display; it is approximately **16.55105304 pp**. Rank4/16 can **increase** relative exposure after opponent mulligan bonuses because they have a high ratio of protected entry Basics to ordinary Basics. This is a distributional selection phenomenon, not an attack strength finding.
+Rank4/16 can **increase** relative exposure after opponent mulligan bonuses because they have a high ratio of protected entry Basics to ordinary Basics. This is a distributional selection phenomenon, not an attack strength finding.
 
 Four separately frozen structural candidates also receive their own source-rank26 opponent bonus estimates: Apex Alchemy v0 **5.9441000609 pp**, ADP–Thorton–Regidrago v2 **14.4847499050 pp**, Sentinel Lopunny Vileplume v1 **0 pp**, Arven–Boost Shake Absol v1 **12.0085950424 pp**. The candidate 60s remain distinct and unqualified.
 
 ## Reproduction and limits
 
-- [Reusable geometric + finite hypergeometric exact-opening evaluator](../../simulation/evaluation/agent7-rank26-mulligan-bench-preservation.cjs) imports Agent50's **printed-source-verified** original29 and structural4 Basic/trigger classification rather than repeating the classification.
-- [Independent runnable test](../../tests/agent7-rank26-mulligan-bench-preservation.test.cjs) brute-forces every valid 3-card opening and every remaining-card order for a miniature eight-card source+candidate pair, sums the source geometric mulligan tail, and crosschecks six real-no-mulligan classes, all 29 printed sources, four candidate 60s and critical rank4 increase.
+- [Reusable geometric + finite hypergeometric exact-opening evaluator](../../../simulation/evaluation/agent7-rank26-mulligan-bench-preservation.cjs) imports Agent50's **printed-source-verified** original29 and structural4 Basic/trigger classification rather than repeating the classification.
+- [Independent runnable test](../../../tests/agent7-rank26-mulligan-bench-preservation.test.cjs) brute-forces every valid 3-card opening and every remaining-card order for a miniature eight-card source+candidate pair, sums the source geometric mulligan tail, and crosschecks six real-no-mulligan classes, all 29 printed sources, four candidate 60s and critical rank4 increase.
 - Current SFT/field result: **committed and source-reviewed, not yet run in a pinned CI environment**. No attempt to dispatch a new workflow or bypass blocked workflow edits.
 - This calculation extends Agent50's already documented [entry-support preserving setup tradeoff](../../statistics/agent50-original29-turn-bench-ability-avoidable-opening-20261104.md) by one independent opponent-specific random dimension. All 29 known original sixty inventories retain their printed identities; ranks **23, 25 and 28** remain missing. Three source promo texts remain unresolved in the shared original data, and no missing behavior is silently filled.
 
