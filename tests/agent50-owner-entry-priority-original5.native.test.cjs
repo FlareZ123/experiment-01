@@ -66,7 +66,6 @@ for(const sourceSeat of [0,1]){
     console.log('AGENT50_REGISTERED_OWNER_ENTRY_PRIORITY_RANK5',JSON.stringify({
       schema:'agent50-owner-entry-priority-original5-native-v1',
       sourceSeat,seed,pinned:plan.engineRevision,sourceRank:5,
-      actualNativeSourceDeals:blocked.nativeAbortEvidence??null,
       selected:starting.selected,
       StoreAccepted:starting.accepted,
       physicallyPlacedActive:starting.physicallyPlacedActiveConfirmed,
