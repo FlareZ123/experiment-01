@@ -9,6 +9,53 @@ const VERSION='agent7-issue25-v3-executed-receipt-v1';
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 
 /**
+ * Derive public accepted Store action counts, separating prompt overhead
+ * and Passes from other roots. No tactical success is inferred.
+ * @param {object[]|null} ledger
+ * @returns {object}
+ */
+function rootDecisionComposition(ledger){
+  if(!Array.isArray(ledger))return {
+    available:false,nativeAcceptedRoots:null,meaningfulNonPassRoots:null
+  };
+  const actionKinds={},promptKinds={};
+  const bySeat={0:{roots:0,meaningful:0},1:{roots:0,meaningful:0}};
+  let promptRoots=0,passRoots=0,waitPromptRoots=0;
+  let meaningfulNonPassRoots=0;
+  const attacks=[];
+  for(const row of ledger){
+    const action=row.action??'unknown';
+    actionKinds[action]=(actionKinds[action]??0)+1;
+    if(row.playerSlot===0||row.playerSlot===1)
+      bySeat[row.playerSlot].roots++;
+    if(action==='ResolvePromptAction'){
+      promptRoots++;
+      const kind=row.pendingPrompt??'unidentified';
+      promptKinds[kind]=(promptKinds[kind]??0)+1;
+      if(kind==='WaitPrompt')waitPromptRoots++;
+    }else if(action==='PassTurnAction'){
+      passRoots++;
+    }else{
+      meaningfulNonPassRoots++;
+      if(row.playerSlot===0||row.playerSlot===1)
+        bySeat[row.playerSlot].meaningful++;
+    }
+    if(action==='AttackAction')
+      attacks.push({ordinal:row.actionOrdinal??null,
+        turn:row.turnBefore??null,seat:row.playerSlot??null,
+        attack:row.attack??null});
+  }
+  return {
+    available:true,nativeAcceptedRoots:ledger.length,
+    meaning:'Nonpass/nonprompt Store actions are descriptive, not a strategically complete policy or a qualified game',
+    meaningfulNonPassRoots,promptRoots,passRoots,waitPromptRoots,
+    actionKinds,promptKinds,bySeat,attacks,
+    highestObservedGlobalTurn:ledger.reduce((max,row)=>
+      Math.max(max,row.turnBefore??0),0)
+  };
+}
+
+/**
  * Summarize one actually returned native trial without disclosing concealed
  * deck ordering or private game hands. The native root ledger is a public
  * action history. A missing history remains null for failed trials.
@@ -34,6 +81,7 @@ function executionRow(status,raw){
     publicRootActions:Array.isArray(actions)?actions.slice(0,128):null,
     publicRootActionsTruncated:
       Array.isArray(actions)?actions.length>128:null,
+    publicRootDecisionComposition:rootDecisionComposition(actions),
     publicRootLedgerSha256Computed:computedLedgerDigest,
     publicRootLedgerSha256Reported:engineReportedLedgerDigest,
     publicRootLedgerDigestConsistent:computedLedgerDigest===null?
@@ -196,4 +244,4 @@ function writeReceipt(executed,directory){
   }
   return {file,sha256:digest,bytes:bytes.length};
 }
-module.exports={VERSION,executionRow,buildReceipt,writeReceipt};
+module.exports={VERSION,rootDecisionComposition,executionRow,buildReceipt,writeReceipt};
