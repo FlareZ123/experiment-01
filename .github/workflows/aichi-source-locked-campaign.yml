@@ -176,7 +176,7 @@ jobs:
         if: ${{ inputs.trial_ids == 'agent45-volt-donor-retro-pair-v1' }}
         run: |
           node --check simulation/evaluation/agent45-retrospective-volt-donor-native-pair.cjs
-          node --test tests/agent45-volt-donor-printed-cost-hook.test.cjs tests/agent45-volt-cyclone-donor-debt.test.cjs
+          node --test tests/agent45-volt-donor-printed-cost-hook.test.cjs tests/agent45-volt-cyclone-donor-debt.test.cjs tests/native-paired-public-lineage.test.cjs
       - name: Replay original physical rank6 source-deal control and alternative native donor
         if: ${{ inputs.trial_ids == 'agent45-volt-donor-retro-pair-v1' }}
         run: node simulation/evaluation/agent45-retrospective-volt-donor-native-pair.cjs > agent45-donor-fork-summary.json
@@ -194,7 +194,7 @@ jobs:
         run: |
           node --check simulation/twinleaf/agent45-volt-donor-printed-cost-hook.cjs
           node --check simulation/twinleaf/agent45-volt-donor-native-staged.cjs
-          node --test tests/agent45-volt-donor-printed-cost-hook.test.cjs tests/agent45-volt-cyclone-donor-debt.test.cjs
+          node --test tests/agent45-volt-donor-printed-cost-hook.test.cjs tests/agent45-volt-cyclone-donor-debt.test.cjs tests/native-paired-public-lineage.test.cjs
       - name: Verify paper-guarded native source Volt donation in both physical seats
         if: ${{ inputs.trial_ids == 'agent45-volt-donor-native-v1' }}
         run: node simulation/twinleaf/agent45-volt-donor-native-staged.cjs > agent45-volt-donor-native-staged.json
