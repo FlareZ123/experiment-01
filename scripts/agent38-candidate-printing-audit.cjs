@@ -28,14 +28,16 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
   let foundCopies=0;
   const rows=manifest.cards.map(row=>{
     const {name,count,category,printing}=row;
-    // The bundled collection includes Sun & Moon promo card records at
-    // cards/en/smp.json with native IDs such as smp-SM217, even though
-    // sets/en.json has no ptcgoCode SMP entry. Resolve the exact card and
-    // name in that existing bundled file; never infer a promo stage by name.
+    // Bundled promo card records exist at cards/en/smp.json and xyp.json
+    // even though the set index omits their PTCGO code entries. This explicit
+    // ID spelling is only a way to locate an actual local card record;
+    // the exact ID, name and supertype checks below remain mandatory.
     const indexed=sets.filter(s=>s.ptcgoCode===printing.set);
-    const promo=printing.set==='SMP' &&
-      /^\d+$/.test(String(printing.number)) ?
-      [{id:'smp',promoPrefix:'SM'}]:[];
+    const promoPrefixes={SMP:{id:'smp',promoPrefix:'SM'},
+      XYP:{id:'xyp',promoPrefix:'XY'}};
+    const promoPrefix=promoPrefixes[printing.set];
+    const promo=promoPrefix && /^\d+$/.test(String(printing.number)) ?
+      [promoPrefix]:[];
     const setCandidates=indexed.length?indexed:promo;
     if(!setCandidates.length){
       return {name,count,category,printing,
