@@ -17,6 +17,8 @@ test('Issue25 selected v0 actually runs four real native historical arms on both
   assert.equal(diagnostic.attemptedRows.length,4);
   assert.equal(diagnostic.allRegisteredAttemptsReturned,true);
   assert.equal(diagnostic.registeredAttemptReconciliation.exactUniqueMatch,true);
+  assert.equal(diagnostic.rawRowIdentityReconciliation.exactlyReconciled,true);
+  assert.deepEqual(diagnostic.rawRowIdentityReconciliation.conflictingRowIdentifiers,[]);
   assert.deepEqual(diagnostic.registeredAttemptReconciliation.missing,[]);
   assert.deepEqual(diagnostic.registeredAttemptReconciliation.unexpected,[]);
   assert.deepEqual(diagnostic.registeredAttemptReconciliation.duplicateReturned,[]);
