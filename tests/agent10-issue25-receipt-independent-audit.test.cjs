@@ -154,3 +154,12 @@ test('a purportedly qualified game contradicts the declared development-only rec
   assert.equal(r.contract,'FAIL');
   assert.equal(r.competitiveGamesAdmitted,0);
 });
+
+test('empty evidence cannot pass by vacuous truth',()=>{
+  const f=validFixture();
+  f.registration.ids=[];f.registration.actualReturnedIds=[];f.attempts=[];
+  const r=auditIssue25Receipt(f);
+  assert.equal(r.identity.verdict,'FAIL');
+  assert.equal(r.sourceDeals.verdict,'UNRESOLVED');
+  assert.equal(r.evidenceVerdict,'FAIL');
+});
