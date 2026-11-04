@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Verify owner-only conditional Marnie and Iono drawing
+        run: node --test tests/agent2-conservative-shuffle-supporter.test.cjs
       - name: Audit source deck fingerprints and missing-rank seal
         run: node --test tests/aichi_source_fingerprint_map.test.cjs
       - name: Preserve source-print rank10 versus rank6 last-Bench actor hold counterexample
