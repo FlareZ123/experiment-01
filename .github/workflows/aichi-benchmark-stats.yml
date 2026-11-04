@@ -115,6 +115,11 @@ on:
           - '2'
           - '3'
         default: none
+      agent16_issue25_canonical_vip_native:
+        description: 'Eight frozen Issue25 v6 source trials with canonical-inner owner VIP, after rejected outer-wrapper v10'
+        required: false
+        type: boolean
+        default: false
       agent16_issue25_vip_native:
         description: 'One frozen 8-arm original rank6/11 v6 replay with one owner-safe first-turn VIP after Pass, retrospective only'
         required: false
@@ -1076,5 +1081,38 @@ jobs:
         with:
           name: agent16-issue25-v10-vip-8originals
           path: agent16-issue25-v10-vip-native.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent16-issue25-v11-canonical-vip-native:
+    if: ${{ inputs.agent16_issue25_canonical_vip_native }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned original Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Compile genuine native Store and printed effects
+        working-directory: vendor/twinleaf/ptcg-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run compile
+      - name: Assert flag scope, original registered eight and printed inner handler
+        run: node --test tests/agent16-issue25-canonical-vip-v11.test.cjs tests/agent1-issue25-mirrored-r6-r11-v6.test.cjs
+      - name: Run actual canonical-inner-VIP eight-arm original Store contrast
+        env:
+          AGENT16_ISSUE25_CANONICAL_VIP_RECEIPT: agent16-issue25-v11-canonical-vip-native.json
+        run: node --test tests/agent16-issue25-canonical-vip-v11.native.test.cjs
+      - name: Archive all original attempts, including errors and capped games
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent16-issue25-v11-canonical-vip-8originals
+          path: agent16-issue25-v11-canonical-vip-native.json
           if-no-files-found: warn
           retention-days: 30
