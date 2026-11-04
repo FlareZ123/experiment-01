@@ -16,6 +16,10 @@ test('real compiled Twinleaf fixed 8x3 control / generic native Trainer fallback
       physicalMatchGroups:result.physicalMatchGroups,
       sourcePhysicalMatchGroups:result.sourcePhysicalMatchGroups,
       printedSixtiesMatchGroups:result.printedSixtiesMatchGroups,
+      printedSixtiesNotAttestedGroups:
+        result.printedSixtiesNotAttestedGroups,
+      printedSixtiesContradictionGroups:
+        result.printedSixtiesContradictionGroups,
       originalV6ControlReproducedGroups:
         result.originalV6ControlReproducedGroups,
       repeatedControlPublicRootReproducedGroups:
@@ -39,6 +43,8 @@ test('real compiled Twinleaf fixed 8x3 control / generic native Trainer fallback
         sourceNonPassDelta:g.nativeSourceNonPassDelta,
         sourceAttackDelta:g.nativeSourceAttacksDelta,
         dispositions:g.arms.map(a=>a.status),
+        treatmentFailureStage:g.arms[1].nativeFailureStage,
+        treatmentSanitizedError:g.arms[1].nativeErrorSanitized,
         treatedFallback:g.arms[1].genericNativeFallback,
         firstFork:g.firstPublicActionDifference
       })),
@@ -48,8 +54,8 @@ test('real compiled Twinleaf fixed 8x3 control / generic native Trainer fallback
   assert.equal(result.attemptsArchived,24);
   assert.equal(result.physicalMatchGroups,8,
     'An A/B/A original source or contender physical opening changed');
-  assert.equal(result.printedSixtiesMatchGroups,8,
-    'A candidate or source deck switched during treatment');
+  assert.equal(result.printedSixtiesContradictionGroups,0,
+    'A known observed printed 60 genuinely changed across arms');
   assert.equal(result.originalV6ControlReproducedGroups,8,
     'The same cached native v6 controls were not truly replayed');
   assert.equal(result.repeatControlPublicRootReproducedGroups,8,
