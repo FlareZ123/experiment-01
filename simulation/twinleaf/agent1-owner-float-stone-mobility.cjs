@@ -2,7 +2,7 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent1-owner-public-zero-energy-floatstone-mobility-v1';
+const VERSION='agent1-owner-public-zero-energy-floatstone-mobility-v2-tool-jammer-guard';
 const FLOAT_STONE='Float Stone BKT';
 
 /**
@@ -52,10 +52,14 @@ function chooseOwnerFloatStoneMobility(view,catalog){
   // Printed zero Retreat Cost does not require consuming an Item or Tool.
   const naturalFree=active.printed.retreatCost.length===0;
   const floatAttached=active.tools?.includes(FLOAT_STONE)===true;
-  const toolsBlanked=[...(own.stadium??[]),
-    ...(view.opponentPublic?.stadium??[])].some(s=>
-    s.startsWith('Jamming Tower '));
-  if(!naturalFree&&toolsBlanked)return null;
+  const stadiumBlanksTools=[...(own.stadium??[]),
+    ...(view.opponentPublic?.stadium??[])].some(stadium=>
+    stadium.startsWith('Jamming Tower '));
+  const opponentActiveJamsTools=view.opponentPublic?.active?.tools?.some(
+    tool=>tool.startsWith('Tool Jammer '))===true;
+  // The opponent's ACTIVE Tool Jammer blanks our Active Float Stone.
+  // Do not rely on pinned Store accepting a paper-invalid free retreat.
+  if(!naturalFree&&(stadiumBlanksTools||opponentActiveJamsTools))return null;
   if(naturalFree||floatAttached){
     return {kind:'retreat-emergency-floatstone',benchIndex,
       printing:p.printing};
