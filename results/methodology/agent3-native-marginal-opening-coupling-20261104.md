@@ -42,6 +42,23 @@ All five source-physical mismatches occurred in groups with a different source b
 
 Across **all** 24 rank-5 contexts, source optional extras actually drawn were champion **0 in 18, 1 in 5, 2 in 1**; New Moon **0 in 22, 1 in 2**. Across 24 rank-6 contexts: champion **0 in 23, 1 in 1**; New Moon **0 in 24**. Even when the source had the same Prize multiset and the first player matched, physical source positions can differ because the candidate caused a new bonus draw. The controlled per-seat shuffle approach and actual candidate-shuffle counts strongly support the proposed setup mechanism, but the experiment did not independently replay every intervening setup prompt to prove it was the sole possible cause of state differences.
 
+## Paper mulligan expectation cross-check: small sample, directional evidence
+
+A separate analytic model of an **ideal independently shuffled 60-card paper opening** gives a useful external sanity bound on the native totals. For a deck with `b` Basic copies, its seven-card mulligan chance is `q(b)=C(60-b,7)/C(60,7)`. Write `q_C=q(candidate Basics)` and `q_S=q(source Basics)`. The probability that the original source has a legitimate opportunity to draw **at least one** extra card after the candidate mulligans (allowing complete same-time double mulligan retries) is `q_C(1-q_S)/(1-q_C q_S)`. If the source elects every optional bonus, its expected number of extra cards is
+
+`q_C(1-q_S)/((1-q_C q_S)(1-q_C))`.
+
+These are **paper opening combinatorics**, not observed native distribution claims and definitely not matchup win percentages. The original rank1 champion-reference list contains 14 Basic copies and the New Moon proxy 17; the two selected opponents contain 11 Basic (rank5) and 4 Basic (rank6). The formulas and the 29-original source Basic-count source are related to the already existing [Agent32 combinatorial source-mulligan work](../../simulation/evaluation/agent32-adp-field-mulligan-offers.cjs).
+
+| Fixed original source | Reference expected extras per independently random game | New Moon expected extras per game | Reference extras observed in 24 native samples | New Moon extras observed in 24 native samples |
+| --- | ---: | ---: | ---: | ---: |
+| Rank5, 11 Basics | 0.12908 | 0.07212 | **7** | **2** |
+| Rank6, 4 Basics | 0.07011 | 0.03829 | **1** | **0** |
+
+For each rank5 reference sample the idealized source draws at least one optional extra with probability about **0.11119**, and for rank6 about **0.06039**; New Moon yields **0.06611** and **0.03509** respectively. The observed reference surplus is directionally consistent with its smaller 14-Basic opening pool, yet this small fixed-seed cohort is **not** an unbiased empirical validation of those probabilities. For an ordinary independent 24-match rank5 reference sample, the exact ideal model gives expected **3.098** extra total source cards and approximately **5.33%** probability of seven or more. Observing seven is possible and does not demonstrate an engine error. These probabilities assume independent ideal uniformly sampled paper openings, which are not guaranteed by the deterministic per-seat xorshift seeds.
+
+The source's choice to draw some, all, or none of its available bonus cards can affect actual hand identities. The native receipts show what was actually drawn under its automated setup logic; neither the analytic offer count nor this short study proves rational source choice or the full post-setup marginal game distribution.
+
 ## Interpretation and limits
 
 The previous [Agent48 historical `5:101:A` rank5 mismatch](../aichi-2026/agent48-frozen-selected-v2-original-archive-posthoc-20261103.md) was a *different original game coupling*, and is unchanged. This new experiment demonstrates the mechanism on five **fresh, separately registered source contexts** using a stronger explicit per-seat setup coupling. It preserves every success and failure in the predeclared denominator. Same seed or matching source Prize identities alone do not assert same full source physical opening.
