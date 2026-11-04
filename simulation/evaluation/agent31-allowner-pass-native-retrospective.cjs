@@ -21,7 +21,7 @@ const EXPECTED = Object.freeze({
     'de60debedfc78872cdc2fa8ee85ce8d565ca941d1717246c75e84900b0354c1c',
   fullPhysicalDealFingerprint:
     '2aa46c91895e7c08cb40309356d8fe2601a0515137dba1100986f61ab5dacbf6',
-  candidatePassRoots:0
+  candidatePassRoots:25
 });
 
 /**
@@ -68,6 +68,8 @@ function run() {
   const candidatePasses=selectedRow.rootActionLedger.filter(root=>
     root.action==='PassTurnAction'&&root.playerSlot===selectedRow.candidateSeat).length;
   assert.equal(audit.counts.candidate.passes,candidatePasses);
+  assert.equal(audit.counts.source.passes,
+    rootCount-candidatePasses);
   const observed={
     rootActionLedgerSha256:selectedRow.rootActionLedgerSha256,
     sourceDealFingerprint:selectedRow.sourceDealFingerprint,
