@@ -27,6 +27,8 @@ const GIT_SHA=/^[a-f0-9]{40}$/;
  * @property {string} engineRevision Pinned actual vendor source revision.
  * @property {string} referenceSourceFingerprint Actual original physical deal.
  * @property {string} challengerSourceFingerprint Actual original physical deal.
+ * @property {0|1} referenceCandidateSeat Actual contender physical seat.
+ * @property {0|1} challengerCandidateSeat Actual contender physical seat.
  * @property {0|1} referenceFirstTurnSeat
  * @property {0|1} challengerFirstTurnSeat
  * @property {Status} referenceStatus
@@ -76,6 +78,7 @@ function attestedMarginalFieldDelta(design){
   const registeredSeedBlocks=new Set();
   const transformed=[];
   let commonRoundCount=null;
+  let actualFirstTurnMismatchedPairs=0;
   for(const cell of cells) {
     const {rank,candidateSeat,firstTurnSeat,samples}=cell??{};
     if(!sourceMap.has(rank)||![0,1].includes(candidateSeat) ||
@@ -99,6 +102,8 @@ function attestedMarginalFieldDelta(design){
          sample.engineRevision!==design.engineRevision||
          !SHA256.test(sample.referenceSourceFingerprint)||
          !SHA256.test(sample.challengerSourceFingerprint)||
+         sample.referenceCandidateSeat!==candidateSeat||
+         sample.challengerCandidateSeat!==candidateSeat||
          ![0,1].includes(sample.referenceFirstTurnSeat)||
          ![0,1].includes(sample.challengerFirstTurnSeat)||
          (firstTurnSeat!==null&&
@@ -107,6 +112,8 @@ function attestedMarginalFieldDelta(design){
         throw new TypeError('Unattributed, repeated or contradicted physical-source pair');
       }
       registeredSeedBlocks.add(sample.seedBlockSha256);
+      if(sample.referenceFirstTurnSeat!==sample.challengerFirstTurnSeat)
+        actualFirstTurnMismatchedPairs++;
       pairs.push({
         pairId:sample.pairId,roundId:sample.roundId,
         referenceFingerprint:sample.referenceSourceFingerprint,
@@ -164,6 +171,7 @@ function attestedMarginalFieldDelta(design){
     method:'COMPLETE_ORIGINAL_SOURCE_FIELD_MARGINAL_MEAN',
     fieldOriginalRanks:32,sourceRosterComplete:true,
     seatCoverage,startControl,designSha256,
+    actualFirstTurnMismatchedPairs,
     registrationSha256:design.registrationSha256,
     sourceArtCrosswalkSha256:design.sourceArtCrosswalkSha256,
     reference60Sha256:design.reference60Sha256,
