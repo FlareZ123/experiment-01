@@ -27,7 +27,7 @@ function withRadiantZeroGateHook(run){
     native('sets/09-sword-and-shield/set-crown-zenith/radiant-eternatus');
   const {PlayPokemonEffect}=native('game/store/effects/play-card-effects');
   const {EndTurnEffect}=native('game/store/effects/game-phase-effects');
-  const {ShuffleDeckPrompt}=native('game/store/prompts/shuffle-deck-prompt');
+  const {ShuffleDeckPrompt}=native('game/store/prompts/shuffle-prompt');
   const {ConfirmPrompt}=native('game/store/prompts/confirm-prompt');
   const {ChooseCardsPrompt}=native('game/store/prompts/choose-cards-prompt');
   const {GameMessage}=native('game/game-message');
