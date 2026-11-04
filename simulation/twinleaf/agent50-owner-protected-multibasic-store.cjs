@@ -86,7 +86,7 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
       !selected.includes(card)):[];
     const action=new ResolvePromptAction(prompt.id,selected);
     pending.set(action,{
-      seat,initial,selected,
+      seat,nativeStoreOrdinal:audit.stores,initial,selected,
       ownerHandBefore:cardList,
       activeBefore:[...owner.active.cards],
       benchBefore:owner.bench.map(slot=>[...slot.cards]),
@@ -148,6 +148,7 @@ function withOwnerProtectedMultiBasicStore(run,deps={}){
           prior.benchBefore);
       }
       const event=audit.events.find(e=>e.seat===prior.seat&&
+        e.nativeStoreOrdinal===prior.nativeStoreOrdinal&&
         e.physicalPlacement==='not-yet-verified');
       if(event)event.physicalPlacement='accepted-native-Store';
       return result;
