@@ -26,6 +26,8 @@ The [original-source admission matrix](aichi-2026/original-source-admission-matr
 
 ## Next decision-changing release
 
+**Integration tracker:** [Issue #25: one executing, owner-safe bilateral policy release](https://github.com/FlareZ123/experiment-01/issues/25). An integration steward should record the selected running profile and a single explicit pass/fail/unresolved acceptance panel there. Component-level successful tests stay developmental until incorporated into that release.
+
 **Deliver one actually selected, immutable, owner-information-safe, symmetric two-seat policy** under the [canonical bilateral development runner](../simulation/evaluation/agent41-bilateral-v2-development.cjs). Before any candidate ranking, preregister matched original-source physical-deal comparisons on rank 5 and rank 11, preserving the rank-6 paid-attack canary, prior negative controls, errors, aborted attempts and censored action caps. Reuse manually dispatched CI rather than expanding the per-card workflow collection.
 
 The release's machine-verifiable evidence should follow each real owner-turn decision: physical hand and public constraints; printed first-turn, lock, quota, target and exact payment eligibility; genuinely affordable competing roots; selected root and prompts; actual hand/deck/discard/board transitions; Energy recipient; settled source attack or characteristic control payoff; Prize consequences; and a meaningful opposing reply. Record all actual initial physical deals and starting-seat choices. Keep information provenance, runtime vendor/hooks/profile hashes, legality verdicts and native dispositions distinct. **A legal option is not automatically a strategically superior option.**
