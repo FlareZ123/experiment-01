@@ -326,7 +326,7 @@ jobs:
       - name: Regress bounded owner-only root action contention without changing decisions
         id: agent16_policy_inventory
         continue-on-error: true
-        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs tests/agent16-policy-audit-lanes.test.cjs
+        run: node --test tests/agent16-owner-priority-contention.test.cjs tests/agent16-root-recovery-trace.test.cjs tests/agent16-native-canplay-graph-guard.test.cjs tests/agent16-balanced-coin-source-registration.test.cjs tests/agent16-setup-coin-choice-receipt.test.cjs tests/agent16-transitive-policy-source-inventory.test.cjs tests/agent16-policy-audit-lanes.test.cjs tests/agent16-first-live-owner-hands.test.cjs
       - name: Audit printed opponent-hand random effect source incidence across 29 final originals
         run: |
           node --test tests/agent12-original-field-random-hand-text-census.test.cjs
