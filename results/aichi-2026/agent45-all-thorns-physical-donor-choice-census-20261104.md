@@ -56,6 +56,21 @@ Thunder Mountain removes the Lightning-specific part of the cost so every donor 
 
 The rank-specific sensitivity at exactly three attached copies converges in these four- and five-copy subset counts. A blanket card-name priority remains fragile because the safe donor set changes with the precise physical attachment multiset and visible Stadium.
 
+## Exact first-eight physical visibility sanity check
+
+The conditional donor percentages above can look deceptively large if interpreted as likely early-game board states. An independent [exact first-eight opening enumerator](../../simulation/evaluation/aichi-thorns-first8-donor-resource.cjs) and [five passing local regression tests](../../tests/agent45-aichi-thorns-first8-donor-resource.test.cjs) apply each authenticated source's **four starting Basic Pokémon, eight Special Energy, and 48 other cards** to a fresh legal seven-card starting hand followed by one ordinary draw, with six Prizes exchangeable under the uniform shuffle. The computation excludes opponent mulligan bonus draws, all search/draw effects, attachments, and subsequent play.
+
+For all three printed sources, the probability that an initial random seven contains an eligible Basic is exactly **38,962/97,527 = 39.94996%**. Conditional on a legal initial seven, the probability that the first eight physically observed cards contain **exactly three Energy** is **1,052,488/24,337,335 = 4.32458%**. The exact combined unconditional event of valid seven *and* three Energy among the first eight is **14,734,832/852,873,615 = 1.72767%**.
+
+Given those two conditions, every three-of-eight physical Energy-copy subset is equally likely. Therefore the legal-seven conditional **first-eight visibility** of an exactly-three-Energy multiset with both safe and unsafe donor options under no Stadium is:
+
+| Printed rank | Exact fraction among legal initial seven | Percentage of legal initial seven |
+| --- | --- | ---: |
+| 6 / 29 | **789,366/56,787,115** | **1.39004%** |
+| 24 | **263,122/8,112,445** | **3.24344%** |
+
+These are **exposure composition events in cards seen**, without any demonstration that the three Energies were all attached to Iron Thorns ex, that a Bench was populated, that Volt Cyclone was payable, that the correct Stadium was in play, or that either player could actually make a meaningful donor choice. They are neither upper bounds on all later donor opportunities nor measured matchup rates. Search and subsequent drawn or attached Energy produce different distributions. Still, these narrower exact fractions prevent the 80.76923% conditional Rank24 donor-choice statistic from being misreported as a frequency of real games.
+
 ## Next decision-quality test
 
 Use Rank 24's exact source list as a **new untouched-source benchmark** for a *single generic, owner-visible Energy-resource choice policy* evaluated under the symmetric two-seat common native policy, alongside existing Rank 6 and Rank 29 controls. Select the donor by testing the printed payment constraint for **every actual physical Energy** in the live source Active, then compare the tactical costs of keeping Spiky, placing Speed on the Bench, or preserving Double Colorless before choosing among viable alternatives. A policy solely focused on current Active cost is not automatically strategically optimal.
