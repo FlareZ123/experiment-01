@@ -42,6 +42,9 @@ function withReadOnlyDeckActionDeltas(execute){
   let ordinal=0;
   const patched=function observedDeckCounts(action,...args){
     const beforeState=this.state;
+    // Initial AddPlayerAction dispatches are outside the game action loop.
+    if(beforeState.players.length!==2)
+      return original.call(this,action,...args);
     const before=beforeState.players.map(p=>p.deck.cards.length);
     const turnBefore=beforeState.turn;
     const actingSeat=beforeState.activePlayer;
