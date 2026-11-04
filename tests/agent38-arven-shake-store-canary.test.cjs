@@ -21,6 +21,15 @@ test('printed Arven / Float Stone / Boost Shake / Garbotoxin effect on both seat
     assert.equal(row.benchedGarbodorWithTool,true);
     assert.equal(row.opponentAbilityBlocked,true);
     assert.equal(row.noOutstandingStorePrompt,true);
+    assert.equal(row.physicalCustodyAfterLine.benchedEvolutionPhysicalId,
+      row.physicalCardIds.garbodor);
+    assert.equal(row.physicalCustodyAfterLine.benchedToolPhysicalId,
+      row.physicalCardIds.stone);
+    assert.equal(row.physicalCustodyAfterLine.benchedBasicPhysicalId,
+      row.physicalCardIds.trubbish);
+    assert.equal(row.physicalCustodyAfterLine.searchedItemStillInHand,false);
+    assert.equal(row.physicalCustodyAfterLine.searchedToolStillInHand,false);
+    assert.equal(row.physicalCustodyAfterLine.searchedEvolutionStillInDeck,false);
     assert.ok(row.steps.some(action=>
       action.label==='Arven searches Item and Tool'));
     assert.ok(row.steps.some(action=>
