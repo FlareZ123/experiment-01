@@ -31,7 +31,7 @@ const project=row=>({
         turn:root.turn??null,
         seat:root.seat??null,
         card:typeof root.card==='string'?root.card:null,
-        attackName:root.attackName??null
+        attackName:root.attack??null
       }))
   }:null
 });
