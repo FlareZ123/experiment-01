@@ -1,0 +1,143 @@
+{
+  "version": "agent25-dhelmise-full60-native-hns-threshold-census-20261104-v1",
+  "source": "Actual originally archived JSON in GitHub Actions run 41764206685",
+  "nativeRunId": 41764206685,
+  "artifacts": {
+    "baseline": 13291594177,
+    "candidateOnlyCompressor": 13291474602
+  },
+  "vendorPin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "researchCommit": "8a6ba6d60c518613011a10b1376e40f44146429a",
+  "printedCandidateOrderedSha256": "20135b47359b2a546fbe7f899b502aff0d470150e72cbb751dd810be036e122c",
+  "candidate": "results/als/agent25-dhelmise-mixed-lock-answers-v2.json",
+  "baselineRegistration": "results/als/registrations/agent25-dhelmise-v2-native-three-lock-smoke-20261101.json",
+  "compressorRegistration": "results/als/registrations/agent25-dhelmise-v2-early-discard-policy-20261101.json",
+  "histogramSemantics": "All individual native attack HNS count checks in each nonexception row had exactly effectiveDonorCountAtEveryCheck eligible donors; null means no data due exception. Counts within an arm are repeated checks, not independent games.",
+  "sameSourceRankSeatSeed": true,
+  "provedSameFullHiddenDeal": false,
+  "sourceCardPrintingDecksExact60": true,
+  "fullCompetitiveGameQualification": false,
+  "qualifiedGames": 0,
+  "totals": {
+    "baselineCountChecks": 39,
+    "baselineFourDonorThreshold": 0,
+    "compressorCountChecks": 24,
+    "compressorFourDonorThreshold": 18
+  },
+  "rows": [
+    {
+      "rank": 6,
+      "seat": 0,
+      "seed": 2551586391,
+      "baseline": {
+        "status": "untimed-engine-terminal",
+        "nativeRootActions": 80,
+        "hnsAttackCountChecks": 0,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      },
+      "candidateOnlyCompressor": {
+        "status": "untimed-engine-terminal",
+        "nativeRootActions": 80,
+        "hnsAttackCountChecks": 0,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      }
+    },
+    {
+      "rank": 6,
+      "seat": 1,
+      "seed": 2551586391,
+      "baseline": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 6,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      },
+      "candidateOnlyCompressor": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 6,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      }
+    },
+    {
+      "rank": 10,
+      "seat": 0,
+      "seed": 1304508082,
+      "baseline": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 3,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      },
+      "candidateOnlyCompressor": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 3,
+        "effectiveDonorCountAtEveryCheck": 4,
+        "fourDonorThresholdChecks": 3
+      }
+    },
+    {
+      "rank": 10,
+      "seat": 1,
+      "seed": 1304508082,
+      "baseline": {
+        "status": "native-exception",
+        "nativeRootActions": null,
+        "hnsAttackCountChecks": null,
+        "effectiveDonorCountAtEveryCheck": null,
+        "fourDonorThresholdChecks": null
+      },
+      "candidateOnlyCompressor": {
+        "status": "native-exception",
+        "nativeRootActions": null,
+        "hnsAttackCountChecks": null,
+        "effectiveDonorCountAtEveryCheck": null,
+        "fourDonorThresholdChecks": null
+      }
+    },
+    {
+      "rank": 11,
+      "seat": 0,
+      "seed": 2576542056,
+      "baseline": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 30,
+        "effectiveDonorCountAtEveryCheck": 1,
+        "fourDonorThresholdChecks": 0
+      },
+      "candidateOnlyCompressor": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 15,
+        "effectiveDonorCountAtEveryCheck": 4,
+        "fourDonorThresholdChecks": 15
+      }
+    },
+    {
+      "rank": 11,
+      "seat": 1,
+      "seed": 2576542056,
+      "baseline": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 0,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      },
+      "candidateOnlyCompressor": {
+        "status": "root-action-cap",
+        "nativeRootActions": 120,
+        "hnsAttackCountChecks": 0,
+        "effectiveDonorCountAtEveryCheck": 0,
+        "fourDonorThresholdChecks": 0
+      }
+    }
+  ]
+}
