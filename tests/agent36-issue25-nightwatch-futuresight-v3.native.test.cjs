@@ -5,7 +5,13 @@ const {runNightWatchFutureSightIssue25V3}=
   require('../simulation/evaluation/agent36-issue25-nightwatch-futuresight-v3.cjs');
 
 test('selected v3 genuine source-stamped opaque Night Watch and Future Sight Store actions',()=>{
-  const {manifest,diagnostic}=runNightWatchFutureSightIssue25V3();
+  const executed=runNightWatchFutureSightIssue25V3();
+  const {manifest,diagnostic}=executed;
+  if(process.env.ISSUE25_RECEIPT_DIR){
+    const {writeReceipt}=require('../simulation/evaluation/agent7-issue25-v3-executed-receipt.cjs');
+    const output=writeReceipt(executed,process.env.ISSUE25_RECEIPT_DIR);
+    console.log('AGENT7_ISSUE25_V3_EXECUTED_RECEIPT',JSON.stringify(output));
+  }
   console.log('AGENT36_ISSUE25_TWO_SOURCE_STAMPED_ATTACKS_V3',
     JSON.stringify({manifest,diagnostic}));
   assert.equal(manifest.runtimeGitAttestationStatus,'VERIFIED');
