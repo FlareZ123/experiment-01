@@ -69,7 +69,8 @@ jobs:
             tests/agent38-original-field-tool-visibility.test.cjs \
             tests/agent3-original-source-basic-mulligan-census.test.cjs \
             tests/agent3-source-bonus-field-32-bound.test.cjs \
-            tests/agent3-original29-print-gap-census.test.cjs
+            tests/agent3-original29-print-gap-census.test.cjs \
+            tests/agent3-registered-attempt-reconciliation.test.cjs
 
   rank26-root-v3-native:
     if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
