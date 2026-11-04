@@ -45,6 +45,40 @@ is necessary evidence and not full information-set noninterference proof.
 Other hooks, cached raw decisions, non-decoder methods, hidden game randomization
 and paper-rule compliance require separate audits.
 
+## Pinned native Store smoke result (verified 4 November)
+
+[GitHub Actions run 41764714233](https://github.com/FlareZ123/experiment-01/actions/runs/41764714233)
+successfully compiled the pinned Twinleaf revision
+`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+All **11/11** quarantine tests passed: seven isolated tests and four
+genuine Store probes using exact original Aichi rank5 versus rank1 60s,
+both physical seat arrangements, original bot and default actor-composed
+profile. Every genuine probe intercepted exactly one original bot decoder
+call **before** executing the native scoring method.
+
+The **first actual unhandled interface was a `ConfirmPrompt` in setup,
+turn 0, phase 1, physical seat 0**, regardless of which 60 occupied seat 0.
+These four bounded attempts stopped at setup, so they do not establish
+how often the hidden-order scoring exploit occurs at later player-turn roots.
+The result is a precise compositional blocker, with zero competitive
+games or matchup strength evidence.
+
+The first CI attempt
+[41764390982](https://github.com/FlareZ123/experiment-01/actions/runs/41764390982)
+failed an existing, unrelated frozen-canary preflight before compiling the
+engine or executing our new test. Its temporary CI workflow insertion was
+removed. The native proof instead used the existing Agent4 rank5 manual
+workflow with an explicit smoke-only input, skipping the eight-arm archive
+study to conserve CI time.
+
+A new, setup-phase-only
+[`ConfirmPrompt` owner adapter](../../simulation/twinleaf/agent4-owner-setup-confirm.cjs)
+now proposes the same conservative `false` answer as the pinned native
+`ConfirmPromptResolver`, using a detached owner observation and
+normal Store dispatch. It is intentionally limited to turn 0 setup.
+As of this report update, its further pinned Store test is queued or
+unverified; do not treat it as accepted native integration yet.
+
 ## Integration handoff
 
 **Owner:** [Issue #25](https://github.com/FlareZ123/experiment-01/issues/25),
