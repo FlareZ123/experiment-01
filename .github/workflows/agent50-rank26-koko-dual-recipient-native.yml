@@ -218,3 +218,36 @@ jobs:
           path: artifacts/issue25-mirrored-opening-contrast/
           if-no-files-found: warn
           retention-days: 30
+
+  issue25-v8-prechoice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf for v8 prechoice witness
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Prechoice private HMAC and fail-closed causal attribution pure gates
+        run: node --test tests/agent1-setup-prechoice-private-fingerprint.test.cjs tests/agent1-issue25-prechoice-input-custody-v8.test.cjs
+      - name: Actual sixteen baseline and protected native Store arms, eight per policy
+        env:
+          ISSUE25_V8_RECEIPT_DIR: artifacts/issue25-v8-prechoice
+        run: node --test tests/agent1-issue25-prechoice-input-custody-v8.native.test.cjs
+      - name: Archive all observed trial-linked and unlinked evidence status
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-v8-prechoice-${{ github.run_id }}
+          path: artifacts/issue25-v8-prechoice/
+          if-no-files-found: warn
+          retention-days: 30
