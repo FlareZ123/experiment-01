@@ -4,9 +4,22 @@ const {runDevelopment} =
   require('./agent41-bilateral-v2-development.cjs');
 const {runCanonicalVipIssue25V11} =
   require('./agent16-issue25-canonical-vip-v11.cjs');
+const {hashRegisteredFile} =
+  require('./agent36-issue25-selected-v0.cjs');
 
 const VERSION='agent12-issue25-v13-both-seat-public-context-energy-development';
 const ENTRY='simulation/evaluation/agent12-issue25-bilateral-public-energy-v13.cjs';
+const SOURCE_HASH_PATHS=[
+  ENTRY,
+  'simulation/evaluation/agent16-issue25-canonical-vip-v11.cjs',
+  'simulation/twinleaf/agent17-public-context-special-energy.cjs',
+  'simulation/twinleaf/actor-energy-payability.cjs',
+  'simulation/twinleaf/agent10-original-printing-energy-flags.cjs',
+  'simulation/twinleaf/agent34-actor-only-root-policy.cjs',
+  'tests/agent12-issue25-bilateral-public-energy-v13.test.cjs',
+  'tests/agent12-issue25-bilateral-public-energy-v13.native.test.cjs',
+  '.github/workflows/agent50-rank26-koko-dual-recipient-native.yml'
+];
 
 /**
  * Add the existing actor-only, public Prize/printing-aware Special Energy
@@ -71,6 +84,10 @@ function runBilateralPublicEnergyIssue25V13(deps={}) {
       noNewOriginalDeckLists:true,
       noNewCandidateDeckLists:true,
       developmentOnly:true,
+      resolvedSourceAndPolicyHashes:[
+        ...executed.manifest.resolvedSourceAndPolicyHashes,
+        ...SOURCE_HASH_PATHS.map(hashRegisteredFile)
+      ],
       releaseQualified:false,competitiveGamesQualified:0
     },
     diagnostic:{
@@ -89,4 +106,4 @@ function runBilateralPublicEnergyIssue25V13(deps={}) {
     rawDevelopment:executed.rawDevelopment
   };
 }
-module.exports={VERSION,ENTRY,runBilateralPublicEnergyIssue25V13};
+module.exports={VERSION,ENTRY,SOURCE_HASH_PATHS,runBilateralPublicEnergyIssue25V13};
