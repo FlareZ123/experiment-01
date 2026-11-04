@@ -66,6 +66,12 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
       sourceDealFingerprint:r.sourceDealFingerprint??null
     })),
     sourceChoiceAudit:choices,
+    rank6ChampionNightWatchNativePrompts:rows
+      .find(r=>r.trial?.id==='6:0:A:champion-reference')
+      ?.rootActionLedger?.filter(e=>e.turnBefore===5&&
+        ['ShowCardsPrompt','ShuffleDeckPrompt'].includes(e.pendingPrompt))
+      .map(e=>({ordinal:e.actionOrdinal,seat:e.playerSlot,
+        prompt:e.pendingPrompt,action:e.action}))??null,
     futureSightMarks:ordering?.markedOrderPrompts??null,
     genericQuarantine:guard,
     nextFailureCode:blocked?.code??null,
@@ -82,7 +88,20 @@ test('Issue25 exact-source Night Watch and Get Lost owner choices reach native S
   assert.ok(choices.printedSourceInvocations.length>=2);
   assert.ok(choices.resolvedFollowups.some(e=>
     e.kind==='night-watch-reveal'));
-  assert.ok(choices.resolvedFollowups.some(e=>
+  const rank6=rows.find(r=>r.trial?.id==='6:0:A:champion-reference');
+  assert.ok(rank6?.rootActionLedger);
+  const nightWatchNativePrompts=rank6.rootActionLedger.filter(e=>
+    e.turnBefore===5&&e.action==='ResolvePromptAction');
+  // The current headless game loop resolves ShuffleDeckPrompt directly from
+  // its seeded native RNG, before invoking SimpleTacticsAi.decodeNextAction.
+  // The bridge must not pretend this headless bypass was an AI policy call.
+  assert.ok(nightWatchNativePrompts.some(e=>
+    e.pendingPrompt==='ShowCardsPrompt'&&e.playerSlot===0));
+  assert.ok(nightWatchNativePrompts.some(e=>
+    e.pendingPrompt==='ShuffleDeckPrompt'&&e.playerSlot===1));
+  assert.equal(choices.resolvedFollowups.some(e=>
+    e.kind==='night-watch-shuffle'),false);
+  assert.ok(choices.markedFollowups.some(e=>
     e.kind==='night-watch-shuffle'));
   assert.ok(choices.resolvedFollowups.every(e=>
     e.hiddenCardIdentitiesInspected===false));
