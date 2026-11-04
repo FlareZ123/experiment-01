@@ -114,9 +114,11 @@ function exactAdpInitialActiveCoreOpportunity(input) {
   }
 
   assert.equal(numerators.initialAdp,
-    (choose(population-1,handSize-1) -
+    (choose(population,handSize) -
      choose(population-adp,handSize)) *
-      0n + numerators.initialAdp); // Exact share proved by separate test.
+      choose(population-handSize,prizeSize) *
+      BigInt(remainingAfterPrizes),
+    'Every selected initial ADP hand must have complete Prize/draw partitions');
   assert.equal(numerators.combinedCoreAccess,
     numerators.directDoubleDragon+
     numerators.heldGuzmaHala+numerators.tagCallToGuzmaHala);
