@@ -64,7 +64,7 @@ function withPrechoiceWitnessAndPrintedAttacks(next,deps={}){
  *
  * @param {'baseline'|'protected'} mode
  * @param {{runner?:Function,layers?:object,
- *    attackLayer?:Function,prechoiceLayer?:Function}} [deps]
+ *    attackLayer?:Function,prechoiceLayer?:Function,openingLayer?:Function}} [deps]
  */
 function runPrechoiceCustodyV8(mode,deps={}){
   assert.ok(mode==='baseline'||mode==='protected');
@@ -73,7 +73,8 @@ function runPrechoiceCustodyV8(mode,deps={}){
   });
   const selected=(mode==='baseline'?
     runMirroredIssue25V6:runProtectedOpeningMirroredV7)({
-      runner:deps.runner,layers:deps.layers,attackLayer:wrapper
+      runner:deps.runner,layers:deps.layers,attackLayer:wrapper,
+      openingLayer:deps.openingLayer
     });
   const prechoice=selected.diagnostic.audit
     ?.firstBlockedPromptEnvelope?.actualNativePrechoicePhysicalInputs??null;
