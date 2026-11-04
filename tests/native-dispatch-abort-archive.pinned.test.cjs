@@ -60,6 +60,8 @@ test('a rejected real Store dispatch retains source deal and accepted public roo
   assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
     'initial-full-physical-deal-sha256-v1');
   assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.initialTurnOrderEvidence?.verifiedByDrawLog,true);
+  assert.ok([0,1].includes(receipt.initialTurnOrderEvidence.firstTurnSlot));
   assert.ok(receipt.actionOrdinal>0,'No accepted native Store roots');
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.ok(receipt.preDispatchPublic.turn>=2);
@@ -121,6 +123,8 @@ test('real bot decoder exception preserves prior roots without leaking its detai
   assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
     'initial-full-physical-deal-sha256-v1');
   assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.initialTurnOrderEvidence?.verifiedByDrawLog,true);
+  assert.ok([0,1].includes(receipt.initialTurnOrderEvidence.firstTurnSlot));
   assert.ok(receipt.actionOrdinal>0);
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.equal(Store.prototype.dispatch,originalDispatch.value);
@@ -173,6 +177,8 @@ test('strict validation of a real native prompt retains accepted history',()=>{
   assert.equal(receipt.fullPhysicalDealFingerprint?.schema,
     'initial-full-physical-deal-sha256-v1');
   assert.match(receipt.fullPhysicalDealFingerprint.digestSha256,/^[0-9a-f]{64}$/);
+  assert.equal(receipt.initialTurnOrderEvidence?.verifiedByDrawLog,true);
+  assert.ok([0,1].includes(receipt.initialTurnOrderEvidence.firstTurnSlot));
   assert.ok(receipt.actionOrdinal>0);
   assert.equal(receipt.rootActionLedger.length,receipt.actionOrdinal);
   assert.equal(Store.prototype.dispatch,oldStore.value);

@@ -155,3 +155,19 @@ test('absent full-deal observer stays absent on abort',()=>{
   const output=nativeDispatchAbortEvidence(sample());
   assert.equal(Object.hasOwn(output,'fullPhysicalDealFingerprint'),false);
 });
+
+test('archives only draw-log-verified native first-turn identity',()=>{
+  const input=sample();
+  input.initialTurnOrder={firstTurnSlot:1,firstTurnPlayerId:202,
+    firstTurnPlayerName:'Player B',firstDrawLogName:'Player B',
+    verifiedByDrawLog:true};
+  const out=nativeDispatchAbortEvidence(input);
+  assert.deepEqual(out.initialTurnOrderEvidence,
+    {firstTurnSlot:1,verifiedByDrawLog:true});
+  input.initialTurnOrder.firstDrawLogName='Player A';
+  assert.throws(()=>nativeDispatchAbortEvidence(input),
+    /first-turn draw evidence disagrees/);
+  input.initialTurnOrder.verifiedByDrawLog=false;
+  const unverified=nativeDispatchAbortEvidence(input);
+  assert.equal(unverified.initialTurnOrderEvidence.verifiedByDrawLog,false);
+});

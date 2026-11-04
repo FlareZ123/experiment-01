@@ -107,6 +107,9 @@ test('Issue25 same owner-only 48-root bounded native profile with full-deal prov
     assert.equal(row.nativeAbortProvenance?.sourceDealStatus,'VERIFIED');
     assert.equal(row.nativeAbortProvenance?.fullPhysicalDealStatus,'VERIFIED');
     assert.equal(row.nativeAbortProvenance?.acceptedRootLedgerStatus,'VERIFIED');
+    assert.equal(row.nativeAbortProvenance?.firstTurnStatus,'VERIFIED');
+    assert.equal(row.verifiedFirstTurn,true);
+    assert.ok([0,1].includes(row.actualStarterSeat));
     assert.match(row.sourceDealFingerprint,/^[0-9a-f]{64}$/);
     assert.match(row.fullPhysicalDealFingerprint,/^[0-9a-f]{64}$/);
     assert.ok(Number.isSafeInteger(row.nativeRootActionCount)&&

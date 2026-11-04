@@ -81,3 +81,17 @@ test('reject unregistered physical slot',()=>{
   assert.throws(()=>extractNativeAbortProvenance({candidateSlot:'X'},witness()),
     /Registered trial/);
 });
+
+test('first-turn custody requires verified native first draw',()=>{
+  const good=witness();
+  good.initialTurnOrderEvidence={firstTurnSlot:0,verifiedByDrawLog:true};
+  const matched=extractNativeAbortProvenance({candidateSlot:'A'},good);
+  assert.equal(matched.actualStarterSeat,0);
+  assert.equal(matched.verifiedFirstTurn,true);
+  assert.equal(matched.nativeAbortProvenance.firstTurnStatus,'VERIFIED');
+  good.initialTurnOrderEvidence.verifiedByDrawLog=false;
+  const failed=extractNativeAbortProvenance({candidateSlot:'A'},good);
+  assert.equal(failed.actualStarterSeat,null);
+  assert.equal(failed.verifiedFirstTurn,false);
+  assert.equal(failed.nativeAbortProvenance.firstTurnStatus,'UNVERIFIED');
+});
