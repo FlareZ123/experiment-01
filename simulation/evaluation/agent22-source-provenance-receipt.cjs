@@ -99,7 +99,7 @@ function sourceProvenanceReceipt(
       planEngineRevision:plan?.engineRevision??null,
       nativeDeckStatus:nativePlan?.status??null,
       nativeSubstitutionCount:aliases.length,
-      datedArtRowsAccountedFor,
+      datedArtRowsAccountedFor:datedRowsAccountedFor,
       entries:mappings
     },
     native_physical_deal_match:physical,
