@@ -3,6 +3,11 @@ name: Agent 3 paper counterfactual smoke
 on:
   workflow_dispatch:
     inputs:
+      issue25_bilateral_v3_bridge_native:
+        description: 'Four original source native 48-root common resource plus v3 attack integration'
+        required: false
+        type: boolean
+        default: false
       issue25_owner_hand_discard_native:
         description: 'Historic four original rank6/11 source A/B with existing owner-hand discard bridge, zero competitive games'
         required: false
@@ -34,7 +39,7 @@ permissions:
 
 jobs:
   verify:
-    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native }}
+    if: ${{ !inputs.rank26_root_v3_native && !inputs.rank26_full_v3_native && !inputs.rank26_paper_one_lightning_native && !inputs.source_marginal_setup_native && !inputs.issue25_owner_hand_discard_native && !inputs.issue25_bilateral_v3_bridge_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -80,7 +85,7 @@ jobs:
             tests/agent3-native-root-disposition.test.cjs
 
   rank26-root-v3-native:
-    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native }}
+    if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native || inputs.issue25_owner_hand_discard_native || inputs.issue25_bilateral_v3_bridge_native }}
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -105,6 +110,9 @@ jobs:
         run: |
           node --check tests/agent3-issue25-owner-hand-discard-bridge.native.test.cjs
           node --test tests/agent3-issue25-owner-hand-discard-bridge.native.test.cjs
+      - name: Integrated v3 source owner and bilateral resource native experiment
+        if: ${{ inputs.issue25_bilateral_v3_bridge_native }}
+        run: node --test tests/agent3-issue25-bilateral-v3-bridge.native.test.cjs
       - name: Reproduce 48 precommitted new source setup A/B/A physical contexts
         if: ${{ inputs.source_marginal_setup_native }}
         run: |
