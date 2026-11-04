@@ -1,0 +1,120 @@
+{
+  "schema": "agent1-issue25-mirrored-original-source-r6-r11-v1",
+  "registeredAtUtc": "2026-11-04T19:04:32Z",
+  "context": "Freshly preregistered exploratory native Store panel; no outcomes, seeds, or opponent hands observed before registration",
+  "seedGeneration": "Four uniformly random 32-bit seeds drawn with Python secrets.randbits(32) before dispatch",
+  "frozenOriginalSourceRanks": [
+    6,
+    11
+  ],
+  "originalSourceManifest": "results/aichi-2026/full-decklists.json",
+  "candidateIds": [
+    "champion-reference",
+    "new-moon-lockbreaker-v1"
+  ],
+  "maxNativeRootActionsPerArm": 48,
+  "sourceSeatRule": "candidateSlot A => original source in physical seat1, candidateSlot B => original source in physical seat0",
+  "groupDesign": "Each rank×source-seat group has two candidate 60s sharing the same source-side integer seed. Opposite seats necessarily use different physical deals.",
+  "trialCount": 8,
+  "groups": [
+    {
+      "rank": 6,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 1492376549
+    },
+    {
+      "rank": 6,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 1787484121
+    },
+    {
+      "rank": 11,
+      "repeat": 102,
+      "candidateSlot": "A",
+      "seed": 1760478218
+    },
+    {
+      "rank": 11,
+      "repeat": 103,
+      "candidateSlot": "B",
+      "seed": 811955552
+    }
+  ],
+  "trials": [
+    {
+      "rank": 6,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 1492376549,
+      "candidateId": "champion-reference",
+      "id": "6:100:A:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 100,
+      "candidateSlot": "A",
+      "seed": 1492376549,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:100:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 6,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 1787484121,
+      "candidateId": "champion-reference",
+      "id": "6:101:B:champion-reference"
+    },
+    {
+      "rank": 6,
+      "repeat": 101,
+      "candidateSlot": "B",
+      "seed": 1787484121,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "6:101:B:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 102,
+      "candidateSlot": "A",
+      "seed": 1760478218,
+      "candidateId": "champion-reference",
+      "id": "11:102:A:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 102,
+      "candidateSlot": "A",
+      "seed": 1760478218,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:102:A:new-moon-lockbreaker-v1"
+    },
+    {
+      "rank": 11,
+      "repeat": 103,
+      "candidateSlot": "B",
+      "seed": 811955552,
+      "candidateId": "champion-reference",
+      "id": "11:103:B:champion-reference"
+    },
+    {
+      "rank": 11,
+      "repeat": 103,
+      "candidateSlot": "B",
+      "seed": 811955552,
+      "candidateId": "new-moon-lockbreaker-v1",
+      "id": "11:103:B:new-moon-lockbreaker-v1"
+    }
+  ],
+  "releaseQualified": false,
+  "competitivelyQualifiedGames": 0,
+  "constraints": [
+    "Original 29/32 available; missing ranks23,25,28",
+    "No original source decklist or candidate 60 edited",
+    "Prospective seat-factor diagnostic only",
+    "No admission as competitive games",
+    "No familywise win-rate claim"
+  ]
+}
