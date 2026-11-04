@@ -82,7 +82,7 @@ function withOwnerEntryPriorityOpening(run,deps={}){
   };
   try{
     const result=withOwnerStartingPokemon(run,{
-      observe,choose:wrappedChoose});
+      ...deps,observe,choose:wrappedChoose});
     return {result:result.result,audit:{
       ...result.audit,variant:VERSION,
       ownerEntrySelectionEvents:inputSelections,
