@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {createHash}=require('node:crypto');
-const {buildReceipt,writeReceipt,VERSION}=
+const {buildReceipt,writeReceipt,rootDecisionComposition,VERSION}=
   require('../simulation/evaluation/agent7-issue25-v3-executed-receipt.cjs');
 
 function fixture(){
@@ -136,4 +136,34 @@ test('SFT mismatched native public ledger digest invalidates the audit gate',()=
   assert.equal(receipt.gate.observedPublicRootLedgerDigest,'FAIL');
   assert.equal(receipt.attempts[2].publicRootLedgerDigestConsistent,false);
   assert.equal(receipt.gate.overall,'FAIL-development-only');
+});
+
+test('SFT exposes meaningful native card/attack roots separately from setup and Wait overhead',()=>{
+  const ledger=[
+    {actionOrdinal:0,playerSlot:0,turnBefore:0,
+      action:'ResolvePromptAction',pendingPrompt:'CoinFlipPrompt'},
+    {actionOrdinal:1,playerSlot:0,turnBefore:1,
+      action:'PlayCardAction',card:'Basic Energy'},
+    {actionOrdinal:2,playerSlot:0,turnBefore:1,
+      action:'AttackAction',attack:'Volt Cyclone'},
+    {actionOrdinal:3,playerSlot:1,turnBefore:2,
+      action:'ResolvePromptAction',pendingPrompt:'WaitPrompt'},
+    {actionOrdinal:4,playerSlot:1,turnBefore:2,
+      action:'PassTurnAction'}
+  ];
+  const out=rootDecisionComposition(ledger);
+  assert.equal(out.nativeAcceptedRoots,5);
+  assert.equal(out.meaningfulNonPassRoots,2);
+  assert.equal(out.promptRoots,2);
+  assert.equal(out.waitPromptRoots,1);
+  assert.equal(out.passRoots,1);
+  assert.deepEqual(out.attacks,[{
+    ordinal:2,turn:1,seat:0,attack:'Volt Cyclone'
+  }]);
+  assert.deepEqual(out.bySeat,{
+    0:{roots:3,meaningful:2},1:{roots:2,meaningful:0}
+  });
+  assert.equal(out.highestObservedGlobalTurn,2);
+  assert.equal(rootDecisionComposition(null).available,false);
+  console.log('ISSUE25_ROOT_COMPOSITION_SFT',JSON.stringify(out));
 });
