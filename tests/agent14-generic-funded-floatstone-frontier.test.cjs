@@ -145,3 +145,44 @@ test('exactly chosen highest projected damage with deterministic tie break',()=>
   view.ownPublic.bench[1].attacks[0].damage=200;
   assert.equal(choose(view,catalog)?.benchIndex,0);
 });
+
+test('original rank1 Max Geist bracket-[P] scaling allows broad funded line',()=>{
+  const view=sample();
+  const move={name:'Max Geist',damage:10,cost:[9,9,9],
+    text:'This attack does 30 more damage for each [P] Energy attached to all of your Pokémon.'};
+  const vmax=energies=>({
+    printing:'Shadow Rider Calyrex VMAX CRE',
+    printed:{stage:3,types:[5],retreatCost:[9,9]},
+    energies,tools:[],attacks:[move],specialConditions:[],
+    publicRestrictions:{}
+  });
+  view.ownPublic.active=vmax([psychic]);
+  view.ownPublic.bench=[vmax(Array(6).fill(psychic))];
+  const plan=choose(view,catalog);
+  assert.equal(plan?.kind,'attach-emergency-floatstone');
+  assert.equal(plan?.projectedPrintedDamage,220);
+  assert.equal(plan?.targetAttackName,'Max Geist');
+  view.ownPublic.active.energies=[psychic,psychic,psychic];
+  assert.equal(choose(view,catalog),null,
+    'already funded Max Geist Active is preserved');
+});
+
+test('unmodeled Special Energy makes Basic-only scaling projection abstain',()=>{
+  const view=sample();
+  const move={name:'Max Geist',damage:10,cost:[9,9,9],
+    text:'This attack does 30 more damage for each Psychic Energy attached to all of your Pokémon.'};
+  const vmax=energies=>({
+    printing:'Shadow Rider Calyrex VMAX CRE',
+    printed:{stage:3,types:[5],retreatCost:[9,9]},
+    energies,tools:[],attacks:[move],specialConditions:[],
+    publicRestrictions:{}
+  });
+  view.ownPublic.active=vmax([psychic]);
+  view.ownPublic.bench=[vmax([
+    psychic,psychic,psychic,psychic,psychic,
+    'Double Colorless Energy EVO'])];
+  const extended={...catalog,
+    specialEnergies:new Set(['Double Colorless Energy EVO'])};
+  assert.equal(choose(view,extended),null,
+    'unknown scaling contribution cannot certify nominal target');
+});
