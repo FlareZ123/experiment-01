@@ -220,7 +220,7 @@ jobs:
         with:
           node-version: '22'
       - name: Regress native-only source receipt accounting and rejection cases
-        run: node --test tests/agent1-archived-compressor-receipt-gate.test.cjs tests/agent1-compressor-prompt-custody.test.cjs tests/aichi-open-official-clock.test.cjs tests/agent1-rank17-archived-action-census.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent1-gholdengo-thirty-hand-zone-witness.test.cjs tests/agent1-prize-failure-budget.test.cjs tests/agent1-original-field-mulligan-bonus.test.cjs tests/setup-compensation-observer.test.cjs tests/agent1-adp-t1-core-access.test.cjs
+        run: node --test tests/agent1-archived-compressor-receipt-gate.test.cjs tests/agent1-compressor-prompt-custody.test.cjs tests/aichi-open-official-clock.test.cjs tests/agent1-rank17-archived-action-census.test.cjs tests/agent1-actor-dead-first-attack-frontier.test.cjs tests/agent1-gholdengo-thirty-hand-zone-witness.test.cjs tests/agent1-prize-failure-budget.test.cjs tests/agent1-original-field-mulligan-bonus.test.cjs tests/setup-compensation-observer.test.cjs tests/agent1-adp-t1-core-access.test.cjs tests/agent1-adp-bonus-core-access.test.cjs
       - name: Fetch previously archived 38 original native Store attempts without replaying
         uses: actions/download-artifact@v4
         with:
