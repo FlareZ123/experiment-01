@@ -63,7 +63,8 @@ jobs:
             tests/agent3-marginal-coupled-field-delta.test.cjs \
             tests/agent3-attested-marginal-field-delta.test.cjs \
             tests/agent3-coupled-opening-input-order.test.cjs \
-            tests/agent3-native-first-mulligan-reconstruction.test.cjs
+            tests/agent3-native-first-mulligan-reconstruction.test.cjs \
+            tests/agent3-source-bonus-coupled-mulligan-model.test.cjs
 
   rank26-root-v3-native:
     if: ${{ inputs.rank26_root_v3_native || inputs.rank26_full_v3_native || inputs.rank26_paper_one_lightning_native || inputs.source_marginal_setup_native }}
