@@ -67,7 +67,7 @@ function runNightWatchFutureSightIssue25V3(deps={}){
       'sourceStampedNightWatchOpaquePhysicalChoice',
       'canonicalActorCommonRunner'
     ],
-    newNightWatchPromptSelected:true,
+    nightWatchOwnerHandlerInstalled:true,
     nightWatchChoiceKind:'precommitted-uniform-physical-indices',
     nightWatchPublicCommittedSeed:PUBLIC_PRECOMMITTED_SEED,
     stillUnresolvedGetLostOwnerPrompt:true,
