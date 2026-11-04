@@ -206,5 +206,87 @@ function original29VsRank26OpeningTradeoff(){
     competitiveGamesQualified:0
   };
 }
+/**
+ * A full 29-by-29 original printed-source pairing, conditional on the
+ * candidate's Basic-valid first seven and on the opponent later finishing
+ * its own mulligans. The original opposing source's Basic count determines
+ * the geometric bonus distribution; each paired conditional calculation
+ * remains separate. Four fixed experimental candidate 60s are summarized
+ * separately, preserving the "one unchanged deck against all" constraint.
+ *
+ * @returns {object}
+ */
+function authenticatedFieldMulliganBenchMatrix(){
+  const input=originalAndCandidateOccupancy();
+  const memo=new Map();
+  const risk=(candidate,source)=>{
+    const key=[
+      candidate.basics,candidate.entrySupportBasics,source.basics
+    ].join(':');
+    if(!memo.has(key))
+      memo.set(key,sourceMulliganBenchTradeoff(
+        candidate.basics,candidate.entrySupportBasics,source.basics));
+    return memo.get(key);
+  };
+  const rows=input.originalRows.flatMap(candidate=>
+    input.originalRows.map(source=>({
+      candidateRank:candidate.rank,
+      candidateArchetype:candidate.archetype,
+      sourceOpponentRank:source.rank,
+      sourceOpponentArchetype:source.archetype,
+      sourceOpponentBasics:source.basics,
+      addedSoloStrictVsGreedy:
+        risk(candidate,source).necessaryTriggerSacrificeForSecondPokemon,
+      greedyLoneAfterBonus:risk(candidate,source).greedyLoneAfterBonus,
+      strictLoneAfterBonus:
+        risk(candidate,source).strictEntryPreservingLoneAfterBonus
+    })));
+  const sourceSummaries=input.originalRows.map(source=>{
+    const list=rows.filter(row=>row.sourceOpponentRank===source.rank);
+    return {
+      rank:source.rank,archetype:source.archetype,
+      sourceBasics:source.basics,
+      meanAdditionalLoneAgainstOriginal29:
+        list.reduce((sum,row)=>sum+row.addedSoloStrictVsGreedy,0)/
+        list.length
+    };
+  });
+  const candidateSummaries=input.candidateRows.map(candidate=>{
+    const list=input.originalRows.map(source=>risk(candidate,source));
+    return {
+      candidate:candidate.name,basics:candidate.basics,
+      triggers:candidate.entrySupportBasics,
+      meanAdditionalLoneAcrossKnown29:
+        list.reduce((sum,row)=>
+          sum+row.necessaryTriggerSacrificeForSecondPokemon,0)/
+          list.length,
+      againstRank26:list[input.originalRows.findIndex(x=>x.rank===26)]
+        .necessaryTriggerSacrificeForSecondPokemon,
+      againstRank6:list[input.originalRows.findIndex(x=>x.rank===6)]
+        .necessaryTriggerSacrificeForSecondPokemon
+    };
+  });
+  assert.equal(rows.length,29*29);
+  assert.equal(candidateSummaries.length,4);
+  const rank26=sourceSummaries.find(x=>x.rank===26);
+  const original29AgainstRank26=original29VsRank26OpeningTradeoff();
+  assert.ok(Math.abs(rank26.meanAdditionalLoneAgainstOriginal29-
+    original29AgainstRank26.equalRankMeans
+      .necessaryTriggerSacrificeForSecondPokemon)<1e-12);
+  return {
+    version:VERSION,
+    authenticatedSourcePairs:rows.length,
+    knownOriginalCount:29,
+    missingSourceRanks:[23,25,28],
+    equalPairMeanAdditionalSolo:
+      rows.reduce((sum,row)=>sum+row.addedSoloStrictVsGreedy,0)/
+        rows.length,
+    sourceSummaries,candidateSummaries,rows,
+    selectedPolicyChanged:false,qualifiedCompetitiveGames:0,
+    claimBoundary:'Physical two-deck opening and optional bonus cards only. Neither source attack capability nor matchup game strength is modeled.'
+  };
+}
+
 module.exports={VERSION,noTargetInBonus,
-  sourceMulliganBenchTradeoff,original29VsRank26OpeningTradeoff};
+  sourceMulliganBenchTradeoff,original29VsRank26OpeningTradeoff,
+  authenticatedFieldMulliganBenchMatrix};
