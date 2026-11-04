@@ -96,3 +96,40 @@ test('exact printed fixed 60 manifest remains the subject of both calculations',
       counts.get('sm6-113')+counts.get('swsh1-179'));
   }
 });
+
+test('specified two-for-two swap preserves 60 and lowers early Energy-constrained opportunities',()=>{
+  const base=exactOpening(8);
+  const scenario={totalDonors:10,energyCount:8,basicCount:16};
+  const swap=exactOpening(10,scenario);
+  assert.equal(swap.counterfactualTwoEnergyForTwoShuppet,true);
+  assert.equal(swap.originalFixedSixty,false);
+  assert.deepEqual(swap.counts,[4,10,8,4,1,4,7,22]);
+  assert.equal(swap.expandedWorlds,'59945386702448352');
+  assert.equal(swap.strictWorlds,'51014292085154816');
+  assert.ok(swap.expandedProbability<base.expandedProbability);
+  assert.ok(swap.conditionalBasicValid<base.conditionalBasicValid);
+  assert.deepEqual(study().hypotheticalTwoBasicEnergyToTwoShuppet.alteredCopies,
+    [{id:'sve-5',delta:-2},{id:'me5-33',delta:2}]);
+});
+
+test('two extra Psychic Shuppet split Wobbuffet versus Silent Lab lock donor counts',()=>{
+  const cfg={totalDonors:10,energyCount:8,basicCount:16};
+  const wobb=exactOpening(8,cfg);
+  const lab=exactOpening(6,cfg);
+  assert.equal(wobb.expandedWorlds,'58538665727465952');
+  assert.equal(lab.expandedWorlds,'54140161030934880');
+  assert.ok(wobb.expandedProbability>lab.expandedProbability);
+  assert.equal(exactOpening(8,{...cfg,allowArven:false}).expandedWorlds,
+    '28373604694693216');
+  assert.equal(exactOpening(6,{...cfg,allowArven:false}).expandedWorlds,
+    '25284336329529024');
+  assert.equal(exactOpening(10,{...cfg,allowArven:false}).expandedWorlds,
+    '30110631935408864');
+});
+
+test('counterfactual hard boundary rejects silent changes to other cards',()=>{
+  assert.throws(()=>exactOpening(10),assert.AssertionError);
+  assert.throws(()=>exactOpening(8,{energyCount:8}),assert.AssertionError);
+  assert.throws(()=>exactOpening(10,{totalDonors:10,energyCount:8,basicCount:14}),
+    assert.AssertionError);
+});
