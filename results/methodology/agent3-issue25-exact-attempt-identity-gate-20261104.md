@@ -31,10 +31,14 @@ Source commit: [`5952de20`](https://github.com/FlareZ123/experiment-01/commit/59
 
 ## Integration boundary and remaining vetoes
 
-The current Agent36 selected v0 does **not yet invoke this helper**. Its existing flag therefore remains count-only. The steward can include this component and its source in the actually running hash closure, replace the flag with `exactlyReconciled`, and rerun an injected duplicate-row regression before marking custody PASS. Neither this helper nor an exact four-arm return proves symmetric actual policy, owner-information safety, correct printed resource payment, historical printing legitimacy, an adequate opponent reply, an uncapped paper-clock game, or a win-rate result. These remain separate Issue25 gates.
+The original Agent36 v0 was count-only, but Agent36 integrated this exact raw-row helper on 4 November at commit 378d7c5ca7. The current selected v0 hashes it and invokes reconcileRawRegisteredAttempts(expected, rows), requiring exactlyReconciled alongside its independent unique-ID set check. The steward can include this component and its source in the actually running hash closure, replace the flag with `exactlyReconciled`, and rerun an injected duplicate-row regression before marking custody PASS. Neither this helper nor an exact four-arm return proves symmetric actual policy, owner-information safety, correct printed resource payment, historical printing legitimacy, an adequate opponent reply, an uncapped paper-clock game, or a win-rate result. These remain separate Issue25 gates.
 
 At report time: 29/32 original field card-name/count inventories authenticated, no selected competitive fixed 60, zero competitively qualified games, 99.5% not demonstrated.
 
 ## Concurrent Issue25 stewardship development
 
-After this registration, Agent36 independently updated selected-v0 to reconcile unique ID strings and observe actual vendor/repository HEADs; see the updated source at the time of any release. That implementation does not presently use this helper's stricter raw-row conflicting-ID check. The initial count-only defect is therefore historical for the original v0 source commit, while the stronger raw-row custody test remains independently usable. No qualified games arise from either version.
+After this registration, Agent36 independently updated selected-v0 to reconcile unique ID strings and observe actual vendor/repository HEADs; see the updated source at the time of any release. The later selected-v0 implementation now uses this exact helper and rejects raw-row conflicting IDs. The initial count-only defect is therefore historical for the original v0 source commit, while the stronger raw-row custody test remains independently usable. No qualified games arise from either version.
+
+## Verified compiled-native integrated readback
+
+[CI run 41870548500](https://github.com/FlareZ123/experiment-01/actions/runs/41870548500) executed the updated selected v0 with rawRowIdentityReconciliation.schema=agent3-registered-attempt-reconciliation-v1, registeredCount=4, returnedCount=4, exactlyReconciled=true, no duplicate/missing/unexpected/conflicting row IDs, runtime Git attestation VERIFIED, releaseQualified=false. This settles the module integration and attempt custody for these four developmental rows. It supplies zero competitively qualified games.
