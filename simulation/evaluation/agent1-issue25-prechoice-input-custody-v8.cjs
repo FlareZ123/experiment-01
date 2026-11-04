@@ -314,6 +314,22 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       privateFingerprintSessionIdPublished:false
     },
     pairedRows:rows,
+    protectedOpeningObservations:(()=>{
+      const audit=protectedRun.diagnostic.protectedOpeningAudit??null;
+      const initial=Array.isArray(audit?.events)?audit.events.filter(
+        e=>e.kind==='initial-active-and-ordinary-bench'):null;
+      return {
+        actualNativeStores:audit?.stores??null,
+        initialNativeAccepted:audit?.initialAccepted??null,
+        optionalBonusDeclines:audit?.bonusDeclines??null,
+        missingPhysicalPlacements:audit?.missingPhysicalPlacements??null,
+        initialEventsWithHeldTurnEntrySupport:initial?initial.filter(
+          e=>Array.isArray(e.preservedEntryPrintings)&&
+            e.preservedEntryPrintings.length>0).length:null,
+        hiddenHandNamesOrPositionsPublished:false,
+        gameplayPayoffInferred:false
+      };
+    })(),
     constraints:{
       allBeforeTreatmentInputsObserved,
       trialPairedInputMatches:beforeTreatmentMatches,
