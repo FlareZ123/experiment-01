@@ -103,15 +103,15 @@ for(const kind of ['absol','clefairy'])for(const seat of [0,1])
     const beforeDamage=x.foe.active.damage;
     const attack=kind==='absol'?'Claw of Darkness':'Full Moon Rondo';
     x.store.dispatch(new AttackAction(x.owner.id,attack));
-    if(kind==='clefairy'){
-      for(let i=0;i<12;i++){
-        const p=x.state.prompts.find(q=>q.result===undefined);
-        if(!p)break;
-        assert.equal(p.constructor.name,'WaitPrompt');
-        x.store.dispatch(new ResolvePromptAction(p.id,null));
-      }
-      assert.equal(x.store.hasPrompts(),false);
+    for(let i=0;i<12;i++){
+      const p=x.state.prompts.find(q=>q.result===undefined);
+      if(!p)break;
+      assert.equal(p.constructor.name,'WaitPrompt',
+        'failing prompt must be recorded rather than silently skipped');
+      x.store.dispatch(new ResolvePromptAction(p.id,null));
     }
+    assert.equal(x.store.hasPrompts(),false,
+      'attack should settle through genuine native prompt chain');
     const dealt=x.foe.active.damage-beforeDamage;
     const pending=x.state.prompts.filter(p=>p.result===undefined)
       .map(p=>p.constructor.name);
