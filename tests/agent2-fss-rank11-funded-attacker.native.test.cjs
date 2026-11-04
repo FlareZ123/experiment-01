@@ -9,6 +9,14 @@ const {withStoneVRecipient}=
   require('../simulation/twinleaf/forest-stone-v-recipient-policy.cjs');
 const {withFloatStoneAfterFssHold,FLOAT}=
   require('../simulation/twinleaf/agent2-fss-held-try-float-owner.cjs');
+const {actorObservation}=
+  require('../simulation/twinleaf/actor-observation-contract.cjs');
+const {publicCatalog}=
+  require('../simulation/twinleaf/agent43-guzma-prompt-continuation.cjs');
+const {chooseGenericFundedFloatStone,VERSION:GENERIC_VERSION}=
+  require('../simulation/twinleaf/agent14-generic-funded-floatstone-frontier.cjs');
+const {chooseActorRootIntent}=
+  require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 
 const OUT=path.resolve(__dirname,'../vendor/twinleaf/ptcg-server/output');
 /** @param {string} filename */
@@ -156,5 +164,32 @@ for(const seat of [0,1]){
       pendingPrompts:pending,consequentialPaidAttack:true,
       paperWinnerQualified:false,competitiveGamesQualified:0
     }));
+  });
+
+  test('Agent14 paid-attacker owner root can see second Float after first held Stone seat '+seat,()=>{
+    const s=constructedRank11(seat),view=actorObservation(s.state,seat);
+    const catalog=publicCatalog();
+    assert.deepEqual(view.ownHand,['Forest Seal Stone SIT','Float Stone BKT']);
+    const direct=chooseGenericFundedFloatStone(view,catalog);
+    console.log('AGENT2_FSS_GENERIC_FUNDED_FLOAT_OBSERVATION',
+      JSON.stringify({seat,rank:11,hand:view.ownHand,choice:direct,
+        vstarUsed:view.ownTurnResources.vstarUsed,
+        retreatMark:view.ownTurnResources.retreatedTurn,
+        active:view.ownPublic.active?.printing,
+        bench:view.ownPublic.bench?.map(x=>x?.printing??null),
+        competitivelyQualified:false}));
+    assert.ok(direct,'Funded Float alternative was omitted by owner policy');
+    assert.equal(direct.source,GENERIC_VERSION);
+    assert.equal(direct.kind,'attach-emergency-floatstone');
+    assert.equal(direct.handIndex,1);
+    assert.equal(direct.benchIndex,0);
+    assert.equal(direct.targetAttackName,'Claw of Darkness');
+    assert.ok(direct.projectedPrintedDamage>=200);
+    const composed=chooseActorRootIntent(view,catalog,
+      {genericFundedFloatStoneRoot:true});
+    assert.equal(composed.kind,'attach-emergency-floatstone');
+    assert.equal(composed.handIndex,1);
+    const defaultOff=chooseActorRootIntent(view,catalog,{});
+    assert.notEqual(defaultOff?.kind,'attach-emergency-floatstone');
   });
 }
