@@ -177,3 +177,124 @@ test('paper guard does not suppress target-bearing native corrected Megaton', ()
     assert.equal(audit.rejectedProvenNoEffect, 0);
   }
 });
+
+/**
+ * Genuine Store two-action board, with a staged owning Vileplume and opposing
+ * Tool-equipped Garbotoxin. The Item lock must be recomputed immediately
+ * after the opponent's Float Stone leaves Garbodor; no complete game is dealt.
+ * @param {0|1} seat
+ * @param {boolean} corrected
+ * @returns {object}
+ */
+function probeReactivatedItemLock(seat, corrected) {
+  const manager = initializeCards();
+  const card = printing => {
+    const result = manager.getCardByName(printing);
+    assert.ok(result, 'Missing pinned printing ' + printing);
+    return result;
+  };
+  const state = new State();
+  state.players = [new Player(), new Player()];
+  const owner = state.players[seat];
+  const opponent = state.players[1 - seat];
+  owner.id = 101;
+  opponent.id = 202;
+  state.activePlayer = seat;
+  state.turn = 4 + seat;
+  state.phase = GamePhase.PLAYER_TURN;
+  owner.active.cards.push(card('Bunnelby PRC'));
+  opponent.active.cards.push(card('Shadow Rider Calyrex V CRE'));
+  const flower = new PokemonCardList();
+  flower.cards.push(card('Oddish UNB'), card('Gloom UNB'),
+    card('Vileplume AOR'));
+  owner.bench.push(flower);
+  const trash = new PokemonCardList();
+  trash.cards.push(card('Trubbish BKP'), card('Garbodor BKP'));
+  const floatStone = card('Float Stone BKT');
+  trash.tools.push(floatStone);
+  opponent.bench.push(trash);
+  const megaton = card('Megaton Blower SSP');
+  const switchCard = card('Switch SVI');
+  owner.hand.cards.push(megaton, switchCard);
+  for (const p of state.players) {
+    p.deck.cards.push(card('Psychic Energy SVE'));
+    p.prizes = Array.from({length: 6}, () => {
+      const prize = new CardList();
+      prize.cards.push(card('Psychic Energy SVE'));
+      return prize;
+    });
+  }
+  const store = new Store({onStateChange() {}});
+  store.state = state;
+  const restore = corrected ? installMegatonBlowerHook() : null;
+  let itemError = null;
+  let switchError = null;
+  let guardAudit = null;
+  try {
+    const execution = withMegatonNoEffectRootGuard(() => {
+      try {
+        store.dispatch(new PlayCardAction(owner.id, 0, {
+          player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+        }));
+      } catch (e) {
+        itemError = String(e?.message ?? e);
+      }
+      try {
+        const live = store.state.players.find(p => p.id === owner.id);
+        const index = live.hand.cards.findIndex(c => c === switchCard);
+        assert.ok(index >= 0, 'Switch remains in physical hand');
+        store.dispatch(new PlayCardAction(owner.id, index, {
+          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+        }));
+      } catch (e) {
+        switchError = String(e?.message ?? e);
+      }
+    });
+    guardAudit = execution.audit;
+  } finally {
+    if (restore) restore();
+  }
+  const currentOwner = store.state.players.find(p => p.id === owner.id);
+  const currentOpponent = store.state.players.find(p => p.id === opponent.id);
+  const liveGarbo = currentOpponent.bench[0];
+  return {
+    seat, corrected, itemError, switchError, guardAudit,
+    opponentFloatStoneAttached: liveGarbo.tools.some(
+      tool => tool.fullName === 'Float Stone BKT'),
+    opponentFloatStoneDiscarded: currentOpponent.discard.cards.some(
+      tool => tool.fullName === 'Float Stone BKT'),
+    megatonDiscarded: currentOwner.discard.cards.some(
+      item => item.fullName === 'Megaton Blower SSP'),
+    switchInHand: currentOwner.hand.cards.some(
+      item => item.fullName === 'Switch SVI'),
+    pendingPrompts: store.state.prompts.filter(p => p.result === undefined)
+      .map(p => p.constructor?.name ?? 'unknown')
+  };
+}
+
+test('both seats Megaton Tool removal restores Vileplume Item lock before next Item', () => {
+  for (const seat of [0, 1]) {
+    const raw = probeReactivatedItemLock(seat, false);
+    const corrected = probeReactivatedItemLock(seat, true);
+    console.log('AGENT1_MEGATON_GARBOTOXIN_LOCK ' +
+      JSON.stringify({raw, corrected}));
+    assert.equal(raw.itemError, null);
+    assert.equal(corrected.itemError, null);
+    assert.equal(raw.opponentFloatStoneAttached, true);
+    assert.equal(corrected.opponentFloatStoneAttached, false);
+    assert.equal(raw.opponentFloatStoneDiscarded, false);
+    assert.equal(corrected.opponentFloatStoneDiscarded, true);
+    assert.equal(raw.megatonDiscarded, true);
+    assert.equal(corrected.megatonDiscarded, true);
+    assert.equal(raw.switchError, null);
+    assert.equal(corrected.switchError, 'CANNOT_PLAY_THIS_CARD');
+    assert.equal(raw.switchInHand, false);
+    assert.equal(corrected.switchInHand, true);
+    assert.deepEqual(raw.pendingPrompts, ['ChoosePokemonPrompt']);
+    assert.deepEqual(corrected.pendingPrompts, []);
+    for (const row of [raw, corrected]) {
+      assert.equal(row.guardAudit.inspectedMegatonActions, 1);
+      assert.equal(row.guardAudit.rejectedProvenNoEffect, 0);
+    }
+  }
+});
