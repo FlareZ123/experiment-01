@@ -5,7 +5,7 @@ const path=require('node:path');
 const {sampleUniformPositions}=
   require('./agent12-nightwatch-paper-random-chooser.cjs');
 
-const VERSION='agent26-origin-bound-attack-choices-v3';
+const VERSION='agent26-origin-bound-attack-choices-v4';
 const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 
 /**
@@ -19,7 +19,8 @@ const OUTPUT=path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
  *
  * @template T
  * @param {()=>T} run Synchronous genuine Store experiment.
- * @param {{committedSeed:string,engine?:(relative:string)=>object}} options
+ * @param {{committedSeed:string,captureNativeZoneAudit?:boolean,
+ *   engine?:(relative:string)=>object}} options
  * @returns {{result:T,audit:object}}
  */
 function withOwnerOriginBoundAttackChoices(run,options){
@@ -36,6 +37,16 @@ function withOwnerOriginBoundAttackChoices(run,options){
   const {ShuffleDeckPrompt}=engine('game/store/prompts/shuffle-prompt');
   const {ResolvePromptAction}=engine('game/store/actions/resolve-prompt-action');
   const {GameMessage}=engine('game/game-message');
+  const trackNative=options.captureNativeZoneAudit===true;
+  const Store=trackNative?engine('game/store/store').Store:null;
+  const AddPlayerAction=trackNative?engine(
+    'game/store/actions/add-player-action').AddPlayerAction:null;
+  const oldDispatch=trackNative?
+    Object.getOwnPropertyDescriptor(Store.prototype,'dispatch'):null;
+  if(trackNative){
+    assert.equal(typeof oldDispatch?.value,'function');
+    assert.equal(oldDispatch.configurable,true);
+  }
   const definitions=[
     {klass:TrevenantDusknoirGX,kind:'night-watch',
       printing:'Trevenant & Dusknoir-GX SMP',attack:'Night Watch',
@@ -57,7 +68,11 @@ function withOwnerOriginBoundAttackChoices(run,options){
   const audit={version:VERSION,printedSourceInvocations:[],
     markedPrompts:[],selected:[],markedFollowups:[],resolvedFollowups:[],declined:[],
     privateCardIdentityInspectedForPolicy:false,
+    nativeZoneAuditEnabled:trackNative,nativeRootStoreCount:0,
+    nativeZoneEvents:[],
+    nativeZoneAuditFeedsPolicy:false,
     sourceQualifiedCompetitiveGames:0};
+  const nativeRootStates=trackNative?new WeakSet():null;
 
   const wrappers=definitions.map((definition,i)=>{
     const original=previous[i].value;
@@ -193,15 +208,107 @@ function withOwnerOriginBoundAttackChoices(run,options){
     return new ResolvePromptAction(prompt.id,choices);
   }
 
+  /**
+   * Post-choice real Store zone receipts. This watcher cannot affect a
+   * decision; it observes reference custody after an already chosen native
+   * action. Native-only setup roots are distinguished from simulator clones
+   * through their actual first AddPlayerAction Store dispatch.
+   */
+  function auditNativeDispatch(action,...args){
+    const stateBefore=this.state;
+    if(action instanceof AddPlayerAction&&
+       stateBefore.players?.length===0){
+      nativeRootStates.add(stateBefore);
+      audit.nativeRootStoreCount++;
+    }
+    const real=nativeRootStates.has(stateBefore);
+    const prompt=real&&action instanceof ResolvePromptAction?
+      stateBefore.prompts.find(p=>p.id===action.id&&
+        p.result===undefined):null;
+    const selected=prompt?origins.get(prompt):null;
+    const follow=prompt?followups.get(prompt):null;
+    let before=null;
+    if(selected){
+      const other=stateBefore.players.find(p=>p.id!==selected.ownerId);
+      const from=other?.[selected.definition.zone];
+      const to=selected.definition.kind==='night-watch'?
+        other?.deck:other?.lostzone;
+      if(from&&to&&Array.isArray(action.result)){
+        const cards=action.result.slice();
+        before={kind:selected.definition.kind,turn:stateBefore.turn,
+          cardRefs:cards,from,to,sourceCount:from.cards.length,
+          targetCount:to.cards.length,
+          chosenAllInSource:cards.every(card=>from.cards.includes(card)),
+          chosenInitiallyInTarget:cards.filter(card=>
+            to.cards.includes(card)).length};
+      }
+    }else if(follow){
+      const owner=stateBefore.players.find(p=>p.id===follow.ownerId);
+      if(follow.kind==='night-watch-reveal'){
+        before={kind:follow.kind,turn:stateBefore.turn};
+      }else if(follow.kind==='night-watch-shuffle'&&owner?.deck){
+        before={kind:follow.kind,turn:stateBefore.turn,
+          ownerDeck:owner.deck,oldReferences:owner.deck.cards.slice(),
+          proposal:Array.isArray(action.result)?action.result.slice():null,
+          nativePromptValidated:prompt.validate(action.result,stateBefore)};
+      }
+    }
+    const result=oldDispatch.value.call(this,action,...args);
+    if(before&&audit.nativeZoneEvents.length<48){
+      let entry={kind:before.kind,turn:before.turn,promptId:prompt.id,
+        acceptedByActualStore:prompt.result!==undefined,
+        observationIsPostNativeAction:true,
+        sourceCardIdentityExposed:false};
+      if(before.cardRefs){
+        const refs=before.cardRefs,from=before.from,to=before.to;
+        entry={...entry,selectedCount:refs.length,
+          sourceCountBefore:before.sourceCount,
+          sourceCountAfter:from.cards.length,
+          targetCountBefore:before.targetCount,
+          targetCountAfter:to.cards.length,
+          chosenAllInSourceBefore:before.chosenAllInSource,
+          chosenInitiallyInTarget:before.chosenInitiallyInTarget,
+          chosenRemainingInSource:refs.filter(ref=>
+            from.cards.includes(ref)).length,
+          chosenNowInTarget:refs.filter(ref=>
+            to.cards.includes(ref)).length,
+          physicalTransferConfirmed:before.chosenAllInSource&&
+            before.chosenInitiallyInTarget===0&&
+            from.cards.length===before.sourceCount-refs.length&&
+            to.cards.length===before.targetCount+refs.length&&
+            refs.every(ref=>!from.cards.includes(ref)&&to.cards.includes(ref))};
+      }else if(before.kind==='night-watch-reveal'){
+        entry.acknowledgedAsTrue=action.result===true&&prompt.result===true;
+      }else if(before.kind==='night-watch-shuffle'){
+        const deck=before.ownerDeck.cards,order=before.proposal;
+        entry={...entry,nativePromptValidated:before.nativePromptValidated,
+          permutationLength:order?.length??null,
+          deckCountBefore:before.oldReferences.length,
+          deckCountAfter:deck.length,
+          permutationAppliedExactly:before.nativePromptValidated&&
+            deck.length===before.oldReferences.length&&
+            order.every((j,i)=>deck[i]===before.oldReferences[j])};
+      }
+      audit.nativeZoneEvents.push(entry);
+    }
+    return result;
+  }
+
   definitions.forEach((definition,i)=>Object.defineProperty(
     definition.klass.prototype,'reduceEffect',{
       ...previous[i],value:wrappers[i]}));
   Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',{
     ...oldAi,value:decodeNextAction});
+  if(trackNative)Object.defineProperty(Store.prototype,'dispatch',{
+    ...oldDispatch,value:auditNativeDispatch});
   try{
     const result=run();
     return {result,audit};
   }finally{
+    if(trackNative){
+      assert.strictEqual(Store.prototype.dispatch,auditNativeDispatch);
+      Object.defineProperty(Store.prototype,'dispatch',oldDispatch);
+    }
     assert.strictEqual(SimpleTacticsAi.prototype.decodeNextAction,
       decodeNextAction);
     Object.defineProperty(SimpleTacticsAi.prototype,'decodeNextAction',oldAi);
