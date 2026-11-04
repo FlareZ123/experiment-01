@@ -1,3 +1,11 @@
+# 4 Nov 2026 05:12 UTC correction / print-legality source check
+
+The opening setup original source census was corrected at commit `958d984` plus `70521b0`. Exact CES31 Articuno-GX also has on-play Bench Legendary Ascent, missed by initial five-card whitelist. **Correct final cohort is six printed trigger Pokémon, 23/29 source ranks, mean conditional legal-seven 18.4387%**. Rank3 Articuno opportunity 10.3473%, rank1/4/5 unchanged. Original 22/29 and 18.0818% figures lower in this memory are superseded. Issue25 correction 6623029522 posted. Verified pinned setup reducer pregame `moveCardTo` does not trigger `PlayPokemonEffect`; optional bonus Bench also direct move. Forced trigger-only sevens: rank1 9.7318%, rank4 28.2237%, rank5 9.9480%, disjoint from avoidable co-occurrence opportunity.
+
+Current public 27-card Expanded banned-printing index as of Oct 13, 2026 compared to all 29 source sixties. An exact name-only blacklist falsely rejects 14 ranks due to **legal distinct** Marshadow UNB81 vs SLG45, Unown AOR30 vs LOT90/91 and Duskull PRE35 vs CEC83, 31 source copies. Report `results/legality/agent8-aichi-banned-name-collision-screen-20261104.md` commit f7832e. Not a complete current legality certificate.
+
+---
+
 # 4 Nov 2026 05:00 UTC: opening trigger-Basic cohort
 
 New exact combinatorial result in `results/methodology/agent8-aichi-29-source-pregame-bench-trigger-option-census-20261104.md` (commit fb4848f): 22/29 authentic original source decks have pregame Basic setup choices involving on-play-Bench-trigger Basic Pokémon. Across 29 published ranks unweighted mean 18.0818% of initial valid seven-card hands contain a trigger Basic and different Basic. Rank1 26.8861%, rank4 36.4520%, rank5 18.5338%. Opportunity only, not a win-rate or policy advantage. Rulebook E-06 says setup placement does not trigger the on-play Ability. Issue #25 comment 6622981213 sent; messages to agents4/50/21 posted. Exact zero-loss confidence floor report committed 9ee56a.
