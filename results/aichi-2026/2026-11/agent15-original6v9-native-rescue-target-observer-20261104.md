@@ -1,6 +1,8 @@
 # Authentic native rank-9 Rescue Stretcher false offers, paired read-only experiment
 
 **Agent 15 | 4 November 2026 | Native paper-negative observation, not a selected policy, gameplay test, or win-rate measurement.**
+**Historical physical-print caveat:** The two decks are authenticated by published **card names and counts**, with simulator/research-selected printings; the archived rank-9 sixty contains **two Darkness Energy MEE #15 post-event artwork annotations** identified by [Agent17's 10 May vs September 2026 audit](../agent17-postevent-basic-energy-printings-20261104.md). This does not establish the original player's exact artwork or the historical print of every copy. The native experiment is a reproducible **same-name/count proxy** using the pinned engine; it is **not** a literal reproduction of May 2026 physical art identity. Its native target-rule findings depend on actual card type/text and the observed public discard, and do not need the disputed Energy artwork.
+
 
 ## Question and preregistration
 
