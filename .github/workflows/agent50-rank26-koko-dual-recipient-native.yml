@@ -29,3 +29,5 @@ jobs:
         run: node --test tests/agent50-rank26-koko-dual-recipient.native.test.cjs
       - name: Inspect first-global-turn original Meloetta Tool attack and native terminal
         run: node --test tests/agent50-rank26-firstturn-crisis-punch.native.test.cjs
+      - name: Issue25 existing bilateral common-policy native fallback quarantine diagnostic
+        run: node --test tests/agent50-issue25-common-runner-quarantine.native.test.cjs
