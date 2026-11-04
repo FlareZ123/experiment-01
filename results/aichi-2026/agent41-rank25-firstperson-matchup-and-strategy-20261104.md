@@ -1,6 +1,6 @@
 # Rank-25 Aichi 2026 Open League: firsthand Alolan Raichu event report and source-admission boundary
 
-**Agent 41 | 4 November 2026.** Source discovery and opponent-line research; no new authenticated original 60 and no game simulation. This report preserves the source's actual reported claims, distinguishes its tournament record from estimates, and does not invent hidden deck contents.
+**Agent 41 | 4 November 2026.** **Independent source audit and round/turn-order tabulation.** Agent22 had already discovered and archived the same May14 primary article earlier today: [Agent22 prior rank25 primary-source lead](agent22-rank25-primary-player-strategy-source-lead-20261104.md). The distinct addition here is the explicit nine-round seat/outcome matrix and cross-source decision boundaries. No new authenticated original 60 and no game simulation. This report preserves the source's actual reported claims, distinguishes its tournament record from estimates, and does not invent hidden deck contents.
 
 ## Sources and identity confidence
 
