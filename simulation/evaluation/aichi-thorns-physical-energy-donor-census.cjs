@@ -36,7 +36,9 @@ function enumerateDonorChoices(physicalNames,canPay,stadiums,subsetSize) {
     subsetSize,physicalCopies:physicalNames.length,stadiums:stadiums.slice(),
     totalPhysicalSubsets:choose(physicalNames.length,subsetSize),
     beforeUnpayable:0,allDonorsUnsafe:0,mixedDonorSafety:0,allDonorsSafe:0,
-    payableBeforeDonation:0,qualifiedForGameInference:false
+    payableBeforeDonation:0,avoidableUnsafeDonorChoices:0,
+    uniformRandomDonorAvoidableFailureRate:null,
+    qualifiedForGameInference:false
   };
   const selected=[];
   const paid=(cards)=>{
@@ -56,7 +58,10 @@ function enumerateDonorChoices(physicalNames,canPay,stadiums,subsetSize) {
     }
     if(safe===0)out.allDonorsUnsafe++;
     else if(safe===subset.length)out.allDonorsSafe++;
-    else out.mixedDonorSafety++;
+    else {
+      out.mixedDonorSafety++;
+      out.avoidableUnsafeDonorChoices+=subset.length-safe;
+    }
   }
   function enumerate(start) {
     if(selected.length===subsetSize){classify();return;}
@@ -67,6 +72,9 @@ function enumerateDonorChoices(physicalNames,canPay,stadiums,subsetSize) {
     }
   }
   enumerate(0);
+  out.uniformRandomDonorAvoidableFailureRate=out.payableBeforeDonation>0?
+    out.avoidableUnsafeDonorChoices/(
+      out.payableBeforeDonation*subsetSize):null;
   const sum=out.beforeUnpayable+out.allDonorsUnsafe+
     out.mixedDonorSafety+out.allDonorsSafe;
   if(sum!==out.totalPhysicalSubsets)throw new Error('CENSUS_PARTITION_FAILED');
