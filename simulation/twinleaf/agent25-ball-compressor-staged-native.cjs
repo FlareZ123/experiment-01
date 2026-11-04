@@ -81,12 +81,26 @@ function runArm(seat,paymentName){
       else if(type==='ShuffleDeckPrompt')answer=
         Array.from({length:f.source.deck.cards.length},(_,j)=>j);
       else if(type==='ChooseCardsPrompt'){
-        if(p.cards===f.source.hand){
-          assert.equal(operation,'Quick Ball SSH');
+        const offered=p.cards?.cards??[];
+        const fromHand=offered.length>0&&offered.every(c=>
+          f.source.hand.cards.includes(c));
+        const fromDeck=offered.length>0&&offered.every(c=>
+          f.source.deck.cards.includes(c));
+        if(operation==='Quick Ball SSH'&&fromHand&&
+          offered.includes(payment)){
           answer=[payment];
-        }else if(p.cards===f.source.deck){
-          answer=operation==='Quick Ball SSH'?[searchBasic]:donors;
-        }else throw new Error('Unrecognized owner card source '+type);
+        }else if(operation==='Quick Ball SSH'&&fromDeck&&
+          offered.includes(searchBasic)){
+          answer=[searchBasic];
+        }else if(operation==='Battle Compressor PHF'&&fromDeck&&
+          donors.every(c=>offered.includes(c))){
+          answer=donors;
+        }else throw new Error('Unrecognized owner-card '+operation+
+          ' ChooseCardsPrompt '+JSON.stringify({
+            message:p.message,sourceCard:p.sourceCard?.fullName??null,
+            offered:offered.map(c=>({name:c.fullName,id:c.id})),
+            fromHand,fromDeck
+          }));
       }else throw new Error('Unexpected native '+operation+
         ' prompt '+type);
       const valid=typeof p.validate==='function'?
