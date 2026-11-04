@@ -182,8 +182,8 @@ jobs:
         run: python scripts/agent17_adp_turn2_physical.py
       - name: Verify Agent17 fixed ADP v2 exact T1 GX Prize and source-rank6 mutual-mulligan gate
         run: node --test tests/agent17-adp-t1-gx-prize-gate.sft.cjs tests/agent17-adp-rank6-mulligan-coupling.sft.cjs tests/agent17-adp-tagcall-switch-bridge.sft.cjs
-      - name: Verify Agent5 exact original ADP alternate Switch first-eight combinatorics
-        run: node --test tests/agent5-adp-switch-first8-exact.test.cjs
+      - name: Verify Agent5 exact original ADP alternate Switch and opening Basic-priority resource frontiers
+        run: node --test tests/agent5-adp-switch-first8-exact.test.cjs tests/agent5-adp-setup-active-priority.test.cjs tests/agent5-adp-lele-setup-collision.test.cjs
       - name: Verify Agent18 MISSING hard ceiling and complete Exeggutor source-original printed 60 risks
         run: |
           node --test tests/agent18-missing-field-ceiling.test.cjs tests/agent18-exeggutor-opener-risk.test.cjs tests/agent18-exeggutor-prize-supply.test.cjs tests/agent18-wally-blockade-window.test.cjs tests/agent18-grand-tree-turn2-window.test.cjs tests/agent18-wally-target-paper-guard.test.cjs tests/agent18-source29-supporter-wally-oldex-census.test.cjs
