@@ -39,6 +39,8 @@ jobs:
         run: node --test tests/agent2-muk-thorns-boostshake-first-grimer-turn.native.test.cjs
       - name: Test opt-in selected Apex Bench Muk Shake owner action on both seats
         run: node --test tests/agent43-apex-bench-muk-shake-native.test.cjs
+      - name: Verify actual pinned Risky Ruins Bench triggers and rank26 Egg self-KO both seats
+        run: node --test tests/agent2-rank26-risky-ruins-real-benches.native.test.cjs
       - name: Archive explicit raw native outcomes including mismatches
         if: always()
         uses: actions/upload-artifact@v4
