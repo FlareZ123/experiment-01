@@ -117,8 +117,21 @@ function run(){
       registeredFrameName:VERSION+':'+variant.id};
     let execution;
     try{
-      execution=withSameRuntime(()=>withRank1AceTrapFork(()=>
-        runDevelopment(options),variant.id));
+      if(process.env.AGENT5_RANK1_INNER_BRIDGE==='1'){
+        const prev=process.env.AGENT5_RANK1_T37_FORK_MODE;
+        const full=withSameRuntime(()=>{
+          process.env.AGENT5_RANK1_T37_FORK_MODE=variant.id;
+          try{return runDevelopment(options)}
+          finally{
+            if(prev===undefined)delete process.env.AGENT5_RANK1_T37_FORK_MODE;
+            else process.env.AGENT5_RANK1_T37_FORK_MODE=prev;
+          }
+        });
+        execution={result:full,audit:full.rows?.[1]?.agent5Rank1TrapAudit??null};
+      }else{
+        execution=withSameRuntime(()=>withRank1AceTrapFork(()=>
+          runDevelopment(options),variant.id));
+      }
       const full=execution.result;
       assert.equal(full.attempted,2);
       assert.equal(full.rows.length,2);
