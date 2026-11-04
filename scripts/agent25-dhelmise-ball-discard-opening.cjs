@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const {choose} = require('./agent25-dhelmise-t1-physical-opportunity.cjs');
 
-const VERSION = 'agent25-dhelmise-ball-discard-opening-v2';
+const VERSION = 'agent25-dhelmise-ball-discard-opening-v3';
 
 /**
  * Exact first-seven, one ordinary draw, six Prizes card-location census for
@@ -25,13 +25,20 @@ const VERSION = 'agent25-dhelmise-ball-discard-opening-v2';
  * resource screen, assuming other Trainer requirements can be satisfied.
  *
  * @param {6|8} eligibleDonors
- * @param {{allowArven?:boolean}} [options]
+ * @param {{allowArven?:boolean,energyCount?:number,basicCount?:number,
+ *   totalDonors?:number}} [options]
  * @returns {object}
  */
-function exactOpening(eligibleDonors, {allowArven=true}={}) {
-  assert.ok(eligibleDonors === 6 || eligibleDonors === 8);
+function exactOpening(eligibleDonors, {
+  allowArven=true,energyCount=10,basicCount=14,totalDonors=8
+}={}) {
   assert.equal(typeof allowArven,'boolean');
-  const counts = [4, eligibleDonors, 10, 4, 1, 4, 7, 30-eligibleDonors];
+  const original=totalDonors===8&&energyCount===10&&basicCount===14;
+  const swap=totalDonors===10&&energyCount===8&&basicCount===16;
+  assert.ok(original||swap,'Only the original printed 60 or the explicitly defined two-card swap');
+  assert.ok((original?[6,8]:[6,8,10]).includes(eligibleDonors));
+  const counts = [4, eligibleDonors, energyCount, 4, 1, 4, 7,
+    40-eligibleDonors-energyCount];
   assert.equal(counts.reduce((a,b)=>a+b,0),60);
   const total = choose(60,7)*53n*choose(52,6);
   const seven = Array(8).fill(0);
@@ -87,10 +94,12 @@ function exactOpening(eligibleDonors, {allowArven=true}={}) {
   }
   opening(0,7,1n);
   assert.ok(strict<=expanded&&expanded<=total);
-  const basicValid=1-Number(choose(46,7))/Number(choose(60,7));
+  const basicValid=1-Number(choose(60-basicCount,7))/Number(choose(60,7));
   const probability=x=>Number(x)/Number(total);
   return {
-    version:VERSION,eligibleDonors,allowArven,counts,initialStates,
+    version:VERSION,eligibleDonors,totalDonors,energyCount,basicCount,
+    originalFixedSixty:original,counterfactualTwoEnergyForTwoShuppet:swap,
+    allowArven,counts,initialStates,
     denominator:total.toString(),
     strictWorlds:strict.toString(),expandedWorlds:expanded.toString(),
     additionallyReachableWorlds:(expanded-strict).toString(),
@@ -107,10 +116,22 @@ function exactOpening(eligibleDonors, {allowArven=true}={}) {
 }
 
 function study(){
+  const swap={totalDonors:10,energyCount:8,basicCount:16};
   return {version:VERSION,unrestricted:exactOpening(8),
     partialLock:exactOpening(6),
     unrestrictedNoArven:exactOpening(8,{allowArven:false}),
-    partialLockNoArven:exactOpening(6,{allowArven:false})};
+    partialLockNoArven:exactOpening(6,{allowArven:false}),
+    hypotheticalTwoBasicEnergyToTwoShuppet:{
+      explicitlyDefinedCounterfactualOnly:true,
+      alteredCopies:[{'id':'sve-5',delta:-2},{id:'me5-33',delta:2}],
+      unlocked:exactOpening(10,swap),
+      wobbuffetActive:exactOpening(8,swap),
+      silentLabActive:exactOpening(6,swap),
+      unlockedNoArven:exactOpening(10,{...swap,allowArven:false}),
+      wobbuffetActiveNoArven:exactOpening(8,{...swap,allowArven:false}),
+      silentLabActiveNoArven:exactOpening(6,{...swap,allowArven:false})
+    }
+  };
 }
 
 module.exports={VERSION,exactOpening,study};
