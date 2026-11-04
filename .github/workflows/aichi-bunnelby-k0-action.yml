@@ -26,4 +26,6 @@ jobs:
       - run: node --test tests/expanded-policy-profile.test.cjs
       - name: Both-seat original rank2 native GH Artazon Capture Bench setup
         run: node --test tests/agent7-native-gh-artazon-capture-stage.test.cjs
+      - name: Validate Guzma and Hala physical two-card cost with Prism Star redirect
+        run: node --test tests/agent1-ghala-physical-custody.test.cjs tests/agent30-guzma-hala-optional-payment-native.test.cjs
       - run: node simulation/twinleaf/bunnelby-k0-action-contrast.cjs
