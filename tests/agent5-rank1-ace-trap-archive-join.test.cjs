@@ -47,6 +47,11 @@ test('different physical action after a shared prefix is not game completion',()
   assert.equal(diff.treatment.action,'UseAbilityAction');
 });
 
+test('failed native runs lack a comparable accepted root ledger',()=>{
+  assert.equal(firstDifference(undefined,[]),null);
+  assert.equal(firstDifference([],undefined),null);
+});
+
 test('source reply proof requires turn38 actual native action, never a prompt',()=>{
   const row={rootActionLedger:[
     {actionOrdinal:70,playerSlot:0,turnBefore:37,
