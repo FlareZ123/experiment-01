@@ -23,7 +23,8 @@ function auditAttemptIdentity(registered,returned,recorded){
   const valid=[registered,returned,recorded].every(values=>
     Array.isArray(values)&&values.every(id=>
       typeof id==='string'&&id.length>0));
-  if(!valid)return {verdict:'FAIL',reason:'malformed-identities'};
+  if(!valid||registered.length===0)
+    return {verdict:'FAIL',reason:'malformed-or-empty-identities'};
   const target=new Set(registered);
   const details=[returned,recorded].map(values=>({
     missing:registered.filter(id=>!values.includes(id)),
@@ -95,6 +96,7 @@ function auditRootLedger(row,rootLimit){
  * @returns {object}
  */
 function auditSourceDealPairing(attempts){
+  if(attempts.length===0)return {verdict:'UNRESOLVED',pairs:[]};
   const groups=new Map();
   for(const row of attempts){
     const match=/^(\d+:\d+:[A-Za-z]+):/.exec(row.id??'');
