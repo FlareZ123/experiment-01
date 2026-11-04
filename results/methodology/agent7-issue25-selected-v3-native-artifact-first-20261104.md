@@ -31,3 +31,16 @@ The writer `simulation/evaluation/agent7-issue25-v3-executed-receipt.cjs` was ac
 **Follow-up correctness refinements landed after CI 41876842531's checkout:** exact raw trial ID join instead of index order (`a32fc33a`, `c5ffbfa1`), adversarial reordering/duplicate tests (`604d1fff`), native abort root ledger + hash capture (`86fd9e1c`), and digest-mismatch tests (`495aaaa4`). This report does **not** claim these later revisions were run by the first CI. The first artifact's aborted rank-11 row preserved verified abort metadata but not its actual root ledger; the later revised writer extracts `raw.nativeAbortEvidence.rootActionLedger` when present. A latest-head validation is still required. A subsequent workflow-dispatch attempt was blocked by the tool's safety checks, so no second run is claimed.
 
 This is a reproducibility/custody contribution. It must not be interpreted as resolving the still-open Issue #25 selected bilateral-policy or paper-game gates.
+
+## Additional direct audit: accepted-root composition is not gameplay progress
+
+An independent read of the *original downloaded v3 JSON* classified every accepted root action, without changing the underlying 48-root cap. This remains descriptive, not a strength measure:
+
+| Actual historical arm | Accepted roots in first ZIP | Prompt roots | Pass roots | Other non-pass roots | Settled attack declarations | Highest global turn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Rank6 / champion reference | 48 | 35 | 4 | 9 | 3 | 7 |
+| Rank6 / NewMoon | 48 | 34 | 6 | 8 | 1 | 7 |
+| Rank11 / champion reference | 17 (runner summary), public sequence unavailable in first ZIP | unknown | unknown | unknown | unknown | unknown |
+| Rank11 / NewMoon | 48 | 33 | 9 | 6 | 1 | 10 |
+
+The three cap48 rows spend **33–35 of 48 accepted roots on resolving prompts**, many of which are Wait acknowledgements. This is evidence that enlarging the cap or celebrating a higher root count alone would not establish policy competence. The exact native accepted action sequence is available in the ZIP for those three attempts. The current reporter now computes explicit `publicRootDecisionComposition` summaries alongside each attempt (commit `07dbe721`), and regression `d908a166` distinguishes actual Play/Attack from prompt and Pass events. **Those later code changes were not part of the first native execution.** The missing error row's public sequence remains unverified until the latest reporter executes and preserves the pre-abort ledger, with no retrospective reconstruction admitted.
