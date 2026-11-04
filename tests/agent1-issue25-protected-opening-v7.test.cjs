@@ -51,7 +51,7 @@ test('v7 actually replaces a single owner Basic setup wrapper and leaves same ei
     SELECTED_OUTER_TO_INNER[0],
     SELECTED_OUTER_TO_INNER[1],
     'protected-basic-opening',
-    ...SELECTED_OUTER_TO_INNER.slice(3,-1)
+    ...SELECTED_OUTER_TO_INNER.slice(3,-2)
   ]);
   assert.equal(out.manifest.version,VERSION);
   assert.equal(out.manifest.selectedOpening,'agent50OwnerProtectedMultiBasicStore');
