@@ -25,6 +25,7 @@ function probe(printing,choice,seat,repaired){
     const {Store}=native('game/store/store');
     const {State,GamePhase}=native('game/store/state/state');
     const {Player}=native('game/store/state/player');
+    const {CardList}=native('game/store/state/card-list');
     const {PowerEffect}=native('game/store/effects/game-effects');
     const {ResolvePromptAction}=native(
       'game/store/actions/resolve-prompt-action');
@@ -47,6 +48,17 @@ function probe(printing,choice,seat,repaired){
     const hit=card('Pokegear SVI');
     actor.deck.cards.push(hit);
     for(let i=0;i<8;i++)actor.deck.cards.push(card('Psychic Energy SVE'));
+    for(let i=0;i<3;i++)opponent.deck.cards.push(card('Psychic Energy SVE'));
+    // Native checkState evaluates win conditions after the last prompt. Six
+    // physical Prizes on both sides prevent an artificial zero-Prize game
+    // terminal and misleading automatic next-game shuffle prompts.
+    for(const player of [actor,opponent]){
+      player.prizes=Array.from({length:6},()=>{
+        const prize=new CardList();
+        prize.cards.push(card('Psychic Energy SVE'));
+        return prize;
+      });
+    }
     const store=new Store({onStateChange(){}});
     store.state=state;
     store.reduceEffect(state,new PowerEffect(
