@@ -232,6 +232,48 @@ function fieldMeanBonusExposure(candidateBasics, originals) {
   };
 }
 
+/**
+ * Exact discrete PUBLIC setup compensation multiplicity for two independent
+ * fixed physical 60s, from their final valid setup round onward.
+ * j>=1 offered cards to opponent requires j solo candidate mulligans; both
+ * simultaneously mulliganing merely restarts the joint trial.
+ *
+ * P(no offers) = qA*qB/(1-pA*pB).
+ * P(opponent offered exactly j) = qA*qB*pA^j/(1-pA*pB).
+ * P(candidate offered exactly j) = qA*qB*pB^j/(1-pA*pB).
+ * Tails are retained explicitly; draws may be declined.
+ *
+ * @param {number} candidateBasics
+ * @param {number} opponentBasics
+ * @param {number} [maxCount] Largest positive offer included separately.
+ * @returns {object}
+ */
+function exactBonusMultiplicity(candidateBasics,opponentBasics,maxCount=6) {
+  assert.ok(Number.isSafeInteger(maxCount)&&maxCount>=1);
+  const pA=firstSevenMulliganProbability(candidateBasics);
+  const pB=firstSevenMulliganProbability(opponentBasics);
+  const qA=1-pA,qB=1-pB;
+  const base=qA*qB/(1-pA*pB);
+  const candidateOffered=[],opponentOffered=[];
+  for(let j=1;j<=maxCount;j++) {
+    candidateOffered.push({count:j,probability:base*Math.pow(pB,j)});
+    opponentOffered.push({count:j,probability:base*Math.pow(pA,j)});
+  }
+  const candidateOfferTail=base*Math.pow(pB,maxCount+1)/qB;
+  const opponentOfferTail=base*Math.pow(pA,maxCount+1)/qA;
+  const sum=base+candidateOffered.reduce((s,x)=>s+x.probability,0)+
+    opponentOffered.reduce((s,x)=>s+x.probability,0)+
+    candidateOfferTail+opponentOfferTail;
+  assert.ok(Math.abs(sum-1)<1e-12);
+  return {
+    candidateBasics,opponentBasics,maxCount,
+    neitherOffered:base,
+    candidateOffered,opponentOffered,
+    candidateOfferTail,opponentOfferTail,
+    totalProbability:sum
+  };
+}
+
 module.exports = {
   VERIFIED_BASIC_PROMO_EXCEPTIONS,
   createBasicClassifier,
@@ -239,5 +281,6 @@ module.exports = {
   firstSevenMulliganProbability,
   mulliganBonusExposure,
   loadRegisteredStartingBasicCounts,
-  fieldMeanBonusExposure
+  fieldMeanBonusExposure,
+  exactBonusMultiplicity
 };
