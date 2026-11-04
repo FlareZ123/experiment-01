@@ -112,7 +112,7 @@ jobs:
           node --test tests/agent3-issue25-owner-hand-discard-bridge.native.test.cjs
       - name: Integrated v3 source owner and bilateral resource native experiment
         if: ${{ inputs.issue25_bilateral_v3_bridge_native }}
-        run: node --test tests/agent3-issue25-bilateral-v3-bridge.native.test.cjs
+        run: node --test tests/agent3-issue25-bilateral-v3-bridge.native.test.cjs tests/agent3-three-attacks.native.test.cjs
       - name: Reproduce 48 precommitted new source setup A/B/A physical contexts
         if: ${{ inputs.source_marginal_setup_native }}
         run: |
