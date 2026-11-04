@@ -1120,6 +1120,7 @@ function runMatch(request) {
                   redactedMessageDigest:crypto.createHash('sha256')
                     .update(String(error.message??error)).digest('hex'),
                   sourceDeal:sourceDealObserver?.result()??null,
+                  fullDeal:fullDealObserver?.result()??null,
                   rootActionLedger,
                   preDispatchPublic:publicSnapshot(state),
                   preDispatchBoard:publicBoardSnapshot(state)
@@ -1218,6 +1219,7 @@ function runMatch(request) {
                   redactedMessageDigest:crypto.createHash('sha256')
                     .update(String(error.message??error)).digest('hex'),
                   sourceDeal:sourceDealObserver?.result()??null,
+                  fullDeal:fullDealObserver?.result()??null,
                   rootActionLedger,
                   preDispatchPublic:publicSnapshot(state),
                   preDispatchBoard:publicBoardSnapshot(state)
@@ -1468,6 +1470,7 @@ function runMatch(request) {
                 attackingPokemon:preDispatchAttackerPrinting,
                 errorMessage:error.message,
                 sourceDeal:sourceDealObserver?.result()??null,
+                  fullDeal:fullDealObserver?.result()??null,
                 rootActionLedger,
                 preDispatchPublic:publicBeforeDispatch,
                 preDispatchBoard:preDispatchAbortBoard

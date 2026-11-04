@@ -24,6 +24,7 @@ function detached(value) {
  *   attackingPokemon?:string|null, errorMessage:string,
  *   pendingPrompt?:string|null, redactedMessageDigest?:string|null,
  *   sourceDeal?:{seat:number,digestSha256:string}|null,
+ *   fullDeal?:{schema:string,digestSha256:string}|null,
  *   rootActionLedger?:object[]|null, preDispatchPublic:object,
  *   preDispatchBoard:object[]|null}} evidence
  * @returns {object} Serialized, owner-information-safe abort evidence.
@@ -48,6 +49,11 @@ function nativeDispatchAbortEvidence(evidence) {
     assert.ok(sourceDeal.seat === 0 || sourceDeal.seat === 1);
     assert.match(sourceDeal.digestSha256, /^[0-9a-f]{64}$/);
   }
+  const fullDeal = evidence.fullDeal ?? null;
+  if (fullDeal) {
+    assert.equal(fullDeal.schema,'initial-full-physical-deal-sha256-v1');
+    assert.match(fullDeal.digestSha256,/^[0-9a-f]{64}$/);
+  }
   const roots = evidence.rootActionLedger == null ? null :
     detached(evidence.rootActionLedger);
   assert.ok(roots === null || Array.isArray(roots));
@@ -71,6 +77,9 @@ function nativeDispatchAbortEvidence(evidence) {
     sourceDealFingerprint: sourceDeal ? {
       seat:sourceDeal.seat,digestSha256:sourceDeal.digestSha256
     } : null,
+    ...(fullDeal ? {fullPhysicalDealFingerprint:{
+      schema:fullDeal.schema,digestSha256:fullDeal.digestSha256
+    }} : {}),
     rootActionCount: roots?.length ?? null,
     rootActionLedgerSha256: roots ? createHash('sha256')
       .update(JSON.stringify(roots)).digest('hex') : null,

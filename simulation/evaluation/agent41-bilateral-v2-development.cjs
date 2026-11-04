@@ -1627,6 +1627,11 @@ function runDevelopment({
           .classifyPhysicalZoneEvidence({requested:physicalZoneGate,error}),
         error:archivedError,
         nativeStoreCauseStack,
+        // Native aborts carry physical deal receipts inside the error custody;
+        // lift only independently validated post-error evidence into arm rows.
+        // Unknown source fingerprints stay null and no error becomes a win.
+        ...require('./agent18-aborted-native-provenance.cjs')
+          .extractNativeAbortProvenance(trial,nativeAbort),
         ...(error?.nativePublicRootArchive??{}),
         nativeAbortEvidence:nativeAbort,
         // Independently preserve accepted first-setup coin/chooser/draw even
