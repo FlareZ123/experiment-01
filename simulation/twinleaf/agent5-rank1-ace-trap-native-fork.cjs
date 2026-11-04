@@ -47,6 +47,8 @@ function withRank1AceTrapFork(execute,mode,deps={}){
   assert.equal(typeof aiDescriptor?.value,'function');
   assert.equal(typeof dispatchDescriptor?.value,'function');
 
+  const targetStoreNumber=deps.targetStoreNumber??2;
+  assert.ok(Number.isSafeInteger(targetStoreNumber)&&targetStoreNumber>=1);
   let live=null,stage=0,storeCount=0,initialProposed=false,initialEligible=false;
   const proposals=new WeakMap();
   const audit={
@@ -184,8 +186,8 @@ function withRank1AceTrapFork(execute,mode,deps={}){
        this.state.players[0].id===101){
       storeCount++;
       audit.gameStoresSeen=storeCount;
-      if(storeCount===2){
-        // Preregistered pair order: champion reference, then target New Moon.
+      if(storeCount===targetStoreNumber){
+        // Outer pair uses Store 2; deepest exact-trial hook uses Store 1.
         // A separate actual Store is used for each complete candidate trial.
         live=this;
         audit.selectedSecondCandidateStore=true;
