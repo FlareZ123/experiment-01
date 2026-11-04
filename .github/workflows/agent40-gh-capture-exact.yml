@@ -1,0 +1,21 @@
+name: Agent40 exact Guzma Hala three-channel opening audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-source-openings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify disjoint Prize polynomial, source blob, and twelve exact fractions
+        run: node --test tests/agent40-gh-capture-exact.test.cjs
+      - name: Emit exact rank2 and rank15 physical access / discard-surplus audit
+        run: node scripts/agent40-gh-capture-exact.cjs
