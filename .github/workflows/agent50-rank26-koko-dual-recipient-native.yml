@@ -152,6 +152,8 @@ jobs:
       - name: Compile pinned native engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify source-printed Get Lost real Store exact Lost Zone destinations across public counts and seats
+        run: node --test tests/agent9-source-stamped-getlost-exact-destination.native.test.cjs
       - name: Assert joined v4 really selects symmetric two-seat resources and source-printed handlers
         run: node --test tests/agent1-issue25-joined-two-seat-attacks-v4.test.cjs tests/agent1-issue25-v4-public-receipt.test.cjs tests/agent36-source-stamped-nightwatch-owner.test.cjs tests/agent36-source-stamped-getlost-owner.test.cjs tests/agent1-issue25-joined-three-attacks-v5.test.cjs
       - name: Execute selected joined v4 four original arms and archive every native outcome
