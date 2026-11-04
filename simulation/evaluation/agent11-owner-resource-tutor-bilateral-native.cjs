@@ -13,7 +13,7 @@ const {withOwnerResourceTutorAfterPass,VERSION:BRIDGE_VERSION}=
 
 const ROOT=path.resolve(__dirname,'../..');
 const REGISTRATION_VERSION=process.env.AGENT11_TUTOR_REGISTRATION??'v1';
-assert.ok(['v1','v2'].includes(REGISTRATION_VERSION));
+assert.ok(['v1','v2','v3'].includes(REGISTRATION_VERSION));
 const REGISTRATION=path.join(ROOT,'results/aichi-2026/registrations/agent11-owner-resource-tutor-bilateral-'+REGISTRATION_VERSION+'.json');
 const sha256=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
