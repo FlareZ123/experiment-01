@@ -72,6 +72,8 @@ test('SFT receipt retains all four registered failure/cap attempts and public ro
     'ResolvePromptAction');
   assert.equal(receipt.attempts[2].publicRootLedgerDigestConsistent,true);
   assert.equal(receipt.attempts[2].abortPendingPrompt,'ChooseCardsPrompt');
+  assert.equal(receipt.gate.observedPublicRootLedgerDigest,'UNRESOLVED');
+  assert.equal(receipt.gate.fullUntruncatedPublicRootLedger,'UNRESOLVED');
   assert.equal(receipt.gate.overall,'FAIL-development-only');
   assert.equal(receipt.gate.fullPolicyBothSeatSymmetry,'FAIL');
   assert.equal(receipt.reportedCompetitiveGames,0);
