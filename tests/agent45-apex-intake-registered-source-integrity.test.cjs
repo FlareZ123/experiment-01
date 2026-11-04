@@ -28,7 +28,8 @@ function originalPrinted60Sha(source){
     card.category,card.name,card.count,card.printing.set,
     card.printing.number,card.printing.language
   ]);
-  printed.sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b),'en'));
+  printed.sort((a,b)=>JSON.stringify(a)<JSON.stringify(b)?-1:
+    JSON.stringify(a)>JSON.stringify(b)?1:0);
   return createHash('sha256').update(
     JSON.stringify(printed),'utf8').digest('hex');
 }
