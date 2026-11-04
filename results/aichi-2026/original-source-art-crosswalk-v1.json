@@ -1,0 +1,880 @@
+{
+  "schema": "agent22-aichi-may2026-print-provenance-crosswalk-v1",
+  "tournamentDate": "2026-05-10",
+  "postEventArtworkReleaseDate": "2026-09-16",
+  "sourcePath": "results/aichi-2026/full-decklists.json",
+  "sourceGitBlobSha": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "sourceDeckCount": 29,
+  "affectedRows": 35,
+  "affectedCopies": 120,
+  "affectedRankCount": 22,
+  "affectedRanks": [
+    {
+      "rank": 1,
+      "copies": 11
+    },
+    {
+      "rank": 2,
+      "copies": 1
+    },
+    {
+      "rank": 3,
+      "copies": 2
+    },
+    {
+      "rank": 8,
+      "copies": 7
+    },
+    {
+      "rank": 9,
+      "copies": 2
+    },
+    {
+      "rank": 10,
+      "copies": 6
+    },
+    {
+      "rank": 11,
+      "copies": 8
+    },
+    {
+      "rank": 12,
+      "copies": 6
+    },
+    {
+      "rank": 13,
+      "copies": 7
+    },
+    {
+      "rank": 14,
+      "copies": 6
+    },
+    {
+      "rank": 15,
+      "copies": 2
+    },
+    {
+      "rank": 16,
+      "copies": 7
+    },
+    {
+      "rank": 18,
+      "copies": 4
+    },
+    {
+      "rank": 19,
+      "copies": 9
+    },
+    {
+      "rank": 20,
+      "copies": 6
+    },
+    {
+      "rank": 21,
+      "copies": 7
+    },
+    {
+      "rank": 22,
+      "copies": 8
+    },
+    {
+      "rank": 26,
+      "copies": 2
+    },
+    {
+      "rank": 27,
+      "copies": 6
+    },
+    {
+      "rank": 30,
+      "copies": 5
+    },
+    {
+      "rank": 31,
+      "copies": 2
+    },
+    {
+      "rank": 32,
+      "copies": 6
+    }
+  ],
+  "historicalPrintMatch": "incomplete",
+  "engineProxyMapStatus": "proposed-not-runtime-verified",
+  "qualifiedGames": 0,
+  "evidence": {
+    "release": "https://pokemon.gamespress.com/MEDIA-ALERT-Pokemon-Trading-Card-Game-30th-Celebration-Expansion-Launc",
+    "cardNumberFamily": "https://bulbapedia.bulbagarden.net/wiki/MEE_Basic_Energies_(TCG)"
+  },
+  "entries": [
+    {
+      "rank": 1,
+      "player": "Yasunori Kato",
+      "category": "Energy",
+      "name": "Psychic Energy",
+      "count": 11,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "5",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 2,
+      "player": "Takahiro Ando",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 1,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 3,
+      "player": "Haruto Miki",
+      "category": "Energy",
+      "name": "Water Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "11",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "3",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "category": "Energy",
+      "name": "Lightning Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "12",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "4",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 8,
+      "player": "Yusuke Kobayashi",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 5,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 9,
+      "player": "Shun Ito",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 10,
+      "player": "Haruku Yoshioka",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 11,
+      "player": "Wataru Yano",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 8,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 12,
+      "player": "Risa Sato",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 13,
+      "player": "Hiromu Sasaki",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 14,
+      "player": "Manaya Asano",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 15,
+      "player": "Ryotaro Nozawa",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 16,
+      "player": "Takumi Matsumoto",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 7,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 18,
+      "player": "Hayato Omuro",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "name": "Lightning Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "12",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "4",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "name": "Fighting Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "14",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "6",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 19,
+      "player": "Mark Takahashi",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 20,
+      "player": "Satoru Imamura",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 21,
+      "player": "Shun Nakajima",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "category": "Energy",
+      "name": "Lightning Energy",
+      "count": 3,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "12",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "4",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 22,
+      "player": "Haruya Mori",
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "count": 5,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "7",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 26,
+      "player": "Hibiki Yamada",
+      "category": "Energy",
+      "name": "Lightning Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "12",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "4",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 27,
+      "player": "Yuya Nagatsuma",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 30,
+      "player": "Koki Takeda",
+      "category": "Energy",
+      "name": "Psychic Energy",
+      "count": 5,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "5",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 31,
+      "player": "Yuhi Yokoyama",
+      "category": "Energy",
+      "name": "Psychic Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "5",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "category": "Energy",
+      "name": "Grass Energy",
+      "count": 4,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "1",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    },
+    {
+      "rank": 32,
+      "player": "Kaito Higuchi",
+      "category": "Energy",
+      "name": "Fire Energy",
+      "count": 2,
+      "transcribedPrinting": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "transcribedPrintingEventStatus": "post-event-art-annotation",
+      "historicalPhysicalPrinting": "unknown",
+      "preEventRepresentative": {
+        "set": "MEE",
+        "number": "2",
+        "language": "en"
+      },
+      "representativeBasis": "same-type Basic Energy printed before event",
+      "engineSupportedEquivalent": "not-tested",
+      "mechanicsEquivalence": "basic-energy-type-only; engine verification pending"
+    }
+  ]
+}
