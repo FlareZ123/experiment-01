@@ -15,6 +15,18 @@ const EVENT=Object.freeze({
 });
 
 /**
+ * Git's SHA-1 blob digest of exact bytes, for *frozen input attestation*.
+ * The independent admission ledger records this specific source blob.
+ * @param {Buffer|string} bytes Exact source file bytes.
+ * @returns {string}
+ */
+function gitBlobSha1(bytes){
+  const b=Buffer.isBuffer(bytes)?bytes:Buffer.from(bytes,'utf8');
+  return createHash('sha1').update('blob '+b.length+'\0').update(b)
+    .digest('hex');
+}
+
+/**
  * Exact published source-print manifest checksum defined by Agent48's
  * original-printed60-admission-v1.json. This hashes the *transcription*,
  * including its language/display fields, and never physical printing photos.
@@ -118,10 +130,14 @@ function attestOfficialAichiLanguage(manifest,admission){
 /** @returns {object} Repository-frozen original source and admission cross-check. */
 function attestRepositoryOfficialAichiLanguage(){
   const root=path.resolve(__dirname,'../..');
-  const manifest=JSON.parse(fs.readFileSync(path.join(root,
-    'results/aichi-2026/full-decklists.json'),'utf8'));
+  const rawSource=fs.readFileSync(path.join(root,
+    'results/aichi-2026/full-decklists.json'));
+  const manifest=JSON.parse(rawSource.toString('utf8'));
   const admission=JSON.parse(fs.readFileSync(path.join(root,
     'results/aichi-2026/original-printed60-admission-v1.json'),'utf8'));
+  if(gitBlobSha1(rawSource)!==admission.sourceGitBlobSha){
+    throw new Error('Original manifest Git blob is not the admitted frozen source');
+  }
   return attestOfficialAichiLanguage(manifest,admission);
 }
 
@@ -138,5 +154,5 @@ if(require.main===module){
   },null,2));
 }
 
-module.exports={SCHEMA,EVENT,sourcePrinted60Sha256,
+module.exports={SCHEMA,EVENT,gitBlobSha1,sourcePrinted60Sha256,
   attestOfficialAichiLanguage,attestRepositoryOfficialAichiLanguage};
