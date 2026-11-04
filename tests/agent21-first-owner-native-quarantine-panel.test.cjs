@@ -12,8 +12,12 @@ const {
 const trials=[
   {id:'5:0:A:champion-reference',rank:5,repeat:0,
     candidateSlot:'A',candidateId:'champion-reference',seed:112},
+  {id:'5:0:A:new-moon-lockbreaker-v1',rank:5,repeat:0,
+    candidateSlot:'A',candidateId:'new-moon-lockbreaker-v1',seed:112},
   {id:'5:0:B:champion-reference',rank:5,repeat:0,
-    candidateSlot:'B',candidateId:'champion-reference',seed:224}
+    candidateSlot:'B',candidateId:'champion-reference',seed:224},
+  {id:'5:0:B:new-moon-lockbreaker-v1',rank:5,repeat:0,
+    candidateSlot:'B',candidateId:'new-moon-lockbreaker-v1',seed:224}
 ];
 const preflight=()=>({
   profile:{selectedPolicyOptions:{actorOnlyComposition:true},
@@ -27,7 +31,7 @@ test('both physical seats report the first blocked native decoder without hidden
     preflight,
     runner:options=>{
       invoked.push(options.registeredTrials[0].id);
-      return {attempted:1,rows:[{trial:{id:options.registeredTrials[0].id}}]};
+      return {attempted:2,rows:options.registeredTrials.map(trial=>({trial}))};
     },
     quarantine:run=>{
       run();
@@ -42,7 +46,7 @@ test('both physical seats report the first blocked native decoder without hidden
       throw error;
     },pinNative:false
   });
-  assert.deepEqual(invoked,trials.map(t=>t.id));
+  assert.deepEqual(invoked,[trials[0].id,trials[2].id]);
   assert.deepEqual(result.attempts.map(a=>a.sourceSeat),[1,0]);
   assert.ok(result.attempts.every(a=>a.status===CODE));
   assert.ok(result.attempts.every(a=>
@@ -54,8 +58,8 @@ test('both physical seats report the first blocked native decoder without hidden
 
 test('zero decoder calls alone remains explicitly unqualified',()=>{
   const result=runFirstOwnerDecoderPanel({
-    preflight,runner:options=>({attempted:1,
-      rows:[{trial:options.registeredTrials[0]}]}),
+    preflight,runner:options=>({attempted:2,
+      rows:options.registeredTrials.map(trial=>({trial}))}),
     quarantine:run=>({result:run(),audit:{
       rawStateFallbackCalls:0,originalNativeDecoderExecuted:false,
       records:[],recordsOmitted:0
@@ -64,7 +68,7 @@ test('zero decoder calls alone remains explicitly unqualified',()=>{
   assert.equal(result.attempts.length,2);
   assert.ok(result.attempts.every(a=>
     a.status==='NO_RAW_DECODER_CALL_OBSERVED_UNQUALIFIED'));
-  assert.ok(result.attempts.every(a=>a.returnedRows===1));
+  assert.ok(result.attempts.every(a=>a.returnedRows===2));
   assert.equal(result.gameWinRateVerified,false);
 });
 
@@ -82,7 +86,9 @@ test('unrelated abort is preserved as unqualified without inventing a decoder vi
 test('different historical physical deal seeds are required for the two-seat panel',()=>{
   assert.throws(()=>runFirstOwnerDecoderPanel({
     preflight:()=>({...preflight(),trials:[
-      trials[0],{...trials[1],seed:trials[0].seed}
+      trials[0],trials[1],
+      {...trials[2],seed:trials[0].seed},
+      {...trials[3],seed:trials[0].seed}
     ]}),runner:()=>{},pinNative:false
   }),/distinct historical registered seeds/);
 });
