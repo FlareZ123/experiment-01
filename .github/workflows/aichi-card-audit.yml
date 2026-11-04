@@ -285,7 +285,7 @@ jobs:
       - name: Verify 29 printed-60 denominators and four independent negative-paper families
         run: node --test tests/agent35-field-trainer-negative-family-coverage.test.cjs tests/agent35-vs-seeker-discard-target-certificate.test.cjs
       - name: Verify registered discard-recovery paper-negative rules and physical printing ambiguity
-        run: node --test tests/owner-public-discard-target-necessary.test.cjs tests/agent15-discard-target-source-census.test.cjs tests/agent15-first-root-recovery-no-target.test.cjs
+        run: node --test tests/owner-public-discard-target-necessary.test.cjs tests/agent15-discard-target-source-census.test.cjs tests/agent15-first-root-recovery-no-target.test.cjs tests/agent15-japanese-only-promo-metadata.test.cjs
       - name: Preserve machine-readable source name-set incidence and uncovered priorities
         run: node scripts/agent35-field-trainer-negative-family-coverage.cjs > agent35-original29-trainer-negative-gates.json
       - name: Preserve five recovery-family field incidence and ambiguous-print metadata
