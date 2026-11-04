@@ -30,10 +30,10 @@ function withOwnerSetupGoFirstConfirm(run,deps={}) {
     require(path.join(base,'simple-bot/simple-tactics-ai')).SimpleTacticsAi;
   const {ResolvePromptAction}=deps.actions??
     require(path.join(base,'game/store/actions/resolve-prompt-action'));
-  const {GamePhase}=deps.GamePhase??
-    require(path.join(base,'game/store/state/state'));
-  const {GameMessage}=deps.GameMessage??
-    require(path.join(base,'game/game-message'));
+  const GamePhase=deps.GamePhase??
+    require(path.join(base,'game/store/state/state')).GamePhase;
+  const GameMessage=deps.GameMessage??
+    require(path.join(base,'game/game-message')).GameMessage;
   const maxRecords=deps.maxRecords??32;
   assert.ok(Number.isSafeInteger(maxRecords)&&maxRecords>=0);
   const original=Object.getOwnPropertyDescriptor(Ai.prototype,'decodeNextAction');
