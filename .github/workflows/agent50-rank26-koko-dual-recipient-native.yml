@@ -50,6 +50,10 @@ jobs:
         env:
           AGENT50_ENTRY_RANK4_RECEIPT_DIR: artifacts/agent50-rank4-priority
         run: node --test tests/agent50-owner-entry-priority-original4-natural32.native.test.cjs
+      - name: Preregistered rank4 32 equal-source-hand matched native Store setup A and B
+        env:
+          AGENT50_RANK4_PAIRED_RECEIPT_DIR: artifacts/agent50-rank4-samehand-paired
+        run: node --test tests/agent50-rank4-same-hand-greedy-vs-priority32.native.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
       - name: Issue25 pure owner public prompt acknowledgements contract
@@ -108,5 +112,13 @@ jobs:
         with:
           name: agent50-rank4-owner-priority-${{ github.run_id }}
           path: artifacts/agent50-rank4-priority/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve 32 matched source-hand setup comparison receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-rank4-matched-opening-${{ github.run_id }}
+          path: artifacts/agent50-rank4-samehand-paired/
           if-no-files-found: warn
           retention-days: 30
