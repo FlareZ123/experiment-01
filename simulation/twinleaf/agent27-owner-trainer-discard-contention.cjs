@@ -114,6 +114,21 @@ const noHandDiscardPrintings=[
 for(const [name,set,type] of noHandDiscardPrintings)
   register(name,[set],[{mode:'no-owner-hand-discard-payment',discards:0}],type);
 
+// Seven original source name/set identifiers require a controlled English
+// catalog-print bridge (Team Flare subtitle, Prism glyph, numbered promos).
+// The strict numbered original-to-bundled identity bridge is verified in
+// scripts/agent27-original-trainer-print-identity-audit.cjs.
+for(const [name,set,type] of [
+  ['Battle Compressor','PHF','Item'],
+  ['Robo Substitute','PHF','Item'],
+  ['Target Whistle','PHF','Item'],
+  ['Thunder Mountain ♢','LOT','Stadium'],
+  ['Wondrous Labyrinth ♢','TEU','Stadium'],
+  ['Karen','XYP','Supporter'],
+  ['Tropical Beach','BWP','Stadium']
+]) register(name,[set],
+  [{mode:'no-owner-hand-discard-payment',discards:0}],type);
+
 /** @param {number} n @param {number} k @returns {bigint} */
 function combinations(n,k) {
   assert.ok(Number.isSafeInteger(n) && n >= 0);
