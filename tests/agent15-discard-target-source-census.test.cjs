@@ -59,4 +59,14 @@ test('source-wide name+set coverage reports unresolved original source printings
   assert.equal(coverage.exactCollectorNumberCertified,false);
   assert.equal(coverage.sourceLegalityCertified,false);
   assert.equal(result.supplementalMEEExternalProvenance,true);
+  assert.equal(result.japaneseOnlyPromoCopies,14);
+  assert.deepEqual(result.japaneseOnlyPromoDistinctOriginals,[3,6,7,24,29]);
+  assert.equal(result.japaneseOnlyPromoPublicMetadataCoverage
+    .registeredOriginalSourceCardCopies,1740);
+  assert.equal(result.japaneseOnlyPromoPublicMetadataCoverage
+    .nameSetRepresentedCopies,1740);
+  assert.equal(result.japaneseOnlyPromoPublicMetadataCoverage
+    .nameSetUnrepresentedCopies,0);
+  assert.equal(result.sourceJapanesePaperLegalityOfficiallyVerified,false);
+  assert.equal(result.sourceInternationalPaperLegalityVerified,false);
 });
