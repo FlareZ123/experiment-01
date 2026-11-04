@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify fixed Dhelmise donor-and-Ball opening math and Energy tradeoff
+        run: node --test tests/agent25-dhelmise-ball-discard-opening.test.cjs
       - name: Check source rank6 owner K1 math
         run: |
           node --test tests/agent6-rank6-k1-speed-prerequisite-exact.test.cjs
