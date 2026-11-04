@@ -16,7 +16,7 @@ const native = name => require(path.join(output,name));
  *
  * @param {0|1} seat
  * @param {0|1} selectedCount
- * @param {{repaired?:boolean}} [options]
+ * @param {{repaired?:boolean,useAbility?:boolean}} [options]
  * @returns {object}
  */
 function probeZeroClimacticGate(seat,selectedCount,options={}){
@@ -70,7 +70,7 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
     const p=pending();
     if(!p)break;
     let answer;
-    if(p.constructor.name==='ConfirmPrompt')answer=true;
+    if(p.constructor.name==='ConfirmPrompt')answer=options.useAbility!==false;
     else if(p.constructor.name==='ChooseCardsPrompt'&&
       p.message==='CHOOSE_CARD_TO_PUT_ONTO_BENCH')
       answer=selectedCount?[vmax]:[];
@@ -94,7 +94,7 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
     if(error)break;
   }
   return {
-    seat,selectedCount,before,after:{
+    seat,selectedCount,useAbility:options.useAbility!==false,before,after:
       phase:state.phase,turn:state.turn,activePlayer:state.activePlayer},
     radiantBenched:actor.bench[0].getPokemonCard()===radiant,
     vmaxBenched:actor.bench.some(slot=>slot.getPokemonCard()===vmax),
