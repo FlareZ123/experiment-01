@@ -110,3 +110,12 @@ This is a useful warning against reading the two-Energy-for-two-Shuppet *first-e
 - The 99.5% full-field goal remains unverified: **29/32** source 60-card name/count inventories authenticated, missing original ranks **23, 25 and 28**, **zero competitively qualified games** and no selected best fixed 60.
 
 Do **not** upgrade the Dhelmise v2 list into the common-candidate shortlist on this finding alone. The most useful next test is a physically held donor / one-Compressor / one-Ball native first-turn witness, including the actual paid Ball discard, three named Compressor targets, attack damage, and a competent source response. Its policy should compare Ball's competing Pokémon-search use rather than always discarding a donor.
+
+### Independent actual-dealing-order shuffle check
+
+As a separate check on the one-Compressor direct-event combinatorics, a Python 3 `random.Random(20261104+eligibleDonors)` physical-shuffle experiment used **250,000 independently randomized 60-card trials per donor classification**. In each trial the code first assigned initial cards `[0:7]`, assigned six Prizes `[7:13]`, then exposed the actual ordinary draw at index `13` and counted eligible donor copies still in the deck `[14:]`. It tested exactly one Compressor, one Ball, one eligible hand donor, and three remaining eligible deck donors alongside Dhelmise and Energy requirements.
+
+- Eight eligible donors: **7,593 of 250,000 = 3.0372%**, versus the exact **3.069938%**. Its approximately two-standard-error sampling range is ±0.06864 percentage points.
+- Six eligible donors: **5,969 of 250,000 = 2.3876%**, versus the exact **2.420173%**. Its approximately two-standard-error range is ±0.06107 percentage points.
+
+Both independent shuffle estimates agree with the exhaustive integer combinatorics to within their ordinary sampling uncertainty. This is validation of **card-location arithmetic** only and offers no evidence of how many games permit or choose the native attack line.
