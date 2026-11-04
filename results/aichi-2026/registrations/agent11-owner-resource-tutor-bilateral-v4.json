@@ -1,0 +1,509 @@
+{
+  "schema": "agent11-owner-resource-tutor-bilateral-v4",
+  "registeredAtUtc": "2026-11-04T19:52:04.850335Z",
+  "status": "frozen before native profile outcomes",
+  "author": "Agent 11",
+  "sourceRanks": [
+    5,
+    11
+  ],
+  "originalRosterSource": "results/aichi-2026/full-decklists.json",
+  "enginePin": "twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+  "study": "Two-profile same-deal development-only Quick Ball ON/OFF A/B, symmetric both physical seats",
+  "hypothesis": "Conservative owner-root Quick Ball should increase observed settled Mew/Genesect donor access, real printed attacks and Prize receipts relative to OFF while preserving legal physical costs; attack counts alone are insufficient",
+  "seedGeneration": "16 unique CSPRNG secrets.randbelow(340000000)+1750000000, sorted, drawn before registration",
+  "profiles": [
+    "v4-mew-quickball-off",
+    "v4-mew-quickball-on"
+  ],
+  "primaryMetrics": [
+    "identical full initial physical deals",
+    "accepted Quick Ball with paid discard and owner deck search",
+    "settled source5 Cross Fusion Strike with Genesect V donor",
+    "copied-attack Prize receipts",
+    "native errors and caps"
+  ],
+  "seeds": [
+    1751939646,
+    1755566658,
+    1783229979,
+    1786286335,
+    1788005582,
+    1840457150,
+    1877132430,
+    1900492712,
+    1932435012,
+    1934302589,
+    1945629914,
+    1947235428,
+    1966281562,
+    1975084753,
+    2005534905,
+    2086602210
+  ],
+  "modes": [
+    "control",
+    "resource-tutor"
+  ],
+  "maxActions": 90,
+  "strictPromptValidation": true,
+  "isolatePolicyRandomness": true,
+  "captureDecisionTrace": true,
+  "captureInitialFullPhysicalDeal": true,
+  "predeclaredArms": 64,
+  "predeclaredTotalProfileArms": 128,
+  "experimentalSymmetricMewCompetence": true,
+  "experimentalSymmetricKnownDead": true,
+  "competitiveQualifiedGames": 0,
+  "limitations": "Developmental paper-unqualified, no time clock, 90-action cap, only source ranks5/11, same physically printed 60s, native Quick Ball payment needs independent validation",
+  "arms": [
+    {
+      "id": "seed1751939646-rank5seat0-control",
+      "seed": 1751939646,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1751939646-rank5seat0-resource-tutor",
+      "seed": 1751939646,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1751939646-rank5seat1-control",
+      "seed": 1751939646,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1751939646-rank5seat1-resource-tutor",
+      "seed": 1751939646,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1755566658-rank5seat0-control",
+      "seed": 1755566658,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1755566658-rank5seat0-resource-tutor",
+      "seed": 1755566658,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1755566658-rank5seat1-control",
+      "seed": 1755566658,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1755566658-rank5seat1-resource-tutor",
+      "seed": 1755566658,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1783229979-rank5seat0-control",
+      "seed": 1783229979,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1783229979-rank5seat0-resource-tutor",
+      "seed": 1783229979,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1783229979-rank5seat1-control",
+      "seed": 1783229979,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1783229979-rank5seat1-resource-tutor",
+      "seed": 1783229979,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1786286335-rank5seat0-control",
+      "seed": 1786286335,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1786286335-rank5seat0-resource-tutor",
+      "seed": 1786286335,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1786286335-rank5seat1-control",
+      "seed": 1786286335,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1786286335-rank5seat1-resource-tutor",
+      "seed": 1786286335,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1788005582-rank5seat0-control",
+      "seed": 1788005582,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1788005582-rank5seat0-resource-tutor",
+      "seed": 1788005582,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1788005582-rank5seat1-control",
+      "seed": 1788005582,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1788005582-rank5seat1-resource-tutor",
+      "seed": 1788005582,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1840457150-rank5seat0-control",
+      "seed": 1840457150,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1840457150-rank5seat0-resource-tutor",
+      "seed": 1840457150,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1840457150-rank5seat1-control",
+      "seed": 1840457150,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1840457150-rank5seat1-resource-tutor",
+      "seed": 1840457150,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1877132430-rank5seat0-control",
+      "seed": 1877132430,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1877132430-rank5seat0-resource-tutor",
+      "seed": 1877132430,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1877132430-rank5seat1-control",
+      "seed": 1877132430,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1877132430-rank5seat1-resource-tutor",
+      "seed": 1877132430,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1900492712-rank5seat0-control",
+      "seed": 1900492712,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1900492712-rank5seat0-resource-tutor",
+      "seed": 1900492712,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1900492712-rank5seat1-control",
+      "seed": 1900492712,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1900492712-rank5seat1-resource-tutor",
+      "seed": 1900492712,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1932435012-rank5seat0-control",
+      "seed": 1932435012,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1932435012-rank5seat0-resource-tutor",
+      "seed": 1932435012,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1932435012-rank5seat1-control",
+      "seed": 1932435012,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1932435012-rank5seat1-resource-tutor",
+      "seed": 1932435012,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1934302589-rank5seat0-control",
+      "seed": 1934302589,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1934302589-rank5seat0-resource-tutor",
+      "seed": 1934302589,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1934302589-rank5seat1-control",
+      "seed": 1934302589,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1934302589-rank5seat1-resource-tutor",
+      "seed": 1934302589,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1945629914-rank5seat0-control",
+      "seed": 1945629914,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1945629914-rank5seat0-resource-tutor",
+      "seed": 1945629914,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1945629914-rank5seat1-control",
+      "seed": 1945629914,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1945629914-rank5seat1-resource-tutor",
+      "seed": 1945629914,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1947235428-rank5seat0-control",
+      "seed": 1947235428,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1947235428-rank5seat0-resource-tutor",
+      "seed": 1947235428,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1947235428-rank5seat1-control",
+      "seed": 1947235428,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1947235428-rank5seat1-resource-tutor",
+      "seed": 1947235428,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1966281562-rank5seat0-control",
+      "seed": 1966281562,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1966281562-rank5seat0-resource-tutor",
+      "seed": 1966281562,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1966281562-rank5seat1-control",
+      "seed": 1966281562,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1966281562-rank5seat1-resource-tutor",
+      "seed": 1966281562,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1975084753-rank5seat0-control",
+      "seed": 1975084753,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1975084753-rank5seat0-resource-tutor",
+      "seed": 1975084753,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1975084753-rank5seat1-control",
+      "seed": 1975084753,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed1975084753-rank5seat1-resource-tutor",
+      "seed": 1975084753,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2005534905-rank5seat0-control",
+      "seed": 2005534905,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2005534905-rank5seat0-resource-tutor",
+      "seed": 2005534905,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2005534905-rank5seat1-control",
+      "seed": 2005534905,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2005534905-rank5seat1-resource-tutor",
+      "seed": 2005534905,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2086602210-rank5seat0-control",
+      "seed": 2086602210,
+      "rank5Seat": 0,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2086602210-rank5seat0-resource-tutor",
+      "seed": 2086602210,
+      "rank5Seat": 0,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2086602210-rank5seat1-control",
+      "seed": 2086602210,
+      "rank5Seat": 1,
+      "mode": "control",
+      "maxActions": 90
+    },
+    {
+      "id": "seed2086602210-rank5seat1-resource-tutor",
+      "seed": 2086602210,
+      "rank5Seat": 1,
+      "mode": "resource-tutor",
+      "maxActions": 90
+    }
+  ]
+}
