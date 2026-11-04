@@ -7,9 +7,9 @@ const {printedAllPokemonEnergyScaling,choosePrintedScalingBasicKoAttachment} =
 
 const catalog = {
   basicEnergies: new Set(['Psychic Energy MEE','Darkness Energy MEE']),
-  basicEnergyTypes: {Psychic:5,Darkness:7},colorlessEnergyType:10
+  basicEnergyTypes: {Psychic:5,Darkness:7},colorlessEnergyType:9
 };
-const GEIST = {name:'Max Geist',damage:10,cost:[10,10,10],gxAttack:false,
+const GEIST = {name:'Max Geist',damage:10,cost:[9,9,9],gxAttack:false,
   text:'This attack does 30 more damage for each [P] Energy attached to all of your Pokémon.'};
 const first = {kind:'attack',attackName:'Max Geist'};
 
