@@ -41,3 +41,22 @@ test('unsupported donor counts fail loudly',()=>{
   assert.throws(()=>exactOpening(0),assert.AssertionError);
   assert.throws(()=>exactOpening(10),assert.AssertionError);
 });
+
+test('committed Supporter prevents Arven tutor route but retains immutable 60',()=>{
+  const a=exactOpening(8,{allowArven:false});
+  const b=exactOpening(6,{allowArven:false});
+  assert.deepEqual(a.counts,[4,8,10,4,1,4,7,22]);
+  assert.deepEqual(b.counts,[4,6,10,4,1,4,7,24]);
+  assert.equal(a.strictWorlds,'20880447088729536');
+  assert.equal(a.expandedWorlds,'32763579418029936');
+  assert.equal(b.strictWorlds,'19245064130982096');
+  assert.equal(b.expandedWorlds,'29182502882114016');
+  assert.ok(a.expandedProbability<exactOpening(8).expandedProbability);
+  assert.ok(b.expandedProbability<exactOpening(6).expandedProbability);
+  assert.equal(a.expandedProbability,study().unrestrictedNoArven.expandedProbability);
+  assert.equal(b.expandedProbability,study().partialLockNoArven.expandedProbability);
+});
+
+test('Supporter availability flag validates type',()=>{
+  assert.throws(()=>exactOpening(8,{allowArven:1}),assert.AssertionError);
+});
