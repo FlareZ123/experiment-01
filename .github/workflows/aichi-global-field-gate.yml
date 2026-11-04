@@ -101,6 +101,8 @@ jobs:
         run: node --test tests/agent46-anytime-adaptive-field-envelope.test.cjs
       - name: Verify paper-only anytime rejection of unattainable field targets
         run: node --test tests/agent46-anytime-adaptive-field-rejection.test.cjs
+      - name: Verify joint two-sided anytime adaptive full-field confidence and censoring
+        run: node --test tests/agent46-anytime-adaptive-field-two-sided.test.cjs
       - name: Verify candidate Apex Alchemy exact fixed60, Basic-valid access and source counterwindow
         run: |
           node --test tests/agent43-apex-alchemy-sft.test.cjs
