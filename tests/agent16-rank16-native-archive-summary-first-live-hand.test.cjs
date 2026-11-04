@@ -21,6 +21,8 @@ function fixture(){
         sourceFirstOwnHandProtocol:i===3&&j===1?null:
           'first-live-owner-hand-prebot-v1',
         sourceFirstOwnHandSha256:i===3&&j===1?null:sha,
+        sourceFirstOwnHandMultisetSha256:i===3&&j===1?null:
+          (i===2?'different-multiset'+j:'same-multiset'+i),
         sourceFirstOwnHandFirstActionOrdinal:10+i,
         sourceLegacyFirstObservedHandSha256:'setup'+i,
         sourceLegacyFirstObservedHandTurn:0,
@@ -48,6 +50,10 @@ test('identical legacy setup SHA cannot substitute for true first-live hand',()=
   assert.equal(summary.liveFirstHandPairsMatching,5);
   assert.deepEqual(summary.liveFirstHandPairsMismatched,['16:1:B','16:2:A']);
   assert.deepEqual(summary.liveFirstHandPairsUnavailable,['16:3:B']);
+  assert.equal(summary.liveHandMultisetShaAvailableRows,15);
+  assert.equal(summary.liveHandMultisetPairsMatching,6);
+  assert.deepEqual(summary.liveHandMultisetPairsMismatched,['16:2:A']);
+  assert.deepEqual(summary.liveHandMultisetPairsUnavailable,['16:3:B']);
   assert.equal(summary.qualifiedGames,0);
   assert.equal(summary.rows[2].legacyFirstObservedTurn,0);
   assert.notEqual(summary.rows[2].firstLiveHandSha256,
@@ -66,5 +72,8 @@ test('archived rows without first-live protocol are explicitly unavailable',()=>
   assert.equal(summary.liveFirstHandPairsMatching,0);
   assert.deepEqual(summary.liveFirstHandPairsMismatched,[]);
   assert.equal(summary.liveFirstHandPairsUnavailable.length,8);
+  assert.equal(summary.liveHandMultisetShaAvailableRows,0);
+  assert.equal(summary.liveHandMultisetPairsMatching,0);
+  assert.equal(summary.liveHandMultisetPairsUnavailable.length,8);
   assert.equal(summary.qualifiedGames,0);
 });
