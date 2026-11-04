@@ -95,3 +95,24 @@ test('untriggered hook scope restores native prototypes without changes',()=>{
   assert.deepEqual(Object.getOwnPropertyDescriptor(Store.prototype,'prompt'),oldPrompt);
   assert.deepEqual(Object.getOwnPropertyDescriptor(RadiantEternatus.prototype,'reduceEffect'),oldReduce);
 });
+
+
+test('empty-target repaired shuffle accepts a real nonidentity deck permutation',()=>{
+  for(const seat of [0,1]){
+    const raw=probe(seat,0,{reverseShuffle:true});
+    const corrected=probe(seat,0,{repaired:true,reverseShuffle:true});
+    const positive=probe(seat,1,{reverseShuffle:true});
+    console.log('AGENT1_GATE_REVERSE_SHUFFLE '+JSON.stringify({
+      seat,rawOrder:raw.shuffleChangedPhysicalOrder,
+      repairedZeroOrder:corrected.shuffleChangedPhysicalOrder,
+      nativePositiveOrder:positive.shuffleChangedPhysicalOrder
+    }));
+    assert.equal(raw.shuffleChangedPhysicalOrder,null);
+    assert.equal(corrected.shuffleChangedPhysicalOrder,true);
+    assert.equal(positive.shuffleChangedPhysicalOrder,true);
+    assert.equal(corrected.after.turn,5);
+    assert.equal(corrected.after.activePlayer,1-seat);
+    assert.equal(corrected.hookAudit.repairedShuffles,1);
+    assert.ok(corrected.events.every(x=>x.validated&&x.error===null));
+  }
+});
