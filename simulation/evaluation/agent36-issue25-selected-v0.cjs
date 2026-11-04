@@ -49,6 +49,17 @@ const CODE_PATHS=Object.freeze([
   'simulation/twinleaf/rank11-direct-boostshake.cjs',
   'results/aichi-2026/registrations/agent41-crossrank-r6-r11-v1-20261019.json',
   'results/aichi-2026/full-decklists.json',
+  'scripts/aichi-new-moon-candidate.cjs',
+  'simulation/evaluation/aichi-pilot.cjs',
+  'simulation/twinleaf/new-moon-lockbreak-validate.cjs',
+  'simulation/twinleaf/headless.cjs',
+  'simulation/twinleaf/newmoon-garbotoxin-blower-autonomy.cjs',
+  'simulation/twinleaf/forest-stone-v-recipient-policy.cjs',
+  'simulation/twinleaf/candidate-stone-star-alchemy-policy.cjs',
+  'results/als/new-moon-lockbreak-english-proxy-60.json',
+  'results/als/new-moon-official-japanese-print-60.json',
+  'results/als/new-moon-perfection-english-map.json',
+  'results/legality/japan-expanded-aichi-2026.json',
   'results/aichi-2026/benchmark-shadow-rider.md',
   'results/als/new-moon-lockbreak-60-candidate.md'
 ]);
