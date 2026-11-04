@@ -108,6 +108,10 @@ test('source census is separate from paper legality and native support',()=>{
   assert.equal(result.sourceDeckCount,29);
   assert.deepEqual(result.missingOriginalRanks,[23,25,28]);
   assert.equal(result.totalOriginalTrainerCopies,1035);
+  assert.equal(result.byStatusCopies.BUNDLED_PRINT_IDENTIFIED,1021);
+  assert.equal(result.byStatusCopies.UNRESOLVED_BUNDLED_PRINT,14);
+  assert.equal(result.byStatusCopies.AMBIGUOUS_BUNDLED_PRINT,0);
+  assert.equal(result.rows.filter(x=>x.aliasReasons.length>0).length,7);
   assert.match(result.sourceManifestSha256,/^[a-f0-9]{64}$/);
   assert.equal(result.sourceCompositionChanged,false);
   assert.equal(result.competitiveQualifiedGames,0);
