@@ -42,3 +42,22 @@ The nine-to-zero change should be interpreted as a **single matched-trial interv
 The crossrank root-chain audit established one actual selected contender-side native Tool→Retreat→attack line. This new owner-visible census identifies the *opportunity the original control pilot repeatedly failed to take*, providing a concrete counterexample to policy evaluation based solely on number of attacks or theoretical card access. For Issue #25, retain the actual hand, public Bench Energy, prior retreat, tool-lock context, selected action and opponent reply as a **single causal sequence**. This dataset supplies a useful positive replay seed for a source-independent policy such as [Agent14's broader general helper](../twinleaf/agent14-generic-funded-bench-floatstone-three-family-20261104.md). Agent14's separate fresh [12-pair generic prospective sample](agent14-prospective-generic-funded-floatstone-zero-activation-20261104.md) registered **zero** changed real root histories and should be interpreted within its own seed denominator.
 
 **Scope:** 29 authenticated original 60-card name/count inventories, three missing ranks, no selected final fixed 60, no qualified competitive games, no demonstrated 99.5% win rate.
+
+
+## Coverage correction: more than half of candidate Pass roots were outside the observer
+
+A second independent ledger census now reconciles **all candidate `PassTurnAction` roots**, whether or not the original source had attacked on the preceding turn. The original event observer was intentionally conditional on a source attack, so its 173/164 snapshots were an **incomplete subset** of actual candidate Passes.
+
+| Native accepted candidate Pass roots | Control | Rescue |
+| --- | ---: | ---: |
+| All candidate Pass roots in complete archived root ledgers | **379** | **368** |
+| Captured owner-hand/public-board final Pass snapshots after source attacks | **173** | **164** |
+| Unobserved candidate Pass roots lacking that snapshot | **206** | **204** |
+| Original rank 5: all / captured | 132 / 22 | 132 / 22 |
+| Original rank 11: all / captured | 247 / 151 | 236 / 142 |
+
+The new census is an exact read-only reconciliation of the **same** 32 original physical matched trials and checks each captured Pass ordinal against its actor's accepted Store root. It rejects duplicate captures. The two arms differ in total Pass count because treatment changed one entire continuation.
+
+Consequently, **9 observed owner-visible funded passes are a lower bound on the number of potentially available visible opportunities among the 379 control Pass roots**. Some of the 206 missing snapshots may qualify; they cannot be classified from this archived observer. A zero rank-5 result applies only to its 22 captured snapshots, while **110 rank-5 candidate Pass roots lack matching owner-hand/public-board evidence**. This selection mechanism is driven by previous source attacks and is inherently matchup-dependent. The 9/173 value is **not** an unbiased opportunity prevalence estimate, and the 9/379 ratio is also **not** an independently verified full-population eligibility rate. The independent unit is the physical trial, never its repeated Pass observations.
+
+The [auditor](../../simulation/evaluation/agent31-shadow-rider-visible-pass-frontier.cjs) and [seven pure tests](../../tests/agent31-shadow-rider-visible-pass-frontier.test.cjs) preserve the full-root and by-source-rank counters. The smaller original table above remains correct for the explicitly sampled source-attack-conditioned Pass frontier.
