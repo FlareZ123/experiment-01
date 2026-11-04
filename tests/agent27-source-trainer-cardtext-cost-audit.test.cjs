@@ -8,10 +8,13 @@ const {
 test('actual bundled source exact prints have the advertised discard costs',()=>{
   const a=auditBundledSourceCardText();
   assert.equal(a.originalDecks,29);
-  assert.equal(a.verifiedExactSourcePrintings,53);
-  assert.equal(a.verifiedOriginalTrainerCopies,754);
-  assert.equal(a.originalUnverifiedTrainerCopies,281);
+  assert.equal(a.verifiedExactSourcePrintings,60);
+  assert.equal(a.verifiedOriginalTrainerCopies,809);
+  assert.equal(a.originalUnverifiedTrainerCopies,226);
   assert.equal(a.sourceCardTextVerified,true);
+  assert.equal(a.records.filter(r=>r.sourceAliasReasons.length>0).length,7);
+  assert.equal(a.records.reduce((n,r)=>n+r.copies,0),809);
+  assert.ok(a.records.every(r=>r.verifiedExactEnglishId && r.sourceNumber));
   assert.ok(a.records.every(r=>r.printedVariants.length>=1&&
     r.printedVariants.every(v=>v.discardModes.join(',')===
       [...r.ruleModes].sort((x,y)=>x-y).join(','))));
@@ -20,6 +23,13 @@ test('actual bundled source exact prints have the advertised discard costs',()=>
   assert.deepEqual(map.get('Secret Box TWM').ruleModes,[3]);
   assert.deepEqual(map.get('Mysterious Treasure FLI').ruleModes,[1]);
   for(const [printing,copies,modes] of [
+    ['Battle Compressor PHF',33,[0]],
+    ['Robo Substitute PHF',2,[0]],
+    ['Target Whistle PHF',2,[0]],
+    ['Karen XYP',8,[0]],
+    ['Tropical Beach BWP',4,[0]],
+    ['Thunder Mountain ♢ LOT',3,[0]],
+    ['Wondrous Labyrinth ♢ TEU',3,[0]],
     ['VS Seeker PHF',59,[0]],
     ['Guzma BUS',48,[0]],
     ['Hisuian Heavy Ball ASR',25,[0]],
