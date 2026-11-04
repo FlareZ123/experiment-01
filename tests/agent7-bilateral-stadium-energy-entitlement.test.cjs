@@ -147,3 +147,18 @@ test('opposing hidden-zone accessors are never accessed',()=>{
     'Thunder Mountain Prism Star LOT',refs);
   assert.equal(result.flags.opponentGainsPrintedEnergyOption,true);
 });
+
+test('missing public Prize or stage data cannot certify conditional Energy',()=>{
+  const missingPrize=source();
+  delete missingPrize.opponentPublic.prizeCount;
+  const first=bilateralStadiumEntitlement(missingPrize,
+    'Thunder Mountain Prism Star LOT',refs);
+  assert.equal(first.opponent.status,'opponent-active-printing-unknown');
+  assert.equal(first.bothSidesReady,false);
+  const missingStage=source();
+  delete missingStage.opponentPublic.active.printed.stage;
+  const second=bilateralStadiumEntitlement(missingStage,
+    'Thunder Mountain Prism Star LOT',refs);
+  assert.equal(second.opponent.status,'opponent-active-printing-unknown');
+  assert.equal(second.flags.opponentGainsPrintedEnergyOption,false);
+});
