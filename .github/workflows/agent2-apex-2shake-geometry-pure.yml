@@ -1,0 +1,37 @@
+name: Agent 2 Apex two-Shake access geometry structural sensitivity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent2-apex-two-shake-geometry-pure
+  cancel-in-progress: false
+
+jobs:
+  source-sensitivity-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exact-v0-v1 archive integrity and v2 hypothesis proofs
+        run: node --test tests/agent2-alchemy-attacker-lock-joint-first8.test.cjs tests/agent2-alchemy-2shake-4quick-geometry-sensitivity.test.cjs
+      - name: Preserve all exact 60-card-category structural opportunity outputs
+        run: |
+          node simulation/evaluation/agent2-alchemy-2shake-4quick-geometry-sensitivity.cjs > agent2-apex-two-shake-three-way-sensitivity.json
+          sha256sum agent2-apex-two-shake-three-way-sensitivity.json > agent2-apex-two-shake-three-way-sensitivity.json.sha256
+      - name: Archive even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-apex-two-shake-structural-sensitivity
+          path: |
+            agent2-apex-two-shake-three-way-sensitivity.json
+            agent2-apex-two-shake-three-way-sensitivity.json.sha256
+          if-no-files-found: warn
+          retention-days: 21
