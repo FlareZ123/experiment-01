@@ -45,6 +45,8 @@ function runFirstOwnerDecoderPanel(deps={}) {
     .withOwnerShowCardsAcknowledgment;
   const ownerPrize=deps.ownerPrize??require('../twinleaf/agent21-owner-first-prize-reveal.cjs')
     .withOwnerFirstPrizeReveal;
+  const ownerForcedPromotion=deps.ownerForcedPromotion??require('../twinleaf/agent21-owner-forced-single-bench-promotion.cjs')
+    .withOwnerForcedSingleBenchPromotion;
   const {profile,trials,codeProvenance}=preflight(deps.pinNative!==false);
   const grouped=['A','B'].map(slot=>trials.filter(t=>
     t.candidateSlot===slot && t.repeat===0));
@@ -61,7 +63,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     let returnedRows=0;
     let errorName=null,errorMessage=null,ownerSetupAudit=null;
     let ownerStartingAudit=null,ownerWaitAudit=null,ownerShowCardsAudit=null;
-    let ownerPrizeAudit=null;
+    let ownerPrizeAudit=null,forcedPromotionAudit=null;
     try {
       const execute=()=>runner({
         ...profile.selectedPolicyOptions,
@@ -70,9 +72,15 @@ function runFirstOwnerDecoderPanel(deps={}) {
           profile.allowAdditionalOriginalSourceRanks
       });
       const wrapped=guard(()=>{
+        const withForcedPromotion=()=>{
+          if(deps.ownerForcedPromotionEnabled!==true)return execute();
+          const installed=ownerForcedPromotion(execute);
+          forcedPromotionAudit=installed.audit;
+          return installed.result;
+        };
         const withPrize=()=>{
-          if(deps.ownerPrizeChoice!==true)return execute();
-          const installed=ownerPrize(execute);
+          if(deps.ownerPrizeChoice!==true)return withForcedPromotion();
+          const installed=ownerPrize(withForcedPromotion);
           ownerPrizeAudit=installed.audit;
           return installed.result;
         };
@@ -113,6 +121,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerWaitAudit=error?.agent21OwnerWaitAudit??ownerWaitAudit;
       ownerShowCardsAudit=error?.agent21OwnerShowCardsAudit??ownerShowCardsAudit;
       ownerPrizeAudit=error?.agent21OwnerPrizeAudit??ownerPrizeAudit;
+      forcedPromotionAudit=error?.agent21ForcedPromotionAudit??forcedPromotionAudit;
       status=error?.code===CODE?
         CODE:'OTHER_NATIVE_OR_PREFLIGHT_ERROR';
       errorName=error?.name??null;
@@ -149,6 +158,9 @@ function runFirstOwnerDecoderPanel(deps={}) {
       ownerPrizeDecisions:ownerPrizeAudit?.records??[],
       ownerPrizeDelegatedPromptMetadata:ownerPrizeAudit?.delegatedPromptMetadata??[],
       ownerPrizeDelegatedPromptMetadataOmitted:ownerPrizeAudit?.delegatedPromptMetadataOmitted??null,
+      forcedPromotionEnabled:deps.ownerForcedPromotionEnabled===true,
+      forcedPromotions:forcedPromotionAudit?.ownerForcedPromotionSubmitted??null,
+      forcedPromotionDecisions:forcedPromotionAudit?.records??[],
       actualFullPhysicalDeal:null,
       mode:'historical-registered-single-attempt',
       status,
@@ -174,6 +186,7 @@ function runFirstOwnerDecoderPanel(deps={}) {
     exactOwnerDeckShuffleWaitEnabled:deps.ownerDeckShuffleWait===true,
     exactOwnerShowCardsAckEnabled:deps.ownerShowCardsAck===true,
     exactOwnerPrizeChoiceEnabled:deps.ownerPrizeChoice===true,
+    exactForcedPromotionEnabled:deps.ownerForcedPromotionEnabled===true,
     sourceRank:5,
     independentProspective:false,
     priorRegisteredProfileBlob:
@@ -199,7 +212,8 @@ if(require.main===module)
     ownerAttackVisualWait:process.argv.includes('--owner-attack-visual-wait'),
     ownerDeckShuffleWait:process.argv.includes('--owner-deck-shuffle-wait'),
     ownerShowCardsAck:process.argv.includes('--owner-showcards-ack'),
-    ownerPrizeChoice:process.argv.includes('--owner-prize-choice')
+    ownerPrizeChoice:process.argv.includes('--owner-prize-choice'),
+    ownerForcedPromotionEnabled:process.argv.includes('--owner-forced-promotion')
   }),null,2)+'\n');
 
 module.exports={VERSION,runFirstOwnerDecoderPanel};
