@@ -1,0 +1,33 @@
+name: Agent11 v4 immutable paired Quick Ball native archive audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-frozen-native-archives:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch archived baseline profile (run 41901549528)
+        uses: actions/download-artifact@v4
+        with:
+          name: agent11-owner-tutor-original5-vs11-native
+          repository: FlareZ123/experiment-01
+          run-id: 41901549528
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: baseline
+      - name: Fetch archived enabled profile (run 41901576963)
+        uses: actions/download-artifact@v4
+        with:
+          name: agent11-owner-tutor-original5-vs11-native
+          repository: FlareZ123/experiment-01
+          run-id: 41901576963
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: enabled
+      - name: Assert original bytes, 64 exact deals and failure-inclusive native counts
+        run: node scripts/agent11-v4-quickball-exact-paired-archive-audit.cjs baseline/agent11-owner-tutor-native-v4.json enabled/agent11-owner-tutor-native-v4.json
