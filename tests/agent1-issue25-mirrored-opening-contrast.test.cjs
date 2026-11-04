@@ -15,7 +15,7 @@ function sample(entry,adjust){
       policyEntryPoint:entry,developmentTrialCount:8,
       observedRepositoryGitCommit:'test-commit'
     },
-    registration:{expectedIds:ids},
+    registration:{expectedIds:[...ids]},
     observedSelectedOpening:entry.includes('protected-opening-v7')?{
       stores:8,initialAccepted:16,allEligibleProtectedSupportsRetained:16,
       missingPhysicalPlacements:0,
