@@ -11,6 +11,7 @@ on:
           - rank11-replay
           - generic-funded-floatstone
           - generic-field-matched
+          - generic-field-census
 permissions:
   contents: read
 jobs:
@@ -29,7 +30,7 @@ jobs:
         if: inputs.experiment == 'generic-funded-floatstone' || inputs.experiment == 'generic-field-matched'
         run: node --test tests/agent14-generic-funded-floatstone-frontier.test.cjs
       - name: Preflight sealed prospective trial IDs
-        if: inputs.experiment == 'generic-field-matched'
+        if: inputs.experiment == 'generic-field-matched' || inputs.experiment == 'generic-field-census'
         run: node -e "const trials=require('./simulation/evaluation/agent14-prospective-generic-funded-floatstone.cjs').registeredTrials(); console.log('REGISTERED_IDS',JSON.stringify(trials.map(t=>t.id)))"
       - name: Pinned submodule
         run: git submodule update --init --depth=1 vendor/twinleaf
@@ -53,6 +54,17 @@ jobs:
       - name: Prospective real original-source matched baseline and generic mobility
         if: inputs.experiment == 'generic-field-matched'
         run: node simulation/evaluation/agent14-prospective-generic-funded-floatstone.cjs
+      - name: Observer-only original-source root opportunity census
+        if: inputs.experiment == 'generic-field-census'
+        run: node simulation/evaluation/agent14-generic-funded-floatstone-census.cjs
+      - name: Archive observer-only control replay audit
+        if: always() && inputs.experiment == 'generic-field-census'
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent14-generic-funded-floatstone-census
+          path: agent14-generic-funded-floatstone-census.json
+          if-no-files-found: warn
+          retention-days: 21
       - name: Archive all real original-source attempts, including aborts
         if: always() && inputs.experiment == 'generic-field-matched'
         uses: actions/upload-artifact@v4
