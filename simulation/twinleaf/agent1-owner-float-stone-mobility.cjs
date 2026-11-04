@@ -2,8 +2,26 @@
 
 const assert=require('node:assert/strict');
 
-const VERSION='agent1-owner-public-zero-energy-floatstone-mobility-v2-tool-jammer-guard';
+const VERSION='agent1-owner-public-zero-energy-floatstone-mobility-v3-retreat-increases';
 const FLOAT_STONE='Float Stone BKT';
+
+/**
+ * Publicly visible effects that can increase a printed zero Retreat Cost.
+ * Conservative where Ability suppression is not independently proven.
+ */
+function knownRetreatIncrease(view,catalog){
+  const own=view.ownPublic,foe=view.opponentPublic;
+  const stadiums=[...(own?.stadium??[]),...(foe?.stadium??[])];
+  if(stadiums.some(x=>x.startsWith('Galar Mine ')))return true;
+  const opponents=[foe?.active,...(foe?.bench??[])].filter(Boolean);
+  if(opponents.some(p=>p.printing?.startsWith('Spidops ex ')&&
+    p.abilities?.includes('Trap Territory')))return true;
+  const stage=own?.active?.printed?.stage;
+  const evolved=stage!==null&&stage!==undefined&&
+    stage!==catalog?.stages?.BASIC&&stage!==catalog?.stages?.RESTORED;
+  return evolved&&opponents.some(p=>p.printing?.startsWith('Ariados ')&&
+    p.abilities?.includes('Big Net'));
+}
 
 /**
  * Conservative two-root mobility opportunity from one player's detached
@@ -50,7 +68,8 @@ function chooseOwnerFloatStoneMobility(view,catalog){
   const {p,i:benchIndex}=bench[0];
 
   // Printed zero Retreat Cost does not require consuming an Item or Tool.
-  const naturalFree=active.printed.retreatCost.length===0;
+  const naturalFree=active.printed.retreatCost.length===0&&
+    !knownRetreatIncrease(view,catalog);
   const floatAttached=active.tools?.includes(FLOAT_STONE)===true;
   const stadiumBlanksTools=[...(own.stadium??[]),
     ...(view.opponentPublic?.stadium??[])].some(stadium=>
@@ -73,4 +92,5 @@ function chooseOwnerFloatStoneMobility(view,catalog){
     printing:p.printing};
 }
 
-module.exports={VERSION,FLOAT_STONE,chooseOwnerFloatStoneMobility};
+module.exports={VERSION,FLOAT_STONE,knownRetreatIncrease,
+  chooseOwnerFloatStoneMobility};
