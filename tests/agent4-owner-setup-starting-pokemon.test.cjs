@@ -193,3 +193,31 @@ test('unmodeled setup prompt cardinality min2 delegates to quarantine',()=>{
     return true;
   });
 });
+
+test('bonus Bench decline tolerates a genuine start-of-turn card draw',()=>{
+  const {bot,store,owner}=fixture(1,[1],
+    'CHOOSE_STARTING_POKEMONS',0,1);
+  const existing=[...owner.hand.cards];
+  const old=Object.getOwnPropertyDescriptor(Store.prototype,'dispatch');
+  Object.defineProperty(Store.prototype,'dispatch',{
+    ...old,value:function(action){
+      const result=old.value.call(this,action);
+      if(action instanceof ResolvePromptAction)
+        owner.hand.cards.push({fullName:'first-turn topdeck'});
+      return result;
+    }
+  });
+  try{
+    const output=quarantine(()=>starting(()=>{
+      store.dispatch(new AddPlayerAction());
+      store.dispatch(bot.decodeNextAction(store.state));
+      return true;
+    },deps),{SimpleTacticsAi:Bot});
+    assert.equal(output.result.audit.acceptedBonusDecline,1);
+    assert.equal(output.result.audit.bonusDeclinePermitsSubsequentTurnDraw,true);
+    assert.deepEqual(owner.hand.cards.slice(0,existing.length),existing);
+    assert.equal(owner.hand.cards.at(-1).fullName,'first-turn topdeck');
+  }finally{
+    Object.defineProperty(Store.prototype,'dispatch',old);
+  }
+});
