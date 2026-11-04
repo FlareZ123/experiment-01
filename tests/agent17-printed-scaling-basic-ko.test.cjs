@@ -104,3 +104,23 @@ test('exact original rank1 and card printing support the constructed damage',() 
   assert.equal(max.damage,'10+');
   assert.equal(max.text,GEIST.text);
 });
+
+
+test('shared actor chooses printed scaling attachment only with opt-in',()=>{
+  const {chooseActorRootIntent}=require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
+  const v=state();
+  v.ownTurnResources.pokemonPlayLocked=false;
+  const c={...catalog,basics:new Set(),abilityBasics:new Set(),
+    specialConditions:{ASLEEP:-1,PARALYZED:-2}};
+  const baseline=chooseActorRootIntent(v,c,{energyRecipientFrontier:true});
+  assert.deepEqual(baseline,{kind:'attack',attackName:'Max Geist'});
+  const candidate=chooseActorRootIntent(v,c,{
+    energyRecipientFrontier:true,printedScalingBasicKoBeforeAttack:true});
+  assert.equal(candidate.kind,'attach-basic-energy');
+  assert.equal(candidate.slot,'bench');
+  v.ownPublic.bench[1].energies.push('Psychic Energy MEE');
+  v.ownHand=[];
+  v.ownTurnResources.energyPlayedTurn=12;
+  assert.equal(chooseActorRootIntent(v,c,{
+    energyRecipientFrontier:true,printedScalingBasicKoBeforeAttack:true}).kind,'attack');
+});
