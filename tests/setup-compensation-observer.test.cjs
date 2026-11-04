@@ -141,3 +141,41 @@ test('rejects malformed bonus options and missing underlying action lifecycle',(
   assert.throws(()=>other.before(s,new ShuffleDeckPrompt(202),{result:[]}),
     /Previous setup action/);
 });
+
+test('both players jointly mulligan twice then reach valid hands: zero bonus entitlement',()=>{
+  const observer=make(),state=fixture();
+  initialShuffles(observer,state);
+  for(let attempt=0;attempt<2;attempt++){
+    dispatch(observer,state,new ShuffleDeckPrompt(101),{result:[]});
+    dispatch(observer,state,new ShuffleDeckPrompt(202),{result:[]});
+  }
+  const result=end(observer,state);
+  assert.deepEqual(result.mulligans,[2,2]);
+  assert.deepEqual(result.bonusOffered,[0,0]);
+  assert.deepEqual(result.bonusSelected,[0,0]);
+  assert.deepEqual(result.bonusDrawn,[0,0]);
+});
+
+test('two joint mulligans followed by three solo failures grant only three draws',()=>{
+  const observer=make(),state=fixture();
+  initialShuffles(observer,state);
+  for(let attempt=0;attempt<2;attempt++){
+    dispatch(observer,state,new ShuffleDeckPrompt(101),{result:[]});
+    dispatch(observer,state,new ShuffleDeckPrompt(202),{result:[]});
+  }
+  for(let attempt=0;attempt<3;attempt++)
+    dispatch(observer,state,new ShuffleDeckPrompt(101),{result:[]});
+  const options=['Draw 0 card(s)','Draw 1 card(s)',
+    'Draw 2 card(s)','Draw 3 card(s)'];
+  dispatch(observer,state,new SelectPrompt(202,options),{result:2},()=>{
+    state.players[1].hand.cards.push({fullName:'unseen bonus A'});
+    state.players[1].hand.cards.push({fullName:'unseen bonus B'});
+  });
+  const result=end(observer,state,0);
+  assert.deepEqual(result.mulligans,[5,2]);
+  assert.deepEqual(result.bonusOffered,[0,3]);
+  assert.deepEqual(result.bonusPromptCount,[0,1]);
+  assert.deepEqual(result.bonusSelected,[0,2]);
+  assert.deepEqual(result.bonusDrawn,[0,2]);
+  assert.equal(result.excludesPrivateCardIdentities,true);
+});
