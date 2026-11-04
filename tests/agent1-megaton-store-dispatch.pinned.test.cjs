@@ -186,7 +186,7 @@ test('paper guard does not suppress target-bearing native corrected Megaton', ()
  * @param {boolean} corrected
  * @returns {object}
  */
-function probeReactivatedItemLock(seat, corrected) {
+function probeReactivatedItemLock(seat, corrected, switchFirst = false) {
   const manager = initializeCards();
   const card = printing => {
     const result = manager.getCardByName(printing);
@@ -208,6 +208,9 @@ function probeReactivatedItemLock(seat, corrected) {
   flower.cards.push(card('Oddish UNB'), card('Gloom UNB'),
     card('Vileplume AOR'));
   owner.bench.push(flower);
+  const fundedAttacker = new PokemonCardList();
+  fundedAttacker.cards.push(card('Regidrago V SIT'));
+  owner.bench.push(fundedAttacker);
   const trash = new PokemonCardList();
   trash.cards.push(card('Trubbish BKP'), card('Garbodor BKP'));
   const floatStone = card('Float Stone BKT');
@@ -230,24 +233,54 @@ function probeReactivatedItemLock(seat, corrected) {
   let itemError = null;
   let switchError = null;
   let guardAudit = null;
+  const attemptMegaton = () => {
+    try {
+      const live = store.state.players.find(p => p.id === owner.id);
+      const index = live.hand.cards.findIndex(c =>
+        c.fullName === 'Megaton Blower SSP');
+      assert.ok(index >= 0, 'Megaton remains in acting hand');
+      store.dispatch(new PlayCardAction(owner.id, index, {
+        player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
+      }));
+    } catch (e) {
+      itemError = String(e?.message ?? e);
+    }
+  };
+  const attemptSwitch = () => {
+    try {
+      const live = store.state.players.find(p => p.id === owner.id);
+      const index = live.hand.cards.findIndex(c =>
+        c.fullName === 'Switch SVI');
+      assert.ok(index >= 0, 'Switch remains in physical hand');
+      store.dispatch(new PlayCardAction(owner.id, index, {
+        player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
+      }));
+      if (switchFirst) {
+        const prompt = store.state.prompts.find(p => p.result === undefined);
+        assert.equal(prompt?.constructor?.name, 'ChoosePokemonPrompt');
+        const liveOwner = store.state.players.find(p => p.id === owner.id);
+        const target = liveOwner.bench.find(slot =>
+          slot.getPokemonCard()?.fullName === 'Regidrago V SIT');
+        assert.ok(target, 'Staged eligible original Bench attacker is live');
+        assert.equal(prompt.validate([target], store.state), true);
+        const {ResolvePromptAction} =
+          engine('game/store/actions/resolve-prompt-action');
+        store.dispatch(new ResolvePromptAction(prompt.id, [target]));
+        assert.equal(store.state.prompts.some(p => p.result === undefined),
+          false, 'Switch prompt must finish before Megaton');
+      }
+    } catch (e) {
+      switchError = String(e?.message ?? e);
+    }
+  };
   try {
     const execution = withMegatonNoEffectRootGuard(() => {
-      try {
-        store.dispatch(new PlayCardAction(owner.id, 0, {
-          player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
-        }));
-      } catch (e) {
-        itemError = String(e?.message ?? e);
-      }
-      try {
-        const live = store.state.players.find(p => p.id === owner.id);
-        const index = live.hand.cards.findIndex(c => c === switchCard);
-        assert.ok(index >= 0, 'Switch remains in physical hand');
-        store.dispatch(new PlayCardAction(owner.id, index, {
-          player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0
-        }));
-      } catch (e) {
-        switchError = String(e?.message ?? e);
+      if (switchFirst) {
+        attemptSwitch();
+        attemptMegaton();
+      } else {
+        attemptMegaton();
+        attemptSwitch();
       }
     });
     guardAudit = execution.audit;
@@ -258,7 +291,8 @@ function probeReactivatedItemLock(seat, corrected) {
   const currentOpponent = store.state.players.find(p => p.id === opponent.id);
   const liveGarbo = currentOpponent.bench[0];
   return {
-    seat, corrected, itemError, switchError, guardAudit,
+    seat, corrected, switchFirst, itemError, switchError, guardAudit,
+    actorActivePrinting: currentOwner.active.getPokemonCard()?.fullName,
     opponentFloatStoneAttached: liveGarbo.tools.some(
       tool => tool.fullName === 'Float Stone BKT'),
     opponentFloatStoneDiscarded: currentOpponent.discard.cards.some(
@@ -296,5 +330,29 @@ test('both seats Megaton Tool removal restores Vileplume Item lock before next I
       assert.equal(row.guardAudit.inspectedMegatonActions, 1);
       assert.equal(row.guardAudit.rejectedProvenNoEffect, 0);
     }
+  }
+});
+
+test('both seats reverse paid Switch before Megaton to avoid restored self Item lock', () => {
+  for (const seat of [0, 1]) {
+    const after = probeReactivatedItemLock(seat, true, false);
+    const before = probeReactivatedItemLock(seat, true, true);
+    console.log('AGENT1_MEGATON_ACTION_ORDER ' +
+      JSON.stringify({after, before}));
+    assert.equal(after.itemError, null);
+    assert.equal(before.itemError, null);
+    assert.equal(after.switchError, 'CANNOT_PLAY_THIS_CARD');
+    assert.equal(before.switchError, null);
+    assert.equal(after.opponentFloatStoneDiscarded, true);
+    assert.equal(before.opponentFloatStoneDiscarded, true);
+    assert.equal(after.actorActivePrinting, 'Bunnelby PRC');
+    assert.equal(before.actorActivePrinting, 'Regidrago V SIT');
+    assert.equal(after.switchInHand, true);
+    assert.equal(before.switchInHand, false);
+    assert.deepEqual(after.pendingPrompts, []);
+    assert.deepEqual(before.pendingPrompts, []);
+    assert.equal(before.megatonDiscarded, true);
+    assert.equal(before.guardAudit.inspectedMegatonActions, 1);
+    assert.equal(before.guardAudit.rejectedProvenNoEffect, 0);
   }
 });
