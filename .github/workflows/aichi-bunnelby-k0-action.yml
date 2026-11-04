@@ -31,5 +31,6 @@ jobs:
       - name: Pinned Radiant Eternatus zero-selection turn-end repair and native controls
         run: |
           node --test tests/agent1-radiant-zero-gate-native.test.cjs
+          node --test tests/agent1-ghala-radiant-guard-composition.native.test.cjs
           node simulation/twinleaf/agent1-radiant-zero-gate-native.cjs
       - run: node simulation/twinleaf/bunnelby-k0-action-contrast.cjs
