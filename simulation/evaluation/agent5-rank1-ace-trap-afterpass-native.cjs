@@ -163,6 +163,8 @@ function run(){
   const summary={
     historicalSingleTrial:trial.id,attempts:4,
     matchingSourceDeals,matchingControlReplay,
+    baselineMatchesArchivedRootLedger:baseline?.rootActionLedgerSha256===
+      '53afe8ae0c96111888e33581568a43941cd3c377fbea01de2514223ac256d1c3',
     controlBeforeRoot182Replayed:baseline?.rootActionLedger?.[182]
       ?.action==='PassTurnAction',
     historicalSourceWin:baseline?.finished===true&&baseline?.winner===1,
