@@ -930,6 +930,10 @@ function executeDevelopment(trial,candidates,{
     ...(nativePublicMulliganRevealsAudit?{
       initialPublicMulliganReveals:game.initialPublicMulliganReveals??null}:{}),
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
+    // This second digest ignores irrelevant hand ordering but retains
+    // distinct card printings and duplicate counts in the physical multiset.
+    sourceFirstOwnHandMultisetSha256:ownerFirst?
+      sha256(ownerFirst.slice().sort()):null,
     sourceFirstOwnHandProtocol:game.firstLiveOwnerHands.schema,
     sourceFirstOwnHandFirstActionOrdinal:firstLiveOwnerHand?.actionOrdinal??null,
     sourceLegacyFirstObservedHandSha256:legacyFirstSourceHand?
