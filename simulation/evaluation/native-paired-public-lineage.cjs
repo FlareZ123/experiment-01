@@ -50,6 +50,10 @@ function immediateFollowThrough(row, anchorRoot) {
   const anchor = settledAttack(row, anchorRoot);
   if (!anchor) throw new Error('ANCHOR_NOT_SETTLED');
   const sourceSeat = row.sourceSeat;
+  const sourcePublicAfter = anchor.publicBoardAfter?.[sourceSeat];
+  if (!sourcePublicAfter || !Array.isArray(anchor.prizesAfter) ||
+      !Number.isInteger(anchor.prizesAfter[sourceSeat]))
+    throw new Error('ANCHOR_PUBLIC_STATE_UNVERIFIED');
   const next = nextSourceTurnAction(row, anchorRoot);
   const opponent = next
     ? (row.rootActionLedger ?? []).filter(root =>
@@ -60,11 +64,15 @@ function immediateFollowThrough(row, anchorRoot) {
     : [];
   const nextSettled = next?.action === 'AttackAction'
     ? settledAttack(row, next.actionOrdinal) : null;
+  const prizeBefore = nextSettled?.prizesBefore?.[sourceSeat];
+  const prizeAfter = nextSettled?.prizesAfter?.[sourceSeat];
+  const nextAttackPrizesTaken = Number.isInteger(prizeBefore) &&
+    Number.isInteger(prizeAfter) ? prizeBefore - prizeAfter : null;
   return {
     anchorTurn: anchor.turnBefore,
     anchorAttackName: anchor.attackName,
     anchorCompletionRoot: anchor.completionRootOrdinal,
-    sourcePublicAfter: anchor.publicBoardAfter?.[sourceSeat] ?? null,
+    sourcePublicAfter,
     anchorPrizesAfter: anchor.prizesAfter ?? null,
     opponentActions: opponent.map(root => ({
       root: root.actionOrdinal, turn: root.turnBefore, action: root.action
@@ -76,9 +84,7 @@ function immediateFollowThrough(row, anchorRoot) {
     nextAttackName: nextSettled?.attackName ?? null,
     nextAttackPrizesBefore: nextSettled?.prizesBefore ?? null,
     nextAttackPrizesAfter: nextSettled?.prizesAfter ?? null,
-    nextAttackPrizesTaken: nextSettled
-      ? nextSettled.prizesBefore[sourceSeat] -
-        nextSettled.prizesAfter[sourceSeat] : null
+    nextAttackPrizesTaken
   };
 }
 
@@ -135,7 +141,7 @@ function compareNativeOpportunity(control, treatment, anchorRoot) {
     rawLedgerFirstDivergentRoot:
       left[equalRoots]?.actionOrdinal ?? right[equalRoots]?.actionOrdinal ?? null,
     control: original, treatment: changed,
-    sameOpponentActionsBeforeNextSourceDecision:
+    sameOpponentRootKindsBeforeNextSourceDecision:
       stable(original.opponentActions) === stable(changed.opponentActions),
     qualifiesForCompetitiveInference: false
   };
