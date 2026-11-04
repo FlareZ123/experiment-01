@@ -3,7 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const VERSION = 'agent36-dowsing-pls128-transaction-custody-v4-live-store-scoped';
+const VERSION = 'agent36-dowsing-pls128-transaction-custody-v5-prism-destination';
 const PRINTING = 'Dowsing Machine PLS';
 
 /**
@@ -39,11 +39,12 @@ function dowsingPaymentNegative(prompt, answer, owner) {
  * recovery. Therefore inspect each post-dispatch source transaction state,
  * settle at the first observed physical cost transfer, and never reclassify
  * a settled payment because the cards are legitimately recycled later.
+ * Prism Star costs go to the Lost Zone instead of the discard pile.
  * An unresolved transaction is distinct from a completed unpaid transaction.
  *
  * @template T
  * @param {()=>T} run Synchronous native test or full game.
- * @param {{Store?:Function,requireLiveStore?:boolean,
+ * @param {{Store?:Function,prismStarTag?:number|string,requireLiveStore?:boolean,
  *  currentTrialId?:()=>string|null}} [deps] Store injection and actual-game isolation.
  * @returns {{result:T,audit:object}}
  */
@@ -52,6 +53,8 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
   const native = p => require(path.resolve(__dirname,
     '../../vendor/twinleaf/ptcg-server/output', p));
   const Store = deps.Store ?? native('game/store/store').Store;
+  const prismStarTag = deps.prismStarTag ??
+    (deps.Store ? null : native('game/store/card/card-types').CardTag.PRISM_STAR);
   const previous = Object.getOwnPropertyDescriptor(Store.prototype, 'dispatch');
   assert.equal(typeof previous?.value, 'function');
   const pendingByStore = new Map();
@@ -78,9 +81,20 @@ function withDowsingMachinePaperPaymentGuard(run, deps = {}) {
     if (!pending?.length) return;
     for (const entry of [...pending]) {
       const {owner, selected, event} = entry;
-      const settled = selected.every(card =>
-        owner.discard?.cards?.includes(card) &&
-        !owner.hand?.cards?.includes(card));
+      const custody = selected.map(card => {
+        const prismStar = card.tags?.includes(prismStarTag) === true;
+        const inDiscard = owner.discard?.cards?.includes(card) === true;
+        const inLostZone = owner.lostzone?.cards?.includes(card) === true;
+        const inHand = owner.hand?.cards?.includes(card) === true;
+        return {printing: card.fullName ?? null,
+          expectedDestination: prismStar ? 'lostzone' : 'discard',
+          actualDestination: inHand ? 'hand' : inDiscard ? 'discard' :
+            inLostZone ? 'lostzone' : 'other',
+          paidCorrectly: !inHand && (prismStar ? inLostZone && !inDiscard :
+            inDiscard && !inLostZone)};
+      });
+      const settled = custody.every(card => card.paidCorrectly);
+      event.paymentCustody = custody;
       const recoveryClosed =
         before?.constructor?.name === 'ChooseCardsPrompt' &&
         before.message === 'CHOOSE_CARD_TO_HAND' &&
