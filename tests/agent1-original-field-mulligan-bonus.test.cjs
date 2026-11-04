@@ -11,7 +11,7 @@ const {
 
 const RANKS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
   20,21,22,24,26,27,29,30,31,32];
-const BASIC_COUNTS = [14,14,11,13,11,4,11,10,11,15,11,15,11,14,14,
+const BASIC_COUNTS = [14,14,11,13,11,4,12,10,11,15,11,15,11,14,14,
   11,13,16,16,14,14,12,4,12,15,4,16,15,13];
 
 /** @param {number} x @param {number} y */
@@ -104,12 +104,12 @@ test('equal rank-weighted 29-original candidate mulligan exposure is reproducibl
   const twelve=fieldMeanBonusExposure(12,field);
   const fourteen=fieldMeanBonusExposure(14,field);
   for(const x of [seven,twelve,fourteen]) assert.equal(x.authenticatedFieldSize,29);
-  near(seven.opponentAnyOffer,0.3413569924230461);
-  near(seven.expectedOpponentBonus,0.5680955407105561);
-  near(seven.expectedCandidateBonus,0.23985430809809943);
-  near(seven.expectedOpponentMinusCandidateBonus,0.3282412326124567);
-  near(twelve.expectedOpponentMinusCandidateBonus,-0.10043146740519845);
-  near(fourteen.expectedOpponentMinusCandidateBonus,-0.17509751811449725);
+  near(seven.opponentAnyOffer,0.34166910808999373);
+  near(seven.expectedOpponentBonus,0.5686149720464142);
+  near(seven.expectedCandidateBonus,0.23863274478001226);
+  near(seven.expectedOpponentMinusCandidateBonus,0.3299822272664019);
+  near(twelve.expectedOpponentMinusCandidateBonus,-0.09869047275125314);
+  near(fourteen.expectedOpponentMinusCandidateBonus,-0.17335652346055197);
 });
 
 test('none of the missing original 23,25,28 is backfilled with inferred Basics', () => {
