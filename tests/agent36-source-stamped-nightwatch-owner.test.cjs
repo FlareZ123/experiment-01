@@ -27,6 +27,14 @@ function fakeEngine(){
         cards.every(card=>this.cards.cards.includes(card));
     }
   }
+  class ShowCardsPrompt{
+    constructor(playerId){
+      this.id='source-nightwatch-show-1';
+      this.playerId=playerId;this.result=undefined;
+      this.message='CARDS_SHOWED_BY_THE_OPPONENT';
+      this.options={allowCancel:false};
+    }
+  }
   class Store{
     constructor(state){this.state=state;this.callbacks=new Map();}
     prompt(state,prompt,cb){
@@ -37,6 +45,11 @@ function fakeEngine(){
       if(action instanceof ResolvePromptAction){
         const p=this.state.prompts.find(x=>x.id===action.id);
         assert.ok(p);
+        if(p instanceof ShowCardsPrompt){
+          assert.equal(action.result,true);
+          p.result=true;
+          return true;
+        }
         const opponent=this.state.players.find(x=>x.id!==p.playerId);
         assert.equal(p.validate(action.result),true);
         for(const card of action.result){
@@ -47,6 +60,7 @@ function fakeEngine(){
         }
         p.result=action.result;
         this.callbacks.get(action.id)(action.result);
+        this.state.prompts.push(new ShowCardsPrompt(p.playerId));
         return true;
       }
       throw Error('bad action');
@@ -74,13 +88,16 @@ function fakeEngine(){
     'game/store/store':{Store},
     'game/store/actions/add-player-action':{AddPlayerAction},
     'game/store/actions/resolve-prompt-action':{ResolvePromptAction},
-    'game/game-message':{GameMessage:{CHOOSE_CARD_TO_DISCARD:
-      'CHOOSE_CARD_TO_DISCARD'}}
+    'game/store/prompts/show-cards-prompt':{ShowCardsPrompt},
+    'game/game-message':{GameMessage:{
+      CHOOSE_CARD_TO_DISCARD:'CHOOSE_CARD_TO_DISCARD',
+      CARDS_SHOWED_BY_THE_OPPONENT:'CARDS_SHOWED_BY_THE_OPPONENT'
+    }}
   };
   return {engine:name=>modules[name],
     Store,AddPlayerAction,ResolvePromptAction,
     TrevenantDusknoirGX,SimpleTacticsAi,AttackEffect,
-    ChooseCardsPrompt};
+    ChooseCardsPrompt,ShowCardsPrompt};
 }
 
 test('source-reducer-stamped Night Watch chooses opaque random positions and validates real Store movement',()=>{
@@ -107,6 +124,10 @@ test('source-reducer-stamped Night Watch chooses opaque random positions and val
     assert.ok(action instanceof x.ResolvePromptAction);
     assert.equal(action.result.length,2);
     store.dispatch(action);
+    const ack=bot.decodeNextAction(state);
+    assert.ok(ack instanceof x.ResolvePromptAction);
+    assert.equal(ack.result,true);
+    store.dispatch(ack);
     return {done:true};
   },{committedSeed:'test-fixed-before-game',engine:x.engine});
   assert.equal(res.result.done,true);
@@ -116,6 +137,9 @@ test('source-reducer-stamped Night Watch chooses opaque random positions and val
   assert.equal(res.audit.acceptedDispatches,1);
   assert.equal(res.audit.verifiedPhysicalHandDeckMovements,1);
   assert.equal(res.audit.notYetVerifiedMovements,0);
+  assert.equal(res.audit.markedSourceFollowupShowCards,1);
+  assert.equal(res.audit.ownerSourceShowCardsActions,1);
+  assert.equal(res.audit.nativeAcceptedSourceShowCardsAcks,1);
   assert.equal(res.audit.policyCardIdentityReads,0);
   assert.equal(reads,0);
   assert.deepEqual([opponent.hand.cards.length,opponent.deck.cards.length],[3,2]);
