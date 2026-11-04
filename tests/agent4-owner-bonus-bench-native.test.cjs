@@ -20,10 +20,17 @@ assert.equal(rank6?.status,'ready');
 assert.equal(rank6.cards.length,60);
 assert.equal(plan.candidate.cards.length,60);
 
-const SEEDS=Object.freeze([
+// The first frozen eight seeds produced 4/0 two-seat witnesses in red CI
+// 41861598272. This explicitly separate prospective extension adds 32 more
+// fixed seeds to investigate the missing physical source-seat-1 reachability.
+// These are interface checks, not an unbiased sampled game-win experiment.
+const FIRST_SEEDS=Object.freeze([
   20261126,20261127,20261128,20261129,
   20261130,20261131,20261132,20261133
 ]);
+const EXTENSION_SEEDS=Object.freeze(Array.from({length:32},
+  (_,i)=>20261134+i));
+const SEEDS=Object.freeze([...FIRST_SEEDS,...EXTENSION_SEEDS]);
 
 /**
  * Peel only complete wrapper results; on fail-closed abort the owner-setup
@@ -93,7 +100,7 @@ test('real pinned Store naturally exercises optional min0 Bench choices on both 
     };
     rows.push(row);
   }
-  assert.equal(rows.length,16);
+  assert.equal(rows.length,80);
   const bySeat=[0,1].map(seat=>rows.filter(r=>
     r.sourceSeat===seat&&r.acceptedBonusDecline>0));
   process.stdout.write(JSON.stringify({
@@ -101,6 +108,12 @@ test('real pinned Store naturally exercises optional min0 Bench choices on both 
     sourceRank:6,referenceRank:1,pin:plan.engineRevision,
     policy:'agent4-one-Basic-initial-and-zero-Basic-optional-bonus',
     totalAttempts:rows.length,
+    originalEightWitnessesBySeat:[0,1].map(seat=>rows.filter(r=>
+      r.sourceSeat===seat&&FIRST_SEEDS.includes(r.seed)&&
+      r.acceptedBonusDecline>0).length),
+    extensionWitnessesBySeat:[0,1].map(seat=>rows.filter(r=>
+      r.sourceSeat===seat&&EXTENSION_SEEDS.includes(r.seed)&&
+      r.acceptedBonusDecline>0).length),
     nativeBonusWitnessesBySourceSeat:bySeat.map(a=>a.length),
     attempts:rows,competitivelyQualifiedGames:0
   })+'\n');
