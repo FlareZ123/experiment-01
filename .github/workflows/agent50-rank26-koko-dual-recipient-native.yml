@@ -192,3 +192,27 @@ jobs:
           path: artifacts/issue25-mirrored-v6/
           if-no-files-found: warn
           retention-days: 30
+      - name: Check preregistered opening contrast and exact physical receipt reconciliation
+        run: node --test tests/agent1-issue25-protected-opening-v7.test.cjs tests/agent1-issue25-mirrored-opening-contrast.test.cjs
+      - name: Execute matched eight native arms with protected turn-entry Basic opening
+        env:
+          ISSUE25_V7_RECEIPT_DIR: artifacts/issue25-protected-opening-v7
+        run: node --test tests/agent1-issue25-protected-opening-v7.native.test.cjs
+      - name: Preserve physical opening placements, aborts and caps from eight v7 arms
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-protected-opening-v7-executed-${{ github.run_id }}
+          path: artifacts/issue25-protected-opening-v7/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Verify actual same source and full initial physical deal on all eight v6 versus v7 arms
+        run: node --test tests/agent1-issue25-mirrored-opening-contrast.native.test.cjs
+      - name: Preserve native v6 versus v7 public matched-deal causal contrast
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue25-mirrored-opening-contrast-${{ github.run_id }}
+          path: artifacts/issue25-mirrored-opening-contrast/
+          if-no-files-found: warn
+          retention-days: 30
