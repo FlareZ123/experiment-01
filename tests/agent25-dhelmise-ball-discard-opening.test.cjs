@@ -136,3 +136,35 @@ test('counterfactual hard boundary rejects silent changes to other cards',()=>{
 
 // Same donor-cost research line; shares the existing opening-audit CI gate.
 require('./agent25-owner-quickball-hns-cost.test.cjs');
+
+test('exact one-Compressor plus one Ball staged-route analog is Arven-independent',()=>{
+  const base=exactOpening(8),blocked=exactOpening(6);
+  const noArven=exactOpening(8,{allowArven:false});
+  const blockedNoArven=exactOpening(6,{allowArven:false});
+  assert.equal(base.directOneCompressorBallWorlds,'12792980157323520');
+  assert.equal(blocked.directOneCompressorBallWorlds,'10085291430170880');
+  assert.equal(noArven.directOneCompressorBallWorlds,base.directOneCompressorBallWorlds);
+  assert.equal(blockedNoArven.directOneCompressorBallWorlds,
+    blocked.directOneCompressorBallWorlds);
+  assert.ok(Math.abs(base.directOneCompressorBallProbability-
+    0.03069937985386897)<1e-14);
+  assert.ok(Math.abs(blocked.directOneCompressorBallProbability-
+    0.024201725379410007)<1e-14);
+});
+
+test('exactly one-BC direct route cannot be confused with all novel Ball routes',()=>{
+  const x=exactOpening(8);
+  const y=exactOpening(6);
+  const xNoArven=exactOpening(8,{allowArven:false});
+  const yNoArven=exactOpening(6,{allowArven:false});
+  assert.equal(x.novelOneCompressorBallWorlds,'8944152698687360');
+  assert.equal(y.novelOneCompressorBallWorlds,'7458776092891200');
+  assert.equal(xNoArven.novelOneCompressorBallWorlds,'11853636461251200');
+  assert.equal(yNoArven.novelOneCompressorBallWorlds,'9442356483141120');
+  for(const row of [x,y,xNoArven,yNoArven]){
+    assert.ok(BigInt(row.novelOneCompressorBallWorlds)<=
+      BigInt(row.directOneCompressorBallWorlds));
+    assert.ok(BigInt(row.novelOneCompressorBallWorlds)<=
+      BigInt(row.additionallyReachableWorlds));
+  }
+});
