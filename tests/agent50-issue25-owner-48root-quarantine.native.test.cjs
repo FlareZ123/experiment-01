@@ -65,7 +65,8 @@ test('Issue25 same owner-only 48-root bounded native profile with full-deal prov
       verifiedFirstTurn:row.verifiedFirstTurn??null,
       firstStarterSeat:row.actualStarterSeat??null,
       nativeActionCount:row.actionCount??null,
-      nativeRootActionCount:row.rootActionCount??null,
+      nativeRootActionCount:row.nativeRootActionCount??row.rootActionCount??null,
+      nativeAbortProvenance:row.nativeAbortProvenance??null,
       turnCount:row.turns??null,
       finished:row.finished??null,
       winner:row.winner??null,
@@ -97,6 +98,20 @@ test('Issue25 same owner-only 48-root bounded native profile with full-deal prov
         row.rootActionCount<=48);
       assert.equal(row.qualifiesForCompetitiveInference,false);
     }
+  }
+  // Fail closed if an observed ATTACK-prompt abort loses its real first-turn
+  // physical source/whole-deal receipt. Native acceptance remains unqualified.
+  const aborted=rows.filter(row=>row.status==='engine-error');
+  assert.equal(aborted.length,3);
+  for(const row of aborted){
+    assert.equal(row.nativeAbortProvenance?.sourceDealStatus,'VERIFIED');
+    assert.equal(row.nativeAbortProvenance?.fullPhysicalDealStatus,'VERIFIED');
+    assert.equal(row.nativeAbortProvenance?.acceptedRootLedgerStatus,'VERIFIED');
+    assert.match(row.sourceDealFingerprint,/^[0-9a-f]{64}$/);
+    assert.match(row.fullPhysicalDealFingerprint,/^[0-9a-f]{64}$/);
+    assert.ok(Number.isSafeInteger(row.nativeRootActionCount)&&
+      row.nativeRootActionCount>0&&row.nativeRootActionCount<=48);
+    assert.equal(row.nativeAbortProvenance?.competitiveGameQualified,false);
   }
   assert.equal(coinAudit?.choices.length,4);
   assert.equal(basicAudit?.proposals,8);
