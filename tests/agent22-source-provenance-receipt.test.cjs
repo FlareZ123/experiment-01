@@ -80,6 +80,8 @@ test('unresolved deck remains nonqualified and other-rank substitutions do not c
   assert.equal(got.engine_proxy_map.entries[0].observedNativeId,null);
   assert.equal(got.engine_proxy_map.entries[0].nativeResolutionStatus,'not-resolved');
   assert.equal(got.engine_proxy_map.nativeDeckStatus,'unresolved-printings');
+  assert.equal(got.engine_proxy_map.status,'native-deck-unresolved');
+  assert.equal(got.engine_proxy_map.datedArtRowsAccountedFor,false);
   assert.equal(sameTranscribedRow({
     name:energyRow.name,count:energyRow.count,
     transcribedPrinting:energyRow.printing
@@ -96,4 +98,17 @@ test('bad physical digest and duplicate native aliases fail closed',()=>{
   }),/regular expression/u);
   assert.throws(()=>sourceProvenanceReceipt(source,1,
     fakePlan(1,[observedAlias,observedAlias])),/Ambiguous resolver/u);
+});
+
+test('unknown plan and a rejected deck cannot vacuously certify mapped art',()=>{
+  const noPlan=sourceProvenanceReceipt(source,1);
+  assert.equal(noPlan.engine_proxy_map.status,'not-assessed');
+  assert.equal(noPlan.engine_proxy_map.datedArtRowsAccountedFor,false);
+  const badPlan=sourceProvenanceReceipt(source,1,
+    fakePlan(1,[observedAlias],'unresolved-printings'));
+  assert.equal(badPlan.engine_proxy_map.status,'native-deck-unresolved');
+  assert.equal(badPlan.engine_proxy_map.datedArtRowsAccountedFor,false);
+  assert.equal(badPlan.engine_proxy_map.entries[0].nativeResolutionStatus,
+    'not-resolved');
+  assert.equal(badPlan.competitiveQualified,false);
 });
