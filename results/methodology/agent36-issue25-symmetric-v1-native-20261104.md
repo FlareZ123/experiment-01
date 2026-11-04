@@ -9,3 +9,7 @@ The selected outer layer continues to block the original generic bot's full-Stat
 **Pre-registered acceptance gate:** Existing manually dispatched `agent50-rank26-koko-dual-recipient-native.yml` contains a v1 native test and a shared two-seat pure contract. At publication time these changes have not yet been compiled in pinned Twinleaf CI. Native test must demonstrate exact opt-in true, all four attempts visible, no original full-State decoder calls, explicit runner statuses, and zero qualified games. A failure of the test is evidence of the first broken integrated interface to repair. Use Issue #25 for central disposition.
 
 All 32 source lists are still not authenticated (29/32), no completed competitively qualified game and no selected fixed 60 or 99.5% demonstrated.
+
+## Machine-audit inheritance
+
+The v1 entry inherits the Critic-reviewed v0 **exact unique trial ID** reconciliation and the **observed runtime Twinleaf/repository commit** attestation, with runtime input SHA-256s extended to the opt-in two-seat module and v1 itself. Its native test requires these observed measures to verify against the real pinned checkout. The selected outer prompt wrappers are documented as applicable to both seats; `fullDecisionPolicySymmetryCertified:false` remains even after source-rank scripted overrides are removed, because hidden-information safety, cost legality, and the completeness of inherited decision hooks are unresolved. v1 is an opt-in developmental control and cannot be retrospectively spliced into historical v0 games.
