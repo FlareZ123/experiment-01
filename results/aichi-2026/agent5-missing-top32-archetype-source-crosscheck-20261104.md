@@ -16,6 +16,14 @@ The independent Japanese [Pokekameshi CL Aichi 2026 Top32 roundup, page 2](https
 
 The same roundup quotes **kume (@kume_pokeca)** that they reached Top32 playing **Alolan Raichu one-shot**; an attached note about the event is visible but the complete recorded 60 is not established. Since the Swiss-place account is not identical to the final results-name label, treat this as **archetype-level supporting context**, not an authenticated player identity or printing inventory.
 
+## Rank-25 first-person tactical context, still short of a printed 60
+
+The [free preview of the rank-25 pilot's own May 14 article](https://note.com/kume_pokeca/n/n6cfd126f5774), titled `CL愛知2026エクストラ ベスト32 アロライワンショット`, records a detailed **Swiss 7–1** with matchups, explicitly says **25th entering the elimination bracket**, and reports a first-round elimination loss against **Mega Absol/Garbodor**. The listed eight Swiss pairings include **five Regidrago opponents, four wins and one loss**. These are a single player's self-reported finite matches (4–1), far too few and matchup/opponent-policy dependent to support a reliable win percentage; they do identify live counterplay that the shared source policy must represent.
+
+The free introduction also describes designing the Alolan Raichu one-shot deck against Regidrago's normal opening, specifically anticipating **Latias ex dependence, Ability lock before the opponent's first meaningful Ability activation, and first-turn Item-lock disruption**. The author discusses Klefki, Wobbuffet and Garbodor as distinct Ability-lock choices and states they selected a build that could include **Klefki**. This is self-reported *strategic context* for that rank-25 pilot; the actual card counts and prize/search structures remain inaccessible in the visible free portion. It cannot prove a specific exact opening action or substitute for the original 60. The battle report is useful for adversarial policy test design: starting Basic choice must consider whether it preserves or prevents opponent-turn Ability access and a paid disruption response.
+
+The same article's public summary lists one **ADP Dragonite** opponent among the Swiss wins, which underscores the danger of treating a narrow ADP-enhanced-GX first-eight resource opportunity as a matchup victory. It does not establish the exact opponent decklist or the specific turn/action that decided that match.
+
 ## Exact 32 versus 29 aggregate inventory arithmetic
 
 The 29 exact name/count source roster's archetype counts, with the five Abs(o)l/Garbodor/Electrode lists grouped as the published Limitless **Mega Absol Box** category, are:
