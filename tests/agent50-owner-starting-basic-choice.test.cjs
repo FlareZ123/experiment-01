@@ -14,7 +14,8 @@ function fixture({seat=0,ownNames=['Basic A','Basic B'],phase=1,
   const id=101+seat*101;
   const owner={id,hand:{cards:own}};
   const other={id:101+(1-seat)*101,hand:{cards:[
-    card('Unrevealed opponent hand',Stage.BASIC)]}};
+    card('Unrevealed opponent A',Stage.BASIC),
+    card('Unrevealed opponent B',Stage.BASIC)]}};
   class ChooseCardsPrompt{
     constructor(){
       this.playerId=promptOwnerId??id;
