@@ -25,12 +25,12 @@ const GIT_SHA=/^[a-f0-9]{40}$/;
  * @property {string} challenger60Sha256 Frozen challenger candidate digest.
  * @property {string} policySha256 Same selected policy for both full games.
  * @property {string} engineRevision Pinned actual vendor source revision.
- * @property {string} referenceSourceFingerprint Actual original physical deal.
- * @property {string} challengerSourceFingerprint Actual original physical deal.
+ * @property {string|null} referenceSourceFingerprint Actual deal, null only if censored pre-deal.
+ * @property {string|null} challengerSourceFingerprint Actual deal, null only if censored pre-deal.
  * @property {0|1} referenceCandidateSeat Actual contender physical seat.
  * @property {0|1} challengerCandidateSeat Actual contender physical seat.
- * @property {0|1} referenceFirstTurnSeat
- * @property {0|1} challengerFirstTurnSeat
+ * @property {0|1|null} referenceFirstTurnSeat Null only if censored pre-choice.
+ * @property {0|1|null} challengerFirstTurnSeat Null only if censored pre-choice.
  * @property {Status} referenceStatus
  * @property {Status} challengerStatus
  *
@@ -79,6 +79,7 @@ function attestedMarginalFieldDelta(design){
   const transformed=[];
   let commonRoundCount=null;
   let actualFirstTurnMismatchedPairs=0;
+  let actualFirstTurnUnknownPairs=0;
   for(const cell of cells) {
     const {rank,candidateSeat,firstTurnSeat,samples}=cell??{};
     if(!sourceMap.has(rank)||![0,1].includes(candidateSeat) ||
@@ -93,6 +94,14 @@ function attestedMarginalFieldDelta(design){
     seenCells.add(key);seats.add(candidateSeat);firstSeats.add(firstTurnSeat);
     const pairs=[];
     for(const sample of samples) {
+      const referenceFingerprintValid=SHA256.test(sample?.referenceSourceFingerprint)||
+        (sample?.referenceSourceFingerprint===null&&sample.referenceStatus==='CENSORED');
+      const challengerFingerprintValid=SHA256.test(sample?.challengerSourceFingerprint)||
+        (sample?.challengerSourceFingerprint===null&&sample.challengerStatus==='CENSORED');
+      const referenceFirstTurnValid=[0,1].includes(sample?.referenceFirstTurnSeat)||
+        (sample?.referenceFirstTurnSeat===null&&sample.referenceStatus==='CENSORED');
+      const challengerFirstTurnValid=[0,1].includes(sample?.challengerFirstTurnSeat)||
+        (sample?.challengerFirstTurnSeat===null&&sample.challengerStatus==='CENSORED');
       if(!sample||!SHA256.test(sample.seedBlockSha256)||
          registeredSeedBlocks.has(sample.seedBlockSha256)||
          sample.source60Sha256!==sourceMap.get(rank)||
@@ -100,19 +109,19 @@ function attestedMarginalFieldDelta(design){
          sample.challenger60Sha256!==design.challenger60Sha256||
          sample.policySha256!==design.policySha256||
          sample.engineRevision!==design.engineRevision||
-         !SHA256.test(sample.referenceSourceFingerprint)||
-         !SHA256.test(sample.challengerSourceFingerprint)||
+         !referenceFingerprintValid||!challengerFingerprintValid||
          sample.referenceCandidateSeat!==candidateSeat||
          sample.challengerCandidateSeat!==candidateSeat||
-         ![0,1].includes(sample.referenceFirstTurnSeat)||
-         ![0,1].includes(sample.challengerFirstTurnSeat)||
+         !referenceFirstTurnValid||!challengerFirstTurnValid||
          (firstTurnSeat!==null&&
-           (firstTurnSeat!==sample.referenceFirstTurnSeat||
-            firstTurnSeat!==sample.challengerFirstTurnSeat))) {
+           ((sample.referenceFirstTurnSeat!==null&&firstTurnSeat!==sample.referenceFirstTurnSeat)||
+            (sample.challengerFirstTurnSeat!==null&&firstTurnSeat!==sample.challengerFirstTurnSeat)))) {
         throw new TypeError('Unattributed, repeated or contradicted physical-source pair');
       }
       registeredSeedBlocks.add(sample.seedBlockSha256);
-      if(sample.referenceFirstTurnSeat!==sample.challengerFirstTurnSeat)
+      if(sample.referenceFirstTurnSeat===null||sample.challengerFirstTurnSeat===null)
+        actualFirstTurnUnknownPairs++;
+      else if(sample.referenceFirstTurnSeat!==sample.challengerFirstTurnSeat)
         actualFirstTurnMismatchedPairs++;
       pairs.push({
         pairId:sample.pairId,roundId:sample.roundId,
@@ -171,7 +180,7 @@ function attestedMarginalFieldDelta(design){
     method:'COMPLETE_ORIGINAL_SOURCE_FIELD_MARGINAL_MEAN',
     fieldOriginalRanks:32,sourceRosterComplete:true,
     seatCoverage,startControl,designSha256,
-    actualFirstTurnMismatchedPairs,
+    actualFirstTurnMismatchedPairs,actualFirstTurnUnknownPairs,
     registrationSha256:design.registrationSha256,
     sourceArtCrosswalkSha256:design.sourceArtCrosswalkSha256,
     reference60Sha256:design.reference60Sha256,
