@@ -46,6 +46,10 @@ jobs:
         env:
           AGENT50_ENTRY_RECEIPT_DIR: artifacts/agent50-entry-priority
         run: node --test tests/agent50-owner-entry-priority-single-basic.test.cjs tests/agent50-owner-entry-priority-original5.native.test.cjs
+      - name: Preregistered original4 32 hands owner priority actual Store acceptance
+        env:
+          AGENT50_ENTRY_RANK4_RECEIPT_DIR: artifacts/agent50-rank4-priority
+        run: node --test tests/agent50-owner-entry-priority-original4-natural32.native.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
       - name: Issue25 pure owner public prompt acknowledgements contract
@@ -96,5 +100,13 @@ jobs:
         with:
           name: agent50-owner-entry-priority-${{ github.run_id }}
           path: artifacts/agent50-entry-priority/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Save original4 32-hand source setup receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent50-rank4-owner-priority-${{ github.run_id }}
+          path: artifacts/agent50-rank4-priority/
           if-no-files-found: warn
           retention-days: 30
