@@ -1,6 +1,6 @@
 # Pokémon TCG Expanded: fixed-60 decision board
 
-**Decision status, 4 November 2026:** **No selected final 60, zero competitively qualified games, and no demonstrated 99.5% game win rate.** The Aichi Open League 2026 Top 32 benchmark has **29 authenticated original printed 60-card lists**; **ranks 23, 25 and 28 are missing**. All 29 authenticated opponents remain unqualified as competitive automated players. The goal is one unchanged, legal, playable paper Expanded deck against all 32 originals.
+**Decision status, 4 November 2026:** **No selected final 60, zero competitively qualified games, and no demonstrated 99.5% game win rate.** The Aichi Open League 2026 Top 32 benchmark has **29 authenticated 60-card name/count inventories**; **ranks 23, 25 and 28 are missing**. These are not 29 independently authenticated *exact physical printings*: [Agent17's historical-print audit](aichi-2026/agent17-postevent-basic-energy-printings-20261104.md) reports 120 Basic Energy copies across 22 ranks annotated with artwork released after the May 2026 event. Preserve the original transcriptions, and record any historically valid or simulator-supported printing substitutions as explicit provenance transformations. All 29 authenticated opponents remain unqualified as competitive automated players. The goal is one unchanged, legal, playable paper Expanded deck against all 32 originals.
 
 ## Four historical comparison 60s
 
