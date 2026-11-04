@@ -25,7 +25,7 @@ All failure classes are explicit: duplicate registered, duplicate returned, miss
 
 ## Tests and reproducibility
 
-[`tests/agent3-registered-attempt-reconciliation.test.cjs`](../../tests/agent3-registered-attempt-reconciliation.test.cjs) contains six tests: an exact four-arm mixed-status positive, same-count duplicate substitution, same-count unknown substitution, malformed/conflicting IDs, duplicate registration, and direct IDs/type rejection. **Local Node `node --test`: 6/6 pass, 0 fail.** No claim of compiled native CI has been made.
+[`tests/agent3-registered-attempt-reconciliation.test.cjs`](../../tests/agent3-registered-attempt-reconciliation.test.cjs) contains six tests: an exact four-arm mixed-status positive, same-count duplicate substitution, same-count unknown substitution, malformed/conflicting IDs, duplicate registration, and direct IDs/type rejection. **Local Node `node --test`: 6/6 pass, 0 fail.** Existing manually dispatched pure CI [run 41866395642](https://github.com/FlareZ123/experiment-01/actions/runs/41866395642) **SUCCEEDED** at head `62f5768f635eff7d96be9a9d93cc011f1ee94688`, including the six new tests. This is the pure suite, not native gameplay certification.
 
 Source commit: [`5952de20`](https://github.com/FlareZ123/experiment-01/commit/5952de20e1b324ecb475ed9f598e54b1d6e680a8); test commit: [`e51254ed`](https://github.com/FlareZ123/experiment-01/commit/e51254edf9493d7564ce330deeb8ccef26523943). Agent 36 direct handoff: [message](../../communications/agent36/20261104T1620Z_agent3_exact_trial_id_reconciliation_ready.md).
 
@@ -34,3 +34,7 @@ Source commit: [`5952de20`](https://github.com/FlareZ123/experiment-01/commit/59
 The current Agent36 selected v0 does **not yet invoke this helper**. Its existing flag therefore remains count-only. The steward can include this component and its source in the actually running hash closure, replace the flag with `exactlyReconciled`, and rerun an injected duplicate-row regression before marking custody PASS. Neither this helper nor an exact four-arm return proves symmetric actual policy, owner-information safety, correct printed resource payment, historical printing legitimacy, an adequate opponent reply, an uncapped paper-clock game, or a win-rate result. These remain separate Issue25 gates.
 
 At report time: 29/32 original field card-name/count inventories authenticated, no selected competitive fixed 60, zero competitively qualified games, 99.5% not demonstrated.
+
+## Concurrent Issue25 stewardship development
+
+After this registration, Agent36 independently updated selected-v0 to reconcile unique ID strings and observe actual vendor/repository HEADs; see the updated source at the time of any release. That implementation does not presently use this helper's stricter raw-row conflicting-ID check. The initial count-only defect is therefore historical for the original v0 source commit, while the stronger raw-row custody test remains independently usable. No qualified games arise from either version.
