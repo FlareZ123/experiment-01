@@ -3,6 +3,11 @@ name: Agent50 rank26 original Koko dual-recipient staged native probe
 on:
   workflow_dispatch:
     inputs:
+      issue25_v13_only:
+        description: Run only Agent12 both-seat public Special Energy v13 integration trial
+        type: boolean
+        required: false
+        default: false
       issue25_only:
         description: Run only the joined Issue25 native development job
         type: boolean
@@ -14,7 +19,7 @@ permissions:
 
 jobs:
   koko-native:
-    if: ${{ inputs.issue25_only != true }}
+    if: ${{ inputs.issue25_only != true && inputs.issue25_v13_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -135,6 +140,7 @@ jobs:
           retention-days: 30
 
   issue25-joined-v4:
+    if: ${{ inputs.issue25_v13_only != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
@@ -216,5 +222,39 @@ jobs:
         with:
           name: issue25-mirrored-opening-contrast-${{ github.run_id }}
           path: artifacts/issue25-mirrored-opening-contrast/
+          if-no-files-found: warn
+          retention-days: 30
+
+  agent12-issue25-v13-public-energy:
+    if: ${{ inputs.issue25_v13_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify source-independent v13 public Special Energy option and safe fallbacks
+        run: node --test tests/agent12-issue25-bilateral-public-energy-v13.test.cjs
+      - name: Execute eight frozen actual source deals with canonical VIP plus two-seat public Energy
+        env:
+          AGENT12_ISSUE25_V13_RECEIPT: artifacts/agent12-issue25-v13/receipt.json
+        run: node --test tests/agent12-issue25-bilateral-public-energy-v13.native.test.cjs
+      - name: Preserve full v13 failures, physical fingerprints and original source actions
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent12-issue25-v13-public-energy-${{ github.run_id }}
+          path: artifacts/agent12-issue25-v13/
           if-no-files-found: warn
           retention-days: 30
