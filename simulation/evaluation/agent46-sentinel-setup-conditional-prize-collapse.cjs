@@ -28,7 +28,8 @@ function choose(n,k){
  */
 function conditionalEvent(p){
   const {total,basic,opening,prizes,forcedBasic,forcedOther}=p;
-  for(const [name,n] of Object.entries(p))
+  for(const [name,n] of Object.entries({total,basic,opening,prizes,
+    forcedBasic,forcedOther}))
     assert.ok(Number.isSafeInteger(n)&&n>=0,name+': expected integer');
   assert.ok(total>=opening+prizes&&basic>0&&basic<=total);
   assert.ok(forcedBasic<=basic&&forcedOther<=total-basic);
