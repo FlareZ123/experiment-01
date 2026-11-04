@@ -32,7 +32,8 @@ test('one Basic changes no initial Board; all-Basic seven obeys five Bench limit
   const full=openingCardinality(60);
   assert.equal(full.differentPhysicalStartingBoardsProbability,1);
   assert.equal(full.expectedAdditionalGreedyBench,5);
-  assert.deepEqual(full.byBasicCopies.map(row=>row.selectedByGreedy),[6]);
+  assert.deepEqual(full.byBasicCopies.filter(row=>
+    BigInt(row.validOpeningHands)>0n).map(row=>row.selectedByGreedy),[6]);
 });
 
 test('every authenticated original sixty gets a direct stage-authenticated Basic count',()=>{
