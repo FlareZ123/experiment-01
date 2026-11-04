@@ -43,6 +43,7 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
     visualAttackWaitHandled:0,
     bySeat:[0,0],records:[],recordsOmitted:0,
     otherDelegated:0,
+    delegatedWaitMetadata:[],delegatedWaitMetadataOmitted:0,
     explicitOfficialClockCertified:false,
     wholePolicyOwnerInformationSafe:false,
     competitivelyQualifiedGames:0
@@ -74,6 +75,16 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
       return new ResolvePromptAction(prompt.id,null);
     }
     audit.otherDelegated++;
+    if(prompt?.constructor?.name==='WaitPrompt') {
+      const ownerSeat=state.players?.findIndex(p=>p?.id===actorId)??-1;
+      const entry={seat:ownerSeat,turn:state.turn,phase:state.phase,
+        showVisual:prompt.showVisual===true,
+        message:typeof prompt.message==='string'?
+          prompt.message.slice(0,96):null};
+      if(audit.delegatedWaitMetadata.length<8)
+        audit.delegatedWaitMetadata.push(entry);
+      else audit.delegatedWaitMetadataOmitted++;
+    }
     return previous.value.call(this,state);
   }
   Object.defineProperty(Ai.prototype,'decodeNextAction',{
