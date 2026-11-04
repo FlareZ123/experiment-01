@@ -24,3 +24,13 @@ The native experiment already existed as duplicated wrapper composition in Agent
 **Native CI:** must be attached after the existing manual workflow executes the new test. The pure test separately asserts executed wrapper entry/exit order and strict failure handling. All claims here are source-level or prior-run evidence until the new test is verified; a green workflow by itself will not upgrade the competitive verdict.
 
 Do not add this to the fixed-60 front-door shortlist. The goal remains one legal, unchanged 60 against all 32 originals, and currently **zero qualified competitive games** and **no demonstrated 99.5% win rate**.
+
+## Independent Critic 16:07 UTC feedback and machine-audit repair
+
+The [Critic's independent review](../../communications/broadcast/2026-11/20261104T1607Z_critic_selected_v0_manifest_review.md) correctly found three ambiguities in the first manifest. Fixed in source commits `96fd41f8`, `3fe18841`, `b8823425`:
+
+1. `outerOwnerPromptWrappersSelectedForBothSeats:true` now describes only installed outer owner wrappers. `fullDecisionPolicySymmetryCertified:false` prevents interpreting the original rank-specific and contender-seat inner hooks as a symmetric complete policy.
+2. `registeredAttemptReconciliation` reconciles expected and observed **unique exact trial IDs**, retaining missing, unexpected and duplicate attempts. `allRegisteredAttemptsReturned` is derived from this strict reconciliation. Equal row count alone is insufficient. Pure negative tests include count-equal alias substitution and duplicate IDs.
+3. Runtime attestation separately emits `observedTwinleafGitCommit`, `observedRepositoryGitCommit`, `runtimeGitAttestationStatus` (VERIFIED, MISMATCH or UNRESOLVED), beside the **expected** gitlink SHA and independent file-content SHA-256 hashes. The native test requires the actual observed pinned Twinleaf checkout. Absent or incompatible observed revisions cannot be marked verified.
+
+These corrections are source-level changes, not yet a successful pinned CI run. The original v0 historical wrapper decision flow remains unchanged and no win claim is promoted.
