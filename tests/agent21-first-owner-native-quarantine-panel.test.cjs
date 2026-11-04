@@ -92,3 +92,29 @@ test('different historical physical deal seeds are required for the two-seat pan
     ]}),runner:()=>{},pinNative:false
   }),/distinct historical registered seeds/);
 });
+
+test('visual wait is opt-in only with strict phase wait, and passes narrow option',()=>{
+  assert.throws(()=>runFirstOwnerDecoderPanel({
+    preflight,ownerAttackVisualWait:true,pinNative:false
+  }),/requires the phase-wait handler/);
+  const forwarded=[];
+  const result=runFirstOwnerDecoderPanel({
+    preflight,pinNative:false,
+    ownerPhaseWait:true,ownerAttackVisualWait:true,
+    ownerWait:(run,options)=>{
+      forwarded.push(options.allowVisualAttackWait);
+      return {result:run(),audit:{nativePendingWaitHandled:1,
+        visualAttackWaitHandled:1,bySeat:[1,0],records:[]}};
+    },
+    runner:options=>({attempted:2,
+      rows:options.registeredTrials.map(trial=>({trial}))}),
+    quarantine:run=>({result:run(),audit:{
+      rawStateFallbackCalls:0,originalNativeDecoderExecuted:false,
+      records:[],recordsOmitted:0
+    }})
+  });
+  assert.deepEqual(forwarded,[true,true]);
+  assert.equal(result.exactOwnerAttackVisualWaitEnabled,true);
+  assert.ok(result.attempts.every(a=>a.ownerAttackVisualWaits===1));
+  assert.equal(result.competitivelyQualifiedGames,0);
+});
