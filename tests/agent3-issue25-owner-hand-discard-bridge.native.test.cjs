@@ -21,7 +21,19 @@ const project=row=>({
   firstTurn:row.actualStarterSeat??null,
   verifiedFirstTurn:row.verifiedFirstTurn??null,
   actorHandDiscardAudit:row.actorOnlyDecisionCoverage?.
-    detailedComponentAudits?.handDiscard??null
+    detailedComponentAudits?.handDiscard??null,
+  failedPromptOrigin:row.nativeAbortEvidence?{
+    failureStage:row.nativeAbortEvidence.failureStage??null,
+    pendingPrompt:row.nativeAbortEvidence.pendingPrompt??null,
+    lastPublicRoots:(row.nativeAbortEvidence.rootActionLedger??[])
+      .slice(-5).map(root=>({
+        action:root.action??null,
+        turn:root.turn??null,
+        seat:root.seat??null,
+        card:typeof root.card==='string'?root.card:null,
+        attackName:root.attackName??null
+      }))
+  }:null
 });
 
 /**
