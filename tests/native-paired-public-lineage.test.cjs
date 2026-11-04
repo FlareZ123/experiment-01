@@ -48,7 +48,7 @@ test('root logs stay identical through a consequential hidden prompt choice',()=
   assert.equal(result.treatment.nextAttackPrizesTaken,2);
   assert.deepEqual(result.treatment.opponentActions,
     [{root:12,turn:9,action:'PassTurnAction'}]);
-  assert.equal(result.sameOpponentActionsBeforeNextSourceDecision,true);
+  assert.equal(result.sameOpponentRootKindsBeforeNextSourceDecision,true);
   assert.equal(result.qualifiesForCompetitiveInference,false);
 });
 
@@ -93,4 +93,23 @@ test('reject absent settlement and different trial identity',()=>{
   variant.sourceAttackSettlement.attacks=[];
   assert.throws(()=>compareNativeOpportunity(control,variant,10),
     /ANCHOR_NOT_SETTLED/);
+});
+
+test('missing anchor public board or Prize evidence cannot prove a line',()=>{
+  const control=row('control');
+  const variant=row('treatment');
+  variant.sourceAttackSettlement.attacks[0].publicBoardAfter=null;
+  assert.throws(()=>compareNativeOpportunity(control,variant,10),
+    /ANCHOR_PUBLIC_STATE_UNVERIFIED/);
+  variant.sourceAttackSettlement.attacks[0].publicBoardAfter=[
+    {active:{energyCards:['A','B']}}];
+  variant.sourceAttackSettlement.attacks[0].prizesAfter=[];
+  assert.throws(()=>compareNativeOpportunity(control,variant,10),
+    /ANCHOR_PUBLIC_STATE_UNVERIFIED/);
+});
+
+test('unrecorded Prize figures remain unknown even with a settled attack',()=>{
+  const variant=row('treatment');
+  variant.sourceAttackSettlement.attacks[1].prizesBefore=null;
+  assert.equal(immediateFollowThrough(variant,10).nextAttackPrizesTaken,null);
 });
