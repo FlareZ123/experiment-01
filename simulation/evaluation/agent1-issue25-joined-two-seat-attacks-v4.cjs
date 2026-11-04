@@ -18,7 +18,10 @@ const EXTRA_HASH_PATHS = [
   'simulation/twinleaf/agent36-source-stamped-nightwatch-owner.cjs',
   'simulation/twinleaf/agent12-nightwatch-paper-random-chooser.cjs',
   'tests/agent1-issue25-joined-two-seat-attacks-v4.test.cjs',
-  'tests/agent1-issue25-joined-two-seat-attacks-v4.native.test.cjs'
+  'tests/agent1-issue25-joined-two-seat-attacks-v4.native.test.cjs',
+  'simulation/evaluation/agent1-issue25-v4-public-receipt.cjs',
+  'simulation/evaluation/agent7-issue25-v3-executed-receipt.cjs',
+  'tests/agent1-issue25-v4-public-receipt.test.cjs'
 ];
 
 /**
