@@ -45,3 +45,7 @@ The additionally proposed [owner-only Quick Ball payment policy](../../simulatio
 ## Distinct rank10 source custody repair
 
 A separate opt-in Agent47 paper-correct Celestial Roar hook reached a 120-root cap on rank10 seat1 under both owner policies, with zero reported settled card-conservation anomalies. These are different experimental conditions and are excluded from the baseline comparison above. See [native proof artifact](https://github.com/FlareZ123/experiment-01/actions/runs/41764206685/artifacts/13291139269).
+
+### Durable compact evidence after CI artifacts expire
+
+The exact six rank/seat source status pairs, repeated attack-HNS count histograms, candidate print digest, both artifact IDs and native engine revision are also preserved in [machine-readable A/B census JSON](agent25-dhelmise-original60-native-six-arm-hns-census-20261104.json). This representation is a compact extract from the archived original outputs and is intended to remain available after GitHub's short-lived raw artifact links expire. Every exception and action cap remains explicit.
