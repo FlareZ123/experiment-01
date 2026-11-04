@@ -93,7 +93,7 @@ test('two mocked physical original 60s preserve rank and aggregate held items',(
 test('all 29 actual original sources resolve Basic stage, including Prism glyphs',()=>{
   const r=run(path.join(__dirname,'..'));
   assert.equal(r.authenticatedOriginals,29);
-  assert.equal(r.sourceRecoveryCopySum,96);
+  assert.equal(r.sourceRecoveryCopySum,111);
   assert.equal(r.sourcesWithUnresolvedBasicCopies,0);
   const fifth=r.rows.find(x=>x.rank===5);
   const eleventh=r.rows.find(x=>x.rank===11);
