@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
       - name: Exact original printed-card and combinatorial regression
-        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs
+        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs
       - name: Preserve exact machine-readable 29-rank analysis and SHA-256
         run: |
           node simulation/evaluation/agent2-original29-fss-first-tool-collision.cjs > agent2-fss-collision.json
