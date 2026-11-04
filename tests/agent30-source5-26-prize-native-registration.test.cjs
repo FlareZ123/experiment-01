@@ -57,17 +57,27 @@ test('precommit both original 60s plus immutable 12 native arms and all four phy
 test('all pre-registered seeds are distinct across same-rank repeat/physical-slot cohorts',()=>{
   const keys=new Set();
   const seeds=new Set();
+  // Seats 0 and 1 correspond to physical slots A and B in the native runner.
+  // Keep the original registration unchanged and pin each derived stream.
+  const physicalSlots=['A','B'];
+  const expectedSeeds=[
+    {A:37319514,B:2725605957},
+    {A:1144125896,B:2007278792}
+  ];
   for(const repeat of registration.repeats){
     const physical=deriveSlotSeeds(registration.seedBase,
       registration.phase,registration.rankSeedKey,repeat);
-    for(const [seat,slot] of registration.source5PhysicalSeats.entries()){
-      const label=[repeat,seat,slot].join(':');
+    assert.deepEqual(physical,expectedSeeds[repeat]);
+    for(const [slotIndex,source5Seat] of registration.source5PhysicalSeats.entries()){
+      const slot=physicalSlots[slotIndex];
+      const label=[repeat,source5Seat,slot].join(':');
       assert.ok(!keys.has(label));
       keys.add(label);
-      assert.ok(Number.isSafeInteger(physical[slot]));
-      assert.ok(!seeds.has(physical[slot]),
+      const seed=physical[slot];
+      assert.ok(Number.isSafeInteger(seed)&&seed>0);
+      assert.ok(!seeds.has(seed),
         'Registered native physical seed cannot be reused across cohorts');
-      seeds.add(physical[slot]);
+      seeds.add(seed);
     }
   }
   assert.equal(seeds.size,4);
