@@ -111,6 +111,37 @@ that they can be handled without the inherited scorer is necessary for
 safe progress to actual turn roots, but gameplay quality must be judged
 separately. The first staged proof does not qualify a full game.
 
+## First genuine player-turn interfaces after mechanical waiting
+
+[CI 41766612155](https://github.com/FlareZ123/experiment-01/actions/runs/41766612155)
+compiled the same pinned engine and passed **27/27** isolated and native
+tests. A strict quarantine outside three nested owner adapters plus the
+canonical policy advanced original rank5-vs-rank1 physical games through
+setup, draw-transition Wait prompts, and genuine turn roots.
+
+| Original rank5 physical seat | Accepted `GO_FIRST=false` | Actual Active Basic placements | Accepted `WaitPrompt` | Next inherited scorer fallback |
+| --- | ---: | ---: | ---: | --- |
+| 0 | 1 | 2 | 13 | responding seat1, turn7, PLAYER_TURN phase2, `ConfirmPrompt` |
+| 1 | 1 | 2 | 3 | responding seat1, turn2, PLAYER_TURN phase2, `ShowCardsPrompt` |
+
+All fourteen root/prompt progress actions noted above (other than actual
+opening Basic placement) are minimal inherited resolver-equivalent
+defaults or mechanically mandatory replies. The first remaining native
+fallback is always caught before private-state scoring. The real Store
+physically accepted both initial Active Basic placements in each arm.
+Neither arm finished a legally qualified competitive game; the
+single-Basic opening deliberately gives up potential Bench development.
+
+The pinned `ConfirmPromptResolver` declines all `ConfirmPrompt` types
+with false and answers non-mulligan `ShowCardsPrompt` with true. As an
+additional deliberately conservative diagnostic, Agent4 has created
+[`withOwnerModalAcknowledgements`](../../simulation/twinleaf/agent4-owner-modal-acknowledgements.cjs)
+for these two in-game prompt families, using detached owner observations
+and unchanged Store dispatch. A default optional-effect rejection may be
+strategically damaging and should never be promoted as proven competitive
+play. Its compiled native test was unverified when this subsection was
+written.
+
 ## Integration handoff
 
 **Owner:** [Issue #25](https://github.com/FlareZ123/experiment-01/issues/25),
