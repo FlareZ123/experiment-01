@@ -37,10 +37,13 @@ function check(printing,discard=[],catalog=meta){
 }
 
 test('source-registered exact printings and public source IDs are explicit',()=>{
-  assert.equal(source.length,5);
+  assert.equal(source.length,6);
   assert.equal(RULES['VS Seeker PHF'].sourceId,'xy4-109');
   assert.equal(RULES['Rescue Carrier EVS'].sourceId,'swsh7-154');
   assert.equal(RULES['Night Stretcher ASC'].sourceId,'me2pt5-196');
+  assert.equal(RULES['Rescue Stretcher GRI'].sourceId,'sm2-130');
+  assert.deepEqual(RULES['Rescue Stretcher GRI'].modes,
+    ['one-pokemon-to-hand','three-pokemon-to-deck']);
 });
 
 test('VS Seeker rejects empty or non-Supporter discard, accepts public target',()=>{
@@ -74,6 +77,19 @@ test('recovery classes distinguish Basic and Special Energy, and Pokémon',()=>{
     .eligibleTargetIndices,[0]);
 });
 
+test('Rescue Stretcher both modes require a discarded Pokémon',()=>{
+  assert.equal(check('Rescue Stretcher GRI',[]).paperPlayable,false);
+  assert.equal(check('Rescue Stretcher GRI',[
+    'Psychic Energy SVE','Double Colorless Energy SUM','Guzma BUS'
+  ]).paperPlayable,false);
+  const single=check('Rescue Stretcher GRI',['Koffing CEC']);
+  assert.equal(single.paperPlayable,null,
+    'one Pokémon is an eligible hand-mode target, not proof of shuffle-three');
+  assert.deepEqual(single.eligibleTargetIndices,[0]);
+  assert.equal(check('Rescue Stretcher GRI',['unknown public card'])
+    .paperPlayable,null);
+});
+
 test('missing print metadata is UNKNOWN, never a false negative',()=>{
   const x=check('VS Seeker PHF',['unregistered unknown printing']);
   assert.equal(x.paperPlayable,null);
@@ -86,7 +102,7 @@ test('missing print metadata is UNKNOWN, never a false negative',()=>{
   assert.deepEqual(y.unknownMetadataIndices,[0]);
 });
 
-test('all five printings fail on an actually empty public discard pile',()=>{
+test('all six printings fail on an actually empty public discard pile',()=>{
   for(const printing of source)
     assert.equal(check(printing,[]).paperPlayable,false,printing);
 });
@@ -129,7 +145,7 @@ test('same-name same-set HP threshold conflicts are unresolved, not guessed',()=
   assert.equal(targetMatch({supertype:'Energy',subtypes:[]},'special-energy'),null);
 });
 
-test('bundled database preserves real HP collision and five source cards',()=>{
+test('bundled database preserves real HP collision and six source cards',()=>{
   const index=loadBundledPublicPrintMetadata(
     path.join(__dirname,'../resources'));
   assert.equal(targetMatch(index.get('Bouffalant BLW'),'pokemon-hp-90'),null);
