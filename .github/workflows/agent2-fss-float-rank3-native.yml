@@ -46,7 +46,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run every exact source-print and first-Tool pure invariant
-        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba && !inputs.anti_filch_aba }}
+        if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs tests/agent2-bunnelby-deckout-float-frontier.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
         if: ${{ !inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-fresh.cjs | tee agent2-rank3-original-fresh-32.json
       - name: Trace one frozen native original-source Burrow continuation
-        if: ${{ inputs.burrow_only && !inputs.omega_aba }}
+        if: ${{ inputs.burrow_only && !inputs.omega_aba && !inputs.anti_filch_aba }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-natural-burrow-settlement.cjs | tee agent2-rank3-natural-burrow-settlement.json
       - name: Match original source Omega second Burrow A B A under same deal
