@@ -30,7 +30,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run every exact source-print and first-Tool pure invariant
-        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs
+        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs tests/agent2-bunnelby-deckout-float-frontier.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
         shell: bash
         run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs tests/agent2-tool-score-card-identity-blind.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
