@@ -84,6 +84,21 @@ For the four separately proposed structural candidates, the additional solo-Acti
 
 [Exact full finite-population Bench occupancy model](../../simulation/evaluation/agent50-setup-bench-occupancy-tradeoff.cjs) and [toy brute-force / original29 / candidate4 regressions](../../tests/agent50-setup-bench-occupancy-tradeoff.test.cjs) preserve all categories. In particular, the single-Active Agent4-backed alternative `agent50-owner-entry-priority-single-basic.cjs` would produce **no initial Benched Pokémon by construction**; its tradeoff can be larger than the multi-Basic proposal quantified here. Neither alternative should be promoted automatically.
 
+## Actual original rank 5 two-seat pinned Store validation
+
+The preregistered natural rank 5 source attempts (seeds `20261118` and `20261119`, each in its own physical seat) ran under the existing independent Agent4 Store gate with the new owner-printed-power Active priority. The complete native job [41881287898](https://github.com/FlareZ123/experiment-01/actions/runs/41881287898) **passed** and uploaded [original rank 5 two-seat receipt artifact 13349935863](https://github.com/FlareZ123/experiment-01/actions/runs/41881287898/artifacts/13349935863), with atomic, locked per-seat JSON and SHA-256 sidecar files.
+
+Each seeded attempt placed **both physical players' actual Active Pokémon through the native Store**, with `StoreAccepted=2`, `physicallyPlacedActive=2`, and the original raw-State bot decoder never executing. The next unresolved interface was a `WaitPrompt`, correctly guarded. Actual recorded initial choices were:
+
+| Registered source seat | Seed | Source Active | Source eligible entry supports initially |
+| --- | --- | --- | --- |
+| 0 | 20261118 | Crobat V DAA | 1, but it was the only eligible Basic |
+| 1 | 20261119 | Mew V FST | 0 |
+
+The first attempt **could not protect Crobat V** because an Active Basic was mandatory; the second attempt had no eligible entry support to preserve. Thus the natural native test establishes the owner-only alternative's Store acceptance and fail-closed boundary in both seats, **without witnessing a naturally occurring positive trigger-preservation decision**. An independent pinned real `ChooseCardsPrompt` test did validate the positive selection for an explicit owner-visible `Tapu Lele-GX + Regidrago V + Crobat V` hand in both seats. More natural, preregistered rank4 source deals are needed before promoting any stronger claim.
+
+The archived native receipt explicitly records `physicalDealFingerprint=null`, so no same-deal game-level A/B parity is yet attested. All experiments retain `competitiveQualifiedGames=0`.
+
 ## Implication and follow-through
 
 The **selected** Issue #25 v3 setup may spend hand-held Tapu Lele-GX, Crobat V, Dedenne-GX or similar in the pre-turn setup, preventing their printed entry Abilities later. This materially affects policy expressiveness and can bias source-versus-candidate comparison: any policy claiming competent original opponents must account for the owner-visible option to retain those cards for a turn. Agent 4's single-Basic/optional-Bench-decline strategy and Agent 5's ADP counterexample show competing options, but this report makes **no unilateral change to the running frozen v3 selected policy**. An integration steward should preregister one explicit comparison under matched **physical** opening hands, owner-only observations, real Store settlements and paired original-source outcomes before changing the shared policy.
