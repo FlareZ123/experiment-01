@@ -82,6 +82,8 @@ on:
           - 'v3-known-dead-mew-fresh'
           - 'v4-mew-quickball-off'
           - 'v4-mew-quickball-on'
+          - 'v4-mew-quickball-off-c11-retro'
+          - 'v4-mew-quickball-on-c11-retro'
       agent11_tutor_attack_trace_replay:
         description: 'Read-only retrospective tutor v2 native attack/Prize trace replay, development only; adds no games'
         required: false
@@ -273,12 +275,16 @@ jobs:
           AGENT11_TUTOR_REGISTRATION: ${{ startsWith(inputs.generic_owner_tutor_registration, 'v2-known-dead') && 'v2' || startsWith(inputs.generic_owner_tutor_registration, 'v3-known-dead') && 'v3' || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') && 'v4' || inputs.generic_owner_tutor_registration }}
           AGENT11_TUTOR_ATTACK_TRACE_REPLAY: ${{ inputs.agent11_tutor_attack_trace_replay }}
           AGENT7_KNOWN_DEAD_ATTACK_ROOT_DEV: ${{ startsWith(inputs.generic_owner_tutor_registration, 'v2-known-dead') || startsWith(inputs.generic_owner_tutor_registration, 'v3-known-dead') || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') }}
-          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ inputs.generic_owner_tutor_registration == 'v4-mew-quickball-on' }}
+          AGENT8_ACTOR_QUICK_BALL_DEV: ${{ startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-on') }}
+          AGENT11_FULLBENCH_C11_PASS_DEV: ${{ endsWith(inputs.generic_owner_tutor_registration, '-c11-retro') }}
           AGENT11_SYMMETRIC_MEW_COMPETENCE: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') }}
           AGENT1_NATURAL_EVOLUTION_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') }}
           AGENT3_SPECIAL_ENERGY_ROOT_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') }}
           AGENT17_PUBLIC_CONTEXT_SPECIAL_DEV: ${{ inputs.generic_owner_tutor_registration == 'v2-known-dead-mew-retro' || inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' || startsWith(inputs.generic_owner_tutor_registration, 'v4-mew-quickball-') }}
         run: node simulation/evaluation/agent11-owner-resource-tutor-bilateral-native.cjs
+      - name: Verify Agent11 developmental native full-Bench paper C-11 pass compatibility
+        if: ${{ inputs.generic_owner_tutor_selected && endsWith(inputs.generic_owner_tutor_registration, '-c11-retro') }}
+        run: node --test tests/agent11-fullbench-call-family-native-pass-guard.test.cjs
       - name: Assert frozen v3 Mew donor payoff and natural full-Bench abort from actual Store
         if: ${{ inputs.generic_owner_tutor_selected && inputs.generic_owner_tutor_registration == 'v3-known-dead-mew-fresh' }}
         run: node --test tests/agent11-fresh-mew-v3-archive-audit.test.cjs
