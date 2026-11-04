@@ -18,7 +18,8 @@ const VERSION='agent21-owner-only-nonvisual-phase-wait-v1';
  * @template T
  * @param {()=>T} run Synchronous native task.
  * @param {{SimpleTacticsAi?:Function,actions?:object,GamePhase?:object,
- *   allowVisualAttackWait?:boolean,maxRecords?:number}} [deps]
+ *   allowVisualAttackWait?:boolean,allowDeckShuffleWait?:boolean,
+ *   maxRecords?:number}} [deps]
  * @returns {{result:T,audit:object}}
  */
 function withOwnerNonvisualPhaseWait(run,deps={}) {
@@ -39,8 +40,10 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
     version:VERSION,
     onlyNonvisualUnmessagedTransitions:deps.allowVisualAttackWait!==true,
     visualAttackWaitOptIn:deps.allowVisualAttackWait===true,
+    deckShuffleWaitOptIn:deps.allowDeckShuffleWait===true,
     nativePendingWaitHandled:0,
     visualAttackWaitHandled:0,
+    deckShuffleWaitHandled:0,
     bySeat:[0,0],records:[],recordsOmitted:0,
     otherDelegated:0,
     delegatedWaitMetadata:[],delegatedWaitMetadataOmitted:0,
@@ -60,16 +63,23 @@ function withOwnerNonvisualPhaseWait(run,deps={}) {
       state?.phase===GamePhase.ATTACK&&
       prompt?.constructor?.name==='WaitPrompt'&&
       prompt.showVisual===true&&prompt.message==='Attack animation';
-    if(nonvisual||exactVisualAttack) {
+    const exactDeckShuffle=deps.allowDeckShuffleWait===true&&
+      state?.phase===GamePhase.PLAYER_TURN&&
+      prompt?.constructor?.name==='WaitPrompt'&&
+      prompt.showVisual===false&&
+      prompt.message==='Deck shuffle animation';
+    if(nonvisual||exactVisualAttack||exactDeckShuffle) {
       const seat=state.players?.findIndex(p=>p?.id===actorId)??-1;
       assert.ok(seat===0||seat===1,'Wait owner must have a physical seat');
       audit.nativePendingWaitHandled++;
       if(exactVisualAttack)audit.visualAttackWaitHandled++;
+      if(exactDeckShuffle)audit.deckShuffleWaitHandled++;
       audit.bySeat[seat]++;
       const receipt={seat,turn:state.turn,phase:state.phase,
         promptKind:'WaitPrompt',nonvisual:Boolean(nonvisual),
         messageAbsent:prompt.message===undefined,
-        exactVisualAttackAnimation:Boolean(exactVisualAttack),answer:null};
+        exactVisualAttackAnimation:Boolean(exactVisualAttack),
+        exactDeckShuffleAnimation:Boolean(exactDeckShuffle),answer:null};
       if(audit.records.length<maxRecords)audit.records.push(receipt);
       else audit.recordsOmitted++;
       return new ResolvePromptAction(prompt.id,null);
