@@ -72,7 +72,7 @@ test('optional enhanced Supporters preserve their zero-payment mode',()=>{
 
 test('unmodeled source printing stays unknown without false veto',()=>{
   const r=necessaryTrainerHandPaymentGate(
-    view(['VS Seeker PHF']),trainer('VS Seeker PHF'));
+    view(['Unknown Source Item UNK']),trainer('Unknown Source Item UNK'));
   assert.equal(r.knownPrintedCost,false);
   assert.equal(r.blocked,false);
   assert.equal(r.reason,'no-verified-fixed-cardinality-print-cost');
