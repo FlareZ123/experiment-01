@@ -87,3 +87,28 @@ test('SFT receipt writes locked and atomically with matching SHA-256 sidecar',()
     fs.rmSync(dir,{recursive:true,force:true});
   }
 });
+
+test('SFT native receipt joins raw rows by trial identity after reordering',()=>{
+  const sample=fixture();
+  sample.rawDevelopment.rows.reverse();
+  const receipt=buildReceipt(sample);
+  assert.equal(receipt.registration.receiptRawJoinExact,true);
+  assert.equal(receipt.registration.exactIdReconciliation.exactUniqueMatch,true);
+  assert.equal(receipt.attempts[0].publicRootActions[0].action,'PassTurnAction');
+  assert.equal(receipt.attempts[1].publicRootActions[0].card,'source-public-card');
+  assert.equal(receipt.gate.exactTrialIdentity,'PASS');
+});
+
+test('SFT conflicting and duplicate raw trial IDs fail custody reconciliation',()=>{
+  const sample=fixture();
+  sample.rawDevelopment.rows[1]=sample.rawDevelopment.rows[0];
+  const receipt=buildReceipt(sample);
+  assert.equal(receipt.registration.receiptRawJoinExact,false);
+  assert.equal(receipt.gate.exactTrialIdentity,'FAIL');
+  assert.deepEqual(
+    receipt.registration.receiptRawJoinIdentityConflicts,
+    [{duplicateId:'r1'}]
+  );
+  assert.equal(receipt.attempts[0].publicRootActions,null);
+  assert.equal(receipt.attempts[1].publicRootActions,null);
+});
