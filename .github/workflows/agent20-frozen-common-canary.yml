@@ -29,6 +29,8 @@ jobs:
       - name: Compile pinned engine
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify both-seat raw-State fallback quarantine and actor-layer order
+        run: node --test tests/agent4-raw-state-native-fallback-quarantine.test.cjs tests/agent4-native-raw-state-quarantine-layering.test.cjs tests/agent4-native-raw-state-quarantine-pinned-store.test.cjs
       - name: Audit real Store Guzma Hala payment zones in two seats and three cost counts
         run: node --test tests/agent7-ghala-owner-zone-native.test.cjs
       - name: Run one frozen configuration with two physical seats and both fixed 60s
