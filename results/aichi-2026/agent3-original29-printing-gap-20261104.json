@@ -1,0 +1,319 @@
+{
+  "schema": "agent3-known29-original-exact-english-print-corpus-coverage-v1",
+  "exactPhysicalSourceFile": "results/aichi-2026/full-decklists.json",
+  "sourceParser": "scripts/agent3-original29-print-gap-census.cjs",
+  "evidenceCiRun": "https://github.com/FlareZ123/experiment-01/actions/runs/41773894929",
+  "evidenceCiHead": "ca61dd722aa4090358067cdde6164d80130e91d4",
+  "knownOriginal60s": 29,
+  "originalFull60sUnavailable": [
+    23,
+    25,
+    28
+  ],
+  "printedCopies": 1740,
+  "exactBundledEnglishMatchedCopies": 1606,
+  "unmatchedCopies": 134,
+  "unmatchedUniquePrintings": 10,
+  "unmatchedBasicEnergyCopies": 120,
+  "unmatchedTrainerCopies": 14,
+  "unverifiedPokemonStages": 0,
+  "remainingExactPrintGaps": [
+    {
+      "category": "Energy",
+      "name": "Darkness Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "15",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 30,
+      "ranks": [
+        {
+          "rank": 8,
+          "count": 5
+        },
+        {
+          "rank": 9,
+          "count": 2
+        },
+        {
+          "rank": 11,
+          "count": 8
+        },
+        {
+          "rank": 16,
+          "count": 7
+        },
+        {
+          "rank": 19,
+          "count": 3
+        },
+        {
+          "rank": 22,
+          "count": 5
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Fighting Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "14",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 3,
+      "ranks": [
+        {
+          "rank": 19,
+          "count": 3
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Fire Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "10",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 20,
+      "ranks": [
+        {
+          "rank": 10,
+          "count": 2
+        },
+        {
+          "rank": 12,
+          "count": 2
+        },
+        {
+          "rank": 13,
+          "count": 3
+        },
+        {
+          "rank": 14,
+          "count": 2
+        },
+        {
+          "rank": 18,
+          "count": 2
+        },
+        {
+          "rank": 20,
+          "count": 2
+        },
+        {
+          "rank": 21,
+          "count": 3
+        },
+        {
+          "rank": 27,
+          "count": 2
+        },
+        {
+          "rank": 32,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Grass Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "9",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 37,
+      "ranks": [
+        {
+          "rank": 2,
+          "count": 1
+        },
+        {
+          "rank": 10,
+          "count": 4
+        },
+        {
+          "rank": 12,
+          "count": 4
+        },
+        {
+          "rank": 13,
+          "count": 4
+        },
+        {
+          "rank": 14,
+          "count": 4
+        },
+        {
+          "rank": 15,
+          "count": 2
+        },
+        {
+          "rank": 18,
+          "count": 2
+        },
+        {
+          "rank": 20,
+          "count": 4
+        },
+        {
+          "rank": 21,
+          "count": 4
+        },
+        {
+          "rank": 27,
+          "count": 4
+        },
+        {
+          "rank": 32,
+          "count": 4
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Lightning Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "12",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 10,
+      "ranks": [
+        {
+          "rank": 8,
+          "count": 2
+        },
+        {
+          "rank": 19,
+          "count": 3
+        },
+        {
+          "rank": 22,
+          "count": 3
+        },
+        {
+          "rank": 26,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Psychic Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "13",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 18,
+      "ranks": [
+        {
+          "rank": 1,
+          "count": 11
+        },
+        {
+          "rank": 30,
+          "count": 5
+        },
+        {
+          "rank": 31,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Energy",
+      "name": "Water Energy",
+      "printing": {
+        "set": "MEE",
+        "number": "11",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 2,
+      "ranks": [
+        {
+          "rank": 3,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Trainer",
+      "name": "Palace Belt",
+      "printing": {
+        "set": "BWP",
+        "number": "153",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 3,
+      "ranks": [
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 29,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Trainer",
+      "name": "Palace Book",
+      "printing": {
+        "set": "SMP",
+        "number": "NAN25",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 6,
+      "ranks": [
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 7,
+          "count": 3
+        },
+        {
+          "rank": 24,
+          "count": 2
+        }
+      ]
+    },
+    {
+      "category": "Trainer",
+      "name": "Player's Ceremony",
+      "printing": {
+        "set": "SP",
+        "number": "127",
+        "language": "en"
+      },
+      "copiesAcrossKnownOriginals": 5,
+      "ranks": [
+        {
+          "rank": 3,
+          "count": 1
+        },
+        {
+          "rank": 6,
+          "count": 1
+        },
+        {
+          "rank": 24,
+          "count": 2
+        },
+        {
+          "rank": 29,
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "caveat": "Unmatched is corpus absence or source set/name mismatch; never evidence of paper illegality or that printed cards do not exist. No native win evidence and no 32-rank complete roster."
+}
