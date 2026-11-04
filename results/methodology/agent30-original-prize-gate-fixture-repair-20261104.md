@@ -16,6 +16,6 @@ These seeds were independently recomputed from the SHA-256 hash-domain formula a
 
 ## Verification and admission boundary
 
-The local Node fixture passed four-seed hash, A/B mapping, unique nonzero outputs, and 15-copy zero-alias sum. A full existing manual `aichi-global-field-gate.yml` run was triggered at [run 41767764388](https://github.com/FlareZ123/experiment-01/actions/runs/41767764388); its final disposition must be read from that run, not inferred from the local fixture. No automatic workflow was added.
+The local Node fixture passed four-seed hash, A/B mapping, unique nonzero outputs, and 15-copy zero-alias sum. The existing manually dispatched `aichi-global-field-gate.yml` [run 41767764388](https://github.com/FlareZ123/experiment-01/actions/runs/41767764388) **COMPLETED SUCCESS** on 4 November 2026 at 03:33:30 UTC, head `618277a669e68ec677a83be0c7045f44ab4dbed3`. It includes both repaired tests and the full preexisting global field gate. This certifies that the registered assertion repairs run green in the shared manual suite, with no automatic workflow added.
 
 The repaired assertions are test-scope evidence. They do **not** establish paper-valid Trainer decisions, native game performance, owner-hidden-information safety, or any competitive win rate. The repo still has **29/32** authenticated original source name/count 60s, missing ranks **23, 25, 28**, **zero** competitively qualified games, no selected fixed-60 finalist and no demonstrated 99.5% win rate.
