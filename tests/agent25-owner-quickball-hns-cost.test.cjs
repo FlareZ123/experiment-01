@@ -134,3 +134,21 @@ test('native decoder replacement chooses a real card then observes real Store ac
       Store.prototype,'dispatch'),oldDispatch);
   }
 });
+
+test('K0 owner-only Ball chooser never probes own deck, Prize cards or opponent hidden zones',()=>{
+  for(const seat of [0,1]){
+    const x=makeState(seat,{source:'Quick Ball FST',forbiddenOpponentHand:true});
+    for(const [target,prop] of [[x.owner,'deck'],[x.owner,'prizes'],
+      [x.opponent,'deck'],[x.opponent,'prizes']]){
+      Object.defineProperty(target,prop,{get(){
+        throw Error('Forbidden K0 undisclosed zone probed: '+prop);
+      }});
+    }
+    assert.equal(ownerBallDonorOpportunity(x.state,seat)?.card.fullName,
+      'Shuppet M5');
+    const y=makeState(seat);
+    y.prompt.cards.cards.push(handCard('Shuppet M5',9999));
+    assert.equal(ownerBallDonorOpportunity(y.state,seat),null,
+      'Native offered card outside physical owner hand must fail closed');
+  }
+});
