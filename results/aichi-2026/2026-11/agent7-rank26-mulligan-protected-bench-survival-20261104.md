@@ -76,3 +76,29 @@ Four separately frozen structural candidates also receive their own source-rank2
 ## Decision guidance
 
 Use the **safety-adaptive** policy only as a preregistered matched comparison option, particularly against source-first rank26. It can avoid *structural* additional one-KO instant-loss exposure while preserving an entry trigger in hands where a second ordinary Basic is already available. It sometimes burns a valuable trigger to fill a Bench slot, which itself has opportunity cost and may lose the game through an entirely different mechanism. No candidate or opponent policy has been changed, no native match is qualified, and the 99.5% benchmark remains unproven.
+
+## Extension: every one of the 29 authenticated opponent source mulligan distributions
+
+The same source-rank-independent helper now provides `authenticatedFieldMulliganBenchMatrix()` for **841 ordered original-candidate/source-opponent pairs** (29 candidate printed original 60s × 29 separately authenticated opposing original 60s), with four structural candidates evaluated against all 29 opponents separately. Every opponent rank uses its **own** indexed printed Basic count in the geometric bonus distribution. Sources missing ranks 23, 25 and 28 are still omitted. This extension is a *physical setup matrix*, not 841 played games.
+
+| Opposing source class | Source Basic copies | Source failed-seven probability | Mean extra candidate lone Active versus greedy, among 29 known candidate-original sixties |
+| --- | ---: | ---: | ---: |
+| Iron Thorns, original ranks 6/24/29 | 4 | 60.05003743% | **10.9726986783 pp** |
+| Rank26 Meloetta Donk, also ranks 7/22 | 12 | 19.06466927% | **11.9528877934 pp** |
+| Original ranks 18/19/30 | 16 | 9.92228933% | **12.0296856769 pp** |
+| **Equal-weight 29-opponent × 29-candidate-original average** | varies | varies | **11.8711209162 pp** |
+
+Lower opposing Basic counts lead to more bonus draws and generally reduce the *population-average absolute* exposure, although rank4's many protected triggers and some other compositions have the counterintuitive relative phenomenon discussed above.
+
+### Four separately frozen structural challengers across the 29 original opponents
+
+| Candidate fixed 60 | Mean extra lone Active after source bonus | Against rank6 source | Against rank26 source |
+| --- | ---: | ---: | ---: |
+| Apex Alchemy v0 | **5.8996208173 pp** | 5.4029169373 pp | 5.9441000609 pp |
+| ADP–Thorton–Regidrago v2 | **14.5379508497 pp** | 15.3264195284 pp | 14.4847499050 pp |
+| Sentinel Lopunny Vileplume v1 | **0 pp** | 0 pp | 0 pp |
+| Arven–Boost Shake Absol v1 | **11.9313211831 pp** | 11.0990296869 pp | 12.0085950424 pp |
+
+The ADP candidate illustrates why the source's mulligan generosity is not a universally monotonic counter to protected-entry support risk: it can uncover extra *trigger* Basics that greedy would Bench and strict preservation would withhold, even while awarding more total cards. This is a narrow interpretation of the structural *relative* metric and does not show a source-first win.
+
+The new matrix implementation extends the existing evaluator (commit `e7f84c76`) and a field-identity regression freezes all 841 pair comparisons, opposing source classes, rank26 reduction, and separately named candidate risks (commit `b4054a84`). **No compiled CI run has yet exercised these new tests**; numerical values are independently calculated from the authenticated source counts and the stated finite-sampling formula. The validation scope remains partial.
