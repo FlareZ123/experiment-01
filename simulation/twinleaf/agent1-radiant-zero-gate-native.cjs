@@ -16,7 +16,7 @@ const native = name => require(path.join(output,name));
  *
  * @param {0|1} seat
  * @param {0|1} selectedCount
- * @param {{repaired?:boolean,useAbility?:boolean}} [options]
+ * @param {{repaired?:boolean,useAbility?:boolean,reverseShuffle?:boolean}} [options]
  * @returns {object}
  */
 function probeZeroClimacticGate(seat,selectedCount,options={}){
@@ -65,6 +65,7 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
   const before={phase:state.phase,turn:state.turn,activePlayer:state.activePlayer};
   store.reduceEffect(state,new PlayPokemonEffect(actor,radiant,actor.bench[0]));
   const events=[];
+  let shuffledBefore=null;
   const pending=()=>state.prompts.find(p=>p.result===undefined);
   for(let i=0;i<18;i++){
     const p=pending();
@@ -74,8 +75,11 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
     else if(p.constructor.name==='ChooseCardsPrompt'&&
       p.message==='CHOOSE_CARD_TO_PUT_ONTO_BENCH')
       answer=selectedCount?[vmax]:[];
-    else if(p.constructor.name==='ShuffleDeckPrompt')
+    else if(p.constructor.name==='ShuffleDeckPrompt'){
+      shuffledBefore=[...actor.deck.cards];
       answer=Array.from({length:actor.deck.cards.length},(_,j)=>j);
+      if(options.reverseShuffle)answer.reverse();
+    }
     else if(p.constructor.name==='WaitPrompt')answer=null;
     else if(p.constructor.name==='ShowCardsPrompt')answer=true;
     else{
@@ -101,6 +105,8 @@ function probeZeroClimacticGate(seat,selectedCount,options={}){
     vmaxInDeck:actor.deck.cards.includes(vmax),
     pendingPrompts:state.prompts.filter(p=>p.result===undefined)
       .map(p=>({type:p.constructor.name,message:p.message??null})),
+    shuffleChangedPhysicalOrder:shuffledBefore===null?null:
+      shuffledBefore.some((c,i)=>actor.deck.cards[i]!==c),
     events,gameQualified:false
   };
   };
