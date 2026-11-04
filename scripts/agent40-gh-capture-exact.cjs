@@ -7,7 +7,7 @@ const {createHash}=require('node:crypto');
 
 const VERSION='agent40-exact-three-channel-physical-discard-gates-v1';
 const ROSTER='results/aichi-2026/full-decklists.json';
-const ROSTER_BLOB='ae773f6201d7aa69d31914dbfee66f3bfa692200';
+const ROSTER_BLOB='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const KEYS=Object.freeze([
   'B','O','P','TC','GH','A','C','TM',
   'Gloom','Pidgeotto','VileplumeAOR','Pidgeot','OTHER'
