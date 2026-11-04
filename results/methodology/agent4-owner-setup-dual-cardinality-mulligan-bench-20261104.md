@@ -35,6 +35,20 @@ An independently frozen [16-attempt real Store probe](../../tests/agent4-owner-b
 
 A separately labelled **prospective 32-seed extension**, `20261134` through `20261165`, was committed after observing this red eight-seed result and queued independently. Those later seeds cannot retroactively make the first preregistration green. The value of the first run is the direct same-Store positive physical `min=0` receipt for one seat, together with transparent lack of coverage in the other.
 
+## Source-derived reoffer nuance and exact independent-paper lower bound
+
+The pinned `allowExtraBenchPlacement` helper searches **all eligible Basics still in the owner's current hand** after an optional bonus draw. This includes valid additional Basics deliberately kept in hand by the earlier one-Basic initial setup choice. It does **not** restrict the next prompt to cards first obtained in the bonus draw. That is compatible with the manual's permission to add Bench Basics until the game begins, and is strategically relevant: even when bonus draws find no new Basic, a player with an initially retained second Basic can receive the optional `min=0` choice.
+
+For a purely mathematical ideal-paper initial shuffle, let candidate have `K=14` Basics (historical rank1 reference), source have `L=4` Basics (published rank6), and `C(n,k)` denote a binomial coefficient. The event
+
+`candidate's first seven contain at least two Basics AND source's first seven contain no Basic`
+
+is sufficient to produce an eligible retained Basic when a bonus card is elected under this exact one-Basic setup strategy. With independently shuffled physical decks, its **unconditional exact probability** is
+
+`[sum_{i=2}^7 C(14,i) C(46,7-i) / C(60,7)] × [C(56,7) / C(60,7)] = 0.3133784169816411`.
+
+Conditioning on the candidate's initial seven being valid gives `0.36379733771467726`. These are **lower bounds** on possible actual prompt opportunity under an all-bonus-draw policy, because a first seven with exactly one Basic can also gain another eligible Basic from bonus cards. They are **independent ideal-paper combinatorics**, not estimates of this deterministic native xorshift seed cohort, not claims that every prompt will be strategically accepted, and never win probabilities. These numbers contextualize the first natural 4/8 versus 0/8 seat-specific fixture differences without claiming stochastic significance.
+
 ## Remaining integration and evidence vetoes
 
 - This policy remains an **alternative** to Agent50's all-eligible-Basic and Agent21's separate opening policies. Issue [#25](https://github.com/FlareZ123/experiment-01/issues/25) must explicitly pick and freeze one opening contract and symmetric two-seat wrapper order, then actually execute it.
