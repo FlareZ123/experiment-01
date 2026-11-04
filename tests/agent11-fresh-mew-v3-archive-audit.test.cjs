@@ -16,6 +16,8 @@ test('fresh preregistered rank5/rank11 64-arm Store artifact matches independent
   assert.equal(observed.separatelyRecoveredAbortPair,1);
   assert.equal(observed.sourceMewCopiedAttackCounts.declared,35);
   assert.equal(observed.sourceMewCopiedAttackCounts.noDonorSettledWithoutBoardChange,10);
+  assert.equal(observed.sourceRank11TerminalPeriod.declared,66);
+  assert.equal(observed.sourceRank11TerminalPeriod.settled,64);
   assert.equal(observed.nativeQualifiedGames,0);
   process.stdout.write('AGENT11_FRESH_NATIVE_AUDIT '+JSON.stringify(observed)+'\n');
 });
