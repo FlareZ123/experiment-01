@@ -40,6 +40,8 @@ jobs:
         run: node --test tests/agent50-opening-bench-trigger-exposure.test.cjs tests/agent50-structural-candidate-opening-exposure.test.cjs
       - name: Issue25 opt-in owner-only preserved-Bench-entry opening comparison with pinned validator
         run: node --test tests/agent50-owner-preserve-turn-entry-setup.test.cjs tests/agent50-owner-preserve-turn-entry-setup.native.test.cjs
+      - name: Issue25 opt-in owner-entry-priority real Store pair and pure noninterference
+        run: node --test tests/agent50-owner-entry-priority-single-basic.test.cjs tests/agent50-owner-entry-priority-original5.native.test.cjs
       - name: Issue25 native owner-hand starting Basic next fallback boundary
         run: node --test tests/agent50-issue25-owned-basic-setup-quarantine.native.test.cjs
       - name: Issue25 pure owner public prompt acknowledgements contract
