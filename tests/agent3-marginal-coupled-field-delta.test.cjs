@@ -126,6 +126,7 @@ test('pre-deal errors with null physical source metadata stay censored in denomi
   cells[0][0].referenceStatus='CENSORED';
   cells[0][0].referenceFingerprint=null;
   cells[1][0].challengerStatus='CENSORED';
+  cells[1][0].referenceStatus='CENSORED';
   cells[1][0].referenceFingerprint=null;
   cells[1][0].challengerFingerprint=null;
   const r=analyse(cells);
@@ -135,7 +136,7 @@ test('pre-deal errors with null physical source metadata stay censored in denomi
   assert.equal(r.differingSourceOpenings,62);
   assert.equal(r.matchingSourceOpenings,0);
   assert.equal(r.fullyObservedMismatches,62);
-  assert.equal(r.observedLower,62/64);
+  assert.equal(r.observedLower,61/64);
   assert.equal(r.observedUpper,1);
 });
 
