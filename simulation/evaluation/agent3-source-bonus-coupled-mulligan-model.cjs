@@ -1,5 +1,6 @@
 'use strict';
 
+const assert=require('node:assert/strict');
 const {mulliganDisagreement,choose,frozenRankOneNewMoonCase}=
   require('./agent3-coupled-opening-input-order.cjs');
 
@@ -64,16 +65,30 @@ function sourceBonusDisagreement(refBasicPositions,otherBasicPositions,
  * and 3 evolved Mew VMAX. Rank6 uses only 4 Iron Thorns ex.
  */
 function historicalRankFiveSixPrediction(){
+  const source=require('../../results/aichi-2026/full-decklists.json');
+  const rank5=source.decks.find(row=>row.rank===5);
+  const rank6=source.decks.find(row=>row.rank===6);
+  assert.ok(rank5&&rank6);
+  const pokemon5=rank5.cards.filter(row=>row.category==='Pokémon');
+  const pokemon6=rank6.cards.filter(row=>row.category==='Pokémon');
+  assert.ok(pokemon5.some(row=>row.name==='Mew VMAX'&&row.count===3));
+  assert.equal(pokemon6.length,1);
+  assert.equal(pokemon6[0].name,'Iron Thorns ex');
+  const basic5=pokemon5.filter(row=>row.name!=='Mew VMAX')
+    .reduce((sum,row)=>sum+row.count,0);
+  const basic6=pokemon6.reduce((sum,row)=>sum+row.count,0);
+  assert.equal(basic5,11);
+  assert.equal(basic6,4);
   const trial=frozenRankOneNewMoonCase();
   const ref=new Set(trial.historicalReferenceBasicPositions);
   const moon=new Set(trial.historicalChallengerBasicPositions);
   const refFlags=Array.from({length:60},(_,i)=>ref.has(i));
   const moonFlags=Array.from({length:60},(_,i)=>moon.has(i));
   return {
-    sourceRank5BasicCount:11,
-    sourceRank6BasicCount:4,
-    rank5:sourceBonusDisagreement(refFlags,moonFlags,11),
-    rank6:sourceBonusDisagreement(refFlags,moonFlags,4),
+    sourceRank5BasicCount:basic5,
+    sourceRank6BasicCount:basic6,
+    rank5:sourceBonusDisagreement(refFlags,moonFlags,basic5),
+    rank6:sourceBonusDisagreement(refFlags,moonFlags,basic6),
     observedSetupOnlySourceBonusDisagreement:{rank5:4,rank6:1,perRankContexts:24},
     historicalObservedDataWereNotHeldOut:true,
     note:'Predictions under ideal uniform independent shuffle streams; comparison with fixed 24+24 native historical runs is descriptive, neither model fitting nor statistical proof.'
