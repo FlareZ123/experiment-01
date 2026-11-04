@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 
-const VERSION='owner-public-discard-target-necessary-v1';
+const VERSION='owner-public-discard-target-necessary-v2-rescue-absol-native-class';
 
 // Each source ID and effect was checked against the bundled English print
 // database. These are necessary target predicates, never permission to play.
@@ -159,6 +159,22 @@ function withSourcePromoAliases(index){
       'Public shortened-name alias collides with other metadata');
     result.set(alias,source);
   }
+  // In the pinned native CardManager, the authentic source-rank9
+  // English MEG/86 Mega Absol ex is surfaced on the public discard as
+  // "Mega Absol ex M1L". The exact-native public receipt independently
+  // identifies the source card as MEG/86. Use its sourced Pokémon class for
+  // this target-family screen; this does NOT certify a physical JP M1L print.
+  const sourceAbsol=result.get('Mega Absol ex MEG');
+  assert.ok(sourceAbsol?.variants?.length>0 &&
+    sourceAbsol.variants.every(card=>
+      card.supertype==='Pokémon'&&card.subtypes.includes('Basic')),
+  'Verified MEG/86 native name-alias type must remain Basic Pokémon');
+  const nativeAbsol='Mega Absol ex M1L';
+  const priorAbsol=result.get(nativeAbsol);
+  assert.ok(!priorAbsol||
+    JSON.stringify(priorAbsol)===JSON.stringify(sourceAbsol),
+  'Native M1L alias must not override divergent public metadata');
+  result.set(nativeAbsol,sourceAbsol);
   return result;
 }
 const withSourceDisplayAliases=withSourcePromoAliases;
@@ -239,7 +255,7 @@ function augmentPaperNecessityWithDiscardTargets(view,base,publicPrints){
       paperPlayable:blockers.length>0?false:null};
   });
   return {
-    ...base,version:String(base.version)+'+public-discard-target-v1',
+    ...base,version:String(base.version)+'+public-discard-target-v2-rescue-absol-native-class',
     rows,registeredHeldDiscardRecoveryCopies:registeredHeld,
     newlyProvenPublicDiscardTargetFailures:additionallyBlocked,
     provenNecessaryConditionFailures:rows.filter(r=>r.paperPlayable===false).length,
