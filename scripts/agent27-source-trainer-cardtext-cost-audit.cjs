@@ -21,13 +21,18 @@ const VERSION='agent27-source-trainer-cardtext-cost-audit-v1';
 function printedHandDiscardModes(rules){
   assert.ok(Array.isArray(rules)&&rules.every(x=>typeof x==='string'));
   const text=rules.join(' ').replace(/\s+/g,' ').toLowerCase();
-  const optional=/may discard 2 other cards from your hand/.test(text);
-  const triple=/discard 3 other cards from your hand/.test(text);
-  const double=!optional&&/discard 2 (?:other )?cards from your hand/.test(text);
-  const single=/discard (?:another|a) card from your hand/.test(text);
-  const found=[optional,triple,double,single].filter(Boolean).length;
+  const optionalTwo=/may discard 2 other cards from your hand/.test(text);
+  const optionalThree=/may discard 3 other cards from your hand/.test(text);
+  const optionalOne=/may discard another card from your hand/.test(text);
+  const triple=!optionalThree&&/discard 3 other cards from your hand/.test(text);
+  const double=!optionalTwo&&/discard 2 (?:other )?cards from your hand/.test(text);
+  const single=!optionalOne&&/discard (?:another|a) card from your hand/.test(text);
+  const found=[optionalTwo,optionalThree,optionalOne,triple,double,single]
+    .filter(Boolean).length;
   assert.ok(found<=1,'Ambiguous hand-discard text must be reviewed');
-  if(optional)return [0,2];
+  if(optionalTwo)return [0,2];
+  if(optionalThree)return [0,3];
+  if(optionalOne)return [0,1];
   if(triple)return [3];
   if(double)return [2];
   if(single)return [1];
@@ -86,13 +91,13 @@ function auditBundledSourceCardText(root=ROOT){
       verifiedAllVariants:true});
   }
   const coveredCopies=records.reduce((s,r)=>s+r.copies,0);
-  assert.equal(coveredCopies,231);
+  assert.equal(coveredCopies,259);
   return {version:VERSION,sourceManifestSha256:
     crypto.createHash('sha256').update(manifestBytes).digest('hex'),
     originalDecks:manifest.decks.length,
     verifiedExactSourcePrintings:records.length,
     verifiedOriginalTrainerCopies:coveredCopies,
-    originalUnverifiedTrainerCopies:804,
+    originalUnverifiedTrainerCopies:776,
     sourceCardTextVerified:true,
     paperTargetsAndNativePaymentUnverified:true,
     qualifiedCompetitiveGames:0,records};
