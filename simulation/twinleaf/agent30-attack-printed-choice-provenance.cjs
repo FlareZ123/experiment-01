@@ -73,7 +73,7 @@ function withPrintedAttackChoiceProvenance(run,deps={}){
                prompt.playerId===actor.id&&
                prompt.cards===zone&&
                prompt.options?.allowCancel===source.requiresCancel&&
-               prompt.options?.isSecret===source.requiresSecret&&
+               (prompt.options?.isSecret===true)===source.requiresSecret&&
                prompt.options?.min>=0&&prompt.options?.max<=2){
               const proof={source:source.source,attack:source.attack,
                 zone:source.zone,actorId:actor.id,
