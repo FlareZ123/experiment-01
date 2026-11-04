@@ -190,6 +190,7 @@ function withSourceStampedNightWatchOwner(run,deps={}){
     }
     const receipt={
       ownerSeat:chosen.ownerSeat,turn:chosen.turn,
+      actorId:String(chosen.actorId),promptId:String(chosen.prompt.id),
       nativeStoreOrdinal:chosen.nativeStoreOrdinal,
       selectedPhysicalPositions:[...chosen.indices],
       opponentHandCountBefore:beforeHand,
