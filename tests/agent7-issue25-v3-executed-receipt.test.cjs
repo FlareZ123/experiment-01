@@ -42,7 +42,17 @@ function fixture(){
           {action:'PassTurnAction',playerSlot:0}]}},
       {trial:{id:'r2'},rootActionLedger:[
         {action:'PlayCardAction',playerSlot:1,card:'source-public-card'}]},
-      {trial:{id:'r3'},status:'engine-error'},
+      {trial:{id:'r3'},status:'engine-error',
+        nativeAbortEvidence:{
+          failureStage:'bot-decoder',actionOrdinal:17,
+          actionName:'ResolvePromptAction',
+          pendingPrompt:'ChooseCardsPrompt',
+          rootActionLedger:[{action:'ResolvePromptAction',playerSlot:0}],
+          rootActionLedgerSha256:createHash('sha256')
+            .update(JSON.stringify([
+              {action:'ResolvePromptAction',playerSlot:0}
+            ])).digest('hex')
+        }},
       {trial:{id:'r4'},status:'engine-error'}
     ]}
   };
@@ -58,7 +68,10 @@ test('SFT receipt retains all four registered failure/cap attempts and public ro
     'PassTurnAction');
   assert.equal(receipt.attempts[1].publicRootActions[0].card,
     'source-public-card');
-  assert.equal(receipt.attempts[2].publicRootActions,null);
+  assert.equal(receipt.attempts[2].publicRootActions[0].action,
+    'ResolvePromptAction');
+  assert.equal(receipt.attempts[2].publicRootLedgerDigestConsistent,true);
+  assert.equal(receipt.attempts[2].abortPendingPrompt,'ChooseCardsPrompt');
   assert.equal(receipt.gate.overall,'FAIL-development-only');
   assert.equal(receipt.gate.fullPolicyBothSeatSymmetry,'FAIL');
   assert.equal(receipt.reportedCompetitiveGames,0);
@@ -111,4 +124,14 @@ test('SFT conflicting and duplicate raw trial IDs fail custody reconciliation',(
   );
   assert.equal(receipt.attempts[0].publicRootActions,null);
   assert.equal(receipt.attempts[1].publicRootActions,null);
+});
+
+test('SFT mismatched native public ledger digest invalidates the audit gate',()=>{
+  const sample=fixture();
+  sample.rawDevelopment.rows[2].nativeAbortEvidence.rootActionLedgerSha256=
+    '0'.repeat(64);
+  const receipt=buildReceipt(sample);
+  assert.equal(receipt.gate.observedPublicRootLedgerDigest,'FAIL');
+  assert.equal(receipt.attempts[2].publicRootLedgerDigestConsistent,false);
+  assert.equal(receipt.gate.overall,'FAIL-development-only');
 });
