@@ -76,6 +76,7 @@ function rootProjection(root){
   };
 }
 function firstDifference(control,other){
+  if(!Array.isArray(control)||!Array.isArray(other))return null;
   const a=control.map(rootProjection),b=other.map(rootProjection);
   for(let i=0;i<Math.min(a.length,b.length);i++){
     if(JSON.stringify(a[i])!==JSON.stringify(b[i]))
