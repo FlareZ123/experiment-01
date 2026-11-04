@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const {initializeCards} = require('./headless.cjs');
+const {withRadiantZeroGateHook} = require('./agent1-radiant-zero-gate-hook.cjs');
 
 const output = path.resolve(__dirname,'../../vendor/twinleaf/ptcg-server/output');
 /** @param {string} name @returns {any} */
@@ -15,9 +16,11 @@ const native = name => require(path.join(output,name));
  *
  * @param {0|1} seat
  * @param {0|1} selectedCount
+ * @param {{repaired?:boolean}} [options]
  * @returns {object}
  */
-function probeZeroClimacticGate(seat,selectedCount){
+function probeZeroClimacticGate(seat,selectedCount,options={}){
+  const execute=()=>{
   assert.ok(seat===0||seat===1);
   assert.ok(selectedCount===0||selectedCount===1);
   const {Store}=native('game/store/store');
@@ -100,6 +103,12 @@ function probeZeroClimacticGate(seat,selectedCount){
       .map(p=>({type:p.constructor.name,message:p.message??null})),
     events,gameQualified:false
   };
+  };
+  if(options.repaired){
+    const {result,audit}=withRadiantZeroGateHook(execute);
+    return {...result,repaired:true,hookAudit:audit};
+  }
+  return {...execute(),repaired:false,hookAudit:null};
 }
 
 if(require.main===module)
