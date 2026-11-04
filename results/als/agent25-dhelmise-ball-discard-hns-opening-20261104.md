@@ -53,9 +53,27 @@ A first-eight card location may contain Arven, but playing Arven is not always p
 
 The no-Arven numerator is exactly **32,763,579,418,029,936** unrestricted and **29,182,502,882,114,016** with six eligible donors, over the same denominator **416,717,869,162,795,200**. The difference between the scenario rows is a precisely defined physical-resource dependency on an Arven search, **not** a measured causal impact of playing a Supporter or a lower bound on real attack probability. In particular, an opening first-eight hand containing Arven does not automatically convert into a legal attack when Arven's turn restriction, opponent lock, Supporter contention, Bench/Active constraints, discard costs, or search payoffs conflict.
 
+## An exact two-card swap falsifies the 'more donors is always better' shortcut
+
+The original v2 has four Banette, two Shuppet and two Sinistcha as HNS donors, plus four Telepathic Psychic and six Basic Psychic Energy. Consider one *fully specified*, 60-card-preserving hypothetical change: **remove exactly two Basic Psychic Energy (`sve-5`) and add exactly two Shuppet (`me5-33`)**. This makes four Banette, four Shuppet, two Sinistcha, eight Psychic-providing Energy and sixteen Basic Pokémon. Every named card remains within the four-copy limit. All unchanged card slots and connecting Items remain intact. It is a developmental resource counterfactual, not a nominated final deck or a native-legal gameplay result.
+
+An extended v3 of the exact same enumerator keeps the 60-card physical population, with all suppressed HNS printings still counted among the noneligible cards. Under named locks the identities matter: Wobbuffet's non-Psychic Ability denial blocks the two Grass Sinistcha, leaving eight donors; Silent Lab's Basic-Pokémon Ability denial blocks **four** Shuppet, leaving just six. The original 2 Shuppet/2 Sinistcha construction happened to have the same six-donor count for either lock.
+
+| First-eight physical capacity event | Original 8 donors / 10 Energy | +2 Shuppet, -2 Basic Psychic |
+| --- | ---: | ---: |
+| No Ability suppression, Arven usable | **16.081210532%** | **14.385125078%** |
+| Wobbuffet Active, Arven usable | **14.865647349%** | **14.047553527%** |
+| Silent Lab Active, Arven usable | **14.865647349%** | **12.992042107%** |
+| No suppression, Arven unavailable | **7.862292895%** | **7.225663732%** |
+| No suppression, Arven usable, conditional Basic-valid seven | **18.668489155%** | **15.969683255%** |
+
+For the new ten-donor, eight-Energy physical population, the unrestricted favorable numerator is **59,945,386,702,448,352**; with Wobbuffet it is **58,538,665,727,465,952**, and with Silent Lab it is **54,140,161,030,934,880**, each over the **same** 416,717,869,162,795,200 card-location denominator. Thus the exact unconditional target event becomes **1.696085454 percentage points less frequent** in the swapped 60 under the no-lock resource screen even though it has two more HNS donors. The event requires both a Psychic Energy and a payable discard route, so losing Energy availability outweighs the extra donors in this deliberately narrow eight-card window.
+
+**What this can decide:** the ten-donor substitution is a worse choice *for this precise early resource event*, and the Wobbuffet/Silent Lab cases require separate conditional classifications. It does **not** establish that the whole swapped deck is weaker: extra Shuppet can alter Bench access, evolution setup, later draws, discard utility, damage resilience, and opponent counterplay. Nor is either lock assumed to be active in the observed population. A comparison between actual decks still needs a shared legal decision policy and matching source games.
+
 ## Verification and limitations
 
-- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [seven Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The tests also verify the unchanged [complete printed 60](agent25-dhelmise-mixed-lock-answers-v2.json) against the model's named card groups and 14 Basic Pokémon. The exact program reproduces both historical narrower probabilities before adding Ball routes.
+- Reproducible [BigInt exact enumerator](../../scripts/agent25-dhelmise-ball-discard-opening.cjs) with [ten Node regression tests](../../tests/agent25-dhelmise-ball-discard-opening.test.cjs). The tests also verify the unchanged [complete printed 60](agent25-dhelmise-mixed-lock-answers-v2.json) against the model's named card groups and 14 Basic Pokémon. The exact program reproduces both historical narrower probabilities before adding Ball routes.
 - Independent Python integer-combination implementation computed **16.081210532%** and **14.865647349%** for the expanded event, including explicit Prizes; separately, separate 250,000-trial physical-shuffle checks gave approximate event rates **16.2596%** and **14.9144%**, consistent with normal Monte Carlo sampling variation. Those samples are checks on card-location math, not observed game events.
 - Neither test resolves whether the owner should consume a given Ball, whether the search target exists or is desirable, whether an Item/Supporter lock is already active, or whether the opponent can stop the setup. It omits all later draws, board decisions, opponent activity and elapsed tournament time. The paper legality of an actual sequence and native effect settlement remain separate gates.
 - The 99.5% full-field goal remains unverified: **29/32** source 60-card name/count inventories authenticated, missing original ranks **23, 25 and 28**, **zero competitively qualified games** and no selected best fixed 60.
