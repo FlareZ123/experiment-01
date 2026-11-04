@@ -24,7 +24,7 @@ const {CheckRetreatCostEffect}=native('game/store/effects/check-effects');
 /** One full pinned Store with physically owned hand, tools and Energy. */
 function stage(seat,kind){
   const manager=initializeCards();
-  let id=1400000+seat*100000+(kind==='absol'?1000:2000);
+  let id=1400000+seat*100000+({absol:1000,clefairy:2000,vmax:3000}[kind]);
   const card=printing=>{
     const result=manager.getCardByName(printing);
     assert.ok(result,'Missing printed '+printing);
@@ -33,13 +33,17 @@ function stage(seat,kind){
   };
   const owner=new Player(),foe=new Player();
   owner.id=414;foe.id=415;
-  const absol=kind==='absol';
-  const active=absol?'Mega Absol ex M1L':'Dedenne-GX UNB';
-  const bench=absol?'Mega Absol ex M1L':"Lillie's Clefairy ex JTG";
+  const absol=kind==='absol',vmax=kind==='vmax';
+  const active=absol?'Mega Absol ex M1L':
+    vmax?'Shadow Rider Calyrex V CRE':'Dedenne-GX UNB';
+  const bench=absol?'Mega Absol ex M1L':
+    vmax?'Shadow Rider Calyrex V CRE':"Lillie's Clefairy ex JTG";
   const energy=absol?'Darkness Energy MEE':'Psychic Energy MEE';
   owner.active.cards.push(card(active));
+  if(vmax)owner.active.cards.push(card('Shadow Rider Calyrex VMAX CRE'));
   owner.bench=Array.from({length:5},()=>new PokemonCardList());
   owner.bench[0].cards.push(card(bench));
+  if(vmax)owner.bench[0].cards.push(card('Shadow Rider Calyrex VMAX CRE'));
   const attach=(slot,n)=>{
     for(let i=0;i<n;i++){
       const e=card(energy);
@@ -47,7 +51,7 @@ function stage(seat,kind){
     }
   };
   attach(owner.active,1);
-  attach(owner.bench[0],absol?3:2);
+  attach(owner.bench[0],absol?3:vmax?6:2);
   owner.hand.cards.push(card('Float Stone BKT'));
   // Printed Grass Weakness avoids an incidental Darkness Weakness KO.
   foe.active.cards.push(card('Mega Absol ex M1L'));
@@ -71,7 +75,7 @@ function stage(seat,kind){
     bench:owner.bench[0].getPokemonCard().fullName,kind};
 }
 
-for(const kind of ['absol','clefairy'])for(const seat of [0,1])
+for(const kind of ['absol','clefairy','vmax'])for(const seat of [0,1])
   test('native generic funded Float Stone '+kind+' seat '+seat,()=>{
     const x=stage(seat,kind),catalog=publicCatalog();
     const before=actorObservation(x.state,seat),first=choose(before,catalog);
@@ -101,7 +105,8 @@ for(const kind of ['absol','clefairy'])for(const seat of [0,1])
     assert.equal(x.owner.bench[0].energies.cards[0],originalEnergy);
     assert.equal(x.owner.bench[0].tools[0]?.fullName,'Float Stone BKT');
     const beforeDamage=x.foe.active.damage;
-    const attack=kind==='absol'?'Claw of Darkness':'Full Moon Rondo';
+    const attack=kind==='absol'?'Claw of Darkness':
+      kind==='vmax'?'Max Geist':'Full Moon Rondo';
     x.store.dispatch(new AttackAction(x.owner.id,attack));
     for(let i=0;i<12;i++){
       const p=x.state.prompts.find(q=>q.result===undefined);
