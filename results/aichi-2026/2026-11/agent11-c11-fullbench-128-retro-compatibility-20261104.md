@@ -2,6 +2,8 @@
 
 **4 Nov 2026. Development-only, zero qualified competitive paper games.**
 
+Independent verification: [four original archive audit](../../../scripts/agent11-c11-fullbench-retro-archive-audit.cjs), [successful CI 41905080477](https://github.com/FlareZ123/experiment-01/actions/runs/41905080477). The check confirms 105 complete unchanged original traces and 23 identical pre-error prefixes followed by a native Pass.
+
 ## Mechanism and immutable sources
 
 The [pre-registered Quick Ball v4 study](agent11-v4-quickball-128-matched-native-20261104.md) captured 23 actual pinned Twinleaf errors: original source rank11 Trubbish FST used Call for Family into five occupied Bench slots. Advanced Player Rulebook **C-11** says this attack ends before searching the deck. Native Store threw `NO_BENCH_SLOTS_AVAILABLE`. The true native original result and abort evidence remain immutable.
