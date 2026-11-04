@@ -13,9 +13,10 @@ const PRINTING='Guzma & Hala CEC';
  * the original rank6 Kazuma Kashi printed 60 (but no original shuffle/deal).
  * @param {0|1} seat Owner physical seat.
  * @param {0|1|2} paymentCount Submitted count of genuine other hand cards.
+ * @param {{prismStarCost?:boolean}} [options] Substitute original-rank6 Prism Star cost.
  * @returns {object} Real prompt validity and physical recovery.
  */
-function probeGuzmaHalaPayment(seat,paymentCount){
+function probeGuzmaHalaPayment(seat,paymentCount,options={}){
   assert.ok(seat===0||seat===1);
   assert.ok([0,1,2].includes(paymentCount));
   const {PlayCardAction,PlayerType,SlotType}=
@@ -26,7 +27,8 @@ function probeGuzmaHalaPayment(seat,paymentCount){
   f.source.active.cards.splice(0,1,f.card('Iron Thorns ex TWM'));
   const handCards=[
     f.card('Plumeria BUS'),
-    f.card('Guzma BUS')
+    f.card(options.prismStarCost ?
+      'Wondrous Labyrinth Prism Star TEU' : 'Guzma BUS')
   ];
   const supporter=f.card(PRINTING);
   f.source.hand.cards.push(...handCards,supporter);
@@ -87,6 +89,7 @@ function probeGuzmaHalaPayment(seat,paymentCount){
   }
   return {
     fixture:'Prepared real Store using original rank6 source printing; no dealt original game',
+    prismStarCost:options.prismStarCost===true,
     sourceRank:6,seat,paymentCount,printing:PRINTING,
     rootError,choiceFound:Boolean(choice),choiceError,
     paymentPromptFound:Boolean(payment),
@@ -103,7 +106,8 @@ function probeGuzmaHalaPayment(seat,paymentCount){
     })),
     physicalPaymentCards:handCards.map(c=>({
       card:c.fullName,inHand:f.source.hand.cards.includes(c),
-      inDiscard:f.source.discard.cards.includes(c)
+      inDiscard:f.source.discard.cards.includes(c),
+      inLostZone:f.source.lostzone.cards.includes(c)
     })),
     supporterInDiscard:f.source.discard.cards.includes(supporter),
     pendingPrompts:f.state.prompts.filter(p=>p.result===undefined)
