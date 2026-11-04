@@ -25,10 +25,12 @@ A/A/B physical state construction uses identical prints, board, own hand order, 
 
 | Constructed original source context | Exact in-play and held printed cards | Native treatment result |
 | --- | --- | --- |
-| Original rank **3** mobility | Active Snorlax **PGO**, Bench Galarian Stunfisk **SSH**, owner hand FSS **SIT** first and Float Stone **BKT** second | **Float attached and remained on the same physical Pokémon after a genuine zero-Energy retreat**, in both seats. The unplayed Stone remained in hand. No attack evidence was claimed. |
+| Original rank **3** mobility | Active Snorlax **PGO**, Bench Galarian Stunfisk **SSH**, owner hand FSS **SIT** first and Float Stone **BKT** second | **Genuine incremental native retreat-cost reduction from 4 to 0:** untreated Snorlax requires four Energy to retreat, while the held Float attached and allowed the real zero-Energy RetreatAction in both seats. FSS remained in hand. No attack or win-rate gain was claimed. This is the clean positive mobility control. |
 | Original rank **11** powered pivot | Active Latias ex **SSP** holding one Darkness **MEE**; Bench Mega Absol ex **M1L** with three Darkness MEE; held FSS SIT first and Float BKT second; opponent Active Mega Absol ex M1L | Native accepted Float on Latias, then genuine retreat and a **200-damage Claw of Darkness** attack. **This is a non-causal treated action receipt**: Latias ex SSP has Skyliner, granting Basic Pokémon no Retreat Cost even without Float. The treated attack cannot be credited to the Tool. |
 
 Original Aichi rank11 shows Mega Absol ex as publisher group MEG86; Twinleaf's pinned legal equivalent instance is named M1L. The rank3 and rank11 stages are explicitly **hand-constructed from source-present card printings**. The state is reachable in principle, but actual matched whole-deck shuffle, cards drawn, opponent response, sequential choices and complete paper match clock are not established by these stages.
+
+**Final corrected native verification:** [CI 41902190504](https://github.com/FlareZ123/experiment-01/actions/runs/41902190504) succeeded with 9/9 pure tests and **14/14 actual pinned native tests**. It measured rank3 untreated retreat cost **4**, treated cost **0** and actual retreat accepted in both seats. In parallel, rank11 untreated Latias Skyliner had cost **0** and dealt the identical 200 damage without Float. The paired controls therefore separate a genuine rank3 mobility gain from a false-positive rank11 proposal.
 
 ## Tests, identity and native acceptance receipts
 
