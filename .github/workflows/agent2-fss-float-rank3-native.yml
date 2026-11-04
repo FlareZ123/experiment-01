@@ -2,6 +2,12 @@ name: Agent 2 FSS first Tool native two-rank and score-blindness audit
 
 on:
   workflow_dispatch:
+    inputs:
+      burrow_only:
+        description: 'Run one frozen original rank3 Burrow settlement trace instead of the full cohort'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -30,16 +36,24 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Run every exact source-print and first-Tool pure invariant
+        if: ${{ !inputs.burrow_only }}
         run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs tests/agent2-bunnelby-deckout-float-frontier.test.cjs
       - name: Native Store attached Float, actual retreat, both seats
+        if: ${{ !inputs.burrow_only }}
         shell: bash
         run: node --test tests/agent2-fss-float-actual-store.native.test.cjs tests/agent2-fss-rank11-funded-attacker.native.test.cjs tests/agent2-tool-score-card-identity-blind.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
       - name: Passively audit exact rank3 vs rank1 original sixty source roots, both seats
+        if: ${{ !inputs.burrow_only }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-census.cjs | tee agent2-rank3-original-natural-fss-census.json
       - name: Prospective disjoint original rank3 full-60 source exposure, 32 seeds-seats
+        if: ${{ !inputs.burrow_only }}
         shell: bash
         run: node simulation/evaluation/agent2-rank3-original-fss-float-fresh.cjs | tee agent2-rank3-original-fresh-32.json
+      - name: Trace one frozen native original-source Burrow continuation
+        if: ${{ inputs.burrow_only }}
+        shell: bash
+        run: node simulation/evaluation/agent2-rank3-natural-burrow-settlement.cjs | tee agent2-rank3-natural-burrow-settlement.json
       - name: Preserve failed or completed source native transcript
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,5 +63,6 @@ jobs:
             agent2-fss-native-rank3-stdout.txt
             agent2-rank3-original-natural-fss-census.json
             agent2-rank3-original-fresh-32.json
+            agent2-rank3-natural-burrow-settlement.json
           if-no-files-found: warn
           retention-days: 14
