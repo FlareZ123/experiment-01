@@ -159,7 +159,7 @@ function runOne(c,cards){
             publicContextSpecialEnergy:true,specialEnergyRoot:true
           })
         },{ownerSingleSearch:true,genericFallbackAttribution:true})
-    ));
+    );
     const observation=guarded.result.result;
     const game=observation.result;
     return {
