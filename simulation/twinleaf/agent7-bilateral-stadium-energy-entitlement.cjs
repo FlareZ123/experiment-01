@@ -1,92 +1,62 @@
 'use strict';
 
 const assert=require('node:assert/strict');
-const {printedEnergyPayability}=
-  require('./actor-energy-payability.cjs');
-const {costUnderStadium,toEnergySymbols,publicEnergyContext}=
-  require('./agent7-funded-stadium-attack-planner.cjs');
 const {stadiumEntitlementDelta}=
   require('./agent7-stadium-entitlement-delta.cjs');
+const {opponentStadiumAttackEntitlement}=
+  require('./agent5-opponent-stadium-attack-entitlement.cjs');
 
-const VERSION='agent7-bilateral-public-stadium-attack-entitlement-v1';
+const VERSION='agent7-bilateral-public-stadium-attack-entitlement-v2';
 
 /**
- * Compare an Active Pokémon's printed attack Energy costs on a public board
- * under two known Stadium conditions. This can run for either physical seat,
- * without inspecting either player's concealed zones. Include zero-damage
- * attack effects; cost entitlement alone makes no attack legality claim.
+ * Adapter between Agent5's independently reviewed public opposing Active
+ * printed-cost comparator and the combined owner/opponent decision receipt.
+ * The two sides retain separate authorization and epistemic statuses.
  *
- * @param {object} active Public Active Pokémon snapshot.
- * @param {{ownPublic:object,opponentPublic:object}} perspective
- * @param {string|null} oldName
- * @param {string} nextName
- * @param {{cardTypes:object,stageBasic:number}} refs
+ * @param {object} result Agent5 opponent-side public-only cost comparison.
  * @returns {object}
  */
-function publicActiveAttackEntitlements(active,perspective,oldName,nextName,refs){
-  if(!active?.printed||!Array.isArray(active.printed.types)||
-     !Number.isSafeInteger(active.printed.stage)||
-     !Array.isArray(active.energies)||!Array.isArray(active.attacks)||
-     !Number.isSafeInteger(perspective.ownPublic?.prizeCount)||
-     !Number.isSafeInteger(perspective.opponentPublic?.prizeCount)){
-    return {status:'opponent-active-printing-unknown',
-      activePokemon:active?.printing??null,
-      attackDeltas:[],newlyPayable:[],newlyUnpayable:[],
-      unknownAttacks:[]};
-  }
-  const ctx=publicEnergyContext(perspective,active,
-    refs.cardTypes,refs.stageBasic);
-  const deltas=[];
-  for(const attack of active.attacks){
-    if(!Array.isArray(attack.cost)){
-      deltas.push({attackName:attack.name??null,
-        classification:'unresolved',
-        reason:'unknown-printed-attack-cost'});
-      continue;
-    }
-    const beforeCost=costUnderStadium(attack.cost,
-      active.printed.types,oldName,refs.cardTypes);
-    const afterCost=costUnderStadium(attack.cost,
-      active.printed.types,nextName,refs.cardTypes);
-    const beforeSymbols=beforeCost===null?null:
-      toEnergySymbols(beforeCost,refs.cardTypes);
-    const afterSymbols=afterCost===null?null:
-      toEnergySymbols(afterCost,refs.cardTypes);
-    const oldPayable=beforeSymbols===null?null:
-      printedEnergyPayability(beforeSymbols,active.energies,ctx).payable;
-    const newPayable=afterSymbols===null?null:
-      printedEnergyPayability(afterSymbols,active.energies,ctx).payable;
-    deltas.push({
-      attackName:attack.name??null,
-      printedDamage:attack.damage??null,
-      gxAttack:attack.gxAttack===true,
-      beforeCost:beforeSymbols,afterCost:afterSymbols,
-      beforePayable:oldPayable,afterPayable:newPayable,
-      classification:oldPayable===null||newPayable===null?
-        'unresolved':oldPayable&&!newPayable?
-        'loses-entitlement':!oldPayable&&newPayable?
-        'gains-entitlement':'unchanged'
-    });
-  }
+function projectOpponentResult(result){
+  const mapped=(row)=>({
+    attackName:row.name??null,
+    printedDamage:row.printedDamage??null,
+    beforeCost:row.beforeSymbols??null,
+    afterCost:row.afterSymbols??null,
+    beforePayable:row.beforePayable??null,
+    afterPayable:row.afterPayable??null,
+    classification:row.classification==='newly-payable'?
+      'gains-entitlement':row.classification==='newly-unpayable'?
+        'loses-entitlement':row.classification==='unknown'?
+          'unresolved':'unchanged'
+  });
+  const attackDeltas=(result.rows??[]).map(mapped);
   return {
-    status:'public-printed-cost-only',
-    activePokemon:active.printing??null,
-    attackDeltas:deltas,
-    newlyPayable:deltas.filter(x=>x.classification==='gains-entitlement'),
-    newlyUnpayable:deltas.filter(x=>x.classification==='loses-entitlement'),
-    unknownAttacks:deltas.filter(x=>x.classification==='unresolved')
+    status:result.status==='public-printed-attack-costs-compared'?
+      'public-printed-cost-only':result.status,
+    activePokemon:result.opponentActive??null,
+    attackDeltas,
+    newlyPayable:attackDeltas.filter(row=>
+      row.classification==='gains-entitlement'),
+    newlyUnpayable:attackDeltas.filter(row=>
+      row.classification==='loses-entitlement'),
+    unknownAttacks:attackDeltas.filter(row=>
+      row.classification==='unresolved'),
+    sourceComparator:result.version
   };
 }
 
 /**
- * Retain existing own-side conservative damaging-Attack scoring and append
- * the public opposing Active's simultaneous printed Energy entitlement.
+ * Compare the owner Active's qualifying paid damaging attacks against the
+ * opposing Active's *all* printed attack Energy costs after playing a
+ * physically held different-name Stadium. The opponent calculation is
+ * delegated to Agent5's shared public-only implementation, including its
+ * reversed own/opponent Prize perspective for Counter/Reversal Energy.
  *
- * @param {object} view Genuine detached actor root observation.
- * @param {string} heldStadiumPrinting Physically held candidate printing.
+ * @param {object} view Genuine detached actor-root observation.
+ * @param {string} heldStadiumPrinting One owner-hand Stadium printing.
  * @param {{trainerCatalog:Map<string,object>,cardTypes:object,
  *  stageBasic:number}} refs
- * @returns {object} Observations only, no automatic action selection.
+ * @returns {object} Cost-entitlement signals only; no action is played.
  */
 function bilateralStadiumEntitlement(view,heldStadiumPrinting,refs){
   assert.equal(view?.decisionKind,'owner-root');
@@ -99,13 +69,23 @@ function bilateralStadiumEntitlement(view,heldStadiumPrinting,refs){
       caveat:'Candidate Stadium unavailable or owner active cannot be modeled.'
     };
   }
-  const perspective={
-    ownPublic:view.opponentPublic,
-    opponentPublic:view.ownPublic
-  };
-  const opponent=publicActiveAttackEntitlements(
-    view.opponentPublic.active,perspective,owner.oldName,
-    owner.newName,refs);
+  const opposingActive=view.opponentPublic?.active;
+  const hasOpponentPublicContext=opposingActive?.printed&&
+    Array.isArray(opposingActive.printed.types)&&
+    Number.isSafeInteger(opposingActive.printed.stage)&&
+    Array.isArray(opposingActive.energies)&&
+    Array.isArray(opposingActive.attacks)&&
+    Number.isSafeInteger(view.ownPublic?.prizeCount)&&
+    Number.isSafeInteger(view.opponentPublic?.prizeCount);
+  const opponent=hasOpponentPublicContext?
+    projectOpponentResult(opponentStadiumAttackEntitlement(
+      view,owner.oldName,owner.newName,refs)):
+    {
+      status:'opponent-active-printing-unknown',
+      activePokemon:opposingActive?.printing??null,
+      attackDeltas:[],newlyPayable:[],newlyUnpayable:[],
+      unknownAttacks:[]
+    };
   return {
     version:VERSION,
     status:'public-bilateral-printed-cost-comparison',
@@ -122,6 +102,4 @@ function bilateralStadiumEntitlement(view,heldStadiumPrinting,refs){
     caveat:'Printed cost/attached Energy only. No Ability lock, copied attack, target, damage, prevention, KO, GX quota, turn timing or actual opponent policy inference.'
   };
 }
-
-module.exports={VERSION,publicActiveAttackEntitlements,
-  bilateralStadiumEntitlement};
+module.exports={VERSION,projectOpponentResult,bilateralStadiumEntitlement};
