@@ -24,7 +24,8 @@ const PIN='twinleafgg/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
  */
 function run(){
   const choice=process.env.AGENT5_TRAINER_CENSUS_RANK_PAIR??'5_11';
-  const rankPair=choice==='5_11_recovery'?'5_11':choice;
+  const rankPair=choice.endsWith('_recovery')?
+    choice.slice(0,-'_recovery'.length):choice;
   assert.ok(['5_11','6_9'].includes(rankPair),
     'Only preregistered original-rank pairs may run');
   const [primaryRank,otherRank]=rankPair.split('_').map(Number);
