@@ -446,6 +446,9 @@ function executeDevelopment(trial,candidates,{
     // Existing opaque two-seat setup fingerprint authenticates the complete
     // physical deal. It is postdecision evidence and never reaches policy.
     captureInitialFullPhysicalDeal:true,
+    // Owner-only postgame evidence, captured at the native loop boundary
+    // before the first bot decision of each live player's own first turn.
+    captureFirstLiveOwnerHands:true,
     // First-setup accepted coin, chooser and real first-draw receipt. Postgame only.
     captureSetupCoinChoiceReceipt:nativeSetupCoinChoiceReceipt,
     ...(losslessNativeRootJoin?{captureNativePolicyActionJoin:true}:{}),
@@ -731,14 +734,21 @@ function executeDevelopment(trial,candidates,{
     declared.filter(row=>row.playerSlot===candidateSeat).length);
   assert.equal(sourceSettlement.declarations,
     declared.filter(row=>row.playerSlot===sourceSeat).length);
-  const firstSource=game.decisionTrace.find(row=>
+  const legacyFirstSource=game.decisionTrace.find(row=>
     row.playerSlot===sourceSeat &&
     Array.isArray(row.decisionHandBefore?.ownHandPrintings));
-  const ownerFirst=firstSource?.decisionHandBefore?.ownHandPrintings??null;
+  const legacyFirstSourceHand=legacyFirstSource?.decisionHandBefore?.ownHandPrintings??null;
+  const sourceFirst=game.firstTurnSlot===sourceSeat;
+  assert.equal(game.firstLiveOwnerHands?.schema,'first-live-owner-hand-prebot-v1');
+  const firstLiveOwnerHand=game.firstLiveOwnerHands.bySeat[sourceSeat];
+  if(firstLiveOwnerHand){
+    assert.equal(firstLiveOwnerHand.seat,sourceSeat);
+    assert.equal(firstLiveOwnerHand.turn,sourceFirst?1:2);
+  }
+  const ownerFirst=firstLiveOwnerHand?.ownHandPrintings??null;
   const packet=game.publicAttackTransitions||[];
   const acceptedAttackEvents=packet.filter(row=>
     row.declarations?.length && row.settled?.after);
-  const sourceFirst=game.firstTurnSlot===sourceSeat;
   const rootTrace=game.rootActionLedger||[];
   const cologneNativePlayAudit=auditAcceptedCologneRoots(
     rootTrace,game.suddenDeathClockResets??[]);
@@ -920,6 +930,13 @@ function executeDevelopment(trial,candidates,{
     ...(nativePublicMulliganRevealsAudit?{
       initialPublicMulliganReveals:game.initialPublicMulliganReveals??null}:{}),
     sourceFirstOwnHandSha256:ownerFirst?sha256(ownerFirst):null,
+    sourceFirstOwnHandProtocol:game.firstLiveOwnerHands.schema,
+    sourceFirstOwnHandFirstActionOrdinal:firstLiveOwnerHand?.actionOrdinal??null,
+    sourceLegacyFirstObservedHandSha256:legacyFirstSourceHand?
+      sha256(legacyFirstSourceHand):null,
+    sourceLegacyFirstObservedHandTurn:legacyFirstSource?.turnBefore??null,
+    sourceLegacyFirstObservedHandActionOrdinal:
+      legacyFirstSource?.actionOrdinal??null,
     ...(nativeFirstTurnPublicBoard?{
       sourceInitialPublicActiveBench:game.initialBoardAtFirstTurn??null,
       sourceFirstOwnerRelevantHandCounts:ownerFirst?Object.fromEntries(
