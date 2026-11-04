@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const path=require('node:path');
 const test=require('node:test');
 const {sourceRecoveryCensus,metadataCollisionCensus,
-  publicSourceNameSetCoverage,verifyRecoveryPrints,run}=require(
+  publicSourceNameSetCoverage,originalSourceNameSetAmbiguityCensus,
+  verifyRecoveryPrints,run}=require(
   '../scripts/agent15-discard-target-source-census.cjs');
 const {loadBundledPublicPrintMetadata}=require(
   '../simulation/twinleaf/planning/owner-public-discard-target-necessary.cjs');
@@ -69,4 +70,45 @@ test('source-wide name+set coverage reports unresolved original source printings
     .nameSetUnrepresentedCopies,0);
   assert.equal(result.sourceJapanesePaperLegalityOfficiallyVerified,false);
   assert.equal(result.sourceInternationalPaperLegalityVerified,false);
+});
+
+
+test('source-aligned name-set collision counts preserve actual physical copy weights',()=>{
+  const index=new Map([
+    ['Bouffalant BLW',{variants:[
+      {supertype:'Pokémon',subtypes:['Basic'],hp:'90'},
+      {supertype:'Pokémon',subtypes:['Basic'],hp:'100'}]}],
+    ['Mystery Trainer EX',{variants:[
+      {supertype:'Trainer',subtypes:['Item']},
+      {supertype:'Trainer',subtypes:['Supporter']}]}]
+  ]);
+  const cards=[
+    {name:'Bouffalant',category:'Pokémon',count:2,
+      printing:{set:'BLW',number:'90'}},
+    {name:'Mystery Trainer',category:'Trainer',count:1,
+      printing:{set:'EX',number:'4'}},
+    {name:'Other',category:'Trainer',count:57,
+      printing:{set:'A',number:'1'}}
+  ];
+  const field={decks:[{rank:5,cards}]};
+  const x=originalSourceNameSetAmbiguityCensus(field,index);
+  assert.equal(x.originalSourcePhysicalCards,60);
+  assert.equal(x.ambiguousEnglishNameSetSourceCopies,3);
+  assert.equal(x.distinctAmbiguousOriginalNameSetKeys,2);
+  assert.equal(x.subtypeConflictingSourceCopies,1);
+  assert.equal(x.hp90ConflictingSourceCopies,2);
+  assert.deepEqual(x.rows.find(r=>r.printing==='Bouffalant BLW')
+    .sourceCollectorKeys,['90']);
+  assert.equal(x.originalJapaneseExactPrintFidelityCertified,false);
+});
+
+test('source-aligned original field ambiguity reports bounded physical copies',()=>{
+  const result=run(path.join(__dirname,'..'));
+  const x=result.originalSourceNameSetAmbiguities;
+  assert.equal(x.originalSourcePhysicalCards,1740);
+  assert.ok(x.ambiguousEnglishNameSetSourceCopies>=0);
+  assert.ok(x.ambiguousEnglishNameSetSourceCopies<=1740);
+  assert.ok(x.hp90ConflictingSourceCopies<=x.ambiguousEnglishNameSetSourceCopies);
+  assert.ok(x.subtypeConflictingSourceCopies<=x.ambiguousEnglishNameSetSourceCopies);
+  assert.equal(x.rows.every(r=>r.publicVariantCount>=2),true);
 });
