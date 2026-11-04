@@ -167,8 +167,16 @@ function runSelectedIssue25V0(injected={}){
     firstBlockedPromptEnvelope:withBlockedPromptEnvelope,
     ...injected.layers
   };
-  const expected=developmentTrials().map(row=>row.id);
-  assert.equal(expected.length,4);
+  // An explicitly pre-registered successor may expand the matrix; the
+  // historical v0/v1/v2/v3 default remains the same exact four IDs.
+  const expected=injected.registeredTrialIds??
+    developmentTrials().map(row=>row.id);
+  assert.ok(Array.isArray(expected)&&expected.length>=4,
+    'Native trial registration must contain at least four explicit arms');
+  assert.ok(expected.every(id=>typeof id==='string'&&id.length>0),
+    'Registered native trial IDs must be nonempty strings');
+  assert.equal(new Set(expected).size,expected.length,
+    'Native trial IDs must be unique before running');
   const audit={};
   let development=null,thrown=null;
   let next=()=>{
