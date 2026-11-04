@@ -13,7 +13,10 @@ function createFirstLiveOwnerHandsObserver({playerTurnPhase}){
   return {
     /** @param {object} state @param {number} actionOrdinal @param {object|null} pendingPrompt */
     observe(state,actionOrdinal,pendingPrompt){
-      if(pendingPrompt||state.phase!==playerTurnPhase||(state.turn!==1&&state.turn!==2))return;
+      // Initial-game custody only. A native sudden-death setup can reset the
+      // turn counter to 1 before the other seat had an ordinary turn.
+      if(state.isSuddenDeath===true||pendingPrompt||state.phase!==playerTurnPhase||
+          (state.turn!==1&&state.turn!==2))return;
       const seat=state.activePlayer;
       if((seat!==0&&seat!==1)||first[seat])return;
       const hand=decisionHandEvidence(state,seat);
