@@ -150,9 +150,14 @@ function run(){
           row.actionOrdinal===first)?.sourceActive??null,
         sourceActiveEnergy:attackDispatches.find(row=>
           row.actionOrdinal===first)?.sourceActiveEnergy??[],
-        opponentDeckMovement:movements.reduce((sum,row)=>
+        // The settlement includes the next turn's compulsory draw.
+        // Keep that draw separate from the attacking Store reducer.
+        immediateBurrowDeckMovement:
+          movements.find(row=>row.actionOrdinal===first)
+            ?.deckDelta[1-SOURCE_SEAT]??null,
+        opponentDeckMovementAcrossTurnHandoff:movements.reduce((sum,row)=>
           sum+row.deckDelta[1-SOURCE_SEAT],0),
-        sourceDeckMovement:movements.reduce((sum,row)=>
+        sourceDeckMovementAcrossTurnHandoff:movements.reduce((sum,row)=>
           sum+row.deckDelta[SOURCE_SEAT],0),
         actualDeckChangingDispatches:movements.filter(row=>
           row.deckDelta.some(n=>n!==0))
@@ -164,7 +169,8 @@ function run(){
         row.actionOrdinal===paperBurrowDeclarations[index].actionOrdinal);
     const burrowOneCardEach=physicalBurrowMovements.length===
       paperBurrowDeclarations.length&&
-      physicalBurrowMovements.every(row=>row.opponentDeckMovement===-1&&
+      physicalBurrowMovements.every(row=>
+        row.immediateBurrowDeckMovement===-1&&
         row.sourceActive==='Bunnelby PRC'&&
         row.sourceActiveEnergy.includes('Water Energy MEE'));
     const controls={
