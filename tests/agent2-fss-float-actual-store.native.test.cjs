@@ -308,3 +308,66 @@ for(const seat of [0,1]){
     }));
   });
 }
+
+// Bunnelby's printed Omega Barrage Ancient Trait can execute a second Burrow.
+// This separate consent-positive continuation exercises the genuine source
+// owner ChooseAttackPrompt, without peeking into the opponent's deck.
+for(const seat of [0,1]){
+  test('rank3 recovered Float permits two native Omega Barrage Burrows seat '+seat,()=>{
+    const s=stageFundedRank3Bunnelby(seat);
+    const tool=chooseSelected(s).result.result;
+    assert.ok(tool instanceof PlayCardAction);
+    assert.equal(tool.handIndex,1);
+    s.store.dispatch(tool);
+    const retreatCost=new CheckRetreatCostEffect(s.owner);
+    s.store.reduceEffect(s.state,retreatCost);
+    assert.equal(retreatCost.cost.length,0);
+    s.store.dispatch(new RetreatAction(s.owner.id,0));
+    assert.equal(s.owner.active.getPokemonCard(),s.benched);
+    const deckBefore=s.foe.deck.cards.length;
+    s.store.dispatch(new AttackAction(s.owner.id,'Burrow'));
+    assert.equal(s.foe.discard.cards.length,1);
+    assert.equal(s.foe.deck.cards.length,deckBefore-1);
+    const promptsSeen=[];
+    const {GameMessage}=native('game/game-message');
+    for(let n=0;n<12;n++){
+      const p=s.state.prompts.find(x=>x.result===undefined);
+      if(!p)break;
+      const kind=p.constructor.name;
+      promptsSeen.push(kind);
+      if(kind==='WaitPrompt'){
+        s.store.dispatch(new ResolvePromptAction(p.id,null));
+      }else if(kind==='ConfirmPrompt'){
+        assert.equal(p.playerId,s.owner.id);
+        assert.equal(p.message,GameMessage.WANT_TO_USE_ABILITY);
+        assert.equal(promptsSeen.filter(x=>x==='ConfirmPrompt').length,1);
+        s.store.dispatch(new ResolvePromptAction(p.id,true));
+      }else if(kind==='ChooseAttackPrompt'){
+        assert.equal(p.playerId,s.owner.id);
+        assert.equal(p.message,GameMessage.CHOOSE_ATTACK_TO_COPY);
+        assert.equal(p.cards[0].fullName,'Bunnelby PRC');
+        s.store.dispatch(new ResolvePromptAction(p.id,
+          {index:0,attack:'Burrow'}));
+      }else{
+        assert.fail('Unknown source-owner Omega Barrage prompt '+kind);
+      }
+    }
+    assert.equal(s.store.hasPrompts(),false);
+    assert.equal(promptsSeen.filter(x=>x==='ChooseAttackPrompt').length,1);
+    assert.equal(s.foe.discard.cards.length,2,
+      'Two completed Burrow attacks must move exactly two real cards');
+    assert.equal(s.foe.hand.cards.length,1,
+      'Normal next-turn draw is separate from both Burrow discard effects');
+    assert.equal(s.foe.deck.cards.length,deckBefore-3);
+    console.log('AGENT2_RANK3_DOUBLE_BURROW_NATIVE',JSON.stringify({
+      rank:3,seat,physicalInput:s.fullPhysicalFingerprint,
+      firstHeldTool:'Forest Seal Stone SIT',
+      secondHeldTool:'Float Stone BKT',
+      selectedAttack:'Burrow',omegaBarrageUsed:true,
+      acceptedNativeBurrowAttacks:2,opponentDiscardIncrease:2,
+      opponentOrdinaryNextTurnDraw:1,
+      remainingAttachedCaptureEnergyOnSnorlax:2,
+      promptsSeen,competitiveGamesQualified:0
+    }));
+  });
+}
