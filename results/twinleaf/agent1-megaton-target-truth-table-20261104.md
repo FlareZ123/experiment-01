@@ -1,0 +1,9 @@
+# Agent 1: Megaton public target truth table and Item-order canary
+
+**4 November 2026.** Independent addendum to [main Megaton native Store report](agent1-megaton-store-paper-target-veto-20261104.md). Test code: [pinned native Store regression](../../tests/agent1-megaton-store-dispatch.pinned.test.cjs). Upstream pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+[**CI 41768378325**](https://github.com/FlareZ123/experiment-01/actions/runs/41768378325) completed successfully. Sixteen genuine Store staged dispatches span both physical seats and all eight combinations of Stadium, opposing Tool and opposing attached Special Energy. The paper no-effect guard rejected only the two cases with no objects to affect. In each of the other fourteen cases the Item resolved, appropriate public targets disappeared, the acting player's own Tool remained, and no unresolved prompts remained.
+
+[**CI 41768026064**](https://github.com/FlareZ123/experiment-01/actions/runs/41768026064) completed successfully. On a staged board with opposing Tool-equipped Garbodor suppressing own Vileplume, **Megaton then Switch** restored the Item lock and caused Switch to be refused, whereas **Switch then Megaton** allowed both Items, with the Switch prompt genuinely promoting Regidrago V before Megaton restored the lock. All four sequences completed on both seats without outstanding prompts. This shows action-order contention, with no claim that either route is an optimal tournament decision.
+
+Both tests are staged engineering evidence. They use no original dealt 60-card pair, opponent bot, historical matchup, selected complete bilateral policy, or qualified win. The root guard remains opt-in. The seven-name counter-family source count is 20 of 29 authenticated opponents with 30 physical cards; three original complete lists remain missing, and the 99.5% benchmark is unproven.
