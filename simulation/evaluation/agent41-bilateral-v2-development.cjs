@@ -1130,6 +1130,7 @@ function runDevelopment({
   actorUnderworldDoorRoot=false,
   actorUnderworldActiveFundingPriority=false,
   actorFundedShadowRiderFloatStoneRoot=false,
+  actorGenericFundedFloatStoneRoot=false,
   actorUnderworldDoorPromptOwner=false,
   actorUnderworldAttackGapRecipient=false,
   sourceCrobatDceMewRetreat=false,
@@ -1220,6 +1221,8 @@ function runDevelopment({
     'Active Psychic priority requires symmetric Underworld root');
   assert.ok(!actorFundedShadowRiderFloatStoneRoot||actorOnlyComposition,
     'Funded Shadow Rider Float Stone must be symmetric actor-only roots');
+  assert.ok(!actorGenericFundedFloatStoneRoot||actorOnlyComposition,
+    'Generic funded Float Stone must use the same actor-only policy in both seats');
   assert.ok(!actorUnderworldDoorPromptOwner||actorOnlyComposition,
     'Owner Underworld prompt selection requires actor-only composition');
   assert.ok(!actorUnderworldAttackGapRecipient||
@@ -1421,6 +1424,7 @@ function runDevelopment({
           !bilateralConservativeShuffleRoot&&!actorNaturalEvolutionRoot&&
           !actorDceMewMobilityRoot&&!actorGenesectFusionDrawRoot&&
           !actorUnderworldDoorRoot&&!actorFundedShadowRiderFloatStoneRoot&&
+          !actorGenericFundedFloatStoneRoot&&
           !sourceCrobatDceMewRetreat&&
           !actorFarewellLetterRoot&&!actorRank9SpecialFundedGuzma&&
           !actorRank9MegaAbsolFundingRoot&&
@@ -1472,6 +1476,9 @@ function runDevelopment({
               }:{}),
               ...(actorFundedShadowRiderFloatStoneRoot?{
                 fundedVmaxFloatStoneRoot:true
+              }:{}),
+              ...(actorGenericFundedFloatStoneRoot?{
+                genericFundedFloatStoneRoot:true
               }:{}),
               ...(actorFarewellLetterRoot?{
                 farewellLetterRoot:true
@@ -1837,6 +1844,8 @@ function runDevelopment({
     sourceFloatStoneMobilityOptIn:actorOnlyComposition&&sourceFloatStoneMobility,
     actorFundedShadowRiderFloatStoneRootOptIn:
       actorOnlyComposition&&actorFundedShadowRiderFloatStoneRoot,
+    actorGenericFundedFloatStoneRootOptIn:
+      actorOnlyComposition&&actorGenericFundedFloatStoneRoot,
     rank11ExclusiveOpeningOptIn:rank11ExclusiveOpening,
     actorNativeFallbackAttributionOptIn:
       actorOnlyComposition&&actorGenericFallbackAttribution,
