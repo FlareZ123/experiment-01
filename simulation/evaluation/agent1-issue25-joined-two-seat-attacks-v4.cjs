@@ -57,7 +57,11 @@ function withJoinedOwnerAttackFrontier(next, deps = {}) {
 
   let nightWatchAudit = null;
   const selected = printedLayer(() => {
-    const used = nightWatchLayer(next, {committedSeed: campaignSeed});
+    const used = nightWatchLayer(next, {
+      committedSeed: campaignSeed,
+      followSequentialNativeStores: true,
+      perNativeStoreEntropy: true
+    });
     nightWatchAudit = used.audit;
     return used.result;
   });
@@ -67,8 +71,8 @@ function withJoinedOwnerAttackFrontier(next, deps = {}) {
       ...selected.audit,
       sourceStampedNightWatch: nightWatchAudit,
       preRunUnpredictableSeedCommitmentSha256: seedCommitmentSha256,
-      randomSeedSource: 'node:crypto.randomBytes(32) once before registered batch',
-      randomSeedScope: 'one four-arm development invocation; per-game independence unverified',
+      randomSeedSource: 'node:crypto.randomBytes(32) before registered batch; unique HMAC subkeys per native Store',
+      randomSeedScope: 'one private four-arm seed with distinct native-Store HMAC subkeys',
       seedNotPublishedUntilAfterRun: true,
       fullPaperRandomnessCertified: false,
       completeOwnerInformationNoninterferenceCertified: false,
@@ -118,12 +122,13 @@ function runJoinedIssue25V4(deps = {}) {
     nightWatchPrivateSeedCommitmentSha256:
       attack?.preRunUnpredictableSeedCommitmentSha256 ?? null,
     nightWatchSeedScope:
-      'single private campaign seed; physical prompt nonce; per-match independence unverified',
+      'one private campaign seed; unique HMAC subkey per native Store; paper randomness not certified',
     selectedSourcePromptPolicySymmetricByPhysicalSeat: true,
     knownStructuralVetoes: {
       ...selected.manifest.knownStructuralVetoes,
       completeOwnerInformationNoninterferenceCertified: false,
       completePaperRandomnessCertified: false,
+      fullSourceStampedNativeStoreCoverageCertified: false,
       allNativeAttackPromptsHandled: false,
       originalSourceRankScriptsDisabled:
         selected.manifest.originalSourceRankScriptsDisabledByOptIn === true
