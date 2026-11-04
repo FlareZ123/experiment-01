@@ -19,12 +19,20 @@ test('three English-unreleased source promos have independently indexed exact or
     ["Player's Ceremony SP",'127'],
     ['Palace Belt BWP','153']
   ]);
+  assert.equal(SOURCE_JP_ONLY[0].physicalPrintedNumber,null);
+  assert.equal(SOURCE_JP_ONLY[0].sourceCatalogueKeyNotPhysicalNumber,true);
+  assert.equal(SOURCE_JP_ONLY[0].originalJapaneseOfficialCardUrl,
+    'https://www.pokemon-card.com/card-search/details.php/card/34382/regu/all');
+  assert.deepEqual(SOURCE_JP_ONLY.slice(1).map(x=>x.physicalPrintedNumber),
+    ['127','153']);
   for(const c of SOURCE_JP_ONLY){
     assert.ok(c.source.startsWith('https://limitlesstcg.com/cards/jp/'));
     assert.equal(c.officiallyEnglishReleased,false);
     assert.equal(c.expandedJapan,'listed-legal');
     assert.equal(c.expandedInternational,'listed-not-legal');
-    assert.equal(c.nativeImplemented,null);
+    assert.ok(typeof c.nativeEffectEvidence==='string');
+    assert.ok(typeof c.nativeEffectEvidencePath==='string');
+    assert.equal(c.nativeFullGameQualified,false);
   }
 });
 
@@ -63,6 +71,9 @@ test('authenticated original source contains exactly 14 Japanese-only copies in 
   ].sort());
   assert.equal(rows.every(r=>r.jpExpanded==='listed-legal'),true);
   assert.equal(rows.every(r=>r.intlExpanded==='listed-not-legal'),true);
+  assert.equal(rows.every(r=>r.nativeFullGameQualified===false),true);
+  assert.equal(rows.find(r=>r.printing==='Palace Book SMP')
+    .sourceCatalogueKeyNotPhysicalNumber,true);
 });
 
 test('missing exact source collector number fails closed',()=>{
