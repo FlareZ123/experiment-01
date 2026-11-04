@@ -1,0 +1,31 @@
+name: Agent40 owner-selected GH Capture double Evolution Store
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-original-owner-line:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout original pinned Twinleaf
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Verify no-hidden-state owner decision tests
+        run: node --test tests/agent40-gh-capture-owner-policy.test.cjs
+      - name: Install original pinned native dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile original pinned Store and card effects
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Verify original rank2 conserved 60 owner-chosen G&H to double TM in both seats
+        run: node --test tests/agent40-gh-capture-owner-native.test.cjs
