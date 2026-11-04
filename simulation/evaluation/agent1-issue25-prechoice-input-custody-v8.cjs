@@ -5,6 +5,8 @@ const {hashRegisteredFile}=
   require('./agent36-issue25-selected-v0.cjs');
 const {runMirroredIssue25V6}=
   require('./agent1-issue25-mirrored-r6-r11-v6.cjs');
+const {loadMirroredRegistration}=
+  require('./agent1-issue25-mirrored-r6-r11-v6.cjs');
 const {runProtectedOpeningMirroredV7}=
   require('./agent1-issue25-protected-opening-v7.cjs');
 const {withThreePrintedOwnerAttackFrontiers}=
@@ -43,7 +45,9 @@ function withPrechoiceWitnessAndPrintedAttacks(next,deps={}){
   assert.equal(typeof observe,'function');
   let prechoice=null;
   const selected=attack(()=>{
-    const actual=observe(next);
+    const actual=observe(next,{
+      expectedTrialIds:loadMirroredRegistration().trials.map(t=>t.id)
+    });
     prechoice=actual.audit;
     return actual.result;
   });
@@ -95,6 +99,7 @@ function runPrechoiceCustodyV8(mode,deps={}){
     prechoiceAuditReadOnly:true,
     prechoiceCaptureDoesNotCertifySetupEffectParity:true,
     prechoiceCaptureDoesNotCertifyGameResults:true,
+    nativeRunLabelBoundToStoreObserved:true,
     resolvedSourceAndPolicyHashes:[
       ...selected.manifest.resolvedSourceAndPolicyHashes,
       ...EXTRA_HASH_PATHS.map(hashRegisteredFile)
@@ -140,19 +145,34 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     const witness=execution.diagnostic.actualNativePrechoicePhysicalInputs;
     assert.ok(witness,'No actual source-owner setup input provenance');
     assert.ok(Array.isArray(witness.events));
-    const map=new Map();
+    const map=new Map(),unknown=[],trialOrdinals=new Map();
     for(const event of witness.events){
-      const key=event.nativeStoreOrdinal+':'+event.physicalOwnerSeat;
-      assert.ok(!map.has(key),'duplicate physical owner prechoice input');
       assert.ok(event.physicalOwnerSeat===0||event.physicalOwnerSeat===1);
       assert.ok(Number.isSafeInteger(event.nativeStoreOrdinal)&&
         event.nativeStoreOrdinal>=1&&event.nativeStoreOrdinal<=8);
       assert.match(event.opaquePhysicalPrechoiceInputHmacSha256,/^[0-9a-f]{64}$/);
+      const id=event.registeredNativeTrialId;
+      if(typeof id!=='string'||!ids.includes(id)){
+        unknown.push({ordinal:event.nativeStoreOrdinal,seat:event.physicalOwnerSeat});
+        continue;
+      }
+      const key=id+':'+event.physicalOwnerSeat;
+      assert.ok(!map.has(key),'duplicate registered native trial owner prechoice input');
       map.set(key,event);
+      const old=trialOrdinals.get(id);
+      if(old!==undefined)assert.equal(old,event.nativeStoreOrdinal,
+        'One registered trial must have one physical Store ordinal');
+      else trialOrdinals.set(id,event.nativeStoreOrdinal);
     }
-    return {witness,map};
+    return {witness,map,unknown,
+      exactTrialStoreJoin:witness.registeredNativeTrialLabelWitnessSelected===true&&
+        unknown.length===0&&map.size===16&&trialOrdinals.size===8&&
+        new Set(trialOrdinals.values()).size===8};
   };
   const a=observed(baseline),b=observed(protectedRun);
+  const samePrivateHashSession=!!a.witness.privateFingerprintSessionId&&
+    a.witness.privateFingerprintSessionId===
+      b.witness.privateFingerprintSessionId;
   const hex=value=>typeof value==='string'&&/^[0-9a-f]{64}$/.test(value);
   const physicalSeat=trial=>trial.candidateSlot==='A'?1:0;
   const inputTrialIds=new Set(ids);
@@ -174,15 +194,14 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
   const ar=rawById(baseline),br=rawById(protectedRun);
   const rows=ids.map((id,index)=>{
     const ownerSeats=[0,1].map(seat=>{
-      const key=(index+1)+':'+seat;
+      const key=id+':'+seat;
       const first=a.map.get(key),second=b.map.get(key);
       return {
         physicalOwnerSeat:seat,
         baselineCaptured:first!==undefined,
         protectedCaptured:second!==undefined,
-        // This is only ordinal-index parity. The observer does not yet know
-        // the executing trial ID or a native Store's authenticated trial join.
-        indexPairedPrechoiceInputEqual:
+        // The registered trial label follows the genuine runMatch entry.
+        trialPairedPrechoiceInputEqual:
           first&&second?
           first.opaquePhysicalPrechoiceInputHmacSha256===
           second.opaquePhysicalPrechoiceInputHmacSha256:null,
@@ -241,9 +260,13 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
     b.witness.exactNativeStoreRootsRecorded===8&&
     seats.every(s=>s.baselineCaptured&&s.protectedCaptured);
   const beforeTreatmentMatches=seats.filter(s=>
-    s.indexPairedPrechoiceInputEqual===true).length;
+    s.trialPairedPrechoiceInputEqual===true).length;
   const beforeTreatmentMismatches=seats.filter(s=>
-    s.indexPairedPrechoiceInputEqual===false).length;
+    s.trialPairedPrechoiceInputEqual===false).length;
+  const nativeStoreTrialLinkVerified=a.exactTrialStoreJoin&&b.exactTrialStoreJoin&&
+    allBeforeTreatmentInputsObserved;
+  const prechoiceInputParityObserved=nativeStoreTrialLinkVerified&&
+    samePrivateHashSession?(beforeTreatmentMismatches===0):'UNRESOLVED';
   const postTreatmentSourceDigestMismatches=rows.filter(row=>
     row.postTreatmentSourcePhysicalDigestEqual===false).length;
   const registeredTrialsAndPrintingsMatched=ar.complete&&br.complete&&
@@ -279,24 +302,27 @@ function comparePrechoiceCustodyV8(baseline,protectedRun){
       hiddenCardNamesPublished:false,
       privateFingerprintScheme:'process-keyed HMAC-SHA256',
       fingerprintKeyPublished:false,
-      nativeStoreToTrialIdentityJoin:'UNRESOLVED-ordinal-only'
+      nativeStoreToTrialIdentityJoin:nativeStoreTrialLinkVerified?
+        'VERIFIED-runMatch-label-to-AddPlayerAction-to-owner-prompt':
+        'UNRESOLVED',
+      samePrivateHashSession,
+      privateFingerprintSessionIdPublished:false
     },
     pairedRows:rows,
     constraints:{
       allBeforeTreatmentInputsObserved,
-      ordinalIndexedInputMatches:beforeTreatmentMatches,
-      ordinalIndexedInputMismatches:beforeTreatmentMismatches,
+      trialPairedInputMatches:beforeTreatmentMatches,
+      trialPairedInputMismatches:beforeTreatmentMismatches,
       postTreatmentSourceDigestMismatches,
       sameRegisteredTrialIdentityAndDeckPrintings:
         registeredTrialsAndPrintingsMatched,
       sameObservedPinnedEngine:matchingEnginePin,
       declaredSingleOpeningWrapperContrast:declaredWrapperContrastOnly,
-      // Even perfect same-index HMAC equality does not prove native Store
-      // ordinal -> trial ID joins or exclude unobserved actor toggles, RNG
-      // deviations, and other changes to execution provenance.
-      nativeStoreTrialLinkVerified:false,
+      // Exact before-treatment inputs still cannot exclude policy RNG
+      // deviations or otherwise unobserved runtime actor mutations.
+      nativeStoreTrialLinkVerified,
       actualNonTreatmentExecutingClosureVerified:false,
-      prechoiceInputParityObserved:'UNRESOLVED-ordinal-trial-join',
+      prechoiceInputParityObserved,
       canAttributePostTreatmentDifferenceToOpeningSelection:'UNRESOLVED',
       noFullGameWinRateInferred:true,
       all32OpponentsAdmitted:false,
