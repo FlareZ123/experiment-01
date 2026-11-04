@@ -53,7 +53,15 @@ function auditPrintedSixty(manifest,root=DEFAULT_RESOURCES){
       const id=set.id+'-'+(set.promoPrefix||'')+
         String(printing.number);
       for(const card of cards){
-        if(card.id===id&&card.name===name&&
+        // The published source uses the white diamond suit glyph (♢)
+        // for Prism Star, while the bundled card name uses white diamond
+        // (◇). Accept that one glyph-only printing label variation only
+        // when the resolved exact-ID card explicitly has Prism Star subtype.
+        const verifiedPrismLabel=category==='Pokémon' &&
+          name.endsWith(' ♢')&&
+          card.name===name.slice(0,-1)+'◇' &&
+          card.subtypes?.includes('Prism Star');
+        if(card.id===id&&(card.name===name||verifiedPrismLabel)&&
             ((category==='Pokémon'&&card.supertype==='Pokémon')||
               (category==='Trainer'&&card.supertype==='Trainer')||
               (category==='Energy'&&card.supertype==='Energy'))){
