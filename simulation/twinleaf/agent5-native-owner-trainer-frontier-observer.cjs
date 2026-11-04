@@ -67,6 +67,11 @@ function withNativeOwnerTrainerFrontier(work,deps){
         recoveryHelper.withSourceDisplayAliases(
           recoveryHelper.loadBundledPublicPrintMetadata(
             require('node:path').resolve(__dirname,'../../resources')))):null;
+  const exactHelper=recoveryPrints?
+    require('./planning/owner-public-exact-print-identity.cjs'):null;
+  const bundledExactPublicPrints=exactHelper?
+    exactHelper.loadBundledExactPublicMetadata(
+      require('node:path').resolve(__dirname,'../../resources')):null;
   let live=null,matched=0,exceptions=0,truncated=0;
   const observedBySeat=[0,0];
 
@@ -125,6 +130,15 @@ function withNativeOwnerTrainerFrontier(work,deps){
       require('./planning/owner-public-discard-target-necessary.cjs')
         .augmentPaperNecessityWithDiscardTargets(
           view,basePaperScreen,recoveryPrints):basePaperScreen;
+    const recoveryExactPublicEvidence=exactHelper?
+      paperScreen.rows.filter(row=>row.publicDiscardTargetNecessity?.ruleKnown)
+        .map(row=>({
+          handIndex:row.handIndex,printing:row.printing,
+          targetFamily:row.publicDiscardTargetNecessity.targetFamily,
+          assessment:exactHelper.assessExactPublicDiscardTargets(
+            view,owner.discard.cards,bundledExactPublicPrints,
+            row.publicDiscardTargetNecessity.targetFamily)
+        })):null;
     // In the opt-in audit, a second observed owner turn independently
     // invalidates the historical global-turn-only first-turn VIP certificate.
     const k0GuaranteedVip=deps.ownRegisteredSixties&&
@@ -140,6 +154,9 @@ function withNativeOwnerTrainerFrontier(work,deps){
       nativeOfferedHandIndices:[...offered].sort((a,b)=>a-b),
       ...(recoveryPrints?{
         ownerPublicDiscardPrintings:[...view.ownPublic.discard],
+        ownerPublicDiscardNativeIdentifiers:
+          owner.discard.cards.map(exactHelper.publicNativeCardIdentifier),
+        ownerRecoveryExactPublicPrintEvidence:recoveryExactPublicEvidence,
         recoveryInputIsPublicOnly:true
       }:{}),
       chosen:null,dispatch:'not-attempted',
@@ -225,6 +242,8 @@ function withNativeOwnerTrainerFrontier(work,deps){
           unresolvedRecoveryTargetMetadataCopies:roots.reduce((sum,root)=>
             sum+(root.ownerPaperNecessity?.rows??[]).reduce((n,row)=>
               n+(row.publicDiscardTargetNecessity?.unknownMetadataIndices?.length??0),0),0),
+          publicNativeExactPrintKeysRecorded:true,
+          sameNameSetPrintCollisionHandledWithoutGuessing:true,
           paperPlayableRecoveryActionsCertified:false
         }:{}),
         ownerPaperUncertainTemporalDeclines:roots.reduce((sum,root)=>
