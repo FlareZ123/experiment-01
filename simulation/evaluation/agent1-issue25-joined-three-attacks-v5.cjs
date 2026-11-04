@@ -64,7 +64,8 @@ function withThreePrintedOwnerAttackFrontiers(next,deps={}){
 function runJoinedIssue25V5(deps={}){
   const attackLayer=deps.attackLayer??withThreePrintedOwnerAttackFrontiers;
   const selected=runJoinedIssue25V4({
-    runner:deps.runner,layers:deps.layers,attackLayer
+    runner:deps.runner,layers:deps.layers,attackLayer,
+    registeredTrialIds:deps.registeredTrialIds
   });
   const attack=selected.diagnostic.audit?.firstBlockedPromptEnvelope??null;
   const manifest={
