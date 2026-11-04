@@ -121,3 +121,33 @@ test('29 exact original source rosters expose 15 copies across ten ranks', () =>
   assert.deepEqual([...rankUnion].sort((a,b)=>a-b),[3,5,7,8,12,14,21,22,26,32]);
   process.stdout.write('Verified 15 printed Prize-gated Trainer copies over 10 original ranks; all fail at 6-6.\n');
 });
+
+
+test('original-era Japanese M4 Item rule is exact and negative-only',()=>{
+  // Official Japanese M4 072/083 was released before the May 2026 Aichi
+  // tournament. The verified source says the Item can only be played when
+  // the opposing player has at most three Prize cards remaining.
+  const print='Special Red Card M4';
+  const spec=PRINT_RULES[print];
+  assert.equal(spec.id,'jp/M4/72');
+  assert.equal(spec.type,'Item');
+  const selected=row(0,print,'Item');
+  for(const opposingPrizes of [6,5,4]){
+    const r=publicPrizeTrainerPrerequisite(
+      view([print],6,opposingPrizes),selected);
+    assert.equal(r.knownPrintedPrerequisite,true);
+    assert.equal(r.blocked,true);
+    assert.equal(r.paperPlayable,false);
+    assert.equal(r.observedOpponentPrizeCount,opposingPrizes);
+  }
+  for(const opposingPrizes of [3,2,1,0]){
+    const r=publicPrizeTrainerPrerequisite(
+      view([print],6,opposingPrizes),selected);
+    assert.equal(r.blocked,false);
+    assert.equal(r.paperPlayable,null,
+      'A satisfied Prize gate does not prove paid paper play');
+  }
+  assert.throws(()=>publicPrizeTrainerPrerequisite(
+    view([print],6,6),row(0,print,'Supporter')),
+  /Mismatched native Trainer type/);
+});
