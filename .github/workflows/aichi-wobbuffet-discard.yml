@@ -24,3 +24,12 @@ jobs:
         run: npm run compile
       - name: Characterize hand and discard Wobbuffet effect
         run: node simulation/twinleaf/wobbuffet-discard-diagnostic.cjs
+      - name: Stage original Temple Wobbuffet and Latias actual retreat versus Thorns both seats
+        run: node simulation/twinleaf/agent15-wobbuffet-latias-thorns-retreat-native.cjs > agent15-wobbuffet-latias-retreat.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent15-wobbuffet-latias-retreat-stage
+          path: agent15-wobbuffet-latias-retreat.json
+          if-no-files-found: warn
+          retention-days: 14
