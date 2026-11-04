@@ -246,15 +246,17 @@ jobs:
         run: npm run compile
       - name: Check Agent20 reversible owner Prize boundary
         run: node --test tests/agent20-issue25-inner-prize-recovery-v12.test.cjs
-      - name: Run same-physical original rank6/rank11 eight-arm native Prize callback probe
+      - name: Run pure owner Prize then source promotion bridge contract
+        run: node --test tests/agent20-issue25-inner-prize-promotion-v13.test.cjs
+      - name: Execute same-physical eight original rank6/rank11 owner Prize and promotion native study
         env:
-          AGENT20_ISSUE25_PRIZE_DIR: artifacts/agent20-inner-prize-v12
-        run: node --test tests/agent20-issue25-inner-prize-recovery-v12.native.test.cjs
+          AGENT20_ISSUE25_PRIZE_DIR: artifacts/agent20-inner-prize-v13
+        run: node --test tests/agent20-issue25-inner-prize-promotion-v13.native.test.cjs
       - name: Preserve all eight native outcomes, aborts, hook audits and SHA256
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: agent20-inner-prize-v12-${{ github.run_id }}
-          path: artifacts/agent20-inner-prize-v12/
+          name: agent20-inner-prize-v13-${{ github.run_id }}
+          path: artifacts/agent20-inner-prize-v13/
           if-no-files-found: warn
           retention-days: 30
