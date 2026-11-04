@@ -1,0 +1,43 @@
+name: Agent 2 FSS first Tool native rank3 mobility counterfactual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent2-fss-held-float-native-rank3
+  cancel-in-progress: false
+
+jobs:
+  staged-both-seat-store:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout exact pinned Twinleaf source
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Install native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile native engine
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run every exact source-print and first-Tool pure invariant
+        run: node --test tests/agent2-original29-fss-first-tool-collision.test.cjs tests/agent2-first-tool-structural-counterexample.test.cjs tests/agent2-fss-held-try-float-owner.test.cjs
+      - name: Native Store attached Float, actual retreat, both seats
+        run: node --test tests/agent2-fss-float-actual-store.native.test.cjs | tee agent2-fss-native-rank3-stdout.txt
+      - name: Preserve failed or completed source native transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent2-fss-first-tool-rank3-staged-store
+          path: agent2-fss-native-rank3-stdout.txt
+          if-no-files-found: warn
+          retention-days: 14
