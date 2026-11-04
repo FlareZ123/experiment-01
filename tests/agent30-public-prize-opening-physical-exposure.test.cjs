@@ -64,6 +64,10 @@ test('29 original source-locked 60s have exactly 15 printed cards across ten dis
   assert.deepEqual(x.missingOriginalRanks,[23,25,28]);
   assert.equal(x.sourceManifestSha256.length,64);
   assert.equal(x.totalPhysicalCopies,15);
+  assert.deepEqual(x.exactPrintedCardCopyTotals,{
+    'Counter Catcher PAR':10,'Roxanne ASR':2,
+    'Special Red Card CRI':3,'Special Red Card M4':0
+  });
   assert.deepEqual(x.ranksWithCopies,[3,5,7,8,12,14,21,22,26,32]);
   assert.equal(x.rows.reduce((n,r)=>n+r.publicPrizeGatedPhysicalCopies,0),15);
   assert.equal(x.rows.filter(r=>r.publicPrizeGatedPhysicalCopies>0).length,10);
