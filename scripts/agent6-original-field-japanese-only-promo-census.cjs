@@ -29,8 +29,17 @@ function auditJapaneseOnlyPromos(field,englishCardNames){
     throw new TypeError('Expected original source decks and an English-card-name Set');
   }
   const provenance=[];
+  const languageRows=new Map();
+  const languageCopies=new Map();
   for(const d of field.decks){
     for(const row of d.cards){
+      if(!Number.isSafeInteger(d.rank)||!Number.isSafeInteger(row.count)||
+        row.count<=0||typeof row.printing?.language!=='string'){
+        throw new TypeError('Invalid source rank, quantity, or language annotation');
+      }
+      const language=row.printing.language;
+      languageRows.set(language,(languageRows.get(language)||0)+1);
+      languageCopies.set(language,(languageCopies.get(language)||0)+row.count);
       const promo=PROMOS.find(p=>p.name===row.name &&
         p.set===row.printing?.set &&
         p.number===String(row.printing.number));
@@ -58,6 +67,8 @@ function auditJapaneseOnlyPromos(field,englishCardNames){
     knownMissingOriginalRanks:field.missing_full_lists.map(d=>d.rank),
     originalSourceRows:provenance.length,
     originalSourceCopies:provenance.reduce((sum,row)=>sum+row.copies,0),
+    allOriginalSourceLanguageTokenRows:Object.fromEntries([...languageRows].sort()),
+    allOriginalSourceLanguageTokenCopies:Object.fromEntries([...languageCopies].sort()),
     affectedRanks:[...new Set(provenance.map(r=>r.rank))].sort((a,b)=>a-b),
     byIdentity,provenance,
     scope:'Japanese promo print evidence; not original physical-language evidence, native card support, English Expanded legality, or match qualification'};
