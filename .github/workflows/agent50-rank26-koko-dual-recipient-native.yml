@@ -38,6 +38,8 @@ jobs:
         run: node --test tests/agent50-owner-starting-basic-choice.test.cjs
       - name: Original 29 source opening on-Bench Ability exact physical exposure
         run: node --test tests/agent50-opening-bench-trigger-exposure.test.cjs tests/agent50-structural-candidate-opening-exposure.test.cjs
+      - name: Agent50 opening hand combinatorics
+        run: node --test tests/agent50-setup-bench-occupancy-tradeoff.test.cjs
       - name: Issue25 opt-in owner-only preserved-Bench-entry opening comparison with pinned validator
         run: node --test tests/agent50-owner-preserve-turn-entry-setup.test.cjs tests/agent50-owner-preserve-turn-entry-setup.native.test.cjs
       - name: Issue25 opt-in owner-entry-priority real Store pair and pure noninterference
