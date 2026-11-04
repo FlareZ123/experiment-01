@@ -61,10 +61,15 @@ function probe(seat, targets, corrected) {
       return prize;
     });
   }
-  if (targets) {
-    actor.stadium.cards.push(card('Sky Field ROS'));
+  const categories = typeof targets === 'boolean'
+    ? {stadium: targets, tools: targets, special: targets}
+    : targets;
+  if (categories.stadium) actor.stadium.cards.push(card('Sky Field ROS'));
+  if (categories.tools) {
     opponent.active.tools.push(card('Stealthy Hood UNB'));
     bench.tools.push(card('Stealthy Hood UNB'));
+  }
+  if (categories.special) {
     const special = card('Speed Lightning Energy RCL');
     bench.cards.push(special);
     bench.energies.cards.push(special);
@@ -355,4 +360,34 @@ test('both seats reverse paid Switch before Megaton to avoid restored self Item 
     assert.equal(before.guardAudit.inspectedMegatonActions, 1);
     assert.equal(before.guardAudit.rejectedProvenNoEffect, 0);
   }
+});
+
+test('complete 2^3 public Megaton target-category truth table, both physical seats', () => {
+  const rows = [];
+  for (const seat of [0, 1]) {
+    for (let bits = 0; bits < 8; bits++) {
+      const targets = {
+        stadium: Boolean(bits & 1),
+        tools: Boolean(bits & 2),
+        special: Boolean(bits & 4)
+      };
+      const {result, audit} = withMegatonNoEffectRootGuard(() =>
+        probe(seat, targets, true));
+      const eligible = bits !== 0;
+      assert.equal(result.storeAccepted, eligible,
+        'Paper printed target gate: ' + JSON.stringify({seat, targets, result}));
+      assert.equal(result.handHasMegaton, !eligible);
+      assert.equal(result.discardHasMegaton, eligible);
+      assert.deepEqual(result.enemyTools, [0, 0]);
+      assert.equal(result.enemySpecialCards, 0);
+      assert.equal(result.stadiumCards, 0);
+      assert.equal(result.ownToolPreserved, true);
+      assert.deepEqual(result.unresolvedPrompts, []);
+      assert.equal(audit.inspectedMegatonActions, 1);
+      assert.equal(audit.rejectedProvenNoEffect, eligible ? 0 : 1);
+      rows.push({seat, bits, ...targets, eligible, audit});
+    }
+  }
+  console.log('AGENT1_MEGATON_TARGET_TRUTH_TABLE ' +
+    JSON.stringify({count:rows.length, rows}));
 });
